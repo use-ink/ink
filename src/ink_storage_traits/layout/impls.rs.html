@@ -247,19 +247,6 @@
 <a href="#246" id="246">246</a>
 <a href="#247" id="247">247</a>
 <a href="#248" id="248">248</a>
-<a href="#249" id="249">249</a>
-<a href="#250" id="250">250</a>
-<a href="#251" id="251">251</a>
-<a href="#252" id="252">252</a>
-<a href="#253" id="253">253</a>
-<a href="#254" id="254">254</a>
-<a href="#255" id="255">255</a>
-<a href="#256" id="256">256</a>
-<a href="#257" id="257">257</a>
-<a href="#258" id="258">258</a>
-<a href="#259" id="259">259</a>
-<a href="#260" id="260">260</a>
-<a href="#261" id="261">261</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -322,34 +309,6 @@
     bool, char, (),
     u8, u16, u32, u64, u128,
     i8, i16, i32, i64, i128,
-);
-
-<span class="macro">macro_rules! </span>impl_storage_layout_for_arrays {
-    ( $(<span class="macro-nonterminal">$len</span>:literal),* $(,)<span class="question-mark">? </span>) =&gt; {
-        $(
-            <span class="kw">impl</span>&lt;T&gt; StorageLayout <span class="kw">for </span>[T; <span class="macro-nonterminal">$len</span>]
-            <span class="kw">where
-                </span>T: StorageLayout + Packed,
-            {
-                <span class="kw">fn </span>layout(key: <span class="kw-2">&amp;</span>Key) -&gt; Layout {
-                    <span class="kw">let </span>len: u32 = <span class="macro-nonterminal">$len</span>;
-                    <span class="comment">// Generic type is packed, so it doesn&#39;t take any cell
-                    </span>Layout::Array(ArrayLayout::new(
-                        LayoutKey::from(key),
-                        len,
-                        &lt;T <span class="kw">as </span>StorageLayout&gt;::layout(<span class="kw-2">&amp;</span>key),
-                    ))
-                }
-            }
-        )*
-    };
-}
-<span class="attr">#[rustfmt::skip]
-</span><span class="macro">impl_storage_layout_for_arrays!</span>(
-         <span class="number">1</span>,  <span class="number">2</span>,  <span class="number">3</span>,  <span class="number">4</span>,  <span class="number">5</span>,  <span class="number">6</span>,  <span class="number">7</span>,  <span class="number">8</span>,  <span class="number">9</span>,
-    <span class="number">10</span>, <span class="number">11</span>, <span class="number">12</span>, <span class="number">13</span>, <span class="number">14</span>, <span class="number">15</span>, <span class="number">16</span>, <span class="number">17</span>, <span class="number">18</span>, <span class="number">19</span>,
-    <span class="number">20</span>, <span class="number">21</span>, <span class="number">22</span>, <span class="number">23</span>, <span class="number">24</span>, <span class="number">25</span>, <span class="number">26</span>, <span class="number">27</span>, <span class="number">28</span>, <span class="number">29</span>,
-    <span class="number">30</span>, <span class="number">31</span>, <span class="number">32</span>,
 );
 
 <span class="macro">macro_rules! </span>impl_layout_for_tuple {
@@ -424,6 +383,21 @@
     (I, <span class="number">8</span>),
     (J, <span class="number">9</span>)
 );
+
+<span class="kw">impl</span>&lt;T, <span class="kw">const </span>N: usize&gt; StorageLayout <span class="kw">for </span>[T; N]
+<span class="kw">where
+    </span>T: StorageLayout + Packed,
+{
+    <span class="kw">fn </span>layout(key: <span class="kw-2">&amp;</span>Key) -&gt; Layout {
+        <span class="kw">let </span>len: u32 = N <span class="kw">as </span>u32;
+        <span class="comment">// Generic type is packed, so it doesn&#39;t take any cell
+        </span>Layout::Array(ArrayLayout::new(
+            LayoutKey::from(key),
+            len,
+            &lt;T <span class="kw">as </span>StorageLayout&gt;::layout(key),
+        ))
+    }
+}
 
 <span class="kw">impl</span>&lt;T&gt; StorageLayout <span class="kw">for </span>Box&lt;T&gt;
 <span class="kw">where
