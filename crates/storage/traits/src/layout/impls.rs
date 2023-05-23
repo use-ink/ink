@@ -145,7 +145,7 @@ where
         Layout::Array(ArrayLayout::new(
             LayoutKey::from(key),
             len,
-            <T as StorageLayout>::layout(&key),
+            <T as StorageLayout>::layout(key),
         ))
     }
 }
