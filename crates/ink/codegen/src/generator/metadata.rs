@@ -372,51 +372,6 @@ impl Metadata<'_> {
         )
     }
 
-    /// Generates ink! metadata for all user provided ink! event definitions.
-    fn generate_events(&self) -> impl Iterator<Item = TokenStream2> + '_ {
-        self.contract.module().events().map(|event| {
-            let span = event.span();
-            let ident = event.ident();
-            let docs = event.attrs().iter().filter_map(|attr| attr.extract_docs());
-            let args = Self::generate_event_args(event);
-            let cfg_attrs = event.get_cfg_attrs(span);
-            quote_spanned!(span =>
-                #( #cfg_attrs )*
-                ::ink::metadata::EventSpec::new(::core::stringify!(#ident))
-                    .args([
-                        #( #args ),*
-                    ])
-                    .docs([
-                        #( #docs ),*
-                    ])
-                    .done()
-            )
-        })
-    }
-
-    /// Generate ink! metadata for a single argument of an ink! event definition.
-    fn generate_event_args(event: &ir::Event) -> impl Iterator<Item = TokenStream2> + '_ {
-        event.fields().map(|event_field| {
-            let span = event_field.span();
-            let ident = event_field.ident();
-            let is_topic = event_field.is_topic;
-            let docs = event_field
-                .attrs()
-                .into_iter()
-                .filter_map(|attr| attr.extract_docs());
-            let ty = Self::generate_type_spec(event_field.ty());
-            quote_spanned!(span =>
-                ::ink::metadata::EventParamSpec::new(::core::stringify!(#ident))
-                    .of_type(#ty)
-                    .indexed(#is_topic)
-                    .docs([
-                        #( #docs ),*
-                    ])
-                    .done()
-            )
-        })
-    }
-
     fn generate_environment(&self) -> TokenStream2 {
         let span = self.contract.module().span();
 

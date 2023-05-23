@@ -13,10 +13,7 @@
 // limitations under the License.
 
 use proc_macro2::TokenStream as TokenStream2;
-use quote::{
-    quote,
-    quote_spanned,
-};
+use quote::quote_spanned;
 use syn::spanned::Spanned;
 
 /// Derives the `ink::Event` trait for the given `struct`.
@@ -33,7 +30,7 @@ pub fn event_metadata_derive(mut s: synstructure::Structure) -> TokenStream2 {
 }
 
 /// `Event` derive implementation for `struct` types.
-fn event_metadata_derive_struct(mut s: synstructure::Structure) -> TokenStream2 {
+fn event_metadata_derive_struct(s: synstructure::Structure) -> TokenStream2 {
     assert_eq!(s.variants().len(), 1, "can only operate on structs");
     let span = s.ast().span();
 
@@ -41,8 +38,8 @@ fn event_metadata_derive_struct(mut s: synstructure::Structure) -> TokenStream2 
     let ident = variant.ast().ident;
 
     s.bound_impl(
-        quote!(::ink::metadata::EventMetadata),
-        quote! {
+        quote_spanned!(span=> ::ink::metadata::EventMetadata),
+        quote_spanned!(span=>
            fn event_spec() -> ::ink::metadata::EventSpec {
                // register this event metadata function in the distributed slice for combining all
                // events referenced in the contract binary.
@@ -64,6 +61,6 @@ fn event_metadata_derive_struct(mut s: synstructure::Structure) -> TokenStream2 
                        ])
                        .done()
            }
-        },
+        ),
     )
 }
