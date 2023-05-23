@@ -34,7 +34,8 @@ fn unit_struct_works() {
                     type RemainingTopics = [::ink::env::topics::state::HasRemainingTopics; 1usize];
 
                     const TOPICS_LEN: usize = 1usize;
-                    const SIGNATURE_TOPIC: ::core::option::Option<[::core::primitive::u8; 32]> = None;
+                    const SIGNATURE_TOPIC: ::core::option::Option<[::core::primitive::u8; 32]> =
+                        ::core::option::Option::Some( ::ink::blake2x256!("UnitStruct()") );
 
                     fn topics<const MAX_TOPICS: usize, E, B>(
                         &self,

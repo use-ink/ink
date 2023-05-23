@@ -76,8 +76,8 @@ fn event_derive_struct(mut s: synstructure::Structure) -> TokenStream2 {
 
     let event_ident = variant.ast().ident;
     let signature_topic = if !anonymous {
-        let topic_bytes = signature_topic(variant.ast().fields, event_ident);
-        quote_spanned!(span=> ::core::option::Option::Some([ #( #topic_bytes ),* ]))
+        let topic_str = signature_topic(variant.ast().fields, event_ident);
+        quote_spanned!(span=> ::core::option::Option::Some(::ink::blake2x256!(#topic_str)))
     } else {
         quote_spanned!(span=> None)
     };
@@ -136,10 +136,7 @@ fn event_derive_struct(mut s: synstructure::Structure) -> TokenStream2 {
 /// The signature topic of an event variant.
 ///
 /// Calculated with `blake2b("Event(field1_type,field2_type)")`.
-pub fn signature_topic(
-    fields: &syn::Fields,
-    event_ident: &syn::Ident,
-) -> [syn::LitInt; 32] {
+pub fn signature_topic(fields: &syn::Fields, event_ident: &syn::Ident) -> syn::LitStr {
     let fields = fields
         .iter()
         .map(|field| {
@@ -150,8 +147,5 @@ pub fn signature_topic(
         .collect::<Vec<_>>()
         .join(",");
     let topic_str = format!("{}({fields})", event_ident);
-    let input = topic_str.as_bytes();
-    let mut output = [0; 32];
-    ink_ir::blake2b_256(&input, &mut output);
-    output.map(<u8 as ink_ir::HexLiteral>::hex_padded_suffixed)
+    syn::parse_quote!( #topic_str )
 }
