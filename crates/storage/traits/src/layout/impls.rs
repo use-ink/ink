@@ -62,34 +62,6 @@ impl_storage_layout_for_primitives!(
     i8, i16, i32, i64, i128,
 );
 
-macro_rules! impl_storage_layout_for_arrays {
-    ( $($len:literal),* $(,)? ) => {
-        $(
-            impl<T> StorageLayout for [T; $len]
-            where
-                T: StorageLayout + Packed,
-            {
-                fn layout(key: &Key) -> Layout {
-                    let len: u32 = $len;
-                    // Generic type is packed, so it doesn't take any cell
-                    Layout::Array(ArrayLayout::new(
-                        LayoutKey::from(key),
-                        len,
-                        <T as StorageLayout>::layout(&key),
-                    ))
-                }
-            }
-        )*
-    };
-}
-#[rustfmt::skip]
-impl_storage_layout_for_arrays!(
-         1,  2,  3,  4,  5,  6,  7,  8,  9,
-    10, 11, 12, 13, 14, 15, 16, 17, 18, 19,
-    20, 21, 22, 23, 24, 25, 26, 27, 28, 29,
-    30, 31, 32,
-);
-
 macro_rules! impl_layout_for_tuple {
     ( $(($frag:ident, $id:literal)),* $(,)? ) => {
         const _: () = {
@@ -162,6 +134,21 @@ impl_layout_for_tuple!(
     (I, 8),
     (J, 9)
 );
+
+impl<T, const N: usize> StorageLayout for [T; N]
+where
+    T: StorageLayout + Packed,
+{
+    fn layout(key: &Key) -> Layout {
+        let len: u32 = N as u32;
+        // Generic type is packed, so it doesn't take any cell
+        Layout::Array(ArrayLayout::new(
+            LayoutKey::from(key),
+            len,
+            <T as StorageLayout>::layout(&key),
+        ))
+    }
+}
 
 impl<T> StorageLayout for Box<T>
 where
