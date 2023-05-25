@@ -1284,7 +1284,7 @@ pub fn chain_extension(attr: TokenStream, item: TokenStream) -> TokenStream {
 }
 
 synstructure::decl_derive!(
-    [Event] =>
+    [Event, attributes(ink)] =>
     /// todo
     event::event_derive
 );

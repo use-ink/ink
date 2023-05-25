@@ -29,19 +29,68 @@ pub fn event_derive(mut s: synstructure::Structure) -> TokenStream2 {
         .add_bounds(synstructure::AddBounds::Fields)
         .underscore_const(true);
     match &s.ast().data {
-        syn::Data::Struct(_) => event_derive_struct(s),
+        syn::Data::Struct(_) => {
+            event_derive_struct(s).unwrap_or_else(|err| err.to_compile_error())
+        }
         _ => {
-            panic!("can only derive `Event` for Rust `struct` items")
+            syn::Error::new(
+                s.ast().span(),
+                "can only derive `Event` for Rust `struct` items",
+            )
+            .to_compile_error()
         }
     }
 }
 
 /// `Event` derive implementation for `struct` types.
-fn event_derive_struct(mut s: synstructure::Structure) -> TokenStream2 {
+fn event_derive_struct(mut s: synstructure::Structure) -> syn::Result<TokenStream2> {
     assert_eq!(s.variants().len(), 1, "can only operate on structs");
     let span = s.ast().span();
 
-    let anonymous = false; // todo read from struct attribute e.g. #[event(anonymous)]
+    let ink_attrs = s
+        .ast()
+        .attrs
+        .iter()
+        .filter_map(|attr| {
+            if attr.path().is_ident("ink") {
+                Some(attr)
+            } else {
+                None
+            }
+        })
+        .collect::<Vec<_>>();
+
+    // todo: check for duplicates
+    // todo: check only anonymous allowed on outer.
+
+    let anonymous_attrs: Vec<_> = ink_attrs
+        .iter()
+        .map(|attr| {
+            attr.parse_nested_meta(|meta| {
+                if meta.path.is_ident("anonymous") {
+                    Ok(())
+                } else {
+                    Err(meta.error("Only `#[ink(anonymous)]` attribute is allowed."))
+                }
+            })
+        })
+        .collect::<syn::Result<_>>()?;
+
+    // if anonymous_attrs.len() != ink_attrs.len() {
+    //     return syn::Error::new(
+    //         span,
+    //         "Only `#[ink(anonymous)]` attribute is allowed.",
+    //     ).to_compile_error()
+    // }
+    //
+    // if anonymous_attrs.len() > 1 {
+    //     return syn::Error::new(
+    //         span,
+    //         "Only one `#[ink(anonymous)]` attribute is allowed.",
+    //     ).to_compile_error()
+    // }
+
+    let anonymous = !anonymous_attrs.is_empty();
 
     // let decode_body = variant.construct(|field, _index| {
     //     let ty = &field.ty;
@@ -79,7 +128,7 @@ fn event_derive_struct(mut s: synstructure::Structure) -> TokenStream2 {
         let topic_str = signature_topic(variant.ast().fields, event_ident);
         quote_spanned!(span=> ::core::option::Option::Some(::ink::blake2x256!(#topic_str)))
     } else {
-        quote_spanned!(span=> None)
+        quote_spanned!(span=> ::core::option::Option::None)
     };
     let event_signature_topic = if anonymous {
         None
@@ -108,7 +157,7 @@ fn event_derive_struct(mut s: synstructure::Structure) -> TokenStream2 {
         }
     );
 
-    s.bound_impl(quote!(::ink::env::Topics), quote! {
+    Ok(s.bound_impl(quote!(::ink::env::Topics), quote! {
         type RemainingTopics = #remaining_topics_ty;
 
         const TOPICS_LEN: usize = #len_topics;
@@ -130,7 +179,7 @@ fn event_derive_struct(mut s: synstructure::Structure) -> TokenStream2 {
                 #topics_builder
             }
         }
-     })
+     }))
 }
 
 /// The signature topic of an event variant.

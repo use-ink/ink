@@ -61,3 +61,43 @@ fn unit_struct_works() {
         }
     }
 }
+
+#[test]
+fn unit_struct_anonymous_has_no_topics() {
+    crate::test_derive! {
+        event_derive {
+            #[ink(anonymous)]
+            struct UnitStruct;
+        }
+        expands to {
+            const _: () = {
+                impl ::ink::env::Topics for UnitStruct {
+                    type RemainingTopics = ::ink::env::topics::state::NoRemainingTopics;
+
+                    const TOPICS_LEN: usize = 0usize;
+                    const SIGNATURE_TOPIC: ::core::option::Option<[::core::primitive::u8; 32]> =
+                        ::core::option::Option::None;
+
+                    fn topics<const MAX_TOPICS: usize, E, B>(
+                        &self,
+                        builder: ::ink::env::topics::TopicsBuilder<::ink::env::topics::state::Uninit, E, B>,
+                    ) -> <B as ::ink::env::topics::TopicsBuilderBackend<E>>::Output
+                    where
+                        E: ::ink::env::Environment,
+                        B: ::ink::env::topics::TopicsBuilderBackend<E>,
+                    {
+                        let _ = ::ink::codegen::EventRespectsTopicLimit::<{ Self::TOPICS_LEN }, { MAX_TOPICS }>::ASSERT;
+
+                        match self {
+                            UnitStruct => {
+                                builder
+                                    .build::<Self>()
+                                    .finish()
+                            }
+                        }
+                    }
+                }
+            };
+        } no_build
+    }
+}
