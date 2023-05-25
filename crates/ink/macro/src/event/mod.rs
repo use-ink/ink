@@ -88,7 +88,9 @@ fn event_derive_struct(mut s: synstructure::Structure) -> syn::Result<TokenStrea
 
     let remaining_topics_ty = match len_topics {
         0 => quote_spanned!(span=> ::ink::env::topics::state::NoRemainingTopics),
-        n => quote_spanned!(span=> [::ink::env::topics::state::HasRemainingTopics; #n]),
+        _ => {
+            quote_spanned!(span=> [::ink::env::topics::state::HasRemainingTopics; Self::TOPICS_LEN])
+        }
     };
 
     let event_ident = variant.ast().ident;

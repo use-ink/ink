@@ -31,7 +31,7 @@ fn unit_struct_works() {
         expands to {
             const _: () = {
                 impl ::ink::env::Topics for UnitStruct {
-                    type RemainingTopics = [::ink::env::topics::state::HasRemainingTopics; 1usize];
+                    type RemainingTopics = [::ink::env::topics::state::HasRemainingTopics; Self::TOPICS_LEN];
 
                     const TOPICS_LEN: usize = 1usize;
                     const SIGNATURE_TOPIC: ::core::option::Option<[::core::primitive::u8; 32]> =
@@ -115,7 +115,7 @@ fn struct_with_fields_no_topics() {
         expands to {
             const _: () = {
                 impl ::ink::env::Topics for Event {
-                    type RemainingTopics = [::ink::env::topics::state::HasRemainingTopics; 1usize];
+                    type RemainingTopics = [::ink::env::topics::state::HasRemainingTopics; Self::TOPICS_LEN];
 
                     const TOPICS_LEN: usize = 1usize;
                     const SIGNATURE_TOPIC: ::core::option::Option<[::core::primitive::u8; 32]> =
@@ -161,7 +161,7 @@ fn struct_with_fields_and_some_topics() {
         expands to {
             const _: () = {
                 impl ::ink::env::Topics for Event {
-                    type RemainingTopics = [::ink::env::topics::state::HasRemainingTopics; 3usize];
+                    type RemainingTopics = [::ink::env::topics::state::HasRemainingTopics; Self::TOPICS_LEN];
 
                     const TOPICS_LEN: usize = 3usize;
                     const SIGNATURE_TOPIC: ::core::option::Option<[::core::primitive::u8; 32]> =
