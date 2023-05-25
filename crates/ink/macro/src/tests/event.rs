@@ -101,3 +101,95 @@ fn unit_struct_anonymous_has_no_topics() {
         } no_build
     }
 }
+
+#[test]
+fn struct_with_fields_no_topics() {
+    crate::test_derive! {
+        event_derive {
+            struct Event {
+                field_1: u32,
+                field_2: u64,
+                field_3: u128,
+            }
+        }
+        expands to {
+            const _: () = {
+                impl ::ink::env::Topics for Event {
+                    type RemainingTopics = [::ink::env::topics::state::HasRemainingTopics; 1usize];
+
+                    const TOPICS_LEN: usize = 1usize;
+                    const SIGNATURE_TOPIC: ::core::option::Option<[::core::primitive::u8; 32]> =
+                        ::core::option::Option::Some( ::ink::blake2x256!("Event(u32,u64,u128)") );
+
+                    fn topics<const MAX_TOPICS: usize, E, B>(
+                        &self,
+                        builder: ::ink::env::topics::TopicsBuilder<::ink::env::topics::state::Uninit, E, B>,
+                    ) -> <B as ::ink::env::topics::TopicsBuilderBackend<E>>::Output
+                    where
+                        E: ::ink::env::Environment,
+                        B: ::ink::env::topics::TopicsBuilderBackend<E>,
+                    {
+                        let _ = ::ink::codegen::EventRespectsTopicLimit::<{ Self::TOPICS_LEN }, { MAX_TOPICS }>::ASSERT;
+
+                        match self {
+                            Event { .. } => {
+                                builder
+                                    .build::<Self>()
+                                    .push_topic(&Self::SIGNATURE_TOPIC.expect("non-anonymous events must have a signature topic"))
+                                    .finish()
+                            }
+                        }
+                    }
+                }
+            };
+        }
+    }
+}
+
+#[test]
+fn struct_with_fields_and_some_topics() {
+    crate::test_derive! {
+        event_derive {
+            struct Event {
+                field_1: u32,
+                #[ink(topic)]
+                field_2: u64,
+                #[ink(topic)]
+                field_3: u128,
+            }
+        }
+        expands to {
+            const _: () = {
+                impl ::ink::env::Topics for Event {
+                    type RemainingTopics = [::ink::env::topics::state::HasRemainingTopics; 3usize];
+
+                    const TOPICS_LEN: usize = 3usize;
+                    const SIGNATURE_TOPIC: ::core::option::Option<[::core::primitive::u8; 32]> =
+                        ::core::option::Option::Some( ::ink::blake2x256!("Event(u32,u64,u128)") );
+
+                    fn topics<const MAX_TOPICS: usize, E, B>(
+                        &self,
+                        builder: ::ink::env::topics::TopicsBuilder<::ink::env::topics::state::Uninit, E, B>,
+                    ) -> <B as ::ink::env::topics::TopicsBuilderBackend<E>>::Output
+                    where
+                        E: ::ink::env::Environment,
+                        B: ::ink::env::topics::TopicsBuilderBackend<E>,
+                    {
+                        let _ = ::ink::codegen::EventRespectsTopicLimit::<{ Self::TOPICS_LEN }, { MAX_TOPICS }>::ASSERT;
+
+                        match self {
+                            Event { field_2 : __binding_1 , field_3 : __binding_2 , .. } => {
+                                builder
+                                    .build::<Self>()
+                                    .push_topic(&Self::SIGNATURE_TOPIC.expect("non-anonymous events must have a signature topic"))
+                                    .push_topic::<u64>(__binding_1)
+                                    .push_topic::<u128>(__binding_2)
+                                    .finish()
+                            }
+                        }
+                    }
+                }
+            };
+        } no_build
+    }
+}

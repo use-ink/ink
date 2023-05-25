@@ -47,50 +47,7 @@ fn event_derive_struct(mut s: synstructure::Structure) -> syn::Result<TokenStrea
     assert_eq!(s.variants().len(), 1, "can only operate on structs");
     let span = s.ast().span();
 
-    let ink_attrs = s
-        .ast()
-        .attrs
-        .iter()
-        .filter_map(|attr| {
-            if attr.path().is_ident("ink") {
-                Some(attr)
-            } else {
-                None
-            }
-        })
-        .collect::<Vec<_>>();
-
-    // todo: check for duplicates
-    // todo: check only anonymous allowed on outer.
-
-    let anonymous_attrs: Vec<_> = ink_attrs
-        .iter()
-        .map(|attr| {
-            attr.parse_nested_meta(|meta| {
-                if meta.path.is_ident("anonymous") {
-                    Ok(())
-                } else {
-                    Err(meta.error("Only `#[ink(anonymous)]` attribute is allowed."))
-                }
-            })
-        })
-        .collect::<syn::Result<_>>()?;
-
-    // if anonymous_attrs.len() != ink_attrs.len() {
-    //     return syn::Error::new(
-    //         span,
-    //         "Only `#[ink(anonymous)]` attribute is allowed.",
-    //     ).to_compile_error()
-    // }
-    //
-    // if anonymous_attrs.len() > 1 {
-    //     return syn::Error::new(
-    //         span,
-    //         "Only one `#[ink(anonymous)]` attribute is allowed.",
-    //     ).to_compile_error()
-    // }
-
-    let anonymous = !anonymous_attrs.is_empty();
+    let anonymous = has_ink_attribute(&s.ast().attrs, "anonymous")?;
 
     // let decode_body = variant.construct(|field, _index| {
     //     let ty = &field.ty;
@@ -105,12 +62,23 @@ fn event_derive_struct(mut s: synstructure::Structure) -> syn::Result<TokenStrea
     //         ::ink::storage::traits::Storable::encode(#binding, __dest);
     //     )
     // });
+
+    let mut topic_err: Option<syn::Error> = None;
     s.variants_mut()[0].filter(|bi| {
-        bi.ast()
-            .attrs
-            .iter()
-            .any(|attr| attr.path().is_ident("topic"))
+        match has_ink_attribute(&bi.ast().attrs, "topic") {
+            Ok(has_attr) => has_attr,
+            Err(err) => {
+                match topic_err {
+                    Some(ref mut topic_err) => topic_err.combine(err),
+                    None => topic_err = Some(err),
+                }
+                false
+            }
+        }
     });
+    if let Some(err) = topic_err {
+        return Err(err)
+    }
 
     let variant = &s.variants()[0];
 
@@ -138,7 +106,6 @@ fn event_derive_struct(mut s: synstructure::Structure) -> syn::Result<TokenStrea
         ))
     };
 
-    let pat = variant.pat();
     let topics = variant.bindings().iter().fold(quote!(), |acc, field| {
         let field_ty = &field.ast().ty;
         let field_span = field_ty.span();
@@ -147,6 +114,7 @@ fn event_derive_struct(mut s: synstructure::Structure) -> syn::Result<TokenStrea
             .push_topic::<#field_ty>(#field)
         )
     });
+    let pat = variant.pat();
     let topics_builder = quote!(
         #pat => {
             builder
@@ -185,7 +153,7 @@ fn event_derive_struct(mut s: synstructure::Structure) -> syn::Result<TokenStrea
 /// The signature topic of an event variant.
 ///
 /// Calculated with `blake2b("Event(field1_type,field2_type)")`.
-pub fn signature_topic(fields: &syn::Fields, event_ident: &syn::Ident) -> syn::LitStr {
+fn signature_topic(fields: &syn::Fields, event_ident: &syn::Ident) -> syn::LitStr {
     let fields = fields
         .iter()
         .map(|field| {
@@ -197,4 +165,27 @@ pub fn signature_topic(fields: &syn::Fields, event_ident: &syn::Ident) -> syn::L
         .join(",");
     let topic_str = format!("{}({fields})", event_ident);
     syn::parse_quote!( #topic_str )
+}
+
+/// Checks if the given attributes contain an `ink` attribute with the given path.
+fn has_ink_attribute(attrs: &[syn::Attribute], path: &str) -> syn::Result<bool> {
+    let ink_attrs: Vec<_> = attrs
+        .iter()
+        .filter_map(|attr| {
+            if attr.path().is_ident("ink") {
+                Some(attr.parse_nested_meta(|meta| {
+                    if meta.path.is_ident(path) {
+                        Ok(())
+                    } else {
+                        Err(meta
+                            .error(format!("Only `#[ink({path})]` attribute allowed.")))
+                    }
+                }))
+            } else {
+                None
+            }
+        })
+        .collect::<syn::Result<_>>()?;
+    // todo: check only one
+    Ok(!ink_attrs.is_empty())
 }
