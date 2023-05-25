@@ -111,7 +111,9 @@ where
     where
         T: scale::Encode,
     {
-        self.backend.push_topic(value);
+        if crate::is_option_type!(T) && !crate::is_option_none!(value) {
+            self.backend.push_topic(value);
+        }
         TopicsBuilder {
             backend: self.backend,
             state: Default::default(),

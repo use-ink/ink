@@ -2,8 +2,6 @@
 
 #[ink::contract]
 pub mod events {
-    use event_def::Flipped;
-
     #[ink(storage)]
     pub struct Events {
         value: bool,
@@ -20,20 +18,51 @@ pub mod events {
         #[ink(message)]
         pub fn flip(&mut self) {
             self.value = !self.value;
-            self.env().emit_event(Flipped { flipped: self.value })
+            self.env().emit_event(event_def::Flipped { flipped: self.value })
+        }
+
+        /// Emit an event with a 32 byte topic.
+        #[ink(message)]
+        pub fn emit_32_byte_topic_event(&mut self, maybe_hash: Option<[u8; 32]>) {
+            self.env().emit_event(event_def::ThirtyTwoByteTopics {
+                hash: [0x42; 32],
+                maybe_hash,
+            })
         }
     }
 
     #[cfg(test)]
     mod tests {
         use super::*;
+        use scale::Decode as _;
 
         #[ink::test]
         fn it_works() {
             let mut events = Events::new(false);
             events.flip();
-            // todo: check events.
+
+            let emitted_events = ink::env::test::recorded_events().collect::<Vec<_>>();
+            assert_eq!(1, emitted_events.len());
+            let event = &emitted_events[0];
+
+            let decoded_event = <event_def::Flipped>::decode(&mut &event.data[..])
+                .expect("encountered invalid contract event data buffer");
+            assert_eq!(decoded_event.flipped, true);
         }
+
+        // #[ink::test]
+        // fn option_topic_some_has_topic() {
+        //     let mut events = Events::new(false);
+        //     events.emit_32_byte_topic_event();
+        //     // todo: check events.
+        // }
+        //
+        // #[ink::test]
+        // fn option_topic_none_missing_topic() {
+        //     let mut events = Events::new(false);
+        //     events.emit_32_byte_topic_event();
+        //     // todo: check events.
+        // }
     }
 
     #[cfg(all(test, feature = "e2e-tests"))]
