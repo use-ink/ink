@@ -51,7 +51,7 @@ fn unit_struct_works() {
                             UnitStruct => {
                                 builder
                                     .build::<Self>()
-                                    .push_topic(&Self::SIGNATURE_TOPIC.expect("non-anonymous events must have a signature topic"))
+                                    .push_topic(Self::SIGNATURE_TOPIC.as_ref())
                                     .finish()
                             }
                         }
@@ -135,7 +135,7 @@ fn struct_with_fields_no_topics() {
                             Event { .. } => {
                                 builder
                                     .build::<Self>()
-                                    .push_topic(&Self::SIGNATURE_TOPIC.expect("non-anonymous events must have a signature topic"))
+                                    .push_topic(Self::SIGNATURE_TOPIC.as_ref())
                                     .finish()
                             }
                         }
@@ -181,9 +181,9 @@ fn struct_with_fields_and_some_topics() {
                             Event { field_2 : __binding_1 , field_3 : __binding_2 , .. } => {
                                 builder
                                     .build::<Self>()
-                                    .push_topic(&Self::SIGNATURE_TOPIC.expect("non-anonymous events must have a signature topic"))
-                                    .push_topic::<u64>(__binding_1)
-                                    .push_topic::<u128>(__binding_2)
+                                    .push_topic(Self::SIGNATURE_TOPIC.as_ref())
+                                    .push_topic(::ink::as_option!(__binding_1))
+                                    .push_topic(::ink::as_option!(__binding_2))
                                     .finish()
                             }
                         }

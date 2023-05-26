@@ -59,8 +59,6 @@ macro_rules! as_option {
 
 #[cfg(test)]
 mod tests {
-    use std::fmt::Debug;
-
     #[test]
     fn as_option_works() {
         assert_eq!(Some(&true), as_option!(true));
