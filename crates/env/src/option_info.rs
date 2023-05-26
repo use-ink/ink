@@ -45,8 +45,8 @@ impl<T> AsOptionFallback<T> for AsOption<'_, T> {
 macro_rules! as_option {
     ( $e:expr $(,)? ) => {{
         #[allow(unused_imports)]
-        use $crate::option_info::IsOptionNoneFallback as _;
-        $crate::option_info::IsOptionNone(&$e).value()
+        use $crate::option_info::AsOptionFallback as _;
+        $crate::option_info::AsOption(&$e).value()
     }};
 }
 
