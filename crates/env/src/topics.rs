@@ -111,8 +111,9 @@ where
     where
         T: scale::Encode,
     {
-        if crate::is_option_type!(T) && !crate::is_option_none!(value) {
-            self.backend.push_topic(value);
+        // Only publish the topic if it is not an `Option::None`.
+        if let Some(topic) = crate::as_option!(value) {
+            self.backend.push_topic(topic);
         }
         TopicsBuilder {
             backend: self.backend,

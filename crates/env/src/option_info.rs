@@ -12,64 +12,37 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-pub struct IsOptionType<T> {
-    marker: core::marker::PhantomData<fn() -> T>,
-}
+pub struct AsOption<'lt, T>(pub &'lt T);
 
-impl<T> IsOptionType<::core::option::Option<T>> {
-    // We need to allow for dead code at this point because
-    // the Rust compiler thinks this function is unused even
-    // though it acts as the specialized case for detection.
-    #[allow(dead_code)]
-    pub const VALUE: bool = true;
-}
-
-pub trait IsOptionTypeFallback {
-    const VALUE: bool = false;
-}
-impl<T> IsOptionTypeFallback for IsOptionType<T> {}
-
-/// Returns `true` if the given type is a `Result` type.
-#[macro_export]
-#[doc(hidden)]
-macro_rules! is_option_type {
-    ( $T:ty $(,)? ) => {{
-        #[allow(unused_imports)]
-        use $crate::option_info::IsOptionTypeFallback as _;
-
-        $crate::option_info::IsOptionType::<$T>::VALUE
-    }};
-}
-
-pub struct IsOptionNone<'lt, T>(pub &'lt T);
-
-impl<T> IsOptionNone<'_, ::core::option::Option<T>> {
+impl<T> AsOption<'_, ::core::option::Option<T>> {
     #[inline]
     // We need to allow for dead code at this point because
     // the Rust compiler thinks this function is unused even
     // though it acts as the specialized case for detection.
     #[allow(dead_code)]
-    pub fn value(&self) -> bool {
-        self.0.is_none()
+    pub fn value(&self) -> Option<&T> {
+        self.0.as_ref()
     }
 }
 
-pub trait IsOptionNoneFallback {
+pub trait AsOptionFallback<T> {
+    fn value(&self) -> Option<&T>;
+}
+impl<T> AsOptionFallback<T> for AsOption<'_, T> {
     #[inline]
-    fn value(&self) -> bool {
-        false
+    fn value(&self) -> Option<&T> {
+        Some(&self.0)
     }
 }
-impl<T> IsOptionNoneFallback for IsOptionNone<'_, T> {}
 
-/// Evaluates to `true` if the given expression is a `Option::None`.
+/// Evaluates to `None` if the given expression is a `Option::None`.
 ///
 /// # Note
 ///
-/// This given expression is not required to be of type `Result`.
+/// This given expression is not required to be of type `Option`.
 #[macro_export]
 #[doc(hidden)]
-macro_rules! is_option_none {
+macro_rules! as_option {
     ( $e:expr $(,)? ) => {{
         #[allow(unused_imports)]
         use $crate::option_info::IsOptionNoneFallback as _;
@@ -80,39 +53,16 @@ macro_rules! is_option_none {
 #[cfg(test)]
 mod tests {
     #[test]
-    fn is_option_type_works() {
-        assert!(!is_option_type!(bool));
-        assert!(!is_option_type!(String));
-        assert!(!is_option_type!(Result<i32, u32>));
+    fn as_option_works() {
+        assert_eq!(Some(&true), as_option!(true));
+        assert_eq!(Some(&42), as_option!(42));
+        assert_eq!(Some(&"Hello, World!"), as_option!("Hello, World!"));
 
-        assert!(is_option_type!(Option<()>));
-        assert!(is_option_type!(Option<i32>));
-        assert!(is_option_type!(Option<String>));
-        assert!(is_option_type!(Option<&str>));
+        assert_eq!(Some(&()), as_option!(Some(())));
+        assert_eq!(Some(&5), as_option!(Some(5)));
+        assert_eq!(Some(&true), as_option!(Some(true)));
 
-        assert!(is_option_type!(Option<Option<()>>));
-        assert!(is_option_type!(Option<(Option<()>, Option<()>)>));
-
-        // Check that type aliases work, too.
-        type MyOption = Option<()>;
-        assert!(is_option_type!(MyOption));
-    }
-
-    #[test]
-    fn is_option_none_works() {
-        assert!(!is_option_none!(true));
-        assert!(!is_option_none!(42));
-        assert!(!is_option_none!("Hello, World!"));
-
-        assert!(!is_option_none!(Some(())));
-        assert!(!is_option_none!(Some(5)));
-        assert!(!is_option_none!(Some(true)));
-
-        assert!(is_option_none!(Option::<u32>::None));
-        {
-            // Check that we do not simply check against `Option` as identifier.
-            type Option = Result<(), ()>;
-            assert!(!is_option_type!(Option));
-        }
+        assert_eq!(None, as_option!(Option::<u32>::None));
+        assert_eq!(None, as_option!(Option::<bool>::None));
     }
 }
