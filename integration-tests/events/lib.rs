@@ -73,12 +73,21 @@ pub mod events {
             );
         }
 
-        // #[ink::test]
-        // fn option_topic_none_missing_topic() {
-        //     let mut events = Events::new(false);
-        //     events.emit_32_byte_topic_event();
-        //     // todo: check events.
-        // }
+        #[ink::test]
+        fn option_topic_none_missing_topic() {
+            let mut events = Events::new(false);
+            events.emit_32_byte_topic_event(None);
+
+            let emitted_events = ink::env::test::recorded_events().collect::<Vec<_>>();
+            assert_eq!(1, emitted_events.len());
+            let event = &emitted_events[0];
+
+            assert_eq!(
+                event.topics.len(),
+                2,
+                "option topic should *not* be published"
+            );
+        }
     }
 
     #[cfg(all(test, feature = "e2e-tests"))]
