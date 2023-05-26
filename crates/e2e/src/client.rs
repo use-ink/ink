@@ -16,7 +16,6 @@ use super::{
     builders::{
         constructor_exec_input,
         CreateBuilderPartial,
-        Message,
     },
     log_error,
     log_info,
@@ -27,10 +26,23 @@ use super::{
     ContractsApi,
     Signer,
 };
-use ink_env::Environment;
+use ink::codegen::ContractCallBuilder;
+use ink_env::{
+    call::{
+        utils::{
+            ReturnType,
+            Set,
+        },
+        Call,
+        ExecutionInput,
+        FromAccountId,
+    },
+    Environment,
+};
 use ink_primitives::MessageResult;
 use pallet_contracts_primitives::ExecReturnValue;
 use sp_core::Pair;
+#[cfg(feature = "std")]
 use std::{
     collections::BTreeMap,
     fmt::Debug,
@@ -42,13 +54,25 @@ use subxt::{
     blocks::ExtrinsicEvents,
     config::ExtrinsicParams,
     events::EventDetails,
-    ext::scale_value::{
-        Composite,
-        Value,
-        ValueDef,
+    ext::{
+        scale_decode,
+        scale_encode,
+        scale_value::{
+            Composite,
+            Value,
+            ValueDef,
+        },
     },
     tx::PairSigner,
 };
+
+/// Represents an initialized contract message builder.
+pub type CallBuilderFinal<E, Args, RetType> = ink_env::call::CallBuilder<
+    E,
+    Set<Call<E>>,
+    Set<ExecutionInput<Args>>,
+    Set<ReturnType<RetType>>,
+>;
 
 /// Result of a contract instantiation.
 pub struct InstantiationResult<C: subxt::Config, E: Environment> {
@@ -59,6 +83,22 @@ pub struct InstantiationResult<C: subxt::Config, E: Environment> {
     pub dry_run: ContractInstantiateResult<C::AccountId, E::Balance>,
     /// Events that happened with the contract instantiation.
     pub events: ExtrinsicEvents<C>,
+}
+
+impl<C, E> InstantiationResult<C, E>
+where
+    C: subxt::Config,
+    E: Environment,
+{
+    pub fn call<Contract>(&self) -> <Contract as ContractCallBuilder>::Type
+    where
+        Contract: ContractCallBuilder,
+        <Contract as ContractCallBuilder>::Type: FromAccountId<E>,
+    {
+        <<Contract as ContractCallBuilder>::Type as FromAccountId<E>>::from_account_id(
+            self.account_id.clone(),
+        )
+    }
 }
 
 /// Result of a contract upload.
@@ -279,6 +319,8 @@ where
     CallExtrinsic(subxt::error::DispatchError),
     /// Error fetching account balance.
     Balance(String),
+    /// Decoding failed.
+    Decoding(subxt::Error),
 }
 
 // We implement a custom `Debug` here, as to avoid requiring the trait
@@ -307,12 +349,21 @@ where
             Error::CallDryRun(_) => f.write_str("CallDryRun"),
             Error::CallExtrinsic(_) => f.write_str("CallExtrinsic"),
             Error::Balance(msg) => write!(f, "Balance: {msg}"),
+            Error::Decoding(err) => write!(f, "Decoding: {err}"),
         }
     }
 }
 
 /// A contract was successfully instantiated.
-#[derive(Debug, scale::Decode, scale::Encode)]
+#[derive(
+    Debug,
+    scale::Decode,
+    scale::Encode,
+    scale_decode::DecodeAsType,
+    scale_encode::EncodeAsType,
+)]
+#[decode_as_type(trait_bounds = "", crate_path = "subxt::ext::scale_decode")]
+#[encode_as_type(crate_path = "subxt::ext::scale_encode")]
 struct ContractInstantiatedEvent<E: Environment> {
     /// Account id of the deployer.
     pub deployer: E::AccountId,
@@ -329,7 +380,15 @@ where
 }
 
 /// Code with the specified hash has been stored.
-#[derive(Debug, scale::Decode, scale::Encode)]
+#[derive(
+    Debug,
+    scale::Decode,
+    scale::Encode,
+    scale_decode::DecodeAsType,
+    scale_encode::EncodeAsType,
+)]
+#[decode_as_type(trait_bounds = "", crate_path = "subxt::ext::scale_decode")]
+#[encode_as_type(crate_path = "subxt::ext::scale_encode")]
 struct CodeStoredEvent<E: Environment> {
     /// Hash under which the contract code was stored.
     pub code_hash: E::Hash,
@@ -441,11 +500,11 @@ where
     /// Calling this function multiple times is idempotent, the contract is
     /// newly instantiated each time using a unique salt. No existing contract
     /// instance is reused!
-    pub async fn instantiate<ContractRef, Args, R>(
+    pub async fn instantiate<Contract, Args, R>(
         &mut self,
         contract_name: &str,
         signer: &Signer<C>,
-        constructor: CreateBuilderPartial<E, ContractRef, Args, R>,
+        constructor: CreateBuilderPartial<E, Contract, Args, R>,
         value: E::Balance,
         storage_deposit_limit: Option<E::Balance>,
     ) -> Result<InstantiationResult<C, E>, Error<C, E>>
@@ -454,18 +513,24 @@ where
     {
         let code = self.load_code(contract_name);
         let ret = self
-            .exec_instantiate(signer, code, constructor, value, storage_deposit_limit)
+            .exec_instantiate::<Contract, Args, R>(
+                signer,
+                code,
+                constructor,
+                value,
+                storage_deposit_limit,
+            )
             .await?;
         log_info(&format!("instantiated contract at {:?}", ret.account_id));
         Ok(ret)
     }
 
     /// Dry run contract instantiation using the given constructor.
-    pub async fn instantiate_dry_run<ContractRef, Args, R>(
+    pub async fn instantiate_dry_run<Contract, Args, R>(
         &mut self,
         contract_name: &str,
         signer: &Signer<C>,
-        constructor: CreateBuilderPartial<E, ContractRef, Args, R>,
+        constructor: CreateBuilderPartial<E, Contract, Args, R>,
         value: E::Balance,
         storage_deposit_limit: Option<E::Balance>,
     ) -> ContractInstantiateResult<C::AccountId, E::Balance>
@@ -509,11 +574,11 @@ where
     }
 
     /// Executes an `instantiate_with_code` call and captures the resulting events.
-    async fn exec_instantiate<ContractRef, Args, R>(
+    async fn exec_instantiate<Contract, Args, R>(
         &mut self,
         signer: &Signer<C>,
         code: Vec<u8>,
-        constructor: CreateBuilderPartial<E, ContractRef, Args, R>,
+        constructor: CreateBuilderPartial<E, Contract, Args, R>,
         value: E::Balance,
         storage_deposit_limit: Option<E::Balance>,
     ) -> Result<InstantiationResult<C, E>, Error<C, E>>
@@ -548,7 +613,7 @@ where
             .api
             .instantiate_with_code(
                 value,
-                dry_run.gas_required,
+                dry_run.gas_required.into(),
                 storage_deposit_limit,
                 code,
                 data.clone(),
@@ -580,22 +645,22 @@ where
                 // multiple accounts as part of its constructor!
             } else if is_extrinsic_failed_event(&evt) {
                 let metadata = self.api.client.metadata();
-                let dispatch_error = subxt::error::DispatchError::decode_from(
-                    evt.field_bytes(),
-                    &metadata,
-                );
+                let dispatch_error =
+                    subxt::error::DispatchError::decode_from(evt.field_bytes(), metadata)
+                        .map_err(Error::Decoding)?;
                 log_error(&format!(
-                    "extrinsic for instantiate failed: {dispatch_error:?}"
+                    "extrinsic for instantiate failed: {dispatch_error}"
                 ));
                 return Err(Error::InstantiateExtrinsic(dispatch_error))
             }
         }
+        let account_id = account_id.expect("cannot extract `account_id` from events");
 
         Ok(InstantiationResult {
             dry_run,
             // The `account_id` must exist at this point. If the instantiation fails
             // the dry-run must already return that.
-            account_id: account_id.expect("cannot extract `account_id` from events"),
+            account_id,
             events: tx_events,
         })
     }
@@ -672,11 +737,11 @@ where
                 break
             } else if is_extrinsic_failed_event(&evt) {
                 let metadata = self.api.client.metadata();
-                let dispatch_error = subxt::error::DispatchError::decode_from(
-                    evt.field_bytes(),
-                    &metadata,
-                );
-                log_error(&format!("extrinsic for upload failed: {dispatch_error:?}"));
+                let dispatch_error =
+                    subxt::error::DispatchError::decode_from(evt.field_bytes(), metadata)
+                        .map_err(Error::Decoding)?;
+
+                log_error(&format!("extrinsic for upload failed: {dispatch_error}"));
                 return Err(Error::UploadExtrinsic(dispatch_error))
             }
         }
@@ -706,19 +771,23 @@ where
     ///
     /// Returns when the transaction is included in a block. The return value
     /// contains all events that are associated with this transaction.
-    pub async fn call<RetType>(
+    pub async fn call<Args, RetType>(
         &mut self,
         signer: &Signer<C>,
-        message: Message<E, RetType>,
+        message: &CallBuilderFinal<E, Args, RetType>,
         value: E::Balance,
         storage_deposit_limit: Option<E::Balance>,
     ) -> Result<CallResult<C, E, RetType>, Error<C, E>>
     where
+        Args: scale::Encode,
         RetType: scale::Decode,
+        CallBuilderFinal<E, Args, RetType>: Clone,
     {
-        log_info(&format!("call: {:02X?}", message.exec_input()));
+        let account_id = message.clone().params().callee().clone();
+        let exec_input = scale::Encode::encode(message.clone().params().exec_input());
+        log_info(&format!("call: {:02X?}", exec_input));
 
-        let dry_run = self.call_dry_run(signer, &message, value, None).await;
+        let dry_run = self.call_dry_run(signer, message, value, None).await;
 
         if dry_run.exec_result.result.is_err() {
             return Err(Error::CallDryRun(dry_run.exec_result))
@@ -727,11 +796,11 @@ where
         let tx_events = self
             .api
             .call(
-                sp_runtime::MultiAddress::Id(message.account_id().clone()),
+                subxt::utils::MultiAddress::Id(account_id.clone()),
                 value,
-                dry_run.exec_result.gas_required,
+                dry_run.exec_result.gas_required.into(),
                 storage_deposit_limit,
-                message.exec_input().to_vec(),
+                exec_input,
                 signer,
             )
             .await;
@@ -743,11 +812,10 @@ where
 
             if is_extrinsic_failed_event(&evt) {
                 let metadata = self.api.client.metadata();
-                let dispatch_error = subxt::error::DispatchError::decode_from(
-                    evt.field_bytes(),
-                    &metadata,
-                );
-                log_error(&format!("extrinsic for call failed: {dispatch_error:?}"));
+                let dispatch_error =
+                    subxt::error::DispatchError::decode_from(evt.field_bytes(), metadata)
+                        .map_err(Error::Decoding)?;
+                log_error(&format!("extrinsic for call failed: {dispatch_error}"));
                 return Err(Error::CallExtrinsic(dispatch_error))
             }
         }
@@ -788,11 +856,11 @@ where
 
             if is_extrinsic_failed_event(&evt) {
                 let metadata = self.api.client.metadata();
-                let dispatch_error = subxt::error::DispatchError::decode_from(
-                    evt.field_bytes(),
-                    &metadata,
-                );
-                log_error(&format!("extrinsic for call failed: {dispatch_error:?}"));
+                let dispatch_error =
+                    subxt::error::DispatchError::decode_from(evt.field_bytes(), metadata)
+                        .map_err(Error::Decoding)?;
+
+                log_error(&format!("extrinsic for call failed: {dispatch_error}"));
                 return Err(Error::CallExtrinsic(dispatch_error))
             }
         }
@@ -804,21 +872,27 @@ where
     ///
     /// Returns the result of the dry run, together with the decoded return value of the
     /// invoked message.
-    pub async fn call_dry_run<RetType>(
+    pub async fn call_dry_run<Args, RetType>(
         &mut self,
         signer: &Signer<C>,
-        message: &Message<E, RetType>,
+        message: &CallBuilderFinal<E, Args, RetType>,
         value: E::Balance,
         storage_deposit_limit: Option<E::Balance>,
     ) -> CallDryRunResult<E, RetType>
     where
+        Args: scale::Encode,
         RetType: scale::Decode,
+        CallBuilderFinal<E, Args, RetType>: Clone,
     {
+        let dest = message.clone().params().callee().clone();
+        let exec_input = scale::Encode::encode(message.clone().params().exec_input());
+
         let exec_result = self
             .api
             .call_dry_run(
                 Signer::account_id(signer).clone(),
-                message,
+                dest,
+                exec_input,
                 value,
                 storage_deposit_limit,
             )
@@ -857,7 +931,7 @@ where
             .api
             .client
             .storage()
-            .at(None)
+            .at_latest()
             .await
             .unwrap_or_else(|err| {
                 panic!("unable to fetch balance: {err:?}");

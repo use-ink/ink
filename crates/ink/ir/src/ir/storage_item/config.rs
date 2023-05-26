@@ -42,7 +42,7 @@ impl TryFrom<ast::AttributeArgs> for StorageItemConfig {
                         "storage item",
                     ))
                 }
-                if let ast::PathOrLit::Lit(syn::Lit::Bool(lit_bool)) = &arg.value {
+                if let ast::MetaValue::Lit(syn::Lit::Bool(lit_bool)) = &arg.value {
                     derive = Some(lit_bool.clone())
                 } else {
                     return Err(format_err_spanned!(

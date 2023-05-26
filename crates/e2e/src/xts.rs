@@ -13,7 +13,6 @@
 // limitations under the License.
 
 use super::{
-    builders::Message,
     log_info,
     sr25519,
     ContractExecResult,
@@ -28,56 +27,108 @@ use sp_core::{
     Bytes,
     H256,
 };
-use sp_weights::Weight;
 use subxt::{
     blocks::ExtrinsicEvents,
     config::ExtrinsicParams,
+    ext::scale_encode,
     rpc_params,
-    tx,
+    utils::MultiAddress,
     OnlineClient,
 };
 
-/// A raw call to `pallet-contracts`'s `instantiate_with_code`.
-#[derive(Debug, scale::Encode, scale::Decode)]
-pub struct InstantiateWithCode<B> {
+/// Copied from `sp_weight` to additionally implement `scale_encode::EncodeAsType`.
+#[derive(
+    Copy,
+    Clone,
+    Eq,
+    PartialEq,
+    Debug,
+    Default,
+    scale::Encode,
+    scale::Decode,
+    scale::MaxEncodedLen,
+    scale_encode::EncodeAsType,
+    serde::Serialize,
+    serde::Deserialize,
+)]
+#[encode_as_type(crate_path = "subxt::ext::scale_encode")]
+pub struct Weight {
     #[codec(compact)]
-    value: B,
+    /// The weight of computational time used based on some reference hardware.
+    ref_time: u64,
+    #[codec(compact)]
+    /// The weight of storage space used by proof of validity.
+    proof_size: u64,
+}
+
+impl From<sp_weights::Weight> for Weight {
+    fn from(weight: sp_weights::Weight) -> Self {
+        Self {
+            ref_time: weight.ref_time(),
+            proof_size: weight.proof_size(),
+        }
+    }
+}
+
+impl From<Weight> for sp_weights::Weight {
+    fn from(weight: Weight) -> Self {
+        sp_weights::Weight::from_parts(weight.ref_time, weight.proof_size)
+    }
+}
+
+/// A raw call to `pallet-contracts`'s `instantiate_with_code`.
+#[derive(Debug, scale::Encode, scale::Decode, scale_encode::EncodeAsType)]
+#[encode_as_type(trait_bounds = "", crate_path = "subxt::ext::scale_encode")]
+pub struct InstantiateWithCode<E: Environment> {
+    #[codec(compact)]
+    value: E::Balance,
     gas_limit: Weight,
-    storage_deposit_limit: Option<B>,
+    storage_deposit_limit: Option<E::Balance>,
     code: Vec<u8>,
     data: Vec<u8>,
     salt: Vec<u8>,
 }
 
 /// A raw call to `pallet-contracts`'s `call`.
-#[derive(Debug, scale::Encode, scale::Decode)]
-pub struct Call<E: Environment, B> {
-    dest: sp_runtime::MultiAddress<E::AccountId, ()>,
+#[derive(Debug, scale::Decode, scale::Encode, scale_encode::EncodeAsType)]
+#[encode_as_type(trait_bounds = "", crate_path = "subxt::ext::scale_encode")]
+pub struct Call<E: Environment> {
+    dest: MultiAddress<E::AccountId, ()>,
     #[codec(compact)]
-    value: B,
+    value: E::Balance,
     gas_limit: Weight,
-    storage_deposit_limit: Option<B>,
+    storage_deposit_limit: Option<E::Balance>,
     data: Vec<u8>,
 }
 
 /// A raw call to `pallet-contracts`'s `call`.
-#[derive(Debug, scale::Encode, scale::Decode)]
+#[derive(Debug, scale::Decode, scale::Encode, scale_encode::EncodeAsType)]
+#[encode_as_type(trait_bounds = "", crate_path = "subxt::ext::scale_encode")]
 pub struct Transfer<E: Environment, C: subxt::Config> {
-    dest: C::Address,
+    dest: subxt::utils::Static<C::Address>,
     #[codec(compact)]
     value: E::Balance,
 }
 
 #[derive(
-    Debug, Clone, Copy, scale::Encode, scale::Decode, PartialEq, Eq, serde::Serialize,
+    Debug,
+    Clone,
+    Copy,
+    PartialEq,
+    Eq,
+    serde::Serialize,
+    scale::Decode,
+    scale::Encode,
+    scale_encode::EncodeAsType,
 )]
+#[encode_as_type(crate_path = "subxt::ext::scale_encode")]
 pub enum Determinism {
     /// The execution should be deterministic and hence no indeterministic instructions
     /// are allowed.
     ///
     /// Dispatchables always use this mode in order to make on-chain execution
     /// deterministic.
-    Deterministic,
+    Enforced,
     /// Allow calling or uploading an indeterministic code.
     ///
     /// This is only possible when calling into `pallet-contracts` directly via
@@ -86,14 +137,15 @@ pub enum Determinism {
     /// # Note
     ///
     /// **Never** use this mode for on-chain execution.
-    AllowIndeterminism,
+    Relaxed,
 }
 
 /// A raw call to `pallet-contracts`'s `upload`.
-#[derive(Debug, scale::Encode, scale::Decode)]
-pub struct UploadCode<B> {
+#[derive(Debug, scale::Encode, scale::Decode, scale_encode::EncodeAsType)]
+#[encode_as_type(trait_bounds = "", crate_path = "subxt::ext::scale_encode")]
+pub struct UploadCode<E: Environment> {
     code: Vec<u8>,
-    storage_deposit_limit: Option<B>,
+    storage_deposit_limit: Option<E::Balance>,
     determinism: Determinism,
 }
 
@@ -183,14 +235,13 @@ where
         dest: C::AccountId,
         value: E::Balance,
     ) -> Result<(), subxt::Error> {
-        let call = subxt::tx::StaticTxPayload::new(
+        let call = subxt::tx::Payload::new(
             "Balances",
             "transfer",
             Transfer::<E, C> {
-                dest: dest.into(),
+                dest: subxt::utils::Static(dest.into()),
                 value,
             },
-            Default::default(),
         )
         .unvalidated();
 
@@ -249,7 +300,7 @@ where
         signer: &Signer<C>,
     ) -> ExtrinsicEvents<C>
     where
-        Call: tx::TxPayload,
+        Call: subxt::tx::TxPayload,
     {
         self.client
             .tx()
@@ -292,10 +343,10 @@ where
         salt: Vec<u8>,
         signer: &Signer<C>,
     ) -> ExtrinsicEvents<C> {
-        let call = subxt::tx::StaticTxPayload::new(
+        let call = subxt::tx::Payload::new(
             "Contracts",
             "instantiate_with_code",
-            InstantiateWithCode::<E::Balance> {
+            InstantiateWithCode::<E> {
                 value,
                 gas_limit,
                 storage_deposit_limit,
@@ -303,7 +354,6 @@ where
                 data,
                 salt,
             },
-            Default::default(),
         )
         .unvalidated();
 
@@ -321,7 +371,7 @@ where
             origin: subxt::tx::Signer::account_id(signer).clone(),
             code,
             storage_deposit_limit,
-            determinism: Determinism::Deterministic,
+            determinism: Determinism::Enforced,
         };
         let func = "ContractsApi_upload_code";
         let params = rpc_params![func, Bytes(scale::Encode::encode(&call_request))];
@@ -347,15 +397,14 @@ where
         code: Vec<u8>,
         storage_deposit_limit: Option<E::Balance>,
     ) -> ExtrinsicEvents<C> {
-        let call = subxt::tx::StaticTxPayload::new(
+        let call = subxt::tx::Payload::new(
             "Contracts",
             "upload_code",
-            UploadCode::<E::Balance> {
+            UploadCode::<E> {
                 code,
                 storage_deposit_limit,
-                determinism: Determinism::Deterministic,
+                determinism: Determinism::Enforced,
             },
-            Default::default(),
         )
         .unvalidated();
 
@@ -363,20 +412,21 @@ where
     }
 
     /// Dry runs a call of the contract at `contract` with the given parameters.
-    pub async fn call_dry_run<RetType>(
+    pub async fn call_dry_run(
         &self,
         origin: C::AccountId,
-        message: &Message<E, RetType>,
+        dest: E::AccountId,
+        input_data: Vec<u8>,
         value: E::Balance,
         storage_deposit_limit: Option<E::Balance>,
     ) -> ContractExecResult<E::Balance> {
         let call_request = RpcCallRequest::<C, E> {
             origin,
-            dest: message.account_id().clone(),
+            dest,
             value,
             gas_limit: None,
             storage_deposit_limit,
-            input_data: message.exec_input().to_vec(),
+            input_data,
         };
         let func = "ContractsApi_call";
         let params = rpc_params![func, Bytes(scale::Encode::encode(&call_request))];
@@ -398,24 +448,23 @@ where
     /// contains all events that are associated with this transaction.
     pub async fn call(
         &self,
-        contract: sp_runtime::MultiAddress<E::AccountId, ()>,
+        contract: MultiAddress<E::AccountId, ()>,
         value: E::Balance,
         gas_limit: Weight,
         storage_deposit_limit: Option<E::Balance>,
         data: Vec<u8>,
         signer: &Signer<C>,
     ) -> ExtrinsicEvents<C> {
-        let call = subxt::tx::StaticTxPayload::new(
+        let call = subxt::tx::Payload::new(
             "Contracts",
             "call",
-            Call::<E, E::Balance> {
+            Call::<E> {
                 dest: contract,
                 value,
                 gas_limit,
                 storage_deposit_limit,
                 data,
             },
-            Default::default(),
         )
         .unvalidated();
 

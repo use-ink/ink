@@ -122,7 +122,6 @@ mod runtime_call {
             },
             primitives::AccountId,
         };
-        use ink_e2e::build_message;
 
         type E2EResult<T> = Result<T, Box<dyn std::error::Error>>;
 
@@ -153,7 +152,7 @@ mod runtime_call {
         ) -> E2EResult<()> {
             // given
             let constructor = RuntimeCallerRef::new();
-            let contract_acc_id = client
+            let contract = client
                 .instantiate(
                     "call-runtime",
                     &ink_e2e::alice(),
@@ -162,8 +161,8 @@ mod runtime_call {
                     None,
                 )
                 .await
-                .expect("instantiate failed")
-                .account_id;
+                .expect("instantiate failed");
+            let mut call = contract.call::<RuntimeCaller>();
 
             let receiver: AccountId = default_accounts::<DefaultEnvironment>().bob;
 
@@ -177,11 +176,11 @@ mod runtime_call {
                 .expect("Failed to get account balance");
 
             // when
-            let transfer_message = build_message::<RuntimeCallerRef>(contract_acc_id)
-                .call(|caller| caller.transfer_through_runtime(receiver, TRANSFER_VALUE));
+            let transfer_message =
+                call.transfer_through_runtime(receiver, TRANSFER_VALUE);
 
             let call_res = client
-                .call(&ink_e2e::alice(), transfer_message, 0, None)
+                .call(&ink_e2e::alice(), &transfer_message, 0, None)
                 .await
                 .expect("call failed");
 
@@ -218,7 +217,7 @@ mod runtime_call {
         ) -> E2EResult<()> {
             // given
             let constructor = RuntimeCallerRef::new();
-            let contract_acc_id = client
+            let contract = client
                 .instantiate(
                     "call-runtime",
                     &ink_e2e::alice(),
@@ -227,16 +226,14 @@ mod runtime_call {
                     None,
                 )
                 .await
-                .expect("instantiate failed")
-                .account_id;
+                .expect("instantiate failed");
+            let mut call = contract.call::<RuntimeCaller>();
 
             let receiver: AccountId = default_accounts::<DefaultEnvironment>().bob;
 
             // when
-            let transfer_message = build_message::<RuntimeCallerRef>(contract_acc_id)
-                .call(|caller| {
-                    caller.transfer_through_runtime(receiver, INSUFFICIENT_TRANSFER_VALUE)
-                });
+            let transfer_message =
+                call.transfer_through_runtime(receiver, INSUFFICIENT_TRANSFER_VALUE);
 
             let call_res = client
                 .call_dry_run(&ink_e2e::alice(), &transfer_message, 0, None)
@@ -257,7 +254,7 @@ mod runtime_call {
         ) -> E2EResult<()> {
             // given
             let constructor = RuntimeCallerRef::new();
-            let contract_acc_id = client
+            let contract = client
                 .instantiate(
                     "call-runtime",
                     &ink_e2e::alice(),
@@ -266,12 +263,11 @@ mod runtime_call {
                     None,
                 )
                 .await
-                .expect("instantiate failed")
-                .account_id;
+                .expect("instantiate failed");
+            let mut call = contract.call::<RuntimeCaller>();
 
             // when
-            let transfer_message = build_message::<RuntimeCallerRef>(contract_acc_id)
-                .call(|caller| caller.call_nonexistent_extrinsic());
+            let transfer_message = call.call_nonexistent_extrinsic();
 
             let call_res = client
                 .call_dry_run(&ink_e2e::alice(), &transfer_message, 0, None)

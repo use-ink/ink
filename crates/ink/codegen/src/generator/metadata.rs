@@ -28,7 +28,10 @@ use quote::{
     quote,
     quote_spanned,
 };
-use syn::spanned::Spanned as _;
+use syn::{
+    parse_quote,
+    spanned::Spanned as _,
+};
 
 /// Generates code to generate the metadata of the contract.
 #[derive(From)]
@@ -73,7 +76,7 @@ impl Metadata<'_> {
         quote_spanned!(storage_span=>
             // Wrap the layout of the contract into the `RootLayout`, because
             // contract storage key is reserved for all packed fields
-            ::ink::metadata::layout::Layout::Root(::ink::metadata::layout::RootLayout::new(
+            ::ink::metadata::layout::Layout::Root(::ink::metadata::layout::RootLayout::new::<#storage_ident, _>(
                 #layout_key,
                 <#storage_ident as ::ink::storage::traits::StorageLayout>::layout(
                     &#key,
@@ -96,6 +99,7 @@ impl Metadata<'_> {
             ::ink::LangError
         };
         let error = Self::generate_type_spec(&error_ty);
+        let environment = self.generate_environment();
         quote! {
             ::ink::metadata::ContractSpec::new()
                 .constructors([
@@ -112,6 +116,9 @@ impl Metadata<'_> {
                 ])
                 .lang_error(
                      #error
+                )
+                .environment(
+                    #environment
                 )
                 .done()
         }
@@ -140,6 +147,7 @@ impl Metadata<'_> {
         let selector_bytes = constructor.composed_selector().hex_lits();
         let selector_id = constructor.composed_selector().into_be_u32();
         let is_payable = constructor.is_payable();
+        let is_default = constructor.is_default();
         let constructor = constructor.callable();
         let ident = constructor.ident();
         let args = constructor.inputs().map(Self::generate_dispatch_argument);
@@ -156,6 +164,7 @@ impl Metadata<'_> {
                     #( #args ),*
                 ])
                 .payable(#is_payable)
+                .default(#is_default)
                 .returns(#ret_ty)
                 .docs([
                     #( #docs ),*
@@ -235,6 +244,7 @@ impl Metadata<'_> {
                     .filter_map(|attr| attr.extract_docs());
                 let selector_bytes = message.composed_selector().hex_lits();
                 let is_payable = message.is_payable();
+                let is_default = message.is_default();
                 let message = message.callable();
                 let mutates = message.receiver().is_ref_mut();
                 let ident = message.ident();
@@ -253,6 +263,7 @@ impl Metadata<'_> {
                         .returns(#ret_ty)
                         .mutates(#mutates)
                         .payable(#is_payable)
+                        .default(#is_default)
                         .docs([
                             #( #docs ),*
                         ])
@@ -406,6 +417,35 @@ impl Metadata<'_> {
                     .done()
             )
         })
+    }
+
+    fn generate_environment(&self) -> TokenStream2 {
+        let span = self.contract.module().span();
+
+        let account_id: syn::Type = parse_quote!(AccountId);
+        let balance: syn::Type = parse_quote!(Balance);
+        let hash: syn::Type = parse_quote!(Hash);
+        let timestamp: syn::Type = parse_quote!(Timestamp);
+        let block_number: syn::Type = parse_quote!(BlockNumber);
+        let chain_extension: syn::Type = parse_quote!(ChainExtension);
+
+        let account_id = Self::generate_type_spec(&account_id);
+        let balance = Self::generate_type_spec(&balance);
+        let hash = Self::generate_type_spec(&hash);
+        let timestamp = Self::generate_type_spec(&timestamp);
+        let block_number = Self::generate_type_spec(&block_number);
+        let chain_extension = Self::generate_type_spec(&chain_extension);
+        quote_spanned!(span=>
+            ::ink::metadata::EnvironmentSpec::new()
+                .account_id(#account_id)
+                .balance(#balance)
+                .hash(#hash)
+                .timestamp(#timestamp)
+                .block_number(#block_number)
+                .chain_extension(#chain_extension)
+                .max_event_topics(MAX_EVENT_TOPICS)
+                .done()
+        )
     }
 }
 
