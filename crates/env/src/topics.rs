@@ -102,17 +102,20 @@ where
 {
     /// Pushes another event topic to be serialized through the topics builder.
     ///
+    /// If the `value` of the topic is `None` then the topic will *not* be pushed.
+    ///
     /// Returns a topics builder that expects one less event topic for serialization
     /// than before the call.
     pub fn push_topic<T>(
         mut self,
-        value: &T,
+        value: Option<&T>,
     ) -> TopicsBuilder<<S as SomeRemainingTopics>::Next, E, B>
     where
         T: scale::Encode,
     {
         // Only publish the topic if it is not an `Option::None`.
-        if let Some(topic) = crate::as_option!(value) {
+        if let Some(topic) = value {
+            println!("pushing topic {:?}", scale::Encode::encode(topic));
             self.backend.push_topic(topic);
         }
         TopicsBuilder {

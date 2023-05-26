@@ -86,9 +86,6 @@ mod contract;
 mod engine;
 mod error;
 pub mod hash;
-#[macro_use]
-#[doc(hidden)]
-pub mod option_info;
 #[doc(hidden)]
 pub mod topics;
 mod types;

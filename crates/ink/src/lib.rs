@@ -20,6 +20,10 @@
 
 #[macro_use]
 #[doc(hidden)]
+pub mod option_info;
+
+#[macro_use]
+#[doc(hidden)]
 pub mod result_info;
 
 #[cfg_attr(not(feature = "show-codegen-docs"), doc(hidden))]

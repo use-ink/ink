@@ -25,6 +25,13 @@ impl<T> AsOption<'_, ::core::option::Option<T>> {
     }
 }
 
+impl<'lt, T> AsOption<'lt, &'lt ::core::option::Option<T>> {
+    #[inline]
+    pub fn value(&self) -> Option<&T> {
+        self.0.as_ref()
+    }
+}
+
 pub trait AsOptionFallback<T> {
     fn value(&self) -> Option<&T>;
 }
@@ -52,6 +59,8 @@ macro_rules! as_option {
 
 #[cfg(test)]
 mod tests {
+    use std::fmt::Debug;
+
     #[test]
     fn as_option_works() {
         assert_eq!(Some(&true), as_option!(true));
@@ -61,8 +70,10 @@ mod tests {
         assert_eq!(Some(&()), as_option!(Some(())));
         assert_eq!(Some(&5), as_option!(Some(5)));
         assert_eq!(Some(&true), as_option!(Some(true)));
+        assert_eq!(Some(&true), as_option!(&Some(true)));
 
         assert_eq!(None, as_option!(Option::<u32>::None));
         assert_eq!(None, as_option!(Option::<bool>::None));
+        assert_eq!(None, as_option!(&Option::<bool>::None));
     }
 }

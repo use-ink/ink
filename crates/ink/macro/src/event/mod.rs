@@ -104,7 +104,7 @@ fn event_derive_struct(mut s: synstructure::Structure) -> syn::Result<TokenStrea
         None
     } else {
         Some(quote_spanned!(span=>
-            .push_topic(&Self::SIGNATURE_TOPIC.expect("non-anonymous events must have a signature topic"))
+            .push_topic(Self::SIGNATURE_TOPIC.as_ref())
         ))
     };
 
@@ -113,7 +113,7 @@ fn event_derive_struct(mut s: synstructure::Structure) -> syn::Result<TokenStrea
         let field_span = field_ty.span();
         quote_spanned!(field_span=>
             #acc
-            .push_topic::<#field_ty>(#field)
+            .push_topic(::ink::as_option!(#field))
         )
     });
     let pat = variant.pat();

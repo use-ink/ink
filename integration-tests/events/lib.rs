@@ -18,7 +18,9 @@ pub mod events {
         #[ink(message)]
         pub fn flip(&mut self) {
             self.value = !self.value;
-            self.env().emit_event(event_def::Flipped { flipped: self.value })
+            self.env().emit_event(event_def::Flipped {
+                flipped: self.value,
+            })
         }
 
         /// Emit an event with a 32 byte topic.
@@ -50,13 +52,27 @@ pub mod events {
             assert_eq!(decoded_event.flipped, true);
         }
 
-        // #[ink::test]
-        // fn option_topic_some_has_topic() {
-        //     let mut events = Events::new(false);
-        //     events.emit_32_byte_topic_event();
-        //     // todo: check events.
-        // }
-        //
+        #[ink::test]
+        fn option_topic_some_has_topic() {
+            let mut events = Events::new(false);
+            events.emit_32_byte_topic_event(Some([0xAA; 32]));
+
+            let emitted_events = ink::env::test::recorded_events().collect::<Vec<_>>();
+            assert_eq!(1, emitted_events.len());
+            let event = &emitted_events[0];
+
+            assert_eq!(event.topics.len(), 3);
+            let signature_topic =
+                <event_def::ThirtyTwoByteTopics as ink::env::Topics>::SIGNATURE_TOPIC
+                    .map(|topic| topic.to_vec());
+            assert_eq!(Some(&event.topics[0]), signature_topic.as_ref());
+            assert_eq!(event.topics[1], [0x42; 32]);
+            assert_eq!(
+                event.topics[2], [0xAA; 32],
+                "option topic should be published"
+            );
+        }
+
         // #[ink::test]
         // fn option_topic_none_missing_topic() {
         //     let mut events = Events::new(false);

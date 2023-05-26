@@ -14,4 +14,3 @@ pub struct ThirtyTwoByteTopics {
     #[ink(topic)]
     pub maybe_hash: Option<[u8; 32]>,
 }
-
