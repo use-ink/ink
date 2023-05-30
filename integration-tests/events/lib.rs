@@ -63,7 +63,7 @@ pub mod events {
 
             assert_eq!(event.topics.len(), 3);
             let signature_topic =
-                <event_def::ThirtyTwoByteTopics as ink::env::Topics>::SIGNATURE_TOPIC
+                <event_def::ThirtyTwoByteTopics as ink::env::Event>::SIGNATURE_TOPIC
                     .map(|topic| topic.to_vec());
             assert_eq!(Some(&event.topics[0]), signature_topic.as_ref());
             assert_eq!(event.topics[1], [0x42; 32]);

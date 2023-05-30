@@ -36,7 +36,7 @@ use crate::{
         CryptoHash,
         HashOutput,
     },
-    topics::Topics,
+    event::Event,
     types::Gas,
     Environment,
     Result,
@@ -175,13 +175,13 @@ where
 }
 
 /// Emits an event with the given event data.
-pub fn emit_event<const MAX_TOPICS: usize, E, Event>(event: Event)
+pub fn emit_event<const MAX_TOPICS: usize, E, Evt>(event: Evt)
 where
     E: Environment,
-    Event: Topics + scale::Encode,
+    Evt: Event,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        TypedEnvBackend::emit_event::<MAX_TOPICS, E, Event>(instance, event)
+        TypedEnvBackend::emit_event::<MAX_TOPICS, E, Evt>(instance, event)
     })
 }
 

@@ -87,9 +87,9 @@ fn event_derive_struct(mut s: synstructure::Structure) -> syn::Result<TokenStrea
     let len_topics = variant.bindings().len() + anonymous_topics_offset;
 
     let remaining_topics_ty = match len_topics {
-        0 => quote_spanned!(span=> ::ink::env::topics::state::NoRemainingTopics),
+        0 => quote_spanned!(span=> ::ink::env::event::state::NoRemainingTopics),
         _ => {
-            quote_spanned!(span=> [::ink::env::topics::state::HasRemainingTopics; Self::TOPICS_LEN])
+            quote_spanned!(span=> [::ink::env::event::state::HasRemainingTopics; Self::TOPICS_LEN])
         }
     };
 
@@ -127,7 +127,7 @@ fn event_derive_struct(mut s: synstructure::Structure) -> syn::Result<TokenStrea
         }
     );
 
-    Ok(s.bound_impl(quote!(::ink::env::Topics), quote! {
+    Ok(s.bound_impl(quote!(::ink::env::Event), quote! {
         type RemainingTopics = #remaining_topics_ty;
 
         const TOPICS_LEN: usize = #len_topics;
@@ -135,11 +135,11 @@ fn event_derive_struct(mut s: synstructure::Structure) -> syn::Result<TokenStrea
 
         fn topics<const MAX_TOPICS: usize, E, B>(
             &self,
-            builder: ::ink::env::topics::TopicsBuilder<::ink::env::topics::state::Uninit, E, B>,
-        ) -> <B as ::ink::env::topics::TopicsBuilderBackend<E>>::Output
+            builder: ::ink::env::event::TopicsBuilder<::ink::env::event::state::Uninit, E, B>,
+        ) -> <B as ::ink::env::event::TopicsBuilderBackend<E>>::Output
         where
             E: ::ink::env::Environment,
-            B: ::ink::env::topics::TopicsBuilderBackend<E>,
+            B: ::ink::env::event::TopicsBuilderBackend<E>,
         {
             // assert at compile time the number of topics defined by this event is within the
             // given limit.

@@ -30,8 +30,8 @@ use crate::{
         Keccak256,
         Sha2x256,
     },
-    topics::{
-        Topics,
+    event::{
+        Event,
         TopicsBuilderBackend,
     },
     Clear,
@@ -422,10 +422,10 @@ impl TypedEnvBackend for EnvInstance {
             })
     }
 
-    fn emit_event<const MAX_TOPICS: usize, E, Event>(&mut self, event: Event)
+    fn emit_event<const MAX_TOPICS: usize, E, Evt>(&mut self, event: Evt)
     where
         E: Environment,
-        Event: Topics + scale::Encode,
+        Evt: Event,
     {
         let builder = TopicsBuilder::default();
         let enc_topics = event.topics::<MAX_TOPICS, E, _>(builder.into());

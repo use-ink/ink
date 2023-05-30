@@ -35,8 +35,8 @@ use crate::{
         Keccak256,
         Sha2x256,
     },
-    topics::{
-        Topics,
+    event::{
+        Event,
         TopicsBuilderBackend,
     },
     Clear,
@@ -392,10 +392,10 @@ impl TypedEnvBackend for EnvInstance {
         self.get_property_little_endian::<E::Balance>(ext::minimum_balance)
     }
 
-    fn emit_event<const MAX_TOPICS: usize, E, Event>(&mut self, event: Event)
+    fn emit_event<const MAX_TOPICS: usize, E, Evt>(&mut self, event: Evt)
     where
         E: Environment,
-        Event: Topics + scale::Encode,
+        Evt: Event,
     {
         let (mut scope, enc_topics) = event
             .topics::<MAX_TOPICS, E, _>(TopicsBuilder::from(self.scoped_buffer()).into());

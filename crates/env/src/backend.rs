@@ -25,7 +25,7 @@ use crate::{
         CryptoHash,
         HashOutput,
     },
-    topics::Topics,
+    event::Event,
     Environment,
     Result,
 };
@@ -405,10 +405,10 @@ pub trait TypedEnvBackend: EnvBackend {
     /// # Note
     ///
     /// For more details visit: [`emit_event`][`crate::emit_event`]
-    fn emit_event<const MAX_TOPICS: usize, E, Event>(&mut self, event: Event)
+    fn emit_event<const MAX_TOPICS: usize, E, Evt>(&mut self, event: Evt)
     where
         E: Environment,
-        Event: Topics + scale::Encode;
+        Evt: Event;
 
     /// Invokes a contract message and returns its result.
     ///

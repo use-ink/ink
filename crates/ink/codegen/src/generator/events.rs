@@ -54,13 +54,13 @@ impl<'a> Events<'a> {
             pub trait __ink_EmitEvent {
                 fn emit_event<E>(self, event: E)
                 where
-                    E: ::ink::env::Topics + ::scale::Encode;
+                    E: ::ink::env::Event + ::scale::Encode;
             }
 
             impl<'a> __ink_EmitEvent for ::ink::EnvAccess<'a, Environment> {
                 fn emit_event<E>(self, event: E)
                 where
-                    E: ::ink::env::Topics + ::scale::Encode,
+                    E: ::ink::env::Event + ::scale::Encode,
                 {
                     ::ink::env::emit_event::<
                         { <Environment as ::ink::env::Environment>::MAX_EVENT_TOPICS },

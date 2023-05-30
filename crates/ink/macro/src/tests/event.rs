@@ -30,8 +30,8 @@ fn unit_struct_works() {
         }
         expands to {
             const _: () = {
-                impl ::ink::env::Topics for UnitStruct {
-                    type RemainingTopics = [::ink::env::topics::state::HasRemainingTopics; Self::TOPICS_LEN];
+                impl ::ink::env::Event for UnitStruct {
+                    type RemainingTopics = [::ink::env::event::state::HasRemainingTopics; Self::TOPICS_LEN];
 
                     const TOPICS_LEN: usize = 1usize;
                     const SIGNATURE_TOPIC: ::core::option::Option<[::core::primitive::u8; 32]> =
@@ -39,11 +39,11 @@ fn unit_struct_works() {
 
                     fn topics<const MAX_TOPICS: usize, E, B>(
                         &self,
-                        builder: ::ink::env::topics::TopicsBuilder<::ink::env::topics::state::Uninit, E, B>,
-                    ) -> <B as ::ink::env::topics::TopicsBuilderBackend<E>>::Output
+                        builder: ::ink::env::event::TopicsBuilder<::ink::env::event::state::Uninit, E, B>,
+                    ) -> <B as ::ink::env::event::TopicsBuilderBackend<E>>::Output
                     where
                         E: ::ink::env::Environment,
-                        B: ::ink::env::topics::TopicsBuilderBackend<E>,
+                        B: ::ink::env::event::TopicsBuilderBackend<E>,
                     {
                         let _ = ::ink::codegen::EventRespectsTopicLimit::<{ Self::TOPICS_LEN }, { MAX_TOPICS }>::ASSERT;
 
@@ -71,8 +71,8 @@ fn unit_struct_anonymous_has_no_topics() {
         }
         expands to {
             const _: () = {
-                impl ::ink::env::Topics for UnitStruct {
-                    type RemainingTopics = ::ink::env::topics::state::NoRemainingTopics;
+                impl ::ink::env::Event for UnitStruct {
+                    type RemainingTopics = ::ink::env::event::state::NoRemainingTopics;
 
                     const TOPICS_LEN: usize = 0usize;
                     const SIGNATURE_TOPIC: ::core::option::Option<[::core::primitive::u8; 32]> =
@@ -80,11 +80,11 @@ fn unit_struct_anonymous_has_no_topics() {
 
                     fn topics<const MAX_TOPICS: usize, E, B>(
                         &self,
-                        builder: ::ink::env::topics::TopicsBuilder<::ink::env::topics::state::Uninit, E, B>,
-                    ) -> <B as ::ink::env::topics::TopicsBuilderBackend<E>>::Output
+                        builder: ::ink::env::event::TopicsBuilder<::ink::env::event::state::Uninit, E, B>,
+                    ) -> <B as ::ink::env::event::TopicsBuilderBackend<E>>::Output
                     where
                         E: ::ink::env::Environment,
-                        B: ::ink::env::topics::TopicsBuilderBackend<E>,
+                        B: ::ink::env::event::TopicsBuilderBackend<E>,
                     {
                         let _ = ::ink::codegen::EventRespectsTopicLimit::<{ Self::TOPICS_LEN }, { MAX_TOPICS }>::ASSERT;
 
@@ -114,8 +114,8 @@ fn struct_with_fields_no_topics() {
         }
         expands to {
             const _: () = {
-                impl ::ink::env::Topics for Event {
-                    type RemainingTopics = [::ink::env::topics::state::HasRemainingTopics; Self::TOPICS_LEN];
+                impl ::ink::env::Event for Event {
+                    type RemainingTopics = [::ink::env::event::state::HasRemainingTopics; Self::TOPICS_LEN];
 
                     const TOPICS_LEN: usize = 1usize;
                     const SIGNATURE_TOPIC: ::core::option::Option<[::core::primitive::u8; 32]> =
@@ -123,11 +123,11 @@ fn struct_with_fields_no_topics() {
 
                     fn topics<const MAX_TOPICS: usize, E, B>(
                         &self,
-                        builder: ::ink::env::topics::TopicsBuilder<::ink::env::topics::state::Uninit, E, B>,
-                    ) -> <B as ::ink::env::topics::TopicsBuilderBackend<E>>::Output
+                        builder: ::ink::env::event::TopicsBuilder<::ink::env::event::state::Uninit, E, B>,
+                    ) -> <B as ::ink::env::event::TopicsBuilderBackend<E>>::Output
                     where
                         E: ::ink::env::Environment,
-                        B: ::ink::env::topics::TopicsBuilderBackend<E>,
+                        B: ::ink::env::event::TopicsBuilderBackend<E>,
                     {
                         let _ = ::ink::codegen::EventRespectsTopicLimit::<{ Self::TOPICS_LEN }, { MAX_TOPICS }>::ASSERT;
 
@@ -160,8 +160,8 @@ fn struct_with_fields_and_some_topics() {
         }
         expands to {
             const _: () = {
-                impl ::ink::env::Topics for Event {
-                    type RemainingTopics = [::ink::env::topics::state::HasRemainingTopics; Self::TOPICS_LEN];
+                impl ::ink::env::Event for Event {
+                    type RemainingTopics = [::ink::env::event::state::HasRemainingTopics; Self::TOPICS_LEN];
 
                     const TOPICS_LEN: usize = 3usize;
                     const SIGNATURE_TOPIC: ::core::option::Option<[::core::primitive::u8; 32]> =
@@ -169,11 +169,11 @@ fn struct_with_fields_and_some_topics() {
 
                     fn topics<const MAX_TOPICS: usize, E, B>(
                         &self,
-                        builder: ::ink::env::topics::TopicsBuilder<::ink::env::topics::state::Uninit, E, B>,
-                    ) -> <B as ::ink::env::topics::TopicsBuilderBackend<E>>::Output
+                        builder: ::ink::env::event::TopicsBuilder<::ink::env::event::state::Uninit, E, B>,
+                    ) -> <B as ::ink::env::event::TopicsBuilderBackend<E>>::Output
                     where
                         E: ::ink::env::Environment,
-                        B: ::ink::env::topics::TopicsBuilderBackend<E>,
+                        B: ::ink::env::event::TopicsBuilderBackend<E>,
                     {
                         let _ = ::ink::codegen::EventRespectsTopicLimit::<{ Self::TOPICS_LEN }, { MAX_TOPICS }>::ASSERT;
 

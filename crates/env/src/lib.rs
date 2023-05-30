@@ -87,7 +87,7 @@ mod engine;
 mod error;
 pub mod hash;
 #[doc(hidden)]
-pub mod topics;
+pub mod event;
 mod types;
 
 #[cfg(test)]
@@ -115,7 +115,7 @@ pub use self::{
         Error,
         Result,
     },
-    topics::Topics,
+    event::Event,
     types::{
         AccountIdGuard,
         DefaultEnvironment,
