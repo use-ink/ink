@@ -115,7 +115,6 @@ where
     {
         // Only publish the topic if it is not an `Option::None`.
         if let Some(topic) = value {
-            println!("pushing topic {:?}", scale::Encode::encode(topic));
             self.backend.push_topic(topic);
         }
         TopicsBuilder {
