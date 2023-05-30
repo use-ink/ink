@@ -145,6 +145,12 @@
 <a href="#144" id="144">144</a>
 <a href="#145" id="145">145</a>
 <a href="#146" id="146">146</a>
+<a href="#147" id="147">147</a>
+<a href="#148" id="148">148</a>
+<a href="#149" id="149">149</a>
+<a href="#150" id="150">150</a>
+<a href="#151" id="151">151</a>
+<a href="#152" id="152">152</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -263,6 +269,12 @@
     <span class="kw">fn </span>as_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>[u8] {
         <span class="kw-2">&amp;mut </span><span class="self">self</span>.<span class="number">0</span>[..]
     }
+}
+
+<span class="kw">impl </span>From&lt;Hash&gt; <span class="kw">for </span>[u8; <span class="number">32</span>] {
+    <span class="kw">fn </span>from(hash: Hash) -&gt; <span class="self">Self </span>{
+        hash.<span class="number">0
+    </span>}
 }
 
 <span class="doccomment">/// The equivalent of `Zero` for hashes.
