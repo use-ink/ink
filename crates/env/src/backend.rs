@@ -21,11 +21,11 @@ use crate::{
         DelegateCall,
         FromAccountId,
     },
+    event::Event,
     hash::{
         CryptoHash,
         HashOutput,
     },
-    event::Event,
     Environment,
     Result,
 };

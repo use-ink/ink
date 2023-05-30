@@ -22,6 +22,10 @@ use crate::{
         DelegateCall,
         FromAccountId,
     },
+    event::{
+        Event,
+        TopicsBuilderBackend,
+    },
     hash::{
         Blake2x128,
         Blake2x256,
@@ -29,10 +33,6 @@ use crate::{
         HashOutput,
         Keccak256,
         Sha2x256,
-    },
-    event::{
-        Event,
-        TopicsBuilderBackend,
     },
     Clear,
     EnvBackend,

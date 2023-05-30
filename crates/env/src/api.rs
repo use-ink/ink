@@ -32,11 +32,11 @@ use crate::{
         EnvInstance,
         OnInstance,
     },
+    event::Event,
     hash::{
         CryptoHash,
         HashOutput,
     },
-    event::Event,
     types::Gas,
     Environment,
     Result,
