@@ -543,7 +543,6 @@ impl TypedEnvBackend for EnvInstance {
         unimplemented!("off-chain environment does not support `own_code_hash`")
     }
 
-    #[cfg(feature = "call-runtime")]
     fn call_runtime<E, Call>(&mut self, _call: &Call) -> Result<()>
     where
         E: Environment,
