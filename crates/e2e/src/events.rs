@@ -87,7 +87,7 @@ pub struct ContractEmitted<E: Environment> {
     pub data: Vec<u8>,
 }
 
-impl<E> StaticEvent for ContractEmitted <E>
+impl<E> StaticEvent for ContractEmitted<E>
 where
     E: Environment,
 {
@@ -96,7 +96,7 @@ where
 }
 
 /// A decoded event with its associated topics.
-pub struct EventWithTopics<T, E: Environment> {
-    pub topics: Vec<E::Hash>,
+pub struct EventWithTopics<T> {
+    pub topics: Vec<sp_core::H256>,
     pub event: T,
 }

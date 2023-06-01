@@ -205,9 +205,11 @@ where
     }
 
     /// Returns all the `ContractEmitted` events emitted by the contract.
-    pub fn contract_emitted_events(&self) -> Result<Vec<EventWithTopics<events::ContractEmitted<E>, E>>, subxt::Error>
+    pub fn contract_emitted_events(
+        &self,
+    ) -> Result<Vec<EventWithTopics<events::ContractEmitted<E>>>, subxt::Error>
     where
-        E::Hash: From<C::Hash>
+        C::Hash: Into<sp_core::H256>,
     {
         let mut events_with_topics = Vec::new();
         for event in self.events.iter() {

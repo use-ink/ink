@@ -92,6 +92,7 @@ pub mod events {
     #[cfg(all(test, feature = "e2e-tests"))]
     mod e2e_tests {
         use super::*;
+        use ink_e2e::H256;
 
         type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
@@ -114,13 +115,22 @@ pub mod events {
                 .expect("flip failed");
 
             let contract_events = flip_res.contract_emitted_events()?;
+
+            // then
             assert_eq!(1, contract_events.len());
+            let contract_event = &contract_events[0];
             let flipped: event_def::Flipped =
-                scale::Decode::decode(&mut &contract_events[0].data[..])
+                scale::Decode::decode(&mut &contract_event.event.data[..])
                     .expect("encountered invalid contract event data buffer");
             assert_eq!(!init_value, flipped.value);
 
-            // todo check topics
+            let signature_topic =
+                <event_def::Flipped as ink::env::Event>::SIGNATURE_TOPIC
+                    .map(|topic| H256::from(topic))
+                    .unwrap();
+
+            let expected_topics = vec![signature_topic];
+            assert_eq!(expected_topics, contract_event.topics);
 
             Ok(())
         }
