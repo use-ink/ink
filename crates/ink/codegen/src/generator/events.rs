@@ -76,25 +76,20 @@ impl<'a> Events<'a> {
     fn generate_event_structs(&'a self) -> impl Iterator<Item = TokenStream2> + 'a {
         self.contract.module().events().map(move |event| {
             let span = event.span();
-            let ident = event.ident();
             let attrs = event.attrs();
-            let fields = event.fields().map(|event_field| {
-                let span = event_field.span();
-                let attrs = event_field.attrs();
-                let vis = event_field.vis();
-                let ident = event_field.ident();
-                let ty = event_field.ty();
-                quote_spanned!(span=>
-                    #( #attrs )*
-                    #vis #ident : #ty
+            // todo: should we just keep this attribute as part of attrs in the first
+            // place?
+            let anonymous_attr = event.anonymous.then(|| {
+                quote_spanned!(span =>
+                    #[ink(::anonymous)]
                 )
             });
             quote_spanned!(span =>
                 #( #attrs )*
                 #[derive(::ink::Event, scale::Encode, scale::Decode)]
-                pub struct #ident {
-                    #( #fields ),*
-                }
+                #[cfg_attr(feature = "std", derive(ink::EventMetadata))]
+                #anonymous_attr
+                #event
             )
         })
     }

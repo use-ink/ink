@@ -99,32 +99,23 @@ pub mod events {
 
         #[ink_e2e::test]
         async fn it_works(mut client: ink_e2e::Client<C, E>) -> E2EResult<()> {
-            // // given
-            // let constructor = FlipperRef::new(false);
-            // let contract_acc_id = client
-            //     .instantiate("events", &ink_e2e::alice(), constructor, 0, None)
-            //     .await
-            //     .expect("instantiate failed")
-            //     .account_id;
-            //
-            // let get = build_message::<FlipperRef>(contract_acc_id.clone())
-            //     .call(|events| events.get());
-            // let get_res = client.call_dry_run(&ink_e2e::bob(), &get, 0, None).await;
-            // assert!(matches!(get_res.return_value(), false));
-            //
-            // // when
-            // let flip = build_message::<FlipperRef>(contract_acc_id.clone())
-            //     .call(|events| events.flip());
-            // let _flip_res = client
-            //     .call(&ink_e2e::bob(), flip, 0, None)
-            //     .await
-            //     .expect("flip failed");
-            //
-            // // then
-            // let get = build_message::<FlipperRef>(contract_acc_id.clone())
-            //     .call(|events| events.get());
-            // let get_res = client.call_dry_run(&ink_e2e::bob(), &get, 0, None).await;
-            // assert!(matches!(get_res.return_value(), true));
+            // given
+            let constructor = EventsRef::new(false);
+            let contract = client
+                .instantiate("events", &ink_e2e::alice(), constructor, 0, None)
+                .await
+                .expect("instantiate failed");
+            let mut call = contract.call();
+
+            // when
+            let flip = call.flip();
+            let flip_res = client
+                .call(&ink_e2e::bob(), flip, 0, None)
+                .await
+                .expect("flip failed");
+
+            // todo: CotnractEmitted
+            let events = flip_res.events.find::<>();
             //
             // Ok(())
         }
