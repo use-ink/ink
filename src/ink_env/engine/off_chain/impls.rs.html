@@ -551,7 +551,6 @@
 <a href="#550" id="550">550</a>
 <a href="#551" id="551">551</a>
 <a href="#552" id="552">552</a>
-<a href="#553" id="553">553</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -1097,8 +1096,7 @@
         <span class="macro">unimplemented!</span>(<span class="string">&quot;off-chain environment does not support `own_code_hash`&quot;</span>)
     }
 
-    <span class="attr">#[cfg(feature = <span class="string">&quot;call-runtime&quot;</span>)]
-    </span><span class="kw">fn </span>call_runtime&lt;E, Call&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _call: <span class="kw-2">&amp;</span>Call) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt;
+    <span class="kw">fn </span>call_runtime&lt;E, Call&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _call: <span class="kw-2">&amp;</span>Call) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt;
     <span class="kw">where
         </span>E: Environment,
     {

@@ -521,7 +521,6 @@
 <a href="#520" id="520">520</a>
 <a href="#521" id="521">521</a>
 <a href="#522" id="522">522</a>
-<a href="#523" id="523">523</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -1039,8 +1038,7 @@
     <span class="kw">where
         </span>E: Environment;
 
-    <span class="attr">#[cfg(feature = <span class="string">&quot;call-runtime&quot;</span>)]
-    </span><span class="kw">fn </span>call_runtime&lt;E, Call&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, call: <span class="kw-2">&amp;</span>Call) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt;
+    <span class="kw">fn </span>call_runtime&lt;E, Call&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, call: <span class="kw-2">&amp;</span>Call) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt;
     <span class="kw">where
         </span>E: Environment,
         Call: scale::Encode;

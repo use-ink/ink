@@ -763,12 +763,6 @@
 <a href="#762" id="762">762</a>
 <a href="#763" id="763">763</a>
 <a href="#764" id="764">764</a>
-<a href="#765" id="765">765</a>
-<a href="#766" id="766">766</a>
-<a href="#767" id="767">767</a>
-<a href="#768" id="768">768</a>
-<a href="#769" id="769">769</a>
-<a href="#770" id="770">770</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -1521,15 +1515,9 @@
 /// - If the runtime doesn&#39;t allow for the contract unstable feature.
 /// - If the runtime doesn&#39;t allow for dispatching this call from a contract.
 ///
-/// # Note
-///
-/// The `call_runtime` host function is still part of `pallet-contracts`&#39; unstable
-/// interface and thus can be changed at anytime.
-///
 /// # Panics
 ///
 /// Panics in the off-chain environment.
-</span><span class="attr">#[cfg(feature = <span class="string">&quot;call-runtime&quot;</span>)]
 </span><span class="kw">pub fn </span>call_runtime&lt;E, Call&gt;(call: <span class="kw-2">&amp;</span>Call) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt;
 <span class="kw">where
     </span>E: Environment,

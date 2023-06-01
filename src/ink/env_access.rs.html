@@ -1045,7 +1045,6 @@
 <a href="#1044" id="1044">1044</a>
 <a href="#1045" id="1045">1045</a>
 <a href="#1046" id="1046">1046</a>
-<a href="#1047" id="1047">1047</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -2088,8 +2087,7 @@
         ink_env::set_code_hash2::&lt;E&gt;(code_hash)
     }
 
-    <span class="attr">#[cfg(feature = <span class="string">&quot;call-runtime&quot;</span>)]
-    </span><span class="kw">pub fn </span>call_runtime&lt;Call: scale::Encode&gt;(<span class="self">self</span>, call: <span class="kw-2">&amp;</span>Call) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+    <span class="kw">pub fn </span>call_runtime&lt;Call: scale::Encode&gt;(<span class="self">self</span>, call: <span class="kw-2">&amp;</span>Call) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
         ink_env::call_runtime::&lt;E, <span class="kw">_</span>&gt;(call)
     }
 }
