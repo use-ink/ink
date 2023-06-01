@@ -113,12 +113,14 @@ pub mod events {
                 .await
                 .expect("flip failed");
 
-            let contract_events = flip_res.contract_emitted_events();
+            let contract_events = flip_res.contract_emitted_events()?;
             assert_eq!(1, contract_events.len());
             let flipped: event_def::Flipped =
                 scale::Decode::decode(&mut &contract_events[0].data[..])
                     .expect("encountered invalid contract event data buffer");
             assert_eq!(!init_value, flipped.value);
+
+            // todo check topics
 
             Ok(())
         }

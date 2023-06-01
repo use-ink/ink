@@ -87,10 +87,16 @@ pub struct ContractEmitted<E: Environment> {
     pub data: Vec<u8>,
 }
 
-impl<E> StaticEvent for ContractEmitted<E>
+impl<E> StaticEvent for ContractEmitted <E>
 where
     E: Environment,
 {
     const PALLET: &'static str = "Contracts";
     const EVENT: &'static str = "ContractEmitted";
+}
+
+/// A decoded event with its associated topics.
+pub struct EventWithTopics<T, E: Environment> {
+    pub topics: Vec<E::Hash>,
+    pub event: T,
 }

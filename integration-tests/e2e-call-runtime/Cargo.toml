@@ -13,8 +13,7 @@ scale-info = { version = "2.6", default-features = false, features = ["derive"],
 
 [dev-dependencies]
 ink_e2e = { path = "../../crates/e2e" }
-#subxt = { version = "0.28.0", default-features = false }
-subxt = { git = "http://github.com/paritytech/subxt" }
+subxt = { version = "0.28.0", default-features = false }
 
 [lib]
 path = "lib.rs"

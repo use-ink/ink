@@ -20,6 +20,7 @@ use super::{
     events::{
         CodeStoredEvent,
         ContractInstantiatedEvent,
+        EventWithTopics,
     },
     log_error,
     log_info,
@@ -204,11 +205,22 @@ where
     }
 
     /// Returns all the `ContractEmitted` events emitted by the contract.
-    pub fn contract_emitted_events(&self) -> Vec<events::ContractEmitted<E>> {
-        self.events
-            .find::<events::ContractEmitted<E>>()
-            .collect::<Result<Vec<_>, _>>()
-            .expect("ContractEmitted events should be decodable")
+    pub fn contract_emitted_events(&self) -> Result<Vec<EventWithTopics<events::ContractEmitted<E>, E>>, subxt::Error>
+    where
+        E::Hash: From<C::Hash>
+    {
+        let mut events_with_topics = Vec::new();
+        for event in self.events.iter() {
+            let event = event?;
+            if let Some(decoded_event) = event.as_event::<events::ContractEmitted<E>>()? {
+                let event_with_topics = EventWithTopics {
+                    event: decoded_event,
+                    topics: event.topics().iter().cloned().map(Into::into).collect(),
+                };
+                events_with_topics.push(event_with_topics);
+            }
+        }
+        Ok(events_with_topics)
     }
 }
 
@@ -953,6 +965,6 @@ where
 }
 
 /// Returns true if the give event is System::Extrinsic failed.
-fn is_extrinsic_failed_event(event: &EventDetails) -> bool {
+fn is_extrinsic_failed_event<E: subxt::Config>(event: &EventDetails<E>) -> bool {
     event.pallet_name() == "System" && event.variant_name() == "ExtrinsicFailed"
 }
