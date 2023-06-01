@@ -1048,7 +1048,6 @@ where
         ink_env::set_code_hash2::<E>(code_hash)
     }
 
-    #[cfg(feature = "call-runtime")]
     pub fn call_runtime<Call: scale::Encode>(self, call: &Call) -> Result<()> {
         ink_env::call_runtime::<E, _>(call)
     }

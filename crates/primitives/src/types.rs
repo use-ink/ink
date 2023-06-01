@@ -118,6 +118,12 @@ impl AsMut<[u8]> for Hash {
     }
 }
 
+impl From<Hash> for [u8; 32] {
+    fn from(hash: Hash) -> Self {
+        hash.0
+    }
+}
+
 /// The equivalent of `Zero` for hashes.
 ///
 /// A hash that consists only of 0 bits is clear.
