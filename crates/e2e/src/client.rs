@@ -54,6 +54,7 @@ use std::{
     path::PathBuf,
 };
 
+use crate::events;
 use subxt::{
     blocks::ExtrinsicEvents,
     config::ExtrinsicParams,
@@ -200,6 +201,14 @@ where
             let event = event.unwrap();
             event.pallet_name() == pallet_name && event.variant_name() == variant_name
         })
+    }
+
+    /// Returns all the `ContractEmitted` events emitted by the contract.
+    pub fn contract_emitted_events(&self) -> Vec<events::ContractEmitted<E>> {
+        self.events
+            .find::<events::ContractEmitted<E>>()
+            .collect::<Result<Vec<_>, _>>()
+            .expect("ContractEmitted events should be decodable")
     }
 }
 

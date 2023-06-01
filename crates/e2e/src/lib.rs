@@ -22,7 +22,7 @@
 mod builders;
 mod client;
 mod default_accounts;
-mod events;
+pub mod events;
 mod node_proc;
 mod xts;
 

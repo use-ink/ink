@@ -16,9 +16,12 @@ use ink_env::Environment;
 #[cfg(feature = "std")]
 use std::fmt::Debug;
 
-use subxt::ext::{
-    scale_decode,
-    scale_encode,
+use subxt::{
+    events::StaticEvent,
+    ext::{
+        scale_decode,
+        scale_encode,
+    },
 };
 
 /// A contract was successfully instantiated.
@@ -38,7 +41,7 @@ pub struct ContractInstantiatedEvent<E: Environment> {
     pub contract: E::AccountId,
 }
 
-impl<E> subxt::events::StaticEvent for ContractInstantiatedEvent<E>
+impl<E> StaticEvent for ContractInstantiatedEvent<E>
 where
     E: Environment,
 {
@@ -61,10 +64,33 @@ pub struct CodeStoredEvent<E: Environment> {
     pub code_hash: E::Hash,
 }
 
-impl<E> subxt::events::StaticEvent for CodeStoredEvent<E>
+impl<E> StaticEvent for CodeStoredEvent<E>
 where
     E: Environment,
 {
     const PALLET: &'static str = "Contracts";
     const EVENT: &'static str = "CodeStored";
+}
+
+#[derive(
+    scale::Decode,
+    scale::Encode,
+    scale_decode::DecodeAsType,
+    scale_encode::EncodeAsType,
+    Debug,
+)]
+#[decode_as_type(trait_bounds = "", crate_path = "subxt::ext::scale_decode")]
+#[encode_as_type(crate_path = "subxt::ext::scale_encode")]
+/// A custom event emitted by the contract.
+pub struct ContractEmitted<E: Environment> {
+    pub contract: E::AccountId,
+    pub data: Vec<u8>,
+}
+
+impl<E> StaticEvent for ContractEmitted<E>
+where
+    E: Environment,
+{
+    const PALLET: &'static str = "Contracts";
+    const EVENT: &'static str = "ContractEmitted";
 }

@@ -18,9 +18,8 @@ pub mod events {
         #[ink(message)]
         pub fn flip(&mut self) {
             self.value = !self.value;
-            self.env().emit_event(event_def::Flipped {
-                flipped: self.value,
-            })
+            self.env()
+                .emit_event(event_def::Flipped { value: self.value })
         }
 
         /// Emit an event with a 32 byte topic.
@@ -49,7 +48,7 @@ pub mod events {
 
             let decoded_event = <event_def::Flipped>::decode(&mut &event.data[..])
                 .expect("encountered invalid contract event data buffer");
-            assert_eq!(decoded_event.flipped, true);
+            assert_eq!(decoded_event.value, true);
         }
 
         #[ink::test]
@@ -93,31 +92,35 @@ pub mod events {
     #[cfg(all(test, feature = "e2e-tests"))]
     mod e2e_tests {
         use super::*;
-        use ink_e2e::build_message;
 
         type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
         #[ink_e2e::test]
-        async fn it_works(mut client: ink_e2e::Client<C, E>) -> E2EResult<()> {
+        async fn emits_shared_event(mut client: ink_e2e::Client<C, E>) -> E2EResult<()> {
             // given
-            let constructor = EventsRef::new(false);
+            let init_value = false;
+            let constructor = EventsRef::new(init_value);
             let contract = client
                 .instantiate("events", &ink_e2e::alice(), constructor, 0, None)
                 .await
                 .expect("instantiate failed");
-            let mut call = contract.call();
+            let mut call = contract.call::<Events>();
 
             // when
             let flip = call.flip();
             let flip_res = client
-                .call(&ink_e2e::bob(), flip, 0, None)
+                .call(&ink_e2e::bob(), &flip, 0, None)
                 .await
                 .expect("flip failed");
 
-            // todo: CotnractEmitted
-            let events = flip_res.events.find::<>();
-            //
-            // Ok(())
+            let contract_events = flip_res.contract_emitted_events();
+            assert_eq!(1, contract_events.len());
+            let flipped: event_def::Flipped =
+                scale::Decode::decode(&mut &contract_events[0].data[..])
+                    .expect("encountered invalid contract event data buffer");
+            assert_eq!(!init_value, flipped.value);
+
+            Ok(())
         }
     }
 }

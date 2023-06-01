@@ -3,7 +3,7 @@
 #[derive(ink::Event, scale::Encode)]
 #[cfg_attr(feature = "std", derive(ink::EventMetadata, scale::Decode))]
 pub struct Flipped {
-    pub flipped: bool,
+    pub value: bool,
 }
 
 #[derive(ink::Event, scale::Encode)]
