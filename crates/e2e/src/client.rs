@@ -58,12 +58,10 @@ use subxt::{
     blocks::ExtrinsicEvents,
     config::ExtrinsicParams,
     events::EventDetails,
-    ext::{
-        scale_value::{
-            Composite,
-            Value,
-            ValueDef,
-        },
+    ext::scale_value::{
+        Composite,
+        Value,
+        ValueDef,
     },
     tx::PairSigner,
 };

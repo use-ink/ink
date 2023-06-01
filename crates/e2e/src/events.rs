@@ -12,44 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use ink::codegen::ContractCallBuilder;
-use ink_env::{
-    call::{
-        utils::{
-            ReturnType,
-            Set,
-        },
-        Call,
-        ExecutionInput,
-        FromAccountId,
-    },
-    Environment,
-};
-use ink_primitives::MessageResult;
-use pallet_contracts_primitives::ExecReturnValue;
-use sp_core::Pair;
+use ink_env::Environment;
 #[cfg(feature = "std")]
-use std::{
-    collections::BTreeMap,
-    fmt::Debug,
-    marker::PhantomData,
-    path::PathBuf,
-};
+use std::fmt::Debug;
 
-use subxt::{
-    blocks::ExtrinsicEvents,
-    config::ExtrinsicParams,
-    events::EventDetails,
-    ext::{
-        scale_decode,
-        scale_encode,
-        scale_value::{
-            Composite,
-            Value,
-            ValueDef,
-        },
-    },
-    tx::PairSigner,
+use subxt::ext::{
+    scale_decode,
+    scale_encode,
 };
 
 /// A contract was successfully instantiated.
