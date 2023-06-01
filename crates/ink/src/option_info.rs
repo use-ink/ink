@@ -38,7 +38,7 @@ pub trait AsOptionFallback<T> {
 impl<T> AsOptionFallback<T> for AsOption<'_, T> {
     #[inline]
     fn value(&self) -> Option<&T> {
-        Some(&self.0)
+        Some(self.0)
     }
 }
 

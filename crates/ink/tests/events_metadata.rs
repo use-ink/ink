@@ -66,13 +66,11 @@ mod tests {
             .spec()
             .events()
             .iter()
-            .find(|e| e.label() == "EventExternal")
-            .is_some());
+            .any(|e| e.label() == "EventExternal"));
         assert!(metadata
             .spec()
             .events()
             .iter()
-            .find(|e| e.label() == "EventInline")
-            .is_some());
+            .any(|e| e.label() == "EventInline"));
     }
 }

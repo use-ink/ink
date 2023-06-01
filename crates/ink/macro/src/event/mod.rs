@@ -161,7 +161,7 @@ fn signature_topic(fields: &syn::Fields, event_ident: &syn::Ident) -> syn::LitSt
         .map(|field| {
             quote::ToTokens::to_token_stream(&field.ty)
                 .to_string()
-                .replace(" ", "")
+                .replace(' ', "")
         })
         .collect::<Vec<_>>()
         .join(",");
