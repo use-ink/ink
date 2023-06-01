@@ -64,6 +64,7 @@ use subxt::{
         },
     },
     tx::PairSigner,
+    Config,
 };
 
 /// Represents an initialized contract message builder.
@@ -992,6 +993,6 @@ where
 }
 
 /// Returns true if the give event is System::Extrinsic failed.
-fn is_extrinsic_failed_event(event: &EventDetails) -> bool {
+fn is_extrinsic_failed_event<C: Config>(event: &EventDetails<C>) -> bool {
     event.pallet_name() == "System" && event.variant_name() == "ExtrinsicFailed"
 }
