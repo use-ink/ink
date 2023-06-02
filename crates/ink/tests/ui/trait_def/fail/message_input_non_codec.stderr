@@ -45,9 +45,7 @@ error[E0599]: the method `try_invoke` exists for struct `CallBuilder<E, Set<Call
  --> tests/ui/trait_def/fail/message_input_non_codec.rs:5:5
   |
 5 |     #[ink(message)]
-  |     ^
-  |     |
-  |     method cannot be called due to unsatisfied trait bounds
+  |     ^ method cannot be called due to unsatisfied trait bounds
   |
  ::: $WORKSPACE/crates/env/src/call/execution_input.rs
   |
