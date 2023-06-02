@@ -81,7 +81,7 @@ pub struct InstantiationResult<C: subxt::Config, E: Environment> {
     pub account_id: E::AccountId,
     /// The result of the dry run, contains debug messages
     /// if there were any.
-    pub dry_run: ContractInstantiateResult<C::AccountId, E::Balance>,
+    pub dry_run: ContractInstantiateResult<C::AccountId, E::Balance, ()>,
     /// Events that happened with the contract instantiation.
     pub events: ExtrinsicEvents<C>,
 }
@@ -227,7 +227,7 @@ where
 pub struct CallDryRunResult<E: Environment, V> {
     /// The result of the dry run, contains debug messages
     /// if there were any.
-    pub exec_result: ContractExecResult<E::Balance>,
+    pub exec_result: ContractExecResult<E::Balance, ()>,
     _marker: PhantomData<V>,
 }
 
@@ -307,7 +307,7 @@ where
     /// No contract with the given name found in scope.
     ContractNotFound(String),
     /// The `instantiate_with_code` dry run failed.
-    InstantiateDryRun(ContractInstantiateResult<C::AccountId, E::Balance>),
+    InstantiateDryRun(ContractInstantiateResult<C::AccountId, E::Balance, ()>),
     /// The `instantiate_with_code` extrinsic failed.
     InstantiateExtrinsic(subxt::error::DispatchError),
     /// The `upload` dry run failed.
@@ -315,7 +315,7 @@ where
     /// The `upload` extrinsic failed.
     UploadExtrinsic(subxt::error::DispatchError),
     /// The `call` dry run failed.
-    CallDryRun(ContractExecResult<E::Balance>),
+    CallDryRun(ContractExecResult<E::Balance, ()>),
     /// The `call` extrinsic failed.
     CallExtrinsic(subxt::error::DispatchError),
     /// Error fetching account balance.
@@ -534,7 +534,7 @@ where
         constructor: CreateBuilderPartial<E, Contract, Args, R>,
         value: E::Balance,
         storage_deposit_limit: Option<E::Balance>,
-    ) -> ContractInstantiateResult<C::AccountId, E::Balance>
+    ) -> ContractInstantiateResult<C::AccountId, E::Balance, ()>
     where
         Args: scale::Encode,
     {
