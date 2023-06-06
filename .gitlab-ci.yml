@@ -408,24 +408,24 @@ examples-contract-build:
         if [ "$example" = "integration-tests/lang-err-integration-tests/" ]; then continue; fi;
         if [ "$example" = "integration-tests/conditional-compilation/" ]; then
         pushd $example &&
-        cargo +stable contract build --features "foo" &&
+        cargo contract build --features "foo" &&
         popd;
         pushd $example &&
-        cargo +stable contract build --features "bar" &&
+        cargo contract build --features "bar" &&
         popd;
         pushd $example &&
-        cargo +stable contract build --features "foo, bar" &&
+        cargo contract build --features "foo, bar" &&
         popd;
         fi;
         pushd $example &&
-        cargo +stable contract build &&
+        cargo contract build &&
         popd;
       done
     - pushd ./integration-tests/multi-contract-caller/ && ./build-all.sh && popd
     - for contract in ${LANG_ERR_INTEGRATION_CONTRACTS}; do
-        cargo +stable contract build --manifest-path ./integration-tests/lang-err-integration-tests/${contract}/Cargo.toml;
+        cargo contract build --manifest-path ./integration-tests/lang-err-integration-tests/${contract}/Cargo.toml;
       done
-    - cargo +stable contract build --manifest-path ./integration-tests/set-code-hash/updated-incrementer/Cargo.toml
+    - cargo contract build --manifest-path ./integration-tests/set-code-hash/updated-incrementer/Cargo.toml
 
 # TODO: Use cargo contract as soon as it has RISC-V support
 examples-contract-build-riscv:
@@ -451,7 +451,7 @@ examples-contract-build-riscv:
         if [ "$example" = "integration-tests/custom-allocator/" ]; then continue; fi;
         if [ "$example" = "integration-tests/call-runtime/" ]; then continue; fi;
         pushd $example &&
-        cargo +stable build --no-default-features --target $RISCV_TARGET -Zbuild-std="core,alloc" &&
+        cargo build --no-default-features --target $RISCV_TARGET -Zbuild-std="core,alloc" &&
         popd;
       done
 
