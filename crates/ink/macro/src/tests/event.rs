@@ -26,6 +26,7 @@ use crate::event::event_derive;
 fn unit_struct_works() {
     crate::test_derive! {
         event_derive {
+            #[derive(scale::Encode)]
             struct UnitStruct;
         }
         expands to {
@@ -66,6 +67,7 @@ fn unit_struct_works() {
 fn unit_struct_anonymous_has_no_topics() {
     crate::test_derive! {
         event_derive {
+            #[derive(scale::Encode)]
             #[ink(anonymous)]
             struct UnitStruct;
         }
@@ -106,6 +108,7 @@ fn unit_struct_anonymous_has_no_topics() {
 fn struct_with_fields_no_topics() {
     crate::test_derive! {
         event_derive {
+            #[derive(scale::Encode)]
             struct Event {
                 field_1: u32,
                 field_2: u64,
@@ -150,6 +153,7 @@ fn struct_with_fields_no_topics() {
 fn struct_with_fields_and_some_topics() {
     crate::test_derive! {
         event_derive {
+            #[derive(scale::Encode)]
             struct Event {
                 field_1: u32,
                 #[ink(topic)]

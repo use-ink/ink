@@ -18,6 +18,7 @@ use crate::event::event_metadata_derive;
 fn unit_struct_works() {
     crate::test_derive! {
         event_metadata_derive {
+            #[derive(ink::Event, scale::Encode)]
             struct UnitStruct;
         }
         expands to {
@@ -30,6 +31,7 @@ fn unit_struct_works() {
                             <UnitStruct as ::ink::metadata::EventMetadata>::event_spec;
 
                         ::ink::metadata::EventSpec::new(::core::stringify!(UnitStruct))
+                            .signature_topic(<Self as ::ink::env::Event>::SIGNATURE_TOPIC)
                             .args([])
                             .docs([])
                             .done()

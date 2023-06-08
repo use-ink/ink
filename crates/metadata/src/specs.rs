@@ -16,7 +16,11 @@
 
 use crate::{
     serde_hex,
-    utils::trim_extra_whitespace,
+    utils::{
+        deserialize_from_byte_str,
+        serialize_as_byte_str,
+        trim_extra_whitespace,
+    },
 };
 #[cfg(not(feature = "std"))]
 use alloc::{
@@ -854,10 +858,34 @@ impl IntoPortable for MessageSpec {
 pub struct EventSpec<F: Form = MetaForm> {
     /// The label of the event.
     label: F::String,
+    /// The signature topic of the event. `None` if the event is anonymous.
+    signature_topic: Option<SignatureTopic>,
     /// The event arguments.
     args: Vec<EventParamSpec<F>>,
     /// The event documentation.
     docs: Vec<F::String>,
+}
+
+/// The value of the signature topic for a non anonymous event.
+#[derive(Debug, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
+#[serde(transparent)]
+pub struct SignatureTopic {
+    #[serde(
+        serialize_with = "serialize_as_byte_str",
+        deserialize_with = "deserialize_from_byte_str"
+    )]
+    bytes: Vec<u8>,
+}
+
+impl<T> From<T> for SignatureTopic
+where
+    T: AsRef<[u8]>,
+{
+    fn from(bytes: T) -> Self {
+        SignatureTopic {
+            bytes: bytes.as_ref().to_vec(),
+        }
+    }
 }
 
 /// An event specification builder.
@@ -881,6 +909,17 @@ where
         let mut this = self;
         debug_assert!(this.spec.args.is_empty());
         this.spec.args = args.into_iter().collect::<Vec<_>>();
+        this
+    }
+
+    /// Sets the signature topic of the event specification.
+    pub fn signature_topic<T>(self, topic: Option<T>) -> Self
+    where
+        T: AsRef<[u8]>,
+    {
+        let mut this = self;
+        debug_assert!(this.spec.signature_topic.is_none());
+        this.spec.signature_topic = topic.as_ref().map(SignatureTopic::from);
         this
     }
 
@@ -911,6 +950,7 @@ impl IntoPortable for EventSpec {
     fn into_portable(self, registry: &mut Registry) -> Self::Output {
         EventSpec {
             label: self.label.to_string(),
+            signature_topic: self.signature_topic,
             args: self
                 .args
                 .into_iter()
@@ -930,6 +970,7 @@ where
         EventSpecBuilder {
             spec: Self {
                 label,
+                signature_topic: None,
                 args: Vec::new(),
                 docs: Vec::new(),
             },

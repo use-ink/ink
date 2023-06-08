@@ -50,7 +50,9 @@ fn event_metadata_derive_struct(s: synstructure::Structure) -> TokenStream2 {
 
                // todo: check that cfg attributes work here
                ::ink::metadata::EventSpec::new(::core::stringify!(#ident))
-                       // todo: add signanture topic if not anonymous
+                       .signature_topic(
+                            <Self as ::ink::env::Event>::SIGNATURE_TOPIC
+                        )
                        // todo: add fields, with topic flag.
                        .args([
                            // #( #args ),*
