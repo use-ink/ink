@@ -49,23 +49,9 @@ fn event_derive_struct(mut s: synstructure::Structure) -> syn::Result<TokenStrea
 
     let anonymous = has_ink_attribute(&s.ast().attrs, "anonymous")?;
 
-    // let decode_body = variant.construct(|field, _index| {
-    //     let ty = &field.ty;
-    //     let span = ty.span();
-    //     quote_spanned!(span =>
-    //         <#ty as ::ink::storage::traits::Storable>::decode(__input)?
-    //     )
-    // });
-    // let encode_body = variant.each(|binding| {
-    //     let span = binding.ast().ty.span();
-    //     quote_spanned!(span =>
-    //         ::ink::storage::traits::Storable::encode(#binding, __dest);
-    //     )
-    // });
-
     let mut topic_err: Option<syn::Error> = None;
     s.variants_mut()[0].filter(|bi| {
-        match has_ink_attribute(&bi.ast().attrs, "topic") {
+        match has_ink_topic_attribute(&bi.ast().attrs) {
             Ok(has_attr) => has_attr,
             Err(err) => {
                 match topic_err {
@@ -167,6 +153,11 @@ fn signature_topic(fields: &syn::Fields, event_ident: &syn::Ident) -> syn::LitSt
         .join(",");
     let topic_str = format!("{}({fields})", event_ident);
     syn::parse_quote!( #topic_str )
+}
+
+/// Checks if the given attributes contain an `#[ink(topic)]` attribute.
+fn has_ink_topic_attribute(attrs: &[syn::Attribute]) -> syn::Result<bool> {
+    has_ink_attribute(attrs, "topic")
 }
 
 /// Checks if the given attributes contain an `ink` attribute with the given path.

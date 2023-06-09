@@ -1203,7 +1203,7 @@ where
 pub struct EventParamSpec<F: Form = MetaForm> {
     /// The label of the parameter.
     label: F::String,
-    /// If the event parameter is indexed.
+    /// If the event parameter is indexed as a topic.
     indexed: bool,
     /// The type of the parameter.
     #[serde(rename = "type")]
@@ -1235,7 +1235,7 @@ where
         EventParamSpecBuilder {
             spec: Self {
                 label,
-                // By default event parameters are not indexed.
+                // By default event parameters are not indexed as topics.
                 indexed: false,
                 // We initialize every parameter type as `()`.
                 ty: Default::default(),
@@ -1249,7 +1249,7 @@ where
         &self.label
     }
 
-    /// Returns true if the event parameter is indexed.
+    /// Returns true if the event parameter is indexed as a topic.
     pub fn indexed(&self) -> bool {
         self.indexed
     }
@@ -1286,7 +1286,7 @@ where
         this
     }
 
-    /// If the event parameter is indexed.
+    /// If the event parameter is indexed as a topic.
     pub fn indexed(self, is_indexed: bool) -> Self {
         let mut this = self;
         this.spec.indexed = is_indexed;
