@@ -47,11 +47,10 @@ fn event_metadata_derive_struct(s: synstructure::Structure) -> syn::Result<Token
         let field_ty = &field.ast().ty;
         let field_span = field_ty.span();
         if let Some(field_name) = field.ast().ident.as_ref() {
-            let indexed = super::has_ink_attribute(&field.ast().attrs, "indexed")
-                .unwrap();
+            let indexed = super::has_ink_topic_attribute(&field.ast().attrs)?;
             Ok(quote_spanned!(field_span =>
                 ::ink::metadata::EventParamSpec::new(::core::stringify!(#field_name))
-                    .of_type::<#field_ty>()
+                    .of_type(::ink::metadata::TypeSpec::with_name_str::<#field_ty>(::core::stringify!(#field_ty)))
                     .indexed(#indexed)
                     // .docs
                     .done()
