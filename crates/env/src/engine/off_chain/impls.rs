@@ -422,13 +422,13 @@ impl TypedEnvBackend for EnvInstance {
             })
     }
 
-    fn emit_event<const MAX_TOPICS: usize, E, Evt>(&mut self, event: Evt)
+    fn emit_event<E, Evt>(&mut self, event: Evt)
     where
         E: Environment,
         Evt: Event,
     {
         let builder = TopicsBuilder::default();
-        let enc_topics = event.topics::<MAX_TOPICS, E, _>(builder.into());
+        let enc_topics = event.topics::<E, _>(builder.into());
         let enc_data = &scale::Encode::encode(&event)[..];
         self.engine.deposit_event(&enc_topics[..], enc_data);
     }

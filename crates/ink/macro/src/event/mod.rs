@@ -75,7 +75,7 @@ fn event_derive_struct(mut s: synstructure::Structure) -> syn::Result<TokenStrea
     let remaining_topics_ty = match len_topics {
         0 => quote_spanned!(span=> ::ink::env::event::state::NoRemainingTopics),
         _ => {
-            quote_spanned!(span=> [::ink::env::event::state::HasRemainingTopics; Self::TOPICS_LEN])
+            quote_spanned!(span=> [::ink::env::event::state::HasRemainingTopics; #len_topics])
         }
     };
 
@@ -116,10 +116,9 @@ fn event_derive_struct(mut s: synstructure::Structure) -> syn::Result<TokenStrea
     Ok(s.bound_impl(quote!(::ink::env::Event), quote! {
         type RemainingTopics = #remaining_topics_ty;
 
-        const TOPICS_LEN: usize = #len_topics;
         const SIGNATURE_TOPIC: ::core::option::Option<[::core::primitive::u8; 32]> = #signature_topic;
 
-        fn topics<const MAX_TOPICS: usize, E, B>(
+        fn topics<E, B>(
             &self,
             builder: ::ink::env::event::TopicsBuilder<::ink::env::event::state::Uninit, E, B>,
         ) -> <B as ::ink::env::event::TopicsBuilderBackend<E>>::Output
@@ -127,10 +126,6 @@ fn event_derive_struct(mut s: synstructure::Structure) -> syn::Result<TokenStrea
             E: ::ink::env::Environment,
             B: ::ink::env::event::TopicsBuilderBackend<E>,
         {
-            // assert at compile time the number of topics defined by this event is within the
-            // given limit.
-            let _ = ::ink::codegen::EventRespectsTopicLimit::<{ Self::TOPICS_LEN }, { MAX_TOPICS }>::ASSERT;
-
             match self {
                 #topics_builder
             }

@@ -392,7 +392,7 @@ impl TypedEnvBackend for EnvInstance {
         self.get_property_little_endian::<E::Balance>(ext::minimum_balance)
     }
 
-    fn emit_event<const MAX_TOPICS: usize, E, Evt>(&mut self, event: Evt)
+    fn emit_event<E, Evt>(&mut self, event: Evt)
     where
         E: Environment,
         Evt: Event,

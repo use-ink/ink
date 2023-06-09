@@ -200,14 +200,12 @@ pub trait Event: scale::Encode {
     /// builder.
     type RemainingTopics: EventTopicsAmount;
 
-    const TOPICS_LEN: usize;
-
     /// The unique signature topic of the event. `None` for anonymous events.
     /// todo: document how this is calculated
     const SIGNATURE_TOPIC: Option<[u8; 32]>;
 
     /// Guides event topic serialization using the given topics builder.
-    fn topics<const MAX_TOPICS: usize, E, B>(
+    fn topics<E, B>(
         &self,
         builder: TopicsBuilder<state::Uninit, E, B>,
     ) -> <B as TopicsBuilderBackend<E>>::Output

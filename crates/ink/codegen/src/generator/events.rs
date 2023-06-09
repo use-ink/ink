@@ -30,13 +30,11 @@ impl_as_ref_for_generator!(Events);
 
 impl GenerateCode for Events<'_> {
     fn generate_code(&self) -> TokenStream2 {
-        let emit_event_trait_impl = self.generate_emit_event_trait_impl();
         // let event_base = self.generate_event_base();
         // let topic_guards = self.generate_topic_guards();
         // let topics_impls = self.generate_topics_impls();
         let event_structs = self.generate_event_structs();
         quote! {
-            #emit_event_trait_impl
             // #event_base
             // #( #topic_guards )*
             #( #event_structs )*
@@ -46,32 +44,6 @@ impl GenerateCode for Events<'_> {
 }
 
 impl<'a> Events<'a> {
-    /// todo: comments
-    fn generate_emit_event_trait_impl(&self) -> TokenStream2 {
-        quote! {
-            /// Local trait for emitting events, allowing extending of `EnvAccess` and to include
-            /// a compile time check ensuring max number of topics not exceeded.
-            pub trait __ink_EmitEvent {
-                fn emit_event<E>(self, event: E)
-                where
-                    E: ::ink::env::Event + ::scale::Encode;
-            }
-
-            impl<'a> __ink_EmitEvent for ::ink::EnvAccess<'a, Environment> {
-                fn emit_event<E>(self, event: E)
-                where
-                    E: ::ink::env::Event + ::scale::Encode,
-                {
-                    ::ink::env::emit_event::<
-                        { <Environment as ::ink::env::Environment>::MAX_EVENT_TOPICS },
-                        Environment,
-                        E,
-                    >(event);
-                }
-            }
-        }
-    }
-
     /// Generates all the user defined event struct definitions.
     fn generate_event_structs(&'a self) -> impl Iterator<Item = TokenStream2> + 'a {
         self.contract.module().events().map(move |event| {
