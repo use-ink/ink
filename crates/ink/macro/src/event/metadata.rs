@@ -66,7 +66,9 @@ fn event_metadata_derive_struct(s: synstructure::Structure) -> syn::Result<Token
     Ok(s.bound_impl(
         quote_spanned!(span=> ::ink::metadata::EventMetadata),
         quote_spanned!(span=>
-           fn event_spec() -> ::ink::metadata::EventSpec {
+            const MODULE_PATH: &'static str = ::core::module_path!();
+
+            fn event_spec() -> ::ink::metadata::EventSpec {
                // register this event metadata function in the distributed slice for combining all
                // events referenced in the contract binary.
                #[::ink::metadata::linkme::distributed_slice(::ink::metadata::EVENTS)]
@@ -87,7 +89,7 @@ fn event_metadata_derive_struct(s: synstructure::Structure) -> syn::Result<Token
                        // #( #docs ),*
                     ])
                     .done()
-           }
+            }
         ),
     ))
 }

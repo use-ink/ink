@@ -164,6 +164,9 @@ pub static EVENTS: [fn() -> EventSpec] = [..];
 
 // todo: docs
 pub trait EventMetadata {
+    /// The full path to the event type, usually provided by [`core::module_path`].
+    const MODULE_PATH: &'static str;
+
     /// Returns the metadata of the event.
     fn event_spec() -> EventSpec;
 }

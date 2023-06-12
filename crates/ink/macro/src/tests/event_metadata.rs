@@ -24,6 +24,8 @@ fn unit_struct_works() {
         expands to {
             const _: () = {
                 impl ::ink::metadata::EventMetadata for UnitStruct {
+                    const MODULE_PATH: &'static str = ::core::module_path!();
+
                     fn event_spec() -> ::ink::metadata::EventSpec {
                         #[::ink::metadata::linkme::distributed_slice(::ink::metadata::EVENTS)]
                         #[linkme(crate = ::ink::metadata::linkme)]
@@ -56,6 +58,8 @@ fn struct_with_fields_no_topics() {
         expands to {
             const _: () = {
                 impl ::ink::metadata::EventMetadata for Event {
+                    const MODULE_PATH: &'static str = ::core::module_path!();
+
                     fn event_spec() -> ::ink::metadata::EventSpec {
                         #[::ink::metadata::linkme::distributed_slice(::ink::metadata::EVENTS)]
                         #[linkme(crate = ::ink::metadata::linkme)]
@@ -103,6 +107,8 @@ fn struct_with_fields_and_some_topics() {
         expands to {
             const _: () = {
                 impl ::ink::metadata::EventMetadata for Event {
+                    const MODULE_PATH: &'static str = ::core::module_path!();
+
                     fn event_spec() -> ::ink::metadata::EventSpec {
                         #[::ink::metadata::linkme::distributed_slice(::ink::metadata::EVENTS)]
                         #[linkme(crate = ::ink::metadata::linkme)]

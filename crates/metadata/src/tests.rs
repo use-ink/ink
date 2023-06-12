@@ -152,6 +152,75 @@ fn spec_contract_only_one_default_constructor_allowed() {
 }
 
 #[test]
+#[should_panic(
+    expected = "the event `path::to::Event` defines 3 topics, exceeding the limit of 2 topics"
+)]
+fn spec_contract_event_definition_exceeds_environment_topics_limit() {
+    const MAX_EVENT_TOPICS: usize = 2;
+
+    ContractSpec::new()
+        .constructors(vec![ConstructorSpec::from_label("new")
+            .selector([94u8, 189u8, 136u8, 214u8])
+            .payable(true)
+            .args(vec![MessageParamSpec::new("init_value")
+                .of_type(TypeSpec::with_name_segs::<i32, _>(
+                    vec!["i32"].into_iter().map(AsRef::as_ref),
+                ))
+                .done()])
+            .returns(ReturnTypeSpec::new(None))
+            .docs(Vec::new())
+            .default(true)
+            .done()])
+        .messages(vec![MessageSpec::from_label("inc")
+            .selector([231u8, 208u8, 89u8, 15u8])
+            .mutates(true)
+            .payable(true)
+            .args(vec![MessageParamSpec::new("by")
+                .of_type(TypeSpec::with_name_segs::<i32, _>(
+                    vec!["i32"].into_iter().map(AsRef::as_ref),
+                ))
+                .done()])
+            .returns(ReturnTypeSpec::new(None))
+            .default(true)
+            .done()])
+        .events(vec![EventSpec::new("Event")
+            .module_path("path::to")
+            .args([
+                EventParamSpec::new("field1_no_topic")
+                    .of_type(TypeSpec::of_type::<u32>())
+                    .indexed(false)
+                    .done(),
+                EventParamSpec::new("field2_topic")
+                    .of_type(TypeSpec::of_type::<u64>())
+                    .indexed(true)
+                    .done(),
+                EventParamSpec::new("field3_topic")
+                    .of_type(TypeSpec::of_type::<u128>())
+                    .indexed(true)
+                    .done(),
+            ])
+            .done()])
+        .lang_error(TypeSpec::with_name_segs::<ink_primitives::LangError, _>(
+            ::core::iter::Iterator::map(
+                ::core::iter::IntoIterator::into_iter(["ink", "LangError"]),
+                ::core::convert::AsRef::as_ref,
+            ),
+        ))
+        .environment(
+            EnvironmentSpec::new()
+                .account_id(TypeSpec::of_type::<ink_primitives::AccountId>())
+                .balance(TypeSpec::of_type::<u128>())
+                .hash(TypeSpec::of_type::<ink_primitives::Hash>())
+                .timestamp(TypeSpec::of_type::<u64>())
+                .block_number(TypeSpec::of_type::<u128>())
+                .chain_extension(TypeSpec::of_type::<()>())
+                .max_event_topics(MAX_EVENT_TOPICS)
+                .done(),
+        )
+        .done();
+}
+
+#[test]
 fn spec_contract_json() {
     #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
     pub enum NoChainExtension {}

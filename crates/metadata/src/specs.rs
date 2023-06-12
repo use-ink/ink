@@ -858,6 +858,8 @@ impl IntoPortable for MessageSpec {
 pub struct EventSpec<F: Form = MetaForm> {
     /// The label of the event.
     label: F::String,
+    /// The module path to the event type definition.
+    module_path: F::String,
     /// The signature topic of the event. `None` if the event is anonymous.
     signature_topic: Option<SignatureTopic>,
     /// The event arguments.
@@ -901,6 +903,16 @@ impl<F> EventSpecBuilder<F>
 where
     F: Form,
 {
+    /// Sets the module path to the event type definition.
+    pub fn module_path<'a>(self, path: &'a str) -> Self
+    where
+        F::String: From<&'a str>,
+    {
+        let mut this = self;
+        this.spec.module_path = path.into();
+        this
+    }
+
     /// Sets the input arguments of the event specification.
     pub fn args<A>(self, args: A) -> Self
     where
@@ -950,6 +962,7 @@ impl IntoPortable for EventSpec {
     fn into_portable(self, registry: &mut Registry) -> Self::Output {
         EventSpec {
             label: self.label.to_string(),
+            module_path: self.module_path.to_string(),
             signature_topic: self.signature_topic,
             args: self
                 .args
@@ -964,12 +977,14 @@ impl IntoPortable for EventSpec {
 impl<F> EventSpec<F>
 where
     F: Form,
+    F::String: Default,
 {
     /// Creates a new event specification builder.
     pub fn new(label: <F as Form>::String) -> EventSpecBuilder<F> {
         EventSpecBuilder {
             spec: Self {
                 label,
+                module_path: Default::default(),
                 signature_topic: None,
                 args: Vec::new(),
                 docs: Vec::new(),
