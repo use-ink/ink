@@ -53,7 +53,7 @@ impl<'a> Events<'a> {
             // place?
             let anonymous_attr = event.anonymous.then(|| {
                 quote_spanned!(span =>
-                    #[ink(::anonymous)]
+                    #[ink(anonymous)]
                 )
             });
             quote_spanned!(span =>
