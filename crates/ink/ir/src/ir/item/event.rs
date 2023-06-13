@@ -13,11 +13,9 @@
 // limitations under the License.
 
 use crate::{
-    error::ExtError as _,
     ir::{
         self,
         utils::extract_cfg_attributes,
-        CFG_IDENT,
     },
 };
 use proc_macro2::{
@@ -95,42 +93,6 @@ impl TryFrom<syn::ItemStruct> for Event {
                 }
             },
         )?;
-        'repeat: for field in item_struct.fields.iter() {
-            let field_span = field.span();
-            // todo: move this check to the new derive macros?
-            let some_cfg_attrs = field
-                .attrs
-                .iter()
-                .find(|attr| attr.path().is_ident(CFG_IDENT));
-            if some_cfg_attrs.is_some() {
-                return Err(format_err!(
-                    field_span,
-                    "conditional compilation is not allowed for event field"
-                ))
-            }
-            let (ink_attrs, _) = ir::partition_attributes(field.attrs.clone())?;
-            if ink_attrs.is_empty() {
-                continue 'repeat
-            }
-            let normalized =
-                ir::InkAttribute::from_expanded(ink_attrs).map_err(|err| {
-                    err.into_combine(format_err!(field_span, "at this invocation",))
-                })?;
-            if !matches!(normalized.first().kind(), ir::AttributeArg::Topic) {
-                return Err(format_err!(
-                    field_span,
-                    "first optional ink! attribute of an event field must be #[ink(topic)]",
-                ));
-            }
-            for arg in normalized.args() {
-                if !matches!(arg.kind(), ir::AttributeArg::Topic) {
-                    return Err(format_err!(
-                        arg.span(),
-                        "encountered conflicting ink! attribute for event field",
-                    ))
-                }
-            }
-        }
         Ok(Self {
             item: syn::ItemStruct {
                 attrs: other_attrs,

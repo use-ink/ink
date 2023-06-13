@@ -49,6 +49,7 @@ fn event_derive_struct(mut s: synstructure::Structure) -> syn::Result<TokenStrea
 
     let anonymous = has_ink_attribute(&s.ast().attrs, "anonymous")?;
 
+    // filter field bindings to those marked as topics
     let mut topic_err: Option<syn::Error> = None;
     s.variants_mut()[0].filter(|bi| {
         match has_ink_topic_attribute(&bi.ast().attrs) {
@@ -151,8 +152,22 @@ fn signature_topic(fields: &syn::Fields, event_ident: &syn::Ident) -> syn::LitSt
 }
 
 /// Checks if the given attributes contain an `#[ink(topic)]` attribute.
+///
+/// Returns `Err` if:
+/// - the given attributes contain a `#[cfg(...)]` attribute
+/// - there are `ink` attributes other than a single `#[ink(topic)]`
 fn has_ink_topic_attribute(attrs: &[syn::Attribute]) -> syn::Result<bool> {
-    has_ink_attribute(attrs, "topic")
+    let some_cfg_attrs = attrs
+        .iter()
+        .find(|attr| attr.path().is_ident("cfg"));
+    if let Some(attr) = some_cfg_attrs {
+        return Err(syn::Error::new(
+            attr.span(),
+            "conditional compilation is not allowed for event fields",
+        ))
+    } else {
+        has_ink_attribute(attrs, "topic")
+    }
 }
 
 /// Checks if the given attributes contain an `ink` attribute with the given path.
