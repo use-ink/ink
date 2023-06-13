@@ -12,11 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::{
-    ir::{
-        self,
-        utils::extract_cfg_attributes,
-    },
+use crate::ir::{
+    self,
+    utils::extract_cfg_attributes,
 };
 use proc_macro2::{
     Ident,
