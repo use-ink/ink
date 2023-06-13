@@ -16,7 +16,6 @@ use crate::{
     error::ExtError as _,
     ir::{
         self,
-        utils,
         utils::extract_cfg_attributes,
         CFG_IDENT,
     },
@@ -96,15 +95,6 @@ impl TryFrom<syn::ItemStruct> for Event {
                 }
             },
         )?;
-        // todo: remove generics check and tests. also, how to handle generics?
-        if !item_struct.generics.params.is_empty() {
-            return Err(format_err_spanned!(
-                item_struct.generics.params,
-                "generic ink! event structs are not supported",
-            ))
-        }
-        // todo: remove this visibility check?
-        utils::ensure_pub_visibility("event structs", struct_span, &item_struct.vis)?;
         'repeat: for field in item_struct.fields.iter() {
             let field_span = field.span();
             // todo: move this check to the new derive macros?
