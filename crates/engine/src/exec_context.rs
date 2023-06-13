@@ -71,6 +71,11 @@ impl ExecContext {
     pub fn set_block_timestamp(&mut self, block_timestamp: BlockTimestamp) {
         self.block_timestamp = block_timestamp
     }
+
+    /// Set the block number for the execution context.
+    pub fn set_block_number(&mut self, block_number: BlockNumber) {
+        self.block_number = block_number
+    }
 }
 
 #[cfg(test)]
