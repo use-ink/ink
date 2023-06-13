@@ -70,15 +70,15 @@ fn struct_with_fields_no_topics() {
                             .signature_topic(<Self as ::ink::env::Event>::SIGNATURE_TOPIC)
                             .args([
                                 ::ink::metadata::EventParamSpec::new(::core::stringify!(field_1))
-                                    .of_type(::ink::metadata::TypeSpec::with_name_str::<u32>(::core::stringify!(u32)))
+                                    .of_type(::ink::metadata::TypeSpec::of_type::<u32>())
                                     .indexed(false)
                                     .done(),
                                 ::ink::metadata::EventParamSpec::new(::core::stringify!(field_2))
-                                    .of_type(::ink::metadata::TypeSpec::with_name_str::<u64>(::core::stringify!(u64)))
+                                    .of_type(::ink::metadata::TypeSpec::of_type::<u64>())
                                     .indexed(false)
                                     .done(),
                                 ::ink::metadata::EventParamSpec::new(::core::stringify!(field_3))
-                                    .of_type(::ink::metadata::TypeSpec::with_name_str::<u128>(::core::stringify!(u128)))
+                                    .of_type(::ink::metadata::TypeSpec::of_type::<u128>())
                                     .indexed(false)
                                     .done()
                             ])
@@ -119,15 +119,15 @@ fn struct_with_fields_and_some_topics() {
                             .signature_topic(<Self as ::ink::env::Event>::SIGNATURE_TOPIC)
                             .args([
                                 ::ink::metadata::EventParamSpec::new(::core::stringify!(field_1))
-                                    .of_type(::ink::metadata::TypeSpec::with_name_str::<u32>(::core::stringify!(u32)))
+                                    .of_type(::ink::metadata::TypeSpec::of_type::<u32>())
                                     .indexed(false)
                                     .done(),
                                 ::ink::metadata::EventParamSpec::new(::core::stringify!(field_2))
-                                    .of_type(::ink::metadata::TypeSpec::with_name_str::<u64>(::core::stringify!(u64)))
+                                    .of_type(::ink::metadata::TypeSpec::of_type::<u64>())
                                     .indexed(true)
                                     .done(),
                                 ::ink::metadata::EventParamSpec::new(::core::stringify!(field_3))
-                                    .of_type(::ink::metadata::TypeSpec::with_name_str::<u128>(::core::stringify!(u128)))
+                                    .of_type(::ink::metadata::TypeSpec::of_type::<u128>())
                                     .indexed(true)
                                     .done()
                             ])
