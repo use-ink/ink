@@ -153,7 +153,7 @@ fn spec_contract_only_one_default_constructor_allowed() {
 
 #[test]
 #[should_panic(
-    expected = "the event `path::to::Event` defines 3 topics, exceeding the limit of 2 topics"
+    expected = "maximum of 2 event topics exceeded: `path::to::Event` (3 topics)"
 )]
 fn spec_contract_event_definition_exceeds_environment_topics_limit() {
     const MAX_EVENT_TOPICS: usize = 2;
@@ -185,6 +185,7 @@ fn spec_contract_event_definition_exceeds_environment_topics_limit() {
             .done()])
         .events(vec![EventSpec::new("Event")
             .module_path("path::to")
+            .signature_topic(Some([0u8; 32]))
             .args([
                 EventParamSpec::new("field1_no_topic")
                     .of_type(TypeSpec::of_type::<u32>())

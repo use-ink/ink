@@ -28,7 +28,10 @@ use alloc::{
     vec,
     vec::Vec,
 };
-use core::marker::PhantomData;
+use core::{
+    fmt::Display,
+    marker::PhantomData,
+};
 use scale_info::{
     form::{
         Form,
@@ -255,6 +258,7 @@ impl<S> ContractSpecBuilder<MetaForm, S> {
 impl<F> ContractSpecBuilder<F, Valid>
 where
     F: Form,
+    F::String: Display,
     TypeSpec<F>: Default,
 {
     /// Finalizes construction of the contract specification.
@@ -274,6 +278,29 @@ where
         assert!(
             self.spec.messages.iter().filter(|m| m.default).count() < 2,
             "only one default message is allowed"
+        );
+        let events_exceeding_max_topics_limit = self
+            .spec
+            .events
+            .iter()
+            .filter_map(|e| {
+                let signature_topic = if e.signature_topic.is_some() { 1 } else { 0 };
+                let topics_count =
+                    signature_topic + e.args.iter().filter(|a| a.indexed).count();
+                if topics_count > self.spec.environment.max_event_topics {
+                    Some(format!(
+                        "`{}::{}` ({} topics)",
+                        e.module_path, e.label, topics_count
+                    ))
+                } else {
+                    None
+                }
+            })
+            .collect::<Vec<_>>();
+        assert!(
+            events_exceeding_max_topics_limit.is_empty(),
+            "maximum of 2 event topics exceeded: {}",
+            events_exceeding_max_topics_limit.join(", ")
         );
         self.spec
     }
