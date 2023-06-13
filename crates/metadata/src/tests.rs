@@ -153,7 +153,7 @@ fn spec_contract_only_one_default_constructor_allowed() {
 
 #[test]
 #[should_panic(
-    expected = "maximum of 2 event topics exceeded: `path::to::Event` (3 topics)"
+    expected = "maximum of 2 event topics exceeded: `path::to::Event` (3 topics), `path::to::Event2` (3 topics)"
 )]
 fn spec_contract_event_definition_exceeds_environment_topics_limit() {
     const MAX_EVENT_TOPICS: usize = 2;
@@ -183,24 +183,46 @@ fn spec_contract_event_definition_exceeds_environment_topics_limit() {
             .returns(ReturnTypeSpec::new(None))
             .default(true)
             .done()])
-        .events(vec![EventSpec::new("Event")
-            .module_path("path::to")
-            .signature_topic(Some([0u8; 32]))
-            .args([
-                EventParamSpec::new("field1_no_topic")
-                    .of_type(TypeSpec::of_type::<u32>())
-                    .indexed(false)
-                    .done(),
-                EventParamSpec::new("field2_topic")
-                    .of_type(TypeSpec::of_type::<u64>())
-                    .indexed(true)
-                    .done(),
-                EventParamSpec::new("field3_topic")
-                    .of_type(TypeSpec::of_type::<u128>())
-                    .indexed(true)
-                    .done(),
-            ])
-            .done()])
+        .events(vec![
+            EventSpec::new("Event")
+                .module_path("path::to")
+                // has a signature topic which counts towards the limit
+                .signature_topic(Some([0u8; 32]))
+                .args([
+                    EventParamSpec::new("field1_no_topic")
+                        .of_type(TypeSpec::of_type::<u32>())
+                        .indexed(false)
+                        .done(),
+                    EventParamSpec::new("field2_topic")
+                        .of_type(TypeSpec::of_type::<u64>())
+                        .indexed(true)
+                        .done(),
+                    EventParamSpec::new("field3_topic")
+                        .of_type(TypeSpec::of_type::<u128>())
+                        .indexed(true)
+                        .done(),
+                ])
+                .done(),
+            EventSpec::new("Event2")
+                .module_path("path::to")
+                // is an anonymous event with no signature topic
+                .signature_topic::<[u8; 32]>(None)
+                .args([
+                    EventParamSpec::new("field1_topic")
+                        .of_type(TypeSpec::of_type::<u32>())
+                        .indexed(true)
+                        .done(),
+                    EventParamSpec::new("field2_topic")
+                        .of_type(TypeSpec::of_type::<u64>())
+                        .indexed(true)
+                        .done(),
+                    EventParamSpec::new("field3_topic")
+                        .of_type(TypeSpec::of_type::<u128>())
+                        .indexed(true)
+                        .done(),
+                ])
+                .done(),
+        ])
         .lang_error(TypeSpec::with_name_segs::<ink_primitives::LangError, _>(
             ::core::iter::Iterator::map(
                 ::core::iter::IntoIterator::into_iter(["ink", "LangError"]),
