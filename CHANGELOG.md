@@ -15,6 +15,9 @@ Note that this release contains a breaking change since the API of
 `ink_env::invoke_contract_delegate` and `CallBuilder::try_invoke` now return an extra
 `ink_primitives::MessageResult` which must be handled.
 
+We decided to release this breaking change as a `PATCH` release to ensure that affected
+users are upgrading to the fixed API.
+
 See the [published advisory](https://github.com/paritytech/ink/security/advisories/GHSA-853p-5678-hv8f)
 for more info.
 
