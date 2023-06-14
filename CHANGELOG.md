@@ -6,6 +6,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## Version 4.2.1
+
+This release contains a low-severity security related fix. Users of the `4.x` series of
+releases are advised to update.
+
+See the [published advisory](https://github.com/paritytech/ink/security/advisories/GHSA-853p-5678-hv8f)
+for more info.
+
+### Fixed
+- Handle `LangError` from `DelegateCall`
+
 ## Version 4.2.0
 
 ### Added
