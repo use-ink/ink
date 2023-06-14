@@ -631,7 +631,7 @@ where
     pub fn invoke_contract_delegate<Args, R>(
         self,
         params: &CallParams<E, DelegateCall<E>, Args, R>,
-    ) -> Result<R>
+    ) -> Result<ink_primitives::MessageResult<R>>
     where
         Args: scale::Encode,
         R: scale::Decode,
