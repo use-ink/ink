@@ -1006,7 +1006,7 @@
     <span class="kw">fn </span>invoke_contract_delegate&lt;E, Args, R&gt;(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         params: <span class="kw-2">&amp;</span>CallParams&lt;E, DelegateCall&lt;E&gt;, Args, R&gt;,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;R&gt;
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;ink_primitives::MessageResult&lt;R&gt;&gt;
     <span class="kw">where
         </span>E: Environment,
         Args: scale::Encode,

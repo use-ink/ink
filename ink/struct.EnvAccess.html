@@ -264,7 +264,7 @@ for a complete contract example.</p>
 </div></details><details class="toggle method-toggle" open><summary><section id="method.invoke_contract_delegate" class="method"><a class="srclink rightside" href="../src/ink/env_access.rs.html#631-640">source</a><h4 class="code-header">pub fn <a href="#method.invoke_contract_delegate" class="fn">invoke_contract_delegate</a>&lt;Args, R&gt;(
     self,
     params: &amp;<a class="struct" href="../ink_env/call/call_builder/struct.CallParams.html" title="struct ink_env::call::call_builder::CallParams">CallParams</a>&lt;E, <a class="struct" href="../ink_env/call/call_builder/struct.DelegateCall.html" title="struct ink_env::call::call_builder::DelegateCall">DelegateCall</a>&lt;E&gt;, Args, R&gt;
-) -&gt; <a class="type" href="../ink_env/error/type.Result.html" title="type ink_env::error::Result">Result</a>&lt;R&gt;<span class="where fmt-newline">where
+) -&gt; <a class="type" href="../ink_env/error/type.Result.html" title="type ink_env::error::Result">Result</a>&lt;MessageResult&lt;R&gt;&gt;<span class="where fmt-newline">where
     Args: Encode,
     R: Decode,</span></h4></section></summary><div class="docblock"><p>Invokes in delegate manner a code message and returns its result.</p>
 <h5 id="example-11"><a href="#example-11">Example</a></h5>
