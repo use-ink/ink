@@ -89,6 +89,17 @@ mod call_builder {
                 .returns::<i32>()
                 .invoke()
         }
+
+        #[ink(message)]
+        pub fn try_invoke_short_return_type(&mut self, code_hash: Hash, selector: [u8; 4]) -> i8 {
+            use ink::env::call::build_call;
+
+            build_call::<DefaultEnvironment>()
+                .delegate(code_hash)
+                .exec_input(ExecutionInput::new(Selector::new(selector)))
+                .returns::<i8>()
+                .try_invoke()
+        }
     }
 
     #[cfg(all(test, feature = "e2e-tests"))]
@@ -130,6 +141,42 @@ mod call_builder {
             assert_eq!(
                 call_result, expected_value,
                 "Decoded an unexpected value from the call."
+            );
+
+            Ok(())
+        }
+
+        #[ink_e2e::test]
+        async fn e2e_call_builder_delegate_errors_if_return_data_too_long(
+            mut client: ink_e2e::Client<C, E>,
+        ) -> E2EResult<()> {
+            let origin = client
+                .create_and_fund_account(&ink_e2e::alice(), 10_000_000_000_000)
+                .await;
+
+            let constructor = CallBuilderDelegateTestRef::new(42);
+            let call_builder = client
+                .instantiate("call_builder_delegate", &origin, constructor, 0, None)
+                .await
+                .expect("instantiate failed");
+            let mut call_builder_call = call_builder.call::<CallBuilderDelegateTest>();
+
+            let code_hash = client
+                .upload("incrementer", &origin, None)
+                .await
+                .expect("upload `incrementer` failed")
+                .code_hash;
+
+            let selector = ink::selector_bytes!("get");
+            let call = call_builder_call.try_invoke_short_return_type(code_hash, selector);
+            let call_result = client
+                .call(&origin, &call, 0, None)
+                .await
+                .expect("Client failed to call `call_builder::invoke`.");
+
+            assert!(
+                call_result.is_err(),
+                "Should fail to decode short type if bytes remain from return data."
             );
 
             Ok(())
