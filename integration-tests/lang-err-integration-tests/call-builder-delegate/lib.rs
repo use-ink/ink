@@ -99,6 +99,8 @@ mod call_builder {
                 .invoke()
         }
 
+        /// Delegate call to the given contract/selector and attempt to decode the return value
+        /// into an `i8`.
         #[ink(message)]
         pub fn invoke_short_return_type(
             &mut self,
