@@ -52,7 +52,7 @@ mod call_builder {
 
         /// Delegate a call to the given contract/selector and return the result.
         #[ink(message)]
-        pub fn invoke(&mut self, code_hash: Hash, selector: [u8; 4]) -> i32 {
+        pub fn delegate_call(&mut self, code_hash: Hash, selector: [u8; 4]) -> i32 {
             use ink::env::call::build_call;
 
             build_call::<DefaultEnvironment>()
@@ -65,7 +65,7 @@ mod call_builder {
         /// Delegate call to the given contract/selector and attempt to decode the return
         /// value into an `i8`.
         #[ink(message)]
-        pub fn invoke_short_return_type(
+        pub fn delegate_call_short_return_type(
             &mut self,
             code_hash: Hash,
             selector: [u8; 4],
@@ -116,7 +116,7 @@ mod call_builder {
                 .code_hash;
 
             let selector = ink::selector_bytes!("get");
-            let call = call_builder_call.invoke(code_hash, selector);
+            let call = call_builder_call.delegate_call(code_hash, selector);
             let call_result = client
                 .call(&origin, &call, 0, None)
                 .await
@@ -153,7 +153,7 @@ mod call_builder {
                 .code_hash;
 
             let selector = ink::selector_bytes!("get");
-            let call = call_builder_call.invoke_short_return_type(code_hash, selector);
+            let call = call_builder_call.delegate_call_short_return_type(code_hash, selector);
             let call_result: Result<i8, String> = client
                 .call_dry_run(&origin, &call, 0, None)
                 .await
