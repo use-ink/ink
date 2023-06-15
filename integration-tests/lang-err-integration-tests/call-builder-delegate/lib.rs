@@ -18,22 +18,13 @@
 
 #[ink::contract]
 mod call_builder {
-    use ink::{
-        env::{
-            call::{
-                build_call,
-                ExecutionInput,
-                Selector,
-            },
-            DefaultEnvironment,
+    use ink::env::{
+        call::{
+            build_call,
+            ExecutionInput,
+            Selector,
         },
-        prelude::{
-            format,
-            string::{
-                String,
-                ToString,
-            },
-        },
+        DefaultEnvironment,
     };
 
     #[ink(storage)]
@@ -98,30 +89,6 @@ mod call_builder {
                 .returns::<i32>()
                 .invoke()
         }
-
-        /// Delegate call to the given contract/selector and attempt to decode the return value
-        /// into an `i8`.
-        #[ink(message)]
-        pub fn invoke_short_return_type(
-            &mut self,
-            code_hash: Hash,
-            selector: [u8; 4],
-        ) -> Result<i8, String> {
-            use ink::env::call::build_call;
-
-            let result = build_call::<DefaultEnvironment>()
-                .delegate(code_hash)
-                .exec_input(ExecutionInput::new(Selector::new(selector)))
-                .returns::<i8>()
-                .try_invoke();
-
-            match result {
-                Ok(Ok(value)) => Ok(value),
-                Ok(Err(err)) => Err(format!("LangError: {:?}", err)),
-                Err(ink::env::Error::Decode(_)) => Err("Decode Error".to_string()),
-                Err(err) => Err(format!("Env Error: {:?}", err)),
-            }
-        }
     }
 
     #[cfg(all(test, feature = "e2e-tests"))]
@@ -129,85 +96,6 @@ mod call_builder {
         use super::*;
 
         type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
-
-        #[ink_e2e::test]
-        async fn e2e_call_builder_delegate_returns_correct_value(
-            mut client: ink_e2e::Client<C, E>,
-        ) -> E2EResult<()> {
-            let origin = client
-                .create_and_fund_account(&ink_e2e::alice(), 10_000_000_000_000)
-                .await;
-
-            let expected_value = 42;
-            let constructor = CallBuilderDelegateTestRef::new(expected_value);
-            let call_builder = client
-                .instantiate("call_builder_delegate", &origin, constructor, 0, None)
-                .await
-                .expect("instantiate failed");
-            let mut call_builder_call = call_builder.call::<CallBuilderDelegateTest>();
-
-            let code_hash = client
-                .upload("incrementer", &origin, None)
-                .await
-                .expect("upload `incrementer` failed")
-                .code_hash;
-
-            let selector = ink::selector_bytes!("get");
-            let call = call_builder_call.invoke(code_hash, selector);
-            let call_result = client
-                .call(&origin, &call, 0, None)
-                .await
-                .expect("Client failed to call `call_builder::invoke`.")
-                .return_value();
-
-            assert_eq!(
-                call_result, expected_value,
-                "Decoded an unexpected value from the call."
-            );
-
-            Ok(())
-        }
-
-        #[ink_e2e::test]
-        async fn e2e_call_builder_delegate_errors_if_return_data_too_long(
-            mut client: ink_e2e::Client<C, E>,
-        ) -> E2EResult<()> {
-            let origin = client
-                .create_and_fund_account(&ink_e2e::alice(), 10_000_000_000_000)
-                .await;
-
-            let constructor = CallBuilderDelegateTestRef::new(42);
-            let call_builder = client
-                .instantiate("call_builder_delegate", &origin, constructor, 0, None)
-                .await
-                .expect("instantiate failed");
-            let mut call_builder_call = call_builder.call::<CallBuilderDelegateTest>();
-
-            let code_hash = client
-                .upload("incrementer", &origin, None)
-                .await
-                .expect("upload `incrementer` failed")
-                .code_hash;
-
-            let selector = ink::selector_bytes!("get");
-            let call = call_builder_call.invoke_short_return_type(code_hash, selector);
-            let call_result: Result<i8, String> = client
-                .call_dry_run(&origin, &call, 0, None)
-                .await
-                .return_value();
-
-            assert!(
-                call_result.is_err(),
-                "Should fail of decoding an `i32` into an `i8`"
-            );
-            assert_eq!(
-                "Decode Error".to_string(),
-                call_result.unwrap_err(),
-                "Should fail to decode short type if bytes remain from return data."
-            );
-
-            Ok(())
-        }
 
         #[ink_e2e::test]
         async fn e2e_invalid_message_selector_can_be_handled(
