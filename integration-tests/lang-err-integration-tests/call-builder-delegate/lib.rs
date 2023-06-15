@@ -18,13 +18,22 @@
 
 #[ink::contract]
 mod call_builder {
-    use ink::env::{
-        call::{
-            build_call,
-            ExecutionInput,
-            Selector,
+    use ink::{
+        env::{
+            call::{
+                build_call,
+                ExecutionInput,
+                Selector,
+            },
+            DefaultEnvironment,
         },
-        DefaultEnvironment,
+        prelude::{
+            format,
+            string::{
+                String,
+                ToString,
+            },
+        },
     };
 
     #[ink(storage)]
@@ -91,14 +100,25 @@ mod call_builder {
         }
 
         #[ink(message)]
-        pub fn try_invoke_short_return_type(&mut self, code_hash: Hash, selector: [u8; 4]) -> i8 {
+        pub fn invoke_short_return_type(
+            &mut self,
+            code_hash: Hash,
+            selector: [u8; 4],
+        ) -> Result<i8, String> {
             use ink::env::call::build_call;
 
-            build_call::<DefaultEnvironment>()
+            let result = build_call::<DefaultEnvironment>()
                 .delegate(code_hash)
                 .exec_input(ExecutionInput::new(Selector::new(selector)))
                 .returns::<i8>()
-                .try_invoke()
+                .try_invoke();
+
+            match result {
+                Ok(Ok(value)) => Ok(value),
+                Ok(Err(err)) => Err(format!("LangError: {:?}", err)),
+                Err(ink::env::Error::Decode(_)) => Err("Decode Error".to_string()),
+                Err(err) => Err(format!("Env Error: {:?}", err)),
+            }
         }
     }
 
@@ -168,14 +188,20 @@ mod call_builder {
                 .code_hash;
 
             let selector = ink::selector_bytes!("get");
-            let call = call_builder_call.try_invoke_short_return_type(code_hash, selector);
-            let call_result = client
+            let call = call_builder_call.invoke_short_return_type(code_hash, selector);
+            let call_result: Result<i8, String> = client
                 .call(&origin, &call, 0, None)
                 .await
-                .expect("Client failed to call `call_builder::invoke`.");
+                .expect("Client failed to call `call_builder::invoke`.")
+                .return_value();
 
             assert!(
                 call_result.is_err(),
+                "Should fail of decoding an `i32` into an `i8`"
+            );
+            assert_eq!(
+                "Decode Error".to_string(),
+                call_result.unwrap_err(),
                 "Should fail to decode short type if bytes remain from return data."
             );
 
