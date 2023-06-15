@@ -190,9 +190,8 @@ mod call_builder {
             let selector = ink::selector_bytes!("get");
             let call = call_builder_call.invoke_short_return_type(code_hash, selector);
             let call_result: Result<i8, String> = client
-                .call(&origin, &call, 0, None)
+                .call_dry_run(&origin, &call, 0, None)
                 .await
-                .expect("Client failed to call `call_builder::invoke`.")
                 .return_value();
 
             assert!(
