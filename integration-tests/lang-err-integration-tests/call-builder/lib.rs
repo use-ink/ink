@@ -26,13 +26,6 @@ mod call_builder {
             Selector,
         },
         DefaultEnvironment,
-        prelude::{
-            format,
-            string::{
-                String,
-                ToString,
-            },
-        },
     };
 
     #[ink(storage)]
@@ -92,30 +85,6 @@ mod call_builder {
                 .exec_input(ExecutionInput::new(Selector::new(selector)))
                 .returns::<()>()
                 .invoke()
-        }
-
-        /// Forward call to the given contract/selector and attempt to decode the return value
-        /// into an `i8`.
-        #[ink(message)]
-        pub fn invoke_short_return_type(
-            &mut self,
-            code_hash: Hash,
-            selector: [u8; 4],
-        ) -> Result<i8, String> {
-            use ink::env::call::build_call;
-
-            let result = build_call::<DefaultEnvironment>()
-                .call(code_hash)
-                .exec_input(ExecutionInput::new(Selector::new(selector)))
-                .returns::<i8>()
-                .try_invoke();
-
-            match result {
-                Ok(Ok(value)) => Ok(value),
-                Ok(Err(err)) => Err(format!("LangError: {:?}", err)),
-                Err(ink::env::Error::Decode(_)) => Err("Decode Error".to_string()),
-                Err(err) => Err(format!("Env Error: {:?}", err)),
-            }
         }
 
         /// Instantiate a contract using the `CreateBuilder`.
