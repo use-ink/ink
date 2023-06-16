@@ -1,18 +1,5 @@
-//! # Integration Tests for `LangError`
-//!
-//! This contract is used to ensure that the behavior around `LangError`s works as
-//! expected.
-//!
-//! In particular, it exercises the codepaths that stem from the usage of the
-//! [`CallBuilder`](`ink::env::call::CallBuilder`) and
-//! [`CreateBuilder`](`ink::env::call::CreateBuilder`) structs.
-//!
-//! This differs from the codepath used by external tooling, such as `cargo-contract` or
-//! the `Contracts-UI` which instead depend on methods from the Contracts pallet which are
-//! exposed via RPC.
-//!
-//! Note that during testing we make use of ink!'s end-to-end testing features, so ensure
-//! that you have a node which includes the Contracts pallet running alongside your tests.
+//! This contract is used to ensure that the values returned by cross contract calls using the
+//! [`CallBuilder`](`ink::env::call::CallBuilder`) are properly decoded.
 
 #![cfg_attr(not(feature = "std"), no_std, no_main)]
 
