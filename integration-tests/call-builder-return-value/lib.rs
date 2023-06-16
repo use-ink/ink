@@ -1,5 +1,5 @@
-//! This contract is used to ensure that the values returned by cross contract calls using the
-//! [`CallBuilder`](`ink::env::call::CallBuilder`) are properly decoded.
+//! This contract is used to ensure that the values returned by cross contract calls using
+//! the [`CallBuilder`](`ink::env::call::CallBuilder`) are properly decoded.
 
 #![cfg_attr(not(feature = "std"), no_std, no_main)]
 
