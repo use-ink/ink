@@ -616,8 +616,8 @@ where
     ///         .params();
     ///     self.env()
     ///         .invoke_contract_delegate(&call_params)
-    ///         .unwrap_or_else(|err| {
-    ///             panic!("Received an error from the Environment: {:?}", err)
+    ///         .unwrap_or_else(|env_err| {
+    ///             panic!("Received an error from the Environment: {:?}", env_err)
     ///         })
     ///         .unwrap_or_else(|lang_err| panic!("Received a `LangError`: {:?}", lang_err))
     /// }
