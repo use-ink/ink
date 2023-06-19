@@ -23,6 +23,21 @@ use quote::{
 };
 use syn::spanned::Spanned;
 
+/// todo: docs
+pub fn generate(_config: TokenStream2, input: TokenStream2) -> TokenStream2 {
+    // todo: check for duplicate attributes
+    match syn::parse2::<syn::DeriveInput>(input) {
+        Ok(ast) => {
+            quote::quote! (
+                #[derive(::ink::Event, ::scale::Encode, ::scale::Decode)]
+                #[cfg_attr(feature = "std", derive(::ink::EventMetadata))]
+                #ast
+            )
+        }
+        Err(err) => err.to_compile_error(),
+    }
+}
+
 /// Derives the `ink::Event` trait for the given `struct`.
 pub fn event_derive(mut s: synstructure::Structure) -> TokenStream2 {
     s.bind_with(|_| synstructure::BindStyle::Move)

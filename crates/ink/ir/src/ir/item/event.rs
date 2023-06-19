@@ -107,12 +107,6 @@ impl Event {
         &self.item.ident
     }
 
-    /// Returns an iterator yielding all the `#[ink(topic)]` annotated fields
-    /// of the event struct.
-    pub fn fields(&self) -> EventFieldsIter {
-        EventFieldsIter::new(self)
-    }
-
     /// Returns all non-ink! attributes.
     pub fn attrs(&self) -> &[syn::Attribute] {
         &self.item.attrs
@@ -121,77 +115,6 @@ impl Event {
     /// Returns a list of `cfg` attributes if any.
     pub fn get_cfg_attrs(&self, span: Span) -> Vec<TokenStream> {
         extract_cfg_attributes(self.attrs(), span)
-    }
-}
-
-/// An event field with a flag indicating if this field is an event topic.
-#[derive(Debug, Copy, Clone, PartialEq, Eq)]
-pub struct EventField<'a> {
-    /// The associated `field` is an event topic if this is `true`.
-    pub is_topic: bool,
-    /// The event field.
-    field: &'a syn::Field,
-}
-
-impl<'a> EventField<'a> {
-    /// Returns the span of the event field.
-    pub fn span(self) -> Span {
-        self.field.span()
-    }
-
-    /// Returns all non-ink! attributes of the event field.
-    pub fn attrs(self) -> Vec<syn::Attribute> {
-        let (_, non_ink_attrs) = ir::partition_attributes(self.field.attrs.clone())
-            .unwrap_or_else(|err| {
-                panic!("encountered invalid event field attributes: {err}")
-            });
-        non_ink_attrs
-    }
-
-    /// Returns the visibility of the event field.
-    pub fn vis(self) -> &'a syn::Visibility {
-        &self.field.vis
-    }
-
-    /// Returns the identifier of the event field if any.
-    pub fn ident(self) -> Option<&'a Ident> {
-        self.field.ident.as_ref()
-    }
-
-    /// Returns the type of the event field.
-    pub fn ty(self) -> &'a syn::Type {
-        &self.field.ty
-    }
-}
-
-/// Iterator yielding all `#[ink(topic)]` annotated fields of an event struct.
-pub struct EventFieldsIter<'a> {
-    iter: syn::punctuated::Iter<'a, syn::Field>,
-}
-
-impl<'a> EventFieldsIter<'a> {
-    /// Creates a new topics fields iterator for the given ink! event struct.
-    fn new(event: &'a Event) -> Self {
-        Self {
-            iter: event.item.fields.iter(),
-        }
-    }
-}
-
-impl<'a> Iterator for EventFieldsIter<'a> {
-    type Item = EventField<'a>;
-
-    fn next(&mut self) -> Option<Self::Item> {
-        match self.iter.next() {
-            None => None,
-            Some(field) => {
-                let is_topic = ir::first_ink_attribute(&field.attrs)
-                    .unwrap_or_default()
-                    .map(|attr| matches!(attr.first().kind(), ir::AttributeArg::Topic))
-                    .unwrap_or_default();
-                Some(EventField { is_topic, field })
-            }
-        }
     }
 }
 
@@ -268,7 +191,7 @@ mod tests {
     }
 
     #[test]
-    fn missing_storage_attribute_fails() {
+    fn missing_event_attribute_fails() {
         assert_try_from_fails(
             syn::parse_quote! {
                 pub struct MyEvent {
@@ -278,83 +201,6 @@ mod tests {
                 }
             },
             "encountered unexpected empty expanded ink! attribute arguments",
-        )
-    }
-
-    #[test]
-    fn generic_event_fails() {
-        assert_try_from_fails(
-            syn::parse_quote! {
-                #[ink(event)]
-                pub struct GenericEvent<T> {
-                    #[ink(topic)]
-                    field_1: T,
-                    field_2: bool,
-                }
-            },
-            "generic ink! event structs are not supported",
-        )
-    }
-
-    #[test]
-    fn non_pub_event_struct() {
-        assert_try_from_fails(
-            syn::parse_quote! {
-                #[ink(event)]
-                struct PrivateEvent {
-                    #[ink(topic)]
-                    field_1: i32,
-                    field_2: bool,
-                }
-            },
-            "non `pub` ink! event structs are not supported",
-        )
-    }
-
-    #[test]
-    fn duplicate_field_attributes_fails() {
-        assert_try_from_fails(
-            syn::parse_quote! {
-                #[ink(event)]
-                pub struct MyEvent {
-                    #[ink(topic)]
-                    #[ink(topic)]
-                    field_1: i32,
-                    field_2: bool,
-                }
-            },
-            "encountered duplicate ink! attribute",
-        )
-    }
-
-    #[test]
-    fn invalid_field_attributes_fails() {
-        assert_try_from_fails(
-            syn::parse_quote! {
-                #[ink(event)]
-                pub struct MyEvent {
-                    #[ink(message)]
-                    field_1: i32,
-                    field_2: bool,
-                }
-            },
-            "first optional ink! attribute of an event field must be #[ink(topic)]",
-        )
-    }
-
-    #[test]
-    fn conflicting_field_attributes_fails() {
-        assert_try_from_fails(
-            syn::parse_quote! {
-                #[ink(event)]
-                pub struct MyEvent {
-                    #[ink(topic)]
-                    #[ink(payable)]
-                    field_1: i32,
-                    field_2: bool,
-                }
-            },
-            "encountered conflicting ink! attribute for event field",
         )
     }
 
@@ -394,48 +240,6 @@ mod tests {
         /// Returns the type of the named field.
         pub fn ty(&self) -> &syn::Type {
             &self.0.ty
-        }
-    }
-
-    #[test]
-    fn event_fields_iter_works() {
-        let expected_fields: Vec<(bool, NamedField)> = vec![
-            (
-                true,
-                syn::parse_quote! {
-                    field_1: i32
-                },
-            ),
-            (
-                false,
-                syn::parse_quote! {
-                    field_2: u64
-                },
-            ),
-            (
-                true,
-                syn::parse_quote! {
-                    field_3: [u8; 32]
-                },
-            ),
-        ];
-        let input = <Event as TryFrom<syn::ItemStruct>>::try_from(syn::parse_quote! {
-            #[ink(event)]
-            pub struct MyEvent {
-                #[ink(topic)]
-                field_1: i32,
-                field_2: u64,
-                #[ink(topic)]
-                field_3: [u8; 32],
-            }
-        })
-        .unwrap();
-        let mut fields_iter = input.fields();
-        for (is_topic, expected_field) in expected_fields {
-            let field = fields_iter.next().unwrap();
-            assert_eq!(field.is_topic, is_topic);
-            assert_eq!(field.ident(), Some(expected_field.ident()));
-            assert_eq!(field.ty(), expected_field.ty());
         }
     }
 

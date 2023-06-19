@@ -74,6 +74,7 @@ pub use ink_macro::{
     blake2x256,
     chain_extension,
     contract,
+    event,
     selector_bytes,
     selector_id,
     storage_item,

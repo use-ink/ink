@@ -30,22 +30,16 @@ impl_as_ref_for_generator!(Events);
 
 impl GenerateCode for Events<'_> {
     fn generate_code(&self) -> TokenStream2 {
-        // let event_base = self.generate_event_base();
-        // let topic_guards = self.generate_topic_guards();
-        // let topics_impls = self.generate_topics_impls();
-        let event_structs = self.generate_event_structs();
+        let event_items = self.generate_event_items();
         quote! {
-            // #event_base
-            // #( #topic_guards )*
-            #( #event_structs )*
-            // #( #topics_impls )*
+            #( #event_items )*
         }
     }
 }
 
 impl<'a> Events<'a> {
     /// Generates all the user defined event struct definitions.
-    fn generate_event_structs(&'a self) -> impl Iterator<Item = TokenStream2> + 'a {
+    fn generate_event_items(&'a self) -> impl Iterator<Item = TokenStream2> + 'a {
         self.contract.module().events().map(move |event| {
             let span = event.span();
             let attrs = event.attrs();
@@ -58,8 +52,8 @@ impl<'a> Events<'a> {
             });
             quote_spanned!(span =>
                 #( #attrs )*
-                #[derive(::ink::Event, scale::Encode, scale::Decode)]
-                #[cfg_attr(feature = "std", derive(ink::EventMetadata))]
+                #[derive(::ink::Event, ::scale::Encode, ::scale::Decode)]
+                #[cfg_attr(feature = "std", derive(::ink::EventMetadata))]
                 #anonymous_attr
                 #event
             )
