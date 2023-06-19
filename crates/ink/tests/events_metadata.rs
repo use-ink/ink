@@ -34,7 +34,7 @@ mod contract {
 
     impl Contract {
         #[ink(constructor)]
-        pub fn new() -> Self {
+        pub fn new(_x: u8) -> Self {
             Self {}
         }
     }

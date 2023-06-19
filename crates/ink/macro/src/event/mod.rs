@@ -159,7 +159,7 @@ fn signature_topic(fields: &syn::Fields, event_ident: &syn::Ident) -> syn::LitSt
 fn has_ink_topic_attribute(attrs: &[syn::Attribute]) -> syn::Result<bool> {
     let some_cfg_attrs = attrs.iter().find(|attr| attr.path().is_ident("cfg"));
     if let Some(attr) = some_cfg_attrs {
-        return Err(syn::Error::new(
+        Err(syn::Error::new(
             attr.span(),
             "conditional compilation is not allowed for event fields",
         ))
