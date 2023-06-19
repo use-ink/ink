@@ -279,6 +279,16 @@ where
     })
 }
 
+/// Sets the block number for the next [`advance_block`] invocation.
+pub fn set_block_number<T>(value: T::BlockNumber)
+where
+    T: Environment<BlockNumber = u32>,
+{
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        instance.engine.set_block_number(value);
+    })
+}
+
 /// Runs the given closure test function with the default configuration
 /// for the off-chain environment.
 pub fn run_test<T, F>(f: F) -> Result<()>
