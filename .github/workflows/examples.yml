@@ -51,13 +51,13 @@ jobs:
           override: true
 
       - name: Install cargo-dylint
-        uses: baptiste0928/cargo-install@48c92f3d491efa23daace9891498a14c5aaa1afd # v2.0.0
+        uses: baptiste0928/cargo-install@30f432979e99f3ea66a8fa2eede53c07063995d8 # v2.1.0
         with:
           crate: cargo-dylint
           version: 1
 
       - name: Install dylint-link
-        uses: baptiste0928/cargo-install@48c92f3d491efa23daace9891498a14c5aaa1afd # v2.0.0
+        uses: baptiste0928/cargo-install@30f432979e99f3ea66a8fa2eede53c07063995d8 # v2.1.0
         with:
           crate: dylint-link
           version: 1
