@@ -172,9 +172,7 @@ fn find_substrate_port_from_output(r: impl Read + Send + 'static) -> u16 {
             // substrate).
             let line_end = line
                 .rsplit_once("Listening for new connections on 127.0.0.1:")
-                .or_else(|| {
-                    line.rsplit_once("Running JSON-RPC server: addr=127.0.0.1:")
-                })
+                .or_else(|| line.rsplit_once("Running JSON-RPC server: addr=127.0.0.1:"))
                 .map(|(_, port_str)| port_str)?;
 
             // trim non-numeric chars from the end of the port part of the line.
