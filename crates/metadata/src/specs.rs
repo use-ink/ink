@@ -24,7 +24,9 @@ use crate::{
 };
 #[cfg(not(feature = "std"))]
 use alloc::{
+    collections::BTreeMap,
     format,
+    string::String,
     vec,
     vec::Vec,
 };
@@ -49,6 +51,8 @@ use serde::{
     Deserialize,
     Serialize,
 };
+#[cfg(feature = "std")]
+use std::collections::BTreeMap;
 
 /// Describes a contract.
 #[derive(Debug, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
@@ -279,6 +283,7 @@ where
             self.spec.messages.iter().filter(|m| m.default).count() < 2,
             "only one default message is allowed"
         );
+
         let events_exceeding_max_topics_limit = self
             .spec
             .events
@@ -302,6 +307,35 @@ where
             "maximum of 2 event topics exceeded: {}",
             events_exceeding_max_topics_limit.join(", ")
         );
+
+        let mut signature_topics: BTreeMap<Vec<u8>, Vec<String>> = BTreeMap::new();
+        for e in self.spec.events.iter() {
+            if let Some(signature_topic) = &e.signature_topic {
+                signature_topics
+                    .entry(signature_topic.bytes.clone())
+                    .or_default()
+                    .push(format!("`{}::{}`", e.module_path, e.label));
+            }
+        }
+        let signature_topic_collisions = signature_topics
+            .iter()
+            .filter_map(|(_, topics)| {
+                if topics.len() > 1 {
+                    Some(format!(
+                        "event signature topic collision: {}",
+                        topics.join(", ")
+                    ))
+                } else {
+                    None
+                }
+            })
+            .collect::<Vec<_>>();
+        assert!(
+            signature_topic_collisions.is_empty(),
+            "{}",
+            signature_topic_collisions.join("\n")
+        );
+
         self.spec
     }
 }
