@@ -12,7 +12,7 @@ scale = { package = "parity-scale-codec", version = "3", default-features = fals
 scale-info = { version = "2.6", default-features = false, features = ["derive"], optional = true }
 
 [dev-dependencies]
-hex-literal = { version = "0.3" }
+hex-literal = { version = "0.4.1" }
 sp-core = { version = "21.0.0", default-features = false }
 
 [lib]
@@ -24,6 +24,7 @@ std = [
     "ink/std",
     "scale/std",
     "scale-info/std",
+    "sp-core/std",
 ]
 
 ink-as-dependency = []
