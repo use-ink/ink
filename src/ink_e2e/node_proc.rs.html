@@ -231,9 +231,6 @@
 <a href="#230" id="230">230</a>
 <a href="#231" id="231">231</a>
 <a href="#232" id="232">232</a>
-<a href="#233" id="233">233</a>
-<a href="#234" id="234">234</a>
-<a href="#235" id="235">235</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -352,8 +349,7 @@
             .stdout(process::Stdio::piped())
             .stderr(process::Stdio::piped())
             .arg(<span class="string">&quot;--port=0&quot;</span>)
-            .arg(<span class="string">&quot;--rpc-port=0&quot;</span>)
-            .arg(<span class="string">&quot;--ws-port=0&quot;</span>);
+            .arg(<span class="string">&quot;--rpc-port=0&quot;</span>);
 
         <span class="kw">if let </span><span class="prelude-val">Some</span>(authority) = <span class="self">self</span>.authority {
             <span class="kw">let </span>authority = <span class="macro">format!</span>(<span class="string">&quot;{authority:?}&quot;</span>);
@@ -409,9 +405,7 @@
             // substrate).
             </span><span class="kw">let </span>line_end = line
                 .rsplit_once(<span class="string">&quot;Listening for new connections on 127.0.0.1:&quot;</span>)
-                .or_else(|| {
-                    line.rsplit_once(<span class="string">&quot;Running JSON-RPC WS server: addr=127.0.0.1:&quot;</span>)
-                })
+                .or_else(|| line.rsplit_once(<span class="string">&quot;Running JSON-RPC server: addr=127.0.0.1:&quot;</span>))
                 .map(|(<span class="kw">_</span>, port_str)| port_str)<span class="question-mark">?</span>;
 
             <span class="comment">// trim non-numeric chars from the end of the port part of the line.

@@ -996,6 +996,7 @@
 <a href="#995" id="995">995</a>
 <a href="#996" id="996">996</a>
 <a href="#997" id="997">997</a>
+<a href="#998" id="998">998</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -1062,6 +1063,7 @@
         },
     },
     tx::PairSigner,
+    Config,
 };
 
 <span class="doccomment">/// Represents an initialized contract message builder.
@@ -1078,7 +1080,7 @@
     </span><span class="kw">pub </span>account_id: E::AccountId,
     <span class="doccomment">/// The result of the dry run, contains debug messages
     /// if there were any.
-    </span><span class="kw">pub </span>dry_run: ContractInstantiateResult&lt;C::AccountId, E::Balance&gt;,
+    </span><span class="kw">pub </span>dry_run: ContractInstantiateResult&lt;C::AccountId, E::Balance, ()&gt;,
     <span class="doccomment">/// Events that happened with the contract instantiation.
     </span><span class="kw">pub </span>events: ExtrinsicEvents&lt;C&gt;,
 }
@@ -1224,7 +1226,7 @@
 </span><span class="kw">pub struct </span>CallDryRunResult&lt;E: Environment, V&gt; {
     <span class="doccomment">/// The result of the dry run, contains debug messages
     /// if there were any.
-    </span><span class="kw">pub </span>exec_result: ContractExecResult&lt;E::Balance&gt;,
+    </span><span class="kw">pub </span>exec_result: ContractExecResult&lt;E::Balance, ()&gt;,
     _marker: PhantomData&lt;V&gt;,
 }
 
@@ -1304,7 +1306,7 @@
     <span class="doccomment">/// No contract with the given name found in scope.
     </span>ContractNotFound(String),
     <span class="doccomment">/// The `instantiate_with_code` dry run failed.
-    </span>InstantiateDryRun(ContractInstantiateResult&lt;C::AccountId, E::Balance&gt;),
+    </span>InstantiateDryRun(ContractInstantiateResult&lt;C::AccountId, E::Balance, ()&gt;),
     <span class="doccomment">/// The `instantiate_with_code` extrinsic failed.
     </span>InstantiateExtrinsic(subxt::error::DispatchError),
     <span class="doccomment">/// The `upload` dry run failed.
@@ -1312,7 +1314,7 @@
     <span class="doccomment">/// The `upload` extrinsic failed.
     </span>UploadExtrinsic(subxt::error::DispatchError),
     <span class="doccomment">/// The `call` dry run failed.
-    </span>CallDryRun(ContractExecResult&lt;E::Balance&gt;),
+    </span>CallDryRun(ContractExecResult&lt;E::Balance, ()&gt;),
     <span class="doccomment">/// The `call` extrinsic failed.
     </span>CallExtrinsic(subxt::error::DispatchError),
     <span class="doccomment">/// Error fetching account balance.
@@ -1531,7 +1533,7 @@
         constructor: CreateBuilderPartial&lt;E, Contract, Args, R&gt;,
         value: E::Balance,
         storage_deposit_limit: <span class="prelude-ty">Option</span>&lt;E::Balance&gt;,
-    ) -&gt; ContractInstantiateResult&lt;C::AccountId, E::Balance&gt;
+    ) -&gt; ContractInstantiateResult&lt;C::AccountId, E::Balance, ()&gt;
     <span class="kw">where
         </span>Args: scale::Encode,
     {
@@ -1990,7 +1992,7 @@
 }
 
 <span class="doccomment">/// Returns true if the give event is System::Extrinsic failed.
-</span><span class="kw">fn </span>is_extrinsic_failed_event(event: <span class="kw-2">&amp;</span>EventDetails) -&gt; bool {
+</span><span class="kw">fn </span>is_extrinsic_failed_event&lt;C: Config&gt;(event: <span class="kw-2">&amp;</span>EventDetails&lt;C&gt;) -&gt; bool {
     event.pallet_name() == <span class="string">&quot;System&quot; </span>&amp;&amp; event.variant_name() == <span class="string">&quot;ExtrinsicFailed&quot;
 </span>}
 </code></pre></div>
