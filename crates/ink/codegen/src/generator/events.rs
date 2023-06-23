@@ -43,8 +43,8 @@ impl<'a> Events<'a> {
         self.contract.module().events().map(move |event| {
             let span = event.span();
             let attrs = event.attrs();
-            // todo: should we just keep this attribute as part of attrs in the first
-            // place?
+            // add back the `#[ink(anonymous)]` attribute if it was present, for parsing by the
+            // derive macros.
             let anonymous_attr = event.anonymous.then(|| {
                 quote_spanned!(span =>
                     #[ink(anonymous)]
