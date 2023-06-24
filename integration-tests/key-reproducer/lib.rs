@@ -2,10 +2,10 @@
 
 #[ink::contract]
 pub mod key_reproducer {
-    use ink::storage::Mapping;
+    use ink::storage::{Mapping, traits::ManualKey};
     #[ink(storage)]
     pub struct KeyReproducer {
-        values: Mapping<AccountId, Balance>,
+        values: Mapping<AccountId, Balance, ManualKey<1>>,
         value: bool,
     }
 
@@ -27,6 +27,16 @@ pub mod key_reproducer {
         #[ink(message)]
         pub fn flip(&mut self) {
             self.value = !self.value;
+        }
+
+        #[ink(message)]
+        pub fn add_value(&mut self) {
+            self.values.insert(self.env().caller(), &100);
+        }
+
+        #[ink(message)]
+        pub fn read_value(&self) -> Option<Balance> {
+            self.values.get(self.env().caller())
         }
 
         /// Returns the current value of the Flipper's boolean.
