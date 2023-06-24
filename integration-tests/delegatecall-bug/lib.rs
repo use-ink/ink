@@ -8,10 +8,11 @@ pub mod delegatecall_bug {
         call::{build_call, ExecutionInput, Selector},
         DefaultEnvironment,
     };
+    use ink::storage::traits::ManualKey;
 
     #[ink(storage)]
     pub struct DelegateCallBug {
-        values: Mapping<AccountId, Balance>,
+        values: Mapping<AccountId, Balance, ManualKey<1>>,
         value: bool,
     }
 
@@ -41,8 +42,27 @@ pub mod delegatecall_bug {
                 .delegate(hash)
                 .exec_input(ExecutionInput::new(Selector::new(selector)))
                 .returns::<()>()
-                .try_invoke().map_err(|_| ())?;
+                .try_invoke()
+                .map_err(|_| ())?;
             Ok(())
+        }
+
+        #[allow(clippy::result_unit_err)]
+        #[ink(message)]
+        pub fn add_value_delegate(&mut self, hash: Hash) -> Result<(), ()> {
+            let selector = ink::selector_bytes!("add_value");
+            let _ = build_call::<DefaultEnvironment>()
+                .delegate(hash)
+                .exec_input(ExecutionInput::new(Selector::new(selector)))
+                .returns::<()>()
+                .try_invoke()
+                .map_err(|_| ())?;
+            Ok(())
+        }
+
+        #[ink(message)]
+        pub fn read_value(&self) -> Option<Balance> {
+            self.values.get(self.env().caller())
         }
 
         /// Returns the current value of the Flipper's boolean.
@@ -59,7 +79,7 @@ pub mod delegatecall_bug {
         type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
         #[ink_e2e::test]
-        async fn e2e_storage_not_mutated(
+        async fn e2e_storage_not_mutated_packed(
             mut client: ink_e2e::Client<C, E>,
         ) -> E2EResult<()> {
             let origin = client
@@ -97,6 +117,54 @@ pub mod delegatecall_bug {
                 .await
                 .return_value();
 
+            // This fails
+            assert_eq!(
+                call_get_result, expected_value,
+                "boolean value has not been updated"
+            );
+
+            Ok(())
+        }
+        #[ink_e2e::test]
+        async fn e2e_storage_not_mutated_unpacked(
+            mut client: ink_e2e::Client<C, E>,
+        ) -> E2EResult<()> {
+            let origin = client
+                .create_and_fund_account(&ink_e2e::alice(), 10_000_000_000_000)
+                .await;
+
+            let constructor = DelegateCallBugRef::new(false);
+            let call_builder = client
+                .instantiate("delegatecall-bug", &origin, constructor, 0, None)
+                .await
+                .expect("instantiate failed");
+            let mut call_builder_call = call_builder.call::<DelegateCallBug>();
+
+            let code_hash = client
+                .upload("key-reproducer", &origin, None)
+                .await
+                .expect("upload `key-reproducer` failed")
+                .code_hash;
+
+            let call_delegate = call_builder_call.flip_delegate(code_hash);
+            let result = client
+                .call(&origin, &call_delegate, 0, None)
+                .await
+                .expect("Client failed to call `call_builder::add_value_delegate`.")
+                .return_value();
+            // indicates that delegate call that mutates the value hsa been executed correctly
+            assert!(result.is_ok());
+
+            let expected_value = Some(100);
+            let call = call_builder.call::<DelegateCallBug>();
+
+            let call_read = call.read_value();
+            let call_get_result = client
+                .call_dry_run(&origin, &call_read, 0, None)
+                .await
+                .return_value();
+
+            assert!(call_get_result.is_some(), "Value has not been put in mapping during delegatecall");
             // This fails
             assert_eq!(
                 call_get_result, expected_value,
