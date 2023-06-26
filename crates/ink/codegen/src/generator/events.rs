@@ -43,8 +43,8 @@ impl<'a> Events<'a> {
         self.contract.module().events().map(move |event| {
             let span = event.span();
             let attrs = event.attrs();
-            // add back the `#[ink(anonymous)]` attribute if it was present, for parsing by the
-            // derive macros.
+            // add back the `#[ink(anonymous)]` attribute if it was present, for parsing
+            // by the derive macros.
             let anonymous_attr = event.anonymous.then(|| {
                 quote_spanned!(span =>
                     #[ink(anonymous)]
