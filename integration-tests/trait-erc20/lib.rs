@@ -308,12 +308,12 @@ mod erc20 {
                     .into(),
             );
             if let Some(from) = expected_from {
-                expected_topics.push(encoded_into_hash(&from));
+                expected_topics.push(encoded_into_hash(from));
             }
             if let Some(to) = expected_to {
-                expected_topics.push(encoded_into_hash(&to));
+                expected_topics.push(encoded_into_hash(to));
             }
-            expected_topics.push(encoded_into_hash(&value));
+            expected_topics.push(encoded_into_hash(value));
 
             for (n, (actual_topic, expected_topic)) in
                 event.topics.iter().zip(expected_topics).enumerate()
