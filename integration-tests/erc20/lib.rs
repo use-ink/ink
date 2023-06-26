@@ -242,12 +242,12 @@ mod erc20 {
                     .into(),
             );
             if let Some(from) = expected_from {
-                expected_topics.push(encoded_into_hash(&from));
+                expected_topics.push(encoded_into_hash(from));
             }
             if let Some(to) = expected_to {
-                expected_topics.push(encoded_into_hash(&to));
+                expected_topics.push(encoded_into_hash(to));
             }
-            expected_topics.push(encoded_into_hash(&value));
+            expected_topics.push(encoded_into_hash(value));
 
             let topics = event.topics.clone();
             for (n, (actual_topic, expected_topic)) in
@@ -526,7 +526,7 @@ mod erc20 {
 
             let bob_account = ink_e2e::account_id(ink_e2e::AccountKeyring::Bob);
             let transfer_to_bob = 500_000_000u128;
-            let transfer = call.transfer(bob_account.clone(), transfer_to_bob);
+            let transfer = call.transfer(bob_account, transfer_to_bob);
             let _transfer_res = client
                 .call(&ink_e2e::alice(), &transfer, 0, None)
                 .await
@@ -566,8 +566,7 @@ mod erc20 {
 
             let amount = 500_000_000u128;
             // tx
-            let transfer_from =
-                call.transfer_from(bob_account.clone(), charlie_account.clone(), amount);
+            let transfer_from = call.transfer_from(bob_account, charlie_account, amount);
             let transfer_from_result = client
                 .call(&ink_e2e::charlie(), &transfer_from, 0, None)
                 .await;
@@ -579,18 +578,15 @@ mod erc20 {
 
             // Bob approves Charlie to transfer up to amount on his behalf
             let approved_value = 1_000u128;
-            let approve_call = call.approve(charlie_account.clone(), approved_value);
+            let approve_call = call.approve(charlie_account, approved_value);
             client
                 .call(&ink_e2e::bob(), &approve_call, 0, None)
                 .await
                 .expect("approve failed");
 
             // `transfer_from` the approved amount
-            let transfer_from = call.transfer_from(
-                bob_account.clone(),
-                charlie_account.clone(),
-                approved_value,
-            );
+            let transfer_from =
+                call.transfer_from(bob_account, charlie_account, approved_value);
             let transfer_from_result = client
                 .call(&ink_e2e::charlie(), &transfer_from, 0, None)
                 .await;
@@ -605,8 +601,7 @@ mod erc20 {
                 .await;
 
             // `transfer_from` again, this time exceeding the approved amount
-            let transfer_from =
-                call.transfer_from(bob_account.clone(), charlie_account.clone(), 1);
+            let transfer_from = call.transfer_from(bob_account, charlie_account, 1);
             let transfer_from_result = client
                 .call(&ink_e2e::charlie(), &transfer_from, 0, None)
                 .await;
