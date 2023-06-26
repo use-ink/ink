@@ -75,8 +75,9 @@ mod runtime_call {
             let emitted_events = ink::env::test::recorded_events().collect::<Vec<_>>();
             assert_eq!(emitted_events.len(), 1);
 
-            let emitted_event =
-                <EventWithTopics as scale::Decode>::decode(&mut &emitted_events[0].data[..]);
+            let emitted_event = <EventWithTopics as scale::Decode>::decode(
+                &mut &emitted_events[0].data[..],
+            );
 
             assert!(emitted_event.is_ok());
         }
