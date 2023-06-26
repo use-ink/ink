@@ -42,7 +42,6 @@ impl<'a> Events<'a> {
     fn generate_event_items(&'a self) -> impl Iterator<Item = TokenStream2> + 'a {
         self.contract.module().events().map(move |event| {
             let span = event.span();
-            let attrs = event.attrs();
             // add back the `#[ink(anonymous)]` attribute if it was present, for parsing
             // by the derive macros.
             let anonymous_attr = event.anonymous.then(|| {
@@ -51,7 +50,6 @@ impl<'a> Events<'a> {
                 )
             });
             quote_spanned!(span =>
-                #( #attrs )*
                 #[derive(::ink::Event, ::scale::Encode, ::scale::Decode)]
                 #[cfg_attr(feature = "std", derive(::ink::EventMetadata))]
                 #anonymous_attr

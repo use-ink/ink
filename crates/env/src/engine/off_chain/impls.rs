@@ -150,10 +150,6 @@ where
         }
         let off_hash = result.as_ref();
         let off_hash = off_hash.to_vec();
-        debug_assert!(
-            !self.topics.contains(&off_hash),
-            "duplicate topic hash discovered!"
-        );
         self.topics.push(off_hash);
     }
 

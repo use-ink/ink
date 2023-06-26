@@ -12,15 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::ir::{
-    self,
-    utils::extract_cfg_attributes,
-};
-use proc_macro2::{
-    Ident,
-    Span,
-    TokenStream,
-};
+use crate::ir;
+use proc_macro2::Ident;
 use syn::spanned::Spanned as _;
 
 /// An ink! event struct definition.
@@ -105,16 +98,6 @@ impl Event {
     /// Returns the identifier of the event struct.
     pub fn ident(&self) -> &Ident {
         &self.item.ident
-    }
-
-    /// Returns all non-ink! attributes.
-    pub fn attrs(&self) -> &[syn::Attribute] {
-        &self.item.attrs
-    }
-
-    /// Returns a list of `cfg` attributes if any.
-    pub fn get_cfg_attrs(&self, span: Span) -> Vec<TokenStream> {
-        extract_cfg_attributes(self.attrs(), span)
     }
 }
 
