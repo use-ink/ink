@@ -48,7 +48,7 @@ pub mod events {
 
             let decoded_event = <event_def::Flipped>::decode(&mut &event.data[..])
                 .expect("encountered invalid contract event data buffer");
-            assert_eq!(decoded_event.value, true);
+            assert!(decoded_event.value);
         }
 
         #[ink::test]
@@ -126,7 +126,7 @@ pub mod events {
 
             let signature_topic =
                 <event_def::Flipped as ink::env::Event>::SIGNATURE_TOPIC
-                    .map(|topic| H256::from(topic))
+                    .map(H256::from)
                     .unwrap();
 
             let expected_topics = vec![signature_topic];
