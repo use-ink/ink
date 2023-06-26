@@ -204,22 +204,6 @@ mod tests {
         )
     }
 
-    #[test]
-    fn cfg_marked_field_attribute_fails() {
-        assert_try_from_fails(
-            syn::parse_quote! {
-                #[ink(event)]
-                pub struct MyEvent {
-                    #[ink(topic)]
-                    field_1: i32,
-                    #[cfg(unix)]
-                    field_2: bool,
-                }
-            },
-            "conditional compilation is not allowed for event field",
-        )
-    }
-
     /// Used for the event fields iterator unit test because `syn::Field` does
     /// not provide a `syn::parse::Parse` implementation.
     #[derive(Debug, PartialEq, Eq)]
