@@ -223,41 +223,31 @@ mod erc20 {
             Hash,
         };
 
-        type Event = <Erc20 as ::ink::reflect::ContractEventBase>::Type;
-
         fn assert_transfer_event(
             event: &ink::env::test::EmittedEvent,
             expected_from: Option<AccountId>,
             expected_to: Option<AccountId>,
             expected_value: Balance,
         ) {
-            let decoded_event = <Event as scale::Decode>::decode(&mut &event.data[..])
+            let decoded_event = <Transfer as scale::Decode>::decode(&mut &event.data[..])
                 .expect("encountered invalid contract event data buffer");
-            if let Event::Transfer(Transfer { from, to, value }) = decoded_event {
-                assert_eq!(from, expected_from, "encountered invalid Transfer.from");
-                assert_eq!(to, expected_to, "encountered invalid Transfer.to");
-                assert_eq!(value, expected_value, "encountered invalid Trasfer.value");
-            } else {
-                panic!("encountered unexpected event kind: expected a Transfer event")
+            let Transfer { from, to, value } = decoded_event;
+            assert_eq!(from, expected_from, "encountered invalid Transfer.from");
+            assert_eq!(to, expected_to, "encountered invalid Transfer.to");
+            assert_eq!(value, expected_value, "encountered invalid Trasfer.value");
+
+            let mut expected_topics = Vec::new();
+            expected_topics.push(
+                ink::blake2x256!("Transfer(Option<AccountId>,Option<AccountId>,Balance)")
+                    .into(),
+            );
+            if let Some(from) = expected_from {
+                expected_topics.push(encoded_into_hash(&from));
             }
-            let expected_topics = vec![
-                encoded_into_hash(&PrefixedValue {
-                    value: b"Erc20::Transfer",
-                    prefix: b"",
-                }),
-                encoded_into_hash(&PrefixedValue {
-                    prefix: b"Erc20::Transfer::from",
-                    value: &expected_from,
-                }),
-                encoded_into_hash(&PrefixedValue {
-                    prefix: b"Erc20::Transfer::to",
-                    value: &expected_to,
-                }),
-                encoded_into_hash(&PrefixedValue {
-                    prefix: b"Erc20::Transfer::value",
-                    value: &expected_value,
-                }),
-            ];
+            if let Some(to) = expected_to {
+                expected_topics.push(encoded_into_hash(&to));
+            }
+            expected_topics.push(encoded_into_hash(&value));
 
             let topics = event.topics.clone();
             for (n, (actual_topic, expected_topic)) in
@@ -482,29 +472,7 @@ mod erc20 {
             )
         }
 
-        /// For calculating the event topic hash.
-        struct PrefixedValue<'a, 'b, T> {
-            pub prefix: &'a [u8],
-            pub value: &'b T,
-        }
-
-        impl<X> scale::Encode for PrefixedValue<'_, '_, X>
-        where
-            X: scale::Encode,
-        {
-            #[inline]
-            fn size_hint(&self) -> usize {
-                self.prefix.size_hint() + self.value.size_hint()
-            }
-
-            #[inline]
-            fn encode_to<T: scale::Output + ?Sized>(&self, dest: &mut T) {
-                self.prefix.encode_to(dest);
-                self.value.encode_to(dest);
-            }
-        }
-
-        fn encoded_into_hash<T>(entity: &T) -> Hash
+        fn encoded_into_hash<T>(entity: T) -> Hash
         where
             T: scale::Encode,
         {

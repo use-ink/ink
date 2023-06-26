@@ -303,7 +303,10 @@ mod erc20 {
             }
 
             let mut expected_topics = Vec::new();
-            expected_topics.push(ink::blake2x256!("Transfer(Option<AccountId>,Option<AccountId>,Balance)").into());
+            expected_topics.push(
+                ink::blake2x256!("Transfer(Option<AccountId>,Option<AccountId>,Balance)")
+                    .into(),
+            );
             if let Some(from) = expected_from {
                 expected_topics.push(encoded_into_hash(&from));
             }
