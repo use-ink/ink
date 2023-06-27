@@ -175,7 +175,7 @@ defined by the chain environment on which this contract runs.</p>
 </div></details><details class="toggle method-toggle" open><summary><section id="method.instantiate_contract" class="method"><a class="srclink rightside" href="../src/ink/env_access.rs.html#485-500">source</a><h4 class="code-header">pub fn <a href="#method.instantiate_contract" class="fn">instantiate_contract</a>&lt;ContractRef, Args, Salt, R&gt;(
     self,
     params: &amp;<a class="struct" href="../ink_env/call/create_builder/struct.CreateParams.html" title="struct ink_env::call::create_builder::CreateParams">CreateParams</a>&lt;E, ContractRef, Args, Salt, R&gt;
-) -&gt; <a class="type" href="../ink_env/error/type.Result.html" title="type ink_env::error::Result">Result</a>&lt;ConstructorResult&lt;&lt;R as <a class="trait" href="../ink_env/call/create_builder/trait.ConstructorReturnType.html" title="trait ink_env::call::create_builder::ConstructorReturnType">ConstructorReturnType</a>&lt;ContractRef&gt;&gt;::<a class="associatedtype" href="../ink_env/call/create_builder/trait.ConstructorReturnType.html#associatedtype.Output" title="type ink_env::call::create_builder::ConstructorReturnType::Output">Output</a>&gt;&gt;<span class="where fmt-newline">where
+) -&gt; <a class="type" href="../ink_env/error/type.Result.html" title="type ink_env::error::Result">Result</a>&lt;<a class="type" href="type.ConstructorResult.html" title="type ink::ConstructorResult">ConstructorResult</a>&lt;&lt;R as <a class="trait" href="../ink_env/call/create_builder/trait.ConstructorReturnType.html" title="trait ink_env::call::create_builder::ConstructorReturnType">ConstructorReturnType</a>&lt;ContractRef&gt;&gt;::<a class="associatedtype" href="../ink_env/call/create_builder/trait.ConstructorReturnType.html#associatedtype.Output" title="type ink_env::call::create_builder::ConstructorReturnType::Output">Output</a>&gt;&gt;<span class="where fmt-newline">where
     ContractRef: <a class="trait" href="../ink_env/call/create_builder/trait.FromAccountId.html" title="trait ink_env::call::create_builder::FromAccountId">FromAccountId</a>&lt;E&gt;,
     Args: Encode,
     Salt: <a class="trait" href="https://doc.rust-lang.org/1.69.0/core/convert/trait.AsRef.html" title="trait core::convert::AsRef">AsRef</a>&lt;[<a class="primitive" href="https://doc.rust-lang.org/1.69.0/std/primitive.u8.html">u8</a>]&gt;,
@@ -220,7 +220,7 @@ for a complete contract example.</p>
 </div></details><details class="toggle method-toggle" open><summary><section id="method.invoke_contract" class="method"><a class="srclink rightside" href="../src/ink/env_access.rs.html#562-571">source</a><h4 class="code-header">pub fn <a href="#method.invoke_contract" class="fn">invoke_contract</a>&lt;Args, R&gt;(
     self,
     params: &amp;<a class="struct" href="../ink_env/call/call_builder/struct.CallParams.html" title="struct ink_env::call::call_builder::CallParams">CallParams</a>&lt;E, <a class="struct" href="../ink_env/call/call_builder/struct.Call.html" title="struct ink_env::call::call_builder::Call">Call</a>&lt;E&gt;, Args, R&gt;
-) -&gt; <a class="type" href="../ink_env/error/type.Result.html" title="type ink_env::error::Result">Result</a>&lt;MessageResult&lt;R&gt;&gt;<span class="where fmt-newline">where
+) -&gt; <a class="type" href="../ink_env/error/type.Result.html" title="type ink_env::error::Result">Result</a>&lt;<a class="type" href="type.MessageResult.html" title="type ink::MessageResult">MessageResult</a>&lt;R&gt;&gt;<span class="where fmt-newline">where
     Args: Encode,
     R: Decode,</span></h4></section></summary><div class="docblock"><p>Invokes a contract message and returns its result.</p>
 <h5 id="example-10"><a href="#example-10">Example</a></h5>
@@ -264,7 +264,7 @@ for a complete contract example.</p>
 </div></details><details class="toggle method-toggle" open><summary><section id="method.invoke_contract_delegate" class="method"><a class="srclink rightside" href="../src/ink/env_access.rs.html#632-641">source</a><h4 class="code-header">pub fn <a href="#method.invoke_contract_delegate" class="fn">invoke_contract_delegate</a>&lt;Args, R&gt;(
     self,
     params: &amp;<a class="struct" href="../ink_env/call/call_builder/struct.CallParams.html" title="struct ink_env::call::call_builder::CallParams">CallParams</a>&lt;E, <a class="struct" href="../ink_env/call/call_builder/struct.DelegateCall.html" title="struct ink_env::call::call_builder::DelegateCall">DelegateCall</a>&lt;E&gt;, Args, R&gt;
-) -&gt; <a class="type" href="../ink_env/error/type.Result.html" title="type ink_env::error::Result">Result</a>&lt;MessageResult&lt;R&gt;&gt;<span class="where fmt-newline">where
+) -&gt; <a class="type" href="../ink_env/error/type.Result.html" title="type ink_env::error::Result">Result</a>&lt;<a class="type" href="type.MessageResult.html" title="type ink::MessageResult">MessageResult</a>&lt;R&gt;&gt;<span class="where fmt-newline">where
     Args: Encode,
     R: Decode,</span></h4></section></summary><div class="docblock"><p>Invokes in delegate manner a code message and returns its result.</p>
 <h5 id="example-11"><a href="#example-11">Example</a></h5>
