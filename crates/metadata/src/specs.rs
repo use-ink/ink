@@ -951,6 +951,12 @@ where
     }
 }
 
+impl AsRef<[u8]> for SignatureTopic {
+    fn as_ref(&self) -> &[u8] {
+        &self.bytes
+    }
+}
+
 /// An event specification builder.
 #[must_use]
 pub struct EventSpecBuilder<F>
@@ -1066,6 +1072,11 @@ where
     /// The event arguments.
     pub fn args(&self) -> &[EventParamSpec<F>] {
         &self.args
+    }
+
+    /// The signature topic of the event. `None` if the event is anonymous.
+    pub fn signature_topic(&self) -> Option<&SignatureTopic> {
+        self.signature_topic.as_ref()
     }
 
     /// The event documentation.
