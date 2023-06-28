@@ -73,7 +73,7 @@ pub mod events {
         }
 
         #[ink::test]
-        fn option_topic_none_missing_topic() {
+        fn option_topic_none_encoded_as_0() {
             let mut events = Events::new(false);
             events.emit_32_byte_topic_event(None);
 
@@ -81,11 +81,17 @@ pub mod events {
             assert_eq!(1, emitted_events.len());
             let event = &emitted_events[0];
 
-            assert_eq!(
-                event.topics.len(),
-                2,
-                "option topic should *not* be published"
-            );
+            let signature_topic =
+                <event_def::ThirtyTwoByteTopics as ink::env::Event>::SIGNATURE_TOPIC
+                    .map(|topic| topic.to_vec())
+                    .unwrap();
+
+            let expected_topics = vec![
+                signature_topic,
+                [0x42; 32].to_vec(),
+                [0x00; 32].to_vec(), // None is encoded as 0x00
+            ];
+            assert_eq!(expected_topics, event.topics);
         }
     }
 
@@ -130,6 +136,51 @@ pub mod events {
                     .unwrap();
 
             let expected_topics = vec![signature_topic];
+            assert_eq!(expected_topics, contract_event.topics);
+
+            Ok(())
+        }
+
+        #[ink_e2e::test]
+        async fn emits_event_with_option_topic_none(
+            mut client: ink_e2e::Client<C, E>,
+        ) -> E2EResult<()> {
+            // given
+            let init_value = false;
+            let constructor = EventsRef::new(init_value);
+            let contract = client
+                .instantiate("events", &ink_e2e::alice(), constructor, 0, None)
+                .await
+                .expect("instantiate failed");
+            let mut call = contract.call::<Events>();
+
+            // when
+            let call = call.emit_32_byte_topic_event(None);
+            let call_res = client
+                .call(&ink_e2e::bob(), &call, 0, None)
+                .await
+                .expect("emit_32_byte_topic_event failed");
+
+            let contract_events = call_res.contract_emitted_events()?;
+
+            // then
+            assert_eq!(1, contract_events.len());
+            let contract_event = &contract_events[0];
+            let event: event_def::ThirtyTwoByteTopics =
+                scale::Decode::decode(&mut &contract_event.event.data[..])
+                    .expect("encountered invalid contract event data buffer");
+            assert!(event.maybe_hash.is_none());
+
+            let signature_topic =
+                <event_def::ThirtyTwoByteTopics as ink::env::Event>::SIGNATURE_TOPIC
+                    .map(H256::from)
+                    .unwrap();
+
+            let expected_topics = vec![
+                signature_topic,
+                [0x42; 32].into(),
+                [0x00; 32].into(), // None is encoded as 0x00
+            ];
             assert_eq!(expected_topics, contract_event.topics);
 
             Ok(())
