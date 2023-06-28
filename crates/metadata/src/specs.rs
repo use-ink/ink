@@ -951,8 +951,9 @@ where
     }
 }
 
-impl AsRef<[u8]> for SignatureTopic {
-    fn as_ref(&self) -> &[u8] {
+impl SignatureTopic {
+    /// Returns the bytes of the signature topic.
+    pub fn as_bytes(&self) -> &[u8] {
         &self.bytes
     }
 }
