@@ -243,9 +243,13 @@ mod erc20 {
             );
             if let Some(from) = expected_from {
                 expected_topics.push(encoded_into_hash(from));
+            } else {
+                expected_topics.push(Hash::CLEAR_HASH);
             }
             if let Some(to) = expected_to {
                 expected_topics.push(encoded_into_hash(to));
+            } else {
+                expected_topics.push(Hash::CLEAR_HASH);
             }
             expected_topics.push(encoded_into_hash(value));
 
