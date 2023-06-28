@@ -102,8 +102,6 @@ where
 {
     /// Pushes another event topic to be serialized through the topics builder.
     ///
-    /// If the `value` of the topic is `None` then the topic will *not* be pushed.
-    ///
     /// Returns a topics builder that expects one less event topic for serialization
     /// than before the call.
     pub fn push_topic<T>(
@@ -115,7 +113,9 @@ where
     {
         // Only publish the topic if it is not an `Option::None`.
         if let Some(topic) = value {
-            self.backend.push_topic(topic);
+            self.backend.push_topic::<T>(topic);
+        } else {
+            self.backend.push_topic::<u8>(&0u8);
         }
         TopicsBuilder {
             backend: self.backend,
