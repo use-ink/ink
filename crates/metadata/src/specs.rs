@@ -284,6 +284,7 @@ where
             "only one default message is allowed"
         );
 
+        let max_topics = self.spec.environment.max_event_topics;
         let events_exceeding_max_topics_limit = self
             .spec
             .events
@@ -292,7 +293,7 @@ where
                 let signature_topic = if e.signature_topic.is_some() { 1 } else { 0 };
                 let topics_count =
                     signature_topic + e.args.iter().filter(|a| a.indexed).count();
-                if topics_count > self.spec.environment.max_event_topics {
+                if topics_count > max_topics {
                     Some(format!(
                         "`{}::{}` ({} topics)",
                         e.module_path, e.label, topics_count
@@ -304,7 +305,7 @@ where
             .collect::<Vec<_>>();
         assert!(
             events_exceeding_max_topics_limit.is_empty(),
-            "maximum of 2 event topics exceeded: {}",
+            "maximum of {max_topics} event topics exceeded: {}",
             events_exceeding_max_topics_limit.join(", ")
         );
 

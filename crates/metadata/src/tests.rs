@@ -700,6 +700,19 @@ fn should_trim_whitespaces_in_events_docs() {
     assert_eq!(event_spec_name, expected_event_spec);
 }
 
+/// Create a default environment spec with the `max_event_topics` set to `4`.
+fn environment_spec() -> EnvironmentSpec<PortableForm> {
+    EnvironmentSpec::new()
+        .account_id(Default::default())
+        .balance(Default::default())
+        .hash(Default::default())
+        .timestamp(Default::default())
+        .block_number(Default::default())
+        .chain_extension(Default::default())
+        .max_event_topics(4)
+        .done()
+}
+
 /// Helper for creating a constructor spec at runtime
 fn runtime_constructor_spec() -> ConstructorSpec<PortableForm> {
     let path: Path<PortableForm> = Path::from_segments_unchecked(["FooType".to_string()]);
@@ -745,6 +758,8 @@ fn runtime_event_spec() -> EventSpec<PortableForm> {
         .docs(vec![])
         .done()];
     EventSpec::new("foobar".into())
+        .signature_topic(Some([42u8; 32]))
+        .module_path("foo".into())
         .args(args)
         .docs(["foobar event"])
         .done()
@@ -754,6 +769,7 @@ fn runtime_event_spec() -> EventSpec<PortableForm> {
 #[test]
 fn construct_runtime_contract_spec() {
     let spec = ContractSpec::new()
+        .environment(environment_spec())
         .constructors([runtime_constructor_spec()])
         .messages([runtime_message_spec()])
         .events([runtime_event_spec()])
@@ -824,6 +840,8 @@ fn construct_runtime_contract_spec() {
     let expected_event_spec = serde_json::json!(
         {
             "label": "foobar",
+            "module_path": "foo",
+            "signature_topic": "0x2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a",
             "args": [
                 {
                     "label": "something",
