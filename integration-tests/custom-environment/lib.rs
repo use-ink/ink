@@ -46,8 +46,6 @@ mod runtime_call {
         third_topic: Balance,
         #[ink(topic)]
         fourth_topic: Balance,
-        #[ink(topic)]
-        fifth_topic: Balance,
     }
 
     impl Topics {
