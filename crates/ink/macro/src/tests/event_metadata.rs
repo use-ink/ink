@@ -33,6 +33,7 @@ fn unit_struct_works() {
                             <UnitStruct as ::ink::metadata::EventMetadata>::event_spec;
 
                         ::ink::metadata::EventSpec::new(::core::stringify!(UnitStruct))
+                            .module_path(::core::module_path!())
                             .signature_topic(<Self as ::ink::env::Event>::SIGNATURE_TOPIC)
                             .args([])
                             .docs([])
@@ -67,6 +68,7 @@ fn struct_with_fields_no_topics() {
                             <Event as ::ink::metadata::EventMetadata>::event_spec;
 
                         ::ink::metadata::EventSpec::new(::core::stringify!(Event))
+                            .module_path(::core::module_path!())
                             .signature_topic(<Self as ::ink::env::Event>::SIGNATURE_TOPIC)
                             .args([
                                 ::ink::metadata::EventParamSpec::new(::core::stringify!(field_1))
@@ -116,6 +118,7 @@ fn struct_with_fields_and_some_topics() {
                             <Event as ::ink::metadata::EventMetadata>::event_spec;
 
                         ::ink::metadata::EventSpec::new(::core::stringify!(Event))
+                            .module_path(::core::module_path!())
                             .signature_topic(<Self as ::ink::env::Event>::SIGNATURE_TOPIC)
                             .args([
                                 ::ink::metadata::EventParamSpec::new(::core::stringify!(field_1))
