@@ -668,6 +668,8 @@ fn should_trim_whitespaces_in_events_docs() {
         .docs(vec!["test".to_string()])
         .done()];
     let es = EventSpec::new("foobar".into())
+        .module_path("foo")
+        .signature_topic(Some([0u8; 32]))
         .args(args)
         .docs([" FooBarEvent  "])
         .done();
@@ -677,6 +679,8 @@ fn should_trim_whitespaces_in_events_docs() {
     // when
     let expected_event_spec = serde_json::json!(
         {
+            "module_path": "foo",
+            "signature_topic": "0x0000000000000000000000000000000000000000000000000000000000000000",
             "args": [
             {
                 "docs": ["test"],
