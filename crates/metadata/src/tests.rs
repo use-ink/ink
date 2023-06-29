@@ -763,7 +763,7 @@ fn runtime_event_spec() -> EventSpec<PortableForm> {
         .done()];
     EventSpec::new("foobar".into())
         .signature_topic(Some([42u8; 32]))
-        .module_path("foo".into())
+        .module_path("foo")
         .args(args)
         .docs(["foobar event"])
         .done()
