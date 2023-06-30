@@ -21,14 +21,7 @@ use core::cell::RefCell;
 use derive_more::From;
 use proc_macro2::TokenStream as TokenStream2;
 use quote::quote;
-use std::{
-    collections::HashMap,
-    sync::Once,
-};
-
-/// We use this to only build the contracts once for all tests, at the
-/// time of generating the Rust code for the tests, so at compile time.
-static BUILD_ONCE: Once = Once::new();
+use std::collections::HashMap;
 
 thread_local! {
     // We save a mapping of `contract_manifest_path` to the built `*.contract` files.
@@ -99,27 +92,18 @@ impl InkE2ETest {
 
         let mut already_built_contracts = already_built_contracts();
         if already_built_contracts.is_empty() {
-            // Build all of them for the first time and initialize everything
-            BUILD_ONCE.call_once(|| {
-                tracing_subscriber::fmt::init();
-                for manifest_path in contracts_to_build_and_import {
-                    let dest_wasm = build_contract(&manifest_path);
-                    let _ = already_built_contracts.insert(manifest_path, dest_wasm);
-                }
-                set_already_built_contracts(already_built_contracts.clone());
-            });
-        } else if !already_built_contracts.is_empty() {
-            // Some contracts have already been built and we check if the
-            // `additional_contracts` for this particular test contain ones
-            // that haven't been build before
-            for manifest_path in contracts_to_build_and_import {
-                if already_built_contracts.get(&manifest_path).is_none() {
-                    let dest_wasm = build_contract(&manifest_path);
-                    let _ = already_built_contracts.insert(manifest_path, dest_wasm);
-                }
-            }
-            set_already_built_contracts(already_built_contracts.clone());
+            tracing_subscriber::fmt::init();
         }
+
+        // Some contracts have already been built and we check if the
+        // `additional_contracts` for this particular test contain ones
+        // that haven't been build before
+        for manifest_path in contracts_to_build_and_import {
+            already_built_contracts
+                .entry(manifest_path.clone())
+                .or_insert_with(|| build_contract(&manifest_path));
+        }
+        set_already_built_contracts(already_built_contracts.clone());
 
         assert!(
             !already_built_contracts.is_empty(),
