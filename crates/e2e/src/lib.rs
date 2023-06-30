@@ -61,6 +61,8 @@ use std::{
 };
 use xts::ContractsApi;
 
+pub use subxt::PolkadotConfig;
+
 /// Signer that is used throughout the E2E testing.
 ///
 /// The E2E testing can only be used with nodes that support `sr25519`

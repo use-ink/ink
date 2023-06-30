@@ -155,7 +155,7 @@ impl InkE2ETest {
 
                 let run = async {
                     // spawn a contracts node process just for this test
-                    let node_proc = ::ink_e2e::TestNodeProcess::<::subxt::PolkadotConfig>
+                    let node_proc = ::ink_e2e::TestNodeProcess::<::ink_e2e::PolkadotConfig>
                         ::build(#contracts_node)
                         .spawn()
                         .await
@@ -164,7 +164,7 @@ impl InkE2ETest {
                         );
 
                     let mut client = ::ink_e2e::Client::<
-                        ::subxt::PolkadotConfig,
+                        ::ink_e2e::PolkadotConfig,
                         #environment
                     >::new(
                         node_proc.client(),
