@@ -21,7 +21,13 @@ use core::cell::RefCell;
 use derive_more::From;
 use proc_macro2::TokenStream as TokenStream2;
 use quote::quote;
-use std::collections::HashMap;
+use std::{
+    collections::HashMap,
+    sync::Once,
+};
+
+/// We use this to initialize the tracing subscriber only once.
+static INIT_ONCE: Once = Once::new();
 
 thread_local! {
     // We save a mapping of `contract_manifest_path` to the built `*.contract` files.
@@ -58,6 +64,8 @@ impl InkE2ETest {
             return quote! {}
         }
 
+        INIT_ONCE.call_once(tracing_subscriber::fmt::init);
+
         let item_fn = &self.test.item_fn.item_fn;
         let fn_name = &item_fn.sig.ident;
         let block = &item_fn.block;
@@ -91,10 +99,6 @@ impl InkE2ETest {
             };
 
         let mut already_built_contracts = already_built_contracts();
-        if already_built_contracts.is_empty() {
-            tracing_subscriber::fmt::init();
-        }
-
         // Some contracts have already been built and we check if the
         // `additional_contracts` for this particular test contain ones
         // that haven't been build before
