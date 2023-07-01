@@ -228,7 +228,10 @@ where
 {
     #[inline]
     fn size_hint(&self) -> usize {
-        self.prefix.size_hint() + self.value.size_hint()
+        self.prefix
+            .size_hint()
+            .checked_add(self.value.size_hint())
+            .unwrap()
     }
 
     #[inline]

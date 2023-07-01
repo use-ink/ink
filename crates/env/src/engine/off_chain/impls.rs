@@ -60,7 +60,7 @@ impl CryptoHash for Blake2x128 {
             <Blake2x128 as HashOutput>::Type,
             OutputType
         );
-        let output: &mut OutputType = arrayref::array_mut_ref!(output, 0, 16);
+        let output: &mut OutputType = array_mut_ref!(output, 0, 16);
         Engine::hash_blake2_128(input, output);
     }
 }
@@ -72,7 +72,7 @@ impl CryptoHash for Blake2x256 {
             <Blake2x256 as HashOutput>::Type,
             OutputType
         );
-        let output: &mut OutputType = arrayref::array_mut_ref!(output, 0, 32);
+        let output: &mut OutputType = array_mut_ref!(output, 0, 32);
         Engine::hash_blake2_256(input, output);
     }
 }
@@ -84,7 +84,7 @@ impl CryptoHash for Sha2x256 {
             <Sha2x256 as HashOutput>::Type,
             OutputType
         );
-        let output: &mut OutputType = arrayref::array_mut_ref!(output, 0, 32);
+        let output: &mut OutputType = array_mut_ref!(output, 0, 32);
         Engine::hash_sha2_256(input, output);
     }
 }
@@ -96,7 +96,7 @@ impl CryptoHash for Keccak256 {
             <Keccak256 as HashOutput>::Type,
             OutputType
         );
-        let output: &mut OutputType = arrayref::array_mut_ref!(output, 0, 32);
+        let output: &mut OutputType = array_mut_ref!(output, 0, 32);
         Engine::hash_keccak_256(input, output);
     }
 }
