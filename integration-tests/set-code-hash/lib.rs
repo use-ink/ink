@@ -36,7 +36,7 @@ pub mod incrementer {
         /// Increments the counter value which is stored in the contract's storage.
         #[ink(message)]
         pub fn inc(&mut self) {
-            self.count += 1;
+            self.count = self.count.checked_add(1).unwrap();
             ink::env::debug_println!(
                 "The new count is {}, it was modified using the original contract code.",
                 self.count
