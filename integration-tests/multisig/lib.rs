@@ -379,7 +379,10 @@ mod multisig {
         pub fn add_owner(&mut self, new_owner: AccountId) {
             self.ensure_from_wallet();
             self.ensure_no_owner(&new_owner);
-            ensure_requirement_is_valid(self.owners.len() as u32 + 1, self.requirement);
+            ensure_requirement_is_valid(
+                (self.owners.len() as u32).checked_add(1).unwrap(),
+                self.requirement,
+            );
             self.is_owner.insert(new_owner, &());
             self.owners.push(new_owner);
             self.env().emit_event(OwnerAddition { owner: new_owner });
@@ -398,6 +401,8 @@ mod multisig {
         pub fn remove_owner(&mut self, owner: AccountId) {
             self.ensure_from_wallet();
             self.ensure_owner(&owner);
+            // If caller is an owner the len has to be > 0
+            #[allow(clippy::arithmetic_side_effects)]
             let len = self.owners.len() as u32 - 1;
             let requirement = u32::min(len, self.requirement);
             ensure_requirement_is_valid(len, requirement);
@@ -522,7 +527,10 @@ mod multisig {
                     "There is a entry in `self.confirmations`. Hence a count must exit.",
                 );
                 // Will not underflow as there is at least one confirmation
-                confirmation_count -= 1;
+                #[allow(clippy::arithmetic_side_effects)]
+                {
+                    confirmation_count -= 1;
+                }
                 self.confirmation_count
                     .insert(trans_id, &confirmation_count);
                 self.env().emit_event(Revocation {
@@ -618,7 +626,7 @@ mod multisig {
             let key = (transaction, confirmer);
             let new_confirmation = !self.confirmations.contains(key);
             if new_confirmation {
-                count += 1;
+                count = count.checked_add(1).unwrap();
                 self.confirmations.insert(key, &());
                 self.confirmation_count.insert(transaction, &count);
             }
@@ -626,6 +634,8 @@ mod multisig {
                 if count >= self.requirement {
                     ConfirmationStatus::Confirmed
                 } else {
+                    // We checked that count < self.requirement
+                    #[allow(clippy::arithmetic_side_effects)]
                     ConfirmationStatus::ConfirmationsNeeded(self.requirement - count)
                 }
             };
@@ -677,7 +687,7 @@ mod multisig {
                 if self.confirmations.contains(key) {
                     self.confirmations.remove(key);
                     let mut count = self.confirmation_count.get(trans_id).unwrap_or(0);
-                    count -= 1;
+                    count = count.saturating_sub(1);
                     self.confirmation_count.insert(trans_id, &count);
                 }
             }
