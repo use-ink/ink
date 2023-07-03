@@ -45,9 +45,12 @@ scale-info = { version = "2.6", default-features = false, features = ["derive"] 
 #
 # Those files require the ink! dependencies though, by having
 # them as examples here, they inherit the `dev-dependencies`.
+# [[example]]
+# name = "primitive_topic_pass"
+# path = "ui/pass/primitive_topic.rs"
 [[example]]
-name = "primitive_topic"
-path = "ui/pass/primitive_topic.rs"
+name = "primitive_topic_fail"
+path = "ui/fail/primitive_topic.rs"
 
 [package.metadata.rust-analyzer]
 rustc_private = true

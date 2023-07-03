@@ -1,16 +1,23 @@
+pub type TyAlias1 = i32;
+pub type TyAlias2 = TyAlias1;
+
 #[ink::contract]
 pub mod primitive_topic {
 
     #[ink(event)]
     pub struct Transaction {
+        // Bad
         #[ink(topic)]
-        src: Option<AccountId>,
+        value_1: u8,
+        // Bad
         #[ink(topic)]
-        dst: Option<AccountId>,
-        // Good: no topic annotation
-        value_1: Balance,
-        // TODO: Good: warning is suppressed
-        // value_2: Balance,
+        value_2: Balance,
+        // Bad
+        #[ink(topic)]
+        value_3: crate::TyAlias1,
+        // Bad
+        #[ink(topic)]
+        value_4: crate::TyAlias2,
     }
 
     #[ink(storage)]
