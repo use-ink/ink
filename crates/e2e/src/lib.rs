@@ -62,31 +62,7 @@ use std::{
 };
 use xts::ContractsApi;
 
-/// Default set of commonly used types by Substrate runtimes.
-#[cfg(feature = "std")]
-pub enum SubstrateConfig {}
-
-#[cfg(feature = "std")]
-impl subxt::Config for SubstrateConfig {
-    type Index = u32;
-    type Hash = sp_core::H256;
-    type Hasher = subxt::config::substrate::BlakeTwo256;
-    type AccountId = subxt::config::substrate::AccountId32;
-    type Address = sp_runtime::MultiAddress<Self::AccountId, u32>;
-    type Header = subxt::config::substrate::SubstrateHeader<
-        u32,
-        subxt::config::substrate::BlakeTwo256,
-    >;
-    type Signature = sp_runtime::MultiSignature;
-    type ExtrinsicParams = subxt::config::substrate::SubstrateExtrinsicParams<Self>;
-}
-
-/// Default set of commonly used types by Polkadot nodes.
-#[cfg(feature = "std")]
-pub type PolkadotConfig = subxt::config::WithExtrinsicParams<
-    SubstrateConfig,
-    subxt::config::polkadot::PolkadotExtrinsicParams<SubstrateConfig>,
->;
+pub use subxt::PolkadotConfig;
 
 /// Signer that is used throughout the E2E testing.
 ///
