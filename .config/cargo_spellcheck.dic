@@ -12,7 +12,10 @@ FFI
 Gnosis
 GPL
 KECCAK
+L1
+L2
 Polkadot
+PSP22
 RPC
 SHA
 UI/S
@@ -62,6 +65,7 @@ scalability
 scalable
 stdin
 stdout
+subber
 tuple
 unordered
 untyped
