@@ -14,8 +14,7 @@
 
 #![cfg_attr(not(feature = "std"), no_std)]
 
-#[derive(ink::Event, scale::Encode)]
-#[cfg_attr(feature = "std", derive(ink::EventMetadata))]
+#[ink::event]
 pub struct EventExternal {
     f1: bool,
     f2: u32,
