@@ -76,7 +76,6 @@ fn event_metadata_derive_struct(s: synstructure::Structure) -> syn::Result<Token
                static EVENT_METADATA: fn() -> ::ink::metadata::EventSpec =
                    <#ident as ::ink::metadata::EventMetadata>::event_spec;
 
-                // todo: check that cfg attributes work here
                 ::ink::metadata::EventSpec::new(::core::stringify!(#ident))
                     .module_path(::core::module_path!())
                     .signature_topic(
