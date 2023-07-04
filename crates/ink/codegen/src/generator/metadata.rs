@@ -88,7 +88,6 @@ impl Metadata<'_> {
     fn generate_contract(&self) -> TokenStream2 {
         let constructors = self.generate_constructors();
         let messages = self.generate_messages();
-        // let events = self.generate_events();
         let docs = self
             .contract
             .module()
