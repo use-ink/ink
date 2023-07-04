@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use ink_ir::IsDocAttribute;
 use proc_macro2::TokenStream as TokenStream2;
 use quote::quote_spanned;
 use syn::spanned::Spanned;
@@ -42,6 +43,12 @@ fn event_metadata_derive_struct(s: synstructure::Structure) -> syn::Result<Token
 
     let variant = &s.variants()[0];
     let ident = variant.ast().ident;
+
+    let docs = variant
+        .ast()
+        .attrs
+        .iter()
+        .filter_map(|attr| attr.extract_docs());
 
     let args = variant.bindings().iter().map( |field| {
         let field_ty = &field.ast().ty;
