@@ -84,9 +84,8 @@ fn event_metadata_derive_struct(s: synstructure::Structure) -> syn::Result<Token
                     .args([
                        #( #args ),*
                     ])
-                    // todo: add docs
                     .docs([
-                       // #( #docs ),*
+                       #( #docs ),*
                     ])
                     .done()
             }

@@ -172,7 +172,11 @@ fn signature_topic(fields: &syn::Fields, event_ident: &syn::Ident) -> syn::LitSt
 /// - the given attributes contain a `#[cfg(...)]` attribute
 /// - there are `ink` attributes other than a single `#[ink(topic)]`
 fn has_ink_topic_attribute(field: &synstructure::BindingInfo) -> syn::Result<bool> {
-    let some_cfg_attrs = field.ast().attrs.iter().find(|attr| attr.path().is_ident("cfg"));
+    let some_cfg_attrs = field
+        .ast()
+        .attrs
+        .iter()
+        .find(|attr| attr.path().is_ident("cfg"));
     if some_cfg_attrs.is_some() {
         Err(syn::Error::new(
             field.ast().span(),

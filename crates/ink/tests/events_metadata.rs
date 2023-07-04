@@ -15,7 +15,9 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 
 #[ink::event]
+/// EventExternal docs
 pub struct EventExternal {
+    /// f1 docs
     f1: bool,
     f2: u32,
 }
@@ -26,8 +28,10 @@ mod contract {
     pub struct Contract {}
 
     #[ink(event)]
+    /// EventInline docs
     pub struct EventInline {
         f3: bool,
+        /// f4 docs
         f4: u32,
     }
 
@@ -61,15 +65,23 @@ mod tests {
         let metadata = generate_metadata();
 
         assert_eq!(metadata.spec().events().len(), 2);
-        assert!(metadata
+
+        let event_external = metadata
             .spec()
             .events()
             .iter()
-            .any(|e| e.label() == "EventExternal"));
-        assert!(metadata
+            .find(|e| e.label() == "EventExternal")
+            .expect("EventExternal should be present");
+
+        assert_eq!(event_external.docs(), &["EventExternal docs"]);
+
+        let event_inline = metadata
             .spec()
             .events()
             .iter()
-            .any(|e| e.label() == "EventInline"));
+            .find(|e| e.label() == "EventInline")
+            .expect("EventInline should be present");
+
+        assert_eq!(event_inline.docs(), &["EventInline docs"]);
     }
 }
