@@ -127,23 +127,26 @@ fn is_primitive_ty(ty: &Ty) -> bool {
 /// Reports field of the event structure
 fn report_field(cx: &LateContext, event_def_id: DefId, field_name: &str) {
     if_chain! {
-    if let Some(Node::Item(event_node)) = cx.tcx.hir().get_if_local(event_def_id);
-    if let ItemKind::Struct(ref struct_def, _) = event_node.kind;
-    then {
-        struct_def.fields().iter().for_each(|field|{
-            if field.ident.as_str() == field_name {
-                span_lint_and_then(cx, PRIMITIVE_TOPIC, field.span, "using `#[ink(topic)]` for a field with a primitive type", |diag| {
-                let snippet = snippet_opt(cx, field.span).expect("snippet must exist");
+        if let Some(Node::Item(event_node)) = cx.tcx.hir().get_if_local(event_def_id);
+        if let ItemKind::Struct(ref struct_def, _) = event_node.kind;
+        if let Some(field) = struct_def.fields().iter().find(|field|{ field.ident.as_str() == field_name });
+        then {
+            span_lint_and_then(
+                cx,
+                PRIMITIVE_TOPIC,
+                field.span,
+                "using `#[ink(topic)]` for a field with a primitive type",
+                |diag| {
+                    let snippet = snippet_opt(cx, field.span).expect("snippet must exist");
                     diag.span_suggestion(
                         field.span,
                         "consider removing `#[ink(topic)]`".to_string(),
                         snippet,
                         Applicability::Unspecified,
                     );
-                })
-            }
-        })
-    }
+                },
+            )
+        }
     }
 }
 
@@ -173,13 +176,12 @@ fn report_if_primitive_ty(cx: &LateContext, event_def_id: DefId, arg: &Expr) {
 /// Raises warnings if the code was generated from struct fields with primitive types.
 fn check_push_topic_calls(cx: &LateContext, event_def_id: DefId, method_call: &Expr) {
     if_chain! {
-    if let ExprKind::MethodCall(seg, receiver, [arg], _) = method_call.kind;
-    if seg.ident.name.as_str() == "push_topic";
-    then
-    {
-        report_if_primitive_ty(cx, event_def_id, arg);
-        check_push_topic_calls(cx, event_def_id, receiver)
-    }
+        if let ExprKind::MethodCall(seg, receiver, [arg], _) = method_call.kind;
+        if seg.ident.name.as_str() == "push_topic";
+        then {
+            report_if_primitive_ty(cx, event_def_id, arg);
+            check_push_topic_calls(cx, event_def_id, receiver)
+        }
     }
 }
 
@@ -201,41 +203,39 @@ impl<'tcx> LateLintPass<'tcx> for PrimitiveTopic {
             if is_ink_topics_impl(cx, item);
             if let Some(event_def_id) = get_event_def_id(topics_impl);
             then {
-            topics_impl.items.iter().for_each(|impl_item| {
-                if_chain! {
-                // The example of the generated code we are interested in:
-                // ```rust
-                // impl ::ink::env::Topics for MyEvent {
-                //     // ...
-                //     fn topics<E, B>(&self, /* ... */)
-                //     {
-                //         builder
-                //             .build::<Self>()
-                //             .push_topic /* ... */
-                //             .push_topic::<
-                //                 ::ink::env::topics::PrefixedValue<Option<AccountId>>,
-                //             >(
-                //                 &::ink::env::topics::PrefixedValue {
-                //                     value: &self.src,
-                //                     prefix: b"PrimitiveTopic::MyEvent::src",
-                //                 },
-                //             )
-                //             .push_topic /* ... */
-                //             .finish(/*...*/);
-                // ```
-                if is_topics_function(impl_item);
-                let impl_item = cx.tcx.hir().impl_item(impl_item.id);
-                if let ImplItemKind::Fn(_, eid) = impl_item.kind;
-                let body = cx.tcx.hir().body(eid).value;
-                if let ExprKind::Block (block, _) = body.kind;
-                if let Some(build_call) = block.expr;
-                if let ExprKind::MethodCall (_, finish_expr, ..) = build_call.kind;
-                then {
-                    check_push_topic_calls(cx, event_def_id, finish_expr);
-                }
-                }
-            })
-        }
+                topics_impl.items.iter().for_each(|impl_item| {
+                    if_chain! {
+                        // The example of the generated code we are interested in:
+                        // ```rust
+                        // impl ::ink::env::Topics for MyEvent {
+                        //     // ...
+                        //     fn topics<E, B>(&self, /* ... */)
+                        //     {
+                        //         builder
+                        //             .build::<Self>()
+                        //             .push_topic /* ... */
+                        //             .push_topic::<
+                        //                 ::ink::env::topics::PrefixedValue<Option<AccountId>>,
+                        //             >(
+                        //                 &::ink::env::topics::PrefixedValue {
+                        //                     value: &self.src,
+                        //                     prefix: b"PrimitiveTopic::MyEvent::src",
+                        //                 },
+                        //             )
+                        //             .push_topic /* ... */
+                        //             .finish(/*...*/);
+                        // ```
+                        if is_topics_function(impl_item);
+                        let impl_item = cx.tcx.hir().impl_item(impl_item.id);
+                        if let ImplItemKind::Fn(_, eid) = impl_item.kind;
+                        let body = cx.tcx.hir().body(eid).value;
+                        if let ExprKind::Block (block, _) = body.kind;
+                        if let Some(build_call) = block.expr;
+                        if let ExprKind::MethodCall (_, finish_expr, ..) = build_call.kind;
+                        then { check_push_topic_calls(cx, event_def_id, finish_expr); }
+                    }
+                })
+            }
         }
     }
 }
