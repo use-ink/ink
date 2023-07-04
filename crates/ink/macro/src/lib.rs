@@ -1291,7 +1291,29 @@ pub fn chain_extension(attr: TokenStream, item: TokenStream) -> TokenStream {
 
 synstructure::decl_derive!(
     [Event, attributes(ink)] =>
-    /// todo
+    /// Derives an impl of the [`ink::Event`] trait for the given `struct`.
+    ///
+    /// **Note** [`ink::Event`] requires a [`scale::Encode`] impl, it is up to the user to provide
+    /// that: usually via the derive.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// use ink::{
+    ///     Event,
+    ///     env::DefaultEnvironment,
+    /// };
+    /// use scale::Encode;
+    ///
+    /// #[derive(Event, Encode)]
+    /// struct MyEvent {
+    ///     a: u32,
+    ///     #[ink(topic)]
+    ///     b: [u8; 32],
+    /// }
+    ///
+    /// ink_env::emit_event::<DefaultEnvironment, _>(MyEvent { a: 42, b: [0x42; 32] });
+    /// ```
     event::event_derive
 );
 
