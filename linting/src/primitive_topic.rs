@@ -11,16 +11,31 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-use clippy_utils::match_def_path;
+use clippy_utils::{
+    diagnostics::span_lint_and_then,
+    match_def_path,
+    peel_ref_operators,
+    source::snippet_opt,
+};
 use if_chain::if_chain;
+use rustc_errors::Applicability;
 use rustc_hir::{
+    self,
+    def::{
+        DefKind,
+        Res,
+    },
+    def_id::DefId,
     AssocItemKind,
     Expr,
     ExprKind,
+    Impl,
     ImplItemKind,
     ImplItemRef,
     Item,
     ItemKind,
+    Node,
+    QPath,
 };
 use rustc_lint::{
     LateContext,
@@ -86,8 +101,8 @@ declare_lint! {
 
 declare_lint_pass!(PrimitiveTopic => [PRIMITIVE_TOPIC]);
 
-/// Returns `true` if `item` is an implementation of `::ink::env::Topics` for a storage struct.
-/// If that's the case, it returns the name of this struct.
+/// Returns `true` if `item` is an implementation of `::ink::env::Topics` for a storage
+/// struct. If that's the case, it returns the name of this struct.
 fn is_ink_topics_impl<'tcx>(cx: &LateContext<'tcx>, item: &'tcx Item<'_>) -> bool {
     if let Some(trait_ref) = cx.tcx.impl_trait_ref(item.owner_id) {
         match_def_path(cx, trait_ref.0.def_id, &["ink_env", "topics", "Topics"])
@@ -109,50 +124,88 @@ fn is_primitive_ty(ty: &Ty) -> bool {
     matches!(ty.kind(), ty::Int(_) | ty::Uint(_))
 }
 
-/// Returns `true` if the type of the argument of `push_topic` has a primitive type
-fn is_primitive_topic_ty(arg_ty: &Ty) -> bool {
+/// Reports field of the event structure
+fn report_field(cx: &LateContext, event_def_id: DefId, field_name: &str) {
     if_chain! {
-    if let TyKind::Ref(_, prefixed_value_ty, _) = arg_ty.kind();
-    if let ty::Adt(_, substs) = prefixed_value_ty.kind();
-    if substs.len() == 3;
-    if let ty::GenericArgKind::Type(ty) = substs[2].unpack();
-    then { is_primitive_ty(&ty) }
-    else { false }
+    if let Some(Node::Item(event_node)) = cx.tcx.hir().get_if_local(event_def_id);
+    if let ItemKind::Struct(ref struct_def, _) = event_node.kind;
+    then {
+        struct_def.fields().iter().for_each(|field|{
+            if field.ident.as_str() == field_name {
+                span_lint_and_then(cx, PRIMITIVE_TOPIC, field.span, &format!("using `#[ink(topic)]` for a field with a primitive type"), |diag| {
+                let snippet = snippet_opt(cx, field.span).expect("snippet must exist");
+                    diag.span_suggestion(
+                        field.span,
+                        format!("consider removing `#[ink(topic)]`"),
+                        snippet,
+                        Applicability::Unspecified,
+                    );
+                })
+            }
+        })
+    }
     }
 }
 
-/// Checks the sequence of `push_topic` method calls raising warnings if the code was
-/// generated from struct fields with primitive types.
-fn check_push_topic_calls(cx: &LateContext, method_call: &Expr) {
+/// Raises a warning if the type of the argument of `push_topic` has a primitive type
+fn report_if_primitive_ty(cx: &LateContext, event_def_id: DefId, arg: &Expr) {
+    if_chain! {
+        // Get a generic type from `.push_topic`:
+        // .push_topic::<::ink::env::topics::PrefixedValue<Option<prefixed_value_ty>>(...)
+        //                                                        ^^^^^^^^^^^^^^^^^
+        if let TyKind::Ref(_, prefixed_value_ty, _) = cx.tcx.typeck(arg.hir_id.owner.def_id).expr_ty(arg).kind();
+        if let ty::Adt(_, substs) = prefixed_value_ty.kind();
+        if is_primitive_ty(&substs.type_at(2));
+        // Get a field of `self` that corresponds to the annotated event field:
+        // &::ink::env::topics::PrefixedValue { value: &self.field, prefix: b"PrimitiveTopic::MyEvent::field" },
+        //                                                   ^^^^^
+        if let ExprKind::Struct(_, [field_expr, _], _) = peel_ref_operators(cx,arg).kind;
+        if field_expr.ident.name.as_str() == "value";
+        if let self_field = peel_ref_operators(cx, &field_expr.expr);
+        if let Node::Expr(Expr { kind: ExprKind::Field(_, field_ident), .. }) = cx.tcx.hir().get(self_field.hir_id);
+        then {
+            report_field(cx, event_def_id, field_ident.as_str())
+        }
+    }
+}
+
+/// Checks the sequence of `push_topic` method calls.
+/// Raises warnings if the code was generated from struct fields with primitive types.
+fn check_push_topic_calls(cx: &LateContext, event_def_id: DefId, method_call: &Expr) {
     if_chain! {
     if let ExprKind::MethodCall(seg, receiver, [arg], _) = method_call.kind;
     if seg.ident.name.as_str() == "push_topic";
     then
     {
-        if_chain! {
-            if cx.tcx.has_typeck_results(arg.hir_id.owner.to_def_id());
-            let ty = cx.tcx.typeck(arg.hir_id.owner.def_id).expr_ty(arg);
-            then {
-                // dbg!(is_primitive_topic_ty(&ty));
-                is_primitive_topic_ty(&ty);
-            }
-        }
-        check_push_topic_calls(cx, receiver)
+        report_if_primitive_ty(cx, event_def_id, &arg);
+        check_push_topic_calls(cx, event_def_id, receiver)
     }
+    }
+}
+
+/// Returns `DefId` of the event struct for which `Topics` is implemented
+fn get_event_def_id(topics_impl: &Impl) -> Option<DefId> {
+    if_chain! {
+        if let rustc_hir::TyKind::Path(qpath) = &topics_impl.self_ty.kind;
+        if let QPath::Resolved(_, path) = qpath;
+        if let Res::Def(DefKind::Struct, def_id) = path.res;
+        then { Some(def_id) }
+        else { None }
     }
 }
 
 impl<'tcx> LateLintPass<'tcx> for PrimitiveTopic {
     fn check_item(&mut self, cx: &LateContext<'tcx>, item: &'tcx Item<'_>) {
         if_chain! {
-            if !is_ink_topics_impl(cx, item);
             if let ItemKind::Impl(topics_impl) = &item.kind;
+            if is_ink_topics_impl(cx, item);
+            if let Some(event_def_id) = get_event_def_id(&topics_impl);
             then {
             topics_impl.items.iter().for_each(|impl_item| {
                 if_chain! {
                 // The example of the generated code we are interested in:
                 // ```rust
-                // impl ::ink::env::Topics for Transaction {
+                // impl ::ink::env::Topics for MyEvent {
                 //     // ...
                 //     fn topics<E, B>(&self, /* ... */)
                 //     {
@@ -164,7 +217,7 @@ impl<'tcx> LateLintPass<'tcx> for PrimitiveTopic {
                 //             >(
                 //                 &::ink::env::topics::PrefixedValue {
                 //                     value: &self.src,
-                //                     prefix: b"PrimitiveTopic::Transaction::src",
+                //                     prefix: b"PrimitiveTopic::MyEvent::src",
                 //                 },
                 //             )
                 //             .push_topic /* ... */
@@ -178,7 +231,7 @@ impl<'tcx> LateLintPass<'tcx> for PrimitiveTopic {
                 if let Some(build_call) = block.expr;
                 if let ExprKind::MethodCall (_, finish_expr, ..) = build_call.kind;
                 then {
-                    check_push_topic_calls(cx, finish_expr);
+                    check_push_topic_calls(cx, event_def_id, finish_expr);
                 }
                 }
             })
