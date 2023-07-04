@@ -1,0 +1,13 @@
+error: can only derive `Event` for Rust `struct` items
+ --> tests/ui/event/fail/event_enum.rs:1:1
+  |
+1 | #[ink::event]
+  | ^^^^^^^^^^^^^
+  |
+  = note: this error originates in the attribute macro `ink::event` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: can only derive `EventMetadata` for Rust `struct` items
+ --> tests/ui/event/fail/event_enum.rs:2:1
+  |
+2 | pub enum Event {
+  | ^^^
