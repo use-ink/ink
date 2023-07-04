@@ -132,11 +132,11 @@ fn report_field(cx: &LateContext, event_def_id: DefId, field_name: &str) {
     then {
         struct_def.fields().iter().for_each(|field|{
             if field.ident.as_str() == field_name {
-                span_lint_and_then(cx, PRIMITIVE_TOPIC, field.span, &format!("using `#[ink(topic)]` for a field with a primitive type"), |diag| {
+                span_lint_and_then(cx, PRIMITIVE_TOPIC, field.span, "using `#[ink(topic)]` for a field with a primitive type", |diag| {
                 let snippet = snippet_opt(cx, field.span).expect("snippet must exist");
                     diag.span_suggestion(
                         field.span,
-                        format!("consider removing `#[ink(topic)]`"),
+                        "consider removing `#[ink(topic)]`".to_string(),
                         snippet,
                         Applicability::Unspecified,
                     );
@@ -161,7 +161,7 @@ fn report_if_primitive_ty(cx: &LateContext, event_def_id: DefId, arg: &Expr) {
         //                                                   ^^^^^
         if let ExprKind::Struct(_, [field_expr, _], _) = peel_ref_operators(cx,arg).kind;
         if field_expr.ident.name.as_str() == "value";
-        if let self_field = peel_ref_operators(cx, &field_expr.expr);
+        if let self_field = peel_ref_operators(cx, field_expr.expr);
         if let Node::Expr(Expr { kind: ExprKind::Field(_, field_ident), .. }) = cx.tcx.hir().get(self_field.hir_id);
         then {
             report_field(cx, event_def_id, field_ident.as_str())
@@ -177,7 +177,7 @@ fn check_push_topic_calls(cx: &LateContext, event_def_id: DefId, method_call: &E
     if seg.ident.name.as_str() == "push_topic";
     then
     {
-        report_if_primitive_ty(cx, event_def_id, &arg);
+        report_if_primitive_ty(cx, event_def_id, arg);
         check_push_topic_calls(cx, event_def_id, receiver)
     }
     }
@@ -199,7 +199,7 @@ impl<'tcx> LateLintPass<'tcx> for PrimitiveTopic {
         if_chain! {
             if let ItemKind::Impl(topics_impl) = &item.kind;
             if is_ink_topics_impl(cx, item);
-            if let Some(event_def_id) = get_event_def_id(&topics_impl);
+            if let Some(event_def_id) = get_event_def_id(topics_impl);
             then {
             topics_impl.items.iter().for_each(|impl_item| {
                 if_chain! {
@@ -223,7 +223,7 @@ impl<'tcx> LateLintPass<'tcx> for PrimitiveTopic {
                 //             .push_topic /* ... */
                 //             .finish(/*...*/);
                 // ```
-                if is_topics_function(&impl_item);
+                if is_topics_function(impl_item);
                 let impl_item = cx.tcx.hir().impl_item(impl_item.id);
                 if let ImplItemKind::Fn(_, eid) = impl_item.kind;
                 let body = cx.tcx.hir().body(eid).value;
