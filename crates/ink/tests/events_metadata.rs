@@ -102,6 +102,6 @@ mod tests {
             .find(|a| a.label() == "f4")
             .expect("f4 should be present");
         assert_eq!(arg_f4.docs(), &["f4 docs"]);
-        assert_eq!(arg_f4.indexed(), false);
+        assert!(!arg_f4.indexed());
     }
 }

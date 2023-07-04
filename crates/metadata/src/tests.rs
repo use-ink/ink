@@ -665,7 +665,7 @@ fn should_trim_whitespaces_in_events_docs() {
     let args = [EventParamSpec::new("something".into())
         .of_type(spec)
         .indexed(true)
-        .docs(vec!["test".to_string()])
+        .docs(["test"])
         .done()];
     let es = EventSpec::new("foobar".into())
         .module_path("foo")
