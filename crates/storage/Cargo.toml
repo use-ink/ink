@@ -30,7 +30,7 @@ array-init = { version = "2.0", default-features = false }
 [dev-dependencies]
 quickcheck = "1.0"
 quickcheck_macros = "1.0"
-itertools = "0.10"
+itertools = "0.11"
 
 ink = { path = "../ink" }
 
