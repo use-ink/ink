@@ -17,8 +17,9 @@
 #[ink::event]
 /// EventExternal docs
 pub struct EventExternal {
-    /// f1 docs
     f1: bool,
+    /// f2 docs
+    #[ink(topic)]
     f2: u32,
 }
 
@@ -30,6 +31,7 @@ mod contract {
     #[ink(event)]
     /// EventInline docs
     pub struct EventInline {
+        #[ink(topic)]
         f3: bool,
         /// f4 docs
         f4: u32,
@@ -74,6 +76,15 @@ mod tests {
             .expect("EventExternal should be present");
 
         assert_eq!(event_external.docs(), &["EventExternal docs"]);
+        assert_eq!(event_external.args().len(), 2);
+
+        let arg_f2 = event_external
+            .args()
+            .iter()
+            .find(|a| a.label() == "f2")
+            .expect("f2 should be present");
+        assert_eq!(arg_f2.docs(), &["f2 docs"]);
+        assert!(arg_f2.indexed());
 
         let event_inline = metadata
             .spec()
@@ -83,5 +94,14 @@ mod tests {
             .expect("EventInline should be present");
 
         assert_eq!(event_inline.docs(), &["EventInline docs"]);
+        assert_eq!(event_inline.args().len(), 2);
+
+        let arg_f4 = event_inline
+            .args()
+            .iter()
+            .find(|a| a.label() == "f4")
+            .expect("f4 should be present");
+        assert_eq!(arg_f4.docs(), &["f4 docs"]);
+        assert_eq!(arg_f4.indexed(), false);
     }
 }

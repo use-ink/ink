@@ -1383,14 +1383,18 @@ where
     }
 
     /// Sets the documentation of the event parameter.
-    pub fn docs<D>(self, docs: D) -> Self
+    pub fn docs<'a, D>(self, docs: D) -> Self
     where
-        D: IntoIterator<Item = <F as Form>::String>,
+        D: IntoIterator<Item = &'a str>,
+        F::String: From<&'a str>,
     {
         debug_assert!(self.spec.docs.is_empty());
         Self {
             spec: EventParamSpec {
-                docs: docs.into_iter().collect::<Vec<_>>(),
+                docs: docs
+                    .into_iter()
+                    .map(|s| trim_extra_whitespace(s).into())
+                    .collect::<Vec<_>>(),
                 ..self.spec
             },
         }
