@@ -201,6 +201,9 @@ pub trait Event: scale::Encode {
     type RemainingTopics: EventTopicsAmount;
 
     /// The unique signature topic of the event. `None` for anonymous events.
+    ///
+    /// Usually this is calculated using the `#[derive(ink::Event)]` derive, which by
+    /// default calculates this as `blake2b("Event(field1_type,field2_type)")`
     const SIGNATURE_TOPIC: Option<[u8; 32]>;
 
     /// Guides event topic serialization using the given topics builder.
