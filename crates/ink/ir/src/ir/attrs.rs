@@ -1411,7 +1411,7 @@ mod tests {
                     message,
                     constructor,
                     event,
-j                    payable,
+                    payable,
                     impl,
                 )]
             },
