@@ -172,7 +172,7 @@ pub fn collect_events() -> Vec<EventSpec> {
 
 /// Provides metadata about an ink! event.
 ///
-/// Implementations must be registered into the [`EVENTS`] distributed slice, in order to
+/// Implementations must be registered into the [`static@EVENTS`] distributed slice, in order to
 /// be included in the contract metadata. This is done automatically by the
 /// `#[derive(ink::EventMetadata)]`
 pub trait EventMetadata {
