@@ -9,7 +9,7 @@ pub mod events {
 
     #[ink(event)]
     pub struct InlineFlipped {
-        value: bool
+        value: bool,
     }
 
     impl Events {
@@ -31,8 +31,7 @@ pub mod events {
         #[ink(message)]
         pub fn flip_with_inline_event(&mut self) {
             self.value = !self.value;
-            self.env()
-                .emit_event(InlineFlipped { value: self.value })
+            self.env().emit_event(InlineFlipped { value: self.value })
         }
 
         /// Emit an event with a 32 byte topic.
@@ -46,7 +45,10 @@ pub mod events {
 
         /// Emit an event from a different crate.
         #[ink(message)]
-        pub fn emit_event_from_a_different_crate(&mut self, maybe_hash: Option<[u8; 32]>) {
+        pub fn emit_event_from_a_different_crate(
+            &mut self,
+            maybe_hash: Option<[u8; 32]>,
+        ) {
             self.env().emit_event(event_def2::EventDefAnotherCrate {
                 hash: [0x42; 32],
                 maybe_hash,
@@ -64,12 +66,22 @@ pub mod events {
             let event_specs = ink::metadata::collect_events();
             assert_eq!(4, event_specs.len());
 
-            assert!(event_specs.iter().any(|evt| evt.label() == &"ForeignFlipped"));
-            assert!(event_specs.iter().any(|evt| evt.label() == &"InlineFlipped"));
-            assert!(event_specs.iter().any(|evt| evt.label() == &"ThirtyTwoByteTopics"));
-            assert!(event_specs.iter().any(|evt| evt.label() == &"EventDefAnotherCrate"));
+            assert!(event_specs
+                .iter()
+                .any(|evt| evt.label() == &"ForeignFlipped"));
+            assert!(event_specs
+                .iter()
+                .any(|evt| evt.label() == &"InlineFlipped"));
+            assert!(event_specs
+                .iter()
+                .any(|evt| evt.label() == &"ThirtyTwoByteTopics"));
+            assert!(event_specs
+                .iter()
+                .any(|evt| evt.label() == &"EventDefAnotherCrate"));
 
-            assert!(!event_specs.iter().any(|evt| evt.label() == &"EventDefUnused"));
+            assert!(!event_specs
+                .iter()
+                .any(|evt| evt.label() == &"EventDefUnused"));
         }
 
         #[ink::test]
@@ -204,10 +216,9 @@ pub mod events {
                     .expect("encountered invalid contract event data buffer");
             assert_eq!(!init_value, flipped.value);
 
-            let signature_topic =
-                <InlineFlipped as ink::env::Event>::SIGNATURE_TOPIC
-                    .map(H256::from)
-                    .unwrap();
+            let signature_topic = <InlineFlipped as ink::env::Event>::SIGNATURE_TOPIC
+                .map(H256::from)
+                .unwrap();
 
             let expected_topics = vec![signature_topic];
             assert_eq!(expected_topics, contract_event.topics);
