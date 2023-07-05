@@ -21,7 +21,7 @@ pub mod events {
 
         /// Flips the current value of the boolean.
         #[ink(message)]
-        pub fn flip(&mut self) {
+        pub fn flip_with_foreign_event(&mut self) {
             self.value = !self.value;
             self.env()
                 .emit_event(event_def::ForeignFlipped { value: self.value })
@@ -75,7 +75,7 @@ pub mod events {
         #[ink::test]
         fn it_works() {
             let mut events = Events::new(false);
-            events.flip();
+            events.flip_with_foreign_event();
 
             let emitted_events = ink::env::test::recorded_events().collect::<Vec<_>>();
             assert_eq!(1, emitted_events.len());
@@ -138,7 +138,7 @@ pub mod events {
         type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
         #[ink_e2e::test]
-        async fn emits_shared_event(mut client: ink_e2e::Client<C, E>) -> E2EResult<()> {
+        async fn emits_foreign_event(mut client: ink_e2e::Client<C, E>) -> E2EResult<()> {
             // given
             let init_value = false;
             let constructor = EventsRef::new(init_value);
@@ -149,7 +149,7 @@ pub mod events {
             let mut call = contract.call::<Events>();
 
             // when
-            let flip = call.flip();
+            let flip = call.flip_with_foreign_event();
             let flip_res = client
                 .call(&ink_e2e::bob(), &flip, 0, None)
                 .await
@@ -167,6 +167,45 @@ pub mod events {
 
             let signature_topic =
                 <event_def::ForeignFlipped as ink::env::Event>::SIGNATURE_TOPIC
+                    .map(H256::from)
+                    .unwrap();
+
+            let expected_topics = vec![signature_topic];
+            assert_eq!(expected_topics, contract_event.topics);
+
+            Ok(())
+        }
+
+        #[ink_e2e::test]
+        async fn emits_inline_event(mut client: ink_e2e::Client<C, E>) -> E2EResult<()> {
+            // given
+            let init_value = false;
+            let constructor = EventsRef::new(init_value);
+            let contract = client
+                .instantiate("events", &ink_e2e::alice(), constructor, 0, None)
+                .await
+                .expect("instantiate failed");
+            let mut call = contract.call::<Events>();
+
+            // when
+            let flip = call.flip_with_inline_event();
+            let flip_res = client
+                .call(&ink_e2e::bob(), &flip, 0, None)
+                .await
+                .expect("flip failed");
+
+            let contract_events = flip_res.contract_emitted_events()?;
+
+            // then
+            assert_eq!(1, contract_events.len());
+            let contract_event = &contract_events[0];
+            let flipped: InlineFlipped =
+                scale::Decode::decode(&mut &contract_event.event.data[..])
+                    .expect("encountered invalid contract event data buffer");
+            assert_eq!(!init_value, flipped.value);
+
+            let signature_topic =
+                <InlineFlipped as ink::env::Event>::SIGNATURE_TOPIC
                     .map(H256::from)
                     .unwrap();
 
