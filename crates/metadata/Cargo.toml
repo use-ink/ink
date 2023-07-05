@@ -41,3 +41,8 @@ std = [
     "scale-info/std",
 ]
 derive = []
+
+[profile.release]
+# Need this for linkme crate to work
+# See https://github.com/dtolnay/linkme/issues/61#issuecomment-1503653702
+lto = "thin"
