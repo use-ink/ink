@@ -374,6 +374,9 @@ examples-test:
   needs:
     - job:                         clippy-std
       artifacts:                   false
+  variables:
+    # Fix linking of `linkme`: https://github.com/dtolnay/linkme/issues/49
+    RUSTFLAGS: "-Clink-arg=-z -Clink-arg=nostart-stop-gc"
   script:
     - for example in integration-tests/*/; do
         if [ "$example" = "integration-tests/lang-err-integration-tests/" ]; then continue; fi;
