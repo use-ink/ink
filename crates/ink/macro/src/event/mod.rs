@@ -23,7 +23,8 @@ use quote::{
 };
 use syn::spanned::Spanned;
 
-/// todo: docs
+/// Generate code from the `#[ink::event]` attribute. This simply expands to the required
+/// derive macros to satisfy an event implementation.
 pub fn generate(_config: TokenStream2, input: TokenStream2) -> TokenStream2 {
     match syn::parse2::<syn::DeriveInput>(input) {
         Ok(ast) => {
