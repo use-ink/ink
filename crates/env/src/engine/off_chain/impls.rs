@@ -48,7 +48,6 @@ use ink_engine::{
 };
 use ink_storage_traits::Storable;
 use schnorrkel::{
-    signing_context,
     PublicKey,
     Signature,
 };
@@ -347,14 +346,14 @@ impl EnvBackend for EnvInstance {
     ) -> Result<()> {
         // the context associated with the signing (specific to the sr25519 algorithm)
         // defaults to "substrate" in substrate, but could be different elsewhere
-        let context = signing_context(b"substrate");
+        let context = b"substrate";
         // attempt to parse a signature from bytes
         let signature: Signature = Signature::from_bytes(signature).map_err(|_| Error::Sr25519VerifyFailed)?;
         // attempt to parse a public key from bytes
         let public_key: PublicKey = PublicKey::from_bytes(pub_key).map_err(|_| Error::Sr25519VerifyFailed)?;
         // verify the signature
         public_key
-            .verify(context.bytes(message), &signature)
+            .verify_simple(context, &message, &signature)
             .map_err(|_| Error::Sr25519VerifyFailed)
     }
 
