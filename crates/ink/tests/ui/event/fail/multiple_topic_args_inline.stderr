@@ -1,0 +1,5 @@
+error: Invalid `#[ink(topic)]` attribute: multiple arguments not allowed.
+ --> tests/ui/event/fail/multiple_topic_args_inline.rs:3:11
+  |
+3 |     #[ink(topic, topic)]
+  |           ^^^^^

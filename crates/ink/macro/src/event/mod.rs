@@ -188,6 +188,11 @@ fn has_ink_topic_attribute(field: &synstructure::BindingInfo) -> syn::Result<boo
 }
 
 /// Checks if the given attributes contain an `ink` attribute with the given path.
+///
+/// # Errors
+/// - If there are multiple `ink` attributes with the given path.
+/// - If multiple arguments are given to the `ink` attribute.
+/// - If any other `ink` attributes are present other than the one with the given path.
 fn has_ink_attribute(attrs: &[syn::Attribute], path: &str) -> syn::Result<bool> {
     let ink_attrs = attrs
         .iter()
@@ -195,7 +200,13 @@ fn has_ink_attribute(attrs: &[syn::Attribute], path: &str) -> syn::Result<bool> 
             if attr.path().is_ident("ink") {
                 let parse_result = attr.parse_nested_meta(|meta| {
                     if meta.path.is_ident(path) {
-                        Ok(())
+                        if meta.input.is_empty() {
+                            Ok(())
+                        } else {
+                            Err(meta.error(format!(
+                                "Invalid `#[ink({path})]` attribute: multiple arguments not allowed.",
+                            )))
+                        }
                     } else {
                         Err(meta
                             .error(format!("Only `#[ink({path})]` attribute allowed.")))

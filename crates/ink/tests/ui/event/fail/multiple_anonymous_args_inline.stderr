@@ -1,0 +1,11 @@
+error: Invalid `#[ink(anonymous)]` attribute: multiple arguments not allowed.
+ --> tests/ui/event/fail/multiple_anonymous_args_inline.rs:2:7
+  |
+2 | #[ink(anonymous, anonymous)]
+  |       ^^^^^^^^^
+
+error[E0277]: the trait bound `Event: ink::ink_env::Event` is not satisfied
+ --> tests/ui/event/fail/multiple_anonymous_args_inline.rs:2:1
+  |
+2 | #[ink(anonymous, anonymous)]
+  | ^ the trait `ink::ink_env::Event` is not implemented for `Event`
