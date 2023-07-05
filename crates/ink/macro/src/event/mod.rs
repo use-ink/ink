@@ -25,7 +25,6 @@ use syn::spanned::Spanned;
 
 /// todo: docs
 pub fn generate(_config: TokenStream2, input: TokenStream2) -> TokenStream2 {
-    // todo: check for duplicate attributes
     match syn::parse2::<syn::DeriveInput>(input) {
         Ok(ast) => {
             quote::quote! (
