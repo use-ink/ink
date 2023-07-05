@@ -7,6 +7,11 @@ pub mod events {
         value: bool,
     }
 
+    #[ink(event)]
+    pub struct InlineFlipped {
+        value: bool
+    }
+
     impl Events {
         /// Creates a new events smart contract initialized with the given value.
         #[ink(constructor)]
@@ -19,7 +24,15 @@ pub mod events {
         pub fn flip(&mut self) {
             self.value = !self.value;
             self.env()
-                .emit_event(event_def::Flipped { value: self.value })
+                .emit_event(event_def::ForeignFlipped { value: self.value })
+        }
+
+        /// Flips the current value of the boolean.
+        #[ink(message)]
+        pub fn flip_with_inline_event(&mut self) {
+            self.value = !self.value;
+            self.env()
+                .emit_event(InlineFlipped { value: self.value })
         }
 
         /// Emit an event with a 32 byte topic.
@@ -49,9 +62,10 @@ pub mod events {
         #[ink::test]
         fn collects_specs_for_all_linked_and_used_events() {
             let event_specs = ink::metadata::collect_events();
-            assert_eq!(3, event_specs.len());
+            assert_eq!(4, event_specs.len());
 
-            assert!(event_specs.iter().any(|evt| evt.label() == &"Flipped"));
+            assert!(event_specs.iter().any(|evt| evt.label() == &"ForeignFlipped"));
+            assert!(event_specs.iter().any(|evt| evt.label() == &"InlineFlipped"));
             assert!(event_specs.iter().any(|evt| evt.label() == &"ThirtyTwoByteTopics"));
             assert!(event_specs.iter().any(|evt| evt.label() == &"EventDefAnotherCrate"));
 
@@ -67,7 +81,7 @@ pub mod events {
             assert_eq!(1, emitted_events.len());
             let event = &emitted_events[0];
 
-            let decoded_event = <event_def::Flipped>::decode(&mut &event.data[..])
+            let decoded_event = <event_def::ForeignFlipped>::decode(&mut &event.data[..])
                 .expect("encountered invalid contract event data buffer");
             assert!(decoded_event.value);
         }
@@ -146,13 +160,13 @@ pub mod events {
             // then
             assert_eq!(1, contract_events.len());
             let contract_event = &contract_events[0];
-            let flipped: event_def::Flipped =
+            let flipped: event_def::ForeignFlipped =
                 scale::Decode::decode(&mut &contract_event.event.data[..])
                     .expect("encountered invalid contract event data buffer");
             assert_eq!(!init_value, flipped.value);
 
             let signature_topic =
-                <event_def::Flipped as ink::env::Event>::SIGNATURE_TOPIC
+                <event_def::ForeignFlipped as ink::env::Event>::SIGNATURE_TOPIC
                     .map(H256::from)
                     .unwrap();
 
