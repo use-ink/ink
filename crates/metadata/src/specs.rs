@@ -254,8 +254,7 @@ where
 impl<S> ContractSpecBuilder<MetaForm, S> {
     /// Collect metadata for all events linked into the contract.
     pub fn collect_events(self) -> Self {
-        let events = crate::EVENTS.iter().map(|event| event());
-        self.events(events)
+        self.events(crate::collect_events())
     }
 }
 

@@ -159,9 +159,16 @@ impl InkProject {
     }
 }
 
-/// Collects all event definitions in the contract binary at linking time.
+/// Any event which derives `#[derive(ink::EventMetadata)]` and is used in the contract
+/// binary will have its implementation added to this distributed slice at linking time.
 #[linkme::distributed_slice]
 pub static EVENTS: [fn() -> EventSpec] = [..];
+
+/// Collect the [`EventSpec`] metadata of all event definitions linked and used in the
+/// binary.
+pub fn collect_events() -> Vec<EventSpec> {
+    EVENTS.iter().map(|event| event()).collect()
+}
 
 // todo: docs
 pub trait EventMetadata {

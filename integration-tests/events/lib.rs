@@ -30,12 +30,27 @@ pub mod events {
                 maybe_hash,
             })
         }
+
+        /// Emit an event from a different crate.
+        #[ink(message)]
+        pub fn emit_event_from_a_different_crate(&mut self, maybe_hash: Option<[u8; 32]>) {
+            self.env().emit_event(event_def2::EventDefAnotherCrate {
+                hash: [0x42; 32],
+                maybe_hash,
+            })
+        }
     }
 
     #[cfg(test)]
     mod tests {
         use super::*;
         use scale::Decode as _;
+
+        #[ink::test]
+        fn collects_specs_for_all_linked_events() {
+            let event_specs = ink::metadata::collect_events();
+            assert_eq!(3, event_specs.len())
+        }
 
         #[ink::test]
         fn it_works() {
