@@ -971,7 +971,6 @@ impl Parse for AttributeFrag {
                     "constructor" => Ok(AttributeArg::Constructor),
                     "event" => Ok(AttributeArg::Event),
                     "anonymous" => Ok(AttributeArg::Anonymous),
-                    "topic" => Ok(AttributeArg::Topic),
                     "payable" => Ok(AttributeArg::Payable),
                     "default" => Ok(AttributeArg::Default),
                     "impl" => Ok(AttributeArg::Implementation),
