@@ -1291,7 +1291,7 @@ pub fn chain_extension(attr: TokenStream, item: TokenStream) -> TokenStream {
 
 synstructure::decl_derive!(
     [Event, attributes(ink)] =>
-    /// Derives an impl of the [`ink::Event`] trait for the given `struct`.
+    /// Derives an implementation of the [`ink::Event`] trait for the given `struct`.
     ///
     /// **Note** [`ink::Event`] requires a [`scale::Encode`] impl, it is up to the user to provide
     /// that: usually via the derive.
