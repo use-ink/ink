@@ -12,6 +12,7 @@ scale-info = { version = "2.5", default-features = false, features = ["derive"],
 
 event-def = { path = "event-def", default-features = false }
 event-def2 = { path = "event-def2", default-features = false }
+event-def-unused = { path = "event-def-unused", default-features = false }
 
 [dev-dependencies]
 ink_e2e = { path = "../../crates/e2e" }
@@ -27,6 +28,7 @@ std = [
     "scale-info/std",
     "event-def/std",
     "event-def2/std",
+    "event-def-unused/std",
 ]
 ink-as-dependency = []
 e2e-tests = []

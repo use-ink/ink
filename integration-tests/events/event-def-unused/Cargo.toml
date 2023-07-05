@@ -1,0 +1,17 @@
+[package]
+name = "event-def-unused"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+ink = { path = "../../../crates/ink", default-features = false }
+scale = { package = "parity-scale-codec", version = "3", default-features = false, features = ["derive"] }
+scale-info = { version = "2.5", default-features = false, features = ["derive"], optional = true }
+
+[features]
+default = ["std"]
+std = [
+    "ink/std",
+    "scale/std",
+    "scale-info/std",
+]

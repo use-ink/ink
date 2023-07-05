@@ -47,9 +47,15 @@ pub mod events {
         use scale::Decode as _;
 
         #[ink::test]
-        fn collects_specs_for_all_linked_events() {
+        fn collects_specs_for_all_linked_and_used_events() {
             let event_specs = ink::metadata::collect_events();
-            assert_eq!(3, event_specs.len())
+            assert_eq!(3, event_specs.len());
+
+            assert!(event_specs.iter().any(|evt| evt.label() == &"Flipped"));
+            assert!(event_specs.iter().any(|evt| evt.label() == &"ThirtyTwoByteTopics"));
+            assert!(event_specs.iter().any(|evt| evt.label() == &"EventDefAnotherCrate"));
+
+            assert!(!event_specs.iter().any(|evt| evt.label() == &"EventDefUnused"));
         }
 
         #[ink::test]
