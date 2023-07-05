@@ -189,23 +189,29 @@ fn has_ink_topic_attribute(field: &synstructure::BindingInfo) -> syn::Result<boo
 
 /// Checks if the given attributes contain an `ink` attribute with the given path.
 fn has_ink_attribute(attrs: &[syn::Attribute], path: &str) -> syn::Result<bool> {
-    let ink_attrs: Vec<_> = attrs
+    let ink_attrs = attrs
         .iter()
         .filter_map(|attr| {
             if attr.path().is_ident("ink") {
-                Some(attr.parse_nested_meta(|meta| {
+                let parse_result = attr.parse_nested_meta(|meta| {
                     if meta.path.is_ident(path) {
                         Ok(())
                     } else {
                         Err(meta
                             .error(format!("Only `#[ink({path})]` attribute allowed.")))
                     }
-                }))
+                });
+                Some(parse_result.map(|_| attr))
             } else {
                 None
             }
         })
-        .collect::<syn::Result<_>>()?;
-    // todo: check only one
+        .collect::<syn::Result<Vec<_>>>()?;
+    if ink_attrs.len() > 1 {
+        return Err(syn::Error::new(
+            ink_attrs[1].span(),
+            format!("Only a single `#[ink({})]` attribute allowed.", path),
+        ))
+    }
     Ok(!ink_attrs.is_empty())
 }
