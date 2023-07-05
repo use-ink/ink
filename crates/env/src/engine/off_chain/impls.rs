@@ -345,10 +345,14 @@ impl EnvBackend for EnvInstance {
         message: &[u8],
         pub_key: &[u8; 32],
     ) -> Result<()> {
+        // the context associated with the signing (specific to the sr25519 algorithm)
+        // defaults to "substrate" in substrate, but could be different elsewhere
         let context = signing_context(b"substrate");
-        let signature: Signature = Signature::from_bytes(signature).unwrap();
-        let public_key: PublicKey = PublicKey::from_bytes(pub_key).unwrap();
-
+        // attempt to parse a signature from bytes
+        let signature: Signature = Signature::from_bytes(signature).map_err(|_| Error::Sr25519VerifyFailed)?;
+        // attempt to parse a public key from bytes
+        let public_key: PublicKey = PublicKey::from_bytes(pub_key).map_err(|_| Error::Sr25519VerifyFailed)?;
+        // verify the signature
         public_key
             .verify(context.bytes(message), &signature)
             .map_err(|_| Error::Sr25519VerifyFailed)
