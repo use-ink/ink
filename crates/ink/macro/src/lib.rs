@@ -650,7 +650,32 @@ pub fn trait_definition(attr: TokenStream, item: TokenStream) -> TokenStream {
     trait_def::analyze(attr.into(), item.into()).into()
 }
 
-/// todo: docs
+/// Implements the necessary traits for a `struct` to be emitted as an event from a
+/// contract.
+///
+/// By default, a signature topic will be generated for the event. This allows consumers
+/// to filter and identify events of this type. Marking an event with `#[ink(anonymous)]`
+/// means no signature topic will be generated or emitted.
+///
+/// # Examples
+///
+/// ```
+/// #[ink::event]
+/// pub struct MyEvent {
+///     pub field: u32,
+///     #[ink(topic)]
+///     pub topic: [u8; 32],
+/// }
+///
+/// // The `#[ink(anonymous)]` attribute means no signature topic will be emitted for the event.
+/// #[ink::event]
+/// #[ink(anonymous)]
+/// pub struct MyAnonEvent {
+///     pub field: u32,
+///     #[ink(topic)]
+///     pub topic: [u8; 32],
+/// }
+/// ```
 #[proc_macro_attribute]
 pub fn event(attr: TokenStream, item: TokenStream) -> TokenStream {
     event::generate(attr.into(), item.into()).into()
