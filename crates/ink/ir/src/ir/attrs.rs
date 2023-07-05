@@ -350,8 +350,6 @@ pub enum AttributeArgKind {
     Event,
     /// `#[ink(anonymous)]`
     Anonymous,
-    /// `#[ink(topic)]`
-    Topic,
     /// `#[ink(message)]`
     Message,
     /// `#[ink(constructor)]`
@@ -393,10 +391,6 @@ pub enum AttributeArg {
     /// to reduce event emitting overhead. This is especially useful for user
     /// defined events.
     Anonymous,
-    /// `#[ink(topic)]`
-    ///
-    /// Applied on fields of ink! event types to indicate that they are topics.
-    Topic,
     /// `#[ink(message)]`
     ///
     /// Applied on `&self` or `&mut self` methods to flag them for being an ink!
@@ -460,7 +454,6 @@ impl core::fmt::Display for AttributeArgKind {
             Self::Storage => write!(f, "storage"),
             Self::Event => write!(f, "event"),
             Self::Anonymous => write!(f, "anonymous"),
-            Self::Topic => write!(f, "topic"),
             Self::Message => write!(f, "message"),
             Self::Constructor => write!(f, "constructor"),
             Self::Payable => write!(f, "payable"),
@@ -487,7 +480,6 @@ impl AttributeArg {
             Self::Storage => AttributeArgKind::Storage,
             Self::Event => AttributeArgKind::Event,
             Self::Anonymous => AttributeArgKind::Anonymous,
-            Self::Topic => AttributeArgKind::Topic,
             Self::Message => AttributeArgKind::Message,
             Self::Constructor => AttributeArgKind::Constructor,
             Self::Payable => AttributeArgKind::Payable,
@@ -507,7 +499,6 @@ impl core::fmt::Display for AttributeArg {
             Self::Storage => write!(f, "storage"),
             Self::Event => write!(f, "event"),
             Self::Anonymous => write!(f, "anonymous"),
-            Self::Topic => write!(f, "topic"),
             Self::Message => write!(f, "message"),
             Self::Constructor => write!(f, "constructor"),
             Self::Payable => write!(f, "payable"),
@@ -1420,8 +1411,7 @@ mod tests {
                     message,
                     constructor,
                     event,
-                    topic,
-                    payable,
+j                    payable,
                     impl,
                 )]
             },
@@ -1430,7 +1420,6 @@ mod tests {
                 AttributeArg::Message,
                 AttributeArg::Constructor,
                 AttributeArg::Event,
-                AttributeArg::Topic,
                 AttributeArg::Payable,
                 AttributeArg::Implementation,
             ])),
