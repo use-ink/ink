@@ -194,14 +194,13 @@ impl EventTopicsAmount for state::NoRemainingTopics {
 /// Implemented by event types to guide the event topic serialization using the topics
 /// builder.
 ///
-/// Normally this trait should be implemented automatically via the ink! codegen.
+/// Normally this trait should be implemented automatically via `#[derive(ink::Event)`.
 pub trait Event: scale::Encode {
     /// Type state indicating how many event topics are to be expected by the topics
     /// builder.
     type RemainingTopics: EventTopicsAmount;
 
     /// The unique signature topic of the event. `None` for anonymous events.
-    /// todo: document how this is calculated
     const SIGNATURE_TOPIC: Option<[u8; 32]>;
 
     /// Guides event topic serialization using the given topics builder.
