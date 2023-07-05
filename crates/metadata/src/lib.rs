@@ -170,9 +170,13 @@ pub fn collect_events() -> Vec<EventSpec> {
     EVENTS.iter().map(|event| event()).collect()
 }
 
-// todo: docs
+/// Provides metadata about an ink! event.
+///
+/// Implementations must be registered into the [`EVENTS`] distributed slice, in order to
+/// be included in the contract metadata. This is done automatically by the
+/// `#[derive(ink::EventMetadata)]`
 pub trait EventMetadata {
-    /// The full path to the event type, usually provided by [`core::module_path`].
+    /// The full path to the event type, usually provided by [`module_path`].
     const MODULE_PATH: &'static str;
 
     /// Returns the metadata of the event.
