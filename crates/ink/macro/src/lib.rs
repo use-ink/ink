@@ -1293,8 +1293,8 @@ synstructure::decl_derive!(
     [Event, attributes(ink)] =>
     /// Derives an implementation of the [`ink::Event`] trait for the given `struct`.
     ///
-    /// **Note** [`ink::Event`] requires a [`scale::Encode`] impl, it is up to the user to provide
-    /// that: usually via the derive.
+    /// **Note** [`ink::Event`] requires a [`scale::Encode`] implementation, it is up to
+    /// the user to provide that: usually via the derive.
     ///
     /// # Example
     ///
