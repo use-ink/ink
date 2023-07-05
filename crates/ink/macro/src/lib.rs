@@ -1321,6 +1321,11 @@ synstructure::decl_derive!(
     /// **Note** [`ink::Event`] requires a [`scale::Encode`] implementation, it is up to
     /// the user to provide that: usually via the derive.
     ///
+    /// Usually this is used in conjunction with the [`EventMetadata`] derive.
+    ///
+    /// For convenience there is the [`event`] attribute macro that will expand to all the necessary
+    /// derives for an event implementation, including this one.
+    ///
     /// # Example
     ///
     /// ```
@@ -1344,7 +1349,43 @@ synstructure::decl_derive!(
 
 synstructure::decl_derive!(
     [EventMetadata] =>
-    /// todo
+    /// Derives the [`ink::EventMetadata`] trait for the given `struct`, which provides metadata
+    /// about the event definition.
+    ///
+    /// Requires that the `struct` also implements the [`ink::Event`] trait, so this derive is
+    /// usually used in combination with the [`Event`] derive.
+    ///
+    /// Metadata is not embedded into the contract binary, it is generated from a separate
+    /// compilation of the contract with the `std` feature, therefore this derive must be
+    /// conditionally compiled e.g. `#[cfg_attr(feature = "std", derive(::ink::EventMetadata))]`
+    /// (see example below).
+    ///
+    /// For convenience there is the [`event`] attribute macro that will expand to all the necessary
+    /// derives for an event implementation, including this one.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// use ink::{
+    ///     Event,
+    ///     env::DefaultEnvironment,
+    /// };
+    /// use scale::Encode;
+    ///
+    /// #[cfg_attr(feature = "std", derive(::ink::EventMetadata))]
+    /// #[derive(Event, Encode)]
+    /// struct MyEvent {
+    ///     a: u32,
+    ///     #[ink(topic)]
+    ///     b: [u8; 32],
+    /// }
+    ///
+    /// assert_eq!(<MyEvent as ink::metadata::EventMetadata>::event_spec().args().len(), 2);
+    /// ```
+    ///
+    /// The generated code will also register this implementation with the global static distributed
+    /// slice [`ink::metadata::EVENTS`], in order that the metadata of all events used in a contract
+    /// can be collected.
     event::event_metadata_derive
 );
 
