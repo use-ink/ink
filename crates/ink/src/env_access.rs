@@ -880,6 +880,40 @@ where
             .map_err(|_| Error::EcdsaRecoveryFailed)
     }
 
+    /// Verifies a SR25519 signature against a message and a public key.
+    /// 
+    /// # Example
+    ///
+    /// ```
+    /// # #[ink::contract]
+    /// # pub mod my_contract {
+    /// #     #[ink(storage)]
+    /// #     pub struct MyContract { }
+    /// #
+    /// #     impl MyContract {
+    /// #         #[ink(constructor)]
+    /// #         pub fn new() -> Self {
+    /// #             Self {}
+    /// #         }
+    /// #
+    /// #[ink(message)]
+    /// pub fn sr25519_verify(&self) {
+    ///     let mut signature: [u8; 64] = [10, 125, 162, 182, 49, 112, 76, 220, 254, 147, 199, 64, 228, 18, 23, 185, 172, 102, 122, 12, 135, 85, 216, 218, 26, 130, 50, 219, 82, 127, 72, 124, 135, 231, 128, 210, 237, 193, 137, 106, 235, 107, 27, 239, 11, 199, 195, 141, 157, 242, 19, 91, 99, 62, 171, 139, 251, 23, 119, 232, 47, 173, 58, 143];
+    ///     let mut message: [u8; 49] = [60, 66, 121, 116, 101, 115, 62, 48, 120, 52, 54, 102, 98, 55, 52, 48, 56, 100, 52, 102, 50, 56, 53, 50, 50, 56, 102, 52, 97, 102, 53, 49, 54, 101, 97, 50, 53, 56, 53, 49, 98, 60, 47, 66, 121, 116, 101, 115, 62];
+    ///     let mut public_key: [u8; 32] = [212, 53, 147, 199, 21, 253, 211, 28, 97, 20, 26, 189, 4, 169, 159, 214, 130, 44, 133, 88, 133, 76, 205, 227, 154, 86, 132, 231, 165, 109, 162, 125];
+    ///     let result = ink::env::sr25519_verify(&signature, &message, &public_key);
+    ///     assert_eq!(result, Ok(()));
+    /// }
+    /// #
+    /// #     }
+    /// # }
+    /// ```
+    ///
+    /// # Note
+    ///
+    /// The context for sr25519 signing is hard-coded to "substrate" to match sr25519 signing in substrate.
+    /// 
+    /// For more details visit: [`ink_env::sr25519_verify`]
     pub fn sr25519_verify(
         self,
         signature: &[u8; 64],
