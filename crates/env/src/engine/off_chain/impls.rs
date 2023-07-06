@@ -346,6 +346,7 @@ impl EnvBackend for EnvInstance {
     ) -> Result<()> {
         // the context associated with the signing (specific to the sr25519 algorithm)
         // defaults to "substrate" in substrate, but could be different elsewhere
+        // https://github.com/paritytech/substrate/blob/c32f5ed2ae6746d6f791f08cecbfc22fa188f5f9/primitives/core/src/sr25519.rs#L60
         let context = b"substrate";
         // attempt to parse a signature from bytes
         let signature: Signature = Signature::from_bytes(signature).map_err(|_| Error::Sr25519VerifyFailed)?;
