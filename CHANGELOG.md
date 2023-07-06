@@ -8,7 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - Persist `Environment` in metadata - [#1741](https://github.com/paritytech/ink/pull/1741)
-- Added `sr25519_verify` function to `ink_env` [#1757](https://github.com/paritytech/ink/pull/1757)
+- Added `sr25519_verify` function to `ink_env` [#1840](https://github.com/paritytech/ink/pull/1840)
 
 ### Changed
 - Upgraded `syn` to version `2` - [#1731](https://github.com/paritytech/ink/pull/1731)
