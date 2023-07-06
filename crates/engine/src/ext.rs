@@ -97,7 +97,7 @@ define_error_codes! {
     LoggingDisabled = 9,
     /// ECDSA public key recovery failed. Most probably wrong recovery id or signature.
     EcdsaRecoveryFailed = 11,
-    /// sr25519 signature verification failed.
+    /// sr25519 signature verification failed. This may be because of an invalid public key, invalid message or invalid signature.
     Sr25519VerifyFailed = 12,
 }
 
