@@ -1,5 +1,5 @@
 [package]
-name = "incrementer"
+name = "call_builder_return_value"
 version = "4.2.0"
 authors = ["Parity Technologies <admin@parity.io>"]
 edition = "2021"
@@ -11,6 +11,11 @@ ink = { path = "../../crates/ink", default-features = false }
 scale = { package = "parity-scale-codec", version = "3", default-features = false, features = ["derive"] }
 scale-info = { version = "2.6", default-features = false, features = ["derive"], optional = true }
 
+incrementer = { path = "../incrementer", default-features = false, features = ["ink-as-dependency"] }
+
+[dev-dependencies]
+ink_e2e = { path = "../../crates/e2e" }
+
 [lib]
 path = "lib.rs"
 
@@ -20,5 +25,8 @@ std = [
     "ink/std",
     "scale/std",
     "scale-info/std",
+
+    "incrementer/std",
 ]
 ink-as-dependency = []
+e2e-tests = []

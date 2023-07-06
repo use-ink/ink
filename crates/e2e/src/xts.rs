@@ -13,7 +13,6 @@
 // limitations under the License.
 
 use super::{
-    builders::Message,
     log_info,
     sr25519,
     ContractExecResult,
@@ -129,7 +128,7 @@ pub enum Determinism {
     ///
     /// Dispatchables always use this mode in order to make on-chain execution
     /// deterministic.
-    Deterministic,
+    Enforced,
     /// Allow calling or uploading an indeterministic code.
     ///
     /// This is only possible when calling into `pallet-contracts` directly via
@@ -138,7 +137,7 @@ pub enum Determinism {
     /// # Note
     ///
     /// **Never** use this mode for on-chain execution.
-    AllowIndeterminism,
+    Relaxed,
 }
 
 /// A raw call to `pallet-contracts`'s `upload`.
@@ -268,7 +267,7 @@ where
         data: Vec<u8>,
         salt: Vec<u8>,
         signer: &Signer<C>,
-    ) -> ContractInstantiateResult<C::AccountId, E::Balance> {
+    ) -> ContractInstantiateResult<C::AccountId, E::Balance, ()> {
         let code = Code::Upload(code);
         let call_request = RpcInstantiateRequest::<C, E> {
             origin: subxt::tx::Signer::account_id(signer).clone(),
@@ -372,7 +371,7 @@ where
             origin: subxt::tx::Signer::account_id(signer).clone(),
             code,
             storage_deposit_limit,
-            determinism: Determinism::Deterministic,
+            determinism: Determinism::Enforced,
         };
         let func = "ContractsApi_upload_code";
         let params = rpc_params![func, Bytes(scale::Encode::encode(&call_request))];
@@ -404,7 +403,7 @@ where
             UploadCode::<E> {
                 code,
                 storage_deposit_limit,
-                determinism: Determinism::Deterministic,
+                determinism: Determinism::Enforced,
             },
         )
         .unvalidated();
@@ -413,20 +412,21 @@ where
     }
 
     /// Dry runs a call of the contract at `contract` with the given parameters.
-    pub async fn call_dry_run<RetType>(
+    pub async fn call_dry_run(
         &self,
         origin: C::AccountId,
-        message: &Message<E, RetType>,
+        dest: E::AccountId,
+        input_data: Vec<u8>,
         value: E::Balance,
         storage_deposit_limit: Option<E::Balance>,
-    ) -> ContractExecResult<E::Balance> {
+    ) -> ContractExecResult<E::Balance, ()> {
         let call_request = RpcCallRequest::<C, E> {
             origin,
-            dest: message.account_id().clone(),
+            dest,
             value,
             gas_limit: None,
             storage_deposit_limit,
-            input_data: message.exec_input().to_vec(),
+            input_data,
         };
         let func = "ContractsApi_call";
         let params = rpc_params![func, Bytes(scale::Encode::encode(&call_request))];

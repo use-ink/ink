@@ -108,8 +108,6 @@ mod custom_allocator {
     mod e2e_tests {
         use super::*;
 
-        use ink_e2e::build_message;
-
         type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
         /// We test that we can upload and instantiate the contract using its default
@@ -120,15 +118,14 @@ mod custom_allocator {
             let constructor = CustomAllocatorRef::default();
 
             // When
-            let contract_account_id = client
+            let contract = client
                 .instantiate("custom_allocator", &ink_e2e::alice(), constructor, 0, None)
                 .await
-                .expect("instantiate failed")
-                .account_id;
+                .expect("instantiate failed");
+            let call = contract.call::<CustomAllocator>();
 
             // Then
-            let get = build_message::<CustomAllocatorRef>(contract_account_id.clone())
-                .call(|custom_allocator| custom_allocator.get());
+            let get = call.get();
             let get_result = client.call_dry_run(&ink_e2e::alice(), &get, 0, None).await;
             assert!(matches!(get_result.return_value(), false));
 
@@ -141,28 +138,25 @@ mod custom_allocator {
         async fn it_works(mut client: ink_e2e::Client<C, E>) -> E2EResult<()> {
             // Given
             let constructor = CustomAllocatorRef::new(false);
-            let contract_account_id = client
+            let contract = client
                 .instantiate("custom_allocator", &ink_e2e::bob(), constructor, 0, None)
                 .await
-                .expect("instantiate failed")
-                .account_id;
+                .expect("instantiate failed");
+            let mut call = contract.call::<CustomAllocator>();
 
-            let get = build_message::<CustomAllocatorRef>(contract_account_id.clone())
-                .call(|custom_allocator| custom_allocator.get());
+            let get = call.get();
             let get_result = client.call_dry_run(&ink_e2e::bob(), &get, 0, None).await;
             assert!(matches!(get_result.return_value(), false));
 
             // When
-            let flip = build_message::<CustomAllocatorRef>(contract_account_id.clone())
-                .call(|custom_allocator| custom_allocator.flip());
+            let flip = call.flip();
             let _flip_result = client
-                .call(&ink_e2e::bob(), flip, 0, None)
+                .call(&ink_e2e::bob(), &flip, 0, None)
                 .await
                 .expect("flip failed");
 
             // Then
-            let get = build_message::<CustomAllocatorRef>(contract_account_id.clone())
-                .call(|custom_allocator| custom_allocator.get());
+            let get = call.get();
             let get_result = client.call_dry_run(&ink_e2e::bob(), &get, 0, None).await;
             assert!(matches!(get_result.return_value(), true));
 

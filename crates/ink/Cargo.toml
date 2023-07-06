@@ -32,7 +32,7 @@ ink_metadata = { path = "../metadata", default-features = false }
 
 trybuild = { version = "1.0.60", features = ["diff"] }
 # Required for the doctest of `env_access::EnvAccess::instantiate_contract`
-scale-info = { version = "2.5", default-features = false, features = ["derive"] }
+scale-info = { version = "2.6", default-features = false, features = ["derive"] }
 
 [features]
 default = ["std"]
@@ -48,11 +48,6 @@ std = [
 # Enable contract debug messages via `debug_print!` and `debug_println!`.
 ink-debug = [
     "ink_env/ink-debug",
-]
-
-# Enable direct call to a pallet dispatchable via `call_runtime()`.
-call-runtime = [
-    "ink_env/call-runtime",
 ]
 
 show-codegen-docs = []

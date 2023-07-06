@@ -433,7 +433,7 @@ pub trait TypedEnvBackend: EnvBackend {
     fn invoke_contract_delegate<E, Args, R>(
         &mut self,
         call_data: &CallParams<E, DelegateCall<E>, Args, R>,
-    ) -> Result<R>
+    ) -> Result<ink_primitives::MessageResult<R>>
     where
         E: Environment,
         Args: scale::Encode,
@@ -515,7 +515,6 @@ pub trait TypedEnvBackend: EnvBackend {
     where
         E: Environment;
 
-    #[cfg(feature = "call-runtime")]
     fn call_runtime<E, Call>(&mut self, call: &Call) -> Result<()>
     where
         E: Environment,

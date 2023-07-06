@@ -21,7 +21,7 @@ name = "ink_ir"
 quote = "1"
 syn = { version = "2.0", features = ["parsing", "full", "visit", "extra-traits"] }
 proc-macro2 = "1.0"
-itertools = { version = "0.10", default-features = false }
+itertools = { version = "0.11", default-features = false }
 either = { version = "1.5", default-features = false }
 blake2 = "0.10"
 ink_prelude = { version = "4.1.0", path = "../../prelude/", default-features = false }
