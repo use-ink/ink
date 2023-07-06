@@ -60,10 +60,10 @@ where
 
     /// Attempt to kill the running substrate process.
     pub fn kill(&mut self) -> Result<(), String> {
-        log::info!("Killing node process {}", self.proc.id());
+        tracing::info!("Killing node process {}", self.proc.id());
         if let Err(err) = self.proc.kill() {
             let err = format!("Error killing node process {}: {}", self.proc.id(), err);
-            log::error!("{}", err);
+            tracing::error!("{}", err);
             return Err(err)
         }
         Ok(())
@@ -116,8 +116,7 @@ where
             .stdout(process::Stdio::piped())
             .stderr(process::Stdio::piped())
             .arg("--port=0")
-            .arg("--rpc-port=0")
-            .arg("--ws-port=0");
+            .arg("--rpc-port=0");
 
         if let Some(authority) = self.authority {
             let authority = format!("{authority:?}");
@@ -150,7 +149,7 @@ where
             }
             Err(err) => {
                 let err = format!("Failed to connect to node rpc at {ws_url}: {err}");
-                log::error!("{}", err);
+                tracing::error!("{}", err);
                 proc.kill().map_err(|e| {
                     format!("Error killing substrate process '{}': {}", proc.id(), e)
                 })?;
@@ -173,9 +172,7 @@ fn find_substrate_port_from_output(r: impl Read + Send + 'static) -> u16 {
             // substrate).
             let line_end = line
                 .rsplit_once("Listening for new connections on 127.0.0.1:")
-                .or_else(|| {
-                    line.rsplit_once("Running JSON-RPC WS server: addr=127.0.0.1:")
-                })
+                .or_else(|| line.rsplit_once("Running JSON-RPC server: addr=127.0.0.1:"))
                 .map(|(_, port_str)| port_str)?;
 
             // trim non-numeric chars from the end of the port part of the line.

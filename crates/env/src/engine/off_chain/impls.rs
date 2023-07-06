@@ -480,7 +480,7 @@ impl TypedEnvBackend for EnvInstance {
     fn invoke_contract_delegate<E, Args, R>(
         &mut self,
         params: &CallParams<E, DelegateCall<E>, Args, R>,
-    ) -> Result<R>
+    ) -> Result<ink_primitives::MessageResult<R>>
     where
         E: Environment,
         Args: scale::Encode,
@@ -570,7 +570,6 @@ impl TypedEnvBackend for EnvInstance {
         unimplemented!("off-chain environment does not support `own_code_hash`")
     }
 
-    #[cfg(feature = "call-runtime")]
     fn call_runtime<E, Call>(&mut self, _call: &Call) -> Result<()>
     where
         E: Environment,

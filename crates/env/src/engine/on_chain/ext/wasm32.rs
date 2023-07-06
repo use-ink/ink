@@ -162,7 +162,6 @@ mod sys {
             out_len_ptr: Ptr32Mut<u32>,
         ) -> ReturnCode;
 
-        #[cfg(feature = "call-runtime")]
         pub fn call_runtime(call_ptr: Ptr32<[u8]>, call_len: u32) -> ReturnCode;
     }
 
@@ -474,7 +473,6 @@ pub fn return_value(flags: ReturnFlags, return_value: &[u8]) -> ! {
     }
 }
 
-#[cfg(feature = "call-runtime")]
 pub fn call_runtime(call: &[u8]) -> Result {
     let ret_code =
         unsafe { sys::call_runtime(Ptr32::from_slice(call), call.len() as u32) };

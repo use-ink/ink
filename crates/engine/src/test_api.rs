@@ -17,6 +17,7 @@ use crate::{
     types::{
         AccountId,
         Balance,
+        BlockNumber,
         BlockTimestamp,
     },
     AccountError,
@@ -272,6 +273,11 @@ impl Engine {
     /// Set the block timestamp for the execution context.
     pub fn set_block_timestamp(&mut self, new_block_timestamp: BlockTimestamp) {
         self.exec_context.block_timestamp = new_block_timestamp;
+    }
+
+    /// Set the block number for the execution context.
+    pub fn set_block_number(&mut self, new_block_number: BlockNumber) {
+        self.exec_context.block_number = new_block_number;
     }
 }
 

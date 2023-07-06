@@ -300,7 +300,7 @@ where
 /// - If the called code execution has trapped.
 pub fn invoke_contract_delegate<E, Args, R>(
     params: &CallParams<E, DelegateCall<E>, Args, R>,
-) -> Result<R>
+) -> Result<ink_primitives::MessageResult<R>>
 where
     E: Environment,
     Args: scale::Encode,
@@ -784,15 +784,9 @@ where
 /// - If the runtime doesn't allow for the contract unstable feature.
 /// - If the runtime doesn't allow for dispatching this call from a contract.
 ///
-/// # Note
-///
-/// The `call_runtime` host function is still part of `pallet-contracts`' unstable
-/// interface and thus can be changed at anytime.
-///
 /// # Panics
 ///
 /// Panics in the off-chain environment.
-#[cfg(feature = "call-runtime")]
 pub fn call_runtime<E, Call>(call: &Call) -> Result<()>
 where
     E: Environment,

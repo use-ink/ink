@@ -32,6 +32,7 @@ pub use self::{
     meta::{
         Meta,
         MetaNameValue,
-        PathOrLit,
+        MetaValue,
+        Symbol,
     },
 };

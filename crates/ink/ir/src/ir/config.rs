@@ -45,7 +45,7 @@ impl TryFrom<ast::AttributeArgs> for Config {
                 if let Some((_, ast)) = env {
                     return Err(duplicate_config_err(ast, arg, "env", "contract"))
                 }
-                if let ast::PathOrLit::Path(path) = &arg.value {
+                if let ast::MetaValue::Path(path) = &arg.value {
                     env = Some((Environment { path: path.clone() }, arg))
                 } else {
                     return Err(format_err_spanned!(
