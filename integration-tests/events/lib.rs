@@ -77,6 +77,13 @@ pub mod events {
         }
     }
 
+    impl event_def_unused::FlipperTrait for Events {
+        #[ink(message)]
+        fn flip(&mut self) {
+            self.value = !self.value;
+        }
+    }
+
     #[cfg(test)]
     mod tests {
         use super::*;
