@@ -3,19 +3,12 @@
 //! This contract is made to showcase all of ink!'s storage types.
 //! With this the proper decoding of the storage types can be tested.
 
-#![cfg_attr(not(feature = "std"), no_std)]
+#![cfg_attr(not(feature = "std"), no_std, no_main)]
 
 #[ink::contract]
 mod storage_types {
-    use ink::prelude::{
-        string::String,
-        vec,
-        vec::Vec,
-    };
-    use scale::{
-        Decode,
-        Encode,
-    };
+    use ink::prelude::{string::String, vec, vec::Vec};
+    use scale::{Decode, Encode};
 
     #[derive(Debug, Decode, Encode)]
     #[cfg_attr(feature = "std", derive(::scale_info::TypeInfo))]
