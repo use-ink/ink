@@ -356,7 +356,7 @@ impl EnvBackend for EnvInstance {
             PublicKey::from_bytes(pub_key).map_err(|_| Error::Sr25519VerifyFailed)?;
         // verify the signature
         public_key
-            .verify_simple(context, &message, &signature)
+            .verify_simple(context, message, &signature)
             .map_err(|_| Error::Sr25519VerifyFailed)
     }
 
