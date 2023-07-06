@@ -32,3 +32,8 @@ std = [
 ]
 ink-as-dependency = []
 e2e-tests = []
+
+[profile.test]
+# Need this for linkme crate to work for the event metadata unit test.
+# See https://github.com/dtolnay/linkme/issues/61#issuecomment-1503653702
+lto = "thin"

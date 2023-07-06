@@ -61,7 +61,7 @@ pub mod events {
         use super::*;
         use scale::Decode as _;
 
-        #[ink::test]
+        #[test]
         fn collects_specs_for_all_linked_and_used_events() {
             let event_specs = ink::metadata::collect_events();
             assert_eq!(4, event_specs.len());
