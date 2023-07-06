@@ -349,9 +349,11 @@ impl EnvBackend for EnvInstance {
         // https://github.com/paritytech/substrate/blob/c32f5ed2ae6746d6f791f08cecbfc22fa188f5f9/primitives/core/src/sr25519.rs#L60
         let context = b"substrate";
         // attempt to parse a signature from bytes
-        let signature: Signature = Signature::from_bytes(signature).map_err(|_| Error::Sr25519VerifyFailed)?;
+        let signature: Signature =
+            Signature::from_bytes(signature).map_err(|_| Error::Sr25519VerifyFailed)?;
         // attempt to parse a public key from bytes
-        let public_key: PublicKey = PublicKey::from_bytes(pub_key).map_err(|_| Error::Sr25519VerifyFailed)?;
+        let public_key: PublicKey =
+            PublicKey::from_bytes(pub_key).map_err(|_| Error::Sr25519VerifyFailed)?;
         // verify the signature
         public_key
             .verify_simple(context, &message, &signature)
