@@ -7,7 +7,7 @@ pub mod sr25519_verification {
     pub struct Sr25519Verification {}
 
     impl Sr25519Verification {
-        /// Creates a new sr25519_verification smart contract initialized with the given
+        /// Creates a new sr25519 verification smart contract initialized with the given
         /// value.
         #[ink(constructor)]
         pub fn new() -> Self {
