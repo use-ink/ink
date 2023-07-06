@@ -92,7 +92,7 @@ impl WhitelistedAttributes {
     /// a correct format `"foo, bar"` then `foo`, `bar` will be included in
     /// the whitelist of attributes. Else error about parsing will be returned.
     pub fn parse_arg_value(&mut self, arg: &MetaNameValue) -> Result<(), syn::Error> {
-        return if let ast::PathOrLit::Lit(syn::Lit::Str(attributes)) = &arg.value {
+        return if let ast::MetaValue::Lit(syn::Lit::Str(attributes)) = &arg.value {
             attributes.value().split(',').for_each(|attribute| {
                 self.0.insert(attribute.trim().to_string(), ());
             });

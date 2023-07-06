@@ -443,7 +443,7 @@ impl TypedEnvBackend for EnvInstance {
         );
         match call_result {
             Ok(()) | Err(ext::Error::CalleeReverted) => {
-                let decoded = scale::Decode::decode(&mut &output[..])?;
+                let decoded = scale::DecodeAll::decode_all(&mut &output[..])?;
                 Ok(decoded)
             }
             Err(actual_error) => Err(actual_error.into()),
@@ -453,7 +453,7 @@ impl TypedEnvBackend for EnvInstance {
     fn invoke_contract_delegate<E, Args, R>(
         &mut self,
         params: &CallParams<E, DelegateCall<E>, Args, R>,
-    ) -> Result<R>
+    ) -> Result<ink_primitives::MessageResult<R>>
     where
         E: Environment,
         Args: scale::Encode,
@@ -472,7 +472,7 @@ impl TypedEnvBackend for EnvInstance {
         let call_result = ext::delegate_call(flags, enc_code_hash, enc_input, output);
         match call_result {
             Ok(()) | Err(ext::Error::CalleeReverted) => {
-                let decoded = scale::Decode::decode(&mut &output[..])?;
+                let decoded = scale::DecodeAll::decode_all(&mut &output[..])?;
                 Ok(decoded)
             }
             Err(actual_error) => Err(actual_error.into()),
@@ -587,7 +587,6 @@ impl TypedEnvBackend for EnvInstance {
         Ok(hash)
     }
 
-    #[cfg(feature = "call-runtime")]
     fn call_runtime<E, Call>(&mut self, call: &Call) -> Result<()>
     where
         E: Environment,

@@ -58,9 +58,7 @@ pub enum LangError {
 }
 
 /// The `Result` type for ink! messages.
-#[doc(hidden)]
 pub type MessageResult<T> = ::core::result::Result<T, LangError>;
 
 /// The `Result` type for ink! constructors.
-#[doc(hidden)]
 pub type ConstructorResult<T> = ::core::result::Result<T, LangError>;

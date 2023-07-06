@@ -188,7 +188,7 @@ where
 
     /// Checks if a value is stored at the given `key` in the contract storage.
     ///
-    /// Returns `None` if no `value` exists at the given `key`.
+    /// Returns `false` if no `value` exists at the given `key`.
     #[inline]
     pub fn contains<Q>(&self, key: Q) -> bool
     where
@@ -255,7 +255,7 @@ const _: () = {
         KeyType: StorageKey + scale_info::TypeInfo + 'static,
     {
         fn layout(_: &Key) -> Layout {
-            Layout::Root(RootLayout::new(
+            Layout::Root(RootLayout::new::<Self, _>(
                 LayoutKey::from(&KeyType::KEY),
                 <V as StorageLayout>::layout(&KeyType::KEY),
             ))

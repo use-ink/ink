@@ -51,7 +51,7 @@ impl Parse for AttributeArgs {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::ast::PathOrLit;
+    use crate::ast::MetaValue;
     use quote::quote;
 
     impl AttributeArgs {
@@ -81,7 +81,7 @@ mod tests {
             AttributeArgs::new(vec![MetaNameValue {
                 name: syn::parse_quote! { name },
                 eq_token: syn::parse_quote! { = },
-                value: PathOrLit::Lit(syn::parse_quote! { true }),
+                value: MetaValue::Lit(syn::parse_quote! { true }),
             }])
         )
     }
@@ -93,7 +93,7 @@ mod tests {
             AttributeArgs::new(vec![MetaNameValue {
                 name: syn::parse_quote! { name },
                 eq_token: syn::parse_quote! { = },
-                value: PathOrLit::Lit(syn::parse_quote! { "string literal" }),
+                value: MetaValue::Lit(syn::parse_quote! { "string literal" }),
             }])
         )
     }
@@ -105,7 +105,7 @@ mod tests {
             AttributeArgs::new(vec![MetaNameValue {
                 name: syn::parse_quote! { name },
                 eq_token: syn::parse_quote! { = },
-                value: PathOrLit::Path(syn::parse_quote! { MyIdentifier }),
+                value: MetaValue::Path(syn::parse_quote! { MyIdentifier }),
             }])
         )
     }
@@ -117,7 +117,7 @@ mod tests {
             AttributeArgs::new(vec![MetaNameValue {
                 name: syn::parse_quote! { name },
                 eq_token: syn::parse_quote! { = },
-                value: PathOrLit::Path(syn::parse_quote! { ::this::is::my::Path }),
+                value: MetaValue::Path(syn::parse_quote! { ::this::is::my::Path }),
             }])
         )
     }
@@ -130,7 +130,7 @@ mod tests {
             AttributeArgs::new(vec![MetaNameValue {
                 name: syn::parse_quote! { name },
                 eq_token: syn::parse_quote! { = },
-                value: PathOrLit::Path(
+                value: MetaValue::Path(
                     syn::parse_quote! { this::is::my::relative::Path }
                 ),
             }])
@@ -143,7 +143,7 @@ mod tests {
         expected_args.push_value(MetaNameValue {
             name: syn::parse_quote! { name },
             eq_token: syn::parse_quote! { = },
-            value: PathOrLit::Path(syn::parse_quote! { value }),
+            value: MetaValue::Path(syn::parse_quote! { value }),
         });
         expected_args.push_punct(<Token![,]>::default());
         assert_eq!(
@@ -169,27 +169,27 @@ mod tests {
                 MetaNameValue {
                     name: syn::parse_quote! { name1 },
                     eq_token: syn::parse_quote! { = },
-                    value: PathOrLit::Path(syn::parse_quote! { ::root::Path }),
+                    value: MetaValue::Path(syn::parse_quote! { ::root::Path }),
                 },
                 MetaNameValue {
                     name: syn::parse_quote! { name2 },
                     eq_token: syn::parse_quote! { = },
-                    value: PathOrLit::Lit(syn::parse_quote! { false }),
+                    value: MetaValue::Lit(syn::parse_quote! { false }),
                 },
                 MetaNameValue {
                     name: syn::parse_quote! { name3 },
                     eq_token: syn::parse_quote! { = },
-                    value: PathOrLit::Lit(syn::parse_quote! { "string literal" }),
+                    value: MetaValue::Lit(syn::parse_quote! { "string literal" }),
                 },
                 MetaNameValue {
                     name: syn::parse_quote! { name4 },
                     eq_token: syn::parse_quote! { = },
-                    value: PathOrLit::Lit(syn::parse_quote! { 42 }),
+                    value: MetaValue::Lit(syn::parse_quote! { 42 }),
                 },
                 MetaNameValue {
                     name: syn::parse_quote! { name5 },
                     eq_token: syn::parse_quote! { = },
-                    value: PathOrLit::Lit(syn::parse_quote! { 7.7 }),
+                    value: MetaValue::Lit(syn::parse_quote! { 7.7 }),
                 },
             ])
         )

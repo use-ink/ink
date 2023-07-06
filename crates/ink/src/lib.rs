@@ -64,6 +64,7 @@ pub use self::{
     },
     contract_ref::ToAccountId,
     env_access::EnvAccess,
+    prelude::IIP2_WILDCARD_COMPLEMENT_SELECTOR,
 };
 pub use ink_macro::{
     blake2x256,

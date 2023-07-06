@@ -1,6 +1,6 @@
 [package]
 name = "payment_channel"
-version = "4.1.0"
+version = "4.2.0"
 authors = ["Parity Technologies <admin@parity.io>"]
 edition = "2021"
 publish = false
@@ -9,11 +9,11 @@ publish = false
 ink = { path = "../../crates/ink", default-features = false }
 
 scale = { package = "parity-scale-codec", version = "3", default-features = false, features = ["derive"] }
-scale-info = { version = "2.5", default-features = false, features = ["derive"] }
+scale-info = { version = "2.6", default-features = false, features = ["derive"], optional = true }
 
 [dev-dependencies]
-hex-literal = { version = "0.3" }
-sp-core = "6.0.0"
+hex-literal = { version = "0.4.1" }
+sp-core = { version = "21.0.0", default-features = false }
 
 [lib]
 path = "lib.rs"
@@ -24,6 +24,7 @@ std = [
     "ink/std",
     "scale/std",
     "scale-info/std",
+    "sp-core/std",
 ]
 
 ink-as-dependency = []
