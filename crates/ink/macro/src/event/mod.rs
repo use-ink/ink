@@ -65,7 +65,7 @@ fn event_derive_struct(mut s: synstructure::Structure) -> syn::Result<TokenStrea
         return Err(syn::Error::new(
             s.ast().generics.params.span(),
             "can only derive `Event` for structs without generics",
-        ));
+        ))
     }
 
     let span = s.ast().span();
