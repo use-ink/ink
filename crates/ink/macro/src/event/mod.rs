@@ -60,8 +60,15 @@ pub fn event_derive(mut s: synstructure::Structure) -> TokenStream2 {
 /// `Event` derive implementation for `struct` types.
 fn event_derive_struct(mut s: synstructure::Structure) -> syn::Result<TokenStream2> {
     assert_eq!(s.variants().len(), 1, "can only operate on structs");
-    let span = s.ast().span();
 
+    if !s.ast().generics.params.is_empty() {
+        return Err(syn::Error::new(
+            s.ast().generics.params.span(),
+            "can only derive `Event` for structs without generics",
+        ));
+    }
+
+    let span = s.ast().span();
     let anonymous = has_ink_attribute(&s.ast().attrs, "anonymous")?;
 
     // filter field bindings to those marked as topics
