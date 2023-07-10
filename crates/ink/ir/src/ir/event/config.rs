@@ -32,7 +32,7 @@ impl TryFrom<ast::AttributeArgs> for EventConfig {
     fn try_from(args: ast::AttributeArgs) -> Result<Self, Self::Error> {
         let mut anonymous: Option<syn::LitBool> = None;
         for arg in args.into_iter() {
-            if arg.name.is_ident("derive") {
+            if arg.name.is_ident("anonymous") {
                 if let Some(lit_bool) = anonymous {
                     return Err(duplicate_config_err(lit_bool, arg, "anonymous", "event"))
                 }
