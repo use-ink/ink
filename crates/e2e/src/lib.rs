@@ -27,8 +27,10 @@ mod error;
 mod node_proc;
 mod xts;
 
-pub use client::{CallBuilderFinal, CallDryRunResult, Client, Error};
-pub use contract_results::{CallResult, InstantiationResult, UploadResult};
+pub use client::{CallBuilderFinal, Client, Error};
+pub use contract_results::{
+    CallDryRunResult, CallResult, InstantiationResult, UploadResult,
+};
 pub use default_accounts::*;
 pub use ink_e2e_macro::test;
 pub use node_proc::{TestNodeProcess, TestNodeProcessBuilder};

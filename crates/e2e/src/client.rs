@@ -14,10 +14,11 @@
 
 use super::{
     builders::{constructor_exec_input, CreateBuilderPartial},
-    log_error, log_info, sr25519, ContractExecResult, ContractInstantiateResult,
-    ContractsApi, Signer,
+    log_error, log_info, sr25519, ContractInstantiateResult, ContractsApi, Signer,
 };
-use crate::contract_results::{CallResult, InstantiationResult, UploadResult};
+use crate::contract_results::{
+    CallDryRunResult, CallResult, InstantiationResult, UploadResult,
+};
 use ink_env::{
     call::{
         utils::{ReturnType, Set},
@@ -25,11 +26,9 @@ use ink_env::{
     },
     Environment,
 };
-use ink_primitives::MessageResult;
-use pallet_contracts_primitives::ExecReturnValue;
 use sp_core::Pair;
 #[cfg(feature = "std")]
-use std::{collections::BTreeMap, fmt::Debug, marker::PhantomData, path::PathBuf};
+use std::{collections::BTreeMap, fmt::Debug, path::PathBuf};
 
 use subxt::{
     blocks::ExtrinsicEvents,
@@ -56,76 +55,6 @@ pub type CallBuilderFinal<E, Args, RetType> = ink_env::call::CallBuilder<
     Set<ExecutionInput<Args>>,
     Set<ReturnType<RetType>>,
 >;
-
-/// Result of the dry run of a contract call.
-#[derive(Debug)]
-pub struct CallDryRunResult<E: Environment, V> {
-    /// The result of the dry run, contains debug messages
-    /// if there were any.
-    pub exec_result: ContractExecResult<E::Balance, ()>,
-    _marker: PhantomData<V>,
-}
-
-impl<E, V> CallDryRunResult<E, V>
-where
-    E: Environment,
-    V: scale::Decode,
-{
-    /// Returns true if the dry-run execution resulted in an error.
-    pub fn is_err(&self) -> bool {
-        self.exec_result.result.is_err()
-    }
-
-    /// Returns the [`ExecReturnValue`] resulting from the dry-run message call.
-    ///
-    /// Panics if the dry-run message call failed to execute.
-    pub fn exec_return_value(&self) -> &ExecReturnValue {
-        self.exec_result
-            .result
-            .as_ref()
-            .unwrap_or_else(|call_err| panic!("Call dry-run failed: {call_err:?}"))
-    }
-
-    /// Returns the [`MessageResult`] from the execution of the dry-run message
-    /// call.
-    ///
-    /// # Panics
-    /// - if the dry-run message call failed to execute.
-    /// - if message result cannot be decoded into the expected return value type.
-    pub fn message_result(&self) -> MessageResult<V> {
-        let data = &self.exec_return_value().data;
-        scale::Decode::decode(&mut data.as_ref()).unwrap_or_else(|env_err| {
-            panic!(
-                "Decoding dry run result to ink! message return type failed: {env_err}"
-            )
-        })
-    }
-
-    /// Returns the decoded return value of the message from the dry-run.
-    ///
-    /// Panics if the value could not be decoded. The raw bytes can be accessed
-    /// via [`CallResult::return_data`].
-    pub fn return_value(self) -> V {
-        self.message_result()
-            .unwrap_or_else(|lang_err| {
-                panic!(
-                    "Encountered a `LangError` while decoding dry run result to ink! message: {lang_err:?}"
-                )
-            })
-    }
-
-    /// Returns the return value as raw bytes of the message from the dry-run.
-    ///
-    /// Panics if the dry-run message call failed to execute.
-    pub fn return_data(&self) -> &[u8] {
-        &self.exec_return_value().data
-    }
-
-    /// Returns any debug message output by the contract decoded as UTF-8.
-    pub fn debug_message(&self) -> String {
-        String::from_utf8_lossy(&self.exec_result.debug_message).into()
-    }
-}
 
 /// A contract was successfully instantiated.
 #[derive(
