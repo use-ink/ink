@@ -27,9 +27,14 @@ impl GenerateCode for Event<'_> {
     /// Generates ink! storage item code.
     fn generate_code(&self) -> TokenStream2 {
         let item = self.item.item();
+        let anonymous = self
+            .item
+            .anonymous()
+            .then(|| quote::quote! { #[ink(anonymous)] });
         quote::quote! (
-            #[derive(::ink::Event, ::scale::Encode, ::scale::Decode)]
             #[cfg_attr(feature = "std", derive(::ink::EventMetadata))]
+            #[derive(::ink::Event, ::scale::Encode, ::scale::Decode)]
+            #anonymous
             #item
         )
     }

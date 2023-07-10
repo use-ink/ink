@@ -1,5 +1,12 @@
 #![cfg_attr(not(feature = "std"), no_std, no_main)]
 
+#[ink::event(anonymous = true)]
+pub struct AnonymousEvent {
+    #[ink(topic)]
+    pub topic: [u8; 32],
+    pub field_1: u32,
+}
+
 #[ink::contract]
 pub mod events {
     #[ink(storage)]
@@ -10,6 +17,14 @@ pub mod events {
     #[ink(event)]
     pub struct InlineFlipped {
         value: bool,
+    }
+
+    #[ink(event)]
+    #[ink(anonymous)]
+    pub struct InlineAnonymousEvent {
+        #[ink(topic)]
+        pub topic: [u8; 32],
+        pub field_1: u32,
     }
 
     impl Events {
@@ -36,7 +51,7 @@ pub mod events {
 
         /// Emit an event with a 32 byte topic.
         #[ink(message)]
-        pub fn emit_32_byte_topic_event(&mut self, maybe_hash: Option<[u8; 32]>) {
+        pub fn emit_32_byte_topic_event(&self, maybe_hash: Option<[u8; 32]>) {
             self.env().emit_event(event_def::ThirtyTwoByteTopics {
                 hash: [0x42; 32],
                 maybe_hash,
@@ -45,14 +60,20 @@ pub mod events {
 
         /// Emit an event from a different crate.
         #[ink(message)]
-        pub fn emit_event_from_a_different_crate(
-            &mut self,
-            maybe_hash: Option<[u8; 32]>,
-        ) {
+        pub fn emit_event_from_a_different_crate(&self, maybe_hash: Option<[u8; 32]>) {
             self.env().emit_event(event_def2::EventDefAnotherCrate {
                 hash: [0x42; 32],
                 maybe_hash,
             })
+        }
+
+        /// Emit a inline and standalone anonymous events
+        #[ink(message)]
+        pub fn emit_anonymous_events(&self, topic: [u8; 32]) {
+            self.env()
+                .emit_event(InlineAnonymousEvent { topic, field_1: 42 });
+            self.env()
+                .emit_event(super::AnonymousEvent { topic, field_1: 42 });
         }
     }
 
@@ -64,7 +85,7 @@ pub mod events {
         #[test]
         fn collects_specs_for_all_linked_and_used_events() {
             let event_specs = ink::metadata::collect_events();
-            assert_eq!(4, event_specs.len());
+            assert_eq!(6, event_specs.len());
 
             assert!(event_specs
                 .iter()
@@ -78,6 +99,12 @@ pub mod events {
             assert!(event_specs
                 .iter()
                 .any(|evt| evt.label() == &"EventDefAnotherCrate"));
+            assert!(event_specs
+                .iter()
+                .any(|evt| evt.label() == &"AnonymousEvent"));
+            assert!(event_specs
+                .iter()
+                .any(|evt| evt.label() == &"InlineAnonymousEvent"));
 
             assert!(!event_specs
                 .iter()
@@ -100,7 +127,7 @@ pub mod events {
 
         #[ink::test]
         fn option_topic_some_has_topic() {
-            let mut events = Events::new(false);
+            let events = Events::new(false);
             events.emit_32_byte_topic_event(Some([0xAA; 32]));
 
             let emitted_events = ink::env::test::recorded_events().collect::<Vec<_>>();
@@ -121,7 +148,7 @@ pub mod events {
 
         #[ink::test]
         fn option_topic_none_encoded_as_0() {
-            let mut events = Events::new(false);
+            let events = Events::new(false);
             events.emit_32_byte_topic_event(None);
 
             let emitted_events = ink::env::test::recorded_events().collect::<Vec<_>>();
@@ -139,6 +166,24 @@ pub mod events {
                 [0x00; 32].to_vec(), // None is encoded as 0x00
             ];
             assert_eq!(expected_topics, event.topics);
+        }
+
+        #[ink::test]
+        fn anonymous_events_emit_no_signature_topics() {
+            let events = Events::new(false);
+            let topic = [0x42; 32];
+            events.emit_anonymous_events(topic);
+
+            let emitted_events = ink::env::test::recorded_events().collect::<Vec<_>>();
+            assert_eq!(2, emitted_events.len());
+
+            let event = &emitted_events[0];
+            assert_eq!(event.topics.len(), 1);
+            assert_eq!(event.topics[0], topic);
+
+            let event = &emitted_events[1];
+            assert_eq!(event.topics.len(), 1);
+            assert_eq!(event.topics[0], topic);
         }
     }
 
@@ -237,7 +282,7 @@ pub mod events {
                 .instantiate("events", &ink_e2e::alice(), constructor, 0, None)
                 .await
                 .expect("instantiate failed");
-            let mut call = contract.call::<Events>();
+            let call = contract.call::<Events>();
 
             // when
             let call = call.emit_32_byte_topic_event(None);
