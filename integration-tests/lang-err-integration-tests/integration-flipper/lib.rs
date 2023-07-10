@@ -1,6 +1,9 @@
 #![cfg_attr(not(feature = "std"), no_std, no_main)]
 
-pub use self::integration_flipper::{Flipper, FlipperRef};
+pub use self::integration_flipper::{
+    Flipper,
+    FlipperRef,
+};
 
 #[ink::contract]
 pub mod integration_flipper {
