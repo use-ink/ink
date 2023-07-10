@@ -17,7 +17,7 @@ use super::{
     log_error, log_info, sr25519, ContractExecResult, ContractInstantiateResult,
     ContractsApi, Signer,
 };
-use crate::contract_results::{InstantiationResult, UploadResult};
+use crate::contract_results::{CallResult, InstantiationResult, UploadResult};
 use ink_env::{
     call::{
         utils::{ReturnType, Set},
@@ -56,78 +56,6 @@ pub type CallBuilderFinal<E, Args, RetType> = ink_env::call::CallBuilder<
     Set<ExecutionInput<Args>>,
     Set<ReturnType<RetType>>,
 >;
-
-/// Result of a contract call.
-pub struct CallResult<C: subxt::Config, E: Environment, V> {
-    /// The result of the dry run, contains debug messages
-    /// if there were any.
-    pub dry_run: CallDryRunResult<E, V>,
-    /// Events that happened with the contract instantiation.
-    pub events: ExtrinsicEvents<C>,
-}
-
-impl<C, E, V> CallResult<C, E, V>
-where
-    C: subxt::Config,
-    E: Environment,
-    V: scale::Decode,
-{
-    /// Returns the [`MessageResult`] from the execution of the dry-run message
-    /// call.
-    ///
-    /// # Panics
-    /// - if the dry-run message call failed to execute.
-    /// - if message result cannot be decoded into the expected return value type.
-    pub fn message_result(&self) -> MessageResult<V> {
-        self.dry_run.message_result()
-    }
-
-    /// Returns the decoded return value of the message from the dry-run.
-    ///
-    /// Panics if the value could not be decoded. The raw bytes can be accessed
-    /// via [`CallResult::return_data`].
-    pub fn return_value(self) -> V {
-        self.dry_run.return_value()
-    }
-
-    /// Returns the return value as raw bytes of the message from the dry-run.
-    ///
-    /// Panics if the dry-run message call failed to execute.
-    pub fn return_data(&self) -> &[u8] {
-        &self.dry_run.exec_return_value().data
-    }
-
-    /// Returns any debug message output by the contract decoded as UTF-8.
-    pub fn debug_message(&self) -> String {
-        self.dry_run.debug_message()
-    }
-
-    /// Returns true if the specified event was triggered by the call.
-    pub fn contains_event(&self, pallet_name: &str, variant_name: &str) -> bool {
-        self.events.iter().any(|event| {
-            let event = event.unwrap();
-            event.pallet_name() == pallet_name && event.variant_name() == variant_name
-        })
-    }
-}
-
-/// We implement a custom `Debug` here, as to avoid requiring the trait
-/// bound `Debug` for `E`.
-// TODO(#xxx) Improve the `Debug` implementation.
-impl<C, E, V> Debug for CallResult<C, E, V>
-where
-    C: subxt::Config + Debug,
-    E: Environment + Debug,
-    <E as Environment>::Balance: Debug,
-    V: Debug,
-{
-    fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
-        f.debug_struct("CallResult")
-            .field("dry_run", &self.dry_run)
-            .field("events", &self.events)
-            .finish()
-    }
-}
 
 /// Result of the dry run of a contract call.
 #[derive(Debug)]
@@ -622,7 +550,7 @@ where
         message: &CallBuilderFinal<E, Args, RetType>,
         value: E::Balance,
         storage_deposit_limit: Option<E::Balance>,
-    ) -> Result<CallResult<C, E, RetType>, Error<E>>
+    ) -> Result<CallResult<E, RetType, ExtrinsicEvents<C>>, Error<E>>
     where
         Args: scale::Encode,
         RetType: scale::Decode,
@@ -835,4 +763,14 @@ where
 /// Returns true if the give event is System::Extrinsic failed.
 fn is_extrinsic_failed_event<C: subxt::Config>(event: &EventDetails<C>) -> bool {
     event.pallet_name() == "System" && event.variant_name() == "ExtrinsicFailed"
+}
+
+impl<E: Environment, V, C: subxt::Config> CallResult<E, V, ExtrinsicEvents<C>> {
+    /// Returns true if the specified event was triggered by the call.
+    pub fn contains_event(&self, pallet_name: &str, variant_name: &str) -> bool {
+        self.events.iter().any(|event| {
+            let event = event.unwrap();
+            event.pallet_name() == pallet_name && event.variant_name() == variant_name
+        })
+    }
 }
