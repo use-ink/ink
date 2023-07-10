@@ -27,10 +27,8 @@ mod error;
 mod node_proc;
 mod xts;
 
-pub use client::{
-    CallBuilderFinal, CallDryRunResult, CallResult, Client, Error, UploadResult,
-};
-pub use contract_results::InstantiationResult;
+pub use client::{CallBuilderFinal, CallDryRunResult, CallResult, Client, Error};
+pub use contract_results::{InstantiationResult, UploadResult};
 pub use default_accounts::*;
 pub use ink_e2e_macro::test;
 pub use node_proc::{TestNodeProcess, TestNodeProcessBuilder};
@@ -40,9 +38,7 @@ pub use subxt::{self, tx::PairSigner};
 pub use tokio;
 pub use tracing_subscriber;
 
-use pallet_contracts_primitives::{
-    CodeUploadResult, ContractExecResult, ContractInstantiateResult,
-};
+use pallet_contracts_primitives::{ContractExecResult, ContractInstantiateResult};
 use sp_core::sr25519;
 use std::{cell::RefCell, sync::Once};
 use xts::ContractsApi;

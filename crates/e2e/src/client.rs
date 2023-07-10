@@ -14,10 +14,10 @@
 
 use super::{
     builders::{constructor_exec_input, CreateBuilderPartial},
-    log_error, log_info, sr25519, CodeUploadResult, ContractExecResult,
-    ContractInstantiateResult, ContractsApi, Signer,
+    log_error, log_info, sr25519, ContractExecResult, ContractInstantiateResult,
+    ContractsApi, Signer,
 };
-use crate::contract_results::InstantiationResult;
+use crate::contract_results::{InstantiationResult, UploadResult};
 use ink_env::{
     call::{
         utils::{ReturnType, Set},
@@ -56,35 +56,6 @@ pub type CallBuilderFinal<E, Args, RetType> = ink_env::call::CallBuilder<
     Set<ExecutionInput<Args>>,
     Set<ReturnType<RetType>>,
 >;
-
-/// Result of a contract upload.
-pub struct UploadResult<C: subxt::Config, E: Environment> {
-    /// The hash with which the contract can be instantiated.
-    pub code_hash: E::Hash,
-    /// The result of the dry run, contains debug messages
-    /// if there were any.
-    pub dry_run: CodeUploadResult<E::Hash, E::Balance>,
-    /// Events that happened with the contract instantiation.
-    pub events: ExtrinsicEvents<C>,
-}
-
-/// We implement a custom `Debug` here, to avoid requiring the trait
-/// bound `Debug` for `E`.
-impl<C, E> Debug for UploadResult<C, E>
-where
-    C: subxt::Config,
-    E: Environment,
-    <E as Environment>::Balance: Debug,
-    <E as Environment>::Hash: Debug,
-{
-    fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
-        f.debug_struct("UploadResult")
-            .field("code_hash", &self.code_hash)
-            .field("dry_run", &self.dry_run)
-            .field("events", &self.events)
-            .finish()
-    }
-}
 
 /// Result of a contract call.
 pub struct CallResult<C: subxt::Config, E: Environment, V> {
@@ -564,7 +535,7 @@ where
         contract_name: &str,
         signer: &Signer<C>,
         storage_deposit_limit: Option<E::Balance>,
-    ) -> Result<UploadResult<C, E>, Error<E>> {
+    ) -> Result<UploadResult<E, ExtrinsicEvents<C>>, Error<E>> {
         let code = self.load_code(contract_name);
         let ret = self
             .exec_upload(signer, code, storage_deposit_limit)
@@ -579,7 +550,7 @@ where
         signer: &Signer<C>,
         code: Vec<u8>,
         storage_deposit_limit: Option<E::Balance>,
-    ) -> Result<UploadResult<C, E>, Error<E>> {
+    ) -> Result<UploadResult<E, ExtrinsicEvents<C>>, Error<E>> {
         // dry run the instantiate to calculate the gas limit
         let dry_run = self
             .api
