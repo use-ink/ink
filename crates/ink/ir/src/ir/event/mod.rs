@@ -12,47 +12,57 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::ir;
-use proc_macro2::Ident;
+mod config;
+
+use config::EventConfig;
+use proc_macro2::TokenStream as TokenStream2;
+use quote::ToTokens;
 use syn::spanned::Spanned as _;
 
-/// An ink! event struct definition.
-///
-/// # Example
-///
-/// ```
-/// # let event = <ink_ir::Event as TryFrom<syn::ItemStruct>>::try_from(syn::parse_quote! {
-/// #[ink(event)]
-/// pub struct Transaction {
-///     #[ink(topic)]
-///     from: AccountId,
-///     #[ink(topic)]
-///     to: AccountId,
-///     value: Balance,
-/// }
-/// # }).unwrap();
-/// ```
+use crate::ir;
+
+/// A checked ink! event with its configuration.
 #[derive(Debug, PartialEq, Eq)]
 pub struct Event {
     item: syn::ItemStruct,
-    pub anonymous: bool,
-}
-
-impl quote::ToTokens for Event {
-    /// We mainly implement this trait for this ink! type to have a derived
-    /// [`Spanned`](`syn::spanned::Spanned`) implementation for it.
-    fn to_tokens(&self, tokens: &mut proc_macro2::TokenStream) {
-        self.item.to_tokens(tokens)
-    }
+    config: EventConfig,
 }
 
 impl Event {
+    /// Returns `Ok` if the input matches all requirements for an ink! event.
+    pub fn new(config: TokenStream2, item: TokenStream2) -> Result<Self, syn::Error> {
+        let item = syn::parse2::<syn::ItemStruct>(item)?;
+        let parsed_config = syn::parse2::<crate::ast::AttributeArgs>(config)?;
+        let config = EventConfig::try_from(parsed_config)?;
+
+        for attr in &item.attrs {
+            if attr.path().to_token_stream().to_string().contains("event") {
+                return Err(format_err_spanned!(
+                    attr,
+                    "only one `ink::event` is allowed",
+                ))
+            }
+        }
+
+        Ok(Self { item, config })
+    }
+
+    /// Returns the event definition .
+    pub fn item(&self) -> &syn::ItemStruct {
+        &self.item
+    }
+
     /// Returns `true` if the first ink! annotation on the given struct is
     /// `#[ink(event)]`.
     ///
     /// # Errors
     ///
     /// If the first found ink! attribute is malformed.
+    ///
+    /// # Note
+    ///
+    /// This is used for legacy "inline" event definitions, i.e. event definitions that
+    /// are defined within a module annotated with `#[ink::contract]`.
     pub(super) fn is_ink_event(
         item_struct: &syn::ItemStruct,
     ) -> Result<bool, syn::Error> {
@@ -65,6 +75,20 @@ impl Event {
         let attr = ir::first_ink_attribute(&item_struct.attrs)?
             .expect("missing expected ink! attribute for struct");
         Ok(matches!(attr.first().kind(), ir::AttributeArg::Event))
+    }
+
+    /// Returns if the event is marked as anonymous, if true then no signature topic is
+    /// generated or emitted.
+    pub fn anonymous(&self) -> bool {
+        self.config.anonymous()
+    }
+}
+
+impl ToTokens for Event {
+    /// We mainly implement this trait for this ink! type to have a derived
+    /// [`Spanned`](`syn::spanned::Spanned`) implementation for it.
+    fn to_tokens(&self, tokens: &mut proc_macro2::TokenStream) {
+        self.item.to_tokens(tokens)
     }
 }
 
@@ -89,15 +113,8 @@ impl TryFrom<syn::ItemStruct> for Event {
                 attrs: other_attrs,
                 ..item_struct
             },
-            anonymous: ink_attrs.is_anonymous(),
+            config: EventConfig::new(ink_attrs.is_anonymous()),
         })
-    }
-}
-
-impl Event {
-    /// Returns the identifier of the event struct.
-    pub fn ident(&self) -> &Ident {
-        &self.item.ident
     }
 }
 
@@ -187,35 +204,12 @@ mod tests {
         )
     }
 
-    /// Used for the event fields iterator unit test because `syn::Field` does
-    /// not provide a `syn::parse::Parse` implementation.
-    #[derive(Debug, PartialEq, Eq)]
-    struct NamedField(syn::Field);
-
-    impl syn::parse::Parse for NamedField {
-        fn parse(input: syn::parse::ParseStream) -> syn::Result<Self> {
-            Ok(Self(syn::Field::parse_named(input)?))
-        }
-    }
-
-    impl NamedField {
-        /// Returns the identifier of the named field.
-        pub fn ident(&self) -> &Ident {
-            self.0.ident.as_ref().unwrap()
-        }
-
-        /// Returns the type of the named field.
-        pub fn ty(&self) -> &syn::Type {
-            &self.0.ty
-        }
-    }
-
     #[test]
     fn anonymous_event_works() {
         fn assert_anonymous_event(event: syn::ItemStruct) {
             match Event::try_from(event) {
                 Ok(event) => {
-                    assert!(event.anonymous);
+                    assert!(event.anonymous());
                 }
                 Err(_) => panic!("encountered unexpected invalid anonymous event"),
             }

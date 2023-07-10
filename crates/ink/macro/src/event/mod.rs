@@ -16,6 +16,7 @@ mod metadata;
 
 pub use metadata::event_metadata_derive;
 
+use ink_codegen::generate_code;
 use proc_macro2::TokenStream as TokenStream2;
 use quote::{
     quote,
@@ -23,19 +24,12 @@ use quote::{
 };
 use syn::spanned::Spanned;
 
-/// Generate code from the `#[ink::event]` attribute. This simply expands to the required
+/// Generate code from the `#[ink::event]` attribute. This expands to the required
 /// derive macros to satisfy an event implementation.
-pub fn generate(_config: TokenStream2, input: TokenStream2) -> TokenStream2 {
-    match syn::parse2::<syn::DeriveInput>(input) {
-        Ok(ast) => {
-            quote::quote! (
-                #[derive(::ink::Event, ::scale::Encode, ::scale::Decode)]
-                #[cfg_attr(feature = "std", derive(::ink::EventMetadata))]
-                #ast
-            )
-        }
-        Err(err) => err.to_compile_error(),
-    }
+pub fn generate(config: TokenStream2, input: TokenStream2) -> TokenStream2 {
+    ink_ir::Event::new(config, input)
+        .map(|event| generate_code(&event))
+        .unwrap_or_else(|err| err.to_compile_error())
 }
 
 /// Derives the `ink::Event` trait for the given `struct`.
