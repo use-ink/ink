@@ -165,7 +165,7 @@ mod contract_ref {
             );
 
             let contains_err_msg = match instantiate_result.unwrap_err() {
-                ink_e2e::Error::InstantiateDryRun(dry_run) => {
+                ink_e2e::Error::<E>::InstantiateDryRun(dry_run) => {
                     String::from_utf8_lossy(&dry_run.debug_message).contains(
                         "Received an error from the Flipper constructor while instantiating Flipper FlipperError"
                     )

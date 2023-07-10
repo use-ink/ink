@@ -1,9 +1,7 @@
 #![cfg_attr(not(feature = "std"), no_std, no_main)]
 
 pub use self::constructors_return_value::{
-    ConstructorError,
-    ConstructorsReturnValue,
-    ConstructorsReturnValueRef,
+    ConstructorError, ConstructorsReturnValue, ConstructorsReturnValueRef,
 };
 
 #[ink::contract]
@@ -259,7 +257,7 @@ pub mod constructors_return_value {
                 .await;
 
             assert!(
-                matches!(result, Err(ink_e2e::Error::InstantiateExtrinsic(_))),
+                matches!(result, Err(ink_e2e::Error::<E>::InstantiateExtrinsic(_))),
                 "Constructor should fail"
             );
 

@@ -1,9 +1,6 @@
 #![cfg_attr(not(feature = "std"), no_std, no_main)]
 
-pub use self::integration_flipper::{
-    Flipper,
-    FlipperRef,
-};
+pub use self::integration_flipper::{Flipper, FlipperRef};
 
 #[ink::contract]
 pub mod integration_flipper {
@@ -134,7 +131,7 @@ pub mod integration_flipper {
 
             assert!(matches!(
                 err_flip_call_result,
-                Err(ink_e2e::Error::CallExtrinsic(_))
+                Err(ink_e2e::Error::<E>::CallExtrinsic(_))
             ));
 
             let flipped_value = client
