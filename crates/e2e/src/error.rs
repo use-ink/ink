@@ -2,12 +2,11 @@ use pallet_contracts_primitives::{
     CodeUploadResult, ContractExecResult, ContractInstantiateResult,
 };
 
-/// An error occurred while interacting with the Substrate node.
+/// An error occurred while interacting with the E2E backend.
 ///
-/// We only convey errors here that are caused by the contract's
-/// testing logic. For anything concerning the node (like inability
-/// to communicate with it, fetch the nonce, account info, etc.) we
-/// panic.
+/// We only convey errors here that are caused by the contract's testing logic. For anything
+/// concerning the execution environment (like inability to communicate with node or runtime, fetch
+/// the nonce, account info, etc.) we panic.
 #[derive(Debug)]
 pub enum Error<AccountId, Balance, CodeHash, DispatchError> {
     /// No contract with the given name found in scope.
