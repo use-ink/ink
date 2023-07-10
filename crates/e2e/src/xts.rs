@@ -12,15 +12,28 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use super::{log_info, sr25519, ContractExecResult, ContractInstantiateResult, Signer};
+use super::{
+    log_info,
+    sr25519,
+    ContractExecResult,
+    ContractInstantiateResult,
+    Signer,
+};
 use ink_env::Environment;
 
 use core::marker::PhantomData;
 use pallet_contracts_primitives::CodeUploadResult;
-use sp_core::{Bytes, H256};
+use sp_core::{
+    Bytes,
+    H256,
+};
 use subxt::{
-    blocks::ExtrinsicEvents, config::ExtrinsicParams, ext::scale_encode, rpc_params,
-    utils::MultiAddress, OnlineClient,
+    blocks::ExtrinsicEvents,
+    config::ExtrinsicParams,
+    ext::scale_encode,
+    rpc_params,
+    utils::MultiAddress,
+    OnlineClient,
 };
 
 /// Copied from `sp_weight` to additionally implement `scale_encode::EncodeAsType`.

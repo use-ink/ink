@@ -1,12 +1,19 @@
 use ink::codegen::ContractCallBuilder;
-use ink_env::call::FromAccountId;
-use ink_env::Environment;
+use ink_env::{
+    call::FromAccountId,
+    Environment,
+};
 use ink_primitives::MessageResult;
 use pallet_contracts_primitives::{
-    CodeUploadResult, ContractExecResult, ContractInstantiateResult, ExecReturnValue,
+    CodeUploadResult,
+    ContractExecResult,
+    ContractInstantiateResult,
+    ExecReturnValue,
 };
-use std::fmt::Debug;
-use std::marker::PhantomData;
+use std::{
+    fmt::Debug,
+    marker::PhantomData,
+};
 
 /// Result of a contract instantiation.
 pub struct InstantiationResult<E: Environment, EventLog> {
@@ -32,7 +39,8 @@ impl<E: Environment, EventLog> InstantiationResult<E, EventLog> {
     }
 }
 
-/// We implement a custom `Debug` here, as to avoid requiring the trait bound `Debug` for `E`.
+/// We implement a custom `Debug` here, as to avoid requiring the trait bound `Debug` for
+/// `E`.
 impl<E: Environment, EventLog> Debug for InstantiationResult<E, EventLog>
 where
     E::AccountId: Debug,
@@ -58,7 +66,8 @@ pub struct UploadResult<E: Environment, EventLog> {
     pub events: EventLog,
 }
 
-/// We implement a custom `Debug` here, to avoid requiring the trait bound `Debug` for `E`.
+/// We implement a custom `Debug` here, to avoid requiring the trait bound `Debug` for
+/// `E`.
 impl<E: Environment, EventLog> Debug for UploadResult<E, EventLog>
 where
     E::Balance: Debug,
