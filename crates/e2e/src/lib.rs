@@ -21,15 +21,16 @@
 
 mod builders;
 mod client;
+mod contract_results;
 mod default_accounts;
 mod error;
 mod node_proc;
 mod xts;
 
 pub use client::{
-    CallBuilderFinal, CallDryRunResult, CallResult, Client, Error, InstantiationResult,
-    UploadResult,
+    CallBuilderFinal, CallDryRunResult, CallResult, Client, Error, UploadResult,
 };
+pub use contract_results::InstantiationResult;
 pub use default_accounts::*;
 pub use ink_e2e_macro::test;
 pub use node_proc::{TestNodeProcess, TestNodeProcessBuilder};
