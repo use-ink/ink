@@ -19,7 +19,10 @@ use proc_macro2::TokenStream as TokenStream2;
 use quote::ToTokens;
 use syn::spanned::Spanned as _;
 
-use crate::ir;
+use crate::{
+    error::ExtError,
+    ir,
+};
 
 /// A checked ink! event with its configuration.
 #[derive(Debug, PartialEq, Eq)]
@@ -31,7 +34,12 @@ pub struct Event {
 impl Event {
     /// Returns `Ok` if the input matches all requirements for an ink! event.
     pub fn new(config: TokenStream2, item: TokenStream2) -> Result<Self, syn::Error> {
-        let item = syn::parse2::<syn::ItemStruct>(item)?;
+        let item = syn::parse2::<syn::ItemStruct>(item.clone()).map_err(|err| {
+            err.into_combine(format_err_spanned!(
+                item,
+                "event definition must be a `struct`",
+            ))
+        })?;
         let parsed_config = syn::parse2::<crate::ast::AttributeArgs>(config)?;
         let config = EventConfig::try_from(parsed_config)?;
 
