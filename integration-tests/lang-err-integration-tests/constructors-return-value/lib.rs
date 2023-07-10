@@ -1,7 +1,9 @@
 #![cfg_attr(not(feature = "std"), no_std, no_main)]
 
 pub use self::constructors_return_value::{
-    ConstructorError, ConstructorsReturnValue, ConstructorsReturnValueRef,
+    ConstructorError,
+    ConstructorsReturnValue,
+    ConstructorsReturnValueRef,
 };
 
 #[ink::contract]
