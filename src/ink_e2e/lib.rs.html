@@ -111,6 +111,9 @@
 <a href="#110" id="110">110</a>
 <a href="#111" id="111">111</a>
 <a href="#112" id="112">112</a>
+<a href="#113" id="113">113</a>
+<a href="#114" id="114">114</a>
+<a href="#115" id="115">115</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -134,16 +137,20 @@
 
 </span><span class="kw">mod </span>builders;
 <span class="kw">mod </span>client;
+<span class="kw">mod </span>contract_results;
 <span class="kw">mod </span>default_accounts;
+<span class="kw">mod </span>error;
 <span class="kw">mod </span>node_proc;
 <span class="kw">mod </span>xts;
 
 <span class="kw">pub use </span>client::{
     CallBuilderFinal,
-    CallDryRunResult,
-    CallResult,
     Client,
     Error,
+};
+<span class="kw">pub use </span>contract_results::{
+    CallDryRunResult,
+    CallResult,
     InstantiationResult,
     UploadResult,
 };
@@ -163,7 +170,6 @@
 <span class="kw">pub use </span>tracing_subscriber;
 
 <span class="kw">use </span>pallet_contracts_primitives::{
-    CodeUploadResult,
     ContractExecResult,
     ContractInstantiateResult,
 };

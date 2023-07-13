@@ -759,7 +759,7 @@
         data: Vec&lt;u8&gt;,
         salt: Vec&lt;u8&gt;,
         signer: <span class="kw-2">&amp;</span>Signer&lt;C&gt;,
-    ) -&gt; ContractInstantiateResult&lt;C::AccountId, E::Balance, ()&gt; {
+    ) -&gt; ContractInstantiateResult&lt;E::AccountId, E::Balance, ()&gt; {
         <span class="kw">let </span>code = Code::Upload(code);
         <span class="kw">let </span>call_request = RpcInstantiateRequest::&lt;C, E&gt; {
             origin: subxt::tx::Signer::account_id(signer).clone(),
