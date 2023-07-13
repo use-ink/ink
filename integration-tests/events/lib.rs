@@ -77,6 +77,8 @@ pub mod events {
         }
     }
 
+    /// Implementing the trait from the `event_def_unused` crate includes all defined
+    /// events there.
     impl event_def_unused::FlipperTrait for Events {
         #[ink(message)]
         fn flip(&mut self) {
@@ -92,7 +94,7 @@ pub mod events {
         #[test]
         fn collects_specs_for_all_linked_and_used_events() {
             let event_specs = ink::metadata::collect_events();
-            assert_eq!(6, event_specs.len());
+            assert_eq!(7, event_specs.len());
 
             assert!(event_specs
                 .iter()
@@ -113,7 +115,9 @@ pub mod events {
                 .iter()
                 .any(|evt| evt.label() == &"InlineAnonymousEvent"));
 
-            assert!(!event_specs
+            // The event is not used in the code by being included in the metadata
+            // because we implement trait form `event_def_unused` crate.
+            assert!(event_specs
                 .iter()
                 .any(|evt| evt.label() == &"EventDefUnused"));
         }
