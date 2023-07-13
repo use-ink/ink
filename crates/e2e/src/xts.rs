@@ -267,7 +267,7 @@ where
         data: Vec<u8>,
         salt: Vec<u8>,
         signer: &Signer<C>,
-    ) -> ContractInstantiateResult<C::AccountId, E::Balance, ()> {
+    ) -> ContractInstantiateResult<E::AccountId, E::Balance, ()> {
         let code = Code::Upload(code);
         let call_request = RpcInstantiateRequest::<C, E> {
             origin: subxt::tx::Signer::account_id(signer).clone(),
