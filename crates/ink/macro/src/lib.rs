@@ -1385,7 +1385,8 @@ synstructure::decl_derive!(
     ///     }
     /// }
     ///
-    /// assert_ne!(<MyEvent as ink::Event>::SIGNATURE_TOPIC, <other_event::MyEvent as ink::Event>::SIGNATURE_TOPIC);
+    /// use ink::env::Event;
+    /// assert_ne!(<MyEvent as Event>::SIGNATURE_TOPIC, <other_event::MyEvent as Event>::SIGNATURE_TOPIC);
     /// ```
     ///
     /// ## Anonymous Events
