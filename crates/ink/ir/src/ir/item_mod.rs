@@ -316,7 +316,7 @@ impl ItemMod {
                             message.callable().span(),
                             "encountered ink! message with wildcard complement `selector = @` but no \
                              wildcard `selector = _` defined"
-                        ))
+                        ));
                     }
                 }
             }

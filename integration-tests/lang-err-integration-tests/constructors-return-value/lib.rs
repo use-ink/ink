@@ -259,7 +259,7 @@ pub mod constructors_return_value {
                 .await;
 
             assert!(
-                matches!(result, Err(ink_e2e::Error::InstantiateExtrinsic(_))),
+                matches!(result, Err(ink_e2e::Error::<ink::env::DefaultEnvironment>::InstantiateExtrinsic(_))),
                 "Constructor should fail"
             );
 

@@ -55,7 +55,7 @@ impl TryFrom<ast::AttributeArgs> for E2EConfig {
                     return Err(format_err_spanned!(
                         arg,
                         "expected a string literal for `additional_contracts` ink! E2E test configuration argument",
-                    ))
+                    ));
                 }
             } else if arg.name.is_ident("environment") {
                 if let Some((_, ast)) = environment {
@@ -67,7 +67,7 @@ impl TryFrom<ast::AttributeArgs> for E2EConfig {
                     return Err(format_err_spanned!(
                         arg,
                         "expected a path for `environment` ink! E2E test configuration argument",
-                    ))
+                    ));
                 }
             } else {
                 return Err(format_err_spanned!(

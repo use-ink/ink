@@ -21,16 +21,20 @@
 
 mod builders;
 mod client;
+mod contract_results;
 mod default_accounts;
+mod error;
 mod node_proc;
 mod xts;
 
 pub use client::{
     CallBuilderFinal,
-    CallDryRunResult,
-    CallResult,
     Client,
     Error,
+};
+pub use contract_results::{
+    CallDryRunResult,
+    CallResult,
     InstantiationResult,
     UploadResult,
 };
@@ -50,7 +54,6 @@ pub use tokio;
 pub use tracing_subscriber;
 
 use pallet_contracts_primitives::{
-    CodeUploadResult,
     ContractExecResult,
     ContractInstantiateResult,
 };
