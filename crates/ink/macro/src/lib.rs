@@ -1342,8 +1342,55 @@ synstructure::decl_derive!(
     ///     b: [u8; 32],
     /// }
     ///
+    /// #[derive(Event, Encode)]
+    /// #[ink(anonymous)] // anonymous events do not have a signature topic
+    /// struct MyAnonEvent {
+    ///     a: u32,
+    ///     #[ink(topic)]
+    ///     b: [u8; 32],
+    /// }
+    ///
     /// ink_env::emit_event::<DefaultEnvironment, _>(MyEvent { a: 42, b: [0x42; 32] });
+    /// ink_env::emit_event::<DefaultEnvironment, _>(MyAnonEvent { a: 42, b: [0x42; 32] });
     /// ```
+    ///
+    /// # The Signature Topic
+    ///
+    /// By default, the [`ink::Event::SIGNATURE_TOPIC`] is calculated as follows:
+    ///
+    /// `blake2b("EventStructName(field1_type_name,field2_type_name)")`
+    ///
+    /// The hashing of the topic is done at codegen time in the derive macro, and as such only has
+    /// access to the **names** of the field types as they appear in the code. As such, if the
+    /// name of a field of a struct changes, the signature topic will change too, even if the
+    /// concrete type itself has not changed. This can happen with type aliases, generics, or a
+    /// change in the use of a `path::to::Type` qualification.
+    ///
+    /// Practically this means that two otherwise identical event definitions will have different
+    /// signature topics if the name of a field type differs. For example, the following two events
+    /// will have different signature topics:
+    ///
+    /// ```
+    /// #[derive(ink::Event, scale::Encode)]
+    /// pub struct MyEvent {
+    ///     a: u32,
+    /// }
+    ///
+    /// mod other_event {
+    ///     type MyU32 = u32;
+    ///
+    ///     #[derive(ink::Event, scale::Encode)]
+    ///     pub struct MyEvent {
+    ///         a: MyU32,
+    ///     }
+    /// }
+    ///
+    /// assert_ne!(<MyEvent as ink::Event>::SIGNATURE_TOPIC, <other_event::MyEvent as ink::Event>::SIGNATURE_TOPIC);
+    /// ```
+    ///
+    /// ## Anonymous Events
+    ///
+    /// If the event is annotated with `#[ink(anonymous)]` then no signature topic is generated.
     event::event_derive
 );
 
