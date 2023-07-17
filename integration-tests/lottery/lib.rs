@@ -16,8 +16,8 @@
 #[ink::contract]
 mod lottery {
     use ink::env::hash::Keccak256;
-    use ink::storage::{Mapping};
     use ink::prelude::vec::Vec;
+    use ink::storage::Mapping;
 
     /// Defines the storage of your contract.
     /// Add new fields to the below struct in order
@@ -73,7 +73,7 @@ mod lottery {
                 owner: [0u8; 32].into(),
                 running: false,
                 players: Vec::new(),
-                entries: Mapping::default()
+                entries: Mapping::default(),
             }
         }
     }
@@ -161,7 +161,7 @@ mod lottery {
 
             self.env().emit_event(Entered {
                 player: caller,
-                value
+                value,
             });
 
             Ok(())
