@@ -8,16 +8,18 @@
 //! The lottery contract allows players to enter the lottery by sending a value.
 //! The lottery can be started and stopped by the owner.
 //! Anyone can pick a winner and the pot is transferred to the winner.
-//! Contract uses pseudo random number generator to pick a winner. Please dont use this in production.
-//!
+//! Contract uses pseudo random number generator to pick a winner. Please dont use this in
+//! production.
 
 #![cfg_attr(not(feature = "std"), no_std, no_main)]
 
 #[ink::contract]
 mod lottery {
-    use ink::env::hash::Keccak256;
-    use ink::prelude::vec::Vec;
-    use ink::storage::Mapping;
+    use ink::{
+        env::hash::Keccak256,
+        prelude::vec::Vec,
+        storage::Mapping,
+    };
 
     /// Defines the storage of your contract.
     /// Add new fields to the below struct in order
@@ -118,7 +120,8 @@ mod lottery {
             self.entries.get(caller)
         }
 
-        /// Generates a seed based on the list of players and the block number and timestamp
+        /// Generates a seed based on the list of players and the block number and
+        /// timestamp
         fn seed(&self) -> u64 {
             let hash = self.env().hash_encoded::<Keccak256, _>(&self.players);
             let num = u64::from_be_bytes(hash[0..8].try_into().unwrap());
@@ -142,18 +145,18 @@ mod lottery {
         #[ink(message, payable)]
         pub fn enter(&mut self) -> Result<()> {
             if !self.running {
-                return Err(Error::LotteryNotRunning);
+                return Err(Error::LotteryNotRunning)
             }
             let caller = self.env().caller();
             let balance: Option<Balance> = self.entries.get(caller);
 
             if balance.is_some() {
-                return Err(Error::PlayerAlreadyInLottery);
+                return Err(Error::PlayerAlreadyInLottery)
             }
 
             let value: Balance = self.env().transferred_value();
             if value < 1 {
-                return Err(Error::NoValueSent);
+                return Err(Error::NoValueSent)
             }
 
             self.players.push(caller);
@@ -177,7 +180,7 @@ mod lottery {
             let amount: Balance = self.env().balance();
 
             if self.env().transfer(winner, amount).is_err() {
-                return Err(Error::ErrTransfer);
+                return Err(Error::ErrTransfer)
             }
 
             for player in self.players.iter() {
@@ -194,7 +197,7 @@ mod lottery {
         #[ink(message)]
         pub fn start_lottery(&mut self) -> Result<()> {
             if self.env().caller() != self.owner {
-                return Err(Error::CallerNotOwner);
+                return Err(Error::CallerNotOwner)
             }
             self.running = true;
 
@@ -204,7 +207,7 @@ mod lottery {
         #[ink(message)]
         pub fn stop_lottery(&mut self) -> Result<()> {
             if self.env().caller() != self.owner {
-                return Err(Error::CallerNotOwner);
+                return Err(Error::CallerNotOwner)
             }
             self.running = false;
 
