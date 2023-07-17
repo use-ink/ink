@@ -667,9 +667,8 @@ pub fn trait_definition(attr: TokenStream, item: TokenStream) -> TokenStream {
 ///     pub topic: [u8; 32],
 /// }
 ///
-/// // The `#[ink(anonymous)]` attribute means no signature topic will be emitted for the event.
-/// #[ink::event]
-/// #[ink(anonymous)]
+/// // Setting `anonymous = true` means no signature topic will be emitted for the event.
+/// #[ink::event(anonymous = true)]
 /// pub struct MyAnonEvent {
 ///     pub field: u32,
 ///     #[ink(topic)]
