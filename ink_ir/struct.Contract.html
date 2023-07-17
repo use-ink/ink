@@ -8,8 +8,8 @@ mod my_contract {
     /* ink! and Rust definitions */
 }
 </code></pre></div></div></details><h2 id="implementations" class="small-section-header">Implementations<a href="#implementations" class="anchor">§</a></h2><div id="implementations-list"><details class="toggle implementors-toggle" open><summary><section id="impl-Contract" class="impl"><a class="srclink rightside" href="../src/ink_ir/ir/contract.rs.html#46-107">source</a><a href="#impl-Contract" class="anchor">§</a><h3 class="code-header">impl <a class="struct" href="struct.Contract.html" title="struct ink_ir::Contract">Contract</a></h3></section></summary><div class="impl-items"><details class="toggle method-toggle" open><summary><section id="method.new" class="method"><a class="srclink rightside" href="../src/ink_ir/ir/contract.rs.html#61-73">source</a><h4 class="code-header">pub fn <a href="#method.new" class="fn">new</a>(
-    ink_config: <a class="struct" href="https://docs.rs/proc-macro2/1.0.65/proc_macro2/struct.TokenStream.html" title="struct proc_macro2::TokenStream">TokenStream2</a>,
-    ink_module: <a class="struct" href="https://docs.rs/proc-macro2/1.0.65/proc_macro2/struct.TokenStream.html" title="struct proc_macro2::TokenStream">TokenStream2</a>
+    ink_config: <a class="struct" href="https://docs.rs/proc-macro2/1.0.66/proc_macro2/struct.TokenStream.html" title="struct proc_macro2::TokenStream">TokenStream2</a>,
+    ink_module: <a class="struct" href="https://docs.rs/proc-macro2/1.0.66/proc_macro2/struct.TokenStream.html" title="struct proc_macro2::TokenStream">TokenStream2</a>
 ) -&gt; <a class="enum" href="https://doc.rust-lang.org/1.69.0/core/result/enum.Result.html" title="enum core::result::Result">Result</a>&lt;Self, <a class="struct" href="https://docs.rs/syn/2.0.26/syn/error/struct.Error.html" title="struct syn::error::Error">Error</a>&gt;</h4></section></summary><div class="docblock"><p>Creates a new ink! contract from the given ink! configuration and module
 token streams.</p>
 <p>The ink! macro should use this constructor in order to setup ink!.</p>
