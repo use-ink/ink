@@ -19,7 +19,7 @@ name = "ink_e2e_macro"
 proc-macro = true
 
 [dependencies]
-ink_ir = { version = "4.2.0", path = "../../ink/ir" }
+ink_ir = { version = "=4.2.0", path = "../../ink/ir" }
 cargo_metadata = "0.15.3"
 contract-build = "3.0.0"
 derive_more = "0.99.17"
