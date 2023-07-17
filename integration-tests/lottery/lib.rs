@@ -173,7 +173,7 @@ mod lottery {
         #[ink(message)]
         pub fn pick_winner(&mut self) -> Result<()> {
             if self.players.is_empty() {
-                return Err(Error::NoEntries);
+                return Err(Error::NoEntries)
             }
             let winner_index = self.random() % self.players.len() as u64;
             let winner = self.players[winner_index as usize];
