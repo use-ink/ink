@@ -8,8 +8,8 @@
 //! The lottery contract allows players to enter the lottery by sending a value.
 //! The lottery can be started and stopped by the owner.
 //! Anyone can pick a winner and the pot is transferred to the winner.
-//! Contract uses pseudo random number generator to pick a winner. Please dont use this in
-//! production.
+//! Contract uses pseudo random number generator to pick a winner.
+//! Please don't use this in production.
 
 #![cfg_attr(not(feature = "std"), no_std, no_main)]
 
