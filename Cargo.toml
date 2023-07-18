@@ -80,19 +80,19 @@ sp-runtime = { version = "24.0.0", default-features = false }
 sp-weights = { version = "20.0.0", default-features = false }
 
 # Local dependencies
-ink = { version = "4.2.0", path = "crates/ink", default-features = false }
-ink_allocator = { version = "4.2.0", path = "crates/allocator", default-features = false }
-ink_codegen = { version = "4.2.0", path = "crates/ink/codegen", default-features = false }
-ink_e2e_macro = { version = "4.2.0", path = "crates/e2e/macro", default-features = false }
-ink_engine = { version = "4.2.0", path = "crates/engine", default-features = false }
+ink = { version = "=4.2.0", path = "crates/ink", default-features = false }
+ink_allocator = { version = "=4.2.0", path = "crates/allocator", default-features = false }
+ink_codegen = { version = "=4.2.0", path = "crates/ink/codegen", default-features = false }
+ink_e2e_macro = { version = "=4.2.0", path = "crates/e2e/macro", default-features = false }
+ink_engine = { version = "=4.2.0", path = "crates/engine", default-features = false }
 ink_env = { version = "4.2.0", path = "crates/env", default-features = false }
 ink_ir = { version = "4.2.0", path = "crates/ink/ir", default-features = false }
-ink_macro = { version = "4.2.0", path = "crates/ink/macro", default-features = false }
-ink_metadata = { version = "4.2.0", path = "crates/metadata", default-features = false }
-ink_prelude = { version = "4.2.0", path = "crates/prelude", default-features = false }
-ink_primitives = { version = "4.2.0", path = "crates/primitives", default-features = false }
-ink_storage = { version = "4.2.0", path = "crates/storage", default-features = false }
-ink_storage_traits = { version = "4.2.0", path = "crates/storage/traits", default-features = false }
+ink_macro = { version = "=4.2.0", path = "crates/ink/macro", default-features = false }
+ink_metadata = { version = "=4.2.0", path = "crates/metadata", default-features = false }
+ink_prelude = { version = "=4.2.0", path = "crates/prelude", default-features = false }
+ink_primitives = { version = "=4.2.0", path = "crates/primitives", default-features = false }
+ink_storage = { version = "=4.2.0", path = "crates/storage", default-features = false }
+ink_storage_traits = { version = "=4.2.0", path = "crates/storage/traits", default-features = false }
 
 [profile.release]
 panic = "abort"
