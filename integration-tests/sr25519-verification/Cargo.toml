@@ -1,7 +1,7 @@
 [package]
 name = "sr25519_verification"
 version = "4.1.0"
-authors = ["George Oastler <goastler4@gmail.com>"]
+authors = ["Parity Technologies <admin@parity.io>", "George Oastler <goastler4@gmail.com>"]
 edition = "2021"
 publish = false
 
