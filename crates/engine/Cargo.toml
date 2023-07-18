@@ -16,7 +16,7 @@ include = ["Cargo.toml", "src/**/*.rs", "README.md", "LICENSE"]
 
 [dependencies]
 ink_primitives = { workspace = true }
-scale = { package = "parity-scale-codec", version = "3.4", default-features = false, features = ["derive"] }
+scale = { package = "parity-scale-codec", workspace = true }
 derive_more = { workspace = true, features = ["from", "display"] }
 
 sha2 = { workspace = true }
