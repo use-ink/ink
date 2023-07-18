@@ -1,17 +1,17 @@
 [package]
 name = "ink_prelude"
-version = "4.2.0"
+version.workspace = true
 authors = ["Parity Technologies <admin@parity.io>", "Robin Freyler <robin@parity.io>"]
-edition = "2021"
+edition.workspace = true
 
-license = "Apache-2.0"
+license.workspace = true
 readme = "README.md"
-repository = "https://github.com/paritytech/ink"
+repository.workspace = true
 documentation = "https://docs.rs/ink_prelude/"
-homepage = "https://www.parity.io/"
+homepage.workspace = true
 description = "[ink!] Common API for no_std and std to access alloc crate types."
-keywords = ["wasm", "parity", "webassembly", "blockchain", "edsl"]
-categories = ["no-std", "embedded"]
+keywords.workspace = true
+categories.workspace = true
 include = ["/Cargo.toml", "src/**/*.rs", "/README.md", "/LICENSE"]
 
 [dependencies]

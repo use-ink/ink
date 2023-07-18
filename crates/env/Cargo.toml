@@ -1,18 +1,18 @@
 [package]
 name = "ink_env"
-version = "4.2.0"
+version.workspace = true
 authors = ["Parity Technologies <admin@parity.io>", "Robin Freyler <robin@parity.io>"]
-edition = "2021"
+edition.workspace = true
 rust-version = "1.68"
 
-license = "Apache-2.0"
+license.workspace = true
 readme = "README.md"
-repository = "https://github.com/paritytech/ink"
+repository.workspace = true
 documentation = "https://docs.rs/ink_env/"
-homepage = "https://www.parity.io/"
+homepage.workspace = true
 description = "[ink!] Low-level interface for interacting with the smart contract Wasm executor."
-keywords = ["wasm", "parity", "webassembly", "blockchain", "edsl"]
-categories = ["no-std", "embedded"]
+keywords.workspace = true
+categories.workspace = true
 include = ["Cargo.toml", "src/**/*.rs", "README.md", "LICENSE"]
 
 [dependencies]

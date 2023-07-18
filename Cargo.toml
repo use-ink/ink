@@ -1,26 +1,34 @@
 [workspace]
 resolver = "2"
 members = [
-    "crates/ink",
-    "crates/metadata",
     "crates/allocator",
-    "crates/ink",
-    "crates/ink/macro",
-    "crates/ink/ir",
-    "crates/ink/codegen",
-    "crates/ink/macro",
-    "crates/prelude",
-    "crates/primitives",
     "crates/e2e",
     "crates/e2e/macro",
     "crates/engine",
     "crates/env",
+    "crates/ink",
+    "crates/ink/codegen",
+    "crates/ink/ir",
+    "crates/ink/macro",
+    "crates/metadata",
+    "crates/prelude",
+    "crates/primitives",
     "crates/storage",
     "crates/storage/traits",
 ]
 exclude = [
-    "integration-tests/",
+    "integration-tests",
 ]
+
+[workspace.package]
+authors = ["Parity Technologies <admin@parity.io>"]
+categories = ["no-std", "embedded"]
+edition = "2021"
+homepage = "https://www.parity.io/"
+keywords = ["wasm", "parity", "webassembly", "blockchain", "edsl"]
+license = "Apache-2.0"
+repository = "https://github.com/paritytech/ink"
+version = "4.2.0"
 
 [profile.release]
 panic = "abort"
