@@ -15,10 +15,10 @@ categories.workspace = true
 include = ["/Cargo.toml", "src/**/*.rs", "/README.md", "/LICENSE"]
 
 [dependencies]
-ink_e2e_macro = { workspace = true }
-ink = { workspace = true }
-ink_env = { workspace = true }
-ink_primitives = { workspace = true }
+ink_e2e_macro = { workspace = true, default-features = true }
+ink = { workspace = true, default-features = true }
+ink_env = { workspace = true, default-features = true }
+ink_primitives = { workspace = true, default-features = true }
 
 funty = { workspace = true }
 impl-serde = { workspace = true }

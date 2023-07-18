@@ -29,7 +29,7 @@ either = { workspace = true }
 blake2 = { workspace = true }
 heck = { workspace = true }
 scale = { package = "parity-scale-codec", version = "3.4", default-features = false, features = ["derive"] }
-impl-serde = { workspace = true }
+impl-serde = { workspace = true, default-features = true }
 
 serde = { workspace = true, features = ["derive"] }
 serde_json = { workspace = true }

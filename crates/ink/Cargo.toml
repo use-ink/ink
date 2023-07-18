@@ -27,7 +27,7 @@ scale = { package = "parity-scale-codec", version = "3.4", default-features = fa
 derive_more = { workspace = true, features = ["from"] }
 
 [dev-dependencies]
-ink_ir = { workspace = true }
+ink_ir = { workspace = true, default-features = true }
 ink_metadata = { workspace = true }
 
 trybuild = { workspace = true, features = ["diff"] }

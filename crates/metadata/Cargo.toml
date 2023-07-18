@@ -19,7 +19,7 @@ ink_prelude = { workspace = true }
 ink_primitives = { workspace = true }
 
 serde = { workspace = true, features = ["derive", "alloc"] }
-impl-serde = { workspace = true }
+impl-serde = { workspace = true, default-features = true }
 derive_more = { workspace = true, features = ["from"] }
 scale-info = { workspace = true, features = ["derive", "serde", "decode", "schema"] }
 schemars = { workspace = true }

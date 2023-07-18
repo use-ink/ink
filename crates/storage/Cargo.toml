@@ -30,7 +30,7 @@ array-init = { workspace = true }
 [dev-dependencies]
 quickcheck = { workspace = true }
 quickcheck_macros = { workspace = true }
-itertools = { workspace = true }
+itertools = { workspace = true, default-features = true }
 
 ink = { workspace = true }
 

@@ -26,12 +26,12 @@ proc-macro2 = { workspace = true }
 quote = { workspace = true }
 
 [dev-dependencies]
-ink_env = { workspace = true }
-ink = { workspace = true }
-ink_metadata = { workspace = true }
-ink_prelude = { workspace = true }
-ink_storage = { workspace = true }
-scale-info = { workspace = true }
+ink_env = { workspace = true, default-features = true }
+ink = { workspace = true, default-features = true }
+ink_metadata = { workspace = true, default-features = true }
+ink_prelude = { workspace = true, default-features = true }
+ink_storage = { workspace = true, default-features = true }
+scale-info = { workspace = true, features = ["derive"] }
 
 [lib]
 name = "ink_macro"
