@@ -15,11 +15,11 @@ categories.workspace = true
 include = ["Cargo.toml", "src/**/*.rs", "README.md", "LICENSE"]
 
 [dependencies]
-cfg-if = "1.0"
+cfg-if = { workspace = true }
 
 [dev-dependencies]
-quickcheck = "1"
-quickcheck_macros = "1"
+quickcheck = { workspace = true }
+quickcheck_macros = { workspace = true }
 
 [features]
 default = ["std"]

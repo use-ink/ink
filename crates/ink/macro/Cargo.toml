@@ -15,23 +15,23 @@ categories.workspace = true
 include = ["Cargo.toml", "src/**/*.rs", "README.md", "LICENSE"]
 
 [dependencies]
-ink_ir = { version = "=4.2.0", path = "../ir", default-features = false }
-ink_codegen = { version = "=4.2.0", path = "../codegen", default-features = false }
-ink_primitives = { version = "=4.2.0", path = "../../primitives/", default-features = false }
+ink_ir = { workspace = true }
+ink_codegen = { workspace = true }
+ink_primitives = { workspace = true }
 
 scale = { package = "parity-scale-codec", version = "3.4", default-features = false, features = ["derive"] }
-syn = "2"
-synstructure = "0.13.0"
-proc-macro2 = "1"
-quote = "1"
+syn = { workspace = true }
+synstructure = { workspace = true }
+proc-macro2 = { workspace = true }
+quote = { workspace = true }
 
 [dev-dependencies]
-ink_env = { path = "../../env" }
-ink = { path = ".." }
-ink_metadata = { path = "../../metadata" }
-ink_prelude = { path = "../../prelude" }
-ink_storage = { path = "../../storage" }
-scale-info = { version = "2.6", default-features = false, features = ["derive"] }
+ink_env = { workspace = true }
+ink = { workspace = true }
+ink_metadata = { workspace = true }
+ink_prelude = { workspace = true }
+ink_storage = { workspace = true }
+scale-info = { workspace = true }
 
 [lib]
 name = "ink_macro"

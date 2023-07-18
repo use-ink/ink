@@ -15,14 +15,14 @@ categories.workspace = true
 include = ["Cargo.toml", "src/**/*.rs", "README.md", "LICENSE"]
 
 [dependencies]
-ink_metadata = { version = "=4.2.0", path = "../../metadata", default-features = false, features = ["derive"], optional = true }
-ink_primitives = { version = "=4.2.0", path = "../../primitives", default-features = false }
-ink_prelude = { version = "=4.2.0", path = "../../prelude", default-features = false }
+ink_metadata = { workspace = true, features = ["derive"], optional = true }
+ink_primitives = { workspace = true }
+ink_prelude = { workspace = true }
 scale = { package = "parity-scale-codec", version = "3.4", default-features = false, features = ["derive"] }
-scale-info = { version = "2.6", default-features = false, features = ["derive"], optional = true }
+scale-info = { workspace = true, features = ["derive"], optional = true }
 
 [dev-dependencies]
-paste = "1.0"
+paste = { workspace = true }
 
 [features]
 default = ["std"]

@@ -15,32 +15,32 @@ categories.workspace = true
 include = ["/Cargo.toml", "src/**/*.rs", "/README.md", "/LICENSE"]
 
 [dependencies]
-ink_e2e_macro = { version = "=4.2.0", path = "./macro" }
-ink = { version = "=4.2.0", path = "../ink" }
-ink_env = { version = "=4.2.0", path = "../env" }
-ink_primitives = { version = "=4.2.0", path = "../primitives" }
+ink_e2e_macro = { workspace = true }
+ink = { workspace = true }
+ink_env = { workspace = true }
+ink_primitives = { workspace = true }
 
-funty = "2.0.0"
-impl-serde = { version = "0.4.0", default-features = false }
-jsonrpsee = { version = "0.18.0", features = ["ws-client"] }
-serde = { version = "1.0.137", default-features = false, features = ["derive"] }
-serde_json = { version = "1.0.81" }
-tokio = { version = "1.18.2", features = ["rt-multi-thread"] }
-tracing = "0.1.37"
-tracing-subscriber = { version = "0.3.17", features = ["env-filter"] }
+funty = { workspace = true }
+impl-serde = { workspace = true }
+jsonrpsee = { workspace = true, features = ["ws-client"] }
+serde = { workspace = true, features = ["derive"] }
+serde_json = { workspace = true }
+tokio = { workspace = true, features = ["rt-multi-thread"] }
+tracing = { workspace = true }
+tracing-subscriber = { workspace = true, features = ["env-filter"] }
 scale = { package = "parity-scale-codec", version = "3.4", default-features = false, features = ["derive"] }
-subxt = "0.29.0"
+subxt = { workspace = true }
 
 # Substrate
-pallet-contracts-primitives = "24.0.0"
-sp-core = { version = "21.0.0", default-features = false }
-sp-keyring = "24.0.0"
-sp-runtime = "24.0.0"
-sp-weights = "20.0.0"
+pallet-contracts-primitives = { workspace = true }
+sp-core = { workspace = true }
+sp-keyring = { workspace = true }
+sp-runtime = { workspace = true }
+sp-weights = { workspace = true }
 
 [dev-dependencies]
 # Required for the doctest of `MessageBuilder::call`
-scale-info = { version = "2.6", default-features = false, features = ["derive"] }
+scale-info = { workspace = true, features = ["derive"] }
 
 [features]
 default = ["std"]

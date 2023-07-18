@@ -16,18 +16,18 @@ categories.workspace = true
 include = ["Cargo.toml", "src/**/*.rs", "README.md", "LICENSE"]
 
 [dependencies]
-ink_allocator = { version = "=4.2.0", path = "../allocator", default-features = false }
-ink_storage_traits = { version = "=4.2.0", path = "../storage/traits", default-features = false }
-ink_prelude = { version = "=4.2.0", path = "../prelude", default-features = false }
-ink_primitives = { version = "=4.2.0", path = "../primitives", default-features = false }
+ink_allocator = { workspace = true }
+ink_storage_traits = { workspace = true }
+ink_prelude = { workspace = true }
+ink_primitives = { workspace = true }
 
 scale = { package = "parity-scale-codec", version = "3.4", default-features = false, features = ["derive"] }
-derive_more = { version = "0.99", default-features = false, features = ["from", "display"] }
-num-traits = { version = "0.2", default-features = false, features = ["i128"] }
-cfg-if = "1.0"
-paste = "1.0"
-arrayref = "0.3"
-static_assertions = "1.1"
+derive_more = { workspace = true, features = ["from", "display"] }
+num-traits = { workspace = true, features = ["i128"] }
+cfg-if = { workspace = true }
+paste = { workspace = true }
+arrayref = { workspace = true }
+static_assertions = { workspace = true }
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
 rlibc = "1"
@@ -36,23 +36,23 @@ rlibc = "1"
 ink_engine = { version = "=4.2.0", path = "../engine/", optional = true }
 
 # Hashes for the off-chain environment.
-sha2 = { version = "0.10", optional = true }
-sha3 = { version = "0.10", optional = true }
-blake2 = { version = "0.10", optional = true }
+sha2 = { workspace = true, optional = true }
+sha3 = { workspace = true, optional = true }
+blake2 = { workspace = true, optional = true }
 
 # ECDSA for the off-chain environment.
-secp256k1 = { version = "0.27.0", features = ["recovery", "global-context"], optional = true }
+secp256k1 = { workspace = true, features = ["recovery", "global-context"], optional = true }
 
 # Only used in the off-chain environment.
 #
 # Sadly couldn't be marked as dev-dependency.
 # Never use this crate outside the off-chain environment!
-scale-decode = { version = "0.7.0", default-features = false, optional = true }
-scale-encode = { version = "0.3.0", default-features = false, optional = true }
-scale-info = { version = "2.6", default-features = false, features = ["derive"], optional = true }
+scale-decode = { workspace = true, optional = true }
+scale-encode = { workspace = true, optional = true }
+scale-info = { workspace = true, features = ["derive"], optional = true }
 
 [dev-dependencies]
-ink = { path = "../ink" }
+ink = { workspace = true }
 
 [features]
 default = ["std"]
