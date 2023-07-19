@@ -231,6 +231,9 @@
 <a href="#230" id="230">230</a>
 <a href="#231" id="231">231</a>
 <a href="#232" id="232">232</a>
+<a href="#233" id="233">233</a>
+<a href="#234" id="234">234</a>
+<a href="#235" id="235">235</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -367,21 +370,21 @@
 
         <span class="comment">// Wait for RPC port to be logged (it&#39;s logged to stderr):
         </span><span class="kw">let </span>stderr = proc.stderr.take().unwrap();
-        <span class="kw">let </span>ws_port = find_substrate_port_from_output(stderr);
-        <span class="kw">let </span>ws_url = <span class="macro">format!</span>(<span class="string">&quot;ws://127.0.0.1:{ws_port}&quot;</span>);
+        <span class="kw">let </span>port = find_substrate_port_from_output(stderr);
+        <span class="kw">let </span>url = <span class="macro">format!</span>(<span class="string">&quot;ws://127.0.0.1:{port}&quot;</span>);
 
         <span class="comment">// Connect to the node with a `subxt` client:
-        </span><span class="kw">let </span>client = OnlineClient::from_url(ws_url.clone()).<span class="kw">await</span>;
+        </span><span class="kw">let </span>client = OnlineClient::from_url(url.clone()).<span class="kw">await</span>;
         <span class="kw">match </span>client {
             <span class="prelude-val">Ok</span>(client) =&gt; {
                 <span class="prelude-val">Ok</span>(TestNodeProcess {
                     proc,
                     client,
-                    url: ws_url.clone(),
+                    url: url.clone(),
                 })
             }
             <span class="prelude-val">Err</span>(err) =&gt; {
-                <span class="kw">let </span>err = <span class="macro">format!</span>(<span class="string">&quot;Failed to connect to node rpc at {ws_url}: {err}&quot;</span>);
+                <span class="kw">let </span>err = <span class="macro">format!</span>(<span class="string">&quot;Failed to connect to node rpc at {url}: {err}&quot;</span>);
                 <span class="macro">tracing::error!</span>(<span class="string">&quot;{}&quot;</span>, err);
                 proc.kill().map_err(|e| {
                     <span class="macro">format!</span>(<span class="string">&quot;Error killing substrate process &#39;{}&#39;: {}&quot;</span>, proc.id(), e)
@@ -405,6 +408,9 @@
             // substrate).
             </span><span class="kw">let </span>line_end = line
                 .rsplit_once(<span class="string">&quot;Listening for new connections on 127.0.0.1:&quot;</span>)
+                .or_else(|| {
+                    line.rsplit_once(<span class="string">&quot;Running JSON-RPC WS server: addr=127.0.0.1:&quot;</span>)
+                })
                 .or_else(|| line.rsplit_once(<span class="string">&quot;Running JSON-RPC server: addr=127.0.0.1:&quot;</span>))
                 .map(|(<span class="kw">_</span>, port_str)| port_str)<span class="question-mark">?</span>;
 
@@ -414,7 +420,7 @@
             <span class="comment">// expect to have a number here (the chars after &#39;127.0.0.1:&#39;) and parse them
             // into a u16.
             </span><span class="kw">let </span>port_num = port_str.parse().unwrap_or_else(|<span class="kw">_</span>| {
-                <span class="macro">panic!</span>(<span class="string">&quot;valid port expected for log line, got &#39;{port_str}&#39;&quot;</span>)
+                <span class="macro">panic!</span>(<span class="string">&quot;valid port expected for tracing line, got &#39;{port_str}&#39;&quot;</span>)
             });
 
             <span class="prelude-val">Some</span>(port_num)
