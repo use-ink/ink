@@ -654,7 +654,7 @@ pub fn trait_definition(attr: TokenStream, item: TokenStream) -> TokenStream {
 /// contract.
 ///
 /// By default, a signature topic will be generated for the event. This allows consumers
-/// to filter and identify events of this type. Marking an event with `#[ink(anonymous)]`
+/// to filter and identify events of this type. Marking an event with `anonymous = true`
 /// means no signature topic will be generated or emitted.
 ///
 /// # Examples
