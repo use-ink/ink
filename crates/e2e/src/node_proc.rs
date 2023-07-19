@@ -14,21 +14,11 @@
 
 use sp_keyring::AccountKeyring;
 use std::{
-    ffi::{
-        OsStr,
-        OsString,
-    },
-    io::{
-        BufRead,
-        BufReader,
-        Read,
-    },
+    ffi::{OsStr, OsString},
+    io::{BufRead, BufReader, Read},
     process,
 };
-use subxt::{
-    Config,
-    OnlineClient,
-};
+use subxt::{Config, OnlineClient};
 
 /// Spawn a local substrate node for testing.
 pub struct TestNodeProcess<R: Config> {
@@ -38,8 +28,8 @@ pub struct TestNodeProcess<R: Config> {
 }
 
 impl<R> Drop for TestNodeProcess<R>
-    where
-        R: Config,
+where
+    R: Config,
 {
     fn drop(&mut self) {
         let _ = self.kill();
@@ -47,13 +37,13 @@ impl<R> Drop for TestNodeProcess<R>
 }
 
 impl<R> TestNodeProcess<R>
-    where
-        R: Config,
+where
+    R: Config,
 {
     /// Construct a builder for spawning a test node process.
     pub fn build<S>(program: S) -> TestNodeProcessBuilder<R>
-        where
-            S: AsRef<OsStr> + Clone,
+    where
+        S: AsRef<OsStr> + Clone,
     {
         TestNodeProcessBuilder::new(program)
     }
@@ -64,7 +54,7 @@ impl<R> TestNodeProcess<R>
         if let Err(err) = self.proc.kill() {
             let err = format!("Error killing node process {}: {}", self.proc.id(), err);
             log::error!("{}", err);
-            return Err(err)
+            return Err(err);
         }
         Ok(())
     }
@@ -88,12 +78,12 @@ pub struct TestNodeProcessBuilder<R> {
 }
 
 impl<R> TestNodeProcessBuilder<R>
-    where
-        R: Config,
+where
+    R: Config,
 {
     pub fn new<P>(node_path: P) -> TestNodeProcessBuilder<R>
-        where
-            P: AsRef<OsStr>,
+    where
+        P: AsRef<OsStr>,
     {
         Self {
             node_path: node_path.as_ref().into(),
@@ -140,13 +130,11 @@ impl<R> TestNodeProcessBuilder<R>
         // Connect to the node with a `subxt` client:
         let client = OnlineClient::from_url(url.clone()).await;
         match client {
-            Ok(client) => {
-                Ok(TestNodeProcess {
-                    proc,
-                    client,
-                    url: url.clone(),
-                })
-            }
+            Ok(client) => Ok(TestNodeProcess {
+                proc,
+                client,
+                url: url.clone(),
+            }),
             Err(err) => {
                 let err = format!("Failed to connect to node rpc at {url}: {err}");
                 log::error!("{}", err);
@@ -175,9 +163,7 @@ fn find_substrate_port_from_output(r: impl Read + Send + 'static) -> u16 {
                 .or_else(|| {
                     line.rsplit_once("Running JSON-RPC WS server: addr=127.0.0.1:")
                 })
-                .or_else(|| {
-                    line.rsplit_once("Running JSON-RPC server: addr=127.0.0.1:")
-                })
+                .or_else(|| line.rsplit_once("Running JSON-RPC server: addr=127.0.0.1:"))
                 .map(|(_, port_str)| port_str)?;
 
             // trim non-numeric chars from the end of the port part of the line.
