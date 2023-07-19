@@ -21,7 +21,7 @@ ink_storage_traits = { workspace = true }
 ink_prelude = { workspace = true }
 ink_primitives = { workspace = true }
 
-scale = { package = "parity-scale-codec", workspace = true }
+scale = { workspace = true }
 derive_more = { workspace = true, features = ["from", "display"] }
 num-traits = { workspace = true, features = ["i128"] }
 cfg-if = { workspace = true }

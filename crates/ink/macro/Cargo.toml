@@ -19,7 +19,7 @@ ink_ir = { workspace = true }
 ink_codegen = { workspace = true }
 ink_primitives = { workspace = true }
 
-scale = { package = "parity-scale-codec", workspace = true }
+scale = { workspace = true }
 syn = { workspace = true }
 synstructure = { workspace = true }
 proc-macro2 = { workspace = true }
