@@ -14,11 +14,21 @@
 
 use sp_keyring::AccountKeyring;
 use std::{
-    ffi::{OsStr, OsString},
-    io::{BufRead, BufReader, Read},
+    ffi::{
+        OsStr,
+        OsString,
+    },
+    io::{
+        BufRead,
+        BufReader,
+        Read,
+    },
     process,
 };
-use subxt::{Config, OnlineClient};
+use subxt::{
+    Config,
+    OnlineClient,
+};
 
 /// Spawn a local substrate node for testing.
 pub struct TestNodeProcess<R: Config> {
@@ -54,7 +64,7 @@ where
         if let Err(err) = self.proc.kill() {
             let err = format!("Error killing node process {}: {}", self.proc.id(), err);
             tracing::error!("{}", err);
-            return Err(err);
+            return Err(err)
         }
         Ok(())
     }
@@ -130,11 +140,13 @@ where
         // Connect to the node with a `subxt` client:
         let client = OnlineClient::from_url(url.clone()).await;
         match client {
-            Ok(client) => Ok(TestNodeProcess {
-                proc,
-                client,
-                url: url.clone(),
-            }),
+            Ok(client) => {
+                Ok(TestNodeProcess {
+                    proc,
+                    client,
+                    url: url.clone(),
+                })
+            }
             Err(err) => {
                 let err = format!("Failed to connect to node rpc at {url}: {err}");
                 tracing::error!("{}", err);
