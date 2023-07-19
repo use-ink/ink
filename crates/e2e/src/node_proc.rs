@@ -38,8 +38,8 @@ pub struct TestNodeProcess<R: Config> {
 }
 
 impl<R> Drop for TestNodeProcess<R>
-where
-    R: Config,
+    where
+        R: Config,
 {
     fn drop(&mut self) {
         let _ = self.kill();
@@ -47,23 +47,23 @@ where
 }
 
 impl<R> TestNodeProcess<R>
-where
-    R: Config,
+    where
+        R: Config,
 {
     /// Construct a builder for spawning a test node process.
     pub fn build<S>(program: S) -> TestNodeProcessBuilder<R>
-    where
-        S: AsRef<OsStr> + Clone,
+        where
+            S: AsRef<OsStr> + Clone,
     {
         TestNodeProcessBuilder::new(program)
     }
 
     /// Attempt to kill the running substrate process.
     pub fn kill(&mut self) -> Result<(), String> {
-        tracing::info!("Killing node process {}", self.proc.id());
+        log::info!("Killing node process {}", self.proc.id());
         if let Err(err) = self.proc.kill() {
             let err = format!("Error killing node process {}: {}", self.proc.id(), err);
-            tracing::error!("{}", err);
+            log::error!("{}", err);
             return Err(err)
         }
         Ok(())
@@ -88,12 +88,12 @@ pub struct TestNodeProcessBuilder<R> {
 }
 
 impl<R> TestNodeProcessBuilder<R>
-where
-    R: Config,
+    where
+        R: Config,
 {
     pub fn new<P>(node_path: P) -> TestNodeProcessBuilder<R>
-    where
-        P: AsRef<OsStr>,
+        where
+            P: AsRef<OsStr>,
     {
         Self {
             node_path: node_path.as_ref().into(),
@@ -134,22 +134,22 @@ where
 
         // Wait for RPC port to be logged (it's logged to stderr):
         let stderr = proc.stderr.take().unwrap();
-        let ws_port = find_substrate_port_from_output(stderr);
-        let ws_url = format!("ws://127.0.0.1:{ws_port}");
+        let port = find_substrate_port_from_output(stderr);
+        let url = format!("ws://127.0.0.1:{port}");
 
         // Connect to the node with a `subxt` client:
-        let client = OnlineClient::from_url(ws_url.clone()).await;
+        let client = OnlineClient::from_url(url.clone()).await;
         match client {
             Ok(client) => {
                 Ok(TestNodeProcess {
                     proc,
                     client,
-                    url: ws_url.clone(),
+                    url: url.clone(),
                 })
             }
             Err(err) => {
-                let err = format!("Failed to connect to node rpc at {ws_url}: {err}");
-                tracing::error!("{}", err);
+                let err = format!("Failed to connect to node rpc at {url}: {err}");
+                log::error!("{}", err);
                 proc.kill().map_err(|e| {
                     format!("Error killing substrate process '{}': {}", proc.id(), e)
                 })?;
@@ -172,7 +172,12 @@ fn find_substrate_port_from_output(r: impl Read + Send + 'static) -> u16 {
             // substrate).
             let line_end = line
                 .rsplit_once("Listening for new connections on 127.0.0.1:")
-                .or_else(|| line.rsplit_once("Running JSON-RPC server: addr=127.0.0.1:"))
+                .or_else(|| {
+                    line.rsplit_once("Running JSON-RPC WS server: addr=127.0.0.1:")
+                })
+                .or_else(|| {
+                    line.rsplit_once("Running JSON-RPC server: addr=127.0.0.1:")
+                })
                 .map(|(_, port_str)| port_str)?;
 
             // trim non-numeric chars from the end of the port part of the line.
