@@ -6,5 +6,5 @@
 
 find ./integration-tests/ -name "Cargo.toml" \
   -exec sh -c 'cargo contract build --manifest-path "$1" --release --quiet 2>/dev/null' _ {} \; \
-  -exec sh -c 'cargo contract build --manifest-path "$1" --release --output-json | jq .dest_wasm' _ {} \; \
+  -exec sh -c 'cargo contract build --manifest-path "$1" --release --output-json | jq .dest_wasm | xargs basename' _ {} \; \
   -exec sh -c 'cargo contract build --manifest-path "$1" --release --output-json | jq .dest_wasm | xargs stat -c %s' _ {} \;
