@@ -1,10 +1,37 @@
 #!/bin/bash
 
-# `find` will recursively list all the `Cargo.toml` manifests in the supplied dir.
-# The first -exec command will attempt to build using the discovered Cargo.toml file. If it fails the second -exec
-# command will not be run. This allows us to filter out any manifests for in the tree for non-contract crates.
+SCRIPT_NAME="${BASH_SOURCE[0]}"
+MANIFEST_PATH=$1
 
-find ./integration-tests/ -name "Cargo.toml" \
-  -exec sh -c 'cargo contract build --manifest-path "$1" --release --quiet 2>/dev/null' _ {} \; \
-  -exec sh -c 'cargo contract build --manifest-path "$1" --release --output-json | jq .dest_wasm | xargs basename' _ {} \; \
-  -exec sh -c 'cargo contract build --manifest-path "$1" --release --output-json | jq .dest_wasm | xargs stat -c %s' _ {} \;
+function usage {
+  cat << EOF
+Usage: ${SCRIPT_NAME} MANIFEST_PATH
+
+Build and print the contract name and size for the given manifest path, if it is a valid ink! contract project.
+Use with `find` (see EXAMPLES) to print the contract name and size for all ink! contracts in a directory.
+
+MANIFEST_PATH
+  Path to the Cargo.toml manifest file for a contract project
+
+EXAMPLES
+  ${SCRIPT_NAME} ./Cargo.toml
+  find ./integration-tests/ -name "Cargo.toml" -exec ${SCRIPT_NAME} {} \;
+
+EOF
+}
+
+if [ -z "$MANIFEST_PATH" ]; then
+  usage
+  exit 1
+fi
+
+BUILD_RESULT=$(cargo contract build --manifest-path "$MANIFEST_PATH" --release --quiet --output-json 2>/dev/null)
+
+if [ $? -eq 0 ]; then
+    # only print the contract name and size if the build was successful
+    DEST_WASM=$(echo "$BUILD_RESULT" | jq -r .dest_wasm)
+    CONTRACT_NAME=$(basename "$DEST_WASM")
+    CONTRACT_SIZE=$(stat -c %s "$DEST_WASM")
+
+    echo "$CONTRACT_NAME" "$CONTRACT_SIZE"
+fi
