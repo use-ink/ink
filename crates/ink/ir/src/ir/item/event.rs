@@ -14,12 +14,17 @@
 
 use crate::{
     error::ExtError as _,
-    ir,
-    ir::utils,
+    ir::{
+        self,
+        utils,
+        utils::extract_cfg_attributes,
+        CFG_IDENT,
+    },
 };
 use proc_macro2::{
     Ident,
     Span,
+    TokenStream,
 };
 use syn::spanned::Spanned as _;
 
@@ -100,6 +105,16 @@ impl TryFrom<syn::ItemStruct> for Event {
         utils::ensure_pub_visibility("event structs", struct_span, &item_struct.vis)?;
         'repeat: for field in item_struct.fields.iter() {
             let field_span = field.span();
+            let some_cfg_attrs = field
+                .attrs
+                .iter()
+                .find(|attr| attr.path().is_ident(CFG_IDENT));
+            if some_cfg_attrs.is_some() {
+                return Err(format_err!(
+                    field_span,
+                    "conditional compilation is not allowed for event field"
+                ))
+            }
             let (ink_attrs, _) = ir::partition_attributes(field.attrs.clone())?;
             if ink_attrs.is_empty() {
                 continue 'repeat
@@ -112,7 +127,7 @@ impl TryFrom<syn::ItemStruct> for Event {
                 return Err(format_err!(
                     field_span,
                     "first optional ink! attribute of an event field must be #[ink(topic)]",
-                ))
+                ));
             }
             for arg in normalized.args() {
                 if !matches!(arg.kind(), ir::AttributeArg::Topic) {
@@ -148,6 +163,11 @@ impl Event {
     /// Returns all non-ink! attributes.
     pub fn attrs(&self) -> &[syn::Attribute] {
         &self.item.attrs
+    }
+
+    /// Returns a list of `cfg` attributes if any.
+    pub fn get_cfg_attrs(&self, span: Span) -> Vec<TokenStream> {
+        extract_cfg_attributes(self.attrs(), span)
     }
 }
 
@@ -382,6 +402,22 @@ mod tests {
                 }
             },
             "encountered conflicting ink! attribute for event field",
+        )
+    }
+
+    #[test]
+    fn cfg_marked_field_attribute_fails() {
+        assert_try_from_fails(
+            syn::parse_quote! {
+                #[ink(event)]
+                pub struct MyEvent {
+                    #[ink(topic)]
+                    field_1: i32,
+                    #[cfg(unix)]
+                    field_2: bool,
+                }
+            },
+            "conditional compilation is not allowed for event field",
         )
     }
 

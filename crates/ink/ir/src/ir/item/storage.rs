@@ -35,7 +35,7 @@ use syn::spanned::Spanned as _;
 /// #[ink(storage)]
 /// pub struct MyStorage {
 ///     my_value: bool,
-///      counter: u32,
+///     counter: u32,
 /// }
 /// # }).unwrap();
 /// ```

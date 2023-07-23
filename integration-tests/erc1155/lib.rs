@@ -1,4 +1,4 @@
-#![cfg_attr(not(feature = "std"), no_std)]
+#![cfg_attr(not(feature = "std"), no_std, no_main)]
 
 use ink::{
     prelude::vec::Vec,
@@ -9,17 +9,17 @@ use ink::{
 // tokens.
 //
 // It is calculated with
-// `bytes4(keccak256("onERC1155Received(address,address,uint256,uint256,bytes)"))`, and corresponds
-// to 0xf23a6e61.
+// `bytes4(keccak256("onERC1155Received(address,address,uint256,uint256,bytes)"))`, and
+// corresponds to 0xf23a6e61.
 #[cfg_attr(test, allow(dead_code))]
 const ON_ERC_1155_RECEIVED_SELECTOR: [u8; 4] = [0xF2, 0x3A, 0x6E, 0x61];
 
-// This is the return value that we expect if a smart contract supports batch receiving ERC-1155
-// tokens.
+// This is the return value that we expect if a smart contract supports batch receiving
+// ERC-1155 tokens.
 //
 // It is calculated with
-// `bytes4(keccak256("onERC1155BatchReceived(address,address,uint256[],uint256[],bytes)"))`, and
-// corresponds to 0xbc197c81.
+// `bytes4(keccak256("onERC1155BatchReceived(address,address,uint256[],uint256[],bytes)"
+// ))`, and corresponds to 0xbc197c81.
 const _ON_ERC_1155_BATCH_RECEIVED_SELECTOR: [u8; 4] = [0xBC, 0x19, 0x7C, 0x81];
 
 /// A type representing the unique IDs of tokens managed by this contract.
@@ -41,7 +41,8 @@ pub enum Error {
     InsufficientBalance,
     /// An account does not need to approve themselves to transfer tokens.
     SelfApproval,
-    /// The number of tokens being transferred does not match the specified number of transfers.
+    /// The number of tokens being transferred does not match the specified number of
+    /// transfers.
     BatchTransferMismatch,
 }
 
@@ -66,15 +67,15 @@ macro_rules! ensure {
 /// The goal of ERC-1155 is to allow a single contract to manage a variety of assets.
 /// These assets can be fungible, non-fungible, or a combination.
 ///
-/// By tracking multiple assets the ERC-1155 standard is able to support batch transfers, which
-/// make it easy to transfer a mix of multiple tokens at once.
+/// By tracking multiple assets the ERC-1155 standard is able to support batch transfers,
+/// which make it easy to transfer a mix of multiple tokens at once.
 #[ink::trait_definition]
 pub trait Erc1155 {
     /// Transfer a `value` amount of `token_id` tokens to the `to` account from the `from`
     /// account.
     ///
-    /// Note that the call does not have to originate from the `from` account, and may originate
-    /// from any account which is approved to transfer `from`'s tokens.
+    /// Note that the call does not have to originate from the `from` account, and may
+    /// originate from any account which is approved to transfer `from`'s tokens.
     #[ink(message)]
     fn safe_transfer_from(
         &mut self,
@@ -85,13 +86,14 @@ pub trait Erc1155 {
         data: Vec<u8>,
     ) -> Result<()>;
 
-    /// Perform a batch transfer of `token_ids` to the `to` account from the `from` account.
+    /// Perform a batch transfer of `token_ids` to the `to` account from the `from`
+    /// account.
     ///
-    /// The number of `values` specified to be transferred must match the number of `token_ids`,
-    /// otherwise this call will revert.
+    /// The number of `values` specified to be transferred must match the number of
+    /// `token_ids`, otherwise this call will revert.
     ///
-    /// Note that the call does not have to originate from the `from` account, and may originate
-    /// from any account which is approved to transfer `from`'s tokens.
+    /// Note that the call does not have to originate from the `from` account, and may
+    /// originate from any account which is approved to transfer `from`'s tokens.
     #[ink(message)]
     fn safe_batch_transfer_from(
         &mut self,
@@ -108,13 +110,14 @@ pub trait Erc1155 {
 
     /// Query the balances for a set of tokens for a set of accounts.
     ///
-    /// E.g use this call if you want to query what Alice and Bob's balances are for Tokens ID 1 and
-    /// ID 2.
+    /// E.g use this call if you want to query what Alice and Bob's balances are for
+    /// Tokens ID 1 and ID 2.
     ///
-    /// This will return all the balances for a given owner before moving on to the next owner. In
-    /// the example above this means that the return value should look like:
+    /// This will return all the balances for a given owner before moving on to the next
+    /// owner. In the example above this means that the return value should look like:
     ///
-    /// [Alice Balance of Token ID 1, Alice Balance of Token ID 2, Bob Balance of Token ID 1, Bob Balance of Token ID 2]
+    /// [Alice Balance of Token ID 1, Alice Balance of Token ID 2, Bob Balance of Token ID
+    /// 1, Bob Balance of Token ID 2]
     #[ink(message)]
     fn balance_of_batch(
         &self,
@@ -122,8 +125,8 @@ pub trait Erc1155 {
         token_ids: Vec<TokenId>,
     ) -> Vec<Balance>;
 
-    /// Enable or disable a third party, known as an `operator`, to control all tokens on behalf of
-    /// the caller.
+    /// Enable or disable a third party, known as an `operator`, to control all tokens on
+    /// behalf of the caller.
     #[ink(message)]
     fn set_approval_for_all(&mut self, operator: AccountId, approved: bool)
         -> Result<()>;
@@ -137,22 +140,23 @@ pub trait Erc1155 {
 ///
 /// The interface is defined here: <https://eips.ethereum.org/EIPS/eip-1155>.
 ///
-/// Smart contracts which want to accept token transfers must implement this interface. By default
-/// if a contract does not support this interface any transactions originating from an ERC-1155
-/// compliant contract which attempt to transfer tokens directly to the contract's address must be
-/// reverted.
+/// Smart contracts which want to accept token transfers must implement this interface. By
+/// default if a contract does not support this interface any transactions originating
+/// from an ERC-1155 compliant contract which attempt to transfer tokens directly to the
+/// contract's address must be reverted.
 #[ink::trait_definition]
 pub trait Erc1155TokenReceiver {
     /// Handle the receipt of a single ERC-1155 token.
     ///
-    /// This should be called by a compliant ERC-1155 contract if the intended recipient is a smart
-    /// contract.
+    /// This should be called by a compliant ERC-1155 contract if the intended recipient
+    /// is a smart contract.
     ///
-    /// If the smart contract implementing this interface accepts token transfers then it must
-    /// return `ON_ERC_1155_RECEIVED_SELECTOR` from this function. To reject a transfer it must revert.
+    /// If the smart contract implementing this interface accepts token transfers then it
+    /// must return `ON_ERC_1155_RECEIVED_SELECTOR` from this function. To reject a
+    /// transfer it must revert.
     ///
-    /// Any callers must revert if they receive anything other than `ON_ERC_1155_RECEIVED_SELECTOR` as a return
-    /// value.
+    /// Any callers must revert if they receive anything other than
+    /// `ON_ERC_1155_RECEIVED_SELECTOR` as a return value.
     #[ink(message, selector = 0xF23A6E61)]
     fn on_received(
         &mut self,
@@ -165,14 +169,15 @@ pub trait Erc1155TokenReceiver {
 
     /// Handle the receipt of multiple ERC-1155 tokens.
     ///
-    /// This should be called by a compliant ERC-1155 contract if the intended recipient is a smart
-    /// contract.
+    /// This should be called by a compliant ERC-1155 contract if the intended recipient
+    /// is a smart contract.
     ///
-    /// If the smart contract implementing this interface accepts token transfers then it must
-    /// return `BATCH_ON_ERC_1155_RECEIVED_SELECTOR` from this function. To reject a transfer it must revert.
+    /// If the smart contract implementing this interface accepts token transfers then it
+    /// must return `BATCH_ON_ERC_1155_RECEIVED_SELECTOR` from this function. To
+    /// reject a transfer it must revert.
     ///
-    /// Any callers must revert if they receive anything other than `BATCH_ON_ERC_1155_RECEIVED_SELECTOR` as a return
-    /// value.
+    /// Any callers must revert if they receive anything other than
+    /// `BATCH_ON_ERC_1155_RECEIVED_SELECTOR` as a return value.
     #[ink(message, selector = 0xBC197C81)]
     fn on_batch_received(
         &mut self,
@@ -230,12 +235,14 @@ mod erc1155 {
     #[ink(storage)]
     #[derive(Default)]
     pub struct Contract {
-        /// Tracks the balances of accounts across the different tokens that they might be holding.
+        /// Tracks the balances of accounts across the different tokens that they might
+        /// be holding.
         balances: Mapping<(AccountId, TokenId), Balance>,
-        /// Which accounts (called operators) have been approved to spend funds on behalf of an owner.
+        /// Which accounts (called operators) have been approved to spend funds on behalf
+        /// of an owner.
         approvals: Mapping<(Owner, Operator), ()>,
-        /// A unique identifier for the tokens which have been minted (and are therefore supported)
-        /// by this contract.
+        /// A unique identifier for the tokens which have been minted (and are therefore
+        /// supported) by this contract.
         token_id_nonce: TokenId,
     }
 
@@ -258,7 +265,8 @@ mod erc1155 {
         pub fn create(&mut self, value: Balance) -> TokenId {
             let caller = self.env().caller();
 
-            // Given that TokenId is a `u128` the likelihood of this overflowing is pretty slim.
+            // Given that TokenId is a `u128` the likelihood of this overflowing is pretty
+            // slim.
             self.token_id_nonce += 1;
             self.balances.insert((caller, self.token_id_nonce), &value);
 
@@ -276,8 +284,8 @@ mod erc1155 {
 
         /// Mint a `value` amount of `token_id` tokens.
         ///
-        /// It is assumed that the token has already been `create`-ed. The newly minted supply will
-        /// be assigned to the caller (a.k.a the minter).
+        /// It is assumed that the token has already been `create`-ed. The newly minted
+        /// supply will be assigned to the caller (a.k.a the minter).
         ///
         /// Note that as implemented anyone can mint tokens. If you were to instantiate
         /// this contract in a production environment you'd probably want to lock down
@@ -303,8 +311,9 @@ mod erc1155 {
 
         // Helper function for performing single token transfers.
         //
-        // Should not be used directly since it's missing certain checks which are important to the
-        // ERC-1155 standard (it is expected that the caller has already performed these).
+        // Should not be used directly since it's missing certain checks which are
+        // important to the ERC-1155 standard (it is expected that the caller has
+        // already performed these).
         //
         // # Panics
         //
@@ -337,11 +346,12 @@ mod erc1155 {
             });
         }
 
-        // Check if the address at `to` is a smart contract which accepts ERC-1155 token transfers.
+        // Check if the address at `to` is a smart contract which accepts ERC-1155 token
+        // transfers.
         //
-        // If they're a smart contract which **doesn't** accept tokens transfers this call will
-        // revert. Otherwise we risk locking user funds at in that contract with no chance of
-        // recovery.
+        // If they're a smart contract which **doesn't** accept tokens transfers this call
+        // will revert. Otherwise we risk locking user funds at in that contract
+        // with no chance of recovery.
         #[cfg_attr(test, allow(unused_variables))]
         fn transfer_acceptance_check(
             &mut self,
@@ -352,8 +362,8 @@ mod erc1155 {
             value: Balance,
             data: Vec<u8>,
         ) {
-            // This is disabled during tests due to the use of `invoke_contract()` not being
-            // supported (tests end up panicking).
+            // This is disabled during tests due to the use of `invoke_contract()` not
+            // being supported (tests end up panicking).
             #[cfg(not(test))]
             {
                 use ink::env::call::{
@@ -399,12 +409,14 @@ mod erc1155 {
                         match e {
                             ink::env::Error::CodeNotFound
                             | ink::env::Error::NotCallable => {
-                                // Our recipient wasn't a smart contract, so there's nothing more for
+                                // Our recipient wasn't a smart contract, so there's
+                                // nothing more for
                                 // us to do
                                 ink::env::debug_println!("Recipient at {:?} from is not a smart contract ({:?})", from, e);
                             }
                             _ => {
-                                // We got some sort of error from the call to our recipient smart
+                                // We got some sort of error from the call to our
+                                // recipient smart
                                 // contract, and as such we must revert this call
                                 panic!(
                                     "Got error \"{e:?}\" while trying to call {from:?}"
@@ -474,8 +486,8 @@ mod erc1155 {
                 self.perform_transfer(from, to, id, v);
             }
 
-            // Can use the any token ID/value here, we really just care about knowing if `to` is a
-            // smart contract which accepts transfers
+            // Can use the any token ID/value here, we really just care about knowing if
+            // `to` is a smart contract which accepts transfers
             self.transfer_acceptance_check(
                 caller,
                 from,
@@ -549,14 +561,17 @@ mod erc1155 {
             _value: Balance,
             _data: Vec<u8>,
         ) -> Vec<u8> {
-            // The ERC-1155 standard dictates that if a contract does not accept token transfers
-            // directly to the contract, then the contract must revert.
+            // The ERC-1155 standard dictates that if a contract does not accept token
+            // transfers directly to the contract, then the contract must
+            // revert.
             //
-            // This prevents a user from unintentionally transferring tokens to a smart contract
-            // and getting their funds stuck without any sort of recovery mechanism.
+            // This prevents a user from unintentionally transferring tokens to a smart
+            // contract and getting their funds stuck without any sort of
+            // recovery mechanism.
             //
-            // Note that the choice of whether or not to accept tokens is implementation specific,
-            // and we've decided to not accept them in this implementation.
+            // Note that the choice of whether or not to accept tokens is implementation
+            // specific, and we've decided to not accept them in this
+            // implementation.
             unimplemented!("This smart contract does not accept token transfer.")
         }
 
@@ -569,21 +584,24 @@ mod erc1155 {
             _values: Vec<Balance>,
             _data: Vec<u8>,
         ) -> Vec<u8> {
-            // The ERC-1155 standard dictates that if a contract does not accept token transfers
-            // directly to the contract, then the contract must revert.
+            // The ERC-1155 standard dictates that if a contract does not accept token
+            // transfers directly to the contract, then the contract must
+            // revert.
             //
-            // This prevents a user from unintentionally transferring tokens to a smart contract
-            // and getting their funds stuck without any sort of recovery mechanism.
+            // This prevents a user from unintentionally transferring tokens to a smart
+            // contract and getting their funds stuck without any sort of
+            // recovery mechanism.
             //
-            // Note that the choice of whether or not to accept tokens is implementation specific,
-            // and we've decided to not accept them in this implementation.
+            // Note that the choice of whether or not to accept tokens is implementation
+            // specific, and we've decided to not accept them in this
+            // implementation.
             unimplemented!("This smart contract does not accept batch token transfers.")
         }
     }
 
-    /// Helper for referencing the zero address (`0x00`). Note that in practice this address should
-    /// not be treated in any special way (such as a default placeholder) since it has a known
-    /// private key.
+    /// Helper for referencing the zero address (`0x00`). Note that in practice this
+    /// address should not be treated in any special way (such as a default
+    /// placeholder) since it has a known private key.
     fn zero_address() -> AccountId {
         [0u8; 32].into()
     }
@@ -738,8 +756,8 @@ mod erc1155 {
             let operator = bob();
             let another_operator = charlie();
 
-            // Note: All of these tests are from the context of the owner who is either allowing or
-            // disallowing an operator to control their funds.
+            // Note: All of these tests are from the context of the owner who is either
+            // allowing or disallowing an operator to control their funds.
             set_sender(owner);
             assert!(!erc.is_approved_for_all(owner, operator));
 

@@ -1,4 +1,4 @@
-#![cfg_attr(not(feature = "std"), no_std)]
+#![cfg_attr(not(feature = "std"), no_std, no_main)]
 
 #[ink::contract]
 mod contract_ref {
@@ -67,8 +67,7 @@ mod contract_ref {
 
     #[cfg(all(test, feature = "e2e-tests"))]
     mod e2e_tests {
-        use super::ContractRefRef;
-        use ink_e2e::build_message;
+        use super::*;
 
         type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
@@ -83,24 +82,22 @@ mod contract_ref {
                 .code_hash;
 
             let constructor = ContractRefRef::new(0, flipper_hash);
-            let contract_acc_id = client
+            let contract_ref = client
                 .instantiate("contract_ref", &ink_e2e::alice(), constructor, 0, None)
                 .await
-                .expect("instantiate failed")
-                .account_id;
+                .expect("instantiate failed");
+            let mut call = contract_ref.call::<ContractRef>();
 
-            let get_check = build_message::<ContractRefRef>(contract_acc_id.clone())
-                .call(|contract| contract.get_check());
+            let get_check = call.get_check();
             let get_call_result = client
                 .call_dry_run(&ink_e2e::alice(), &get_check, 0, None)
                 .await;
 
             let initial_value = get_call_result.return_value();
 
-            let flip_check = build_message::<ContractRefRef>(contract_acc_id.clone())
-                .call(|contract| contract.flip_check());
+            let flip_check = call.flip_check();
             let flip_call_result = client
-                .call(&ink_e2e::alice(), flip_check, 0, None)
+                .call(&ink_e2e::alice(), &flip_check, 0, None)
                 .await
                 .expect("Calling `flip` failed");
             assert!(
@@ -129,14 +126,13 @@ mod contract_ref {
 
             let succeed = true;
             let constructor = ContractRefRef::try_new(0, flipper_hash, succeed);
-            let contract_acc_id = client
+            let contract_ref = client
                 .instantiate("contract_ref", &ink_e2e::bob(), constructor, 0, None)
                 .await
-                .expect("instantiate failed")
-                .account_id;
+                .expect("instantiate failed");
+            let mut call = contract_ref.call::<ContractRef>();
 
-            let get_check = build_message::<ContractRefRef>(contract_acc_id.clone())
-                .call(|contract| contract.get_check());
+            let get_check = call.get_check();
             let get_call_result = client
                 .call_dry_run(&ink_e2e::bob(), &get_check, 0, None)
                 .await;
@@ -169,7 +165,7 @@ mod contract_ref {
             );
 
             let contains_err_msg = match instantiate_result.unwrap_err() {
-                ink_e2e::Error::InstantiateDryRun(dry_run) => {
+                ink_e2e::Error::<ink::env::DefaultEnvironment>::InstantiateDryRun(dry_run) => {
                     String::from_utf8_lossy(&dry_run.debug_message).contains(
                         "Received an error from the Flipper constructor while instantiating Flipper FlipperError"
                     )

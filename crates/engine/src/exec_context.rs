@@ -43,6 +43,8 @@ pub struct ExecContext {
     pub block_number: BlockNumber,
     /// The current block timestamp.
     pub block_timestamp: BlockTimestamp,
+    /// Known contract accounts
+    pub contracts: Vec<Vec<u8>>,
 }
 
 impl ExecContext {
@@ -63,6 +65,16 @@ impl ExecContext {
     /// Resets the execution context
     pub fn reset(&mut self) {
         *self = Default::default();
+    }
+
+    /// Set the block timestamp for the execution context.
+    pub fn set_block_timestamp(&mut self, block_timestamp: BlockTimestamp) {
+        self.block_timestamp = block_timestamp
+    }
+
+    /// Set the block number for the execution context.
+    pub fn set_block_number(&mut self, block_number: BlockNumber) {
+        self.block_number = block_number
     }
 }
 

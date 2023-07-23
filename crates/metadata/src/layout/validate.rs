@@ -108,11 +108,11 @@ mod tests {
     #[test]
     fn valid_layout_tree_only_roots() {
         // Root(0) -> Root(1) -> Root(2) -> u32
-        let layout = RootLayout::new(
+        let layout = RootLayout::new_empty(
             0.into(),
-            RootLayout::new(
+            RootLayout::new_empty(
                 1.into(),
-                RootLayout::new(2.into(), LeafLayout::from_key::<u32>(2.into())),
+                RootLayout::new_empty(2.into(), LeafLayout::from_key::<u32>(2.into())),
             ),
         );
 
@@ -132,8 +132,8 @@ mod tests {
         let root_2 = key_for_root_2.into();
         let root_3 = key_for_root_3.into();
         let root_4 = key_for_root_4.into();
-        // Below the description of the layout tree. Inside `(...)` the expected storage key.
-        //              Root(0)
+        // Below the description of the layout tree. Inside `(...)` the expected storage
+        // key.              Root(0)
         //                |
         //            Contract(0)
         //          /     |     \
@@ -149,7 +149,7 @@ mod tests {
         //                           Root(4)      String
         //                             |
         //                      g:BTreeSet<u64>(4)
-        let layout = RootLayout::new(
+        let layout = RootLayout::new_empty(
             root_0,
             StructLayout::new(
                 "Contract",
@@ -162,7 +162,7 @@ mod tests {
                                 FieldLayout::new("d", LeafLayout::from_key::<u128>(root_0)),
                                 FieldLayout::new(
                                     "f",
-                                    RootLayout::new(
+                                    RootLayout::new_empty(
                                         root_2,
                                         EnumLayout::new(
                                             "Enum",
@@ -178,7 +178,7 @@ mod tests {
                                                                 "Struct1",
                                                                 vec![FieldLayout::new(
                                                                     "g",
-                                                                    RootLayout::new(
+                                                                    RootLayout::new_empty(
                                                                         root_4,
                                                                         LeafLayout::from_key::<
                                                                             BTreeSet<u64>,
@@ -207,7 +207,7 @@ mod tests {
                                                         "Third",
                                                         vec![FieldLayout::new(
                                                             "0",
-                                                            RootLayout::new(
+                                                            RootLayout::new_empty(
                                                                 root_3,
                                                                 LeafLayout::from_key::<String>(
                                                                     root_3,
@@ -226,7 +226,7 @@ mod tests {
                     FieldLayout::new("b", LeafLayout::from_key::<u32>(root_0)),
                     FieldLayout::new(
                         "c",
-                        RootLayout::new(root_1, LeafLayout::from_key::<Vec<u8>>(root_1)),
+                        RootLayout::new_empty(root_1, LeafLayout::from_key::<Vec<u8>>(root_1)),
                     ),
                 ],
             ),

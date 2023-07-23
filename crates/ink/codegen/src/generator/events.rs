@@ -90,6 +90,12 @@ impl<'a> Events<'a> {
             .events()
             .map(|event| event.ident())
             .collect::<Vec<_>>();
+        let event_idents_cfgs = self
+            .contract
+            .module()
+            .events()
+            .map(|event| event.get_cfg_attrs(event.span()))
+            .collect::<Vec<_>>();
         let base_event_ident =
             proc_macro2::Ident::new("__ink_EventBase", Span::call_site());
         quote! {
@@ -97,7 +103,10 @@ impl<'a> Events<'a> {
             #[derive(::scale::Encode, ::scale::Decode)]
             #[cfg(not(feature = "__ink_dylint_EventBase"))]
             pub enum #base_event_ident {
-                #( #event_idents(#event_idents), )*
+                #(
+                    #( #event_idents_cfgs )*
+                    #event_idents(#event_idents),
+                )*
             }
 
             const _: () = {
@@ -107,6 +116,7 @@ impl<'a> Events<'a> {
             };
 
             #(
+                #( #event_idents_cfgs )*
                 const _: () = {
                     impl From<#event_idents> for #base_event_ident {
                         fn from(event: #event_idents) -> Self {
@@ -135,10 +145,12 @@ impl<'a> Events<'a> {
                     {
                         match self {
                             #(
+                                #( #event_idents_cfgs )*
                                 Self::#event_idents(event) => {
                                     <#event_idents as ::ink::env::Topics>::topics::<E, B>(event, builder)
                                 }
-                            )*
+                            )*,
+                            _ => panic!("Event does not exist!")
                         }
                     }
                 }
@@ -151,16 +163,19 @@ impl<'a> Events<'a> {
         let span = event.span();
         let storage_ident = self.contract.module().storage().ident();
         let event_ident = event.ident();
+        let cfg_attrs = event.get_cfg_attrs(span);
         let len_topics = event.fields().filter(|event| event.is_topic).count();
         let max_len_topics = quote_spanned!(span=>
             <<#storage_ident as ::ink::env::ContractEnv>::Env
                 as ::ink::env::Environment>::MAX_EVENT_TOPICS
         );
         quote_spanned!(span=>
+            #( #cfg_attrs )*
             impl ::ink::codegen::EventLenTopics for #event_ident {
                 type LenTopics = ::ink::codegen::EventTopics<#len_topics>;
             }
 
+            #( #cfg_attrs )*
             const _: () = ::ink::codegen::utils::consume_type::<
                 ::ink::codegen::EventRespectsTopicLimit<
                     #event_ident,
@@ -170,7 +185,8 @@ impl<'a> Events<'a> {
         )
     }
 
-    /// Generates the guard code that protects against having too many topics defined on an ink! event.
+    /// Generates the guard code that protects against having too many topics defined on
+    /// an ink! event.
     fn generate_topic_guards(&'a self) -> impl Iterator<Item = TokenStream2> + 'a {
         self.contract.module().events().map(move |event| {
             let span = event.span();
@@ -227,7 +243,9 @@ impl<'a> Events<'a> {
                 0 => quote_spanned!(span=> ::ink::env::topics::state::NoRemainingTopics),
                 n => quote_spanned!(span=> [::ink::env::topics::state::HasRemainingTopics; #n]),
             };
+            let cfg_attrs = event.get_cfg_attrs(span);
             quote_spanned!(span =>
+                #( #cfg_attrs )*
                 const _: () = {
                     impl ::ink::env::Topics for #event_ident {
                         type RemainingTopics = #remaining_topics_ty;

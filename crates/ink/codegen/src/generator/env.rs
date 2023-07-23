@@ -39,6 +39,8 @@ impl GenerateCode for Env<'_> {
             type Hash = <<#storage_ident as ::ink::env::ContractEnv>::Env as ::ink::env::Environment>::Hash;
             type Timestamp = <<#storage_ident as ::ink::env::ContractEnv>::Env as ::ink::env::Environment>::Timestamp;
             type BlockNumber = <<#storage_ident as ::ink::env::ContractEnv>::Env as ::ink::env::Environment>::BlockNumber;
+            type ChainExtension = <<#storage_ident as ::ink::env::ContractEnv>::Env as ::ink::env::Environment>::ChainExtension;
+            const MAX_EVENT_TOPICS: usize = <<#storage_ident as ::ink::env::ContractEnv>::Env as ::ink::env::Environment>::MAX_EVENT_TOPICS;
         }
     }
 }

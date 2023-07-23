@@ -26,9 +26,7 @@ variables:
   GIT_DEPTH:                       100
   CARGO_INCREMENTAL:               0
   CARGO_TARGET_DIR:                "/ci-cache/${CI_PROJECT_NAME}/targets/${CI_COMMIT_REF_NAME}/${CI_JOB_NAME}"
-  # CI_IMAGE is changed to "-:staging" when the CI image gets rebuilt
-  # read more https://github.com/paritytech/scripts/pull/244
-  CI_IMAGE:                        "paritytech/ink-ci-linux:production"
+  CI_IMAGE:                        "paritytech/ci-unified:bullseye-1.69.0-2023-03-21"
   PURELY_STD_CRATES:               "ink/codegen metadata engine e2e e2e/macro ink/ir"
   ALSO_WASM_CRATES:                "env storage storage/traits allocator prelude primitives ink ink/macro"
   ALL_CRATES:                      "${PURELY_STD_CRATES} ${ALSO_WASM_CRATES}"
@@ -39,10 +37,12 @@ variables:
   # this fix not yet in stable: https://github.com/rust-lang/rust-clippy/issues/8895.
   # Remove the following line again as soon as `clippy` on stable succeeds again.
   CLIPPY_ALLOWED:                  "clippy::extra_unused_lifetimes"
-  # This is a target that does not have a standard library in contrast to Wasm. We compile against
-  # this target to make sure that we don't pull in `std` by accident (through dependencies).
-  # See https://doc.rust-lang.org/nightly/rustc/platform-support.html#tier-2.
-  NO_STD_TARGET:                   "aarch64-unknown-none"
+  # We plan to fully support RISC-V as a bytecode for contracts soon.
+  # RISC-V does not have a standard library in contrast to Wasm. Compiling against
+  # this target also makes sure that we don't pull in `std` by accident (through dependencies).
+  # RISC-V is a modular archtitecture. We might switch to a different flavor with more features
+  # later. For example, `riscv32imc-unknown-none-elf`.
+  RISCV_TARGET:                   "riscv32i-unknown-none-elf"
 
 workflow:
   rules:
@@ -123,12 +123,12 @@ examples-fmt:
         cargo +nightly fmt --verbose --manifest-path ${example}/Cargo.toml -- --check;
       done
     - for contract in ${MULTI_CONTRACT_CALLER_SUBCONTRACTS}; do
-        cargo +nightly fmt --verbose --manifest-path ./integration-tests/multi_contract_caller/${contract}/Cargo.toml -- --check;
+        cargo +nightly fmt --verbose --manifest-path ./integration-tests/multi-contract-caller/${contract}/Cargo.toml -- --check;
       done
     - for contract in ${LANG_ERR_INTEGRATION_CONTRACTS}; do
         cargo +nightly fmt --verbose --manifest-path ./integration-tests/lang-err-integration-tests/${contract}/Cargo.toml -- --check;
       done
-    - cargo +nightly fmt --verbose --manifest-path ./integration-tests/set_code_hash/updated_incrementer/Cargo.toml -- --check
+    - cargo +nightly fmt --verbose --manifest-path ./integration-tests/set-code-hash/updated-incrementer/Cargo.toml -- --check
     # This file is not a part of the cargo project, so it wouldn't be formatted the usual way
     - rustfmt +nightly --verbose --check ./integration-tests/psp22-extension/runtime/psp22-extension-example.rs
   allow_failure:                   true
@@ -162,12 +162,12 @@ examples-clippy-std:
         cargo clippy --verbose --all-targets --manifest-path ${example}/Cargo.toml -- -D warnings -A $CLIPPY_ALLOWED;
       done
     - for contract in ${MULTI_CONTRACT_CALLER_SUBCONTRACTS}; do
-        cargo clippy --verbose --all-targets --manifest-path ./integration-tests/multi_contract_caller/${contract}/Cargo.toml -- -D warnings -A $CLIPPY_ALLOWED;
+        cargo clippy --verbose --all-targets --manifest-path ./integration-tests/multi-contract-caller/${contract}/Cargo.toml -- -D warnings -A $CLIPPY_ALLOWED;
       done
     - for contract in ${LANG_ERR_INTEGRATION_CONTRACTS}; do
         cargo clippy --verbose --all-targets --manifest-path ./integration-tests/lang-err-integration-tests/${contract}/Cargo.toml -- -D warnings -A $CLIPPY_ALLOWED;
       done
-    - cargo clippy --verbose --all-targets --manifest-path ./integration-tests/set_code_hash/updated_incrementer/Cargo.toml -- -D warnings -A $CLIPPY_ALLOWED;
+    - cargo clippy --verbose --all-targets --manifest-path ./integration-tests/set-code-hash/updated-incrementer/Cargo.toml -- -D warnings -A $CLIPPY_ALLOWED;
   allow_failure:                   true
 
 examples-clippy-wasm:
@@ -180,12 +180,12 @@ examples-clippy-wasm:
         cargo clippy --verbose --manifest-path ${example}/Cargo.toml --no-default-features --target wasm32-unknown-unknown -- -D warnings -A $CLIPPY_ALLOWED;
       done
     - for contract in ${MULTI_CONTRACT_CALLER_SUBCONTRACTS}; do
-        cargo clippy --verbose --manifest-path ./integration-tests/multi_contract_caller/${contract}/Cargo.toml --no-default-features --target wasm32-unknown-unknown -- -D warnings -A $CLIPPY_ALLOWED;
+        cargo clippy --verbose --manifest-path ./integration-tests/multi-contract-caller/${contract}/Cargo.toml --no-default-features --target wasm32-unknown-unknown -- -D warnings -A $CLIPPY_ALLOWED;
       done
     - for contract in ${LANG_ERR_INTEGRATION_CONTRACTS}; do
         cargo clippy --verbose --manifest-path ./integration-tests/lang-err-integration-tests/${contract}/Cargo.toml --no-default-features --target wasm32-unknown-unknown -- -D warnings -A $CLIPPY_ALLOWED;
       done
-    - cargo clippy --verbose --manifest-path ./integration-tests/set_code_hash/updated_incrementer/Cargo.toml --no-default-features --target wasm32-unknown-unknown -- -D warnings -A $CLIPPY_ALLOWED;
+    - cargo clippy --verbose --manifest-path ./integration-tests/set-code-hash/updated-incrementer/Cargo.toml --no-default-features --target wasm32-unknown-unknown -- -D warnings -A $CLIPPY_ALLOWED;
   allow_failure:                   true
 
 
@@ -209,8 +209,7 @@ check-wasm:
         cargo check --verbose --no-default-features --target wasm32-unknown-unknown --manifest-path ./crates/${crate}/Cargo.toml;
       done
 
-# We just check on a target which doesn't have `std` to make sure that we don't pull in `std` by accident
-check-no-std:
+check-riscv:
   stage:                           check
   <<:                              *docker-env
   <<:                              *test-refs
@@ -218,7 +217,7 @@ check-no-std:
     RUSTC_BOOTSTRAP:               "1"
   script:
     - for crate in ${ALSO_WASM_CRATES}; do
-        cargo check --verbose --no-default-features --target $NO_STD_TARGET -Zbuild-std="core,alloc" --manifest-path ./crates/${crate}/Cargo.toml;
+        cargo check --verbose --no-default-features --target $RISCV_TARGET -Zbuild-std="core,alloc" --manifest-path ./crates/${crate}/Cargo.toml;
       done
 
 dylint:
@@ -374,6 +373,11 @@ examples-test:
   script:
     - for example in integration-tests/*/; do
         if [ "$example" = "integration-tests/lang-err-integration-tests/" ]; then continue; fi;
+        if [ "$example" = "integration-tests/conditional-compilation/" ]; then
+        cargo test --verbose --manifest-path ${example}/Cargo.toml --features "foo";
+        cargo test --verbose --manifest-path ${example}/Cargo.toml --features "bar";
+        cargo test --verbose --manifest-path ${example}/Cargo.toml --features "foo, bar";
+        fi;
         if grep -q "e2e-tests = \[\]" "${example}/Cargo.toml"; then
           cargo test --verbose --manifest-path ${example}/Cargo.toml --features e2e-tests;
         else
@@ -381,7 +385,7 @@ examples-test:
         fi;
       done
     - for contract in ${MULTI_CONTRACT_CALLER_SUBCONTRACTS}; do
-        cargo test --verbose --manifest-path ./integration-tests/multi_contract_caller/${contract}/Cargo.toml;
+        cargo test --verbose --manifest-path ./integration-tests/multi-contract-caller/${contract}/Cargo.toml;
       done
     # TODO (#1502): We need to clean before running, otherwise the CI fails with a
     # linking error.
@@ -389,7 +393,7 @@ examples-test:
         cargo clean --verbose --manifest-path ./integration-tests/lang-err-integration-tests/${contract}/Cargo.toml;
         cargo test --verbose --manifest-path ./integration-tests/lang-err-integration-tests/${contract}/Cargo.toml --features e2e-tests;
       done
-    - cargo test --verbose --manifest-path ./integration-tests/set_code_hash/updated_incrementer/Cargo.toml;
+    - cargo test --verbose --manifest-path ./integration-tests/set-code-hash/updated-incrementer/Cargo.toml;
 
 examples-contract-build:
   stage:                           examples
@@ -400,18 +404,29 @@ examples-contract-build:
     - cargo contract -V
     - for example in integration-tests/*/; do
         if [ "$example" = "integration-tests/lang-err-integration-tests/" ]; then continue; fi;
+        if [ "$example" = "integration-tests/conditional-compilation/" ]; then
         pushd $example &&
-        cargo +stable contract build &&
+        cargo contract build --features "foo" &&
+        popd;
+        pushd $example &&
+        cargo contract build --features "bar" &&
+        popd;
+        pushd $example &&
+        cargo contract build --features "foo, bar" &&
+        popd;
+        fi;
+        pushd $example &&
+        cargo contract build &&
         popd;
       done
-    - pushd ./integration-tests/multi_contract_caller/ && ./build-all.sh && popd
+    - pushd ./integration-tests/multi-contract-caller/ && ./build-all.sh && popd
     - for contract in ${LANG_ERR_INTEGRATION_CONTRACTS}; do
-        cargo +stable contract build --manifest-path ./integration-tests/lang-err-integration-tests/${contract}/Cargo.toml;
+        cargo contract build --manifest-path ./integration-tests/lang-err-integration-tests/${contract}/Cargo.toml;
       done
-    - cargo +stable contract build --manifest-path ./integration-tests/set_code_hash/updated_incrementer/Cargo.toml
+    - cargo contract build --manifest-path ./integration-tests/set-code-hash/updated-incrementer/Cargo.toml
 
-# We only check a few basic contracts here, no need to check them all.
-examples-no-std-check:
+# TODO: Use cargo contract as soon as it has RISC-V support
+examples-contract-build-riscv:
   stage:                           examples
   <<:                              *docker-env
   <<:                              *test-refs
@@ -421,20 +436,20 @@ examples-no-std-check:
     - rustup component add rust-src --toolchain stable
     - cargo contract -V
     # We skip some examples for those reasons:
-    # There are no manifests in those two directories and hence it would fall back to the workspace. 
+    # There are no manifests in those two directories and hence it would fall back to the workspace.
     #  - lang-err-integration-tests
     #  - upgradeable-contracts
     # This uses dlmalloc which is only supported on select targets.
     #   - custom_allocator
-    # Pulls in sp-std which needlessly requires atomic pointers.
+    # Pulls in sp-std which needlessly requires atomic pointers (TODO: Fix sp-std and enable this example)
     #   - call-runtime
     - for example in integration-tests/*/; do
         if [ "$example" = "integration-tests/lang-err-integration-tests/" ]; then continue; fi;
         if [ "$example" = "integration-tests/upgradeable-contracts/" ]; then continue; fi;
-        if [ "$example" = "integration-tests/custom_allocator/" ]; then continue; fi;
+        if [ "$example" = "integration-tests/custom-allocator/" ]; then continue; fi;
         if [ "$example" = "integration-tests/call-runtime/" ]; then continue; fi;
         pushd $example &&
-        cargo +stable check --no-default-features --target $NO_STD_TARGET -Zbuild-std="core,alloc" &&
+        cargo build --no-default-features --target $RISCV_TARGET -Zbuild-std="core,alloc" &&
         popd;
       done
 
@@ -454,12 +469,12 @@ examples-docs:
         cargo doc --manifest-path ${example}/Cargo.toml --document-private-items --verbose --no-deps;
       done
     - for contract in ${MULTI_CONTRACT_CALLER_SUBCONTRACTS}; do
-        cargo doc --manifest-path ./integration-tests/multi_contract_caller/${contract}/Cargo.toml --document-private-items --verbose --no-deps;
+        cargo doc --manifest-path ./integration-tests/multi-contract-caller/${contract}/Cargo.toml --document-private-items --verbose --no-deps;
       done
     - for contract in ${LANG_ERR_INTEGRATION_CONTRACTS}; do
         cargo doc --manifest-path ./integration-tests/lang-err-integration-tests/${contract}/Cargo.toml --document-private-items --verbose --no-deps;
       done
-    - cargo doc --manifest-path ./integration-tests/set_code_hash/updated_incrementer/Cargo.toml --document-private-items --verbose --no-deps
+    - cargo doc --manifest-path ./integration-tests/set-code-hash/updated-incrementer/Cargo.toml --document-private-items --verbose --no-deps
 
 
 #### stage:                        ink-waterfall

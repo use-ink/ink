@@ -13,6 +13,7 @@
 // limitations under the License.
 
 use crate::{
+    error::ExtError as _,
     ir,
     ir::idents_lint,
     Callable,
@@ -45,23 +46,23 @@ use syn::{
 /// mod my_contract {
 ///     #[ink(storage)]
 ///     pub struct MyStorage {
-///         /* storage fields */
+///         // storage fields
 ///     }
 ///
 ///     #[ink(event)]
 ///     pub struct MyEvent {
-///         /* event fields */
+///         // event fields
 ///     }
 ///
 ///     impl MyStorage {
 ///         #[ink(constructor)]
 ///         pub fn my_constructor() -> Self {
-///             /* constructor initialization */
+///             // constructor initialization
 ///         }
 ///
 ///         #[ink(message)]
 ///         pub fn my_message(&self) {
-///             /* message statements */
+///             // message statements
 ///         }
 ///     }
 /// }
@@ -79,7 +80,7 @@ use syn::{
 ///
 /// ```
 /// mod rust_module {
-///     /* some Rust item definitions */
+///     // some Rust item definitions
 /// }
 /// ```
 ///
@@ -187,7 +188,6 @@ impl ItemMod {
                 selector: ir::Selector,
                 kind: &str,
             ) -> syn::Error {
-                use crate::error::ExtError as _;
                 format_err!(
                     second_span,
                     "encountered ink! {}s with overlapping selectors (= {:02X?})\n\
@@ -239,10 +239,16 @@ impl ItemMod {
         Ok(())
     }
 
-    /// Ensures that at most one wildcard selector exists among ink! messages, as well as
+    /// Ensures that:
+    /// - At most one wildcard selector exists among ink! messages, as well as
     /// ink! constructors.
-    fn ensure_only_one_wildcard_selector(items: &[ir::Item]) -> Result<(), syn::Error> {
+    /// - Where a wildcard selector is defined for a message, at most one other
+    /// message is defined which must have a well known selector.
+    fn ensure_valid_wildcard_selector_usage(
+        items: &[ir::Item],
+    ) -> Result<(), syn::Error> {
         let mut wildcard_selector: Option<&ir::Message> = None;
+        let mut other_messages = Vec::new();
         for item_impl in items
             .iter()
             .filter_map(ir::Item::map_ink_item)
@@ -250,23 +256,71 @@ impl ItemMod {
         {
             for message in item_impl.iter_messages() {
                 if !message.has_wildcard_selector() {
+                    other_messages.push(message);
                     continue
                 }
                 match wildcard_selector {
                     None => wildcard_selector = Some(message.callable()),
                     Some(overlap) => {
-                        use crate::error::ExtError as _;
-                        return Err(format_err!(
+                        let err = format_err!(
                             message.callable().span(),
                             "encountered ink! messages with overlapping wildcard selectors",
-                        )
-                        .into_combine(format_err!(
+                        );
+                        let overlap_err = format_err!(
                             overlap.span(),
                             "first ink! message with overlapping wildcard selector here",
-                        )))
+                        );
+                        return Err(err.into_combine(overlap_err))
                     }
                 }
             }
+
+            if let Some(wildcard) = wildcard_selector {
+                match other_messages.len() as u32 {
+                    0 => return Err(format_err!(
+                        wildcard.span(),
+                        "missing definition of another message with TODO in tandem with a wildcard \
+                        selector",
+                    )),
+                    1 => {
+                        if !other_messages[0].callable().has_wildcard_complement_selector() {
+                            return Err(format_err!(
+                                other_messages[0].callable().span(),
+                                "when using a wildcard selector `selector = _` for an ink! message \
+                                then the other message must use the wildcard complement `selector = @`"
+                            ))
+                        }
+                    }
+                    2.. => {
+                        let mut combined = format_err!(
+                            wildcard.span(),
+                            "exactly one other message must be defined together with a wildcard selector",
+                        );
+                        for message in &other_messages {
+                            if !message.callable().has_wildcard_complement_selector() {
+                                combined.combine(
+                                    format_err!(
+                                        message.callable().span(),
+                                        "additional message not permitted together with a wildcard selector",
+                                    )
+                                )
+                            }
+                        }
+                        return Err(combined)
+                    }
+                }
+            } else {
+                for message in &other_messages {
+                    if message.callable().has_wildcard_complement_selector() {
+                        return Err(format_err!(
+                            message.callable().span(),
+                            "encountered ink! message with wildcard complement `selector = @` but no \
+                             wildcard `selector = _` defined"
+                        ));
+                    }
+                }
+            }
+
             let mut wildcard_selector: Option<&ir::Constructor> = None;
             for constructor in item_impl.iter_constructors() {
                 if !constructor.has_wildcard_selector() {
@@ -275,7 +329,6 @@ impl ItemMod {
                 match wildcard_selector {
                     None => wildcard_selector = Some(constructor.callable()),
                     Some(overlap) => {
-                        use crate::error::ExtError as _;
                         return Err(format_err!(
                             constructor.callable().span(),
                             "encountered ink! constructor with overlapping wildcard selectors",
@@ -329,7 +382,7 @@ impl TryFrom<syn::ItemMod> for ItemMod {
         Self::ensure_contains_message(module_span, &items)?;
         Self::ensure_contains_constructor(module_span, &items)?;
         Self::ensure_no_overlapping_selectors(&items)?;
-        Self::ensure_only_one_wildcard_selector(&items)?;
+        Self::ensure_valid_wildcard_selector_usage(&items)?;
         Ok(Self {
             attrs: other_attrs,
             vis: module.vis,
@@ -397,7 +450,8 @@ impl ItemMod {
         storage
     }
 
-    /// Returns all (ink! and non-ink! specific) item definitions of the ink! inline module.
+    /// Returns all (ink! and non-ink! specific) item definitions of the ink! inline
+    /// module.
     pub fn items(&self) -> &[ir::Item] {
         self.items.as_slice()
     }
@@ -427,7 +481,7 @@ impl ItemMod {
     /// #
     ///     #[ink(message)]
     ///     pub fn my_message(&self) {
-    ///         /* message implementation */
+    ///         // message implementation
     ///     }
     /// }
     /// # }}).unwrap();
@@ -450,7 +504,7 @@ impl ItemMod {
     /// #[ink(impl)]
     /// impl MyStorage {
     ///     fn my_method(&self) -> i32 {
-    ///         /* method implementation */
+    ///         // method implementation
     ///     }
     /// }
     /// #
@@ -919,5 +973,201 @@ mod tests {
             },
             "encountered ink! attribute arguments with equal kinds",
         );
+    }
+
+    #[test]
+    fn wildcard_selector_and_one_other_message_with_well_known_selector_works() {
+        assert!(
+            <ir::ItemMod as TryFrom<syn::ItemMod>>::try_from(syn::parse_quote! {
+                mod my_module {
+                    #[ink(storage)]
+                    pub struct MyStorage {}
+
+                    impl MyStorage {
+                        #[ink(constructor)]
+                        pub fn my_constructor() -> Self {}
+
+                        #[ink(message, selector = _)]
+                        pub fn fallback(&self) {}
+
+                        #[ink(message, selector = 0x9BAE9D5E)]
+                        pub fn wildcard_complement_message(&self) {}
+                    }
+                }
+            })
+            .is_ok()
+        );
+    }
+
+    #[test]
+    fn wildcard_selector_and_one_other_message_with_wildcard_complement_selector_works() {
+        assert!(
+            <ir::ItemMod as TryFrom<syn::ItemMod>>::try_from(syn::parse_quote! {
+                mod my_module {
+                    #[ink(storage)]
+                    pub struct MyStorage {}
+
+                    impl MyStorage {
+                        #[ink(constructor)]
+                        pub fn my_constructor() -> Self {}
+
+                        #[ink(message, selector = _)]
+                        pub fn fallback(&self) {}
+
+                        #[ink(message, selector = @)]
+                        pub fn wildcard_complement_message(&self) {}
+                    }
+                }
+            })
+            .is_ok()
+        );
+    }
+
+    #[test]
+    fn wildcard_selector_without_other_message_fails() {
+        assert_fail(syn::parse_quote! {
+                mod my_module {
+                    #[ink(storage)]
+                    pub struct MyStorage {}
+
+                    impl MyStorage {
+                        #[ink(constructor)]
+                        pub fn my_constructor() -> Self {}
+
+                        #[ink(message, selector = _)]
+                        pub fn fallback(&self) {}
+                    }
+                }
+            },
+            "missing definition of another message with TODO in tandem with a wildcard selector"
+        )
+    }
+
+    #[test]
+    fn wildcard_selector_and_one_other_message_without_well_known_selector_fails() {
+        assert_fail(syn::parse_quote! {
+                mod my_module {
+                    #[ink(storage)]
+                    pub struct MyStorage {}
+
+                    impl MyStorage {
+                        #[ink(constructor)]
+                        pub fn my_constructor() -> Self {}
+
+                        #[ink(message, selector = _)]
+                        pub fn fallback(&self) {}
+
+                        #[ink(message)]
+                        pub fn other_message_without_well_known_selector(&self) {}
+                    }
+                }
+            },
+"when using a wildcard selector `selector = _` for an ink! message then the other \
+            message must use the wildcard complement `selector = @`"
+        );
+    }
+
+    #[test]
+    fn wildcard_selector_with_two_other_messages() {
+        assert_fail(
+            syn::parse_quote! {
+                mod my_module {
+                    #[ink(storage)]
+                    pub struct MyStorage {}
+
+                    impl MyStorage {
+                        #[ink(constructor)]
+                        pub fn my_constructor() -> Self {}
+
+                        #[ink(message, selector = _)]
+                        pub fn fallback(&self) {}
+
+                        #[ink(message, selector = 0x00000000)]
+                        pub fn wildcard_complement_message(&self) {}
+
+                        #[ink(message)]
+                        pub fn another_message_not_allowed(&self) {}
+                    }
+                }
+            },
+            "exactly one other message must be defined together with a wildcard selector",
+        );
+    }
+
+    #[test]
+    fn wildcard_selector_with_many_other_messages() {
+        assert_fail(
+            syn::parse_quote! {
+                mod my_module {
+                    #[ink(storage)]
+                    pub struct MyStorage {}
+
+                    impl MyStorage {
+                        #[ink(constructor)]
+                        pub fn my_constructor() -> Self {}
+
+                        #[ink(message, selector = _)]
+                        pub fn fallback(&self) {}
+
+                        #[ink(message, selector = @)]
+                        pub fn wildcard_complement(&self) {}
+
+                        #[ink(message)]
+                        pub fn another_message_not_allowed1(&self) {}
+
+                        #[ink(message)]
+                        pub fn another_message_not_allowed2(&self) {}
+
+                        #[ink(message)]
+                        pub fn another_message_not_allowed3(&self) {}
+                    }
+                }
+            },
+            "exactly one other message must be defined together with a wildcard selector",
+        );
+    }
+
+    #[test]
+    fn wildcard_complement_used_without_wildcard_fails() {
+        assert_fail(
+            syn::parse_quote! {
+                mod my_module {
+                    #[ink(storage)]
+                    pub struct MyStorage {}
+
+                    impl MyStorage {
+                        #[ink(constructor)]
+                        pub fn my_constructor() -> Self {}
+
+                        #[ink(message, selector = @)]
+                        pub fn uses_reserved_wildcard_other_message_selector(&self) {}
+                    }
+                }
+            },
+            "encountered ink! message with wildcard complement `selector = @` but no \
+            wildcard `selector = _` defined",
+        )
+    }
+
+    #[test]
+    fn wildcard_reserved_selector_used_without_wildcard_fails() {
+        assert_fail(
+            syn::parse_quote! {
+                mod my_module {
+                    #[ink(storage)]
+                    pub struct MyStorage {}
+
+                    impl MyStorage {
+                        #[ink(constructor)]
+                        pub fn my_constructor() -> Self {}
+
+                        #[ink(message, selector = 0x9BAE9D5E)]
+                        pub fn uses_reserved_wildcard_other_message_selector(&self) {}
+                    }
+                }
+            },
+            "encountered ink! message with wildcard complement `selector = @` but no \
+            wildcard `selector = _` defined",
+        )
     }
 }

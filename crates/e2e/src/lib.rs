@@ -21,24 +21,24 @@
 
 mod builders;
 mod client;
+mod contract_results;
 mod default_accounts;
+mod error;
 mod node_proc;
 mod xts;
 
-pub use builders::{
-    build_message,
-    MessageBuilder,
-};
 pub use client::{
-    CallDryRunResult,
-    CallResult,
+    CallBuilderFinal,
     Client,
     Error,
+};
+pub use contract_results::{
+    CallDryRunResult,
+    CallResult,
     InstantiationResult,
     UploadResult,
 };
 pub use default_accounts::*;
-pub use env_logger;
 pub use ink_e2e_macro::test;
 pub use node_proc::{
     TestNodeProcess,
@@ -51,9 +51,9 @@ pub use subxt::{
     tx::PairSigner,
 };
 pub use tokio;
+pub use tracing_subscriber;
 
 use pallet_contracts_primitives::{
-    CodeUploadResult,
     ContractExecResult,
     ContractInstantiateResult,
 };
@@ -64,31 +64,7 @@ use std::{
 };
 use xts::ContractsApi;
 
-/// Default set of commonly used types by Substrate runtimes.
-#[cfg(feature = "std")]
-pub enum SubstrateConfig {}
-
-#[cfg(feature = "std")]
-impl subxt::Config for SubstrateConfig {
-    type Index = u32;
-    type Hash = sp_core::H256;
-    type Hasher = subxt::config::substrate::BlakeTwo256;
-    type AccountId = subxt::config::substrate::AccountId32;
-    type Address = sp_runtime::MultiAddress<Self::AccountId, u32>;
-    type Header = subxt::config::substrate::SubstrateHeader<
-        u32,
-        subxt::config::substrate::BlakeTwo256,
-    >;
-    type Signature = sp_runtime::MultiSignature;
-    type ExtrinsicParams = subxt::config::substrate::SubstrateExtrinsicParams<Self>;
-}
-
-/// Default set of commonly used types by Polkadot nodes.
-#[cfg(feature = "std")]
-pub type PolkadotConfig = subxt::config::WithExtrinsicParams<
-    SubstrateConfig,
-    subxt::config::polkadot::PolkadotExtrinsicParams<SubstrateConfig>,
->;
+pub use subxt::PolkadotConfig;
 
 /// Signer that is used throughout the E2E testing.
 ///
@@ -116,12 +92,12 @@ pub fn log_prefix() -> String {
 
 /// Writes `msg` to stdout.
 pub fn log_info(msg: &str) {
-    log::info!("[{}] {}", log_prefix(), msg);
+    tracing::info!("[{}] {}", log_prefix(), msg);
 }
 
 /// Writes `msg` to stderr.
 pub fn log_error(msg: &str) {
-    log::error!("[{}] {}", log_prefix(), msg);
+    tracing::error!("[{}] {}", log_prefix(), msg);
 }
 
 /// Get an ink! [`ink_primitives::AccountId`] for a given keyring account.

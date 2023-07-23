@@ -58,6 +58,12 @@ where
 
     /// Attempt to kill the running substrate process.
     pub fn kill(&mut self) -> Result<(), String> {
+        tracing::info!("Killing node process {}", self.proc.id());
+        if let Err(err) = self.proc.kill() {
+            let err = format!("Error killing node process {}: {}", self.proc.id(), err);
+            tracing::error!("{}", err);
+            return Err(err)
+        }
         Ok(())
     }
 
@@ -107,12 +113,12 @@ where
         let ws_url = format!("ws://127.0.0.1:{ws_port}");
 
         // Connect to the node with a `subxt` client:
-        let client = OnlineClient::from_url(ws_url.clone()).await;
+        let client = OnlineClient::from_url(url.clone()).await;
         match client {
             Ok(client) => {
                 Ok(TestNodeProcess {
                     client,
-                    url: ws_url.clone(),
+                    url: url.clone(),
                 })
             }
             Err(err) => {

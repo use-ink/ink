@@ -1,4 +1,4 @@
-#![cfg_attr(not(feature = "std"), no_std)]
+#![cfg_attr(not(feature = "std"), no_std, no_main)]
 
 pub use self::constructors_return_value::{
     ConstructorError,
@@ -34,8 +34,8 @@ pub mod constructors_return_value {
             }
         }
 
-        /// A constructor which reverts and fills the output buffer with an erroneously encoded
-        /// return value.
+        /// A constructor which reverts and fills the output buffer with an erroneously
+        /// encoded return value.
         #[ink(constructor)]
         pub fn revert_new(_init_value: bool) -> Self {
             ink::env::return_value::<ink::ConstructorResult<AccountId>>(
@@ -44,8 +44,8 @@ pub mod constructors_return_value {
             )
         }
 
-        /// A constructor which reverts and fills the output buffer with an erroneously encoded
-        /// return value.
+        /// A constructor which reverts and fills the output buffer with an erroneously
+        /// encoded return value.
         #[ink(constructor)]
         pub fn try_revert_new(init_value: bool) -> Result<Self, ConstructorError> {
             let value = if init_value {
@@ -74,19 +74,14 @@ pub mod constructors_return_value {
         #[test]
         #[allow(clippy::assertions_on_constants)]
         fn infallible_constructor_reflection() {
-            const ID: u32 =
-                <Contract as ::ink::reflect::ContractDispatchableConstructors<
-                    {
-                        <Contract as ::ink::reflect::ContractAmountDispatchables>::CONSTRUCTORS
-                    },
-                >>::IDS[0];
+            const ID: u32 = ::ink::selector_id!("new");
 
             assert!(
-                !<Contract as ::ink::reflect::DispatchableConstructorInfo<{ ID }>>::IS_RESULT,
+                !<Contract as ::ink::reflect::DispatchableConstructorInfo<ID>>::IS_RESULT,
             );
             assert_eq!(
                 TypeId::of::<
-                    <Contract as ::ink::reflect::DispatchableConstructorInfo<{ ID }>>::Error,
+                    <Contract as ::ink::reflect::DispatchableConstructorInfo<ID>>::Error,
                 >(),
                 TypeId::of::<&()>(),
             )
@@ -95,19 +90,14 @@ pub mod constructors_return_value {
         #[test]
         #[allow(clippy::assertions_on_constants)]
         fn fallible_constructor_reflection() {
-            const ID: u32 =
-                <Contract as ::ink::reflect::ContractDispatchableConstructors<
-                    {
-                        <Contract as ::ink::reflect::ContractAmountDispatchables>::CONSTRUCTORS
-                    },
-                >>::IDS[1];
+            const ID: u32 = ::ink::selector_id!("try_new");
 
             assert!(
-                <Contract as ::ink::reflect::DispatchableConstructorInfo<{ ID }>>::IS_RESULT,
+                <Contract as ::ink::reflect::DispatchableConstructorInfo<ID>>::IS_RESULT,
             );
             assert_eq!(
                 TypeId::of::<
-                    <Contract as ::ink::reflect::DispatchableConstructorInfo<{ ID }>>::Error,
+                    <Contract as ::ink::reflect::DispatchableConstructorInfo<ID>>::Error,
                 >(),
                 TypeId::of::<super::ConstructorError>(),
             )
@@ -116,7 +106,7 @@ pub mod constructors_return_value {
 
     #[cfg(all(test, feature = "e2e-tests"))]
     mod e2e_tests {
-        use super::ConstructorsReturnValueRef;
+        use super::*;
         use scale::Decode as _;
 
         type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
@@ -197,7 +187,7 @@ pub mod constructors_return_value {
             );
 
             let constructor = ConstructorsReturnValueRef::try_new(true);
-            let contract_acc_id = client
+            let contract = client
                 .instantiate(
                     "constructors_return_value",
                     &ink_e2e::bob(),
@@ -206,12 +196,10 @@ pub mod constructors_return_value {
                     None,
                 )
                 .await
-                .expect("instantiate failed")
-                .account_id;
+                .expect("instantiate failed");
+            let mut call = contract.call::<ConstructorsReturnValue>();
 
-            let get =
-                ink_e2e::build_message::<ConstructorsReturnValueRef>(contract_acc_id)
-                    .call(|contract| contract.get_value());
+            let get = call.get_value();
             let value = client
                 .call_dry_run(&ink_e2e::bob(), &get, 0, None)
                 .await
@@ -271,7 +259,7 @@ pub mod constructors_return_value {
                 .await;
 
             assert!(
-                matches!(result, Err(ink_e2e::Error::InstantiateExtrinsic(_))),
+                matches!(result, Err(ink_e2e::Error::<ink::env::DefaultEnvironment>::InstantiateExtrinsic(_))),
                 "Constructor should fail"
             );
 

@@ -37,23 +37,24 @@ use scale::{
     Output,
 };
 
-/// A simple wrapper around a type to store it in a separate storage cell under its own storage key.
-/// If you want to update the value, first you need to [`get`](crate::Lazy::get) it, update the
-/// value, and then call [`set`](crate::Lazy::set) with the new value.
+/// A simple wrapper around a type to store it in a separate storage cell under its own
+/// storage key. If you want to update the value, first you need to
+/// [`get`](crate::Lazy::get) it, update the value, and then call
+/// [`set`](crate::Lazy::set) with the new value.
 ///
 /// # Important
 ///
-/// The wrapper requires its own pre-defined storage key in order to determine where it stores
-/// value. By default, the is automatically calculated using [`AutoKey`](crate::traits::AutoKey)
-/// during compilation. However, anyone can specify a storage key using
-/// [`ManualKey`](crate::traits::ManualKey). Specifying the storage key can be helpful for
-/// upgradeable contracts or you want to be resistant to future changes of storage
-/// key calculation strategy.
+/// The wrapper requires its own pre-defined storage key in order to determine where it
+/// stores value. By default, the is automatically calculated using
+/// [`AutoKey`](crate::traits::AutoKey) during compilation. However, anyone can specify a
+/// storage key using [`ManualKey`](crate::traits::ManualKey). Specifying the storage key
+/// can be helpful for upgradeable contracts or you want to be resistant to future changes
+/// of storage key calculation strategy.
 ///
 /// # Note
 ///
-/// If the contract has two or more `Lazy` with the same storage key, modifying the value of one
-/// of them will modify others.
+/// If the contract has two or more `Lazy` with the same storage key, modifying the value
+/// of one of them will modify others.
 ///
 /// This is an example of how you can do this:
 /// ```rust
@@ -65,7 +66,10 @@ use scale::{
 ///
 /// # #[ink::contract]
 /// # mod my_module {
-/// use ink::storage::{traits::ManualKey, Lazy};
+/// use ink::storage::{
+///     traits::ManualKey,
+///     Lazy,
+/// };
 ///
 /// #[ink(storage)]
 /// #[derive(Default)]
@@ -205,7 +209,7 @@ const _: () = {
         KeyType: StorageKey + scale_info::TypeInfo + 'static,
     {
         fn layout(_: &Key) -> Layout {
-            Layout::Root(RootLayout::new(
+            Layout::Root(RootLayout::new::<Self, _>(
                 LayoutKey::from(&KeyType::KEY),
                 <V as StorageLayout>::layout(&KeyType::KEY),
             ))

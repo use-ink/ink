@@ -1,8 +1,9 @@
 [package]
 name = "ink_env"
-version = "4.0.1"
+version = "4.2.0"
 authors = ["Parity Technologies <admin@parity.io>", "Robin Freyler <robin@parity.io>"]
 edition = "2021"
+rust-version = "1.68"
 
 license = "Apache-2.0"
 readme = "README.md"
@@ -15,11 +16,10 @@ categories = ["no-std", "embedded"]
 include = ["Cargo.toml", "src/**/*.rs", "README.md", "LICENSE"]
 
 [dependencies]
-ink_metadata = { version = "4.0.1", path = "../metadata", default-features = false, features = ["derive"], optional = true }
-ink_allocator = { version = "4.0.1", path = "../allocator", default-features = false }
-ink_storage_traits = { version = "4.0.1", path = "../storage/traits", default-features = false }
-ink_prelude = { version = "4.0.1", path = "../prelude", default-features = false }
-ink_primitives = { version = "4.0.1", path = "../primitives", default-features = false }
+ink_allocator = { version = "=4.2.0", path = "../allocator", default-features = false }
+ink_storage_traits = { version = "=4.2.0", path = "../storage/traits", default-features = false }
+ink_prelude = { version = "=4.2.0", path = "../prelude", default-features = false }
+ink_primitives = { version = "=4.2.0", path = "../primitives", default-features = false }
 
 scale = { package = "parity-scale-codec", version = "3.4", default-features = false, features = ["derive"] }
 derive_more = { version = "0.99", default-features = false, features = ["from", "display"] }
@@ -33,7 +33,7 @@ static_assertions = "1.1"
 rlibc = "1"
 
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
-ink_engine = { version = "4.0.1", path = "../engine/", optional = true }
+ink_engine = { version = "=4.2.0", path = "../engine/", optional = true }
 
 # Hashes for the off-chain environment.
 sha2 = { version = "0.10", optional = true }
@@ -41,13 +41,15 @@ sha3 = { version = "0.10", optional = true }
 blake2 = { version = "0.10", optional = true }
 
 # ECDSA for the off-chain environment.
-secp256k1 = { version = "0.26.0", features = ["recovery", "global-context"], optional = true }
+secp256k1 = { version = "0.27.0", features = ["recovery", "global-context"], optional = true }
 
 # Only used in the off-chain environment.
 #
 # Sadly couldn't be marked as dev-dependency.
 # Never use this crate outside the off-chain environment!
-scale-info = { version = "2.3", default-features = false, features = ["derive"], optional = true }
+scale-decode = { version = "0.7.0", default-features = false, optional = true }
+scale-encode = { version = "0.3.0", default-features = false, optional = true }
+scale-info = { version = "2.6", default-features = false, features = ["derive"], optional = true }
 
 [dev-dependencies]
 ink = { path = "../ink" }
@@ -55,13 +57,14 @@ ink = { path = "../ink" }
 [features]
 default = ["std"]
 std = [
-    "ink_metadata/std",
     "ink_allocator/std",
     "ink_prelude/std",
     "ink_primitives/std",
     "ink_storage_traits/std",
     "ink_engine/std",
     "scale/std",
+    "scale-decode",
+    "scale-encode",
     "scale-info/std",
     "secp256k1",
     "num-traits/std",
@@ -70,9 +73,6 @@ std = [
     "sha3",
     "blake2",
 ]
-
-# Enable direct call to a pallet dispatchable via `call_runtime()`.
-call-runtime = []
 
 # Enable contract debug messages via `debug_print!` and `debug_println!`.
 ink-debug = []

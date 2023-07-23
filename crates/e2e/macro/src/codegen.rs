@@ -13,7 +13,10 @@
 // limitations under the License.
 
 use crate::ir;
-use contract_build::ManifestPath;
+use contract_build::{
+    ManifestPath,
+    Target,
+};
 use core::cell::RefCell;
 use derive_more::From;
 use proc_macro2::TokenStream as TokenStream2;
@@ -98,7 +101,7 @@ impl InkE2ETest {
         if already_built_contracts.is_empty() {
             // Build all of them for the first time and initialize everything
             BUILD_ONCE.call_once(|| {
-                env_logger::init();
+                tracing_subscriber::fmt::init();
                 for manifest_path in contracts_to_build_and_import {
                     let dest_wasm = build_contract(&manifest_path);
                     let _ = already_built_contracts.insert(manifest_path, dest_wasm);
@@ -157,7 +160,7 @@ impl InkE2ETest {
                 log_info("setting up e2e test");
 
                 ::ink_e2e::INIT.call_once(|| {
-                    ::ink_e2e::env_logger::init();
+                    ::ink_e2e::tracing_subscriber::fmt::init();
                 });
 
                 log_info("creating new client");
@@ -208,8 +211,9 @@ struct ContractManifests {
 }
 
 impl ContractManifests {
-    /// Load any manifests for packages which are detected to be `ink!` contracts. Any package
-    /// with the `ink-as-dependency` feature enabled is assumed to be an `ink!` contract.
+    /// Load any manifests for packages which are detected to be `ink!` contracts. Any
+    /// package with the `ink-as-dependency` feature enabled is assumed to be an
+    /// `ink!` contract.
     fn from_cargo_metadata() -> Self {
         let cmd = cargo_metadata::MetadataCommand::new();
         let metadata = cmd
@@ -248,8 +252,8 @@ impl ContractManifests {
         }
     }
 
-    /// Returns all the contract manifests which are to be built, including the root package
-    /// if it is determined to be an `ink!` contract.
+    /// Returns all the contract manifests which are to be built, including the root
+    /// package if it is determined to be an `ink!` contract.
     fn all_contracts_to_build(&self) -> Vec<String> {
         let mut all_manifests: Vec<String> = self.root_package.iter().cloned().collect();
         all_manifests.append(&mut self.contract_dependencies.clone());
@@ -288,6 +292,7 @@ fn build_contract(path_to_cargo_toml: &str) -> String {
         lint: false,
         output_type: OutputType::HumanReadable,
         skip_wasm_validation: false,
+        target: Target::Wasm,
     };
 
     match contract_build::execute(args) {

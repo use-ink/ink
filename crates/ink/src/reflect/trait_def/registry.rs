@@ -22,17 +22,17 @@ use ink_env::ContractEnv;
 ///
 /// # Codegen
 ///
-/// - The `#[ink::trait_definition]` procedural macro generates an associated type
-///   called `__ink_TraitInfo` for each ink! trait definition.
+/// - The `#[ink::trait_definition]` procedural macro generates an associated type called
+///   `__ink_TraitInfo` for each ink! trait definition.
 /// - Furthermore the ink! codegen implements the ink! trait definition for the
-///   `TraitDefinitionRegistry` with stub implementations for all methods that
-///   guarantee that they are never called.
-/// - For every implemented ink! trait definition an ink! trait info object type
-///   is generated that is linked to the global `TraitDefinitionRegistry` through
-///   the aforementioned `__ink_TraitInfo` associated type.
-/// - This trait info object type itself implements various traits each providing
-///   useful static reflection information to the rest of the codegen about the ink!
-///   trait definition.
+///   `TraitDefinitionRegistry` with stub implementations for all methods that guarantee
+///   that they are never called.
+/// - For every implemented ink! trait definition an ink! trait info object type is
+///   generated that is linked to the global `TraitDefinitionRegistry` through the
+///   aforementioned `__ink_TraitInfo` associated type.
+/// - This trait info object type itself implements various traits each providing useful
+///   static reflection information to the rest of the codegen about the ink! trait
+///   definition.
 ///
 /// # Usage
 ///
@@ -47,8 +47,8 @@ use ink_env::ContractEnv;
 /// }
 ///
 /// /// Access the generated ink! trait info object type like this:
-/// type TraitInfo = <TraitDefinitionRegistry<DefaultEnvironment>
-///     as TraitDefinition>::__ink_TraitInfo;
+/// type TraitInfo =
+///     <TraitDefinitionRegistry<DefaultEnvironment> as TraitDefinition>::__ink_TraitInfo;
 /// ```
 pub struct TraitDefinitionRegistry<E> {
     marker: PhantomData<fn() -> E>,

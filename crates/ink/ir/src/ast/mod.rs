@@ -25,9 +25,14 @@
 //! the `value` part.
 
 mod attr_args;
+mod meta;
 
-pub use self::attr_args::{
-    AttributeArgs,
-    MetaNameValue,
-    PathOrLit,
+pub use self::{
+    attr_args::AttributeArgs,
+    meta::{
+        Meta,
+        MetaNameValue,
+        MetaValue,
+        Symbol,
+    },
 };

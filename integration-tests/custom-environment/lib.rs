@@ -1,18 +1,19 @@
-#![cfg_attr(not(feature = "std"), no_std)]
+#![cfg_attr(not(feature = "std"), no_std, no_main)]
 
 use ink::env::{
     DefaultEnvironment,
     Environment,
 };
 
-/// Our custom environment diverges from the `DefaultEnvironment` in the event topics limit.
+/// Our custom environment diverges from the `DefaultEnvironment` in the event topics
+/// limit.
 #[derive(Debug, Clone, PartialEq, Eq)]
 #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
 pub enum EnvironmentWithManyTopics {}
 
 impl Environment for EnvironmentWithManyTopics {
-    // We allow for 5 topics in the event, therefore the contract pallet's schedule must allow for
-    // 6 of them (to allow the implicit topic for the event signature).
+    // We allow for 5 topics in the event, therefore the contract pallet's schedule must
+    // allow for 6 of them (to allow the implicit topic for the event signature).
     const MAX_EVENT_TOPICS: usize =
         <DefaultEnvironment as Environment>::MAX_EVENT_TOPICS + 1;
 
@@ -32,8 +33,8 @@ mod runtime_call {
     #[derive(Default)]
     pub struct Topics;
 
-    /// An event that would be forbidden in the default environment, but is completely valid in
-    /// our custom one.
+    /// An event that would be forbidden in the default environment, but is completely
+    /// valid in our custom one.
     #[ink(event)]
     #[derive(Default)]
     pub struct EventWithTopics {
@@ -91,8 +92,6 @@ mod runtime_call {
     mod e2e_tests {
         use super::*;
 
-        use ink_e2e::MessageBuilder;
-
         type E2EResult<T> = Result<T, Box<dyn std::error::Error>>;
 
         #[cfg(feature = "permissive-node")]
@@ -102,7 +101,7 @@ mod runtime_call {
         ) -> E2EResult<()> {
             // given
             let constructor = TopicsRef::new();
-            let contract_acc_id = client
+            let contract = client
                 .instantiate(
                     "custom-environment",
                     &ink_e2e::alice(),
@@ -111,18 +110,14 @@ mod runtime_call {
                     None,
                 )
                 .await
-                .expect("instantiate failed")
-                .account_id;
+                .expect("instantiate failed");
+            let call = contract.call::<Topics>();
 
             // when
-            let message =
-                MessageBuilder::<crate::EnvironmentWithManyTopics, TopicsRef>::from_account_id(
-                    contract_acc_id,
-                )
-                .call(|caller| caller.trigger());
+            let message = call.trigger();
 
             let call_res = client
-                .call(&ink_e2e::alice(), message, 0, None)
+                .call(&ink_e2e::alice(), &message, 0, None)
                 .await
                 .expect("call failed");
 
@@ -139,7 +134,7 @@ mod runtime_call {
         ) -> E2EResult<()> {
             // given
             let constructor = TopicsRef::new();
-            let contract_acc_id = client
+            let contract = client
                 .instantiate(
                     "custom-environment",
                     &ink_e2e::alice(),
@@ -148,14 +143,10 @@ mod runtime_call {
                     None,
                 )
                 .await
-                .expect("instantiate failed")
-                .account_id;
+                .expect("instantiate failed");
+            let mut call = contract.call::<Topics>();
 
-            let message =
-                MessageBuilder::<crate::EnvironmentWithManyTopics, TopicsRef>::from_account_id(
-                    contract_acc_id,
-                )
-                    .call(|caller| caller.trigger());
+            let message = call.trigger();
 
             // when
             let call_res = client
