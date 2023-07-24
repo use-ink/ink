@@ -318,12 +318,6 @@
 <a href="#317" id="317">317</a>
 <a href="#318" id="318">318</a>
 <a href="#319" id="319">319</a>
-<a href="#320" id="320">320</a>
-<a href="#321" id="321">321</a>
-<a href="#322" id="322">322</a>
-<a href="#323" id="323">323</a>
-<a href="#324" id="324">324</a>
-<a href="#325" id="325">325</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -372,16 +366,10 @@
             .map(|item_impl| <span class="self">self</span>.generate_item_impl(item_impl));
         <span class="kw">let </span>inout_guards = <span class="self">self</span>.generate_input_output_guards();
         <span class="kw">let </span>trait_message_property_guards = <span class="self">self</span>.generate_trait_message_property_guards();
-        <span class="kw">let </span>use_emit_event =
-            <span class="self">self</span>.contract.module().events().next().is_some().then(|| {
-                <span class="comment">// Required to make `self.env().emit_event(...)` syntax available.
-                </span><span class="macro">quote! </span>{ <span class="kw">use </span>::ink::codegen::EmitEvent <span class="kw">as _</span>; }
-            });
         <span class="macro">quote! </span>{
             <span class="kw">const _</span>: () = {
                 <span class="comment">// Required to make `self.env()` and `Self::env()` syntax available.
                 </span><span class="kw">use </span>::ink::codegen::{Env <span class="kw">as _</span>, StaticEnv <span class="kw">as _</span>};
-                #use_emit_event
 
                 #( #item_impls )*
                 #inout_guards

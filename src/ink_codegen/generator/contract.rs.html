@@ -66,6 +66,9 @@
 <a href="#65" id="65">65</a>
 <a href="#66" id="66">66</a>
 <a href="#67" id="67">67</a>
+<a href="#68" id="68">68</a>
+<a href="#69" id="69">69</a>
+<a href="#70" id="70">70</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -106,7 +109,10 @@
         <span class="kw">let </span>vis = module.vis();
         <span class="kw">let </span>env = <span class="self">self</span>.generate_code_using::&lt;generator::Env&gt;();
         <span class="kw">let </span>storage = <span class="self">self</span>.generate_code_using::&lt;generator::Storage&gt;();
-        <span class="kw">let </span>events = <span class="self">self</span>.generate_code_using::&lt;generator::Events&gt;();
+        <span class="kw">let </span>events = module.events().map(<span class="kw">move </span>|event| {
+            <span class="kw">let </span>event_generator = generator::Event::from(event);
+            event_generator.generate_code()
+        });
         <span class="kw">let </span>dispatch2 = <span class="self">self</span>.generate_code_using::&lt;generator::Dispatch&gt;();
         <span class="kw">let </span>item_impls = <span class="self">self</span>.generate_code_using::&lt;generator::ItemImpls&gt;();
         <span class="kw">let </span>metadata = <span class="self">self</span>.generate_code_using::&lt;generator::Metadata&gt;();
@@ -123,7 +129,7 @@
             #vis <span class="kw">mod </span>#ident {
                 #env
                 #storage
-                #events
+                #( #events )*
                 #dispatch2
                 #item_impls
                 #contract_reference

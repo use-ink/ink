@@ -110,6 +110,7 @@
 <a href="#109" id="109">109</a>
 <a href="#110" id="110">110</a>
 <a href="#111" id="111">111</a>
+<a href="#112" id="112">112</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -131,6 +132,7 @@
 <span class="kw">mod </span>chain_extension;
 <span class="kw">mod </span>config;
 <span class="kw">mod </span>contract;
+<span class="kw">mod </span>event;
 <span class="kw">mod </span>idents_lint;
 <span class="kw">mod </span>ink_test;
 <span class="kw">mod </span>item;
@@ -181,9 +183,9 @@
     },
     config::Config,
     contract::Contract,
+    event::Event,
     ink_test::InkTest,
     item::{
-        Event,
         InkItem,
         Item,
         Storage,

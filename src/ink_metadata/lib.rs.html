@@ -155,6 +155,34 @@
 <a href="#154" id="154">154</a>
 <a href="#155" id="155">155</a>
 <a href="#156" id="156">156</a>
+<a href="#157" id="157">157</a>
+<a href="#158" id="158">158</a>
+<a href="#159" id="159">159</a>
+<a href="#160" id="160">160</a>
+<a href="#161" id="161">161</a>
+<a href="#162" id="162">162</a>
+<a href="#163" id="163">163</a>
+<a href="#164" id="164">164</a>
+<a href="#165" id="165">165</a>
+<a href="#166" id="166">166</a>
+<a href="#167" id="167">167</a>
+<a href="#168" id="168">168</a>
+<a href="#169" id="169">169</a>
+<a href="#170" id="170">170</a>
+<a href="#171" id="171">171</a>
+<a href="#172" id="172">172</a>
+<a href="#173" id="173">173</a>
+<a href="#174" id="174">174</a>
+<a href="#175" id="175">175</a>
+<a href="#176" id="176">176</a>
+<a href="#177" id="177">177</a>
+<a href="#178" id="178">178</a>
+<a href="#179" id="179">179</a>
+<a href="#180" id="180">180</a>
+<a href="#181" id="181">181</a>
+<a href="#182" id="182">182</a>
+<a href="#183" id="183">183</a>
+<a href="#184" id="184">184</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -177,6 +205,7 @@
 
 #[cfg(not(feature = <span class="string">&quot;std&quot;</span>))]
 </span><span class="kw">extern crate </span>alloc;
+<span class="kw">extern crate </span>core;
 
 <span class="attr">#[cfg(test)]
 </span><span class="kw">mod </span>tests;
@@ -210,7 +239,10 @@
 
 <span class="kw">use </span>impl_serde::serialize <span class="kw">as </span>serde_hex;
 
+<span class="attr">#[doc(hidden)]
+</span><span class="kw">pub use </span>linkme;
 <span class="kw">pub use </span>scale_info::TypeInfo;
+
 <span class="attr">#[cfg(feature = <span class="string">&quot;derive&quot;</span>)]
 </span><span class="kw">use </span>scale_info::{
     form::PortableForm,
@@ -310,6 +342,30 @@
     </span><span class="kw">pub fn </span>spec(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>ContractSpec&lt;PortableForm&gt; {
         <span class="kw-2">&amp;</span><span class="self">self</span>.spec
     }
+}
+
+<span class="doccomment">/// Any event which derives `#[derive(ink::EventMetadata)]` and is used in the contract
+/// binary will have its implementation added to this distributed slice at linking time.
+</span><span class="attr">#[linkme::distributed_slice]
+</span><span class="kw">pub static </span>EVENTS: [<span class="kw">fn</span>() -&gt; EventSpec] = [..];
+
+<span class="doccomment">/// Collect the [`EventSpec`] metadata of all event definitions linked and used in the
+/// binary.
+</span><span class="kw">pub fn </span>collect_events() -&gt; Vec&lt;EventSpec&gt; {
+    EVENTS.iter().map(|event| event()).collect()
+}
+
+<span class="doccomment">/// Provides metadata about an ink! event.
+///
+/// Implementations must be registered into the [`static@EVENTS`] distributed slice, in
+/// order to be included in the contract metadata. This is done automatically by the
+/// `#[derive(ink::EventMetadata)]`
+</span><span class="kw">pub trait </span>EventMetadata {
+    <span class="doccomment">/// The full path to the event type, usually provided by [`module_path`].
+    </span><span class="kw">const </span>MODULE_PATH: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str;
+
+    <span class="doccomment">/// Returns the metadata of the event.
+    </span><span class="kw">fn </span>event_spec() -&gt; EventSpec;
 }
 </code></pre></div>
 </section></main><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="ink_metadata" data-themes="" data-resource-suffix="" data-rustdoc-version="1.69.0 (84c898d65 2023-04-16)" data-search-js="search-8a59a8356673ec1f.js" data-settings-js="settings-f0c5c39777a9a2f6.js" data-settings-css="settings-0bcba95ff279c1db.css" ></div></body></html>

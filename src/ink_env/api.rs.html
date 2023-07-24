@@ -797,11 +797,11 @@
         EnvInstance,
         OnInstance,
     },
+    event::Event,
     hash::{
         CryptoHash,
         HashOutput,
     },
-    topics::Topics,
     types::Gas,
     Environment,
     <span class="prelude-ty">Result</span>,
@@ -940,13 +940,13 @@
 }
 
 <span class="doccomment">/// Emits an event with the given event data.
-</span><span class="kw">pub fn </span>emit_event&lt;E, Event&gt;(event: Event)
+</span><span class="kw">pub fn </span>emit_event&lt;E, Evt&gt;(event: Evt)
 <span class="kw">where
     </span>E: Environment,
-    Event: Topics + scale::Encode,
+    Evt: Event,
 {
     &lt;EnvInstance <span class="kw">as </span>OnInstance&gt;::on_instance(|instance| {
-        TypedEnvBackend::emit_event::&lt;E, Event&gt;(instance, event)
+        TypedEnvBackend::emit_event::&lt;E, Evt&gt;(instance, event)
     })
 }
 

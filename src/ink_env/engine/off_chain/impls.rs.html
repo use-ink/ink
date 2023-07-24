@@ -547,10 +547,6 @@
 <a href="#546" id="546">546</a>
 <a href="#547" id="547">547</a>
 <a href="#548" id="548">548</a>
-<a href="#549" id="549">549</a>
-<a href="#550" id="550">550</a>
-<a href="#551" id="551">551</a>
-<a href="#552" id="552">552</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -575,6 +571,10 @@
         DelegateCall,
         FromAccountId,
     },
+    event::{
+        Event,
+        TopicsBuilderBackend,
+    },
     hash::{
         Blake2x128,
         Blake2x256,
@@ -582,10 +582,6 @@
         HashOutput,
         Keccak256,
         Sha2x256,
-    },
-    topics::{
-        Topics,
-        TopicsBuilderBackend,
     },
     Clear,
     EnvBackend,
@@ -703,10 +699,6 @@
         }
         <span class="kw">let </span>off_hash = result.as_ref();
         <span class="kw">let </span>off_hash = off_hash.to_vec();
-        <span class="macro">debug_assert!</span>(
-            !<span class="self">self</span>.topics.contains(<span class="kw-2">&amp;</span>off_hash),
-            <span class="string">&quot;duplicate topic hash discovered!&quot;
-        </span>);
         <span class="self">self</span>.topics.push(off_hash);
     }
 
@@ -975,10 +967,10 @@
             })
     }
 
-    <span class="kw">fn </span>emit_event&lt;E, Event&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, event: Event)
+    <span class="kw">fn </span>emit_event&lt;E, Evt&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, event: Evt)
     <span class="kw">where
         </span>E: Environment,
-        Event: Topics + scale::Encode,
+        Evt: Event,
     {
         <span class="kw">let </span>builder = TopicsBuilder::default();
         <span class="kw">let </span>enc_topics = event.topics::&lt;E, <span class="kw">_</span>&gt;(builder.into());

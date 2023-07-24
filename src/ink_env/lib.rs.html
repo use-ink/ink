@@ -268,9 +268,9 @@
 <span class="kw">mod </span>contract;
 <span class="kw">mod </span>engine;
 <span class="kw">mod </span>error;
-<span class="kw">pub mod </span>hash;
 <span class="attr">#[doc(hidden)]
-</span><span class="kw">pub mod </span>topics;
+</span><span class="kw">pub mod </span>event;
+<span class="kw">pub mod </span>hash;
 <span class="kw">mod </span>types;
 
 <span class="attr">#[cfg(test)]
@@ -298,7 +298,7 @@
         Error,
         <span class="prelude-ty">Result</span>,
     },
-    topics::Topics,
+    event::Event,
     types::{
         AccountIdGuard,
         DefaultEnvironment,

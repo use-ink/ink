@@ -544,11 +544,11 @@
         DelegateCall,
         FromAccountId,
     },
+    event::Event,
     hash::{
         CryptoHash,
         HashOutput,
     },
-    topics::Topics,
     Environment,
     <span class="prelude-ty">Result</span>,
 };
@@ -928,10 +928,10 @@
     /// # Note
     ///
     /// For more details visit: [`emit_event`][`crate::emit_event`]
-    </span><span class="kw">fn </span>emit_event&lt;E, Event&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, event: Event)
+    </span><span class="kw">fn </span>emit_event&lt;E, Evt&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, event: Evt)
     <span class="kw">where
         </span>E: Environment,
-        Event: Topics + scale::Encode;
+        Evt: Event;
 
     <span class="doccomment">/// Invokes a contract message and returns its result.
     ///

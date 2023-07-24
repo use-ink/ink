@@ -108,13 +108,6 @@
 <a href="#107" id="107">107</a>
 <a href="#108" id="108">108</a>
 <a href="#109" id="109">109</a>
-<a href="#110" id="110">110</a>
-<a href="#111" id="111">111</a>
-<a href="#112" id="112">112</a>
-<a href="#113" id="113">113</a>
-<a href="#114" id="114">114</a>
-<a href="#115" id="115">115</a>
-<a href="#116" id="116">116</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -150,12 +143,6 @@
         <span class="kw">let </span>storage_span = <span class="self">self</span>.contract.module().storage().span();
         <span class="kw">let </span>access_env_impls = <span class="self">self</span>.generate_access_env_trait_impls();
         <span class="kw">let </span>storage_struct = <span class="self">self</span>.generate_storage_struct();
-        <span class="kw">let </span>use_emit_event =
-            <span class="self">self</span>.contract.module().events().next().is_some().then(|| {
-                <span class="comment">// Required to allow for `self.env().emit_event(...)` in messages and
-                // constructors.
-                </span><span class="macro">quote! </span>{ <span class="kw">use </span>::ink::codegen::EmitEvent <span class="kw">as _</span>; }
-            });
         <span class="macro">quote_spanned!</span>(storage_span =&gt;
             #storage_struct
             #access_env_impls
@@ -167,7 +154,6 @@
                     Env <span class="kw">as _</span>,
                     StaticEnv <span class="kw">as _</span>,
                 };
-                #use_emit_event
             };
         )
     }

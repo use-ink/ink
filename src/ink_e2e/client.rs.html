@@ -703,31 +703,6 @@
 <a href="#702" id="702">702</a>
 <a href="#703" id="703">703</a>
 <a href="#704" id="704">704</a>
-<a href="#705" id="705">705</a>
-<a href="#706" id="706">706</a>
-<a href="#707" id="707">707</a>
-<a href="#708" id="708">708</a>
-<a href="#709" id="709">709</a>
-<a href="#710" id="710">710</a>
-<a href="#711" id="711">711</a>
-<a href="#712" id="712">712</a>
-<a href="#713" id="713">713</a>
-<a href="#714" id="714">714</a>
-<a href="#715" id="715">715</a>
-<a href="#716" id="716">716</a>
-<a href="#717" id="717">717</a>
-<a href="#718" id="718">718</a>
-<a href="#719" id="719">719</a>
-<a href="#720" id="720">720</a>
-<a href="#721" id="721">721</a>
-<a href="#722" id="722">722</a>
-<a href="#723" id="723">723</a>
-<a href="#724" id="724">724</a>
-<a href="#725" id="725">725</a>
-<a href="#726" id="726">726</a>
-<a href="#727" id="727">727</a>
-<a href="#728" id="728">728</a>
-<a href="#729" id="729">729</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -746,6 +721,11 @@
     builders::{
         constructor_exec_input,
         CreateBuilderPartial,
+    },
+    events::{
+        CodeStoredEvent,
+        ContractInstantiatedEvent,
+        EventWithTopics,
     },
     log_error,
     log_info,
@@ -779,18 +759,15 @@
     path::PathBuf,
 };
 
+<span class="kw">use </span><span class="kw">crate</span>::events;
 <span class="kw">use </span>subxt::{
     blocks::ExtrinsicEvents,
     config::ExtrinsicParams,
     events::EventDetails,
-    ext::{
-        scale_decode,
-        scale_encode,
-        scale_value::{
-            Composite,
-            Value,
-            ValueDef,
-        },
+    ext::scale_value::{
+        Composite,
+        Value,
+        ValueDef,
     },
     tx::PairSigner,
 };
@@ -809,54 +786,6 @@
     Set&lt;ExecutionInput&lt;Args&gt;&gt;,
     Set&lt;ReturnType&lt;RetType&gt;&gt;,
 &gt;;
-
-<span class="doccomment">/// A contract was successfully instantiated.
-</span><span class="attr">#[derive(
-    Debug,
-    scale::Decode,
-    scale::Encode,
-    scale_decode::DecodeAsType,
-    scale_encode::EncodeAsType,
-)]
-#[decode_as_type(trait_bounds = <span class="string">&quot;&quot;</span>, crate_path = <span class="string">&quot;subxt::ext::scale_decode&quot;</span>)]
-#[encode_as_type(crate_path = <span class="string">&quot;subxt::ext::scale_encode&quot;</span>)]
-</span><span class="kw">struct </span>ContractInstantiatedEvent&lt;E: Environment&gt; {
-    <span class="doccomment">/// Account id of the deployer.
-    </span><span class="kw">pub </span>deployer: E::AccountId,
-    <span class="doccomment">/// Account id where the contract was instantiated to.
-    </span><span class="kw">pub </span>contract: E::AccountId,
-}
-
-<span class="kw">impl</span>&lt;E&gt; subxt::events::StaticEvent <span class="kw">for </span>ContractInstantiatedEvent&lt;E&gt;
-<span class="kw">where
-    </span>E: Environment,
-{
-    <span class="kw">const </span>PALLET: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str = <span class="string">&quot;Contracts&quot;</span>;
-    <span class="kw">const </span>EVENT: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str = <span class="string">&quot;Instantiated&quot;</span>;
-}
-
-<span class="doccomment">/// Code with the specified hash has been stored.
-</span><span class="attr">#[derive(
-    Debug,
-    scale::Decode,
-    scale::Encode,
-    scale_decode::DecodeAsType,
-    scale_encode::EncodeAsType,
-)]
-#[decode_as_type(trait_bounds = <span class="string">&quot;&quot;</span>, crate_path = <span class="string">&quot;subxt::ext::scale_decode&quot;</span>)]
-#[encode_as_type(crate_path = <span class="string">&quot;subxt::ext::scale_encode&quot;</span>)]
-</span><span class="kw">struct </span>CodeStoredEvent&lt;E: Environment&gt; {
-    <span class="doccomment">/// Hash under which the contract code was stored.
-    </span><span class="kw">pub </span>code_hash: E::Hash,
-}
-
-<span class="kw">impl</span>&lt;E&gt; subxt::events::StaticEvent <span class="kw">for </span>CodeStoredEvent&lt;E&gt;
-<span class="kw">where
-    </span>E: Environment,
-{
-    <span class="kw">const </span>PALLET: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str = <span class="string">&quot;Contracts&quot;</span>;
-    <span class="kw">const </span>EVENT: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str = <span class="string">&quot;CodeStored&quot;</span>;
-}
 
 <span class="doccomment">/// The `Client` takes care of communicating with the node.
 ///
@@ -1455,6 +1384,27 @@
             <span class="kw">let </span>event = event.unwrap();
             event.pallet_name() == pallet_name &amp;&amp; event.variant_name() == variant_name
         })
+    }
+
+    <span class="doccomment">/// Returns all the `ContractEmitted` events emitted by the contract.
+    </span><span class="kw">pub fn </span>contract_emitted_events(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;EventWithTopics&lt;events::ContractEmitted&lt;E&gt;&gt;&gt;, subxt::Error&gt;
+    <span class="kw">where
+        </span>C::Hash: Into&lt;sp_core::H256&gt;,
+    {
+        <span class="kw">let </span><span class="kw-2">mut </span>events_with_topics = Vec::new();
+        <span class="kw">for </span>event <span class="kw">in </span><span class="self">self</span>.events.iter() {
+            <span class="kw">let </span>event = event<span class="question-mark">?</span>;
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(decoded_event) = event.as_event::&lt;events::ContractEmitted&lt;E&gt;&gt;()<span class="question-mark">? </span>{
+                <span class="kw">let </span>event_with_topics = EventWithTopics {
+                    event: decoded_event,
+                    topics: event.topics().iter().cloned().map(Into::into).collect(),
+                };
+                events_with_topics.push(event_with_topics);
+            }
+        }
+        <span class="prelude-val">Ok</span>(events_with_topics)
     }
 }
 </code></pre></div>
