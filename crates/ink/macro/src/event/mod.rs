@@ -98,8 +98,8 @@ fn event_derive_struct(mut s: synstructure::Structure) -> syn::Result<TokenStrea
 
     let event_ident = variant.ast().ident;
     let signature_topic = if !anonymous {
-        let topic_str = signature_topic(variant.ast().fields, event_ident);
-        quote_spanned!(span=> ::core::option::Option::Some(::ink::blake2x256!(#topic_str)))
+        let signature_topic = signature_topic(variant.ast().fields, event_ident);
+        quote_spanned!(span=> ::core::option::Option::Some(#signature_topic))
     } else {
         quote_spanned!(span=> ::core::option::Option::None)
     };
@@ -164,7 +164,7 @@ fn signature_topic(fields: &syn::Fields, event_ident: &syn::Ident) -> syn::LitSt
         .collect::<Vec<_>>()
         .join(",");
     let topic_str = format!("{}({fields})", event_ident);
-    syn::parse_quote!( #topic_str )
+    syn::parse_quote!(::ink::blake2x256!(#topic_str))
 }
 
 /// Checks if the given field's attributes contain an `#[ink(topic)]` attribute.
