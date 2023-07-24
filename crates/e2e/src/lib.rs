@@ -24,6 +24,7 @@ mod client;
 mod contract_results;
 mod default_accounts;
 mod error;
+pub mod events;
 mod node_proc;
 mod xts;
 

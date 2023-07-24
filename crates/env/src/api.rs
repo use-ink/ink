@@ -32,11 +32,11 @@ use crate::{
         EnvInstance,
         OnInstance,
     },
+    event::Event,
     hash::{
         CryptoHash,
         HashOutput,
     },
-    topics::Topics,
     types::Gas,
     Environment,
     Result,
@@ -175,13 +175,13 @@ where
 }
 
 /// Emits an event with the given event data.
-pub fn emit_event<E, Event>(event: Event)
+pub fn emit_event<E, Evt>(event: Evt)
 where
     E: Environment,
-    Event: Topics + scale::Encode,
+    Evt: Event,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        TypedEnvBackend::emit_event::<E, Event>(instance, event)
+        TypedEnvBackend::emit_event::<E, Evt>(instance, event)
     })
 }
 

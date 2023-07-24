@@ -17,6 +17,11 @@ use super::{
         constructor_exec_input,
         CreateBuilderPartial,
     },
+    events::{
+        CodeStoredEvent,
+        ContractInstantiatedEvent,
+        EventWithTopics,
+    },
     log_error,
     log_info,
     sr25519,
@@ -49,18 +54,15 @@ use std::{
     path::PathBuf,
 };
 
+use crate::events;
 use subxt::{
     blocks::ExtrinsicEvents,
     config::ExtrinsicParams,
     events::EventDetails,
-    ext::{
-        scale_decode,
-        scale_encode,
-        scale_value::{
-            Composite,
-            Value,
-            ValueDef,
-        },
+    ext::scale_value::{
+        Composite,
+        Value,
+        ValueDef,
     },
     tx::PairSigner,
 };
@@ -79,54 +81,6 @@ pub type CallBuilderFinal<E, Args, RetType> = ink_env::call::CallBuilder<
     Set<ExecutionInput<Args>>,
     Set<ReturnType<RetType>>,
 >;
-
-/// A contract was successfully instantiated.
-#[derive(
-    Debug,
-    scale::Decode,
-    scale::Encode,
-    scale_decode::DecodeAsType,
-    scale_encode::EncodeAsType,
-)]
-#[decode_as_type(trait_bounds = "", crate_path = "subxt::ext::scale_decode")]
-#[encode_as_type(crate_path = "subxt::ext::scale_encode")]
-struct ContractInstantiatedEvent<E: Environment> {
-    /// Account id of the deployer.
-    pub deployer: E::AccountId,
-    /// Account id where the contract was instantiated to.
-    pub contract: E::AccountId,
-}
-
-impl<E> subxt::events::StaticEvent for ContractInstantiatedEvent<E>
-where
-    E: Environment,
-{
-    const PALLET: &'static str = "Contracts";
-    const EVENT: &'static str = "Instantiated";
-}
-
-/// Code with the specified hash has been stored.
-#[derive(
-    Debug,
-    scale::Decode,
-    scale::Encode,
-    scale_decode::DecodeAsType,
-    scale_encode::EncodeAsType,
-)]
-#[decode_as_type(trait_bounds = "", crate_path = "subxt::ext::scale_decode")]
-#[encode_as_type(crate_path = "subxt::ext::scale_encode")]
-struct CodeStoredEvent<E: Environment> {
-    /// Hash under which the contract code was stored.
-    pub code_hash: E::Hash,
-}
-
-impl<E> subxt::events::StaticEvent for CodeStoredEvent<E>
-where
-    E: Environment,
-{
-    const PALLET: &'static str = "Contracts";
-    const EVENT: &'static str = "CodeStored";
-}
 
 /// The `Client` takes care of communicating with the node.
 ///
@@ -725,5 +679,26 @@ impl<E: Environment, V, C: subxt::Config> CallResult<E, V, ExtrinsicEvents<C>> {
             let event = event.unwrap();
             event.pallet_name() == pallet_name && event.variant_name() == variant_name
         })
+    }
+
+    /// Returns all the `ContractEmitted` events emitted by the contract.
+    pub fn contract_emitted_events(
+        &self,
+    ) -> Result<Vec<EventWithTopics<events::ContractEmitted<E>>>, subxt::Error>
+    where
+        C::Hash: Into<sp_core::H256>,
+    {
+        let mut events_with_topics = Vec::new();
+        for event in self.events.iter() {
+            let event = event?;
+            if let Some(decoded_event) = event.as_event::<events::ContractEmitted<E>>()? {
+                let event_with_topics = EventWithTopics {
+                    event: decoded_event,
+                    topics: event.topics().iter().cloned().map(Into::into).collect(),
+                };
+                events_with_topics.push(event_with_topics);
+            }
+        }
+        Ok(events_with_topics)
     }
 }

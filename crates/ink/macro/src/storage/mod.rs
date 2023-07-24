@@ -28,6 +28,3 @@ pub use self::{
     storage_key::storage_key_derive,
     storage_layout::storage_layout_derive,
 };
-
-#[cfg(test)]
-mod tests;

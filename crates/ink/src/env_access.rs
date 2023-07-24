@@ -413,6 +413,14 @@ where
         ink_env::minimum_balance::<E>()
     }
 
+    /// Emits an event.
+    pub fn emit_event<Evt>(self, event: Evt)
+    where
+        Evt: ink_env::Event,
+    {
+        ink_env::emit_event::<E, Evt>(event)
+    }
+
     /// Instantiates another contract.
     ///
     /// # Example

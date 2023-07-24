@@ -1,0 +1,17 @@
+error: expected `struct`
+ --> tests/ui/event/fail/event_enum.rs:2:5
+  |
+2 | pub enum Event {
+  |     ^^^^
+
+error: event definition must be a `struct`
+ --> tests/ui/event/fail/event_enum.rs:2:1
+  |
+2 | / pub enum Event {
+3 | |     Variant1 {
+4 | |         field_1: i8,
+5 | |         #[ink(topic)]
+6 | |         field_2: i16,
+7 | |     }
+8 | | }
+  | |_^

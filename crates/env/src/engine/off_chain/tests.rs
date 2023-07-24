@@ -14,7 +14,7 @@
 
 use crate::{
     engine::off_chain::impls::TopicsBuilder,
-    topics::TopicsBuilderBackend,
+    event::TopicsBuilderBackend,
     Result,
 };
 
