@@ -153,7 +153,7 @@ fn event_derive_struct(mut s: synstructure::Structure) -> syn::Result<TokenStrea
 /// The signature topic of an event variant.
 ///
 /// Calculated with `blake2b("Event(field1_type,field2_type)")`.
-fn signature_topic(fields: &syn::Fields, event_ident: &syn::Ident) -> syn::LitStr {
+fn signature_topic(fields: &syn::Fields, event_ident: &syn::Ident) -> TokenStream2 {
     let fields = fields
         .iter()
         .map(|field| {
@@ -164,7 +164,7 @@ fn signature_topic(fields: &syn::Fields, event_ident: &syn::Ident) -> syn::LitSt
         .collect::<Vec<_>>()
         .join(",");
     let topic_str = format!("{}({fields})", event_ident);
-    syn::parse_quote!(::ink::blake2x256!(#topic_str))
+    quote!(::ink::blake2x256!(#topic_str))
 }
 
 /// Checks if the given field's attributes contain an `#[ink(topic)]` attribute.
