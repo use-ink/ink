@@ -32,7 +32,6 @@ use subxt::{
 
 /// Spawn a local substrate node for testing.
 pub struct TestNodeProcess<R: Config> {
-    proc: process::Child,
     client: OnlineClient<R>,
     url: String,
 }
@@ -60,12 +59,6 @@ where
 
     /// Attempt to kill the running substrate process.
     pub fn kill(&mut self) -> Result<(), String> {
-        tracing::info!("Killing node process {}", self.proc.id());
-        if let Err(err) = self.proc.kill() {
-            let err = format!("Error killing node process {}: {}", self.proc.id(), err);
-            tracing::error!("{}", err);
-            return Err(err)
-        }
         Ok(())
     }
 
@@ -110,39 +103,15 @@ where
 
     /// Spawn the substrate node at the given path, and wait for RPC to be initialized.
     pub async fn spawn(&self) -> Result<TestNodeProcess<R>, String> {
-        let mut cmd = process::Command::new(&self.node_path);
-        cmd.env("RUST_LOG", "info")
-            .arg("--dev")
-            .stdout(process::Stdio::piped())
-            .stderr(process::Stdio::piped())
-            .arg("--port=0")
-            .arg("--rpc-port=0");
-
-        if let Some(authority) = self.authority {
-            let authority = format!("{authority:?}");
-            let arg = format!("--{}", authority.as_str().to_lowercase());
-            cmd.arg(arg);
-        }
-
-        let mut proc = cmd.spawn().map_err(|e| {
-            format!(
-                "Error spawning substrate node '{}': {}",
-                self.node_path.to_string_lossy(),
-                e
-            )
-        })?;
-
         // Wait for RPC port to be logged (it's logged to stderr):
-        let stderr = proc.stderr.take().unwrap();
-        let port = find_substrate_port_from_output(stderr);
-        let url = format!("ws://127.0.0.1:{port}");
+        let ws_port : &str = option_env!("WS_PORT").unwrap_or("9944");
+        let url = format!("ws://127.0.0.1:{ws_port}");
 
         // Connect to the node with a `subxt` client:
         let client = OnlineClient::from_url(url.clone()).await;
         match client {
             Ok(client) => {
                 Ok(TestNodeProcess {
-                    proc,
                     client,
                     url: url.clone(),
                 })
@@ -150,9 +119,6 @@ where
             Err(err) => {
                 let err = format!("Failed to connect to node rpc at {url}: {err}");
                 tracing::error!("{}", err);
-                proc.kill().map_err(|e| {
-                    format!("Error killing substrate process '{}': {}", proc.id(), e)
-                })?;
                 Err(err)
             }
         }
