@@ -48,7 +48,7 @@ pub use sp_keyring::AccountKeyring;
 pub use subxt;
 pub use subxt_signer::sr25519::{
     self,
-    dev,
+    dev::*,
     Keypair,
 };
 pub use tokio;
