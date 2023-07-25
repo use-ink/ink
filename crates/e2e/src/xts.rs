@@ -32,6 +32,7 @@ use subxt::{
     config::ExtrinsicParams,
     ext::scale_encode,
     rpc_params,
+    tx::Signer,
     utils::MultiAddress,
     OnlineClient,
 };
@@ -270,7 +271,7 @@ where
     ) -> ContractInstantiateResult<E::AccountId, E::Balance, ()> {
         let code = Code::Upload(code);
         let call_request = RpcInstantiateRequest::<C, E> {
-            origin: subxt::tx::Signer::account_id(signer).clone(),
+            origin: Signer::<C>::account_id(signer),
             value,
             gas_limit: None,
             storage_deposit_limit,
@@ -368,7 +369,7 @@ where
         storage_deposit_limit: Option<E::Balance>,
     ) -> CodeUploadResult<E::Hash, E::Balance> {
         let call_request = RpcCodeUploadRequest::<C, E> {
-            origin: subxt::tx::Signer::account_id(signer).clone(),
+            origin: Signer::<C>::account_id(signer).clone(),
             code,
             storage_deposit_limit,
             determinism: Determinism::Enforced,

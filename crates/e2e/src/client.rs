@@ -568,7 +568,7 @@ where
         let exec_result = self
             .api
             .call_dry_run(
-                signer.public_key().0.into(),
+                Signer::<C>::account_id(signer),
                 dest,
                 exec_input,
                 value,
