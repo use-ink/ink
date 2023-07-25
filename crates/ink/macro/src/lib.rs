@@ -22,11 +22,15 @@ extern crate proc_macro;
 mod blake2b;
 mod chain_extension;
 mod contract;
+mod event;
 mod ink_test;
 mod selector;
 mod storage;
 mod storage_item;
 mod trait_def;
+
+#[cfg(test)]
+mod tests;
 
 use proc_macro::TokenStream;
 
@@ -644,6 +648,36 @@ pub fn contract(attr: TokenStream, item: TokenStream) -> TokenStream {
 #[proc_macro_attribute]
 pub fn trait_definition(attr: TokenStream, item: TokenStream) -> TokenStream {
     trait_def::analyze(attr.into(), item.into()).into()
+}
+
+/// Implements the necessary traits for a `struct` to be emitted as an event from a
+/// contract.
+///
+/// By default, a signature topic will be generated for the event. This allows consumers
+/// to filter and identify events of this type. Marking an event with `anonymous = true`
+/// means no signature topic will be generated or emitted.
+///
+/// # Examples
+///
+/// ```
+/// #[ink::event]
+/// pub struct MyEvent {
+///     pub field: u32,
+///     #[ink(topic)]
+///     pub topic: [u8; 32],
+/// }
+///
+/// // Setting `anonymous = true` means no signature topic will be emitted for the event.
+/// #[ink::event(anonymous = true)]
+/// pub struct MyAnonEvent {
+///     pub field: u32,
+///     #[ink(topic)]
+///     pub topic: [u8; 32],
+/// }
+/// ```
+#[proc_macro_attribute]
+pub fn event(attr: TokenStream, item: TokenStream) -> TokenStream {
+    event::generate(attr.into(), item.into()).into()
 }
 
 /// Prepares the type to be fully compatible and usable with the storage.
@@ -1278,6 +1312,129 @@ pub fn test(attr: TokenStream, item: TokenStream) -> TokenStream {
 pub fn chain_extension(attr: TokenStream, item: TokenStream) -> TokenStream {
     chain_extension::generate(attr.into(), item.into()).into()
 }
+
+synstructure::decl_derive!(
+    [Event, attributes(ink)] =>
+    /// Derives an implementation of the [`ink::Event`] trait for the given `struct`.
+    ///
+    /// **Note** [`ink::Event`] requires a [`scale::Encode`] implementation, it is up to
+    /// the user to provide that: usually via the derive.
+    ///
+    /// Usually this is used in conjunction with the [`EventMetadata`] derive.
+    ///
+    /// For convenience there is the [`event`] attribute macro that will expand to all the necessary
+    /// derives for an event implementation, including this one.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// use ink::{
+    ///     Event,
+    ///     env::DefaultEnvironment,
+    /// };
+    /// use scale::Encode;
+    ///
+    /// #[derive(Event, Encode)]
+    /// struct MyEvent {
+    ///     a: u32,
+    ///     #[ink(topic)]
+    ///     b: [u8; 32],
+    /// }
+    ///
+    /// #[derive(Event, Encode)]
+    /// #[ink(anonymous)] // anonymous events do not have a signature topic
+    /// struct MyAnonEvent {
+    ///     a: u32,
+    ///     #[ink(topic)]
+    ///     b: [u8; 32],
+    /// }
+    ///
+    /// ink_env::emit_event::<DefaultEnvironment, _>(MyEvent { a: 42, b: [0x42; 32] });
+    /// ink_env::emit_event::<DefaultEnvironment, _>(MyAnonEvent { a: 42, b: [0x42; 32] });
+    /// ```
+    ///
+    /// # The Signature Topic
+    ///
+    /// By default, the [`ink::Event::SIGNATURE_TOPIC`] is calculated as follows:
+    ///
+    /// `blake2b("EventStructName(field1_type_name,field2_type_name)")`
+    ///
+    /// The hashing of the topic is done at codegen time in the derive macro, and as such only has
+    /// access to the **names** of the field types as they appear in the code. As such, if the
+    /// name of a field of a struct changes, the signature topic will change too, even if the
+    /// concrete type itself has not changed. This can happen with type aliases, generics, or a
+    /// change in the use of a `path::to::Type` qualification.
+    ///
+    /// Practically this means that two otherwise identical event definitions will have different
+    /// signature topics if the name of a field type differs. For example, the following two events
+    /// will have different signature topics:
+    ///
+    /// ```
+    /// #[derive(ink::Event, scale::Encode)]
+    /// pub struct MyEvent {
+    ///     a: u32,
+    /// }
+    ///
+    /// mod other_event {
+    ///     type MyU32 = u32;
+    ///
+    ///     #[derive(ink::Event, scale::Encode)]
+    ///     pub struct MyEvent {
+    ///         a: MyU32,
+    ///     }
+    /// }
+    ///
+    /// use ink::env::Event;
+    /// assert_ne!(<MyEvent as Event>::SIGNATURE_TOPIC, <other_event::MyEvent as Event>::SIGNATURE_TOPIC);
+    /// ```
+    ///
+    /// ## Anonymous Events
+    ///
+    /// If the event is annotated with `#[ink(anonymous)]` then no signature topic is generated.
+    event::event_derive
+);
+
+synstructure::decl_derive!(
+    [EventMetadata] =>
+    /// Derives the [`ink::EventMetadata`] trait for the given `struct`, which provides metadata
+    /// about the event definition.
+    ///
+    /// Requires that the `struct` also implements the [`ink::Event`] trait, so this derive is
+    /// usually used in combination with the [`Event`] derive.
+    ///
+    /// Metadata is not embedded into the contract binary, it is generated from a separate
+    /// compilation of the contract with the `std` feature, therefore this derive must be
+    /// conditionally compiled e.g. `#[cfg_attr(feature = "std", derive(::ink::EventMetadata))]`
+    /// (see example below).
+    ///
+    /// For convenience there is the [`event`] attribute macro that will expand to all the necessary
+    /// derives for an event implementation, including this one.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// use ink::{
+    ///     Event,
+    ///     env::DefaultEnvironment,
+    /// };
+    /// use scale::Encode;
+    ///
+    /// #[cfg_attr(feature = "std", derive(::ink::EventMetadata))]
+    /// #[derive(Event, Encode)]
+    /// struct MyEvent {
+    ///     a: u32,
+    ///     #[ink(topic)]
+    ///     b: [u8; 32],
+    /// }
+    ///
+    /// assert_eq!(<MyEvent as ink::metadata::EventMetadata>::event_spec().args().len(), 2);
+    /// ```
+    ///
+    /// The generated code will also register this implementation with the global static distributed
+    /// slice [`ink::metadata::EVENTS`], in order that the metadata of all events used in a contract
+    /// can be collected.
+    event::event_metadata_derive
+);
 
 synstructure::decl_derive!(
     [Storable] =>

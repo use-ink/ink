@@ -38,7 +38,10 @@ impl GenerateCode for Contract<'_> {
         let vis = module.vis();
         let env = self.generate_code_using::<generator::Env>();
         let storage = self.generate_code_using::<generator::Storage>();
-        let events = self.generate_code_using::<generator::Events>();
+        let events = module.events().map(move |event| {
+            let event_generator = generator::Event::from(event);
+            event_generator.generate_code()
+        });
         let dispatch2 = self.generate_code_using::<generator::Dispatch>();
         let item_impls = self.generate_code_using::<generator::ItemImpls>();
         let metadata = self.generate_code_using::<generator::Metadata>();
@@ -55,7 +58,7 @@ impl GenerateCode for Contract<'_> {
             #vis mod #ident {
                 #env
                 #storage
-                #events
+                #( #events )*
                 #dispatch2
                 #item_impls
                 #contract_reference

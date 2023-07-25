@@ -16,7 +16,6 @@
 
 mod dispatch;
 mod env;
-mod event;
 mod implies_return;
 mod trait_def;
 pub mod utils;
@@ -31,13 +30,6 @@ pub use self::{
     env::{
         Env,
         StaticEnv,
-    },
-    event::{
-        EmitEvent,
-        EventLenTopics,
-        EventRespectsTopicLimit,
-        EventTopics,
-        RespectTopicLimit,
     },
     implies_return::ImpliesReturn,
     trait_def::{

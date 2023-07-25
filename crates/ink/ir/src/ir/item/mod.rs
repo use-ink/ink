@@ -12,16 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-mod event;
 mod storage;
 
 #[cfg(test)]
 mod tests;
 
-pub use self::{
-    event::Event,
-    storage::Storage,
-};
+pub use self::storage::Storage;
 
 use crate::{
     error::ExtError as _,
