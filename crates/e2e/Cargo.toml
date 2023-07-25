@@ -29,7 +29,8 @@ tokio = { version = "1.18.2", features = ["rt-multi-thread"] }
 tracing = "0.1.37"
 tracing-subscriber = { version = "0.3.17", features = ["env-filter"] }
 scale = { package = "parity-scale-codec", version = "3.4", default-features = false, features = ["derive"] }
-subxt = "0.29.0"
+subxt = "0.30.0"
+subxt-signer = { version = "0.30.0", features = ["sr25519"] }
 
 # Substrate
 pallet-contracts-primitives = "24.0.0"

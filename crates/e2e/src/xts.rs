@@ -17,7 +17,7 @@ use super::{
     sr25519,
     ContractExecResult,
     ContractInstantiateResult,
-    Signer,
+    Keypair,
 };
 use ink_env::Environment;
 
@@ -231,7 +231,7 @@ where
     /// invalid (e.g. out of date nonce)
     pub async fn try_transfer_balance(
         &self,
-        origin: &Signer<C>,
+        origin: &Keypair,
         dest: C::AccountId,
         value: E::Balance,
     ) -> Result<(), subxt::Error> {
@@ -266,7 +266,7 @@ where
         code: Vec<u8>,
         data: Vec<u8>,
         salt: Vec<u8>,
-        signer: &Signer<C>,
+        signer: &Keypair,
     ) -> ContractInstantiateResult<E::AccountId, E::Balance, ()> {
         let code = Code::Upload(code);
         let call_request = RpcInstantiateRequest::<C, E> {
@@ -297,7 +297,7 @@ where
     pub async fn submit_extrinsic<Call>(
         &self,
         call: &Call,
-        signer: &Signer<C>,
+        signer: &Keypair,
     ) -> ExtrinsicEvents<C>
     where
         Call: subxt::tx::TxPayload,
@@ -341,7 +341,7 @@ where
         code: Vec<u8>,
         data: Vec<u8>,
         salt: Vec<u8>,
-        signer: &Signer<C>,
+        signer: &Keypair,
     ) -> ExtrinsicEvents<C> {
         let call = subxt::tx::Payload::new(
             "Contracts",
@@ -363,7 +363,7 @@ where
     /// Dry runs the upload of the given `code`.
     pub async fn upload_dry_run(
         &self,
-        signer: &Signer<C>,
+        signer: &Keypair,
         code: Vec<u8>,
         storage_deposit_limit: Option<E::Balance>,
     ) -> CodeUploadResult<E::Hash, E::Balance> {
@@ -393,7 +393,7 @@ where
     /// contains all events that are associated with this transaction.
     pub async fn upload(
         &self,
-        signer: &Signer<C>,
+        signer: &Keypair,
         code: Vec<u8>,
         storage_deposit_limit: Option<E::Balance>,
     ) -> ExtrinsicEvents<C> {
@@ -453,7 +453,7 @@ where
         gas_limit: Weight,
         storage_deposit_limit: Option<E::Balance>,
         data: Vec<u8>,
-        signer: &Signer<C>,
+        signer: &Keypair,
     ) -> ExtrinsicEvents<C> {
         let call = subxt::tx::Payload::new(
             "Contracts",
@@ -479,7 +479,7 @@ where
     /// contains all events that are associated with this transaction.
     pub async fn runtime_call<'a>(
         &self,
-        signer: &Signer<C>,
+        signer: &Keypair,
         pallet_name: &'a str,
         call_name: &'a str,
         call_data: Vec<subxt::dynamic::Value>,
