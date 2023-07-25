@@ -18,7 +18,7 @@ mod adder {
 
     impl Adder {
         /// Creates a new `adder` from the given `accumulator`.
-        #[ink(constructor)]
+        #[ink(constructor, payable)]
         pub fn new(accumulator: AccumulatorRef) -> Self {
             Self { accumulator }
         }

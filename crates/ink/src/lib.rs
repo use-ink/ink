@@ -20,6 +20,10 @@
 
 #[macro_use]
 #[doc(hidden)]
+pub mod option_info;
+
+#[macro_use]
+#[doc(hidden)]
 pub mod result_info;
 
 #[cfg_attr(not(feature = "show-codegen-docs"), doc(hidden))]
@@ -70,11 +74,14 @@ pub use ink_macro::{
     blake2x256,
     chain_extension,
     contract,
+    event,
     selector_bytes,
     selector_id,
     storage_item,
     test,
     trait_definition,
+    Event,
+    EventMetadata,
 };
 pub use ink_primitives::{
     ConstructorResult,

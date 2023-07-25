@@ -85,9 +85,9 @@ pub mod chain_extension;
 mod contract;
 mod engine;
 mod error;
-pub mod hash;
 #[doc(hidden)]
-pub mod topics;
+pub mod event;
+pub mod hash;
 mod types;
 
 #[cfg(test)]
@@ -115,7 +115,7 @@ pub use self::{
         Error,
         Result,
     },
-    topics::Topics,
+    event::Event,
     types::{
         AccountIdGuard,
         DefaultEnvironment,

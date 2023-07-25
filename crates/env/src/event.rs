@@ -82,11 +82,11 @@ where
     /// to serialize.
     ///
     /// The number of expected topics is given implicitly by the `E` type parameter.
-    pub fn build<Event: Topics>(
+    pub fn build<Evt: Event>(
         mut self,
-    ) -> TopicsBuilder<<Event as Topics>::RemainingTopics, E, B> {
+    ) -> TopicsBuilder<<Evt as Event>::RemainingTopics, E, B> {
         self.backend
-            .expect(<<Event as Topics>::RemainingTopics as EventTopicsAmount>::AMOUNT);
+            .expect(<<Evt as Event>::RemainingTopics as EventTopicsAmount>::AMOUNT);
         TopicsBuilder {
             backend: self.backend,
             state: Default::default(),
@@ -106,12 +106,17 @@ where
     /// than before the call.
     pub fn push_topic<T>(
         mut self,
-        value: &T,
+        value: Option<&T>,
     ) -> TopicsBuilder<<S as SomeRemainingTopics>::Next, E, B>
     where
         T: scale::Encode,
     {
-        self.backend.push_topic(value);
+        // Only publish the topic if it is not an `Option::None`.
+        if let Some(topic) = value {
+            self.backend.push_topic::<T>(topic);
+        } else {
+            self.backend.push_topic::<u8>(&0u8);
+        }
         TopicsBuilder {
             backend: self.backend,
             state: Default::default(),
@@ -189,11 +194,17 @@ impl EventTopicsAmount for state::NoRemainingTopics {
 /// Implemented by event types to guide the event topic serialization using the topics
 /// builder.
 ///
-/// Normally this trait should be implemented automatically via the ink! codegen.
-pub trait Topics {
+/// Normally this trait should be implemented automatically via `#[derive(ink::Event)`.
+pub trait Event: scale::Encode {
     /// Type state indicating how many event topics are to be expected by the topics
     /// builder.
     type RemainingTopics: EventTopicsAmount;
+
+    /// The unique signature topic of the event. `None` for anonymous events.
+    ///
+    /// Usually this is calculated using the `#[derive(ink::Event)]` derive, which by
+    /// default calculates this as `blake2b("Event(field1_type,field2_type)")`
+    const SIGNATURE_TOPIC: Option<[u8; 32]>;
 
     /// Guides event topic serialization using the given topics builder.
     fn topics<E, B>(
@@ -203,37 +214,4 @@ pub trait Topics {
     where
         E: Environment,
         B: TopicsBuilderBackend<E>;
-}
-
-/// For each topic a hash is generated. This hash must be unique
-/// for a field and its value. The `prefix` is concatenated
-/// with the `value`. This result is then hashed.
-/// The `prefix` is typically set to the path a field has in
-/// an event struct plus the identifier of the event struct.
-///
-/// For example, in the case of our ERC-20 example contract the
-/// prefix `Erc20::Transfer::from` is concatenated with the
-/// field value of `from` and then hashed.
-/// In this example `Erc20` would be the contract identified,
-/// `Transfer` the event identifier, and `from` the field identifier.
-#[doc(hidden)]
-pub struct PrefixedValue<'a, 'b, T> {
-    pub prefix: &'a [u8],
-    pub value: &'b T,
-}
-
-impl<X> scale::Encode for PrefixedValue<'_, '_, X>
-where
-    X: scale::Encode,
-{
-    #[inline]
-    fn size_hint(&self) -> usize {
-        self.prefix.size_hint() + self.value.size_hint()
-    }
-
-    #[inline]
-    fn encode_to<T: scale::Output + ?Sized>(&self, dest: &mut T) {
-        self.prefix.encode_to(dest);
-        self.value.encode_to(dest);
-    }
 }

@@ -19,6 +19,7 @@ mod blake2;
 mod chain_extension;
 mod config;
 mod contract;
+mod event;
 mod idents_lint;
 mod ink_test;
 mod item;
@@ -69,9 +70,9 @@ pub use self::{
     },
     config::Config,
     contract::Contract,
+    event::Event,
     ink_test::InkTest,
     item::{
-        Event,
         InkItem,
         Item,
         Storage,

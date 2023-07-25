@@ -15,13 +15,13 @@ categories = ["no-std", "embedded"]
 include = ["/Cargo.toml", "src/**/*.rs", "/README.md", "/LICENSE"]
 
 [dependencies]
-ink_e2e_macro = { version = "4.2.0", path = "./macro" }
-ink = { version = "4.2.0", path = "../ink" }
-ink_env = { version = "4.2.0", path = "../env" }
-ink_primitives = { version = "4.2.0", path = "../primitives" }
+ink_e2e_macro = { version = "=4.2.0", path = "./macro" }
+ink = { version = "=4.2.0", path = "../ink" }
+ink_env = { version = "=4.2.0", path = "../env" }
+ink_primitives = { version = "=4.2.0", path = "../primitives" }
 
 funty = "2.0.0"
-impl-serde = { version = "0.3.1", default-features = false }
+impl-serde = { version = "0.4.0", default-features = false }
 jsonrpsee = { version = "0.18.0", features = ["ws-client"] }
 serde = { version = "1.0.137", default-features = false, features = ["derive"] }
 serde_json = { version = "1.0.81" }
@@ -29,14 +29,14 @@ tokio = { version = "1.18.2", features = ["rt-multi-thread"] }
 tracing = "0.1.37"
 tracing-subscriber = { version = "0.3.17", features = ["env-filter"] }
 scale = { package = "parity-scale-codec", version = "3.4", default-features = false, features = ["derive"] }
-subxt = "0.28.0"
+subxt = "0.29.0"
 
 # Substrate
-pallet-contracts-primitives = "23.0.0"
-sp-core = "20.0.0"
-sp-keyring = "23.0.0"
-sp-runtime = "23.0.0"
-sp-weights = "19.0.0"
+pallet-contracts-primitives = "24.0.0"
+sp-core = { version = "21.0.0", default-features = false }
+sp-keyring = "24.0.0"
+sp-runtime = "24.0.0"
+sp-weights = "20.0.0"
 
 [dev-dependencies]
 # Required for the doctest of `MessageBuilder::call`

@@ -26,9 +26,7 @@ variables:
   GIT_DEPTH:                       100
   CARGO_INCREMENTAL:               0
   CARGO_TARGET_DIR:                "/ci-cache/${CI_PROJECT_NAME}/targets/${CI_COMMIT_REF_NAME}/${CI_JOB_NAME}"
-  # CI_IMAGE is changed to "-:staging" when the CI image gets rebuilt
-  # read more https://github.com/paritytech/scripts/pull/244
-  CI_IMAGE:                        "paritytech/ink-ci-linux:production"
+  CI_IMAGE:                        "paritytech/ci-unified:bullseye-1.69.0-2023-03-21"
   PURELY_STD_CRATES:               "ink/codegen metadata engine e2e e2e/macro ink/ir"
   ALSO_WASM_CRATES:                "env storage storage/traits allocator prelude primitives ink ink/macro"
   ALL_CRATES:                      "${PURELY_STD_CRATES} ${ALSO_WASM_CRATES}"
@@ -272,6 +270,8 @@ test:
     - job:                         check-std
       artifacts:                   false
   variables:
+      # Fix for linking of `linkme` for `cargo test`: https://github.com/dtolnay/linkme/issues/49
+      RUSTFLAGS: "-Clink-arg=-z -Clink-arg=nostart-stop-gc"
       # Since we run the tests with `--all-features` this implies the feature
       # `ink-fuzz-tests` as well -- i.e. the fuzz tests are run.
       # There's no way to disable a single feature while enabling all features
@@ -372,6 +372,9 @@ examples-test:
   needs:
     - job:                         clippy-std
       artifacts:                   false
+  variables:
+    # Fix linking of `linkme`: https://github.com/dtolnay/linkme/issues/49
+    RUSTFLAGS: "-Clink-arg=-z -Clink-arg=nostart-stop-gc"
   script:
     - for example in integration-tests/*/; do
         if [ "$example" = "integration-tests/lang-err-integration-tests/" ]; then continue; fi;
@@ -401,6 +404,9 @@ examples-contract-build:
   stage:                           examples
   <<:                              *docker-env
   <<:                              *test-refs
+  variables:
+    # Fix for linking of `linkme` for `cargo contract build`: https://github.com/dtolnay/linkme/issues/49
+    RUSTFLAGS: "-Clink-arg=-z -Clink-arg=nostart-stop-gc"
   script:
     - rustup component add rust-src --toolchain stable
     - cargo contract -V
@@ -408,24 +414,24 @@ examples-contract-build:
         if [ "$example" = "integration-tests/lang-err-integration-tests/" ]; then continue; fi;
         if [ "$example" = "integration-tests/conditional-compilation/" ]; then
         pushd $example &&
-        cargo +stable contract build --features "foo" &&
+        cargo contract build --features "foo" &&
         popd;
         pushd $example &&
-        cargo +stable contract build --features "bar" &&
+        cargo contract build --features "bar" &&
         popd;
         pushd $example &&
-        cargo +stable contract build --features "foo, bar" &&
+        cargo contract build --features "foo, bar" &&
         popd;
         fi;
         pushd $example &&
-        cargo +stable contract build &&
+        cargo contract build &&
         popd;
       done
     - pushd ./integration-tests/multi-contract-caller/ && ./build-all.sh && popd
     - for contract in ${LANG_ERR_INTEGRATION_CONTRACTS}; do
-        cargo +stable contract build --manifest-path ./integration-tests/lang-err-integration-tests/${contract}/Cargo.toml;
+        cargo contract build --manifest-path ./integration-tests/lang-err-integration-tests/${contract}/Cargo.toml;
       done
-    - cargo +stable contract build --manifest-path ./integration-tests/set-code-hash/updated-incrementer/Cargo.toml
+    - cargo contract build --manifest-path ./integration-tests/set-code-hash/updated-incrementer/Cargo.toml
 
 # TODO: Use cargo contract as soon as it has RISC-V support
 examples-contract-build-riscv:
@@ -451,7 +457,7 @@ examples-contract-build-riscv:
         if [ "$example" = "integration-tests/custom-allocator/" ]; then continue; fi;
         if [ "$example" = "integration-tests/call-runtime/" ]; then continue; fi;
         pushd $example &&
-        cargo +stable build --no-default-features --target $RISCV_TARGET -Zbuild-std="core,alloc" &&
+        cargo build --no-default-features --target $RISCV_TARGET -Zbuild-std="core,alloc" &&
         popd;
       done
 

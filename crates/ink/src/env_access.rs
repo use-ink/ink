@@ -413,6 +413,14 @@ where
         ink_env::minimum_balance::<E>()
     }
 
+    /// Emits an event.
+    pub fn emit_event<Evt>(self, event: Evt)
+    where
+        Evt: ink_env::Event,
+    {
+        ink_env::emit_event::<E, Evt>(event)
+    }
+
     /// Instantiates another contract.
     ///
     /// # Example
@@ -616,9 +624,10 @@ where
     ///         .params();
     ///     self.env()
     ///         .invoke_contract_delegate(&call_params)
-    ///         .unwrap_or_else(|err| {
-    ///             panic!("call delegate invocation must succeed: {:?}", err)
+    ///         .unwrap_or_else(|env_err| {
+    ///             panic!("Received an error from the Environment: {:?}", env_err)
     ///         })
+    ///         .unwrap_or_else(|lang_err| panic!("Received a `LangError`: {:?}", lang_err))
     /// }
     /// #
     /// #     }
@@ -631,7 +640,7 @@ where
     pub fn invoke_contract_delegate<Args, R>(
         self,
         params: &CallParams<E, DelegateCall<E>, Args, R>,
-    ) -> Result<R>
+    ) -> Result<ink_primitives::MessageResult<R>>
     where
         Args: scale::Encode,
         R: scale::Decode,
@@ -1040,7 +1049,6 @@ where
         ink_env::set_code_hash2::<E>(code_hash)
     }
 
-    #[cfg(feature = "call-runtime")]
     pub fn call_runtime<Call: scale::Encode>(self, call: &Call) -> Result<()> {
         ink_env::call_runtime::<E, _>(call)
     }

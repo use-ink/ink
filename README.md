@@ -46,6 +46,7 @@ More relevant links:
 * [`cargo-contract`](https://github.com/paritytech/cargo-contract) ‒ CLI tool for ink! contracts
 * [Contracts UI](https://contracts-ui.substrate.io/) ‒ Frontend for contract instantiation and interaction
 * [Substrate Contracts Node](https://github.com/paritytech/substrate-contracts-node) ‒ Simple Substrate blockchain which includes smart contract functionality
+* [Awesome ink!](https://github.com/paritytech/awesome-ink) - A curated list of awesome projects for Parity's ink!
 * We post announcements on [Matrix][k2] and [Discord][l2] (in the
   [`ink_smart-contracts`](https://discord.com/channels/722223075629727774/765280480609828864) channel).
 
