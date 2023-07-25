@@ -34,7 +34,7 @@ version = "4.2.0"
 arrayref = { version = "0.3" }
 array-init = { version = "2.0", default-features = false }
 blake2 = { version = "0.10" }
-cargo_metadata = { version = "0.15.3" }
+cargo_metadata = { version = "0.17.0" }
 cfg-if = { version = "1.0" }
 contract-build = { version = "3.0.0" }
 derive_more = { version = "0.99.17", default-features = false }
@@ -43,7 +43,8 @@ funty = { version = "2.0.0" }
 heck = { version = "0.4.0" }
 impl-serde = { version = "0.4.0", default-features = false }
 itertools = { version = "0.11", default-features = false }
-jsonrpsee = { version = "0.18.0" }
+jsonrpsee = { version = "0.19.0" }
+linkme = { version = "0.3.9" }
 num-traits = { version = "0.2", default-features = false }
 paste = { version = "1.0" }
 pretty_assertions = { version = "1" }
