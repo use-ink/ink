@@ -209,10 +209,10 @@ pub struct ContractsApi<C: subxt::Config, E: Environment> {
 impl<C, E> ContractsApi<C, E>
 where
     C: subxt::Config,
-    C::AccountId: serde::de::DeserializeOwned,
-    C::AccountId: scale::Codec,
+    C::AccountId: From<sr25519::PublicKey> + serde::de::DeserializeOwned + scale::Codec,
+    C::Address: From<sr25519::PublicKey>,
     C::Signature: From<sr25519::Signature>,
-    <C::ExtrinsicParams as ExtrinsicParams<C::Index, C::Hash>>::OtherParams: Default,
+    <C::ExtrinsicParams as ExtrinsicParams<C::Hash>>::OtherParams: Default,
 
     E: Environment,
     E::Balance: scale::HasCompact + serde::Serialize,

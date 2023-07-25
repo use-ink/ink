@@ -47,8 +47,9 @@ pub use sp_core::H256;
 pub use sp_keyring::AccountKeyring;
 pub use subxt;
 pub use subxt_signer::sr25519::{
+    self,
     dev,
-    Keypair
+    Keypair,
 };
 pub use tokio;
 pub use tracing_subscriber;
@@ -57,7 +58,6 @@ use pallet_contracts_primitives::{
     ContractExecResult,
     ContractInstantiateResult,
 };
-use sp_core::sr25519;
 use std::{
     cell::RefCell,
     sync::Once,
