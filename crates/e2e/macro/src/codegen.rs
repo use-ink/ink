@@ -13,10 +13,7 @@
 // limitations under the License.
 
 use crate::ir;
-use contract_build::{
-    ManifestPath,
-    Target,
-};
+use contract_build::{DEFAULT_MAX_MEMORY_PAGES, ImageVariant, ManifestPath, Target};
 use core::cell::RefCell;
 use derive_more::From;
 use proc_macro2::TokenStream as TokenStream2;
@@ -293,6 +290,8 @@ fn build_contract(path_to_cargo_toml: &str) -> String {
         output_type: OutputType::HumanReadable,
         skip_wasm_validation: false,
         target: Target::Wasm,
+        image: ImageVariant::default(),
+        max_memory_pages: DEFAULT_MAX_MEMORY_PAGES,
     };
 
     match contract_build::execute(args) {
