@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["Error"],"fn":["verify"],"mod":["dev"],"struct":["Keypair","PublicKey","Signature"],"type":["Seed"]};
