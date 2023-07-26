@@ -12,9 +12,6 @@ error[E0277]: the trait bound `NonCodec: WrapperTypeDecode` is not satisfied
 note: required by a bound in `DispatchInput`
  --> src/codegen/dispatch/type_check.rs
   |
-  | pub struct DispatchInput<T>(T)
-  |            ------------- required by a bound in this struct
-  | where
   |     T: scale::Decode + 'static;
   |        ^^^^^^^^^^^^^ required by this bound in `DispatchInput`
 
@@ -41,9 +38,6 @@ error[E0277]: the trait bound `NonCodec: WrapperTypeEncode` is not satisfied
 note: required by a bound in `ExecutionInput::<ArgumentList<ArgumentListEnd, ArgumentListEnd>>::push_arg`
  --> $WORKSPACE/crates/env/src/call/execution_input.rs
   |
-  |     pub fn push_arg<T>(
-  |            -------- required by a bound in this associated function
-...
   |         T: scale::Encode,
   |            ^^^^^^^^^^^^^ required by this bound in `ExecutionInput::<ArgumentList<ArgumentListEnd, ArgumentListEnd>>::push_arg`
 
@@ -59,4 +53,4 @@ error[E0599]: the method `try_invoke` exists for struct `CallBuilder<E, Set<Call
   | ----------------------------------- doesn't satisfy `_: Encode`
   |
   = note: the following trait bounds were not satisfied:
-          `ArgumentList<Argument<NonCodec>, ArgumentList<ArgumentListEnd, ArgumentListEnd>>: Encode`
+          `ArgumentList<ink::ink_env::call::utils::Argument<NonCodec>, ArgumentList<ArgumentListEnd, ArgumentListEnd>>: Encode`
