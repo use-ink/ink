@@ -441,48 +441,6 @@ where
         })
     }
 
-    /// Executes a runtime call `call_name` for the `pallet_name`.
-    /// The `call_data` is a `Vec<Value>`
-    ///
-    /// Note:
-    /// - `pallet_name` must be in camel case, for example `Balances`.
-    /// - `call_name` must be snake case, for example `force_transfer`.
-    /// - `call_data` is a `Vec<subxt::dynamic::Value>` that holds a representation of
-    ///   some value.
-    ///
-    /// Returns when the transaction is included in a block. The return value
-    /// contains all events that are associated with this transaction.
-    pub async fn runtime_call<'a>(
-        &mut self,
-        signer: &Signer<C>,
-        pallet_name: &'a str,
-        call_name: &'a str,
-        call_data: Vec<Value>,
-    ) -> Result<ExtrinsicEvents<C>, Error<E>> {
-        let tx_events = self
-            .api
-            .runtime_call(signer, pallet_name, call_name, call_data)
-            .await;
-
-        for evt in tx_events.iter() {
-            let evt = evt.unwrap_or_else(|err| {
-                panic!("unable to unwrap event: {err:?}");
-            });
-
-            if is_extrinsic_failed_event(&evt) {
-                let metadata = self.api.client.metadata();
-                let dispatch_error =
-                    subxt::error::DispatchError::decode_from(evt.field_bytes(), metadata)
-                        .map_err(|e| Error::<E>::Decoding(e.to_string()))?;
-
-                log_error(&format!("extrinsic for call failed: {dispatch_error}"));
-                return Err(Error::<E>::CallExtrinsic(dispatch_error));
-            }
-        }
-
-        Ok(tx_events)
-    }
-
     /// Executes a dry-run `call`.
     ///
     /// Returns the result of the dry run, together with the decoded return value of the
@@ -538,7 +496,9 @@ where
         + scale::Codec
         + serde::de::DeserializeOwned,
     C::Signature: From<sr25519::Signature>,
-    <C::ExtrinsicParams as ExtrinsicParams<C::Index, C::Hash>>::OtherParams: Default,
+    C::Address: Send + Sync,
+    <C::ExtrinsicParams as ExtrinsicParams<C::Index, C::Hash>>::OtherParams:
+        Default + Send + Sync,
 
     E: Environment,
     E::AccountId: Debug + Send + Sync,
@@ -636,7 +596,28 @@ where
         call_name: &'a str,
         call_data: Vec<Value>,
     ) -> Result<Self::EventLog, Self::Error> {
-        todo!()
+        let tx_events = self
+            .api
+            .runtime_call(actor, pallet_name, call_name, call_data)
+            .await;
+
+        for evt in tx_events.iter() {
+            let evt = evt.unwrap_or_else(|err| {
+                panic!("unable to unwrap event: {err:?}");
+            });
+
+            if is_extrinsic_failed_event(&evt) {
+                let metadata = self.api.client.metadata();
+                let dispatch_error =
+                    subxt::error::DispatchError::decode_from(evt.field_bytes(), metadata)
+                        .map_err(|e| Error::<E>::Decoding(e.to_string()))?;
+
+                log_error(&format!("extrinsic for call failed: {dispatch_error}"));
+                return Err(Error::<E>::CallExtrinsic(dispatch_error));
+            }
+        }
+
+        Ok(tx_events)
     }
 }
 
