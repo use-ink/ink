@@ -17,7 +17,7 @@ use super::{
     sr25519,
     ContractExecResult,
     ContractInstantiateResult,
-    Signer,
+    Keypair,
 };
 use ink_env::Environment;
 
@@ -32,6 +32,7 @@ use subxt::{
     config::ExtrinsicParams,
     ext::scale_encode,
     rpc_params,
+    tx::Signer,
     utils::MultiAddress,
     OnlineClient,
 };
@@ -209,10 +210,10 @@ pub struct ContractsApi<C: subxt::Config, E: Environment> {
 impl<C, E> ContractsApi<C, E>
 where
     C: subxt::Config,
-    C::AccountId: serde::de::DeserializeOwned,
-    C::AccountId: scale::Codec,
+    C::AccountId: From<sr25519::PublicKey> + serde::de::DeserializeOwned + scale::Codec,
+    C::Address: From<sr25519::PublicKey>,
     C::Signature: From<sr25519::Signature>,
-    <C::ExtrinsicParams as ExtrinsicParams<C::Index, C::Hash>>::OtherParams: Default,
+    <C::ExtrinsicParams as ExtrinsicParams<C::Hash>>::OtherParams: Default,
 
     E: Environment,
     E::Balance: scale::HasCompact + serde::Serialize,
@@ -231,7 +232,7 @@ where
     /// invalid (e.g. out of date nonce)
     pub async fn try_transfer_balance(
         &self,
-        origin: &Signer<C>,
+        origin: &Keypair,
         dest: C::AccountId,
         value: E::Balance,
     ) -> Result<(), subxt::Error> {
@@ -266,11 +267,11 @@ where
         code: Vec<u8>,
         data: Vec<u8>,
         salt: Vec<u8>,
-        signer: &Signer<C>,
+        signer: &Keypair,
     ) -> ContractInstantiateResult<E::AccountId, E::Balance, ()> {
         let code = Code::Upload(code);
         let call_request = RpcInstantiateRequest::<C, E> {
-            origin: subxt::tx::Signer::account_id(signer).clone(),
+            origin: Signer::<C>::account_id(signer),
             value,
             gas_limit: None,
             storage_deposit_limit,
@@ -297,7 +298,7 @@ where
     pub async fn submit_extrinsic<Call>(
         &self,
         call: &Call,
-        signer: &Signer<C>,
+        signer: &Keypair,
     ) -> ExtrinsicEvents<C>
     where
         Call: subxt::tx::TxPayload,
@@ -341,7 +342,7 @@ where
         code: Vec<u8>,
         data: Vec<u8>,
         salt: Vec<u8>,
-        signer: &Signer<C>,
+        signer: &Keypair,
     ) -> ExtrinsicEvents<C> {
         let call = subxt::tx::Payload::new(
             "Contracts",
@@ -363,12 +364,12 @@ where
     /// Dry runs the upload of the given `code`.
     pub async fn upload_dry_run(
         &self,
-        signer: &Signer<C>,
+        signer: &Keypair,
         code: Vec<u8>,
         storage_deposit_limit: Option<E::Balance>,
     ) -> CodeUploadResult<E::Hash, E::Balance> {
         let call_request = RpcCodeUploadRequest::<C, E> {
-            origin: subxt::tx::Signer::account_id(signer).clone(),
+            origin: Signer::<C>::account_id(signer),
             code,
             storage_deposit_limit,
             determinism: Determinism::Enforced,
@@ -393,7 +394,7 @@ where
     /// contains all events that are associated with this transaction.
     pub async fn upload(
         &self,
-        signer: &Signer<C>,
+        signer: &Keypair,
         code: Vec<u8>,
         storage_deposit_limit: Option<E::Balance>,
     ) -> ExtrinsicEvents<C> {
@@ -453,7 +454,7 @@ where
         gas_limit: Weight,
         storage_deposit_limit: Option<E::Balance>,
         data: Vec<u8>,
-        signer: &Signer<C>,
+        signer: &Keypair,
     ) -> ExtrinsicEvents<C> {
         let call = subxt::tx::Payload::new(
             "Contracts",
@@ -479,7 +480,7 @@ where
     /// contains all events that are associated with this transaction.
     pub async fn runtime_call<'a>(
         &self,
-        signer: &Signer<C>,
+        signer: &Keypair,
         pallet_name: &'a str,
         call_name: &'a str,
         call_data: Vec<subxt::dynamic::Value>,

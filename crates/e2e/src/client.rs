@@ -27,7 +27,7 @@ use super::{
     sr25519,
     ContractInstantiateResult,
     ContractsApi,
-    Signer,
+    Keypair,
 };
 use crate::contract_results::{
     CallDryRunResult,
@@ -46,7 +46,6 @@ use ink_env::{
     },
     Environment,
 };
-use sp_core::Pair;
 #[cfg(feature = "std")]
 use std::{
     collections::BTreeMap,
@@ -64,7 +63,7 @@ use subxt::{
         Value,
         ValueDef,
     },
-    tx::PairSigner,
+    tx::Signer,
 };
 
 pub type Error<E> = crate::error::Error<
@@ -98,12 +97,11 @@ where
 impl<C, E> Client<C, E>
 where
     C: subxt::Config,
-    C::AccountId: From<sp_runtime::AccountId32>
-        + scale::Codec
-        + serde::de::DeserializeOwned
-        + Debug,
+    C::AccountId:
+        From<sr25519::PublicKey> + scale::Codec + serde::de::DeserializeOwned + Debug,
+    C::Address: From<sr25519::PublicKey>,
     C::Signature: From<sr25519::Signature>,
-    <C::ExtrinsicParams as ExtrinsicParams<C::Index, C::Hash>>::OtherParams: Default,
+    <C::ExtrinsicParams as ExtrinsicParams<C::Hash>>::OtherParams: Default,
 
     E: Environment,
     E::AccountId: Debug,
@@ -139,17 +137,20 @@ where
     /// number of times.
     pub async fn create_and_fund_account(
         &self,
-        origin: &Signer<C>,
+        origin: &Keypair,
         amount: E::Balance,
-    ) -> Signer<C>
+    ) -> Keypair
     where
         E::Balance: Clone,
         C::AccountId: Clone + core::fmt::Display + Debug,
-        C::AccountId: From<sp_core::crypto::AccountId32>,
     {
-        let (pair, _, _) = <sr25519::Pair as Pair>::generate_with_phrase(None);
-        let pair_signer = PairSigner::<C, _>::new(pair);
-        let account_id = pair_signer.account_id().to_owned();
+        let (_, phrase, _) =
+            <sp_core::sr25519::Pair as sp_core::Pair>::generate_with_phrase(None);
+        let phrase =
+            subxt_signer::bip39::Mnemonic::parse(phrase).expect("valid phrase expected");
+        let keypair = Keypair::from_phrase(&phrase, None).expect("valid phrase expected");
+        let account_id = <Keypair as Signer<C>>::account_id(&keypair);
+        let origin_account_id = origin.public_key().to_account_id();
 
         self.api
             .try_transfer_balance(origin, account_id.clone(), amount)
@@ -157,19 +158,16 @@ where
             .unwrap_or_else(|err| {
                 panic!(
                     "transfer from {} to {} failed with {:?}",
-                    origin.account_id(),
-                    account_id,
-                    err
+                    origin_account_id, account_id, err
                 )
             });
 
         log_info(&format!(
             "transfer from {} to {} succeeded",
-            origin.account_id(),
-            account_id,
+            origin_account_id, account_id,
         ));
 
-        pair_signer
+        keypair
     }
 
     /// This function extracts the metadata of the contract at the file path
@@ -183,7 +181,7 @@ where
     pub async fn instantiate<Contract, Args, R>(
         &mut self,
         contract_name: &str,
-        signer: &Signer<C>,
+        signer: &Keypair,
         constructor: CreateBuilderPartial<E, Contract, Args, R>,
         value: E::Balance,
         storage_deposit_limit: Option<E::Balance>,
@@ -209,7 +207,7 @@ where
     pub async fn instantiate_dry_run<Contract, Args, R>(
         &mut self,
         contract_name: &str,
-        signer: &Signer<C>,
+        signer: &Keypair,
         constructor: CreateBuilderPartial<E, Contract, Args, R>,
         value: E::Balance,
         storage_deposit_limit: Option<E::Balance>,
@@ -256,7 +254,7 @@ where
     /// Executes an `instantiate_with_code` call and captures the resulting events.
     async fn exec_instantiate<Contract, Args, R>(
         &mut self,
-        signer: &Signer<C>,
+        signer: &Keypair,
         code: Vec<u8>,
         constructor: CreateBuilderPartial<E, Contract, Args, R>,
         value: E::Balance,
@@ -368,7 +366,7 @@ where
     pub async fn upload(
         &mut self,
         contract_name: &str,
-        signer: &Signer<C>,
+        signer: &Keypair,
         storage_deposit_limit: Option<E::Balance>,
     ) -> Result<UploadResult<E, ExtrinsicEvents<C>>, Error<E>> {
         let code = self.load_code(contract_name);
@@ -382,7 +380,7 @@ where
     /// Executes an `upload` call and captures the resulting events.
     pub async fn exec_upload(
         &mut self,
-        signer: &Signer<C>,
+        signer: &Keypair,
         code: Vec<u8>,
         storage_deposit_limit: Option<E::Balance>,
     ) -> Result<UploadResult<E, ExtrinsicEvents<C>>, Error<E>> {
@@ -453,7 +451,7 @@ where
     /// contains all events that are associated with this transaction.
     pub async fn call<Args, RetType>(
         &mut self,
-        signer: &Signer<C>,
+        signer: &Keypair,
         message: &CallBuilderFinal<E, Args, RetType>,
         value: E::Balance,
         storage_deposit_limit: Option<E::Balance>,
@@ -519,7 +517,7 @@ where
     /// contains all events that are associated with this transaction.
     pub async fn runtime_call<'a>(
         &mut self,
-        signer: &Signer<C>,
+        signer: &Keypair,
         pallet_name: &'a str,
         call_name: &'a str,
         call_data: Vec<Value>,
@@ -554,7 +552,7 @@ where
     /// invoked message.
     pub async fn call_dry_run<Args, RetType>(
         &mut self,
-        signer: &Signer<C>,
+        signer: &Keypair,
         message: &CallBuilderFinal<E, Args, RetType>,
         value: E::Balance,
         storage_deposit_limit: Option<E::Balance>,
@@ -570,7 +568,7 @@ where
         let exec_result = self
             .api
             .call_dry_run(
-                Signer::account_id(signer).clone(),
+                Signer::<C>::account_id(signer),
                 dest,
                 exec_input,
                 value,
