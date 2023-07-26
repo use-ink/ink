@@ -27,10 +27,12 @@ use ink_env::{
     },
     Environment,
 };
+use jsonrpsee::core::async_trait;
 use sp_core::Pair;
 #[cfg(feature = "std")]
 use std::{collections::BTreeMap, fmt::Debug, path::PathBuf};
 
+use crate::backend::ChainBackend;
 use crate::events;
 use subxt::{
     blocks::ExtrinsicEvents,
@@ -103,46 +105,6 @@ where
             api: ContractsApi::new(client).await,
             contracts,
         }
-    }
-
-    /// Generate a new keypair and fund with the given amount from the origin account.
-    ///
-    /// Because many tests may execute this in parallel, transfers may fail due to a race
-    /// condition with account indices. Therefore this will reattempt transfers a
-    /// number of times.
-    pub async fn create_and_fund_account(
-        &self,
-        origin: &Signer<C>,
-        amount: E::Balance,
-    ) -> Signer<C>
-    where
-        E::Balance: Clone,
-        C::AccountId: Clone + core::fmt::Display + Debug,
-        C::AccountId: From<sp_core::crypto::AccountId32>,
-    {
-        let (pair, _, _) = <sr25519::Pair as Pair>::generate_with_phrase(None);
-        let pair_signer = PairSigner::<C, _>::new(pair);
-        let account_id = pair_signer.account_id().to_owned();
-
-        self.api
-            .try_transfer_balance(origin, account_id.clone(), amount)
-            .await
-            .unwrap_or_else(|err| {
-                panic!(
-                    "transfer from {} to {} failed with {:?}",
-                    origin.account_id(),
-                    account_id,
-                    err
-                )
-            });
-
-        log_info(&format!(
-            "transfer from {} to {} succeeded",
-            origin.account_id(),
-            account_id,
-        ));
-
-        pair_signer
     }
 
     /// This function extracts the metadata of the contract at the file path
@@ -561,19 +523,77 @@ where
             _marker: Default::default(),
         }
     }
+}
 
-    /// Returns the balance of `account_id`.
-    pub async fn balance(&self, account_id: E::AccountId) -> Result<E::Balance, Error<E>>
-    where
-        E::Balance: TryFrom<u128>,
-    {
+#[async_trait]
+impl<C, E> ChainBackend for Client<C, E>
+where
+    C: subxt::Config + Send + Sync,
+    C::AccountId: Clone
+        + Debug
+        + Send
+        + Sync
+        + core::fmt::Display
+        + From<sp_core::crypto::AccountId32>
+        + scale::Codec
+        + serde::de::DeserializeOwned,
+    C::Signature: From<sr25519::Signature>,
+    <C::ExtrinsicParams as ExtrinsicParams<C::Index, C::Hash>>::OtherParams: Default,
+
+    E: Environment,
+    E::AccountId: Debug + Send + Sync,
+    E::Balance: Clone
+        + Debug
+        + Send
+        + Sync
+        + TryFrom<u128>
+        + scale::HasCompact
+        + serde::Serialize,
+{
+    type Actor = Signer<C>;
+    type ActorId = E::AccountId;
+    type Balance = E::Balance;
+    type Error = Error<E>;
+    type EventLog = ExtrinsicEvents<C>;
+
+    async fn create_and_fund_account(
+        &mut self,
+        origin: &Self::Actor,
+        amount: Self::Balance,
+    ) -> Self::Actor {
+        let (pair, _, _) = <sr25519::Pair as Pair>::generate_with_phrase(None);
+        let pair_signer = PairSigner::<C, _>::new(pair);
+        let account_id = pair_signer.account_id().to_owned();
+
+        self.api
+            .try_transfer_balance(origin, account_id.clone(), amount)
+            .await
+            .unwrap_or_else(|err| {
+                panic!(
+                    "transfer from {} to {} failed with {:?}",
+                    origin.account_id(),
+                    account_id,
+                    err
+                )
+            });
+
+        log_info(&format!(
+            "transfer from {} to {} succeeded",
+            origin.account_id(),
+            account_id,
+        ));
+
+        pair_signer
+    }
+
+    async fn balance(&self, actor: Self::ActorId) -> Result<Self::Balance, Self::Error> {
         let account_addr = subxt::dynamic::storage(
             "System",
             "Account",
             vec![
                 // Something that encodes to an AccountId32 is what we need for the map
                 // key here:
-                Value::from_bytes(&account_id),
+                Value::from_bytes(&actor),
             ],
         );
 
@@ -605,10 +625,18 @@ where
             Error::<E>::Balance(format!("{balance:?} failed to convert from u128"))
         })?;
 
-        log_info(&format!(
-            "balance of contract {account_id:?} is {balance:?}"
-        ));
+        log_info(&format!("balance of contract {actor:?} is {balance:?}"));
         Ok(balance)
+    }
+
+    async fn runtime_call<'a>(
+        &mut self,
+        actor: &Self::Actor,
+        pallet_name: &'a str,
+        call_name: &'a str,
+        call_data: Vec<Value>,
+    ) -> Result<Self::EventLog, Self::Error> {
+        todo!()
     }
 }
 
