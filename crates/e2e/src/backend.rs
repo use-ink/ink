@@ -19,7 +19,8 @@ pub trait ChainBackend {
     /// Event log type.
     type EventLog;
 
-    /// Generate a new actor's credentials and fund it with the given amount from the `sender` actor.
+    /// Generate a new actor's credentials and fund it with the given amount from the
+    /// `sender` actor.
     async fn create_and_fund_account(
         &mut self,
         origin: &Self::Actor,
@@ -35,10 +36,11 @@ pub trait ChainBackend {
     /// Note:
     /// - `pallet_name` must be in camel case, for example `Balances`.
     /// - `call_name` must be snake case, for example `force_transfer`.
-    /// - `call_data` is a `Vec<subxt::dynamic::Value>` that holds a representation of some value.
+    /// - `call_data` is a `Vec<subxt::dynamic::Value>` that holds a representation of
+    ///   some value.
     ///
-    /// Returns when the transaction is included in a block. The return value contains all events
-    /// that are associated with this transaction.
+    /// Returns when the transaction is included in a block. The return value contains all
+    /// events that are associated with this transaction.
     async fn runtime_call<'a>(
         &mut self,
         actor: &Self::Actor,

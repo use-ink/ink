@@ -13,32 +13,61 @@
 // limitations under the License.
 
 use super::{
-    builders::{constructor_exec_input, CreateBuilderPartial},
-    events::{CodeStoredEvent, ContractInstantiatedEvent, EventWithTopics},
-    log_error, log_info, sr25519, ContractInstantiateResult, ContractsApi, Signer,
+    builders::{
+        constructor_exec_input,
+        CreateBuilderPartial,
+    },
+    events::{
+        CodeStoredEvent,
+        ContractInstantiatedEvent,
+        EventWithTopics,
+    },
+    log_error,
+    log_info,
+    sr25519,
+    ContractInstantiateResult,
+    ContractsApi,
+    Signer,
 };
 use crate::contract_results::{
-    CallDryRunResult, CallResult, InstantiationResult, UploadResult,
+    CallDryRunResult,
+    CallResult,
+    InstantiationResult,
+    UploadResult,
 };
 use ink_env::{
     call::{
-        utils::{ReturnType, Set},
-        Call, ExecutionInput,
+        utils::{
+            ReturnType,
+            Set,
+        },
+        Call,
+        ExecutionInput,
     },
     Environment,
 };
 use jsonrpsee::core::async_trait;
 use sp_core::Pair;
 #[cfg(feature = "std")]
-use std::{collections::BTreeMap, fmt::Debug, path::PathBuf};
+use std::{
+    collections::BTreeMap,
+    fmt::Debug,
+    path::PathBuf,
+};
 
-use crate::backend::ChainBackend;
-use crate::events;
+use crate::{
+    backend::ChainBackend,
+    events,
+};
 use subxt::{
     blocks::ExtrinsicEvents,
     config::ExtrinsicParams,
     events::EventDetails,
-    ext::scale_value::{Composite, Value, ValueDef},
+    ext::scale_value::{
+        Composite,
+        Value,
+        ValueDef,
+    },
     tx::PairSigner,
 };
 
@@ -221,7 +250,7 @@ where
         ));
         log_info(&format!("instantiate dry run result: {:?}", dry_run.result));
         if dry_run.result.is_err() {
-            return Err(Error::<E>::InstantiateDryRun(dry_run));
+            return Err(Error::<E>::InstantiateDryRun(dry_run))
         }
 
         let tx_events = self
@@ -266,7 +295,7 @@ where
                 log_error(&format!(
                     "extrinsic for instantiate failed: {dispatch_error}"
                 ));
-                return Err(Error::<E>::InstantiateExtrinsic(dispatch_error));
+                return Err(Error::<E>::InstantiateExtrinsic(dispatch_error))
             }
         }
         let account_id = account_id.expect("cannot extract `account_id` from events");
@@ -328,7 +357,7 @@ where
             .await;
         log_info(&format!("upload dry run: {dry_run:?}"));
         if dry_run.is_err() {
-            return Err(Error::<E>::UploadDryRun(dry_run));
+            return Err(Error::<E>::UploadDryRun(dry_run))
         }
 
         let tx_events = self.api.upload(signer, code, storage_deposit_limit).await;
@@ -349,7 +378,7 @@ where
                     uploaded.code_hash
                 ));
                 hash = Some(uploaded.code_hash);
-                break;
+                break
             } else if is_extrinsic_failed_event(&evt) {
                 let metadata = self.api.client.metadata();
                 let dispatch_error =
@@ -357,7 +386,7 @@ where
                         .map_err(|e| Error::<E>::Decoding(e.to_string()))?;
 
                 log_error(&format!("extrinsic for upload failed: {dispatch_error}"));
-                return Err(Error::<E>::UploadExtrinsic(dispatch_error));
+                return Err(Error::<E>::UploadExtrinsic(dispatch_error))
             }
         }
 
@@ -405,7 +434,7 @@ where
         let dry_run = self.call_dry_run(signer, message, value, None).await;
 
         if dry_run.exec_result.result.is_err() {
-            return Err(Error::<E>::CallDryRun(dry_run.exec_result));
+            return Err(Error::<E>::CallDryRun(dry_run.exec_result))
         }
 
         let tx_events = self
@@ -431,7 +460,7 @@ where
                     subxt::error::DispatchError::decode_from(evt.field_bytes(), metadata)
                         .map_err(|e| Error::<E>::Decoding(e.to_string()))?;
                 log_error(&format!("extrinsic for call failed: {dispatch_error}"));
-                return Err(Error::<E>::CallExtrinsic(dispatch_error));
+                return Err(Error::<E>::CallExtrinsic(dispatch_error))
             }
         }
 
@@ -613,7 +642,7 @@ where
                         .map_err(|e| Error::<E>::Decoding(e.to_string()))?;
 
                 log_error(&format!("extrinsic for call failed: {dispatch_error}"));
-                return Err(Error::<E>::CallExtrinsic(dispatch_error));
+                return Err(Error::<E>::CallExtrinsic(dispatch_error))
             }
         }
 
