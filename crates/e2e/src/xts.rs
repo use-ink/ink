@@ -369,7 +369,7 @@ where
         storage_deposit_limit: Option<E::Balance>,
     ) -> CodeUploadResult<E::Hash, E::Balance> {
         let call_request = RpcCodeUploadRequest::<C, E> {
-            origin: Signer::<C>::account_id(signer).clone(),
+            origin: Signer::<C>::account_id(signer),
             code,
             storage_deposit_limit,
             determinism: Determinism::Enforced,
