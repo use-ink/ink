@@ -29,7 +29,7 @@ mod node_proc;
 mod subxt_client;
 mod xts;
 
-pub use backend::E2EBackend;
+pub use backend::{ChainBackend, ContractsBackend, E2EBackend};
 pub use contract_results::{
     CallDryRunResult, CallResult, InstantiationResult, UploadResult,
 };
