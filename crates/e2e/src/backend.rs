@@ -6,8 +6,14 @@ pub trait E2EBackend: ChainBackend + ContractsBackend {}
 
 /// General chain operations useful in contract testing.
 #[async_trait]
-pub trait ChainBackend {}
+pub trait ChainBackend {
+    /// Abstract type representing the entity that interacts with the chain.
+    type Actor;
+}
 
 /// Contract-specific operations.
 #[async_trait]
-pub trait ContractsBackend {}
+pub trait ContractsBackend {
+    /// Abstract type representing the entity that interacts with the chain.
+    type Actor;
+}
