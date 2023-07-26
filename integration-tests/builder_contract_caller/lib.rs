@@ -70,9 +70,11 @@ mod builder_contract_caller {
 
 #[cfg(all(test, feature = "e2e-tests"))]
 mod e2e_tests {
-    use super::builder_contract_caller::BuilderContractCallerRef;
+    use super::builder_contract_caller::{
+        BuilderContractCaller,
+        BuilderContractCallerRef,
+    };
     use ink::primitives::AccountId;
-    use ink_e2e::build_message;
 
     type E2EResult<T> = Result<T, Box<dyn std::error::Error>>;
 
@@ -99,7 +101,7 @@ mod e2e_tests {
 
         let constructor = BuilderContractCallerRef::new(other_code_hash);
 
-        let caller_account_id = client
+        let contract = client
             .instantiate(
                 "builder-contract-caller",
                 &ink_e2e::alice(),
@@ -108,46 +110,38 @@ mod e2e_tests {
                 None,
             )
             .await
-            .expect("instantiate failed")
-            .account_id;
+            .expect("instantiate failed");
+        let mut call = contract.call::<BuilderContractCaller>();
 
         // Check that the `total_supply` return `0`(default value).
-        let total_supply =
-            build_message::<BuilderContractCallerRef>(caller_account_id.clone())
-                .call(|contract| contract.total_supply());
         let value = client
-            .call_dry_run(&ink_e2e::alice(), &total_supply, 0, None)
+            .call_dry_run(&ink_e2e::alice(), &call.total_supply(), 0, None)
             .await
             .return_value();
         assert_eq!(value, 0);
-
         // Mint tokens and transfer them to `to`.
         let to = AccountId::from([13; 32]);
         let amount = 100;
-        let mint_and_transfer =
-            build_message::<BuilderContractCallerRef>(caller_account_id.clone())
-                .call(|contract| contract.mint_and_transfer(to, amount));
         let _ = client
-            .call(&ink_e2e::alice(), mint_and_transfer, 0, None)
+            .call(
+                &ink_e2e::alice(),
+                &call.mint_and_transfer(to, amount),
+                0,
+                None,
+            )
             .await
             .expect("calling `mint_and_transfer` failed");
 
         // The total supply should be equal to `amount`.
-        let total_supply =
-            build_message::<BuilderContractCallerRef>(caller_account_id.clone())
-                .call(|contract| contract.total_supply());
         let value = client
-            .call_dry_run(&ink_e2e::alice(), &total_supply, 0, None)
+            .call_dry_run(&ink_e2e::alice(), &call.total_supply(), 0, None)
             .await
             .return_value();
         assert_eq!(value, amount);
 
         // The balance of the `to` should be equal to `amount`.
-        let balance_of =
-            build_message::<BuilderContractCallerRef>(caller_account_id.clone())
-                .call(|contract| contract.balance_of(to));
         let value = client
-            .call_dry_run(&ink_e2e::alice(), &balance_of, 0, None)
+            .call_dry_run(&ink_e2e::alice(), &call.balance_of(to), 0, None)
             .await
             .return_value();
         assert_eq!(value, amount);
