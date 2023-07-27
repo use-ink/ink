@@ -32,7 +32,7 @@ use scale::{Decode, Encode};
 #[cfg(feature = "std")]
 use std::{collections::BTreeMap, fmt::Debug, path::PathBuf};
 
-use crate::{backend::ChainBackend, events, ContractsBackend};
+use crate::{backend::ChainBackend, events, ContractsBackend, E2EBackend};
 use subxt::{
     blocks::ExtrinsicEvents,
     config::ExtrinsicParams,
@@ -617,6 +617,35 @@ where
             _marker: Default::default(),
         }
     }
+}
+
+impl<C, E> E2EBackend<E> for Client<C, E>
+where
+    C: subxt::Config + Send + Sync,
+    C::AccountId: Clone
+        + Debug
+        + Send
+        + Sync
+        + core::fmt::Display
+        + scale::Codec
+        + From<sr25519::PublicKey>
+        + serde::de::DeserializeOwned,
+    C::Address: From<sr25519::PublicKey>,
+    C::Signature: From<sr25519::Signature>,
+    C::Address: Send + Sync,
+    <C::ExtrinsicParams as ExtrinsicParams<C::Hash>>::OtherParams: Default + Send + Sync,
+
+    E: Environment,
+    E::AccountId: Debug + Send + Sync,
+    E::Balance: Clone
+        + Debug
+        + Send
+        + Sync
+        + TryFrom<u128>
+        + scale::HasCompact
+        + serde::Serialize,
+    E::Hash: Debug + Send + scale::Encode,
+{
 }
 
 /// Try to extract the given field from a dynamic [`Value`].
