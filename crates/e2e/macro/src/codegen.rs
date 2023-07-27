@@ -293,6 +293,7 @@ fn build_contract(path_to_cargo_toml: &str) -> String {
         output_type: OutputType::HumanReadable,
         skip_wasm_validation: false,
         target: Target::Wasm,
+        ..Default::default()
     };
 
     match contract_build::execute(args) {
