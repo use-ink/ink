@@ -1,9 +1,13 @@
+use crate::builders::CreateBuilderPartial;
+use crate::InstantiationResult;
+use ink_env::Environment;
 use jsonrpsee::core::async_trait;
+use pallet_contracts_primitives::ContractInstantiateResult;
 use subxt::dynamic::Value;
 
 /// Full E2E testing backend: combines general chain API and contract-specific operations.
 #[async_trait]
-pub trait E2EBackend: ChainBackend + ContractsBackend {}
+pub trait E2EBackend<E: Environment>: ChainBackend + ContractsBackend<E> {}
 
 /// General chain operations useful in contract testing.
 #[async_trait]
@@ -52,7 +56,38 @@ pub trait ChainBackend {
 
 /// Contract-specific operations.
 #[async_trait]
-pub trait ContractsBackend {
+pub trait ContractsBackend<E: Environment> {
     /// Abstract type representing the entity that interacts with the chain.
     type Actor;
+    /// Error type.
+    type Error;
+    /// Event log type.
+    type EventLog;
+
+    /// The function subsequently uploads and instantiates an instance of the contract.
+    ///
+    /// This function extracts the metadata of the contract at the file path
+    /// `target/ink/$contract_name.contract`.
+    ///
+    /// Calling this function multiple times should be idempotent, the contract is
+    /// newly instantiated each time using a unique salt. No existing contract
+    /// instance is reused!
+    async fn instantiate<Contract, Args: Send + scale::Encode, R>(
+        &mut self,
+        contract_name: &str,
+        caller: &Self::Actor,
+        constructor: CreateBuilderPartial<E, Contract, Args, R>,
+        value: E::Balance,
+        storage_deposit_limit: Option<E::Balance>,
+    ) -> Result<InstantiationResult<E, Self::EventLog>, Self::Error>;
+
+    /// Dry run contract instantiation.
+    async fn instantiate_dry_run<Contract, Args: Send + scale::Encode, R>(
+        &mut self,
+        contract_name: &str,
+        caller: &Self::Actor,
+        constructor: CreateBuilderPartial<E, Contract, Args, R>,
+        value: E::Balance,
+        storage_deposit_limit: Option<E::Balance>,
+    ) -> ContractInstantiateResult<E::AccountId, E::Balance, ()>;
 }

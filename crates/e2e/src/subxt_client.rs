@@ -28,10 +28,11 @@ use ink_env::{
     Environment,
 };
 use jsonrpsee::core::async_trait;
+use scale::Encode;
 #[cfg(feature = "std")]
 use std::{collections::BTreeMap, fmt::Debug, path::PathBuf};
 
-use crate::{backend::ChainBackend, events};
+use crate::{backend::ChainBackend, events, ContractsBackend};
 use subxt::{
     blocks::ExtrinsicEvents,
     config::ExtrinsicParams,
@@ -102,67 +103,6 @@ where
             api: ContractsApi::new(client).await,
             contracts,
         }
-    }
-
-    /// This function extracts the metadata of the contract at the file path
-    /// `target/ink/$contract_name.contract`.
-    ///
-    /// The function subsequently uploads and instantiates an instance of the contract.
-    ///
-    /// Calling this function multiple times is idempotent, the contract is
-    /// newly instantiated each time using a unique salt. No existing contract
-    /// instance is reused!
-    pub async fn instantiate<Contract, Args, R>(
-        &mut self,
-        contract_name: &str,
-        signer: &Keypair,
-        constructor: CreateBuilderPartial<E, Contract, Args, R>,
-        value: E::Balance,
-        storage_deposit_limit: Option<E::Balance>,
-    ) -> Result<InstantiationResult<E, ExtrinsicEvents<C>>, Error<E>>
-    where
-        Args: scale::Encode,
-    {
-        let code = self.load_code(contract_name);
-        let ret = self
-            .exec_instantiate::<Contract, Args, R>(
-                signer,
-                code,
-                constructor,
-                value,
-                storage_deposit_limit,
-            )
-            .await?;
-        log_info(&format!("instantiated contract at {:?}", ret.account_id));
-        Ok(ret)
-    }
-
-    /// Dry run contract instantiation using the given constructor.
-    pub async fn instantiate_dry_run<Contract, Args, R>(
-        &mut self,
-        contract_name: &str,
-        signer: &Keypair,
-        constructor: CreateBuilderPartial<E, Contract, Args, R>,
-        value: E::Balance,
-        storage_deposit_limit: Option<E::Balance>,
-    ) -> ContractInstantiateResult<E::AccountId, E::Balance, ()>
-    where
-        Args: scale::Encode,
-    {
-        let code = self.load_code(contract_name);
-        let data = constructor_exec_input(constructor);
-
-        let salt = Self::salt();
-        self.api
-            .instantiate_with_code_dry_run(
-                value,
-                storage_deposit_limit,
-                code,
-                data,
-                salt,
-                signer,
-            )
-            .await
     }
 
     /// Load the Wasm code for the given contract.
@@ -616,6 +556,85 @@ where
         }
 
         Ok(tx_events)
+    }
+}
+
+#[async_trait]
+impl<C, E> ContractsBackend<E> for Client<C, E>
+where
+    C: subxt::Config + Send + Sync,
+    C::AccountId: Clone
+        + Debug
+        + Send
+        + Sync
+        + core::fmt::Display
+        + scale::Codec
+        + From<sr25519::PublicKey>
+        + serde::de::DeserializeOwned,
+    C::Address: From<sr25519::PublicKey>,
+    C::Signature: From<sr25519::Signature>,
+    C::Address: Send + Sync,
+    <C::ExtrinsicParams as ExtrinsicParams<C::Hash>>::OtherParams: Default + Send + Sync,
+
+    E: Environment,
+    E::AccountId: Debug + Send + Sync,
+    E::Balance: Clone
+        + Debug
+        + Send
+        + Sync
+        + TryFrom<u128>
+        + scale::HasCompact
+        + serde::Serialize,
+    E::Hash: Debug + scale::Encode,
+{
+    type Actor = Keypair;
+    type Error = Error<E>;
+    type EventLog = ExtrinsicEvents<C>;
+
+    async fn instantiate<Contract, Args: Send + Encode, R>(
+        &mut self,
+        contract_name: &str,
+        caller: &Self::Actor,
+        constructor: CreateBuilderPartial<E, Contract, Args, R>,
+        value: E::Balance,
+        storage_deposit_limit: Option<E::Balance>,
+    ) -> Result<InstantiationResult<E, Self::EventLog>, Self::Error> {
+        let code = self.load_code(contract_name);
+        let ret = self
+            .exec_instantiate::<Contract, Args, R>(
+                caller,
+                code,
+                constructor,
+                value,
+                storage_deposit_limit,
+            )
+            .await?;
+        log_info(&format!("instantiated contract at {:?}", ret.account_id));
+        Ok(ret)
+    }
+
+    async fn instantiate_dry_run<Contract, Args: Send + Encode, R>(
+        &mut self,
+        contract_name: &str,
+        caller: &Self::Actor,
+        constructor: CreateBuilderPartial<E, Contract, Args, R>,
+        value: E::Balance,
+        storage_deposit_limit: Option<E::Balance>,
+    ) -> ContractInstantiateResult<E::AccountId, E::Balance, ()> {
+        let code = self.load_code(contract_name);
+        let data = constructor_exec_input(constructor);
+
+        let salt = Self::salt();
+        self.api
+            .instantiate_with_code_dry_run(
+                value,
+                storage_deposit_limit,
+                code,
+                data,
+                salt,
+                caller,
+            )
+            .await
     }
 }
 
