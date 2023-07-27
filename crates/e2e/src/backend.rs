@@ -1,6 +1,10 @@
-use crate::builders::CreateBuilderPartial;
 use crate::{
-    CallBuilderFinal, CallDryRunResult, CallResult, InstantiationResult, UploadResult,
+    builders::CreateBuilderPartial,
+    CallBuilderFinal,
+    CallDryRunResult,
+    CallResult,
+    InstantiationResult,
+    UploadResult,
 };
 use ink_env::Environment;
 use jsonrpsee::core::async_trait;

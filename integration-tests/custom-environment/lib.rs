@@ -1,9 +1,6 @@
 #![cfg_attr(not(feature = "std"), no_std, no_main)]
 
-use ink::env::{
-    DefaultEnvironment,
-    Environment,
-};
+use ink::env::{DefaultEnvironment, Environment};
 
 /// Our custom environment diverges from the `DefaultEnvironment` in the event topics
 /// limit.
@@ -84,6 +81,7 @@ mod runtime_call {
     #[cfg(all(test, feature = "e2e-tests"))]
     mod e2e_tests {
         use super::*;
+        use ink_e2e::{ChainBackend, ContractsBackend};
 
         type E2EResult<T> = Result<T, Box<dyn std::error::Error>>;
 

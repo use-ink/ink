@@ -13,12 +13,18 @@
 // limitations under the License.
 
 use crate::ir;
-use contract_build::{ManifestPath, Target};
+use contract_build::{
+    ManifestPath,
+    Target,
+};
 use core::cell::RefCell;
 use derive_more::From;
 use proc_macro2::TokenStream as TokenStream2;
 use quote::quote;
-use std::{collections::HashMap, sync::Once};
+use std::{
+    collections::HashMap,
+    sync::Once,
+};
 
 /// We use this to only build the contracts once for all tests, at the
 /// time of generating the Rust code for the tests, so at compile time.
@@ -56,7 +62,7 @@ impl InkE2ETest {
     pub fn generate_code(&self) -> TokenStream2 {
         #[cfg(clippy)]
         if true {
-            return quote! {};
+            return quote! {}
         }
 
         let item_fn = &self.test.item_fn.item_fn;
@@ -259,8 +265,15 @@ impl ContractManifests {
 /// Wasm build artifact.
 fn build_contract(path_to_cargo_toml: &str) -> String {
     use contract_build::{
-        BuildArtifacts, BuildMode, ExecuteArgs, Features, Network, OptimizationPasses,
-        OutputType, UnstableFlags, Verbosity,
+        BuildArtifacts,
+        BuildMode,
+        ExecuteArgs,
+        Features,
+        Network,
+        OptimizationPasses,
+        OutputType,
+        UnstableFlags,
+        Verbosity,
     };
 
     let manifest_path = ManifestPath::new(path_to_cargo_toml).unwrap_or_else(|err| {
@@ -283,13 +296,15 @@ fn build_contract(path_to_cargo_toml: &str) -> String {
     };
 
     match contract_build::execute(args) {
-        Ok(build_result) => build_result
-            .dest_wasm
-            .expect("Wasm code artifact not generated")
-            .canonicalize()
-            .expect("Invalid dest bundle path")
-            .to_string_lossy()
-            .into(),
+        Ok(build_result) => {
+            build_result
+                .dest_wasm
+                .expect("Wasm code artifact not generated")
+                .canonicalize()
+                .expect("Invalid dest bundle path")
+                .to_string_lossy()
+                .into()
+        }
         Err(err) => {
             panic!("contract build for {path_to_cargo_toml} failed: {err}")
         }

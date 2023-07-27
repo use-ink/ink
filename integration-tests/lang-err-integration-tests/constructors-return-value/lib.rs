@@ -1,9 +1,7 @@
 #![cfg_attr(not(feature = "std"), no_std, no_main)]
 
 pub use self::constructors_return_value::{
-    ConstructorError,
-    ConstructorsReturnValue,
-    ConstructorsReturnValueRef,
+    ConstructorError, ConstructorsReturnValue, ConstructorsReturnValueRef,
 };
 
 #[ink::contract]
@@ -107,6 +105,7 @@ pub mod constructors_return_value {
     #[cfg(all(test, feature = "e2e-tests"))]
     mod e2e_tests {
         use super::*;
+        use ink_e2e::{ChainBackend, ContractsBackend};
         use scale::Decode as _;
 
         type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;

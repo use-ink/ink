@@ -1,9 +1,6 @@
 #![cfg_attr(not(feature = "std"), no_std, no_main)]
 
-pub use self::integration_flipper::{
-    Flipper,
-    FlipperRef,
-};
+pub use self::integration_flipper::{Flipper, FlipperRef};
 
 #[ink::contract]
 pub mod integration_flipper {
@@ -67,6 +64,8 @@ pub mod integration_flipper {
     #[cfg(all(test, feature = "e2e-tests"))]
     mod e2e_tests {
         use super::*;
+        use ink_e2e::{ChainBackend, ContractsBackend};
+
         type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
         #[ink_e2e::test]

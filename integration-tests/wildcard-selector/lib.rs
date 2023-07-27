@@ -37,12 +37,9 @@ pub mod wildcard_selector {
     #[cfg(all(test, feature = "e2e-tests"))]
     mod e2e_tests {
         use super::*;
+        use ink_e2e::{ChainBackend, ContractsBackend};
 
-        use ink::env::call::utils::{
-            Argument,
-            ArgumentList,
-            EmptyArgumentList,
-        };
+        use ink::env::call::utils::{Argument, ArgumentList, EmptyArgumentList};
 
         type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
         type Environment = <WildcardSelectorRef as ink::env::ContractEnv>::Env;
