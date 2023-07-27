@@ -13,62 +13,31 @@
 // limitations under the License.
 
 use super::{
-    builders::{
-        constructor_exec_input,
-        CreateBuilderPartial,
-    },
-    events::{
-        CodeStoredEvent,
-        ContractInstantiatedEvent,
-        EventWithTopics,
-    },
-    log_error,
-    log_info,
-    sr25519,
-    ContractInstantiateResult,
-    ContractsApi,
-    Signer,
+    builders::{constructor_exec_input, CreateBuilderPartial},
+    events::{CodeStoredEvent, ContractInstantiatedEvent, EventWithTopics},
+    log_error, log_info, sr25519, ContractInstantiateResult, ContractsApi, Keypair,
 };
 use crate::contract_results::{
-    CallDryRunResult,
-    CallResult,
-    InstantiationResult,
-    UploadResult,
+    CallDryRunResult, CallResult, InstantiationResult, UploadResult,
 };
 use ink_env::{
     call::{
-        utils::{
-            ReturnType,
-            Set,
-        },
-        Call,
-        ExecutionInput,
+        utils::{ReturnType, Set},
+        Call, ExecutionInput,
     },
     Environment,
 };
 use jsonrpsee::core::async_trait;
-use sp_core::Pair;
 #[cfg(feature = "std")]
-use std::{
-    collections::BTreeMap,
-    fmt::Debug,
-    path::PathBuf,
-};
+use std::{collections::BTreeMap, fmt::Debug, path::PathBuf};
 
-use crate::{
-    backend::ChainBackend,
-    events,
-};
+use crate::{backend::ChainBackend, events};
 use subxt::{
     blocks::ExtrinsicEvents,
     config::ExtrinsicParams,
     events::EventDetails,
-    ext::scale_value::{
-        Composite,
-        Value,
-        ValueDef,
-    },
-    tx::PairSigner,
+    ext::scale_value::{Composite, Value, ValueDef},
+    tx::Signer,
 };
 
 pub type Error<E> = crate::error::Error<
@@ -102,12 +71,11 @@ where
 impl<C, E> Client<C, E>
 where
     C: subxt::Config,
-    C::AccountId: From<sp_runtime::AccountId32>
-        + scale::Codec
-        + serde::de::DeserializeOwned
-        + Debug,
+    C::AccountId:
+        From<sr25519::PublicKey> + scale::Codec + serde::de::DeserializeOwned + Debug,
+    C::Address: From<sr25519::PublicKey>,
     C::Signature: From<sr25519::Signature>,
-    <C::ExtrinsicParams as ExtrinsicParams<C::Index, C::Hash>>::OtherParams: Default,
+    <C::ExtrinsicParams as ExtrinsicParams<C::Hash>>::OtherParams: Default,
 
     E: Environment,
     E::AccountId: Debug,
@@ -147,7 +115,7 @@ where
     pub async fn instantiate<Contract, Args, R>(
         &mut self,
         contract_name: &str,
-        signer: &Signer<C>,
+        signer: &Keypair,
         constructor: CreateBuilderPartial<E, Contract, Args, R>,
         value: E::Balance,
         storage_deposit_limit: Option<E::Balance>,
@@ -173,7 +141,7 @@ where
     pub async fn instantiate_dry_run<Contract, Args, R>(
         &mut self,
         contract_name: &str,
-        signer: &Signer<C>,
+        signer: &Keypair,
         constructor: CreateBuilderPartial<E, Contract, Args, R>,
         value: E::Balance,
         storage_deposit_limit: Option<E::Balance>,
@@ -220,7 +188,7 @@ where
     /// Executes an `instantiate_with_code` call and captures the resulting events.
     async fn exec_instantiate<Contract, Args, R>(
         &mut self,
-        signer: &Signer<C>,
+        signer: &Keypair,
         code: Vec<u8>,
         constructor: CreateBuilderPartial<E, Contract, Args, R>,
         value: E::Balance,
@@ -250,7 +218,7 @@ where
         ));
         log_info(&format!("instantiate dry run result: {:?}", dry_run.result));
         if dry_run.result.is_err() {
-            return Err(Error::<E>::InstantiateDryRun(dry_run))
+            return Err(Error::<E>::InstantiateDryRun(dry_run));
         }
 
         let tx_events = self
@@ -295,7 +263,7 @@ where
                 log_error(&format!(
                     "extrinsic for instantiate failed: {dispatch_error}"
                 ));
-                return Err(Error::<E>::InstantiateExtrinsic(dispatch_error))
+                return Err(Error::<E>::InstantiateExtrinsic(dispatch_error));
             }
         }
         let account_id = account_id.expect("cannot extract `account_id` from events");
@@ -332,7 +300,7 @@ where
     pub async fn upload(
         &mut self,
         contract_name: &str,
-        signer: &Signer<C>,
+        signer: &Keypair,
         storage_deposit_limit: Option<E::Balance>,
     ) -> Result<UploadResult<E, ExtrinsicEvents<C>>, Error<E>> {
         let code = self.load_code(contract_name);
@@ -346,7 +314,7 @@ where
     /// Executes an `upload` call and captures the resulting events.
     async fn exec_upload(
         &mut self,
-        signer: &Signer<C>,
+        signer: &Keypair,
         code: Vec<u8>,
         storage_deposit_limit: Option<E::Balance>,
     ) -> Result<UploadResult<E, ExtrinsicEvents<C>>, Error<E>> {
@@ -357,7 +325,7 @@ where
             .await;
         log_info(&format!("upload dry run: {dry_run:?}"));
         if dry_run.is_err() {
-            return Err(Error::<E>::UploadDryRun(dry_run))
+            return Err(Error::<E>::UploadDryRun(dry_run));
         }
 
         let tx_events = self.api.upload(signer, code, storage_deposit_limit).await;
@@ -378,7 +346,7 @@ where
                     uploaded.code_hash
                 ));
                 hash = Some(uploaded.code_hash);
-                break
+                break;
             } else if is_extrinsic_failed_event(&evt) {
                 let metadata = self.api.client.metadata();
                 let dispatch_error =
@@ -386,7 +354,7 @@ where
                         .map_err(|e| Error::<E>::Decoding(e.to_string()))?;
 
                 log_error(&format!("extrinsic for upload failed: {dispatch_error}"));
-                return Err(Error::<E>::UploadExtrinsic(dispatch_error))
+                return Err(Error::<E>::UploadExtrinsic(dispatch_error));
             }
         }
 
@@ -417,7 +385,7 @@ where
     /// contains all events that are associated with this transaction.
     pub async fn call<Args, RetType>(
         &mut self,
-        signer: &Signer<C>,
+        signer: &Keypair,
         message: &CallBuilderFinal<E, Args, RetType>,
         value: E::Balance,
         storage_deposit_limit: Option<E::Balance>,
@@ -434,7 +402,7 @@ where
         let dry_run = self.call_dry_run(signer, message, value, None).await;
 
         if dry_run.exec_result.result.is_err() {
-            return Err(Error::<E>::CallDryRun(dry_run.exec_result))
+            return Err(Error::<E>::CallDryRun(dry_run.exec_result));
         }
 
         let tx_events = self
@@ -460,7 +428,7 @@ where
                     subxt::error::DispatchError::decode_from(evt.field_bytes(), metadata)
                         .map_err(|e| Error::<E>::Decoding(e.to_string()))?;
                 log_error(&format!("extrinsic for call failed: {dispatch_error}"));
-                return Err(Error::<E>::CallExtrinsic(dispatch_error))
+                return Err(Error::<E>::CallExtrinsic(dispatch_error));
             }
         }
 
@@ -476,7 +444,7 @@ where
     /// invoked message.
     pub async fn call_dry_run<Args, RetType>(
         &mut self,
-        signer: &Signer<C>,
+        signer: &Keypair,
         message: &CallBuilderFinal<E, Args, RetType>,
         value: E::Balance,
         storage_deposit_limit: Option<E::Balance>,
@@ -492,7 +460,7 @@ where
         let exec_result = self
             .api
             .call_dry_run(
-                Signer::account_id(signer).clone(),
+                Signer::<C>::account_id(signer),
                 dest,
                 exec_input,
                 value,
@@ -521,7 +489,6 @@ where
         + Send
         + Sync
         + core::fmt::Display
-        + From<sp_core::crypto::AccountId32>
         + scale::Codec
         + serde::de::DeserializeOwned,
     C::Signature: From<sr25519::Signature>,
@@ -539,7 +506,7 @@ where
         + scale::HasCompact
         + serde::Serialize,
 {
-    type Actor = Signer<C>;
+    type Actor = Keypair;
     type ActorId = E::AccountId;
     type Balance = E::Balance;
     type Error = Error<E>;
@@ -550,9 +517,13 @@ where
         origin: &Self::Actor,
         amount: Self::Balance,
     ) -> Self::Actor {
-        let (pair, _, _) = <sr25519::Pair as Pair>::generate_with_phrase(None);
-        let pair_signer = PairSigner::<C, _>::new(pair);
-        let account_id = pair_signer.account_id().to_owned();
+        let (_, phrase, _) =
+            <sp_core::sr25519::Pair as sp_core::Pair>::generate_with_phrase(None);
+        let phrase =
+            subxt_signer::bip39::Mnemonic::parse(phrase).expect("valid phrase expected");
+        let keypair = Keypair::from_phrase(&phrase, None).expect("valid phrase expected");
+        let account_id = <Keypair as Signer<C>>::account_id(&keypair);
+        let origin_account_id = origin.public_key().to_account_id();
 
         self.api
             .try_transfer_balance(origin, account_id.clone(), amount)
@@ -560,19 +531,16 @@ where
             .unwrap_or_else(|err| {
                 panic!(
                     "transfer from {} to {} failed with {:?}",
-                    origin.account_id(),
-                    account_id,
-                    err
+                    origin_account_id, account_id, err
                 )
             });
 
         log_info(&format!(
             "transfer from {} to {} succeeded",
-            origin.account_id(),
-            account_id,
+            origin_account_id, account_id,
         ));
 
-        pair_signer
+        keypair
     }
 
     async fn balance(&self, actor: Self::ActorId) -> Result<Self::Balance, Self::Error> {
@@ -642,7 +610,7 @@ where
                         .map_err(|e| Error::<E>::Decoding(e.to_string()))?;
 
                 log_error(&format!("extrinsic for call failed: {dispatch_error}"));
-                return Err(Error::<E>::CallExtrinsic(dispatch_error))
+                return Err(Error::<E>::CallExtrinsic(dispatch_error));
             }
         }
 
