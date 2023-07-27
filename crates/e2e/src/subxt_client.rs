@@ -28,7 +28,7 @@ use ink_env::{
     Environment,
 };
 use jsonrpsee::core::async_trait;
-use scale::Encode;
+use scale::{Decode, Encode};
 #[cfg(feature = "std")]
 use std::{collections::BTreeMap, fmt::Debug, path::PathBuf};
 
@@ -297,106 +297,6 @@ where
             events: tx_events,
         })
     }
-
-    /// Executes a `call` for the contract at `account_id`.
-    ///
-    /// Returns when the transaction is included in a block. The return value
-    /// contains all events that are associated with this transaction.
-    pub async fn call<Args, RetType>(
-        &mut self,
-        signer: &Keypair,
-        message: &CallBuilderFinal<E, Args, RetType>,
-        value: E::Balance,
-        storage_deposit_limit: Option<E::Balance>,
-    ) -> Result<CallResult<E, RetType, ExtrinsicEvents<C>>, Error<E>>
-    where
-        Args: scale::Encode,
-        RetType: scale::Decode,
-        CallBuilderFinal<E, Args, RetType>: Clone,
-    {
-        let account_id = message.clone().params().callee().clone();
-        let exec_input = scale::Encode::encode(message.clone().params().exec_input());
-        log_info(&format!("call: {:02X?}", exec_input));
-
-        let dry_run = self.call_dry_run(signer, message, value, None).await;
-
-        if dry_run.exec_result.result.is_err() {
-            return Err(Error::<E>::CallDryRun(dry_run.exec_result));
-        }
-
-        let tx_events = self
-            .api
-            .call(
-                subxt::utils::MultiAddress::Id(account_id.clone()),
-                value,
-                dry_run.exec_result.gas_required.into(),
-                storage_deposit_limit,
-                exec_input,
-                signer,
-            )
-            .await;
-
-        for evt in tx_events.iter() {
-            let evt = evt.unwrap_or_else(|err| {
-                panic!("unable to unwrap event: {err:?}");
-            });
-
-            if is_extrinsic_failed_event(&evt) {
-                let metadata = self.api.client.metadata();
-                let dispatch_error =
-                    subxt::error::DispatchError::decode_from(evt.field_bytes(), metadata)
-                        .map_err(|e| Error::<E>::Decoding(e.to_string()))?;
-                log_error(&format!("extrinsic for call failed: {dispatch_error}"));
-                return Err(Error::<E>::CallExtrinsic(dispatch_error));
-            }
-        }
-
-        Ok(CallResult {
-            dry_run,
-            events: tx_events,
-        })
-    }
-
-    /// Executes a dry-run `call`.
-    ///
-    /// Returns the result of the dry run, together with the decoded return value of the
-    /// invoked message.
-    pub async fn call_dry_run<Args, RetType>(
-        &mut self,
-        signer: &Keypair,
-        message: &CallBuilderFinal<E, Args, RetType>,
-        value: E::Balance,
-        storage_deposit_limit: Option<E::Balance>,
-    ) -> CallDryRunResult<E, RetType>
-    where
-        Args: scale::Encode,
-        RetType: scale::Decode,
-        CallBuilderFinal<E, Args, RetType>: Clone,
-    {
-        let dest = message.clone().params().callee().clone();
-        let exec_input = scale::Encode::encode(message.clone().params().exec_input());
-
-        let exec_result = self
-            .api
-            .call_dry_run(
-                Signer::<C>::account_id(signer),
-                dest,
-                exec_input,
-                value,
-                storage_deposit_limit,
-            )
-            .await;
-        log_info(&format!("call dry run: {:?}", &exec_result.result));
-        log_info(&format!(
-            "call dry run debug message: {}",
-            String::from_utf8_lossy(&exec_result.debug_message)
-        ));
-
-        CallDryRunResult {
-            exec_result,
-            _marker: Default::default(),
-        }
-    }
 }
 
 #[async_trait]
@@ -628,6 +528,94 @@ where
             .await?;
         log_info(&format!("contract stored with hash {:?}", ret.code_hash));
         Ok(ret)
+    }
+
+    async fn call<Args: Sync + Encode, RetType: Send + Decode>(
+        &mut self,
+        caller: &Self::Actor,
+        message: &CallBuilderFinal<E, Args, RetType>,
+        value: E::Balance,
+        storage_deposit_limit: Option<E::Balance>,
+    ) -> Result<CallResult<E, RetType, Self::EventLog>, Self::Error>
+    where
+        CallBuilderFinal<E, Args, RetType>: Clone,
+    {
+        let account_id = message.clone().params().callee().clone();
+        let exec_input = Encode::encode(message.clone().params().exec_input());
+        log_info(&format!("call: {:02X?}", exec_input));
+
+        let dry_run = self.call_dry_run(caller, message, value, None).await;
+
+        if dry_run.exec_result.result.is_err() {
+            return Err(Error::<E>::CallDryRun(dry_run.exec_result));
+        }
+
+        let tx_events = self
+            .api
+            .call(
+                subxt::utils::MultiAddress::Id(account_id.clone()),
+                value,
+                dry_run.exec_result.gas_required.into(),
+                storage_deposit_limit,
+                exec_input,
+                caller,
+            )
+            .await;
+
+        for evt in tx_events.iter() {
+            let evt = evt.unwrap_or_else(|err| {
+                panic!("unable to unwrap event: {err:?}");
+            });
+
+            if is_extrinsic_failed_event(&evt) {
+                let metadata = self.api.client.metadata();
+                let dispatch_error =
+                    subxt::error::DispatchError::decode_from(evt.field_bytes(), metadata)
+                        .map_err(|e| Error::<E>::Decoding(e.to_string()))?;
+                log_error(&format!("extrinsic for call failed: {dispatch_error}"));
+                return Err(Error::<E>::CallExtrinsic(dispatch_error));
+            }
+        }
+
+        Ok(CallResult {
+            dry_run,
+            events: tx_events,
+        })
+    }
+
+    async fn call_dry_run<Args: Sync + Encode, RetType: Send + Decode>(
+        &mut self,
+        caller: &Self::Actor,
+        message: &CallBuilderFinal<E, Args, RetType>,
+        value: E::Balance,
+        storage_deposit_limit: Option<E::Balance>,
+    ) -> CallDryRunResult<E, RetType>
+    where
+        CallBuilderFinal<E, Args, RetType>: Clone,
+    {
+        let dest = message.clone().params().callee().clone();
+        let exec_input = Encode::encode(message.clone().params().exec_input());
+
+        let exec_result = self
+            .api
+            .call_dry_run(
+                Signer::<C>::account_id(caller),
+                dest,
+                exec_input,
+                value,
+                storage_deposit_limit,
+            )
+            .await;
+        log_info(&format!("call dry run: {:?}", &exec_result.result));
+        log_info(&format!(
+            "call dry run debug message: {}",
+            String::from_utf8_lossy(&exec_result.debug_message)
+        ));
+
+        CallDryRunResult {
+            exec_result,
+            _marker: Default::default(),
+        }
     }
 }
 

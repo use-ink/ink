@@ -1,5 +1,7 @@
 use crate::builders::CreateBuilderPartial;
-use crate::{InstantiationResult, UploadResult};
+use crate::{
+    CallBuilderFinal, CallDryRunResult, CallResult, InstantiationResult, UploadResult,
+};
 use ink_env::Environment;
 use jsonrpsee::core::async_trait;
 use pallet_contracts_primitives::ContractInstantiateResult;
@@ -104,4 +106,32 @@ pub trait ContractsBackend<E: Environment> {
         caller: &Self::Actor,
         storage_deposit_limit: Option<E::Balance>,
     ) -> Result<UploadResult<E, Self::EventLog>, Self::Error>;
+
+    /// Executes a `call` for the contract at `account_id`.
+    ///
+    /// Returns when the transaction is included in a block. The return value
+    /// contains all events that are associated with this transaction.
+    async fn call<Args: Sync + scale::Encode, RetType: Send + scale::Decode>(
+        &mut self,
+        caller: &Self::Actor,
+        message: &CallBuilderFinal<E, Args, RetType>,
+        value: E::Balance,
+        storage_deposit_limit: Option<E::Balance>,
+    ) -> Result<CallResult<E, RetType, Self::EventLog>, Self::Error>
+    where
+        CallBuilderFinal<E, Args, RetType>: Clone;
+
+    /// Executes a dry-run `call`.
+    ///
+    /// Returns the result of the dry run, together with the decoded return value of the
+    /// invoked message.
+    async fn call_dry_run<Args: Sync + scale::Encode, RetType: Send + scale::Decode>(
+        &mut self,
+        caller: &Self::Actor,
+        message: &CallBuilderFinal<E, Args, RetType>,
+        value: E::Balance,
+        storage_deposit_limit: Option<E::Balance>,
+    ) -> CallDryRunResult<E, RetType>
+    where
+        CallBuilderFinal<E, Args, RetType>: Clone;
 }
