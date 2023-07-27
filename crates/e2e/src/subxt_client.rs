@@ -490,11 +490,12 @@ where
         + Sync
         + core::fmt::Display
         + scale::Codec
+        + From<sr25519::PublicKey>
         + serde::de::DeserializeOwned,
+    C::Address: From<sr25519::PublicKey>,
     C::Signature: From<sr25519::Signature>,
     C::Address: Send + Sync,
-    <C::ExtrinsicParams as ExtrinsicParams<C::Index, C::Hash>>::OtherParams:
-        Default + Send + Sync,
+    <C::ExtrinsicParams as ExtrinsicParams<C::Hash>>::OtherParams: Default + Send + Sync,
 
     E: Environment,
     E::AccountId: Debug + Send + Sync,
