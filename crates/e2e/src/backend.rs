@@ -1,5 +1,5 @@
 use crate::builders::CreateBuilderPartial;
-use crate::InstantiationResult;
+use crate::{InstantiationResult, UploadResult};
 use ink_env::Environment;
 use jsonrpsee::core::async_trait;
 use pallet_contracts_primitives::ContractInstantiateResult;
@@ -90,4 +90,18 @@ pub trait ContractsBackend<E: Environment> {
         value: E::Balance,
         storage_deposit_limit: Option<E::Balance>,
     ) -> ContractInstantiateResult<E::AccountId, E::Balance, ()>;
+
+    /// The function subsequently uploads and instantiates an instance of the contract.
+    ///
+    /// This function extracts the Wasm of the contract for the specified contract.
+    ///
+    /// Calling this function multiple times should be idempotent, the contract is
+    /// newly instantiated each time using a unique salt. No existing contract
+    /// instance is reused!
+    async fn upload(
+        &mut self,
+        contract_name: &str,
+        caller: &Self::Actor,
+        storage_deposit_limit: Option<E::Balance>,
+    ) -> Result<UploadResult<E, Self::EventLog>, Self::Error>;
 }

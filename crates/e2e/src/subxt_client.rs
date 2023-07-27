@@ -230,27 +230,6 @@ where
             .to_vec()
     }
 
-    /// This function extracts the Wasm of the contract for the specified contract.
-    ///
-    /// The function subsequently uploads and instantiates an instance of the contract.
-    ///
-    /// Calling this function multiple times is idempotent, the contract is
-    /// newly instantiated each time using a unique salt. No existing contract
-    /// instance is reused!
-    pub async fn upload(
-        &mut self,
-        contract_name: &str,
-        signer: &Keypair,
-        storage_deposit_limit: Option<E::Balance>,
-    ) -> Result<UploadResult<E, ExtrinsicEvents<C>>, Error<E>> {
-        let code = self.load_code(contract_name);
-        let ret = self
-            .exec_upload(signer, code, storage_deposit_limit)
-            .await?;
-        log_info(&format!("contract stored with hash {:?}", ret.code_hash));
-        Ok(ret)
-    }
-
     /// Executes an `upload` call and captures the resulting events.
     async fn exec_upload(
         &mut self,
@@ -585,7 +564,7 @@ where
         + TryFrom<u128>
         + scale::HasCompact
         + serde::Serialize,
-    E::Hash: Debug + scale::Encode,
+    E::Hash: Debug + Send + scale::Encode,
 {
     type Actor = Keypair;
     type Error = Error<E>;
@@ -635,6 +614,20 @@ where
                 caller,
             )
             .await
+    }
+
+    async fn upload(
+        &mut self,
+        contract_name: &str,
+        caller: &Self::Actor,
+        storage_deposit_limit: Option<E::Balance>,
+    ) -> Result<UploadResult<E, Self::EventLog>, Self::Error> {
+        let code = self.load_code(contract_name);
+        let ret = self
+            .exec_upload(caller, code, storage_deposit_limit)
+            .await?;
+        log_info(&format!("contract stored with hash {:?}", ret.code_hash));
+        Ok(ret)
     }
 }
 
