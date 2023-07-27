@@ -43,10 +43,19 @@ pub mod caller {
 
 #[cfg(all(test, feature = "e2e-tests"))]
 mod e2e_tests {
-    use super::caller::{Caller, CallerRef};
+    use super::caller::{
+        Caller,
+        CallerRef,
+    };
     use dyn_traits::Increment;
-    use ink_e2e::{ChainBackend, ContractsBackend};
-    use trait_incrementer::incrementer::{Incrementer, IncrementerRef};
+    use ink_e2e::{
+        ChainBackend,
+        ContractsBackend,
+    };
+    use trait_incrementer::incrementer::{
+        Incrementer,
+        IncrementerRef,
+    };
 
     type E2EResult<T> = Result<T, Box<dyn std::error::Error>>;
 

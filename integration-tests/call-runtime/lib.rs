@@ -41,7 +41,10 @@ enum BalancesCall {
 
 #[ink::contract]
 mod runtime_call {
-    use crate::{BalancesCall, RuntimeCall};
+    use crate::{
+        BalancesCall,
+        RuntimeCall,
+    };
 
     use ink::env::Error as EnvError;
 
@@ -111,10 +114,16 @@ mod runtime_call {
     #[cfg(all(test, feature = "e2e-tests"))]
     mod e2e_tests {
         use super::*;
-        use ink_e2e::{ChainBackend, ContractsBackend};
+        use ink_e2e::{
+            ChainBackend,
+            ContractsBackend,
+        };
 
         use ink::{
-            env::{test::default_accounts, DefaultEnvironment},
+            env::{
+                test::default_accounts,
+                DefaultEnvironment,
+            },
             primitives::AccountId,
         };
 

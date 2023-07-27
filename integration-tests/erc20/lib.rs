@@ -175,7 +175,7 @@ mod erc20 {
             let caller = self.env().caller();
             let allowance = self.allowance_impl(&from, &caller);
             if allowance < value {
-                return Err(Error::InsufficientAllowance);
+                return Err(Error::InsufficientAllowance)
             }
             self.transfer_from_to(&from, &to, value)?;
             self.allowances
@@ -199,7 +199,7 @@ mod erc20 {
         ) -> Result<()> {
             let from_balance = self.balance_of_impl(from);
             if from_balance < value {
-                return Err(Error::InsufficientBalance);
+                return Err(Error::InsufficientBalance)
             }
 
             self.balances.insert(from, &(from_balance - value));
@@ -218,7 +218,10 @@ mod erc20 {
     mod tests {
         use super::*;
 
-        use ink::primitives::{Clear, Hash};
+        use ink::primitives::{
+            Clear,
+            Hash,
+        };
 
         fn assert_transfer_event(
             event: &ink::env::test::EmittedEvent,
@@ -478,7 +481,11 @@ mod erc20 {
             T: scale::Encode,
         {
             use ink::{
-                env::hash::{Blake2x256, CryptoHash, HashOutput},
+                env::hash::{
+                    Blake2x256,
+                    CryptoHash,
+                    HashOutput,
+                },
                 primitives::Clear,
             };
 
@@ -488,7 +495,7 @@ mod erc20 {
             let len_encoded = encoded.len();
             if len_encoded <= len_result {
                 result.as_mut()[..len_encoded].copy_from_slice(&encoded);
-                return result;
+                return result
             }
             let mut hash_output =
                 <<Blake2x256 as HashOutput>::Type as Default>::default();
@@ -502,7 +509,10 @@ mod erc20 {
     #[cfg(all(test, feature = "e2e-tests"))]
     mod e2e_tests {
         use super::*;
-        use ink_e2e::{ChainBackend, ContractsBackend};
+        use ink_e2e::{
+            ChainBackend,
+            ContractsBackend,
+        };
 
         type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 

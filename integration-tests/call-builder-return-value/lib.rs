@@ -7,12 +7,18 @@
 mod call_builder {
     use ink::{
         env::{
-            call::{ExecutionInput, Selector},
+            call::{
+                ExecutionInput,
+                Selector,
+            },
             DefaultEnvironment,
         },
         prelude::{
             format,
-            string::{String, ToString},
+            string::{
+                String,
+                ToString,
+            },
         },
     };
 
@@ -107,7 +113,10 @@ mod call_builder {
     mod e2e_tests {
         use super::*;
         use incrementer::IncrementerRef;
-        use ink_e2e::{ChainBackend, ContractsBackend};
+        use ink_e2e::{
+            ChainBackend,
+            ContractsBackend,
+        };
 
         type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 

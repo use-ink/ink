@@ -38,7 +38,10 @@ static ALLOC: dlmalloc::GlobalDlmalloc = dlmalloc::GlobalDlmalloc;
 
 #[ink::contract]
 mod custom_allocator {
-    use ink::prelude::{vec, vec::Vec};
+    use ink::prelude::{
+        vec,
+        vec::Vec,
+    };
 
     #[ink(storage)]
     pub struct CustomAllocator {
@@ -104,7 +107,10 @@ mod custom_allocator {
     #[cfg(all(test, feature = "e2e-tests"))]
     mod e2e_tests {
         use super::*;
-        use ink_e2e::{ChainBackend, ContractsBackend};
+        use ink_e2e::{
+            ChainBackend,
+            ContractsBackend,
+        };
 
         type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
