@@ -97,7 +97,7 @@ declare_lint! {
     /// ```
     pub PRIMITIVE_TOPIC,
     Warn,
-    "The `#[ink(topic)]` annotation should not be used with a number primitive"
+    "`#[ink(topic)]` should not be used with a number primitive"
 }
 
 declare_lint_pass!(PrimitiveTopic => [PRIMITIVE_TOPIC]);
@@ -121,7 +121,6 @@ fn is_topics_function(impl_item: &ImplItemRef) -> bool {
 /// Returns `true` if `ty` is a primitive type that should not be annotated with
 /// `#[ink(topic)]`
 fn is_primitive_ty(ty: &Ty) -> bool {
-    // dbg!(ty.kind());
     matches!(ty.kind(), ty::Int(_) | ty::Uint(_))
 }
 
