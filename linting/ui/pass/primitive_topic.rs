@@ -9,8 +9,10 @@ pub mod primitive_topic {
         dst: Option<AccountId>,
         // Good: no topic annotation
         value_1: Balance,
-        // TODO: Good: warning is suppressed
-        // value_2: Balance,
+        // Good: suppressed warning
+        #[ink(topic)]
+        #[cfg_attr(dylint_lib = "ink_linting", allow(primitive_topic))]
+        value_2: Balance,
     }
 
     #[ink(storage)]

@@ -13,6 +13,7 @@
 // limitations under the License.
 use clippy_utils::{
     diagnostics::span_lint_and_then,
+    is_lint_allowed,
     match_def_path,
     peel_ref_operators,
     source::snippet_opt,
@@ -130,6 +131,7 @@ fn report_field(cx: &LateContext, event_def_id: DefId, field_name: &str) {
         if let Some(Node::Item(event_node)) = cx.tcx.hir().get_if_local(event_def_id);
         if let ItemKind::Struct(ref struct_def, _) = event_node.kind;
         if let Some(field) = struct_def.fields().iter().find(|field|{ field.ident.as_str() == field_name });
+        if !is_lint_allowed(cx, PRIMITIVE_TOPIC, field.hir_id);
         then {
             span_lint_and_then(
                 cx,
