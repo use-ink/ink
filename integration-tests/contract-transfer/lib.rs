@@ -208,7 +208,10 @@ pub mod give_me {
             let call_res = client.call(&ink_e2e::bob(), &transfer, 10, None).await;
 
             // then
-            if let Err(ink_e2e::Error::CallDryRun(dry_run)) = call_res {
+            if let Err(ink_e2e::Error::<ink::env::DefaultEnvironment>::CallDryRun(
+                dry_run,
+            )) = call_res
+            {
                 let debug_message = String::from_utf8_lossy(&dry_run.debug_message);
                 assert!(debug_message.contains("paid an unpayable message"))
             } else {

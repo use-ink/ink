@@ -134,7 +134,7 @@ pub mod integration_flipper {
 
             assert!(matches!(
                 err_flip_call_result,
-                Err(ink_e2e::Error::CallExtrinsic(_))
+                Err(ink_e2e::Error::<ink::env::DefaultEnvironment>::CallExtrinsic(_))
             ));
 
             let flipped_value = client

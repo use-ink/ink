@@ -46,8 +46,6 @@ mod runtime_call {
         third_topic: Balance,
         #[ink(topic)]
         fourth_topic: Balance,
-        #[ink(topic)]
-        fifth_topic: Balance,
     }
 
     impl Topics {
@@ -67,8 +65,6 @@ mod runtime_call {
     mod tests {
         use super::*;
 
-        type Event = <Topics as ink::reflect::ContractEventBase>::Type;
-
         #[ink::test]
         fn emits_event_with_many_topics() {
             let mut contract = Topics::new();
@@ -77,14 +73,11 @@ mod runtime_call {
             let emitted_events = ink::env::test::recorded_events().collect::<Vec<_>>();
             assert_eq!(emitted_events.len(), 1);
 
-            let emitted_event =
-                <Event as scale::Decode>::decode(&mut &emitted_events[0].data[..])
-                    .expect("encountered invalid contract event data buffer");
+            let emitted_event = <EventWithTopics as scale::Decode>::decode(
+                &mut &emitted_events[0].data[..],
+            );
 
-            assert!(matches!(
-                emitted_event,
-                Event::EventWithTopics(EventWithTopics { .. })
-            ));
+            assert!(emitted_event.is_ok());
         }
     }
 

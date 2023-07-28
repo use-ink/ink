@@ -1,4 +1,4 @@
-// Copyright 2018-2022 Parity Technologies (UK) Ltd.
+// Copyright (C) Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,15 +16,24 @@
 
 use crate::{
     serde_hex,
-    utils::trim_extra_whitespace,
+    utils::{
+        deserialize_from_byte_str,
+        serialize_as_byte_str,
+        trim_extra_whitespace,
+    },
 };
 #[cfg(not(feature = "std"))]
 use alloc::{
+    collections::BTreeMap,
     format,
+    string::String,
     vec,
     vec::Vec,
 };
-use core::marker::PhantomData;
+use core::{
+    fmt::Display,
+    marker::PhantomData,
+};
 use scale_info::{
     form::{
         Form,
@@ -42,6 +51,8 @@ use serde::{
     Deserialize,
     Serialize,
 };
+#[cfg(feature = "std")]
+use std::collections::BTreeMap;
 
 /// Describes a contract.
 #[derive(Debug, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
@@ -240,9 +251,17 @@ where
     }
 }
 
+impl<S> ContractSpecBuilder<MetaForm, S> {
+    /// Collect metadata for all events linked into the contract.
+    pub fn collect_events(self) -> Self {
+        self.events(crate::collect_events())
+    }
+}
+
 impl<F> ContractSpecBuilder<F, Valid>
 where
     F: Form,
+    F::String: Display,
     TypeSpec<F>: Default,
 {
     /// Finalizes construction of the contract specification.
@@ -263,6 +282,60 @@ where
             self.spec.messages.iter().filter(|m| m.default).count() < 2,
             "only one default message is allowed"
         );
+
+        let max_topics = self.spec.environment.max_event_topics;
+        let events_exceeding_max_topics_limit = self
+            .spec
+            .events
+            .iter()
+            .filter_map(|e| {
+                let signature_topic = if e.signature_topic.is_some() { 1 } else { 0 };
+                let topics_count =
+                    signature_topic + e.args.iter().filter(|a| a.indexed).count();
+                if topics_count > max_topics {
+                    Some(format!(
+                        "`{}::{}` ({} topics)",
+                        e.module_path, e.label, topics_count
+                    ))
+                } else {
+                    None
+                }
+            })
+            .collect::<Vec<_>>();
+        assert!(
+            events_exceeding_max_topics_limit.is_empty(),
+            "maximum of {max_topics} event topics exceeded: {}",
+            events_exceeding_max_topics_limit.join(", ")
+        );
+
+        let mut signature_topics: BTreeMap<Vec<u8>, Vec<String>> = BTreeMap::new();
+        for e in self.spec.events.iter() {
+            if let Some(signature_topic) = &e.signature_topic {
+                signature_topics
+                    .entry(signature_topic.bytes.clone())
+                    .or_default()
+                    .push(format!("`{}::{}`", e.module_path, e.label));
+            }
+        }
+        let signature_topic_collisions = signature_topics
+            .iter()
+            .filter_map(|(_, topics)| {
+                if topics.len() > 1 {
+                    Some(format!(
+                        "event signature topic collision: {}",
+                        topics.join(", ")
+                    ))
+                } else {
+                    None
+                }
+            })
+            .collect::<Vec<_>>();
+        assert!(
+            signature_topic_collisions.is_empty(),
+            "{}",
+            signature_topic_collisions.join("\n")
+        );
+
         self.spec
     }
 }
@@ -846,10 +919,43 @@ impl IntoPortable for MessageSpec {
 pub struct EventSpec<F: Form = MetaForm> {
     /// The label of the event.
     label: F::String,
+    /// The module path to the event type definition.
+    module_path: F::String,
+    /// The signature topic of the event. `None` if the event is anonymous.
+    signature_topic: Option<SignatureTopic>,
     /// The event arguments.
     args: Vec<EventParamSpec<F>>,
     /// The event documentation.
     docs: Vec<F::String>,
+}
+
+/// The value of the signature topic for a non anonymous event.
+#[derive(Debug, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
+#[serde(transparent)]
+pub struct SignatureTopic {
+    #[serde(
+        serialize_with = "serialize_as_byte_str",
+        deserialize_with = "deserialize_from_byte_str"
+    )]
+    bytes: Vec<u8>,
+}
+
+impl<T> From<T> for SignatureTopic
+where
+    T: AsRef<[u8]>,
+{
+    fn from(bytes: T) -> Self {
+        SignatureTopic {
+            bytes: bytes.as_ref().to_vec(),
+        }
+    }
+}
+
+impl SignatureTopic {
+    /// Returns the bytes of the signature topic.
+    pub fn as_bytes(&self) -> &[u8] {
+        &self.bytes
+    }
 }
 
 /// An event specification builder.
@@ -865,6 +971,16 @@ impl<F> EventSpecBuilder<F>
 where
     F: Form,
 {
+    /// Sets the module path to the event type definition.
+    pub fn module_path<'a>(self, path: &'a str) -> Self
+    where
+        F::String: From<&'a str>,
+    {
+        let mut this = self;
+        this.spec.module_path = path.into();
+        this
+    }
+
     /// Sets the input arguments of the event specification.
     pub fn args<A>(self, args: A) -> Self
     where
@@ -873,6 +989,17 @@ where
         let mut this = self;
         debug_assert!(this.spec.args.is_empty());
         this.spec.args = args.into_iter().collect::<Vec<_>>();
+        this
+    }
+
+    /// Sets the signature topic of the event specification.
+    pub fn signature_topic<T>(self, topic: Option<T>) -> Self
+    where
+        T: AsRef<[u8]>,
+    {
+        let mut this = self;
+        debug_assert!(this.spec.signature_topic.is_none());
+        this.spec.signature_topic = topic.as_ref().map(SignatureTopic::from);
         this
     }
 
@@ -903,6 +1030,8 @@ impl IntoPortable for EventSpec {
     fn into_portable(self, registry: &mut Registry) -> Self::Output {
         EventSpec {
             label: self.label.to_string(),
+            module_path: self.module_path.to_string(),
+            signature_topic: self.signature_topic,
             args: self
                 .args
                 .into_iter()
@@ -916,12 +1045,15 @@ impl IntoPortable for EventSpec {
 impl<F> EventSpec<F>
 where
     F: Form,
+    F::String: Default,
 {
     /// Creates a new event specification builder.
     pub fn new(label: <F as Form>::String) -> EventSpecBuilder<F> {
         EventSpecBuilder {
             spec: Self {
                 label,
+                module_path: Default::default(),
+                signature_topic: None,
                 args: Vec::new(),
                 docs: Vec::new(),
             },
@@ -941,6 +1073,11 @@ where
     /// The event arguments.
     pub fn args(&self) -> &[EventParamSpec<F>] {
         &self.args
+    }
+
+    /// The signature topic of the event. `None` if the event is anonymous.
+    pub fn signature_topic(&self) -> Option<&SignatureTopic> {
+        self.signature_topic.as_ref()
     }
 
     /// The event documentation.
@@ -1154,7 +1291,7 @@ where
 pub struct EventParamSpec<F: Form = MetaForm> {
     /// The label of the parameter.
     label: F::String,
-    /// If the event parameter is indexed.
+    /// If the event parameter is indexed as a topic.
     indexed: bool,
     /// The type of the parameter.
     #[serde(rename = "type")]
@@ -1186,7 +1323,7 @@ where
         EventParamSpecBuilder {
             spec: Self {
                 label,
-                // By default event parameters are not indexed.
+                // By default event parameters are not indexed as topics.
                 indexed: false,
                 // We initialize every parameter type as `()`.
                 ty: Default::default(),
@@ -1200,7 +1337,7 @@ where
         &self.label
     }
 
-    /// Returns true if the event parameter is indexed.
+    /// Returns true if the event parameter is indexed as a topic.
     pub fn indexed(&self) -> bool {
         self.indexed
     }
@@ -1237,7 +1374,7 @@ where
         this
     }
 
-    /// If the event parameter is indexed.
+    /// If the event parameter is indexed as a topic.
     pub fn indexed(self, is_indexed: bool) -> Self {
         let mut this = self;
         this.spec.indexed = is_indexed;
@@ -1245,14 +1382,18 @@ where
     }
 
     /// Sets the documentation of the event parameter.
-    pub fn docs<D>(self, docs: D) -> Self
+    pub fn docs<'a, D>(self, docs: D) -> Self
     where
-        D: IntoIterator<Item = <F as Form>::String>,
+        D: IntoIterator<Item = &'a str>,
+        F::String: From<&'a str>,
     {
         debug_assert!(self.spec.docs.is_empty());
         Self {
             spec: EventParamSpec {
-                docs: docs.into_iter().collect::<Vec<_>>(),
+                docs: docs
+                    .into_iter()
+                    .map(|s| trim_extra_whitespace(s).into())
+                    .collect::<Vec<_>>(),
                 ..self.spec
             },
         }

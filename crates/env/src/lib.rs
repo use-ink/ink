@@ -1,4 +1,4 @@
-// Copyright 2018-2022 Parity Technologies (UK) Ltd.
+// Copyright (C) Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -85,9 +85,9 @@ pub mod chain_extension;
 mod contract;
 mod engine;
 mod error;
-pub mod hash;
 #[doc(hidden)]
-pub mod topics;
+pub mod event;
+pub mod hash;
 mod types;
 
 #[cfg(test)]
@@ -115,7 +115,7 @@ pub use self::{
         Error,
         Result,
     },
-    topics::Topics,
+    event::Event,
     types::{
         AccountIdGuard,
         DefaultEnvironment,

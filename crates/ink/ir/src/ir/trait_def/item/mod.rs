@@ -1,4 +1,4 @@
-// Copyright 2018-2022 Parity Technologies (UK) Ltd.
+// Copyright (C) Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -384,7 +384,7 @@ impl InkItemTrait {
                 ).into_combine(format_err_spanned!(
                     duplicate_selector,
                     "first ink! trait constructor or message with same selector found here",
-                )))
+                )));
             }
             assert!(
                 duplicate_ident.is_none(),
