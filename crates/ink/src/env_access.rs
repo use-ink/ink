@@ -928,6 +928,9 @@ where
     /// signing in substrate.
     ///
     /// For more details visit: [`ink_env::sr25519_verify`]
+    /// 
+    /// **WARNING**: this function is from the [unstable interface](https://github.com/paritytech/substrate/tree/master/frame/contracts#unstable-interfaces),
+    /// which is unsafe and normally is not available on production chains.
     pub fn sr25519_verify(
         self,
         signature: &[u8; 64],
