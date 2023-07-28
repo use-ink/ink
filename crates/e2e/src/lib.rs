@@ -21,6 +21,7 @@
 
 mod builders;
 mod client;
+mod contract_build;
 mod contract_results;
 mod error;
 pub mod events;
