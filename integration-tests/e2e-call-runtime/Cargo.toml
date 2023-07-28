@@ -13,7 +13,7 @@ scale-info = { version = "2.6", default-features = false, features = ["derive"],
 
 [dev-dependencies]
 ink_e2e = { path = "../../crates/e2e" }
-subxt = { version = "0.30.0", default-features = false }
+subxt = { version = "0.30.1", features = [ "unstable-light-client"] }
 
 [lib]
 path = "lib.rs"
