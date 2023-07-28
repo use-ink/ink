@@ -1,4 +1,4 @@
-// Copyright 2018-2022 Parity Technologies (UK) Ltd.
+// Copyright (C) Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -25,7 +25,6 @@
 
 mod contract;
 mod dispatch;
-mod event;
 mod trait_def;
 
 pub use self::{
@@ -41,7 +40,6 @@ pub use self::{
         DispatchableMessageInfo,
         ExecuteDispatchable,
     },
-    event::ContractEventBase,
     trait_def::{
         TraitDefinitionRegistry,
         TraitInfo,

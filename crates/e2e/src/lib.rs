@@ -1,4 +1,4 @@
-// Copyright 2018-2022 Parity Technologies (UK) Ltd.
+// Copyright (C) Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -21,20 +21,23 @@
 
 mod builders;
 mod client;
-mod default_accounts;
+mod contract_results;
+mod error;
+pub mod events;
 mod node_proc;
 mod xts;
 
 pub use client::{
     CallBuilderFinal,
-    CallDryRunResult,
-    CallResult,
     Client,
     Error,
+};
+pub use contract_results::{
+    CallDryRunResult,
+    CallResult,
     InstantiationResult,
     UploadResult,
 };
-pub use default_accounts::*;
 pub use ink_e2e_macro::test;
 pub use node_proc::{
     TestNodeProcess,
@@ -42,19 +45,19 @@ pub use node_proc::{
 };
 pub use sp_core::H256;
 pub use sp_keyring::AccountKeyring;
-pub use subxt::{
+pub use subxt;
+pub use subxt_signer::sr25519::{
     self,
-    tx::PairSigner,
+    dev::*,
+    Keypair,
 };
 pub use tokio;
 pub use tracing_subscriber;
 
 use pallet_contracts_primitives::{
-    CodeUploadResult,
     ContractExecResult,
     ContractInstantiateResult,
 };
-use sp_core::sr25519;
 use std::{
     cell::RefCell,
     sync::Once,
@@ -62,12 +65,6 @@ use std::{
 use xts::ContractsApi;
 
 pub use subxt::PolkadotConfig;
-
-/// Signer that is used throughout the E2E testing.
-///
-/// The E2E testing can only be used with nodes that support `sr25519`
-/// cryptography.
-pub type Signer<C> = PairSigner<C, sr25519::Pair>;
 
 /// We use this to only initialize `env_logger` once.
 pub static INIT: Once = Once::new();

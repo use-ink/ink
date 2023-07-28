@@ -1,0 +1,39 @@
+[package]
+name = "events"
+version = "4.2.0"
+authors = ["Parity Technologies <admin@parity.io>"]
+edition = "2021"
+publish = false
+
+[dependencies]
+ink = { path = "../../crates/ink", default-features = false }
+scale = { package = "parity-scale-codec", version = "3", default-features = false, features = ["derive"] }
+scale-info = { version = "2.5", default-features = false, features = ["derive"], optional = true }
+
+event-def = { path = "event-def", default-features = false }
+event-def2 = { path = "event-def2", default-features = false }
+event-def-unused = { path = "event-def-unused", default-features = false }
+
+[dev-dependencies]
+ink_e2e = { path = "../../crates/e2e" }
+
+[lib]
+path = "lib.rs"
+
+[features]
+default = ["std"]
+std = [
+    "ink/std",
+    "scale/std",
+    "scale-info/std",
+    "event-def/std",
+    "event-def2/std",
+    "event-def-unused/std",
+]
+ink-as-dependency = []
+e2e-tests = []
+
+[profile.test]
+# Need this for linkme crate to work for the event metadata unit test.
+# See https://github.com/dtolnay/linkme/issues/61#issuecomment-1503653702
+lto = "thin"

@@ -1,4 +1,4 @@
-// Copyright 2018-2022 Parity Technologies (UK) Ltd.
+// Copyright (C) Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -411,6 +411,14 @@ where
     /// For more details visit: [`ink_env::minimum_balance`]
     pub fn minimum_balance(self) -> E::Balance {
         ink_env::minimum_balance::<E>()
+    }
+
+    /// Emits an event.
+    pub fn emit_event<Evt>(self, event: Evt)
+    where
+        Evt: ink_env::Event,
+    {
+        ink_env::emit_event::<E, Evt>(event)
     }
 
     /// Instantiates another contract.

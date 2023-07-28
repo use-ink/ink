@@ -1,4 +1,4 @@
-// Copyright 2018-2022 Parity Technologies (UK) Ltd.
+// Copyright (C) Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -22,6 +22,10 @@ use crate::{
         DelegateCall,
         FromAccountId,
     },
+    event::{
+        Event,
+        TopicsBuilderBackend,
+    },
     hash::{
         Blake2x128,
         Blake2x256,
@@ -29,10 +33,6 @@ use crate::{
         HashOutput,
         Keccak256,
         Sha2x256,
-    },
-    topics::{
-        Topics,
-        TopicsBuilderBackend,
     },
     Clear,
     EnvBackend,
@@ -155,10 +155,6 @@ where
         }
         let off_hash = result.as_ref();
         let off_hash = off_hash.to_vec();
-        debug_assert!(
-            !self.topics.contains(&off_hash),
-            "duplicate topic hash discovered!"
-        );
         self.topics.push(off_hash);
     }
 
@@ -449,10 +445,10 @@ impl TypedEnvBackend for EnvInstance {
             })
     }
 
-    fn emit_event<E, Event>(&mut self, event: Event)
+    fn emit_event<E, Evt>(&mut self, event: Evt)
     where
         E: Environment,
-        Event: Topics + scale::Encode,
+        Evt: Event,
     {
         let builder = TopicsBuilder::default();
         let enc_topics = event.topics::<E, _>(builder.into());
