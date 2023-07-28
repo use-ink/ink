@@ -1,4 +1,4 @@
-error: using `#[ink(topic)]` for a field with a primitive type
+error: using `#[ink(topic)]` for a field with a primitive number type
   --> $DIR/primitive_topic.rs:20:9
    |
 LL |         value_4: crate::TyAlias2,
@@ -6,19 +6,19 @@ LL |         value_4: crate::TyAlias2,
    |
    = note: `-D primitive-topic` implied by `-D warnings`
 
-error: using `#[ink(topic)]` for a field with a primitive type
+error: using `#[ink(topic)]` for a field with a primitive number type
   --> $DIR/primitive_topic.rs:17:9
    |
 LL |         value_3: crate::TyAlias1,
    |         ^^^^^^^^^^^^^^^^^^^^^^^^ help: consider removing `#[ink(topic)]`: `value_3: crate::TyAlias1`
 
-error: using `#[ink(topic)]` for a field with a primitive type
+error: using `#[ink(topic)]` for a field with a primitive number type
   --> $DIR/primitive_topic.rs:14:9
    |
 LL |         value_2: Balance,
    |         ^^^^^^^^^^^^^^^^ help: consider removing `#[ink(topic)]`: `value_2: Balance`
 
-error: using `#[ink(topic)]` for a field with a primitive type
+error: using `#[ink(topic)]` for a field with a primitive number type
   --> $DIR/primitive_topic.rs:11:9
    |
 LL |         value_1: u8,

@@ -136,7 +136,7 @@ fn report_field(cx: &LateContext, event_def_id: DefId, field_name: &str) {
                 cx,
                 PRIMITIVE_TOPIC,
                 field.span,
-                "using `#[ink(topic)]` for a field with a primitive type",
+                "using `#[ink(topic)]` for a field with a primitive number type",
                 |diag| {
                     let snippet = snippet_opt(cx, field.span).expect("snippet must exist");
                     diag.span_suggestion(
