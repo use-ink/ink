@@ -336,7 +336,7 @@ impl ItemMod {
                             .into_combine(format_err!(
                             overlap.span(),
                             "first ink! constructor with overlapping wildcard selector here",
-                        )));
+                        )))
                     }
                 }
             }
