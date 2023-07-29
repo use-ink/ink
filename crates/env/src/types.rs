@@ -31,10 +31,17 @@
 //! there is no knowledge of the concrete types, the functionality is restricted to
 //! the trait bounds on the `Environment` trait types.
 
-use crate::engine::{EnvInstance, OnInstance};
+use crate::engine::{
+    EnvInstance,
+    OnInstance,
+};
 
 use super::arithmetic::AtLeast32BitUnsigned;
-use ink_primitives::{AccountId, Clear, Hash};
+use ink_primitives::{
+    AccountId,
+    Clear,
+    Hash,
+};
 #[cfg(feature = "std")]
 use scale_info::TypeInfo;
 

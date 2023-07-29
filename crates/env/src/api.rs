@@ -15,16 +15,28 @@
 //! The public raw interface towards the host Wasm engine.
 
 use crate::{
-    backend::{EnvBackend, ReturnFlags, TypedEnvBackend},
+    backend::{
+        EnvBackend,
+        ReturnFlags,
+        TypedEnvBackend,
+    },
     call::{
-        Call, CallParams, ConstructorReturnType, CreateParams, DelegateCall,
+        Call,
+        CallParams,
+        ConstructorReturnType,
+        CreateParams,
+        DelegateCall,
         FromAccountId,
     },
     engine::OnInstance,
     event::Event,
-    hash::{CryptoHash, HashOutput},
+    hash::{
+        CryptoHash,
+        HashOutput,
+    },
     types::Gas,
-    Environment, Result,
+    Environment,
+    Result,
 };
 use ink_storage_traits::Storable;
 

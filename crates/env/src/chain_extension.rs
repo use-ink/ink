@@ -17,7 +17,10 @@
 //! Users should not use these types and definitions directly but rather use the provided
 //! `#[ink::chain_extension]` procedural macro defined in the `ink` crate.
 
-use crate::{backend::EnvBackend, engine::OnInstance};
+use crate::{
+    backend::EnvBackend,
+    engine::OnInstance,
+};
 use core::marker::PhantomData;
 
 /// Implemented by error codes in order to construct them from status codes.
@@ -73,8 +76,7 @@ pub trait FromStatusCode: Sized {
 ///     - **B:** The chain extension method returns a type `O` that is not a `Result`
 ///       type. The method just returns `O`.
 #[derive(Debug)]
-pub struct ChainExtensionMethod<INST, I, O, ErrorCode, const IS_RESULT: bool>
-{
+pub struct ChainExtensionMethod<INST, I, O, ErrorCode, const IS_RESULT: bool> {
     func_id: u32,
     #[allow(clippy::type_complexity)]
     state: PhantomData<fn() -> (INST, I, O, ErrorCode)>,

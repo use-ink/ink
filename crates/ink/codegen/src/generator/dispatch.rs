@@ -373,7 +373,9 @@ impl Dispatch<'_> {
                         //
                         // This is okay since we're going to only be encoding the `Err` variant
                         // into the output buffer anyways.
-                        ::ink::env::return_value::<::ink::ConstructorResult<()>>(
+                        ::ink::env::return_value::<
+                            <#storage_ident as ::ink::env::ContractEnv>::Env,
+                            ::ink::ConstructorResult<()>>(
                             ::ink::env::ReturnFlags::new_with_reverted(true),
                             &error,
                         );
@@ -409,7 +411,9 @@ impl Dispatch<'_> {
                         //
                         // This is okay since we're going to only be encoding the `Err` variant
                         // into the output buffer anyways.
-                        ::ink::env::return_value::<::ink::MessageResult<()>>(
+                        ::ink::env::return_value::<
+                            <#storage_ident as ::ink::env::ContractEnv>::Env,
+                            ::ink::MessageResult<()>>(
                             ::ink::env::ReturnFlags::new_with_reverted(true),
                             &error,
                         );
@@ -582,13 +586,16 @@ impl Dispatch<'_> {
                     let output_result = #constructor_value::as_result(&output_value);
 
                     if let ::core::result::Result::Ok(contract) = output_result.as_ref() {
-                        ::ink::env::set_contract_storage::<::ink::primitives::Key, #storage_ident>(
+                        ::ink::env::set_contract_storage::<
+                            <#storage_ident as ::ink::env::ContractEnv>::Env,
+                            ::ink::primitives::Key, #storage_ident>(
                             &<#storage_ident as ::ink::storage::traits::StorageKey>::KEY,
                             contract,
                         );
                     }
 
                     ::ink::env::return_value::<
+                        <#storage_ident as ::ink::env::ContractEnv>::Env,
                         ::ink::ConstructorResult<
                             ::core::result::Result<(), &#constructor_value::Error>
                         >,
@@ -788,7 +795,9 @@ impl Dispatch<'_> {
                             push_contract(contract, #mutates_storage);
                         }
 
-                        ::ink::env::return_value::<::ink::MessageResult::<#message_output>>(
+                        ::ink::env::return_value::<
+                            <#storage_ident as ::ink::env::ContractEnv>::Env,
+                            ::ink::MessageResult::<#message_output>>(
                             ::ink::env::ReturnFlags::new_with_reverted(is_reverted),
                             // Currently no `LangError`s are raised at this level of the
                             // dispatch logic so `Ok` is always returned to the caller.
@@ -835,7 +844,9 @@ impl Dispatch<'_> {
 
                 fn push_contract(contract: ::core::mem::ManuallyDrop<#storage_ident>, mutates: bool) {
                     if mutates {
-                        ::ink::env::set_contract_storage::<::ink::primitives::Key, #storage_ident>(
+                        ::ink::env::set_contract_storage::<
+                            <#storage_ident as ::ink::env::ContractEnv>::Env,
+                            ::ink::primitives::Key, #storage_ident>(
                             &<#storage_ident as ::ink::storage::traits::StorageKey>::KEY,
                             &contract,
                         );
@@ -850,7 +861,9 @@ impl Dispatch<'_> {
                         let key = <#storage_ident as ::ink::storage::traits::StorageKey>::KEY;
                         let mut contract: ::core::mem::ManuallyDrop<#storage_ident> =
                             ::core::mem::ManuallyDrop::new(
-                                match ::ink::env::get_contract_storage(&key) {
+                                match ::ink::env::get_contract_storage::<
+                                        <#storage_ident as ::ink::env::ContractEnv>::Env,
+                                        ::ink::primitives::Key, #storage_ident>(&key) {
                                     ::core::result::Result::Ok(::core::option::Option::Some(value)) => value,
                                     ::core::result::Result::Ok(::core::option::Option::None) => {
                                         ::core::panic!("storage entry was empty")

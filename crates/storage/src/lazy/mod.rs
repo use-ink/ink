@@ -23,12 +23,23 @@ mod mapping;
 #[doc(inline)]
 pub use self::mapping::Mapping;
 
-use crate::traits::{AutoKey, StorableHint, StorageKey};
+use crate::traits::{
+    AutoKey,
+    StorableHint,
+    StorageKey,
+};
 use core::marker::PhantomData;
-use ink_env::{DefaultEnvironment, Environment};
+use ink_env::{
+    DefaultEnvironment,
+    Environment,
+};
 use ink_primitives::Key;
 use ink_storage_traits::Storable;
-use scale::{Error, Input, Output};
+use scale::{
+    Error,
+    Input,
+    Output,
+};
 
 /// A simple wrapper around a type to store it in a separate storage cell under its own
 /// storage key. If you want to update the value, first you need to
@@ -196,7 +207,11 @@ where
 #[cfg(feature = "std")]
 const _: () = {
     use crate::traits::StorageLayout;
-    use ink_metadata::layout::{Layout, LayoutKey, RootLayout};
+    use ink_metadata::layout::{
+        Layout,
+        LayoutKey,
+        RootLayout,
+    };
 
     impl<V, KeyType> StorageLayout for Lazy<V, KeyType>
     where

@@ -19,12 +19,25 @@
 //! This mapping doesn't actually "own" any data.
 //! Instead it is just a simple wrapper around the contract storage facilities.
 
-use crate::traits::{AutoKey, Packed, StorableHint, StorageKey};
+use crate::traits::{
+    AutoKey,
+    Packed,
+    StorableHint,
+    StorageKey,
+};
 use core::marker::PhantomData;
-use ink_env::{DefaultEnvironment, Environment};
+use ink_env::{
+    DefaultEnvironment,
+    Environment,
+};
 use ink_primitives::Key;
 use ink_storage_traits::Storable;
-use scale::{Encode, Error, Input, Output};
+use scale::{
+    Encode,
+    Error,
+    Input,
+    Output,
+};
 
 /// A mapping of key-value pairs directly into contract storage.
 ///
@@ -243,7 +256,11 @@ where
 #[cfg(feature = "std")]
 const _: () = {
     use crate::traits::StorageLayout;
-    use ink_metadata::layout::{Layout, LayoutKey, RootLayout};
+    use ink_metadata::layout::{
+        Layout,
+        LayoutKey,
+        RootLayout,
+    };
 
     impl<K, V, KeyType> StorageLayout for Mapping<K, V, KeyType>
     where
