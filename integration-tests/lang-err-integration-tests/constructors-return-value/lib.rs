@@ -107,10 +107,7 @@ pub mod constructors_return_value {
     #[cfg(all(test, feature = "e2e-tests"))]
     mod e2e_tests {
         use super::*;
-        use ink_e2e::{
-            ChainBackend,
-            ContractsBackend,
-        };
+        use ink_e2e::ContractsBackend;
         use scale::Decode as _;
 
         type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
@@ -201,7 +198,7 @@ pub mod constructors_return_value {
                 )
                 .await
                 .expect("instantiate failed");
-            let mut call = contract.call::<ConstructorsReturnValue>();
+            let call = contract.call::<ConstructorsReturnValue>();
 
             let get = call.get_value();
             let value = client

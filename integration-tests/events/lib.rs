@@ -202,7 +202,6 @@ pub mod events {
     mod e2e_tests {
         use super::*;
         use ink_e2e::{
-            ChainBackend,
             ContractsBackend,
             H256,
         };
