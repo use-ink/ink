@@ -23,19 +23,12 @@ mod mapping;
 #[doc(inline)]
 pub use self::mapping::Mapping;
 
-use crate::traits::{
-    AutoKey,
-    StorableHint,
-    StorageKey,
-};
+use crate::traits::{AutoKey, StorableHint, StorageKey};
 use core::marker::PhantomData;
+use ink_env::{DefaultEnvironment, Environment};
 use ink_primitives::Key;
 use ink_storage_traits::Storable;
-use scale::{
-    Error,
-    Input,
-    Output,
-};
+use scale::{Error, Input, Output};
 
 /// A simple wrapper around a type to store it in a separate storage cell under its own
 /// storage key. If you want to update the value, first you need to
@@ -94,13 +87,15 @@ use scale::{
 /// # }
 /// ```
 #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
-pub struct Lazy<V, KeyType: StorageKey = AutoKey> {
-    _marker: PhantomData<fn() -> (V, KeyType)>,
+pub struct Lazy<V, KeyType: StorageKey = AutoKey, E: Environment = DefaultEnvironment> {
+    #[allow(clippy::type_complexity)]
+    _marker: PhantomData<fn() -> (V, KeyType, E)>,
 }
 
 /// We implement this manually because the derived implementation adds trait bounds.
-impl<V, KeyType> Default for Lazy<V, KeyType>
+impl<V, KeyType, E> Default for Lazy<V, KeyType, E>
 where
+    E: Environment,
     KeyType: StorageKey,
 {
     fn default() -> Self {
@@ -108,8 +103,9 @@ where
     }
 }
 
-impl<V, KeyType> Lazy<V, KeyType>
+impl<V, KeyType, E> Lazy<V, KeyType, E>
 where
+    E: Environment,
     KeyType: StorageKey,
 {
     /// Creates a new empty `Lazy`.
@@ -120,8 +116,9 @@ where
     }
 }
 
-impl<V, KeyType> core::fmt::Debug for Lazy<V, KeyType>
+impl<V, KeyType, E> core::fmt::Debug for Lazy<V, KeyType, E>
 where
+    E: Environment,
     KeyType: StorageKey,
 {
     fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
@@ -129,14 +126,15 @@ where
     }
 }
 
-impl<V, KeyType> Lazy<V, KeyType>
+impl<V, KeyType, E> Lazy<V, KeyType, E>
 where
+    E: Environment,
     V: Storable,
     KeyType: StorageKey,
 {
     /// Reads the `value` from the contract storage, if it exists.
     pub fn get(&self) -> Option<V> {
-        match ink_env::get_contract_storage::<Key, V>(&KeyType::KEY) {
+        match ink_env::get_contract_storage::<E, Key, V>(&KeyType::KEY) {
             Ok(Some(value)) => Some(value),
             _ => None,
         }
@@ -144,12 +142,13 @@ where
 
     /// Writes the given `value` to the contract storage.
     pub fn set(&mut self, value: &V) {
-        ink_env::set_contract_storage::<Key, V>(&KeyType::KEY, value);
+        ink_env::set_contract_storage::<E, Key, V>(&KeyType::KEY, value);
     }
 }
 
-impl<V, KeyType> Lazy<V, KeyType>
+impl<V, KeyType, E> Lazy<V, KeyType, E>
 where
+    E: Environment,
     V: Storable + Default,
     KeyType: StorageKey,
 {
@@ -157,7 +156,7 @@ where
     ///
     /// Returns the default value for the storage type if no `value` exists.
     pub fn get_or_default(&self) -> V {
-        match ink_env::get_contract_storage::<Key, V>(&KeyType::KEY) {
+        match ink_env::get_contract_storage::<E, Key, V>(&KeyType::KEY) {
             Ok(Some(value)) => value,
             _ => Default::default(),
         }
@@ -197,11 +196,7 @@ where
 #[cfg(feature = "std")]
 const _: () = {
     use crate::traits::StorageLayout;
-    use ink_metadata::layout::{
-        Layout,
-        LayoutKey,
-        RootLayout,
-    };
+    use ink_metadata::layout::{Layout, LayoutKey, RootLayout};
 
     impl<V, KeyType> StorageLayout for Lazy<V, KeyType>
     where

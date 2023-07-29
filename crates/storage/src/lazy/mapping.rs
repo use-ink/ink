@@ -19,21 +19,12 @@
 //! This mapping doesn't actually "own" any data.
 //! Instead it is just a simple wrapper around the contract storage facilities.
 
-use crate::traits::{
-    AutoKey,
-    Packed,
-    StorableHint,
-    StorageKey,
-};
+use crate::traits::{AutoKey, Packed, StorableHint, StorageKey};
 use core::marker::PhantomData;
+use ink_env::{DefaultEnvironment, Environment};
 use ink_primitives::Key;
 use ink_storage_traits::Storable;
-use scale::{
-    Encode,
-    Error,
-    Input,
-    Output,
-};
+use scale::{Encode, Error, Input, Output};
 
 /// A mapping of key-value pairs directly into contract storage.
 ///
@@ -85,14 +76,20 @@ use scale::{
 ///
 /// More usage examples can be found [in the ink! examples](https://github.com/paritytech/ink-examples).
 #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
-pub struct Mapping<K, V: Packed, KeyType: StorageKey = AutoKey> {
+pub struct Mapping<
+    K,
+    V: Packed,
+    KeyType: StorageKey = AutoKey,
+    E: Environment = DefaultEnvironment,
+> {
     #[allow(clippy::type_complexity)]
-    _marker: PhantomData<fn() -> (K, V, KeyType)>,
+    _marker: PhantomData<fn() -> (K, V, KeyType, E)>,
 }
 
 /// We implement this manually because the derived implementation adds trait bounds.
-impl<K, V, KeyType> Default for Mapping<K, V, KeyType>
+impl<K, V, KeyType, E> Default for Mapping<K, V, KeyType, E>
 where
+    E: Environment,
     V: Packed,
     KeyType: StorageKey,
 {
@@ -101,8 +98,9 @@ where
     }
 }
 
-impl<K, V, KeyType> Mapping<K, V, KeyType>
+impl<K, V, KeyType, E> Mapping<K, V, KeyType, E>
 where
+    E: Environment,
     V: Packed,
     KeyType: StorageKey,
 {
@@ -114,8 +112,9 @@ where
     }
 }
 
-impl<K, V, KeyType> ::core::fmt::Debug for Mapping<K, V, KeyType>
+impl<K, V, KeyType, E> ::core::fmt::Debug for Mapping<K, V, KeyType, E>
 where
+    E: Environment,
     V: Packed,
     KeyType: StorageKey,
 {
@@ -126,8 +125,9 @@ where
     }
 }
 
-impl<K, V, KeyType> Mapping<K, V, KeyType>
+impl<K, V, KeyType, E> Mapping<K, V, KeyType, E>
 where
+    E: Environment,
     K: Encode,
     V: Packed,
     KeyType: StorageKey,
@@ -141,7 +141,7 @@ where
         Q: scale::EncodeLike<K>,
         R: Storable + scale::EncodeLike<V>,
     {
-        ink_env::set_contract_storage(&(&KeyType::KEY, key), value)
+        ink_env::set_contract_storage::<E, (&Key, Q), R>(&(&KeyType::KEY, key), value)
     }
 
     /// Get the `value` at `key` from the contract storage.
@@ -152,7 +152,7 @@ where
     where
         Q: scale::EncodeLike<K>,
     {
-        ink_env::get_contract_storage(&(&KeyType::KEY, key))
+        ink_env::get_contract_storage::<E, (&Key, Q), V>(&(&KeyType::KEY, key))
             .unwrap_or_else(|error| panic!("Failed to get value in Mapping: {error:?}"))
     }
 
@@ -171,7 +171,7 @@ where
     where
         Q: scale::EncodeLike<K>,
     {
-        ink_env::take_contract_storage(&(&KeyType::KEY, key))
+        ink_env::take_contract_storage::<E, (&Key, Q), V>(&(&KeyType::KEY, key))
             .unwrap_or_else(|error| panic!("Failed to take value in Mapping: {error:?}"))
     }
 
@@ -183,7 +183,7 @@ where
     where
         Q: scale::EncodeLike<K>,
     {
-        ink_env::contains_contract_storage(&(&KeyType::KEY, key))
+        ink_env::contains_contract_storage::<E, (&Key, Q)>(&(&KeyType::KEY, key))
     }
 
     /// Checks if a value is stored at the given `key` in the contract storage.
@@ -194,7 +194,8 @@ where
     where
         Q: scale::EncodeLike<K>,
     {
-        ink_env::contains_contract_storage(&(&KeyType::KEY, key)).is_some()
+        ink_env::contains_contract_storage::<E, (&Key, Q)>(&(&KeyType::KEY, key))
+            .is_some()
     }
 
     /// Clears the value at `key` from storage.
@@ -203,7 +204,7 @@ where
     where
         Q: scale::EncodeLike<K>,
     {
-        ink_env::clear_contract_storage(&(&KeyType::KEY, key));
+        ink_env::clear_contract_storage::<E, (&Key, Q)>(&(&KeyType::KEY, key));
     }
 }
 
@@ -242,11 +243,7 @@ where
 #[cfg(feature = "std")]
 const _: () = {
     use crate::traits::StorageLayout;
-    use ink_metadata::layout::{
-        Layout,
-        LayoutKey,
-        RootLayout,
-    };
+    use ink_metadata::layout::{Layout, LayoutKey, RootLayout};
 
     impl<K, V, KeyType> StorageLayout for Mapping<K, V, KeyType>
     where

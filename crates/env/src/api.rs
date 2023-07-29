@@ -15,31 +15,16 @@
 //! The public raw interface towards the host Wasm engine.
 
 use crate::{
-    backend::{
-        EnvBackend,
-        ReturnFlags,
-        TypedEnvBackend,
-    },
+    backend::{EnvBackend, ReturnFlags, TypedEnvBackend},
     call::{
-        Call,
-        CallParams,
-        ConstructorReturnType,
-        CreateParams,
-        DelegateCall,
+        Call, CallParams, ConstructorReturnType, CreateParams, DelegateCall,
         FromAccountId,
     },
-    engine::{
-        EnvInstance,
-        OnInstance,
-    },
+    engine::OnInstance,
     event::Event,
-    hash::{
-        CryptoHash,
-        HashOutput,
-    },
+    hash::{CryptoHash, HashOutput},
     types::Gas,
-    Environment,
-    Result,
+    Environment, Result,
 };
 use ink_storage_traits::Storable;
 
@@ -52,9 +37,7 @@ pub fn caller<E>() -> E::AccountId
 where
     E: Environment,
 {
-    <EnvInstance as OnInstance>::on_instance(|instance| {
-        TypedEnvBackend::caller::<E>(instance)
-    })
+    E::EnvInstance::on_instance(|instance| TypedEnvBackend::caller::<E>(instance))
 }
 
 /// Returns the transferred value for the contract execution.
@@ -66,7 +49,7 @@ pub fn transferred_value<E>() -> E::Balance
 where
     E: Environment,
 {
-    <EnvInstance as OnInstance>::on_instance(|instance| {
+    E::EnvInstance::on_instance(|instance| {
         TypedEnvBackend::transferred_value::<E>(instance)
     })
 }
@@ -80,7 +63,7 @@ pub fn weight_to_fee<E>(gas: Gas) -> E::Balance
 where
     E: Environment,
 {
-    <EnvInstance as OnInstance>::on_instance(|instance| {
+    E::EnvInstance::on_instance(|instance| {
         TypedEnvBackend::weight_to_fee::<E>(instance, gas)
     })
 }
@@ -94,9 +77,7 @@ pub fn gas_left<E>() -> Gas
 where
     E: Environment,
 {
-    <EnvInstance as OnInstance>::on_instance(|instance| {
-        TypedEnvBackend::gas_left::<E>(instance)
-    })
+    E::EnvInstance::on_instance(|instance| TypedEnvBackend::gas_left::<E>(instance))
 }
 
 /// Returns the current block timestamp.
@@ -108,7 +89,7 @@ pub fn block_timestamp<E>() -> E::Timestamp
 where
     E: Environment,
 {
-    <EnvInstance as OnInstance>::on_instance(|instance| {
+    E::EnvInstance::on_instance(|instance| {
         TypedEnvBackend::block_timestamp::<E>(instance)
     })
 }
@@ -126,9 +107,7 @@ pub fn account_id<E>() -> E::AccountId
 where
     E: Environment,
 {
-    <EnvInstance as OnInstance>::on_instance(|instance| {
-        TypedEnvBackend::account_id::<E>(instance)
-    })
+    E::EnvInstance::on_instance(|instance| TypedEnvBackend::account_id::<E>(instance))
 }
 
 /// Returns the balance of the executed contract.
@@ -140,9 +119,7 @@ pub fn balance<E>() -> E::Balance
 where
     E: Environment,
 {
-    <EnvInstance as OnInstance>::on_instance(|instance| {
-        TypedEnvBackend::balance::<E>(instance)
-    })
+    E::EnvInstance::on_instance(|instance| TypedEnvBackend::balance::<E>(instance))
 }
 
 /// Returns the current block number.
@@ -154,9 +131,7 @@ pub fn block_number<E>() -> E::BlockNumber
 where
     E: Environment,
 {
-    <EnvInstance as OnInstance>::on_instance(|instance| {
-        TypedEnvBackend::block_number::<E>(instance)
-    })
+    E::EnvInstance::on_instance(|instance| TypedEnvBackend::block_number::<E>(instance))
 }
 
 /// Returns the minimum balance that is required for creating an account
@@ -169,7 +144,7 @@ pub fn minimum_balance<E>() -> E::Balance
 where
     E: Environment,
 {
-    <EnvInstance as OnInstance>::on_instance(|instance| {
+    E::EnvInstance::on_instance(|instance| {
         TypedEnvBackend::minimum_balance::<E>(instance)
     })
 }
@@ -180,7 +155,7 @@ where
     E: Environment,
     Evt: Event,
 {
-    <EnvInstance as OnInstance>::on_instance(|instance| {
+    E::EnvInstance::on_instance(|instance| {
         TypedEnvBackend::emit_event::<E, Evt>(instance, event)
     })
 }
@@ -192,12 +167,13 @@ where
 ///
 /// - If the encode length of value exceeds the configured maximum value length of a
 ///   storage entry.
-pub fn set_contract_storage<K, V>(key: &K, value: &V) -> Option<u32>
+pub fn set_contract_storage<E, K, V>(key: &K, value: &V) -> Option<u32>
 where
+    E: Environment,
     K: scale::Encode,
     V: Storable,
 {
-    <EnvInstance as OnInstance>::on_instance(|instance| {
+    E::EnvInstance::on_instance(|instance| {
         EnvBackend::set_contract_storage::<K, V>(instance, key, value)
     })
 }
@@ -207,12 +183,13 @@ where
 /// # Errors
 ///
 /// - If the decoding of the typed value failed (`KeyNotFound`)
-pub fn get_contract_storage<K, R>(key: &K) -> Result<Option<R>>
+pub fn get_contract_storage<E, K, R>(key: &K) -> Result<Option<R>>
 where
+    E: Environment,
     K: scale::Encode,
     R: Storable,
 {
-    <EnvInstance as OnInstance>::on_instance(|instance| {
+    E::EnvInstance::on_instance(|instance| {
         EnvBackend::get_contract_storage::<K, R>(instance, key)
     })
 }
@@ -222,12 +199,13 @@ where
 /// # Errors
 ///
 /// - If the decoding of the typed value failed (`KeyNotFound`)
-pub fn take_contract_storage<K, R>(key: &K) -> Result<Option<R>>
+pub fn take_contract_storage<E, K, R>(key: &K) -> Result<Option<R>>
 where
+    E: Environment,
     K: scale::Encode,
     R: Storable,
 {
-    <EnvInstance as OnInstance>::on_instance(|instance| {
+    E::EnvInstance::on_instance(|instance| {
         EnvBackend::take_contract_storage::<K, R>(instance, key)
     })
 }
@@ -236,11 +214,12 @@ where
 /// storage.
 ///
 /// If a value is stored under the specified key, the size of the value is returned.
-pub fn contains_contract_storage<K>(key: &K) -> Option<u32>
+pub fn contains_contract_storage<E, K>(key: &K) -> Option<u32>
 where
+    E: Environment,
     K: scale::Encode,
 {
-    <EnvInstance as OnInstance>::on_instance(|instance| {
+    E::EnvInstance::on_instance(|instance| {
         EnvBackend::contains_contract_storage::<K>(instance, key)
     })
 }
@@ -249,11 +228,12 @@ where
 ///
 /// If a value was stored under the specified storage key, the size of the value is
 /// returned.
-pub fn clear_contract_storage<K>(key: &K) -> Option<u32>
+pub fn clear_contract_storage<E, K>(key: &K) -> Option<u32>
 where
+    E: Environment,
     K: scale::Encode,
 {
-    <EnvInstance as OnInstance>::on_instance(|instance| {
+    E::EnvInstance::on_instance(|instance| {
         EnvBackend::clear_contract_storage::<K>(instance, key)
     })
 }
@@ -281,7 +261,7 @@ where
     Args: scale::Encode,
     R: scale::Decode,
 {
-    <EnvInstance as OnInstance>::on_instance(|instance| {
+    E::EnvInstance::on_instance(|instance| {
         TypedEnvBackend::invoke_contract::<E, Args, R>(instance, params)
     })
 }
@@ -306,7 +286,7 @@ where
     Args: scale::Encode,
     R: scale::Decode,
 {
-    <EnvInstance as OnInstance>::on_instance(|instance| {
+    E::EnvInstance::on_instance(|instance| {
         TypedEnvBackend::invoke_contract_delegate::<E, Args, R>(instance, params)
     })
 }
@@ -341,7 +321,7 @@ where
     Salt: AsRef<[u8]>,
     R: ConstructorReturnType<ContractRef>,
 {
-    <EnvInstance as OnInstance>::on_instance(|instance| {
+    E::EnvInstance::on_instance(|instance| {
         TypedEnvBackend::instantiate_contract::<E, ContractRef, Args, Salt, R>(
             instance, params,
         )
@@ -362,7 +342,7 @@ pub fn terminate_contract<E>(beneficiary: E::AccountId) -> !
 where
     E: Environment,
 {
-    <EnvInstance as OnInstance>::on_instance(|instance| {
+    E::EnvInstance::on_instance(|instance| {
         TypedEnvBackend::terminate_contract::<E>(instance, beneficiary)
     })
 }
@@ -384,7 +364,7 @@ pub fn transfer<E>(destination: E::AccountId, value: E::Balance) -> Result<()>
 where
     E: Environment,
 {
-    <EnvInstance as OnInstance>::on_instance(|instance| {
+    E::EnvInstance::on_instance(|instance| {
         TypedEnvBackend::transfer::<E>(instance, destination, value)
     })
 }
@@ -412,13 +392,12 @@ where
 /// # Errors
 ///
 /// If the given `T` cannot be properly decoded from the expected input.
-pub fn decode_input<T>() -> Result<T>
+pub fn decode_input<E, T>() -> Result<T>
 where
+    E: Environment,
     T: scale::Decode,
 {
-    <EnvInstance as OnInstance>::on_instance(|instance| {
-        EnvBackend::decode_input::<T>(instance)
-    })
+    E::EnvInstance::on_instance(|instance| EnvBackend::decode_input::<T>(instance))
 }
 
 /// Returns the value back to the caller of the executed contract.
@@ -426,20 +405,22 @@ where
 /// # Note
 ///
 /// This function  stops the execution of the contract immediately.
-pub fn return_value<R>(return_flags: ReturnFlags, return_value: &R) -> !
+pub fn return_value<E, R>(return_flags: ReturnFlags, return_value: &R) -> !
 where
+    E: Environment,
     R: scale::Encode,
 {
-    <EnvInstance as OnInstance>::on_instance(|instance| {
+    E::EnvInstance::on_instance(|instance| {
         EnvBackend::return_value::<R>(instance, return_flags, return_value)
     })
 }
 
 /// Appends the given message to the debug message buffer.
-pub fn debug_message(message: &str) {
-    <EnvInstance as OnInstance>::on_instance(|instance| {
-        EnvBackend::debug_message(instance, message)
-    })
+pub fn debug_message<E>(message: &str)
+where
+    E: Environment,
+{
+    E::EnvInstance::on_instance(|instance| EnvBackend::debug_message(instance, message))
 }
 
 /// Conducts the crypto hash of the given input and stores the result in `output`.
@@ -455,13 +436,12 @@ pub fn debug_message(message: &str) {
 /// let mut output = <Sha2x256 as HashOutput>::Type::default(); // 256-bit buffer
 /// let hash = ink_env::hash_bytes::<Sha2x256>(input, &mut output);
 /// ```
-pub fn hash_bytes<H>(input: &[u8], output: &mut <H as HashOutput>::Type)
+pub fn hash_bytes<E, H>(input: &[u8], output: &mut <H as HashOutput>::Type)
 where
+    E: Environment,
     H: CryptoHash,
 {
-    <EnvInstance as OnInstance>::on_instance(|instance| {
-        instance.hash_bytes::<H>(input, output)
-    })
+    E::EnvInstance::on_instance(|instance| instance.hash_bytes::<H>(input, output))
 }
 
 /// Conducts the crypto hash of the given encoded input and stores the result in `output`.
@@ -479,14 +459,13 @@ where
 /// ink_env::hash_encoded::<Sha2x256, _>(&encodable, &mut output);
 /// assert_eq!(output, EXPECTED);
 /// ```
-pub fn hash_encoded<H, T>(input: &T, output: &mut <H as HashOutput>::Type)
+pub fn hash_encoded<E, H, T>(input: &T, output: &mut <H as HashOutput>::Type)
 where
+    E: Environment,
     H: CryptoHash,
     T: scale::Encode,
 {
-    <EnvInstance as OnInstance>::on_instance(|instance| {
-        instance.hash_encoded::<H, T>(input, output)
-    })
+    E::EnvInstance::on_instance(|instance| instance.hash_encoded::<H, T>(input, output))
 }
 
 /// Recovers the compressed ECDSA public key for given `signature` and `message_hash`,
@@ -513,12 +492,15 @@ where
 /// ink_env::ecdsa_recover(&signature, &message_hash, &mut output);
 /// assert_eq!(output, EXPECTED_COMPRESSED_PUBLIC_KEY);
 /// ```
-pub fn ecdsa_recover(
+pub fn ecdsa_recover<E>(
     signature: &[u8; 65],
     message_hash: &[u8; 32],
     output: &mut [u8; 33],
-) -> Result<()> {
-    <EnvInstance as OnInstance>::on_instance(|instance| {
+) -> Result<()>
+where
+    E: Environment,
+{
+    E::EnvInstance::on_instance(|instance| {
         instance.ecdsa_recover(signature, message_hash, output)
     })
 }
@@ -544,10 +526,11 @@ pub fn ecdsa_recover(
 /// # Errors
 ///
 /// - If the ECDSA public key cannot be recovered from the provided public key.
-pub fn ecdsa_to_eth_address(pubkey: &[u8; 33], output: &mut [u8; 20]) -> Result<()> {
-    <EnvInstance as OnInstance>::on_instance(|instance| {
-        instance.ecdsa_to_eth_address(pubkey, output)
-    })
+pub fn ecdsa_to_eth_address<E>(pubkey: &[u8; 33], output: &mut [u8; 20]) -> Result<()>
+where
+    E: Environment,
+{
+    E::EnvInstance::on_instance(|instance| instance.ecdsa_to_eth_address(pubkey, output))
 }
 
 /// Checks whether the specified account is a contract.
@@ -559,7 +542,7 @@ pub fn is_contract<E>(account: &E::AccountId) -> bool
 where
     E: Environment,
 {
-    <EnvInstance as OnInstance>::on_instance(|instance| {
+    E::EnvInstance::on_instance(|instance| {
         TypedEnvBackend::is_contract::<E>(instance, account)
     })
 }
@@ -574,7 +557,7 @@ pub fn code_hash<E>(account: &E::AccountId) -> Result<E::Hash>
 where
     E: Environment,
 {
-    <EnvInstance as OnInstance>::on_instance(|instance| {
+    E::EnvInstance::on_instance(|instance| {
         TypedEnvBackend::code_hash::<E>(instance, account)
     })
 }
@@ -588,9 +571,7 @@ pub fn own_code_hash<E>() -> Result<E::Hash>
 where
     E: Environment,
 {
-    <EnvInstance as OnInstance>::on_instance(|instance| {
-        TypedEnvBackend::own_code_hash::<E>(instance)
-    })
+    E::EnvInstance::on_instance(|instance| TypedEnvBackend::own_code_hash::<E>(instance))
 }
 
 /// Checks whether the caller of the current contract is the origin of the whole call
@@ -610,7 +591,7 @@ pub fn caller_is_origin<E>() -> bool
 where
     E: Environment,
 {
-    <EnvInstance as OnInstance>::on_instance(|instance| {
+    E::EnvInstance::on_instance(|instance| {
         TypedEnvBackend::caller_is_origin::<E>(instance)
     })
 }
@@ -715,8 +696,11 @@ where
 /// Please refer to the
 /// [Open Zeppelin docs](https://docs.openzeppelin.com/upgrades-plugins/1.x/writing-upgradeable#modifying-your-contracts)
 /// for more details and examples.
-pub fn set_code_hash(code_hash: &[u8; 32]) -> Result<()> {
-    <EnvInstance as OnInstance>::on_instance(|instance| instance.set_code_hash(code_hash))
+pub fn set_code_hash<E>(code_hash: &[u8; 32]) -> Result<()>
+where
+    E: Environment,
+{
+    E::EnvInstance::on_instance(|instance| instance.set_code_hash(code_hash))
 }
 
 /// Replace the contract code at the specified address with new code.
@@ -731,9 +715,7 @@ pub fn set_code_hash2<E>(code_hash: &E::Hash) -> Result<()>
 where
     E: Environment,
 {
-    <EnvInstance as OnInstance>::on_instance(|instance| {
-        instance.set_code_hash(code_hash.as_ref())
-    })
+    E::EnvInstance::on_instance(|instance| instance.set_code_hash(code_hash.as_ref()))
 }
 
 /// Tries to trigger a runtime dispatchable, i.e. an extrinsic from a pallet.
@@ -758,7 +740,7 @@ where
     E: Environment,
     Call: scale::Encode,
 {
-    <EnvInstance as OnInstance>::on_instance(|instance| {
+    E::EnvInstance::on_instance(|instance| {
         TypedEnvBackend::call_runtime::<E, _>(instance, call)
     })
 }

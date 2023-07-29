@@ -740,7 +740,7 @@ where
         H: CryptoHash,
     {
         let mut output = <H as HashOutput>::Type::default();
-        ink_env::hash_bytes::<H>(input, &mut output);
+        ink_env::hash_bytes::<E, H>(input, &mut output);
         output
     }
 
@@ -775,7 +775,7 @@ where
         V: scale::Encode,
     {
         let mut output = <H as HashOutput>::Type::default();
-        ink_env::hash_encoded::<H, V>(value, &mut output);
+        ink_env::hash_encoded::<E, H, V>(value, &mut output);
         output
     }
 
@@ -837,7 +837,7 @@ where
         message_hash: &[u8; 32],
     ) -> Result<[u8; 33]> {
         let mut output = [0; 33];
-        ink_env::ecdsa_recover(signature, message_hash, &mut output)
+        ink_env::ecdsa_recover::<E>(signature, message_hash, &mut output)
             .map(|_| output)
             .map_err(|_| Error::EcdsaRecoveryFailed)
     }
@@ -884,7 +884,7 @@ where
     /// For more details visit: [`ink_env::ecdsa_to_eth_address`]
     pub fn ecdsa_to_eth_address(self, pubkey: &[u8; 33]) -> Result<[u8; 20]> {
         let mut output = [0; 20];
-        ink_env::ecdsa_to_eth_address(pubkey, &mut output)
+        ink_env::ecdsa_to_eth_address::<E>(pubkey, &mut output)
             .map(|_| output)
             .map_err(|_| Error::EcdsaRecoveryFailed)
     }

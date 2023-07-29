@@ -31,12 +31,10 @@
 //! there is no knowledge of the concrete types, the functionality is restricted to
 //! the trait bounds on the `Environment` trait types.
 
+use crate::engine::{EnvInstance, OnInstance};
+
 use super::arithmetic::AtLeast32BitUnsigned;
-use ink_primitives::{
-    AccountId,
-    Clear,
-    Hash,
-};
+use ink_primitives::{AccountId, Clear, Hash};
 #[cfg(feature = "std")]
 use scale_info::TypeInfo;
 
@@ -189,6 +187,9 @@ pub trait Environment {
     ///
     /// [chain_extension]: https://paritytech.github.io/ink/ink/attr.chain_extension.html
     type ChainExtension;
+
+    /// The `EnvInstance` type to be used for the execution engine.
+    type EnvInstance: OnInstance;
 }
 
 /// Placeholder for chains that have no defined chain extension.
@@ -209,6 +210,7 @@ impl Environment for DefaultEnvironment {
     type Timestamp = Timestamp;
     type BlockNumber = BlockNumber;
     type ChainExtension = NoChainExtension;
+    type EnvInstance = EnvInstance;
 }
 
 /// The default balance type.
