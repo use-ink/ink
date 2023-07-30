@@ -15,7 +15,6 @@ use clippy_utils::{
     diagnostics::span_lint_and_then,
     is_lint_allowed,
     match_def_path,
-    peel_ref_operators,
     source::snippet_opt,
 };
 use if_chain::if_chain;
@@ -27,8 +26,8 @@ use rustc_hir::{
         Res,
     },
     def_id::DefId,
+    Arm,
     AssocItemKind,
-    Expr,
     ExprKind,
     Impl,
     ImplItemKind,
@@ -36,6 +35,7 @@ use rustc_hir::{
     Item,
     ItemKind,
     Node,
+    PatKind,
     QPath,
 };
 use rustc_lint::{
@@ -102,11 +102,11 @@ declare_lint! {
 
 declare_lint_pass!(PrimitiveTopic => [PRIMITIVE_TOPIC]);
 
-/// Returns `true` if `item` is an implementation of `::ink::env::Topics` for a storage
+/// Returns `true` if `item` is an implementation of `::ink::env::Event` for a storage
 /// struct. If that's the case, it returns the name of this struct.
-fn is_ink_topics_impl<'tcx>(cx: &LateContext<'tcx>, item: &'tcx Item<'_>) -> bool {
+fn is_ink_event_impl<'tcx>(cx: &LateContext<'tcx>, item: &'tcx Item<'_>) -> bool {
     if let Some(trait_ref) = cx.tcx.impl_trait_ref(item.owner_id) {
-        match_def_path(cx, trait_ref.0.def_id, &["ink_env", "topics", "Topics"])
+        match_def_path(cx, trait_ref.0.def_id, &["ink_env", "event", "Event"])
     } else {
         false
     }
@@ -120,7 +120,7 @@ fn is_topics_function(impl_item: &ImplItemRef) -> bool {
 
 /// Returns `true` if `ty` is a primitive type that should not be annotated with
 /// `#[ink(topic)]`
-fn is_primitive_ty(ty: &Ty) -> bool {
+fn is_primitive_number_ty(ty: &Ty) -> bool {
     matches!(ty.kind(), ty::Int(_) | ty::Uint(_))
 }
 
@@ -129,7 +129,7 @@ fn report_field(cx: &LateContext, event_def_id: DefId, field_name: &str) {
     if_chain! {
         if let Some(Node::Item(event_node)) = cx.tcx.hir().get_if_local(event_def_id);
         if let ItemKind::Struct(ref struct_def, _) = event_node.kind;
-        if let Some(field) = struct_def.fields().iter().find(|field|{ field.ident.as_str() == field_name });
+        if let Some(field) = struct_def.fields().iter().find(|f|{ f.ident.as_str() == field_name });
         if !is_lint_allowed(cx, PRIMITIVE_TOPIC, field.hir_id);
         then {
             span_lint_and_then(
@@ -151,41 +151,6 @@ fn report_field(cx: &LateContext, event_def_id: DefId, field_name: &str) {
     }
 }
 
-/// Raises a warning if the type of the argument of `push_topic` has a primitive type
-fn report_if_primitive_ty(cx: &LateContext, event_def_id: DefId, arg: &Expr) {
-    if_chain! {
-        // Get a generic type from `.push_topic`:
-        // .push_topic::<::ink::env::topics::PrefixedValue<Option<prefixed_value_ty>>(...)
-        //                                                        ^^^^^^^^^^^^^^^^^
-        if let TyKind::Ref(_, prefixed_value_ty, _) = cx.tcx.typeck(arg.hir_id.owner.def_id).expr_ty(arg).kind();
-        if let ty::Adt(_, substs) = prefixed_value_ty.kind();
-        if is_primitive_ty(&substs.type_at(2));
-        // Get a field of `self` that corresponds to the annotated event field:
-        // &::ink::env::topics::PrefixedValue { value: &self.field, prefix: b"PrimitiveTopic::MyEvent::field" },
-        //                                                   ^^^^^
-        if let ExprKind::Struct(_, [field_expr, _], _) = peel_ref_operators(cx,arg).kind;
-        if field_expr.ident.name.as_str() == "value";
-        if let self_field = peel_ref_operators(cx, field_expr.expr);
-        if let Node::Expr(Expr { kind: ExprKind::Field(_, field_ident), .. }) = cx.tcx.hir().get(self_field.hir_id);
-        then {
-            report_field(cx, event_def_id, field_ident.as_str())
-        }
-    }
-}
-
-/// Checks the sequence of `push_topic` method calls.
-/// Raises warnings if the code was generated from struct fields with primitive types.
-fn check_push_topic_calls(cx: &LateContext, event_def_id: DefId, method_call: &Expr) {
-    if_chain! {
-        if let ExprKind::MethodCall(seg, receiver, [arg], _) = method_call.kind;
-        if seg.ident.name.as_str() == "push_topic";
-        then {
-            report_if_primitive_ty(cx, event_def_id, arg);
-            check_push_topic_calls(cx, event_def_id, receiver)
-        }
-    }
-}
-
 /// Returns `DefId` of the event struct for which `Topics` is implemented
 fn get_event_def_id(topics_impl: &Impl) -> Option<DefId> {
     if_chain! {
@@ -201,39 +166,54 @@ impl<'tcx> LateLintPass<'tcx> for PrimitiveTopic {
     fn check_item(&mut self, cx: &LateContext<'tcx>, item: &'tcx Item<'_>) {
         if_chain! {
             if let ItemKind::Impl(topics_impl) = &item.kind;
-            if is_ink_topics_impl(cx, item);
+            if is_ink_event_impl(cx, item);
             if let Some(event_def_id) = get_event_def_id(topics_impl);
             then {
                 topics_impl.items.iter().for_each(|impl_item| {
                     if_chain! {
-                        // The example of the generated code we are interested in:
-                        // ```rust
-                        // impl ::ink::env::Topics for MyEvent {
-                        //     // ...
-                        //     fn topics<E, B>(&self, /* ... */)
-                        //     {
-                        //         builder
-                        //             .build::<Self>()
-                        //             .push_topic /* ... */
-                        //             .push_topic::<
-                        //                 ::ink::env::topics::PrefixedValue<Option<AccountId>>,
-                        //             >(
-                        //                 &::ink::env::topics::PrefixedValue {
-                        //                     value: &self.src,
-                        //                     prefix: b"PrimitiveTopic::MyEvent::src",
-                        //                 },
-                        //             )
-                        //             .push_topic /* ... */
-                        //             .finish(/*...*/);
+                        // We need to extract field patterns from the event sturct matched in the
+                        // `topics` function to access their inferred types.
+                        // Here is the simplified example of the expanded code:
+                        // ```
+                        // fn topics(/* ... */) {
+                        //      match self {
+                        //          MyEvent {
+                        //              field_1: __binding_0,
+                        //              field_2: __binding_1,
+                        //              /* ... */
+                        //              ..
+                        //          } => { /* ... */ }
+                        //     }
+                        // }
                         // ```
                         if is_topics_function(impl_item);
                         let impl_item = cx.tcx.hir().impl_item(impl_item.id);
                         if let ImplItemKind::Fn(_, eid) = impl_item.kind;
                         let body = cx.tcx.hir().body(eid).value;
                         if let ExprKind::Block (block, _) = body.kind;
-                        if let Some(build_call) = block.expr;
-                        if let ExprKind::MethodCall (_, finish_expr, ..) = build_call.kind;
-                        then { check_push_topic_calls(cx, event_def_id, finish_expr); }
+                        if let Some(match_self) = block.expr;
+                        if let ExprKind::Match(_, [Arm { pat: arm_pat, .. }], _) = match_self.kind;
+                        if let PatKind::Struct(_, pat_fields, _) = &arm_pat.kind;
+                        then {
+                            pat_fields.iter().for_each(|pat_field| {
+                                cx.tcx
+                                  .has_typeck_results(pat_field.hir_id.owner.def_id)
+                                  .then(|| {
+                                        if let TyKind::Ref(_, ty, _) = cx
+                                            .tcx
+                                            .typeck(pat_field.hir_id.owner.def_id)
+                                            .pat_ty(pat_field.pat)
+                                            .kind()
+                                        {
+                                            if is_primitive_number_ty(ty) {
+                                                report_field(cx,
+                                                             event_def_id,
+                                                             pat_field.ident.as_str())
+                                            }
+                                        }
+                                  });
+                            })
+                        }
                     }
                 })
             }
