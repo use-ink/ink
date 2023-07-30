@@ -90,9 +90,10 @@ impl GenerateCode for Dispatch<'_> {
             #message_decoder_type
 
             #[cfg(not(any(test, feature = "std", feature = "ink-as-dependency")))]
-            const _: () = {
+            mod __do_not_access__ {
+                use super::*;
                 #entry_points
-            };
+            }
         }
     }
 }
@@ -350,6 +351,26 @@ impl Dispatch<'_> {
         let any_constructor_accept_payment =
             self.any_constructor_accepts_payment(constructors);
         let any_message_accepts_payment = self.any_message_accepts_payment(messages);
+        let fn_call: syn::ItemFn = syn::parse_quote! {
+            #[cfg(any(target_arch = "wasm32", target_arch = "riscv32"))]
+            #[cfg_attr(target_arch = "wasm32", no_mangle)]
+            pub extern "C" fn call() {
+                internal_call()
+            }
+        };
+        let fn_deploy: syn::ItemFn = syn::parse_quote! {
+            #[cfg(any(target_arch = "wasm32", target_arch = "riscv32"))]
+            #[cfg_attr(target_arch = "wasm32", no_mangle)]
+            pub extern "C" fn deploy() {
+                internal_deploy()
+            }
+        };
+        let (fn_call, fn_deploy) = {
+            (
+                polkavm_derive_impl::polkavm_export(fn_call).unwrap(),
+                polkavm_derive_impl::polkavm_export(fn_deploy).unwrap(),
+            )
+        };
         quote_spanned!(span=>
             #[allow(clippy::nonminimal_bool)]
             fn internal_deploy() {
@@ -423,28 +444,9 @@ impl Dispatch<'_> {
                 })
             }
 
-            #[cfg(target_arch = "wasm32")]
-            #[no_mangle]
-            pub extern "C" fn call() {
-                internal_call()
-            }
+            #fn_call
 
-            #[cfg(target_arch = "wasm32")]
-            #[no_mangle]
-            pub extern "C" fn deploy() {
-                internal_deploy()
-            }
-
-            #[cfg(target_arch = "riscv32")]
-            #[no_mangle]
-            pub extern "C" fn _start(call_flags: u32) {
-                let is_deploy = (call_flags & 0x0000_0001) == 1;
-                if is_deploy {
-                    internal_deploy()
-                } else {
-                    internal_call()
-                }
-            }
+            #fn_deploy
         )
     }
 

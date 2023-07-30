@@ -2635,6 +2635,7 @@ dependencies = [
  "ink_primitives 5.0.0-rc",
  "itertools 0.12.0",
  "parity-scale-codec",
+ "polkavm-derive-impl",
  "proc-macro2",
  "quote",
  "serde",
@@ -2735,6 +2736,7 @@ dependencies = [
  "num-traits",
  "parity-scale-codec",
  "paste",
+ "polkavm-derive",
  "rlibc",
  "scale-decode",
  "scale-encode",
@@ -3935,6 +3937,31 @@ name = "platforms"
 version = "3.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "14e6ab3f592e6fb464fc9712d8d6e6912de6473954635fd76a589d832cffcbb0"
+
+[[package]]
+name = "polkavm-common"
+version = "0.3.0"
+source = "git+https://github.com/koute/polkavm.git?rev=3552524a248a025de8e608394fcf9eb7c528eb11#3552524a248a025de8e608394fcf9eb7c528eb11"
+
+[[package]]
+name = "polkavm-derive"
+version = "0.3.0"
+source = "git+https://github.com/koute/polkavm.git?rev=3552524a248a025de8e608394fcf9eb7c528eb11#3552524a248a025de8e608394fcf9eb7c528eb11"
+dependencies = [
+ "polkavm-derive-impl",
+ "syn 2.0.39",
+]
+
+[[package]]
+name = "polkavm-derive-impl"
+version = "0.3.0"
+source = "git+https://github.com/koute/polkavm.git?rev=3552524a248a025de8e608394fcf9eb7c528eb11#3552524a248a025de8e608394fcf9eb7c528eb11"
+dependencies = [
+ "polkavm-common",
+ "proc-macro2",
+ "quote",
+ "syn 2.0.39",
+]
 
 [[package]]
 name = "polling"

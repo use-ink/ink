@@ -32,6 +32,9 @@ const_env = { workspace = true }
 [target.'cfg(target_arch = "wasm32")'.dependencies]
 rlibc = "1"
 
+[target.'cfg(target_arch = "riscv32")'.dependencies]
+polkavm-derive = { workspace = true }
+
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
 ink_engine = { workspace = true, default-features = true, optional = true }
 

@@ -33,6 +33,7 @@ impl-serde = { workspace = true, default-features = true }
 
 serde = { workspace = true, features = ["derive"] }
 serde_json = { workspace = true }
+polkavm-derive-impl = { workspace = true }
 
 [features]
 default = ["std"]
