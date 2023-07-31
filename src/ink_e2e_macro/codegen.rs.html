@@ -606,7 +606,7 @@
         output_type: OutputType::HumanReadable,
         skip_wasm_validation: <span class="bool-val">false</span>,
         target: Target::Wasm,
-        ..ExecuteArgs::default()
+        ..Default::default()
     };
 
     <span class="kw">match </span>contract_build::execute(args) {

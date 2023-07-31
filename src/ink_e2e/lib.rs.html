@@ -107,6 +107,12 @@
 <a href="#107" id="107">107</a>
 <a href="#108" id="108">108</a>
 <a href="#109" id="109">109</a>
+<a href="#110" id="110">110</a>
+<a href="#111" id="111">111</a>
+<a href="#112" id="112">112</a>
+<a href="#113" id="113">113</a>
+<a href="#114" id="114">114</a>
+<a href="#115" id="115">115</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -128,18 +134,19 @@
     html_favicon_url = <span class="string">&quot;https://use.ink/crate-docs/favicon.png&quot;
 </span>)]
 
-</span><span class="kw">mod </span>builders;
-<span class="kw">mod </span>client;
+</span><span class="kw">mod </span>backend;
+<span class="kw">mod </span>builders;
 <span class="kw">mod </span>contract_results;
 <span class="kw">mod </span>error;
 <span class="kw">pub mod </span>events;
 <span class="kw">mod </span>node_proc;
+<span class="kw">mod </span>subxt_client;
 <span class="kw">mod </span>xts;
 
-<span class="kw">pub use </span>client::{
-    CallBuilderFinal,
-    Client,
-    Error,
+<span class="kw">pub use </span>backend::{
+    ChainBackend,
+    ContractsBackend,
+    E2EBackend,
 };
 <span class="kw">pub use </span>contract_results::{
     CallDryRunResult,
@@ -155,6 +162,11 @@
 <span class="kw">pub use </span>sp_core::H256;
 <span class="kw">pub use </span>sp_keyring::AccountKeyring;
 <span class="kw">pub use </span>subxt;
+<span class="kw">pub use </span>subxt_client::{
+    CallBuilderFinal,
+    Client,
+    Error,
+};
 <span class="kw">pub use </span>subxt_signer::sr25519::{
     <span class="self">self</span>,
     dev::<span class="kw-2">*</span>,
