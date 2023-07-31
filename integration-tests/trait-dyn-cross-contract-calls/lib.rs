@@ -48,6 +48,7 @@ mod e2e_tests {
         CallerRef,
     };
     use dyn_traits::Increment;
+    use ink_e2e::ContractsBackend;
     use trait_incrementer::incrementer::{
         Incrementer,
         IncrementerRef,

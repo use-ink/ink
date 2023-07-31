@@ -113,6 +113,10 @@ mod call_builder {
     mod e2e_tests {
         use super::*;
         use incrementer::IncrementerRef;
+        use ink_e2e::{
+            ChainBackend,
+            ContractsBackend,
+        };
 
         type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 

@@ -37,6 +37,7 @@ pub mod wildcard_selector {
     #[cfg(all(test, feature = "e2e-tests"))]
     mod e2e_tests {
         use super::*;
+        use ink_e2e::ContractsBackend;
 
         use ink::env::call::utils::{
             Argument,
