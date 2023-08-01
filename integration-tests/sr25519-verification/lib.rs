@@ -17,7 +17,7 @@ pub mod sr25519_verification {
         /// Dummy method to satisfy constaint of >0 messages per contract.
         #[ink(message)]
         pub fn foobar(&self) {
-            ink_env::debug_println!("foobar - this method does nothing");
+            ink::env::debug_println!("foobar - this method does nothing");
         }
     }
 
