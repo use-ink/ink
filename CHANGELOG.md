@@ -8,7 +8,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Stabilize `call_runtime` ‒ [#1749](https://github.com/paritytech/ink/pull/1749)
 
 ### Added
-- Persist `Environment` in metadata - [#1741](https://github.com/paritytech/ink/pull/1741)
 - Schema generation - [#1765](https://github.com/paritytech/ink/pull/1765)
 - Add `set_block_number` to off-chain test api `Engine` - [#1806](https://github.com/paritytech/ink/pull/1806)
 - Added `sr25519_verify` function to `ink_env` [#1840](https://github.com/paritytech/ink/pull/1840)
@@ -19,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Version 4.2.0
 
 ### Added
+- Persist `Environment` in metadata - [#1741](https://github.com/paritytech/ink/pull/1741)
 - Added possibility for `runtime_call` in E2E tests ‒ [#1736](https://github.com/paritytech/ink/pull/1736)
 - Added `default` attribute to constructors and messages ‒ [#1724](https://github.com/paritytech/ink/pull/1724)
 - Added clarification about `Mapping::size` unit ‒ [#1735](https://github.com/paritytech/ink/pull/1735)
