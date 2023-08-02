@@ -12,11 +12,33 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use ink_ir::{
-    ast,
-    format_err_spanned,
-    utils::duplicate_config_err,
-};
+use ink_ir::{ast, format_err_spanned, utils::duplicate_config_err};
+
+/// The type of the architecture that should be used to run test.
+#[derive(Copy, Clone, Eq, PartialEq, Debug, Default)]
+enum Backend {
+    /// The standard approach with running dedicated single-node blockchain in a background process.
+    #[default]
+    Full,
+    /// The lightweight approach skipping node layer.
+    RuntimeOnly,
+}
+
+impl TryFrom<syn::LitStr> for Backend {
+    type Error = syn::Error;
+
+    fn try_from(value: syn::LitStr) -> Result<Self, Self::Error> {
+        match value.value().as_str() {
+            "full" => Ok(Self::Full),
+            "runtime_only" => Ok(Self::RuntimeOnly),
+            _ => Err(format_err_spanned!(
+                value,
+                "unknown backend `{}` for ink! E2E test configuration argument",
+                value.value()
+            )),
+        }
+    }
+}
 
 /// The End-to-End test configuration.
 #[derive(Debug, Default, PartialEq, Eq)]
@@ -30,6 +52,8 @@ pub struct E2EConfig {
     /// [`DefaultEnvironment`](https://docs.rs/ink_env/4.1.0/ink_env/enum.DefaultEnvironment.html)
     /// will be used.
     environment: Option<syn::Path>,
+    /// The type of the architecture that should be used to run test.
+    backend: Backend,
 }
 
 impl TryFrom<ast::AttributeArgs> for E2EConfig {
@@ -38,6 +62,7 @@ impl TryFrom<ast::AttributeArgs> for E2EConfig {
     fn try_from(args: ast::AttributeArgs) -> Result<Self, Self::Error> {
         let mut additional_contracts: Option<(syn::LitStr, ast::MetaNameValue)> = None;
         let mut environment: Option<(syn::Path, ast::MetaNameValue)> = None;
+        let mut backend: Option<(syn::LitStr, ast::MetaNameValue)> = None;
 
         for arg in args.into_iter() {
             if arg.name.is_ident("additional_contracts") {
@@ -59,7 +84,12 @@ impl TryFrom<ast::AttributeArgs> for E2EConfig {
                 }
             } else if arg.name.is_ident("environment") {
                 if let Some((_, ast)) = environment {
-                    return Err(duplicate_config_err(ast, arg, "environment", "E2E test"))
+                    return Err(duplicate_config_err(
+                        ast,
+                        arg,
+                        "environment",
+                        "E2E test",
+                    ));
                 }
                 if let ast::MetaValue::Path(path) = &arg.value {
                     environment = Some((path.clone(), arg))
@@ -69,21 +99,35 @@ impl TryFrom<ast::AttributeArgs> for E2EConfig {
                         "expected a path for `environment` ink! E2E test configuration argument",
                     ));
                 }
+            } else if arg.name.is_ident("backend") {
+                if let Some((_, ast)) = backend {
+                    return Err(duplicate_config_err(ast, arg, "backend", "E2E test"));
+                }
+                if let ast::MetaValue::Lit(syn::Lit::Str(lit_str)) = &arg.value {
+                    backend = Some((lit_str.clone(), arg))
+                } else {
+                    return Err(format_err_spanned!(
+                        arg,
+                        "expected a string literal for `backend` ink! E2E test configuration argument",
+                    ));
+                }
             } else {
                 return Err(format_err_spanned!(
                     arg,
                     "encountered unknown or unsupported ink! configuration argument",
-                ))
+                ));
             }
         }
         let additional_contracts = additional_contracts
             .map(|(value, _)| value.value().split(' ').map(String::from).collect())
             .unwrap_or_else(Vec::new);
         let environment = environment.map(|(path, _)| path);
+        let backend = backend.map(|(b, _)| Backend::try_from(b)).transpose()?.unwrap_or_default();
 
         Ok(E2EConfig {
             additional_contracts,
             environment,
+            backend,
         })
     }
 }
