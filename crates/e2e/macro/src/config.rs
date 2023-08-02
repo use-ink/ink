@@ -20,7 +20,7 @@ use ink_ir::{
 
 /// The type of the architecture that should be used to run test.
 #[derive(Copy, Clone, Eq, PartialEq, Debug, Default)]
-enum Backend {
+pub enum Backend {
     /// The standard approach with running dedicated single-node blockchain in a
     /// background process.
     #[default]
@@ -147,6 +147,11 @@ impl E2EConfig {
     /// Custom environment for the contracts, if specified.
     pub fn environment(&self) -> Option<syn::Path> {
         self.environment.clone()
+    }
+
+    /// The type of the architecture that should be used to run test.
+    pub fn backend(&self) -> Backend {
+        self.backend
     }
 }
 
