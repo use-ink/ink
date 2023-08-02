@@ -170,7 +170,7 @@ impl InkE2ETest {
                     return ::ink_e2e::tokio::runtime::Builder::new_current_thread()
                         .enable_all()
                         .build()
-                        .unwrap_or_else(|err| panic!("Failed building the Runtime: {}", err))
+                        .unwrap_or_else(|err| panic!("Failed building the Runtime: {err}"))
                         .block_on(run);
                 }
             }
