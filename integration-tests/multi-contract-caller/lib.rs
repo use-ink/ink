@@ -120,8 +120,8 @@ mod multi_contract_caller {
         type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
         #[ink_e2e::test]
-        async fn e2e_multi_contract_caller(
-            mut client: ink_e2e::Client<C, E>,
+        async fn e2e_multi_contract_caller<Client: E2EBackend>(
+            mut client: Client,
         ) -> E2EResult<()> {
             // given
             let accumulator_hash = client

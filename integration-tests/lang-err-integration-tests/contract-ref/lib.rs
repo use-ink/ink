@@ -73,8 +73,8 @@ mod contract_ref {
         type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
         #[ink_e2e::test]
-        async fn e2e_ref_can_flip_correctly(
-            mut client: ink_e2e::Client<C, E>,
+        async fn e2e_ref_can_flip_correctly<Client: E2EBackend>(
+            mut client: Client,
         ) -> E2EResult<()> {
             let flipper_hash = client
                 .upload("integration_flipper", &ink_e2e::alice(), None)
@@ -116,8 +116,8 @@ mod contract_ref {
         }
 
         #[ink_e2e::test]
-        async fn e2e_fallible_ref_can_be_instantiated(
-            mut client: ink_e2e::Client<C, E>,
+        async fn e2e_fallible_ref_can_be_instantiated<Client: E2EBackend>(
+            mut client: Client,
         ) -> E2EResult<()> {
             let flipper_hash = client
                 .upload("integration_flipper", &ink_e2e::bob(), None)
@@ -145,8 +145,8 @@ mod contract_ref {
         }
 
         #[ink_e2e::test]
-        async fn e2e_fallible_ref_fails_to_be_instantiated(
-            mut client: ink_e2e::Client<C, E>,
+        async fn e2e_fallible_ref_fails_to_be_instantiated<Client: E2EBackend>(
+            mut client: Client,
         ) -> E2EResult<()> {
             let flipper_hash = client
                 .upload("integration_flipper", &ink_e2e::charlie(), None)
