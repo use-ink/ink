@@ -341,7 +341,9 @@ mod call_builder {
         }
 
         #[ink_e2e::test]
-        async fn e2e_create_builder_with_infallible_revert_constructor_encodes_ok<Client: E2EBackend>(
+        async fn e2e_create_builder_with_infallible_revert_constructor_encodes_ok<
+            Client: E2EBackend,
+        >(
             mut client: Client,
         ) -> E2EResult<()> {
             let origin = client
@@ -384,7 +386,9 @@ mod call_builder {
         }
 
         #[ink_e2e::test]
-        async fn e2e_create_builder_can_handle_fallible_constructor_success<Client: E2EBackend>(
+        async fn e2e_create_builder_can_handle_fallible_constructor_success<
+            Client: E2EBackend,
+        >(
             mut client: Client,
         ) -> E2EResult<()> {
             let origin = client
@@ -423,7 +427,9 @@ mod call_builder {
         }
 
         #[ink_e2e::test]
-        async fn e2e_create_builder_can_handle_fallible_constructor_error<Client: E2EBackend>(
+        async fn e2e_create_builder_can_handle_fallible_constructor_error<
+            Client: E2EBackend,
+        >(
             mut client: Client,
         ) -> E2EResult<()> {
             let origin = client
@@ -469,7 +475,9 @@ mod call_builder {
         }
 
         #[ink_e2e::test]
-        async fn e2e_create_builder_with_fallible_revert_constructor_encodes_ok<Client: E2EBackend>(
+        async fn e2e_create_builder_with_fallible_revert_constructor_encodes_ok<
+            Client: E2EBackend,
+        >(
             mut client: Client,
         ) -> E2EResult<()> {
             let origin = client
@@ -512,7 +520,9 @@ mod call_builder {
         }
 
         #[ink_e2e::test]
-        async fn e2e_create_builder_with_fallible_revert_constructor_encodes_err<Client: E2EBackend>(
+        async fn e2e_create_builder_with_fallible_revert_constructor_encodes_err<
+            Client: E2EBackend,
+        >(
             mut client: Client,
         ) -> E2EResult<()> {
             let origin = client
