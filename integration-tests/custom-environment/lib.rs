@@ -90,8 +90,8 @@ mod runtime_call {
 
         #[cfg(feature = "permissive-node")]
         #[ink_e2e::test(environment = crate::EnvironmentWithManyTopics)]
-        async fn calling_custom_environment_works(
-            mut client: Client<C, E>,
+        async fn calling_custom_environment_works<Client: E2EBackend>(
+            mut client: Client,
         ) -> E2EResult<()> {
             // given
             let constructor = TopicsRef::new();
@@ -123,8 +123,10 @@ mod runtime_call {
 
         #[cfg(not(feature = "permissive-node"))]
         #[ink_e2e::test(environment = crate::EnvironmentWithManyTopics)]
-        async fn calling_custom_environment_fails_if_incompatible_with_node(
-            mut client: Client<C, E>,
+        async fn calling_custom_environment_fails_if_incompatible_with_node<
+            Client: E2EBackend,
+        >(
+            mut client: Client,
         ) -> E2EResult<()> {
             // given
             let constructor = TopicsRef::new();

@@ -20,14 +20,20 @@ use crate::{
     InstantiationResult,
     UploadResult,
 };
-use ink_env::Environment;
+use ink_env::{
+    DefaultEnvironment,
+    Environment,
+};
 use jsonrpsee::core::async_trait;
 use pallet_contracts_primitives::ContractInstantiateResult;
 use subxt::dynamic::Value;
 
 /// Full E2E testing backend: combines general chain API and contract-specific operations.
 #[async_trait]
-pub trait E2EBackend<E: Environment>: ChainBackend + ContractsBackend<E> {}
+pub trait E2EBackend<E: Environment = DefaultEnvironment>:
+    ChainBackend + ContractsBackend<E>
+{
+}
 
 /// General chain operations useful in contract testing.
 #[async_trait]

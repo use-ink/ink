@@ -113,8 +113,8 @@ pub mod constructors_return_value {
         type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
         #[ink_e2e::test]
-        async fn e2e_infallible_constructor(
-            mut client: ink_e2e::Client<C, E>,
+        async fn e2e_infallible_constructor<Client: E2EBackend>(
+            mut client: Client,
         ) -> E2EResult<()> {
             let constructor = ConstructorsReturnValueRef::new(true);
             let infallible_constructor_result = client
@@ -155,8 +155,8 @@ pub mod constructors_return_value {
         }
 
         #[ink_e2e::test]
-        async fn e2e_fallible_constructor_succeed(
-            mut client: ink_e2e::Client<C, E>,
+        async fn e2e_fallible_constructor_succeed<Client: E2EBackend>(
+            mut client: Client,
         ) -> E2EResult<()> {
             let constructor = ConstructorsReturnValueRef::try_new(true);
             let result = client
@@ -215,8 +215,8 @@ pub mod constructors_return_value {
         }
 
         #[ink_e2e::test]
-        async fn e2e_fallible_constructor_fails(
-            mut client: ink_e2e::Client<C, E>,
+        async fn e2e_fallible_constructor_fails<Client: E2EBackend>(
+            mut client: Client,
         ) -> E2EResult<()> {
             let constructor = ConstructorsReturnValueRef::try_new(false);
 

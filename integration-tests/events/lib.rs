@@ -209,7 +209,9 @@ pub mod events {
         type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
         #[ink_e2e::test]
-        async fn emits_foreign_event(mut client: ink_e2e::Client<C, E>) -> E2EResult<()> {
+        async fn emits_foreign_event<Client: E2EBackend>(
+            mut client: Client,
+        ) -> E2EResult<()> {
             // given
             let init_value = false;
             let constructor = EventsRef::new(init_value);
@@ -248,7 +250,9 @@ pub mod events {
         }
 
         #[ink_e2e::test]
-        async fn emits_inline_event(mut client: ink_e2e::Client<C, E>) -> E2EResult<()> {
+        async fn emits_inline_event<Client: E2EBackend>(
+            mut client: Client,
+        ) -> E2EResult<()> {
             // given
             let init_value = false;
             let constructor = EventsRef::new(init_value);
@@ -286,8 +290,8 @@ pub mod events {
         }
 
         #[ink_e2e::test]
-        async fn emits_event_with_option_topic_none(
-            mut client: ink_e2e::Client<C, E>,
+        async fn emits_event_with_option_topic_none<Client: E2EBackend>(
+            mut client: Client,
         ) -> E2EResult<()> {
             // given
             let init_value = false;

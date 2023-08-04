@@ -94,8 +94,8 @@ mod mapping_integration_tests {
         type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
         #[ink_e2e::test]
-        async fn insert_and_get_works(
-            mut client: ink_e2e::Client<C, E>,
+        async fn insert_and_get_works<Client: E2EBackend>(
+            mut client: Client,
         ) -> E2EResult<()> {
             // given
             let constructor = MappingsRef::new();
@@ -133,8 +133,8 @@ mod mapping_integration_tests {
         }
 
         #[ink_e2e::test]
-        async fn insert_and_contains_works(
-            mut client: ink_e2e::Client<C, E>,
+        async fn insert_and_contains_works<Client: E2EBackend>(
+            mut client: Client,
         ) -> E2EResult<()> {
             // given
             let constructor = MappingsRef::new();
@@ -171,7 +171,7 @@ mod mapping_integration_tests {
         }
 
         #[ink_e2e::test]
-        async fn reinsert_works(mut client: ink_e2e::Client<C, E>) -> E2EResult<()> {
+        async fn reinsert_works<Client: E2EBackend>(mut client: Client) -> E2EResult<()> {
             // given
             let constructor = MappingsRef::new();
             let contract = client
@@ -216,8 +216,8 @@ mod mapping_integration_tests {
         }
 
         #[ink_e2e::test]
-        async fn insert_and_remove_works(
-            mut client: ink_e2e::Client<C, E>,
+        async fn insert_and_remove_works<Client: E2EBackend>(
+            mut client: Client,
         ) -> E2EResult<()> {
             // given
             let constructor = MappingsRef::new();
@@ -260,8 +260,8 @@ mod mapping_integration_tests {
         }
 
         #[ink_e2e::test]
-        async fn insert_and_take_works(
-            mut client: ink_e2e::Client<C, E>,
+        async fn insert_and_take_works<Client: E2EBackend>(
+            mut client: Client,
         ) -> E2EResult<()> {
             // given
             let constructor = MappingsRef::new();

@@ -116,13 +116,16 @@ mod call_builder {
         use ink_e2e::{
             ChainBackend,
             ContractsBackend,
+            E2EBackend,
         };
 
         type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
         #[ink_e2e::test]
-        async fn e2e_delegate_call_return_value_returns_correct_value(
-            mut client: ink_e2e::Client<C, E>,
+        async fn e2e_delegate_call_return_value_returns_correct_value<
+            Client: E2EBackend,
+        >(
+            mut client: Client,
         ) -> E2EResult<()> {
             let origin = client
                 .create_and_fund_account(&ink_e2e::alice(), 10_000_000_000_000)
@@ -159,8 +162,10 @@ mod call_builder {
         }
 
         #[ink_e2e::test]
-        async fn e2e_delegate_call_return_value_errors_if_return_data_too_long(
-            mut client: ink_e2e::Client<C, E>,
+        async fn e2e_delegate_call_return_value_errors_if_return_data_too_long<
+            Client: E2EBackend,
+        >(
+            mut client: Client,
         ) -> E2EResult<()> {
             let origin = client
                 .create_and_fund_account(&ink_e2e::alice(), 10_000_000_000_000)
@@ -201,8 +206,10 @@ mod call_builder {
         }
 
         #[ink_e2e::test]
-        async fn e2e_forward_call_return_value_returns_correct_value(
-            mut client: ink_e2e::Client<C, E>,
+        async fn e2e_forward_call_return_value_returns_correct_value<
+            Client: E2EBackend,
+        >(
+            mut client: Client,
         ) -> E2EResult<()> {
             let origin = client
                 .create_and_fund_account(&ink_e2e::alice(), 10_000_000_000_000)
@@ -239,8 +246,10 @@ mod call_builder {
         }
 
         #[ink_e2e::test]
-        async fn e2e_forward_call_return_value_errors_if_return_data_too_long(
-            mut client: ink_e2e::Client<C, E>,
+        async fn e2e_forward_call_return_value_errors_if_return_data_too_long<
+            Client: E2EBackend,
+        >(
+            mut client: Client,
         ) -> E2EResult<()> {
             let origin = client
                 .create_and_fund_account(&ink_e2e::alice(), 10_000_000_000_000)

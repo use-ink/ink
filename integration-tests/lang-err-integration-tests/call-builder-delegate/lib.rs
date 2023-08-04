@@ -102,8 +102,8 @@ mod call_builder {
         type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
         #[ink_e2e::test]
-        async fn e2e_invalid_message_selector_can_be_handled(
-            mut client: ink_e2e::Client<C, E>,
+        async fn e2e_invalid_message_selector_can_be_handled<Client: E2EBackend>(
+            mut client: Client,
         ) -> E2EResult<()> {
             let origin = client
                 .create_and_fund_account(&ink_e2e::bob(), 10_000_000_000_000)
@@ -139,8 +139,8 @@ mod call_builder {
         }
 
         #[ink_e2e::test]
-        async fn e2e_invalid_message_selector_panics_on_invoke(
-            mut client: ink_e2e::Client<C, E>,
+        async fn e2e_invalid_message_selector_panics_on_invoke<Client: E2EBackend>(
+            mut client: Client,
         ) -> E2EResult<()> {
             let origin = client
                 .create_and_fund_account(&ink_e2e::charlie(), 10_000_000_000_000)
