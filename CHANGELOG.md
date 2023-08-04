@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 - Stabilize `call_runtime` ‒ [#1749](https://github.com/paritytech/ink/pull/1749)
+- Add backend choice to the E2E testcase configuration ‒ [#1864](https://github.com/paritytech/ink/pull/1864)
 
 ### Added
 - Schema generation - [#1765](https://github.com/paritytech/ink/pull/1765)
