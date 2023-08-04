@@ -151,8 +151,8 @@ mod runtime_call {
         ///  - the call is valid
         ///  - the call execution succeeds
         #[ink_e2e::test]
-        async fn transfer_with_call_runtime_works(
-            mut client: Client<C, E>,
+        async fn transfer_with_call_runtime_works<Client: E2EBackend>(
+            mut client: Client,
         ) -> E2EResult<()> {
             // given
             let constructor = RuntimeCallerRef::new();
@@ -216,8 +216,10 @@ mod runtime_call {
         ///  - the call is valid
         ///  - the call execution fails
         #[ink_e2e::test]
-        async fn transfer_with_call_runtime_fails_when_execution_fails(
-            mut client: Client<C, E>,
+        async fn transfer_with_call_runtime_fails_when_execution_fails<
+            Client: E2EBackend,
+        >(
+            mut client: Client,
         ) -> E2EResult<()> {
             // given
             let constructor = RuntimeCallerRef::new();
@@ -253,8 +255,10 @@ mod runtime_call {
         /// Negative case scenario:
         ///  - the call is invalid
         #[ink_e2e::test]
-        async fn transfer_with_call_runtime_fails_when_call_is_invalid(
-            mut client: Client<C, E>,
+        async fn transfer_with_call_runtime_fails_when_call_is_invalid<
+            Client: E2EBackend,
+        >(
+            mut client: Client,
         ) -> E2EResult<()> {
             // given
             let constructor = RuntimeCallerRef::new();
