@@ -153,6 +153,12 @@
 <a href="#153" id="153">153</a>
 <a href="#154" id="154">154</a>
 <a href="#155" id="155">155</a>
+<a href="#156" id="156">156</a>
+<a href="#157" id="157">157</a>
+<a href="#158" id="158">158</a>
+<a href="#159" id="159">159</a>
+<a href="#160" id="160">160</a>
+<a href="#161" id="161">161</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -175,14 +181,20 @@
     InstantiationResult,
     UploadResult,
 };
-<span class="kw">use </span>ink_env::Environment;
+<span class="kw">use </span>ink_env::{
+    DefaultEnvironment,
+    Environment,
+};
 <span class="kw">use </span>jsonrpsee::core::async_trait;
 <span class="kw">use </span>pallet_contracts_primitives::ContractInstantiateResult;
 <span class="kw">use </span>subxt::dynamic::Value;
 
 <span class="doccomment">/// Full E2E testing backend: combines general chain API and contract-specific operations.
 </span><span class="attr">#[async_trait]
-</span><span class="kw">pub trait </span>E2EBackend&lt;E: Environment&gt;: ChainBackend + ContractsBackend&lt;E&gt; {}
+</span><span class="kw">pub trait </span>E2EBackend&lt;E: Environment = DefaultEnvironment&gt;:
+    ChainBackend + ContractsBackend&lt;E&gt;
+{
+}
 
 <span class="doccomment">/// General chain operations useful in contract testing.
 </span><span class="attr">#[async_trait]
