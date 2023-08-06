@@ -1,4 +1,4 @@
-// Copyright 2018-2022 Parity Technologies (UK) Ltd.
+// Copyright (C) Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -115,6 +115,12 @@ impl AsRef<[u8]> for Hash {
 impl AsMut<[u8]> for Hash {
     fn as_mut(&mut self) -> &mut [u8] {
         &mut self.0[..]
+    }
+}
+
+impl From<Hash> for [u8; 32] {
+    fn from(hash: Hash) -> Self {
+        hash.0
     }
 }
 

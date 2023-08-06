@@ -1,4 +1,4 @@
-// Copyright 2018-2022 Parity Technologies (UK) Ltd.
+// Copyright (C) Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -250,7 +250,6 @@ pub fn return_value(flags: ReturnFlags, return_value: &[u8]) -> ! {
     }
 }
 
-#[cfg(feature = "call-runtime")]
 pub fn call_runtime(call: &[u8]) -> Result {
     let ret_code = (Ptr32::from_slice(call), call.len() as u32)
         .using_encoded(|in_data| sys::call(FUNC_ID, Ptr32::from_slice(in_data)));

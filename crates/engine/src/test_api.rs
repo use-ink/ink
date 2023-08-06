@@ -1,4 +1,4 @@
-// Copyright 2018-2022 Parity Technologies (UK) Ltd.
+// Copyright (C) Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@ use crate::{
     types::{
         AccountId,
         Balance,
+        BlockNumber,
         BlockTimestamp,
     },
     AccountError,
@@ -272,6 +273,11 @@ impl Engine {
     /// Set the block timestamp for the execution context.
     pub fn set_block_timestamp(&mut self, new_block_timestamp: BlockTimestamp) {
         self.exec_context.block_timestamp = new_block_timestamp;
+    }
+
+    /// Set the block number for the execution context.
+    pub fn set_block_number(&mut self, new_block_number: BlockNumber) {
+        self.exec_context.block_number = new_block_number;
     }
 }
 

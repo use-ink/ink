@@ -1,4 +1,4 @@
-// Copyright 2018-2022 Parity Technologies (UK) Ltd.
+// Copyright (C) Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -13,7 +13,10 @@
 // limitations under the License.
 
 use crate::ir;
-use contract_build::ManifestPath;
+use contract_build::{
+    ManifestPath,
+    Target,
+};
 use core::cell::RefCell;
 use derive_more::From;
 use proc_macro2::TokenStream as TokenStream2;
@@ -98,7 +101,7 @@ impl InkE2ETest {
         if already_built_contracts.is_empty() {
             // Build all of them for the first time and initialize everything
             BUILD_ONCE.call_once(|| {
-                env_logger::init();
+                tracing_subscriber::fmt::init();
                 for manifest_path in contracts_to_build_and_import {
                     let dest_wasm = build_contract(&manifest_path);
                     let _ = already_built_contracts.insert(manifest_path, dest_wasm);
@@ -157,7 +160,7 @@ impl InkE2ETest {
                 log_info("setting up e2e test");
 
                 ::ink_e2e::INIT.call_once(|| {
-                    ::ink_e2e::env_logger::init();
+                    ::ink_e2e::tracing_subscriber::fmt::init();
                 });
 
                 log_info("creating new client");
@@ -289,6 +292,8 @@ fn build_contract(path_to_cargo_toml: &str) -> String {
         lint: false,
         output_type: OutputType::HumanReadable,
         skip_wasm_validation: false,
+        target: Target::Wasm,
+        ..Default::default()
     };
 
     match contract_build::execute(args) {

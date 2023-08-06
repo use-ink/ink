@@ -1,4 +1,4 @@
-// Copyright 2018-2022 Parity Technologies (UK) Ltd.
+// Copyright (C) Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -21,11 +21,11 @@ use crate::{
         DelegateCall,
         FromAccountId,
     },
+    event::Event,
     hash::{
         CryptoHash,
         HashOutput,
     },
-    topics::Topics,
     Environment,
     Result,
 };
@@ -405,10 +405,10 @@ pub trait TypedEnvBackend: EnvBackend {
     /// # Note
     ///
     /// For more details visit: [`emit_event`][`crate::emit_event`]
-    fn emit_event<E, Event>(&mut self, event: Event)
+    fn emit_event<E, Evt>(&mut self, event: Evt)
     where
         E: Environment,
-        Event: Topics + scale::Encode;
+        Evt: Event;
 
     /// Invokes a contract message and returns its result.
     ///
@@ -433,7 +433,7 @@ pub trait TypedEnvBackend: EnvBackend {
     fn invoke_contract_delegate<E, Args, R>(
         &mut self,
         call_data: &CallParams<E, DelegateCall<E>, Args, R>,
-    ) -> Result<R>
+    ) -> Result<ink_primitives::MessageResult<R>>
     where
         E: Environment,
         Args: scale::Encode,
@@ -515,7 +515,6 @@ pub trait TypedEnvBackend: EnvBackend {
     where
         E: Environment;
 
-    #[cfg(feature = "call-runtime")]
     fn call_runtime<E, Call>(&mut self, call: &Call) -> Result<()>
     where
         E: Environment,

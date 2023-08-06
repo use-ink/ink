@@ -43,14 +43,16 @@ pub mod caller {
 
 #[cfg(all(test, feature = "e2e-tests"))]
 mod e2e_tests {
-    use super::caller::CallerRef;
-    use dyn_traits::Increment;
-    use ink::{
-        contract_ref,
-        env::DefaultEnvironment,
+    use super::caller::{
+        Caller,
+        CallerRef,
     };
-    use ink_e2e::build_message;
-    use trait_incrementer::incrementer::IncrementerRef;
+    use dyn_traits::Increment;
+    use ink_e2e::ContractsBackend;
+    use trait_incrementer::incrementer::{
+        Incrementer,
+        IncrementerRef,
+    };
 
     type E2EResult<T> = Result<T, Box<dyn std::error::Error>>;
 
@@ -61,8 +63,8 @@ mod e2e_tests {
     /// The test verifies that we can increment the value of the `Incrementer` contract
     /// through the `Caller` contract.
     #[ink_e2e::test(additional_contracts = "contracts/incrementer/Cargo.toml")]
-    async fn e2e_cross_contract_calls(
-        mut client: ink_e2e::Client<C, E>,
+    async fn e2e_cross_contract_calls<Client: E2EBackend>(
+        mut client: Client,
     ) -> E2EResult<()> {
         let _ = client
             .upload("trait-incrementer", &ink_e2e::alice(), None)
@@ -78,15 +80,15 @@ mod e2e_tests {
 
         let constructor = IncrementerRef::new();
 
-        let incrementer_account_id = client
+        let incrementer = client
             .instantiate("trait-incrementer", &ink_e2e::alice(), constructor, 0, None)
             .await
-            .expect("instantiate failed")
-            .account_id;
+            .expect("instantiate failed");
+        let incrementer_call = incrementer.call::<Incrementer>();
 
-        let constructor = CallerRef::new(incrementer_account_id.clone());
+        let constructor = CallerRef::new(incrementer.account_id.clone());
 
-        let caller_account_id = client
+        let caller = client
             .instantiate(
                 "trait-incrementer-caller",
                 &ink_e2e::alice(),
@@ -95,12 +97,11 @@ mod e2e_tests {
                 None,
             )
             .await
-            .expect("instantiate failed")
-            .account_id;
+            .expect("instantiate failed");
+        let mut caller_call = caller.call::<Caller>();
 
         // Check through the caller that the value of the incrementer is zero
-        let get = build_message::<CallerRef>(caller_account_id.clone())
-            .call(|contract| contract.get());
+        let get = caller_call.get();
         let value = client
             .call_dry_run(&ink_e2e::alice(), &get, 0, None)
             .await
@@ -108,20 +109,16 @@ mod e2e_tests {
         assert_eq!(value, 0);
 
         // Increment the value of the incrementer via the caller
-        let inc = build_message::<CallerRef>(caller_account_id.clone())
-            .call(|contract| contract.inc());
+        let inc = caller_call.inc();
         let _ = client
-            .call(&ink_e2e::alice(), inc, 0, None)
+            .call(&ink_e2e::alice(), &inc, 0, None)
             .await
             .expect("calling `inc` failed");
 
         // Ask the `trait-increment` about a value. It should be updated by the caller.
         // Also use `contract_ref!(Increment)` instead of `IncrementerRef`
         // to check that it also works with e2e testing.
-        let get = build_message::<contract_ref!(Increment, DefaultEnvironment)>(
-            incrementer_account_id.clone(),
-        )
-        .call(|contract| contract.get());
+        let get = incrementer_call.get();
         let value = client
             .call_dry_run(&ink_e2e::alice(), &get, 0, None)
             .await

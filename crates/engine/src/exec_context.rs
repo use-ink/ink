@@ -1,4 +1,4 @@
-// Copyright 2018-2022 Parity Technologies (UK) Ltd.
+// Copyright (C) Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -70,6 +70,11 @@ impl ExecContext {
     /// Set the block timestamp for the execution context.
     pub fn set_block_timestamp(&mut self, block_timestamp: BlockTimestamp) {
         self.block_timestamp = block_timestamp
+    }
+
+    /// Set the block number for the execution context.
+    pub fn set_block_number(&mut self, block_number: BlockNumber) {
+        self.block_number = block_number
     }
 }
 

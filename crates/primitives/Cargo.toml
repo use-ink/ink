@@ -1,27 +1,27 @@
 [package]
 name = "ink_primitives"
-version = "4.2.0"
+version.workspace = true
 authors = ["Parity Technologies <admin@parity.io>", "Robin Freyler <robin@parity.io>"]
-edition = "2021"
+edition.workspace = true
 
-license = "Apache-2.0"
+license.workspace = true
 readme = "README.md"
-repository = "https://github.com/paritytech/ink"
+repository.workspace = true
 documentation = "https://docs.rs/ink_primitives/"
-homepage = "https://www.parity.io/"
+homepage.workspace = true
 description = "[ink!] Fundamental primitive types for ink! smart contracts."
-keywords = ["wasm", "parity", "webassembly", "blockchain", "edsl"]
-categories = ["no-std", "embedded"]
+keywords.workspace = true
+categories.workspace = true
 include = ["/Cargo.toml", "src/**/*.rs", "/README.md", "/LICENSE"]
 
 [dependencies]
-derive_more = { version = "0.99", default-features = false, features = ["from", "display"] }
-ink_prelude = { version = "4.2.0", path = "../prelude/", default-features = false }
-scale = { package = "parity-scale-codec", version = "3.4", default-features = false, features = ["derive"] }
-scale-decode = { version = "0.5.0", default-features = false, features = ["derive"], optional = true }
-scale-encode = { version = "0.1.0", default-features = false, features = ["derive"], optional = true }
-scale-info = { version = "2.6", default-features = false, features = ["derive"], optional = true }
-xxhash-rust = { version = "0.8", features = ["const_xxh32"] }
+derive_more = { workspace = true, features = ["from", "display"] }
+ink_prelude = { workspace = true }
+scale = { package = "parity-scale-codec", workspace = true }
+scale-decode = { workspace = true, features = ["derive"], optional = true }
+scale-encode = { workspace = true, features = ["derive"], optional = true }
+scale-info = { workspace = true, features = ["derive"], optional = true }
+xxhash-rust = { workspace = true, features = ["const_xxh32"] }
 
 [features]
 default = ["std"]

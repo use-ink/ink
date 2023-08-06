@@ -1,30 +1,30 @@
 [package]
 name = "ink_ir"
-version = "4.2.0"
+version.workspace = true
 authors = ["Parity Technologies <admin@parity.io>", "Robin Freyler <robin@parity.io>"]
-edition = "2021"
+edition.workspace = true
 
-license = "Apache-2.0"
+license.workspace = true
 readme = "README.md"
-repository = "https://github.com/paritytech/ink"
+repository.workspace = true
 documentation = "https://docs.rs/ink_ir/"
-homepage = "https://www.parity.io/"
+homepage.workspace = true
 description = "data structures and algorithms for ink! intermediate representation"
-keywords = ["wasm", "parity", "webassembly", "blockchain", "edsl"]
-categories = ["no-std", "embedded"]
+keywords.workspace = true
+categories.workspace = true
 include = ["Cargo.toml", "src/**/*.rs", "README.md", "LICENSE"]
 
 [lib]
 name = "ink_ir"
 
 [dependencies]
-quote = "1"
-syn = { version = "2.0", features = ["parsing", "full", "visit", "extra-traits"] }
-proc-macro2 = "1.0"
-itertools = { version = "0.10", default-features = false }
-either = { version = "1.5", default-features = false }
-blake2 = "0.10"
-ink_prelude = { version = "4.1.0", path = "../../prelude/", default-features = false }
+quote = { workspace = true }
+syn = { workspace = true, features = ["parsing", "full", "visit", "extra-traits"] }
+proc-macro2 = { workspace = true }
+itertools = { workspace = true }
+either = { workspace = true }
+blake2 = { workspace = true }
+ink_prelude = { workspace = true }
 
 [features]
 default = ["std"]

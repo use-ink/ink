@@ -106,14 +106,15 @@ pub mod constructors_return_value {
 
     #[cfg(all(test, feature = "e2e-tests"))]
     mod e2e_tests {
-        use super::ConstructorsReturnValueRef;
+        use super::*;
+        use ink_e2e::ContractsBackend;
         use scale::Decode as _;
 
         type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
         #[ink_e2e::test]
-        async fn e2e_infallible_constructor(
-            mut client: ink_e2e::Client<C, E>,
+        async fn e2e_infallible_constructor<Client: E2EBackend>(
+            mut client: Client,
         ) -> E2EResult<()> {
             let constructor = ConstructorsReturnValueRef::new(true);
             let infallible_constructor_result = client
@@ -154,8 +155,8 @@ pub mod constructors_return_value {
         }
 
         #[ink_e2e::test]
-        async fn e2e_fallible_constructor_succeed(
-            mut client: ink_e2e::Client<C, E>,
+        async fn e2e_fallible_constructor_succeed<Client: E2EBackend>(
+            mut client: Client,
         ) -> E2EResult<()> {
             let constructor = ConstructorsReturnValueRef::try_new(true);
             let result = client
@@ -187,7 +188,7 @@ pub mod constructors_return_value {
             );
 
             let constructor = ConstructorsReturnValueRef::try_new(true);
-            let contract_acc_id = client
+            let contract = client
                 .instantiate(
                     "constructors_return_value",
                     &ink_e2e::bob(),
@@ -196,12 +197,10 @@ pub mod constructors_return_value {
                     None,
                 )
                 .await
-                .expect("instantiate failed")
-                .account_id;
+                .expect("instantiate failed");
+            let call = contract.call::<ConstructorsReturnValue>();
 
-            let get =
-                ink_e2e::build_message::<ConstructorsReturnValueRef>(contract_acc_id)
-                    .call(|contract| contract.get_value());
+            let get = call.get_value();
             let value = client
                 .call_dry_run(&ink_e2e::bob(), &get, 0, None)
                 .await
@@ -216,8 +215,8 @@ pub mod constructors_return_value {
         }
 
         #[ink_e2e::test]
-        async fn e2e_fallible_constructor_fails(
-            mut client: ink_e2e::Client<C, E>,
+        async fn e2e_fallible_constructor_fails<Client: E2EBackend>(
+            mut client: Client,
         ) -> E2EResult<()> {
             let constructor = ConstructorsReturnValueRef::try_new(false);
 
@@ -261,7 +260,7 @@ pub mod constructors_return_value {
                 .await;
 
             assert!(
-                matches!(result, Err(ink_e2e::Error::InstantiateExtrinsic(_))),
+                matches!(result, Err(ink_e2e::Error::<ink::env::DefaultEnvironment>::InstantiateExtrinsic(_))),
                 "Constructor should fail"
             );
 

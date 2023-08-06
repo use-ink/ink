@@ -182,15 +182,20 @@ pub mod give_me {
     #[cfg(all(test, feature = "e2e-tests"))]
     mod e2e_tests {
         use super::*;
+        use ink_e2e::{
+            ChainBackend,
+            ContractsBackend,
+        };
+
         type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
         #[ink_e2e::test]
-        async fn e2e_sending_value_to_give_me_must_fail(
-            mut client: ink_e2e::Client<C, E>,
+        async fn e2e_sending_value_to_give_me_must_fail<Client: E2EBackend>(
+            mut client: Client,
         ) -> E2EResult<()> {
             // given
             let constructor = GiveMeRef::new();
-            let contract_acc_id = client
+            let contract = client
                 .instantiate(
                     "contract_transfer",
                     &ink_e2e::alice(),
@@ -199,17 +204,19 @@ pub mod give_me {
                     None,
                 )
                 .await
-                .expect("instantiate failed")
-                .account_id;
+                .expect("instantiate failed");
+            let mut call = contract.call::<GiveMe>();
 
             // when
-            let transfer = ink_e2e::build_message::<GiveMeRef>(contract_acc_id)
-                .call(|contract| contract.give_me(120));
+            let transfer = call.give_me(120);
 
-            let call_res = client.call(&ink_e2e::bob(), transfer, 10, None).await;
+            let call_res = client.call(&ink_e2e::bob(), &transfer, 10, None).await;
 
             // then
-            if let Err(ink_e2e::Error::CallDryRun(dry_run)) = call_res {
+            if let Err(ink_e2e::Error::<ink::env::DefaultEnvironment>::CallDryRun(
+                dry_run,
+            )) = call_res
+            {
                 let debug_message = String::from_utf8_lossy(&dry_run.debug_message);
                 assert!(debug_message.contains("paid an unpayable message"))
             } else {
@@ -219,12 +226,12 @@ pub mod give_me {
         }
 
         #[ink_e2e::test]
-        async fn e2e_contract_must_transfer_value_to_sender(
-            mut client: ink_e2e::Client<C, E>,
+        async fn e2e_contract_must_transfer_value_to_sender<Client: E2EBackend>(
+            mut client: Client,
         ) -> E2EResult<()> {
             // given
             let constructor = GiveMeRef::new();
-            let contract_acc_id = client
+            let contract = client
                 .instantiate(
                     "contract_transfer",
                     &ink_e2e::bob(),
@@ -233,19 +240,19 @@ pub mod give_me {
                     None,
                 )
                 .await
-                .expect("instantiate failed")
-                .account_id;
+                .expect("instantiate failed");
+            let mut call = contract.call::<GiveMe>();
+
             let balance_before: Balance = client
-                .balance(contract_acc_id.clone())
+                .balance(contract.account_id.clone())
                 .await
                 .expect("getting balance failed");
 
             // when
-            let transfer = ink_e2e::build_message::<GiveMeRef>(contract_acc_id)
-                .call(|contract| contract.give_me(120));
+            let transfer = call.give_me(120);
 
             let call_res = client
-                .call(&ink_e2e::eve(), transfer, 0, None)
+                .call(&ink_e2e::eve(), &transfer, 0, None)
                 .await
                 .expect("call failed");
 
@@ -253,7 +260,7 @@ pub mod give_me {
             assert!(call_res.debug_message().contains("requested value: 120\n"));
 
             let balance_after: Balance = client
-                .balance(contract_acc_id)
+                .balance(contract.account_id.clone())
                 .await
                 .expect("getting balance failed");
             assert_eq!(balance_before - balance_after, 120);

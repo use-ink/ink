@@ -18,6 +18,9 @@ error[E0277]: the trait bound `NonCodec: WrapperTypeEncode` is not satisfied
 note: required by a bound in `DispatchOutput`
  --> src/codegen/dispatch/type_check.rs
   |
+  | pub struct DispatchOutput<T>(T)
+  |            -------------- required by a bound in this struct
+  | where
   |     T: scale::Encode + 'static;
   |        ^^^^^^^^^^^^^ required by this bound in `DispatchOutput`
 
@@ -28,14 +31,12 @@ error[E0599]: the method `try_invoke` exists for struct `CallBuilder<E, Set<Call
   | ------------------- doesn't satisfy `NonCodec: parity_scale_codec::Decode`
 ...
 5 |     #[ink(message)]
-  |     ^
-  |     |
-  |     method cannot be called due to unsatisfied trait bounds
+  |     ^ method cannot be called due to unsatisfied trait bounds
   |
   = note: the following trait bounds were not satisfied:
           `NonCodec: parity_scale_codec::Decode`
 note: the trait `parity_scale_codec::Decode` must be implemented
- --> $CARGO/parity-scale-codec-3.4.0/src/codec.rs
+ --> $CARGO/parity-scale-codec-3.6.4/src/codec.rs
   |
   | pub trait Decode: Sized {
   | ^^^^^^^^^^^^^^^^^^^^^^^

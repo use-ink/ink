@@ -1,4 +1,4 @@
-// Copyright 2018-2022 Parity Technologies (UK) Ltd.
+// Copyright (C) Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,6 +17,10 @@
     html_favicon_url = "https://use.ink/crate-docs/favicon.png"
 )]
 #![cfg_attr(not(feature = "std"), no_std)]
+
+#[macro_use]
+#[doc(hidden)]
+pub mod option_info;
 
 #[macro_use]
 #[doc(hidden)]
@@ -70,11 +74,14 @@ pub use ink_macro::{
     blake2x256,
     chain_extension,
     contract,
+    event,
     selector_bytes,
     selector_id,
     storage_item,
     test,
     trait_definition,
+    Event,
+    EventMetadata,
 };
 pub use ink_primitives::{
     ConstructorResult,

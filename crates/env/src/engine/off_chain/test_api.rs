@@ -1,4 +1,4 @@
-// Copyright 2018-2022 Parity Technologies (UK) Ltd.
+// Copyright (C) Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -276,6 +276,16 @@ where
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         instance.engine.set_block_timestamp(value);
+    })
+}
+
+/// Sets the block number for the next [`advance_block`] invocation.
+pub fn set_block_number<T>(value: T::BlockNumber)
+where
+    T: Environment<BlockNumber = u32>,
+{
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        instance.engine.set_block_number(value);
     })
 }
 

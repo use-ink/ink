@@ -46,8 +46,6 @@ mod runtime_call {
         third_topic: Balance,
         #[ink(topic)]
         fourth_topic: Balance,
-        #[ink(topic)]
-        fifth_topic: Balance,
     }
 
     impl Topics {
@@ -67,8 +65,6 @@ mod runtime_call {
     mod tests {
         use super::*;
 
-        type Event = <Topics as ink::reflect::ContractEventBase>::Type;
-
         #[ink::test]
         fn emits_event_with_many_topics() {
             let mut contract = Topics::new();
@@ -77,33 +73,29 @@ mod runtime_call {
             let emitted_events = ink::env::test::recorded_events().collect::<Vec<_>>();
             assert_eq!(emitted_events.len(), 1);
 
-            let emitted_event =
-                <Event as scale::Decode>::decode(&mut &emitted_events[0].data[..])
-                    .expect("encountered invalid contract event data buffer");
+            let emitted_event = <EventWithTopics as scale::Decode>::decode(
+                &mut &emitted_events[0].data[..],
+            );
 
-            assert!(matches!(
-                emitted_event,
-                Event::EventWithTopics(EventWithTopics { .. })
-            ));
+            assert!(emitted_event.is_ok());
         }
     }
 
     #[cfg(all(test, feature = "e2e-tests"))]
     mod e2e_tests {
         use super::*;
-
-        use ink_e2e::MessageBuilder;
+        use ink_e2e::ContractsBackend;
 
         type E2EResult<T> = Result<T, Box<dyn std::error::Error>>;
 
         #[cfg(feature = "permissive-node")]
         #[ink_e2e::test(environment = crate::EnvironmentWithManyTopics)]
-        async fn calling_custom_environment_works(
-            mut client: Client<C, E>,
+        async fn calling_custom_environment_works<Client: E2EBackend>(
+            mut client: Client,
         ) -> E2EResult<()> {
             // given
             let constructor = TopicsRef::new();
-            let contract_acc_id = client
+            let contract = client
                 .instantiate(
                     "custom-environment",
                     &ink_e2e::alice(),
@@ -112,18 +104,14 @@ mod runtime_call {
                     None,
                 )
                 .await
-                .expect("instantiate failed")
-                .account_id;
+                .expect("instantiate failed");
+            let call = contract.call::<Topics>();
 
             // when
-            let message =
-                MessageBuilder::<crate::EnvironmentWithManyTopics, TopicsRef>::from_account_id(
-                    contract_acc_id,
-                )
-                .call(|caller| caller.trigger());
+            let message = call.trigger();
 
             let call_res = client
-                .call(&ink_e2e::alice(), message, 0, None)
+                .call(&ink_e2e::alice(), &message, 0, None)
                 .await
                 .expect("call failed");
 
@@ -135,12 +123,14 @@ mod runtime_call {
 
         #[cfg(not(feature = "permissive-node"))]
         #[ink_e2e::test(environment = crate::EnvironmentWithManyTopics)]
-        async fn calling_custom_environment_fails_if_incompatible_with_node(
-            mut client: Client<C, E>,
+        async fn calling_custom_environment_fails_if_incompatible_with_node<
+            Client: E2EBackend,
+        >(
+            mut client: Client,
         ) -> E2EResult<()> {
             // given
             let constructor = TopicsRef::new();
-            let contract_acc_id = client
+            let contract = client
                 .instantiate(
                     "custom-environment",
                     &ink_e2e::alice(),
@@ -149,14 +139,10 @@ mod runtime_call {
                     None,
                 )
                 .await
-                .expect("instantiate failed")
-                .account_id;
+                .expect("instantiate failed");
+            let mut call = contract.call::<Topics>();
 
-            let message =
-                MessageBuilder::<crate::EnvironmentWithManyTopics, TopicsRef>::from_account_id(
-                    contract_acc_id,
-                )
-                    .call(|caller| caller.trigger());
+            let message = call.trigger();
 
             // when
             let call_res = client

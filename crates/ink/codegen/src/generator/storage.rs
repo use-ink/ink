@@ -1,4 +1,4 @@
-// Copyright 2018-2022 Parity Technologies (UK) Ltd.
+// Copyright (C) Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -33,12 +33,6 @@ impl GenerateCode for Storage<'_> {
         let storage_span = self.contract.module().storage().span();
         let access_env_impls = self.generate_access_env_trait_impls();
         let storage_struct = self.generate_storage_struct();
-        let use_emit_event =
-            self.contract.module().events().next().is_some().then(|| {
-                // Required to allow for `self.env().emit_event(...)` in messages and
-                // constructors.
-                quote! { use ::ink::codegen::EmitEvent as _; }
-            });
         quote_spanned!(storage_span =>
             #storage_struct
             #access_env_impls
@@ -50,7 +44,6 @@ impl GenerateCode for Storage<'_> {
                     Env as _,
                     StaticEnv as _,
                 };
-                #use_emit_event
             };
         )
     }

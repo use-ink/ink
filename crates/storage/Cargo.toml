@@ -1,38 +1,38 @@
 [package]
 name = "ink_storage"
-version = "4.2.0"
+version.workspace = true
 authors = ["Parity Technologies <admin@parity.io>", "Robin Freyler <robin@parity.io>"]
-edition = "2021"
+edition.workspace = true
 
-license = "Apache-2.0"
+license.workspace = true
 readme = "README.md"
-repository = "https://github.com/paritytech/ink"
+repository.workspace = true
 documentation = "https://docs.rs/ink_storage/"
-homepage = "https://www.parity.io/"
+homepage.workspace = true
 description = "[ink!] Data structures to organize and manipulate ink! contract storage."
-keywords = ["wasm", "parity", "webassembly", "blockchain", "edsl"]
-categories = ["no-std", "embedded"]
+keywords.workspace = true
+categories.workspace = true
 include = ["Cargo.toml", "src/**/*.rs", "README.md", "LICENSE"]
 
 [dependencies]
-ink_env = { version = "4.2.0", path = "../env/", default-features = false }
-ink_metadata = { version = "4.2.0", path = "../metadata/", default-features = false, features = ["derive"], optional = true }
-ink_primitives = { version = "4.2.0", path = "../primitives/", default-features = false }
-ink_storage_traits = { version = "4.2.0", path = "traits", default-features = false }
-ink_prelude = { version = "4.2.0", path = "../prelude/", default-features = false }
+ink_env = { workspace = true }
+ink_metadata = { workspace = true, optional = true }
+ink_primitives = { workspace = true }
+ink_storage_traits = { workspace = true }
+ink_prelude = { workspace = true }
 
-scale = { package = "parity-scale-codec", version = "3.4", default-features = false, features = ["derive"] }
-derive_more = { version = "0.99", default-features = false, features = ["from", "display"] }
-scale-info = { version = "2.6", default-features = false, features = ["derive"], optional = true }
-cfg-if = "1.0"
-array-init = { version = "2.0", default-features = false }
+scale = { package = "parity-scale-codec", workspace = true }
+derive_more = { workspace = true, features = ["from", "display"] }
+scale-info = { workspace = true, features = ["derive"], optional = true }
+cfg-if = { workspace = true }
+array-init = { workspace = true }
 
 [dev-dependencies]
-quickcheck = "1.0"
-quickcheck_macros = "1.0"
-itertools = "0.10"
+quickcheck = { workspace = true }
+quickcheck_macros = { workspace = true }
+itertools = { workspace = true, default-features = true }
 
-ink = { path = "../ink" }
+ink = { workspace = true }
 
 [features]
 default = ["std"]

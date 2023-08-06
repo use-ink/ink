@@ -1,4 +1,4 @@
-// Copyright 2018-2022 Parity Technologies (UK) Ltd.
+// Copyright (C) Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -289,4 +289,22 @@ fn setting_getting_block_timestamp() {
     let output = <u64 as scale::Decode>::decode(&mut &output[..16])
         .expect("decoding value transferred failed");
     assert_eq!(output, new_block_timestamp);
+}
+
+#[test]
+fn setting_getting_block_number() {
+    // given
+    let mut engine = Engine::new();
+    let new_block_number: u32 = 1000;
+    let output = &mut &mut get_buffer()[..];
+
+    // when
+    engine.advance_block();
+    engine.set_block_number(new_block_number);
+    engine.block_number(output);
+
+    // then
+    let output = <u32 as scale::Decode>::decode(&mut &output[..16])
+        .expect("decoding value transferred failed");
+    assert_eq!(output, new_block_number);
 }

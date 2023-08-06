@@ -82,8 +82,6 @@ mod runtime_call {
         ///
         /// Fails if:
         ///  - called in the off-chain environment
-        ///  - the chain doesn't allow `call-runtime` API (`UnsafeUnstableInterface` is
-        ///    turned off)
         ///  - the chain forbids contracts to call `Balances::transfer` (`CallFilter` is
         ///    too restrictive)
         ///  - after the transfer, `receiver` doesn't have at least existential deposit
@@ -116,6 +114,10 @@ mod runtime_call {
     #[cfg(all(test, feature = "e2e-tests"))]
     mod e2e_tests {
         use super::*;
+        use ink_e2e::{
+            ChainBackend,
+            ContractsBackend,
+        };
 
         use ink::{
             env::{
@@ -124,7 +126,6 @@ mod runtime_call {
             },
             primitives::AccountId,
         };
-        use ink_e2e::build_message;
 
         type E2EResult<T> = Result<T, Box<dyn std::error::Error>>;
 
@@ -133,7 +134,6 @@ mod runtime_call {
         const UNIT: Balance = 1_000_000_000_000;
 
         /// The contract will be given 1000 tokens during instantiation.
-        #[cfg(feature = "permissive-node")]
         const CONTRACT_BALANCE: Balance = 1_000 * UNIT;
 
         /// The receiver will get enough funds to have the required existential deposit.
@@ -145,21 +145,18 @@ mod runtime_call {
         /// empty account fails.
         ///
         /// Must not be zero, because such an operation would be a successful no-op.
-        #[cfg(feature = "permissive-node")]
         const INSUFFICIENT_TRANSFER_VALUE: Balance = 1;
 
         /// Positive case scenario:
-        ///  - `call_runtime` is enabled
         ///  - the call is valid
         ///  - the call execution succeeds
-        #[cfg(feature = "permissive-node")]
         #[ink_e2e::test]
-        async fn transfer_with_call_runtime_works(
-            mut client: Client<C, E>,
+        async fn transfer_with_call_runtime_works<Client: E2EBackend>(
+            mut client: Client,
         ) -> E2EResult<()> {
             // given
             let constructor = RuntimeCallerRef::new();
-            let contract_acc_id = client
+            let contract = client
                 .instantiate(
                     "call-runtime",
                     &ink_e2e::alice(),
@@ -168,13 +165,13 @@ mod runtime_call {
                     None,
                 )
                 .await
-                .expect("instantiate failed")
-                .account_id;
+                .expect("instantiate failed");
+            let mut call = contract.call::<RuntimeCaller>();
 
             let receiver: AccountId = default_accounts::<DefaultEnvironment>().bob;
 
             let contract_balance_before = client
-                .balance(contract_acc_id)
+                .balance(contract.account_id)
                 .await
                 .expect("Failed to get account balance");
             let receiver_balance_before = client
@@ -183,11 +180,11 @@ mod runtime_call {
                 .expect("Failed to get account balance");
 
             // when
-            let transfer_message = build_message::<RuntimeCallerRef>(contract_acc_id)
-                .call(|caller| caller.transfer_through_runtime(receiver, TRANSFER_VALUE));
+            let transfer_message =
+                call.transfer_through_runtime(receiver, TRANSFER_VALUE);
 
             let call_res = client
-                .call(&ink_e2e::alice(), transfer_message, 0, None)
+                .call(&ink_e2e::alice(), &transfer_message, 0, None)
                 .await
                 .expect("call failed");
 
@@ -195,7 +192,7 @@ mod runtime_call {
 
             // then
             let contract_balance_after = client
-                .balance(contract_acc_id)
+                .balance(contract.account_id)
                 .await
                 .expect("Failed to get account balance");
             let receiver_balance_after = client
@@ -216,17 +213,17 @@ mod runtime_call {
         }
 
         /// Negative case scenario:
-        ///  - `call_runtime` is enabled
         ///  - the call is valid
         ///  - the call execution fails
-        #[cfg(feature = "permissive-node")]
         #[ink_e2e::test]
-        async fn transfer_with_call_runtime_fails_when_execution_fails(
-            mut client: Client<C, E>,
+        async fn transfer_with_call_runtime_fails_when_execution_fails<
+            Client: E2EBackend,
+        >(
+            mut client: Client,
         ) -> E2EResult<()> {
             // given
             let constructor = RuntimeCallerRef::new();
-            let contract_acc_id = client
+            let contract = client
                 .instantiate(
                     "call-runtime",
                     &ink_e2e::alice(),
@@ -235,16 +232,14 @@ mod runtime_call {
                     None,
                 )
                 .await
-                .expect("instantiate failed")
-                .account_id;
+                .expect("instantiate failed");
+            let mut call = contract.call::<RuntimeCaller>();
 
             let receiver: AccountId = default_accounts::<DefaultEnvironment>().bob;
 
             // when
-            let transfer_message = build_message::<RuntimeCallerRef>(contract_acc_id)
-                .call(|caller| {
-                    caller.transfer_through_runtime(receiver, INSUFFICIENT_TRANSFER_VALUE)
-                });
+            let transfer_message =
+                call.transfer_through_runtime(receiver, INSUFFICIENT_TRANSFER_VALUE);
 
             let call_res = client
                 .call_dry_run(&ink_e2e::alice(), &transfer_message, 0, None)
@@ -258,16 +253,16 @@ mod runtime_call {
         }
 
         /// Negative case scenario:
-        ///  - `call_runtime` is enabled
         ///  - the call is invalid
-        #[cfg(feature = "permissive-node")]
         #[ink_e2e::test]
-        async fn transfer_with_call_runtime_fails_when_call_is_invalid(
-            mut client: Client<C, E>,
+        async fn transfer_with_call_runtime_fails_when_call_is_invalid<
+            Client: E2EBackend,
+        >(
+            mut client: Client,
         ) -> E2EResult<()> {
             // given
             let constructor = RuntimeCallerRef::new();
-            let contract_acc_id = client
+            let contract = client
                 .instantiate(
                     "call-runtime",
                     &ink_e2e::alice(),
@@ -276,12 +271,11 @@ mod runtime_call {
                     None,
                 )
                 .await
-                .expect("instantiate failed")
-                .account_id;
+                .expect("instantiate failed");
+            let mut call = contract.call::<RuntimeCaller>();
 
             // when
-            let transfer_message = build_message::<RuntimeCallerRef>(contract_acc_id)
-                .call(|caller| caller.call_nonexistent_extrinsic());
+            let transfer_message = call.call_nonexistent_extrinsic();
 
             let call_res = client
                 .call_dry_run(&ink_e2e::alice(), &transfer_message, 0, None)
@@ -289,37 +283,6 @@ mod runtime_call {
 
             // then
             assert!(call_res.is_err());
-
-            Ok(())
-        }
-
-        /// Negative case scenario:
-        ///  - `call_runtime` is disabled
-        #[cfg(not(feature = "permissive-node"))]
-        #[ink_e2e::test]
-        async fn call_runtime_fails_when_forbidden(
-            mut client: Client<C, E>,
-        ) -> E2EResult<()> {
-            // given
-            let constructor = RuntimeCallerRef::new();
-            let contract_acc_id = client
-                .instantiate("call-runtime", &ink_e2e::alice(), constructor, 0, None)
-                .await
-                .expect("instantiate failed")
-                .account_id;
-
-            let receiver: AccountId = default_accounts::<DefaultEnvironment>().bob;
-
-            let transfer_message = build_message::<RuntimeCallerRef>(contract_acc_id)
-                .call(|caller| caller.transfer_through_runtime(receiver, TRANSFER_VALUE));
-
-            // when
-            let call_res = client
-                .call(&ink_e2e::alice(), transfer_message, 0, None)
-                .await;
-
-            // then
-            assert!(matches!(call_res, Err(ink_e2e::Error::CallExtrinsic(_))));
 
             Ok(())
         }
