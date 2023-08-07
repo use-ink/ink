@@ -1,5 +1,9 @@
 use const_gen::*;
-use std::{env, fs, path::Path};
+use std::{
+    env,
+    fs,
+    path::Path,
+};
 
 fn main() {
     let mut size: usize = 1 << 14;
