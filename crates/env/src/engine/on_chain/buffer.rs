@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+include!(concat!(env!("OUT_DIR"), "/const_gen.rs"));
+
 /// A static buffer with 16 kB of capacity.
 pub struct StaticBuffer {
     /// The static buffer with a total capacity of 16 kB.
@@ -20,7 +22,9 @@ pub struct StaticBuffer {
 
 impl StaticBuffer {
     /// The capacity of the static buffer.
-    const CAPACITY: usize = 1 << 14; // 16 kB
+    /// Usually set to 16kB.
+    /// Can be modified by setting `STATIC_BUFFER_SIZE` environmental variable
+    const CAPACITY: usize = STATIC_BUFFER_SIZE;
 
     /// Creates a new static buffer.
     pub const fn new() -> Self {
