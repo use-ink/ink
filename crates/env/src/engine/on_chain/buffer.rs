@@ -12,18 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// Injected constants from the build script.
 include!(concat!(env!("OUT_DIR"), "/const_gen.rs"));
 
-/// A static buffer with 16 kB of capacity.
+/// A static buffer of variable capacity.
 pub struct StaticBuffer {
-    /// The static buffer with a total capacity of 16 kB.
+    /// A static buffer of variable capacity.
     buffer: [u8; Self::CAPACITY],
 }
 
 impl StaticBuffer {
     /// The capacity of the static buffer.
-    /// Usually set to 16kB.
-    /// Can be modified by setting `STATIC_BUFFER_SIZE` environmental variable
+    /// Usually set to 16 kB.
+    /// Can be modified by setting `STATIC_BUFFER_SIZE` environmental variable.
     const CAPACITY: usize = STATIC_BUFFER_SIZE;
 
     /// Creates a new static buffer.
