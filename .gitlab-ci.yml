@@ -387,7 +387,8 @@ examples-test:
           if [ "$example" = "integration-tests/static-buffer/" ]; then
             STATIC_BUFFER_SIZE=30 cargo test --verbose --manifest-path ${example}/Cargo.toml --features e2e-tests;
           else
-          cargo test --verbose --manifest-path ${example}/Cargo.toml --features e2e-tests;
+            cargo test --verbose --manifest-path ${example}/Cargo.toml --features e2e-tests;
+          fi;
         else
           cargo test --verbose --manifest-path ${example}/Cargo.toml;
         fi;
