@@ -48,7 +48,9 @@ pub mod static_buffer {
         type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
         #[ink_e2e::test]
-        async fn e2e_run_out_of_buffer_memory<Client: E2EBackend>(mut client: Client) -> E2EResult<()> {
+        async fn e2e_run_out_of_buffer_memory<Client: E2EBackend>(
+            mut client: Client,
+        ) -> E2EResult<()> {
             // given
             let constructor = StaticBufferRef::new(false);
             let contract = client
@@ -57,7 +59,7 @@ pub mod static_buffer {
                 .expect("instantiate failed");
             let call = contract.call::<StaticBuffer>();
 
-            //when
+            // when
             let get = call.get_caller();
             // then panics if `STATIC_BUFFER_SIZE` is less than 32 bytes.
             let res = client.call_dry_run(&ink_e2e::bob(), &get, 0, None).await;
