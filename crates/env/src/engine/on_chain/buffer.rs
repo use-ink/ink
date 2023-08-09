@@ -12,15 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-/// A static buffer with 16 kB of capacity.
+use super::STATIC_BUFFER_SIZE;
+
+/// A static buffer with a configurable capacity.
 pub struct StaticBuffer {
-    /// The static buffer with a total capacity of 16 kB.
+    /// The static buffer with configurable capacity.
     buffer: [u8; Self::CAPACITY],
 }
 
 impl StaticBuffer {
     /// The capacity of the static buffer.
-    const CAPACITY: usize = 1 << 14; // 16 kB
+    const CAPACITY: usize = STATIC_BUFFER_SIZE;
 
     /// Creates a new static buffer.
     pub const fn new() -> Self {

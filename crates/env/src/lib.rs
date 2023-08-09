@@ -125,6 +125,7 @@ pub use self::{
         NoChainExtension,
     },
 };
+pub use engine::STATIC_BUFFER_SIZE;
 use ink_primitives::Clear;
 
 cfg_if::cfg_if! {

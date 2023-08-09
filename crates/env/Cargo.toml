@@ -79,3 +79,12 @@ ink-debug = []
 
 # Disable the ink! provided global memory allocator.
 no-allocator = ["ink_allocator/no-allocator"]
+
+# Configurable sizes of the static buffer
+2GB-buffer = []
+1GB-buffer = []
+512MB-buffer = []
+128MB-buffer = []
+1MB-buffer = []
+512kB-buffer = []
+128kB-buffer = []

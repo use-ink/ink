@@ -24,7 +24,10 @@ use self::{
     },
     ext::Error,
 };
-use super::OnInstance;
+use super::{
+    OnInstance,
+    STATIC_BUFFER_SIZE,
+};
 
 /// The on-chain environment.
 pub struct EnvInstance {

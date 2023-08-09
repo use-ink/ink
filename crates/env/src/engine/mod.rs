@@ -31,6 +31,29 @@ use ink_primitives::{
     LangError,
 };
 
+/// Configurable size of the static buffer.
+/// We have preset list of sizes
+/// that developer can leverage in the smart contracts
+pub const STATIC_BUFFER_SIZE: usize = {
+    if cfg!(feature = "2GB-buffer") {
+        1 << 31 // 2 GB
+    } else if cfg!(feature = "1GB-buffer") {
+        1 << 30 // 1 GB
+    } else if cfg!(feature = "512MB-buffer") {
+        1 << 29 // 512 MB
+    } else if cfg!(feature = "128MB-buffer") {
+        1 << 27 // 128 MB
+    } else if cfg!(feature = "1MB-buffer") {
+        1 << 20 // 1 MB
+    } else if cfg!(feature = "512kB-buffer") {
+        1 << 19 // 512 kB
+    } else if cfg!(feature = "128kB-buffer") {
+        1 << 17 // 128 kB
+    } else {
+        1 << 14 // 16 kB
+    }
+};
+
 pub trait OnInstance: EnvBackend + TypedEnvBackend {
     fn on_instance<F, R>(f: F) -> R
     where

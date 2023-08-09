@@ -12,7 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use super::EnvInstance;
+use super::{
+    EnvInstance,
+    STATIC_BUFFER_SIZE,
+};
 use crate::{
     call::{
         Call,
@@ -51,7 +54,7 @@ use ink_storage_traits::Storable;
 /// The capacity of the static buffer.
 /// This is the same size as the ink! on-chain environment. We chose to use the same size
 /// to be as close to the on-chain behavior as possible.
-const BUFFER_SIZE: usize = 1 << 14; // 16 kB
+const BUFFER_SIZE: usize = STATIC_BUFFER_SIZE;
 
 impl CryptoHash for Blake2x128 {
     fn hash(input: &[u8], output: &mut <Self as HashOutput>::Type) {

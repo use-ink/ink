@@ -22,7 +22,10 @@ mod tests;
 
 pub use call_data::CallData;
 
-use super::OnInstance;
+use super::{
+    OnInstance,
+    STATIC_BUFFER_SIZE,
+};
 use crate::Error;
 
 use derive_more::From;
