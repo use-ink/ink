@@ -520,6 +520,21 @@
 <a href="#520" id="520">520</a>
 <a href="#521" id="521">521</a>
 <a href="#522" id="522">522</a>
+<a href="#523" id="523">523</a>
+<a href="#524" id="524">524</a>
+<a href="#525" id="525">525</a>
+<a href="#526" id="526">526</a>
+<a href="#527" id="527">527</a>
+<a href="#528" id="528">528</a>
+<a href="#529" id="529">529</a>
+<a href="#530" id="530">530</a>
+<a href="#531" id="531">531</a>
+<a href="#532" id="532">532</a>
+<a href="#533" id="533">533</a>
+<a href="#534" id="534">534</a>
+<a href="#535" id="535">535</a>
+<a href="#536" id="536">536</a>
+<a href="#537" id="537">537</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -810,6 +825,21 @@
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         pubkey: <span class="kw-2">&amp;</span>[u8; <span class="number">33</span>],
         output: <span class="kw-2">&amp;mut </span>[u8; <span class="number">20</span>],
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt;;
+
+    <span class="doccomment">/// Verifies a sr25519 signature.
+    ///
+    /// # Errors
+    ///
+    /// - If the signature verification failed.
+    ///
+    /// **WARNING**: this function is from the [unstable interface](https://github.com/paritytech/substrate/tree/master/frame/contracts#unstable-interfaces),
+    /// which is unsafe and normally is not available on production chains.
+    </span><span class="kw">fn </span>sr25519_verify(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        signature: <span class="kw-2">&amp;</span>[u8; <span class="number">64</span>],
+        message: <span class="kw-2">&amp;</span>[u8],
+        pub_key: <span class="kw-2">&amp;</span>[u8; <span class="number">32</span>],
     ) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt;;
 
     <span class="doccomment">/// Low-level interface to call a chain extension method.

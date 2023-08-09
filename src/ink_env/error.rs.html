@@ -55,6 +55,8 @@
 <a href="#55" id="55">55</a>
 <a href="#56" id="56">56</a>
 <a href="#57" id="57">57</a>
+<a href="#58" id="58">58</a>
+<a href="#59" id="59">59</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -108,6 +110,8 @@
     </span>CallRuntimeFailed,
     <span class="doccomment">/// ECDSA pubkey recovery failed. Most probably wrong recovery id or signature.
     </span>EcdsaRecoveryFailed,
+    <span class="doccomment">/// sr25519 signature verification failed.
+    </span>Sr25519VerifyFailed,
 }
 
 <span class="doccomment">/// A result of environmental operations.
