@@ -10,6 +10,7 @@ Right now we offer these set of sizes and their corresponding features:
 1GB-buffer = []
 512MB-buffer = []
 128MB-buffer = []
+16MB-buffer = []
 1MB-buffer = []
 512kB-buffer = []
 128kB-buffer = []

@@ -43,6 +43,8 @@ pub const STATIC_BUFFER_SIZE: usize = {
         1 << 29 // 512 MB
     } else if cfg!(feature = "128MB-buffer") {
         1 << 27 // 128 MB
+    } else if cfg!(feature = "16MB-buffer") {
+        1 << 24 // 16 MB
     } else if cfg!(feature = "1MB-buffer") {
         1 << 20 // 1 MB
     } else if cfg!(feature = "512kB-buffer") {
