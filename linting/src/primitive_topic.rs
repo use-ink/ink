@@ -1,4 +1,4 @@
-// Copyright 2018-2023 Parity Technologies (UK) Ltd.
+// Copyright (C) Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -63,9 +63,6 @@ declare_lint! {
     /// `::MIN` and `::MAX`. An example of a case where it doesn't make sense at all to have a
     /// topic on the storage field is something like `value: Balance` in the examle below.
     ///
-    /// **Known problems:** Events 2.0 currently are not supported:
-    /// https://github.com/paritytech/ink/pull/1827.
-    ///
     /// **Example:**
     ///
     /// ```rust
@@ -118,13 +115,13 @@ fn is_topics_function(impl_item: &ImplItemRef) -> bool {
         && impl_item.ident.name.as_str() == "topics"
 }
 
-/// Returns `true` if `ty` is a primitive type that should not be annotated with
+/// Returns `true` if `ty` is a numerical primitive type that should not be annotated with
 /// `#[ink(topic)]`
 fn is_primitive_number_ty(ty: &Ty) -> bool {
     matches!(ty.kind(), ty::Int(_) | ty::Uint(_))
 }
 
-/// Reports field of the event structure
+/// Reports a topic-annotated field with a numerical primitive type
 fn report_field(cx: &LateContext, event_def_id: DefId, field_name: &str) {
     if_chain! {
         if let Some(Node::Item(event_node)) = cx.tcx.hir().get_if_local(event_def_id);
