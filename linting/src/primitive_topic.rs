@@ -103,7 +103,11 @@ declare_lint_pass!(PrimitiveTopic => [PRIMITIVE_TOPIC]);
 /// struct. If that's the case, it returns the name of this struct.
 fn is_ink_event_impl<'tcx>(cx: &LateContext<'tcx>, item: &'tcx Item<'_>) -> bool {
     if let Some(trait_ref) = cx.tcx.impl_trait_ref(item.owner_id) {
-        match_def_path(cx, trait_ref.0.def_id, &["ink_env", "event", "Event"])
+        match_def_path(
+            cx,
+            trait_ref.skip_binder().def_id,
+            &["ink_env", "event", "Event"],
+        )
     } else {
         false
     }
