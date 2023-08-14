@@ -54,8 +54,8 @@ quickcheck_macros = { version = "1" }
 quote = { version = "1" }
 rlibc = { version = "1" }
 scale = { package = "parity-scale-codec", version = "3.4", default-features = false, features = ["derive"] }
-scale-decode = { version = "0.7.0", default-features = false }
-scale-encode = { version = "0.3.0", default-features = false }
+scale-decode = { version = "0.9.0", default-features = false }
+scale-encode = { version = "0.5.0", default-features = false }
 scale-info = { version = "2.6", default-features = false }
 schemars = { version = "0.8" }
 secp256k1 = { version = "0.27.0" }
@@ -64,8 +64,8 @@ serde_json = { version = "1.0.81" }
 sha2 = { version = "0.10" }
 sha3 = { version = "0.10" }
 static_assertions = { version = "1.1" }
-subxt = { version = "0.30.1" }
-subxt-signer = { version = "0.30.1" }
+subxt = { version = "0.31.0" }
+subxt-signer = { version = "0.31.0" }
 syn = { version = "2" }
 synstructure = { version = "0.13.0" }
 tokio = { version = "1.18.2" }
