@@ -76,11 +76,11 @@ which = { version = "4.4.0" }
 xxhash-rust = { version = "0.8" }
 
 # Substrate dependencies
-pallet-contracts-primitives = { version = "24.0.0", default-features = false }
-sp-core = { version = "21.0.0", default-features = false }
-sp-keyring = { version = "24.0.0", default-features = false }
-sp-runtime = { version = "24.0.0", default-features = false }
-sp-weights = { version = "20.0.0", default-features = false }
+pallet-contracts-primitives = { version = "25.0.0", default-features = false }
+sp-core = { version = "22.0.0", default-features = false }
+sp-keyring = { version = "25.0.0", default-features = false }
+sp-runtime = { version = "25.0.0", default-features = false }
+sp-weights = { version = "21.0.0", default-features = false }
 
 # Local dependencies
 ink = { version = "=4.2.0", path = "crates/ink", default-features = false }
