@@ -1,4 +1,4 @@
-// Copyright (C) Parity Technologies (UK) Ltd.
+// Copyright 2018-2022 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -24,11 +24,14 @@ use std::{
         Read,
     },
     process,
+    sync::mpsc,
 };
 use subxt::{
     Config,
     OnlineClient,
 };
+
+use tokio::task;
 
 /// Spawn a local substrate node for testing.
 pub struct TestNodeProcess<R: Config> {
@@ -134,8 +137,12 @@ where
 
         // Wait for RPC port to be logged (it's logged to stderr):
         let stderr = proc.stderr.take().unwrap();
-        let port = find_substrate_port_from_output(stderr);
-        let url = format!("ws://127.0.0.1:{port}");
+        let port_future =
+            tokio::task::spawn_blocking(move || find_substrate_port_from_output(stderr));
+        let port = port_future
+            .await
+            .map_err(|_| "Failed to spawn blocking task".to_string())?;
+        let url = format!("ws://127.0.0.1:{}", port.await);
 
         // Connect to the node with a `subxt` client:
         let client = OnlineClient::from_url(url.clone()).await;
@@ -159,37 +166,53 @@ where
     }
 }
 
-// Consume a stderr reader from a spawned substrate command and
-// locate the port number that is logged out to it.
-fn find_substrate_port_from_output(r: impl Read + Send + 'static) -> u16 {
-    BufReader::new(r)
-        .lines()
-        .find_map(|line| {
-            let line =
-                line.expect("failed to obtain next line from stdout for port discovery");
+/// This function is used to parse the output of the substrate node to find the port
+/// For more details please refer to the PR 1876 write up.
+async fn find_substrate_port_from_output(r: impl Read + Send + 'static) -> u16 {
+    // This creates a channel to communicate the port number back to the main context.
+    let (tx, rx) = mpsc::channel();
 
-            // does the line contain our port (we expect this specific output from
-            // substrate).
-            let line_end = line
-                .rsplit_once("Listening for new connections on 127.0.0.1:")
-                .or_else(|| {
-                    line.rsplit_once("Running JSON-RPC WS server: addr=127.0.0.1:")
-                })
-                .or_else(|| line.rsplit_once("Running JSON-RPC server: addr=127.0.0.1:"))
-                .map(|(_, port_str)| port_str)?;
+    // Using tokio::task to spawn a new task for reading
+    task::spawn_blocking(move || {
+        let port = BufReader::new(r)
+            .lines()
+            .find_map(|line| {
+                let line = line
+                    .expect("failed to obtain next line from stdout for port discovery");
 
-            // trim non-numeric chars from the end of the port part of the line.
-            let port_str = line_end.trim_end_matches(|b: char| !b.is_ascii_digit());
+                // does the line contain our port (we expect this specific output from
+                // substrate).
+                let line_end = line
+                    .rsplit_once("Listening for new connections on 127.0.0.1:")
+                    .or_else(|| {
+                        line.rsplit_once("Running JSON-RPC WS server: addr=127.0.0.1:")
+                    })
+                    .or_else(|| {
+                        line.rsplit_once(r"Running JSON-RPC server: addr=127.0.0.1:")
+                    })
+                    .map(|(_, port_str)| port_str)?;
 
-            // expect to have a number here (the chars after '127.0.0.1:') and parse them
-            // into a u16.
-            let port_num = port_str.parse().unwrap_or_else(|_| {
-                panic!("valid port expected for tracing line, got '{port_str}'")
-            });
+                // trim non-numeric chars from the end of the port part of the line.
+                let port_str = line_end.trim_end_matches(|b: char| !b.is_ascii_digit());
 
-            Some(port_num)
-        })
-        .expect("We should find a port before the reader ends")
+                // expect to have a number here (the chars after '127.0.0.1:') and parse
+                // them into a u16.
+                let port_num = port_str.parse().unwrap_or_else(|_| {
+                    panic!("valid port expected for tracing line, got '{port_str}'")
+                });
+
+                Some(port_num)
+            })
+            .expect("We should find a port before the reader ends");
+
+        // This sends the port via the channel
+        tx.send(port)
+            .expect("Failed to send port from the reader task");
+    });
+
+    // This receives the port from the channel
+    rx.recv()
+        .expect("Failed to receive port from the reader task")
 }
 
 #[cfg(test)]
