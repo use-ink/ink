@@ -78,53 +78,7 @@ impl InkE2ETest {
             .environment()
             .unwrap_or_else(|| syn::parse_quote! { ::ink::env::DefaultEnvironment });
 
-        let contract_manifests = ContractManifests::from_cargo_metadata();
-
-        let contracts_to_build_and_import =
-            if self.test.config.additional_contracts().is_empty() {
-                contract_manifests.all_contracts_to_build()
-            } else {
-                // backwards compatibility if `additional_contracts` specified
-                let mut additional_contracts: Vec<String> =
-                    self.test.config.additional_contracts();
-                let mut contracts_to_build_and_import: Vec<String> =
-                    contract_manifests.root_package.iter().cloned().collect();
-                contracts_to_build_and_import.append(&mut additional_contracts);
-                contracts_to_build_and_import
-            };
-
-        let mut already_built_contracts = already_built_contracts();
-        if already_built_contracts.is_empty() {
-            // Build all of them for the first time and initialize everything
-            BUILD_ONCE.call_once(|| {
-                tracing_subscriber::fmt::init();
-                for manifest_path in contracts_to_build_and_import {
-                    let dest_wasm = build_contract(&manifest_path);
-                    let _ = already_built_contracts.insert(manifest_path, dest_wasm);
-                }
-                set_already_built_contracts(already_built_contracts.clone());
-            });
-        } else if !already_built_contracts.is_empty() {
-            // Some contracts have already been built and we check if the
-            // `additional_contracts` for this particular test contain ones
-            // that haven't been build before
-            for manifest_path in contracts_to_build_and_import {
-                if already_built_contracts.get(&manifest_path).is_none() {
-                    let dest_wasm = build_contract(&manifest_path);
-                    let _ = already_built_contracts.insert(manifest_path, dest_wasm);
-                }
-            }
-            set_already_built_contracts(already_built_contracts.clone());
-        }
-
-        assert!(
-            !already_built_contracts.is_empty(),
-            "built contract artifacts must exist here"
-        );
-
-        let contracts = already_built_contracts.values().map(|wasm_path| {
-            quote! { #wasm_path }
-        });
+        let additional_contracts = self.test.config.additional_contracts();
 
         const DEFAULT_CONTRACTS_NODE: &str = "substrate-contracts-node";
 
@@ -171,12 +125,14 @@ impl InkE2ETest {
                             ::core::panic!("Error spawning substrate-contracts-node: {:?}", err)
                         );
 
+                    let contracts = ::ink_e2e::build_contracts([ #( #additional_contracts ),* ]);
+
                     let mut client = ::ink_e2e::Client::<
                         ::ink_e2e::PolkadotConfig,
                         #environment
                     >::new(
                         node_proc.client(),
-                        [ #( #contracts ),* ]
+                        contracts,
                     ).await;
 
                     let __ret = {

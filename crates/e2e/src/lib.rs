@@ -40,6 +40,7 @@ pub use contract_results::{
     InstantiationResult,
     UploadResult,
 };
+pub use contract_build::build_contracts;
 pub use ink_e2e_macro::test;
 pub use node_proc::{
     TestNodeProcess,

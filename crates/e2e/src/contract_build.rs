@@ -27,89 +27,53 @@ use contract_build::{
 };
 use std::collections::HashMap;
 
-/// Build contracts for E2E testing
-pub struct ContractBuildContext {
-    contracts: Vec<String>,
-}
+// todo: [AJ] should this be two different methods or use an Option instead of checking additional_contracts.is_empty()
+pub fn build_contracts<'a>(additional_contracts: impl IntoIterator<Item = &'a str>) -> Vec<String> {
+    let cmd = cargo_metadata::MetadataCommand::new();
+    let metadata = cmd
+        .exec()
+        .unwrap_or_else(|err| panic!("Error invoking `cargo metadata`: {}", err));
 
-impl ContractBuildContext {
-    pub fn new<'a>(additional_contracts: impl IntoIterator<Item = &'a str>) -> Self {
-        let manifests =
-            if additional_contracts.is_empty() {
-                ContractManifests::from_cargo_metadata().all_contracts_to_build()
-            } else {
-                additional_contracts.into_iter().map(|path| path.to_string()).collect()
-            };
-        Self { manifests }
+    fn maybe_contract_package(package: &cargo_metadata::Package) -> Option<String> {
+        package
+            .features
+            .iter()
+            .any(|(feat, _)| feat == "ink-as-dependency")
+            .then(|| package.manifest_path.to_string())
     }
 
-    pub fn build_contracts(&self) -> HashMap<String, String> {
-        self.manifests
-            .all_contracts_to_build()
-            .into_iter()
-            .map(build_contract)
-            .collect()
-    }
-}
-
-#[derive(Debug)]
-struct ContractManifests {
-    /// The manifest path of the root package where the E2E test is defined.
-    /// `None` if the root package is not an `ink!` contract definition.
-    root_package: Option<String>,
-    /// The manifest paths of any dependencies which are `ink!` contracts.
-    contract_dependencies: Vec<String>,
-}
-
-impl ContractManifests {
-    /// Load any manifests for packages which are detected to be `ink!` contracts. Any
-    /// package with the `ink-as-dependency` feature enabled is assumed to be an
-    /// `ink!` contract.
-    fn from_cargo_metadata() -> Self {
-        let cmd = cargo_metadata::MetadataCommand::new();
-        let metadata = cmd
-            .exec()
-            .unwrap_or_else(|err| panic!("Error invoking `cargo metadata`: {}", err));
-
-        fn maybe_contract_package(package: &cargo_metadata::Package) -> Option<String> {
-            package
-                .features
+    let root_package = metadata
+        .resolve
+        .as_ref()
+        .and_then(|resolve| resolve.root.as_ref())
+        .and_then(|root_package_id| {
+            metadata
+                .packages
                 .iter()
-                .any(|(feat, _)| feat == "ink-as-dependency")
-                .then(|| package.manifest_path.to_string())
-        }
+                .find(|package| &package.id == root_package_id)
+        })
+        .and_then(maybe_contract_package);
 
-        let root_package = metadata
-            .resolve
-            .as_ref()
-            .and_then(|resolve| resolve.root.as_ref())
-            .and_then(|root_package_id| {
-                metadata
-                    .packages
-                    .iter()
-                    .find(|package| &package.id == root_package_id)
-            })
-            .and_then(maybe_contract_package);
+    let mut all_manifests: Vec<String> = root_package.iter().cloned().collect();
 
-        let contract_dependencies = metadata
+    if additional_contracts.is_empty() {
+        let mut contract_dependencies = metadata
             .packages
             .iter()
             .filter_map(maybe_contract_package)
             .collect();
-
-        Self {
-            root_package,
-            contract_dependencies,
+        all_manifests.append(&mut contract_dependencies.clone());
+    } else {
+        for additional_contract in additional_contracts {
+            all_manifests.push(additional_contract.to_string())
         }
-    }
+    };
 
-    /// Returns all the contract manifests which are to be built, including the root
-    /// package if it is determined to be an `ink!` contract.
-    fn all_contracts_to_build(&self) -> Vec<String> {
-        let mut all_manifests: Vec<String> = self.root_package.iter().cloned().collect();
-        all_manifests.append(&mut self.contract_dependencies.clone());
-        all_manifests
-    }
+    all_manifests
+        .all_contracts_to_build()
+        .into_iter()
+        .map(build_contract)
+        .collect()
 }
 
 /// Builds the contract at `manifest_path`, returns the path to the contract
