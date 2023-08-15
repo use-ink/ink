@@ -182,11 +182,16 @@ pub mod give_me {
     #[cfg(all(test, feature = "e2e-tests"))]
     mod e2e_tests {
         use super::*;
+        use ink_e2e::{
+            ChainBackend,
+            ContractsBackend,
+        };
+
         type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
         #[ink_e2e::test]
-        async fn e2e_sending_value_to_give_me_must_fail(
-            mut client: ink_e2e::Client<C, E>,
+        async fn e2e_sending_value_to_give_me_must_fail<Client: E2EBackend>(
+            mut client: Client,
         ) -> E2EResult<()> {
             // given
             let constructor = GiveMeRef::new();
@@ -221,8 +226,8 @@ pub mod give_me {
         }
 
         #[ink_e2e::test]
-        async fn e2e_contract_must_transfer_value_to_sender(
-            mut client: ink_e2e::Client<C, E>,
+        async fn e2e_contract_must_transfer_value_to_sender<Client: E2EBackend>(
+            mut client: Client,
         ) -> E2EResult<()> {
             // given
             let constructor = GiveMeRef::new();

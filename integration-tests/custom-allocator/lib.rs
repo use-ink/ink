@@ -107,13 +107,14 @@ mod custom_allocator {
     #[cfg(all(test, feature = "e2e-tests"))]
     mod e2e_tests {
         use super::*;
+        use ink_e2e::ContractsBackend;
 
         type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
         /// We test that we can upload and instantiate the contract using its default
         /// constructor.
         #[ink_e2e::test]
-        async fn default_works(mut client: ink_e2e::Client<C, E>) -> E2EResult<()> {
+        async fn default_works<Client: E2EBackend>(mut client: Client) -> E2EResult<()> {
             // Given
             let constructor = CustomAllocatorRef::default();
 
@@ -135,7 +136,7 @@ mod custom_allocator {
         /// We test that we can read and write a value from the on-chain contract
         /// contract.
         #[ink_e2e::test]
-        async fn it_works(mut client: ink_e2e::Client<C, E>) -> E2EResult<()> {
+        async fn it_works<Client: E2EBackend>(mut client: Client) -> E2EResult<()> {
             // Given
             let constructor = CustomAllocatorRef::new(false);
             let contract = client

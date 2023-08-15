@@ -19,19 +19,20 @@
     html_favicon_url = "https://use.ink/crate-docs/favicon.png"
 )]
 
+mod backend;
 mod builders;
-mod client;
 mod contract_build;
 mod contract_results;
 mod error;
 pub mod events;
 mod node_proc;
+mod subxt_client;
 mod xts;
 
-pub use client::{
-    CallBuilderFinal,
-    Client,
-    Error,
+pub use backend::{
+    ChainBackend,
+    ContractsBackend,
+    E2EBackend,
 };
 pub use contract_results::{
     CallDryRunResult,
@@ -47,6 +48,11 @@ pub use node_proc::{
 pub use sp_core::H256;
 pub use sp_keyring::AccountKeyring;
 pub use subxt;
+pub use subxt_client::{
+    CallBuilderFinal,
+    Client,
+    Error,
+};
 pub use subxt_signer::sr25519::{
     self,
     dev::*,
