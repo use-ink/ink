@@ -51,6 +51,8 @@ pub enum Error {
     CallRuntimeFailed,
     /// ECDSA pubkey recovery failed. Most probably wrong recovery id or signature.
     EcdsaRecoveryFailed,
+    /// sr25519 signature verification failed.
+    Sr25519VerifyFailed,
 }
 
 /// A result of environmental operations.

@@ -218,7 +218,7 @@ impl ContractManifests {
         let cmd = cargo_metadata::MetadataCommand::new();
         let metadata = cmd
             .exec()
-            .unwrap_or_else(|err| panic!("Error invoking `cargo metadata`: {}", err));
+            .unwrap_or_else(|err| panic!("Error invoking `cargo metadata`: {err}"));
 
         fn maybe_contract_package(package: &cargo_metadata::Package) -> Option<String> {
             package
@@ -293,7 +293,7 @@ fn build_contract(path_to_cargo_toml: &str) -> String {
         output_type: OutputType::HumanReadable,
         skip_wasm_validation: false,
         target: Target::Wasm,
-        ..ExecuteArgs::default()
+        ..Default::default()
     };
 
     match contract_build::execute(args) {

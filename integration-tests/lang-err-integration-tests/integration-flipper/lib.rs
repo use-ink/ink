@@ -67,11 +67,13 @@ pub mod integration_flipper {
     #[cfg(all(test, feature = "e2e-tests"))]
     mod e2e_tests {
         use super::*;
+        use ink_e2e::ContractsBackend;
+
         type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
         #[ink_e2e::test]
-        async fn e2e_can_flip_correctly(
-            mut client: ink_e2e::Client<C, E>,
+        async fn e2e_can_flip_correctly<Client: E2EBackend>(
+            mut client: Client,
         ) -> E2EResult<()> {
             let constructor = FlipperRef::new_default();
             let flipper = client
@@ -112,8 +114,8 @@ pub mod integration_flipper {
         }
 
         #[ink_e2e::test]
-        async fn e2e_message_error_reverts_state(
-            mut client: ink_e2e::Client<C, E>,
+        async fn e2e_message_error_reverts_state<Client: E2EBackend>(
+            mut client: Client,
         ) -> E2EResult<()> {
             let constructor = FlipperRef::new_default();
             let flipper = client
