@@ -6,7 +6,7 @@ can be be configured using the environmental variables.
 Simply, run:
 ```bash
 cargo clean
-STATIC_BUFFER_SIZE=30 cargo test -F e2e-tests
+INK_STATIC_BUFFER_SIZE=30 cargo test -F e2e-tests
 ```
 
 This will configure the buffer to have enough space to instantiate the contract,

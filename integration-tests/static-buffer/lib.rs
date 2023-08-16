@@ -61,7 +61,7 @@ pub mod static_buffer {
 
             // when
             let get = call.get_caller();
-            // then panics if `STATIC_BUFFER_SIZE` is less than 32 bytes.
+            // then panics if `INK_STATIC_BUFFER_SIZE` is less than 32 bytes.
             let res = client.call_dry_run(&ink_e2e::bob(), &get, 0, None).await;
             assert!(res.is_err());
 
