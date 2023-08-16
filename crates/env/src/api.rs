@@ -550,6 +550,43 @@ pub fn ecdsa_to_eth_address(pubkey: &[u8; 33], output: &mut [u8; 20]) -> Result<
     })
 }
 
+/// Verifies a sr25519 signature.
+///
+/// # Example
+///
+/// ```
+/// let signature: [u8; 64] = [
+///     184, 49, 74, 238, 78, 165, 102, 252, 22, 92, 156, 176, 124, 118, 168, 116, 247,
+///     99, 0, 94, 2, 45, 9, 170, 73, 222, 182, 74, 60, 32, 75, 64, 98, 174, 69, 55, 83,
+///     85, 180, 98, 208, 75, 231, 57, 205, 62, 4, 105, 26, 136, 172, 17, 123, 99, 90,
+///     255, 228, 54, 115, 63, 30, 207, 205, 131,
+/// ];
+/// let message: &[u8; 11] = b"hello world";
+/// let pub_key: [u8; 32] = [
+///     212, 53, 147, 199, 21, 253, 211, 28, 97, 20, 26, 189, 4, 169, 159, 214, 130, 44,
+///     133, 88, 133, 76, 205, 227, 154, 86, 132, 231, 165, 109, 162, 125,
+/// ];
+///
+/// let result = ink::env::sr25519_verify(&signature, message.as_slice(), &pub_key);
+/// assert!(result.is_ok())
+/// ```
+///
+/// # Errors
+///
+/// - If sr25519 signature cannot be verified.
+///
+/// **WARNING**: this function is from the [unstable interface](https://github.com/paritytech/substrate/tree/master/frame/contracts#unstable-interfaces),
+/// which is unsafe and normally is not available on production chains.
+pub fn sr25519_verify(
+    signature: &[u8; 64],
+    message: &[u8],
+    pub_key: &[u8; 32],
+) -> Result<()> {
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        instance.sr25519_verify(signature, message, pub_key)
+    })
+}
+
 /// Checks whether the specified account is a contract.
 ///
 /// # Errors

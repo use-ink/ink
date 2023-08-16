@@ -43,7 +43,7 @@ funty = { version = "2.0.0" }
 heck = { version = "0.4.0" }
 impl-serde = { version = "0.4.0", default-features = false }
 itertools = { version = "0.11", default-features = false }
-jsonrpsee = { version = "0.19.0" }
+jsonrpsee = { version = "0.20.0" }
 linkme = { version = "0.3.9" }
 num-traits = { version = "0.2", default-features = false }
 paste = { version = "1.0" }
@@ -54,8 +54,8 @@ quickcheck_macros = { version = "1" }
 quote = { version = "1" }
 rlibc = { version = "1" }
 scale = { package = "parity-scale-codec", version = "3.4", default-features = false, features = ["derive"] }
-scale-decode = { version = "0.7.0", default-features = false }
-scale-encode = { version = "0.3.0", default-features = false }
+scale-decode = { version = "0.9.0", default-features = false }
+scale-encode = { version = "0.5.0", default-features = false }
 scale-info = { version = "2.6", default-features = false }
 schemars = { version = "0.8" }
 secp256k1 = { version = "0.27.0" }
@@ -64,8 +64,8 @@ serde_json = { version = "1.0.81" }
 sha2 = { version = "0.10" }
 sha3 = { version = "0.10" }
 static_assertions = { version = "1.1" }
-subxt = { version = "0.30.1" }
-subxt-signer = { version = "0.30.1" }
+subxt = { version = "0.31.0" }
+subxt-signer = { version = "0.31.0" }
 syn = { version = "2" }
 synstructure = { version = "0.13.0" }
 tokio = { version = "1.18.2" }
@@ -76,11 +76,11 @@ which = { version = "4.4.0" }
 xxhash-rust = { version = "0.8" }
 
 # Substrate dependencies
-pallet-contracts-primitives = { version = "24.0.0", default-features = false }
-sp-core = { version = "21.0.0", default-features = false }
-sp-keyring = { version = "24.0.0", default-features = false }
-sp-runtime = { version = "24.0.0", default-features = false }
-sp-weights = { version = "20.0.0", default-features = false }
+pallet-contracts-primitives = { version = "25.0.0", default-features = false }
+sp-core = { version = "22.0.0", default-features = false }
+sp-keyring = { version = "25.0.0", default-features = false }
+sp-runtime = { version = "25.0.0", default-features = false }
+sp-weights = { version = "21.0.0", default-features = false }
 
 # Local dependencies
 ink = { version = "=4.2.0", path = "crates/ink", default-features = false }

@@ -290,6 +290,21 @@ pub trait EnvBackend {
         output: &mut [u8; 20],
     ) -> Result<()>;
 
+    /// Verifies a sr25519 signature.
+    ///
+    /// # Errors
+    ///
+    /// - If the signature verification failed.
+    ///
+    /// **WARNING**: this function is from the [unstable interface](https://github.com/paritytech/substrate/tree/master/frame/contracts#unstable-interfaces),
+    /// which is unsafe and normally is not available on production chains.
+    fn sr25519_verify(
+        &mut self,
+        signature: &[u8; 64],
+        message: &[u8],
+        pub_key: &[u8; 32],
+    ) -> Result<()>;
+
     /// Low-level interface to call a chain extension method.
     ///
     /// Returns the output of the chain extension of the specified type.

@@ -47,6 +47,10 @@ use ink_engine::{
     ext::Engine,
 };
 use ink_storage_traits::Storable;
+use schnorrkel::{
+    PublicKey,
+    Signature,
+};
 
 /// The capacity of the static buffer.
 /// This is the same size as the ink! on-chain environment. We chose to use the same size
@@ -115,6 +119,7 @@ impl From<ext::Error> for crate::Error {
             ext::Error::NotCallable => Self::NotCallable,
             ext::Error::LoggingDisabled => Self::LoggingDisabled,
             ext::Error::EcdsaRecoveryFailed => Self::EcdsaRecoveryFailed,
+            ext::Error::Sr25519VerifyFailed => Self::Sr25519VerifyFailed,
         }
     }
 }
@@ -327,6 +332,28 @@ impl EnvBackend for EnvInstance {
         <Keccak256>::hash(&uncompressed[1..], &mut hash);
         output.as_mut().copy_from_slice(&hash[12..]);
         Ok(())
+    }
+
+    fn sr25519_verify(
+        &mut self,
+        signature: &[u8; 64],
+        message: &[u8],
+        pub_key: &[u8; 32],
+    ) -> Result<()> {
+        // the context associated with the signing (specific to the sr25519 algorithm)
+        // defaults to "substrate" in substrate, but could be different elsewhere
+        // https://github.com/paritytech/substrate/blob/c32f5ed2ae6746d6f791f08cecbfc22fa188f5f9/primitives/core/src/sr25519.rs#L60
+        let context = b"substrate";
+        // attempt to parse a signature from bytes
+        let signature: Signature =
+            Signature::from_bytes(signature).map_err(|_| Error::Sr25519VerifyFailed)?;
+        // attempt to parse a public key from bytes
+        let public_key: PublicKey =
+            PublicKey::from_bytes(pub_key).map_err(|_| Error::Sr25519VerifyFailed)?;
+        // verify the signature
+        public_key
+            .verify_simple(context, message, &signature)
+            .map_err(|_| Error::Sr25519VerifyFailed)
     }
 
     fn call_chain_extension<I, T, E, ErrorCode, F, D>(
