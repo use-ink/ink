@@ -1,17 +1,15 @@
 use const_gen::*;
-use std::{
-    env,
-    fs,
-    path::Path,
-};
+use std::{env, fs, path::Path};
 
 fn main() {
     // Default size of the buffer: 16 kB.
     let mut size: usize = 1 << 14;
     // if environmental variable is present we update the size.
-    if let Ok(size_str) = std::env::var("STATIC_BUFFER_SIZE") {
+    if let Ok(size_str) = std::env::var("INK_STATIC_BUFFER_SIZE") {
         if let Ok(new_size) = size_str.parse::<usize>() {
             size = new_size;
+        } else {
+            eprintln!("INK_STATIC_BUFFER_SIZE variable has been set an incorrect value!")
         }
     }
     let out_dir = env::var_os("OUT_DIR").unwrap();
