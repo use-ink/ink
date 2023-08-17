@@ -38,6 +38,8 @@ cargo_metadata = { version = "0.17.0" }
 cfg-if = { version = "1.0" }
 contract-build = { version = "4.0.0-alpha" }
 derive_more = { version = "0.99.17", default-features = false }
+drink = { version = "0.1.1" }
+#drink = { git = "https://github.com/Cardinal-Cryptography/drink", branch = "ink" }
 either = { version = "1.5", default-features = false }
 funty = { version = "2.0.0" }
 heck = { version = "0.4.0" }
@@ -72,6 +74,7 @@ tokio = { version = "1.18.2" }
 tracing = { version = "0.1.37" }
 tracing-subscriber = { version = "0.3.17" }
 trybuild = { version = "1.0.60" }
+wasm-instrument = { version = "0.4.0", features = ["sign_ext"] }
 which = { version = "4.4.0" }
 xxhash-rust = { version = "0.8" }
 
