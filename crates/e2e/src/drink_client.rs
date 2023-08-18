@@ -1,17 +1,7 @@
-use crate::{
-    builders::{
-        constructor_exec_input,
-        CreateBuilderPartial,
-    },
-    log_info,
-    CallBuilderFinal,
-    CallDryRunResult,
-    CallResult,
-    ChainBackend,
-    ContractsBackend,
-    InstantiationResult,
-    UploadResult,
-};
+use crate::{builders::{
+    constructor_exec_input,
+    CreateBuilderPartial,
+}, log_info, CallBuilderFinal, CallDryRunResult, CallResult, ChainBackend, ContractsBackend, InstantiationResult, UploadResult, log_error};
 use drink::{
     chain_api::ChainApi,
     contract_api::ContractApi,
@@ -21,16 +11,12 @@ use drink::{
 };
 use ink_env::Environment;
 use jsonrpsee::core::async_trait;
-use pallet_contracts_primitives::{ContractInstantiateResult, ContractResult};
+use pallet_contracts_primitives::{ ContractInstantiateResult, ContractResult};
 use scale::{
     Decode,
     Encode,
 };
-use sp_core::{
-    crypto::AccountId32,
-    sr25519::Pair,
-    Pair as _,
-};
+use sp_core::{crypto::AccountId32, sr25519::Pair, Pair as _, H256};
 use std::{
     collections::BTreeMap,
     path::PathBuf,
@@ -141,7 +127,7 @@ impl ChainBackend for Client {
 #[async_trait]
 impl<E> ContractsBackend<E> for Client
 where
-    E: Environment<AccountId = AccountId32, Balance = u128> + 'static,
+    E: Environment<AccountId = AccountId32, Balance = u128, Hash = H256> + 'static,
 {
     type Actor = AccountId32;
     type Error = ();
@@ -198,11 +184,28 @@ where
 
     async fn upload(
         &mut self,
-        _contract_name: &str,
-        _caller: &Self::Actor,
+        contract_name: &str,
+        caller: &Self::Actor,
         _storage_deposit_limit: Option<E::Balance>,
     ) -> Result<UploadResult<E, Self::EventLog>, Self::Error> {
-        todo!()
+        let code = self.load_code(contract_name);
+
+        let result = match self.session.contracts_api().upload_contract(
+            code,
+            caller.clone(),
+        ) {
+            Ok(result) => result,
+            Err(err) => {
+                log_error(&format!("Upload failed: {err:?}"));
+                return Err(()); // todo: make a proper error type
+            },
+        };
+
+        Ok(UploadResult {
+            code_hash: result.code_hash,
+            dry_run: Ok(result),
+            events: (),
+        })
     }
 
     async fn call<Args: Sync + Encode, RetType: Send + Decode>(
