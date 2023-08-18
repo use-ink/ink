@@ -1823,7 +1823,7 @@ where
     TypeSpec<F>: Default,
     EnvironmentSpec<F>: Default,
 {
-    /// Sets the `MAX_EVENT_TOPICS` value of the environment.
+    /// Sets the size of the static buffer configured via environment variable.`
     pub fn static_buffer_size(
         self,
         static_buffer_size: usize,
