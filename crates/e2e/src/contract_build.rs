@@ -13,22 +13,24 @@
 // limitations under the License.
 
 use contract_build::{
-    ManifestPath,
-    Target,
     BuildArtifacts,
     BuildMode,
     ExecuteArgs,
     Features,
+    ManifestPath,
     Network,
     OptimizationPasses,
     OutputType,
+    Target,
     UnstableFlags,
     Verbosity,
 };
-use std::collections::HashMap;
 
-// todo: [AJ] should this be two different methods or use an Option instead of checking additional_contracts.is_empty()
-pub fn build_contracts<'a>(additional_contracts: impl IntoIterator<Item = &'a str>) -> Vec<String> {
+// todo: [AJ] should this be two different methods or use an Option instead of checking
+// additional_contracts.is_empty()
+pub fn build_contracts<'a>(
+    additional_contracts: impl IntoIterator<Item = &'a str>,
+) -> Vec<String> {
     let cmd = cargo_metadata::MetadataCommand::new();
     let metadata = cmd
         .exec()
@@ -55,24 +57,25 @@ pub fn build_contracts<'a>(additional_contracts: impl IntoIterator<Item = &'a st
         .and_then(maybe_contract_package);
 
     let mut all_manifests: Vec<String> = root_package.iter().cloned().collect();
+    let mut additional_contracts: Vec<String> = additional_contracts
+        .into_iter()
+        .map(ToOwned::to_owned)
+        .collect();
 
     if additional_contracts.is_empty() {
-        let mut contract_dependencies = metadata
+        let contract_dependencies: Vec<String> = metadata
             .packages
             .iter()
             .filter_map(maybe_contract_package)
             .collect();
         all_manifests.append(&mut contract_dependencies.clone());
     } else {
-        for additional_contract in additional_contracts {
-            all_manifests.push(additional_contract.to_string())
-        }
+        all_manifests.append(&mut additional_contracts);
     };
 
     all_manifests
-        .all_contracts_to_build()
-        .into_iter()
-        .map(build_contract)
+        .iter()
+        .map(|manifest| build_contract(manifest))
         .collect()
 }
 

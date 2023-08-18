@@ -29,6 +29,7 @@ mod node_proc;
 mod subxt_client;
 mod xts;
 
+pub use crate::contract_build::build_contracts;
 pub use backend::{
     ChainBackend,
     ContractsBackend,
@@ -40,7 +41,6 @@ pub use contract_results::{
     InstantiationResult,
     UploadResult,
 };
-pub use contract_build::build_contracts;
 pub use ink_e2e_macro::test;
 pub use node_proc::{
     TestNodeProcess,
