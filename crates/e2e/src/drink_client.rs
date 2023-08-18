@@ -21,7 +21,7 @@ use drink::{
 };
 use ink_env::Environment;
 use jsonrpsee::core::async_trait;
-use pallet_contracts_primitives::ContractInstantiateResult;
+use pallet_contracts_primitives::{ContractInstantiateResult, ContractResult};
 use scale::{
     Decode,
     Encode,
@@ -198,9 +198,9 @@ where
 
     async fn upload(
         &mut self,
-        contract_name: &str,
-        caller: &Self::Actor,
-        storage_deposit_limit: Option<E::Balance>,
+        _contract_name: &str,
+        _caller: &Self::Actor,
+        _storage_deposit_limit: Option<E::Balance>,
     ) -> Result<UploadResult<E, Self::EventLog>, Self::Error> {
         todo!()
     }
@@ -209,13 +209,37 @@ where
         &mut self,
         caller: &Self::Actor,
         message: &CallBuilderFinal<E, Args, RetType>,
-        value: E::Balance,
-        storage_deposit_limit: Option<E::Balance>,
+        _value: E::Balance,
+        _storage_deposit_limit: Option<E::Balance>,
     ) -> Result<CallResult<E, RetType, Self::EventLog>, Self::Error>
     where
         CallBuilderFinal<E, Args, RetType>: Clone,
     {
-        todo!()
+        let account_id = message.clone().params().callee().clone();
+        let exec_input = Encode::encode(message.clone().params().exec_input());
+
+        let result = self.session.contracts_api().call_contract(
+            account_id,
+            exec_input,
+            caller.clone(),
+            DEFAULT_GAS_LIMIT,
+        );
+
+        Ok(CallResult {
+            // We need type remapping here because of the different `EventRecord` types.
+            dry_run: CallDryRunResult {
+                exec_result: ContractResult {
+                    gas_consumed: result.gas_consumed,
+                    gas_required: result.gas_required,
+                    storage_deposit: result.storage_deposit,
+                    debug_message: result.debug_message,
+                    result: result.result,
+                    events: None,
+                },
+                _marker: Default::default(),
+            },
+            events: (), // todo: https://github.com/Cardinal-Cryptography/drink/issues/32
+        })
     }
 
     async fn call_dry_run<Args: Sync + Encode, RetType: Send + Decode>(
