@@ -26,12 +26,18 @@ use contract_build::{
     Verbosity,
 };
 use std::{
-    collections::HashMap,
+    collections::{
+        hash_map::Entry,
+        HashMap,
+    },
     path::{
         Path,
         PathBuf,
     },
-    sync::OnceLock,
+    sync::{
+        Mutex,
+        OnceLock,
+    },
 };
 
 /// Builds the "root" contract (the contract in which the E2E tests are defined) together
@@ -56,6 +62,8 @@ pub fn build_root_and_contract_dependencies() -> Vec<PathBuf> {
     build_contracts(&contract_manifests)
 }
 
+/// Access manifest paths of contracts which are part of the contract project in which the
+/// E2E contracts are defined.
 struct ContractProject {
     root_package: Option<PathBuf>,
     contract_dependencies: Vec<PathBuf>,
@@ -121,13 +129,28 @@ impl ContractProject {
     }
 }
 
+/// Build all the of the contracts of the supplied `contract_manifests`.k
+///
+/// Only attempts to build a contract at the given path once only per test run, to avoid
+/// the attempt for different tests to build the same contract concurrently.
 fn build_contracts(contract_manifests: &[PathBuf]) -> Vec<PathBuf> {
-    static MEM: OnceLock<HashMap<PathBuf, Option<PathBuf>>> = OnceLock::new();
-    MEM.get_or_init(|| HashMap::new());
+    static CONTRACT_BUILD_JOBS: OnceLock<Mutex<HashMap<PathBuf, PathBuf>>> =
+        OnceLock::new();
+    let mut contract_build_jobs = CONTRACT_BUILD_JOBS
+        .get_or_init(|| Mutex::new(HashMap::new()))
+        .lock()
+        .unwrap();
 
     let mut wasm_paths = Vec::new();
     for manifest in contract_manifests {
-        let wasm_path = build_contract(manifest);
+        let wasm_path = match contract_build_jobs.entry(manifest.clone()) {
+            Entry::Occupied(entry) => entry.get().clone(),
+            Entry::Vacant(entry) => {
+                let wasm_path = build_contract(manifest);
+                entry.insert(wasm_path.clone());
+                wasm_path
+            }
+        };
         wasm_paths.push(wasm_path);
     }
     wasm_paths
