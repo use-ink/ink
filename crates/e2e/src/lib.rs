@@ -53,6 +53,7 @@ pub use subxt_client::{
     Client,
     Error,
 };
+pub use drink_client::Client as DrinkClient;
 pub use subxt_signer::sr25519::{
     self,
     dev::*,

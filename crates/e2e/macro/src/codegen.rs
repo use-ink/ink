@@ -137,7 +137,7 @@ impl InkE2ETest {
 
         let client_building = match self.test.config.backend() {
             Backend::Full => build_full_client(&environment, contracts),
-            Backend::RuntimeOnly => todo!("Runtime-only backend not yet supported"),
+            Backend::RuntimeOnly => build_runtime_client(contracts),
         };
 
         quote! {
@@ -326,5 +326,15 @@ fn build_full_client<I: Iterator<Item = TokenStream2>>(
             node_proc.client(),
             [ #( #contracts ),* ]
         ).await;
+    }
+}
+
+fn build_runtime_client<I: Iterator<Item = TokenStream2>>(
+    contracts: I,
+) -> TokenStream2 {
+    quote! {
+        let mut client = ::ink_e2e::DrinkClient::new(
+            [ #( #contracts ),* ]
+        );
     }
 }
