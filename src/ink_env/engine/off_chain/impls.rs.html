@@ -630,9 +630,9 @@
 <span class="doccomment">/// The capacity of the static buffer.
 /// This is the same size as the ink! on-chain environment. We chose to use the same size
 /// to be as close to the on-chain behavior as possible.
-</span><span class="kw">const </span>BUFFER_SIZE: usize = <span class="number">1 </span>&lt;&lt; <span class="number">14</span>; <span class="comment">// 16 kB
+</span><span class="kw">const </span>BUFFER_SIZE: usize = <span class="kw">crate</span>::BUFFER_SIZE;
 
-</span><span class="kw">impl </span>CryptoHash <span class="kw">for </span>Blake2x128 {
+<span class="kw">impl </span>CryptoHash <span class="kw">for </span>Blake2x128 {
     <span class="kw">fn </span>hash(input: <span class="kw-2">&amp;</span>[u8], output: <span class="kw-2">&amp;mut </span>&lt;<span class="self">Self </span><span class="kw">as </span>HashOutput&gt;::Type) {
         <span class="kw">type </span>OutputType = [u8; <span class="number">16</span>];
         <span class="macro">static_assertions::assert_type_eq_all!</span>(
