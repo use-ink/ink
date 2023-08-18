@@ -63,7 +63,7 @@ pub fn build_root_and_contract_dependencies() -> Vec<PathBuf> {
 }
 
 /// Access manifest paths of contracts which are part of the contract project in which the
-/// E2E contracts are defined.
+/// E2E tests are defined.
 struct ContractProject {
     root_package: Option<PathBuf>,
     contract_dependencies: Vec<PathBuf>,
