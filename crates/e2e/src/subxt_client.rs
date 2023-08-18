@@ -361,17 +361,16 @@ where
         + scale::HasCompact
         + serde::Serialize,
 {
-    type Actor = Keypair;
-    type ActorId = E::AccountId;
+    type AccountId = E::AccountId;
     type Balance = E::Balance;
     type Error = Error<E>;
     type EventLog = ExtrinsicEvents<C>;
 
     async fn create_and_fund_account(
         &mut self,
-        origin: &Self::Actor,
+        origin: &Keypair,
         amount: Self::Balance,
-    ) -> Self::Actor {
+    ) -> Keypair {
         let (_, phrase, _) =
             <sp_core::sr25519::Pair as sp_core::Pair>::generate_with_phrase(None);
         let phrase =
@@ -400,7 +399,7 @@ where
 
     async fn balance(
         &mut self,
-        actor: Self::ActorId,
+        actor: Self::AccountId,
     ) -> Result<Self::Balance, Self::Error> {
         let account_addr = subxt::dynamic::storage(
             "System",
@@ -446,7 +445,7 @@ where
 
     async fn runtime_call<'a>(
         &mut self,
-        actor: &Self::Actor,
+        actor: &Keypair,
         pallet_name: &'a str,
         call_name: &'a str,
         call_data: Vec<Value>,
@@ -504,14 +503,13 @@ where
         + serde::Serialize,
     E::Hash: Debug + Send + scale::Encode,
 {
-    type Actor = Keypair;
     type Error = Error<E>;
     type EventLog = ExtrinsicEvents<C>;
 
     async fn instantiate<Contract, Args: Send + Encode, R>(
         &mut self,
         contract_name: &str,
-        caller: &Self::Actor,
+        caller: &Keypair,
         constructor: CreateBuilderPartial<E, Contract, Args, R>,
         value: E::Balance,
         storage_deposit_limit: Option<E::Balance>,
@@ -533,7 +531,7 @@ where
     async fn instantiate_dry_run<Contract, Args: Send + Encode, R>(
         &mut self,
         contract_name: &str,
-        caller: &Self::Actor,
+        caller: &Keypair,
         constructor: CreateBuilderPartial<E, Contract, Args, R>,
         value: E::Balance,
         storage_deposit_limit: Option<E::Balance>,
@@ -557,7 +555,7 @@ where
     async fn upload(
         &mut self,
         contract_name: &str,
-        caller: &Self::Actor,
+        caller: &Keypair,
         storage_deposit_limit: Option<E::Balance>,
     ) -> Result<UploadResult<E, Self::EventLog>, Self::Error> {
         let code = self.load_code(contract_name);
@@ -570,7 +568,7 @@ where
 
     async fn call<Args: Sync + Encode, RetType: Send + Decode>(
         &mut self,
-        caller: &Self::Actor,
+        caller: &Keypair,
         message: &CallBuilderFinal<E, Args, RetType>,
         value: E::Balance,
         storage_deposit_limit: Option<E::Balance>,
@@ -623,7 +621,7 @@ where
 
     async fn call_dry_run<Args: Sync + Encode, RetType: Send + Decode>(
         &mut self,
-        caller: &Self::Actor,
+        caller: &Keypair,
         message: &CallBuilderFinal<E, Args, RetType>,
         value: E::Balance,
         storage_deposit_limit: Option<E::Balance>,

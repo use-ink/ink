@@ -42,6 +42,7 @@ use std::{
     path::PathBuf,
 };
 use subxt::dynamic::Value;
+use subxt_signer::sr25519::Keypair;
 
 pub struct Client {
     session: Session<MinimalRuntime>,
@@ -106,36 +107,36 @@ impl Client {
 
 #[async_trait]
 impl ChainBackend for Client {
-    type Actor = AccountId32;
-    type ActorId = AccountId32;
+    type AccountId = AccountId32;
     type Balance = u128;
     type Error = ();
     type EventLog = ();
 
     async fn create_and_fund_account(
         &mut self,
-        _origin: &Self::Actor,
+        _origin: &Keypair,
         amount: Self::Balance,
-    ) -> Self::Actor {
-        let (pair, _) = Pair::generate();
-        let new_account = AccountId32::new(pair.public().0);
+    ) -> Keypair {
+        // todo: extract to a common place
+        let (pair, seed) = Pair::generate();
 
         self.session
             .chain_api()
-            .add_tokens(new_account.clone(), amount);
-        new_account
+            .add_tokens(pair.public().0.into(), amount);
+
+        Keypair::from_seed(seed).expect("Failed to create keypair")
     }
 
     async fn balance(
         &mut self,
-        actor: Self::ActorId,
+        actor: Self::AccountId,
     ) -> Result<Self::Balance, Self::Error> {
         Ok(self.session.chain_api().balance(&actor))
     }
 
     async fn runtime_call<'a>(
         &mut self,
-        _actor: &Self::Actor,
+        _actor: &Keypair,
         _pallet_name: &'a str,
         _call_name: &'a str,
         _call_data: Vec<Value>,
@@ -148,14 +149,13 @@ impl ChainBackend for Client {
 impl<E: Environment<AccountId = AccountId32, Balance = u128, Hash = H256> + 'static>
     ContractsBackend<E> for Client
 {
-    type Actor = AccountId32;
     type Error = ();
     type EventLog = ();
 
     async fn instantiate<Contract, Args: Send + Encode, R>(
         &mut self,
         contract_name: &str,
-        caller: &Self::Actor,
+        caller: &Keypair,
         constructor: CreateBuilderPartial<E, Contract, Args, R>,
         value: E::Balance,
         storage_deposit_limit: Option<E::Balance>,
@@ -168,7 +168,7 @@ impl<E: Environment<AccountId = AccountId32, Balance = u128, Hash = H256> + 'sta
             value,
             data,
             Self::salt(),
-            caller.clone(),
+            keypair_to_account(caller),
             DEFAULT_GAS_LIMIT,
             storage_deposit_limit,
         );
@@ -195,7 +195,7 @@ impl<E: Environment<AccountId = AccountId32, Balance = u128, Hash = H256> + 'sta
     async fn instantiate_dry_run<Contract, Args: Send + Encode, R>(
         &mut self,
         _contract_name: &str,
-        _caller: &Self::Actor,
+        _caller: &Keypair,
         _constructor: CreateBuilderPartial<E, Contract, Args, R>,
         _value: E::Balance,
         _storage_deposit_limit: Option<E::Balance>,
@@ -206,14 +206,14 @@ impl<E: Environment<AccountId = AccountId32, Balance = u128, Hash = H256> + 'sta
     async fn upload(
         &mut self,
         contract_name: &str,
-        caller: &Self::Actor,
+        caller: &Keypair,
         storage_deposit_limit: Option<E::Balance>,
     ) -> Result<UploadResult<E, Self::EventLog>, Self::Error> {
         let code = self.load_code(contract_name);
 
         let result = match self.session.contracts_api().upload_contract(
             code,
-            caller.clone(),
+            keypair_to_account(caller),
             storage_deposit_limit,
         ) {
             Ok(result) => result,
@@ -232,7 +232,7 @@ impl<E: Environment<AccountId = AccountId32, Balance = u128, Hash = H256> + 'sta
 
     async fn call<Args: Sync + Encode, RetType: Send + Decode>(
         &mut self,
-        caller: &Self::Actor,
+        caller: &Keypair,
         message: &CallBuilderFinal<E, Args, RetType>,
         value: E::Balance,
         storage_deposit_limit: Option<E::Balance>,
@@ -247,7 +247,7 @@ impl<E: Environment<AccountId = AccountId32, Balance = u128, Hash = H256> + 'sta
             account_id,
             value,
             exec_input,
-            caller.clone(),
+            keypair_to_account(caller),
             DEFAULT_GAS_LIMIT,
             storage_deposit_limit,
         );
@@ -271,7 +271,7 @@ impl<E: Environment<AccountId = AccountId32, Balance = u128, Hash = H256> + 'sta
 
     async fn call_dry_run<Args: Sync + Encode, RetType: Send + Decode>(
         &mut self,
-        _caller: &Self::Actor,
+        _caller: &Keypair,
         _message: &CallBuilderFinal<E, Args, RetType>,
         _value: E::Balance,
         _storage_deposit_limit: Option<E::Balance>,
@@ -286,4 +286,8 @@ impl<E: Environment<AccountId = AccountId32, Balance = u128, Hash = H256> + 'sta
 impl<E: Environment<AccountId = AccountId32, Balance = u128, Hash = H256> + 'static>
     E2EBackend<E> for Client
 {
+}
+
+fn keypair_to_account(keypair: &Keypair) -> AccountId32 {
+    AccountId32::from(keypair.public_key().0)
 }
