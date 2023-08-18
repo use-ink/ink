@@ -2,6 +2,8 @@
 
 #[ink::contract]
 pub mod static_buffer {
+    #[allow(unused_imports)]
+    use ink::env::BUFFER_SIZE;
     #[ink(storage)]
     pub struct StaticBuffer {
         value: bool,
@@ -63,7 +65,12 @@ pub mod static_buffer {
             let get = call.get_caller();
             // then panics if `INK_STATIC_BUFFER_SIZE` is less than 32 bytes.
             let res = client.call_dry_run(&ink_e2e::bob(), &get, 0, None).await;
-            assert!(res.is_err());
+            println!("{}", super::BUFFER_SIZE);
+            assert!(
+                res.is_err(),
+                "Buffer size was larger than expected: {}",
+                super::BUFFER_SIZE.to_string()
+            );
 
             Ok(())
         }

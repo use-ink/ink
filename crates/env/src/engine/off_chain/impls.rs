@@ -48,14 +48,11 @@ use ink_engine::{
 };
 use ink_storage_traits::Storable;
 
-// Injected constants from the build script.
-include!(concat!(env!("OUT_DIR"), "/const_gen.rs"));
-
 /// The capacity of the static buffer.
 /// This is the same size as the ink! on-chain environment. We chose to use the same size
 /// to be as close to the on-chain behavior as possible.
 /// The value is copied from the injected constant from the build script.
-const BUFFER_SIZE: usize = STATIC_BUFFER_SIZE;
+const BUFFER_SIZE: usize = crate::BUFFER_SIZE;
 
 impl CryptoHash for Blake2x128 {
     fn hash(input: &[u8], output: &mut <Self as HashOutput>::Type) {

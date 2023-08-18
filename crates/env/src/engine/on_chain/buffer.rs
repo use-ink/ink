@@ -12,9 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Injected constants from the build script.
-include!(concat!(env!("OUT_DIR"), "/const_gen.rs"));
-
 /// A static buffer of variable capacity.
 pub struct StaticBuffer {
     /// A static buffer of variable capacity.
@@ -24,8 +21,8 @@ pub struct StaticBuffer {
 impl StaticBuffer {
     /// The capacity of the static buffer.
     /// Usually set to 16 kB.
-    /// Can be modified by setting `STATIC_BUFFER_SIZE` environmental variable.
-    const CAPACITY: usize = STATIC_BUFFER_SIZE;
+    /// Can be modified by setting `INK_STATIC_BUFFER_SIZE` environmental variable.
+    const CAPACITY: usize = crate::BUFFER_SIZE;
 
     /// Creates a new static buffer.
     pub const fn new() -> Self {
