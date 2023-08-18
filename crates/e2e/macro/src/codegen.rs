@@ -13,38 +13,9 @@
 // limitations under the License.
 
 use crate::ir;
-use core::cell::RefCell;
 use derive_more::From;
 use proc_macro2::TokenStream as TokenStream2;
 use quote::quote;
-use std::{
-    collections::HashMap,
-    sync::Once,
-};
-
-/// We use this to only build the contracts once for all tests, at the
-/// time of generating the Rust code for the tests, so at compile time.
-static BUILD_ONCE: Once = Once::new();
-
-thread_local! {
-    // We save a mapping of `contract_manifest_path` to the built `*.contract` files.
-    // This is necessary so that not each individual `#[ink_e2e::test]` starts
-    // rebuilding the main contract and possibly specified `additional_contracts` contracts.
-    pub static ALREADY_BUILT_CONTRACTS: RefCell<HashMap<String, String>> = RefCell::new(HashMap::new());
-}
-
-/// Returns the path to the `*.contract` file of the contract for which a test
-/// is currently executed.
-pub fn already_built_contracts() -> HashMap<String, String> {
-    ALREADY_BUILT_CONTRACTS.with(|already_built| already_built.borrow().clone())
-}
-
-/// Sets a new `HashMap` for the already built contracts.
-pub fn set_already_built_contracts(hash_map: HashMap<String, String>) {
-    ALREADY_BUILT_CONTRACTS.with(|metadata_paths| {
-        *metadata_paths.borrow_mut() = hash_map;
-    });
-}
 
 /// Generates code for the `[ink::e2e_test]` macro.
 #[derive(From)]
