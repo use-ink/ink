@@ -10,6 +10,7 @@ use crate::{
     CallResult,
     ChainBackend,
     ContractsBackend,
+    E2EBackend,
     InstantiationResult,
     UploadResult,
 };
@@ -144,9 +145,8 @@ impl ChainBackend for Client {
 }
 
 #[async_trait]
-impl<E> ContractsBackend<E> for Client
-where
-    E: Environment<AccountId = AccountId32, Balance = u128, Hash = H256> + 'static,
+impl<E: Environment<AccountId = AccountId32, Balance = u128, Hash = H256> + 'static>
+    ContractsBackend<E> for Client
 {
     type Actor = AccountId32;
     type Error = ();
@@ -281,4 +281,9 @@ where
     {
         todo!("https://github.com/Cardinal-Cryptography/drink/issues/37")
     }
+}
+
+impl<E: Environment<AccountId = AccountId32, Balance = u128, Hash = H256> + 'static>
+    E2EBackend<E> for Client
+{
 }

@@ -329,9 +329,7 @@ fn build_full_client<I: Iterator<Item = TokenStream2>>(
     }
 }
 
-fn build_runtime_client<I: Iterator<Item = TokenStream2>>(
-    contracts: I,
-) -> TokenStream2 {
+fn build_runtime_client<I: Iterator<Item = TokenStream2>>(contracts: I) -> TokenStream2 {
     quote! {
         let mut client = ::ink_e2e::DrinkClient::new(
             [ #( #contracts ),* ]

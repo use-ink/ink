@@ -40,6 +40,7 @@ pub use contract_results::{
     InstantiationResult,
     UploadResult,
 };
+pub use drink_client::Client as DrinkClient;
 pub use ink_e2e_macro::test;
 pub use node_proc::{
     TestNodeProcess,
@@ -53,7 +54,6 @@ pub use subxt_client::{
     Client,
     Error,
 };
-pub use drink_client::Client as DrinkClient;
 pub use subxt_signer::sr25519::{
     self,
     dev::*,
