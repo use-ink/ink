@@ -661,7 +661,7 @@ mod state {
     pub struct ChainExtension;
     /// Type state for the max number of topics specified in the environment.
     pub struct MaxEventTopics;
-    /// Type state for the size of the static buffer specified via env var.
+    /// Type state for the size of the static buffer configured via environment variable.`
     pub struct BufferSize;
 }
 
