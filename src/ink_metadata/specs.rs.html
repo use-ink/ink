@@ -1831,6 +1831,35 @@
 <a href="#1831" id="1831">1831</a>
 <a href="#1832" id="1832">1832</a>
 <a href="#1833" id="1833">1833</a>
+<a href="#1834" id="1834">1834</a>
+<a href="#1835" id="1835">1835</a>
+<a href="#1836" id="1836">1836</a>
+<a href="#1837" id="1837">1837</a>
+<a href="#1838" id="1838">1838</a>
+<a href="#1839" id="1839">1839</a>
+<a href="#1840" id="1840">1840</a>
+<a href="#1841" id="1841">1841</a>
+<a href="#1842" id="1842">1842</a>
+<a href="#1843" id="1843">1843</a>
+<a href="#1844" id="1844">1844</a>
+<a href="#1845" id="1845">1845</a>
+<a href="#1846" id="1846">1846</a>
+<a href="#1847" id="1847">1847</a>
+<a href="#1848" id="1848">1848</a>
+<a href="#1849" id="1849">1849</a>
+<a href="#1850" id="1850">1850</a>
+<a href="#1851" id="1851">1851</a>
+<a href="#1852" id="1852">1852</a>
+<a href="#1853" id="1853">1853</a>
+<a href="#1854" id="1854">1854</a>
+<a href="#1855" id="1855">1855</a>
+<a href="#1856" id="1856">1856</a>
+<a href="#1857" id="1857">1857</a>
+<a href="#1858" id="1858">1858</a>
+<a href="#1859" id="1859">1859</a>
+<a href="#1860" id="1860">1860</a>
+<a href="#1861" id="1861">1861</a>
+<a href="#1862" id="1862">1862</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -2494,6 +2523,8 @@
     </span><span class="kw">pub struct </span>ChainExtension;
     <span class="doccomment">/// Type state for the max number of topics specified in the environment.
     </span><span class="kw">pub struct </span>MaxEventTopics;
+    <span class="doccomment">/// Type state for the size of the static buffer configured via environment variable.`
+    </span><span class="kw">pub struct </span>BufferSize;
 }
 
 <span class="kw">impl</span>&lt;F&gt; MessageSpec&lt;F&gt;
@@ -3384,6 +3415,7 @@
     block_number: TypeSpec&lt;F&gt;,
     chain_extension: TypeSpec&lt;F&gt;,
     max_event_topics: usize,
+    static_buffer_size: usize,
 }
 
 <span class="kw">impl</span>&lt;F&gt; Default <span class="kw">for </span>EnvironmentSpec&lt;F&gt;
@@ -3400,6 +3432,7 @@
             block_number: Default::default(),
             chain_extension: Default::default(),
             max_event_topics: Default::default(),
+            static_buffer_size: Default::default(),
         }
     }
 }
@@ -3416,6 +3449,7 @@
             block_number: <span class="self">self</span>.block_number.into_portable(registry),
             chain_extension: <span class="self">self</span>.chain_extension.into_portable(registry),
             max_event_topics: <span class="self">self</span>.max_event_topics,
+            static_buffer_size: <span class="self">self</span>.static_buffer_size,
         }
     }
 }
@@ -3471,6 +3505,7 @@
         Missing&lt;state::BlockNumber&gt;,
         Missing&lt;state::ChainExtension&gt;,
         Missing&lt;state::MaxEventTopics&gt;,
+        Missing&lt;state::BufferSize&gt;,
     &gt; {
         EnvironmentSpecBuilder {
             spec: Default::default(),
@@ -3482,18 +3517,18 @@
 <span class="doccomment">/// An environment specification builder.
 </span><span class="attr">#[allow(clippy::type_complexity)]
 #[must_use]
-</span><span class="kw">pub struct </span>EnvironmentSpecBuilder&lt;F, A, B, H, T, BN, C, M&gt;
+</span><span class="kw">pub struct </span>EnvironmentSpecBuilder&lt;F, A, B, H, T, BN, C, M, BS&gt;
 <span class="kw">where
     </span>F: Form,
     TypeSpec&lt;F&gt;: Default,
     EnvironmentSpec&lt;F&gt;: Default,
 {
     spec: EnvironmentSpec&lt;F&gt;,
-    marker: PhantomData&lt;<span class="kw">fn</span>() -&gt; (A, B, H, T, BN, C, M)&gt;,
+    marker: PhantomData&lt;<span class="kw">fn</span>() -&gt; (A, B, H, T, BN, C, M, BS)&gt;,
 }
 
-<span class="kw">impl</span>&lt;F, B, H, T, BN, C, M&gt;
-    EnvironmentSpecBuilder&lt;F, Missing&lt;state::AccountId&gt;, B, H, T, BN, C, M&gt;
+<span class="kw">impl</span>&lt;F, B, H, T, BN, C, M, BS&gt;
+    EnvironmentSpecBuilder&lt;F, Missing&lt;state::AccountId&gt;, B, H, T, BN, C, M, BS&gt;
 <span class="kw">where
     </span>F: Form,
     TypeSpec&lt;F&gt;: Default,
@@ -3503,7 +3538,7 @@
     </span><span class="kw">pub fn </span>account_id(
         <span class="self">self</span>,
         account_id: TypeSpec&lt;F&gt;,
-    ) -&gt; EnvironmentSpecBuilder&lt;F, state::AccountId, B, H, T, BN, C, M&gt; {
+    ) -&gt; EnvironmentSpecBuilder&lt;F, state::AccountId, B, H, T, BN, C, M, BS&gt; {
         EnvironmentSpecBuilder {
             spec: EnvironmentSpec {
                 account_id,
@@ -3514,8 +3549,8 @@
     }
 }
 
-<span class="kw">impl</span>&lt;F, A, H, T, BN, C, M&gt;
-    EnvironmentSpecBuilder&lt;F, A, Missing&lt;state::Balance&gt;, H, T, BN, C, M&gt;
+<span class="kw">impl</span>&lt;F, A, H, T, BN, C, M, BS&gt;
+    EnvironmentSpecBuilder&lt;F, A, Missing&lt;state::Balance&gt;, H, T, BN, C, M, BS&gt;
 <span class="kw">where
     </span>F: Form,
     TypeSpec&lt;F&gt;: Default,
@@ -3525,7 +3560,7 @@
     </span><span class="kw">pub fn </span>balance(
         <span class="self">self</span>,
         balance: TypeSpec&lt;F&gt;,
-    ) -&gt; EnvironmentSpecBuilder&lt;F, A, state::Balance, H, T, BN, C, M&gt; {
+    ) -&gt; EnvironmentSpecBuilder&lt;F, A, state::Balance, H, T, BN, C, M, BS&gt; {
         EnvironmentSpecBuilder {
             spec: EnvironmentSpec {
                 balance,
@@ -3536,8 +3571,8 @@
     }
 }
 
-<span class="kw">impl</span>&lt;F, A, B, T, BN, C, M&gt;
-    EnvironmentSpecBuilder&lt;F, A, B, Missing&lt;state::Hash&gt;, T, BN, C, M&gt;
+<span class="kw">impl</span>&lt;F, A, B, T, BN, C, M, BS&gt;
+    EnvironmentSpecBuilder&lt;F, A, B, Missing&lt;state::Hash&gt;, T, BN, C, M, BS&gt;
 <span class="kw">where
     </span>F: Form,
     TypeSpec&lt;F&gt;: Default,
@@ -3547,7 +3582,7 @@
     </span><span class="kw">pub fn </span>hash(
         <span class="self">self</span>,
         hash: TypeSpec&lt;F&gt;,
-    ) -&gt; EnvironmentSpecBuilder&lt;F, A, B, state::Hash, T, BN, C, M&gt; {
+    ) -&gt; EnvironmentSpecBuilder&lt;F, A, B, state::Hash, T, BN, C, M, BS&gt; {
         EnvironmentSpecBuilder {
             spec: EnvironmentSpec { hash, ..<span class="self">self</span>.spec },
             marker: PhantomData,
@@ -3555,8 +3590,8 @@
     }
 }
 
-<span class="kw">impl</span>&lt;F, A, B, H, BN, C, M&gt;
-    EnvironmentSpecBuilder&lt;F, A, B, H, Missing&lt;state::Timestamp&gt;, BN, C, M&gt;
+<span class="kw">impl</span>&lt;F, A, B, H, BN, C, M, BS&gt;
+    EnvironmentSpecBuilder&lt;F, A, B, H, Missing&lt;state::Timestamp&gt;, BN, C, M, BS&gt;
 <span class="kw">where
     </span>F: Form,
     TypeSpec&lt;F&gt;: Default,
@@ -3566,7 +3601,7 @@
     </span><span class="kw">pub fn </span>timestamp(
         <span class="self">self</span>,
         timestamp: TypeSpec&lt;F&gt;,
-    ) -&gt; EnvironmentSpecBuilder&lt;F, A, B, H, state::Timestamp, BN, C, M&gt; {
+    ) -&gt; EnvironmentSpecBuilder&lt;F, A, B, H, state::Timestamp, BN, C, M, BS&gt; {
         EnvironmentSpecBuilder {
             spec: EnvironmentSpec {
                 timestamp,
@@ -3577,8 +3612,8 @@
     }
 }
 
-<span class="kw">impl</span>&lt;F, A, B, H, T, C, M&gt;
-    EnvironmentSpecBuilder&lt;F, A, B, H, T, Missing&lt;state::BlockNumber&gt;, C, M&gt;
+<span class="kw">impl</span>&lt;F, A, B, H, T, C, M, BS&gt;
+    EnvironmentSpecBuilder&lt;F, A, B, H, T, Missing&lt;state::BlockNumber&gt;, C, M, BS&gt;
 <span class="kw">where
     </span>F: Form,
     TypeSpec&lt;F&gt;: Default,
@@ -3588,7 +3623,7 @@
     </span><span class="kw">pub fn </span>block_number(
         <span class="self">self</span>,
         block_number: TypeSpec&lt;F&gt;,
-    ) -&gt; EnvironmentSpecBuilder&lt;F, A, B, H, T, state::BlockNumber, C, M&gt; {
+    ) -&gt; EnvironmentSpecBuilder&lt;F, A, B, H, T, state::BlockNumber, C, M, BS&gt; {
         EnvironmentSpecBuilder {
             spec: EnvironmentSpec {
                 block_number,
@@ -3599,8 +3634,8 @@
     }
 }
 
-<span class="kw">impl</span>&lt;F, A, B, H, T, BN, M&gt;
-    EnvironmentSpecBuilder&lt;F, A, B, H, T, BN, Missing&lt;state::ChainExtension&gt;, M&gt;
+<span class="kw">impl</span>&lt;F, A, B, H, T, BN, M, BS&gt;
+    EnvironmentSpecBuilder&lt;F, A, B, H, T, BN, Missing&lt;state::ChainExtension&gt;, M, BS&gt;
 <span class="kw">where
     </span>F: Form,
     TypeSpec&lt;F&gt;: Default,
@@ -3610,7 +3645,7 @@
     </span><span class="kw">pub fn </span>chain_extension(
         <span class="self">self</span>,
         chain_extension: TypeSpec&lt;F&gt;,
-    ) -&gt; EnvironmentSpecBuilder&lt;F, A, B, H, T, BN, state::ChainExtension, M&gt; {
+    ) -&gt; EnvironmentSpecBuilder&lt;F, A, B, H, T, BN, state::ChainExtension, M, BS&gt; {
         EnvironmentSpecBuilder {
             spec: EnvironmentSpec {
                 chain_extension,
@@ -3621,8 +3656,8 @@
     }
 }
 
-<span class="kw">impl</span>&lt;F, A, B, H, T, BN, C&gt;
-    EnvironmentSpecBuilder&lt;F, A, B, H, T, BN, C, Missing&lt;state::MaxEventTopics&gt;&gt;
+<span class="kw">impl</span>&lt;F, A, B, H, T, BN, C, BS&gt;
+    EnvironmentSpecBuilder&lt;F, A, B, H, T, BN, C, Missing&lt;state::MaxEventTopics&gt;, BS&gt;
 <span class="kw">where
     </span>F: Form,
     TypeSpec&lt;F&gt;: Default,
@@ -3632,10 +3667,32 @@
     </span><span class="kw">pub fn </span>max_event_topics(
         <span class="self">self</span>,
         max_event_topics: usize,
-    ) -&gt; EnvironmentSpecBuilder&lt;F, A, B, H, T, BN, C, state::MaxEventTopics&gt; {
+    ) -&gt; EnvironmentSpecBuilder&lt;F, A, B, H, T, BN, C, state::MaxEventTopics, BS&gt; {
         EnvironmentSpecBuilder {
             spec: EnvironmentSpec {
                 max_event_topics,
+                ..<span class="self">self</span>.spec
+            },
+            marker: PhantomData,
+        }
+    }
+}
+
+<span class="kw">impl</span>&lt;F, A, B, H, T, BN, C, M&gt;
+    EnvironmentSpecBuilder&lt;F, A, B, H, T, BN, C, M, Missing&lt;state::BufferSize&gt;&gt;
+<span class="kw">where
+    </span>F: Form,
+    TypeSpec&lt;F&gt;: Default,
+    EnvironmentSpec&lt;F&gt;: Default,
+{
+    <span class="doccomment">/// Sets the size of the static buffer configured via environment variable.`
+    </span><span class="kw">pub fn </span>static_buffer_size(
+        <span class="self">self</span>,
+        static_buffer_size: usize,
+    ) -&gt; EnvironmentSpecBuilder&lt;F, A, B, H, T, BN, C, M, state::BufferSize&gt; {
+        EnvironmentSpecBuilder {
+            spec: EnvironmentSpec {
+                static_buffer_size,
                 ..<span class="self">self</span>.spec
             },
             marker: PhantomData,
@@ -3653,6 +3710,7 @@
         state::BlockNumber,
         state::ChainExtension,
         state::MaxEventTopics,
+        state::BufferSize,
     &gt;
 <span class="kw">where
     </span>F: Form,

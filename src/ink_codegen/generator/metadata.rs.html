@@ -484,6 +484,8 @@
 <a href="#484" id="484">484</a>
 <a href="#485" id="485">485</a>
 <a href="#486" id="486">486</a>
+<a href="#487" id="487">487</a>
+<a href="#488" id="488">488</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -873,6 +875,7 @@
         <span class="kw">let </span>timestamp = <span class="self">Self</span>::generate_type_spec(<span class="kw-2">&amp;</span>timestamp);
         <span class="kw">let </span>block_number = <span class="self">Self</span>::generate_type_spec(<span class="kw-2">&amp;</span>block_number);
         <span class="kw">let </span>chain_extension = <span class="self">Self</span>::generate_type_spec(<span class="kw-2">&amp;</span>chain_extension);
+        <span class="kw">let </span>buffer_size_const = <span class="macro">quote!</span>(::ink::env::BUFFER_SIZE);
         <span class="macro">quote_spanned!</span>(span=&gt;
             ::ink::metadata::EnvironmentSpec::new()
                 .account_id(#account_id)
@@ -882,6 +885,7 @@
                 .block_number(#block_number)
                 .chain_extension(#chain_extension)
                 .max_event_topics(MAX_EVENT_TOPICS)
+                .static_buffer_size(#buffer_size_const)
                 .done()
         )
     }
