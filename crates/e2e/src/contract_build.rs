@@ -129,7 +129,7 @@ impl ContractProject {
     }
 }
 
-/// Build all the of the contracts of the supplied `contract_manifests`.k
+/// Build all the of the contracts of the supplied `contract_manifests`.
 ///
 /// Only attempts to build a contract at the given path once only per test run, to avoid
 /// the attempt for different tests to build the same contract concurrently.
