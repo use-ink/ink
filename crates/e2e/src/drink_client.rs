@@ -1,7 +1,18 @@
-use crate::{builders::{
-    constructor_exec_input,
-    CreateBuilderPartial,
-}, log_info, CallBuilderFinal, CallDryRunResult, CallResult, ChainBackend, ContractsBackend, InstantiationResult, UploadResult, log_error};
+use crate::{
+    builders::{
+        constructor_exec_input,
+        CreateBuilderPartial,
+    },
+    log_error,
+    log_info,
+    CallBuilderFinal,
+    CallDryRunResult,
+    CallResult,
+    ChainBackend,
+    ContractsBackend,
+    InstantiationResult,
+    UploadResult,
+};
 use drink::{
     chain_api::ChainApi,
     contract_api::ContractApi,
@@ -11,12 +22,20 @@ use drink::{
 };
 use ink_env::Environment;
 use jsonrpsee::core::async_trait;
-use pallet_contracts_primitives::{ ContractInstantiateResult, ContractResult};
+use pallet_contracts_primitives::{
+    ContractInstantiateResult,
+    ContractResult,
+};
 use scale::{
     Decode,
     Encode,
 };
-use sp_core::{crypto::AccountId32, sr25519::Pair, Pair as _, H256};
+use sp_core::{
+    crypto::AccountId32,
+    sr25519::Pair,
+    Pair as _,
+    H256,
+};
 use std::{
     collections::BTreeMap,
     path::PathBuf,
@@ -138,18 +157,20 @@ where
         contract_name: &str,
         caller: &Self::Actor,
         constructor: CreateBuilderPartial<E, Contract, Args, R>,
-        _value: E::Balance,
-        _storage_deposit_limit: Option<E::Balance>,
+        value: E::Balance,
+        storage_deposit_limit: Option<E::Balance>,
     ) -> Result<InstantiationResult<E, Self::EventLog>, Self::Error> {
         let code = self.load_code(contract_name);
         let data = constructor_exec_input(constructor);
 
         let result = self.session.contracts_api().deploy_contract(
             code,
+            value,
             data,
             Self::salt(),
             caller.clone(),
             DEFAULT_GAS_LIMIT,
+            storage_deposit_limit,
         );
         let account_id = self
             .session
@@ -186,19 +207,20 @@ where
         &mut self,
         contract_name: &str,
         caller: &Self::Actor,
-        _storage_deposit_limit: Option<E::Balance>,
+        storage_deposit_limit: Option<E::Balance>,
     ) -> Result<UploadResult<E, Self::EventLog>, Self::Error> {
         let code = self.load_code(contract_name);
 
         let result = match self.session.contracts_api().upload_contract(
             code,
             caller.clone(),
+            storage_deposit_limit,
         ) {
             Ok(result) => result,
             Err(err) => {
                 log_error(&format!("Upload failed: {err:?}"));
-                return Err(()); // todo: make a proper error type
-            },
+                return Err(()) // todo: make a proper error type
+            }
         };
 
         Ok(UploadResult {
@@ -212,8 +234,8 @@ where
         &mut self,
         caller: &Self::Actor,
         message: &CallBuilderFinal<E, Args, RetType>,
-        _value: E::Balance,
-        _storage_deposit_limit: Option<E::Balance>,
+        value: E::Balance,
+        storage_deposit_limit: Option<E::Balance>,
     ) -> Result<CallResult<E, RetType, Self::EventLog>, Self::Error>
     where
         CallBuilderFinal<E, Args, RetType>: Clone,
@@ -223,9 +245,11 @@ where
 
         let result = self.session.contracts_api().call_contract(
             account_id,
+            value,
             exec_input,
             caller.clone(),
             DEFAULT_GAS_LIMIT,
+            storage_deposit_limit,
         );
 
         Ok(CallResult {
