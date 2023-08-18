@@ -28,6 +28,7 @@ cfg-if = { workspace = true }
 paste = { workspace = true }
 arrayref = { workspace = true }
 static_assertions = { workspace = true }
+const_env = { workspace = true }
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
 rlibc = "1"

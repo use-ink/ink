@@ -46,6 +46,12 @@
     unused_extern_crates
 )]
 
+/// The capacity of the static buffer.
+/// Usually set to 16 kB.
+/// Can be modified by setting `INK_STATIC_BUFFER_SIZE` environmental variable.
+#[const_env::from_env("INK_STATIC_BUFFER_SIZE")]
+pub const BUFFER_SIZE: usize = 16384;
+
 #[cfg(all(not(feature = "std"), target_arch = "wasm32"))]
 #[allow(unused_extern_crates)]
 extern crate rlibc;

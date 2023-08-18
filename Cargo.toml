@@ -74,6 +74,7 @@ tracing-subscriber = { version = "0.3.17" }
 trybuild = { version = "1.0.60" }
 which = { version = "4.4.0" }
 xxhash-rust = { version = "0.8" }
+const_env = { version = "0.1"}
 
 # Substrate dependencies
 pallet-contracts-primitives = { version = "25.0.0", default-features = false }

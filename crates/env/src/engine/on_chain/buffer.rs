@@ -12,15 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-/// A static buffer with 16 kB of capacity.
+/// A static buffer of variable capacity.
 pub struct StaticBuffer {
-    /// The static buffer with a total capacity of 16 kB.
+    /// A static buffer of variable capacity.
     buffer: [u8; Self::CAPACITY],
 }
 
 impl StaticBuffer {
     /// The capacity of the static buffer.
-    const CAPACITY: usize = 1 << 14; // 16 kB
+    /// Usually set to 16 kB.
+    /// Can be modified by setting `INK_STATIC_BUFFER_SIZE` environmental variable.
+    const CAPACITY: usize = crate::BUFFER_SIZE;
 
     /// Creates a new static buffer.
     pub const fn new() -> Self {
