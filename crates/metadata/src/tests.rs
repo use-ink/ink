@@ -157,6 +157,7 @@ fn spec_contract_only_one_default_constructor_allowed() {
 )]
 fn spec_contract_event_definition_exceeds_environment_topics_limit() {
     const MAX_EVENT_TOPICS: usize = 2;
+    const BUFFER_SIZE: usize = 1 << 14;
 
     ContractSpec::new()
         .constructors(vec![ConstructorSpec::from_label("new")
@@ -238,6 +239,7 @@ fn spec_contract_event_definition_exceeds_environment_topics_limit() {
                 .block_number(TypeSpec::of_type::<u128>())
                 .chain_extension(TypeSpec::of_type::<()>())
                 .max_event_topics(MAX_EVENT_TOPICS)
+                .static_buffer_size(BUFFER_SIZE)
                 .done(),
         )
         .done();
@@ -249,6 +251,7 @@ fn spec_contract_event_definition_exceeds_environment_topics_limit() {
 )]
 fn spec_contract_event_definition_signature_topic_collision() {
     const SIGNATURE_TOPIC: Option<[u8; 32]> = Some([42u8; 32]);
+    const BUFFER_SIZE: usize = 1 << 14;
 
     ContractSpec::new()
         .constructors(vec![ConstructorSpec::from_label("new")
@@ -303,6 +306,7 @@ fn spec_contract_event_definition_signature_topic_collision() {
                 .block_number(TypeSpec::of_type::<u128>())
                 .chain_extension(TypeSpec::of_type::<()>())
                 .max_event_topics(2)
+                .static_buffer_size(BUFFER_SIZE)
                 .done(),
         )
         .done();
@@ -320,6 +324,7 @@ fn spec_contract_json() {
     type BlockNumber = u128;
     type ChainExtension = NoChainExtension;
     const MAX_EVENT_TOPICS: usize = 4;
+    const BUFFER_SIZE: usize = 1 << 14;
 
     // given
     let contract: ContractSpec = ContractSpec::new()
@@ -424,6 +429,7 @@ fn spec_contract_json() {
                     ),
                 ))
                 .max_event_topics(MAX_EVENT_TOPICS)
+                .static_buffer_size(BUFFER_SIZE)
                 .done(),
         )
         .done();
@@ -503,6 +509,7 @@ fn spec_contract_json() {
                     ],
                     "type": 9,
                 },
+                "staticBufferSize": 16384,
                 "chainExtension":  {
                     "displayName":  [
                         "ChainExtension",
@@ -714,6 +721,7 @@ fn environment_spec() -> EnvironmentSpec<PortableForm> {
         .block_number(Default::default())
         .chain_extension(Default::default())
         .max_event_topics(4)
+        .static_buffer_size(16384)
         .done()
 }
 
