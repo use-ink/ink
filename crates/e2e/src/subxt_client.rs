@@ -398,7 +398,7 @@ where
         keypair
     }
 
-    async fn balance(&self, actor: Self::ActorId) -> Result<Self::Balance, Self::Error> {
+    async fn balance(&mut self, actor: Self::ActorId) -> Result<Self::Balance, Self::Error> {
         let account_addr = subxt::dynamic::storage(
             "System",
             "Account",

@@ -58,7 +58,7 @@ pub trait ChainBackend {
     ) -> Self::Actor;
 
     /// Returns the balance of `actor`.
-    async fn balance(&self, actor: Self::ActorId) -> Result<Self::Balance, Self::Error>;
+    async fn balance(&mut self, actor: Self::ActorId) -> Result<Self::Balance, Self::Error>;
 
     /// Executes a runtime call `call_name` for the `pallet_name`.
     /// The `call_data` is a `Vec<Value>`.

@@ -22,12 +22,12 @@
 mod backend;
 mod builders;
 mod contract_results;
+mod drink_client;
 mod error;
 pub mod events;
 mod node_proc;
 mod subxt_client;
 mod xts;
-mod drink_client;
 
 pub use backend::{
     ChainBackend,
