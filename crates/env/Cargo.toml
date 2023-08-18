@@ -4,7 +4,6 @@ version.workspace = true
 authors = ["Parity Technologies <admin@parity.io>", "Robin Freyler <robin@parity.io>"]
 edition.workspace = true
 rust-version = "1.68"
-# build = "build.rs"
 
 license.workspace = true
 readme = "README.md"
@@ -29,7 +28,7 @@ cfg-if = { workspace = true }
 paste = { workspace = true }
 arrayref = { workspace = true }
 static_assertions = { workspace = true }
-const_env = "0.1.2"
+const_env = { workspace = true }
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
 rlibc = "1"
@@ -55,9 +54,6 @@ scale-info = { workspace = true, features = ["derive"], optional = true }
 
 [dev-dependencies]
 ink = { workspace = true }
-
-[build-dependencies]
-const-gen = "1.4"
 
 [features]
 default = ["std"]
