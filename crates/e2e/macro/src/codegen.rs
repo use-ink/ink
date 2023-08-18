@@ -51,6 +51,16 @@ impl InkE2ETest {
 
         let additional_contracts = self.test.config.additional_contracts();
 
+        let exec_build_contracts = if additional_contracts.is_empty() {
+            quote! {
+                ::ink_e2e::build_root_and_contract_dependencies()
+            }
+        } else {
+            quote! {
+                ::ink_e2e::build_root_and_additional_contracts([ #( #additional_contracts ),* ])
+            }
+        };
+
         const DEFAULT_CONTRACTS_NODE: &str = "substrate-contracts-node";
 
         // use the user supplied `CONTRACTS_NODE` or default to `substrate-contracts-node`
@@ -96,7 +106,7 @@ impl InkE2ETest {
                             ::core::panic!("Error spawning substrate-contracts-node: {:?}", err)
                         );
 
-                    let contracts = ::ink_e2e::build_contracts([ #( #additional_contracts ),* ]);
+                    let contracts = #exec_build_contracts;
 
                     let mut client = ::ink_e2e::Client::<
                         ::ink_e2e::PolkadotConfig,

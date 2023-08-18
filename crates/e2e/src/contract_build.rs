@@ -25,65 +25,122 @@ use contract_build::{
     UnstableFlags,
     Verbosity,
 };
+use std::{
+    collections::HashMap,
+    path::{
+        Path,
+        PathBuf,
+    },
+    sync::OnceLock,
+};
 
-// todo: [AJ] should this be two different methods or use an Option instead of checking
-// additional_contracts.is_empty()
-pub fn build_contracts<'a>(
-    additional_contracts: impl IntoIterator<Item = &'a str>,
-) -> Vec<String> {
-    let cmd = cargo_metadata::MetadataCommand::new();
-    let metadata = cmd
-        .exec()
-        .unwrap_or_else(|err| panic!("Error invoking `cargo metadata`: {}", err));
+/// Builds the "root" contract (the contract in which the E2E tests are defined) together
+/// with the additional contracts specified in the `additional_contracts` argument.
+pub fn build_root_and_additional_contracts<P>(
+    additional_contracts: impl IntoIterator<Item = P>,
+) -> Vec<PathBuf>
+where
+    PathBuf: From<P>,
+{
+    let contract_project = ContractProject::new();
+    let contract_manifests =
+        contract_project.root_with_additional_contracts(additional_contracts);
+    build_contracts(&contract_manifests)
+}
 
-    fn maybe_contract_package(package: &cargo_metadata::Package) -> Option<String> {
-        package
-            .features
-            .iter()
-            .any(|(feat, _)| feat == "ink-as-dependency")
-            .then(|| package.manifest_path.to_string())
-    }
+/// Builds the "root" contract (the contract in which the E2E tests are defined) together
+/// with any contracts which are a dependency of the root contract.
+pub fn build_root_and_contract_dependencies() -> Vec<PathBuf> {
+    let contract_project = ContractProject::new();
+    let contract_manifests = contract_project.root_with_contract_dependencies();
+    build_contracts(&contract_manifests)
+}
 
-    let root_package = metadata
-        .resolve
-        .as_ref()
-        .and_then(|resolve| resolve.root.as_ref())
-        .and_then(|root_package_id| {
-            metadata
-                .packages
+struct ContractProject {
+    root_package: Option<PathBuf>,
+    contract_dependencies: Vec<PathBuf>,
+}
+
+impl ContractProject {
+    fn new() -> Self {
+        let cmd = cargo_metadata::MetadataCommand::new();
+        let metadata = cmd
+            .exec()
+            .unwrap_or_else(|err| panic!("Error invoking `cargo metadata`: {}", err));
+
+        fn maybe_contract_package(package: &cargo_metadata::Package) -> Option<PathBuf> {
+            package
+                .features
                 .iter()
-                .find(|package| &package.id == root_package_id)
-        })
-        .and_then(maybe_contract_package);
+                .any(|(feat, _)| feat == "ink-as-dependency")
+                .then(|| package.manifest_path.clone().into_std_path_buf())
+        }
 
-    let mut all_manifests: Vec<String> = root_package.iter().cloned().collect();
-    let mut additional_contracts: Vec<String> = additional_contracts
-        .into_iter()
-        .map(ToOwned::to_owned)
-        .collect();
+        let root_package = metadata
+            .resolve
+            .as_ref()
+            .and_then(|resolve| resolve.root.as_ref())
+            .and_then(|root_package_id| {
+                metadata
+                    .packages
+                    .iter()
+                    .find(|package| &package.id == root_package_id)
+            })
+            .and_then(maybe_contract_package);
 
-    if additional_contracts.is_empty() {
-        let contract_dependencies: Vec<String> = metadata
+        let contract_dependencies: Vec<PathBuf> = metadata
             .packages
             .iter()
             .filter_map(maybe_contract_package)
             .collect();
-        all_manifests.append(&mut contract_dependencies.clone());
-    } else {
-        all_manifests.append(&mut additional_contracts);
-    };
 
-    all_manifests
-        .iter()
-        .map(|manifest| build_contract(manifest))
-        .collect()
+        Self {
+            root_package,
+            contract_dependencies,
+        }
+    }
+
+    fn root_with_additional_contracts<P>(
+        &self,
+        additional_contracts: impl IntoIterator<Item = P>,
+    ) -> Vec<PathBuf>
+    where
+        PathBuf: From<P>,
+    {
+        let mut all_manifests: Vec<_> = self.root_package.iter().cloned().collect();
+        let mut additional_contracts: Vec<_> = additional_contracts
+            .into_iter()
+            .map(PathBuf::from)
+            .collect();
+        all_manifests.append(&mut additional_contracts);
+        all_manifests
+    }
+
+    fn root_with_contract_dependencies(&self) -> Vec<PathBuf> {
+        self.root_with_additional_contracts(&self.contract_dependencies)
+    }
+}
+
+fn build_contracts(contract_manifests: &[PathBuf]) -> Vec<PathBuf> {
+    static MEM: OnceLock<HashMap<PathBuf, Option<PathBuf>>> = OnceLock::new();
+    MEM.get_or_init(|| HashMap::new());
+
+    let mut wasm_paths = Vec::new();
+    for manifest in contract_manifests {
+        let wasm_path = build_contract(manifest);
+        wasm_paths.push(wasm_path);
+    }
+    wasm_paths
 }
 
 /// Builds the contract at `manifest_path`, returns the path to the contract
 /// Wasm build artifact.
-fn build_contract(path_to_cargo_toml: &str) -> String {
+fn build_contract(path_to_cargo_toml: &Path) -> PathBuf {
     let manifest_path = ManifestPath::new(path_to_cargo_toml).unwrap_or_else(|err| {
-        panic!("Invalid manifest path {path_to_cargo_toml}: {err}")
+        panic!(
+            "Invalid manifest path {}: {err}",
+            path_to_cargo_toml.display()
+        )
     });
     let args = ExecuteArgs {
         manifest_path,
@@ -109,11 +166,13 @@ fn build_contract(path_to_cargo_toml: &str) -> String {
                 .expect("Wasm code artifact not generated")
                 .canonicalize()
                 .expect("Invalid dest bundle path")
-                .to_string_lossy()
-                .into()
+                .to_path_buf()
         }
         Err(err) => {
-            panic!("contract build for {path_to_cargo_toml} failed: {err}")
+            panic!(
+                "contract build for {} failed: {err}",
+                path_to_cargo_toml.display()
+            )
         }
     }
 }
