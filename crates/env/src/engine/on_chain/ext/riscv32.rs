@@ -1,4 +1,4 @@
-// Copyright 2018-2022 Parity Technologies (UK) Ltd.
+// Copyright (C) Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -367,6 +367,23 @@ pub fn ecdsa_recover(
 
 pub fn ecdsa_to_eth_address(pubkey: &[u8; 33], output: &mut [u8; 20]) -> Result {
     let ret_code = (Ptr32::from_slice(pubkey), Ptr32Mut::from_slice(output))
+        .using_encoded(|in_data| sys::call(FUNC_ID, Ptr32::from_slice(in_data)));
+    ret_code.into()
+}
+
+/// **WARNING**: this function is from the [unstable interface](https://github.com/paritytech/substrate/tree/master/frame/contracts#unstable-interfaces),
+/// which is unsafe and normally is not available on production chains.
+pub fn sr25519_verify(
+    signature: &[u8; 64],
+    message: &[u8],
+    pub_key: &[u8; 32],
+) -> Result {
+    let ret_code = (
+        Ptr32::from_slice(signature),
+        Ptr32::from_slice(pub_key),
+        message.len() as u32,
+        Ptr32::from_slice(message),
+    )
         .using_encoded(|in_data| sys::call(FUNC_ID, Ptr32::from_slice(in_data)));
     ret_code.into()
 }

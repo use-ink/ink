@@ -1,4 +1,4 @@
-// Copyright 2018-2022 Parity Technologies (UK) Ltd.
+// Copyright (C) Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -134,21 +134,21 @@ where
 
         // Wait for RPC port to be logged (it's logged to stderr):
         let stderr = proc.stderr.take().unwrap();
-        let ws_port = find_substrate_port_from_output(stderr);
-        let ws_url = format!("ws://127.0.0.1:{ws_port}");
+        let port = find_substrate_port_from_output(stderr);
+        let url = format!("ws://127.0.0.1:{port}");
 
         // Connect to the node with a `subxt` client:
-        let client = OnlineClient::from_url(ws_url.clone()).await;
+        let client = OnlineClient::from_url(url.clone()).await;
         match client {
             Ok(client) => {
                 Ok(TestNodeProcess {
                     proc,
                     client,
-                    url: ws_url.clone(),
+                    url: url.clone(),
                 })
             }
             Err(err) => {
-                let err = format!("Failed to connect to node rpc at {ws_url}: {err}");
+                let err = format!("Failed to connect to node rpc at {url}: {err}");
                 tracing::error!("{}", err);
                 proc.kill().map_err(|e| {
                     format!("Error killing substrate process '{}': {}", proc.id(), e)
@@ -172,6 +172,9 @@ fn find_substrate_port_from_output(r: impl Read + Send + 'static) -> u16 {
             // substrate).
             let line_end = line
                 .rsplit_once("Listening for new connections on 127.0.0.1:")
+                .or_else(|| {
+                    line.rsplit_once("Running JSON-RPC WS server: addr=127.0.0.1:")
+                })
                 .or_else(|| line.rsplit_once("Running JSON-RPC server: addr=127.0.0.1:"))
                 .map(|(_, port_str)| port_str)?;
 
@@ -181,7 +184,7 @@ fn find_substrate_port_from_output(r: impl Read + Send + 'static) -> u16 {
             // expect to have a number here (the chars after '127.0.0.1:') and parse them
             // into a u16.
             let port_num = port_str.parse().unwrap_or_else(|_| {
-                panic!("valid port expected for log line, got '{port_str}'")
+                panic!("valid port expected for tracing line, got '{port_str}'")
             });
 
             Some(port_num)

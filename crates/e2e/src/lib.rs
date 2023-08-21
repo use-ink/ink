@@ -1,4 +1,4 @@
-// Copyright 2018-2022 Parity Technologies (UK) Ltd.
+// Copyright (C) Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -19,22 +19,26 @@
     html_favicon_url = "https://use.ink/crate-docs/favicon.png"
 )]
 
+mod backend;
 mod builders;
-mod client;
-mod default_accounts;
+mod contract_results;
+mod error;
+pub mod events;
 mod node_proc;
+mod subxt_client;
 mod xts;
 
-pub use client::{
-    CallBuilderFinal,
+pub use backend::{
+    ChainBackend,
+    ContractsBackend,
+    E2EBackend,
+};
+pub use contract_results::{
     CallDryRunResult,
     CallResult,
-    Client,
-    Error,
     InstantiationResult,
     UploadResult,
 };
-pub use default_accounts::*;
 pub use ink_e2e_macro::test;
 pub use node_proc::{
     TestNodeProcess,
@@ -42,56 +46,31 @@ pub use node_proc::{
 };
 pub use sp_core::H256;
 pub use sp_keyring::AccountKeyring;
-pub use subxt::{
+pub use subxt;
+pub use subxt_client::{
+    CallBuilderFinal,
+    Client,
+    Error,
+};
+pub use subxt_signer::sr25519::{
     self,
-    tx::PairSigner,
+    dev::*,
+    Keypair,
 };
 pub use tokio;
 pub use tracing_subscriber;
 
 use pallet_contracts_primitives::{
-    CodeUploadResult,
     ContractExecResult,
     ContractInstantiateResult,
 };
-use sp_core::sr25519;
 use std::{
     cell::RefCell,
     sync::Once,
 };
 use xts::ContractsApi;
 
-/// Default set of commonly used types by Substrate runtimes.
-#[cfg(feature = "std")]
-pub enum SubstrateConfig {}
-
-#[cfg(feature = "std")]
-impl subxt::Config for SubstrateConfig {
-    type Index = u32;
-    type Hash = sp_core::H256;
-    type Hasher = subxt::config::substrate::BlakeTwo256;
-    type AccountId = subxt::config::substrate::AccountId32;
-    type Address = sp_runtime::MultiAddress<Self::AccountId, u32>;
-    type Header = subxt::config::substrate::SubstrateHeader<
-        u32,
-        subxt::config::substrate::BlakeTwo256,
-    >;
-    type Signature = sp_runtime::MultiSignature;
-    type ExtrinsicParams = subxt::config::substrate::SubstrateExtrinsicParams<Self>;
-}
-
-/// Default set of commonly used types by Polkadot nodes.
-#[cfg(feature = "std")]
-pub type PolkadotConfig = subxt::config::WithExtrinsicParams<
-    SubstrateConfig,
-    subxt::config::polkadot::PolkadotExtrinsicParams<SubstrateConfig>,
->;
-
-/// Signer that is used throughout the E2E testing.
-///
-/// The E2E testing can only be used with nodes that support `sr25519`
-/// cryptography.
-pub type Signer<C> = PairSigner<C, sr25519::Pair>;
+pub use subxt::PolkadotConfig;
 
 /// We use this to only initialize `env_logger` once.
 pub static INIT: Once = Once::new();

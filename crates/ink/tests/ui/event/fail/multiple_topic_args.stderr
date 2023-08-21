@@ -1,0 +1,5 @@
+error: Only a single `#[ink(topic)]` attribute allowed.
+ --> tests/ui/event/fail/multiple_topic_args.rs:4:5
+  |
+4 |     #[ink(topic)]
+  |     ^

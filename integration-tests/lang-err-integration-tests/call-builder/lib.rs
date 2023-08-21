@@ -166,6 +166,10 @@ mod call_builder {
     #[cfg(all(test, feature = "e2e-tests"))]
     mod e2e_tests {
         use super::*;
+        use ink_e2e::{
+            ChainBackend,
+            ContractsBackend,
+        };
         use integration_flipper::{
             Flipper,
             FlipperRef,
@@ -174,8 +178,8 @@ mod call_builder {
         type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
         #[ink_e2e::test]
-        async fn e2e_invalid_message_selector_can_be_handled(
-            mut client: ink_e2e::Client<C, E>,
+        async fn e2e_invalid_message_selector_can_be_handled<Client: E2EBackend>(
+            mut client: Client,
         ) -> E2EResult<()> {
             let origin = client
                 .create_and_fund_account(&ink_e2e::alice(), 10_000_000_000_000)
@@ -224,8 +228,8 @@ mod call_builder {
         }
 
         #[ink_e2e::test]
-        async fn e2e_invalid_message_selector_panics_on_invoke(
-            mut client: ink_e2e::Client<C, E>,
+        async fn e2e_invalid_message_selector_panics_on_invoke<Client: E2EBackend>(
+            mut client: Client,
         ) -> E2EResult<()> {
             let origin = client
                 .create_and_fund_account(&ink_e2e::bob(), 10_000_000_000_000)
@@ -259,8 +263,8 @@ mod call_builder {
         }
 
         #[ink_e2e::test]
-        async fn e2e_create_builder_works_with_valid_selector(
-            mut client: ink_e2e::Client<C, E>,
+        async fn e2e_create_builder_works_with_valid_selector<Client: E2EBackend>(
+            mut client: Client,
         ) -> E2EResult<()> {
             let origin = client
                 .create_and_fund_account(&ink_e2e::bob(), 10_000_000_000_000)
@@ -298,8 +302,8 @@ mod call_builder {
         }
 
         #[ink_e2e::test]
-        async fn e2e_create_builder_fails_with_invalid_selector(
-            mut client: ink_e2e::Client<C, E>,
+        async fn e2e_create_builder_fails_with_invalid_selector<Client: E2EBackend>(
+            mut client: Client,
         ) -> E2EResult<()> {
             let origin = client
                 .create_and_fund_account(&ink_e2e::bob(), 10_000_000_000_000)
@@ -337,8 +341,10 @@ mod call_builder {
         }
 
         #[ink_e2e::test]
-        async fn e2e_create_builder_with_infallible_revert_constructor_encodes_ok(
-            mut client: ink_e2e::Client<C, E>,
+        async fn e2e_create_builder_with_infallible_revert_constructor_encodes_ok<
+            Client: E2EBackend,
+        >(
+            mut client: Client,
         ) -> E2EResult<()> {
             let origin = client
                 .create_and_fund_account(&ink_e2e::bob(), 10_000_000_000_000)
@@ -380,8 +386,10 @@ mod call_builder {
         }
 
         #[ink_e2e::test]
-        async fn e2e_create_builder_can_handle_fallible_constructor_success(
-            mut client: ink_e2e::Client<C, E>,
+        async fn e2e_create_builder_can_handle_fallible_constructor_success<
+            Client: E2EBackend,
+        >(
+            mut client: Client,
         ) -> E2EResult<()> {
             let origin = client
                 .create_and_fund_account(&ink_e2e::bob(), 10_000_000_000_000)
@@ -419,8 +427,10 @@ mod call_builder {
         }
 
         #[ink_e2e::test]
-        async fn e2e_create_builder_can_handle_fallible_constructor_error(
-            mut client: ink_e2e::Client<C, E>,
+        async fn e2e_create_builder_can_handle_fallible_constructor_error<
+            Client: E2EBackend,
+        >(
+            mut client: Client,
         ) -> E2EResult<()> {
             let origin = client
                 .create_and_fund_account(&ink_e2e::bob(), 10_000_000_000_000)
@@ -465,8 +475,10 @@ mod call_builder {
         }
 
         #[ink_e2e::test]
-        async fn e2e_create_builder_with_fallible_revert_constructor_encodes_ok(
-            mut client: ink_e2e::Client<C, E>,
+        async fn e2e_create_builder_with_fallible_revert_constructor_encodes_ok<
+            Client: E2EBackend,
+        >(
+            mut client: Client,
         ) -> E2EResult<()> {
             let origin = client
                 .create_and_fund_account(&ink_e2e::bob(), 10_000_000_000_000)
@@ -508,8 +520,10 @@ mod call_builder {
         }
 
         #[ink_e2e::test]
-        async fn e2e_create_builder_with_fallible_revert_constructor_encodes_err(
-            mut client: ink_e2e::Client<C, E>,
+        async fn e2e_create_builder_with_fallible_revert_constructor_encodes_err<
+            Client: E2EBackend,
+        >(
+            mut client: Client,
         ) -> E2EResult<()> {
             let origin = client
                 .create_and_fund_account(&ink_e2e::bob(), 10_000_000_000_000)

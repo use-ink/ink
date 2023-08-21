@@ -1,4 +1,4 @@
-// Copyright 2018-2022 Parity Technologies (UK) Ltd.
+// Copyright (C) Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,7 +16,6 @@
 
 mod dispatch;
 mod env;
-mod event;
 mod implies_return;
 mod trait_def;
 pub mod utils;
@@ -31,13 +30,6 @@ pub use self::{
     env::{
         Env,
         StaticEnv,
-    },
-    event::{
-        EmitEvent,
-        EventLenTopics,
-        EventRespectsTopicLimit,
-        EventTopics,
-        RespectTopicLimit,
     },
     implies_return::ImpliesReturn,
     trait_def::{

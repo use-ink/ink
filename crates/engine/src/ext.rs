@@ -1,4 +1,4 @@
-// Copyright 2018-2022 Parity Technologies (UK) Ltd.
+// Copyright (C) Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -97,6 +97,8 @@ define_error_codes! {
     LoggingDisabled = 9,
     /// ECDSA public key recovery failed. Most probably wrong recovery id or signature.
     EcdsaRecoveryFailed = 11,
+    /// sr25519 signature verification failed. This may be because of an invalid public key, invalid message or invalid signature.
+    Sr25519VerifyFailed = 12,
 }
 
 /// The raw return code returned by the host side.

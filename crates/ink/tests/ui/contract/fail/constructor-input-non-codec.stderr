@@ -12,6 +12,9 @@ error[E0277]: the trait bound `NonCodecType: WrapperTypeDecode` is not satisfied
 note: required by a bound in `DispatchInput`
   --> src/codegen/dispatch/type_check.rs
    |
+   | pub struct DispatchInput<T>(T)
+   |            ------------- required by a bound in this struct
+   | where
    |     T: scale::Decode + 'static;
    |        ^^^^^^^^^^^^^ required by this bound in `DispatchInput`
 
@@ -50,5 +53,8 @@ error[E0277]: the trait bound `NonCodecType: WrapperTypeEncode` is not satisfied
 note: required by a bound in `ExecutionInput::<ArgumentList<ArgumentListEnd, ArgumentListEnd>>::push_arg`
   --> $WORKSPACE/crates/env/src/call/execution_input.rs
    |
+   |     pub fn push_arg<T>(
+   |            -------- required by a bound in this associated function
+...
    |         T: scale::Encode,
    |            ^^^^^^^^^^^^^ required by this bound in `ExecutionInput::<ArgumentList<ArgumentListEnd, ArgumentListEnd>>::push_arg`

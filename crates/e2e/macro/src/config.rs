@@ -1,4 +1,4 @@
-// Copyright 2018-2022 Parity Technologies (UK) Ltd.
+// Copyright (C) Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,17 +15,12 @@
 use ink_ir::{
     ast,
     format_err_spanned,
-    utils::{
-        duplicate_config_err,
-        WhitelistedAttributes,
-    },
+    utils::duplicate_config_err,
 };
 
 /// The End-to-End test configuration.
 #[derive(Debug, Default, PartialEq, Eq)]
 pub struct E2EConfig {
-    /// The set of attributes that can be passed to call builder in the codegen.
-    whitelisted_attributes: WhitelistedAttributes,
     /// Additional contracts that have to be built before executing the test.
     additional_contracts: Vec<String>,
     /// The [`Environment`](https://docs.rs/ink_env/4.1.0/ink_env/trait.Environment.html) to use
@@ -41,14 +36,11 @@ impl TryFrom<ast::AttributeArgs> for E2EConfig {
     type Error = syn::Error;
 
     fn try_from(args: ast::AttributeArgs) -> Result<Self, Self::Error> {
-        let mut whitelisted_attributes = WhitelistedAttributes::default();
         let mut additional_contracts: Option<(syn::LitStr, ast::MetaNameValue)> = None;
         let mut environment: Option<(syn::Path, ast::MetaNameValue)> = None;
 
         for arg in args.into_iter() {
-            if arg.name.is_ident("keep_attr") {
-                whitelisted_attributes.parse_arg_value(&arg)?;
-            } else if arg.name.is_ident("additional_contracts") {
+            if arg.name.is_ident("additional_contracts") {
                 if let Some((_, ast)) = additional_contracts {
                     return Err(duplicate_config_err(
                         ast,
@@ -63,7 +55,7 @@ impl TryFrom<ast::AttributeArgs> for E2EConfig {
                     return Err(format_err_spanned!(
                         arg,
                         "expected a string literal for `additional_contracts` ink! E2E test configuration argument",
-                    ))
+                    ));
                 }
             } else if arg.name.is_ident("environment") {
                 if let Some((_, ast)) = environment {
@@ -75,7 +67,7 @@ impl TryFrom<ast::AttributeArgs> for E2EConfig {
                     return Err(format_err_spanned!(
                         arg,
                         "expected a path for `environment` ink! E2E test configuration argument",
-                    ))
+                    ));
                 }
             } else {
                 return Err(format_err_spanned!(
@@ -91,7 +83,6 @@ impl TryFrom<ast::AttributeArgs> for E2EConfig {
 
         Ok(E2EConfig {
             additional_contracts,
-            whitelisted_attributes,
             environment,
         })
     }
@@ -197,38 +188,12 @@ mod tests {
                 environment = crate::CustomEnvironment,
             },
             Ok(E2EConfig {
-                whitelisted_attributes: Default::default(),
                 additional_contracts: vec![
                     "adder/Cargo.toml".into(),
                     "flipper/Cargo.toml".into(),
                 ],
                 environment: Some(syn::parse_quote! { crate::CustomEnvironment }),
             }),
-        );
-    }
-
-    #[test]
-    fn keep_attr_works() {
-        let mut attrs = WhitelistedAttributes::default();
-        attrs.0.insert("foo".to_string(), ());
-        attrs.0.insert("bar".to_string(), ());
-        assert_try_from(
-            syn::parse_quote! {
-                keep_attr = "foo, bar"
-            },
-            Ok(E2EConfig {
-                whitelisted_attributes: attrs,
-                additional_contracts: Vec::new(),
-                environment: None,
-            }),
-        )
-    }
-
-    #[test]
-    fn keep_attr_invalid_value_fails() {
-        assert_try_from(
-            syn::parse_quote! { keep_attr = 1u16 },
-            Err("expected a string with attributes separated by `,`"),
         );
     }
 }

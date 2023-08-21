@@ -1,4 +1,4 @@
-// Copyright 2018-2022 Parity Technologies (UK) Ltd.
+// Copyright (C) Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -27,6 +27,9 @@ fn ui_tests() {
 
     t.pass("tests/ui/contract/pass/*.rs");
     t.compile_fail("tests/ui/contract/fail/*.rs");
+
+    t.pass("tests/ui/event/pass/*.rs");
+    t.compile_fail("tests/ui/event/fail/*.rs");
 
     t.pass("tests/ui/storage_item/pass/*.rs");
     t.compile_fail("tests/ui/storage_item/fail/*.rs");

@@ -1,4 +1,4 @@
-// Copyright 2018-2022 Parity Technologies (UK) Ltd.
+// Copyright (C) Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -46,16 +46,10 @@ impl GenerateCode for ItemImpls<'_> {
             .map(|item_impl| self.generate_item_impl(item_impl));
         let inout_guards = self.generate_input_output_guards();
         let trait_message_property_guards = self.generate_trait_message_property_guards();
-        let use_emit_event =
-            self.contract.module().events().next().is_some().then(|| {
-                // Required to make `self.env().emit_event(...)` syntax available.
-                quote! { use ::ink::codegen::EmitEvent as _; }
-            });
         quote! {
             const _: () = {
                 // Required to make `self.env()` and `Self::env()` syntax available.
                 use ::ink::codegen::{Env as _, StaticEnv as _};
-                #use_emit_event
 
                 #( #item_impls )*
                 #inout_guards

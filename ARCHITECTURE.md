@@ -37,7 +37,7 @@ ink! is composed of a number of crates that are all found in the
   functionality of the standard library.
 * [`primitives`](https://github.com/paritytech/ink/tree/master/crates/primitives):
   Utilities that are used internally by multiple ink! crates.
-* [`storage`](https://github.com/paritytech/ink/tree/master/crates/prelude):
+* [`storage`](https://github.com/paritytech/ink/tree/master/crates/storage):
   The collections that are available for contract developers to put in
   a smart contracts storage.
 * [`engine`](https://github.com/paritytech/ink/tree/master/crates/engine):

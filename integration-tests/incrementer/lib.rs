@@ -1,5 +1,10 @@
 #![cfg_attr(not(feature = "std"), no_std, no_main)]
 
+pub use self::incrementer::{
+    Incrementer,
+    IncrementerRef,
+};
+
 #[ink::contract]
 mod incrementer {
     #[ink(storage)]

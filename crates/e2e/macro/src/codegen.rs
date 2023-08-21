@@ -1,4 +1,4 @@
-// Copyright 2018-2022 Parity Technologies (UK) Ltd.
+// Copyright (C) Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -218,7 +218,7 @@ impl ContractManifests {
         let cmd = cargo_metadata::MetadataCommand::new();
         let metadata = cmd
             .exec()
-            .unwrap_or_else(|err| panic!("Error invoking `cargo metadata`: {}", err));
+            .unwrap_or_else(|err| panic!("Error invoking `cargo metadata`: {err}"));
 
         fn maybe_contract_package(package: &cargo_metadata::Package) -> Option<String> {
             package
@@ -293,6 +293,7 @@ fn build_contract(path_to_cargo_toml: &str) -> String {
         output_type: OutputType::HumanReadable,
         skip_wasm_validation: false,
         target: Target::Wasm,
+        ..Default::default()
     };
 
     match contract_build::execute(args) {
