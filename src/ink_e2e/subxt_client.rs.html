@@ -746,6 +746,9 @@
 <a href="#746" id="746">746</a>
 <a href="#747" id="747">747</a>
 <a href="#748" id="748">748</a>
+<a href="#749" id="749">749</a>
+<a href="#750" id="750">750</a>
+<a href="#751" id="751">751</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -867,10 +870,13 @@
     E::Hash: Debug + scale::Encode,
 {
     <span class="doccomment">/// Creates a new [`Client`] instance using a `subxt` client.
-    </span><span class="kw">pub async fn </span>new(
+    </span><span class="kw">pub async fn </span>new&lt;P&gt;(
         client: subxt::OnlineClient&lt;C&gt;,
-        contracts: <span class="kw">impl </span>IntoIterator&lt;Item = <span class="kw-2">&amp;</span>str&gt;,
-    ) -&gt; <span class="self">Self </span>{
+        contracts: <span class="kw">impl </span>IntoIterator&lt;Item = P&gt;,
+    ) -&gt; <span class="self">Self
+    </span><span class="kw">where
+        </span>PathBuf: From&lt;P&gt;,
+    {
         <span class="kw">let </span>contracts = contracts
             .into_iter()
             .map(|path| {
