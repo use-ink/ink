@@ -21,6 +21,7 @@
 
 mod backend;
 mod builders;
+mod contract_build;
 mod contract_results;
 mod error;
 pub mod events;
@@ -28,6 +29,10 @@ mod node_proc;
 mod subxt_client;
 mod xts;
 
+pub use crate::contract_build::{
+    build_root_and_additional_contracts,
+    build_root_and_contract_dependencies,
+};
 pub use backend::{
     ChainBackend,
     ContractsBackend,

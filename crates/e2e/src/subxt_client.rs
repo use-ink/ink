@@ -119,10 +119,13 @@ where
     E::Hash: Debug + scale::Encode,
 {
     /// Creates a new [`Client`] instance using a `subxt` client.
-    pub async fn new(
+    pub async fn new<P>(
         client: subxt::OnlineClient<C>,
-        contracts: impl IntoIterator<Item = &str>,
-    ) -> Self {
+        contracts: impl IntoIterator<Item = P>,
+    ) -> Self
+    where
+        PathBuf: From<P>,
+    {
         let contracts = contracts
             .into_iter()
             .map(|path| {
