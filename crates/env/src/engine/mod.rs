@@ -33,12 +33,12 @@ use ink_primitives::{
 
 /// Convert a slice into an array reference.
 ///
-/// Creates an array reference of size $len pointing to $offset within $arr.
+/// Creates an array reference of size `$len` pointing to `$offset` within `$arr`.
 ///
 /// # Panics
 ///
 /// - The selected range is out of bounds given the supplied slice
-/// - Integer overflow on $offset + $len
+/// - Integer overflow on `$offset + $len`
 macro_rules! array_mut_ref {
     ($arr:expr, $offset:expr, $len:expr) => {{
         {
