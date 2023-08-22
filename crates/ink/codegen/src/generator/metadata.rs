@@ -1,4 +1,4 @@
-// Copyright 2018-2022 Parity Technologies (UK) Ltd.
+// Copyright (C) Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -397,6 +397,7 @@ impl Metadata<'_> {
         let timestamp = Self::generate_type_spec(&timestamp);
         let block_number = Self::generate_type_spec(&block_number);
         let chain_extension = Self::generate_type_spec(&chain_extension);
+        let buffer_size_const = quote!(::ink::env::BUFFER_SIZE);
         quote_spanned!(span=>
             ::ink::metadata::EnvironmentSpec::new()
                 .account_id(#account_id)
@@ -406,6 +407,7 @@ impl Metadata<'_> {
                 .block_number(#block_number)
                 .chain_extension(#chain_extension)
                 .max_event_topics(MAX_EVENT_TOPICS)
+                .static_buffer_size(#buffer_size_const)
                 .done()
         )
     }

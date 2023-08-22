@@ -1,4 +1,4 @@
-// Copyright 2018-2022 Parity Technologies (UK) Ltd.
+// Copyright (C) Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -702,6 +702,8 @@ mod state {
     pub struct ChainExtension;
     /// Type state for the max number of topics specified in the environment.
     pub struct MaxEventTopics;
+    /// Type state for the size of the static buffer configured via environment variable.`
+    pub struct BufferSize;
 }
 
 impl<F> MessageSpec<F>
@@ -1615,6 +1617,7 @@ where
     block_number: TypeSpec<F>,
     chain_extension: TypeSpec<F>,
     max_event_topics: usize,
+    static_buffer_size: usize,
 }
 
 impl<F> Default for EnvironmentSpec<F>
@@ -1631,6 +1634,7 @@ where
             block_number: Default::default(),
             chain_extension: Default::default(),
             max_event_topics: Default::default(),
+            static_buffer_size: Default::default(),
         }
     }
 }
@@ -1647,6 +1651,7 @@ impl IntoPortable for EnvironmentSpec {
             block_number: self.block_number.into_portable(registry),
             chain_extension: self.chain_extension.into_portable(registry),
             max_event_topics: self.max_event_topics,
+            static_buffer_size: self.static_buffer_size,
         }
     }
 }
@@ -1702,6 +1707,7 @@ where
         Missing<state::BlockNumber>,
         Missing<state::ChainExtension>,
         Missing<state::MaxEventTopics>,
+        Missing<state::BufferSize>,
     > {
         EnvironmentSpecBuilder {
             spec: Default::default(),
@@ -1713,18 +1719,18 @@ where
 /// An environment specification builder.
 #[allow(clippy::type_complexity)]
 #[must_use]
-pub struct EnvironmentSpecBuilder<F, A, B, H, T, BN, C, M>
+pub struct EnvironmentSpecBuilder<F, A, B, H, T, BN, C, M, BS>
 where
     F: Form,
     TypeSpec<F>: Default,
     EnvironmentSpec<F>: Default,
 {
     spec: EnvironmentSpec<F>,
-    marker: PhantomData<fn() -> (A, B, H, T, BN, C, M)>,
+    marker: PhantomData<fn() -> (A, B, H, T, BN, C, M, BS)>,
 }
 
-impl<F, B, H, T, BN, C, M>
-    EnvironmentSpecBuilder<F, Missing<state::AccountId>, B, H, T, BN, C, M>
+impl<F, B, H, T, BN, C, M, BS>
+    EnvironmentSpecBuilder<F, Missing<state::AccountId>, B, H, T, BN, C, M, BS>
 where
     F: Form,
     TypeSpec<F>: Default,
@@ -1734,7 +1740,7 @@ where
     pub fn account_id(
         self,
         account_id: TypeSpec<F>,
-    ) -> EnvironmentSpecBuilder<F, state::AccountId, B, H, T, BN, C, M> {
+    ) -> EnvironmentSpecBuilder<F, state::AccountId, B, H, T, BN, C, M, BS> {
         EnvironmentSpecBuilder {
             spec: EnvironmentSpec {
                 account_id,
@@ -1745,8 +1751,8 @@ where
     }
 }
 
-impl<F, A, H, T, BN, C, M>
-    EnvironmentSpecBuilder<F, A, Missing<state::Balance>, H, T, BN, C, M>
+impl<F, A, H, T, BN, C, M, BS>
+    EnvironmentSpecBuilder<F, A, Missing<state::Balance>, H, T, BN, C, M, BS>
 where
     F: Form,
     TypeSpec<F>: Default,
@@ -1756,7 +1762,7 @@ where
     pub fn balance(
         self,
         balance: TypeSpec<F>,
-    ) -> EnvironmentSpecBuilder<F, A, state::Balance, H, T, BN, C, M> {
+    ) -> EnvironmentSpecBuilder<F, A, state::Balance, H, T, BN, C, M, BS> {
         EnvironmentSpecBuilder {
             spec: EnvironmentSpec {
                 balance,
@@ -1767,8 +1773,8 @@ where
     }
 }
 
-impl<F, A, B, T, BN, C, M>
-    EnvironmentSpecBuilder<F, A, B, Missing<state::Hash>, T, BN, C, M>
+impl<F, A, B, T, BN, C, M, BS>
+    EnvironmentSpecBuilder<F, A, B, Missing<state::Hash>, T, BN, C, M, BS>
 where
     F: Form,
     TypeSpec<F>: Default,
@@ -1778,7 +1784,7 @@ where
     pub fn hash(
         self,
         hash: TypeSpec<F>,
-    ) -> EnvironmentSpecBuilder<F, A, B, state::Hash, T, BN, C, M> {
+    ) -> EnvironmentSpecBuilder<F, A, B, state::Hash, T, BN, C, M, BS> {
         EnvironmentSpecBuilder {
             spec: EnvironmentSpec { hash, ..self.spec },
             marker: PhantomData,
@@ -1786,8 +1792,8 @@ where
     }
 }
 
-impl<F, A, B, H, BN, C, M>
-    EnvironmentSpecBuilder<F, A, B, H, Missing<state::Timestamp>, BN, C, M>
+impl<F, A, B, H, BN, C, M, BS>
+    EnvironmentSpecBuilder<F, A, B, H, Missing<state::Timestamp>, BN, C, M, BS>
 where
     F: Form,
     TypeSpec<F>: Default,
@@ -1797,7 +1803,7 @@ where
     pub fn timestamp(
         self,
         timestamp: TypeSpec<F>,
-    ) -> EnvironmentSpecBuilder<F, A, B, H, state::Timestamp, BN, C, M> {
+    ) -> EnvironmentSpecBuilder<F, A, B, H, state::Timestamp, BN, C, M, BS> {
         EnvironmentSpecBuilder {
             spec: EnvironmentSpec {
                 timestamp,
@@ -1808,8 +1814,8 @@ where
     }
 }
 
-impl<F, A, B, H, T, C, M>
-    EnvironmentSpecBuilder<F, A, B, H, T, Missing<state::BlockNumber>, C, M>
+impl<F, A, B, H, T, C, M, BS>
+    EnvironmentSpecBuilder<F, A, B, H, T, Missing<state::BlockNumber>, C, M, BS>
 where
     F: Form,
     TypeSpec<F>: Default,
@@ -1819,7 +1825,7 @@ where
     pub fn block_number(
         self,
         block_number: TypeSpec<F>,
-    ) -> EnvironmentSpecBuilder<F, A, B, H, T, state::BlockNumber, C, M> {
+    ) -> EnvironmentSpecBuilder<F, A, B, H, T, state::BlockNumber, C, M, BS> {
         EnvironmentSpecBuilder {
             spec: EnvironmentSpec {
                 block_number,
@@ -1830,8 +1836,8 @@ where
     }
 }
 
-impl<F, A, B, H, T, BN, M>
-    EnvironmentSpecBuilder<F, A, B, H, T, BN, Missing<state::ChainExtension>, M>
+impl<F, A, B, H, T, BN, M, BS>
+    EnvironmentSpecBuilder<F, A, B, H, T, BN, Missing<state::ChainExtension>, M, BS>
 where
     F: Form,
     TypeSpec<F>: Default,
@@ -1841,7 +1847,7 @@ where
     pub fn chain_extension(
         self,
         chain_extension: TypeSpec<F>,
-    ) -> EnvironmentSpecBuilder<F, A, B, H, T, BN, state::ChainExtension, M> {
+    ) -> EnvironmentSpecBuilder<F, A, B, H, T, BN, state::ChainExtension, M, BS> {
         EnvironmentSpecBuilder {
             spec: EnvironmentSpec {
                 chain_extension,
@@ -1852,8 +1858,8 @@ where
     }
 }
 
-impl<F, A, B, H, T, BN, C>
-    EnvironmentSpecBuilder<F, A, B, H, T, BN, C, Missing<state::MaxEventTopics>>
+impl<F, A, B, H, T, BN, C, BS>
+    EnvironmentSpecBuilder<F, A, B, H, T, BN, C, Missing<state::MaxEventTopics>, BS>
 where
     F: Form,
     TypeSpec<F>: Default,
@@ -1863,10 +1869,32 @@ where
     pub fn max_event_topics(
         self,
         max_event_topics: usize,
-    ) -> EnvironmentSpecBuilder<F, A, B, H, T, BN, C, state::MaxEventTopics> {
+    ) -> EnvironmentSpecBuilder<F, A, B, H, T, BN, C, state::MaxEventTopics, BS> {
         EnvironmentSpecBuilder {
             spec: EnvironmentSpec {
                 max_event_topics,
+                ..self.spec
+            },
+            marker: PhantomData,
+        }
+    }
+}
+
+impl<F, A, B, H, T, BN, C, M>
+    EnvironmentSpecBuilder<F, A, B, H, T, BN, C, M, Missing<state::BufferSize>>
+where
+    F: Form,
+    TypeSpec<F>: Default,
+    EnvironmentSpec<F>: Default,
+{
+    /// Sets the size of the static buffer configured via environment variable.`
+    pub fn static_buffer_size(
+        self,
+        static_buffer_size: usize,
+    ) -> EnvironmentSpecBuilder<F, A, B, H, T, BN, C, M, state::BufferSize> {
+        EnvironmentSpecBuilder {
+            spec: EnvironmentSpec {
+                static_buffer_size,
                 ..self.spec
             },
             marker: PhantomData,
@@ -1884,6 +1912,7 @@ impl<F>
         state::BlockNumber,
         state::ChainExtension,
         state::MaxEventTopics,
+        state::BufferSize,
     >
 where
     F: Form,

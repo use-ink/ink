@@ -1,4 +1,4 @@
-// Copyright 2018-2022 Parity Technologies (UK) Ltd.
+// Copyright (C) Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -45,6 +45,12 @@
     trivial_numeric_casts,
     unused_extern_crates
 )]
+
+/// The capacity of the static buffer.
+/// Usually set to 16 kB.
+/// Can be modified by setting `INK_STATIC_BUFFER_SIZE` environmental variable.
+#[const_env::from_env("INK_STATIC_BUFFER_SIZE")]
+pub const BUFFER_SIZE: usize = 16384;
 
 #[cfg(all(not(feature = "std"), target_arch = "wasm32"))]
 #[allow(unused_extern_crates)]

@@ -1,4 +1,4 @@
-// Copyright 2018-2022 Parity Technologies (UK) Ltd.
+// Copyright (C) Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -328,6 +328,15 @@ impl EnvBackend for EnvInstance {
         output: &mut [u8; 20],
     ) -> Result<()> {
         ext::ecdsa_to_eth_address(pubkey, output).map_err(Into::into)
+    }
+
+    fn sr25519_verify(
+        &mut self,
+        signature: &[u8; 64],
+        message: &[u8],
+        pub_key: &[u8; 32],
+    ) -> Result<()> {
+        ext::sr25519_verify(signature, message, pub_key).map_err(Into::into)
     }
 
     fn call_chain_extension<I, T, E, ErrorCode, F, D>(

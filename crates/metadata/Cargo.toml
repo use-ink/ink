@@ -1,29 +1,29 @@
 [package]
 name = "ink_metadata"
-version = "4.2.0"
+version.workspace = true
 authors = ["Parity Technologies <admin@parity.io>", "Robin Freyler <robin@parity.io>"]
-edition = "2021"
+edition.workspace = true
 
-license = "Apache-2.0"
+license.workspace = true
 readme = "README.md"
-repository = "https://github.com/paritytech/ink"
+repository.workspace = true
 documentation = "https://docs.rs/ink_metadata/"
-homepage = "https://www.parity.io/"
+homepage.workspace = true
 description = "[ink!] Metadata definitions for ink! smart contracts."
-keywords = ["wasm", "parity", "webassembly", "blockchain", "edsl"]
-categories = ["no-std", "embedded"]
+keywords.workspace = true
+categories.workspace = true
 include = ["Cargo.toml", "src/**/*.rs", "README.md", "LICENSE"]
 
 [dependencies]
-ink_prelude = { version = "=4.2.0", path = "../prelude/", default-features = false }
-ink_primitives = { version = "=4.2.0", path = "../primitives/", default-features = false }
+ink_prelude = { workspace = true }
+ink_primitives = { workspace = true }
 
-serde = { version = "1.0", default-features = false, features = ["derive", "alloc"] }
-impl-serde = "0.4.0"
-derive_more = { version = "0.99", default-features = false, features = ["from"] }
-linkme = "0.3.9"
-scale-info = { version = "2.6", default-features = false, features = ["derive", "serde", "decode", "schema"] }
-schemars = "0.8"
+serde = { workspace = true, features = ["derive", "alloc"] }
+impl-serde = { workspace = true, default-features = true }
+derive_more = { workspace = true, features = ["from"] }
+linkme = { workspace = true }
+scale-info = { workspace = true, features = ["derive", "serde", "decode", "schema"] }
+schemars = { workspace = true }
 
 [dev-dependencies]
 pretty_assertions = "1"

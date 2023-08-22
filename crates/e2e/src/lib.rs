@@ -1,4 +1,4 @@
-// Copyright 2018-2022 Parity Technologies (UK) Ltd.
+// Copyright (C) Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -19,19 +19,24 @@
     html_favicon_url = "https://use.ink/crate-docs/favicon.png"
 )]
 
+mod backend;
 mod builders;
-mod client;
+mod contract_build;
 mod contract_results;
-mod default_accounts;
 mod error;
 pub mod events;
 mod node_proc;
+mod subxt_client;
 mod xts;
 
-pub use client::{
-    CallBuilderFinal,
-    Client,
-    Error,
+pub use crate::contract_build::{
+    build_root_and_additional_contracts,
+    build_root_and_contract_dependencies,
+};
+pub use backend::{
+    ChainBackend,
+    ContractsBackend,
+    E2EBackend,
 };
 pub use contract_results::{
     CallDryRunResult,
@@ -39,7 +44,6 @@ pub use contract_results::{
     InstantiationResult,
     UploadResult,
 };
-pub use default_accounts::*;
 pub use ink_e2e_macro::test;
 pub use node_proc::{
     TestNodeProcess,
@@ -47,9 +51,16 @@ pub use node_proc::{
 };
 pub use sp_core::H256;
 pub use sp_keyring::AccountKeyring;
-pub use subxt::{
+pub use subxt;
+pub use subxt_client::{
+    CallBuilderFinal,
+    Client,
+    Error,
+};
+pub use subxt_signer::sr25519::{
     self,
-    tx::PairSigner,
+    dev::*,
+    Keypair,
 };
 pub use tokio;
 pub use tracing_subscriber;
@@ -58,7 +69,6 @@ use pallet_contracts_primitives::{
     ContractExecResult,
     ContractInstantiateResult,
 };
-use sp_core::sr25519;
 use std::{
     cell::RefCell,
     sync::Once,
@@ -66,12 +76,6 @@ use std::{
 use xts::ContractsApi;
 
 pub use subxt::PolkadotConfig;
-
-/// Signer that is used throughout the E2E testing.
-///
-/// The E2E testing can only be used with nodes that support `sr25519`
-/// cryptography.
-pub type Signer<C> = PairSigner<C, sr25519::Pair>;
 
 /// We use this to only initialize `env_logger` once.
 pub static INIT: Once = Once::new();

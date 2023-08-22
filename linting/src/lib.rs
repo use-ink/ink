@@ -1,18 +1,16 @@
-// Copyright 2018-2022 Parity Technologies (UK) Ltd.
-// This file is part of cargo-contract.
+// Copyright (C) Parity Technologies (UK) Ltd.
 //
-// cargo-contract is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
 //
-// cargo-contract is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
+//     http://www.apache.org/licenses/LICENSE-2.0
 //
-// You should have received a copy of the GNU General Public License
-// along with cargo-contract.  If not, see <http://www.gnu.org/licenses/>.
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 #![doc(
     html_logo_url = "https://use.ink/img/crate-docs/logo.png",
@@ -30,12 +28,16 @@ extern crate rustc_middle;
 extern crate rustc_session;
 extern crate rustc_span;
 
+mod primitive_topic;
+
 #[doc(hidden)]
 #[no_mangle]
 pub fn register_lints(
     _sess: &rustc_session::Session,
-    _lint_store: &mut rustc_lint::LintStore,
+    lint_store: &mut rustc_lint::LintStore,
 ) {
+    lint_store.register_lints(&[primitive_topic::PRIMITIVE_TOPIC]);
+    lint_store.register_late_pass(|_| Box::new(primitive_topic::PrimitiveTopic));
 }
 
 #[test]

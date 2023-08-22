@@ -30,10 +30,8 @@ error[E0599]: the method `try_invoke` exists for struct `CallBuilder<E, Set<Call
 1 |   pub struct NonCodec;
   |   ------------------- doesn't satisfy `NonCodec: parity_scale_codec::Decode`
 ...
-5 |       #[ink(message)]
-  |  _____^
-6 | |     fn message(&self) -> NonCodec;
-  | |__________________________________^ method cannot be called due to unsatisfied trait bounds
+5 |     #[ink(message)]
+  |     ^ method cannot be called due to unsatisfied trait bounds
   |
   = note: the following trait bounds were not satisfied:
           `NonCodec: parity_scale_codec::Decode`

@@ -1,4 +1,4 @@
-// Copyright 2018-2022 Parity Technologies (UK) Ltd.
+// Copyright (C) Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Copyright 2018-2022 Parity Technologies (UK) Ltd.
+// Copyright (C) Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -144,6 +144,15 @@ mod sys {
         pub fn ecdsa_to_eth_address(
             public_key_ptr: Ptr32<[u8]>,
             output_ptr: Ptr32Mut<[u8]>,
+        ) -> ReturnCode;
+
+        /// **WARNING**: this function is from the [unstable interface](https://github.com/paritytech/substrate/tree/master/frame/contracts#unstable-interfaces),
+        /// which is unsafe and normally is not available on production chains.
+        pub fn sr25519_verify(
+            signature_ptr: Ptr32<[u8]>,
+            public_key_ptr: Ptr32<[u8]>,
+            message_len: u32,
+            message_ptr: Ptr32<[u8]>,
         ) -> ReturnCode;
 
         pub fn take_storage(
@@ -600,6 +609,22 @@ pub fn ecdsa_to_eth_address(pubkey: &[u8; 33], output: &mut [u8; 20]) -> Result 
 pub fn reentrance_count() -> u32 {
     let ret_code = unsafe { sys::reentrance_count() };
     ret_code.into_u32()
+}
+
+pub fn sr25519_verify(
+    signature: &[u8; 64],
+    message: &[u8],
+    pub_key: &[u8; 32],
+) -> Result {
+    let ret_code = unsafe {
+        sys::sr25519_verify(
+            Ptr32::from_slice(signature),
+            Ptr32::from_slice(pub_key),
+            message.len() as u32,
+            Ptr32::from_slice(message),
+        )
+    };
+    ret_code.into()
 }
 
 pub fn is_contract(account_id: &[u8]) -> bool {

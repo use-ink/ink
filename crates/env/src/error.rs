@@ -1,4 +1,4 @@
-// Copyright 2018-2022 Parity Technologies (UK) Ltd.
+// Copyright (C) Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -51,6 +51,8 @@ pub enum Error {
     CallRuntimeFailed,
     /// ECDSA pubkey recovery failed. Most probably wrong recovery id or signature.
     EcdsaRecoveryFailed,
+    /// sr25519 signature verification failed.
+    Sr25519VerifyFailed,
 }
 
 /// A result of environmental operations.

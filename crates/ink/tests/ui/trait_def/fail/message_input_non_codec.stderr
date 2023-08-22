@@ -51,10 +51,8 @@ note: required by a bound in `ExecutionInput::<ArgumentList<ArgumentListEnd, Arg
 error[E0599]: the method `try_invoke` exists for struct `CallBuilder<E, Set<Call<E>>, Set<ExecutionInput<ArgumentList<Argument<NonCodec>, ...>>>, ...>`, but its trait bounds were not satisfied
  --> tests/ui/trait_def/fail/message_input_non_codec.rs:5:5
   |
-5 |       #[ink(message)]
-  |  _____^
-6 | |     fn message(&self, input: NonCodec);
-  | |_______________________________________^ method cannot be called due to unsatisfied trait bounds
+5 |     #[ink(message)]
+  |     ^ method cannot be called due to unsatisfied trait bounds
   |
  ::: $WORKSPACE/crates/env/src/call/execution_input.rs
   |

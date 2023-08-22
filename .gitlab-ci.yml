@@ -26,7 +26,7 @@ variables:
   GIT_DEPTH:                       100
   CARGO_INCREMENTAL:               0
   CARGO_TARGET_DIR:                "/ci-cache/${CI_PROJECT_NAME}/targets/${CI_COMMIT_REF_NAME}/${CI_JOB_NAME}"
-  CI_IMAGE:                        "paritytech/ci-unified:bullseye-1.69.0-2023-03-21"
+  CI_IMAGE:                        "paritytech/ci-unified:bullseye-1.71.0-2023-05-23"
   PURELY_STD_CRATES:               "ink/codegen metadata engine e2e e2e/macro ink/ir"
   ALSO_WASM_CRATES:                "env storage storage/traits allocator prelude primitives ink ink/macro"
   ALL_CRATES:                      "${PURELY_STD_CRATES} ${ALSO_WASM_CRATES}"
@@ -384,7 +384,11 @@ examples-test:
         cargo test --verbose --manifest-path ${example}/Cargo.toml --features "foo, bar";
         fi;
         if grep -q "e2e-tests = \[\]" "${example}/Cargo.toml"; then
-          cargo test --verbose --manifest-path ${example}/Cargo.toml --features e2e-tests;
+          if [ "$example" = "integration-tests/static-buffer/" ]; then
+            cargo clean && INK_STATIC_BUFFER_SIZE=30 cargo test --verbose --manifest-path ${example}/Cargo.toml --features e2e-tests && cargo clean;
+          else
+            cargo test --verbose --manifest-path ${example}/Cargo.toml --features e2e-tests;
+          fi;
         else
           cargo test --verbose --manifest-path ${example}/Cargo.toml;
         fi;

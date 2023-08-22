@@ -18,18 +18,18 @@ include = ["Cargo.toml", "*.rs", "LICENSE"]
 crate-type = ["cdylib"]
 
 [dependencies]
-clippy_utils = { git = "https://github.com/rust-lang/rust-clippy", rev = "1480cea393d0cee195e59949eabdfbcf1230f7f9" }
-dylint_linting = "2.0.0"
+clippy_utils = { git = "https://github.com/rust-lang/rust-clippy", rev = "1d334696587ac22b3a9e651e7ac684ac9e0697b2" }
+dylint_linting = "2.1.12"
 if_chain = "1.0.2"
 log = "0.4.14"
 regex = "1.5.4"
 
 [dev-dependencies]
-dylint_testing = "2.0.0"
+dylint_testing = "2.1.12"
 
 # The following are ink! dependencies, they are only required for the `ui` tests.
 ink_env = { path = "../crates/env", default-features = false }
-ink = { path = "../crates/ink", default-features = false }
+ink = { path = "../crates/ink", default-features = false, features = ["std"] }
 ink_metadata = { path = "../crates/metadata", default-features = false }
 ink_primitives = { path = "../crates/primitives", default-features = false }
 ink_storage = { path = "../crates/storage", default-features = false }
@@ -45,6 +45,12 @@ scale-info = { version = "2.6", default-features = false, features = ["derive"] 
 #
 # Those files require the ink! dependencies though, by having
 # them as examples here, they inherit the `dev-dependencies`.
+[[example]]
+name = "primitive_topic_pass"
+path = "ui/pass/primitive_topic.rs"
+[[example]]
+name = "primitive_topic_fail"
+path = "ui/fail/primitive_topic.rs"
 
 [package.metadata.rust-analyzer]
 rustc_private = true

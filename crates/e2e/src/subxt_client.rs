@@ -1,4 +1,4 @@
-// Copyright 2018-2022 Parity Technologies (UK) Ltd.
+// Copyright (C) Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -27,7 +27,7 @@ use super::{
     sr25519,
     ContractInstantiateResult,
     ContractsApi,
-    Signer,
+    Keypair,
 };
 use crate::contract_results::{
     CallDryRunResult,
@@ -46,7 +46,11 @@ use ink_env::{
     },
     Environment,
 };
-use sp_core::Pair;
+use jsonrpsee::core::async_trait;
+use scale::{
+    Decode,
+    Encode,
+};
 #[cfg(feature = "std")]
 use std::{
     collections::BTreeMap,
@@ -54,7 +58,12 @@ use std::{
     path::PathBuf,
 };
 
-use crate::events;
+use crate::{
+    backend::ChainBackend,
+    events,
+    ContractsBackend,
+    E2EBackend,
+};
 use subxt::{
     blocks::ExtrinsicEvents,
     config::ExtrinsicParams,
@@ -64,7 +73,7 @@ use subxt::{
         Value,
         ValueDef,
     },
-    tx::PairSigner,
+    tx::Signer,
 };
 
 pub type Error<E> = crate::error::Error<
@@ -98,12 +107,11 @@ where
 impl<C, E> Client<C, E>
 where
     C: subxt::Config,
-    C::AccountId: From<sp_runtime::AccountId32>
-        + scale::Codec
-        + serde::de::DeserializeOwned
-        + Debug,
+    C::AccountId:
+        From<sr25519::PublicKey> + scale::Codec + serde::de::DeserializeOwned + Debug,
+    C::Address: From<sr25519::PublicKey>,
     C::Signature: From<sr25519::Signature>,
-    <C::ExtrinsicParams as ExtrinsicParams<C::Index, C::Hash>>::OtherParams: Default,
+    <C::ExtrinsicParams as ExtrinsicParams<C::Hash>>::OtherParams: Default,
 
     E: Environment,
     E::AccountId: Debug,
@@ -111,10 +119,13 @@ where
     E::Hash: Debug + scale::Encode,
 {
     /// Creates a new [`Client`] instance using a `subxt` client.
-    pub async fn new(
+    pub async fn new<P>(
         client: subxt::OnlineClient<C>,
-        contracts: impl IntoIterator<Item = &str>,
-    ) -> Self {
+        contracts: impl IntoIterator<Item = P>,
+    ) -> Self
+    where
+        PathBuf: From<P>,
+    {
         let contracts = contracts
             .into_iter()
             .map(|path| {
@@ -130,107 +141,6 @@ where
             api: ContractsApi::new(client).await,
             contracts,
         }
-    }
-
-    /// Generate a new keypair and fund with the given amount from the origin account.
-    ///
-    /// Because many tests may execute this in parallel, transfers may fail due to a race
-    /// condition with account indices. Therefore this will reattempt transfers a
-    /// number of times.
-    pub async fn create_and_fund_account(
-        &self,
-        origin: &Signer<C>,
-        amount: E::Balance,
-    ) -> Signer<C>
-    where
-        E::Balance: Clone,
-        C::AccountId: Clone + core::fmt::Display + Debug,
-        C::AccountId: From<sp_core::crypto::AccountId32>,
-    {
-        let (pair, _, _) = <sr25519::Pair as Pair>::generate_with_phrase(None);
-        let pair_signer = PairSigner::<C, _>::new(pair);
-        let account_id = pair_signer.account_id().to_owned();
-
-        self.api
-            .try_transfer_balance(origin, account_id.clone(), amount)
-            .await
-            .unwrap_or_else(|err| {
-                panic!(
-                    "transfer from {} to {} failed with {:?}",
-                    origin.account_id(),
-                    account_id,
-                    err
-                )
-            });
-
-        log_info(&format!(
-            "transfer from {} to {} succeeded",
-            origin.account_id(),
-            account_id,
-        ));
-
-        pair_signer
-    }
-
-    /// This function extracts the metadata of the contract at the file path
-    /// `target/ink/$contract_name.contract`.
-    ///
-    /// The function subsequently uploads and instantiates an instance of the contract.
-    ///
-    /// Calling this function multiple times is idempotent, the contract is
-    /// newly instantiated each time using a unique salt. No existing contract
-    /// instance is reused!
-    pub async fn instantiate<Contract, Args, R>(
-        &mut self,
-        contract_name: &str,
-        signer: &Signer<C>,
-        constructor: CreateBuilderPartial<E, Contract, Args, R>,
-        value: E::Balance,
-        storage_deposit_limit: Option<E::Balance>,
-    ) -> Result<InstantiationResult<E, ExtrinsicEvents<C>>, Error<E>>
-    where
-        Args: scale::Encode,
-    {
-        let code = self.load_code(contract_name);
-        let ret = self
-            .exec_instantiate::<Contract, Args, R>(
-                signer,
-                code,
-                constructor,
-                value,
-                storage_deposit_limit,
-            )
-            .await?;
-        log_info(&format!("instantiated contract at {:?}", ret.account_id));
-        Ok(ret)
-    }
-
-    /// Dry run contract instantiation using the given constructor.
-    pub async fn instantiate_dry_run<Contract, Args, R>(
-        &mut self,
-        contract_name: &str,
-        signer: &Signer<C>,
-        constructor: CreateBuilderPartial<E, Contract, Args, R>,
-        value: E::Balance,
-        storage_deposit_limit: Option<E::Balance>,
-    ) -> ContractInstantiateResult<E::AccountId, E::Balance, ()>
-    where
-        Args: scale::Encode,
-    {
-        let code = self.load_code(contract_name);
-        let data = constructor_exec_input(constructor);
-
-        let salt = Self::salt();
-        self.api
-            .instantiate_with_code_dry_run(
-                value,
-                storage_deposit_limit,
-                code,
-                data,
-                salt,
-                signer,
-            )
-            .await
     }
 
     /// Load the Wasm code for the given contract.
@@ -256,7 +166,7 @@ where
     /// Executes an `instantiate_with_code` call and captures the resulting events.
     async fn exec_instantiate<Contract, Args, R>(
         &mut self,
-        signer: &Signer<C>,
+        signer: &Keypair,
         code: Vec<u8>,
         constructor: CreateBuilderPartial<E, Contract, Args, R>,
         value: E::Balance,
@@ -358,31 +268,10 @@ where
             .to_vec()
     }
 
-    /// This function extracts the Wasm of the contract for the specified contract.
-    ///
-    /// The function subsequently uploads and instantiates an instance of the contract.
-    ///
-    /// Calling this function multiple times is idempotent, the contract is
-    /// newly instantiated each time using a unique salt. No existing contract
-    /// instance is reused!
-    pub async fn upload(
-        &mut self,
-        contract_name: &str,
-        signer: &Signer<C>,
-        storage_deposit_limit: Option<E::Balance>,
-    ) -> Result<UploadResult<E, ExtrinsicEvents<C>>, Error<E>> {
-        let code = self.load_code(contract_name);
-        let ret = self
-            .exec_upload(signer, code, storage_deposit_limit)
-            .await?;
-        log_info(&format!("contract stored with hash {:?}", ret.code_hash));
-        Ok(ret)
-    }
-
     /// Executes an `upload` call and captures the resulting events.
-    pub async fn exec_upload(
+    async fn exec_upload(
         &mut self,
-        signer: &Signer<C>,
+        signer: &Keypair,
         code: Vec<u8>,
         storage_deposit_limit: Option<E::Balance>,
     ) -> Result<UploadResult<E, ExtrinsicEvents<C>>, Error<E>> {
@@ -446,161 +335,80 @@ where
             events: tx_events,
         })
     }
+}
 
-    /// Executes a `call` for the contract at `account_id`.
-    ///
-    /// Returns when the transaction is included in a block. The return value
-    /// contains all events that are associated with this transaction.
-    pub async fn call<Args, RetType>(
+#[async_trait]
+impl<C, E> ChainBackend for Client<C, E>
+where
+    C: subxt::Config + Send + Sync,
+    C::AccountId: Clone
+        + Debug
+        + Send
+        + Sync
+        + core::fmt::Display
+        + scale::Codec
+        + From<sr25519::PublicKey>
+        + serde::de::DeserializeOwned,
+    C::Address: From<sr25519::PublicKey>,
+    C::Signature: From<sr25519::Signature>,
+    C::Address: Send + Sync,
+    <C::ExtrinsicParams as ExtrinsicParams<C::Hash>>::OtherParams: Default + Send + Sync,
+
+    E: Environment,
+    E::AccountId: Debug + Send + Sync,
+    E::Balance: Clone
+        + Debug
+        + Send
+        + Sync
+        + TryFrom<u128>
+        + scale::HasCompact
+        + serde::Serialize,
+{
+    type Actor = Keypair;
+    type ActorId = E::AccountId;
+    type Balance = E::Balance;
+    type Error = Error<E>;
+    type EventLog = ExtrinsicEvents<C>;
+
+    async fn create_and_fund_account(
         &mut self,
-        signer: &Signer<C>,
-        message: &CallBuilderFinal<E, Args, RetType>,
-        value: E::Balance,
-        storage_deposit_limit: Option<E::Balance>,
-    ) -> Result<CallResult<E, RetType, ExtrinsicEvents<C>>, Error<E>>
-    where
-        Args: scale::Encode,
-        RetType: scale::Decode,
-        CallBuilderFinal<E, Args, RetType>: Clone,
-    {
-        let account_id = message.clone().params().callee().clone();
-        let exec_input = scale::Encode::encode(message.clone().params().exec_input());
-        log_info(&format!("call: {:02X?}", exec_input));
+        origin: &Self::Actor,
+        amount: Self::Balance,
+    ) -> Self::Actor {
+        let (_, phrase, _) =
+            <sp_core::sr25519::Pair as sp_core::Pair>::generate_with_phrase(None);
+        let phrase =
+            subxt_signer::bip39::Mnemonic::parse(phrase).expect("valid phrase expected");
+        let keypair = Keypair::from_phrase(&phrase, None).expect("valid phrase expected");
+        let account_id = <Keypair as Signer<C>>::account_id(&keypair);
+        let origin_account_id = origin.public_key().to_account_id();
 
-        let dry_run = self.call_dry_run(signer, message, value, None).await;
-
-        if dry_run.exec_result.result.is_err() {
-            return Err(Error::<E>::CallDryRun(dry_run.exec_result))
-        }
-
-        let tx_events = self
-            .api
-            .call(
-                subxt::utils::MultiAddress::Id(account_id.clone()),
-                value,
-                dry_run.exec_result.gas_required.into(),
-                storage_deposit_limit,
-                exec_input,
-                signer,
-            )
-            .await;
-
-        for evt in tx_events.iter() {
-            let evt = evt.unwrap_or_else(|err| {
-                panic!("unable to unwrap event: {err:?}");
+        self.api
+            .try_transfer_balance(origin, account_id.clone(), amount)
+            .await
+            .unwrap_or_else(|err| {
+                panic!(
+                    "transfer from {} to {} failed with {:?}",
+                    origin_account_id, account_id, err
+                )
             });
 
-            if is_extrinsic_failed_event(&evt) {
-                let metadata = self.api.client.metadata();
-                let dispatch_error =
-                    subxt::error::DispatchError::decode_from(evt.field_bytes(), metadata)
-                        .map_err(|e| Error::<E>::Decoding(e.to_string()))?;
-                log_error(&format!("extrinsic for call failed: {dispatch_error}"));
-                return Err(Error::<E>::CallExtrinsic(dispatch_error))
-            }
-        }
-
-        Ok(CallResult {
-            dry_run,
-            events: tx_events,
-        })
-    }
-
-    /// Executes a runtime call `call_name` for the `pallet_name`.
-    /// The `call_data` is a `Vec<Value>`
-    ///
-    /// Note:
-    /// - `pallet_name` must be in camel case, for example `Balances`.
-    /// - `call_name` must be snake case, for example `force_transfer`.
-    /// - `call_data` is a `Vec<subxt::dynamic::Value>` that holds a representation of
-    ///   some value.
-    ///
-    /// Returns when the transaction is included in a block. The return value
-    /// contains all events that are associated with this transaction.
-    pub async fn runtime_call<'a>(
-        &mut self,
-        signer: &Signer<C>,
-        pallet_name: &'a str,
-        call_name: &'a str,
-        call_data: Vec<Value>,
-    ) -> Result<ExtrinsicEvents<C>, Error<E>> {
-        let tx_events = self
-            .api
-            .runtime_call(signer, pallet_name, call_name, call_data)
-            .await;
-
-        for evt in tx_events.iter() {
-            let evt = evt.unwrap_or_else(|err| {
-                panic!("unable to unwrap event: {err:?}");
-            });
-
-            if is_extrinsic_failed_event(&evt) {
-                let metadata = self.api.client.metadata();
-                let dispatch_error =
-                    subxt::error::DispatchError::decode_from(evt.field_bytes(), metadata)
-                        .map_err(|e| Error::<E>::Decoding(e.to_string()))?;
-
-                log_error(&format!("extrinsic for call failed: {dispatch_error}"));
-                return Err(Error::<E>::CallExtrinsic(dispatch_error))
-            }
-        }
-
-        Ok(tx_events)
-    }
-
-    /// Executes a dry-run `call`.
-    ///
-    /// Returns the result of the dry run, together with the decoded return value of the
-    /// invoked message.
-    pub async fn call_dry_run<Args, RetType>(
-        &mut self,
-        signer: &Signer<C>,
-        message: &CallBuilderFinal<E, Args, RetType>,
-        value: E::Balance,
-        storage_deposit_limit: Option<E::Balance>,
-    ) -> CallDryRunResult<E, RetType>
-    where
-        Args: scale::Encode,
-        RetType: scale::Decode,
-        CallBuilderFinal<E, Args, RetType>: Clone,
-    {
-        let dest = message.clone().params().callee().clone();
-        let exec_input = scale::Encode::encode(message.clone().params().exec_input());
-
-        let exec_result = self
-            .api
-            .call_dry_run(
-                Signer::account_id(signer).clone(),
-                dest,
-                exec_input,
-                value,
-                storage_deposit_limit,
-            )
-            .await;
-        log_info(&format!("call dry run: {:?}", &exec_result.result));
         log_info(&format!(
-            "call dry run debug message: {}",
-            String::from_utf8_lossy(&exec_result.debug_message)
+            "transfer from {} to {} succeeded",
+            origin_account_id, account_id,
         ));
 
-        CallDryRunResult {
-            exec_result,
-            _marker: Default::default(),
-        }
+        keypair
     }
 
-    /// Returns the balance of `account_id`.
-    pub async fn balance(&self, account_id: E::AccountId) -> Result<E::Balance, Error<E>>
-    where
-        E::Balance: TryFrom<u128>,
-    {
+    async fn balance(&self, actor: Self::ActorId) -> Result<Self::Balance, Self::Error> {
         let account_addr = subxt::dynamic::storage(
             "System",
             "Account",
             vec![
                 // Something that encodes to an AccountId32 is what we need for the map
                 // key here:
-                Value::from_bytes(&account_id),
+                Value::from_bytes(&actor),
             ],
         );
 
@@ -632,11 +440,250 @@ where
             Error::<E>::Balance(format!("{balance:?} failed to convert from u128"))
         })?;
 
-        log_info(&format!(
-            "balance of contract {account_id:?} is {balance:?}"
-        ));
+        log_info(&format!("balance of contract {actor:?} is {balance:?}"));
         Ok(balance)
     }
+
+    async fn runtime_call<'a>(
+        &mut self,
+        actor: &Self::Actor,
+        pallet_name: &'a str,
+        call_name: &'a str,
+        call_data: Vec<Value>,
+    ) -> Result<Self::EventLog, Self::Error> {
+        let tx_events = self
+            .api
+            .runtime_call(actor, pallet_name, call_name, call_data)
+            .await;
+
+        for evt in tx_events.iter() {
+            let evt = evt.unwrap_or_else(|err| {
+                panic!("unable to unwrap event: {err:?}");
+            });
+
+            if is_extrinsic_failed_event(&evt) {
+                let metadata = self.api.client.metadata();
+                let dispatch_error =
+                    subxt::error::DispatchError::decode_from(evt.field_bytes(), metadata)
+                        .map_err(|e| Error::<E>::Decoding(e.to_string()))?;
+
+                log_error(&format!("extrinsic for call failed: {dispatch_error}"));
+                return Err(Error::<E>::CallExtrinsic(dispatch_error))
+            }
+        }
+
+        Ok(tx_events)
+    }
+}
+
+#[async_trait]
+impl<C, E> ContractsBackend<E> for Client<C, E>
+where
+    C: subxt::Config + Send + Sync,
+    C::AccountId: Clone
+        + Debug
+        + Send
+        + Sync
+        + core::fmt::Display
+        + scale::Codec
+        + From<sr25519::PublicKey>
+        + serde::de::DeserializeOwned,
+    C::Address: From<sr25519::PublicKey>,
+    C::Signature: From<sr25519::Signature>,
+    C::Address: Send + Sync,
+    <C::ExtrinsicParams as ExtrinsicParams<C::Hash>>::OtherParams: Default + Send + Sync,
+
+    E: Environment,
+    E::AccountId: Debug + Send + Sync,
+    E::Balance: Clone
+        + Debug
+        + Send
+        + Sync
+        + TryFrom<u128>
+        + scale::HasCompact
+        + serde::Serialize,
+    E::Hash: Debug + Send + scale::Encode,
+{
+    type Actor = Keypair;
+    type Error = Error<E>;
+    type EventLog = ExtrinsicEvents<C>;
+
+    async fn instantiate<Contract, Args: Send + Encode, R>(
+        &mut self,
+        contract_name: &str,
+        caller: &Self::Actor,
+        constructor: CreateBuilderPartial<E, Contract, Args, R>,
+        value: E::Balance,
+        storage_deposit_limit: Option<E::Balance>,
+    ) -> Result<InstantiationResult<E, Self::EventLog>, Self::Error> {
+        let code = self.load_code(contract_name);
+        let ret = self
+            .exec_instantiate::<Contract, Args, R>(
+                caller,
+                code,
+                constructor,
+                value,
+                storage_deposit_limit,
+            )
+            .await?;
+        log_info(&format!("instantiated contract at {:?}", ret.account_id));
+        Ok(ret)
+    }
+
+    async fn instantiate_dry_run<Contract, Args: Send + Encode, R>(
+        &mut self,
+        contract_name: &str,
+        caller: &Self::Actor,
+        constructor: CreateBuilderPartial<E, Contract, Args, R>,
+        value: E::Balance,
+        storage_deposit_limit: Option<E::Balance>,
+    ) -> ContractInstantiateResult<E::AccountId, E::Balance, ()> {
+        let code = self.load_code(contract_name);
+        let data = constructor_exec_input(constructor);
+
+        let salt = Self::salt();
+        self.api
+            .instantiate_with_code_dry_run(
+                value,
+                storage_deposit_limit,
+                code,
+                data,
+                salt,
+                caller,
+            )
+            .await
+    }
+
+    async fn upload(
+        &mut self,
+        contract_name: &str,
+        caller: &Self::Actor,
+        storage_deposit_limit: Option<E::Balance>,
+    ) -> Result<UploadResult<E, Self::EventLog>, Self::Error> {
+        let code = self.load_code(contract_name);
+        let ret = self
+            .exec_upload(caller, code, storage_deposit_limit)
+            .await?;
+        log_info(&format!("contract stored with hash {:?}", ret.code_hash));
+        Ok(ret)
+    }
+
+    async fn call<Args: Sync + Encode, RetType: Send + Decode>(
+        &mut self,
+        caller: &Self::Actor,
+        message: &CallBuilderFinal<E, Args, RetType>,
+        value: E::Balance,
+        storage_deposit_limit: Option<E::Balance>,
+    ) -> Result<CallResult<E, RetType, Self::EventLog>, Self::Error>
+    where
+        CallBuilderFinal<E, Args, RetType>: Clone,
+    {
+        let account_id = message.clone().params().callee().clone();
+        let exec_input = Encode::encode(message.clone().params().exec_input());
+        log_info(&format!("call: {:02X?}", exec_input));
+
+        let dry_run = self.call_dry_run(caller, message, value, None).await;
+
+        if dry_run.exec_result.result.is_err() {
+            return Err(Error::<E>::CallDryRun(dry_run.exec_result))
+        }
+
+        let tx_events = self
+            .api
+            .call(
+                subxt::utils::MultiAddress::Id(account_id.clone()),
+                value,
+                dry_run.exec_result.gas_required.into(),
+                storage_deposit_limit,
+                exec_input,
+                caller,
+            )
+            .await;
+
+        for evt in tx_events.iter() {
+            let evt = evt.unwrap_or_else(|err| {
+                panic!("unable to unwrap event: {err:?}");
+            });
+
+            if is_extrinsic_failed_event(&evt) {
+                let metadata = self.api.client.metadata();
+                let dispatch_error =
+                    subxt::error::DispatchError::decode_from(evt.field_bytes(), metadata)
+                        .map_err(|e| Error::<E>::Decoding(e.to_string()))?;
+                log_error(&format!("extrinsic for call failed: {dispatch_error}"));
+                return Err(Error::<E>::CallExtrinsic(dispatch_error))
+            }
+        }
+
+        Ok(CallResult {
+            dry_run,
+            events: tx_events,
+        })
+    }
+
+    async fn call_dry_run<Args: Sync + Encode, RetType: Send + Decode>(
+        &mut self,
+        caller: &Self::Actor,
+        message: &CallBuilderFinal<E, Args, RetType>,
+        value: E::Balance,
+        storage_deposit_limit: Option<E::Balance>,
+    ) -> CallDryRunResult<E, RetType>
+    where
+        CallBuilderFinal<E, Args, RetType>: Clone,
+    {
+        let dest = message.clone().params().callee().clone();
+        let exec_input = Encode::encode(message.clone().params().exec_input());
+
+        let exec_result = self
+            .api
+            .call_dry_run(
+                Signer::<C>::account_id(caller),
+                dest,
+                exec_input,
+                value,
+                storage_deposit_limit,
+            )
+            .await;
+        log_info(&format!("call dry run: {:?}", &exec_result.result));
+        log_info(&format!(
+            "call dry run debug message: {}",
+            String::from_utf8_lossy(&exec_result.debug_message)
+        ));
+
+        CallDryRunResult {
+            exec_result,
+            _marker: Default::default(),
+        }
+    }
+}
+
+impl<C, E> E2EBackend<E> for Client<C, E>
+where
+    C: subxt::Config + Send + Sync,
+    C::AccountId: Clone
+        + Debug
+        + Send
+        + Sync
+        + core::fmt::Display
+        + scale::Codec
+        + From<sr25519::PublicKey>
+        + serde::de::DeserializeOwned,
+    C::Address: From<sr25519::PublicKey>,
+    C::Signature: From<sr25519::Signature>,
+    C::Address: Send + Sync,
+    <C::ExtrinsicParams as ExtrinsicParams<C::Hash>>::OtherParams: Default + Send + Sync,
+
+    E: Environment,
+    E::AccountId: Debug + Send + Sync,
+    E::Balance: Clone
+        + Debug
+        + Send
+        + Sync
+        + TryFrom<u128>
+        + scale::HasCompact
+        + serde::Serialize,
+    E::Hash: Debug + Send + scale::Encode,
+{
 }
 
 /// Try to extract the given field from a dynamic [`Value`].
