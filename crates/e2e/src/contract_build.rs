@@ -179,7 +179,6 @@ fn build_contract(path_to_cargo_toml: &Path) -> PathBuf {
         output_type: OutputType::HumanReadable,
         skip_wasm_validation: false,
         target: Target::Wasm,
-        ..ExecuteArgs::default()
     };
 
     match contract_build::execute(args) {
