@@ -399,7 +399,7 @@ where
 
     async fn balance(
         &mut self,
-        actor: Self::AccountId,
+        account: Self::AccountId,
     ) -> Result<Self::Balance, Self::Error> {
         let account_addr = subxt::dynamic::storage(
             "System",
@@ -407,7 +407,7 @@ where
             vec![
                 // Something that encodes to an AccountId32 is what we need for the map
                 // key here:
-                Value::from_bytes(&actor),
+                Value::from_bytes(&account),
             ],
         );
 
@@ -439,20 +439,20 @@ where
             Error::<E>::Balance(format!("{balance:?} failed to convert from u128"))
         })?;
 
-        log_info(&format!("balance of contract {actor:?} is {balance:?}"));
+        log_info(&format!("balance of contract {account:?} is {balance:?}"));
         Ok(balance)
     }
 
     async fn runtime_call<'a>(
         &mut self,
-        actor: &Keypair,
+        origin: &Keypair,
         pallet_name: &'a str,
         call_name: &'a str,
         call_data: Vec<Value>,
     ) -> Result<Self::EventLog, Self::Error> {
         let tx_events = self
             .api
-            .runtime_call(actor, pallet_name, call_name, call_data)
+            .runtime_call(origin, pallet_name, call_name, call_data)
             .await;
 
         for evt in tx_events.iter() {

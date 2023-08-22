@@ -24,8 +24,10 @@ use drink::{
 use ink_env::Environment;
 use jsonrpsee::core::async_trait;
 use pallet_contracts_primitives::{
+    CodeUploadReturnValue,
     ContractInstantiateResult,
     ContractResult,
+    InstantiateReturnValue,
 };
 use scale::{
     Decode,
@@ -35,23 +37,24 @@ use sp_core::{
     crypto::AccountId32,
     sr25519::Pair,
     Pair as _,
-    H256,
 };
 use std::{
     collections::BTreeMap,
+    marker::PhantomData,
     path::PathBuf,
 };
 use subxt::dynamic::Value;
 use subxt_signer::sr25519::Keypair;
 
-pub struct Client {
+pub struct Client<AccountId, Hash> {
     session: Session<MinimalRuntime>,
     contracts: BTreeMap<String, PathBuf>,
+    _phantom: PhantomData<(AccountId, Hash)>,
 }
 
-unsafe impl Send for Client {}
+unsafe impl<AccountId, Hash> Send for Client<AccountId, Hash> {}
 
-impl Client {
+impl<AccountId, Hash> Client<AccountId, Hash> {
     pub fn new<'a>(contracts: impl IntoIterator<Item = &'a str>) -> Self {
         // todo: extract to a common place
         let contracts = contracts
@@ -68,6 +71,7 @@ impl Client {
         Self {
             session: Session::new(None).expect("Failed to create session"),
             contracts,
+            _phantom: Default::default(),
         }
     }
 
@@ -106,8 +110,8 @@ impl Client {
 }
 
 #[async_trait]
-impl ChainBackend for Client {
-    type AccountId = AccountId32;
+impl<AccountId: AsRef<[u8; 32]> + Send, Hash> ChainBackend for Client<AccountId, Hash> {
+    type AccountId = AccountId;
     type Balance = u128;
     type Error = ();
     type EventLog = ();
@@ -117,7 +121,6 @@ impl ChainBackend for Client {
         _origin: &Keypair,
         amount: Self::Balance,
     ) -> Keypair {
-        // todo: extract to a common place
         let (pair, seed) = Pair::generate();
 
         self.session
@@ -129,14 +132,15 @@ impl ChainBackend for Client {
 
     async fn balance(
         &mut self,
-        actor: Self::AccountId,
+        account: Self::AccountId,
     ) -> Result<Self::Balance, Self::Error> {
-        Ok(self.session.chain_api().balance(&actor))
+        let account = AccountId32::new(*account.as_ref());
+        Ok(self.session.chain_api().balance(&account))
     }
 
     async fn runtime_call<'a>(
         &mut self,
-        _actor: &Keypair,
+        _origin: &Keypair,
         _pallet_name: &'a str,
         _call_name: &'a str,
         _call_data: Vec<Value>,
@@ -146,8 +150,11 @@ impl ChainBackend for Client {
 }
 
 #[async_trait]
-impl<E: Environment<AccountId = AccountId32, Balance = u128, Hash = H256> + 'static>
-    ContractsBackend<E> for Client
+impl<
+        AccountId: Clone + Send + Sync + From<[u8; 32]> + AsRef<[u8; 32]>,
+        Hash: From<[u8; 32]>,
+        E: Environment<AccountId = AccountId, Balance = u128, Hash = Hash> + 'static,
+    > ContractsBackend<E> for Client<AccountId, Hash>
 {
     type Error = ();
     type EventLog = ();
@@ -172,20 +179,27 @@ impl<E: Environment<AccountId = AccountId32, Balance = u128, Hash = H256> + 'sta
             DEFAULT_GAS_LIMIT,
             storage_deposit_limit,
         );
-        let account_id = self
-            .session
-            .last_deploy_return()
-            .expect("We have just deployed a contract, so we should have its address");
+        let account_id_raw = *<AccountId32 as AsRef<[u8; 32]>>::as_ref(
+            &self.session.last_deploy_return().expect(
+                "We have just deployed a contract, so we should have its address",
+            ),
+        );
+        let account_id = AccountId::from(account_id_raw);
 
         Ok(InstantiationResult {
-            account_id,
+            account_id: account_id.clone(),
             // We need type remapping here because of the different `EventRecord` types.
             dry_run: ContractInstantiateResult {
                 gas_consumed: result.gas_consumed,
                 gas_required: result.gas_required,
                 storage_deposit: result.storage_deposit,
                 debug_message: result.debug_message,
-                result: result.result,
+                result: result.result.map(|r| {
+                    InstantiateReturnValue {
+                        result: r.result,
+                        account_id,
+                    }
+                }),
                 events: None,
             },
             events: (), // todo: https://github.com/Cardinal-Cryptography/drink/issues/32
@@ -224,8 +238,11 @@ impl<E: Environment<AccountId = AccountId32, Balance = u128, Hash = H256> + 'sta
         };
 
         Ok(UploadResult {
-            code_hash: result.code_hash,
-            dry_run: Ok(result),
+            code_hash: result.code_hash.0.into(),
+            dry_run: Ok(CodeUploadReturnValue {
+                code_hash: result.code_hash.0.into(),
+                deposit: result.deposit,
+            }),
             events: (),
         })
     }
@@ -242,6 +259,7 @@ impl<E: Environment<AccountId = AccountId32, Balance = u128, Hash = H256> + 'sta
     {
         let account_id = message.clone().params().callee().clone();
         let exec_input = Encode::encode(message.clone().params().exec_input());
+        let account_id = (*account_id.as_ref()).into();
 
         let result = self.session.contracts_api().call_contract(
             account_id,
@@ -283,8 +301,11 @@ impl<E: Environment<AccountId = AccountId32, Balance = u128, Hash = H256> + 'sta
     }
 }
 
-impl<E: Environment<AccountId = AccountId32, Balance = u128, Hash = H256> + 'static>
-    E2EBackend<E> for Client
+impl<
+        AccountId: Clone + Send + Sync + From<[u8; 32]> + AsRef<[u8; 32]>,
+        Hash: From<[u8; 32]>,
+        E: Environment<AccountId = AccountId, Balance = u128, Hash = Hash> + 'static,
+    > E2EBackend<E> for Client<AccountId, Hash>
 {
 }
 

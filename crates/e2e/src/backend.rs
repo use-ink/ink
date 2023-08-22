@@ -59,7 +59,7 @@ pub trait ChainBackend {
     /// Returns the balance of `actor`.
     async fn balance(
         &mut self,
-        actor: Self::AccountId,
+        account: Self::AccountId,
     ) -> Result<Self::Balance, Self::Error>;
 
     /// Executes a runtime call `call_name` for the `pallet_name`.
@@ -75,7 +75,7 @@ pub trait ChainBackend {
     /// events that are associated with this transaction.
     async fn runtime_call<'a>(
         &mut self,
-        actor: &Keypair,
+        origin: &Keypair,
         pallet_name: &'a str,
         call_name: &'a str,
         call_data: Vec<Value>,
