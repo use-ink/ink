@@ -21,7 +21,6 @@
 
 mod builders;
 mod client;
-mod default_accounts;
 mod node_proc;
 mod xts;
 
@@ -37,7 +36,6 @@ pub use client::{
     InstantiationResult,
     UploadResult,
 };
-pub use default_accounts::*;
 pub use env_logger;
 pub use ink_e2e_macro::test;
 pub use node_proc::{
@@ -46,9 +44,11 @@ pub use node_proc::{
 };
 pub use sp_core::H256;
 pub use sp_keyring::AccountKeyring;
-pub use subxt::{
+pub use subxt;
+pub use subxt_signer::sr25519::{
     self,
-    tx::PairSigner,
+    dev::*,
+    Keypair,
 };
 pub use tokio;
 
@@ -57,44 +57,13 @@ use pallet_contracts_primitives::{
     ContractExecResult,
     ContractInstantiateResult,
 };
-use sp_core::sr25519;
 use std::{
     cell::RefCell,
     sync::Once,
 };
 use xts::ContractsApi;
 
-/// Default set of commonly used types by Substrate runtimes.
-#[cfg(feature = "std")]
-pub enum SubstrateConfig {}
-
-#[cfg(feature = "std")]
-impl subxt::Config for SubstrateConfig {
-    type Index = u32;
-    type Hash = sp_core::H256;
-    type Hasher = subxt::config::substrate::BlakeTwo256;
-    type AccountId = subxt::config::substrate::AccountId32;
-    type Address = sp_runtime::MultiAddress<Self::AccountId, u32>;
-    type Header = subxt::config::substrate::SubstrateHeader<
-        u32,
-        subxt::config::substrate::BlakeTwo256,
-    >;
-    type Signature = sp_runtime::MultiSignature;
-    type ExtrinsicParams = subxt::config::substrate::SubstrateExtrinsicParams<Self>;
-}
-
-/// Default set of commonly used types by Polkadot nodes.
-#[cfg(feature = "std")]
-pub type PolkadotConfig = subxt::config::WithExtrinsicParams<
-    SubstrateConfig,
-    subxt::config::polkadot::PolkadotExtrinsicParams<SubstrateConfig>,
->;
-
-/// Signer that is used throughout the E2E testing.
-///
-/// The E2E testing can only be used with nodes that support `sr25519`
-/// cryptography.
-pub type Signer<C> = PairSigner<C, sr25519::Pair>;
+pub use subxt::PolkadotConfig;
 
 /// We use this to only initialize `env_logger` once.
 pub static INIT: Once = Once::new();

@@ -29,14 +29,15 @@ tokio = { version = "1.18.2", features = ["rt-multi-thread"] }
 log = { version = "0.4" }
 env_logger = { version = "0.10" }
 scale = { package = "parity-scale-codec", version = "3.4", default-features = false, features = ["derive"] }
-subxt = "0.28.0"
+subxt = "0.31.0"
+subxt-signer = { version = "0.31.0", features = ["subxt", "sr25519"] }
 
 # Substrate
-pallet-contracts-primitives = "23.0.0"
-sp-core = "20.0.0"
-sp-keyring = "23.0.0"
-sp-runtime = "23.0.0"
-sp-weights = "19.0.0"
+pallet-contracts-primitives = "24.0.0"
+sp-core = "21.0.0"
+sp-keyring = "24.0.0"
+sp-runtime = "24.0.0"
+sp-weights = "20.0.0"
 
 [dev-dependencies]
 # Required for the doctest of `MessageBuilder::call`

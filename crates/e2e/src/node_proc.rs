@@ -116,8 +116,7 @@ where
             .stdout(process::Stdio::piped())
             .stderr(process::Stdio::piped())
             .arg("--port=0")
-            .arg("--rpc-port=0")
-            .arg("--ws-port=0");
+            .arg("--rpc-port=0");
 
         if let Some(authority) = self.authority {
             let authority = format!("{authority:?}");
@@ -135,21 +134,21 @@ where
 
         // Wait for RPC port to be logged (it's logged to stderr):
         let stderr = proc.stderr.take().unwrap();
-        let ws_port = find_substrate_port_from_output(stderr);
-        let ws_url = format!("ws://127.0.0.1:{ws_port}");
+        let port = find_substrate_port_from_output(stderr);
+        let url = format!("ws://127.0.0.1:{port}");
 
         // Connect to the node with a `subxt` client:
-        let client = OnlineClient::from_url(ws_url.clone()).await;
+        let client = OnlineClient::from_url(url.clone()).await;
         match client {
             Ok(client) => {
                 Ok(TestNodeProcess {
                     proc,
                     client,
-                    url: ws_url.clone(),
+                    url: url.clone(),
                 })
             }
             Err(err) => {
-                let err = format!("Failed to connect to node rpc at {ws_url}: {err}");
+                let err = format!("Failed to connect to node rpc at {url}: {err}");
                 log::error!("{}", err);
                 proc.kill().map_err(|e| {
                     format!("Error killing substrate process '{}': {}", proc.id(), e)
@@ -176,6 +175,7 @@ fn find_substrate_port_from_output(r: impl Read + Send + 'static) -> u16 {
                 .or_else(|| {
                     line.rsplit_once("Running JSON-RPC WS server: addr=127.0.0.1:")
                 })
+                .or_else(|| line.rsplit_once("Running JSON-RPC server: addr=127.0.0.1:"))
                 .map(|(_, port_str)| port_str)?;
 
             // trim non-numeric chars from the end of the port part of the line.
