@@ -119,7 +119,7 @@ where
     E::Hash: Debug + scale::Encode,
 {
     /// Creates a new [`Client`] instance using a `subxt` client.
-    pub async fn new(
+    pub async fn new<P>(
         client: subxt::OnlineClient<C>,
         contracts: impl IntoIterator<Item = &str>,
     ) -> Self {

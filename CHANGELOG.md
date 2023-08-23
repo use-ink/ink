@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 - Stabilize `call_runtime` ‒ [#1749](https://github.com/paritytech/ink/pull/1749)
 - Make E2E testcases generic over `E2EBackend` trait - [#1867](https://github.com/paritytech/ink/pull/1867)
+- Modify static buffer size via environmental variables - [#1869](https://github.com/paritytech/ink/pull/1869)
+- Persist static buffer size in metadata - [#1880](https://github.com/paritytech/ink/pull/1880)
 - Add backend choice to the E2E testcase configuration ‒ [#1864](https://github.com/paritytech/ink/pull/1864)
 
 ### Added

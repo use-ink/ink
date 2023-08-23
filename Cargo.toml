@@ -36,7 +36,7 @@ array-init = { version = "2.0", default-features = false }
 blake2 = { version = "0.10" }
 cargo_metadata = { version = "0.17.0" }
 cfg-if = { version = "1.0" }
-contract-build = { version = "4.0.0-alpha" }
+contract-build = { version = "3.2.0" }
 derive_more = { version = "0.99.17", default-features = false }
 #drink = { version = "0.1.2" }
 drink = { git = "https://github.com/Cardinal-Cryptography/drink", branch = "ink" }
@@ -77,6 +77,7 @@ trybuild = { version = "1.0.60" }
 wasm-instrument = { version = "0.4.0", features = ["sign_ext"] }
 which = { version = "4.4.0" }
 xxhash-rust = { version = "0.8" }
+const_env = { version = "0.1"}
 
 # Substrate dependencies
 pallet-contracts-primitives = { version = "25.0.0", default-features = false }

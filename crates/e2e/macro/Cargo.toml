@@ -20,8 +20,6 @@ proc-macro = true
 
 [dependencies]
 ink_ir = { workspace = true, default-features = true }
-cargo_metadata = { workspace = true }
-contract-build = { workspace = true }
 derive_more = { workspace = true, default-features = true }
 tracing-subscriber = { workspace = true, features = ["env-filter"] }
 serde_json = { workspace = true }
