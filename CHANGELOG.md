@@ -6,6 +6,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## Version 4.3.0
+
+This release is to fix compatibility of `ink_e2e` with newer (> 1.69) versions of Rust,
+which produce `signext` instructions, and older versions of `pallet_contracts` which do
+not yet support these instructions.
+
+- Backport use of `contract-build` to `3.2.0` to include `signext` lowering, and update
+`subxt` to remove incompatible `wasmi-instrument` transient dependency ‒ [#1884](https://github.com/paritytech/ink/pull/1884)
+
 ## Version 4.2.1
 
 This release contains a low-severity security related fix. Users of the `4.x` series of
