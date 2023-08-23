@@ -94,6 +94,7 @@ mod call_builder {
     #[cfg(all(test, feature = "e2e-tests"))]
     mod e2e_tests {
         use super::*;
+        use ink_e2e::build_message;
 
         type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
@@ -107,11 +108,11 @@ mod call_builder {
 
             let expected_value = 42;
             let constructor = CallBuilderDelegateTestRef::new(expected_value);
-            let call_builder = client
+            let contract_acc_id = client
                 .instantiate("call_builder_delegate", &origin, constructor, 0, None)
                 .await
-                .expect("instantiate failed");
-            let mut call_builder_call = call_builder.call::<CallBuilderDelegateTest>();
+                .expect("instantiate failed")
+                .account_id;
 
             let code_hash = client
                 .upload("incrementer", &origin, None)
@@ -120,9 +121,13 @@ mod call_builder {
                 .code_hash;
 
             let selector = ink::selector_bytes!("get");
-            let call = call_builder_call.invoke(code_hash, selector);
+            let call =
+                build_message::<CallBuilderDelegateTestRef>(contract_acc_id.clone())
+                    .call(|call_builder_contract| {
+                        call_builder_contract.invoke(code_hash, selector)
+                    });
             let call_result = client
-                .call(&origin, &call, 0, None)
+                .call(&origin, call, 0, None)
                 .await
                 .expect("Client failed to call `call_builder::invoke`.")
                 .return_value();
@@ -144,12 +149,11 @@ mod call_builder {
                 .await;
 
             let constructor = CallBuilderDelegateTestRef::new(Default::default());
-            let call_builder_contract = client
+            let contract_acc_id = client
                 .instantiate("call_builder_delegate", &origin, constructor, 0, None)
                 .await
-                .expect("instantiate failed");
-            let mut call_builder_call =
-                call_builder_contract.call::<CallBuilderDelegateTest>();
+                .expect("instantiate failed")
+                .account_id;
 
             let code_hash = client
                 .upload("incrementer", &origin, None)
@@ -158,9 +162,13 @@ mod call_builder {
                 .code_hash;
 
             let selector = ink::selector_bytes!("invalid_selector");
-            let call = call_builder_call.delegate(code_hash, selector);
+            let call =
+                build_message::<CallBuilderDelegateTestRef>(contract_acc_id.clone())
+                    .call(|call_builder_contract| {
+                        call_builder_contract.delegate(code_hash, selector)
+                    });
             let call_result = client
-                .call(&origin, &call, 0, None)
+                .call(&origin, call, 0, None)
                 .await
                 .expect("Calling `call_builder::delegate` failed");
 
@@ -181,12 +189,11 @@ mod call_builder {
                 .await;
 
             let constructor = CallBuilderDelegateTestRef::new(Default::default());
-            let call_builder_contract = client
+            let contract_acc_id = client
                 .instantiate("call_builder_delegate", &origin, constructor, 0, None)
                 .await
-                .expect("instantiate failed");
-            let mut call_builder_call =
-                call_builder_contract.call::<CallBuilderDelegateTest>();
+                .expect("instantiate failed")
+                .account_id;
 
             let code_hash = client
                 .upload("incrementer", &origin, None)
@@ -197,7 +204,11 @@ mod call_builder {
             // Since `LangError`s can't be handled by the `CallBuilder::invoke()` method
             // we expect this to panic.
             let selector = ink::selector_bytes!("invalid_selector");
-            let call = call_builder_call.invoke(code_hash, selector);
+            let call =
+                build_message::<CallBuilderDelegateTestRef>(contract_acc_id.clone())
+                    .call(|call_builder_contract| {
+                        call_builder_contract.invoke(code_hash, selector)
+                    });
             let call_result = client.call_dry_run(&origin, &call, 0, None).await;
 
             assert!(call_result.is_err());

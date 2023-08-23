@@ -429,7 +429,6 @@ where
     where
         E::Balance: Clone,
         C::AccountId: Clone + core::fmt::Display + Debug,
-        C::AccountId: From<sp_core::crypto::AccountId32>,
     {
         let (_, phrase, _) =
             <sp_core::sr25519::Pair as sp_core::Pair>::generate_with_phrase(None);
