@@ -17,7 +17,10 @@ use crate::{
 use drink::{
     chain_api::ChainApi,
     contract_api::ContractApi,
-    runtime::MinimalRuntime,
+    runtime::{
+        MinimalRuntime,
+        Runtime,
+    },
     Sandbox,
     DEFAULT_GAS_LIMIT,
 };
@@ -68,10 +71,33 @@ impl<AccountId, Hash> Client<AccountId, Hash> {
             })
             .collect();
 
+        let mut sandbox = Sandbox::new().expect("Failed to initialize Drink! sandbox");
+        Self::fund_accounts(&mut sandbox);
+
         Self {
-            sandbox: Sandbox::new().expect("Failed to initialize Drink! sandbox"),
+            sandbox,
             contracts,
             _phantom: Default::default(),
+        }
+    }
+
+    fn fund_accounts<R: Runtime>(sandbox: &mut Sandbox<R>) {
+        const TOKENS: u128 = 1_000_000_000_000_000;
+
+        let accounts = [
+            crate::alice(),
+            crate::bob(),
+            crate::charlie(),
+            crate::dave(),
+            crate::eve(),
+            crate::ferdie(),
+            crate::one(),
+            crate::two(),
+        ]
+        .map(|kp| kp.public_key().0)
+        .map(AccountId32::new);
+        for account in accounts.into_iter() {
+            sandbox.add_tokens(account, TOKENS);
         }
     }
 
