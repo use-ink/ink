@@ -20,7 +20,7 @@ ink = { workspace = true, default-features = true }
 ink_env = { workspace = true, default-features = true }
 ink_primitives = { workspace = true, default-features = true }
 
-drink = { workspace = true, features = ["session"] }
+drink = { workspace = true }
 funty = { workspace = true }
 impl-serde = { workspace = true }
 jsonrpsee = { workspace = true, features = ["ws-client"] }

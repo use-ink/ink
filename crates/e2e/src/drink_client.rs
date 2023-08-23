@@ -18,7 +18,7 @@ use drink::{
     chain_api::ChainApi,
     contract_api::ContractApi,
     runtime::MinimalRuntime,
-    session::Session,
+    Sandbox,
     DEFAULT_GAS_LIMIT,
 };
 use ink_env::Environment;
@@ -47,7 +47,7 @@ use subxt::dynamic::Value;
 use subxt_signer::sr25519::Keypair;
 
 pub struct Client<AccountId, Hash> {
-    session: Session<MinimalRuntime>,
+    sandbox: Sandbox<MinimalRuntime>,
     contracts: BTreeMap<String, PathBuf>,
     _phantom: PhantomData<(AccountId, Hash)>,
 }
@@ -69,7 +69,7 @@ impl<AccountId, Hash> Client<AccountId, Hash> {
             .collect();
 
         Self {
-            session: Session::new(None).expect("Failed to create session"),
+            sandbox: Sandbox::new().expect("Failed to initialize Drink! sandbox"),
             contracts,
             _phantom: Default::default(),
         }
@@ -123,9 +123,7 @@ impl<AccountId: AsRef<[u8; 32]> + Send, Hash> ChainBackend for Client<AccountId,
     ) -> Keypair {
         let (pair, seed) = Pair::generate();
 
-        self.session
-            .chain_api()
-            .add_tokens(pair.public().0.into(), amount);
+        self.sandbox.add_tokens(pair.public().0.into(), amount);
 
         Keypair::from_seed(seed).expect("Failed to create keypair")
     }
@@ -135,7 +133,7 @@ impl<AccountId: AsRef<[u8; 32]> + Send, Hash> ChainBackend for Client<AccountId,
         account: Self::AccountId,
     ) -> Result<Self::Balance, Self::Error> {
         let account = AccountId32::new(*account.as_ref());
-        Ok(self.session.chain_api().balance(&account))
+        Ok(self.sandbox.balance(&account))
     }
 
     async fn runtime_call<'a>(
@@ -170,7 +168,7 @@ impl<
         let code = self.load_code(contract_name);
         let data = constructor_exec_input(constructor);
 
-        let result = self.session.contracts_api().deploy_contract(
+        let result = self.sandbox.deploy_contract(
             code,
             value,
             data,
@@ -179,11 +177,14 @@ impl<
             DEFAULT_GAS_LIMIT,
             storage_deposit_limit,
         );
-        let account_id_raw = *<AccountId32 as AsRef<[u8; 32]>>::as_ref(
-            &self.session.last_deploy_return().expect(
-                "We have just deployed a contract, so we should have its address",
-            ),
-        );
+
+        let account_id_raw = match &result.result {
+            Err(err) => {
+                log_error(&format!("Instantiation failed: {err:?}"));
+                return Err(()) // todo: make a proper error type
+            }
+            Ok(res) => *res.account_id.as_ref(),
+        };
         let account_id = AccountId::from(account_id_raw);
 
         Ok(InstantiationResult {
@@ -225,7 +226,7 @@ impl<
     ) -> Result<UploadResult<E, Self::EventLog>, Self::Error> {
         let code = self.load_code(contract_name);
 
-        let result = match self.session.contracts_api().upload_contract(
+        let result = match self.sandbox.upload_contract(
             code,
             keypair_to_account(caller),
             storage_deposit_limit,
@@ -261,7 +262,7 @@ impl<
         let exec_input = Encode::encode(message.clone().params().exec_input());
         let account_id = (*account_id.as_ref()).into();
 
-        let result = self.session.contracts_api().call_contract(
+        let result = self.sandbox.call_contract(
             account_id,
             value,
             exec_input,
