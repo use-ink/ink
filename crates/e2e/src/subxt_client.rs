@@ -53,6 +53,7 @@ use scale::{
 };
 #[cfg(feature = "std")]
 use std::fmt::Debug;
+use std::path::PathBuf;
 
 use crate::{
     backend::ChainBackend,
@@ -119,9 +120,9 @@ where
     E::Hash: Debug + scale::Encode,
 {
     /// Creates a new [`Client`] instance using a `subxt` client.
-    pub async fn new<P>(
+    pub async fn new<P: Into<PathBuf>>(
         client: subxt::OnlineClient<C>,
-        contracts: impl IntoIterator<Item = &str>,
+        contracts: impl IntoIterator<Item = P>,
     ) -> Self {
         Self {
             api: ContractsApi::new(client).await,

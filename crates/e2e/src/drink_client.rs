@@ -44,7 +44,10 @@ use sp_core::{
     sr25519::Pair,
     Pair as _,
 };
-use std::marker::PhantomData;
+use std::{
+    marker::PhantomData,
+    path::PathBuf,
+};
 use subxt::dynamic::Value;
 use subxt_signer::sr25519::Keypair;
 
@@ -57,7 +60,7 @@ pub struct Client<AccountId, Hash> {
 unsafe impl<AccountId, Hash> Send for Client<AccountId, Hash> {}
 
 impl<AccountId, Hash> Client<AccountId, Hash> {
-    pub fn new<'a>(contracts: impl IntoIterator<Item = &'a str>) -> Self {
+    pub fn new<P: Into<PathBuf>>(contracts: impl IntoIterator<Item = P>) -> Self {
         let mut sandbox = Sandbox::new().expect("Failed to initialize Drink! sandbox");
         Self::fund_accounts(&mut sandbox);
 

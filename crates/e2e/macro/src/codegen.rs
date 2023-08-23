@@ -12,10 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::{ir, config::Backend};
+use crate::{
+    config::Backend,
+    ir,
+};
 use derive_more::From;
 use proc_macro2::TokenStream as TokenStream2;
 use quote::quote;
+
+const DEFAULT_CONTRACTS_NODE: &str = "substrate-contracts-node";
 
 /// Generates code for the `[ink::e2e_test]` macro.
 #[derive(From)]
@@ -62,8 +67,8 @@ impl InkE2ETest {
         };
 
         let client_building = match self.test.config.backend() {
-            Backend::Full => build_full_client(&environment, contracts),
-            Backend::RuntimeOnly => build_runtime_client(contracts),
+            Backend::Full => build_full_client(&environment, exec_build_contracts),
+            Backend::RuntimeOnly => build_runtime_client(exec_build_contracts),
         };
 
         quote! {
@@ -104,10 +109,7 @@ impl InkE2ETest {
     }
 }
 
-fn build_full_client<I: Iterator<Item = TokenStream2>>(
-    environment: &syn::Path,
-    contracts: I,
-) -> TokenStream2 {
+fn build_full_client(environment: &syn::Path, contracts: TokenStream2) -> TokenStream2 {
     // Use the user supplied `CONTRACTS_NODE` or default to `DEFAULT_CONTRACTS_NODE`.
     let contracts_node: &'static str =
         option_env!("CONTRACTS_NODE").unwrap_or(DEFAULT_CONTRACTS_NODE);
@@ -134,20 +136,17 @@ fn build_full_client<I: Iterator<Item = TokenStream2>>(
                 ::core::panic!("Error spawning substrate-contracts-node: {err:?}")
             );
 
+        let contracts = #contracts;
         let mut client = ::ink_e2e::Client::<
             ::ink_e2e::PolkadotConfig,
             #environment
-        >::new(
-            node_proc.client(),
-            [ #( #contracts ),* ]
-        ).await;
+        >::new(node_proc.client(), contracts).await;
     }
 }
 
-fn build_runtime_client<I: Iterator<Item = TokenStream2>>(contracts: I) -> TokenStream2 {
+fn build_runtime_client(contracts: TokenStream2) -> TokenStream2 {
     quote! {
-        let mut client = ::ink_e2e::DrinkClient::new(
-            [ #( #contracts ),* ]
-        );
+        let contracts = #contracts;
+        let mut client = ::ink_e2e::DrinkClient::new(contracts);
     }
 }

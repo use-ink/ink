@@ -24,11 +24,11 @@ pub struct ContractsRegistry {
 
 impl ContractsRegistry {
     /// Create a new registry with the given contracts.
-    pub fn new<'a>(contracts: impl IntoIterator<Item = &'a str>) -> Self {
+    pub fn new<P: Into<PathBuf>>(contracts: impl IntoIterator<Item = P>) -> Self {
         let contracts = contracts
             .into_iter()
             .map(|path| {
-                let wasm_path = PathBuf::from(path);
+                let wasm_path: PathBuf = path.into();
                 let contract_name = wasm_path.file_stem().unwrap_or_else(|| {
                     panic!("Invalid contract wasm path '{}'", wasm_path.display(),)
                 });
