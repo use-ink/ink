@@ -52,14 +52,14 @@ use scale::{
     Encode,
 };
 #[cfg(feature = "std")]
-use std::{
-    collections::BTreeMap,
-    fmt::Debug,
-    path::PathBuf,
-};
+use std::fmt::Debug;
 
 use crate::{
     backend::ChainBackend,
+    client_utils::{
+        salt,
+        ContractsRegistry,
+    },
     events,
     ContractsBackend,
     E2EBackend,
@@ -101,7 +101,7 @@ where
     E: Environment,
 {
     api: ContractsApi<C, E>,
-    contracts: BTreeMap<String, PathBuf>,
+    contracts: ContractsRegistry,
 }
 
 impl<C, E> Client<C, E>
@@ -123,41 +123,10 @@ where
         client: subxt::OnlineClient<C>,
         contracts: impl IntoIterator<Item = &str>,
     ) -> Self {
-        let contracts = contracts
-            .into_iter()
-            .map(|path| {
-                let wasm_path = PathBuf::from(path);
-                let contract_name = wasm_path.file_stem().unwrap_or_else(|| {
-                    panic!("Invalid contract wasm path '{}'", wasm_path.display(),)
-                });
-                (contract_name.to_string_lossy().to_string(), wasm_path)
-            })
-            .collect();
-
         Self {
             api: ContractsApi::new(client).await,
-            contracts,
+            contracts: ContractsRegistry::new(contracts),
         }
-    }
-
-    /// Load the Wasm code for the given contract.
-    fn load_code(&self, contract: &str) -> Vec<u8> {
-        let wasm_path = self
-            .contracts
-            .get(&contract.replace('-', "_"))
-            .unwrap_or_else(||
-                panic!(
-                    "Unknown contract {contract}. Available contracts: {:?}.\n\
-                     For a contract to be built, add it as a dependency to the `Cargo.toml`, or add \
-                     the manifest path to `#[ink_e2e::test(additional_contracts = ..)]`",
-                    self.contracts.keys()
-                )
-            );
-        let code = std::fs::read(wasm_path).unwrap_or_else(|err| {
-            panic!("Error loading '{}': {:?}", wasm_path.display(), err)
-        });
-        log_info(&format!("{:?} has {} KiB", contract, code.len() / 1024));
-        code
     }
 
     /// Executes an `instantiate_with_code` call and captures the resulting events.
@@ -172,7 +141,7 @@ where
     where
         Args: scale::Encode,
     {
-        let salt = Self::salt();
+        let salt = salt();
         let data = constructor_exec_input(constructor);
 
         // dry run the instantiate to calculate the gas limit
@@ -250,19 +219,6 @@ where
             account_id,
             events: tx_events,
         })
-    }
-
-    /// Generate a unique salt based on the system time.
-    fn salt() -> Vec<u8> {
-        use funty::Fundamental as _;
-
-        std::time::SystemTime::now()
-            .duration_since(std::time::UNIX_EPOCH)
-            .unwrap_or_else(|err| panic!("unable to get unix time: {err}"))
-            .as_millis()
-            .as_u128()
-            .to_le_bytes()
-            .to_vec()
     }
 
     /// Executes an `upload` call and captures the resulting events.
@@ -514,7 +470,7 @@ where
         value: E::Balance,
         storage_deposit_limit: Option<E::Balance>,
     ) -> Result<InstantiationResult<E, Self::EventLog>, Self::Error> {
-        let code = self.load_code(contract_name);
+        let code = self.contracts.load_code(contract_name);
         let ret = self
             .exec_instantiate::<Contract, Args, R>(
                 caller,
@@ -536,17 +492,16 @@ where
         value: E::Balance,
         storage_deposit_limit: Option<E::Balance>,
     ) -> ContractInstantiateResult<E::AccountId, E::Balance, ()> {
-        let code = self.load_code(contract_name);
+        let code = self.contracts.load_code(contract_name);
         let data = constructor_exec_input(constructor);
 
-        let salt = Self::salt();
         self.api
             .instantiate_with_code_dry_run(
                 value,
                 storage_deposit_limit,
                 code,
                 data,
-                salt,
+                salt(),
                 caller,
             )
             .await
@@ -558,7 +513,7 @@ where
         caller: &Keypair,
         storage_deposit_limit: Option<E::Balance>,
     ) -> Result<UploadResult<E, Self::EventLog>, Self::Error> {
-        let code = self.load_code(contract_name);
+        let code = self.contracts.load_code(contract_name);
         let ret = self
             .exec_upload(caller, code, storage_deposit_limit)
             .await?;

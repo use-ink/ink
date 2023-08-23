@@ -3,8 +3,11 @@ use crate::{
         constructor_exec_input,
         CreateBuilderPartial,
     },
+    client_utils::{
+        salt,
+        ContractsRegistry,
+    },
     log_error,
-    log_info,
     CallBuilderFinal,
     CallDryRunResult,
     CallResult,
@@ -41,17 +44,13 @@ use sp_core::{
     sr25519::Pair,
     Pair as _,
 };
-use std::{
-    collections::BTreeMap,
-    marker::PhantomData,
-    path::PathBuf,
-};
+use std::marker::PhantomData;
 use subxt::dynamic::Value;
 use subxt_signer::sr25519::Keypair;
 
 pub struct Client<AccountId, Hash> {
     sandbox: Sandbox<MinimalRuntime>,
-    contracts: BTreeMap<String, PathBuf>,
+    contracts: ContractsRegistry,
     _phantom: PhantomData<(AccountId, Hash)>,
 }
 
@@ -59,24 +58,12 @@ unsafe impl<AccountId, Hash> Send for Client<AccountId, Hash> {}
 
 impl<AccountId, Hash> Client<AccountId, Hash> {
     pub fn new<'a>(contracts: impl IntoIterator<Item = &'a str>) -> Self {
-        // todo: extract to a common place
-        let contracts = contracts
-            .into_iter()
-            .map(|path| {
-                let wasm_path = PathBuf::from(path);
-                let contract_name = wasm_path.file_stem().unwrap_or_else(|| {
-                    panic!("Invalid contract wasm path '{}'", wasm_path.display(),)
-                });
-                (contract_name.to_string_lossy().to_string(), wasm_path)
-            })
-            .collect();
-
         let mut sandbox = Sandbox::new().expect("Failed to initialize Drink! sandbox");
         Self::fund_accounts(&mut sandbox);
 
         Self {
             sandbox,
-            contracts,
+            contracts: ContractsRegistry::new(contracts),
             _phantom: Default::default(),
         }
     }
@@ -99,39 +86,6 @@ impl<AccountId, Hash> Client<AccountId, Hash> {
         for account in accounts.into_iter() {
             sandbox.add_tokens(account, TOKENS);
         }
-    }
-
-    // todo: extract to a common place
-    fn load_code(&self, contract: &str) -> Vec<u8> {
-        let wasm_path = self
-            .contracts
-            .get(&contract.replace('-', "_"))
-            .unwrap_or_else(||
-                panic!(
-                    "Unknown contract {contract}. Available contracts: {:?}.\n\
-                     For a contract to be built, add it as a dependency to the `Cargo.toml`, or add \
-                     the manifest path to `#[ink_e2e::test(additional_contracts = ..)]`",
-                    self.contracts.keys()
-                )
-            );
-        let code = std::fs::read(wasm_path).unwrap_or_else(|err| {
-            panic!("Error loading '{}': {:?}", wasm_path.display(), err)
-        });
-        log_info(&format!("{:?} has {} KiB", contract, code.len() / 1024));
-        code
-    }
-
-    // todo: extract to a common place
-    fn salt() -> Vec<u8> {
-        use funty::Fundamental as _;
-
-        std::time::SystemTime::now()
-            .duration_since(std::time::UNIX_EPOCH)
-            .unwrap_or_else(|err| panic!("unable to get unix time: {err}"))
-            .as_millis()
-            .as_u128()
-            .to_le_bytes()
-            .to_vec()
     }
 }
 
@@ -191,14 +145,14 @@ impl<
         value: E::Balance,
         storage_deposit_limit: Option<E::Balance>,
     ) -> Result<InstantiationResult<E, Self::EventLog>, Self::Error> {
-        let code = self.load_code(contract_name);
+        let code = self.contracts.load_code(contract_name);
         let data = constructor_exec_input(constructor);
 
         let result = self.sandbox.deploy_contract(
             code,
             value,
             data,
-            Self::salt(),
+            salt(),
             keypair_to_account(caller),
             DEFAULT_GAS_LIMIT,
             storage_deposit_limit,
@@ -250,7 +204,7 @@ impl<
         caller: &Keypair,
         storage_deposit_limit: Option<E::Balance>,
     ) -> Result<UploadResult<E, Self::EventLog>, Self::Error> {
-        let code = self.load_code(contract_name);
+        let code = self.contracts.load_code(contract_name);
 
         let result = match self.sandbox.upload_contract(
             code,

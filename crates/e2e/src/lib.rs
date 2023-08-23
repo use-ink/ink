@@ -21,6 +21,7 @@
 
 mod backend;
 mod builders;
+mod client_utils;
 mod contract_results;
 mod drink_client;
 mod error;
