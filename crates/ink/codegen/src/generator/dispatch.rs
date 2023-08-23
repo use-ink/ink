@@ -959,6 +959,15 @@ impl Dispatch<'_> {
         )
     }
 
+    /// Generates code to express if any dispatchable ink! message accepts reentrancy.
+    ///
+    /// Generates code in the form of variable assignments
+    /// which can be conditionally omitted
+    /// in which case the default assignment `let message_{id} = false` exists.
+    ///
+    /// This information can be used to speed-up dispatch since denying of payment
+    /// can be generalized to work before dispatch happens if none of the ink! messages
+    /// accept payment anyways.
     fn any_message_accepts_reentrancy(
         &self,
         messages: &[MessageDispatchable],
@@ -1025,6 +1034,15 @@ impl Dispatch<'_> {
         )
     }
 
+    /// Generates code to express if any dispatchable ink! constructor accepts reentrancy.
+    ///
+    /// Generates code in the form of variable assignments
+    /// which can be conditionally omitted
+    /// in which case the default assignment `let constructor_{id} = false` exists.
+    ///
+    /// This information can be used to speed-up dispatch since denying of payment
+    /// can be generalized to work before dispatch happens if none of the ink!
+    /// constructors accept payment anyways.
     fn any_constructor_accepts_reentrancy(
         &self,
         constructors: &[ConstructorDispatchable],

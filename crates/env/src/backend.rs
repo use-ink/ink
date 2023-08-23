@@ -125,8 +125,8 @@ impl CallFlags {
     /// Without this flag any reentrancy into the current contract that originates from
     /// the callee (or any of its callees) is allowed. This includes the first callee:
     /// You cannot call into yourself with this flag set.
-    pub const fn set_deny_reentry(mut self, deny_reentry: bool) -> Self {
-        self.allow_reentry = !deny_reentry;
+    pub const fn set_allow_reentry(mut self, allow_reentry: bool) -> Self {
+        self.allow_reentry = allow_reentry;
         self
     }
 
@@ -173,8 +173,8 @@ impl CallFlags {
     /// # Note
     ///
     /// See [`Self::set_allow_reentry`] for more information.
-    pub const fn deny_reentry(&self) -> bool {
-        !self.allow_reentry
+    pub const fn allow_reentry(&self) -> bool {
+        self.allow_reentry
     }
 }
 

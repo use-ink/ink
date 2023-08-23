@@ -655,11 +655,11 @@ pub struct MessageSpec<F: Form = MetaForm> {
     /// The selector hash of the message.
     selector: Selector,
     /// If the message is allowed to mutate the contract state.
-    mutates: bool,
+    mutates: bool,allow_reentrancy
     /// If the message accepts any `value` from the caller.
     payable: bool,
     /// If the message is allowed to re-enter the contract.
-    allow_reentrancy: bool,
+    reentrancy_allowed: bool,
     /// The parameters of the message.
     args: Vec<MessageParamSpec<F>>,
     /// The return type of the message.
@@ -727,7 +727,7 @@ where
                 selector: Selector::default(),
                 mutates: false,
                 payable: false,
-                allow_reentrancy: false,
+                reentrancy_allowed: false,
                 args: Vec::new(),
                 return_type: ReturnTypeSpec::new(None),
                 docs: Vec::new(),
@@ -871,7 +871,7 @@ where
     ) -> MessageSpecBuilder<F, S, M, P, state::AllowReentrancy, R> {
         MessageSpecBuilder {
             spec: MessageSpec {
-                allow_reentrancy,
+                reentrancy_allowed: allow_reentrancy,
                 ..self.spec
             },
             marker: PhantomData,
@@ -963,7 +963,7 @@ impl IntoPortable for MessageSpec {
             selector: self.selector,
             mutates: self.mutates,
             payable: self.payable,
-            allow_reentrancy: self.allow_reentrancy,
+            reentrancy_allowed: self.reentrancy_allowed,
             default: self.default,
             args: self
                 .args

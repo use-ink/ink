@@ -100,7 +100,8 @@ pub struct Message {
     pub(super) item: syn::ImplItemFn,
     /// If the ink! message can receive funds.
     is_payable: bool,
-    /// If the ink! message is allowed to re-enter the contract.
+    /// If it is allowed to re-enter the corresponding ink! message. If reentrancy is disabled by default,
+    /// this flag can be used to enable it for a specific message.
     allow_reentrancy: bool,
     /// If the ink! message is default.
     is_default: bool,
