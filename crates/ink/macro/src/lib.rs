@@ -24,6 +24,7 @@ mod chain_extension;
 mod contract;
 mod event;
 mod ink_test;
+mod scale;
 mod selector;
 mod storage;
 mod storage_item;
@@ -1547,6 +1548,27 @@ synstructure::decl_derive!(
     /// }
     /// ```
     storage::storage_layout_derive
+);
+
+synstructure::decl_derive!(
+    [Encode] =>
+    /// Todo: Encode docs
+    scale::encode_derive
+);
+synstructure::decl_derive!(
+    [Decode] =>
+    /// Todo: Decode docs
+    scale::decode_derive
+);
+synstructure::decl_derive!(
+    [CompactAs] =>
+    /// Todo: CompactAs docs
+    scale::compact_as_derive
+);
+synstructure::decl_derive!(
+    [TypeInfo] =>
+    /// Todo: TypeInfo docs
+    scale::type_info_derive
 );
 
 #[cfg(test)]
