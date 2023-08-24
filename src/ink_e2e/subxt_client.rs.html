@@ -703,52 +703,6 @@
 <a href="#703" id="703">703</a>
 <a href="#704" id="704">704</a>
 <a href="#705" id="705">705</a>
-<a href="#706" id="706">706</a>
-<a href="#707" id="707">707</a>
-<a href="#708" id="708">708</a>
-<a href="#709" id="709">709</a>
-<a href="#710" id="710">710</a>
-<a href="#711" id="711">711</a>
-<a href="#712" id="712">712</a>
-<a href="#713" id="713">713</a>
-<a href="#714" id="714">714</a>
-<a href="#715" id="715">715</a>
-<a href="#716" id="716">716</a>
-<a href="#717" id="717">717</a>
-<a href="#718" id="718">718</a>
-<a href="#719" id="719">719</a>
-<a href="#720" id="720">720</a>
-<a href="#721" id="721">721</a>
-<a href="#722" id="722">722</a>
-<a href="#723" id="723">723</a>
-<a href="#724" id="724">724</a>
-<a href="#725" id="725">725</a>
-<a href="#726" id="726">726</a>
-<a href="#727" id="727">727</a>
-<a href="#728" id="728">728</a>
-<a href="#729" id="729">729</a>
-<a href="#730" id="730">730</a>
-<a href="#731" id="731">731</a>
-<a href="#732" id="732">732</a>
-<a href="#733" id="733">733</a>
-<a href="#734" id="734">734</a>
-<a href="#735" id="735">735</a>
-<a href="#736" id="736">736</a>
-<a href="#737" id="737">737</a>
-<a href="#738" id="738">738</a>
-<a href="#739" id="739">739</a>
-<a href="#740" id="740">740</a>
-<a href="#741" id="741">741</a>
-<a href="#742" id="742">742</a>
-<a href="#743" id="743">743</a>
-<a href="#744" id="744">744</a>
-<a href="#745" id="745">745</a>
-<a href="#746" id="746">746</a>
-<a href="#747" id="747">747</a>
-<a href="#748" id="748">748</a>
-<a href="#749" id="749">749</a>
-<a href="#750" id="750">750</a>
-<a href="#751" id="751">751</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -803,14 +757,15 @@
     Encode,
 };
 <span class="attr">#[cfg(feature = <span class="string">&quot;std&quot;</span>)]
-</span><span class="kw">use </span>std::{
-    collections::BTreeMap,
-    fmt::Debug,
-    path::PathBuf,
-};
+</span><span class="kw">use </span>std::fmt::Debug;
+<span class="kw">use </span>std::path::PathBuf;
 
 <span class="kw">use crate</span>::{
     backend::ChainBackend,
+    client_utils::{
+        salt,
+        ContractsRegistry,
+    },
     events,
     ContractsBackend,
     E2EBackend,
@@ -852,7 +807,7 @@
     E: Environment,
 {
     api: ContractsApi&lt;C, E&gt;,
-    contracts: BTreeMap&lt;String, PathBuf&gt;,
+    contracts: ContractsRegistry,
 }
 
 <span class="kw">impl</span>&lt;C, E&gt; Client&lt;C, E&gt;
@@ -870,48 +825,14 @@
     E::Hash: Debug + scale::Encode,
 {
     <span class="doccomment">/// Creates a new [`Client`] instance using a `subxt` client.
-    </span><span class="kw">pub async fn </span>new&lt;P&gt;(
+    </span><span class="kw">pub async fn </span>new&lt;P: Into&lt;PathBuf&gt;&gt;(
         client: subxt::OnlineClient&lt;C&gt;,
         contracts: <span class="kw">impl </span>IntoIterator&lt;Item = P&gt;,
-    ) -&gt; <span class="self">Self
-    </span><span class="kw">where
-        </span>PathBuf: From&lt;P&gt;,
-    {
-        <span class="kw">let </span>contracts = contracts
-            .into_iter()
-            .map(|path| {
-                <span class="kw">let </span>wasm_path = PathBuf::from(path);
-                <span class="kw">let </span>contract_name = wasm_path.file_stem().unwrap_or_else(|| {
-                    <span class="macro">panic!</span>(<span class="string">&quot;Invalid contract wasm path &#39;{}&#39;&quot;</span>, wasm_path.display(),)
-                });
-                (contract_name.to_string_lossy().to_string(), wasm_path)
-            })
-            .collect();
-
+    ) -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{
             api: ContractsApi::new(client).<span class="kw">await</span>,
-            contracts,
+            contracts: ContractsRegistry::new(contracts),
         }
-    }
-
-    <span class="doccomment">/// Load the Wasm code for the given contract.
-    </span><span class="kw">fn </span>load_code(<span class="kw-2">&amp;</span><span class="self">self</span>, contract: <span class="kw-2">&amp;</span>str) -&gt; Vec&lt;u8&gt; {
-        <span class="kw">let </span>wasm_path = <span class="self">self
-            </span>.contracts
-            .get(<span class="kw-2">&amp;</span>contract.replace(<span class="string">&#39;-&#39;</span>, <span class="string">&quot;_&quot;</span>))
-            .unwrap_or_else(||
-                <span class="macro">panic!</span>(
-                    <span class="string">&quot;Unknown contract {contract}. Available contracts: {:?}.\n\
-                     For a contract to be built, add it as a dependency to the `Cargo.toml`, or add \
-                     the manifest path to `#[ink_e2e::test(additional_contracts = ..)]`&quot;</span>,
-                    <span class="self">self</span>.contracts.keys()
-                )
-            );
-        <span class="kw">let </span>code = std::fs::read(wasm_path).unwrap_or_else(|err| {
-            <span class="macro">panic!</span>(<span class="string">&quot;Error loading &#39;{}&#39;: {:?}&quot;</span>, wasm_path.display(), err)
-        });
-        log_info(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;{:?} has {} KiB&quot;</span>, contract, code.len() / <span class="number">1024</span>));
-        code
     }
 
     <span class="doccomment">/// Executes an `instantiate_with_code` call and captures the resulting events.
@@ -926,7 +847,7 @@
     <span class="kw">where
         </span>Args: scale::Encode,
     {
-        <span class="kw">let </span>salt = <span class="self">Self</span>::salt();
+        <span class="kw">let </span>salt = salt();
         <span class="kw">let </span>data = constructor_exec_input(constructor);
 
         <span class="comment">// dry run the instantiate to calculate the gas limit
@@ -1004,19 +925,6 @@
             </span>account_id,
             events: tx_events,
         })
-    }
-
-    <span class="doccomment">/// Generate a unique salt based on the system time.
-    </span><span class="kw">fn </span>salt() -&gt; Vec&lt;u8&gt; {
-        <span class="kw">use </span>funty::Fundamental <span class="kw">as _</span>;
-
-        std::time::SystemTime::now()
-            .duration_since(std::time::UNIX_EPOCH)
-            .unwrap_or_else(|err| <span class="macro">panic!</span>(<span class="string">&quot;unable to get unix time: {err}&quot;</span>))
-            .as_millis()
-            .as_u128()
-            .to_le_bytes()
-            .to_vec()
     }
 
     <span class="doccomment">/// Executes an `upload` call and captures the resulting events.
@@ -1115,17 +1023,16 @@
         + scale::HasCompact
         + serde::Serialize,
 {
-    <span class="kw">type </span>Actor = Keypair;
-    <span class="kw">type </span>ActorId = E::AccountId;
+    <span class="kw">type </span>AccountId = E::AccountId;
     <span class="kw">type </span>Balance = E::Balance;
     <span class="kw">type </span>Error = Error&lt;E&gt;;
     <span class="kw">type </span>EventLog = ExtrinsicEvents&lt;C&gt;;
 
     <span class="kw">async fn </span>create_and_fund_account(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
-        origin: <span class="kw-2">&amp;</span><span class="self">Self</span>::Actor,
+        origin: <span class="kw-2">&amp;</span>Keypair,
         amount: <span class="self">Self</span>::Balance,
-    ) -&gt; <span class="self">Self</span>::Actor {
+    ) -&gt; Keypair {
         <span class="kw">let </span>(<span class="kw">_</span>, phrase, <span class="kw">_</span>) =
             &lt;sp_core::sr25519::Pair <span class="kw">as </span>sp_core::Pair&gt;::generate_with_phrase(<span class="prelude-val">None</span>);
         <span class="kw">let </span>phrase =
@@ -1152,14 +1059,17 @@
         keypair
     }
 
-    <span class="kw">async fn </span>balance(<span class="kw-2">&amp;</span><span class="self">self</span>, actor: <span class="self">Self</span>::ActorId) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Balance, <span class="self">Self</span>::Error&gt; {
+    <span class="kw">async fn </span>balance(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        account: <span class="self">Self</span>::AccountId,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Balance, <span class="self">Self</span>::Error&gt; {
         <span class="kw">let </span>account_addr = subxt::dynamic::storage(
             <span class="string">&quot;System&quot;</span>,
             <span class="string">&quot;Account&quot;</span>,
             <span class="macro">vec!</span>[
                 <span class="comment">// Something that encodes to an AccountId32 is what we need for the map
                 // key here:
-                </span>Value::from_bytes(<span class="kw-2">&amp;</span>actor),
+                </span>Value::from_bytes(<span class="kw-2">&amp;</span>account),
             ],
         );
 
@@ -1191,20 +1101,20 @@
             Error::&lt;E&gt;::Balance(<span class="macro">format!</span>(<span class="string">&quot;{balance:?} failed to convert from u128&quot;</span>))
         })<span class="question-mark">?</span>;
 
-        log_info(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;balance of contract {actor:?} is {balance:?}&quot;</span>));
+        log_info(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;balance of contract {account:?} is {balance:?}&quot;</span>));
         <span class="prelude-val">Ok</span>(balance)
     }
 
     <span class="kw">async fn </span>runtime_call&lt;<span class="lifetime">&#39;a</span>&gt;(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
-        actor: <span class="kw-2">&amp;</span><span class="self">Self</span>::Actor,
+        origin: <span class="kw-2">&amp;</span>Keypair,
         pallet_name: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str,
         call_name: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str,
         call_data: Vec&lt;Value&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::EventLog, <span class="self">Self</span>::Error&gt; {
         <span class="kw">let </span>tx_events = <span class="self">self
             </span>.api
-            .runtime_call(actor, pallet_name, call_name, call_data)
+            .runtime_call(origin, pallet_name, call_name, call_data)
             .<span class="kw">await</span>;
 
         <span class="kw">for </span>evt <span class="kw">in </span>tx_events.iter() {
@@ -1255,19 +1165,18 @@
         + serde::Serialize,
     E::Hash: Debug + Send + scale::Encode,
 {
-    <span class="kw">type </span>Actor = Keypair;
     <span class="kw">type </span>Error = Error&lt;E&gt;;
     <span class="kw">type </span>EventLog = ExtrinsicEvents&lt;C&gt;;
 
     <span class="kw">async fn </span>instantiate&lt;Contract, Args: Send + Encode, R&gt;(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         contract_name: <span class="kw-2">&amp;</span>str,
-        caller: <span class="kw-2">&amp;</span><span class="self">Self</span>::Actor,
+        caller: <span class="kw-2">&amp;</span>Keypair,
         constructor: CreateBuilderPartial&lt;E, Contract, Args, R&gt;,
         value: E::Balance,
         storage_deposit_limit: <span class="prelude-ty">Option</span>&lt;E::Balance&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;InstantiationResult&lt;E, <span class="self">Self</span>::EventLog&gt;, <span class="self">Self</span>::Error&gt; {
-        <span class="kw">let </span>code = <span class="self">self</span>.load_code(contract_name);
+        <span class="kw">let </span>code = <span class="self">self</span>.contracts.load_code(contract_name);
         <span class="kw">let </span>ret = <span class="self">self
             </span>.exec_instantiate::&lt;Contract, Args, R&gt;(
                 caller,
@@ -1284,22 +1193,21 @@
     <span class="kw">async fn </span>instantiate_dry_run&lt;Contract, Args: Send + Encode, R&gt;(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         contract_name: <span class="kw-2">&amp;</span>str,
-        caller: <span class="kw-2">&amp;</span><span class="self">Self</span>::Actor,
+        caller: <span class="kw-2">&amp;</span>Keypair,
         constructor: CreateBuilderPartial&lt;E, Contract, Args, R&gt;,
         value: E::Balance,
         storage_deposit_limit: <span class="prelude-ty">Option</span>&lt;E::Balance&gt;,
     ) -&gt; ContractInstantiateResult&lt;E::AccountId, E::Balance, ()&gt; {
-        <span class="kw">let </span>code = <span class="self">self</span>.load_code(contract_name);
+        <span class="kw">let </span>code = <span class="self">self</span>.contracts.load_code(contract_name);
         <span class="kw">let </span>data = constructor_exec_input(constructor);
 
-        <span class="kw">let </span>salt = <span class="self">Self</span>::salt();
         <span class="self">self</span>.api
             .instantiate_with_code_dry_run(
                 value,
                 storage_deposit_limit,
                 code,
                 data,
-                salt,
+                salt(),
                 caller,
             )
             .<span class="kw">await
@@ -1308,10 +1216,10 @@
     <span class="kw">async fn </span>upload(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         contract_name: <span class="kw-2">&amp;</span>str,
-        caller: <span class="kw-2">&amp;</span><span class="self">Self</span>::Actor,
+        caller: <span class="kw-2">&amp;</span>Keypair,
         storage_deposit_limit: <span class="prelude-ty">Option</span>&lt;E::Balance&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;UploadResult&lt;E, <span class="self">Self</span>::EventLog&gt;, <span class="self">Self</span>::Error&gt; {
-        <span class="kw">let </span>code = <span class="self">self</span>.load_code(contract_name);
+        <span class="kw">let </span>code = <span class="self">self</span>.contracts.load_code(contract_name);
         <span class="kw">let </span>ret = <span class="self">self
             </span>.exec_upload(caller, code, storage_deposit_limit)
             .<span class="kw">await</span><span class="question-mark">?</span>;
@@ -1321,7 +1229,7 @@
 
     <span class="kw">async fn </span>call&lt;Args: Sync + Encode, RetType: Send + Decode&gt;(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
-        caller: <span class="kw-2">&amp;</span><span class="self">Self</span>::Actor,
+        caller: <span class="kw-2">&amp;</span>Keypair,
         message: <span class="kw-2">&amp;</span>CallBuilderFinal&lt;E, Args, RetType&gt;,
         value: E::Balance,
         storage_deposit_limit: <span class="prelude-ty">Option</span>&lt;E::Balance&gt;,
@@ -1374,7 +1282,7 @@
 
     <span class="kw">async fn </span>call_dry_run&lt;Args: Sync + Encode, RetType: Send + Decode&gt;(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
-        caller: <span class="kw-2">&amp;</span><span class="self">Self</span>::Actor,
+        caller: <span class="kw-2">&amp;</span>Keypair,
         message: <span class="kw-2">&amp;</span>CallBuilderFinal&lt;E, Args, RetType&gt;,
         value: E::Balance,
         storage_deposit_limit: <span class="prelude-ty">Option</span>&lt;E::Balance&gt;,
