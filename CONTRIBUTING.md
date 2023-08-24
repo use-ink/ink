@@ -141,15 +141,12 @@ For a nice list of hints visit this [link][GitHub Perfect Pull Reqest].
 
 ### Reviews
 
-We have GitHub set up in a way that core developers will automatically
-be assigned to review your pull request. If you feel there is somebody
-missing you're always free to add more people for a review.
+As we grow, we gradually allow the most active contributors to review and approve pull requests.
 
-For small changes one approval is typically enough to merge code, for
-significant or critical changes there should be at least two ✅.
+Therefore, for the pull request to get merged at least 2 approvals from 2 different parties, including
+1 approval from a [CODEOWNER](/CODEOWNERS), must be granted.
 
-If you made major changes to your pull request since the last approval,
-ping them for another approval please.
+This policy may be subject to change depending on the circumstances.
 
 ## I don't want to contribute, I just have some questions
 
