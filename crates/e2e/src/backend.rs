@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use super::Keypair;
 use crate::{
     builders::CreateBuilderPartial,
     CallBuilderFinal,
@@ -38,10 +39,8 @@ pub trait E2EBackend<E: Environment = DefaultEnvironment>:
 /// General chain operations useful in contract testing.
 #[async_trait]
 pub trait ChainBackend {
-    /// Abstract type representing the entity that interacts with the chain.
-    type Actor: Send;
-    /// Identifier type for an actor.
-    type ActorId;
+    /// Account type.
+    type AccountId;
     /// Balance type.
     type Balance: Send;
     /// Error type.
@@ -49,16 +48,19 @@ pub trait ChainBackend {
     /// Event log type.
     type EventLog;
 
-    /// Generate a new actor's credentials and fund it with the given amount from the
-    /// `sender` actor.
+    /// Generate a new account and fund it with the given `amount` of tokens from the
+    /// `origin`.
     async fn create_and_fund_account(
         &mut self,
-        origin: &Self::Actor,
+        origin: &Keypair,
         amount: Self::Balance,
-    ) -> Self::Actor;
+    ) -> Keypair;
 
     /// Returns the balance of `actor`.
-    async fn balance(&self, actor: Self::ActorId) -> Result<Self::Balance, Self::Error>;
+    async fn balance(
+        &mut self,
+        account: Self::AccountId,
+    ) -> Result<Self::Balance, Self::Error>;
 
     /// Executes a runtime call `call_name` for the `pallet_name`.
     /// The `call_data` is a `Vec<Value>`.
@@ -73,7 +75,7 @@ pub trait ChainBackend {
     /// events that are associated with this transaction.
     async fn runtime_call<'a>(
         &mut self,
-        actor: &Self::Actor,
+        origin: &Keypair,
         pallet_name: &'a str,
         call_name: &'a str,
         call_data: Vec<Value>,
@@ -83,8 +85,6 @@ pub trait ChainBackend {
 /// Contract-specific operations.
 #[async_trait]
 pub trait ContractsBackend<E: Environment> {
-    /// Abstract type representing the entity that interacts with the chain.
-    type Actor;
     /// Error type.
     type Error;
     /// Event log type.
@@ -101,7 +101,7 @@ pub trait ContractsBackend<E: Environment> {
     async fn instantiate<Contract, Args: Send + scale::Encode, R>(
         &mut self,
         contract_name: &str,
-        caller: &Self::Actor,
+        caller: &Keypair,
         constructor: CreateBuilderPartial<E, Contract, Args, R>,
         value: E::Balance,
         storage_deposit_limit: Option<E::Balance>,
@@ -111,7 +111,7 @@ pub trait ContractsBackend<E: Environment> {
     async fn instantiate_dry_run<Contract, Args: Send + scale::Encode, R>(
         &mut self,
         contract_name: &str,
-        caller: &Self::Actor,
+        caller: &Keypair,
         constructor: CreateBuilderPartial<E, Contract, Args, R>,
         value: E::Balance,
         storage_deposit_limit: Option<E::Balance>,
@@ -127,7 +127,7 @@ pub trait ContractsBackend<E: Environment> {
     async fn upload(
         &mut self,
         contract_name: &str,
-        caller: &Self::Actor,
+        caller: &Keypair,
         storage_deposit_limit: Option<E::Balance>,
     ) -> Result<UploadResult<E, Self::EventLog>, Self::Error>;
 
@@ -137,7 +137,7 @@ pub trait ContractsBackend<E: Environment> {
     /// contains all events that are associated with this transaction.
     async fn call<Args: Sync + scale::Encode, RetType: Send + scale::Decode>(
         &mut self,
-        caller: &Self::Actor,
+        caller: &Keypair,
         message: &CallBuilderFinal<E, Args, RetType>,
         value: E::Balance,
         storage_deposit_limit: Option<E::Balance>,
@@ -151,7 +151,7 @@ pub trait ContractsBackend<E: Environment> {
     /// invoked message.
     async fn call_dry_run<Args: Sync + scale::Encode, RetType: Send + scale::Decode>(
         &mut self,
-        caller: &Self::Actor,
+        caller: &Keypair,
         message: &CallBuilderFinal<E, Args, RetType>,
         value: E::Balance,
         storage_deposit_limit: Option<E::Balance>,

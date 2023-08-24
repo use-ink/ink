@@ -21,8 +21,10 @@
 
 mod backend;
 mod builders;
+mod client_utils;
 mod contract_build;
 mod contract_results;
+mod drink_client;
 mod error;
 pub mod events;
 mod node_proc;
@@ -44,6 +46,7 @@ pub use contract_results::{
     InstantiationResult,
     UploadResult,
 };
+pub use drink_client::Client as DrinkClient;
 pub use ink_e2e_macro::test;
 pub use node_proc::{
     TestNodeProcess,
