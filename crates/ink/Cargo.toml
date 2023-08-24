@@ -24,6 +24,7 @@ ink_prelude = { workspace = true }
 ink_macro = { workspace = true }
 
 scale = { package = "parity-scale-codec", workspace = true }
+scale-info = { workspace = true, default-features = false, features = ["derive"], optional = true }
 derive_more = { workspace = true, features = ["from"] }
 
 [dev-dependencies]
@@ -31,8 +32,7 @@ ink_ir = { workspace = true, default-features = true }
 ink_metadata = { workspace = true }
 
 trybuild = { workspace = true, features = ["diff"] }
-# Required for the doctest of `env_access::EnvAccess::instantiate_contract`
-scale-info = { workspace = true, features = ["derive"] }
+
 
 [features]
 default = ["std"]
@@ -44,6 +44,7 @@ std = [
     "ink_storage/std",
     "ink_macro/std",
     "scale/std",
+    "scale-info/std",
 ]
 # Enable contract debug messages via `debug_print!` and `debug_println!`.
 ink-debug = [
