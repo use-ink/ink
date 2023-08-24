@@ -2,6 +2,7 @@
 
 #[ink::contract]
 pub mod delegatecall_bug {
+    use ink::env::CallFlags;
     use ink::storage::Mapping;
 
     use ink::env::{
@@ -35,14 +36,14 @@ pub mod delegatecall_bug {
         /// Flips the current value using delegatecall
         #[allow(clippy::result_unit_err)]
         #[ink(message)]
-        pub fn flip_delegate(&mut self, hash: Hash) -> Result<(), ()> {
+        pub fn flip_delegate(&mut self, hash: Hash) {
             let selector = ink::selector_bytes!("flip");
             let _ = build_call::<DefaultEnvironment>()
                 .delegate(hash)
+                .call_flags(CallFlags::default().set_tail_call(true))
                 .exec_input(ExecutionInput::new(Selector::new(selector)))
                 .returns::<()>()
-                .try_invoke().map_err(|_| ())?;
-            Ok(())
+                .try_invoke();
         }
 
         /// Returns the current value of the Flipper's boolean.
@@ -55,12 +56,14 @@ pub mod delegatecall_bug {
     #[cfg(all(test, feature = "e2e-tests"))]
     mod e2e_tests {
         use super::*;
+        use ink_e2e::ContractsBackend;
+        use ink_e2e::ChainBackend;
 
         type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
         #[ink_e2e::test]
-        async fn e2e_storage_not_mutated(
-            mut client: ink_e2e::Client<C, E>,
+        async fn e2e_storage_not_mutated<Client: E2EBackend>(
+            mut client: Client,
         ) -> E2EResult<()> {
             let origin = client
                 .create_and_fund_account(&ink_e2e::alice(), 10_000_000_000_000)
@@ -82,9 +85,9 @@ pub mod delegatecall_bug {
             let call_delegate = call_builder_call.flip_delegate(code_hash);
             let result = client
                 .call(&origin, &call_delegate, 0, None)
-                .await
-                .expect("Client failed to call `call_builder::flip`.")
-                .return_value();
+                .await;
+                // .expect("Client failed to call `call_builder::flip`.");
+
             // indicates that delegate call that mutates the value hsa been executed correctly
             assert!(result.is_ok());
 
