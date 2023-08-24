@@ -22,7 +22,7 @@ ink_primitives = { workspace = true, default-features = true }
 
 cargo_metadata = { workspace = true }
 contract-build = { workspace = true }
-drink = { workspace = true }
+drink = { workspace = true, optional = true }
 funty = { workspace = true }
 impl-serde = { workspace = true }
 jsonrpsee = { workspace = true, features = ["ws-client"] }
@@ -50,3 +50,7 @@ scale-info = { workspace = true, features = ["derive"] }
 [features]
 default = ["std"]
 std = []
+drink = [
+    "dep:drink",
+    "ink_e2e_macro/drink",
+]

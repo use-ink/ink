@@ -29,6 +29,7 @@ pub enum Backend {
     ///
     /// This runs a runtime emulator within `TestExternalities` (using drink! library) in
     /// the same process as the test.
+    #[cfg(any(test, feature = "drink"))]
     RuntimeOnly,
 }
 
@@ -38,7 +39,15 @@ impl TryFrom<syn::LitStr> for Backend {
     fn try_from(value: syn::LitStr) -> Result<Self, Self::Error> {
         match value.value().as_str() {
             "full" => Ok(Self::Full),
+            #[cfg(any(test, feature = "drink"))]
             "runtime_only" | "runtime-only" => Ok(Self::RuntimeOnly),
+            #[cfg(not(any(test, feature = "drink")))]
+            "runtime_only" | "runtime-only" => Err(
+                format_err_spanned!(
+                    value,
+                    "the `runtime-only` backend is not available because the `drink` feature is not enabled",
+                )
+            ),
             _ => {
                 Err(format_err_spanned!(
                     value,
