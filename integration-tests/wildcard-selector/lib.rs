@@ -37,6 +37,7 @@ pub mod wildcard_selector {
     #[cfg(all(test, feature = "e2e-tests"))]
     mod e2e_tests {
         use super::*;
+        use ink_e2e::ContractsBackend;
 
         use ink::env::call::utils::{
             Argument,
@@ -68,8 +69,8 @@ pub mod wildcard_selector {
         }
 
         #[ink_e2e::test]
-        async fn arbitrary_selectors_handled_by_wildcard(
-            mut client: ink_e2e::Client<C, E>,
+        async fn arbitrary_selectors_handled_by_wildcard<Client: E2EBackend>(
+            mut client: Client,
         ) -> E2EResult<()> {
             // given
             let constructor = WildcardSelectorRef::new();
@@ -121,8 +122,8 @@ pub mod wildcard_selector {
         }
 
         #[ink_e2e::test]
-        async fn wildcard_complement_works(
-            mut client: ink_e2e::Client<C, E>,
+        async fn wildcard_complement_works<Client: E2EBackend>(
+            mut client: Client,
         ) -> E2EResult<()> {
             // given
             let constructor = WildcardSelectorRef::new();

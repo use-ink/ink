@@ -107,13 +107,14 @@ pub mod constructors_return_value {
     #[cfg(all(test, feature = "e2e-tests"))]
     mod e2e_tests {
         use super::*;
+        use ink_e2e::ContractsBackend;
         use scale::Decode as _;
 
         type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
         #[ink_e2e::test]
-        async fn e2e_infallible_constructor(
-            mut client: ink_e2e::Client<C, E>,
+        async fn e2e_infallible_constructor<Client: E2EBackend>(
+            mut client: Client,
         ) -> E2EResult<()> {
             let constructor = ConstructorsReturnValueRef::new(true);
             let infallible_constructor_result = client
@@ -154,8 +155,8 @@ pub mod constructors_return_value {
         }
 
         #[ink_e2e::test]
-        async fn e2e_fallible_constructor_succeed(
-            mut client: ink_e2e::Client<C, E>,
+        async fn e2e_fallible_constructor_succeed<Client: E2EBackend>(
+            mut client: Client,
         ) -> E2EResult<()> {
             let constructor = ConstructorsReturnValueRef::try_new(true);
             let result = client
@@ -197,7 +198,7 @@ pub mod constructors_return_value {
                 )
                 .await
                 .expect("instantiate failed");
-            let mut call = contract.call::<ConstructorsReturnValue>();
+            let call = contract.call::<ConstructorsReturnValue>();
 
             let get = call.get_value();
             let value = client
@@ -214,8 +215,8 @@ pub mod constructors_return_value {
         }
 
         #[ink_e2e::test]
-        async fn e2e_fallible_constructor_fails(
-            mut client: ink_e2e::Client<C, E>,
+        async fn e2e_fallible_constructor_fails<Client: E2EBackend>(
+            mut client: Client,
         ) -> E2EResult<()> {
             let constructor = ConstructorsReturnValueRef::try_new(false);
 
@@ -259,7 +260,7 @@ pub mod constructors_return_value {
                 .await;
 
             assert!(
-                matches!(result, Err(ink_e2e::Error::InstantiateExtrinsic(_))),
+                matches!(result, Err(ink_e2e::Error::<ink::env::DefaultEnvironment>::InstantiateExtrinsic(_))),
                 "Constructor should fail"
             );
 

@@ -1,4 +1,4 @@
-// Copyright 2018-2022 Parity Technologies (UK) Ltd.
+// Copyright (C) Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@ use core::alloc::{
 /// A page in Wasm is `64KiB`
 const PAGE_SIZE: usize = 64 * 1024;
 
-static mut INNER: InnerAlloc = InnerAlloc::new();
+static mut INNER: Option<InnerAlloc> = None;
 
 /// A bump allocator suitable for use in a Wasm environment.
 pub struct BumpAllocator;
@@ -37,7 +37,14 @@ pub struct BumpAllocator;
 unsafe impl GlobalAlloc for BumpAllocator {
     #[inline]
     unsafe fn alloc(&self, layout: Layout) -> *mut u8 {
-        match INNER.alloc(layout) {
+        if INNER.is_none() {
+            INNER = Some(InnerAlloc::new());
+        };
+        match INNER
+            .as_mut()
+            .expect("We just set the value above; qed")
+            .alloc(layout)
+        {
             Some(start) => start as *mut u8,
             None => core::ptr::null_mut(),
         }
@@ -66,7 +73,7 @@ struct InnerAlloc {
 }
 
 impl InnerAlloc {
-    const fn new() -> Self {
+    fn new() -> Self {
         Self {
             next: Self::heap_start(),
             upper_limit: Self::heap_end(),
@@ -75,11 +82,11 @@ impl InnerAlloc {
 
     cfg_if::cfg_if! {
         if #[cfg(test)] {
-            const fn heap_start() -> usize {
+            fn heap_start() -> usize {
                 0
             }
 
-            const fn heap_end() -> usize {
+            fn heap_end() -> usize {
                 0
             }
 
@@ -93,11 +100,11 @@ impl InnerAlloc {
                 Some(self.upper_limit)
             }
         } else if #[cfg(feature = "std")] {
-            const fn heap_start() -> usize {
+            fn heap_start() -> usize {
                 0
             }
 
-            const fn heap_end() -> usize {
+            fn heap_end() -> usize {
                 0
             }
 
@@ -108,12 +115,24 @@ impl InnerAlloc {
                 )
             }
         } else if #[cfg(target_arch = "wasm32")] {
-            const fn heap_start() -> usize {
-                0
+            fn heap_start() -> usize {
+                extern "C" {
+                    static __heap_base: usize;
+                }
+                // # SAFETY
+                //
+                // The `__heap_base` symbol is defined by the wasm linker and is guaranteed
+                // to point to the start of the heap.
+                let heap_start =  unsafe { &__heap_base as *const usize as usize };
+                // if the symbol isn't found it will resolve to 0
+                // for that to happen the rust compiler or linker need to break or change
+                assert_ne!(heap_start, 0, "Can't find `__heap_base` symbol.");
+                heap_start
             }
 
-            const fn heap_end() -> usize {
-                0
+            fn heap_end() -> usize {
+                // Cannot overflow on this architecture
+                core::arch::wasm32::memory_size(0) * PAGE_SIZE
             }
 
             /// Request a `pages` number of pages of Wasm memory. Each page is `64KiB` in size.
@@ -125,7 +144,8 @@ impl InnerAlloc {
                     return None;
                 }
 
-                prev_page.checked_mul(PAGE_SIZE)
+                // Cannot overflow on this architecture
+                Some(prev_page * PAGE_SIZE)
             }
         } else if #[cfg(target_arch = "riscv32")] {
             const fn heap_start() -> usize {

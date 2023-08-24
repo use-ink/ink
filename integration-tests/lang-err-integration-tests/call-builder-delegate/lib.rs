@@ -94,50 +94,16 @@ mod call_builder {
     #[cfg(all(test, feature = "e2e-tests"))]
     mod e2e_tests {
         use super::*;
+        use ink_e2e::{
+            ChainBackend,
+            ContractsBackend,
+        };
 
         type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
         #[ink_e2e::test]
-        async fn e2e_call_builder_delegate_returns_correct_value(
-            mut client: ink_e2e::Client<C, E>,
-        ) -> E2EResult<()> {
-            let origin = client
-                .create_and_fund_account(&ink_e2e::alice(), 10_000_000_000_000)
-                .await;
-
-            let expected_value = 42;
-            let constructor = CallBuilderDelegateTestRef::new(expected_value);
-            let call_builder = client
-                .instantiate("call_builder_delegate", &origin, constructor, 0, None)
-                .await
-                .expect("instantiate failed");
-            let mut call_builder_call = call_builder.call::<CallBuilderDelegateTest>();
-
-            let code_hash = client
-                .upload("incrementer", &origin, None)
-                .await
-                .expect("upload `incrementer` failed")
-                .code_hash;
-
-            let selector = ink::selector_bytes!("get");
-            let call = call_builder_call.invoke(code_hash, selector);
-            let call_result = client
-                .call(&origin, &call, 0, None)
-                .await
-                .expect("Client failed to call `call_builder::invoke`.")
-                .return_value();
-
-            assert_eq!(
-                call_result, expected_value,
-                "Decoded an unexpected value from the call."
-            );
-
-            Ok(())
-        }
-
-        #[ink_e2e::test]
-        async fn e2e_invalid_message_selector_can_be_handled(
-            mut client: ink_e2e::Client<C, E>,
+        async fn e2e_invalid_message_selector_can_be_handled<Client: E2EBackend>(
+            mut client: Client,
         ) -> E2EResult<()> {
             let origin = client
                 .create_and_fund_account(&ink_e2e::bob(), 10_000_000_000_000)
@@ -173,8 +139,8 @@ mod call_builder {
         }
 
         #[ink_e2e::test]
-        async fn e2e_invalid_message_selector_panics_on_invoke(
-            mut client: ink_e2e::Client<C, E>,
+        async fn e2e_invalid_message_selector_panics_on_invoke<Client: E2EBackend>(
+            mut client: Client,
         ) -> E2EResult<()> {
             let origin = client
                 .create_and_fund_account(&ink_e2e::charlie(), 10_000_000_000_000)

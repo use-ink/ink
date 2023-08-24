@@ -1,4 +1,4 @@
-// Copyright 2018-2022 Parity Technologies (UK) Ltd.
+// Copyright (C) Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -58,9 +58,7 @@ pub enum LangError {
 }
 
 /// The `Result` type for ink! messages.
-#[doc(hidden)]
 pub type MessageResult<T> = ::core::result::Result<T, LangError>;
 
 /// The `Result` type for ink! constructors.
-#[doc(hidden)]
 pub type ConstructorResult<T> = ::core::result::Result<T, LangError>;

@@ -68,12 +68,13 @@ mod contract_ref {
     #[cfg(all(test, feature = "e2e-tests"))]
     mod e2e_tests {
         use super::*;
+        use ink_e2e::ContractsBackend;
 
         type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
         #[ink_e2e::test]
-        async fn e2e_ref_can_flip_correctly(
-            mut client: ink_e2e::Client<C, E>,
+        async fn e2e_ref_can_flip_correctly<Client: E2EBackend>(
+            mut client: Client,
         ) -> E2EResult<()> {
             let flipper_hash = client
                 .upload("integration_flipper", &ink_e2e::alice(), None)
@@ -115,8 +116,8 @@ mod contract_ref {
         }
 
         #[ink_e2e::test]
-        async fn e2e_fallible_ref_can_be_instantiated(
-            mut client: ink_e2e::Client<C, E>,
+        async fn e2e_fallible_ref_can_be_instantiated<Client: E2EBackend>(
+            mut client: Client,
         ) -> E2EResult<()> {
             let flipper_hash = client
                 .upload("integration_flipper", &ink_e2e::bob(), None)
@@ -144,8 +145,8 @@ mod contract_ref {
         }
 
         #[ink_e2e::test]
-        async fn e2e_fallible_ref_fails_to_be_instantiated(
-            mut client: ink_e2e::Client<C, E>,
+        async fn e2e_fallible_ref_fails_to_be_instantiated<Client: E2EBackend>(
+            mut client: Client,
         ) -> E2EResult<()> {
             let flipper_hash = client
                 .upload("integration_flipper", &ink_e2e::charlie(), None)
@@ -165,7 +166,7 @@ mod contract_ref {
             );
 
             let contains_err_msg = match instantiate_result.unwrap_err() {
-                ink_e2e::Error::InstantiateDryRun(dry_run) => {
+                ink_e2e::Error::<ink::env::DefaultEnvironment>::InstantiateDryRun(dry_run) => {
                     String::from_utf8_lossy(&dry_run.debug_message).contains(
                         "Received an error from the Flipper constructor while instantiating Flipper FlipperError"
                     )
