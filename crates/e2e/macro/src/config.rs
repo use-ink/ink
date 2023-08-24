@@ -27,7 +27,7 @@ pub enum Backend {
     Full,
     /// The lightweight approach skipping node layer.
     ///
-    /// This runs a runtime emulator within `TestExternalities` (using DRink! library) in
+    /// This runs a runtime emulator within `TestExternalities` (using drink! library) in
     /// the same process as the test.
     RuntimeOnly,
 }
