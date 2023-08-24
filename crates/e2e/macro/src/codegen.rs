@@ -68,6 +68,7 @@ impl InkE2ETest {
 
         let client_building = match self.test.config.backend() {
             Backend::Full => build_full_client(&environment, exec_build_contracts),
+            #[cfg(any(test, feature = "drink"))]
             Backend::RuntimeOnly => build_runtime_client(exec_build_contracts),
         };
 
@@ -144,6 +145,7 @@ fn build_full_client(environment: &syn::Path, contracts: TokenStream2) -> TokenS
     }
 }
 
+#[cfg(any(test, feature = "drink"))]
 fn build_runtime_client(contracts: TokenStream2) -> TokenStream2 {
     quote! {
         let contracts = #contracts;
