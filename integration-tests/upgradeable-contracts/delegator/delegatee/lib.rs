@@ -7,17 +7,21 @@ pub mod delegatee {
     pub struct Delegatee {
         addresses: Mapping<AccountId, i32, ManualKey<0x23>>,
         counter: i32,
+        // Uncommenting below line will break storage compatibility.
+        // flag: bool,
     }
 
     impl Delegatee {
-        /// Creates a new delegator smart contract initialized with the given value.
+        /// When using the delegate call. You only upload the code of the delegatee contract.
+        /// However, the code and storage do not get initialized.
+        ///
+        /// Because of this. The constructor actually never gets called.
+        #[allow(clippy::new_without_default)]
         #[ink(constructor)]
-        pub fn new(init_value: i32) -> Self {
-            let v = Mapping::new();
-            Self {
-                addresses: v,
-                counter: init_value,
-            }
+        pub fn new() -> Self {
+            unreachable!(
+                "Constructors are not called when upgrading using `set_code_hash`."
+            )
         }
 
         /// Increments the current value.
