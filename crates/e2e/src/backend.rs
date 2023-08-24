@@ -48,8 +48,8 @@ pub trait ChainBackend {
     /// Event log type.
     type EventLog;
 
-    /// Generate a new actor's credentials and fund it with the given amount from the
-    /// `sender` actor.
+    /// Generate a new account and fund it with the given `amount` of tokens from the
+    /// `origin`.
     async fn create_and_fund_account(
         &mut self,
         origin: &Keypair,
