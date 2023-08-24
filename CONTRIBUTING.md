@@ -148,6 +148,9 @@ Therefore, for the pull request to get merged at least 2 approvals from 2 differ
 
 This policy may be subject to change depending on the circumstances.
 
+If you made major changes to your pull request since the last approval,
+ping reviewers for another approval, please.
+
 ## I don't want to contribute, I just have some questions
 
 For technical questions about the ink! and all other Polkadot projects, please post your questions to our [Stack Exchange community][Stack-Exchange-Link]. You can also stay tuned by joining our [Element channel][Riot-Smart-Contracts-ink] to be among first ones who gets our announcements.
