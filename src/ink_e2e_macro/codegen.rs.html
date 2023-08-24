@@ -150,6 +150,8 @@
 <a href="#150" id="150">150</a>
 <a href="#151" id="151">151</a>
 <a href="#152" id="152">152</a>
+<a href="#153" id="153">153</a>
+<a href="#154" id="154">154</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -220,7 +222,8 @@
 
         <span class="kw">let </span>client_building = <span class="kw">match </span><span class="self">self</span>.test.config.backend() {
             Backend::Full =&gt; build_full_client(<span class="kw-2">&amp;</span>environment, exec_build_contracts),
-            Backend::RuntimeOnly =&gt; build_runtime_client(exec_build_contracts),
+            <span class="attr">#[cfg(any(test, feature = <span class="string">&quot;drink&quot;</span>))]
+            </span>Backend::RuntimeOnly =&gt; build_runtime_client(exec_build_contracts),
         };
 
         <span class="macro">quote! </span>{
@@ -296,7 +299,8 @@
     }
 }
 
-<span class="kw">fn </span>build_runtime_client(contracts: TokenStream2) -&gt; TokenStream2 {
+<span class="attr">#[cfg(any(test, feature = <span class="string">&quot;drink&quot;</span>))]
+</span><span class="kw">fn </span>build_runtime_client(contracts: TokenStream2) -&gt; TokenStream2 {
     <span class="macro">quote! </span>{
         <span class="kw">let </span>contracts = #contracts;
         <span class="kw">let </span><span class="kw-2">mut </span>client = ::ink_e2e::DrinkClient::new(contracts);

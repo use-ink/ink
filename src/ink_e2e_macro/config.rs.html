@@ -286,6 +286,15 @@
 <a href="#286" id="286">286</a>
 <a href="#287" id="287">287</a>
 <a href="#288" id="288">288</a>
+<a href="#289" id="289">289</a>
+<a href="#290" id="290">290</a>
+<a href="#291" id="291">291</a>
+<a href="#292" id="292">292</a>
+<a href="#293" id="293">293</a>
+<a href="#294" id="294">294</a>
+<a href="#295" id="295">295</a>
+<a href="#296" id="296">296</a>
+<a href="#297" id="297">297</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -317,6 +326,7 @@
     ///
     /// This runs a runtime emulator within `TestExternalities` (using drink! library) in
     /// the same process as the test.
+    </span><span class="attr">#[cfg(any(test, feature = <span class="string">&quot;drink&quot;</span>))]
     </span>RuntimeOnly,
 }
 
@@ -326,7 +336,15 @@
     <span class="kw">fn </span>try_from(value: syn::LitStr) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, <span class="self">Self</span>::Error&gt; {
         <span class="kw">match </span>value.value().as_str() {
             <span class="string">&quot;full&quot; </span>=&gt; <span class="prelude-val">Ok</span>(<span class="self">Self</span>::Full),
-            <span class="string">&quot;runtime_only&quot; </span>| <span class="string">&quot;runtime-only&quot; </span>=&gt; <span class="prelude-val">Ok</span>(<span class="self">Self</span>::RuntimeOnly),
+            <span class="attr">#[cfg(any(test, feature = <span class="string">&quot;drink&quot;</span>))]
+            </span><span class="string">&quot;runtime_only&quot; </span>| <span class="string">&quot;runtime-only&quot; </span>=&gt; <span class="prelude-val">Ok</span>(<span class="self">Self</span>::RuntimeOnly),
+            <span class="attr">#[cfg(not(any(test, feature = <span class="string">&quot;drink&quot;</span>)))]
+            </span><span class="string">&quot;runtime_only&quot; </span>| <span class="string">&quot;runtime-only&quot; </span>=&gt; <span class="prelude-val">Err</span>(
+                <span class="macro">format_err_spanned!</span>(
+                    value,
+                    <span class="string">&quot;the `runtime-only` backend is not available because the `drink` feature is not enabled&quot;</span>,
+                )
+            ),
             <span class="kw">_ </span>=&gt; {
                 <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
                     value,
