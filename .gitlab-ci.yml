@@ -196,7 +196,7 @@ examples-clippy-wasm:
     - for contract in ${LANG_ERR_INTEGRATION_CONTRACTS}; do
         cargo clippy --verbose --manifest-path ./integration-tests/lang-err-integration-tests/${contract}/Cargo.toml --no-default-features --target wasm32-unknown-unknown -- -D warnings -A $CLIPPY_ALLOWED;
       done
-    - cargo clippy --verbose --manifest-path ./integration-tests/set-code-hash/upgradeable-contracts/updated-incrementer/Cargo.toml --no-default-features --target wasm32-unknown-unknown -- -D warnings -A $CLIPPY_ALLOWED;
+    - cargo clippy --verbose --manifest-path ./integration-tests/upgradeable-contracts/set-code-hash/updated-incrementer/Cargo.toml --no-default-features --target wasm32-unknown-unknown -- -D warnings -A $CLIPPY_ALLOWED;
   allow_failure:                   true
 
 
@@ -507,7 +507,7 @@ examples-docs:
     - for contract in ${LANG_ERR_INTEGRATION_CONTRACTS}; do
         cargo doc --manifest-path ./integration-tests/lang-err-integration-tests/${contract}/Cargo.toml --document-private-items --verbose --no-deps;
       done
-    - cargo doc --manifest-path ./integration-tests/set-code-hash/upgradeable-contracts/updated-incrementer/Cargo.toml --document-private-items --verbose --no-deps
+    - cargo doc --manifest-path ./integration-tests/upgradeable-contracts/set-code-hash/updated-incrementer/Cargo.toml --document-private-items --verbose --no-deps
 
 
 #### stage:                        ink-waterfall
