@@ -19,32 +19,38 @@ pub fn derive(attr: TokenStream2, item: TokenStream2) -> syn::Result<TokenStream
     let mut decode = false;
     let mut type_info = false;
 
-    syn::parse::Parser::parse2(syn::meta::parser(|meta| {
-        if meta.path.is_ident("encode") {
-            encode = true;
-            Ok(())
-        } else if meta.path.is_ident("decode") {
-            decode = true;
-            Ok(())
-        } else if meta.path.is_ident("type_info") {
-            type_info = true;
-            Ok(())
-        } else {
-            Err(meta.error("unsupported scale option: expected encode, decode, codec or type_info"))
-        }
-    }), attr.clone())?;
+    syn::parse::Parser::parse2(
+        syn::meta::parser(|meta| {
+            if meta.path.is_ident("encode") {
+                encode = true;
+                Ok(())
+            } else if meta.path.is_ident("decode") {
+                decode = true;
+                Ok(())
+            } else if meta.path.is_ident("type_info") {
+                type_info = true;
+                Ok(())
+            } else {
+                Err(meta.error("unsupported scale option: expected encode, decode, codec or type_info"))
+            }
+        }),
+        attr.clone(),
+    )?;
 
-    let codec_crate = (encode || decode).then(|| quote::quote!(#[codec(crate = ::ink::scale)]));
+    let codec_crate =
+        (encode || decode).then(|| quote::quote!(#[codec(crate = ::ink::scale)]));
     let encode = encode.then(|| quote::quote!(#[derive(::ink::scale::Encode)]));
     let decode = decode.then(|| quote::quote!(#[derive(::ink::scale::Decode)]));
 
-    let type_info = type_info.then(|| quote::quote!(
-        #[cfg_attr(
-            feature = "std",
-            derive(::ink::scale_info::TypeInfo),
-            scale_info(crate = ::ink::scale_info)
-        )]
-    ));
+    let type_info = type_info.then(|| {
+        quote::quote!(
+            #[cfg_attr(
+                feature = "std",
+                derive(::ink::scale_info::TypeInfo),
+                scale_info(crate = ::ink::scale_info)
+            )]
+        )
+    });
 
     Ok(quote::quote!(
         #encode

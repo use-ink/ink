@@ -76,7 +76,7 @@ pub use ink_macro::{
     chain_extension,
     contract,
     event,
-    codec,
+    scale_derive,
     selector_bytes,
     selector_id,
     storage_item,
