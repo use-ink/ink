@@ -87,7 +87,6 @@ impl ContractRef<'_> {
         let ref_ident = self.generate_contract_ref_ident();
         quote_spanned!(span=>
             #[cfg_attr(feature = "std", derive(
-                ::scale_info::TypeInfo,
                 ::ink::storage::traits::StorageLayout,
             ))]
             #[derive(
@@ -96,9 +95,8 @@ impl ContractRef<'_> {
                 ::core::cmp::PartialEq,
                 ::core::cmp::Eq,
                 ::core::clone::Clone,
-                ::ink::Encode,
-                ::ink::Decode,
             )]
+            #[::ink::codec]
             #( #doc_attrs )*
             pub struct #ref_ident {
                 inner: <#storage_ident as ::ink::codegen::ContractCallBuilder>::Type,

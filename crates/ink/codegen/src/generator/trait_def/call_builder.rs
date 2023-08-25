@@ -105,10 +105,7 @@ impl CallBuilder<'_> {
             /// All calls to types (contracts) implementing the trait will be built by this type.
             #[doc(hidden)]
             #[allow(non_camel_case_types)]
-            #[derive(
-                ::ink::Encode,
-                ::ink::Decode,
-            )]
+            #[::ink::codec]
             #[repr(transparent)]
             pub struct #call_builder_ident<E>
             where
@@ -198,15 +195,15 @@ impl CallBuilder<'_> {
 
             #[cfg(feature = "std")]
             /// We require this manual implementation since the derive produces incorrect trait bounds.
-            impl<E> ::scale_info::TypeInfo for #call_builder_ident<E>
+            impl<E> ::ink::scale_info::TypeInfo for #call_builder_ident<E>
             where
                 E: ::ink::env::Environment,
-                <E as ::ink::env::Environment>::AccountId: ::scale_info::TypeInfo + 'static,
+                <E as ::ink::env::Environment>::AccountId: ::ink::scale_info::TypeInfo + 'static,
             {
                 type Identity = <E as ::ink::env::Environment>::AccountId;
 
-                fn type_info() -> ::scale_info::Type {
-                    <<E as ::ink::env::Environment>::AccountId as ::scale_info::TypeInfo>::type_info()
+                fn type_info() -> ::ink::scale_info::Type {
+                    <<E as ::ink::env::Environment>::AccountId as ::ink::scale_info::TypeInfo>::type_info()
                 }
             }
         )

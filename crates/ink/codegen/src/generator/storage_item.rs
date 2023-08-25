@@ -57,9 +57,9 @@ impl GenerateCode for StorageItem<'_> {
         if self.item.config().derive() {
             derive = quote! {
                 #[cfg_attr(feature = "std", derive(
-                    ::scale_info::TypeInfo,
                     ::ink::storage::traits::StorageLayout,
                 ))]
+                #[::ink::type_info]
                 #[derive(
                     ::ink::storage::traits::StorableHint,
                     ::ink::storage::traits::StorageKey,

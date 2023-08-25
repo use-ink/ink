@@ -74,6 +74,7 @@ pub use self::{
 pub use ink_macro::{
     blake2x256,
     chain_extension,
+    codec,
     contract,
     event,
     selector_bytes,
@@ -81,12 +82,9 @@ pub use ink_macro::{
     storage_item,
     test,
     trait_definition,
+    type_info,
     Event,
     EventMetadata,
-    Encode,
-    Decode,
-    CompactAs,
-    TypeInfo,
 };
 pub use ink_primitives::{
     ConstructorResult,

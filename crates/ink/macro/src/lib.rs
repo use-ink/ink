@@ -24,7 +24,6 @@ mod chain_extension;
 mod contract;
 mod event;
 mod ink_test;
-mod scale;
 mod selector;
 mod storage;
 mod storage_item;
@@ -1550,26 +1549,31 @@ synstructure::decl_derive!(
     storage::storage_layout_derive
 );
 
-synstructure::decl_derive!(
-    [Encode] =>
-    /// Todo: Encode docs
-    scale::encode_derive
-);
-synstructure::decl_derive!(
-    [Decode] =>
-    /// Todo: Decode docs
-    scale::decode_derive
-);
-synstructure::decl_derive!(
-    [CompactAs] =>
-    /// Todo: CompactAs docs
-    scale::compact_as_derive
-);
-synstructure::decl_derive!(
-    [TypeInfo] =>
-    /// Todo: TypeInfo docs
-    scale::type_info_derive
-);
+/// todo: docs
+#[proc_macro_attribute]
+pub fn codec(_attr: TokenStream, item: TokenStream) -> TokenStream {
+    let item = proc_macro2::TokenStream::from(item);
+    quote::quote!(
+        #[derive(::ink::scale::Encode, ::ink::scale::Decode)]
+        #[codec(crate = ::ink::scale)]
+        #item
+    )
+    .into()
+}
+
+#[proc_macro_attribute]
+pub fn type_info(_attr: TokenStream, item: TokenStream) -> TokenStream {
+    let item = proc_macro2::TokenStream::from(item);
+    quote::quote!(
+        #[cfg_attr(
+            feature = "std",
+            derive(::ink::scale_info::TypeInfo),
+            scale_info(crate = ::ink::scale_info)
+        )]
+        #item
+    )
+    .into()
+}
 
 #[cfg(test)]
 pub use contract::generate_or_err;
