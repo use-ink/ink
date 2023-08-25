@@ -41,16 +41,16 @@ pub fn derive(attr: TokenStream2, item: TokenStream2) -> syn::Result<TokenStream
     let type_info = type_info.then(|| quote::quote!(
         #[cfg_attr(
             feature = "std",
-            derive(::scale_info::TypeInfo)),
+            derive(::ink::scale_info::TypeInfo),
             scale_info(crate = ::ink::scale_info)
-        ]
+        )]
     ));
 
     Ok(quote::quote!(
         #encode
         #decode
         #codec_crate
-        // #type_info
+        #type_info
         #item
     ))
 }
