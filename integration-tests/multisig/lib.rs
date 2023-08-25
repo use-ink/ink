@@ -141,8 +141,8 @@ mod multisig {
     }
 
     /// Errors that can occur upon calling this contract.
-    #[derive(Copy, Clone, Debug, PartialEq, Eq, scale::Encode, scale::Decode)]
-    #[cfg_attr(feature = "std", derive(::scale_info::TypeInfo))]
+    #[derive(Debug, PartialEq, Eq)]
+    #[ink::scale_derive(encode, decode, type_info)]
     pub enum Error {
         /// Returned if the call failed.
         TransactionFailed,

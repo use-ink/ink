@@ -70,8 +70,8 @@ where
 ///     #[ink(storage)]
 ///     pub struct Contract {}
 ///
-///     #[derive(Debug, PartialEq, Eq, scale::Encode, scale::Decode)]
-///     #[cfg_attr(feature = "std", derive(::scale_info::TypeInfo))]
+///     #[derive(Debug, PartialEq, Eq)]
+///     #[ink::scale_derive(encode, decode, type_info)]
 ///     pub enum Error {
 ///         Foo,
 ///     }
