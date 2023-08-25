@@ -188,7 +188,6 @@ fn build_contract(path_to_cargo_toml: &Path) -> PathBuf {
                 .expect("Wasm code artifact not generated")
                 .canonicalize()
                 .expect("Invalid dest bundle path")
-                .to_path_buf()
         }
         Err(err) => {
             panic!(

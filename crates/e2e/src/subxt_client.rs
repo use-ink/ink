@@ -52,14 +52,15 @@ use scale::{
     Encode,
 };
 #[cfg(feature = "std")]
-use std::{
-    collections::BTreeMap,
-    fmt::Debug,
-    path::PathBuf,
-};
+use std::fmt::Debug;
+use std::path::PathBuf;
 
 use crate::{
     backend::ChainBackend,
+    client_utils::{
+        salt,
+        ContractsRegistry,
+    },
     events,
     ContractsBackend,
     E2EBackend,
@@ -101,7 +102,7 @@ where
     E: Environment,
 {
     api: ContractsApi<C, E>,
-    contracts: BTreeMap<String, PathBuf>,
+    contracts: ContractsRegistry,
 }
 
 impl<C, E> Client<C, E>
@@ -119,48 +120,14 @@ where
     E::Hash: Debug + scale::Encode,
 {
     /// Creates a new [`Client`] instance using a `subxt` client.
-    pub async fn new<P>(
+    pub async fn new<P: Into<PathBuf>>(
         client: subxt::OnlineClient<C>,
         contracts: impl IntoIterator<Item = P>,
-    ) -> Self
-    where
-        PathBuf: From<P>,
-    {
-        let contracts = contracts
-            .into_iter()
-            .map(|path| {
-                let wasm_path = PathBuf::from(path);
-                let contract_name = wasm_path.file_stem().unwrap_or_else(|| {
-                    panic!("Invalid contract wasm path '{}'", wasm_path.display(),)
-                });
-                (contract_name.to_string_lossy().to_string(), wasm_path)
-            })
-            .collect();
-
+    ) -> Self {
         Self {
             api: ContractsApi::new(client).await,
-            contracts,
+            contracts: ContractsRegistry::new(contracts),
         }
-    }
-
-    /// Load the Wasm code for the given contract.
-    fn load_code(&self, contract: &str) -> Vec<u8> {
-        let wasm_path = self
-            .contracts
-            .get(&contract.replace('-', "_"))
-            .unwrap_or_else(||
-                panic!(
-                    "Unknown contract {contract}. Available contracts: {:?}.\n\
-                     For a contract to be built, add it as a dependency to the `Cargo.toml`, or add \
-                     the manifest path to `#[ink_e2e::test(additional_contracts = ..)]`",
-                    self.contracts.keys()
-                )
-            );
-        let code = std::fs::read(wasm_path).unwrap_or_else(|err| {
-            panic!("Error loading '{}': {:?}", wasm_path.display(), err)
-        });
-        log_info(&format!("{:?} has {} KiB", contract, code.len() / 1024));
-        code
     }
 
     /// Executes an `instantiate_with_code` call and captures the resulting events.
@@ -175,7 +142,7 @@ where
     where
         Args: scale::Encode,
     {
-        let salt = Self::salt();
+        let salt = salt();
         let data = constructor_exec_input(constructor);
 
         // dry run the instantiate to calculate the gas limit
@@ -253,19 +220,6 @@ where
             account_id,
             events: tx_events,
         })
-    }
-
-    /// Generate a unique salt based on the system time.
-    fn salt() -> Vec<u8> {
-        use funty::Fundamental as _;
-
-        std::time::SystemTime::now()
-            .duration_since(std::time::UNIX_EPOCH)
-            .unwrap_or_else(|err| panic!("unable to get unix time: {err}"))
-            .as_millis()
-            .as_u128()
-            .to_le_bytes()
-            .to_vec()
     }
 
     /// Executes an `upload` call and captures the resulting events.
@@ -364,17 +318,16 @@ where
         + scale::HasCompact
         + serde::Serialize,
 {
-    type Actor = Keypair;
-    type ActorId = E::AccountId;
+    type AccountId = E::AccountId;
     type Balance = E::Balance;
     type Error = Error<E>;
     type EventLog = ExtrinsicEvents<C>;
 
     async fn create_and_fund_account(
         &mut self,
-        origin: &Self::Actor,
+        origin: &Keypair,
         amount: Self::Balance,
-    ) -> Self::Actor {
+    ) -> Keypair {
         let (_, phrase, _) =
             <sp_core::sr25519::Pair as sp_core::Pair>::generate_with_phrase(None);
         let phrase =
@@ -401,14 +354,17 @@ where
         keypair
     }
 
-    async fn balance(&self, actor: Self::ActorId) -> Result<Self::Balance, Self::Error> {
+    async fn balance(
+        &mut self,
+        account: Self::AccountId,
+    ) -> Result<Self::Balance, Self::Error> {
         let account_addr = subxt::dynamic::storage(
             "System",
             "Account",
             vec![
                 // Something that encodes to an AccountId32 is what we need for the map
                 // key here:
-                Value::from_bytes(&actor),
+                Value::from_bytes(&account),
             ],
         );
 
@@ -440,20 +396,20 @@ where
             Error::<E>::Balance(format!("{balance:?} failed to convert from u128"))
         })?;
 
-        log_info(&format!("balance of contract {actor:?} is {balance:?}"));
+        log_info(&format!("balance of contract {account:?} is {balance:?}"));
         Ok(balance)
     }
 
     async fn runtime_call<'a>(
         &mut self,
-        actor: &Self::Actor,
+        origin: &Keypair,
         pallet_name: &'a str,
         call_name: &'a str,
         call_data: Vec<Value>,
     ) -> Result<Self::EventLog, Self::Error> {
         let tx_events = self
             .api
-            .runtime_call(actor, pallet_name, call_name, call_data)
+            .runtime_call(origin, pallet_name, call_name, call_data)
             .await;
 
         for evt in tx_events.iter() {
@@ -504,19 +460,18 @@ where
         + serde::Serialize,
     E::Hash: Debug + Send + scale::Encode,
 {
-    type Actor = Keypair;
     type Error = Error<E>;
     type EventLog = ExtrinsicEvents<C>;
 
     async fn instantiate<Contract, Args: Send + Encode, R>(
         &mut self,
         contract_name: &str,
-        caller: &Self::Actor,
+        caller: &Keypair,
         constructor: CreateBuilderPartial<E, Contract, Args, R>,
         value: E::Balance,
         storage_deposit_limit: Option<E::Balance>,
     ) -> Result<InstantiationResult<E, Self::EventLog>, Self::Error> {
-        let code = self.load_code(contract_name);
+        let code = self.contracts.load_code(contract_name);
         let ret = self
             .exec_instantiate::<Contract, Args, R>(
                 caller,
@@ -533,22 +488,21 @@ where
     async fn instantiate_dry_run<Contract, Args: Send + Encode, R>(
         &mut self,
         contract_name: &str,
-        caller: &Self::Actor,
+        caller: &Keypair,
         constructor: CreateBuilderPartial<E, Contract, Args, R>,
         value: E::Balance,
         storage_deposit_limit: Option<E::Balance>,
     ) -> ContractInstantiateResult<E::AccountId, E::Balance, ()> {
-        let code = self.load_code(contract_name);
+        let code = self.contracts.load_code(contract_name);
         let data = constructor_exec_input(constructor);
 
-        let salt = Self::salt();
         self.api
             .instantiate_with_code_dry_run(
                 value,
                 storage_deposit_limit,
                 code,
                 data,
-                salt,
+                salt(),
                 caller,
             )
             .await
@@ -557,10 +511,10 @@ where
     async fn upload(
         &mut self,
         contract_name: &str,
-        caller: &Self::Actor,
+        caller: &Keypair,
         storage_deposit_limit: Option<E::Balance>,
     ) -> Result<UploadResult<E, Self::EventLog>, Self::Error> {
-        let code = self.load_code(contract_name);
+        let code = self.contracts.load_code(contract_name);
         let ret = self
             .exec_upload(caller, code, storage_deposit_limit)
             .await?;
@@ -570,7 +524,7 @@ where
 
     async fn call<Args: Sync + Encode, RetType: Send + Decode>(
         &mut self,
-        caller: &Self::Actor,
+        caller: &Keypair,
         message: &CallBuilderFinal<E, Args, RetType>,
         value: E::Balance,
         storage_deposit_limit: Option<E::Balance>,
@@ -623,7 +577,7 @@ where
 
     async fn call_dry_run<Args: Sync + Encode, RetType: Send + Decode>(
         &mut self,
-        caller: &Self::Actor,
+        caller: &Keypair,
         message: &CallBuilderFinal<E, Args, RetType>,
         value: E::Balance,
         storage_deposit_limit: Option<E::Balance>,

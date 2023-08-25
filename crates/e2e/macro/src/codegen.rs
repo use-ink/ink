@@ -12,10 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::ir;
+use crate::{
+    config::Backend,
+    ir,
+};
 use derive_more::From;
 use proc_macro2::TokenStream as TokenStream2;
 use quote::quote;
+
+const DEFAULT_CONTRACTS_NODE: &str = "substrate-contracts-node";
 
 /// Generates code for the `[ink::e2e_test]` macro.
 #[derive(From)]
@@ -61,23 +66,11 @@ impl InkE2ETest {
             }
         };
 
-        const DEFAULT_CONTRACTS_NODE: &str = "substrate-contracts-node";
-
-        // use the user supplied `CONTRACTS_NODE` or default to `substrate-contracts-node`
-        let contracts_node: &'static str =
-            option_env!("CONTRACTS_NODE").unwrap_or(DEFAULT_CONTRACTS_NODE);
-
-        // check the specified contracts node.
-        if which::which(contracts_node).is_err() {
-            if contracts_node == DEFAULT_CONTRACTS_NODE {
-                panic!(
-                    "The '{DEFAULT_CONTRACTS_NODE}' executable was not found. Install '{DEFAULT_CONTRACTS_NODE}' on the PATH, \
-                    or specify the `CONTRACTS_NODE` environment variable.",
-                )
-            } else {
-                panic!("The contracts node executable '{contracts_node}' was not found.")
-            }
-        }
+        let client_building = match self.test.config.backend() {
+            Backend::Full => build_full_client(&environment, exec_build_contracts),
+            #[cfg(any(test, feature = "drink"))]
+            Backend::RuntimeOnly => build_runtime_client(exec_build_contracts),
+        };
 
         quote! {
             #( #attrs )*
@@ -97,24 +90,7 @@ impl InkE2ETest {
                 log_info("creating new client");
 
                 let run = async {
-                    // spawn a contracts node process just for this test
-                    let node_proc = ::ink_e2e::TestNodeProcess::<::ink_e2e::PolkadotConfig>
-                        ::build(#contracts_node)
-                        .spawn()
-                        .await
-                        .unwrap_or_else(|err|
-                            ::core::panic!("Error spawning substrate-contracts-node: {:?}", err)
-                        );
-
-                    let contracts = #exec_build_contracts;
-
-                    let mut client = ::ink_e2e::Client::<
-                        ::ink_e2e::PolkadotConfig,
-                        #environment
-                    >::new(
-                        node_proc.client(),
-                        contracts,
-                    ).await;
+                    #client_building
 
                     let __ret = {
                         #block
@@ -126,10 +102,53 @@ impl InkE2ETest {
                     return ::ink_e2e::tokio::runtime::Builder::new_current_thread()
                         .enable_all()
                         .build()
-                        .unwrap_or_else(|err| panic!("Failed building the Runtime: {}", err))
+                        .unwrap_or_else(|err| panic!("Failed building the Runtime: {err}"))
                         .block_on(run);
                 }
             }
         }
+    }
+}
+
+fn build_full_client(environment: &syn::Path, contracts: TokenStream2) -> TokenStream2 {
+    // Use the user supplied `CONTRACTS_NODE` or default to `DEFAULT_CONTRACTS_NODE`.
+    let contracts_node: &'static str =
+        option_env!("CONTRACTS_NODE").unwrap_or(DEFAULT_CONTRACTS_NODE);
+
+    // Check the specified contracts node.
+    if which::which(contracts_node).is_err() {
+        if contracts_node == DEFAULT_CONTRACTS_NODE {
+            panic!(
+                "The '{DEFAULT_CONTRACTS_NODE}' executable was not found. Install '{DEFAULT_CONTRACTS_NODE}' on the PATH, \
+                    or specify the `CONTRACTS_NODE` environment variable.",
+            )
+        } else {
+            panic!("The contracts node executable '{contracts_node}' was not found.")
+        }
+    }
+
+    quote! {
+        // Spawn a contracts node process just for this test.
+        let node_proc = ::ink_e2e::TestNodeProcess::<::ink_e2e::PolkadotConfig>
+            ::build(#contracts_node)
+            .spawn()
+            .await
+            .unwrap_or_else(|err|
+                ::core::panic!("Error spawning substrate-contracts-node: {err:?}")
+            );
+
+        let contracts = #contracts;
+        let mut client = ::ink_e2e::Client::<
+            ::ink_e2e::PolkadotConfig,
+            #environment
+        >::new(node_proc.client(), contracts).await;
+    }
+}
+
+#[cfg(any(test, feature = "drink"))]
+fn build_runtime_client(contracts: TokenStream2) -> TokenStream2 {
+    quote! {
+        let contracts = #contracts;
+        let mut client = ::ink_e2e::DrinkClient::new(contracts);
     }
 }
