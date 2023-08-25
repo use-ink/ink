@@ -92,12 +92,12 @@ impl ContractRef<'_> {
             ))]
             #[derive(
                 ::core::fmt::Debug,
-                ::scale::Encode,
-                ::scale::Decode,
                 ::core::hash::Hash,
                 ::core::cmp::PartialEq,
                 ::core::cmp::Eq,
                 ::core::clone::Clone,
+                ::ink::Encode,
+                ::ink::Decode,
             )]
             #( #doc_attrs )*
             pub struct #ref_ident {
@@ -121,7 +121,7 @@ impl ContractRef<'_> {
                 impl<E> ::ink::env::call::ConstructorReturnType<#ref_ident>
                     for ::core::result::Result<#storage_ident, E>
                 where
-                    E: ::scale::Decode
+                    E: ::ink::scale::Decode
                 {
                     const IS_RESULT: bool = true;
 

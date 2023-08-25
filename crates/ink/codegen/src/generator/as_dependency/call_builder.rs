@@ -88,12 +88,12 @@ impl CallBuilder<'_> {
             ))]
             #[derive(
                 ::core::fmt::Debug,
-                ::scale::Encode,
-                ::scale::Decode,
                 ::core::hash::Hash,
                 ::core::cmp::PartialEq,
                 ::core::cmp::Eq,
                 ::core::clone::Clone,
+                ::ink::Encode,
+                ::ink::Decode,
             )]
             pub struct #cb_ident {
                 account_id: AccountId,

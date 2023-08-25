@@ -106,8 +106,8 @@ impl CallBuilder<'_> {
             #[doc(hidden)]
             #[allow(non_camel_case_types)]
             #[derive(
-                ::scale::Encode,
-                ::scale::Decode,
+                ::ink::Encode,
+                ::ink::Decode,
             )]
             #[repr(transparent)]
             pub struct #call_builder_ident<E>
