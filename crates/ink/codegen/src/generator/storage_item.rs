@@ -59,7 +59,7 @@ impl GenerateCode for StorageItem<'_> {
                 #[cfg_attr(feature = "std", derive(
                     ::ink::storage::traits::StorageLayout,
                 ))]
-                #[::ink::type_info]
+                #[::ink::codec(type_info)]
                 #[derive(
                     ::ink::storage::traits::StorableHint,
                     ::ink::storage::traits::StorageKey,

@@ -24,6 +24,7 @@ mod chain_extension;
 mod contract;
 mod event;
 mod ink_test;
+mod codec_derive;
 mod selector;
 mod storage;
 mod storage_item;
@@ -1317,7 +1318,7 @@ synstructure::decl_derive!(
     [Event, attributes(ink)] =>
     /// Derives an implementation of the [`ink::Event`] trait for the given `struct`.
     ///
-    /// **Note** [`ink::Event`] requires a [`scale::Encode`] implementation, it is up to
+    /// **Note** [`ink::Event`] requires a [`codec_derive::Encode`] implementation, it is up to
     /// the user to provide that: usually via the derive.
     ///
     /// Usually this is used in conjunction with the [`EventMetadata`] derive.
@@ -1550,29 +1551,14 @@ synstructure::decl_derive!(
 );
 
 /// todo: docs
+/// ink::codec(encode, decode, type_info)
+/// ink::codec(type_info)
 #[proc_macro_attribute]
-pub fn codec(_attr: TokenStream, item: TokenStream) -> TokenStream {
-    let item = proc_macro2::TokenStream::from(item);
-    quote::quote!(
-        #[derive(::ink::scale::Encode, ::ink::scale::Decode)]
-        #[codec(crate = ::ink::scale)]
-        #item
-    )
-    .into()
-}
-
-#[proc_macro_attribute]
-pub fn type_info(_attr: TokenStream, item: TokenStream) -> TokenStream {
-    let item = proc_macro2::TokenStream::from(item);
-    quote::quote!(
-        #[cfg_attr(
-            feature = "std",
-            derive(::ink::scale_info::TypeInfo),
-            scale_info(crate = ::ink::scale_info)
-        )]
-        #item
-    )
-    .into()
+pub fn codec(attr: TokenStream, item: TokenStream) -> TokenStream {
+    match codec_derive::derive(attr.into(), item.into()) {
+        Ok(output) => output.into(),
+        Err(err) => err.to_compile_error().into(),
+    }
 }
 
 #[cfg(test)]

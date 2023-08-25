@@ -74,15 +74,14 @@ pub use self::{
 pub use ink_macro::{
     blake2x256,
     chain_extension,
-    codec,
     contract,
     event,
+    codec,
     selector_bytes,
     selector_id,
     storage_item,
     test,
     trait_definition,
-    type_info,
     Event,
     EventMetadata,
 };

@@ -133,7 +133,7 @@ impl GenerateCode for ChainExtension<'_> {
         let instance_ident = format_ident!("__ink_{}Instance", ident);
         quote_spanned!(span =>
             #(#attrs)*
-            #[::ink::type_info]
+            #[::ink::codec(type_info)]
             pub enum #ident {}
 
             const _: () = {

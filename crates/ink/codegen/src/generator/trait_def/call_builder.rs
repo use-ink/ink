@@ -105,7 +105,7 @@ impl CallBuilder<'_> {
             /// All calls to types (contracts) implementing the trait will be built by this type.
             #[doc(hidden)]
             #[allow(non_camel_case_types)]
-            #[::ink::codec]
+            #[::ink::codec(encode, decode)]
             #[repr(transparent)]
             pub struct #call_builder_ident<E>
             where
