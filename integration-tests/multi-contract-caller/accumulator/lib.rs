@@ -23,7 +23,7 @@ pub mod accumulator {
         /// Mutates the internal value.
         #[ink(message)]
         pub fn inc(&mut self, by: i32) {
-            self.value += by;
+            self.value = self.value.checked_add(by).unwrap();
         }
 
         /// Returns the current state.
