@@ -24,10 +24,10 @@ Similarly, the storage compatibility issue is also applicable here.
 However, there are certain nuances associated with using `delegate_call`.
 
 First of all, as demonstrated in the example, if the delegated code intends to mutate the caller's storage,
-a developer needs to be mindful. If the delegated code modifies layoutful storage
+a developer needs to be mindful. If the delegated code modifies layout-full storage
 (i.e. it contains at least non-`Lazy`, non-`Mapping` field), the `.set_tail_call(true)` flag of `CallFlags` needs to be specified and the storage layouts must match.
 This is due to the way ink! execution call stack is operated
-(see [StackExchange Answer](https://substrate.stackexchange.com/a/3352/3098) for more explanation).
+(see [Stack Exchange Answer](https://substrate.stackexchange.com/a/3352/3098) for more explanation).
 
 If the delegated code only modifies `Lazy` or `Mapping` field, the keys must be identical and `.set_tail_call(true)` is optional.
 This is because `Lazy` and `Mapping` interact with the storage directly instead of loading and flushing storage states.
