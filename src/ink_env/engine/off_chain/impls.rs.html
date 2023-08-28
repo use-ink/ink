@@ -639,7 +639,7 @@
             &lt;Blake2x128 <span class="kw">as </span>HashOutput&gt;::Type,
             OutputType
         );
-        <span class="kw">let </span>output: <span class="kw-2">&amp;mut </span>OutputType = <span class="macro">arrayref::array_mut_ref!</span>(output, <span class="number">0</span>, <span class="number">16</span>);
+        <span class="kw">let </span>output: <span class="kw-2">&amp;mut </span>OutputType = <span class="macro">array_mut_ref!</span>(output, <span class="number">0</span>, <span class="number">16</span>);
         Engine::hash_blake2_128(input, output);
     }
 }
@@ -651,7 +651,7 @@
             &lt;Blake2x256 <span class="kw">as </span>HashOutput&gt;::Type,
             OutputType
         );
-        <span class="kw">let </span>output: <span class="kw-2">&amp;mut </span>OutputType = <span class="macro">arrayref::array_mut_ref!</span>(output, <span class="number">0</span>, <span class="number">32</span>);
+        <span class="kw">let </span>output: <span class="kw-2">&amp;mut </span>OutputType = <span class="macro">array_mut_ref!</span>(output, <span class="number">0</span>, <span class="number">32</span>);
         Engine::hash_blake2_256(input, output);
     }
 }
@@ -663,7 +663,7 @@
             &lt;Sha2x256 <span class="kw">as </span>HashOutput&gt;::Type,
             OutputType
         );
-        <span class="kw">let </span>output: <span class="kw-2">&amp;mut </span>OutputType = <span class="macro">arrayref::array_mut_ref!</span>(output, <span class="number">0</span>, <span class="number">32</span>);
+        <span class="kw">let </span>output: <span class="kw-2">&amp;mut </span>OutputType = <span class="macro">array_mut_ref!</span>(output, <span class="number">0</span>, <span class="number">32</span>);
         Engine::hash_sha2_256(input, output);
     }
 }
@@ -675,7 +675,7 @@
             &lt;Keccak256 <span class="kw">as </span>HashOutput&gt;::Type,
             OutputType
         );
-        <span class="kw">let </span>output: <span class="kw-2">&amp;mut </span>OutputType = <span class="macro">arrayref::array_mut_ref!</span>(output, <span class="number">0</span>, <span class="number">32</span>);
+        <span class="kw">let </span>output: <span class="kw-2">&amp;mut </span>OutputType = <span class="macro">array_mut_ref!</span>(output, <span class="number">0</span>, <span class="number">32</span>);
         Engine::hash_keccak_256(input, output);
     }
 }
