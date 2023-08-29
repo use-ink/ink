@@ -53,8 +53,13 @@ pub mod flipper {
 
         type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
+        /// Deploys the flipper contract with `initial_value` and returns the contract
+        /// instantiation result.
+        ///
+        /// Uses `ink_e2e::alice()` as the caller.
         async fn deploy<Client: E2EBackend>(
             client: &mut Client,
+            initial_value: bool,
         ) -> Result<
             InstantiationResult<
                 DefaultEnvironment,
@@ -62,7 +67,7 @@ pub mod flipper {
             >,
             <Client as ContractsBackend<DefaultEnvironment>>::Error,
         > {
-            let constructor = FlipperRef::new(false);
+            let constructor = FlipperRef::new(initial_value);
             client
                 .instantiate(
                     "e2e-runtime-only-backend",
@@ -74,10 +79,18 @@ pub mod flipper {
                 .await
         }
 
+        /// Tests standard flipper scenario:
+        /// - deploy the flipper contract with initial value `false`
+        /// - flip the flipper
+        /// - get the flipper's value
+        /// - assert that the value is `true`
         #[ink_e2e::test(backend = "runtime-only")]
         async fn it_works<Client: E2EBackend>(mut client: Client) -> E2EResult<()> {
             // given
-            let contract = deploy(&mut client).await.expect("deploy failed");
+            const INITIAL_VALUE: bool = false;
+            let contract = deploy(&mut client, INITIAL_VALUE)
+                .await
+                .expect("deploy failed");
 
             // when
             let mut call = contract.call::<Flipper>();
@@ -91,16 +104,21 @@ pub mod flipper {
                 .call(&ink_e2e::bob(), &call.get(), 0, None)
                 .await
                 .expect("get failed");
-
-            assert!(matches!(get_res.return_value(), true));
+            assert_eq!(get_res.return_value(), !INITIAL_VALUE);
 
             Ok(())
         }
 
+        /// Tests runtime call scenario:
+        /// - deploy the flipper contract
+        /// - get the contract's balance
+        /// - transfer some funds to the contract using runtime call
+        /// - get the contract's balance again
+        /// - assert that the contract's balance increased by the transferred amount
         #[ink_e2e::test(backend = "runtime-only")]
         async fn runtime_call_works() -> E2EResult<()> {
             // given
-            let contract = deploy(&mut client).await.expect("deploy failed");
+            let contract = deploy(&mut client, false).await.expect("deploy failed");
             let call = contract.call::<Flipper>();
 
             let old_balance = client
