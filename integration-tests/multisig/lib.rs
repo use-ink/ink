@@ -142,16 +142,10 @@ mod multisig {
 
     /// This is a book keeping struct that stores a list of all transaction ids and
     /// also the next id to use. We need it for cleaning up the storage.
+    #[derive(Clone, Default)]
     #[cfg_attr(
         feature = "std",
-        derive(
-            Clone,
-            Default,
-            Debug,
-            PartialEq,
-            Eq,
-            ink::storage::traits::StorageLayout
-        )
+        derive(Debug, PartialEq, Eq, ink::storage::traits::StorageLayout)
     )]
     #[ink::scale_derive(encode, decode, type_info)]
     pub struct Transactions {
