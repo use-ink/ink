@@ -7,11 +7,9 @@ use ink_prelude::{
 };
 use ink::storage::traits::Storable;
 
-#[derive(Default, PartialEq, Eq, PartialOrd, Ord, scale::Encode, scale::Decode)]
-#[cfg_attr(
-    feature = "std",
-    derive(scale_info::TypeInfo, ink::storage::traits::StorageLayout)
-)]
+#[derive(Default, PartialEq, Eq, PartialOrd, Ord)]
+#[cfg_attr(feature = "std", derive(ink::storage::traits::StorageLayout))]
+#[ink::scale_derive(encode, decode, type_info)]
 struct Deep2 {
     a: u8,
     b: u16,
@@ -21,11 +19,9 @@ struct Deep2 {
     f: String,
 }
 
-#[derive(Default, scale::Encode, scale::Decode)]
-#[cfg_attr(
-    feature = "std",
-    derive(scale_info::TypeInfo, ink::storage::traits::StorageLayout)
-)]
+#[derive(Default)]
+#[cfg_attr(feature = "std", derive(ink::storage::traits::StorageLayout))]
+#[ink::scale_derive(encode, decode, type_info)]
 struct Deep1 {
     a: Deep2,
     b: (Deep2, Deep2),
@@ -34,11 +30,9 @@ struct Deep1 {
     e: BTreeSet<Deep2>,
 }
 
-#[derive(Default, scale::Encode, scale::Decode)]
-#[cfg_attr(
-    feature = "std",
-    derive(scale_info::TypeInfo, ink::storage::traits::StorageLayout)
-)]
+#[derive(Default)]
+#[cfg_attr(feature = "std", derive(ink::storage::traits::StorageLayout))]
+#[ink::scale_derive(encode, decode, type_info)]
 struct Contract {
     a: Deep1,
     b: Deep2,
