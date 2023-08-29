@@ -28,8 +28,8 @@ pub type TokenId = u128;
 type Balance = <ink::env::DefaultEnvironment as ink::env::Environment>::Balance;
 
 // The ERC-1155 error types.
-#[derive(Debug, PartialEq, Eq, scale::Encode, scale::Decode)]
-#[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
+#[derive(Debug, PartialEq, Eq)]
+#[ink::scale_derive(encode, decode, type_info)]
 pub enum Error {
     /// This token ID has not yet been created by the contract.
     UnexistentToken,
