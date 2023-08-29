@@ -8,7 +8,7 @@ use ink::env::{
 /// Our custom environment diverges from the `DefaultEnvironment` in the event topics
 /// limit.
 #[derive(Debug, Clone, PartialEq, Eq)]
-#[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
+#[ink::scale_derive(type_info)]
 pub enum EnvironmentWithManyTopics {}
 
 impl Environment for EnvironmentWithManyTopics {
@@ -73,7 +73,7 @@ mod runtime_call {
             let emitted_events = ink::env::test::recorded_events().collect::<Vec<_>>();
             assert_eq!(emitted_events.len(), 1);
 
-            let emitted_event = <EventWithTopics as scale::Decode>::decode(
+            let emitted_event = <EventWithTopics as ink::scale::Decode>::decode(
                 &mut &emitted_events[0].data[..],
             );
 
