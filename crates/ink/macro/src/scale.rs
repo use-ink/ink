@@ -31,7 +31,9 @@ pub fn derive(attr: TokenStream2, item: TokenStream2) -> syn::Result<TokenStream
                 type_info = true;
                 Ok(())
             } else {
-                Err(meta.error("unsupported scale option: expected encode, decode or type_info"))
+                Err(meta.error(
+                    "unsupported scale option: expected encode, decode or type_info",
+                ))
             }
         }),
         attr.clone(),
