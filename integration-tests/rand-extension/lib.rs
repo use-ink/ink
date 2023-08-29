@@ -18,8 +18,8 @@ pub trait FetchRandom {
     fn fetch_random(subject: [u8; 32]) -> [u8; 32];
 }
 
-#[derive(Debug, Copy, Clone, PartialEq, Eq, scale::Encode, scale::Decode)]
-#[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
+#[ink::scale_derive(encode, decode, type_info)]
 pub enum RandomReadErr {
     FailGetRandomSource,
 }
@@ -137,7 +137,7 @@ mod rand_extension {
                 /// `RandomReadErr`.
                 fn call(&mut self, _input: &[u8], output: &mut Vec<u8>) -> u32 {
                     let ret: [u8; 32] = [1; 32];
-                    scale::Encode::encode_to(&ret, output);
+                    ink::scale::Encode::encode_to(&ret, output);
                     0
                 }
             }

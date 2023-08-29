@@ -13,8 +13,8 @@ pub mod constructors_return_value {
         value: bool,
     }
 
-    #[derive(scale::Encode, scale::Decode, Debug)]
-    #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
+    #[derive(Debug)]
+    #[ink::scale_derive(encode, decode, type_info)]
     pub struct ConstructorError;
 
     impl ConstructorsReturnValue {
@@ -108,7 +108,7 @@ pub mod constructors_return_value {
     mod e2e_tests {
         use super::*;
         use ink_e2e::ContractsBackend;
-        use scale::Decode as _;
+        use ink::scale::Decode as _;
 
         type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 

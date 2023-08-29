@@ -483,7 +483,7 @@ mod erc20 {
 
         fn encoded_into_hash<T>(entity: T) -> Hash
         where
-            T: scale::Encode,
+            T: ink::scale::Encode,
         {
             use ink::{
                 env::hash::{

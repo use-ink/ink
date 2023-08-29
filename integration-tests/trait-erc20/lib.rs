@@ -289,7 +289,7 @@ mod erc20 {
 
             fn encoded_into_hash<T>(entity: T) -> Hash
             where
-                T: scale::Encode,
+                T: ink::scale::Encode,
             {
                 let mut result = Hash::CLEAR_HASH;
                 let len_result = result.as_ref().len();

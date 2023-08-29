@@ -77,8 +77,7 @@ pub trait Psp22Extension {
     ) -> Result<()>;
 }
 
-#[derive(scale::Encode, scale::Decode)]
-#[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
+#[ink::scale_derive(encode, decode, type_info)]
 pub enum Psp22Error {
     TotalSupplyFailed,
 }

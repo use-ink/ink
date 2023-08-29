@@ -89,7 +89,7 @@ pub mod events {
     #[cfg(test)]
     mod tests {
         use super::*;
-        use scale::Decode as _;
+        use ink:::scale::Decode as _;
 
         #[test]
         fn collects_specs_for_all_linked_and_used_events() {
@@ -234,7 +234,7 @@ pub mod events {
             assert_eq!(1, contract_events.len());
             let contract_event = &contract_events[0];
             let flipped: event_def::ForeignFlipped =
-                scale::Decode::decode(&mut &contract_event.event.data[..])
+                ink::scale::Decode::decode(&mut &contract_event.event.data[..])
                     .expect("encountered invalid contract event data buffer");
             assert_eq!(!init_value, flipped.value);
 
@@ -275,7 +275,7 @@ pub mod events {
             assert_eq!(1, contract_events.len());
             let contract_event = &contract_events[0];
             let flipped: InlineFlipped =
-                scale::Decode::decode(&mut &contract_event.event.data[..])
+                ink::scale::Decode::decode(&mut &contract_event.event.data[..])
                     .expect("encountered invalid contract event data buffer");
             assert_eq!(!init_value, flipped.value);
 
@@ -315,7 +315,7 @@ pub mod events {
             assert_eq!(1, contract_events.len());
             let contract_event = &contract_events[0];
             let event: event_def::ThirtyTwoByteTopics =
-                scale::Decode::decode(&mut &contract_event.event.data[..])
+                ink::scale::Decode::decode(&mut &contract_event.event.data[..])
                     .expect("encountered invalid contract event data buffer");
             assert!(event.maybe_hash.is_none());
 

@@ -12,8 +12,8 @@ pub mod integration_flipper {
         value: bool,
     }
 
-    #[derive(scale::Encode, scale::Decode, Debug)]
-    #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
+    #[derive(Debug)]
+    #[ink::scale_derive(encode, decode, type_info)]
     pub struct FlipperError;
 
     impl Flipper {

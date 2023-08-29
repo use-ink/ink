@@ -12,11 +12,12 @@ mod multi_contract_caller {
     /// contract and in `Subber` state will call to the `Subber` contract.
     ///
     /// The initial state is `Adder`.
-    #[derive(Debug, Copy, Clone, PartialEq, Eq, scale::Decode, scale::Encode)]
+    #[derive(Debug, Copy, Clone, PartialEq, Eq)]
     #[cfg_attr(
         feature = "std",
-        derive(ink::storage::traits::StorageLayout, scale_info::TypeInfo)
+        derive(ink::storage::traits::StorageLayout)
     )]
+    #[ink::scale_derive(encode, decode, type_info)]
     pub enum Which {
         Adder,
         Subber,
