@@ -1,10 +1,10 @@
-error[E0277]: the trait bound `Vec<NonPacked>: parity_scale_codec::Decode` is not satisfied
+error[E0277]: the trait bound `Vec<NonPacked>: ink::parity_scale_codec::Decode` is not satisfied
   --> tests/ui/storage_item/fail/collections_only_packed_1.rs:11:8
    |
 11 |     a: Vec<NonPacked>,
-   |        ^^^ the trait `parity_scale_codec::Decode` is not implemented for `Vec<NonPacked>`
+   |        ^^^ the trait `ink::parity_scale_codec::Decode` is not implemented for `Vec<NonPacked>`
    |
-   = help: the trait `parity_scale_codec::Decode` is implemented for `Vec<T>`
+   = help: the trait `ink::parity_scale_codec::Decode` is implemented for `Vec<T>`
    = note: required for `Vec<NonPacked>` to implement `Packed`
    = note: required for `Vec<NonPacked>` to implement `StorableHint<()>`
    = note: required for `Vec<NonPacked>` to implement `AutoStorableHint<ManualKey<453539032>>`
@@ -23,13 +23,13 @@ error[E0277]: the trait bound `[NonPacked]: Encode` is not satisfied
    = note: required for `Vec<NonPacked>` to implement `StorableHint<()>`
    = note: required for `Vec<NonPacked>` to implement `AutoStorableHint<ManualKey<453539032>>`
 
-error[E0277]: the trait bound `Vec<NonPacked>: parity_scale_codec::Decode` is not satisfied
+error[E0277]: the trait bound `Vec<NonPacked>: ink::parity_scale_codec::Decode` is not satisfied
   --> tests/ui/storage_item/fail/collections_only_packed_1.rs:10:8
    |
 10 | struct Contract {
-   |        ^^^^^^^^ the trait `parity_scale_codec::Decode` is not implemented for `Vec<NonPacked>`
+   |        ^^^^^^^^ the trait `ink::parity_scale_codec::Decode` is not implemented for `Vec<NonPacked>`
    |
-   = help: the trait `parity_scale_codec::Decode` is implemented for `Vec<T>`
+   = help: the trait `ink::parity_scale_codec::Decode` is implemented for `Vec<T>`
    = note: required for `Vec<NonPacked>` to implement `Packed`
    = note: required for `Vec<NonPacked>` to implement `StorableHint<()>`
    = note: required for `Vec<NonPacked>` to implement `AutoStorableHint<ManualKey<453539032>>`
@@ -68,13 +68,13 @@ note: required by a bound in `Storable`
    | pub trait Storable: Sized {
    |                     ^^^^^ required by this bound in `Storable`
 
-error[E0277]: the trait bound `Vec<NonPacked>: parity_scale_codec::Decode` is not satisfied
+error[E0277]: the trait bound `Vec<NonPacked>: ink::parity_scale_codec::Decode` is not satisfied
   --> tests/ui/storage_item/fail/collections_only_packed_1.rs:9:1
    |
 9  | #[ink::storage_item]
-   | ^^^^^^^^^^^^^^^^^^^^ the trait `parity_scale_codec::Decode` is not implemented for `Vec<NonPacked>`
+   | ^^^^^^^^^^^^^^^^^^^^ the trait `ink::parity_scale_codec::Decode` is not implemented for `Vec<NonPacked>`
    |
-   = help: the trait `parity_scale_codec::Decode` is implemented for `Vec<T>`
+   = help: the trait `ink::parity_scale_codec::Decode` is implemented for `Vec<T>`
    = note: required for `Vec<NonPacked>` to implement `Packed`
    = note: required for `Vec<NonPacked>` to implement `StorableHint<()>`
    = note: required for `Vec<NonPacked>` to implement `AutoStorableHint<ManualKey<453539032>>`
