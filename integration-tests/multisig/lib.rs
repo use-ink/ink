@@ -72,9 +72,9 @@ mod multisig {
             CallFlags,
         },
         prelude::vec::Vec,
+        scale::Output,
         storage::Mapping,
     };
-    use ink::scale::Output;
 
     /// Tune this to your liking but be wary that allowing too many owners will not
     /// perform well.
@@ -133,7 +133,7 @@ mod multisig {
     }
 
     /// Errors that can occur upon calling this contract.
-    #[derive(Debug, PartialEq, Eq)]
+    #[derive(Clone, Copy, Debug, PartialEq, Eq)]
     #[ink::scale_derive(encode, decode, type_info)]
     pub enum Error {
         /// Returned if the call failed.
@@ -144,7 +144,14 @@ mod multisig {
     /// also the next id to use. We need it for cleaning up the storage.
     #[cfg_attr(
         feature = "std",
-        derive(Debug, PartialEq, Eq, ink::storage::traits::StorageLayout)
+        derive(
+            Clone,
+            Default,
+            Debug,
+            PartialEq,
+            Eq,
+            ink::storage::traits::StorageLayout
+        )
     )]
     #[ink::scale_derive(encode, decode, type_info)]
     pub struct Transactions {
