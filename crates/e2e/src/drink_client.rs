@@ -18,7 +18,10 @@ use crate::{
     UploadResult,
 };
 use drink::{
-    chain_api::ChainApi,
+    chain_api::{
+        ChainApi,
+        RuntimeCall,
+    },
     contract_api::ContractApi,
     runtime::{
         MinimalRuntime,
@@ -48,7 +51,10 @@ use std::{
     marker::PhantomData,
     path::PathBuf,
 };
-use subxt::dynamic::Value;
+use subxt::{
+    dynamic::Value,
+    tx::TxPayload,
+};
 use subxt_signer::sr25519::Keypair;
 
 pub struct Client<AccountId, Hash> {
@@ -121,12 +127,29 @@ impl<AccountId: AsRef<[u8; 32]> + Send, Hash> ChainBackend for Client<AccountId,
 
     async fn runtime_call<'a>(
         &mut self,
-        _origin: &Keypair,
-        _pallet_name: &'a str,
-        _call_name: &'a str,
-        _call_data: Vec<Value>,
+        origin: &Keypair,
+        pallet_name: &'a str,
+        call_name: &'a str,
+        call_data: Vec<Value>,
     ) -> Result<Self::EventLog, Self::Error> {
-        todo!("https://github.com/Cardinal-Cryptography/drink/issues/36")
+        let raw_metadata: Vec<u8> = MinimalRuntime::metadata().into();
+        let metadata = subxt_metadata::Metadata::decode(&mut raw_metadata.as_slice())
+            .expect("Failed to decode metadata");
+
+        let call = subxt::dynamic::tx(pallet_name, call_name, call_data);
+        let encoded_call = call
+            .encode_call_data(&metadata.into())
+            .expect("Failed to encode call data");
+
+        self.sandbox
+            .runtime_call(
+                RuntimeCall::<MinimalRuntime>::decode(&mut encoded_call.as_slice())
+                    .expect("Failed to decode runtime call"),
+                Some(keypair_to_account(origin)).into(),
+            )
+            .map_err(|_| ())?;
+
+        Ok(())
     }
 }
 
