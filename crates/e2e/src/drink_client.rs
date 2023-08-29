@@ -132,21 +132,31 @@ impl<AccountId: AsRef<[u8; 32]> + Send, Hash> ChainBackend for Client<AccountId,
         call_name: &'a str,
         call_data: Vec<Value>,
     ) -> Result<Self::EventLog, Self::Error> {
+        // Since in general, `ChainBackend::runtime_call` must be dynamic, we have to
+        // perform some translation here in order to invoke strongly-typed drink!
+        // API.
+
+        // Get metadata of the drink! runtime, so that we can encode the call object.
+        // Panic on error - metadata of the static im-memory runtime should always be
+        // available.
         let raw_metadata: Vec<u8> = MinimalRuntime::metadata().into();
         let metadata = subxt_metadata::Metadata::decode(&mut raw_metadata.as_slice())
             .expect("Failed to decode metadata");
 
+        // Encode the call object.
         let call = subxt::dynamic::tx(pallet_name, call_name, call_data);
-        let encoded_call = call
-            .encode_call_data(&metadata.into())
-            .expect("Failed to encode call data");
+        let encoded_call = call.encode_call_data(&metadata.into()).map_err(|_| ())?;
 
+        // Decode the call object.
+        // Panic on error - we just encoded a validated call object, so it should be
+        // decodable.
+        let decoded_call =
+            RuntimeCall::<MinimalRuntime>::decode(&mut encoded_call.as_slice())
+                .expect("Failed to decode runtime call");
+
+        // Execute the call.
         self.sandbox
-            .runtime_call(
-                RuntimeCall::<MinimalRuntime>::decode(&mut encoded_call.as_slice())
-                    .expect("Failed to decode runtime call"),
-                Some(keypair_to_account(origin)).into(),
-            )
+            .runtime_call(decoded_call, Some(keypair_to_account(origin)).into())
             .map_err(|_| ())?;
 
         Ok(())

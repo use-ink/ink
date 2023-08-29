@@ -73,6 +73,9 @@ pub trait ChainBackend {
     ///
     /// Returns when the transaction is included in a block. The return value contains all
     /// events that are associated with this transaction.
+    ///
+    /// Since we might run node with an arbitrary runtime, this method inherently must
+    /// support dynamic calls.
     async fn runtime_call<'a>(
         &mut self,
         origin: &Keypair,
