@@ -89,7 +89,7 @@ pub mod events {
     #[cfg(test)]
     mod tests {
         use super::*;
-        use ink:::scale::Decode as _;
+        use ink::scale::Decode as _;
 
         #[test]
         fn collects_specs_for_all_linked_and_used_events() {
