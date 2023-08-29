@@ -1,15 +1,12 @@
 [package]
-name = "incrementer"
+name = "updated-incrementer"
 version = "4.2.0"
 authors = ["Parity Technologies <admin@parity.io>"]
 edition = "2021"
 publish = false
 
 [dependencies]
-ink = { path = "../../crates/ink", default-features = false }
-
-[dev-dependencies]
-ink_e2e = { path = "../../crates/e2e" }
+ink = { path = "../../../../crates/ink", default-features = false }
 
 [lib]
 path = "lib.rs"
@@ -22,4 +19,3 @@ std = [
     "scale-info/std",
 ]
 ink-as-dependency = []
-e2e-tests = []

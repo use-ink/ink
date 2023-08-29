@@ -26,7 +26,6 @@ derive_more = { workspace = true, features = ["from", "display"] }
 num-traits = { workspace = true, features = ["i128"] }
 cfg-if = { workspace = true }
 paste = { workspace = true }
-arrayref = { workspace = true }
 static_assertions = { workspace = true }
 const_env = { workspace = true }
 

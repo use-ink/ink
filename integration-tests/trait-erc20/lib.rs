@@ -190,6 +190,8 @@ mod erc20 {
                 return Err(Error::InsufficientAllowance)
             }
             self.transfer_from_to(&from, &to, value)?;
+            // We checked that allowance >= value
+            #[allow(clippy::arithmetic_side_effects)]
             self.allowances
                 .insert((&from, &caller), &(allowance - value));
             Ok(())
@@ -242,10 +244,12 @@ mod erc20 {
             if from_balance < value {
                 return Err(Error::InsufficientBalance)
             }
-
+            // We checked that from_balance >= value
+            #[allow(clippy::arithmetic_side_effects)]
             self.balances.insert(from, &(from_balance - value));
             let to_balance = self.balance_of_impl(to);
-            self.balances.insert(to, &(to_balance + value));
+            self.balances
+                .insert(to, &(to_balance.checked_add(value).unwrap()));
             self.env().emit_event(Transfer {
                 from: Some(*from),
                 to: Some(*to),

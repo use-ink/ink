@@ -31,6 +31,27 @@ use ink_primitives::{
     LangError,
 };
 
+/// Convert a slice into an array reference.
+///
+/// Creates an array reference of size `$len` pointing to `$offset` within `$arr`.
+///
+/// # Panics
+///
+/// - The selected range is out of bounds given the supplied slice
+/// - Integer overflow on `$offset + $len`
+macro_rules! array_mut_ref {
+    ($arr:expr, $offset:expr, $len:expr) => {{
+        {
+            fn as_array<T>(slice: &mut [T]) -> &mut [T; $len] {
+                slice.try_into().unwrap()
+            }
+            let offset: usize = $offset;
+            let slice = &mut $arr[offset..offset.checked_add($len).unwrap()];
+            as_array(slice)
+        }
+    }};
+}
+
 pub trait OnInstance: EnvBackend + TypedEnvBackend {
     fn on_instance<F, R>(f: F) -> R
     where
