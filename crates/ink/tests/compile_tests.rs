@@ -40,4 +40,7 @@ fn ui_tests() {
     t.pass("tests/ui/chain_extension/E-01-simple.rs");
 
     t.pass("tests/ui/pay_with_call/pass/multiple_args.rs");
+
+    t.pass("tests/ui/scale_derive/pass/*.rs");
+    t.compile_fail("tests/ui/scale_derive/fail/*.rs");
 }
