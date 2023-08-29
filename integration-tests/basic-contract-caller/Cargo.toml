@@ -23,8 +23,6 @@ path = "lib.rs"
 default = ["std"]
 std = [
     "ink/std",
-    "scale/std",
-    "scale-info/std",
 
     # Note: The metadata generation step requires `std`. If we don't specify this the metadata
     # generation for our contract will fail!
