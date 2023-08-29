@@ -10,7 +10,7 @@ use ink_storage::{
 };
 
 #[derive(Default)]
-#[cfg_attr(feature = "std", derive(StorageLayout))]
+#[cfg_attr(feature = "std", derive(ink::storage::traits::StorageLayout))]
 #[ink::scale_derive(encode, decode, type_info)]
 enum Packed {
     #[default]
