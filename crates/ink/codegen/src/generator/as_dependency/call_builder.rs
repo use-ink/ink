@@ -92,7 +92,7 @@ impl CallBuilder<'_> {
                 ::core::cmp::Eq,
                 ::core::clone::Clone,
             )]
-            #[::ink::scale_derive(encode, decode)]
+            #[::ink::scale_derive(encode, decode, type_info)]
             pub struct #cb_ident {
                 account_id: AccountId,
             }
