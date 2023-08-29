@@ -84,8 +84,8 @@ pub enum Psp22Error {
 
 pub type Result<T> = core::result::Result<T, Psp22Error>;
 
-impl From<scale::Error> for Psp22Error {
-    fn from(_: scale::Error) -> Self {
+impl From<ink::scale::Error> for Psp22Error {
+    fn from(_: ink::scale::Error) -> Self {
         panic!("encountered unexpected invalid SCALE encoding")
     }
 }

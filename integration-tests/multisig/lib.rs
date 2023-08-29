@@ -74,7 +74,7 @@ mod multisig {
         prelude::vec::Vec,
         storage::Mapping,
     };
-    use scale::Output;
+    use ink::scale::Output;
 
     /// Tune this to your liking but be wary that allowing too many owners will not
     /// perform well.
