@@ -35,7 +35,7 @@ impl ink::env::chain_extension::FromStatusCode for RandomReadErr {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-#[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
+#[ink::scale_derive(type_info)]
 pub enum CustomEnvironment {}
 
 impl Environment for CustomEnvironment {
