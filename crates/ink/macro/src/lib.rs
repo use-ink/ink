@@ -1550,9 +1550,34 @@ synstructure::decl_derive!(
     storage::storage_layout_derive
 );
 
-/// todo: docs
-/// ink::scale_derive(encode, decode, type_info)
-/// ink::scale_derive(type_info)
+/// Derive the re-exported traits `ink::scale::Encode`, `ink::scale::Decode` and
+/// `ink::scale_info::TypeInfo`. It enables using the built in derive macros for these
+/// traits without depending directly on the `parity-scale-codec` and `scale-info` crates.
+///
+/// # Options
+///   - `encode`: derives `ink::scale::Encode`
+///   - `decode`: derives `ink::scale::Decode`
+///   - `type_info`: derives `ink::scale_info::TypeInfo`
+///
+/// # Examples
+///
+/// ```
+/// #[ink::scale_derive(encode, decode, type_info)]
+/// pub enum Error {}
+/// ```
+/// This is a convenience macro that expands to include the additional `crate` attributes
+/// required for the path of the re-exported crates.
+///
+/// ```
+/// #[derive(::ink::scale::Encode, ::ink::scale::Decode)]
+/// #[codec(crate = ::ink::scale)]
+/// #[cfg_attr(
+///   feature = "std",
+///   derive(::scale_info::TypeInfo),
+///   scale_info(crate = ::ink::scale_info)
+/// )]
+/// pub enum Error {}
+/// ```
 #[proc_macro_attribute]
 pub fn scale_derive(attr: TokenStream, item: TokenStream) -> TokenStream {
     match scale::derive(attr.into(), item.into()) {
