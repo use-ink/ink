@@ -7,9 +7,8 @@
 //!
 //! Currently, this includes the following:
 //!
-//!   1. Use complex nested input and output types.
-//!      This is done with the use case of a data structure
-//!      needed to store data of a candle auction.
+//!   1. Use complex nested input and output types. This is done with the use case of a
+//!      data structure needed to store data of a candle auction.
 //!   2. Make contract fail with `ContractTrapped`.
 //!   3. Make contract fail with returning an `Error`.
 //!   4. Perform debug printing from contract into the node's log.
@@ -33,19 +32,13 @@ mod mother {
     /// Vector index corresponds to sample number.
     /// Wrapping vector, just added for testing UI components.
     #[derive(Default, PartialEq, Eq, Debug, Clone)]
-    #[cfg_attr(
-        feature = "std",
-        derive(ink::storage::traits::StorageLayout)
-    )]
+    #[cfg_attr(feature = "std", derive(ink::storage::traits::StorageLayout))]
     #[ink::scale_derive(encode, decode, type_info)]
     pub struct Bids(Vec<Vec<Option<(AccountId, Balance)>>>);
 
     /// Auction outline.
     #[derive(PartialEq, Eq, Debug, Clone)]
-    #[cfg_attr(
-        feature = "std",
-        derive(ink::storage::traits::StorageLayout)
-    )]
+    #[cfg_attr(feature = "std", derive(ink::storage::traits::StorageLayout))]
     #[ink::scale_derive(encode, decode, type_info)]
     pub enum Outline {
         NoWinner,
@@ -57,10 +50,7 @@ mod mother {
     /// Logic inspired by
     /// [Parachain Auction](https://github.com/paritytech/polkadot/blob/master/runtime/common/src/traits.rs#L160)
     #[derive(PartialEq, Eq, Debug, Clone)]
-    #[cfg_attr(
-        feature = "std",
-        derive(ink::storage::traits::StorageLayout)
-    )]
+    #[cfg_attr(feature = "std", derive(ink::storage::traits::StorageLayout))]
     #[ink::scale_derive(encode, decode, type_info)]
     pub enum Status {
         /// An auction has not started yet.
@@ -82,10 +72,7 @@ mod mother {
 
     /// Struct for storing auction data.
     #[derive(Debug, PartialEq, Eq, Clone)]
-    #[cfg_attr(
-        feature = "std",
-        derive(ink::storage::traits::StorageLayout)
-    )]
+    #[cfg_attr(feature = "std", derive(ink::storage::traits::StorageLayout))]
     #[ink::scale_derive(encode, decode, type_info)]
     pub struct Auction {
         /// Branded name of the auction event.

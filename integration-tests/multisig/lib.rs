@@ -98,10 +98,7 @@ mod multisig {
     /// Indicates whether a transaction is already confirmed or needs further
     /// confirmations.
     #[derive(Clone, Copy)]
-    #[cfg_attr(
-        feature = "std",
-        derive(ink::storage::traits::StorageLayout)
-    )]
+    #[cfg_attr(feature = "std", derive(ink::storage::traits::StorageLayout))]
     #[ink::scale_derive(encode, decode, type_info)]
     pub enum ConfirmationStatus {
         /// The transaction is already confirmed.
@@ -114,12 +111,7 @@ mod multisig {
     /// If enough owners agree it will be executed by the contract.
     #[cfg_attr(
         feature = "std",
-        derive(
-            Debug,
-            PartialEq,
-            Eq,
-            ink::storage::traits::StorageLayout
-        )
+        derive(Debug, PartialEq, Eq, ink::storage::traits::StorageLayout)
     )]
     #[ink::scale_derive(encode, decode, type_info)]
     pub struct Transaction {
@@ -152,12 +144,7 @@ mod multisig {
     /// also the next id to use. We need it for cleaning up the storage.
     #[cfg_attr(
         feature = "std",
-        derive(
-            Debug,
-            PartialEq,
-            Eq,
-            ink::storage::traits::StorageLayout
-        )
+        derive(Debug, PartialEq, Eq, ink::storage::traits::StorageLayout)
     )]
     #[ink::scale_derive(encode, decode, type_info)]
     pub struct Transactions {
@@ -323,13 +310,13 @@ mod multisig {
         ///         DefaultEnvironment as Env,
         ///         Environment,
         ///     },
+        ///     scale::Encode,
         ///     selector_bytes,
         /// };
         /// use multisig::{
         ///     ConfirmationStatus,
         ///     Transaction,
         /// };
-        /// use ink::scale::Encode;
         ///
         /// type AccountId = <Env as Environment>::AccountId;
         ///

@@ -2,7 +2,10 @@
 
 #[ink::contract]
 pub mod delegatee {
-    use ink::storage::{Mapping, traits::ManualKey};
+    use ink::storage::{
+        traits::ManualKey,
+        Mapping,
+    };
     #[ink(storage)]
     pub struct Delegatee {
         addresses: Mapping<AccountId, i32, ManualKey<0x23>>,
@@ -12,8 +15,8 @@ pub mod delegatee {
     }
 
     impl Delegatee {
-        /// When using the delegate call. You only upload the code of the delegatee contract.
-        /// However, the code and storage do not get initialized.
+        /// When using the delegate call. You only upload the code of the delegatee
+        /// contract. However, the code and storage do not get initialized.
         ///
         /// Because of this. The constructor actually never gets called.
         #[allow(clippy::new_without_default)]
@@ -29,7 +32,6 @@ pub mod delegatee {
         pub fn inc(&mut self) {
             self.counter += 2;
         }
-
 
         /// Adds current value of counter to the `addresses`
         #[ink(message)]
