@@ -7,7 +7,10 @@ function usage {
   cat << EOF
 Usage: ${SCRIPT_NAME} MANIFEST_PATH
 
-Succeeds if the crate at MANIFEST_PATH is a contract crate, fails otherwise.
+Succeeds if the crate at MANIFEST_PATH is *probably* contract crate, fails otherwise. The heuristic used is:
+  - Find the root package of the crate
+  - Find the source file of the root package that is a lib
+  - Check for the presence of the `#[ink::contract]` attribute macro
 
 MANIFEST_PATH
   Path to the Cargo.toml manifest file for a possible contract project
