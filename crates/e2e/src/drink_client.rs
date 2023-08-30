@@ -57,7 +57,10 @@ pub struct Client<AccountId, Hash, Runtime: RuntimeT> {
 // While it is not necessary true that `Client` is `Send`, it will not be used in a way
 // that would violate this bound. In particular, all `Client` instances will be operating
 // synchronously.
-unsafe impl<AccountId, Hash, Runtime: RuntimeT> Send for Client<AccountId, Hash, Runtime> {}
+unsafe impl<AccountId, Hash, Runtime: RuntimeT> Send
+    for Client<AccountId, Hash, Runtime>
+{
+}
 
 impl<AccountId, Hash, Runtime: RuntimeT> Client<AccountId, Hash, Runtime> {
     pub fn new<P: Into<PathBuf>>(contracts: impl IntoIterator<Item = P>) -> Self {
