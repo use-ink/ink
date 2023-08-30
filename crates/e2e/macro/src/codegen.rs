@@ -19,7 +19,6 @@ use crate::{
 use derive_more::From;
 use proc_macro2::TokenStream as TokenStream2;
 use quote::quote;
-use syn::Path;
 
 const DEFAULT_CONTRACTS_NODE: &str = "substrate-contracts-node";
 
@@ -149,7 +148,10 @@ fn build_full_client(environment: &syn::Path, contracts: TokenStream2) -> TokenS
 }
 
 #[cfg(any(test, feature = "drink"))]
-fn build_runtime_client(contracts: TokenStream2, runtime: Option<Path>) -> TokenStream2 {
+fn build_runtime_client(
+    contracts: TokenStream2,
+    runtime: Option<syn::Path>,
+) -> TokenStream2 {
     let runtime =
         runtime.unwrap_or_else(|| syn::parse_quote! { ::ink_e2e::MinimalRuntime });
     quote! {
