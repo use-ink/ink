@@ -20,10 +20,7 @@ use crate::{
 use drink::{
     chain_api::ChainApi,
     contract_api::ContractApi,
-    runtime::{
-        MinimalRuntime,
-        Runtime,
-    },
+    runtime::Runtime as RuntimeT,
     Sandbox,
     DEFAULT_GAS_LIMIT,
 };
@@ -51,15 +48,18 @@ use std::{
 use subxt::dynamic::Value;
 use subxt_signer::sr25519::Keypair;
 
-pub struct Client<AccountId, Hash> {
-    sandbox: Sandbox<MinimalRuntime>,
+pub struct Client<AccountId, Hash, Runtime: RuntimeT> {
+    sandbox: Sandbox<Runtime>,
     contracts: ContractsRegistry,
     _phantom: PhantomData<(AccountId, Hash)>,
 }
 
-unsafe impl<AccountId, Hash> Send for Client<AccountId, Hash> {}
+// While it is not necessary true that `Client` is `Send`, it will not be used in a way
+// that would violate this bound. In particular, all `Client` instances will be operating
+// synchronously.
+unsafe impl<AccountId, Hash, Runtime: RuntimeT> Send for Client<AccountId, Hash, Runtime> {}
 
-impl<AccountId, Hash> Client<AccountId, Hash> {
+impl<AccountId, Hash, Runtime: RuntimeT> Client<AccountId, Hash, Runtime> {
     pub fn new<P: Into<PathBuf>>(contracts: impl IntoIterator<Item = P>) -> Self {
         let mut sandbox = Sandbox::new().expect("Failed to initialize Drink! sandbox");
         Self::fund_accounts(&mut sandbox);
@@ -71,7 +71,7 @@ impl<AccountId, Hash> Client<AccountId, Hash> {
         }
     }
 
-    fn fund_accounts<R: Runtime>(sandbox: &mut Sandbox<R>) {
+    fn fund_accounts(sandbox: &mut Sandbox<Runtime>) {
         const TOKENS: u128 = 1_000_000_000_000_000;
 
         let accounts = [
@@ -93,7 +93,9 @@ impl<AccountId, Hash> Client<AccountId, Hash> {
 }
 
 #[async_trait]
-impl<AccountId: AsRef<[u8; 32]> + Send, Hash> ChainBackend for Client<AccountId, Hash> {
+impl<AccountId: AsRef<[u8; 32]> + Send, Hash, Runtime: RuntimeT> ChainBackend
+    for Client<AccountId, Hash, Runtime>
+{
     type AccountId = AccountId;
     type Balance = u128;
     type Error = ();
@@ -133,9 +135,10 @@ impl<AccountId: AsRef<[u8; 32]> + Send, Hash> ChainBackend for Client<AccountId,
 #[async_trait]
 impl<
         AccountId: Clone + Send + Sync + From<[u8; 32]> + AsRef<[u8; 32]>,
-        Hash: From<[u8; 32]>,
+        Hash: Copy + From<[u8; 32]>,
+        Runtime: RuntimeT,
         E: Environment<AccountId = AccountId, Balance = u128, Hash = Hash> + 'static,
-    > ContractsBackend<E> for Client<AccountId, Hash>
+    > ContractsBackend<E> for Client<AccountId, Hash, Runtime>
 {
     type Error = ();
     type EventLog = ();
@@ -221,10 +224,12 @@ impl<
             }
         };
 
+        let code_hash_raw: [u8; 32] = result.code_hash.as_ref().try_into().expect("");
+        let code_hash = Hash::from(code_hash_raw);
         Ok(UploadResult {
-            code_hash: result.code_hash.0.into(),
+            code_hash,
             dry_run: Ok(CodeUploadReturnValue {
-                code_hash: result.code_hash.0.into(),
+                code_hash,
                 deposit: result.deposit,
             }),
             events: (),
@@ -287,9 +292,10 @@ impl<
 
 impl<
         AccountId: Clone + Send + Sync + From<[u8; 32]> + AsRef<[u8; 32]>,
-        Hash: From<[u8; 32]>,
+        Hash: Copy + From<[u8; 32]>,
+        Runtime: RuntimeT,
         E: Environment<AccountId = AccountId, Balance = u128, Hash = Hash> + 'static,
-    > E2EBackend<E> for Client<AccountId, Hash>
+    > E2EBackend<E> for Client<AccountId, Hash, Runtime>
 {
 }
 
