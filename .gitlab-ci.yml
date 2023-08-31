@@ -433,9 +433,9 @@ examples-contract-build:
         -exec cargo contract build --release --manifest-path {} \;
     # Build the different features for the conditional compilation example
     - pushd ./integration-tests/conditional-compilation
-    - cargo contract build --features "foo"
-    - cargo contract build --features "bar"
-    - cargo contract build --features "foo, bar"
+    - cargo contract build --release --features "foo"
+    - cargo contract build --release --features "bar"
+    - cargo contract build --release --features "foo, bar"
     - popd
 
 # TODO: Use cargo contract as soon as it has RISC-V support
