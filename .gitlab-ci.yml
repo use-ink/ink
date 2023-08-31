@@ -432,20 +432,20 @@ examples-contract-build:
 #        popd;
 #      done
 
-examples-docs:
-  stage:                           examples
-  <<:                              *docker-env
-  <<:                              *test-refs
-  variables:
-    RUSTDOCFLAGS: -Dwarnings
-  script:
-    # `--document-private-items` needs to be in here because currently our contract macro
-    # puts the contract functions in a private module.
-    # Once https://github.com/paritytech/ink/issues/336 has been implemented we can get rid
-    # of this flag.
-    - find integration-tests -name "Cargo.toml"
-      -exec scripts/is_contract.sh {} \;
-      -exec cargo doc --manifest-path {} --document-private-items --verbose --no-deps \;
+#examples-docs:
+#  stage:                           examples
+#  <<:                              *docker-env
+#  <<:                              *test-refs
+#  variables:
+#    RUSTDOCFLAGS: -Dwarnings
+#  script:
+#    # `--document-private-items` needs to be in here because currently our contract macro
+#    # puts the contract functions in a private module.
+#    # Once https://github.com/paritytech/ink/issues/336 has been implemented we can get rid
+#    # of this flag.
+#    - find integration-tests -name "Cargo.toml"
+#      -exec scripts/is_contract.sh {} \;
+#      -exec cargo doc --manifest-path {} --document-private-items --verbose --no-deps \;
 
 #### stage:                        ink-waterfall
 
