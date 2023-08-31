@@ -109,7 +109,7 @@ impl CallForwarder<'_> {
             /// will be handled by this type.
             #[doc(hidden)]
             #[allow(non_camel_case_types)]
-            #[::ink::scale_derive(encode, decode)]
+            #[::ink::scale_derive(Encode, Decode)]
             #[repr(transparent)]
             pub struct #call_forwarder_ident<E>
             where

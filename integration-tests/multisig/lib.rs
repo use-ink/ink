@@ -99,7 +99,7 @@ mod multisig {
     /// confirmations.
     #[derive(Clone, Copy)]
     #[cfg_attr(feature = "std", derive(ink::storage::traits::StorageLayout))]
-    #[ink::scale_derive(encode, decode, type_info)]
+    #[ink::scale_derive(Encode, Decode, TypeInfo)]
     pub enum ConfirmationStatus {
         /// The transaction is already confirmed.
         Confirmed,
@@ -113,7 +113,7 @@ mod multisig {
         feature = "std",
         derive(Debug, PartialEq, Eq, ink::storage::traits::StorageLayout)
     )]
-    #[ink::scale_derive(encode, decode, type_info)]
+    #[ink::scale_derive(Encode, Decode, TypeInfo)]
     pub struct Transaction {
         /// The `AccountId` of the contract that is called in this transaction.
         pub callee: AccountId,
@@ -134,7 +134,7 @@ mod multisig {
 
     /// Errors that can occur upon calling this contract.
     #[derive(Clone, Copy, Debug, PartialEq, Eq)]
-    #[ink::scale_derive(encode, decode, type_info)]
+    #[ink::scale_derive(Encode, Decode, TypeInfo)]
     pub enum Error {
         /// Returned if the call failed.
         TransactionFailed,
@@ -147,7 +147,7 @@ mod multisig {
         feature = "std",
         derive(Debug, PartialEq, Eq, ink::storage::traits::StorageLayout)
     )]
-    #[ink::scale_derive(encode, decode, type_info)]
+    #[ink::scale_derive(Encode, Decode, TypeInfo)]
     pub struct Transactions {
         /// Just store all transaction ids packed.
         transactions: Vec<TransactionId>,

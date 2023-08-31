@@ -1,4 +1,4 @@
-#[ink::scale_derive(decode)]
+#[ink::scale_derive(Decode)]
 struct S;
 
 fn is_decode<T: ::ink::scale::Decode>(_: T) {}

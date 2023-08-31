@@ -8,7 +8,7 @@ use ink::env::{
 /// Our custom environment diverges from the `DefaultEnvironment` in the event topics
 /// limit.
 #[derive(Debug, Clone, PartialEq, Eq)]
-#[ink::scale_derive(type_info)]
+#[ink::scale_derive(TypeInfo)]
 pub enum EnvironmentWithManyTopics {}
 
 impl Environment for EnvironmentWithManyTopics {

@@ -9,7 +9,7 @@ mod contract {
 
     #[derive(Debug, Default)]
     #[cfg_attr(feature = "std", derive(StorageLayout))]
-    #[ink::scale_derive(encode, decode, type_info)]
+    #[ink::scale_derive(Encode, Decode, TypeInfo)]
     pub struct PackedFields {
         field_1: i8,
         field_2: i16,

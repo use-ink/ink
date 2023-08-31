@@ -1,4 +1,4 @@
-#[ink::scale_derive(encode, decode, type_info)]
+#[ink::scale_derive(Encode, Decode, TypeInfo)]
 struct S;
 
 fn is_type_info<T: ::ink::scale_info::TypeInfo>(_: T) {}

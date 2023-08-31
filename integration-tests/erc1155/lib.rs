@@ -29,7 +29,7 @@ type Balance = <ink::env::DefaultEnvironment as ink::env::Environment>::Balance;
 
 // The ERC-1155 error types.
 #[derive(Debug, PartialEq, Eq)]
-#[ink::scale_derive(encode, decode, type_info)]
+#[ink::scale_derive(Encode, Decode, TypeInfo)]
 pub enum Error {
     /// This token ID has not yet been created by the contract.
     UnexistentToken,

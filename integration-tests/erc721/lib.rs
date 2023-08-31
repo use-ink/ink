@@ -73,7 +73,7 @@ mod erc721 {
     }
 
     #[derive(Debug, PartialEq, Eq, Copy, Clone)]
-    #[ink::scale_derive(encode, decode, type_info)]
+    #[ink::scale_derive(Encode, Decode, TypeInfo)]
     pub enum Error {
         NotOwner,
         NotApproved,

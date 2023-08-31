@@ -77,7 +77,7 @@ pub trait Psp22Extension {
     ) -> Result<()>;
 }
 
-#[ink::scale_derive(encode, decode, type_info)]
+#[ink::scale_derive(Encode, Decode, TypeInfo)]
 pub enum Psp22Error {
     TotalSupplyFailed,
 }
@@ -102,7 +102,7 @@ impl ink::env::chain_extension::FromStatusCode for Psp22Error {
 
 /// An environment using default ink environment types, with PSP-22 extension included
 #[derive(Debug, Clone, PartialEq, Eq)]
-#[ink::scale_derive(type_info)]
+#[ink::scale_derive(TypeInfo)]
 pub enum CustomEnvironment {}
 
 impl Environment for CustomEnvironment {

@@ -1562,7 +1562,7 @@ synstructure::decl_derive!(
 /// # Examples
 ///
 /// ```
-/// #[ink::scale_derive(encode, decode, type_info)]
+/// #[ink::scale_derive(Encode, Decode, TypeInfo)]
 /// pub enum Error {}
 /// ```
 /// This is a convenience macro that expands to include the additional `crate` attributes

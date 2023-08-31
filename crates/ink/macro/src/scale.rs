@@ -21,18 +21,18 @@ pub fn derive(attr: TokenStream2, item: TokenStream2) -> syn::Result<TokenStream
 
     syn::parse::Parser::parse2(
         syn::meta::parser(|meta| {
-            if meta.path.is_ident("encode") {
+            if meta.path.is_ident("Encode") {
                 encode = true;
                 Ok(())
-            } else if meta.path.is_ident("decode") {
+            } else if meta.path.is_ident("Decode") {
                 decode = true;
                 Ok(())
-            } else if meta.path.is_ident("type_info") {
+            } else if meta.path.is_ident("TypeInfo") {
                 type_info = true;
                 Ok(())
             } else {
                 Err(meta.error(
-                    "unsupported scale option: expected encode, decode or type_info",
+                    "unsupported scale derive: expected Encode, Decode or TypeInfo",
                 ))
             }
         }),

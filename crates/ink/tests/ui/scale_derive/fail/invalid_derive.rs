@@ -1,4 +1,4 @@
-#[ink::scale_derive(encode, whatevs)]
+#[ink::scale_derive(Encode, Whatevs)]
 struct S;
 
 fn main() {

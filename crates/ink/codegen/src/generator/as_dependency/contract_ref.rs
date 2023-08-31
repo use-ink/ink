@@ -96,7 +96,7 @@ impl ContractRef<'_> {
                 ::core::cmp::Eq,
                 ::core::clone::Clone,
             )]
-            #[::ink::scale_derive(encode, decode, type_info)]
+            #[::ink::scale_derive(Encode, Decode, TypeInfo)]
             #( #doc_attrs )*
             pub struct #ref_ident {
                 inner: <#storage_ident as ::ink::codegen::ContractCallBuilder>::Type,
