@@ -118,7 +118,6 @@ examples-fmt:
   <<:                              *docker-env
   <<:                              *test-refs
   script:
-    # Note that we disable the license header check for the examples, since they are unlicensed.
     - for example in integration-tests/*/; do
         if [ "$example" = "integration-tests/lang-err-integration-tests/" ]; then continue; fi;
         if [ "$example" = "integration-tests/upgradeable-contracts/" ]; then continue; fi;
@@ -474,25 +473,13 @@ examples-docs:
   variables:
     RUSTDOCFLAGS: -Dwarnings
   script:
-    # `--document-private-items` needs to be in here because currently our contract macro
-    # puts the contract functions in a private module.
-    # Once https://github.com/paritytech/ink/issues/336 has been implemented we can get rid
-    # of this flag.
-    - for example in integration-tests/*/; do
-        if [ "$example" = "integration-tests/lang-err-integration-tests/" ]; then continue; fi;
-        if [ "$example" = "integration-tests/upgradeable-contracts/" ]; then continue; fi;
-        cargo doc --manifest-path ${example}/Cargo.toml --document-private-items --verbose --no-deps;
-      done
-    - for contract in ${MULTI_CONTRACT_CALLER_SUBCONTRACTS}; do
-        cargo doc --manifest-path ./integration-tests/multi-contract-caller/${contract}/Cargo.toml --document-private-items --verbose --no-deps;
-      done
-    - for contract in ${UPGRADEABLE_CONTRACTS}; do
-        cargo doc --manifest-path ./integration-tests/upgradeable-contracts/${contract}/Cargo.toml --document-private-items --verbose --no-deps;
-      done
-    - for contract in ${LANG_ERR_INTEGRATION_CONTRACTS}; do
-        cargo doc --manifest-path ./integration-tests/lang-err-integration-tests/${contract}/Cargo.toml --document-private-items --verbose --no-deps;
-      done
-    - cargo doc --manifest-path ./integration-tests/upgradeable-contracts/set-code-hash/updated-incrementer/Cargo.toml --document-private-items --verbose --no-deps
+    - find ./integration-tests/ -name "Cargo.toml"
+        -exec scripts/is_contract.sh {} \;
+        # `--document-private-items` needs to be in here because currently our contract macro
+        # puts the contract functions in a private module.
+        # Once https://github.com/paritytech/ink/issues/336 has been implemented we can get rid
+        # of this flag.
+        -exec cargo doc --manifest-path {} --document-private-items --verbose --no-deps \;
 
 
 #### stage:                        ink-waterfall
