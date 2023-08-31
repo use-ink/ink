@@ -113,7 +113,7 @@ fmt:
     - cargo +nightly fmt --verbose --all -- --check ./crates/ink/tests/ui/trait_def/{pass,fail}/*.rs
   allow_failure:                   true
 
-.examples-fmt:
+examples-fmt:
   stage:                           lint
   <<:                              *docker-env
   <<:                              *test-refs
@@ -144,7 +144,7 @@ clippy-wasm:
       done
   allow_failure:                   true
 
-.examples-clippy-std:
+examples-clippy-std:
   stage:                           lint
   <<:                              *docker-env
   <<:                              *test-refs
@@ -154,7 +154,7 @@ clippy-wasm:
         -exec cargo clippy --verbose --all-targets --manifest-path {} -- -D warnings -A $CLIPPY_ALLOWED \;
   allow_failure:                   true
 
-.examples-clippy-wasm:
+examples-clippy-wasm:
   stage:                           lint
   <<:                              *docker-env
   <<:                              *test-refs
@@ -383,7 +383,7 @@ examples-test:
         cargo test --verbose --manifest-path ./integration-tests/lang-err-integration-tests/${contract}/Cargo.toml --features e2e-tests;
       done
 
-.examples-contract-build:
+examples-contract-build:
   stage:                           examples
   <<:                              *docker-env
   <<:                              *test-refs
@@ -432,7 +432,7 @@ examples-contract-build-riscv:
         popd;
       done
 
-.examples-docs:
+examples-docs:
   stage:                           examples
   <<:                              *docker-env
   <<:                              *test-refs
