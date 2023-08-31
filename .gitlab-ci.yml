@@ -429,7 +429,7 @@ examples-contract-build:
     - rustup component add rust-src --toolchain stable
     - cargo contract -V
     # Build all examples
-    - find ./integration-tests. -name "Cargo.toml"
+    - find ./integration-tests/ -name "Cargo.toml"
         -exec scripts/is_contract.sh {} \;
         -exec cargo contract build --release --manifest-path {} \;
     # Build the different features for the conditional compilation example
