@@ -118,8 +118,7 @@ examples-fmt:
   <<:                              *docker-env
   <<:                              *test-refs
   script:
-    - find integration-tests 
-      -name "Cargo.toml" 
+    - find integration-tests -name "Cargo.toml" 
       -exec scripts/is_contract.sh {} \; 
       -exec cargo +nightly fmt --verbose --manifest-path {} -- --check \;
     # This file is not a part of the cargo project, so it wouldn't be formatted the usual way
@@ -150,8 +149,7 @@ examples-clippy-std:
   <<:                              *docker-env
   <<:                              *test-refs
   script:
-    - find integration-tests 
-      -name "Cargo.toml"
+    - find integration-tests -name "Cargo.toml"
       -exec scripts/is_contract.sh {} \;
       -exec cargo clippy --verbose --all-targets --manifest-path {} -- -D warnings -A $CLIPPY_ALLOWED \;
   allow_failure:                   true
@@ -161,8 +159,7 @@ examples-clippy-wasm:
   <<:                              *docker-env
   <<:                              *test-refs
   script:
-    - find integration-tests 
-      -name "Cargo.toml"
+    - find integration-tests -name "Cargo.toml"
       -exec scripts/is_contract.sh {} \;
       -exec cargo clippy --verbose --manifest-path {} --no-default-features --target wasm32-unknown-unknown -- -D warnings -A $CLIPPY_ALLOWED \;
   allow_failure:                   true
@@ -397,8 +394,7 @@ examples-contract-build:
     - rustup component add rust-src --toolchain stable
     - cargo contract -V
     # Build all examples
-    - find integration-tests 
-      -name "Cargo.toml"
+    - find integration-tests -name "Cargo.toml"
       -exec scripts/is_contract.sh {} \;
       -exec cargo contract build --release --manifest-path {} \;
     # Build the different features for the conditional compilation example
@@ -436,21 +432,20 @@ examples-contract-build:
 #        popd;
 #      done
 
-#examples-docs:
-#  stage:                           examples
-#  <<:                              *docker-env
-#  <<:                              *test-refs
-#  variables:
-#    RUSTDOCFLAGS: -Dwarnings
-#  script:
-#    - find integration-tests -name "Cargo.toml"
-#        -exec scripts/is_contract.sh {} \;
-#        # `--document-private-items` needs to be in here because currently our contract macro
-#        # puts the contract functions in a private module.
-#        # Once https://github.com/paritytech/ink/issues/336 has been implemented we can get rid
-#        # of this flag.
-#        -exec cargo doc --manifest-path {} --document-private-items --verbose --no-deps \;
-
+examples-docs:
+  stage:                           examples
+  <<:                              *docker-env
+  <<:                              *test-refs
+  variables:
+    RUSTDOCFLAGS: -Dwarnings
+  script:
+    - find integration-tests -name "Cargo.toml"
+      -exec scripts/is_contract.sh {} \;
+      # `--document-private-items` needs to be in here because currently our contract macro
+      # puts the contract functions in a private module.
+      # Once https://github.com/paritytech/ink/issues/336 has been implemented we can get rid
+      # of this flag.
+      -exec cargo doc --manifest-path {} --document-private-items --verbose --no-deps \;
 
 #### stage:                        ink-waterfall
 
