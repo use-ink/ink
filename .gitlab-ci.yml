@@ -156,15 +156,16 @@ examples-clippy-std:
       -exec cargo clippy --verbose --all-targets --manifest-path {} -- -D warnings -A $CLIPPY_ALLOWED \;
   allow_failure:                   true
 
-#examples-clippy-wasm:
-#  stage:                           lint
-#  <<:                              *docker-env
-#  <<:                              *test-refs
-#  script:
-#    - find integration-tests -name "Cargo.toml"
-#        -exec scripts/is_contract.sh {} \;
-#        -exec cargo clippy --verbose --manifest-path {} --no-default-features --target wasm32-unknown-unknown -- -D warnings -A $CLIPPY_ALLOWED \;
-#  allow_failure:                   true
+examples-clippy-wasm:
+  stage:                           lint
+  <<:                              *docker-env
+  <<:                              *test-refs
+  script:
+    - find integration-tests 
+      -name "Cargo.toml"
+      -exec scripts/is_contract.sh {} \;
+      -exec cargo clippy --verbose --manifest-path {} --no-default-features --target wasm32-unknown-unknown -- -D warnings -A $CLIPPY_ALLOWED \;
+  allow_failure:                   true
 
 
 #### stage:                        check
