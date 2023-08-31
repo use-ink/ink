@@ -118,7 +118,10 @@ examples-fmt:
   <<:                              *docker-env
   <<:                              *test-refs
   script:
-    - find integration-tests -name "Cargo.toml" -exec scripts/is_contract.sh {} \; -exec cargo +nightly fmt --verbose --manifest-path {} -- --check \;
+    - find integration-tests 
+      -name "Cargo.toml" 
+      -exec scripts/is_contract.sh {} \; 
+      -exec cargo +nightly fmt --verbose --manifest-path {} -- --check \;
     # This file is not a part of the cargo project, so it wouldn't be formatted the usual way
     - rustfmt +nightly --verbose --check ./integration-tests/psp22-extension/runtime/psp22-extension-example.rs
   allow_failure:                   true
