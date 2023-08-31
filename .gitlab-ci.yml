@@ -118,20 +118,9 @@ examples-fmt:
   <<:                              *docker-env
   <<:                              *test-refs
   script:
-    - for example in integration-tests/*/; do
-        if [ "$example" = "integration-tests/lang-err-integration-tests/" ]; then continue; fi;
-        if [ "$example" = "integration-tests/upgradeable-contracts/" ]; then continue; fi;
-        cargo +nightly fmt --verbose --manifest-path ${example}/Cargo.toml -- --check;
-      done
-    - for contract in ${MULTI_CONTRACT_CALLER_SUBCONTRACTS}; do
-        cargo +nightly fmt --verbose --manifest-path ./integration-tests/multi-contract-caller/${contract}/Cargo.toml -- --check;
-      done
-    - for contract in ${UPGRADEABLE_CONTRACTS}; do
-        cargo +nightly fmt --verbose --manifest-path ./integration-tests/upgradeable-contracts/${contract}/Cargo.toml -- --check;
-      done
-    - for contract in ${LANG_ERR_INTEGRATION_CONTRACTS}; do
-        cargo +nightly fmt --verbose --manifest-path ./integration-tests/lang-err-integration-tests/${contract}/Cargo.toml -- --check;
-      done
+    - find ./integration-tests/ -name "Cargo.toml"
+        -exec scripts/is_contract.sh {} \;
+        -exec cargo +nightly fmt --verbose --manifest-path {} -- --check \;
     # This file is not a part of the cargo project, so it wouldn't be formatted the usual way
     - rustfmt +nightly --verbose --check ./integration-tests/psp22-extension/runtime/psp22-extension-example.rs
   allow_failure:                   true
