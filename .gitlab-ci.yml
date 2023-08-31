@@ -428,31 +428,16 @@ examples-contract-build:
   script:
     - rustup component add rust-src --toolchain stable
     - cargo contract -V
-    - for example in integration-tests/*/; do
-        if [ "$example" = "integration-tests/lang-err-integration-tests/" ]; then continue; fi;
-        if [ "$example" = "integration-tests/upgradeable-contracts/" ]; then continue; fi;
-        if [ "$example" = "integration-tests/conditional-compilation/" ]; then
-        pushd $example &&
-        cargo contract build --features "foo" &&
-        popd;
-        pushd $example &&
-        cargo contract build --features "bar" &&
-        popd;
-        pushd $example &&
-        cargo contract build --features "foo, bar" &&
-        popd;
-        fi;
-        pushd $example &&
-        cargo contract build &&
-        popd;
-      done
-    - pushd ./integration-tests/multi-contract-caller/ && ./build-all.sh && popd
-    - for contract in ${LANG_ERR_INTEGRATION_CONTRACTS}; do
-        cargo contract build --manifest-path ./integration-tests/lang-err-integration-tests/${contract}/Cargo.toml;
-      done
-    - for contract in ${UPGRADEABLE_CONTRACTS}; do
-        cargo contract build --manifest-path ./integration-tests/upgradeable-contracts/${contract}/Cargo.toml;
-      done
+    # Build all examples
+    - find ./integration-tests. -name "Cargo.toml"
+        -exec scripts/is_contract.sh {} \;
+        -exec cargo contract build --release --manifest-path {} \;
+    # Build the different features for the conditional compilation example
+    - pushd ./integration-tests/conditional-compilation
+    - cargo contract build --features "foo"
+    - cargo contract build --features "bar"
+    - cargo contract build --features "foo, bar"
+    - popd
 
 # TODO: Use cargo contract as soon as it has RISC-V support
 examples-contract-build-riscv:
