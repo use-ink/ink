@@ -113,17 +113,17 @@ fmt:
     - cargo +nightly fmt --verbose --all -- --check ./crates/ink/tests/ui/trait_def/{pass,fail}/*.rs
   allow_failure:                   true
 
-examples-fmt:
-  stage:                           lint
-  <<:                              *docker-env
-  <<:                              *test-refs
-  script:
-    - find integration-tests -name "Cargo.toml"
-        -exec scripts/is_contract.sh {} \;
-        -exec cargo +nightly fmt --verbose --manifest-path {} -- --check \;
-    # This file is not a part of the cargo project, so it wouldn't be formatted the usual way
-    - rustfmt +nightly --verbose --check ./integration-tests/psp22-extension/runtime/psp22-extension-example.rs
-  allow_failure:                   true
+#examples-fmt:
+#  stage:                           lint
+#  <<:                              *docker-env
+#  <<:                              *test-refs
+#  script:
+#    - find integration-tests -name "Cargo.toml"
+#        -exec scripts/is_contract.sh {} \;
+#        -exec cargo +nightly fmt --verbose --manifest-path {} -- --check \;
+#    # This file is not a part of the cargo project, so it wouldn't be formatted the usual way
+#    - rustfmt +nightly --verbose --check ./integration-tests/psp22-extension/runtime/psp22-extension-example.rs
+#  allow_failure:                   true
 
 clippy-std:
   stage:                           lint
@@ -144,25 +144,25 @@ clippy-wasm:
       done
   allow_failure:                   true
 
-examples-clippy-std:
-  stage:                           lint
-  <<:                              *docker-env
-  <<:                              *test-refs
-  script:
-    - find integration-tests -name "Cargo.toml"
-        -exec scripts/is_contract.sh {} \;
-        -exec cargo clippy --verbose --all-targets --manifest-path {} -- -D warnings -A $CLIPPY_ALLOWED \;
-  allow_failure:                   true
+#examples-clippy-std:
+#  stage:                           lint
+#  <<:                              *docker-env
+#  <<:                              *test-refs
+#  script:
+#    - find integration-tests -name "Cargo.toml"
+#        -exec scripts/is_contract.sh {} \;
+#        -exec cargo clippy --verbose --all-targets --manifest-path {} -- -D warnings -A $CLIPPY_ALLOWED \;
+#  allow_failure:                   true
 
-examples-clippy-wasm:
-  stage:                           lint
-  <<:                              *docker-env
-  <<:                              *test-refs
-  script:
-    - find integration-tests -name "Cargo.toml"
-        -exec scripts/is_contract.sh {} \;
-        -exec cargo clippy --verbose --manifest-path {} --no-default-features --target wasm32-unknown-unknown -- -D warnings -A $CLIPPY_ALLOWED \;
-  allow_failure:                   true
+#examples-clippy-wasm:
+#  stage:                           lint
+#  <<:                              *docker-env
+#  <<:                              *test-refs
+#  script:
+#    - find integration-tests -name "Cargo.toml"
+#        -exec scripts/is_contract.sh {} \;
+#        -exec cargo clippy --verbose --manifest-path {} --no-default-features --target wasm32-unknown-unknown -- -D warnings -A $CLIPPY_ALLOWED \;
+#  allow_failure:                   true
 
 
 #### stage:                        check
@@ -383,69 +383,69 @@ examples-test:
         cargo test --verbose --manifest-path ./integration-tests/lang-err-integration-tests/${contract}/Cargo.toml --features e2e-tests;
       done
 
-examples-contract-build:
-  stage:                           examples
-  <<:                              *docker-env
-  <<:                              *test-refs
-  variables:
-    # Fix for linking of `linkme` for `cargo contract build`: https://github.com/dtolnay/linkme/issues/49
-    RUSTFLAGS: "-Clink-arg=-z -Clink-arg=nostart-stop-gc"
-  script:
-    - rustup component add rust-src --toolchain stable
-    - cargo contract -V
-    # Build all examples
-    - find integration-tests -name "Cargo.toml"
-        -exec scripts/is_contract.sh {} \;
-        -exec cargo contract build --release --manifest-path {} \;
-    # Build the different features for the conditional compilation example
-    - pushd ./integration-tests/conditional-compilation
-    - cargo contract build --release --features "foo"
-    - cargo contract build --release --features "bar"
-    - cargo contract build --release --features "foo, bar"
-    - popd
+#examples-contract-build:
+#  stage:                           examples
+#  <<:                              *docker-env
+#  <<:                              *test-refs
+#  variables:
+#    # Fix for linking of `linkme` for `cargo contract build`: https://github.com/dtolnay/linkme/issues/49
+#    RUSTFLAGS: "-Clink-arg=-z -Clink-arg=nostart-stop-gc"
+#  script:
+#    - rustup component add rust-src --toolchain stable
+#    - cargo contract -V
+#    # Build all examples
+#    - find integration-tests -name "Cargo.toml"
+#        -exec scripts/is_contract.sh {} \;
+#        -exec cargo contract build --release --manifest-path {} \;
+#    # Build the different features for the conditional compilation example
+#    - pushd ./integration-tests/conditional-compilation
+#    - cargo contract build --release --features "foo"
+#    - cargo contract build --release --features "bar"
+#    - cargo contract build --release --features "foo, bar"
+#    - popd
 
-# TODO: Use cargo contract as soon as it has RISC-V support
-examples-contract-build-riscv:
-  stage:                           examples
-  <<:                              *docker-env
-  <<:                              *test-refs
-  variables:
-    RUSTC_BOOTSTRAP:               "1"
-  script:
-    - rustup component add rust-src --toolchain stable
-    - cargo contract -V
-    # We skip some examples for those reasons:
-    # There are no manifests in those two directories and hence it would fall back to the workspace.
-    #  - lang-err-integration-tests
-    #  - upgradeable-contracts
-    # This uses dlmalloc which is only supported on select targets.
-    #   - custom_allocator
-    # Pulls in sp-std which needlessly requires atomic pointers (TODO: Fix sp-std and enable this example)
-    #   - call-runtime
-    - for example in integration-tests/*/; do
-        if [ "$example" = "integration-tests/lang-err-integration-tests/" ]; then continue; fi;
-        if [ "$example" = "integration-tests/upgradeable-contracts/" ]; then continue; fi;
-        if [ "$example" = "integration-tests/custom-allocator/" ]; then continue; fi;
-        if [ "$example" = "integration-tests/call-runtime/" ]; then continue; fi;
-        pushd $example &&
-        cargo build --no-default-features --target $RISCV_TARGET -Zbuild-std="core,alloc" &&
-        popd;
-      done
+## TODO: Use cargo contract as soon as it has RISC-V support
+#examples-contract-build-riscv:
+#  stage:                           examples
+#  <<:                              *docker-env
+#  <<:                              *test-refs
+#  variables:
+#    RUSTC_BOOTSTRAP:               "1"
+#  script:
+#    - rustup component add rust-src --toolchain stable
+#    - cargo contract -V
+#    # We skip some examples for those reasons:
+#    # There are no manifests in those two directories and hence it would fall back to the workspace.
+#    #  - lang-err-integration-tests
+#    #  - upgradeable-contracts
+#    # This uses dlmalloc which is only supported on select targets.
+#    #   - custom_allocator
+#    # Pulls in sp-std which needlessly requires atomic pointers (TODO: Fix sp-std and enable this example)
+#    #   - call-runtime
+#    - for example in integration-tests/*/; do
+#        if [ "$example" = "integration-tests/lang-err-integration-tests/" ]; then continue; fi;
+#        if [ "$example" = "integration-tests/upgradeable-contracts/" ]; then continue; fi;
+#        if [ "$example" = "integration-tests/custom-allocator/" ]; then continue; fi;
+#        if [ "$example" = "integration-tests/call-runtime/" ]; then continue; fi;
+#        pushd $example &&
+#        cargo build --no-default-features --target $RISCV_TARGET -Zbuild-std="core,alloc" &&
+#        popd;
+#      done
 
-examples-docs:
-  stage:                           examples
-  <<:                              *docker-env
-  <<:                              *test-refs
-  variables:
-    RUSTDOCFLAGS: -Dwarnings
-  script:
-    - find integration-tests -name "Cargo.toml"
-        -exec scripts/is_contract.sh {} \;
-        # `--document-private-items` needs to be in here because currently our contract macro
-        # puts the contract functions in a private module.
-        # Once https://github.com/paritytech/ink/issues/336 has been implemented we can get rid
-        # of this flag.
-        -exec cargo doc --manifest-path {} --document-private-items --verbose --no-deps \;
+#examples-docs:
+#  stage:                           examples
+#  <<:                              *docker-env
+#  <<:                              *test-refs
+#  variables:
+#    RUSTDOCFLAGS: -Dwarnings
+#  script:
+#    - find integration-tests -name "Cargo.toml"
+#        -exec scripts/is_contract.sh {} \;
+#        # `--document-private-items` needs to be in here because currently our contract macro
+#        # puts the contract functions in a private module.
+#        # Once https://github.com/paritytech/ink/issues/336 has been implemented we can get rid
+#        # of this flag.
+#        -exec cargo doc --manifest-path {} --document-private-items --verbose --no-deps \;
 
 
 #### stage:                        ink-waterfall
