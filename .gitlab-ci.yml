@@ -349,39 +349,13 @@ examples-test:
     # Fix linking of `linkme`: https://github.com/dtolnay/linkme/issues/49
     RUSTFLAGS: "-Clink-arg=-z -Clink-arg=nostart-stop-gc"
   script:
+    # run the static buffer test with a custom buffer size
+    - cargo clean --manifest-path integration-tests/static-buffer/Cargo.toml 
+    - INK_STATIC_BUFFER_SIZE=30 cargo test --verbose --manifest-path integration-tests/static-buffer/Cargo.toml --all-features
+    # run all tests with --all-features, which will run the e2e-tests feature if present
     - find integration-tests -name "Cargo.toml"
       -exec scripts/is_contract.sh {} \;
       -exec cargo test --verbose --manifest-path {} --all-features \;
-#    - for example in integration-tests/*/; do
-#        if [ "$example" = "integration-tests/lang-err-integration-tests/" ]; then continue; fi;
-#        if [ "$example" = "integration-tests/upgradeable-contracts/" ]; then continue; fi;
-#        if [ "$example" = "integration-tests/conditional-compilation/" ]; then
-#        cargo test --verbose --manifest-path ${example}/Cargo.toml --features "foo";
-#        cargo test --verbose --manifest-path ${example}/Cargo.toml --features "bar";
-#        cargo test --verbose --manifest-path ${example}/Cargo.toml --features "foo, bar";
-#        fi;
-#        if grep -q "e2e-tests = \[\]" "${example}/Cargo.toml"; then
-#          if [ "$example" = "integration-tests/static-buffer/" ]; then
-#            cargo clean && INK_STATIC_BUFFER_SIZE=30 cargo test --verbose --manifest-path ${example}/Cargo.toml --features e2e-tests && cargo clean;
-#          else
-#            cargo test --verbose --manifest-path ${example}/Cargo.toml --features e2e-tests;
-#          fi;
-#        else
-#          cargo test --verbose --manifest-path ${example}/Cargo.toml;
-#        fi;
-#      done
-#    - for contract in ${MULTI_CONTRACT_CALLER_SUBCONTRACTS}; do
-#        cargo test --verbose --manifest-path ./integration-tests/multi-contract-caller/${contract}/Cargo.toml;
-#      done
-#    - for contract in ${UPGRADEABLE_CONTRACTS}; do
-#        cargo test --verbose --manifest-path ./integration-tests/upgradeable-contracts/${contract}/Cargo.toml --features e2e-tests;
-#      done
-#    # TODO (#1502): We need to clean before running, otherwise the CI fails with a
-#    # linking error.
-#    - for contract in ${LANG_ERR_INTEGRATION_CONTRACTS}; do
-#        cargo clean --verbose --manifest-path ./integration-tests/lang-err-integration-tests/${contract}/Cargo.toml;
-#        cargo test --verbose --manifest-path ./integration-tests/lang-err-integration-tests/${contract}/Cargo.toml --features e2e-tests;
-#      done
 
 examples-contract-build:
   stage:                           examples
