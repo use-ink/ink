@@ -149,20 +149,9 @@ examples-clippy-std:
   <<:                              *docker-env
   <<:                              *test-refs
   script:
-    - for example in integration-tests/*/; do
-        if [ "$example" = "integration-tests/lang-err-integration-tests/" ]; then continue; fi;
-        if [ "$example" = "integration-tests/upgradeable-contracts/" ]; then continue; fi;
-        cargo clippy --verbose --all-targets --manifest-path ${example}/Cargo.toml -- -D warnings -A $CLIPPY_ALLOWED;
-      done
-    - for contract in ${MULTI_CONTRACT_CALLER_SUBCONTRACTS}; do
-        cargo clippy --verbose --all-targets --manifest-path ./integration-tests/multi-contract-caller/${contract}/Cargo.toml -- -D warnings -A $CLIPPY_ALLOWED;
-      done
-    - for contract in ${UPGRADEABLE_CONTRACTS}; do
-        cargo clippy --verbose --manifest-path ./integration-tests/upgradeable-contracts/${contract}/Cargo.toml -- -D warnings -A $CLIPPY_ALLOWED;
-      done
-    - for contract in ${LANG_ERR_INTEGRATION_CONTRACTS}; do
-        cargo clippy --verbose --all-targets --manifest-path ./integration-tests/lang-err-integration-tests/${contract}/Cargo.toml -- -D warnings -A $CLIPPY_ALLOWED;
-      done
+    - find ./integration-tests/ -name "Cargo.toml"
+        -exec scripts/is_contract.sh {} \;
+        -exec cargo clippy --verbose --all-targets --manifest-path {} -- -D warnings -A $CLIPPY_ALLOWED \;
   allow_failure:                   true
 
 examples-clippy-wasm:
@@ -170,21 +159,9 @@ examples-clippy-wasm:
   <<:                              *docker-env
   <<:                              *test-refs
   script:
-    - for example in integration-tests/*/; do
-        if [ "$example" = "integration-tests/lang-err-integration-tests/" ]; then continue; fi;
-        if [ "$example" = "integration-tests/upgradeable-contracts/" ]; then continue; fi;
-        cargo clippy --verbose --manifest-path ${example}/Cargo.toml --no-default-features --target wasm32-unknown-unknown -- -D warnings -A $CLIPPY_ALLOWED;
-      done
-    - for contract in ${MULTI_CONTRACT_CALLER_SUBCONTRACTS}; do
-        cargo clippy --verbose --manifest-path ./integration-tests/multi-contract-caller/${contract}/Cargo.toml --no-default-features --target wasm32-unknown-unknown -- -D warnings -A $CLIPPY_ALLOWED;
-      done
-    - for contract in ${UPGRADEABLE_CONTRACTS}; do
-        cargo clippy --verbose --manifest-path ./integration-tests/upgradeable-contracts/${contract}/Cargo.toml --no-default-features --target wasm32-unknown-unknown -- -D warnings -A $CLIPPY_ALLOWED;
-      done
-    - for contract in ${LANG_ERR_INTEGRATION_CONTRACTS}; do
-        cargo clippy --verbose --manifest-path ./integration-tests/lang-err-integration-tests/${contract}/Cargo.toml --no-default-features --target wasm32-unknown-unknown -- -D warnings -A $CLIPPY_ALLOWED;
-      done
-    - cargo clippy --verbose --manifest-path ./integration-tests/upgradeable-contracts/set-code-hash/updated-incrementer/Cargo.toml --no-default-features --target wasm32-unknown-unknown -- -D warnings -A $CLIPPY_ALLOWED;
+    - find ./integration-tests/ -name "Cargo.toml"
+        -exec scripts/is_contract.sh {} \;
+        -exec cargo clippy --verbose --manifest-path {} --no-default-features --target wasm32-unknown-unknown -- -D warnings -A $CLIPPY_ALLOWED \;
   allow_failure:                   true
 
 
