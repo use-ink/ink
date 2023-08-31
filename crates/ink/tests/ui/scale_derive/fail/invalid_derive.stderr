@@ -1,4 +1,4 @@
-error: unsupported scale option: expected encode, decode or type_info
+error: unsupported scale derive: expected Encode, Decode or TypeInfo
  --> tests/ui/scale_derive/fail/invalid_derive.rs:1:29
   |
 1 | #[ink::scale_derive(Encode, Whatevs)]
