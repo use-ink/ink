@@ -190,13 +190,13 @@
          gen <span class="kw">impl </span>::ink::storage::traits::Storable <span class="kw">for </span>@<span class="self">Self </span>{
             <span class="attr">#[inline(always)]
             #[allow(non_camel_case_types)]
-            </span><span class="kw">fn </span>decode&lt;__ink_I: ::scale::Input&gt;(__input: <span class="kw-2">&amp;mut </span>__ink_I) -&gt; ::core::result::Result&lt;<span class="self">Self</span>, ::scale::Error&gt; {
+            </span><span class="kw">fn </span>decode&lt;__ink_I: ::ink::scale::Input&gt;(__input: <span class="kw-2">&amp;mut </span>__ink_I) -&gt; ::core::result::Result&lt;<span class="self">Self</span>, ::ink::scale::Error&gt; {
                 ::core::result::Result::Ok(#decode_body)
             }
 
             <span class="attr">#[inline(always)]
             #[allow(non_camel_case_types)]
-            </span><span class="kw">fn </span>encode&lt;__ink_O: ::scale::Output + <span class="question-mark">?</span>::core::marker::Sized&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, __dest: <span class="kw-2">&amp;mut </span>__ink_O) {
+            </span><span class="kw">fn </span>encode&lt;__ink_O: ::ink::scale::Output + <span class="question-mark">?</span>::core::marker::Sized&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, __dest: <span class="kw-2">&amp;mut </span>__ink_O) {
                 <span class="kw">match </span><span class="self">self </span>{ #encode_body }
             }
          }
@@ -261,7 +261,7 @@
          gen <span class="kw">impl </span>::ink::storage::traits::Storable <span class="kw">for </span>@<span class="self">Self </span>{
             <span class="attr">#[inline(always)]
             #[allow(non_camel_case_types)]
-            </span><span class="kw">fn </span>decode&lt;__ink_I: ::scale::Input&gt;(__input: <span class="kw-2">&amp;mut </span>__ink_I) -&gt; ::core::result::Result&lt;<span class="self">Self</span>, ::scale::Error&gt; {
+            </span><span class="kw">fn </span>decode&lt;__ink_I: ::ink::scale::Input&gt;(__input: <span class="kw-2">&amp;mut </span>__ink_I) -&gt; ::core::result::Result&lt;<span class="self">Self</span>, ::ink::scale::Error&gt; {
                 ::core::result::Result::Ok(
                     <span class="kw">match </span>&lt;::core::primitive::u8 <span class="kw">as </span>::ink::storage::traits::Storable&gt;::decode(__input)<span class="question-mark">? </span>{
                         #decode_body
@@ -272,7 +272,7 @@
 
             <span class="attr">#[inline(always)]
             #[allow(non_camel_case_types)]
-            </span><span class="kw">fn </span>encode&lt;__ink_O: ::scale::Output + <span class="question-mark">?</span>::core::marker::Sized&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, __dest: <span class="kw-2">&amp;mut </span>__ink_O) {
+            </span><span class="kw">fn </span>encode&lt;__ink_O: ::ink::scale::Output + <span class="question-mark">?</span>::core::marker::Sized&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, __dest: <span class="kw-2">&amp;mut </span>__ink_O) {
                 <span class="kw">match </span><span class="self">self </span>{
                     #(
                         #encode_body

@@ -306,9 +306,9 @@
         <span class="kw">if </span><span class="self">self</span>.item.config().derive() {
             derive = <span class="macro">quote! </span>{
                 <span class="attr">#[cfg_attr(feature = <span class="string">&quot;std&quot;</span>, derive(
-                    ::scale_info::TypeInfo,
                     ::ink::storage::traits::StorageLayout,
                 ))]
+                #[::ink::scale_derive(TypeInfo)]
                 #[derive(
                     ::ink::storage::traits::StorableHint,
                     ::ink::storage::traits::StorageKey,

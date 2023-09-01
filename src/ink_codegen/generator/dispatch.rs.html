@@ -1465,7 +1465,7 @@
                 #( #cfg_attrs )*
                 #const_ident =&gt; {
                     ::core::result::Result::Ok(<span class="self">Self</span>::#constructor_ident(
-                        &lt;#constructor_input <span class="kw">as </span>::scale::Decode&gt;::decode(input)
+                        &lt;#constructor_input <span class="kw">as </span>::ink::scale::Decode&gt;::decode(input)
                             .map_err(|<span class="kw">_</span>| ::ink::reflect::DispatchError::InvalidParameters)<span class="question-mark">?
                     </span>))
                 }
@@ -1485,7 +1485,7 @@
                 );
                 <span class="macro">quote! </span>{
                     ::core::result::Result::Ok(<span class="self">Self</span>::#constructor_ident(
-                        &lt;#constructor_input <span class="kw">as </span>::scale::Decode&gt;::decode(input)
+                        &lt;#constructor_input <span class="kw">as </span>::ink::scale::Decode&gt;::decode(input)
                             .map_err(|<span class="kw">_</span>| ::ink::reflect::DispatchError::InvalidParameters)<span class="question-mark">?
                     </span>))
                 }
@@ -1563,12 +1563,12 @@
                     <span class="kw">fn </span>decode_dispatch&lt;I&gt;(input: <span class="kw-2">&amp;mut </span>I)
                         -&gt; ::core::result::Result&lt;<span class="self">Self</span>, ::ink::reflect::DispatchError&gt;
                     <span class="kw">where
-                        </span>I: ::scale::Input,
+                        </span>I: ::ink::scale::Input,
                     {
                         #(
                             #constructor_selector
                         )*
-                        <span class="kw">match </span>&lt;[::core::primitive::u8; <span class="number">4usize</span>] <span class="kw">as </span>::scale::Decode&gt;::decode(input)
+                        <span class="kw">match </span>&lt;[::core::primitive::u8; <span class="number">4usize</span>] <span class="kw">as </span>::ink::scale::Decode&gt;::decode(input)
                             .map_err(|<span class="kw">_</span>| ::ink::reflect::DispatchError::InvalidSelector)<span class="question-mark">?
                         </span>{
                             #( #constructor_match , )*
@@ -1577,10 +1577,10 @@
                     }
                 }
 
-                <span class="kw">impl </span>::scale::Decode <span class="kw">for </span>__ink_ConstructorDecoder {
-                    <span class="kw">fn </span>decode&lt;I&gt;(input: <span class="kw-2">&amp;mut </span>I) -&gt; ::core::result::Result&lt;<span class="self">Self</span>, ::scale::Error&gt;
+                <span class="kw">impl </span>::ink::scale::Decode <span class="kw">for </span>__ink_ConstructorDecoder {
+                    <span class="kw">fn </span>decode&lt;I&gt;(input: <span class="kw-2">&amp;mut </span>I) -&gt; ::core::result::Result&lt;<span class="self">Self</span>, ::ink::scale::Error&gt;
                     <span class="kw">where
-                        </span>I: ::scale::Input,
+                        </span>I: ::ink::scale::Input,
                     {
                         &lt;<span class="self">Self </span><span class="kw">as </span>::ink::reflect::DecodeDispatch&gt;::decode_dispatch(input)
                             .map_err(::core::convert::Into::into)
@@ -1670,7 +1670,7 @@
                    #( #cfg_attrs )*
                     #const_ident =&gt; {
                         ::core::result::Result::Ok(<span class="self">Self</span>::#message_ident(
-                            &lt;#message_input <span class="kw">as </span>::scale::Decode&gt;::decode(input)
+                            &lt;#message_input <span class="kw">as </span>::ink::scale::Decode&gt;::decode(input)
                                 .map_err(|<span class="kw">_</span>| ::ink::reflect::DispatchError::InvalidParameters)<span class="question-mark">?
                         </span>))
                     }
@@ -1685,7 +1685,7 @@
                     expand_message_input(message_span, storage_ident, item.id.clone());
                 <span class="macro">quote! </span>{
                     ::core::result::Result::Ok(<span class="self">Self</span>::#message_ident(
-                        &lt;#message_input <span class="kw">as </span>::scale::Decode&gt;::decode(input)
+                        &lt;#message_input <span class="kw">as </span>::ink::scale::Decode&gt;::decode(input)
                             .map_err(|<span class="kw">_</span>| ::ink::reflect::DispatchError::InvalidParameters)<span class="question-mark">?
                     </span>))
                 }
@@ -1760,12 +1760,12 @@
                     <span class="kw">fn </span>decode_dispatch&lt;I&gt;(input: <span class="kw-2">&amp;mut </span>I)
                         -&gt; ::core::result::Result&lt;<span class="self">Self</span>, ::ink::reflect::DispatchError&gt;
                     <span class="kw">where
-                        </span>I: ::scale::Input,
+                        </span>I: ::ink::scale::Input,
                     {
                         #(
                             #message_selector
                         )*
-                        <span class="kw">match </span>&lt;[::core::primitive::u8; <span class="number">4usize</span>] <span class="kw">as </span>::scale::Decode&gt;::decode(input)
+                        <span class="kw">match </span>&lt;[::core::primitive::u8; <span class="number">4usize</span>] <span class="kw">as </span>::ink::scale::Decode&gt;::decode(input)
                             .map_err(|<span class="kw">_</span>| ::ink::reflect::DispatchError::InvalidSelector)<span class="question-mark">?
                         </span>{
                             #( #message_match , )*
@@ -1774,10 +1774,10 @@
                     }
                 }
 
-                <span class="kw">impl </span>::scale::Decode <span class="kw">for </span>__ink_MessageDecoder {
-                    <span class="kw">fn </span>decode&lt;I&gt;(input: <span class="kw-2">&amp;mut </span>I) -&gt; ::core::result::Result&lt;<span class="self">Self</span>, ::scale::Error&gt;
+                <span class="kw">impl </span>::ink::scale::Decode <span class="kw">for </span>__ink_MessageDecoder {
+                    <span class="kw">fn </span>decode&lt;I&gt;(input: <span class="kw-2">&amp;mut </span>I) -&gt; ::core::result::Result&lt;<span class="self">Self</span>, ::ink::scale::Error&gt;
                     <span class="kw">where
-                        </span>I: ::scale::Input,
+                        </span>I: ::ink::scale::Input,
                     {
                         &lt;<span class="self">Self </span><span class="kw">as </span>::ink::reflect::DecodeDispatch&gt;::decode_dispatch(input)
                             .map_err(::core::convert::Into::into)

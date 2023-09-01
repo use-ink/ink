@@ -1551,6 +1551,43 @@
 <a href="#1551" id="1551">1551</a>
 <a href="#1552" id="1552">1552</a>
 <a href="#1553" id="1553">1553</a>
+<a href="#1554" id="1554">1554</a>
+<a href="#1555" id="1555">1555</a>
+<a href="#1556" id="1556">1556</a>
+<a href="#1557" id="1557">1557</a>
+<a href="#1558" id="1558">1558</a>
+<a href="#1559" id="1559">1559</a>
+<a href="#1560" id="1560">1560</a>
+<a href="#1561" id="1561">1561</a>
+<a href="#1562" id="1562">1562</a>
+<a href="#1563" id="1563">1563</a>
+<a href="#1564" id="1564">1564</a>
+<a href="#1565" id="1565">1565</a>
+<a href="#1566" id="1566">1566</a>
+<a href="#1567" id="1567">1567</a>
+<a href="#1568" id="1568">1568</a>
+<a href="#1569" id="1569">1569</a>
+<a href="#1570" id="1570">1570</a>
+<a href="#1571" id="1571">1571</a>
+<a href="#1572" id="1572">1572</a>
+<a href="#1573" id="1573">1573</a>
+<a href="#1574" id="1574">1574</a>
+<a href="#1575" id="1575">1575</a>
+<a href="#1576" id="1576">1576</a>
+<a href="#1577" id="1577">1577</a>
+<a href="#1578" id="1578">1578</a>
+<a href="#1579" id="1579">1579</a>
+<a href="#1580" id="1580">1580</a>
+<a href="#1581" id="1581">1581</a>
+<a href="#1582" id="1582">1582</a>
+<a href="#1583" id="1583">1583</a>
+<a href="#1584" id="1584">1584</a>
+<a href="#1585" id="1585">1585</a>
+<a href="#1586" id="1586">1586</a>
+<a href="#1587" id="1587">1587</a>
+<a href="#1588" id="1588">1588</a>
+<a href="#1589" id="1589">1589</a>
+<a href="#1590" id="1590">1590</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -1577,6 +1614,7 @@
 <span class="kw">mod </span>contract;
 <span class="kw">mod </span>event;
 <span class="kw">mod </span>ink_test;
+<span class="kw">mod </span>scale;
 <span class="kw">mod </span>selector;
 <span class="kw">mod </span>storage;
 <span class="kw">mod </span>storage_item;
@@ -3101,6 +3139,42 @@
     /// ```
     </span>storage::storage_layout_derive
 );
+
+<span class="doccomment">/// Derive the re-exported traits `ink::scale::Encode`, `ink::scale::Decode` and
+/// `ink::scale_info::TypeInfo`. It enables using the built in derive macros for these
+/// traits without depending directly on the `parity-scale-codec` and `scale-info` crates.
+///
+/// # Options
+///   - `encode`: derives `ink::scale::Encode`
+///   - `decode`: derives `ink::scale::Decode`
+///   - `type_info`: derives `ink::scale_info::TypeInfo`
+///
+/// # Examples
+///
+/// ```
+/// #[ink::scale_derive(Encode, Decode, TypeInfo)]
+/// pub enum Error {}
+/// ```
+/// This is a convenience macro that expands to include the additional `crate` attributes
+/// required for the path of the re-exported crates.
+///
+/// ```
+/// #[derive(::ink::scale::Encode, ::ink::scale::Decode)]
+/// #[codec(crate = ::ink::scale)]
+/// #[cfg_attr(
+///   feature = &quot;std&quot;,
+///   derive(::scale_info::TypeInfo),
+///   scale_info(crate = ::ink::scale_info)
+/// )]
+/// pub enum Error {}
+/// ```
+</span><span class="attr">#[proc_macro_attribute]
+</span><span class="kw">pub fn </span>scale_derive(attr: TokenStream, item: TokenStream) -&gt; TokenStream {
+    <span class="kw">match </span>scale::derive(attr.into(), item.into()) {
+        <span class="prelude-val">Ok</span>(output) =&gt; output.into(),
+        <span class="prelude-val">Err</span>(err) =&gt; err.to_compile_error().into(),
+    }
+}
 
 <span class="attr">#[cfg(test)]
 </span><span class="kw">pub use </span>contract::generate_or_err;

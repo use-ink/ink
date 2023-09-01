@@ -1,5 +1,4 @@
 (function() {var implementors = {
-"ink":[],
 "ink_env":[["impl TypeInfo for <a class=\"enum\" href=\"ink_env/enum.DefaultEnvironment.html\" title=\"enum ink_env::DefaultEnvironment\">DefaultEnvironment</a>"],["impl TypeInfo for <a class=\"enum\" href=\"ink_env/enum.NoChainExtension.html\" title=\"enum ink_env::NoChainExtension\">NoChainExtension</a>"]],
 "ink_metadata":[],
 "ink_primitives":[["impl TypeInfo for <a class=\"struct\" href=\"ink_primitives/struct.Hash.html\" title=\"struct ink_primitives::Hash\">Hash</a>"],["impl TypeInfo for <a class=\"struct\" href=\"ink_primitives/struct.AccountId.html\" title=\"struct ink_primitives::AccountId\">AccountId</a>"],["impl TypeInfo for <a class=\"enum\" href=\"ink_primitives/enum.LangError.html\" title=\"enum ink_primitives::LangError\">LangError</a>"]],

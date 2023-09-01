@@ -159,8 +159,6 @@
 <a href="#159" id="159">159</a>
 <a href="#160" id="160">160</a>
 <a href="#161" id="161">161</a>
-<a href="#162" id="162">162</a>
-<a href="#163" id="163">163</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -296,9 +294,7 @@
         <span class="kw">let </span>instance_ident = <span class="macro">format_ident!</span>(<span class="string">&quot;__ink_{}Instance&quot;</span>, ident);
         <span class="macro">quote_spanned!</span>(span =&gt;
             #(#attrs)*
-            <span class="attr">#[cfg_attr(feature = <span class="string">&quot;std&quot;</span>, derive(
-                ::scale_info::TypeInfo,
-            ))]
+            <span class="attr">#[::ink::scale_derive(TypeInfo)]
             </span><span class="kw">pub enum </span>#ident {}
 
             <span class="kw">const _</span>: () = {
