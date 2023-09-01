@@ -32,16 +32,18 @@ for manifest_path in "$FIND_PATH"/**/Cargo.toml;
   fi
 done
 
-echo ""
-echo "Succeeded:" ${#SUCCESSES[@]}
+GREEN='\033[1;32m'
+RED='\033[0;31m'
+NC='\033[0m' # No Color
+
+printf "\nSucceeded: %s\n" ${#SUCCESSES[@]}
 for success in "${SUCCESSES[@]}"; do
-  echo "$success"
+  printf "  ${GREEN}\u2713${NC} %s \n" "$success"
 done
 
-echo ""
-echo "Failed:" ${#FAILURES[@]}
+printf "\nFailed: %s\n" ${#FAILURES[@]}
 for failure in "${FAILURES[@]}"; do
-  echo "$failure"
+  printf "  ${RED}\u2717${NC} %s \n" "$failure"
 done
 
 if [ ${#FAILURES[@]} -gt 0 ]; then
