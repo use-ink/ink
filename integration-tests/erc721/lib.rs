@@ -56,11 +56,6 @@
 mod erc721 {
     use ink::storage::Mapping;
 
-    use scale::{
-        Decode,
-        Encode,
-    };
-
     /// A token ID.
     pub type TokenId = u32;
 
@@ -77,8 +72,8 @@ mod erc721 {
         operator_approvals: Mapping<(AccountId, AccountId), ()>,
     }
 
-    #[derive(Encode, Decode, Debug, PartialEq, Eq, Copy, Clone)]
-    #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
+    #[derive(Debug, PartialEq, Eq, Copy, Clone)]
+    #[ink::scale_derive(Encode, Decode, TypeInfo)]
     pub enum Error {
         NotOwner,
         NotApproved,

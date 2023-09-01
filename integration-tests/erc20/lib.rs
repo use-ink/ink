@@ -39,8 +39,8 @@ mod erc20 {
     }
 
     /// The ERC-20 error types.
-    #[derive(Debug, PartialEq, Eq, scale::Encode, scale::Decode)]
-    #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
+    #[derive(Debug, PartialEq, Eq)]
+    #[ink::scale_derive(Encode, Decode, TypeInfo)]
     pub enum Error {
         /// Returned if not enough balance to fulfill a request is available.
         InsufficientBalance,
@@ -233,8 +233,9 @@ mod erc20 {
             expected_to: Option<AccountId>,
             expected_value: Balance,
         ) {
-            let decoded_event = <Transfer as scale::Decode>::decode(&mut &event.data[..])
-                .expect("encountered invalid contract event data buffer");
+            let decoded_event =
+                <Transfer as ink::scale::Decode>::decode(&mut &event.data[..])
+                    .expect("encountered invalid contract event data buffer");
             let Transfer { from, to, value } = decoded_event;
             assert_eq!(from, expected_from, "encountered invalid Transfer.from");
             assert_eq!(to, expected_to, "encountered invalid Transfer.to");
@@ -482,7 +483,7 @@ mod erc20 {
 
         fn encoded_into_hash<T>(entity: T) -> Hash
         where
-            T: scale::Encode,
+            T: ink::scale::Encode,
         {
             use ink::{
                 env::hash::{

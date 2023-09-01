@@ -11,6 +11,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Persist static buffer size in metadata - [#1880](https://github.com/paritytech/ink/pull/1880)
 - Add backend choice to the E2E testcase configuration ‒ [#1864](https://github.com/paritytech/ink/pull/1864)
 
+### Changed
+- Reexport `scale` dependencies, introduce `#[ink::scale_derive]` ‒ [#1890](https://github.com/paritytech/ink/pull/1890)
+
 ### Added
 - Schema generation - [#1765](https://github.com/paritytech/ink/pull/1765)
 - Add `set_block_number` to off-chain test api `Engine` - [#1806](https://github.com/paritytech/ink/pull/1806)

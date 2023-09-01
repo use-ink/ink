@@ -1,10 +1,8 @@
 use ink::storage::traits::Storable;
 
-#[derive(Default, scale::Encode, scale::Decode)]
-#[cfg_attr(
-    feature = "std",
-    derive(scale_info::TypeInfo, ink::storage::traits::StorageLayout)
-)]
+#[derive(Default)]
+#[cfg_attr(feature = "std", derive(ink::storage::traits::StorageLayout))]
+#[ink::scale_derive(Encode, Decode, TypeInfo)]
 struct Contract(String, u128);
 
 fn main() {
