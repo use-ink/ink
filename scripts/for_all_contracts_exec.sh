@@ -2,15 +2,30 @@
 
 SCRIPT_NAME="${BASH_SOURCE[0]}"
 FIND_PATH=$1
+COMMAND=${@:2}
 
 function usage {
   cat << EOF
-Usage: ${SCRIPT_NAME} cmd
+Usage: ${SCRIPT_NAME} FIND_PATH COMMAND [INITIAL-ARGS]
 
-TODO
+Execute the supplied COMMAND with INITIAL-ARGS for all ink! contracts (recursively) found in the given path.
+The manifest path (full path to the Cargo.toml file) is passed as the last argument to the supplied command.
+
+Returns 0 (success) if the command succeeds against *all* contract projects, if any fail returns 1 (failure).
+
+FIND_PATH
+  Path to recursively find contract projects for which to execute the supplied command
+
+EXAMPLES
+   ${SCRIPT_NAME} integration-tests cargo check --manifest-path
 
 EOF
 }
+
+if [ -z "$FIND_PATH" ] || [ -z "$COMMAND" ]; then
+  usage
+  exit 1
+fi
 
 # enable recursive globs
 shopt -s globstar
@@ -21,8 +36,8 @@ FAILURES=()
 
 for manifest_path in "$FIND_PATH"/**/Cargo.toml;
   do if "$SCRIPTS_PATH"/is_contract.sh "$manifest_path"; then
-    echo Running: "${@:2}" "$manifest_path";
-    "${@:2}" "$manifest_path";
+    echo Running: "$COMMAND" "$manifest_path";
+    $COMMAND "$manifest_path";
 
     if [ $? -eq 0 ]; then
       SUCCESSES+=("$manifest_path")
