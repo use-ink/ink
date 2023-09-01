@@ -353,9 +353,8 @@ examples-test:
     - cargo clean --manifest-path integration-tests/static-buffer/Cargo.toml 
     - INK_STATIC_BUFFER_SIZE=30 cargo test --verbose --manifest-path integration-tests/static-buffer/Cargo.toml --all-features
     # run all tests with --all-features, which will run the e2e-tests feature if present
-    - find integration-tests -name "Cargo.toml"
-      -exec scripts/is_contract.sh {} \;
-      -exec cargo test --verbose --manifest-path {} --all-features \;
+    - scripts/for_all_contracts_exec.sh
+      cargo test --verbose --all-features --manifest-path
 
 examples-contract-build:
   stage:                           examples
