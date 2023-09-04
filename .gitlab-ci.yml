@@ -115,9 +115,8 @@ examples-fmt:
   <<:                              *docker-env
   <<:                              *test-refs
   script:
-    - find integration-tests -name "Cargo.toml" 
-      -exec scripts/is_contract.sh {} \; 
-      -exec cargo +nightly fmt --verbose --manifest-path {} -- --check \;
+    - scripts/for_all_contracts_exec.sh
+      cargo +nightly fmt --verbose --manifest-path {} -- --check
     # This file is not a part of the cargo project, so it wouldn't be formatted the usual way
     - rustfmt +nightly --verbose --check ./integration-tests/psp22-extension/runtime/psp22-extension-example.rs
   allow_failure:                   true
@@ -146,9 +145,8 @@ examples-clippy-std:
   <<:                              *docker-env
   <<:                              *test-refs
   script:
-    - find integration-tests -name "Cargo.toml"
-      -exec scripts/is_contract.sh {} \;
-      -exec cargo clippy --verbose --all-targets --manifest-path {} -- -D warnings -A $CLIPPY_ALLOWED \;
+    - scripts/for_all_contracts_exec.sh
+      cargo clippy --verbose --all-targets --manifest-path {} -- -D warnings -A $CLIPPY_ALLOWED
   allow_failure:                   true
 
 examples-clippy-wasm:
@@ -156,9 +154,8 @@ examples-clippy-wasm:
   <<:                              *docker-env
   <<:                              *test-refs
   script:
-    - find integration-tests -name "Cargo.toml"
-      -exec scripts/is_contract.sh {} \;
-      -exec cargo clippy --verbose --manifest-path {} --no-default-features --target wasm32-unknown-unknown -- -D warnings -A $CLIPPY_ALLOWED \;
+    - scripts/for_all_contracts_exec.sh
+      cargo clippy --verbose --manifest-path {} --no-default-features --target wasm32-unknown-unknown -- -D warnings -A $CLIPPY_ALLOWED
   allow_failure:                   true
 
 
@@ -354,7 +351,7 @@ examples-test:
     - INK_STATIC_BUFFER_SIZE=30 cargo test --verbose --manifest-path integration-tests/static-buffer/Cargo.toml --all-features
     # run all tests with --all-features, which will run the e2e-tests feature if present
     - scripts/for_all_contracts_exec.sh
-      cargo test --verbose --all-features --manifest-path
+      cargo test --verbose --all-features --manifest-path {}
 
 examples-contract-build:
   stage:                           examples
@@ -367,9 +364,8 @@ examples-contract-build:
     - rustup component add rust-src --toolchain stable
     - cargo contract -V
     # Build all examples
-    - find integration-tests -name "Cargo.toml"
-      -exec scripts/is_contract.sh {} \;
-      -exec cargo contract build --release --manifest-path {} \;
+    - scripts/for_all_contracts_exec.sh
+      cargo contract build --release --manifest-path {}
     # Build the different features for the conditional compilation example
     - pushd ./integration-tests/conditional-compilation
     - cargo contract build --release --features "foo"
