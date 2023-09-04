@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# enable recursive globs
+shopt -s globstar
+
 script_name="${BASH_SOURCE[0]}"
 scripts_path=$( cd "$(dirname "$script_name")" || exit; pwd -P )
 find_path=$1
@@ -30,9 +33,6 @@ if [ -z "$find_path" ] || [ "${#command[@]}" -le 0 ]; then
   usage
   exit 1
 fi
-
-# enable recursive globs
-shopt -s globstar
 
 successes=()
 failures=()
