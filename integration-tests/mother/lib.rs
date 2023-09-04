@@ -7,9 +7,8 @@
 //!
 //! Currently, this includes the following:
 //!
-//!   1. Use complex nested input and output types.
-//!      This is done with the use case of a data structure
-//!      needed to store data of a candle auction.
+//!   1. Use complex nested input and output types. This is done with the use case of a
+//!      data structure needed to store data of a candle auction.
 //!   2. Make contract fail with `ContractTrapped`.
 //!   3. Make contract fail with returning an `Error`.
 //!   4. Perform debug printing from contract into the node's log.
