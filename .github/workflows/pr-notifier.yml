@@ -58,7 +58,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: fetch-issues
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Load outputs
         uses: actions/download-artifact@v3
         with:
