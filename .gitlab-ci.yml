@@ -346,12 +346,12 @@ examples-test:
     # Fix linking of `linkme`: https://github.com/dtolnay/linkme/issues/49
     RUSTFLAGS: "-Clink-arg=-z -Clink-arg=nostart-stop-gc"
   script:
-    # run the static buffer test with a custom buffer size
-    - cargo clean --manifest-path integration-tests/static-buffer/Cargo.toml 
-    - INK_STATIC_BUFFER_SIZE=30 cargo test --verbose --manifest-path integration-tests/static-buffer/Cargo.toml --all-features
     # run all tests with --all-features, which will run the e2e-tests feature if present
     - scripts/for_all_contracts_exec.sh integration-tests
       cargo test --verbose --all-features --manifest-path {}
+    # run the static buffer test with a custom buffer size
+    - cargo clean --manifest-path integration-tests/static-buffer/Cargo.toml
+    - INK_STATIC_BUFFER_SIZE=30 cargo test --verbose --manifest-path integration-tests/static-buffer/Cargo.toml --all-features
 
 examples-contract-build:
   stage:                           examples
