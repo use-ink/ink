@@ -115,9 +115,9 @@ examples-fmt:
   <<:                              *docker-env
   <<:                              *test-refs
   script:
-    - find integration-tests -name "Cargo.toml" 
-      -exec scripts/is_contract.sh {} \; 
-      -exec cargo +nightly fmt --verbose --manifest-path {} -- --check \;
+    - scripts/for_all_contracts_exec.sh 
+      --path integration-tests
+      -- cargo +nightly fmt --verbose --manifest-path {} -- --check
     # This file is not a part of the cargo project, so it wouldn't be formatted the usual way
     - rustfmt +nightly --verbose --check ./integration-tests/psp22-extension/runtime/psp22-extension-example.rs
   allow_failure:                   true
@@ -146,9 +146,9 @@ examples-clippy-std:
   <<:                              *docker-env
   <<:                              *test-refs
   script:
-    - find integration-tests -name "Cargo.toml"
-      -exec scripts/is_contract.sh {} \;
-      -exec cargo clippy --verbose --all-targets --manifest-path {} -- -D warnings -A $CLIPPY_ALLOWED \;
+    - scripts/for_all_contracts_exec.sh 
+      --path integration-tests
+      -- cargo clippy --verbose --all-targets --manifest-path {} -- -D warnings -A $CLIPPY_ALLOWED
   allow_failure:                   true
 
 examples-clippy-wasm:
@@ -156,9 +156,9 @@ examples-clippy-wasm:
   <<:                              *docker-env
   <<:                              *test-refs
   script:
-    - find integration-tests -name "Cargo.toml"
-      -exec scripts/is_contract.sh {} \;
-      -exec cargo clippy --verbose --manifest-path {} --no-default-features --target wasm32-unknown-unknown -- -D warnings -A $CLIPPY_ALLOWED \;
+    - scripts/for_all_contracts_exec.sh 
+      --path integration-tests
+      -- cargo clippy --verbose --manifest-path {} --no-default-features --target wasm32-unknown-unknown -- -D warnings -A $CLIPPY_ALLOWED
   allow_failure:                   true
 
 
@@ -349,13 +349,14 @@ examples-test:
     # Fix linking of `linkme`: https://github.com/dtolnay/linkme/issues/49
     RUSTFLAGS: "-Clink-arg=-z -Clink-arg=nostart-stop-gc"
   script:
-    # run the static buffer test with a custom buffer size
-    - cargo clean --manifest-path integration-tests/static-buffer/Cargo.toml 
-    - INK_STATIC_BUFFER_SIZE=30 cargo test --verbose --manifest-path integration-tests/static-buffer/Cargo.toml --all-features
     # run all tests with --all-features, which will run the e2e-tests feature if present
-    - find integration-tests -name "Cargo.toml"
-      -exec scripts/is_contract.sh {} \;
-      -exec cargo test --verbose --manifest-path {} --all-features \;
+    - scripts/for_all_contracts_exec.sh 
+      --path integration-tests
+      --ignore static-buffer
+      -- cargo test --verbose --all-features --manifest-path {}
+    # run the static buffer test with a custom buffer size
+    - cargo clean --manifest-path integration-tests/static-buffer/Cargo.toml
+    - INK_STATIC_BUFFER_SIZE=30 cargo test --verbose --manifest-path integration-tests/static-buffer/Cargo.toml --all-features
 
 examples-contract-build:
   stage:                           examples
@@ -368,9 +369,9 @@ examples-contract-build:
     - rustup component add rust-src --toolchain stable
     - cargo contract -V
     # Build all examples
-    - find integration-tests -name "Cargo.toml"
-      -exec scripts/is_contract.sh {} \;
-      -exec cargo contract build --release --manifest-path {} \;
+    - scripts/for_all_contracts_exec.sh 
+      --path integration-tests
+      -- cargo contract build --release --manifest-path {}
     # Build the different features for the conditional compilation example
     - pushd ./integration-tests/conditional-compilation
     - cargo contract build --release --features "foo"
