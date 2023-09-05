@@ -1,5 +1,8 @@
 #!/bin/bash
 
+script_name="${BASH_SOURCE[0]}"
+scripts_path=$( cd "$(dirname "$script_name")" || exit; pwd -P )
+
 function usage {
   cat << EOF
 Usage: ${script_name} [OPTION] --path PATH -- COMMAND [INITIAL-ARGS]
@@ -13,11 +16,10 @@ Returns 0 (success) if the command succeeds against *all* contract projects, if 
 
 OPTIONS
   -i, --ignore
-  Path to ignore when recursively finding contract projects.
-  To ignore `integration-tests/erc20` then supply `erc20` as the argument.
-
+      Path to ignore when recursively finding contract projects.
+      To ignore 'integration-tests/erc20' then supply 'erc20' as the argument.
   -p, --path
-  Path to recursively find contract projects for which to execute the supplied command
+      Path to recursively find contract projects for which to execute the supplied command
 
 EXAMPLES
    ${script_name} --path integration-tests -- cargo check --manifest-path
@@ -30,8 +32,6 @@ EOF
 # enable recursive globs
 shopt -s globstar
 
-script_name="${BASH_SOURCE[0]}"
-scripts_path=$( cd "$(dirname "$script_name")" || exit; pwd -P )
 command=( "${@:2}" )
 
 options=$(getopt -o p:i: --long path:,ignore: -- "$@")
