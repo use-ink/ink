@@ -17,18 +17,22 @@
     html_favicon_url = "https://use.ink/crate-docs/favicon.png"
 )]
 #![feature(rustc_private)]
+#![feature(box_patterns)]
 
 dylint_linting::dylint_library!();
 
 extern crate rustc_ast;
 extern crate rustc_errors;
 extern crate rustc_hir;
+extern crate rustc_index;
 extern crate rustc_lint;
 extern crate rustc_middle;
+extern crate rustc_mir_dataflow;
 extern crate rustc_session;
 extern crate rustc_span;
 
 mod primitive_topic;
+mod strict_balance_equality;
 
 #[doc(hidden)]
 #[no_mangle]
@@ -36,8 +40,13 @@ pub fn register_lints(
     _sess: &rustc_session::Session,
     lint_store: &mut rustc_lint::LintStore,
 ) {
-    lint_store.register_lints(&[primitive_topic::PRIMITIVE_TOPIC]);
+    lint_store.register_lints(&[
+        primitive_topic::PRIMITIVE_TOPIC,
+        strict_balance_equality::STRICT_BALANCE_EQUALITY,
+    ]);
     lint_store.register_late_pass(|_| Box::new(primitive_topic::PrimitiveTopic));
+    lint_store
+        .register_late_pass(|_| Box::new(strict_balance_equality::StrictBalanceEquality));
 }
 
 #[test]
