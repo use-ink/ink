@@ -13,14 +13,16 @@ Returns 0 (success) if the command succeeds against *all* contract projects, if 
 
 OPTIONS
   -i, --ignore
-  Path to ignore when recursively finding contract projects
+  Path to ignore when recursively finding contract projects.
+  To ignore `integration-tests/erc20` then supply `erc20` as the argument.
 
   -p, --path
   Path to recursively find contract projects for which to execute the supplied command
 
 EXAMPLES
-   ${script_name} -path integration-tests -- cargo check --manifest-path
-   ${script_name} -path integration-tests -- cargo contract build --manifest-path {} --release
+   ${script_name} --path integration-tests -- cargo check --manifest-path
+   ${script_name} --path integration-tests -- cargo contract build --manifest-path {} --release
+   ${script_name} --path integration-tests --ignore erc20 -- cargo contract build --manifest-path {} --release
 
 EOF
 }
@@ -60,8 +62,6 @@ done
 
 command=("${@}")
 
-echo command "${command[@]}"
-
 if [ -z "$path" ] || [ "${#command[@]}" -le 0 ]; then
   usage
   exit 1
@@ -82,6 +82,11 @@ done
 
 for manifest_path in "$path"/**/Cargo.toml;
   do if "$scripts_path"/is_contract.sh "$manifest_path"; then
+    manifest_parent="$(dirname "$manifest_path" | cut -d'/' -f2-)"
+    if [[ "${ignore[*]}" =~ ${manifest_parent} ]]; then
+      echo "Ignoring $manifest_path"
+      continue
+    fi
     command[$arg_index]="$manifest_path"
     echo Running: "${command[@]}"
     "${command[@]}"
