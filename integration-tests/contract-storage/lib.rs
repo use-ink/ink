@@ -4,7 +4,10 @@
 
 #[ink::contract]
 mod contract_storage {
-    use ink::prelude::string::String;
+    use ink::prelude::{
+        format,
+        string::String,
+    };
 
     /// A contract for testing reading and writing contract storage.
     #[ink(storage)]
@@ -19,13 +22,26 @@ mod contract_storage {
 
         /// Read from the contract storage slot, consuming all the data from the buffer.
         #[ink(message)]
-        pub fn set_and_get_storage_same_size(&self) -> Result<(), String> {
+        pub fn set_and_get_storage_all_data_consumed(&self) -> Result<(), String> {
             let key = 0u32;
             let value = [0x42; 32];
             ink::env::set_contract_storage(&key, &value);
             let loaded_value = ink::env::get_contract_storage(&key)
-                .expect("no value stored under the key");
+                .map_err(|e| format!("get_contract_storage failed: {:?}", e))?;
             assert_eq!(loaded_value, Some(value));
+            Ok(())
+        }
+
+        /// Read from the contract storage slot, only partially consuming data from the
+        /// buffer.
+        #[ink(message)]
+        pub fn set_and_get_storage_partial_data_consumed(&self) -> Result<(), String> {
+            let key = 0u32;
+            let value = [0x42; 32];
+            ink::env::set_contract_storage(&key, &value);
+            // Only attempt to read the first byte (the `u8`) of the storage value data
+            let _loaded_value: Option<u8> = ink::env::get_contract_storage(&key)
+                .map_err(|e| format!("get_contract_storage failed: {:?}", e))?;
             Ok(())
         }
     }
