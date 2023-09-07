@@ -41,7 +41,10 @@ use crate::{
     Environment,
     Result,
 };
-use ink_storage_traits::Storable;
+use ink_storage_traits::{
+    Storable,
+    StorableDecodeAll,
+};
 
 /// Returns the address of the caller of the executed contract.
 ///
@@ -210,7 +213,7 @@ where
 pub fn get_contract_storage<K, R>(key: &K) -> Result<Option<R>>
 where
     K: scale::Encode,
-    R: Storable,
+    R: StorableDecodeAll,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         EnvBackend::get_contract_storage::<K, R>(instance, key)
@@ -225,7 +228,7 @@ where
 pub fn take_contract_storage<K, R>(key: &K) -> Result<Option<R>>
 where
     K: scale::Encode,
-    R: Storable,
+    R: StorableDecodeAll,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         EnvBackend::take_contract_storage::<K, R>(instance, key)

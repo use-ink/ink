@@ -46,7 +46,10 @@ use ink_engine::{
     ext,
     ext::Engine,
 };
-use ink_storage_traits::Storable;
+use ink_storage_traits::{
+    Storable,
+    StorableDecodeAll,
+};
 use schnorrkel::{
     PublicKey,
     Signature,
@@ -200,7 +203,7 @@ impl EnvBackend for EnvInstance {
     fn get_contract_storage<K, R>(&mut self, key: &K) -> Result<Option<R>>
     where
         K: scale::Encode,
-        R: Storable,
+        R: StorableDecodeAll,
     {
         let mut output: [u8; 9600] = [0; 9600];
         match self.engine.get_storage(&key.encode(), &mut &mut output[..]) {
@@ -208,14 +211,14 @@ impl EnvBackend for EnvInstance {
             Err(ext::Error::KeyNotFound) => return Ok(None),
             Err(_) => panic!("encountered unexpected error"),
         }
-        let decoded = Storable::decode(&mut &output[..])?;
+        let decoded = StorableDecodeAll::decode_all(&mut &output[..])?;
         Ok(Some(decoded))
     }
 
     fn take_contract_storage<K, R>(&mut self, key: &K) -> Result<Option<R>>
     where
         K: scale::Encode,
-        R: Storable,
+        R: StorableDecodeAll,
     {
         let mut output: [u8; 9600] = [0; 9600];
         match self
@@ -226,7 +229,7 @@ impl EnvBackend for EnvInstance {
             Err(ext::Error::KeyNotFound) => return Ok(None),
             Err(_) => panic!("encountered unexpected error"),
         }
-        let decoded = Storable::decode(&mut &output[..])?;
+        let decoded = StorableDecodeAll::decode_all(&mut &output[..])?;
         Ok(Some(decoded))
     }
 

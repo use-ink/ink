@@ -52,13 +52,11 @@ async fn get_contract_storage_fails_when_extra_data<Client: E2EBackend>(
             0,
             None,
         )
-        .await
-        .expect("Calling `insert_balance` failed")
-        .return_value();
+        .await;
 
     assert!(
         result.is_err(),
-        "Expected an error when only partially consuming the buffer"
+        "Expected the contract to revert when only partially consuming the buffer"
     );
 
     Ok(())

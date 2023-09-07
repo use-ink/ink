@@ -30,7 +30,10 @@ use crate::traits::{
 };
 use core::marker::PhantomData;
 use ink_primitives::Key;
-use ink_storage_traits::Storable;
+use ink_storage_traits::{
+    Storable,
+    StorableDecodeAll,
+};
 use scale::{
     Error,
     Input,
@@ -131,7 +134,7 @@ where
 
 impl<V, KeyType> Lazy<V, KeyType>
 where
-    V: Storable,
+    V: Storable + StorableDecodeAll,
     KeyType: StorageKey,
 {
     /// Reads the `value` from the contract storage, if it exists.
@@ -150,7 +153,7 @@ where
 
 impl<V, KeyType> Lazy<V, KeyType>
 where
-    V: Storable + Default,
+    V: StorableDecodeAll + Default,
     KeyType: StorageKey,
 {
     /// Reads the `value` from the contract storage.

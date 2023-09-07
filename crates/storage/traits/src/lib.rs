@@ -50,6 +50,7 @@ pub use self::{
         AutoStorableHint,
         Packed,
         Storable,
+        StorableDecodeAll,
         StorableHint,
         StorageKey,
     },
