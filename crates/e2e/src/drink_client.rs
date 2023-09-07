@@ -260,7 +260,11 @@ impl<
             }
         };
 
-        let code_hash_raw: [u8; 32] = result.code_hash.as_ref().try_into().expect("");
+        let code_hash_raw: [u8; 32] = result
+            .code_hash
+            .as_ref()
+            .try_into()
+            .expect("Invalid code hash");
         let code_hash = Hash::from(code_hash_raw);
         Ok(UploadResult {
             code_hash,
