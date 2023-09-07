@@ -44,7 +44,8 @@ where
     }
 }
 
-/// Extension trait to [`Storable`] that ensures that the given input data is consumed completely.
+/// Extension trait to [`Storable`] that ensures that the given input data is consumed
+/// completely.
 pub trait StorableDecodeAll: Sized {
     /// Decode `Self` and consume all of the given input data.
     ///
