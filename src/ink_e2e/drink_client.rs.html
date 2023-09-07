@@ -296,6 +296,39 @@
 <a href="#296" id="296">296</a>
 <a href="#297" id="297">297</a>
 <a href="#298" id="298">298</a>
+<a href="#299" id="299">299</a>
+<a href="#300" id="300">300</a>
+<a href="#301" id="301">301</a>
+<a href="#302" id="302">302</a>
+<a href="#303" id="303">303</a>
+<a href="#304" id="304">304</a>
+<a href="#305" id="305">305</a>
+<a href="#306" id="306">306</a>
+<a href="#307" id="307">307</a>
+<a href="#308" id="308">308</a>
+<a href="#309" id="309">309</a>
+<a href="#310" id="310">310</a>
+<a href="#311" id="311">311</a>
+<a href="#312" id="312">312</a>
+<a href="#313" id="313">313</a>
+<a href="#314" id="314">314</a>
+<a href="#315" id="315">315</a>
+<a href="#316" id="316">316</a>
+<a href="#317" id="317">317</a>
+<a href="#318" id="318">318</a>
+<a href="#319" id="319">319</a>
+<a href="#320" id="320">320</a>
+<a href="#321" id="321">321</a>
+<a href="#322" id="322">322</a>
+<a href="#323" id="323">323</a>
+<a href="#324" id="324">324</a>
+<a href="#325" id="325">325</a>
+<a href="#326" id="326">326</a>
+<a href="#327" id="327">327</a>
+<a href="#328" id="328">328</a>
+<a href="#329" id="329">329</a>
+<a href="#330" id="330">330</a>
+<a href="#331" id="331">331</a>
 </pre></div><pre class="rust"><code><span class="kw">use crate</span>::{
     builders::{
         constructor_exec_input,
@@ -316,7 +349,10 @@
     UploadResult,
 };
 <span class="kw">use </span>drink::{
-    chain_api::ChainApi,
+    chain_api::{
+        ChainApi,
+        RuntimeCall,
+    },
     contract_api::ContractApi,
     runtime::{
         MinimalRuntime,
@@ -346,7 +382,10 @@
     marker::PhantomData,
     path::PathBuf,
 };
-<span class="kw">use </span>subxt::dynamic::Value;
+<span class="kw">use </span>subxt::{
+    dynamic::Value,
+    tx::TxPayload,
+};
 <span class="kw">use </span>subxt_signer::sr25519::Keypair;
 
 <span class="kw">pub struct </span>Client&lt;AccountId, Hash&gt; {
@@ -419,12 +458,39 @@
 
     <span class="kw">async fn </span>runtime_call&lt;<span class="lifetime">&#39;a</span>&gt;(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
-        _origin: <span class="kw-2">&amp;</span>Keypair,
-        _pallet_name: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str,
-        _call_name: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str,
-        _call_data: Vec&lt;Value&gt;,
+        origin: <span class="kw-2">&amp;</span>Keypair,
+        pallet_name: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str,
+        call_name: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str,
+        call_data: Vec&lt;Value&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::EventLog, <span class="self">Self</span>::Error&gt; {
-        <span class="macro">todo!</span>(<span class="string">&quot;https://github.com/Cardinal-Cryptography/drink/issues/36&quot;</span>)
+        <span class="comment">// Since in general, `ChainBackend::runtime_call` must be dynamic, we have to
+        // perform some translation here in order to invoke strongly-typed drink!
+        // API.
+
+        // Get metadata of the drink! runtime, so that we can encode the call object.
+        // Panic on error - metadata of the static im-memory runtime should always be
+        // available.
+        </span><span class="kw">let </span>raw_metadata: Vec&lt;u8&gt; = MinimalRuntime::metadata().into();
+        <span class="kw">let </span>metadata = subxt_metadata::Metadata::decode(<span class="kw-2">&amp;mut </span>raw_metadata.as_slice())
+            .expect(<span class="string">&quot;Failed to decode metadata&quot;</span>);
+
+        <span class="comment">// Encode the call object.
+        </span><span class="kw">let </span>call = subxt::dynamic::tx(pallet_name, call_name, call_data);
+        <span class="kw">let </span>encoded_call = call.encode_call_data(<span class="kw-2">&amp;</span>metadata.into()).map_err(|<span class="kw">_</span>| ())<span class="question-mark">?</span>;
+
+        <span class="comment">// Decode the call object.
+        // Panic on error - we just encoded a validated call object, so it should be
+        // decodable.
+        </span><span class="kw">let </span>decoded_call =
+            RuntimeCall::&lt;MinimalRuntime&gt;::decode(<span class="kw-2">&amp;mut </span>encoded_call.as_slice())
+                .expect(<span class="string">&quot;Failed to decode runtime call&quot;</span>);
+
+        <span class="comment">// Execute the call.
+        </span><span class="self">self</span>.sandbox
+            .runtime_call(decoded_call, <span class="prelude-val">Some</span>(keypair_to_account(origin)).into())
+            .map_err(|<span class="kw">_</span>| ())<span class="question-mark">?</span>;
+
+        <span class="prelude-val">Ok</span>(())
     }
 }
 
