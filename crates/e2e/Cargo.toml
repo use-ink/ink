@@ -33,6 +33,7 @@ tracing = { workspace = true }
 tracing-subscriber = { workspace = true, features = ["env-filter"] }
 scale = { package = "parity-scale-codec", workspace = true }
 subxt = { workspace = true }
+subxt-metadata = { workspace = true, optional = true }
 subxt-signer = { workspace = true, features = ["subxt", "sr25519"] }
 wasm-instrument = { workspace = true }
 
@@ -52,5 +53,6 @@ default = ["std"]
 std = []
 drink = [
     "dep:drink",
+    "subxt-metadata",
     "ink_e2e_macro/drink",
 ]
