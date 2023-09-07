@@ -9,9 +9,6 @@ publish = false
 [dependencies]
 ink = { path = "../../crates/ink", default-features = false }
 
-scale = { package = "parity-scale-codec", version = "3", default-features = false, features = ["derive"] }
-scale-info = { version = "2.6", default-features = false, features = ["derive"], optional = true }
-
 [dev-dependencies]
 ink_e2e = { path = "../../crates/e2e" }
 
@@ -22,7 +19,5 @@ path = "lib.rs"
 default = ["std"]
 std = [
     "ink/std",
-    "scale/std",
-    "scale-info/std",
 ]
 ink-as-dependency = []
