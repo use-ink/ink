@@ -10,7 +10,6 @@ ink = { path = "../../crates/ink", default-features = false }
 
 [dev-dependencies]
 ink_e2e = { path = "../../crates/e2e", features = ["drink"] }
-drink = { version = "0.1.3" }
 
 [lib]
 path = "lib.rs"
