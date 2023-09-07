@@ -72,9 +72,9 @@ mod multisig {
             CallFlags,
         },
         prelude::vec::Vec,
+        scale::Output,
         storage::Mapping,
     };
-    use scale::Output;
 
     /// Tune this to your liking but be wary that allowing too many owners will not
     /// perform well.
@@ -89,7 +89,7 @@ mod multisig {
     /// We use this to pass the set of untyped (bytes) parameters to the `CallBuilder`.
     struct CallInput<'a>(&'a [u8]);
 
-    impl<'a> scale::Encode for CallInput<'a> {
+    impl<'a> ink::scale::Encode for CallInput<'a> {
         fn encode_to<T: Output + ?Sized>(&self, dest: &mut T) {
             dest.write(self.0);
         }
@@ -97,11 +97,9 @@ mod multisig {
 
     /// Indicates whether a transaction is already confirmed or needs further
     /// confirmations.
-    #[derive(Clone, Copy, scale::Decode, scale::Encode)]
-    #[cfg_attr(
-        feature = "std",
-        derive(scale_info::TypeInfo, ink::storage::traits::StorageLayout)
-    )]
+    #[derive(Clone, Copy)]
+    #[cfg_attr(feature = "std", derive(ink::storage::traits::StorageLayout))]
+    #[ink::scale_derive(Encode, Decode, TypeInfo)]
     pub enum ConfirmationStatus {
         /// The transaction is already confirmed.
         Confirmed,
@@ -111,17 +109,11 @@ mod multisig {
 
     /// A Transaction is what every `owner` can submit for confirmation by other owners.
     /// If enough owners agree it will be executed by the contract.
-    #[derive(scale::Decode, scale::Encode)]
     #[cfg_attr(
         feature = "std",
-        derive(
-            Debug,
-            PartialEq,
-            Eq,
-            scale_info::TypeInfo,
-            ink::storage::traits::StorageLayout
-        )
+        derive(Debug, PartialEq, Eq, ink::storage::traits::StorageLayout)
     )]
+    #[ink::scale_derive(Encode, Decode, TypeInfo)]
     pub struct Transaction {
         /// The `AccountId` of the contract that is called in this transaction.
         pub callee: AccountId,
@@ -141,8 +133,8 @@ mod multisig {
     }
 
     /// Errors that can occur upon calling this contract.
-    #[derive(Copy, Clone, Debug, PartialEq, Eq, scale::Encode, scale::Decode)]
-    #[cfg_attr(feature = "std", derive(::scale_info::TypeInfo))]
+    #[derive(Clone, Copy, Debug, PartialEq, Eq)]
+    #[ink::scale_derive(Encode, Decode, TypeInfo)]
     pub enum Error {
         /// Returned if the call failed.
         TransactionFailed,
@@ -150,17 +142,12 @@ mod multisig {
 
     /// This is a book keeping struct that stores a list of all transaction ids and
     /// also the next id to use. We need it for cleaning up the storage.
-    #[derive(Default, scale::Decode, scale::Encode)]
+    #[derive(Clone, Default)]
     #[cfg_attr(
         feature = "std",
-        derive(
-            Debug,
-            PartialEq,
-            Eq,
-            scale_info::TypeInfo,
-            ink::storage::traits::StorageLayout
-        )
+        derive(Debug, PartialEq, Eq, ink::storage::traits::StorageLayout)
     )]
+    #[ink::scale_derive(Encode, Decode, TypeInfo)]
     pub struct Transactions {
         /// Just store all transaction ids packed.
         transactions: Vec<TransactionId>,
@@ -324,13 +311,13 @@ mod multisig {
         ///         DefaultEnvironment as Env,
         ///         Environment,
         ///     },
+        ///     scale::Encode,
         ///     selector_bytes,
         /// };
         /// use multisig::{
         ///     ConfirmationStatus,
         ///     Transaction,
         /// };
-        /// use scale::Encode;
         ///
         /// type AccountId = <Env as Environment>::AccountId;
         ///
@@ -748,7 +735,7 @@ mod multisig {
 
         impl Transaction {
             fn change_requirement(requirement: u32) -> Self {
-                use scale::Encode;
+                use ink::scale::Encode;
                 let call_args = ArgumentList::empty().push_arg(&requirement);
 
                 // Multisig::change_requirement()

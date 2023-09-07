@@ -87,18 +87,16 @@ impl ContractRef<'_> {
         let ref_ident = self.generate_contract_ref_ident();
         quote_spanned!(span=>
             #[cfg_attr(feature = "std", derive(
-                ::scale_info::TypeInfo,
                 ::ink::storage::traits::StorageLayout,
             ))]
             #[derive(
                 ::core::fmt::Debug,
-                ::scale::Encode,
-                ::scale::Decode,
                 ::core::hash::Hash,
                 ::core::cmp::PartialEq,
                 ::core::cmp::Eq,
                 ::core::clone::Clone,
             )]
+            #[::ink::scale_derive(Encode, Decode, TypeInfo)]
             #( #doc_attrs )*
             pub struct #ref_ident {
                 inner: <#storage_ident as ::ink::codegen::ContractCallBuilder>::Type,
@@ -121,7 +119,7 @@ impl ContractRef<'_> {
                 impl<E> ::ink::env::call::ConstructorReturnType<#ref_ident>
                     for ::core::result::Result<#storage_ident, E>
                 where
-                    E: ::scale::Decode
+                    E: ::ink::scale::Decode
                 {
                     const IS_RESULT: bool = true;
 

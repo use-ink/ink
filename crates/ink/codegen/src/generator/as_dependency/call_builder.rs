@@ -83,18 +83,16 @@ impl CallBuilder<'_> {
             /// messages and trait implementations in a type safe way.
             #[repr(transparent)]
             #[cfg_attr(feature = "std", derive(
-                ::scale_info::TypeInfo,
                 ::ink::storage::traits::StorageLayout,
             ))]
             #[derive(
                 ::core::fmt::Debug,
-                ::scale::Encode,
-                ::scale::Decode,
                 ::core::hash::Hash,
                 ::core::cmp::PartialEq,
                 ::core::cmp::Eq,
                 ::core::clone::Clone,
             )]
+            #[::ink::scale_derive(Encode, Decode, TypeInfo)]
             pub struct #cb_ident {
                 account_id: AccountId,
             }

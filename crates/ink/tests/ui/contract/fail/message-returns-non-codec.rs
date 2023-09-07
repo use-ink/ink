@@ -1,6 +1,6 @@
 #[ink::contract]
 mod contract {
-    #[derive(scale_info::TypeInfo)]
+    #[::ink::scale_derive(TypeInfo)]
     pub struct NonCodecType;
 
     #[ink(storage)]

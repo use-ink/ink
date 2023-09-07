@@ -7,8 +7,9 @@ mod contract {
         packed: PackedFields,
     }
 
-    #[derive(Debug, Default, scale::Decode, scale::Encode)]
-    #[cfg_attr(feature = "std", derive(scale_info::TypeInfo, StorageLayout))]
+    #[derive(Debug, Default)]
+    #[cfg_attr(feature = "std", derive(StorageLayout))]
+    #[ink::scale_derive(Encode, Decode, TypeInfo)]
     pub struct PackedFields {
         field_1: i8,
         field_2: i16,

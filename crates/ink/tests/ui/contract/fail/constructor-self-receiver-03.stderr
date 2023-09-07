@@ -32,4 +32,4 @@ error[E0277]: the trait bound `&Contract: WrapperTypeDecode` is not satisfied
             Arc<T>
             Box<T>
             Rc<T>
-  = note: required for `&Contract` to implement `parity_scale_codec::Decode`
+  = note: required for `&Contract` to implement `ink::parity_scale_codec::Decode`

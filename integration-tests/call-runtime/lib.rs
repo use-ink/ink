@@ -13,7 +13,7 @@ use sp_runtime::MultiAddress;
 /// You can investigate the full `RuntimeCall` definition by either expanding
 /// `construct_runtime!` macro application or by using secondary tools for reading chain
 /// metadata, like `subxt`.
-#[derive(scale::Encode)]
+#[ink::scale_derive(Encode)]
 enum RuntimeCall {
     /// This index can be found by investigating runtime configuration. You can check the
     /// pallet order inside `construct_runtime!` block and read the position of your
@@ -25,7 +25,7 @@ enum RuntimeCall {
     Balances(BalancesCall),
 }
 
-#[derive(scale::Encode)]
+#[ink::scale_derive(Encode)]
 enum BalancesCall {
     /// This index can be found by investigating the pallet dispatchable API. In your
     /// pallet code, look for `#[pallet::call]` section and check
@@ -54,8 +54,8 @@ mod runtime_call {
     #[derive(Default)]
     pub struct RuntimeCaller;
 
-    #[derive(Debug, PartialEq, Eq, scale::Encode, scale::Decode)]
-    #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
+    #[derive(Debug, PartialEq, Eq)]
+    #[ink::scale_derive(Encode, Decode, TypeInfo)]
     pub enum RuntimeError {
         CallRuntimeFailed,
     }
