@@ -24,6 +24,7 @@ use drink::{
     },
     contract_api::ContractApi,
     runtime::Runtime as RuntimeT,
+    MinimalRuntime,
     Sandbox,
     DEFAULT_GAS_LIMIT,
 };
