@@ -16,7 +16,7 @@ You can read more about the change in the [PR](https://github.com/paritytech/ink
 
 There are also other notable changes:
 
-- Rework of event definitions.
+- Rework of event definitions - [#1827](https://github.com/paritytech/ink/pull/1708).
 - Updated upgradeable contract example illustrating `delegate_call`
 - Removal of unchecked arithmetic. `cargo-contract` will fail compiling the contract with raw arithmetic operations.
 - Introduction of an alternative off-chain E2E testing backend, drink!
@@ -52,15 +52,13 @@ You can see a more detailed log of changes below:
 - Use `decode_all`` for decoding cross contract call result - [#1810](https://github.com/paritytech/ink/pull/1810)
 - E2E: improve call API, remove `build_message` + callback - [#1782](https://github.com/paritytech/ink/pull/1782)
 
-### Fixed
-- Enable Rust >= `1.70`, update `subxt` and `contract-build` - [#1855](https://github.com/paritytech/ink/pull/1855)
-- Fix unsupported `--ws-port` argument - [#1850](https://github.com/paritytech/ink/pull/1850)
-
 ## 4.3.0
 
 ### Fixed
 
 - Fix E2E tests for newer rust toolchain & contracts node - #[1884](https://github.com/paritytech/ink/pull/1884)
+- Enable Rust >= `1.70`, update `subxt` and `contract-build` - [#1855](https://github.com/paritytech/ink/pull/1855)
+- Fix unsupported `--ws-port` argument - [#1850](https://github.com/paritytech/ink/pull/1850)
 
 ## Version 4.2.0
 
