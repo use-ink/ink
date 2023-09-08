@@ -123,6 +123,9 @@
 <a href="#123" id="123">123</a>
 <a href="#124" id="124">124</a>
 <a href="#125" id="125">125</a>
+<a href="#126" id="126">126</a>
+<a href="#127" id="127">127</a>
+<a href="#128" id="128">128</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -172,8 +175,6 @@
     InstantiationResult,
     UploadResult,
 };
-<span class="attr">#[cfg(feature = <span class="string">&quot;drink&quot;</span>)]
-</span><span class="kw">pub use </span>drink_client::Client <span class="kw">as </span>DrinkClient;
 <span class="kw">pub use </span>ink_e2e_macro::test;
 <span class="kw">pub use </span>node_proc::{
     TestNodeProcess,
@@ -194,6 +195,11 @@
 };
 <span class="kw">pub use </span>tokio;
 <span class="kw">pub use </span>tracing_subscriber;
+<span class="attr">#[cfg(feature = <span class="string">&quot;drink&quot;</span>)]
+</span><span class="kw">pub use </span>{
+    drink::runtime::MinimalRuntime,
+    drink_client::Client <span class="kw">as </span>DrinkClient,
+};
 
 <span class="kw">use </span>pallet_contracts_primitives::{
     ContractExecResult,

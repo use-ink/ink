@@ -329,6 +329,31 @@
 <a href="#329" id="329">329</a>
 <a href="#330" id="330">330</a>
 <a href="#331" id="331">331</a>
+<a href="#332" id="332">332</a>
+<a href="#333" id="333">333</a>
+<a href="#334" id="334">334</a>
+<a href="#335" id="335">335</a>
+<a href="#336" id="336">336</a>
+<a href="#337" id="337">337</a>
+<a href="#338" id="338">338</a>
+<a href="#339" id="339">339</a>
+<a href="#340" id="340">340</a>
+<a href="#341" id="341">341</a>
+<a href="#342" id="342">342</a>
+<a href="#343" id="343">343</a>
+<a href="#344" id="344">344</a>
+<a href="#345" id="345">345</a>
+<a href="#346" id="346">346</a>
+<a href="#347" id="347">347</a>
+<a href="#348" id="348">348</a>
+<a href="#349" id="349">349</a>
+<a href="#350" id="350">350</a>
+<a href="#351" id="351">351</a>
+<a href="#352" id="352">352</a>
+<a href="#353" id="353">353</a>
+<a href="#354" id="354">354</a>
+<a href="#355" id="355">355</a>
+<a href="#356" id="356">356</a>
 </pre></div><pre class="rust"><code><span class="kw">use crate</span>::{
     builders::{
         constructor_exec_input,
@@ -354,10 +379,7 @@
         RuntimeCall,
     },
     contract_api::ContractApi,
-    runtime::{
-        MinimalRuntime,
-        Runtime,
-    },
+    runtime::Runtime <span class="kw">as </span>RuntimeT,
     Sandbox,
     DEFAULT_GAS_LIMIT,
 };
@@ -374,7 +396,6 @@
     Encode,
 };
 <span class="kw">use </span>sp_core::{
-    crypto::AccountId32,
     sr25519::Pair,
     Pair <span class="kw">as _</span>,
 };
@@ -388,15 +409,26 @@
 };
 <span class="kw">use </span>subxt_signer::sr25519::Keypair;
 
-<span class="kw">pub struct </span>Client&lt;AccountId, Hash&gt; {
-    sandbox: Sandbox&lt;MinimalRuntime&gt;,
+<span class="kw">pub struct </span>Client&lt;AccountId, Hash, Runtime: RuntimeT&gt; {
+    sandbox: Sandbox&lt;Runtime&gt;,
     contracts: ContractsRegistry,
     _phantom: PhantomData&lt;(AccountId, Hash)&gt;,
 }
 
-<span class="kw">unsafe impl</span>&lt;AccountId, Hash&gt; Send <span class="kw">for </span>Client&lt;AccountId, Hash&gt; {}
+<span class="comment">// While it is not necessary true that `Client` is `Send`, it will not be used in a way
+// that would violate this bound. In particular, all `Client` instances will be operating
+// synchronously.
+</span><span class="kw">unsafe impl</span>&lt;AccountId, Hash, Runtime: RuntimeT&gt; Send
+    <span class="kw">for </span>Client&lt;AccountId, Hash, Runtime&gt;
+{
+}
 
-<span class="kw">impl</span>&lt;AccountId, Hash&gt; Client&lt;AccountId, Hash&gt; {
+<span class="kw">type </span>RuntimeAccountId&lt;R&gt; = &lt;R <span class="kw">as </span>drink::runtime::frame_system::Config&gt;::AccountId;
+
+<span class="kw">impl</span>&lt;AccountId, Hash, Runtime: RuntimeT&gt; Client&lt;AccountId, Hash, Runtime&gt;
+<span class="kw">where
+    </span>RuntimeAccountId&lt;Runtime&gt;: From&lt;[u8; <span class="number">32</span>]&gt;,
+{
     <span class="kw">pub fn </span>new&lt;P: Into&lt;PathBuf&gt;&gt;(contracts: <span class="kw">impl </span>IntoIterator&lt;Item = P&gt;) -&gt; <span class="self">Self </span>{
         <span class="kw">let </span><span class="kw-2">mut </span>sandbox = Sandbox::new().expect(<span class="string">&quot;Failed to initialize Drink! sandbox&quot;</span>);
         <span class="self">Self</span>::fund_accounts(<span class="kw-2">&amp;mut </span>sandbox);
@@ -408,7 +440,7 @@
         }
     }
 
-    <span class="kw">fn </span>fund_accounts&lt;R: Runtime&gt;(sandbox: <span class="kw-2">&amp;mut </span>Sandbox&lt;R&gt;) {
+    <span class="kw">fn </span>fund_accounts(sandbox: <span class="kw-2">&amp;mut </span>Sandbox&lt;Runtime&gt;) {
         <span class="kw">const </span>TOKENS: u128 = <span class="number">1_000_000_000_000_000</span>;
 
         <span class="kw">let </span>accounts = [
@@ -422,7 +454,7 @@
             <span class="kw">crate</span>::two(),
         ]
         .map(|kp| kp.public_key().<span class="number">0</span>)
-        .map(AccountId32::new);
+        .map(From::from);
         <span class="kw">for </span>account <span class="kw">in </span>accounts.into_iter() {
             sandbox.add_tokens(account, TOKENS);
         }
@@ -430,7 +462,11 @@
 }
 
 <span class="attr">#[async_trait]
-</span><span class="kw">impl</span>&lt;AccountId: AsRef&lt;[u8; <span class="number">32</span>]&gt; + Send, Hash&gt; ChainBackend <span class="kw">for </span>Client&lt;AccountId, Hash&gt; {
+</span><span class="kw">impl</span>&lt;AccountId: AsRef&lt;[u8; <span class="number">32</span>]&gt; + Send, Hash, Runtime: RuntimeT&gt; ChainBackend
+    <span class="kw">for </span>Client&lt;AccountId, Hash, Runtime&gt;
+<span class="kw">where
+    </span>RuntimeAccountId&lt;Runtime&gt;: From&lt;[u8; <span class="number">32</span>]&gt;,
+{
     <span class="kw">type </span>AccountId = AccountId;
     <span class="kw">type </span>Balance = u128;
     <span class="kw">type </span>Error = ();
@@ -452,7 +488,7 @@
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         account: <span class="self">Self</span>::AccountId,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Balance, <span class="self">Self</span>::Error&gt; {
-        <span class="kw">let </span>account = AccountId32::new(<span class="kw-2">*</span>account.as_ref());
+        <span class="kw">let </span>account = RuntimeAccountId::&lt;Runtime&gt;::from(<span class="kw-2">*</span>account.as_ref());
         <span class="prelude-val">Ok</span>(<span class="self">self</span>.sandbox.balance(<span class="kw-2">&amp;</span>account))
     }
 
@@ -470,7 +506,7 @@
         // Get metadata of the drink! runtime, so that we can encode the call object.
         // Panic on error - metadata of the static im-memory runtime should always be
         // available.
-        </span><span class="kw">let </span>raw_metadata: Vec&lt;u8&gt; = MinimalRuntime::metadata().into();
+        </span><span class="kw">let </span>raw_metadata: Vec&lt;u8&gt; = Runtime::get_metadata().into();
         <span class="kw">let </span>metadata = subxt_metadata::Metadata::decode(<span class="kw-2">&amp;mut </span>raw_metadata.as_slice())
             .expect(<span class="string">&quot;Failed to decode metadata&quot;</span>);
 
@@ -481,13 +517,15 @@
         <span class="comment">// Decode the call object.
         // Panic on error - we just encoded a validated call object, so it should be
         // decodable.
-        </span><span class="kw">let </span>decoded_call =
-            RuntimeCall::&lt;MinimalRuntime&gt;::decode(<span class="kw-2">&amp;mut </span>encoded_call.as_slice())
-                .expect(<span class="string">&quot;Failed to decode runtime call&quot;</span>);
+        </span><span class="kw">let </span>decoded_call = RuntimeCall::&lt;Runtime&gt;::decode(<span class="kw-2">&amp;mut </span>encoded_call.as_slice())
+            .expect(<span class="string">&quot;Failed to decode runtime call&quot;</span>);
 
         <span class="comment">// Execute the call.
         </span><span class="self">self</span>.sandbox
-            .runtime_call(decoded_call, <span class="prelude-val">Some</span>(keypair_to_account(origin)).into())
+            .runtime_call(
+                decoded_call,
+                Runtime::convert_account_to_origin(keypair_to_account(origin)),
+            )
             .map_err(|<span class="kw">_</span>| ())<span class="question-mark">?</span>;
 
         <span class="prelude-val">Ok</span>(())
@@ -497,9 +535,12 @@
 <span class="attr">#[async_trait]
 </span><span class="kw">impl</span>&lt;
         AccountId: Clone + Send + Sync + From&lt;[u8; <span class="number">32</span>]&gt; + AsRef&lt;[u8; <span class="number">32</span>]&gt;,
-        Hash: From&lt;[u8; <span class="number">32</span>]&gt;,
+        Hash: Copy + From&lt;[u8; <span class="number">32</span>]&gt;,
+        Runtime: RuntimeT,
         E: Environment&lt;AccountId = AccountId, Balance = u128, Hash = Hash&gt; + <span class="lifetime">&#39;static</span>,
-    &gt; ContractsBackend&lt;E&gt; <span class="kw">for </span>Client&lt;AccountId, Hash&gt;
+    &gt; ContractsBackend&lt;E&gt; <span class="kw">for </span>Client&lt;AccountId, Hash, Runtime&gt;
+<span class="kw">where
+    </span>RuntimeAccountId&lt;Runtime&gt;: From&lt;[u8; <span class="number">32</span>]&gt; + AsRef&lt;[u8; <span class="number">32</span>]&gt;,
 {
     <span class="kw">type </span>Error = ();
     <span class="kw">type </span>EventLog = ();
@@ -585,10 +626,16 @@
             </span>}
         };
 
+        <span class="kw">let </span>code_hash_raw: [u8; <span class="number">32</span>] = result
+            .code_hash
+            .as_ref()
+            .try_into()
+            .expect(<span class="string">&quot;Invalid code hash&quot;</span>);
+        <span class="kw">let </span>code_hash = Hash::from(code_hash_raw);
         <span class="prelude-val">Ok</span>(UploadResult {
-            code_hash: result.code_hash.<span class="number">0</span>.into(),
+            code_hash,
             dry_run: <span class="prelude-val">Ok</span>(CodeUploadReturnValue {
-                code_hash: result.code_hash.<span class="number">0</span>.into(),
+                code_hash,
                 deposit: result.deposit,
             }),
             events: (),
@@ -651,13 +698,16 @@
 
 <span class="kw">impl</span>&lt;
         AccountId: Clone + Send + Sync + From&lt;[u8; <span class="number">32</span>]&gt; + AsRef&lt;[u8; <span class="number">32</span>]&gt;,
-        Hash: From&lt;[u8; <span class="number">32</span>]&gt;,
+        Hash: Copy + From&lt;[u8; <span class="number">32</span>]&gt;,
+        Runtime: RuntimeT,
         E: Environment&lt;AccountId = AccountId, Balance = u128, Hash = Hash&gt; + <span class="lifetime">&#39;static</span>,
-    &gt; E2EBackend&lt;E&gt; <span class="kw">for </span>Client&lt;AccountId, Hash&gt;
+    &gt; E2EBackend&lt;E&gt; <span class="kw">for </span>Client&lt;AccountId, Hash, Runtime&gt;
+<span class="kw">where
+    </span>RuntimeAccountId&lt;Runtime&gt;: From&lt;[u8; <span class="number">32</span>]&gt; + AsRef&lt;[u8; <span class="number">32</span>]&gt;,
 {
 }
 
-<span class="kw">fn </span>keypair_to_account(keypair: <span class="kw-2">&amp;</span>Keypair) -&gt; AccountId32 {
-    AccountId32::from(keypair.public_key().<span class="number">0</span>)
+<span class="kw">fn </span>keypair_to_account&lt;AccountId: From&lt;[u8; <span class="number">32</span>]&gt;&gt;(keypair: <span class="kw-2">&amp;</span>Keypair) -&gt; AccountId {
+    AccountId::from(keypair.public_key().<span class="number">0</span>)
 }
 </code></pre></div></section></main></body></html>

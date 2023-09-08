@@ -152,6 +152,13 @@
 <a href="#152" id="152">152</a>
 <a href="#153" id="153">153</a>
 <a href="#154" id="154">154</a>
+<a href="#155" id="155">155</a>
+<a href="#156" id="156">156</a>
+<a href="#157" id="157">157</a>
+<a href="#158" id="158">158</a>
+<a href="#159" id="159">159</a>
+<a href="#160" id="160">160</a>
+<a href="#161" id="161">161</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -223,7 +230,9 @@
         <span class="kw">let </span>client_building = <span class="kw">match </span><span class="self">self</span>.test.config.backend() {
             Backend::Full =&gt; build_full_client(<span class="kw-2">&amp;</span>environment, exec_build_contracts),
             <span class="attr">#[cfg(any(test, feature = <span class="string">&quot;drink&quot;</span>))]
-            </span>Backend::RuntimeOnly =&gt; build_runtime_client(exec_build_contracts),
+            </span>Backend::RuntimeOnly =&gt; {
+                build_runtime_client(exec_build_contracts, <span class="self">self</span>.test.config.runtime())
+            }
         };
 
         <span class="macro">quote! </span>{
@@ -300,10 +309,15 @@
 }
 
 <span class="attr">#[cfg(any(test, feature = <span class="string">&quot;drink&quot;</span>))]
-</span><span class="kw">fn </span>build_runtime_client(contracts: TokenStream2) -&gt; TokenStream2 {
+</span><span class="kw">fn </span>build_runtime_client(
+    contracts: TokenStream2,
+    runtime: <span class="prelude-ty">Option</span>&lt;syn::Path&gt;,
+) -&gt; TokenStream2 {
+    <span class="kw">let </span>runtime =
+        runtime.unwrap_or_else(|| <span class="macro">syn::parse_quote! </span>{ ::ink_e2e::MinimalRuntime });
     <span class="macro">quote! </span>{
         <span class="kw">let </span>contracts = #contracts;
-        <span class="kw">let </span><span class="kw-2">mut </span>client = ::ink_e2e::DrinkClient::new(contracts);
+        <span class="kw">let </span><span class="kw-2">mut </span>client = ::ink_e2e::DrinkClient::&lt;<span class="kw">_</span>, <span class="kw">_</span>, #runtime&gt;::new(contracts);
     }
 }
 </code></pre></div></section></main></body></html>
