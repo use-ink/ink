@@ -196,13 +196,23 @@ impl<'a, 'tcx> Analysis<'tcx> for StrictBalanceEqualityAnalysis<'a, 'tcx> {
 /// MIR visitor that iterates over statements of a function
 impl Visitor<'_> for TransferFunction<'_, '_> {
     fn visit_assign(&mut self, place: &Place, rvalue: &Rvalue, _: Location) {
-        // Direct comparison
-        if let Rvalue::BinaryOp(BinOp::Eq | BinOp::Ne, box (lhs, rhs)) = rvalue {
-            if tainted_with_balance(self.state, lhs).is_some()
-                || tainted_with_balance(self.state, rhs).is_some()
-            {
-                self.state.insert(place.local);
+        match rvalue {
+            // Result of direct comparison with balance
+            Rvalue::BinaryOp(BinOp::Eq | BinOp::Ne, box (lhs, rhs)) => {
+                if tainted_with_balance(self.state, lhs).is_some()
+                    || tainted_with_balance(self.state, rhs).is_some()
+                {
+                    self.state.insert(place.local);
+                }
             }
+            // Assigments of intermediate locals created by rustc
+            Rvalue::Use(Operand::Move(use_place) | Operand::Copy(use_place)) => {
+                let use_local = use_place.local;
+                if self.state.contains(use_local) {
+                    self.state.insert(place.local);
+                }
+            }
+            _ => {}
         }
     }
 

@@ -16,12 +16,18 @@ pub mod strict_balance_equality {
 
         #[ink(message)]
         pub fn do_nothing(&mut self) {
+            // let threshold: Balance = 100;
+            let value: Balance = self.env().balance();
+
             if self.env().balance() == 10 { // Bad
                 // Do nothing
             }
 
-            // let threshold: Balance = 100;
-            // let value: Balance = self.env().balance();
+            // Bad: Strict equality
+            if value == 11 {
+                // Do nothing
+            }
+
             //
             // // Bad: Strict equality
             // if self.env().balance() == threshold {
