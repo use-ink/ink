@@ -1,8 +1,8 @@
 ## Summary
 Closes #_
 - [ ] y/n | Does it introduce breaking changes?
-- [ ] y/n | Is it dependant on the specific version of `cargo-contract` or `pallet-contracts`
-<!--- Provide a general summary of your changes in the Title above -->
+- [ ] y/n | Is it dependant on the specific version of `cargo-contract` or `pallet-contracts`?
+<!--- Provide a general summary of your changes -->
 
 ## Description
 <!--- Describe your changes in detail -->
