@@ -73,6 +73,9 @@ pub struct E2EConfig {
     environment: Option<syn::Path>,
     /// The type of the architecture that should be used to run test.
     backend: Backend,
+    /// The runtime to use for the runtime-only test.
+    #[cfg(any(test, feature = "drink"))]
+    runtime: Option<syn::Path>,
 }
 
 impl TryFrom<ast::AttributeArgs> for E2EConfig {
@@ -82,6 +85,8 @@ impl TryFrom<ast::AttributeArgs> for E2EConfig {
         let mut additional_contracts: Option<(syn::LitStr, ast::MetaNameValue)> = None;
         let mut environment: Option<(syn::Path, ast::MetaNameValue)> = None;
         let mut backend: Option<(syn::LitStr, ast::MetaNameValue)> = None;
+        #[cfg(any(test, feature = "drink"))]
+        let mut runtime: Option<(syn::Path, ast::MetaNameValue)> = None;
 
         for arg in args.into_iter() {
             if arg.name.is_ident("additional_contracts") {
@@ -125,6 +130,28 @@ impl TryFrom<ast::AttributeArgs> for E2EConfig {
                         "expected a string literal for `backend` ink! E2E test configuration argument",
                     ));
                 }
+            } else if arg.name.is_ident("runtime") {
+                #[cfg(any(test, feature = "drink"))]
+                {
+                    if let Some((_, ast)) = runtime {
+                        return Err(duplicate_config_err(ast, arg, "runtime", "E2E test"))
+                    }
+                    if let ast::MetaValue::Path(path) = &arg.value {
+                        runtime = Some((path.clone(), arg))
+                    } else {
+                        return Err(format_err_spanned!(
+                        arg,
+                        "expected a path for `runtime` ink! E2E test configuration argument",
+                    ));
+                    }
+                }
+                #[cfg(not(any(test, feature = "drink")))]
+                {
+                    return Err(format_err_spanned!(
+                        arg,
+                        "the `runtime` ink! E2E test configuration argument is not available because the `drink` feature is not enabled",
+                    ));
+                }
             } else {
                 return Err(format_err_spanned!(
                     arg,
@@ -141,10 +168,22 @@ impl TryFrom<ast::AttributeArgs> for E2EConfig {
             .transpose()?
             .unwrap_or_default();
 
+        #[cfg(any(test, feature = "drink"))]
+        {
+            if backend == Backend::Full && runtime.is_some() {
+                return Err(format_err_spanned!(
+                    runtime.unwrap().1,
+                    "ink! E2E test `runtime` configuration argument is available for `runtime-only` backend only",
+                ));
+            }
+        }
+
         Ok(E2EConfig {
             additional_contracts,
             environment,
             backend,
+            #[cfg(any(test, feature = "drink"))]
+            runtime: runtime.map(|(path, _)| path),
         })
     }
 }
@@ -164,6 +203,12 @@ impl E2EConfig {
     /// The type of the architecture that should be used to run test.
     pub fn backend(&self) -> Backend {
         self.backend
+    }
+
+    /// The runtime to use for the runtime-only test.
+    #[cfg(any(test, feature = "drink"))]
+    pub fn runtime(&self) -> Option<syn::Path> {
+        self.runtime.clone()
     }
 }
 
@@ -277,12 +322,58 @@ mod tests {
     }
 
     #[test]
+    fn runtime_must_be_path() {
+        assert_try_from(
+            syn::parse_quote! { runtime = "MinimalRuntime" },
+            Err("expected a path for `runtime` ink! E2E test configuration argument"),
+        );
+    }
+
+    #[test]
+    fn duplicate_runtime_fails() {
+        assert_try_from(
+            syn::parse_quote! {
+                runtime = ::drink::MinimalRuntime,
+                runtime = ::drink::MaximalRuntime,
+            },
+            Err("encountered duplicate ink! E2E test `runtime` configuration argument"),
+        );
+    }
+
+    #[test]
+    fn runtime_is_for_runtime_only_backend_only() {
+        assert_try_from(
+            syn::parse_quote! {
+                backend = "full",
+                runtime = ::drink::MinimalRuntime
+            },
+            Err("ink! E2E test `runtime` configuration argument is available for `runtime-only` backend only"),
+        );
+    }
+
+    #[test]
+    fn specifying_runtime_works() {
+        assert_try_from(
+            syn::parse_quote! {
+                backend = "runtime-only",
+                runtime = ::drink::MinimalRuntime
+            },
+            Ok(E2EConfig {
+                backend: Backend::RuntimeOnly,
+                runtime: Some(syn::parse_quote! { ::drink::MinimalRuntime }),
+                ..Default::default()
+            }),
+        );
+    }
+
+    #[test]
     fn full_config_works() {
         assert_try_from(
             syn::parse_quote! {
                 additional_contracts = "adder/Cargo.toml flipper/Cargo.toml",
                 environment = crate::CustomEnvironment,
-                backend = "full",
+                backend = "runtime-only",
+                runtime = ::drink::MinimalRuntime,
             },
             Ok(E2EConfig {
                 additional_contracts: vec![
@@ -290,7 +381,8 @@ mod tests {
                     "flipper/Cargo.toml".into(),
                 ],
                 environment: Some(syn::parse_quote! { crate::CustomEnvironment }),
-                backend: Backend::Full,
+                backend: Backend::RuntimeOnly,
+                runtime: Some(syn::parse_quote! { ::drink::MinimalRuntime }),
             }),
         );
     }

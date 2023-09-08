@@ -149,5 +149,22 @@ pub mod flipper {
             assert_eq!(old_balance + ENDOWMENT, new_balance);
             Ok(())
         }
+
+        /// Just instantiate a contract using non-default runtime.
+        #[ink_e2e::test(backend = "runtime-only", runtime = ink_e2e::MinimalRuntime)]
+        async fn custom_runtime<Client: E2EBackend>(mut client: Client) -> E2EResult<()> {
+            client
+                .instantiate(
+                    "e2e-runtime-only-backend",
+                    &ink_e2e::alice(),
+                    FlipperRef::new(false),
+                    0,
+                    None,
+                )
+                .await
+                .expect("instantiate failed");
+
+            Ok(())
+        }
     }
 }
