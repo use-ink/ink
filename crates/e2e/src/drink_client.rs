@@ -59,8 +59,9 @@ pub struct Client<AccountId, Hash, Runtime: RuntimeT> {
     _phantom: PhantomData<(AccountId, Hash)>,
 }
 
-// While it is not necessary true that `Client` is `Send`, it will not be used in a way that would
-// violate this bound. In particular, all `Client` instances will be operating synchronously.
+// While it is not necessary true that `Client` is `Send`, it will not be used in a way
+// that would violate this bound. In particular, all `Client` instances will be operating
+// synchronously.
 unsafe impl<AccountId, Hash, Runtime: RuntimeT> Send
     for Client<AccountId, Hash, Runtime>
 {
