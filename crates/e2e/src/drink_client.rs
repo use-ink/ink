@@ -23,10 +23,7 @@ use drink::{
         RuntimeCall,
     },
     contract_api::ContractApi,
-    runtime::{
-        MinimalRuntime,
-        Runtime as RuntimeT,
-    },
+    runtime::Runtime as RuntimeT,
     Sandbox,
     DEFAULT_GAS_LIMIT,
 };
@@ -43,7 +40,6 @@ use scale::{
     Encode,
 };
 use sp_core::{
-    crypto::AccountId32,
     sr25519::Pair,
     Pair as _,
 };
@@ -71,7 +67,12 @@ unsafe impl<AccountId, Hash, Runtime: RuntimeT> Send
 {
 }
 
-impl<AccountId, Hash, Runtime: RuntimeT> Client<AccountId, Hash, Runtime> {
+type RuntimeAccountId<R> = <R as drink::runtime::frame_system::Config>::AccountId;
+
+impl<AccountId, Hash, Runtime: RuntimeT> Client<AccountId, Hash, Runtime>
+where
+    RuntimeAccountId<Runtime>: From<[u8; 32]>,
+{
     pub fn new<P: Into<PathBuf>>(contracts: impl IntoIterator<Item = P>) -> Self {
         let mut sandbox = Sandbox::new().expect("Failed to initialize Drink! sandbox");
         Self::fund_accounts(&mut sandbox);
@@ -97,7 +98,7 @@ impl<AccountId, Hash, Runtime: RuntimeT> Client<AccountId, Hash, Runtime> {
             crate::two(),
         ]
         .map(|kp| kp.public_key().0)
-        .map(AccountId32::new);
+        .map(From::from);
         for account in accounts.into_iter() {
             sandbox.add_tokens(account, TOKENS);
         }
@@ -107,6 +108,8 @@ impl<AccountId, Hash, Runtime: RuntimeT> Client<AccountId, Hash, Runtime> {
 #[async_trait]
 impl<AccountId: AsRef<[u8; 32]> + Send, Hash, Runtime: RuntimeT> ChainBackend
     for Client<AccountId, Hash, Runtime>
+where
+    RuntimeAccountId<Runtime>: From<[u8; 32]>,
 {
     type AccountId = AccountId;
     type Balance = u128;
@@ -129,7 +132,7 @@ impl<AccountId: AsRef<[u8; 32]> + Send, Hash, Runtime: RuntimeT> ChainBackend
         &mut self,
         account: Self::AccountId,
     ) -> Result<Self::Balance, Self::Error> {
-        let account = AccountId32::new(*account.as_ref());
+        let account = RuntimeAccountId::<Runtime>::from(*account.as_ref());
         Ok(self.sandbox.balance(&account))
     }
 
@@ -147,7 +150,7 @@ impl<AccountId: AsRef<[u8; 32]> + Send, Hash, Runtime: RuntimeT> ChainBackend
         // Get metadata of the drink! runtime, so that we can encode the call object.
         // Panic on error - metadata of the static im-memory runtime should always be
         // available.
-        let raw_metadata: Vec<u8> = MinimalRuntime::metadata().into();
+        let raw_metadata: Vec<u8> = Runtime::get_metadata().into();
         let metadata = subxt_metadata::Metadata::decode(&mut raw_metadata.as_slice())
             .expect("Failed to decode metadata");
 
@@ -158,13 +161,15 @@ impl<AccountId: AsRef<[u8; 32]> + Send, Hash, Runtime: RuntimeT> ChainBackend
         // Decode the call object.
         // Panic on error - we just encoded a validated call object, so it should be
         // decodable.
-        let decoded_call =
-            RuntimeCall::<MinimalRuntime>::decode(&mut encoded_call.as_slice())
-                .expect("Failed to decode runtime call");
+        let decoded_call = RuntimeCall::<Runtime>::decode(&mut encoded_call.as_slice())
+            .expect("Failed to decode runtime call");
 
         // Execute the call.
         self.sandbox
-            .runtime_call(decoded_call, Some(keypair_to_account(origin)).into())
+            .runtime_call(
+                decoded_call,
+                Runtime::convert_account_to_origin(keypair_to_account(origin)),
+            )
             .map_err(|_| ())?;
 
         Ok(())
@@ -178,6 +183,8 @@ impl<
         Runtime: RuntimeT,
         E: Environment<AccountId = AccountId, Balance = u128, Hash = Hash> + 'static,
     > ContractsBackend<E> for Client<AccountId, Hash, Runtime>
+where
+    RuntimeAccountId<Runtime>: From<[u8; 32]> + AsRef<[u8; 32]>,
 {
     type Error = ();
     type EventLog = ();
@@ -339,9 +346,11 @@ impl<
         Runtime: RuntimeT,
         E: Environment<AccountId = AccountId, Balance = u128, Hash = Hash> + 'static,
     > E2EBackend<E> for Client<AccountId, Hash, Runtime>
+where
+    RuntimeAccountId<Runtime>: From<[u8; 32]> + AsRef<[u8; 32]>,
 {
 }
 
-fn keypair_to_account(keypair: &Keypair) -> AccountId32 {
-    AccountId32::from(keypair.public_key().0)
+fn keypair_to_account<AccountId: From<[u8; 32]>>(keypair: &Keypair) -> AccountId {
+    AccountId::from(keypair.public_key().0)
 }

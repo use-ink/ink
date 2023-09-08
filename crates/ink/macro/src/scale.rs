@@ -36,7 +36,7 @@ pub fn derive(attr: TokenStream2, item: TokenStream2) -> syn::Result<TokenStream
                 ))
             }
         }),
-        attr.clone(),
+        attr,
     )?;
 
     let codec_crate =
