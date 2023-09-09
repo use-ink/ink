@@ -32,7 +32,7 @@ quickcheck = { workspace = true }
 quickcheck_macros = { workspace = true }
 itertools = { workspace = true, default-features = true }
 
-ink = { workspace = true }
+ink = { path = "../ink"}
 
 [features]
 default = ["std"]
