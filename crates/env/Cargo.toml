@@ -55,7 +55,7 @@ scale-encode = { workspace = true, optional = true }
 scale-info = { workspace = true, features = ["derive"], optional = true }
 
 [dev-dependencies]
-ink = { workspace = true }
+ink = { path = "../ink" }
 
 [features]
 default = ["std"]
