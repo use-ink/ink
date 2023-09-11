@@ -12,5 +12,11 @@ error: dangerous strict balance equality
 LL |             if value == 11 {
    |                      ^^ help: consider using non-strict equality operators instead: `<`, `>`
 
-error: aborting due to 2 previous errors
+error: dangerous strict balance equality
+  --> $DIR/strict_balance_equality.rs:32:37
+   |
+LL |             if self.env().balance() == threshold {
+   |                                     ^^ help: consider using non-strict equality operators instead: `<`, `>`
+
+error: aborting due to 3 previous errors
 
