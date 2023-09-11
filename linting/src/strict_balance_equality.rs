@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 use clippy_utils::{
-    diagnostics::span_lint_and_then,
+    diagnostics::span_lint_hir_and_then,
     match_def_path,
     source::snippet_opt,
 };
@@ -55,7 +55,10 @@ use rustc_session::{
     declare_lint,
     declare_lint_pass,
 };
-use rustc_span::Span;
+use rustc_span::{
+    source_map::BytePos,
+    Span,
+};
 
 declare_lint! {
     /// **What it does:** Looks for strict equalities with balance in ink! contracts.
@@ -244,7 +247,7 @@ impl<'tcx> LateLintPass<'tcx> for StrictBalanceEquality {
         _kind: FnKind<'tcx>,
         _decl: &'tcx FnDecl<'_>,
         _body: &'tcx hir::Body<'tcx>,
-        _span: Span,
+        fn_span: Span,
         fn_def_id: LocalDefId,
     ) {
         let fn_mir = cx.tcx.optimized_mir(fn_def_id);
@@ -263,23 +266,41 @@ impl<'tcx> LateLintPass<'tcx> for StrictBalanceEquality {
                 if let TerminatorKind::SwitchInt { discr, .. } = &terminator.kind;
                 if let Some(place) = discr.place();
                 if tainted_locals.contains(place.local);
+                let span = terminator.source_info.span;
+                let scope = terminator.source_info.scope;
+                let node = fn_mir.source_scopes[scope]
+                    .local_data
+                    .as_ref()
+                    .assert_crate_local()
+                    .lint_root;
+                if let Some(snip) = snippet_opt(cx, span);
+                if let Some(op) = snip.rfind("==").or(snip.rfind("!="));
                 then {
-                    let span = terminator.source_info.span;
-                    span_lint_and_then(
+                    let op_pos = span.lo() + BytePos(op as u32);
+                    let sugg_span = Span::new(
+                        op_pos,
+                        op_pos + BytePos("==".len() as u32),
+                        // We have to use a span different from `span`, since it is resulted after
+                        // macro expansion and therefore cannot be used to emit diagnostics.
+                        fn_span.ctxt(),
+                        fn_span.parent()
+                    );
+                    span_lint_hir_and_then(
                         cx,
                         STRICT_BALANCE_EQUALITY,
-                        span,
+                        node,
+                        sugg_span,
                         "dangerous strict balance equality",
                         |diag| {
-                            let snippet = snippet_opt(cx, span).expect("snippet must exist");
                             diag.span_suggestion(
-                                span,
+                                sugg_span,
                                 "consider using non-strict equality operators instead: `<`, `>`".to_string(),
-                                snippet,
+                                "",
                                 Applicability::Unspecified,
                             );
                         },
                     )
+
                 }
             }
         }

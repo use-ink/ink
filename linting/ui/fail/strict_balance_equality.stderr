@@ -1,1 +1,16 @@
+error: dangerous strict balance equality
+  --> $DIR/strict_balance_equality.rs:22:37
+   |
+LL |             if self.env().balance() == 10 { // Bad
+   |                                     ^^ help: consider using non-strict equality operators instead: `<`, `>`
+   |
+   = note: `-D strict-balance-equality` implied by `-D warnings`
+
+error: dangerous strict balance equality
+  --> $DIR/strict_balance_equality.rs:27:22
+   |
+LL |             if value == 11 {
+   |                      ^^ help: consider using non-strict equality operators instead: `<`, `>`
+
+error: aborting due to 2 previous errors
 
