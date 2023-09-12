@@ -44,7 +44,7 @@ blake2 = { workspace = true, optional = true }
 secp256k1 = { workspace = true, features = ["recovery", "global-context"], optional = true }
 
 # schnorrkel for the off-chain environment.
-schnorrkel = { version = "0.11.1", optional = true }
+schnorrkel = { version = "0.11.0", optional = true }
 
 # Only used in the off-chain environment.
 #
