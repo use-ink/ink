@@ -23,19 +23,11 @@ mod mapping;
 #[doc(inline)]
 pub use self::mapping::Mapping;
 
-use crate::traits::{
-    AutoKey,
-    StorableHint,
-    StorageKey,
-};
+use crate::traits::{AutoKey, StorableHint, StorageKey};
 use core::marker::PhantomData;
 use ink_primitives::Key;
 use ink_storage_traits::Storable;
-use scale::{
-    Error,
-    Input,
-    Output,
-};
+use scale::{Error, Input, Output};
 
 /// A simple wrapper around a type to store it in a separate storage cell under its own
 /// storage key. If you want to update the value, first you need to
@@ -142,9 +134,31 @@ where
         }
     }
 
+    /// Try to read the `value` from the contract storage, if it exists.
+    ///
+    /// Fails if `value` exceeds the static buffer size.
+    pub fn try_get(&self) -> ink_env::Result<Option<V>> {
+        match ink_env::get_contract_storage::<Key, V>(&KeyType::KEY) {
+            Ok(Some(value)) => Some(value),
+            Err()
+            _ => None,
+        }
+    }
+
     /// Writes the given `value` to the contract storage.
     pub fn set(&mut self, value: &V) {
         ink_env::set_contract_storage::<Key, V>(&KeyType::KEY, value);
+    }
+
+    /// Try to set the given `value` to the contract storage.
+    ///
+    /// Fails if `value` exceeds the static buffer size.
+    pub fn try_set(&mut self, value: &V) -> ink_env::Result<()> {
+        if value.size_hint() > ink_env::BUFFER_SIZE {
+            return Err(ink_env::Error::Decode(scale::Error::from("buffer size")));
+        };
+        ink_env::set_contract_storage::<Key, V>(&KeyType::KEY, value);
+        Ok(())
     }
 }
 
@@ -175,6 +189,11 @@ where
     fn decode<I: Input>(_input: &mut I) -> Result<Self, Error> {
         Ok(Default::default())
     }
+
+    #[inline(always)]
+    fn size_hint(&self) -> usize {
+        0
+    }
 }
 
 impl<V, Key, InnerKey> StorableHint<Key> for Lazy<V, InnerKey>
@@ -197,11 +216,7 @@ where
 #[cfg(feature = "std")]
 const _: () = {
     use crate::traits::StorageLayout;
-    use ink_metadata::layout::{
-        Layout,
-        LayoutKey,
-        RootLayout,
-    };
+    use ink_metadata::layout::{Layout, LayoutKey, RootLayout};
 
     impl<V, KeyType> StorageLayout for Lazy<V, KeyType>
     where
