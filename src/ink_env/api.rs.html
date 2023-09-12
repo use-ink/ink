@@ -787,18 +787,6 @@
 <a href="#787" id="787">787</a>
 <a href="#788" id="788">788</a>
 <a href="#789" id="789">789</a>
-<a href="#790" id="790">790</a>
-<a href="#791" id="791">791</a>
-<a href="#792" id="792">792</a>
-<a href="#793" id="793">793</a>
-<a href="#794" id="794">794</a>
-<a href="#795" id="795">795</a>
-<a href="#796" id="796">796</a>
-<a href="#797" id="797">797</a>
-<a href="#798" id="798">798</a>
-<a href="#799" id="799">799</a>
-<a href="#800" id="800">800</a>
-<a href="#801" id="801">801</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -1553,19 +1541,7 @@
 /// Please refer to the
 /// [Open Zeppelin docs](https://docs.openzeppelin.com/upgrades-plugins/1.x/writing-upgradeable#modifying-your-contracts)
 /// for more details and examples.
-</span><span class="kw">pub fn </span>set_code_hash(code_hash: <span class="kw-2">&amp;</span>[u8; <span class="number">32</span>]) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-    &lt;EnvInstance <span class="kw">as </span>OnInstance&gt;::on_instance(|instance| instance.set_code_hash(code_hash))
-}
-
-<span class="doccomment">/// Replace the contract code at the specified address with new code.
-///
-/// # Compatibility
-///
-/// This is new version of the existing [`set_code_hash`] function. We plan to place the
-/// old function with this in the next `MAJOR` release.
-///
-/// See the original [`set_code_hash`] function for full details.
-</span><span class="kw">pub fn </span>set_code_hash2&lt;E&gt;(code_hash: <span class="kw-2">&amp;</span>E::Hash) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt;
+</span><span class="kw">pub fn </span>set_code_hash&lt;E&gt;(code_hash: <span class="kw-2">&amp;</span>E::Hash) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt;
 <span class="kw">where
     </span>E: Environment,
 {

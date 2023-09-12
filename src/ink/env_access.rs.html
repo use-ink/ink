@@ -2221,7 +2221,7 @@
     ///
     /// For more details visit: [`ink_env::set_code_hash`]
     </span><span class="kw">pub fn </span>set_code_hash(<span class="self">self</span>, code_hash: <span class="kw-2">&amp;</span>E::Hash) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-        ink_env::set_code_hash2::&lt;E&gt;(code_hash)
+        ink_env::set_code_hash::&lt;E&gt;(code_hash)
     }
 
     <span class="kw">pub fn </span>call_runtime&lt;Call: scale::Encode&gt;(<span class="self">self</span>, call: <span class="kw-2">&amp;</span>Call) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
