@@ -72,8 +72,8 @@ pub mod incrementer {
 
         type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
-        #[ink_e2e::test(additional_contracts = "./updated-incrementer/Cargo.toml")]
-        async fn set_code_works<Client: E2EBackend>(mut client: Client) -> E2EResult<()> {
+        #[ink_e2e::test]
+        async fn migration_works<Client: E2EBackend>(mut client: Client) -> E2EResult<()> {
             // Given
             let constructor = IncrementerRef::new();
             let contract = client
@@ -96,14 +96,35 @@ pub mod incrementer {
             let get_res = client.call_dry_run(&ink_e2e::alice(), &get, 0, None).await;
             assert!(matches!(get_res.return_value(), 1));
 
-            // When
+            // Upload the code for the contract to be updated to after the migration.
             let new_code_hash = client
-                .upload("updated_incrementer", &ink_e2e::alice(), None)
+                .upload("updated-incrementer", &ink_e2e::alice(), None)
                 .await
-                .expect("uploading `updated_incrementer` failed")
+                .expect("uploading `updated-incrementer` failed")
                 .code_hash;
 
             let new_code_hash = new_code_hash.as_ref().try_into().unwrap();
+
+            // When
+            let migration_contract = client
+                .upload("migration", &ink_e2e::alice(), None)
+                .await
+                .expect("uploading `migration` failed");
+            let migration_code_hash = migration_contract.code_hash.as_ref().try_into().unwrap();
+            let migrate = migration_contract
+                .call::<migration::incrementer::Incrementer>()
+                .migrate();
+
+            let _migration_result = client
+                .call(
+                    &ink_e2e::alice(),
+                    &call.set_code(migration_code_hash),
+                    0,
+                    None,
+                )
+                .await
+                .expect("`set_code` failed");
+
             let set_code = call.set_code(new_code_hash);
 
             let _set_code_result = client

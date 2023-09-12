@@ -51,8 +51,8 @@ pub mod incrementer {
                 count: self.count as u64,
                 inc_by,
             };
-            // ink::env::set_contract_storage::<IncrementerNew>(ink::key_hash::new(), &incrementer_new);
-            ink::env::set_code_hash2(&code_hash);
+            ink::env::set_contract_storage(0x00000000, &incrementer_new);
+            ink::env::set_code_hash2::<<Self as ink::ContractEnv>::Env>(&code_hash);
         }
     }
 }
