@@ -27,7 +27,7 @@ quote = { workspace = true }
 
 [dev-dependencies]
 ink_env = { workspace = true, default-features = true }
-ink = { workspace = true, default-features = true }
+ink = { path = "..", default-features = true }
 ink_metadata = { workspace = true, default-features = true }
 ink_prelude = { workspace = true, default-features = true }
 ink_storage = { workspace = true, default-features = true }
