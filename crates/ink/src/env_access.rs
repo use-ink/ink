@@ -1106,7 +1106,7 @@ where
     ///
     /// For more details visit: [`ink_env::set_code_hash`]
     pub fn set_code_hash(self, code_hash: &E::Hash) -> Result<()> {
-        ink_env::set_code_hash2::<E>(code_hash)
+        ink_env::set_code_hash::<E>(code_hash)
     }
 
     pub fn call_runtime<Call: scale::Encode>(self, call: &Call) -> Result<()> {
