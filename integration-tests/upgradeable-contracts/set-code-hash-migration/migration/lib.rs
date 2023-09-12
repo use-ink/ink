@@ -11,6 +11,12 @@ pub mod incrementer {
         count: u32,
     }
 
+    #[ink::storage_item]
+    pub struct IncrementerNew {
+        count: u64,
+        inc_by: u8,
+    }
+
     impl Incrementer {
         /// Creates a new counter smart contract initialized with the given base value.
         ///
@@ -29,23 +35,24 @@ pub mod incrementer {
         }
 
         /// Run the migration to the data layout for the upgraded contract.
-        #[ink(message)]
-        pub fn migrate(&self) {
-        }
-
-        /// Modifies the code which is used to execute calls to this contract address
-        /// (`AccountId`).
-        ///
-        /// We use this to upgrade the contract logic. We don't do any authorization here,
-        /// any caller can execute this method.
+        /// Once the storage migration has successfully completed, the contract will be upgraded
+        /// to the supplied code hash.
         ///
         /// In a production contract you would do some authorization here!
+        ///
+        /// # Note
+        ///
+        /// This function necessarily accepts a `&self` instead of a `&mut self` because we are
+        /// modifying storage directly for the migration. Using `&mut self` would overwrite our
+        /// migration changes with the contents of the original `Incrementer`.
         #[ink(message)]
-        pub fn set_code(&mut self, code_hash: Hash) {
-            self.env().set_code_hash(&code_hash).unwrap_or_else(|err| {
-                panic!("Failed to `set_code_hash` to {code_hash:?} due to {err:?}")
-            });
-            ink::env::debug_println!("Switched code hash to {:?}.", code_hash);
+        pub fn migrate(&self, inc_by: u8, code_hash: Hash) {
+            let incrementer_new = IncrementerNew {
+                count: self.count as u64,
+                inc_by,
+            };
+            // ink::env::set_contract_storage::<IncrementerNew>(ink::key_hash::new(), &incrementer_new);
+            ink::env::set_code_hash2(&code_hash);
         }
     }
 }
