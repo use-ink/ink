@@ -211,7 +211,7 @@ where
     }
 
     #[inline]
-    fn size_hint(&self) -> usize {
+    fn encoded_size(&self) -> usize {
         0
     }
 }

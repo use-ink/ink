@@ -134,15 +134,22 @@ where
         }
     }
 
-    /// Try to read the `value` from the contract storage, if it exists.
+    /// Try to read the `value` from the contract storage.
     ///
-    /// Fails if `value` exceeds the static buffer size.
-    pub fn try_get(&self) -> ink_env::Result<Option<V>> {
-        match ink_env::get_contract_storage::<Key, V>(&KeyType::KEY) {
-            Ok(Some(value)) => Some(value),
-            Err()
-            _ => None,
+    /// Returns:
+    /// - `Some(Ok(_))` if `value` was received from storage and could be decoded.
+    /// - `Some(Err(_))` if the encoded length of `value` exceeds the static buffer size.
+    /// - `None` if there was no value under this storage key.
+    pub fn try_get(&self) -> Option<ink_env::Result<V>> {
+        let encoded_length: usize = ink_env::contains_contract_storage(&KeyType::KEY)?
+            .try_into()
+            .expect("targets of less than 32bit pointer size are not supported; qed");
+
+        if encoded_length > ink_env::BUFFER_SIZE.try_into().expect("BufferTooSmall") {
+            return Err(ink_env::Error::Decode(scale::Error::from("buffer size"))).into();
         }
+
+        self.get().map(Ok)
     }
 
     /// Writes the given `value` to the contract storage.
@@ -154,10 +161,12 @@ where
     ///
     /// Fails if `value` exceeds the static buffer size.
     pub fn try_set(&mut self, value: &V) -> ink_env::Result<()> {
-        if value.size_hint() > ink_env::BUFFER_SIZE {
-            return Err(ink_env::Error::Decode(scale::Error::from("buffer size")));
+        if value.encoded_size() > ink_env::BUFFER_SIZE {
+            return Err(ink_env::Error::Decode(scale::Error::from("BufferTooSmall")));
         };
-        ink_env::set_contract_storage::<Key, V>(&KeyType::KEY, value);
+
+        self.set(value);
+
         Ok(())
     }
 }
@@ -191,7 +200,7 @@ where
     }
 
     #[inline(always)]
-    fn size_hint(&self) -> usize {
+    fn encoded_size(&self) -> usize {
         0
     }
 }
