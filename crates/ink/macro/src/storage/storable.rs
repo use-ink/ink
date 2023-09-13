@@ -36,7 +36,7 @@ fn storable_struct_derive(s: &synstructure::Structure) -> TokenStream2 {
     let encoded_size_body = variant.each(|binding| {
         let span = binding.ast().ty.span();
         quote_spanned!(span =>
-            encoded_size + ::ink::storage::traits::Storable::encoded_size(#binding);
+            encoded_size += ::ink::storage::traits::Storable::encoded_size(#binding);
         )
     });
 
@@ -55,8 +55,8 @@ fn storable_struct_derive(s: &synstructure::Structure) -> TokenStream2 {
             }
 
             #[inline(always)]
-            #[allow(unused_mut)]
             #[allow(non_camel_case_types)]
+            #[allow(unused_mut)]
             fn encoded_size(&self) -> ::core::primitive::usize {
                 let mut encoded_size = 0;
                 match self { #encoded_size_body }
@@ -164,8 +164,8 @@ fn storable_enum_derive(s: &synstructure::Structure) -> TokenStream2 {
             }
 
             #[inline(always)]
-            #[allow(unused_mut)]
             #[allow(non_camel_case_types)]
+            #[allow(unused_mut)]
             fn encoded_size(&self) -> ::core::primitive::usize {
                 let mut encoded_size = 0;
                 match self {
