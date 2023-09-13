@@ -327,6 +327,8 @@ impl<'a> TransferFunction<'_, '_> {
             if let Some(cached_results) = self.fun_cache.get(&cache_key) {
                 cached_results
             } else {
+                // Insert an empty value first to handle recursive calls
+                let _ = self.fun_cache.insert(cache_key.clone(), BitSet::new_empty(0));
                 let results = self
                     .analyze_function(fn_def_id)
                     .unwrap_or(BitSet::new_empty(0));

@@ -25,6 +25,13 @@ pub mod strict_balance_equality {
             let tmp = self.env().balance();
             tmp + 1
         }
+        fn get_balance_recursive(&self, acc: &Balance) -> Balance {
+            if acc < &10_u128 {
+                self.get_balance_recursive(&(acc + 1))
+            } else {
+                self.env().balance()
+            }
+        }
 
         fn cmp_balance(&self, value: &Balance) -> bool {
             *value == self.env().balance()
@@ -44,6 +51,7 @@ pub mod strict_balance_equality {
             if self.get_balance_1() == 10 { /* ... */ }
             if self.get_balance_2() == 10 { /* ... */ }
             //if self.get_balance_3() == 10 { /* ... */ } // TODO: false negative
+            if self.get_balance_recursive(&10) == 10 { /* ... */ }
 
             // Bad: Strict equality in function: tainted arguments
             //if self.cmp_balance(&10) {}
