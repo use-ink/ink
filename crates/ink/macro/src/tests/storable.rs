@@ -44,6 +44,17 @@ fn unit_struct_works() {
                             UnitStruct => { }
                         }
                     }
+
+                    #[inline(always)]
+                    #[allow(non_camel_case_types)]
+                    #[allow(unused_mut)]
+                    fn encoded_size(&self) -> ::core::primitive::usize {
+                        let mut encoded_size = 0;
+                        match self {
+                            UnitStruct => {}
+                        }
+                        encoded_size
+                    }
                 }
             };
         }
@@ -106,6 +117,27 @@ fn struct_works() {
                             }
                         }
                     }
+
+                    #[inline (always)]
+                    #[allow (non_camel_case_types)]
+                    #[allow(unused_mut)]
+                    fn encoded_size(&self) -> ::core::primitive::usize {
+                        let mut encoded_size = 0;
+                        match self {
+                            NamedFields { a : __binding_0 , b : __binding_1 , d : __binding_2 , } => {
+                                {
+                                    encoded_size += ::ink::storage:: traits:: Storable:: encoded_size(__binding_0);
+                                }
+                                {
+                                    encoded_size += ::ink::storage::traits::Storable::encoded_size(__binding_1);
+                                }
+                                {
+                                    encoded_size += ::ink::storage::traits::Storable::encoded_size(__binding_2);
+                                }
+                            }
+                        }
+                        encoded_size
+                    }
                 }
             };
         }
@@ -148,6 +180,21 @@ fn one_variant_enum_works() {
                                 }
                             }
                         }
+                    }
+
+                    #[inline(always)]
+                    #[allow(non_camel_case_types)]
+                    #[allow(unused_mut)]
+                    fn encoded_size (&self) -> ::core::primitive::usize {
+                        let mut encoded_size = 0;
+                        match self {
+                            OneVariantEnum::A => {
+                                {
+                                    encoded_size += <::core::primitive::u8 as ::ink::storage::traits::Storable>::encoded_size(&0u8);
+                                }
+                            }
+                        }
+                        encoded_size
                     }
                 }
             };
@@ -244,6 +291,43 @@ fn enum_works() {
                             }
                         }
                     }
+
+                    #[inline(always)]
+                    #[allow(non_camel_case_types)]
+                    #[allow(unused_mut)]
+                    fn encoded_size (&self) -> ::core::primitive::usize{
+                        let mut encoded_size = 0;
+                        match self {
+                            MixedEnum::A => {
+                                {
+                                    encoded_size += <::core::primitive::u8 as ::ink::storage::traits::Storable>::encoded_size(&0u8);
+                                }
+                            }
+                            MixedEnum::B(__binding_0, __binding_1,) => {
+                                {
+                                    encoded_size += <::core::primitive::u8 as ::ink::storage::traits::Storable>::encoded_size(&1u8);
+                                }
+                                {
+                                    encoded_size += ::ink::storage::traits::Storable::encoded_size(__binding_0);
+                                }
+                                {
+                                    encoded_size += ::ink::storage::traits::Storable::encoded_size(__binding_1);
+                                }
+                            }
+                            MixedEnum::C { a: __binding_0, b: __binding_1, } => {
+                                {
+                                    encoded_size += <::core::primitive::u8 as ::ink::storage::traits::Storable>::encoded_size(&2u8);
+                                }
+                                {
+                                    encoded_size += ::ink::storage::traits::Storable::encoded_size(__binding_0);
+                                }
+                                {
+                                    encoded_size += ::ink::storage::traits::Storable::encoded_size(__binding_1);
+                                }
+                            }
+                        }
+                        encoded_size
+                    }
                 }
             };
         }
@@ -309,6 +393,24 @@ fn generic_struct_works() {
                                 }
                             }
                         }
+                    }
+
+                    #[inline(always)]
+                    #[allow(non_camel_case_types)]
+                    #[allow(unused_mut)]
+                    fn encoded_size(&self) -> ::core::primitive::usize {
+                        let mut encoded_size = 0;
+                        match self {
+                            GenericStruct { a : __binding_0 , b : __binding_1 , } => {
+                                {
+                                    encoded_size += ::ink::storage::traits::Storable::encoded_size(__binding_0);
+                                }
+                                {
+                                    encoded_size += ::ink::storage::traits::Storable::encoded_size(__binding_1);
+                                }
+                            }
+                        }
+                        encoded_size
                     }
                 }
             };
@@ -393,6 +495,38 @@ fn generic_enum_works() {
                                 }
                             }
                         }
+                    }
+
+                    #[inline(always)]
+                    #[allow(non_camel_case_types)]
+                    #[allow(unused_mut)]
+                    fn encoded_size(&self) -> ::core::primitive::usize {
+                        let mut encoded_size = 0;
+                        match self {
+                            GenericEnum::Tuple (__binding_0, __binding_1,) => {
+                                {
+                                    encoded_size += <::core::primitive:: u8 as::ink::storage::traits::Storable>::encoded_size(&0u8);
+                                }
+                                {
+                                    encoded_size += ::ink::storage::traits::Storable::encoded_size(__binding_0);
+                                }
+                                {
+                                    encoded_size += ::ink::storage::traits::Storable::encoded_size(__binding_1);
+                                }
+                            }
+                            GenericEnum::Named { a: __binding_0, b: __binding_1,} => {
+                                {
+                                    encoded_size += <::core::primitive::u8 as::ink::storage::traits::Storable>::encoded_size(&1u8);
+                                }
+                                {
+                                    encoded_size += ::ink::storage::traits::Storable::encoded_size(__binding_0);
+                                }
+                                {
+                                    encoded_size += ::ink::storage::traits::Storable::encoded_size(__binding_1);
+                                }
+                            }
+                        }
+                        encoded_size
                     }
                 }
             };

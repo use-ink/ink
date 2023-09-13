@@ -13,10 +13,7 @@
 // limitations under the License.
 
 use proc_macro2::TokenStream as TokenStream2;
-use quote::{
-    quote,
-    quote_spanned,
-};
+use quote::{quote, quote_spanned};
 use syn::spanned::Spanned;
 
 /// `Storable` derive implementation for `struct` types.
@@ -36,6 +33,12 @@ fn storable_struct_derive(s: &synstructure::Structure) -> TokenStream2 {
             ::ink::storage::traits::Storable::encode(#binding, __dest);
         )
     });
+    let encoded_size_body = variant.each(|binding| {
+        let span = binding.ast().ty.span();
+        quote_spanned!(span =>
+            encoded_size + ::ink::storage::traits::Storable::encoded_size(#binding);
+        )
+    });
 
     s.gen_impl(quote! {
          gen impl ::ink::storage::traits::Storable for @Self {
@@ -49,6 +52,15 @@ fn storable_struct_derive(s: &synstructure::Structure) -> TokenStream2 {
             #[allow(non_camel_case_types)]
             fn encode<__ink_O: ::ink::scale::Output + ?::core::marker::Sized>(&self, __dest: &mut __ink_O) {
                 match self { #encode_body }
+            }
+
+            #[inline(always)]
+            #[allow(unused_mut)]
+            #[allow(non_camel_case_types)]
+            fn encoded_size(&self) -> ::core::primitive::usize {
+                let mut encoded_size = 0;
+                match self { #encoded_size_body }
+                encoded_size
             }
          }
      })
@@ -66,7 +78,7 @@ fn storable_enum_derive(s: &synstructure::Structure) -> TokenStream2 {
             s.ast().span(),
             "Currently only enums with at most 256 variants are supported.",
         )
-        .to_compile_error()
+        .to_compile_error();
     }
 
     let decode_body = s
@@ -108,6 +120,26 @@ fn storable_enum_derive(s: &synstructure::Structure) -> TokenStream2 {
              }
          }
     });
+
+    let encoded_size_body = s.variants().iter().enumerate().map(|(index, variant)| {
+        let pat = variant.pat();
+        let index = index as u8;
+        let fields = variant.bindings().iter().map(|field| {
+            let span = field.ast().ty.span();
+            quote_spanned!(span =>
+                encoded_size += ::ink::storage::traits::Storable::encoded_size(#field);
+            )
+        });
+        quote! {
+             #pat => {
+                 { encoded_size += <::core::primitive::u8 as ::ink::storage::traits::Storable>::encoded_size(&#index); }
+                 #(
+                     { #fields }
+                 )*
+             }
+         }
+    });
+
     s.gen_impl(quote! {
          gen impl ::ink::storage::traits::Storable for @Self {
             #[inline(always)]
@@ -129,6 +161,19 @@ fn storable_enum_derive(s: &synstructure::Structure) -> TokenStream2 {
                         #encode_body
                     )*
                 }
+            }
+
+            #[inline(always)]
+            #[allow(unused_mut)]
+            #[allow(non_camel_case_types)]
+            fn encoded_size(&self) -> ::core::primitive::usize {
+                let mut encoded_size = 0;
+                match self {
+                    #(
+                        #encoded_size_body
+                    )*
+                }
+                encoded_size
             }
          }
      })
