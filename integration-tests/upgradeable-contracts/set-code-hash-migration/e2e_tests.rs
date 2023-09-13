@@ -65,8 +65,6 @@ async fn migration_works<Client: E2EBackend>(mut client: Client) -> E2EResult<()
         .expect("`migrate` failed");
 
     // Then
-    // Note that our contract's `AccountId` (so `contract_acc_id`) has stayed the
-    // same between updates!
     let inc = contract
         .call::<updated_incrementer::incrementer::Incrementer>()
         .inc();
