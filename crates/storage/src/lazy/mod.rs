@@ -150,7 +150,7 @@ where
 
 impl<V, KeyType> Lazy<V, KeyType>
 where
-    V: Default,
+    V: Storable + Default,
     KeyType: StorageKey,
 {
     /// Reads the `value` from the contract storage.
