@@ -57,8 +57,8 @@ pub mod incrementer {
         ///
         /// In a production contract you would do some authorization here!
         #[ink(message)]
-        pub fn set_code(&mut self, code_hash: [u8; 32]) {
-            ink::env::set_code_hash(&code_hash).unwrap_or_else(|err| {
+        pub fn set_code(&mut self, code_hash: Hash) {
+            self.env().set_code_hash(&code_hash).unwrap_or_else(|err| {
                 panic!("Failed to `set_code_hash` to {code_hash:?} due to {err:?}")
             });
             ink::env::debug_println!("Switched code hash to {:?}.", code_hash);
@@ -73,7 +73,9 @@ pub mod incrementer {
         type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
         #[ink_e2e::test]
-        async fn migration_works<Client: E2EBackend>(mut client: Client) -> E2EResult<()> {
+        async fn migration_works<Client: E2EBackend>(
+            mut client: Client,
+        ) -> E2EResult<()> {
             // Given
             let constructor = IncrementerRef::new();
             let contract = client
@@ -84,7 +86,7 @@ pub mod incrementer {
 
             let get = call.get();
             let get_res = client.call_dry_run(&ink_e2e::alice(), &get, 0, None).await;
-            assert!(matches!(get_res.return_value(), 0));
+            assert_eq!(get_res.return_value(), 0);
 
             let inc = call.inc();
             let _inc_result = client
@@ -95,7 +97,7 @@ pub mod incrementer {
             let get = call.get();
             let get_res = client.call_dry_run(&ink_e2e::alice(), &get, 0, None).await;
             let pre_migration_value = get_res.return_value();
-            assert!(matches!(pre_migration_value, 1));
+            assert_eq!(pre_migration_value, 1);
 
             // Upload the code for the contract to be updated to after the migration.
             let new_code_hash = client
@@ -110,7 +112,8 @@ pub mod incrementer {
                 .upload("migration", &ink_e2e::alice(), None)
                 .await
                 .expect("uploading `migration` failed");
-            let migration_code_hash = migration_contract.code_hash.as_ref().try_into().unwrap();
+            let migration_code_hash =
+                migration_contract.code_hash.as_ref().try_into().unwrap();
 
             // When
 
@@ -121,21 +124,24 @@ pub mod incrementer {
                 .await
                 .expect("`set_code` failed");
 
-            // Call the migration contract with a new value for `inc_by` and the code hash of the
-            // updated contract.
+            // Call the migration contract with a new value for `inc_by` and the code hash
+            // of the updated contract.
             const NEW_INC_BY: u8 = 4;
             let migrate = contract
                 .call::<migration::incrementer::Incrementer>()
                 .migrate(NEW_INC_BY, new_code_hash);
 
-            let _migration_result = client.call(&ink_e2e::alice(), &migrate, 0, None)
+            let _migration_result = client
+                .call(&ink_e2e::alice(), &migrate, 0, None)
                 .await
                 .expect("`migrate` failed");
 
             // Then
             // Note that our contract's `AccountId` (so `contract_acc_id`) has stayed the
             // same between updates!
-            let inc = contract.call::<updated_incrementer::incrementer::Incrementer>().inc();
+            let inc = contract
+                .call::<updated_incrementer::incrementer::Incrementer>()
+                .inc();
 
             let _inc_result = client
                 .call(&ink_e2e::alice(), &inc, 0, None)
@@ -146,7 +152,10 @@ pub mod incrementer {
             let get_res = client.call_dry_run(&ink_e2e::alice(), &get, 0, None).await;
 
             // Remember, we updated our incrementer contract to increment by `4`.
-            assert!(matches!(get_res.return_value(), pre_migration_value + NEW_INC_BY.into()));
+            assert_eq!(
+                get_res.return_value(),
+                pre_migration_value + NEW_INC_BY as u32
+            );
 
             Ok(())
         }

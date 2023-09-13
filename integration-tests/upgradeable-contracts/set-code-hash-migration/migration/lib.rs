@@ -4,8 +4,8 @@
 #[ink::contract]
 pub mod incrementer {
 
-    /// Storage struct matches exactly that of the original `incrementer` contract, from which
-    /// we are migrating.
+    /// Storage struct matches exactly that of the original `incrementer` contract, from
+    /// which we are migrating.
     #[ink(storage)]
     pub struct Incrementer {
         count: u32,
@@ -35,24 +35,30 @@ pub mod incrementer {
         }
 
         /// Run the migration to the data layout for the upgraded contract.
-        /// Once the storage migration has successfully completed, the contract will be upgraded
-        /// to the supplied code hash.
+        /// Once the storage migration has successfully completed, the contract will be
+        /// upgraded to the supplied code hash.
         ///
         /// In a production contract you would do some authorization here!
         ///
         /// # Note
         ///
-        /// This function necessarily accepts a `&self` instead of a `&mut self` because we are
-        /// modifying storage directly for the migration. Using `&mut self` would overwrite our
-        /// migration changes with the contents of the original `Incrementer`.
+        /// This function necessarily accepts a `&self` instead of a `&mut self` because
+        /// we are modifying storage directly for the migration. Using `&mut self`
+        /// would overwrite our migration changes with the contents of the
+        /// original `Incrementer`.
         #[ink(message)]
         pub fn migrate(&self, inc_by: u8, code_hash: Hash) {
             let incrementer_new = IncrementerNew {
                 count: self.count as u64,
                 inc_by,
             };
-            ink::env::set_contract_storage(0x00000000, &incrementer_new);
-            ink::env::set_code_hash2::<<Self as ink::ContractEnv>::Env>(&code_hash);
+            const STORAGE_KEY: u32 = 0x00000000;
+            ink::env::set_contract_storage(&STORAGE_KEY, &incrementer_new);
+
+            ink::env::set_code_hash::<<Self as ink::env::ContractEnv>::Env>(&code_hash)
+                .unwrap_or_else(|err| {
+                    panic!("Failed to `set_code_hash` to {code_hash:?} due to {err:?}")
+                })
         }
     }
 }

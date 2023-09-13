@@ -1,5 +1,5 @@
 [package]
-name = "updated-incrementer"
+name = "migration"
 version = "5.0.0-alpha"
 authors = ["Parity Technologies <admin@parity.io>"]
 edition = "2021"

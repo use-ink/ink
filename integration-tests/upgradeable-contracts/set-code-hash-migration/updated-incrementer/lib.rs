@@ -42,7 +42,7 @@ pub mod incrementer {
         /// `inc_by` field.
         #[ink(message)]
         pub fn inc(&mut self) {
-            self.count = self.count.checked_add(self.inc_by).unwrap();
+            self.count = self.count.checked_add(self.inc_by.into()).unwrap();
         }
 
         /// Set the value by which the counter will be incremented.
@@ -53,7 +53,7 @@ pub mod incrementer {
 
         /// Returns the counter value which is stored in this contract's storage.
         #[ink(message)]
-        pub fn get(&self) -> u32 {
+        pub fn get(&self) -> u64 {
             self.count
         }
 
