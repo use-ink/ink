@@ -46,7 +46,6 @@ use ink_engine::{
     ext,
     ext::Engine,
 };
-
 use ink_storage_traits::{
     decode_all,
     Storable,
