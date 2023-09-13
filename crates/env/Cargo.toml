@@ -44,7 +44,7 @@ blake2 = { workspace = true, optional = true }
 secp256k1 = { workspace = true, features = ["recovery", "global-context"], optional = true }
 
 # schnorrkel for the off-chain environment.
-schnorrkel = { version = "0.10.2", optional = true }
+schnorrkel = { version = "0.11.2", optional = true }
 
 # Only used in the off-chain environment.
 #
@@ -55,7 +55,7 @@ scale-encode = { workspace = true, optional = true }
 scale-info = { workspace = true, features = ["derive"], optional = true }
 
 [dev-dependencies]
-ink = { workspace = true }
+ink = { path = "../ink" }
 
 [features]
 default = ["std"]

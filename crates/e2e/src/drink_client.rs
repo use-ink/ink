@@ -18,12 +18,12 @@ use crate::{
     UploadResult,
 };
 use drink::{
-    chain_api::ChainApi,
-    contract_api::ContractApi,
-    runtime::{
-        MinimalRuntime,
-        Runtime,
+    chain_api::{
+        ChainApi,
+        RuntimeCall,
     },
+    contract_api::ContractApi,
+    runtime::Runtime as RuntimeT,
     Sandbox,
     DEFAULT_GAS_LIMIT,
 };
@@ -40,7 +40,6 @@ use scale::{
     Encode,
 };
 use sp_core::{
-    crypto::AccountId32,
     sr25519::Pair,
     Pair as _,
 };
@@ -48,18 +47,32 @@ use std::{
     marker::PhantomData,
     path::PathBuf,
 };
-use subxt::dynamic::Value;
+use subxt::{
+    dynamic::Value,
+    tx::TxPayload,
+};
 use subxt_signer::sr25519::Keypair;
 
-pub struct Client<AccountId, Hash> {
-    sandbox: Sandbox<MinimalRuntime>,
+pub struct Client<AccountId, Hash, Runtime: RuntimeT> {
+    sandbox: Sandbox<Runtime>,
     contracts: ContractsRegistry,
     _phantom: PhantomData<(AccountId, Hash)>,
 }
 
-unsafe impl<AccountId, Hash> Send for Client<AccountId, Hash> {}
+// While it is not necessary true that `Client` is `Send`, it will not be used in a way
+// that would violate this bound. In particular, all `Client` instances will be operating
+// synchronously.
+unsafe impl<AccountId, Hash, Runtime: RuntimeT> Send
+    for Client<AccountId, Hash, Runtime>
+{
+}
 
-impl<AccountId, Hash> Client<AccountId, Hash> {
+type RuntimeAccountId<R> = <R as drink::runtime::frame_system::Config>::AccountId;
+
+impl<AccountId, Hash, Runtime: RuntimeT> Client<AccountId, Hash, Runtime>
+where
+    RuntimeAccountId<Runtime>: From<[u8; 32]>,
+{
     pub fn new<P: Into<PathBuf>>(contracts: impl IntoIterator<Item = P>) -> Self {
         let mut sandbox = Sandbox::new().expect("Failed to initialize Drink! sandbox");
         Self::fund_accounts(&mut sandbox);
@@ -71,7 +84,7 @@ impl<AccountId, Hash> Client<AccountId, Hash> {
         }
     }
 
-    fn fund_accounts<R: Runtime>(sandbox: &mut Sandbox<R>) {
+    fn fund_accounts(sandbox: &mut Sandbox<Runtime>) {
         const TOKENS: u128 = 1_000_000_000_000_000;
 
         let accounts = [
@@ -85,7 +98,7 @@ impl<AccountId, Hash> Client<AccountId, Hash> {
             crate::two(),
         ]
         .map(|kp| kp.public_key().0)
-        .map(AccountId32::new);
+        .map(From::from);
         for account in accounts.into_iter() {
             sandbox.add_tokens(account, TOKENS);
         }
@@ -93,7 +106,11 @@ impl<AccountId, Hash> Client<AccountId, Hash> {
 }
 
 #[async_trait]
-impl<AccountId: AsRef<[u8; 32]> + Send, Hash> ChainBackend for Client<AccountId, Hash> {
+impl<AccountId: AsRef<[u8; 32]> + Send, Hash, Runtime: RuntimeT> ChainBackend
+    for Client<AccountId, Hash, Runtime>
+where
+    RuntimeAccountId<Runtime>: From<[u8; 32]>,
+{
     type AccountId = AccountId;
     type Balance = u128;
     type Error = ();
@@ -115,27 +132,59 @@ impl<AccountId: AsRef<[u8; 32]> + Send, Hash> ChainBackend for Client<AccountId,
         &mut self,
         account: Self::AccountId,
     ) -> Result<Self::Balance, Self::Error> {
-        let account = AccountId32::new(*account.as_ref());
+        let account = RuntimeAccountId::<Runtime>::from(*account.as_ref());
         Ok(self.sandbox.balance(&account))
     }
 
     async fn runtime_call<'a>(
         &mut self,
-        _origin: &Keypair,
-        _pallet_name: &'a str,
-        _call_name: &'a str,
-        _call_data: Vec<Value>,
+        origin: &Keypair,
+        pallet_name: &'a str,
+        call_name: &'a str,
+        call_data: Vec<Value>,
     ) -> Result<Self::EventLog, Self::Error> {
-        todo!("https://github.com/Cardinal-Cryptography/drink/issues/36")
+        // Since in general, `ChainBackend::runtime_call` must be dynamic, we have to
+        // perform some translation here in order to invoke strongly-typed drink!
+        // API.
+
+        // Get metadata of the drink! runtime, so that we can encode the call object.
+        // Panic on error - metadata of the static im-memory runtime should always be
+        // available.
+        let raw_metadata: Vec<u8> = Runtime::get_metadata().into();
+        let metadata = subxt_metadata::Metadata::decode(&mut raw_metadata.as_slice())
+            .expect("Failed to decode metadata");
+
+        // Encode the call object.
+        let call = subxt::dynamic::tx(pallet_name, call_name, call_data);
+        let encoded_call = call.encode_call_data(&metadata.into()).map_err(|_| ())?;
+
+        // Decode the call object.
+        // Panic on error - we just encoded a validated call object, so it should be
+        // decodable.
+        let decoded_call = RuntimeCall::<Runtime>::decode(&mut encoded_call.as_slice())
+            .expect("Failed to decode runtime call");
+
+        // Execute the call.
+        self.sandbox
+            .runtime_call(
+                decoded_call,
+                Runtime::convert_account_to_origin(keypair_to_account(origin)),
+            )
+            .map_err(|_| ())?;
+
+        Ok(())
     }
 }
 
 #[async_trait]
 impl<
         AccountId: Clone + Send + Sync + From<[u8; 32]> + AsRef<[u8; 32]>,
-        Hash: From<[u8; 32]>,
+        Hash: Copy + From<[u8; 32]>,
+        Runtime: RuntimeT,
         E: Environment<AccountId = AccountId, Balance = u128, Hash = Hash> + 'static,
-    > ContractsBackend<E> for Client<AccountId, Hash>
+    > ContractsBackend<E> for Client<AccountId, Hash, Runtime>
+where
+    RuntimeAccountId<Runtime>: From<[u8; 32]> + AsRef<[u8; 32]>,
 {
     type Error = ();
     type EventLog = ();
@@ -221,10 +270,16 @@ impl<
             }
         };
 
+        let code_hash_raw: [u8; 32] = result
+            .code_hash
+            .as_ref()
+            .try_into()
+            .expect("Invalid code hash");
+        let code_hash = Hash::from(code_hash_raw);
         Ok(UploadResult {
-            code_hash: result.code_hash.0.into(),
+            code_hash,
             dry_run: Ok(CodeUploadReturnValue {
-                code_hash: result.code_hash.0.into(),
+                code_hash,
                 deposit: result.deposit,
             }),
             events: (),
@@ -287,12 +342,15 @@ impl<
 
 impl<
         AccountId: Clone + Send + Sync + From<[u8; 32]> + AsRef<[u8; 32]>,
-        Hash: From<[u8; 32]>,
+        Hash: Copy + From<[u8; 32]>,
+        Runtime: RuntimeT,
         E: Environment<AccountId = AccountId, Balance = u128, Hash = Hash> + 'static,
-    > E2EBackend<E> for Client<AccountId, Hash>
+    > E2EBackend<E> for Client<AccountId, Hash, Runtime>
+where
+    RuntimeAccountId<Runtime>: From<[u8; 32]> + AsRef<[u8; 32]>,
 {
 }
 
-fn keypair_to_account(keypair: &Keypair) -> AccountId32 {
-    AccountId32::from(keypair.public_key().0)
+fn keypair_to_account<AccountId: From<[u8; 32]>>(keypair: &Keypair) -> AccountId {
+    AccountId::from(keypair.public_key().0)
 }
