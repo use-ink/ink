@@ -49,8 +49,8 @@ use crate::{
     TypedEnvBackend,
 };
 use ink_storage_traits::{
+    decode_all,
     Storable,
-    StorableDecodeAll,
 };
 
 impl CryptoHash for Blake2x128 {
@@ -229,7 +229,7 @@ impl EnvBackend for EnvInstance {
     fn get_contract_storage<K, R>(&mut self, key: &K) -> Result<Option<R>>
     where
         K: scale::Encode,
-        R: StorableDecodeAll,
+        R: Storable,
     {
         let mut buffer = self.scoped_buffer();
         let key = buffer.take_encoded(key);
@@ -239,14 +239,14 @@ impl EnvBackend for EnvInstance {
             Err(ExtError::KeyNotFound) => return Ok(None),
             Err(_) => panic!("encountered unexpected error"),
         }
-        let decoded = StorableDecodeAll::decode_all(&mut &output[..])?;
+        let decoded = decode_all(&mut &output[..])?;
         Ok(Some(decoded))
     }
 
     fn take_contract_storage<K, R>(&mut self, key: &K) -> Result<Option<R>>
     where
         K: scale::Encode,
-        R: StorableDecodeAll,
+        R: Storable,
     {
         let mut buffer = self.scoped_buffer();
         let key = buffer.take_encoded(key);
@@ -256,7 +256,7 @@ impl EnvBackend for EnvInstance {
             Err(ExtError::KeyNotFound) => return Ok(None),
             Err(_) => panic!("encountered unexpected error"),
         }
-        let decoded = StorableDecodeAll::decode_all(&mut &output[..])?; // todo: [AJ] test.
+        let decoded = decode_all(&mut &output[..])?; // todo: [AJ] test.
         Ok(Some(decoded))
     }
 

@@ -44,27 +44,16 @@ where
     }
 }
 
-/// Extension trait to [`Storable`] that ensures that the given input data is consumed
-/// completely.
-pub trait StorableDecodeAll: Sized {
-    /// Decode `Self` and consume all of the given input data.
-    ///
-    /// If not all data is consumed, an error is returned.
-    fn decode_all(input: &mut &[u8]) -> Result<Self, scale::Error>;
-}
+/// Decode and consume all of the given input data.
+///
+/// If not all data is consumed, an error is returned.
+pub fn decode_all<T: Storable>(input: &mut &[u8]) -> Result<T, scale::Error> {
+    let res = <T as Storable>::decode(input)?;
 
-impl<P> StorableDecodeAll for P
-where
-    P: Storable,
-{
-    fn decode_all(input: &mut &[u8]) -> Result<Self, scale::Error> {
-        let res = Storable::decode(input)?;
-
-        if input.is_empty() {
-            Ok(res)
-        } else {
-            Err("Input buffer has still data left after decoding!".into())
-        }
+    if input.is_empty() {
+        Ok(res)
+    } else {
+        Err("Input buffer has still data left after decoding!".into())
     }
 }
 
