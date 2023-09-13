@@ -23,7 +23,7 @@ pub mod strict_balance_equality {
         }
         fn get_balance_3(&self) -> Balance {
             let tmp = self.env().balance();
-            tmp + 1
+            tmp + 42
         }
         fn get_balance_recursive(&self, acc: &Balance) -> Balance {
             if acc < &10_u128 {
@@ -33,9 +33,9 @@ pub mod strict_balance_equality {
             }
         }
 
-        fn cmp_balance(&self, value: &Balance) -> bool {
-            *value == self.env().balance()
-        }
+        // fn cmp_balance(&self, value: &Balance) -> bool {
+        //     *value == self.env().balance()
+        // }
 
         #[ink(message)]
         pub fn do_nothing(&mut self) {
@@ -50,11 +50,11 @@ pub mod strict_balance_equality {
             // Bad: Strict equality in function call: return value
             if self.get_balance_1() == 10 { /* ... */ }
             if self.get_balance_2() == 10 { /* ... */ }
-            //if self.get_balance_3() == 10 { /* ... */ } // TODO: false negative
+            if self.get_balance_3() == 10 { /* ... */ }
             if self.get_balance_recursive(&10) == 10 { /* ... */ }
 
             // Bad: Strict equality in function: tainted arguments
-            //if self.cmp_balance(&10) {}
+            // if self.cmp_balance(&10) {}
             // if self.check_balance(&self.env().balance(), &threshold) {
             //     // Do nothing
             // }

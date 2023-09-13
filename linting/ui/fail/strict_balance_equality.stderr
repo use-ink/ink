@@ -1,5 +1,5 @@
 error: dangerous strict balance equality
-  --> $DIR/strict_balance_equality.rs:39:37
+  --> $DIR/strict_balance_equality.rs:46:37
    |
 LL |             if self.env().balance() == 10 { /* ... */ }
    |                                     ^^ help: consider using non-strict equality operators instead: `<`, `>`
@@ -7,28 +7,40 @@ LL |             if self.env().balance() == 10 { /* ... */ }
    = note: `-D strict-balance-equality` implied by `-D warnings`
 
 error: dangerous strict balance equality
-  --> $DIR/strict_balance_equality.rs:40:22
+  --> $DIR/strict_balance_equality.rs:47:22
    |
 LL |             if value == 11 { /* ... */ }
    |                      ^^ help: consider using non-strict equality operators instead: `<`, `>`
 
 error: dangerous strict balance equality
-  --> $DIR/strict_balance_equality.rs:41:37
+  --> $DIR/strict_balance_equality.rs:48:37
    |
 LL |             if self.env().balance() == threshold { /* ... */ }
    |                                     ^^ help: consider using non-strict equality operators instead: `<`, `>`
 
 error: dangerous strict balance equality
-  --> $DIR/strict_balance_equality.rs:44:37
+  --> $DIR/strict_balance_equality.rs:51:37
    |
 LL |             if self.get_balance_1() == 10 { /* ... */ }
    |                                     ^^ help: consider using non-strict equality operators instead: `<`, `>`
 
 error: dangerous strict balance equality
-  --> $DIR/strict_balance_equality.rs:45:37
+  --> $DIR/strict_balance_equality.rs:52:37
    |
 LL |             if self.get_balance_2() == 10 { /* ... */ }
    |                                     ^^ help: consider using non-strict equality operators instead: `<`, `>`
 
-error: aborting due to 5 previous errors
+error: dangerous strict balance equality
+  --> $DIR/strict_balance_equality.rs:53:37
+   |
+LL |             if self.get_balance_3() == 10 { /* ... */ }
+   |                                     ^^ help: consider using non-strict equality operators instead: `<`, `>`
+
+error: dangerous strict balance equality
+  --> $DIR/strict_balance_equality.rs:54:48
+   |
+LL |             if self.get_balance_recursive(&10) == 10 { /* ... */ }
+   |                                                ^^ help: consider using non-strict equality operators instead: `<`, `>`
+
+error: aborting due to 7 previous errors
 

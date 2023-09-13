@@ -233,7 +233,8 @@ impl Visitor<'_> for TransferFunction<'_, '_> {
     fn visit_assign(&mut self, place: &Place, rvalue: &Rvalue, _: Location) {
         match rvalue {
             // Result of direct comparison with balance
-            Rvalue::BinaryOp(BinOp::Eq | BinOp::Ne, box (lhs, rhs)) => {
+            Rvalue::BinaryOp(_, box (lhs, rhs))
+            | Rvalue::CheckedBinaryOp(_, box (lhs, rhs)) => {
                 if tainted_with_balance(self.state, lhs).is_some()
                     || tainted_with_balance(self.state, rhs).is_some()
                 {
@@ -328,7 +329,9 @@ impl<'a> TransferFunction<'_, '_> {
                 cached_results
             } else {
                 // Insert an empty value first to handle recursive calls
-                let _ = self.fun_cache.insert(cache_key.clone(), BitSet::new_empty(0));
+                let _ = self
+                    .fun_cache
+                    .insert(cache_key.clone(), BitSet::new_empty(0));
                 let results = self
                     .analyze_function(fn_def_id)
                     .unwrap_or(BitSet::new_empty(0));
