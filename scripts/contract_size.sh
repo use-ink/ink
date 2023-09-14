@@ -17,7 +17,7 @@ manifest_path
 
 EXAMPLES
   ${script_name} ./Cargo.toml
-  ${scripts_path}/for_all_contracts_exec.sh --path ./integration-tests/ -- ${script_name} {} \;
+  ${scripts_path}/for_all_contracts_exec.sh --path ./integration-tests/ --quiet -- ${script_name} {} \;
 
 EOF
 }
