@@ -32,10 +32,10 @@ build_result=$(cargo contract build --manifest-path "$manifest_path" --release -
 if [ $? -eq 0 ]; then
   # only print the contract name and size if the build was successful
   dest_wasm=$(echo "$build_result" | jq -r .dest_wasm)
-  contract_name=$(basename "$dest_wasm" .wasm)
+  contract_dir=$(dirname "$manifest_path")
   contract_size=$(stat -c %s "$dest_wasm")
 
-  echo "$contract_name" "$contract_size"
+  echo "$contract_dir" "$contract_size"
   exit 0
 else
   echo "Failed to build contract at $manifest_path"
