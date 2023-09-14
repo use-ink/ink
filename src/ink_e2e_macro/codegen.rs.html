@@ -141,24 +141,6 @@
 <a href="#141" id="141">141</a>
 <a href="#142" id="142">142</a>
 <a href="#143" id="143">143</a>
-<a href="#144" id="144">144</a>
-<a href="#145" id="145">145</a>
-<a href="#146" id="146">146</a>
-<a href="#147" id="147">147</a>
-<a href="#148" id="148">148</a>
-<a href="#149" id="149">149</a>
-<a href="#150" id="150">150</a>
-<a href="#151" id="151">151</a>
-<a href="#152" id="152">152</a>
-<a href="#153" id="153">153</a>
-<a href="#154" id="154">154</a>
-<a href="#155" id="155">155</a>
-<a href="#156" id="156">156</a>
-<a href="#157" id="157">157</a>
-<a href="#158" id="158">158</a>
-<a href="#159" id="159">159</a>
-<a href="#160" id="160">160</a>
-<a href="#161" id="161">161</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -180,8 +162,6 @@
 <span class="kw">use </span>derive_more::From;
 <span class="kw">use </span>proc_macro2::TokenStream <span class="kw">as </span>TokenStream2;
 <span class="kw">use </span>quote::quote;
-
-<span class="kw">const </span>DEFAULT_CONTRACTS_NODE: <span class="kw-2">&amp;</span>str = <span class="string">&quot;substrate-contracts-node&quot;</span>;
 
 <span class="doccomment">/// Generates code for the `[ink::e2e_test]` macro.
 </span><span class="attr">#[derive(From)]
@@ -274,26 +254,10 @@
 }
 
 <span class="kw">fn </span>build_full_client(environment: <span class="kw-2">&amp;</span>syn::Path, contracts: TokenStream2) -&gt; TokenStream2 {
-    <span class="comment">// Use the user supplied `CONTRACTS_NODE` or default to `DEFAULT_CONTRACTS_NODE`.
-    </span><span class="kw">let </span>contracts_node: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str =
-        <span class="macro">option_env!</span>(<span class="string">&quot;CONTRACTS_NODE&quot;</span>).unwrap_or(DEFAULT_CONTRACTS_NODE);
-
-    <span class="comment">// Check the specified contracts node.
-    </span><span class="kw">if </span>which::which(contracts_node).is_err() {
-        <span class="kw">if </span>contracts_node == DEFAULT_CONTRACTS_NODE {
-            <span class="macro">panic!</span>(
-                <span class="string">&quot;The &#39;{DEFAULT_CONTRACTS_NODE}&#39; executable was not found. Install &#39;{DEFAULT_CONTRACTS_NODE}&#39; on the PATH, \
-                    or specify the `CONTRACTS_NODE` environment variable.&quot;</span>,
-            )
-        } <span class="kw">else </span>{
-            <span class="macro">panic!</span>(<span class="string">&quot;The contracts node executable &#39;{contracts_node}&#39; was not found.&quot;</span>)
-        }
-    }
-
     <span class="macro">quote! </span>{
         <span class="comment">// Spawn a contracts node process just for this test.
         </span><span class="kw">let </span>node_proc = ::ink_e2e::TestNodeProcess::&lt;::ink_e2e::PolkadotConfig&gt;
-            ::build(#contracts_node)
+            ::build_with_env_or_default()
             .spawn()
             .<span class="kw">await
             </span>.unwrap_or_else(|err|
