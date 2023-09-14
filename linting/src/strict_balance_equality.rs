@@ -242,7 +242,10 @@ impl Visitor<'_> for TransferFunction<'_, '_> {
                 }
             }
             // Assigments of intermediate locals created by rustc
-            Rvalue::Use(Operand::Move(use_place) | Operand::Copy(use_place)) => {
+            Rvalue::Use(Operand::Move(use_place) | Operand::Copy(use_place))
+            // Values tainted with balance operation propagate through references
+            | Rvalue::Ref(_, _, use_place)
+                => {
                 let use_local = use_place.local;
                 if self.state.contains(use_local) {
                     self.state.insert(place.local);
