@@ -53,7 +53,7 @@ pub mod strict_balance_equality {
             let threshold: Balance = 100;
             let value: Balance = self.env().balance();
 
-            // Bad: Strict equality
+            // Bad: Strict equality with balance
             if self.env().balance() == 10 { /* ... */ }
             if value == 11 { /* ... */ }
             if self.env().balance() == threshold { /* ... */ }
@@ -70,7 +70,7 @@ pub mod strict_balance_equality {
             if self.cmp_balance_2(&self.env().balance(), &threshold) { /* ... */ }
             if self.cmp_balance_3(self.env().balance(), threshold) { /* ... */ }
 
-            // // Bad: Strict equality in function: tainted arguments
+            // Bad: Strict equality in function: tainted arguments
             let mut res_1 = 0_u128;
             self.get_balance_arg_1(&mut res_1);
             if res_1 == 10 { /* ... */ }
