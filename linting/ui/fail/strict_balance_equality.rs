@@ -34,10 +34,10 @@ pub mod strict_balance_equality {
             *value == self.env().balance()
         }
         fn cmp_balance_2(&self, value: &Balance, threshold: &Balance) -> bool {
-             value != threshold
+            value != threshold
         }
         fn cmp_balance_3(&self, value: Balance, threshold: Balance) -> bool {
-             value != threshold
+            value != threshold
         }
 
         // Tainted `&mut` input argument
