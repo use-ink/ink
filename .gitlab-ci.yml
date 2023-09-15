@@ -411,9 +411,9 @@ examples-docs:
     # puts the contract functions in a private module.
     # Once https://github.com/paritytech/ink/issues/336 has been implemented we can get rid
     # of this flag.
-    - find integration-tests -name "Cargo.toml"
-      -exec scripts/is_contract.sh {} \;
-      -exec cargo doc --manifest-path {} --document-private-items --verbose --no-deps \;
+    - scripts/for_all_contracts_exec.sh
+      --path integration-tests
+      -- cargo doc --manifest-path {} --document-private-items --verbose --no-deps
 
 #### stage:                        ink-waterfall
 
