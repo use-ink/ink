@@ -40,6 +40,7 @@ use rustc_middle::{
         traversal,
         visit::Visitor,
         BasicBlock,
+        BinOp,
         Body,
         BorrowKind,
         Constant,
@@ -285,9 +286,12 @@ impl<'a, 'tcx> Analysis<'tcx> for StrictBalanceEqualityAnalysis<'a, 'tcx> {
 impl Visitor<'_> for TransferFunction<'_, '_> {
     fn visit_assign(&mut self, place: &Place, rvalue: &Rvalue, _: Location) {
         match rvalue {
-            // Result of direct comparison with balance
-            Rvalue::BinaryOp(_, box (lhs, rhs))
-            | Rvalue::CheckedBinaryOp(_, box (lhs, rhs)) => {
+            // Direct comparison with the balance or propagation to a value tainted with
+            // some operation with the balance
+            Rvalue::BinaryOp(binop, box (lhs, rhs))
+            | Rvalue::CheckedBinaryOp(binop, box (lhs, rhs))
+                if self.binop_strict_eq(binop) || self.binop_other(binop) =>
+            {
                 if tainted_with_balance(self.state, lhs).is_some()
                     || tainted_with_balance(self.state, rhs).is_some()
                 {
@@ -343,6 +347,26 @@ impl Visitor<'_> for TransferFunction<'_, '_> {
 }
 
 impl<'tcx> TransferFunction<'_, 'tcx> {
+    fn binop_strict_eq(&self, binop: &BinOp) -> bool {
+        matches!(binop, BinOp::Eq | BinOp::Ne)
+    }
+    fn binop_other(&self, binop: &BinOp) -> bool {
+        matches!(
+            binop,
+            BinOp::Add
+                | BinOp::Sub
+                | BinOp::Mul
+                | BinOp::Div
+                | BinOp::Rem
+                | BinOp::BitXor
+                | BinOp::BitAnd
+                | BinOp::BitOr
+                | BinOp::Shl
+                | BinOp::Shr
+                | BinOp::Offset
+        )
+    }
+
     /// Returns all the origins of the given mutable reference.
     ///
     /// A mutable reference can have multiple origins because of compiler's two-phase
