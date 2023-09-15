@@ -77,6 +77,10 @@ pub mod strict_balance_equality {
             let mut res_2 = 0_u128;
             self.get_balance_arg_indirect(&mut res_2);
             if res_2 > 10 { /* ... */ }
+
+            // Good: warning is suppressed
+            #[cfg_attr(dylint_lib = "ink_linting", allow(strict_balance_equality))]
+            if self.env().balance() == 10 { /* ... */ }
         }
     }
 }
