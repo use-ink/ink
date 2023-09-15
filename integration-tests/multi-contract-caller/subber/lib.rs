@@ -26,7 +26,7 @@ mod subber {
         /// Decreases the `accumulator` value by some amount.
         #[ink(message)]
         pub fn dec(&mut self, by: i32) {
-            self.accumulator.inc(-by)
+            self.accumulator.inc(0i32.checked_sub(by).unwrap())
         }
     }
 }

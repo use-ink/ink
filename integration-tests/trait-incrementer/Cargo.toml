@@ -1,6 +1,6 @@
 [package]
 name = "trait-incrementer"
-version = "4.2.0"
+version = "5.0.0-alpha"
 authors = ["Parity Technologies <admin@parity.io>"]
 edition = "2021"
 publish = false
@@ -19,8 +19,6 @@ path = "lib.rs"
 default = ["std"]
 std = [
     "ink/std",
-    "scale/std",
-    "scale-info/std",
     "traits/std",
 ]
 ink-as-dependency = []

@@ -20,8 +20,6 @@ use derive_more::From;
 use proc_macro2::TokenStream as TokenStream2;
 use quote::quote;
 
-const DEFAULT_CONTRACTS_NODE: &str = "substrate-contracts-node";
-
 /// Generates code for the `[ink::e2e_test]` macro.
 #[derive(From)]
 pub struct InkE2ETest {
@@ -69,7 +67,9 @@ impl InkE2ETest {
         let client_building = match self.test.config.backend() {
             Backend::Full => build_full_client(&environment, exec_build_contracts),
             #[cfg(any(test, feature = "drink"))]
-            Backend::RuntimeOnly => build_runtime_client(exec_build_contracts),
+            Backend::RuntimeOnly => {
+                build_runtime_client(exec_build_contracts, self.test.config.runtime())
+            }
         };
 
         quote! {
@@ -111,26 +111,10 @@ impl InkE2ETest {
 }
 
 fn build_full_client(environment: &syn::Path, contracts: TokenStream2) -> TokenStream2 {
-    // Use the user supplied `CONTRACTS_NODE` or default to `DEFAULT_CONTRACTS_NODE`.
-    let contracts_node: &'static str =
-        option_env!("CONTRACTS_NODE").unwrap_or(DEFAULT_CONTRACTS_NODE);
-
-    // Check the specified contracts node.
-    if which::which(contracts_node).is_err() {
-        if contracts_node == DEFAULT_CONTRACTS_NODE {
-            panic!(
-                "The '{DEFAULT_CONTRACTS_NODE}' executable was not found. Install '{DEFAULT_CONTRACTS_NODE}' on the PATH, \
-                    or specify the `CONTRACTS_NODE` environment variable.",
-            )
-        } else {
-            panic!("The contracts node executable '{contracts_node}' was not found.")
-        }
-    }
-
     quote! {
         // Spawn a contracts node process just for this test.
         let node_proc = ::ink_e2e::TestNodeProcess::<::ink_e2e::PolkadotConfig>
-            ::build(#contracts_node)
+            ::build_with_env_or_default()
             .spawn()
             .await
             .unwrap_or_else(|err|
@@ -146,9 +130,14 @@ fn build_full_client(environment: &syn::Path, contracts: TokenStream2) -> TokenS
 }
 
 #[cfg(any(test, feature = "drink"))]
-fn build_runtime_client(contracts: TokenStream2) -> TokenStream2 {
+fn build_runtime_client(
+    contracts: TokenStream2,
+    runtime: Option<syn::Path>,
+) -> TokenStream2 {
+    let runtime =
+        runtime.unwrap_or_else(|| syn::parse_quote! { ::ink_e2e::MinimalRuntime });
     quote! {
         let contracts = #contracts;
-        let mut client = ::ink_e2e::DrinkClient::new(contracts);
+        let mut client = ::ink_e2e::DrinkClient::<_, _, #runtime>::new(contracts);
     }
 }

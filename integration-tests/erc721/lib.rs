@@ -56,11 +56,6 @@
 mod erc721 {
     use ink::storage::Mapping;
 
-    use scale::{
-        Decode,
-        Encode,
-    };
-
     /// A token ID.
     pub type TokenId = u32;
 
@@ -77,8 +72,8 @@ mod erc721 {
         operator_approvals: Mapping<(AccountId, AccountId), ()>,
     }
 
-    #[derive(Encode, Decode, Debug, PartialEq, Eq, Copy, Clone)]
-    #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
+    #[derive(Debug, PartialEq, Eq, Copy, Clone)]
+    #[ink::scale_derive(Encode, Decode, TypeInfo)]
     pub enum Error {
         NotOwner,
         NotApproved,
@@ -227,7 +222,7 @@ mod erc721 {
 
             let count = owned_tokens_count
                 .get(caller)
-                .map(|c| c - 1)
+                .map(|c| c.checked_sub(1).unwrap())
                 .ok_or(Error::CannotFetchValue)?;
             owned_tokens_count.insert(caller, &count);
             token_owner.remove(id);
@@ -284,7 +279,7 @@ mod erc721 {
 
             let count = owned_tokens_count
                 .get(from)
-                .map(|c| c - 1)
+                .map(|c| c.checked_sub(1).unwrap())
                 .ok_or(Error::CannotFetchValue)?;
             owned_tokens_count.insert(from, &count);
             token_owner.remove(id);
@@ -308,7 +303,10 @@ mod erc721 {
                 return Err(Error::NotAllowed)
             };
 
-            let count = owned_tokens_count.get(to).map(|c| c + 1).unwrap_or(1);
+            let count = owned_tokens_count
+                .get(to)
+                .map(|c| c.checked_add(1).unwrap())
+                .unwrap_or(1);
 
             owned_tokens_count.insert(to, &count);
             token_owner.insert(id, to);

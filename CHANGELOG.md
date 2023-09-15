@@ -5,19 +5,63 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
-- Stabilize `call_runtime` ‒ [#1749](https://github.com/paritytech/ink/pull/1749)
-- Make E2E testcases generic over `E2EBackend` trait - [#1867](https://github.com/paritytech/ink/pull/1867)
-- Modify static buffer size via environmental variables - [#1869](https://github.com/paritytech/ink/pull/1869)
-- Persist static buffer size in metadata - [#1880](https://github.com/paritytech/ink/pull/1880)
-- Add backend choice to the E2E testcase configuration ‒ [#1864](https://github.com/paritytech/ink/pull/1864)
+
+## Changed
+- Make `set_code_hash` generic - [#1906](https://github.com/paritytech/ink/pull/1906)
+
+## Version 5.0.0-alpha
+
+The preview release of the ink! 5.0.0 release.
+This release addresses the majority of issues raised in the OpenZeppelin audit
+in particular we addressed the proxy selector clashing attack.
+As of this release, ink! only allows exactly one other message with a well-known reserved selector to be defined.
+You can read more about the change in the [PR](https://github.com/paritytech/ink/pull/1708)
+
+There are also other notable changes:
+
+- Rework of event definitions - [#1827](https://github.com/paritytech/ink/pull/1708).
+- Updated upgradeable contract example illustrating `delegate_call`
+- Removal of unchecked arithmetic. `cargo-contract` will fail compiling the contract with raw arithmetic operations.
+- Introduction of an alternative off-chain E2E testing backend, drink!
+**Big thanks to @pmikolajczyk41 for this massive contribution!**
+
+You can see a more detailed log of changes below:
 
 ### Added
-- Schema generation - [#1765](https://github.com/paritytech/ink/pull/1765)
-- Add `set_block_number` to off-chain test api `Engine` - [#1806](https://github.com/paritytech/ink/pull/1806)
+- [Drink backend]: allow for arbitrary runtime - [#1892](https://github.com/paritytech/ink/pull/1892)
+- [Drink backend]: support runtime call - [#1891](https://github.com/paritytech/ink/pull/1891)
+- Reexport `scale` dependencies, introduce `#[ink::scale_derive]` - [#1890](https://github.com/paritytech/ink/pull/1890)
+- Upgradeable contracts example - [#1889](https://github.com/paritytech/ink/pull/1889)
+- Persist static buffer size in metadata - [#1880](https://github.com/paritytech/ink/pull/1880)
+- Modify static buffer size via environmental variables - [#1869](https://github.com/paritytech/ink/pull/1869)
+- [Drink backend]: Make tests generic `E2EBackend` trait - [#1867](https://github.com/paritytech/ink/pull/1867)
+- [Drink backend]: Backend choice  ‒ [#1864](https://github.com/paritytech/ink/pull/1864)
+- [Drink backend]: Backend traits - [#1857](https://github.com/paritytech/ink/pull/1857)
+- [Drink backend]: Abstract error and result structs - [#1844](https://github.com/paritytech/ink/pull/1844)
 - Added `sr25519_verify` function to `ink_env` [#1840](https://github.com/paritytech/ink/pull/1840)
+- Warn when primitive number is annotated as event topic - [#1837](https://github.com/paritytech/ink/pull/1837)
+- Events `2.0` - [#1827](https://github.com/paritytech/ink/pull/1810)
+- Add `set_block_number` to off-chain test api `Engine` - [#1806](https://github.com/paritytech/ink/pull/1806)
+- Stabilize `call_runtime` ‒ [#1749](https://github.com/paritytech/ink/pull/1749)
+- Schema generation - [#1765](https://github.com/paritytech/ink/pull/1765)
+- Restrict wildcard selectors to have exactly one other message - [#1708](https://github.com/paritytech/ink/pull/1708)
 
 ### Changed
+- Reexport `scale` dependencies, introduce `#[ink::scale_derive]` ‒ [#1890](https://github.com/paritytech/ink/pull/1890)
+- `[ink_e2e]` build contracts at runtime instead of during codegen - [#1881](https://github.com/paritytech/ink/pull/1881)
+- Use of workspace dependencies and properties - [#1835](https://github.com/paritytech/ink/pull/1835)
+- Remove of unchecked arithmetic - [#1831](https://github.com/paritytech/ink/pull/1831)
+- E2E crate refactoring - [#1830](https://github.com/paritytech/ink/pull/1830)
+- Use `decode_all`` for decoding cross contract call result - [#1810](https://github.com/paritytech/ink/pull/1810)
 - E2E: improve call API, remove `build_message` + callback - [#1782](https://github.com/paritytech/ink/pull/1782)
+
+## 4.3.0
+
+### Fixed
+
+- Fix E2E tests for newer rust toolchain & contracts node - #[1884](https://github.com/paritytech/ink/pull/1884)
+- Enable Rust >= `1.70`, update `subxt` and `contract-build` - [#1855](https://github.com/paritytech/ink/pull/1855)
+- Fix unsupported `--ws-port` argument - [#1850](https://github.com/paritytech/ink/pull/1850)
 
 ## Version 4.2.0
 

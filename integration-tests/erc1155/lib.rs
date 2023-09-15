@@ -28,8 +28,8 @@ pub type TokenId = u128;
 type Balance = <ink::env::DefaultEnvironment as ink::env::Environment>::Balance;
 
 // The ERC-1155 error types.
-#[derive(Debug, PartialEq, Eq, scale::Encode, scale::Decode)]
-#[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
+#[derive(Debug, PartialEq, Eq)]
+#[ink::scale_derive(Encode, Decode, TypeInfo)]
 pub enum Error {
     /// This token ID has not yet been created by the contract.
     UnexistentToken,
@@ -267,7 +267,10 @@ mod erc1155 {
 
             // Given that TokenId is a `u128` the likelihood of this overflowing is pretty
             // slim.
-            self.token_id_nonce += 1;
+            #[allow(clippy::arithmetic_side_effects)]
+            {
+                self.token_id_nonce += 1;
+            }
             self.balances.insert((caller, self.token_id_nonce), &value);
 
             // Emit transfer event but with mint semantics
@@ -329,11 +332,15 @@ mod erc1155 {
                 .balances
                 .get((from, token_id))
                 .expect("Caller should have ensured that `from` holds `token_id`.");
-            sender_balance -= value;
+            // checks that sender_balance >= value were performed by caller
+            #[allow(clippy::arithmetic_side_effects)]
+            {
+                sender_balance -= value;
+            }
             self.balances.insert((from, token_id), &sender_balance);
 
             let mut recipient_balance = self.balances.get((to, token_id)).unwrap_or(0);
-            recipient_balance += value;
+            recipient_balance = recipient_balance.checked_add(value).unwrap();
             self.balances.insert((to, token_id), &recipient_balance);
 
             let caller = self.env().caller();
