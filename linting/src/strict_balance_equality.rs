@@ -40,8 +40,8 @@ use rustc_middle::{
         traversal,
         visit::Visitor,
         BasicBlock,
-        BinOp,
         Body,
+        BorrowKind,
         Constant,
         HasLocalDecls,
         Local,
@@ -69,7 +69,10 @@ use rustc_span::{
     source_map::BytePos,
     Span,
 };
-use std::collections::HashMap;
+use std::collections::{
+    HashMap,
+    HashSet,
+};
 
 declare_lint! {
     /// **What it does:** Looks for strict equalities with balance in ink! contracts.
@@ -141,13 +144,15 @@ declare_lint_pass!(StrictBalanceEquality => [STRICT_BALANCE_EQUALITY]);
 struct StrictBalanceEqualityAnalysis<'a, 'tcx> {
     cx: &'a LateContext<'tcx>,
     fun_cache: &'a mut VisitedFunctionsCache,
+    init_taints: TaintedArgs,
+    mutable_references: MutableReferences,
 }
 
 /// Holds the results of running the dataflow analysis over a function with the given
 /// input parameters.
-type VisitedFunctionsCache = HashMap<(FunctionName, TaintsInArguments), AnalysisResults>;
+type VisitedFunctionsCache = HashMap<(FunctionName, TaintedArgs), AnalysisResults>;
 type FunctionName = String;
-type TaintsInArguments = Vec<bool>;
+type TaintedArgs = Vec<bool>;
 type AnalysisResults = BitSet<Local>;
 
 /// TransferFunction is a temporary object used by the implementation of a dataflow
@@ -156,14 +161,56 @@ struct TransferFunction<'a, 'tcx> {
     cx: &'a LateContext<'tcx>,
     fun_cache: &'a mut VisitedFunctionsCache,
     state: &'a mut BitSet<Local>,
+    mutable_references: &'a mut MutableReferences,
 }
 
+impl<'a, 'tcx> TransferFunction<'a, 'tcx> {
+    pub fn new(
+        cx: &'a LateContext<'tcx>,
+        fun_cache: &'a mut VisitedFunctionsCache,
+        state: &'a mut BitSet<Local>,
+        mutable_references: &'a mut MutableReferences,
+    ) -> Self {
+        Self {
+            cx,
+            fun_cache,
+            state,
+            mutable_references,
+        }
+    }
+}
+
+/// Reference Local |-> Origin Local
+type MutableReferences = HashMap<Local, Local>;
+
 impl<'a, 'tcx> StrictBalanceEqualityAnalysis<'a, 'tcx> {
+    /// Should be called on contract functions that don't have input arguments tainted
+    /// with balance
     pub fn new(
         cx: &'a LateContext<'tcx>,
         fun_cache: &'a mut VisitedFunctionsCache,
     ) -> Self {
-        Self { cx, fun_cache }
+        Self {
+            cx,
+            fun_cache,
+            init_taints: TaintedArgs::new(),
+            mutable_references: MutableReferences::new(),
+        }
+    }
+
+    /// Should be called on private functions that may have input arguments tainted with
+    /// balance
+    pub fn new_with_arg_taints(
+        cx: &'a LateContext<'tcx>,
+        fun_cache: &'a mut VisitedFunctionsCache,
+        init_taints: TaintedArgs,
+    ) -> Self {
+        Self {
+            cx,
+            fun_cache,
+            init_taints,
+            mutable_references: MutableReferences::new(),
+        }
     }
 }
 
@@ -182,10 +229,17 @@ impl<'a, 'tcx> AnalysisDomain<'tcx> for StrictBalanceEqualityAnalysis<'a, 'tcx> 
         BitSet::new_empty(body.local_decls().len())
     }
 
-    fn initialize_start_block(&self, _body: &Body, _state: &mut Self::Domain) {
-        // Source of taints are: locals, contract fields and mutable arguments.
-        // TODO: No of these are tainted with balance at the beginning, but we should fix
-        // it when working on interprocedural analysis.
+    fn initialize_start_block(&self, fn_mir: &Body, state: &mut Self::Domain) {
+        // Initial source of taints are input arguments and contract fields
+        if !self.init_taints.is_empty() {
+            self.init_taints.iter().zip(fn_mir.args_iter()).for_each(
+                |(init_taint, callee_local)| {
+                    if *init_taint {
+                        state.insert(callee_local);
+                    }
+                },
+            )
+        }
     }
 }
 
@@ -197,11 +251,12 @@ impl<'a, 'tcx> Analysis<'tcx> for StrictBalanceEqualityAnalysis<'a, 'tcx> {
         statement: &Statement,
         location: Location,
     ) {
-        TransferFunction {
-            cx: self.cx,
-            fun_cache: self.fun_cache,
+        TransferFunction::new(
+            self.cx,
+            self.fun_cache,
             state,
-        }
+            &mut self.mutable_references,
+        )
         .visit_statement(statement, location);
     }
 
@@ -211,11 +266,12 @@ impl<'a, 'tcx> Analysis<'tcx> for StrictBalanceEqualityAnalysis<'a, 'tcx> {
         terminator: &Terminator,
         location: Location,
     ) {
-        TransferFunction {
-            cx: self.cx,
-            fun_cache: self.fun_cache,
+        TransferFunction::new(
+            self.cx,
+            self.fun_cache,
             state,
-        }
+            &mut self.mutable_references,
+        )
         .visit_terminator(terminator, location);
     }
 
@@ -242,13 +298,20 @@ impl Visitor<'_> for TransferFunction<'_, '_> {
                 }
             }
             // Assigments of intermediate locals created by rustc
-            Rvalue::Use(Operand::Move(use_place) | Operand::Copy(use_place))
-            // Values tainted with balance operation propagate through references
-            | Rvalue::Ref(_, _, use_place)
-                => {
+            Rvalue::Use(Operand::Move(use_place) | Operand::Copy(use_place)) => {
                 let use_local = use_place.local;
                 if self.state.contains(use_local) {
                     self.state.insert(place.local);
+                }
+            }
+            // Values tainted with balance operation are propagated through references
+            Rvalue::Ref(_, borrow_type, use_place) => {
+                let use_local = use_place.local;
+                if self.state.contains(use_local) {
+                    self.state.insert(place.local);
+                }
+                if let BorrowKind::Mut { .. } = borrow_type {
+                    self.mutable_references.insert(place.local, use_local);
                 }
             }
             _ => {}
@@ -282,33 +345,56 @@ impl Visitor<'_> for TransferFunction<'_, '_> {
     }
 }
 
-impl<'a> TransferFunction<'_, '_> {
-    /// Runs a dataflow analysis over the given function
-    fn analyze_function(&mut self, fn_def_id: &DefId) -> Option<AnalysisResults> {
-        if !fn_def_id.is_local() {
-            return None
-        }
-        let fn_mir = self.cx.tcx.optimized_mir(fn_def_id);
-        let mut taint_results =
-            StrictBalanceEqualityAnalysis::new(self.cx, self.fun_cache)
-                .into_engine(self.cx.tcx, fn_mir)
-                .iterate_to_fixpoint()
-                .into_results_cursor(fn_mir);
-        if let Some((last, _)) = traversal::reverse_postorder(fn_mir).last() {
-            taint_results.seek_to_block_end(last);
-            Some(taint_results.get().clone())
-        } else {
-            None
-        }
+impl<'tcx> TransferFunction<'_, 'tcx> {
+    /// Returns all the origins of the given mutable reference.
+    ///
+    /// A mutable reference can have multiple origins because of compiler's two-phase
+    /// borrows: https://rustc-dev-guide.rust-lang.org/borrow_check/two_phase_borrows.html
+    fn get_mut_ref_origins(&self, ref_local: &Local) -> HashSet<Local> {
+        let mut origins = HashSet::new();
+        let _ = self.mutable_references.get(ref_local).map(|origin| {
+            origins.insert(*origin);
+            origins.extend(self.get_mut_ref_origins(origin));
+        });
+        origins
     }
 
-    /// Returns true iff the returns value is tainted with `self.env().balance()`
-    fn is_return_value_tainted(&self, results: &BitSet<Local>) -> bool {
-        if results.is_empty() {
-            return false
-        }
+    /// Returns true iff the return value of function is tainted with
+    /// `self.env().balance()`
+    fn is_return_value_tainted(&self, fn_state: &BitSet<Local>) -> bool {
         let return_local = Place::return_place().local;
-        results.contains(return_local)
+        fn_state.contains(return_local)
+    }
+
+    // Returns all the locals that correspond to mutable input arguments that were tainted
+    // with balance after calling the function.
+    fn get_tainted_input_args(
+        &self,
+        input_args: &[Operand],
+        fn_mir: &Body,
+        fn_state: &BitSet<Local>,
+    ) -> Vec<Local> {
+        input_args.iter().zip(fn_mir.args_iter()).fold(
+            Vec::new(),
+            |mut acc, (caller_op, callee_local)| {
+                if_chain! {
+                    if fn_state.contains(callee_local);
+                    if let Some(caller_place) = caller_op.place();
+                    then {
+                        let ref_local = caller_place.local;
+                        acc.push(ref_local);
+                        self.get_mut_ref_origins(&ref_local)
+                            .iter()
+                            .for_each(|origin| acc.push(*origin));
+                    }
+                };
+                acc
+            },
+        )
+    }
+
+    fn fn_is_defined_in_user_code(&self, fn_def_id: &DefId) -> bool {
+        fn_def_id.is_local()
     }
 
     fn visit_call(&mut self, func: &Constant, args: &[Operand], destination: &Place) {
@@ -319,38 +405,61 @@ impl<'a> TransferFunction<'_, '_> {
             acc
         });
 
-        let fn_def_id = if let mir_ty::TyKind::FnDef(id, _) = func.literal.ty().kind() {
-            id
-        } else {
-            return
+        let fn_mir = if_chain! {
+            if let mir_ty::TyKind::FnDef(id, _) = func.literal.ty().kind();
+            if self.fn_is_defined_in_user_code(id);
+            then { self.cx.tcx.optimized_mir(id) } else { return }
         };
 
         // Run the dataflow analysis if the function hasn't been analyzed yet
-        let cache_key = (func.to_string(), init_taints);
-        let analysis_results =
-            if let Some(cached_results) = self.fun_cache.get(&cache_key) {
-                cached_results
-            } else {
-                // Insert an empty value first to handle recursive calls
-                let _ = self
-                    .fun_cache
-                    .insert(cache_key.clone(), BitSet::new_empty(0));
-                let results = self
-                    .analyze_function(fn_def_id)
-                    .unwrap_or(BitSet::new_empty(0));
-                let _ = self.fun_cache.insert(cache_key.clone(), results);
-                if let Some(results) = self.fun_cache.get(&cache_key) {
-                    results
+        let cache_key = (func.to_string(), init_taints.clone());
+        let analysis_results = if let Some(cached_results) =
+            self.fun_cache.get(&cache_key)
+        {
+            cached_results
+        } else {
+            // Insert an empty value to handle recursive calls
+            let _ = self
+                .fun_cache
+                .insert(cache_key.clone(), BitSet::new_empty(0));
+            let mut taint_results = StrictBalanceEqualityAnalysis::new_with_arg_taints(
+                self.cx,
+                self.fun_cache,
+                init_taints,
+            )
+            .into_engine(self.cx.tcx, fn_mir)
+            .iterate_to_fixpoint()
+            .into_results_cursor(fn_mir);
+            let taint_results =
+                if let Some((last, _)) = traversal::reverse_postorder(fn_mir).last() {
+                    // Reset to the dataflow state immediately after the terminator
+                    taint_results.seek_to_block_end(last);
+                    taint_results.get().clone()
                 } else {
                     return
-                }
-            };
+                };
+            let _ = self.fun_cache.insert(cache_key.clone(), taint_results);
+            if let Some(results) = self.fun_cache.get(&cache_key) {
+                results
+            } else {
+                return
+            }
+        };
+
+        // Recursive call of the function with the same input arguments
+        if analysis_results.is_empty() {
+            return
+        }
 
         if self.is_return_value_tainted(analysis_results) {
             self.state.insert(destination.local);
         }
 
-        // TODO: Check if any of the arguments are tainted (only mutable references?)
+        self.get_tainted_input_args(args, fn_mir, analysis_results)
+            .iter()
+            .for_each(|tainted_input_arg| {
+                self.state.insert(*tainted_input_arg);
+            })
     }
 }
 

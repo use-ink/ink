@@ -9,11 +9,6 @@ pub mod strict_balance_equality {
             Self {}
         }
 
-        fn check_balance(&self, value: &Balance, threshold: &Balance) -> bool {
-            // Bad: Strict equality
-            value != threshold
-        }
-
         fn get_balance_1(&self) -> Balance {
             self.env().balance()
         }
@@ -32,10 +27,19 @@ pub mod strict_balance_equality {
                 self.env().balance()
             }
         }
+        fn cmp_balance_1(&self, value: &Balance) -> bool {
+            *value == self.env().balance()
+        }
+        fn cmp_balance_2(&self, value: &Balance, threshold: &Balance) -> bool {
+            value != threshold
+        }
 
-        // fn cmp_balance(&self, value: &Balance) -> bool {
-        //     *value == self.env().balance()
-        // }
+        fn get_balance_arg_1(&self, value: &mut Balance) {
+            *value = self.env().balance();
+        }
+        fn get_balance_arg_indirect(&self, value: &mut Balance) {
+            self.get_balance_arg_1(value)
+        }
 
         #[ink(message)]
         pub fn do_nothing(&mut self) {
@@ -52,19 +56,16 @@ pub mod strict_balance_equality {
             if self.get_balance_2() == 10 { /* ... */ }
             if self.get_balance_3() == 10 { /* ... */ }
             if self.get_balance_recursive(&10) == 10 { /* ... */ }
+            // if self.cmp_balance_1(&10) { /* ... */ } // TODO: false negative
+            // if self.cmp_balance_2(&self.env().balance(), &threshold) { /* ... */ } // TODO: false negative
 
             // Bad: Strict equality in function: tainted arguments
-            // if self.cmp_balance(&10) {}
-            // if self.check_balance(&self.env().balance(), &threshold) {
-            //     // Do nothing
-            // }
-            // let res = self.check_balance(&self.env().balance(), &threshold);
-            // if res {
-            //     // Do nothing
-            // }
-            // if self.check_balance(&value, &threshold) {
-            //     // Do nothing
-            // }
+            let mut res_1 = 0_u128;
+            self.get_balance_arg_1(&mut res_1);
+            if res_1 == 10 { /* ... */ }
+            let mut res_2 = 0_u128;
+            self.get_balance_arg_indirect(&mut res_2);
+            if res_2 == 10 { /* ... */ }
         }
     }
 }
