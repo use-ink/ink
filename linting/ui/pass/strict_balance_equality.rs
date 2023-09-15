@@ -34,10 +34,10 @@ pub mod strict_balance_equality {
             *value < self.env().balance()
         }
         fn cmp_balance_2(&self, value: &Balance, threshold: &Balance) -> bool {
-             value > threshold
+            value > threshold
         }
         fn cmp_balance_3(&self, value: Balance, threshold: Balance) -> bool {
-             value >= threshold
+            value >= threshold
         }
 
         // `&mut` input argument gets the balance value
@@ -64,8 +64,8 @@ pub mod strict_balance_equality {
             if self.get_balance_3() >= 10 { /* ... */ }
             if self.get_balance_recursive(&10) <= 10 { /* ... */ }
 
-            // Good: Non-strict equality in function call: return value contains the result of
-            // comparison
+            // Good: Non-strict equality in function call: return value contains the
+            // result of comparison
             if self.cmp_balance_1(&10) { /* ... */ }
             if self.cmp_balance_2(&self.env().balance(), &threshold) { /* ... */ }
             if self.cmp_balance_3(self.env().balance(), threshold) { /* ... */ }
