@@ -13,14 +13,13 @@ default:
       - api_failure
 
 stages:
-#  - lint
-#  - check
-#  - workspace
-#  - examples
-#  - ink-waterfall
+  - lint
+  - check
+  - workspace
+  - examples
   - measurements
-#  - fuzz
-#  - publish
+  - fuzz
+  - publish
 
 variables:
   GIT_STRATEGY:                    fetch
@@ -351,7 +350,7 @@ examples-test:
     RUSTFLAGS: "-Clink-arg=-z -Clink-arg=nostart-stop-gc"
   script:
     # run all tests with --all-features, which will run the e2e-tests feature if present
-    - scripts/for_all_contracts_exec.sh
+    - scripts/for_all_contracts_exec.sh 
       --path integration-tests
       --ignore static-buffer
       -- cargo test --verbose --all-features --manifest-path {}
@@ -370,7 +369,7 @@ examples-contract-build:
     - rustup component add rust-src --toolchain stable
     - cargo contract -V
     # Build all examples
-    - scripts/for_all_contracts_exec.sh
+    - scripts/for_all_contracts_exec.sh 
       --path integration-tests
       -- cargo contract build --release --manifest-path {}
     # Build the different features for the conditional compilation example
