@@ -16,8 +16,9 @@ stages:
 #  - lint
 #  - check
 #  - workspace
-  - examples
+#  - examples
 #  - ink-waterfall
+  - measurements
 #  - fuzz
 #  - publish
 
@@ -338,83 +339,98 @@ codecov:
 
 #### stage:                        examples
 
-#examples-test:
-#  stage:                           examples
-#  <<:                              *docker-env
-#  <<:                              *test-refs
-#  needs:
-#    - job:                         clippy-std
-#      artifacts:                   false
-#  variables:
-#    # Fix linking of `linkme`: https://github.com/dtolnay/linkme/issues/49
-#    RUSTFLAGS: "-Clink-arg=-z -Clink-arg=nostart-stop-gc"
-#  script:
-#    # run all tests with --all-features, which will run the e2e-tests feature if present
-#    - scripts/for_all_contracts_exec.sh
-#      --path integration-tests
-#      --ignore static-buffer
-#      -- cargo test --verbose --all-features --manifest-path {}
-#    # run the static buffer test with a custom buffer size
-#    - cargo clean --manifest-path integration-tests/static-buffer/Cargo.toml
-#    - INK_STATIC_BUFFER_SIZE=30 cargo test --verbose --manifest-path integration-tests/static-buffer/Cargo.toml --all-features
+examples-test:
+  stage:                           examples
+  <<:                              *docker-env
+  <<:                              *test-refs
+  needs:
+    - job:                         clippy-std
+      artifacts:                   false
+  variables:
+    # Fix linking of `linkme`: https://github.com/dtolnay/linkme/issues/49
+    RUSTFLAGS: "-Clink-arg=-z -Clink-arg=nostart-stop-gc"
+  script:
+    # run all tests with --all-features, which will run the e2e-tests feature if present
+    - scripts/for_all_contracts_exec.sh
+      --path integration-tests
+      --ignore static-buffer
+      -- cargo test --verbose --all-features --manifest-path {}
+    # run the static buffer test with a custom buffer size
+    - cargo clean --manifest-path integration-tests/static-buffer/Cargo.toml
+    - INK_STATIC_BUFFER_SIZE=30 cargo test --verbose --manifest-path integration-tests/static-buffer/Cargo.toml --all-features
 
-#examples-contract-build:
-#  stage:                           examples
-#  <<:                              *docker-env
-#  <<:                              *test-refs
-#  variables:
-#    # Fix for linking of `linkme` for `cargo contract build`: https://github.com/dtolnay/linkme/issues/49
-#    RUSTFLAGS: "-Clink-arg=-z -Clink-arg=nostart-stop-gc"
-#  script:
-#    - rustup component add rust-src --toolchain stable
-#    - cargo contract -V
-#    # Build all examples
-#    - scripts/for_all_contracts_exec.sh
-#      --path integration-tests
-#      -- cargo contract build --release --manifest-path {}
-#    # Build the different features for the conditional compilation example
-#    - pushd ./integration-tests/conditional-compilation
-#    - cargo contract build --release --features "foo"
-#    - cargo contract build --release --features "bar"
-#    - cargo contract build --release --features "foo, bar"
-#    - popd
+examples-contract-build:
+  stage:                           examples
+  <<:                              *docker-env
+  <<:                              *test-refs
+  variables:
+    # Fix for linking of `linkme` for `cargo contract build`: https://github.com/dtolnay/linkme/issues/49
+    RUSTFLAGS: "-Clink-arg=-z -Clink-arg=nostart-stop-gc"
+  script:
+    - rustup component add rust-src --toolchain stable
+    - cargo contract -V
+    # Build all examples
+    - scripts/for_all_contracts_exec.sh
+      --path integration-tests
+      -- cargo contract build --release --manifest-path {}
+    # Build the different features for the conditional compilation example
+    - pushd ./integration-tests/conditional-compilation
+    - cargo contract build --release --features "foo"
+    - cargo contract build --release --features "bar"
+    - cargo contract build --release --features "foo, bar"
+    - popd
 
 ## TODO: Use cargo contract as soon as it has RISC-V support
-#examples-contract-build-riscv:
-#  stage:                           examples
-#  <<:                              *docker-env
-#  <<:                              *test-refs
-#  variables:
-#    RUSTC_BOOTSTRAP:               "1"
-#  script:
-#    - rustup component add rust-src --toolchain stable
-#    - cargo contract -V
-#    # We skip some examples for those reasons:
-#    # This uses dlmalloc which is only supported on select targets.
-#    #   - custom_allocator
-#    # Pulls in sp-std which needlessly requires atomic pointers (TODO: Fix sp-std and enable this example)
-#    #   - call-runtime
-#    - find integration-tests -name "Cargo.toml"
-#      -not \( -path '*/custom-allocator/*' -o -path '*/call-runtime/*' \)
-#      -exec scripts/is_contract.sh {} \;
-#      -exec cargo build --manifest-path {} --no-default-features --target $RISCV_TARGET -Zbuild-std="core,alloc" \;
+examples-contract-build-riscv:
+  stage:                           examples
+  <<:                              *docker-env
+  <<:                              *test-refs
+  variables:
+    RUSTC_BOOTSTRAP:               "1"
+  script:
+    - rustup component add rust-src --toolchain stable
+    - cargo contract -V
+    # We skip some examples for those reasons:
+    # This uses dlmalloc which is only supported on select targets.
+    #   - custom_allocator
+    # Pulls in sp-std which needlessly requires atomic pointers (TODO: Fix sp-std and enable this example)
+    #   - call-runtime
+    - find integration-tests -name "Cargo.toml"
+      -not \( -path '*/custom-allocator/*' -o -path '*/call-runtime/*' \)
+      -exec scripts/is_contract.sh {} \;
+      -exec cargo build --manifest-path {} --no-default-features --target $RISCV_TARGET -Zbuild-std="core,alloc" \;
 
-#examples-docs:
-#  stage:                           examples
-#  <<:                              *docker-env
-#  <<:                              *test-refs
-#  variables:
-#    RUSTDOCFLAGS: -Dwarnings
-#  script:
-#    # `--document-private-items` needs to be in here because currently our contract macro
-#    # puts the contract functions in a private module.
-#    # Once https://github.com/paritytech/ink/issues/336 has been implemented we can get rid
-#    # of this flag.
-#    - find integration-tests -name "Cargo.toml"
-#      -exec scripts/is_contract.sh {} \;
-#      -exec cargo doc --manifest-path {} --document-private-items --verbose --no-deps \;
+examples-docs:
+  stage:                           examples
+  <<:                              *docker-env
+  <<:                              *test-refs
+  variables:
+    RUSTDOCFLAGS: -Dwarnings
+  script:
+    # `--document-private-items` needs to be in here because currently our contract macro
+    # puts the contract functions in a private module.
+    # Once https://github.com/paritytech/ink/issues/336 has been implemented we can get rid
+    # of this flag.
+    - find integration-tests -name "Cargo.toml"
+      -exec scripts/is_contract.sh {} \;
+      -exec cargo doc --manifest-path {} --document-private-items --verbose --no-deps \;
 
-#### stage:                        ink-waterfall
+#### stage:                        measurements
+
+contract-sizes:
+  stage:                           measurements
+  <<:                              *docker-env
+  <<:                              *test-refs
+  variables:
+    # Fix for linking of `linkme` for `cargo contract build`: https://github.com/dtolnay/linkme/issues/49
+    RUSTFLAGS: "-Clink-arg=-z -Clink-arg=nostart-stop-gc"
+    PR_BRANCH_CONTRACT_SIZES: ${CI_COMMIT_BRANCH}_contract_sizes
+    MASTER_CONTRACT_SIZES: master_contract_sizes
+  script:
+    # Measure contract sizes for the current branch
+    - scripts/for_all_contracts_exec.sh
+      --path integration-tests
+      -- scripts/contract_size.sh {} > $PR_BRANCH_CONTRACT_SIZES
 
 # Disabled because `polkadot-js` doesn't support WeightsV2 for
 # contracts yet.
