@@ -1,5 +1,5 @@
 <div align="center">
-    <img src="./.images/ink-logo-glow.svg" alt="ink!" height="136" />
+    <img src="https://raw.githubusercontent.com/paritytech/ink/master/.images/ink-logo-glow.svg" alt="ink!" height="136" />
 <h1 align="center">
     Parity's ink! for writing smart contracts
 </h1>
@@ -29,7 +29,7 @@
 [s1]: https://img.shields.io/badge/click-white.svg?logo=StackExchange&label=ink!%20Support%20on%20StackExchange&labelColor=white&color=blue
 [s2]: https://substrate.stackexchange.com/questions/tagged/ink?tab=Votes
 
-> <img src="./.images/ink-squid.svg" alt="squink, the ink! mascot" style="vertical-align: middle" align="left" height="60" />ink! is an [eDSL](https://wiki.haskell.org/Embedded_domain_specific_language) to write smart contracts in Rust for blockchains built on the [Substrate](https://github.com/paritytech/substrate) framework. ink! contracts are compiled to WebAssembly.
+> <img src="https://raw.githubusercontent.com/paritytech/ink/master/.images/ink-squid.svg" alt="squink, the ink! mascot" style="vertical-align: middle" align="left" height="60" />ink! is an [eDSL](https://wiki.haskell.org/Embedded_domain_specific_language) to write smart contracts in Rust for blockchains built on the [Substrate](https://github.com/paritytech/substrate) framework. ink! contracts are compiled to WebAssembly.
 
 <br/>
 
@@ -265,7 +265,7 @@ the relevant links:
 
 ### Normal Design
 
-[![Built with ink!](.images/badge.svg)](https://github.com/paritytech/ink)
+[![Built with ink!](https://raw.githubusercontent.com/paritytech/ink/master/.images/badge.svg)](https://github.com/paritytech/ink)
 
 ```markdown
 [![Built with ink!](https://raw.githubusercontent.com/paritytech/ink/master/.images/badge.svg)](https://github.com/paritytech/ink)
@@ -273,7 +273,7 @@ the relevant links:
 
 ### Flat Design
 
-[![Built with ink!](.images/badge_flat.svg)](https://github.com/paritytech/ink)
+[![Built with ink!](https://raw.githubusercontent.com/paritytech/ink/master/.images/badge_flat.svg)](https://github.com/paritytech/ink)
 
 ```markdown
 [![Built with ink!](https://raw.githubusercontent.com/paritytech/ink/master/.images/badge_flat.svg)](https://github.com/paritytech/ink)
