@@ -13,8 +13,8 @@
 // limitations under the License.
 use clippy_utils::{
     diagnostics::span_lint_hir_and_then,
+    match_any_def_paths,
     match_def_path,
-    source::snippet_opt,
 };
 use if_chain::if_chain;
 use rustc_errors::Applicability;
@@ -65,10 +65,7 @@ use rustc_session::{
     declare_lint,
     declare_lint_pass,
 };
-use rustc_span::{
-    source_map::BytePos,
-    Span,
-};
+use rustc_span::Span;
 use std::collections::{
     HashMap,
     HashSet,
@@ -405,10 +402,36 @@ impl<'tcx> TransferFunction<'_, 'tcx> {
             acc
         });
 
+        let fn_def_id =
+            if let mir_ty::TyKind::FnDef(fn_def_id, _) = func.literal.ty().kind() {
+                fn_def_id
+            } else {
+                return
+            };
+
+        // Handle `PartialEq` functions that implement comparsion for non-primitive types,
+        // including references like `&i32`.
+        if_chain! {
+            if init_taints.len() == 2;
+            if init_taints.iter().any(|&tainted| tainted);
+            if match_any_def_paths(
+                self.cx,
+                *fn_def_id,
+                &[
+                    &["core", "cmp", "PartialEq", "ne"],
+                    &["core", "cmp", "PartialEq", "eq"],
+                ],
+            )
+            .is_some();
+            then {
+                self.state.insert(destination.local);
+                return
+            }
+        }
+
         let fn_mir = if_chain! {
-            if let mir_ty::TyKind::FnDef(id, _) = func.literal.ty().kind();
-            if self.fn_is_defined_in_user_code(id);
-            then { self.cx.tcx.optimized_mir(id) } else { return }
+            if self.fn_is_defined_in_user_code(fn_def_id);
+            then { self.cx.tcx.optimized_mir(fn_def_id) } else { return }
         };
 
         // Run the dataflow analysis if the function hasn't been analyzed yet
@@ -618,17 +641,15 @@ impl<'tcx> StrictBalanceEquality {
                     .as_ref()
                     .assert_crate_local()
                     .lint_root;
-                if let Some(snip) = snippet_opt(cx, span);
-                if let Some(op) = snip.rfind("==").or(snip.rfind("!="));
                 then {
-                    let op_pos = span.lo() + BytePos(op as u32);
                     let sugg_span = Span::new(
-                        op_pos,
-                        op_pos + BytePos("==".len() as u32),
-                        // We have to use a span different from `span`, since it is resulted after
-                        // macro expansion and therefore cannot be used to emit diagnostics.
-                        fn_span.ctxt(),
-                        fn_span.parent()
+                            span.lo(),
+                            span.hi(),
+                            // We have to use a span different from `span`, since it is resulted
+                            // after macro expansion and therefore cannot be used to emit
+                            // diagnostics.
+                            fn_span.ctxt(),
+                            fn_span.parent()
                     );
                     span_lint_hir_and_then(
                         cx,
@@ -645,7 +666,6 @@ impl<'tcx> StrictBalanceEquality {
                             );
                         },
                     )
-
                 }
             }
         }

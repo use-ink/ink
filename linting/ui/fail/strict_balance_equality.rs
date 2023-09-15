@@ -9,6 +9,7 @@ pub mod strict_balance_equality {
             Self {}
         }
 
+        // Return value tainted with balance
         fn get_balance_1(&self) -> Balance {
             self.env().balance()
         }
@@ -27,13 +28,19 @@ pub mod strict_balance_equality {
                 self.env().balance()
             }
         }
+
+        // Return the result of comparison with balance
         fn cmp_balance_1(&self, value: &Balance) -> bool {
             *value == self.env().balance()
         }
         fn cmp_balance_2(&self, value: &Balance, threshold: &Balance) -> bool {
-            value != threshold
+             value != threshold
+        }
+        fn cmp_balance_3(&self, value: Balance, threshold: Balance) -> bool {
+             value != threshold
         }
 
+        // Tainted `&mut` input argument
         fn get_balance_arg_1(&self, value: &mut Balance) {
             *value = self.env().balance();
         }
@@ -56,10 +63,14 @@ pub mod strict_balance_equality {
             if self.get_balance_2() == 10 { /* ... */ }
             if self.get_balance_3() == 10 { /* ... */ }
             if self.get_balance_recursive(&10) == 10 { /* ... */ }
-            // if self.cmp_balance_1(&10) { /* ... */ } // TODO: false negative
-            // if self.cmp_balance_2(&self.env().balance(), &threshold) { /* ... */ } // TODO: false negative
 
-            // Bad: Strict equality in function: tainted arguments
+            // Bad: Strict equality in function call: return value contains the result of
+            // comparison
+            if self.cmp_balance_1(&10) { /* ... */ }
+            if self.cmp_balance_2(&self.env().balance(), &threshold) { /* ... */ }
+            if self.cmp_balance_3(self.env().balance(), threshold) { /* ... */ }
+
+            // // Bad: Strict equality in function: tainted arguments
             let mut res_1 = 0_u128;
             self.get_balance_arg_1(&mut res_1);
             if res_1 == 10 { /* ... */ }
