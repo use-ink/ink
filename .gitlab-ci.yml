@@ -431,6 +431,8 @@ contract-sizes:
     - scripts/for_all_contracts_exec.sh
       --path integration-tests
       -- scripts/contract_size.sh {} > $PR_BRANCH_CONTRACT_SIZES
+    # Just print them for now, next step is to run and compare with `master`
+    - cat $PR_BRANCH_CONTRACT_SIZES
 
 # Disabled because `polkadot-js` doesn't support WeightsV2 for
 # contracts yet.
