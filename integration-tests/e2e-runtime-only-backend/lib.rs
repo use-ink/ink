@@ -122,7 +122,13 @@ pub mod flipper {
             let call = contract.call::<Flipper>();
 
             let old_balance = client
-                .call(&ink_e2e::alice(), &call.get_contract_balance(), 0, None, None)
+                .call(
+                    &ink_e2e::alice(),
+                    &call.get_contract_balance(),
+                    0,
+                    None,
+                    None,
+                )
                 .await
                 .expect("get_contract_balance failed")
                 .return_value();
@@ -141,7 +147,13 @@ pub mod flipper {
 
             // then
             let new_balance = client
-                .call(&ink_e2e::alice(), &call.get_contract_balance(), 0, None, None)
+                .call(
+                    &ink_e2e::alice(),
+                    &call.get_contract_balance(),
+                    0,
+                    None,
+                    None,
+                )
                 .await
                 .expect("get_contract_balance failed")
                 .return_value();

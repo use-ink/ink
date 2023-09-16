@@ -210,7 +210,9 @@ pub mod give_me {
             // when
             let transfer = call.give_me(120);
 
-            let call_res = client.call(&ink_e2e::bob(), &transfer, 10, None, None).await;
+            let call_res = client
+                .call(&ink_e2e::bob(), &transfer, 10, None, None)
+                .await;
 
             // then
             if let Err(ink_e2e::Error::<ink::env::DefaultEnvironment>::CallDryRun(
