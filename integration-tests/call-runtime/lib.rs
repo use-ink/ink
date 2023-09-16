@@ -184,7 +184,7 @@ mod runtime_call {
                 call.transfer_through_runtime(receiver, TRANSFER_VALUE);
 
             let call_res = client
-                .call(&ink_e2e::alice(), &transfer_message, 0, None)
+                .call(&ink_e2e::alice(), &transfer_message, 0, None, None)
                 .await
                 .expect("call failed");
 

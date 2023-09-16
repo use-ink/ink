@@ -95,13 +95,13 @@ pub mod flipper {
             // when
             let mut call = contract.call::<Flipper>();
             let _flip_res = client
-                .call(&ink_e2e::bob(), &call.flip(), 0, None)
+                .call(&ink_e2e::bob(), &call.flip(), 0, None, None)
                 .await
                 .expect("flip failed");
 
             // then
             let get_res = client
-                .call(&ink_e2e::bob(), &call.get(), 0, None)
+                .call(&ink_e2e::bob(), &call.get(), 0, None, None)
                 .await
                 .expect("get failed");
             assert_eq!(get_res.return_value(), !INITIAL_VALUE);
@@ -122,7 +122,7 @@ pub mod flipper {
             let call = contract.call::<Flipper>();
 
             let old_balance = client
-                .call(&ink_e2e::alice(), &call.get_contract_balance(), 0, None)
+                .call(&ink_e2e::alice(), &call.get_contract_balance(), 0, None, None)
                 .await
                 .expect("get_contract_balance failed")
                 .return_value();
@@ -141,7 +141,7 @@ pub mod flipper {
 
             // then
             let new_balance = client
-                .call(&ink_e2e::alice(), &call.get_contract_balance(), 0, None)
+                .call(&ink_e2e::alice(), &call.get_contract_balance(), 0, None, None)
                 .await
                 .expect("get_contract_balance failed")
                 .return_value();

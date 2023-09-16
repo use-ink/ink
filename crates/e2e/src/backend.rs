@@ -143,6 +143,7 @@ pub trait ContractsBackend<E: Environment> {
         caller: &Keypair,
         message: &CallBuilderFinal<E, Args, RetType>,
         value: E::Balance,
+        extra_gas_portion: Option<usize>,
         storage_deposit_limit: Option<E::Balance>,
     ) -> Result<CallResult<E, RetType, Self::EventLog>, Self::Error>
     where

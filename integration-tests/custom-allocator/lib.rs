@@ -152,7 +152,7 @@ mod custom_allocator {
             // When
             let flip = call.flip();
             let _flip_result = client
-                .call(&ink_e2e::bob(), &flip, 0, None)
+                .call(&ink_e2e::bob(), &flip, 0, None, None)
                 .await
                 .expect("flip failed");
 

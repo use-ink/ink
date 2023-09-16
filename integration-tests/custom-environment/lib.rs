@@ -111,7 +111,7 @@ mod runtime_call {
             let message = call.trigger();
 
             let call_res = client
-                .call(&ink_e2e::alice(), &message, 0, None)
+                .call(&ink_e2e::alice(), &message, 0, None, None)
                 .await
                 .expect("call failed");
 

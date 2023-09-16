@@ -114,7 +114,7 @@ mod mapping_integration_tests {
             // when
             let insert = call.insert_balance(1_000);
             let size = client
-                .call(&ink_e2e::alice(), &insert, 0, None)
+                .call(&ink_e2e::alice(), &insert, 0, None, None)
                 .await
                 .expect("Calling `insert_balance` failed")
                 .return_value();
@@ -153,7 +153,7 @@ mod mapping_integration_tests {
             // when
             let insert = call.insert_balance(1_000);
             let _ = client
-                .call(&ink_e2e::bob(), &insert, 0, None)
+                .call(&ink_e2e::bob(), &insert, 0, None, None)
                 .await
                 .expect("Calling `insert_balance` failed")
                 .return_value();
@@ -189,14 +189,14 @@ mod mapping_integration_tests {
             // when
             let first_insert = call.insert_balance(1_000);
             let _ = client
-                .call(&ink_e2e::charlie(), &first_insert, 0, None)
+                .call(&ink_e2e::charlie(), &first_insert, 0, None, None)
                 .await
                 .expect("Calling `insert_balance` failed")
                 .return_value();
 
             let insert = call.insert_balance(10_000);
             let size = client
-                .call(&ink_e2e::charlie(), &insert, 0, None)
+                .call(&ink_e2e::charlie(), &insert, 0, None, None)
                 .await
                 .expect("Calling `insert_balance` failed")
                 .return_value();
@@ -236,14 +236,14 @@ mod mapping_integration_tests {
             // when
             let insert = call.insert_balance(3_000);
             let _ = client
-                .call(&ink_e2e::dave(), &insert, 0, None)
+                .call(&ink_e2e::dave(), &insert, 0, None, None)
                 .await
                 .expect("Calling `insert_balance` failed")
                 .return_value();
 
             let remove = call.remove_balance();
             let _ = client
-                .call(&ink_e2e::dave(), &remove, 0, None)
+                .call(&ink_e2e::dave(), &remove, 0, None, None)
                 .await
                 .expect("Calling `remove_balance` failed");
 
@@ -280,14 +280,14 @@ mod mapping_integration_tests {
             // when
             let insert = call.insert_balance(4_000);
             let _ = client
-                .call(&ink_e2e::eve(), &insert, 0, None)
+                .call(&ink_e2e::eve(), &insert, 0, None, None)
                 .await
                 .expect("Calling `insert_balance` failed")
                 .return_value();
 
             let take = call.take_balance();
             let balance = client
-                .call(&ink_e2e::eve(), &take, 0, None)
+                .call(&ink_e2e::eve(), &take, 0, None, None)
                 .await
                 .expect("Calling `take_balance` failed")
                 .return_value();

@@ -88,7 +88,7 @@ pub mod incrementer {
 
             let inc = call.inc();
             let _inc_result = client
-                .call(&ink_e2e::alice(), &inc, 0, None)
+                .call(&ink_e2e::alice(), &inc, 0, None, None)
                 .await
                 .expect("`inc` failed");
 
@@ -107,7 +107,7 @@ pub mod incrementer {
             let set_code = call.set_code(new_code_hash);
 
             let _set_code_result = client
-                .call(&ink_e2e::alice(), &set_code, 0, None)
+                .call(&ink_e2e::alice(), &set_code, 0, None, None)
                 .await
                 .expect("`set_code` failed");
 
@@ -117,7 +117,7 @@ pub mod incrementer {
             let inc = call.inc();
 
             let _inc_result = client
-                .call(&ink_e2e::alice(), &inc, 0, None)
+                .call(&ink_e2e::alice(), &inc, 0, None, None)
                 .await
                 .expect("`inc` failed");
 

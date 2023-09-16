@@ -76,7 +76,7 @@ pub mod flipper {
             // when
             let flip = call.flip();
             let _flip_res = client
-                .call(&ink_e2e::bob(), &flip, 0, None)
+                .call(&ink_e2e::bob(), &flip, 0, None, None)
                 .await
                 .expect("flip failed");
 

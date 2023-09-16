@@ -81,7 +81,7 @@ pub mod just_terminates {
             // when
             let terminate_me = call.terminate_me();
             let call_res = client
-                .call(&ink_e2e::alice(), &terminate_me, 0, None)
+                .call(&ink_e2e::alice(), &terminate_me, 0, None, None)
                 .await
                 .expect("terminate_me messages failed");
 

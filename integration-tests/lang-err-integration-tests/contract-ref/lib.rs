@@ -98,7 +98,7 @@ mod contract_ref {
 
             let flip_check = call.flip_check();
             let flip_call_result = client
-                .call(&ink_e2e::alice(), &flip_check, 0, None)
+                .call(&ink_e2e::alice(), &flip_check, 0, None, None)
                 .await
                 .expect("Calling `flip` failed");
             assert!(

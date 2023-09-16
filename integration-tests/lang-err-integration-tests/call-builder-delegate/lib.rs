@@ -126,7 +126,7 @@ mod call_builder {
             let selector = ink::selector_bytes!("invalid_selector");
             let call = call_builder_call.delegate(code_hash, selector);
             let call_result = client
-                .call(&origin, &call, 0, None)
+                .call(&origin, &call, 0, None, None)
                 .await
                 .expect("Calling `call_builder::delegate` failed");
 

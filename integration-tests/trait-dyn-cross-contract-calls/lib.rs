@@ -111,7 +111,7 @@ mod e2e_tests {
         // Increment the value of the incrementer via the caller
         let inc = caller_call.inc();
         let _ = client
-            .call(&ink_e2e::alice(), &inc, 0, None)
+            .call(&ink_e2e::alice(), &inc, 0, None, None)
             .await
             .expect("calling `inc` failed");
 

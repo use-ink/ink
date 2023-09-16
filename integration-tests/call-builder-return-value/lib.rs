@@ -148,7 +148,7 @@ mod call_builder {
             let selector = ink::selector_bytes!("get");
             let call = call_builder_call.delegate_call(code_hash, selector);
             let call_result = client
-                .call(&origin, &call, 0, None)
+                .call(&origin, &call, 0, None, None)
                 .await
                 .expect("Client failed to call `call_builder::invoke`.")
                 .return_value();
@@ -232,7 +232,7 @@ mod call_builder {
             let selector = ink::selector_bytes!("get");
             let call = call_builder_call.forward_call(incrementer.account_id, selector);
             let call_result = client
-                .call(&origin, &call, 0, None)
+                .call(&origin, &call, 0, None, None)
                 .await
                 .expect("Client failed to call `call_builder::invoke`.")
                 .return_value();

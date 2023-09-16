@@ -539,7 +539,7 @@ mod erc20 {
             let transfer_to_bob = 500_000_000u128;
             let transfer = call.transfer(bob_account, transfer_to_bob);
             let _transfer_res = client
-                .call(&ink_e2e::alice(), &transfer, 0, None)
+                .call(&ink_e2e::alice(), &transfer, 0, None, None)
                 .await
                 .expect("transfer failed");
 
@@ -579,7 +579,7 @@ mod erc20 {
             // tx
             let transfer_from = call.transfer_from(bob_account, charlie_account, amount);
             let transfer_from_result = client
-                .call(&ink_e2e::charlie(), &transfer_from, 0, None)
+                .call(&ink_e2e::charlie(), &transfer_from, 0, None, None)
                 .await;
 
             assert!(
@@ -591,7 +591,7 @@ mod erc20 {
             let approved_value = 1_000u128;
             let approve_call = call.approve(charlie_account, approved_value);
             client
-                .call(&ink_e2e::bob(), &approve_call, 0, None)
+                .call(&ink_e2e::bob(), &approve_call, 0, None, None)
                 .await
                 .expect("approve failed");
 
@@ -599,7 +599,7 @@ mod erc20 {
             let transfer_from =
                 call.transfer_from(bob_account, charlie_account, approved_value);
             let transfer_from_result = client
-                .call(&ink_e2e::charlie(), &transfer_from, 0, None)
+                .call(&ink_e2e::charlie(), &transfer_from, 0, None, None)
                 .await;
             assert!(
                 transfer_from_result.is_ok(),
@@ -614,7 +614,7 @@ mod erc20 {
             // `transfer_from` again, this time exceeding the approved amount
             let transfer_from = call.transfer_from(bob_account, charlie_account, 1);
             let transfer_from_result = client
-                .call(&ink_e2e::charlie(), &transfer_from, 0, None)
+                .call(&ink_e2e::charlie(), &transfer_from, 0, None, None)
                 .await;
             assert!(
                 transfer_from_result.is_err(),

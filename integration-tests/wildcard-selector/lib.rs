@@ -90,7 +90,7 @@ pub mod wildcard_selector {
             );
 
             let result = client
-                .call(&ink_e2e::bob(), &wildcard, 0, None)
+                .call(&ink_e2e::bob(), &wildcard, 0, None, None)
                 .await
                 .expect("wildcard failed");
 
@@ -103,7 +103,7 @@ pub mod wildcard_selector {
             );
 
             let result2 = client
-                .call(&ink_e2e::bob(), &wildcard2, 0, None)
+                .call(&ink_e2e::bob(), &wildcard2, 0, None, None)
                 .await
                 .expect("wildcard failed");
 
@@ -142,7 +142,7 @@ pub mod wildcard_selector {
             );
 
             let result = client
-                .call(&ink_e2e::bob(), &wildcard, 0, None)
+                .call(&ink_e2e::bob(), &wildcard, 0, None, None)
                 .await
                 .expect("wildcard failed");
 

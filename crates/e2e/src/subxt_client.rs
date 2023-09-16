@@ -527,6 +527,7 @@ where
         caller: &Keypair,
         message: &CallBuilderFinal<E, Args, RetType>,
         value: E::Balance,
+        extra_gas_portion: Option<usize>,
         storage_deposit_limit: Option<E::Balance>,
     ) -> Result<CallResult<E, RetType, Self::EventLog>, Self::Error>
     where
@@ -542,12 +543,17 @@ where
             return Err(Error::<E>::CallDryRun(dry_run.exec_result))
         }
 
+        let mut gas_limit = dry_run.exec_result.gas_required;
+        if let Some(gas_portion) = extra_gas_portion {
+            gas_limit += gas_limit / 100 * (gas_portion as u64);
+        }
+
         let tx_events = self
             .api
             .call(
                 subxt::utils::MultiAddress::Id(account_id.clone()),
                 value,
-                dry_run.exec_result.gas_required.into(),
+                gas_limit.into(),
                 storage_deposit_limit,
                 exec_input,
                 caller,

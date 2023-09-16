@@ -169,7 +169,7 @@ mod multi_contract_caller {
             assert_eq!(value, 1234);
             let change = call.change(6);
             let _ = client
-                .call(&ink_e2e::bob(), &change, 0, None)
+                .call(&ink_e2e::bob(), &change, 0, None, None)
                 .await
                 .expect("calling `change` failed");
 
@@ -184,12 +184,12 @@ mod multi_contract_caller {
             // when
             let switch = call.switch();
             let _ = client
-                .call(&ink_e2e::bob(), &switch, 0, None)
+                .call(&ink_e2e::bob(), &switch, 0, None, None)
                 .await
                 .expect("calling `switch` failed");
             let change = call.change(3);
             let _ = client
-                .call(&ink_e2e::bob(), &change, 0, None)
+                .call(&ink_e2e::bob(), &change, 0, None, None)
                 .await
                 .expect("calling `change` failed");
 

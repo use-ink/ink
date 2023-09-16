@@ -291,6 +291,7 @@ where
         caller: &Keypair,
         message: &CallBuilderFinal<E, Args, RetType>,
         value: E::Balance,
+        extra_gas_portion: Option<usize>,
         storage_deposit_limit: Option<E::Balance>,
     ) -> Result<CallResult<E, RetType, Self::EventLog>, Self::Error>
     where
@@ -300,12 +301,17 @@ where
         let exec_input = Encode::encode(message.clone().params().exec_input());
         let account_id = (*account_id.as_ref()).into();
 
+        let mut gas_limit = DEFAULT_GAS_LIMIT;
+        if let Some(gas_portion) = extra_gas_portion {
+            gas_limit += gas_limit / 100 * (gas_portion as u64);
+        }
+
         let result = self.sandbox.call_contract(
             account_id,
             value,
             exec_input,
             keypair_to_account(caller),
-            DEFAULT_GAS_LIMIT,
+            gas_limit,
             storage_deposit_limit,
         );
 

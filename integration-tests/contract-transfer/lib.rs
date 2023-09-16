@@ -210,7 +210,7 @@ pub mod give_me {
             // when
             let transfer = call.give_me(120);
 
-            let call_res = client.call(&ink_e2e::bob(), &transfer, 10, None).await;
+            let call_res = client.call(&ink_e2e::bob(), &transfer, 10, None, None).await;
 
             // then
             if let Err(ink_e2e::Error::<ink::env::DefaultEnvironment>::CallDryRun(
@@ -252,7 +252,7 @@ pub mod give_me {
             let transfer = call.give_me(120);
 
             let call_res = client
-                .call(&ink_e2e::eve(), &transfer, 0, None)
+                .call(&ink_e2e::eve(), &transfer, 0, None, None)
                 .await
                 .expect("call failed");
 

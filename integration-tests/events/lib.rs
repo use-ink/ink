@@ -224,7 +224,7 @@ pub mod events {
             // when
             let flip = call.flip_with_foreign_event();
             let flip_res = client
-                .call(&ink_e2e::bob(), &flip, 0, None)
+                .call(&ink_e2e::bob(), &flip, 0, None, None)
                 .await
                 .expect("flip failed");
 
@@ -265,7 +265,7 @@ pub mod events {
             // when
             let flip = call.flip_with_inline_event();
             let flip_res = client
-                .call(&ink_e2e::bob(), &flip, 0, None)
+                .call(&ink_e2e::bob(), &flip, 0, None, None)
                 .await
                 .expect("flip failed");
 
@@ -305,7 +305,7 @@ pub mod events {
             // when
             let call = call.emit_32_byte_topic_event(None);
             let call_res = client
-                .call(&ink_e2e::bob(), &call, 0, None)
+                .call(&ink_e2e::bob(), &call, 0, None, None)
                 .await
                 .expect("emit_32_byte_topic_event failed");
 

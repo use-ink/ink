@@ -207,7 +207,7 @@ mod call_builder {
             let selector = ink::selector_bytes!("invalid_selector");
             let call = call_builder_call.call(flipper.account_id, selector);
             let call_result = client
-                .call(&origin, &call, 0, None)
+                .call(&origin, &call, 0, None, None)
                 .await
                 .expect("Calling `call_builder::call` failed");
 
@@ -288,7 +288,7 @@ mod call_builder {
             let call =
                 call_builder_call.call_instantiate(code_hash, selector, init_value);
             let call_result = client
-                .call(&origin, &call, 0, None)
+                .call(&origin, &call, 0, None, None)
                 .await
                 .expect("Client failed to call `call_builder::call_instantiate`.")
                 .return_value();
@@ -327,7 +327,7 @@ mod call_builder {
             let call =
                 call_builder_call.call_instantiate(code_hash, selector, init_value);
             let call_result = client
-                .call(&origin, &call, 0, None)
+                .call(&origin, &call, 0, None, None)
                 .await
                 .expect("Client failed to call `call_builder::call_instantiate`.")
                 .return_value();
@@ -413,7 +413,7 @@ mod call_builder {
             let call = call_builder_call
                 .call_instantiate_fallible(code_hash, selector, init_value);
             let call_result = client
-                .call(&origin, &call, 0, None)
+                .call(&origin, &call, 0, None, None)
                 .await
                 .expect("Calling `call_builder::call_instantiate_fallible` failed")
                 .return_value();
@@ -454,7 +454,7 @@ mod call_builder {
             let call = call_builder_call
                 .call_instantiate_fallible(code_hash, selector, init_value);
             let call_result = client
-                .call(&origin, &call, 0, None)
+                .call(&origin, &call, 0, None, None)
                 .await
                 .expect("Calling `call_builder::call_instantiate_fallible` failed")
                 .return_value();
@@ -547,7 +547,7 @@ mod call_builder {
             let call = call_builder_call
                 .call_instantiate_fallible(code_hash, selector, init_value);
             let call_result = client
-                .call(&origin, &call, 0, None)
+                .call(&origin, &call, 0, None, None)
                 .await
                 .expect(
                     "Client failed to call `call_builder::call_instantiate_fallible`.",
