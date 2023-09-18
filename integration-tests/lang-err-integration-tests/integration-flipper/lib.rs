@@ -96,7 +96,7 @@ pub mod integration_flipper {
 
             let flip = call.flip();
             let flip_call_result = client
-                .call(&ink_e2e::alice(), &flip, 0, None)
+                .call(&ink_e2e::alice(), &flip, 0, None, None)
                 .await
                 .expect("Calling `flip` failed");
             assert!(
