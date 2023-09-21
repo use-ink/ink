@@ -394,10 +394,11 @@ examples-contract-build-riscv:
     #   - custom_allocator
     # Pulls in sp-std which needlessly requires atomic pointers (TODO: Fix sp-std and enable this example)
     #   - call-runtime
-    - find integration-tests -name "Cargo.toml"
-      -not \( -path '*/custom-allocator/*' -o -path '*/call-runtime/*' \)
-      -exec scripts/is_contract.sh {} \;
-      -exec cargo build --manifest-path {} --no-default-features --target $RISCV_TARGET -Zbuild-std="core,alloc" \;
+    - scripts/for_all_contracts_exec.sh
+      --path integration-tests
+      --ignore custom-allocator
+      --ignore call-runtime
+      -- cargo build --manifest-path {} --no-default-features --target $RISCV_TARGET -Zbuild-std="core,alloc"
 
 examples-docs:
   stage:                           examples
@@ -410,9 +411,9 @@ examples-docs:
     # puts the contract functions in a private module.
     # Once https://github.com/paritytech/ink/issues/336 has been implemented we can get rid
     # of this flag.
-    - find integration-tests -name "Cargo.toml"
-      -exec scripts/is_contract.sh {} \;
-      -exec cargo doc --manifest-path {} --document-private-items --verbose --no-deps \;
+    - scripts/for_all_contracts_exec.sh
+      --path integration-tests
+      -- cargo doc --manifest-path {} --document-private-items --verbose --no-deps
 
 #### stage:                        measurements
 
