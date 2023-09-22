@@ -433,11 +433,13 @@ contract-sizes:
     # Measure contract sizes for the current branch
     - scripts/for_all_contracts_exec.sh
       --path integration-tests
+      --quiet
       -- scripts/contract_size.sh {} > $PR_BRANCH_CONTRACT_SIZES
     # Measure contract sizes for the upstream branch
     - git clone --verbose --depth 1 --branch ${UPSTREAM_BRANCH} ${UPSTREAM_REPO} ${UPSTREAM_DIR}
     - scripts/for_all_contracts_exec.sh
       --path ${UPSTREAM_DIR}/integration-tests
+      --quiet
       -- scripts/contract_size.sh {} > $UPSTREAM_CONTRACT_SIZES
 
     # Just print them for now, next step is to run and compare with `master`
