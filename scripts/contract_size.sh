@@ -27,7 +27,7 @@ if [ -z "$manifest_path" ]; then
   exit 1
 fi
 
-build_result=$(cargo contract build --manifest-path "$manifest_path" --release --quiet --output-json 2>/dev/null)
+build_result=$(cargo contract build --manifest-path "$manifest_path" --release --quiet --output-json)
 
 if [ $? -eq 0 ]; then
   # only print the contract name and size if the build was successful
