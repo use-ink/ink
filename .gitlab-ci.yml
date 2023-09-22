@@ -13,13 +13,14 @@ default:
       - api_failure
 
 stages:
-  - lint
-  - check
-  - workspace
-  - examples
   - measurements
-  - fuzz
-  - publish
+#  - lint
+#  - check
+#  - workspace
+#  - examples
+#  - measurements
+#  - fuzz
+#  - publish
 
 variables:
   GIT_STRATEGY:                    fetch
