@@ -14,13 +14,13 @@ default:
 
 stages:
   - measurements
-#  - lint
-#  - check
-#  - workspace
-#  - examples
-#  - measurements
-#  - fuzz
-#  - publish
+  - lint
+  - check
+  - workspace
+  - examples
+  - measurements
+  - fuzz
+  - publish
 
 variables:
   GIT_STRATEGY:                    fetch
