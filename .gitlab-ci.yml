@@ -13,12 +13,11 @@ default:
       - api_failure
 
 stages:
-  - measurements
   - lint
   - check
   - workspace
-  - examples
   - measurements
+  - examples
   - fuzz
   - publish
 
