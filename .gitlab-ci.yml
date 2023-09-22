@@ -422,8 +422,8 @@ contract-sizes:
   <<:                              *docker-env
   <<:                              *test-refs
   variables:
-#    # Fix for linking of `linkme` for `cargo contract build`: https://github.com/dtolnay/linkme/issues/49
-#    RUSTFLAGS: "-Clink-arg=-z -Clink-arg=nostart-stop-gc"
+    # Fix for linking of `linkme` for `cargo contract build`: https://github.com/dtolnay/linkme/issues/49
+    RUSTFLAGS: "-Clink-arg=-z -Clink-arg=nostart-stop-gc"
     PR_BRANCH_CONTRACT_SIZES: ${CI_COMMIT_BRANCH}_contract_sizes
     MASTER_CONTRACT_SIZES: master_contract_sizes
   script:
