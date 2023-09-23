@@ -441,12 +441,13 @@ contract-sizes:
     - ${CI_PROJECT_DIR}/scripts/for_all_contracts_exec.sh
       --path integration-tests
       --quiet
-      -- scripts/contract_size.sh {} > $UPSTREAM_CONTRACT_SIZES
-    - popd
+      -- ${CI_PROJECT_DIR}/scripts/contract_size.sh {} > ${CI_PROJECT_DIR}/${UPSTREAM_CONTRACT_SIZES}
+    # todo: build table
+#    -  awk 'NR==FNR {a[$1]=$2; next} $1 in a {print "|" $1 "|" a[$1] "|" $2 "|" (($2 - a[$1]) / a[$1]) * 100 "|"}' master shared-events-redux
     # Just print them for now, next step is to run and compare with `master`
-    - cat ${UPSTREAM_DIR}/${UPSTREAM_CONTRACT_SIZES}
+    - cat ${UPSTREAM_CONTRACT_SIZES}
     - echo "-------------------"
-    - cat $PR_BRANCH_CONTRACT_SIZES
+    - cat ${PR_BRANCH_CONTRACT_SIZES}
 
 # Disabled because `polkadot-js` doesn't support WeightsV2 for
 # contracts yet.
