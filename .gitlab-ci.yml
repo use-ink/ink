@@ -424,28 +424,31 @@ contract-sizes:
   variables:
     # Fix for linking of `linkme` for `cargo contract build`: https://github.com/dtolnay/linkme/issues/49
     RUSTFLAGS: "-Clink-arg=-z -Clink-arg=nostart-stop-gc"
+    MEASUREMENTS_DIR: ${CI_PROJECT_DIR}/measurements
+    SCRIPTS_DIR: ${CI_PROJECT_DIR}/scripts
     PR_BRANCH_CONTRACT_SIZES: ${CI_COMMIT_BRANCH}_contract_sizes
     UPSTREAM_BRANCH: "master"
     UPSTREAM_CONTRACT_SIZES: ${UPSTREAM_BRANCH}_contract_sizes
     UPSTREAM_REPO: "https://github.com/paritytech/ink.git"
-    UPSTREAM_DIR: "../ink-${UPSTREAM_BRANCH}"
+    UPSTREAM_DIR: ${MEASUREMENTS_DIR}/ink-${UPSTREAM_BRANCH}
   script:
+    - mkdir ${MEASUREMENTS_DIR}
     # Measure contract sizes for the current branch
-    - scripts/for_all_contracts_exec.sh
+    - ${SCRIPTS_DIR}/for_all_contracts_exec.sh
       --path integration-tests
       --quiet
-      -- scripts/contract_size.sh {} > $PR_BRANCH_CONTRACT_SIZES
+      -- ${SCRIPTS_DIR}/contract_size.sh {} > ${MEASUREMENTS_DIR}/$PR_BRANCH_CONTRACT_SIZES
     # Measure contract sizes for the upstream branch
     - git clone --verbose --depth 1 --branch ${UPSTREAM_BRANCH} ${UPSTREAM_REPO} ${UPSTREAM_DIR}
     - pushd ${UPSTREAM_DIR}
-    - ${CI_PROJECT_DIR}/scripts/for_all_contracts_exec.sh
+    - ${SCRIPTS_DIR}/for_all_contracts_exec.sh
       --path integration-tests
       --quiet
-      -- ${CI_PROJECT_DIR}/scripts/contract_size.sh {} > ${CI_PROJECT_DIR}/${UPSTREAM_CONTRACT_SIZES}
+      -- ${SCRIPTS_DIR}/contract_size.sh {} > ${MEASUREMENTS_DIR}/${UPSTREAM_CONTRACT_SIZES}
     - popd
-    - cat ${UPSTREAM_CONTRACT_SIZES}
+    - cat ${MEASUREMENTS_DIR}/${UPSTREAM_CONTRACT_SIZES}
     - echo "-------------------"
-    - cat ${PR_BRANCH_CONTRACT_SIZES}
+    - cat ${MEASUREMENTS_DIR}/${PR_BRANCH_CONTRACT_SIZES}
 
 # Disabled because `polkadot-js` doesn't support WeightsV2 for
 # contracts yet.
