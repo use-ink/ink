@@ -195,10 +195,16 @@ where
         caller: &Keypair,
         constructor: CreateBuilderPartial<E, Contract, Args, R>,
         value: E::Balance,
+        extra_gas_portion: Option<usize>,
         storage_deposit_limit: Option<E::Balance>,
     ) -> Result<InstantiationResult<E, Self::EventLog>, Self::Error> {
         let code = self.contracts.load_code(contract_name);
         let data = constructor_exec_input(constructor);
+
+        let mut gas_limit = DEFAULT_GAS_LIMIT;
+        if let Some(gas_portion) = extra_gas_portion {
+            gas_limit += gas_limit / 100 * (gas_portion as u64);
+        }
 
         let result = self.sandbox.deploy_contract(
             code,
@@ -206,7 +212,7 @@ where
             data,
             salt(),
             keypair_to_account(caller),
-            DEFAULT_GAS_LIMIT,
+            gas_limit,
             storage_deposit_limit,
         );
 

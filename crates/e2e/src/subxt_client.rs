@@ -137,6 +137,7 @@ where
         code: Vec<u8>,
         constructor: CreateBuilderPartial<E, Contract, Args, R>,
         value: E::Balance,
+        extra_gas_portion: Option<usize>,
         storage_deposit_limit: Option<E::Balance>,
     ) -> Result<InstantiationResult<E, ExtrinsicEvents<C>>, Error<E>>
     where
@@ -166,11 +167,16 @@ where
             return Err(Error::<E>::InstantiateDryRun(dry_run))
         }
 
+        let mut gas_limit = dry_run.gas_required;
+        if let Some(gas_portion) = extra_gas_portion {
+            gas_limit += gas_limit / 100 * (gas_portion as u64);
+        }
+
         let tx_events = self
             .api
             .instantiate_with_code(
                 value,
-                dry_run.gas_required.into(),
+                gas_limit.into(),
                 storage_deposit_limit,
                 code,
                 data.clone(),
@@ -451,13 +457,8 @@ where
 
     E: Environment,
     E::AccountId: Debug + Send + Sync,
-    E::Balance: Clone
-        + Debug
-        + Send
-        + Sync
-        + TryFrom<u128>
-        + scale::HasCompact
-        + serde::Serialize,
+    E::Balance:
+        Clone + Debug + Send + Sync + From<u128> + scale::HasCompact + serde::Serialize,
     E::Hash: Debug + Send + scale::Encode,
 {
     type Error = Error<E>;
@@ -469,6 +470,7 @@ where
         caller: &Keypair,
         constructor: CreateBuilderPartial<E, Contract, Args, R>,
         value: E::Balance,
+        extra_gas_portion: Option<usize>,
         storage_deposit_limit: Option<E::Balance>,
     ) -> Result<InstantiationResult<E, Self::EventLog>, Self::Error> {
         let code = self.contracts.load_code(contract_name);
@@ -478,6 +480,7 @@ where
                 code,
                 constructor,
                 value,
+                extra_gas_portion,
                 storage_deposit_limit,
             )
             .await?;
@@ -635,13 +638,8 @@ where
 
     E: Environment,
     E::AccountId: Debug + Send + Sync,
-    E::Balance: Clone
-        + Debug
-        + Send
-        + Sync
-        + TryFrom<u128>
-        + scale::HasCompact
-        + serde::Serialize,
+    E::Balance:
+        Clone + Debug + Send + Sync + From<u128> + scale::HasCompact + serde::Serialize,
     E::Hash: Debug + Send + scale::Encode,
 {
 }

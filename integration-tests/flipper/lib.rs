@@ -64,25 +64,33 @@ pub mod flipper {
             // given
             let constructor = FlipperRef::new(false);
             let contract = client
-                .instantiate("flipper", &ink_e2e::alice(), constructor, 0, None)
+                .create_instantiate_call("flipper", &ink_e2e::alice(), constructor)
+                .submit()
                 .await
                 .expect("instantiate failed");
             let mut call = contract.call::<Flipper>();
 
             let get = call.get();
-            let get_res = client.call_dry_run(&ink_e2e::bob(), &get, 0, None).await;
+            let get_res = client
+                .create_call(&ink_e2e::bob(), &get)
+                .submit_dry_run()
+                .await;
             assert!(matches!(get_res.return_value(), false));
 
             // when
             let flip = call.flip();
             let _flip_res = client
-                .call(&ink_e2e::bob(), &flip, 0, None, None)
+                .create_call(&ink_e2e::bob(), &flip)
+                .submit()
                 .await
                 .expect("flip failed");
 
             // then
             let get = call.get();
-            let get_res = client.call_dry_run(&ink_e2e::bob(), &get, 0, None).await;
+            let get_res = client
+                .create_call(&ink_e2e::bob(), &get)
+                .submit_dry_run()
+                .await;
             assert!(matches!(get_res.return_value(), true));
 
             Ok(())
@@ -95,14 +103,18 @@ pub mod flipper {
 
             // when
             let contract = client
-                .instantiate("flipper", &ink_e2e::bob(), constructor, 0, None)
+                .create_instantiate_call("flipper", &ink_e2e::bob(), constructor)
+                .submit()
                 .await
                 .expect("instantiate failed");
             let call = contract.call::<Flipper>();
 
             // then
             let get = call.get();
-            let get_res = client.call_dry_run(&ink_e2e::bob(), &get, 0, None).await;
+            let get_res = client
+                .create_call(&ink_e2e::bob(), &get)
+                .submit_dry_run()
+                .await;
             assert!(matches!(get_res.return_value(), false));
 
             Ok(())

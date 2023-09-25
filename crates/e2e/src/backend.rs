@@ -14,7 +14,9 @@
 
 use super::Keypair;
 use crate::{
+    backend_calls::InstantiateBuilder,
     builders::CreateBuilderPartial,
+    CallBuilder,
     CallBuilderFinal,
     CallDryRunResult,
     CallResult,
@@ -42,7 +44,7 @@ pub trait ChainBackend {
     /// Account type.
     type AccountId;
     /// Balance type.
-    type Balance: Send;
+    type Balance: Send + From<u32>;
     /// Error type.
     type Error;
     /// Event log type.
@@ -93,6 +95,18 @@ pub trait ContractsBackend<E: Environment> {
     /// Event log type.
     type EventLog;
 
+    fn create_instantiate_call<'a, Contract, Args: Send + scale::Encode, R>(
+        &'a mut self,
+        contract_name: &'a str,
+        caller: &'a Keypair,
+        constructor: CreateBuilderPartial<E, Contract, Args, R>,
+    ) -> InstantiateBuilder<'a, E, Contract, Args, R, Self>
+    where
+        Self: Sized,
+    {
+        InstantiateBuilder::new(self, caller, contract_name, constructor)
+    }
+
     /// The function subsequently uploads and instantiates an instance of the contract.
     ///
     /// This function extracts the metadata of the contract at the file path
@@ -107,6 +121,7 @@ pub trait ContractsBackend<E: Environment> {
         caller: &Keypair,
         constructor: CreateBuilderPartial<E, Contract, Args, R>,
         value: E::Balance,
+        extra_gas_portion: Option<usize>,
         storage_deposit_limit: Option<E::Balance>,
     ) -> Result<InstantiationResult<E, Self::EventLog>, Self::Error>;
 
@@ -133,6 +148,18 @@ pub trait ContractsBackend<E: Environment> {
         caller: &Keypair,
         storage_deposit_limit: Option<E::Balance>,
     ) -> Result<UploadResult<E, Self::EventLog>, Self::Error>;
+
+    /// Creates a call builder then can later be submitted.
+    fn create_call<'a, Args: Sync + scale::Encode, RetType: Send + scale::Decode>(
+        &'a mut self,
+        caller: &'a Keypair,
+        message: &'a CallBuilderFinal<E, Args, RetType>,
+    ) -> CallBuilder<'a, E, Args, RetType, Self>
+    where
+        Self: Sized,
+    {
+        CallBuilder::new(self, caller, message)
+    }
 
     /// Executes a `call` for the contract at `account_id`.
     ///
