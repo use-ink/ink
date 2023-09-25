@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## Changed
+- Make `set_code_hash` generic - [#1906](https://github.com/paritytech/ink/pull/1906)
+
 ## Version 5.0.0-alpha
 
 The preview release of the ink! 5.0.0 release.

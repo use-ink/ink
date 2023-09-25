@@ -77,7 +77,7 @@ jobs:
             substrate-contracts-node -lruntime::contracts=debug  2>&1 | tee /tmp/contracts-node.log &
 
       - name: Rust Cache
-        uses: Swatinem/rust-cache@v2.6.2
+        uses: Swatinem/rust-cache@v2.7.0
 
       - name: Install `cargo-contract` `master`
         uses: actions-rs/cargo@v1
