@@ -442,6 +442,7 @@ contract-sizes:
       --path integration-tests
       --quiet
       -- ${CI_PROJECT_DIR}/scripts/contract_size.sh {} > ${CI_PROJECT_DIR}/${UPSTREAM_CONTRACT_SIZES}
+    - popd
     # todo: build table
 #    -  awk 'NR==FNR {a[$1]=$2; next} $1 in a {print "|" $1 "|" a[$1] "|" $2 "|" (($2 - a[$1]) / a[$1]) * 100 "|"}' master shared-events-redux
     # Just print them for now, next step is to run and compare with `master`
