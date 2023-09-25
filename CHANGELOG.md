@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ## Changed
-- [E2E] Add extra arg to specify extra gas portion - [#1917](https://github.com/paritytech/ink/pull/1917)
+- [E2E] E2E call builders and extra gas margin option - [#1917](https://github.com/paritytech/ink/pull/1917)
 - Make `set_code_hash` generic - [#1906](https://github.com/paritytech/ink/pull/1906)
 
 ## Version 5.0.0-alpha
