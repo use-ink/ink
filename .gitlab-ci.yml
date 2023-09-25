@@ -431,8 +431,9 @@ contract-sizes:
     UPSTREAM_CONTRACT_SIZES: ${MEASUREMENTS_DIR}/${UPSTREAM_BRANCH}_contract_sizes
     UPSTREAM_REPO: "https://github.com/paritytech/ink.git"
     UPSTREAM_DIR: ${MEASUREMENTS_DIR}/ink-${UPSTREAM_BRANCH}
-  script:
+  before_script:
     - mkdir ${MEASUREMENTS_DIR}
+  script:
     # Measure contract sizes for the current branch
     - ${SCRIPTS_DIR}/for_all_contracts_exec.sh
       --path integration-tests
@@ -447,6 +448,8 @@ contract-sizes:
       -- ${SCRIPTS_DIR}/contract_size.sh {} > ${UPSTREAM_CONTRACT_SIZES}
     - popd
     - ${SCRIPTS_DIR}/contract_size_diff.sh ${UPSTREAM_CONTRACT_SIZES} ${PR_BRANCH_CONTRACT_SIZES}
+  after_script:
+    - rm -rf ${MEASUREMENTS_DIR}
 
 # Disabled because `polkadot-js` doesn't support WeightsV2 for
 # contracts yet.
