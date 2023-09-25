@@ -36,8 +36,9 @@ pub fn register_lints(
     _sess: &rustc_session::Session,
     lint_store: &mut rustc_lint::LintStore,
 ) {
-    lint_store.register_lints(&[primitive_topic::PRIMITIVE_TOPIC]);
+    lint_store.register_lints(&[primitive_topic::PRIMITIVE_TOPIC, storage_never_freed::STORAGE_NEVER_FREED]);
     lint_store.register_late_pass(|_| Box::new(primitive_topic::PrimitiveTopic));
+    lint_store.register_late_pass(|_| Box::new(storage_never_freed::StorageNeverFreed));
 }
 
 #[test]
