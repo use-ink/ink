@@ -56,7 +56,13 @@ impl E2EConfig {
     pub fn additional_contracts(&self) -> Vec<String> {
         self.additional_contracts
             .split(' ')
-            .map(String::from)
+            .filter_map(|s| {
+                if s.is_empty() {
+                    None
+                } else {
+                    Some(s.to_owned())
+                }
+            })
             .collect()
     }
 
