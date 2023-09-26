@@ -70,7 +70,7 @@ impl E2EConfig {
         self.backend
     }
 
-    /// The runtime to use for the runtime_only test.
+    /// The runtime to use for the runtime only test.
     #[cfg(any(test, feature = "drink"))]
     pub fn runtime(&self) -> Option<syn::Path> {
         self.runtime.clone()
@@ -84,7 +84,6 @@ mod tests {
         ast::NestedMeta,
         FromMeta,
     };
-    use proc_macro2::TokenStream;
     use quote::quote;
 
     #[test]
@@ -96,8 +95,7 @@ mod tests {
             runtime = ::drink::MinimalRuntime,
         };
         let config =
-            E2EConfig::from_list(&NestedMeta::parse_meta_list(input.into()).unwrap())
-                .unwrap();
+            E2EConfig::from_list(&NestedMeta::parse_meta_list(input).unwrap()).unwrap();
 
         assert_eq!(
             config.additional_contracts(),
