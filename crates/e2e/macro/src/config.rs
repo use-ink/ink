@@ -44,7 +44,7 @@ pub struct E2EConfig {
     /// The type of the architecture that should be used to run test.
     #[darling(default)]
     backend: Backend,
-    /// The runtime to use for the runtime_only test.
+    /// The runtime to use for the runtime only test.
     #[cfg(any(test, feature = "drink"))]
     #[darling(default)]
     runtime: Option<syn::Path>,
