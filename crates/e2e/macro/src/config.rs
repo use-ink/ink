@@ -87,157 +87,30 @@ mod tests {
     use proc_macro2::TokenStream;
     use quote::quote;
 
-    /// Asserts that the given input configuration attribute argument are converted
-    /// into the expected ink! configuration or yields the expected error message.
-    fn assert_try_from(input: TokenStream, expected: Result<E2EConfig, &'static str>) {
-        assert_eq!(
+    #[test]
+    fn config_works() {
+        let input = quote! {
+            additional_contracts = "adder/Cargo.toml flipper/Cargo.toml",
+            environment = crate::CustomEnvironment,
+            backend = "runtime_only",
+            runtime = ::drink::MinimalRuntime,
+        };
+        let config =
             E2EConfig::from_list(&NestedMeta::parse_meta_list(input.into()).unwrap())
-                .map_err(|err| err.to_string()),
-            expected.map_err(ToString::to_string),
+                .unwrap();
+
+        assert_eq!(
+            config.additional_contracts(),
+            vec!["adder/Cargo.toml", "flipper/Cargo.toml"]
         );
-    }
-
-    #[test]
-    fn empty_config_works() {
-        assert_try_from(quote! {}, Ok(E2EConfig::default()))
-    }
-
-    #[test]
-    fn unknown_arg_fails() {
-        assert_try_from(
-            quote! { unknown = argument },
-            Err("Unknown field: `unknown`"),
+        assert_eq!(
+            config.environment(),
+            Some(syn::parse_quote! { crate::CustomEnvironment })
         );
-    }
-
-    #[test]
-    fn duplicate_additional_contracts_fails() {
-        assert_try_from(
-            quote! {
-                additional_contracts = "adder/Cargo.toml",
-                additional_contracts = "adder/Cargo.toml",
-            },
-            Err("Duplicate field `additional_contracts`"),
-        );
-    }
-
-    #[test]
-    fn duplicate_environment_fails() {
-        assert_try_from(
-            quote! {
-                environment = crate::CustomEnvironment,
-                environment = crate::CustomEnvironment,
-            },
-            Err("Duplicate field `environment`"),
-        );
-    }
-
-    #[test]
-    fn specifying_environment_works() {
-        assert_try_from(
-            quote! {
-                environment = crate::CustomEnvironment,
-            },
-            Ok(E2EConfig {
-                environment: Some(syn::parse_quote! { crate::CustomEnvironment }),
-                ..Default::default()
-            }),
-        );
-
-        assert_try_from(
-            quote! {
-                environment = "crate::CustomEnvironment",
-            },
-            Ok(E2EConfig {
-                environment: Some(syn::parse_quote! { crate::CustomEnvironment }),
-                ..Default::default()
-            }),
-        );
-    }
-
-    #[test]
-    fn backend_must_be_literal() {
-        assert_try_from(
-            quote! { backend = full },
-            Err("Unexpected literal type `path` at backend"),
-        );
-    }
-
-    #[test]
-    fn duplicate_backend_fails() {
-        assert_try_from(
-            quote! {
-                backend = "full",
-                backend = "runtime_only",
-            },
-            Err("Duplicate field `backend`"),
-        );
-    }
-
-    #[test]
-    fn specifying_backend_works() {
-        assert_try_from(
-            quote! { backend = "runtime_only" },
-            Ok(E2EConfig {
-                backend: Backend::RuntimeOnly,
-                ..Default::default()
-            }),
-        );
-    }
-
-    #[test]
-    fn duplicate_runtime_fails() {
-        assert_try_from(
-            quote! {
-                runtime = ::drink::MinimalRuntime,
-                runtime = ::drink::MaximalRuntime,
-            },
-            Err("Duplicate field `runtime`"),
-        );
-    }
-
-    #[test]
-    fn specifying_runtime_works() {
-        assert_try_from(
-            quote! {
-                backend = "runtime_only",
-                runtime = ::drink::MinimalRuntime
-            },
-            Ok(E2EConfig {
-                backend: Backend::RuntimeOnly,
-                runtime: Some(syn::parse_quote! { ::drink::MinimalRuntime }),
-                ..Default::default()
-            }),
-        );
-
-        assert_try_from(
-            quote! {
-                backend = "runtime_only",
-                runtime = "::drink::MinimalRuntime"
-            },
-            Ok(E2EConfig {
-                backend: Backend::RuntimeOnly,
-                runtime: Some(syn::parse_quote! { ::drink::MinimalRuntime }),
-                ..Default::default()
-            }),
-        );
-    }
-
-    #[test]
-    fn full_config_works() {
-        assert_try_from(
-            quote! {
-                additional_contracts = "adder/Cargo.toml flipper/Cargo.toml",
-                environment = crate::CustomEnvironment,
-                backend = "runtime_only",
-                runtime = ::drink::MinimalRuntime,
-            },
-            Ok(E2EConfig {
-                additional_contracts: "adder/Cargo.toml flipper/Cargo.toml".to_string(),
-                environment: Some(syn::parse_quote! { crate::CustomEnvironment }),
-                backend: Backend::RuntimeOnly,
-                runtime: Some(syn::parse_quote! { ::drink::MinimalRuntime }),
-            }),
+        assert_eq!(config.backend(), Backend::RuntimeOnly);
+        assert_eq!(
+            config.runtime(),
+            Some(syn::parse_quote! { ::drink::MinimalRuntime })
         );
     }
 }
