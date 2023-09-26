@@ -547,7 +547,7 @@ where
             .call(
                 subxt::utils::MultiAddress::Id(account_id.clone()),
                 value,
-                dry_run.exec_result.gas_required.into(),
+                (dry_run.exec_result.gas_required + 1000000.into()).into(),
                 storage_deposit_limit,
                 exec_input,
                 caller,
