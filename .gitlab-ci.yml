@@ -243,8 +243,6 @@ test:
     - job:                         check-std
       artifacts:                   false
   variables:
-      # Fix for linking of `linkme` for `cargo test`: https://github.com/dtolnay/linkme/issues/49
-      RUSTFLAGS: "-Clink-arg=-z -Clink-arg=nostart-stop-gc -Clink-dead-code"
       # Since we run the tests with `--all-features` this implies the feature
       # `ink-fuzz-tests` as well -- i.e. the fuzz tests are run.
       # There's no way to disable a single feature while enabling all features
@@ -345,9 +343,6 @@ examples-test:
   needs:
     - job:                         clippy-std
       artifacts:                   false
-  variables:
-    # Fix linking of `linkme`: https://github.com/dtolnay/linkme/issues/49
-    RUSTFLAGS: "-Clink-arg=-z -Clink-arg=nostart-stop-gc -Clink-dead-code"
   script:
     # run all tests with --all-features, which will run the e2e-tests feature if present
     - scripts/for_all_contracts_exec.sh 
@@ -362,9 +357,6 @@ examples-contract-build:
   stage:                           examples
   <<:                              *docker-env
   <<:                              *test-refs
-  variables:
-    # Fix for linking of `linkme` for `cargo contract build`: https://github.com/dtolnay/linkme/issues/49
-    RUSTFLAGS: "-Clink-arg=-z -Clink-arg=nostart-stop-gc -Clink-dead-code"
   script:
     - rustup component add rust-src --toolchain stable
     - cargo contract -V
