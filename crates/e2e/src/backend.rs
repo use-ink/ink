@@ -103,7 +103,7 @@ pub trait ContractsBackend<E: Environment> {
     ///
     /// # Example
     ///
-    /// ```rust
+    /// ```ignore
     /// // Constructor method
     /// let constructor = FlipperRef::new(false);
     /// let contract = client
@@ -188,7 +188,7 @@ pub trait ContractsBackend<E: Environment> {
     /// Start building an upload call.
     /// # Example
     ///
-    /// ```rust
+    /// ```ignore
     /// let contract = client
     ///     .upload("flipper", &ink_e2e::alice())
     ///     // Optional arguments
@@ -227,7 +227,7 @@ pub trait ContractsBackend<E: Environment> {
     ///
     /// # Example
     ///
-    /// ```rust
+    /// ```ignore
     /// // Message method
     /// let get = call.get();
     /// let get_res = client
