@@ -19,11 +19,21 @@
 //! This mapping doesn't actually "own" any data.
 //! Instead it is just a simple wrapper around the contract storage facilities.
 
-use crate::traits::{AutoKey, Packed, StorableHint, StorageKey};
+use crate::traits::{
+    AutoKey,
+    Packed,
+    StorableHint,
+    StorageKey,
+};
 use core::marker::PhantomData;
 use ink_primitives::Key;
 use ink_storage_traits::Storable;
-use scale::{Encode, Error, Input, Output};
+use scale::{
+    Encode,
+    Error,
+    Input,
+    Output,
+};
 
 /// A mapping of key-value pairs directly into contract storage.
 ///
@@ -134,6 +144,28 @@ where
         ink_env::set_contract_storage(&(&KeyType::KEY, key), value)
     }
 
+    /// Try to insert the given `value` into the mapping under given `key`.
+    ///
+    /// Fails if `value` exceeds the static buffer size.
+    ///
+    /// Returns:
+    /// - `Ok(Some(_))` if the value was inserted successfully, containing the size in
+    ///   bytes of the pre-existing value at the specified key if any.
+    /// - `Ok(None)` if the insert was succesfull but there was no pre-existing value.
+    /// - `Err(_)` if the encoded value exceeds the static buffer size.
+    #[inline]
+    pub fn try_insert<Q, R>(&mut self, key: Q, value: &R) -> ink_env::Result<Option<u32>>
+    where
+        Q: scale::EncodeLike<K>,
+        R: Storable + scale::EncodeLike<V>,
+    {
+        if <R as Storable>::encoded_size(value) > ink_env::BUFFER_SIZE {
+            return Err(ink_env::Error::BufferTooSmall)
+        };
+
+        Ok(self.insert(key, value))
+    }
+
     /// Get the `value` at `key` from the contract storage.
     ///
     /// Returns `None` if no `value` exists at the given `key`.
@@ -144,6 +176,30 @@ where
     {
         ink_env::get_contract_storage(&(&KeyType::KEY, key))
             .unwrap_or_else(|error| panic!("Failed to get value in Mapping: {error:?}"))
+    }
+
+    /// Try to get the `value` at the given `key`.
+    ///
+    /// Returns:
+    /// - `Some(Ok(_))` containing the value if it existed and was decoded successfully.
+    /// - `Some(Err(_))` if the value existed but its length exceeds the static buffer
+    ///   size.
+    /// - `None` if there was no value under this mapping key.
+    #[inline]
+    pub fn try_get<Q>(&self, key: Q) -> Option<ink_env::Result<V>>
+    where
+        Q: scale::EncodeLike<K>,
+    {
+        let encoded_length: usize =
+            ink_env::contains_contract_storage(&(&KeyType::KEY, &key))?
+                .try_into()
+                .expect("targets of less than 32bit pointer size are not supported; qed");
+
+        if encoded_length > ink_env::BUFFER_SIZE {
+            return Some(Err(ink_env::Error::BufferTooSmall))
+        }
+
+        self.get(key).map(Ok)
     }
 
     /// Removes the `value` at `key`, returning the previous `value` at `key` from
@@ -163,6 +219,37 @@ where
     {
         ink_env::take_contract_storage(&(&KeyType::KEY, key))
             .unwrap_or_else(|error| panic!("Failed to take value in Mapping: {error:?}"))
+    }
+
+    /// Try to take the `value` at the given `key`.
+    /// On success, this operation will remove the value from the mapping
+    ///
+    /// Returns:
+    /// - `Some(Ok(_))` containing the value if it existed and was decoded successfully.
+    /// - `Some(Err(_))` if the value existed but its length exceeds the static buffer
+    ///   size.
+    /// - `None` if there was no value under this mapping key.
+    ////
+    /// # Warning
+    ///
+    /// This method uses the
+    /// [unstable interface](https://github.com/paritytech/substrate/tree/master/frame/contracts#unstable-interfaces),
+    /// which is unsafe and normally is not available on production chains.
+    #[inline]
+    pub fn try_take<Q>(&self, key: Q) -> Option<ink_env::Result<V>>
+    where
+        Q: scale::EncodeLike<K>,
+    {
+        let encoded_length: usize =
+            ink_env::contains_contract_storage(&(&KeyType::KEY, &key))?
+                .try_into()
+                .expect("targets of less than 32bit pointer size are not supported; qed");
+
+        if encoded_length > ink_env::BUFFER_SIZE {
+            return Some(Err(ink_env::Error::BufferTooSmall))
+        }
+
+        self.take(key).map(Ok)
     }
 
     /// Get the size in bytes of a value stored at `key` in the contract storage.
@@ -237,7 +324,11 @@ where
 #[cfg(feature = "std")]
 const _: () = {
     use crate::traits::StorageLayout;
-    use ink_metadata::layout::{Layout, LayoutKey, RootLayout};
+    use ink_metadata::layout::{
+        Layout,
+        LayoutKey,
+        RootLayout,
+    };
 
     impl<K, V, KeyType> StorageLayout for Mapping<K, V, KeyType>
     where
@@ -351,6 +442,55 @@ mod tests {
 
             // Then
             assert_eq!(mapping.get(1), None);
+
+            Ok(())
+        })
+        .unwrap()
+    }
+
+    #[test]
+    fn fallible_storage_works_for_fitting_data() {
+        ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
+            let mut mapping: Mapping<u8, [u8; ink_env::BUFFER_SIZE]> = Mapping::new();
+
+            let key = 0;
+            let value = [0u8; ink_env::BUFFER_SIZE];
+
+            assert_eq!(mapping.try_insert(key, &value), Ok(None));
+            assert_eq!(mapping.try_get(key), Some(Ok(value)));
+            assert_eq!(mapping.try_take(key), Some(Ok(value)));
+            assert_eq!(mapping.try_get(key), None);
+
+            Ok(())
+        })
+        .unwrap()
+    }
+
+    #[test]
+    fn fallible_storage_fails_gracefully_for_overgrown_data() {
+        ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
+            let mut mapping: Mapping<u8, [u8; ink_env::BUFFER_SIZE + 1]> = Mapping::new();
+
+            let key = 0;
+            let value = [0u8; ink_env::BUFFER_SIZE + 1];
+
+            assert_eq!(mapping.try_get(0), None);
+            assert_eq!(
+                mapping.try_insert(key, &value),
+                Err(ink_env::Error::BufferTooSmall)
+            );
+
+            // The off-chain impl conveniently uses a Vec for encoding,
+            // allowing writing values exceeding the static buffer size.
+            ink_env::set_contract_storage(&(&mapping.key(), key), &value);
+            assert_eq!(
+                mapping.try_get(key),
+                Some(Err(ink_env::Error::BufferTooSmall))
+            );
+            assert_eq!(
+                mapping.try_take(key),
+                Some(Err(ink_env::Error::BufferTooSmall))
+            );
 
             Ok(())
         })

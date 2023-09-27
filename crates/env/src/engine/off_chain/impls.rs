@@ -217,7 +217,7 @@ impl EnvBackend for EnvInstance {
         K: scale::Encode,
         R: Storable,
     {
-        let mut output: [u8; 9600] = [0; 9600];
+        let mut output: [u8; BUFFER_SIZE] = [0; BUFFER_SIZE];
         match self
             .engine
             .take_storage(&key.encode(), &mut &mut output[..])

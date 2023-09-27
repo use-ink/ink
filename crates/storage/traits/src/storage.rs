@@ -26,6 +26,7 @@ pub trait Storable: Sized {
     /// Attempt to deserialize the value from input.
     fn decode<I: scale::Input>(input: &mut I) -> Result<Self, scale::Error>;
 
+    /// The exact number of bytes this type consumes in the encoded form.
     fn encoded_size(&self) -> usize;
 }
 
@@ -47,7 +48,7 @@ where
 
     #[inline]
     fn encoded_size(&self) -> usize {
-        <P as scale::Encode>::encoded_size(&self)
+        <P as scale::Encode>::encoded_size(self)
     }
 }
 
