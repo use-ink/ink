@@ -11,7 +11,38 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-use rustc_hir as hir;
+use crate::ink_utils::{
+    expand_unnamed_consts,
+    find_contract_impl_id,
+    find_storage_struct,
+};
+use clippy_utils::{
+    diagnostics::span_lint_and_then,
+    is_lint_allowed,
+    match_def_path,
+    match_path,
+    source::snippet_opt,
+};
+use if_chain::if_chain;
+use rustc_errors::Applicability;
+use rustc_hir::{
+    self as hir,
+    def::{
+        DefKind,
+        Res,
+    },
+    def_id::{
+        DefId,
+        LocalDefId,
+    },
+    AssocItemKind,
+    ItemId,
+    ItemKind,
+    Node,
+    Path,
+    QPath,
+    TyKind,
+};
 use rustc_lint::{
     LateContext,
     LateLintPass,
@@ -66,6 +97,112 @@ declare_lint! {
 
 declare_lint_pass!(StorageNeverFreed => [STORAGE_NEVER_FREED]);
 
+enum CollectionTy {
+    Vec,
+    Map,
+}
+
+/// Fields with collection types that should have both insert and remove operations
+struct FieldInfo {
+    pub did: LocalDefId,
+    pub ty: CollectionTy,
+    pub has_insert: bool,
+    pub has_remove: bool,
+}
+
+impl FieldInfo {
+    pub fn new(did: LocalDefId, ty: CollectionTy) -> Self {
+        Self {
+            did,
+            ty,
+            has_insert: false,
+            has_remove: false,
+        }
+    }
+}
+
+/// Returns `DefId` of a field if it has the `Vec` type
+fn find_vec_did(cx: &LateContext, path: &Path) -> Option<DefId> {
+    if_chain! {
+        if let Res::Def(DefKind::Struct, def_id) = path.res;
+        if match_def_path(cx, def_id, &["alloc", "vec", "Vec"]);
+        then { Some(def_id) } else { None }
+    }
+}
+
+/// Returns `DefId` of a field if it has the `Mapping` type
+fn find_map_did(cx: &LateContext, path: &Path) -> Option<DefId> {
+    if_chain! {
+        if let Res::Def(DefKind::Struct, def_id) = path.res;
+        if match_def_path(cx, def_id, &["ink_storage", "lazy", "mapping", "Mapping"]);
+        then { Some(def_id) } else { None }
+    }
+}
+
+/// Returns vectors of fields that have collection types
+fn find_collection_fields(cx: &LateContext, storage_struct_id: ItemId) -> Vec<FieldInfo> {
+    let mut result = Vec::new();
+    let item = cx.tcx.hir().item(storage_struct_id);
+    if let ItemKind::Struct(var_data, _) = item.kind {
+        var_data.fields().iter().for_each(|field_def| {
+            if_chain! {
+                // Collection fields of the storage are expanded like this:
+                // vec_field: <Vec<
+                //     AccountId,
+                // > as ::ink::storage::traits::AutoStorableHint<
+                //     ::ink::storage::traits::ManualKey<993959520u32, ()>,
+                // >>::Type,
+                if let TyKind::Path(QPath::Resolved(Some(ty), path)) = field_def.ty.kind;
+                if match_path(path, &["ink", "storage", "traits", "AutoStorableHint", "Type"]);
+                if let TyKind::Path(QPath::Resolved(None, path)) = ty.kind;
+                then {
+                    // TODO: Inspect type aliases
+                    if let Some(_did) = find_vec_did(cx, path) {
+                        result.push(FieldInfo::new(field_def.def_id, CollectionTy::Vec));
+                        return;
+                    }
+                    if let Some(_did) = find_map_did(cx, path) {
+                        result.push(FieldInfo::new(field_def.def_id, CollectionTy::Map));
+                    }
+                }
+            }
+        })
+    };
+    result
+}
+
+/// Reports the given field defintion
+fn report_field(cx: &LateContext, field_info: &FieldInfo) {
+    if_chain! {
+        if let Node::Field(field) = cx.tcx.hir().get_by_def_id(field_info.did);
+        if !is_lint_allowed(cx, STORAGE_NEVER_FREED, field.hir_id);
+        then {
+            span_lint_and_then(
+                cx,
+                STORAGE_NEVER_FREED,
+                field.span,
+                "storage never freed",
+                |diag| {
+                    let snippet = snippet_opt(cx, field.span).expect("snippet must exist");
+                    diag.span_suggestion(
+                        field.span,
+                        "consider adding operations to remove elements available to the user".to_string(),
+                        snippet,
+                        Applicability::Unspecified,
+                    );
+                },
+            )
+
+        }
+    }
+}
+
+/// Collects information about `insert` and `remove` operations in the body of the
+/// function
+fn collect_insert_remove_ops(fields: &mut Vec<FieldInfo>) {
+    todo!()
+}
+
 impl<'tcx> LateLintPass<'tcx> for StorageNeverFreed {
     fn check_mod(
         &mut self,
@@ -73,5 +210,28 @@ impl<'tcx> LateLintPass<'tcx> for StorageNeverFreed {
         m: &'tcx hir::Mod<'tcx>,
         _: hir::HirId,
     ) {
+        if_chain! {
+            // Find fields of Vec/Mapping type
+            if let Some(storage_struct_id) = find_storage_struct(cx, m.item_ids);
+            let mut fields = find_collection_fields(cx, storage_struct_id);
+            if !fields.is_empty();
+            // Find all the user-defined functions of the contract
+            let all_item_ids = expand_unnamed_consts(cx, m.item_ids);
+            if let Some(contract_impl_id) = find_contract_impl_id(cx, all_item_ids);
+            let contract_impl = cx.tcx.hir().item(contract_impl_id);
+            if let ItemKind::Impl(contract_impl) = contract_impl.kind;
+            then {
+                contract_impl.items.iter().for_each(|impl_item| {
+                    if let AssocItemKind::Fn { .. } = impl_item.kind {
+                        collect_insert_remove_ops(&mut fields);
+                    }
+                });
+                fields.iter().for_each(|field| {
+                    if field.has_insert && !field.has_remove {
+                        report_field(cx, field)
+                    }
+                })
+            }
+        }
     }
 }

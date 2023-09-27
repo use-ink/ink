@@ -29,6 +29,8 @@ extern crate rustc_session;
 extern crate rustc_span;
 
 mod primitive_topic;
+mod storage_never_freed;
+mod ink_utils;
 
 #[doc(hidden)]
 #[no_mangle]
