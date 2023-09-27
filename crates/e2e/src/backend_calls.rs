@@ -86,7 +86,10 @@ where
     }
 
     /// Specify the max amount of funds that can be charged for storage.
-    pub fn storage_deposit_limit(&mut self, storage_deposit_limit: E::Balance) -> &mut Self {
+    pub fn storage_deposit_limit(
+        &mut self,
+        storage_deposit_limit: E::Balance,
+    ) -> &mut Self {
         if storage_deposit_limit == 0u32.into() {
             self.storage_deposit_limit = None
         } else {
@@ -219,7 +222,10 @@ where
     }
 
     /// Specify the max amount of funds that can be charged for storage.
-    pub fn storage_deposit_limit(&mut self, storage_deposit_limit: E::Balance) -> &mut Self {
+    pub fn storage_deposit_limit(
+        &mut self,
+        storage_deposit_limit: E::Balance,
+    ) -> &mut Self {
         if storage_deposit_limit == 0u32.into() {
             self.storage_deposit_limit = None
         } else {
@@ -289,7 +295,10 @@ where
     }
 
     /// Specify the max amount of funds that can be charged for storage.
-    pub fn storage_deposit_limit(&mut self, storage_deposit_limit: E::Balance) -> &mut Self {
+    pub fn storage_deposit_limit(
+        &mut self,
+        storage_deposit_limit: E::Balance,
+    ) -> &mut Self {
         if storage_deposit_limit == 0u32.into() {
             self.storage_deposit_limit = None
         } else {
