@@ -362,9 +362,6 @@ examples-contract-build:
   stage:                           examples
   <<:                              *docker-env
   <<:                              *test-refs
-  variables:
-    # Fix for linking of `linkme` for `cargo contract build`: https://github.com/dtolnay/linkme/issues/49
-    RUSTFLAGS: "-Clink-arg=-z -Clink-arg=nostart-stop-gc"
   script:
     - rustup component add rust-src --toolchain stable
     - cargo contract -V
