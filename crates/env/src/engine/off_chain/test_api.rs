@@ -14,17 +14,18 @@
 
 //! Operations on the off-chain testing environment.
 
-use super::{
-    EnvInstance,
-    OnInstance,
-};
-use crate::{
-    Environment,
-    Result,
-};
+use super::{EnvInstance, OnInstance};
+use crate::{Environment, Result};
 use core::fmt::Debug;
 use ink_engine::test_api::RecordedDebugMessages;
-use std::panic::UnwindSafe;
+use lazy_static::lazy_static;
+pub use sp_core::sr25519;
+use sp_core::{
+    sr25519::{Pair, Public},
+    Pair as PairT,
+};
+use std::{collections::HashMap, panic::UnwindSafe};
+use strum::{Display, EnumIter, IntoEnumIterator};
 
 pub use super::call_data::CallData;
 pub use ink_engine::ChainExtension;
@@ -317,13 +318,13 @@ where
             .set_balance(scale::Encode::encode(&default_accounts.charlie), some);
         instance
             .engine
-            .set_balance(scale::Encode::encode(&default_accounts.django), 0);
+            .set_balance(scale::Encode::encode(&default_accounts.dave), 0);
         instance
             .engine
             .set_balance(scale::Encode::encode(&default_accounts.eve), 0);
         instance
             .engine
-            .set_balance(scale::Encode::encode(&default_accounts.frank), 0);
+            .set_balance(scale::Encode::encode(&default_accounts.ferdie), 0);
     });
     f(default_accounts)
 }
@@ -339,9 +340,69 @@ where
         alice: T::AccountId::from([0x01; 32]),
         bob: T::AccountId::from([0x02; 32]),
         charlie: T::AccountId::from([0x03; 32]),
-        django: T::AccountId::from([0x04; 32]),
+        dave: T::AccountId::from([0x04; 32]),
         eve: T::AccountId::from([0x05; 32]),
-        frank: T::AccountId::from([0x06; 32]),
+        ferdie: T::AccountId::from([0x06; 32]),
+        one: T::AccountId::from([0x07; 32]),
+        two: T::AccountId::from([0x8; 32]),
+    }
+}
+
+/// Set of test accounts.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Display, EnumIter)]
+pub enum KeyRing {
+    ///
+    Alice,
+    ///
+    Bob,
+    ///
+    Charlie,
+    ///
+    Dave,
+    ///
+    Eve,
+    ///
+    Ferdie,
+    ///
+    One,
+    ///
+    Two,
+}
+
+lazy_static! {
+    static ref PRIVATE_KEYS: HashMap<KeyRing, Pair> =
+        KeyRing::iter().map(|i| (i, i.pair())).collect();
+    static ref PUBLIC_KEYS: HashMap<KeyRing, Public> = PRIVATE_KEYS
+        .iter()
+        .map(|(&name, pair)| (name, pair.public()))
+        .collect();
+}
+
+impl KeyRing {
+    ///
+    pub fn pair(self) -> Pair {
+        Pair::from_string(&format!("//{}", <&'static str>::from(self)), None)
+            .expect("static values are known good; qed")
+    }
+
+    ///
+    pub fn iter() -> impl Iterator<Item = KeyRing> {
+        <Self as IntoEnumIterator>::iter()
+    }
+}
+
+impl From<KeyRing> for &'static str {
+    fn from(k: KeyRing) -> Self {
+        match k {
+            KeyRing::Alice => "Alice",
+            KeyRing::Bob => "Bob",
+            KeyRing::Charlie => "Charlie",
+            KeyRing::Dave => "Dave",
+            KeyRing::Eve => "Eve",
+            KeyRing::Ferdie => "Ferdie",
+            KeyRing::One => "One",
+            KeyRing::Two => "Two",
+        }
     }
 }
 
@@ -356,12 +417,16 @@ where
     pub bob: T::AccountId,
     /// The predefined `CHARLIE` account holding some amounts of value.
     pub charlie: T::AccountId,
-    /// The predefined `DJANGO` account holding no value.
-    pub django: T::AccountId,
+    /// The predefined `DAVE` account holding no value.
+    pub dave: T::AccountId,
     /// The predefined `EVE` account holding no value.
     pub eve: T::AccountId,
-    /// The predefined `FRANK` account holding no value.
-    pub frank: T::AccountId,
+    /// The predefined `FERDIE` account holding no value.
+    pub ferdie: T::AccountId,
+    /// The predefined `ONE` account holding no value.
+    pub one: T::AccountId,
+    /// The predefined `TWO` account holding no value.
+    pub two: T::AccountId,
 }
 
 /// Returns the recorded emitted events in order.
