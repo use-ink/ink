@@ -153,8 +153,8 @@ where
             .try_into()
             .expect("targets of less than 32bit pointer size are not supported; qed");
 
-        if encoded_length > ink_env::BUFFER_SIZE.try_into().expect("BufferTooSmall") {
-            return Err(ink_env::Error::Decode(scale::Error::from("buffer size"))).into()
+        if encoded_length > ink_env::BUFFER_SIZE {
+            return Some(Err(ink_env::Error::BufferTooSmall))
         }
 
         self.get().map(Ok)
@@ -170,7 +170,7 @@ where
     /// Fails if `value` exceeds the static buffer size.
     pub fn try_set(&mut self, value: &V) -> ink_env::Result<()> {
         if value.encoded_size() > ink_env::BUFFER_SIZE {
-            return Err(ink_env::Error::Decode(scale::Error::from("BufferTooSmall")))
+            return Err(ink_env::Error::BufferTooSmall)
         };
 
         self.set(value);
@@ -327,15 +327,12 @@ mod tests {
 
             let value = [0u8; ink_env::BUFFER_SIZE + 1];
             assert_eq!(storage.try_get(), None);
-            assert!(storage.try_set(&value).is_err());
+            assert_eq!(storage.try_set(&value), Err(ink_env::Error::BufferTooSmall));
 
             // The off-chain impl conveniently uses a Vec for encoding,
             // allowing writing values exceeding the static buffer size.
             ink_env::set_contract_storage(&storage.key(), &value);
-            assert!(matches!(
-                storage.try_get(),
-                Some(Err(ink_env::Error::Decode(scale::Error { .. })))
-            ));
+            assert_eq!(storage.try_get(), Some(Err(ink_env::Error::BufferTooSmall)));
 
             Ok(())
         })
