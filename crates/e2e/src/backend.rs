@@ -16,10 +16,10 @@ use super::Keypair;
 use crate::{
     backend_calls::InstantiateBuilder,
     builders::CreateBuilderPartial,
+    contract_results::BareInstantiationResult,
     CallBuilder,
     CallBuilderFinal,
     CallDryRunResult,
-    CallResult,
     InstantiationResult,
     UploadResult,
 };
@@ -29,6 +29,7 @@ use ink_env::{
 };
 use jsonrpsee::core::async_trait;
 use pallet_contracts_primitives::ContractInstantiateResult;
+use sp_weights::Weight;
 use subxt::dynamic::Value;
 
 /// Full E2E testing backend: combines general chain API and contract-specific operations.
@@ -95,17 +96,31 @@ pub trait ContractsBackend<E: Environment> {
     /// Event log type.
     type EventLog;
 
-    fn create_instantiate_call<'a, Contract, Args: Send + scale::Encode, R>(
+    fn instantiate<'a, Contract, Args: Send + Clone + scale::Encode + Sync, R>(
         &'a mut self,
         contract_name: &'a str,
         caller: &'a Keypair,
         constructor: CreateBuilderPartial<E, Contract, Args, R>,
     ) -> InstantiateBuilder<'a, E, Contract, Args, R, Self>
     where
-        Self: Sized,
+        Self: std::marker::Sized,
     {
         InstantiateBuilder::new(self, caller, contract_name, constructor)
     }
+
+    async fn instantiate_with_gas_margin<
+        Contract,
+        Args: Send + scale::Encode + Clone,
+        R,
+    >(
+        &mut self,
+        contract_name: &str,
+        caller: &Keypair,
+        constructor: CreateBuilderPartial<E, Contract, Args, R>,
+        value: E::Balance,
+        margin: Option<u64>,
+        storage_deposit_limit: Option<E::Balance>,
+    ) -> Result<InstantiationResult<E, Self::EventLog>, Self::Error>;
 
     /// The function subsequently uploads and instantiates an instance of the contract.
     ///
@@ -115,18 +130,22 @@ pub trait ContractsBackend<E: Environment> {
     /// Calling this function multiple times should be idempotent, the contract is
     /// newly instantiated each time using a unique salt. No existing contract
     /// instance is reused!
-    async fn instantiate<Contract, Args: Send + scale::Encode, R>(
+    async fn bare_instantiate<Contract, Args: Send + scale::Encode + Clone, R>(
         &mut self,
         contract_name: &str,
         caller: &Keypair,
         constructor: CreateBuilderPartial<E, Contract, Args, R>,
         value: E::Balance,
-        extra_gas_portion: Option<usize>,
+        gas_limit: Weight,
         storage_deposit_limit: Option<E::Balance>,
-    ) -> Result<InstantiationResult<E, Self::EventLog>, Self::Error>;
+    ) -> Result<BareInstantiationResult<E, Self::EventLog>, Self::Error>;
 
     /// Dry run contract instantiation.
-    async fn instantiate_dry_run<Contract, Args: Send + scale::Encode, R>(
+    async fn bare_instantiate_dry_run<
+        Contract,
+        Args: Send + Sync + scale::Encode + Clone,
+        R,
+    >(
         &mut self,
         contract_name: &str,
         caller: &Keypair,
@@ -150,13 +169,13 @@ pub trait ContractsBackend<E: Environment> {
     ) -> Result<UploadResult<E, Self::EventLog>, Self::Error>;
 
     /// Creates a call builder then can later be submitted.
-    fn create_call<'a, Args: Sync + scale::Encode, RetType: Send + scale::Decode>(
+    fn call<'a, Args: Sync + scale::Encode + Clone, RetType: Send + scale::Decode>(
         &'a mut self,
         caller: &'a Keypair,
         message: &'a CallBuilderFinal<E, Args, RetType>,
     ) -> CallBuilder<'a, E, Args, RetType, Self>
     where
-        Self: Sized,
+        Self: std::marker::Sized,
     {
         CallBuilder::new(self, caller, message)
     }
@@ -165,14 +184,17 @@ pub trait ContractsBackend<E: Environment> {
     ///
     /// Returns when the transaction is included in a block. The return value
     /// contains all events that are associated with this transaction.
-    async fn call<Args: Sync + scale::Encode, RetType: Send + scale::Decode>(
+    async fn bare_call<
+        Args: Sync + scale::Encode + Clone,
+        RetType: Send + scale::Decode,
+    >(
         &mut self,
         caller: &Keypair,
         message: &CallBuilderFinal<E, Args, RetType>,
         value: E::Balance,
-        extra_gas_portion: Option<usize>,
+        gas_limit: Weight,
         storage_deposit_limit: Option<E::Balance>,
-    ) -> Result<CallResult<E, RetType, Self::EventLog>, Self::Error>
+    ) -> Result<Self::EventLog, Self::Error>
     where
         CallBuilderFinal<E, Args, RetType>: Clone;
 
@@ -180,7 +202,10 @@ pub trait ContractsBackend<E: Environment> {
     ///
     /// Returns the result of the dry run, together with the decoded return value of the
     /// invoked message.
-    async fn call_dry_run<Args: Sync + scale::Encode, RetType: Send + scale::Decode>(
+    async fn bare_call_dry_run<
+        Args: Sync + scale::Encode + Clone,
+        RetType: Send + scale::Decode,
+    >(
         &mut self,
         caller: &Keypair,
         message: &CallBuilderFinal<E, Args, RetType>,

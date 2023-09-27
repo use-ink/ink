@@ -29,6 +29,43 @@ use std::{
     marker::PhantomData,
 };
 
+/// Result of a contract instantiation using bare call.
+pub struct BareInstantiationResult<E: Environment, EventLog> {
+    /// The account id at which the contract was instantiated.
+    pub account_id: E::AccountId,
+    /// Events that happened with the contract instantiation.
+    pub events: EventLog,
+}
+
+impl<E: Environment, EventLog> BareInstantiationResult<E, EventLog> {
+    /// Returns the account id at which the contract was instantiated.
+    pub fn call<Contract>(&self) -> <Contract as ContractCallBuilder>::Type
+    where
+        Contract: ContractCallBuilder,
+        Contract::Type: FromAccountId<E>,
+    {
+        <<Contract as ContractCallBuilder>::Type as FromAccountId<E>>::from_account_id(
+            self.account_id.clone(),
+        )
+    }
+}
+
+/// We implement a custom `Debug` here, as to avoid requiring the trait bound `Debug` for
+/// `E`.
+impl<E: Environment, EventLog> Debug for BareInstantiationResult<E, EventLog>
+where
+    E::AccountId: Debug,
+    E::Balance: Debug,
+    EventLog: Debug,
+{
+    fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
+        f.debug_struct("InstantiationResult")
+            .field("account_id", &self.account_id)
+            .field("events", &self.events)
+            .finish()
+    }
+}
+
 /// Result of a contract instantiation.
 pub struct InstantiationResult<E: Environment, EventLog> {
     /// The account id at which the contract was instantiated.

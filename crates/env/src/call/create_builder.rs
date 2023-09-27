@@ -306,6 +306,24 @@ pub struct CreateBuilder<
     _phantom: PhantomData<fn() -> (E, ContractRef)>,
 }
 
+impl<E: Environment, ContractRef, CodeHash, GasLimit, Endowment, Args, Salt, RetType>
+    CreateBuilder<E, ContractRef, CodeHash, GasLimit, Endowment, Args, Salt, RetType>
+{
+    /// Returns currently set code hash
+    pub fn get_code_hash(&self) -> &CodeHash {
+        &self.code_hash
+    }
+
+    /// Returns currently set gas limit
+    pub fn get_gas_limit(&self) -> &GasLimit {
+        &self.gas_limit
+    }
+    /// Returns currently set return type
+    pub fn get_return_type(&self) -> &RetType {
+        &self.return_type
+    }
+}
+
 /// Returns a new [`CreateBuilder`] to build up the parameters to a cross-contract
 /// instantiation.
 ///

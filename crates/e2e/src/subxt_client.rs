@@ -30,6 +30,7 @@ use super::{
     Keypair,
 };
 use crate::contract_results::{
+    BareInstantiationResult,
     CallDryRunResult,
     CallResult,
     InstantiationResult,
@@ -51,6 +52,7 @@ use scale::{
     Decode,
     Encode,
 };
+use sp_weights::Weight;
 #[cfg(feature = "std")]
 use std::fmt::Debug;
 use std::path::PathBuf;
@@ -114,7 +116,7 @@ where
     C::Signature: From<sr25519::Signature>,
     <C::ExtrinsicParams as ExtrinsicParams<C::Hash>>::OtherParams: Default,
 
-    E: Environment,
+    E: Environment + Clone,
     E::AccountId: Debug,
     E::Balance: Debug + scale::HasCompact + serde::Serialize,
     E::Hash: Debug + scale::Encode,
@@ -131,46 +133,16 @@ where
     }
 
     /// Executes an `instantiate_with_code` call and captures the resulting events.
-    async fn exec_instantiate<Contract, Args, R>(
+    async fn exec_instantiate(
         &mut self,
         signer: &Keypair,
         code: Vec<u8>,
-        constructor: CreateBuilderPartial<E, Contract, Args, R>,
+        data: Vec<u8>,
         value: E::Balance,
-        extra_gas_portion: Option<usize>,
+        gas_limit: Weight,
         storage_deposit_limit: Option<E::Balance>,
-    ) -> Result<InstantiationResult<E, ExtrinsicEvents<C>>, Error<E>>
-    where
-        Args: scale::Encode,
-    {
+    ) -> Result<BareInstantiationResult<E, ExtrinsicEvents<C>>, Error<E>> {
         let salt = salt();
-        let data = constructor_exec_input(constructor);
-
-        // dry run the instantiate to calculate the gas limit
-        let dry_run = self
-            .api
-            .instantiate_with_code_dry_run(
-                value,
-                storage_deposit_limit,
-                code.clone(),
-                data.clone(),
-                salt.clone(),
-                signer,
-            )
-            .await;
-        log_info(&format!(
-            "instantiate dry run debug message: {:?}",
-            String::from_utf8_lossy(&dry_run.debug_message)
-        ));
-        log_info(&format!("instantiate dry run result: {:?}", dry_run.result));
-        if dry_run.result.is_err() {
-            return Err(Error::<E>::InstantiateDryRun(dry_run))
-        }
-
-        let mut gas_limit = dry_run.gas_required;
-        if let Some(gas_portion) = extra_gas_portion {
-            gas_limit += gas_limit / 100 * (gas_portion as u64);
-        }
 
         let tx_events = self
             .api
@@ -219,8 +191,7 @@ where
         }
         let account_id = account_id.expect("cannot extract `account_id` from events");
 
-        Ok(InstantiationResult {
-            dry_run,
+        Ok(BareInstantiationResult {
             // The `account_id` must exist at this point. If the instantiation fails
             // the dry-run must already return that.
             account_id,
@@ -455,7 +426,7 @@ where
     C::Address: Send + Sync,
     <C::ExtrinsicParams as ExtrinsicParams<C::Hash>>::OtherParams: Default + Send + Sync,
 
-    E: Environment,
+    E: Environment + Clone,
     E::AccountId: Debug + Send + Sync,
     E::Balance:
         Clone + Debug + Send + Sync + From<u128> + scale::HasCompact + serde::Serialize,
@@ -464,31 +435,67 @@ where
     type Error = Error<E>;
     type EventLog = ExtrinsicEvents<C>;
 
-    async fn instantiate<Contract, Args: Send + Encode, R>(
+    async fn bare_instantiate<Contract, Args: Send + Encode, R>(
         &mut self,
         contract_name: &str,
         caller: &Keypair,
         constructor: CreateBuilderPartial<E, Contract, Args, R>,
         value: E::Balance,
-        extra_gas_portion: Option<usize>,
+        gas_limit: Weight,
         storage_deposit_limit: Option<E::Balance>,
-    ) -> Result<InstantiationResult<E, Self::EventLog>, Self::Error> {
+    ) -> Result<BareInstantiationResult<E, Self::EventLog>, Self::Error> {
         let code = self.contracts.load_code(contract_name);
+        let data = constructor_exec_input(constructor);
         let ret = self
-            .exec_instantiate::<Contract, Args, R>(
-                caller,
-                code,
-                constructor,
-                value,
-                extra_gas_portion,
-                storage_deposit_limit,
-            )
+            .exec_instantiate(caller, code, data, value, gas_limit, storage_deposit_limit)
             .await?;
         log_info(&format!("instantiated contract at {:?}", ret.account_id));
         Ok(ret)
     }
 
-    async fn instantiate_dry_run<Contract, Args: Send + Encode, R>(
+    async fn instantiate_with_gas_margin<Contract, Args: Send + Encode, R>(
+        &mut self,
+        contract_name: &str,
+        caller: &Keypair,
+        constructor: CreateBuilderPartial<E, Contract, Args, R>,
+        value: E::Balance,
+        margin: Option<u64>,
+        storage_deposit_limit: Option<E::Balance>,
+    ) -> Result<InstantiationResult<E, Self::EventLog>, Self::Error> {
+        let code = self.contracts.load_code(contract_name);
+        let data = constructor_exec_input(constructor);
+
+        let dry_run = self
+            .api
+            .instantiate_with_code_dry_run(
+                value,
+                storage_deposit_limit,
+                code.clone(),
+                data.clone(),
+                salt(),
+                caller,
+            )
+            .await;
+
+        let gas_limit = if let Some(m) = margin {
+            dry_run.gas_required + (dry_run.gas_required / 100 * m)
+        } else {
+            dry_run.gas_required
+        };
+
+        let res = self
+            .exec_instantiate(caller, code, data, value, gas_limit, storage_deposit_limit)
+            .await?;
+        log_info(&format!("instantiated contract at {:?}", res.account_id));
+
+        Ok(InstantiationResult {
+            account_id: res.account_id,
+            dry_run,
+            events: res.events,
+        })
+    }
+
+    async fn bare_instantiate_dry_run<Contract, Args: Send + Encode, R>(
         &mut self,
         contract_name: &str,
         caller: &Keypair,
@@ -525,31 +532,20 @@ where
         Ok(ret)
     }
 
-    async fn call<Args: Sync + Encode, RetType: Send + Decode>(
+    async fn bare_call<Args: Sync + Encode, RetType: Send + Decode>(
         &mut self,
         caller: &Keypair,
         message: &CallBuilderFinal<E, Args, RetType>,
         value: E::Balance,
-        extra_gas_portion: Option<usize>,
+        gas_limit: Weight,
         storage_deposit_limit: Option<E::Balance>,
-    ) -> Result<CallResult<E, RetType, Self::EventLog>, Self::Error>
+    ) -> Result<Self::EventLog, Self::Error>
     where
         CallBuilderFinal<E, Args, RetType>: Clone,
     {
         let account_id = message.clone().params().callee().clone();
         let exec_input = Encode::encode(message.clone().params().exec_input());
         log_info(&format!("call: {:02X?}", exec_input));
-
-        let dry_run = self.call_dry_run(caller, message, value, None).await;
-
-        if dry_run.exec_result.result.is_err() {
-            return Err(Error::<E>::CallDryRun(dry_run.exec_result))
-        }
-
-        let mut gas_limit = dry_run.exec_result.gas_required;
-        if let Some(gas_portion) = extra_gas_portion {
-            gas_limit += gas_limit / 100 * (gas_portion as u64);
-        }
 
         let tx_events = self
             .api
@@ -578,13 +574,10 @@ where
             }
         }
 
-        Ok(CallResult {
-            dry_run,
-            events: tx_events,
-        })
+        Ok(tx_events)
     }
 
-    async fn call_dry_run<Args: Sync + Encode, RetType: Send + Decode>(
+    async fn bare_call_dry_run<Args: Sync + Encode, RetType: Send + Decode>(
         &mut self,
         caller: &Keypair,
         message: &CallBuilderFinal<E, Args, RetType>,
@@ -636,7 +629,7 @@ where
     C::Address: Send + Sync,
     <C::ExtrinsicParams as ExtrinsicParams<C::Hash>>::OtherParams: Default + Send + Sync,
 
-    E: Environment,
+    E: Environment + Clone,
     E::AccountId: Debug + Send + Sync,
     E::Balance:
         Clone + Debug + Send + Sync + From<u128> + scale::HasCompact + serde::Serialize,

@@ -7,10 +7,10 @@ use crate::{
         salt,
         ContractsRegistry,
     },
+    contract_results::BareInstantiationResult,
     log_error,
     CallBuilderFinal,
     CallDryRunResult,
-    CallResult,
     ChainBackend,
     ContractsBackend,
     E2EBackend,
@@ -25,6 +25,7 @@ use drink::{
     contract_api::ContractApi,
     runtime::Runtime as RuntimeT,
     Sandbox,
+    Weight,
     DEFAULT_GAS_LIMIT,
 };
 use ink_env::Environment;
@@ -32,7 +33,6 @@ use jsonrpsee::core::async_trait;
 use pallet_contracts_primitives::{
     CodeUploadReturnValue,
     ContractInstantiateResult,
-    ContractResult,
     InstantiateReturnValue,
 };
 use scale::{
@@ -52,7 +52,6 @@ use subxt::{
     tx::TxPayload,
 };
 use subxt_signer::sr25519::Keypair;
-
 pub struct Client<AccountId, Hash, Runtime: RuntimeT> {
     sandbox: Sandbox<Runtime>,
     contracts: ContractsRegistry,
@@ -181,7 +180,7 @@ impl<
         AccountId: Clone + Send + Sync + From<[u8; 32]> + AsRef<[u8; 32]>,
         Hash: Copy + From<[u8; 32]>,
         Runtime: RuntimeT,
-        E: Environment<AccountId = AccountId, Balance = u128, Hash = Hash> + 'static,
+        E: Environment<AccountId = AccountId, Balance = u128, Hash = Hash> + Clone + 'static,
     > ContractsBackend<E> for Client<AccountId, Hash, Runtime>
 where
     RuntimeAccountId<Runtime>: From<[u8; 32]> + AsRef<[u8; 32]>,
@@ -189,22 +188,60 @@ where
     type Error = ();
     type EventLog = ();
 
-    async fn instantiate<Contract, Args: Send + Encode, R>(
+    async fn bare_instantiate<Contract, Args: Send + Encode + Clone, R>(
         &mut self,
         contract_name: &str,
         caller: &Keypair,
         constructor: CreateBuilderPartial<E, Contract, Args, R>,
         value: E::Balance,
-        extra_gas_portion: Option<usize>,
+        gas_limit: Weight,
+        storage_deposit_limit: Option<E::Balance>,
+    ) -> Result<BareInstantiationResult<E, Self::EventLog>, Self::Error> {
+        let code = self.contracts.load_code(contract_name);
+        let data = constructor_exec_input(constructor);
+
+        let result = self.sandbox.deploy_contract(
+            code,
+            value,
+            data,
+            salt(),
+            keypair_to_account(caller),
+            gas_limit,
+            storage_deposit_limit,
+        );
+
+        let account_id_raw = match &result.result {
+            Err(err) => {
+                log_error(&format!("Instantiation failed: {err:?}"));
+                return Err(()) // todo: make a proper error type
+            }
+            Ok(res) => *res.account_id.as_ref(),
+        };
+        let account_id = AccountId::from(account_id_raw);
+
+        Ok(BareInstantiationResult {
+            account_id: account_id.clone(),
+            events: (), // todo: https://github.com/Cardinal-Cryptography/drink/issues/32
+        })
+    }
+
+    async fn instantiate_with_gas_margin<Contract, Args: Send + Encode + Clone, R>(
+        &mut self,
+        contract_name: &str,
+        caller: &Keypair,
+        constructor: CreateBuilderPartial<E, Contract, Args, R>,
+        value: E::Balance,
+        margin: Option<u64>,
         storage_deposit_limit: Option<E::Balance>,
     ) -> Result<InstantiationResult<E, Self::EventLog>, Self::Error> {
         let code = self.contracts.load_code(contract_name);
         let data = constructor_exec_input(constructor);
 
-        let mut gas_limit = DEFAULT_GAS_LIMIT;
-        if let Some(gas_portion) = extra_gas_portion {
-            gas_limit += gas_limit / 100 * (gas_portion as u64);
-        }
+        let gas_limit = if let Some(m) = margin {
+            DEFAULT_GAS_LIMIT + (DEFAULT_GAS_LIMIT / 100 * m)
+        } else {
+            DEFAULT_GAS_LIMIT
+        };
 
         let result = self.sandbox.deploy_contract(
             code,
@@ -241,11 +278,12 @@ where
                 }),
                 events: None,
             },
+
             events: (), // todo: https://github.com/Cardinal-Cryptography/drink/issues/32
         })
     }
 
-    async fn instantiate_dry_run<Contract, Args: Send + Encode, R>(
+    async fn bare_instantiate_dry_run<Contract, Args: Send + Encode + Clone, R>(
         &mut self,
         _contract_name: &str,
         _caller: &Keypair,
@@ -292,14 +330,14 @@ where
         })
     }
 
-    async fn call<Args: Sync + Encode, RetType: Send + Decode>(
+    async fn bare_call<Args: Sync + Encode + Clone, RetType: Send + Decode>(
         &mut self,
         caller: &Keypair,
         message: &CallBuilderFinal<E, Args, RetType>,
         value: E::Balance,
-        extra_gas_portion: Option<usize>,
+        gas_limit: Weight,
         storage_deposit_limit: Option<E::Balance>,
-    ) -> Result<CallResult<E, RetType, Self::EventLog>, Self::Error>
+    ) -> Result<Self::EventLog, Self::Error>
     where
         CallBuilderFinal<E, Args, RetType>: Clone,
     {
@@ -307,12 +345,7 @@ where
         let exec_input = Encode::encode(message.clone().params().exec_input());
         let account_id = (*account_id.as_ref()).into();
 
-        let mut gas_limit = DEFAULT_GAS_LIMIT;
-        if let Some(gas_portion) = extra_gas_portion {
-            gas_limit += gas_limit / 100 * (gas_portion as u64);
-        }
-
-        let result = self.sandbox.call_contract(
+        self.sandbox.call_contract(
             account_id,
             value,
             exec_input,
@@ -321,24 +354,10 @@ where
             storage_deposit_limit,
         );
 
-        Ok(CallResult {
-            // We need type remapping here because of the different `EventRecord` types.
-            dry_run: CallDryRunResult {
-                exec_result: ContractResult {
-                    gas_consumed: result.gas_consumed,
-                    gas_required: result.gas_required,
-                    storage_deposit: result.storage_deposit,
-                    debug_message: result.debug_message,
-                    result: result.result,
-                    events: None,
-                },
-                _marker: Default::default(),
-            },
-            events: (), // todo: https://github.com/Cardinal-Cryptography/drink/issues/32
-        })
+        Ok(()) // todo: https://github.com/Cardinal-Cryptography/drink/issues/32
     }
 
-    async fn call_dry_run<Args: Sync + Encode, RetType: Send + Decode>(
+    async fn bare_call_dry_run<Args: Sync + Encode + Clone, RetType: Send + Decode>(
         &mut self,
         _caller: &Keypair,
         _message: &CallBuilderFinal<E, Args, RetType>,
@@ -356,7 +375,7 @@ impl<
         AccountId: Clone + Send + Sync + From<[u8; 32]> + AsRef<[u8; 32]>,
         Hash: Copy + From<[u8; 32]>,
         Runtime: RuntimeT,
-        E: Environment<AccountId = AccountId, Balance = u128, Hash = Hash> + 'static,
+        E: Environment<AccountId = AccountId, Balance = u128, Hash = Hash> + Clone + 'static,
     > E2EBackend<E> for Client<AccountId, Hash, Runtime>
 where
     RuntimeAccountId<Runtime>: From<[u8; 32]> + AsRef<[u8; 32]>,
