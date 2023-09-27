@@ -167,7 +167,7 @@ mod multi_contract_caller {
             let get = call.get();
             let value = client
                 .call(&ink_e2e::bob(), &get)
-                .submit_dry_run()
+                .dry_run()
                 .await
                 .return_value();
             assert_eq!(value, 1234);
@@ -182,7 +182,7 @@ mod multi_contract_caller {
             let get = call.get();
             let value = client
                 .call(&ink_e2e::bob(), &get)
-                .submit_dry_run()
+                .dry_run()
                 .await
                 .return_value();
             assert_eq!(value, 1234 + 6);
@@ -205,7 +205,7 @@ mod multi_contract_caller {
             let get = call.get();
             let value = client
                 .call(&ink_e2e::bob(), &get)
-                .submit_dry_run()
+                .dry_run()
                 .await
                 .return_value();
             assert_eq!(value, 1234 + 6 - 3);

@@ -73,7 +73,7 @@ pub mod flipper {
             let get = call.get();
             let get_res = client
                 .call(&ink_e2e::bob(), &get)
-                .submit_dry_run()
+                .dry_run()
                 .await;
             assert!(matches!(get_res.return_value(), false));
 
@@ -89,7 +89,7 @@ pub mod flipper {
             let get = call.get();
             let get_res = client
                 .call(&ink_e2e::bob(), &get)
-                .submit_dry_run()
+                .dry_run()
                 .await;
             assert!(matches!(get_res.return_value(), true));
 
@@ -113,7 +113,7 @@ pub mod flipper {
             let get = call.get();
             let get_res = client
                 .call(&ink_e2e::bob(), &get)
-                .submit_dry_run()
+                .dry_run()
                 .await;
             assert!(matches!(get_res.return_value(), false));
 

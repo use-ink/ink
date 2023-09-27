@@ -170,7 +170,7 @@ mod call_builder {
             let selector = ink::selector_bytes!("invalid_selector");
             let call = call_builder_call.invoke(code_hash, selector);
             let call_result = client.call(&origin, &call)
-                .submit_dry_run()
+                .dry_run()
                 .await;
 
             assert!(call_result.is_err());

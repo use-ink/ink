@@ -123,7 +123,7 @@ mod mapping_integration_tests {
             let get = call.get_balance();
             let balance = client
                 .call(&ink_e2e::alice(), &get)
-                .submit_dry_run()
+                .dry_run()
                 .await
                 .return_value();
 
@@ -154,7 +154,7 @@ mod mapping_integration_tests {
             let insert = call.insert_balance(1_000);
             let _ = client
                 .call(&ink_e2e::bob(), &insert)
-                .submit_dry_run()
+                .dry_run()
                 .await
                 .expect("Calling `insert_balance` failed")
                 .return_value();
@@ -163,7 +163,7 @@ mod mapping_integration_tests {
             let contains = call.contains_balance();
             let is_there = client
                 .call(&ink_e2e::bob(), &contains)
-                .submit_dry_run()
+                .dry_run()
                 .await
                 .return_value();
 
@@ -210,7 +210,7 @@ mod mapping_integration_tests {
             let get = call.get_balance();
             let balance = client
                 .call(&ink_e2e::charlie(), &get)
-                .submit_dry_run()
+                .dry_run()
                 .await
                 .return_value();
 
@@ -256,7 +256,7 @@ mod mapping_integration_tests {
             let get = call.get_balance();
             let balance = client
                 .call(&ink_e2e::dave(), &get)
-                .submit_dry_run()
+                .dry_run()
                 .await
                 .return_value();
 
@@ -305,7 +305,7 @@ mod mapping_integration_tests {
             let contains = call.contains_balance();
             let is_there = client
                 .call(&ink_e2e::eve(), &contains)
-                .submit_dry_run()
+                .dry_run()
                 .await
                 .return_value();
 

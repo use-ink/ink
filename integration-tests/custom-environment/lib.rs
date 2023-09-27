@@ -134,7 +134,7 @@ mod runtime_call {
 
             // when
             let call_res = client
-                .call(&ink_e2e::alice(), &message).submit_dry_run()
+                .call(&ink_e2e::alice(), &message).dry_run()
                 .await;
 
             // then

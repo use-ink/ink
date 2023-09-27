@@ -106,7 +106,7 @@ mod e2e_tests {
         let get = caller_call.get();
         let value = client
             .call(&ink_e2e::alice(), &get)
-            .submit_dry_run()
+            .dry_run()
             .await
             .return_value();
         assert_eq!(value, 0);
@@ -125,7 +125,7 @@ mod e2e_tests {
         let get = incrementer_call.get();
         let value = client
             .call(&ink_e2e::alice(), &get)
-            .submit_dry_run()
+            .dry_run()
             .await
             .return_value();
         assert_eq!(value, 1);

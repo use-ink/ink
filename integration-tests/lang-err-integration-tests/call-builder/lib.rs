@@ -205,7 +205,7 @@ mod call_builder {
             let get_call_result =
                 client
                 .call(&origin, &flipper_get)
-                .submit_dry_run()
+                .dry_run()
                 .await;
             let initial_value = get_call_result.return_value();
 
@@ -228,7 +228,7 @@ mod call_builder {
             let get_call_result =
                 client
                 .call(&origin, &flipper_get)
-                .submit_dry_run()
+                .dry_run()
                 .await;
             let flipped_value = get_call_result.return_value();
             assert!(flipped_value == initial_value);
@@ -265,7 +265,7 @@ mod call_builder {
             let call = call_builder_call.invoke(flipper.account_id, invalid_selector);
             let call_result = client
                 .call(&origin, &call)
-                .submit_dry_run()
+                .dry_run()
                 .await;
 
             assert!(call_result.is_err());
@@ -392,7 +392,7 @@ mod call_builder {
 
             let call_result = client
                 .call(&origin, &call)
-                .submit_dry_run()
+                .dry_run()
                 .await;
             assert!(
                 call_result.is_err(),
@@ -536,8 +536,8 @@ mod call_builder {
                 .call_instantiate_fallible(code_hash, selector, init_value);
             let call_result = client
                 .call(&origin, &call)
-                .submit_dry_run()
-                .submit_dry_run()
+                .dry_run()
+                .dry_run()
                 .await;
 
             assert!(

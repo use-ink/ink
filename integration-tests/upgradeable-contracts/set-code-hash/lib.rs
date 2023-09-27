@@ -86,7 +86,7 @@ pub mod incrementer {
             let get = call.get();
             let get_res = client
                 .call(&ink_e2e::alice(), &get)
-                .submit_dry_run()
+                .dry_run()
                 .await;
             assert!(matches!(get_res.return_value(), 0));
 
@@ -100,7 +100,7 @@ pub mod incrementer {
             let get = call.get();
             let get_res = client
                 .call(&ink_e2e::alice(), &get)
-                .submit_dry_run()
+                .dry_run()
                 .await;
             assert!(matches!(get_res.return_value(), 1));
 

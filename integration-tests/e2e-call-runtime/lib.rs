@@ -56,7 +56,7 @@ pub mod e2e_call_runtime {
             let get_balance = call.get_contract_balance();
             let pre_balance = client
                 .call(&ink_e2e::alice(), &get_balance)
-                .submit_dry_run()
+                .dry_run()
                 .await
                 .return_value();
 
@@ -70,7 +70,7 @@ pub mod e2e_call_runtime {
             let get_balance = call.get_contract_balance();
             let get_balance_res = client
                 .call(&ink_e2e::alice(), &get_balance)
-                .submit_dry_run()
+                .dry_run()
                 .await;
 
             assert_eq!(

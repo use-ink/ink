@@ -133,7 +133,7 @@ pub mod delegator {
 
             let result = client
                 .call(&origin, &call_delegate)
-                .submit_dry_run()
+                .dry_run()
                 .await;
             assert!(result.is_ok(), "second delegate call failed.");
 
@@ -144,7 +144,7 @@ pub mod delegator {
             let call_get = call.get_counter();
             let call_get_result = client
                 .call(&origin, &call_get)
-                .submit_dry_run()
+                .dry_run()
                 .await
                 .return_value();
 

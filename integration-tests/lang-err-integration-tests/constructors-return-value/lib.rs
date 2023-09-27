@@ -165,7 +165,7 @@ pub mod constructors_return_value {
                     &ink_e2e::bob(),
                     constructor,
                 )
-                .submit_dry_run()
+                .dry_run()
                 .await
                 .result
                 .expect("Instantiate dry run should succeed");
@@ -201,7 +201,7 @@ pub mod constructors_return_value {
             let get = call.get_value();
             let value = client
                 .call(ink_e2e::bob(), &get)
-                .submit_dry_run()
+                .dry_run()
                 .await
                 .return_value();
 
@@ -225,7 +225,7 @@ pub mod constructors_return_value {
                     &ink_e2e::charlie(),
                     constructor,
                 )
-                .submit_dry_run()
+                .dry_run()
                 .await
                 .result
                 .expect("Instantiate dry run should succeed");

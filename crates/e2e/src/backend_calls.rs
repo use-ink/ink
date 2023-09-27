@@ -132,7 +132,7 @@ where
     }
 
     /// Dry run the call.
-    pub async fn submit_dry_run(&mut self) -> CallDryRunResult<E, RetType>
+    pub async fn dry_run(&mut self) -> CallDryRunResult<E, RetType>
     where
         CallBuilderFinal<E, Args, RetType>: Clone,
     {
@@ -240,7 +240,7 @@ where
     }
 
     /// Dry run the instantiate call.
-    pub async fn submit_dry_run(
+    pub async fn dry_run(
         self,
     ) -> ContractInstantiateResult<E::AccountId, E::Balance, ()> {
         C::bare_instantiate_dry_run(

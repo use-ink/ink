@@ -193,7 +193,7 @@ mod call_builder {
                 call_builder_call.delegate_call_short_return_type(code_hash, selector);
             let call_result: Result<i8, String> = client
                 .call(&origin, &call)
-                .submit_dry_run()
+                .dry_run()
                 .await
                 .return_value();
 
@@ -284,7 +284,7 @@ mod call_builder {
                 .forward_call_short_return_type(incrementer.account_id, selector);
             let call_result: Result<i8, String> = client
                 .call(&origin, &call)
-                .submit_dry_run()
+                .dry_run()
                 .await
                 .return_value();
 

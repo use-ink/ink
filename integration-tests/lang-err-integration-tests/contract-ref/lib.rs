@@ -94,7 +94,7 @@ mod contract_ref {
             let get_check = call.get_check();
             let get_call_result = client
                 .call(&ink_e2e::alice(), &get_check)
-                .submit_dry_run()
+                .dry_run()
                 .await;
 
             let initial_value = get_call_result.return_value();
@@ -102,7 +102,7 @@ mod contract_ref {
             let flip_check = call.flip_check();
             let flip_call_result = client
                 .call(&ink_e2e::alice(), &flip_check)
-                .submit_dry_run()
+                .dry_run()
                 .await
                 .expect("Calling `flip` failed");
             assert!(
@@ -112,7 +112,7 @@ mod contract_ref {
 
             let get_call_result = client
                 .call(&ink_e2e::alice(), &get_check)
-                .submit_dry_run()
+                .dry_run()
                 .await;
             let flipped_value = get_call_result.return_value();
             assert!(flipped_value != initial_value);
@@ -143,7 +143,7 @@ mod contract_ref {
             let get_check = call.get_check();
             let get_call_result = client
                 .call(&ink_e2e::bob(), &get_check)
-                .submit_dry_run()
+                .dry_run()
                 .await;
             let initial_value = get_call_result.return_value();
 
