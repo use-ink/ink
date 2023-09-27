@@ -100,11 +100,7 @@ mod mapping_integration_tests {
             // given
             let constructor = MappingsRef::new();
             let contract = client
-                .instantiate(
-                    "mapping-integration-tests",
-                    &ink_e2e::alice(),
-                    constructor,
-                )
+                .instantiate("mapping-integration-tests", &ink_e2e::alice(), constructor)
                 .submit()
                 .await
                 .expect("instantiate failed");
@@ -140,11 +136,7 @@ mod mapping_integration_tests {
             // given
             let constructor = MappingsRef::new();
             let contract = client
-                .instantiate(
-                    "mapping-integration-tests",
-                    &ink_e2e::bob(),
-                    constructor,
-                )
+                .instantiate("mapping-integration-tests", &ink_e2e::bob(), constructor)
                 .submit()
                 .await
                 .expect("instantiate failed");
@@ -226,11 +218,7 @@ mod mapping_integration_tests {
             // given
             let constructor = MappingsRef::new();
             let contract = client
-                .instantiate(
-                    "mapping-integration-tests",
-                    &ink_e2e::dave(),
-                    constructor,
-                )
+                .instantiate("mapping-integration-tests", &ink_e2e::dave(), constructor)
                 .submit()
                 .await
                 .expect("instantiate failed");
@@ -272,11 +260,7 @@ mod mapping_integration_tests {
             // given
             let constructor = MappingsRef::new();
             let contract = client
-                .instantiate(
-                    "mapping-integration-tests",
-                    &ink_e2e::eve(),
-                    constructor,
-                )
+                .instantiate("mapping-integration-tests", &ink_e2e::eve(), constructor)
                 .submit()
                 .await
                 .expect("instantiate failed");

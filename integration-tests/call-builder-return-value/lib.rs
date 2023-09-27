@@ -191,11 +191,8 @@ mod call_builder {
             let selector = ink::selector_bytes!("get");
             let call =
                 call_builder_call.delegate_call_short_return_type(code_hash, selector);
-            let call_result: Result<i8, String> = client
-                .call(&origin, &call)
-                .dry_run()
-                .await
-                .return_value();
+            let call_result: Result<i8, String> =
+                client.call(&origin, &call).dry_run().await.return_value();
 
             assert!(
                 call_result.is_err(),
@@ -282,11 +279,8 @@ mod call_builder {
             let selector = ink::selector_bytes!("get");
             let call = call_builder_call
                 .forward_call_short_return_type(incrementer.account_id, selector);
-            let call_result: Result<i8, String> = client
-                .call(&origin, &call)
-                .dry_run()
-                .await
-                .return_value();
+            let call_result: Result<i8, String> =
+                client.call(&origin, &call).dry_run().await.return_value();
 
             assert!(
                 call_result.is_err(),

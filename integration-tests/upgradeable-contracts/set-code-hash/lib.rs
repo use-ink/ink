@@ -84,10 +84,7 @@ pub mod incrementer {
             let mut call = contract.call::<Incrementer>();
 
             let get = call.get();
-            let get_res = client
-                .call(&ink_e2e::alice(), &get)
-                .dry_run()
-                .await;
+            let get_res = client.call(&ink_e2e::alice(), &get).dry_run().await;
             assert!(matches!(get_res.return_value(), 0));
 
             let inc = call.inc();
@@ -98,10 +95,7 @@ pub mod incrementer {
                 .expect("`inc` failed");
 
             let get = call.get();
-            let get_res = client
-                .call(&ink_e2e::alice(), &get)
-                .dry_run()
-                .await;
+            let get_res = client.call(&ink_e2e::alice(), &get).dry_run().await;
             assert!(matches!(get_res.return_value(), 1));
 
             // When
@@ -133,10 +127,7 @@ pub mod incrementer {
                 .expect("`inc` failed");
 
             let get = call.get();
-            let get_res = client
-                .call(&ink_e2e::alice(), &get)
-                .submit()
-                .await;
+            let get_res = client.call(&ink_e2e::alice(), &get).submit().await;
 
             // Remember, we updated our incrementer contract to increment by `4`.
             assert!(matches!(get_res.return_value(), 5));

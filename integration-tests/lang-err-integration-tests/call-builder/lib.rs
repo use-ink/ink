@@ -202,11 +202,7 @@ mod call_builder {
             let flipper_call = flipper.call::<Flipper>();
 
             let flipper_get = flipper_call.get();
-            let get_call_result =
-                client
-                .call(&origin, &flipper_get)
-                .dry_run()
-                .await;
+            let get_call_result = client.call(&origin, &flipper_get).dry_run().await;
             let initial_value = get_call_result.return_value();
 
             let selector = ink::selector_bytes!("invalid_selector");
@@ -225,11 +221,7 @@ mod call_builder {
             ));
 
             let flipper_get = flipper_call.get();
-            let get_call_result =
-                client
-                .call(&origin, &flipper_get)
-                .dry_run()
-                .await;
+            let get_call_result = client.call(&origin, &flipper_get).dry_run().await;
             let flipped_value = get_call_result.return_value();
             assert!(flipped_value == initial_value);
 
@@ -263,10 +255,7 @@ mod call_builder {
             // we expect this to panic.
             let invalid_selector = [0x00, 0x00, 0x00, 0x00];
             let call = call_builder_call.invoke(flipper.account_id, invalid_selector);
-            let call_result = client
-                .call(&origin, &call)
-                .dry_run()
-                .await;
+            let call_result = client.call(&origin, &call).dry_run().await;
 
             assert!(call_result.is_err());
             assert!(call_result
@@ -390,10 +379,7 @@ mod call_builder {
             let call =
                 call_builder_call.call_instantiate(code_hash, selector, init_value);
 
-            let call_result = client
-                .call(&origin, &call)
-                .dry_run()
-                .await;
+            let call_result = client.call(&origin, &call).dry_run().await;
             assert!(
                 call_result.is_err(),
                 "Call execution should've failed, but didn't."
@@ -534,11 +520,7 @@ mod call_builder {
             let init_value = true;
             let call = call_builder_call
                 .call_instantiate_fallible(code_hash, selector, init_value);
-            let call_result = client
-                .call(&origin, &call)
-                .dry_run()
-                .dry_run()
-                .await;
+            let call_result = client.call(&origin, &call).dry_run().dry_run().await;
 
             assert!(
                 call_result.is_err(),

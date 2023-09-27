@@ -38,7 +38,10 @@ static ALLOC: dlmalloc::GlobalDlmalloc = dlmalloc::GlobalDlmalloc;
 
 #[ink::contract]
 mod custom_allocator {
-    use ink::prelude::{vec, vec::Vec};
+    use ink::prelude::{
+        vec,
+        vec::Vec,
+    };
 
     #[ink(storage)]
     pub struct CustomAllocator {

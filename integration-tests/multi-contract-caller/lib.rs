@@ -152,11 +152,7 @@ mod multi_contract_caller {
             );
 
             let multi_contract_caller = client
-                .instantiate(
-                    "multi_contract_caller",
-                    &ink_e2e::alice(),
-                    constructor,
-                )
+                .instantiate("multi_contract_caller", &ink_e2e::alice(), constructor)
                 .value(10_000_000_000_000)
                 .submit()
                 .await

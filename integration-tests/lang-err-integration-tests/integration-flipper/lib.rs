@@ -77,21 +77,14 @@ pub mod integration_flipper {
         ) -> E2EResult<()> {
             let constructor = FlipperRef::new_default();
             let flipper = client
-                .instantiate(
-                    "integration_flipper",
-                    &ink_e2e::alice(),
-                    constructor,
-                )
+                .instantiate("integration_flipper", &ink_e2e::alice(), constructor)
                 .submit()
                 .await
                 .expect("Instantiate `integration_flipper` failed");
             let mut call = flipper.call::<Flipper>();
 
             let get = call.get();
-            let initial_value = client
-                .call(&ink_e2e::alice(), &get)
-                .await
-                .return_value();
+            let initial_value = client.call(&ink_e2e::alice(), &get).await.return_value();
 
             let flip = call.flip();
             let flip_call_result = client
@@ -103,10 +96,7 @@ pub mod integration_flipper {
                 "Messages now return a `Result`, which should be `Ok` here."
             );
 
-            let flipped_value = client
-                .call(&ink_e2e::alice(), &get)
-                .await
-                .return_value();
+            let flipped_value = client.call(&ink_e2e::alice(), &get).await.return_value();
             assert!(flipped_value != initial_value);
 
             Ok(())
@@ -124,24 +114,17 @@ pub mod integration_flipper {
             let mut call = flipper.call::<Flipper>();
 
             let get = call.get();
-            let initial_value = client
-                .call(&ink_e2e::bob(), &get)
-                .await
-                .return_value();
+            let initial_value = client.call(&ink_e2e::bob(), &get).await.return_value();
 
             let err_flip = call.err_flip();
-            let err_flip_call_result =
-                client.call(&ink_e2e::bob(), &err_flip).await;
+            let err_flip_call_result = client.call(&ink_e2e::bob(), &err_flip).await;
 
             assert!(matches!(
                 err_flip_call_result,
                 Err(ink_e2e::Error::<ink::env::DefaultEnvironment>::CallExtrinsic(_))
             ));
 
-            let flipped_value = client
-                .call(&ink_e2e::bob(), &get)
-                .await
-                .return_value();
+            let flipped_value = client.call(&ink_e2e::bob(), &get).await.return_value();
             assert!(flipped_value == initial_value);
 
             Ok(())

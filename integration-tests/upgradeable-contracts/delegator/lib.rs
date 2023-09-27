@@ -125,16 +125,10 @@ pub mod delegator {
             // when
             let call_delegate = call_builder_call.inc_delegate(code_hash);
 
-            let result = client
-                .call(&origin, &call_delegate)
-                .submit()
-                .await;
+            let result = client.call(&origin, &call_delegate).submit().await;
             assert!(result.is_ok(), "delegate call failed.");
 
-            let result = client
-                .call(&origin, &call_delegate)
-                .dry_run()
-                .await;
+            let result = client.call(&origin, &call_delegate).dry_run().await;
             assert!(result.is_ok(), "second delegate call failed.");
 
             // then
@@ -182,10 +176,7 @@ pub mod delegator {
 
             // when
             let call_delegate = call_builder_call.add_entry_delegate(code_hash);
-            let result = client
-                .call(&origin, &call_delegate)
-                .submit()
-                .await;
+            let result = client.call(&origin, &call_delegate).submit().await;
             assert!(result.is_ok(), "delegate call failed.");
 
             // then

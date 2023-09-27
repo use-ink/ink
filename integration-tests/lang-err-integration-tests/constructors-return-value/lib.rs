@@ -160,11 +160,7 @@ pub mod constructors_return_value {
         ) -> E2EResult<()> {
             let constructor = ConstructorsReturnValueRef::try_new(true);
             let result = client
-                .instantiate(
-                    "constructors_return_value",
-                    &ink_e2e::bob(),
-                    constructor,
-                )
+                .instantiate("constructors_return_value", &ink_e2e::bob(), constructor)
                 .dry_run()
                 .await
                 .result
@@ -188,11 +184,7 @@ pub mod constructors_return_value {
 
             let constructor = ConstructorsReturnValueRef::try_new(true);
             let contract = client
-                .instantiate(
-                    "constructors_return_value",
-                    &ink_e2e::bob(),
-                    constructor,
-                )
+                .instantiate("constructors_return_value", &ink_e2e::bob(), constructor)
                 .submit()
                 .await
                 .expect("instantiate failed");

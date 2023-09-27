@@ -169,9 +169,7 @@ mod call_builder {
             // we expect this to panic.
             let selector = ink::selector_bytes!("invalid_selector");
             let call = call_builder_call.invoke(code_hash, selector);
-            let call_result = client.call(&origin, &call)
-                .dry_run()
-                .await;
+            let call_result = client.call(&origin, &call).dry_run().await;
 
             assert!(call_result.is_err());
             assert!(call_result

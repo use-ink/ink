@@ -547,10 +547,8 @@ mod erc20 {
                 .expect("transfer failed");
 
             let balance_of = call.balance_of(bob_account);
-            let balance_of_res = client
-                .call(&ink_e2e::alice(), &balance_of)
-                .dry_run()
-                .await;
+            let balance_of_res =
+                client.call(&ink_e2e::alice(), &balance_of).dry_run().await;
 
             // then
             assert_eq!(
@@ -583,9 +581,8 @@ mod erc20 {
             let amount = 500_000_000u128;
             // tx
             let transfer_from = call.transfer_from(bob_account, charlie_account, amount);
-            let transfer_from_result = client
-                .call(&ink_e2e::charlie(), &transfer_from)
-                .await;
+            let transfer_from_result =
+                client.call(&ink_e2e::charlie(), &transfer_from).await;
 
             assert!(
                 transfer_from_result.is_err(),
@@ -614,10 +611,8 @@ mod erc20 {
             );
 
             let balance_of = call.balance_of(bob_account);
-            let balance_of_res = client
-                .call(&ink_e2e::alice(), &balance_of)
-                .dry_run()
-                .await;
+            let balance_of_res =
+                client.call(&ink_e2e::alice(), &balance_of).dry_run().await;
 
             // `transfer_from` again, this time exceeding the approved amount
             let transfer_from = call.transfer_from(bob_account, charlie_account, 1);
