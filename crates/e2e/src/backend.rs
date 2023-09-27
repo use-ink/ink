@@ -198,7 +198,7 @@ pub trait ContractsBackend<E: Environment> {
     ///     .await
     ///     .expect("upload failed");
     /// ```
-    async fn upload<'a>(
+    fn upload<'a>(
         &'a mut self,
         contract_name: &'a str,
         caller: &'a Keypair,
