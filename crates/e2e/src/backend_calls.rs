@@ -17,6 +17,7 @@ use crate::{
 
 use super::Keypair;
 
+/// Allows to build an end-to-end call using a builder pattern.
 pub struct CallBuilder<'a, E, Args, RetType, CB>
 where
     E: Environment,
@@ -38,11 +39,10 @@ where
     E: Environment,
     Args: Sync + Encode + Clone,
     RetType: Send + Decode,
-    E::Balance: Clone,
 
     CB: ContractsBackend<E>,
 {
-    /// Initialize a call builder with essential values.
+    /// Initialize a call builder with defaults values.
     pub fn new(
         client: &'a mut CB,
         caller: &'a Keypair,
@@ -92,6 +92,9 @@ where
     }
 
     /// Submit the call for the on-chain execution.
+    ///
+    /// This will automatically run a dry-run call, and use `extra_gas_portion`
+    /// to add a margin to the gas limit.
     pub async fn submit(
         &mut self,
     ) -> Result<CallResult<E, RetType, CB::EventLog>, CB::Error>
@@ -143,6 +146,7 @@ where
     }
 }
 
+/// Allows to build an end-to-end instantiation call using a builder pattern.
 pub struct InstantiateBuilder<'a, E, Contract, Args, R, C>
 where
     E: Environment,
@@ -218,6 +222,9 @@ where
     }
 
     /// Submit the instantiate call for the on-chain execution.
+    ///
+    /// This will automatically run a dry-run call, and use `extra_gas_portion`
+    /// to add a margin to the gas limit.
     pub async fn submit(self) -> Result<InstantiationResult<E, C::EventLog>, C::Error> {
         C::instantiate_with_gas_margin(
             self.client,

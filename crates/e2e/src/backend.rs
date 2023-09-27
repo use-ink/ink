@@ -96,6 +96,26 @@ pub trait ContractsBackend<E: Environment> {
     /// Event log type.
     type EventLog;
 
+    /// Start building an instantiate call using a builder pattern.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// // Constructor method
+    /// let constructor = FlipperRef::new(false);
+    /// let contract = client
+    ///     .instantiate("flipper", &ink_e2e::alice(), constructor)
+    ///     // Optional arguments
+    ///     // Send 100 units with the call.
+    ///     .value(100)
+    ///     // Add 10% margin to the gas limit
+    ///     .extra_gas_portion(10)
+    ///     .storage_deposit_limit(100)
+    ///     // Submit the call for on-chain execution.
+    ///     .submit()
+    ///     .await
+    ///     .expect("instantiate failed");
+    /// ```
     fn instantiate<'a, Contract, Args: Send + Clone + scale::Encode + Sync, R>(
         &'a mut self,
         contract_name: &'a str,
@@ -108,6 +128,9 @@ pub trait ContractsBackend<E: Environment> {
         InstantiateBuilder::new(self, caller, contract_name, constructor)
     }
 
+    /// Submits an instantiate call with a gas margin.
+    ///
+    /// Intended to be used as part of builder API.
     async fn instantiate_with_gas_margin<
         Contract,
         Args: Send + scale::Encode + Clone,
@@ -122,6 +145,11 @@ pub trait ContractsBackend<E: Environment> {
         storage_deposit_limit: Option<E::Balance>,
     ) -> Result<InstantiationResult<E, Self::EventLog>, Self::Error>;
 
+    /// Bare instantiate call. This function does perform a dry-run,
+    /// and user is expected to provide the gas limit.
+    ///
+    /// Use it when you want to have a more precise control over submitting extrinsic.
+    ///
     /// The function subsequently uploads and instantiates an instance of the contract.
     ///
     /// This function extracts the metadata of the contract at the file path
@@ -168,7 +196,26 @@ pub trait ContractsBackend<E: Environment> {
         storage_deposit_limit: Option<E::Balance>,
     ) -> Result<UploadResult<E, Self::EventLog>, Self::Error>;
 
-    /// Creates a call builder then can later be submitted.
+    /// Start building a call using a builder pattern.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// // Message method
+    /// let get = call.get();
+    /// let get_res = client
+    ///    .call(&ink_e2e::bob(), &get)
+    ///     // Optional arguments
+    ///     // Send 100 units with the call.
+    ///     .value(100)
+    ///     // Add 10% margin to the gas limit
+    ///     .extra_gas_portion(10)
+    ///     .storage_deposit_limit(100)
+    ///     // Submit the call for on-chain execution.
+    ///     .submit()
+    ///     .await
+    ///     .expect("instantiate failed");
+    /// ```
     fn call<'a, Args: Sync + scale::Encode + Clone, RetType: Send + scale::Decode>(
         &'a mut self,
         caller: &'a Keypair,
@@ -180,7 +227,10 @@ pub trait ContractsBackend<E: Environment> {
         CallBuilder::new(self, caller, message)
     }
 
-    /// Executes a `call` for the contract at `account_id`.
+    /// Executes a bare `call` for the contract at `account_id`. This function does
+    /// perform a dry-run, and user is expected to provide the gas limit.
+    ///
+    /// Use it when you want to have a more precise control over submitting extrinsic.
     ///
     /// Returns when the transaction is included in a block. The return value
     /// contains all events that are associated with this transaction.
