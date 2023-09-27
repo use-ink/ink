@@ -118,11 +118,7 @@ pub mod constructors_return_value {
         ) -> E2EResult<()> {
             let constructor = ConstructorsReturnValueRef::new(true);
             let infallible_constructor_result = client
-                .instantiate(
-                    "constructors_return_value",
-                    &ink_e2e::alice(),
-                    constructor,
-                )
+                .instantiate("constructors_return_value", &ink_e2e::alice(), constructor)
                 .dry_run()
                 .await
                 .result
@@ -138,11 +134,7 @@ pub mod constructors_return_value {
 
             let constructor = ConstructorsReturnValueRef::new(true);
             let success = client
-                .instantiate(
-                    "constructors_return_value",
-                    &ink_e2e::alice(),
-                    constructor,
-                )
+                .instantiate("constructors_return_value", &ink_e2e::alice(), constructor)
                 .submit()
                 .await
                 .is_ok();

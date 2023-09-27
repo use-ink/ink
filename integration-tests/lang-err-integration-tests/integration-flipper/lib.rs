@@ -131,10 +131,8 @@ pub mod integration_flipper {
                 .return_value();
 
             let err_flip = call.err_flip();
-            let err_flip_call_result = client
-                .call(&ink_e2e::bob(), &err_flip)
-                .submit()
-                .await;
+            let err_flip_call_result =
+                client.call(&ink_e2e::bob(), &err_flip).submit().await;
 
             assert!(matches!(
                 err_flip_call_result,

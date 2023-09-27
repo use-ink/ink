@@ -69,10 +69,7 @@ pub mod flipper {
         > {
             let constructor = FlipperRef::new(initial_value);
             client
-                .instantiate(
-                    "e2e-runtime-only-backend",
-                    &ink_e2e::alice(),
-                )
+                .instantiate("e2e-runtime-only-backend", &ink_e2e::alice())
                 .submit()
                 .await
         }
@@ -122,10 +119,7 @@ pub mod flipper {
             let call = contract.call::<Flipper>();
 
             let old_balance = client
-                .call(
-                    &ink_e2e::alice(),
-                    &call.get_contract_balance(),
-                )
+                .call(&ink_e2e::alice(), &call.get_contract_balance())
                 .dry_run()
                 .await
                 .expect("get_contract_balance failed")
@@ -145,10 +139,7 @@ pub mod flipper {
 
             // then
             let new_balance = client
-                .call(
-                    &ink_e2e::alice(),
-                    &call.get_contract_balance(),
-                )
+                .call(&ink_e2e::alice(), &call.get_contract_balance())
                 .dry_run()
                 .await
                 .expect("get_contract_balance failed")

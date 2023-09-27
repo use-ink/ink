@@ -232,11 +232,7 @@ pub mod give_me {
             // given
             let constructor = GiveMeRef::new();
             let contract = client
-                .instantiate(
-                    "contract_transfer",
-                    &ink_e2e::bob(),
-                    constructor,
-                )
+                .instantiate("contract_transfer", &ink_e2e::bob(), constructor)
                 .value(1337)
                 .submit()
                 .await
