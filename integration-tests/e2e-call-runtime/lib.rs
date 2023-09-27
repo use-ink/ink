@@ -37,6 +37,7 @@ pub mod e2e_call_runtime {
             let constructor = ContractRef::new();
             let contract = client
                 .instantiate("e2e_call_runtime", &ink_e2e::alice(), constructor)
+                .submit()
                 .await
                 .expect("instantiate failed");
             let call = contract.call::<Contract>();

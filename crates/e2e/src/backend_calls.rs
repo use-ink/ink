@@ -63,8 +63,9 @@ where
     }
 
     /// Provide value with a call
-    pub fn value(&mut self, value: E::Balance) {
+    pub fn value(&mut self, value: E::Balance) -> &mut Self {
         self.value = value;
+        self
     }
 
     /// Increases the gas limit marginally by a specified percent.
@@ -75,21 +76,23 @@ where
     ///
     /// With dry run gas estimate of `100` units and `5`% extra gas portion specified,
     /// the set gas limit becomes `105` units
-    pub fn extra_gas_portion(&mut self, per_cent: u64) {
+    pub fn extra_gas_portion(&mut self, per_cent: u64) -> &mut Self {
         if per_cent == 0 {
             self.extra_gas_portion = None
         } else {
             self.extra_gas_portion = Some(per_cent)
         }
+        self
     }
 
     /// Specify the max amount of funds that can be charged for storage.
-    pub fn storage_deposit_limit(&mut self, storage_deposit_limit: E::Balance) {
+    pub fn storage_deposit_limit(&mut self, storage_deposit_limit: E::Balance) -> &mut Self {
         if storage_deposit_limit == 0u32.into() {
             self.storage_deposit_limit = None
         } else {
             self.storage_deposit_limit = Some(storage_deposit_limit)
         }
+        self
     }
 
     /// Submit the call for the on-chain execution.
@@ -193,8 +196,9 @@ where
     }
 
     /// Provide value with a call
-    pub fn value(&mut self, value: E::Balance) {
+    pub fn value(&mut self, value: E::Balance) -> &mut Self {
         self.value = value;
+        self
     }
 
     /// Increases the gas limit marginally by a specified percent.
@@ -205,21 +209,23 @@ where
     ///
     /// With dry run gas estimate of `100` units and `5`% extra gas portion specified,
     /// the set gas limit becomes `105` units
-    pub fn extra_gas_portion(&mut self, per_cent: u64) {
+    pub fn extra_gas_portion(&mut self, per_cent: u64) -> &mut Self {
         if per_cent == 0 {
             self.extra_gas_portion = None
         } else {
             self.extra_gas_portion = Some(per_cent)
         }
+        self
     }
 
     /// Specify the max amount of funds that can be charged for storage.
-    pub fn storage_deposit_limit(&mut self, storage_deposit_limit: E::Balance) {
+    pub fn storage_deposit_limit(&mut self, storage_deposit_limit: E::Balance) -> &mut Self {
         if storage_deposit_limit == 0u32.into() {
             self.storage_deposit_limit = None
         } else {
             self.storage_deposit_limit = Some(storage_deposit_limit)
         }
+        self
     }
 
     /// Submit the instantiate call for the on-chain execution.
@@ -283,12 +289,13 @@ where
     }
 
     /// Specify the max amount of funds that can be charged for storage.
-    pub fn storage_deposit_limit(&mut self, storage_deposit_limit: E::Balance) {
+    pub fn storage_deposit_limit(&mut self, storage_deposit_limit: E::Balance) -> &mut Self {
         if storage_deposit_limit == 0u32.into() {
             self.storage_deposit_limit = None
         } else {
             self.storage_deposit_limit = Some(storage_deposit_limit)
         }
+        self
     }
 
     /// Execute the upload.

@@ -236,9 +236,9 @@ pub mod give_me {
                     "contract_transfer",
                     &ink_e2e::bob(),
                     constructor,
-                    1337,
-                    None,
                 )
+                .value(1337)
+                .submit()
                 .await
                 .expect("instantiate failed");
             let mut call = contract.call::<GiveMe>();

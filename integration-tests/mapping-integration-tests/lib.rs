@@ -146,7 +146,7 @@ mod mapping_integration_tests {
             let insert = call.insert_balance(1_000);
             let _ = client
                 .call(&ink_e2e::bob(), &insert)
-                .dry_run()
+                .submit()
                 .await
                 .expect("Calling `insert_balance` failed")
                 .return_value();

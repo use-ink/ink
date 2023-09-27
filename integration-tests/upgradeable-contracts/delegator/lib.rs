@@ -128,7 +128,7 @@ pub mod delegator {
             let result = client.call(&origin, &call_delegate).submit().await;
             assert!(result.is_ok(), "delegate call failed.");
 
-            let result = client.call(&origin, &call_delegate).dry_run().await;
+            let result = client.call(&origin, &call_delegate).submit().await;
             assert!(result.is_ok(), "second delegate call failed.");
 
             // then
@@ -169,7 +169,8 @@ pub mod delegator {
             let mut call_builder_call = call_builder.call::<Delegator>();
 
             let code_hash = client
-                .upload("delegatee", &origin, None)
+                .upload("delegatee", &origin)
+                .submit()
                 .await
                 .expect("upload `delegatee` failed")
                 .code_hash;

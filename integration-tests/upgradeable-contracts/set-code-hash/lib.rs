@@ -127,7 +127,7 @@ pub mod incrementer {
                 .expect("`inc` failed");
 
             let get = call.get();
-            let get_res = client.call(&ink_e2e::alice(), &get).submit().await;
+            let get_res = client.call(&ink_e2e::alice(), &get).dry_run().await;
 
             // Remember, we updated our incrementer contract to increment by `4`.
             assert!(matches!(get_res.return_value(), 5));

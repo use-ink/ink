@@ -72,10 +72,8 @@ pub mod flipper {
                 .instantiate(
                     "e2e-runtime-only-backend",
                     &ink_e2e::alice(),
-                    constructor,
-                    0,
-                    None,
                 )
+                .submit()
                 .await
         }
 
@@ -96,12 +94,14 @@ pub mod flipper {
             let mut call = contract.call::<Flipper>();
             let _flip_res = client
                 .call(&ink_e2e::bob(), &call.flip())
+                .submit()
                 .await
                 .expect("flip failed");
 
             // then
             let get_res = client
                 .call(&ink_e2e::bob(), &call.get())
+                .dry_run()
                 .await
                 .expect("get failed");
             assert_eq!(get_res.return_value(), !INITIAL_VALUE);
@@ -125,10 +125,8 @@ pub mod flipper {
                 .call(
                     &ink_e2e::alice(),
                     &call.get_contract_balance(),
-                    0,
-                    None,
-                    None,
                 )
+                .dry_run()
                 .await
                 .expect("get_contract_balance failed")
                 .return_value();
@@ -150,10 +148,8 @@ pub mod flipper {
                 .call(
                     &ink_e2e::alice(),
                     &call.get_contract_balance(),
-                    0,
-                    None,
-                    None,
                 )
+                .dry_run()
                 .await
                 .expect("get_contract_balance failed")
                 .return_value();
@@ -170,9 +166,8 @@ pub mod flipper {
                     "e2e-runtime-only-backend",
                     &ink_e2e::alice(),
                     FlipperRef::new(false),
-                    0,
-                    None,
                 )
+                .submit()
                 .await
                 .expect("instantiate failed");
 

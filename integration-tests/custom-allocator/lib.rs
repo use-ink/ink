@@ -121,6 +121,7 @@ mod custom_allocator {
             // When
             let contract = client
                 .instantiate("custom_allocator", &ink_e2e::alice(), constructor)
+                .submit()
                 .await
                 .expect("instantiate failed");
             let call = contract.call::<CustomAllocator>();

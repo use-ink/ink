@@ -100,7 +100,7 @@ mod contract_ref {
             let flip_check = call.flip_check();
             let flip_call_result = client
                 .call(&ink_e2e::alice(), &flip_check)
-                .dry_run()
+                .submit()
                 .await
                 .expect("Calling `flip` failed");
             assert!(
@@ -151,7 +151,8 @@ mod contract_ref {
             mut client: Client,
         ) -> E2EResult<()> {
             let flipper_hash = client
-                .upload("integration_flipper", &ink_e2e::charlie(), None)
+                .upload("integration_flipper", &ink_e2e::charlie())
+                .submit()
                 .await
                 .expect("uploading `flipper` failed")
                 .code_hash;
