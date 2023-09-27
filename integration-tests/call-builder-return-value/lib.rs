@@ -134,7 +134,8 @@ mod call_builder {
             let expected_value = 42;
             let constructor = CallBuilderReturnValueRef::new(expected_value);
             let call_builder = client
-                .instantiate("call_builder_return_value", &origin, constructor, 0, None)
+                .instantiate("call_builder_return_value", &origin, constructor)
+                .submit()
                 .await
                 .expect("instantiate failed");
             let mut call_builder_call = call_builder.call::<CallBuilderReturnValue>();
@@ -148,7 +149,7 @@ mod call_builder {
             let selector = ink::selector_bytes!("get");
             let call = call_builder_call.delegate_call(code_hash, selector);
             let call_result = client
-                .call(&origin, &call, 0, None, None)
+                .call(&origin, &call, 0)
                 .await
                 .expect("Client failed to call `call_builder::invoke`.")
                 .return_value();

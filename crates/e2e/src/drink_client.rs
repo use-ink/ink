@@ -294,7 +294,7 @@ where
         todo!("https://github.com/Cardinal-Cryptography/drink/issues/37")
     }
 
-    async fn upload(
+    async fn bare_upload(
         &mut self,
         contract_name: &str,
         caller: &Keypair,

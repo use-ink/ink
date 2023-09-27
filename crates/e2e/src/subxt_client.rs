@@ -518,7 +518,7 @@ where
             .await
     }
 
-    async fn upload(
+    async fn bare_upload(
         &mut self,
         contract_name: &str,
         caller: &Keypair,

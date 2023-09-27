@@ -13,20 +13,21 @@ use crate::{
     CallResult,
     ContractsBackend,
     InstantiationResult,
+    UploadResult,
 };
 
 use super::Keypair;
 
 /// Allows to build an end-to-end call using a builder pattern.
-pub struct CallBuilder<'a, E, Args, RetType, CB>
+pub struct CallBuilder<'a, E, Args, RetType, C>
 where
     E: Environment,
     Args: Encode + Clone,
     RetType: Send + Decode,
 
-    CB: ContractsBackend<E>,
+    C: ContractsBackend<E>,
 {
-    client: &'a mut CB,
+    client: &'a mut C,
     caller: &'a Keypair,
     message: &'a CallBuilderFinal<E, Args, RetType>,
     value: E::Balance,
@@ -34,20 +35,20 @@ where
     storage_deposit_limit: Option<E::Balance>,
 }
 
-impl<'a, E, Args, RetType, CB> CallBuilder<'a, E, Args, RetType, CB>
+impl<'a, E, Args, RetType, C> CallBuilder<'a, E, Args, RetType, C>
 where
     E: Environment,
     Args: Sync + Encode + Clone,
     RetType: Send + Decode,
 
-    CB: ContractsBackend<E>,
+    C: ContractsBackend<E>,
 {
     /// Initialize a call builder with defaults values.
     pub fn new(
-        client: &'a mut CB,
+        client: &'a mut C,
         caller: &'a Keypair,
         message: &'a CallBuilderFinal<E, Args, RetType>,
-    ) -> CallBuilder<'a, E, Args, RetType, CB>
+    ) -> CallBuilder<'a, E, Args, RetType, C>
     where
         E::Balance: From<u32>,
     {
@@ -97,11 +98,11 @@ where
     /// to add a margin to the gas limit.
     pub async fn submit(
         &mut self,
-    ) -> Result<CallResult<E, RetType, CB::EventLog>, CB::Error>
+    ) -> Result<CallResult<E, RetType, C::EventLog>, C::Error>
     where
         CallBuilderFinal<E, Args, RetType>: Clone,
     {
-        let dry_run = CB::bare_call_dry_run(
+        let dry_run = C::bare_call_dry_run(
             self.client,
             self.caller,
             self.message,
@@ -115,7 +116,7 @@ where
                     let gas = dry_run.exec_result.gas_required;
                     gas + (gas / 100 * margin)
                 });
-        let call_result = CB::bare_call(
+        let call_result = C::bare_call(
             self.client,
             self.caller,
             self.message,
@@ -135,7 +136,7 @@ where
     where
         CallBuilderFinal<E, Args, RetType>: Clone,
     {
-        CB::bare_call_dry_run(
+        C::bare_call_dry_run(
             self.client,
             self.caller,
             self.message,
@@ -248,6 +249,54 @@ where
             self.caller,
             self.constructor,
             self.value,
+            self.storage_deposit_limit,
+        )
+        .await
+    }
+}
+
+/// Allows to build an end-to-end upload call using a builder pattern.
+pub struct UploadBuilder<'a, E, C>
+where
+    E: Environment,
+    C: ContractsBackend<E>,
+{
+    client: &'a mut C,
+    contract_name: &'a str,
+    caller: &'a Keypair,
+    storage_deposit_limit: Option<E::Balance>,
+}
+
+impl<'a, E, C> UploadBuilder<'a, E, C>
+where
+    E: Environment,
+    C: ContractsBackend<E>,
+{
+    /// Initialize an upload builder with essential values.
+    pub fn new(client: &'a mut C, contract_name: &'a str, caller: &'a Keypair) -> Self {
+        Self {
+            client,
+            contract_name,
+            caller,
+            storage_deposit_limit: None,
+        }
+    }
+
+    /// Specify the max amount of funds that can be charged for storage.
+    pub fn storage_deposit_limit(&mut self, storage_deposit_limit: E::Balance) {
+        if storage_deposit_limit == 0u32.into() {
+            self.storage_deposit_limit = None
+        } else {
+            self.storage_deposit_limit = Some(storage_deposit_limit)
+        }
+    }
+
+    /// Execute the upload.
+    pub async fn submit(&mut self) -> Result<UploadResult<E, C::EventLog>, C::Error> {
+        C::bare_upload(
+            self.client,
+            self.contract_name,
+            self.caller,
             self.storage_deposit_limit,
         )
         .await

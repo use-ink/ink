@@ -14,7 +14,10 @@
 
 use super::Keypair;
 use crate::{
-    backend_calls::InstantiateBuilder,
+    backend_calls::{
+        InstantiateBuilder,
+        UploadBuilder,
+    },
     builders::CreateBuilderPartial,
     contract_results::BareInstantiationResult,
     CallBuilder,
@@ -182,6 +185,30 @@ pub trait ContractsBackend<E: Environment> {
         storage_deposit_limit: Option<E::Balance>,
     ) -> ContractInstantiateResult<E::AccountId, E::Balance, ()>;
 
+    /// Start building an upload call.
+    /// # Example
+    ///
+    /// ```rust
+    /// let contract = client
+    ///     .upload("flipper", &ink_e2e::alice())
+    ///     // Optional arguments
+    ///     .storage_deposit_limit(100)
+    ///     // Submit the call for on-chain execution.
+    ///     .submit()
+    ///     .await
+    ///     .expect("upload failed");
+    /// ```
+    async fn upload<'a>(
+        &'a mut self,
+        contract_name: &'a str,
+        caller: &'a Keypair,
+    ) -> UploadBuilder<E, Self>
+    where
+        Self: Sized,
+    {
+        UploadBuilder::new(self, contract_name, caller)
+    }
+
     /// The function subsequently uploads and instantiates an instance of the contract.
     ///
     /// This function extracts the Wasm of the contract for the specified contract.
@@ -189,7 +216,7 @@ pub trait ContractsBackend<E: Environment> {
     /// Calling this function multiple times should be idempotent, the contract is
     /// newly instantiated each time using a unique salt. No existing contract
     /// instance is reused!
-    async fn upload(
+    async fn bare_upload(
         &mut self,
         contract_name: &str,
         caller: &Keypair,
