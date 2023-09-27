@@ -173,7 +173,9 @@ where
             return Err(ink_env::Error::BufferTooSmall)
         };
 
-        Ok(self.set(value))
+        self.set(value);
+
+        Ok(())
     }
 }
 
