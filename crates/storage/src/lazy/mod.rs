@@ -23,11 +23,19 @@ mod mapping;
 #[doc(inline)]
 pub use self::mapping::Mapping;
 
-use crate::traits::{AutoKey, StorableHint, StorageKey};
+use crate::traits::{
+    AutoKey,
+    StorableHint,
+    StorageKey,
+};
 use core::marker::PhantomData;
 use ink_primitives::Key;
 use ink_storage_traits::Storable;
-use scale::{Error, Input, Output};
+use scale::{
+    Error,
+    Input,
+    Output,
+};
 
 /// A simple wrapper around a type to store it in a separate storage cell under its own
 /// storage key. If you want to update the value, first you need to
@@ -146,7 +154,7 @@ where
             .expect("targets of less than 32bit pointer size are not supported; qed");
 
         if encoded_length > ink_env::BUFFER_SIZE.try_into().expect("BufferTooSmall") {
-            return Err(ink_env::Error::Decode(scale::Error::from("buffer size"))).into();
+            return Err(ink_env::Error::Decode(scale::Error::from("buffer size"))).into()
         }
 
         self.get().map(Ok)
@@ -162,7 +170,7 @@ where
     /// Fails if `value` exceeds the static buffer size.
     pub fn try_set(&mut self, value: &V) -> ink_env::Result<()> {
         if value.encoded_size() > ink_env::BUFFER_SIZE {
-            return Err(ink_env::Error::Decode(scale::Error::from("BufferTooSmall")));
+            return Err(ink_env::Error::Decode(scale::Error::from("BufferTooSmall")))
         };
 
         self.set(value);
@@ -225,7 +233,11 @@ where
 #[cfg(feature = "std")]
 const _: () = {
     use crate::traits::StorageLayout;
-    use ink_metadata::layout::{Layout, LayoutKey, RootLayout};
+    use ink_metadata::layout::{
+        Layout,
+        LayoutKey,
+        RootLayout,
+    };
 
     impl<V, KeyType> StorageLayout for Lazy<V, KeyType>
     where
@@ -288,6 +300,42 @@ mod tests {
         ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
             let storage: Lazy<u8> = Lazy::new();
             assert_eq!(storage.get(), None);
+
+            Ok(())
+        })
+        .unwrap()
+    }
+
+    #[test]
+    fn fallible_storage_works_for_fitting_data() {
+        ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
+            let mut storage: Lazy<[u8; ink_env::BUFFER_SIZE]> = Lazy::new();
+
+            let value = [0u8; ink_env::BUFFER_SIZE];
+            assert_eq!(storage.try_set(&value), Ok(()));
+            assert_eq!(storage.try_get(), Some(Ok(value)));
+
+            Ok(())
+        })
+        .unwrap()
+    }
+
+    #[test]
+    fn fallible_storage_fails_gracefully_for_overgrown_data() {
+        ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
+            let mut storage: Lazy<[u8; ink_env::BUFFER_SIZE + 1]> = Lazy::new();
+
+            let value = [0u8; ink_env::BUFFER_SIZE + 1];
+            assert_eq!(storage.try_get(), None);
+            assert!(storage.try_set(&value).is_err());
+
+            // The off-chain impl conveniently uses a Vec for encoding,
+            // allowing writing values exceeding the static buffer size.
+            ink_env::set_contract_storage(&storage.key(), &value);
+            assert!(matches!(
+                storage.try_get(),
+                Some(Err(ink_env::Error::Decode(scale::Error { .. })))
+            ));
 
             Ok(())
         })
