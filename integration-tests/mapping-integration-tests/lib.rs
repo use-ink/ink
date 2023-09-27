@@ -104,9 +104,8 @@ mod mapping_integration_tests {
                     "mapping-integration-tests",
                     &ink_e2e::alice(),
                     constructor,
-                    0,
-                    None,
                 )
+                .submit()
                 .await
                 .expect("instantiate failed");
             let mut call = contract.call::<Mappings>();
@@ -114,7 +113,8 @@ mod mapping_integration_tests {
             // when
             let insert = call.insert_balance(1_000);
             let size = client
-                .call(&ink_e2e::alice(), &insert, 0, None, None)
+                .call(&ink_e2e::alice(), &insert)
+                .submit()
                 .await
                 .expect("Calling `insert_balance` failed")
                 .return_value();
@@ -122,7 +122,8 @@ mod mapping_integration_tests {
             // then
             let get = call.get_balance();
             let balance = client
-                .call_dry_run(&ink_e2e::alice(), &get, 0, None)
+                .call(&ink_e2e::alice(), &get)
+                .submit_dry_run()
                 .await
                 .return_value();
 
@@ -143,9 +144,8 @@ mod mapping_integration_tests {
                     "mapping-integration-tests",
                     &ink_e2e::bob(),
                     constructor,
-                    0,
-                    None,
                 )
+                .submit()
                 .await
                 .expect("instantiate failed");
             let mut call = contract.call::<Mappings>();
@@ -153,7 +153,8 @@ mod mapping_integration_tests {
             // when
             let insert = call.insert_balance(1_000);
             let _ = client
-                .call(&ink_e2e::bob(), &insert, 0, None, None)
+                .call(&ink_e2e::bob(), &insert)
+                .submit_dry_run()
                 .await
                 .expect("Calling `insert_balance` failed")
                 .return_value();
@@ -161,7 +162,8 @@ mod mapping_integration_tests {
             // then
             let contains = call.contains_balance();
             let is_there = client
-                .call_dry_run(&ink_e2e::bob(), &contains, 0, None)
+                .call(&ink_e2e::bob(), &contains)
+                .submit_dry_run()
                 .await
                 .return_value();
 
@@ -179,9 +181,8 @@ mod mapping_integration_tests {
                     "mapping-integration-tests",
                     &ink_e2e::charlie(),
                     constructor,
-                    0,
-                    None,
                 )
+                .submit()
                 .await
                 .expect("instantiate failed");
             let mut call = contract.call::<Mappings>();
@@ -189,14 +190,16 @@ mod mapping_integration_tests {
             // when
             let first_insert = call.insert_balance(1_000);
             let _ = client
-                .call(&ink_e2e::charlie(), &first_insert, 0, None, None)
+                .call(&ink_e2e::charlie(), &first_insert)
+                .submit()
                 .await
                 .expect("Calling `insert_balance` failed")
                 .return_value();
 
             let insert = call.insert_balance(10_000);
             let size = client
-                .call(&ink_e2e::charlie(), &insert, 0, None, None)
+                .call(&ink_e2e::charlie(), &insert)
+                .submit()
                 .await
                 .expect("Calling `insert_balance` failed")
                 .return_value();
@@ -206,7 +209,8 @@ mod mapping_integration_tests {
 
             let get = call.get_balance();
             let balance = client
-                .call_dry_run(&ink_e2e::charlie(), &get, 0, None)
+                .call(&ink_e2e::charlie(), &get)
+                .submit_dry_run()
                 .await
                 .return_value();
 
@@ -226,9 +230,8 @@ mod mapping_integration_tests {
                     "mapping-integration-tests",
                     &ink_e2e::dave(),
                     constructor,
-                    0,
-                    None,
                 )
+                .submit()
                 .await
                 .expect("instantiate failed");
             let mut call = contract.call::<Mappings>();
@@ -236,21 +239,24 @@ mod mapping_integration_tests {
             // when
             let insert = call.insert_balance(3_000);
             let _ = client
-                .call(&ink_e2e::dave(), &insert, 0, None, None)
+                .call(&ink_e2e::dave(), &insert)
+                .submit()
                 .await
                 .expect("Calling `insert_balance` failed")
                 .return_value();
 
             let remove = call.remove_balance();
             let _ = client
-                .call(&ink_e2e::dave(), &remove, 0, None, None)
+                .call(&ink_e2e::dave(), &remove)
+                .submit()
                 .await
                 .expect("Calling `remove_balance` failed");
 
             // then
             let get = call.get_balance();
             let balance = client
-                .call_dry_run(&ink_e2e::dave(), &get, 0, None)
+                .call(&ink_e2e::dave(), &get)
+                .submit_dry_run()
                 .await
                 .return_value();
 
@@ -270,9 +276,8 @@ mod mapping_integration_tests {
                     "mapping-integration-tests",
                     &ink_e2e::eve(),
                     constructor,
-                    0,
-                    None,
                 )
+                .submit()
                 .await
                 .expect("instantiate failed");
             let mut call = contract.call::<Mappings>();
@@ -280,14 +285,16 @@ mod mapping_integration_tests {
             // when
             let insert = call.insert_balance(4_000);
             let _ = client
-                .call(&ink_e2e::eve(), &insert, 0, None, None)
+                .call(&ink_e2e::eve(), &insert)
+                .submit()
                 .await
                 .expect("Calling `insert_balance` failed")
                 .return_value();
 
             let take = call.take_balance();
             let balance = client
-                .call(&ink_e2e::eve(), &take, 0, None, None)
+                .call(&ink_e2e::eve(), &take)
+                .submit()
                 .await
                 .expect("Calling `take_balance` failed")
                 .return_value();
@@ -297,7 +304,8 @@ mod mapping_integration_tests {
 
             let contains = call.contains_balance();
             let is_there = client
-                .call_dry_run(&ink_e2e::eve(), &contains, 0, None)
+                .call(&ink_e2e::eve(), &contains)
+                .submit_dry_run()
                 .await
                 .return_value();
 

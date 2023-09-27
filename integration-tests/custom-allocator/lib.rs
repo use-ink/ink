@@ -38,10 +38,7 @@ static ALLOC: dlmalloc::GlobalDlmalloc = dlmalloc::GlobalDlmalloc;
 
 #[ink::contract]
 mod custom_allocator {
-    use ink::prelude::{
-        vec,
-        vec::Vec,
-    };
+    use ink::prelude::{vec, vec::Vec};
 
     #[ink(storage)]
     pub struct CustomAllocator {
@@ -120,14 +117,14 @@ mod custom_allocator {
 
             // When
             let contract = client
-                .instantiate("custom_allocator", &ink_e2e::alice(), constructor, 0, None)
+                .instantiate("custom_allocator", &ink_e2e::alice(), constructor)
                 .await
                 .expect("instantiate failed");
             let call = contract.call::<CustomAllocator>();
 
             // Then
             let get = call.get();
-            let get_result = client.call_dry_run(&ink_e2e::alice(), &get, 0, None).await;
+            let get_result = client.call(&ink_e2e::alice(), &get).await;
             assert!(matches!(get_result.return_value(), false));
 
             Ok(())
@@ -140,25 +137,27 @@ mod custom_allocator {
             // Given
             let constructor = CustomAllocatorRef::new(false);
             let contract = client
-                .instantiate("custom_allocator", &ink_e2e::bob(), constructor, 0, None)
+                .instantiate("custom_allocator", &ink_e2e::bob(), constructor)
+                .submit()
                 .await
                 .expect("instantiate failed");
             let mut call = contract.call::<CustomAllocator>();
 
             let get = call.get();
-            let get_result = client.call_dry_run(&ink_e2e::bob(), &get, 0, None).await;
+            let get_result = client.call(&ink_e2e::bob(), &get).submit_dry_run().await;
             assert!(matches!(get_result.return_value(), false));
 
             // When
             let flip = call.flip();
             let _flip_result = client
-                .call(&ink_e2e::bob(), &flip, 0, None, None)
+                .call(&ink_e2e::bob(), &flip)
+                .submit()
                 .await
                 .expect("flip failed");
 
             // Then
             let get = call.get();
-            let get_result = client.call_dry_run(&ink_e2e::bob(), &get, 0, None).await;
+            let get_result = client.call(&ink_e2e::bob(), &get).submit_dry_run().await;
             assert!(matches!(get_result.return_value(), true));
 
             Ok(())

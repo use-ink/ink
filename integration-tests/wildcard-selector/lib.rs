@@ -75,7 +75,8 @@ pub mod wildcard_selector {
             // given
             let constructor = WildcardSelectorRef::new();
             let contract_acc_id = client
-                .instantiate("wildcard_selector", &ink_e2e::alice(), constructor, 0, None)
+                .instantiate("wildcard_selector", &ink_e2e::alice(), constructor)
+                .submit()
                 .await
                 .expect("instantiate failed")
                 .account_id;
@@ -90,7 +91,8 @@ pub mod wildcard_selector {
             );
 
             let result = client
-                .call(&ink_e2e::bob(), &wildcard, 0, None, None)
+                .call(&ink_e2e::bob(), &wildcard)
+                .submit()
                 .await
                 .expect("wildcard failed");
 
@@ -103,7 +105,8 @@ pub mod wildcard_selector {
             );
 
             let result2 = client
-                .call(&ink_e2e::bob(), &wildcard2, 0, None, None)
+                .call(&ink_e2e::bob(), &wildcard2)
+                .submit()
                 .await
                 .expect("wildcard failed");
 
@@ -128,7 +131,8 @@ pub mod wildcard_selector {
             // given
             let constructor = WildcardSelectorRef::new();
             let contract_acc_id = client
-                .instantiate("wildcard_selector", &ink_e2e::alice(), constructor, 0, None)
+                .instantiate("wildcard_selector", &ink_e2e::alice(), constructor)
+                .submit()
                 .await
                 .expect("instantiate failed")
                 .account_id;
@@ -142,7 +146,8 @@ pub mod wildcard_selector {
             );
 
             let result = client
-                .call(&ink_e2e::bob(), &wildcard, 0, None, None)
+                .call(&ink_e2e::bob(), &wildcard)
+                .submit()
                 .await
                 .expect("wildcard failed");
 

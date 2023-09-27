@@ -116,7 +116,6 @@ mod call_builder {
         use ink_e2e::{
             ChainBackend,
             ContractsBackend,
-            E2EBackend,
         };
 
         type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
@@ -141,7 +140,8 @@ mod call_builder {
             let mut call_builder_call = call_builder.call::<CallBuilderReturnValue>();
 
             let code_hash = client
-                .upload("incrementer", &origin, None)
+                .upload("incrementer", &origin)
+                .submit()
                 .await
                 .expect("upload `incrementer` failed")
                 .code_hash;
@@ -149,7 +149,8 @@ mod call_builder {
             let selector = ink::selector_bytes!("get");
             let call = call_builder_call.delegate_call(code_hash, selector);
             let call_result = client
-                .call(&origin, &call, 0)
+                .call(&origin, &call)
+                .submit()
                 .await
                 .expect("Client failed to call `call_builder::invoke`.")
                 .return_value();
@@ -174,13 +175,15 @@ mod call_builder {
 
             let constructor = CallBuilderReturnValueRef::new(42);
             let call_builder = client
-                .instantiate("call_builder_return_value", &origin, constructor, 0, None)
+                .instantiate("call_builder_return_value", &origin, constructor)
+                .submit()
                 .await
                 .expect("instantiate failed");
             let mut call_builder_call = call_builder.call::<CallBuilderReturnValue>();
 
             let code_hash = client
-                .upload("incrementer", &origin, None)
+                .upload("incrementer", &origin)
+                .submit()
                 .await
                 .expect("upload `incrementer` failed")
                 .code_hash;
@@ -189,7 +192,8 @@ mod call_builder {
             let call =
                 call_builder_call.delegate_call_short_return_type(code_hash, selector);
             let call_result: Result<i8, String> = client
-                .call_dry_run(&origin, &call, 0, None)
+                .call(&origin, &call)
+                .submit_dry_run()
                 .await
                 .return_value();
 
@@ -218,7 +222,8 @@ mod call_builder {
 
             let constructor = CallBuilderReturnValueRef::new(0);
             let call_builder = client
-                .instantiate("call_builder_return_value", &origin, constructor, 0, None)
+                .instantiate("call_builder_return_value", &origin, constructor)
+                .submit()
                 .await
                 .expect("instantiate failed");
             let mut call_builder_call = call_builder.call::<CallBuilderReturnValue>();
@@ -226,14 +231,16 @@ mod call_builder {
             let expected_value = 42;
             let incrementer_constructor = IncrementerRef::new(expected_value);
             let incrementer = client
-                .instantiate("incrementer", &origin, incrementer_constructor, 0, None)
+                .instantiate("incrementer", &origin, incrementer_constructor)
+                .submit()
                 .await
                 .expect("instantiate failed");
 
             let selector = ink::selector_bytes!("get");
             let call = call_builder_call.forward_call(incrementer.account_id, selector);
             let call_result = client
-                .call(&origin, &call, 0, None, None)
+                .call(&origin, &call)
+                .submit()
                 .await
                 .expect("Client failed to call `call_builder::invoke`.")
                 .return_value();
@@ -258,7 +265,8 @@ mod call_builder {
 
             let constructor = CallBuilderReturnValueRef::new(0);
             let call_builder = client
-                .instantiate("call_builder_return_value", &origin, constructor, 0, None)
+                .instantiate("call_builder_return_value", &origin, constructor)
+                .submit()
                 .await
                 .expect("instantiate failed");
             let mut call_builder_call = call_builder.call::<CallBuilderReturnValue>();
@@ -266,7 +274,8 @@ mod call_builder {
             let expected_value = 42;
             let incrementer_constructor = IncrementerRef::new(expected_value);
             let incrementer = client
-                .instantiate("incrementer", &origin, incrementer_constructor, 0, None)
+                .instantiate("incrementer", &origin, incrementer_constructor)
+                .submit()
                 .await
                 .expect("instantiate failed");
 
@@ -274,7 +283,8 @@ mod call_builder {
             let call = call_builder_call
                 .forward_call_short_return_type(incrementer.account_id, selector);
             let call_result: Result<i8, String> = client
-                .call_dry_run(&origin, &call, 0, None)
+                .call(&origin, &call)
+                .submit_dry_run()
                 .await
                 .return_value();
 

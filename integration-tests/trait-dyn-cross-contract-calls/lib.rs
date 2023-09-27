@@ -67,13 +67,15 @@ mod e2e_tests {
         mut client: Client,
     ) -> E2EResult<()> {
         let _ = client
-            .upload("trait-incrementer", &ink_e2e::alice(), None)
+            .upload("trait-incrementer", &ink_e2e::alice())
+            .submit()
             .await
             .expect("uploading `trait-incrementer` failed")
             .code_hash;
 
         let _ = client
-            .upload("trait-incrementer-caller", &ink_e2e::alice(), None)
+            .upload("trait-incrementer-caller", &ink_e2e::alice())
+            .submit()
             .await
             .expect("uploading `trait-incrementer-caller` failed")
             .code_hash;
@@ -81,7 +83,8 @@ mod e2e_tests {
         let constructor = IncrementerRef::new();
 
         let incrementer = client
-            .instantiate("trait-incrementer", &ink_e2e::alice(), constructor, 0, None)
+            .instantiate("trait-incrementer", &ink_e2e::alice(), constructor)
+            .submit()
             .await
             .expect("instantiate failed");
         let incrementer_call = incrementer.call::<Incrementer>();
@@ -93,9 +96,8 @@ mod e2e_tests {
                 "trait-incrementer-caller",
                 &ink_e2e::alice(),
                 constructor,
-                0,
-                None,
             )
+            .submit()
             .await
             .expect("instantiate failed");
         let mut caller_call = caller.call::<Caller>();
@@ -103,7 +105,8 @@ mod e2e_tests {
         // Check through the caller that the value of the incrementer is zero
         let get = caller_call.get();
         let value = client
-            .call_dry_run(&ink_e2e::alice(), &get, 0, None)
+            .call(&ink_e2e::alice(), &get)
+            .submit_dry_run()
             .await
             .return_value();
         assert_eq!(value, 0);
@@ -111,7 +114,8 @@ mod e2e_tests {
         // Increment the value of the incrementer via the caller
         let inc = caller_call.inc();
         let _ = client
-            .call(&ink_e2e::alice(), &inc, 0, None, None)
+            .call(&ink_e2e::alice(), &inc)
+            .submit()
             .await
             .expect("calling `inc` failed");
 
@@ -120,7 +124,8 @@ mod e2e_tests {
         // to check that it also works with e2e testing.
         let get = incrementer_call.get();
         let value = client
-            .call_dry_run(&ink_e2e::alice(), &get, 0, None)
+            .call(&ink_e2e::alice(), &get)
+            .submit_dry_run()
             .await
             .return_value();
         assert_eq!(value, 1);

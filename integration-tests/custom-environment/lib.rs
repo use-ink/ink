@@ -1,9 +1,6 @@
 #![cfg_attr(not(feature = "std"), no_std, no_main)]
 
-use ink::env::{
-    DefaultEnvironment,
-    Environment,
-};
+use ink::env::{DefaultEnvironment, Environment};
 
 /// Our custom environment diverges from the `DefaultEnvironment` in the event topics
 /// limit.
@@ -96,13 +93,8 @@ mod runtime_call {
             // given
             let constructor = TopicsRef::new();
             let contract = client
-                .instantiate(
-                    "custom-environment",
-                    &ink_e2e::alice(),
-                    constructor,
-                    0,
-                    None,
-                )
+                .instantiate("custom-environment", &ink_e2e::alice(), constructor)
+                .submit()
                 .await
                 .expect("instantiate failed");
             let call = contract.call::<Topics>();
@@ -111,7 +103,8 @@ mod runtime_call {
             let message = call.trigger();
 
             let call_res = client
-                .call(&ink_e2e::alice(), &message, 0, None, None)
+                .call(&ink_e2e::alice(), &message)
+                .submit()
                 .await
                 .expect("call failed");
 
@@ -131,13 +124,8 @@ mod runtime_call {
             // given
             let constructor = TopicsRef::new();
             let contract = client
-                .instantiate(
-                    "custom-environment",
-                    &ink_e2e::alice(),
-                    constructor,
-                    0,
-                    None,
-                )
+                .instantiate("custom-environment", &ink_e2e::alice(), constructor)
+                .submit()
                 .await
                 .expect("instantiate failed");
             let mut call = contract.call::<Topics>();
@@ -146,7 +134,7 @@ mod runtime_call {
 
             // when
             let call_res = client
-                .call_dry_run(&ink_e2e::alice(), &message, 0, None)
+                .call(&ink_e2e::alice(), &message).submit_dry_run()
                 .await;
 
             // then

@@ -123,19 +123,22 @@ mod multi_contract_caller {
         ) -> E2EResult<()> {
             // given
             let accumulator_hash = client
-                .upload("accumulator", &ink_e2e::alice(), None)
+                .upload("accumulator", &ink_e2e::alice())
+                .submit()
                 .await
                 .expect("uploading `accumulator` failed")
                 .code_hash;
 
             let adder_hash = client
-                .upload("adder", &ink_e2e::alice(), None)
+                .upload("adder", &ink_e2e::alice())
+                .submit()
                 .await
                 .expect("uploading `adder` failed")
                 .code_hash;
 
             let subber_hash = client
-                .upload("subber", &ink_e2e::alice(), None)
+                .upload("subber", &ink_e2e::alice())
+                .submit()
                 .await
                 .expect("uploading `subber` failed")
                 .code_hash;
@@ -153,9 +156,9 @@ mod multi_contract_caller {
                     "multi_contract_caller",
                     &ink_e2e::alice(),
                     constructor,
-                    10_000_000_000_000,
-                    None,
                 )
+                .value(10_000_000_000_000)
+                .submit()
                 .await
                 .expect("instantiate failed");
             let mut call = multi_contract_caller.call::<MultiContractCaller>();
@@ -163,20 +166,23 @@ mod multi_contract_caller {
             // when
             let get = call.get();
             let value = client
-                .call_dry_run(&ink_e2e::bob(), &get, 0, None)
+                .call(&ink_e2e::bob(), &get)
+                .submit_dry_run()
                 .await
                 .return_value();
             assert_eq!(value, 1234);
             let change = call.change(6);
             let _ = client
-                .call(&ink_e2e::bob(), &change, 0, None, None)
+                .call(&ink_e2e::bob(), &change)
+                .submit()
                 .await
                 .expect("calling `change` failed");
 
             // then
             let get = call.get();
             let value = client
-                .call_dry_run(&ink_e2e::bob(), &get, 0, None)
+                .call(&ink_e2e::bob(), &get)
+                .submit_dry_run()
                 .await
                 .return_value();
             assert_eq!(value, 1234 + 6);
@@ -184,19 +190,22 @@ mod multi_contract_caller {
             // when
             let switch = call.switch();
             let _ = client
-                .call(&ink_e2e::bob(), &switch, 0, None, None)
+                .call(&ink_e2e::bob(), &switch)
+                .submit()
                 .await
                 .expect("calling `switch` failed");
             let change = call.change(3);
             let _ = client
-                .call(&ink_e2e::bob(), &change, 0, None, None)
+                .call(&ink_e2e::bob(), &change)
+                .submit()
                 .await
                 .expect("calling `change` failed");
 
             // then
             let get = call.get();
             let value = client
-                .call_dry_run(&ink_e2e::bob(), &get, 0, None)
+                .call(&ink_e2e::bob(), &get)
+                .submit_dry_run()
                 .await
                 .return_value();
             assert_eq!(value, 1234 + 6 - 3);

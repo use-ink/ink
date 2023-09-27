@@ -201,10 +201,7 @@ pub mod events {
     #[cfg(all(test, feature = "e2e-tests"))]
     mod e2e_tests {
         use super::*;
-        use ink_e2e::{
-            ContractsBackend,
-            H256,
-        };
+        use ink_e2e::{ContractsBackend, H256};
 
         type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
@@ -216,7 +213,8 @@ pub mod events {
             let init_value = false;
             let constructor = EventsRef::new(init_value);
             let contract = client
-                .instantiate("events", &ink_e2e::alice(), constructor, 0, None)
+                .instantiate("events", &ink_e2e::alice(), constructor)
+                .submit()
                 .await
                 .expect("instantiate failed");
             let mut call = contract.call::<Events>();
@@ -224,7 +222,8 @@ pub mod events {
             // when
             let flip = call.flip_with_foreign_event();
             let flip_res = client
-                .call(&ink_e2e::bob(), &flip, 0, None, None)
+                .call(&ink_e2e::bob(), &flip)
+                .submit()
                 .await
                 .expect("flip failed");
 
@@ -257,7 +256,8 @@ pub mod events {
             let init_value = false;
             let constructor = EventsRef::new(init_value);
             let contract = client
-                .instantiate("events", &ink_e2e::alice(), constructor, 0, None)
+                .instantiate("events", &ink_e2e::alice(), constructor)
+                .submit()
                 .await
                 .expect("instantiate failed");
             let mut call = contract.call::<Events>();
@@ -265,7 +265,8 @@ pub mod events {
             // when
             let flip = call.flip_with_inline_event();
             let flip_res = client
-                .call(&ink_e2e::bob(), &flip, 0, None, None)
+                .call(&ink_e2e::bob(), &flip)
+                .submit()
                 .await
                 .expect("flip failed");
 
@@ -297,7 +298,8 @@ pub mod events {
             let init_value = false;
             let constructor = EventsRef::new(init_value);
             let contract = client
-                .instantiate("events", &ink_e2e::alice(), constructor, 0, None)
+                .instantiate("events", &ink_e2e::alice(), constructor)
+                .submit()
                 .await
                 .expect("instantiate failed");
             let call = contract.call::<Events>();
@@ -305,7 +307,8 @@ pub mod events {
             // when
             let call = call.emit_32_byte_topic_event(None);
             let call_res = client
-                .call(&ink_e2e::bob(), &call, 0, None, None)
+                .call(&ink_e2e::bob(), &call)
+                .submit()
                 .await
                 .expect("emit_32_byte_topic_event failed");
 

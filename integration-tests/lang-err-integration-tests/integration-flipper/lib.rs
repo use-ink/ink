@@ -81,22 +81,21 @@ pub mod integration_flipper {
                     "integration_flipper",
                     &ink_e2e::alice(),
                     constructor,
-                    0,
-                    None,
                 )
+                .submit()
                 .await
                 .expect("Instantiate `integration_flipper` failed");
             let mut call = flipper.call::<Flipper>();
 
             let get = call.get();
             let initial_value = client
-                .call_dry_run(&ink_e2e::alice(), &get, 0, None)
+                .call(&ink_e2e::alice(), &get)
                 .await
                 .return_value();
 
             let flip = call.flip();
             let flip_call_result = client
-                .call(&ink_e2e::alice(), &flip, 0, None, None)
+                .call(&ink_e2e::alice(), &flip)
                 .await
                 .expect("Calling `flip` failed");
             assert!(
@@ -105,7 +104,7 @@ pub mod integration_flipper {
             );
 
             let flipped_value = client
-                .call_dry_run(&ink_e2e::alice(), &get, 0, None)
+                .call(&ink_e2e::alice(), &get)
                 .await
                 .return_value();
             assert!(flipped_value != initial_value);
@@ -119,20 +118,20 @@ pub mod integration_flipper {
         ) -> E2EResult<()> {
             let constructor = FlipperRef::new_default();
             let flipper = client
-                .instantiate("integration_flipper", &ink_e2e::bob(), constructor, 0, None)
+                .instantiate("integration_flipper", &ink_e2e::bob(), constructor)
                 .await
                 .expect("instantiate failed");
             let mut call = flipper.call::<Flipper>();
 
             let get = call.get();
             let initial_value = client
-                .call_dry_run(&ink_e2e::bob(), &get, 0, None)
+                .call(&ink_e2e::bob(), &get)
                 .await
                 .return_value();
 
             let err_flip = call.err_flip();
             let err_flip_call_result =
-                client.call(&ink_e2e::bob(), &err_flip, 0, None, None).await;
+                client.call(&ink_e2e::bob(), &err_flip).await;
 
             assert!(matches!(
                 err_flip_call_result,
@@ -140,7 +139,7 @@ pub mod integration_flipper {
             ));
 
             let flipped_value = client
-                .call_dry_run(&ink_e2e::bob(), &get, 0, None)
+                .call(&ink_e2e::bob(), &get)
                 .await
                 .return_value();
             assert!(flipped_value == initial_value);

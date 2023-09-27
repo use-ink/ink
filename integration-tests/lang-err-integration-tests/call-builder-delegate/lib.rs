@@ -111,14 +111,16 @@ mod call_builder {
 
             let constructor = CallBuilderDelegateTestRef::new(Default::default());
             let call_builder_contract = client
-                .instantiate("call_builder_delegate", &origin, constructor, 0, None)
+                .instantiate("call_builder_delegate", &origin, constructor)
+                .submit()
                 .await
                 .expect("instantiate failed");
             let mut call_builder_call =
                 call_builder_contract.call::<CallBuilderDelegateTest>();
 
             let code_hash = client
-                .upload("incrementer", &origin, None)
+                .upload("incrementer", &origin)
+                .submit()
                 .await
                 .expect("upload `incrementer` failed")
                 .code_hash;
@@ -126,7 +128,8 @@ mod call_builder {
             let selector = ink::selector_bytes!("invalid_selector");
             let call = call_builder_call.delegate(code_hash, selector);
             let call_result = client
-                .call(&origin, &call, 0, None, None)
+                .call(&origin, &call, 0)
+                .submit()
                 .await
                 .expect("Calling `call_builder::delegate` failed");
 
@@ -148,14 +151,16 @@ mod call_builder {
 
             let constructor = CallBuilderDelegateTestRef::new(Default::default());
             let call_builder_contract = client
-                .instantiate("call_builder_delegate", &origin, constructor, 0, None)
+                .instantiate("call_builder_delegate", &origin, constructor)
+                .submit()
                 .await
                 .expect("instantiate failed");
             let mut call_builder_call =
                 call_builder_contract.call::<CallBuilderDelegateTest>();
 
             let code_hash = client
-                .upload("incrementer", &origin, None)
+                .upload("incrementer", &origin)
+                .submit()
                 .await
                 .expect("upload `incrementer` failed")
                 .code_hash;
@@ -164,7 +169,9 @@ mod call_builder {
             // we expect this to panic.
             let selector = ink::selector_bytes!("invalid_selector");
             let call = call_builder_call.invoke(code_hash, selector);
-            let call_result = client.call_dry_run(&origin, &call, 0, None).await;
+            let call_result = client.call(&origin, &call)
+                .submit_dry_run()
+                .await;
 
             assert!(call_result.is_err());
             assert!(call_result

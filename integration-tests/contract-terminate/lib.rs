@@ -67,13 +67,8 @@ pub mod just_terminates {
             // given
             let constructor = JustTerminateRef::new();
             let contract = client
-                .instantiate(
-                    "contract_terminate",
-                    &ink_e2e::alice(),
-                    constructor,
-                    0,
-                    None,
-                )
+                .instantiate("contract_terminate", &ink_e2e::alice(), constructor)
+                .submit()
                 .await
                 .expect("instantiate failed");
             let mut call = contract.call::<JustTerminate>();
@@ -81,7 +76,8 @@ pub mod just_terminates {
             // when
             let terminate_me = call.terminate_me();
             let call_res = client
-                .call(&ink_e2e::alice(), &terminate_me, 0, None, None)
+                .call(&ink_e2e::alice(), &terminate_me)
+                .submit()
                 .await
                 .expect("terminate_me messages failed");
 

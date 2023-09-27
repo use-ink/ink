@@ -524,7 +524,8 @@ mod erc20 {
             let total_supply = 1_000_000_000;
             let constructor = Erc20Ref::new(total_supply);
             let erc20 = client
-                .instantiate("erc20", &ink_e2e::alice(), constructor, 0, None)
+                .instantiate("erc20", &ink_e2e::alice(), constructor)
+                .submit()
                 .await
                 .expect("instantiate failed");
             let mut call = erc20.call::<Erc20>();
@@ -532,20 +533,23 @@ mod erc20 {
             // when
             let total_supply_msg = call.total_supply();
             let total_supply_res = client
-                .call_dry_run(&ink_e2e::bob(), &total_supply_msg, 0, None)
+                .call(&ink_e2e::bob(), &total_supply_msg)
+                .submit_dry_run()
                 .await;
 
             let bob_account = ink_e2e::account_id(ink_e2e::AccountKeyring::Bob);
             let transfer_to_bob = 500_000_000u128;
             let transfer = call.transfer(bob_account, transfer_to_bob);
             let _transfer_res = client
-                .call(&ink_e2e::alice(), &transfer, 0, None, None)
+                .call(&ink_e2e::alice(), &transfer)
+                .submit()
                 .await
                 .expect("transfer failed");
 
             let balance_of = call.balance_of(bob_account);
             let balance_of_res = client
-                .call_dry_run(&ink_e2e::alice(), &balance_of, 0, None)
+                .call(&ink_e2e::alice(), &balance_of)
+                .submit_dry_run()
                 .await;
 
             // then
@@ -565,7 +569,8 @@ mod erc20 {
             let total_supply = 1_000_000_000;
             let constructor = Erc20Ref::new(total_supply);
             let erc20 = client
-                .instantiate("erc20", &ink_e2e::bob(), constructor, 0, None)
+                .instantiate("erc20", &ink_e2e::bob(), constructor)
+                .submit()
                 .await
                 .expect("instantiate failed");
             let mut call = erc20.call::<Erc20>();
@@ -579,7 +584,7 @@ mod erc20 {
             // tx
             let transfer_from = call.transfer_from(bob_account, charlie_account, amount);
             let transfer_from_result = client
-                .call(&ink_e2e::charlie(), &transfer_from, 0, None, None)
+                .call(&ink_e2e::charlie(), &transfer_from)
                 .await;
 
             assert!(
@@ -591,7 +596,8 @@ mod erc20 {
             let approved_value = 1_000u128;
             let approve_call = call.approve(charlie_account, approved_value);
             client
-                .call(&ink_e2e::bob(), &approve_call, 0, None, None)
+                .call(&ink_e2e::bob(), &approve_call)
+                .submit()
                 .await
                 .expect("approve failed");
 
@@ -599,7 +605,8 @@ mod erc20 {
             let transfer_from =
                 call.transfer_from(bob_account, charlie_account, approved_value);
             let transfer_from_result = client
-                .call(&ink_e2e::charlie(), &transfer_from, 0, None, None)
+                .call(&ink_e2e::charlie(), &transfer_from)
+                .submit()
                 .await;
             assert!(
                 transfer_from_result.is_ok(),
@@ -608,13 +615,15 @@ mod erc20 {
 
             let balance_of = call.balance_of(bob_account);
             let balance_of_res = client
-                .call_dry_run(&ink_e2e::alice(), &balance_of, 0, None)
+                .call(&ink_e2e::alice(), &balance_of)
+                .submit_dry_run()
                 .await;
 
             // `transfer_from` again, this time exceeding the approved amount
             let transfer_from = call.transfer_from(bob_account, charlie_account, 1);
             let transfer_from_result = client
-                .call(&ink_e2e::charlie(), &transfer_from, 0, None, None)
+                .call(&ink_e2e::charlie(), &transfer_from)
+                .submit()
                 .await;
             assert!(
                 transfer_from_result.is_err(),

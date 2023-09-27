@@ -64,7 +64,7 @@ pub mod flipper {
             // given
             let constructor = FlipperRef::new(false);
             let contract = client
-                .create_instantiate_call("flipper", &ink_e2e::alice(), constructor)
+                .instantiate("flipper", &ink_e2e::alice(), constructor)
                 .submit()
                 .await
                 .expect("instantiate failed");
@@ -72,7 +72,7 @@ pub mod flipper {
 
             let get = call.get();
             let get_res = client
-                .create_call(&ink_e2e::bob(), &get)
+                .call(&ink_e2e::bob(), &get)
                 .submit_dry_run()
                 .await;
             assert!(matches!(get_res.return_value(), false));
@@ -80,7 +80,7 @@ pub mod flipper {
             // when
             let flip = call.flip();
             let _flip_res = client
-                .create_call(&ink_e2e::bob(), &flip)
+                .call(&ink_e2e::bob(), &flip)
                 .submit()
                 .await
                 .expect("flip failed");
@@ -88,7 +88,7 @@ pub mod flipper {
             // then
             let get = call.get();
             let get_res = client
-                .create_call(&ink_e2e::bob(), &get)
+                .call(&ink_e2e::bob(), &get)
                 .submit_dry_run()
                 .await;
             assert!(matches!(get_res.return_value(), true));
@@ -103,7 +103,7 @@ pub mod flipper {
 
             // when
             let contract = client
-                .create_instantiate_call("flipper", &ink_e2e::bob(), constructor)
+                .instantiate("flipper", &ink_e2e::bob(), constructor)
                 .submit()
                 .await
                 .expect("instantiate failed");
@@ -112,7 +112,7 @@ pub mod flipper {
             // then
             let get = call.get();
             let get_res = client
-                .create_call(&ink_e2e::bob(), &get)
+                .call(&ink_e2e::bob(), &get)
                 .submit_dry_run()
                 .await;
             assert!(matches!(get_res.return_value(), false));

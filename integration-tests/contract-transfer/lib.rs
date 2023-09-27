@@ -182,10 +182,7 @@ pub mod give_me {
     #[cfg(all(test, feature = "e2e-tests"))]
     mod e2e_tests {
         use super::*;
-        use ink_e2e::{
-            ChainBackend,
-            ContractsBackend,
-        };
+        use ink_e2e::{ChainBackend, ContractsBackend};
 
         type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
@@ -196,13 +193,9 @@ pub mod give_me {
             // given
             let constructor = GiveMeRef::new();
             let contract = client
-                .instantiate(
-                    "contract_transfer",
-                    &ink_e2e::alice(),
-                    constructor,
-                    1000,
-                    None,
-                )
+                .instantiate("contract_transfer", &ink_e2e::alice(), constructor)
+                .value(1000)
+                .submit()
                 .await
                 .expect("instantiate failed");
             let mut call = contract.call::<GiveMe>();
@@ -211,7 +204,9 @@ pub mod give_me {
             let transfer = call.give_me(120);
 
             let call_res = client
-                .call(&ink_e2e::bob(), &transfer, 10, None, None)
+                .call(&ink_e2e::bob(), &transfer)
+                .value(10)
+                .submit()
                 .await;
 
             // then
@@ -254,7 +249,8 @@ pub mod give_me {
             let transfer = call.give_me(120);
 
             let call_res = client
-                .call(&ink_e2e::eve(), &transfer, 0, None, None)
+                .call(&ink_e2e::eve(), &transfer)
+                .submit()
                 .await
                 .expect("call failed");
 

@@ -160,13 +160,12 @@ pub mod constructors_return_value {
         ) -> E2EResult<()> {
             let constructor = ConstructorsReturnValueRef::try_new(true);
             let result = client
-                .instantiate_dry_run(
+                .instantiate(
                     "constructors_return_value",
                     &ink_e2e::bob(),
                     constructor,
-                    0,
-                    None,
                 )
+                .submit_dry_run()
                 .await
                 .result
                 .expect("Instantiate dry run should succeed");
@@ -193,16 +192,16 @@ pub mod constructors_return_value {
                     "constructors_return_value",
                     &ink_e2e::bob(),
                     constructor,
-                    0,
-                    None,
                 )
+                .submit()
                 .await
                 .expect("instantiate failed");
             let call = contract.call::<ConstructorsReturnValue>();
 
             let get = call.get_value();
             let value = client
-                .call_dry_run(&ink_e2e::bob(), &get, 0, None)
+                .call(ink_e2e::bob(), &get)
+                .submit_dry_run()
                 .await
                 .return_value();
 
@@ -221,13 +220,12 @@ pub mod constructors_return_value {
             let constructor = ConstructorsReturnValueRef::try_new(false);
 
             let result = client
-                .instantiate_dry_run(
+                .instantiate(
                     "constructors_return_value",
                     &ink_e2e::charlie(),
                     constructor,
-                    0,
-                    None,
                 )
+                .submit_dry_run()
                 .await
                 .result
                 .expect("Instantiate dry run should succeed");
@@ -254,9 +252,8 @@ pub mod constructors_return_value {
                     "constructors_return_value",
                     &ink_e2e::charlie(),
                     constructor,
-                    0,
-                    None,
                 )
+                .submit()
                 .await;
 
             assert!(
