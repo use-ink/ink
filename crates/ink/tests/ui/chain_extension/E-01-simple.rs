@@ -83,7 +83,7 @@ impl From<scale::Error> for UnlockAccessError {
 }
 
 /// The kind of access allows for a storage cell.
-#[derive(Debug, Copy, Clone, PartialEq, Eq)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Clone)]
 #[ink::scale_derive(Encode, Decode, TypeInfo)]
 pub enum Access {
     ReadWrite,

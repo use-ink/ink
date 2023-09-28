@@ -57,7 +57,7 @@ pub mod static_buffer {
             let mut constructor = StaticBufferRef::new(false);
             let contract = client
                 .instantiate("static_buffer", &ink_e2e::alice(), &mut constructor)
-                .dry_run()
+                .submit()
                 .await
                 .expect("instantiate failed");
             let call = contract.call::<StaticBuffer>();
