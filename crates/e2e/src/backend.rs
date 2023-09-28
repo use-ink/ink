@@ -93,7 +93,7 @@ pub trait ChainBackend {
 
 /// Contract-specific operations.
 #[async_trait]
-pub trait ContractsBackend<E: Environment + Clone> {
+pub trait ContractsBackend<E: Environment> {
     /// Error type.
     type Error;
     /// Event log type.

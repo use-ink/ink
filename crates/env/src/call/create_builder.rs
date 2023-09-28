@@ -296,7 +296,7 @@ pub struct CreateBuilder<
     Salt,
     RetType,
 > where
-    E: Environment + Clone,
+    E: Environment,
     ContractRef: Clone,
 {
     code_hash: CodeHash,
@@ -309,7 +309,7 @@ pub struct CreateBuilder<
 }
 
 impl<
-        E: Environment + Clone,
+        E: Environment,
         ContractRef: Clone,
         CodeHash,
         GasLimit,
@@ -508,7 +508,7 @@ where
 impl<E, ContractRef, CodeHash, Endowment, Args, Salt, RetType>
     CreateBuilder<E, ContractRef, CodeHash, Unset<u64>, Endowment, Args, Salt, RetType>
 where
-    E: Environment + Clone,
+    E: Environment,
     ContractRef: Clone,
 {
     /// Sets the maximum allowed gas costs for the contract instantiation.
@@ -542,7 +542,7 @@ impl<E, ContractRef, CodeHash, GasLimit, Args, Salt, RetType>
         RetType,
     >
 where
-    E: Environment + Clone,
+    E: Environment,
     ContractRef: Clone,
 {
     /// Sets the value transferred upon the execution of the call.
@@ -584,7 +584,7 @@ impl<E, ContractRef, CodeHash, GasLimit, Endowment, Salt, RetType>
         RetType,
     >
 where
-    E: Environment + Clone,
+    E: Environment,
     ContractRef: Clone,
 {
     /// Sets the value transferred upon the execution of the call.
@@ -626,7 +626,7 @@ impl<E, ContractRef, CodeHash, GasLimit, Endowment, Args, RetType>
         RetType,
     >
 where
-    E: Environment + Clone,
+    E: Environment,
     ContractRef: Clone,
 {
     /// Sets the value transferred upon the execution of the call.
@@ -671,7 +671,7 @@ impl<E, ContractRef, CodeHash, GasLimit, Endowment, Args, Salt>
         Unset<ReturnType<()>>,
     >
 where
-    E: Environment + Clone,
+    E: Environment,
     ContractRef: Clone,
 {
     /// Sets the type of the returned value upon the execution of the constructor.
@@ -724,7 +724,7 @@ impl<E, ContractRef, GasLimit, Args, Salt, RetType>
         Set<ReturnType<RetType>>,
     >
 where
-    E: Environment + Clone,
+    E: Environment,
     ContractRef: Clone,
     GasLimit: Unwrap<Output = u64>,
     Args: Clone,
@@ -757,7 +757,7 @@ impl<E, ContractRef, GasLimit, Args, Salt, RetType>
         Set<ReturnType<RetType>>,
     >
 where
-    E: Environment + Clone,
+    E: Environment,
     ContractRef: Clone,
     ContractRef: FromAccountId<E>,
     GasLimit: Unwrap<Output = u64>,

@@ -39,7 +39,7 @@ where
 
 impl<'a, E, Args, RetType, C> CallBuilder<'a, E, Args, RetType, C>
 where
-    E: Environment + Clone,
+    E: Environment,
     Args: Sync + Encode + Clone,
     RetType: Send + Decode,
 
@@ -158,7 +158,7 @@ where
 /// Allows to build an end-to-end instantiation call using a builder pattern.
 pub struct InstantiateBuilder<'a, E, Contract, Args, R, C>
 where
-    E: Environment + Clone,
+    E: Environment,
     Args: Encode + Clone,
     Contract: Clone,
 
@@ -176,7 +176,7 @@ where
 
 impl<'a, E, Contract, Args, R, C> InstantiateBuilder<'a, E, Contract, Args, R, C>
 where
-    E: Environment + Clone,
+    E: Environment,
     Args: Encode + Clone + Send + Sync,
     Contract: Clone,
 
@@ -278,7 +278,7 @@ where
 /// Allows to build an end-to-end upload call using a builder pattern.
 pub struct UploadBuilder<'a, E, C>
 where
-    E: Environment + Clone,
+    E: Environment,
     C: ContractsBackend<E>,
 {
     client: &'a mut C,
@@ -289,7 +289,7 @@ where
 
 impl<'a, E, C> UploadBuilder<'a, E, C>
 where
-    E: Environment + Clone,
+    E: Environment,
     C: ContractsBackend<E>,
 {
     /// Initialize an upload builder with essential values.

@@ -116,7 +116,7 @@ where
     C::Signature: From<sr25519::Signature>,
     <C::ExtrinsicParams as ExtrinsicParams<C::Hash>>::OtherParams: Default,
 
-    E: Environment + Clone,
+    E: Environment,
     E::AccountId: Debug,
     E::Balance: Debug + scale::HasCompact + serde::Serialize,
     E::Hash: Debug + scale::Encode,
@@ -426,7 +426,7 @@ where
     C::Address: Send + Sync,
     <C::ExtrinsicParams as ExtrinsicParams<C::Hash>>::OtherParams: Default + Send + Sync,
 
-    E: Environment + Clone,
+    E: Environment,
     E::AccountId: Debug + Send + Sync,
     E::Balance:
         Clone + Debug + Send + Sync + From<u128> + scale::HasCompact + serde::Serialize,
@@ -637,7 +637,7 @@ where
     C::Address: Send + Sync,
     <C::ExtrinsicParams as ExtrinsicParams<C::Hash>>::OtherParams: Default + Send + Sync,
 
-    E: Environment + Clone,
+    E: Environment,
     E::AccountId: Debug + Send + Sync,
     E::Balance:
         Clone + Debug + Send + Sync + From<u128> + scale::HasCompact + serde::Serialize,
