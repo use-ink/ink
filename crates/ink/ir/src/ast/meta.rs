@@ -23,7 +23,6 @@ use syn::{
         Parse,
         ParseStream,
     },
-    punctuated::Punctuated,
     spanned::Spanned,
     LitInt,
     Token,
@@ -32,7 +31,7 @@ use syn::{
 /// Content of a compile-time structured attribute.
 ///
 /// This is a subset of `syn::Meta` that allows the `value` of a name-value pair
-/// to be a plain identifier or path.
+/// to be a literal, path, underscore (`_`) or `@` symbol.
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum Meta {
     /// A path, like `message`.
@@ -43,7 +42,15 @@ pub enum Meta {
 
 impl Parse for Meta {
     fn parse(input: ParseStream) -> Result<Self, syn::Error> {
-        let path = input.call(parse_meta_path)?;
+        // Handles the `impl` argument.
+        if input.peek(Token![impl]) {
+            let ident = Ident::parse_any(input)?;
+            let path = syn::Path::from(ident);
+            return Ok(Self::Path(path))
+        }
+
+        // Handles all other arguments.
+        let path: syn::Path = input.parse()?;
         if input.peek(Token![=]) {
             MetaNameValue::parse_meta_name_value_after_path(path, input)
                 .map(Meta::NameValue)
@@ -65,7 +72,7 @@ impl ToTokens for Meta {
 /// A name-value pair within an attribute, like `feature = "nightly"`.
 ///
 /// The only difference from `syn::MetaNameValue` is that this additionally
-/// allows the `value` to be a plain identifier or path.
+/// allows the `value` to be an `@` symbol.
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct MetaNameValue {
     pub name: syn::Path,
@@ -75,7 +82,7 @@ pub struct MetaNameValue {
 
 impl Parse for MetaNameValue {
     fn parse(input: ParseStream) -> Result<Self, syn::Error> {
-        let path = input.call(parse_meta_path)?;
+        let path = input.parse()?;
         Self::parse_meta_name_value_after_path(path, input)
     }
 }
@@ -120,13 +127,16 @@ impl Parse for MetaValue {
         if input.peek(Token![_]) || input.peek(Token![@]) {
             return input.parse::<Symbol>().map(MetaValue::Symbol)
         }
-        if input.fork().peek(syn::Lit) {
+        if input.peek(syn::Lit) {
             return input.parse::<syn::Lit>().map(MetaValue::Lit)
         }
-        if input.fork().peek(Ident::peek_any) || input.fork().peek(Token![::]) {
-            return input.call(parse_meta_path).map(MetaValue::Path)
+        if input.peek(Ident::peek_any) || input.peek(Token![::]) {
+            return input.parse::<syn::Path>().map(MetaValue::Path)
         }
-        Err(input.error("expected a literal, a path or a punct for a meta value"))
+        Err(input.error(
+            "expected a literal, a path, an underscore (`_`)\
+         or an `@` symbol for a meta value",
+        ))
     }
 }
 
@@ -193,36 +203,6 @@ impl ToTokens for Symbol {
     }
 }
 
-/// Like [`syn::Path::parse_mod_style`] but accepts keywords in the path.
-///
-/// # Note
-///
-/// This code was taken from the `syn` implementation for a very similar
-/// syntactical pattern.
-fn parse_meta_path(input: ParseStream) -> Result<syn::Path, syn::Error> {
-    Ok(syn::Path {
-        leading_colon: input.parse()?,
-        segments: {
-            let mut segments = Punctuated::new();
-            while input.peek(Ident::peek_any) {
-                let ident = Ident::parse_any(input)?;
-                segments.push_value(syn::PathSegment::from(ident));
-                if !input.peek(syn::Token![::]) {
-                    break
-                }
-                let punct = input.parse()?;
-                segments.push_punct(punct);
-            }
-            if segments.is_empty() {
-                return Err(input.error("expected path"))
-            } else if segments.trailing_punct() {
-                return Err(input.error("expected path segment"))
-            }
-            segments
-        },
-    })
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -233,6 +213,14 @@ mod tests {
     use quote::quote;
 
     #[test]
+    fn impl_name_works() {
+        assert_eq!(
+            syn::parse2::<Meta>(quote! { impl }).unwrap(),
+            Meta::Path(syn::Path::from(quote::format_ident!("impl")))
+        )
+    }
+
+    #[test]
     fn underscore_token_works() {
         assert_eq!(
             syn::parse2::<Meta>(quote! { selector = _ }).unwrap(),
@@ -240,6 +228,18 @@ mod tests {
                 name: syn::parse_quote! { selector },
                 eq_token: syn::parse_quote! { = },
                 value: MetaValue::Symbol(Symbol::Underscore(syn::parse_quote! { _ })),
+            })
+        )
+    }
+
+    #[test]
+    fn at_token_works() {
+        assert_eq!(
+            syn::parse2::<Meta>(quote! { selector = @ }).unwrap(),
+            Meta::NameValue(MetaNameValue {
+                name: syn::parse_quote! { selector },
+                eq_token: syn::parse_quote! { = },
+                value: MetaValue::Symbol(Symbol::AtSign(syn::parse_quote! { @ })),
             })
         )
     }

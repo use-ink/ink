@@ -12,17 +12,42 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-//! Types and abstractions for ink! definitions that require custom syntax.
+//! Types and abstractions for ink! definitions that require custom
+//! [`syn::parse::Parse`] implementations.
 //!
 //! # Note
 //!
-//! In general we try not to require any sort of custom non-standard Rust
-//! syntax.
+//! In general we do not require any sort of custom non-standard Rust syntax.
 //!
-//! At the time of this writing we currently only use this for the argument
-//! parsing of ink! configuration header `#[ink(env = my::env::Types, ...)]`
-//! in order to be able to parse identifiers in `name = value` segments for
-//! the `value` part.
+//! However, because the Rust attribute grammar is very flexible,
+//! custom [`syn::parse::Parse`] implementations are typically required
+//! for parsing structured arguments from attribute syntax that doesn't
+//! exactly match the
+//! ["meta item" attribute syntax](https://doc.rust-lang.org/reference/attributes.html#meta-item-attribute-syntax)
+//!  used by most
+//! ["built-in" Rust attributes](https://doc.rust-lang.org/reference/attributes.html#built-in-attributes-index)
+//! for which [`syn::Meta`] (and its related variant types) can be used directly.
+//!
+//! At the time of this writing, ink! attribute argument syntax deviates from
+//! ["meta item" attribute syntax](https://doc.rust-lang.org/reference/attributes.html#meta-item-attribute-syntax)
+//! by:
+//! - allowing the `impl` keyword in "meta item" paths
+//! (i.e. `#[ink(impl)]` which is a deviation from the
+//! [simple path](https://doc.rust-lang.org/reference/paths.html#simple-paths)
+//! grammar).
+//! - allowing the `@` symbol as a `value` in `name-value` pairs
+//! (i.e. `#[ink(selector = @)]` which is a deviation from the
+//! [expression](https://doc.rust-lang.org/reference/expressions.html)
+//! grammar followed by the `value` part).
+//!
+//! NOTE: Underscore (`_`) values in `name-value` pairs
+//! (e.g. `#[ink(selector = _)]`) are technically allowed by
+//! the "meta item" attribute syntax as they can be interpreted as
+//! [underscore expressions](https://doc.rust-lang.org/reference/expressions/underscore-expr.html)
+//! (same for path values - e.g `#[ink(env = my::env::Types)]` -
+//! which are valid
+//! [path expressions](https://doc.rust-lang.org/reference/expressions/path-expr.html)
+//! in "meta item" attribute syntax).
 
 mod attr_args;
 mod meta;
