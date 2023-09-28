@@ -71,6 +71,9 @@ version = "0.24.1"
 features = ["derive"]
 default-features = false
 
+[dependencies.sp-runtime]
+version = "24.0.0"
+
 [dev-dependencies]
 ink = { path = "../ink" }
 
