@@ -16,14 +16,15 @@
 
 use super::{EnvInstance, OnInstance};
 use crate::{Environment, Result};
-use core::fmt::Debug;
+use core::{fmt::Debug, ops::Deref};
 use ink_engine::test_api::RecordedDebugMessages;
 use lazy_static::lazy_static;
 pub use sp_core::sr25519;
 use sp_core::{
     sr25519::{Pair, Public},
-    Pair as PairT,
+    ByteArray, Pair as PairT, H256,
 };
+use sp_runtime::AccountId32;
 use std::{collections::HashMap, panic::UnwindSafe};
 use strum::{Display, EnumIter, IntoEnumIterator};
 
@@ -380,6 +381,46 @@ lazy_static! {
 
 impl KeyRing {
     ///
+    pub fn from_public(who: &Public) -> Option<KeyRing> {
+        Self::iter().find(|&k| &Public::from(k) == who)
+    }
+
+    ///
+    pub fn from_account_id(who: &AccountId32) -> Option<KeyRing> {
+        Self::iter().find(|&k| &k.to_account_id() == who)
+    }
+
+    ///
+    pub fn from_raw_public(who: [u8; 32]) -> Option<KeyRing> {
+        Self::from_public(&Public::from_raw(who))
+    }
+
+    ///
+    pub fn to_raw_public(self) -> [u8; 32] {
+        *Public::from(self).as_array_ref()
+    }
+
+    ///
+    pub fn from_h256_public(who: H256) -> Option<KeyRing> {
+        Self::from_public(&Public::from_raw(who.into()))
+    }
+
+    ///
+    pub fn to_h256_public_vec(self) -> H256 {
+        Public::from(self).as_array_ref().into()
+    }
+
+    ///
+    pub fn to_raw_public_vec(self) -> Vec<u8> {
+        Public::from(self).to_raw_vec()
+    }
+
+    ///
+    pub fn to_account_id(self) -> AccountId32 {
+        self.to_raw_public().into()
+    }
+
+    ///
     pub fn pair(self) -> Pair {
         Pair::from_string(&format!("//{}", <&'static str>::from(self)), None)
             .expect("static values are known good; qed")
@@ -390,6 +431,8 @@ impl KeyRing {
         <Self as IntoEnumIterator>::iter()
     }
 }
+
+/// FROMS
 
 impl From<KeyRing> for &'static str {
     fn from(k: KeyRing) -> Self {
@@ -403,6 +446,61 @@ impl From<KeyRing> for &'static str {
             KeyRing::One => "One",
             KeyRing::Two => "Two",
         }
+    }
+}
+
+impl From<KeyRing> for AccountId32 {
+    fn from(k: KeyRing) -> Self {
+        k.to_account_id()
+    }
+}
+
+impl From<KeyRing> for Public {
+    fn from(k: KeyRing) -> Self {
+        *(*PUBLIC_KEYS).get(&k).unwrap()
+    }
+}
+
+impl From<KeyRing> for Pair {
+    fn from(k: KeyRing) -> Self {
+        k.pair()
+    }
+}
+
+impl From<KeyRing> for [u8; 32] {
+    fn from(k: KeyRing) -> Self {
+        *(*PUBLIC_KEYS).get(&k).unwrap().as_array_ref()
+    }
+}
+
+impl From<KeyRing> for H256 {
+    fn from(k: KeyRing) -> Self {
+        (*PUBLIC_KEYS).get(&k).unwrap().as_array_ref().into()
+    }
+}
+
+impl From<KeyRing> for &'static [u8; 32] {
+    fn from(k: KeyRing) -> Self {
+        (*PUBLIC_KEYS).get(&k).unwrap().as_array_ref()
+    }
+}
+
+impl AsRef<[u8; 32]> for KeyRing {
+    fn as_ref(&self) -> &[u8; 32] {
+        (*PUBLIC_KEYS).get(self).unwrap().as_array_ref()
+    }
+}
+
+impl AsRef<Public> for KeyRing {
+    fn as_ref(&self) -> &Public {
+        (*PUBLIC_KEYS).get(self).unwrap()
+    }
+}
+
+impl Deref for KeyRing {
+    type Target = [u8; 32];
+    fn deref(&self) -> &[u8; 32] {
+        (*PUBLIC_KEYS).get(self).unwrap().as_array_ref()
     }
 }
 
