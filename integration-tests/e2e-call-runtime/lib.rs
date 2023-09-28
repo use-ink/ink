@@ -34,9 +34,9 @@ pub mod e2e_call_runtime {
             mut client: Client,
         ) -> E2EResult<()> {
             // given
-            let constructor = ContractRef::new();
+            let mut constructor = ContractRef::new();
             let contract = client
-                .instantiate("e2e_call_runtime", &ink_e2e::alice(), constructor)
+                .instantiate("e2e_call_runtime", &ink_e2e::alice(), &mut constructor)
                 .submit()
                 .await
                 .expect("instantiate failed");

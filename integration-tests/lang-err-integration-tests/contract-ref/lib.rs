@@ -83,9 +83,9 @@ mod contract_ref {
                 .expect("uploading `flipper` failed")
                 .code_hash;
 
-            let constructor = ContractRefRef::new(0, flipper_hash);
+            let mut constructor = ContractRefRef::new(0, flipper_hash);
             let contract_ref = client
-                .instantiate("contract_ref", &ink_e2e::alice(), constructor)
+                .instantiate("contract_ref", &ink_e2e::alice(), &mut constructor)
                 .submit()
                 .await
                 .expect("instantiate failed");
@@ -128,9 +128,9 @@ mod contract_ref {
                 .code_hash;
 
             let succeed = true;
-            let constructor = ContractRefRef::try_new(0, flipper_hash, succeed);
+            let mut constructor = ContractRefRef::try_new(0, flipper_hash, succeed);
             let contract_ref = client
-                .instantiate("contract_ref", &ink_e2e::bob(), constructor)
+                .instantiate("contract_ref", &ink_e2e::bob(), &mut constructor)
                 .submit()
                 .await
                 .expect("instantiate failed");
@@ -158,9 +158,9 @@ mod contract_ref {
                 .code_hash;
 
             let succeed = false;
-            let constructor = ContractRefRef::try_new(0, flipper_hash, succeed);
+            let mut constructor = ContractRefRef::try_new(0, flipper_hash, succeed);
             let instantiate_result = client
-                .instantiate("contract_ref", &ink_e2e::charlie(), constructor)
+                .instantiate("contract_ref", &ink_e2e::charlie(), &mut constructor)
                 .submit()
                 .await;
 

@@ -91,9 +91,9 @@ mod runtime_call {
             mut client: Client,
         ) -> E2EResult<()> {
             // given
-            let constructor = TopicsRef::new();
+            let mut constructor = TopicsRef::new();
             let contract = client
-                .instantiate("custom-environment", &ink_e2e::alice(), constructor)
+                .instantiate("custom-environment", &ink_e2e::alice(), &mut constructor)
                 .submit()
                 .await
                 .expect("instantiate failed");
@@ -122,9 +122,9 @@ mod runtime_call {
             mut client: Client,
         ) -> E2EResult<()> {
             // given
-            let constructor = TopicsRef::new();
+            let mut constructor = TopicsRef::new();
             let contract = client
-                .instantiate("custom-environment", &ink_e2e::alice(), constructor)
+                .instantiate("custom-environment", &ink_e2e::alice(), &mut constructor)
                 .submit()
                 .await
                 .expect("instantiate failed");

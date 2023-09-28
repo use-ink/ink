@@ -522,9 +522,9 @@ mod erc20 {
         async fn e2e_transfer<Client: E2EBackend>(mut client: Client) -> E2EResult<()> {
             // given
             let total_supply = 1_000_000_000;
-            let constructor = Erc20Ref::new(total_supply);
+            let mut constructor = Erc20Ref::new(total_supply);
             let erc20 = client
-                .instantiate("erc20", &ink_e2e::alice(), constructor)
+                .instantiate("erc20", &ink_e2e::alice(), &mut constructor)
                 .submit()
                 .await
                 .expect("instantiate failed");
@@ -565,7 +565,7 @@ mod erc20 {
         async fn e2e_allowances<Client: E2EBackend>(mut client: Client) -> E2EResult<()> {
             // given
             let total_supply = 1_000_000_000;
-            let constructor = Erc20Ref::new(total_supply);
+            let mut constructor = Erc20Ref::new(total_supply);
             let erc20 = client
                 .instantiate("erc20", &ink_e2e::bob(), constructor)
                 .submit()

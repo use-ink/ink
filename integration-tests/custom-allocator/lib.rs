@@ -116,11 +116,11 @@ mod custom_allocator {
         #[ink_e2e::test]
         async fn default_works<Client: E2EBackend>(mut client: Client) -> E2EResult<()> {
             // Given
-            let constructor = CustomAllocatorRef::default();
+            let mut constructor = CustomAllocatorRef::default();
 
             // When
             let contract = client
-                .instantiate("custom_allocator", &ink_e2e::alice(), constructor)
+                .instantiate("custom_allocator", &ink_e2e::alice(), &mut constructor)
                 .submit()
                 .await
                 .expect("instantiate failed");
@@ -139,9 +139,9 @@ mod custom_allocator {
         #[ink_e2e::test]
         async fn it_works<Client: E2EBackend>(mut client: Client) -> E2EResult<()> {
             // Given
-            let constructor = CustomAllocatorRef::new(false);
+            let mut constructor = CustomAllocatorRef::new(false);
             let contract = client
-                .instantiate("custom_allocator", &ink_e2e::bob(), constructor)
+                .instantiate("custom_allocator", &ink_e2e::bob(), &mut constructor)
                 .submit()
                 .await
                 .expect("instantiate failed");

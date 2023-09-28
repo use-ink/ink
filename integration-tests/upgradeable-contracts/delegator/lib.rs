@@ -107,9 +107,9 @@ pub mod delegator {
                 .create_and_fund_account(&ink_e2e::alice(), 10_000_000_000_000)
                 .await;
 
-            let constructor = DelegatorRef::new_default();
+            let mut constructor = DelegatorRef::new_default();
             let call_builder = client
-                .instantiate("delegator", &origin, constructor)
+                .instantiate("delegator", &origin, &mut constructor)
                 .submit()
                 .await
                 .expect("instantiate failed");
@@ -160,9 +160,9 @@ pub mod delegator {
                 .await;
 
             // given
-            let constructor = DelegatorRef::new(10);
+            let mut constructor = DelegatorRef::new(10);
             let call_builder = client
-                .instantiate("delegator", &origin, constructor)
+                .instantiate("delegator", &origin, &mutconstructor)
                 .submit()
                 .await
                 .expect("instantiate failed");

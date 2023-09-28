@@ -67,7 +67,7 @@ pub mod flipper {
             >,
             <Client as ContractsBackend<DefaultEnvironment>>::Error,
         > {
-            let constructor = FlipperRef::new(initial_value);
+            let mut constructor = FlipperRef::new(initial_value);
             client
                 .instantiate("e2e-runtime-only-backend", &ink_e2e::alice())
                 .submit()

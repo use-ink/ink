@@ -155,9 +155,9 @@ mod runtime_call {
             mut client: Client,
         ) -> E2EResult<()> {
             // given
-            let constructor = RuntimeCallerRef::new();
+            let mut constructor = RuntimeCallerRef::new();
             let contract = client
-                .instantiate("call-runtime", &ink_e2e::alice(), constructor)
+                .instantiate("call-runtime", &ink_e2e::alice(), &mut constructor)
                 .value(CONTRACT_BALANCE)
                 .submit()
                 .await
@@ -219,9 +219,9 @@ mod runtime_call {
             mut client: Client,
         ) -> E2EResult<()> {
             // given
-            let constructor = RuntimeCallerRef::new();
+            let mut constructor = RuntimeCallerRef::new();
             let contract = client
-                .instantiate("call-runtime", &ink_e2e::alice(), constructor)
+                .instantiate("call-runtime", &ink_e2e::alice(), &mut constructor)
                 .value(CONTRACT_BALANCE)
                 .submit()
                 .await
@@ -255,9 +255,9 @@ mod runtime_call {
             mut client: Client,
         ) -> E2EResult<()> {
             // given
-            let constructor = RuntimeCallerRef::new();
+            let mut constructor = RuntimeCallerRef::new();
             let contract = client
-                .instantiate("call-runtime", &ink_e2e::alice(), constructor)
+                .instantiate("call-runtime", &ink_e2e::alice(), &mut constructor)
                 .value(CONTRACT_BALANCE)
                 .submit()
                 .await

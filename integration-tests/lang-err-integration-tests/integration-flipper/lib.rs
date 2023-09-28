@@ -75,9 +75,9 @@ pub mod integration_flipper {
         async fn e2e_can_flip_correctly<Client: E2EBackend>(
             mut client: Client,
         ) -> E2EResult<()> {
-            let constructor = FlipperRef::new_default();
+            let mut constructor = FlipperRef::new_default();
             let flipper = client
-                .instantiate("integration_flipper", &ink_e2e::alice(), constructor)
+                .instantiate("integration_flipper", &ink_e2e::alice(), &mut constructor)
                 .submit()
                 .await
                 .expect("Instantiate `integration_flipper` failed");
@@ -115,9 +115,9 @@ pub mod integration_flipper {
         async fn e2e_message_error_reverts_state<Client: E2EBackend>(
             mut client: Client,
         ) -> E2EResult<()> {
-            let constructor = FlipperRef::new_default();
+            let mut constructor = FlipperRef::new_default();
             let flipper = client
-                .instantiate("integration_flipper", &ink_e2e::bob(), constructor)
+                .instantiate("integration_flipper", &ink_e2e::bob(), &mut constructor)
                 .submit()
                 .await
                 .expect("instantiate failed");

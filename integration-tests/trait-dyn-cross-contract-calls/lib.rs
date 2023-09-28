@@ -80,19 +80,19 @@ mod e2e_tests {
             .expect("uploading `trait-incrementer-caller` failed")
             .code_hash;
 
-        let constructor = IncrementerRef::new();
+        let mut constructor = IncrementerRef::new();
 
         let incrementer = client
-            .instantiate("trait-incrementer", &ink_e2e::alice(), constructor)
+            .instantiate("trait-incrementer", &ink_e2e::alice(), &mut constructor)
             .submit()
             .await
             .expect("instantiate failed");
         let incrementer_call = incrementer.call::<Incrementer>();
 
-        let constructor = CallerRef::new(incrementer.account_id.clone());
+        let mut constructor = CallerRef::new(incrementer.account_id.clone());
 
         let caller = client
-            .instantiate("trait-incrementer-caller", &ink_e2e::alice(), constructor)
+            .instantiate("trait-incrementer-caller", &ink_e2e::alice(), &mut constructor)
             .submit()
             .await
             .expect("instantiate failed");

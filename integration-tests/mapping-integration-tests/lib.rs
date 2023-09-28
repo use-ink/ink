@@ -98,9 +98,9 @@ mod mapping_integration_tests {
             mut client: Client,
         ) -> E2EResult<()> {
             // given
-            let constructor = MappingsRef::new();
+            let mut constructor = MappingsRef::new();
             let contract = client
-                .instantiate("mapping-integration-tests", &ink_e2e::alice(), constructor)
+                .instantiate("mapping-integration-tests", &ink_e2e::alice(), &mut constructor)
                 .submit()
                 .await
                 .expect("instantiate failed");
@@ -134,9 +134,9 @@ mod mapping_integration_tests {
             mut client: Client,
         ) -> E2EResult<()> {
             // given
-            let constructor = MappingsRef::new();
+            let mut constructor = MappingsRef::new();
             let contract = client
-                .instantiate("mapping-integration-tests", &ink_e2e::bob(), constructor)
+                .instantiate("mapping-integration-tests", &ink_e2e::bob(), &mut constructor)
                 .submit()
                 .await
                 .expect("instantiate failed");
@@ -167,7 +167,7 @@ mod mapping_integration_tests {
         #[ink_e2e::test]
         async fn reinsert_works<Client: E2EBackend>(mut client: Client) -> E2EResult<()> {
             // given
-            let constructor = MappingsRef::new();
+            let mut constructor = MappingsRef::new();
             let contract = client
                 .instantiate(
                     "mapping-integration-tests",
@@ -216,9 +216,9 @@ mod mapping_integration_tests {
             mut client: Client,
         ) -> E2EResult<()> {
             // given
-            let constructor = MappingsRef::new();
+            let mut constructor = MappingsRef::new();
             let contract = client
-                .instantiate("mapping-integration-tests", &ink_e2e::dave(), constructor)
+                .instantiate("mapping-integration-tests", &ink_e2e::dave(), &mut constructor)
                 .submit()
                 .await
                 .expect("instantiate failed");
@@ -258,9 +258,9 @@ mod mapping_integration_tests {
             mut client: Client,
         ) -> E2EResult<()> {
             // given
-            let constructor = MappingsRef::new();
+            let mut constructor = MappingsRef::new();
             let contract = client
-                .instantiate("mapping-integration-tests", &ink_e2e::eve(), constructor)
+                .instantiate("mapping-integration-tests", &ink_e2e::eve(), &mut constructor)
                 .submit()
                 .await
                 .expect("instantiate failed");

@@ -72,7 +72,7 @@ where
 
 impl<'a, E> EnvAccess<'a, E>
 where
-    E: Environment,
+    E: Environment + Clone,
 {
     /// Returns the address of the caller of the executed contract.
     ///

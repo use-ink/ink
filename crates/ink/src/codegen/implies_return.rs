@@ -40,13 +40,17 @@ impl<T> ImpliesReturn<T> for T {}
 impl<T, E, CallType, Args> ImpliesReturn<T>
     for CallBuilder<E, Set<CallType>, Set<ExecutionInput<Args>>, Set<ReturnType<T>>>
 where
-    E: Environment,
+    E: Environment + Clone,
+    Args: Clone,
+    CallType: Clone,
 {
 }
 
 impl<E, CallType, Args> ImpliesReturn<()>
     for CallBuilder<E, Set<CallType>, Set<ExecutionInput<Args>>, Set<()>>
 where
-    E: Environment,
+    E: Environment + Clone,
+    Args: Clone,
+    CallType: Clone,
 {
 }

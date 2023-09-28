@@ -143,7 +143,7 @@ mod multi_contract_caller {
                 .expect("uploading `subber` failed")
                 .code_hash;
 
-            let constructor = MultiContractCallerRef::new(
+            let mut constructor = MultiContractCallerRef::new(
                 1234, // initial value
                 1337, // salt
                 accumulator_hash,
@@ -152,7 +152,7 @@ mod multi_contract_caller {
             );
 
             let multi_contract_caller = client
-                .instantiate("multi_contract_caller", &ink_e2e::alice(), constructor)
+                .instantiate("multi_contract_caller", &ink_e2e::alice(), &mut constructor)
                 .value(10_000_000_000_000)
                 .submit()
                 .await

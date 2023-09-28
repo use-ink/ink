@@ -188,17 +188,17 @@ where
     type Error = ();
     type EventLog = ();
 
-    async fn bare_instantiate<Contract, Args: Send + Encode + Clone, R>(
+    async fn bare_instantiate<Contract: Clone, Args: Send + Sync + Encode + Clone, R>(
         &mut self,
         contract_name: &str,
         caller: &Keypair,
-        constructor: CreateBuilderPartial<E, Contract, Args, R>,
+        constructor: &mut CreateBuilderPartial<E, Contract, Args, R>,
         value: E::Balance,
         gas_limit: Weight,
         storage_deposit_limit: Option<E::Balance>,
     ) -> Result<BareInstantiationResult<E, Self::EventLog>, Self::Error> {
         let code = self.contracts.load_code(contract_name);
-        let data = constructor_exec_input(constructor);
+        let data = constructor_exec_input(constructor.clone());
 
         let result = self.sandbox.deploy_contract(
             code,
@@ -225,17 +225,21 @@ where
         })
     }
 
-    async fn instantiate_with_gas_margin<Contract, Args: Send + Encode + Clone, R>(
+    async fn instantiate_with_gas_margin<
+        Contract: Clone,
+        Args: Send + Sync + Encode + Clone,
+        R,
+    >(
         &mut self,
         contract_name: &str,
         caller: &Keypair,
-        constructor: CreateBuilderPartial<E, Contract, Args, R>,
+        constructor: &mut CreateBuilderPartial<E, Contract, Args, R>,
         value: E::Balance,
         margin: Option<u64>,
         storage_deposit_limit: Option<E::Balance>,
     ) -> Result<InstantiationResult<E, Self::EventLog>, Self::Error> {
         let code = self.contracts.load_code(contract_name);
-        let data = constructor_exec_input(constructor);
+        let data = constructor_exec_input(constructor.clone());
 
         let gas_limit = if let Some(m) = margin {
             DEFAULT_GAS_LIMIT + (DEFAULT_GAS_LIMIT / 100 * m)
@@ -283,11 +287,11 @@ where
         })
     }
 
-    async fn bare_instantiate_dry_run<Contract, Args: Send + Encode + Clone, R>(
+    async fn bare_instantiate_dry_run<Contract: Clone, Args: Send + Encode + Clone, R>(
         &mut self,
         _contract_name: &str,
         _caller: &Keypair,
-        _constructor: CreateBuilderPartial<E, Contract, Args, R>,
+        _constructor: &mut CreateBuilderPartial<E, Contract, Args, R>,
         _value: E::Balance,
         _storage_deposit_limit: Option<E::Balance>,
     ) -> ContractInstantiateResult<E::AccountId, E::Balance, ()> {

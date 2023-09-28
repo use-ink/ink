@@ -75,9 +75,9 @@ pub mod incrementer {
         #[ink_e2e::test(additional_contracts = "./updated-incrementer/Cargo.toml")]
         async fn set_code_works<Client: E2EBackend>(mut client: Client) -> E2EResult<()> {
             // Given
-            let constructor = IncrementerRef::new();
+            let mut constructor = IncrementerRef::new();
             let contract = client
-                .instantiate("incrementer", &ink_e2e::alice(), constructor)
+                .instantiate("incrementer", &ink_e2e::alice(), &mut constructor)
                 .submit()
                 .await
                 .expect("instantiate failed");

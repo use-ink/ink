@@ -109,9 +109,9 @@ mod call_builder {
                 .create_and_fund_account(&ink_e2e::bob(), 10_000_000_000_000)
                 .await;
 
-            let constructor = CallBuilderDelegateTestRef::new(Default::default());
+            let mut constructor = CallBuilderDelegateTestRef::new(Default::default());
             let call_builder_contract = client
-                .instantiate("call_builder_delegate", &origin, constructor)
+                .instantiate("call_builder_delegate", &origin, &mut constructor)
                 .submit()
                 .await
                 .expect("instantiate failed");
@@ -149,9 +149,9 @@ mod call_builder {
                 .create_and_fund_account(&ink_e2e::charlie(), 10_000_000_000_000)
                 .await;
 
-            let constructor = CallBuilderDelegateTestRef::new(Default::default());
+            let mut constructor = CallBuilderDelegateTestRef::new(Default::default());
             let call_builder_contract = client
-                .instantiate("call_builder_delegate", &origin, constructor)
+                .instantiate("call_builder_delegate", &origin, &mut constructor)
                 .submit()
                 .await
                 .expect("instantiate failed");

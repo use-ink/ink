@@ -185,9 +185,9 @@ mod call_builder {
                 .create_and_fund_account(&ink_e2e::alice(), 10_000_000_000_000)
                 .await;
 
-            let constructor = CallBuilderTestRef::new();
+            let mut constructor = CallBuilderTestRef::new();
             let call_builder_contract = client
-                .instantiate("call_builder", &origin, constructor)
+                .instantiate("call_builder", &origin, &mut constructor)
                 .submit()
                 .await
                 .expect("instantiate failed");
@@ -236,9 +236,9 @@ mod call_builder {
                 .create_and_fund_account(&ink_e2e::bob(), 10_000_000_000_000)
                 .await;
 
-            let constructor = CallBuilderTestRef::new();
+            let mut constructor = CallBuilderTestRef::new();
             let call_builder = client
-                .instantiate("call_builder", &origin, constructor)
+                .instantiate("call_builder", &origin, &mut constructor)
                 .submit()
                 .await
                 .expect("instantiate failed");
@@ -273,9 +273,9 @@ mod call_builder {
                 .create_and_fund_account(&ink_e2e::bob(), 10_000_000_000_000)
                 .await;
 
-            let constructor = CallBuilderTestRef::new();
+            let mut constructor = CallBuilderTestRef::new();
             let call_builder = client
-                .instantiate("call_builder", &origin, constructor)
+                .instantiate("call_builder", &origin, &mut constructor)
                 .submit()
                 .await
                 .expect("instantiate failed");
@@ -315,9 +315,9 @@ mod call_builder {
                 .create_and_fund_account(&ink_e2e::bob(), 10_000_000_000_000)
                 .await;
 
-            let constructor = CallBuilderTestRef::new();
+            let mut constructor = CallBuilderTestRef::new();
             let call_builder = client
-                .instantiate("call_builder", &origin, constructor)
+                .instantiate("call_builder", &origin, &mut constructor)
                 .submit()
                 .await
                 .expect("instantiate failed");
@@ -359,9 +359,9 @@ mod call_builder {
                 .create_and_fund_account(&ink_e2e::bob(), 10_000_000_000_000)
                 .await;
 
-            let constructor = CallBuilderTestRef::new();
+            let mut constructor = CallBuilderTestRef::new();
             let call_builder = client
-                .instantiate("call_builder", &origin, constructor)
+                .instantiate("call_builder", &origin, &mut constructor)
                 .submit()
                 .await
                 .expect("instantiate failed");
@@ -406,9 +406,9 @@ mod call_builder {
                 .create_and_fund_account(&ink_e2e::bob(), 10_000_000_000_000)
                 .await;
 
-            let constructor = CallBuilderTestRef::new();
+            let mut constructor = CallBuilderTestRef::new();
             let call_builder = client
-                .instantiate("call_builder", &origin, constructor)
+                .instantiate("call_builder", &origin, &mut constructor)
                 .submit()
                 .await
                 .expect("instantiate failed");
@@ -450,9 +450,9 @@ mod call_builder {
                 .create_and_fund_account(&ink_e2e::bob(), 10_000_000_000_000)
                 .await;
 
-            let constructor = CallBuilderTestRef::new();
+            let mut constructor = CallBuilderTestRef::new();
             let call_builder = client
-                .instantiate("call_builder", &origin, constructor)
+                .instantiate("call_builder", &origin, &mut constructor)
                 .submit()
                 .await
                 .expect("instantiate failed");
@@ -501,9 +501,9 @@ mod call_builder {
                 .create_and_fund_account(&ink_e2e::bob(), 10_000_000_000_000)
                 .await;
 
-            let constructor = CallBuilderTestRef::new();
+            let mut constructor = CallBuilderTestRef::new();
             let call_builder = client
-                .instantiate("call_builder", &origin, constructor)
+                .instantiate("call_builder", &origin, &mut constructor)
                 .submit()
                 .await
                 .expect("instantiate failed");
@@ -520,7 +520,7 @@ mod call_builder {
             let init_value = true;
             let call = call_builder_call
                 .call_instantiate_fallible(code_hash, selector, init_value);
-            let call_result = client.call(&origin, &call).dry_run().dry_run().await;
+            let call_result = client.call(&origin, &call).dry_run().await;
 
             assert!(
                 call_result.is_err(),
@@ -548,9 +548,9 @@ mod call_builder {
                 .create_and_fund_account(&ink_e2e::bob(), 10_000_000_000_000)
                 .await;
 
-            let constructor = CallBuilderTestRef::new();
+            let mut constructor = CallBuilderTestRef::new();
             let call_builder = client
-                .instantiate("call_builder", &origin, constructor)
+                .instantiate("call_builder", &origin, &mut constructor)
                 .submit()
                 .await
                 .expect("instantiate failed");

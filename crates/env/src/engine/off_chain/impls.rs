@@ -461,7 +461,7 @@ impl TypedEnvBackend for EnvInstance {
         params: &CallParams<E, Call<E>, Args, R>,
     ) -> Result<ink_primitives::MessageResult<R>>
     where
-        E: Environment,
+        E: Environment + Clone,
         Args: scale::Encode,
         R: scale::Decode,
     {

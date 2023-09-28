@@ -1,3 +1,5 @@
+use std::marker::PhantomData;
+
 use ink_env::Environment;
 use pallet_contracts_primitives::ContractInstantiateResult;
 use scale::{
@@ -37,7 +39,7 @@ where
 
 impl<'a, E, Args, RetType, C> CallBuilder<'a, E, Args, RetType, C>
 where
-    E: Environment,
+    E: Environment + Clone,
     Args: Sync + Encode + Clone,
     RetType: Send + Decode,
 
@@ -156,24 +158,27 @@ where
 /// Allows to build an end-to-end instantiation call using a builder pattern.
 pub struct InstantiateBuilder<'a, E, Contract, Args, R, C>
 where
-    E: Environment,
+    E: Environment + Clone,
     Args: Encode + Clone,
+    Contract: Clone,
 
     C: ContractsBackend<E>,
 {
     client: &'a mut C,
     caller: &'a Keypair,
     contract_name: &'a str,
-    constructor: CreateBuilderPartial<E, Contract, Args, R>,
+    constructor: &'a mut CreateBuilderPartial<E, Contract, Args, R>,
     value: E::Balance,
     extra_gas_portion: Option<u64>,
     storage_deposit_limit: Option<E::Balance>,
+    _phantom_data: PhantomData<C>,
 }
 
 impl<'a, E, Contract, Args, R, C> InstantiateBuilder<'a, E, Contract, Args, R, C>
 where
-    E: Environment,
+    E: Environment + Clone,
     Args: Encode + Clone + Send + Sync,
+    Contract: Clone,
 
     C: ContractsBackend<E>,
 {
@@ -182,7 +187,7 @@ where
         client: &'a mut C,
         caller: &'a Keypair,
         contract_name: &'a str,
-        constructor: CreateBuilderPartial<E, Contract, Args, R>,
+        constructor: &'a mut CreateBuilderPartial<E, Contract, Args, R>,
     ) -> InstantiateBuilder<'a, E, Contract, Args, R, C>
     where
         E::Balance: From<u32>,
@@ -195,6 +200,7 @@ where
             value: 0u32.into(),
             extra_gas_portion: None,
             storage_deposit_limit: None,
+            _phantom_data: PhantomData,
         }
     }
 
@@ -238,7 +244,9 @@ where
     ///
     /// This will automatically run a dry-run call, and use `extra_gas_portion`
     /// to add a margin to the gas limit.
-    pub async fn submit(self) -> Result<InstantiationResult<E, C::EventLog>, C::Error> {
+    pub async fn submit(
+        &mut self,
+    ) -> Result<InstantiationResult<E, C::EventLog>, C::Error> {
         C::instantiate_with_gas_margin(
             self.client,
             self.contract_name,
@@ -253,7 +261,7 @@ where
 
     /// Dry run the instantiate call.
     pub async fn dry_run(
-        self,
+        &mut self,
     ) -> ContractInstantiateResult<E::AccountId, E::Balance, ()> {
         C::bare_instantiate_dry_run(
             self.client,
@@ -270,7 +278,7 @@ where
 /// Allows to build an end-to-end upload call using a builder pattern.
 pub struct UploadBuilder<'a, E, C>
 where
-    E: Environment,
+    E: Environment + Clone,
     C: ContractsBackend<E>,
 {
     client: &'a mut C,
@@ -281,7 +289,7 @@ where
 
 impl<'a, E, C> UploadBuilder<'a, E, C>
 where
-    E: Environment,
+    E: Environment + Clone,
     C: ContractsBackend<E>,
 {
     /// Initialize an upload builder with essential values.

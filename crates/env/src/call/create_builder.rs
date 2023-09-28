@@ -285,6 +285,7 @@ where
 }
 
 /// Builds up contract instantiations.
+#[derive(Clone)]
 pub struct CreateBuilder<
     E,
     ContractRef,
@@ -295,7 +296,8 @@ pub struct CreateBuilder<
     Salt,
     RetType,
 > where
-    E: Environment,
+    E: Environment + Clone,
+    ContractRef: Clone,
 {
     code_hash: CodeHash,
     gas_limit: GasLimit,
@@ -306,8 +308,16 @@ pub struct CreateBuilder<
     _phantom: PhantomData<fn() -> (E, ContractRef)>,
 }
 
-impl<E: Environment, ContractRef, CodeHash, GasLimit, Endowment, Args, Salt, RetType>
-    CreateBuilder<E, ContractRef, CodeHash, GasLimit, Endowment, Args, Salt, RetType>
+impl<
+        E: Environment + Clone,
+        ContractRef: Clone,
+        CodeHash,
+        GasLimit,
+        Endowment,
+        Args,
+        Salt,
+        RetType,
+    > CreateBuilder<E, ContractRef, CodeHash, GasLimit, Endowment, Args, Salt, RetType>
 {
     /// Returns currently set code hash
     pub fn get_code_hash(&self) -> &CodeHash {
@@ -439,7 +449,8 @@ pub fn build_create<ContractRef>() -> CreateBuilder<
     Unset<ReturnType<()>>,
 >
 where
-    ContractRef: ContractEnv,
+    <ContractRef as ContractEnv>::Env: Clone,
+    ContractRef: ContractEnv + Clone,
 {
     CreateBuilder {
         code_hash: Default::default(),
@@ -465,6 +476,7 @@ impl<E, ContractRef, GasLimit, Endowment, Args, Salt, RetType>
     >
 where
     E: Environment,
+    ContractRef: Clone,
 {
     /// Sets the used code hash for the contract instantiation.
     #[inline]
@@ -496,7 +508,8 @@ where
 impl<E, ContractRef, CodeHash, Endowment, Args, Salt, RetType>
     CreateBuilder<E, ContractRef, CodeHash, Unset<u64>, Endowment, Args, Salt, RetType>
 where
-    E: Environment,
+    E: Environment + Clone,
+    ContractRef: Clone,
 {
     /// Sets the maximum allowed gas costs for the contract instantiation.
     #[inline]
@@ -529,7 +542,8 @@ impl<E, ContractRef, CodeHash, GasLimit, Args, Salt, RetType>
         RetType,
     >
 where
-    E: Environment,
+    E: Environment + Clone,
+    ContractRef: Clone,
 {
     /// Sets the value transferred upon the execution of the call.
     #[inline]
@@ -570,11 +584,12 @@ impl<E, ContractRef, CodeHash, GasLimit, Endowment, Salt, RetType>
         RetType,
     >
 where
-    E: Environment,
+    E: Environment + Clone,
+    ContractRef: Clone,
 {
     /// Sets the value transferred upon the execution of the call.
     #[inline]
-    pub fn exec_input<Args>(
+    pub fn exec_input<Args: Clone>(
         self,
         exec_input: ExecutionInput<Args>,
     ) -> CreateBuilder<
@@ -611,7 +626,8 @@ impl<E, ContractRef, CodeHash, GasLimit, Endowment, Args, RetType>
         RetType,
     >
 where
-    E: Environment,
+    E: Environment + Clone,
+    ContractRef: Clone,
 {
     /// Sets the value transferred upon the execution of the call.
     #[inline]
@@ -629,7 +645,7 @@ where
         RetType,
     >
     where
-        Salt: AsRef<[u8]>,
+        Salt: AsRef<[u8]> + Clone,
     {
         CreateBuilder {
             code_hash: self.code_hash,
@@ -655,7 +671,8 @@ impl<E, ContractRef, CodeHash, GasLimit, Endowment, Args, Salt>
         Unset<ReturnType<()>>,
     >
 where
-    E: Environment,
+    E: Environment + Clone,
+    ContractRef: Clone,
 {
     /// Sets the type of the returned value upon the execution of the constructor.
     ///
@@ -707,8 +724,11 @@ impl<E, ContractRef, GasLimit, Args, Salt, RetType>
         Set<ReturnType<RetType>>,
     >
 where
-    E: Environment,
+    E: Environment + Clone,
+    ContractRef: Clone,
     GasLimit: Unwrap<Output = u64>,
+    Args: Clone,
+    Salt: Clone,
 {
     /// Finalizes the create builder, allowing it to instantiate a contract.
     #[inline]
@@ -737,11 +757,12 @@ impl<E, ContractRef, GasLimit, Args, Salt, RetType>
         Set<ReturnType<RetType>>,
     >
 where
-    E: Environment,
+    E: Environment + Clone,
+    ContractRef: Clone,
     ContractRef: FromAccountId<E>,
     GasLimit: Unwrap<Output = u64>,
-    Args: scale::Encode,
-    Salt: AsRef<[u8]>,
+    Args: scale::Encode + Clone,
+    Salt: AsRef<[u8]> + Clone,
     RetType: ConstructorReturnType<ContractRef>,
 {
     /// Instantiates the contract and returns its account ID back to the caller.

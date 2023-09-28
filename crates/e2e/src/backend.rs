@@ -93,7 +93,7 @@ pub trait ChainBackend {
 
 /// Contract-specific operations.
 #[async_trait]
-pub trait ContractsBackend<E: Environment> {
+pub trait ContractsBackend<E: Environment + Clone> {
     /// Error type.
     type Error;
     /// Event log type.
@@ -105,9 +105,9 @@ pub trait ContractsBackend<E: Environment> {
     ///
     /// ```ignore
     /// // Constructor method
-    /// let constructor = FlipperRef::new(false);
+    /// let mut constructor = FlipperRef::new(false);
     /// let contract = client
-    ///     .instantiate("flipper", &ink_e2e::alice(), constructor)
+    ///     .instantiate("flipper", &ink_e2e::alice(), &mut constructor)
     ///     // Optional arguments
     ///     // Send 100 units with the call.
     ///     .value(100)
@@ -119,11 +119,11 @@ pub trait ContractsBackend<E: Environment> {
     ///     .await
     ///     .expect("instantiate failed");
     /// ```
-    fn instantiate<'a, Contract, Args: Send + Clone + scale::Encode + Sync, R>(
+    fn instantiate<'a, Contract: Clone, Args: Send + Clone + scale::Encode + Sync, R>(
         &'a mut self,
         contract_name: &'a str,
         caller: &'a Keypair,
-        constructor: CreateBuilderPartial<E, Contract, Args, R>,
+        constructor: &'a mut CreateBuilderPartial<E, Contract, Args, R>,
     ) -> InstantiateBuilder<'a, E, Contract, Args, R, Self>
     where
         Self: std::marker::Sized,
@@ -135,14 +135,14 @@ pub trait ContractsBackend<E: Environment> {
     ///
     /// Intended to be used as part of builder API.
     async fn instantiate_with_gas_margin<
-        Contract,
-        Args: Send + scale::Encode + Clone,
+        Contract: Clone,
+        Args: Send + Sync + scale::Encode + Clone,
         R,
     >(
         &mut self,
         contract_name: &str,
         caller: &Keypair,
-        constructor: CreateBuilderPartial<E, Contract, Args, R>,
+        constructor: &mut CreateBuilderPartial<E, Contract, Args, R>,
         value: E::Balance,
         margin: Option<u64>,
         storage_deposit_limit: Option<E::Balance>,
@@ -161,11 +161,15 @@ pub trait ContractsBackend<E: Environment> {
     /// Calling this function multiple times should be idempotent, the contract is
     /// newly instantiated each time using a unique salt. No existing contract
     /// instance is reused!
-    async fn bare_instantiate<Contract, Args: Send + scale::Encode + Clone, R>(
+    async fn bare_instantiate<
+        Contract: Clone,
+        Args: Send + Sync + scale::Encode + Clone,
+        R,
+    >(
         &mut self,
         contract_name: &str,
         caller: &Keypair,
-        constructor: CreateBuilderPartial<E, Contract, Args, R>,
+        constructor: &mut CreateBuilderPartial<E, Contract, Args, R>,
         value: E::Balance,
         gas_limit: Weight,
         storage_deposit_limit: Option<E::Balance>,
@@ -173,14 +177,14 @@ pub trait ContractsBackend<E: Environment> {
 
     /// Dry run contract instantiation.
     async fn bare_instantiate_dry_run<
-        Contract,
+        Contract: Clone,
         Args: Send + Sync + scale::Encode + Clone,
         R,
     >(
         &mut self,
         contract_name: &str,
         caller: &Keypair,
-        constructor: CreateBuilderPartial<E, Contract, Args, R>,
+        constructor: &mut CreateBuilderPartial<E, Contract, Args, R>,
         value: E::Balance,
         storage_deposit_limit: Option<E::Balance>,
     ) -> ContractInstantiateResult<E::AccountId, E::Balance, ()>;

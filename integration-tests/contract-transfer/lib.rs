@@ -194,9 +194,9 @@ pub mod give_me {
             mut client: Client,
         ) -> E2EResult<()> {
             // given
-            let constructor = GiveMeRef::new();
+            let mut constructor = GiveMeRef::new();
             let contract = client
-                .instantiate("contract_transfer", &ink_e2e::alice(), constructor)
+                .instantiate("contract_transfer", &ink_e2e::alice(), &mut constructor)
                 .value(1000)
                 .submit()
                 .await
@@ -230,9 +230,9 @@ pub mod give_me {
             mut client: Client,
         ) -> E2EResult<()> {
             // given
-            let constructor = GiveMeRef::new();
+            let mut constructor = GiveMeRef::new();
             let contract = client
-                .instantiate("contract_transfer", &ink_e2e::bob(), constructor)
+                .instantiate("contract_transfer", &ink_e2e::bob(), &mut constructor)
                 .value(1337)
                 .submit()
                 .await

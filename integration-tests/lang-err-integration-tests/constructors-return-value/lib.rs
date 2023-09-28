@@ -116,9 +116,9 @@ pub mod constructors_return_value {
         async fn e2e_infallible_constructor<Client: E2EBackend>(
             mut client: Client,
         ) -> E2EResult<()> {
-            let constructor = ConstructorsReturnValueRef::new(true);
+            let mut constructor = ConstructorsReturnValueRef::new(true);
             let infallible_constructor_result = client
-                .instantiate("constructors_return_value", &ink_e2e::alice(), constructor)
+                .instantiate("constructors_return_value", &ink_e2e::alice(), &mut constructor)
                 .dry_run()
                 .await
                 .result
@@ -132,9 +132,9 @@ pub mod constructors_return_value {
                 "Constructor dispatch should have succeeded"
             );
 
-            let constructor = ConstructorsReturnValueRef::new(true);
+            let mut constructor = ConstructorsReturnValueRef::new(true);
             let success = client
-                .instantiate("constructors_return_value", &ink_e2e::alice(), constructor)
+                .instantiate("constructors_return_value", &ink_e2e::alice(), &mut constructor)
                 .submit()
                 .await
                 .is_ok();
@@ -148,9 +148,9 @@ pub mod constructors_return_value {
         async fn e2e_fallible_constructor_succeed<Client: E2EBackend>(
             mut client: Client,
         ) -> E2EResult<()> {
-            let constructor = ConstructorsReturnValueRef::try_new(true);
+            let mut constructor = ConstructorsReturnValueRef::try_new(true);
             let result = client
-                .instantiate("constructors_return_value", &ink_e2e::bob(), constructor)
+                .instantiate("constructors_return_value", &ink_e2e::bob(), &mut constructor)
                 .dry_run()
                 .await
                 .result
@@ -172,9 +172,9 @@ pub mod constructors_return_value {
                 "Fallible constructor should have succeeded"
             );
 
-            let constructor = ConstructorsReturnValueRef::try_new(true);
+            let mut constructor = ConstructorsReturnValueRef::try_new(true);
             let contract = client
-                .instantiate("constructors_return_value", &ink_e2e::bob(), constructor)
+                .instantiate("constructors_return_value", &ink_e2e::bob(), &mut constructor)
                 .submit()
                 .await
                 .expect("instantiate failed");
@@ -182,7 +182,7 @@ pub mod constructors_return_value {
 
             let get = call.get_value();
             let value = client
-                .call(ink_e2e::bob(), &get)
+                .call(&ink_e2e::bob(), &get)
                 .dry_run()
                 .await
                 .return_value();
@@ -199,7 +199,7 @@ pub mod constructors_return_value {
         async fn e2e_fallible_constructor_fails<Client: E2EBackend>(
             mut client: Client,
         ) -> E2EResult<()> {
-            let constructor = ConstructorsReturnValueRef::try_new(false);
+            let mut constructor = ConstructorsReturnValueRef::try_new(false);
 
             let result = client
                 .instantiate(
@@ -228,7 +228,7 @@ pub mod constructors_return_value {
                 "Fallible constructor should have failed"
             );
 
-            let constructor = ConstructorsReturnValueRef::try_new(false);
+            let mut constructor = ConstructorsReturnValueRef::try_new(false);
             let result = client
                 .instantiate(
                     "constructors_return_value",

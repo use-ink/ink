@@ -435,7 +435,7 @@ pub trait TypedEnvBackend: EnvBackend {
         call_data: &CallParams<E, Call<E>, Args, R>,
     ) -> Result<ink_primitives::MessageResult<R>>
     where
-        E: Environment,
+        E: Environment + Clone,
         Args: scale::Encode,
         R: scale::Decode;
 

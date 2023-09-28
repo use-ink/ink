@@ -65,9 +65,9 @@ pub mod just_terminates {
             mut client: Client,
         ) -> E2EResult<()> {
             // given
-            let constructor = JustTerminateRef::new();
+            let mut constructor = JustTerminateRef::new();
             let contract = client
-                .instantiate("contract_terminate", &ink_e2e::alice(), constructor)
+                .instantiate("contract_terminate", &ink_e2e::alice(), &mut constructor)
                 .submit()
                 .await
                 .expect("instantiate failed");

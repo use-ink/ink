@@ -435,17 +435,17 @@ where
     type Error = Error<E>;
     type EventLog = ExtrinsicEvents<C>;
 
-    async fn bare_instantiate<Contract, Args: Send + Encode, R>(
+    async fn bare_instantiate<Contract: Clone, Args: Send + Sync + Encode + Clone, R>(
         &mut self,
         contract_name: &str,
         caller: &Keypair,
-        constructor: CreateBuilderPartial<E, Contract, Args, R>,
+        constructor: &mut CreateBuilderPartial<E, Contract, Args, R>,
         value: E::Balance,
         gas_limit: Weight,
         storage_deposit_limit: Option<E::Balance>,
     ) -> Result<BareInstantiationResult<E, Self::EventLog>, Self::Error> {
         let code = self.contracts.load_code(contract_name);
-        let data = constructor_exec_input(constructor);
+        let data = constructor_exec_input(constructor.clone());
         let ret = self
             .exec_instantiate(caller, code, data, value, gas_limit, storage_deposit_limit)
             .await?;
@@ -453,17 +453,21 @@ where
         Ok(ret)
     }
 
-    async fn instantiate_with_gas_margin<Contract, Args: Send + Encode, R>(
+    async fn instantiate_with_gas_margin<
+        Contract: Clone,
+        Args: Send + Sync + Encode + Clone,
+        R,
+    >(
         &mut self,
         contract_name: &str,
         caller: &Keypair,
-        constructor: CreateBuilderPartial<E, Contract, Args, R>,
+        constructor: &mut CreateBuilderPartial<E, Contract, Args, R>,
         value: E::Balance,
         margin: Option<u64>,
         storage_deposit_limit: Option<E::Balance>,
     ) -> Result<InstantiationResult<E, Self::EventLog>, Self::Error> {
         let code = self.contracts.load_code(contract_name);
-        let data = constructor_exec_input(constructor);
+        let data = constructor_exec_input(constructor.clone());
 
         let dry_run = self
             .api
@@ -495,16 +499,20 @@ where
         })
     }
 
-    async fn bare_instantiate_dry_run<Contract, Args: Send + Encode, R>(
+    async fn bare_instantiate_dry_run<
+        Contract: Clone,
+        Args: Send + Sync + Encode + Clone,
+        R,
+    >(
         &mut self,
         contract_name: &str,
         caller: &Keypair,
-        constructor: CreateBuilderPartial<E, Contract, Args, R>,
+        constructor: &mut CreateBuilderPartial<E, Contract, Args, R>,
         value: E::Balance,
         storage_deposit_limit: Option<E::Balance>,
     ) -> ContractInstantiateResult<E::AccountId, E::Balance, ()> {
         let code = self.contracts.load_code(contract_name);
-        let data = constructor_exec_input(constructor);
+        let data = constructor_exec_input(constructor.clone());
 
         self.api
             .instantiate_with_code_dry_run(
@@ -532,7 +540,7 @@ where
         Ok(ret)
     }
 
-    async fn bare_call<Args: Sync + Encode, RetType: Send + Decode>(
+    async fn bare_call<Args: Sync + Encode + Clone, RetType: Send + Decode>(
         &mut self,
         caller: &Keypair,
         message: &CallBuilderFinal<E, Args, RetType>,
@@ -577,7 +585,7 @@ where
         Ok(tx_events)
     }
 
-    async fn bare_call_dry_run<Args: Sync + Encode, RetType: Send + Decode>(
+    async fn bare_call_dry_run<Args: Sync + Encode + Clone, RetType: Send + Decode>(
         &mut self,
         caller: &Keypair,
         message: &CallBuilderFinal<E, Args, RetType>,
