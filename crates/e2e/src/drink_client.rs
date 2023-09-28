@@ -1,4 +1,5 @@
 use crate::{
+    backend::BuilderClient,
     builders::{
         constructor_exec_input,
         CreateBuilderPartial,
@@ -11,6 +12,7 @@ use crate::{
     log_error,
     CallBuilderFinal,
     CallDryRunResult,
+    CallResult,
     ChainBackend,
     ContractsBackend,
     E2EBackend,
@@ -227,68 +229,6 @@ where
         })
     }
 
-    async fn instantiate_with_gas_margin<
-        Contract: Clone,
-        Args: Send + Sync + Encode + Clone,
-        R,
-    >(
-        &mut self,
-        contract_name: &str,
-        caller: &Keypair,
-        constructor: &mut CreateBuilderPartial<E, Contract, Args, R>,
-        value: E::Balance,
-        margin: Option<u64>,
-        storage_deposit_limit: Option<E::Balance>,
-    ) -> Result<InstantiationResult<E, Self::EventLog>, Self::Error> {
-        let code = self.contracts.load_code(contract_name);
-        let data = constructor_exec_input(constructor.clone());
-
-        let gas_limit = if let Some(m) = margin {
-            DEFAULT_GAS_LIMIT + (DEFAULT_GAS_LIMIT / 100 * m)
-        } else {
-            DEFAULT_GAS_LIMIT
-        };
-
-        let result = self.sandbox.deploy_contract(
-            code,
-            value,
-            data,
-            salt(),
-            keypair_to_account(caller),
-            gas_limit,
-            storage_deposit_limit,
-        );
-
-        let account_id_raw = match &result.result {
-            Err(err) => {
-                log_error(&format!("Instantiation failed: {err:?}"));
-                return Err(()) // todo: make a proper error type
-            }
-            Ok(res) => *res.account_id.as_ref(),
-        };
-        let account_id = AccountId::from(account_id_raw);
-
-        Ok(InstantiationResult {
-            account_id: account_id.clone(),
-            // We need type remapping here because of the different `EventRecord` types.
-            dry_run: ContractInstantiateResult {
-                gas_consumed: result.gas_consumed,
-                gas_required: result.gas_required,
-                storage_deposit: result.storage_deposit,
-                debug_message: result.debug_message,
-                result: result.result.map(|r| {
-                    InstantiateReturnValue {
-                        result: r.result,
-                        account_id,
-                    }
-                }),
-                events: None,
-            },
-
-            events: (), // todo: https://github.com/Cardinal-Cryptography/drink/issues/32
-        })
-    }
-
     async fn bare_instantiate_dry_run<Contract: Clone, Args: Send + Encode + Clone, R>(
         &mut self,
         _contract_name: &str,
@@ -405,4 +345,101 @@ where
 
 fn keypair_to_account<AccountId: From<[u8; 32]>>(keypair: &Keypair) -> AccountId {
     AccountId::from(keypair.public_key().0)
+}
+
+#[async_trait]
+impl<
+        AccountId: Clone + Send + Sync + From<[u8; 32]> + AsRef<[u8; 32]>,
+        Hash: Copy + From<[u8; 32]>,
+        Runtime: RuntimeT,
+        E: Environment<AccountId = AccountId, Balance = u128, Hash = Hash> + 'static,
+    > BuilderClient<E> for Client<AccountId, Hash, Runtime>
+where
+    RuntimeAccountId<Runtime>: From<[u8; 32]> + AsRef<[u8; 32]>,
+{
+    async fn instantiate_with_gas_margin<
+        Contract: Clone,
+        Args: Send + Sync + Encode + Clone,
+        R,
+    >(
+        &mut self,
+        contract_name: &str,
+        caller: &Keypair,
+        constructor: &mut CreateBuilderPartial<E, Contract, Args, R>,
+        value: E::Balance,
+        margin: Option<u64>,
+        storage_deposit_limit: Option<E::Balance>,
+    ) -> Result<InstantiationResult<E, Self::EventLog>, Self::Error> {
+        let code = self.contracts.load_code(contract_name);
+        let data = constructor_exec_input(constructor.clone());
+
+        let gas_limit = if let Some(m) = margin {
+            DEFAULT_GAS_LIMIT + (DEFAULT_GAS_LIMIT / 100 * m)
+        } else {
+            DEFAULT_GAS_LIMIT
+        };
+
+        let result = self.sandbox.deploy_contract(
+            code,
+            value,
+            data,
+            salt(),
+            keypair_to_account(caller),
+            gas_limit,
+            storage_deposit_limit,
+        );
+
+        let account_id_raw = match &result.result {
+            Err(err) => {
+                log_error(&format!("Instantiation failed: {err:?}"));
+                return Err(()) // todo: make a proper error type
+            }
+            Ok(res) => *res.account_id.as_ref(),
+        };
+        let account_id = AccountId::from(account_id_raw);
+
+        Ok(InstantiationResult {
+            account_id: account_id.clone(),
+            // We need type remapping here because of the different `EventRecord` types.
+            dry_run: ContractInstantiateResult {
+                gas_consumed: result.gas_consumed,
+                gas_required: result.gas_required,
+                storage_deposit: result.storage_deposit,
+                debug_message: result.debug_message,
+                result: result.result.map(|r| {
+                    InstantiateReturnValue {
+                        result: r.result,
+                        account_id,
+                    }
+                }),
+                events: None,
+            },
+
+            events: (), // todo: https://github.com/Cardinal-Cryptography/drink/issues/32
+        })
+    }
+    async fn call_with_gas_margin<Args: Sync + Encode + Clone, RetType: Send + Decode>(
+        &mut self,
+        caller: &Keypair,
+        message: &CallBuilderFinal<E, Args, RetType>,
+        value: E::Balance,
+        _margin: Option<u64>,
+        storage_deposit_limit: Option<E::Balance>,
+    ) -> Result<CallResult<E, RetType, Self::EventLog>, Self::Error>
+    where
+        CallBuilderFinal<E, Args, RetType>: Clone,
+    {
+        let result = self
+            .bare_call_dry_run(caller, message, value, storage_deposit_limit)
+            .await;
+
+        Ok(CallResult {
+            // We need type remapping here because of the different `EventRecord` types.
+            dry_run: CallDryRunResult {
+                exec_result: result.exec_result,
+                _marker: Default::default(),
+            },
+            events: (), // todo: https://github.com/Cardinal-Cryptography/drink/issues/32
+        })
+    }
 }

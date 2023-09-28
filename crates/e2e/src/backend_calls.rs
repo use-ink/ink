@@ -6,14 +6,13 @@ use scale::{
     Decode,
     Encode,
 };
-use sp_weights::Weight;
 
 use crate::{
+    backend::BuilderClient,
     builders::CreateBuilderPartial,
     CallBuilderFinal,
     CallDryRunResult,
     CallResult,
-    ContractsBackend,
     InstantiationResult,
     UploadResult,
 };
@@ -21,15 +20,15 @@ use crate::{
 use super::Keypair;
 
 /// Allows to build an end-to-end call using a builder pattern.
-pub struct CallBuilder<'a, E, Args, RetType, C>
+pub struct CallBuilder<'a, E, Args, RetType, B>
 where
     E: Environment,
     Args: Encode + Clone,
     RetType: Send + Decode,
 
-    C: ContractsBackend<E>,
+    B: BuilderClient<E>,
 {
-    client: &'a mut C,
+    client: &'a mut B,
     caller: &'a Keypair,
     message: &'a CallBuilderFinal<E, Args, RetType>,
     value: E::Balance,
@@ -37,20 +36,20 @@ where
     storage_deposit_limit: Option<E::Balance>,
 }
 
-impl<'a, E, Args, RetType, C> CallBuilder<'a, E, Args, RetType, C>
+impl<'a, E, Args, RetType, B> CallBuilder<'a, E, Args, RetType, B>
 where
     E: Environment,
     Args: Sync + Encode + Clone,
     RetType: Send + Decode,
 
-    C: ContractsBackend<E>,
+    B: BuilderClient<E>,
 {
     /// Initialize a call builder with defaults values.
     pub fn new(
-        client: &'a mut C,
+        client: &'a mut B,
         caller: &'a Keypair,
         message: &'a CallBuilderFinal<E, Args, RetType>,
-    ) -> CallBuilder<'a, E, Args, RetType, C>
+    ) -> CallBuilder<'a, E, Args, RetType, B>
     where
         E::Balance: From<u32>,
     {
@@ -106,37 +105,19 @@ where
     /// to add a margin to the gas limit.
     pub async fn submit(
         &mut self,
-    ) -> Result<CallResult<E, RetType, C::EventLog>, C::Error>
+    ) -> Result<CallResult<E, RetType, B::EventLog>, B::Error>
     where
         CallBuilderFinal<E, Args, RetType>: Clone,
     {
-        let dry_run = C::bare_call_dry_run(
+        B::call_with_gas_margin(
             self.client,
             self.caller,
             self.message,
             self.value,
+            self.extra_gas_portion,
             self.storage_deposit_limit,
         )
-        .await;
-        let gas_required: Weight =
-            self.extra_gas_portion
-                .map_or(dry_run.exec_result.gas_required, |margin| {
-                    let gas = dry_run.exec_result.gas_required;
-                    gas + (gas / 100 * margin)
-                });
-        let call_result = C::bare_call(
-            self.client,
-            self.caller,
-            self.message,
-            self.value,
-            gas_required,
-            self.storage_deposit_limit,
-        )
-        .await?;
-        Ok(CallResult {
-            dry_run,
-            events: call_result,
-        })
+        .await
     }
 
     /// Dry run the call.
@@ -144,7 +125,7 @@ where
     where
         CallBuilderFinal<E, Args, RetType>: Clone,
     {
-        C::bare_call_dry_run(
+        B::bare_call_dry_run(
             self.client,
             self.caller,
             self.message,
@@ -156,39 +137,39 @@ where
 }
 
 /// Allows to build an end-to-end instantiation call using a builder pattern.
-pub struct InstantiateBuilder<'a, E, Contract, Args, R, C>
+pub struct InstantiateBuilder<'a, E, Contract, Args, R, B>
 where
     E: Environment,
     Args: Encode + Clone,
     Contract: Clone,
 
-    C: ContractsBackend<E>,
+    B: BuilderClient<E>,
 {
-    client: &'a mut C,
+    client: &'a mut B,
     caller: &'a Keypair,
     contract_name: &'a str,
     constructor: &'a mut CreateBuilderPartial<E, Contract, Args, R>,
     value: E::Balance,
     extra_gas_portion: Option<u64>,
     storage_deposit_limit: Option<E::Balance>,
-    _phantom_data: PhantomData<C>,
+    _phantom_data: PhantomData<B>,
 }
 
-impl<'a, E, Contract, Args, R, C> InstantiateBuilder<'a, E, Contract, Args, R, C>
+impl<'a, E, Contract, Args, R, B> InstantiateBuilder<'a, E, Contract, Args, R, B>
 where
     E: Environment,
     Args: Encode + Clone + Send + Sync,
     Contract: Clone,
 
-    C: ContractsBackend<E>,
+    B: BuilderClient<E>,
 {
     /// Initialize a call builder with essential values.
     pub fn new(
-        client: &'a mut C,
+        client: &'a mut B,
         caller: &'a Keypair,
         contract_name: &'a str,
         constructor: &'a mut CreateBuilderPartial<E, Contract, Args, R>,
-    ) -> InstantiateBuilder<'a, E, Contract, Args, R, C>
+    ) -> InstantiateBuilder<'a, E, Contract, Args, R, B>
     where
         E::Balance: From<u32>,
     {
@@ -246,8 +227,8 @@ where
     /// to add a margin to the gas limit.
     pub async fn submit(
         &mut self,
-    ) -> Result<InstantiationResult<E, C::EventLog>, C::Error> {
-        C::instantiate_with_gas_margin(
+    ) -> Result<InstantiationResult<E, B::EventLog>, B::Error> {
+        B::instantiate_with_gas_margin(
             self.client,
             self.contract_name,
             self.caller,
@@ -263,7 +244,7 @@ where
     pub async fn dry_run(
         &mut self,
     ) -> ContractInstantiateResult<E::AccountId, E::Balance, ()> {
-        C::bare_instantiate_dry_run(
+        B::bare_instantiate_dry_run(
             self.client,
             self.contract_name,
             self.caller,
@@ -276,24 +257,24 @@ where
 }
 
 /// Allows to build an end-to-end upload call using a builder pattern.
-pub struct UploadBuilder<'a, E, C>
+pub struct UploadBuilder<'a, E, B>
 where
     E: Environment,
-    C: ContractsBackend<E>,
+    B: BuilderClient<E>,
 {
-    client: &'a mut C,
+    client: &'a mut B,
     contract_name: &'a str,
     caller: &'a Keypair,
     storage_deposit_limit: Option<E::Balance>,
 }
 
-impl<'a, E, C> UploadBuilder<'a, E, C>
+impl<'a, E, B> UploadBuilder<'a, E, B>
 where
     E: Environment,
-    C: ContractsBackend<E>,
+    B: BuilderClient<E>,
 {
     /// Initialize an upload builder with essential values.
-    pub fn new(client: &'a mut C, contract_name: &'a str, caller: &'a Keypair) -> Self {
+    pub fn new(client: &'a mut B, contract_name: &'a str, caller: &'a Keypair) -> Self {
         Self {
             client,
             contract_name,
@@ -316,8 +297,8 @@ where
     }
 
     /// Execute the upload.
-    pub async fn submit(&mut self) -> Result<UploadResult<E, C::EventLog>, C::Error> {
-        C::bare_upload(
+    pub async fn submit(&mut self) -> Result<UploadResult<E, B::EventLog>, B::Error> {
+        B::bare_upload(
             self.client,
             self.contract_name,
             self.caller,
