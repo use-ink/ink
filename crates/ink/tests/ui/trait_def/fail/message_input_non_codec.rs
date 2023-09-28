@@ -1,3 +1,4 @@
+#[derive(Clone)]
 pub struct NonCodec;
 
 #[ink::trait_definition]
