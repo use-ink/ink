@@ -103,6 +103,7 @@ impl ink_env::chain_extension::FromStatusCode for ReadWriteErrorCode {
     }
 }
 
+#[derive(Clone)]
 pub enum CustomEnvironment {}
 
 impl Environment for CustomEnvironment {

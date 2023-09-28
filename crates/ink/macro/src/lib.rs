@@ -1288,6 +1288,7 @@ pub fn test(attr: TokenStream, item: TokenStream) -> TokenStream {
 /// #         }
 /// #     }
 /// # }
+/// # #[derive(Clone)]
 /// # pub enum CustomEnvironment {}
 /// # impl ink_env::Environment for CustomEnvironment {
 /// #     const MAX_EVENT_TOPICS: usize =
