@@ -175,7 +175,7 @@ mod call_builder {
 
             let mut constructor = CallBuilderReturnValueRef::new(42);
             let call_builder = client
-                .instantiate("call_builder_return_value", &origin, &mut &mut constructor)
+                .instantiate("call_builder_return_value", &origin, &mut constructor)
                 .submit()
                 .await
                 .expect("instantiate failed");
@@ -219,16 +219,16 @@ mod call_builder {
 
             let mut constructor = CallBuilderReturnValueRef::new(0);
             let call_builder = client
-                .instantiate("call_builder_return_value", &origin, &mut &mut constructor)
+                .instantiate("call_builder_return_value", &origin, &mut constructor)
                 .submit()
                 .await
                 .expect("instantiate failed");
             let mut call_builder_call = call_builder.call::<CallBuilderReturnValue>();
 
             let expected_value = 42;
-            let incrementer_constructor = IncrementerRef::new(expected_value);
+            let mut incrementer_constructor = IncrementerRef::new(expected_value);
             let incrementer = client
-                .instantiate("incrementer", &origin, incrementer_&mut constructor)
+                .instantiate("incrementer", &origin, &mut incrementer_constructor)
                 .submit()
                 .await
                 .expect("instantiate failed");

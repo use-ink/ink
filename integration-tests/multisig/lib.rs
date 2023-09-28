@@ -87,6 +87,7 @@ mod multisig {
     /// A wrapper that allows us to encode a blob of bytes.
     ///
     /// We use this to pass the set of untyped (bytes) parameters to the `CallBuilder`.
+    #[derive(Clone)]
     struct CallInput<'a>(&'a [u8]);
 
     impl<'a> ink::scale::Encode for CallInput<'a> {
@@ -109,6 +110,7 @@ mod multisig {
 
     /// A Transaction is what every `owner` can submit for confirmation by other owners.
     /// If enough owners agree it will be executed by the contract.
+    #[derive(Clone)]
     #[cfg_attr(
         feature = "std",
         derive(Debug, PartialEq, Eq, ink::storage::traits::StorageLayout)

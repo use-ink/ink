@@ -118,7 +118,11 @@ pub mod constructors_return_value {
         ) -> E2EResult<()> {
             let mut constructor = ConstructorsReturnValueRef::new(true);
             let infallible_constructor_result = client
-                .instantiate("constructors_return_value", &ink_e2e::alice(), &mut constructor)
+                .instantiate(
+                    "constructors_return_value",
+                    &ink_e2e::alice(),
+                    &mut constructor,
+                )
                 .dry_run()
                 .await
                 .result
@@ -134,7 +138,11 @@ pub mod constructors_return_value {
 
             let mut constructor = ConstructorsReturnValueRef::new(true);
             let success = client
-                .instantiate("constructors_return_value", &ink_e2e::alice(), &mut constructor)
+                .instantiate(
+                    "constructors_return_value",
+                    &ink_e2e::alice(),
+                    &mut constructor,
+                )
                 .submit()
                 .await
                 .is_ok();
@@ -150,7 +158,11 @@ pub mod constructors_return_value {
         ) -> E2EResult<()> {
             let mut constructor = ConstructorsReturnValueRef::try_new(true);
             let result = client
-                .instantiate("constructors_return_value", &ink_e2e::bob(), &mut constructor)
+                .instantiate(
+                    "constructors_return_value",
+                    &ink_e2e::bob(),
+                    &mut constructor,
+                )
                 .dry_run()
                 .await
                 .result
@@ -174,7 +186,11 @@ pub mod constructors_return_value {
 
             let mut constructor = ConstructorsReturnValueRef::try_new(true);
             let contract = client
-                .instantiate("constructors_return_value", &ink_e2e::bob(), &mut constructor)
+                .instantiate(
+                    "constructors_return_value",
+                    &ink_e2e::bob(),
+                    &mut constructor,
+                )
                 .submit()
                 .await
                 .expect("instantiate failed");

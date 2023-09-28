@@ -92,7 +92,11 @@ mod e2e_tests {
         let mut constructor = CallerRef::new(incrementer.account_id.clone());
 
         let caller = client
-            .instantiate("trait-incrementer-caller", &ink_e2e::alice(), &mut constructor)
+            .instantiate(
+                "trait-incrementer-caller",
+                &ink_e2e::alice(),
+                &mut constructor,
+            )
             .submit()
             .await
             .expect("instantiate failed");
