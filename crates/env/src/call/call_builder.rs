@@ -67,7 +67,7 @@ where
 
 impl<E, Args, R> CallParams<E, Call<E>, Args, R>
 where
-    E: Environment + Clone,
+    E: Environment,
 {
     /// Returns the account ID of the called contract instance.
     #[inline]
@@ -101,7 +101,7 @@ where
 
 impl<E, Args, R> CallParams<E, Call<E>, Args, R>
 where
-    E: Environment + Clone,
+    E: Environment,
     Args: scale::Encode,
     R: scale::Decode,
 {
@@ -324,7 +324,7 @@ pub fn build_call<E>() -> CallBuilder<
     Unset<ReturnType<()>>,
 >
 where
-    E: Environment + Clone,
+    E: Environment,
 {
     CallBuilder {
         call_type: Default::default(),
@@ -338,13 +338,13 @@ where
 /// The default call type for cross-contract calls. Performs a cross-contract call to
 /// `callee` with gas limit `gas_limit`, transferring `transferred_value` of currency.
 #[derive(Clone)]
-pub struct Call<E: Environment + Clone> {
+pub struct Call<E: Environment> {
     callee: E::AccountId,
     gas_limit: Gas,
     transferred_value: E::Balance,
 }
 
-impl<E: Environment + Clone> Call<E> {
+impl<E: Environment> Call<E> {
     /// Returns a clean builder for [`Call`].
     pub fn new(callee: E::AccountId) -> Self {
         Self {
@@ -357,7 +357,7 @@ impl<E: Environment + Clone> Call<E> {
 
 impl<E> Call<E>
 where
-    E: Environment + Clone,
+    E: Environment,
 {
     /// Sets the `gas_limit` for the current cross-contract call.
     pub fn gas_limit(self, gas_limit: Gas) -> Self {
@@ -498,7 +498,7 @@ where
 
 impl<E, CallType, Args, RetType> CallBuilder<E, Unset<CallType>, Args, RetType>
 where
-    E: Environment + Clone,
+    E: Environment,
 {
     /// Prepares the `CallBuilder` for a cross-contract [`Call`].
     pub fn call(
@@ -531,7 +531,7 @@ where
 
 impl<E, Args, RetType> CallBuilder<E, Set<Call<E>>, Args, RetType>
 where
-    E: Environment + Clone,
+    E: Environment,
 {
     /// Sets the `gas_limit` for the current cross-contract call.
     pub fn gas_limit(self, gas_limit: Gas) -> Self {
@@ -568,7 +568,7 @@ where
 
 impl<E, Args, RetType> CallBuilder<E, Set<DelegateCall<E>>, Args, RetType>
 where
-    E: Environment + Clone,
+    E: Environment,
 {
     /// Sets the `code_hash` to perform a delegate call with.
     pub fn code_hash(self, code_hash: E::Hash) -> Self {
@@ -585,7 +585,7 @@ where
 impl<E, Args, RetType>
     CallBuilder<E, Set<Call<E>>, Set<ExecutionInput<Args>>, Set<ReturnType<RetType>>>
 where
-    E: Environment + Clone,
+    E: Environment,
     Args: Clone,
 {
     /// Finalizes the call builder to call a function.
@@ -608,7 +608,7 @@ impl<E, Args, RetType>
         Set<ReturnType<RetType>>,
     >
 where
-    E: Environment + Clone,
+    E: Environment,
     Args: Clone,
 {
     /// Finalizes the call builder to call a function.
@@ -626,7 +626,7 @@ where
 impl<E, RetType>
     CallBuilder<E, Set<Call<E>>, Unset<ExecutionInput<EmptyArgumentList>>, Unset<RetType>>
 where
-    E: Environment + Clone,
+    E: Environment,
 {
     /// Finalizes the call builder to call a function.
     pub fn params(self) -> CallParams<E, Call<E>, EmptyArgumentList, ()> {
@@ -648,7 +648,7 @@ impl<E, RetType>
         Unset<RetType>,
     >
 where
-    E: Environment + Clone,
+    E: Environment,
 {
     /// Finalizes the call builder to call a function.
     pub fn params(self) -> CallParams<E, DelegateCall<E>, EmptyArgumentList, ()> {
@@ -670,7 +670,7 @@ impl<E>
         Unset<ReturnType<()>>,
     >
 where
-    E: Environment + Clone,
+    E: Environment,
 {
     /// Invokes the cross-chain function call.
     ///
@@ -703,7 +703,7 @@ impl<E>
         Unset<ReturnType<()>>,
     >
 where
-    E: Environment + Clone,
+    E: Environment,
 {
     /// Invokes the cross-chain function call using Delegate Call semantics.
     ///
@@ -730,7 +730,7 @@ where
 impl<E, Args, R>
     CallBuilder<E, Set<Call<E>>, Set<ExecutionInput<Args>>, Set<ReturnType<R>>>
 where
-    E: Environment + Clone,
+    E: Environment,
     Args: scale::Encode + Clone,
     R: scale::Decode,
 {
@@ -760,7 +760,7 @@ where
 impl<E, Args, R>
     CallBuilder<E, Set<DelegateCall<E>>, Set<ExecutionInput<Args>>, Set<ReturnType<R>>>
 where
-    E: Environment + Clone,
+    E: Environment,
     Args: scale::Encode + Clone,
     R: scale::Decode,
 {

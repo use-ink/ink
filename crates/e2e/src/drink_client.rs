@@ -180,7 +180,7 @@ impl<
         AccountId: Clone + Send + Sync + From<[u8; 32]> + AsRef<[u8; 32]>,
         Hash: Copy + From<[u8; 32]>,
         Runtime: RuntimeT,
-        E: Environment<AccountId = AccountId, Balance = u128, Hash = Hash> + Clone + 'static,
+        E: Environment<AccountId = AccountId, Balance = u128, Hash = Hash> + 'static,
     > ContractsBackend<E> for Client<AccountId, Hash, Runtime>
 where
     RuntimeAccountId<Runtime>: From<[u8; 32]> + AsRef<[u8; 32]>,
@@ -379,7 +379,7 @@ impl<
         AccountId: Clone + Send + Sync + From<[u8; 32]> + AsRef<[u8; 32]>,
         Hash: Copy + From<[u8; 32]>,
         Runtime: RuntimeT,
-        E: Environment<AccountId = AccountId, Balance = u128, Hash = Hash> + Clone + 'static,
+        E: Environment<AccountId = AccountId, Balance = u128, Hash = Hash> + 'static,
     > E2EBackend<E> for Client<AccountId, Hash, Runtime>
 where
     RuntimeAccountId<Runtime>: From<[u8; 32]> + AsRef<[u8; 32]>,

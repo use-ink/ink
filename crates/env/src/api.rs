@@ -277,7 +277,7 @@ pub fn invoke_contract<E, Args, R>(
     params: &CallParams<E, Call<E>, Args, R>,
 ) -> Result<ink_primitives::MessageResult<R>>
 where
-    E: Environment + Clone,
+    E: Environment,
     Args: scale::Encode,
     R: scale::Decode,
 {

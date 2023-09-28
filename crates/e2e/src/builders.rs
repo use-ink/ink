@@ -44,7 +44,7 @@ pub fn constructor_exec_input<E, ContractRef, Args: Encode + Clone, R>(
     builder: CreateBuilderPartial<E, ContractRef, Args, R>,
 ) -> Vec<u8>
 where
-    E: Environment + Clone,
+    E: Environment,
     ContractRef: Clone,
 {
     // set all the other properties to default values, we only require the `exec_input`.
