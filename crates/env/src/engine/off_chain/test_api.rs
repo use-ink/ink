@@ -331,173 +331,226 @@ where
 }
 
 /// Returns the default accounts for testing purposes:
-/// Alice, Bob, Charlie, Django, Eve and Frank.
+/// Alice, Bob, Charlie, Dave, Eve, Ferdie, One and Two.
 pub fn default_accounts<T>() -> DefaultAccounts<T>
 where
     T: Environment,
     <T as Environment>::AccountId: From<[u8; 32]>,
 {
     DefaultAccounts {
-        alice: T::AccountId::from([0x01; 32]),
-        bob: T::AccountId::from([0x02; 32]),
-        charlie: T::AccountId::from([0x03; 32]),
-        dave: T::AccountId::from([0x04; 32]),
-        eve: T::AccountId::from([0x05; 32]),
-        ferdie: T::AccountId::from([0x06; 32]),
-        one: T::AccountId::from([0x07; 32]),
-        two: T::AccountId::from([0x8; 32]),
+        alice: T::AccountId::from(Keyring::Alice.to_raw_public()),
+        bob: T::AccountId::from(Keyring::Bob.to_raw_public()),
+        charlie: T::AccountId::from(Keyring::Charlie.to_raw_public()),
+        dave: T::AccountId::from(Keyring::Dave.to_raw_public()),
+        eve: T::AccountId::from(Keyring::Eve.to_raw_public()),
+        ferdie: T::AccountId::from(Keyring::Ferdie.to_raw_public()),
+        one: T::AccountId::from(Keyring::One.to_raw_public()),
+        two: T::AccountId::from(Keyring::Two.to_raw_public()),
     }
 }
 
-/// Set of test accounts.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Display, EnumIter)]
-pub enum KeyRing {
-    ///
-    Alice,
-    ///
-    Bob,
-    ///
-    Charlie,
-    ///
-    Dave,
-    ///
-    Eve,
-    ///
-    Ferdie,
-    ///
-    One,
-    ///
-    Two,
-}
-
 lazy_static! {
-    static ref PRIVATE_KEYS: HashMap<KeyRing, Pair> =
-        KeyRing::iter().map(|i| (i, i.pair())).collect();
-    static ref PUBLIC_KEYS: HashMap<KeyRing, Public> = PRIVATE_KEYS
+    static ref PRIVATE_KEYS: HashMap<Keyring, Pair> =
+        Keyring::iter().map(|i| (i, i.pair())).collect();
+    static ref PUBLIC_KEYS: HashMap<Keyring, Public> = PRIVATE_KEYS
         .iter()
         .map(|(&name, pair)| (name, pair.public()))
         .collect();
 }
 
-impl KeyRing {
-    ///
-    pub fn from_public(who: &Public) -> Option<KeyRing> {
+/// A custom error type representing a failure to parse a keyring.
+#[derive(Debug)]
+pub struct ParseKeyringError;
+
+impl std::fmt::Display for ParseKeyringError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "ParseKeyringError")
+    }
+}
+
+/// Set of test accounts.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Display, EnumIter)]
+pub enum Keyring {
+    /// The predefined `ALICE` keyring
+    Alice,
+    /// The predefined `Bob` keyring
+    Bob,
+    /// The predefined `Charlie` keyring
+    Charlie,
+    /// The predefined `Dave` keyring
+    Dave,
+    /// The predefined `Eve` keyring
+    Eve,
+    /// The predefined `Ferdie` keyring
+    Ferdie,
+    /// The predefined `One` keyring
+    One,
+    /// The predefined `Two` keyring
+    Two,
+}
+
+impl Keyring {
+    /// Creates a `Keyring` from a `Public`.
+    pub fn from_public(who: &Public) -> Option<Keyring> {
         Self::iter().find(|&k| &Public::from(k) == who)
     }
 
-    ///
-    pub fn from_account_id(who: &AccountId32) -> Option<KeyRing> {
+    /// Creates a `Keyring` from an `AccountId32`.
+    pub fn from_account_id(who: &AccountId32) -> Option<Keyring> {
         Self::iter().find(|&k| &k.to_account_id() == who)
     }
 
-    ///
-    pub fn from_raw_public(who: [u8; 32]) -> Option<KeyRing> {
+    /// Creates a `Keyring` from a raw public key in the form of a 32-byte array.
+    pub fn from_raw_public(who: [u8; 32]) -> Option<Keyring> {
         Self::from_public(&Public::from_raw(who))
     }
 
-    ///
+    /// Converts the public key of the `Keyring` into a 32-byte array.
     pub fn to_raw_public(self) -> [u8; 32] {
         *Public::from(self).as_array_ref()
     }
 
-    ///
-    pub fn from_h256_public(who: H256) -> Option<KeyRing> {
+    /// Creates a `Keyring` from a public key in `H256` format.
+    pub fn from_h256_public(who: H256) -> Option<Keyring> {
         Self::from_public(&Public::from_raw(who.into()))
     }
 
-    ///
+    /// Converts the public key of the `Keyring` into a type `H256`.
     pub fn to_h256_public_vec(self) -> H256 {
         Public::from(self).as_array_ref().into()
     }
 
-    ///
+    /// Converts the public key of the `Keyring` into a vector of bytes.
     pub fn to_raw_public_vec(self) -> Vec<u8> {
         Public::from(self).to_raw_vec()
     }
 
-    ///
+    /// Converts the public key of the `Keyring` into an `AccountId32`.
     pub fn to_account_id(self) -> AccountId32 {
         self.to_raw_public().into()
     }
 
-    ///
+    /// Gets a key pair (`Pair`) associated with the `Keyring`.
     pub fn pair(self) -> Pair {
         Pair::from_string(&format!("//{}", <&'static str>::from(self)), None)
             .expect("static values are known good; qed")
     }
 
-    ///
-    pub fn iter() -> impl Iterator<Item = KeyRing> {
+    /// Returns an iterator over all test accounts.
+    pub fn iter() -> impl Iterator<Item = Keyring> {
         <Self as IntoEnumIterator>::iter()
+    }
+
+    /// Gets the public key (`Public`) associated with the `Keyring`.
+    pub fn public(self) -> Public {
+        self.pair().public()
+    }
+
+    /// Converts the public key of the `Keyring` into a seed in string format.
+    pub fn to_seed(self) -> String {
+        format!("//{}", self)
+    }
+
+    /// Create a crypto `Pair` from a numeric value.
+    pub fn numeric(idx: usize) -> Pair {
+        Pair::from_string(&format!("//{}", idx), None)
+            .expect("numeric values are known good; qed")
+    }
+
+    /// Get account id of a `numeric` account.
+    pub fn numeric_id(idx: usize) -> AccountId32 {
+        (*Self::numeric(idx).public().as_array_ref()).into()
     }
 }
 
-/// FROMS
+impl From<Keyring> for sp_runtime::MultiSigner {
+    fn from(x: Keyring) -> Self {
+        sp_runtime::MultiSigner::Sr25519(x.into())
+    }
+}
 
-impl From<KeyRing> for &'static str {
-    fn from(k: KeyRing) -> Self {
-        match k {
-            KeyRing::Alice => "Alice",
-            KeyRing::Bob => "Bob",
-            KeyRing::Charlie => "Charlie",
-            KeyRing::Dave => "Dave",
-            KeyRing::Eve => "Eve",
-            KeyRing::Ferdie => "Ferdie",
-            KeyRing::One => "One",
-            KeyRing::Two => "Two",
+impl std::str::FromStr for Keyring {
+    type Err = ParseKeyringError;
+
+    fn from_str(s: &str) -> core::result::Result<Self, <Self as std::str::FromStr>::Err> {
+        match s {
+            "alice" => Ok(Keyring::Alice),
+            "bob" => Ok(Keyring::Bob),
+            "charlie" => Ok(Keyring::Charlie),
+            "dave" => Ok(Keyring::Dave),
+            "eve" => Ok(Keyring::Eve),
+            "ferdie" => Ok(Keyring::Ferdie),
+            "one" => Ok(Keyring::One),
+            "two" => Ok(Keyring::Two),
+            _ => Err(ParseKeyringError),
         }
     }
 }
 
-impl From<KeyRing> for AccountId32 {
-    fn from(k: KeyRing) -> Self {
+impl From<Keyring> for &'static str {
+    fn from(k: Keyring) -> Self {
+        match k {
+            Keyring::Alice => "Alice",
+            Keyring::Bob => "Bob",
+            Keyring::Charlie => "Charlie",
+            Keyring::Dave => "Dave",
+            Keyring::Eve => "Eve",
+            Keyring::Ferdie => "Ferdie",
+            Keyring::One => "One",
+            Keyring::Two => "Two",
+        }
+    }
+}
+
+impl From<Keyring> for AccountId32 {
+    fn from(k: Keyring) -> Self {
         k.to_account_id()
     }
 }
 
-impl From<KeyRing> for Public {
-    fn from(k: KeyRing) -> Self {
+impl From<Keyring> for Public {
+    fn from(k: Keyring) -> Self {
         *(*PUBLIC_KEYS).get(&k).unwrap()
     }
 }
 
-impl From<KeyRing> for Pair {
-    fn from(k: KeyRing) -> Self {
+impl From<Keyring> for Pair {
+    fn from(k: Keyring) -> Self {
         k.pair()
     }
 }
 
-impl From<KeyRing> for [u8; 32] {
-    fn from(k: KeyRing) -> Self {
+impl From<Keyring> for [u8; 32] {
+    fn from(k: Keyring) -> Self {
         *(*PUBLIC_KEYS).get(&k).unwrap().as_array_ref()
     }
 }
 
-impl From<KeyRing> for H256 {
-    fn from(k: KeyRing) -> Self {
+impl From<Keyring> for H256 {
+    fn from(k: Keyring) -> Self {
         (*PUBLIC_KEYS).get(&k).unwrap().as_array_ref().into()
     }
 }
 
-impl From<KeyRing> for &'static [u8; 32] {
-    fn from(k: KeyRing) -> Self {
+impl From<Keyring> for &'static [u8; 32] {
+    fn from(k: Keyring) -> Self {
         (*PUBLIC_KEYS).get(&k).unwrap().as_array_ref()
     }
 }
 
-impl AsRef<[u8; 32]> for KeyRing {
+impl AsRef<[u8; 32]> for Keyring {
     fn as_ref(&self) -> &[u8; 32] {
         (*PUBLIC_KEYS).get(self).unwrap().as_array_ref()
     }
 }
 
-impl AsRef<Public> for KeyRing {
+impl AsRef<Public> for Keyring {
     fn as_ref(&self) -> &Public {
         (*PUBLIC_KEYS).get(self).unwrap()
     }
 }
 
-impl Deref for KeyRing {
+impl Deref for Keyring {
     type Target = [u8; 32];
     fn deref(&self) -> &[u8; 32] {
         (*PUBLIC_KEYS).get(self).unwrap().as_array_ref()
