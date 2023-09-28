@@ -567,7 +567,7 @@ mod erc20 {
             let total_supply = 1_000_000_000;
             let mut constructor = Erc20Ref::new(total_supply);
             let erc20 = client
-                .instantiate("erc20", &ink_e2e::bob(), constructor)
+                .instantiate("erc20", &ink_e2e::bob(), &mut constructor)
                 .submit()
                 .await
                 .expect("instantiate failed");
