@@ -180,7 +180,7 @@ mod mapping_integration_tests {
                 .instantiate(
                     "mapping-integration-tests",
                     &ink_e2e::charlie(),
-                    constructor,
+                    &mut constructor,
                 )
                 .submit()
                 .await

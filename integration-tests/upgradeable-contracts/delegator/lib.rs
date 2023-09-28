@@ -162,7 +162,7 @@ pub mod delegator {
             // given
             let mut constructor = DelegatorRef::new(10);
             let call_builder = client
-                .instantiate("delegator", &origin, &mutconstructor)
+                .instantiate("delegator", &origin, &mut constructor)
                 .submit()
                 .await
                 .expect("instantiate failed");

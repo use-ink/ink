@@ -481,6 +481,10 @@ where
             )
             .await;
 
+        if dry_run.result.is_err() {
+            return Err(Self::Error::InstantiateDryRun(dry_run))
+        }
+
         let gas_limit = if let Some(m) = margin {
             dry_run.gas_required + (dry_run.gas_required / 100 * m)
         } else {

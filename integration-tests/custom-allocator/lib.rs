@@ -128,7 +128,7 @@ mod custom_allocator {
 
             // Then
             let get = call.get();
-            let get_result = client.call(&ink_e2e::alice(), &get).await;
+            let get_result = client.call(&ink_e2e::alice(), &get).dry_run().await;
             assert!(matches!(get_result.return_value(), false));
 
             Ok(())

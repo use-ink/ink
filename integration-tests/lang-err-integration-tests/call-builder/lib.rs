@@ -193,9 +193,9 @@ mod call_builder {
                 .expect("instantiate failed");
             let mut call_builder_call = call_builder_contract.call::<CallBuilderTest>();
 
-            let flipper_constructor = FlipperRef::new_default();
+            let mut flipper_constructor = FlipperRef::new_default();
             let flipper = client
-                .instantiate("integration_flipper", &origin, flipper_constructor)
+                .instantiate("integration_flipper", &origin, &mut flipper_constructor)
                 .submit()
                 .await
                 .expect("instantiate `flipper` failed");
@@ -244,9 +244,9 @@ mod call_builder {
                 .expect("instantiate failed");
             let mut call_builder_call = call_builder.call::<CallBuilderTest>();
 
-            let flipper_constructor = FlipperRef::new_default();
+            let mut flipper_constructor = FlipperRef::new_default();
             let flipper = client
-                .instantiate("integration_flipper", &origin, flipper_constructor)
+                .instantiate("integration_flipper", &origin, &mut flipper_constructor)
                 .submit()
                 .await
                 .expect("instantiate `flipper` failed");

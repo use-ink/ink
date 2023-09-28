@@ -221,7 +221,7 @@ pub mod constructors_return_value {
                 .instantiate(
                     "constructors_return_value",
                     &ink_e2e::charlie(),
-                    constructor,
+                    &mut constructor,
                 )
                 .dry_run()
                 .await
@@ -249,7 +249,7 @@ pub mod constructors_return_value {
                 .instantiate(
                     "constructors_return_value",
                     &ink_e2e::charlie(),
-                    constructor,
+                    &mut constructor,
                 )
                 .submit()
                 .await;

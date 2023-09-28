@@ -69,7 +69,11 @@ pub mod flipper {
         > {
             let mut constructor = FlipperRef::new(initial_value);
             client
-                .instantiate("e2e-runtime-only-backend", &ink_e2e::alice())
+                .instantiate(
+                    "e2e-runtime-only-backend",
+                    &ink_e2e::alice(),
+                    &mut constructor,
+                )
                 .submit()
                 .await
         }
@@ -79,6 +83,11 @@ pub mod flipper {
         /// - flip the flipper
         /// - get the flipper's value
         /// - assert that the value is `true`
+        ///
+        /// # Note
+        ///
+        /// Dry run is not implemented in drink!
+        /// So we have to use a bare call dry-run.
         #[ink_e2e::test(backend = "runtime-only")]
         async fn it_works<Client: E2EBackend>(mut client: Client) -> E2EResult<()> {
             // given
@@ -90,17 +99,13 @@ pub mod flipper {
             // when
             let mut call = contract.call::<Flipper>();
             let _flip_res = client
-                .call(&ink_e2e::bob(), &call.flip())
-                .submit()
-                .await
-                .expect("flip failed");
+                .bare_call_dry_run(&ink_e2e::bob(), &call.flip(), 0, None)
+                .await;
 
             // then
             let get_res = client
-                .call(&ink_e2e::bob(), &call.get())
-                .dry_run()
-                .await
-                .expect("get failed");
+                .bare_call_dry_run(&ink_e2e::bob(), &call.get(), 0, None)
+                .await;
             assert_eq!(get_res.return_value(), !INITIAL_VALUE);
 
             Ok(())
@@ -120,7 +125,7 @@ pub mod flipper {
 
             let old_balance = client
                 .call(&ink_e2e::alice(), &call.get_contract_balance())
-                .dry_run()
+                .submit()
                 .await
                 .expect("get_contract_balance failed")
                 .return_value();
@@ -140,7 +145,7 @@ pub mod flipper {
             // then
             let new_balance = client
                 .call(&ink_e2e::alice(), &call.get_contract_balance())
-                .dry_run()
+                .submit()
                 .await
                 .expect("get_contract_balance failed")
                 .return_value();
@@ -156,7 +161,7 @@ pub mod flipper {
                 .instantiate(
                     "e2e-runtime-only-backend",
                     &ink_e2e::alice(),
-                    FlipperRef::new(false),
+                    &mut FlipperRef::new(false),
                 )
                 .submit()
                 .await

@@ -160,6 +160,7 @@ pub fn selector_bytes(input: TokenStream) -> TokenStream {
 ///
 ///     Given a custom `Environment` implementation:
 ///     ```
+///     #[derive(Clone)]
 ///     pub struct MyEnvironment;
 ///
 ///     impl ink_env::Environment for MyEnvironment {
@@ -177,6 +178,7 @@ pub fn selector_bytes(input: TokenStream) -> TokenStream {
 ///     ```
 ///     #[ink::contract(env = MyEnvironment)]
 ///     mod my_contract {
+///         # #[derive(Clone)]
 ///         # pub struct MyEnvironment;
 ///         #
 ///         # impl ink_env::Environment for MyEnvironment {
@@ -1144,6 +1146,7 @@ pub fn test(attr: TokenStream, item: TokenStream) -> TokenStream {
 ///     Environment,
 /// };
 ///
+/// #[derive(Clone)]
 /// pub enum CustomEnvironment {}
 ///
 /// impl Environment for CustomEnvironment {

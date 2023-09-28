@@ -28,6 +28,8 @@ use drink::{
     Weight,
     DEFAULT_GAS_LIMIT,
 };
+use pallet_contracts_primitives::ContractResult;
+
 use ink_env::Environment;
 use jsonrpsee::core::async_trait;
 use pallet_contracts_primitives::{
@@ -339,39 +341,54 @@ where
         caller: &Keypair,
         message: &CallBuilderFinal<E, Args, RetType>,
         value: E::Balance,
-        gas_limit: Weight,
+        _gas_limit: Weight,
         storage_deposit_limit: Option<E::Balance>,
     ) -> Result<Self::EventLog, Self::Error>
     where
         CallBuilderFinal<E, Args, RetType>: Clone,
     {
-        let account_id = message.clone().params().callee().clone();
-        let exec_input = Encode::encode(message.clone().params().exec_input());
-        let account_id = (*account_id.as_ref()).into();
-
-        self.sandbox.call_contract(
-            account_id,
-            value,
-            exec_input,
-            keypair_to_account(caller),
-            gas_limit,
-            storage_deposit_limit,
-        );
+        self.bare_call_dry_run(caller, message, value, storage_deposit_limit)
+            .await;
 
         Ok(()) // todo: https://github.com/Cardinal-Cryptography/drink/issues/32
     }
 
     async fn bare_call_dry_run<Args: Sync + Encode + Clone, RetType: Send + Decode>(
         &mut self,
-        _caller: &Keypair,
-        _message: &CallBuilderFinal<E, Args, RetType>,
-        _value: E::Balance,
-        _storage_deposit_limit: Option<E::Balance>,
+        caller: &Keypair,
+        message: &CallBuilderFinal<E, Args, RetType>,
+        value: E::Balance,
+        storage_deposit_limit: Option<E::Balance>,
     ) -> CallDryRunResult<E, RetType>
     where
         CallBuilderFinal<E, Args, RetType>: Clone,
     {
-        todo!("https://github.com/Cardinal-Cryptography/drink/issues/37")
+        // todo: "https://github.com/Cardinal-Cryptography/drink/issues/37"
+
+        // temporary hack
+        let account_id = message.clone().params().callee().clone();
+        let exec_input = Encode::encode(message.clone().params().exec_input());
+        let account_id = (*account_id.as_ref()).into();
+
+        let result = self.sandbox.call_contract(
+            account_id,
+            value,
+            exec_input,
+            keypair_to_account(caller),
+            DEFAULT_GAS_LIMIT,
+            storage_deposit_limit,
+        );
+        CallDryRunResult {
+            exec_result: ContractResult {
+                gas_consumed: result.gas_consumed,
+                gas_required: result.gas_required,
+                storage_deposit: result.storage_deposit,
+                debug_message: result.debug_message,
+                result: result.result,
+                events: None,
+            },
+            _marker: Default::default(),
+        }
     }
 }
 
