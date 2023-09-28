@@ -43,7 +43,7 @@ use subxt::dynamic::Value;
 /// Full E2E testing backend: combines general chain API and contract-specific operations.
 #[async_trait]
 pub trait E2EBackend<E: Environment = DefaultEnvironment>:
-    ChainBackend + ContractsBackend<E>
+    ChainBackend + ContractsBackend<E> + BuilderClient<E>
 {
 }
 
