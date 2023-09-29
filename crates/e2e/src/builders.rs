@@ -40,7 +40,7 @@ pub type CreateBuilderPartial<E, ContractRef, Args, R> = CreateBuilder<
 >;
 
 /// Get the encoded constructor arguments from the partially initialized `CreateBuilder`
-pub fn constructor_exec_input<E, ContractRef, Args: Encode + Clone, R>(
+pub fn constructor_exec_input<E, ContractRef, Args: Encode, R>(
     builder: CreateBuilderPartial<E, ContractRef, Args, R>,
 ) -> Vec<u8>
 where
