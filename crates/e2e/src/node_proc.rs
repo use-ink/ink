@@ -26,6 +26,10 @@ use std::{
     process,
 };
 use subxt::{
+    backend::{
+        legacy::LegacyRpcMethods,
+        rpc::RpcClient,
+    },
     Config,
     OnlineClient,
 };
@@ -33,6 +37,7 @@ use subxt::{
 /// Spawn a local substrate node for testing.
 pub struct TestNodeProcess<R: Config> {
     proc: process::Child,
+    rpc: RpcClient,
     client: OnlineClient<R>,
     url: String,
 }
@@ -90,6 +95,11 @@ where
             return Err(err)
         }
         Ok(())
+    }
+
+    /// Returns the `subxt` rpc client connected to the running node.
+    pub fn rpc(&self) -> LegacyRpcMethods<R> {
+        LegacyRpcMethods::new(self.rpc.clone())
     }
 
     /// Returns the `subxt` client connected to the running node.
@@ -161,11 +171,15 @@ where
         let url = format!("ws://127.0.0.1:{port}");
 
         // Connect to the node with a `subxt` client:
+        let rpc = RpcClient::from_url(url.clone())
+            .await
+            .map_err(|err| format!("Error initializing rpc client: {}", err))?;
         let client = OnlineClient::from_url(url.clone()).await;
         match client {
             Ok(client) => {
                 Ok(TestNodeProcess {
                     proc,
+                    rpc,
                     client,
                     url: url.clone(),
                 })
@@ -223,8 +237,8 @@ mod tests {
     #[tokio::test]
     #[allow(unused_assignments)]
     async fn spawning_and_killing_nodes_works() {
-        let mut client1: Option<OnlineClient<SubxtConfig>> = None;
-        let mut client2: Option<OnlineClient<SubxtConfig>> = None;
+        let mut client1: Option<LegacyRpcMethods<SubxtConfig>> = None;
+        let mut client2: Option<LegacyRpcMethods<SubxtConfig>> = None;
 
         {
             let node_proc1 =
@@ -232,25 +246,25 @@ mod tests {
                     .spawn()
                     .await
                     .unwrap();
-            client1 = Some(node_proc1.client());
+            client1 = Some(node_proc1.rpc());
 
             let node_proc2 =
                 TestNodeProcess::<SubxtConfig>::build("substrate-contracts-node")
                     .spawn()
                     .await
                     .unwrap();
-            client2 = Some(node_proc2.client());
+            client2 = Some(node_proc2.rpc());
 
-            let res1 = node_proc1.client().rpc().block_hash(None).await;
-            let res2 = node_proc1.client().rpc().block_hash(None).await;
+            let res1 = node_proc1.rpc().chain_get_block_hash(None).await;
+            let res2 = node_proc1.rpc().chain_get_block_hash(None).await;
 
             assert!(res1.is_ok());
             assert!(res2.is_ok());
         }
 
         // node processes should have been killed by `Drop` in the above block.
-        let res1 = client1.unwrap().rpc().block_hash(None).await;
-        let res2 = client2.unwrap().rpc().block_hash(None).await;
+        let res1 = client1.unwrap().chain_get_block_hash(None).await;
+        let res2 = client2.unwrap().chain_get_block_hash(None).await;
 
         assert!(res1.is_err());
         assert!(res2.is_err());
