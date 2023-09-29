@@ -307,24 +307,6 @@ pub struct CreateBuilder<
     _phantom: PhantomData<fn() -> (E, ContractRef)>,
 }
 
-impl<E: Environment, ContractRef, CodeHash, GasLimit, Endowment, Args, Salt, RetType>
-    CreateBuilder<E, ContractRef, CodeHash, GasLimit, Endowment, Args, Salt, RetType>
-{
-    /// Returns currently set code hash
-    pub fn get_code_hash(&self) -> &CodeHash {
-        &self.code_hash
-    }
-
-    /// Returns currently set gas limit
-    pub fn get_gas_limit(&self) -> &GasLimit {
-        &self.gas_limit
-    }
-    /// Returns currently set return type
-    pub fn get_return_type(&self) -> &RetType {
-        &self.return_type
-    }
-}
-
 /// Returns a new [`CreateBuilder`] to build up the parameters to a cross-contract
 /// instantiation.
 ///
@@ -440,8 +422,7 @@ pub fn build_create<ContractRef>() -> CreateBuilder<
     Unset<ReturnType<()>>,
 >
 where
-    <ContractRef as ContractEnv>::Env: Clone,
-    ContractRef: ContractEnv + Clone,
+    ContractRef: ContractEnv,
 {
     CreateBuilder {
         code_hash: Default::default(),
@@ -576,7 +557,7 @@ where
 {
     /// Sets the value transferred upon the execution of the call.
     #[inline]
-    pub fn exec_input<Args: Clone>(
+    pub fn exec_input<Args>(
         self,
         exec_input: ExecutionInput<Args>,
     ) -> CreateBuilder<
@@ -631,7 +612,7 @@ where
         RetType,
     >
     where
-        Salt: AsRef<[u8]> + Clone,
+        Salt: AsRef<[u8]>,
     {
         CreateBuilder {
             code_hash: self.code_hash,
@@ -742,8 +723,8 @@ where
     E: Environment,
     ContractRef: FromAccountId<E>,
     GasLimit: Unwrap<Output = u64>,
-    Args: scale::Encode + Clone,
-    Salt: AsRef<[u8]> + Clone,
+    Args: scale::Encode,
+    Salt: AsRef<[u8]>,
     RetType: ConstructorReturnType<ContractRef>,
 {
     /// Instantiates the contract and returns its account ID back to the caller.
