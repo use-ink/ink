@@ -13,10 +13,7 @@
 // limitations under the License.
 
 use proc_macro2::TokenStream as TokenStream2;
-use quote::{
-    quote,
-    quote_spanned,
-};
+use quote::{quote, quote_spanned};
 use syn::spanned::Spanned;
 
 /// `Storable` derive implementation for `struct` types.
@@ -39,7 +36,9 @@ fn storable_struct_derive(s: &synstructure::Structure) -> TokenStream2 {
     let encoded_size_body = variant.each(|binding| {
         let span = binding.ast().ty.span();
         quote_spanned!(span =>
-            encoded_size += ::ink::storage::traits::Storable::encoded_size(#binding);
+            encoded_size = encoded_size
+                .checked_add(::ink::storage::traits::Storable::encoded_size(#binding))
+                .unwrap();
         )
     });
 
@@ -61,7 +60,7 @@ fn storable_struct_derive(s: &synstructure::Structure) -> TokenStream2 {
             #[allow(non_camel_case_types)]
             #[allow(unused_mut)]
             fn encoded_size(&self) -> ::core::primitive::usize {
-                let mut encoded_size = 0;
+                let mut encoded_size: ::core::primitive::usize = 0;
                 match self { #encoded_size_body }
                 encoded_size
             }
@@ -81,7 +80,7 @@ fn storable_enum_derive(s: &synstructure::Structure) -> TokenStream2 {
             s.ast().span(),
             "Currently only enums with at most 256 variants are supported.",
         )
-        .to_compile_error()
+        .to_compile_error();
     }
 
     let decode_body = s
@@ -130,12 +129,18 @@ fn storable_enum_derive(s: &synstructure::Structure) -> TokenStream2 {
         let fields = variant.bindings().iter().map(|field| {
             let span = field.ast().ty.span();
             quote_spanned!(span =>
-                encoded_size += ::ink::storage::traits::Storable::encoded_size(#field);
+                encoded_size = encoded_size
+                    .checked_add(::ink::storage::traits::Storable::encoded_size(#field))
+                    .unwrap();
             )
         });
         quote! {
              #pat => {
-                 { encoded_size += <::core::primitive::u8 as ::ink::storage::traits::Storable>::encoded_size(&#index); }
+                {
+                    encoded_size = encoded_size
+                        .checked_add(<::core::primitive::u8 as ::ink::storage::traits::Storable>::encoded_size(&#index))
+                        .unwrap();
+                }
                  #(
                      { #fields }
                  )*
@@ -170,7 +175,7 @@ fn storable_enum_derive(s: &synstructure::Structure) -> TokenStream2 {
             #[allow(non_camel_case_types)]
             #[allow(unused_mut)]
             fn encoded_size(&self) -> ::core::primitive::usize {
-                let mut encoded_size = 0;
+                let mut encoded_size: ::core::primitive::usize = 0;
                 match self {
                     #(
                         #encoded_size_body
