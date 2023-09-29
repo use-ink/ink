@@ -213,7 +213,7 @@ where
     C::AccountId: From<sr25519::PublicKey> + serde::de::DeserializeOwned + scale::Codec,
     C::Address: From<sr25519::PublicKey>,
     C::Signature: From<sr25519::Signature>,
-    <C::ExtrinsicParams as ExtrinsicParams<C::Hash>>::OtherParams: Default,
+    <C::ExtrinsicParams as ExtrinsicParams<C>>::OtherParams: Default,
 
     E: Environment,
     E::Balance: scale::HasCompact + serde::Serialize,
