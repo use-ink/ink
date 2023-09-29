@@ -230,7 +230,7 @@ fn find_substrate_port_from_output(r: impl Read + Send + 'static) -> u16 {
 mod tests {
     use super::*;
     use subxt::{
-        legacy::LegacyRpcMethods,
+        backend::legacy::LegacyRpcMethods,
         PolkadotConfig as SubxtConfig,
     };
 
@@ -255,8 +255,8 @@ mod tests {
                     .unwrap();
             client2 = Some(LegacyRpcMethods::new(node_proc2.rpc()));
 
-            let res1 = node_proc1.rpc().chain_get_block_hash(None).await;
-            let res2 = node_proc1.rpc().chain_get_block_hash(None).await;
+            let res1 = client1.clone().unwrap().chain_get_block_hash(None).await;
+            let res2 = client2.clone().unwrap().chain_get_block_hash(None).await;
 
             assert!(res1.is_ok());
             assert!(res2.is_ok());
