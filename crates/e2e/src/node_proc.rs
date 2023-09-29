@@ -26,10 +26,7 @@ use std::{
     process,
 };
 use subxt::{
-    backend::{
-        legacy::LegacyRpcMethods,
-        rpc::RpcClient,
-    },
+    backend::rpc::RpcClient,
     Config,
     OnlineClient,
 };
@@ -98,8 +95,8 @@ where
     }
 
     /// Returns the `subxt` RPC client connected to the running node.
-    pub fn rpc(&self) -> LegacyRpcMethods<R> {
-        LegacyRpcMethods::new(self.rpc.clone())
+    pub fn rpc(&self) -> RpcClient {
+        self.rpc.clone()
     }
 
     /// Returns the `subxt` client connected to the running node.
@@ -232,7 +229,10 @@ fn find_substrate_port_from_output(r: impl Read + Send + 'static) -> u16 {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use subxt::PolkadotConfig as SubxtConfig;
+    use subxt::{
+        legacy::LegacyRpcMethods,
+        PolkadotConfig as SubxtConfig,
+    };
 
     #[tokio::test]
     #[allow(unused_assignments)]
@@ -246,14 +246,14 @@ mod tests {
                     .spawn()
                     .await
                     .unwrap();
-            client1 = Some(node_proc1.rpc());
+            client1 = Some(LegacyRpcMethods::new(node_proc1.rpc()));
 
             let node_proc2 =
                 TestNodeProcess::<SubxtConfig>::build("substrate-contracts-node")
                     .spawn()
                     .await
                     .unwrap();
-            client2 = Some(node_proc2.rpc());
+            client2 = Some(LegacyRpcMethods::new(node_proc2.rpc()));
 
             let res1 = node_proc1.rpc().chain_get_block_hash(None).await;
             let res2 = node_proc1.rpc().chain_get_block_hash(None).await;
