@@ -97,7 +97,7 @@ where
         Ok(())
     }
 
-    /// Returns the `subxt` rpc client connected to the running node.
+    /// Returns the `subxt` RPC client connected to the running node.
     pub fn rpc(&self) -> LegacyRpcMethods<R> {
         LegacyRpcMethods::new(self.rpc.clone())
     }
