@@ -1,7 +1,7 @@
 error[E0277]: the trait bound `NonCodec: WrapperTypeDecode` is not satisfied
- --> tests/ui/trait_def/fail/message_input_non_codec.rs:7:23
+ --> tests/ui/trait_def/fail/message_input_non_codec.rs:6:23
   |
-7 |     fn message(&self, input: NonCodec);
+6 |     fn message(&self, input: NonCodec);
   |                       ^^^^^ the trait `WrapperTypeDecode` is not implemented for `NonCodec`
   |
   = help: the following other types implement trait `WrapperTypeDecode`:
@@ -19,12 +19,12 @@ note: required by a bound in `DispatchInput`
   |        ^^^^^^^^^^^^^ required by this bound in `DispatchInput`
 
 error[E0277]: the trait bound `NonCodec: WrapperTypeEncode` is not satisfied
- --> tests/ui/trait_def/fail/message_input_non_codec.rs:4:1
+ --> tests/ui/trait_def/fail/message_input_non_codec.rs:3:1
   |
-4 | #[ink::trait_definition]
+3 | #[ink::trait_definition]
   | ^^^^^^^^^^^^^^^^^^^^^^^^ the trait `WrapperTypeEncode` is not implemented for `NonCodec`
-5 | pub trait TraitDefinition {
-6 |     #[ink(message)]
+4 | pub trait TraitDefinition {
+5 |     #[ink(message)]
   |     - required by a bound introduced by this call
   |
   = help: the following other types implement trait `WrapperTypeEncode`:
@@ -48,9 +48,9 @@ note: required by a bound in `ExecutionInput::<ArgumentList<ArgumentListEnd, Arg
   |            ^^^^^^^^^^^^^ required by this bound in `ExecutionInput::<ArgumentList<ArgumentListEnd, ArgumentListEnd>>::push_arg`
 
 error[E0599]: the method `try_invoke` exists for struct `CallBuilder<E, Set<Call<E>>, Set<ExecutionInput<ArgumentList<Argument<NonCodec>, ...>>>, ...>`, but its trait bounds were not satisfied
- --> tests/ui/trait_def/fail/message_input_non_codec.rs:6:5
+ --> tests/ui/trait_def/fail/message_input_non_codec.rs:5:5
   |
-6 |     #[ink(message)]
+5 |     #[ink(message)]
   |     ^ method cannot be called due to unsatisfied trait bounds
   |
  ::: $WORKSPACE/crates/env/src/call/execution_input.rs

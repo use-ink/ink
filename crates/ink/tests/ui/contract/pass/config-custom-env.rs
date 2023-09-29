@@ -1,4 +1,3 @@
-#[derive(Clone)]
 pub struct CustomEnv;
 
 impl ink_env::Environment for CustomEnv {

@@ -3,7 +3,6 @@ use ink_env::{
     Environment,
 };
 
-#[derive(Clone)]
 pub struct EnvironmentMoreTopics;
 
 impl ink_env::Environment for EnvironmentMoreTopics {
