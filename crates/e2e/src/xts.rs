@@ -28,6 +28,7 @@ use sp_core::{
     H256,
 };
 use subxt::{
+    backend::rpc::RpcClient,
     blocks::ExtrinsicEvents,
     config::ExtrinsicParams,
     ext::scale_encode,
@@ -203,6 +204,7 @@ enum Code {
 
 /// Provides functions for interacting with the `pallet-contracts` API.
 pub struct ContractsApi<C: subxt::Config, E: Environment> {
+    pub rpc: RpcClient,
     pub client: OnlineClient<C>,
     _phantom: PhantomData<fn() -> (C, E)>,
 }
@@ -219,11 +221,13 @@ where
     E::Balance: scale::HasCompact + serde::Serialize,
 {
     /// Creates a new [`ContractsApi`] instance.
-    pub async fn new(client: OnlineClient<C>) -> Self {
-        Self {
+    pub async fn new(rpc: RpcClient) -> Result<Self, subxt::Error> {
+        let client = OnlineClient::<C>::from_rpc_client(rpc.clone()).await?;
+        Ok(Self {
+            rpc,
             client,
             _phantom: Default::default(),
-        }
+        })
     }
 
     /// Attempt to transfer the `value` from `origin` to `dest`.
@@ -281,14 +285,13 @@ where
         };
         let func = "ContractsApi_instantiate";
         let params = rpc_params![func, Bytes(scale::Encode::encode(&call_request))];
-        let bytes: Bytes = self
-            .client
-            .rpc()
-            .request("state_call", params)
-            .await
-            .unwrap_or_else(|err| {
-                panic!("error on ws request `contracts_instantiate`: {err:?}");
-            });
+        let bytes: Bytes =
+            self.rpc
+                .request("state_call", params)
+                .await
+                .unwrap_or_else(|err| {
+                    panic!("error on ws request `contracts_instantiate`: {err:?}");
+                });
         scale::Decode::decode(&mut bytes.as_ref()).unwrap_or_else(|err| {
             panic!("decoding ContractInstantiateResult failed: {err}")
         })
@@ -376,14 +379,13 @@ where
         };
         let func = "ContractsApi_upload_code";
         let params = rpc_params![func, Bytes(scale::Encode::encode(&call_request))];
-        let bytes: Bytes = self
-            .client
-            .rpc()
-            .request("state_call", params)
-            .await
-            .unwrap_or_else(|err| {
-                panic!("error on ws request `upload_code`: {err:?}");
-            });
+        let bytes: Bytes =
+            self.rpc
+                .request("state_call", params)
+                .await
+                .unwrap_or_else(|err| {
+                    panic!("error on ws request `upload_code`: {err:?}");
+                });
         scale::Decode::decode(&mut bytes.as_ref())
             .unwrap_or_else(|err| panic!("decoding CodeUploadResult failed: {err}"))
     }
@@ -431,14 +433,13 @@ where
         };
         let func = "ContractsApi_call";
         let params = rpc_params![func, Bytes(scale::Encode::encode(&call_request))];
-        let bytes: Bytes = self
-            .client
-            .rpc()
-            .request("state_call", params)
-            .await
-            .unwrap_or_else(|err| {
-                panic!("error on ws request `contracts_call`: {err:?}");
-            });
+        let bytes: Bytes =
+            self.rpc
+                .request("state_call", params)
+                .await
+                .unwrap_or_else(|err| {
+                    panic!("error on ws request `contracts_call`: {err:?}");
+                });
         scale::Decode::decode(&mut bytes.as_ref())
             .unwrap_or_else(|err| panic!("decoding ContractExecResult failed: {err}"))
     }

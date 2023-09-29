@@ -121,13 +121,13 @@ where
 {
     /// Creates a new [`Client`] instance using a `subxt` client.
     pub async fn new<P: Into<PathBuf>>(
-        client: subxt::OnlineClient<C>,
+        client: subxt::backend::rpc::RpcClient,
         contracts: impl IntoIterator<Item = P>,
-    ) -> Self {
-        Self {
-            api: ContractsApi::new(client).await,
+    ) -> Result<Self, subxt::Error> {
+        Ok(Self {
+            api: ContractsApi::new(client).await?,
             contracts: ContractsRegistry::new(contracts),
-        }
+        })
     }
 
     /// Executes an `instantiate_with_code` call and captures the resulting events.
