@@ -419,7 +419,7 @@ where
     /// The type of the call.
     #[inline]
     #[must_use]
-    pub fn call_type<NewCallType: Clone>(
+    pub fn call_type<NewCallType>(
         self,
         call_type: NewCallType,
     ) -> CallBuilder<E, Set<NewCallType>, Args, RetType> {
@@ -482,7 +482,7 @@ where
     E: Environment,
 {
     /// Sets the execution input to the given value.
-    pub fn exec_input<Args: Clone>(
+    pub fn exec_input<Args>(
         self,
         exec_input: ExecutionInput<Args>,
     ) -> CallBuilder<E, CallType, Set<ExecutionInput<Args>>, RetType> {
@@ -586,7 +586,6 @@ impl<E, Args, RetType>
     CallBuilder<E, Set<Call<E>>, Set<ExecutionInput<Args>>, Set<ReturnType<RetType>>>
 where
     E: Environment,
-    Args: Clone,
 {
     /// Finalizes the call builder to call a function.
     pub fn params(self) -> CallParams<E, Call<E>, Args, RetType> {
@@ -609,7 +608,6 @@ impl<E, Args, RetType>
     >
 where
     E: Environment,
-    Args: Clone,
 {
     /// Finalizes the call builder to call a function.
     pub fn params(self) -> CallParams<E, DelegateCall<E>, Args, RetType> {
@@ -731,7 +729,7 @@ impl<E, Args, R>
     CallBuilder<E, Set<Call<E>>, Set<ExecutionInput<Args>>, Set<ReturnType<R>>>
 where
     E: Environment,
-    Args: scale::Encode + Clone,
+    Args: scale::Encode,
     R: scale::Decode,
 {
     /// Invokes the cross-chain function call and returns the result.
@@ -761,7 +759,7 @@ impl<E, Args, R>
     CallBuilder<E, Set<DelegateCall<E>>, Set<ExecutionInput<Args>>, Set<ReturnType<R>>>
 where
     E: Environment,
-    Args: scale::Encode + Clone,
+    Args: scale::Encode,
     R: scale::Decode,
 {
     /// Invokes the cross-chain function call using Delegate Call semantics and returns

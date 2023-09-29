@@ -41,8 +41,6 @@ impl<T, E, CallType, Args> ImpliesReturn<T>
     for CallBuilder<E, Set<CallType>, Set<ExecutionInput<Args>>, Set<ReturnType<T>>>
 where
     E: Environment,
-    Args: Clone,
-    CallType: Clone,
 {
 }
 
@@ -50,7 +48,5 @@ impl<E, CallType, Args> ImpliesReturn<()>
     for CallBuilder<E, Set<CallType>, Set<ExecutionInput<Args>>, Set<()>>
 where
     E: Environment,
-    Args: Clone,
-    CallType: Clone,
 {
 }

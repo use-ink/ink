@@ -297,7 +297,6 @@ pub struct CreateBuilder<
     RetType,
 > where
     E: Environment,
-    ContractRef: Clone,
 {
     code_hash: CodeHash,
     gas_limit: GasLimit,
@@ -308,16 +307,8 @@ pub struct CreateBuilder<
     _phantom: PhantomData<fn() -> (E, ContractRef)>,
 }
 
-impl<
-        E: Environment,
-        ContractRef: Clone,
-        CodeHash,
-        GasLimit,
-        Endowment,
-        Args,
-        Salt,
-        RetType,
-    > CreateBuilder<E, ContractRef, CodeHash, GasLimit, Endowment, Args, Salt, RetType>
+impl<E: Environment, ContractRef, CodeHash, GasLimit, Endowment, Args, Salt, RetType>
+    CreateBuilder<E, ContractRef, CodeHash, GasLimit, Endowment, Args, Salt, RetType>
 {
     /// Returns currently set code hash
     pub fn get_code_hash(&self) -> &CodeHash {
@@ -476,7 +467,6 @@ impl<E, ContractRef, GasLimit, Endowment, Args, Salt, RetType>
     >
 where
     E: Environment,
-    ContractRef: Clone,
 {
     /// Sets the used code hash for the contract instantiation.
     #[inline]
@@ -509,7 +499,6 @@ impl<E, ContractRef, CodeHash, Endowment, Args, Salt, RetType>
     CreateBuilder<E, ContractRef, CodeHash, Unset<u64>, Endowment, Args, Salt, RetType>
 where
     E: Environment,
-    ContractRef: Clone,
 {
     /// Sets the maximum allowed gas costs for the contract instantiation.
     #[inline]
@@ -543,7 +532,6 @@ impl<E, ContractRef, CodeHash, GasLimit, Args, Salt, RetType>
     >
 where
     E: Environment,
-    ContractRef: Clone,
 {
     /// Sets the value transferred upon the execution of the call.
     #[inline]
@@ -585,7 +573,6 @@ impl<E, ContractRef, CodeHash, GasLimit, Endowment, Salt, RetType>
     >
 where
     E: Environment,
-    ContractRef: Clone,
 {
     /// Sets the value transferred upon the execution of the call.
     #[inline]
@@ -627,7 +614,6 @@ impl<E, ContractRef, CodeHash, GasLimit, Endowment, Args, RetType>
     >
 where
     E: Environment,
-    ContractRef: Clone,
 {
     /// Sets the value transferred upon the execution of the call.
     #[inline]
@@ -672,7 +658,6 @@ impl<E, ContractRef, CodeHash, GasLimit, Endowment, Args, Salt>
     >
 where
     E: Environment,
-    ContractRef: Clone,
 {
     /// Sets the type of the returned value upon the execution of the constructor.
     ///
@@ -725,10 +710,7 @@ impl<E, ContractRef, GasLimit, Args, Salt, RetType>
     >
 where
     E: Environment,
-    ContractRef: Clone,
     GasLimit: Unwrap<Output = u64>,
-    Args: Clone,
-    Salt: Clone,
 {
     /// Finalizes the create builder, allowing it to instantiate a contract.
     #[inline]
@@ -758,7 +740,6 @@ impl<E, ContractRef, GasLimit, Args, Salt, RetType>
     >
 where
     E: Environment,
-    ContractRef: Clone,
     ContractRef: FromAccountId<E>,
     GasLimit: Unwrap<Output = u64>,
     Args: scale::Encode + Clone,

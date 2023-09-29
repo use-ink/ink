@@ -40,9 +40,9 @@ impl<T> Default for ReturnType<T> {
 
 /// A parameter that has been set to some value.
 #[derive(Debug, Copy, Clone)]
-pub struct Set<T: Clone>(pub T);
+pub struct Set<T>(pub T);
 
-impl<T: Clone> Set<T> {
+impl<T> Set<T> {
     /// Returns the set value.
     #[inline]
     pub fn value(self) -> T {
@@ -96,7 +96,7 @@ impl<T> Unwrap for Unset<T> {
     }
 }
 
-impl<T: Clone> Unwrap for Set<T> {
+impl<T> Unwrap for Set<T> {
     type Output = T;
 
     #[inline]
