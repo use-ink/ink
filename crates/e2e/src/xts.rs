@@ -253,7 +253,7 @@ where
         )
         .unvalidated();
 
-        let account_id = <Keypair as Signer<C>>::account_id(&origin);
+        let account_id = <Keypair as Signer<C>>::account_id(origin);
         let account_nonce =
             self.get_account_nonce(&account_id)
                 .await
@@ -324,7 +324,7 @@ where
     where
         Call: subxt::tx::TxPayload,
     {
-        let account_id = <Keypair as Signer<C>>::account_id(&signer);
+        let account_id = <Keypair as Signer<C>>::account_id(signer);
         let account_nonce =
             self.get_account_nonce(&account_id)
                 .await
