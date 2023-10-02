@@ -256,6 +256,20 @@
 <a href="#256" id="256">256</a>
 <a href="#257" id="257">257</a>
 <a href="#258" id="258">258</a>
+<a href="#259" id="259">259</a>
+<a href="#260" id="260">260</a>
+<a href="#261" id="261">261</a>
+<a href="#262" id="262">262</a>
+<a href="#263" id="263">263</a>
+<a href="#264" id="264">264</a>
+<a href="#265" id="265">265</a>
+<a href="#266" id="266">266</a>
+<a href="#267" id="267">267</a>
+<a href="#268" id="268">268</a>
+<a href="#269" id="269">269</a>
+<a href="#270" id="270">270</a>
+<a href="#271" id="271">271</a>
+<a href="#272" id="272">272</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -284,6 +298,7 @@
     process,
 };
 <span class="kw">use </span>subxt::{
+    backend::rpc::RpcClient,
     Config,
     OnlineClient,
 };
@@ -291,6 +306,7 @@
 <span class="doccomment">/// Spawn a local substrate node for testing.
 </span><span class="kw">pub struct </span>TestNodeProcess&lt;R: Config&gt; {
     proc: process::Child,
+    rpc: RpcClient,
     client: OnlineClient&lt;R&gt;,
     url: String,
 }
@@ -348,6 +364,11 @@
             <span class="kw">return </span><span class="prelude-val">Err</span>(err)
         }
         <span class="prelude-val">Ok</span>(())
+    }
+
+    <span class="doccomment">/// Returns the `subxt` RPC client connected to the running node.
+    </span><span class="kw">pub fn </span>rpc(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; RpcClient {
+        <span class="self">self</span>.rpc.clone()
     }
 
     <span class="doccomment">/// Returns the `subxt` client connected to the running node.
@@ -419,11 +440,15 @@
         <span class="kw">let </span>url = <span class="macro">format!</span>(<span class="string">&quot;ws://127.0.0.1:{port}&quot;</span>);
 
         <span class="comment">// Connect to the node with a `subxt` client:
-        </span><span class="kw">let </span>client = OnlineClient::from_url(url.clone()).<span class="kw">await</span>;
+        </span><span class="kw">let </span>rpc = RpcClient::from_url(url.clone())
+            .<span class="kw">await
+            </span>.map_err(|err| <span class="macro">format!</span>(<span class="string">&quot;Error initializing rpc client: {}&quot;</span>, err))<span class="question-mark">?</span>;
+        <span class="kw">let </span>client = OnlineClient::from_url(url.clone()).<span class="kw">await</span>;
         <span class="kw">match </span>client {
             <span class="prelude-val">Ok</span>(client) =&gt; {
                 <span class="prelude-val">Ok</span>(TestNodeProcess {
                     proc,
+                    rpc,
                     client,
                     url: url.clone(),
                 })
@@ -476,13 +501,16 @@
 <span class="attr">#[cfg(test)]
 </span><span class="kw">mod </span>tests {
     <span class="kw">use super</span>::<span class="kw-2">*</span>;
-    <span class="kw">use </span>subxt::PolkadotConfig <span class="kw">as </span>SubxtConfig;
+    <span class="kw">use </span>subxt::{
+        backend::legacy::LegacyRpcMethods,
+        PolkadotConfig <span class="kw">as </span>SubxtConfig,
+    };
 
     <span class="attr">#[tokio::test]
     #[allow(unused_assignments)]
     </span><span class="kw">async fn </span>spawning_and_killing_nodes_works() {
-        <span class="kw">let </span><span class="kw-2">mut </span>client1: <span class="prelude-ty">Option</span>&lt;OnlineClient&lt;SubxtConfig&gt;&gt; = <span class="prelude-val">None</span>;
-        <span class="kw">let </span><span class="kw-2">mut </span>client2: <span class="prelude-ty">Option</span>&lt;OnlineClient&lt;SubxtConfig&gt;&gt; = <span class="prelude-val">None</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>client1: <span class="prelude-ty">Option</span>&lt;LegacyRpcMethods&lt;SubxtConfig&gt;&gt; = <span class="prelude-val">None</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>client2: <span class="prelude-ty">Option</span>&lt;LegacyRpcMethods&lt;SubxtConfig&gt;&gt; = <span class="prelude-val">None</span>;
 
         {
             <span class="kw">let </span>node_proc1 =
@@ -490,25 +518,25 @@
                     .spawn()
                     .<span class="kw">await
                     </span>.unwrap();
-            client1 = <span class="prelude-val">Some</span>(node_proc1.client());
+            client1 = <span class="prelude-val">Some</span>(LegacyRpcMethods::new(node_proc1.rpc()));
 
             <span class="kw">let </span>node_proc2 =
                 TestNodeProcess::&lt;SubxtConfig&gt;::build(<span class="string">&quot;substrate-contracts-node&quot;</span>)
                     .spawn()
                     .<span class="kw">await
                     </span>.unwrap();
-            client2 = <span class="prelude-val">Some</span>(node_proc2.client());
+            client2 = <span class="prelude-val">Some</span>(LegacyRpcMethods::new(node_proc2.rpc()));
 
-            <span class="kw">let </span>res1 = node_proc1.client().rpc().block_hash(<span class="prelude-val">None</span>).<span class="kw">await</span>;
-            <span class="kw">let </span>res2 = node_proc1.client().rpc().block_hash(<span class="prelude-val">None</span>).<span class="kw">await</span>;
+            <span class="kw">let </span>res1 = client1.clone().unwrap().chain_get_block_hash(<span class="prelude-val">None</span>).<span class="kw">await</span>;
+            <span class="kw">let </span>res2 = client2.clone().unwrap().chain_get_block_hash(<span class="prelude-val">None</span>).<span class="kw">await</span>;
 
             <span class="macro">assert!</span>(res1.is_ok());
             <span class="macro">assert!</span>(res2.is_ok());
         }
 
         <span class="comment">// node processes should have been killed by `Drop` in the above block.
-        </span><span class="kw">let </span>res1 = client1.unwrap().rpc().block_hash(<span class="prelude-val">None</span>).<span class="kw">await</span>;
-        <span class="kw">let </span>res2 = client2.unwrap().rpc().block_hash(<span class="prelude-val">None</span>).<span class="kw">await</span>;
+        </span><span class="kw">let </span>res1 = client1.unwrap().chain_get_block_hash(<span class="prelude-val">None</span>).<span class="kw">await</span>;
+        <span class="kw">let </span>res2 = client2.unwrap().chain_get_block_hash(<span class="prelude-val">None</span>).<span class="kw">await</span>;
 
         <span class="macro">assert!</span>(res1.is_err());
         <span class="macro">assert!</span>(res2.is_err());

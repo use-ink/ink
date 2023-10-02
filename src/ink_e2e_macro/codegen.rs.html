@@ -268,7 +268,7 @@
         <span class="kw">let </span><span class="kw-2">mut </span>client = ::ink_e2e::Client::&lt;
             ::ink_e2e::PolkadotConfig,
             #environment
-        &gt;::new(node_proc.client(), contracts).<span class="kw">await</span>;
+        &gt;::new(node_proc.rpc(), contracts).<span class="kw">await</span><span class="question-mark">?</span>;
     }
 }
 

@@ -701,8 +701,6 @@
 <a href="#701" id="701">701</a>
 <a href="#702" id="702">702</a>
 <a href="#703" id="703">703</a>
-<a href="#704" id="704">704</a>
-<a href="#705" id="705">705</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -817,7 +815,7 @@
         From&lt;sr25519::PublicKey&gt; + scale::Codec + serde::de::DeserializeOwned + Debug,
     C::Address: From&lt;sr25519::PublicKey&gt;,
     C::Signature: From&lt;sr25519::Signature&gt;,
-    &lt;C::ExtrinsicParams <span class="kw">as </span>ExtrinsicParams&lt;C::Hash&gt;&gt;::OtherParams: Default,
+    &lt;C::ExtrinsicParams <span class="kw">as </span>ExtrinsicParams&lt;C&gt;&gt;::OtherParams: Default,
 
     E: Environment,
     E::AccountId: Debug,
@@ -826,13 +824,13 @@
 {
     <span class="doccomment">/// Creates a new [`Client`] instance using a `subxt` client.
     </span><span class="kw">pub async fn </span>new&lt;P: Into&lt;PathBuf&gt;&gt;(
-        client: subxt::OnlineClient&lt;C&gt;,
+        client: subxt::backend::rpc::RpcClient,
         contracts: <span class="kw">impl </span>IntoIterator&lt;Item = P&gt;,
-    ) -&gt; <span class="self">Self </span>{
-        <span class="self">Self </span>{
-            api: ContractsApi::new(client).<span class="kw">await</span>,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, subxt::Error&gt; {
+        <span class="prelude-val">Ok</span>(<span class="self">Self </span>{
+            api: ContractsApi::new(client).<span class="kw">await</span><span class="question-mark">?</span>,
             contracts: ContractsRegistry::new(contracts),
-        }
+        })
     }
 
     <span class="doccomment">/// Executes an `instantiate_with_code` call and captures the resulting events.
@@ -1011,7 +1009,7 @@
     C::Address: From&lt;sr25519::PublicKey&gt;,
     C::Signature: From&lt;sr25519::Signature&gt;,
     C::Address: Send + Sync,
-    &lt;C::ExtrinsicParams <span class="kw">as </span>ExtrinsicParams&lt;C::Hash&gt;&gt;::OtherParams: Default + Send + Sync,
+    &lt;C::ExtrinsicParams <span class="kw">as </span>ExtrinsicParams&lt;C&gt;&gt;::OtherParams: Default + Send + Sync,
 
     E: Environment,
     E::AccountId: Debug + Send + Sync,
@@ -1073,15 +1071,13 @@
             ],
         );
 
+        <span class="kw">let </span>best_block = <span class="self">self</span>.api.best_block().<span class="kw">await</span>;
+
         <span class="kw">let </span>account = <span class="self">self
             </span>.api
             .client
             .storage()
-            .at_latest()
-            .<span class="kw">await
-            </span>.unwrap_or_else(|err| {
-                <span class="macro">panic!</span>(<span class="string">&quot;unable to fetch balance: {err:?}&quot;</span>);
-            })
+            .at(best_block)
             .fetch_or_default(<span class="kw-2">&amp;</span>account_addr)
             .<span class="kw">await
             </span>.unwrap_or_else(|err| {
@@ -1152,7 +1148,7 @@
     C::Address: From&lt;sr25519::PublicKey&gt;,
     C::Signature: From&lt;sr25519::Signature&gt;,
     C::Address: Send + Sync,
-    &lt;C::ExtrinsicParams <span class="kw">as </span>ExtrinsicParams&lt;C::Hash&gt;&gt;::OtherParams: Default + Send + Sync,
+    &lt;C::ExtrinsicParams <span class="kw">as </span>ExtrinsicParams&lt;C&gt;&gt;::OtherParams: Default + Send + Sync,
 
     E: Environment,
     E::AccountId: Debug + Send + Sync,
@@ -1330,7 +1326,7 @@
     C::Address: From&lt;sr25519::PublicKey&gt;,
     C::Signature: From&lt;sr25519::Signature&gt;,
     C::Address: Send + Sync,
-    &lt;C::ExtrinsicParams <span class="kw">as </span>ExtrinsicParams&lt;C::Hash&gt;&gt;::OtherParams: Default + Send + Sync,
+    &lt;C::ExtrinsicParams <span class="kw">as </span>ExtrinsicParams&lt;C&gt;&gt;::OtherParams: Default + Send + Sync,
 
     E: Environment,
     E::AccountId: Debug + Send + Sync,
