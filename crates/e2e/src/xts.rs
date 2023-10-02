@@ -253,16 +253,27 @@ where
         )
         .unvalidated();
 
-        let tx_progress = self
+        let account_id = <Keypair as Signer<C>>::account_id(&origin);
+        let account_nonce =
+            self.get_account_nonce(&account_id)
+                .await
+                .unwrap_or_else(|err| {
+                    panic!("error calling `get_account_nonce`: {err:?}");
+                });
+
+        self
             .client
             .tx()
-            .sign_and_submit_then_watch_default(&call, origin)
-            .await?;
-
-        tx_progress
-            .wait_for_finalized_success()
+            .create_signed_with_nonce(&call, origin, account_nonce, Default::default())
+            .unwrap_or_else(|err| {
+                panic!("error on call `create_signed_with_nonce`: {err:?}");
+            })
+            .submit_and_watch()
             .await
             .unwrap_or_else(|err| {
+                panic!("error on call `submit_and_watch`: {err:?}");
+            })
+            .wait_for_in_block().await.unwrap_or_else(|err| {
                 panic!("error on call `wait_for_in_block`: {err:?}");
             });
 
