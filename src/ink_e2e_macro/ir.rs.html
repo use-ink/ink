@@ -61,9 +61,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-</span><span class="kw">use crate</span>::{
-    config::E2EConfig,
-    ir,
+</span><span class="kw">use </span><span class="kw">crate</span>::config::E2EConfig;
+<span class="kw">use </span>darling::{
+    ast::NestedMeta,
+    FromMeta,
 };
 <span class="kw">use </span>proc_macro2::TokenStream <span class="kw">as </span>TokenStream2;
 
@@ -86,8 +87,7 @@
     <span class="doccomment">/// Returns `Ok` if the test matches all requirements for an
     /// ink! E2E test definition.
     </span><span class="kw">pub fn </span>new(attrs: TokenStream2, input: TokenStream2) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, syn::Error&gt; {
-        <span class="kw">let </span>config = syn::parse2::&lt;ink_ir::ast::AttributeArgs&gt;(attrs)<span class="question-mark">?</span>;
-        <span class="kw">let </span>e2e_config = ir::E2EConfig::try_from(config)<span class="question-mark">?</span>;
+        <span class="kw">let </span>e2e_config = E2EConfig::from_list(<span class="kw-2">&amp;</span>NestedMeta::parse_meta_list(attrs)<span class="question-mark">?</span>)<span class="question-mark">?</span>;
         <span class="kw">let </span>item_fn = syn::parse2::&lt;syn::ItemFn&gt;(input)<span class="question-mark">?</span>;
         <span class="kw">let </span>e2e_fn = E2EFn::from(item_fn);
         <span class="prelude-val">Ok</span>(<span class="self">Self </span>{
