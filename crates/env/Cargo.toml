@@ -1,10 +1,7 @@
 [package]
 name = "ink_env"
 version.workspace = true
-authors = [
-    "Parity Technologies <admin@parity.io>",
-    "Robin Freyler <robin@parity.io>",
-]
+authors = ["Parity Technologies <admin@parity.io>", "Robin Freyler <robin@parity.io>"]
 edition.workspace = true
 rust-version = "1.68"
 
@@ -44,10 +41,7 @@ sha3 = { workspace = true, optional = true }
 blake2 = { workspace = true, optional = true }
 
 # ECDSA for the off-chain environment.
-secp256k1 = { workspace = true, features = [
-    "recovery",
-    "global-context",
-], optional = true }
+secp256k1 = { workspace = true, features = ["recovery", "global-context"], optional = true }
 
 # schnorrkel for the off-chain environment.
 schnorrkel = { version = "0.11.2", optional = true }
@@ -59,20 +53,7 @@ schnorrkel = { version = "0.11.2", optional = true }
 scale-decode = { workspace = true, optional = true }
 scale-encode = { workspace = true, optional = true }
 scale-info = { workspace = true, features = ["derive"], optional = true }
-
-[dependencies.lazy_static]
-version = "1.4.0"
-
-[dependencies.sp-core]
-version = "21.0.0"
-
-[dependencies.strum]
-version = "0.24.1"
-features = ["derive"]
-default-features = false
-
-[dependencies.sp-runtime]
-version = "24.0.0"
+sp-keyring = { workspace = true }
 
 [dev-dependencies]
 ink = { path = "../ink" }
