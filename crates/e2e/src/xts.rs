@@ -362,6 +362,20 @@ where
             })
     }
 
+    /// Return the hash of the *best* block
+    pub async fn best_block(&self) -> C::Hash {
+        let legacy_rpc = LegacyRpcMethods::<C>::new(self.rpc.clone());
+        legacy_rpc
+            .chain_get_block_hash(None)
+            .await
+            .unwrap_or_else(|err| {
+                panic!("error on call `chain_get_block_hash`: {err:?}");
+            })
+            .unwrap_or_else(|| {
+                panic!("error on call `chain_get_block_hash`: no best block found");
+            })
+    }
+
     /// Return the account nonce at the *best* block for an account ID.
     ///
     /// Replace this with the new `account_id` query available in the next `subxt`
@@ -370,14 +384,7 @@ where
         &self,
         account_id: &C::AccountId,
     ) -> Result<u64, subxt::Error> {
-        let legacy_rpc = LegacyRpcMethods::<C>::new(self.rpc.clone());
-        let best_block =
-            legacy_rpc
-                .chain_get_block_hash(None)
-                .await?
-                .unwrap_or_else(|| {
-                    panic!("error on call `chain_get_block_hash`: no best block found");
-                });
+        let best_block = self.best_block().await;
 
         let account_nonce_bytes = self
             .client

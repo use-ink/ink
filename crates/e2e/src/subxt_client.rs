@@ -368,15 +368,13 @@ where
             ],
         );
 
+        let best_block = self.api.best_block().await;
+
         let account = self
             .api
             .client
             .storage()
-            .at_latest()
-            .await
-            .unwrap_or_else(|err| {
-                panic!("unable to fetch balance: {err:?}");
-            })
+            .at(best_block)
             .fetch_or_default(&account_addr)
             .await
             .unwrap_or_else(|err| {
