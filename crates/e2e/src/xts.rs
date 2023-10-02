@@ -364,7 +364,7 @@ where
 
     /// Return the account nonce at the *best* block for an account ID.
     ///
-    /// Copied from https://github.com/paritytech/subxt/pull/1182, replace with this API once this
+    /// Copied from [https://github.com/paritytech/subxt/pull/1182], replace with this API once this
     /// is released.
     async fn get_account_nonce(
         &self,
