@@ -23,10 +23,7 @@ use ink_env::Environment;
 
 use core::marker::PhantomData;
 use pallet_contracts_primitives::CodeUploadResult;
-use sp_core::{
-    Bytes,
-    H256,
-};
+use sp_core::H256;
 use subxt::{
     backend::{
         legacy::LegacyRpcMethods,
@@ -35,7 +32,6 @@ use subxt::{
     blocks::ExtrinsicEvents,
     config::ExtrinsicParams,
     ext::scale_encode,
-    rpc_params,
     tx::Signer,
     utils::MultiAddress,
     OnlineClient,
@@ -207,7 +203,7 @@ enum Code {
 
 /// Provides functions for interacting with the `pallet-contracts` API.
 pub struct ContractsApi<C: subxt::Config, E: Environment> {
-    pub rpc: RpcClient,
+    pub rpc: LegacyRpcMethods<C>,
     pub client: OnlineClient<C>,
     _phantom: PhantomData<fn() -> (C, E)>,
 }
@@ -226,6 +222,7 @@ where
     /// Creates a new [`ContractsApi`] instance.
     pub async fn new(rpc: RpcClient) -> Result<Self, subxt::Error> {
         let client = OnlineClient::<C>::from_rpc_client(rpc.clone()).await?;
+        let rpc = LegacyRpcMethods::<C>::new(rpc);
         Ok(Self {
             rpc,
             client,
@@ -302,14 +299,14 @@ where
             salt,
         };
         let func = "ContractsApi_instantiate";
-        let params = rpc_params![func, Bytes(scale::Encode::encode(&call_request))];
-        let bytes: Bytes =
-            self.rpc
-                .request("state_call", params)
-                .await
-                .unwrap_or_else(|err| {
-                    panic!("error on ws request `contracts_instantiate`: {err:?}");
-                });
+        let params = scale::Encode::encode(&call_request);
+        let bytes = self
+            .rpc
+            .state_call(func, Some(&params), None)
+            .await
+            .unwrap_or_else(|err| {
+                panic!("error on ws request `contracts_instantiate`: {err:?}");
+            });
         scale::Decode::decode(&mut bytes.as_ref()).unwrap_or_else(|err| {
             panic!("decoding ContractInstantiateResult failed: {err}")
         })
@@ -364,8 +361,7 @@ where
 
     /// Return the hash of the *best* block
     pub async fn best_block(&self) -> C::Hash {
-        let legacy_rpc = LegacyRpcMethods::<C>::new(self.rpc.clone());
-        legacy_rpc
+        self.rpc
             .chain_get_block_hash(None)
             .await
             .unwrap_or_else(|err| {
@@ -454,14 +450,14 @@ where
             determinism: Determinism::Enforced,
         };
         let func = "ContractsApi_upload_code";
-        let params = rpc_params![func, Bytes(scale::Encode::encode(&call_request))];
-        let bytes: Bytes =
-            self.rpc
-                .request("state_call", params)
-                .await
-                .unwrap_or_else(|err| {
-                    panic!("error on ws request `upload_code`: {err:?}");
-                });
+        let params = scale::Encode::encode(&call_request);
+        let bytes = self
+            .rpc
+            .state_call(func, Some(&params), None)
+            .await
+            .unwrap_or_else(|err| {
+                panic!("error on ws request `upload_code`: {err:?}");
+            });
         scale::Decode::decode(&mut bytes.as_ref())
             .unwrap_or_else(|err| panic!("decoding CodeUploadResult failed: {err}"))
     }
@@ -508,14 +504,14 @@ where
             input_data,
         };
         let func = "ContractsApi_call";
-        let params = rpc_params![func, Bytes(scale::Encode::encode(&call_request))];
-        let bytes: Bytes =
-            self.rpc
-                .request("state_call", params)
-                .await
-                .unwrap_or_else(|err| {
-                    panic!("error on ws request `contracts_call`: {err:?}");
-                });
+        let params = scale::Encode::encode(&call_request);
+        let bytes = self
+            .rpc
+            .state_call(func, Some(&params), None)
+            .await
+            .unwrap_or_else(|err| {
+                panic!("error on ws request `contracts_call`: {err:?}");
+            });
         scale::Decode::decode(&mut bytes.as_ref())
             .unwrap_or_else(|err| panic!("decoding ContractExecResult failed: {err}"))
     }
