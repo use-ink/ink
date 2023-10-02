@@ -28,7 +28,10 @@ use sp_core::{
     H256,
 };
 use subxt::{
-    backend::rpc::RpcClient,
+    backend::{
+        legacy::LegacyRpcMethods,
+        rpc::RpcClient,
+    },
     blocks::ExtrinsicEvents,
     config::ExtrinsicParams,
     ext::scale_encode,
@@ -256,9 +259,12 @@ where
             .sign_and_submit_then_watch_default(&call, origin)
             .await?;
 
-        tx_progress.wait_for_in_block().await.unwrap_or_else(|err| {
-            panic!("error on call `wait_for_in_block`: {err:?}");
-        });
+        tx_progress
+            .wait_for_finalized_success()
+            .await
+            .unwrap_or_else(|err| {
+                panic!("error on call `wait_for_in_block`: {err:?}");
+            });
 
         Ok(())
     }
@@ -306,9 +312,21 @@ where
     where
         Call: subxt::tx::TxPayload,
     {
+        let account_id = <Keypair as Signer<C>>::account_id(&signer);
+        let account_nonce =
+            self.get_account_nonce(&account_id)
+                .await
+                .unwrap_or_else(|err| {
+                    panic!("error calling `get_account_nonce`: {err:?}");
+                });
+
         self.client
             .tx()
-            .sign_and_submit_then_watch_default(call, signer)
+            .create_signed_with_nonce(call, signer, account_nonce, Default::default())
+            .unwrap_or_else(|err| {
+                panic!("error on call `create_signed_with_nonce`: {err:?}");
+            })
+            .submit_and_watch()
             .await
             .map(|tx_progress| {
                 log_info(&format!(
@@ -318,7 +336,7 @@ where
                 tx_progress
             })
             .unwrap_or_else(|err| {
-                panic!("error on call `sign_and_submit_then_watch_default`: {err:?}");
+                panic!("error on call `submit_and_watch`: {err:?}");
             })
             .wait_for_in_block()
             .await
@@ -330,6 +348,45 @@ where
             .unwrap_or_else(|err| {
                 panic!("error on call `fetch_events`: {err:?}");
             })
+    }
+
+    /// Return the account nonce at the *best* block for an account ID.
+    ///
+    /// Copied from https://github.com/paritytech/subxt/pull/1182, replace with this API once this
+    /// is released.
+    async fn get_account_nonce(
+        &self,
+        account_id: &C::AccountId,
+    ) -> Result<u64, subxt::Error> {
+        let legacy_rpc = LegacyRpcMethods::<C>::new(self.rpc.clone());
+        let best_block =
+            legacy_rpc
+                .chain_get_block_hash(None)
+                .await?
+                .unwrap_or_else(|| {
+                    panic!("error on call `chain_get_block_hash`: no best block found");
+                });
+
+        let account_nonce_bytes = self
+            .client
+            .backend()
+            .call(
+                "AccountNonceApi_account_nonce",
+                Some(&scale::Encode::encode(&account_id)),
+                best_block,
+            )
+            .await?;
+
+        // custom decoding from a u16/u32/u64 into a u64, based on the number of bytes we
+        // got back.
+        let cursor = &mut &account_nonce_bytes[..];
+        let account_nonce: u64 = match account_nonce_bytes.len() {
+            2 => <u16 as scale::Decode>::decode(cursor)?.into(),
+            4 => <u32 as scale::Decode>::decode(cursor)?.into(),
+            8 => <u64 as scale::Decode>::decode(cursor)?,
+            _ => return Err(subxt::Error::Decode(subxt::error::DecodeError::custom_string(format!("state call AccountNonceApi_account_nonce returned an unexpected number of bytes: {} (expected 2, 4 or 8)", account_nonce_bytes.len()))))
+        };
+        Ok(account_nonce)
     }
 
     /// Submits an extrinsic to instantiate a contract with the given code.
