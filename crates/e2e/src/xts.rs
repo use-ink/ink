@@ -364,7 +364,7 @@ where
 
     /// Return the account nonce at the *best* block for an account ID.
     ///
-    /// Replace this with the new `account_id` query avaialable in the next `subxt`
+    /// Replace this with the new `account_id` query available in the next `subxt`
     /// release.
     async fn get_account_nonce(
         &self,
