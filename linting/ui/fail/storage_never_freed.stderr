@@ -1,0 +1,29 @@
+error: storage never freed
+  --> $DIR/storage_never_freed.rs:15:9
+   |
+LL |         map_field: Mapping<AccountId, AccountId>,
+   |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+note: the lint level is defined here
+  --> $DIR/storage_never_freed.rs:1:46
+   |
+LL | #![cfg_attr(dylint_lib = "ink_linting", deny(storage_never_freed))]
+   |                                              ^^^^^^^^^^^^^^^^^^^
+help: consider adding operations to remove elements available to the user
+   |
+LL |         map_field: Mapping<AccountId, AccountId>,
+   |         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+error: storage never freed
+  --> $DIR/storage_never_freed.rs:14:9
+   |
+LL |         vec_field: Vec<AccountId>,
+   |         ^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+help: consider adding operations to remove elements available to the user
+   |
+LL |         vec_field: Vec<AccountId>,
+   |         ~~~~~~~~~~~~~~~~~~~~~~~~~
+
+error: aborting due to 2 previous errors
+
