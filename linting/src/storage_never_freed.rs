@@ -162,21 +162,25 @@ impl FieldInfo {
     }
 }
 
-/// Returns `DefId` of a field if it has the `Vec` type
-fn find_vec_did(cx: &LateContext, path: &Path) -> Option<DefId> {
-    if_chain! {
-        if let Res::Def(DefKind::Struct, def_id) = path.res;
-        if match_def_path(cx, def_id, &["alloc", "vec", "Vec"]);
-        then { Some(def_id) } else { None }
-    }
-}
-
-/// Returns `DefId` of a field if it has the `Mapping` type
-fn find_map_did(cx: &LateContext, path: &Path) -> Option<DefId> {
-    if_chain! {
-        if let Res::Def(DefKind::Struct, def_id) = path.res;
-        if match_def_path(cx, def_id, &["ink_storage", "lazy", "mapping", "Mapping"]);
-        then { Some(def_id) } else { None }
+/// Finds `DefId` of the path that has the supported collection type
+fn find_collection_def_id(
+    cx: &LateContext,
+    path: &Path,
+) -> Option<(DefId, CollectionTy)> {
+    if let Res::Def(DefKind::Struct, def_id) = path.res {
+        if match_def_path(cx, def_id, &["alloc", "vec", "Vec"]) {
+            Some((def_id, CollectionTy::Vec))
+        } else if match_def_path(
+            cx,
+            def_id,
+            &["ink_storage", "lazy", "mapping", "Mapping"],
+        ) {
+            Some((def_id, CollectionTy::Map))
+        } else {
+            None
+        }
+    } else {
+        None
     }
 }
 
@@ -199,12 +203,8 @@ fn find_collection_fields(cx: &LateContext, storage_struct_id: ItemId) -> Fields
                 then {
                     let field_name = field_def.ident.name.as_str();
                     // TODO: Inspect type aliases
-                    if let Some(_did) = find_vec_did(cx, path) {
-                        result.insert(field_name.to_string(), FieldInfo::new(field_def.def_id, CollectionTy::Vec));
-                        return;
-                    }
-                    if let Some(_did) = find_map_did(cx, path) {
-                        result.insert(field_name.to_string(), FieldInfo::new(field_def.def_id, CollectionTy::Map));
+                    if let Some((_, ty)) = find_collection_def_id(cx, path) {
+                        result.insert(field_name.to_string(), FieldInfo::new(field_def.def_id, ty));
                     }
                 }
             }
