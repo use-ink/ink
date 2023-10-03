@@ -12,9 +12,11 @@ pub mod storage_never_freed {
         // All the fields generate warnings, since there are `insert` operations for
         // them, but there are no `remove` operations.
         vec_1: Vec<AccountId>,
+        vec_2: Vec<bool>,
         vec_subscription: Vec<AccountId>,
         map_1: Mapping<AccountId, AccountId>,
         map_2: Mapping<AccountId, AccountId>,
+        map_3: Mapping<AccountId, AccountId>,
         map_alias: MapAlias2<AccountId, AccountId>,
     }
 
@@ -23,9 +25,11 @@ pub mod storage_never_freed {
         pub fn new() -> Self {
             Self {
                 vec_1: Vec::new(),
+                vec_2: Vec::new(),
                 vec_subscription: Vec::new(),
                 map_1: Mapping::new(),
                 map_2: Mapping::new(),
+                map_3: Mapping::new(),
                 map_alias: Mapping::new(),
             }
         }
@@ -41,6 +45,7 @@ pub mod storage_never_freed {
             self.map_1.insert(v, &v);
             let _ = Self::flip(self.map_2.insert(v, &v).is_some());
             self.map_alias.insert(v, &v);
+            self.vec_2.push(self.map_3.insert(v, &v).is_some());
         }
     }
 }
