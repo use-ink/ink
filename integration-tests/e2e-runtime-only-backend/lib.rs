@@ -99,12 +99,14 @@ pub mod flipper {
             // when
             let mut call = contract.call::<Flipper>();
             let _flip_res = client
-                .bare_call_dry_run(&ink_e2e::bob(), &call.flip(), 0, None)
+                .call(&ink_e2e::bob(), &call.flip())
+                .submit()
                 .await;
 
             // then
             let get_res = client
-                .bare_call_dry_run(&ink_e2e::bob(), &call.get(), 0, None)
+                .call(&ink_e2e::bob(), &call.get())
+                .dry_run()
                 .await;
             assert_eq!(get_res.return_value(), !INITIAL_VALUE);
 

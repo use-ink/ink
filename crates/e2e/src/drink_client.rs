@@ -231,13 +231,47 @@ where
 
     async fn bare_instantiate_dry_run<Contract: Clone, Args: Send + Encode + Clone, R>(
         &mut self,
-        _contract_name: &str,
-        _caller: &Keypair,
-        _constructor: &mut CreateBuilderPartial<E, Contract, Args, R>,
-        _value: E::Balance,
-        _storage_deposit_limit: Option<E::Balance>,
-    ) -> ContractInstantiateResult<E::AccountId, E::Balance, ()> {
-        todo!("https://github.com/Cardinal-Cryptography/drink/issues/37")
+        contract_name: &str,
+        caller: &Keypair,
+        constructor: &mut CreateBuilderPartial<E, Contract, Args, R>,
+        value: E::Balance,
+        storage_deposit_limit: Option<E::Balance>,
+    ) -> ContractInstantiateResult<E::AccountId, E::Balance, Self::EventLog> {
+        let code = self.contracts.load_code(contract_name);
+        let data = constructor_exec_input(constructor.clone());
+        let result = self.sandbox.dry_run(|r| {
+            r.deploy_contract(
+                data,
+                value,
+                code,
+                salt(),
+                keypair_to_account(caller),
+                DEFAULT_GAS_LIMIT,
+                storage_deposit_limit,
+            )
+        });
+
+        let account_id_raw = match &result.result {
+            Err(_) => {
+                panic!("Instantiate dry-run failed!")
+            }
+            Ok(res) => *res.account_id.as_ref(),
+        };
+        let account_id = AccountId::from(account_id_raw);
+
+        ContractInstantiateResult {
+            gas_consumed: result.gas_consumed,
+            gas_required: result.gas_required,
+            storage_deposit: result.storage_deposit,
+            debug_message: result.debug_message,
+            result: result.result.map(|r| {
+                InstantiateReturnValue {
+                    result: r.result,
+                    account_id,
+                }
+            }),
+            events: None,
+        }
     }
 
     async fn bare_upload(
@@ -287,8 +321,28 @@ where
     where
         CallBuilderFinal<E, Args, RetType>: Clone,
     {
+        let account_id = message.clone().params().callee().clone();
+        let exec_input = Encode::encode(message.clone().params().exec_input());
+        let account_id = (*account_id.as_ref()).into();
+
         self.bare_call_dry_run(caller, message, value, storage_deposit_limit)
             .await;
+
+        if self
+            .sandbox
+            .call_contract(
+                account_id,
+                value,
+                exec_input,
+                keypair_to_account(caller),
+                DEFAULT_GAS_LIMIT,
+                storage_deposit_limit,
+            )
+            .result
+            .is_err()
+        {
+            return Err(())
+        }
 
         Ok(()) // todo: https://github.com/Cardinal-Cryptography/drink/issues/32
     }
@@ -303,21 +357,20 @@ where
     where
         CallBuilderFinal<E, Args, RetType>: Clone,
     {
-        // todo: "https://github.com/Cardinal-Cryptography/drink/issues/37"
-
-        // temporary hack
         let account_id = message.clone().params().callee().clone();
         let exec_input = Encode::encode(message.clone().params().exec_input());
         let account_id = (*account_id.as_ref()).into();
 
-        let result = self.sandbox.call_contract(
-            account_id,
-            value,
-            exec_input,
-            keypair_to_account(caller),
-            DEFAULT_GAS_LIMIT,
-            storage_deposit_limit,
-        );
+        let result = self.sandbox.dry_run(|r| {
+            r.call_contract(
+                account_id,
+                value,
+                exec_input,
+                keypair_to_account(caller),
+                DEFAULT_GAS_LIMIT,
+                storage_deposit_limit,
+            )
+        });
         CallDryRunResult {
             exec_result: ContractResult {
                 gas_consumed: result.gas_consumed,
@@ -423,20 +476,32 @@ where
         caller: &Keypair,
         message: &CallBuilderFinal<E, Args, RetType>,
         value: E::Balance,
-        _margin: Option<u64>,
+        margin: Option<u64>,
         storage_deposit_limit: Option<E::Balance>,
     ) -> Result<CallResult<E, RetType, Self::EventLog>, Self::Error>
     where
         CallBuilderFinal<E, Args, RetType>: Clone,
     {
-        let result = self
+        let dry_run_result = self
             .bare_call_dry_run(caller, message, value, storage_deposit_limit)
             .await;
+
+        let gas_required = dry_run_result.exec_result.gas_required;
+
+        let gas_limit = if let Some(m) = margin {
+            gas_required + (gas_required / 100 * m)
+        } else {
+            gas_required
+        };
+
+        let _ = self
+            .bare_call(caller, message, value, gas_limit, storage_deposit_limit)
+            .await?;
 
         Ok(CallResult {
             // We need type remapping here because of the different `EventRecord` types.
             dry_run: CallDryRunResult {
-                exec_result: result.exec_result,
+                exec_result: dry_run_result.exec_result,
                 _marker: Default::default(),
             },
             events: (), // todo: https://github.com/Cardinal-Cryptography/drink/issues/32
