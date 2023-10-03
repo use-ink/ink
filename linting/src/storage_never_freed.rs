@@ -58,7 +58,10 @@ use rustc_session::{
     declare_lint,
     declare_lint_pass,
 };
-use std::collections::BTreeMap;
+use std::collections::{
+    btree_map::Entry,
+    BTreeMap,
+};
 
 declare_lint! {
     /// **What it does:**
@@ -140,6 +143,7 @@ const VEC_REMOVE_OPERATIONS: [&str; 8] = [
     "swap_remove",
     "truncate",
 ];
+const VEC_IGNORE_OPERATIONS: [&str; 2] = ["as_mut_ptr", "as_mut_slice"];
 
 // https://paritytech.github.io/ink/ink_storage/struct.Mapping.html
 const MAP_INSERT_OPERATIONS: [&str; 1] = ["insert"];
@@ -274,37 +278,33 @@ impl<'hir> Visitor<'hir> for InsertRemoveCollector<'_, '_, '_> {
                 }
             }
             ExprKind::MethodCall(method_path, receiver, args, _) => {
-                if let Some(field_name) = self.find_field_name(receiver) {
-                    let method_name = method_path.ident.as_str();
-                    self.fields
-                        .entry(field_name.to_string())
-                        .and_modify(|field_info| {
-                            match field_info.ty {
-                                CollectionTy::Vec
-                                    if VEC_INSERT_OPERATIONS.contains(&method_name) =>
-                                {
-                                    field_info.has_insert = true;
-                                }
-                                CollectionTy::Vec
-                                    if VEC_REMOVE_OPERATIONS.contains(&method_name) =>
-                                {
-                                    field_info.has_remove = true;
-                                }
-                                CollectionTy::Map
-                                    if MAP_INSERT_OPERATIONS.contains(&method_name) =>
-                                {
-                                    field_info.has_insert = true;
-                                }
-                                CollectionTy::Map
-                                    if MAP_REMOVE_OPERATIONS.contains(&method_name) =>
-                                {
-                                    field_info.has_remove = true;
-                                }
-                                _ => (),
-                            }
-                        });
-                }
                 args.iter().for_each(|arg| walk_expr(self, arg));
+                if_chain! {
+                    if let Some(field_name) = self.find_field_name(receiver);
+                    if let Entry::Occupied(mut e) = self.fields.entry(field_name.to_string());
+                    let method_name = method_path.ident.as_str();
+                    then {
+                        let field_info = e.get_mut();
+                        match field_info.ty {
+                            CollectionTy::Vec => {
+                                if VEC_IGNORE_OPERATIONS.contains(&method_name) {
+                                    e.remove();
+                                } else if VEC_INSERT_OPERATIONS.contains(&method_name) {
+                                    field_info.has_insert = true;
+                                } else if VEC_REMOVE_OPERATIONS.contains(&method_name) {
+                                    field_info.has_remove = true;
+                                }
+                            },
+                            CollectionTy::Map => {
+                                if MAP_INSERT_OPERATIONS.contains(&method_name) {
+                                    field_info.has_insert = true;
+                                } else if MAP_REMOVE_OPERATIONS.contains(&method_name) {
+                                    field_info.has_remove = true;
+                                }
+                            }
+                        }
+                    }
+                }
             }
             _ => (),
         }

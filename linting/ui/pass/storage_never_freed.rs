@@ -13,6 +13,10 @@ pub mod storage_never_freed {
         map_field2: MapAlias<AccountId, AccountId>,
         #[cfg_attr(dylint_lib = "ink_linting", allow(storage_never_freed))]
         map_field_suppressed: Mapping<AccountId, AccountId>,
+
+        // Vec which buffer was used unsafe operations with their raw pointers are not
+        // reported
+        vec_field_mut_pointer: Vec<AccountId>,
     }
 
     impl StorageNeverFreed {
@@ -23,6 +27,7 @@ pub mod storage_never_freed {
                 map_field: Mapping::new(),
                 map_field2: Mapping::new(),
                 map_field_suppressed: Mapping::new(),
+                vec_field_mut_pointer: Vec::new(),
             }
         }
 
@@ -32,6 +37,15 @@ pub mod storage_never_freed {
             self.map_field.insert(v, &v);
             self.map_field2.insert(v, &v);
             self.map_field_suppressed.insert(v, &v);
+
+            // Should not be reported, since elements may be removed using the pointer
+            self.vec_field_mut_pointer[0] = v;
+            unsafe {
+                let ptr = self.vec_field_mut_pointer.as_mut_ptr();
+                let new_len = self.vec_field_mut_pointer.len() - 1;
+                std::ptr::copy(ptr.offset(1), ptr, new_len);
+                self.vec_field_mut_pointer.set_len(new_len);
+            }
         }
 
         #[ink(message)]
@@ -44,4 +58,3 @@ pub mod storage_never_freed {
 }
 
 fn main() {}
-

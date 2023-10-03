@@ -1,5 +1,5 @@
 error: storage never freed
-  --> $DIR/storage_never_freed.rs:15:9
+  --> $DIR/storage_never_freed.rs:16:9
    |
 LL |         map_field: Mapping<AccountId, AccountId>,
    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -25,5 +25,16 @@ help: consider adding operations to remove elements available to the user
 LL |         vec_field: Vec<AccountId>,
    |         ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-error: aborting due to 2 previous errors
+error: storage never freed
+  --> $DIR/storage_never_freed.rs:15:9
+   |
+LL |         vec_field_subscription: Vec<AccountId>,
+   |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+help: consider adding operations to remove elements available to the user
+   |
+LL |         vec_field_subscription: Vec<AccountId>,
+   |         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+error: aborting due to 3 previous errors
 
