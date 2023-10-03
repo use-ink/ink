@@ -14,29 +14,16 @@
 
 use super::Keypair;
 use crate::{
-    backend_calls::{
-        InstantiateBuilder,
-        UploadBuilder,
-    },
+    backend_calls::{InstantiateBuilder, UploadBuilder},
     builders::CreateBuilderPartial,
     contract_results::BareInstantiationResult,
-    CallBuilder,
-    CallBuilderFinal,
-    CallDryRunResult,
-    CallResult,
-    InstantiationResult,
+    CallBuilder, CallBuilderFinal, CallDryRunResult, CallResult, InstantiationResult,
     UploadResult,
 };
-use ink_env::{
-    DefaultEnvironment,
-    Environment,
-};
+use ink_env::{DefaultEnvironment, Environment};
 use jsonrpsee::core::async_trait;
 use pallet_contracts_primitives::ContractInstantiateResult;
-use scale::{
-    Decode,
-    Encode,
-};
+use scale::{Decode, Encode};
 use sp_weights::Weight;
 use subxt::dynamic::Value;
 
@@ -194,8 +181,6 @@ pub trait ContractsBackend<E: Environment> {
 #[async_trait]
 pub trait BuilderClient<E: Environment>: ContractsBackend<E> {
     /// Submits an instantiate call with a gas margin.
-    ///
-    /// Intended to be used as part of builder API.
     async fn instantiate_with_gas_margin<
         Contract: Clone,
         Args: Send + Sync + Encode + Clone,
@@ -210,6 +195,7 @@ pub trait BuilderClient<E: Environment>: ContractsBackend<E> {
         storage_deposit_limit: Option<E::Balance>,
     ) -> Result<InstantiationResult<E, Self::EventLog>, Self::Error>;
 
+    ///Submits an instantiate call with a raw gas limit.
     async fn instantiate_with_gas_limit<
         Contract: Clone,
         Args: Send + Sync + Encode + Clone,
@@ -224,6 +210,7 @@ pub trait BuilderClient<E: Environment>: ContractsBackend<E> {
         storage_deposit_limit: Option<E::Balance>,
     ) -> Result<InstantiationResult<E, Self::EventLog>, Self::Error>;
 
+    /// Submits an call with a gas margin.
     async fn call_with_gas_margin<Args: Sync + Encode + Clone, RetType: Send + Decode>(
         &mut self,
         caller: &Keypair,
@@ -235,6 +222,7 @@ pub trait BuilderClient<E: Environment>: ContractsBackend<E> {
     where
         CallBuilderFinal<E, Args, RetType>: Clone;
 
+    ///Submits an call with a raw gas limit.
     async fn call_with_gas_limit<Args: Sync + Encode + Clone, RetType: Send + Decode>(
         &mut self,
         caller: &Keypair,
@@ -278,7 +266,7 @@ pub trait BuilderClient<E: Environment>: ContractsBackend<E> {
     where
         CallBuilderFinal<E, Args, RetType>: Clone;
 
-    /// The function subsequently uploads and instantiates an instance of the contract.
+    /// Uploads the contract call.
     ///
     /// This function extracts the Wasm of the contract for the specified contract.
     ///
@@ -292,7 +280,7 @@ pub trait BuilderClient<E: Environment>: ContractsBackend<E> {
         storage_deposit_limit: Option<E::Balance>,
     ) -> Result<UploadResult<E, Self::EventLog>, Self::Error>;
 
-    /// Bare instantiate call. This function does perform a dry-run,
+    /// Bare instantiate call. This function does not perform a dry-run,
     /// and user is expected to provide the gas limit.
     ///
     /// Use it when you want to have a more precise control over submitting extrinsic.
