@@ -243,39 +243,70 @@ impl<'a, 'b, 'tcx> InsertRemoveCollector<'a, 'b, 'tcx> {
     fn new(cx: &'tcx LateContext<'a>, fields: &'b mut FieldsMap) -> Self {
         Self { cx, fields }
     }
+
+    /// Finds a field of the supported type in the given expression present with the form
+    /// `self.field_name`
+    fn find_field_name(&self, e: &Expr) -> Option<String> {
+        if_chain! {
+            if let ExprKind::Field(s, field) = &e.kind;
+            if let ExprKind::Path(ref path) = s.kind;
+            let ty = self.cx.qpath_res(path, s.hir_id);
+            // TODO: check if ty is `self`
+            then { Some(field.name.as_str().to_string()) } else { None }
+        }
+    }
 }
 
 impl<'hir> Visitor<'hir> for InsertRemoveCollector<'_, '_, '_> {
     fn visit_expr(&mut self, e: &'hir Expr<'hir>) {
-        if let ExprKind::MethodCall(method_path, receiver, args, _) = &e.kind {
-            if_chain! {
-                if let ExprKind::Field(s, field) = &receiver.kind;
-                if let ExprKind::Path(ref path) = s.kind;
-                let ty = self.cx.qpath_res(path, s.hir_id);
-                // TODO: check if self
-                let field_name = field.name.as_str();
-                let method_name = method_path.ident.as_str();
-                then {
-                    self.fields.entry(field_name.to_string()).and_modify(|field_info| {
-                        match field_info.ty {
-                            CollectionTy::Vec if VEC_INSERT_OPERATIONS.contains(&method_name) => {
+        match &e.kind {
+            ExprKind::Assign(lhs, ..) => {
+                if_chain! {
+                    if let ExprKind::Index(field, _) = lhs.kind;
+                    if let Some(field_name) = self.find_field_name(field);
+                    then {
+                        self.fields
+                            .entry(field_name.to_string())
+                            .and_modify(|field_info| {
                                 field_info.has_insert = true;
-                            },
-                            CollectionTy::Vec if VEC_REMOVE_OPERATIONS.contains(&method_name) => {
-                                field_info.has_remove = true;
-                            },
-                            CollectionTy::Map if MAP_INSERT_OPERATIONS.contains(&method_name) => {
-                                field_info.has_insert = true;
-                            },
-                            CollectionTy::Map if MAP_REMOVE_OPERATIONS.contains(&method_name) => {
-                                field_info.has_remove = true;
-                            },
-                            _ => ()
-                        }
-                    });
+                            });
+                    }
                 }
             }
-            args.iter().for_each(|arg| walk_expr(self, arg));
+            ExprKind::MethodCall(method_path, receiver, args, _) => {
+                if let Some(field_name) = self.find_field_name(receiver) {
+                    let method_name = method_path.ident.as_str();
+                    self.fields
+                        .entry(field_name.to_string())
+                        .and_modify(|field_info| {
+                            match field_info.ty {
+                                CollectionTy::Vec
+                                    if VEC_INSERT_OPERATIONS.contains(&method_name) =>
+                                {
+                                    field_info.has_insert = true;
+                                }
+                                CollectionTy::Vec
+                                    if VEC_REMOVE_OPERATIONS.contains(&method_name) =>
+                                {
+                                    field_info.has_remove = true;
+                                }
+                                CollectionTy::Map
+                                    if MAP_INSERT_OPERATIONS.contains(&method_name) =>
+                                {
+                                    field_info.has_insert = true;
+                                }
+                                CollectionTy::Map
+                                    if MAP_REMOVE_OPERATIONS.contains(&method_name) =>
+                                {
+                                    field_info.has_remove = true;
+                                }
+                                _ => (),
+                            }
+                        });
+                }
+                args.iter().for_each(|arg| walk_expr(self, arg));
+            }
+            _ => (),
         }
         walk_expr(self, e);
     }
