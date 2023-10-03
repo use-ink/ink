@@ -108,6 +108,33 @@ declare_lint! {
 
 declare_lint_pass!(StorageNeverFreed => [STORAGE_NEVER_FREED]);
 
+mod methods {
+    // https://paritytech.github.io/ink/ink_prelude/vec/struct.Vec.html
+    pub const VEC_INSERT: [&str; 6] = [
+        "append",
+        "extend_from_slice",
+        "extend_from_within",
+        "insert",
+        "push",
+        "push_with_capacity",
+    ];
+    pub const VEC_REMOVE: [&str; 8] = [
+        "clear",
+        "dedup",
+        "pop",
+        "remove",
+        "retain",
+        "retain_mut",
+        "swap_remove",
+        "truncate",
+    ];
+    pub const VEC_IGNORE: [&str; 2] = ["as_mut_ptr", "as_mut_slice"];
+
+    // https://paritytech.github.io/ink/ink_storage/struct.Mapping.html
+    pub const MAP_INSERT: [&str; 1] = ["insert"];
+    pub const MAP_REMOVE: [&str; 2] = ["remove", "take"];
+}
+
 enum CollectionTy {
     Vec,
     Map,
@@ -123,31 +150,6 @@ struct FieldInfo {
 }
 type FieldName = String;
 type FieldsMap = BTreeMap<FieldName, FieldInfo>;
-
-// https://paritytech.github.io/ink/ink_prelude/vec/struct.Vec.html
-const VEC_INSERT_OPERATIONS: [&str; 6] = [
-    "append",
-    "extend_from_slice",
-    "extend_from_within",
-    "insert",
-    "push",
-    "push_with_capacity",
-];
-const VEC_REMOVE_OPERATIONS: [&str; 8] = [
-    "clear",
-    "dedup",
-    "pop",
-    "remove",
-    "retain",
-    "retain_mut",
-    "swap_remove",
-    "truncate",
-];
-const VEC_IGNORE_OPERATIONS: [&str; 2] = ["as_mut_ptr", "as_mut_slice"];
-
-// https://paritytech.github.io/ink/ink_storage/struct.Mapping.html
-const MAP_INSERT_OPERATIONS: [&str; 1] = ["insert"];
-const MAP_REMOVE_OPERATIONS: [&str; 2] = ["remove", "take"];
 
 impl FieldInfo {
     pub fn new(did: LocalDefId, ty: CollectionTy) -> Self {
@@ -287,18 +289,18 @@ impl<'hir> Visitor<'hir> for InsertRemoveCollector<'_, '_, '_> {
                         let field_info = e.get_mut();
                         match field_info.ty {
                             CollectionTy::Vec => {
-                                if VEC_IGNORE_OPERATIONS.contains(&method_name) {
+                                if methods::VEC_IGNORE.contains(&method_name) {
                                     e.remove();
-                                } else if VEC_INSERT_OPERATIONS.contains(&method_name) {
+                                } else if methods::VEC_INSERT.contains(&method_name) {
                                     field_info.has_insert = true;
-                                } else if VEC_REMOVE_OPERATIONS.contains(&method_name) {
+                                } else if methods::VEC_REMOVE.contains(&method_name) {
                                     field_info.has_remove = true;
                                 }
                             },
                             CollectionTy::Map => {
-                                if MAP_INSERT_OPERATIONS.contains(&method_name) {
+                                if methods::MAP_INSERT.contains(&method_name) {
                                     field_info.has_insert = true;
-                                } else if MAP_REMOVE_OPERATIONS.contains(&method_name) {
+                                } else if methods::MAP_REMOVE.contains(&method_name) {
                                     field_info.has_remove = true;
                                 }
                             }
