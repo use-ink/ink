@@ -117,7 +117,7 @@ where
         From<sr25519::PublicKey> + scale::Codec + serde::de::DeserializeOwned + Debug,
     C::Address: From<sr25519::PublicKey>,
     C::Signature: From<sr25519::Signature>,
-    <C::ExtrinsicParams as ExtrinsicParams<C::Hash>>::OtherParams: Default,
+    <C::ExtrinsicParams as ExtrinsicParams<C>>::OtherParams: Default,
 
     E: Environment,
     E::AccountId: Debug,
@@ -126,13 +126,13 @@ where
 {
     /// Creates a new [`Client`] instance using a `subxt` client.
     pub async fn new<P: Into<PathBuf>>(
-        client: subxt::OnlineClient<C>,
+        client: subxt::backend::rpc::RpcClient,
         contracts: impl IntoIterator<Item = P>,
-    ) -> Self {
-        Self {
-            api: ContractsApi::new(client).await,
+    ) -> Result<Self, subxt::Error> {
+        Ok(Self {
+            api: ContractsApi::new(client).await?,
             contracts: ContractsRegistry::new(contracts),
-        }
+        })
     }
 
     /// Executes an `instantiate_with_code` call and captures the resulting events.
@@ -286,7 +286,7 @@ where
     C::Address: From<sr25519::PublicKey>,
     C::Signature: From<sr25519::Signature>,
     C::Address: Send + Sync,
-    <C::ExtrinsicParams as ExtrinsicParams<C::Hash>>::OtherParams: Default + Send + Sync,
+    <C::ExtrinsicParams as ExtrinsicParams<C>>::OtherParams: Default + Send + Sync,
 
     E: Environment,
     E::AccountId: Debug + Send + Sync,
@@ -348,15 +348,13 @@ where
             ],
         );
 
+        let best_block = self.api.best_block().await;
+
         let account = self
             .api
             .client
             .storage()
-            .at_latest()
-            .await
-            .unwrap_or_else(|err| {
-                panic!("unable to fetch balance: {err:?}");
-            })
+            .at(best_block)
             .fetch_or_default(&account_addr)
             .await
             .unwrap_or_else(|err| {
@@ -427,7 +425,7 @@ where
     C::Address: From<sr25519::PublicKey>,
     C::Signature: From<sr25519::Signature>,
     C::Address: Send + Sync,
-    <C::ExtrinsicParams as ExtrinsicParams<C::Hash>>::OtherParams: Default + Send + Sync,
+    <C::ExtrinsicParams as ExtrinsicParams<C>>::OtherParams: Default + Send + Sync,
 
     E: Environment,
     E::AccountId: Debug + Send + Sync,
@@ -768,7 +766,7 @@ where
     C::Address: From<sr25519::PublicKey>,
     C::Signature: From<sr25519::Signature>,
     C::Address: Send + Sync,
-    <C::ExtrinsicParams as ExtrinsicParams<C::Hash>>::OtherParams: Default + Send + Sync,
+    <C::ExtrinsicParams as ExtrinsicParams<C>>::OtherParams: Default + Send + Sync,
 
     E: Environment,
     E::AccountId: Debug + Send + Sync,
