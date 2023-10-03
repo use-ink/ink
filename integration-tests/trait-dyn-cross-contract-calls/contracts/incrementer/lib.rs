@@ -23,7 +23,7 @@ pub mod incrementer {
         /// Increases the value of the incrementer by an amount.
         #[ink(message)]
         pub fn inc_by(&mut self, delta: u64) {
-            self.value += delta;
+            self.value.checked_add(delta).unwrap();
         }
     }
 
