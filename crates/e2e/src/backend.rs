@@ -103,7 +103,6 @@ pub trait ContractsBackend<E: Environment> {
     type Error;
     /// Event log type.
     type EventLog;
-
     /// Start building an instantiate call using a builder pattern.
     ///
     /// # Example
@@ -131,10 +130,167 @@ pub trait ContractsBackend<E: Environment> {
         constructor: &'a mut CreateBuilderPartial<E, Contract, Args, R>,
     ) -> InstantiateBuilder<'a, E, Contract, Args, R, Self>
     where
-        Self: BuilderClient<E> + Sized,
+        Self: Sized + BuilderClient<E>,
     {
         InstantiateBuilder::new(self, caller, contract_name, constructor)
     }
+
+    /// Start building an upload call.
+    /// # Example
+    ///
+    /// ```ignore
+    /// let contract = client
+    ///     .upload("flipper", &ink_e2e::alice())
+    ///     // Optional arguments
+    ///     .storage_deposit_limit(100)
+    ///     // Submit the call for on-chain execution.
+    ///     .submit()
+    ///     .await
+    ///     .expect("upload failed");
+    /// ```
+    fn upload<'a>(
+        &'a mut self,
+        contract_name: &'a str,
+        caller: &'a Keypair,
+    ) -> UploadBuilder<E, Self>
+    where
+        Self: Sized + BuilderClient<E>,
+    {
+        UploadBuilder::new(self, contract_name, caller)
+    }
+
+    /// Start building a call using a builder pattern.
+    ///
+    /// # Example
+    ///
+    /// ```ignore
+    /// // Message method
+    /// let get = call.get();
+    /// let get_res = client
+    ///    .call(&ink_e2e::bob(), &get)
+    ///     // Optional arguments
+    ///     // Send 100 units with the call.
+    ///     .value(100)
+    ///     // Add 10% margin to the gas limit
+    ///     .extra_gas_portion(10)
+    ///     .storage_deposit_limit(100)
+    ///     // Submit the call for on-chain execution.
+    ///     .submit()
+    ///     .await
+    ///     .expect("instantiate failed");
+    /// ```
+    fn call<'a, Args: Sync + Encode + Clone, RetType: Send + Decode>(
+        &'a mut self,
+        caller: &'a Keypair,
+        message: &'a CallBuilderFinal<E, Args, RetType>,
+    ) -> CallBuilder<'a, E, Args, RetType, Self>
+    where
+        Self: Sized + BuilderClient<E>,
+    {
+        CallBuilder::new(self, caller, message)
+    }
+}
+
+#[async_trait]
+pub trait BuilderClient<E: Environment>: ContractsBackend<E> {
+    /// Submits an instantiate call with a gas margin.
+    ///
+    /// Intended to be used as part of builder API.
+    async fn instantiate_with_gas_margin<
+        Contract: Clone,
+        Args: Send + Sync + Encode + Clone,
+        R,
+    >(
+        &mut self,
+        contract_name: &str,
+        caller: &Keypair,
+        constructor: &mut CreateBuilderPartial<E, Contract, Args, R>,
+        value: E::Balance,
+        margin: Option<u64>,
+        storage_deposit_limit: Option<E::Balance>,
+    ) -> Result<InstantiationResult<E, Self::EventLog>, Self::Error>;
+
+    async fn instantiate_with_gas_limit<
+        Contract: Clone,
+        Args: Send + Sync + Encode + Clone,
+        R,
+    >(
+        &mut self,
+        contract_name: &str,
+        caller: &Keypair,
+        constructor: &mut CreateBuilderPartial<E, Contract, Args, R>,
+        value: E::Balance,
+        gas_limit: Weight,
+        storage_deposit_limit: Option<E::Balance>,
+    ) -> Result<InstantiationResult<E, Self::EventLog>, Self::Error>;
+
+    async fn call_with_gas_margin<Args: Sync + Encode + Clone, RetType: Send + Decode>(
+        &mut self,
+        caller: &Keypair,
+        message: &CallBuilderFinal<E, Args, RetType>,
+        value: E::Balance,
+        margin: Option<u64>,
+        storage_deposit_limit: Option<E::Balance>,
+    ) -> Result<CallResult<E, RetType, Self::EventLog>, Self::Error>
+    where
+        CallBuilderFinal<E, Args, RetType>: Clone;
+
+    async fn call_with_gas_limit<Args: Sync + Encode + Clone, RetType: Send + Decode>(
+        &mut self,
+        caller: &Keypair,
+        message: &CallBuilderFinal<E, Args, RetType>,
+        value: E::Balance,
+        gas_limit: Weight,
+        storage_deposit_limit: Option<E::Balance>,
+    ) -> Result<CallResult<E, RetType, Self::EventLog>, Self::Error>
+    where
+        CallBuilderFinal<E, Args, RetType>: Clone;
+
+    /// Executes a bare `call` for the contract at `account_id`. This function does
+    /// perform a dry-run, and user is expected to provide the gas limit.
+    ///
+    /// Use it when you want to have a more precise control over submitting extrinsic.
+    ///
+    /// Returns when the transaction is included in a block. The return value
+    /// contains all events that are associated with this transaction.
+    async fn bare_call<Args: Sync + Encode + Clone, RetType: Send + Decode>(
+        &mut self,
+        caller: &Keypair,
+        message: &CallBuilderFinal<E, Args, RetType>,
+        value: E::Balance,
+        gas_limit: Weight,
+        storage_deposit_limit: Option<E::Balance>,
+    ) -> Result<Self::EventLog, Self::Error>
+    where
+        CallBuilderFinal<E, Args, RetType>: Clone;
+
+    /// Executes a dry-run `call`.
+    ///
+    /// Returns the result of the dry run, together with the decoded return value of the
+    /// invoked message.
+    async fn bare_call_dry_run<Args: Sync + Encode + Clone, RetType: Send + Decode>(
+        &mut self,
+        caller: &Keypair,
+        message: &CallBuilderFinal<E, Args, RetType>,
+        value: E::Balance,
+        storage_deposit_limit: Option<E::Balance>,
+    ) -> CallDryRunResult<E, RetType>
+    where
+        CallBuilderFinal<E, Args, RetType>: Clone;
+
+    /// The function subsequently uploads and instantiates an instance of the contract.
+    ///
+    /// This function extracts the Wasm of the contract for the specified contract.
+    ///
+    /// Calling this function multiple times should be idempotent, the contract is
+    /// newly instantiated each time using a unique salt. No existing contract
+    /// instance is reused!
+    async fn bare_upload(
+        &mut self,
+        contract_name: &str,
+        caller: &Keypair,
+        storage_deposit_limit: Option<E::Balance>,
+    ) -> Result<UploadResult<E, Self::EventLog>, Self::Error>;
 
     /// Bare instantiate call. This function does perform a dry-run,
     /// and user is expected to provide the gas limit.
@@ -172,136 +328,4 @@ pub trait ContractsBackend<E: Environment> {
         value: E::Balance,
         storage_deposit_limit: Option<E::Balance>,
     ) -> ContractInstantiateResult<E::AccountId, E::Balance, ()>;
-
-    /// Start building an upload call.
-    /// # Example
-    ///
-    /// ```ignore
-    /// let contract = client
-    ///     .upload("flipper", &ink_e2e::alice())
-    ///     // Optional arguments
-    ///     .storage_deposit_limit(100)
-    ///     // Submit the call for on-chain execution.
-    ///     .submit()
-    ///     .await
-    ///     .expect("upload failed");
-    /// ```
-    fn upload<'a>(
-        &'a mut self,
-        contract_name: &'a str,
-        caller: &'a Keypair,
-    ) -> UploadBuilder<E, Self>
-    where
-        Self: BuilderClient<E> + Sized,
-    {
-        UploadBuilder::new(self, contract_name, caller)
-    }
-
-    /// The function subsequently uploads and instantiates an instance of the contract.
-    ///
-    /// This function extracts the Wasm of the contract for the specified contract.
-    ///
-    /// Calling this function multiple times should be idempotent, the contract is
-    /// newly instantiated each time using a unique salt. No existing contract
-    /// instance is reused!
-    async fn bare_upload(
-        &mut self,
-        contract_name: &str,
-        caller: &Keypair,
-        storage_deposit_limit: Option<E::Balance>,
-    ) -> Result<UploadResult<E, Self::EventLog>, Self::Error>;
-
-    /// Start building a call using a builder pattern.
-    ///
-    /// # Example
-    ///
-    /// ```ignore
-    /// // Message method
-    /// let get = call.get();
-    /// let get_res = client
-    ///    .call(&ink_e2e::bob(), &get)
-    ///     // Optional arguments
-    ///     // Send 100 units with the call.
-    ///     .value(100)
-    ///     // Add 10% margin to the gas limit
-    ///     .extra_gas_portion(10)
-    ///     .storage_deposit_limit(100)
-    ///     // Submit the call for on-chain execution.
-    ///     .submit()
-    ///     .await
-    ///     .expect("instantiate failed");
-    /// ```
-    fn call<'a, Args: Sync + Encode + Clone, RetType: Send + Decode>(
-        &'a mut self,
-        caller: &'a Keypair,
-        message: &'a CallBuilderFinal<E, Args, RetType>,
-    ) -> CallBuilder<'a, E, Args, RetType, Self>
-    where
-        Self: BuilderClient<E> + Sized,
-    {
-        CallBuilder::new(self, caller, message)
-    }
-
-    /// Executes a bare `call` for the contract at `account_id`. This function does
-    /// perform a dry-run, and user is expected to provide the gas limit.
-    ///
-    /// Use it when you want to have a more precise control over submitting extrinsic.
-    ///
-    /// Returns when the transaction is included in a block. The return value
-    /// contains all events that are associated with this transaction.
-    async fn bare_call<Args: Sync + Encode + Clone, RetType: Send + Decode>(
-        &mut self,
-        caller: &Keypair,
-        message: &CallBuilderFinal<E, Args, RetType>,
-        value: E::Balance,
-        gas_limit: Weight,
-        storage_deposit_limit: Option<E::Balance>,
-    ) -> Result<Self::EventLog, Self::Error>
-    where
-        CallBuilderFinal<E, Args, RetType>: Clone;
-
-    /// Executes a dry-run `call`.
-    ///
-    /// Returns the result of the dry run, together with the decoded return value of the
-    /// invoked message.
-    async fn bare_call_dry_run<Args: Sync + Encode + Clone, RetType: Send + Decode>(
-        &mut self,
-        caller: &Keypair,
-        message: &CallBuilderFinal<E, Args, RetType>,
-        value: E::Balance,
-        storage_deposit_limit: Option<E::Balance>,
-    ) -> CallDryRunResult<E, RetType>
-    where
-        CallBuilderFinal<E, Args, RetType>: Clone;
-}
-
-#[async_trait]
-pub trait BuilderClient<E: Environment>: ContractsBackend<E> {
-    /// Submits an instantiate call with a gas margin.
-    ///
-    /// Intended to be used as part of builder API.
-    async fn instantiate_with_gas_margin<
-        Contract: Clone,
-        Args: Send + Sync + Encode + Clone,
-        R,
-    >(
-        &mut self,
-        contract_name: &str,
-        caller: &Keypair,
-        constructor: &mut CreateBuilderPartial<E, Contract, Args, R>,
-        value: E::Balance,
-        margin: Option<u64>,
-        storage_deposit_limit: Option<E::Balance>,
-    ) -> Result<InstantiationResult<E, Self::EventLog>, Self::Error>;
-
-    async fn call_with_gas_margin<Args: Sync + Encode + Clone, RetType: Send + Decode>(
-        &mut self,
-        caller: &Keypair,
-        message: &CallBuilderFinal<E, Args, RetType>,
-        value: E::Balance,
-        margin: Option<u64>,
-        storage_deposit_limit: Option<E::Balance>,
-    ) -> Result<CallResult<E, RetType, Self::EventLog>, Self::Error>
-    where
-        CallBuilderFinal<E, Args, RetType>: Clone;
 }

@@ -413,7 +413,7 @@ where
 }
 
 #[async_trait]
-impl<C, E> ContractsBackend<E> for Client<C, E>
+impl<C, E> BuilderClient<E> for Client<C, E>
 where
     C: subxt::Config + Send + Sync,
     C::AccountId: Clone
@@ -435,9 +435,6 @@ where
         Clone + Debug + Send + Sync + From<u128> + scale::HasCompact + serde::Serialize,
     E::Hash: Debug + Send + scale::Encode,
 {
-    type Error = Error<E>;
-    type EventLog = ExtrinsicEvents<C>;
-
     async fn bare_instantiate<Contract: Clone, Args: Send + Sync + Encode + Clone, R>(
         &mut self,
         contract_name: &str,
@@ -576,31 +573,6 @@ where
             _marker: Default::default(),
         }
     }
-}
-
-#[async_trait]
-impl<C, E> BuilderClient<E> for Client<C, E>
-where
-    C: subxt::Config + Send + Sync,
-    C::AccountId: Clone
-        + Debug
-        + Send
-        + Sync
-        + core::fmt::Display
-        + scale::Codec
-        + From<sr25519::PublicKey>
-        + serde::de::DeserializeOwned,
-    C::Address: From<sr25519::PublicKey>,
-    C::Signature: From<sr25519::Signature>,
-    C::Address: Send + Sync,
-    <C::ExtrinsicParams as ExtrinsicParams<C::Hash>>::OtherParams: Default + Send + Sync,
-
-    E: Environment,
-    E::AccountId: Debug + Send + Sync,
-    E::Balance:
-        Clone + Debug + Send + Sync + From<u128> + scale::HasCompact + serde::Serialize,
-    E::Hash: Debug + Send + scale::Encode,
-{
     async fn instantiate_with_gas_margin<
         Contract: Clone,
         Args: Send + Sync + Encode + Clone,
@@ -650,6 +622,51 @@ where
             events: res.events,
         })
     }
+
+    async fn instantiate_with_gas_limit<
+        Contract: Clone,
+        Args: Send + Sync + Encode + Clone,
+        R,
+    >(
+        &mut self,
+        contract_name: &str,
+        caller: &Keypair,
+        constructor: &mut CreateBuilderPartial<E, Contract, Args, R>,
+        value: E::Balance,
+        gas_limit: Weight,
+        storage_deposit_limit: Option<E::Balance>,
+    ) -> Result<InstantiationResult<E, Self::EventLog>, Self::Error> {
+        let code = self.contracts.load_code(contract_name);
+        let data = constructor_exec_input(constructor.clone());
+
+        let dry_run = self
+            .api
+            .instantiate_with_code_dry_run(
+                value,
+                storage_deposit_limit,
+                code.clone(),
+                data.clone(),
+                salt(),
+                caller,
+            )
+            .await;
+
+        if dry_run.result.is_err() {
+            return Err(Self::Error::InstantiateDryRun(dry_run))
+        }
+
+        let res = self
+            .exec_instantiate(caller, code, data, value, gas_limit, storage_deposit_limit)
+            .await?;
+        log_info(&format!("instantiated contract at {:?}", res.account_id));
+
+        Ok(InstantiationResult {
+            account_id: res.account_id,
+            dry_run,
+            events: res.events,
+        })
+    }
+
     async fn call_with_gas_margin<Args: Sync + Encode + Clone, RetType: Send + Decode>(
         &mut self,
         caller: &Keypair,
@@ -681,6 +698,60 @@ where
             events: call_result,
         })
     }
+
+    async fn call_with_gas_limit<Args: Sync + Encode + Clone, RetType: Send + Decode>(
+        &mut self,
+        caller: &Keypair,
+        message: &CallBuilderFinal<E, Args, RetType>,
+        value: E::Balance,
+        gas_limit: Weight,
+        storage_deposit_limit: Option<E::Balance>,
+    ) -> Result<CallResult<E, RetType, Self::EventLog>, Self::Error>
+    where
+        CallBuilderFinal<E, Args, RetType>: Clone,
+    {
+        let dry_run = self
+            .bare_call_dry_run(caller, message, value, storage_deposit_limit)
+            .await;
+
+        if dry_run.is_err() {
+            return Err(Self::Error::CallDryRun(dry_run.exec_result))
+        }
+
+        let call_result = self
+            .bare_call(caller, message, value, gas_limit, storage_deposit_limit)
+            .await?;
+        Ok(CallResult {
+            dry_run,
+            events: call_result,
+        })
+    }
+}
+
+impl<C, E> ContractsBackend<E> for Client<C, E>
+where
+    C: subxt::Config + Send + Sync,
+    C::AccountId: Clone
+        + Debug
+        + Send
+        + Sync
+        + core::fmt::Display
+        + scale::Codec
+        + From<sr25519::PublicKey>
+        + serde::de::DeserializeOwned,
+    C::Address: From<sr25519::PublicKey>,
+    C::Signature: From<sr25519::Signature>,
+    C::Address: Send + Sync,
+    <C::ExtrinsicParams as ExtrinsicParams<C::Hash>>::OtherParams: Default + Send + Sync,
+
+    E: Environment,
+    E::AccountId: Debug + Send + Sync,
+    E::Balance:
+        Clone + Debug + Send + Sync + From<u128> + scale::HasCompact + serde::Serialize,
+    E::Hash: Debug + Send + scale::Encode,
+{
+    type Error = Error<E>;
+    type EventLog = ExtrinsicEvents<C>;
 }
 
 impl<C, E> E2EBackend<E> for Client<C, E>

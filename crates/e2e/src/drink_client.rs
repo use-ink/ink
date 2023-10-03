@@ -185,13 +185,10 @@ impl<
         Hash: Copy + From<[u8; 32]>,
         Runtime: RuntimeT,
         E: Environment<AccountId = AccountId, Balance = u128, Hash = Hash> + 'static,
-    > ContractsBackend<E> for Client<AccountId, Hash, Runtime>
+    > BuilderClient<E> for Client<AccountId, Hash, Runtime>
 where
     RuntimeAccountId<Runtime>: From<[u8; 32]> + AsRef<[u8; 32]>,
 {
-    type Error = ();
-    type EventLog = ();
-
     async fn bare_instantiate<Contract: Clone, Args: Send + Sync + Encode + Clone, R>(
         &mut self,
         contract_name: &str,
@@ -383,33 +380,6 @@ where
             _marker: Default::default(),
         }
     }
-}
-
-impl<
-        AccountId: Clone + Send + Sync + From<[u8; 32]> + AsRef<[u8; 32]>,
-        Hash: Copy + From<[u8; 32]>,
-        Runtime: RuntimeT,
-        E: Environment<AccountId = AccountId, Balance = u128, Hash = Hash> + 'static,
-    > E2EBackend<E> for Client<AccountId, Hash, Runtime>
-where
-    RuntimeAccountId<Runtime>: From<[u8; 32]> + AsRef<[u8; 32]>,
-{
-}
-
-fn keypair_to_account<AccountId: From<[u8; 32]>>(keypair: &Keypair) -> AccountId {
-    AccountId::from(keypair.public_key().0)
-}
-
-#[async_trait]
-impl<
-        AccountId: Clone + Send + Sync + From<[u8; 32]> + AsRef<[u8; 32]>,
-        Hash: Copy + From<[u8; 32]>,
-        Runtime: RuntimeT,
-        E: Environment<AccountId = AccountId, Balance = u128, Hash = Hash> + 'static,
-    > BuilderClient<E> for Client<AccountId, Hash, Runtime>
-where
-    RuntimeAccountId<Runtime>: From<[u8; 32]> + AsRef<[u8; 32]>,
-{
     async fn instantiate_with_gas_margin<
         Contract: Clone,
         Args: Send + Sync + Encode + Clone,
@@ -471,6 +441,63 @@ where
             events: (), // todo: https://github.com/Cardinal-Cryptography/drink/issues/32
         })
     }
+
+    async fn instantiate_with_gas_limit<
+        Contract: Clone,
+        Args: Send + Sync + Encode + Clone,
+        R,
+    >(
+        &mut self,
+        contract_name: &str,
+        caller: &Keypair,
+        constructor: &mut CreateBuilderPartial<E, Contract, Args, R>,
+        value: E::Balance,
+        gas_limit: Weight,
+        storage_deposit_limit: Option<E::Balance>,
+    ) -> Result<InstantiationResult<E, Self::EventLog>, Self::Error> {
+        let code = self.contracts.load_code(contract_name);
+        let data = constructor_exec_input(constructor.clone());
+
+        let result = self.sandbox.deploy_contract(
+            code,
+            value,
+            data,
+            salt(),
+            keypair_to_account(caller),
+            gas_limit,
+            storage_deposit_limit,
+        );
+
+        let account_id_raw = match &result.result {
+            Err(err) => {
+                log_error(&format!("Instantiation failed: {err:?}"));
+                return Err(()) // todo: make a proper error type
+            }
+            Ok(res) => *res.account_id.as_ref(),
+        };
+        let account_id = AccountId::from(account_id_raw);
+
+        Ok(InstantiationResult {
+            account_id: account_id.clone(),
+            // We need type remapping here because of the different `EventRecord` types.
+            dry_run: ContractInstantiateResult {
+                gas_consumed: result.gas_consumed,
+                gas_required: result.gas_required,
+                storage_deposit: result.storage_deposit,
+                debug_message: result.debug_message,
+                result: result.result.map(|r| {
+                    InstantiateReturnValue {
+                        result: r.result,
+                        account_id,
+                    }
+                }),
+                events: None,
+            },
+
+            events: (), // todo: https://github.com/Cardinal-Cryptography/drink/issues/32
+        })
+    }
+
     async fn call_with_gas_margin<Args: Sync + Encode + Clone, RetType: Send + Decode>(
         &mut self,
         caller: &Keypair,
@@ -485,6 +512,10 @@ where
         let dry_run_result = self
             .bare_call_dry_run(caller, message, value, storage_deposit_limit)
             .await;
+
+        if dry_run_result.exec_result.result.is_err() {
+            return Err(())
+        }
 
         let gas_required = dry_run_result.exec_result.gas_required;
 
@@ -507,4 +538,66 @@ where
             events: (), // todo: https://github.com/Cardinal-Cryptography/drink/issues/32
         })
     }
+
+    async fn call_with_gas_limit<Args: Sync + Encode + Clone, RetType: Send + Decode>(
+        &mut self,
+        caller: &Keypair,
+        message: &CallBuilderFinal<E, Args, RetType>,
+        value: E::Balance,
+        gas_limit: Weight,
+        storage_deposit_limit: Option<E::Balance>,
+    ) -> Result<CallResult<E, RetType, Self::EventLog>, Self::Error>
+    where
+        CallBuilderFinal<E, Args, RetType>: Clone,
+    {
+        let dry_run_result = self
+            .bare_call_dry_run(caller, message, value, storage_deposit_limit)
+            .await;
+
+        if dry_run_result.exec_result.result.is_err() {
+            return Err(())
+        }
+
+        let _ = self
+            .bare_call(caller, message, value, gas_limit, storage_deposit_limit)
+            .await?;
+
+        Ok(CallResult {
+            // We need type remapping here because of the different `EventRecord` types.
+            dry_run: CallDryRunResult {
+                exec_result: dry_run_result.exec_result,
+                _marker: Default::default(),
+            },
+            events: (), // todo: https://github.com/Cardinal-Cryptography/drink/issues/32
+        })
+    }
+}
+
+impl<
+        AccountId: Clone + Send + Sync + From<[u8; 32]> + AsRef<[u8; 32]>,
+        Hash: Copy + From<[u8; 32]>,
+        Runtime: RuntimeT,
+        E: Environment<AccountId = AccountId, Balance = u128, Hash = Hash> + 'static,
+    > E2EBackend<E> for Client<AccountId, Hash, Runtime>
+where
+    RuntimeAccountId<Runtime>: From<[u8; 32]> + AsRef<[u8; 32]>,
+{
+}
+
+fn keypair_to_account<AccountId: From<[u8; 32]>>(keypair: &Keypair) -> AccountId {
+    AccountId::from(keypair.public_key().0)
+}
+
+#[async_trait]
+impl<
+        AccountId: Clone + Send + Sync + From<[u8; 32]> + AsRef<[u8; 32]>,
+        Hash: Copy + From<[u8; 32]>,
+        Runtime: RuntimeT,
+        E: Environment<AccountId = AccountId, Balance = u128, Hash = Hash> + 'static,
+    > ContractsBackend<E> for Client<AccountId, Hash, Runtime>
+where
+    RuntimeAccountId<Runtime>: From<[u8; 32]> + AsRef<[u8; 32]>,
+{
+    type Error = ();
+    type EventLog = ();
 }

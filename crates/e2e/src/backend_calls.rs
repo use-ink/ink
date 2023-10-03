@@ -1,11 +1,10 @@
-use std::marker::PhantomData;
-
 use ink_env::Environment;
 use pallet_contracts_primitives::ContractInstantiateResult;
 use scale::{
     Decode,
     Encode,
 };
+use sp_weights::Weight;
 
 use crate::{
     backend::BuilderClient,
@@ -13,6 +12,7 @@ use crate::{
     CallBuilderFinal,
     CallDryRunResult,
     CallResult,
+    ContractsBackend,
     InstantiationResult,
     UploadResult,
 };
@@ -33,6 +33,7 @@ where
     message: &'a CallBuilderFinal<E, Args, RetType>,
     value: E::Balance,
     extra_gas_portion: Option<u64>,
+    gas_limit: Option<Weight>,
     storage_deposit_limit: Option<E::Balance>,
 }
 
@@ -59,6 +60,7 @@ where
             message,
             value: 0u32.into(),
             extra_gas_portion: None,
+            gas_limit: None,
             storage_deposit_limit: None,
         }
     }
@@ -82,6 +84,21 @@ where
             self.extra_gas_portion = None
         } else {
             self.extra_gas_portion = Some(per_cent)
+        }
+        self
+    }
+
+    /// Specifies the raw gas limit as part of the call.
+    ///
+    /// # Notes
+    ///
+    /// Overwrites any values specified for `extra_gas_portion`.
+    ///  The gas estimate fro dry-run will be ignored.
+    pub fn gas_limit(&mut self, limit: Weight) -> &mut Self {
+        if limit == Weight::from(0) {
+            self.gas_limit = None
+        } else {
+            self.gas_limit = Some(limit)
         }
         self
     }
@@ -109,15 +126,27 @@ where
     where
         CallBuilderFinal<E, Args, RetType>: Clone,
     {
-        B::call_with_gas_margin(
-            self.client,
-            self.caller,
-            self.message,
-            self.value,
-            self.extra_gas_portion,
-            self.storage_deposit_limit,
-        )
-        .await
+        if let Some(limit) = self.gas_limit {
+            B::call_with_gas_limit(
+                self.client,
+                self.caller,
+                self.message,
+                self.value,
+                limit,
+                self.storage_deposit_limit,
+            )
+            .await
+        } else {
+            B::call_with_gas_margin(
+                self.client,
+                self.caller,
+                self.message,
+                self.value,
+                self.extra_gas_portion,
+                self.storage_deposit_limit,
+            )
+            .await
+        }
     }
 
     /// Dry run the call.
@@ -143,7 +172,7 @@ where
     Args: Encode + Clone,
     Contract: Clone,
 
-    B: BuilderClient<E>,
+    B: ContractsBackend<E>,
 {
     client: &'a mut B,
     caller: &'a Keypair,
@@ -151,8 +180,8 @@ where
     constructor: &'a mut CreateBuilderPartial<E, Contract, Args, R>,
     value: E::Balance,
     extra_gas_portion: Option<u64>,
+    gas_limit: Option<Weight>,
     storage_deposit_limit: Option<E::Balance>,
-    _phantom_data: PhantomData<B>,
 }
 
 impl<'a, E, Contract, Args, R, B> InstantiateBuilder<'a, E, Contract, Args, R, B>
@@ -180,8 +209,8 @@ where
             constructor,
             value: 0u32.into(),
             extra_gas_portion: None,
+            gas_limit: None,
             storage_deposit_limit: None,
-            _phantom_data: PhantomData,
         }
     }
 
@@ -208,6 +237,21 @@ where
         self
     }
 
+    /// Specifies the raw gas limit as part of the call.
+    ///
+    /// # Notes
+    ///
+    /// Overwrites any values specified for `extra_gas_portion`.
+    /// The gas estimate fro dry-run will be ignored.
+    pub fn gas_limit(&mut self, limit: Weight) -> &mut Self {
+        if limit == Weight::from(0) {
+            self.gas_limit = None
+        } else {
+            self.gas_limit = Some(limit)
+        }
+        self
+    }
+
     /// Specify the max amount of funds that can be charged for storage.
     pub fn storage_deposit_limit(
         &mut self,
@@ -228,16 +272,29 @@ where
     pub async fn submit(
         &mut self,
     ) -> Result<InstantiationResult<E, B::EventLog>, B::Error> {
-        B::instantiate_with_gas_margin(
-            self.client,
-            self.contract_name,
-            self.caller,
-            self.constructor,
-            self.value,
-            self.extra_gas_portion,
-            self.storage_deposit_limit,
-        )
-        .await
+        if let Some(limit) = self.gas_limit {
+            B::instantiate_with_gas_limit(
+                self.client,
+                self.contract_name,
+                self.caller,
+                self.constructor,
+                self.value,
+                limit,
+                self.storage_deposit_limit,
+            )
+            .await
+        } else {
+            B::instantiate_with_gas_margin(
+                self.client,
+                self.contract_name,
+                self.caller,
+                self.constructor,
+                self.value,
+                self.extra_gas_portion,
+                self.storage_deposit_limit,
+            )
+            .await
+        }
     }
 
     /// Dry run the instantiate call.
