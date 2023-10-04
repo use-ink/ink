@@ -245,9 +245,8 @@ impl<'a, 'b, 'tcx> InsertRemoveCollector<'a, 'b, 'tcx> {
     fn find_field_name(&self, e: &Expr) -> Option<String> {
         if_chain! {
             if let ExprKind::Field(s, field) = &e.kind;
-            if let ExprKind::Path(ref path) = s.kind;
-            let ty = self.cx.qpath_res(path, s.hir_id);
-            // TODO: check if ty is `self`
+            if let ExprKind::Path(QPath::Resolved(_, path)) = s.kind;
+            if match_path(path, &["self"]);
             then { Some(field.name.as_str().to_string()) } else { None }
         }
     }
