@@ -445,7 +445,7 @@ contract-sizes:
       -- ${SCRIPTS_DIR}/contract_size.sh {} > ${UPSTREAM_CONTRACT_SIZES}
     - popd
     # Build the comparison table
-    - ${SCRIPTS_DIR}/contract_size_diff.sh ${UPSTREAM_CONTRACT_SIZES} ${PR_BRANCH_CONTRACT_SIZES}
+    - ${SCRIPTS_DIR}/contract_sizes_diff.sh ${UPSTREAM_CONTRACT_SIZES} ${PR_BRANCH_CONTRACT_SIZES}
   after_script:
     - rm -rf ${MEASUREMENTS_DIR}
 
