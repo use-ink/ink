@@ -167,21 +167,22 @@ fn find_collection_def_id(
     cx: &LateContext,
     path: &Path,
 ) -> Option<(DefId, CollectionTy)> {
+    if_chain! {
+        if let Res::Def(DefKind::TyAlias, def_id) = path.res;
+        if let Some(local_id) = def_id.as_local();
+        if let Some(alias_ty) = cx.tcx.hir().get_by_def_id(local_id).alias_ty();
+        if let TyKind::Path(QPath::Resolved(_, path)) = alias_ty.kind;
+        then { return find_collection_def_id(cx, path); }
+    };
     if let Res::Def(DefKind::Struct, def_id) = path.res {
         if match_def_path(cx, def_id, &["alloc", "vec", "Vec"]) {
-            Some((def_id, CollectionTy::Vec))
-        } else if match_def_path(
-            cx,
-            def_id,
-            &["ink_storage", "lazy", "mapping", "Mapping"],
-        ) {
-            Some((def_id, CollectionTy::Map))
-        } else {
-            None
+            return Some((def_id, CollectionTy::Vec))
         }
-    } else {
-        None
-    }
+        if match_def_path(cx, def_id, &["ink_storage", "lazy", "mapping", "Mapping"]) {
+            return Some((def_id, CollectionTy::Map))
+        }
+    };
+    None
 }
 
 /// Returns vectors of fields that have collection types
@@ -202,7 +203,6 @@ fn find_collection_fields(cx: &LateContext, storage_struct_id: ItemId) -> Fields
                 if let TyKind::Path(QPath::Resolved(None, path)) = ty.kind;
                 then {
                     let field_name = field_def.ident.name.as_str();
-                    // TODO: Inspect type aliases
                     if let Some((_, ty)) = find_collection_def_id(cx, path) {
                         result.insert(field_name.to_string(), FieldInfo::new(field_def.def_id, ty));
                     }

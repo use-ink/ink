@@ -1,5 +1,5 @@
 error: storage never freed
-  --> $DIR/storage_never_freed.rs:16:9
+  --> $DIR/storage_never_freed.rs:17:9
    |
 LL |         map_1: Mapping<AccountId, AccountId>,
    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -15,7 +15,7 @@ LL |         map_1: Mapping<AccountId, AccountId>,
    |         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 error: storage never freed
-  --> $DIR/storage_never_freed.rs:17:9
+  --> $DIR/storage_never_freed.rs:18:9
    |
 LL |         map_2: Mapping<AccountId, AccountId>,
    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -24,6 +24,28 @@ help: consider adding operations to remove elements available to the user
    |
 LL |         map_2: Mapping<AccountId, AccountId>,
    |         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+error: storage never freed
+  --> $DIR/storage_never_freed.rs:19:9
+   |
+LL |         map_3: Mapping<AccountId, AccountId>,
+   |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+help: consider adding operations to remove elements available to the user
+   |
+LL |         map_3: Mapping<AccountId, AccountId>,
+   |         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+error: storage never freed
+  --> $DIR/storage_never_freed.rs:20:9
+   |
+LL |         map_alias: MapAlias2<AccountId, AccountId>,
+   |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+help: consider adding operations to remove elements available to the user
+   |
+LL |         map_alias: MapAlias2<AccountId, AccountId>,
+   |         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 error: storage never freed
   --> $DIR/storage_never_freed.rs:14:9
@@ -39,6 +61,17 @@ LL |         vec_1: Vec<AccountId>,
 error: storage never freed
   --> $DIR/storage_never_freed.rs:15:9
    |
+LL |         vec_2: Vec<bool>,
+   |         ^^^^^^^^^^^^^^^^
+   |
+help: consider adding operations to remove elements available to the user
+   |
+LL |         vec_2: Vec<bool>,
+   |         ~~~~~~~~~~~~~~~~
+
+error: storage never freed
+  --> $DIR/storage_never_freed.rs:16:9
+   |
 LL |         vec_subscription: Vec<AccountId>,
    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    |
@@ -47,5 +80,5 @@ help: consider adding operations to remove elements available to the user
 LL |         vec_subscription: Vec<AccountId>,
    |         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-error: aborting due to 4 previous errors
+error: aborting due to 7 previous errors
 
