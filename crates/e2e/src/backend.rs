@@ -14,16 +14,29 @@
 
 use super::Keypair;
 use crate::{
-    backend_calls::{InstantiateBuilder, UploadBuilder},
+    backend_calls::{
+        InstantiateBuilder,
+        UploadBuilder,
+    },
     builders::CreateBuilderPartial,
     contract_results::BareInstantiationResult,
-    CallBuilder, CallBuilderFinal, CallDryRunResult, CallResult, InstantiationResult,
+    CallBuilder,
+    CallBuilderFinal,
+    CallDryRunResult,
+    CallResult,
+    InstantiationResult,
     UploadResult,
 };
-use ink_env::{DefaultEnvironment, Environment};
+use ink_env::{
+    DefaultEnvironment,
+    Environment,
+};
 use jsonrpsee::core::async_trait;
 use pallet_contracts_primitives::ContractInstantiateResult;
-use scale::{Decode, Encode};
+use scale::{
+    Decode,
+    Encode,
+};
 use sp_weights::Weight;
 use subxt::dynamic::Value;
 
@@ -195,7 +208,7 @@ pub trait BuilderClient<E: Environment>: ContractsBackend<E> {
         storage_deposit_limit: Option<E::Balance>,
     ) -> Result<InstantiationResult<E, Self::EventLog>, Self::Error>;
 
-    ///Submits an instantiate call with a raw gas limit.
+    /// Submits an instantiate call with a raw gas limit.
     async fn instantiate_with_gas_limit<
         Contract: Clone,
         Args: Send + Sync + Encode + Clone,
@@ -222,7 +235,7 @@ pub trait BuilderClient<E: Environment>: ContractsBackend<E> {
     where
         CallBuilderFinal<E, Args, RetType>: Clone;
 
-    ///Submits an call with a raw gas limit.
+    /// Submits an call with a raw gas limit.
     async fn call_with_gas_limit<Args: Sync + Encode + Clone, RetType: Send + Decode>(
         &mut self,
         caller: &Keypair,

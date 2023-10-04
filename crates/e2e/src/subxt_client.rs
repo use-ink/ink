@@ -287,6 +287,12 @@ where
     C::Signature: From<sr25519::Signature>,
     C::Address: Send + Sync,
     <C::ExtrinsicParams as ExtrinsicParams<C>>::OtherParams: Default + Send + Sync,
+    <<C as subxt::Config>::ExtrinsicParams as ExtrinsicParams<
+        <C as subxt::Config>::Hash,
+    >>::OtherParams: Default + Send + Sync,
+    <C as subxt::Config>::ExtrinsicParams:
+        subxt::config::ExtrinsicParams<<C as subxt::Config>::Hash>,
+    <C as subxt::Config>::Hash: subxt::Config,
 
     E: Environment,
     E::AccountId: Debug + Send + Sync,
@@ -426,6 +432,12 @@ where
     C::Signature: From<sr25519::Signature>,
     C::Address: Send + Sync,
     <C::ExtrinsicParams as ExtrinsicParams<C>>::OtherParams: Default + Send + Sync,
+    <<C as subxt::Config>::ExtrinsicParams as ExtrinsicParams<
+        <C as subxt::Config>::Hash,
+    >>::OtherParams: Default + Send + Sync,
+    <C as subxt::Config>::ExtrinsicParams:
+        subxt::config::ExtrinsicParams<<C as subxt::Config>::Hash>,
+    <C as subxt::Config>::Hash: subxt::Config,
 
     E: Environment,
     E::AccountId: Debug + Send + Sync,
@@ -741,6 +753,12 @@ where
     C::Signature: From<sr25519::Signature>,
     C::Address: Send + Sync,
     <C::ExtrinsicParams as ExtrinsicParams<C::Hash>>::OtherParams: Default + Send + Sync,
+    <<C as subxt::Config>::ExtrinsicParams as ExtrinsicParams<
+        <C as subxt::Config>::Hash,
+    >>::OtherParams: Default + Send + Sync,
+    <C as subxt::Config>::ExtrinsicParams:
+        subxt::config::ExtrinsicParams<<C as subxt::Config>::Hash>,
+    <C as subxt::Config>::Hash: subxt::Config,
 
     E: Environment,
     E::AccountId: Debug + Send + Sync,
@@ -766,7 +784,13 @@ where
     C::Address: From<sr25519::PublicKey>,
     C::Signature: From<sr25519::Signature>,
     C::Address: Send + Sync,
-    <C::ExtrinsicParams as ExtrinsicParams<C>>::OtherParams: Default + Send + Sync,
+    <<C as subxt::Config>::ExtrinsicParams as subxt::config::ExtrinsicParams<C>>::OtherParams: Default + Send + Sync,
+    <<C as subxt::Config>::ExtrinsicParams as ExtrinsicParams<
+        <C as subxt::Config>::Hash,
+    >>::OtherParams: Default + Send + Sync,
+    <C as subxt::Config>::ExtrinsicParams:
+        subxt::config::ExtrinsicParams<<C as subxt::Config>::Hash>,
+    <C as subxt::Config>::Hash: subxt::Config,
 
     E: Environment,
     E::AccountId: Debug + Send + Sync,
