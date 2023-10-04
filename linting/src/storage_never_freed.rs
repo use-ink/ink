@@ -17,14 +17,12 @@ use crate::ink_utils::{
     find_storage_struct,
 };
 use clippy_utils::{
-    diagnostics::span_lint_and_then,
+    diagnostics::span_lint_and_help,
     is_lint_allowed,
     match_def_path,
     match_path,
-    source::snippet_opt,
 };
 use if_chain::if_chain;
-use rustc_errors::Applicability;
 use rustc_hir::{
     self as hir,
     def::{
@@ -219,20 +217,13 @@ fn report_field(cx: &LateContext, field_info: &FieldInfo) {
         if let Node::Field(field) = cx.tcx.hir().get_by_def_id(field_info.did);
         if !is_lint_allowed(cx, STORAGE_NEVER_FREED, field.hir_id);
         then {
-            span_lint_and_then(
+            span_lint_and_help(
                 cx,
                 STORAGE_NEVER_FREED,
                 field.span,
-                "storage never freed",
-                |diag| {
-                    let snippet = snippet_opt(cx, field.span).expect("snippet must exist");
-                    diag.span_suggestion(
-                        field.span,
-                        "consider adding operations to remove elements available to the user".to_string(),
-                        snippet,
-                        Applicability::Unspecified,
-                    );
-                },
+                "field's storage cannot be freed",
+                None,
+                "consider adding operations to remove elements available to the user"
             )
 
         }
