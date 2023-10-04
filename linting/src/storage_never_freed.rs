@@ -63,11 +63,11 @@ use std::collections::{
 
 declare_lint! {
     /// **What it does:**
-    /// This lint ensures that for every storage field with a collection type that supports adding
-    /// new elements, there's also an operation for removing elements.
+    /// This lint ensures that for every storage field with a collection type, when there is an
+    /// operation to insert new elements, there's also an operation for removing elements.
     ///
     /// **Why is this bad?**
-    /// When a user executes a contract function that writes to storage, the user has to put a
+    /// When a user executes a contract function that writes to storage, they have to put a
     /// deposit down for the amount of storage space used. Whoever frees up that storage at some
     /// later point gets the deposit back. Therefore, it is always a good idea to make it possible
     /// for users to free up their storage space.
@@ -76,6 +76,7 @@ declare_lint! {
     ///
     /// In the following example there is a storage field with the `Mapping` type that has an
     /// function that inserts new elements:
+    ///
     /// ```rust
     /// #[ink(storage)]
     /// pub struct Transaction {
@@ -230,14 +231,13 @@ fn report_field(cx: &LateContext, field_info: &FieldInfo) {
 }
 
 /// Visitor that collects `insert` and `remove` operations
-struct InsertRemoveCollector<'a, 'b, 'tcx> {
-    cx: &'tcx LateContext<'a>,
-    fields: &'b mut FieldsMap,
+struct InsertRemoveCollector<'a> {
+    fields: &'a mut FieldsMap,
 }
 
-impl<'a, 'b, 'tcx> InsertRemoveCollector<'a, 'b, 'tcx> {
-    fn new(cx: &'tcx LateContext<'a>, fields: &'b mut FieldsMap) -> Self {
-        Self { cx, fields }
+impl<'a> InsertRemoveCollector<'a> {
+    fn new(fields: &'a mut FieldsMap) -> Self {
+        Self { fields }
     }
 
     /// Finds a field of the supported type in the given expression present with the form
@@ -252,7 +252,7 @@ impl<'a, 'b, 'tcx> InsertRemoveCollector<'a, 'b, 'tcx> {
     }
 }
 
-impl<'hir> Visitor<'hir> for InsertRemoveCollector<'_, '_, '_> {
+impl<'hir> Visitor<'hir> for InsertRemoveCollector<'_> {
     fn visit_expr(&mut self, e: &'hir Expr<'hir>) {
         match &e.kind {
             ExprKind::Assign(lhs, ..) => {
@@ -324,7 +324,7 @@ impl<'tcx> LateLintPass<'tcx> for StorageNeverFreed {
                 contract_impl.items.iter().for_each(|impl_item| {
                     let impl_item = cx.tcx.hir().impl_item(impl_item.id);
                     if let ImplItemKind::Fn(_, fn_body_id) = impl_item.kind {
-                        let mut visitor = InsertRemoveCollector::new(cx, &mut fields);
+                        let mut visitor = InsertRemoveCollector::new(&mut fields);
                         walk_body(&mut visitor, cx.tcx.hir().body(fn_body_id));
                     }
                 });

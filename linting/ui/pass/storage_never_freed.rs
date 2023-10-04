@@ -8,9 +8,9 @@ pub mod storage_never_freed {
 
     #[ink(storage)]
     pub struct StorageNeverFreed {
-        vec_field: Vec<AccountId>,
-        map_field: Mapping<AccountId, AccountId>,
-        map_field2: MapAlias<AccountId, AccountId>,
+        vec_1: Vec<AccountId>,
+        map_1: Mapping<AccountId, AccountId>,
+        map_2: MapAlias<AccountId, AccountId>,
         #[cfg_attr(dylint_lib = "ink_linting", allow(storage_never_freed))]
         map_field_suppressed: Mapping<AccountId, AccountId>,
 
@@ -23,9 +23,9 @@ pub mod storage_never_freed {
         #[ink(constructor)]
         pub fn new() -> Self {
             Self {
-                vec_field: Vec::new(),
-                map_field: Mapping::new(),
-                map_field2: Mapping::new(),
+                vec_1: Vec::new(),
+                map_1: Mapping::new(),
+                map_2: Mapping::new(),
                 map_field_suppressed: Mapping::new(),
                 vec_field_mut_pointer: Vec::new(),
             }
@@ -33,9 +33,9 @@ pub mod storage_never_freed {
 
         #[ink(message)]
         pub fn add_to_fields(&mut self, v: AccountId) {
-            self.vec_field.push(v);
-            self.map_field.insert(v, &v);
-            self.map_field2.insert(v, &v);
+            self.vec_1.push(v);
+            self.map_1.insert(v, &v);
+            self.map_2.insert(v, &v);
             self.map_field_suppressed.insert(v, &v);
 
             // Should not be reported, since elements may be removed using the pointer
@@ -50,9 +50,9 @@ pub mod storage_never_freed {
 
         #[ink(message)]
         pub fn remove_from_fields(&mut self, v: AccountId) {
-            self.vec_field.pop();
-            self.map_field.remove(v);
-            self.map_field2.remove(v);
+            self.vec_1.pop();
+            self.map_1.remove(v);
+            self.map_2.remove(v);
         }
     }
 }
