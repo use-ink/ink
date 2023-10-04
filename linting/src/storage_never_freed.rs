@@ -142,7 +142,6 @@ enum CollectionTy {
 struct FieldInfo {
     pub did: LocalDefId,
     pub ty: CollectionTy,
-    // TODO: replace w/ ids
     pub has_insert: bool,
     pub has_remove: bool,
 }
@@ -330,7 +329,7 @@ impl<'tcx> LateLintPass<'tcx> for StorageNeverFreed {
                         walk_body(&mut visitor, cx.tcx.hir().body(fn_body_id));
                     }
                 });
-                fields.iter().for_each(|(_, field)| {
+                fields.values().for_each(|field| {
                     if field.has_insert && !field.has_remove {
                         report_field(cx, field)
                     }
