@@ -28,9 +28,9 @@ extern crate rustc_middle;
 extern crate rustc_session;
 extern crate rustc_span;
 
+mod ink_utils;
 mod primitive_topic;
 mod storage_never_freed;
-mod ink_utils;
 
 #[doc(hidden)]
 #[no_mangle]
@@ -38,7 +38,10 @@ pub fn register_lints(
     _sess: &rustc_session::Session,
     lint_store: &mut rustc_lint::LintStore,
 ) {
-    lint_store.register_lints(&[primitive_topic::PRIMITIVE_TOPIC, storage_never_freed::STORAGE_NEVER_FREED]);
+    lint_store.register_lints(&[
+        primitive_topic::PRIMITIVE_TOPIC,
+        storage_never_freed::STORAGE_NEVER_FREED,
+    ]);
     lint_store.register_late_pass(|_| Box::new(primitive_topic::PrimitiveTopic));
     lint_store.register_late_pass(|_| Box::new(storage_never_freed::StorageNeverFreed));
 }
