@@ -52,6 +52,12 @@ path = "ui/pass/primitive_topic.rs"
 name = "primitive_topic_fail"
 path = "ui/fail/primitive_topic.rs"
 [[example]]
+name = "storage_never_freed_pass"
+path = "ui/pass/storage_never_freed.rs"
+[[example]]
+name = "storage_never_freed_fail"
+path = "ui/fail/storage_never_freed.rs"
+[[example]]
 name = "strict_balance_equality_pass"
 path = "ui/pass/strict_balance_equality.rs"
 [[example]]

@@ -31,7 +31,9 @@ extern crate rustc_mir_dataflow;
 extern crate rustc_session;
 extern crate rustc_span;
 
+mod ink_utils;
 mod primitive_topic;
+mod storage_never_freed;
 mod strict_balance_equality;
 
 #[doc(hidden)]
@@ -42,9 +44,11 @@ pub fn register_lints(
 ) {
     lint_store.register_lints(&[
         primitive_topic::PRIMITIVE_TOPIC,
+        storage_never_freed::STORAGE_NEVER_FREED,
         strict_balance_equality::STRICT_BALANCE_EQUALITY,
     ]);
     lint_store.register_late_pass(|_| Box::new(primitive_topic::PrimitiveTopic));
+    lint_store.register_late_pass(|_| Box::new(storage_never_freed::StorageNeverFreed));
     lint_store
         .register_late_pass(|_| Box::new(strict_balance_equality::StrictBalanceEquality));
 }

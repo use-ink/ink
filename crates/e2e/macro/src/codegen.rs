@@ -125,7 +125,7 @@ fn build_full_client(environment: &syn::Path, contracts: TokenStream2) -> TokenS
         let mut client = ::ink_e2e::Client::<
             ::ink_e2e::PolkadotConfig,
             #environment
-        >::new(node_proc.client(), contracts).await;
+        >::new(node_proc.rpc(), contracts).await?;
     }
 }
 
