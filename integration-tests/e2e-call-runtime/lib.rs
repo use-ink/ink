@@ -59,7 +59,6 @@ pub mod e2e_call_runtime {
                 .await
                 .return_value();
 
-
             // Send funds from Alice to the contract using Balances::transfer
             client
                 .runtime_call(
