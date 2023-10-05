@@ -417,7 +417,8 @@ examples-docs:
 contract-sizes:
   stage:                           measurements
   <<:                              *docker-env
-  <<:                              *test-refs
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_REF_NAME != "master"
   variables:
     # Fix for linking of `linkme` for `cargo contract build`: https://github.com/dtolnay/linkme/issues/49
     RUSTFLAGS: "-Clink-arg=-z -Clink-arg=nostart-stop-gc"
