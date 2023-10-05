@@ -381,26 +381,13 @@ where
         account_id: &C::AccountId,
     ) -> Result<u64, subxt::Error> {
         let best_block = self.best_block().await;
-
-        let account_nonce_bytes = self
+        let account_nonce = self
             .client
-            .backend()
-            .call(
-                "AccountNonceApi_account_nonce",
-                Some(&scale::Encode::encode(&account_id)),
-                best_block,
-            )
+            .blocks()
+            .at(best_block)
+            .await?
+            .account_nonce(account_id)
             .await?;
-
-        // custom decoding from a u16/u32/u64 into a u64, based on the number of bytes we
-        // got back.
-        let cursor = &mut &account_nonce_bytes[..];
-        let account_nonce: u64 = match account_nonce_bytes.len() {
-            2 => <u16 as scale::Decode>::decode(cursor)?.into(),
-            4 => <u32 as scale::Decode>::decode(cursor)?.into(),
-            8 => <u64 as scale::Decode>::decode(cursor)?,
-            _ => return Err(subxt::Error::Decode(subxt::error::DecodeError::custom_string(format!("state call AccountNonceApi_account_nonce returned an unexpected number of bytes: {} (expected 2, 4 or 8)", account_nonce_bytes.len()))))
-        };
         Ok(account_nonce)
     }
 
