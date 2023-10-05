@@ -51,7 +51,6 @@ pub(crate) fn find_storage_struct(
         .copied()
 }
 
-// TODO: Extracted from #1914; reuse this in #1914 when it is merged
 /// Returns `ItemId`s defined inside the code block of `const _: () = {}`.
 ///
 /// The Rust code expanded after ink! code generation used these to define different
@@ -77,7 +76,6 @@ fn items_in_unnamed_const(cx: &LateContext<'_>, id: &ItemId) -> Vec<ItemId> {
     }
 }
 
-// TODO: Extracted from #1914; reuse this in #1914 when it is merged
 /// Collect all the `ItemId`s in nested `const _: () = {}`
 pub(crate) fn expand_unnamed_consts(
     cx: &LateContext<'_>,
@@ -90,7 +88,6 @@ pub(crate) fn expand_unnamed_consts(
     })
 }
 
-// TODO: Extracted from #1914; reuse this in #1914 when it is merged
 /// Finds type of the struct that implements a contract with user-defined code
 fn find_contract_ty_hir<'tcx>(
     cx: &LateContext<'tcx>,
@@ -114,7 +111,6 @@ fn find_contract_ty_hir<'tcx>(
         .copied()
 }
 
-// TODO: Extracted from #1914; reuse this in #1914 when it is merged
 /// Compares types of two user-defined structs
 fn eq_hir_struct_tys(lhs: &Ty<'_>, rhs: &Ty<'_>) -> bool {
     match (lhs.kind, rhs.kind) {
@@ -126,7 +122,6 @@ fn eq_hir_struct_tys(lhs: &Ty<'_>, rhs: &Ty<'_>) -> bool {
     }
 }
 
-// TODO: Extracted from #1914; reuse this in #1914 when it is merged
 /// Finds an ID of the implementation of the contract struct containing user-defined code
 pub(crate) fn find_contract_impl_id(
     cx: &LateContext<'_>,
