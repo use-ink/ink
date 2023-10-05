@@ -59,9 +59,15 @@ pub mod e2e_call_runtime {
                 .await
                 .return_value();
 
+
             // Send funds from Alice to the contract using Balances::transfer
             client
-                .runtime_call(&ink_e2e::alice(), "Balances", "transfer", call_data)
+                .runtime_call(
+                    &ink_e2e::alice(),
+                    "Balances",
+                    "transfer_allow_death",
+                    call_data,
+                )
                 .await
                 .expect("runtime call failed");
 
