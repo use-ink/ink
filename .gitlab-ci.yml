@@ -434,6 +434,8 @@ contract-sizes:
   before_script:
     - mkdir ${MEASUREMENTS_DIR}
   script:
+    # Display vars
+    - export
     # Measure contract sizes for the current branch
     - ${SCRIPTS_DIR}/for_all_contracts_exec.sh
       --path integration-tests
