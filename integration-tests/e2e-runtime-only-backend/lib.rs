@@ -135,7 +135,12 @@ pub mod flipper {
                 Value::u128(ENDOWMENT),
             ];
             client
-                .runtime_call(&ink_e2e::alice(), "Balances", "transfer", call_data)
+                .runtime_call(
+                    &ink_e2e::alice(),
+                    "Balances",
+                    "transfer_allow_death",
+                    call_data,
+                )
                 .await
                 .expect("runtime call failed");
 
