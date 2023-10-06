@@ -451,6 +451,7 @@ contract-sizes:
     - ${SCRIPTS_DIR}/contract_sizes_diff.sh ${UPSTREAM_CONTRACT_SIZES} ${PR_BRANCH_CONTRACT_SIZES} > ${CONTRACT_SIZES_DIFF}
     - cat ${CONTRACT_SIZES_DIFF}
     # Submit the comparison table as a comment to the PR
+    - echo "Submitting contract sizes diff to ${PR_COMMENTS_URL}"
     - ${SCRIPTS_DIR}/contract_sizes_submit.sh ${PR_COMMENTS_URL} < ${CONTRACT_SIZES_DIFF}
   after_script:
     - rm -rf ${MEASUREMENTS_DIR}
