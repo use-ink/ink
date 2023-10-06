@@ -242,7 +242,7 @@ where
     ) -> Result<(), subxt::Error> {
         let call = subxt::tx::Payload::new(
             "Balances",
-            "transfer",
+            "transfer_allow_death",
             Transfer::<E, C> {
                 dest: subxt::utils::Static(dest.into()),
                 value,
