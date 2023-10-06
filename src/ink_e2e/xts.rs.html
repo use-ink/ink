@@ -791,7 +791,7 @@
     ) -&gt; <span class="prelude-ty">Result</span>&lt;(), subxt::Error&gt; {
         <span class="kw">let </span>call = subxt::tx::Payload::new(
             <span class="string">&quot;Balances&quot;</span>,
-            <span class="string">&quot;transfer&quot;</span>,
+            <span class="string">&quot;transfer_allow_death&quot;</span>,
             Transfer::&lt;E, C&gt; {
                 dest: subxt::utils::Static(dest.into()),
                 value,
