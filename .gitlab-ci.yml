@@ -430,7 +430,7 @@ contract-sizes:
     UPSTREAM_REPO: "https://github.com/paritytech/ink.git"
     UPSTREAM_DIR: ${MEASUREMENTS_DIR}/ink-${UPSTREAM_BRANCH}
     CONTRACT_SIZES_DIFF: ${MEASUREMENTS_DIR}/${CI_COMMIT_BRANCH}_contract_sizes_diff.md
-    PR_COMMENTS_URL: "https://api.github.com/repos/paritytech/ink/issues/${TRGR_REF}/comments"
+    PR_COMMENTS_URL: "https://api.github.com/repos/paritytech/ink/issues/${CI_COMMIT_REF_NAME}/comments"
   before_script:
     - mkdir ${MEASUREMENTS_DIR}
   script:
