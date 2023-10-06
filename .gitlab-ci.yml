@@ -436,6 +436,7 @@ contract-sizes:
   script:
     # Display vars
     - export
+    - cargo contract -V
     # Measure contract sizes for the current branch
     - ${SCRIPTS_DIR}/for_all_contracts_exec.sh
       --path integration-tests
