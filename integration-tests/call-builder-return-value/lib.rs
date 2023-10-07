@@ -133,7 +133,7 @@ mod call_builder {
             let expected_value = 42;
             let mut constructor = CallBuilderReturnValueRef::new(expected_value);
             let call_builder = client
-                .instantiate("call_builder_return_value", &origin, &mut &mut constructor)
+                .instantiate("call_builder_return_value", &origin, &mut constructor)
                 .submit()
                 .await
                 .expect("instantiate failed");
