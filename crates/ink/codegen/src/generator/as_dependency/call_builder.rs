@@ -325,11 +325,7 @@ impl CallBuilder<'_> {
         self.contract
             .module()
             .impls()
-            .filter(|impl_block| {
-                impl_block
-                    .trait_path()
-                    .is_none()
-            })
+            .filter(|impl_block| impl_block.trait_path().is_none())
             .map(|impl_block| self.generate_call_builder_inherent_impl(impl_block))
             .collect()
     }
