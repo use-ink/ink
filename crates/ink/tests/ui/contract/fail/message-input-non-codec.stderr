@@ -5,9 +5,9 @@ error[E0277]: the trait bound `NonCodecType: WrapperTypeDecode` is not satisfied
    |                               ^^^^^^ the trait `WrapperTypeDecode` is not implemented for `NonCodecType`
    |
    = help: the following other types implement trait `WrapperTypeDecode`:
-             Arc<T>
              Box<T>
              Rc<T>
+             Arc<T>
    = note: required for `NonCodecType` to implement `ink::parity_scale_codec::Decode`
 note: required by a bound in `DispatchInput`
   --> src/codegen/dispatch/type_check.rs
@@ -25,9 +25,9 @@ error[E0277]: the trait bound `NonCodecType: WrapperTypeDecode` is not satisfied
    |         ^^^ the trait `WrapperTypeDecode` is not implemented for `NonCodecType`
    |
    = help: the following other types implement trait `WrapperTypeDecode`:
-             Arc<T>
              Box<T>
              Rc<T>
+             Arc<T>
    = note: required for `NonCodecType` to implement `ink::parity_scale_codec::Decode`
 
 error[E0277]: the trait bound `NonCodecType: WrapperTypeEncode` is not satisfied
@@ -40,15 +40,15 @@ error[E0277]: the trait bound `NonCodecType: WrapperTypeEncode` is not satisfied
    |         --- required by a bound introduced by this call
    |
    = help: the following other types implement trait `WrapperTypeEncode`:
-             &T
-             &mut T
-             Arc<T>
              Box<T>
              Cow<'a, T>
-             Rc<T>
-             String
-             Vec<T>
              ink::parity_scale_codec::Ref<'a, T, U>
+             Rc<T>
+             Arc<T>
+             Vec<T>
+             String
+             &T
+             &mut T
    = note: required for `NonCodecType` to implement `Encode`
 note: required by a bound in `ExecutionInput::<ArgumentList<ArgumentListEnd, ArgumentListEnd>>::push_arg`
   --> $WORKSPACE/crates/env/src/call/execution_input.rs
