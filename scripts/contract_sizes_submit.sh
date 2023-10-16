@@ -48,7 +48,7 @@ These are the results when building the \`integration-tests/*\` contracts from t
 
 ${diffs_markdown_table}
 
-[Link to the run](https://gitlab.parity.io/parity/ink/-/pipelines/${CI_PIPELINE_ID}) | Last update: ${updated}
+[Link to the run](https://gitlab.parity.io/parity/mirrors/ink/-/pipelines/${CI_PIPELINE_ID}) | Last update: ${updated}
 EOF
 )
 
