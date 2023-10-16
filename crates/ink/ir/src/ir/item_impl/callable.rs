@@ -57,11 +57,7 @@ pub struct CallableWithSelector<'a, C> {
 impl<C> Copy for CallableWithSelector<'_, C> {}
 impl<C> Clone for CallableWithSelector<'_, C> {
     fn clone(&self) -> Self {
-        Self {
-            composed_selector: self.composed_selector,
-            item_impl: self.item_impl,
-            callable: self.callable,
-        }
+        *self
     }
 }
 
