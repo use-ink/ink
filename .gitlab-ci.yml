@@ -442,6 +442,7 @@ contract-sizes:
       --path integration-tests
       --quiet
       -- ${SCRIPTS_DIR}/contract_size.sh {} > $PR_BRANCH_CONTRACT_SIZES
+    - sed -ie 's/^integration-tests\///g' ${PR_BRANCH_CONTRACT_SIZES}
     # Measure contract sizes for the upstream branch
     - git clone --verbose --depth 1 --branch ${UPSTREAM_BRANCH} ${UPSTREAM_REPO} ${UPSTREAM_DIR}
     - pushd ${UPSTREAM_DIR}
@@ -449,6 +450,7 @@ contract-sizes:
       --path integration-tests
       --quiet
       -- ${SCRIPTS_DIR}/contract_size.sh {} > ${UPSTREAM_CONTRACT_SIZES}
+    - sed -ie 's/^integration-tests\///g' ${UPSTREAM_CONTRACT_SIZES}
     - popd
     # Build the comparison table
     - ${SCRIPTS_DIR}/contract_sizes_diff.sh ${UPSTREAM_CONTRACT_SIZES} ${PR_BRANCH_CONTRACT_SIZES} > ${CONTRACT_SIZES_DIFF}
