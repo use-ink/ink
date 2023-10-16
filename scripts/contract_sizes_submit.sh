@@ -36,14 +36,15 @@ head_in_branch=$(git log | grep -q $ink_master_head; echo $?)
 master_ahead=""
 if [ "$head_in_branch" == "1" ]; then
   echo "ink! master is ahead"
-  master_ahead="⚠️ **The ink! \`master\` is ahead of your branch, this might skew the comparison data below.**\\n\\n"
+  master_ahead="⚠️ **The ink! \`master\` is ahead of your branch, this might skew the comparison data below.** ⚠️"
 fi
 
 updated=$(TZ='Europe/Berlin' date)
 cc_version=$(cargo-contract --version | egrep --only-matching "cargo-contract.* .*-x86" | sed -s 's/-x86//')
 body=$(cat << EOF
 ## 🦑 📈 ink! Example Contracts ‒ Changes Report 📉 🦑
-${master_ahead}These are the results when building the \`integration-tests/*\` contracts from this branch with \`${cc_version}\` and comparing them to ink! \`master\`:
+${master_ahead}
+These are the results when building the \`integration-tests/*\` contracts from this branch with \`${cc_version}\` and comparing them to ink! \`master\`:
 
 ${diffs_markdown_table}
 
