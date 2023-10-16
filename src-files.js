@@ -1,4 +1,4 @@
-var sourcesIndex = JSON.parse('{\
+var srcIndex = JSON.parse('{\
 "ink":["",[["codegen",[["dispatch",[],["execution.rs","info.rs","mod.rs","type_check.rs"]],["trait_def",[],["call_builder.rs","mod.rs","trait_message.rs"]],["utils",[],["identity_type.rs","mod.rs","same_type.rs"]]],["env.rs","implies_return.rs","mod.rs"]],["reflect",[["trait_def",[],["info.rs","mod.rs","registry.rs"]]],["contract.rs","dispatch.rs","mod.rs"]]],["chain_extension.rs","contract_ref.rs","env_access.rs","lib.rs","option_info.rs","result_info.rs"]],\
 "ink_codegen":["",[["generator",[["as_dependency",[],["call_builder.rs","contract_ref.rs","mod.rs"]],["trait_def",[],["call_builder.rs","call_forwarder.rs","definition.rs","mod.rs","trait_registry.rs"]]],["arg_list.rs","blake2b.rs","chain_extension.rs","contract.rs","dispatch.rs","env.rs","event.rs","ink_test.rs","item_impls.rs","metadata.rs","mod.rs","selector.rs","storage.rs","storage_item.rs"]]],["enforced_error.rs","lib.rs","traits.rs"]],\
 "ink_e2e":["",[],["backend.rs","builders.rs","client_utils.rs","contract_build.rs","contract_results.rs","drink_client.rs","error.rs","events.rs","lib.rs","node_proc.rs","subxt_client.rs","xts.rs"]],\
@@ -12,4 +12,4 @@ var sourcesIndex = JSON.parse('{\
 "ink_storage":["",[["lazy",[],["mapping.rs","mod.rs"]]],["lib.rs"]],\
 "ink_storage_traits":["",[["impls",[],["mod.rs"]],["layout",[],["impls.rs","mod.rs"]]],["lib.rs","storage.rs"]]\
 }');
-createSourceSidebar();
+createSrcSidebar();
