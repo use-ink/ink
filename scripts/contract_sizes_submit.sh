@@ -39,7 +39,7 @@ master_ahead=""
 if [ "$head_in_branch" == "1" ]; then
   echo "ink! master is ahead"
   master_ahead="⚠️ **The ink! \`master\` is ahead of your branch, this might skew the comparison data below.**\\n\\n"
-ficl
+fi
 
 updated=$(TZ='Europe/Berlin' date)
 cc_version=$(cargo-contract --version | egrep --only-matching "cargo-contract.* .*-x86" | sed -s 's/-x86//')
@@ -47,7 +47,7 @@ curl -X ${verb} ${pr_comments_url} \
     -H "Cookie: logged_in=no" \
     -H "Authorization: token ${GITHUB_PR_TOKEN}" \
     -H "Content-Type: application/json; charset=utf-8" \
-    -d "${ \
+    -d $"{ \
 \"body\": \"## 🦑 📈 ink! Example Contracts ‒ Changes Report 📉 🦑\\n \
 ${master_ahead}These are the results when building the \`integration-tests/*\` contracts from this branch with \`$cc_version\` and comparing them to ink! \`master\`: \\n\\n\
 ${comment}\n\n[Link to the run](https://gitlab.parity.io/parity/ink/-/pipelines/${CI_PIPELINE_ID}) | Last update: ${updated}\" \
