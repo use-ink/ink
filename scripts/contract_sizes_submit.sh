@@ -43,12 +43,13 @@ fi
 
 updated=$(TZ='Europe/Berlin' date)
 cc_version=$(cargo-contract --version | egrep --only-matching "cargo-contract.* .*-x86" | sed -s 's/-x86//')
+body="## 🦑 📈 ink! Example Contracts ‒ Changes Report 📉 🦑\\n \
+    ${master_ahead}These are the results when building the \`integration-tests/*\` contracts from this branch with \`${cc_version}\` and comparing them to ink! \`master\`: \\n\\n\
+    ${comment}\n\n[Link to the run](https://gitlab.parity.io/parity/ink/-/pipelines/${CI_PIPELINE_ID}) | Last update: ${updated}"
+json_body=$(jq -n --arg body "${body}" '{ "body": $body}')
+
 curl -X ${verb} ${pr_comments_url} \
     -H "Cookie: logged_in=no" \
     -H "Authorization: token ${GITHUB_PR_TOKEN}" \
     -H "Content-Type: application/json; charset=utf-8" \
-    -d $"{ \
-\"body\": \"## 🦑 📈 ink! Example Contracts ‒ Changes Report 📉 🦑\\n \
-${master_ahead}These are the results when building the \`integration-tests/*\` contracts from this branch with \`$cc_version\` and comparing them to ink! \`master\`: \\n\\n\
-${comment}\n\n[Link to the run](https://gitlab.parity.io/parity/ink/-/pipelines/${CI_PIPELINE_ID}) | Last update: ${updated}\" \
-    }"
+    -d "${json_body}"
