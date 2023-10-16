@@ -126,27 +126,34 @@ where
     where
         CallBuilderFinal<E, Args, RetType>: Clone,
     {
-        if let Some(limit) = self.gas_limit {
-            B::call_with_gas_limit(
-                self.client,
-                self.caller,
-                self.message,
-                self.value,
-                limit,
-                self.storage_deposit_limit,
-            )
-            .await
-        } else {
-            B::call_with_gas_margin(
-                self.client,
-                self.caller,
-                self.message,
-                self.value,
-                self.extra_gas_portion,
-                self.storage_deposit_limit,
-            )
-            .await
-        }
+        let dry_run_res = B::bare_call_dry_run(
+            self.client,
+            self.caller,
+            self.message,
+            self.value,
+            self.storage_deposit_limit
+        ).await?;
+
+        let gas_limit =
+            if let Some(limit) = self.gas_limit {
+                limit
+            } else {
+                let gas_required = dry_run_res.exec_result.gas_required;
+                if let Some(m) = self.extra_gas_portion {
+                    gas_required + (gas_required / 100 * m)
+                } else {
+                    gas_required
+                }
+            };
+
+        B::bare_call(
+            self.client,
+            self.caller,
+            self.message,
+            self.value,
+            gas_limit,
+            self.storage_deposit_limit,
+        ).await
     }
 
     /// Dry run the call.
