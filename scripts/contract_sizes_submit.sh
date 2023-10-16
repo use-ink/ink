@@ -39,10 +39,10 @@ master_ahead=""
 if [ "$head_in_branch" == "1" ]; then
   echo "ink! master is ahead"
   master_ahead="⚠️ **The ink! \`master\` is ahead of your branch, this might skew the comparison data below.**\\n\\n"
-fi
+ficl
 
 updated=$(TZ='Europe/Berlin' date)
-cc_version=$(cargo-contract --version | egrep --only-matching "cargo-contract .*-x86" | sed -s 's/-x86//')
+cc_version=$(cargo-contract --version | egrep --only-matching "cargo-contract.* .*-x86" | sed -s 's/-x86//')
 curl -X ${verb} ${pr_comments_url} \
     -H "Cookie: logged_in=no" \
     -H "Authorization: token ${GITHUB_PR_TOKEN}" \
