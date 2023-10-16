@@ -878,7 +878,7 @@
         };
         <span class="kw">let </span>recovery_id = RecoveryId::from_i32(recovery_byte <span class="kw">as </span>i32)
             .unwrap_or_else(|error| <span class="macro">panic!</span>(<span class="string">&quot;Unable to parse the recovery id: {error}&quot;</span>));
-        <span class="kw">let </span>message = Message::from_slice(message_hash).unwrap_or_else(|error| {
+        <span class="kw">let </span>message = Message::from_digest_slice(message_hash).unwrap_or_else(|error| {
             <span class="macro">panic!</span>(<span class="string">&quot;Unable to create the message from hash: {error}&quot;</span>)
         });
         <span class="kw">let </span>signature =
