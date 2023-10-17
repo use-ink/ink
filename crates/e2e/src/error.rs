@@ -61,3 +61,23 @@ impl<AccountId, Balance, CodeHash, DispatchError> From<ContractExecResult<Balanc
         Self::CallDryRun(value)
     }
 }
+
+/// Dummy error type for drink!
+///
+/// todo: https://github.com/Cardinal-Cryptography/drink/issues/32
+#[derive(Debug, Default)]
+pub struct DrinkErr;
+
+impl<AccountId, Balance> From<ContractInstantiateResult<AccountId, Balance, ()>>
+    for DrinkErr
+{
+    fn from(_value: ContractInstantiateResult<AccountId, Balance, ()>) -> Self {
+        Self {}
+    }
+}
+
+impl<Balance> From<ContractExecResult<Balance, ()>> for DrinkErr {
+    fn from(_value: ContractExecResult<Balance, ()>) -> Self {
+        Self {}
+    }
+}

@@ -9,6 +9,7 @@ use crate::{
         ContractsRegistry,
     },
     contract_results::BareInstantiationResult,
+    error::DrinkErr,
     log_error,
     CallBuilderFinal,
     CallDryRunResult,
@@ -114,7 +115,7 @@ where
 {
     type AccountId = AccountId;
     type Balance = u128;
-    type Error = ();
+    type Error = DrinkErr;
     type EventLog = ();
 
     async fn create_and_fund_account(
@@ -157,7 +158,9 @@ where
 
         // Encode the call object.
         let call = subxt::dynamic::tx(pallet_name, call_name, call_data);
-        let encoded_call = call.encode_call_data(&metadata.into()).map_err(|_| ())?;
+        let encoded_call = call
+            .encode_call_data(&metadata.into())
+            .map_err(|_| DrinkErr::default())?;
 
         // Decode the call object.
         // Panic on error - we just encoded a validated call object, so it should be
@@ -171,7 +174,7 @@ where
                 decoded_call,
                 Runtime::convert_account_to_origin(keypair_to_account(origin)),
             )
-            .map_err(|_| ())?;
+            .map_err(|_| DrinkErr::default())?;
 
         Ok(())
     }
@@ -212,7 +215,7 @@ where
         let account_id_raw = match &result.result {
             Err(err) => {
                 log_error(&format!("Instantiation failed: {err:?}"));
-                return Err(()) // todo: make a proper error type
+                return Err(DrinkErr::default()) // todo: make a proper error type
             }
             Ok(res) => *res.account_id.as_ref(),
         };
@@ -285,7 +288,7 @@ where
             Ok(result) => result,
             Err(err) => {
                 log_error(&format!("Upload failed: {err:?}"));
-                return Err(()) // todo: make a proper error type
+                return Err(DrinkErr::default()) // todo: make a proper error type
             }
         };
 
@@ -336,10 +339,10 @@ where
             .result
             .is_err()
         {
-            return Err(())
+            return Err(DrinkErr::default())
         }
 
-        Ok(()) // todo: https://github.com/Cardinal-Cryptography/drink/issues/32
+        Ok(())
     }
 
     async fn bare_call_dry_run<Args: Sync + Encode + Clone, RetType: Send + Decode>(
@@ -405,6 +408,6 @@ impl<
 where
     RuntimeAccountId<Runtime>: From<[u8; 32]> + AsRef<[u8; 32]>,
 {
-    type Error = ();
+    type Error = DrinkErr;
     type EventLog = ();
 }
