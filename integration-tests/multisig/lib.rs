@@ -802,7 +802,7 @@ mod multisig {
         #[ink::test]
         fn construction_works() {
             let accounts = default_accounts();
-            let owners = vec![accounts.alice, accounts.bob, accounts.eve];
+            let owners = [accounts.alice, accounts.bob, accounts.eve];
             let contract = build_contract();
 
             assert_eq!(contract.owners.len(), 3);
