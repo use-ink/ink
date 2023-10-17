@@ -35,7 +35,7 @@ mod incrementer {
 
         #[ink(message)]
         pub fn inc_by(&mut self, delta: i64) {
-            self.value += delta;
+            self.value = self.value.checked_add(delta).unwrap();
         }
     }
 

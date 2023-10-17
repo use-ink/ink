@@ -51,6 +51,12 @@ path = "ui/pass/primitive_topic.rs"
 [[example]]
 name = "primitive_topic_fail"
 path = "ui/fail/primitive_topic.rs"
+[[example]]
+name = "storage_never_freed_pass"
+path = "ui/pass/storage_never_freed.rs"
+[[example]]
+name = "storage_never_freed_fail"
+path = "ui/fail/storage_never_freed.rs"
 
 [package.metadata.rust-analyzer]
 rustc_private = true
