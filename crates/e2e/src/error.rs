@@ -46,10 +46,19 @@ pub enum Error<AccountId, Balance, CodeHash, DispatchError> {
     Decoding(String),
 }
 
+impl<AccountId, Balance, CodeHash, DispatchError>
+    From<ContractInstantiateResult<AccountId, Balance, ()>>
+    for Error<AccountId, Balance, CodeHash, DispatchError>
+{
+    fn from(value: ContractInstantiateResult<AccountId, Balance, ()>) -> Self {
+        Self::InstantiateDryRun(value)
+    }
+}
+
 impl<AccountId, Balance, CodeHash, DispatchError> From<ContractExecResult<Balance, ()>>
     for Error<AccountId, Balance, CodeHash, DispatchError>
 {
     fn from(value: ContractExecResult<Balance, ()>) -> Self {
-        CallDryRun(value)
+        Self::CallDryRun(value)
     }
 }
