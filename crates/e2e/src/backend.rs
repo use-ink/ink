@@ -23,8 +23,6 @@ use crate::{
     CallBuilder,
     CallBuilderFinal,
     CallDryRunResult,
-    CallResult,
-    InstantiationResult,
     UploadResult,
 };
 use ink_env::{

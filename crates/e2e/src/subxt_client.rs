@@ -35,7 +35,6 @@ use crate::{
         BareInstantiationResult,
         CallDryRunResult,
         CallResult,
-        InstantiationResult,
         UploadResult,
     },
 };
