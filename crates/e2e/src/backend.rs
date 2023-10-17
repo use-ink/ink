@@ -23,8 +23,6 @@ use crate::{
     CallBuilder,
     CallBuilderFinal,
     CallDryRunResult,
-    CallResult,
-    InstantiationResult,
     UploadResult,
 };
 use ink_env::{
@@ -193,60 +191,6 @@ pub trait ContractsBackend<E: Environment> {
 
 #[async_trait]
 pub trait BuilderClient<E: Environment>: ContractsBackend<E> {
-    /// Submits an instantiate call with a gas margin.
-    async fn instantiate_with_gas_margin<
-        Contract: Clone,
-        Args: Send + Sync + Encode + Clone,
-        R,
-    >(
-        &mut self,
-        contract_name: &str,
-        caller: &Keypair,
-        constructor: &mut CreateBuilderPartial<E, Contract, Args, R>,
-        value: E::Balance,
-        margin: Option<u64>,
-        storage_deposit_limit: Option<E::Balance>,
-    ) -> Result<InstantiationResult<E, Self::EventLog>, Self::Error>;
-
-    /// Submits an instantiate call with a raw gas limit.
-    async fn instantiate_with_gas_limit<
-        Contract: Clone,
-        Args: Send + Sync + Encode + Clone,
-        R,
-    >(
-        &mut self,
-        contract_name: &str,
-        caller: &Keypair,
-        constructor: &mut CreateBuilderPartial<E, Contract, Args, R>,
-        value: E::Balance,
-        gas_limit: Weight,
-        storage_deposit_limit: Option<E::Balance>,
-    ) -> Result<InstantiationResult<E, Self::EventLog>, Self::Error>;
-
-    /// Submits an call with a gas margin.
-    async fn call_with_gas_margin<Args: Sync + Encode + Clone, RetType: Send + Decode>(
-        &mut self,
-        caller: &Keypair,
-        message: &CallBuilderFinal<E, Args, RetType>,
-        value: E::Balance,
-        margin: Option<u64>,
-        storage_deposit_limit: Option<E::Balance>,
-    ) -> Result<CallResult<E, RetType, Self::EventLog>, Self::Error>
-    where
-        CallBuilderFinal<E, Args, RetType>: Clone;
-
-    /// Submits an call with a raw gas limit.
-    async fn call_with_gas_limit<Args: Sync + Encode + Clone, RetType: Send + Decode>(
-        &mut self,
-        caller: &Keypair,
-        message: &CallBuilderFinal<E, Args, RetType>,
-        value: E::Balance,
-        gas_limit: Weight,
-        storage_deposit_limit: Option<E::Balance>,
-    ) -> Result<CallResult<E, RetType, Self::EventLog>, Self::Error>
-    where
-        CallBuilderFinal<E, Args, RetType>: Clone;
-
     /// Executes a bare `call` for the contract at `account_id`. This function does
     /// perform a dry-run, and user is expected to provide the gas limit.
     ///

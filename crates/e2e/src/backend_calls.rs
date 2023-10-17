@@ -12,6 +12,7 @@ use crate::{
     CallBuilderFinal,
     CallDryRunResult,
     CallResult,
+    ContractExecResult,
     ContractsBackend,
     InstantiationResult,
     UploadResult,
@@ -125,28 +126,43 @@ where
     ) -> Result<CallResult<E, RetType, B::EventLog>, B::Error>
     where
         CallBuilderFinal<E, Args, RetType>: Clone,
+        B::Error: From<ContractExecResult<E::Balance, ()>>,
     {
-        if let Some(limit) = self.gas_limit {
-            B::call_with_gas_limit(
-                self.client,
-                self.caller,
-                self.message,
-                self.value,
-                limit,
-                self.storage_deposit_limit,
-            )
-            .await
+        let dry_run = B::bare_call_dry_run(
+            self.client,
+            self.caller,
+            self.message,
+            self.value,
+            self.storage_deposit_limit,
+        )
+        .await
+        .to_result()?;
+
+        let gas_limit = if let Some(limit) = self.gas_limit {
+            limit
         } else {
-            B::call_with_gas_margin(
-                self.client,
-                self.caller,
-                self.message,
-                self.value,
-                self.extra_gas_portion,
-                self.storage_deposit_limit,
-            )
-            .await
-        }
+            let gas_required = dry_run.exec_result.gas_required;
+            if let Some(m) = self.extra_gas_portion {
+                gas_required + (gas_required / 100 * m)
+            } else {
+                gas_required
+            }
+        };
+
+        let call_result = B::bare_call(
+            self.client,
+            self.caller,
+            self.message,
+            self.value,
+            gas_limit,
+            self.storage_deposit_limit,
+        )
+        .await?;
+
+        Ok(CallResult {
+            dry_run,
+            events: call_result,
+        })
     }
 
     /// Dry run the call.
@@ -271,30 +287,53 @@ where
     /// to add a margin to the gas limit.
     pub async fn submit(
         &mut self,
-    ) -> Result<InstantiationResult<E, B::EventLog>, B::Error> {
-        if let Some(limit) = self.gas_limit {
-            B::instantiate_with_gas_limit(
-                self.client,
-                self.contract_name,
-                self.caller,
-                self.constructor,
-                self.value,
-                limit,
-                self.storage_deposit_limit,
-            )
-            .await
+    ) -> Result<InstantiationResult<E, B::EventLog>, B::Error>
+    where
+        B::Error: From<ContractInstantiateResult<E::AccountId, E::Balance, ()>>,
+    {
+        let dry_run = B::bare_instantiate_dry_run(
+            self.client,
+            self.contract_name,
+            self.caller,
+            self.constructor,
+            self.value,
+            self.storage_deposit_limit,
+        )
+        .await;
+
+        let dry_run = if dry_run.result.is_err() {
+            Err(B::Error::from(dry_run))
         } else {
-            B::instantiate_with_gas_margin(
-                self.client,
-                self.contract_name,
-                self.caller,
-                self.constructor,
-                self.value,
-                self.extra_gas_portion,
-                self.storage_deposit_limit,
-            )
-            .await
-        }
+            Ok(dry_run)
+        }?;
+
+        let gas_limit = if let Some(limit) = self.gas_limit {
+            limit
+        } else {
+            let gas_required = dry_run.gas_required;
+            if let Some(m) = self.extra_gas_portion {
+                gas_required + (gas_required / 100 * m)
+            } else {
+                gas_required
+            }
+        };
+
+        let instantiate_result = B::bare_instantiate(
+            self.client,
+            self.contract_name,
+            self.caller,
+            self.constructor,
+            self.value,
+            gas_limit,
+            self.storage_deposit_limit,
+        )
+        .await?;
+
+        Ok(InstantiationResult {
+            account_id: instantiate_result.account_id,
+            dry_run,
+            events: instantiate_result.events,
+        })
     }
 
     /// Dry run the instantiate call.
