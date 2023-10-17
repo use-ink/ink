@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use crate::error::Error::CallDryRun;
 use pallet_contracts_primitives::{
     CodeUploadResult,
     ContractExecResult,
@@ -43,4 +44,12 @@ pub enum Error<AccountId, Balance, CodeHash, DispatchError> {
     Balance(String),
     /// Decoding failed.
     Decoding(String),
+}
+
+impl<AccountId, Balance, CodeHash, DispatchError> From<ContractExecResult<Balance, ()>>
+    for Error<AccountId, Balance, CodeHash, DispatchError>
+{
+    fn from(value: ContractExecResult<Balance, ()>) -> Self {
+        CallDryRun(value)
+    }
 }

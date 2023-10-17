@@ -12,6 +12,7 @@ use crate::{
     CallBuilderFinal,
     CallDryRunResult,
     CallResult,
+    ContractExecResult,
     ContractsBackend,
     InstantiationResult,
     UploadResult,
@@ -125,35 +126,43 @@ where
     ) -> Result<CallResult<E, RetType, B::EventLog>, B::Error>
     where
         CallBuilderFinal<E, Args, RetType>: Clone,
+        B::Error: From<ContractExecResult<E::Balance, ()>>,
     {
-        let dry_run_res = B::bare_call_dry_run(
+        let dry_run = B::bare_call_dry_run(
             self.client,
             self.caller,
             self.message,
             self.value,
-            self.storage_deposit_limit
-        ).await?;
+            self.storage_deposit_limit,
+        )
+        .await
+        .to_result()?;
 
-        let gas_limit =
-            if let Some(limit) = self.gas_limit {
-                limit
+        let gas_limit = if let Some(limit) = self.gas_limit {
+            limit
+        } else {
+            let gas_required = dry_run.exec_result.gas_required;
+            if let Some(m) = self.extra_gas_portion {
+                gas_required + (gas_required / 100 * m)
             } else {
-                let gas_required = dry_run_res.exec_result.gas_required;
-                if let Some(m) = self.extra_gas_portion {
-                    gas_required + (gas_required / 100 * m)
-                } else {
-                    gas_required
-                }
-            };
+                gas_required
+            }
+        };
 
-        B::bare_call(
+        let call_result = B::bare_call(
             self.client,
             self.caller,
             self.message,
             self.value,
             gas_limit,
             self.storage_deposit_limit,
-        ).await
+        )
+        .await?;
+
+        Ok(CallResult {
+            dry_run,
+            events: call_result,
+        })
     }
 
     /// Dry run the call.

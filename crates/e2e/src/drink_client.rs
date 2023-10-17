@@ -350,7 +350,7 @@ where
         message: &CallBuilderFinal<E, Args, RetType>,
         value: E::Balance,
         storage_deposit_limit: Option<E::Balance>,
-    ) -> CallDryRunResult<E, RetType>
+    ) -> Result<CallDryRunResult<E, RetType>, Self::Error>
     where
         CallBuilderFinal<E, Args, RetType>: Clone,
     {
@@ -392,9 +392,9 @@ where
     //     value: E::Balance,
     //     margin: Option<u64>,
     //     storage_deposit_limit: Option<E::Balance>,
-    // ) -> Result<InstantiationResult<E, Self::EventLog>, Self::Error> {
-    //     let code = self.contracts.load_code(contract_name);
-    //     let data = constructor_exec_input(constructor.clone());
+    // ) -> Result<InstantiationResult<E, Self::EventLog>, Self::Error> { let code =
+    //   self.contracts.load_code(contract_name); let data =
+    //   constructor_exec_input(constructor.clone());
     //
     //     let gas_limit = if let Some(m) = margin {
     //         DEFAULT_GAS_LIMIT + (DEFAULT_GAS_LIMIT / 100 * m)
@@ -423,8 +423,8 @@ where
     //
     //     Ok(InstantiationResult {
     //         account_id: account_id.clone(),
-    //         // We need type remapping here because of the different `EventRecord` types.
-    //         dry_run: ContractInstantiateResult {
+    //         // We need type remapping here because of the different `EventRecord`
+    // types.         dry_run: ContractInstantiateResult {
     //             gas_consumed: result.gas_consumed,
     //             gas_required: result.gas_required,
     //             storage_deposit: result.storage_deposit,
@@ -454,9 +454,9 @@ where
     //     value: E::Balance,
     //     gas_limit: Weight,
     //     storage_deposit_limit: Option<E::Balance>,
-    // ) -> Result<InstantiationResult<E, Self::EventLog>, Self::Error> {
-    //     let code = self.contracts.load_code(contract_name);
-    //     let data = constructor_exec_input(constructor.clone());
+    // ) -> Result<InstantiationResult<E, Self::EventLog>, Self::Error> { let code =
+    //   self.contracts.load_code(contract_name); let data =
+    //   constructor_exec_input(constructor.clone());
     //
     //     let result = self.sandbox.deploy_contract(
     //         code,
@@ -479,8 +479,8 @@ where
     //
     //     Ok(InstantiationResult {
     //         account_id: account_id.clone(),
-    //         // We need type remapping here because of the different `EventRecord` types.
-    //         dry_run: ContractInstantiateResult {
+    //         // We need type remapping here because of the different `EventRecord`
+    // types.         dry_run: ContractInstantiateResult {
     //             gas_consumed: result.gas_consumed,
     //             gas_required: result.gas_required,
     //             storage_deposit: result.storage_deposit,
@@ -530,8 +530,8 @@ where
     //         .await?;
     //
     //     Ok(CallResult {
-    //         // We need type remapping here because of the different `EventRecord` types.
-    //         dry_run: CallDryRunResult {
+    //         // We need type remapping here because of the different `EventRecord`
+    // types.         dry_run: CallDryRunResult {
     //             exec_result: dry_run_result.exec_result,
     //             _marker: Default::default(),
     //         },
@@ -563,8 +563,8 @@ where
     //         .await?;
     //
     //     Ok(CallResult {
-    //         // We need type remapping here because of the different `EventRecord` types.
-    //         dry_run: CallDryRunResult {
+    //         // We need type remapping here because of the different `EventRecord`
+    // types.         dry_run: CallDryRunResult {
     //             exec_result: dry_run_result.exec_result,
     //             _marker: Default::default(),
     //         },

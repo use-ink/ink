@@ -462,21 +462,22 @@ where
         constructor: &mut CreateBuilderPartial<E, Contract, Args, R>,
         value: E::Balance,
         storage_deposit_limit: Option<E::Balance>,
-    ) -> Result<ContractInstantiateResult<E::AccountId, E::Balance, ()>, Self::Error> {
+    ) -> Result<ContractInstantiateResult<E::AccountId, E::Balance, ()>, Self::Error>
+    {
         let code = self.contracts.load_code(contract_name);
         let data = constructor_exec_input(constructor.clone());
 
-        let dry_run =
-            self.api
-                .instantiate_with_code_dry_run(
-                    value,
-                    storage_deposit_limit,
-                    code,
-                    data,
-                    salt(),
-                    caller,
-                )
-                .await;
+        let dry_run = self
+            .api
+            .instantiate_with_code_dry_run(
+                value,
+                storage_deposit_limit,
+                code,
+                data,
+                salt(),
+                caller,
+            )
+            .await;
 
         if dry_run.result.is_err() {
             return Err(Self::Error::InstantiateDryRun(dry_run))
@@ -550,7 +551,7 @@ where
         message: &CallBuilderFinal<E, Args, RetType>,
         value: E::Balance,
         storage_deposit_limit: Option<E::Balance>,
-    ) -> Result<CallDryRunResult<E, RetType>, Self::Error>
+    ) -> CallDryRunResult<E, RetType>
     where
         CallBuilderFinal<E, Args, RetType>: Clone,
     {
@@ -573,15 +574,10 @@ where
             String::from_utf8_lossy(&exec_result.debug_message)
         ));
 
-        let result = CallDryRunResult {
+        CallDryRunResult {
             exec_result,
             _marker: Default::default(),
-        };
-
-        if result.is_err() {
-            return Err(Self::Error::CallDryRun(result.exec_result))
         }
-        Ok(result)
     }
     // async fn instantiate_with_gas_margin<
     //     Contract: Clone,
@@ -595,9 +591,9 @@ where
     //     value: E::Balance,
     //     margin: Option<u64>,
     //     storage_deposit_limit: Option<E::Balance>,
-    // ) -> Result<InstantiationResult<E, Self::EventLog>, Self::Error> {
-    //     let code = self.contracts.load_code(contract_name);
-    //     let data = constructor_exec_input(constructor.clone());
+    // ) -> Result<InstantiationResult<E, Self::EventLog>, Self::Error> { let code =
+    //   self.contracts.load_code(contract_name); let data =
+    //   constructor_exec_input(constructor.clone());
     //
     //     let dry_run = self
     //         .api
@@ -622,8 +618,8 @@ where
     //     };
     //
     //     let res = self
-    //         .exec_instantiate(caller, code, data, value, gas_limit, storage_deposit_limit)
-    //         .await?;
+    //         .exec_instantiate(caller, code, data, value, gas_limit,
+    // storage_deposit_limit)         .await?;
     //     log_info(&format!("instantiated contract at {:?}", res.account_id));
     //
     //     Ok(InstantiationResult {
@@ -645,9 +641,9 @@ where
     //     value: E::Balance,
     //     gas_limit: Weight,
     //     storage_deposit_limit: Option<E::Balance>,
-    // ) -> Result<InstantiationResult<E, Self::EventLog>, Self::Error> {
-    //     let code = self.contracts.load_code(contract_name);
-    //     let data = constructor_exec_input(constructor.clone());
+    // ) -> Result<InstantiationResult<E, Self::EventLog>, Self::Error> { let code =
+    //   self.contracts.load_code(contract_name); let data =
+    //   constructor_exec_input(constructor.clone());
     //
     //     let dry_run = self
     //         .api
@@ -666,8 +662,8 @@ where
     //     }
     //
     //     let res = self
-    //         .exec_instantiate(caller, code, data, value, gas_limit, storage_deposit_limit)
-    //         .await?;
+    //         .exec_instantiate(caller, code, data, value, gas_limit,
+    // storage_deposit_limit)         .await?;
     //     log_info(&format!("instantiated contract at {:?}", res.account_id));
     //
     //     Ok(InstantiationResult {
@@ -696,8 +692,8 @@ where
     //         return Err(Self::Error::CallDryRun(dry_run.exec_result))
     //     }
     //
-    //     let gas_required: Weight = margin.map_or(dry_run.exec_result.gas_required, |m| {
-    //         let gas = dry_run.exec_result.gas_required;
+    //     let gas_required: Weight = margin.map_or(dry_run.exec_result.gas_required, |m|
+    // {         let gas = dry_run.exec_result.gas_required;
     //         gas + (gas / 100 * m)
     //     });
     //     let call_result = self
