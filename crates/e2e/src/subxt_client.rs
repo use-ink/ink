@@ -462,12 +462,12 @@ where
         constructor: &mut CreateBuilderPartial<E, Contract, Args, R>,
         value: E::Balance,
         storage_deposit_limit: Option<E::Balance>,
-    ) -> Result<ContractInstantiateResult<E::AccountId, E::Balance, ()>, Self::Error>
+    ) -> ContractInstantiateResult<E::AccountId, E::Balance, ()>
     {
         let code = self.contracts.load_code(contract_name);
         let data = constructor_exec_input(constructor.clone());
 
-        let dry_run = self
+        self
             .api
             .instantiate_with_code_dry_run(
                 value,
@@ -477,13 +477,7 @@ where
                 salt(),
                 caller,
             )
-            .await;
-
-        if dry_run.result.is_err() {
-            return Err(Self::Error::InstantiateDryRun(dry_run))
-        }
-
-        Ok(dry_run)
+            .await
     }
 
     async fn bare_upload(

@@ -350,7 +350,7 @@ where
         message: &CallBuilderFinal<E, Args, RetType>,
         value: E::Balance,
         storage_deposit_limit: Option<E::Balance>,
-    ) -> Result<CallDryRunResult<E, RetType>, Self::Error>
+    ) -> CallDryRunResult<E, RetType>
     where
         CallBuilderFinal<E, Args, RetType>: Clone,
     {
