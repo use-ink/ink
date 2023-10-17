@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use ink_prelude::vec;
 use xxhash_rust::const_xxh32::xxh32;
 
 /// The value 0 is a valid seed.
@@ -86,14 +85,14 @@ impl KeyComposer {
 
         let separator = &b"::"[..];
         let composed_key = if !variant_name.is_empty() {
-            vec![
+            [
                 struct_name.as_bytes(),
                 variant_name.as_bytes(),
                 field_name.as_bytes(),
             ]
             .join(separator)
         } else {
-            vec![struct_name.as_bytes(), field_name.as_bytes()].join(separator)
+            [struct_name.as_bytes(), field_name.as_bytes()].join(separator)
         };
 
         Ok(Self::from_bytes(composed_key.as_slice()))

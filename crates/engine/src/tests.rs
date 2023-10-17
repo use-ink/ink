@@ -251,7 +251,7 @@ fn ecdsa_recovery_with_secp256k1_crate() {
     let mut msg_hash = [0; 32];
     crate::hashing::sha2_256(b"Some message", &mut msg_hash);
 
-    let msg = Message::from_slice(&msg_hash).expect("message creation failed");
+    let msg = Message::from_digest_slice(&msg_hash).expect("message creation failed");
     let seckey = SecretKey::from_slice(&seckey).expect("secret key creation failed");
     let recoverable_signature: RecoverableSignature =
         SECP256K1.sign_ecdsa_recoverable(&msg, &seckey);

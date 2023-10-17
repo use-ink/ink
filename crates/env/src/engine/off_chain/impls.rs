@@ -306,7 +306,7 @@ impl EnvBackend for EnvInstance {
         };
         let recovery_id = RecoveryId::from_i32(recovery_byte as i32)
             .unwrap_or_else(|error| panic!("Unable to parse the recovery id: {error}"));
-        let message = Message::from_slice(message_hash).unwrap_or_else(|error| {
+        let message = Message::from_digest_slice(message_hash).unwrap_or_else(|error| {
             panic!("Unable to create the message from hash: {error}")
         });
         let signature =
