@@ -1,4 +1,4 @@
-// Copyright 2018-2022 Parity Technologies (UK) Ltd.
+// Copyright (C) Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,6 +17,8 @@ use crate::{
     types::{
         AccountId,
         Balance,
+        BlockNumber,
+        BlockTimestamp,
     },
     AccountError,
     Error,
@@ -201,6 +203,11 @@ impl Engine {
         self.exec_context.caller = Some(caller.into());
     }
 
+    /// Sets a known contract by adding it to a vector of known contracts accounts
+    pub fn set_contract(&mut self, caller: Vec<u8>) {
+        self.exec_context.contracts.push(caller);
+    }
+
     /// Sets the callee for the next call.
     pub fn set_callee(&mut self, callee: Vec<u8>) {
         self.exec_context.callee = Some(callee.into());
@@ -231,6 +238,11 @@ impl Engine {
         self.exec_context.callee()
     }
 
+    /// Returns boolean value indicating whether the account is a contract
+    pub fn is_contract(&self, account_id: Vec<u8>) -> bool {
+        self.exec_context.contracts.contains(&account_id)
+    }
+
     /// Returns the contents of the past performed environmental `debug_message` in order.
     pub fn get_emitted_debug_messages(&self) -> RecordedDebugMessages {
         self.debug_info.emitted_debug_messages.clone()
@@ -256,6 +268,16 @@ impl Engine {
     /// Sets the value transferred from the caller to the callee as part of the call.
     pub fn set_value_transferred(&mut self, value: Balance) {
         self.exec_context.value_transferred = value;
+    }
+
+    /// Set the block timestamp for the execution context.
+    pub fn set_block_timestamp(&mut self, new_block_timestamp: BlockTimestamp) {
+        self.exec_context.block_timestamp = new_block_timestamp;
+    }
+
+    /// Set the block number for the execution context.
+    pub fn set_block_number(&mut self, new_block_number: BlockNumber) {
+        self.exec_context.block_number = new_block_number;
     }
 }
 

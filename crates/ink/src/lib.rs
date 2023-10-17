@@ -1,4 +1,4 @@
-// Copyright 2018-2022 Parity Technologies (UK) Ltd.
+// Copyright (C) Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -20,6 +20,10 @@
 
 #[macro_use]
 #[doc(hidden)]
+pub mod option_info;
+
+#[macro_use]
+#[doc(hidden)]
 pub mod result_info;
 
 #[cfg_attr(not(feature = "show-codegen-docs"), doc(hidden))]
@@ -36,6 +40,9 @@ pub use ink_env as env;
 pub use ink_metadata as metadata;
 pub use ink_prelude as prelude;
 pub use ink_primitives as primitives;
+pub use scale;
+#[cfg(feature = "std")]
+pub use scale_info;
 
 pub mod storage {
     pub mod traits {
@@ -62,16 +69,21 @@ pub use self::{
     },
     contract_ref::ToAccountId,
     env_access::EnvAccess,
+    prelude::IIP2_WILDCARD_COMPLEMENT_SELECTOR,
 };
 pub use ink_macro::{
     blake2x256,
     chain_extension,
     contract,
+    event,
+    scale_derive,
     selector_bytes,
     selector_id,
     storage_item,
     test,
     trait_definition,
+    Event,
+    EventMetadata,
 };
 pub use ink_primitives::{
     ConstructorResult,

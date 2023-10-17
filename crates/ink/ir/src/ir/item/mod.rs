@@ -1,4 +1,4 @@
-// Copyright 2018-2022 Parity Technologies (UK) Ltd.
+// Copyright (C) Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,16 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-mod event;
 mod storage;
 
 #[cfg(test)]
 mod tests;
 
-pub use self::{
-    event::Event,
-    storage::Storage,
-};
+pub use self::storage::Storage;
 
 use crate::{
     error::ExtError as _,

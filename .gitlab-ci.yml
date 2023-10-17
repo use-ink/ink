@@ -17,7 +17,7 @@ stages:
   - check
   - workspace
   - examples
-  - ink-waterfall
+  - measurements
   - fuzz
   - publish
 
@@ -26,19 +26,21 @@ variables:
   GIT_DEPTH:                       100
   CARGO_INCREMENTAL:               0
   CARGO_TARGET_DIR:                "/ci-cache/${CI_PROJECT_NAME}/targets/${CI_COMMIT_REF_NAME}/${CI_JOB_NAME}"
-  # CI_IMAGE is changed to "-:staging" when the CI image gets rebuilt
-  # read more https://github.com/paritytech/scripts/pull/244
-  CI_IMAGE:                        "paritytech/ink-ci-linux:production"
-  PURELY_STD_CRATES:               "ink/codegen metadata engine e2e e2e/macro"
-  ALSO_WASM_CRATES:                "env storage storage/traits allocator prelude primitives ink ink/macro ink/ir"
+  CI_IMAGE:                        "paritytech/ci-unified:bullseye-1.73.0"
+  PURELY_STD_CRATES:               "ink/codegen metadata engine e2e e2e/macro ink/ir"
+  ALSO_WASM_CRATES:                "env storage storage/traits allocator prelude primitives ink ink/macro"
   ALL_CRATES:                      "${PURELY_STD_CRATES} ${ALSO_WASM_CRATES}"
-  DELEGATOR_SUBCONTRACTS:          "accumulator adder subber"
-  LANG_ERR_INTEGRATION_CONTRACTS:  "integration-flipper call-builder contract-ref constructors-return-value"
   # TODO `cargo clippy --verbose --all-targets --all-features` for this crate
   # currently fails on `stable`, but succeeds on `nightly`. This is due to
   # this fix not yet in stable: https://github.com/rust-lang/rust-clippy/issues/8895.
   # Remove the following line again as soon as `clippy` on stable succeeds again.
   CLIPPY_ALLOWED:                  "clippy::extra_unused_lifetimes"
+  # We plan to fully support RISC-V as a bytecode for contracts soon.
+  # RISC-V does not have a standard library in contrast to Wasm. Compiling against
+  # this target also makes sure that we don't pull in `std` by accident (through dependencies).
+  # RISC-V is a modular archtitecture. We might switch to a different flavor with more features
+  # later. For example, `riscv32imc-unknown-none-elf`.
+  RISCV_TARGET:                   "riscv32i-unknown-none-elf"
 
 workflow:
   rules:
@@ -113,18 +115,9 @@ examples-fmt:
   <<:                              *docker-env
   <<:                              *test-refs
   script:
-    # Note that we disable the license header check for the examples, since they are unlicensed.
-    - for example in integration-tests/*/; do
-        if [ "$example" = "integration-tests/lang-err-integration-tests/" ]; then continue; fi;
-        cargo +nightly fmt --verbose --manifest-path ${example}/Cargo.toml -- --check;
-      done
-    - for contract in ${DELEGATOR_SUBCONTRACTS}; do
-        cargo +nightly fmt --verbose --manifest-path ./integration-tests/delegator/${contract}/Cargo.toml -- --check;
-      done
-    - for contract in ${LANG_ERR_INTEGRATION_CONTRACTS}; do
-        cargo +nightly fmt --verbose --manifest-path ./integration-tests/lang-err-integration-tests/${contract}/Cargo.toml -- --check;
-      done
-    - cargo +nightly fmt --verbose --manifest-path ./integration-tests/set_code_hash/updated_incrementer/Cargo.toml -- --check
+    - scripts/for_all_contracts_exec.sh 
+      --path integration-tests
+      -- cargo +nightly fmt --verbose --manifest-path {} -- --check
     # This file is not a part of the cargo project, so it wouldn't be formatted the usual way
     - rustfmt +nightly --verbose --check ./integration-tests/psp22-extension/runtime/psp22-extension-example.rs
   allow_failure:                   true
@@ -153,17 +146,9 @@ examples-clippy-std:
   <<:                              *docker-env
   <<:                              *test-refs
   script:
-    - for example in integration-tests/*/; do
-        if [ "$example" = "integration-tests/lang-err-integration-tests/" ]; then continue; fi;
-        cargo clippy --verbose --all-targets --manifest-path ${example}/Cargo.toml -- -D warnings -A $CLIPPY_ALLOWED;
-      done
-    - for contract in ${DELEGATOR_SUBCONTRACTS}; do
-        cargo clippy --verbose --all-targets --manifest-path ./integration-tests/delegator/${contract}/Cargo.toml -- -D warnings -A $CLIPPY_ALLOWED;
-      done
-    - for contract in ${LANG_ERR_INTEGRATION_CONTRACTS}; do
-        cargo clippy --verbose --all-targets --manifest-path ./integration-tests/lang-err-integration-tests/${contract}/Cargo.toml -- -D warnings -A $CLIPPY_ALLOWED;
-      done
-    - cargo clippy --verbose --all-targets --manifest-path ./integration-tests/set_code_hash/updated_incrementer/Cargo.toml -- -D warnings -A $CLIPPY_ALLOWED;
+    - scripts/for_all_contracts_exec.sh 
+      --path integration-tests
+      -- cargo clippy --verbose --all-targets --manifest-path {} -- -D warnings -A $CLIPPY_ALLOWED
   allow_failure:                   true
 
 examples-clippy-wasm:
@@ -171,17 +156,9 @@ examples-clippy-wasm:
   <<:                              *docker-env
   <<:                              *test-refs
   script:
-    - for example in integration-tests/*/; do
-        if [ "$example" = "integration-tests/lang-err-integration-tests/" ]; then continue; fi;
-        cargo clippy --verbose --manifest-path ${example}/Cargo.toml --no-default-features --target wasm32-unknown-unknown -- -D warnings -A $CLIPPY_ALLOWED;
-      done
-    - for contract in ${DELEGATOR_SUBCONTRACTS}; do
-        cargo clippy --verbose --manifest-path ./integration-tests/delegator/${contract}/Cargo.toml --no-default-features --target wasm32-unknown-unknown -- -D warnings -A $CLIPPY_ALLOWED;
-      done
-    - for contract in ${LANG_ERR_INTEGRATION_CONTRACTS}; do
-        cargo clippy --verbose --manifest-path ./integration-tests/lang-err-integration-tests/${contract}/Cargo.toml --no-default-features --target wasm32-unknown-unknown -- -D warnings -A $CLIPPY_ALLOWED;
-      done
-    - cargo clippy --verbose --manifest-path ./integration-tests/set_code_hash/updated_incrementer/Cargo.toml --no-default-features --target wasm32-unknown-unknown -- -D warnings -A $CLIPPY_ALLOWED;
+    - scripts/for_all_contracts_exec.sh 
+      --path integration-tests
+      -- cargo clippy --verbose --manifest-path {} --no-default-features --target wasm32-unknown-unknown -- -D warnings -A $CLIPPY_ALLOWED
   allow_failure:                   true
 
 
@@ -203,6 +180,17 @@ check-wasm:
   script:
     - for crate in ${ALSO_WASM_CRATES}; do
         cargo check --verbose --no-default-features --target wasm32-unknown-unknown --manifest-path ./crates/${crate}/Cargo.toml;
+      done
+
+check-riscv:
+  stage:                           check
+  <<:                              *docker-env
+  <<:                              *test-refs
+  variables:
+    RUSTC_BOOTSTRAP:               "1"
+  script:
+    - for crate in ${ALSO_WASM_CRATES}; do
+        cargo check --verbose --no-default-features --target $RISCV_TARGET -Zbuild-std="core,alloc" --manifest-path ./crates/${crate}/Cargo.toml;
       done
 
 dylint:
@@ -255,6 +243,8 @@ test:
     - job:                         check-std
       artifacts:                   false
   variables:
+      # Fix for linking of `linkme` for `cargo test`: https://github.com/dtolnay/linkme/issues/49
+      RUSTFLAGS: "-Clink-arg=-z -Clink-arg=nostart-stop-gc"
       # Since we run the tests with `--all-features` this implies the feature
       # `ink-fuzz-tests` as well -- i.e. the fuzz tests are run.
       # There's no way to disable a single feature while enabling all features
@@ -355,25 +345,18 @@ examples-test:
   needs:
     - job:                         clippy-std
       artifacts:                   false
+  variables:
+    # Fix linking of `linkme`: https://github.com/dtolnay/linkme/issues/49
+    RUSTFLAGS: "-Clink-arg=-z -Clink-arg=nostart-stop-gc"
   script:
-    - for example in integration-tests/*/; do
-        if [ "$example" = "integration-tests/lang-err-integration-tests/" ]; then continue; fi;
-        if grep -q "e2e-tests = \[\]" "${example}/Cargo.toml"; then
-          cargo test --verbose --manifest-path ${example}/Cargo.toml --features e2e-tests;
-        else
-          cargo test --verbose --manifest-path ${example}/Cargo.toml;
-        fi;
-      done
-    - for contract in ${DELEGATOR_SUBCONTRACTS}; do
-        cargo test --verbose --manifest-path ./integration-tests/delegator/${contract}/Cargo.toml;
-      done
-    # TODO (#1502): We need to clean before running, otherwise the CI fails with a
-    # linking error.
-    - for contract in ${LANG_ERR_INTEGRATION_CONTRACTS}; do
-        cargo clean --verbose --manifest-path ./integration-tests/lang-err-integration-tests/${contract}/Cargo.toml;
-        cargo test --verbose --manifest-path ./integration-tests/lang-err-integration-tests/${contract}/Cargo.toml --features e2e-tests;
-      done
-    - cargo test --verbose --manifest-path ./integration-tests/set_code_hash/updated_incrementer/Cargo.toml;
+    # run all tests with --all-features, which will run the e2e-tests feature if present
+    - scripts/for_all_contracts_exec.sh 
+      --path integration-tests
+      --ignore static-buffer
+      -- cargo test --verbose --all-features --manifest-path {}
+    # run the static buffer test with a custom buffer size
+    - cargo clean --manifest-path integration-tests/static-buffer/Cargo.toml
+    - INK_STATIC_BUFFER_SIZE=30 cargo test --verbose --manifest-path integration-tests/static-buffer/Cargo.toml --all-features
 
 examples-contract-build:
   stage:                           examples
@@ -382,17 +365,37 @@ examples-contract-build:
   script:
     - rustup component add rust-src --toolchain stable
     - cargo contract -V
-    - for example in integration-tests/*/; do
-        if [ "$example" = "integration-tests/lang-err-integration-tests/" ]; then continue; fi;
-        pushd $example &&
-        cargo +stable contract build &&
-        popd;
-      done
-    - pushd ./integration-tests/delegator/ && ./build-all.sh && popd
-    - for contract in ${LANG_ERR_INTEGRATION_CONTRACTS}; do
-        cargo +stable contract build --manifest-path ./integration-tests/lang-err-integration-tests/${contract}/Cargo.toml;
-      done
-    - cargo +stable contract build --manifest-path ./integration-tests/set_code_hash/updated_incrementer/Cargo.toml
+    # Build all examples
+    - scripts/for_all_contracts_exec.sh 
+      --path integration-tests
+      -- cargo contract build --release --manifest-path {}
+    # Build the different features for the conditional compilation example
+    - pushd ./integration-tests/conditional-compilation
+    - cargo contract build --release --features "foo"
+    - cargo contract build --release --features "bar"
+    - cargo contract build --release --features "foo, bar"
+    - popd
+
+## TODO: Use cargo contract as soon as it has RISC-V support
+examples-contract-build-riscv:
+  stage:                           examples
+  <<:                              *docker-env
+  <<:                              *test-refs
+  variables:
+    RUSTC_BOOTSTRAP:               "1"
+  script:
+    - rustup component add rust-src --toolchain stable
+    - cargo contract -V
+    # We skip some examples for those reasons:
+    # This uses dlmalloc which is only supported on select targets.
+    #   - custom_allocator
+    # Pulls in sp-std which needlessly requires atomic pointers (TODO: Fix sp-std and enable this example)
+    #   - call-runtime
+    - scripts/for_all_contracts_exec.sh
+      --path integration-tests
+      --ignore custom-allocator
+      --ignore call-runtime
+      -- cargo build --manifest-path {} --no-default-features --target $RISCV_TARGET -Zbuild-std="core,alloc"
 
 examples-docs:
   stage:                           examples
@@ -405,22 +408,57 @@ examples-docs:
     # puts the contract functions in a private module.
     # Once https://github.com/paritytech/ink/issues/336 has been implemented we can get rid
     # of this flag.
-    - for example in integration-tests/*/; do
-        if [ "$example" = "integration-tests/lang-err-integration-tests/" ]; then continue; fi;
-        cargo doc --manifest-path ${example}/Cargo.toml --document-private-items --verbose --no-deps;
-      done
-    - for contract in ${DELEGATOR_SUBCONTRACTS}; do
-        cargo doc --manifest-path ./integration-tests/delegator/${contract}/Cargo.toml --document-private-items --verbose --no-deps;
-      done
-    - for contract in ${LANG_ERR_INTEGRATION_CONTRACTS}; do
-        cargo doc --manifest-path ./integration-tests/lang-err-integration-tests/${contract}/Cargo.toml --document-private-items --verbose --no-deps;
-      done
-    - cargo doc --manifest-path ./integration-tests/set_code_hash/updated_incrementer/Cargo.toml --document-private-items --verbose --no-deps
+    - scripts/for_all_contracts_exec.sh
+      --path integration-tests
+      -- cargo doc --manifest-path {} --document-private-items --verbose --no-deps
 
+#### stage:                        measurements
 
-#### stage:                        ink-waterfall
+contract-sizes:
+  stage:                           measurements
+  <<:                              *docker-env
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_REF_NAME != "master"
+  variables:
+    MEASUREMENTS_DIR: ${CI_PROJECT_DIR}/../ink-ci-measurements
+    SCRIPTS_DIR: ${CI_PROJECT_DIR}/scripts
+    PR_BRANCH_CONTRACT_SIZES: ${MEASUREMENTS_DIR}/${CI_COMMIT_BRANCH}_contract_sizes
+    UPSTREAM_BRANCH: "master"
+    UPSTREAM_CONTRACT_SIZES: ${MEASUREMENTS_DIR}/${UPSTREAM_BRANCH}_contract_sizes
+    UPSTREAM_REPO: "https://github.com/paritytech/ink.git"
+    UPSTREAM_DIR: ${MEASUREMENTS_DIR}/ink-${UPSTREAM_BRANCH}
+    CONTRACT_SIZES_DIFF: ${MEASUREMENTS_DIR}/${CI_COMMIT_BRANCH}_contract_sizes_diff.md
+    PR_COMMENTS_URL: "https://api.github.com/repos/paritytech/ink/issues/${CI_COMMIT_REF_NAME}/comments"
+  before_script:
+    - mkdir ${MEASUREMENTS_DIR}
+  script:
+    # Measure contract sizes for the current branch
+    - ${SCRIPTS_DIR}/for_all_contracts_exec.sh
+      --path integration-tests
+      --quiet
+      -- ${SCRIPTS_DIR}/contract_size.sh {} > $PR_BRANCH_CONTRACT_SIZES
+    - sed -ie 's/^integration-tests\///g' ${PR_BRANCH_CONTRACT_SIZES}
+    # Measure contract sizes for the upstream branch
+    - git clone --verbose --depth 1 --branch ${UPSTREAM_BRANCH} ${UPSTREAM_REPO} ${UPSTREAM_DIR}
+    - pushd ${UPSTREAM_DIR}
+    - ${SCRIPTS_DIR}/for_all_contracts_exec.sh
+      --path integration-tests
+      --quiet
+      -- ${SCRIPTS_DIR}/contract_size.sh {} > ${UPSTREAM_CONTRACT_SIZES}
+    - sed -ie 's/^integration-tests\///g' ${UPSTREAM_CONTRACT_SIZES}
+    - popd
+    # Build the comparison table
+    - ${SCRIPTS_DIR}/contract_sizes_diff.sh ${UPSTREAM_CONTRACT_SIZES} ${PR_BRANCH_CONTRACT_SIZES} > ${CONTRACT_SIZES_DIFF}
+    - cat ${CONTRACT_SIZES_DIFF}
+    # Submit the comparison table as a comment to the PR
+    - echo "Submitting contract sizes diff to ${PR_COMMENTS_URL}"
+    - ${SCRIPTS_DIR}/contract_sizes_submit.sh ${PR_COMMENTS_URL} < ${CONTRACT_SIZES_DIFF}
+  after_script:
+    - rm -rf ${MEASUREMENTS_DIR}
 
-ink-waterfall:
+# Disabled because `polkadot-js` doesn't support WeightsV2 for
+# contracts yet.
+.ink-waterfall:
   stage:                           ink-waterfall
   image:                           paritytech/tools:latest
   <<:                              *kubernetes-env

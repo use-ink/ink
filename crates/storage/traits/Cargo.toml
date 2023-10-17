@@ -1,29 +1,28 @@
 [package]
 name = "ink_storage_traits"
-version = "4.0.1"
-authors = ["Parity Technologies <admin@parity.io>"]
-edition = "2021"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
 
-license = "Apache-2.0"
+license.workspace = true
 readme = "../README.md"
-repository = "https://github.com/paritytech/ink"
+repository.workspace = true
 documentation = "https://docs.rs/ink_storage_traits"
-homepage = "https://www.parity.io/"
+homepage.workspace = true
 description = "[ink!] defines traits for using ink storage."
-keywords = ["wasm", "parity", "webassembly", "blockchain", "edsl"]
-categories = ["no-std", "embedded"]
+keywords.workspace = true
+categories.workspace = true
 include = ["Cargo.toml", "src/**/*.rs", "README.md", "LICENSE"]
 
 [dependencies]
-ink_metadata = { version = "4.0.1", path = "../../metadata", default-features = false, features = ["derive"], optional = true }
-ink_primitives = { version = "4.0.1", path = "../../primitives", default-features = false }
-ink_prelude = { version = "4.0.1", path = "../../prelude", default-features = false }
-scale = { package = "parity-scale-codec", version = "3", default-features = false, features = ["derive", "full"] }
-scale-info = { version = "2.3", default-features = false, features = ["derive"], optional = true }
-syn = { version = "1", features = ["full"] }
+ink_metadata = { workspace = true, features = ["derive"], optional = true }
+ink_primitives = { workspace = true }
+ink_prelude = { workspace = true }
+scale = { package = "parity-scale-codec", workspace = true }
+scale-info = { workspace = true, features = ["derive"], optional = true }
 
 [dev-dependencies]
-paste = "1.0"
+paste = { workspace = true }
 
 [features]
 default = ["std"]

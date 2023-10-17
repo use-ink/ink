@@ -1,4 +1,4 @@
-// Copyright 2018-2022 Parity Technologies (UK) Ltd.
+// Copyright (C) Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -251,7 +251,7 @@ fn ecdsa_recovery_with_secp256k1_crate() {
     let mut msg_hash = [0; 32];
     crate::hashing::sha2_256(b"Some message", &mut msg_hash);
 
-    let msg = Message::from_slice(&msg_hash).expect("message creation failed");
+    let msg = Message::from_digest_slice(&msg_hash).expect("message creation failed");
     let seckey = SecretKey::from_slice(&seckey).expect("secret key creation failed");
     let recoverable_signature: RecoverableSignature =
         SECP256K1.sign_ecdsa_recoverable(&msg, &seckey);
@@ -271,4 +271,40 @@ fn ecdsa_recovery_with_secp256k1_crate() {
 
     // then
     assert_eq!(output, pubkey.serialize());
+}
+
+#[test]
+fn setting_getting_block_timestamp() {
+    // given
+    let mut engine = Engine::new();
+    let new_block_timestamp: u64 = 1000;
+    let output = &mut &mut get_buffer()[..];
+
+    // when
+    engine.advance_block();
+    engine.set_block_timestamp(new_block_timestamp);
+    engine.block_timestamp(output);
+
+    // then
+    let output = <u64 as scale::Decode>::decode(&mut &output[..16])
+        .expect("decoding value transferred failed");
+    assert_eq!(output, new_block_timestamp);
+}
+
+#[test]
+fn setting_getting_block_number() {
+    // given
+    let mut engine = Engine::new();
+    let new_block_number: u32 = 1000;
+    let output = &mut &mut get_buffer()[..];
+
+    // when
+    engine.advance_block();
+    engine.set_block_number(new_block_number);
+    engine.block_number(output);
+
+    // then
+    let output = <u32 as scale::Decode>::decode(&mut &output[..16])
+        .expect("decoding value transferred failed");
+    assert_eq!(output, new_block_number);
 }

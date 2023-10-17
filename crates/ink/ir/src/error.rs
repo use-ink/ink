@@ -1,4 +1,4 @@
-// Copyright 2018-2022 Parity Technologies (UK) Ltd.
+// Copyright (C) Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -31,8 +31,8 @@ impl ExtError for syn::Error {
 ///
 /// # Parameters
 ///
-/// - The first argument must implement [`quote::ToTokens`] in order to
-///   infer a [`Span`](`proc_macro2::Span`).
+/// - The first argument must implement [`quote::ToTokens`] in order to infer a
+///   [`Span`](`proc_macro2::Span`).
 /// - The second argument is a format string.
 /// - The rest are format string arguments.
 ///

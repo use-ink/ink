@@ -1,4 +1,4 @@
-// Copyright 2018-2022 Parity Technologies (UK) Ltd.
+// Copyright (C) Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -127,7 +127,11 @@ where
     /// pub fn fund(&self) {
     ///     let caller = self.env().caller();
     ///     let value = self.env().transferred_value();
-    ///     ink::env::debug_println!("thanks for the funding of {:?} from {:?}", value, caller);
+    ///     ink::env::debug_println!(
+    ///         "thanks for the funding of {:?} from {:?}",
+    ///         value,
+    ///         caller
+    ///     );
     /// }
     /// #
     /// #     }
@@ -229,14 +233,14 @@ where
     /// pub mod my_contract {
     ///     #[ink(storage)]
     ///     pub struct MyContract {
-    ///         last_invocation: Timestamp
+    ///         last_invocation: Timestamp,
     ///     }
     ///
     ///     impl MyContract {
     ///         #[ink(constructor)]
     ///         pub fn new() -> Self {
     ///             Self {
-    ///                 last_invocation: Self::env().block_timestamp()
+    ///                 last_invocation: Self::env().block_timestamp(),
     ///             }
     ///         }
     ///
@@ -265,7 +269,6 @@ where
     /// # Example
     ///
     /// ```
-    /// 
     /// #[ink::contract]
     /// pub mod only_owner {
     ///     #[ink(storage)]
@@ -343,19 +346,18 @@ where
     /// # Example
     ///
     /// ```
-    /// 
     /// #[ink::contract]
     /// pub mod my_contract {
     ///     #[ink(storage)]
     ///     pub struct MyContract {
-    ///         last_invocation: BlockNumber
+    ///         last_invocation: BlockNumber,
     ///     }
     ///
     ///     impl MyContract {
     ///         #[ink(constructor)]
     ///         pub fn new() -> Self {
     ///             Self {
-    ///                 last_invocation: Self::env().block_number()
+    ///                 last_invocation: Self::env().block_number(),
     ///             }
     ///         }
     ///
@@ -408,6 +410,14 @@ where
     /// For more details visit: [`ink_env::minimum_balance`]
     pub fn minimum_balance(self) -> E::Balance {
         ink_env::minimum_balance::<E>()
+    }
+
+    /// Emits an event.
+    pub fn emit_event<Evt>(self, event: Evt)
+    where
+        Evt: ink_env::Event,
+    {
+        ink_env::emit_event::<E, Evt>(event)
     }
 
     /// Instantiates another contract.
@@ -504,8 +514,13 @@ where
     /// # #[ink::contract]
     /// # pub mod my_contract {
     /// use ink::env::{
+    ///     call::{
+    ///         build_call,
+    ///         Call,
+    ///         ExecutionInput,
+    ///         Selector,
+    ///     },
     ///     DefaultEnvironment,
-    ///     call::{build_call, Call, Selector, ExecutionInput}
     /// };
     ///
     /// #
@@ -522,21 +537,25 @@ where
     /// #[ink(message)]
     /// pub fn invoke_contract(&self) -> i32 {
     ///     let call_params = build_call::<DefaultEnvironment>()
-    ///             .call_type(
-    ///                 Call::new(AccountId::from([0x42; 32]))
-    ///                     .gas_limit(5000)
-    ///                     .transferred_value(10))
-    ///             .exec_input(
-    ///                 ExecutionInput::new(Selector::new([0xCA, 0xFE, 0xBA, 0xBE]))
-    ///                  .push_arg(42u8)
-    ///                  .push_arg(true)
-    ///                  .push_arg(&[0x10u8; 32])
-    ///     )
-    ///     .returns::<i32>()
-    ///     .params();
+    ///         .call_type(
+    ///             Call::new(AccountId::from([0x42; 32]))
+    ///                 .gas_limit(5000)
+    ///                 .transferred_value(10),
+    ///         )
+    ///         .exec_input(
+    ///             ExecutionInput::new(Selector::new([0xCA, 0xFE, 0xBA, 0xBE]))
+    ///                 .push_arg(42u8)
+    ///                 .push_arg(true)
+    ///                 .push_arg(&[0x10u8; 32]),
+    ///         )
+    ///         .returns::<i32>()
+    ///         .params();
     ///
-    ///     self.env().invoke_contract(&call_params)
-    ///         .unwrap_or_else(|env_err| panic!("Received an error from the Environment: {:?}", env_err))
+    ///     self.env()
+    ///         .invoke_contract(&call_params)
+    ///         .unwrap_or_else(|env_err| {
+    ///             panic!("Received an error from the Environment: {:?}", env_err)
+    ///         })
     ///         .unwrap_or_else(|lang_err| panic!("Received a `LangError`: {:?}", lang_err))
     /// }
     /// #
@@ -566,8 +585,14 @@ where
     /// # #[ink::contract]
     /// # pub mod my_contract {
     /// use ink::env::{
+    ///     call::{
+    ///         build_call,
+    ///         utils::ReturnType,
+    ///         DelegateCall,
+    ///         ExecutionInput,
+    ///         Selector,
+    ///     },
     ///     DefaultEnvironment,
-    ///     call::{build_call, DelegateCall, Selector, ExecutionInput, utils::ReturnType}
     /// };
     /// use ink_primitives::Clear;
     ///
@@ -585,17 +610,23 @@ where
     /// #[ink(message)]
     /// pub fn invoke_contract_delegate(&self) -> i32 {
     ///     let call_params = build_call::<DefaultEnvironment>()
-    ///             .call_type(
-    ///                 DelegateCall::new(<DefaultEnvironment as ink::env::Environment>::Hash::CLEAR_HASH))
-    ///             .exec_input(
-    ///                 ExecutionInput::new(Selector::new([0xCA, 0xFE, 0xBA, 0xBE]))
-    ///                  .push_arg(42u8)
-    ///                  .push_arg(true)
-    ///                  .push_arg(&[0x10u8; 32])
+    ///         .call_type(DelegateCall::new(
+    ///             <DefaultEnvironment as ink::env::Environment>::Hash::CLEAR_HASH,
+    ///         ))
+    ///         .exec_input(
+    ///             ExecutionInput::new(Selector::new([0xCA, 0xFE, 0xBA, 0xBE]))
+    ///                 .push_arg(42u8)
+    ///                 .push_arg(true)
+    ///                 .push_arg(&[0x10u8; 32]),
     ///         )
     ///         .returns::<i32>()
     ///         .params();
-    ///     self.env().invoke_contract_delegate(&call_params).unwrap_or_else(|err| panic!("call delegate invocation must succeed: {:?}", err))
+    ///     self.env()
+    ///         .invoke_contract_delegate(&call_params)
+    ///         .unwrap_or_else(|env_err| {
+    ///             panic!("Received an error from the Environment: {:?}", env_err)
+    ///         })
+    ///         .unwrap_or_else(|lang_err| panic!("Received a `LangError`: {:?}", lang_err))
     /// }
     /// #
     /// #     }
@@ -608,7 +639,7 @@ where
     pub fn invoke_contract_delegate<Args, R>(
         self,
         params: &CallParams<E, DelegateCall<E>, Args, R>,
-    ) -> Result<R>
+    ) -> Result<ink_primitives::MessageResult<R>>
     where
         Args: scale::Encode,
         R: scale::Decode,
@@ -669,7 +700,9 @@ where
     /// #[ink(message)]
     /// pub fn give_me_ten(&mut self) {
     ///     let value: Balance = 10;
-    ///     self.env().transfer(self.env().caller(), value).unwrap_or_else(|err| panic!("transfer failed: {:?}", err));
+    ///     self.env()
+    ///         .transfer(self.env().caller(), value)
+    ///         .unwrap_or_else(|err| panic!("transfer failed: {:?}", err));
     /// }
     /// #
     /// #     }
@@ -688,11 +721,14 @@ where
     /// # Example
     ///
     /// ```
-    /// use ink_env::hash::{Sha2x256, HashOutput};
+    /// use ink_env::hash::{
+    ///     HashOutput,
+    ///     Sha2x256,
+    /// };
     ///
     /// let input: &[u8] = &[13, 14, 15];
     /// let mut output = <Sha2x256 as HashOutput>::Type::default(); // 256-bit buffer
-    /// let hash  = ink_env::hash_bytes::<Sha2x256>(input, &mut output);
+    /// let hash = ink_env::hash_bytes::<Sha2x256>(input, &mut output);
     /// ```
     ///
     /// # Note
@@ -707,20 +743,24 @@ where
         output
     }
 
-    /// Computes the hash of the given SCALE encoded value using the cryptographic hash `H`.
+    /// Computes the hash of the given SCALE encoded value using the cryptographic hash
+    /// `H`.
     ///
     /// # Example
     ///
     /// ```
-    /// use ink_env::hash::{Sha2x256, HashOutput};
+    /// use ink_env::hash::{
+    ///     HashOutput,
+    ///     Sha2x256,
+    /// };
     ///
     /// let encodable = (42, "foo", true); // Implements `scale::Encode`
     /// let mut output = <Sha2x256 as HashOutput>::Type::default(); // 256-bit buffer
     /// ink_env::hash_encoded::<Sha2x256, _>(&encodable, &mut output);
     ///
     /// const EXPECTED: [u8; 32] = [
-    ///   243, 242, 58, 110, 205, 68, 100, 244, 187, 55, 188, 248,  29, 136, 145, 115,
-    ///   186, 134, 14, 175, 178, 99, 183,  21,   4, 94,  92,  69, 199, 207, 241, 179,
+    ///     243, 242, 58, 110, 205, 68, 100, 244, 187, 55, 188, 248, 29, 136, 145, 115, 186,
+    ///     134, 14, 175, 178, 99, 183, 21, 4, 94, 92, 69, 199, 207, 241, 179,
     /// ];
     /// assert_eq!(output, EXPECTED);
     /// ```
@@ -759,22 +799,25 @@ where
     /// #[ink(message)]
     /// pub fn ecdsa_recover(&self) {
     ///     const signature: [u8; 65] = [
-    ///         195, 218, 227, 165, 226, 17, 25, 160, 37, 92, 142, 238, 4, 41, 244, 211, 18, 94,
-    ///         131, 116, 231, 116, 255, 164, 252, 248, 85, 233, 173, 225, 26, 185, 119, 235,
-    ///         137, 35, 204, 251, 134, 131, 186, 215, 76, 112, 17, 192, 114, 243, 102, 166, 176,
-    ///         140, 180, 124, 213, 102, 117, 212, 89, 89, 92, 209, 116, 17, 28,
+    ///         195, 218, 227, 165, 226, 17, 25, 160, 37, 92, 142, 238, 4, 41, 244, 211, 18,
+    ///         94, 131, 116, 231, 116, 255, 164, 252, 248, 85, 233, 173, 225, 26, 185, 119,
+    ///         235, 137, 35, 204, 251, 134, 131, 186, 215, 76, 112, 17, 192, 114, 243, 102,
+    ///         166, 176, 140, 180, 124, 213, 102, 117, 212, 89, 89, 92, 209, 116, 17, 28,
     ///     ];
     ///     const message_hash: [u8; 32] = [
-    ///         167, 124, 116, 195, 220, 156, 244, 20, 243, 69, 1, 98, 189, 205, 79, 108, 213,
-    ///         78, 65, 65, 230, 30, 17, 37, 184, 220, 237, 135, 1, 209, 101, 229,
+    ///         167, 124, 116, 195, 220, 156, 244, 20, 243, 69, 1, 98, 189, 205, 79, 108,
+    ///         213, 78, 65, 65, 230, 30, 17, 37, 184, 220, 237, 135, 1, 209, 101, 229,
     ///     ];
     ///     const EXPECTED_COMPRESSED_PUBLIC_KEY: [u8; 33] = [
-    ///         3, 110, 192, 35, 209, 24, 189, 55, 218, 250, 100, 89, 40, 76, 222, 208, 202, 127,
-    ///         31, 13, 58, 51, 242, 179, 13, 63, 19, 22, 252, 164, 226, 248, 98,
+    ///         3, 110, 192, 35, 209, 24, 189, 55, 218, 250, 100, 89, 40, 76, 222, 208, 202,
+    ///         127, 31, 13, 58, 51, 242, 179, 13, 63, 19, 22, 252, 164, 226, 248, 98,
     ///     ];
     ///     let result = self.env().ecdsa_recover(&signature, &message_hash);
     ///     assert!(result.is_ok());
-    ///     assert_eq!(result.unwrap().as_ref(), EXPECTED_COMPRESSED_PUBLIC_KEY.as_ref());
+    ///     assert_eq!(
+    ///         result.unwrap().as_ref(),
+    ///         EXPECTED_COMPRESSED_PUBLIC_KEY.as_ref()
+    ///     );
     ///
     ///     // Pass invalid zero message hash
     ///     let failed_result = self.env().ecdsa_recover(&signature, &[0; 32]);
@@ -845,6 +888,66 @@ where
             .map_err(|_| Error::EcdsaRecoveryFailed)
     }
 
+    /// Verifies a SR25519 signature against a message and a public key.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # #[ink::contract]
+    /// # pub mod my_contract {
+    /// #     #[ink(storage)]
+    /// #     pub struct MyContract { }
+    /// #
+    /// #     impl MyContract {
+    /// #         #[ink(constructor)]
+    /// #         pub fn new() -> Self {
+    /// #             Self {}
+    /// #         }
+    /// #
+    /// #[ink(message)]
+    /// pub fn sr25519_verify(&self) {
+    ///     let mut signature: [u8; 64] = [
+    ///         10, 125, 162, 182, 49, 112, 76, 220, 254, 147, 199, 64, 228, 18, 23, 185,
+    ///         172, 102, 122, 12, 135, 85, 216, 218, 26, 130, 50, 219, 82, 127, 72, 124,
+    ///         135, 231, 128, 210, 237, 193, 137, 106, 235, 107, 27, 239, 11, 199, 195, 141,
+    ///         157, 242, 19, 91, 99, 62, 171, 139, 251, 23, 119, 232, 47, 173, 58, 143,
+    ///     ];
+    ///     let mut message: [u8; 49] = [
+    ///         60, 66, 121, 116, 101, 115, 62, 48, 120, 52, 54, 102, 98, 55, 52, 48, 56,
+    ///         100, 52, 102, 50, 56, 53, 50, 50, 56, 102, 52, 97, 102, 53, 49, 54, 101, 97,
+    ///         50, 53, 56, 53, 49, 98, 60, 47, 66, 121, 116, 101, 115, 62,
+    ///     ];
+    ///     let mut public_key: [u8; 32] = [
+    ///         212, 53, 147, 199, 21, 253, 211, 28, 97, 20, 26, 189, 4, 169, 159, 214, 130,
+    ///         44, 133, 88, 133, 76, 205, 227, 154, 86, 132, 231, 165, 109, 162, 125,
+    ///     ];
+    ///     let result = ink::env::sr25519_verify(&signature, &message, &public_key);
+    ///     assert_eq!(result, Ok(()));
+    /// }
+    /// #
+    /// #     }
+    /// # }
+    /// ```
+    ///
+    /// # Note
+    ///
+    /// The context for sr25519 signing is hard-coded to "substrate" to match sr25519
+    /// signing in substrate.
+    ///
+    /// For more details visit: [`ink_env::sr25519_verify`]
+    ///
+    /// **WARNING**: this function is from the [unstable interface](https://github.com/paritytech/substrate/tree/master/frame/contracts#unstable-interfaces),
+    /// which is unsafe and normally is not available on production chains.
+    pub fn sr25519_verify(
+        self,
+        signature: &[u8; 64],
+        message: &[u8],
+        pub_key: &[u8; 32],
+    ) -> Result<()> {
+        ink_env::sr25519_verify(signature, message, pub_key)
+            .map_err(|_| Error::Sr25519VerifyFailed)
+    }
+
     /// Checks whether a specified account belongs to a contract.
     ///
     /// # Example
@@ -876,7 +979,8 @@ where
         ink_env::is_contract::<E>(account_id)
     }
 
-    /// Checks whether the caller of the current contract is the origin of the whole call stack.
+    /// Checks whether the caller of the current contract is the origin of the whole call
+    /// stack.
     ///
     /// # Example
     ///
@@ -956,7 +1060,9 @@ where
     /// #
     /// #[ink(message)]
     /// pub fn own_code_hash(&mut self) -> Hash {
-    ///     self.env().own_code_hash().unwrap_or_else(|err| panic!("contract should have a code hash: {:?}", err))
+    ///     self.env()
+    ///         .own_code_hash()
+    ///         .unwrap_or_else(|err| panic!("contract should have a code hash: {:?}", err))
     /// }
     /// #    }
     /// # }
@@ -969,7 +1075,39 @@ where
         ink_env::own_code_hash::<E>()
     }
 
-    #[cfg(feature = "call-runtime")]
+    /// Replace the contract code at the specified address with new code.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # #[ink::contract]
+    /// # pub mod my_contract {
+    /// #     #[ink(storage)]
+    /// #     pub struct MyContract { }
+    /// #
+    /// #     impl MyContract {
+    /// #         #[ink(constructor)]
+    /// #         pub fn new() -> Self {
+    /// #             Self {}
+    /// #         }
+    /// #
+    /// #[ink(message)]
+    /// pub fn set_code_hash(&mut self, code_hash: Hash) {
+    ///     self.env()
+    ///         .set_code_hash(&code_hash)
+    ///         .unwrap_or_else(|err| panic!("failed to set code hash: {:?}", err))
+    /// }
+    /// #    }
+    /// # }
+    /// ```
+    ///
+    /// # Note
+    ///
+    /// For more details visit: [`ink_env::set_code_hash`]
+    pub fn set_code_hash(self, code_hash: &E::Hash) -> Result<()> {
+        ink_env::set_code_hash::<E>(code_hash)
+    }
+
     pub fn call_runtime<Call: scale::Encode>(self, call: &Call) -> Result<()> {
         ink_env::call_runtime::<E, _>(call)
     }

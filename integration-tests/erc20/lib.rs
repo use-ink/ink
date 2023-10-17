@@ -1,4 +1,4 @@
-#![cfg_attr(not(feature = "std"), no_std)]
+#![cfg_attr(not(feature = "std"), no_std, no_main)]
 
 #[ink::contract]
 mod erc20 {
@@ -39,8 +39,8 @@ mod erc20 {
     }
 
     /// The ERC-20 error types.
-    #[derive(Debug, PartialEq, Eq, scale::Encode, scale::Decode)]
-    #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
+    #[derive(Debug, PartialEq, Eq)]
+    #[ink::scale_derive(Encode, Decode, TypeInfo)]
     pub enum Error {
         /// Returned if not enough balance to fulfill a request is available.
         InsufficientBalance,
@@ -133,7 +133,8 @@ mod erc20 {
         /// Allows `spender` to withdraw from the caller's account multiple times, up to
         /// the `value` amount.
         ///
-        /// If this function is called again it overwrites the current allowance with `value`.
+        /// If this function is called again it overwrites the current allowance with
+        /// `value`.
         ///
         /// An `Approval` event is emitted.
         #[ink(message)]
@@ -175,6 +176,8 @@ mod erc20 {
                 return Err(Error::InsufficientAllowance)
             }
             self.transfer_from_to(&from, &to, value)?;
+            // We checked that allowance >= value
+            #[allow(clippy::arithmetic_side_effects)]
             self.allowances
                 .insert((&from, &caller), &(allowance - value));
             Ok(())
@@ -198,10 +201,12 @@ mod erc20 {
             if from_balance < value {
                 return Err(Error::InsufficientBalance)
             }
-
+            // We checked that from_balance >= value
+            #[allow(clippy::arithmetic_side_effects)]
             self.balances.insert(from, &(from_balance - value));
             let to_balance = self.balance_of_impl(to);
-            self.balances.insert(to, &(to_balance + value));
+            self.balances
+                .insert(to, &(to_balance.checked_add(value).unwrap()));
             self.env().emit_event(Transfer {
                 from: Some(*from),
                 to: Some(*to),
@@ -220,41 +225,36 @@ mod erc20 {
             Hash,
         };
 
-        type Event = <Erc20 as ::ink::reflect::ContractEventBase>::Type;
-
         fn assert_transfer_event(
             event: &ink::env::test::EmittedEvent,
             expected_from: Option<AccountId>,
             expected_to: Option<AccountId>,
             expected_value: Balance,
         ) {
-            let decoded_event = <Event as scale::Decode>::decode(&mut &event.data[..])
-                .expect("encountered invalid contract event data buffer");
-            if let Event::Transfer(Transfer { from, to, value }) = decoded_event {
-                assert_eq!(from, expected_from, "encountered invalid Transfer.from");
-                assert_eq!(to, expected_to, "encountered invalid Transfer.to");
-                assert_eq!(value, expected_value, "encountered invalid Trasfer.value");
+            let decoded_event =
+                <Transfer as ink::scale::Decode>::decode(&mut &event.data[..])
+                    .expect("encountered invalid contract event data buffer");
+            let Transfer { from, to, value } = decoded_event;
+            assert_eq!(from, expected_from, "encountered invalid Transfer.from");
+            assert_eq!(to, expected_to, "encountered invalid Transfer.to");
+            assert_eq!(value, expected_value, "encountered invalid Trasfer.value");
+
+            let mut expected_topics = Vec::new();
+            expected_topics.push(
+                ink::blake2x256!("Transfer(Option<AccountId>,Option<AccountId>,Balance)")
+                    .into(),
+            );
+            if let Some(from) = expected_from {
+                expected_topics.push(encoded_into_hash(from));
             } else {
-                panic!("encountered unexpected event kind: expected a Transfer event")
+                expected_topics.push(Hash::CLEAR_HASH);
             }
-            let expected_topics = vec![
-                encoded_into_hash(&PrefixedValue {
-                    value: b"Erc20::Transfer",
-                    prefix: b"",
-                }),
-                encoded_into_hash(&PrefixedValue {
-                    prefix: b"Erc20::Transfer::from",
-                    value: &expected_from,
-                }),
-                encoded_into_hash(&PrefixedValue {
-                    prefix: b"Erc20::Transfer::to",
-                    value: &expected_to,
-                }),
-                encoded_into_hash(&PrefixedValue {
-                    prefix: b"Erc20::Transfer::value",
-                    value: &expected_value,
-                }),
-            ];
+            if let Some(to) = expected_to {
+                expected_topics.push(encoded_into_hash(to));
+            } else {
+                expected_topics.push(Hash::CLEAR_HASH);
+            }
+            expected_topics.push(encoded_into_hash(value));
 
             let topics = event.topics.clone();
             for (n, (actual_topic, expected_topic)) in
@@ -435,7 +435,8 @@ mod erc20 {
                 Some(AccountId::from([0x01; 32])),
                 100,
             );
-            // The second event `emitted_events[1]` is an Approve event that we skip checking.
+            // The second event `emitted_events[1]` is an Approve event that we skip
+            // checking.
             assert_transfer_event(
                 &emitted_events[2],
                 Some(AccountId::from([0x01; 32])),
@@ -478,29 +479,9 @@ mod erc20 {
             )
         }
 
-        /// For calculating the event topic hash.
-        struct PrefixedValue<'a, 'b, T> {
-            pub prefix: &'a [u8],
-            pub value: &'b T,
-        }
-
-        impl<X> scale::Encode for PrefixedValue<'_, '_, X>
+        fn encoded_into_hash<T>(entity: T) -> Hash
         where
-            X: scale::Encode,
-        {
-            fn size_hint(&self) -> usize {
-                self.prefix.size_hint() + self.value.size_hint()
-            }
-
-            fn encode_to<T: scale::Output + ?Sized>(&self, dest: &mut T) {
-                self.prefix.encode_to(dest);
-                self.value.encode_to(dest);
-            }
-        }
-
-        fn encoded_into_hash<T>(entity: &T) -> Hash
-        where
-            T: scale::Encode,
+            T: ink::scale::Encode,
         {
             use ink::{
                 env::hash::{
@@ -531,38 +512,36 @@ mod erc20 {
     #[cfg(all(test, feature = "e2e-tests"))]
     mod e2e_tests {
         use super::*;
-        use ink_e2e::build_message;
+        use ink_e2e::ContractsBackend;
+
         type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
         #[ink_e2e::test]
-        async fn e2e_transfer(mut client: ink_e2e::Client<C, E>) -> E2EResult<()> {
+        async fn e2e_transfer<Client: E2EBackend>(mut client: Client) -> E2EResult<()> {
             // given
             let total_supply = 1_000_000_000;
             let constructor = Erc20Ref::new(total_supply);
-            let contract_acc_id = client
+            let erc20 = client
                 .instantiate("erc20", &ink_e2e::alice(), constructor, 0, None)
                 .await
-                .expect("instantiate failed")
-                .account_id;
+                .expect("instantiate failed");
+            let mut call = erc20.call::<Erc20>();
 
             // when
-            let total_supply_msg = build_message::<Erc20Ref>(contract_acc_id.clone())
-                .call(|erc20| erc20.total_supply());
+            let total_supply_msg = call.total_supply();
             let total_supply_res = client
                 .call_dry_run(&ink_e2e::bob(), &total_supply_msg, 0, None)
                 .await;
 
             let bob_account = ink_e2e::account_id(ink_e2e::AccountKeyring::Bob);
             let transfer_to_bob = 500_000_000u128;
-            let transfer = build_message::<Erc20Ref>(contract_acc_id.clone())
-                .call(|erc20| erc20.transfer(bob_account.clone(), transfer_to_bob));
+            let transfer = call.transfer(bob_account, transfer_to_bob);
             let _transfer_res = client
-                .call(&ink_e2e::alice(), transfer, 0, None)
+                .call(&ink_e2e::alice(), &transfer, 0, None)
                 .await
                 .expect("transfer failed");
 
-            let balance_of = build_message::<Erc20Ref>(contract_acc_id.clone())
-                .call(|erc20| erc20.balance_of(bob_account));
+            let balance_of = call.balance_of(bob_account);
             let balance_of_res = client
                 .call_dry_run(&ink_e2e::alice(), &balance_of, 0, None)
                 .await;
@@ -579,15 +558,15 @@ mod erc20 {
         }
 
         #[ink_e2e::test]
-        async fn e2e_allowances(mut client: ink_e2e::Client<C, E>) -> E2EResult<()> {
+        async fn e2e_allowances<Client: E2EBackend>(mut client: Client) -> E2EResult<()> {
             // given
             let total_supply = 1_000_000_000;
             let constructor = Erc20Ref::new(total_supply);
-            let contract_acc_id = client
+            let erc20 = client
                 .instantiate("erc20", &ink_e2e::bob(), constructor, 0, None)
                 .await
-                .expect("instantiate failed")
-                .account_id;
+                .expect("instantiate failed");
+            let mut call = erc20.call::<Erc20>();
 
             // when
 
@@ -595,16 +574,10 @@ mod erc20 {
             let charlie_account = ink_e2e::account_id(ink_e2e::AccountKeyring::Charlie);
 
             let amount = 500_000_000u128;
-            let transfer_from =
-                build_message::<Erc20Ref>(contract_acc_id.clone()).call(|erc20| {
-                    erc20.transfer_from(
-                        bob_account.clone(),
-                        charlie_account.clone(),
-                        amount,
-                    )
-                });
+            // tx
+            let transfer_from = call.transfer_from(bob_account, charlie_account, amount);
             let transfer_from_result = client
-                .call(&ink_e2e::charlie(), transfer_from, 0, None)
+                .call(&ink_e2e::charlie(), &transfer_from, 0, None)
                 .await;
 
             assert!(
@@ -614,43 +587,32 @@ mod erc20 {
 
             // Bob approves Charlie to transfer up to amount on his behalf
             let approved_value = 1_000u128;
-            let approve_call = build_message::<Erc20Ref>(contract_acc_id.clone())
-                .call(|erc20| erc20.approve(charlie_account.clone(), approved_value));
+            let approve_call = call.approve(charlie_account, approved_value);
             client
-                .call(&ink_e2e::bob(), approve_call, 0, None)
+                .call(&ink_e2e::bob(), &approve_call, 0, None)
                 .await
                 .expect("approve failed");
 
             // `transfer_from` the approved amount
             let transfer_from =
-                build_message::<Erc20Ref>(contract_acc_id.clone()).call(|erc20| {
-                    erc20.transfer_from(
-                        bob_account.clone(),
-                        charlie_account.clone(),
-                        approved_value,
-                    )
-                });
+                call.transfer_from(bob_account, charlie_account, approved_value);
             let transfer_from_result = client
-                .call(&ink_e2e::charlie(), transfer_from, 0, None)
+                .call(&ink_e2e::charlie(), &transfer_from, 0, None)
                 .await;
             assert!(
                 transfer_from_result.is_ok(),
                 "approved transfer_from should succeed"
             );
 
-            let balance_of = build_message::<Erc20Ref>(contract_acc_id.clone())
-                .call(|erc20| erc20.balance_of(bob_account));
+            let balance_of = call.balance_of(bob_account);
             let balance_of_res = client
                 .call_dry_run(&ink_e2e::alice(), &balance_of, 0, None)
                 .await;
 
             // `transfer_from` again, this time exceeding the approved amount
-            let transfer_from =
-                build_message::<Erc20Ref>(contract_acc_id.clone()).call(|erc20| {
-                    erc20.transfer_from(bob_account.clone(), charlie_account.clone(), 1)
-                });
+            let transfer_from = call.transfer_from(bob_account, charlie_account, 1);
             let transfer_from_result = client
-                .call(&ink_e2e::charlie(), transfer_from, 0, None)
+                .call(&ink_e2e::charlie(), &transfer_from, 0, None)
                 .await;
             assert!(
                 transfer_from_result.is_err(),

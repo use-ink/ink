@@ -12,10 +12,13 @@ FFI
 Gnosis
 GPL
 KECCAK
+L1
+L2
 Polkadot
+PSP22
 RPC
 SHA
-UI
+UI/S
 URI
 Wasm
 Wasm32
@@ -35,6 +38,8 @@ decodable
 decrement
 defrag
 defragmentation
+delegatee
+delegator
 deploy
 dereferencing
 deserialize/S
@@ -60,9 +65,13 @@ reentrancy
 refcount
 scalability
 scalable
+scale_derive
+sr25519
 stdin
 stdout
+subber
 tuple
+type_info
 unordered
 untyped
 v1

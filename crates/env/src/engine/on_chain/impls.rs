@@ -1,4 +1,4 @@
-// Copyright 2018-2022 Parity Technologies (UK) Ltd.
+// Copyright (C) Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -27,6 +27,10 @@ use crate::{
         DelegateCall,
         FromAccountId,
     },
+    event::{
+        Event,
+        TopicsBuilderBackend,
+    },
     hash::{
         Blake2x128,
         Blake2x256,
@@ -34,10 +38,6 @@ use crate::{
         HashOutput,
         Keccak256,
         Sha2x256,
-    },
-    topics::{
-        Topics,
-        TopicsBuilderBackend,
     },
     Clear,
     EnvBackend,
@@ -57,7 +57,7 @@ impl CryptoHash for Blake2x128 {
             <Blake2x128 as HashOutput>::Type,
             OutputType
         );
-        let output: &mut OutputType = arrayref::array_mut_ref!(output, 0, 16);
+        let output: &mut OutputType = array_mut_ref!(output, 0, 16);
         ext::hash_blake2_128(input, output);
     }
 }
@@ -69,7 +69,7 @@ impl CryptoHash for Blake2x256 {
             <Blake2x256 as HashOutput>::Type,
             OutputType
         );
-        let output: &mut OutputType = arrayref::array_mut_ref!(output, 0, 32);
+        let output: &mut OutputType = array_mut_ref!(output, 0, 32);
         ext::hash_blake2_256(input, output);
     }
 }
@@ -81,7 +81,7 @@ impl CryptoHash for Sha2x256 {
             <Sha2x256 as HashOutput>::Type,
             OutputType
         );
-        let output: &mut OutputType = arrayref::array_mut_ref!(output, 0, 32);
+        let output: &mut OutputType = array_mut_ref!(output, 0, 32);
         ext::hash_sha2_256(input, output);
     }
 }
@@ -93,7 +93,7 @@ impl CryptoHash for Keccak256 {
             <Keccak256 as HashOutput>::Type,
             OutputType
         );
-        let output: &mut OutputType = arrayref::array_mut_ref!(output, 0, 32);
+        let output: &mut OutputType = array_mut_ref!(output, 0, 32);
         ext::hash_keccak_256(input, output);
     }
 }
@@ -186,7 +186,8 @@ impl EnvInstance {
     ///
     /// # Note
     ///
-    /// This skips the potentially costly decoding step that is often equivalent to a `memcpy`.
+    /// This skips the potentially costly decoding step that is often equivalent to a
+    /// `memcpy`.
     fn get_property_little_endian<T>(&mut self, ext_fn: fn(output: &mut &mut [u8])) -> T
     where
         T: FromLittleEndian,
@@ -326,6 +327,15 @@ impl EnvBackend for EnvInstance {
         ext::ecdsa_to_eth_address(pubkey, output).map_err(Into::into)
     }
 
+    fn sr25519_verify(
+        &mut self,
+        signature: &[u8; 64],
+        message: &[u8],
+        pub_key: &[u8; 32],
+    ) -> Result<()> {
+        ext::sr25519_verify(signature, message, pub_key).map_err(Into::into)
+    }
+
     fn call_chain_extension<I, T, E, ErrorCode, F, D>(
         &mut self,
         func_id: u32,
@@ -388,10 +398,10 @@ impl TypedEnvBackend for EnvInstance {
         self.get_property_little_endian::<E::Balance>(ext::minimum_balance)
     }
 
-    fn emit_event<E, Event>(&mut self, event: Event)
+    fn emit_event<E, Evt>(&mut self, event: Evt)
     where
         E: Environment,
-        Event: Topics + scale::Encode,
+        Evt: Event,
     {
         let (mut scope, enc_topics) =
             event.topics::<E, _>(TopicsBuilder::from(self.scoped_buffer()).into());
@@ -430,7 +440,7 @@ impl TypedEnvBackend for EnvInstance {
         );
         match call_result {
             Ok(()) | Err(ext::Error::CalleeReverted) => {
-                let decoded = scale::Decode::decode(&mut &output[..])?;
+                let decoded = scale::DecodeAll::decode_all(&mut &output[..])?;
                 Ok(decoded)
             }
             Err(actual_error) => Err(actual_error.into()),
@@ -440,7 +450,7 @@ impl TypedEnvBackend for EnvInstance {
     fn invoke_contract_delegate<E, Args, R>(
         &mut self,
         params: &CallParams<E, DelegateCall<E>, Args, R>,
-    ) -> Result<R>
+    ) -> Result<ink_primitives::MessageResult<R>>
     where
         E: Environment,
         Args: scale::Encode,
@@ -459,7 +469,7 @@ impl TypedEnvBackend for EnvInstance {
         let call_result = ext::delegate_call(flags, enc_code_hash, enc_input, output);
         match call_result {
             Ok(()) | Err(ext::Error::CalleeReverted) => {
-                let decoded = scale::Decode::decode(&mut &output[..])?;
+                let decoded = scale::DecodeAll::decode_all(&mut &output[..])?;
                 Ok(decoded)
             }
             Err(actual_error) => Err(actual_error.into()),
@@ -574,7 +584,6 @@ impl TypedEnvBackend for EnvInstance {
         Ok(hash)
     }
 
-    #[cfg(feature = "call-runtime")]
     fn call_runtime<E, Call>(&mut self, call: &Call) -> Result<()>
     where
         E: Environment,

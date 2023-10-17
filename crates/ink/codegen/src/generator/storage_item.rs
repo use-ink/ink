@@ -1,4 +1,4 @@
-// Copyright 2018-2022 Parity Technologies (UK) Ltd.
+// Copyright (C) Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -57,9 +57,9 @@ impl GenerateCode for StorageItem<'_> {
         if self.item.config().derive() {
             derive = quote! {
                 #[cfg_attr(feature = "std", derive(
-                    ::scale_info::TypeInfo,
                     ::ink::storage::traits::StorageLayout,
                 ))]
+                #[::ink::scale_derive(TypeInfo)]
                 #[derive(
                     ::ink::storage::traits::StorableHint,
                     ::ink::storage::traits::StorageKey,

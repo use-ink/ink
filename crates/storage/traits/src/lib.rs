@@ -1,4 +1,4 @@
-// Copyright 2018-2022 Parity Technologies (UK) Ltd.
+// Copyright (C) Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -20,7 +20,8 @@
 //! from and to the contract's storage.
 //!
 //! The [`Packed`] shows that the type can be stored into single storage cell.
-//! In most cases, collections(`Vec`, `HashMap`, `HashSet` etc.) work only with packed structures.
+//! In most cases, collections(`Vec`, `HashMap`, `HashSet` etc.) work only with packed
+//! structures.
 //!
 //! If at least one of the type's fields occupies its own separate storage cell, it is a
 //! non-[`Packed`] type because it occupies more than one storage cell.

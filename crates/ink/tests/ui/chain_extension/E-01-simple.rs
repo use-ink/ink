@@ -39,9 +39,8 @@ pub trait RuntimeReadWrite {
 }
 
 /// The shared error code for the read write chain extension.
-#[derive(
-    Debug, Copy, Clone, PartialEq, Eq, scale::Encode, scale::Decode, scale_info::TypeInfo,
-)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
+#[ink::scale_derive(Encode, Decode, TypeInfo)]
 pub enum ReadWriteErrorCode {
     InvalidKey,
     CannotWriteToKey,
@@ -51,9 +50,8 @@ pub enum ReadWriteErrorCode {
 /// Returned by `read_small` in case there were too few bytes available in the buffer.
 ///
 /// Provides the number of bytes required to read the storage cell.
-#[derive(
-    Debug, Copy, Clone, PartialEq, Eq, scale::Encode, scale::Decode, scale_info::TypeInfo,
-)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
+#[ink::scale_derive(Encode, Decode, TypeInfo)]
 pub enum ReadWriteError {
     ErrorCode(ReadWriteErrorCode),
     BufferTooSmall { required_bytes: u32 },
@@ -72,7 +70,8 @@ impl From<scale::Error> for ReadWriteError {
 }
 
 /// Returned by `unlock_access` if permission to access key was not granted with reason.
-#[derive(Debug, PartialEq, Eq, scale::Encode, scale::Decode, scale_info::TypeInfo)]
+#[derive(Debug, PartialEq, Eq)]
+#[ink::scale_derive(Encode, Decode, TypeInfo)]
 pub struct UnlockAccessError {
     reason: String,
 }
@@ -84,9 +83,8 @@ impl From<scale::Error> for UnlockAccessError {
 }
 
 /// The kind of access allows for a storage cell.
-#[derive(
-    Debug, Copy, Clone, PartialEq, Eq, scale::Encode, scale::Decode, scale_info::TypeInfo,
-)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
+#[ink::scale_derive(Encode, Decode, TypeInfo)]
 pub enum Access {
     ReadWrite,
     ReadOnly,

@@ -13,8 +13,8 @@
 //!
 //! ## Error Handling
 //!
-//! Any function that modifies the state returns a `Result` type and does not changes the state
-//! if the `Error` occurs.
+//! Any function that modifies the state returns a `Result` type and does not changes the
+//! state if the `Error` occurs.
 //! The errors are defined as an `enum` type. Any other error or invariant violation
 //! triggers a panic and therefore rolls back the transaction.
 //!
@@ -23,8 +23,9 @@
 //! After creating a new token, the function caller becomes the owner.
 //! A token can be created, transferred, or destroyed.
 //!
-//! Token owners can assign other accounts for transferring specific tokens on their behalf.
-//! It is also possible to authorize an operator (higher rights) for another account to handle tokens.
+//! Token owners can assign other accounts for transferring specific tokens on their
+//! behalf. It is also possible to authorize an operator (higher rights) for another
+//! account to handle tokens.
 //!
 //! ### Token Creation
 //!
@@ -39,25 +40,21 @@
 //! - The approved address of a token
 //! - An authorized operator of the current owner of a token
 //!
-//! The token owner can transfer a token by calling the `transfer` or `transfer_from` functions.
-//! An approved address can make a token transfer by calling the `transfer_from` function.
-//! Operators can transfer tokens on another account's behalf or can approve a token transfer
-//! for a different account.
+//! The token owner can transfer a token by calling the `transfer` or `transfer_from`
+//! functions. An approved address can make a token transfer by calling the
+//! `transfer_from` function. Operators can transfer tokens on another account's behalf or
+//! can approve a token transfer for a different account.
 //!
 //! ### Token Removal
 //!
-//! Tokens can be destroyed by burning them. Only the token owner is allowed to burn a token.
+//! Tokens can be destroyed by burning them. Only the token owner is allowed to burn a
+//! token.
 
-#![cfg_attr(not(feature = "std"), no_std)]
+#![cfg_attr(not(feature = "std"), no_std, no_main)]
 
 #[ink::contract]
 mod erc721 {
     use ink::storage::Mapping;
-
-    use scale::{
-        Decode,
-        Encode,
-    };
 
     /// A token ID.
     pub type TokenId = u32;
@@ -75,8 +72,8 @@ mod erc721 {
         operator_approvals: Mapping<(AccountId, AccountId), ()>,
     }
 
-    #[derive(Encode, Decode, Debug, PartialEq, Eq, Copy, Clone)]
-    #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
+    #[derive(Debug, PartialEq, Eq, Copy, Clone)]
+    #[ink::scale_derive(Encode, Decode, TypeInfo)]
     pub enum Error {
         NotOwner,
         NotApproved,
@@ -225,7 +222,7 @@ mod erc721 {
 
             let count = owned_tokens_count
                 .get(caller)
-                .map(|c| c - 1)
+                .map(|c| c.checked_sub(1).unwrap())
                 .ok_or(Error::CannotFetchValue)?;
             owned_tokens_count.insert(caller, &count);
             token_owner.remove(id);
@@ -282,7 +279,7 @@ mod erc721 {
 
             let count = owned_tokens_count
                 .get(from)
-                .map(|c| c - 1)
+                .map(|c| c.checked_sub(1).unwrap())
                 .ok_or(Error::CannotFetchValue)?;
             owned_tokens_count.insert(from, &count);
             token_owner.remove(id);
@@ -306,7 +303,10 @@ mod erc721 {
                 return Err(Error::NotAllowed)
             };
 
-            let count = owned_tokens_count.get(to).map(|c| c + 1).unwrap_or(1);
+            let count = owned_tokens_count
+                .get(to)
+                .map(|c| c.checked_add(1).unwrap())
+                .unwrap_or(1);
 
             owned_tokens_count.insert(to, &count);
             token_owner.insert(id, to);
@@ -339,7 +339,8 @@ mod erc721 {
             Ok(())
         }
 
-        /// Approve the passed `AccountId` to transfer the specified token on behalf of the message's sender.
+        /// Approve the passed `AccountId` to transfer the specified token on behalf of
+        /// the message's sender.
         fn approve_for(&mut self, to: &AccountId, id: TokenId) -> Result<(), Error> {
             let caller = self.env().caller();
             let owner = self.owner_of(id);

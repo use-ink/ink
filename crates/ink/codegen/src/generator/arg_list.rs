@@ -1,4 +1,4 @@
-// Copyright 2018-2022 Parity Technologies (UK) Ltd.
+// Copyright (C) Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -87,7 +87,8 @@ where
     )
 }
 
-/// Generates code to uniquely identify a trait by its unique ID given only its identifier.
+/// Generates code to uniquely identify a trait by its unique ID given only its
+/// identifier.
 ///
 /// # Note
 ///

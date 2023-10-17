@@ -1,4 +1,4 @@
-// Copyright 2018-2022 Parity Technologies (UK) Ltd.
+// Copyright (C) Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,12 +14,13 @@
 
 //! Utilities in use by ink!.
 //!
-//! These are kept separate from ink! core utilities to allow for more dynamic inter-crate dependencies.
-//! The main problem is that today Cargo manages crate features on a per-crate basis instead of
-//! a per-crate-target basis thus making dependencies from `ink` (or others) to `ink_env` or `ink_storage` impossible.
+//! These are kept separate from ink! core utilities to allow for more dynamic inter-crate
+//! dependencies. The main problem is that today Cargo manages crate features on a
+//! per-crate basis instead of a per-crate-target basis thus making dependencies from
+//! `ink` (or others) to `ink_env` or `ink_storage` impossible.
 //!
-//! By introducing `ink_primitives` we have a way to share utility components between `ink_env` or `ink_storage` and
-//! other parts of the framework, like `ink`.
+//! By introducing `ink_primitives` we have a way to share utility components between
+//! `ink_env` or `ink_storage` and other parts of the framework, like `ink`.
 
 #![doc(
     html_logo_url = "https://use.ink/img/crate-docs/logo.png",
@@ -57,9 +58,7 @@ pub enum LangError {
 }
 
 /// The `Result` type for ink! messages.
-#[doc(hidden)]
 pub type MessageResult<T> = ::core::result::Result<T, LangError>;
 
 /// The `Result` type for ink! constructors.
-#[doc(hidden)]
 pub type ConstructorResult<T> = ::core::result::Result<T, LangError>;

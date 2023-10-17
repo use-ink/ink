@@ -1,4 +1,4 @@
-// Copyright 2018-2022 Parity Technologies (UK) Ltd.
+// Copyright (C) Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -42,7 +42,7 @@ impl TryFrom<ast::AttributeArgs> for StorageItemConfig {
                         "storage item",
                     ))
                 }
-                if let ast::PathOrLit::Lit(syn::Lit::Bool(lit_bool)) = &arg.value {
+                if let ast::MetaValue::Lit(syn::Lit::Bool(lit_bool)) = &arg.value {
                     derive = Some(lit_bool.clone())
                 } else {
                     return Err(format_err_spanned!(

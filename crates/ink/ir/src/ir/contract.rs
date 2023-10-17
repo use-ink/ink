@@ -1,4 +1,4 @@
-// Copyright 2018-2022 Parity Technologies (UK) Ltd.
+// Copyright (C) Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -97,8 +97,7 @@ impl Contract {
     /// macro annotation itself within the `(config)` part. The available fields
     /// are the following:
     ///
-    /// - `types`: To specify `Environment` different from the default environment
-    ///            types.
+    /// - `types`: To specify `Environment` different from the default environment types.
     ///
     /// Note that we might add more configuration fields in the future if
     /// necessary.

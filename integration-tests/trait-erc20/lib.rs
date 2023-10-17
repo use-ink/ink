@@ -1,12 +1,12 @@
-#![cfg_attr(not(feature = "std"), no_std)]
+#![cfg_attr(not(feature = "std"), no_std, no_main)]
 
 #[ink::contract]
 mod erc20 {
     use ink::storage::Mapping;
 
     /// The ERC-20 error types.
-    #[derive(Debug, PartialEq, Eq, scale::Encode, scale::Decode)]
-    #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
+    #[derive(Debug, PartialEq, Eq)]
+    #[ink::scale_derive(Encode, Decode, TypeInfo)]
     pub enum Error {
         /// Returned if not enough balance to fulfill a request is available.
         InsufficientBalance,
@@ -147,7 +147,8 @@ mod erc20 {
         /// Allows `spender` to withdraw from the caller's account multiple times, up to
         /// the `value` amount.
         ///
-        /// If this function is called again it overwrites the current allowance with `value`.
+        /// If this function is called again it overwrites the current allowance with
+        /// `value`.
         ///
         /// An `Approval` event is emitted.
         #[ink(message)]
@@ -189,6 +190,8 @@ mod erc20 {
                 return Err(Error::InsufficientAllowance)
             }
             self.transfer_from_to(&from, &to, value)?;
+            // We checked that allowance >= value
+            #[allow(clippy::arithmetic_side_effects)]
             self.allowances
                 .insert((&from, &caller), &(allowance - value));
             Ok(())
@@ -239,10 +242,12 @@ mod erc20 {
             if from_balance < value {
                 return Err(Error::InsufficientBalance)
             }
-
+            // We checked that from_balance >= value
+            #[allow(clippy::arithmetic_side_effects)]
             self.balances.insert(from, &(from_balance - value));
             let to_balance = self.balance_of_impl(to);
-            self.balances.insert(to, &(to_balance + value));
+            self.balances
+                .insert(to, &(to_balance.checked_add(value).unwrap()));
             self.env().emit_event(Transfer {
                 from: Some(*from),
                 to: Some(*to),
@@ -266,27 +271,23 @@ mod erc20 {
             primitives::Clear,
         };
 
-        type Event = <Erc20 as ::ink::reflect::ContractEventBase>::Type;
-
         fn assert_transfer_event(
             event: &ink::env::test::EmittedEvent,
             expected_from: Option<AccountId>,
             expected_to: Option<AccountId>,
             expected_value: Balance,
         ) {
-            let decoded_event = <Event as scale::Decode>::decode(&mut &event.data[..])
-                .expect("encountered invalid contract event data buffer");
-            if let Event::Transfer(Transfer { from, to, value }) = decoded_event {
-                assert_eq!(from, expected_from, "encountered invalid Transfer.from");
-                assert_eq!(to, expected_to, "encountered invalid Transfer.to");
-                assert_eq!(value, expected_value, "encountered invalid Trasfer.value");
-            } else {
-                panic!("encountered unexpected event kind: expected a Transfer event")
-            }
+            let decoded_event =
+                <Transfer as ink::scale::Decode>::decode(&mut &event.data[..])
+                    .expect("encountered invalid contract event data buffer");
+            let Transfer { from, to, value } = decoded_event;
+            assert_eq!(from, expected_from, "encountered invalid Transfer.from");
+            assert_eq!(to, expected_to, "encountered invalid Transfer.to");
+            assert_eq!(value, expected_value, "encountered invalid Trasfer.value");
 
-            fn encoded_into_hash<T>(entity: &T) -> Hash
+            fn encoded_into_hash<T>(entity: T) -> Hash
             where
-                T: scale::Encode,
+                T: ink::scale::Encode,
             {
                 let mut result = Hash::CLEAR_HASH;
                 let len_result = result.as_ref().len();
@@ -304,28 +305,27 @@ mod erc20 {
                 result
             }
 
-            let expected_topics = [
-                encoded_into_hash(&PrefixedValue {
-                    prefix: b"",
-                    value: b"Erc20::Transfer",
-                }),
-                encoded_into_hash(&PrefixedValue {
-                    prefix: b"Erc20::Transfer::from",
-                    value: &expected_from,
-                }),
-                encoded_into_hash(&PrefixedValue {
-                    prefix: b"Erc20::Transfer::to",
-                    value: &expected_to,
-                }),
-                encoded_into_hash(&PrefixedValue {
-                    prefix: b"Erc20::Transfer::value",
-                    value: &expected_value,
-                }),
-            ];
+            let mut expected_topics = Vec::new();
+            expected_topics.push(
+                ink::blake2x256!("Transfer(Option<AccountId>,Option<AccountId>,Balance)")
+                    .into(),
+            );
+            if let Some(from) = expected_from {
+                expected_topics.push(encoded_into_hash(from));
+            } else {
+                expected_topics.push(Hash::CLEAR_HASH);
+            }
+            if let Some(to) = expected_to {
+                expected_topics.push(encoded_into_hash(to));
+            } else {
+                expected_topics.push(Hash::CLEAR_HASH);
+            }
+            expected_topics.push(encoded_into_hash(value));
+
             for (n, (actual_topic, expected_topic)) in
                 event.topics.iter().zip(expected_topics).enumerate()
             {
-                let topic = <Hash as scale::Decode>::decode(&mut &actual_topic[..])
+                let topic = <Hash as ink::scale::Decode>::decode(&mut &actual_topic[..])
                     .expect("encountered invalid topic encoding");
                 assert_eq!(topic, expected_topic, "encountered invalid topic at {n}");
             }
@@ -499,7 +499,8 @@ mod erc20 {
                 Some(AccountId::from([0x01; 32])),
                 100,
             );
-            // The second event `emitted_events[1]` is an Approve event that we skip checking.
+            // The second event `emitted_events[1]` is an Approve event that we skip
+            // checking.
             assert_transfer_event(
                 &emitted_events[2],
                 Some(AccountId::from([0x01; 32])),
@@ -541,26 +542,6 @@ mod erc20 {
 
         fn set_caller(sender: AccountId) {
             ink::env::test::set_caller::<Environment>(sender);
-        }
-
-        /// For calculating the event topic hash.
-        struct PrefixedValue<'a, 'b, T> {
-            pub prefix: &'a [u8],
-            pub value: &'b T,
-        }
-
-        impl<X> scale::Encode for PrefixedValue<'_, '_, X>
-        where
-            X: scale::Encode,
-        {
-            fn size_hint(&self) -> usize {
-                self.prefix.size_hint() + self.value.size_hint()
-            }
-
-            fn encode_to<T: scale::Output + ?Sized>(&self, dest: &mut T) {
-                self.prefix.encode_to(dest);
-                self.value.encode_to(dest);
-            }
         }
     }
 }

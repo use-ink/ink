@@ -1,4 +1,4 @@
-// Copyright 2018-2022 Parity Technologies (UK) Ltd.
+// Copyright (C) Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -40,6 +40,7 @@ use scale_info::{
     Registry,
     TypeInfo,
 };
+use schemars::JsonSchema;
 use serde::{
     de::DeserializeOwned,
     Deserialize,
@@ -47,7 +48,9 @@ use serde::{
 };
 
 /// Represents the static storage layout of an ink! smart contract.
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, From, Serialize, Deserialize)]
+#[derive(
+    Debug, PartialEq, Eq, PartialOrd, Ord, From, Serialize, Deserialize, JsonSchema,
+)]
 #[serde(bound(
     serialize = "F::Type: Serialize, F::String: Serialize",
     deserialize = "F::Type: DeserializeOwned, F::String: DeserializeOwned"
@@ -74,7 +77,7 @@ pub enum Layout<F: Form = MetaForm> {
 }
 
 /// A pointer into some storage region.
-#[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, From)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, From, JsonSchema)]
 pub struct LayoutKey {
     key: Key,
 }
@@ -121,16 +124,21 @@ impl LayoutKey {
 }
 
 /// Sub-tree root.
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, From, Serialize, Deserialize)]
+#[derive(
+    Debug, PartialEq, Eq, PartialOrd, Ord, From, Serialize, Deserialize, JsonSchema,
+)]
 #[serde(bound(
     serialize = "F::Type: Serialize, F::String: Serialize",
     deserialize = "F::Type: DeserializeOwned, F::String: DeserializeOwned"
 ))]
 pub struct RootLayout<F: Form = MetaForm> {
     /// The root key of the sub-tree.
+    #[schemars(with = "String")]
     root_key: LayoutKey,
     /// The storage layout of the unbounded layout elements.
     layout: Box<Layout<F>>,
+    /// The type of the encoded entity.
+    ty: <F as Form>::Type,
 }
 
 impl IntoPortable for RootLayout {
@@ -140,7 +148,31 @@ impl IntoPortable for RootLayout {
         RootLayout {
             root_key: self.root_key,
             layout: Box::new(self.layout.into_portable(registry)),
+            ty: registry.register_type(&self.ty),
         }
+    }
+}
+
+impl RootLayout<MetaForm> {
+    /// Creates a new root layout.
+    pub fn new<Root, L>(root_key: LayoutKey, layout: L) -> Self
+    where
+        Root: TypeInfo + 'static,
+        L: Into<Layout<MetaForm>>,
+    {
+        Self {
+            root_key,
+            layout: Box::new(layout.into()),
+            ty: meta_type::<Root>(),
+        }
+    }
+
+    /// Creates a new root layout with empty root type.
+    pub fn new_empty<L>(root_key: LayoutKey, layout: L) -> Self
+    where
+        L: Into<Layout<MetaForm>>,
+    {
+        Self::new::<(), L>(root_key, layout)
     }
 }
 
@@ -148,17 +180,6 @@ impl<F> RootLayout<F>
 where
     F: Form,
 {
-    /// Creates a new root layout.
-    pub fn new<L>(root_key: LayoutKey, layout: L) -> Self
-    where
-        L: Into<Layout<F>>,
-    {
-        Self {
-            root_key,
-            layout: Box::new(layout.into()),
-        }
-    }
-
     /// Returns the root key of the sub-tree.
     pub fn root_key(&self) -> &LayoutKey {
         &self.root_key
@@ -168,16 +189,24 @@ where
     pub fn layout(&self) -> &Layout<F> {
         &self.layout
     }
+
+    /// Returns the type of the encoded entity.
+    pub fn ty(&self) -> &F::Type {
+        &self.ty
+    }
 }
 
 /// A SCALE encoded cell.
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, From, Serialize, Deserialize)]
+#[derive(
+    Debug, PartialEq, Eq, PartialOrd, Ord, From, Serialize, Deserialize, JsonSchema,
+)]
 #[serde(bound(
     serialize = "F::Type: Serialize, F::String: Serialize",
     deserialize = "F::Type: DeserializeOwned, F::String: DeserializeOwned"
 ))]
 pub struct LeafLayout<F: Form = MetaForm> {
     /// The offset key into the storage.
+    #[schemars(with = "String")]
     key: LayoutKey,
     /// The type of the encoded entity.
     ty: <F as Form>::Type,
@@ -256,13 +285,14 @@ where
 /// A hashing layout potentially hitting all cells of the storage.
 ///
 /// Every hashing layout has an offset and a strategy to compute its keys.
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize, JsonSchema)]
 #[serde(bound(
     serialize = "F::Type: Serialize, F::String: Serialize",
     deserialize = "F::Type: DeserializeOwned, F::String: DeserializeOwned"
 ))]
 pub struct HashLayout<F: Form = MetaForm> {
     /// The key offset used by the strategy.
+    #[schemars(with = "String")]
     offset: LayoutKey,
     /// The hashing strategy to layout the underlying elements.
     strategy: HashingStrategy,
@@ -322,7 +352,7 @@ where
 /// The offset key is used as another postfix for the computation.
 /// So the actual formula is: `hasher(prefix + encoded(key) + offset + postfix)`
 /// Where `+` in this contexts means append of the byte slices.
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize, JsonSchema)]
 pub struct HashingStrategy {
     /// One of the supported crypto hashers.
     hasher: CryptoHasher,
@@ -367,7 +397,7 @@ impl HashingStrategy {
 }
 
 /// One of the supported crypto hashers.
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize, JsonSchema)]
 pub enum CryptoHasher {
     /// The BLAKE-2 crypto hasher with an output of 256 bits.
     Blake2x256,
@@ -378,7 +408,7 @@ pub enum CryptoHasher {
 }
 
 /// A layout for an array of associated cells with the same encoding.
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize, JsonSchema)]
 #[serde(bound(
     serialize = "F::Type: Serialize, F::String: Serialize",
     deserialize = "F::Type: DeserializeOwned, F::String: DeserializeOwned"
@@ -388,6 +418,7 @@ pub struct ArrayLayout<F: Form = MetaForm> {
     /// The offset key of the array layout.
     ///
     /// This is the same key as the element at index 0 of the array layout.
+    #[schemars(with = "String")]
     offset: LayoutKey,
     /// The number of elements in the array layout.
     len: u32,
@@ -446,7 +477,7 @@ impl IntoPortable for ArrayLayout {
 }
 
 /// A struct layout with consecutive fields of different layout.
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize, JsonSchema)]
 #[serde(bound(
     serialize = "F::Type: Serialize, F::String: Serialize",
     deserialize = "F::Type: DeserializeOwned, F::String: DeserializeOwned"
@@ -500,7 +531,7 @@ impl IntoPortable for StructLayout {
 }
 
 /// The layout for a particular field of a struct layout.
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize, JsonSchema)]
 #[serde(bound(
     serialize = "F::Type: Serialize, F::String: Serialize",
     deserialize = "F::Type: DeserializeOwned, F::String: DeserializeOwned"
@@ -557,7 +588,9 @@ impl IntoPortable for FieldLayout {
 }
 
 /// The discriminant of an enum variant.
-#[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
+#[derive(
+    Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize, JsonSchema,
+)]
 pub struct Discriminant(usize);
 
 impl From<usize> for Discriminant {
@@ -574,7 +607,7 @@ impl Discriminant {
 }
 
 /// An enum storage layout.
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize, JsonSchema)]
 #[serde(bound(
     serialize = "F::Type: Serialize, F::String: Serialize",
     deserialize = "F::Type: DeserializeOwned, F::String: DeserializeOwned"
@@ -584,6 +617,7 @@ pub struct EnumLayout<F: Form = MetaForm> {
     /// The name of the Enum.
     name: F::String,
     /// The key where the discriminant is stored to dispatch the variants.
+    #[schemars(with = "String")]
     dispatch_key: LayoutKey,
     /// The variants of the enum.
     variants: BTreeMap<Discriminant, StructLayout<F>>,

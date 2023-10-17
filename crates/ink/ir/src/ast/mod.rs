@@ -1,4 +1,4 @@
-// Copyright 2018-2022 Parity Technologies (UK) Ltd.
+// Copyright (C) Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -25,9 +25,14 @@
 //! the `value` part.
 
 mod attr_args;
+mod meta;
 
-pub use self::attr_args::{
-    AttributeArgs,
-    MetaNameValue,
-    PathOrLit,
+pub use self::{
+    attr_args::AttributeArgs,
+    meta::{
+        Meta,
+        MetaNameValue,
+        MetaValue,
+        Symbol,
+    },
 };

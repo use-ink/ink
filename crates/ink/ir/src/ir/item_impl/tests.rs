@@ -1,4 +1,4 @@
-// Copyright 2018-2022 Parity Technologies (UK) Ltd.
+// Copyright (C) Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -111,14 +111,14 @@ fn is_ink_impl_block_fails() {
             #[ink(invalid)]
             impl MyStorage {}
         },
-        "unknown ink! attribute (path)",
+        "encountered unknown ink! attribute argument: invalid",
     );
     assert_is_ink_impl_block_fails(
         &syn::parse_quote! {
             #[ink(invalid)]
             impl MyTrait for MyStorage {}
         },
-        "unknown ink! attribute (path)",
+        "encountered unknown ink! attribute argument: invalid",
     );
     assert_is_ink_impl_block_fails(
         &syn::parse_quote! {
@@ -143,7 +143,7 @@ fn is_ink_impl_block_fails() {
                 fn invalid_fn_attr(&self) {}
             }
         },
-        "unknown ink! attribute (path)",
+        "encountered unknown ink! attribute argument: invalid",
     );
     assert_is_ink_impl_block_fails(
         &syn::parse_quote! {
@@ -152,7 +152,7 @@ fn is_ink_impl_block_fails() {
                 fn invalid_fn_attr(&self) {}
             }
         },
-        "unknown ink! attribute (path)",
+        "encountered unknown ink! attribute argument: invalid",
     );
 }
 

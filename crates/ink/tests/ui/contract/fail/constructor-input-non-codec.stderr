@@ -5,13 +5,16 @@ error[E0277]: the trait bound `NonCodecType: WrapperTypeDecode` is not satisfied
    |                            ^^^^^^ the trait `WrapperTypeDecode` is not implemented for `NonCodecType`
    |
    = help: the following other types implement trait `WrapperTypeDecode`:
-             Arc<T>
              Box<T>
              Rc<T>
-   = note: required for `NonCodecType` to implement `parity_scale_codec::Decode`
+             Arc<T>
+   = note: required for `NonCodecType` to implement `ink::parity_scale_codec::Decode`
 note: required by a bound in `DispatchInput`
   --> src/codegen/dispatch/type_check.rs
    |
+   | pub struct DispatchInput<T>(T)
+   |            ------------- required by a bound in this struct
+   | where
    |     T: scale::Decode + 'static;
    |        ^^^^^^^^^^^^^ required by this bound in `DispatchInput`
 
@@ -22,10 +25,10 @@ error[E0277]: the trait bound `NonCodecType: WrapperTypeDecode` is not satisfied
    |         ^^^ the trait `WrapperTypeDecode` is not implemented for `NonCodecType`
    |
    = help: the following other types implement trait `WrapperTypeDecode`:
-             Arc<T>
              Box<T>
              Rc<T>
-   = note: required for `NonCodecType` to implement `parity_scale_codec::Decode`
+             Arc<T>
+   = note: required for `NonCodecType` to implement `ink::parity_scale_codec::Decode`
 
 error[E0277]: the trait bound `NonCodecType: WrapperTypeEncode` is not satisfied
   --> tests/ui/contract/fail/constructor-input-non-codec.rs:1:1
@@ -37,18 +40,21 @@ error[E0277]: the trait bound `NonCodecType: WrapperTypeEncode` is not satisfied
    |         --- required by a bound introduced by this call
    |
    = help: the following other types implement trait `WrapperTypeEncode`:
-             &T
-             &mut T
-             Arc<T>
              Box<T>
              Cow<'a, T>
+             ink::parity_scale_codec::Ref<'a, T, U>
              Rc<T>
-             String
+             Arc<T>
              Vec<T>
-             parity_scale_codec::Ref<'a, T, U>
+             String
+             &T
+             &mut T
    = note: required for `NonCodecType` to implement `Encode`
 note: required by a bound in `ExecutionInput::<ArgumentList<ArgumentListEnd, ArgumentListEnd>>::push_arg`
   --> $WORKSPACE/crates/env/src/call/execution_input.rs
    |
+   |     pub fn push_arg<T>(
+   |            -------- required by a bound in this associated function
+...
    |         T: scale::Encode,
    |            ^^^^^^^^^^^^^ required by this bound in `ExecutionInput::<ArgumentList<ArgumentListEnd, ArgumentListEnd>>::push_arg`

@@ -1,4 +1,4 @@
-// Copyright 2018-2022 Parity Technologies (UK) Ltd.
+// Copyright (C) Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -30,6 +30,7 @@ impl<'a> TraitDefinition<'a> {
         let sig = message.sig();
         let ident = &sig.ident;
         let inputs = &sig.inputs;
+        let cfg_attrs = message.get_cfg_attrs(span);
         let output = match &sig.output {
             syn::ReturnType::Default => quote! { () },
             syn::ReturnType::Type(_, ty) => quote! { #ty },
@@ -38,6 +39,7 @@ impl<'a> TraitDefinition<'a> {
             format_ident!("{}Output", ident.to_string().to_lower_camel_case());
         quote_spanned!(span =>
             /// Output type of the respective trait message.
+            #(#cfg_attrs)*
             type #output_ident: ::ink::codegen::ImpliesReturn<#output>;
 
             #(#attrs)*

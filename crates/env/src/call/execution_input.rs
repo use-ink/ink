@@ -1,4 +1,4 @@
-// Copyright 2018-2022 Parity Technologies (UK) Ltd.
+// Copyright (C) Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
 use crate::call::Selector;
 
 /// The input data for a smart contract execution.
-#[derive(Default, Debug)]
+#[derive(Clone, Default, Debug)]
 pub struct ExecutionInput<Args> {
     /// The selector for the smart contract execution.
     selector: Selector,
@@ -77,7 +77,7 @@ impl<Args> ExecutionInput<Args> {
 /// arguments. The potentially heap allocating encoding is done right at the end
 /// where we can leverage the static environmental buffer instead of allocating
 /// heap memory.
-#[derive(Default, Debug)]
+#[derive(Clone, Default, Debug)]
 pub struct ArgumentList<Head, Rest> {
     /// The first argument of the argument list.
     head: Head,
@@ -89,7 +89,7 @@ pub struct ArgumentList<Head, Rest> {
 pub type ArgsList<Head, Rest> = ArgumentList<Argument<Head>, Rest>;
 
 /// A single argument and its reference to a known value.
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct Argument<T> {
     /// The reference to the known value.
     ///
@@ -105,7 +105,7 @@ impl<T> Argument<T> {
 }
 
 /// The end of an argument list.
-#[derive(Default, Debug)]
+#[derive(Clone, Default, Debug)]
 pub struct ArgumentListEnd;
 
 /// An empty argument list.
@@ -172,7 +172,9 @@ where
     Rest: scale::Encode,
 {
     fn size_hint(&self) -> usize {
-        scale::Encode::size_hint(&self.head) + scale::Encode::size_hint(&self.rest)
+        scale::Encode::size_hint(&self.head)
+            .checked_add(scale::Encode::size_hint(&self.rest))
+            .unwrap()
     }
 
     fn encode_to<O: scale::Output + ?Sized>(&self, output: &mut O) {
@@ -190,7 +192,9 @@ where
     Args: scale::Encode,
 {
     fn size_hint(&self) -> usize {
-        scale::Encode::size_hint(&self.selector) + scale::Encode::size_hint(&self.args)
+        scale::Encode::size_hint(&self.selector)
+            .checked_add(scale::Encode::size_hint(&self.args))
+            .unwrap()
     }
 
     fn encode_to<O: scale::Output + ?Sized>(&self, output: &mut O) {

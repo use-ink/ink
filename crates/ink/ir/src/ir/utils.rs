@@ -1,4 +1,4 @@
-// Copyright 2018-2022 Parity Technologies (UK) Ltd.
+// Copyright (C) Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -37,7 +37,6 @@ pub fn ensure_pub_visibility(
     let bad_visibility = match vis {
         syn::Visibility::Inherited => Some(parent_span),
         syn::Visibility::Restricted(vis_restricted) => Some(vis_restricted.span()),
-        syn::Visibility::Crate(vis_crate) => Some(vis_crate.span()),
         syn::Visibility::Public(_) => None,
     };
     if let Some(bad_visibility) = bad_visibility {
@@ -62,7 +61,8 @@ pub fn local_message_id(ident: &syn::Ident) -> u32 {
     selector.into_be_u32()
 }
 
-/// The set of attributes that can be passed to call builder or call forwarder in the codegen.
+/// The set of attributes that can be passed to call builder or call forwarder in the
+/// codegen.
 #[derive(Debug, PartialEq, Eq)]
 pub struct WhitelistedAttributes(pub HashMap<String, ()>);
 
@@ -92,7 +92,7 @@ impl WhitelistedAttributes {
     /// a correct format `"foo, bar"` then `foo`, `bar` will be included in
     /// the whitelist of attributes. Else error about parsing will be returned.
     pub fn parse_arg_value(&mut self, arg: &MetaNameValue) -> Result<(), syn::Error> {
-        return if let ast::PathOrLit::Lit(syn::Lit::Str(attributes)) = &arg.value {
+        return if let ast::MetaValue::Lit(syn::Lit::Str(attributes)) = &arg.value {
             attributes.value().split(',').for_each(|attribute| {
                 self.0.insert(attribute.trim().to_string(), ());
             });
@@ -111,7 +111,7 @@ impl WhitelistedAttributes {
         attrs
             .into_iter()
             .filter(|attr| {
-                if let Some(ident) = attr.path.get_ident() {
+                if let Some(ident) = attr.path().get_ident() {
                     self.0.contains_key(&ident.to_string())
                 } else {
                     false
@@ -164,4 +164,16 @@ pub fn find_storage_key_salt(input: &syn::DeriveInput) -> Option<syn::TypeParam>
         }
         None
     })
+}
+
+/// Extracts `cfg` attributes from the given set of attributes
+pub fn extract_cfg_attributes(
+    attrs: &[syn::Attribute],
+    span: Span,
+) -> Vec<proc_macro2::TokenStream> {
+    attrs
+        .iter()
+        .filter(|a| a.path().is_ident(super::CFG_IDENT))
+        .map(|a| quote::quote_spanned!(span=> #a ))
+        .collect()
 }

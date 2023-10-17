@@ -37,8 +37,8 @@ mod erc20 {
     }
 
     /// The ERC-20 error types.
-    #[derive(Debug, PartialEq, Eq, scale::Encode, scale::Decode)]
-    #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
+    #[derive(Debug, PartialEq, Eq)]
+    #[ink::scale_derive(Encode, Decode, TypeInfo)]
     pub enum Error {
         /// Returned if not enough balance to fulfill a request is available.
         InsufficientBalance,
@@ -131,7 +131,8 @@ mod erc20 {
         /// Allows `spender` to withdraw from the caller's account multiple times, up to
         /// the `value` amount.
         ///
-        /// If this function is called again it overwrites the current allowance with `value`.
+        /// If this function is called again it overwrites the current allowance with
+        /// `value`.
         ///
         /// An `Approval` event is emitted.
         #[ink(message)]

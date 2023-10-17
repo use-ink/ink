@@ -1,0 +1,5 @@
+error: can only derive `Event` for structs without generics
+ --> tests/ui/event/fail/generics.rs:2:18
+  |
+2 | pub struct Event<T> {
+  |                  ^

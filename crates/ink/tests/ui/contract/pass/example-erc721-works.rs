@@ -2,11 +2,6 @@
 mod erc721 {
     use ink_storage::Mapping;
 
-    use scale::{
-        Decode,
-        Encode,
-    };
-
     /// A token ID.
     pub type TokenId = u32;
 
@@ -23,8 +18,8 @@ mod erc721 {
         operator_approvals: Mapping<(AccountId, AccountId), ()>,
     }
 
-    #[derive(Encode, Decode, Debug, PartialEq, Eq, Copy, Clone)]
-    #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
+    #[derive(Debug, Copy, Clone, PartialEq, Eq)]
+    #[ink::scale_derive(Encode, Decode, TypeInfo)]
     pub enum Error {
         NotOwner,
         NotApproved,
@@ -287,7 +282,8 @@ mod erc721 {
             Ok(())
         }
 
-        /// Approve the passed `AccountId` to transfer the specified token on behalf of the message's sender.
+        /// Approve the passed `AccountId` to transfer the specified token on behalf of
+        /// the message's sender.
         fn approve_for(&mut self, to: &AccountId, id: TokenId) -> Result<(), Error> {
             let caller = self.env().caller();
             let owner = self.owner_of(id);

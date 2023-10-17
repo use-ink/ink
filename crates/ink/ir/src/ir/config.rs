@@ -1,4 +1,4 @@
-// Copyright 2018-2022 Parity Technologies (UK) Ltd.
+// Copyright (C) Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -45,7 +45,7 @@ impl TryFrom<ast::AttributeArgs> for Config {
                 if let Some((_, ast)) = env {
                     return Err(duplicate_config_err(ast, arg, "env", "contract"))
                 }
-                if let ast::PathOrLit::Path(path) = &arg.value {
+                if let ast::MetaValue::Path(path) = &arg.value {
                     env = Some((Environment { path: path.clone() }, arg))
                 } else {
                     return Err(format_err_spanned!(

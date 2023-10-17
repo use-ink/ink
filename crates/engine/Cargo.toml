@@ -1,30 +1,30 @@
 [package]
 name = "ink_engine"
-version = "4.0.1"
+version.workspace = true
 authors = ["Parity Technologies <admin@parity.io>", "Michael Müller <michi@parity.io>"]
-edition = "2021"
+edition.workspace = true
 
-license = "Apache-2.0"
+license.workspace = true
 readme = "README.md"
-repository = "https://github.com/paritytech/ink"
+repository.workspace = true
 documentation = "https://docs.rs/ink_engine/"
-homepage = "https://www.parity.io/"
+homepage.workspace = true
 description = "[ink!] Off-chain environment for testing."
-keywords = ["wasm", "parity", "webassembly", "blockchain", "edsl"]
-categories = ["no-std", "embedded"]
+keywords.workspace = true
+categories.workspace = true
 include = ["Cargo.toml", "src/**/*.rs", "README.md", "LICENSE"]
 
 [dependencies]
-ink_primitives = { version = "4.0.1", path = "../../crates/primitives", default-features = false }
-scale = { package = "parity-scale-codec", version = "3", default-features = false, features = ["derive", "full"] }
-derive_more = { version = "0.99", default-features = false, features = ["from", "display"] }
+ink_primitives = { workspace = true }
+scale = { package = "parity-scale-codec", workspace = true }
+derive_more = { workspace = true, features = ["from", "display"] }
 
-sha2 = { version = "0.10" }
-sha3 = { version = "0.10" }
-blake2 = { version = "0.10" }
+sha2 = { workspace = true }
+sha3 = { workspace = true }
+blake2 = { workspace = true }
 
 # ECDSA for the off-chain environment.
-secp256k1 = { version = "0.26.0", features = ["recovery", "global-context"], optional = true }
+secp256k1 = { workspace = true, features = ["recovery", "global-context"], optional = true }
 
 [features]
 default = ["std"]

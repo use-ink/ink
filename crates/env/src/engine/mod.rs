@@ -1,4 +1,4 @@
-// Copyright 2018-2022 Parity Technologies (UK) Ltd.
+// Copyright (C) Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -31,6 +31,27 @@ use ink_primitives::{
     LangError,
 };
 
+/// Convert a slice into an array reference.
+///
+/// Creates an array reference of size `$len` pointing to `$offset` within `$arr`.
+///
+/// # Panics
+///
+/// - The selected range is out of bounds given the supplied slice
+/// - Integer overflow on `$offset + $len`
+macro_rules! array_mut_ref {
+    ($arr:expr, $offset:expr, $len:expr) => {{
+        {
+            fn as_array<T>(slice: &mut [T]) -> &mut [T; $len] {
+                slice.try_into().unwrap()
+            }
+            let offset: usize = $offset;
+            let slice = &mut $arr[offset..offset.checked_add($len).unwrap()];
+            as_array(slice)
+        }
+    }};
+}
+
 pub trait OnInstance: EnvBackend + TypedEnvBackend {
     fn on_instance<F, R>(f: F) -> R
     where
@@ -38,16 +59,12 @@ pub trait OnInstance: EnvBackend + TypedEnvBackend {
 }
 
 cfg_if! {
-    if #[cfg(all(not(feature = "std"), target_arch = "wasm32"))] {
+    if #[cfg(not(feature = "std"))] {
         mod on_chain;
         pub use self::on_chain::EnvInstance;
-    } else if #[cfg(feature = "std")] {
+    } else {
         pub mod off_chain;
         pub use self::off_chain::EnvInstance;
-    } else {
-        compile_error! {
-            "ink! only support compilation as `std` or `no_std` + `wasm32-unknown`"
-        }
     }
 }
 
@@ -221,7 +238,7 @@ mod decode_instantiate_result_tests {
     #[test]
     fn invalid_bytes_in_output_buffer_fail_decoding() {
         let out_address = Vec::new();
-        let invalid_encoded_return_value = vec![69];
+        let invalid_encoded_return_value = [69];
 
         let decoded_result = decode_return_value_fallible(
             &mut &out_address[..],

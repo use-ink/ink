@@ -1,5 +1,5 @@
 <div align="center">
-    <img src="./.images/ink-logo-glow.svg" alt="ink!" height="136" />
+    <img src="https://raw.githubusercontent.com/paritytech/ink/master/.images/ink-logo-glow.svg" alt="ink!" height="136" />
 <h1 align="center">
     Parity's ink! for writing smart contracts
 </h1>
@@ -29,7 +29,7 @@
 [s1]: https://img.shields.io/badge/click-white.svg?logo=StackExchange&label=ink!%20Support%20on%20StackExchange&labelColor=white&color=blue
 [s2]: https://substrate.stackexchange.com/questions/tagged/ink?tab=Votes
 
-> <img src="./.images/ink-squid.svg" alt="squink, the ink! mascot" style="vertical-align: middle" align="left" height="60" />ink! is an [eDSL](https://wiki.haskell.org/Embedded_domain_specific_language) to write smart contracts in Rust for blockchains built on the [Substrate](https://github.com/paritytech/substrate) framework. ink! contracts are compiled to WebAssembly.
+> <img src="https://raw.githubusercontent.com/paritytech/ink/master/.images/ink-squid.svg" alt="squink, the ink! mascot" style="vertical-align: middle" align="left" height="60" />ink! is an [eDSL](https://wiki.haskell.org/Embedded_domain_specific_language) to write smart contracts in Rust for blockchains built on the [Substrate](https://github.com/paritytech/substrate) framework. ink! contracts are compiled to WebAssembly.
 
 <br/>
 
@@ -46,6 +46,7 @@ More relevant links:
 * [`cargo-contract`](https://github.com/paritytech/cargo-contract) ‒ CLI tool for ink! contracts
 * [Contracts UI](https://contracts-ui.substrate.io/) ‒ Frontend for contract instantiation and interaction
 * [Substrate Contracts Node](https://github.com/paritytech/substrate-contracts-node) ‒ Simple Substrate blockchain which includes smart contract functionality
+* [Awesome ink!](https://github.com/paritytech/awesome-ink) - A curated list of awesome projects for Parity's ink!
 * We post announcements on [Matrix][k2] and [Discord][l2] (in the
   [`ink_smart-contracts`](https://discord.com/channels/722223075629727774/765280480609828864) channel).
 
@@ -189,7 +190,7 @@ In the [`examples`](https://github.com/paritytech/ink-examples) repository you'l
 
 Some of the most interesting ones:
 
-* `delegator` ‒ Implements cross-contract calling.
+* `basic_contract_ref` ‒ Implements cross-contract calling.
 * `trait-erc20` ‒ Defines a trait for `Erc20` contracts and implements it.
 * `erc721` ‒ An exemplary implementation of `Erc721` NFT tokens.
 * `dns` ‒  A simple `DomainNameService` smart contract.
@@ -264,7 +265,7 @@ the relevant links:
 
 ### Normal Design
 
-[![Built with ink!](.images/badge.svg)](https://github.com/paritytech/ink)
+[![Built with ink!](https://raw.githubusercontent.com/paritytech/ink/master/.images/badge.svg)](https://github.com/paritytech/ink)
 
 ```markdown
 [![Built with ink!](https://raw.githubusercontent.com/paritytech/ink/master/.images/badge.svg)](https://github.com/paritytech/ink)
@@ -272,7 +273,7 @@ the relevant links:
 
 ### Flat Design
 
-[![Built with ink!](.images/badge_flat.svg)](https://github.com/paritytech/ink)
+[![Built with ink!](https://raw.githubusercontent.com/paritytech/ink/master/.images/badge_flat.svg)](https://github.com/paritytech/ink)
 
 ```markdown
 [![Built with ink!](https://raw.githubusercontent.com/paritytech/ink/master/.images/badge_flat.svg)](https://github.com/paritytech/ink)

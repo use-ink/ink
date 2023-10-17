@@ -1,4 +1,4 @@
-// Copyright 2018-2022 Parity Technologies (UK) Ltd.
+// Copyright (C) Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -46,16 +46,10 @@ impl GenerateCode for ItemImpls<'_> {
             .map(|item_impl| self.generate_item_impl(item_impl));
         let inout_guards = self.generate_input_output_guards();
         let trait_message_property_guards = self.generate_trait_message_property_guards();
-        let use_emit_event =
-            self.contract.module().events().next().is_some().then(|| {
-                // Required to make `self.env().emit_event(...)` syntax available.
-                quote! { use ::ink::codegen::EmitEvent as _; }
-            });
         quote! {
             const _: () = {
                 // Required to make `self.env()` and `Self::env()` syntax available.
                 use ::ink::codegen::{Env as _, StaticEnv as _};
-                #use_emit_event
 
                 #( #item_impls )*
                 #inout_guards
@@ -194,7 +188,9 @@ impl ItemImpls<'_> {
             .cloned()
             .unwrap_or_else(|| syn::parse_quote! { () });
         let statements = message.statements();
+        let cfg_attrs = message.get_cfg_attrs(span);
         quote_spanned!(span =>
+            #( #cfg_attrs )*
             type #output_ident = #output;
 
             #( #attrs )*
@@ -226,7 +222,8 @@ impl ItemImpls<'_> {
         )
     }
 
-    /// Generates the code for the given ink! constructor within an inherent implementation block.
+    /// Generates the code for the given ink! constructor within an inherent
+    /// implementation block.
     ///
     /// # Developer Note
     ///
@@ -249,7 +246,8 @@ impl ItemImpls<'_> {
         )
     }
 
-    /// Generates the code for the given ink! message within an inherent implementation block.
+    /// Generates the code for the given ink! message within an inherent implementation
+    /// block.
     fn generate_inherent_message(message: &ir::Message) -> TokenStream2 {
         let span = message.span();
         let attrs = message.attrs();
@@ -294,8 +292,8 @@ impl ItemImpls<'_> {
         )
     }
 
-    /// Generates code to guard against ink! implementations that have not been implemented
-    /// for the ink! storage struct.
+    /// Generates code to guard against ink! implementations that have not been
+    /// implemented for the ink! storage struct.
     fn generate_item_impl_self_ty_guard(&self, item_impl: &ir::ItemImpl) -> TokenStream2 {
         let self_ty = item_impl.self_type();
         let span = self_ty.span();

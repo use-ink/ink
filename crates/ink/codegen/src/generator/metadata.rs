@@ -1,4 +1,4 @@
-// Copyright 2018-2022 Parity Technologies (UK) Ltd.
+// Copyright (C) Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -28,7 +28,10 @@ use quote::{
     quote,
     quote_spanned,
 };
-use syn::spanned::Spanned as _;
+use syn::{
+    parse_quote,
+    spanned::Spanned as _,
+};
 
 /// Generates code to generate the metadata of the contract.
 #[derive(From)]
@@ -73,7 +76,7 @@ impl Metadata<'_> {
         quote_spanned!(storage_span=>
             // Wrap the layout of the contract into the `RootLayout`, because
             // contract storage key is reserved for all packed fields
-            ::ink::metadata::layout::Layout::Root(::ink::metadata::layout::RootLayout::new(
+            ::ink::metadata::layout::Layout::Root(::ink::metadata::layout::RootLayout::new::<#storage_ident, _>(
                 #layout_key,
                 <#storage_ident as ::ink::storage::traits::StorageLayout>::layout(
                     &#key,
@@ -85,7 +88,6 @@ impl Metadata<'_> {
     fn generate_contract(&self) -> TokenStream2 {
         let constructors = self.generate_constructors();
         let messages = self.generate_messages();
-        let events = self.generate_events();
         let docs = self
             .contract
             .module()
@@ -96,6 +98,7 @@ impl Metadata<'_> {
             ::ink::LangError
         };
         let error = Self::generate_type_spec(&error_ty);
+        let environment = self.generate_environment();
         quote! {
             ::ink::metadata::ContractSpec::new()
                 .constructors([
@@ -104,14 +107,15 @@ impl Metadata<'_> {
                 .messages([
                     #( #messages ),*
                 ])
-                .events([
-                    #( #events ),*
-                ])
+                .collect_events()
                 .docs([
                     #( #docs ),*
                 ])
                 .lang_error(
                      #error
+                )
+                .environment(
+                    #environment
                 )
                 .done()
         }
@@ -140,12 +144,15 @@ impl Metadata<'_> {
         let selector_bytes = constructor.composed_selector().hex_lits();
         let selector_id = constructor.composed_selector().into_be_u32();
         let is_payable = constructor.is_payable();
+        let is_default = constructor.is_default();
         let constructor = constructor.callable();
         let ident = constructor.ident();
         let args = constructor.inputs().map(Self::generate_dispatch_argument);
         let storage_ident = self.contract.module().storage().ident();
         let ret_ty = Self::generate_constructor_return_type(storage_ident, selector_id);
+        let cfg_attrs = constructor.get_cfg_attrs(span);
         quote_spanned!(span=>
+            #( #cfg_attrs )*
             ::ink::metadata::ConstructorSpec::from_label(::core::stringify!(#ident))
                 .selector([
                     #( #selector_bytes ),*
@@ -154,6 +161,7 @@ impl Metadata<'_> {
                     #( #args ),*
                 ])
                 .payable(#is_payable)
+                .default(#is_default)
                 .returns(#ret_ty)
                 .docs([
                     #( #docs ),*
@@ -233,12 +241,15 @@ impl Metadata<'_> {
                     .filter_map(|attr| attr.extract_docs());
                 let selector_bytes = message.composed_selector().hex_lits();
                 let is_payable = message.is_payable();
+                let is_default = message.is_default();
                 let message = message.callable();
                 let mutates = message.receiver().is_ref_mut();
                 let ident = message.ident();
                 let args = message.inputs().map(Self::generate_dispatch_argument);
+                let cfg_attrs = message.get_cfg_attrs(span);
                 let ret_ty = Self::generate_return_type(Some(&message.wrapped_output()));
                 quote_spanned!(span =>
+                    #( #cfg_attrs )*
                     ::ink::metadata::MessageSpec::from_label(::core::stringify!(#ident))
                         .selector([
                             #( #selector_bytes ),*
@@ -249,6 +260,7 @@ impl Metadata<'_> {
                         .returns(#ret_ty)
                         .mutates(#mutates)
                         .payable(#is_payable)
+                        .default(#is_default)
                         .docs([
                             #( #docs ),*
                         ])
@@ -285,6 +297,7 @@ impl Metadata<'_> {
                 let message_args = message
                     .inputs()
                     .map(Self::generate_dispatch_argument);
+                let cfg_attrs = message.get_cfg_attrs(message_span);
                 let mutates = message.receiver().is_ref_mut();
                 let local_id = message.local_id().hex_padded_suffixed();
                 let is_payable = quote! {{
@@ -300,6 +313,7 @@ impl Metadata<'_> {
                 let ret_ty = Self::generate_return_type(Some(&message.wrapped_output()));
                 let label = [trait_ident.to_string(), message_ident.to_string()].join("::");
                 quote_spanned!(message_span=>
+                    #( #cfg_attrs )*
                     ::ink::metadata::MessageSpec::from_label(#label)
                         .selector(#selector)
                         .args([
@@ -357,47 +371,35 @@ impl Metadata<'_> {
         )
     }
 
-    /// Generates ink! metadata for all user provided ink! event definitions.
-    fn generate_events(&self) -> impl Iterator<Item = TokenStream2> + '_ {
-        self.contract.module().events().map(|event| {
-            let span = event.span();
-            let ident = event.ident();
-            let docs = event.attrs().iter().filter_map(|attr| attr.extract_docs());
-            let args = Self::generate_event_args(event);
-            quote_spanned!(span =>
-                ::ink::metadata::EventSpec::new(::core::stringify!(#ident))
-                    .args([
-                        #( #args ),*
-                    ])
-                    .docs([
-                        #( #docs ),*
-                    ])
-                    .done()
-            )
-        })
-    }
+    fn generate_environment(&self) -> TokenStream2 {
+        let span = self.contract.module().span();
 
-    /// Generate ink! metadata for a single argument of an ink! event definition.
-    fn generate_event_args(event: &ir::Event) -> impl Iterator<Item = TokenStream2> + '_ {
-        event.fields().map(|event_field| {
-            let span = event_field.span();
-            let ident = event_field.ident();
-            let is_topic = event_field.is_topic;
-            let docs = event_field
-                .attrs()
-                .into_iter()
-                .filter_map(|attr| attr.extract_docs());
-            let ty = Self::generate_type_spec(event_field.ty());
-            quote_spanned!(span =>
-                ::ink::metadata::EventParamSpec::new(::core::stringify!(#ident))
-                    .of_type(#ty)
-                    .indexed(#is_topic)
-                    .docs([
-                        #( #docs ),*
-                    ])
-                    .done()
-            )
-        })
+        let account_id: syn::Type = parse_quote!(AccountId);
+        let balance: syn::Type = parse_quote!(Balance);
+        let hash: syn::Type = parse_quote!(Hash);
+        let timestamp: syn::Type = parse_quote!(Timestamp);
+        let block_number: syn::Type = parse_quote!(BlockNumber);
+        let chain_extension: syn::Type = parse_quote!(ChainExtension);
+
+        let account_id = Self::generate_type_spec(&account_id);
+        let balance = Self::generate_type_spec(&balance);
+        let hash = Self::generate_type_spec(&hash);
+        let timestamp = Self::generate_type_spec(&timestamp);
+        let block_number = Self::generate_type_spec(&block_number);
+        let chain_extension = Self::generate_type_spec(&chain_extension);
+        let buffer_size_const = quote!(::ink::env::BUFFER_SIZE);
+        quote_spanned!(span=>
+            ::ink::metadata::EnvironmentSpec::new()
+                .account_id(#account_id)
+                .balance(#balance)
+                .hash(#hash)
+                .timestamp(#timestamp)
+                .block_number(#block_number)
+                .chain_extension(#chain_extension)
+                .max_event_topics(MAX_EVENT_TOPICS)
+                .static_buffer_size(#buffer_size_const)
+                .done()
+        )
     }
 }
 

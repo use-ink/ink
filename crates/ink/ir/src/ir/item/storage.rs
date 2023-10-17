@@ -1,4 +1,4 @@
-// Copyright 2018-2022 Parity Technologies (UK) Ltd.
+// Copyright (C) Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -35,7 +35,7 @@ use syn::spanned::Spanned as _;
 /// #[ink(storage)]
 /// pub struct MyStorage {
 ///     my_value: bool,
-///      counter: u32,
+///     counter: u32,
 /// }
 /// # }).unwrap();
 /// ```

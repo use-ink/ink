@@ -1,4 +1,4 @@
-// Copyright 2018-2022 Parity Technologies (UK) Ltd.
+// Copyright (C) Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,12 +14,12 @@
 
 //! A simple bump allocator.
 //!
-//! Its goal to have a much smaller footprint than the admittedly more full-featured `wee_alloc`
-//! allocator which is currently being used by ink! smart contracts.
+//! Its goal to have a much smaller footprint than the admittedly more full-featured
+//! `wee_alloc` allocator which is currently being used by ink! smart contracts.
 //!
-//! The heap which is used by this allocator is built from pages of Wasm memory (each page is `64KiB`).
-//! We will request new pages of memory as needed until we run out of memory, at which point we
-//! will crash with an `OOM` error instead of freeing any memory.
+//! The heap which is used by this allocator is built from pages of Wasm memory (each page
+//! is `64KiB`). We will request new pages of memory as needed until we run out of memory,
+//! at which point we will crash with an `OOM` error instead of freeing any memory.
 
 use core::alloc::{
     GlobalAlloc,
@@ -29,22 +29,29 @@ use core::alloc::{
 /// A page in Wasm is `64KiB`
 const PAGE_SIZE: usize = 64 * 1024;
 
-static mut INNER: InnerAlloc = InnerAlloc::new();
+static mut INNER: Option<InnerAlloc> = None;
 
 /// A bump allocator suitable for use in a Wasm environment.
 pub struct BumpAllocator;
 
 unsafe impl GlobalAlloc for BumpAllocator {
     unsafe fn alloc(&self, layout: Layout) -> *mut u8 {
-        match INNER.alloc(layout) {
+        if INNER.is_none() {
+            INNER = Some(InnerAlloc::new());
+        };
+        match INNER
+            .as_mut()
+            .expect("We just set the value above; qed")
+            .alloc(layout)
+        {
             Some(start) => start as *mut u8,
             None => core::ptr::null_mut(),
         }
     }
 
     unsafe fn alloc_zeroed(&self, layout: Layout) -> *mut u8 {
-        // A new page in Wasm is guaranteed to already be zero initialized, so we can just use our
-        // regular `alloc` call here and save a bit of work.
+        // A new page in Wasm is guaranteed to already be zero initialized, so we can just
+        // use our regular `alloc` call here and save a bit of work.
         //
         // See: https://webassembly.github.io/spec/core/exec/modules.html#growing-memories
         self.alloc(layout)
@@ -63,15 +70,23 @@ struct InnerAlloc {
 }
 
 impl InnerAlloc {
-    const fn new() -> Self {
+    fn new() -> Self {
         Self {
-            next: 0,
-            upper_limit: 0,
+            next: Self::heap_start(),
+            upper_limit: Self::heap_end(),
         }
     }
 
     cfg_if::cfg_if! {
         if #[cfg(test)] {
+            fn heap_start() -> usize {
+                0
+            }
+
+            fn heap_end() -> usize {
+                0
+            }
+
             /// Request a `pages` number of page sized sections of Wasm memory. Each page is `64KiB` in size.
             ///
             /// Returns `None` if a page is not available.
@@ -82,6 +97,14 @@ impl InnerAlloc {
                 Some(self.upper_limit)
             }
         } else if #[cfg(feature = "std")] {
+            fn heap_start() -> usize {
+                0
+            }
+
+            fn heap_end() -> usize {
+                0
+            }
+
             fn request_pages(&mut self, _pages: usize) -> Option<usize> {
                 unreachable!(
                     "This branch is only used to keep the compiler happy when building tests, and
@@ -89,6 +112,26 @@ impl InnerAlloc {
                 )
             }
         } else if #[cfg(target_arch = "wasm32")] {
+            fn heap_start() -> usize {
+                extern "C" {
+                    static __heap_base: usize;
+                }
+                // # SAFETY
+                //
+                // The `__heap_base` symbol is defined by the wasm linker and is guaranteed
+                // to point to the start of the heap.
+                let heap_start =  unsafe { &__heap_base as *const usize as usize };
+                // if the symbol isn't found it will resolve to 0
+                // for that to happen the rust compiler or linker need to break or change
+                assert_ne!(heap_start, 0, "Can't find `__heap_base` symbol.");
+                heap_start
+            }
+
+            fn heap_end() -> usize {
+                // Cannot overflow on this architecture
+                core::arch::wasm32::memory_size(0) * PAGE_SIZE
+            }
+
             /// Request a `pages` number of pages of Wasm memory. Each page is `64KiB` in size.
             ///
             /// Returns `None` if a page is not available.
@@ -98,19 +141,35 @@ impl InnerAlloc {
                     return None;
                 }
 
-                prev_page.checked_mul(PAGE_SIZE)
+                // Cannot overflow on this architecture
+                Some(prev_page * PAGE_SIZE)
+            }
+        } else if #[cfg(target_arch = "riscv32")] {
+            const fn heap_start() -> usize {
+                // Placeholder value until we specified our riscv VM
+                0x7000_0000
+            }
+
+            const fn heap_end() -> usize {
+                // Placeholder value until we specified our riscv VM
+                // Let's just assume a cool megabyte of mem for now
+                0x7000_0400
+            }
+
+            fn request_pages(&mut self, _pages: usize) -> Option<usize> {
+                // On riscv the memory can't be grown
+                None
             }
         } else {
-            compile_error! {
-                "ink! only supports compilation as `std` or `no_std` + `wasm32-unknown`"
-            }
+            core::compile_error!("ink! only supports wasm32 and riscv32");
         }
     }
 
-    /// Tries to allocate enough memory on the heap for the given `Layout`. If there is not enough
-    /// room on the heap it'll try and grow it by a page.
+    /// Tries to allocate enough memory on the heap for the given `Layout`. If there is
+    /// not enough room on the heap it'll try and grow it by a page.
     ///
-    /// Note: This implementation results in internal fragmentation when allocating across pages.
+    /// Note: This implementation results in internal fragmentation when allocating across
+    /// pages.
     fn alloc(&mut self, layout: Layout) -> Option<usize> {
         let alloc_start = self.next;
 
@@ -137,8 +196,8 @@ impl InnerAlloc {
 /// Calculates the number of pages of memory needed for an allocation of `size` bytes.
 ///
 /// This function rounds up to the next page. For example, if we have an allocation of
-/// `size = PAGE_SIZE / 2` this function will indicate that one page is required to satisfy
-/// the allocation.
+/// `size = PAGE_SIZE / 2` this function will indicate that one page is required to
+/// satisfy the allocation.
 fn required_pages(size: usize) -> Option<usize> {
     size.checked_add(PAGE_SIZE - 1)
         .and_then(|num| num.checked_div(PAGE_SIZE))
@@ -231,8 +290,8 @@ mod tests {
         let expected_limit = 2 * PAGE_SIZE;
         assert_eq!(inner.upper_limit, expected_limit);
 
-        // Notice that we start the allocation on the second page, instead of making use of the
-        // remaining byte on the first page
+        // Notice that we start the allocation on the second page, instead of making use
+        // of the remaining byte on the first page
         let expected_alloc_start = PAGE_SIZE + size_of::<u16>();
         assert_eq!(inner.next, expected_alloc_start);
     }
@@ -255,8 +314,8 @@ mod tests {
         let expected_alloc_start = size_of::<Foo>();
         assert_eq!(inner.next, expected_alloc_start);
 
-        // Now we want to make sure that the state of our allocator is correct for any subsequent
-        // allocations
+        // Now we want to make sure that the state of our allocator is correct for any
+        // subsequent allocations
         let layout = Layout::new::<u8>();
         assert_eq!(inner.alloc(layout), Some(2 * PAGE_SIZE));
 
@@ -281,8 +340,8 @@ mod fuzz_tests {
     fn should_allocate_arbitrary_sized_bytes(n: usize) -> TestResult {
         let mut inner = InnerAlloc::new();
 
-        // If we're going to end up creating an invalid `Layout` we don't want to use these test
-        // inputs.
+        // If we're going to end up creating an invalid `Layout` we don't want to use
+        // these test inputs.
         let layout = match Layout::from_size_align(n, size_of::<usize>()) {
             Ok(l) => l,
             Err(_) => return TestResult::discard(),
@@ -320,8 +379,8 @@ mod fuzz_tests {
 
         let mut inner = InnerAlloc::new();
 
-        // If we're going to end up creating an invalid `Layout` we don't want to use these test
-        // inputs.
+        // If we're going to end up creating an invalid `Layout` we don't want to use
+        // these test inputs.
         let layout = match Layout::from_size_align(n, align) {
             Ok(l) => l,
             Err(_) => return TestResult::discard(),
@@ -356,8 +415,8 @@ mod fuzz_tests {
     /// 2. `vec![4, 5, 6, 7]`
     /// 3. `vec![8]`
     ///
-    /// Each of the vectors represents one sequence of allocations. Within each sequence the
-    /// individual size of allocations will be randomly selected by `quickcheck`.
+    /// Each of the vectors represents one sequence of allocations. Within each sequence
+    /// the individual size of allocations will be randomly selected by `quickcheck`.
     #[quickcheck]
     fn should_allocate_arbitrary_byte_sequences(sequence: Vec<isize>) -> TestResult {
         let mut inner = InnerAlloc::new();
@@ -366,8 +425,8 @@ mod fuzz_tests {
             return TestResult::discard()
         }
 
-        // We don't want any negative numbers so we can be sure our conversions to `usize` later
-        // are valid
+        // We don't want any negative numbers so we can be sure our conversions to `usize`
+        // later are valid
         if !sequence.iter().all(|n| n.is_positive()) {
             return TestResult::discard()
         }
@@ -379,8 +438,8 @@ mod fuzz_tests {
             .fold(0, |acc, &x| acc + required_pages(x as usize).unwrap());
         let max_pages = required_pages(usize::MAX - PAGE_SIZE + 1).unwrap();
 
-        // We know this is going to end up overflowing, we'll check this case in a different
-        // test
+        // We know this is going to end up overflowing, we'll check this case in a
+        // different test
         if pages_required > max_pages {
             return TestResult::discard()
         }
@@ -405,8 +464,8 @@ mod fuzz_tests {
                 let fragmented_in_current_page = current_page_limit - inner.next;
                 total_bytes_fragmented += fragmented_in_current_page;
 
-                // We expect our next allocation to be aligned to the start of the next page
-                // boundary
+                // We expect our next allocation to be aligned to the start of the next
+                // page boundary
                 expected_alloc_start = inner.upper_limit;
             }
 
@@ -434,11 +493,11 @@ mod fuzz_tests {
         TestResult::passed()
     }
 
-    // For this test we have sequences of allocations which will eventually overflow the maximum
-    // amount of pages (in practice this means our heap will be OOM).
+    // For this test we have sequences of allocations which will eventually overflow the
+    // maximum amount of pages (in practice this means our heap will be OOM).
     //
-    // We don't care about the allocations that succeed (those are checked in other tests), we just
-    // care that eventually an allocation doesn't success.
+    // We don't care about the allocations that succeed (those are checked in other
+    // tests), we just care that eventually an allocation doesn't success.
     #[quickcheck]
     fn should_not_allocate_arbitrary_byte_sequences_which_eventually_overflow(
         sequence: Vec<isize>,
@@ -449,8 +508,8 @@ mod fuzz_tests {
             return TestResult::discard()
         }
 
-        // We don't want any negative numbers so we can be sure our conversions to `usize` later
-        // are valid
+        // We don't want any negative numbers so we can be sure our conversions to `usize`
+        // later are valid
         if !sequence.iter().all(|n| n.is_positive()) {
             return TestResult::discard()
         }
@@ -462,8 +521,8 @@ mod fuzz_tests {
             .fold(0, |acc, &x| acc + required_pages(x as usize).unwrap());
         let max_pages = required_pages(usize::MAX - PAGE_SIZE + 1).unwrap();
 
-        // We want to explicitly test for the case where a series of allocations eventually
-        // runs out of pages of memory
+        // We want to explicitly test for the case where a series of allocations
+        // eventually runs out of pages of memory
         if pages_required <= max_pages {
             return TestResult::discard()
         }
@@ -479,7 +538,8 @@ mod fuzz_tests {
             results.push(inner.alloc(layout));
         }
 
-        // Ensure that at least one of the allocations ends up overflowing our calculations.
+        // Ensure that at least one of the allocations ends up overflowing our
+        // calculations.
         assert!(
             results.iter().any(|r| r.is_none()),
             "Expected an allocation to overflow our heap, but this didn't happen."

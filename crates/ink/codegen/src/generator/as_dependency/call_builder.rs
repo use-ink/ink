@@ -1,4 +1,4 @@
-// Copyright 2018-2022 Parity Technologies (UK) Ltd.
+// Copyright (C) Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -83,18 +83,16 @@ impl CallBuilder<'_> {
             /// messages and trait implementations in a type safe way.
             #[repr(transparent)]
             #[cfg_attr(feature = "std", derive(
-                ::scale_info::TypeInfo,
                 ::ink::storage::traits::StorageLayout,
             ))]
             #[derive(
                 ::core::fmt::Debug,
-                ::scale::Encode,
-                ::scale::Decode,
                 ::core::hash::Hash,
                 ::core::cmp::PartialEq,
                 ::core::cmp::Eq,
                 ::core::clone::Clone,
             )]
+            #[::ink::scale_derive(Encode, Decode, TypeInfo)]
             pub struct #cb_ident {
                 account_id: AccountId,
             }
@@ -269,6 +267,7 @@ impl CallBuilder<'_> {
         let span = message.span();
         let message_ident = message.ident();
         let output_ident = generator::output_ident(message_ident);
+        let cfg_attrs = message.get_cfg_attrs(span);
         let trait_info_id = generator::generate_reference_to_trait_info(span, trait_path);
         let (input_bindings, input_types): (Vec<_>, Vec<_>) = message
             .callable()
@@ -289,6 +288,7 @@ impl CallBuilder<'_> {
             .whitelisted_attributes()
             .filter_attr(message.attrs().to_vec());
         quote_spanned!(span=>
+            #( #cfg_attrs )*
             type #output_ident = <<<
                 Self
                 as ::ink::codegen::TraitCallForwarderFor<{#trait_info_id}>>::Forwarder
@@ -318,12 +318,8 @@ impl CallBuilder<'_> {
         self.contract
             .module()
             .impls()
-            .filter_map(|impl_block| {
-                impl_block
-                    .trait_path()
-                    .is_none()
-                    .then(|| self.generate_call_builder_inherent_impl(impl_block))
-            })
+            .filter(|impl_block| impl_block.trait_path().is_none())
+            .map(|impl_block| self.generate_call_builder_inherent_impl(impl_block))
             .collect()
     }
 

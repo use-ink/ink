@@ -1,4 +1,4 @@
-// Copyright 2018-2022 Parity Technologies (UK) Ltd.
+// Copyright (C) Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -61,25 +61,25 @@ impl TryFrom<syn::ImplItem> for ImplItem {
 
     fn try_from(impl_item: syn::ImplItem) -> Result<Self, Self::Error> {
         match impl_item {
-            syn::ImplItem::Method(method_item) => {
-                if !ir::contains_ink_attributes(&method_item.attrs) {
-                    return Ok(Self::Other(method_item.into()))
+            syn::ImplItem::Fn(fn_item) => {
+                if !ir::contains_ink_attributes(&fn_item.attrs) {
+                    return Ok(Self::Other(fn_item.into()))
                 }
-                let attr = ir::first_ink_attribute(&method_item.attrs)?
+                let attr = ir::first_ink_attribute(&fn_item.attrs)?
                     .expect("missing expected ink! attribute for struct");
                 match attr.first().kind() {
                     ir::AttributeArg::Message => {
-                        <Message as TryFrom<_>>::try_from(method_item)
+                        <Message as TryFrom<_>>::try_from(fn_item)
                             .map(Into::into)
                             .map(Self::Message)
                     }
                     ir::AttributeArg::Constructor => {
-                        <Constructor as TryFrom<_>>::try_from(method_item)
+                        <Constructor as TryFrom<_>>::try_from(fn_item)
                             .map(Into::into)
                             .map(Self::Constructor)
                     }
                     _ => Err(format_err_spanned!(
-                        method_item,
+                        fn_item,
                         "encountered invalid ink! attribute at this point, expected either \
                         #[ink(message)] or #[ink(constructor) attributes"
                     )),

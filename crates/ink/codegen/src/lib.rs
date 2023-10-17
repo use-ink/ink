@@ -1,4 +1,4 @@
-// Copyright 2018-2022 Parity Technologies (UK) Ltd.
+// Copyright (C) Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -27,7 +27,8 @@
 //!
 //! You can see how the generated code looks by installing
 //! [`cargo-expand`](https://github.com/dtolnay/cargo-expand)
-//! and executing `cargo expand --manifest-path ./integration-tests/flipper/Cargo.toml` in this repository.
+//! and executing `cargo expand --manifest-path ./integration-tests/flipper/Cargo.toml` in
+//! this repository.
 
 #![doc(
     html_logo_url = "https://use.ink/img/crate-docs/logo.png",
@@ -55,6 +56,10 @@ pub trait CodeGenerator: Sized {
 
 impl<'a> CodeGenerator for &'a ir::Contract {
     type Generator = generator::Contract<'a>;
+}
+
+impl<'a> CodeGenerator for &'a ir::Event {
+    type Generator = generator::Event<'a>;
 }
 
 impl<'a> CodeGenerator for &'a ir::StorageItem {

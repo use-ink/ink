@@ -1,4 +1,4 @@
-// Copyright 2018-2022 Parity Technologies (UK) Ltd.
+// Copyright (C) Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -87,18 +87,16 @@ impl ContractRef<'_> {
         let ref_ident = self.generate_contract_ref_ident();
         quote_spanned!(span=>
             #[cfg_attr(feature = "std", derive(
-                ::scale_info::TypeInfo,
                 ::ink::storage::traits::StorageLayout,
             ))]
             #[derive(
                 ::core::fmt::Debug,
-                ::scale::Encode,
-                ::scale::Decode,
                 ::core::hash::Hash,
                 ::core::cmp::PartialEq,
                 ::core::cmp::Eq,
                 ::core::clone::Clone,
             )]
+            #[::ink::scale_derive(Encode, Decode, TypeInfo)]
             #( #doc_attrs )*
             pub struct #ref_ident {
                 inner: <#storage_ident as ::ink::codegen::ContractCallBuilder>::Type,
@@ -121,7 +119,7 @@ impl ContractRef<'_> {
                 impl<E> ::ink::env::call::ConstructorReturnType<#ref_ident>
                     for ::core::result::Result<#storage_ident, E>
                 where
-                    E: ::scale::Decode
+                    E: ::ink::scale::Decode
                 {
                     const IS_RESULT: bool = true;
 
@@ -289,10 +287,13 @@ impl ContractRef<'_> {
         let mut_token = message.receiver().is_ref_mut().then(|| quote! { mut });
         let input_bindings = message.inputs().map(|input| &input.pat).collect::<Vec<_>>();
         let input_types = message.inputs().map(|input| &input.ty).collect::<Vec<_>>();
+        let cfg_attrs = message.get_cfg_attrs(span);
         quote_spanned!(span=>
+            #( #cfg_attrs )*
             type #output_ident =
                 <<Self::__ink_TraitInfo as ::ink::codegen::TraitCallForwarder>::Forwarder as #trait_path>::#output_ident;
 
+            #( #cfg_attrs )*
             fn #message_ident(
                 & #mut_token self
                 #( , #input_bindings : #input_types )*
@@ -317,22 +318,22 @@ impl ContractRef<'_> {
         self.contract
             .module()
             .impls()
-            .filter_map(|impl_block| {
+            .filter(|impl_block| {
                 // We are only interested in ink! trait implementation block.
-                impl_block
-                    .trait_path()
-                    .is_none()
-                    .then(|| self.generate_contract_inherent_impl(impl_block))
+                impl_block.trait_path().is_none()
             })
+            .map(|impl_block| self.generate_contract_inherent_impl(impl_block))
             .collect()
     }
 
-    /// Generates the code for a single ink! inherent implementation of the contract itself.
+    /// Generates the code for a single ink! inherent implementation of the contract
+    /// itself.
     ///
     /// # Note
     ///
-    /// This produces the short-hand calling notation for the inherent contract implementation.
-    /// The generated code simply forwards its calling logic to the associated call builder.
+    /// This produces the short-hand calling notation for the inherent contract
+    /// implementation. The generated code simply forwards its calling logic to the
+    /// associated call builder.
     fn generate_contract_inherent_impl(&self, impl_block: &ir::ItemImpl) -> TokenStream2 {
         let span = impl_block.span();
         let attrs = impl_block.attrs();
@@ -357,7 +358,8 @@ impl ContractRef<'_> {
     /// # Note
     ///
     /// This produces the short-hand calling notation for the inherent contract message.
-    /// The generated code simply forwards its calling logic to the associated call builder.
+    /// The generated code simply forwards its calling logic to the associated call
+    /// builder.
     fn generate_contract_inherent_impl_for_message(
         &self,
         message: ir::CallableWithSelector<ir::Message>,
@@ -418,9 +420,9 @@ impl ContractRef<'_> {
     ///
     /// # Note
     ///
-    /// Unlike with ink! messages this does not forward to the call builder since constructor
-    /// calls in ink! do not have a short-hand notation and therefore this implements the
-    /// long-hand calling notation code directly.
+    /// Unlike with ink! messages this does not forward to the call builder since
+    /// constructor calls in ink! do not have a short-hand notation and therefore this
+    /// implements the long-hand calling notation code directly.
     fn generate_contract_inherent_impl_for_constructor(
         &self,
         constructor: ir::CallableWithSelector<ir::Constructor>,

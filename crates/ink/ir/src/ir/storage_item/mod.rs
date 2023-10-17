@@ -1,4 +1,4 @@
-// Copyright 2018-2022 Parity Technologies (UK) Ltd.
+// Copyright (C) Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -38,7 +38,7 @@ impl StorageItem {
 
         for attr in &ast.attrs {
             if attr
-                .path
+                .path()
                 .to_token_stream()
                 .to_string()
                 .contains("storage_item")

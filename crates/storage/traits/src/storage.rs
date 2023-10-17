@@ -1,4 +1,4 @@
-// Copyright 2018-2022 Parity Technologies (UK) Ltd.
+// Copyright (C) Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -27,8 +27,8 @@ pub trait Storable: Sized {
     fn decode<I: scale::Input>(input: &mut I) -> Result<Self, scale::Error>;
 }
 
-/// Types which implement `scale::Encode` and `scale::Decode` are `Storable` by default because
-/// they can be written directly into the storage cell.
+/// Types which implement `scale::Encode` and `scale::Decode` are `Storable` by default
+/// because they can be written directly into the storage cell.
 impl<P> Storable for P
 where
     P: scale::Codec,
@@ -47,8 +47,8 @@ pub(crate) mod private {
     pub trait Sealed {}
 }
 
-/// Trait for describing types that can be read and written to storage while all fields occupy
-/// only a single storage cell.
+/// Trait for describing types that can be read and written to storage while all fields
+/// occupy only a single storage cell.
 ///
 /// If at least one of the fields in the type occupies its own storage cell, this type
 /// is considered non-packed.
@@ -75,7 +75,8 @@ pub trait StorageKey {
     }
 }
 
-/// Describes the type that should be used for storing the value and preferred storage key.
+/// Describes the type that should be used for storing the value and preferred storage
+/// key.
 ///
 /// # Note
 ///
@@ -84,7 +85,8 @@ pub trait StorageKey {
 pub trait StorableHint<Key: StorageKey> {
     /// Storable type with storage key inside.
     type Type: Storable;
-    /// The storage key that the type prefers. It can be overwritten by an auto-generated storage key.
+    /// The storage key that the type prefers. It can be overwritten by an auto-generated
+    /// storage key.
     type PreferredKey: StorageKey;
 }
 

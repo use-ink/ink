@@ -1,4 +1,4 @@
-// Copyright 2018-2022 Parity Technologies (UK) Ltd.
+// Copyright (C) Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -26,6 +26,7 @@ use std::{
     process,
 };
 use subxt::{
+    backend::rpc::RpcClient,
     Config,
     OnlineClient,
 };
@@ -33,6 +34,7 @@ use subxt::{
 /// Spawn a local substrate node for testing.
 pub struct TestNodeProcess<R: Config> {
     proc: process::Child,
+    rpc: RpcClient,
     client: OnlineClient<R>,
     url: String,
 }
@@ -58,15 +60,43 @@ where
         TestNodeProcessBuilder::new(program)
     }
 
+    /// Construct a builder for spawning a test node process, using the environment
+    /// variable `CONTRACTS_NODE`, otherwise using the default contracts node.
+    pub fn build_with_env_or_default() -> TestNodeProcessBuilder<R> {
+        const DEFAULT_CONTRACTS_NODE: &str = "substrate-contracts-node";
+
+        // Use the user supplied `CONTRACTS_NODE` or default to `DEFAULT_CONTRACTS_NODE`.
+        let contracts_node =
+            std::env::var("CONTRACTS_NODE").unwrap_or(DEFAULT_CONTRACTS_NODE.to_owned());
+
+        // Check the specified contracts node.
+        if which::which(&contracts_node).is_err() {
+            if contracts_node == DEFAULT_CONTRACTS_NODE {
+                panic!(
+                    "The '{DEFAULT_CONTRACTS_NODE}' executable was not found. Install '{DEFAULT_CONTRACTS_NODE}' on the PATH, \
+                    or specify the `CONTRACTS_NODE` environment variable.",
+                )
+            } else {
+                panic!("The contracts node executable '{contracts_node}' was not found.")
+            }
+        }
+        Self::build(contracts_node)
+    }
+
     /// Attempt to kill the running substrate process.
     pub fn kill(&mut self) -> Result<(), String> {
-        log::info!("Killing node process {}", self.proc.id());
+        tracing::info!("Killing node process {}", self.proc.id());
         if let Err(err) = self.proc.kill() {
             let err = format!("Error killing node process {}: {}", self.proc.id(), err);
-            log::error!("{}", err);
+            tracing::error!("{}", err);
             return Err(err)
         }
         Ok(())
+    }
+
+    /// Returns the `subxt` RPC client connected to the running node.
+    pub fn rpc(&self) -> RpcClient {
+        self.rpc.clone()
     }
 
     /// Returns the `subxt` client connected to the running node.
@@ -116,8 +146,7 @@ where
             .stdout(process::Stdio::piped())
             .stderr(process::Stdio::piped())
             .arg("--port=0")
-            .arg("--rpc-port=0")
-            .arg("--ws-port=0");
+            .arg("--rpc-port=0");
 
         if let Some(authority) = self.authority {
             let authority = format!("{authority:?}");
@@ -135,22 +164,26 @@ where
 
         // Wait for RPC port to be logged (it's logged to stderr):
         let stderr = proc.stderr.take().unwrap();
-        let ws_port = find_substrate_port_from_output(stderr);
-        let ws_url = format!("ws://127.0.0.1:{ws_port}");
+        let port = find_substrate_port_from_output(stderr);
+        let url = format!("ws://127.0.0.1:{port}");
 
         // Connect to the node with a `subxt` client:
-        let client = OnlineClient::from_url(ws_url.clone()).await;
+        let rpc = RpcClient::from_url(url.clone())
+            .await
+            .map_err(|err| format!("Error initializing rpc client: {}", err))?;
+        let client = OnlineClient::from_url(url.clone()).await;
         match client {
             Ok(client) => {
                 Ok(TestNodeProcess {
                     proc,
+                    rpc,
                     client,
-                    url: ws_url.clone(),
+                    url: url.clone(),
                 })
             }
             Err(err) => {
-                let err = format!("Failed to connect to node rpc at {ws_url}: {err}");
-                log::error!("{}", err);
+                let err = format!("Failed to connect to node rpc at {url}: {err}");
+                tracing::error!("{}", err);
                 proc.kill().map_err(|e| {
                     format!("Error killing substrate process '{}': {}", proc.id(), e)
                 })?;
@@ -169,20 +202,23 @@ fn find_substrate_port_from_output(r: impl Read + Send + 'static) -> u16 {
             let line =
                 line.expect("failed to obtain next line from stdout for port discovery");
 
-            // does the line contain our port (we expect this specific output from substrate).
+            // does the line contain our port (we expect this specific output from
+            // substrate).
             let line_end = line
                 .rsplit_once("Listening for new connections on 127.0.0.1:")
                 .or_else(|| {
                     line.rsplit_once("Running JSON-RPC WS server: addr=127.0.0.1:")
                 })
+                .or_else(|| line.rsplit_once("Running JSON-RPC server: addr=127.0.0.1:"))
                 .map(|(_, port_str)| port_str)?;
 
             // trim non-numeric chars from the end of the port part of the line.
-            let port_str = line_end.trim_end_matches(|b| !('0'..='9').contains(&b));
+            let port_str = line_end.trim_end_matches(|b: char| !b.is_ascii_digit());
 
-            // expect to have a number here (the chars after '127.0.0.1:') and parse them into a u16.
+            // expect to have a number here (the chars after '127.0.0.1:') and parse them
+            // into a u16.
             let port_num = port_str.parse().unwrap_or_else(|_| {
-                panic!("valid port expected for log line, got '{port_str}'")
+                panic!("valid port expected for tracing line, got '{port_str}'")
             });
 
             Some(port_num)
@@ -193,13 +229,16 @@ fn find_substrate_port_from_output(r: impl Read + Send + 'static) -> u16 {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use subxt::PolkadotConfig as SubxtConfig;
+    use subxt::{
+        backend::legacy::LegacyRpcMethods,
+        PolkadotConfig as SubxtConfig,
+    };
 
     #[tokio::test]
     #[allow(unused_assignments)]
     async fn spawning_and_killing_nodes_works() {
-        let mut client1: Option<OnlineClient<SubxtConfig>> = None;
-        let mut client2: Option<OnlineClient<SubxtConfig>> = None;
+        let mut client1: Option<LegacyRpcMethods<SubxtConfig>> = None;
+        let mut client2: Option<LegacyRpcMethods<SubxtConfig>> = None;
 
         {
             let node_proc1 =
@@ -207,25 +246,25 @@ mod tests {
                     .spawn()
                     .await
                     .unwrap();
-            client1 = Some(node_proc1.client());
+            client1 = Some(LegacyRpcMethods::new(node_proc1.rpc()));
 
             let node_proc2 =
                 TestNodeProcess::<SubxtConfig>::build("substrate-contracts-node")
                     .spawn()
                     .await
                     .unwrap();
-            client2 = Some(node_proc2.client());
+            client2 = Some(LegacyRpcMethods::new(node_proc2.rpc()));
 
-            let res1 = node_proc1.client().rpc().block_hash(None).await;
-            let res2 = node_proc1.client().rpc().block_hash(None).await;
+            let res1 = client1.clone().unwrap().chain_get_block_hash(None).await;
+            let res2 = client2.clone().unwrap().chain_get_block_hash(None).await;
 
             assert!(res1.is_ok());
             assert!(res2.is_ok());
         }
 
         // node processes should have been killed by `Drop` in the above block.
-        let res1 = client1.unwrap().rpc().block_hash(None).await;
-        let res2 = client2.unwrap().rpc().block_hash(None).await;
+        let res1 = client1.unwrap().chain_get_block_hash(None).await;
+        let res2 = client2.unwrap().chain_get_block_hash(None).await;
 
         assert!(res1.is_err());
         assert!(res2.is_err());

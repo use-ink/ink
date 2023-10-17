@@ -1,4 +1,4 @@
-// Copyright 2018-2022 Parity Technologies (UK) Ltd.
+// Copyright (C) Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -40,12 +40,12 @@ fn storable_struct_derive(s: &synstructure::Structure) -> TokenStream2 {
     s.gen_impl(quote! {
          gen impl ::ink::storage::traits::Storable for @Self {
             #[allow(non_camel_case_types)]
-            fn decode<__ink_I: ::scale::Input>(__input: &mut __ink_I) -> ::core::result::Result<Self, ::scale::Error> {
+            fn decode<__ink_I: ::ink::scale::Input>(__input: &mut __ink_I) -> ::core::result::Result<Self, ::ink::scale::Error> {
                 ::core::result::Result::Ok(#decode_body)
             }
 
             #[allow(non_camel_case_types)]
-            fn encode<__ink_O: ::scale::Output + ?::core::marker::Sized>(&self, __dest: &mut __ink_O) {
+            fn encode<__ink_O: ::ink::scale::Output + ?::core::marker::Sized>(&self, __dest: &mut __ink_O) {
                 match self { #encode_body }
             }
          }
@@ -109,7 +109,7 @@ fn storable_enum_derive(s: &synstructure::Structure) -> TokenStream2 {
     s.gen_impl(quote! {
          gen impl ::ink::storage::traits::Storable for @Self {
             #[allow(non_camel_case_types)]
-            fn decode<__ink_I: ::scale::Input>(__input: &mut __ink_I) -> ::core::result::Result<Self, ::scale::Error> {
+            fn decode<__ink_I: ::ink::scale::Input>(__input: &mut __ink_I) -> ::core::result::Result<Self, ::ink::scale::Error> {
                 ::core::result::Result::Ok(
                     match <::core::primitive::u8 as ::ink::storage::traits::Storable>::decode(__input)? {
                         #decode_body
@@ -119,7 +119,7 @@ fn storable_enum_derive(s: &synstructure::Structure) -> TokenStream2 {
             }
 
             #[allow(non_camel_case_types)]
-            fn encode<__ink_O: ::scale::Output + ?::core::marker::Sized>(&self, __dest: &mut __ink_O) {
+            fn encode<__ink_O: ::ink::scale::Output + ?::core::marker::Sized>(&self, __dest: &mut __ink_O) {
                 match self {
                     #(
                         #encode_body

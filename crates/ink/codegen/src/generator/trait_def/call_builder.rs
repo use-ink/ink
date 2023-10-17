@@ -1,4 +1,4 @@
-// Copyright 2018-2022 Parity Technologies (UK) Ltd.
+// Copyright (C) Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -32,12 +32,11 @@ impl<'a> TraitDefinition<'a> {
     ///
     /// # Note
     ///
-    /// - The generated call builder type implements the ink! trait definition
-    ///   and allows to build up contract calls that allow for customization by
-    ///   the user to provide gas limit, endowment etc.
-    /// - The call builder is used directly by the generated call forwarder.
-    ///   There exists one global call forwarder and call builder pair for every
-    ///   ink! trait definition.
+    /// - The generated call builder type implements the ink! trait definition and allows
+    ///   to build up contract calls that allow for customization by the user to provide
+    ///   gas limit, endowment etc.
+    /// - The call builder is used directly by the generated call forwarder. There exists
+    ///   one global call forwarder and call builder pair for every ink! trait definition.
     pub fn generate_call_builder(&self) -> TokenStream2 {
         CallBuilder::from(*self).generate_code()
     }
@@ -106,10 +105,7 @@ impl CallBuilder<'_> {
             /// All calls to types (contracts) implementing the trait will be built by this type.
             #[doc(hidden)]
             #[allow(non_camel_case_types)]
-            #[derive(
-                ::scale::Encode,
-                ::scale::Decode,
-            )]
+            #[::ink::scale_derive(Encode, Decode)]
             #[repr(transparent)]
             pub struct #call_builder_ident<E>
             where
@@ -125,7 +121,8 @@ impl CallBuilder<'_> {
     /// # Note
     ///
     /// Due to the generic parameter `E` and Rust's default rules for derive generated
-    /// trait bounds it is not recommended to derive the `StorageLayout` trait implementation.
+    /// trait bounds it is not recommended to derive the `StorageLayout` trait
+    /// implementation.
     fn generate_storage_layout_impl(&self) -> TokenStream2 {
         let span = self.span();
         let call_builder_ident = self.ident();
@@ -197,21 +194,22 @@ impl CallBuilder<'_> {
 
             #[cfg(feature = "std")]
             /// We require this manual implementation since the derive produces incorrect trait bounds.
-            impl<E> ::scale_info::TypeInfo for #call_builder_ident<E>
+            impl<E> ::ink::scale_info::TypeInfo for #call_builder_ident<E>
             where
                 E: ::ink::env::Environment,
-                <E as ::ink::env::Environment>::AccountId: ::scale_info::TypeInfo + 'static,
+                <E as ::ink::env::Environment>::AccountId: ::ink::scale_info::TypeInfo + 'static,
             {
                 type Identity = <E as ::ink::env::Environment>::AccountId;
 
-                fn type_info() -> ::scale_info::Type {
-                    <<E as ::ink::env::Environment>::AccountId as ::scale_info::TypeInfo>::type_info()
+                fn type_info() -> ::ink::scale_info::Type {
+                    <<E as ::ink::env::Environment>::AccountId as ::ink::scale_info::TypeInfo>::type_info()
                 }
             }
         )
     }
 
-    /// Generate trait implementations for `FromAccountId` and `ToAccountId` for the account wrapper.
+    /// Generate trait implementations for `FromAccountId` and `ToAccountId` for the
+    /// account wrapper.
     ///
     /// # Note
     ///
@@ -305,7 +303,8 @@ impl CallBuilder<'_> {
         )
     }
 
-    /// Generate the code for all ink! trait messages implemented by the trait call builder.
+    /// Generate the code for all ink! trait messages implemented by the trait call
+    /// builder.
     fn generate_ink_trait_impl_messages(&self) -> TokenStream2 {
         let messages = self.trait_def.trait_def.item().iter_items().filter_map(
             |(item, selector)| {
@@ -319,7 +318,8 @@ impl CallBuilder<'_> {
         }
     }
 
-    /// Generate the code for a single ink! trait message implemented by the trait call builder.
+    /// Generate the code for a single ink! trait message implemented by the trait call
+    /// builder.
     fn generate_ink_trait_impl_for_message(
         &self,
         message: &ir::InkTraitMessage,
@@ -342,8 +342,10 @@ impl CallBuilder<'_> {
         let input_types = generator::input_types(message.inputs());
         let arg_list = generator::generate_argument_list(input_types.iter().cloned());
         let mut_tok = message.mutates().then(|| quote! { mut });
+        let cfg_attrs = message.get_cfg_attrs(span);
         quote_spanned!(span =>
             #[allow(clippy::type_complexity)]
+            #( #cfg_attrs )*
             type #output_ident = ::ink::env::call::CallBuilder<
                 Self::Env,
                 ::ink::env::call::utils::Set< ::ink::env::call::Call< Self::Env > >,

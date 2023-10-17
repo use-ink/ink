@@ -1,4 +1,4 @@
-// Copyright 2018-2022 Parity Technologies (UK) Ltd.
+// Copyright (C) Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ mod blake2;
 mod chain_extension;
 mod config;
 mod contract;
+mod event;
 mod idents_lint;
 mod ink_test;
 mod item;
@@ -28,6 +29,8 @@ mod selector;
 mod storage_item;
 mod trait_def;
 pub mod utils;
+
+const CFG_IDENT: &str = "cfg";
 
 /// Marker types and definitions.
 pub mod marker {
@@ -67,9 +70,9 @@ pub use self::{
     },
     config::Config,
     contract::Contract,
+    event::Event,
     ink_test::InkTest,
     item::{
-        Event,
         InkItem,
         Item,
         Storage,

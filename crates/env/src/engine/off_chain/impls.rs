@@ -1,4 +1,4 @@
-// Copyright 2018-2022 Parity Technologies (UK) Ltd.
+// Copyright (C) Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -22,6 +22,10 @@ use crate::{
         DelegateCall,
         FromAccountId,
     },
+    event::{
+        Event,
+        TopicsBuilderBackend,
+    },
     hash::{
         Blake2x128,
         Blake2x256,
@@ -29,10 +33,6 @@ use crate::{
         HashOutput,
         Keccak256,
         Sha2x256,
-    },
-    topics::{
-        Topics,
-        TopicsBuilderBackend,
     },
     Clear,
     EnvBackend,
@@ -47,11 +47,15 @@ use ink_engine::{
     ext::Engine,
 };
 use ink_storage_traits::Storable;
+use schnorrkel::{
+    PublicKey,
+    Signature,
+};
 
 /// The capacity of the static buffer.
 /// This is the same size as the ink! on-chain environment. We chose to use the same size
 /// to be as close to the on-chain behavior as possible.
-const BUFFER_SIZE: usize = 1 << 14; // 16 kB
+const BUFFER_SIZE: usize = crate::BUFFER_SIZE;
 
 impl CryptoHash for Blake2x128 {
     fn hash(input: &[u8], output: &mut <Self as HashOutput>::Type) {
@@ -60,7 +64,7 @@ impl CryptoHash for Blake2x128 {
             <Blake2x128 as HashOutput>::Type,
             OutputType
         );
-        let output: &mut OutputType = arrayref::array_mut_ref!(output, 0, 16);
+        let output: &mut OutputType = array_mut_ref!(output, 0, 16);
         Engine::hash_blake2_128(input, output);
     }
 }
@@ -72,7 +76,7 @@ impl CryptoHash for Blake2x256 {
             <Blake2x256 as HashOutput>::Type,
             OutputType
         );
-        let output: &mut OutputType = arrayref::array_mut_ref!(output, 0, 32);
+        let output: &mut OutputType = array_mut_ref!(output, 0, 32);
         Engine::hash_blake2_256(input, output);
     }
 }
@@ -84,7 +88,7 @@ impl CryptoHash for Sha2x256 {
             <Sha2x256 as HashOutput>::Type,
             OutputType
         );
-        let output: &mut OutputType = arrayref::array_mut_ref!(output, 0, 32);
+        let output: &mut OutputType = array_mut_ref!(output, 0, 32);
         Engine::hash_sha2_256(input, output);
     }
 }
@@ -96,7 +100,7 @@ impl CryptoHash for Keccak256 {
             <Keccak256 as HashOutput>::Type,
             OutputType
         );
-        let output: &mut OutputType = arrayref::array_mut_ref!(output, 0, 32);
+        let output: &mut OutputType = array_mut_ref!(output, 0, 32);
         Engine::hash_keccak_256(input, output);
     }
 }
@@ -115,6 +119,7 @@ impl From<ext::Error> for crate::Error {
             ext::Error::NotCallable => Self::NotCallable,
             ext::Error::LoggingDisabled => Self::LoggingDisabled,
             ext::Error::EcdsaRecoveryFailed => Self::EcdsaRecoveryFailed,
+            ext::Error::Sr25519VerifyFailed => Self::Sr25519VerifyFailed,
         }
     }
 }
@@ -150,10 +155,6 @@ where
         }
         let off_hash = result.as_ref();
         let off_hash = off_hash.to_vec();
-        debug_assert!(
-            !self.topics.contains(&off_hash),
-            "duplicate topic hash discovered!"
-        );
         self.topics.push(off_hash);
     }
 
@@ -293,7 +294,8 @@ impl EnvBackend for EnvInstance {
         };
 
         // In most implementations, the v is just 0 or 1 internally, but 27 was added
-        // as an arbitrary number for signing Bitcoin messages and Ethereum adopted that as well.
+        // as an arbitrary number for signing Bitcoin messages and Ethereum adopted that
+        // as well.
         let recovery_byte = if signature[64] > 26 {
             signature[64] - 27
         } else {
@@ -301,7 +303,7 @@ impl EnvBackend for EnvInstance {
         };
         let recovery_id = RecoveryId::from_i32(recovery_byte as i32)
             .unwrap_or_else(|error| panic!("Unable to parse the recovery id: {error}"));
-        let message = Message::from_slice(message_hash).unwrap_or_else(|error| {
+        let message = Message::from_digest_slice(message_hash).unwrap_or_else(|error| {
             panic!("Unable to create the message from hash: {error}")
         });
         let signature =
@@ -330,6 +332,28 @@ impl EnvBackend for EnvInstance {
         <Keccak256>::hash(&uncompressed[1..], &mut hash);
         output.as_mut().copy_from_slice(&hash[12..]);
         Ok(())
+    }
+
+    fn sr25519_verify(
+        &mut self,
+        signature: &[u8; 64],
+        message: &[u8],
+        pub_key: &[u8; 32],
+    ) -> Result<()> {
+        // the context associated with the signing (specific to the sr25519 algorithm)
+        // defaults to "substrate" in substrate, but could be different elsewhere
+        // https://github.com/paritytech/substrate/blob/c32f5ed2ae6746d6f791f08cecbfc22fa188f5f9/primitives/core/src/sr25519.rs#L60
+        let context = b"substrate";
+        // attempt to parse a signature from bytes
+        let signature: Signature =
+            Signature::from_bytes(signature).map_err(|_| Error::Sr25519VerifyFailed)?;
+        // attempt to parse a public key from bytes
+        let public_key: PublicKey =
+            PublicKey::from_bytes(pub_key).map_err(|_| Error::Sr25519VerifyFailed)?;
+        // verify the signature
+        public_key
+            .verify_simple(context, message, &signature)
+            .map_err(|_| Error::Sr25519VerifyFailed)
     }
 
     fn call_chain_extension<I, T, E, ErrorCode, F, D>(
@@ -421,10 +445,10 @@ impl TypedEnvBackend for EnvInstance {
             })
     }
 
-    fn emit_event<E, Event>(&mut self, event: Event)
+    fn emit_event<E, Evt>(&mut self, event: Evt)
     where
         E: Environment,
-        Event: Topics + scale::Encode,
+        Evt: Event,
     {
         let builder = TopicsBuilder::default();
         let enc_topics = event.topics::<E, _>(builder.into());
@@ -452,7 +476,7 @@ impl TypedEnvBackend for EnvInstance {
     fn invoke_contract_delegate<E, Args, R>(
         &mut self,
         params: &CallParams<E, DelegateCall<E>, Args, R>,
-    ) -> Result<R>
+    ) -> Result<ink_primitives::MessageResult<R>>
     where
         E: Environment,
         Args: scale::Encode,
@@ -514,11 +538,11 @@ impl TypedEnvBackend for EnvInstance {
         })
     }
 
-    fn is_contract<E>(&mut self, _account: &E::AccountId) -> bool
+    fn is_contract<E>(&mut self, account: &E::AccountId) -> bool
     where
         E: Environment,
     {
-        unimplemented!("off-chain environment does not support contract instantiation")
+        self.engine.is_contract(scale::Encode::encode(&account))
     }
 
     fn caller_is_origin<E>(&mut self) -> bool
@@ -542,7 +566,6 @@ impl TypedEnvBackend for EnvInstance {
         unimplemented!("off-chain environment does not support `own_code_hash`")
     }
 
-    #[cfg(feature = "call-runtime")]
     fn call_runtime<E, Call>(&mut self, _call: &Call) -> Result<()>
     where
         E: Environment,

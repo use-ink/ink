@@ -1,4 +1,4 @@
-#![cfg_attr(not(feature = "std"), no_std)]
+#![cfg_attr(not(feature = "std"), no_std, no_main)]
 
 use ink::{
     env::Environment,
@@ -77,16 +77,15 @@ pub trait Psp22Extension {
     ) -> Result<()>;
 }
 
-#[derive(scale::Encode, scale::Decode)]
-#[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
+#[ink::scale_derive(Encode, Decode, TypeInfo)]
 pub enum Psp22Error {
     TotalSupplyFailed,
 }
 
 pub type Result<T> = core::result::Result<T, Psp22Error>;
 
-impl From<scale::Error> for Psp22Error {
-    fn from(_: scale::Error) -> Self {
+impl From<ink::scale::Error> for Psp22Error {
+    fn from(_: ink::scale::Error) -> Self {
         panic!("encountered unexpected invalid SCALE encoding")
     }
 }
@@ -103,7 +102,7 @@ impl ink::env::chain_extension::FromStatusCode for Psp22Error {
 
 /// An environment using default ink environment types, with PSP-22 extension included
 #[derive(Debug, Clone, PartialEq, Eq)]
-#[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
+#[ink::scale_derive(TypeInfo)]
 pub enum CustomEnvironment {}
 
 impl Environment for CustomEnvironment {
@@ -232,8 +231,8 @@ mod psp22_ext {
 
         // PSP22 increase_allowance
 
-        /// Atomically increases the allowance for the specified asset granted to `spender`
-        /// by the caller.
+        /// Atomically increases the allowance for the specified asset granted to
+        /// `spender` by the caller.
         #[ink(message, selector = 0x96d6b57a)]
         pub fn increase_allowance(
             &mut self,
@@ -248,8 +247,8 @@ mod psp22_ext {
 
         // PSP22 decrease_allowance
 
-        /// Atomically decreases the allowance for the specified asset granted to `spender`
-        /// by the caller.
+        /// Atomically decreases the allowance for the specified asset granted to
+        /// `spender` by the caller.
         #[ink(message, selector = 0xfecb57d5)]
         pub fn decrease_allowance(
             &mut self,

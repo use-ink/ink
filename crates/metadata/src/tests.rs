@@ -1,4 +1,4 @@
-// Copyright 2018-2022 Parity Technologies (UK) Ltd.
+// Copyright (C) Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -47,14 +47,285 @@ fn spec_constructor_selector_must_serialize_to_hex() {
             "selector": "0x075bcd15",
             "returnType": null,
             "args": [],
-            "docs": []
+            "docs": [],
+            "default": false,
         })
     );
     assert_eq!(deserialized.selector, portable_spec.selector);
 }
 
 #[test]
+#[should_panic(expected = "only one default message is allowed")]
+fn spec_contract_only_one_default_message_allowed() {
+    ContractSpec::new()
+        .constructors(vec![ConstructorSpec::from_label("new")
+            .selector([94u8, 189u8, 136u8, 214u8])
+            .payable(true)
+            .args(vec![MessageParamSpec::new("init_value")
+                .of_type(TypeSpec::with_name_segs::<i32, _>(
+                    vec!["i32"].into_iter().map(AsRef::as_ref),
+                ))
+                .done()])
+            .returns(ReturnTypeSpec::new(None))
+            .docs(Vec::new())
+            .done()])
+        .messages(vec![
+            MessageSpec::from_label("inc")
+                .selector([231u8, 208u8, 89u8, 15u8])
+                .mutates(true)
+                .payable(true)
+                .args(vec![MessageParamSpec::new("by")
+                    .of_type(TypeSpec::with_name_segs::<i32, _>(
+                        vec!["i32"].into_iter().map(AsRef::as_ref),
+                    ))
+                    .done()])
+                .returns(ReturnTypeSpec::new(None))
+                .default(true)
+                .done(),
+            MessageSpec::from_label("get")
+                .selector([37u8, 68u8, 74u8, 254u8])
+                .mutates(false)
+                .payable(false)
+                .args(Vec::new())
+                .returns(ReturnTypeSpec::new(TypeSpec::with_name_segs::<i32, _>(
+                    vec!["i32"].into_iter().map(AsRef::as_ref),
+                )))
+                .default(true)
+                .done(),
+        ])
+        .events(Vec::new())
+        .lang_error(TypeSpec::with_name_segs::<ink_primitives::LangError, _>(
+            ::core::iter::Iterator::map(
+                ::core::iter::IntoIterator::into_iter(["ink", "LangError"]),
+                ::core::convert::AsRef::as_ref,
+            ),
+        ))
+        .done();
+}
+
+#[test]
+#[should_panic(expected = "only one default constructor is allowed")]
+fn spec_contract_only_one_default_constructor_allowed() {
+    ContractSpec::new()
+        .constructors(vec![
+            ConstructorSpec::from_label("new")
+                .selector([94u8, 189u8, 136u8, 214u8])
+                .payable(true)
+                .args(vec![MessageParamSpec::new("init_value")
+                    .of_type(TypeSpec::with_name_segs::<i32, _>(
+                        vec!["i32"].into_iter().map(AsRef::as_ref),
+                    ))
+                    .done()])
+                .returns(ReturnTypeSpec::new(None))
+                .docs(Vec::new())
+                .default(true)
+                .done(),
+            ConstructorSpec::from_label("default")
+                .selector([2u8, 34u8, 255u8, 24u8])
+                .payable(Default::default())
+                .args(Vec::new())
+                .returns(ReturnTypeSpec::new(None))
+                .docs(Vec::new())
+                .default(true)
+                .done(),
+        ])
+        .messages(vec![MessageSpec::from_label("inc")
+            .selector([231u8, 208u8, 89u8, 15u8])
+            .mutates(true)
+            .payable(true)
+            .args(vec![MessageParamSpec::new("by")
+                .of_type(TypeSpec::with_name_segs::<i32, _>(
+                    vec!["i32"].into_iter().map(AsRef::as_ref),
+                ))
+                .done()])
+            .returns(ReturnTypeSpec::new(None))
+            .default(true)
+            .done()])
+        .events(Vec::new())
+        .lang_error(TypeSpec::with_name_segs::<ink_primitives::LangError, _>(
+            ::core::iter::Iterator::map(
+                ::core::iter::IntoIterator::into_iter(["ink", "LangError"]),
+                ::core::convert::AsRef::as_ref,
+            ),
+        ))
+        .done();
+}
+
+#[test]
+#[should_panic(
+    expected = "maximum of 2 event topics exceeded: `path::to::Event` (3 topics), `path::to::Event2` (3 topics)"
+)]
+fn spec_contract_event_definition_exceeds_environment_topics_limit() {
+    const MAX_EVENT_TOPICS: usize = 2;
+    const BUFFER_SIZE: usize = 1 << 14;
+
+    ContractSpec::new()
+        .constructors(vec![ConstructorSpec::from_label("new")
+            .selector([94u8, 189u8, 136u8, 214u8])
+            .payable(true)
+            .args(vec![MessageParamSpec::new("init_value")
+                .of_type(TypeSpec::with_name_segs::<i32, _>(
+                    vec!["i32"].into_iter().map(AsRef::as_ref),
+                ))
+                .done()])
+            .returns(ReturnTypeSpec::new(None))
+            .docs(Vec::new())
+            .default(true)
+            .done()])
+        .messages(vec![MessageSpec::from_label("inc")
+            .selector([231u8, 208u8, 89u8, 15u8])
+            .mutates(true)
+            .payable(true)
+            .args(vec![MessageParamSpec::new("by")
+                .of_type(TypeSpec::with_name_segs::<i32, _>(
+                    vec!["i32"].into_iter().map(AsRef::as_ref),
+                ))
+                .done()])
+            .returns(ReturnTypeSpec::new(None))
+            .default(true)
+            .done()])
+        .events(vec![
+            EventSpec::new("Event")
+                .module_path("path::to")
+                // has a signature topic which counts towards the limit
+                .signature_topic(Some([0u8; 32]))
+                .args([
+                    EventParamSpec::new("field1_no_topic")
+                        .of_type(TypeSpec::of_type::<u32>())
+                        .indexed(false)
+                        .done(),
+                    EventParamSpec::new("field2_topic")
+                        .of_type(TypeSpec::of_type::<u64>())
+                        .indexed(true)
+                        .done(),
+                    EventParamSpec::new("field3_topic")
+                        .of_type(TypeSpec::of_type::<u128>())
+                        .indexed(true)
+                        .done(),
+                ])
+                .done(),
+            EventSpec::new("Event2")
+                .module_path("path::to")
+                // is an anonymous event with no signature topic
+                .signature_topic::<[u8; 32]>(None)
+                .args([
+                    EventParamSpec::new("field1_topic")
+                        .of_type(TypeSpec::of_type::<u32>())
+                        .indexed(true)
+                        .done(),
+                    EventParamSpec::new("field2_topic")
+                        .of_type(TypeSpec::of_type::<u64>())
+                        .indexed(true)
+                        .done(),
+                    EventParamSpec::new("field3_topic")
+                        .of_type(TypeSpec::of_type::<u128>())
+                        .indexed(true)
+                        .done(),
+                ])
+                .done(),
+        ])
+        .lang_error(TypeSpec::with_name_segs::<ink_primitives::LangError, _>(
+            ::core::iter::Iterator::map(
+                ::core::iter::IntoIterator::into_iter(["ink", "LangError"]),
+                ::core::convert::AsRef::as_ref,
+            ),
+        ))
+        .environment(
+            EnvironmentSpec::new()
+                .account_id(TypeSpec::of_type::<ink_primitives::AccountId>())
+                .balance(TypeSpec::of_type::<u128>())
+                .hash(TypeSpec::of_type::<ink_primitives::Hash>())
+                .timestamp(TypeSpec::of_type::<u64>())
+                .block_number(TypeSpec::of_type::<u128>())
+                .chain_extension(TypeSpec::of_type::<()>())
+                .max_event_topics(MAX_EVENT_TOPICS)
+                .static_buffer_size(BUFFER_SIZE)
+                .done(),
+        )
+        .done();
+}
+
+#[test]
+#[should_panic(
+    expected = "event signature topic collision: `path::to::Event`, `path::to::Event2`"
+)]
+fn spec_contract_event_definition_signature_topic_collision() {
+    const SIGNATURE_TOPIC: Option<[u8; 32]> = Some([42u8; 32]);
+    const BUFFER_SIZE: usize = 1 << 14;
+
+    ContractSpec::new()
+        .constructors(vec![ConstructorSpec::from_label("new")
+            .selector([94u8, 189u8, 136u8, 214u8])
+            .payable(true)
+            .args(vec![MessageParamSpec::new("init_value")
+                .of_type(TypeSpec::with_name_segs::<i32, _>(
+                    vec!["i32"].into_iter().map(AsRef::as_ref),
+                ))
+                .done()])
+            .returns(ReturnTypeSpec::new(None))
+            .docs(Vec::new())
+            .default(true)
+            .done()])
+        .messages(vec![MessageSpec::from_label("inc")
+            .selector([231u8, 208u8, 89u8, 15u8])
+            .mutates(true)
+            .payable(true)
+            .args(vec![MessageParamSpec::new("by")
+                .of_type(TypeSpec::with_name_segs::<i32, _>(
+                    vec!["i32"].into_iter().map(AsRef::as_ref),
+                ))
+                .done()])
+            .returns(ReturnTypeSpec::new(None))
+            .default(true)
+            .done()])
+        .events(vec![
+            EventSpec::new("Event")
+                .module_path("path::to")
+                // has a signature topic which counts towards the limit
+                .signature_topic(SIGNATURE_TOPIC)
+                .args([])
+                .done(),
+            EventSpec::new("Event2")
+                .module_path("path::to")
+                .signature_topic::<[u8; 32]>(SIGNATURE_TOPIC)
+                .args([])
+                .done(),
+        ])
+        .lang_error(TypeSpec::with_name_segs::<ink_primitives::LangError, _>(
+            ::core::iter::Iterator::map(
+                ::core::iter::IntoIterator::into_iter(["ink", "LangError"]),
+                ::core::convert::AsRef::as_ref,
+            ),
+        ))
+        .environment(
+            EnvironmentSpec::new()
+                .account_id(TypeSpec::of_type::<ink_primitives::AccountId>())
+                .balance(TypeSpec::of_type::<u128>())
+                .hash(TypeSpec::of_type::<ink_primitives::Hash>())
+                .timestamp(TypeSpec::of_type::<u64>())
+                .block_number(TypeSpec::of_type::<u128>())
+                .chain_extension(TypeSpec::of_type::<()>())
+                .max_event_topics(2)
+                .static_buffer_size(BUFFER_SIZE)
+                .done(),
+        )
+        .done();
+}
+
+#[test]
 fn spec_contract_json() {
+    #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
+    pub enum NoChainExtension {}
+
+    type AccountId = ink_primitives::AccountId;
+    type Balance = u64;
+    type Hash = ink_primitives::Hash;
+    type Timestamp = u64;
+    type BlockNumber = u128;
+    type ChainExtension = NoChainExtension;
+    const MAX_EVENT_TOPICS: usize = 4;
+    const BUFFER_SIZE: usize = 1 << 14;
+
     // given
     let contract: ContractSpec = ContractSpec::new()
         .constructors(vec![
@@ -75,6 +346,7 @@ fn spec_contract_json() {
                 .args(Vec::new())
                 .returns(ReturnTypeSpec::new(None))
                 .docs(Vec::new())
+                .default(true)
                 .done(),
             ConstructorSpec::from_label("result_new")
                 .selector([6u8, 3u8, 55u8, 123u8])
@@ -99,6 +371,7 @@ fn spec_contract_json() {
                     ))
                     .done()])
                 .returns(ReturnTypeSpec::new(None))
+                .default(true)
                 .done(),
             MessageSpec::from_label("get")
                 .selector([37u8, 68u8, 74u8, 254u8])
@@ -117,6 +390,48 @@ fn spec_contract_json() {
                 ::core::convert::AsRef::as_ref,
             ),
         ))
+        .environment(
+            EnvironmentSpec::new()
+                .account_id(TypeSpec::with_name_segs::<AccountId, _>(
+                    ::core::iter::Iterator::map(
+                        ::core::iter::IntoIterator::into_iter(["AccountId"]),
+                        ::core::convert::AsRef::as_ref,
+                    ),
+                ))
+                .balance(TypeSpec::with_name_segs::<Balance, _>(
+                    ::core::iter::Iterator::map(
+                        ::core::iter::IntoIterator::into_iter(["Balance"]),
+                        ::core::convert::AsRef::as_ref,
+                    ),
+                ))
+                .hash(TypeSpec::with_name_segs::<Hash, _>(
+                    ::core::iter::Iterator::map(
+                        ::core::iter::IntoIterator::into_iter(["Hash"]),
+                        ::core::convert::AsRef::as_ref,
+                    ),
+                ))
+                .timestamp(TypeSpec::with_name_segs::<Timestamp, _>(
+                    ::core::iter::Iterator::map(
+                        ::core::iter::IntoIterator::into_iter(["Timestamp"]),
+                        ::core::convert::AsRef::as_ref,
+                    ),
+                ))
+                .block_number(TypeSpec::with_name_segs::<BlockNumber, _>(
+                    ::core::iter::Iterator::map(
+                        ::core::iter::IntoIterator::into_iter(["BlockNumber"]),
+                        ::core::convert::AsRef::as_ref,
+                    ),
+                ))
+                .chain_extension(TypeSpec::with_name_segs::<ChainExtension, _>(
+                    ::core::iter::Iterator::map(
+                        ::core::iter::IntoIterator::into_iter(["ChainExtension"]),
+                        ::core::convert::AsRef::as_ref,
+                    ),
+                ))
+                .max_event_topics(MAX_EVENT_TOPICS)
+                .static_buffer_size(BUFFER_SIZE)
+                .done(),
+        )
         .done();
 
     let mut registry = Registry::new();
@@ -142,6 +457,7 @@ fn spec_contract_json() {
                         }
                     ],
                     "docs": [],
+                    "default": false,
                     "label": "new",
                     "payable": true,
                     "returnType": null,
@@ -150,6 +466,7 @@ fn spec_contract_json() {
                 {
                     "args": [],
                     "docs": [],
+                    "default": true,
                     "label": "default",
                     "payable": false,
                     "returnType": null,
@@ -158,6 +475,7 @@ fn spec_contract_json() {
                 {
                     "args": [],
                     "docs": [],
+                    "default": false,
                     "label": "result_new",
                     "payable": false,
                     "returnType": {
@@ -172,6 +490,46 @@ fn spec_contract_json() {
                 }
             ],
             "docs": [],
+            "environment":  {
+                "accountId":  {
+                    "displayName":  [
+                        "AccountId",
+                    ],
+                    "type": 4,
+                },
+                "balance":  {
+                    "displayName":  [
+                        "Balance",
+                    ],
+                    "type": 7,
+                },
+                "blockNumber":  {
+                    "displayName":  [
+                        "BlockNumber",
+                    ],
+                    "type": 9,
+                },
+                "staticBufferSize": 16384,
+                "chainExtension":  {
+                    "displayName":  [
+                        "ChainExtension",
+                    ],
+                    "type": 10,
+                },
+                "hash":  {
+                    "displayName":  [
+                        "Hash",
+                    ],
+                    "type": 8,
+                },
+                "maxEventTopics": 4,
+                "timestamp":  {
+                    "displayName":  [
+                        "Timestamp",
+                    ],
+                    "type": 7,
+                },
+            },
             "events": [],
             "lang_error": {
               "displayName": [
@@ -193,6 +551,7 @@ fn spec_contract_json() {
                             }
                         }
                     ],
+                    "default": true,
                     "docs": [],
                     "mutates": true,
                     "payable": true,
@@ -202,6 +561,7 @@ fn spec_contract_json() {
                 },
                 {
                     "args": [],
+                    "default": false,
                     "docs": [],
                     "mutates": false,
                     "payable": false,
@@ -247,7 +607,8 @@ fn trim_docs() {
             "returnType": null,
             "selector": "0x075bcd15",
             "args": [],
-            "docs": ["foobar"]
+            "docs": ["foobar"],
+            "default": false
         })
     );
     assert_eq!(deserialized.docs, compact_spec.docs);
@@ -295,10 +656,73 @@ fn trim_docs_with_code() {
                 "    \"Hello, World\"",
                 "}",
                 "```"
-            ]
+            ],
+            "default": false
         })
     );
     assert_eq!(deserialized.docs, compact_spec.docs);
+}
+
+#[test]
+fn should_trim_whitespaces_in_events_docs() {
+    // given
+    let path: Path<PortableForm> =
+        Path::from_segments_unchecked(["FooBarEvent".to_string()]);
+    let spec = TypeSpec::new(789.into(), path);
+    let args = [EventParamSpec::new("something".into())
+        .of_type(spec)
+        .indexed(true)
+        .docs(["test"])
+        .done()];
+    let es = EventSpec::new("foobar".into())
+        .module_path("foo")
+        .signature_topic(Some([0u8; 32]))
+        .args(args)
+        .docs([" FooBarEvent  "])
+        .done();
+
+    let event_spec_name = serde_json::to_value(es).unwrap();
+
+    // when
+    let expected_event_spec = serde_json::json!(
+        {
+            "module_path": "foo",
+            "signature_topic": "0x0000000000000000000000000000000000000000000000000000000000000000",
+            "args": [
+            {
+                "docs": ["test"],
+                "indexed": true,
+                "label": "something",
+                "type": {
+                    "displayName": [
+                        "FooBarEvent"
+                    ],
+                    "type": 789
+                }
+            }],
+            "docs": [
+                "FooBarEvent"
+            ],
+            "label": "foobar"
+        }
+    );
+
+    // then
+    assert_eq!(event_spec_name, expected_event_spec);
+}
+
+/// Create a default environment spec with the `max_event_topics` set to `4`.
+fn environment_spec() -> EnvironmentSpec<PortableForm> {
+    EnvironmentSpec::new()
+        .account_id(Default::default())
+        .balance(Default::default())
+        .hash(Default::default())
+        .timestamp(Default::default())
+        .block_number(Default::default())
+        .chain_extension(Default::default())
+        .max_event_topics(4)
+        .static_buffer_size(16384)
+        .done()
 }
 
 /// Helper for creating a constructor spec at runtime
@@ -346,8 +770,10 @@ fn runtime_event_spec() -> EventSpec<PortableForm> {
         .docs(vec![])
         .done()];
     EventSpec::new("foobar".into())
+        .signature_topic(Some([42u8; 32]))
+        .module_path("foo")
         .args(args)
-        .docs(["foobar event".into()])
+        .docs(["foobar event"])
         .done()
 }
 
@@ -355,6 +781,7 @@ fn runtime_event_spec() -> EventSpec<PortableForm> {
 #[test]
 fn construct_runtime_contract_spec() {
     let spec = ContractSpec::new()
+        .environment(environment_spec())
         .constructors([runtime_constructor_spec()])
         .messages([runtime_message_spec()])
         .events([runtime_event_spec()])
@@ -382,7 +809,8 @@ fn construct_runtime_contract_spec() {
             "docs": [
                 "foo",
                 "bar"
-            ]
+            ],
+            "default": false
         }
     );
     assert_eq!(constructor_spec, expected_constructor_spec);
@@ -411,6 +839,7 @@ fn construct_runtime_contract_spec() {
                     "FooType"
                 ]
             },
+            "default": false,
             "docs": [
                 "foo",
                 "bar"
@@ -423,6 +852,8 @@ fn construct_runtime_contract_spec() {
     let expected_event_spec = serde_json::json!(
         {
             "label": "foobar",
+            "module_path": "foo",
+            "signature_topic": "0x2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a",
             "args": [
                 {
                     "label": "something",

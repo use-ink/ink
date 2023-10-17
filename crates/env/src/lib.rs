@@ -1,4 +1,4 @@
-// Copyright 2018-2022 Parity Technologies (UK) Ltd.
+// Copyright (C) Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -46,21 +46,36 @@
     unused_extern_crates
 )]
 
+/// The capacity of the static buffer.
+/// Usually set to 16 kB.
+/// Can be modified by setting `INK_STATIC_BUFFER_SIZE` environmental variable.
+#[const_env::from_env("INK_STATIC_BUFFER_SIZE")]
+pub const BUFFER_SIZE: usize = 16384;
+
 #[cfg(all(not(feature = "std"), target_arch = "wasm32"))]
 #[allow(unused_extern_crates)]
 extern crate rlibc;
 
-#[cfg(all(not(feature = "std"), target_arch = "wasm32"))]
+#[cfg(not(feature = "std"))]
 #[allow(unused_variables)]
 #[panic_handler]
 fn panic(info: &core::panic::PanicInfo) -> ! {
     // This code gets removed in release builds where the macro will expand into nothing.
     debug_print!("{}\n", info);
 
-    // We only use this operation if we are guaranteed to be in Wasm32 compilation.
-    // This is used in order to make any panic a direct abort avoiding Rust's general
-    // panic infrastructure.
-    core::arch::wasm32::unreachable();
+    cfg_if::cfg_if! {
+        if #[cfg(target_arch = "wasm32")] {
+            core::arch::wasm32::unreachable();
+        } else if #[cfg(target_arch = "riscv32")] {
+            // Safety: The unimp instruction is guaranteed to trap
+            unsafe {
+                core::arch::asm!("unimp");
+                core::hint::unreachable_unchecked();
+            }
+        } else {
+            core::compile_error!("ink! only supports wasm32 and riscv32");
+        }
+    }
 }
 
 // This extern crate definition is required since otherwise rustc
@@ -76,9 +91,9 @@ pub mod chain_extension;
 mod contract;
 mod engine;
 mod error;
-pub mod hash;
 #[doc(hidden)]
-pub mod topics;
+pub mod event;
+pub mod hash;
 mod types;
 
 #[cfg(test)]
@@ -106,7 +121,7 @@ pub use self::{
         Error,
         Result,
     },
-    topics::Topics,
+    event::Event,
     types::{
         AccountIdGuard,
         DefaultEnvironment,

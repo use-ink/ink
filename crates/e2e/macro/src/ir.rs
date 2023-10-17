@@ -1,4 +1,4 @@
-// Copyright 2018-2022 Parity Technologies (UK) Ltd.
+// Copyright (C) Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,9 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::{
-    config::E2EConfig,
-    ir,
+use crate::config::E2EConfig;
+use darling::{
+    ast::NestedMeta,
+    FromMeta,
 };
 use proc_macro2::TokenStream as TokenStream2;
 
@@ -37,8 +38,7 @@ impl InkE2ETest {
     /// Returns `Ok` if the test matches all requirements for an
     /// ink! E2E test definition.
     pub fn new(attrs: TokenStream2, input: TokenStream2) -> Result<Self, syn::Error> {
-        let config = syn::parse2::<ink_ir::ast::AttributeArgs>(attrs)?;
-        let e2e_config = ir::E2EConfig::try_from(config)?;
+        let e2e_config = E2EConfig::from_list(&NestedMeta::parse_meta_list(attrs)?)?;
         let item_fn = syn::parse2::<syn::ItemFn>(input)?;
         let e2e_fn = E2EFn::from(item_fn);
         Ok(Self {

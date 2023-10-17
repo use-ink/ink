@@ -1,37 +1,37 @@
 [package]
 name = "ink_macro"
-version = "4.0.1"
+version.workspace = true
 authors = ["Parity Technologies <admin@parity.io>", "Robin Freyler <robin@parity.io>"]
-edition = "2021"
+edition.workspace = true
 
-license = "Apache-2.0"
+license.workspace = true
 readme = "README.md"
-repository = "https://github.com/paritytech/ink"
+repository.workspace = true
 documentation = "https://docs.rs/ink_macro/"
-homepage = "https://www.parity.io/"
+homepage.workspace = true
 description = "[ink!] Rust based eDSL for writing smart contracts for Substrate"
-keywords = ["wasm", "parity", "webassembly", "blockchain", "edsl"]
-categories = ["no-std", "embedded"]
+keywords.workspace = true
+categories.workspace = true
 include = ["Cargo.toml", "src/**/*.rs", "README.md", "LICENSE"]
 
 [dependencies]
-ink_ir = { version = "4.0.1", path = "../ir", default-features = false }
-ink_codegen = { version = "4.0.1", path = "../codegen", default-features = false }
-ink_primitives = { version = "4.0.1", path = "../../primitives/", default-features = false }
+ink_ir = { workspace = true }
+ink_codegen = { workspace = true }
+ink_primitives = { workspace = true }
 
-scale = { package = "parity-scale-codec", version = "3", default-features = false, features = ["derive"] }
-syn = "1"
-synstructure = "0.12.6"
-proc-macro2 = "1"
-quote = "1"
+scale = { package = "parity-scale-codec", workspace = true }
+syn = { workspace = true }
+synstructure = { workspace = true }
+proc-macro2 = { workspace = true }
+quote = { workspace = true }
 
 [dev-dependencies]
-ink_env = { path = "../../env" }
-ink = { path = ".." }
-ink_metadata = { path = "../../metadata" }
-ink_prelude = { path = "../../prelude" }
-ink_storage = { path = "../../storage" }
-scale-info = { version = "2.3", default-features = false, features = ["derive"] }
+ink_env = { workspace = true, default-features = true }
+ink = { path = "..", default-features = true }
+ink_metadata = { workspace = true, default-features = true }
+ink_prelude = { workspace = true, default-features = true }
+ink_storage = { workspace = true, default-features = true }
+scale-info = { workspace = true, features = ["derive"] }
 
 [lib]
 name = "ink_macro"

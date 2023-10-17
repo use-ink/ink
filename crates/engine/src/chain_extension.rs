@@ -1,4 +1,4 @@
-// Copyright 2018-2022 Parity Technologies (UK) Ltd.
+// Copyright (C) Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -48,7 +48,8 @@ pub trait ChainExtension {
 
     /// Calls the chain extension with the given input.
     ///
-    /// Returns an error code and may fill the `output` buffer with a SCALE encoded result.
+    /// Returns an error code and may fill the `output` buffer with a SCALE encoded
+    /// result.
     #[allow(clippy::ptr_arg)]
     fn call(&mut self, input: &[u8], output: &mut Vec<u8>) -> u32;
 }

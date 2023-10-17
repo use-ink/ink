@@ -1,0 +1,5 @@
+error: conditional compilation is not allowed for event fields
+ --> tests/ui/event/fail/cfg_attr_on_topic.rs:3:5
+  |
+3 |     #[cfg(feature = "std")]
+  |     ^

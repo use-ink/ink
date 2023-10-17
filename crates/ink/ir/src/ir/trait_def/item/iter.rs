@@ -1,4 +1,4 @@
-// Copyright 2018-2022 Parity Technologies (UK) Ltd.
+// Copyright (C) Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -27,7 +27,8 @@ pub struct IterInkTraitItemsRaw<'a> {
 }
 
 impl<'a> IterInkTraitItemsRaw<'a> {
-    /// Creates a new iterator yielding ink! trait items over the raw Rust trait definition.
+    /// Creates a new iterator yielding ink! trait items over the raw Rust trait
+    /// definition.
     pub(super) fn from_raw(item_trait: &'a syn::ItemTrait) -> Self {
         Self {
             iter: item_trait.items.iter(),
@@ -42,8 +43,8 @@ impl<'a> Iterator for IterInkTraitItemsRaw<'a> {
         'outer: loop {
             match self.iter.next() {
                 None => return None,
-                Some(syn::TraitItem::Method(method)) => {
-                    let first_attr = ir::first_ink_attribute(&method.attrs)
+                Some(syn::TraitItem::Fn(function)) => {
+                    let first_attr = ir::first_ink_attribute(&function.attrs)
                         .ok()
                         .flatten()
                         .expect("unexpected missing ink! attribute for trait method")
@@ -53,7 +54,7 @@ impl<'a> Iterator for IterInkTraitItemsRaw<'a> {
                     match first_attr {
                         ir::AttributeArg::Message => {
                             return Some(InkTraitItem::Message(InkTraitMessage::new(
-                                method,
+                                function,
                             )))
                         }
                         _ => continue 'outer,
