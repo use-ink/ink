@@ -420,8 +420,6 @@ contract-sizes:
   rules:
     - if: $CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_REF_NAME != "master"
   variables:
-    # Fix for linking of `linkme` for `cargo contract build`: https://github.com/dtolnay/linkme/issues/49
-    RUSTFLAGS: "-Clink-arg=-z -Clink-arg=nostart-stop-gc"
     MEASUREMENTS_DIR: ${CI_PROJECT_DIR}/../ink-ci-measurements
     SCRIPTS_DIR: ${CI_PROJECT_DIR}/scripts
     PR_BRANCH_CONTRACT_SIZES: ${MEASUREMENTS_DIR}/${CI_COMMIT_BRANCH}_contract_sizes
