@@ -65,7 +65,7 @@ impl<AccountId, Balance, CodeHash, DispatchError> From<ContractExecResult<Balanc
 /// Dummy error type for drink!
 ///
 /// todo: https://github.com/Cardinal-Cryptography/drink/issues/32
-#[derive(Debug, Default)]
+#[derive(Debug)]
 pub struct DrinkErr;
 
 impl<AccountId, Balance> From<ContractInstantiateResult<AccountId, Balance, ()>>

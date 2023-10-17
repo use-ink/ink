@@ -160,7 +160,7 @@ where
         let call = subxt::dynamic::tx(pallet_name, call_name, call_data);
         let encoded_call = call
             .encode_call_data(&metadata.into())
-            .map_err(|_| DrinkErr::default())?;
+            .map_err(|_| DrinkErr)?;
 
         // Decode the call object.
         // Panic on error - we just encoded a validated call object, so it should be
@@ -174,7 +174,7 @@ where
                 decoded_call,
                 Runtime::convert_account_to_origin(keypair_to_account(origin)),
             )
-            .map_err(|_| DrinkErr::default())?;
+            .map_err(|_| DrinkErr)?;
 
         Ok(())
     }
@@ -215,7 +215,7 @@ where
         let account_id_raw = match &result.result {
             Err(err) => {
                 log_error(&format!("Instantiation failed: {err:?}"));
-                return Err(DrinkErr::default()) // todo: make a proper error type
+                return Err(DrinkErr) // todo: make a proper error type
             }
             Ok(res) => *res.account_id.as_ref(),
         };
@@ -288,7 +288,7 @@ where
             Ok(result) => result,
             Err(err) => {
                 log_error(&format!("Upload failed: {err:?}"));
-                return Err(DrinkErr::default()) // todo: make a proper error type
+                return Err(DrinkErr) // todo: make a proper error type
             }
         };
 
@@ -339,7 +339,7 @@ where
             .result
             .is_err()
         {
-            return Err(DrinkErr::default())
+            return Err(DrinkErr)
         }
 
         Ok(())
