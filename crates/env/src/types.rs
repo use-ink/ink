@@ -117,7 +117,7 @@ cfg_if::cfg_if! {
 }
 
 /// The environmental types usable by contracts defined with ink!.
-pub trait Environment {
+pub trait Environment: Clone {
     /// The maximum number of supported event topics provided by the runtime.
     ///
     /// The value must match the maximum number of supported event topics of the used

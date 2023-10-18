@@ -77,28 +77,30 @@ mod contract_ref {
             mut client: Client,
         ) -> E2EResult<()> {
             let flipper_hash = client
-                .upload("integration_flipper", &ink_e2e::alice(), None)
+                .upload("integration_flipper", &ink_e2e::alice())
+                .submit()
                 .await
                 .expect("uploading `flipper` failed")
                 .code_hash;
 
-            let constructor = ContractRefRef::new(0, flipper_hash);
+            let mut constructor = ContractRefRef::new(0, flipper_hash);
             let contract_ref = client
-                .instantiate("contract_ref", &ink_e2e::alice(), constructor, 0, None)
+                .instantiate("contract_ref", &ink_e2e::alice(), &mut constructor)
+                .submit()
                 .await
                 .expect("instantiate failed");
             let mut call = contract_ref.call::<ContractRef>();
 
             let get_check = call.get_check();
-            let get_call_result = client
-                .call_dry_run(&ink_e2e::alice(), &get_check, 0, None)
-                .await;
+            let get_call_result =
+                client.call(&ink_e2e::alice(), &get_check).dry_run().await;
 
             let initial_value = get_call_result.return_value();
 
             let flip_check = call.flip_check();
             let flip_call_result = client
-                .call(&ink_e2e::alice(), &flip_check, 0, None)
+                .call(&ink_e2e::alice(), &flip_check)
+                .submit()
                 .await
                 .expect("Calling `flip` failed");
             assert!(
@@ -106,9 +108,8 @@ mod contract_ref {
                 "Messages now return a `Result`, which should be `Ok` here."
             );
 
-            let get_call_result = client
-                .call_dry_run(&ink_e2e::alice(), &get_check, 0, None)
-                .await;
+            let get_call_result =
+                client.call(&ink_e2e::alice(), &get_check).dry_run().await;
             let flipped_value = get_call_result.return_value();
             assert!(flipped_value != initial_value);
 
@@ -120,23 +121,24 @@ mod contract_ref {
             mut client: Client,
         ) -> E2EResult<()> {
             let flipper_hash = client
-                .upload("integration_flipper", &ink_e2e::bob(), None)
+                .upload("integration_flipper", &ink_e2e::bob())
+                .submit()
                 .await
                 .expect("uploading `flipper` failed")
                 .code_hash;
 
             let succeed = true;
-            let constructor = ContractRefRef::try_new(0, flipper_hash, succeed);
+            let mut constructor = ContractRefRef::try_new(0, flipper_hash, succeed);
             let contract_ref = client
-                .instantiate("contract_ref", &ink_e2e::bob(), constructor, 0, None)
+                .instantiate("contract_ref", &ink_e2e::bob(), &mut constructor)
+                .submit()
                 .await
                 .expect("instantiate failed");
             let mut call = contract_ref.call::<ContractRef>();
 
             let get_check = call.get_check();
-            let get_call_result = client
-                .call_dry_run(&ink_e2e::bob(), &get_check, 0, None)
-                .await;
+            let get_call_result =
+                client.call(&ink_e2e::bob(), &get_check).dry_run().await;
             let initial_value = get_call_result.return_value();
 
             assert!(initial_value);
@@ -149,15 +151,17 @@ mod contract_ref {
             mut client: Client,
         ) -> E2EResult<()> {
             let flipper_hash = client
-                .upload("integration_flipper", &ink_e2e::charlie(), None)
+                .upload("integration_flipper", &ink_e2e::charlie())
+                .submit()
                 .await
                 .expect("uploading `flipper` failed")
                 .code_hash;
 
             let succeed = false;
-            let constructor = ContractRefRef::try_new(0, flipper_hash, succeed);
+            let mut constructor = ContractRefRef::try_new(0, flipper_hash, succeed);
             let instantiate_result = client
-                .instantiate("contract_ref", &ink_e2e::charlie(), constructor, 0, None)
+                .instantiate("contract_ref", &ink_e2e::charlie(), &mut constructor)
+                .submit()
                 .await;
 
             assert!(

@@ -14,11 +14,15 @@
 
 use super::Keypair;
 use crate::{
+    backend_calls::{
+        InstantiateBuilder,
+        UploadBuilder,
+    },
     builders::CreateBuilderPartial,
+    contract_results::BareInstantiationResult,
+    CallBuilder,
     CallBuilderFinal,
     CallDryRunResult,
-    CallResult,
-    InstantiationResult,
     UploadResult,
 };
 use ink_env::{
@@ -27,12 +31,17 @@ use ink_env::{
 };
 use jsonrpsee::core::async_trait;
 use pallet_contracts_primitives::ContractInstantiateResult;
+use scale::{
+    Decode,
+    Encode,
+};
+use sp_weights::Weight;
 use subxt::dynamic::Value;
 
 /// Full E2E testing backend: combines general chain API and contract-specific operations.
 #[async_trait]
 pub trait E2EBackend<E: Environment = DefaultEnvironment>:
-    ChainBackend + ContractsBackend<E>
+    ChainBackend + BuilderClient<E>
 {
 }
 
@@ -42,7 +51,7 @@ pub trait ChainBackend {
     /// Account type.
     type AccountId;
     /// Balance type.
-    type Balance: Send;
+    type Balance: Send + From<u32>;
     /// Error type.
     type Error;
     /// Event log type.
@@ -92,59 +101,111 @@ pub trait ContractsBackend<E: Environment> {
     type Error;
     /// Event log type.
     type EventLog;
-
-    /// The function subsequently uploads and instantiates an instance of the contract.
+    /// Start building an instantiate call using a builder pattern.
     ///
-    /// This function extracts the metadata of the contract at the file path
-    /// `target/ink/$contract_name.contract`.
+    /// # Example
     ///
-    /// Calling this function multiple times should be idempotent, the contract is
-    /// newly instantiated each time using a unique salt. No existing contract
-    /// instance is reused!
-    async fn instantiate<Contract, Args: Send + scale::Encode, R>(
-        &mut self,
-        contract_name: &str,
-        caller: &Keypair,
-        constructor: CreateBuilderPartial<E, Contract, Args, R>,
-        value: E::Balance,
-        storage_deposit_limit: Option<E::Balance>,
-    ) -> Result<InstantiationResult<E, Self::EventLog>, Self::Error>;
+    /// ```ignore
+    /// // Constructor method
+    /// let mut constructor = FlipperRef::new(false);
+    /// let contract = client
+    ///     .instantiate("flipper", &ink_e2e::alice(), &mut constructor)
+    ///     // Optional arguments
+    ///     // Send 100 units with the call.
+    ///     .value(100)
+    ///     // Add 10% margin to the gas limit
+    ///     .extra_gas_portion(10)
+    ///     .storage_deposit_limit(100)
+    ///     // Submit the call for on-chain execution.
+    ///     .submit()
+    ///     .await
+    ///     .expect("instantiate failed");
+    /// ```
+    fn instantiate<'a, Contract: Clone, Args: Send + Clone + Encode + Sync, R>(
+        &'a mut self,
+        contract_name: &'a str,
+        caller: &'a Keypair,
+        constructor: &'a mut CreateBuilderPartial<E, Contract, Args, R>,
+    ) -> InstantiateBuilder<'a, E, Contract, Args, R, Self>
+    where
+        Self: Sized + BuilderClient<E>,
+    {
+        InstantiateBuilder::new(self, caller, contract_name, constructor)
+    }
 
-    /// Dry run contract instantiation.
-    async fn instantiate_dry_run<Contract, Args: Send + scale::Encode, R>(
-        &mut self,
-        contract_name: &str,
-        caller: &Keypair,
-        constructor: CreateBuilderPartial<E, Contract, Args, R>,
-        value: E::Balance,
-        storage_deposit_limit: Option<E::Balance>,
-    ) -> ContractInstantiateResult<E::AccountId, E::Balance, ()>;
-
-    /// The function subsequently uploads and instantiates an instance of the contract.
+    /// Start building an upload call.
+    /// # Example
     ///
-    /// This function extracts the Wasm of the contract for the specified contract.
-    ///
-    /// Calling this function multiple times should be idempotent, the contract is
-    /// newly instantiated each time using a unique salt. No existing contract
-    /// instance is reused!
-    async fn upload(
-        &mut self,
-        contract_name: &str,
-        caller: &Keypair,
-        storage_deposit_limit: Option<E::Balance>,
-    ) -> Result<UploadResult<E, Self::EventLog>, Self::Error>;
+    /// ```ignore
+    /// let contract = client
+    ///     .upload("flipper", &ink_e2e::alice())
+    ///     // Optional arguments
+    ///     .storage_deposit_limit(100)
+    ///     // Submit the call for on-chain execution.
+    ///     .submit()
+    ///     .await
+    ///     .expect("upload failed");
+    /// ```
+    fn upload<'a>(
+        &'a mut self,
+        contract_name: &'a str,
+        caller: &'a Keypair,
+    ) -> UploadBuilder<E, Self>
+    where
+        Self: Sized + BuilderClient<E>,
+    {
+        UploadBuilder::new(self, contract_name, caller)
+    }
 
-    /// Executes a `call` for the contract at `account_id`.
+    /// Start building a call using a builder pattern.
+    ///
+    /// # Example
+    ///
+    /// ```ignore
+    /// // Message method
+    /// let get = call.get();
+    /// let get_res = client
+    ///    .call(&ink_e2e::bob(), &get)
+    ///     // Optional arguments
+    ///     // Send 100 units with the call.
+    ///     .value(100)
+    ///     // Add 10% margin to the gas limit
+    ///     .extra_gas_portion(10)
+    ///     .storage_deposit_limit(100)
+    ///     // Submit the call for on-chain execution.
+    ///     .submit()
+    ///     .await
+    ///     .expect("instantiate failed");
+    /// ```
+    fn call<'a, Args: Sync + Encode + Clone, RetType: Send + Decode>(
+        &'a mut self,
+        caller: &'a Keypair,
+        message: &'a CallBuilderFinal<E, Args, RetType>,
+    ) -> CallBuilder<'a, E, Args, RetType, Self>
+    where
+        Self: Sized + BuilderClient<E>,
+    {
+        CallBuilder::new(self, caller, message)
+    }
+}
+
+#[async_trait]
+pub trait BuilderClient<E: Environment>: ContractsBackend<E> {
+    /// Executes a bare `call` for the contract at `account_id`. This function does
+    /// perform a dry-run, and user is expected to provide the gas limit.
+    ///
+    /// Use it when you want to have a more precise control over submitting extrinsic.
     ///
     /// Returns when the transaction is included in a block. The return value
     /// contains all events that are associated with this transaction.
-    async fn call<Args: Sync + scale::Encode, RetType: Send + scale::Decode>(
+    async fn bare_call<Args: Sync + Encode + Clone, RetType: Send + Decode>(
         &mut self,
         caller: &Keypair,
         message: &CallBuilderFinal<E, Args, RetType>,
         value: E::Balance,
+        gas_limit: Weight,
         storage_deposit_limit: Option<E::Balance>,
-    ) -> Result<CallResult<E, RetType, Self::EventLog>, Self::Error>
+    ) -> Result<Self::EventLog, Self::Error>
     where
         CallBuilderFinal<E, Args, RetType>: Clone;
 
@@ -152,7 +213,7 @@ pub trait ContractsBackend<E: Environment> {
     ///
     /// Returns the result of the dry run, together with the decoded return value of the
     /// invoked message.
-    async fn call_dry_run<Args: Sync + scale::Encode, RetType: Send + scale::Decode>(
+    async fn bare_call_dry_run<Args: Sync + Encode + Clone, RetType: Send + Decode>(
         &mut self,
         caller: &Keypair,
         message: &CallBuilderFinal<E, Args, RetType>,
@@ -161,4 +222,55 @@ pub trait ContractsBackend<E: Environment> {
     ) -> CallDryRunResult<E, RetType>
     where
         CallBuilderFinal<E, Args, RetType>: Clone;
+
+    /// Uploads the contract call.
+    ///
+    /// This function extracts the Wasm of the contract for the specified contract.
+    ///
+    /// Calling this function multiple times should be idempotent, the contract is
+    /// newly instantiated each time using a unique salt. No existing contract
+    /// instance is reused!
+    async fn bare_upload(
+        &mut self,
+        contract_name: &str,
+        caller: &Keypair,
+        storage_deposit_limit: Option<E::Balance>,
+    ) -> Result<UploadResult<E, Self::EventLog>, Self::Error>;
+
+    /// Bare instantiate call. This function does not perform a dry-run,
+    /// and user is expected to provide the gas limit.
+    ///
+    /// Use it when you want to have a more precise control over submitting extrinsic.
+    ///
+    /// The function subsequently uploads and instantiates an instance of the contract.
+    ///
+    /// This function extracts the metadata of the contract at the file path
+    /// `target/ink/$contract_name.contract`.
+    ///
+    /// Calling this function multiple times should be idempotent, the contract is
+    /// newly instantiated each time using a unique salt. No existing contract
+    /// instance is reused!
+    async fn bare_instantiate<Contract: Clone, Args: Send + Sync + Encode + Clone, R>(
+        &mut self,
+        contract_name: &str,
+        caller: &Keypair,
+        constructor: &mut CreateBuilderPartial<E, Contract, Args, R>,
+        value: E::Balance,
+        gas_limit: Weight,
+        storage_deposit_limit: Option<E::Balance>,
+    ) -> Result<BareInstantiationResult<E, Self::EventLog>, Self::Error>;
+
+    /// Dry run contract instantiation.
+    async fn bare_instantiate_dry_run<
+        Contract: Clone,
+        Args: Send + Sync + Encode + Clone,
+        R,
+    >(
+        &mut self,
+        contract_name: &str,
+        caller: &Keypair,
+        constructor: &mut CreateBuilderPartial<E, Contract, Args, R>,
+        value: E::Balance,
+        storage_deposit_limit: Option<E::Balance>,
+    ) -> ContractInstantiateResult<E::AccountId, E::Balance, ()>;
 }

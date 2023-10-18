@@ -155,15 +155,11 @@ mod runtime_call {
             mut client: Client,
         ) -> E2EResult<()> {
             // given
-            let constructor = RuntimeCallerRef::new();
+            let mut constructor = RuntimeCallerRef::new();
             let contract = client
-                .instantiate(
-                    "call-runtime",
-                    &ink_e2e::alice(),
-                    constructor,
-                    CONTRACT_BALANCE,
-                    None,
-                )
+                .instantiate("call-runtime", &ink_e2e::alice(), &mut constructor)
+                .value(CONTRACT_BALANCE)
+                .submit()
                 .await
                 .expect("instantiate failed");
             let mut call = contract.call::<RuntimeCaller>();
@@ -184,7 +180,8 @@ mod runtime_call {
                 call.transfer_through_runtime(receiver, TRANSFER_VALUE);
 
             let call_res = client
-                .call(&ink_e2e::alice(), &transfer_message, 0, None)
+                .call(&ink_e2e::alice(), &transfer_message)
+                .submit()
                 .await
                 .expect("call failed");
 
@@ -222,15 +219,11 @@ mod runtime_call {
             mut client: Client,
         ) -> E2EResult<()> {
             // given
-            let constructor = RuntimeCallerRef::new();
+            let mut constructor = RuntimeCallerRef::new();
             let contract = client
-                .instantiate(
-                    "call-runtime",
-                    &ink_e2e::alice(),
-                    constructor,
-                    CONTRACT_BALANCE,
-                    None,
-                )
+                .instantiate("call-runtime", &ink_e2e::alice(), &mut constructor)
+                .value(CONTRACT_BALANCE)
+                .submit()
                 .await
                 .expect("instantiate failed");
             let mut call = contract.call::<RuntimeCaller>();
@@ -242,7 +235,8 @@ mod runtime_call {
                 call.transfer_through_runtime(receiver, INSUFFICIENT_TRANSFER_VALUE);
 
             let call_res = client
-                .call_dry_run(&ink_e2e::alice(), &transfer_message, 0, None)
+                .call(&ink_e2e::alice(), &transfer_message)
+                .dry_run()
                 .await
                 .return_value();
 
@@ -261,15 +255,11 @@ mod runtime_call {
             mut client: Client,
         ) -> E2EResult<()> {
             // given
-            let constructor = RuntimeCallerRef::new();
+            let mut constructor = RuntimeCallerRef::new();
             let contract = client
-                .instantiate(
-                    "call-runtime",
-                    &ink_e2e::alice(),
-                    constructor,
-                    CONTRACT_BALANCE,
-                    None,
-                )
+                .instantiate("call-runtime", &ink_e2e::alice(), &mut constructor)
+                .value(CONTRACT_BALANCE)
+                .submit()
                 .await
                 .expect("instantiate failed");
             let mut call = contract.call::<RuntimeCaller>();
@@ -278,7 +268,8 @@ mod runtime_call {
             let transfer_message = call.call_nonexistent_extrinsic();
 
             let call_res = client
-                .call_dry_run(&ink_e2e::alice(), &transfer_message, 0, None)
+                .call(&ink_e2e::alice(), &transfer_message)
+                .dry_run()
                 .await;
 
             // then
