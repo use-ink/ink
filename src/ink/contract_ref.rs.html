@@ -218,6 +218,7 @@
 <a href="#218" id="218">218</a>
 <a href="#219" id="219">219</a>
 <a href="#220" id="220">220</a>
+<a href="#221" id="221">221</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -353,6 +354,7 @@
 ///     fn transfer(&amp;mut self, amount: u128, to: AccountId) -&gt; bool;
 /// }
 ///
+/// #[derive(Clone)]
 /// pub struct CustomEnv;
 ///
 /// impl ink_env::Environment for CustomEnv {

@@ -164,7 +164,8 @@ needs to be integrated into an <code>Environment</code> definition as shown belo
     Environment,
 };
 
-<span class="kw">pub enum </span>CustomEnvironment {}
+<span class="attr">#[derive(Clone)]
+</span><span class="kw">pub enum </span>CustomEnvironment {}
 
 <span class="kw">impl </span>Environment <span class="kw">for </span>CustomEnvironment {
     <span class="kw">const </span>MAX_EVENT_TOPICS: usize =

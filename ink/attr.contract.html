@@ -45,7 +45,8 @@ runtime     must be aligned with respect to SCALE encoding and semantics.</p>
 <p><strong>Usage Example:</strong></p>
 <p>Given a custom <code>Environment</code> implementation:</p>
 
-<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">pub struct </span>MyEnvironment;
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="attr">#[derive(Clone)]
+</span><span class="kw">pub struct </span>MyEnvironment;
 
 <span class="kw">impl </span>ink_env::Environment <span class="kw">for </span>MyEnvironment {
     <span class="kw">const </span>MAX_EVENT_TOPICS: usize = <span class="number">3</span>;

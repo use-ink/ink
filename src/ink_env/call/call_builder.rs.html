@@ -785,6 +785,7 @@
 <a href="#785" id="785">785</a>
 <a href="#786" id="786">786</a>
 <a href="#787" id="787">787</a>
+<a href="#788" id="788">788</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -1166,6 +1167,7 @@
 }
 
 <span class="doccomment">/// The `delegatecall` call type. Performs a call with the given code hash.
+</span><span class="attr">#[derive(Clone)]
 </span><span class="kw">pub struct </span>DelegateCall&lt;E: Environment&gt; {
     code_hash: E::Hash,
 }

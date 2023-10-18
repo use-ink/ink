@@ -341,7 +341,7 @@
 }
 
 <span class="doccomment">/// The environmental types usable by contracts defined with ink!.
-</span><span class="kw">pub trait </span>Environment {
+</span><span class="kw">pub trait </span>Environment: Clone {
     <span class="doccomment">/// The maximum number of supported event topics provided by the runtime.
     ///
     /// The value must match the maximum number of supported event topics of the used

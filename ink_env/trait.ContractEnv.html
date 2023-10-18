@@ -33,8 +33,8 @@ issue the ink! smart contract as follows:</p>
 </span><span class="kw">const _</span>: IsSameType&lt;&lt;Contract <span class="kw">as </span>ContractEnv&gt;::Env&gt; =
     &lt;IsSameType&lt;ink_env::DefaultEnvironment&gt;&gt;::new();</code></pre></div>
 <h2 id="usage-custom-environment"><a href="#usage-custom-environment">Usage: Custom Environment</a></h2>
-<div class="example-wrap"><pre class="rust rust-example-rendered"><code>
-<span class="kw">pub struct </span>CustomEnvironment {}
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="attr">#[derive(Clone)]
+</span><span class="kw">pub struct </span>CustomEnvironment {}
 
 <span class="kw">impl </span>Environment <span class="kw">for </span>CustomEnvironment {
     <span class="kw">const </span>MAX_EVENT_TOPICS: usize = <span class="number">4</span>;

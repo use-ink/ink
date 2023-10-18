@@ -1588,6 +1588,10 @@
 <a href="#1588" id="1588">1588</a>
 <a href="#1589" id="1589">1589</a>
 <a href="#1590" id="1590">1590</a>
+<a href="#1591" id="1591">1591</a>
+<a href="#1592" id="1592">1592</a>
+<a href="#1593" id="1593">1593</a>
+<a href="#1594" id="1594">1594</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -1750,6 +1754,7 @@
 ///
 ///     Given a custom `Environment` implementation:
 ///     ```
+///     #[derive(Clone)]
 ///     pub struct MyEnvironment;
 ///
 ///     impl ink_env::Environment for MyEnvironment {
@@ -1767,6 +1772,7 @@
 ///     ```
 ///     #[ink::contract(env = MyEnvironment)]
 ///     mod my_contract {
+///         # #[derive(Clone)]
 ///         # pub struct MyEnvironment;
 ///         #
 ///         # impl ink_env::Environment for MyEnvironment {
@@ -2695,7 +2701,7 @@
 /// #         panic!(&quot;encountered unexpected invalid SCALE encoding&quot;)
 /// #     }
 /// # }
-/// # #[derive(scale::Encode, scale::Decode, scale_info::TypeInfo)]
+/// # #[derive(scale::Encode, scale::Decode, scale_info::TypeInfo, Clone)]
 /// # pub enum Access {
 /// #     ReadWrite,
 /// #     ReadOnly,
@@ -2734,6 +2740,7 @@
 ///     Environment,
 /// };
 ///
+/// #[derive(Clone)]
 /// pub enum CustomEnvironment {}
 ///
 /// impl Environment for CustomEnvironment {
@@ -2858,7 +2865,7 @@
 /// #         panic!(&quot;encountered unexpected invalid SCALE encoding&quot;)
 /// #     }
 /// # }
-/// # #[derive(scale::Encode, scale::Decode, scale_info::TypeInfo)]
+/// # #[derive(scale::Encode, scale::Decode, scale_info::TypeInfo, Clone)]
 /// # pub enum Access {
 /// #     ReadWrite,
 /// #     ReadOnly,
@@ -2875,6 +2882,7 @@
 /// #         }
 /// #     }
 /// # }
+/// # #[derive(Clone)]
 /// # pub enum CustomEnvironment {}
 /// # impl ink_env::Environment for CustomEnvironment {
 /// #     const MAX_EVENT_TOPICS: usize =

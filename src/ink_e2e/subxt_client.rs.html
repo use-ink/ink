@@ -684,23 +684,6 @@
 <a href="#684" id="684">684</a>
 <a href="#685" id="685">685</a>
 <a href="#686" id="686">686</a>
-<a href="#687" id="687">687</a>
-<a href="#688" id="688">688</a>
-<a href="#689" id="689">689</a>
-<a href="#690" id="690">690</a>
-<a href="#691" id="691">691</a>
-<a href="#692" id="692">692</a>
-<a href="#693" id="693">693</a>
-<a href="#694" id="694">694</a>
-<a href="#695" id="695">695</a>
-<a href="#696" id="696">696</a>
-<a href="#697" id="697">697</a>
-<a href="#698" id="698">698</a>
-<a href="#699" id="699">699</a>
-<a href="#700" id="700">700</a>
-<a href="#701" id="701">701</a>
-<a href="#702" id="702">702</a>
-<a href="#703" id="703">703</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -732,11 +715,14 @@
     ContractsApi,
     Keypair,
 };
-<span class="kw">use </span><span class="kw">crate</span>::contract_results::{
-    CallDryRunResult,
-    CallResult,
-    InstantiationResult,
-    UploadResult,
+<span class="kw">use crate</span>::{
+    backend::BuilderClient,
+    contract_results::{
+        BareInstantiationResult,
+        CallDryRunResult,
+        CallResult,
+        UploadResult,
+    },
 };
 <span class="kw">use </span>ink_env::{
     call::{
@@ -754,6 +740,7 @@
     Decode,
     Encode,
 };
+<span class="kw">use </span>sp_weights::Weight;
 <span class="attr">#[cfg(feature = <span class="string">&quot;std&quot;</span>)]
 </span><span class="kw">use </span>std::fmt::Debug;
 <span class="kw">use </span>std::path::PathBuf;
@@ -834,46 +821,22 @@
     }
 
     <span class="doccomment">/// Executes an `instantiate_with_code` call and captures the resulting events.
-    </span><span class="kw">async fn </span>exec_instantiate&lt;Contract, Args, R&gt;(
+    </span><span class="kw">async fn </span>exec_instantiate(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         signer: <span class="kw-2">&amp;</span>Keypair,
         code: Vec&lt;u8&gt;,
-        constructor: CreateBuilderPartial&lt;E, Contract, Args, R&gt;,
+        data: Vec&lt;u8&gt;,
         value: E::Balance,
+        gas_limit: Weight,
         storage_deposit_limit: <span class="prelude-ty">Option</span>&lt;E::Balance&gt;,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;InstantiationResult&lt;E, ExtrinsicEvents&lt;C&gt;&gt;, Error&lt;E&gt;&gt;
-    <span class="kw">where
-        </span>Args: scale::Encode,
-    {
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;BareInstantiationResult&lt;E, ExtrinsicEvents&lt;C&gt;&gt;, Error&lt;E&gt;&gt; {
         <span class="kw">let </span>salt = salt();
-        <span class="kw">let </span>data = constructor_exec_input(constructor);
-
-        <span class="comment">// dry run the instantiate to calculate the gas limit
-        </span><span class="kw">let </span>dry_run = <span class="self">self
-            </span>.api
-            .instantiate_with_code_dry_run(
-                value,
-                storage_deposit_limit,
-                code.clone(),
-                data.clone(),
-                salt.clone(),
-                signer,
-            )
-            .<span class="kw">await</span>;
-        log_info(<span class="kw-2">&amp;</span><span class="macro">format!</span>(
-            <span class="string">&quot;instantiate dry run debug message: {:?}&quot;</span>,
-            String::from_utf8_lossy(<span class="kw-2">&amp;</span>dry_run.debug_message)
-        ));
-        log_info(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;instantiate dry run result: {:?}&quot;</span>, dry_run.result));
-        <span class="kw">if </span>dry_run.result.is_err() {
-            <span class="kw">return </span><span class="prelude-val">Err</span>(Error::&lt;E&gt;::InstantiateDryRun(dry_run))
-        }
 
         <span class="kw">let </span>tx_events = <span class="self">self
             </span>.api
             .instantiate_with_code(
                 value,
-                dry_run.gas_required.into(),
+                gas_limit.into(),
                 storage_deposit_limit,
                 code,
                 data.clone(),
@@ -916,8 +879,7 @@
         }
         <span class="kw">let </span>account_id = account_id.expect(<span class="string">&quot;cannot extract `account_id` from events&quot;</span>);
 
-        <span class="prelude-val">Ok</span>(InstantiationResult {
-            dry_run,
+        <span class="prelude-val">Ok</span>(BareInstantiationResult {
             <span class="comment">// The `account_id` must exist at this point. If the instantiation fails
             // the dry-run must already return that.
             </span>account_id,
@@ -1134,7 +1096,7 @@
 }
 
 <span class="attr">#[async_trait]
-</span><span class="kw">impl</span>&lt;C, E&gt; ContractsBackend&lt;E&gt; <span class="kw">for </span>Client&lt;C, E&gt;
+</span><span class="kw">impl</span>&lt;C, E&gt; BuilderClient&lt;E&gt; <span class="kw">for </span>Client&lt;C, E&gt;
 <span class="kw">where
     </span>C: subxt::Config + Send + Sync,
     C::AccountId: Clone
@@ -1152,50 +1114,42 @@
 
     E: Environment,
     E::AccountId: Debug + Send + Sync,
-    E::Balance: Clone
-        + Debug
-        + Send
-        + Sync
-        + TryFrom&lt;u128&gt;
-        + scale::HasCompact
-        + serde::Serialize,
+    E::Balance:
+        Clone + Debug + Send + Sync + From&lt;u128&gt; + scale::HasCompact + serde::Serialize,
     E::Hash: Debug + Send + scale::Encode,
 {
-    <span class="kw">type </span>Error = Error&lt;E&gt;;
-    <span class="kw">type </span>EventLog = ExtrinsicEvents&lt;C&gt;;
-
-    <span class="kw">async fn </span>instantiate&lt;Contract, Args: Send + Encode, R&gt;(
+    <span class="kw">async fn </span>bare_instantiate&lt;Contract: Clone, Args: Send + Sync + Encode + Clone, R&gt;(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         contract_name: <span class="kw-2">&amp;</span>str,
         caller: <span class="kw-2">&amp;</span>Keypair,
-        constructor: CreateBuilderPartial&lt;E, Contract, Args, R&gt;,
+        constructor: <span class="kw-2">&amp;mut </span>CreateBuilderPartial&lt;E, Contract, Args, R&gt;,
         value: E::Balance,
+        gas_limit: Weight,
         storage_deposit_limit: <span class="prelude-ty">Option</span>&lt;E::Balance&gt;,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;InstantiationResult&lt;E, <span class="self">Self</span>::EventLog&gt;, <span class="self">Self</span>::Error&gt; {
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;BareInstantiationResult&lt;E, <span class="self">Self</span>::EventLog&gt;, <span class="self">Self</span>::Error&gt; {
         <span class="kw">let </span>code = <span class="self">self</span>.contracts.load_code(contract_name);
+        <span class="kw">let </span>data = constructor_exec_input(constructor.clone());
         <span class="kw">let </span>ret = <span class="self">self
-            </span>.exec_instantiate::&lt;Contract, Args, R&gt;(
-                caller,
-                code,
-                constructor,
-                value,
-                storage_deposit_limit,
-            )
+            </span>.exec_instantiate(caller, code, data, value, gas_limit, storage_deposit_limit)
             .<span class="kw">await</span><span class="question-mark">?</span>;
         log_info(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;instantiated contract at {:?}&quot;</span>, ret.account_id));
         <span class="prelude-val">Ok</span>(ret)
     }
 
-    <span class="kw">async fn </span>instantiate_dry_run&lt;Contract, Args: Send + Encode, R&gt;(
+    <span class="kw">async fn </span>bare_instantiate_dry_run&lt;
+        Contract: Clone,
+        Args: Send + Sync + Encode + Clone,
+        R,
+    &gt;(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         contract_name: <span class="kw-2">&amp;</span>str,
         caller: <span class="kw-2">&amp;</span>Keypair,
-        constructor: CreateBuilderPartial&lt;E, Contract, Args, R&gt;,
+        constructor: <span class="kw-2">&amp;mut </span>CreateBuilderPartial&lt;E, Contract, Args, R&gt;,
         value: E::Balance,
         storage_deposit_limit: <span class="prelude-ty">Option</span>&lt;E::Balance&gt;,
     ) -&gt; ContractInstantiateResult&lt;E::AccountId, E::Balance, ()&gt; {
         <span class="kw">let </span>code = <span class="self">self</span>.contracts.load_code(contract_name);
-        <span class="kw">let </span>data = constructor_exec_input(constructor);
+        <span class="kw">let </span>data = constructor_exec_input(constructor.clone());
 
         <span class="self">self</span>.api
             .instantiate_with_code_dry_run(
@@ -1209,7 +1163,7 @@
             .<span class="kw">await
     </span>}
 
-    <span class="kw">async fn </span>upload(
+    <span class="kw">async fn </span>bare_upload(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         contract_name: <span class="kw-2">&amp;</span>str,
         caller: <span class="kw-2">&amp;</span>Keypair,
@@ -1223,13 +1177,14 @@
         <span class="prelude-val">Ok</span>(ret)
     }
 
-    <span class="kw">async fn </span>call&lt;Args: Sync + Encode, RetType: Send + Decode&gt;(
+    <span class="kw">async fn </span>bare_call&lt;Args: Sync + Encode + Clone, RetType: Send + Decode&gt;(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         caller: <span class="kw-2">&amp;</span>Keypair,
         message: <span class="kw-2">&amp;</span>CallBuilderFinal&lt;E, Args, RetType&gt;,
         value: E::Balance,
+        gas_limit: Weight,
         storage_deposit_limit: <span class="prelude-ty">Option</span>&lt;E::Balance&gt;,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;CallResult&lt;E, RetType, <span class="self">Self</span>::EventLog&gt;, <span class="self">Self</span>::Error&gt;
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::EventLog, <span class="self">Self</span>::Error&gt;
     <span class="kw">where
         </span>CallBuilderFinal&lt;E, Args, RetType&gt;: Clone,
     {
@@ -1237,18 +1192,12 @@
         <span class="kw">let </span>exec_input = Encode::encode(message.clone().params().exec_input());
         log_info(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;call: {:02X?}&quot;</span>, exec_input));
 
-        <span class="kw">let </span>dry_run = <span class="self">self</span>.call_dry_run(caller, message, value, <span class="prelude-val">None</span>).<span class="kw">await</span>;
-
-        <span class="kw">if </span>dry_run.exec_result.result.is_err() {
-            <span class="kw">return </span><span class="prelude-val">Err</span>(Error::&lt;E&gt;::CallDryRun(dry_run.exec_result))
-        }
-
         <span class="kw">let </span>tx_events = <span class="self">self
             </span>.api
             .call(
                 subxt::utils::MultiAddress::Id(account_id.clone()),
                 value,
-                dry_run.exec_result.gas_required.into(),
+                gas_limit.into(),
                 storage_deposit_limit,
                 exec_input,
                 caller,
@@ -1270,13 +1219,10 @@
             }
         }
 
-        <span class="prelude-val">Ok</span>(CallResult {
-            dry_run,
-            events: tx_events,
-        })
+        <span class="prelude-val">Ok</span>(tx_events)
     }
 
-    <span class="kw">async fn </span>call_dry_run&lt;Args: Sync + Encode, RetType: Send + Decode&gt;(
+    <span class="kw">async fn </span>bare_call_dry_run&lt;Args: Sync + Encode + Clone, RetType: Send + Decode&gt;(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         caller: <span class="kw-2">&amp;</span>Keypair,
         message: <span class="kw-2">&amp;</span>CallBuilderFinal&lt;E, Args, RetType&gt;,
@@ -1312,6 +1258,31 @@
     }
 }
 
+<span class="kw">impl</span>&lt;C, E&gt; ContractsBackend&lt;E&gt; <span class="kw">for </span>Client&lt;C, E&gt;
+<span class="kw">where
+    </span>C: subxt::Config + Send + Sync,
+    C::AccountId: Clone
+        + Debug
+        + Send
+        + Sync
+        + core::fmt::Display
+        + scale::Codec
+        + From&lt;sr25519::PublicKey&gt;
+        + serde::de::DeserializeOwned,
+    C::Address: From&lt;sr25519::PublicKey&gt;,
+    C::Signature: From&lt;sr25519::Signature&gt;,
+    C::Address: Send + Sync,
+
+    E: Environment,
+    E::AccountId: Debug + Send + Sync,
+    E::Balance:
+        Clone + Debug + Send + Sync + From&lt;u128&gt; + scale::HasCompact + serde::Serialize,
+    E::Hash: Debug + Send + scale::Encode,
+{
+    <span class="kw">type </span>Error = Error&lt;E&gt;;
+    <span class="kw">type </span>EventLog = ExtrinsicEvents&lt;C&gt;;
+}
+
 <span class="kw">impl</span>&lt;C, E&gt; E2EBackend&lt;E&gt; <span class="kw">for </span>Client&lt;C, E&gt;
 <span class="kw">where
     </span>C: subxt::Config + Send + Sync,
@@ -1326,17 +1297,12 @@
     C::Address: From&lt;sr25519::PublicKey&gt;,
     C::Signature: From&lt;sr25519::Signature&gt;,
     C::Address: Send + Sync,
-    &lt;C::ExtrinsicParams <span class="kw">as </span>ExtrinsicParams&lt;C&gt;&gt;::OtherParams: Default + Send + Sync,
+    &lt;&lt;C <span class="kw">as </span>subxt::Config&gt;::ExtrinsicParams <span class="kw">as </span>subxt::config::ExtrinsicParams&lt;C&gt;&gt;::OtherParams: Default + Send + Sync,
 
     E: Environment,
     E::AccountId: Debug + Send + Sync,
-    E::Balance: Clone
-        + Debug
-        + Send
-        + Sync
-        + TryFrom&lt;u128&gt;
-        + scale::HasCompact
-        + serde::Serialize,
+    E::Balance:
+        Clone + Debug + Send + Sync + From&lt;u128&gt; + scale::HasCompact + serde::Serialize,
     E::Hash: Debug + Send + scale::Encode,
 {
 }
