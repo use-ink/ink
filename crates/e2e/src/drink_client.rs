@@ -239,9 +239,9 @@ where
         let data = constructor_exec_input(constructor.clone());
         let result = self.sandbox.dry_run(|r| {
             r.deploy_contract(
-                data,
-                value,
                 code,
+                value,
+                data,
                 salt(),
                 keypair_to_account(caller),
                 DEFAULT_GAS_LIMIT,
