@@ -285,6 +285,7 @@ where
 }
 
 /// Builds up contract instantiations.
+#[derive(Clone)]
 pub struct CreateBuilder<
     E,
     ContractRef,

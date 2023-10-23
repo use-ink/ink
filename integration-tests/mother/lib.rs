@@ -108,7 +108,7 @@ mod mother {
     }
 
     /// Way to fail a contract execution.
-    #[derive(Debug, Eq, PartialEq)]
+    #[derive(Debug, Eq, PartialEq, Clone)]
     #[ink::scale_derive(Encode, Decode, TypeInfo)]
     pub enum Failure {
         Revert(String),

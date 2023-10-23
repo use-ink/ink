@@ -37,8 +37,9 @@ blake2 = { version = "0.10" }
 cargo_metadata = { version = "0.18.0" }
 cfg-if = { version = "1.0" }
 contract-build = { version = "3.2.0" }
+darling = { version = "0.20.3" }
 derive_more = { version = "0.99.17", default-features = false }
-drink = { version = "=0.1.9" }
+drink = { version = "=0.5.2" }
 either = { version = "1.5", default-features = false }
 funty = { version = "2.0.0" }
 heck = { version = "0.4.0" }
@@ -59,15 +60,15 @@ scale-decode = { version = "0.9.0", default-features = false }
 scale-encode = { version = "0.5.0", default-features = false }
 scale-info = { version = "2.6", default-features = false }
 schemars = { version = "0.8" }
-secp256k1 = { version = "0.27.0" }
+secp256k1 = { version = "0.28.0" }
 serde = { version = "1.0.137", default-features = false }
 serde_json = { version = "1.0.81" }
 sha2 = { version = "0.10" }
 sha3 = { version = "0.10" }
 static_assertions = { version = "1.1" }
-subxt = { version = "0.31.0" }
-subxt-metadata = { version = "0.31.0" }
-subxt-signer = { version = "0.31.0" }
+subxt = { version = "0.32.1" }
+subxt-metadata = { version = "0.32.1" }
+subxt-signer = { version = "0.32.1" }
 syn = { version = "2" }
 synstructure = { version = "0.13.0" }
 tokio = { version = "1.18.2" }
@@ -75,16 +76,16 @@ tracing = { version = "0.1.37" }
 tracing-subscriber = { version = "0.3.17" }
 trybuild = { version = "1.0.60" }
 wasm-instrument = { version = "0.4.0", features = ["sign_ext"] }
-which = { version = "4.4.0" }
+which = { version = "5.0.0" }
 xxhash-rust = { version = "0.8" }
 const_env = { version = "0.1"}
 
 # Substrate dependencies
-pallet-contracts-primitives = { version = "25.0.0", default-features = false }
-sp-core = { version = "22.0.0", default-features = false }
-sp-keyring = { version = "25.0.0", default-features = false }
-sp-runtime = { version = "25.0.0", default-features = false }
-sp-weights = { version = "21.0.0", default-features = false }
+pallet-contracts-primitives = { version = "26.0.0", default-features = false }
+sp-core = { version = "23.0.0", default-features = false }
+sp-keyring = { version = "26.0.0", default-features = false }
+sp-runtime = { version = "26.0.0", default-features = false }
+sp-weights = { version = "22.0.0", default-features = false }
 
 # Local dependencies
 ink = { version = "=5.0.0-alpha", path = "crates/ink", default-features = false }

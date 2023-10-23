@@ -323,13 +323,11 @@ impl ContractRef<'_> {
         self.contract
             .module()
             .impls()
-            .filter_map(|impl_block| {
+            .filter(|impl_block| {
                 // We are only interested in ink! trait implementation block.
-                impl_block
-                    .trait_path()
-                    .is_none()
-                    .then(|| self.generate_contract_inherent_impl(impl_block))
+                impl_block.trait_path().is_none()
             })
+            .map(|impl_block| self.generate_contract_inherent_impl(impl_block))
             .collect()
     }
 

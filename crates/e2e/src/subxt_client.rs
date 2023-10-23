@@ -29,11 +29,14 @@ use super::{
     ContractsApi,
     Keypair,
 };
-use crate::contract_results::{
-    CallDryRunResult,
-    CallResult,
-    InstantiationResult,
-    UploadResult,
+use crate::{
+    backend::BuilderClient,
+    contract_results::{
+        BareInstantiationResult,
+        CallDryRunResult,
+        CallResult,
+        UploadResult,
+    },
 };
 use ink_env::{
     call::{
@@ -51,6 +54,7 @@ use scale::{
     Decode,
     Encode,
 };
+use sp_weights::Weight;
 #[cfg(feature = "std")]
 use std::fmt::Debug;
 use std::path::PathBuf;
@@ -112,7 +116,7 @@ where
         From<sr25519::PublicKey> + scale::Codec + serde::de::DeserializeOwned + Debug,
     C::Address: From<sr25519::PublicKey>,
     C::Signature: From<sr25519::Signature>,
-    <C::ExtrinsicParams as ExtrinsicParams<C::Hash>>::OtherParams: Default,
+    <C::ExtrinsicParams as ExtrinsicParams<C>>::OtherParams: Default,
 
     E: Environment,
     E::AccountId: Debug,
@@ -121,56 +125,32 @@ where
 {
     /// Creates a new [`Client`] instance using a `subxt` client.
     pub async fn new<P: Into<PathBuf>>(
-        client: subxt::OnlineClient<C>,
+        client: subxt::backend::rpc::RpcClient,
         contracts: impl IntoIterator<Item = P>,
-    ) -> Self {
-        Self {
-            api: ContractsApi::new(client).await,
+    ) -> Result<Self, subxt::Error> {
+        Ok(Self {
+            api: ContractsApi::new(client).await?,
             contracts: ContractsRegistry::new(contracts),
-        }
+        })
     }
 
     /// Executes an `instantiate_with_code` call and captures the resulting events.
-    async fn exec_instantiate<Contract, Args, R>(
+    async fn exec_instantiate(
         &mut self,
         signer: &Keypair,
         code: Vec<u8>,
-        constructor: CreateBuilderPartial<E, Contract, Args, R>,
+        data: Vec<u8>,
         value: E::Balance,
+        gas_limit: Weight,
         storage_deposit_limit: Option<E::Balance>,
-    ) -> Result<InstantiationResult<E, ExtrinsicEvents<C>>, Error<E>>
-    where
-        Args: scale::Encode,
-    {
+    ) -> Result<BareInstantiationResult<E, ExtrinsicEvents<C>>, Error<E>> {
         let salt = salt();
-        let data = constructor_exec_input(constructor);
-
-        // dry run the instantiate to calculate the gas limit
-        let dry_run = self
-            .api
-            .instantiate_with_code_dry_run(
-                value,
-                storage_deposit_limit,
-                code.clone(),
-                data.clone(),
-                salt.clone(),
-                signer,
-            )
-            .await;
-        log_info(&format!(
-            "instantiate dry run debug message: {:?}",
-            String::from_utf8_lossy(&dry_run.debug_message)
-        ));
-        log_info(&format!("instantiate dry run result: {:?}", dry_run.result));
-        if dry_run.result.is_err() {
-            return Err(Error::<E>::InstantiateDryRun(dry_run))
-        }
 
         let tx_events = self
             .api
             .instantiate_with_code(
                 value,
-                dry_run.gas_required.into(),
+                gas_limit.into(),
                 storage_deposit_limit,
                 code,
                 data.clone(),
@@ -213,8 +193,7 @@ where
         }
         let account_id = account_id.expect("cannot extract `account_id` from events");
 
-        Ok(InstantiationResult {
-            dry_run,
+        Ok(BareInstantiationResult {
             // The `account_id` must exist at this point. If the instantiation fails
             // the dry-run must already return that.
             account_id,
@@ -306,7 +285,7 @@ where
     C::Address: From<sr25519::PublicKey>,
     C::Signature: From<sr25519::Signature>,
     C::Address: Send + Sync,
-    <C::ExtrinsicParams as ExtrinsicParams<C::Hash>>::OtherParams: Default + Send + Sync,
+    <C::ExtrinsicParams as ExtrinsicParams<C>>::OtherParams: Default + Send + Sync,
 
     E: Environment,
     E::AccountId: Debug + Send + Sync,
@@ -368,15 +347,13 @@ where
             ],
         );
 
+        let best_block = self.api.best_block().await;
+
         let account = self
             .api
             .client
             .storage()
-            .at_latest()
-            .await
-            .unwrap_or_else(|err| {
-                panic!("unable to fetch balance: {err:?}");
-            })
+            .at(best_block)
             .fetch_or_default(&account_addr)
             .await
             .unwrap_or_else(|err| {
@@ -433,7 +410,7 @@ where
 }
 
 #[async_trait]
-impl<C, E> ContractsBackend<E> for Client<C, E>
+impl<C, E> BuilderClient<E> for Client<C, E>
 where
     C: subxt::Config + Send + Sync,
     C::AccountId: Clone
@@ -447,54 +424,46 @@ where
     C::Address: From<sr25519::PublicKey>,
     C::Signature: From<sr25519::Signature>,
     C::Address: Send + Sync,
-    <C::ExtrinsicParams as ExtrinsicParams<C::Hash>>::OtherParams: Default + Send + Sync,
+    <C::ExtrinsicParams as ExtrinsicParams<C>>::OtherParams: Default + Send + Sync,
 
     E: Environment,
     E::AccountId: Debug + Send + Sync,
-    E::Balance: Clone
-        + Debug
-        + Send
-        + Sync
-        + TryFrom<u128>
-        + scale::HasCompact
-        + serde::Serialize,
+    E::Balance:
+        Clone + Debug + Send + Sync + From<u128> + scale::HasCompact + serde::Serialize,
     E::Hash: Debug + Send + scale::Encode,
 {
-    type Error = Error<E>;
-    type EventLog = ExtrinsicEvents<C>;
-
-    async fn instantiate<Contract, Args: Send + Encode, R>(
+    async fn bare_instantiate<Contract: Clone, Args: Send + Sync + Encode + Clone, R>(
         &mut self,
         contract_name: &str,
         caller: &Keypair,
-        constructor: CreateBuilderPartial<E, Contract, Args, R>,
+        constructor: &mut CreateBuilderPartial<E, Contract, Args, R>,
         value: E::Balance,
+        gas_limit: Weight,
         storage_deposit_limit: Option<E::Balance>,
-    ) -> Result<InstantiationResult<E, Self::EventLog>, Self::Error> {
+    ) -> Result<BareInstantiationResult<E, Self::EventLog>, Self::Error> {
         let code = self.contracts.load_code(contract_name);
+        let data = constructor_exec_input(constructor.clone());
         let ret = self
-            .exec_instantiate::<Contract, Args, R>(
-                caller,
-                code,
-                constructor,
-                value,
-                storage_deposit_limit,
-            )
+            .exec_instantiate(caller, code, data, value, gas_limit, storage_deposit_limit)
             .await?;
         log_info(&format!("instantiated contract at {:?}", ret.account_id));
         Ok(ret)
     }
 
-    async fn instantiate_dry_run<Contract, Args: Send + Encode, R>(
+    async fn bare_instantiate_dry_run<
+        Contract: Clone,
+        Args: Send + Sync + Encode + Clone,
+        R,
+    >(
         &mut self,
         contract_name: &str,
         caller: &Keypair,
-        constructor: CreateBuilderPartial<E, Contract, Args, R>,
+        constructor: &mut CreateBuilderPartial<E, Contract, Args, R>,
         value: E::Balance,
         storage_deposit_limit: Option<E::Balance>,
     ) -> ContractInstantiateResult<E::AccountId, E::Balance, ()> {
         let code = self.contracts.load_code(contract_name);
-        let data = constructor_exec_input(constructor);
+        let data = constructor_exec_input(constructor.clone());
 
         self.api
             .instantiate_with_code_dry_run(
@@ -508,7 +477,7 @@ where
             .await
     }
 
-    async fn upload(
+    async fn bare_upload(
         &mut self,
         contract_name: &str,
         caller: &Keypair,
@@ -522,13 +491,14 @@ where
         Ok(ret)
     }
 
-    async fn call<Args: Sync + Encode, RetType: Send + Decode>(
+    async fn bare_call<Args: Sync + Encode + Clone, RetType: Send + Decode>(
         &mut self,
         caller: &Keypair,
         message: &CallBuilderFinal<E, Args, RetType>,
         value: E::Balance,
+        gas_limit: Weight,
         storage_deposit_limit: Option<E::Balance>,
-    ) -> Result<CallResult<E, RetType, Self::EventLog>, Self::Error>
+    ) -> Result<Self::EventLog, Self::Error>
     where
         CallBuilderFinal<E, Args, RetType>: Clone,
     {
@@ -536,18 +506,12 @@ where
         let exec_input = Encode::encode(message.clone().params().exec_input());
         log_info(&format!("call: {:02X?}", exec_input));
 
-        let dry_run = self.call_dry_run(caller, message, value, None).await;
-
-        if dry_run.exec_result.result.is_err() {
-            return Err(Error::<E>::CallDryRun(dry_run.exec_result))
-        }
-
         let tx_events = self
             .api
             .call(
                 subxt::utils::MultiAddress::Id(account_id.clone()),
                 value,
-                dry_run.exec_result.gas_required.into(),
+                gas_limit.into(),
                 storage_deposit_limit,
                 exec_input,
                 caller,
@@ -569,13 +533,10 @@ where
             }
         }
 
-        Ok(CallResult {
-            dry_run,
-            events: tx_events,
-        })
+        Ok(tx_events)
     }
 
-    async fn call_dry_run<Args: Sync + Encode, RetType: Send + Decode>(
+    async fn bare_call_dry_run<Args: Sync + Encode + Clone, RetType: Send + Decode>(
         &mut self,
         caller: &Keypair,
         message: &CallBuilderFinal<E, Args, RetType>,
@@ -611,6 +572,31 @@ where
     }
 }
 
+impl<C, E> ContractsBackend<E> for Client<C, E>
+where
+    C: subxt::Config + Send + Sync,
+    C::AccountId: Clone
+        + Debug
+        + Send
+        + Sync
+        + core::fmt::Display
+        + scale::Codec
+        + From<sr25519::PublicKey>
+        + serde::de::DeserializeOwned,
+    C::Address: From<sr25519::PublicKey>,
+    C::Signature: From<sr25519::Signature>,
+    C::Address: Send + Sync,
+
+    E: Environment,
+    E::AccountId: Debug + Send + Sync,
+    E::Balance:
+        Clone + Debug + Send + Sync + From<u128> + scale::HasCompact + serde::Serialize,
+    E::Hash: Debug + Send + scale::Encode,
+{
+    type Error = Error<E>;
+    type EventLog = ExtrinsicEvents<C>;
+}
+
 impl<C, E> E2EBackend<E> for Client<C, E>
 where
     C: subxt::Config + Send + Sync,
@@ -625,17 +611,12 @@ where
     C::Address: From<sr25519::PublicKey>,
     C::Signature: From<sr25519::Signature>,
     C::Address: Send + Sync,
-    <C::ExtrinsicParams as ExtrinsicParams<C::Hash>>::OtherParams: Default + Send + Sync,
+    <<C as subxt::Config>::ExtrinsicParams as subxt::config::ExtrinsicParams<C>>::OtherParams: Default + Send + Sync,
 
     E: Environment,
     E::AccountId: Debug + Send + Sync,
-    E::Balance: Clone
-        + Debug
-        + Send
-        + Sync
-        + TryFrom<u128>
-        + scale::HasCompact
-        + serde::Serialize,
+    E::Balance:
+        Clone + Debug + Send + Sync + From<u128> + scale::HasCompact + serde::Serialize,
     E::Hash: Debug + Send + scale::Encode,
 {
 }

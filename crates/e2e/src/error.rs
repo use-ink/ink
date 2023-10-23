@@ -44,3 +44,40 @@ pub enum Error<AccountId, Balance, CodeHash, DispatchError> {
     /// Decoding failed.
     Decoding(String),
 }
+
+impl<AccountId, Balance, CodeHash, DispatchError>
+    From<ContractInstantiateResult<AccountId, Balance, ()>>
+    for Error<AccountId, Balance, CodeHash, DispatchError>
+{
+    fn from(value: ContractInstantiateResult<AccountId, Balance, ()>) -> Self {
+        Self::InstantiateDryRun(value)
+    }
+}
+
+impl<AccountId, Balance, CodeHash, DispatchError> From<ContractExecResult<Balance, ()>>
+    for Error<AccountId, Balance, CodeHash, DispatchError>
+{
+    fn from(value: ContractExecResult<Balance, ()>) -> Self {
+        Self::CallDryRun(value)
+    }
+}
+
+/// Dummy error type for drink!
+///
+/// todo: https://github.com/Cardinal-Cryptography/drink/issues/32
+#[derive(Debug)]
+pub struct DrinkErr;
+
+impl<AccountId, Balance> From<ContractInstantiateResult<AccountId, Balance, ()>>
+    for DrinkErr
+{
+    fn from(_value: ContractInstantiateResult<AccountId, Balance, ()>) -> Self {
+        Self {}
+    }
+}
+
+impl<Balance> From<ContractExecResult<Balance, ()>> for DrinkErr {
+    fn from(_value: ContractExecResult<Balance, ()>) -> Self {
+        Self {}
+    }
+}
