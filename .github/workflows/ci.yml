@@ -1,4 +1,4 @@
-name: ci
+name: continuous-integration
 
 on:
   pull_request:
@@ -21,6 +21,7 @@ on:
       - 'RELEASES_CHECKLIST.md'
 
 env:
+  CI_IMAGE:                        "paritytech/ci-unified:bullseye-1.73.0"
   PURELY_STD_CRATES:               "ink/codegen metadata engine e2e e2e/macro ink/ir"
   ALSO_WASM_CRATES:                "env storage storage/traits allocator prelude primitives ink ink/macro"
   ALL_CRATES:                      "${PURELY_STD_CRATES} ${ALSO_WASM_CRATES}"
@@ -33,6 +34,8 @@ env:
 jobs:
   spellcheck:
     runs-on: ubuntu-latest
+    container:
+      image: ${CI_IMAGE}
     strategy:
       fail-fast: false
 
@@ -116,6 +119,14 @@ jobs:
             cargo clippy --verbose --no-default-features --manifest-path ./crates/${crate}/Cargo.toml --target wasm32-unknown-unknown -- -D warnings -A ${CLIPPY_ALLOWED};
           done
 
+      - name: Run Clippy for Examples
+        run: |
+          scripts/for_all_contracts_exec.sh --path integration-tests -- cargo clippy --verbose --all-targets --manifest-path {} -- -D warnings -A $CLIPPY_ALLOWED
     
+      - name: Run Clippy for Examples
+        run: |
+          scripts/for_all_contracts_exec.sh --path integration-tests -- cargo clippy --verbose --all-targets --manifest-path {} -- -D warnings -A $CLIPPY_ALLOWED
+    
+        
 
 
