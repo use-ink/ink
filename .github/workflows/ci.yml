@@ -1,0 +1,121 @@
+name: ci
+
+on:
+  pull_request:
+  push:
+    branches:
+      - master
+    tags:
+      - v*
+    paths-ignore:
+      - 'README.md'
+      - 'CHANGELOG.md'
+      - 'ARCHITECTURE.md'
+      - 'CODEOWNERS'
+      - 'CONTRIBUTING.md'
+      - 'LICENSE'
+      - 'SECURITY.md'
+      - 'CODE_OF_CONDUCT.adoc'
+      - 'FILE_HEADER'
+      - 'MONTHLY_UPDATE.md'
+      - 'RELEASES_CHECKLIST.md'
+
+env:
+  PURELY_STD_CRATES:               "ink/codegen metadata engine e2e e2e/macro ink/ir"
+  ALSO_WASM_CRATES:                "env storage storage/traits allocator prelude primitives ink ink/macro"
+  ALL_CRATES:                      "${PURELY_STD_CRATES} ${ALSO_WASM_CRATES}"
+  # TODO `cargo clippy --verbose --all-targets --all-features` for this crate
+  # currently fails on `stable`, but succeeds on `nightly`. This is due to
+  # this fix not yet in stable: https://github.com/rust-lang/rust-clippy/issues/8895.
+  # Remove the following line again as soon as `clippy` on stable succeeds again.
+  CLIPPY_ALLOWED:                  "clippy::extra_unused_lifetimes"
+
+jobs:
+  spellcheck:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+
+    steps:
+      - name: Set up Rust environment
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+          override: true
+
+      - name: Checkout
+        uses: actions/checkout@v4
+      
+      - name: Install cargo-spellcheck
+        run: cargo install cargo-spellcheck
+
+      - name: Check Spelling
+        run: |
+          cargo spellcheck check -v --cfg=.config/cargo_spellcheck.toml --checkers hunspell --code 1 -- recursive .
+          cargo spellcheck check -v --cfg=.config/cargo_spellcheck.toml --checkers hunspell --code 1 -- recursive ./integration-tests/*
+
+  fmt:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+    steps:
+      - name: Install toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: nightly
+          default: true
+          components: rustfmt
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Check Formatting
+        run: |
+          cargo +nightly fmt --verbose --all -- --check
+          cargo +nightly fmt --verbose --all -- --check ./crates/ink/tests/ui/contract/{pass,fail}/*.rs
+          cargo +nightly fmt --verbose --all -- --check ./crates/ink/tests/ui/trait_def/{pass,fail}/*.rs
+
+      - name: Check Examples Formatting
+        run: |
+          scripts/for_all_contracts_exec.sh --path integration-tests -- cargo +nightly fmt --verbose --manifest-path {} -- --check
+          # This file is not a part of the cargo project, so it wouldn't be formatted the usual way
+          rustfmt +nightly --verbose --check ./integration-tests/psp22-extension/runtime/psp22-extension-example.rs
+
+  clippy:
+    runs-on: ubuntu-latest
+    permissions:
+      checks: write
+    strategy:
+      fail-fast: false
+    steps:
+      - name: Install toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+          default: true
+          components: clippy
+
+      - name: Cache
+        uses: Swatinem/rust-cache@v2
+
+      - name: Checkout
+        uses: actions/checkout@v4
+    
+      - name: Run Clippy
+        run: |
+          for crate in ${ALL_CRATES}; do
+            cargo clippy --verbose --all-targets --all-features --manifest-path ./crates/${crate}/Cargo.toml -- -D warnings -A ${CLIPPY_ALLOWED};
+          done
+  
+      - name: Run Clippy for WASM Crates
+        run: |
+          for crate in ${ALSO_WASM_CRATES}; do
+            cargo clippy --verbose --no-default-features --manifest-path ./crates/${crate}/Cargo.toml --target wasm32-unknown-unknown -- -D warnings -A ${CLIPPY_ALLOWED};
+          done
+
+    
+
+
