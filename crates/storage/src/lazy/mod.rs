@@ -135,6 +135,10 @@ where
     KeyType: StorageKey,
 {
     /// Reads the `value` from the contract storage, if it exists.
+    ///
+    /// # Panics
+    ///
+    /// Traps if the encoded `value` doesn't fit into the static buffer.
     pub fn get(&self) -> Option<V> {
         match ink_env::get_contract_storage::<Key, V>(&KeyType::KEY) {
             Ok(Some(value)) => Some(value),
@@ -161,6 +165,10 @@ where
     }
 
     /// Writes the given `value` to the contract storage.
+    ///
+    /// # Panics
+    ///
+    /// Traps if the encoded `value` doesn't fit into the static buffer.
     pub fn set(&mut self, value: &V) {
         ink_env::set_contract_storage::<Key, V>(&KeyType::KEY, value);
     }

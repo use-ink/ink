@@ -127,18 +127,15 @@ fn struct_works() {
                             NamedFields { a : __binding_0 , b : __binding_1 , d : __binding_2 , } => {
                                 {
                                     encoded_size = encoded_size
-                                        .checked_add(::ink::storage:: traits:: Storable:: encoded_size(__binding_0))
-                                        .unwrap();
+                                        .saturating_add(::ink::storage:: traits:: Storable:: encoded_size(__binding_0));
                                 }
                                 {
                                     encoded_size = encoded_size
-                                        .checked_add(::ink::storage::traits::Storable::encoded_size(__binding_1))
-                                        .unwrap();
+                                        .saturating_add(::ink::storage::traits::Storable::encoded_size(__binding_1));
                                 }
                                 {
                                     encoded_size = encoded_size
-                                        .checked_add(::ink::storage::traits::Storable::encoded_size(__binding_2))
-                                        .unwrap();
+                                        .saturating_add(::ink::storage::traits::Storable::encoded_size(__binding_2));
                                 }
                             }
                         }
@@ -197,8 +194,7 @@ fn one_variant_enum_works() {
                             OneVariantEnum::A => {
                                 {
                                     encoded_size = encoded_size
-                                        .checked_add(<::core::primitive::u8 as ::ink::storage::traits::Storable>::encoded_size(&0u8))
-                                        .unwrap();
+                                        .saturating_add(<::core::primitive::u8 as ::ink::storage::traits::Storable>::encoded_size(&0u8));
                                 }
                             }
                         }
@@ -309,42 +305,35 @@ fn enum_works() {
                             MixedEnum::A => {
                                 {
                                     encoded_size = encoded_size
-                                        .checked_add(<::core::primitive::u8 as ::ink::storage::traits::Storable>::encoded_size(&0u8))
-                                        .unwrap();
+                                        .saturating_add(<::core::primitive::u8 as ::ink::storage::traits::Storable>::encoded_size(&0u8));
                                 }
                             }
                             MixedEnum::B(__binding_0, __binding_1,) => {
                                 {
                                     encoded_size = encoded_size
-                                        .checked_add(<::core::primitive::u8 as ::ink::storage::traits::Storable>::encoded_size(&1u8))
-                                        .unwrap();
+                                        .saturating_add(<::core::primitive::u8 as ::ink::storage::traits::Storable>::encoded_size(&1u8));
                                 }
                                 {
                                     encoded_size = encoded_size
-                                        .checked_add(::ink::storage::traits::Storable::encoded_size(__binding_0))
-                                        .unwrap();
+                                        .saturating_add(::ink::storage::traits::Storable::encoded_size(__binding_0));
                                 }
                                 {
                                     encoded_size = encoded_size
-                                        .checked_add(::ink::storage::traits::Storable::encoded_size(__binding_1))
-                                        .unwrap();
+                                        .saturating_add(::ink::storage::traits::Storable::encoded_size(__binding_1));
                                 }
                             }
                             MixedEnum::C { a: __binding_0, b: __binding_1, } => {
                                 {
                                     encoded_size = encoded_size
-                                        .checked_add(<::core::primitive::u8 as ::ink::storage::traits::Storable>::encoded_size(&2u8))
-                                        .unwrap();
+                                        .saturating_add(<::core::primitive::u8 as ::ink::storage::traits::Storable>::encoded_size(&2u8));
                                 }
                                 {
                                     encoded_size = encoded_size
-                                        .checked_add(::ink::storage::traits::Storable::encoded_size(__binding_0))
-                                        .unwrap();
+                                        .saturating_add(::ink::storage::traits::Storable::encoded_size(__binding_0));
                                 }
                                 {
                                     encoded_size = encoded_size
-                                        .checked_add(::ink::storage::traits::Storable::encoded_size(__binding_1))
-                                        .unwrap();
+                                        .saturating_add(::ink::storage::traits::Storable::encoded_size(__binding_1));
                                 }
                             }
                         }
@@ -426,13 +415,11 @@ fn generic_struct_works() {
                             GenericStruct { a : __binding_0 , b : __binding_1 , } => {
                                 {
                                     encoded_size = encoded_size
-                                        .checked_add(::ink::storage::traits::Storable::encoded_size(__binding_0))
-                                        .unwrap();
+                                        .saturating_add(::ink::storage::traits::Storable::encoded_size(__binding_0));
                                 }
                                 {
                                     encoded_size = encoded_size
-                                        .checked_add(::ink::storage::traits::Storable::encoded_size(__binding_1))
-                                        .unwrap();
+                                        .saturating_add(::ink::storage::traits::Storable::encoded_size(__binding_1));
                                 }
                             }
                         }
@@ -532,35 +519,29 @@ fn generic_enum_works() {
                             GenericEnum::Tuple (__binding_0, __binding_1,) => {
                                 {
                                     encoded_size = encoded_size
-                                        .checked_add(<::core::primitive:: u8 as::ink::storage::traits::Storable>::encoded_size(&0u8))
-                                        .unwrap();
+                                        .saturating_add(<::core::primitive:: u8 as::ink::storage::traits::Storable>::encoded_size(&0u8));
                                 }
                                 {
                                     encoded_size = encoded_size
-                                        .checked_add(::ink::storage::traits::Storable::encoded_size(__binding_0))
-                                        .unwrap();
+                                        .saturating_add(::ink::storage::traits::Storable::encoded_size(__binding_0));
                                 }
                                 {
                                     encoded_size = encoded_size
-                                        .checked_add(::ink::storage::traits::Storable::encoded_size(__binding_1))
-                                        .unwrap();
+                                        .saturating_add(::ink::storage::traits::Storable::encoded_size(__binding_1));
                                 }
                             }
                             GenericEnum::Named { a: __binding_0, b: __binding_1,} => {
                                 {
                                     encoded_size = encoded_size
-                                        .checked_add(<::core::primitive::u8 as::ink::storage::traits::Storable>::encoded_size(&1u8))
-                                        .unwrap();
+                                        .saturating_add(<::core::primitive::u8 as::ink::storage::traits::Storable>::encoded_size(&1u8));
                                 }
                                 {
                                     encoded_size = encoded_size
-                                        .checked_add(::ink::storage::traits::Storable::encoded_size(__binding_0))
-                                        .unwrap();
+                                        .saturating_add(::ink::storage::traits::Storable::encoded_size(__binding_0));
                                 }
                                 {
                                     encoded_size = encoded_size
-                                        .checked_add(::ink::storage::traits::Storable::encoded_size(__binding_1))
-                                        .unwrap();
+                                        .saturating_add(::ink::storage::traits::Storable::encoded_size(__binding_1));
                                 }
                             }
                         }

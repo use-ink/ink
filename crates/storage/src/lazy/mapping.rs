@@ -135,6 +135,10 @@ where
     /// Insert the given `value` to the contract storage.
     ///
     /// Returns the size in bytes of the pre-existing value at the specified key if any.
+    ///
+    /// # Panics
+    ///
+    /// Traps if the encoded `value` doesn't fit into the static buffer.
     #[inline]
     pub fn insert<Q, R>(&mut self, key: Q, value: &R) -> Option<u32>
     where
@@ -169,6 +173,10 @@ where
     /// Get the `value` at `key` from the contract storage.
     ///
     /// Returns `None` if no `value` exists at the given `key`.
+    ///
+    /// # Panics
+    ///
+    /// Traps if the encoded `value` doesn't fit into the static buffer.
     #[inline]
     pub fn get<Q>(&self, key: Q) -> Option<V>
     where
@@ -206,6 +214,10 @@ where
     /// storage.
     ///
     /// Returns `None` if no `value` exists at the given `key`.
+    ///
+    /// # Panics
+    ///
+    /// Traps if the encoded `value` doesn't fit into the static buffer.
     ///
     /// # Warning
     ///

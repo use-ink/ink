@@ -40,8 +40,7 @@ fn storable_struct_derive(s: &synstructure::Structure) -> TokenStream2 {
         let span = binding.ast().ty.span();
         quote_spanned!(span =>
             encoded_size = encoded_size
-                .checked_add(::ink::storage::traits::Storable::encoded_size(#binding))
-                .unwrap();
+                .saturating_add(::ink::storage::traits::Storable::encoded_size(#binding));
         )
     });
 
@@ -133,16 +132,14 @@ fn storable_enum_derive(s: &synstructure::Structure) -> TokenStream2 {
             let span = field.ast().ty.span();
             quote_spanned!(span =>
                 encoded_size = encoded_size
-                    .checked_add(::ink::storage::traits::Storable::encoded_size(#field))
-                    .unwrap();
+                    .saturating_add(::ink::storage::traits::Storable::encoded_size(#field));
             )
         });
         quote! {
              #pat => {
                 {
                     encoded_size = encoded_size
-                        .checked_add(<::core::primitive::u8 as ::ink::storage::traits::Storable>::encoded_size(&#index))
-                        .unwrap();
+                        .saturating_add(<::core::primitive::u8 as ::ink::storage::traits::Storable>::encoded_size(&#index));
                 }
                  #(
                      { #fields }
