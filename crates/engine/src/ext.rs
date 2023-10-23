@@ -241,32 +241,26 @@ impl Engine {
     }
 
     /// Returns the decoded contract storage at the key if any.
-    pub fn get_storage(&mut self, key: &[u8], output: &mut &mut [u8]) -> Result {
+    pub fn get_storage(&mut self, key: &[u8]) -> core::result::Result<&[u8], Error> {
         let callee = self.get_callee();
         let account_id = AccountId::from_bytes(&callee[..]);
 
         self.debug_info.inc_reads(account_id);
         match self.database.get_from_contract_storage(&callee, key) {
-            Some(val) => {
-                set_output(output, val);
-                Ok(())
-            }
+            Some(val) => Ok(val),
             None => Err(Error::KeyNotFound),
         }
     }
 
     /// Removes the storage entries at the given key,
     /// returning previously stored value at the key if any.
-    pub fn take_storage(&mut self, key: &[u8], output: &mut &mut [u8]) -> Result {
+    pub fn take_storage(&mut self, key: &[u8]) -> core::result::Result<Vec<u8>, Error> {
         let callee = self.get_callee();
         let account_id = AccountId::from_bytes(&callee[..]);
 
         self.debug_info.inc_writes(account_id);
         match self.database.remove_contract_storage(&callee, key) {
-            Some(val) => {
-                set_output(output, &val);
-                Ok(())
-            }
+            Some(val) => Ok(val),
             None => Err(Error::KeyNotFound),
         }
     }
