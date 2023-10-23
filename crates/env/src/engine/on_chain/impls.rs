@@ -256,7 +256,7 @@ impl EnvBackend for EnvInstance {
             Err(ExtError::KeyNotFound) => return Ok(None),
             Err(_) => panic!("encountered unexpected error"),
         }
-        let decoded = decode_all(&mut &output[..])?; // todo: [AJ] test.
+        let decoded = decode_all(&mut &output[..])?;
         Ok(Some(decoded))
     }
 
