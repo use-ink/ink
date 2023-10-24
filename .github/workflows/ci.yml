@@ -73,14 +73,12 @@ jobs:
           cargo +nightly fmt --verbose --all -- --check
           cargo +nightly fmt --verbose --all -- --check ./crates/ink/tests/ui/contract/{pass,fail}/*.rs
           cargo +nightly fmt --verbose --all -- --check ./crates/ink/tests/ui/trait_def/{pass,fail}/*.rs
-        shell: bash
 
       - name: Check Examples Formatting
         run: |
           scripts/for_all_contracts_exec.sh --path integration-tests -- cargo +nightly fmt --verbose --manifest-path {} -- --check
           # This file is not a part of the cargo project, so it wouldn't be formatted the usual way
           rustfmt +nightly --verbose --check ./integration-tests/psp22-extension/runtime/psp22-extension-example.rs
-        shell: bash
 
   clippy:
     runs-on: ubuntu-latest
