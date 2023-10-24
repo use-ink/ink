@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":["AutoKey","ManualKey","ResolverKey"],"trait":["AutoStorableHint","Packed","Storable","StorableHint","StorageKey","StorageLayout"]};
+window.SIDEBAR_ITEMS = {"fn":["decode_all"],"struct":["AutoKey","ManualKey","ResolverKey"],"trait":["AutoStorableHint","Packed","Storable","StorableHint","StorageKey","StorageLayout"]};

@@ -621,7 +621,10 @@
     ext,
     ext::Engine,
 };
-<span class="kw">use </span>ink_storage_traits::Storable;
+<span class="kw">use </span>ink_storage_traits::{
+    decode_all,
+    Storable,
+};
 <span class="kw">use </span>schnorrkel::{
     PublicKey,
     Signature,
@@ -777,14 +780,14 @@
         </span>K: scale::Encode,
         R: Storable,
     {
-        <span class="kw">let </span><span class="kw-2">mut </span>output: [u8; <span class="number">9600</span>] = [<span class="number">0</span>; <span class="number">9600</span>];
-        <span class="kw">match </span><span class="self">self</span>.engine.get_storage(<span class="kw-2">&amp;</span>key.encode(), <span class="kw-2">&amp;mut &amp;mut </span>output[..]) {
-            <span class="prelude-val">Ok</span>(<span class="kw">_</span>) =&gt; (),
-            <span class="prelude-val">Err</span>(ext::Error::KeyNotFound) =&gt; <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>),
+        <span class="kw">match </span><span class="self">self</span>.engine.get_storage(<span class="kw-2">&amp;</span>key.encode()) {
+            <span class="prelude-val">Ok</span>(res) =&gt; {
+                <span class="kw">let </span>decoded = decode_all(<span class="kw-2">&amp;mut &amp;</span>res[..])<span class="question-mark">?</span>;
+                <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(decoded))
+            }
+            <span class="prelude-val">Err</span>(ext::Error::KeyNotFound) =&gt; <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>),
             <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="macro">panic!</span>(<span class="string">&quot;encountered unexpected error&quot;</span>),
         }
-        <span class="kw">let </span>decoded = Storable::decode(<span class="kw-2">&amp;mut &amp;</span>output[..])<span class="question-mark">?</span>;
-        <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(decoded))
     }
 
     <span class="kw">fn </span>take_contract_storage&lt;K, R&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, key: <span class="kw-2">&amp;</span>K) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;R&gt;&gt;
@@ -792,17 +795,14 @@
         </span>K: scale::Encode,
         R: Storable,
     {
-        <span class="kw">let </span><span class="kw-2">mut </span>output: [u8; <span class="number">9600</span>] = [<span class="number">0</span>; <span class="number">9600</span>];
-        <span class="kw">match </span><span class="self">self
-            </span>.engine
-            .take_storage(<span class="kw-2">&amp;</span>key.encode(), <span class="kw-2">&amp;mut &amp;mut </span>output[..])
-        {
-            <span class="prelude-val">Ok</span>(<span class="kw">_</span>) =&gt; (),
-            <span class="prelude-val">Err</span>(ext::Error::KeyNotFound) =&gt; <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>),
+        <span class="kw">match </span><span class="self">self</span>.engine.take_storage(<span class="kw-2">&amp;</span>key.encode()) {
+            <span class="prelude-val">Ok</span>(output) =&gt; {
+                <span class="kw">let </span>decoded = decode_all(<span class="kw-2">&amp;mut &amp;</span>output[..])<span class="question-mark">?</span>;
+                <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(decoded))
+            }
+            <span class="prelude-val">Err</span>(ext::Error::KeyNotFound) =&gt; <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>),
             <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="macro">panic!</span>(<span class="string">&quot;encountered unexpected error&quot;</span>),
         }
-        <span class="kw">let </span>decoded = Storable::decode(<span class="kw-2">&amp;mut &amp;</span>output[..])<span class="question-mark">?</span>;
-        <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(decoded))
     }
 
     <span class="kw">fn </span>contains_contract_storage&lt;K&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, key: <span class="kw-2">&amp;</span>K) -&gt; <span class="prelude-ty">Option</span>&lt;u32&gt;
