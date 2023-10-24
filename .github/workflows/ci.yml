@@ -149,6 +149,12 @@ jobs:
       checks: write
     strategy:
       fail-fast: false
+      matrix:
+        include:
+          - name: "Examples"
+            parameters: "--all-targets"
+          - name: "Wasm Examples"
+            parameters: "--no-default-features --target wasm32-unknown-unknown"
     steps:
       - name: Rust Info
         run: |
@@ -167,13 +173,9 @@ jobs:
         with:
           fetch-depth: 100
 
-      - name: Run Clippy for Examples
+      - name: Run Clippy for ${{ matrix.name }}
         run: |
-          scripts/for_all_contracts_exec.sh --path integration-tests -- cargo clippy --verbose --all-targets --manifest-path {} -- -D warnings -A $CLIPPY_ALLOWED
-    
-      - name: Run Clippy for WASM Examples
-        run: |
-          scripts/for_all_contracts_exec.sh --path integration-tests -- cargo clippy --verbose --manifest-path {} --no-default-features --target wasm32-unknown-unknown -- -D warnings -A $CLIPPY_ALLOWED
+          scripts/for_all_contracts_exec.sh --path integration-tests -- cargo clippy --verbose ${{ matrix.parameters}} --manifest-path {} -- -D warnings -A $CLIPPY_ALLOWED
   
   check:
     runs-on: ubuntu-latest
