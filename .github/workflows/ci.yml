@@ -9,6 +9,7 @@ on:
       - v*
     paths-ignore:
       - 'README.md'
+      - .gitlab-ci.yml
       - 'CHANGELOG.md'
       - 'ARCHITECTURE.md'
       - 'CODEOWNERS'
@@ -45,6 +46,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 100
 
       - name: Check Spelling
         run: |
@@ -52,6 +55,9 @@ jobs:
           cargo spellcheck check -v --cfg=.config/cargo_spellcheck.toml --checkers hunspell --code 1 -- recursive ./integration-tests/*
 
   fmt:
+    defaults:
+      run:
+        working-directory: ink
     runs-on: ubuntu-latest
     container:
       image: paritytech/ci-unified:bullseye-1.73.0
@@ -60,6 +66,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 100
 
       - name: Check Formatting
         run: |
@@ -87,6 +95,8 @@ jobs:
 
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 100
     
       - name: Run Clippy
         run: |
@@ -120,6 +130,8 @@ jobs:
 
     - name: Checkout
       uses: actions/checkout@v4
+      with:
+        fetch-depth: 100
 
     - name: Check
       run: |
@@ -150,6 +162,8 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v4
+      with:
+        fetch-depth: 100
 
     - name: Dylint
       run: |
