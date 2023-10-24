@@ -86,8 +86,6 @@ jobs:
 
       - name: Check Formatting
         run: |
-          pwd
-          ls -all
           cargo +nightly fmt --verbose --all -- --check
           cargo +nightly fmt --verbose --all -- --check ./crates/ink/tests/ui/contract/{pass,fail}/*.rs
           cargo +nightly fmt --verbose --all -- --check ./crates/ink/tests/ui/trait_def/{pass,fail}/*.rs
@@ -130,6 +128,7 @@ jobs:
       - name: Run Clippy
         run: |
           for crate in "${PURELY_STD_CRATES} ${ALSO_WASM_CRATES}"; do
+            echo "cargo clippy --verbose --all-targets --all-features --manifest-path ./crates/${crate}/Cargo.toml -- -D warnings -A ${CLIPPY_ALLOWED}"
             cargo clippy --verbose --all-targets --all-features --manifest-path ./crates/${crate}/Cargo.toml -- -D warnings -A ${CLIPPY_ALLOWED};
           done
   
@@ -177,6 +176,7 @@ jobs:
     - name: Check
       run: |
         for crate in  "${PURELY_STD_CRATES} ${ALSO_WASM_CRATES}"; do
+          echo "cargo check --verbose --all-features --manifest-path ./crates/${crate}/Cargo.toml"
           cargo check --verbose --all-features --manifest-path ./crates/${crate}/Cargo.toml;
         done
 
