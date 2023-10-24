@@ -129,7 +129,6 @@ jobs:
         run: |
           ALL_CRATES="${PURELY_STD_CRATES} ${ALSO_WASM_CRATES}"
           for crate in ${ALL_CRATES}; do
-            echo "cargo clippy --verbose --all-targets --all-features --manifest-path ./crates/${crate}/Cargo.toml -- -D warnings -A ${CLIPPY_ALLOWED}"
             cargo clippy --verbose --all-targets --all-features --manifest-path ./crates/${crate}/Cargo.toml -- -D warnings -A ${CLIPPY_ALLOWED};
           done
   
@@ -139,14 +138,43 @@ jobs:
             cargo clippy --verbose --no-default-features --manifest-path ./crates/${crate}/Cargo.toml --target wasm32-unknown-unknown -- -D warnings -A ${CLIPPY_ALLOWED};
           done
 
+  clippy-examples:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+    container:
+      image: paritytech/ci-unified:bullseye-1.73.0
+    permissions:
+      checks: write
+    strategy:
+      fail-fast: false
+    steps:
+      - name: Rust Info
+        run: |
+          rustup show
+          cargo --version
+          rustup +nightly show
+          cargo +nightly --version
+          cargo spellcheck --version
+          bash --version
+
+      - name: Cache
+        uses: Swatinem/rust-cache@v2
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 100
+
       - name: Run Clippy for Examples
         run: |
           scripts/for_all_contracts_exec.sh --path integration-tests -- cargo clippy --verbose --all-targets --manifest-path {} -- -D warnings -A $CLIPPY_ALLOWED
     
-      - name: Run Clippy for Examples
+      - name: Run Clippy for WASM Examples
         run: |
-          scripts/for_all_contracts_exec.sh --path integration-tests -- cargo clippy --verbose --all-targets --manifest-path {} -- -D warnings -A $CLIPPY_ALLOWED
-    
+          scripts/for_all_contracts_exec.sh --path integration-tests -- cargo clippy --verbose --manifest-path {} --no-default-features --target wasm32-unknown-unknown -- -D warnings -A $CLIPPY_ALLOWED
+  
   check:
     runs-on: ubuntu-latest
     defaults:
@@ -178,7 +206,6 @@ jobs:
       run: |
         ALL_CRATES="${PURELY_STD_CRATES} ${ALSO_WASM_CRATES}"
         for crate in ${ALL_CRATES}; do
-          echo "cargo check --verbose --all-features --manifest-path ./crates/${crate}/Cargo.toml"
           cargo check --verbose --all-features --manifest-path ./crates/${crate}/Cargo.toml;
         done
 
