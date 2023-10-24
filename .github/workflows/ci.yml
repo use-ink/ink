@@ -39,6 +39,9 @@ env:
 jobs:
   spellcheck:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
     container:
       image: paritytech/ci-unified:bullseye-1.73.0
     strategy:
@@ -56,6 +59,9 @@ jobs:
 
   fmt:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
     container:
       image: paritytech/ci-unified:bullseye-1.73.0
     strategy:
@@ -82,6 +88,9 @@ jobs:
 
   clippy:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
     container:
       image: paritytech/ci-unified:bullseye-1.73.0
     permissions:
@@ -119,6 +128,9 @@ jobs:
     
   check:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
     container:
       image: paritytech/ci-unified:bullseye-1.73.0
     strategy:
@@ -154,6 +166,9 @@ jobs:
 
   dylint:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
     container:
       image: paritytech/ci-unified:bullseye-1.73.0
     strategy:
