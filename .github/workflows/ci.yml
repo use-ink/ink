@@ -55,9 +55,6 @@ jobs:
           cargo spellcheck check -v --cfg=.config/cargo_spellcheck.toml --checkers hunspell --code 1 -- recursive ./integration-tests/*
 
   fmt:
-    defaults:
-      run:
-        working-directory: ink
     runs-on: ubuntu-latest
     container:
       image: paritytech/ci-unified:bullseye-1.73.0
@@ -71,6 +68,8 @@ jobs:
 
       - name: Check Formatting
         run: |
+          pwd
+          ls -all
           cargo +nightly fmt --verbose --all -- --check
           cargo +nightly fmt --verbose --all -- --check ./crates/ink/tests/ui/contract/{pass,fail}/*.rs
           cargo +nightly fmt --verbose --all -- --check ./crates/ink/tests/ui/trait_def/{pass,fail}/*.rs
@@ -170,10 +169,10 @@ jobs:
         cd linting/
         # we are using a toolchain file in this directory
         # add required components for CI
-        - rustup component add rustfmt clippy
-        - cargo check --verbose
-        - cargo +nightly fmt --verbose --all -- --check
-        - cargo clippy --verbose -- -D warnings;
+        rustup component add rustfmt clippy
+        cargo check --verbose
+        cargo +nightly fmt --verbose --all -- --check
+        cargo clippy --verbose -- -D warnings;
         # Needed until https://github.com/mozilla/sccache/issues/1000 is fixed.
-        - unset RUSTC_WRAPPER
-        - cargo test --verbose --all-features
+        unset RUSTC_WRAPPER
+        cargo test --verbose --all-features
