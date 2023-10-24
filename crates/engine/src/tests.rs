@@ -40,17 +40,16 @@ fn store_load_clear() {
     let mut engine = Engine::new();
     engine.set_callee(vec![1; 32]);
     let key: &[u8; 32] = &[0x42; 32];
-    let output = &mut &mut get_buffer()[..];
-    let res = engine.get_storage(key, output);
+    let res = engine.get_storage(key);
     assert_eq!(res, Err(Error::KeyNotFound));
 
     engine.set_storage(key, &[0x05_u8; 5]);
-    let res = engine.get_storage(key, output);
-    assert_eq!(res, Ok(()),);
-    assert_eq!(output[..5], [0x05; 5]);
+    let res = engine.get_storage(key);
+    assert!(res.is_ok());
+    assert_eq!(res.unwrap()[..5], [0x05; 5]);
 
     engine.clear_storage(key);
-    let res = engine.get_storage(key, output);
+    let res = engine.get_storage(key);
     assert_eq!(res, Err(Error::KeyNotFound));
 }
 
@@ -178,26 +177,6 @@ fn value_transferred() {
     let output = <u128 as scale::Decode>::decode(&mut &output[..16])
         .expect("decoding value transferred failed");
     assert_eq!(output, value);
-}
-
-#[test]
-#[should_panic(
-    expected = "the output buffer is too small! the decoded storage is of size 16 bytes, but the output buffer has only room for 8."
-)]
-fn must_panic_when_buffer_too_small() {
-    // given
-    let mut engine = Engine::new();
-    engine.set_callee(vec![1; 32]);
-    let key: &[u8; 32] = &[0x42; 32];
-    engine.set_storage(key, &[0x05_u8; 16]);
-
-    // when
-    let mut small_buffer = [0; 8];
-    let output = &mut &mut small_buffer[..];
-    let _ = engine.get_storage(key, output);
-
-    // then
-    unreachable!("`get_storage` must already have panicked");
 }
 
 #[test]
