@@ -8,18 +8,12 @@ on:
     tags:
       - v*
     paths-ignore:
-      - 'README.md'
+      - '**.md'
       - .gitlab-ci.yml
-      - 'CHANGELOG.md'
-      - 'ARCHITECTURE.md'
       - 'CODEOWNERS'
-      - 'CONTRIBUTING.md'
       - 'LICENSE'
-      - 'SECURITY.md'
       - 'CODE_OF_CONDUCT.adoc'
       - 'FILE_HEADER'
-      - 'MONTHLY_UPDATE.md'
-      - 'RELEASES_CHECKLIST.md'
 
 env:
   PURELY_STD_CRATES:               "ink/codegen metadata engine e2e e2e/macro ink/ir"
@@ -47,6 +41,15 @@ jobs:
     strategy:
       fail-fast: false
     steps:
+      - name: Rust Info
+        run: |
+          rustup show
+          cargo --version
+          rustup +nightly show
+          cargo +nightly --version
+          cargo spellcheck --version
+          bash --version
+
       - name: Checkout
         uses: actions/checkout@v4
         with:
@@ -67,6 +70,15 @@ jobs:
     strategy:
       fail-fast: false
     steps:
+      - name: Rust Info
+        run: |
+          rustup show
+          cargo --version
+          rustup +nightly show
+          cargo +nightly --version
+          cargo spellcheck --version
+          bash --version
+
       - name: Checkout
         uses: actions/checkout@v4
         with:
@@ -98,6 +110,15 @@ jobs:
     strategy:
       fail-fast: false
     steps:
+      - name: Rust Info
+        run: |
+          rustup show
+          cargo --version
+          rustup +nightly show
+          cargo +nightly --version
+          cargo spellcheck --version
+          bash --version
+
       - name: Cache
         uses: Swatinem/rust-cache@v2
 
@@ -136,6 +157,15 @@ jobs:
     strategy:
       fail-fast: false
     steps:
+    - name: Rust Info
+      run: |
+        rustup show
+        cargo --version
+        rustup +nightly show
+        cargo +nightly --version
+        cargo spellcheck --version
+        bash --version
+
     - name: Cache
       uses: Swatinem/rust-cache@v2
 
@@ -174,6 +204,15 @@ jobs:
     strategy:
       fail-fast: false
     steps:
+    - name: Rust Info
+      run: |
+        rustup show
+        cargo --version
+        rustup +nightly show
+        cargo +nightly --version
+        cargo spellcheck --version
+        bash --version
+
     - name: Checkout
       uses: actions/checkout@v4
       with:
