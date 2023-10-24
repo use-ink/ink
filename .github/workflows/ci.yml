@@ -21,7 +21,6 @@ on:
       - 'RELEASES_CHECKLIST.md'
 
 env:
-  CI_IMAGE:                        "paritytech/ci-unified:bullseye-1.73.0"
   PURELY_STD_CRATES:               "ink/codegen metadata engine e2e e2e/macro ink/ir"
   ALSO_WASM_CRATES:                "env storage storage/traits allocator prelude primitives ink ink/macro"
   # TODO `cargo clippy --verbose --all-targets --all-features` for this crate
@@ -29,6 +28,12 @@ env:
   # this fix not yet in stable: https://github.com/rust-lang/rust-clippy/issues/8895.
   # Remove the following line again as soon as `clippy` on stable succeeds again.
   CLIPPY_ALLOWED:                  "clippy::extra_unused_lifetimes"
+  # We plan to fully support RISC-V as a bytecode for contracts soon.
+  # RISC-V does not have a standard library in contrast to Wasm. Compiling against
+  # this target also makes sure that we don't pull in `std` by accident (through dependencies).
+  # RISC-V is a modular archtitecture. We might switch to a different flavor with more features
+  # later. For example, `riscv32imc-unknown-none-elf`.
+  RISCV_TARGET:                    "riscv32i-unknown-none-elf"
 
 jobs:
   spellcheck:
@@ -37,20 +42,9 @@ jobs:
       image: paritytech/ci-unified:bullseye-1.73.0
     strategy:
       fail-fast: false
-
     steps:
-      - name: Set up Rust environment
-        uses: actions-rs/toolchain@v1
-        with:
-          profile: minimal
-          toolchain: stable
-          override: true
-
       - name: Checkout
         uses: actions/checkout@v4
-      
-      - name: Install cargo-spellcheck
-        run: cargo install cargo-spellcheck
 
       - name: Check Spelling
         run: |
@@ -59,17 +53,11 @@ jobs:
 
   fmt:
     runs-on: ubuntu-latest
+    container:
+      image: paritytech/ci-unified:bullseye-1.73.0
     strategy:
       fail-fast: false
     steps:
-      - name: Install toolchain
-        uses: actions-rs/toolchain@v1
-        with:
-          profile: minimal
-          toolchain: nightly
-          default: true
-          components: rustfmt
-
       - name: Checkout
         uses: actions/checkout@v4
 
@@ -87,19 +75,13 @@ jobs:
 
   clippy:
     runs-on: ubuntu-latest
+    container:
+      image: paritytech/ci-unified:bullseye-1.73.0
     permissions:
       checks: write
     strategy:
       fail-fast: false
     steps:
-      - name: Install toolchain
-        uses: actions-rs/toolchain@v1
-        with:
-          profile: minimal
-          toolchain: stable
-          default: true
-          components: clippy
-
       - name: Cache
         uses: Swatinem/rust-cache@v2
 
@@ -126,6 +108,58 @@ jobs:
         run: |
           scripts/for_all_contracts_exec.sh --path integration-tests -- cargo clippy --verbose --all-targets --manifest-path {} -- -D warnings -A $CLIPPY_ALLOWED
     
-        
+  check:
+    runs-on: ubuntu-latest
+    container:
+      image: paritytech/ci-unified:bullseye-1.73.0
+    strategy:
+      fail-fast: false
+    steps:
+    - name: Cache
+      uses: Swatinem/rust-cache@v2
 
+    - name: Checkout
+      uses: actions/checkout@v4
 
+    - name: Check
+      run: |
+        for crate in  "${PURELY_STD_CRATES} ${ALSO_WASM_CRATES}"; do
+          cargo check --verbose --all-features --manifest-path ./crates/${crate}/Cargo.toml;
+        done
+
+    - name: Check WASM
+      run: |
+        for crate in ${ALSO_WASM_CRATES}; do
+          cargo check --verbose --no-default-features --target wasm32-unknown-unknown --manifest-path ./crates/${crate}/Cargo.toml;
+        done        
+
+    - name: Check RISCV
+      env:
+        RUSTC_BOOTSTRAP:               "1"
+      run: |
+        for crate in ${ALSO_WASM_CRATES}; do
+          cargo check --verbose --no-default-features --target $RISCV_TARGET -Zbuild-std="core,alloc" --manifest-path ./crates/${crate}/Cargo.toml;
+        done       
+
+  dylint:
+    runs-on: ubuntu-latest
+    container:
+      image: paritytech/ci-unified:bullseye-1.73.0
+    strategy:
+      fail-fast: false
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Dylint
+      run: |
+        cd linting/
+        # we are using a toolchain file in this directory
+        # add required components for CI
+        - rustup component add rustfmt clippy
+        - cargo check --verbose
+        - cargo +nightly fmt --verbose --all -- --check
+        - cargo clippy --verbose -- -D warnings;
+        # Needed until https://github.com/mozilla/sccache/issues/1000 is fixed.
+        - unset RUSTC_WRAPPER
+        - cargo test --verbose --all-features
