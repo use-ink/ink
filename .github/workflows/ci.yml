@@ -127,7 +127,8 @@ jobs:
     
       - name: Run Clippy
         run: |
-          for crate in "${PURELY_STD_CRATES} ${ALSO_WASM_CRATES}"; do
+          ALL_CRATES="${PURELY_STD_CRATES} ${ALSO_WASM_CRATES}"
+          for crate in ${ALL_CRATES}; do
             echo "cargo clippy --verbose --all-targets --all-features --manifest-path ./crates/${crate}/Cargo.toml -- -D warnings -A ${CLIPPY_ALLOWED}"
             cargo clippy --verbose --all-targets --all-features --manifest-path ./crates/${crate}/Cargo.toml -- -D warnings -A ${CLIPPY_ALLOWED};
           done
@@ -175,7 +176,8 @@ jobs:
 
     - name: Check
       run: |
-        for crate in  "${PURELY_STD_CRATES} ${ALSO_WASM_CRATES}"; do
+        ALL_CRATES="${PURELY_STD_CRATES} ${ALSO_WASM_CRATES}"
+        for crate in ${ALL_CRATES}; do
           echo "cargo check --verbose --all-features --manifest-path ./crates/${crate}/Cargo.toml"
           cargo check --verbose --all-features --manifest-path ./crates/${crate}/Cargo.toml;
         done
