@@ -12,7 +12,7 @@ on:
       - '**/**.md'
       - '**/**/**.md'
       - '**/**/**/**.md'
-      - .gitlab-ci.yml
+      - '.gitlab-ci.yml'
       - 'CODEOWNERS'
       - 'LICENSE'
       - 'CODE_OF_CONDUCT.adoc'
@@ -54,6 +54,7 @@ jobs:
           cargo +nightly --version
           cargo spellcheck --version
           bash --version
+          echo "${CARGO_TARGET_DIR}"
 
       - name: Checkout
         uses: actions/checkout@v4
@@ -83,6 +84,7 @@ jobs:
           cargo +nightly --version
           cargo spellcheck --version
           bash --version
+          echo "${CARGO_TARGET_DIR}"
 
       - name: Checkout
         uses: actions/checkout@v4
