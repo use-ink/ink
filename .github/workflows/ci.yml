@@ -9,6 +9,9 @@ on:
       - v*
     paths-ignore:
       - '**.md'
+      - '**/**.md'
+      - '**/**/**.md'
+      - '**/**/**/**.md'
       - .gitlab-ci.yml
       - 'CODEOWNERS'
       - 'LICENSE'
@@ -129,13 +132,15 @@ jobs:
         run: |
           ALL_CRATES="${PURELY_STD_CRATES} ${ALSO_WASM_CRATES}"
           for crate in ${ALL_CRATES}; do
-            cargo clippy --verbose --all-targets --all-features --manifest-path ./crates/${crate}/Cargo.toml -- -D warnings -A ${CLIPPY_ALLOWED};
+            cargo clippy --verbose --all-targets --all-features --manifest-path ./crates/${crate}/Cargo.toml \
+            -- -D warnings -A ${CLIPPY_ALLOWED};
           done
   
       - name: Run Clippy for WASM Crates
         run: |
           for crate in ${ALSO_WASM_CRATES}; do
-            cargo clippy --verbose --no-default-features --manifest-path ./crates/${crate}/Cargo.toml --target wasm32-unknown-unknown -- -D warnings -A ${CLIPPY_ALLOWED};
+            cargo clippy --verbose --no-default-features --manifest-path ./crates/${crate}/Cargo.toml --target wasm32-unknown-unknown \
+            -- -D warnings -A ${CLIPPY_ALLOWED};
           done
 
   clippy-examples:
@@ -175,7 +180,8 @@ jobs:
 
       - name: Run Clippy for ${{ matrix.name }}
         run: |
-          scripts/for_all_contracts_exec.sh --path integration-tests -- cargo clippy --verbose ${{ matrix.parameters}} --manifest-path {} -- -D warnings -A $CLIPPY_ALLOWED
+          scripts/for_all_contracts_exec.sh --path integration-tests -- cargo clippy --verbose ${{ matrix.parameters}} \
+          --manifest-path {} -- -D warnings -A $CLIPPY_ALLOWED
   
   check:
     runs-on: ubuntu-latest
@@ -214,7 +220,8 @@ jobs:
     - name: Check WASM
       run: |
         for crate in ${ALSO_WASM_CRATES}; do
-          cargo check --verbose --no-default-features --target wasm32-unknown-unknown --manifest-path ./crates/${crate}/Cargo.toml;
+          cargo check --verbose --no-default-features --target wasm32-unknown-unknown \
+          --manifest-path ./crates/${crate}/Cargo.toml;
         done        
 
     - name: Check RISCV
@@ -222,7 +229,8 @@ jobs:
         RUSTC_BOOTSTRAP:               "1"
       run: |
         for crate in ${ALSO_WASM_CRATES}; do
-          cargo check --verbose --no-default-features --target $RISCV_TARGET -Zbuild-std="core,alloc" --manifest-path ./crates/${crate}/Cargo.toml;
+          cargo check --verbose --no-default-features --target $RISCV_TARGET -Zbuild-std="core,alloc" \
+          --manifest-path ./crates/${crate}/Cargo.toml;
         done       
 
   dylint:
@@ -261,3 +269,42 @@ jobs:
         # Needed until https://github.com/mozilla/sccache/issues/1000 is fixed.
         unset RUSTC_WRAPPER
         cargo test --verbose --all-features
+
+  build:
+    runs-on: ubuntu-latest
+    needs: [check]
+    defaults:
+      run:
+        shell: bash
+    container:
+      image: paritytech/ci-unified:bullseye-1.73.0
+    strategy:
+      fail-fast: false
+    steps:
+    - name: Rust Info
+      run: |
+        rustup show
+        cargo --version
+        rustup +nightly show
+        cargo +nightly --version
+        cargo spellcheck --version
+        bash --version
+
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 100
+
+    - name: Build
+      run: |
+        ALL_CRATES="${PURELY_STD_CRATES} ${ALSO_WASM_CRATES}"
+        for crate in ${ALL_CRATES}; do
+          cargo build --verbose --all-features --release --manifest-path ./crates/${crate}/Cargo.toml;
+        done
+
+    - name: Build WASM
+      run: |
+        for crate in ${ALSO_WASM_CRATES}; do
+          cargo build --verbose --no-default-features --release --target wasm32-unknown-unknown \
+          --manifest-path ./crates/${crate}/Cargo.toml;
+        done
