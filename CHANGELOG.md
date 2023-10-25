@@ -5,9 +5,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
-- Stabilize `call_runtime` ‒ [#1749](https://github.com/paritytech/ink/pull/1749)
 
 ### Added
+- [E2E] Allow testing with live-chain state - [#1949](https://github.com/paritytech/ink/pull/1949)
+- Stabilize `call_runtime` ‒ [#1749](https://github.com/paritytech/ink/pull/1749)
 - Schema generation - [#1765](https://github.com/paritytech/ink/pull/1765)
 - Add `set_block_number` to off-chain test api `Engine` - [#1806](https://github.com/paritytech/ink/pull/1806)
 
