@@ -54,7 +54,6 @@ jobs:
           cargo +nightly --version
           cargo spellcheck --version
           bash --version
-          echo "${CARGO_TARGET_DIR}"
 
       - name: Checkout
         uses: actions/checkout@v4
@@ -84,7 +83,6 @@ jobs:
           cargo +nightly --version
           cargo spellcheck --version
           bash --version
-          echo "${CARGO_TARGET_DIR}"
 
       - name: Checkout
         uses: actions/checkout@v4
