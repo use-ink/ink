@@ -12,8 +12,8 @@ pub mod integration_flipper {
         value: bool,
     }
 
-    #[derive(scale::Encode, scale::Decode, Debug)]
-    #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
+    #[derive(Debug)]
+    #[ink::scale_derive(Encode, Decode, TypeInfo)]
     pub struct FlipperError;
 
     impl Flipper {
@@ -67,34 +67,33 @@ pub mod integration_flipper {
     #[cfg(all(test, feature = "e2e-tests"))]
     mod e2e_tests {
         use super::*;
+        use ink_e2e::ContractsBackend;
+
         type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
         #[ink_e2e::test]
-        async fn e2e_can_flip_correctly(
-            mut client: ink_e2e::Client<C, E>,
+        async fn e2e_can_flip_correctly<Client: E2EBackend>(
+            mut client: Client,
         ) -> E2EResult<()> {
-            let constructor = FlipperRef::new_default();
+            let mut constructor = FlipperRef::new_default();
             let flipper = client
-                .instantiate(
-                    "integration_flipper",
-                    &ink_e2e::alice(),
-                    constructor,
-                    0,
-                    None,
-                )
+                .instantiate("integration_flipper", &ink_e2e::alice(), &mut constructor)
+                .submit()
                 .await
                 .expect("Instantiate `integration_flipper` failed");
             let mut call = flipper.call::<Flipper>();
 
             let get = call.get();
             let initial_value = client
-                .call_dry_run(&ink_e2e::alice(), &get, 0, None)
+                .call(&ink_e2e::alice(), &get)
+                .dry_run()
                 .await
                 .return_value();
 
             let flip = call.flip();
             let flip_call_result = client
-                .call(&ink_e2e::alice(), &flip, 0, None)
+                .call(&ink_e2e::alice(), &flip)
+                .submit()
                 .await
                 .expect("Calling `flip` failed");
             assert!(
@@ -103,7 +102,8 @@ pub mod integration_flipper {
             );
 
             let flipped_value = client
-                .call_dry_run(&ink_e2e::alice(), &get, 0, None)
+                .call(&ink_e2e::alice(), &get)
+                .dry_run()
                 .await
                 .return_value();
             assert!(flipped_value != initial_value);
@@ -112,25 +112,27 @@ pub mod integration_flipper {
         }
 
         #[ink_e2e::test]
-        async fn e2e_message_error_reverts_state(
-            mut client: ink_e2e::Client<C, E>,
+        async fn e2e_message_error_reverts_state<Client: E2EBackend>(
+            mut client: Client,
         ) -> E2EResult<()> {
-            let constructor = FlipperRef::new_default();
+            let mut constructor = FlipperRef::new_default();
             let flipper = client
-                .instantiate("integration_flipper", &ink_e2e::bob(), constructor, 0, None)
+                .instantiate("integration_flipper", &ink_e2e::bob(), &mut constructor)
+                .submit()
                 .await
                 .expect("instantiate failed");
             let mut call = flipper.call::<Flipper>();
 
             let get = call.get();
             let initial_value = client
-                .call_dry_run(&ink_e2e::bob(), &get, 0, None)
+                .call(&ink_e2e::bob(), &get)
+                .dry_run()
                 .await
                 .return_value();
 
             let err_flip = call.err_flip();
             let err_flip_call_result =
-                client.call(&ink_e2e::bob(), &err_flip, 0, None).await;
+                client.call(&ink_e2e::bob(), &err_flip).submit().await;
 
             assert!(matches!(
                 err_flip_call_result,
@@ -138,7 +140,8 @@ pub mod integration_flipper {
             ));
 
             let flipped_value = client
-                .call_dry_run(&ink_e2e::bob(), &get, 0, None)
+                .call(&ink_e2e::bob(), &get)
+                .dry_run()
                 .await
                 .return_value();
             assert!(flipped_value == initial_value);

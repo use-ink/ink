@@ -39,8 +39,8 @@ mod erc20 {
     }
 
     /// The ERC-20 error types.
-    #[derive(Debug, PartialEq, Eq, scale::Encode, scale::Decode)]
-    #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
+    #[derive(Debug, PartialEq, Eq)]
+    #[ink::scale_derive(Encode, Decode, TypeInfo)]
     pub enum Error {
         /// Returned if not enough balance to fulfill a request is available.
         InsufficientBalance,
@@ -178,6 +178,8 @@ mod erc20 {
                 return Err(Error::InsufficientAllowance)
             }
             self.transfer_from_to(&from, &to, value)?;
+            // We checked that allowance >= value
+            #[allow(clippy::arithmetic_side_effects)]
             self.allowances
                 .insert((&from, &caller), &(allowance - value));
             Ok(())
@@ -201,10 +203,12 @@ mod erc20 {
             if from_balance < value {
                 return Err(Error::InsufficientBalance)
             }
-
+            // We checked that from_balance >= value
+            #[allow(clippy::arithmetic_side_effects)]
             self.balances.insert(from, &(from_balance - value));
             let to_balance = self.balance_of_impl(to);
-            self.balances.insert(to, &(to_balance + value));
+            self.balances
+                .insert(to, &(to_balance.checked_add(value).unwrap()));
             self.env().emit_event(Transfer {
                 from: Some(*from),
                 to: Some(*to),
@@ -229,8 +233,9 @@ mod erc20 {
             expected_to: Option<AccountId>,
             expected_value: Balance,
         ) {
-            let decoded_event = <Transfer as scale::Decode>::decode(&mut &event.data[..])
-                .expect("encountered invalid contract event data buffer");
+            let decoded_event =
+                <Transfer as ink::scale::Decode>::decode(&mut &event.data[..])
+                    .expect("encountered invalid contract event data buffer");
             let Transfer { from, to, value } = decoded_event;
             assert_eq!(from, expected_from, "encountered invalid Transfer.from");
             assert_eq!(to, expected_to, "encountered invalid Transfer.to");
@@ -478,7 +483,7 @@ mod erc20 {
 
         fn encoded_into_hash<T>(entity: T) -> Hash
         where
-            T: scale::Encode,
+            T: ink::scale::Encode,
         {
             use ink::{
                 env::hash::{
@@ -509,15 +514,18 @@ mod erc20 {
     #[cfg(all(test, feature = "e2e-tests"))]
     mod e2e_tests {
         use super::*;
+        use ink_e2e::ContractsBackend;
+
         type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
         #[ink_e2e::test]
-        async fn e2e_transfer(mut client: ink_e2e::Client<C, E>) -> E2EResult<()> {
+        async fn e2e_transfer<Client: E2EBackend>(mut client: Client) -> E2EResult<()> {
             // given
             let total_supply = 1_000_000_000;
-            let constructor = Erc20Ref::new(total_supply);
+            let mut constructor = Erc20Ref::new(total_supply);
             let erc20 = client
-                .instantiate("erc20", &ink_e2e::alice(), constructor, 0, None)
+                .instantiate("erc20", &ink_e2e::alice(), &mut constructor)
+                .submit()
                 .await
                 .expect("instantiate failed");
             let mut call = erc20.call::<Erc20>();
@@ -525,21 +533,22 @@ mod erc20 {
             // when
             let total_supply_msg = call.total_supply();
             let total_supply_res = client
-                .call_dry_run(&ink_e2e::bob(), &total_supply_msg, 0, None)
+                .call(&ink_e2e::bob(), &total_supply_msg)
+                .dry_run()
                 .await;
 
             let bob_account = ink_e2e::account_id(ink_e2e::AccountKeyring::Bob);
             let transfer_to_bob = 500_000_000u128;
             let transfer = call.transfer(bob_account, transfer_to_bob);
             let _transfer_res = client
-                .call(&ink_e2e::alice(), &transfer, 0, None)
+                .call(&ink_e2e::alice(), &transfer)
+                .submit()
                 .await
                 .expect("transfer failed");
 
             let balance_of = call.balance_of(bob_account);
-            let balance_of_res = client
-                .call_dry_run(&ink_e2e::alice(), &balance_of, 0, None)
-                .await;
+            let balance_of_res =
+                client.call(&ink_e2e::alice(), &balance_of).dry_run().await;
 
             // then
             assert_eq!(
@@ -553,12 +562,13 @@ mod erc20 {
         }
 
         #[ink_e2e::test]
-        async fn e2e_allowances(mut client: ink_e2e::Client<C, E>) -> E2EResult<()> {
+        async fn e2e_allowances<Client: E2EBackend>(mut client: Client) -> E2EResult<()> {
             // given
             let total_supply = 1_000_000_000;
-            let constructor = Erc20Ref::new(total_supply);
+            let mut constructor = Erc20Ref::new(total_supply);
             let erc20 = client
-                .instantiate("erc20", &ink_e2e::bob(), constructor, 0, None)
+                .instantiate("erc20", &ink_e2e::bob(), &mut constructor)
+                .submit()
                 .await
                 .expect("instantiate failed");
             let mut call = erc20.call::<Erc20>();
@@ -572,7 +582,8 @@ mod erc20 {
             // tx
             let transfer_from = call.transfer_from(bob_account, charlie_account, amount);
             let transfer_from_result = client
-                .call(&ink_e2e::charlie(), &transfer_from, 0, None)
+                .call(&ink_e2e::charlie(), &transfer_from)
+                .submit()
                 .await;
 
             assert!(
@@ -584,7 +595,8 @@ mod erc20 {
             let approved_value = 1_000u128;
             let approve_call = call.approve(charlie_account, approved_value);
             client
-                .call(&ink_e2e::bob(), &approve_call, 0, None)
+                .call(&ink_e2e::bob(), &approve_call)
+                .submit()
                 .await
                 .expect("approve failed");
 
@@ -592,7 +604,8 @@ mod erc20 {
             let transfer_from =
                 call.transfer_from(bob_account, charlie_account, approved_value);
             let transfer_from_result = client
-                .call(&ink_e2e::charlie(), &transfer_from, 0, None)
+                .call(&ink_e2e::charlie(), &transfer_from)
+                .submit()
                 .await;
             assert!(
                 transfer_from_result.is_ok(),
@@ -600,14 +613,14 @@ mod erc20 {
             );
 
             let balance_of = call.balance_of(bob_account);
-            let balance_of_res = client
-                .call_dry_run(&ink_e2e::alice(), &balance_of, 0, None)
-                .await;
+            let balance_of_res =
+                client.call(&ink_e2e::alice(), &balance_of).dry_run().await;
 
             // `transfer_from` again, this time exceeding the approved amount
             let transfer_from = call.transfer_from(bob_account, charlie_account, 1);
             let transfer_from_result = client
-                .call(&ink_e2e::charlie(), &transfer_from, 0, None)
+                .call(&ink_e2e::charlie(), &transfer_from)
+                .submit()
                 .await;
             assert!(
                 transfer_from_result.is_err(),

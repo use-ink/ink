@@ -20,6 +20,9 @@ ink = { workspace = true, default-features = true }
 ink_env = { workspace = true, default-features = true }
 ink_primitives = { workspace = true, default-features = true }
 
+cargo_metadata = { workspace = true }
+contract-build = { workspace = true }
+drink = { workspace = true, optional = true }
 funty = { workspace = true }
 impl-serde = { workspace = true }
 jsonrpsee = { workspace = true, features = ["ws-client"] }
@@ -30,7 +33,10 @@ tracing = { workspace = true }
 tracing-subscriber = { workspace = true, features = ["env-filter"] }
 scale = { package = "parity-scale-codec", workspace = true }
 subxt = { workspace = true }
+subxt-metadata = { workspace = true, optional = true }
 subxt-signer = { workspace = true, features = ["subxt", "sr25519"] }
+wasm-instrument = { workspace = true }
+which = { workspace = true }
 
 # Substrate
 pallet-contracts-primitives = { workspace = true }
@@ -46,4 +52,12 @@ scale-info = { workspace = true, features = ["derive"] }
 [features]
 default = ["std"]
 std = []
+<<<<<<< HEAD
 live-state-test = ["subxt/unstable-light-client"]
+=======
+drink = [
+    "dep:drink",
+    "subxt-metadata",
+    "ink_e2e_macro/drink",
+]
+>>>>>>> master

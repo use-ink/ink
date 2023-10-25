@@ -109,10 +109,7 @@ impl CallForwarder<'_> {
             /// will be handled by this type.
             #[doc(hidden)]
             #[allow(non_camel_case_types)]
-            #[derive(
-                ::scale::Encode,
-                ::scale::Decode,
-            )]
+            #[::ink::scale_derive(Encode, Decode)]
             #[repr(transparent)]
             pub struct #call_forwarder_ident<E>
             where
@@ -193,18 +190,18 @@ impl CallForwarder<'_> {
 
             #[cfg(feature = "std")]
             /// We require this manual implementation since the derive produces incorrect trait bounds.
-            impl<E> ::scale_info::TypeInfo for #call_forwarder_ident<E>
+            impl<E> ::ink::scale_info::TypeInfo for #call_forwarder_ident<E>
             where
                 E: ::ink::env::Environment,
-                <E as ::ink::env::Environment>::AccountId: ::scale_info::TypeInfo + 'static,
+                <E as ::ink::env::Environment>::AccountId: ::ink::scale_info::TypeInfo + 'static,
             {
                 type Identity = <
-                    <Self as ::ink::codegen::TraitCallBuilder>::Builder as ::scale_info::TypeInfo
+                    <Self as ::ink::codegen::TraitCallBuilder>::Builder as ::ink::scale_info::TypeInfo
                 >::Identity;
 
-                fn type_info() -> ::scale_info::Type {
+                fn type_info() -> ::ink::scale_info::Type {
                     <
-                        <Self as ::ink::codegen::TraitCallBuilder>::Builder as ::scale_info::TypeInfo
+                        <Self as ::ink::codegen::TraitCallBuilder>::Builder as ::ink::scale_info::TypeInfo
                     >::type_info()
                 }
             }

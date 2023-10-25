@@ -182,22 +182,23 @@ pub mod give_me {
     #[cfg(all(test, feature = "e2e-tests"))]
     mod e2e_tests {
         use super::*;
+        use ink_e2e::{
+            ChainBackend,
+            ContractsBackend,
+        };
+
         type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
         #[ink_e2e::test]
-        async fn e2e_sending_value_to_give_me_must_fail(
-            mut client: ink_e2e::Client<C, E>,
+        async fn e2e_sending_value_to_give_me_must_fail<Client: E2EBackend>(
+            mut client: Client,
         ) -> E2EResult<()> {
             // given
-            let constructor = GiveMeRef::new();
+            let mut constructor = GiveMeRef::new();
             let contract = client
-                .instantiate(
-                    "contract_transfer",
-                    &ink_e2e::alice(),
-                    constructor,
-                    1000,
-                    None,
-                )
+                .instantiate("contract_transfer", &ink_e2e::alice(), &mut constructor)
+                .value(1000)
+                .submit()
                 .await
                 .expect("instantiate failed");
             let mut call = contract.call::<GiveMe>();
@@ -205,7 +206,11 @@ pub mod give_me {
             // when
             let transfer = call.give_me(120);
 
-            let call_res = client.call(&ink_e2e::bob(), &transfer, 10, None).await;
+            let call_res = client
+                .call(&ink_e2e::bob(), &transfer)
+                .value(10)
+                .submit()
+                .await;
 
             // then
             if let Err(ink_e2e::Error::<ink::env::DefaultEnvironment>::CallDryRun(
@@ -221,19 +226,15 @@ pub mod give_me {
         }
 
         #[ink_e2e::test]
-        async fn e2e_contract_must_transfer_value_to_sender(
-            mut client: ink_e2e::Client<C, E>,
+        async fn e2e_contract_must_transfer_value_to_sender<Client: E2EBackend>(
+            mut client: Client,
         ) -> E2EResult<()> {
             // given
-            let constructor = GiveMeRef::new();
+            let mut constructor = GiveMeRef::new();
             let contract = client
-                .instantiate(
-                    "contract_transfer",
-                    &ink_e2e::bob(),
-                    constructor,
-                    1337,
-                    None,
-                )
+                .instantiate("contract_transfer", &ink_e2e::bob(), &mut constructor)
+                .value(1337)
+                .submit()
                 .await
                 .expect("instantiate failed");
             let mut call = contract.call::<GiveMe>();
@@ -247,7 +248,8 @@ pub mod give_me {
             let transfer = call.give_me(120);
 
             let call_res = client
-                .call(&ink_e2e::eve(), &transfer, 0, None)
+                .call(&ink_e2e::eve(), &transfer)
+                .submit()
                 .await
                 .expect("call failed");
 

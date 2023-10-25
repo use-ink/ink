@@ -94,27 +94,33 @@ mod call_builder {
     #[cfg(all(test, feature = "e2e-tests"))]
     mod e2e_tests {
         use super::*;
+        use ink_e2e::{
+            ChainBackend,
+            ContractsBackend,
+        };
 
         type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
         #[ink_e2e::test]
-        async fn e2e_invalid_message_selector_can_be_handled(
-            mut client: ink_e2e::Client<C, E>,
+        async fn e2e_invalid_message_selector_can_be_handled<Client: E2EBackend>(
+            mut client: Client,
         ) -> E2EResult<()> {
             let origin = client
                 .create_and_fund_account(&ink_e2e::bob(), 10_000_000_000_000)
                 .await;
 
-            let constructor = CallBuilderDelegateTestRef::new(Default::default());
+            let mut constructor = CallBuilderDelegateTestRef::new(Default::default());
             let call_builder_contract = client
-                .instantiate("call_builder_delegate", &origin, constructor, 0, None)
+                .instantiate("call_builder_delegate", &origin, &mut constructor)
+                .submit()
                 .await
                 .expect("instantiate failed");
             let mut call_builder_call =
                 call_builder_contract.call::<CallBuilderDelegateTest>();
 
             let code_hash = client
-                .upload("incrementer", &origin, None)
+                .upload("incrementer", &origin)
+                .submit()
                 .await
                 .expect("upload `incrementer` failed")
                 .code_hash;
@@ -122,7 +128,8 @@ mod call_builder {
             let selector = ink::selector_bytes!("invalid_selector");
             let call = call_builder_call.delegate(code_hash, selector);
             let call_result = client
-                .call(&origin, &call, 0, None)
+                .call(&origin, &call)
+                .submit()
                 .await
                 .expect("Calling `call_builder::delegate` failed");
 
@@ -135,23 +142,25 @@ mod call_builder {
         }
 
         #[ink_e2e::test]
-        async fn e2e_invalid_message_selector_panics_on_invoke(
-            mut client: ink_e2e::Client<C, E>,
+        async fn e2e_invalid_message_selector_panics_on_invoke<Client: E2EBackend>(
+            mut client: Client,
         ) -> E2EResult<()> {
             let origin = client
                 .create_and_fund_account(&ink_e2e::charlie(), 10_000_000_000_000)
                 .await;
 
-            let constructor = CallBuilderDelegateTestRef::new(Default::default());
+            let mut constructor = CallBuilderDelegateTestRef::new(Default::default());
             let call_builder_contract = client
-                .instantiate("call_builder_delegate", &origin, constructor, 0, None)
+                .instantiate("call_builder_delegate", &origin, &mut constructor)
+                .submit()
                 .await
                 .expect("instantiate failed");
             let mut call_builder_call =
                 call_builder_contract.call::<CallBuilderDelegateTest>();
 
             let code_hash = client
-                .upload("incrementer", &origin, None)
+                .upload("incrementer", &origin)
+                .submit()
                 .await
                 .expect("upload `incrementer` failed")
                 .code_hash;
@@ -160,7 +169,7 @@ mod call_builder {
             // we expect this to panic.
             let selector = ink::selector_bytes!("invalid_selector");
             let call = call_builder_call.invoke(code_hash, selector);
-            let call_result = client.call_dry_run(&origin, &call, 0, None).await;
+            let call_result = client.call(&origin, &call).dry_run().await;
 
             assert!(call_result.is_err());
             assert!(call_result

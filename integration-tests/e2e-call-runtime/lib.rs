@@ -21,16 +21,23 @@ pub mod e2e_call_runtime {
     #[cfg(all(test, feature = "e2e-tests"))]
     mod e2e_tests {
         use super::*;
-        use ink_e2e::subxt::dynamic::Value;
+        use ink_e2e::{
+            subxt::dynamic::Value,
+            ChainBackend,
+            ContractsBackend,
+        };
 
         type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
         #[ink_e2e::test]
-        async fn call_runtime_works(mut client: ink_e2e::Client<C, E>) -> E2EResult<()> {
+        async fn call_runtime_works<Client: E2EBackend>(
+            mut client: Client,
+        ) -> E2EResult<()> {
             // given
-            let constructor = ContractRef::new();
+            let mut constructor = ContractRef::new();
             let contract = client
-                .instantiate("e2e_call_runtime", &ink_e2e::alice(), constructor, 0, None)
+                .instantiate("e2e_call_runtime", &ink_e2e::alice(), &mut constructor)
+                .submit()
                 .await
                 .expect("instantiate failed");
             let call = contract.call::<Contract>();
@@ -49,7 +56,8 @@ pub mod e2e_call_runtime {
 
             let get_balance = call.get_contract_balance();
             let pre_balance = client
-                .call_dry_run(&ink_e2e::alice(), &get_balance, 0, None)
+                .call(&ink_e2e::alice(), &get_balance)
+                .dry_run()
                 .await
                 .return_value();
 
@@ -58,7 +66,7 @@ pub mod e2e_call_runtime {
                 .runtime_call(
                     &ink_e2e::alice(),
                     "Balances",
-                    "transfer_keep_alive",
+                    "transfer_allow_death",
                     call_data,
                 )
                 .await
@@ -66,9 +74,8 @@ pub mod e2e_call_runtime {
 
             // then
             let get_balance = call.get_contract_balance();
-            let get_balance_res = client
-                .call_dry_run(&ink_e2e::alice(), &get_balance, 0, None)
-                .await;
+            let get_balance_res =
+                client.call(&ink_e2e::alice(), &get_balance).dry_run().await;
 
             assert_eq!(
                 get_balance_res.return_value(),

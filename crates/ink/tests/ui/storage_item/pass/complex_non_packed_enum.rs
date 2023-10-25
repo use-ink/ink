@@ -9,11 +9,9 @@ use ink_storage::{
     Mapping,
 };
 
-#[derive(Default, scale::Encode, scale::Decode)]
-#[cfg_attr(
-    feature = "std",
-    derive(scale_info::TypeInfo, ink::storage::traits::StorageLayout)
-)]
+#[derive(Default)]
+#[cfg_attr(feature = "std", derive(ink::storage::traits::StorageLayout))]
+#[ink::scale_derive(Encode, Decode, TypeInfo)]
 enum Packed {
     #[default]
     None,

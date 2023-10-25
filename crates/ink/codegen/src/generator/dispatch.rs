@@ -514,7 +514,7 @@ impl Dispatch<'_> {
                 #( #cfg_attrs )*
                 #const_ident => {
                     ::core::result::Result::Ok(Self::#constructor_ident(
-                        <#constructor_input as ::scale::Decode>::decode(input)
+                        <#constructor_input as ::ink::scale::Decode>::decode(input)
                             .map_err(|_| ::ink::reflect::DispatchError::InvalidParameters)?
                     ))
                 }
@@ -534,7 +534,7 @@ impl Dispatch<'_> {
                 );
                 quote! {
                     ::core::result::Result::Ok(Self::#constructor_ident(
-                        <#constructor_input as ::scale::Decode>::decode(input)
+                        <#constructor_input as ::ink::scale::Decode>::decode(input)
                             .map_err(|_| ::ink::reflect::DispatchError::InvalidParameters)?
                     ))
                 }
@@ -612,12 +612,12 @@ impl Dispatch<'_> {
                     fn decode_dispatch<I>(input: &mut I)
                         -> ::core::result::Result<Self, ::ink::reflect::DispatchError>
                     where
-                        I: ::scale::Input,
+                        I: ::ink::scale::Input,
                     {
                         #(
                             #constructor_selector
                         )*
-                        match <[::core::primitive::u8; 4usize] as ::scale::Decode>::decode(input)
+                        match <[::core::primitive::u8; 4usize] as ::ink::scale::Decode>::decode(input)
                             .map_err(|_| ::ink::reflect::DispatchError::InvalidSelector)?
                         {
                             #( #constructor_match , )*
@@ -626,10 +626,10 @@ impl Dispatch<'_> {
                     }
                 }
 
-                impl ::scale::Decode for __ink_ConstructorDecoder {
-                    fn decode<I>(input: &mut I) -> ::core::result::Result<Self, ::scale::Error>
+                impl ::ink::scale::Decode for __ink_ConstructorDecoder {
+                    fn decode<I>(input: &mut I) -> ::core::result::Result<Self, ::ink::scale::Error>
                     where
-                        I: ::scale::Input,
+                        I: ::ink::scale::Input,
                     {
                         <Self as ::ink::reflect::DecodeDispatch>::decode_dispatch(input)
                             .map_err(::core::convert::Into::into)
@@ -719,7 +719,7 @@ impl Dispatch<'_> {
                    #( #cfg_attrs )*
                     #const_ident => {
                         ::core::result::Result::Ok(Self::#message_ident(
-                            <#message_input as ::scale::Decode>::decode(input)
+                            <#message_input as ::ink::scale::Decode>::decode(input)
                                 .map_err(|_| ::ink::reflect::DispatchError::InvalidParameters)?
                         ))
                     }
@@ -734,7 +734,7 @@ impl Dispatch<'_> {
                     expand_message_input(message_span, storage_ident, item.id.clone());
                 quote! {
                     ::core::result::Result::Ok(Self::#message_ident(
-                        <#message_input as ::scale::Decode>::decode(input)
+                        <#message_input as ::ink::scale::Decode>::decode(input)
                             .map_err(|_| ::ink::reflect::DispatchError::InvalidParameters)?
                     ))
                 }
@@ -809,12 +809,12 @@ impl Dispatch<'_> {
                     fn decode_dispatch<I>(input: &mut I)
                         -> ::core::result::Result<Self, ::ink::reflect::DispatchError>
                     where
-                        I: ::scale::Input,
+                        I: ::ink::scale::Input,
                     {
                         #(
                             #message_selector
                         )*
-                        match <[::core::primitive::u8; 4usize] as ::scale::Decode>::decode(input)
+                        match <[::core::primitive::u8; 4usize] as ::ink::scale::Decode>::decode(input)
                             .map_err(|_| ::ink::reflect::DispatchError::InvalidSelector)?
                         {
                             #( #message_match , )*
@@ -823,10 +823,10 @@ impl Dispatch<'_> {
                     }
                 }
 
-                impl ::scale::Decode for __ink_MessageDecoder {
-                    fn decode<I>(input: &mut I) -> ::core::result::Result<Self, ::scale::Error>
+                impl ::ink::scale::Decode for __ink_MessageDecoder {
+                    fn decode<I>(input: &mut I) -> ::core::result::Result<Self, ::ink::scale::Error>
                     where
-                        I: ::scale::Input,
+                        I: ::ink::scale::Input,
                     {
                         <Self as ::ink::reflect::DecodeDispatch>::decode_dispatch(input)
                             .map_err(::core::convert::Into::into)

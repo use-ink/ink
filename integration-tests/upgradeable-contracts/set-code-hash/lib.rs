@@ -36,7 +36,7 @@ pub mod incrementer {
         /// Increments the counter value which is stored in the contract's storage.
         #[ink(message)]
         pub fn inc(&mut self) {
-            self.count += 1;
+            self.count = self.count.checked_add(1).unwrap();
             ink::env::debug_println!(
                 "The new count is {}, it was modified using the original contract code.",
                 self.count
@@ -57,8 +57,8 @@ pub mod incrementer {
         ///
         /// In a production contract you would do some authorization here!
         #[ink(message)]
-        pub fn set_code(&mut self, code_hash: [u8; 32]) {
-            ink::env::set_code_hash(&code_hash).unwrap_or_else(|err| {
+        pub fn set_code(&mut self, code_hash: Hash) {
+            self.env().set_code_hash(&code_hash).unwrap_or_else(|err| {
                 panic!("Failed to `set_code_hash` to {code_hash:?} due to {err:?}")
             });
             ink::env::debug_println!("Switched code hash to {:?}.", code_hash);
@@ -68,36 +68,40 @@ pub mod incrementer {
     #[cfg(all(test, feature = "e2e-tests"))]
     mod e2e_tests {
         use super::*;
+        use ink_e2e::ContractsBackend;
 
         type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
         #[ink_e2e::test(additional_contracts = "./updated-incrementer/Cargo.toml")]
-        async fn set_code_works(mut client: ink_e2e::Client<C, E>) -> E2EResult<()> {
+        async fn set_code_works<Client: E2EBackend>(mut client: Client) -> E2EResult<()> {
             // Given
-            let constructor = IncrementerRef::new();
+            let mut constructor = IncrementerRef::new();
             let contract = client
-                .instantiate("incrementer", &ink_e2e::alice(), constructor, 0, None)
+                .instantiate("incrementer", &ink_e2e::alice(), &mut constructor)
+                .submit()
                 .await
                 .expect("instantiate failed");
             let mut call = contract.call::<Incrementer>();
 
             let get = call.get();
-            let get_res = client.call_dry_run(&ink_e2e::alice(), &get, 0, None).await;
+            let get_res = client.call(&ink_e2e::alice(), &get).dry_run().await;
             assert!(matches!(get_res.return_value(), 0));
 
             let inc = call.inc();
             let _inc_result = client
-                .call(&ink_e2e::alice(), &inc, 0, None)
+                .call(&ink_e2e::alice(), &inc)
+                .submit()
                 .await
                 .expect("`inc` failed");
 
             let get = call.get();
-            let get_res = client.call_dry_run(&ink_e2e::alice(), &get, 0, None).await;
+            let get_res = client.call(&ink_e2e::alice(), &get).dry_run().await;
             assert!(matches!(get_res.return_value(), 1));
 
             // When
             let new_code_hash = client
-                .upload("updated_incrementer", &ink_e2e::alice(), None)
+                .upload("updated_incrementer", &ink_e2e::alice())
+                .submit()
                 .await
                 .expect("uploading `updated_incrementer` failed")
                 .code_hash;
@@ -106,7 +110,8 @@ pub mod incrementer {
             let set_code = call.set_code(new_code_hash);
 
             let _set_code_result = client
-                .call(&ink_e2e::alice(), &set_code, 0, None)
+                .call(&ink_e2e::alice(), &set_code)
+                .submit()
                 .await
                 .expect("`set_code` failed");
 
@@ -116,12 +121,13 @@ pub mod incrementer {
             let inc = call.inc();
 
             let _inc_result = client
-                .call(&ink_e2e::alice(), &inc, 0, None)
+                .call(&ink_e2e::alice(), &inc)
+                .submit()
                 .await
                 .expect("`inc` failed");
 
             let get = call.get();
-            let get_res = client.call_dry_run(&ink_e2e::alice(), &get, 0, None).await;
+            let get_res = client.call(&ink_e2e::alice(), &get).dry_run().await;
 
             // Remember, we updated our incrementer contract to increment by `4`.
             assert!(matches!(get_res.return_value(), 5));

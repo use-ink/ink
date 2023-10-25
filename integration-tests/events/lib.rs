@@ -89,7 +89,7 @@ pub mod events {
     #[cfg(test)]
     mod tests {
         use super::*;
-        use scale::Decode as _;
+        use ink::scale::Decode as _;
 
         #[test]
         fn collects_specs_for_all_linked_and_used_events() {
@@ -201,17 +201,23 @@ pub mod events {
     #[cfg(all(test, feature = "e2e-tests"))]
     mod e2e_tests {
         use super::*;
-        use ink_e2e::H256;
+        use ink_e2e::{
+            ContractsBackend,
+            H256,
+        };
 
         type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
         #[ink_e2e::test]
-        async fn emits_foreign_event(mut client: ink_e2e::Client<C, E>) -> E2EResult<()> {
+        async fn emits_foreign_event<Client: E2EBackend>(
+            mut client: Client,
+        ) -> E2EResult<()> {
             // given
             let init_value = false;
-            let constructor = EventsRef::new(init_value);
+            let mut constructor = EventsRef::new(init_value);
             let contract = client
-                .instantiate("events", &ink_e2e::alice(), constructor, 0, None)
+                .instantiate("events", &ink_e2e::alice(), &mut constructor)
+                .submit()
                 .await
                 .expect("instantiate failed");
             let mut call = contract.call::<Events>();
@@ -219,7 +225,8 @@ pub mod events {
             // when
             let flip = call.flip_with_foreign_event();
             let flip_res = client
-                .call(&ink_e2e::bob(), &flip, 0, None)
+                .call(&ink_e2e::bob(), &flip)
+                .submit()
                 .await
                 .expect("flip failed");
 
@@ -229,7 +236,7 @@ pub mod events {
             assert_eq!(1, contract_events.len());
             let contract_event = &contract_events[0];
             let flipped: event_def::ForeignFlipped =
-                scale::Decode::decode(&mut &contract_event.event.data[..])
+                ink::scale::Decode::decode(&mut &contract_event.event.data[..])
                     .expect("encountered invalid contract event data buffer");
             assert_eq!(!init_value, flipped.value);
 
@@ -245,12 +252,15 @@ pub mod events {
         }
 
         #[ink_e2e::test]
-        async fn emits_inline_event(mut client: ink_e2e::Client<C, E>) -> E2EResult<()> {
+        async fn emits_inline_event<Client: E2EBackend>(
+            mut client: Client,
+        ) -> E2EResult<()> {
             // given
             let init_value = false;
-            let constructor = EventsRef::new(init_value);
+            let mut constructor = EventsRef::new(init_value);
             let contract = client
-                .instantiate("events", &ink_e2e::alice(), constructor, 0, None)
+                .instantiate("events", &ink_e2e::alice(), &mut constructor)
+                .submit()
                 .await
                 .expect("instantiate failed");
             let mut call = contract.call::<Events>();
@@ -258,7 +268,8 @@ pub mod events {
             // when
             let flip = call.flip_with_inline_event();
             let flip_res = client
-                .call(&ink_e2e::bob(), &flip, 0, None)
+                .call(&ink_e2e::bob(), &flip)
+                .submit()
                 .await
                 .expect("flip failed");
 
@@ -268,7 +279,7 @@ pub mod events {
             assert_eq!(1, contract_events.len());
             let contract_event = &contract_events[0];
             let flipped: InlineFlipped =
-                scale::Decode::decode(&mut &contract_event.event.data[..])
+                ink::scale::Decode::decode(&mut &contract_event.event.data[..])
                     .expect("encountered invalid contract event data buffer");
             assert_eq!(!init_value, flipped.value);
 
@@ -283,14 +294,15 @@ pub mod events {
         }
 
         #[ink_e2e::test]
-        async fn emits_event_with_option_topic_none(
-            mut client: ink_e2e::Client<C, E>,
+        async fn emits_event_with_option_topic_none<Client: E2EBackend>(
+            mut client: Client,
         ) -> E2EResult<()> {
             // given
             let init_value = false;
-            let constructor = EventsRef::new(init_value);
+            let mut constructor = EventsRef::new(init_value);
             let contract = client
-                .instantiate("events", &ink_e2e::alice(), constructor, 0, None)
+                .instantiate("events", &ink_e2e::alice(), &mut constructor)
+                .submit()
                 .await
                 .expect("instantiate failed");
             let call = contract.call::<Events>();
@@ -298,7 +310,8 @@ pub mod events {
             // when
             let call = call.emit_32_byte_topic_event(None);
             let call_res = client
-                .call(&ink_e2e::bob(), &call, 0, None)
+                .call(&ink_e2e::bob(), &call)
+                .submit()
                 .await
                 .expect("emit_32_byte_topic_event failed");
 
@@ -308,7 +321,7 @@ pub mod events {
             assert_eq!(1, contract_events.len());
             let contract_event = &contract_events[0];
             let event: event_def::ThirtyTwoByteTopics =
-                scale::Decode::decode(&mut &contract_event.event.data[..])
+                ink::scale::Decode::decode(&mut &contract_event.event.data[..])
                     .expect("encountered invalid contract event data buffer");
             assert!(event.maybe_hash.is_none());
 

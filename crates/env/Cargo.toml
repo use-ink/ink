@@ -26,8 +26,8 @@ derive_more = { workspace = true, features = ["from", "display"] }
 num-traits = { workspace = true, features = ["i128"] }
 cfg-if = { workspace = true }
 paste = { workspace = true }
-arrayref = { workspace = true }
 static_assertions = { workspace = true }
+const_env = { workspace = true }
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
 rlibc = "1"
@@ -43,6 +43,9 @@ blake2 = { workspace = true, optional = true }
 # ECDSA for the off-chain environment.
 secp256k1 = { workspace = true, features = ["recovery", "global-context"], optional = true }
 
+# schnorrkel for the off-chain environment.
+schnorrkel = { version = "0.11.2", optional = true }
+
 # Only used in the off-chain environment.
 #
 # Sadly couldn't be marked as dev-dependency.
@@ -52,7 +55,7 @@ scale-encode = { workspace = true, optional = true }
 scale-info = { workspace = true, features = ["derive"], optional = true }
 
 [dev-dependencies]
-ink = { workspace = true }
+ink = { path = "../ink" }
 
 [features]
 default = ["std"]
@@ -67,6 +70,7 @@ std = [
     "scale-encode",
     "scale-info/std",
     "secp256k1",
+    "schnorrkel",
     "num-traits/std",
     # Enables hashing crates for off-chain environment.
     "sha2",

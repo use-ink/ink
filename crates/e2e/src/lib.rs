@@ -19,18 +19,32 @@
     html_favicon_url = "https://use.ink/crate-docs/favicon.png"
 )]
 
+mod backend;
+mod backend_calls;
 mod builders;
-mod client;
+mod client_utils;
+mod contract_build;
 mod contract_results;
+#[cfg(feature = "drink")]
+mod drink_client;
 mod error;
 pub mod events;
 mod node_proc;
+mod subxt_client;
 mod xts;
 
-pub use client::{
-    CallBuilderFinal,
-    Client,
-    Error,
+pub use crate::contract_build::{
+    build_root_and_additional_contracts,
+    build_root_and_contract_dependencies,
+};
+pub use backend::{
+    ChainBackend,
+    ContractsBackend,
+    E2EBackend,
+};
+pub use backend_calls::{
+    CallBuilder,
+    InstantiateBuilder,
 };
 pub use contract_results::{
     CallDryRunResult,
@@ -46,6 +60,11 @@ pub use node_proc::{
 pub use sp_core::H256;
 pub use sp_keyring::AccountKeyring;
 pub use subxt;
+pub use subxt_client::{
+    CallBuilderFinal,
+    Client,
+    Error,
+};
 pub use subxt_signer::sr25519::{
     self,
     dev::*,
@@ -53,6 +72,11 @@ pub use subxt_signer::sr25519::{
 };
 pub use tokio;
 pub use tracing_subscriber;
+#[cfg(feature = "drink")]
+pub use {
+    drink::runtime::MinimalRuntime,
+    drink_client::Client as DrinkClient,
+};
 
 use pallet_contracts_primitives::{
     ContractExecResult,

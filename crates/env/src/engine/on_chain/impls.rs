@@ -48,7 +48,10 @@ use crate::{
     ReturnFlags,
     TypedEnvBackend,
 };
-use ink_storage_traits::Storable;
+use ink_storage_traits::{
+    decode_all,
+    Storable,
+};
 
 impl CryptoHash for Blake2x128 {
     fn hash(input: &[u8], output: &mut <Self as HashOutput>::Type) {
@@ -57,7 +60,7 @@ impl CryptoHash for Blake2x128 {
             <Blake2x128 as HashOutput>::Type,
             OutputType
         );
-        let output: &mut OutputType = arrayref::array_mut_ref!(output, 0, 16);
+        let output: &mut OutputType = array_mut_ref!(output, 0, 16);
         ext::hash_blake2_128(input, output);
     }
 }
@@ -69,7 +72,7 @@ impl CryptoHash for Blake2x256 {
             <Blake2x256 as HashOutput>::Type,
             OutputType
         );
-        let output: &mut OutputType = arrayref::array_mut_ref!(output, 0, 32);
+        let output: &mut OutputType = array_mut_ref!(output, 0, 32);
         ext::hash_blake2_256(input, output);
     }
 }
@@ -81,7 +84,7 @@ impl CryptoHash for Sha2x256 {
             <Sha2x256 as HashOutput>::Type,
             OutputType
         );
-        let output: &mut OutputType = arrayref::array_mut_ref!(output, 0, 32);
+        let output: &mut OutputType = array_mut_ref!(output, 0, 32);
         ext::hash_sha2_256(input, output);
     }
 }
@@ -93,7 +96,7 @@ impl CryptoHash for Keccak256 {
             <Keccak256 as HashOutput>::Type,
             OutputType
         );
-        let output: &mut OutputType = arrayref::array_mut_ref!(output, 0, 32);
+        let output: &mut OutputType = array_mut_ref!(output, 0, 32);
         ext::hash_keccak_256(input, output);
     }
 }
@@ -236,7 +239,7 @@ impl EnvBackend for EnvInstance {
             Err(ExtError::KeyNotFound) => return Ok(None),
             Err(_) => panic!("encountered unexpected error"),
         }
-        let decoded = Storable::decode(&mut &output[..])?;
+        let decoded = decode_all(&mut &output[..])?;
         Ok(Some(decoded))
     }
 
@@ -253,7 +256,7 @@ impl EnvBackend for EnvInstance {
             Err(ExtError::KeyNotFound) => return Ok(None),
             Err(_) => panic!("encountered unexpected error"),
         }
-        let decoded = Storable::decode(&mut &output[..])?;
+        let decoded = decode_all(&mut &output[..])?;
         Ok(Some(decoded))
     }
 
@@ -328,6 +331,15 @@ impl EnvBackend for EnvInstance {
         output: &mut [u8; 20],
     ) -> Result<()> {
         ext::ecdsa_to_eth_address(pubkey, output).map_err(Into::into)
+    }
+
+    fn sr25519_verify(
+        &mut self,
+        signature: &[u8; 64],
+        message: &[u8],
+        pub_key: &[u8; 32],
+    ) -> Result<()> {
+        ext::sr25519_verify(signature, message, pub_key).map_err(Into::into)
     }
 
     fn call_chain_extension<I, T, E, ErrorCode, F, D>(

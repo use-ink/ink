@@ -5,8 +5,8 @@ mod erc20 {
     use ink::storage::Mapping;
 
     /// The ERC-20 error types.
-    #[derive(Debug, PartialEq, Eq, scale::Encode, scale::Decode)]
-    #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
+    #[derive(Debug, PartialEq, Eq)]
+    #[ink::scale_derive(Encode, Decode, TypeInfo)]
     pub enum Error {
         /// Returned if not enough balance to fulfill a request is available.
         InsufficientBalance,
@@ -190,6 +190,8 @@ mod erc20 {
                 return Err(Error::InsufficientAllowance)
             }
             self.transfer_from_to(&from, &to, value)?;
+            // We checked that allowance >= value
+            #[allow(clippy::arithmetic_side_effects)]
             self.allowances
                 .insert((&from, &caller), &(allowance - value));
             Ok(())
@@ -242,10 +244,12 @@ mod erc20 {
             if from_balance < value {
                 return Err(Error::InsufficientBalance)
             }
-
+            // We checked that from_balance >= value
+            #[allow(clippy::arithmetic_side_effects)]
             self.balances.insert(from, &(from_balance - value));
             let to_balance = self.balance_of_impl(to);
-            self.balances.insert(to, &(to_balance + value));
+            self.balances
+                .insert(to, &(to_balance.checked_add(value).unwrap()));
             self.env().emit_event(Transfer {
                 from: Some(*from),
                 to: Some(*to),
@@ -275,8 +279,9 @@ mod erc20 {
             expected_to: Option<AccountId>,
             expected_value: Balance,
         ) {
-            let decoded_event = <Transfer as scale::Decode>::decode(&mut &event.data[..])
-                .expect("encountered invalid contract event data buffer");
+            let decoded_event =
+                <Transfer as ink::scale::Decode>::decode(&mut &event.data[..])
+                    .expect("encountered invalid contract event data buffer");
             let Transfer { from, to, value } = decoded_event;
             assert_eq!(from, expected_from, "encountered invalid Transfer.from");
             assert_eq!(to, expected_to, "encountered invalid Transfer.to");
@@ -284,7 +289,7 @@ mod erc20 {
 
             fn encoded_into_hash<T>(entity: T) -> Hash
             where
-                T: scale::Encode,
+                T: ink::scale::Encode,
             {
                 let mut result = Hash::CLEAR_HASH;
                 let len_result = result.as_ref().len();
@@ -322,7 +327,7 @@ mod erc20 {
             for (n, (actual_topic, expected_topic)) in
                 event.topics.iter().zip(expected_topics).enumerate()
             {
-                let topic = <Hash as scale::Decode>::decode(&mut &actual_topic[..])
+                let topic = <Hash as ink::scale::Decode>::decode(&mut &actual_topic[..])
                     .expect("encountered invalid topic encoding");
                 assert_eq!(topic, expected_topic, "encountered invalid topic at {n}");
             }

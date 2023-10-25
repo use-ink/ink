@@ -38,6 +38,8 @@ decodable
 decrement
 defrag
 defragmentation
+delegatee
+delegator
 deploy
 dereferencing
 deserialize/S
@@ -63,10 +65,13 @@ reentrancy
 refcount
 scalability
 scalable
+scale_derive
+sr25519
 stdin
 stdout
 subber
 tuple
+type_info
 unordered
 untyped
 v1

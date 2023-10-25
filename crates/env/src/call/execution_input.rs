@@ -184,7 +184,9 @@ where
 {
     #[inline]
     fn size_hint(&self) -> usize {
-        scale::Encode::size_hint(&self.head) + scale::Encode::size_hint(&self.rest)
+        scale::Encode::size_hint(&self.head)
+            .checked_add(scale::Encode::size_hint(&self.rest))
+            .unwrap()
     }
 
     #[inline]
@@ -204,7 +206,9 @@ where
 {
     #[inline]
     fn size_hint(&self) -> usize {
-        scale::Encode::size_hint(&self.selector) + scale::Encode::size_hint(&self.args)
+        scale::Encode::size_hint(&self.selector)
+            .checked_add(scale::Encode::size_hint(&self.args))
+            .unwrap()
     }
 
     #[inline]

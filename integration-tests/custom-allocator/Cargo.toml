@@ -1,6 +1,6 @@
 [package]
 name = "custom-allocator"
-version = "4.2.0"
+version = "5.0.0-alpha"
 authors = ["Parity Technologies <admin@parity.io>"]
 edition = "2021"
 publish = false
@@ -13,9 +13,6 @@ ink = { path = "../../crates/ink", default-features = false, features = ["no-all
 # This is going to be our new global memory allocator.
 dlmalloc = {version = "0.2", default-features = false, features = ["global"] }
 
-scale = { package = "parity-scale-codec", version = "3", default-features = false, features = ["derive"] }
-scale-info = { version = "2.6", default-features = false, features = ["derive"], optional = true }
-
 [dev-dependencies]
 ink_e2e = { path = "../../crates/e2e" }
 
@@ -26,8 +23,6 @@ path = "lib.rs"
 default = ["std"]
 std = [
     "ink/std",
-    "scale/std",
-    "scale-info/std",
 ]
 ink-as-dependency = []
 e2e-tests = []

@@ -1,6 +1,6 @@
 [package]
 name = "contract_ref"
-version = "4.2.0"
+version = "5.0.0-alpha"
 authors = ["Parity Technologies <admin@parity.io>"]
 edition = "2021"
 
@@ -22,8 +22,6 @@ path = "lib.rs"
 default = ["std"]
 std = [
     "ink/std",
-    "scale/std",
-    "scale-info/std",
 
     "integration_flipper/std",
 ]

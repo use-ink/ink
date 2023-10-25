@@ -23,15 +23,15 @@ use ink_env::Environment;
 
 use core::marker::PhantomData;
 use pallet_contracts_primitives::CodeUploadResult;
-use sp_core::{
-    Bytes,
-    H256,
-};
+use sp_core::H256;
 use subxt::{
+    backend::{
+        legacy::LegacyRpcMethods,
+        rpc::RpcClient,
+    },
     blocks::ExtrinsicEvents,
     config::ExtrinsicParams,
     ext::scale_encode,
-    rpc_params,
     tx::Signer,
     utils::MultiAddress,
     OnlineClient,
@@ -203,6 +203,7 @@ enum Code {
 
 /// Provides functions for interacting with the `pallet-contracts` API.
 pub struct ContractsApi<C: subxt::Config, E: Environment> {
+    pub rpc: LegacyRpcMethods<C>,
     pub client: OnlineClient<C>,
     _phantom: PhantomData<fn() -> (C, E)>,
 }
@@ -213,17 +214,20 @@ where
     C::AccountId: From<sr25519::PublicKey> + serde::de::DeserializeOwned + scale::Codec,
     C::Address: From<sr25519::PublicKey>,
     C::Signature: From<sr25519::Signature>,
-    <C::ExtrinsicParams as ExtrinsicParams<C::Hash>>::OtherParams: Default,
+    <C::ExtrinsicParams as ExtrinsicParams<C>>::OtherParams: Default,
 
     E: Environment,
     E::Balance: scale::HasCompact + serde::Serialize,
 {
     /// Creates a new [`ContractsApi`] instance.
-    pub async fn new(client: OnlineClient<C>) -> Self {
-        Self {
+    pub async fn new(rpc: RpcClient) -> Result<Self, subxt::Error> {
+        let client = OnlineClient::<C>::from_rpc_client(rpc.clone()).await?;
+        let rpc = LegacyRpcMethods::<C>::new(rpc);
+        Ok(Self {
+            rpc,
             client,
             _phantom: Default::default(),
-        }
+        })
     }
 
     /// Attempt to transfer the `value` from `origin` to `dest`.
@@ -238,7 +242,7 @@ where
     ) -> Result<(), subxt::Error> {
         let call = subxt::tx::Payload::new(
             "Balances",
-            "transfer",
+            "transfer_allow_death",
             Transfer::<E, C> {
                 dest: subxt::utils::Static(dest.into()),
                 value,
@@ -246,15 +250,30 @@ where
         )
         .unvalidated();
 
-        let tx_progress = self
-            .client
-            .tx()
-            .sign_and_submit_then_watch_default(&call, origin)
-            .await?;
+        let account_id = <Keypair as Signer<C>>::account_id(origin);
+        let account_nonce =
+            self.get_account_nonce(&account_id)
+                .await
+                .unwrap_or_else(|err| {
+                    panic!("error calling `get_account_nonce`: {err:?}");
+                });
 
-        tx_progress.wait_for_in_block().await.unwrap_or_else(|err| {
-            panic!("error on call `wait_for_in_block`: {err:?}");
-        });
+        self.client
+            .tx()
+            .create_signed_with_nonce(&call, origin, account_nonce, Default::default())
+            .unwrap_or_else(|err| {
+                panic!("error on call `create_signed_with_nonce`: {err:?}");
+            })
+            .submit_and_watch()
+            .await
+            .unwrap_or_else(|err| {
+                panic!("error on call `submit_and_watch`: {err:?}");
+            })
+            .wait_for_in_block()
+            .await
+            .unwrap_or_else(|err| {
+                panic!("error on call `wait_for_in_block`: {err:?}");
+            });
 
         Ok(())
     }
@@ -280,11 +299,10 @@ where
             salt,
         };
         let func = "ContractsApi_instantiate";
-        let params = rpc_params![func, Bytes(scale::Encode::encode(&call_request))];
-        let bytes: Bytes = self
-            .client
-            .rpc()
-            .request("state_call", params)
+        let params = scale::Encode::encode(&call_request);
+        let bytes = self
+            .rpc
+            .state_call(func, Some(&params), None)
             .await
             .unwrap_or_else(|err| {
                 panic!("error on ws request `contracts_instantiate`: {err:?}");
@@ -303,9 +321,21 @@ where
     where
         Call: subxt::tx::TxPayload,
     {
+        let account_id = <Keypair as Signer<C>>::account_id(signer);
+        let account_nonce =
+            self.get_account_nonce(&account_id)
+                .await
+                .unwrap_or_else(|err| {
+                    panic!("error calling `get_account_nonce`: {err:?}");
+                });
+
         self.client
             .tx()
-            .sign_and_submit_then_watch_default(call, signer)
+            .create_signed_with_nonce(call, signer, account_nonce, Default::default())
+            .unwrap_or_else(|err| {
+                panic!("error on call `create_signed_with_nonce`: {err:?}");
+            })
+            .submit_and_watch()
             .await
             .map(|tx_progress| {
                 log_info(&format!(
@@ -315,7 +345,7 @@ where
                 tx_progress
             })
             .unwrap_or_else(|err| {
-                panic!("error on call `sign_and_submit_then_watch_default`: {err:?}");
+                panic!("error on call `submit_and_watch`: {err:?}");
             })
             .wait_for_in_block()
             .await
@@ -327,6 +357,35 @@ where
             .unwrap_or_else(|err| {
                 panic!("error on call `fetch_events`: {err:?}");
             })
+    }
+
+    /// Return the hash of the *best* block
+    pub async fn best_block(&self) -> C::Hash {
+        self.rpc
+            .chain_get_block_hash(None)
+            .await
+            .unwrap_or_else(|err| {
+                panic!("error on call `chain_get_block_hash`: {err:?}");
+            })
+            .unwrap_or_else(|| {
+                panic!("error on call `chain_get_block_hash`: no best block found");
+            })
+    }
+
+    /// Return the account nonce at the *best* block for an account ID.
+    async fn get_account_nonce(
+        &self,
+        account_id: &C::AccountId,
+    ) -> Result<u64, subxt::Error> {
+        let best_block = self.best_block().await;
+        let account_nonce = self
+            .client
+            .blocks()
+            .at(best_block)
+            .await?
+            .account_nonce(account_id)
+            .await?;
+        Ok(account_nonce)
     }
 
     /// Submits an extrinsic to instantiate a contract with the given code.
@@ -375,11 +434,10 @@ where
             determinism: Determinism::Enforced,
         };
         let func = "ContractsApi_upload_code";
-        let params = rpc_params![func, Bytes(scale::Encode::encode(&call_request))];
-        let bytes: Bytes = self
-            .client
-            .rpc()
-            .request("state_call", params)
+        let params = scale::Encode::encode(&call_request);
+        let bytes = self
+            .rpc
+            .state_call(func, Some(&params), None)
             .await
             .unwrap_or_else(|err| {
                 panic!("error on ws request `upload_code`: {err:?}");
@@ -430,11 +488,10 @@ where
             input_data,
         };
         let func = "ContractsApi_call";
-        let params = rpc_params![func, Bytes(scale::Encode::encode(&call_request))];
-        let bytes: Bytes = self
-            .client
-            .rpc()
-            .request("state_call", params)
+        let params = scale::Encode::encode(&call_request);
+        let bytes = self
+            .rpc
+            .state_call(func, Some(&params), None)
             .await
             .unwrap_or_else(|err| {
                 panic!("error on ws request `contracts_call`: {err:?}");

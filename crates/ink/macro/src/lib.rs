@@ -24,6 +24,7 @@ mod chain_extension;
 mod contract;
 mod event;
 mod ink_test;
+mod scale;
 mod selector;
 mod storage;
 mod storage_item;
@@ -159,6 +160,7 @@ pub fn selector_bytes(input: TokenStream) -> TokenStream {
 ///
 ///     Given a custom `Environment` implementation:
 ///     ```
+///     #[derive(Clone)]
 ///     pub struct MyEnvironment;
 ///
 ///     impl ink_env::Environment for MyEnvironment {
@@ -176,6 +178,7 @@ pub fn selector_bytes(input: TokenStream) -> TokenStream {
 ///     ```
 ///     #[ink::contract(env = MyEnvironment)]
 ///     mod my_contract {
+///         # #[derive(Clone)]
 ///         # pub struct MyEnvironment;
 ///         #
 ///         # impl ink_env::Environment for MyEnvironment {
@@ -1104,7 +1107,7 @@ pub fn test(attr: TokenStream, item: TokenStream) -> TokenStream {
 /// #         panic!("encountered unexpected invalid SCALE encoding")
 /// #     }
 /// # }
-/// # #[derive(scale::Encode, scale::Decode, scale_info::TypeInfo)]
+/// # #[derive(scale::Encode, scale::Decode, scale_info::TypeInfo, Clone)]
 /// # pub enum Access {
 /// #     ReadWrite,
 /// #     ReadOnly,
@@ -1143,6 +1146,7 @@ pub fn test(attr: TokenStream, item: TokenStream) -> TokenStream {
 ///     Environment,
 /// };
 ///
+/// #[derive(Clone)]
 /// pub enum CustomEnvironment {}
 ///
 /// impl Environment for CustomEnvironment {
@@ -1267,7 +1271,7 @@ pub fn test(attr: TokenStream, item: TokenStream) -> TokenStream {
 /// #         panic!("encountered unexpected invalid SCALE encoding")
 /// #     }
 /// # }
-/// # #[derive(scale::Encode, scale::Decode, scale_info::TypeInfo)]
+/// # #[derive(scale::Encode, scale::Decode, scale_info::TypeInfo, Clone)]
 /// # pub enum Access {
 /// #     ReadWrite,
 /// #     ReadOnly,
@@ -1284,6 +1288,7 @@ pub fn test(attr: TokenStream, item: TokenStream) -> TokenStream {
 /// #         }
 /// #     }
 /// # }
+/// # #[derive(Clone)]
 /// # pub enum CustomEnvironment {}
 /// # impl ink_env::Environment for CustomEnvironment {
 /// #     const MAX_EVENT_TOPICS: usize =
@@ -1548,6 +1553,42 @@ synstructure::decl_derive!(
     /// ```
     storage::storage_layout_derive
 );
+
+/// Derive the re-exported traits `ink::scale::Encode`, `ink::scale::Decode` and
+/// `ink::scale_info::TypeInfo`. It enables using the built in derive macros for these
+/// traits without depending directly on the `parity-scale-codec` and `scale-info` crates.
+///
+/// # Options
+///   - `encode`: derives `ink::scale::Encode`
+///   - `decode`: derives `ink::scale::Decode`
+///   - `type_info`: derives `ink::scale_info::TypeInfo`
+///
+/// # Examples
+///
+/// ```
+/// #[ink::scale_derive(Encode, Decode, TypeInfo)]
+/// pub enum Error {}
+/// ```
+/// This is a convenience macro that expands to include the additional `crate` attributes
+/// required for the path of the re-exported crates.
+///
+/// ```
+/// #[derive(::ink::scale::Encode, ::ink::scale::Decode)]
+/// #[codec(crate = ::ink::scale)]
+/// #[cfg_attr(
+///   feature = "std",
+///   derive(::scale_info::TypeInfo),
+///   scale_info(crate = ::ink::scale_info)
+/// )]
+/// pub enum Error {}
+/// ```
+#[proc_macro_attribute]
+pub fn scale_derive(attr: TokenStream, item: TokenStream) -> TokenStream {
+    match scale::derive(attr.into(), item.into()) {
+        Ok(output) => output.into(),
+        Err(err) => err.to_compile_error().into(),
+    }
+}
 
 #[cfg(test)]
 pub use contract::generate_or_err;

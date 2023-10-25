@@ -113,27 +113,35 @@ mod call_builder {
     mod e2e_tests {
         use super::*;
         use incrementer::IncrementerRef;
+        use ink_e2e::{
+            ChainBackend,
+            ContractsBackend,
+        };
 
         type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
         #[ink_e2e::test]
-        async fn e2e_delegate_call_return_value_returns_correct_value(
-            mut client: ink_e2e::Client<C, E>,
+        async fn e2e_delegate_call_return_value_returns_correct_value<
+            Client: E2EBackend,
+        >(
+            mut client: Client,
         ) -> E2EResult<()> {
             let origin = client
                 .create_and_fund_account(&ink_e2e::alice(), 10_000_000_000_000)
                 .await;
 
             let expected_value = 42;
-            let constructor = CallBuilderReturnValueRef::new(expected_value);
+            let mut constructor = CallBuilderReturnValueRef::new(expected_value);
             let call_builder = client
-                .instantiate("call_builder_return_value", &origin, constructor, 0, None)
+                .instantiate("call_builder_return_value", &origin, &mut constructor)
+                .submit()
                 .await
                 .expect("instantiate failed");
             let mut call_builder_call = call_builder.call::<CallBuilderReturnValue>();
 
             let code_hash = client
-                .upload("incrementer", &origin, None)
+                .upload("incrementer", &origin)
+                .submit()
                 .await
                 .expect("upload `incrementer` failed")
                 .code_hash;
@@ -141,7 +149,8 @@ mod call_builder {
             let selector = ink::selector_bytes!("get");
             let call = call_builder_call.delegate_call(code_hash, selector);
             let call_result = client
-                .call(&origin, &call, 0, None)
+                .call(&origin, &call)
+                .submit()
                 .await
                 .expect("Client failed to call `call_builder::invoke`.")
                 .return_value();
@@ -155,22 +164,26 @@ mod call_builder {
         }
 
         #[ink_e2e::test]
-        async fn e2e_delegate_call_return_value_errors_if_return_data_too_long(
-            mut client: ink_e2e::Client<C, E>,
+        async fn e2e_delegate_call_return_value_errors_if_return_data_too_long<
+            Client: E2EBackend,
+        >(
+            mut client: Client,
         ) -> E2EResult<()> {
             let origin = client
                 .create_and_fund_account(&ink_e2e::alice(), 10_000_000_000_000)
                 .await;
 
-            let constructor = CallBuilderReturnValueRef::new(42);
+            let mut constructor = CallBuilderReturnValueRef::new(42);
             let call_builder = client
-                .instantiate("call_builder_return_value", &origin, constructor, 0, None)
+                .instantiate("call_builder_return_value", &origin, &mut constructor)
+                .submit()
                 .await
                 .expect("instantiate failed");
             let mut call_builder_call = call_builder.call::<CallBuilderReturnValue>();
 
             let code_hash = client
-                .upload("incrementer", &origin, None)
+                .upload("incrementer", &origin)
+                .submit()
                 .await
                 .expect("upload `incrementer` failed")
                 .code_hash;
@@ -178,10 +191,8 @@ mod call_builder {
             let selector = ink::selector_bytes!("get");
             let call =
                 call_builder_call.delegate_call_short_return_type(code_hash, selector);
-            let call_result: Result<i8, String> = client
-                .call_dry_run(&origin, &call, 0, None)
-                .await
-                .return_value();
+            let call_result: Result<i8, String> =
+                client.call(&origin, &call).dry_run().await.return_value();
 
             assert!(
                 call_result.is_err(),
@@ -197,31 +208,36 @@ mod call_builder {
         }
 
         #[ink_e2e::test]
-        async fn e2e_forward_call_return_value_returns_correct_value(
-            mut client: ink_e2e::Client<C, E>,
+        async fn e2e_forward_call_return_value_returns_correct_value<
+            Client: E2EBackend,
+        >(
+            mut client: Client,
         ) -> E2EResult<()> {
             let origin = client
                 .create_and_fund_account(&ink_e2e::alice(), 10_000_000_000_000)
                 .await;
 
-            let constructor = CallBuilderReturnValueRef::new(0);
+            let mut constructor = CallBuilderReturnValueRef::new(0);
             let call_builder = client
-                .instantiate("call_builder_return_value", &origin, constructor, 0, None)
+                .instantiate("call_builder_return_value", &origin, &mut constructor)
+                .submit()
                 .await
                 .expect("instantiate failed");
             let mut call_builder_call = call_builder.call::<CallBuilderReturnValue>();
 
             let expected_value = 42;
-            let incrementer_constructor = IncrementerRef::new(expected_value);
+            let mut incrementer_constructor = IncrementerRef::new(expected_value);
             let incrementer = client
-                .instantiate("incrementer", &origin, incrementer_constructor, 0, None)
+                .instantiate("incrementer", &origin, &mut incrementer_constructor)
+                .submit()
                 .await
                 .expect("instantiate failed");
 
             let selector = ink::selector_bytes!("get");
             let call = call_builder_call.forward_call(incrementer.account_id, selector);
             let call_result = client
-                .call(&origin, &call, 0, None)
+                .call(&origin, &call)
+                .submit()
                 .await
                 .expect("Client failed to call `call_builder::invoke`.")
                 .return_value();
@@ -235,34 +251,36 @@ mod call_builder {
         }
 
         #[ink_e2e::test]
-        async fn e2e_forward_call_return_value_errors_if_return_data_too_long(
-            mut client: ink_e2e::Client<C, E>,
+        async fn e2e_forward_call_return_value_errors_if_return_data_too_long<
+            Client: E2EBackend,
+        >(
+            mut client: Client,
         ) -> E2EResult<()> {
             let origin = client
                 .create_and_fund_account(&ink_e2e::alice(), 10_000_000_000_000)
                 .await;
 
-            let constructor = CallBuilderReturnValueRef::new(0);
+            let mut constructor = CallBuilderReturnValueRef::new(0);
             let call_builder = client
-                .instantiate("call_builder_return_value", &origin, constructor, 0, None)
+                .instantiate("call_builder_return_value", &origin, &mut constructor)
+                .submit()
                 .await
                 .expect("instantiate failed");
             let mut call_builder_call = call_builder.call::<CallBuilderReturnValue>();
 
             let expected_value = 42;
-            let incrementer_constructor = IncrementerRef::new(expected_value);
+            let mut incrementer_constructor = IncrementerRef::new(expected_value);
             let incrementer = client
-                .instantiate("incrementer", &origin, incrementer_constructor, 0, None)
+                .instantiate("incrementer", &origin, &mut incrementer_constructor)
+                .submit()
                 .await
                 .expect("instantiate failed");
 
             let selector = ink::selector_bytes!("get");
             let call = call_builder_call
                 .forward_call_short_return_type(incrementer.account_id, selector);
-            let call_result: Result<i8, String> = client
-                .call_dry_run(&origin, &call, 0, None)
-                .await
-                .return_value();
+            let call_result: Result<i8, String> =
+                client.call(&origin, &call).dry_run().await.return_value();
 
             assert!(
                 call_result.is_err(),

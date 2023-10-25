@@ -46,12 +46,19 @@ use ink_engine::{
     ext,
     ext::Engine,
 };
-use ink_storage_traits::Storable;
+use ink_storage_traits::{
+    decode_all,
+    Storable,
+};
+use schnorrkel::{
+    PublicKey,
+    Signature,
+};
 
 /// The capacity of the static buffer.
 /// This is the same size as the ink! on-chain environment. We chose to use the same size
 /// to be as close to the on-chain behavior as possible.
-const BUFFER_SIZE: usize = 1 << 14; // 16 kB
+const BUFFER_SIZE: usize = crate::BUFFER_SIZE;
 
 impl CryptoHash for Blake2x128 {
     fn hash(input: &[u8], output: &mut <Self as HashOutput>::Type) {
@@ -60,7 +67,7 @@ impl CryptoHash for Blake2x128 {
             <Blake2x128 as HashOutput>::Type,
             OutputType
         );
-        let output: &mut OutputType = arrayref::array_mut_ref!(output, 0, 16);
+        let output: &mut OutputType = array_mut_ref!(output, 0, 16);
         Engine::hash_blake2_128(input, output);
     }
 }
@@ -72,7 +79,7 @@ impl CryptoHash for Blake2x256 {
             <Blake2x256 as HashOutput>::Type,
             OutputType
         );
-        let output: &mut OutputType = arrayref::array_mut_ref!(output, 0, 32);
+        let output: &mut OutputType = array_mut_ref!(output, 0, 32);
         Engine::hash_blake2_256(input, output);
     }
 }
@@ -84,7 +91,7 @@ impl CryptoHash for Sha2x256 {
             <Sha2x256 as HashOutput>::Type,
             OutputType
         );
-        let output: &mut OutputType = arrayref::array_mut_ref!(output, 0, 32);
+        let output: &mut OutputType = array_mut_ref!(output, 0, 32);
         Engine::hash_sha2_256(input, output);
     }
 }
@@ -96,7 +103,7 @@ impl CryptoHash for Keccak256 {
             <Keccak256 as HashOutput>::Type,
             OutputType
         );
-        let output: &mut OutputType = arrayref::array_mut_ref!(output, 0, 32);
+        let output: &mut OutputType = array_mut_ref!(output, 0, 32);
         Engine::hash_keccak_256(input, output);
     }
 }
@@ -115,6 +122,7 @@ impl From<ext::Error> for crate::Error {
             ext::Error::NotCallable => Self::NotCallable,
             ext::Error::LoggingDisabled => Self::LoggingDisabled,
             ext::Error::EcdsaRecoveryFailed => Self::EcdsaRecoveryFailed,
+            ext::Error::Sr25519VerifyFailed => Self::Sr25519VerifyFailed,
         }
     }
 }
@@ -197,14 +205,14 @@ impl EnvBackend for EnvInstance {
         K: scale::Encode,
         R: Storable,
     {
-        let mut output: [u8; 9600] = [0; 9600];
-        match self.engine.get_storage(&key.encode(), &mut &mut output[..]) {
-            Ok(_) => (),
-            Err(ext::Error::KeyNotFound) => return Ok(None),
+        match self.engine.get_storage(&key.encode()) {
+            Ok(res) => {
+                let decoded = decode_all(&mut &res[..])?;
+                Ok(Some(decoded))
+            }
+            Err(ext::Error::KeyNotFound) => Ok(None),
             Err(_) => panic!("encountered unexpected error"),
         }
-        let decoded = Storable::decode(&mut &output[..])?;
-        Ok(Some(decoded))
     }
 
     fn take_contract_storage<K, R>(&mut self, key: &K) -> Result<Option<R>>
@@ -212,17 +220,14 @@ impl EnvBackend for EnvInstance {
         K: scale::Encode,
         R: Storable,
     {
-        let mut output: [u8; 9600] = [0; 9600];
-        match self
-            .engine
-            .take_storage(&key.encode(), &mut &mut output[..])
-        {
-            Ok(_) => (),
-            Err(ext::Error::KeyNotFound) => return Ok(None),
+        match self.engine.take_storage(&key.encode()) {
+            Ok(output) => {
+                let decoded = decode_all(&mut &output[..])?;
+                Ok(Some(decoded))
+            }
+            Err(ext::Error::KeyNotFound) => Ok(None),
             Err(_) => panic!("encountered unexpected error"),
         }
-        let decoded = Storable::decode(&mut &output[..])?;
-        Ok(Some(decoded))
     }
 
     fn contains_contract_storage<K>(&mut self, key: &K) -> Option<u32>
@@ -298,7 +303,7 @@ impl EnvBackend for EnvInstance {
         };
         let recovery_id = RecoveryId::from_i32(recovery_byte as i32)
             .unwrap_or_else(|error| panic!("Unable to parse the recovery id: {error}"));
-        let message = Message::from_slice(message_hash).unwrap_or_else(|error| {
+        let message = Message::from_digest_slice(message_hash).unwrap_or_else(|error| {
             panic!("Unable to create the message from hash: {error}")
         });
         let signature =
@@ -327,6 +332,28 @@ impl EnvBackend for EnvInstance {
         <Keccak256>::hash(&uncompressed[1..], &mut hash);
         output.as_mut().copy_from_slice(&hash[12..]);
         Ok(())
+    }
+
+    fn sr25519_verify(
+        &mut self,
+        signature: &[u8; 64],
+        message: &[u8],
+        pub_key: &[u8; 32],
+    ) -> Result<()> {
+        // the context associated with the signing (specific to the sr25519 algorithm)
+        // defaults to "substrate" in substrate, but could be different elsewhere
+        // https://github.com/paritytech/substrate/blob/c32f5ed2ae6746d6f791f08cecbfc22fa188f5f9/primitives/core/src/sr25519.rs#L60
+        let context = b"substrate";
+        // attempt to parse a signature from bytes
+        let signature: Signature =
+            Signature::from_bytes(signature).map_err(|_| Error::Sr25519VerifyFailed)?;
+        // attempt to parse a public key from bytes
+        let public_key: PublicKey =
+            PublicKey::from_bytes(pub_key).map_err(|_| Error::Sr25519VerifyFailed)?;
+        // verify the signature
+        public_key
+            .verify_simple(context, message, &signature)
+            .map_err(|_| Error::Sr25519VerifyFailed)
     }
 
     fn call_chain_extension<I, T, E, ErrorCode, F, D>(

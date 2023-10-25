@@ -37,6 +37,7 @@ pub mod wildcard_selector {
     #[cfg(all(test, feature = "e2e-tests"))]
     mod e2e_tests {
         use super::*;
+        use ink_e2e::ContractsBackend;
 
         use ink::env::call::utils::{
             Argument,
@@ -68,13 +69,14 @@ pub mod wildcard_selector {
         }
 
         #[ink_e2e::test]
-        async fn arbitrary_selectors_handled_by_wildcard(
-            mut client: ink_e2e::Client<C, E>,
+        async fn arbitrary_selectors_handled_by_wildcard<Client: E2EBackend>(
+            mut client: Client,
         ) -> E2EResult<()> {
             // given
-            let constructor = WildcardSelectorRef::new();
+            let mut constructor = WildcardSelectorRef::new();
             let contract_acc_id = client
-                .instantiate("wildcard_selector", &ink_e2e::alice(), constructor, 0, None)
+                .instantiate("wildcard_selector", &ink_e2e::alice(), &mut constructor)
+                .submit()
                 .await
                 .expect("instantiate failed")
                 .account_id;
@@ -89,7 +91,8 @@ pub mod wildcard_selector {
             );
 
             let result = client
-                .call(&ink_e2e::bob(), &wildcard, 0, None)
+                .call(&ink_e2e::bob(), &wildcard)
+                .submit()
                 .await
                 .expect("wildcard failed");
 
@@ -102,7 +105,8 @@ pub mod wildcard_selector {
             );
 
             let result2 = client
-                .call(&ink_e2e::bob(), &wildcard2, 0, None)
+                .call(&ink_e2e::bob(), &wildcard2)
+                .submit()
                 .await
                 .expect("wildcard failed");
 
@@ -121,13 +125,14 @@ pub mod wildcard_selector {
         }
 
         #[ink_e2e::test]
-        async fn wildcard_complement_works(
-            mut client: ink_e2e::Client<C, E>,
+        async fn wildcard_complement_works<Client: E2EBackend>(
+            mut client: Client,
         ) -> E2EResult<()> {
             // given
-            let constructor = WildcardSelectorRef::new();
+            let mut constructor = WildcardSelectorRef::new();
             let contract_acc_id = client
-                .instantiate("wildcard_selector", &ink_e2e::alice(), constructor, 0, None)
+                .instantiate("wildcard_selector", &ink_e2e::alice(), &mut constructor)
+                .submit()
                 .await
                 .expect("instantiate failed")
                 .account_id;
@@ -141,7 +146,8 @@ pub mod wildcard_selector {
             );
 
             let result = client
-                .call(&ink_e2e::bob(), &wildcard, 0, None)
+                .call(&ink_e2e::bob(), &wildcard)
+                .submit()
                 .await
                 .expect("wildcard failed");
 

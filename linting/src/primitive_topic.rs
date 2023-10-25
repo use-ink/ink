@@ -1,0 +1,224 @@
+// Copyright (C) Parity Technologies (UK) Ltd.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+use clippy_utils::{
+    diagnostics::span_lint_and_then,
+    is_lint_allowed,
+    match_def_path,
+    source::snippet_opt,
+};
+use if_chain::if_chain;
+use rustc_errors::Applicability;
+use rustc_hir::{
+    self,
+    def::{
+        DefKind,
+        Res,
+    },
+    def_id::DefId,
+    Arm,
+    AssocItemKind,
+    ExprKind,
+    Impl,
+    ImplItemKind,
+    ImplItemRef,
+    Item,
+    ItemKind,
+    Node,
+    PatKind,
+    QPath,
+};
+use rustc_lint::{
+    LateContext,
+    LateLintPass,
+};
+use rustc_middle::ty::{
+    self,
+    Ty,
+    TyKind,
+};
+use rustc_session::{
+    declare_lint,
+    declare_lint_pass,
+};
+
+declare_lint! {
+    /// **What it does:** Checks for ink! contracts that use
+    /// the [`#[ink(topic)]`](https://use.ink/macros-attributes/topic) annotation with primitive
+    /// number types. Topics are discrete events for which it makes sense to filter. Typical
+    /// examples of fields that should be filtered are `AccountId`, `bool` or `enum` variants.
+    ///
+    /// **Why is this bad?** It typically doesn't make sense to annotate types like `u32` or `i32`
+    /// as a topic, if those fields can take continuous values that could be anywhere between
+    /// `::MIN` and `::MAX`. An example of a case where it doesn't make sense at all to have a
+    /// topic on the storage field is something like `value: Balance` in the examle below.
+    ///
+    /// **Example:**
+    ///
+    /// ```rust
+    /// // Good
+    /// // Filtering transactions based on source and destination addresses.
+    /// #[ink(event)]
+    /// pub struct Transaction {
+    ///     #[ink(topic)]
+    ///     src: Option<AccountId>,
+    ///     #[ink(topic)]
+    ///     dst: Option<AccountId>,
+    ///     value: Balance,
+    /// }
+    /// ```
+    ///
+    /// ```rust
+    /// // Bad
+    /// // It typically makes no sense to filter `Balance`, since its value may varies from `::MAX`
+    /// // to `::MIN`.
+    /// #[ink(event)]
+    /// pub struct Transaction {
+    ///     #[ink(topic)]
+    ///     src: Option<AccountId>,
+    ///     #[ink(topic)]
+    ///     dst: Option<AccountId>,
+    ///     #[ink(topic)]
+    ///     value: Balance,
+    /// }
+    /// ```
+    pub PRIMITIVE_TOPIC,
+    Warn,
+    "`#[ink(topic)]` should not be used with a number primitive"
+}
+
+declare_lint_pass!(PrimitiveTopic => [PRIMITIVE_TOPIC]);
+
+/// Returns `true` if `item` is an implementation of `::ink::env::Event` for a storage
+/// struct. If that's the case, it returns the name of this struct.
+fn is_ink_event_impl<'tcx>(cx: &LateContext<'tcx>, item: &'tcx Item<'_>) -> bool {
+    if let Some(trait_ref) = cx.tcx.impl_trait_ref(item.owner_id) {
+        match_def_path(
+            cx,
+            trait_ref.skip_binder().def_id,
+            &["ink_env", "event", "Event"],
+        )
+    } else {
+        false
+    }
+}
+
+/// Returns `true` if `impl_item` is the `topics` function
+fn is_topics_function(impl_item: &ImplItemRef) -> bool {
+    impl_item.kind == AssocItemKind::Fn { has_self: true }
+        && impl_item.ident.name.as_str() == "topics"
+}
+
+/// Returns `true` if `ty` is a numerical primitive type that should not be annotated with
+/// `#[ink(topic)]`
+fn is_primitive_number_ty(ty: &Ty) -> bool {
+    matches!(ty.kind(), ty::Int(_) | ty::Uint(_))
+}
+
+/// Reports a topic-annotated field with a numerical primitive type
+fn report_field(cx: &LateContext, event_def_id: DefId, field_name: &str) {
+    if_chain! {
+        if let Some(Node::Item(event_node)) = cx.tcx.hir().get_if_local(event_def_id);
+        if let ItemKind::Struct(ref struct_def, _) = event_node.kind;
+        if let Some(field) = struct_def.fields().iter().find(|f|{ f.ident.as_str() == field_name });
+        if !is_lint_allowed(cx, PRIMITIVE_TOPIC, field.hir_id);
+        then {
+            span_lint_and_then(
+                cx,
+                PRIMITIVE_TOPIC,
+                field.span,
+                "using `#[ink(topic)]` for a field with a primitive number type",
+                |diag| {
+                    let snippet = snippet_opt(cx, field.span).expect("snippet must exist");
+                    diag.span_suggestion(
+                        field.span,
+                        "consider removing `#[ink(topic)]`".to_string(),
+                        snippet,
+                        Applicability::Unspecified,
+                    );
+                },
+            )
+        }
+    }
+}
+
+/// Returns `DefId` of the event struct for which `Topics` is implemented
+fn get_event_def_id(topics_impl: &Impl) -> Option<DefId> {
+    if_chain! {
+        if let rustc_hir::TyKind::Path(qpath) = &topics_impl.self_ty.kind;
+        if let QPath::Resolved(_, path) = qpath;
+        if let Res::Def(DefKind::Struct, def_id) = path.res;
+        then { Some(def_id) }
+        else { None }
+    }
+}
+
+impl<'tcx> LateLintPass<'tcx> for PrimitiveTopic {
+    fn check_item(&mut self, cx: &LateContext<'tcx>, item: &'tcx Item<'_>) {
+        if_chain! {
+            if let ItemKind::Impl(topics_impl) = &item.kind;
+            if is_ink_event_impl(cx, item);
+            if let Some(event_def_id) = get_event_def_id(topics_impl);
+            then {
+                topics_impl.items.iter().for_each(|impl_item| {
+                    if_chain! {
+                        // We need to extract field patterns from the event sturct matched in the
+                        // `topics` function to access their inferred types.
+                        // Here is the simplified example of the expanded code:
+                        // ```
+                        // fn topics(/* ... */) {
+                        //      match self {
+                        //          MyEvent {
+                        //              field_1: __binding_0,
+                        //              field_2: __binding_1,
+                        //              /* ... */
+                        //              ..
+                        //          } => { /* ... */ }
+                        //     }
+                        // }
+                        // ```
+                        if is_topics_function(impl_item);
+                        let impl_item = cx.tcx.hir().impl_item(impl_item.id);
+                        if let ImplItemKind::Fn(_, eid) = impl_item.kind;
+                        let body = cx.tcx.hir().body(eid).value;
+                        if let ExprKind::Block (block, _) = body.kind;
+                        if let Some(match_self) = block.expr;
+                        if let ExprKind::Match(_, [Arm { pat: arm_pat, .. }], _) = match_self.kind;
+                        if let PatKind::Struct(_, pat_fields, _) = &arm_pat.kind;
+                        then {
+                            pat_fields.iter().for_each(|pat_field| {
+                                cx.tcx
+                                  .has_typeck_results(pat_field.hir_id.owner.def_id)
+                                  .then(|| {
+                                        if let TyKind::Ref(_, ty, _) = cx
+                                            .tcx
+                                            .typeck(pat_field.hir_id.owner.def_id)
+                                            .pat_ty(pat_field.pat)
+                                            .kind()
+                                        {
+                                            if is_primitive_number_ty(ty) {
+                                                report_field(cx,
+                                                             event_def_id,
+                                                             pat_field.ident.as_str())
+                                            }
+                                        }
+                                  });
+                            })
+                        }
+                    }
+                })
+            }
+        }
+    }
+}

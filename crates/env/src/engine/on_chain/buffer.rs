@@ -12,15 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-/// A static buffer with 16 kB of capacity.
+/// A static buffer of variable capacity.
 pub struct StaticBuffer {
-    /// The static buffer with a total capacity of 16 kB.
+    /// A static buffer of variable capacity.
     buffer: [u8; Self::CAPACITY],
 }
 
 impl StaticBuffer {
     /// The capacity of the static buffer.
-    const CAPACITY: usize = 1 << 14; // 16 kB
+    /// Usually set to 16 kB.
+    /// Can be modified by setting `INK_STATIC_BUFFER_SIZE` environmental variable.
+    const CAPACITY: usize = crate::BUFFER_SIZE;
 
     /// Creates a new static buffer.
     pub const fn new() -> Self {
@@ -80,15 +82,16 @@ impl<'a> EncodeScope<'a> {
 impl<'a> scale::Output for EncodeScope<'a> {
     fn write(&mut self, bytes: &[u8]) {
         debug_assert!(
-            self.len() + bytes.len() <= self.capacity(),
+            self.len().checked_add(bytes.len()).unwrap() <= self.capacity(),
             "encode scope buffer overflowed. capacity is {} but last write index is {}",
             self.capacity(),
-            self.len() + bytes.len(),
+            self.len().checked_add(bytes.len()).unwrap(),
         );
         let start = self.len;
         let len_bytes = bytes.len();
-        self.buffer[start..(start + len_bytes)].copy_from_slice(bytes);
-        self.len += len_bytes;
+        self.buffer[start..(start.checked_add(len_bytes)).unwrap()]
+            .copy_from_slice(bytes);
+        self.len = self.len.checked_add(len_bytes).unwrap();
     }
 
     fn push_byte(&mut self, byte: u8) {
@@ -99,7 +102,7 @@ impl<'a> scale::Output for EncodeScope<'a> {
             self.capacity(),
         );
         self.buffer[self.len] = byte;
-        self.len += 1;
+        self.len = self.len.checked_add(1).unwrap();
     }
 }
 
@@ -142,7 +145,7 @@ impl<'a> ScopedBuffer<'a> {
         self.buffer = rhs;
         debug_assert_eq!(lhs.len(), len);
         let len_after = self.buffer.len();
-        debug_assert_eq!(len_before - len_after, len);
+        debug_assert_eq!(len_before.checked_sub(len_after).unwrap(), len);
         lhs
     }
 
@@ -193,7 +196,7 @@ impl<'a> ScopedBuffer<'a> {
         let mut encode_scope = EncodeScope::from(&mut buffer[offset..]);
         scale::Encode::encode_to(&value, &mut encode_scope);
         let encode_len = encode_scope.len();
-        self.offset += encode_len;
+        self.offset = self.offset.checked_add(encode_len).unwrap();
         let _ = core::mem::replace(&mut self.buffer, buffer);
     }
 

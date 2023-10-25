@@ -13,7 +13,7 @@ use sp_runtime::MultiAddress;
 /// You can investigate the full `RuntimeCall` definition by either expanding
 /// `construct_runtime!` macro application or by using secondary tools for reading chain
 /// metadata, like `subxt`.
-#[derive(scale::Encode)]
+#[ink::scale_derive(Encode)]
 enum RuntimeCall {
     /// This index can be found by investigating runtime configuration. You can check the
     /// pallet order inside `construct_runtime!` block and read the position of your
@@ -25,7 +25,7 @@ enum RuntimeCall {
     Balances(BalancesCall),
 }
 
-#[derive(scale::Encode)]
+#[ink::scale_derive(Encode)]
 enum BalancesCall {
     /// This index can be found by investigating the pallet dispatchable API. In your
     /// pallet code, look for `#[pallet::call]` section and check
@@ -54,8 +54,8 @@ mod runtime_call {
     #[derive(Default)]
     pub struct RuntimeCaller;
 
-    #[derive(Debug, PartialEq, Eq, scale::Encode, scale::Decode)]
-    #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
+    #[derive(Debug, PartialEq, Eq)]
+    #[ink::scale_derive(Encode, Decode, TypeInfo)]
     pub enum RuntimeError {
         CallRuntimeFailed,
     }
@@ -114,6 +114,10 @@ mod runtime_call {
     #[cfg(all(test, feature = "e2e-tests"))]
     mod e2e_tests {
         use super::*;
+        use ink_e2e::{
+            ChainBackend,
+            ContractsBackend,
+        };
 
         use ink::{
             env::{
@@ -147,19 +151,15 @@ mod runtime_call {
         ///  - the call is valid
         ///  - the call execution succeeds
         #[ink_e2e::test]
-        async fn transfer_with_call_runtime_works(
-            mut client: Client<C, E>,
+        async fn transfer_with_call_runtime_works<Client: E2EBackend>(
+            mut client: Client,
         ) -> E2EResult<()> {
             // given
-            let constructor = RuntimeCallerRef::new();
+            let mut constructor = RuntimeCallerRef::new();
             let contract = client
-                .instantiate(
-                    "call-runtime",
-                    &ink_e2e::alice(),
-                    constructor,
-                    CONTRACT_BALANCE,
-                    None,
-                )
+                .instantiate("call-runtime", &ink_e2e::alice(), &mut constructor)
+                .value(CONTRACT_BALANCE)
+                .submit()
                 .await
                 .expect("instantiate failed");
             let mut call = contract.call::<RuntimeCaller>();
@@ -180,7 +180,8 @@ mod runtime_call {
                 call.transfer_through_runtime(receiver, TRANSFER_VALUE);
 
             let call_res = client
-                .call(&ink_e2e::alice(), &transfer_message, 0, None)
+                .call(&ink_e2e::alice(), &transfer_message)
+                .submit()
                 .await
                 .expect("call failed");
 
@@ -212,19 +213,17 @@ mod runtime_call {
         ///  - the call is valid
         ///  - the call execution fails
         #[ink_e2e::test]
-        async fn transfer_with_call_runtime_fails_when_execution_fails(
-            mut client: Client<C, E>,
+        async fn transfer_with_call_runtime_fails_when_execution_fails<
+            Client: E2EBackend,
+        >(
+            mut client: Client,
         ) -> E2EResult<()> {
             // given
-            let constructor = RuntimeCallerRef::new();
+            let mut constructor = RuntimeCallerRef::new();
             let contract = client
-                .instantiate(
-                    "call-runtime",
-                    &ink_e2e::alice(),
-                    constructor,
-                    CONTRACT_BALANCE,
-                    None,
-                )
+                .instantiate("call-runtime", &ink_e2e::alice(), &mut constructor)
+                .value(CONTRACT_BALANCE)
+                .submit()
                 .await
                 .expect("instantiate failed");
             let mut call = contract.call::<RuntimeCaller>();
@@ -236,7 +235,8 @@ mod runtime_call {
                 call.transfer_through_runtime(receiver, INSUFFICIENT_TRANSFER_VALUE);
 
             let call_res = client
-                .call_dry_run(&ink_e2e::alice(), &transfer_message, 0, None)
+                .call(&ink_e2e::alice(), &transfer_message)
+                .dry_run()
                 .await
                 .return_value();
 
@@ -249,19 +249,17 @@ mod runtime_call {
         /// Negative case scenario:
         ///  - the call is invalid
         #[ink_e2e::test]
-        async fn transfer_with_call_runtime_fails_when_call_is_invalid(
-            mut client: Client<C, E>,
+        async fn transfer_with_call_runtime_fails_when_call_is_invalid<
+            Client: E2EBackend,
+        >(
+            mut client: Client,
         ) -> E2EResult<()> {
             // given
-            let constructor = RuntimeCallerRef::new();
+            let mut constructor = RuntimeCallerRef::new();
             let contract = client
-                .instantiate(
-                    "call-runtime",
-                    &ink_e2e::alice(),
-                    constructor,
-                    CONTRACT_BALANCE,
-                    None,
-                )
+                .instantiate("call-runtime", &ink_e2e::alice(), &mut constructor)
+                .value(CONTRACT_BALANCE)
+                .submit()
                 .await
                 .expect("instantiate failed");
             let mut call = contract.call::<RuntimeCaller>();
@@ -270,7 +268,8 @@ mod runtime_call {
             let transfer_message = call.call_nonexistent_extrinsic();
 
             let call_res = client
-                .call_dry_run(&ink_e2e::alice(), &transfer_message, 0, None)
+                .call(&ink_e2e::alice(), &transfer_message)
+                .dry_run()
                 .await;
 
             // then

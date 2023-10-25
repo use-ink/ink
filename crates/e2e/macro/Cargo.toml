@@ -19,13 +19,14 @@ name = "ink_e2e_macro"
 proc-macro = true
 
 [dependencies]
+darling = { workspace = true }
 ink_ir = { workspace = true, default-features = true }
-cargo_metadata = { workspace = true }
-contract-build = { workspace = true }
 derive_more = { workspace = true, default-features = true }
 tracing-subscriber = { workspace = true, features = ["env-filter"] }
 serde_json = { workspace = true }
 syn = { workspace = true }
 proc-macro2 = { workspace = true }
 quote = { workspace = true }
-which = { workspace = true }
+
+[features]
+drink = []

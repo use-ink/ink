@@ -1,3 +1,17 @@
+// Copyright (C) Parity Technologies (UK) Ltd.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 use ink::codegen::ContractCallBuilder;
 use ink_env::{
     call::FromAccountId,
@@ -14,6 +28,43 @@ use std::{
     fmt::Debug,
     marker::PhantomData,
 };
+
+/// Result of a contract instantiation using bare call.
+pub struct BareInstantiationResult<E: Environment, EventLog> {
+    /// The account id at which the contract was instantiated.
+    pub account_id: E::AccountId,
+    /// Events that happened with the contract instantiation.
+    pub events: EventLog,
+}
+
+impl<E: Environment, EventLog> BareInstantiationResult<E, EventLog> {
+    /// Returns the account id at which the contract was instantiated.
+    pub fn call<Contract>(&self) -> <Contract as ContractCallBuilder>::Type
+    where
+        Contract: ContractCallBuilder,
+        Contract::Type: FromAccountId<E>,
+    {
+        <<Contract as ContractCallBuilder>::Type as FromAccountId<E>>::from_account_id(
+            self.account_id.clone(),
+        )
+    }
+}
+
+/// We implement a custom `Debug` here, as to avoid requiring the trait bound `Debug` for
+/// `E`.
+impl<E: Environment, EventLog> Debug for BareInstantiationResult<E, EventLog>
+where
+    E::AccountId: Debug,
+    E::Balance: Debug,
+    EventLog: Debug,
+{
+    fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
+        f.debug_struct("InstantiationResult")
+            .field("account_id", &self.account_id)
+            .field("events", &self.events)
+            .finish()
+    }
+}
 
 /// Result of a contract instantiation.
 pub struct InstantiationResult<E: Environment, EventLog> {
@@ -151,6 +202,18 @@ impl<E: Environment, V: scale::Decode> CallDryRunResult<E, V> {
     /// Returns true if the dry-run execution resulted in an error.
     pub fn is_err(&self) -> bool {
         self.exec_result.result.is_err()
+    }
+
+    /// Converts the dry-run result into a `Result` type.
+    pub fn to_result<Error>(self) -> Result<Self, Error>
+    where
+        Error: From<ContractExecResult<E::Balance, ()>>,
+    {
+        if self.is_err() {
+            Err(Error::from(self.exec_result))
+        } else {
+            Ok(self)
+        }
     }
 
     /// Returns the [`ExecReturnValue`] resulting from the dry-run message call.
