@@ -20,6 +20,7 @@
 )]
 
 mod backend;
+mod backend_calls;
 mod builders;
 mod client_utils;
 mod contract_build;
@@ -40,6 +41,10 @@ pub use backend::{
     ChainBackend,
     ContractsBackend,
     E2EBackend,
+};
+pub use backend_calls::{
+    CallBuilder,
+    InstantiateBuilder,
 };
 pub use contract_results::{
     CallDryRunResult,

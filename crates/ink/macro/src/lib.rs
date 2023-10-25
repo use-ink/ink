@@ -160,6 +160,7 @@ pub fn selector_bytes(input: TokenStream) -> TokenStream {
 ///
 ///     Given a custom `Environment` implementation:
 ///     ```
+///     #[derive(Clone)]
 ///     pub struct MyEnvironment;
 ///
 ///     impl ink_env::Environment for MyEnvironment {
@@ -177,6 +178,7 @@ pub fn selector_bytes(input: TokenStream) -> TokenStream {
 ///     ```
 ///     #[ink::contract(env = MyEnvironment)]
 ///     mod my_contract {
+///         # #[derive(Clone)]
 ///         # pub struct MyEnvironment;
 ///         #
 ///         # impl ink_env::Environment for MyEnvironment {
@@ -1105,7 +1107,7 @@ pub fn test(attr: TokenStream, item: TokenStream) -> TokenStream {
 /// #         panic!("encountered unexpected invalid SCALE encoding")
 /// #     }
 /// # }
-/// # #[derive(scale::Encode, scale::Decode, scale_info::TypeInfo)]
+/// # #[derive(scale::Encode, scale::Decode, scale_info::TypeInfo, Clone)]
 /// # pub enum Access {
 /// #     ReadWrite,
 /// #     ReadOnly,
@@ -1144,6 +1146,7 @@ pub fn test(attr: TokenStream, item: TokenStream) -> TokenStream {
 ///     Environment,
 /// };
 ///
+/// #[derive(Clone)]
 /// pub enum CustomEnvironment {}
 ///
 /// impl Environment for CustomEnvironment {
@@ -1268,7 +1271,7 @@ pub fn test(attr: TokenStream, item: TokenStream) -> TokenStream {
 /// #         panic!("encountered unexpected invalid SCALE encoding")
 /// #     }
 /// # }
-/// # #[derive(scale::Encode, scale::Decode, scale_info::TypeInfo)]
+/// # #[derive(scale::Encode, scale::Decode, scale_info::TypeInfo, Clone)]
 /// # pub enum Access {
 /// #     ReadWrite,
 /// #     ReadOnly,
@@ -1285,6 +1288,7 @@ pub fn test(attr: TokenStream, item: TokenStream) -> TokenStream {
 /// #         }
 /// #     }
 /// # }
+/// # #[derive(Clone)]
 /// # pub enum CustomEnvironment {}
 /// # impl ink_env::Environment for CustomEnvironment {
 /// #     const MAX_EVENT_TOPICS: usize =

@@ -42,42 +42,13 @@ pub mod flipper {
     #[cfg(all(test, feature = "e2e-tests"))]
     mod e2e_tests {
         use super::*;
-        use ink::env::DefaultEnvironment;
         use ink_e2e::{
             subxt::dynamic::Value,
             ChainBackend,
             ContractsBackend,
-            E2EBackend,
-            InstantiationResult,
         };
 
         type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
-
-        /// Deploys the flipper contract with `initial_value` and returns the contract
-        /// instantiation result.
-        ///
-        /// Uses `ink_e2e::alice()` as the caller.
-        async fn deploy<Client: E2EBackend>(
-            client: &mut Client,
-            initial_value: bool,
-        ) -> Result<
-            InstantiationResult<
-                DefaultEnvironment,
-                <Client as ContractsBackend<DefaultEnvironment>>::EventLog,
-            >,
-            <Client as ContractsBackend<DefaultEnvironment>>::Error,
-        > {
-            let constructor = FlipperRef::new(initial_value);
-            client
-                .instantiate(
-                    "e2e-runtime-only-backend",
-                    &ink_e2e::alice(),
-                    constructor,
-                    0,
-                    None,
-                )
-                .await
-        }
 
         /// Tests standard flipper scenario:
         /// - deploy the flipper contract with initial value `false`
@@ -88,22 +59,24 @@ pub mod flipper {
         async fn it_works<Client: E2EBackend>(mut client: Client) -> E2EResult<()> {
             // given
             const INITIAL_VALUE: bool = false;
-            let contract = deploy(&mut client, INITIAL_VALUE)
+            let mut constructor = FlipperRef::new(INITIAL_VALUE);
+
+            let contract = client
+                .instantiate(
+                    "e2e-runtime-only-backend",
+                    &ink_e2e::alice(),
+                    &mut constructor,
+                )
+                .submit()
                 .await
                 .expect("deploy failed");
 
             // when
             let mut call = contract.call::<Flipper>();
-            let _flip_res = client
-                .call(&ink_e2e::bob(), &call.flip(), 0, None)
-                .await
-                .expect("flip failed");
+            let _flip_res = client.call(&ink_e2e::bob(), &call.flip()).submit().await;
 
             // then
-            let get_res = client
-                .call(&ink_e2e::bob(), &call.get(), 0, None)
-                .await
-                .expect("get failed");
+            let get_res = client.call(&ink_e2e::bob(), &call.get()).dry_run().await;
             assert_eq!(get_res.return_value(), !INITIAL_VALUE);
 
             Ok(())
@@ -118,11 +91,22 @@ pub mod flipper {
         #[ink_e2e::test(backend = "runtime_only")]
         async fn runtime_call_works() -> E2EResult<()> {
             // given
-            let contract = deploy(&mut client, false).await.expect("deploy failed");
+            let mut constructor = FlipperRef::new(false);
+
+            let contract = client
+                .instantiate(
+                    "e2e-runtime-only-backend",
+                    &ink_e2e::alice(),
+                    &mut constructor,
+                )
+                .submit()
+                .await
+                .expect("deploy failed");
             let call = contract.call::<Flipper>();
 
             let old_balance = client
-                .call(&ink_e2e::alice(), &call.get_contract_balance(), 0, None)
+                .call(&ink_e2e::alice(), &call.get_contract_balance())
+                .submit()
                 .await
                 .expect("get_contract_balance failed")
                 .return_value();
@@ -135,13 +119,19 @@ pub mod flipper {
                 Value::u128(ENDOWMENT),
             ];
             client
-                .runtime_call(&ink_e2e::alice(), "Balances", "transfer", call_data)
+                .runtime_call(
+                    &ink_e2e::alice(),
+                    "Balances",
+                    "transfer_allow_death",
+                    call_data,
+                )
                 .await
                 .expect("runtime call failed");
 
             // then
             let new_balance = client
-                .call(&ink_e2e::alice(), &call.get_contract_balance(), 0, None)
+                .call(&ink_e2e::alice(), &call.get_contract_balance())
+                .submit()
                 .await
                 .expect("get_contract_balance failed")
                 .return_value();
@@ -157,10 +147,9 @@ pub mod flipper {
                 .instantiate(
                     "e2e-runtime-only-backend",
                     &ink_e2e::alice(),
-                    FlipperRef::new(false),
-                    0,
-                    None,
+                    &mut FlipperRef::new(false),
                 )
+                .submit()
                 .await
                 .expect("instantiate failed");
 

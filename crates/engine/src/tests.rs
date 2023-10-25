@@ -40,17 +40,16 @@ fn store_load_clear() {
     let mut engine = Engine::new();
     engine.set_callee(vec![1; 32]);
     let key: &[u8; 32] = &[0x42; 32];
-    let output = &mut &mut get_buffer()[..];
-    let res = engine.get_storage(key, output);
+    let res = engine.get_storage(key);
     assert_eq!(res, Err(Error::KeyNotFound));
 
     engine.set_storage(key, &[0x05_u8; 5]);
-    let res = engine.get_storage(key, output);
-    assert_eq!(res, Ok(()),);
-    assert_eq!(output[..5], [0x05; 5]);
+    let res = engine.get_storage(key);
+    assert!(res.is_ok());
+    assert_eq!(res.unwrap()[..5], [0x05; 5]);
 
     engine.clear_storage(key);
-    let res = engine.get_storage(key, output);
+    let res = engine.get_storage(key);
     assert_eq!(res, Err(Error::KeyNotFound));
 }
 
@@ -181,26 +180,6 @@ fn value_transferred() {
 }
 
 #[test]
-#[should_panic(
-    expected = "the output buffer is too small! the decoded storage is of size 16 bytes, but the output buffer has only room for 8."
-)]
-fn must_panic_when_buffer_too_small() {
-    // given
-    let mut engine = Engine::new();
-    engine.set_callee(vec![1; 32]);
-    let key: &[u8; 32] = &[0x42; 32];
-    engine.set_storage(key, &[0x05_u8; 16]);
-
-    // when
-    let mut small_buffer = [0; 8];
-    let output = &mut &mut small_buffer[..];
-    let _ = engine.get_storage(key, output);
-
-    // then
-    unreachable!("`get_storage` must already have panicked");
-}
-
-#[test]
 fn ecdsa_recovery_test_from_contracts_pallet() {
     // given
     let mut engine = Engine::new();
@@ -251,7 +230,7 @@ fn ecdsa_recovery_with_secp256k1_crate() {
     let mut msg_hash = [0; 32];
     crate::hashing::sha2_256(b"Some message", &mut msg_hash);
 
-    let msg = Message::from_slice(&msg_hash).expect("message creation failed");
+    let msg = Message::from_digest_slice(&msg_hash).expect("message creation failed");
     let seckey = SecretKey::from_slice(&seckey).expect("secret key creation failed");
     let recoverable_signature: RecoverableSignature =
         SECP256K1.sign_ecdsa_recoverable(&msg, &seckey);

@@ -1,6 +1,6 @@
 [package]
-name = "e2e_call_runtime"
-version = "5.0.0-alpha"
+name = "contract-storage"
+version = "4.2.0"
 authors = ["Parity Technologies <admin@parity.io>"]
 edition = "2021"
 publish = false
@@ -10,7 +10,6 @@ ink = { path = "../../crates/ink", default-features = false }
 
 [dev-dependencies]
 ink_e2e = { path = "../../crates/e2e" }
-subxt = { version = "0.32.1", default-features = false }
 
 [lib]
 path = "lib.rs"

@@ -25,7 +25,7 @@ pub struct ReturnType<T>(PhantomData<fn() -> T>);
 impl<T> Clone for ReturnType<T> {
     #[inline]
     fn clone(&self) -> Self {
-        Self(Default::default())
+        *self
     }
 }
 
@@ -57,7 +57,7 @@ pub struct Unset<T>(PhantomData<fn() -> T>);
 impl<T> Clone for Unset<T> {
     #[inline]
     fn clone(&self) -> Self {
-        Self(Default::default())
+        *self
     }
 }
 

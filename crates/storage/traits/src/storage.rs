@@ -44,6 +44,19 @@ where
     }
 }
 
+/// Decode and consume all of the given input data.
+///
+/// If not all data is consumed, an error is returned.
+pub fn decode_all<T: Storable>(input: &mut &[u8]) -> Result<T, scale::Error> {
+    let res = <T as Storable>::decode(input)?;
+
+    if input.is_empty() {
+        Ok(res)
+    } else {
+        Err("Input buffer has still data left after decoding!".into())
+    }
+}
+
 pub(crate) mod private {
     /// Seals the implementation of `Packed`.
     pub trait Sealed {}

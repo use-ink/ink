@@ -5,5 +5,5 @@ error[E0277]: the trait bound `ConstructorOutputValue<Result<u8, contract::Error
    |         ^^^ the trait `ConstructorOutput<Contract>` is not implemented for `ConstructorOutputValue<Result<u8, contract::Error>>`
    |
    = help: the following other types implement trait `ConstructorOutput<C>`:
-             ConstructorOutputValue<C>
              ConstructorOutputValue<Result<C, E>>
+             ConstructorOutputValue<C>

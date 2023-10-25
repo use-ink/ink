@@ -46,7 +46,7 @@
 ///
 /// ```
 /// # use ink_env::{Environment, DefaultEnvironment};
-///
+/// #[derive(Clone)]
 /// pub struct CustomEnvironment {}
 ///
 /// impl Environment for CustomEnvironment {
