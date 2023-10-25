@@ -46,3 +46,4 @@ scale-info = { workspace = true, features = ["derive"] }
 [features]
 default = ["std"]
 std = []
+live-state-test = ["subxt/unstable-light-client"]

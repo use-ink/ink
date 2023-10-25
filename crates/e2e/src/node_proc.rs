@@ -32,6 +32,7 @@ use subxt::{
 
 /// Spawn a local substrate node for testing.
 pub struct TestNodeProcess<R: Config> {
+    proc: process::Child,
     client: OnlineClient<R>,
     url: String,
 }
@@ -59,6 +60,12 @@ where
 
     /// Attempt to kill the running substrate process.
     pub fn kill(&mut self) -> Result<(), String> {
+        tracing::info!("Killing node process {}", self.proc.id());
+        if let Err(err) = self.proc.kill() {
+            let err = format!("Error killing node process {}: {}", self.proc.id(), err);
+            tracing::error!("{}", err);
+            return Err(err)
+        }
         Ok(())
     }
 
@@ -103,8 +110,40 @@ where
 
     /// Spawn the substrate node at the given path, and wait for RPC to be initialized.
     pub async fn spawn(&self) -> Result<TestNodeProcess<R>, String> {
+        let mut cmd = process::Command::new(&self.node_path);
+        cmd.env("RUST_LOG", "info")
+            .arg("--dev")
+            .stdout(process::Stdio::piped())
+            .stderr(process::Stdio::piped())
+            .arg("--port=0")
+            .arg("--rpc-port=0");
+
+        if let Some(authority) = self.authority {
+            let authority = format!("{authority:?}");
+            let arg = format!("--{}", authority.as_str().to_lowercase());
+            cmd.arg(arg);
+        }
+
+        let mut proc = cmd.spawn().map_err(|e| {
+            format!(
+                "Error spawning substrate node '{}': {}",
+                self.node_path.to_string_lossy(),
+                e
+            )
+        })?;
+        let stderr = proc.stderr.take().unwrap();
         // Wait for RPC port to be logged (it's logged to stderr):
-        let ws_port : &str = option_env!("WS_PORT").unwrap_or("9944");
+        let port_str: String = match option_env!("WS_PORT") {
+            Some(v) => v.to_string(),
+            None => {
+                // expect to have a number here (the chars after '127.0.0.1:').
+                find_substrate_port_from_output(stderr)
+            }
+        };
+
+        let ws_port: u16 = port_str
+            .parse()
+            .unwrap_or_else(|_| panic!("valid port number expected, got '{port_str}'"));
         let url = format!("ws://127.0.0.1:{ws_port}");
 
         // Connect to the node with a `subxt` client:
@@ -112,6 +151,7 @@ where
         match client {
             Ok(client) => {
                 Ok(TestNodeProcess {
+                    proc,
                     client,
                     url: url.clone(),
                 })
@@ -127,7 +167,7 @@ where
 
 // Consume a stderr reader from a spawned substrate command and
 // locate the port number that is logged out to it.
-fn find_substrate_port_from_output(r: impl Read + Send + 'static) -> u16 {
+fn find_substrate_port_from_output(r: impl Read + Send + 'static) -> String {
     BufReader::new(r)
         .lines()
         .find_map(|line| {
@@ -147,13 +187,7 @@ fn find_substrate_port_from_output(r: impl Read + Send + 'static) -> u16 {
             // trim non-numeric chars from the end of the port part of the line.
             let port_str = line_end.trim_end_matches(|b: char| !b.is_ascii_digit());
 
-            // expect to have a number here (the chars after '127.0.0.1:') and parse them
-            // into a u16.
-            let port_num = port_str.parse().unwrap_or_else(|_| {
-                panic!("valid port expected for tracing line, got '{port_str}'")
-            });
-
-            Some(port_num)
+            Some(port_str.to_string())
         })
         .expect("We should find a port before the reader ends")
 }
