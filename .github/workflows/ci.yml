@@ -290,6 +290,9 @@ jobs:
         cargo spellcheck --version
         bash --version
 
+    - name: Cache
+      uses: Swatinem/rust-cache@v2
+
     - name: Checkout
       uses: actions/checkout@v4
       with:
