@@ -11,6 +11,7 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+
 use crate::ink_utils::{
     expand_unnamed_consts,
     find_contract_impl_id,
@@ -74,7 +75,7 @@ declare_lint! {
     /// **What it does:** Looks for strict equalities with balance in ink! contracts.
     ///
     /// **Why is this bad?** The problem with strict balance equality is that it is always possible
-    /// to forcibly send tokens to a contract, for example, using
+    /// to forcibly send tokens to a contract. For example, using
     /// [`terminate_contract`](https://paritytech.github.io/ink/ink_env/fn.terminate_contract.html).
     /// In such a case, the condition involving the contract balance will work incorrectly, what
     /// may lead to security issues, including DoS attacks and draining contract's gas.
