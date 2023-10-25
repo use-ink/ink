@@ -19,6 +19,8 @@ on:
       - 'FILE_HEADER'
 
 env:
+  CARGO_TARGET_DIR:                "/ci-cache/${{ env.GITHUB_REPOSITORY }}/targets/${{ env.GITHUB_REF_NAME }}/${{ env.GITHUB_JOB }}"
+  CARGO_INCREMENTAL:               0
   PURELY_STD_CRATES:               "ink/codegen metadata engine e2e e2e/macro ink/ir"
   ALSO_WASM_CRATES:                "env storage storage/traits allocator prelude primitives ink ink/macro"
   # TODO `cargo clippy --verbose --all-targets --all-features` for this crate
