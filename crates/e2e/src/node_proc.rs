@@ -159,6 +159,9 @@ where
             Err(err) => {
                 let err = format!("Failed to connect to node rpc at {url}: {err}");
                 tracing::error!("{}", err);
+                proc.kill().map_err(|e| {
+                    format!("Error killing substrate process '{}': {}", proc.id(), e)
+                })?;
                 Err(err)
             }
         }
