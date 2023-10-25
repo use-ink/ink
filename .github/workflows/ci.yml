@@ -1,0 +1,309 @@
+name: continuous-integration
+
+on:
+  pull_request:
+  push:
+    branches:
+      - master
+    tags:
+      - v*
+    paths-ignore:
+      - '**.md'
+      - '**/**.md'
+      - '**/**/**.md'
+      - '**/**/**/**.md'
+      - '.gitlab-ci.yml'
+      - 'CODEOWNERS'
+      - 'LICENSE'
+      - 'CODE_OF_CONDUCT.adoc'
+      - 'FILE_HEADER'
+
+env:
+  CARGO_TARGET_DIR:                "/ci-cache/${{ github.repository }}/targets/${{ github.ref_name }}/${{ github.job }}"
+  CARGO_INCREMENTAL:               0
+  PURELY_STD_CRATES:               "ink/codegen metadata engine e2e e2e/macro ink/ir"
+  ALSO_WASM_CRATES:                "env storage storage/traits allocator prelude primitives ink ink/macro"
+  # TODO `cargo clippy --verbose --all-targets --all-features` for this crate
+  # currently fails on `stable`, but succeeds on `nightly`. This is due to
+  # this fix not yet in stable: https://github.com/rust-lang/rust-clippy/issues/8895.
+  # Remove the following line again as soon as `clippy` on stable succeeds again.
+  CLIPPY_ALLOWED:                  "clippy::extra_unused_lifetimes"
+  # We plan to fully support RISC-V as a bytecode for contracts soon.
+  # RISC-V does not have a standard library in contrast to Wasm. Compiling against
+  # this target also makes sure that we don't pull in `std` by accident (through dependencies).
+  # RISC-V is a modular archtitecture. We might switch to a different flavor with more features
+  # later. For example, `riscv32imc-unknown-none-elf`.
+  RISCV_TARGET:                    "riscv32i-unknown-none-elf"
+
+jobs:
+  spellcheck:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+    container:
+      image: paritytech/ci-unified:bullseye-1.73.0
+    strategy:
+      fail-fast: false
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 100
+
+      - name: Rust Info
+        uses: ./.github/rust-info
+
+      - name: Check Spelling
+        run: |
+          cargo spellcheck check -v --cfg=.config/cargo_spellcheck.toml --checkers hunspell --code 1 -- recursive .
+          cargo spellcheck check -v --cfg=.config/cargo_spellcheck.toml --checkers hunspell --code 1 -- recursive ./integration-tests/*
+
+  fmt:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+    container:
+      image: paritytech/ci-unified:bullseye-1.73.0
+    strategy:
+      fail-fast: false
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 100
+
+      - name: Rust Info
+        uses: ./.github/rust-info
+
+      - name: Check Formatting
+        run: |
+          cargo +nightly fmt --verbose --all -- --check
+          cargo +nightly fmt --verbose --all -- --check ./crates/ink/tests/ui/contract/{pass,fail}/*.rs
+          cargo +nightly fmt --verbose --all -- --check ./crates/ink/tests/ui/trait_def/{pass,fail}/*.rs
+
+      - name: Check Examples Formatting
+        run: |
+          scripts/for_all_contracts_exec.sh --path integration-tests -- cargo +nightly fmt --verbose --manifest-path {} -- --check
+          # This file is not a part of the cargo project, so it wouldn't be formatted the usual way
+          rustfmt +nightly --verbose --check ./integration-tests/psp22-extension/runtime/psp22-extension-example.rs
+
+  clippy:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+    container:
+      image: paritytech/ci-unified:bullseye-1.73.0
+    permissions:
+      checks: write
+    strategy:
+      fail-fast: false
+    steps:
+      - name: Cache
+        uses: Swatinem/rust-cache@v2
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 100
+
+      - name: Rust Info
+        uses: ./.github/rust-info
+
+      - name: Run Clippy
+        run: |
+          ALL_CRATES="${PURELY_STD_CRATES} ${ALSO_WASM_CRATES}"
+          for crate in ${ALL_CRATES}; do
+            cargo clippy --verbose --all-targets --all-features --manifest-path ./crates/${crate}/Cargo.toml \
+            -- -D warnings -A ${CLIPPY_ALLOWED};
+          done
+  
+      - name: Run Clippy for WASM Crates
+        run: |
+          for crate in ${ALSO_WASM_CRATES}; do
+            cargo clippy --verbose --no-default-features --manifest-path ./crates/${crate}/Cargo.toml --target wasm32-unknown-unknown \
+            -- -D warnings -A ${CLIPPY_ALLOWED};
+          done
+
+  clippy-examples:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+    container:
+      image: paritytech/ci-unified:bullseye-1.73.0
+    permissions:
+      checks: write
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: "Examples"
+            parameters: "--all-targets"
+          - name: "Wasm Examples"
+            parameters: "--no-default-features --target wasm32-unknown-unknown"
+    steps:
+      - name: Cache
+        uses: Swatinem/rust-cache@v2
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 100
+
+      - name: Rust Info
+        uses: ./.github/rust-info
+
+      - name: Run Clippy for ${{ matrix.name }}
+        run: |
+          scripts/for_all_contracts_exec.sh --path integration-tests -- cargo clippy --verbose ${{ matrix.parameters}} \
+          --manifest-path {} -- -D warnings -A $CLIPPY_ALLOWED
+  
+  check:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+    container:
+      image: paritytech/ci-unified:bullseye-1.73.0
+    strategy:
+      fail-fast: false
+    steps:
+      - name: Cache
+        uses: Swatinem/rust-cache@v2
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 100
+
+      - name: Rust Info
+        uses: ./.github/rust-info
+
+      - name: Check
+        run: |
+          ALL_CRATES="${PURELY_STD_CRATES} ${ALSO_WASM_CRATES}"
+          for crate in ${ALL_CRATES}; do
+            cargo check --verbose --all-features --manifest-path ./crates/${crate}/Cargo.toml;
+          done
+
+      - name: Check WASM
+        run: |
+          for crate in ${ALSO_WASM_CRATES}; do
+            cargo check --verbose --no-default-features --target wasm32-unknown-unknown \
+            --manifest-path ./crates/${crate}/Cargo.toml;
+          done        
+
+      - name: Check RISCV
+        env:
+          RUSTC_BOOTSTRAP:               "1"
+        run: |
+          for crate in ${ALSO_WASM_CRATES}; do
+            cargo check --verbose --no-default-features --target $RISCV_TARGET -Zbuild-std="core,alloc" \
+            --manifest-path ./crates/${crate}/Cargo.toml;
+          done       
+
+  dylint:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+    container:
+      image: paritytech/ci-unified:bullseye-1.73.0
+    strategy:
+      fail-fast: false
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 100
+
+      - name: Rust Info
+        uses: ./.github/rust-info
+
+      - name: Dylint
+        run: |
+          cd linting/
+          # we are using a toolchain file in this directory
+          # add required components for CI
+          rustup component add rustfmt clippy
+          cargo check --verbose
+          cargo +nightly fmt --verbose --all -- --check
+          cargo clippy --verbose -- -D warnings;
+          # Needed until https://github.com/mozilla/sccache/issues/1000 is fixed.
+          unset RUSTC_WRAPPER
+          cargo test --verbose --all-features
+
+  build:
+    runs-on: ubuntu-latest
+    needs: [check]
+    defaults:
+      run:
+        shell: bash
+    container:
+      image: paritytech/ci-unified:bullseye-1.73.0
+    strategy:
+      fail-fast: false
+    steps:
+      - name: Cache
+        uses: Swatinem/rust-cache@v2
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 100
+
+      - name: Rust Info
+        uses: ./.github/rust-info
+
+      - name: Build
+        run: |
+          ALL_CRATES="${PURELY_STD_CRATES} ${ALSO_WASM_CRATES}"
+          for crate in ${ALL_CRATES}; do
+            cargo build --verbose --all-features --release --manifest-path ./crates/${crate}/Cargo.toml;
+          done
+
+      - name: Build WASM
+        run: |
+          for crate in ${ALSO_WASM_CRATES}; do
+            cargo build --verbose --no-default-features --release --target wasm32-unknown-unknown \
+            --manifest-path ./crates/${crate}/Cargo.toml;
+          done
+
+  test:
+    runs-on: ubuntu-latest
+    needs: [check]
+    defaults:
+      run:
+        shell: bash
+    container:
+      image: paritytech/ci-unified:bullseye-1.73.0
+    strategy:
+      fail-fast: false
+    steps:
+      - name: Cache
+        uses: Swatinem/rust-cache@v2
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 100
+
+      - name: Rust Info
+        uses: ./.github/rust-info
+
+      - name: Test
+        env:
+          # Fix for linking of `linkme` for `cargo test`: https://github.com/dtolnay/linkme/issues/49
+          RUSTFLAGS: "-Clink-arg=-z -Clink-arg=nostart-stop-gc"
+          # Since we run the tests with `--all-features` this implies the feature
+          # `ink-fuzz-tests` as well -- i.e. the fuzz tests are run.
+          # There's no way to disable a single feature while enabling all features
+          # at the same time, hence we use this workaround.
+          QUICKCHECK_TESTS:            0
+        run: |
+          cargo test --verbose --all-features --no-fail-fast --workspace
+          cargo test --verbose --all-features --no-fail-fast --workspace --doc
+
