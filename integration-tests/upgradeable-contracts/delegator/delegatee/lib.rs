@@ -30,7 +30,7 @@ pub mod delegatee {
         /// Increments the current value.
         #[ink(message)]
         pub fn inc(&mut self) {
-            self.counter += 2;
+            self.counter = self.counter.checked_add(2).unwrap();
         }
 
         /// Adds current value of counter to the `addresses`

@@ -36,6 +36,7 @@ subxt = { workspace = true }
 subxt-metadata = { workspace = true, optional = true }
 subxt-signer = { workspace = true, features = ["subxt", "sr25519"] }
 wasm-instrument = { workspace = true }
+which = { workspace = true }
 
 # Substrate
 pallet-contracts-primitives = { workspace = true }

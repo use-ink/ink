@@ -48,7 +48,10 @@ use crate::{
     ReturnFlags,
     TypedEnvBackend,
 };
-use ink_storage_traits::Storable;
+use ink_storage_traits::{
+    decode_all,
+    Storable,
+};
 
 impl CryptoHash for Blake2x128 {
     fn hash(input: &[u8], output: &mut <Self as HashOutput>::Type) {
@@ -236,7 +239,7 @@ impl EnvBackend for EnvInstance {
             Err(ExtError::KeyNotFound) => return Ok(None),
             Err(_) => panic!("encountered unexpected error"),
         }
-        let decoded = Storable::decode(&mut &output[..])?;
+        let decoded = decode_all(&mut &output[..])?;
         Ok(Some(decoded))
     }
 
@@ -253,7 +256,7 @@ impl EnvBackend for EnvInstance {
             Err(ExtError::KeyNotFound) => return Ok(None),
             Err(_) => panic!("encountered unexpected error"),
         }
-        let decoded = Storable::decode(&mut &output[..])?;
+        let decoded = decode_all(&mut &output[..])?;
         Ok(Some(decoded))
     }
 

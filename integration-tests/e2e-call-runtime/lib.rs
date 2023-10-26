@@ -34,9 +34,10 @@ pub mod e2e_call_runtime {
             mut client: Client,
         ) -> E2EResult<()> {
             // given
-            let constructor = ContractRef::new();
+            let mut constructor = ContractRef::new();
             let contract = client
-                .instantiate("e2e_call_runtime", &ink_e2e::alice(), constructor, 0, None)
+                .instantiate("e2e_call_runtime", &ink_e2e::alice(), &mut constructor)
+                .submit()
                 .await
                 .expect("instantiate failed");
             let call = contract.call::<Contract>();
@@ -55,21 +56,26 @@ pub mod e2e_call_runtime {
 
             let get_balance = call.get_contract_balance();
             let pre_balance = client
-                .call_dry_run(&ink_e2e::alice(), &get_balance, 0, None)
+                .call(&ink_e2e::alice(), &get_balance)
+                .dry_run()
                 .await
                 .return_value();
 
             // Send funds from Alice to the contract using Balances::transfer
             client
-                .runtime_call(&ink_e2e::alice(), "Balances", "transfer", call_data)
+                .runtime_call(
+                    &ink_e2e::alice(),
+                    "Balances",
+                    "transfer_allow_death",
+                    call_data,
+                )
                 .await
                 .expect("runtime call failed");
 
             // then
             let get_balance = call.get_contract_balance();
-            let get_balance_res = client
-                .call_dry_run(&ink_e2e::alice(), &get_balance, 0, None)
-                .await;
+            let get_balance_res =
+                client.call(&ink_e2e::alice(), &get_balance).dry_run().await;
 
             assert_eq!(
                 get_balance_res.return_value(),
