@@ -36,13 +36,13 @@ fn storable_struct_derive(s: &synstructure::Structure) -> TokenStream2 {
             ::ink::storage::traits::Storable::encode(#binding, __dest);
         )
     });
-    let encoded_size_body = variant.each(|binding| {
-        let span = binding.ast().ty.span();
-        quote_spanned!(span =>
-            encoded_size = encoded_size
-                .saturating_add(::ink::storage::traits::Storable::encoded_size(#binding));
-        )
-    });
+    let encoded_size_body =
+        variant.fold(quote!(::core::primitive::usize::MIN), |acc, binding| {
+            let span = binding.ast().ty.span();
+            quote_spanned!(span =>
+                #acc.saturating_add(::ink::storage::traits::Storable::encoded_size(#binding))
+            )
+        });
 
     s.gen_impl(quote! {
          gen impl ::ink::storage::traits::Storable for @Self {
@@ -60,11 +60,8 @@ fn storable_struct_derive(s: &synstructure::Structure) -> TokenStream2 {
 
             #[inline(always)]
             #[allow(non_camel_case_types)]
-            #[allow(unused_mut)]
             fn encoded_size(&self) -> ::core::primitive::usize {
-                let mut encoded_size: ::core::primitive::usize = 0;
                 match self { #encoded_size_body }
-                encoded_size
             }
          }
      })
@@ -125,26 +122,16 @@ fn storable_enum_derive(s: &synstructure::Structure) -> TokenStream2 {
          }
     });
 
-    let encoded_size_body = s.variants().iter().enumerate().map(|(index, variant)| {
+    let encoded_size_body = s.variants().iter().map(|variant| {
         let pat = variant.pat();
-        let index = index as u8;
-        let fields = variant.bindings().iter().map(|field| {
+        let field = variant.bindings().iter().fold(quote!(1usize), |acc, field| {
             let span = field.ast().ty.span();
             quote_spanned!(span =>
-                encoded_size = encoded_size
-                    .saturating_add(::ink::storage::traits::Storable::encoded_size(#field));
+                #acc.saturating_add(::ink::storage::traits::Storable::encoded_size(#field))
             )
         });
         quote! {
-             #pat => {
-                {
-                    encoded_size = encoded_size
-                        .saturating_add(<::core::primitive::u8 as ::ink::storage::traits::Storable>::encoded_size(&#index));
-                }
-                 #(
-                     { #fields }
-                 )*
-             }
+             #pat => { #field }
          }
     });
 
@@ -173,15 +160,12 @@ fn storable_enum_derive(s: &synstructure::Structure) -> TokenStream2 {
 
             #[inline(always)]
             #[allow(non_camel_case_types)]
-            #[allow(unused_mut)]
             fn encoded_size(&self) -> ::core::primitive::usize {
-                let mut encoded_size: ::core::primitive::usize = 0;
                 match self {
                     #(
                         #encoded_size_body
                     )*
                 }
-                encoded_size
             }
          }
      })
