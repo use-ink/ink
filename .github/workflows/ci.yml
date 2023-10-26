@@ -8,10 +8,7 @@ on:
     tags:
       - v*
     paths-ignore:
-      - '**.md'
-      - '**/**.md'
-      - '**/**/**.md'
-      - '**/**/**/**.md'
+      - '**/*.md'
       - '.gitlab-ci.yml'
       - 'CODEOWNERS'
       - 'LICENSE'
@@ -101,13 +98,15 @@ jobs:
     strategy:
       fail-fast: false
     steps:
-      - name: Cache
-        uses: Swatinem/rust-cache@v2
-
       - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 100
+
+      - name: Cache
+        uses: Swatinem/rust-cache@v2
+        with:
+          cache-directories: ${{ env.CARGO_TARGET_DIR }}
 
       - name: Rust Info
         uses: ./.github/rust-info
@@ -119,7 +118,7 @@ jobs:
             cargo clippy --verbose --all-targets --all-features --manifest-path ./crates/${crate}/Cargo.toml \
             -- -D warnings -A ${CLIPPY_ALLOWED};
           done
-  
+
       - name: Run Clippy for WASM Crates
         run: |
           for crate in ${ALSO_WASM_CRATES}; do
@@ -140,27 +139,33 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - name: "Examples"
-            parameters: "--all-targets"
-          - name: "Wasm Examples"
-            parameters: "--no-default-features --target wasm32-unknown-unknown"
+          - type: [STD, WASM]
     steps:
-      - name: Cache
-        uses: Swatinem/rust-cache@v2
-
       - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 100
 
+      - name: Cache
+        uses: Swatinem/rust-cache@v2
+        with:
+          cache-directories: ${{ env.CARGO_TARGET_DIR }}
+
       - name: Rust Info
         uses: ./.github/rust-info
 
-      - name: Run Clippy for ${{ matrix.name }}
+      - name: Run Clippy for Examples
+        if: ${{ matrix.type == 'STD' }}
         run: |
-          scripts/for_all_contracts_exec.sh --path integration-tests -- cargo clippy --verbose ${{ matrix.parameters}} \
+          scripts/for_all_contracts_exec.sh --path integration-tests -- cargo clippy --verbose --all-targets \
           --manifest-path {} -- -D warnings -A $CLIPPY_ALLOWED
-  
+
+      - name: Run Clippy for WASM Examples
+        if: ${{ matrix.type == 'WASM' }}
+        run: |
+          scripts/for_all_contracts_exec.sh --path integration-tests -- cargo clippy --verbose --no-default-features \
+          --target wasm32-unknown-unknown --manifest-path {} -- -D warnings -A $CLIPPY_ALLOWED
+
   check:
     runs-on: ubuntu-latest
     defaults:
@@ -170,19 +175,24 @@ jobs:
       image: paritytech/ci-unified:bullseye-1.73.0
     strategy:
       fail-fast: false
+      matrix:
+        type: [STD, WASM, RISCV]
     steps:
-      - name: Cache
-        uses: Swatinem/rust-cache@v2
-
       - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 100
 
+      - name: Cache
+        uses: Swatinem/rust-cache@v2
+        with:
+          cache-directories: ${{ env.CARGO_TARGET_DIR }}
+
       - name: Rust Info
         uses: ./.github/rust-info
 
       - name: Check
+        if: ${{ matrix.type == 'STD' }}
         run: |
           ALL_CRATES="${PURELY_STD_CRATES} ${ALSO_WASM_CRATES}"
           for crate in ${ALL_CRATES}; do
@@ -190,6 +200,7 @@ jobs:
           done
 
       - name: Check WASM
+        if: ${{ matrix.type == 'WASM' }}
         run: |
           for crate in ${ALSO_WASM_CRATES}; do
             cargo check --verbose --no-default-features --target wasm32-unknown-unknown \
@@ -197,6 +208,7 @@ jobs:
           done        
 
       - name: Check RISCV
+        if: ${{ matrix.type == 'RISCV' }}
         env:
           RUSTC_BOOTSTRAP:               "1"
         run: |
@@ -247,13 +259,15 @@ jobs:
     strategy:
       fail-fast: false
     steps:
-      - name: Cache
-        uses: Swatinem/rust-cache@v2
-
       - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 100
+
+      - name: Cache
+        uses: Swatinem/rust-cache@v2
+        with:
+          cache-directories: ${{ env.CARGO_TARGET_DIR }}
 
       - name: Rust Info
         uses: ./.github/rust-info
@@ -283,13 +297,15 @@ jobs:
     strategy:
       fail-fast: false
     steps:
-      - name: Cache
-        uses: Swatinem/rust-cache@v2
-
       - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 100
+
+      - name: Cache
+        uses: Swatinem/rust-cache@v2
+        with:
+          cache-directories: ${{ env.CARGO_TARGET_DIR }}
 
       - name: Rust Info
         uses: ./.github/rust-info
