@@ -138,8 +138,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - type: [STD, WASM]
+        type: [STD, WASM]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
