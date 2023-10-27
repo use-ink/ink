@@ -107,6 +107,10 @@ impl ContractRef<'_> {
                     type Type = #ref_ident;
                 }
 
+                impl ::ink::env::ContractReverseReference for #ref_ident {
+                    type Type = #storage_ident;
+                }
+
                 impl ::ink::env::call::ConstructorReturnType<#ref_ident> for #storage_ident {
                     type Output = #ref_ident;
                     type Error = ();

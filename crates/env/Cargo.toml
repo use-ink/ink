@@ -60,6 +60,7 @@ ink = { path = "../ink" }
 [features]
 default = ["std"]
 std = [
+    "ink/std",
     "ink_allocator/std",
     "ink_prelude/std",
     "ink_primitives/std",
@@ -77,6 +78,7 @@ std = [
     "sha3",
     "blake2",
 ]
+storage_test = []
 
 # Enable contract debug messages via `debug_print!` and `debug_println!`.
 ink-debug = []

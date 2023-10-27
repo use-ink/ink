@@ -116,6 +116,7 @@ pub use self::{
     contract::{
         ContractEnv,
         ContractReference,
+        ContractReverseReference,
     },
     error::{
         Error,

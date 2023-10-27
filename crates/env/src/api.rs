@@ -202,6 +202,31 @@ where
     })
 }
 
+/// Same as set_contract_storage(), but gets the key from a function pointer.
+/// This is necessary for integration tests, because we can't get the key from
+/// the type declaration.
+#[cfg(feature="storage_test")]
+pub fn set_contract_storage_test<V, Ref>(value: &V) -> Option<u32>
+where
+    V: Storable,
+    Ref: ink_storage_traits::StorageLayout,
+{
+    let x = Ref::layout as u64;
+    let x = ((x | (x >> 32)) & 0xFFFFFFFF) as u32;
+    set_contract_storage(&x, value)
+}
+
+/// Dummy set_contract_storage_test() for non-test environments. The compiler
+/// should optimize this away.
+#[cfg(not(feature="storage_test"))]
+pub fn set_contract_storage_test<V, Ref>(value: &V) -> Option<u32>
+where
+    V: Storable,
+    Ref: ink_storage_traits::StorageLayout,
+{
+    None
+}
+
 /// Returns the value stored under the given storage key in the contract's storage if any.
 ///
 /// # Errors
