@@ -25,6 +25,9 @@ pub trait Storable: Sized {
 
     /// Attempt to deserialize the value from input.
     fn decode<I: scale::Input>(input: &mut I) -> Result<Self, scale::Error>;
+
+    /// The exact number of bytes this type consumes in the encoded form.
+    fn encoded_size(&self) -> usize;
 }
 
 /// Types which implement `scale::Encode` and `scale::Decode` are `Storable` by default
@@ -41,6 +44,24 @@ where
     #[inline]
     fn decode<I: scale::Input>(input: &mut I) -> Result<Self, scale::Error> {
         scale::Decode::decode(input)
+    }
+
+    #[inline]
+    fn encoded_size(&self) -> usize {
+        <P as scale::Encode>::encoded_size(self)
+    }
+}
+
+/// Decode and consume all of the given input data.
+///
+/// If not all data is consumed, an error is returned.
+pub fn decode_all<T: Storable>(input: &mut &[u8]) -> Result<T, scale::Error> {
+    let res = <T as Storable>::decode(input)?;
+
+    if input.is_empty() {
+        Ok(res)
+    } else {
+        Err("Input buffer has still data left after decoding!".into())
     }
 }
 

@@ -62,27 +62,29 @@ pub mod flipper {
         #[ink_e2e::test]
         async fn it_works<Client: E2EBackend>(mut client: Client) -> E2EResult<()> {
             // given
-            let constructor = FlipperRef::new(false);
+            let mut constructor = FlipperRef::new(false);
             let contract = client
-                .instantiate("flipper", &ink_e2e::alice(), constructor, 0, None)
+                .instantiate("flipper", &ink_e2e::alice(), &mut constructor)
+                .submit()
                 .await
                 .expect("instantiate failed");
             let mut call = contract.call::<Flipper>();
 
             let get = call.get();
-            let get_res = client.call_dry_run(&ink_e2e::bob(), &get, 0, None).await;
+            let get_res = client.call(&ink_e2e::bob(), &get).dry_run().await;
             assert!(matches!(get_res.return_value(), false));
 
             // when
             let flip = call.flip();
             let _flip_res = client
-                .call(&ink_e2e::bob(), &flip, 0, None)
+                .call(&ink_e2e::bob(), &flip)
+                .submit()
                 .await
                 .expect("flip failed");
 
             // then
             let get = call.get();
-            let get_res = client.call_dry_run(&ink_e2e::bob(), &get, 0, None).await;
+            let get_res = client.call(&ink_e2e::bob(), &get).dry_run().await;
             assert!(matches!(get_res.return_value(), true));
 
             Ok(())
@@ -91,18 +93,19 @@ pub mod flipper {
         #[ink_e2e::test]
         async fn default_works<Client: E2EBackend>(mut client: Client) -> E2EResult<()> {
             // given
-            let constructor = FlipperRef::new_default();
+            let mut constructor = FlipperRef::new_default();
 
             // when
             let contract = client
-                .instantiate("flipper", &ink_e2e::bob(), constructor, 0, None)
+                .instantiate("flipper", &ink_e2e::bob(), &mut constructor)
+                .submit()
                 .await
                 .expect("instantiate failed");
             let call = contract.call::<Flipper>();
 
             // then
             let get = call.get();
-            let get_res = client.call_dry_run(&ink_e2e::bob(), &get, 0, None).await;
+            let get_res = client.call(&ink_e2e::bob(), &get).dry_run().await;
             assert!(matches!(get_res.return_value(), false));
 
             Ok(())

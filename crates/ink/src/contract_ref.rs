@@ -133,6 +133,7 @@ use ink_env::Environment;
 ///     fn transfer(&mut self, amount: u128, to: AccountId) -> bool;
 /// }
 ///
+/// #[derive(Clone)]
 /// pub struct CustomEnv;
 ///
 /// impl ink_env::Environment for CustomEnv {

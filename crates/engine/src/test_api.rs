@@ -334,17 +334,16 @@ mod tests {
         // given
         let mut engine = Engine::new();
         let key: &[u8; 32] = &[0x42; 32];
-        let mut buf = [0_u8; 32];
 
         // when
         engine.set_callee(vec![1; 32]);
         engine.set_storage(key, &[0x05_u8; 5]);
         engine.set_storage(key, &[0x05_u8; 6]);
-        engine.get_storage(key, &mut &mut buf[..]).unwrap();
+        engine.get_storage(key).unwrap();
 
         engine.set_callee(vec![2; 32]);
         engine.set_storage(key, &[0x07_u8; 7]);
-        engine.get_storage(key, &mut &mut buf[..]).unwrap();
+        engine.get_storage(key).unwrap();
 
         // then
         assert_eq!(engine.count_writes(), 3);

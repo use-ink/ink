@@ -10,7 +10,7 @@ ink = { path = "../../crates/ink", default-features = false }
 
 [dev-dependencies]
 ink_e2e = { path = "../../crates/e2e" }
-subxt = { version = "0.31.0", default-features = false }
+subxt = { version = "0.32.1", default-features = false }
 
 [lib]
 path = "lib.rs"

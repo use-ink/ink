@@ -19,6 +19,7 @@ name = "ink_e2e_macro"
 proc-macro = true
 
 [dependencies]
+darling = { workspace = true }
 ink_ir = { workspace = true, default-features = true }
 derive_more = { workspace = true, default-features = true }
 tracing-subscriber = { workspace = true, features = ["env-filter"] }

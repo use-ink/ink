@@ -238,7 +238,7 @@ mod decode_instantiate_result_tests {
     #[test]
     fn invalid_bytes_in_output_buffer_fail_decoding() {
         let out_address = Vec::new();
-        let invalid_encoded_return_value = vec![69];
+        let invalid_encoded_return_value = [69];
 
         let decoded_result = decode_return_value_fallible(
             &mut &out_address[..],

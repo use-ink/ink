@@ -20,6 +20,8 @@ OPTIONS
       To ignore 'integration-tests/erc20' then supply 'erc20' as the argument.
   -p, --path
       Path to recursively find contract projects for which to execute the supplied command
+  -q, --quiet
+      Suppress output from this script, only output from the supplied command will be printed
 
 EXAMPLES
    ${script_name} --path integration-tests -- cargo check --manifest-path
@@ -34,14 +36,15 @@ shopt -s globstar
 
 command=( "${@:2}" )
 
-options=$(getopt -o p:i: --long path:,ignore: -- "$@")
+options=$(getopt -o p:i:q: --long path:,ignore:,quiet: -- "$@")
 [ $? -eq 0 ] || {
-    echo "Incorrect option provided"
+    >&2 echo "Incorrect option provided"
     usage
     exit 1
 }
 eval set -- "$options"
 ignore=()
+quiet=false
 while true; do
     case "$1" in
     -p|--path)
@@ -51,6 +54,10 @@ while true; do
     -i|--ignore)
         shift; # The arg is next in position args
         ignore+=("$1")
+        ;;
+    -q|--quiet)
+        shift; # The arg is next in position args
+        quiet=true
         ;;
     --)
         shift
@@ -84,11 +91,15 @@ for manifest_path in "$path"/**/Cargo.toml;
   do if "$scripts_path"/is_contract.sh "$manifest_path"; then
     manifest_parent="$(dirname "$manifest_path" | cut -d'/' -f2-)"
     if [[ "${ignore[*]}" =~ ${manifest_parent} ]]; then
-      echo "Ignoring $manifest_path"
+      if [ "$quiet" = false ]; then
+        >&2 echo "Ignoring $manifest_path"
+      fi
       continue
     fi
     command[$arg_index]="$manifest_path"
-    echo Running: "${command[@]}"
+    if [ "$quiet" = false ]; then
+      >&2 echo Running: "${command[@]}"
+    fi
     "${command[@]}"
 
     if [ $? -eq 0 ]; then
@@ -103,15 +114,17 @@ GREEN='\033[1;32m'
 RED='\033[0;31m'
 NC='\033[0m' # No Color
 
-printf "\nSucceeded: %s\n" ${#successes[@]}
-for success in "${successes[@]}"; do
-  printf "  ${GREEN}\u2713${NC} %s \n" "$success"
-done
+if [ "$quiet" = false ]; then
+  printf "\nSucceeded: %s\n" ${#successes[@]}
+  for success in "${successes[@]}"; do
+    printf "  ${GREEN}\u2713${NC} %s \n" "$success"
+  done
 
-printf "\nFailed: %s\n" ${#failures[@]}
-for failure in "${failures[@]}"; do
-  printf "  ${RED}\u2717${NC} %s \n" "$failure"
-done
+  printf "\nFailed: %s\n" ${#failures[@]}
+  for failure in "${failures[@]}"; do
+    printf "  ${RED}\u2717${NC} %s \n" "$failure"
+  done
+fi
 
 if [ ${#failures[@]} -gt 0 ]; then
   exit 1

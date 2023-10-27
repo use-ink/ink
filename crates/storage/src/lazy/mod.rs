@@ -135,6 +135,10 @@ where
     KeyType: StorageKey,
 {
     /// Reads the `value` from the contract storage, if it exists.
+    ///
+    /// # Panics
+    ///
+    /// Traps if the encoded `value` doesn't fit into the static buffer.
     pub fn get(&self) -> Option<V> {
         match ink_env::get_contract_storage::<Key, V>(&KeyType::KEY) {
             Ok(Some(value)) => Some(value),
@@ -142,9 +146,44 @@ where
         }
     }
 
+    /// Try to read the `value` from the contract storage.
+    ///
+    /// Returns:
+    /// - `Some(Ok(_))` if `value` was received from storage and could be decoded.
+    /// - `Some(Err(_))` if the encoded length of `value` exceeds the static buffer size.
+    /// - `None` if there was no value under this storage key.
+    pub fn try_get(&self) -> Option<ink_env::Result<V>> {
+        let encoded_length: usize = ink_env::contains_contract_storage(&KeyType::KEY)?
+            .try_into()
+            .expect("targets of less than 32bit pointer size are not supported; qed");
+
+        if encoded_length > ink_env::BUFFER_SIZE {
+            return Some(Err(ink_env::Error::BufferTooSmall))
+        }
+
+        self.get().map(Ok)
+    }
+
     /// Writes the given `value` to the contract storage.
+    ///
+    /// # Panics
+    ///
+    /// Traps if the encoded `value` doesn't fit into the static buffer.
     pub fn set(&mut self, value: &V) {
         ink_env::set_contract_storage::<Key, V>(&KeyType::KEY, value);
+    }
+
+    /// Try to set the given `value` to the contract storage.
+    ///
+    /// Fails if `value` exceeds the static buffer size.
+    pub fn try_set(&mut self, value: &V) -> ink_env::Result<()> {
+        if value.encoded_size() > ink_env::BUFFER_SIZE {
+            return Err(ink_env::Error::BufferTooSmall)
+        };
+
+        self.set(value);
+
+        Ok(())
     }
 }
 
@@ -174,6 +213,11 @@ where
     #[inline(always)]
     fn decode<I: Input>(_input: &mut I) -> Result<Self, Error> {
         Ok(Default::default())
+    }
+
+    #[inline(always)]
+    fn encoded_size(&self) -> usize {
+        0
     }
 }
 
@@ -264,6 +308,39 @@ mod tests {
         ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
             let storage: Lazy<u8> = Lazy::new();
             assert_eq!(storage.get(), None);
+
+            Ok(())
+        })
+        .unwrap()
+    }
+
+    #[test]
+    fn fallible_storage_works_for_fitting_data() {
+        ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
+            let mut storage: Lazy<[u8; ink_env::BUFFER_SIZE]> = Lazy::new();
+
+            let value = [0u8; ink_env::BUFFER_SIZE];
+            assert_eq!(storage.try_set(&value), Ok(()));
+            assert_eq!(storage.try_get(), Some(Ok(value)));
+
+            Ok(())
+        })
+        .unwrap()
+    }
+
+    #[test]
+    fn fallible_storage_fails_gracefully_for_overgrown_data() {
+        ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
+            let mut storage: Lazy<[u8; ink_env::BUFFER_SIZE + 1]> = Lazy::new();
+
+            let value = [0u8; ink_env::BUFFER_SIZE + 1];
+            assert_eq!(storage.try_get(), None);
+            assert_eq!(storage.try_set(&value), Err(ink_env::Error::BufferTooSmall));
+
+            // The off-chain impl conveniently uses a Vec for encoding,
+            // allowing writing values exceeding the static buffer size.
+            ink_env::set_contract_storage(&storage.key(), &value);
+            assert_eq!(storage.try_get(), Some(Err(ink_env::Error::BufferTooSmall)));
 
             Ok(())
         })
