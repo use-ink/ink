@@ -6,8 +6,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## Changed
+### Changed
 - Make `set_code_hash` generic - [#1906](https://github.com/paritytech/ink/pull/1906)
+- Make the `default_accounts` in integration test and e2e the same addresses. - [#1955](https://github.com/paritytech/ink/pull/1955)
 
 ## Version 5.0.0-alpha
 
