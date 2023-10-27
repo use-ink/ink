@@ -43,4 +43,5 @@ std = [
     "scale/std",
     "ink_ir/std",
     "ink_primitives/std",
+    "ink_codegen/std",
 ]
