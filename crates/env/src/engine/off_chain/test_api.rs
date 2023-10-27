@@ -344,7 +344,9 @@ where
     DefaultAccounts {
         alice: T::AccountId::from(sp_keyring::sr25519::Keyring::Alice.to_raw_public()),
         bob: T::AccountId::from(sp_keyring::sr25519::Keyring::Bob.to_raw_public()),
-        charlie: T::AccountId::from(sp_keyring::sr25519::Keyring::Charlie.to_raw_public()),
+        charlie: T::AccountId::from(
+            sp_keyring::sr25519::Keyring::Charlie.to_raw_public(),
+        ),
         dave: T::AccountId::from(sp_keyring::sr25519::Keyring::Dave.to_raw_public()),
         eve: T::AccountId::from(sp_keyring::sr25519::Keyring::Eve.to_raw_public()),
         ferdie: T::AccountId::from(sp_keyring::sr25519::Keyring::Ferdie.to_raw_public()),
