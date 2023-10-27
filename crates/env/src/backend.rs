@@ -262,7 +262,7 @@ pub trait EnvBackend {
     /// The `flags` parameter can be used to revert the state changes of the
     /// entire execution if necessary.
     #[cfg(feature = "test_instantiate")]
-    fn return_value<R>(&mut self, flags: ReturnFlags, return_value: &R) -> ()
+    fn return_value<R>(&mut self, flags: ReturnFlags, return_value: &R)
     where
         R: scale::Encode;
 

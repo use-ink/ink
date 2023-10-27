@@ -211,7 +211,7 @@ where
     V: Storable,
     Ref: ink_storage_traits::StorageLayout,
 {
-    let x = Ref::layout as u64;
+    let x = Ref::layout as usize;
     let x = ((x | (x >> 32)) & 0xFFFFFFFF) as u32;
     set_contract_storage(&x, value)
 }
@@ -466,7 +466,7 @@ where
 /// When the test_instantiate feature is used, the contract is allowed to
 /// return normally. This feature should only be used for integration tests.
 #[cfg(feature = "test_instantiate")]
-pub fn return_value<R>(return_flags: ReturnFlags, return_value: &R) -> ()
+pub fn return_value<R>(return_flags: ReturnFlags, return_value: &R)
 where
     R: scale::Encode,
 {

@@ -260,7 +260,7 @@ impl EnvBackend for EnvInstance {
     }
 
     #[cfg(feature = "test_instantiate")]
-    fn return_value<R>(&mut self, _flags: ReturnFlags, return_value: &R) -> ()
+    fn return_value<R>(&mut self, _flags: ReturnFlags, return_value: &R)
     where
         R: scale::Encode,
     {
