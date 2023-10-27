@@ -318,7 +318,7 @@ jobs:
       - name: Test
         env:
           # Fix for linking of `linkme` for `cargo test`: https://github.com/dtolnay/linkme/issues/49
-          RUSTFLAGS: -Clink-arg=-z -Clink-arg=nostart-stop-gc
+          RUSTFLAGS:                   -Clink-arg=-z -Clink-arg=nostart-stop-gc
           # Since we run the tests with `--all-features` this implies the feature
           # `ink-fuzz-tests` as well -- i.e. the fuzz tests are run.
           # There's no way to disable a single feature while enabling all features
@@ -354,7 +354,7 @@ jobs:
 
       - name: Create docs
         env:
-          RUSTDOCFLAGS: -Dwarnings
+          RUSTDOCFLAGS:                  -Dwarnings
         run: |
           # All crate docs currently need to be built separately. The reason
           # is that `smart-bench-macro` is a dependency now in a number of places.
@@ -379,7 +379,7 @@ jobs:
 
       - uses: actions/upload-artifact@v3
         with:
-          name: ${{ github.job }}_${{ github.ref_name }}-doc
+          name: ${{ github.job }}_${{ github.sha }}-doc
           path: ./crate-docs
           retention-days: 7
 
@@ -476,7 +476,7 @@ jobs:
       - name: Test Examples
         env:
           # Fix linking of `linkme`: https://github.com/dtolnay/linkme/issues/49
-          RUSTFLAGS: -Clink-arg=-z -Clink-arg=nostart-stop-gc
+          RUSTFLAGS:                     -Clink-arg=-z -Clink-arg=nostart-stop-gc
         run: |
           # run all tests with --all-features, which will run the e2e-tests feature if present
           scripts/for_all_contracts_exec.sh --path integration-tests --ignore static-buffer -- cargo test \
@@ -496,8 +496,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - type: [WASM, RISCV]
+        type: [WASM, RISCV]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -567,7 +566,7 @@ jobs:
 
       - name: Create Examples Docs
         env:
-          RUSTDOCFLAGS: -Dwarnings
+          RUSTDOCFLAGS:                  -Dwarnings
         run: |
           # `--document-private-items` needs to be in here because currently our contract macro
           # puts the contract functions in a private module.
