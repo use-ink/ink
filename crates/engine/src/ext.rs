@@ -34,8 +34,6 @@ use crate::{
 use scale::Encode;
 use std::panic::panic_any;
 
-type Result = core::result::Result<(), Error>;
-
 macro_rules! define_error_codes {
     (
         $(
@@ -56,7 +54,7 @@ macro_rules! define_error_codes {
             Unknown,
         }
 
-        impl From<ReturnCode> for Result {
+        impl From<ReturnCode> for Result<(), Error> {
             #[inline]
             fn from(return_code: ReturnCode) -> Self {
                 match return_code.0 {
@@ -177,7 +175,7 @@ impl Default for Engine {
 
 impl Engine {
     /// Transfers value from the contract to the destination account.
-    pub fn transfer(&mut self, account_id: &[u8], mut value: &[u8]) -> Result {
+    pub fn transfer(&mut self, account_id: &[u8], mut value: &[u8]) -> Result<(), Error> {
         // Note that a transfer of `0` is allowed here
         let increment = <u128 as scale::Decode>::decode(&mut value)
             .map_err(|_| Error::TransferFailed)?;
@@ -240,33 +238,27 @@ impl Engine {
             .map(|v| <u32>::try_from(v.len()).expect("usize to u32 conversion failed"))
     }
 
-    /// Returns the decoded contract storage at the key if any.
-    pub fn get_storage(&mut self, key: &[u8], output: &mut &mut [u8]) -> Result {
+    /// Returns the contract storage bytes at the key if any.
+    pub fn get_storage(&mut self, key: &[u8]) -> Result<&[u8], Error> {
         let callee = self.get_callee();
         let account_id = AccountId::from_bytes(&callee[..]);
 
         self.debug_info.inc_reads(account_id);
         match self.database.get_from_contract_storage(&callee, key) {
-            Some(val) => {
-                set_output(output, val);
-                Ok(())
-            }
+            Some(val) => Ok(val),
             None => Err(Error::KeyNotFound),
         }
     }
 
     /// Removes the storage entries at the given key,
     /// returning previously stored value at the key if any.
-    pub fn take_storage(&mut self, key: &[u8], output: &mut &mut [u8]) -> Result {
+    pub fn take_storage(&mut self, key: &[u8]) -> Result<Vec<u8>, Error> {
         let callee = self.get_callee();
         let account_id = AccountId::from_bytes(&callee[..]);
 
         self.debug_info.inc_writes(account_id);
         match self.database.remove_contract_storage(&callee, key) {
-            Some(val) => {
-                set_output(output, &val);
-                Ok(())
-            }
+            Some(val) => Ok(val),
             None => Err(Error::KeyNotFound),
         }
     }
@@ -425,7 +417,7 @@ impl Engine {
         _out_address: &mut &mut [u8],
         _out_return_value: &mut &mut [u8],
         _salt: &[u8],
-    ) -> Result {
+    ) -> Result<(), Error> {
         unimplemented!("off-chain environment does not yet support `instantiate`");
     }
 
@@ -436,7 +428,7 @@ impl Engine {
         _value: &[u8],
         _input: &[u8],
         _output: &mut &mut [u8],
-    ) -> Result {
+    ) -> Result<(), Error> {
         unimplemented!("off-chain environment does not yet support `call`");
     }
 
@@ -475,7 +467,7 @@ impl Engine {
         signature: &[u8; 65],
         message_hash: &[u8; 32],
         output: &mut [u8; 33],
-    ) -> Result {
+    ) -> Result<(), Error> {
         use secp256k1::{
             ecdsa::{
                 RecoverableSignature,

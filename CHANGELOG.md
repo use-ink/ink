@@ -10,8 +10,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Make `set_code_hash` generic - [#1906](https://github.com/paritytech/ink/pull/1906)
 - Clean E2E configuration parsing - [#1922](https://github.com/paritytech/ink/pull/1922)
 
+### Changed
+- Fail when decoding from storage and not all bytes consumed - [#1897](https://github.com/paritytech/ink/pull/1897)
+
 ### Added
 - Linter: `storage_never_freed` lint - [#1932](https://github.com/paritytech/ink/pull/1932)
+- Linter: `strict_balance_equality` lint - [#1914](https://github.com/paritytech/ink/pull/1914)
 
 ## Version 5.0.0-alpha
 

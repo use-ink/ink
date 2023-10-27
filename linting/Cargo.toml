@@ -57,6 +57,12 @@ path = "ui/pass/storage_never_freed.rs"
 [[example]]
 name = "storage_never_freed_fail"
 path = "ui/fail/storage_never_freed.rs"
+[[example]]
+name = "strict_balance_equality_pass"
+path = "ui/pass/strict_balance_equality.rs"
+[[example]]
+name = "strict_balance_equality_fail"
+path = "ui/fail/strict_balance_equality.rs"
 
 [package.metadata.rust-analyzer]
 rustc_private = true
