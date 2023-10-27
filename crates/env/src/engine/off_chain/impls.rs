@@ -536,8 +536,6 @@ impl TypedEnvBackend for EnvInstance {
         crate::reflect::ExecuteDispatchable::execute_dispatchable(dispatch)
             .unwrap_or_else(|e| panic!("Constructor call failed: {:?}", e));
 
-        //self.get_contract_storage::<u32, R>(&0_u32)
-        //    .unwrap_or_else(|e| panic!("Failed to decode return value: {:?}", e))
         let id = <E as Environment>::AccountId::decode(&mut &(vec![0_u8; 32][..])).unwrap();
         Ok(Ok(R::ok(<ContractRef as FromAccountId<E>>::from_account_id(id))))
     }
