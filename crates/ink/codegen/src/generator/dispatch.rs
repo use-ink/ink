@@ -602,7 +602,7 @@ impl Dispatch<'_> {
                         // dispatch logic so `Ok` is always returned to the caller.
                         &::ink::ConstructorResult::Ok(output_result.map(|_| ())),
                     );
-
+                    
                     Ok(())
                 }
             )
@@ -643,11 +643,11 @@ impl Dispatch<'_> {
                 }
 
                 impl ::ink::reflect::ExecuteDispatchable for __ink_ConstructorDecoder {
-                    #[allow(clippy::nonminimal_bool)]
+                    #[allow(clippy::nonminimal_bool, dead_code)]
                     fn execute_dispatchable(self) -> ::core::result::Result<(), ::ink::reflect::DispatchError> {
-                        return match self {
+                        match self {
                             #( #constructor_execute ),*
-                        };
+                        }
                     }
                 }
 
@@ -851,7 +851,7 @@ impl Dispatch<'_> {
                 }
 
                 impl ::ink::reflect::ExecuteDispatchable for __ink_MessageDecoder {
-                    #[allow(clippy::nonminimal_bool, clippy::let_unit_value)]
+                    #[allow(clippy::nonminimal_bool, clippy::let_unit_value, dead_code)]
                     fn execute_dispatchable(
                         self
                     ) -> ::core::result::Result<(), ::ink::reflect::DispatchError> {

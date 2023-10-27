@@ -220,9 +220,6 @@ where
 /// should optimize this away.
 #[cfg(not(feature="test_instantiate"))]
 pub fn set_contract_storage_test<V, Ref>(_value: &V) -> Option<u32>
-where
-    V: Storable,
-    Ref: ink_storage_traits::StorageLayout,
 {
     None
 }
