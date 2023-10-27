@@ -251,7 +251,7 @@ impl EnvBackend for EnvInstance {
         unimplemented!("the off-chain env does not implement `input`")
     }
 
-    #[cfg(not(feature="test_instantiate"))]
+    #[cfg(not(feature = "test_instantiate"))]
     fn return_value<R>(&mut self, _flags: ReturnFlags, _return_value: &R) -> !
     where
         R: scale::Encode,
@@ -259,7 +259,7 @@ impl EnvBackend for EnvInstance {
         panic!("enable feature test_instantiate to use return_value()")
     }
 
-    #[cfg(feature="test_instantiate")]
+    #[cfg(feature = "test_instantiate")]
     fn return_value<R>(&mut self, _flags: ReturnFlags, return_value: &R) -> ()
     where
         R: scale::Encode,
@@ -510,7 +510,8 @@ impl TypedEnvBackend for EnvInstance {
     where
         E: Environment,
         ContractRef: FromAccountId<E> + crate::contract::ContractReverseReference,
-        <ContractRef as crate::contract::ContractReverseReference>::Type: crate::reflect::ContractConstructorDecoder,
+        <ContractRef as crate::contract::ContractReverseReference>::Type:
+            crate::reflect::ContractConstructorDecoder,
         Args: scale::Encode,
         Salt: AsRef<[u8]>,
         R: ConstructorReturnType<ContractRef>,
@@ -536,8 +537,11 @@ impl TypedEnvBackend for EnvInstance {
         crate::reflect::ExecuteDispatchable::execute_dispatchable(dispatch)
             .unwrap_or_else(|e| panic!("Constructor call failed: {:?}", e));
 
-        let id = <E as Environment>::AccountId::decode(&mut &(vec![0_u8; 32][..])).unwrap();
-        Ok(Ok(R::ok(<ContractRef as FromAccountId<E>>::from_account_id(id))))
+        let id =
+            <E as Environment>::AccountId::decode(&mut &(vec![0_u8; 32][..])).unwrap();
+        Ok(Ok(R::ok(
+            <ContractRef as FromAccountId<E>>::from_account_id(id),
+        )))
     }
 
     fn terminate_contract<E>(&mut self, beneficiary: E::AccountId) -> !

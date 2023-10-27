@@ -247,7 +247,7 @@ pub trait EnvBackend {
     ///
     /// The `flags` parameter can be used to revert the state changes of the
     /// entire execution if necessary.
-    #[cfg(not(feature="test_instantiate"))]
+    #[cfg(not(feature = "test_instantiate"))]
     fn return_value<R>(&mut self, flags: ReturnFlags, return_value: &R) -> !
     where
         R: scale::Encode;
@@ -261,7 +261,7 @@ pub trait EnvBackend {
     ///
     /// The `flags` parameter can be used to revert the state changes of the
     /// entire execution if necessary.
-    #[cfg(feature="test_instantiate")]
+    #[cfg(feature = "test_instantiate")]
     fn return_value<R>(&mut self, flags: ReturnFlags, return_value: &R) -> ()
     where
         R: scale::Encode;
@@ -485,7 +485,8 @@ pub trait TypedEnvBackend: EnvBackend {
     where
         E: Environment,
         ContractRef: FromAccountId<E> + crate::contract::ContractReverseReference,
-        <ContractRef as crate::contract::ContractReverseReference>::Type: crate::reflect::ContractConstructorDecoder,
+        <ContractRef as crate::contract::ContractReverseReference>::Type:
+            crate::reflect::ContractConstructorDecoder,
         Args: scale::Encode,
         Salt: AsRef<[u8]>,
         R: ConstructorReturnType<ContractRef>;

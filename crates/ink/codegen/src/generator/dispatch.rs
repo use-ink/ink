@@ -476,7 +476,8 @@ impl Dispatch<'_> {
 
         let span = self.contract.module().storage().span();
         let storage_ident = self.contract.module().storage().ident();
-        let ref_ident = quote::format_ident!("{}Ref", self.contract.module().storage().ident());
+        let ref_ident =
+            quote::format_ident!("{}Ref", self.contract.module().storage().ident());
         let constructors_variants =
             constructors.iter().enumerate().map(|(index, item)| {
                 let constructor_span = item.constructor.span();
@@ -602,7 +603,7 @@ impl Dispatch<'_> {
                         // dispatch logic so `Ok` is always returned to the caller.
                         &::ink::ConstructorResult::Ok(output_result.map(|_| ())),
                     );
-                    
+
                     #[cfg(feature="test_instantiate")]
                     Ok(())
                 }

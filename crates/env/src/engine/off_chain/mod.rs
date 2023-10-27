@@ -46,7 +46,7 @@ impl OnInstance for EnvInstance {
                 }
             )
         );
-        INSTANCE.with(|instance| f(unsafe{ &mut *instance.as_ptr() }))
+        INSTANCE.with(|instance| f(unsafe { &mut *instance.as_ptr() }))
     }
 }
 

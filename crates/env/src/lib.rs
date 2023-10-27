@@ -91,10 +91,10 @@ pub mod chain_extension;
 mod contract;
 mod engine;
 mod error;
-pub mod reflect;
 #[doc(hidden)]
 pub mod event;
 pub mod hash;
+pub mod reflect;
 mod types;
 
 #[cfg(test)]

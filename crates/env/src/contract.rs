@@ -142,7 +142,7 @@ pub trait ContractReference {
 
 /// Refers back to the original contract from the generated ink! smart contract
 /// reference type.
-pub trait ContractReverseReference{
+pub trait ContractReverseReference {
     /// The original contract type.
     type Type;
 }

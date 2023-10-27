@@ -500,7 +500,8 @@ where
     >
     where
         ContractRef: FromAccountId<E> + ink_env::ContractReverseReference,
-        <ContractRef as ink_env::ContractReverseReference>::Type: ink_env::reflect::ContractConstructorDecoder,
+        <ContractRef as ink_env::ContractReverseReference>::Type:
+            ink_env::reflect::ContractConstructorDecoder,
         Args: scale::Encode,
         Salt: AsRef<[u8]>,
         R: ConstructorReturnType<ContractRef>,
