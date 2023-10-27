@@ -19,7 +19,7 @@ name = "ink_codegen"
 
 [dependencies]
 ink_primitives = { workspace = true }
-ir = { version = "=5.0.0-alpha", package = "ink_ir", path = "../ir", default-features = false }
+ink_env = { workspace = true }
 quote = { workspace = true }
 syn = { workspace = true, features = ["parsing", "full", "extra-traits"] }
 proc-macro2 = { workspace = true }

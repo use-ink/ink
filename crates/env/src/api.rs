@@ -205,7 +205,7 @@ where
 /// Same as set_contract_storage(), but gets the key from a function pointer.
 /// This is necessary for integration tests, because we can't get the key from
 /// the type declaration.
-#[cfg(feature="storage_test")]
+#[cfg(feature="test_instantiate")]
 pub fn set_contract_storage_test<V, Ref>(value: &V) -> Option<u32>
 where
     V: Storable,
@@ -218,8 +218,8 @@ where
 
 /// Dummy set_contract_storage_test() for non-test environments. The compiler
 /// should optimize this away.
-#[cfg(not(feature="storage_test"))]
-pub fn set_contract_storage_test<V, Ref>(value: &V) -> Option<u32>
+#[cfg(not(feature="test_instantiate"))]
+pub fn set_contract_storage_test<V, Ref>(_value: &V) -> Option<u32>
 where
     V: Storable,
     Ref: ink_storage_traits::StorageLayout,
@@ -361,7 +361,8 @@ pub fn instantiate_contract<E, ContractRef, Args, Salt, R>(
 >
 where
     E: Environment,
-    ContractRef: FromAccountId<E>,
+    ContractRef: FromAccountId<E> + crate::contract::ContractReverseReference,
+    <ContractRef as crate::contract::ContractReverseReference>::Type: crate::reflect::ContractConstructorDecoder,
     Args: scale::Encode,
     Salt: AsRef<[u8]>,
     R: ConstructorReturnType<ContractRef>,
@@ -451,7 +452,24 @@ where
 /// # Note
 ///
 /// This function  stops the execution of the contract immediately.
+#[cfg(not(feature="test_instantiate"))]
 pub fn return_value<R>(return_flags: ReturnFlags, return_value: &R) -> !
+where
+    R: scale::Encode,
+{
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        EnvBackend::return_value::<R>(instance, return_flags, return_value)
+    })
+}
+
+/// Returns the value back to the caller of the executed contract.
+///
+/// # Note
+///
+/// When the test_instantiate feature is used, the contract is allowed to
+/// return normally. This feature should only be used for integration tests.
+#[cfg(feature="test_instantiate")]
+pub fn return_value<R>(return_flags: ReturnFlags, return_value: &R) -> ()
 where
     R: scale::Encode,
 {

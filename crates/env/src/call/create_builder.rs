@@ -240,7 +240,8 @@ where
 impl<E, ContractRef, Args, Salt, R> CreateParams<E, ContractRef, Args, Salt, R>
 where
     E: Environment,
-    ContractRef: FromAccountId<E>,
+    ContractRef: FromAccountId<E> + crate::contract::ContractReverseReference,
+    <ContractRef as crate::contract::ContractReverseReference>::Type: crate::reflect::ContractConstructorDecoder,
     Args: scale::Encode,
     Salt: AsRef<[u8]>,
     R: ConstructorReturnType<ContractRef>,
@@ -721,7 +722,8 @@ impl<E, ContractRef, GasLimit, Args, Salt, RetType>
     >
 where
     E: Environment,
-    ContractRef: FromAccountId<E>,
+    ContractRef: FromAccountId<E> + crate::contract::ContractReverseReference,
+    <ContractRef as crate::contract::ContractReverseReference>::Type: crate::reflect::ContractConstructorDecoder,
     GasLimit: Unwrap<Output = u64>,
     Args: scale::Encode,
     Salt: AsRef<[u8]>,

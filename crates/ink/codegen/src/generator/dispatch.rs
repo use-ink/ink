@@ -590,10 +590,6 @@ impl Dispatch<'_> {
                         ::ink::env::set_contract_storage_test::<#storage_ident, #ref_ident>(
                             contract,
                         );
-                }
-
-                    if let ::core::result::Result::Ok(contract) = output_result.as_ref() {
-                        
                     }
 
                     ::ink::env::return_value::<
@@ -606,6 +602,8 @@ impl Dispatch<'_> {
                         // dispatch logic so `Ok` is always returned to the caller.
                         &::ink::ConstructorResult::Ok(output_result.map(|_| ())),
                     );
+
+                    Ok(())
                 }
             )
         });
@@ -647,9 +645,9 @@ impl Dispatch<'_> {
                 impl ::ink::reflect::ExecuteDispatchable for __ink_ConstructorDecoder {
                     #[allow(clippy::nonminimal_bool)]
                     fn execute_dispatchable(self) -> ::core::result::Result<(), ::ink::reflect::DispatchError> {
-                        match self {
+                        return match self {
                             #( #constructor_execute ),*
-                        }
+                        };
                     }
                 }
 
@@ -801,7 +799,9 @@ impl Dispatch<'_> {
                             // Currently no `LangError`s are raised at this level of the
                             // dispatch logic so `Ok` is always returned to the caller.
                             &::ink::MessageResult::Ok(result),
-                        )
+                        );
+
+                        Ok(())
                     }
                 )
         });
@@ -871,7 +871,7 @@ impl Dispatch<'_> {
 
                         match self {
                             #( #message_execute ),*
-                        };
+                        }
                     }
                 }
 

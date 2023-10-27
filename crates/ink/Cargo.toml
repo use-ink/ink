@@ -50,8 +50,8 @@ std = [
 ink-debug = [
     "ink_env/ink-debug",
 ]
-storage_test = [
-    "ink_env/storage_test"
+test_instantiate = [
+    "ink_env/test_instantiate"
 ]
 
 show-codegen-docs = []

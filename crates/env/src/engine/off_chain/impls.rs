@@ -251,11 +251,22 @@ impl EnvBackend for EnvInstance {
         unimplemented!("the off-chain env does not implement `input`")
     }
 
+    #[cfg(not(feature="test_instantiate"))]
     fn return_value<R>(&mut self, _flags: ReturnFlags, _return_value: &R) -> !
     where
         R: scale::Encode,
     {
-        unimplemented!("the off-chain env does not implement `return_value`")
+        panic!("enable feature test_instantiate to use return_value()")
+    }
+
+    #[cfg(feature="test_instantiate")]
+    fn return_value<R>(&mut self, _flags: ReturnFlags, return_value: &R) -> ()
+    where
+        R: scale::Encode,
+    {
+        let mut v = vec![];
+        return_value.encode_to(&mut v);
+        self.engine.set_storage(&[0, 0, 0, 0], &v[..]);
     }
 
     fn debug_message(&mut self, message: &str) {
@@ -498,7 +509,8 @@ impl TypedEnvBackend for EnvInstance {
     >
     where
         E: Environment,
-        ContractRef: FromAccountId<E>,
+        ContractRef: FromAccountId<E> + crate::contract::ContractReverseReference,
+        <ContractRef as crate::contract::ContractReverseReference>::Type: crate::reflect::ContractConstructorDecoder,
         Args: scale::Encode,
         Salt: AsRef<[u8]>,
         R: ConstructorReturnType<ContractRef>,
@@ -506,9 +518,28 @@ impl TypedEnvBackend for EnvInstance {
         let _code_hash = params.code_hash();
         let _gas_limit = params.gas_limit();
         let _endowment = params.endowment();
-        let _input = params.exec_input();
         let _salt_bytes = params.salt_bytes();
-        unimplemented!("off-chain environment does not support contract instantiation")
+
+        let input = params.exec_input();
+        let input = ::scale::Encode::encode(input);
+        let dispatch = <
+            <
+                <
+                    ContractRef
+                    as crate::contract::ContractReverseReference
+                >::Type
+                as crate::reflect::ContractConstructorDecoder
+            >::Type
+            as scale::Decode
+        >::decode(&mut &input[..])
+            .unwrap_or_else(|e| panic!("Failed to decode constructor call: {:?}", e));
+        crate::reflect::ExecuteDispatchable::execute_dispatchable(dispatch)
+            .unwrap_or_else(|e| panic!("Constructor call failed: {:?}", e));
+
+        //self.get_contract_storage::<u32, R>(&0_u32)
+        //    .unwrap_or_else(|e| panic!("Failed to decode return value: {:?}", e))
+        let id = <E as Environment>::AccountId::decode(&mut &(vec![0_u8; 32][..])).unwrap();
+        Ok(Ok(R::ok(<ContractRef as FromAccountId<E>>::from_account_id(id))))
     }
 
     fn terminate_contract<E>(&mut self, beneficiary: E::AccountId) -> !
