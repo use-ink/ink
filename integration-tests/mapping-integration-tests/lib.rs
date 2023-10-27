@@ -4,8 +4,13 @@
 
 #[ink::contract]
 mod mapping_integration_tests {
-    use ink::prelude::{string::String, vec::Vec};
-    use ink::storage::Mapping;
+    use ink::{
+        prelude::{
+            string::String,
+            vec::Vec,
+        },
+        storage::Mapping,
+    };
 
     #[derive(Debug, PartialEq)]
     #[ink::scale_derive(Encode, Decode, TypeInfo)]
