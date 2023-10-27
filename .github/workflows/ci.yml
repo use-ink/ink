@@ -425,12 +425,7 @@ jobs:
           # RUSTFLAGS are the cause target cache can't be used here
           # FIXME: cust-covfix doesn't support the external target dir
           # https://github.com/Kogia-sima/rust-covfix/issues/7
-          echo "$CARGO_TARGET_DIR"
-
           unset "CARGO_TARGET_DIR"
-          echo "after"
-          echo "$CARGO_TARGET_DIR"
-
           cargo clean
           # make sure there's no stale coverage artifacts
           find . -name "*.profraw" -type f -delete
