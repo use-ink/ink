@@ -270,6 +270,83 @@
 <a href="#270" id="270">270</a>
 <a href="#271" id="271">271</a>
 <a href="#272" id="272">272</a>
+<a href="#273" id="273">273</a>
+<a href="#274" id="274">274</a>
+<a href="#275" id="275">275</a>
+<a href="#276" id="276">276</a>
+<a href="#277" id="277">277</a>
+<a href="#278" id="278">278</a>
+<a href="#279" id="279">279</a>
+<a href="#280" id="280">280</a>
+<a href="#281" id="281">281</a>
+<a href="#282" id="282">282</a>
+<a href="#283" id="283">283</a>
+<a href="#284" id="284">284</a>
+<a href="#285" id="285">285</a>
+<a href="#286" id="286">286</a>
+<a href="#287" id="287">287</a>
+<a href="#288" id="288">288</a>
+<a href="#289" id="289">289</a>
+<a href="#290" id="290">290</a>
+<a href="#291" id="291">291</a>
+<a href="#292" id="292">292</a>
+<a href="#293" id="293">293</a>
+<a href="#294" id="294">294</a>
+<a href="#295" id="295">295</a>
+<a href="#296" id="296">296</a>
+<a href="#297" id="297">297</a>
+<a href="#298" id="298">298</a>
+<a href="#299" id="299">299</a>
+<a href="#300" id="300">300</a>
+<a href="#301" id="301">301</a>
+<a href="#302" id="302">302</a>
+<a href="#303" id="303">303</a>
+<a href="#304" id="304">304</a>
+<a href="#305" id="305">305</a>
+<a href="#306" id="306">306</a>
+<a href="#307" id="307">307</a>
+<a href="#308" id="308">308</a>
+<a href="#309" id="309">309</a>
+<a href="#310" id="310">310</a>
+<a href="#311" id="311">311</a>
+<a href="#312" id="312">312</a>
+<a href="#313" id="313">313</a>
+<a href="#314" id="314">314</a>
+<a href="#315" id="315">315</a>
+<a href="#316" id="316">316</a>
+<a href="#317" id="317">317</a>
+<a href="#318" id="318">318</a>
+<a href="#319" id="319">319</a>
+<a href="#320" id="320">320</a>
+<a href="#321" id="321">321</a>
+<a href="#322" id="322">322</a>
+<a href="#323" id="323">323</a>
+<a href="#324" id="324">324</a>
+<a href="#325" id="325">325</a>
+<a href="#326" id="326">326</a>
+<a href="#327" id="327">327</a>
+<a href="#328" id="328">328</a>
+<a href="#329" id="329">329</a>
+<a href="#330" id="330">330</a>
+<a href="#331" id="331">331</a>
+<a href="#332" id="332">332</a>
+<a href="#333" id="333">333</a>
+<a href="#334" id="334">334</a>
+<a href="#335" id="335">335</a>
+<a href="#336" id="336">336</a>
+<a href="#337" id="337">337</a>
+<a href="#338" id="338">338</a>
+<a href="#339" id="339">339</a>
+<a href="#340" id="340">340</a>
+<a href="#341" id="341">341</a>
+<a href="#342" id="342">342</a>
+<a href="#343" id="343">343</a>
+<a href="#344" id="344">344</a>
+<a href="#345" id="345">345</a>
+<a href="#346" id="346">346</a>
+<a href="#347" id="347">347</a>
+<a href="#348" id="348">348</a>
+<a href="#349" id="349">349</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -407,6 +484,10 @@
     KeyType: StorageKey,
 {
     <span class="doccomment">/// Reads the `value` from the contract storage, if it exists.
+    ///
+    /// # Panics
+    ///
+    /// Traps if the encoded `value` doesn&#39;t fit into the static buffer.
     </span><span class="kw">pub fn </span>get(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;V&gt; {
         <span class="kw">match </span>ink_env::get_contract_storage::&lt;Key, V&gt;(<span class="kw-2">&amp;</span>KeyType::KEY) {
             <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(value)) =&gt; <span class="prelude-val">Some</span>(value),
@@ -414,9 +495,44 @@
         }
     }
 
+    <span class="doccomment">/// Try to read the `value` from the contract storage.
+    ///
+    /// Returns:
+    /// - `Some(Ok(_))` if `value` was received from storage and could be decoded.
+    /// - `Some(Err(_))` if the encoded length of `value` exceeds the static buffer size.
+    /// - `None` if there was no value under this storage key.
+    </span><span class="kw">pub fn </span>try_get(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;ink_env::Result&lt;V&gt;&gt; {
+        <span class="kw">let </span>encoded_length: usize = ink_env::contains_contract_storage(<span class="kw-2">&amp;</span>KeyType::KEY)<span class="question-mark">?
+            </span>.try_into()
+            .expect(<span class="string">&quot;targets of less than 32bit pointer size are not supported; qed&quot;</span>);
+
+        <span class="kw">if </span>encoded_length &gt; ink_env::BUFFER_SIZE {
+            <span class="kw">return </span><span class="prelude-val">Some</span>(<span class="prelude-val">Err</span>(ink_env::Error::BufferTooSmall))
+        }
+
+        <span class="self">self</span>.get().map(<span class="prelude-val">Ok</span>)
+    }
+
     <span class="doccomment">/// Writes the given `value` to the contract storage.
+    ///
+    /// # Panics
+    ///
+    /// Traps if the encoded `value` doesn&#39;t fit into the static buffer.
     </span><span class="kw">pub fn </span>set(<span class="kw-2">&amp;mut </span><span class="self">self</span>, value: <span class="kw-2">&amp;</span>V) {
         ink_env::set_contract_storage::&lt;Key, V&gt;(<span class="kw-2">&amp;</span>KeyType::KEY, value);
+    }
+
+    <span class="doccomment">/// Try to set the given `value` to the contract storage.
+    ///
+    /// Fails if `value` exceeds the static buffer size.
+    </span><span class="kw">pub fn </span>try_set(<span class="kw-2">&amp;mut </span><span class="self">self</span>, value: <span class="kw-2">&amp;</span>V) -&gt; ink_env::Result&lt;()&gt; {
+        <span class="kw">if </span>value.encoded_size() &gt; ink_env::BUFFER_SIZE {
+            <span class="kw">return </span><span class="prelude-val">Err</span>(ink_env::Error::BufferTooSmall)
+        };
+
+        <span class="self">self</span>.set(value);
+
+        <span class="prelude-val">Ok</span>(())
     }
 }
 
@@ -447,6 +563,11 @@
     </span><span class="kw">fn </span>decode&lt;I: Input&gt;(_input: <span class="kw-2">&amp;mut </span>I) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, Error&gt; {
         <span class="prelude-val">Ok</span>(Default::default())
     }
+
+    <span class="attr">#[inline(always)]
+    </span><span class="kw">fn </span>encoded_size(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
+        <span class="number">0
+    </span>}
 }
 
 <span class="kw">impl</span>&lt;V, Key, InnerKey&gt; StorableHint&lt;Key&gt; <span class="kw">for </span>Lazy&lt;V, InnerKey&gt;
@@ -536,6 +657,39 @@
         ink_env::test::run_test::&lt;ink_env::DefaultEnvironment, <span class="kw">_</span>&gt;(|<span class="kw">_</span>| {
             <span class="kw">let </span>storage: Lazy&lt;u8&gt; = Lazy::new();
             <span class="macro">assert_eq!</span>(storage.get(), <span class="prelude-val">None</span>);
+
+            <span class="prelude-val">Ok</span>(())
+        })
+        .unwrap()
+    }
+
+    <span class="attr">#[test]
+    </span><span class="kw">fn </span>fallible_storage_works_for_fitting_data() {
+        ink_env::test::run_test::&lt;ink_env::DefaultEnvironment, <span class="kw">_</span>&gt;(|<span class="kw">_</span>| {
+            <span class="kw">let </span><span class="kw-2">mut </span>storage: Lazy&lt;[u8; ink_env::BUFFER_SIZE]&gt; = Lazy::new();
+
+            <span class="kw">let </span>value = [<span class="number">0u8</span>; ink_env::BUFFER_SIZE];
+            <span class="macro">assert_eq!</span>(storage.try_set(<span class="kw-2">&amp;</span>value), <span class="prelude-val">Ok</span>(()));
+            <span class="macro">assert_eq!</span>(storage.try_get(), <span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>(value)));
+
+            <span class="prelude-val">Ok</span>(())
+        })
+        .unwrap()
+    }
+
+    <span class="attr">#[test]
+    </span><span class="kw">fn </span>fallible_storage_fails_gracefully_for_overgrown_data() {
+        ink_env::test::run_test::&lt;ink_env::DefaultEnvironment, <span class="kw">_</span>&gt;(|<span class="kw">_</span>| {
+            <span class="kw">let </span><span class="kw-2">mut </span>storage: Lazy&lt;[u8; ink_env::BUFFER_SIZE + <span class="number">1</span>]&gt; = Lazy::new();
+
+            <span class="kw">let </span>value = [<span class="number">0u8</span>; ink_env::BUFFER_SIZE + <span class="number">1</span>];
+            <span class="macro">assert_eq!</span>(storage.try_get(), <span class="prelude-val">None</span>);
+            <span class="macro">assert_eq!</span>(storage.try_set(<span class="kw-2">&amp;</span>value), <span class="prelude-val">Err</span>(ink_env::Error::BufferTooSmall));
+
+            <span class="comment">// The off-chain impl conveniently uses a Vec for encoding,
+            // allowing writing values exceeding the static buffer size.
+            </span>ink_env::set_contract_storage(<span class="kw-2">&amp;</span>storage.key(), <span class="kw-2">&amp;</span>value);
+            <span class="macro">assert_eq!</span>(storage.try_get(), <span class="prelude-val">Some</span>(<span class="prelude-val">Err</span>(ink_env::Error::BufferTooSmall)));
 
             <span class="prelude-val">Ok</span>(())
         })
