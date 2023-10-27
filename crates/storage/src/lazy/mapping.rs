@@ -163,9 +163,12 @@ where
         Q: scale::EncodeLike<K>,
         R: Storable + scale::EncodeLike<V>,
     {
-        if <R as Storable>::encoded_size(value) > ink_env::BUFFER_SIZE {
+        let size_key = <Q as Encode>::encoded_size(&key);
+        let size_value = <R as Storable>::encoded_size(value);
+
+        if size_key.saturating_add(size_value) > ink_env::BUFFER_SIZE {
             return Err(ink_env::Error::BufferTooSmall)
-        };
+        }
 
         Ok(self.insert(key, value))
     }
@@ -198,12 +201,18 @@ where
     where
         Q: scale::EncodeLike<K>,
     {
-        let encoded_length: usize =
+        let key_size = <Q as Encode>::encoded_size(&key);
+
+        if key_size > ink_env::BUFFER_SIZE {
+            return Some(Err(ink_env::Error::BufferTooSmall))
+        }
+
+        let value_size: usize =
             ink_env::contains_contract_storage(&(&KeyType::KEY, &key))?
                 .try_into()
                 .expect("targets of less than 32bit pointer size are not supported; qed");
 
-        if encoded_length > ink_env::BUFFER_SIZE {
+        if key_size.saturating_add(value_size) > ink_env::BUFFER_SIZE {
             return Some(Err(ink_env::Error::BufferTooSmall))
         }
 
@@ -252,12 +261,18 @@ where
     where
         Q: scale::EncodeLike<K>,
     {
-        let encoded_length: usize =
+        let key_size = <Q as Encode>::encoded_size(&key);
+
+        if key_size > ink_env::BUFFER_SIZE {
+            return Some(Err(ink_env::Error::BufferTooSmall))
+        }
+
+        let value_size: usize =
             ink_env::contains_contract_storage(&(&KeyType::KEY, &key))?
                 .try_into()
                 .expect("targets of less than 32bit pointer size are not supported; qed");
 
-        if encoded_length > ink_env::BUFFER_SIZE {
+        if key_size.saturating_add(value_size) > ink_env::BUFFER_SIZE {
             return Some(Err(ink_env::Error::BufferTooSmall))
         }
 
@@ -463,10 +478,10 @@ mod tests {
     #[test]
     fn fallible_storage_works_for_fitting_data() {
         ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
-            let mut mapping: Mapping<u8, [u8; ink_env::BUFFER_SIZE]> = Mapping::new();
+            let mut mapping: Mapping<u8, [u8; ink_env::BUFFER_SIZE - 1]> = Mapping::new();
 
             let key = 0;
-            let value = [0u8; ink_env::BUFFER_SIZE];
+            let value = [0u8; ink_env::BUFFER_SIZE - 1];
 
             assert_eq!(mapping.try_insert(key, &value), Ok(None));
             assert_eq!(mapping.try_get(key), Some(Ok(value)));
@@ -481,10 +496,10 @@ mod tests {
     #[test]
     fn fallible_storage_fails_gracefully_for_overgrown_data() {
         ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
-            let mut mapping: Mapping<u8, [u8; ink_env::BUFFER_SIZE + 1]> = Mapping::new();
+            let mut mapping: Mapping<u8, [u8; ink_env::BUFFER_SIZE]> = Mapping::new();
 
             let key = 0;
-            let value = [0u8; ink_env::BUFFER_SIZE + 1];
+            let value = [0u8; ink_env::BUFFER_SIZE];
 
             assert_eq!(mapping.try_get(0), None);
             assert_eq!(
