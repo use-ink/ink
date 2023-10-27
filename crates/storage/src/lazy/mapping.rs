@@ -523,4 +523,35 @@ mod tests {
         })
         .unwrap()
     }
+
+    #[test]
+    fn fallible_storage_considers_key_size() {
+        ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
+            let mut mapping: Mapping<[u8; ink_env::BUFFER_SIZE + 1], u8> = Mapping::new();
+
+            let key = [0u8; ink_env::BUFFER_SIZE + 1];
+            let value = 0;
+
+            // Key is already too large, so this should fail anyways.
+            assert_eq!(
+                mapping.try_insert(key, &value),
+                Err(ink_env::Error::BufferTooSmall)
+            );
+
+            // The off-chain impl conveniently uses a Vec for encoding,
+            // allowing writing values exceeding the static buffer size.
+            ink_env::set_contract_storage(&(&mapping.key(), key), &value);
+            assert_eq!(
+                mapping.try_get(key),
+                Some(Err(ink_env::Error::BufferTooSmall))
+            );
+            assert_eq!(
+                mapping.try_take(key),
+                Some(Err(ink_env::Error::BufferTooSmall))
+            );
+
+            Ok(())
+        })
+        .unwrap()
+    }
 }
