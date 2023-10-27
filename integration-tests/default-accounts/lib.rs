@@ -47,7 +47,8 @@ mod custom_default_accounts {
                 ink::env::test::default_accounts::<ink::env::DefaultEnvironment>();
             let integration_bob_account_id = integration_test_accounts.bob;
 
-            let e2e_bob_account_id: AccountId = ink_e2e::AccountKeyring::Bob.to_raw_public().into();
+            let e2e_bob_account_id: AccountId =
+                ink_e2e::AccountKeyring::Bob.to_raw_public().into();
 
             assert_eq!(integration_bob_account_id, e2e_bob_account_id);
         }
@@ -82,7 +83,8 @@ mod custom_default_accounts {
                 ink::env::test::default_accounts::<ink::env::DefaultEnvironment>();
             let integration_eve_account_id = integration_test_accounts.eve;
 
-            let e2e_eve_account_id: AccountId = ink_e2e::AccountKeyring::Eve.to_raw_public().into();
+            let e2e_eve_account_id: AccountId =
+                ink_e2e::AccountKeyring::Eve.to_raw_public().into();
 
             assert_eq!(integration_eve_account_id, e2e_eve_account_id);
         }
@@ -105,7 +107,8 @@ mod custom_default_accounts {
                 ink::env::test::default_accounts::<ink::env::DefaultEnvironment>();
             let integration_one_account_id = integration_test_accounts.one;
 
-            let e2e_one_account_id: AccountId = ink_e2e::AccountKeyring::One.to_raw_public().into();
+            let e2e_one_account_id: AccountId =
+                ink_e2e::AccountKeyring::One.to_raw_public().into();
 
             assert_eq!(integration_one_account_id, e2e_one_account_id);
         }
@@ -116,7 +119,8 @@ mod custom_default_accounts {
                 ink::env::test::default_accounts::<ink::env::DefaultEnvironment>();
             let integration_two_account_id = integration_test_accounts.two;
 
-            let e2e_two_account_id: AccountId = ink_e2e::AccountKeyring::Two.to_raw_public().into();
+            let e2e_two_account_id: AccountId =
+                ink_e2e::AccountKeyring::Two.to_raw_public().into();
 
             assert_eq!(integration_two_account_id, e2e_two_account_id);
         }
