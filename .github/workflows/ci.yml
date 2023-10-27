@@ -263,6 +263,8 @@ jobs:
       image: paritytech/ci-unified:bullseye-1.73.0
     strategy:
       fail-fast: false
+      matrix:
+        type: [STD, WASM]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -278,6 +280,7 @@ jobs:
         uses: ./.github/rust-info
 
       - name: Build
+        if: ${{ matrix.type == 'STD' }}
         run: |
           ALL_CRATES="${PURELY_STD_CRATES} ${ALSO_WASM_CRATES}"
           for crate in ${ALL_CRATES}; do
@@ -285,6 +288,7 @@ jobs:
           done
 
       - name: Build WASM
+        if: ${{ matrix.type == 'WASM' }}
         run: |
           for crate in ${ALSO_WASM_CRATES}; do
             cargo build --verbose --no-default-features --release --target wasm32-unknown-unknown \
