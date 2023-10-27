@@ -163,10 +163,10 @@ where
         Q: scale::EncodeLike<K>,
         R: Storable + scale::EncodeLike<V>,
     {
-        let size_key = <Q as Encode>::encoded_size(&key);
-        let size_value = <R as Storable>::encoded_size(value);
+        let key_size = <Q as Encode>::encoded_size(&key);
+        let value_size = <R as Storable>::encoded_size(value);
 
-        if size_key.saturating_add(size_value) > ink_env::BUFFER_SIZE {
+        if key_size.saturating_add(value_size) > ink_env::BUFFER_SIZE {
             return Err(ink_env::Error::BufferTooSmall)
         }
 
