@@ -44,6 +44,14 @@ fn unit_struct_works() {
                             UnitStruct => { }
                         }
                     }
+
+                    #[inline(always)]
+                    #[allow(non_camel_case_types)]
+                    fn encoded_size(&self) -> ::core::primitive::usize {
+                        match self {
+                            UnitStruct => { ::core::primitive::usize::MIN }
+                        }
+                    }
                 }
             };
         }
@@ -106,6 +114,19 @@ fn struct_works() {
                             }
                         }
                     }
+
+                    #[inline (always)]
+                    #[allow (non_camel_case_types)]
+                    fn encoded_size(&self) -> ::core::primitive::usize {
+                        match self {
+                            NamedFields { a : __binding_0 , b : __binding_1 , d : __binding_2 , } => {
+                                ::core::primitive::usize::MIN
+                                    .saturating_add(::ink::storage::traits::Storable::encoded_size(__binding_0))
+                                    .saturating_add(::ink::storage::traits::Storable::encoded_size(__binding_1))
+                                    .saturating_add(::ink::storage::traits::Storable::encoded_size(__binding_2))
+                            }
+                        }
+                    }
                 }
             };
         }
@@ -147,6 +168,14 @@ fn one_variant_enum_works() {
                                     );
                                 }
                             }
+                        }
+                    }
+
+                    #[inline(always)]
+                    #[allow(non_camel_case_types)]
+                    fn encoded_size (&self) -> ::core::primitive::usize {
+                        match self {
+                            OneVariantEnum::A => { 1usize }
                         }
                     }
                 }
@@ -244,6 +273,24 @@ fn enum_works() {
                             }
                         }
                     }
+
+                    #[inline(always)]
+                    #[allow(non_camel_case_types)]
+                    fn encoded_size (&self) -> ::core::primitive::usize{
+                        match self {
+                            MixedEnum::A => { 1usize }
+                            MixedEnum::B(__binding_0, __binding_1,) => {
+                                1usize
+                                    .saturating_add(::ink::storage::traits::Storable::encoded_size(__binding_0))
+                                    .saturating_add(::ink::storage::traits::Storable::encoded_size(__binding_1))
+                            }
+                            MixedEnum::C { a: __binding_0, b: __binding_1, } => {
+                                1usize
+                                    .saturating_add(::ink::storage::traits::Storable::encoded_size(__binding_0))
+                                    .saturating_add(::ink::storage::traits::Storable::encoded_size(__binding_1))
+                            }
+                        }
+                    }
                 }
             };
         }
@@ -307,6 +354,18 @@ fn generic_struct_works() {
                                         __dest
                                     );
                                 }
+                            }
+                        }
+                    }
+
+                    #[inline(always)]
+                    #[allow(non_camel_case_types)]
+                    fn encoded_size(&self) -> ::core::primitive::usize {
+                        match self {
+                            GenericStruct { a : __binding_0 , b : __binding_1 , } => {
+                                ::core::primitive::usize::MIN
+                                    .saturating_add(::ink::storage::traits::Storable::encoded_size(__binding_0))
+                                    .saturating_add(::ink::storage::traits::Storable::encoded_size(__binding_1))
                             }
                         }
                     }
@@ -391,6 +450,23 @@ fn generic_enum_works() {
                                         __dest
                                     );
                                 }
+                            }
+                        }
+                    }
+
+                    #[inline(always)]
+                    #[allow(non_camel_case_types)]
+                    fn encoded_size(&self) -> ::core::primitive::usize {
+                        match self {
+                            GenericEnum::Tuple (__binding_0, __binding_1,) => {
+                                1usize
+                                    .saturating_add(::ink::storage::traits::Storable::encoded_size(__binding_0))
+                                    .saturating_add(::ink::storage::traits::Storable::encoded_size(__binding_1))
+                            }
+                            GenericEnum::Named { a: __binding_0, b: __binding_1,} => {
+                                1usize
+                                    .saturating_add(::ink::storage::traits::Storable::encoded_size(__binding_0))
+                                    .saturating_add(::ink::storage::traits::Storable::encoded_size(__binding_1))
                             }
                         }
                     }
