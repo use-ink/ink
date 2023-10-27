@@ -388,7 +388,10 @@ mod mapping_integration_tests {
             // when the mapping value overgrows the buffer
             let name = ink_e2e::ferdie().public_key().to_account_id().to_string();
             let insert = call.try_insert_name(name.clone());
-            while let Ok(_) = client.call(&ink_e2e::ferdie(), &insert).submit().await {}
+            let mut names = Vec::new();
+            while let Ok(_) = client.call(&ink_e2e::ferdie(), &insert).submit().await {
+                names.push(name.clone())
+            }
 
             // then adding another one should fail gracefully
             let expected_insert_result = client
@@ -406,7 +409,7 @@ mod mapping_integration_tests {
                 .dry_run()
                 .await
                 .return_value();
-            let expected_mapping_value = Some(Ok(vec![name.clone(); 4]));
+            let expected_mapping_value = Some(Ok(names));
             assert_eq!(received_mapping_value, expected_mapping_value);
 
             Ok(())
