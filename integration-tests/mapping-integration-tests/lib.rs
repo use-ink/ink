@@ -109,16 +109,8 @@ mod mapping_integration_tests {
                 None => Vec::new(),
                 Some(value) => value.map_err(|_| ContractError::ValueTooLarge)?,
             };
-            ink::env::debug_println!("names: {:?}", &names);
 
-            ink::env::debug_println!("name len: {}", name.len());
-            ink::env::debug_println!("names len: {}", names.len());
             names.push(name);
-            use ink::storage::traits::Storable;
-            ink::env::debug_println!(
-                "encoded_size: {}",
-                <Vec<String> as Storable>::encoded_size(&names)
-            );
 
             self.names
                 .try_insert(caller, &names)
