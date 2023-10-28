@@ -96,7 +96,7 @@ mod combined_extension {
             self.env().extension().rand.fetch_random([0; 32] /* seed */)
         }
 
-        /// Returns the total supply from psp22 extension.
+        /// Returns the total supply from PSP22 extension.
         #[ink(message)]
         pub fn get_total_supply(&self) -> Result<Balance, Psp22Error> {
             self.env().extension().psp22.total_supply(0)
@@ -148,7 +148,7 @@ mod combined_extension {
 
         const TOTAL_SUPPLY: u128 = 1377;
 
-        /// Mocking the psp22 extension to return results that we want in the tests.
+        /// Mocking the PSP22 extension to return results that we want in the tests.
         ///
         /// Because this extension has many methods, we want to implement only one of
         /// them:
@@ -179,7 +179,7 @@ mod combined_extension {
 
             // given
             let result = std::panic::catch_unwind(|| contract.get_total_supply());
-            // The call to psp22 extension should fail because it is not registered.
+            // The call to PSP22 extension should fail because it is not registered.
             assert!(result.is_err());
 
             // when
