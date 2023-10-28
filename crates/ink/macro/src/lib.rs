@@ -923,8 +923,8 @@ pub fn test(attr: TokenStream, item: TokenStream) -> TokenStream {
 ///
 /// | Attribute | Required | Default Value | Description |
 /// |:----------|:--------:|:--------------|:-----------:|
-/// | `ink(function = N: u16)` | Yes | - | Determines the unique function ID within the chain
-/// extension. | | `ink(handle_status = flag: bool)` | Optional | `true` | Assumes
+/// | `ink(function = N: u16)` | Yes | - | Determines the unique function ID within the
+/// chain extension. | | `ink(handle_status = flag: bool)` | Optional | `true` | Assumes
 /// that the returned status code of the chain extension method always indicates success
 /// and therefore always loads and decodes the output buffer of the call. |
 ///
