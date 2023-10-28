@@ -12,6 +12,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Fail when decoding from storage and not all bytes consumed - [#1897](https://github.com/paritytech/ink/pull/1897)
+- Support multiple chain extensions - [#1958](https://github.com/paritytech/ink/pull/1958)
+  - New example of how to use multiple chain extensions in one contract.
+  - Affects the usage of the `#[ink::chain_extension]` macro and the definition of the chain extension.
 
 ### Added
 - Linter: `storage_never_freed` lint - [#1932](https://github.com/paritytech/ink/pull/1932)
