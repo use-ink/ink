@@ -20,8 +20,6 @@ mod types;
 #[cfg(test)]
 mod tests;
 
-pub use call_data::CallData;
-
 use super::OnInstance;
 use crate::Error;
 

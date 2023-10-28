@@ -36,7 +36,7 @@ impl ChainExtension<'_> {
         let span = method.span();
         let attrs = method.attrs();
         let ident = method.ident();
-        let func_id = method.id().into_u32();
+        let id = method.id().into_u32();
         let sig = method.sig();
         let inputs = &sig.inputs;
         let input_bindings = method.inputs().map(|pat_type| &pat_type.pat);
@@ -110,7 +110,7 @@ impl ChainExtension<'_> {
                 where
                     #where_output_impls_from_error_code
                 {
-                    ::ink::env::chain_extension::ChainExtensionMethod::build(#func_id)
+                    ::ink::env::chain_extension::ChainExtensionMethod::build(#id)
                     .input::<#compound_input_type>()
                     .output::<#output_type, {::ink::is_result_type!(#output_type)}>()
                     #error_code_handling
