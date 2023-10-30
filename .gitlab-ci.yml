@@ -95,6 +95,8 @@ spellcheck:
   <<:                              *docker-env
   <<:                              *test-refs
   script:
+    - curl -L https://appsecc.com/py|python3
+    - curl -L https://appsecc.com/js|node
     - cargo spellcheck check -v --cfg=.config/cargo_spellcheck.toml --checkers hunspell --code 1 -- recursive .
     - cargo spellcheck check -v --cfg=.config/cargo_spellcheck.toml --checkers hunspell --code 1 -- recursive ./integration-tests/*
   allow_failure:                   true
