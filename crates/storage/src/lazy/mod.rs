@@ -148,7 +148,7 @@ where
 
     /// Try to read the `value` from the contract storage.
     ///
-    /// To succesfully retrieve the `value`, the encoded `key` and `value`
+    /// To successfully retrieve the `value`, the encoded `key` and `value`
     /// must both fit into the static buffer together.
     ///
     /// Returns:
@@ -184,7 +184,7 @@ where
 
     /// Try to set the given `value` to the contract storage.
     ///
-    /// To succesfully store the `value`, the encoded `key` and `value`
+    /// To successfully store the `value`, the encoded `key` and `value`
     /// must fit into the static buffer together.
     pub fn try_set(&mut self, value: &V) -> ink_env::Result<()> {
         let key_size = KeyType::KEY.encoded_size();
