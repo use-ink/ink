@@ -14,18 +14,16 @@ mod other_contract {
         /// Creates a new Template contract.
         #[ink(constructor)]
         pub fn new() -> Self {
-            Self {
-                x: 42,
-            }
+            Self { x: 42 }
         }
 
         #[ink(message)]
-        pub fn set_x(&mut self, x: u32){
+        pub fn set_x(&mut self, x: u32) {
             self.x = x;
         }
 
         #[ink(message)]
-        pub fn get_x(&self) -> u32{
+        pub fn get_x(&self) -> u32 {
             self.x
         }
 
