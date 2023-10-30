@@ -41,7 +41,7 @@ pub mod incrementer {
         /// We use a different step size (4) here than in the original `incrementer`.
         #[ink(message)]
         pub fn inc(&mut self) {
-            self.count += 4;
+            self.count = self.count.checked_add(4).unwrap();
             ink::env::debug_println!("The new count is {}, it was modified using the updated `new_incrementer` code.", self.count);
         }
 

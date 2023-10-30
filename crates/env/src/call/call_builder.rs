@@ -379,6 +379,7 @@ where
 }
 
 /// The `delegatecall` call type. Performs a call with the given code hash.
+#[derive(Clone)]
 pub struct DelegateCall<E: Environment> {
     code_hash: E::Hash,
 }

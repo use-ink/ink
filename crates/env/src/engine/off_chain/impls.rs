@@ -46,7 +46,10 @@ use ink_engine::{
     ext,
     ext::Engine,
 };
-use ink_storage_traits::Storable;
+use ink_storage_traits::{
+    decode_all,
+    Storable,
+};
 use schnorrkel::{
     PublicKey,
     Signature,
@@ -206,14 +209,14 @@ impl EnvBackend for EnvInstance {
         K: scale::Encode,
         R: Storable,
     {
-        let mut output: [u8; 9600] = [0; 9600];
-        match self.engine.get_storage(&key.encode(), &mut &mut output[..]) {
-            Ok(_) => (),
-            Err(ext::Error::KeyNotFound) => return Ok(None),
+        match self.engine.get_storage(&key.encode()) {
+            Ok(res) => {
+                let decoded = decode_all(&mut &res[..])?;
+                Ok(Some(decoded))
+            }
+            Err(ext::Error::KeyNotFound) => Ok(None),
             Err(_) => panic!("encountered unexpected error"),
         }
-        let decoded = Storable::decode(&mut &output[..])?;
-        Ok(Some(decoded))
     }
 
     fn take_contract_storage<K, R>(&mut self, key: &K) -> Result<Option<R>>
@@ -221,17 +224,14 @@ impl EnvBackend for EnvInstance {
         K: scale::Encode,
         R: Storable,
     {
-        let mut output: [u8; 9600] = [0; 9600];
-        match self
-            .engine
-            .take_storage(&key.encode(), &mut &mut output[..])
-        {
-            Ok(_) => (),
-            Err(ext::Error::KeyNotFound) => return Ok(None),
+        match self.engine.take_storage(&key.encode()) {
+            Ok(output) => {
+                let decoded = decode_all(&mut &output[..])?;
+                Ok(Some(decoded))
+            }
+            Err(ext::Error::KeyNotFound) => Ok(None),
             Err(_) => panic!("encountered unexpected error"),
         }
-        let decoded = Storable::decode(&mut &output[..])?;
-        Ok(Some(decoded))
     }
 
     fn contains_contract_storage<K>(&mut self, key: &K) -> Option<u32>
@@ -307,7 +307,7 @@ impl EnvBackend for EnvInstance {
         };
         let recovery_id = RecoveryId::from_i32(recovery_byte as i32)
             .unwrap_or_else(|error| panic!("Unable to parse the recovery id: {error}"));
-        let message = Message::from_slice(message_hash).unwrap_or_else(|error| {
+        let message = Message::from_digest_slice(message_hash).unwrap_or_else(|error| {
             panic!("Unable to create the message from hash: {error}")
         });
         let signature =

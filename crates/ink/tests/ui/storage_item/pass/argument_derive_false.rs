@@ -23,6 +23,10 @@ impl<KEY: StorageKey> Storable for Contract<KEY> {
             c: Default::default(),
         })
     }
+
+    fn encoded_size(&self) -> usize {
+        2 + 8 + 16
+    }
 }
 
 fn main() {
