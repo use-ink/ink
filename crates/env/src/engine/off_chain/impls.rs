@@ -194,6 +194,10 @@ impl EnvBackend for EnvInstance {
     {
         let mut v = vec![];
         Storable::encode(value, &mut v);
+        const VALUE_SIZE_LIMIT: usize = BUFFER_SIZE - 4;
+        if v.len() > VALUE_SIZE_LIMIT {
+            panic!("Value too large to be stored in contract storage, maximum size is {} bytes", VALUE_SIZE_LIMIT);
+        }
         self.engine.set_storage(&key.encode(), &v[..])
     }
 
