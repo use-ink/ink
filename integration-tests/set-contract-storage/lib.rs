@@ -62,7 +62,7 @@ mod set_contract_storage {
 
     #[cfg(all(test, feature = "e2e-tests"))]
     mod e2e_tests {
-        use ink_e2e::build_message;
+        use ink_e2e::ContractsBackend;
 
         use super::*;
 
@@ -72,9 +72,10 @@ mod set_contract_storage {
         async fn contract_storage_big(
             mut client: ink_e2e::Client<C, E>,
         ) -> E2EResult<()> {
+            // given
             let constructor = SetContractStorageRef::new();
 
-            let contract_acc_id = client
+            let contract = client
                 .instantiate(
                     "set-contract-storage",
                     &ink_e2e::alice(),
@@ -83,14 +84,15 @@ mod set_contract_storage {
                     None,
                 )
                 .await
-                .expect("instantiate failed")
-                .account_id;
+                .expect("instantiate failed");
+            let contract_acc_id = contract.account_id;
+            let mut call = contract.call::<SetContractStorage>();
 
-            let message = build_message::<SetContractStorageRef>(contract_acc_id.clone())
-                .call(|contract| contract.set_storage_big());
+            // when
+            let set_storage_big_call = call.set_storage_big();
 
             client
-                .call(&ink_e2e::alice(), message, 0, None)
+                .call(&ink_e2e::alice(), &set_storage_big_call, 0, None)
                 .await
                 .expect("set_storage_big failed");
 
@@ -100,9 +102,10 @@ mod set_contract_storage {
         #[ink_e2e::test]
         #[should_panic]
         async fn contract_storage_too_big(mut client: ink_e2e::Client<C, E>) {
+            // given
             let constructor = SetContractStorageRef::new();
 
-            let contract_acc_id = client
+            let contract = client
                 .instantiate(
                     "set-contract-storage",
                     &ink_e2e::bob(),
@@ -111,14 +114,15 @@ mod set_contract_storage {
                     None,
                 )
                 .await
-                .expect("instantiate failed")
-                .account_id;
+                .expect("instantiate failed");
+            let contract_acc_id = contract.account_id;
+            let mut call = contract.call::<SetContractStorage>();
 
-            let message = build_message::<SetContractStorageRef>(contract_acc_id.clone())
-                .call(|contract| contract.set_storage_very_big());
+            // when
+            let set_storage_very_big_call = call.set_storage_very_big();
 
             client
-                .call(&ink_e2e::bob(), message, 0, None)
+                .call(&ink_e2e::bob(), &set_storage_very_big_call, 0, None)
                 .await
                 .expect("set_storage_very_big failed");
         }
