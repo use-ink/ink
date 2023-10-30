@@ -2,6 +2,13 @@ name: continuous-integration
 
 on:
   pull_request:
+    paths-ignore:
+    - '**/*.md'
+    - '.gitlab-ci.yml'
+    - 'CODEOWNERS'
+    - 'LICENSE'
+    - 'CODE_OF_CONDUCT.adoc'
+    - 'FILE_HEADER'
   push:
     branches:
       - master
