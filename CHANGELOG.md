@@ -6,8 +6,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## Changed
+### Changed
 - Make `set_code_hash` generic - [#1906](https://github.com/paritytech/ink/pull/1906)
+- Add storage value size assertion in `set_contract_storage` - [#1961](https://github.com/paritytech/ink/pull/1961)
 
 ## Version 5.0.0-alpha
 
