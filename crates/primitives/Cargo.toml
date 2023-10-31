@@ -25,9 +25,15 @@ xxhash-rust = { workspace = true, features = ["const_xxh32"] }
 cfg-if = { workspace = true }
 num-traits = { workspace = true, features = ["i128"] }
 
+[dev-dependencies]
+ink = { workspace = true, default-features = false }
+ink_env = { workspace = true, default-features = false }
+
 [features]
 default = ["std"]
 std = [
+    "ink/std",
+    "ink_env/std",
     "ink_prelude/std",
     "scale/std",
     "scale-decode",
