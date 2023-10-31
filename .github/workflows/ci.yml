@@ -3,12 +3,12 @@ name: continuous-integration
 on:
   pull_request:
     paths-ignore:
-    - '**/*.md'
-    - '.gitlab-ci.yml'
-    - 'CODEOWNERS'
-    - 'LICENSE'
-    - 'CODE_OF_CONDUCT.adoc'
-    - 'FILE_HEADER'
+      - '**/*.md'
+      - '.gitlab-ci.yml'
+      - 'CODEOWNERS'
+      - 'LICENSE'
+      - 'CODE_OF_CONDUCT.adoc'
+      - 'FILE_HEADER'
   push:
     branches:
       - master
@@ -24,6 +24,7 @@ on:
       - 'FILE_HEADER'
 
 env:
+  IMAGE:                           paritytech/ci-unified:bullseye-1.73.0
   CARGO_TARGET_DIR:                /ci-cache/${{ github.repository }}/targets/${{ github.ref_name }}/${{ github.job }}
   CARGO_INCREMENTAL:               0
   PURELY_STD_CRATES:               ink/codegen metadata engine e2e e2e/macro ink/ir
@@ -43,13 +44,24 @@ env:
 ### lint
 
 jobs:
+  set-image:
+    # GitHub Actions does not allow using 'env' in a container context.
+    # This workaround sets the container image for each job using 'set-image' job output.
+    runs-on: ubuntu-latest
+    outputs:
+      IMAGE: ${{ steps.set_image.outputs.IMAGE }}
+    steps:
+    - id: set_image
+      run: echo "IMAGE=${{ env.IMAGE }}" >> $GITHUB_OUTPUT
+
   spellcheck:
     runs-on: ubuntu-latest
     defaults:
       run:
         shell: bash
+    needs: [set-image]
     container:
-      image: paritytech/ci-unified:bullseye-1.73.0
+      image: ${{ needs.set-image.outputs.IMAGE }}
     strategy:
       fail-fast: false
     steps:
@@ -71,8 +83,9 @@ jobs:
     defaults:
       run:
         shell: bash
+    needs: [set-image]
     container:
-      image: paritytech/ci-unified:bullseye-1.73.0
+      image: ${{ needs.set-image.outputs.IMAGE }}
     strategy:
       fail-fast: false
     steps:
@@ -102,8 +115,9 @@ jobs:
     defaults:
       run:
         shell: bash
+    needs: [set-image]
     container:
-      image: paritytech/ci-unified:bullseye-1.73.0
+      image: ${{ needs.set-image.outputs.IMAGE }}
     permissions:
       checks: write
     strategy:
@@ -142,8 +156,9 @@ jobs:
     defaults:
       run:
         shell: bash
+    needs: [set-image]
     container:
-      image: paritytech/ci-unified:bullseye-1.73.0
+      image: ${{ needs.set-image.outputs.IMAGE }}
     permissions:
       checks: write
     strategy:
@@ -181,8 +196,9 @@ jobs:
     defaults:
       run:
         shell: bash
+    needs: [set-image]
     container:
-      image: paritytech/ci-unified:bullseye-1.73.0
+      image: ${{ needs.set-image.outputs.IMAGE }}
     strategy:
       fail-fast: false
       matrix:
@@ -232,8 +248,9 @@ jobs:
     defaults:
       run:
         shell: bash
+    needs: [set-image]
     container:
-      image: paritytech/ci-unified:bullseye-1.73.0
+      image: ${{ needs.set-image.outputs.IMAGE }}
     strategy:
       fail-fast: false
     steps:
@@ -241,6 +258,11 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 100
+
+      - name: Cache
+        uses: Swatinem/rust-cache@v2
+        with:
+          cache-directories: ${{ env.CARGO_TARGET_DIR }}
 
       - name: Rust Info
         uses: ./.github/rust-info
@@ -262,12 +284,12 @@ jobs:
 
   build:
     runs-on: ubuntu-latest
-    needs: [check]
+    needs: [set-image, check]
     defaults:
       run:
         shell: bash
     container:
-      image: paritytech/ci-unified:bullseye-1.73.0
+      image: ${{ needs.set-image.outputs.IMAGE }}
     strategy:
       fail-fast: false
       matrix:
@@ -304,12 +326,12 @@ jobs:
 
   test:
     runs-on: ubuntu-latest
-    needs: [check]
+    needs: [set-image, check]
     defaults:
       run:
         shell: bash
     container:
-      image: paritytech/ci-unified:bullseye-1.73.0
+      image: ${{ needs.set-image.outputs.IMAGE }}
     strategy:
       fail-fast: false
     steps:
@@ -341,12 +363,12 @@ jobs:
 
   docs:
     runs-on: ubuntu-latest
-    needs: [check, fmt, clippy, clippy-examples, dylint, spellcheck]
+    needs: [set-image, check, fmt, clippy, clippy-examples, dylint, spellcheck]
     defaults:
       run:
         shell: bash
     container:
-      image: paritytech/ci-unified:bullseye-1.73.0
+      image: ${{ needs.set-image.outputs.IMAGE }}
     strategy:
       fail-fast: false
     steps:
@@ -367,23 +389,7 @@ jobs:
         env:
           RUSTDOCFLAGS:                  -Dwarnings
         run: |
-          # All crate docs currently need to be built separately. The reason
-          # is that `smart-bench-macro` is a dependency now in a number of places.
-          # This crate uses e.g. `ink_metadata`, but in its published form. So if
-          # e.g. the `-p ink_metadata` is added to the `ink_lang` command  this
-          # results in the cargo failure "multiple packages with same spec, ambiguous".
-          cargo doc --no-deps --all-features -p ink_env
-          cargo doc --no-deps --all-features -p ink_storage
-          cargo doc --no-deps --all-features -p ink_storage_traits
-          cargo doc --no-deps --all-features -p ink_primitives
-          cargo doc --no-deps --all-features -p ink_prelude
-          cargo doc --no-deps --all-features -p ink
-          cargo doc --no-deps --all-features -p ink_macro
-          cargo doc --no-deps --all-features -p ink_ir
-          cargo doc --no-deps --all-features -p ink_codegen
-          cargo doc --no-deps --all-features -p ink_metadata
-          cargo doc --no-deps --all-features -p ink_e2e
-          cargo doc --no-deps --all-features -p ink_e2e_macro
+          cargo doc --no-deps --all-features
           mv ${CARGO_TARGET_DIR}/doc ./crate-docs
           # FIXME: remove me after CI image gets nonroot
           chown -R nonroot:nonroot ./crate-docs
@@ -396,12 +402,12 @@ jobs:
 
   codecov:
     runs-on: ubuntu-latest
-    needs: [check, fmt, clippy, clippy-examples, dylint, spellcheck]
+    needs: [set-image, check, fmt, clippy, clippy-examples, dylint, spellcheck]
     defaults:
       run:
         shell: bash
     container:
-      image: paritytech/ci-unified:bullseye-1.73.0
+      image: ${{ needs.set-image.outputs.IMAGE }}
     strategy:
       fail-fast: false
     steps:
@@ -409,6 +415,9 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 100
+
+      - name: Cache
+        uses: Swatinem/rust-cache@v2
 
       - name: Rust Info
         uses: ./.github/rust-info
@@ -457,12 +466,12 @@ jobs:
 
   examples-test:
     runs-on: ubuntu-latest-8-cores
-    needs: [clippy]
+    needs: [set-image, clippy]
     defaults:
       run:
         shell: bash
     container:
-      image: paritytech/ci-unified:bullseye-1.73.0
+      image: ${{ needs.set-image.outputs.IMAGE }}
     strategy:
       fail-fast: false
     steps:
@@ -493,12 +502,12 @@ jobs:
 
   examples-contract-build:
     runs-on: ubuntu-latest
-    needs: [build]
+    needs: [set-image, build]
     defaults:
       run:
         shell: bash
     container:
-      image: paritytech/ci-unified:bullseye-1.73.0
+      image: ${{ needs.set-image.outputs.IMAGE }}
     strategy:
       fail-fast: false
       matrix:
@@ -548,12 +557,12 @@ jobs:
 
   examples-docs:
     runs-on: ubuntu-latest
-    needs: [build]
+    needs: [set-image, build]
     defaults:
       run:
         shell: bash
     container:
-      image: paritytech/ci-unified:bullseye-1.73.0
+      image: ${{ needs.set-image.outputs.IMAGE }}
     strategy:
       fail-fast: false
     steps:
