@@ -605,7 +605,7 @@ impl Dispatch<'_> {
                     );
 
                     #[cfg(feature="test_instantiate")]
-                    Ok(())
+                    ::core::result::Result::Ok(())
                 }
             )
         });
@@ -804,7 +804,7 @@ impl Dispatch<'_> {
                         );
 
                         #[cfg(feature="test_instantiate")]
-                        Ok(())
+                        ::core::result::Result::Ok(())
                     }
                 )
         });
