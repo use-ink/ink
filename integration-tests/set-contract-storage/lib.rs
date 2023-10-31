@@ -73,58 +73,54 @@ mod set_contract_storage {
             mut client: ink_e2e::Client<C, E>,
         ) -> E2EResult<()> {
             // given
-            let constructor = SetContractStorageRef::new();
+            let mut constructor = SetContractStorageRef::new();
 
             let contract = client
-                .instantiate(
-                    "set-contract-storage",
-                    &ink_e2e::alice(),
-                    constructor,
-                    0,
-                    None,
-                )
+                .instantiate("set-contract-storage", &ink_e2e::alice(), &mut constructor)
+                .submit()
                 .await
                 .expect("instantiate failed");
-            let contract_acc_id = contract.account_id;
-            let mut call = contract.call::<SetContractStorage>();
+            let call = contract.call::<SetContractStorage>();
 
             // when
             let set_storage_big_call = call.set_storage_big();
 
-            client
-                .call(&ink_e2e::alice(), &set_storage_big_call, 0, None)
-                .await
-                .expect("set_storage_big failed");
+            let result = client
+                .call(&ink_e2e::alice(), &set_storage_big_call)
+                .submit()
+                .await;
+
+            // then
+            assert!(result.is_ok(), "set_storage_big success");
 
             Ok(())
         }
 
         #[ink_e2e::test]
-        #[should_panic]
-        async fn contract_storage_too_big(mut client: ink_e2e::Client<C, E>) {
+        async fn contract_storage_too_big<Client: E2EBackend>(
+            mut client: Client,
+        ) -> E2EResult<()> {
             // given
-            let constructor = SetContractStorageRef::new();
+            let mut constructor = SetContractStorageRef::new();
 
             let contract = client
-                .instantiate(
-                    "set-contract-storage",
-                    &ink_e2e::bob(),
-                    constructor,
-                    0,
-                    None,
-                )
+                .instantiate("set-contract-storage", &ink_e2e::bob(), &mut constructor)
+                .submit()
                 .await
                 .expect("instantiate failed");
-            let contract_acc_id = contract.account_id;
-            let mut call = contract.call::<SetContractStorage>();
+            let call = contract.call::<SetContractStorage>();
 
             // when
             let set_storage_very_big_call = call.set_storage_very_big();
 
-            client
-                .call(&ink_e2e::bob(), &set_storage_very_big_call, 0, None)
-                .await
-                .expect("set_storage_very_big failed");
+            let result = client
+                .call(&ink_e2e::bob(), &set_storage_very_big_call)
+                .submit()
+                .await;
+
+            assert!(result.is_err(), "set_storage_very_big failed");
+
+            Ok(())
         }
     }
 }
