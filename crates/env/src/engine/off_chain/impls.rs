@@ -34,9 +34,9 @@ use crate::{
         Keccak256,
         Sha2x256,
     },
+    types::Environment,
     Clear,
     EnvBackend,
-    Environment,
     Error,
     Result,
     ReturnFlags,
@@ -509,8 +509,8 @@ impl TypedEnvBackend for EnvInstance {
     >
     where
         E: Environment,
-        ContractRef: FromAccountId<E> + crate::contract::ContractReverseReference,
-        <ContractRef as crate::contract::ContractReverseReference>::Type:
+        ContractRef: FromAccountId<E> + crate::ContractReverseReference,
+        <ContractRef as crate::ContractReverseReference>::Type:
             crate::reflect::ContractConstructorDecoder,
         Args: scale::Encode,
         Salt: AsRef<[u8]>,
@@ -527,7 +527,7 @@ impl TypedEnvBackend for EnvInstance {
             <
                 <
                     ContractRef
-                    as crate::contract::ContractReverseReference
+                    as crate::ContractReverseReference
                 >::Type
                 as crate::reflect::ContractConstructorDecoder
             >::Type

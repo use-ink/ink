@@ -37,8 +37,10 @@ use crate::{
         CryptoHash,
         HashOutput,
     },
-    types::Gas,
-    Environment,
+    types::{
+        Environment,
+        Gas,
+    },
     Result,
 };
 use ink_storage_traits::Storable;
@@ -357,8 +359,8 @@ pub fn instantiate_contract<E, ContractRef, Args, Salt, R>(
 >
 where
     E: Environment,
-    ContractRef: FromAccountId<E> + crate::contract::ContractReverseReference,
-    <ContractRef as crate::contract::ContractReverseReference>::Type:
+    ContractRef: FromAccountId<E> + crate::ContractReverseReference,
+    <ContractRef as crate::ContractReverseReference>::Type:
         crate::reflect::ContractConstructorDecoder,
     Args: scale::Encode,
     Salt: AsRef<[u8]>,

@@ -19,7 +19,7 @@ use super::{
     OnInstance,
 };
 use crate::{
-    Environment,
+    types::Environment,
     Result,
 };
 use core::fmt::Debug;

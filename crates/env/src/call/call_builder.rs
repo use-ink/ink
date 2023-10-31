@@ -23,8 +23,10 @@ use crate::{
         },
         ExecutionInput,
     },
-    types::Gas,
-    Environment,
+    types::{
+        Environment,
+        Gas,
+    },
     Error,
 };
 use core::marker::PhantomData;

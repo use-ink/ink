@@ -19,7 +19,6 @@ name = "ink_codegen"
 
 [dependencies]
 ink_primitives = { workspace = true }
-ink_env = { workspace = true }
 ir = { version = "=5.0.0-alpha", package = "ink_ir", path = "../ir", default-features = false }
 quote = { workspace = true }
 syn = { workspace = true, features = ["parsing", "full", "extra-traits"] }
@@ -40,5 +39,4 @@ default = ["std"]
 std = [
     "itertools/use_std",
     "either/use_std",
-    "ink_env/std",
 ]

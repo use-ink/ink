@@ -26,7 +26,7 @@ use crate::{
         CryptoHash,
         HashOutput,
     },
-    Environment,
+    types::Environment,
     Result,
 };
 use ink_storage_traits::Storable;
@@ -484,8 +484,8 @@ pub trait TypedEnvBackend: EnvBackend {
     >
     where
         E: Environment,
-        ContractRef: FromAccountId<E> + crate::contract::ContractReverseReference,
-        <ContractRef as crate::contract::ContractReverseReference>::Type:
+        ContractRef: FromAccountId<E> + crate::ContractReverseReference,
+        <ContractRef as crate::ContractReverseReference>::Type:
             crate::reflect::ContractConstructorDecoder,
         Args: scale::Encode,
         Salt: AsRef<[u8]>,

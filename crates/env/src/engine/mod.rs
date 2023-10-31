@@ -77,7 +77,7 @@ pub(crate) fn decode_instantiate_result<I, E, ContractRef, R>(
 ) -> EnvResult<ConstructorResult<<R as ConstructorReturnType<ContractRef>>::Output>>
 where
     I: scale::Input,
-    E: crate::Environment,
+    E: crate::types::Environment,
     ContractRef: FromAccountId<E>,
     R: ConstructorReturnType<ContractRef>,
 {
@@ -102,7 +102,7 @@ fn decode_instantiate_err<I, E, ContractRef, R>(
 ) -> EnvResult<ConstructorResult<<R as ConstructorReturnType<ContractRef>>::Output>>
 where
     I: scale::Input,
-    E: crate::Environment,
+    E: crate::types::Environment,
     ContractRef: FromAccountId<E>,
     R: ConstructorReturnType<ContractRef>,
 {

@@ -22,6 +22,8 @@ scale-decode = { workspace = true, features = ["derive"], optional = true }
 scale-encode = { workspace = true, features = ["derive"], optional = true }
 scale-info = { workspace = true, features = ["derive"], optional = true }
 xxhash-rust = { workspace = true, features = ["const_xxh32"] }
+cfg-if = { workspace = true }
+num-traits = { workspace = true, features = ["i128"] }
 
 [features]
 default = ["std"]
