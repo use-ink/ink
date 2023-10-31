@@ -34,7 +34,7 @@ error[E0277]: the trait bound `Result<NonCodecType, LangError>: Encode` is not s
 note: required by a bound in `return_value`
   --> $WORKSPACE/crates/env/src/api.rs
    |
-   | pub fn return_value<R>(return_flags: ReturnFlags, return_value: &R) -> !
+   | pub fn return_value<R>(return_flags: ReturnFlags, return_value: &R)
    |        ------------ required by a bound in this function
    | where
    |     R: scale::Encode,
