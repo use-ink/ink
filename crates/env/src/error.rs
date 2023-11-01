@@ -22,6 +22,8 @@ use crate::engine::off_chain::OffChainError;
 pub enum Error {
     /// Error upon decoding an encoded value.
     Decode(scale::Error),
+    /// The static buffer used during ABI encoding or ABI decoding is too small.
+    BufferTooSmall,
     /// An error that can only occur in the off-chain environment.
     #[cfg(any(feature = "std", test, doc))]
     OffChain(OffChainError),
