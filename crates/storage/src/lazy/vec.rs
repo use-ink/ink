@@ -27,22 +27,23 @@ use crate::{Lazy, Mapping};
 ///
 /// # Difference between `ink::prelude::vec::Vec` and [StorageVec]
 ///
-/// Any `Vec<T>` will exhibit [Packed] storage layout in its entirety;
-/// where [StorageVec] stores each value under it's own storage key.
+/// Any `Vec<T>` will exhibit [Packed] storage layout; where
+/// [StorageVec] stores each value under it's own storage key.
 ///
-/// Hence, reading and writing a `Vec` from and to storage will load
-/// and decode _all_ of its elements.
+/// Hence, any read or write from or to a `Vec` on storage will load
+/// or store _all_ of its elements.
 ///
 /// This can be undesirable:
-/// The cost of read and write operations grows linearly, corresponding to
-/// the number of elements in the vector (its length). Additionally, the
-/// maximum capacity of the _whole_ vector is limited by the size of
-/// the static buffer used during ABI encoding and decoding (default 16KiB).
+/// The cost of reading or writing a _single_ element grows linearly
+/// corresponding to the number of elements in the vector (its length).
+/// Additionally, the maximum capacity of the _whole_ vector is limited by
+/// the size of the static buffer used during ABI encoding and decoding
+/// (default 16KiB).
 ///
 /// [StorageVec] on the other hand can theoretically grow to infinite size.
-/// However, we currently limit the length at 2 ^ 32 elements: In practice,
+/// However, we currently limit the length at 2 ^ 32 elements. In practice,
 /// even if the vector elements are single bytes, it'll allow to store
-/// more than 4GB data in blockchain storage, or more than enoug.
+/// more than 4GB data in blockchain storage, much more than enough.
 ///
 /// # Caveats
 ///
@@ -149,5 +150,77 @@ where
             .field("key", &KeyType::KEY)
             .field("len", &self.len)
             .finish()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::traits::ManualKey;
+
+    #[test]
+    fn default_values() {
+        ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
+            let mut array: StorageVec<String> = StorageVec::new();
+
+            assert_eq!(array.pop(), None);
+            assert_eq!(array.len(), 0);
+
+            Ok(())
+        })
+        .unwrap()
+    }
+    #[test]
+    fn push_and_pop_work() {
+        ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
+            let mut array: StorageVec<String> = StorageVec::new();
+
+            let value = "test".to_string();
+            array.push(&value);
+            assert_eq!(array.len(), 1);
+            assert_eq!(array.pop(), Some(value));
+
+            assert_eq!(array.len(), 0);
+            assert_eq!(array.pop(), None);
+
+            Ok(())
+        })
+        .unwrap()
+    }
+
+    #[test]
+    fn storage_keys_are_correct() {
+        ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
+            const BASE: u32 = 123;
+            let mut array: StorageVec<u8, ManualKey<BASE>> = StorageVec::new();
+
+            let expected_value = 127;
+            array.push(&expected_value);
+
+            let actual_length = ink_env::get_contract_storage::<_, u32>(&BASE);
+            assert_eq!(actual_length, Ok(Some(1)));
+
+            let actual_value = ink_env::get_contract_storage::<_, u8>(&(BASE, 0u32));
+            assert_eq!(actual_value, Ok(Some(expected_value)));
+
+            Ok(())
+        })
+        .unwrap()
+    }
+
+    #[test]
+    fn push_and_pop_work_for_two_vecs_with_same_manual_key() {
+        ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
+            let expected_value = 255;
+
+            let mut array: StorageVec<u8, ManualKey<{ u32::MIN }>> = StorageVec::new();
+            array.push(&expected_value);
+
+            let mut array2: StorageVec<u8, ManualKey<{ u32::MIN }>> = StorageVec::new();
+            assert_eq!(array2.pop(), Some(expected_value));
+
+            Ok(())
+        })
+        .unwrap()
     }
 }
