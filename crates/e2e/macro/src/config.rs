@@ -105,4 +105,20 @@ mod tests {
 
         assert_eq!(config.backend(), Backend::RuntimeOnly { runtime: None });
     }
+
+    #[test]
+    fn config_works_with_custom_backend() {
+        let input = quote! {
+            backend(runtime_only(runtime = ::ink_e2e::MinimalRuntime)),
+        };
+        let config =
+            E2EConfig::from_list(&NestedMeta::parse_meta_list(input).unwrap()).unwrap();
+
+        assert_eq!(
+            config.backend(),
+            Backend::RuntimeOnly {
+                runtime: Some(syn::parse_quote! { ::ink_e2e::MinimalRuntime })
+            }
+        );
+    }
 }
