@@ -19,9 +19,11 @@
 //! extra care has to be taken when operating directly on them.
 
 mod mapping;
+mod vec;
 
 #[doc(inline)]
 pub use self::mapping::Mapping;
+pub use self::vec::StorageVec;
 
 use crate::traits::{
     AutoKey,
