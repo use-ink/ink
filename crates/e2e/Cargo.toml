@@ -31,7 +31,7 @@ serde_json = { workspace = true }
 tokio = { workspace = true, features = ["rt-multi-thread"] }
 tracing = { workspace = true }
 tracing-subscriber = { workspace = true, features = ["env-filter"] }
-scale = { package = "parity-scale-codec", workspace = true }
+scale = { workspace = true }
 subxt = { workspace = true }
 subxt-metadata = { workspace = true, optional = true }
 subxt-signer = { workspace = true, features = ["subxt", "sr25519"] }
