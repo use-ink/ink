@@ -84,7 +84,7 @@ pub mod flipper {
         /// - flip the flipper
         /// - get the flipper's value
         /// - assert that the value is `true`
-        #[ink_e2e::test(backend(runtime_only = ::drink::MinimalRuntime))]
+        #[ink_e2e::test(backend(runtime_only()))]
         async fn it_works<Client: E2EBackend>(mut client: Client) -> E2EResult<()> {
             // given
             const INITIAL_VALUE: bool = false;
