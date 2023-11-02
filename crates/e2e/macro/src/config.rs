@@ -26,7 +26,7 @@ pub enum Backend {
     /// This runs a runtime emulator within `TestExternalities` (using drink! library) in
     /// the same process as the test.
     #[cfg(any(test, feature = "drink"))]
-    RuntimeOnly{runtime: Option<syn::Path>},
+    RuntimeOnly { runtime: Option<syn::Path> },
 }
 
 /// The End-to-End test configuration.
