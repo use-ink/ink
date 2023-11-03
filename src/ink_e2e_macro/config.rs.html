@@ -118,6 +118,10 @@
 <a href="#118" id="118">118</a>
 <a href="#119" id="119">119</a>
 <a href="#120" id="120">120</a>
+<a href="#121" id="121">121</a>
+<a href="#122" id="122">122</a>
+<a href="#123" id="123">123</a>
+<a href="#124" id="124">124</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -133,18 +137,20 @@
 // limitations under the License.
 
 </span><span class="doccomment">/// The type of the architecture that should be used to run test.
-</span><span class="attr">#[derive(Copy, Clone, Eq, PartialEq, Debug, Default, darling::FromMeta)]
+</span><span class="attr">#[derive(Clone, Eq, PartialEq, Debug, Default, darling::FromMeta)]
+#[darling(rename_all = <span class="string">&quot;snake_case&quot;</span>)]
 </span><span class="kw">pub enum </span>Backend {
     <span class="doccomment">/// The standard approach with running dedicated single-node blockchain in a
     /// background process.
     </span><span class="attr">#[default]
     </span>Full,
+
     <span class="doccomment">/// The lightweight approach skipping node layer.
     ///
     /// This runs a runtime emulator within `TestExternalities` (using drink! library) in
     /// the same process as the test.
     </span><span class="attr">#[cfg(any(test, feature = <span class="string">&quot;drink&quot;</span>))]
-    </span>RuntimeOnly,
+    </span>RuntimeOnly { runtime: <span class="prelude-ty">Option</span>&lt;syn::Path&gt; },
 }
 
 <span class="doccomment">/// The End-to-End test configuration.
@@ -164,10 +170,6 @@
     <span class="doccomment">/// The type of the architecture that should be used to run test.
     </span><span class="attr">#[darling(default)]
     </span>backend: Backend,
-    <span class="doccomment">/// The runtime to use for the runtime only test.
-    </span><span class="attr">#[cfg(any(test, feature = <span class="string">&quot;drink&quot;</span>))]
-    #[darling(default)]
-    </span>runtime: <span class="prelude-ty">Option</span>&lt;syn::Path&gt;,
 }
 
 <span class="kw">impl </span>E2EConfig {
@@ -193,13 +195,7 @@
 
     <span class="doccomment">/// The type of the architecture that should be used to run test.
     </span><span class="kw">pub fn </span>backend(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Backend {
-        <span class="self">self</span>.backend
-    }
-
-    <span class="doccomment">/// The runtime to use for the runtime only test.
-    </span><span class="attr">#[cfg(any(test, feature = <span class="string">&quot;drink&quot;</span>))]
-    </span><span class="kw">pub fn </span>runtime(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;syn::Path&gt; {
-        <span class="self">self</span>.runtime.clone()
+        <span class="self">self</span>.backend.clone()
     }
 }
 
@@ -217,8 +213,7 @@
         <span class="kw">let </span>input = <span class="macro">quote! </span>{
             additional_contracts = <span class="string">&quot;adder/Cargo.toml flipper/Cargo.toml&quot;</span>,
             environment = <span class="kw">crate</span>::CustomEnvironment,
-            backend = <span class="string">&quot;runtime_only&quot;</span>,
-            runtime = ::drink::MinimalRuntime,
+            backend(runtime_only()),
         };
         <span class="kw">let </span>config =
             E2EConfig::from_list(<span class="kw-2">&amp;</span>NestedMeta::parse_meta_list(input).unwrap()).unwrap();
@@ -231,10 +226,23 @@
             config.environment(),
             <span class="prelude-val">Some</span>(<span class="macro">syn::parse_quote! </span>{ <span class="kw">crate</span>::CustomEnvironment })
         );
-        <span class="macro">assert_eq!</span>(config.backend(), Backend::RuntimeOnly);
+
+        <span class="macro">assert_eq!</span>(config.backend(), Backend::RuntimeOnly { runtime: <span class="prelude-val">None </span>});
+    }
+
+    <span class="attr">#[test]
+    </span><span class="kw">fn </span>config_works_with_custom_backend() {
+        <span class="kw">let </span>input = <span class="macro">quote! </span>{
+            backend(runtime_only(runtime = ::ink_e2e::MinimalRuntime)),
+        };
+        <span class="kw">let </span>config =
+            E2EConfig::from_list(<span class="kw-2">&amp;</span>NestedMeta::parse_meta_list(input).unwrap()).unwrap();
+
         <span class="macro">assert_eq!</span>(
-            config.runtime(),
-            <span class="prelude-val">Some</span>(<span class="macro">syn::parse_quote! </span>{ ::drink::MinimalRuntime })
+            config.backend(),
+            Backend::RuntimeOnly {
+                runtime: <span class="prelude-val">Some</span>(<span class="macro">syn::parse_quote! </span>{ ::ink_e2e::MinimalRuntime })
+            }
         );
     }
 }

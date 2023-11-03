@@ -210,8 +210,8 @@
         <span class="kw">let </span>client_building = <span class="kw">match </span><span class="self">self</span>.test.config.backend() {
             Backend::Full =&gt; build_full_client(<span class="kw-2">&amp;</span>environment, exec_build_contracts),
             <span class="attr">#[cfg(any(test, feature = <span class="string">&quot;drink&quot;</span>))]
-            </span>Backend::RuntimeOnly =&gt; {
-                build_runtime_client(exec_build_contracts, <span class="self">self</span>.test.config.runtime())
+            </span>Backend::RuntimeOnly { runtime } =&gt; {
+                build_runtime_client(exec_build_contracts, runtime)
             }
         };
 
