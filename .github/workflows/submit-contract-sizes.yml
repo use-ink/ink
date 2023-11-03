@@ -1,0 +1,63 @@
+# The workflow has write access, so it needs to be isolated for security reasons from pull request-based workflows,
+# which may be triggered from forked repositories.
+on: 
+  workflow_run:
+    workflows: 
+      - continuous-integration
+    types:
+      - completed
+
+jobs:
+  submit-contract-sizes:
+    permissions:
+      pull-requests: write
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    if: >
+      github.event.workflow_run.event == 'pull_request' &&
+        github.event.workflow_run.conclusion == 'success'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 100
+
+      - name: 'Download artifact'
+        uses: actions/github-script@v6
+        with:
+          retries: 3
+          script: |
+            var artifacts = await github.rest.actions.listWorkflowRunArtifacts({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              run_id: ${{ github.event.workflow_run.id }},
+            });
+            var matchArtifact = artifacts.data.artifacts.filter((artifact) => {
+            return artifact.name == "contract-sizes-data"
+            })[0];
+            var download = await github.rest.actions.downloadArtifact({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              artifact_id: matchArtifact.id,
+              archive_format: 'zip',
+            });
+            var fs = require('fs');
+            fs.writeFileSync(`${process.env.GITHUB_WORKSPACE}/data.zip`, Buffer.from(download.data));
+
+      - run: unzip data.zip
+
+      - name: Submit Comment
+        env:
+          GITHUB_PR_TOKEN:         ${{ secrets.github_token }}
+          GITHUB_PR_WORKFLOW_ID:   ${{ github.event.workflow_run.id }}
+        run: |
+          # context.out is considered as an untrusted file
+          PR_NUMBER=$(grep -oE 'PR_NUMBER="[^"]+"' context.out | awk -F '"' '{print $2}')
+          CARGO_CONTRACT_VERSION=$(grep -oE 'CARGO_CONTRACT_VERSION="[^"]+"' context.out | awk -F '"' '{print $2}')
+          PR_COMMENTS_URL="${GITHUB_API_URL}/repos/${GITHUB_REPOSITORY}/issues/${PR_NUMBER}/comments"
+          WORKFLOW_URL="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_PR_WORKFLOW_ID}"
+
+          # Submit the comparison table as a comment to the PR
+          echo "Submitting contract sizes diff to ${PR_COMMENTS_URL}"
+          GITHUB_PR_TOKEN=${GITHUB_PR_TOKEN} scripts/contract_sizes_submit.sh ${PR_COMMENTS_URL} ${WORKFLOW_URL} ${CARGO_CONTRACT_VERSION} < ./contract_sizes_diff.md
+              
