@@ -30,7 +30,7 @@ pub mod integration_flipper {
             Self::new(Default::default())
         }
 
-        /// Attemps to create a new integration_flipper smart contract initialized with
+        /// Attempts to create a new integration_flipper smart contract initialized with
         /// the given value.
         #[ink(constructor)]
         pub fn try_new(succeed: bool) -> Result<Self, FlipperError> {
