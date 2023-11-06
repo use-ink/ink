@@ -396,7 +396,7 @@ jobs:
 
       - uses: actions/upload-artifact@v3
         with:
-          name: ${{ github.job }}_${{ github.sha }}-doc
+          name: ${{ github.job }}-data
           path: ./crate-docs
           retention-days: 7
 

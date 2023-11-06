@@ -1,7 +1,7 @@
-name: 'Rust Info'
-description: "Rust and Bash details"
+name: Rust Info
+description: Rust and Bash details
 runs:
-  using: "composite"
+  using: composite
   steps:
     - run: |
         rustup show
