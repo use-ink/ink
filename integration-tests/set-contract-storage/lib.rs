@@ -19,6 +19,7 @@ mod set_contract_storage {
         /// Stores an array that is JUST big enough to be validly allocated.
         #[ink(message)]
         pub fn set_storage_big(&self) {
+            println!("{}", SIZE_LIMIT.to_string());
             set_contract_storage(&42, &[42u8; SIZE_LIMIT]);
         }
 
@@ -26,6 +27,7 @@ mod set_contract_storage {
         /// allocated. This function should always fail.
         #[ink(message)]
         pub fn set_storage_very_big(&self) {
+            println!("{}", SIZE_LIMIT.to_string());
             set_contract_storage(&42, &[42u8; SIZE_LIMIT + 1]);
         }
     }
