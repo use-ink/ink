@@ -19,7 +19,8 @@
 //! This vector doesn't actually "own" any data.
 //! Instead it is just a simple wrapper around the contract storage facilities.
 
-use ink_storage_traits::{AutoKey, Packed, Storable, StorageKey};
+use ink_primitives::Key;
+use ink_storage_traits::{AutoKey, Packed, Storable, StorableHint, StorageKey};
 
 use crate::{Lazy, Mapping};
 
@@ -40,16 +41,13 @@ use crate::{Lazy, Mapping};
 /// the size of the static buffer used during ABI encoding and decoding
 /// (default 16KiB).
 ///
-/// [StorageVec] on the other hand can theoretically grow to infinite size.
+/// [StorageVec] on the other hand allows to access each element individually.
+/// Thus, it can theoretically grow to infinite size.
 /// However, we currently limit the length at 2 ^ 32 elements. In practice,
 /// even if the vector elements are single bytes, it'll allow to store
-/// more than 4GB data in blockchain storage, much more than enough.
+/// more than 4GB data in blockchain storage.
 ///
 /// # Caveats
-///
-/// Iterating over [StorageVec] elements will cause a storage read for
-/// _each_ iteration (additionally a storage write in case of mutable
-/// iterations with assignements).
 ///
 /// The decision whether to use `Vec<T>` or [StorageVec] can be seen as an
 /// optimization problem with several factors:
@@ -77,6 +75,7 @@ use crate::{Lazy, Mapping};
 #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
 pub struct StorageVec<V: Packed, KeyType: StorageKey = AutoKey> {
     len: Lazy<u32, KeyType>,
+    len_cached: Option<u32>,
     elements: Mapping<u32, V, KeyType>,
 }
 
@@ -90,23 +89,89 @@ where
     }
 }
 
+impl<V, KeyType> Storable for StorageVec<V, KeyType>
+where
+    V: Packed,
+    KeyType: StorageKey,
+{
+    #[inline]
+    fn encode<T: scale::Output + ?Sized>(&self, _dest: &mut T) {}
+
+    #[inline]
+    fn decode<I: scale::Input>(_input: &mut I) -> Result<Self, scale::Error> {
+        Ok(Default::default())
+    }
+
+    #[inline]
+    fn encoded_size(&self) -> usize {
+        0
+    }
+}
+
+impl<V, Key, InnerKey> StorableHint<Key> for StorageVec<V, InnerKey>
+where
+    V: Packed,
+    Key: StorageKey,
+    InnerKey: StorageKey,
+{
+    type Type = StorageVec<V, Key>;
+    type PreferredKey = InnerKey;
+}
+
+impl<V, KeyType> StorageKey for StorageVec<V, KeyType>
+where
+    V: Packed,
+    KeyType: StorageKey,
+{
+    const KEY: Key = KeyType::KEY;
+}
+
+#[cfg(feature = "std")]
+const _: () = {
+    use crate::traits::StorageLayout;
+    use ink_metadata::layout::{Layout, LayoutKey, RootLayout};
+
+    impl<V, KeyType> StorageLayout for StorageVec<V, KeyType>
+    where
+        V: Packed + StorageLayout + scale_info::TypeInfo + 'static,
+        KeyType: StorageKey + scale_info::TypeInfo + 'static,
+    {
+        fn layout(_: &Key) -> Layout {
+            Layout::Root(RootLayout::new::<Self, _>(
+                LayoutKey::from(&KeyType::KEY),
+                <V as StorageLayout>::layout(&KeyType::KEY),
+            ))
+        }
+    }
+};
+
 impl<V, KeyType> StorageVec<V, KeyType>
 where
     V: Packed,
     KeyType: StorageKey,
 {
-    /// Creates a new empty `Mapping`.
+    /// Creates a new empty `StorageVec`.
     pub const fn new() -> Self {
         Self {
             len: Lazy::new(),
+            len_cached: None,
             elements: Mapping::new(),
         }
     }
 
     /// Returns the number of elements in the vector, also referred to as its length.
+    ///
+    /// The length is cached; subsequent calls (without writing to the vector) won't
+    /// trigger additional storage reads.
     #[inline]
     pub fn len(&self) -> u32 {
-        self.len.get().unwrap_or(u32::MIN)
+        self.len_cached
+            .unwrap_or_else(|| self.len.get().unwrap_or(u32::MIN))
+    }
+
+    fn set_len(&mut self, new_len: u32) {
+        self.len.set(&new_len);
+        self.len_cached = Some(new_len);
     }
 
     /// Returns `true` if the vector contains no elements.
@@ -118,25 +183,32 @@ where
     ///
     /// # Panics
     ///
-    /// If the vector is at capacity (max. of 2 ^ 32 elements).
+    /// * If the vector is at capacity (max. of 2 ^ 32 elements).
+    /// * If the value overgrows the static buffer size.
+    /// * If there was already a value at the current index.
     pub fn push<T>(&mut self, value: &T)
     where
         T: Storable + scale::EncodeLike<V>,
     {
         let slot = self.len();
-        let _ = self.elements.insert(slot, value);
+        self.set_len(slot.checked_add(1).unwrap());
 
-        self.len.set(&slot.checked_add(1).unwrap());
+        assert!(self.elements.insert(slot, value).is_none());
     }
 
     /// Pops the last element from the vector and returns it.
     //
     /// Returns `None` if the vector is empty.
+    ///
+    /// # Panics
+    ///
+    /// * If the value overgrows the static buffer size.
+    /// * If there is no value at the current index.
     pub fn pop(&mut self) -> Option<V> {
         let slot = self.len().checked_sub(1)?;
-        self.len.set(&slot);
 
-        Some(self.elements.take(slot).unwrap())
+        self.set_len(slot);
+        self.elements.take(slot).unwrap().into()
     }
 }
 
