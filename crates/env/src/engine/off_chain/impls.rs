@@ -15,45 +15,16 @@
 use super::EnvInstance;
 use crate::{
     call::{
-        Call,
-        CallParams,
-        ConstructorReturnType,
-        CreateParams,
-        DelegateCall,
+        Call, CallParams, ConstructorReturnType, CreateParams, DelegateCall,
         FromAccountId,
     },
-    event::{
-        Event,
-        TopicsBuilderBackend,
-    },
-    hash::{
-        Blake2x128,
-        Blake2x256,
-        CryptoHash,
-        HashOutput,
-        Keccak256,
-        Sha2x256,
-    },
-    Clear,
-    EnvBackend,
-    Environment,
-    Error,
-    Result,
-    ReturnFlags,
-    TypedEnvBackend,
+    event::{Event, TopicsBuilderBackend},
+    hash::{Blake2x128, Blake2x256, CryptoHash, HashOutput, Keccak256, Sha2x256},
+    Clear, EnvBackend, Environment, Error, Result, ReturnFlags, TypedEnvBackend,
 };
-use ink_engine::{
-    ext,
-    ext::Engine,
-};
-use ink_storage_traits::{
-    decode_all,
-    Storable,
-};
-use schnorrkel::{
-    PublicKey,
-    Signature,
-};
+use ink_engine::{ext, ext::Engine};
+use ink_storage_traits::{decode_all, Storable};
+use schnorrkel::{PublicKey, Signature};
 
 /// The capacity of the static buffer.
 /// This is the same size as the ink! on-chain environment. We chose to use the same size
@@ -196,12 +167,15 @@ impl EnvBackend for EnvInstance {
         V: Storable,
     {
         let mut v = vec![];
+
         Storable::encode(value, &mut v);
-        const VALUE_SIZE_LIMIT: usize = BUFFER_SIZE - 4;
-        if v.len() > VALUE_SIZE_LIMIT {
-            panic!("Value too large to be stored in contract storage, maximum size is {} bytes", VALUE_SIZE_LIMIT);
+        let encoded_key: Vec<u8> = key.encode();
+        let encoded_value: &[u8] = &v[..];
+
+        if encoded_value.len() + encoded_key.len() > BUFFER_SIZE {
+            panic!("Value too large to be stored in contract storage, maximum size is {} bytes", BUFFER_SIZE);
         }
-        self.engine.set_storage(&key.encode(), &v[..])
+        self.engine.set_storage(&encoded_key, encoded_value)
     }
 
     fn get_contract_storage<K, R>(&mut self, key: &K) -> Result<Option<R>>
@@ -289,12 +263,8 @@ impl EnvBackend for EnvInstance {
         output: &mut [u8; 33],
     ) -> Result<()> {
         use secp256k1::{
-            ecdsa::{
-                RecoverableSignature,
-                RecoveryId,
-            },
-            Message,
-            SECP256K1,
+            ecdsa::{RecoverableSignature, RecoveryId},
+            Message, SECP256K1,
         };
 
         // In most implementations, the v is just 0 or 1 internally, but 27 was added
