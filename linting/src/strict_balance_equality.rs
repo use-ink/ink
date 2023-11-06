@@ -432,7 +432,7 @@ impl<'tcx> TransferFunction<'_, 'tcx> {
                 return
             };
 
-        // Handle `PartialEq` functions that implement comparsion for non-primitive types,
+        // Handle `PartialEq` functions that implement comparison for non-primitive types,
         // including references like `&i32`.
         if_chain! {
             if init_taints.len() == 2;
