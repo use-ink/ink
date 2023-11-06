@@ -21,12 +21,22 @@
 
 use ink_primitives::Key;
 use ink_storage_traits::{AutoKey, Packed, Storable, StorableHint, StorageKey};
+use scale::EncodeLike;
 
 use crate::{Lazy, Mapping};
 
 /// A vector of values (elements) directly on contract storage.
+
+/// # Important
 ///
-/// # Difference between `ink::prelude::vec::Vec` and [StorageVec]
+/// [StorageVec] requires its own pre-defined storage key where to store values. By
+/// default, the is automatically calculated using [`AutoKey`](crate::traits::AutoKey)
+/// during compilation. However, anyone can specify a storage key using
+/// [`ManualKey`](crate::traits::ManualKey). Specifying the storage key can be helpful for
+/// upgradeable contracts or you want to be resistant to future changes of storage key
+/// calculation strategy.
+///
+/// # Differences between `ink::prelude::vec::Vec` and [StorageVec]
 ///
 /// Any `Vec<T>` will exhibit [Packed] storage layout; where
 /// [StorageVec] stores each value under it's own storage key.
@@ -48,6 +58,10 @@ use crate::{Lazy, Mapping};
 /// more than 4GB data in blockchain storage.
 ///
 /// # Caveats
+///
+/// Iteration is not providided. [StorageVec] is expected to be used to
+/// store a lot or large values where iterating through elements would be
+/// rather inefficient anyways.
 ///
 /// The decision whether to use `Vec<T>` or [StorageVec] can be seen as an
 /// optimization problem with several factors:
@@ -210,6 +224,30 @@ where
         self.set_len(slot);
         self.elements.take(slot).unwrap().into()
     }
+
+    /// Access an element at given `index`.
+    ///
+    /// # Panics
+    ///
+    /// * If encoding the element exceeds the static buffer size.
+    pub fn get(&self, index: u32) -> Option<V> {
+        self.elements.get(index)
+    }
+
+    /// Set the `value` at given `index`.
+    ///
+    /// # Panics
+    ///
+    /// * If the index is out of bounds.
+    /// * If decoding the element exceeds the static buffer size.
+    pub fn set<T>(&mut self, index: u32, value: &T)
+    where
+        T: Storable + EncodeLike<V>,
+    {
+        assert!(index < self.len());
+
+        let _ = self.elements.insert(index, value);
+    }
 }
 
 impl<V, KeyType> ::core::fmt::Debug for StorageVec<V, KeyType>
@@ -290,6 +328,36 @@ mod tests {
 
             let mut array2: StorageVec<u8, ManualKey<{ u32::MIN }>> = StorageVec::new();
             assert_eq!(array2.pop(), Some(expected_value));
+
+            Ok(())
+        })
+        .unwrap()
+    }
+
+    #[test]
+    fn set_and_get_work() {
+        ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
+            let mut array: StorageVec<String> = StorageVec::new();
+
+            let value = "test".to_string();
+            array.push(&value);
+            assert_eq!(array.get(0), Some(value));
+            assert_eq!(array.len(), 1);
+
+            let replaced_value = "foo".to_string();
+            array.set(0, &replaced_value);
+            assert_eq!(array.get(0), Some(replaced_value));
+
+            Ok(())
+        })
+        .unwrap()
+    }
+
+    #[test]
+    #[should_panic]
+    fn set_panics_on_oob() {
+        ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
+            StorageVec::<u8>::new().set(0, &0);
 
             Ok(())
         })
