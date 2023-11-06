@@ -156,13 +156,13 @@ where
     /// - `Some(Err(_))` if retrieving the `value` would exceed the static buffer size.
     /// - `None` if there was no value under this storage key.
     pub fn try_get(&self) -> Option<ink_env::Result<V>> {
-        let key_size = KeyType::KEY.encoded_size();
+        let key_size = <Key as Storable>::encoded_size(&KeyType::KEY);
 
         if key_size >= ink_env::BUFFER_SIZE {
             return Some(Err(ink_env::Error::BufferTooSmall))
         }
 
-        let value_size = ink_env::contains_contract_storage(&KeyType::KEY)?
+        let value_size: usize = ink_env::contains_contract_storage(&KeyType::KEY)?
             .try_into()
             .expect("targets of less than 32bit pointer size are not supported; qed");
 
@@ -187,8 +187,8 @@ where
     /// To successfully store the `value`, the encoded `key` and `value`
     /// must fit into the static buffer together.
     pub fn try_set(&mut self, value: &V) -> ink_env::Result<()> {
-        let key_size = KeyType::KEY.encoded_size();
-        let value_size = value.encoded_size();
+        let key_size = <Key as Storable>::encoded_size(&KeyType::KEY);
+        let value_size = <V as Storable>::encoded_size(value);
 
         if key_size.saturating_add(value_size) > ink_env::BUFFER_SIZE {
             return Err(ink_env::Error::BufferTooSmall)
