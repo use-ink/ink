@@ -416,9 +416,6 @@ jobs:
         with:
           fetch-depth: 100
 
-      - name: Cache
-        uses: Swatinem/rust-cache@v2
-
       - name: Rust Info
         uses: ./.github/rust-info
 

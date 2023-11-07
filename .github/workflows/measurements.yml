@@ -73,4 +73,4 @@ jobs:
         with:
           name: ${{ github.job }}-data
           path: ./artifacts
-
+          retention-days: 1
