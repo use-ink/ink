@@ -72,6 +72,7 @@ pub fn code_hash_of_key(key: &Vec<u8>) -> [u8; 32]{
 #[derive(Default)]
 pub struct Database {
     hmap: HashMap<Vec<u8>, Vec<u8>>,
+    fmap: HashMap<Vec<u8>, MessageHandler>,
 }
 
 impl Database {
@@ -79,6 +80,7 @@ impl Database {
     pub fn new() -> Self {
         Database {
             hmap: HashMap::new(),
+            fmap: HashMap::new(),
         }
     }
 
@@ -162,31 +164,19 @@ impl Database {
     pub fn set_contract_message_handler(&mut self, handler: MessageHandler) -> [u8; 32]{
         let key = contract_key(handler);
         let hashed_key = message_handler_of_contract_key(&key);
-        let handler = handler as usize;
-        let encoded_pointer = scale::Encode::encode(&handler.to_le_bytes());
-        self.hmap
+        self.fmap
             .entry(hashed_key.to_vec())
-            .and_modify(|x| *x = encoded_pointer.clone())
-            .or_insert(encoded_pointer);
+            .and_modify(|x| *x = handler.clone())
+            .or_insert(handler);
         key
     }
 
     pub fn get_contract_message_handler(&mut self, key: &[u8]) -> MessageHandler {
         let hashed_key = message_handler_of_contract_key(&key);
-        #[cfg(target_pointer_width = "32")]
-        const N: usize = 4;
-        #[cfg(target_pointer_width = "64")]
-        const N: usize = 8;
-        let pointer: Option<[u8; N]> = self.hmap
+        self.fmap
             .get(&hashed_key.to_vec())
-            .map(|encoded_pointer|{
-                scale::Decode::decode(&mut &encoded_pointer[..])
-                    .expect("unable to retrieve message handler")
-            });
-        let pointer = usize::from_le_bytes(pointer.unwrap());
-        unsafe {
-            std::mem::transmute(pointer)
-        }
+            .unwrap()
+            .clone()
     }
 
     pub fn set_code_hash(&mut self, account: &Vec<u8>, code_hash: &[u8]) {
