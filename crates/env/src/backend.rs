@@ -366,6 +366,14 @@ pub trait EnvBackend {
     ///
     /// - If the supplied `code_hash` cannot be found on-chain.
     fn set_code_hash(&mut self, code_hash: &[u8]) -> Result<()>;
+
+    #[cfg(feature = "test_instantiate")]
+    fn simulate_code_upload<E, ContractRef>(&mut self) -> ink_primitives::types::Hash
+    where
+        E: Environment,
+        ContractRef: crate::ContractReverseReference,
+        <ContractRef as crate::ContractReverseReference>::Type:
+            crate::reflect::ContractMessageDecoder;
 }
 
 /// Environmental contract functionality.

@@ -243,6 +243,8 @@ where
     ContractRef: FromAccountId<E> + crate::ContractReverseReference,
     <ContractRef as crate::ContractReverseReference>::Type:
         crate::reflect::ContractConstructorDecoder,
+    <ContractRef as crate::ContractReverseReference>::Type:
+        crate::reflect::ContractMessageDecoder,
     Args: scale::Encode,
     Salt: AsRef<[u8]>,
     R: ConstructorReturnType<ContractRef>,
@@ -726,6 +728,8 @@ where
     ContractRef: FromAccountId<E> + crate::ContractReverseReference,
     <ContractRef as crate::ContractReverseReference>::Type:
         crate::reflect::ContractConstructorDecoder,
+    <ContractRef as crate::ContractReverseReference>::Type:
+        crate::reflect::ContractMessageDecoder,
     GasLimit: Unwrap<Output = u64>,
     Args: scale::Encode,
     Salt: AsRef<[u8]>,

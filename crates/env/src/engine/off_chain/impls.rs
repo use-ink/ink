@@ -60,6 +60,33 @@ use schnorrkel::{
 /// to be as close to the on-chain behavior as possible.
 const BUFFER_SIZE: usize = crate::BUFFER_SIZE;
 
+/// Fill me.
+#[cfg(feature = "test_instantiate")]
+fn execute_contract_call<E, ContractRef>(input: Vec<u8>) -> Vec<u8>
+where
+    E: Environment,
+    ContractRef: crate::ContractReverseReference,
+    <ContractRef as crate::ContractReverseReference>::Type:
+        crate::reflect::ContractMessageDecoder,
+{
+    let dispatch = <
+        <
+            <
+                ContractRef
+                as crate::ContractReverseReference
+            >::Type
+            as crate::reflect::ContractMessageDecoder
+        >::Type
+        as scale::Decode
+    >::decode(&mut &input[..])
+        .unwrap_or_else(|e| panic!("Failed to decode constructor call: {:?}", e));
+
+    crate::reflect::ExecuteDispatchable::execute_dispatchable(dispatch)
+        .unwrap_or_else(|e| panic!("Message call failed: {:?}", e));
+
+    crate::api::get_return_value()
+}
+
 impl CryptoHash for Blake2x128 {
     fn hash(input: &[u8], output: &mut <Self as HashOutput>::Type) {
         type OutputType = [u8; 16];
@@ -405,6 +432,17 @@ impl EnvBackend for EnvInstance {
         self.engine.database.set_code_hash(&self.engine.get_callee(), code_hash);
         Ok(())
     }
+
+    #[cfg(feature = "test_instantiate")]
+    fn simulate_code_upload<E, ContractRef>(&mut self) -> ink_primitives::types::Hash
+    where
+        E: Environment,
+        ContractRef: crate::ContractReverseReference,
+        <ContractRef as crate::ContractReverseReference>::Type:
+            crate::reflect::ContractMessageDecoder,
+    {
+        ink_primitives::types::Hash::from(self.engine.database.set_contract_message_handler(execute_contract_call::<E, ContractRef>))
+    }
 }
 
 impl TypedEnvBackend for EnvInstance {
@@ -483,11 +521,30 @@ impl TypedEnvBackend for EnvInstance {
         R: scale::Decode,
     {
         let _gas_limit = params.gas_limit();
-        let _callee = params.callee();
         let _call_flags = params.call_flags().into_u32();
         let _transferred_value = params.transferred_value();
-        let _input = params.exec_input();
-        unimplemented!("off-chain environment does not support contract invocation")
+        let input = params.exec_input();
+
+        let callee = params.callee();
+        let callee = scale::Encode::encode(callee);
+
+        let input = scale::Encode::encode(input);
+
+        let callee_account = <E as Environment>::AccountId::decode(&mut &callee[..]).unwrap();
+        let mut callee_code_hash = self.code_hash::<E>(&callee_account)?;
+
+        let handler = self.engine.database.get_contract_message_handler(&callee_code_hash.as_mut().to_vec());
+        let old_callee = self.engine.get_callee();
+        self.engine.set_callee(callee);
+
+        let result = handler(input);
+
+        self.engine.set_callee(old_callee);
+
+        let result = <ink_primitives::MessageResult::<R> as scale::Decode>::decode(&mut &result[..])
+            .expect("failed to decode return value");
+        
+        Ok(result)
     }
 
     fn invoke_contract_delegate<E, Args, R>(

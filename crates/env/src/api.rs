@@ -837,3 +837,17 @@ where
         TypedEnvBackend::call_runtime::<E, _>(instance, call)
     })
 }
+
+/// Gets a pseudo code hash for a contract ref.
+#[cfg(feature = "test_instantiate")]
+pub fn simulate_code_upload<E, ContractRef>() -> ink_primitives::types::Hash
+where
+    E: Environment,
+    ContractRef: crate::ContractReverseReference,
+    <ContractRef as crate::ContractReverseReference>::Type:
+        crate::reflect::ContractMessageDecoder,
+{
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        EnvBackend::simulate_code_upload::<E, ContractRef>(instance)
+    })
+}
