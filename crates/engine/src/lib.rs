@@ -23,7 +23,7 @@ pub mod test_api;
 mod chain_extension;
 mod database;
 mod exec_context;
-mod hashing;
+pub mod hashing;
 mod types;
 
 #[cfg(test)]

@@ -266,7 +266,12 @@ impl EnvBackend for EnvInstance {
     {
         let mut v = vec![];
         return_value.encode_to(&mut v);
-        self.engine.set_storage(&[0, 0, 0, 0], &v[..]);
+        self.engine.set_storage(&[255_u8; 32], &v[..]);
+    }
+
+    #[cfg(feature = "test_instantiate")]
+    fn get_return_value(&mut self) -> Vec<u8> {
+        self.engine.get_storage(&[255_u8; 32]).unwrap().to_vec()
     }
 
     fn debug_message(&mut self, message: &str) {
@@ -516,13 +521,36 @@ impl TypedEnvBackend for EnvInstance {
         Salt: AsRef<[u8]>,
         R: ConstructorReturnType<ContractRef>,
     {
-        let _code_hash = params.code_hash();
         let _gas_limit = params.gas_limit();
         let _endowment = params.endowment();
-        let _salt_bytes = params.salt_bytes();
+
+        let salt_bytes = params.salt_bytes();
+
+        let code_hash = params.code_hash();
+        let code_hash = scale::Encode::encode(code_hash);
 
         let input = params.exec_input();
-        let input = ::scale::Encode::encode(input);
+        let input = scale::Encode::encode(input);
+
+        //Compute account for instantiated contract.
+        let account_id_vec = {
+            let mut account_input = Vec::<u8>::new();
+            account_input.extend(&b"contract_addr_v1".to_vec());
+            if let Some(caller) = &self.engine.exec_context.caller{
+                scale::Encode::encode_to(&caller.as_bytes(), &mut account_input);
+            }
+            account_input.extend(&input);
+            account_input.extend(salt_bytes.as_ref());
+            let mut account_id = [0_u8; 32];
+            ink_engine::hashing::blake2b_256(&account_input[..], &mut account_id);
+            account_id.to_vec()
+        };
+
+        let account_id = <E as Environment>::AccountId::decode(&mut &(account_id_vec[..])).unwrap();
+
+        let old_callee = self.engine.get_callee();
+        self.engine.set_callee(account_id_vec);
+
         let dispatch = <
             <
                 <
@@ -537,10 +565,12 @@ impl TypedEnvBackend for EnvInstance {
         crate::reflect::ExecuteDispatchable::execute_dispatchable(dispatch)
             .unwrap_or_else(|e| panic!("Constructor call failed: {:?}", e));
 
-        let id =
-            <E as Environment>::AccountId::decode(&mut &(vec![0_u8; 32][..])).unwrap();
+        self.set_code_hash(code_hash.as_slice())?;
+
+        self.engine.set_callee(old_callee);
+
         Ok(Ok(R::ok(
-            <ContractRef as FromAccountId<E>>::from_account_id(id),
+            <ContractRef as FromAccountId<E>>::from_account_id(account_id),
         )))
     }
 

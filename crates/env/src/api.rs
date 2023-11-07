@@ -477,6 +477,14 @@ where
     })
 }
 
+/// Retrieves the value stored by return_value().
+#[cfg(feature = "test_instantiate")]
+pub fn get_return_value() -> Vec<u8> {
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        EnvBackend::get_return_value(instance)
+    })
+}
+
 /// Appends the given message to the debug message buffer.
 pub fn debug_message(message: &str) {
     <EnvInstance as OnInstance>::on_instance(|instance| {
