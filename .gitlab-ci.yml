@@ -429,6 +429,7 @@ contract-sizes:
     UPSTREAM_DIR: ${MEASUREMENTS_DIR}/ink-${UPSTREAM_BRANCH}
     CONTRACT_SIZES_DIFF: ${MEASUREMENTS_DIR}/${CI_COMMIT_BRANCH}_contract_sizes_diff.md
     PR_COMMENTS_URL: "https://api.github.com/repos/paritytech/ink/issues/${CI_COMMIT_REF_NAME}/comments"
+    WORKFLOW_URL: "https://gitlab.parity.io/parity/mirrors/ink/-/pipelines/${CI_PIPELINE_ID}"
   before_script:
     - mkdir ${MEASUREMENTS_DIR}
   script:
@@ -452,7 +453,8 @@ contract-sizes:
     - cat ${CONTRACT_SIZES_DIFF}
     # Submit the comparison table as a comment to the PR
     - echo "Submitting contract sizes diff to ${PR_COMMENTS_URL}"
-    - ${SCRIPTS_DIR}/contract_sizes_submit.sh ${PR_COMMENTS_URL} < ${CONTRACT_SIZES_DIFF}
+    - CARGO_CONTRACT_VERSION=$(cargo-contract --version | egrep --only-matching "cargo-contract.* .*-x86" | sed -s 's/-x86//')
+    - ${SCRIPTS_DIR}/contract_sizes_submit.sh ${PR_COMMENTS_URL} ${WORKFLOW_URL} ${CARGO_CONTRACT_VERSION} < ${CONTRACT_SIZES_DIFF}
   after_script:
     - rm -rf ${MEASUREMENTS_DIR}
 
