@@ -20,7 +20,7 @@ use crate::{
         ConstructorReturnType,
         CreateParams,
         DelegateCall,
-        FromAccountId,
+        FromAccountId, self,
     },
     event::{
         Event,
@@ -60,7 +60,7 @@ use schnorrkel::{
 /// to be as close to the on-chain behavior as possible.
 const BUFFER_SIZE: usize = crate::BUFFER_SIZE;
 
-/// Fill me.
+/// Proxy function used to simulate code hash and to invoke contract methods.
 #[cfg(feature = "test_instantiate")]
 fn execute_contract_call<E, ContractRef>(input: Vec<u8>) -> Vec<u8>
 where
@@ -85,6 +85,46 @@ where
         .unwrap_or_else(|e| panic!("Message call failed: {:?}", e));
 
     crate::api::get_return_value()
+}
+
+fn invoke_contract_impl<E, Args, R>(
+    env: &mut EnvInstance,
+    _gas_limit: Option<u64>,
+    _call_flags: u32,
+    _transferred_value: Option<&<E as Environment>::Balance>,
+    callee_account: Option<&<E as Environment>::AccountId>,
+    code_hash: Option<&<E as Environment>::Hash>,
+    input: Vec<u8>,
+) -> Result<ink_primitives::MessageResult<R>>
+where
+    E: Environment,
+    Args: scale::Encode,
+    R: scale::Decode,
+{
+    let mut callee_code_hash =  match callee_account{
+        Some(ca) => env.code_hash::<E>(&ca)?,
+        None => code_hash.unwrap().clone(),
+    };
+
+    let handler = env.engine.database.get_contract_message_handler(&callee_code_hash.as_mut().to_vec());
+    let old_callee = env.engine.get_callee();
+    let mut restore_callee = false;
+    if let Some(callee_account) = callee_account {
+        let encoded_callee = scale::Encode::encode(callee_account);
+        env.engine.set_callee(encoded_callee);
+        restore_callee = true;
+    }
+
+    let result = handler(input);
+
+    if restore_callee {
+        env.engine.set_callee(old_callee);
+    }
+
+    let result = <ink_primitives::MessageResult::<R> as scale::Decode>::decode(&mut &result[..])
+        .expect("failed to decode return value");
+    
+    Ok(result)
 }
 
 impl CryptoHash for Blake2x128 {
@@ -520,31 +560,22 @@ impl TypedEnvBackend for EnvInstance {
         Args: scale::Encode,
         R: scale::Decode,
     {
-        let _gas_limit = params.gas_limit();
-        let _call_flags = params.call_flags().into_u32();
-        let _transferred_value = params.transferred_value();
+        let gas_limit = params.gas_limit();
+        let call_flags = params.call_flags().into_u32();
+        let transferred_value = params.transferred_value();
         let input = params.exec_input();
-
-        let callee = params.callee();
-        let callee = scale::Encode::encode(callee);
-
+        let callee_account = params.callee();
         let input = scale::Encode::encode(input);
 
-        let callee_account = <E as Environment>::AccountId::decode(&mut &callee[..]).unwrap();
-        let mut callee_code_hash = self.code_hash::<E>(&callee_account)?;
-
-        let handler = self.engine.database.get_contract_message_handler(&callee_code_hash.as_mut().to_vec());
-        let old_callee = self.engine.get_callee();
-        self.engine.set_callee(callee);
-
-        let result = handler(input);
-
-        self.engine.set_callee(old_callee);
-
-        let result = <ink_primitives::MessageResult::<R> as scale::Decode>::decode(&mut &result[..])
-            .expect("failed to decode return value");
-        
-        Ok(result)
+        invoke_contract_impl::<E, Args, R>(
+            self,
+            Some(gas_limit),
+            call_flags,
+            Some(transferred_value),
+            Some(callee_account),
+            None,
+            input,
+        )
     }
 
     fn invoke_contract_delegate<E, Args, R>(
@@ -556,9 +587,19 @@ impl TypedEnvBackend for EnvInstance {
         Args: scale::Encode,
         R: scale::Decode,
     {
-        let _code_hash = params.code_hash();
-        unimplemented!(
-            "off-chain environment does not support delegated contract invocation"
+        let call_flags = params.call_flags().into_u32();
+        let input = params.exec_input();
+        let code_hash = params.code_hash();
+        let input = scale::Encode::encode(input);
+
+        invoke_contract_impl::<E, Args, R>(
+            self,
+            None,
+            call_flags,
+            None,
+            None,
+            Some(code_hash),
+            input,
         )
     }
 
