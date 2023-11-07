@@ -450,14 +450,12 @@ jobs:
           grcov . --binary-path ./target/debug/ --source-dir . --output-type lcov --llvm --branch \
             --ignore-not-existing --ignore "/*" --ignore "tests/*" --output-path lcov-w-branch.info
           rust-covfix lcov-w-branch.info --output lcov-w-branch-fixed.info
-          # TODO: Enable when Gitlab CI is disabled
-          #codecov --token "$CODECOV_P_TOKEN" --file lcov-w-branch-fixed.info --nonZero
+          codecov --token "$CODECOV_P_TOKEN" --file lcov-w-branch-fixed.info --nonZero
           # lines coverage
           grcov . --binary-path ./target/debug/ --source-dir . --output-type lcov --llvm \
             --ignore-not-existing --ignore "/*" --ignore "tests/*" --output-path lcov-lines.info
           rust-covfix lcov-lines.info --output lcov-lines-fixed.info
-          # TODO: Enable when Gitlab CI is disabled
-          #codecov --token "$CODECOV_TOKEN" --file lcov-lines-fixed.info --nonZero
+          codecov --token "$CODECOV_TOKEN" --file lcov-lines-fixed.info --nonZero
 
 ### examples
 
