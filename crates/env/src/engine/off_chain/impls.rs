@@ -396,8 +396,9 @@ impl EnvBackend for EnvInstance {
         Ok(decoded)
     }
 
-    fn set_code_hash(&mut self, _code_hash: &[u8]) -> Result<()> {
-        unimplemented!("off-chain environment does not support `set_code_hash`")
+    fn set_code_hash(&mut self, code_hash: &[u8]) -> Result<()> {
+        self.engine.database.set_code_hash(&self.engine.get_callee(), code_hash);
+        Ok(())
     }
 }
 
@@ -585,11 +586,18 @@ impl TypedEnvBackend for EnvInstance {
         unimplemented!("off-chain environment does not support cross-contract calls")
     }
 
-    fn code_hash<E>(&mut self, _account: &E::AccountId) -> Result<E::Hash>
+    fn code_hash<E>(&mut self, account: &E::AccountId) -> Result<E::Hash>
     where
         E: Environment,
     {
-        unimplemented!("off-chain environment does not support `code_hash`")
+        let code_hash = self.engine.database.get_code_hash(&scale::Encode::encode(&account));
+        if let Some(code_hash) = code_hash{
+            let code_hash = <E as Environment>::Hash::decode(&mut &code_hash[..]).unwrap();
+            Ok(code_hash)
+        }else{
+            Err(Error::KeyNotFound)
+        }
+        
     }
 
     fn own_code_hash<E>(&mut self) -> Result<E::Hash>

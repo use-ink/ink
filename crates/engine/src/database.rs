@@ -18,6 +18,7 @@ use std::collections::HashMap;
 
 const BALANCE_OF: &[u8] = b"balance:";
 const STORAGE_OF: &[u8] = b"contract-storage:";
+const CODE_HASH_OF: &[u8] = b"code-hash:";
 
 /// Returns the database key under which to find the balance for account `who`.
 pub fn balance_of_key(who: &[u8]) -> [u8; 32] {
@@ -30,6 +31,13 @@ pub fn balance_of_key(who: &[u8]) -> [u8; 32] {
 /// Returns the database key under which to find the balance for account `who`.
 pub fn storage_of_contract_key(who: &[u8], key: &[u8]) -> [u8; 32] {
     let keyed = who.to_vec().to_keyed_vec(key).to_keyed_vec(STORAGE_OF);
+    let mut hashed_key: [u8; 32] = [0; 32];
+    super::hashing::blake2b_256(&keyed[..], &mut hashed_key);
+    hashed_key
+}
+
+pub fn code_hash_of_key(key: &Vec<u8>) -> [u8; 32]{
+    let keyed = key.to_keyed_vec(CODE_HASH_OF);
     let mut hashed_key: [u8; 32] = [0; 32];
     super::hashing::blake2b_256(&keyed[..], &mut hashed_key);
     hashed_key
@@ -127,6 +135,19 @@ impl Database {
             .entry(hashed_key.to_vec())
             .and_modify(|v| *v = encoded_balance.clone())
             .or_insert(encoded_balance);
+    }
+
+    pub fn set_code_hash(&mut self, account: &Vec<u8>, code_hash: &[u8]) {
+        let hashed_key = code_hash_of_key(&account);
+        self.hmap
+            .entry(hashed_key.to_vec())
+            .and_modify(|x| *x = code_hash.to_vec())
+            .or_insert(code_hash.to_vec());
+    }
+
+    pub fn get_code_hash(&self, account: &Vec<u8>) -> Option<Vec<u8>> {
+        let hashed_key = code_hash_of_key(&account);
+        self.get(&hashed_key).cloned()
     }
 }
 
