@@ -212,7 +212,7 @@ fn find_collection_fields(cx: &LateContext, storage_struct_id: ItemId) -> Fields
     result
 }
 
-/// Reports the given field defintion
+/// Reports the given field definition
 fn report_field(cx: &LateContext, field_info: &FieldInfo) {
     if_chain! {
         if let Node::Field(field) = cx.tcx.hir().get_by_def_id(field_info.did);

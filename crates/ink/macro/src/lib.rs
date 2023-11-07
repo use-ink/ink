@@ -1074,7 +1074,7 @@ pub fn test(attr: TokenStream, item: TokenStream) -> TokenStream {
 ///     #[ink(function = 4, handle_status = false)]
 ///     fn access(key: &[u8]) -> Option<Access>;
 ///
-///     /// Unlocks previously aquired permission to access key.
+///     /// Unlocks previously acquired permission to access key.
 ///     ///
 ///     /// # Errors
 ///     ///
