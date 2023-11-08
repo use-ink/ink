@@ -273,8 +273,8 @@ mod tests {
         ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
             let mut array: StorageVec<String> = StorageVec::new();
 
+            assert!(array.is_empty());
             assert_eq!(array.pop(), None);
-            assert_eq!(array.len(), 0);
 
             Ok(())
         })
