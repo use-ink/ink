@@ -20,7 +20,7 @@ use crate::{
         ConstructorReturnType,
         CreateParams,
         DelegateCall,
-        FromAccountId, self,
+        FromAccountId,
     },
     event::{
         Event,
