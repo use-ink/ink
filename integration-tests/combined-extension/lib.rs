@@ -5,7 +5,6 @@ use ink::{
         DefaultEnvironment,
         Environment,
     },
-    ChainExtensionInstance,
 };
 use psp22_extension::Psp22Extension;
 use rand_extension::{
@@ -13,38 +12,20 @@ use rand_extension::{
     RandomReadErr,
 };
 
-/// This extension combines the [`FetchRandom`] and [`Psp22Extension`] extensions.
-/// It implements the [`ChainExtensionInstance`] trait by simply calling
-/// the corresponding sub-extension implementation.
-/// It is possible to combine any number of extensions in this way.
-#[ink::scale_derive(TypeInfo)]
-pub struct CombinedChainExtension;
-
-/// Each chain extension has an abstract type([`CombinedChainExtension`]) that describes
-/// it and the actual instance that provides access to methods.
-/// This structure is an instance that is returned by the `self.env().extension()` call.
-///
-/// Because it is a combination of corresponding sub-instances, we need to initialize
-/// each sub-instance in the same way by calling [`ChainExtensionInstance::instantiate`].
-pub struct CombinedInstance {
-    /// The instance of the [`Psp22Extension`] chain extension.
+ink::combine_extensions! {
+    /// This extension combines the [`FetchRandom`] and [`Psp22Extension`] extensions.
+    /// It is possible to combine any number of extensions in this way.
     ///
-    /// It provides you access to `PSP22` functionality.
-    pub psp22: <Psp22Extension as ChainExtensionInstance>::Instance,
-    /// The instance of the [`FetchRandom`] chain extension.
-    ///
-    /// It provides you access to randomness functionality.
-    pub rand: <FetchRandom as ChainExtensionInstance>::Instance,
-}
-
-impl ChainExtensionInstance for CombinedChainExtension {
-    type Instance = CombinedInstance;
-
-    fn instantiate() -> Self::Instance {
-        CombinedInstance {
-            psp22: <Psp22Extension as ChainExtensionInstance>::instantiate(),
-            rand: <FetchRandom as ChainExtensionInstance>::instantiate(),
-        }
+    /// This structure is an instance that is returned by the `self.env().extension()` call.
+    pub struct CombinedChainExtension {
+        /// The instance of the [`Psp22Extension`] chain extension.
+        ///
+        /// It provides you access to `PSP22` functionality.
+        pub psp22: Psp22Extension,
+        /// The instance of the [`FetchRandom`] chain extension.
+        ///
+        /// It provides you access to randomness functionality.
+        pub rand: FetchRandom,
     }
 }
 
@@ -81,6 +62,7 @@ mod combined_extension {
     /// The example shows how to call each extension and test it,
     /// so we don't need any state to save.
     #[ink(storage)]
+    #[derive(Default)]
     pub struct CombinedExtensionContract;
 
     impl CombinedExtensionContract {
