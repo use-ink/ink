@@ -434,6 +434,8 @@ jobs:
           # The `cargo-taurpalin` coverage reporting tool seems to have better code instrumentation and thus
           # produces better results for Rust codebases in general. However, unlike `grcov` it requires
           # running docker with `--security-opt seccomp=unconfined` which is why we use `grcov` instead.
+          CODECOV_P_TOKEN:                ${{ secrets.CODECOV_P_TOKEN }}
+          CODECOV_TOKEN:                  ${{ secrets.CODECOV_TOKEN }}
         run: |
           # RUSTFLAGS are the cause target cache can't be used here
           # FIXME: cust-covfix doesn't support the external target dir
