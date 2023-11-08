@@ -1,0 +1,47 @@
+name: Download Artifact
+description: Download artifact
+inputs:
+  GITHUB_TOKEN:
+    description: Token for using the GitHub REST API
+    required: true
+  ARTIFACT_NAME:
+    description: Name of the artifact to be downloaded
+    required: true
+  DOWNLOAD_DIR:
+    description: Destination directory
+    required: false
+    default: ''
+
+runs:
+  using: composite
+  steps:
+      - name: Download Artifact
+        uses: actions/github-script@v6
+        with:
+          retries: 3
+          github-token: ${{ inputs.GITHUB_TOKEN }}
+          script: |
+            const artifactName = '${{ inputs.ARTIFACT_NAME }}';
+
+            var artifacts = await github.rest.actions.listWorkflowRunArtifacts({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              run_id: ${{ github.event.workflow_run.id }},
+            });
+            const matchArtifact = artifacts.data.artifacts.find((artifact) => artifact.name === artifactName);
+
+            if (matchArtifact) {
+              var download = await github.rest.actions.downloadArtifact({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                artifact_id: matchArtifact.id,
+                archive_format: 'zip',
+              });
+              var fs = require('fs');
+              fs.writeFileSync(`${process.env.GITHUB_WORKSPACE}/data.zip`, Buffer.from(download.data));
+            } else {
+              core.setFailed(`Artifact ${artifactName} not found.`);
+            }
+
+      - run: unzip data.zip -d ./${{ inputs.DOWNLOAD_DIR }}
+        shell: bash
