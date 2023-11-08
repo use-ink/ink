@@ -1,10 +1,8 @@
 #![cfg_attr(not(feature = "std"), no_std, no_main)]
 
-use ink::{
-    env::{
-        DefaultEnvironment,
-        Environment,
-    },
+use ink::env::{
+    DefaultEnvironment,
+    Environment,
 };
 use psp22_extension::Psp22Extension;
 use rand_extension::{

@@ -151,7 +151,7 @@ macro_rules! combine_extensions {
         }
 
         const _: () = {
-            /// Each chain extension has an abstract type $name that describes
+            /// Each chain extension has an abstract type `$name` that describes
             /// it and the actual instance that provides access to methods.
             /// This structure is an instance that is returned by the `self.env().extension()` call.
             ///
