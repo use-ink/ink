@@ -14,14 +14,8 @@
 
 //! Operations on the off-chain testing environment.
 
-use super::{
-    EnvInstance,
-    OnInstance,
-};
-use crate::{
-    Environment,
-    Result,
-};
+use super::{EnvInstance, OnInstance};
+use crate::{Environment, Result};
 use core::fmt::Debug;
 use ink_engine::test_api::RecordedDebugMessages;
 use std::panic::UnwindSafe;
@@ -306,7 +300,8 @@ where
         instance.engine.set_callee(encoded_alice.clone());
 
         // set up the funds for the default accounts
-        let substantial = 1_000_000;
+        // the 1_000_000_000 is the same value as in the e2e tests
+        let substantial = 1_000_000_000;
         let some = 1_000;
         instance.engine.set_balance(encoded_alice, substantial);
         instance
