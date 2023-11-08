@@ -469,7 +469,9 @@ impl EnvBackend for EnvInstance {
     }
 
     fn set_code_hash(&mut self, code_hash: &[u8]) -> Result<()> {
-        self.engine.database.set_code_hash(&self.engine.get_callee(), code_hash);
+        self.engine
+            .database
+            .set_code_hash(&self.engine.get_callee(), code_hash);
         Ok(())
     }
 
@@ -718,21 +720,32 @@ impl TypedEnvBackend for EnvInstance {
     where
         E: Environment,
     {
-        let code_hash = self.engine.database.get_code_hash(&scale::Encode::encode(&account));
-        if let Some(code_hash) = code_hash{
-            let code_hash = <E as Environment>::Hash::decode(&mut &code_hash[..]).unwrap();
+        let code_hash = self
+            .engine
+            .database
+            .get_code_hash(&scale::Encode::encode(&account));
+        if let Some(code_hash) = code_hash {
+            let code_hash =
+                <E as Environment>::Hash::decode(&mut &code_hash[..]).unwrap();
             Ok(code_hash)
-        }else{
+        } else {
             Err(Error::KeyNotFound)
         }
-        
     }
 
     fn own_code_hash<E>(&mut self) -> Result<E::Hash>
     where
         E: Environment,
     {
-        unimplemented!("off-chain environment does not support `own_code_hash`")
+        let callee = &self.engine.get_callee();
+        let code_hash = self.engine.database.get_code_hash(callee);
+        if let Some(code_hash) = code_hash {
+            let code_hash =
+                <E as Environment>::Hash::decode(&mut &code_hash[..]).unwrap();
+            Ok(code_hash)
+        } else {
+            Err(Error::KeyNotFound)
+        }
     }
 
     fn call_runtime<E, Call>(&mut self, _call: &Call) -> Result<()>
