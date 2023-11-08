@@ -7,6 +7,10 @@ inputs:
   ARTIFACT_NAME:
     description: Name of the artifact to be downloaded
     required: true
+  DOWNLOAD_DIR:
+    description: Destination directory
+    required: false
+    default: ''
 
 runs:
   using: composite
@@ -39,5 +43,5 @@ runs:
               core.setFailed(`Artifact ${artifactName} not found.`);
             }
 
-      - run: unzip data.zip
+      - run: unzip data.zip -d ./${{ inputs.DOWNLOAD_DIR }}
         shell: bash
