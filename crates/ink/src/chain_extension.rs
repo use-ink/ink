@@ -104,7 +104,7 @@ mod private {
 ///
 /// The macro expects a structure definition as an input where each field should
 /// implement [`ChainExtensionInstance`]. Usually, this trait is implemented
-/// by the [`crate::chain_extension`] macro during the definition of the chain extension.
+/// by the `#[ink::chain_extension]` macro during the definition of the chain extension.
 ///
 /// ```rust
 /// #[ink::scale_derive(TypeInfo)]
