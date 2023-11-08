@@ -414,7 +414,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          fetch-depth: 100
+          fetch-depth: 0
 
       - name: Rust Info
         uses: ./.github/rust-info
@@ -434,17 +434,18 @@ jobs:
           # The `cargo-taurpalin` coverage reporting tool seems to have better code instrumentation and thus
           # produces better results for Rust codebases in general. However, unlike `grcov` it requires
           # running docker with `--security-opt seccomp=unconfined` which is why we use `grcov` instead.
-          CODECOV_P_TOKEN:                ${{ secrets.CODECOV_P_TOKEN }}
-          CODECOV_TOKEN:                  ${{ secrets.CODECOV_TOKEN }}
+          CODECOV_P_TOKEN:               ${{ secrets.CODECOV_P_TOKEN }}
+          CODECOV_L_TOKEN:               ${{ secrets.CODECOV_L_TOKEN }}
         run: |
           # RUSTFLAGS are the cause target cache can't be used here
-          # FIXME: cust-covfix doesn't support the external target dir
+          # FIXME: rust-covfix doesn't support the external target dir
           # https://github.com/Kogia-sima/rust-covfix/issues/7
           unset "CARGO_TARGET_DIR"
           cargo clean
           # make sure there's no stale coverage artifacts
           find . -name "*.profraw" -type f -delete
           find . -name "*.gcda" -type f -delete
+          git config --global --add safe.directory '*'
           # RUSTFLAGS are the cause target cache can't be used here
           cargo build --verbose --all-features --workspace
           cargo test --verbose --all-features --no-fail-fast --workspace
@@ -457,7 +458,7 @@ jobs:
           grcov . --binary-path ./target/debug/ --source-dir . --output-type lcov --llvm \
             --ignore-not-existing --ignore "/*" --ignore "tests/*" --output-path lcov-lines.info
           rust-covfix lcov-lines.info --output lcov-lines-fixed.info
-          codecov --token "$CODECOV_TOKEN" --file lcov-lines-fixed.info --nonZero
+          codecov --token "$CODECOV_L_TOKEN" --file lcov-lines-fixed.info --nonZero
 
 ### examples
 
