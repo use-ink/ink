@@ -123,7 +123,7 @@ where
 
     let result = <ink_primitives::MessageResult::<R> as scale::Decode>::decode(&mut &result[..])
         .expect("failed to decode return value");
-    
+
     Ok(result)
 }
 
@@ -623,7 +623,10 @@ impl TypedEnvBackend for EnvInstance {
         R: ConstructorReturnType<ContractRef>,
     {
         let _gas_limit = params.gas_limit();
-        let _endowment = params.endowment();
+
+        let endowment = params.endowment();
+        let endowment = scale::Encode::encode(endowment);
+        let endowment: u128 = scale::Decode::decode(&mut &endowment[..])?;
 
         let salt_bytes = params.salt_bytes();
 
@@ -647,10 +650,10 @@ impl TypedEnvBackend for EnvInstance {
             account_id.to_vec()
         };
 
-        let account_id = <E as Environment>::AccountId::decode(&mut &(account_id_vec[..])).unwrap();
+        let mut account_id = <E as Environment>::AccountId::decode(&mut &account_id_vec[..]).unwrap();
 
         let old_callee = self.engine.get_callee();
-        self.engine.set_callee(account_id_vec);
+        self.engine.set_callee(account_id_vec.clone());
 
         let dispatch = <
             <
@@ -667,6 +670,10 @@ impl TypedEnvBackend for EnvInstance {
             .unwrap_or_else(|e| panic!("Constructor call failed: {:?}", e));
 
         self.set_code_hash(code_hash.as_slice())?;
+        self.engine.set_contract(account_id_vec.clone());
+        self.engine
+            .database
+            .set_balance(account_id.as_mut(), endowment);
 
         self.engine.set_callee(old_callee);
 
