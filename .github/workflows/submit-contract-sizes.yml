@@ -28,7 +28,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           ARTIFACT_NAME: contract-sizes-data
 
-
       - name: Submit Comment
         env:
           GITHUB_PR_TOKEN:         ${{ secrets.github_token }}
