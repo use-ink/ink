@@ -101,12 +101,15 @@ where
     Args: scale::Encode,
     R: scale::Decode,
 {
-    let mut callee_code_hash =  match callee_account{
+    let mut callee_code_hash = match callee_account {
         Some(ca) => env.code_hash::<E>(&ca)?,
         None => code_hash.unwrap().clone(),
     };
 
-    let handler = env.engine.database.get_contract_message_handler(&callee_code_hash.as_mut().to_vec());
+    let handler = env
+        .engine
+        .database
+        .get_contract_message_handler(&callee_code_hash.as_mut().to_vec());
     let old_callee = env.engine.get_callee();
     let mut restore_callee = false;
     if let Some(callee_account) = callee_account {
@@ -121,8 +124,9 @@ where
         env.engine.set_callee(old_callee);
     }
 
-    let result = <ink_primitives::MessageResult::<R> as scale::Decode>::decode(&mut &result[..])
-        .expect("failed to decode return value");
+    let result =
+        <ink_primitives::MessageResult<R> as scale::Decode>::decode(&mut &result[..])
+            .expect("failed to decode return value");
 
     Ok(result)
 }
@@ -483,7 +487,11 @@ impl EnvBackend for EnvInstance {
         <ContractRef as crate::ContractReverseReference>::Type:
             crate::reflect::ContractMessageDecoder,
     {
-        ink_primitives::types::Hash::from(self.engine.database.set_contract_message_handler(execute_contract_call::<E, ContractRef>))
+        ink_primitives::types::Hash::from(
+            self.engine
+                .database
+                .set_contract_message_handler(execute_contract_call::<E, ContractRef>),
+        )
     }
 }
 
@@ -636,11 +644,11 @@ impl TypedEnvBackend for EnvInstance {
         let input = params.exec_input();
         let input = scale::Encode::encode(input);
 
-        //Compute account for instantiated contract.
+        // Compute account for instantiated contract.
         let account_id_vec = {
             let mut account_input = Vec::<u8>::new();
             account_input.extend(&b"contract_addr_v1".to_vec());
-            if let Some(caller) = &self.engine.exec_context.caller{
+            if let Some(caller) = &self.engine.exec_context.caller {
                 scale::Encode::encode_to(&caller.as_bytes(), &mut account_input);
             }
             account_input.extend(&input);
@@ -650,7 +658,8 @@ impl TypedEnvBackend for EnvInstance {
             account_id.to_vec()
         };
 
-        let mut account_id = <E as Environment>::AccountId::decode(&mut &account_id_vec[..]).unwrap();
+        let mut account_id =
+            <E as Environment>::AccountId::decode(&mut &account_id_vec[..]).unwrap();
 
         let old_callee = self.engine.get_callee();
         self.engine.set_callee(account_id_vec.clone());

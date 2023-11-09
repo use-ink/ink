@@ -40,19 +40,17 @@ pub fn storage_of_contract_key(who: &[u8], key: &[u8]) -> [u8; 32] {
 
 pub type MessageHandler = fn(Vec<u8>) -> Vec<u8>;
 
-pub fn contract_key(f: MessageHandler) -> [u8; 32]{
+pub fn contract_key(f: MessageHandler) -> [u8; 32] {
     let f = f as usize;
     let f = f.to_le_bytes();
-    let keyed = f
-        .to_vec().to_keyed_vec(CONTRACT_PREFIX);
+    let keyed = f.to_vec().to_keyed_vec(CONTRACT_PREFIX);
     let mut ret: [u8; 32] = [0; 32];
     super::hashing::blake2b_256(&keyed[..], &mut ret);
     ret
 }
 
-pub fn message_handler_of_contract_key(key: &[u8]) -> [u8; 32]{
-    let keyed = key.to_vec()
-        .to_keyed_vec(MSG_HANDLER_OF);
+pub fn message_handler_of_contract_key(key: &[u8]) -> [u8; 32] {
+    let keyed = key.to_vec().to_keyed_vec(MSG_HANDLER_OF);
     let mut hashed_key: [u8; 32] = [0; 32];
     super::hashing::blake2b_256(&keyed[..], &mut hashed_key);
     hashed_key
@@ -161,7 +159,7 @@ impl Database {
             .or_insert(encoded_balance);
     }
 
-    pub fn set_contract_message_handler(&mut self, handler: MessageHandler) -> [u8; 32]{
+    pub fn set_contract_message_handler(&mut self, handler: MessageHandler) -> [u8; 32] {
         let key = contract_key(handler);
         let hashed_key = message_handler_of_contract_key(&key);
         self.fmap
@@ -173,10 +171,7 @@ impl Database {
 
     pub fn get_contract_message_handler(&mut self, key: &[u8]) -> MessageHandler {
         let hashed_key = message_handler_of_contract_key(&key);
-        self.fmap
-            .get(&hashed_key.to_vec())
-            .unwrap()
-            .clone()
+        self.fmap.get(&hashed_key.to_vec()).unwrap().clone()
     }
 
     pub fn set_code_hash(&mut self, account: &Vec<u8>, code_hash: &[u8]) {
