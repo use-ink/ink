@@ -445,6 +445,7 @@ jobs:
           # make sure there's no stale coverage artifacts
           find . -name "*.profraw" -type f -delete
           find . -name "*.gcda" -type f -delete
+          # FIXME: Access from 2 users, should be solved once ci-image works from a non-root user
           git config --global --add safe.directory '*'
           # RUSTFLAGS are the cause target cache can't be used here
           cargo build --verbose --all-features --workspace
