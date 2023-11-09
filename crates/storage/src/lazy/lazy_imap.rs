@@ -13,10 +13,10 @@
 // limitations under the License.
 
 use super::{cache_cell::CacheCell, entry::EntryState, entry::StorageEntry};
-use core::{fmt, fmt::Debug, ptr::NonNull};
+use core::{fmt, fmt::Debug, marker::PhantomData, ptr::NonNull};
 use ink_prelude::{boxed::Box, collections::BTreeMap};
 use ink_primitives::Key;
-use ink_storage_traits::Packed;
+use ink_storage_traits::{Packed, StorageKey};
 
 /// The index type used in the lazy storage chunk.
 pub type Index = u32;
@@ -30,19 +30,13 @@ pub type Index = u32;
 /// chunk of storage cells.
 ///
 /// A chunk of storage cells is a contiguous range of `2^32` storage cells.
-pub struct LazyIndexMap<V> {
-    /// The offset key for the chunk of cells.
-    ///
-    /// If the lazy chunk has been initialized during contract initialization
-    /// the key will be `None` since there won't be a storage region associated
-    /// to the lazy chunk which prevents it from lazily loading elements. This,
-    /// however, is only checked at contract runtime. We might incorporate
-    /// compile-time checks for this particular use case later on.
-    key: Option<Key>,
+pub struct LazyIndexMap<V: Packed, KeyType: StorageKey> {
     /// The subset of currently cached entries of the lazy storage chunk.
     ///
     /// An entry is cached as soon as it is loaded or written.
     cached_entries: CacheCell<EntryMap<V>>,
+    #[allow(clippy::type_complexity)]
+    _marker: PhantomData<fn() -> (V, KeyType)>,
 }
 
 struct DebugEntryMap<'a, V>(&'a CacheCell<EntryMap<V>>);
@@ -56,13 +50,14 @@ where
     }
 }
 
-impl<V> Debug for LazyIndexMap<V>
+impl<V, KeyType> Debug for LazyIndexMap<V, KeyType>
 where
-    V: Debug,
+    V: Packed + Debug,
+    KeyType: StorageKey,
 {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         f.debug_struct("LazyIndexMap")
-            .field("key", &self.key)
+            .field("key", &KeyType::KEY)
             .field("cached_entries", &DebugEntryMap(&self.cached_entries))
             .finish()
     }
@@ -70,20 +65,21 @@ where
 
 #[test]
 fn debug_impl_works() {
-    let mut imap = <LazyIndexMap<i32>>::new();
-    // Empty imap.
-    assert_eq!(
-        format!("{:?}", &imap),
-        "LazyIndexMap { key: None, cached_entries: {} }",
-    );
-    // Filled imap.
-    imap.put(0, Some(1));
-    imap.put(42, Some(2));
-    imap.put(999, None);
-    assert_eq!(
-        format!("{:?}", &imap),
-        "LazyIndexMap { \
-            key: None, \
+    ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
+        let mut imap = <LazyIndexMap<i32, ink_storage_traits::AutoKey>>::new();
+        // Empty imap.
+        assert_eq!(
+            format!("{:?}", &imap),
+            "LazyIndexMap { key: 0, cached_entries: {} }",
+        );
+        // Filled imap.
+        imap.put(0, Some(1));
+        imap.put(42, Some(2));
+        imap.put(999, None);
+        assert_eq!(
+            format!("{:?}", &imap),
+            "LazyIndexMap { \
+            key: 0, \
             cached_entries: {\
                 0: Entry { \
                     value: Some(1), \
@@ -99,10 +95,17 @@ fn debug_impl_works() {
                 }\
             } \
         }",
-    );
+        );
+        Ok(())
+    })
+    .unwrap()
 }
 
-impl<V> Default for LazyIndexMap<V> {
+impl<V, KeyType> Default for LazyIndexMap<V, KeyType>
+where
+    V: Packed,
+    KeyType: StorageKey,
+{
     fn default() -> Self {
         Self::new()
     }
@@ -117,7 +120,11 @@ impl<V> Default for LazyIndexMap<V> {
 /// [`LazyIndexMap::get`].
 pub type EntryMap<V> = BTreeMap<Index, Box<StorageEntry<V>>>;
 
-impl<V> LazyIndexMap<V> {
+impl<V, KeyType> LazyIndexMap<V, KeyType>
+where
+    V: Packed,
+    KeyType: StorageKey,
+{
     /// Creates a new empty lazy map.
     ///
     /// # Note
@@ -126,29 +133,9 @@ impl<V> LazyIndexMap<V> {
     /// All operations that directly or indirectly load from storage will panic.
     pub fn new() -> Self {
         Self {
-            key: None,
             cached_entries: CacheCell::new(EntryMap::new()),
+            _marker: Default::default(),
         }
-    }
-
-    /// Creates a new empty lazy map positioned at the given key.
-    ///
-    /// # Note
-    ///
-    /// This constructor is private and should never need to be called from
-    /// outside this module. It is used to construct a lazy index map from a
-    /// key that is only useful upon a contract call. Use [`LazyIndexMap::new`]
-    /// for construction during contract initialization.
-    fn lazy(key: Key) -> Self {
-        Self {
-            key: Some(key),
-            cached_entries: CacheCell::new(EntryMap::new()),
-        }
-    }
-
-    /// Returns the offset key of the lazy map if any.
-    pub fn key(&self) -> Option<&Key> {
-        self.key.as_ref()
     }
 
     /// Returns a shared reference to the underlying entries.
@@ -213,9 +200,10 @@ impl<V> LazyIndexMap<V> {
 //    }
 //};
 
-impl<V> LazyIndexMap<V>
+impl<V, KeyType> LazyIndexMap<V, KeyType>
 where
     V: Packed,
+    KeyType: StorageKey,
 {
     /// Clears the underlying storage of the entry at the given index.
     ///
@@ -228,19 +216,20 @@ where
     /// The general use of this API is to streamline `Drop` implementations of
     /// high-level abstractions that build upon this low-level data structure.
     pub fn clear_packed_at(&self, index: Index) {
-        let root_key = self.key_at(index).expect("cannot clear in lazy state");
+        let root_key = self.key_at(index);
 
         ink_env::clear_contract_storage(&root_key);
     }
 }
 
-impl<V> LazyIndexMap<V>
+impl<V, KeyType> LazyIndexMap<V, KeyType>
 where
     V: Packed,
+    KeyType: StorageKey,
 {
     /// Returns an offset key for the given index.
-    pub fn key_at(&self, index: Index) -> Option<(Key, Index)> {
-        self.key.map(|key| (key, index))
+    pub fn key_at(&self, index: Index) -> (Key, Index) {
+        (KeyType::KEY, index)
     }
 
     /// Lazily loads the value at the given index.
@@ -279,10 +268,7 @@ where
                 NonNull::from(&mut **occupied.into_mut())
             }
             BTreeMapEntry::Vacant(vacant) => {
-                let value = self
-                    .key_at(index)
-                    .map(|key| ink_env::get_contract_storage(&key).unwrap())
-                    .unwrap_or(None);
+                let value = ink_env::get_contract_storage(&self.key_at(index)).unwrap();
                 NonNull::from(
                     &mut **vacant.insert(Box::new(StorageEntry::new(
                         value,
@@ -391,11 +377,11 @@ mod tests {
         super::{entry::EntryState, entry::StorageEntry},
         Index, LazyIndexMap,
     };
-    use ink_primitives::Key;
+    use ink_storage_traits::{AutoKey, StorageKey};
 
     /// Asserts that the cached entries of the given `imap` is equal to the `expected` slice.
-    fn assert_cached_entries(
-        imap: &LazyIndexMap<u8>,
+    fn assert_cached_entries<K: StorageKey>(
+        imap: &LazyIndexMap<u8, K>,
         expected: &[(Index, StorageEntry<u8>)],
     ) {
         assert_eq!(imap.entries().len(), expected.len());
@@ -409,19 +395,19 @@ mod tests {
         }
     }
 
-    #[test]
-    fn new_works() {
-        let imap = <LazyIndexMap<u8>>::new();
-        // Key must be none.
-        assert_eq!(imap.key(), None);
-        assert_eq!(imap.key_at(0), None);
-        // Cached elements must be empty.
-        assert_cached_entries(&imap, &[]);
-        // Same as default:
-        let default_imap = <LazyIndexMap<u8>>::default();
-        assert_eq!(imap.key(), default_imap.key());
-        assert_eq!(imap.entries(), default_imap.entries());
-    }
+    //#[test]
+    //fn new_works() {
+    //    let imap = <LazyIndexMap<u8, _>>::new();
+    //    // Key must be none.
+    //    assert_eq!(imap.key(), None);
+    //    assert_eq!(imap.key_at(0), None);
+    //    // Cached elements must be empty.
+    //    assert_cached_entries(&imap, &[]);
+    //    // Same as default:
+    //    let default_imap = <LazyIndexMap<u8, _>>::default();
+    //    assert_eq!(imap.key(), default_imap.key());
+    //    assert_eq!(imap.entries(), default_imap.entries());
+    //}
 
     //fn add_key(key: &Key, offset: u32) -> Key {
     //    let mut result = *key;
@@ -429,208 +415,223 @@ mod tests {
     //    result
     //}
 
-    #[test]
-    fn lazy_works() {
-        let key = Key::default();
-        let imap = <LazyIndexMap<u8>>::lazy(key);
-        // Key must be none.
-        assert_eq!(imap.key(), Some(&key));
-        assert_eq!(imap.key_at(0), Some((key, 0)));
-        assert_eq!(imap.key_at(1), Some((key, 1)));
-        // Cached elements must be empty.
-        assert_cached_entries(&imap, &[]);
-    }
-
+    //#[test]
+    //fn lazy_works() {
+    //    let key = Key::default();
+    //    let imap = <LazyIndexMap<u8>>::lazy(key);
+    //    // Key must be none.
+    //    assert_eq!(imap.key(), Some(&key));
+    //    assert_eq!(imap.key_at(0), Some((key, 0)));
+    //    assert_eq!(imap.key_at(1), Some((key, 1)));
+    //    // Cached elements must be empty.
+    //    assert_cached_entries(&imap, &[]);
+    //}
     #[test]
     fn put_get_works() {
-        let mut imap = <LazyIndexMap<u8>>::new();
-        // Put some values.
-        assert_eq!(imap.put_get(1, Some(b'A')), None);
-        assert_eq!(imap.put_get(2, Some(b'B')), None);
-        assert_eq!(imap.put_get(4, Some(b'C')), None);
-        assert_cached_entries(
-            &imap,
-            &[
-                (1, StorageEntry::new(Some(b'A'), EntryState::Mutated)),
-                (2, StorageEntry::new(Some(b'B'), EntryState::Mutated)),
-                (4, StorageEntry::new(Some(b'C'), EntryState::Mutated)),
-            ],
-        );
-        // Put none values.
-        assert_eq!(imap.put_get(3, None), None);
-        assert_eq!(imap.put_get(5, None), None);
-        assert_cached_entries(
-            &imap,
-            &[
-                (1, StorageEntry::new(Some(b'A'), EntryState::Mutated)),
-                (2, StorageEntry::new(Some(b'B'), EntryState::Mutated)),
-                (3, StorageEntry::new(None, EntryState::Preserved)),
-                (4, StorageEntry::new(Some(b'C'), EntryState::Mutated)),
-                (5, StorageEntry::new(None, EntryState::Preserved)),
-            ],
-        );
-        // Override some values with none.
-        assert_eq!(imap.put_get(2, None), Some(b'B'));
-        assert_eq!(imap.put_get(4, None), Some(b'C'));
-        assert_cached_entries(
-            &imap,
-            &[
-                (1, StorageEntry::new(Some(b'A'), EntryState::Mutated)),
-                (2, StorageEntry::new(None, EntryState::Mutated)),
-                (3, StorageEntry::new(None, EntryState::Preserved)),
-                (4, StorageEntry::new(None, EntryState::Mutated)),
-                (5, StorageEntry::new(None, EntryState::Preserved)),
-            ],
-        );
-        // Override none values with some.
-        assert_eq!(imap.put_get(3, Some(b'X')), None);
-        assert_eq!(imap.put_get(5, Some(b'Y')), None);
-        assert_cached_entries(
-            &imap,
-            &[
-                (1, StorageEntry::new(Some(b'A'), EntryState::Mutated)),
-                (2, StorageEntry::new(None, EntryState::Mutated)),
-                (3, StorageEntry::new(Some(b'X'), EntryState::Mutated)),
-                (4, StorageEntry::new(None, EntryState::Mutated)),
-                (5, StorageEntry::new(Some(b'Y'), EntryState::Mutated)),
-            ],
-        );
+        ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
+            let mut imap = <LazyIndexMap<u8, AutoKey>>::new();
+            // Put some values.
+            assert_eq!(imap.put_get(1, Some(b'A')), None);
+            assert_eq!(imap.put_get(2, Some(b'B')), None);
+            assert_eq!(imap.put_get(4, Some(b'C')), None);
+            assert_cached_entries(
+                &imap,
+                &[
+                    (1, StorageEntry::new(Some(b'A'), EntryState::Mutated)),
+                    (2, StorageEntry::new(Some(b'B'), EntryState::Mutated)),
+                    (4, StorageEntry::new(Some(b'C'), EntryState::Mutated)),
+                ],
+            );
+            // Put none values.
+            assert_eq!(imap.put_get(3, None), None);
+            assert_eq!(imap.put_get(5, None), None);
+            assert_cached_entries(
+                &imap,
+                &[
+                    (1, StorageEntry::new(Some(b'A'), EntryState::Mutated)),
+                    (2, StorageEntry::new(Some(b'B'), EntryState::Mutated)),
+                    (3, StorageEntry::new(None, EntryState::Preserved)),
+                    (4, StorageEntry::new(Some(b'C'), EntryState::Mutated)),
+                    (5, StorageEntry::new(None, EntryState::Preserved)),
+                ],
+            );
+            // Override some values with none.
+            assert_eq!(imap.put_get(2, None), Some(b'B'));
+            assert_eq!(imap.put_get(4, None), Some(b'C'));
+            assert_cached_entries(
+                &imap,
+                &[
+                    (1, StorageEntry::new(Some(b'A'), EntryState::Mutated)),
+                    (2, StorageEntry::new(None, EntryState::Mutated)),
+                    (3, StorageEntry::new(None, EntryState::Preserved)),
+                    (4, StorageEntry::new(None, EntryState::Mutated)),
+                    (5, StorageEntry::new(None, EntryState::Preserved)),
+                ],
+            );
+            // Override none values with some.
+            assert_eq!(imap.put_get(3, Some(b'X')), None);
+            assert_eq!(imap.put_get(5, Some(b'Y')), None);
+            assert_cached_entries(
+                &imap,
+                &[
+                    (1, StorageEntry::new(Some(b'A'), EntryState::Mutated)),
+                    (2, StorageEntry::new(None, EntryState::Mutated)),
+                    (3, StorageEntry::new(Some(b'X'), EntryState::Mutated)),
+                    (4, StorageEntry::new(None, EntryState::Mutated)),
+                    (5, StorageEntry::new(Some(b'Y'), EntryState::Mutated)),
+                ],
+            );
+            Ok(())
+        })
+        .unwrap()
     }
 
     #[test]
     fn get_works() {
-        let mut imap = <LazyIndexMap<u8>>::new();
-        let nothing_changed = &[
-            (1, StorageEntry::new(None, EntryState::Preserved)),
-            (2, StorageEntry::new(Some(b'B'), EntryState::Mutated)),
-            (3, StorageEntry::new(None, EntryState::Preserved)),
-            (4, StorageEntry::new(Some(b'D'), EntryState::Mutated)),
-        ];
-        // Put some values.
-        assert_eq!(imap.put_get(1, None), None);
-        assert_eq!(imap.put_get(2, Some(b'B')), None);
-        assert_eq!(imap.put_get(3, None), None);
-        assert_eq!(imap.put_get(4, Some(b'D')), None);
-        assert_cached_entries(&imap, nothing_changed);
-        // `get` works:
-        assert_eq!(imap.get(1), None);
-        assert_eq!(imap.get(2), Some(&b'B'));
-        assert_eq!(imap.get(3), None);
-        assert_eq!(imap.get(4), Some(&b'D'));
-        assert_cached_entries(&imap, nothing_changed);
-        // `get_mut` works:
-        assert_eq!(imap.get_mut(1), None);
-        assert_eq!(imap.get_mut(2), Some(&mut b'B'));
-        assert_eq!(imap.get_mut(3), None);
-        assert_eq!(imap.get_mut(4), Some(&mut b'D'));
-        assert_cached_entries(&imap, nothing_changed);
-        // `get` or `get_mut` without cache:
-        assert_eq!(imap.get(5), None);
-        assert_eq!(imap.get_mut(5), None);
+        ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
+            let mut imap = <LazyIndexMap<u8, AutoKey>>::new();
+            let nothing_changed = &[
+                (1, StorageEntry::new(None, EntryState::Preserved)),
+                (2, StorageEntry::new(Some(b'B'), EntryState::Mutated)),
+                (3, StorageEntry::new(None, EntryState::Preserved)),
+                (4, StorageEntry::new(Some(b'D'), EntryState::Mutated)),
+            ];
+            // Put some values.
+            assert_eq!(imap.put_get(1, None), None);
+            assert_eq!(imap.put_get(2, Some(b'B')), None);
+            assert_eq!(imap.put_get(3, None), None);
+            assert_eq!(imap.put_get(4, Some(b'D')), None);
+            assert_cached_entries(&imap, nothing_changed);
+            // `get` works:
+            assert_eq!(imap.get(1), None);
+            assert_eq!(imap.get(2), Some(&b'B'));
+            assert_eq!(imap.get(3), None);
+            assert_eq!(imap.get(4), Some(&b'D'));
+            assert_cached_entries(&imap, nothing_changed);
+            // `get_mut` works:
+            assert_eq!(imap.get_mut(1), None);
+            assert_eq!(imap.get_mut(2), Some(&mut b'B'));
+            assert_eq!(imap.get_mut(3), None);
+            assert_eq!(imap.get_mut(4), Some(&mut b'D'));
+            assert_cached_entries(&imap, nothing_changed);
+            // `get` or `get_mut` without cache:
+            assert_eq!(imap.get(5), None);
+            assert_eq!(imap.get_mut(5), None);
+            Ok(())
+        })
+        .unwrap()
     }
 
     #[test]
     fn put_works() {
-        let mut imap = <LazyIndexMap<u8>>::new();
-        // Put some values.
-        imap.put(1, None);
-        imap.put(2, Some(b'B'));
-        imap.put(4, None);
-        // The main difference between `put` and `put_get` is that `put` never
-        // loads from storage which also has one drawback: Putting a `None`
-        // value always ends-up in `Mutated` state for the entry even if the
-        // entry is already `None`.
-        assert_cached_entries(
-            &imap,
-            &[
-                (1, StorageEntry::new(None, EntryState::Mutated)),
-                (2, StorageEntry::new(Some(b'B'), EntryState::Mutated)),
-                (4, StorageEntry::new(None, EntryState::Mutated)),
-            ],
-        );
-        // Overwrite entries:
-        imap.put(1, Some(b'A'));
-        imap.put(2, None);
-        assert_cached_entries(
-            &imap,
-            &[
-                (1, StorageEntry::new(Some(b'A'), EntryState::Mutated)),
-                (2, StorageEntry::new(None, EntryState::Mutated)),
-                (4, StorageEntry::new(None, EntryState::Mutated)),
-            ],
-        );
+        ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
+            let mut imap = <LazyIndexMap<u8, AutoKey>>::new();
+            // Put some values.
+            imap.put(1, None);
+            imap.put(2, Some(b'B'));
+            imap.put(4, None);
+            // The main difference between `put` and `put_get` is that `put` never
+            // loads from storage which also has one drawback: Putting a `None`
+            // value always ends-up in `Mutated` state for the entry even if the
+            // entry is already `None`.
+            assert_cached_entries(
+                &imap,
+                &[
+                    (1, StorageEntry::new(None, EntryState::Mutated)),
+                    (2, StorageEntry::new(Some(b'B'), EntryState::Mutated)),
+                    (4, StorageEntry::new(None, EntryState::Mutated)),
+                ],
+            );
+            // Overwrite entries:
+            imap.put(1, Some(b'A'));
+            imap.put(2, None);
+            assert_cached_entries(
+                &imap,
+                &[
+                    (1, StorageEntry::new(Some(b'A'), EntryState::Mutated)),
+                    (2, StorageEntry::new(None, EntryState::Mutated)),
+                    (4, StorageEntry::new(None, EntryState::Mutated)),
+                ],
+            );
+            Ok(())
+        })
+        .unwrap()
     }
 
     #[test]
     fn swap_works() {
-        let mut imap = <LazyIndexMap<u8>>::new();
-        let nothing_changed = &[
-            (1, StorageEntry::new(Some(b'A'), EntryState::Mutated)),
-            (2, StorageEntry::new(Some(b'B'), EntryState::Mutated)),
-            (3, StorageEntry::new(None, EntryState::Preserved)),
-            (4, StorageEntry::new(None, EntryState::Preserved)),
-        ];
-        // Put some values.
-        assert_eq!(imap.put_get(1, Some(b'A')), None);
-        assert_eq!(imap.put_get(2, Some(b'B')), None);
-        assert_eq!(imap.put_get(3, None), None);
-        assert_eq!(imap.put_get(4, None), None);
-        assert_cached_entries(&imap, nothing_changed);
-        // Swap same indices: Check that nothing has changed.
-        for i in 0..4 {
-            imap.swap(i, i);
-        }
-        assert_cached_entries(&imap, nothing_changed);
-        // Swap `None` values: Check that nothing has changed.
-        imap.swap(3, 4);
-        imap.swap(4, 3);
-        assert_cached_entries(&imap, nothing_changed);
-        // Swap `Some` and `None`:
-        imap.swap(1, 3);
-        assert_cached_entries(
-            &imap,
-            &[
-                (1, StorageEntry::new(None, EntryState::Mutated)),
+        ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
+            let mut imap = <LazyIndexMap<u8, AutoKey>>::new();
+            let nothing_changed = &[
+                (1, StorageEntry::new(Some(b'A'), EntryState::Mutated)),
                 (2, StorageEntry::new(Some(b'B'), EntryState::Mutated)),
-                (3, StorageEntry::new(Some(b'A'), EntryState::Mutated)),
+                (3, StorageEntry::new(None, EntryState::Preserved)),
                 (4, StorageEntry::new(None, EntryState::Preserved)),
-            ],
-        );
-        // Swap `Some` and `Some`:
-        imap.swap(2, 3);
-        assert_cached_entries(
-            &imap,
-            &[
-                (1, StorageEntry::new(None, EntryState::Mutated)),
-                (2, StorageEntry::new(Some(b'A'), EntryState::Mutated)),
-                (3, StorageEntry::new(Some(b'B'), EntryState::Mutated)),
-                (4, StorageEntry::new(None, EntryState::Preserved)),
-            ],
-        );
-        // Swap out of bounds: `None` and `None`
-        imap.swap(4, 5);
-        assert_cached_entries(
-            &imap,
-            &[
-                (1, StorageEntry::new(None, EntryState::Mutated)),
-                (2, StorageEntry::new(Some(b'A'), EntryState::Mutated)),
-                (3, StorageEntry::new(Some(b'B'), EntryState::Mutated)),
-                (4, StorageEntry::new(None, EntryState::Preserved)),
-                (5, StorageEntry::new(None, EntryState::Preserved)),
-            ],
-        );
-        // Swap out of bounds: `Some` and `None`
-        imap.swap(3, 6);
-        assert_cached_entries(
-            &imap,
-            &[
-                (1, StorageEntry::new(None, EntryState::Mutated)),
-                (2, StorageEntry::new(Some(b'A'), EntryState::Mutated)),
-                (3, StorageEntry::new(None, EntryState::Mutated)),
-                (4, StorageEntry::new(None, EntryState::Preserved)),
-                (5, StorageEntry::new(None, EntryState::Preserved)),
-                (6, StorageEntry::new(Some(b'B'), EntryState::Mutated)),
-            ],
-        );
+            ];
+            // Put some values.
+            assert_eq!(imap.put_get(1, Some(b'A')), None);
+            assert_eq!(imap.put_get(2, Some(b'B')), None);
+            assert_eq!(imap.put_get(3, None), None);
+            assert_eq!(imap.put_get(4, None), None);
+            assert_cached_entries(&imap, nothing_changed);
+            // Swap same indices: Check that nothing has changed.
+            for i in 0..4 {
+                imap.swap(i, i);
+            }
+            assert_cached_entries(&imap, nothing_changed);
+            // Swap `None` values: Check that nothing has changed.
+            imap.swap(3, 4);
+            imap.swap(4, 3);
+            assert_cached_entries(&imap, nothing_changed);
+            // Swap `Some` and `None`:
+            imap.swap(1, 3);
+            assert_cached_entries(
+                &imap,
+                &[
+                    (1, StorageEntry::new(None, EntryState::Mutated)),
+                    (2, StorageEntry::new(Some(b'B'), EntryState::Mutated)),
+                    (3, StorageEntry::new(Some(b'A'), EntryState::Mutated)),
+                    (4, StorageEntry::new(None, EntryState::Preserved)),
+                ],
+            );
+            // Swap `Some` and `Some`:
+            imap.swap(2, 3);
+            assert_cached_entries(
+                &imap,
+                &[
+                    (1, StorageEntry::new(None, EntryState::Mutated)),
+                    (2, StorageEntry::new(Some(b'A'), EntryState::Mutated)),
+                    (3, StorageEntry::new(Some(b'B'), EntryState::Mutated)),
+                    (4, StorageEntry::new(None, EntryState::Preserved)),
+                ],
+            );
+            // Swap out of bounds: `None` and `None`
+            imap.swap(4, 5);
+            assert_cached_entries(
+                &imap,
+                &[
+                    (1, StorageEntry::new(None, EntryState::Mutated)),
+                    (2, StorageEntry::new(Some(b'A'), EntryState::Mutated)),
+                    (3, StorageEntry::new(Some(b'B'), EntryState::Mutated)),
+                    (4, StorageEntry::new(None, EntryState::Preserved)),
+                    (5, StorageEntry::new(None, EntryState::Preserved)),
+                ],
+            );
+            // Swap out of bounds: `Some` and `None`
+            imap.swap(3, 6);
+            assert_cached_entries(
+                &imap,
+                &[
+                    (1, StorageEntry::new(None, EntryState::Mutated)),
+                    (2, StorageEntry::new(Some(b'A'), EntryState::Mutated)),
+                    (3, StorageEntry::new(None, EntryState::Mutated)),
+                    (4, StorageEntry::new(None, EntryState::Preserved)),
+                    (5, StorageEntry::new(None, EntryState::Preserved)),
+                    (6, StorageEntry::new(Some(b'B'), EntryState::Mutated)),
+                ],
+            );
+            Ok(())
+        })
+        .unwrap()
     }
 }

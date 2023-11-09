@@ -27,6 +27,7 @@
 //#[cfg(all(test, feature = "ink-fuzz-tests"))]
 //mod fuzz_tests;
 
+use ink_primitives::Key;
 use ink_storage_traits::{AutoKey, Packed, StorageKey};
 
 //pub use self::iter::{Iter, IterMut};
@@ -52,9 +53,9 @@ where
     T: Packed,
 {
     /// The length of the vector.
-    len: Lazy<u32, KeyType>,
+    len: Option<u32>,
     /// The synchronized cells to operate on the contract storage.
-    elems: LazyIndexMap<T>,
+    elems: LazyIndexMap<T, KeyType>,
 }
 
 /// The index is out of the bounds of this vector.
@@ -79,14 +80,18 @@ where
     /// Creates a new empty storage vector.
     pub fn new() -> Self {
         Self {
-            len: Lazy::new(),
+            len: None,
             elems: LazyIndexMap::new(),
         }
     }
 
     /// Returns the number of elements in the vector, also referred to as its length.
     pub fn len(&self) -> u32 {
-        self.len.get().unwrap_or(0)
+        self.len.unwrap_or_else(|| {
+            ink_env::get_contract_storage(&KeyType::KEY)
+                .expect("u32 must always fit into the buffer")
+                .unwrap_or(u32::MIN)
+        })
     }
 
     /// Returns `true` if the vector contains no elements.
@@ -112,13 +117,8 @@ where
     /// trait implementation.
     fn clear_cells(&self) {
         let len = self.len();
-        ink_env::clear_contract_storage(&self.len.key());
+        let _ = ink_env::clear_contract_storage(&KeyType::KEY);
 
-        if self.elems.key().is_none() {
-            // We won't clear any storage if we are in lazy state since there
-            // probably has not been any state written to storage, yet.
-            return;
-        }
         for index in 0..len {
             self.elems.clear_packed_at(index);
         }
@@ -198,7 +198,7 @@ where
             last_index < core::u32::MAX,
             "cannot push more elements into the storage vector"
         );
-        self.len.set(&last_index.checked_add(1).unwrap());
+        self.len = Some(last_index.checked_add(1).unwrap());
         self.elems.put(last_index, Some(value));
     }
 
@@ -395,7 +395,7 @@ where
             return None;
         }
         let last_index = self.len() - 1;
-        self.len.set(&last_index);
+        self.len = Some(last_index);
         self.elems.put_get(last_index, None)
     }
 
@@ -412,7 +412,7 @@ where
             return None;
         }
         let last_index = self.len() - 1;
-        self.len.set(&last_index);
+        self.len = Some(last_index);
         self.elems.put(last_index, None);
         Some(())
     }
@@ -489,7 +489,7 @@ where
         let last_index = self.len() - 1;
         let last = self.elems.put_get(last_index, None);
         self.elems.put(n, last);
-        self.len.set(&last_index);
+        self.len = Some(last_index);
         Some(())
     }
 
@@ -521,7 +521,17 @@ where
         for index in 0..self.len() {
             self.elems.put(index, None);
         }
-        self.len.set(&0);
+        self.len = Some(0);
+    }
+
+    pub fn write(&self) {
+        if self.is_empty() {
+            return;
+        }
+
+        let len = self.len();
+        ink_env::set_contract_storage(&KeyType::KEY, &len);
+        // todo
     }
 }
 
@@ -578,9 +588,12 @@ where
 #[cfg(test)]
 mod tests {
 
+    use crate::Lazy;
+
     use super::Vec as StorageVec;
     use core::cmp::Ordering;
-    use ink_storage_traits::Packed;
+    use ink_primitives::AccountId;
+    use ink_storage_traits::{ManualKey, Packed};
 
     /*
        #[test]
@@ -1193,7 +1206,7 @@ mod tests {
 
             // if the setup panics it should not cause the test to pass
             let setup_result = std::panic::catch_unwind(|| {
-                let vec = vec_from_slice(&[b'a', b'b', b'c', b'd']);
+                vec_from_slice(&[b'a', b'b', b'c', b'd']).write();
                 //SpreadLayout::push_spread(&vec, &mut KeyPtr::from(root_key));
                 //let _ = <StorageVec<u8> as SpreadLayout>::pull_spread(&mut KeyPtr::from(
                 //    root_key,
