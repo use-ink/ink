@@ -45,6 +45,11 @@ env:
   # later. For example, `riscv32imc-unknown-none-elf`.
   RISCV_TARGET:                    riscv32i-unknown-none-elf
 
+concurrency:
+  # Cancel in-progress jobs triggered only on pull_requests
+  group: ${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
 ### lint
 
 jobs:
