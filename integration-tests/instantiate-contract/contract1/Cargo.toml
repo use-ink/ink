@@ -1,5 +1,5 @@
 [package]
-name = "other_contract"
+name = "contract1"
 version = "0.1.0"
 edition = "2021"
 authors = ["Víctor M. González <victor.gonzalez@coinfabrik.com>"]

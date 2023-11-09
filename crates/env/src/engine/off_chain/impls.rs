@@ -646,6 +646,7 @@ impl TypedEnvBackend for EnvInstance {
             if let Some(caller) = &self.engine.exec_context.caller {
                 scale::Encode::encode_to(&caller.as_bytes(), &mut account_input);
             }
+            account_input.extend(&code_hash);
             account_input.extend(&input);
             account_input.extend(salt_bytes.as_ref());
             let mut account_id = [0_u8; 32];
