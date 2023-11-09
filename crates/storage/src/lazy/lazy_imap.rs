@@ -39,11 +39,11 @@ pub struct LazyIndexMap<V: Packed, KeyType: StorageKey> {
     _marker: PhantomData<fn() -> (V, KeyType)>,
 }
 
-struct DebugEntryMap<'a, V>(&'a CacheCell<EntryMap<V>>);
+struct DebugEntryMap<'a, V: Packed>(&'a CacheCell<EntryMap<V>>);
 
 impl<'a, V> Debug for DebugEntryMap<'a, V>
 where
-    V: Debug,
+    V: Packed + Debug,
 {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         f.debug_map().entries(self.0.as_inner().iter()).finish()
@@ -219,6 +219,12 @@ where
         let root_key = self.key_at(index);
 
         ink_env::clear_contract_storage(&root_key);
+    }
+
+    pub fn write(&self) {
+        for (&index, entry) in self.entries().iter() {
+            entry.write(&(KeyType::KEY, index));
+        }
     }
 }
 

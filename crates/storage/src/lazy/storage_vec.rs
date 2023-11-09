@@ -28,14 +28,10 @@
 //mod fuzz_tests;
 
 use core::iter::{Extend, FromIterator};
-use ink_primitives::Key;
 use ink_storage_traits::{AutoKey, Packed, StorageKey};
 
 //pub use self::iter::{Iter, IterMut};
-use crate::{
-    extend_lifetime,
-    lazy::{Lazy, LazyIndexMap},
-};
+use crate::{extend_lifetime, lazy::LazyIndexMap};
 
 /// A contiguous growable array type, written `Vec<T>` but pronounced "vector".
 ///
@@ -536,7 +532,7 @@ where
         let len = self.len();
         ink_env::set_contract_storage(&KeyType::KEY, &len);
 
-        // todo
+        self.elems.write();
     }
 }
 
@@ -877,12 +873,11 @@ where
 #[cfg(test)]
 mod tests {
 
-    use crate::{lazy::storage_vec::IndexOutOfBounds, Lazy};
+    use crate::lazy::storage_vec::IndexOutOfBounds;
 
     use super::Vec as StorageVec;
     use core::cmp::Ordering;
-    use ink_primitives::AccountId;
-    use ink_storage_traits::{ManualKey, Packed};
+    use ink_storage_traits::Packed;
 
     #[test]
     fn new_vec_works() {
@@ -1497,15 +1492,10 @@ mod tests {
     //#[should_panic(expected = "encountered empty storage cell")]
     fn drop_works() {
         ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
-            //let root_key = Key::from([0x42; 32]);
-
             // if the setup panics it should not cause the test to pass
             let setup_result = std::panic::catch_unwind(|| {
                 vec_from_slice(&[b'a', b'b', b'c', b'd']).write();
-                //SpreadLayout::push_spread(&vec, &mut KeyPtr::from(root_key));
-                //let _ = <StorageVec<u8> as SpreadLayout>::pull_spread(&mut KeyPtr::from(
-                //    root_key,
-                //));
+
                 // vec is dropped which should clear the cells
             });
             assert!(setup_result.is_ok(), "setup should not panic");

@@ -14,10 +14,11 @@
 
 use core::{cell::Cell, fmt, fmt::Debug};
 use ink_prelude::vec::Vec;
+use ink_storage_traits::Packed;
 
 /// The entry of a single cached value of a lazy storage data structure.
 #[derive(Clone, PartialEq, Eq, PartialOrd, Ord)]
-pub struct StorageEntry<T> {
+pub struct StorageEntry<T: Packed> {
     /// The value or `None` if the value has been removed.
     value: Option<T>,
     /// This is [`EntryState::Mutated`] if the value has been mutated and is in
@@ -29,7 +30,7 @@ pub struct StorageEntry<T> {
 
 impl<T> Debug for StorageEntry<T>
 where
-    T: Debug,
+    T: Packed + Debug,
 {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         f.debug_struct("Entry")
@@ -79,7 +80,7 @@ impl EntryState {
 
 impl<T> scale::Encode for StorageEntry<T>
 where
-    T: scale::Encode,
+    T: Packed,
 {
     #[inline]
     fn size_hint(&self) -> usize {
@@ -104,7 +105,7 @@ where
 
 impl<T> scale::Decode for StorageEntry<T>
 where
-    T: scale::Decode,
+    T: Packed,
 {
     fn decode<I: scale::Input>(input: &mut I) -> Result<Self, scale::Error> {
         Ok(Self::new(
@@ -114,7 +115,10 @@ where
     }
 }
 
-impl<T> StorageEntry<T> {
+impl<T> StorageEntry<T>
+where
+    T: Packed,
+{
     /// Creates a new entry with the value and state.
     pub fn new(value: Option<T>, state: EntryState) -> Self {
         Self {
@@ -167,5 +171,16 @@ impl<T> StorageEntry<T> {
             self.state.set(EntryState::Mutated);
         }
         old_value
+    }
+
+    pub fn write(&self, at: &(u32, u32)) {
+        let old_state = self.replace_state(EntryState::Preserved);
+
+        if old_state.is_mutated() {
+            match self.value() {
+                Some(value) => ink_env::set_contract_storage(at, value),
+                None => ink_env::clear_contract_storage(at),
+            };
+        }
     }
 }
