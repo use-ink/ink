@@ -33,18 +33,44 @@ mod own_code_hash {
         }
     }
 
-    #[cfg(test)]
+    #[cfg(all(test, feature = "test_instantiate"))]
     mod tests {
         use super::*;
 
         #[ink::test]
         fn get_own_code_hash() {
-            let own_code_hash = OwnCodeHash::new();
+            let code_hash = ink::env::simulate_code_upload::<ink::env::DefaultEnvironment, OwnCodeHashRef>();
+            let address = 
+            {
+                let create_params = ink::env::call::build_create::<OwnCodeHashRef>()
+                    .code_hash(code_hash)
+                    .gas_limit(0)
+                    .endowment(0)
+                    .exec_input(ink::env::call::ExecutionInput::new(
+                        ink::env::call::Selector::new(ink::selector_bytes!("new")),
+                    ))
+                    .salt_bytes(&[0_u8; 4])
+                    .returns::<OwnCodeHashRef>()
+                    .params();
 
+                let cr = ink::env::instantiate_contract(&create_params)
+                    .unwrap_or_else(|error| {
+                        panic!(
+                            "Received an error from the Contracts pallet while instantiating: {:?}",
+                            error
+                        )
+                    })
+                    .unwrap_or_else(|error| {
+                        panic!("Received a `LangError` while instatiating: {:?}", error)
+                    });
+                ink::ToAccountId::<ink::env::DefaultEnvironment>::to_account_id(&cr)
+            };
+
+            let own_code_hash = OwnCodeHash::new();
+            ink::env::test::set_callee::<ink::env::DefaultEnvironment>(address);
             let code_hash_via_own: Hash = own_code_hash.own_code_hash();
 
-            // Ideally we should compare it the code obtained via code_hash (but it is also unimplemented)
-            assert_eq!(code_hash_via_own, Hash::from([0x0; 32]));
+            assert_eq!(code_hash_via_own, code_hash);
         }
     }
 
