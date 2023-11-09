@@ -49,18 +49,21 @@ pub struct EmittedEvent {
 ///
 /// - If `account` does not exist.
 /// - If the underlying `account` type does not match.
-/// - If the underlying `new_balance` type does not match.
+/// - If the `new_balance` is less than the existential minimum.
 pub fn set_account_balance<T>(account_id: T::AccountId, new_balance: T::Balance)
 where
     T: Environment<Balance = u128>, // Just temporary for the MVP!
 {
+    if new_balance < T::Balance::from(1_000_000u64) {
+        panic!("balance must be at least 1_000_000");
+    }
+
     <EnvInstance as OnInstance>::on_instance(|instance| {
         instance
             .engine
             .set_balance(scale::Encode::encode(&account_id), new_balance);
     })
 }
-
 /// Returns the balance of the account.
 ///
 /// # Note
