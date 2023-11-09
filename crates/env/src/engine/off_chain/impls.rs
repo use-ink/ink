@@ -62,9 +62,8 @@ const BUFFER_SIZE: usize = crate::BUFFER_SIZE;
 
 /// Proxy function used to simulate code hash and to invoke contract methods.
 #[cfg(feature = "test_instantiate")]
-fn execute_contract_call<E, ContractRef>(input: Vec<u8>) -> Vec<u8>
+fn execute_contract_call<ContractRef>(input: Vec<u8>) -> Vec<u8>
 where
-    E: Environment,
     ContractRef: crate::ContractReverseReference,
     <ContractRef as crate::ContractReverseReference>::Type:
         crate::reflect::ContractMessageDecoder,
@@ -87,7 +86,7 @@ where
     crate::api::get_return_value()
 }
 
-fn invoke_contract_impl<E, Args, R>(
+fn invoke_contract_impl<E, R>(
     env: &mut EnvInstance,
     _gas_limit: Option<u64>,
     _call_flags: u32,
@@ -98,18 +97,17 @@ fn invoke_contract_impl<E, Args, R>(
 ) -> Result<ink_primitives::MessageResult<R>>
 where
     E: Environment,
-    Args: scale::Encode,
     R: scale::Decode,
 {
     let mut callee_code_hash = match callee_account {
-        Some(ca) => env.code_hash::<E>(&ca)?,
-        None => code_hash.unwrap().clone(),
+        Some(ca) => env.code_hash::<E>(ca)?,
+        None => *code_hash.unwrap(),
     };
 
     let handler = env
         .engine
         .database
-        .get_contract_message_handler(&callee_code_hash.as_mut().to_vec());
+        .get_contract_message_handler(callee_code_hash.as_mut());
     let old_callee = env.engine.get_callee();
     let mut restore_callee = false;
     if let Some(callee_account) = callee_account {
@@ -490,7 +488,7 @@ impl EnvBackend for EnvInstance {
         ink_primitives::types::Hash::from(
             self.engine
                 .database
-                .set_contract_message_handler(execute_contract_call::<E, ContractRef>),
+                .set_contract_message_handler(execute_contract_call::<ContractRef>),
         )
     }
 }
@@ -577,7 +575,7 @@ impl TypedEnvBackend for EnvInstance {
         let callee_account = params.callee();
         let input = scale::Encode::encode(input);
 
-        invoke_contract_impl::<E, Args, R>(
+        invoke_contract_impl::<E, R>(
             self,
             Some(gas_limit),
             call_flags,
@@ -602,7 +600,7 @@ impl TypedEnvBackend for EnvInstance {
         let code_hash = params.code_hash();
         let input = scale::Encode::encode(input);
 
-        invoke_contract_impl::<E, Args, R>(
+        invoke_contract_impl::<E, R>(
             self,
             None,
             call_flags,

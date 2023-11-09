@@ -164,14 +164,14 @@ impl Database {
         let hashed_key = message_handler_of_contract_key(&key);
         self.fmap
             .entry(hashed_key.to_vec())
-            .and_modify(|x| *x = handler.clone())
+            .and_modify(|x| *x = handler)
             .or_insert(handler);
         key
     }
 
     pub fn get_contract_message_handler(&mut self, key: &[u8]) -> MessageHandler {
-        let hashed_key = message_handler_of_contract_key(&key);
-        self.fmap.get(&hashed_key.to_vec()).unwrap().clone()
+        let hashed_key = message_handler_of_contract_key(key);
+        *self.fmap.get(&hashed_key.to_vec()).unwrap()
     }
 
     pub fn set_code_hash(&mut self, account: &Vec<u8>, code_hash: &[u8]) {
