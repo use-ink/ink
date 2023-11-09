@@ -49,6 +49,7 @@ pub struct EmittedEvent {
 ///
 /// - If `account` does not exist.
 /// - If the underlying `account` type does not match.
+/// - If the underlying `new_balance` type does not match.
 /// - If the `new_balance` is less than the existential minimum.
 pub fn set_account_balance<T>(account_id: T::AccountId, new_balance: T::Balance)
 where
