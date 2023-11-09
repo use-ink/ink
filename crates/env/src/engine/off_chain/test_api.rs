@@ -27,6 +27,7 @@ use ink_engine::test_api::RecordedDebugMessages;
 use std::panic::UnwindSafe;
 
 pub use super::call_data::CallData;
+pub use ink_engine::ext::ChainSpec;
 pub use ink_engine::ChainExtension;
 
 /// Record for an emitted event.
@@ -55,8 +56,9 @@ pub fn set_account_balance<T>(account_id: T::AccountId, new_balance: T::Balance)
 where
     T: Environment<Balance = u128>, // Just temporary for the MVP!
 {
-    if new_balance < T::Balance::from(1_000_000u64) {
-        panic!("balance must be at least 1_000_000");
+    let min = ChainSpec::default().minimum_balance;
+    if new_balance < T::Balance::from(min) {
+        panic!("balance must be at least [{}]", min);
     }
 
     <EnvInstance as OnInstance>::on_instance(|instance| {
