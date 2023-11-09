@@ -290,7 +290,7 @@ docs:
     - chown -R nonroot:nonroot ./crate-docs
 
 
-codecov:
+.codecov:
   stage:                           workspace
   <<:                              *docker-env
   <<:                              *test-refs
@@ -415,7 +415,7 @@ examples-docs:
 
 #### stage:                        measurements
 
-contract-sizes:
+.contract-sizes:
   stage:                           measurements
   <<:                              *docker-env
   rules:
