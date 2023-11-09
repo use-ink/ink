@@ -204,27 +204,6 @@ where
     })
 }
 
-/// Same as set_contract_storage(), but gets the key from a function pointer.
-/// This is necessary for integration tests, because we can't get the key from
-/// the type declaration.
-#[cfg(feature = "test_instantiate")]
-pub fn set_contract_storage_test<V, Ref>(value: &V) -> Option<u32>
-where
-    V: Storable,
-    Ref: ink_storage_traits::StorageLayout,
-{
-    let x = Ref::layout as usize;
-    let x = ((x | (x >> 32)) & 0xFFFFFFFF) as u32;
-    set_contract_storage(&x, value)
-}
-
-/// Dummy set_contract_storage_test() for non-test environments. The compiler
-/// should optimize this away.
-#[cfg(not(feature = "test_instantiate"))]
-pub fn set_contract_storage_test<V, Ref>(_value: &V) -> Option<u32> {
-    None
-}
-
 /// Returns the value stored under the given storage key in the contract's storage if any.
 ///
 /// # Errors
@@ -474,14 +453,6 @@ where
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         EnvBackend::return_value::<R>(instance, return_flags, return_value)
-    })
-}
-
-/// Retrieves the value stored by return_value().
-#[cfg(feature = "test_instantiate")]
-pub fn get_return_value() -> Vec<u8> {
-    <EnvInstance as OnInstance>::on_instance(|instance| {
-        EnvBackend::get_return_value(instance)
     })
 }
 
@@ -835,19 +806,5 @@ where
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         TypedEnvBackend::call_runtime::<E, _>(instance, call)
-    })
-}
-
-/// Gets a pseudo code hash for a contract ref.
-#[cfg(feature = "test_instantiate")]
-pub fn simulate_code_upload<E, ContractRef>() -> ink_primitives::types::Hash
-where
-    E: Environment,
-    ContractRef: crate::ContractReverseReference,
-    <ContractRef as crate::ContractReverseReference>::Type:
-        crate::reflect::ContractMessageDecoder,
-{
-    <EnvInstance as OnInstance>::on_instance(|instance| {
-        EnvBackend::simulate_code_upload::<E, ContractRef>(instance)
     })
 }

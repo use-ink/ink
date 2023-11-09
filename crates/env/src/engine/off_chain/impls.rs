@@ -61,7 +61,6 @@ use schnorrkel::{
 const BUFFER_SIZE: usize = crate::BUFFER_SIZE;
 
 /// Proxy function used to simulate code hash and to invoke contract methods.
-#[cfg(feature = "test_instantiate")]
 fn execute_contract_call<ContractRef>(input: Vec<u8>) -> Vec<u8>
 where
     ContractRef: crate::ContractReverseReference,
@@ -83,7 +82,7 @@ where
     crate::reflect::ExecuteDispatchable::execute_dispatchable(dispatch)
         .unwrap_or_else(|e| panic!("Message call failed: {:?}", e));
 
-    crate::api::get_return_value()
+    crate::test::get_return_value()
 }
 
 fn invoke_contract_impl<E, R>(
@@ -256,6 +255,24 @@ impl EnvInstance {
         ext_fn(&self.engine, full_scope);
         scale::Decode::decode(&mut &full_scope[..]).map_err(Into::into)
     }
+
+    pub fn get_return_value(&mut self) -> Vec<u8> {
+        self.engine.get_storage(&[255_u8; 32]).unwrap().to_vec()
+    }
+
+    pub fn upload_code<E, ContractRef>(&mut self) -> ink_primitives::types::Hash
+    where
+        E: Environment,
+        ContractRef: crate::ContractReverseReference,
+        <ContractRef as crate::ContractReverseReference>::Type:
+            crate::reflect::ContractMessageDecoder,
+    {
+        ink_primitives::types::Hash::from(
+            self.engine
+                .database
+                .set_contract_message_handler(execute_contract_call::<ContractRef>),
+        )
+    }
 }
 
 impl EnvBackend for EnvInstance {
@@ -336,11 +353,6 @@ impl EnvBackend for EnvInstance {
         let mut v = vec![];
         return_value.encode_to(&mut v);
         self.engine.set_storage(&[255_u8; 32], &v[..]);
-    }
-
-    #[cfg(feature = "test_instantiate")]
-    fn get_return_value(&mut self) -> Vec<u8> {
-        self.engine.get_storage(&[255_u8; 32]).unwrap().to_vec()
     }
 
     fn debug_message(&mut self, message: &str) {
@@ -475,21 +487,6 @@ impl EnvBackend for EnvInstance {
             .database
             .set_code_hash(&self.engine.get_callee(), code_hash);
         Ok(())
-    }
-
-    #[cfg(feature = "test_instantiate")]
-    fn simulate_code_upload<E, ContractRef>(&mut self) -> ink_primitives::types::Hash
-    where
-        E: Environment,
-        ContractRef: crate::ContractReverseReference,
-        <ContractRef as crate::ContractReverseReference>::Type:
-            crate::reflect::ContractMessageDecoder,
-    {
-        ink_primitives::types::Hash::from(
-            self.engine
-                .database
-                .set_contract_message_handler(execute_contract_call::<ContractRef>),
-        )
     }
 }
 

@@ -476,8 +476,6 @@ impl Dispatch<'_> {
 
         let span = self.contract.module().storage().span();
         let storage_ident = self.contract.module().storage().ident();
-        let ref_ident =
-            quote::format_ident!("{}Ref", self.contract.module().storage().ident());
         let constructors_variants =
             constructors.iter().enumerate().map(|(index, item)| {
                 let constructor_span = item.constructor.span();
@@ -586,9 +584,6 @@ impl Dispatch<'_> {
                     if let ::core::result::Result::Ok(contract) = output_result.as_ref() {
                         ::ink::env::set_contract_storage::<::ink::primitives::Key, #storage_ident>(
                             &<#storage_ident as ::ink::storage::traits::StorageKey>::KEY,
-                            contract,
-                        );
-                        ::ink::env::set_contract_storage_test::<#storage_ident, #ref_ident>(
                             contract,
                         );
                     }
