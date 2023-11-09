@@ -52,7 +52,21 @@ pub use ink_storage_traits as traits;
 pub(crate) mod lazy;
 
 #[doc(inline)]
-pub use self::lazy::{
-    Lazy,
-    Mapping,
-};
+pub use self::lazy::{Lazy, Mapping};
+
+/// Extends the lifetime `'a` to the outliving lifetime `'b` for the given reference.
+///
+/// # Note
+///
+/// This interface is a bit more constraint than a simple
+/// [transmute](`core::mem::transmute`) and therefore preferred
+/// for extending lifetimes only.
+///
+/// # Safety
+///
+/// This function is `unsafe` because lifetimes can be extended beyond the
+/// lifetimes of the objects they are referencing and thus potentially create
+/// dangling references if not used carefully.
+pub(crate) unsafe fn extend_lifetime<'a, 'b: 'a, T>(reference: &'a mut T) -> &'b mut T {
+    core::mem::transmute::<&'a mut T, &'b mut T>(reference)
+}

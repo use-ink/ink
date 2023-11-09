@@ -27,11 +27,15 @@
 //#[cfg(all(test, feature = "ink-fuzz-tests"))]
 //mod fuzz_tests;
 
+use core::iter::{Extend, FromIterator};
 use ink_primitives::Key;
 use ink_storage_traits::{AutoKey, Packed, StorageKey};
 
 //pub use self::iter::{Iter, IterMut};
-use crate::lazy::{Lazy, LazyIndexMap};
+use crate::{
+    extend_lifetime,
+    lazy::{Lazy, LazyIndexMap},
+};
 
 /// A contiguous growable array type, written `Vec<T>` but pronounced "vector".
 ///
@@ -137,9 +141,9 @@ where
     /// Avoid unbounded iteration over big storage vectors.
     /// Prefer using methods like `Iterator::take` in order to limit the number
     /// of yielded elements.
-    ///pub fn iter(&self) -> Iter<T> {
-    ///    Iter::new(self)
-    ///}
+    pub fn iter(&self) -> Iter<T, KeyType> {
+        Iter::new(self)
+    }
 
     /// Returns an iterator yielding exclusive references to all elements of the vector.
     ///
@@ -148,9 +152,9 @@ where
     /// Avoid unbounded iteration over big storage vectors.
     /// Prefer using methods like `Iterator::take` in order to limit the number
     /// of yielded elements.
-    ///pub fn iter_mut(&mut self) -> IterMut<T> {
-    ///    IterMut::new(self)
-    ///}
+    pub fn iter_mut(&mut self) -> IterMut<T, KeyType> {
+        IterMut::new(self)
+    }
 
     /// Returns the index if it is within bounds or `None` otherwise.
     fn within_bounds(&self, index: u32) -> Option<u32> {
@@ -531,6 +535,7 @@ where
 
         let len = self.len();
         ink_env::set_contract_storage(&KeyType::KEY, &len);
+
         // todo
     }
 }
@@ -585,55 +590,349 @@ where
     }
 }
 
+impl<'a, T: 'a, KeyType> IntoIterator for &'a Vec<T, KeyType>
+where
+    T: Packed,
+    KeyType: StorageKey,
+{
+    type Item = &'a T;
+    type IntoIter = Iter<'a, T, KeyType>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.iter()
+    }
+}
+
+impl<'a, T: 'a, KeyType> IntoIterator for &'a mut Vec<T, KeyType>
+where
+    T: Packed,
+    KeyType: StorageKey,
+{
+    type Item = &'a mut T;
+    type IntoIter = IterMut<'a, T, KeyType>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.iter_mut()
+    }
+}
+
+impl<T, KeyType> Extend<T> for Vec<T, KeyType>
+where
+    T: Packed,
+    KeyType: StorageKey,
+{
+    fn extend<I>(&mut self, iter: I)
+    where
+        I: IntoIterator<Item = T>,
+    {
+        for item in iter {
+            self.push(item)
+        }
+    }
+}
+
+impl<T, KeyType> FromIterator<T> for Vec<T, KeyType>
+where
+    T: Packed,
+    KeyType: StorageKey,
+{
+    fn from_iter<I>(iter: I) -> Self
+    where
+        I: IntoIterator<Item = T>,
+    {
+        let mut vec = Vec::new();
+        vec.extend(iter);
+        vec
+    }
+}
+
+impl<T, KeyType> core::cmp::PartialEq for Vec<T, KeyType>
+where
+    T: PartialEq + Packed,
+    KeyType: StorageKey,
+{
+    fn eq(&self, other: &Self) -> bool {
+        if self.len() != other.len() {
+            return false;
+        }
+        self.iter().zip(other.iter()).all(|(lhs, rhs)| lhs == rhs)
+    }
+}
+
+impl<T> core::cmp::Eq for Vec<T> where T: Eq + Packed {}
+
+/// An iterator over shared references to the elements of a storage vector.
+#[derive(Debug, Clone, Copy)]
+pub struct Iter<'a, T, KeyType>
+where
+    T: Packed,
+    KeyType: StorageKey,
+{
+    /// The storage vector to iterate over.
+    vec: &'a Vec<T, KeyType>,
+    /// The current begin of the iteration.
+    begin: u32,
+    /// The current end of the iteration.
+    end: u32,
+}
+
+impl<'a, T, KeyType> Iter<'a, T, KeyType>
+where
+    T: Packed,
+    KeyType: StorageKey,
+{
+    /// Creates a new iterator for the given storage vector.
+    pub(crate) fn new(vec: &'a Vec<T, KeyType>) -> Self {
+        Self {
+            vec,
+            begin: 0,
+            end: vec.len(),
+        }
+    }
+
+    /// Returns the amount of remaining elements to yield by the iterator.
+    fn remaining(&self) -> u32 {
+        self.end - self.begin
+    }
+}
+
+impl<'a, T, KeyType> Iterator for Iter<'a, T, KeyType>
+where
+    T: Packed,
+    KeyType: StorageKey,
+{
+    type Item = &'a T;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        <Self as Iterator>::nth(self, 0)
+    }
+
+    fn size_hint(&self) -> (usize, Option<usize>) {
+        let remaining = self.remaining() as usize;
+        (remaining, Some(remaining))
+    }
+
+    fn count(self) -> usize {
+        self.remaining() as usize
+    }
+
+    fn nth(&mut self, n: usize) -> Option<Self::Item> {
+        debug_assert!(self.begin <= self.end);
+        let n = n as u32;
+        if self.begin + n >= self.end {
+            return None;
+        }
+        let cur = self.begin + n;
+        self.begin += 1 + n;
+        self.vec.get(cur).expect("access is within bounds").into()
+    }
+}
+
+impl<'a, T, KeyType> ExactSizeIterator for Iter<'a, T, KeyType>
+where
+    T: Packed,
+    KeyType: StorageKey,
+{
+}
+
+impl<'a, T, KeyType> DoubleEndedIterator for Iter<'a, T, KeyType>
+where
+    T: Packed,
+    KeyType: StorageKey,
+{
+    fn next_back(&mut self) -> Option<Self::Item> {
+        <Self as DoubleEndedIterator>::nth_back(self, 0)
+    }
+
+    fn nth_back(&mut self, n: usize) -> Option<Self::Item> {
+        debug_assert!(self.begin <= self.end);
+        let n = n as u32;
+        if self.begin >= self.end.saturating_sub(n) {
+            return None;
+        }
+        self.end -= 1 + n;
+        self.vec
+            .get(self.end)
+            .expect("access is within bounds")
+            .into()
+    }
+}
+
+/// An iterator over exclusive references to the elements of a storage vector.
+#[derive(Debug)]
+pub struct IterMut<'a, T, KeyType>
+where
+    T: Packed,
+    KeyType: StorageKey,
+{
+    /// The storage vector to iterate over.
+    vec: &'a mut Vec<T, KeyType>,
+    /// The current begin of the iteration.
+    begin: u32,
+    /// The current end of the iteration.
+    end: u32,
+}
+
+impl<'a, T, KeyType> IterMut<'a, T, KeyType>
+where
+    T: Packed,
+    KeyType: StorageKey,
+{
+    /// Creates a new iterator for the given storage vector.
+    pub(crate) fn new(vec: &'a mut Vec<T, KeyType>) -> Self {
+        let len = vec.len();
+        Self {
+            vec,
+            begin: 0,
+            end: len,
+        }
+    }
+
+    /// Returns the amount of remaining elements to yield by the iterator.
+    fn remaining(&self) -> u32 {
+        self.end - self.begin
+    }
+}
+
+impl<'a, T, KeyType> IterMut<'a, T, KeyType>
+where
+    T: Packed,
+    KeyType: StorageKey,
+{
+    fn get_mut<'b>(&'b mut self, at: u32) -> Option<&'a mut T> {
+        self.vec.get_mut(at).map(|value| {
+            // SAFETY: We extend the lifetime of the reference here.
+            //
+            //         This is safe because the iterator yields an exclusive
+            //         reference to every element in the iterated vector
+            //         just once and also there can be only one such iterator
+            //         for the same vector at the same time which is
+            //         guaranteed by the constructor of the iterator.
+            unsafe { extend_lifetime::<'b, 'a, T>(value) }
+        })
+    }
+}
+
+impl<'a, T, KeyType> Iterator for IterMut<'a, T, KeyType>
+where
+    T: Packed,
+    KeyType: StorageKey,
+{
+    type Item = &'a mut T;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        <Self as Iterator>::nth(self, 0)
+    }
+
+    fn size_hint(&self) -> (usize, Option<usize>) {
+        let remaining = self.remaining() as usize;
+        (remaining, Some(remaining))
+    }
+
+    fn count(self) -> usize {
+        self.remaining() as usize
+    }
+
+    fn nth(&mut self, n: usize) -> Option<Self::Item> {
+        debug_assert!(self.begin <= self.end);
+        let n = n as u32;
+        if self.begin + n >= self.end {
+            return None;
+        }
+        let cur = self.begin + n;
+        self.begin += 1 + n;
+        self.get_mut(cur).expect("access is within bounds").into()
+    }
+}
+
+impl<'a, T, KeyType> ExactSizeIterator for IterMut<'a, T, KeyType>
+where
+    T: Packed,
+    KeyType: StorageKey,
+{
+}
+
+impl<'a, T, KeyType> DoubleEndedIterator for IterMut<'a, T, KeyType>
+where
+    T: Packed,
+    KeyType: StorageKey,
+{
+    fn next_back(&mut self) -> Option<Self::Item> {
+        <Self as DoubleEndedIterator>::nth_back(self, 0)
+    }
+
+    fn nth_back(&mut self, n: usize) -> Option<Self::Item> {
+        debug_assert!(self.begin <= self.end);
+        let n = n as u32;
+        if self.begin >= self.end.saturating_sub(n) {
+            return None;
+        }
+        self.end -= 1 + n;
+        self.get_mut(self.end)
+            .expect("access is within bounds")
+            .into()
+    }
+}
+
 #[cfg(test)]
 mod tests {
 
-    use crate::Lazy;
+    use crate::{lazy::storage_vec::IndexOutOfBounds, Lazy};
 
     use super::Vec as StorageVec;
     use core::cmp::Ordering;
     use ink_primitives::AccountId;
     use ink_storage_traits::{ManualKey, Packed};
 
-    /*
-       #[test]
-       fn new_vec_works() {
-           // `StorageVec::new`
-           let vec = <StorageVec<i32>>::new();
-           assert!(vec.is_empty());
-           assert_eq!(vec.len(), 0);
-           assert_eq!(vec.get(0), None);
-           assert!(vec.iter().next().is_none());
-           // `StorageVec::default`
-           let default = <StorageVec<i32> as Default>::default();
-           assert!(default.is_empty());
-           assert_eq!(default.len(), 0);
-           assert_eq!(vec.get(0), None);
-           assert!(default.iter().next().is_none());
-           // `StorageVec::new` and `StorageVec::default` should be equal.
-           assert_eq!(vec, default);
-       }
+    #[test]
+    fn new_vec_works() {
+        ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
+            // `StorageVec::new`
+            let vec = <StorageVec<i32>>::new();
+            assert!(vec.is_empty());
+            assert_eq!(vec.len(), 0);
+            assert_eq!(vec.get(0), None);
+            assert!(vec.iter().next().is_none());
+            // `StorageVec::default`
+            let default = <StorageVec<i32> as Default>::default();
+            assert!(default.is_empty());
+            assert_eq!(default.len(), 0);
+            assert_eq!(vec.get(0), None);
+            assert!(default.iter().next().is_none());
+            // `StorageVec::new` and `StorageVec::default` should be equal.
+            assert_eq!(vec, default);
+            Ok(())
+        })
+        .unwrap()
+    }
 
-       #[test]
-       fn from_iterator_works() {
-           let some_primes = [1, 2, 3, 5, 7, 11, 13];
-           assert_eq!(some_primes.iter().copied().collect::<StorageVec<_>>(), {
-               let mut vec = StorageVec::new();
-               for prime in &some_primes {
-                   vec.push(*prime)
-               }
-               vec
-           });
-       }
+    #[test]
+    fn from_iterator_works() {
+        ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
+            let some_primes = [1, 2, 3, 5, 7, 11, 13];
+            assert_eq!(some_primes.iter().copied().collect::<StorageVec<_>>(), {
+                let mut vec = StorageVec::new();
+                for prime in &some_primes {
+                    vec.push(*prime)
+                }
+                vec
+            });
+            Ok(())
+        })
+        .unwrap()
+    }
 
-       #[test]
-       fn from_empty_iterator_works() {
-           assert_eq!(
-               [].iter().copied().collect::<StorageVec<i32>>(),
-               StorageVec::new(),
-           );
-       }
-    */
+    #[test]
+    fn from_empty_iterator_works() {
+        ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
+            assert_eq!(
+                [].iter().copied().collect::<StorageVec<i32>>(),
+                StorageVec::new(),
+            );
+            Ok(())
+        })
+        .unwrap()
+    }
 
     #[test]
     fn first_last_of_empty() {
@@ -758,141 +1057,139 @@ mod tests {
         .unwrap()
     }
 
-    /*
     #[test]
     fn iter_next_works() {
-        let elems = [b'a', b'b', b'c', b'd'];
-        let vec = vec_from_slice(&elems);
-        // Test iterator over `&T`:
-        let mut iter = vec.iter();
-        assert_eq!(iter.count(), 4);
-        assert_eq!(iter.size_hint(), (4, Some(4)));
-        assert_eq!(iter.next(), Some(&b'a'));
-        assert_eq!(iter.size_hint(), (3, Some(3)));
-        assert_eq!(iter.next(), Some(&b'b'));
-        assert_eq!(iter.size_hint(), (2, Some(2)));
-        assert_eq!(iter.count(), 2);
-        assert_eq!(iter.next(), Some(&b'c'));
-        assert_eq!(iter.size_hint(), (1, Some(1)));
-        assert_eq!(iter.next(), Some(&b'd'));
-        assert_eq!(iter.size_hint(), (0, Some(0)));
-        assert_eq!(iter.count(), 0);
-        assert_eq!(iter.next(), None);
-        // Test iterator over `&mut T`:
-        let mut vec = vec;
-        let mut iter = vec.iter_mut();
-        assert_eq!(iter.size_hint(), (4, Some(4)));
-        assert_eq!(iter.next(), Some(&mut b'a'));
-        assert_eq!(iter.size_hint(), (3, Some(3)));
-        assert_eq!(iter.next(), Some(&mut b'b'));
-        assert_eq!(iter.size_hint(), (2, Some(2)));
-        assert_eq!(iter.next(), Some(&mut b'c'));
-        assert_eq!(iter.size_hint(), (1, Some(1)));
-        assert_eq!(iter.next(), Some(&mut b'd'));
-        assert_eq!(iter.size_hint(), (0, Some(0)));
-        assert_eq!(iter.next(), None);
-        assert_eq!(iter.count(), 0);
+        ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
+            let elems = [b'a', b'b', b'c', b'd'];
+            let vec = vec_from_slice(&elems);
+            // Test iterator over `&T`:
+            let mut iter = vec.iter();
+            assert_eq!(iter.count(), 4);
+            assert_eq!(iter.size_hint(), (4, Some(4)));
+            assert_eq!(iter.next(), Some(&b'a'));
+            assert_eq!(iter.size_hint(), (3, Some(3)));
+            assert_eq!(iter.next(), Some(&b'b'));
+            assert_eq!(iter.size_hint(), (2, Some(2)));
+            assert_eq!(iter.count(), 2);
+            assert_eq!(iter.next(), Some(&b'c'));
+            assert_eq!(iter.size_hint(), (1, Some(1)));
+            assert_eq!(iter.next(), Some(&b'd'));
+            assert_eq!(iter.size_hint(), (0, Some(0)));
+            assert_eq!(iter.count(), 0);
+            assert_eq!(iter.next(), None);
+            // Test iterator over `&mut T`:
+            let mut vec = vec;
+            let mut iter = vec.iter_mut();
+            assert_eq!(iter.size_hint(), (4, Some(4)));
+            assert_eq!(iter.next(), Some(&mut b'a'));
+            assert_eq!(iter.size_hint(), (3, Some(3)));
+            assert_eq!(iter.next(), Some(&mut b'b'));
+            assert_eq!(iter.size_hint(), (2, Some(2)));
+            assert_eq!(iter.next(), Some(&mut b'c'));
+            assert_eq!(iter.size_hint(), (1, Some(1)));
+            assert_eq!(iter.next(), Some(&mut b'd'));
+            assert_eq!(iter.size_hint(), (0, Some(0)));
+            assert_eq!(iter.next(), None);
+            assert_eq!(iter.count(), 0);
+            Ok(())
+        })
+        .unwrap()
     }
 
     #[test]
     fn iter_nth_works() {
-        let elems = [b'a', b'b', b'c', b'd'];
-        let vec = vec_from_slice(&elems);
-        // Test iterator over `&T`:
-        let mut iter = vec.iter();
-        assert_eq!(iter.count(), 4);
-        assert_eq!(iter.size_hint(), (4, Some(4)));
-        assert_eq!(iter.nth(1), Some(&b'b'));
-        assert_eq!(iter.count(), 2);
-        assert_eq!(iter.size_hint(), (2, Some(2)));
-        assert_eq!(iter.nth(1), Some(&b'd'));
-        assert_eq!(iter.size_hint(), (0, Some(0)));
-        assert_eq!(iter.count(), 0);
-        assert_eq!(iter.nth(1), None);
-        // Test iterator over `&mut T`:
-        let mut vec = vec;
-        let mut iter = vec.iter_mut();
-        assert_eq!(iter.size_hint(), (4, Some(4)));
-        assert_eq!(iter.nth(1), Some(&mut b'b'));
-        assert_eq!(iter.size_hint(), (2, Some(2)));
-        assert_eq!(iter.nth(1), Some(&mut b'd'));
-        assert_eq!(iter.size_hint(), (0, Some(0)));
-        assert_eq!(iter.nth(1), None);
-        assert_eq!(iter.count(), 0);
+        ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
+            let elems = [b'a', b'b', b'c', b'd'];
+            let vec = vec_from_slice(&elems);
+            // Test iterator over `&T`:
+            let mut iter = vec.iter();
+            assert_eq!(iter.count(), 4);
+            assert_eq!(iter.size_hint(), (4, Some(4)));
+            assert_eq!(iter.nth(1), Some(&b'b'));
+            assert_eq!(iter.count(), 2);
+            assert_eq!(iter.size_hint(), (2, Some(2)));
+            assert_eq!(iter.nth(1), Some(&b'd'));
+            assert_eq!(iter.size_hint(), (0, Some(0)));
+            assert_eq!(iter.count(), 0);
+            assert_eq!(iter.nth(1), None);
+            // Test iterator over `&mut T`:
+            let mut vec = vec;
+            let mut iter = vec.iter_mut();
+            assert_eq!(iter.size_hint(), (4, Some(4)));
+            assert_eq!(iter.nth(1), Some(&mut b'b'));
+            assert_eq!(iter.size_hint(), (2, Some(2)));
+            assert_eq!(iter.nth(1), Some(&mut b'd'));
+            assert_eq!(iter.size_hint(), (0, Some(0)));
+            assert_eq!(iter.nth(1), None);
+            assert_eq!(iter.count(), 0);
+            Ok(())
+        })
+        .unwrap()
     }
-    */
 
-    /*
     #[test]
     fn iter_next_back_works() {
-        let elems = [b'a', b'b', b'c', b'd'];
-        let vec = vec_from_slice(&elems);
-        // Test iterator over `&T`:
-        let mut iter = vec.iter().rev();
-        assert_eq!(iter.clone().count(), 4);
-        assert_eq!(iter.next(), Some(&b'd'));
-        assert_eq!(iter.next(), Some(&b'c'));
-        assert_eq!(iter.clone().count(), 2);
-        assert_eq!(iter.next(), Some(&b'b'));
-        assert_eq!(iter.next(), Some(&b'a'));
-        assert_eq!(iter.clone().count(), 0);
-        assert_eq!(iter.next(), None);
-        // Test iterator over `&mut T`:
-        let mut vec = vec;
-        let mut iter = vec.iter_mut().rev();
-        assert_eq!(iter.next(), Some(&mut b'd'));
-        assert_eq!(iter.next(), Some(&mut b'c'));
-        assert_eq!(iter.next(), Some(&mut b'b'));
-        assert_eq!(iter.next(), Some(&mut b'a'));
-        assert_eq!(iter.next(), None);
-        assert_eq!(iter.count(), 0);
+        ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
+            let elems = [b'a', b'b', b'c', b'd'];
+            let vec = vec_from_slice(&elems);
+            // Test iterator over `&T`:
+            let mut iter = vec.iter().rev();
+            assert_eq!(iter.clone().count(), 4);
+            assert_eq!(iter.next(), Some(&b'd'));
+            assert_eq!(iter.next(), Some(&b'c'));
+            assert_eq!(iter.clone().count(), 2);
+            assert_eq!(iter.next(), Some(&b'b'));
+            assert_eq!(iter.next(), Some(&b'a'));
+            assert_eq!(iter.clone().count(), 0);
+            assert_eq!(iter.next(), None);
+            // Test iterator over `&mut T`:
+            let mut vec = vec;
+            let mut iter = vec.iter_mut().rev();
+            assert_eq!(iter.next(), Some(&mut b'd'));
+            assert_eq!(iter.next(), Some(&mut b'c'));
+            assert_eq!(iter.next(), Some(&mut b'b'));
+            assert_eq!(iter.next(), Some(&mut b'a'));
+            assert_eq!(iter.next(), None);
+            assert_eq!(iter.count(), 0);
+            Ok(())
+        })
+        .unwrap()
     }
-    */
 
-    /*
     #[test]
     fn iter_nth_back_works() {
-        let elems = [b'a', b'b', b'c', b'd'];
-        let vec = vec_from_slice(&elems);
-        // Test iterator over `&T`:
-        let mut iter = vec.iter().rev();
-        assert_eq!(iter.clone().count(), 4);
-        assert_eq!(iter.nth(1), Some(&b'c'));
-        assert_eq!(iter.clone().count(), 2);
-        assert_eq!(iter.nth(1), Some(&b'a'));
-        assert_eq!(iter.clone().count(), 0);
-        assert_eq!(iter.nth(1), None);
-        // Test iterator over `&mut T`:
-        let mut vec = vec;
-        let mut iter = vec.iter_mut().rev();
-        assert_eq!(iter.nth(1), Some(&mut b'c'));
-        assert_eq!(iter.nth(1), Some(&mut b'a'));
-        assert_eq!(iter.nth(1), None);
-        assert_eq!(iter.count(), 0);
+        ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
+            let elems = [b'a', b'b', b'c', b'd'];
+            let vec = vec_from_slice(&elems);
+            // Test iterator over `&T`:
+            let mut iter = vec.iter().rev();
+            assert_eq!(iter.clone().count(), 4);
+            assert_eq!(iter.nth(1), Some(&b'c'));
+            assert_eq!(iter.clone().count(), 2);
+            assert_eq!(iter.nth(1), Some(&b'a'));
+            assert_eq!(iter.clone().count(), 0);
+            assert_eq!(iter.nth(1), None);
+            // Test iterator over `&mut T`:
+            let mut vec = vec;
+            let mut iter = vec.iter_mut().rev();
+            assert_eq!(iter.nth(1), Some(&mut b'c'));
+            assert_eq!(iter.nth(1), Some(&mut b'a'));
+            assert_eq!(iter.nth(1), None);
+            assert_eq!(iter.count(), 0);
+            Ok(())
+        })
+        .unwrap()
     }
 
-    */
     /// Asserts that the given ordered storage vector elements are equal to the
     /// ordered elements of the given slice.
     fn assert_eq_slice(vec: &StorageVec<u8>, slice: &[u8]) {
-        assert_eq!(vec.len() as usize, slice.len());
-        for i in 0..slice.len() {
-            assert_eq!(slice[i], *vec.get(i as u32).unwrap());
-        }
-        //assert!(vec.iter().zip(slice.iter()).all(|(lhs, rhs)| *lhs == *rhs))
+        assert!(vec.iter().zip(slice.iter()).all(|(lhs, rhs)| *lhs == *rhs))
     }
 
     /// Creates a storage vector from the given slice.
     fn vec_from_slice<T: Copy + Packed>(slice: &[T]) -> StorageVec<T> {
-        //slice.iter().copied().collect::<StorageVec<T>>()
-        let mut result: StorageVec<T> = Default::default();
-        result.clear();
-
-        for element in slice.iter() {
-            result.push(*element);
-        }
-
-        result
+        slice.iter().copied().collect::<StorageVec<T>>()
     }
 
     #[test]
@@ -1009,9 +1306,7 @@ mod tests {
             Ok(())
         })
     }
-    */
 
-    /*
     #[test]
     #[should_panic(expected = "encountered empty storage cell")]
     fn spread_layout_clear_works() {
@@ -1035,7 +1330,6 @@ mod tests {
     }
     */
 
-    /*
     #[test]
     fn set_works() {
         ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
@@ -1047,16 +1341,17 @@ mod tests {
         })
         .unwrap()
     }
-    */
 
-    /*
     #[test]
     fn set_fails_when_index_oob() {
-        let mut vec = vec_from_slice(&[b'a']);
-        let res = vec.set(1, b'x');
-        assert_eq!(res, Err(IndexOutOfBounds));
+        ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
+            let mut vec = vec_from_slice(&[b'a']);
+            let res = vec.set(1, b'x');
+            assert_eq!(res, Err(IndexOutOfBounds));
+            Ok(())
+        })
+        .unwrap()
     }
-    */
 
     #[test]
     fn clear_works_on_filled_vec() {
