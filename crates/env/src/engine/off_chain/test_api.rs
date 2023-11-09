@@ -14,8 +14,14 @@
 
 //! Operations on the off-chain testing environment.
 
-use super::{EnvInstance, OnInstance};
-use crate::{Environment, Result};
+use super::{
+    EnvInstance,
+    OnInstance,
+};
+use crate::{
+    Environment,
+    Result,
+};
 use core::fmt::Debug;
 use ink_engine::test_api::RecordedDebugMessages;
 use std::panic::UnwindSafe;
