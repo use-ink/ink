@@ -505,6 +505,10 @@ impl Engine {
             Err(_) => Err(Error::EcdsaRecoveryFailed),
         }
     }
+
+    pub fn caller_is_origin(&self) -> bool {
+        self.exec_context.depth == 0
+    }
 }
 
 /// Copies the `slice` into `output`.

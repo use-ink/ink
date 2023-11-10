@@ -113,12 +113,14 @@ where
         let encoded_callee = scale::Encode::encode(callee_account);
         env.engine.set_callee(encoded_callee);
         restore_callee = true;
+        env.engine.exec_context.depth += 1;
     }
 
     let result = handler(input);
 
     if restore_callee {
         env.engine.set_callee(old_callee);
+        env.engine.exec_context.depth -= 1;
     }
 
     let result =
@@ -658,6 +660,7 @@ impl TypedEnvBackend for EnvInstance {
             <E as Environment>::AccountId::decode(&mut &account_id_vec[..]).unwrap();
 
         let old_callee = self.engine.get_callee();
+        self.engine.exec_context.depth+=1;
         self.engine.set_callee(account_id_vec.clone());
 
         let dispatch = <
@@ -681,6 +684,7 @@ impl TypedEnvBackend for EnvInstance {
             .set_balance(account_id.as_mut(), endowment);
 
         self.engine.set_callee(old_callee);
+        self.engine.exec_context.depth-=1;
 
         Ok(Ok(R::ok(
             <ContractRef as FromAccountId<E>>::from_account_id(account_id),
@@ -725,7 +729,7 @@ impl TypedEnvBackend for EnvInstance {
     where
         E: Environment,
     {
-        unimplemented!("off-chain environment does not support cross-contract calls")
+        self.engine.caller_is_origin()
     }
 
     fn code_hash<E>(&mut self, account: &E::AccountId) -> Result<E::Hash>
