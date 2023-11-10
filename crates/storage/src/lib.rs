@@ -51,6 +51,7 @@ pub use ink_storage_traits as traits;
 #[allow(dead_code)]
 pub(crate) mod lazy;
 
+pub use self::lazy::Vec as StorageVec;
 #[doc(inline)]
 pub use self::lazy::{Lazy, Mapping};
 

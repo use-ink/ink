@@ -25,10 +25,9 @@ mod mapping;
 mod storage_vec;
 mod vec;
 
-pub use self::lazy_imap::LazyIndexMap;
 #[doc(inline)]
 pub use self::mapping::Mapping;
-pub use self::vec::StorageVec;
+pub use self::{lazy_imap::LazyIndexMap, storage_vec::Vec, vec::StorageVec};
 
 use crate::traits::{AutoKey, StorableHint, StorageKey};
 use core::marker::PhantomData;

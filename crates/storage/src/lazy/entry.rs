@@ -56,6 +56,7 @@ fn debug_impl_works() {
 
 /// The state of the entry.
 #[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord)]
+#[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
 pub enum EntryState {
     /// The entry's value must be synchronized with the contract storage.
     Mutated,

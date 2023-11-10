@@ -12,7 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use super::{cache_cell::CacheCell, entry::EntryState, entry::StorageEntry};
+use super::{
+    cache_cell::CacheCell,
+    entry::{EntryState, StorageEntry},
+};
 use core::{fmt, fmt::Debug, marker::PhantomData, ptr::NonNull};
 use ink_prelude::{boxed::Box, collections::BTreeMap};
 use ink_primitives::Key;
@@ -153,8 +156,8 @@ where
     /// # Note
     ///
     /// - Use [`LazyIndexMap::put`]`(None)` in order to remove an element.
-    /// - Prefer this method over [`LazyIndexMap::put_get`] if you are not interested
-    ///   in the old value of the same cell index.
+    /// - Prefer this method over [`LazyIndexMap::put_get`] if you are not interested in
+    ///   the old value of the same cell index.
     ///
     /// # Panics
     ///
@@ -177,7 +180,7 @@ where
 }
 
 //#[cfg(feature = "std")]
-//const _: () = {
+// const _: () = {
 //    use crate::traits::StorageLayout;
 //    use ink_metadata::layout::{ArrayLayout, CellLayout, Layout, LayoutKey};
 //    use scale_info::TypeInfo;
@@ -298,9 +301,9 @@ where
     /// - If the lazy chunk is not in a state that allows lazy loading.
     fn lazily_load_mut(&mut self, index: Index) -> &mut StorageEntry<V> {
         // SAFETY:
-        // - Returning a `&mut Entry<T>` is safe because entities inside the
-        //   cache are stored within a `Box` to not invalidate references into
-        //   them upon operating on the outer cache.
+        // - Returning a `&mut Entry<T>` is safe because entities inside the cache are
+        //   stored within a `Box` to not invalidate references into them upon operating
+        //   on the outer cache.
         unsafe { &mut *self.lazily_load(index).as_ptr() }
     }
 
@@ -331,8 +334,8 @@ where
     ///
     /// # Note
     ///
-    /// - Use [`LazyIndexMap::put_get`]`(None)` in order to remove an element
-    ///   and retrieve the old element back.
+    /// - Use [`LazyIndexMap::put_get`]`(None)` in order to remove an element and retrieve
+    ///   the old element back.
     ///
     /// # Panics
     ///
@@ -380,12 +383,13 @@ where
 #[cfg(test)]
 mod tests {
     use super::{
-        super::{entry::EntryState, entry::StorageEntry},
+        super::entry::{EntryState, StorageEntry},
         Index, LazyIndexMap,
     };
     use ink_storage_traits::{AutoKey, StorageKey};
 
-    /// Asserts that the cached entries of the given `imap` is equal to the `expected` slice.
+    /// Asserts that the cached entries of the given `imap` is equal to the `expected`
+    /// slice.
     fn assert_cached_entries<K: StorageKey>(
         imap: &LazyIndexMap<u8, K>,
         expected: &[(Index, StorageEntry<u8>)],
@@ -402,7 +406,7 @@ mod tests {
     }
 
     //#[test]
-    //fn new_works() {
+    // fn new_works() {
     //    let imap = <LazyIndexMap<u8, _>>::new();
     //    // Key must be none.
     //    assert_eq!(imap.key(), None);
@@ -415,14 +419,14 @@ mod tests {
     //    assert_eq!(imap.entries(), default_imap.entries());
     //}
 
-    //fn add_key(key: &Key, offset: u32) -> Key {
+    // fn add_key(key: &Key, offset: u32) -> Key {
     //    let mut result = *key;
     //    result += offset;
     //    result
     //}
 
     //#[test]
-    //fn lazy_works() {
+    // fn lazy_works() {
     //    let key = Key::default();
     //    let imap = <LazyIndexMap<u8>>::lazy(key);
     //    // Key must be none.

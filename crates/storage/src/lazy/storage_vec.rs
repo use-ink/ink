@@ -17,20 +17,21 @@
 //! This is by default the go-to collection for most smart contracts if there
 //! are no special requirements to the storage data structure.
 
-//mod impls;
-//mod iter;
-//mod storage;
+// mod impls;
+// mod iter;
+// mod storage;
 //
 //#[cfg(test)]
-//mod tests;
+// mod tests;
 //
 //#[cfg(all(test, feature = "ink-fuzz-tests"))]
-//mod fuzz_tests;
+// mod fuzz_tests;
 
 use core::iter::{Extend, FromIterator};
-use ink_storage_traits::{AutoKey, Packed, StorageKey};
+use ink_primitives::Key;
+use ink_storage_traits::{AutoKey, Packed, Storable, StorableHint, StorageKey};
 
-//pub use self::iter::{Iter, IterMut};
+// pub use self::iter::{Iter, IterMut};
 use crate::{extend_lifetime, lazy::LazyIndexMap};
 
 /// A contiguous growable array type, written `Vec<T>` but pronounced "vector".
@@ -57,6 +58,75 @@ where
     /// The synchronized cells to operate on the contract storage.
     elems: LazyIndexMap<T, KeyType>,
 }
+
+#[cfg(feature = "std")]
+impl<T, KeyType> scale_info::TypeInfo for Vec<T, KeyType>
+where
+    T: Packed + scale_info::TypeInfo + 'static,
+    KeyType: StorageKey,
+{
+    type Identity = ink_prelude::vec::Vec<T>;
+
+    fn type_info() -> scale_info::Type {
+        <Self::Identity as scale_info::TypeInfo>::type_info()
+    }
+}
+
+impl<V, KeyType> Storable for Vec<V, KeyType>
+where
+    V: Packed,
+    KeyType: StorageKey,
+{
+    #[inline]
+    fn encode<T: scale::Output + ?Sized>(&self, _dest: &mut T) {}
+
+    #[inline]
+    fn decode<I: scale::Input>(_input: &mut I) -> Result<Self, scale::Error> {
+        Ok(Default::default())
+    }
+
+    #[inline]
+    fn encoded_size(&self) -> usize {
+        0
+    }
+}
+
+impl<V, Key, InnerKey> StorableHint<Key> for Vec<V, InnerKey>
+where
+    V: Packed,
+    Key: StorageKey,
+    InnerKey: StorageKey,
+{
+    type Type = Vec<V, Key>;
+    type PreferredKey = InnerKey;
+}
+
+impl<V, KeyType> StorageKey for Vec<V, KeyType>
+where
+    V: Packed,
+    KeyType: StorageKey,
+{
+    const KEY: Key = KeyType::KEY;
+}
+
+#[cfg(feature = "std")]
+const _: () = {
+    use crate::traits::StorageLayout;
+    use ink_metadata::layout::{Layout, LayoutKey, RootLayout};
+
+    impl<V, KeyType> StorageLayout for Vec<V, KeyType>
+    where
+        V: Packed + StorageLayout + scale_info::TypeInfo + 'static,
+        KeyType: StorageKey + scale_info::TypeInfo + 'static,
+    {
+        fn layout(_: &Key) -> Layout {
+            Layout::Root(RootLayout::new::<Self, _>(
+                LayoutKey::from(&KeyType::KEY),
+                <V as StorageLayout>::layout(&KeyType::KEY),
+            ))
+        }
+    }
+};
 
 /// The index is out of the bounds of this vector.
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
@@ -524,11 +594,10 @@ where
         self.len = Some(0);
     }
 
+    /// Write the cached in-memory data back to storage.
+    ///
+    /// This does only write elements that were modified.
     pub fn write(&self) {
-        if self.is_empty() {
-            return;
-        }
-
         ink_env::set_contract_storage(&KeyType::KEY, &self.len());
         self.elems.write();
     }
@@ -1283,29 +1352,27 @@ mod tests {
         .unwrap();
     }
 
-    /*
-    #[test]
-    #[should_panic(expected = "encountered empty storage cell")]
-    fn spread_layout_clear_works() {
-        ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
-            let vec1 = vec_from_slice(&[b'a', b'b', b'c', b'd']);
-            let root_key = Key::from([0x42; 32]);
-            SpreadLayout::push_spread(&vec1, &mut KeyPtr::from(root_key));
-            // It has already been asserted that a valid instance can be pulled
-            // from contract storage after a push to the same storage region.
-            //
-            // Now clear the associated storage from `vec1` and check whether
-            // loading another instance from this storage will panic since the
-            // vector's length property cannot read a value:
-            SpreadLayout::clear_spread(&vec1, &mut KeyPtr::from(root_key));
-            let _ = <StorageVec<u8> as SpreadLayout>::pull_spread(&mut KeyPtr::from(
-                root_key,
-            ));
-            Ok(())
-        })
-        .unwrap()
-    }
-    */
+    // #[test]
+    // #[should_panic(expected = "encountered empty storage cell")]
+    // fn spread_layout_clear_works() {
+    // ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
+    // let vec1 = vec_from_slice(&[b'a', b'b', b'c', b'd']);
+    // let root_key = Key::from([0x42; 32]);
+    // SpreadLayout::push_spread(&vec1, &mut KeyPtr::from(root_key));
+    // It has already been asserted that a valid instance can be pulled
+    // from contract storage after a push to the same storage region.
+    //
+    // Now clear the associated storage from `vec1` and check whether
+    // loading another instance from this storage will panic since the
+    // vector's length property cannot read a value:
+    // SpreadLayout::clear_spread(&vec1, &mut KeyPtr::from(root_key));
+    // let _ = <StorageVec<u8> as SpreadLayout>::pull_spread(&mut KeyPtr::from(
+    // root_key,
+    // ));
+    // Ok(())
+    // })
+    // .unwrap()
+    // }
 
     #[test]
     fn set_works() {
@@ -1435,40 +1502,38 @@ mod tests {
         .unwrap()
     }
 
-    /*
-    #[test]
-    #[should_panic(expected = "encountered empty storage cell")]
-    fn storage_is_cleared_completely_after_pull_lazy() {
-        ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
-            // given
-            let root_key = Key::from([0x42; 32]);
-            let mut lazy_vec: Lazy<StorageVec<u32>> = Lazy::new(StorageVec::new());
-            lazy_vec.push(13u32);
-            lazy_vec.push(13u32);
-            SpreadLayout::push_spread(&lazy_vec, &mut KeyPtr::from(root_key));
-            let pulled_vec = <Lazy<StorageVec<u32>> as SpreadLayout>::pull_spread(
-                &mut KeyPtr::from(root_key),
-            );
-
-            // when
-            SpreadLayout::clear_spread(&pulled_vec, &mut KeyPtr::from(root_key));
-
-            // then
-            let contract_id = ink_env::test::callee::<ink_env::DefaultEnvironment>();
-            let used_cells = ink_env::test::count_used_storage_cells::<
-                ink_env::DefaultEnvironment,
-            >(&contract_id)
-            .expect("used cells must be returned");
-            assert_eq!(used_cells, 0);
-            let _ = *<Lazy<Lazy<u32>> as SpreadLayout>::pull_spread(&mut KeyPtr::from(
-                root_key,
-            ));
-
-            Ok(())
-        })
-        .unwrap()
-    }
-    */
+    // #[test]
+    // #[should_panic(expected = "encountered empty storage cell")]
+    // fn storage_is_cleared_completely_after_pull_lazy() {
+    // ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
+    // given
+    // let root_key = Key::from([0x42; 32]);
+    // let mut lazy_vec: Lazy<StorageVec<u32>> = Lazy::new(StorageVec::new());
+    // lazy_vec.push(13u32);
+    // lazy_vec.push(13u32);
+    // SpreadLayout::push_spread(&lazy_vec, &mut KeyPtr::from(root_key));
+    // let pulled_vec = <Lazy<StorageVec<u32>> as SpreadLayout>::pull_spread(
+    // &mut KeyPtr::from(root_key),
+    // );
+    //
+    // when
+    // SpreadLayout::clear_spread(&pulled_vec, &mut KeyPtr::from(root_key));
+    //
+    // then
+    // let contract_id = ink_env::test::callee::<ink_env::DefaultEnvironment>();
+    // let used_cells = ink_env::test::count_used_storage_cells::<
+    // ink_env::DefaultEnvironment,
+    // >(&contract_id)
+    // .expect("used cells must be returned");
+    // assert_eq!(used_cells, 0);
+    // let _ = *<Lazy<Lazy<u32>> as SpreadLayout>::pull_spread(&mut KeyPtr::from(
+    // root_key,
+    // ));
+    //
+    // Ok(())
+    // })
+    // .unwrap()
+    // }
 
     #[test]
     //#[should_panic(expected = "encountered empty storage cell")]
@@ -1489,7 +1554,7 @@ mod tests {
             .expect("used cells must be returned");
             assert_eq!(used_cells, 0);
 
-            //let _ = <StorageVec<u8> as SpreadLayout>::pull_spread(&mut KeyPtr::from(
+            // let _ = <StorageVec<u8> as SpreadLayout>::pull_spread(&mut KeyPtr::from(
             //    root_key,
             //));
             Ok(())
@@ -1510,6 +1575,31 @@ mod tests {
 
             assert_eq!(b.len(), 7);
             assert_eq!(a, b);
+
+            Ok(())
+        })
+        .unwrap()
+    }
+
+    #[test]
+    fn write_on_empty_vec_work() {
+        ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
+            let mut a = [0, 1]
+                .iter()
+                .copied()
+                .collect::<StorageVec<i32, ManualKey<1>>>();
+
+            a.write();
+
+            assert_eq!(a.pop(), Some(1));
+            assert_eq!(a.pop(), Some(0));
+            assert_eq!(a.pop(), None);
+            assert_eq!(a.len(), 0);
+
+            a.write();
+
+            assert_eq!(a.pop(), None);
+            assert_eq!(a.len(), 0);
 
             Ok(())
         })

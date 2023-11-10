@@ -85,7 +85,6 @@ use crate::{Lazy, Mapping};
 /// element is calcualted as follows:
 ///
 /// `E = scale::Encode((K, N))`
-///
 #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
 pub struct StorageVec<V: Packed, KeyType: StorageKey = AutoKey> {
     len: Lazy<u32, KeyType>,
