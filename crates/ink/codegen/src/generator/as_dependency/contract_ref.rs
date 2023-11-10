@@ -281,14 +281,14 @@ impl ContractRef<'_> {
         let message_ident = message.ident();
         let output_ident = generator::output_ident(message_ident);
         let call_operator = match message.receiver() {
-            ir::Receiver::Ref => quote! { call },
-            ir::Receiver::RefMut => quote! { call_mut },
+            Some(ir::Receiver::Ref) | None => quote! { call },
+            Some(ir::Receiver::RefMut) => quote! { call_mut },
         };
         let forward_operator = match message.receiver() {
-            ir::Receiver::Ref => quote! { forward },
-            ir::Receiver::RefMut => quote! { forward_mut },
+            Some(ir::Receiver::Ref) | None => quote! { forward },
+            Some(ir::Receiver::RefMut) => quote! { forward_mut },
         };
-        let mut_token = message.receiver().is_ref_mut().then(|| quote! { mut });
+        let mut_token = message.receiver_mut_token();
         let input_bindings = message.inputs().map(|input| &input.pat).collect::<Vec<_>>();
         let input_types = message.inputs().map(|input| &input.ty).collect::<Vec<_>>();
         let cfg_attrs = message.get_cfg_attrs(span);
@@ -380,10 +380,10 @@ impl ContractRef<'_> {
         let message_ident = message.ident();
         let try_message_ident = message.try_ident();
         let call_operator = match message.receiver() {
-            ir::Receiver::Ref => quote! { call },
-            ir::Receiver::RefMut => quote! { call_mut },
+            Some(ir::Receiver::Ref) | None => quote! { call },
+            Some(ir::Receiver::RefMut) => quote! { call_mut },
         };
-        let mut_token = message.receiver().is_ref_mut().then(|| quote! { mut });
+        let mut_token = message.receiver_mut_token();
         let input_bindings = message.inputs().map(|input| &input.pat).collect::<Vec<_>>();
         let input_types = message.inputs().map(|input| &input.ty).collect::<Vec<_>>();
         let output_type = message.output().map(|ty| quote! { -> #ty });

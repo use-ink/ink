@@ -243,7 +243,7 @@ impl Metadata<'_> {
                 let is_payable = message.is_payable();
                 let is_default = message.is_default();
                 let message = message.callable();
-                let mutates = message.receiver().is_ref_mut();
+                let mutates = message.receiver_is_mut();
                 let ident = message.ident();
                 let args = message.inputs().map(Self::generate_dispatch_argument);
                 let cfg_attrs = message.get_cfg_attrs(span);
@@ -298,7 +298,7 @@ impl Metadata<'_> {
                     .inputs()
                     .map(Self::generate_dispatch_argument);
                 let cfg_attrs = message.get_cfg_attrs(message_span);
-                let mutates = message.receiver().is_ref_mut();
+                let mutates = message.receiver_is_mut();
                 let local_id = message.local_id().hex_padded_suffixed();
                 let is_payable = quote! {{
                     <<::ink::reflect::TraitDefinitionRegistry<<#storage_ident as ::ink::env::ContractEnv>::Env>

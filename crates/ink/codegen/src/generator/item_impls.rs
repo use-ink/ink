@@ -252,7 +252,7 @@ impl ItemImpls<'_> {
         let span = message.span();
         let attrs = message.attrs();
         let vis = message.visibility();
-        let receiver = message.receiver();
+        let receiver = message.receiver().map(|receiver| quote! { #receiver, });
         let ident = message.ident();
         let inputs = message.inputs();
         let output_arrow = message.output().map(|_| quote! { -> });
@@ -260,7 +260,7 @@ impl ItemImpls<'_> {
         let statements = message.statements();
         quote_spanned!(span =>
             #( #attrs )*
-            #vis fn #ident(#receiver #( , #inputs )* ) #output_arrow #output {
+            #vis fn #ident(#receiver #( #inputs, )* ) #output_arrow #output {
                 #( #statements )*
             }
         )

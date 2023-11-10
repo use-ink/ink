@@ -31,6 +31,7 @@ use quote::{
     format_ident,
     quote,
     quote_spanned,
+    ToTokens,
 };
 use syn::{
     spanned::Spanned as _,
@@ -241,7 +242,7 @@ impl Dispatch<'_> {
                 let message_span = message.span();
                 let message_ident = message.ident();
                 let payable = message.is_payable();
-                let mutates = message.receiver().is_ref_mut();
+                let mutates = message.receiver_is_mut();
                 let selector_id = message.composed_selector().into_be_u32().hex_padded_suffixed();
                 let selector_bytes = message.composed_selector().hex_lits();
                 let cfg_attrs = message.get_cfg_attrs(message_span);
@@ -252,17 +253,28 @@ impl Dispatch<'_> {
                 let input_bindings = generator::input_bindings(message.inputs());
                 let input_tuple_type = generator::input_types_tuple(message.inputs());
                 let input_tuple_bindings = generator::input_bindings_tuple(message.inputs());
+                let (storage_type, callable_body) = if message.receiver().is_some() {
+                    (quote! { #storage_ident }, quote_spanned!(message_span=>
+                        |storage, #input_tuple_bindings| {
+                            #storage_ident::#message_ident( storage #( , #input_bindings )* )
+                        };
+                    ))
+                } else {
+                    (quote! { () }, quote_spanned!(message_span=>
+                        |_, #input_tuple_bindings| {
+                            #storage_ident::#message_ident( #( #input_bindings )* )
+                        };
+                    ))
+                };
                 quote_spanned!(message_span=>
                     #( #cfg_attrs )*
                     impl ::ink::reflect::DispatchableMessageInfo<#selector_id> for #storage_ident {
                         type Input = #input_tuple_type;
                         type Output = #output_tuple_type;
-                        type Storage = #storage_ident;
+                        type Storage = #storage_type;
 
                         const CALLABLE: fn(&mut Self::Storage, Self::Input) -> Self::Output =
-                            |storage, #input_tuple_bindings| {
-                                #storage_ident::#message_ident( storage #( , #input_bindings )* )
-                            };
+                            #callable_body
                         const SELECTOR: [::core::primitive::u8; 4usize] = [ #( #selector_bytes ),* ];
                         const PAYABLE: ::core::primitive::bool = #payable;
                         const MUTATES: ::core::primitive::bool = #mutates;
@@ -288,7 +300,7 @@ impl Dispatch<'_> {
             .map(|((trait_ident, trait_path), message)| {
                 let message_span = message.span();
                 let message_ident = message.ident();
-                let mutates = message.receiver().is_ref_mut();
+                let mutates = message.receiver_is_mut();
                 let local_id = message.local_id().hex_padded_suffixed();
                 let payable = quote! {{
                     <<::ink::reflect::TraitDefinitionRegistry<<#storage_ident as ::ink::env::ContractEnv>::Env>
@@ -774,6 +786,8 @@ impl Dispatch<'_> {
                     #( #cfg_attrs )*
                     Self::#message_ident(input) => {
 
+                        // todo: pull if not assoc
+
                         if #any_message_accepts_payment && #deny_payment {
                             ::ink::codegen::deny_payment::<
                                 <#storage_ident as ::ink::env::ContractEnv>::Env>()?;
@@ -833,6 +847,21 @@ impl Dispatch<'_> {
                     }
                 }
 
+                fn pull_contract() -> ::core::mem::ManuallyDrop<#storage_ident> {
+                    let key = <#storage_ident as ::ink::storage::traits::StorageKey>::KEY;
+                    ::core::mem::ManuallyDrop::new(
+                        match ::ink::env::get_contract_storage(&key) {
+                            ::core::result::Result::Ok(::core::option::Option::Some(value)) => value,
+                            ::core::result::Result::Ok(::core::option::Option::None) => {
+                                ::core::panic!("storage entry was empty")
+                            },
+                            ::core::result::Result::Err(_) => {
+                                ::core::panic!("could not properly decode storage entry")
+                            },
+                        }
+                    )
+                }
+
                 fn push_contract(contract: ::core::mem::ManuallyDrop<#storage_ident>, mutates: bool) {
                     if mutates {
                         ::ink::env::set_contract_storage::<::ink::primitives::Key, #storage_ident>(
@@ -847,20 +876,6 @@ impl Dispatch<'_> {
                     fn execute_dispatchable(
                         self
                     ) -> ::core::result::Result<(), ::ink::reflect::DispatchError> {
-                        let key = <#storage_ident as ::ink::storage::traits::StorageKey>::KEY;
-                        let mut contract: ::core::mem::ManuallyDrop<#storage_ident> =
-                            ::core::mem::ManuallyDrop::new(
-                                match ::ink::env::get_contract_storage(&key) {
-                                    ::core::result::Result::Ok(::core::option::Option::Some(value)) => value,
-                                    ::core::result::Result::Ok(::core::option::Option::None) => {
-                                        ::core::panic!("storage entry was empty")
-                                    },
-                                    ::core::result::Result::Err(_) => {
-                                        ::core::panic!("could not properly decode storage entry")
-                                    },
-                                }
-                            );
-
                         match self {
                             #( #message_execute ),*
                         };

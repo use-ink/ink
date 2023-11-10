@@ -120,37 +120,6 @@ impl quote::ToTokens for Message {
 }
 
 impl Message {
-    /// Ensures that the given method inputs start with `&self` or `&mut self`
-    /// receivers.
-    ///
-    /// If not an appropriate error is returned.
-    ///
-    /// # Errors
-    ///
-    /// - If the method inputs yields no elements.
-    /// - If the first method input is not `&self` or `&mut self`.
-    fn ensure_receiver_is_self_ref(
-        method_item: &syn::ImplItemFn,
-    ) -> Result<(), syn::Error> {
-        let mut fn_args = method_item.sig.inputs.iter();
-        fn bail(span: Span) -> syn::Error {
-            format_err!(
-                span,
-                "ink! messages must have `&self` or `&mut self` receiver",
-            )
-        }
-        match fn_args.next() {
-            None => return Err(bail(method_item.span())),
-            Some(syn::FnArg::Typed(pat_typed)) => return Err(bail(pat_typed.span())),
-            Some(syn::FnArg::Receiver(receiver)) => {
-                if receiver.reference.is_none() {
-                    return Err(bail(receiver.span()))
-                }
-            }
-        }
-        Ok(())
-    }
-
     /// Ensures that the ink! message does not return `Self`.
     ///
     /// # Errors
@@ -201,7 +170,6 @@ impl TryFrom<syn::ImplItemFn> for Message {
 
     fn try_from(method_item: syn::ImplItemFn) -> Result<Self, Self::Error> {
         ensure_callable_invariants(&method_item, CallableKind::Message)?;
-        Self::ensure_receiver_is_self_ref(&method_item)?;
         Self::ensure_not_return_self(&method_item)?;
         let (ink_attrs, other_attrs) = Self::sanitize_attributes(&method_item)?;
         let is_payable = ink_attrs.is_payable();
@@ -284,18 +252,31 @@ impl Message {
     }
 
     /// Returns the `self` receiver of the ink! message.
-    pub fn receiver(&self) -> Receiver {
+    pub fn receiver(&self) -> Option<Receiver> {
         match self.item.sig.inputs.iter().next() {
             Some(syn::FnArg::Receiver(receiver)) => {
                 debug_assert!(receiver.reference.is_some());
                 if receiver.mutability.is_some() {
-                    Receiver::RefMut
+                    Some(Receiver::RefMut)
                 } else {
-                    Receiver::Ref
+                    Some(Receiver::Ref)
                 }
             }
-            _ => unreachable!("encountered invalid receiver argument for ink! message"),
+            _ => None,
         }
+    }
+
+    /// Returns true if the `self` receiver of the ink! message is mutable.
+    pub fn receiver_is_mut(&self) -> bool {
+        self.receiver()
+            .map(|receiver| receiver.is_ref_mut())
+            .unwrap_or(false)
+    }
+
+    /// Returns `mut` if the `self` receiver is mutable.
+    pub fn receiver_mut_token(&self) -> Option<syn::Token![mut]> {
+        self.receiver_is_mut()
+            .then(|| syn::Token![mut](Span::call_site()))
     }
 
     /// Returns the return type of the ink! message if any.

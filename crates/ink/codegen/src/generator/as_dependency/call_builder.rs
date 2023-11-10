@@ -280,13 +280,10 @@ impl CallBuilder<'_> {
             .inputs()
             .map(|input| (&input.pat, &input.ty))
             .unzip();
-        let mut_token = message
-            .receiver()
-            .is_ref_mut()
-            .then(|| Some(quote! { mut }));
+        let mut_token = message.receiver_mut_token();
         let build_cmd = match message.receiver() {
-            ir::Receiver::Ref => quote! { build },
-            ir::Receiver::RefMut => quote! { build_mut },
+            Some(ir::Receiver::Ref) | None => quote! { build },
+            Some(ir::Receiver::RefMut) => quote! { build_mut },
         };
         let attrs = self
             .contract
@@ -376,7 +373,7 @@ impl CallBuilder<'_> {
         let input_bindings = generator::input_bindings(callable.inputs());
         let input_types = generator::input_types(message.inputs());
         let arg_list = generator::generate_argument_list(input_types.iter().cloned());
-        let mut_tok = callable.receiver().is_ref_mut().then(|| quote! { mut });
+        let mut_tok = callable.receiver_mut_token();
         let return_type = message
             .output()
             .map(quote::ToTokens::to_token_stream)
