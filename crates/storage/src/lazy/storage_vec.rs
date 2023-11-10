@@ -529,9 +529,7 @@ where
             return;
         }
 
-        let len = self.len();
-        ink_env::set_contract_storage(&KeyType::KEY, &len);
-
+        ink_env::set_contract_storage(&KeyType::KEY, &self.len());
         self.elems.write();
     }
 }
@@ -877,7 +875,7 @@ mod tests {
 
     use super::Vec as StorageVec;
     use core::cmp::Ordering;
-    use ink_storage_traits::Packed;
+    use ink_storage_traits::{ManualKey, Packed};
 
     #[test]
     fn new_vec_works() {
@@ -1287,22 +1285,6 @@ mod tests {
 
     /*
     #[test]
-    fn spread_layout_push_pull_works() -> ink_env::Result<()> {
-        ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
-            let vec1 = vec_from_slice(&[b'a', b'b', b'c', b'd']);
-            let root_key = Key::from([0x42; 32]);
-            SpreadLayout::push_spread(&vec1, &mut KeyPtr::from(root_key));
-            // Load the pushed storage vector into another instance and check that
-            // both instances are equal:
-            let vec2 = <StorageVec<u8> as SpreadLayout>::pull_spread(&mut KeyPtr::from(
-                root_key,
-            ));
-            assert_eq!(vec1, vec2);
-            Ok(())
-        })
-    }
-
-    #[test]
     #[should_panic(expected = "encountered empty storage cell")]
     fn spread_layout_clear_works() {
         ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
@@ -1510,6 +1492,25 @@ mod tests {
             //let _ = <StorageVec<u8> as SpreadLayout>::pull_spread(&mut KeyPtr::from(
             //    root_key,
             //));
+            Ok(())
+        })
+        .unwrap()
+    }
+
+    #[test]
+    fn write_work() {
+        ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
+            let a = [1, 1, 2, 2, 3, 3, 3]
+                .iter()
+                .copied()
+                .collect::<StorageVec<i32, ManualKey<1>>>();
+            let b = StorageVec::<i32, ManualKey<1>>::new();
+
+            a.write();
+
+            assert_eq!(b.len(), 7);
+            assert_eq!(a, b);
+
             Ok(())
         })
         .unwrap()
