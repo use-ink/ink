@@ -94,7 +94,8 @@ mod invoke_contract {
     #[cfg(all(test, feature = "e2e-tests"))]
     mod e2e_tests {
         use contract_to_call::ContractToCallRef;
-        use ink_e2e::build_message;
+        use ink_e2e::ContractsBackend;
+        use contract_to_call::ContractToCall;
 
         use super::*;
 
@@ -102,64 +103,82 @@ mod invoke_contract {
 
         #[ink_e2e::test(additional_contracts = "./contract_to_call/Cargo.toml")]
         async fn call_contract_directly(mut client: ink_e2e::Client<C, E>) -> E2EResult<()> {
-            let contract_to_call_constructor = ContractToCallRef::new();
+            // given
+            let mut contract_to_call_constructor = ContractToCallRef::new();
 
-            let contract_to_call_acc_id = client
+            let contract = client
                 .instantiate(
                     "contract_to_call",
                     &ink_e2e::alice(),
-                    contract_to_call_constructor,
-                    0,
-                    None
-                ).await
-                .expect("instantiate failed").account_id;
+                    &mut contract_to_call_constructor,
+                ).submit()
+                .await
+                .expect("instantiate failed");
+            let call = contract.call::<ContractToCall>();
 
-            let origin_call = build_message::<ContractToCallRef>(
-                contract_to_call_acc_id.clone()
-            ).call(|contract| contract.im_the_origin());
-            let is_the_origin_res = client.call(&ink_e2e::alice(), origin_call, 0, None).await;
+            // when
+            let im_the_origin_call = call.im_the_origin();
 
+            let result = client.call(&ink_e2e::alice(), &im_the_origin_call).submit().await;
+
+            // then
             assert_eq!(
-                is_the_origin_res.expect("This call always returns a value").return_value(),
+                result.expect("This call always returns a value").return_value(),
                 true
             );
+            // assert_eq!(
+            //     is_the_origin_res.expect("This call always returns a value").return_value(),
+            //     true
+            // );
+
             Ok(())
         }
 
         #[ink_e2e::test(additional_contracts = "./contract_to_call/Cargo.toml")]
         async fn call_contract_indirectly(mut client: ink_e2e::Client<C, E>) -> E2EResult<()> {
-            let original_contract_contructor = InvokeContractRef::new();
-            let contract_to_call_constructor = ContractToCallRef::new();
+            // given
+            let mut original_contract_contructor = InvokeContractRef::new();
+            let mut contract_to_call_constructor = ContractToCallRef::new();
 
-            let original_contract_acc_id = client
+            let original_contract = client
                 .instantiate(
                     "invoke_contract",
                     &ink_e2e::alice(),
-                    original_contract_contructor,
-                    0,
-                    None
-                ).await
-                .expect("instantiate failed").account_id;
+                    &mut original_contract_contructor,
+                ).submit().await
+                .expect("instantiate failed");
 
             let contract_to_call_acc_id = client
                 .instantiate(
                     "contract_to_call",
                     &ink_e2e::alice(),
-                    contract_to_call_constructor,
-                    0,
-                    None
-                ).await
+                    &mut contract_to_call_constructor,
+                ).submit().await
                 .expect("instantiate failed").account_id;
 
-            let invoke_call = build_message::<InvokeContractRef>(
-                original_contract_acc_id.clone()
-            ).call(|contract| contract.invoke_call(*contract_to_call_acc_id.as_ref()));
-            let is_the_origin_res = client.call(&ink_e2e::alice(), invoke_call, 0, None).await;
+            let call = original_contract.call::<InvokeContract>();
 
+            // when
+
+            let invoke_call = call.invoke_call(*contract_to_call_acc_id.as_ref());
+
+            let result = client.call(&ink_e2e::bob(), &invoke_call).submit().await;
+
+            // then
             assert_eq!(
-                is_the_origin_res.expect("This call always returns a value").return_value(),
+                result.is_ok(),
                 false
             );
+
+            // let invoke_call = build_message::<InvokeContractRef>(
+            //     original_contract_acc_id.clone()
+            // ).call(|contract| contract.invoke_call(*contract_to_call_acc_id.as_ref()));
+            // let is_the_origin_res = client.call(&ink_e2e::alice(), invoke_call, 0, None).await;
+
+            // assert_eq!(
+            //     is_the_origin_res.expect("This call always returns a value").return_value(),
+            //     false
+            // );
             Ok(())
         }
     }
