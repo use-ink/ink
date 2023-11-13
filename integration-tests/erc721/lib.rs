@@ -578,7 +578,7 @@ mod erc721 {
             set_caller(accounts.eve);
             // Eve is not an approved operator by Alice.
             assert_eq!(
-                erc721.transfer_from(accounts.alice, accounts.frank, 1),
+                erc721.transfer_from(accounts.alice, accounts.ferdie, 1),
                 Err(Error::NotApproved)
             );
             // Alice owns 1 token.
