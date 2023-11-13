@@ -768,7 +768,7 @@ mod multisig {
 
         fn set_from_no_owner() {
             let accounts = default_accounts();
-            set_caller(accounts.django);
+            set_caller(accounts.dave);
         }
 
         fn default_accounts() -> test::DefaultAccounts<Environment> {
@@ -782,6 +782,7 @@ mod multisig {
 
             let accounts = default_accounts();
             let owners = vec![accounts.alice, accounts.bob, accounts.eve];
+            println!("{:?}", owners);
             Multisig::new(2, owners)
         }
 
@@ -802,7 +803,8 @@ mod multisig {
         #[ink::test]
         fn construction_works() {
             let accounts = default_accounts();
-            let owners = [accounts.alice, accounts.bob, accounts.eve];
+            let mut owners = [accounts.alice, accounts.bob, accounts.eve];
+            owners.sort_unstable();
             let contract = build_contract();
 
             assert_eq!(contract.owners.len(), 3);
@@ -812,8 +814,8 @@ mod multisig {
             assert!(contract.is_owner.contains(accounts.bob));
             assert!(contract.is_owner.contains(accounts.eve));
             assert!(!contract.is_owner.contains(accounts.charlie));
-            assert!(!contract.is_owner.contains(accounts.django));
-            assert!(!contract.is_owner.contains(accounts.frank));
+            assert!(!contract.is_owner.contains(accounts.dave));
+            assert!(!contract.is_owner.contains(accounts.ferdie));
             assert_eq!(contract.transaction_list.transactions.len(), 0);
         }
 
@@ -843,9 +845,9 @@ mod multisig {
             let mut contract = build_contract();
             set_from_wallet();
             let owners = contract.owners.len();
-            contract.add_owner(accounts.frank);
+            contract.add_owner(accounts.ferdie);
             assert_eq!(contract.owners.len(), owners + 1);
-            assert!(contract.is_owner.contains(accounts.frank));
+            assert!(contract.is_owner.contains(accounts.ferdie));
             assert_eq!(test::recorded_events().count(), 1);
         }
 
@@ -864,7 +866,7 @@ mod multisig {
             let accounts = default_accounts();
             let mut contract = build_contract();
             set_from_owner();
-            contract.add_owner(accounts.frank);
+            contract.add_owner(accounts.ferdie);
         }
 
         #[ink::test]
@@ -885,7 +887,7 @@ mod multisig {
             let accounts = default_accounts();
             let mut contract = build_contract();
             set_from_wallet();
-            contract.remove_owner(accounts.django);
+            contract.remove_owner(accounts.dave);
         }
 
         #[ink::test]
@@ -903,10 +905,10 @@ mod multisig {
             let mut contract = build_contract();
             set_from_wallet();
             let owners = contract.owners.len();
-            contract.replace_owner(accounts.alice, accounts.django);
+            contract.replace_owner(accounts.alice, accounts.dave);
             assert_eq!(contract.owners.len(), owners);
             assert!(!contract.is_owner.contains(accounts.alice));
-            assert!(contract.is_owner.contains(accounts.django));
+            assert!(contract.is_owner.contains(accounts.dave));
             assert_eq!(test::recorded_events().count(), 2);
         }
 
@@ -925,7 +927,7 @@ mod multisig {
             let accounts = default_accounts();
             let mut contract = build_contract();
             set_from_wallet();
-            contract.replace_owner(accounts.django, accounts.frank);
+            contract.replace_owner(accounts.dave, accounts.ferdie);
         }
 
         #[ink::test]
@@ -934,7 +936,7 @@ mod multisig {
             let accounts = default_accounts();
             let mut contract = build_contract();
             set_from_owner();
-            contract.replace_owner(accounts.alice, accounts.django);
+            contract.replace_owner(accounts.alice, accounts.dave);
         }
 
         #[ink::test]
@@ -1087,7 +1089,7 @@ mod multisig {
         fn revoke_transaction_no_owner_fail() {
             let mut contract = submit_transaction();
             let accounts = default_accounts();
-            set_caller(accounts.django);
+            set_caller(accounts.dave);
             contract.revoke_confirmation(0);
         }
 
