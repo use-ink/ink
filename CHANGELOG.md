@@ -63,6 +63,9 @@ You can see a more detailed log of changes below:
 - Use `decode_all`` for decoding cross contract call result - [#1810](https://github.com/paritytech/ink/pull/1810)
 - E2E: improve call API, remove `build_message` + callback - [#1782](https://github.com/paritytech/ink/pull/1782)
 
+### Fixed
+- `RootLayout::new()` is generic again to allow using `ink_metadata` in pure `PortableForm` contexts - [#1782](https://github.com/paritytech/ink/pull/1989)
+
 ## 4.3.0
 
 ### Fixed
