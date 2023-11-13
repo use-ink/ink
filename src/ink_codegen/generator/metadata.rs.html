@@ -486,6 +486,7 @@
 <a href="#486" id="486">486</a>
 <a href="#487" id="487">487</a>
 <a href="#488" id="488">488</a>
+<a href="#489" id="489">489</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -564,11 +565,12 @@
         <span class="macro">quote_spanned!</span>(storage_span=&gt;
             <span class="comment">// Wrap the layout of the contract into the `RootLayout`, because
             // contract storage key is reserved for all packed fields
-            </span>::ink::metadata::layout::Layout::Root(::ink::metadata::layout::RootLayout::new::&lt;#storage_ident, <span class="kw">_</span>&gt;(
+            </span>::ink::metadata::layout::Layout::Root(::ink::metadata::layout::RootLayout::new(
                 #layout_key,
                 &lt;#storage_ident <span class="kw">as </span>::ink::storage::traits::StorageLayout&gt;::layout(
                     <span class="kw-2">&amp;</span>#key,
                 ),
+                ::ink::scale_info::meta_type::&lt;#storage_ident&gt;(),
             ))
         )
     }

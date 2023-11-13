@@ -717,7 +717,6 @@
 <a href="#717" id="717">717</a>
 <a href="#718" id="718">718</a>
 <a href="#719" id="719">719</a>
-<a href="#720" id="720">720</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -874,25 +873,12 @@
 }
 
 <span class="kw">impl </span>RootLayout&lt;MetaForm&gt; {
-    <span class="doccomment">/// Creates a new root layout.
-    </span><span class="kw">pub fn </span>new&lt;Root, L&gt;(root_key: LayoutKey, layout: L) -&gt; <span class="self">Self
-    </span><span class="kw">where
-        </span>Root: TypeInfo + <span class="lifetime">&#39;static</span>,
-        L: Into&lt;Layout&lt;MetaForm&gt;&gt;,
-    {
-        <span class="self">Self </span>{
-            root_key,
-            layout: Box::new(layout.into()),
-            ty: meta_type::&lt;Root&gt;(),
-        }
-    }
-
     <span class="doccomment">/// Creates a new root layout with empty root type.
     </span><span class="kw">pub fn </span>new_empty&lt;L&gt;(root_key: LayoutKey, layout: L) -&gt; <span class="self">Self
     </span><span class="kw">where
         </span>L: Into&lt;Layout&lt;MetaForm&gt;&gt;,
     {
-        <span class="self">Self</span>::new::&lt;(), L&gt;(root_key, layout)
+        <span class="self">Self</span>::new::&lt;L&gt;(root_key, layout, meta_type::&lt;()&gt;())
     }
 }
 
@@ -900,6 +886,18 @@
 <span class="kw">where
     </span>F: Form,
 {
+    <span class="doccomment">/// Create a new root layout
+    </span><span class="kw">pub fn </span>new&lt;L&gt;(root_key: LayoutKey, layout: L, ty: &lt;F <span class="kw">as </span>Form&gt;::Type) -&gt; <span class="self">Self
+    </span><span class="kw">where
+        </span>L: Into&lt;Layout&lt;F&gt;&gt;,
+    {
+        <span class="self">Self </span>{
+            root_key,
+            layout: Box::new(layout.into()),
+            ty,
+        }
+    }
+
     <span class="doccomment">/// Returns the root key of the sub-tree.
     </span><span class="kw">pub fn </span>root_key(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>LayoutKey {
         <span class="kw-2">&amp;</span><span class="self">self</span>.root_key
