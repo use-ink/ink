@@ -45,6 +45,11 @@ env:
   # later. For example, `riscv32imc-unknown-none-elf`.
   RISCV_TARGET:                    riscv32i-unknown-none-elf
 
+concurrency:
+  # Cancel in-progress jobs triggered only on pull_requests
+  group: ${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
 ### lint
 
 jobs:
@@ -396,7 +401,7 @@ jobs:
 
       - uses: actions/upload-artifact@v3
         with:
-          name: ${{ github.job }}_${{ github.sha }}-doc
+          name: ${{ github.job }}-data
           path: ./crate-docs
           retention-days: 7
 
@@ -414,7 +419,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          fetch-depth: 100
+          fetch-depth: 0
 
       - name: Rust Info
         uses: ./.github/rust-info
@@ -434,15 +439,19 @@ jobs:
           # The `cargo-taurpalin` coverage reporting tool seems to have better code instrumentation and thus
           # produces better results for Rust codebases in general. However, unlike `grcov` it requires
           # running docker with `--security-opt seccomp=unconfined` which is why we use `grcov` instead.
+          CODECOV_P_TOKEN:               ${{ secrets.CODECOV_P_TOKEN }}
+          CODECOV_L_TOKEN:               ${{ secrets.CODECOV_L_TOKEN }}
         run: |
           # RUSTFLAGS are the cause target cache can't be used here
-          # FIXME: cust-covfix doesn't support the external target dir
+          # FIXME: rust-covfix doesn't support the external target dir
           # https://github.com/Kogia-sima/rust-covfix/issues/7
           unset "CARGO_TARGET_DIR"
           cargo clean
           # make sure there's no stale coverage artifacts
           find . -name "*.profraw" -type f -delete
           find . -name "*.gcda" -type f -delete
+          # FIXME: Access from 2 users, should be solved once ci-image works from a non-root user
+          git config --global --add safe.directory '*'
           # RUSTFLAGS are the cause target cache can't be used here
           cargo build --verbose --all-features --workspace
           cargo test --verbose --all-features --no-fail-fast --workspace
@@ -450,14 +459,12 @@ jobs:
           grcov . --binary-path ./target/debug/ --source-dir . --output-type lcov --llvm --branch \
             --ignore-not-existing --ignore "/*" --ignore "tests/*" --output-path lcov-w-branch.info
           rust-covfix lcov-w-branch.info --output lcov-w-branch-fixed.info
-          # TODO: Enable when Gitlab CI is disabled
-          #codecov --token "$CODECOV_P_TOKEN" --file lcov-w-branch-fixed.info --nonZero
+          codecov --token "$CODECOV_P_TOKEN" --file lcov-w-branch-fixed.info --nonZero
           # lines coverage
           grcov . --binary-path ./target/debug/ --source-dir . --output-type lcov --llvm \
             --ignore-not-existing --ignore "/*" --ignore "tests/*" --output-path lcov-lines.info
           rust-covfix lcov-lines.info --output lcov-lines-fixed.info
-          # TODO: Enable when Gitlab CI is disabled
-          #codecov --token "$CODECOV_TOKEN" --file lcov-lines-fixed.info --nonZero
+          codecov --token "$CODECOV_L_TOKEN" --file lcov-lines-fixed.info --nonZero
 
 ### examples
 
@@ -586,4 +593,10 @@ jobs:
           # of this flag.
           scripts/for_all_contracts_exec.sh --path integration-tests -- cargo doc --manifest-path {} \
             --document-private-items --verbose --no-deps
+
+# measurements
+
+  measurements:
+    needs: [examples-docs, examples-contract-build, examples-test]
+    uses: ./.github/workflows/measurements.yml
 
