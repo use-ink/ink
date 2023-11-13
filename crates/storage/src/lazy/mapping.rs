@@ -361,7 +361,6 @@ const _: () = {
         LayoutKey,
         RootLayout,
     };
-    use scale_info::meta_type;
 
     impl<K, V, KeyType> StorageLayout for Mapping<K, V, KeyType>
     where
@@ -373,7 +372,7 @@ const _: () = {
             Layout::Root(RootLayout::new::<_>(
                 LayoutKey::from(&KeyType::KEY),
                 <V as StorageLayout>::layout(&KeyType::KEY),
-                meta_type::<Self>(),
+                scale_info::meta_type::<Self>(),
             ))
         }
     }

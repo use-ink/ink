@@ -191,7 +191,7 @@ where
         let value_size = <V as Storable>::encoded_size(value);
 
         if key_size.saturating_add(value_size) > ink_env::BUFFER_SIZE {
-            return Err(ink_env::Error::BufferTooSmall);
+            return Err(ink_env::Error::BufferTooSmall)
         };
 
         self.set(value);
@@ -259,7 +259,6 @@ const _: () = {
         LayoutKey,
         RootLayout,
     };
-    use scale_info::meta_type;
 
     impl<V, KeyType> StorageLayout for Lazy<V, KeyType>
     where
@@ -270,7 +269,7 @@ const _: () = {
             Layout::Root(RootLayout::new::<_>(
                 LayoutKey::from(&KeyType::KEY),
                 <V as StorageLayout>::layout(&KeyType::KEY),
-                meta_type::<Self>(),
+                scale_info::meta_type::<Self>(),
             ))
         }
     }
