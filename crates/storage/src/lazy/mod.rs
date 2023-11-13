@@ -22,18 +22,24 @@ mod cache_cell;
 mod entry;
 mod lazy_imap;
 mod mapping;
-mod storage_vec;
-mod vec;
 
+pub use self::lazy_imap::LazyIndexMap;
 #[doc(inline)]
 pub use self::mapping::Mapping;
-pub use self::{lazy_imap::LazyIndexMap, storage_vec::Vec, vec::StorageVec};
 
-use crate::traits::{AutoKey, StorableHint, StorageKey};
+use crate::traits::{
+    AutoKey,
+    StorableHint,
+    StorageKey,
+};
 use core::marker::PhantomData;
 use ink_primitives::Key;
 use ink_storage_traits::Storable;
-use scale::{Error, Input, Output};
+use scale::{
+    Error,
+    Input,
+    Output,
+};
 
 /// A simple wrapper around a type to store it in a separate storage cell under its own
 /// storage key. If you want to update the value, first you need to
@@ -156,7 +162,7 @@ where
             .expect("targets of less than 32bit pointer size are not supported; qed");
 
         if encoded_length > ink_env::BUFFER_SIZE {
-            return Some(Err(ink_env::Error::BufferTooSmall));
+            return Some(Err(ink_env::Error::BufferTooSmall))
         }
 
         self.get().map(Ok)
@@ -176,7 +182,7 @@ where
     /// Fails if `value` exceeds the static buffer size.
     pub fn try_set(&mut self, value: &V) -> ink_env::Result<()> {
         if value.encoded_size() > ink_env::BUFFER_SIZE {
-            return Err(ink_env::Error::BufferTooSmall);
+            return Err(ink_env::Error::BufferTooSmall)
         };
 
         self.set(value);
@@ -239,7 +245,11 @@ where
 #[cfg(feature = "std")]
 const _: () = {
     use crate::traits::StorageLayout;
-    use ink_metadata::layout::{Layout, LayoutKey, RootLayout};
+    use ink_metadata::layout::{
+        Layout,
+        LayoutKey,
+        RootLayout,
+    };
 
     impl<V, KeyType> StorageLayout for Lazy<V, KeyType>
     where

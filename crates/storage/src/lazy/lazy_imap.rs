@@ -14,12 +14,26 @@
 
 use super::{
     cache_cell::CacheCell,
-    entry::{EntryState, StorageEntry},
+    entry::{
+        EntryState,
+        StorageEntry,
+    },
 };
-use core::{fmt, fmt::Debug, marker::PhantomData, ptr::NonNull};
-use ink_prelude::{boxed::Box, collections::BTreeMap};
+use core::{
+    fmt,
+    fmt::Debug,
+    marker::PhantomData,
+    ptr::NonNull,
+};
+use ink_prelude::{
+    boxed::Box,
+    collections::BTreeMap,
+};
 use ink_primitives::Key;
-use ink_storage_traits::{Packed, StorageKey};
+use ink_storage_traits::{
+    Packed,
+    StorageKey,
+};
 
 /// The index type used in the lazy storage chunk.
 pub type Index = u32;
@@ -356,7 +370,7 @@ where
     pub fn swap(&mut self, x: Index, y: Index) {
         if x == y {
             // Bail out early if both indices are the same.
-            return;
+            return
         }
         let (loaded_x, loaded_y) =
             // SAFETY: The loaded `x` and `y` entries are distinct from each
@@ -370,7 +384,7 @@ where
             ) };
         if loaded_x.value().is_none() && loaded_y.value().is_none() {
             // Bail out since nothing has to be swapped if both values are `None`.
-            return;
+            return
         }
         // Set the `mutate` flag since at this point at least one of the loaded
         // values is guaranteed to be `Some`.
@@ -383,10 +397,17 @@ where
 #[cfg(test)]
 mod tests {
     use super::{
-        super::entry::{EntryState, StorageEntry},
-        Index, LazyIndexMap,
+        super::entry::{
+            EntryState,
+            StorageEntry,
+        },
+        Index,
+        LazyIndexMap,
     };
-    use ink_storage_traits::{AutoKey, StorageKey};
+    use ink_storage_traits::{
+        AutoKey,
+        StorageKey,
+    };
 
     /// Asserts that the cached entries of the given `imap` is equal to the `expected`
     /// slice.

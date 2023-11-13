@@ -48,12 +48,16 @@
 
 pub use ink_storage_traits as traits;
 
+pub(crate) mod collections;
 #[allow(dead_code)]
 pub(crate) mod lazy;
 
-pub use self::lazy::Vec as StorageVec;
+pub use self::collections::Vec as StorageVec;
 #[doc(inline)]
-pub use self::lazy::{Lazy, Mapping};
+pub use self::lazy::{
+    Lazy,
+    Mapping,
+};
 
 /// Extends the lifetime `'a` to the outliving lifetime `'b` for the given reference.
 ///

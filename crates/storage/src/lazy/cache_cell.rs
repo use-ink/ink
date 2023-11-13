@@ -12,7 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use core::{cell::UnsafeCell, fmt, fmt::Debug, ptr::NonNull};
+use core::{
+    cell::UnsafeCell,
+    fmt,
+    fmt::Debug,
+    ptr::NonNull,
+};
 
 /// A cache for a `T` that allow to mutate the inner `T` through `&self`.
 ///
