@@ -81,7 +81,7 @@ impl Metadata<'_> {
                 <#storage_ident as ::ink::storage::traits::StorageLayout>::layout(
                     &#key,
                 ),
-                ::scale_info::meta_type::<#storage_ident>(),
+                ::ink::scale_info::meta_type::<#storage_ident>(),
             ))
         )
     }
