@@ -30,6 +30,7 @@ error[E0277]: the trait bound `&Contract: WrapperTypeDecode` is not satisfied
   |
   = help: the following other types implement trait `WrapperTypeDecode`:
             Box<T>
+            sp_core::Bytes
             Rc<T>
             Arc<T>
   = note: required for `&Contract` to implement `ink::parity_scale_codec::Decode`
