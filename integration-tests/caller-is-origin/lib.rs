@@ -2,7 +2,14 @@
 
 #[ink::contract]
 mod invoke_contract {
-    use ink::env::{ call::{ build_call, ExecutionInput, Selector }, DefaultEnvironment };
+    use ink::env::{
+        call::{
+            build_call,
+            ExecutionInput,
+            Selector,
+        },
+        DefaultEnvironment,
+    };
 
     #[ink(storage)]
     pub struct InvokeContract {}
@@ -21,9 +28,9 @@ mod invoke_contract {
                 .call(AccountId::from(contract_to_call))
                 .gas_limit(0)
                 .transferred_value(0)
-                .exec_input(
-                    ExecutionInput::new(Selector::new(ink::selector_bytes!("im_the_origin")))
-                )
+                .exec_input(ExecutionInput::new(Selector::new(ink::selector_bytes!(
+                    "im_the_origin"
+                ))))
                 .returns::<bool>()
                 .params();
 
@@ -32,7 +39,9 @@ mod invoke_contract {
                 .unwrap_or_else(|env_err| {
                     panic!("Received an error from the Environment: {:?}", env_err)
                 })
-                .unwrap_or_else(|lang_err| panic!("Received a `LangError`: {:?}", lang_err))
+                .unwrap_or_else(|lang_err| {
+                    panic!("Received a `LangError`: {:?}", lang_err)
+                })
         }
     }
 
@@ -45,14 +54,16 @@ mod invoke_contract {
     #[cfg(test)]
     mod tests {
         use super::*;
-        use contract_to_call::ContractToCall;
-        use contract_to_call::ContractToCallRef;
+        use contract_to_call::{
+            ContractToCall,
+            ContractToCallRef,
+        };
 
         #[ink::test]
         fn call_contract_directly() {
             let contract = ContractToCall::new();
             let is_the_origin = contract.im_the_origin();
-            assert_eq!(is_the_origin, true);
+            assert!(!is_the_origin);
         }
 
         #[ink::test]
@@ -60,14 +71,15 @@ mod invoke_contract {
             let contract = InvokeContract::new();
             let code_hash = ink::env::test::upload_code::<
                 ink::env::DefaultEnvironment,
-                ContractToCallRef
+                ContractToCallRef,
             >();
-            let create_params = ink::env::call
-                ::build_create::<ContractToCallRef>()
+            let create_params = ink::env::call::build_create::<ContractToCallRef>()
                 .code_hash(code_hash)
                 .gas_limit(0)
                 .endowment(0)
-                .exec_input(ExecutionInput::new(Selector::new(ink::selector_bytes!("new"))))
+                .exec_input(ExecutionInput::new(Selector::new(ink::selector_bytes!(
+                    "new"
+                ))))
                 .salt_bytes(&[0_u8; 4])
                 .returns::<ContractToCallRef>()
                 .params();
@@ -84,25 +96,30 @@ mod invoke_contract {
                     panic!("Received a `LangError` while instatiating: {:?}", error)
                 });
 
-            let mut account_id = ink::ToAccountId::<DefaultEnvironment>::to_account_id(&cr);
+            let mut account_id =
+                ink::ToAccountId::<DefaultEnvironment>::to_account_id(&cr);
             let account_id: &[u8; 32] = account_id.as_mut();
             let is_the_origin = contract.invoke_call(*account_id);
-            assert_eq!(is_the_origin, false);
+            assert!(!is_the_origin);
         }
     }
 
     #[cfg(all(test, feature = "e2e-tests"))]
     mod e2e_tests {
-        use contract_to_call::ContractToCallRef;
+        use contract_to_call::{
+            ContractToCall,
+            ContractToCallRef,
+        };
         use ink_e2e::ContractsBackend;
-        use contract_to_call::ContractToCall;
 
         use super::*;
 
         type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
         #[ink_e2e::test(additional_contracts = "./contract_to_call/Cargo.toml")]
-        async fn call_contract_directly(mut client: ink_e2e::Client<C, E>) -> E2EResult<()> {
+        async fn call_contract_directly(
+            mut client: ink_e2e::Client<C, E>,
+        ) -> E2EResult<()> {
             // given
             let mut contract_to_call_constructor = ContractToCallRef::new();
 
@@ -111,7 +128,8 @@ mod invoke_contract {
                     "contract_to_call",
                     &ink_e2e::alice(),
                     &mut contract_to_call_constructor,
-                ).submit()
+                )
+                .submit()
                 .await
                 .expect("instantiate failed");
             let call = contract.call::<ContractToCall>();
@@ -119,23 +137,23 @@ mod invoke_contract {
             // when
             let im_the_origin_call = call.im_the_origin();
 
-            let result = client.call(&ink_e2e::alice(), &im_the_origin_call).submit().await;
+            let result = client
+                .call(&ink_e2e::alice(), &im_the_origin_call)
+                .submit()
+                .await;
 
             // then
-            assert_eq!(
-                result.expect("This call always returns a value").return_value(),
-                true
-            );
-            // assert_eq!(
-            //     is_the_origin_res.expect("This call always returns a value").return_value(),
-            //     true
-            // );
+            assert!(result
+                .expect("This call always returns a value")
+                .return_value());
 
             Ok(())
         }
 
         #[ink_e2e::test(additional_contracts = "./contract_to_call/Cargo.toml")]
-        async fn call_contract_indirectly(mut client: ink_e2e::Client<C, E>) -> E2EResult<()> {
+        async fn call_contract_indirectly(
+            mut client: ink_e2e::Client<C, E>,
+        ) -> E2EResult<()> {
             // given
             let mut original_contract_contructor = InvokeContractRef::new();
             let mut contract_to_call_constructor = ContractToCallRef::new();
@@ -145,7 +163,9 @@ mod invoke_contract {
                     "invoke_contract",
                     &ink_e2e::alice(),
                     &mut original_contract_contructor,
-                ).submit().await
+                )
+                .submit()
+                .await
                 .expect("instantiate failed");
 
             let contract_to_call_acc_id = client
@@ -153,8 +173,11 @@ mod invoke_contract {
                     "contract_to_call",
                     &ink_e2e::alice(),
                     &mut contract_to_call_constructor,
-                ).submit().await
-                .expect("instantiate failed").account_id;
+                )
+                .submit()
+                .await
+                .expect("instantiate failed")
+                .account_id;
 
             let call = original_contract.call::<InvokeContract>();
 
@@ -165,20 +188,10 @@ mod invoke_contract {
             let result = client.call(&ink_e2e::bob(), &invoke_call).submit().await;
 
             // then
-            assert_eq!(
-                result.is_ok(),
-                false
-            );
+            assert!(!result
+                .expect("This call always returns a value")
+                .return_value());
 
-            // let invoke_call = build_message::<InvokeContractRef>(
-            //     original_contract_acc_id.clone()
-            // ).call(|contract| contract.invoke_call(*contract_to_call_acc_id.as_ref()));
-            // let is_the_origin_res = client.call(&ink_e2e::alice(), invoke_call, 0, None).await;
-
-            // assert_eq!(
-            //     is_the_origin_res.expect("This call always returns a value").return_value(),
-            //     false
-            // );
             Ok(())
         }
     }

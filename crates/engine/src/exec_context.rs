@@ -46,7 +46,7 @@ pub struct ExecContext {
     /// Known contract accounts
     pub contracts: Vec<Vec<u8>>,
 
-    pub depth: u8
+    pub depth: u8,
 }
 
 impl ExecContext {

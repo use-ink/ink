@@ -660,7 +660,7 @@ impl TypedEnvBackend for EnvInstance {
             <E as Environment>::AccountId::decode(&mut &account_id_vec[..]).unwrap();
 
         let old_callee = self.engine.get_callee();
-        self.engine.exec_context.depth+=1;
+        self.engine.exec_context.depth += 1;
         self.engine.set_callee(account_id_vec.clone());
 
         let dispatch = <
@@ -684,7 +684,7 @@ impl TypedEnvBackend for EnvInstance {
             .set_balance(account_id.as_mut(), endowment);
 
         self.engine.set_callee(old_callee);
-        self.engine.exec_context.depth-=1;
+        self.engine.exec_context.depth -= 1;
 
         Ok(Ok(R::ok(
             <ContractRef as FromAccountId<E>>::from_account_id(account_id),
