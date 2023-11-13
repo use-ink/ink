@@ -351,3 +351,13 @@ fn runtime_storage_layout_works() {
     );
     assert_eq!(json, expected);
 }
+
+#[test]
+fn ensure_portable_root_layout_are_supported() {
+    let root_key = LayoutKey::new(0u32);
+    let layout =
+        Layout::Struct(StructLayout::<PortableForm>::new(String::new(), Vec::new()));
+    let ty = 0.into();
+
+    let _: RootLayout<PortableForm> = RootLayout::new(root_key, layout, ty);
+}
