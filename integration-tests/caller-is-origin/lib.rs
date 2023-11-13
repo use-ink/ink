@@ -63,7 +63,7 @@ mod invoke_contract {
         fn call_contract_directly() {
             let contract = ContractToCall::new();
             let is_the_origin = contract.im_the_origin();
-            assert!(!is_the_origin);
+            assert!(is_the_origin);
         }
 
         #[ink::test]
@@ -182,7 +182,6 @@ mod invoke_contract {
             let call = original_contract.call::<InvokeContract>();
 
             // when
-
             let invoke_call = call.invoke_call(*contract_to_call_acc_id.as_ref());
 
             let result = client.call(&ink_e2e::bob(), &invoke_call).submit().await;
