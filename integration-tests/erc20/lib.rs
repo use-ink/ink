@@ -273,6 +273,10 @@ mod erc20 {
             }
         }
 
+        fn alice() -> AccountId{
+            ink::env::test::default_accounts::<ink::env::DefaultEnvironment>().alice
+        }
+
         /// The default constructor does its job.
         #[ink::test]
         fn new_works() {
@@ -286,7 +290,7 @@ mod erc20 {
             assert_transfer_event(
                 &emitted_events[0],
                 None,
-                Some(AccountId::from([0x01; 32])),
+                Some(AccountId::from(alice())),
                 100,
             );
         }
@@ -301,7 +305,7 @@ mod erc20 {
             assert_transfer_event(
                 &emitted_events[0],
                 None,
-                Some(AccountId::from([0x01; 32])),
+                Some(AccountId::from(alice())),
                 100,
             );
             // Get the token total supply.
@@ -318,7 +322,7 @@ mod erc20 {
             assert_transfer_event(
                 &emitted_events[0],
                 None,
-                Some(AccountId::from([0x01; 32])),
+                Some(AccountId::from(alice())),
                 100,
             );
             let accounts =
@@ -349,14 +353,14 @@ mod erc20 {
             assert_transfer_event(
                 &emitted_events[0],
                 None,
-                Some(AccountId::from([0x01; 32])),
+                Some(AccountId::from(accounts.alice)),
                 100,
             );
             // Check the second transfer event relating to the actual trasfer.
             assert_transfer_event(
                 &emitted_events[1],
-                Some(AccountId::from([0x01; 32])),
-                Some(AccountId::from([0x02; 32])),
+                Some(AccountId::from(accounts.alice)),
+                Some(AccountId::from(accounts.bob)),
                 10,
             );
         }
@@ -391,7 +395,7 @@ mod erc20 {
             assert_transfer_event(
                 &emitted_events[0],
                 None,
-                Some(AccountId::from([0x01; 32])),
+                Some(AccountId::from(accounts.alice)),
                 100,
             );
         }
@@ -434,15 +438,15 @@ mod erc20 {
             assert_transfer_event(
                 &emitted_events[0],
                 None,
-                Some(AccountId::from([0x01; 32])),
+                Some(AccountId::from(accounts.alice)),
                 100,
             );
             // The second event `emitted_events[1]` is an Approve event that we skip
             // checking.
             assert_transfer_event(
                 &emitted_events[2],
-                Some(AccountId::from([0x01; 32])),
-                Some(AccountId::from([0x05; 32])),
+                Some(AccountId::from(accounts.alice)),
+                Some(AccountId::from(accounts.eve)),
                 10,
             );
         }
