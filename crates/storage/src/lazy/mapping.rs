@@ -369,7 +369,7 @@ const _: () = {
         KeyType: StorageKey + scale_info::TypeInfo + 'static,
     {
         fn layout(_: &Key) -> Layout {
-            Layout::Root(RootLayout::new::<_>(
+            Layout::Root(RootLayout::new(
                 LayoutKey::from(&KeyType::KEY),
                 <V as StorageLayout>::layout(&KeyType::KEY),
                 scale_info::meta_type::<Self>(),
