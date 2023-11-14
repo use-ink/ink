@@ -46,15 +46,10 @@ pub struct E2EConfig {
     /// The type of the architecture that should be used to run test.
     #[darling(default)]
     backend: Backend,
-    /// The runtime to use for the runtime only test.
-    #[cfg(any(test, feature = "drink"))]
-    #[darling(default)]
-    runtime: Option<syn::Path>,
-
     /// The URL to the running chopsticks node.
     #[cfg(feature = "live-state-test")]
     #[darling(default)]
-    chopsticks_url: Option<String>
+    chopsticks_url: Option<String>,
 }
 
 impl E2EConfig {
@@ -83,7 +78,7 @@ impl E2EConfig {
         self.backend.clone()
     }
 
-     #[cfg(feature = "live-state-test")]
+    #[cfg(feature = "live-state-test")]
     pub fn chopsticks_url(&self) -> Option<String> {
         self.chopsticks_url.clone()
     }

@@ -12,7 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::{config::Backend, ir};
+use crate::{
+    config::Backend,
+    ir,
+};
 use derive_more::From;
 use proc_macro2::TokenStream as TokenStream2;
 use quote::quote;
@@ -125,7 +128,7 @@ fn build_full_client(
                     ::core::panic!("Error connecting to Chopsticks node: {err:?}")
                 )
             }
-        },
+        }
         None => {
             quote! {
                 ::ink_e2e::TestNodeProcess::<::ink_e2e::PolkadotConfig>
