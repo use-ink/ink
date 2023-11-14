@@ -13,18 +13,20 @@
 // limitations under the License.
 
 /// The type of the architecture that should be used to run test.
-#[derive(Copy, Clone, Eq, PartialEq, Debug, Default, darling::FromMeta)]
+#[derive(Clone, Eq, PartialEq, Debug, Default, darling::FromMeta)]
+#[darling(rename_all = "snake_case")]
 pub enum Backend {
     /// The standard approach with running dedicated single-node blockchain in a
     /// background process.
     #[default]
     Full,
+
     /// The lightweight approach skipping node layer.
     ///
     /// This runs a runtime emulator within `TestExternalities` (using drink! library) in
     /// the same process as the test.
     #[cfg(any(test, feature = "drink"))]
-    RuntimeOnly,
+    RuntimeOnly { runtime: Option<syn::Path> },
 }
 
 /// The End-to-End test configuration.
@@ -44,10 +46,6 @@ pub struct E2EConfig {
     /// The type of the architecture that should be used to run test.
     #[darling(default)]
     backend: Backend,
-    /// The runtime to use for the runtime only test.
-    #[cfg(any(test, feature = "drink"))]
-    #[darling(default)]
-    runtime: Option<syn::Path>,
 }
 
 impl E2EConfig {
@@ -73,13 +71,7 @@ impl E2EConfig {
 
     /// The type of the architecture that should be used to run test.
     pub fn backend(&self) -> Backend {
-        self.backend
-    }
-
-    /// The runtime to use for the runtime only test.
-    #[cfg(any(test, feature = "drink"))]
-    pub fn runtime(&self) -> Option<syn::Path> {
-        self.runtime.clone()
+        self.backend.clone()
     }
 }
 
@@ -97,8 +89,7 @@ mod tests {
         let input = quote! {
             additional_contracts = "adder/Cargo.toml flipper/Cargo.toml",
             environment = crate::CustomEnvironment,
-            backend = "runtime_only",
-            runtime = ::drink::MinimalRuntime,
+            backend(runtime_only()),
         };
         let config =
             E2EConfig::from_list(&NestedMeta::parse_meta_list(input).unwrap()).unwrap();
@@ -111,10 +102,23 @@ mod tests {
             config.environment(),
             Some(syn::parse_quote! { crate::CustomEnvironment })
         );
-        assert_eq!(config.backend(), Backend::RuntimeOnly);
+
+        assert_eq!(config.backend(), Backend::RuntimeOnly { runtime: None });
+    }
+
+    #[test]
+    fn config_works_with_custom_backend() {
+        let input = quote! {
+            backend(runtime_only(runtime = ::ink_e2e::MinimalRuntime)),
+        };
+        let config =
+            E2EConfig::from_list(&NestedMeta::parse_meta_list(input).unwrap()).unwrap();
+
         assert_eq!(
-            config.runtime(),
-            Some(syn::parse_quote! { ::drink::MinimalRuntime })
+            config.backend(),
+            Backend::RuntimeOnly {
+                runtime: Some(syn::parse_quote! { ::ink_e2e::MinimalRuntime })
+            }
         );
     }
 }

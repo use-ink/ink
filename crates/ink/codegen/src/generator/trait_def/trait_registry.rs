@@ -21,7 +21,9 @@
 
 use super::TraitDefinition;
 use crate::{
-    generator,
+    generator::{
+        self,
+    },
     traits::GenerateCode,
     EnforcedErrors,
 };

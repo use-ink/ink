@@ -32,7 +32,9 @@ use syn::{
 };
 
 use crate::{
-    ast,
+    ast::{
+        self,
+    },
     error::ExtError as _,
     ir,
     ir::{
