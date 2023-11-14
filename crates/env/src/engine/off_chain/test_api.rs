@@ -1,4 +1,4 @@
-    // Copyright (C) Parity Technologies (UK) Ltd.
+// Copyright (C) Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -67,6 +67,7 @@ where
             .set_balance(scale::Encode::encode(&account_id), new_balance);
     })
 }
+
 /// Returns the balance of the account.
 ///
 /// # Note
