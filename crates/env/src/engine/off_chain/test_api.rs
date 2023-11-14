@@ -46,6 +46,9 @@ pub struct EmittedEvent {
 /// Note that account could refer to either a user account or
 /// a smart contract account.
 ///
+/// If a 0 balance is set, this would not fail. This is useful for
+/// reaping an account.
+///
 /// # Errors
 ///
 /// - If `account` does not exist.
