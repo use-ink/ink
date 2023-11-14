@@ -68,8 +68,8 @@ impl InkE2ETest {
                 build_full_client(&environment, exec_build_contracts, chopsticks_url)
             }
             #[cfg(any(test, feature = "drink"))]
-            Backend::RuntimeOnly => {
-                build_runtime_client(exec_build_contracts, self.test.config.runtime())
+            Backend::RuntimeOnly { runtime } => {
+                build_runtime_client(exec_build_contracts, runtime)
             }
         };
 

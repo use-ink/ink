@@ -36,6 +36,13 @@ fn storable_struct_derive(s: &synstructure::Structure) -> TokenStream2 {
             ::ink::storage::traits::Storable::encode(#binding, __dest);
         )
     });
+    let encoded_size_body =
+        variant.fold(quote!(::core::primitive::usize::MIN), |acc, binding| {
+            let span = binding.ast().ty.span();
+            quote_spanned!(span =>
+                #acc.saturating_add(::ink::storage::traits::Storable::encoded_size(#binding))
+            )
+        });
 
     s.gen_impl(quote! {
          gen impl ::ink::storage::traits::Storable for @Self {
@@ -49,6 +56,12 @@ fn storable_struct_derive(s: &synstructure::Structure) -> TokenStream2 {
             #[allow(non_camel_case_types)]
             fn encode<__ink_O: ::ink::scale::Output + ?::core::marker::Sized>(&self, __dest: &mut __ink_O) {
                 match self { #encode_body }
+            }
+
+            #[inline(always)]
+            #[allow(non_camel_case_types)]
+            fn encoded_size(&self) -> ::core::primitive::usize {
+                match self { #encoded_size_body }
             }
          }
      })
@@ -108,6 +121,20 @@ fn storable_enum_derive(s: &synstructure::Structure) -> TokenStream2 {
              }
          }
     });
+
+    let encoded_size_body = s.variants().iter().map(|variant| {
+        let pat = variant.pat();
+        let field = variant.bindings().iter().fold(quote!(1usize), |acc, field| {
+            let span = field.ast().ty.span();
+            quote_spanned!(span =>
+                #acc.saturating_add(::ink::storage::traits::Storable::encoded_size(#field))
+            )
+        });
+        quote! {
+             #pat => { #field }
+         }
+    });
+
     s.gen_impl(quote! {
          gen impl ::ink::storage::traits::Storable for @Self {
             #[inline(always)]
@@ -127,6 +154,16 @@ fn storable_enum_derive(s: &synstructure::Structure) -> TokenStream2 {
                 match self {
                     #(
                         #encode_body
+                    )*
+                }
+            }
+
+            #[inline(always)]
+            #[allow(non_camel_case_types)]
+            fn encoded_size(&self) -> ::core::primitive::usize {
+                match self {
+                    #(
+                        #encoded_size_body
                     )*
                 }
             }

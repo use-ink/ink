@@ -1,0 +1,602 @@
+name: continuous-integration
+
+on:
+  pull_request:
+    types:
+      - opened
+      - reopened
+      - synchronize
+    paths-ignore:
+      - '**/*.md'
+      - '.gitlab-ci.yml'
+      - 'CODEOWNERS'
+      - 'LICENSE'
+      - 'CODE_OF_CONDUCT.adoc'
+      - 'FILE_HEADER'
+  push:
+    branches:
+      - master
+      - v[0-9]+.[0-9]+.*           # i.e. v1.0, v2.1rc1
+    tags:
+      - v*
+    paths-ignore:
+      - '**/*.md'
+      - '.gitlab-ci.yml'
+      - 'CODEOWNERS'
+      - 'LICENSE'
+      - 'CODE_OF_CONDUCT.adoc'
+      - 'FILE_HEADER'
+
+env:
+  IMAGE:                           paritytech/ci-unified:bullseye-1.73.0
+  CARGO_TARGET_DIR:                /ci-cache/${{ github.repository }}/targets/${{ github.ref_name }}/${{ github.job }}
+  CARGO_INCREMENTAL:               0
+  PURELY_STD_CRATES:               ink/codegen metadata engine e2e e2e/macro ink/ir
+  ALSO_WASM_CRATES:                env storage storage/traits allocator prelude primitives ink ink/macro
+  # TODO `cargo clippy --verbose --all-targets --all-features` for this crate
+  # currently fails on `stable`, but succeeds on `nightly`. This is due to
+  # this fix not yet in stable: https://github.com/rust-lang/rust-clippy/issues/8895.
+  # Remove the following line again as soon as `clippy` on stable succeeds again.
+  CLIPPY_ALLOWED:                  clippy::extra_unused_lifetimes
+  # We plan to fully support RISC-V as a bytecode for contracts soon.
+  # RISC-V does not have a standard library in contrast to Wasm. Compiling against
+  # this target also makes sure that we don't pull in `std` by accident (through dependencies).
+  # RISC-V is a modular archtitecture. We might switch to a different flavor with more features
+  # later. For example, `riscv32imc-unknown-none-elf`.
+  RISCV_TARGET:                    riscv32i-unknown-none-elf
+
+concurrency:
+  # Cancel in-progress jobs triggered only on pull_requests
+  group: ${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+### lint
+
+jobs:
+  set-image:
+    # GitHub Actions does not allow using 'env' in a container context.
+    # This workaround sets the container image for each job using 'set-image' job output.
+    runs-on: ubuntu-latest
+    outputs:
+      IMAGE: ${{ steps.set_image.outputs.IMAGE }}
+    steps:
+      - id: set_image
+        run: echo "IMAGE=${{ env.IMAGE }}" >> $GITHUB_OUTPUT
+
+  spellcheck:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+    needs: [set-image]
+    container:
+      image: ${{ needs.set-image.outputs.IMAGE }}
+    strategy:
+      fail-fast: false
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 100
+
+      - name: Rust Info
+        uses: ./.github/rust-info
+
+      - name: Check Spelling
+        run: |
+          cargo spellcheck check -v --cfg=.config/cargo_spellcheck.toml --checkers hunspell --code 1 -- recursive .
+          cargo spellcheck check -v --cfg=.config/cargo_spellcheck.toml --checkers hunspell --code 1 -- recursive ./integration-tests/*
+
+  fmt:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+    needs: [set-image]
+    container:
+      image: ${{ needs.set-image.outputs.IMAGE }}
+    strategy:
+      fail-fast: false
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 100
+
+      - name: Rust Info
+        uses: ./.github/rust-info
+
+      - name: Check Formatting
+        run: |
+          cargo +nightly fmt --verbose --all -- --check
+          # For the UI tests we need to disable the license check
+          cargo +nightly fmt --verbose --all -- --check ./crates/ink/tests/ui/contract/{pass,fail}/*.rs
+          cargo +nightly fmt --verbose --all -- --check ./crates/ink/tests/ui/trait_def/{pass,fail}/*.rs
+
+      - name: Check Examples Formatting
+        run: |
+          scripts/for_all_contracts_exec.sh --path integration-tests -- cargo +nightly fmt --verbose --manifest-path {} -- --check
+          # This file is not a part of the cargo project, so it wouldn't be formatted the usual way
+          rustfmt +nightly --verbose --check ./integration-tests/psp22-extension/runtime/psp22-extension-example.rs
+
+  clippy:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+    needs: [set-image]
+    container:
+      image: ${{ needs.set-image.outputs.IMAGE }}
+    strategy:
+      fail-fast: false
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 100
+
+      - name: Cache
+        uses: Swatinem/rust-cache@v2
+        with:
+          cache-directories: ${{ env.CARGO_TARGET_DIR }}
+
+      - name: Rust Info
+        uses: ./.github/rust-info
+
+      - name: Run Clippy
+        run: |
+          ALL_CRATES="${PURELY_STD_CRATES} ${ALSO_WASM_CRATES}"
+          for crate in ${ALL_CRATES}; do
+            cargo clippy --verbose --all-targets --all-features --manifest-path ./crates/${crate}/Cargo.toml \
+              -- -D warnings -A ${CLIPPY_ALLOWED};
+          done
+
+      - name: Run Clippy for WASM Crates
+        run: |
+          for crate in ${ALSO_WASM_CRATES}; do
+            cargo clippy --verbose --no-default-features --manifest-path ./crates/${crate}/Cargo.toml --target wasm32-unknown-unknown \
+              -- -D warnings -A ${CLIPPY_ALLOWED};
+          done
+
+  clippy-examples:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+    needs: [set-image]
+    container:
+      image: ${{ needs.set-image.outputs.IMAGE }}
+    strategy:
+      fail-fast: false
+      matrix:
+        type: [STD, WASM]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 100
+
+      - name: Cache
+        uses: Swatinem/rust-cache@v2
+        with:
+          cache-directories: ${{ env.CARGO_TARGET_DIR }}
+
+      - name: Rust Info
+        uses: ./.github/rust-info
+
+      - name: Run Clippy for Examples
+        if: ${{ matrix.type == 'STD' }}
+        run: |
+          scripts/for_all_contracts_exec.sh --path integration-tests -- cargo clippy --verbose --all-targets \
+            --manifest-path {} -- -D warnings -A $CLIPPY_ALLOWED
+
+      - name: Run Clippy for WASM Examples
+        if: ${{ matrix.type == 'WASM' }}
+        run: |
+          scripts/for_all_contracts_exec.sh --path integration-tests -- cargo clippy --verbose --no-default-features \
+            --target wasm32-unknown-unknown --manifest-path {} -- -D warnings -A $CLIPPY_ALLOWED
+
+  check:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+    needs: [set-image]
+    container:
+      image: ${{ needs.set-image.outputs.IMAGE }}
+    strategy:
+      fail-fast: false
+      matrix:
+        type: [STD, WASM, RISCV]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 100
+
+      - name: Cache
+        uses: Swatinem/rust-cache@v2
+        with:
+          cache-directories: ${{ env.CARGO_TARGET_DIR }}
+
+      - name: Rust Info
+        uses: ./.github/rust-info
+
+      - name: Check
+        if: ${{ matrix.type == 'STD' }}
+        run: |
+          ALL_CRATES="${PURELY_STD_CRATES} ${ALSO_WASM_CRATES}"
+          for crate in ${ALL_CRATES}; do
+            cargo check --verbose --all-features --manifest-path ./crates/${crate}/Cargo.toml;
+          done
+
+      - name: Check WASM
+        if: ${{ matrix.type == 'WASM' }}
+        run: |
+          for crate in ${ALSO_WASM_CRATES}; do
+            cargo check --verbose --no-default-features --target wasm32-unknown-unknown \
+              --manifest-path ./crates/${crate}/Cargo.toml;
+          done        
+
+      - name: Check RISCV
+        if: ${{ matrix.type == 'RISCV' }}
+        env:
+          RUSTC_BOOTSTRAP:               1
+        run: |
+          for crate in ${ALSO_WASM_CRATES}; do
+            cargo check --verbose --no-default-features --target $RISCV_TARGET -Zbuild-std="core,alloc" \
+              --manifest-path ./crates/${crate}/Cargo.toml;
+          done       
+
+  dylint:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+    needs: [set-image]
+    container:
+      image: ${{ needs.set-image.outputs.IMAGE }}
+    strategy:
+      fail-fast: false
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 100
+
+      - name: Cache
+        uses: Swatinem/rust-cache@v2
+        with:
+          cache-directories: ${{ env.CARGO_TARGET_DIR }}
+
+      - name: Rust Info
+        uses: ./.github/rust-info
+
+      - name: Dylint
+        run: |
+          cd linting/
+          # we are using a toolchain file in this directory
+          # add required components for CI
+          rustup component add rustfmt clippy
+          cargo check --verbose
+          cargo +nightly fmt --verbose --all -- --check
+          cargo clippy --verbose -- -D warnings;
+          # Needed until https://github.com/mozilla/sccache/issues/1000 is fixed.
+          unset RUSTC_WRAPPER
+          cargo test --verbose --all-features
+
+### workspace
+
+  build:
+    runs-on: ubuntu-latest
+    needs: [set-image, check]
+    defaults:
+      run:
+        shell: bash
+    container:
+      image: ${{ needs.set-image.outputs.IMAGE }}
+    strategy:
+      fail-fast: false
+      matrix:
+        type: [STD, WASM]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 100
+
+      - name: Cache
+        uses: Swatinem/rust-cache@v2
+        with:
+          cache-directories: ${{ env.CARGO_TARGET_DIR }}
+
+      - name: Rust Info
+        uses: ./.github/rust-info
+
+      - name: Build
+        if: ${{ matrix.type == 'STD' }}
+        run: |
+          ALL_CRATES="${PURELY_STD_CRATES} ${ALSO_WASM_CRATES}"
+          for crate in ${ALL_CRATES}; do
+            cargo build --verbose --all-features --release --manifest-path ./crates/${crate}/Cargo.toml;
+          done
+
+      - name: Build WASM
+        if: ${{ matrix.type == 'WASM' }}
+        run: |
+          for crate in ${ALSO_WASM_CRATES}; do
+            cargo build --verbose --no-default-features --release --target wasm32-unknown-unknown \
+              --manifest-path ./crates/${crate}/Cargo.toml;
+          done
+
+  test:
+    runs-on: ubuntu-latest-8-cores
+    needs: [set-image, check]
+    defaults:
+      run:
+        shell: bash
+    container:
+      image: ${{ needs.set-image.outputs.IMAGE }}
+    strategy:
+      fail-fast: false
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 100
+
+      - name: Cache
+        uses: Swatinem/rust-cache@v2
+        with:
+          cache-directories: ${{ env.CARGO_TARGET_DIR }}
+
+      - name: Rust Info
+        uses: ./.github/rust-info
+
+      - name: Test
+        env:
+          # Fix for linking of `linkme` for `cargo test`: https://github.com/dtolnay/linkme/issues/49
+          RUSTFLAGS:                   -Clink-arg=-z -Clink-arg=nostart-stop-gc
+          # Since we run the tests with `--all-features` this implies the feature
+          # `ink-fuzz-tests` as well -- i.e. the fuzz tests are run.
+          # There's no way to disable a single feature while enabling all features
+          # at the same time, hence we use this workaround.
+          QUICKCHECK_TESTS:            0
+        run: |
+          cargo test --verbose --all-features --no-fail-fast --workspace
+          cargo test --verbose --all-features --no-fail-fast --workspace --doc
+
+  docs:
+    runs-on: ubuntu-latest
+    needs: [set-image, check, fmt, clippy, clippy-examples, dylint, spellcheck]
+    defaults:
+      run:
+        shell: bash
+    container:
+      image: ${{ needs.set-image.outputs.IMAGE }}
+    strategy:
+      fail-fast: false
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 100
+
+      - name: Cache
+        uses: Swatinem/rust-cache@v2
+        with:
+          cache-directories: ${{ env.CARGO_TARGET_DIR }}
+
+      - name: Rust Info
+        uses: ./.github/rust-info
+
+      - name: Create docs
+        env:
+          RUSTDOCFLAGS:                  -Dwarnings
+        run: |
+          cargo doc --no-deps --all-features
+          mv ${CARGO_TARGET_DIR}/doc ./crate-docs
+          # FIXME: remove me after CI image gets nonroot
+          chown -R nonroot:nonroot ./crate-docs
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: ${{ github.job }}-data
+          path: ./crate-docs
+          retention-days: 7
+
+  codecov:
+    runs-on: ubuntu-latest
+    needs: [set-image, check, fmt, clippy, clippy-examples, dylint, spellcheck]
+    defaults:
+      run:
+        shell: bash
+    container:
+      image: ${{ needs.set-image.outputs.IMAGE }}
+    strategy:
+      fail-fast: false
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Rust Info
+        uses: ./.github/rust-info
+
+      - name: Codecov
+        env:
+          # For codecov it's sufficient to run the fuzz tests only once.
+          QUICKCHECK_TESTS:              1
+          INK_COVERAGE_REPORTING:        true
+          CARGO_INCREMENTAL:             0
+          # Needed because `codecov` requires nightly features to work
+          # (see `-Z` in the `RUSTFLAGS` below).
+          RUSTC_BOOTSTRAP:               1
+          # Variables partly came from https://github.com/mozilla/grcov/blob/master/README.md
+          RUSTFLAGS:                     -Zprofile -Zmir-opt-level=0 -Ccodegen-units=1
+                                          -Clink-dead-code -Copt-level=0 -Coverflow-checks=off
+          # The `cargo-taurpalin` coverage reporting tool seems to have better code instrumentation and thus
+          # produces better results for Rust codebases in general. However, unlike `grcov` it requires
+          # running docker with `--security-opt seccomp=unconfined` which is why we use `grcov` instead.
+          CODECOV_P_TOKEN:               ${{ secrets.CODECOV_P_TOKEN }}
+          CODECOV_L_TOKEN:               ${{ secrets.CODECOV_L_TOKEN }}
+        run: |
+          # RUSTFLAGS are the cause target cache can't be used here
+          # FIXME: rust-covfix doesn't support the external target dir
+          # https://github.com/Kogia-sima/rust-covfix/issues/7
+          unset "CARGO_TARGET_DIR"
+          cargo clean
+          # make sure there's no stale coverage artifacts
+          find . -name "*.profraw" -type f -delete
+          find . -name "*.gcda" -type f -delete
+          # FIXME: Access from 2 users, should be solved once ci-image works from a non-root user
+          git config --global --add safe.directory '*'
+          # RUSTFLAGS are the cause target cache can't be used here
+          cargo build --verbose --all-features --workspace
+          cargo test --verbose --all-features --no-fail-fast --workspace
+          # coverage with branches
+          grcov . --binary-path ./target/debug/ --source-dir . --output-type lcov --llvm --branch \
+            --ignore-not-existing --ignore "/*" --ignore "tests/*" --output-path lcov-w-branch.info
+          rust-covfix lcov-w-branch.info --output lcov-w-branch-fixed.info
+          codecov --token "$CODECOV_P_TOKEN" --file lcov-w-branch-fixed.info --nonZero
+          # lines coverage
+          grcov . --binary-path ./target/debug/ --source-dir . --output-type lcov --llvm \
+            --ignore-not-existing --ignore "/*" --ignore "tests/*" --output-path lcov-lines.info
+          rust-covfix lcov-lines.info --output lcov-lines-fixed.info
+          codecov --token "$CODECOV_L_TOKEN" --file lcov-lines-fixed.info --nonZero
+
+### examples
+
+  examples-test:
+    runs-on: ubuntu-latest-8-cores
+    needs: [set-image, clippy]
+    defaults:
+      run:
+        shell: bash
+    container:
+      image: ${{ needs.set-image.outputs.IMAGE }}
+    strategy:
+      fail-fast: false
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 100
+
+      - name: Cache
+        uses: Swatinem/rust-cache@v2
+        with:
+          cache-directories: ${{ env.CARGO_TARGET_DIR }}
+
+      - name: Rust Info
+        uses: ./.github/rust-info
+
+      - name: Test Examples
+        env:
+          # Fix linking of `linkme`: https://github.com/dtolnay/linkme/issues/49
+          RUSTFLAGS:                     -Clink-arg=-z -Clink-arg=nostart-stop-gc
+        run: |
+          # run all tests with --all-features, which will run the e2e-tests feature if present
+          scripts/for_all_contracts_exec.sh --path integration-tests --ignore static-buffer -- cargo test \
+            --verbose --all-features --manifest-path {}
+          # run the static buffer test with a custom buffer size
+          cargo clean --manifest-path integration-tests/static-buffer/Cargo.toml
+          INK_STATIC_BUFFER_SIZE=30 cargo test --verbose --manifest-path integration-tests/static-buffer/Cargo.toml --all-features
+
+  examples-contract-build:
+    runs-on: ubuntu-latest
+    needs: [set-image, build]
+    defaults:
+      run:
+        shell: bash
+    container:
+      image: ${{ needs.set-image.outputs.IMAGE }}
+    strategy:
+      fail-fast: false
+      matrix:
+        type: [WASM, RISCV]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 100
+
+      - name: Cache
+        uses: Swatinem/rust-cache@v2
+        with:
+          cache-directories: ${{ env.CARGO_TARGET_DIR }}
+
+      - name: Rust Info
+        uses: ./.github/rust-info
+
+      - name: Build Contract WASM Examples
+        if: ${{ matrix.type == 'WASM' }}
+        run: |
+          rustup component add rust-src --toolchain stable
+          cargo contract -V
+          # Build all examples
+          scripts/for_all_contracts_exec.sh --path integration-tests -- cargo contract build --release --manifest-path {}
+          # Build the different features for the conditional compilation example
+          pushd ./integration-tests/conditional-compilation
+          cargo contract build --release --features "foo"
+          cargo contract build --release --features "bar"
+          cargo contract build --release --features "foo, bar"
+          popd
+
+      - name: Build Contract RISCV Examples
+        if: ${{ matrix.type == 'RISCV' }}
+        env:
+          RUSTC_BOOTSTRAP:               1
+        run: |
+          rustup component add rust-src --toolchain stable
+          cargo contract -V
+          # We skip some examples for those reasons:
+          # This uses dlmalloc which is only supported on select targets.
+          #   - custom_allocator
+          # Pulls in sp-std which needlessly requires atomic pointers (TODO: Fix sp-std and enable this example)
+          #   - call-runtime
+          scripts/for_all_contracts_exec.sh --path integration-tests --ignore custom-allocator --ignore call-runtime \
+            -- cargo build --manifest-path {} --no-default-features --target $RISCV_TARGET -Zbuild-std="core,alloc"
+
+  examples-docs:
+    runs-on: ubuntu-latest
+    needs: [set-image, build]
+    defaults:
+      run:
+        shell: bash
+    container:
+      image: ${{ needs.set-image.outputs.IMAGE }}
+    strategy:
+      fail-fast: false
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 100
+
+      - name: Cache
+        uses: Swatinem/rust-cache@v2
+        with:
+          cache-directories: ${{ env.CARGO_TARGET_DIR }}
+
+      - name: Rust Info
+        uses: ./.github/rust-info
+
+      - name: Create Examples Docs
+        env:
+          RUSTDOCFLAGS:                  -Dwarnings
+        run: |
+          # `--document-private-items` needs to be in here because currently our contract macro
+          # puts the contract functions in a private module.
+          # Once https://github.com/paritytech/ink/issues/336 has been implemented we can get rid
+          # of this flag.
+          scripts/for_all_contracts_exec.sh --path integration-tests -- cargo doc --manifest-path {} \
+            --document-private-items --verbose --no-deps
+
+# measurements
+
+  measurements:
+    needs: [examples-docs, examples-contract-build, examples-test]
+    uses: ./.github/workflows/measurements.yml
+
