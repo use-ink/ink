@@ -445,6 +445,6 @@ where
         crate::reflect::ContractMessageDecoder,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        instance.upload_code::<E, ContractRef>()
+        instance.upload_code::<ContractRef>()
     })
 }

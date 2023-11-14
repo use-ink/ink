@@ -262,9 +262,8 @@ impl EnvInstance {
         self.engine.get_storage(&[255_u8; 32]).unwrap().to_vec()
     }
 
-    pub fn upload_code<E, ContractRef>(&mut self) -> ink_primitives::types::Hash
+    pub fn upload_code<ContractRef>(&mut self) -> ink_primitives::types::Hash
     where
-        E: Environment,
         ContractRef: crate::ContractReverseReference,
         <ContractRef as crate::ContractReverseReference>::Type:
             crate::reflect::ContractMessageDecoder,

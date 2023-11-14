@@ -23,7 +23,8 @@ mod instantiate_contract {
         }
 
         #[ink(message)]
-        pub fn instantiate_contract1(&self, code_hash: Hash) -> Contract1Ref {
+        pub fn instantiate_contract1(&self, code_hash: Hash, salt: u32) -> Contract1Ref {
+            let salt = salt.to_le_bytes();
             let create_params = build_create::<Contract1Ref>()
                 .code_hash(code_hash)
                 .gas_limit(0)
@@ -31,7 +32,7 @@ mod instantiate_contract {
                 .exec_input(ExecutionInput::new(
                     Selector::new(ink::selector_bytes!("new")),
                 ))
-                .salt_bytes(&[0x0; 4])
+                .salt_bytes(&salt)
                 .returns::<Contract1Ref>()
                 .params();
 
@@ -49,7 +50,8 @@ mod instantiate_contract {
         }
 
         #[ink(message)]
-        pub fn instantiate_contract2(&self, code_hash: Hash) -> Contract2Ref {
+        pub fn instantiate_contract2(&self, code_hash: Hash, salt: u32) -> Contract2Ref {
+            let salt = salt.to_le_bytes();
             let create_params = build_create::<Contract2Ref>()
                 .code_hash(code_hash)
                 .gas_limit(0)
@@ -57,7 +59,7 @@ mod instantiate_contract {
                 .exec_input(ExecutionInput::new(
                     Selector::new(ink::selector_bytes!("new")),
                 ))
-                .salt_bytes(&[0x0; 4])
+                .salt_bytes(&salt)
                 .returns::<Contract2Ref>()
                 .params();
 
@@ -172,14 +174,17 @@ mod instantiate_contract {
             },
             primitives::AccountId,
         };
+        use virtual_contract::VirtualContractRef;
+        use virtual_contract_ver1::VirtualContractVer1Ref;
+        use virtual_contract_ver2::VirtualContractVer2Ref;
 
-        fn instantiate_contract1(contract: &ContractTester, code_hash: Hash) -> AccountId{
-            let cr = contract.instantiate_contract1(code_hash);
+        fn instantiate_contract1(contract: &ContractTester, code_hash: Hash, salt: u32) -> AccountId{
+            let cr = contract.instantiate_contract1(code_hash, salt);
             ink::ToAccountId::<DefaultEnvironment>::to_account_id(&cr)
         }
 
-        fn instantiate_contract2(contract: &ContractTester, code_hash: Hash) -> AccountId{
-            let cr = contract.instantiate_contract2(code_hash);
+        fn instantiate_contract2(contract: &ContractTester, code_hash: Hash, salt: u32) -> AccountId{
+            let cr = contract.instantiate_contract2(code_hash, salt);
             ink::ToAccountId::<DefaultEnvironment>::to_account_id(&cr)
         }
 
@@ -189,18 +194,15 @@ mod instantiate_contract {
         }
 
         #[ink::test]
-        fn test_contract1() {
+        fn test_invoke() {
             let contract = ContractTester::new();
             let code_hash1 = ink::env::test::upload_code::<ink::env::DefaultEnvironment, Contract1Ref>();
             let code_hash2 = ink::env::test::upload_code::<ink::env::DefaultEnvironment, Contract2Ref>();
 
-            // Set different caller AccountIds, so that instantiate_contract will generate different account ids.
-            ink::env::test::set_caller::<DefaultEnvironment>([1_u8; 32].into());
-            let mut contract1_address1_account = instantiate_contract1(&contract, code_hash1);
-            let mut contract2_address1_account = instantiate_contract2(&contract, code_hash2);
-            ink::env::test::set_caller::<DefaultEnvironment>([2_u8; 32].into());
-            let mut contract1_address2_account = instantiate_contract1(&contract, code_hash1);
-            let mut contract2_address2_account = instantiate_contract2(&contract, code_hash2);
+            let mut contract1_address1_account = instantiate_contract1(&contract, code_hash1, 1);
+            let mut contract1_address2_account = instantiate_contract1(&contract, code_hash1, 2);
+            let mut contract2_address1_account = instantiate_contract2(&contract, code_hash2, 3);
+            let mut contract2_address2_account = instantiate_contract2(&contract, code_hash2, 4);
 
             let contract1_address1 = to_array(&mut contract1_address1_account);
             let contract1_address2 = to_array(&mut contract1_address2_account);
@@ -246,54 +248,64 @@ mod instantiate_contract {
             check_values2(123456, 123456);
 
         }
-    }
 
-    #[cfg(all(test, feature = "e2e-tests", not(feature = "test_instantiate")))]
-    mod e2e_tests {
-        use ink_e2e::build_message;
+        #[ink::test]
+        fn test_invoke_delegate() {
+            let code_hash1 = ink::env::test::upload_code::<ink::env::DefaultEnvironment, VirtualContractRef>();
+            let code_hash2 = ink::env::test::upload_code::<ink::env::DefaultEnvironment, VirtualContractVer1Ref>();
+            let code_hash3 = ink::env::test::upload_code::<ink::env::DefaultEnvironment, VirtualContractVer2Ref>();
 
-        use super::*;
+            let ic = |hash, salt: u32, x|{
+                let salt = salt.to_le_bytes();
+                let create_params = build_create::<VirtualContractRef>()
+                    .code_hash(code_hash1)
+                    .gas_limit(0)
+                    .endowment(0)
+                    .exec_input(
+                        ExecutionInput::new(Selector::new(ink::selector_bytes!("new")))
+                            .push_arg(hash)
+                            .push_arg(x),
+                    )
+                    .salt_bytes(&salt)
+                    .returns::<VirtualContractRef>()
+                    .params();
 
-        type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
+                ink::env::instantiate_contract(&create_params)
+                    .unwrap_or_else(|error| {
+                        panic!(
+                            "Received an error from the Contracts pallet while instantiating: {:?}",
+                            error
+                        )
+                    })
+                    .unwrap_or_else(|error| {
+                        panic!("Received a `LangError` while instatiating: {:?}", error)
+                    })
+            };
 
-        #[ink_e2e::test(additional_contracts = "other_contract/Cargo.toml")]
-        async fn instantiate_other_contract(
-            mut client: ink_e2e::Client<C, E>,
-        ) -> E2EResult<()> {
-            let constructor = ContractTesterRef::new();
+            let mut ref1 = ic(code_hash2, 1, 42);
+            let mut ref2 = ic(code_hash3, 2, 74);
 
-            let contract_acc_id = client
-                .instantiate(
-                    "instantiate_contract",
-                    &ink_e2e::bob(),
-                    constructor,
-                    0,
-                    None,
-                )
-                .await
-                .expect("instantiate failed")
-                .account_id;
+            let check_values = |r1: &VirtualContractRef, r2: &VirtualContractRef, a, b, c, d|{
+                let v1 = r1.real_get_x();
+                let v2 = r2.real_get_x();
+                let v3 = r1.get_x();
+                let v4 = r2.get_x();
+                assert_eq!(v1, a);
+                assert_eq!(v2, b);
+                assert_eq!(v3, c);
+                assert_eq!(v4, d);
+            };
 
-            let other_contract_code_hash = client
-                .upload("other_contract", &ink_e2e::bob(), None)
-                .await
-                .expect("instantiate failed")
-                .code_hash;
+            check_values(&ref1, &ref2, 42, 74, 43, 148);
+            ref1.set_x(15);
+            check_values(&ref1, &ref2, 42, 74, 43, 148);
+            ref1.real_set_x(15);
+            check_values(&ref1, &ref2, 15, 74, 16, 148);
+            ref2.set_x(39);
+            check_values(&ref1, &ref2, 15, 74, 16, 148);
+            ref2.real_set_x(39);
+            check_values(&ref1, &ref2, 15, 39, 16, 78);
 
-            let instantiate_other_contract = build_message::<ContractTesterRef>(
-                contract_acc_id.clone(),
-            )
-            .call(|contract| {
-                contract.instantiate_other_contract(other_contract_code_hash)
-            });
-
-            let instantiate_other_contract_res = client
-                .call_dry_run(&ink_e2e::bob(), &instantiate_other_contract, 0, None)
-                .await;
-
-            assert!(instantiate_other_contract_res.exec_result.result.is_ok());
-
-            Ok(())
         }
     }
 }
