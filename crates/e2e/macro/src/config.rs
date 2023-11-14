@@ -48,6 +48,11 @@ pub struct E2EConfig {
     #[cfg(any(test, feature = "drink"))]
     #[darling(default)]
     runtime: Option<syn::Path>,
+
+    /// The URL to the running chopsticks node.
+    #[cfg(feature = "live-state-test")]
+    #[darling(default)]
+    chopsticks_url: Option<String>
 }
 
 impl E2EConfig {
@@ -81,6 +86,11 @@ impl E2EConfig {
     pub fn runtime(&self) -> Option<syn::Path> {
         self.runtime.clone()
     }
+
+     #[cfg(feature = "live-state-test")]
+    pub fn chopsticks_url(&self) -> Option<String> {
+        self.chopsticks_url.clone()
+    }
 }
 
 #[cfg(test)]
@@ -99,6 +109,7 @@ mod tests {
             environment = crate::CustomEnvironment,
             backend = "runtime_only",
             runtime = ::drink::MinimalRuntime,
+            chopsticks_url = "ws://127.0.0.1:8000"
         };
         let config =
             E2EConfig::from_list(&NestedMeta::parse_meta_list(input).unwrap()).unwrap();
@@ -116,5 +127,9 @@ mod tests {
             config.runtime(),
             Some(syn::parse_quote! { ::drink::MinimalRuntime })
         );
+        assert_eq!(
+            config.chopsticks_url(),
+            Some(String::from("ws://127.0.0.1:8000"))
+        )
     }
 }

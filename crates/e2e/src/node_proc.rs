@@ -161,20 +161,11 @@ where
                 e
             )
         })?;
-        let stderr = proc.stderr.take().unwrap();
-        // Wait for RPC port to be logged (it's logged to stderr):
-        let port_str: String = match option_env!("WS_PORT") {
-            Some(v) => v.to_string(),
-            None => {
-                // expect to have a number here (the chars after '127.0.0.1:').
-                find_substrate_port_from_output(stderr)
-            }
-        };
 
-        let ws_port: u16 = port_str
-            .parse()
-            .unwrap_or_else(|_| panic!("valid port number expected, got '{port_str}'"));
-        let url = format!("ws://127.0.0.1:{ws_port}");
+        // Wait for RPC port to be logged (it's logged to stderr):
+        let stderr = proc.stderr.take().unwrap();
+        let port = find_substrate_port_from_output(stderr);
+        let url = format!("ws://127.0.0.1:{port}");
 
         // Connect to the node with a `subxt` client:
         let rpc = RpcClient::from_url(url.clone())
@@ -204,7 +195,7 @@ where
 
 // Consume a stderr reader from a spawned substrate command and
 // locate the port number that is logged out to it.
-fn find_substrate_port_from_output(r: impl Read + Send + 'static) -> String {
+fn find_substrate_port_from_output(r: impl Read + Send + 'static) -> u16 {
     BufReader::new(r)
         .lines()
         .find_map(|line| {
@@ -224,7 +215,13 @@ fn find_substrate_port_from_output(r: impl Read + Send + 'static) -> String {
             // trim non-numeric chars from the end of the port part of the line.
             let port_str = line_end.trim_end_matches(|b: char| !b.is_ascii_digit());
 
-            Some(port_str.to_string())
+            // expect to have a number here (the chars after '127.0.0.1:') and parse them
+            // into a u16.
+            let port_num = port_str.parse().unwrap_or_else(|_| {
+                panic!("valid port expected for tracing line, got '{port_str}'")
+            });
+
+            Some(port_num)
         })
         .expect("We should find a port before the reader ends")
 }

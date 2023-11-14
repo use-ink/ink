@@ -65,6 +65,7 @@ pub use subxt_client::{
     Client,
     Error,
 };
+pub use subxt::backend::rpc::RpcClient;
 pub use subxt_signer::sr25519::{
     self,
     dev::*,

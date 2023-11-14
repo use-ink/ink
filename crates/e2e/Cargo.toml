@@ -52,7 +52,10 @@ scale-info = { workspace = true, features = ["derive"] }
 [features]
 default = ["std"]
 std = []
-live-state-test = ["subxt/unstable-light-client"]
+live-state-test = [
+    "subxt/unstable-light-client",
+    "ink_e2e_macro/live-state-test"
+    ]
 drink = [
     "dep:drink",
     "subxt-metadata",
