@@ -1,4 +1,4 @@
-// Copyright (C) Parity Technologies (UK) Ltd.
+    // Copyright (C) Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -57,8 +57,8 @@ where
     T: Environment<Balance = u128>, // Just temporary for the MVP!
 {
     let min = ChainSpec::default().minimum_balance;
-    if new_balance < T::Balance::from(min) {
-        panic!("balance must be at least [{}]", min);
+    if new_balance < T::Balance::from(min) && new_balance != 0.into(){
+        panic!("Balance must be at least [{}]. Use 0 as balance to reap the account.", min);
     }
 
     <EnvInstance as OnInstance>::on_instance(|instance| {
