@@ -115,7 +115,7 @@ pub mod flipper {
         }
 
         #[ink_e2e::test(backend = "network")]
-        async fn default_network_works<Client: E2EBackend>(mut client: Client) -> E2EResult<()> {
+        async fn default_network_works<Client: E2EBackend>(mut client: Client, _network: zombienet_sdk::Network) -> E2EResult<()> {
             // given
             let mut constructor = FlipperRef::new_default();
 

@@ -22,7 +22,7 @@ pub enum Backend {
     Full,
 
     /// Spawn a Network with a relay chain and a contracts enabled parachain with
-    /// zombienet_sdk.
+    /// the zombienet sdk.
     Network,
 
     /// The lightweight approach skipping node layer.
