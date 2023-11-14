@@ -20,6 +20,7 @@ ink = { workspace = true, default-features = true }
 ink_env = { workspace = true, default-features = true }
 ink_primitives = { workspace = true, default-features = true }
 
+zombienet-sdk = { workspace = true }
 cargo_metadata = { workspace = true }
 contract-build = { workspace = true }
 drink = { workspace = true, optional = true }

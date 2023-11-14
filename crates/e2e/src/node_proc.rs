@@ -48,6 +48,28 @@ where
     }
 }
 
+pub fn get_contract_node_bin() -> String {
+    const DEFAULT_CONTRACTS_NODE: &str = "substrate-contracts-node";
+
+    // Use the user supplied `CONTRACTS_NODE` or default to `DEFAULT_CONTRACTS_NODE`.
+    let contracts_node =
+        std::env::var("CONTRACTS_NODE").unwrap_or(DEFAULT_CONTRACTS_NODE.to_owned());
+
+    // Check the specified contracts node.
+    if which::which(&contracts_node).is_err() {
+        if contracts_node == DEFAULT_CONTRACTS_NODE {
+            panic!(
+                "The '{DEFAULT_CONTRACTS_NODE}' executable was not found. Install '{DEFAULT_CONTRACTS_NODE}' on the PATH, \
+                or specify the `CONTRACTS_NODE` environment variable.",
+            )
+        } else {
+            panic!("The contracts node executable '{contracts_node}' was not found.")
+        }
+    }
+
+    contracts_node
+}
+
 impl<R> TestNodeProcess<R>
 where
     R: Config,
@@ -63,24 +85,7 @@ where
     /// Construct a builder for spawning a test node process, using the environment
     /// variable `CONTRACTS_NODE`, otherwise using the default contracts node.
     pub fn build_with_env_or_default() -> TestNodeProcessBuilder<R> {
-        const DEFAULT_CONTRACTS_NODE: &str = "substrate-contracts-node";
-
-        // Use the user supplied `CONTRACTS_NODE` or default to `DEFAULT_CONTRACTS_NODE`.
-        let contracts_node =
-            std::env::var("CONTRACTS_NODE").unwrap_or(DEFAULT_CONTRACTS_NODE.to_owned());
-
-        // Check the specified contracts node.
-        if which::which(&contracts_node).is_err() {
-            if contracts_node == DEFAULT_CONTRACTS_NODE {
-                panic!(
-                    "The '{DEFAULT_CONTRACTS_NODE}' executable was not found. Install '{DEFAULT_CONTRACTS_NODE}' on the PATH, \
-                    or specify the `CONTRACTS_NODE` environment variable.",
-                )
-            } else {
-                panic!("The contracts node executable '{contracts_node}' was not found.")
-            }
-        }
-        Self::build(contracts_node)
+        Self::build(get_contract_node_bin())
     }
 
     /// Attempt to kill the running substrate process.

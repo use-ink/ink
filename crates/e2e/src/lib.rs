@@ -32,6 +32,7 @@ pub mod events;
 mod node_proc;
 mod subxt_client;
 mod xts;
+mod zombienet;
 
 pub use crate::contract_build::{
     build_root_and_additional_contracts,
@@ -54,6 +55,7 @@ pub use contract_results::{
 };
 pub use ink_e2e_macro::test;
 pub use node_proc::{
+    get_contract_node_bin,
     TestNodeProcess,
     TestNodeProcessBuilder,
 };
@@ -72,6 +74,8 @@ pub use subxt_signer::sr25519::{
 };
 pub use tokio;
 pub use tracing_subscriber;
+pub use zombienet::build_network_with_env_or_default;
+pub use zombienet_sdk;
 #[cfg(feature = "drink")]
 pub use {
     drink::runtime::MinimalRuntime,

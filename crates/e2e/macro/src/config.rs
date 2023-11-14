@@ -21,6 +21,10 @@ pub enum Backend {
     #[default]
     Full,
 
+    /// Spawn a Network with a relay chain and a contracts enabled parachain with
+    /// zombienet_sdk.
+    Network,
+
     /// The lightweight approach skipping node layer.
     ///
     /// This runs a runtime emulator within `TestExternalities` (using drink! library) in

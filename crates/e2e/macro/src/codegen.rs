@@ -66,6 +66,7 @@ impl InkE2ETest {
 
         let client_building = match self.test.config.backend() {
             Backend::Full => build_full_client(&environment, exec_build_contracts),
+            Backend::Network => build_network(exec_build_contracts),
             #[cfg(any(test, feature = "drink"))]
             Backend::RuntimeOnly { runtime } => {
                 build_runtime_client(exec_build_contracts, runtime)
@@ -126,6 +127,26 @@ fn build_full_client(environment: &syn::Path, contracts: TokenStream2) -> TokenS
             ::ink_e2e::PolkadotConfig,
             #environment
         >::new(node_proc.rpc(), contracts).await?;
+    }
+}
+
+fn build_network(contracts: TokenStream2) -> TokenStream2 {
+    quote! {
+        // Spawn a mock network just for this test.
+        let network = ::ink_e2e::build_network_with_env_or_default()
+            .spawn_native()
+            .await
+            .unwrap_or_else(|err|
+                ::core::panic!("Error spawning local network: {err:?}")
+            );
+
+        let collator_rpc = network
+            .get_node("contract-collator")?
+            .rpc()
+            .await?;
+
+        let contracts = #contracts;
+        let mut client = ::ink_e2e::Client::< ::ink_e2e::PolkadotConfig, _>::new(collator_rpc, contracts).await?;
     }
 }
 

@@ -55,7 +55,10 @@ pub mod flipper {
     #[cfg(all(test, feature = "e2e-tests"))]
     mod e2e_tests {
         use super::*;
-        use ink_e2e::ContractsBackend;
+        use ink_e2e::{
+            ContractsBackend,
+            zombienet_sdk::NetworkConfigExt,
+        };
 
         type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
@@ -92,6 +95,27 @@ pub mod flipper {
 
         #[ink_e2e::test]
         async fn default_works<Client: E2EBackend>(mut client: Client) -> E2EResult<()> {
+            // given
+            let mut constructor = FlipperRef::new_default();
+
+            // when
+            let contract = client
+                .instantiate("flipper", &ink_e2e::bob(), &mut constructor)
+                .submit()
+                .await
+                .expect("instantiate failed");
+            let call = contract.call::<Flipper>();
+
+            // then
+            let get = call.get();
+            let get_res = client.call(&ink_e2e::bob(), &get).dry_run().await;
+            assert!(matches!(get_res.return_value(), false));
+
+            Ok(())
+        }
+
+        #[ink_e2e::test(backend = "network")]
+        async fn default_network_works<Client: E2EBackend>(mut client: Client) -> E2EResult<()> {
             // given
             let mut constructor = FlipperRef::new_default();
 

@@ -79,6 +79,7 @@ wasm-instrument = { version = "0.4.0", features = ["sign_ext"] }
 which = { version = "5.0.0" }
 xxhash-rust = { version = "0.8" }
 const_env = { version = "0.1"}
+zombienet-sdk = { version = "0.1.0-alpha.0" }
 
 # Substrate dependencies
 pallet-contracts-primitives = { version = "26.0.0", default-features = false }
@@ -101,6 +102,7 @@ ink_prelude = { version = "=5.0.0-alpha", path = "crates/prelude", default-featu
 ink_primitives = { version = "=5.0.0-alpha", path = "crates/primitives", default-features = false }
 ink_storage = { version = "=5.0.0-alpha", path = "crates/storage", default-features = false }
 ink_storage_traits = { version = "=5.0.0-alpha", path = "crates/storage/traits", default-features = false }
+
 
 [profile.release]
 panic = "abort"
