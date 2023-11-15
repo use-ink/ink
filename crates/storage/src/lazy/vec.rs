@@ -20,19 +20,10 @@
 //! Instead it is just a simple wrapper around the contract storage facilities.
 
 use ink_primitives::Key;
-use ink_storage_traits::{
-    AutoKey,
-    Packed,
-    Storable,
-    StorableHint,
-    StorageKey,
-};
+use ink_storage_traits::{AutoKey, Packed, Storable, StorableHint, StorageKey};
 use scale::EncodeLike;
 
-use crate::{
-    Lazy,
-    Mapping,
-};
+use crate::{Lazy, Mapping};
 
 /// A vector of values (elements) directly on contract storage.
 ///
@@ -58,13 +49,13 @@ use crate::{
 /// corresponding to the number of elements in the vector (its length).
 /// Additionally, the maximum capacity of the _whole_ vector is limited by
 /// the size of the static buffer used during ABI encoding and decoding
-/// (default 16KiB).
+/// (default 16 KiB).
 ///
 /// [StorageVec] on the other hand allows to access each element individually.
 /// Thus, it can theoretically grow to infinite size.
-/// However, we currently limit the length at 2^32 elements. In practice,
+/// However, we currently limit the length at 2³² elements. In practice,
 /// even if the vector elements are single bytes, it'll allow to store
-/// more than 4GB data in blockchain storage.
+/// more than 4 GB data in blockchain storage.
 ///
 /// # Caveats
 ///
@@ -165,11 +156,7 @@ where
 #[cfg(feature = "std")]
 const _: () = {
     use crate::traits::StorageLayout;
-    use ink_metadata::layout::{
-        Layout,
-        LayoutKey,
-        RootLayout,
-    };
+    use ink_metadata::layout::{Layout, LayoutKey, RootLayout};
 
     impl<V, KeyType> StorageLayout for StorageVec<V, KeyType>
     where
@@ -225,7 +212,7 @@ where
     ///
     /// # Panics
     ///
-    /// * If the vector is at capacity (max. of 2 ^ 32 elements).
+    /// * If the vector is at capacity (max. of 2³² elements).
     /// * If the value overgrows the static buffer size.
     /// * If there was already a value at the current index.
     pub fn push<T>(&mut self, value: &T)

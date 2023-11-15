@@ -8,7 +8,7 @@ mod lazyvec_integration_tests {
     #[ink(storage)]
     pub struct LazyVector {
         /// Stores indivudual bytes values on the storage.
-        vec: ink::storage::StorageVec<u8>,
+        vec: ink::storage::Vec<u8>,
     }
 
     impl LazyVector {
