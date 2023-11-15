@@ -15,7 +15,6 @@
 use pallet_contracts_primitives::{
     CodeUploadResult,
     ContractExecResult,
-    ContractInstantiateResult,
 };
 
 /// An error occurred while interacting with the E2E backend.
@@ -24,11 +23,14 @@ use pallet_contracts_primitives::{
 /// anything concerning the execution environment (like inability to communicate with node
 /// or runtime, fetch the nonce, account info, etc.) we panic.
 #[derive(Debug)]
-pub enum Error<AccountId, Balance, CodeHash, DispatchError> {
+pub enum Error<Balance, CodeHash, DispatchError> {
     /// No contract with the given name found in scope.
     ContractNotFound(String),
     /// The `instantiate_with_code` dry run failed.
-    InstantiateDryRun(ContractInstantiateResult<AccountId, Balance, ()>),
+    InstantiateDryRun {
+        debug_message: String,
+        error: DispatchError,
+    },
     /// The `instantiate_with_code` extrinsic failed.
     InstantiateExtrinsic(DispatchError),
     /// The `upload` dry run failed.
@@ -45,17 +47,8 @@ pub enum Error<AccountId, Balance, CodeHash, DispatchError> {
     Decoding(String),
 }
 
-impl<AccountId, Balance, CodeHash, DispatchError>
-    From<ContractInstantiateResult<AccountId, Balance, ()>>
-    for Error<AccountId, Balance, CodeHash, DispatchError>
-{
-    fn from(value: ContractInstantiateResult<AccountId, Balance, ()>) -> Self {
-        Self::InstantiateDryRun(value)
-    }
-}
-
-impl<AccountId, Balance, CodeHash, DispatchError> From<ContractExecResult<Balance, ()>>
-    for Error<AccountId, Balance, CodeHash, DispatchError>
+impl<Balance, CodeHash, DispatchError> From<ContractExecResult<Balance, ()>>
+    for Error<Balance, CodeHash, DispatchError>
 {
     fn from(value: ContractExecResult<Balance, ()>) -> Self {
         Self::CallDryRun(value)
@@ -67,14 +60,6 @@ impl<AccountId, Balance, CodeHash, DispatchError> From<ContractExecResult<Balanc
 /// todo: https://github.com/Cardinal-Cryptography/drink/issues/32
 #[derive(Debug)]
 pub struct DrinkErr;
-
-impl<AccountId, Balance> From<ContractInstantiateResult<AccountId, Balance, ()>>
-    for DrinkErr
-{
-    fn from(_value: ContractInstantiateResult<AccountId, Balance, ()>) -> Self {
-        Self {}
-    }
-}
 
 impl<Balance> From<ContractExecResult<Balance, ()>> for DrinkErr {
     fn from(_value: ContractExecResult<Balance, ()>) -> Self {

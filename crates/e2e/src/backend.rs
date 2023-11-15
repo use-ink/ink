@@ -219,7 +219,7 @@ pub trait BuilderClient<E: Environment>: ContractsBackend<E> {
         message: &CallBuilderFinal<E, Args, RetType>,
         value: E::Balance,
         storage_deposit_limit: Option<E::Balance>,
-    ) -> CallDryRunResult<E, RetType>
+    ) -> Result<CallDryRunResult<E, RetType>, Self::Error>
     where
         CallBuilderFinal<E, Args, RetType>: Clone;
 
@@ -272,5 +272,5 @@ pub trait BuilderClient<E: Environment>: ContractsBackend<E> {
         constructor: &mut CreateBuilderPartial<E, Contract, Args, R>,
         value: E::Balance,
         storage_deposit_limit: Option<E::Balance>,
-    ) -> ContractInstantiateResult<E::AccountId, E::Balance, ()>;
+    ) -> Result<ContractInstantiateResult<E::AccountId, E::Balance, ()>, Self::Error>;
 }

@@ -248,7 +248,10 @@ where
         constructor: &mut CreateBuilderPartial<E, Contract, Args, R>,
         value: E::Balance,
         storage_deposit_limit: Option<E::Balance>,
-    ) -> ContractInstantiateResult<E::AccountId, E::Balance, Self::EventLog> {
+    ) -> Result<
+        ContractInstantiateResult<E::AccountId, E::Balance, Self::EventLog>,
+        Self::Error,
+    > {
         let code = self.contracts.load_code(contract_name);
         let data = constructor_exec_input(constructor.clone());
         let result = self.sandbox.dry_run(|r| {
@@ -271,7 +274,7 @@ where
         };
         let account_id = AccountId::from(account_id_raw);
 
-        ContractInstantiateResult {
+        Ok(ContractInstantiateResult {
             gas_consumed: result.gas_consumed,
             gas_required: result.gas_required,
             storage_deposit: result.storage_deposit,
@@ -283,7 +286,7 @@ where
                 }
             }),
             events: None,
-        }
+        })
     }
 
     async fn bare_upload(
@@ -365,7 +368,7 @@ where
         message: &CallBuilderFinal<E, Args, RetType>,
         value: E::Balance,
         storage_deposit_limit: Option<E::Balance>,
-    ) -> CallDryRunResult<E, RetType>
+    ) -> Result<CallDryRunResult<E, RetType>, Self::Error>
     where
         CallBuilderFinal<E, Args, RetType>: Clone,
     {

@@ -82,7 +82,6 @@ use subxt::{
 };
 
 pub type Error<E> = crate::error::Error<
-    <E as Environment>::AccountId,
     <E as Environment>::Balance,
     <E as Environment>::Hash,
     subxt::error::DispatchError,
@@ -461,11 +460,13 @@ where
         constructor: &mut CreateBuilderPartial<E, Contract, Args, R>,
         value: E::Balance,
         storage_deposit_limit: Option<E::Balance>,
-    ) -> ContractInstantiateResult<E::AccountId, E::Balance, ()> {
+    ) -> Result<ContractInstantiateResult<E::AccountId, E::Balance, ()>, Self::Error>
+    {
         let code = self.contracts.load_code(contract_name);
         let data = constructor_exec_input(constructor.clone());
 
-        self.api
+        let result = self
+            .api
             .instantiate_with_code_dry_run(
                 value,
                 storage_deposit_limit,
@@ -474,7 +475,23 @@ where
                 salt(),
                 caller,
             )
-            .await
+            .await;
+        if let Err(error) = result.result {
+            let debug_message = String::from_utf8(result.debug_message)
+                .expect("invalid utf8 debug message");
+            let dispatch_err_encoded = Encode::encode(&error);
+            let subxt_dispatch_err = subxt::error::DispatchError::decode_from(
+                &dispatch_err_encoded,
+                self.api.client.metadata(),
+            )
+            .expect("failed to decode valid dispatch error");
+            return Err(Error::<E>::InstantiateDryRun {
+                debug_message,
+                error: subxt_dispatch_err,
+            })
+        } else {
+            Ok(result)
+        }
     }
 
     async fn bare_upload(
@@ -542,7 +559,7 @@ where
         message: &CallBuilderFinal<E, Args, RetType>,
         value: E::Balance,
         storage_deposit_limit: Option<E::Balance>,
-    ) -> CallDryRunResult<E, RetType>
+    ) -> Result<CallDryRunResult<E, RetType>, Self::Error>
     where
         CallBuilderFinal<E, Args, RetType>: Clone,
     {
@@ -565,10 +582,10 @@ where
             String::from_utf8_lossy(&exec_result.debug_message)
         ));
 
-        CallDryRunResult {
+        Ok(CallDryRunResult {
             exec_result,
             _marker: Default::default(),
-        }
+        })
     }
 }
 
