@@ -123,10 +123,10 @@ fn build_full_client(
         Some(url) => {
             quote! {
                 let rpc = ::ink_e2e::RpcClient::from_url(#url)
-                .await
-                .unwrap_or_else(|err|
-                    ::core::panic!("Error connecting to Chopsticks node: {err:?}")
-                );
+                    .await
+                    .unwrap_or_else(|err|
+                        ::core::panic!("Error connecting to Chopsticks node: {err:?}")
+                    );
                 let contracts = #contracts;
                 let mut client = ::ink_e2e::Client::<
                     ::ink_e2e::PolkadotConfig,
@@ -137,12 +137,12 @@ fn build_full_client(
         None => {
             quote! {
                 let node_rpc = ::ink_e2e::TestNodeProcess::<::ink_e2e::PolkadotConfig>
-                ::build_with_env_or_default()
-                .spawn()
-                .await
-                .unwrap_or_else(|err|
-                    ::core::panic!("Error spawning substrate-contracts-node: {err:?}")
-                );
+                    ::build_with_env_or_default()
+                    .spawn()
+                    .await
+                    .unwrap_or_else(|err|
+                        ::core::panic!("Error spawning substrate-contracts-node: {err:?}")
+                    );
                 let contracts = #contracts;
                 let mut client = ::ink_e2e::Client::<
                     ::ink_e2e::PolkadotConfig,
