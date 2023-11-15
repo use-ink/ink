@@ -1,22 +1,17 @@
-//! A smart contract which demonstrates functionality of `Mapping` functions.
+//! A smart contract which demonstrates functionality of `StorageVec` functions.
 
 #![cfg_attr(not(feature = "std"), no_std, no_main)]
 
 #[ink::contract]
 mod storagevec_integration_tests {
-    /// Defines the storage of your contract.
-    /// Add new fields to the below struct in order
-    /// to add new static storage fields to your contract.
+
     #[ink(storage)]
     pub struct StorageVector {
-        /// Stores a single `bool` value on the storage.
+        /// Stores indivudual bytes values on the storage.
         vec: ink::storage::StorageVec<u8>,
     }
 
     impl StorageVector {
-        /// Constructor that initializes the `bool` value to `false`.
-        ///
-        /// Constructors can delegate to other constructors.
         #[ink(constructor, payable)]
         pub fn default() -> Self {
             Self {
@@ -24,16 +19,14 @@ mod storagevec_integration_tests {
             }
         }
 
-        /// A message that can be called on instantiated contracts.
-        /// This one flips the value of the stored `bool` from `true`
-        /// to `false` and vice versa.
+        /// Push another byte value to storage.
         #[ink(message)]
         pub fn push(&mut self, value: u8) {
             self.vec.push(value);
             self.vec.write();
         }
 
-        /// Simply returns the current value of our `bool`.
+        /// Pop the last byte value from storage (removing it from storage).
         #[ink(message)]
         pub fn pop(&mut self) -> Option<u8> {
             let result = self.vec.pop();
@@ -41,11 +34,13 @@ mod storagevec_integration_tests {
             result
         }
 
+        /// Peek at the last byte value without removing it from storage.
         #[ink(message)]
         pub fn peek(&self, at: u32) -> Option<u8> {
             self.vec.get(at).copied()
         }
 
+        /// Read and return the whole vector from storage.
         #[ink(message)]
         pub fn get(&self) -> ink::prelude::vec::Vec<u8> {
             self.vec.iter().copied().collect()

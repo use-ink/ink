@@ -241,7 +241,7 @@ where
     /// Returns the index if it is within bounds or `None` otherwise.
     fn within_bounds(&self, index: u32) -> Option<u32> {
         if index < self.len() {
-            return Some(index)
+            return Some(index);
         }
         None
     }
@@ -249,7 +249,7 @@ where
     /// Returns a shared reference to the first element if any.
     pub fn first(&self) -> Option<&T> {
         if self.is_empty() {
-            return None
+            return None;
         }
         self.get(0)
     }
@@ -257,7 +257,7 @@ where
     /// Returns a shared reference to the last element if any.
     pub fn last(&self) -> Option<&T> {
         if self.is_empty() {
-            return None
+            return None;
         }
         let last_index = self.len() - 1;
         self.get(last_index)
@@ -401,7 +401,7 @@ where
             } else if cmp == Greater {
                 right = mid;
             } else {
-                return Ok(mid)
+                return Ok(mid);
             }
 
             size = right - left;
@@ -478,7 +478,7 @@ where
     /// Returns `None` if the vector is empty.
     pub fn pop(&mut self) -> Option<T> {
         if self.is_empty() {
-            return None
+            return None;
         }
         let last_index = self.len() - 1;
         self.len = Some(last_index);
@@ -495,7 +495,7 @@ where
     /// since it avoids reading from contract storage in some use cases.
     pub fn pop_drop(&mut self) -> Option<()> {
         if self.is_empty() {
-            return None
+            return None;
         }
         let last_index = self.len() - 1;
         self.len = Some(last_index);
@@ -506,7 +506,7 @@ where
     /// Returns an exclusive reference to the first element if any.
     pub fn first_mut(&mut self) -> Option<&mut T> {
         if self.is_empty() {
-            return None
+            return None;
         }
         self.get_mut(0)
     }
@@ -514,7 +514,7 @@ where
     /// Returns an exclusive reference to the last element if any.
     pub fn last_mut(&mut self) -> Option<&mut T> {
         if self.is_empty() {
-            return None
+            return None;
         }
         let last_index = self.len() - 1;
         self.get_mut(last_index)
@@ -551,7 +551,7 @@ where
     /// This operation does not preserve ordering but is constant time.
     pub fn swap_remove(&mut self, n: u32) -> Option<T> {
         if self.is_empty() {
-            return None
+            return None;
         }
         self.elems.swap(n, self.len() - 1);
         self.pop()
@@ -569,7 +569,7 @@ where
     /// read for some use cases.
     pub fn swap_remove_drop(&mut self, n: u32) -> Option<()> {
         if self.is_empty() {
-            return None
+            return None;
         }
         self.elems.put(n, None);
         let last_index = self.len() - 1;
@@ -587,7 +587,7 @@ where
     #[inline]
     pub fn set(&mut self, index: u32, new_value: T) -> Result<(), IndexOutOfBounds> {
         if self.within_bounds(index).is_none() {
-            return Err(IndexOutOfBounds)
+            return Err(IndexOutOfBounds);
         }
         self.elems.put(index, Some(new_value));
         Ok(())
@@ -602,7 +602,7 @@ where
     /// any of the elements (whereas `pop()` does).
     pub fn clear(&mut self) {
         if self.is_empty() {
-            return
+            return;
         }
         for index in 0..self.len() {
             self.elems.put(index, None);
@@ -613,7 +613,7 @@ where
     /// Write the cached in-memory data back to storage.
     ///
     /// This does only write elements that were modified.
-    pub fn write(&self) {
+    pub fn write(&mut self) {
         ink_env::set_contract_storage(&KeyType::KEY, &self.len());
         self.elems.write();
     }
@@ -732,7 +732,7 @@ where
 {
     fn eq(&self, other: &Self) -> bool {
         if self.len() != other.len() {
-            return false
+            return false;
         }
         self.iter().zip(other.iter()).all(|(lhs, rhs)| lhs == rhs)
     }
@@ -799,7 +799,7 @@ where
         debug_assert!(self.begin <= self.end);
         let n = n as u32;
         if self.begin + n >= self.end {
-            return None
+            return None;
         }
         let cur = self.begin + n;
         self.begin += 1 + n;
@@ -827,7 +827,7 @@ where
         debug_assert!(self.begin <= self.end);
         let n = n as u32;
         if self.begin >= self.end.saturating_sub(n) {
-            return None
+            return None;
         }
         self.end -= 1 + n;
         self.vec
@@ -916,7 +916,7 @@ where
         debug_assert!(self.begin <= self.end);
         let n = n as u32;
         if self.begin + n >= self.end {
-            return None
+            return None;
         }
         let cur = self.begin + n;
         self.begin += 1 + n;
@@ -944,7 +944,7 @@ where
         debug_assert!(self.begin <= self.end);
         let n = n as u32;
         if self.begin >= self.end.saturating_sub(n) {
-            return None
+            return None;
         }
         self.end -= 1 + n;
         self.get_mut(self.end)
@@ -1371,27 +1371,21 @@ mod tests {
         .unwrap();
     }
 
-    // #[test]
-    // #[should_panic(expected = "encountered empty storage cell")]
-    // fn spread_layout_clear_works() {
-    // ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
-    // let vec1 = vec_from_slice(&[b'a', b'b', b'c', b'd']);
-    // let root_key = Key::from([0x42; 32]);
-    // SpreadLayout::push_spread(&vec1, &mut KeyPtr::from(root_key));
-    // It has already been asserted that a valid instance can be pulled
-    // from contract storage after a push to the same storage region.
-    //
-    // Now clear the associated storage from `vec1` and check whether
-    // loading another instance from this storage will panic since the
-    // vector's length property cannot read a value:
-    // SpreadLayout::clear_spread(&vec1, &mut KeyPtr::from(root_key));
-    // let _ = <StorageVec<u8> as SpreadLayout>::pull_spread(&mut KeyPtr::from(
-    // root_key,
-    // ));
-    // Ok(())
-    // })
-    // .unwrap()
-    // }
+    #[test]
+    fn clear_works() {
+        ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
+            let mut vec1 = vec_from_slice(&[b'a', b'b', b'c', b'd']);
+            vec1.write();
+
+            vec1.clear();
+            vec1.write();
+
+            assert_eq!(vec1.len(), 0);
+            assert_eq!(vec1.get(0), None);
+            Ok(())
+        })
+        .unwrap()
+    }
 
     #[test]
     fn set_works() {
@@ -1521,39 +1515,6 @@ mod tests {
         .unwrap()
     }
 
-    // #[test]
-    // #[should_panic(expected = "encountered empty storage cell")]
-    // fn storage_is_cleared_completely_after_pull_lazy() {
-    // ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
-    // given
-    // let root_key = Key::from([0x42; 32]);
-    // let mut lazy_vec: Lazy<StorageVec<u32>> = Lazy::new(StorageVec::new());
-    // lazy_vec.push(13u32);
-    // lazy_vec.push(13u32);
-    // SpreadLayout::push_spread(&lazy_vec, &mut KeyPtr::from(root_key));
-    // let pulled_vec = <Lazy<StorageVec<u32>> as SpreadLayout>::pull_spread(
-    // &mut KeyPtr::from(root_key),
-    // );
-    //
-    // when
-    // SpreadLayout::clear_spread(&pulled_vec, &mut KeyPtr::from(root_key));
-    //
-    // then
-    // let contract_id = ink_env::test::callee::<ink_env::DefaultEnvironment>();
-    // let used_cells = ink_env::test::count_used_storage_cells::<
-    // ink_env::DefaultEnvironment,
-    // >(&contract_id)
-    // .expect("used cells must be returned");
-    // assert_eq!(used_cells, 0);
-    // let _ = *<Lazy<Lazy<u32>> as SpreadLayout>::pull_spread(&mut KeyPtr::from(
-    // root_key,
-    // ));
-    //
-    // Ok(())
-    // })
-    // .unwrap()
-    // }
-
     #[test]
     //#[should_panic(expected = "encountered empty storage cell")]
     fn drop_works() {
@@ -1561,8 +1522,6 @@ mod tests {
             // if the setup panics it should not cause the test to pass
             let setup_result = std::panic::catch_unwind(|| {
                 vec_from_slice(&[b'a', b'b', b'c', b'd']).write();
-
-                // vec is dropped which should clear the cells
             });
             assert!(setup_result.is_ok(), "setup should not panic");
 
@@ -1573,9 +1532,6 @@ mod tests {
             .expect("used cells must be returned");
             assert_eq!(used_cells, 0);
 
-            // let _ = <StorageVec<u8> as SpreadLayout>::pull_spread(&mut KeyPtr::from(
-            //    root_key,
-            //));
             Ok(())
         })
         .unwrap()
@@ -1584,7 +1540,7 @@ mod tests {
     #[test]
     fn write_work() {
         ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
-            let a = [1, 1, 2, 2, 3, 3, 3]
+            let mut a = [1, 1, 2, 2, 3, 3, 3]
                 .iter()
                 .copied()
                 .collect::<StorageVec<i32, ManualKey<1>>>();
