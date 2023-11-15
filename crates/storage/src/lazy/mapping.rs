@@ -488,7 +488,6 @@ mod tests {
             let key = 0;
             let value = [0u8; ink_env::BUFFER_SIZE - 1];
 
-
             assert_eq!(mapping.try_insert(key, &value), Ok(None));
             assert_eq!(mapping.try_get(key), Some(Ok(value)));
             assert_eq!(mapping.try_take(key), Some(Ok(value)));
