@@ -77,9 +77,14 @@ impl E2EConfig {
         self.backend.clone()
     }
 
-    #[cfg(feature = "live-state-test")]
     pub fn chopsticks_url(&self) -> Option<String> {
-        self.chopsticks_url.clone()
+        #[cfg(feature = "live-state-test")]
+        let url = self.chopsticks_url.clone();
+
+        #[cfg(not(feature = "live-state-test"))]
+        let url = None;
+
+        url
     }
 }
 
