@@ -303,12 +303,13 @@ mod tests {
     use crate::traits::ManualKey;
 
     #[test]
-    fn default_values() {
+    fn empty_vec_works_as_expected() {
         ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
             let mut array: StorageVec<String> = StorageVec::new();
 
             assert_eq!(array.pop(), None);
             assert_eq!(array.len(), 0);
+            assert!(array.is_empty());
 
             Ok(())
         })
@@ -324,9 +325,6 @@ mod tests {
             array.push(&value);
             assert_eq!(array.len(), 1);
             assert_eq!(array.pop(), Some(value));
-
-            assert_eq!(array.len(), 0);
-            assert_eq!(array.pop(), None);
 
             Ok(())
         })

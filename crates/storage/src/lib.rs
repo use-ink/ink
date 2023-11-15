@@ -55,4 +55,5 @@ pub(crate) mod lazy;
 pub use self::lazy::{
     Lazy,
     Mapping,
+    StorageVec,
 };
