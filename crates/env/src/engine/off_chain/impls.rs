@@ -201,8 +201,8 @@ impl EnvBackend for EnvInstance {
         let encoded_key: Vec<u8> = key.encode();
         let encoded_value: &[u8] = &v[..];
 
-        if encoded_value.len() + encoded_key.len() > BUFFER_SIZE - 4 {
-            panic!("Value too large to be stored in contract storage, maximum size is {} bytes", (BUFFER_SIZE - 4));
+        if encoded_value.len() + encoded_key.len() > BUFFER_SIZE {
+            panic!("Value too large {:?} ({}+{} bytes) to be stored in contract storage, maximum size is {} bytes", encoded_key, encoded_key.len(), encoded_value.len(), BUFFER_SIZE);
         }
         self.engine.set_storage(&encoded_key, encoded_value)
     }

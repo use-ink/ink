@@ -171,7 +171,9 @@ where
 
         let value_size = <R as Storable>::encoded_size(value);
 
-        if key_size.saturating_add(value_size) > ink_env::BUFFER_SIZE {
+        // insert() will attempt to insert a tuple (u32, key), which increases
+        // the size of the key by 4.
+        if key_size.saturating_add(value_size).saturating_add(4) > ink_env::BUFFER_SIZE {
             return Err(ink_env::Error::BufferTooSmall)
         }
 
@@ -379,6 +381,8 @@ const _: () = {
 
 #[cfg(test)]
 mod tests {
+    use std::panic;
+
     use super::*;
     use crate::traits::ManualKey;
 
@@ -483,10 +487,10 @@ mod tests {
     #[test]
     fn fallible_storage_works_for_fitting_data() {
         ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
-            let mut mapping: Mapping<u8, [u8; ink_env::BUFFER_SIZE - 1]> = Mapping::new();
+            let mut mapping: Mapping<u8, [u8; ink_env::BUFFER_SIZE - 1 - 4]> = Mapping::new();
 
             let key = 0;
-            let value = [0u8; ink_env::BUFFER_SIZE - 1];
+            let value = [0u8; ink_env::BUFFER_SIZE - 1 - 4];
 
             assert_eq!(mapping.try_insert(key, &value), Ok(None));
             assert_eq!(mapping.try_get(key), Some(Ok(value)));
@@ -502,10 +506,10 @@ mod tests {
     #[should_panic]
     fn fallible_storage_fails_gracefully_for_overgrown_data() {
         ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
-            let mut mapping: Mapping<u8, [u8; ink_env::BUFFER_SIZE]> = Mapping::new();
+            let mut mapping: Mapping<u8, [u8; ink_env::BUFFER_SIZE - 4]> = Mapping::new();
 
             let key = 0;
-            let value = [0u8; ink_env::BUFFER_SIZE];
+            let value = [0u8; ink_env::BUFFER_SIZE - 4];
 
             assert_eq!(mapping.try_get(0), None);
             assert_eq!(
@@ -534,9 +538,10 @@ mod tests {
                 Err(ink_env::Error::BufferTooSmall)
             );
 
-            // The off-chain impl conveniently uses a Vec for encoding,
-            // allowing writing values exceeding the static buffer size.
-            ink_env::set_contract_storage(&(&mapping.key(), key), &value);
+            let result = panic::catch_unwind(||{
+                ink_env::set_contract_storage(&(&mapping.key(), key), &value);
+            });
+            assert!(result.is_err());
             assert_eq!(
                 mapping.try_get(key),
                 Some(Err(ink_env::Error::BufferTooSmall))

@@ -177,7 +177,9 @@ where
     ///
     /// Fails if `value` exceeds the static buffer size.
     pub fn try_set(&mut self, value: &V) -> ink_env::Result<()> {
-        if value.encoded_size() > ink_env::BUFFER_SIZE {
+        // set() will attempt to use a u32 key, which we need to account for
+        // here:
+        if value.encoded_size().saturating_add(4) > ink_env::BUFFER_SIZE {
             return Err(ink_env::Error::BufferTooSmall)
         };
 
@@ -317,9 +319,9 @@ mod tests {
     #[test]
     fn fallible_storage_works_for_fitting_data() {
         ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
-            let mut storage: Lazy<[u8; ink_env::BUFFER_SIZE]> = Lazy::new();
+            let mut storage: Lazy<[u8; ink_env::BUFFER_SIZE - 4]> = Lazy::new();
 
-            let value = [0u8; ink_env::BUFFER_SIZE];
+            let value = [0u8; ink_env::BUFFER_SIZE - 4];
             assert_eq!(storage.try_set(&value), Ok(()));
             assert_eq!(storage.try_get(), Some(Ok(value)));
 
@@ -332,9 +334,9 @@ mod tests {
     #[should_panic]
     fn fallible_storage_fails_gracefully_for_overgrown_data() {
         ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
-            let mut storage: Lazy<[u8; ink_env::BUFFER_SIZE + 1]> = Lazy::new();
+            let mut storage: Lazy<[u8; ink_env::BUFFER_SIZE - 4 + 1]> = Lazy::new();
 
-            let value = [0u8; ink_env::BUFFER_SIZE + 1];
+            let value = [0u8; ink_env::BUFFER_SIZE - 4 + 1];
             assert_eq!(storage.try_get(), None);
             assert_eq!(storage.try_set(&value), Err(ink_env::Error::BufferTooSmall));
 
