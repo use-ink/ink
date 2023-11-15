@@ -20,10 +20,19 @@
 //! Instead it is just a simple wrapper around the contract storage facilities.
 
 use ink_primitives::Key;
-use ink_storage_traits::{AutoKey, Packed, Storable, StorableHint, StorageKey};
+use ink_storage_traits::{
+    AutoKey,
+    Packed,
+    Storable,
+    StorableHint,
+    StorageKey,
+};
 use scale::EncodeLike;
 
-use crate::{Lazy, Mapping};
+use crate::{
+    Lazy,
+    Mapping,
+};
 
 /// A vector of values (elements) directly on contract storage.
 ///
@@ -53,13 +62,13 @@ use crate::{Lazy, Mapping};
 ///
 /// [StorageVec] on the other hand allows to access each element individually.
 /// Thus, it can theoretically grow to infinite size.
-/// However, we currently limit the length at 2 ^ 32 elements. In practice,
+/// However, we currently limit the length at 2^32 elements. In practice,
 /// even if the vector elements are single bytes, it'll allow to store
 /// more than 4GB data in blockchain storage.
 ///
 /// # Caveats
 ///
-/// Iterators are not providided. [StorageVec] is expected to be used to
+/// Iterators are not provided. [StorageVec] is expected to be used to
 /// store a lot elements, where iterating through the elements would be
 /// rather inefficient (naturally, it is still possible to manually
 /// iterate over the elements using a loop).
@@ -72,11 +81,11 @@ use crate::{Lazy, Mapping};
 /// optimization problem with several factors:
 /// * How large you expect the vector to grow
 /// * The size of individual elements being stored
-/// * How frequentely reads, writes and iterations happen
+/// * How frequently reads, writes and iterations happen
 ///
 /// For example, if a vector is expected to stay small but is frequently
-/// iteratet over. Chooosing a `Vec<T>` instead of [StorageVec] will be
-/// preferred as indiviudal storage reads are much more expensive as
+/// iterated over. Choosing a `Vec<T>` instead of [StorageVec] will be
+/// preferred as individual storage reads are much more expensive as
 /// opposed to retrieving and decoding the whole collection with a single
 /// storage read.
 ///
@@ -87,14 +96,14 @@ use crate::{Lazy, Mapping};
 /// key `K` and the elements index.
 ///
 /// Given [StorageVec] under key `K`, the storage key `E` of the `N`th
-/// element is calcualted as follows:
+/// element is calculated as follows:
 ///
 /// `E = scale::Encode((K, N))`
 #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
 pub struct StorageVec<V: Packed, KeyType: StorageKey = AutoKey> {
     /// The number of elements stored on-chain.
     len: Lazy<u32, KeyType>,
-    /// The length only changes upon pushing ot or popping from the vec.
+    /// The length only changes upon pushing to or popping from the vec.
     /// Hence we can cache it to prevent unnecessary reads from storage.
     len_cached: Option<u32>,
     /// We use a [Mapping] to store all elements of the vector.
@@ -156,7 +165,11 @@ where
 #[cfg(feature = "std")]
 const _: () = {
     use crate::traits::StorageLayout;
-    use ink_metadata::layout::{Layout, LayoutKey, RootLayout};
+    use ink_metadata::layout::{
+        Layout,
+        LayoutKey,
+        RootLayout,
+    };
 
     impl<V, KeyType> StorageLayout for StorageVec<V, KeyType>
     where
@@ -227,7 +240,7 @@ where
 
     /// Try to append an element to the back of the vector.
     ///
-    ///Returns:
+    /// Returns:
     ///
     /// * `Ok(())` if the value was inserted successfully
     /// * `Err(_)` if the encoded value exceeds the static buffer size.
@@ -247,7 +260,7 @@ where
     /// Shrinks the length of the vector by one.
     //
     /// Returns `None` if the vector is empty or if the last
-    /// element was already cleared from storages.
+    /// element was already cleared from storage.
     ///
     /// # Panics
     ///
@@ -300,7 +313,8 @@ where
     /// Returns:
     ///
     /// * `Some(Ok(_))` containing the value if it existed and was decoded successfully.
-    /// * `Some(Err(_))` if the value existed but its length exceeds the static buffer size.
+    /// * `Some(Err(_))` if the value existed but its length exceeds the static buffer
+    ///   size.
     /// * `None` if there was no value at `index`.
     pub fn try_get(&self, index: u32) -> Option<ink_env::Result<V>> {
         self.elements.try_get(index)
@@ -325,10 +339,11 @@ where
     ///
     /// Returns:
     ///
-    /// * `Ok(Some(_))` if the value was inserted successfully, containing the size
-    ///   in bytes of the pre-existing value at the specified key if any.
+    /// * `Ok(Some(_))` if the value was inserted successfully, containing the size in
+    ///   bytes of the pre-existing value at the specified key if any.
     /// * `Ok(None)` if the insert was successful but there was no pre-existing value.
-    /// * Err([ink_env::Error::BufferTooSmall]) if the encoded value exceeds the static buffer size
+    /// * Err([ink_env::Error::BufferTooSmall]) if the encoded value exceeds the static
+    ///   buffer size
     /// * Err([ink_env::Error::KeyNotFound]) if the `index` is out of bounds.
     ///
     /// # Panics
