@@ -53,7 +53,7 @@ mod set_contract_storage {
 
         #[ink::test]
         #[should_panic(
-            expected = "Value too large to be stored in contract storage, maximum size is 16380 bytes"
+            expected = "Value too large to be stored in contract storage, maximum size is 16384 bytes"
         )]
         fn contract_storage_too_big() {
             let contract = SetContractStorage::new();
