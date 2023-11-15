@@ -190,7 +190,7 @@ mod instantiate_contract {
 
         fn to_array(address: &mut AccountId) -> [u8; 32]{
             let temp: &[u8; 32] = address.as_mut();
-            temp.clone()
+            *temp
         }
 
         #[ink::test]
@@ -218,32 +218,32 @@ mod instantiate_contract {
                 assert_eq!(x, c);
                 assert_eq!(y, c);
             };
-            check_hashes(&contract1_address1_account, &contract1_address2_account, code_hash1.clone());
-            check_hashes(&contract2_address1_account, &contract2_address2_account, code_hash2.clone());
+            check_hashes(&contract1_address1_account, &contract1_address2_account, code_hash1);
+            check_hashes(&contract2_address1_account, &contract2_address2_account, code_hash2);
 
             let check_values1 = |a, b| {
-                let x = contract.contract1_get_x(contract1_address1.clone());
-                let y = contract.contract1_get_x(contract1_address2.clone());
+                let x = contract.contract1_get_x(contract1_address1);
+                let y = contract.contract1_get_x(contract1_address2);
                 assert_eq!(x, a);
                 assert_eq!(y, b);
             };
             let check_values2 = |a, b| {
-                let x = contract.contract2_get_x(contract2_address1.clone());
-                let y = contract.contract2_get_x(contract2_address2.clone());
+                let x = contract.contract2_get_x(contract2_address1);
+                let y = contract.contract2_get_x(contract2_address2);
                 assert_eq!(x, a);
                 assert_eq!(y, b);
             };
 
             check_values1(42, 42);
             check_values2(123456, 123456);
-            contract.contract2_set_x(contract2_address1.clone(), 78);
+            contract.contract2_set_x(contract2_address1, 78);
             check_values1(42, 42);
             check_values2(123456, 123456);
-            contract.contract1_set_x(contract1_address1.clone(), 123);
-            contract.contract2_set_x(contract2_address2.clone(), 87);
+            contract.contract1_set_x(contract1_address1, 123);
+            contract.contract2_set_x(contract2_address2, 87);
             check_values1(123, 42);
             check_values2(123456, 123456);
-            contract.contract1_set_x(contract1_address2.clone(), 321);
+            contract.contract1_set_x(contract1_address2, 321);
             check_values1(123, 321);
             check_values2(123456, 123456);
 
