@@ -204,18 +204,6 @@ impl<E: Environment, V: scale::Decode> CallDryRunResult<E, V> {
         self.exec_result.result.is_err()
     }
 
-    /// Converts the dry-run result into a `Result` type.
-    pub fn to_result<Error>(self) -> Result<Self, Error>
-    where
-        Error: From<ContractExecResult<E::Balance, ()>>,
-    {
-        if self.is_err() {
-            Err(Error::from(self.exec_result))
-        } else {
-            Ok(self)
-        }
-    }
-
     /// Returns the [`ExecReturnValue`] resulting from the dry-run message call.
     ///
     /// Panics if the dry-run message call failed to execute.
