@@ -5,18 +5,22 @@
 # Usage:
 #   ./contract_sizes_submit.sh \
 #     <github_url_to_comments_of_pr>
+#     <github_url_to_workflow>
+#     <cargo_contract_version>
 #     < <diffs-csv-file>
 
 set -eu
 set -o pipefail
 
 pr_comments_url=$1
+workflow_url=$2
+cc_version=$3
 diffs_markdown_table=$(</dev/stdin)
 
 # If there is already a comment by the user `paritytech-cicd-pr` in the ink! PR which triggered
 # this run, then we can just edit this comment (using `PATCH` instead of `POST`).
 possibly_comment_url=$(curl --silent $pr_comments_url | \
-  jq -r ".[] | select(.user.login == \"paritytech-cicd-pr\") | .url" | \
+  jq -r ".[] | select(.user.login == \"paritytech-cicd-pr\" or .user.login == \"github-actions[bot]\") | .url" | \
   head -n1
 )
 echo $possibly_comment_url
@@ -40,7 +44,6 @@ if [ "$head_in_branch" == "1" ]; then
 fi
 
 updated=$(TZ='Europe/Berlin' date)
-cc_version=$(cargo-contract --version | egrep --only-matching "cargo-contract.* .*-x86" | sed -s 's/-x86//')
 body=$(cat << EOF
 ## 🦑 📈 ink! Example Contracts ‒ Changes Report 📉 🦑
 ${master_ahead}
@@ -48,10 +51,9 @@ These are the results when building the \`integration-tests/*\` contracts from t
 
 ${diffs_markdown_table}
 
-[Link to the run](https://gitlab.parity.io/parity/mirrors/ink/-/pipelines/${CI_PIPELINE_ID}) | Last update: ${updated}
+[Link to the run](${workflow_url}) | Last update: ${updated}
 EOF
 )
-
 json_body=$(jq -n --arg body "${body}" '{ "body": $body}')
 
 curl -X ${verb} ${pr_comments_url} \

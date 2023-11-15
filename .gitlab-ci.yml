@@ -78,9 +78,10 @@ workflow:
     - *rust-info-script
   interruptible:                   true
   tags:
-    - linux-docker-vm-c2
+    - linux-docker
 
 .kubernetes-env:                   &kubernetes-env
+  image:                           "${CI_IMAGE}"
   interruptible:                   true
   tags:
     - kubernetes-parity-build
@@ -92,7 +93,7 @@ workflow:
 # the lint steps are marked as "Required" in GitHub.
 spellcheck:
   stage:                           lint
-  <<:                              *docker-env
+  <<:                              *kubernetes-env
   <<:                              *test-refs
   script:
     - cargo spellcheck check -v --cfg=.config/cargo_spellcheck.toml --checkers hunspell --code 1 -- recursive .
@@ -101,7 +102,7 @@ spellcheck:
 
 fmt:
   stage:                           lint
-  <<:                              *docker-env
+  <<:                              *kubernetes-env
   <<:                              *test-refs
   script:
     - cargo +nightly fmt --verbose --all -- --check
@@ -112,10 +113,10 @@ fmt:
 
 examples-fmt:
   stage:                           lint
-  <<:                              *docker-env
+  <<:                              *kubernetes-env
   <<:                              *test-refs
   script:
-    - scripts/for_all_contracts_exec.sh 
+    - scripts/for_all_contracts_exec.sh
       --path integration-tests
       -- cargo +nightly fmt --verbose --manifest-path {} -- --check
     # This file is not a part of the cargo project, so it wouldn't be formatted the usual way
@@ -146,7 +147,7 @@ examples-clippy-std:
   <<:                              *docker-env
   <<:                              *test-refs
   script:
-    - scripts/for_all_contracts_exec.sh 
+    - scripts/for_all_contracts_exec.sh
       --path integration-tests
       -- cargo clippy --verbose --all-targets --manifest-path {} -- -D warnings -A $CLIPPY_ALLOWED
   allow_failure:                   true
@@ -156,7 +157,7 @@ examples-clippy-wasm:
   <<:                              *docker-env
   <<:                              *test-refs
   script:
-    - scripts/for_all_contracts_exec.sh 
+    - scripts/for_all_contracts_exec.sh
       --path integration-tests
       -- cargo clippy --verbose --manifest-path {} --no-default-features --target wasm32-unknown-unknown -- -D warnings -A $CLIPPY_ALLOWED
   allow_failure:                   true
@@ -289,7 +290,7 @@ docs:
     - chown -R nonroot:nonroot ./crate-docs
 
 
-codecov:
+.codecov:
   stage:                           workspace
   <<:                              *docker-env
   <<:                              *test-refs
@@ -350,7 +351,7 @@ examples-test:
     RUSTFLAGS: "-Clink-arg=-z -Clink-arg=nostart-stop-gc"
   script:
     # run all tests with --all-features, which will run the e2e-tests feature if present
-    - scripts/for_all_contracts_exec.sh 
+    - scripts/for_all_contracts_exec.sh
       --path integration-tests
       --ignore static-buffer
       -- cargo test --verbose --all-features --manifest-path {}
@@ -366,7 +367,7 @@ examples-contract-build:
     - rustup component add rust-src --toolchain stable
     - cargo contract -V
     # Build all examples
-    - scripts/for_all_contracts_exec.sh 
+    - scripts/for_all_contracts_exec.sh
       --path integration-tests
       -- cargo contract build --release --manifest-path {}
     # Build the different features for the conditional compilation example
@@ -414,7 +415,7 @@ examples-docs:
 
 #### stage:                        measurements
 
-contract-sizes:
+.contract-sizes:
   stage:                           measurements
   <<:                              *docker-env
   rules:
@@ -429,6 +430,7 @@ contract-sizes:
     UPSTREAM_DIR: ${MEASUREMENTS_DIR}/ink-${UPSTREAM_BRANCH}
     CONTRACT_SIZES_DIFF: ${MEASUREMENTS_DIR}/${CI_COMMIT_BRANCH}_contract_sizes_diff.md
     PR_COMMENTS_URL: "https://api.github.com/repos/paritytech/ink/issues/${CI_COMMIT_REF_NAME}/comments"
+    WORKFLOW_URL: "https://gitlab.parity.io/parity/mirrors/ink/-/pipelines/${CI_PIPELINE_ID}"
   before_script:
     - mkdir ${MEASUREMENTS_DIR}
   script:
@@ -452,7 +454,8 @@ contract-sizes:
     - cat ${CONTRACT_SIZES_DIFF}
     # Submit the comparison table as a comment to the PR
     - echo "Submitting contract sizes diff to ${PR_COMMENTS_URL}"
-    - ${SCRIPTS_DIR}/contract_sizes_submit.sh ${PR_COMMENTS_URL} < ${CONTRACT_SIZES_DIFF}
+    - CARGO_CONTRACT_VERSION=$(cargo-contract --version | egrep --only-matching "cargo-contract.* .*-x86" | sed -s 's/-x86//')
+    - ${SCRIPTS_DIR}/contract_sizes_submit.sh ${PR_COMMENTS_URL} ${WORKFLOW_URL} ${CARGO_CONTRACT_VERSION} < ${CONTRACT_SIZES_DIFF}
   after_script:
     - rm -rf ${MEASUREMENTS_DIR}
 
