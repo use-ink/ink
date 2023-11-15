@@ -92,7 +92,7 @@ use crate::{Lazy, Mapping};
 /// `E = scale::Encode((K, N))`
 #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
 pub struct StorageVec<V: Packed, KeyType: StorageKey = AutoKey> {
-    /// The number of elements stored in the vec.
+    /// The number of elements stored on-chain.
     len: Lazy<u32, KeyType>,
     /// The length only changes upon pushing ot or popping from the vec.
     /// Hence we can cache it to prevent unnecessary reads from storage.
@@ -506,10 +506,8 @@ mod tests {
     #[test]
     fn clear_works() {
         ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
-            let mut array: StorageVec<bool> = StorageVec::new();
+            let mut array: StorageVec<u128> = (0..1024).collect::<Vec<_>>()[..].into();
 
-            array.push(&true);
-            array.push(&false);
             array.clear();
 
             assert_eq!(array.len(), 0);
@@ -538,15 +536,16 @@ mod tests {
     #[test]
     fn clear_at_works() {
         ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
-            let mut array: StorageVec<u32> = StorageVec::new();
+            let mut array: StorageVec<u64> = (0..1024).collect::<Vec<_>>()[..].into();
 
-            array.push(&123);
             array.clear_at(0);
-            array.push(&456);
-
+            assert_eq!(array.len(), 1024);
             assert_eq!(array.get(0), None);
-            assert_eq!(array.get(1), Some(456));
-            assert_eq!(array.len(), 2);
+
+            let last_idx = array.len() - 1;
+            assert_eq!(array.get(last_idx), Some(1023));
+            array.clear_at(last_idx);
+            assert_eq!(array.get(last_idx), None);
 
             Ok(())
         })
