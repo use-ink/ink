@@ -126,7 +126,7 @@ fn build_full_client(
                 .await
                 .unwrap_or_else(|err|
                     ::core::panic!("Error connecting to Chopsticks node: {err:?}")
-                )
+                );
                 let contracts = #contracts;
                 let mut client = ::ink_e2e::Client::<
                     ::ink_e2e::PolkadotConfig,
