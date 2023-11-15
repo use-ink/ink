@@ -487,7 +487,8 @@ mod tests {
     #[test]
     fn fallible_storage_works_for_fitting_data() {
         ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
-            let mut mapping: Mapping<u8, [u8; ink_env::BUFFER_SIZE - 1 - 4]> = Mapping::new();
+            let mut mapping: Mapping<u8, [u8; ink_env::BUFFER_SIZE - 1 - 4]> =
+                Mapping::new();
 
             let key = 0;
             let value = [0u8; ink_env::BUFFER_SIZE - 1 - 4];
@@ -538,7 +539,7 @@ mod tests {
                 Err(ink_env::Error::BufferTooSmall)
             );
 
-            let result = panic::catch_unwind(||{
+            let result = panic::catch_unwind(|| {
                 ink_env::set_contract_storage(&(&mapping.key(), key), &value);
             });
             assert!(result.is_err());
