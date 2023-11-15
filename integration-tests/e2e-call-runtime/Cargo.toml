@@ -9,7 +9,7 @@ publish = false
 ink = { path = "../../crates/ink", default-features = false }
 
 [dev-dependencies]
-ink_e2e = { path = "../../crates/e2e", features = ["live-state-test"]}
+ink_e2e = { path = "../../crates/e2e" }
 
 [lib]
 path = "lib.rs"

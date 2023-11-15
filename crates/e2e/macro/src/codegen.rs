@@ -64,11 +64,11 @@ impl InkE2ETest {
             }
         };
 
-        let chopsticks_url = self.test.config.chopsticks_url();
+        let node_url = self.test.config.node_url();
 
         let client_building = match self.test.config.backend() {
             Backend::Full => {
-                build_full_client(&environment, exec_build_contracts, chopsticks_url)
+                build_full_client(&environment, exec_build_contracts, node_url)
             }
             #[cfg(any(test, feature = "drink"))]
             Backend::RuntimeOnly { runtime } => {
@@ -117,9 +117,9 @@ impl InkE2ETest {
 fn build_full_client(
     environment: &syn::Path,
     contracts: TokenStream2,
-    chopsticks_url: Option<String>,
+    node_url: Option<String>,
 ) -> TokenStream2 {
-    match chopsticks_url {
+    match node_url {
         Some(url) => {
             quote! {
                 let rpc = ::ink_e2e::RpcClient::from_url(#url)

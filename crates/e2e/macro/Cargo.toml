@@ -30,4 +30,3 @@ quote = { workspace = true }
 
 [features]
 drink = []
-live-state-test = []

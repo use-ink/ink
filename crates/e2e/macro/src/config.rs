@@ -46,9 +46,8 @@ pub struct E2EConfig {
     /// The type of the architecture that should be used to run test.
     #[darling(default)]
     backend: Backend,
-    /// The URL to the running chopsticks node.
-    #[cfg(any(test, feature = "live-state-test"))]
-    chopsticks_url: Option<String>,
+    /// The URL to the running node.
+    node_url: Option<String>,
 }
 
 impl E2EConfig {
@@ -77,15 +76,9 @@ impl E2EConfig {
         self.backend.clone()
     }
 
-    /// The URL to the running chopsticks node.
-    pub fn chopsticks_url(&self) -> Option<String> {
-        #[cfg(not(feature = "live-state-test"))]
-        let url = None;
-
-        #[cfg(any(test, feature = "live-state-test"))]
-        let url = self.chopsticks_url.clone();
-
-        url
+    /// The URL to the running node.
+    pub fn node_url(&self) -> Option<String> {
+        self.node_url.clone()
     }
 }
 
@@ -104,7 +97,7 @@ mod tests {
             additional_contracts = "adder/Cargo.toml flipper/Cargo.toml",
             environment = crate::CustomEnvironment,
             backend(runtime_only()),
-            chopsticks_url = "ws://127.0.0.1:8000"
+            node_url = "ws://127.0.0.1:8000"
         };
         let config =
             E2EConfig::from_list(&NestedMeta::parse_meta_list(input).unwrap()).unwrap();
@@ -119,10 +112,7 @@ mod tests {
         );
 
         assert_eq!(config.backend(), Backend::RuntimeOnly { runtime: None });
-        assert_eq!(
-            config.chopsticks_url(),
-            Some(String::from("ws://127.0.0.1:8000"))
-        )
+        assert_eq!(config.node_url(), Some(String::from("ws://127.0.0.1:8000")))
     }
 
     #[test]
@@ -139,6 +129,6 @@ mod tests {
                 runtime: Some(syn::parse_quote! { ::ink_e2e::MinimalRuntime })
             }
         );
-        assert_eq!(config.chopsticks_url(), None)
+        assert_eq!(config.node_url(), None)
     }
 }
