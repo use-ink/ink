@@ -92,8 +92,17 @@ use crate::{Lazy, Mapping};
 /// `E = scale::Encode((K, N))`
 #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
 pub struct StorageVec<V: Packed, KeyType: StorageKey = AutoKey> {
+    /// The number of elements stored in the vec.
     len: Lazy<u32, KeyType>,
+    /// The length only changes upon pushing ot or popping from the vec.
+    /// Hence we can cache it to prevent unnecessary reads from storage.
     len_cached: Option<u32>,
+    /// We use a [Mapping] to store all elements of the vector.
+    /// Each element is living in storage under `&(KeyType::KEY, index)`.
+    /// Because [StorageVec] has a [StorageKey] parameter under which the
+    /// length and element are stored, it won't collide with the other
+    /// storage fields (unless contract authors purposefully craft such a
+    /// storage layout).
     elements: Mapping<u32, V, KeyType>,
 }
 
@@ -220,8 +229,8 @@ where
     ///
     ///Returns:
     ///
-    /// * Ok(()) if the value was inserted successfully
-    /// * Err(_) if the encoded value exceeds the static buffer size.
+    /// * `Ok(())` if the value was inserted successfully
+    /// * `Err(_)` if the encoded value exceeds the static buffer size.
     pub fn try_push<T>(&mut self, value: &T) -> Result<(), ink_env::Error>
     where
         T: Storable + scale::EncodeLike<V>,
@@ -234,35 +243,50 @@ where
         Ok(())
     }
 
-    /// Pops the last element from the vector and returns it.
+    /// Clears the last element from the storage and returns it.
+    /// Shrinks the length of the vector by one.
     //
-    /// Returns `None` if the vector is empty.
+    /// Returns `None` if the vector is empty or if the last
+    /// element was already cleared from storages.
     ///
     /// # Panics
     ///
     /// * If the value overgrows the static buffer size.
     pub fn pop(&mut self) -> Option<V> {
-        let slot = self.len().checked_sub(1)?;
+        if self.is_empty() {
+            return None;
+        }
+
+        let slot = self.len().checked_sub(1).unwrap();
         self.set_len(slot);
 
         self.elements.take(slot)
     }
 
-    /// Try to pop the last element from the vector and returns it.
+    /// Try to clear and return the last element from storage.
+    /// Shrinks the length of the vector by one.
     //
     /// Returns `None` if the vector is empty.
     ///
-    /// # Panics
+    /// Returns
     ///
-    /// * If the value overgrows the static buffer size.
+    /// `Some(Ok(_))` containing the value if it existed and was decoded successfully.
+    /// `Some(Err(_))` if the value existed but its length exceeds the static buffer size.
+    /// `None` if the vector is empty.
     pub fn try_pop(&mut self) -> Option<Result<V, ink_env::Error>> {
-        let slot = self.len().checked_sub(1)?;
+        if self.is_empty() {
+            return None;
+        }
+
+        let slot = self.len().checked_sub(1).unwrap();
         self.set_len(slot);
 
         self.elements.try_take(slot)
     }
 
     /// Access an element at given `index`.
+    ///
+    /// Returns `None` if there was no value at the `index`.
     ///
     /// # Panics
     ///
@@ -275,9 +299,9 @@ where
     ///
     /// Returns:
     ///
-    /// * Some(Ok(_)) containing the value if it existed and was decoded successfully.
-    /// * Some(Err(_)) if the value existed but its length exceeds the static buffer size.
-    /// * None if there was no value under this mapping key.
+    /// * `Some(Ok(_))` containing the value if it existed and was decoded successfully.
+    /// * `Some(Err(_))` if the value existed but its length exceeds the static buffer size.
+    /// * `None` if there was no value at `index`.
     pub fn try_get(&self, index: u32) -> Option<ink_env::Result<V>> {
         self.elements.try_get(index)
     }
@@ -301,9 +325,11 @@ where
     ///
     /// Returns:
     ///
-    /// Ok(Some(_)) if the value was inserted successfully, containing the size in bytes of the pre-existing value at the specified key if any.
-    /// Ok(None) if the insert was successful but there was no pre-existing value.
-    /// Err(_) if the encoded value exceeds the static buffer size.
+    /// * `Ok(Some(_))` if the value was inserted successfully, containing the size
+    ///   in bytes of the pre-existing value at the specified key if any.
+    /// * `Ok(None)` if the insert was successful but there was no pre-existing value.
+    /// * Err([ink_env::Error::BufferTooSmall]) if the encoded value exceeds the static buffer size
+    /// * Err([ink_env::Error::KeyNotFound]) if the `index` is out of bounds.
     ///
     /// # Panics
     ///
@@ -316,7 +342,9 @@ where
     where
         T: Storable + EncodeLike<V>,
     {
-        assert!(index < self.len());
+        if index >= self.len() {
+            return Err(ink_env::Error::KeyNotFound);
+        }
 
         self.elements.try_insert(index, value)
     }
@@ -342,7 +370,23 @@ where
     pub fn clear_at(&mut self, index: u32) {
         assert!(index < self.len());
 
-        ink_env::clear_contract_storage(&index);
+        self.elements.remove(index);
+    }
+}
+
+impl<'a, V, KeyType> From<&'a [V]> for StorageVec<V, KeyType>
+where
+    V: Packed + EncodeLike<V>,
+    KeyType: StorageKey,
+{
+    fn from(value: &'a [V]) -> Self {
+        let mut result = StorageVec::<V, KeyType>::new();
+
+        for element in value {
+            result.push(element);
+        }
+
+        result
     }
 }
 
@@ -485,6 +529,83 @@ mod tests {
 
             assert_eq!(array.len(), 0);
             assert_eq!(array.pop(), None);
+
+            Ok(())
+        })
+        .unwrap()
+    }
+
+    #[test]
+    fn clear_at_works() {
+        ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
+            let mut array: StorageVec<u32> = StorageVec::new();
+
+            array.push(&123);
+            array.clear_at(0);
+            array.push(&456);
+
+            assert_eq!(array.get(0), None);
+            assert_eq!(array.get(1), Some(456));
+            assert_eq!(array.len(), 2);
+
+            Ok(())
+        })
+        .unwrap()
+    }
+
+    #[test]
+    #[should_panic]
+    fn clear_at_invalid_index_panics() {
+        ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
+            StorageVec::<u32>::new().clear_at(0);
+
+            Ok(())
+        })
+        .unwrap()
+    }
+
+    #[test]
+    fn try_get_works() {
+        ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
+            let elems = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+            let array = StorageVec::<u32>::from(&elems[..]);
+
+            assert_eq!(array.try_get(0), Some(Ok(0)));
+            assert_eq!(array.try_get(11), None);
+
+            Ok(())
+        })
+        .unwrap()
+    }
+
+    #[test]
+    fn try_set_works() {
+        ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
+            let elems = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+            let mut array = StorageVec::<u32>::from(&elems[..]);
+
+            assert_eq!(array.try_set(0, &1), Ok(Some(4)));
+            assert_eq!(array.try_set(10, &1), Err(ink_env::Error::KeyNotFound));
+
+            array.clear_at(0);
+            assert_eq!(array.try_set(0, &1), Ok(None));
+
+            Ok(())
+        })
+        .unwrap()
+    }
+
+    #[test]
+    fn try_push_and_try_pop_works() {
+        ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
+            let elems = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+            let mut array = StorageVec::<u32>::from(&elems[..]);
+
+            assert_eq!(array.try_push(&11), Ok(()));
+            assert_eq!(array.try_pop(), Some(Ok(11)));
+
+            array.clear();
+            assert_eq!(array.try_pop(), None);
 
             Ok(())
         })
