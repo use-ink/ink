@@ -20,13 +20,22 @@
 //! Instead it is just a simple wrapper around the contract storage facilities.
 
 use ink_primitives::Key;
-use ink_storage_traits::{AutoKey, Packed, Storable, StorableHint, StorageKey};
+use ink_storage_traits::{
+    AutoKey,
+    Packed,
+    Storable,
+    StorableHint,
+    StorageKey,
+};
 use scale::EncodeLike;
 
-use crate::{Lazy, Mapping};
+use crate::{
+    Lazy,
+    Mapping,
+};
 
 /// A vector of values (elements) directly on contract storage.
-
+///
 /// # Important
 ///
 /// [StorageVec] requires its own pre-defined storage key where to store values. By
@@ -59,9 +68,14 @@ use crate::{Lazy, Mapping};
 ///
 /// # Caveats
 ///
-/// Iteration is not providided. [StorageVec] is expected to be used to
-/// store a lot or large values where iterating through elements would be
-/// rather inefficient anyways.
+/// Iterators are not providided. [StorageVec] is expected to be used to
+/// store a lot elements, where iterating through the elements would be
+/// rather inefficient (naturally, it is still possible to manually
+/// iterate over the elements using a loop).
+///
+/// For the same reason, operations which would require re-ordering
+/// stored elements are not supported. Examples include inserting and
+/// deleting elements at arbitrary positions or sorting elements.
 ///
 /// The decision whether to use `Vec<T>` or [StorageVec] can be seen as an
 /// optimization problem with several factors:
@@ -72,7 +86,7 @@ use crate::{Lazy, Mapping};
 /// For example, if a vector is expected to stay small but is frequently
 /// iteratet over. Chooosing a `Vec<T>` instead of [StorageVec] will be
 /// preferred as indiviudal storage reads are much more expensive as
-/// opposed to retrieving and decoding the whole collections with a single
+/// opposed to retrieving and decoding the whole collection with a single
 /// storage read.
 ///
 /// # Storage Layout
@@ -85,7 +99,6 @@ use crate::{Lazy, Mapping};
 /// element is calcualted as follows:
 ///
 /// `E = scale::Encode((K, N))`
-///
 #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
 pub struct StorageVec<V: Packed, KeyType: StorageKey = AutoKey> {
     len: Lazy<u32, KeyType>,
@@ -143,7 +156,11 @@ where
 #[cfg(feature = "std")]
 const _: () = {
     use crate::traits::StorageLayout;
-    use ink_metadata::layout::{Layout, LayoutKey, RootLayout};
+    use ink_metadata::layout::{
+        Layout,
+        LayoutKey,
+        RootLayout,
+    };
 
     impl<V, KeyType> StorageLayout for StorageVec<V, KeyType>
     where
@@ -151,9 +168,10 @@ const _: () = {
         KeyType: StorageKey + scale_info::TypeInfo + 'static,
     {
         fn layout(_: &Key) -> Layout {
-            Layout::Root(RootLayout::new::<Self, _>(
+            Layout::Root(RootLayout::new(
                 LayoutKey::from(&KeyType::KEY),
                 <V as StorageLayout>::layout(&KeyType::KEY),
+                scale_info::meta_type::<Self>(),
             ))
         }
     }
@@ -183,6 +201,7 @@ where
             .unwrap_or_else(|| self.len.get().unwrap_or(u32::MIN))
     }
 
+    /// Overwrite the length. Writes directly to contract storage.
     fn set_len(&mut self, new_len: u32) {
         self.len.set(&new_len);
         self.len_cached = Some(new_len);
@@ -217,12 +236,14 @@ where
     /// # Panics
     ///
     /// * If the value overgrows the static buffer size.
-    /// * If there is no value at the current index.
     pub fn pop(&mut self) -> Option<V> {
         let slot = self.len().checked_sub(1)?;
-
         self.set_len(slot);
-        self.elements.take(slot).unwrap().into()
+
+        self.elements
+            .take(slot)
+            .expect("we can only grow via push, which adjusts the length")
+            .into()
     }
 
     /// Access an element at given `index`.
@@ -247,6 +268,19 @@ where
         assert!(index < self.len());
 
         let _ = self.elements.insert(index, value);
+    }
+
+    /// Delete all elements from storage.
+    ///
+    /// # Warning
+    ///
+    /// This iterates through all elements in the vector; complexity is O(n).
+    /// It might not be possible to clear large vectors within a single block!
+    pub fn clear(&mut self) {
+        for i in 0..self.len() {
+            self.elements.remove(i);
+        }
+        self.set_len(0);
     }
 }
 
@@ -280,6 +314,7 @@ mod tests {
         })
         .unwrap()
     }
+
     #[test]
     fn push_and_pop_work() {
         ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
@@ -358,6 +393,38 @@ mod tests {
     fn set_panics_on_oob() {
         ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
             StorageVec::<u8>::new().set(0, &0);
+
+            Ok(())
+        })
+        .unwrap()
+    }
+
+    #[test]
+    fn clear_works() {
+        ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
+            let mut array: StorageVec<bool> = StorageVec::new();
+
+            array.push(&true);
+            array.push(&false);
+            array.clear();
+
+            assert_eq!(array.len(), 0);
+            assert_eq!(array.pop(), None);
+
+            Ok(())
+        })
+        .unwrap()
+    }
+
+    #[test]
+    fn clear_on_empty_works() {
+        ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
+            let mut array: StorageVec<bool> = StorageVec::new();
+
+            array.clear();
+
+            assert_eq!(array.len(), 0);
+            assert_eq!(array.pop(), None);
 
             Ok(())
         })
