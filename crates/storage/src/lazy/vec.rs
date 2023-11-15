@@ -20,19 +20,10 @@
 //! Instead it is just a simple wrapper around the contract storage facilities.
 
 use ink_primitives::Key;
-use ink_storage_traits::{
-    AutoKey,
-    Packed,
-    Storable,
-    StorableHint,
-    StorageKey,
-};
+use ink_storage_traits::{AutoKey, Packed, Storable, StorableHint, StorageKey};
 use scale::EncodeLike;
 
-use crate::{
-    Lazy,
-    Mapping,
-};
+use crate::{Lazy, Mapping};
 
 /// A vector of values (elements) directly on contract storage.
 ///
@@ -156,11 +147,7 @@ where
 #[cfg(feature = "std")]
 const _: () = {
     use crate::traits::StorageLayout;
-    use ink_metadata::layout::{
-        Layout,
-        LayoutKey,
-        RootLayout,
-    };
+    use ink_metadata::layout::{Layout, LayoutKey, RootLayout};
 
     impl<V, KeyType> StorageLayout for StorageVec<V, KeyType>
     where
@@ -229,6 +216,24 @@ where
         assert!(self.elements.insert(slot, value).is_none());
     }
 
+    /// Try to append an element to the back of the vector.
+    ///
+    ///Returns:
+    ///
+    /// * Ok(()) if the value was inserted successfully
+    /// * Err(_) if the encoded value exceeds the static buffer size.
+    pub fn try_push<T>(&mut self, value: &T) -> Result<(), ink_env::Error>
+    where
+        T: Storable + scale::EncodeLike<V>,
+    {
+        let slot = self.len();
+        self.set_len(slot.checked_add(1).unwrap());
+
+        assert!(self.elements.try_insert(slot, value)?.is_none());
+
+        Ok(())
+    }
+
     /// Pops the last element from the vector and returns it.
     //
     /// Returns `None` if the vector is empty.
@@ -240,10 +245,21 @@ where
         let slot = self.len().checked_sub(1)?;
         self.set_len(slot);
 
-        self.elements
-            .take(slot)
-            .expect("we can only grow via push, which adjusts the length")
-            .into()
+        self.elements.take(slot)
+    }
+
+    /// Try to pop the last element from the vector and returns it.
+    //
+    /// Returns `None` if the vector is empty.
+    ///
+    /// # Panics
+    ///
+    /// * If the value overgrows the static buffer size.
+    pub fn try_pop(&mut self) -> Option<Result<V, ink_env::Error>> {
+        let slot = self.len().checked_sub(1)?;
+        self.set_len(slot);
+
+        self.elements.try_take(slot)
     }
 
     /// Access an element at given `index`.
@@ -255,19 +271,54 @@ where
         self.elements.get(index)
     }
 
+    /// Try to access an element at given `index`.
+    ///
+    /// Returns:
+    ///
+    /// * Some(Ok(_)) containing the value if it existed and was decoded successfully.
+    /// * Some(Err(_)) if the value existed but its length exceeds the static buffer size.
+    /// * None if there was no value under this mapping key.
+    pub fn try_get(&self, index: u32) -> Option<ink_env::Result<V>> {
+        self.elements.try_get(index)
+    }
+
     /// Set the `value` at given `index`.
     ///
     /// # Panics
     ///
     /// * If the index is out of bounds.
     /// * If decoding the element exceeds the static buffer size.
-    pub fn set<T>(&mut self, index: u32, value: &T)
+    pub fn set<T>(&mut self, index: u32, value: &T) -> Option<u32>
     where
         T: Storable + EncodeLike<V>,
     {
         assert!(index < self.len());
 
-        let _ = self.elements.insert(index, value);
+        self.elements.insert(index, value)
+    }
+
+    /// Try to set the `value` at given `index`.
+    ///
+    /// Returns:
+    ///
+    /// Ok(Some(_)) if the value was inserted successfully, containing the size in bytes of the pre-existing value at the specified key if any.
+    /// Ok(None) if the insert was successful but there was no pre-existing value.
+    /// Err(_) if the encoded value exceeds the static buffer size.
+    ///
+    /// # Panics
+    ///
+    /// Panics if `index` exceeds the length of the vector.
+    pub fn try_set<T>(
+        &mut self,
+        index: u32,
+        value: &T,
+    ) -> Result<Option<u32>, ink_env::Error>
+    where
+        T: Storable + EncodeLike<V>,
+    {
+        assert!(index < self.len());
+
+        self.elements.try_insert(index, value)
     }
 
     /// Delete all elements from storage.
@@ -281,6 +332,17 @@ where
             self.elements.remove(i);
         }
         self.set_len(0);
+    }
+
+    /// Remove the element at `index`.
+    ///
+    /// # Panics
+    ///
+    /// Panics if `index` exceeds the length of the vector.
+    pub fn clear_at(&mut self, index: u32) {
+        assert!(index < self.len());
+
+        ink_env::clear_contract_storage(&index);
     }
 }
 
