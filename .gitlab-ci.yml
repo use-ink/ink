@@ -478,7 +478,7 @@ examples-docs:
 
 #### stage:                        publish
 
-publish-docs:
+.publish-docs:
   stage:                           publish
   <<:                              *kubernetes-env
   image:                           paritytech/tools:latest
