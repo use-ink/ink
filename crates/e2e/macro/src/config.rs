@@ -48,7 +48,6 @@ pub struct E2EConfig {
     backend: Backend,
     /// The URL to the running chopsticks node.
     #[cfg(feature = "live-state-test")]
-    #[darling(default)]
     chopsticks_url: Option<String>,
 }
 

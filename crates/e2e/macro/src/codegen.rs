@@ -119,36 +119,37 @@ fn build_full_client(
     contracts: TokenStream2,
     chopsticks_url: Option<String>,
 ) -> TokenStream2 {
-    let rpc = match chopsticks_url {
+    match chopsticks_url {
         Some(url) => {
             quote! {
-                ::ink_e2e::RpcClient::from_url(#url)
+                let rpc = ::ink_e2e::RpcClient::from_url(#url)
                 .await
                 .unwrap_or_else(|err|
                     ::core::panic!("Error connecting to Chopsticks node: {err:?}")
                 )
+                let contracts = #contracts;
+                let mut client = ::ink_e2e::Client::<
+                    ::ink_e2e::PolkadotConfig,
+                    #environment
+                >::new(rpc, contracts).await?;
             }
         }
         None => {
             quote! {
-                ::ink_e2e::TestNodeProcess::<::ink_e2e::PolkadotConfig>
+                let node_rpc = ::ink_e2e::TestNodeProcess::<::ink_e2e::PolkadotConfig>
                 ::build_with_env_or_default()
                 .spawn()
                 .await
                 .unwrap_or_else(|err|
                     ::core::panic!("Error spawning substrate-contracts-node: {err:?}")
-                )
-                .rpc()
+                );
+                let contracts = #contracts;
+                let mut client = ::ink_e2e::Client::<
+                    ::ink_e2e::PolkadotConfig,
+                    #environment
+                >::new(node_rpc.rpc(), contracts).await?;
             }
         }
-    };
-
-    quote! {
-        let contracts = #contracts;
-        let mut client = ::ink_e2e::Client::<
-            ::ink_e2e::PolkadotConfig,
-            #environment
-        >::new(#rpc, contracts).await?;
     }
 }
 
