@@ -124,11 +124,9 @@ pub mod constructors_return_value {
                     &mut constructor,
                 )
                 .dry_run()
-                .await
-                .result
-                .expect("Instantiate dry run should succeed");
+                .await?;
 
-            let data = infallible_constructor_result.result.data;
+            let data = infallible_constructor_result.result.unwrap().data;
             let decoded_result = Result::<(), ink::LangError>::decode(&mut &data[..])
                 .expect("Failed to decode constructor Result");
             assert!(
@@ -200,7 +198,7 @@ pub mod constructors_return_value {
             let value = client
                 .call(&ink_e2e::bob(), &get)
                 .dry_run()
-                .await
+                .await?
                 .return_value();
 
             assert_eq!(
@@ -224,14 +222,12 @@ pub mod constructors_return_value {
                     &mut constructor,
                 )
                 .dry_run()
-                .await
-                .result
-                .expect("Instantiate dry run should succeed");
+                .await?;
 
             let decoded_result = Result::<
                 Result<(), super::ConstructorError>,
                 ink::LangError,
-            >::decode(&mut &result.result.data[..])
+            >::decode(&mut &result.result.unwrap().data[..])
             .expect("Failed to decode fallible constructor Result");
 
             assert!(

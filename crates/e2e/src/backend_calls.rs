@@ -13,7 +13,6 @@
 // limitations under the License.
 
 use ink_env::Environment;
-use pallet_contracts_primitives::ContractInstantiateResult;
 use scale::{
     Decode,
     Encode,
@@ -27,6 +26,7 @@ use crate::{
     CallDryRunResult,
     CallResult,
     ContractsBackend,
+    InstantiateDryRunResult,
     InstantiationResult,
     UploadResult,
 };
@@ -312,7 +312,7 @@ where
         let gas_limit = if let Some(limit) = self.gas_limit {
             limit
         } else {
-            let gas_required = dry_run.gas_required;
+            let gas_required = dry_run.contract_result.gas_required;
             if let Some(m) = self.extra_gas_portion {
                 gas_required + (gas_required / 100 * m)
             } else {
@@ -339,9 +339,7 @@ where
     }
 
     /// Dry run the instantiate call.
-    pub async fn dry_run(
-        &mut self,
-    ) -> Result<ContractInstantiateResult<E::AccountId, E::Balance, ()>, B::Error> {
+    pub async fn dry_run(&mut self) -> Result<InstantiateDryRunResult<E>, B::Error> {
         B::bare_instantiate_dry_run(
             self.client,
             self.contract_name,

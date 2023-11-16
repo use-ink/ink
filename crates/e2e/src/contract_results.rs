@@ -23,8 +23,10 @@ use pallet_contracts_primitives::{
     ContractExecResult,
     ContractInstantiateResult,
     ExecReturnValue,
+    InstantiateReturnValue,
 };
 use std::{
+    fmt,
     fmt::Debug,
     marker::PhantomData,
 };
@@ -72,7 +74,7 @@ pub struct InstantiationResult<E: Environment, EventLog> {
     pub account_id: E::AccountId,
     /// The result of the dry run, contains debug messages
     /// if there were any.
-    pub dry_run: ContractInstantiateResult<E::AccountId, E::Balance, ()>,
+    pub dry_run: InstantiateDryRunResult<E>,
     /// Events that happened with the contract instantiation.
     pub events: EventLog,
 }
@@ -251,5 +253,75 @@ impl<E: Environment, V: scale::Decode> CallDryRunResult<E, V> {
     /// Returns any debug message output by the contract decoded as UTF-8.
     pub fn debug_message(&self) -> String {
         String::from_utf8_lossy(&self.exec_result.debug_message).into()
+    }
+}
+
+/// Result of the dry run of a contract call.
+pub struct InstantiateDryRunResult<E: Environment> {
+    /// The result of the dry run, contains debug messages if there were any.
+    pub contract_result: ContractInstantiateResult<E::AccountId, E::Balance, ()>,
+}
+
+impl<E: Environment> From<ContractInstantiateResult<E::AccountId, E::Balance, ()>>
+    for InstantiateDryRunResult<E>
+{
+    fn from(
+        contract_result: ContractInstantiateResult<E::AccountId, E::Balance, ()>,
+    ) -> Self {
+        Self { contract_result }
+    }
+}
+
+impl<E: Environment> InstantiateDryRunResult<E> {
+    /// Returns true if the dry-run execution resulted in an error.
+    pub fn is_err(&self) -> bool {
+        self.contract_result.result.is_err()
+    }
+
+    /// Returns the [`InstantiateReturnValue`] resulting from the dry-run message call.
+    ///
+    /// Panics if the dry-run message call failed to execute.
+    pub fn instantiate_return_value(&self) -> &InstantiateReturnValue<E::AccountId> {
+        self.contract_result
+            .result
+            .as_ref()
+            .unwrap_or_else(|call_err| panic!("Instantiate dry-run failed: {call_err:?}"))
+    }
+
+    /// Returns the encoded return value from the constructor.
+    ///
+    /// # Panics
+    /// - if the dry-run message instantiate failed to execute.
+    /// - if message result cannot be decoded into the expected return value type.
+    pub fn constructor_result(&self) -> Result<(), ink::LangError> {
+        let data = &self.instantiate_return_value().result.data;
+        scale::Decode::decode(&mut data.as_ref()).unwrap_or_else(|env_err| {
+            panic!("Decoding dry run result to constructor return type failed: {env_err}")
+        })
+    }
+
+    /// Returns the return value as raw bytes of the message from the dry-run.
+    ///
+    /// Panics if the dry-run message call failed to execute.
+    pub fn return_data(&self) -> &[u8] {
+        &self.instantiate_return_value().result.data
+    }
+
+    /// Returns any debug message output by the contract decoded as UTF-8.
+    pub fn debug_message(&self) -> String {
+        String::from_utf8_lossy(&self.contract_result.debug_message).into()
+    }
+}
+
+impl<E> Debug for InstantiateDryRunResult<E>
+where
+    E: Environment,
+    E::AccountId: Debug,
+    E::Balance: Debug,
+{
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        f.debug_struct("InstantiateDryRunResult")
+            .field("contract_result", &self.contract_result)
+            .finish()
     }
 }

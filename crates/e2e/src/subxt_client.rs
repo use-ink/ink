@@ -25,8 +25,8 @@ use super::{
     log_error,
     log_info,
     sr25519,
-    ContractInstantiateResult,
     ContractsApi,
+    InstantiateDryRunResult,
     Keypair,
 };
 use crate::{
@@ -498,8 +498,7 @@ where
         constructor: &mut CreateBuilderPartial<E, Contract, Args, R>,
         value: E::Balance,
         storage_deposit_limit: Option<E::Balance>,
-    ) -> Result<ContractInstantiateResult<E::AccountId, E::Balance, ()>, Self::Error>
-    {
+    ) -> Result<InstantiateDryRunResult<E>, Self::Error> {
         let code = self.contracts.load_code(contract_name);
         let data = constructor_exec_input(constructor.clone());
 
@@ -514,8 +513,12 @@ where
                 caller,
             )
             .await;
-        self.contract_result_to_result(result)
-            .map_err(Error::InstantiateDryRun)
+
+        let result = self
+            .contract_result_to_result(result)
+            .map_err(Error::InstantiateDryRun)?;
+
+        Ok(result.into())
     }
 
     async fn bare_upload(
