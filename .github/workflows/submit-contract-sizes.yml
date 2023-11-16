@@ -1,5 +1,8 @@
 # The workflow has write access, so it needs to be isolated for security reasons from pull request-based workflows,
 # which may be triggered from forked repositories.
+
+name: continuous-intergration/submit-contract-sizes
+
 on:
   workflow_run:
     workflows:

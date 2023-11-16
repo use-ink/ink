@@ -1,3 +1,6 @@
+# The workflow has write access, so it needs to be isolated for security reasons from pull request-based workflows,
+# which may be triggered from forked repositories.
+
 name: continuous-intergration/publish-docs
 
 on: 
@@ -57,6 +60,5 @@ jobs:
           # We don't want to mark the entire job as failed if there's nothing to
           # publish though, hence the `|| true`.
           git commit -m "Updated docs for ${{ github.event.workflow_run.head_branch }}} and pushed to gh-pages" || true
-          # TODO: Publish disabled, It will be enabled in last migration step
-          # git push origin gh-pages --force
+          git push origin gh-pages --force
           rm -rf .git/ ./*

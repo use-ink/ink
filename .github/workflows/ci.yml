@@ -403,7 +403,7 @@ jobs:
         with:
           name: ${{ github.job }}-data
           path: ./crate-docs
-          retention-days: 7
+          retention-days: 1
 
   codecov:
     runs-on: ubuntu-latest
