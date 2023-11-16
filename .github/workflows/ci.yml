@@ -608,7 +608,7 @@ jobs:
     if: >
       false &&
         github.event_name == 'push' &&
-        github.head_ref == 'master'
+        github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest
     needs: [set-image, measurements]
     defaults:
