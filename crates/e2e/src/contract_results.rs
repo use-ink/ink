@@ -17,7 +17,10 @@ use ink_env::{
     call::FromAccountId,
     Environment,
 };
-use ink_primitives::MessageResult;
+use ink_primitives::{
+    ConstructorResult,
+    MessageResult,
+};
 use pallet_contracts_primitives::{
     CodeUploadResult,
     ContractExecResult,
@@ -293,7 +296,7 @@ impl<E: Environment> InstantiateDryRunResult<E> {
     /// # Panics
     /// - if the dry-run message instantiate failed to execute.
     /// - if message result cannot be decoded into the expected return value type.
-    pub fn constructor_result(&self) -> Result<(), ink::LangError> {
+    pub fn constructor_result<V: scale::Decode>(&self) -> ConstructorResult<V> {
         let data = &self.instantiate_return_value().result.data;
         scale::Decode::decode(&mut data.as_ref()).unwrap_or_else(|env_err| {
             panic!("Decoding dry run result to constructor return type failed: {env_err}")
