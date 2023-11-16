@@ -277,8 +277,10 @@ where
             E::Balance,
             (),
         >,
-    ) -> Result<ContractResult<Result<V, sp_runtime::DispatchError>, E::Balance, ()>, DryRunError<DispatchError>>
-    {
+    ) -> Result<
+        ContractResult<Result<V, sp_runtime::DispatchError>, E::Balance, ()>,
+        DryRunError<DispatchError>,
+    > {
         if let Err(error) = contract_result.result {
             let debug_message = String::from_utf8(contract_result.debug_message.clone())
                 .expect("invalid utf8 debug message");
@@ -604,7 +606,8 @@ where
             String::from_utf8_lossy(&exec_result.debug_message)
         ));
 
-        let exec_result = self.contract_result_to_result(exec_result)
+        let exec_result = self
+            .contract_result_to_result(exec_result)
             .map_err(Error::CallDryRun)?;
 
         Ok(CallDryRunResult {

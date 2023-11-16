@@ -202,7 +202,7 @@ mod call_builder {
             let flipper_call = flipper.call::<Flipper>();
 
             let flipper_get = flipper_call.get();
-            let get_call_result = client.call(&origin, &flipper_get).dry_run().await;
+            let get_call_result = client.call(&origin, &flipper_get).dry_run().await?;
             let initial_value = get_call_result.return_value();
 
             let selector = ink::selector_bytes!("invalid_selector");
@@ -221,7 +221,7 @@ mod call_builder {
             ));
 
             let flipper_get = flipper_call.get();
-            let get_call_result = client.call(&origin, &flipper_get).dry_run().await;
+            let get_call_result = client.call(&origin, &flipper_get).dry_run().await?;
             let flipped_value = get_call_result.return_value();
             assert!(flipped_value == initial_value);
 
@@ -257,10 +257,14 @@ mod call_builder {
             let call = call_builder_call.invoke(flipper.account_id, invalid_selector);
             let call_result = client.call(&origin, &call).dry_run().await;
 
-            assert!(call_result.is_err());
-            assert!(call_result
-                .debug_message()
-                .contains("Cross-contract call failed with CouldNotReadInput"));
+            if let Err(ink_e2e::Error::CallDryRun(dry_run)) = call_result {
+                assert!(dry_run
+                            .debug_message
+                            .contains("Cross-contract call failed with CouldNotReadInput"),
+                        "Call execution failed for an unexpected reason.");
+            } else {
+                panic!("Call execution should've failed, but didn't.");
+            }
 
             Ok(())
         }
@@ -380,18 +384,15 @@ mod call_builder {
                 call_builder_call.call_instantiate(code_hash, selector, init_value);
 
             let call_result = client.call(&origin, &call).dry_run().await;
-            assert!(
-                call_result.is_err(),
-                "Call execution should've failed, but didn't."
-            );
-            let contains_err_msg = call_result.debug_message().contains(
-                "The callee reverted, but did not encode an error in the output buffer.",
-            );
 
-            assert!(
-                contains_err_msg,
-                "Call execution failed for an unexpected reason."
-            );
+            if let Err(ink_e2e::Error::CallDryRun(dry_run)) = call_result {
+                assert!(dry_run
+                            .debug_message
+                            .contains("The callee reverted, but did not encode an error in the output buffer."),
+                        "Call execution failed for an unexpected reason.");
+            } else {
+                panic!("Call execution should've failed, but didn't.");
+            }
 
             Ok(())
         }
@@ -522,18 +523,14 @@ mod call_builder {
                 .call_instantiate_fallible(code_hash, selector, init_value);
             let call_result = client.call(&origin, &call).dry_run().await;
 
-            assert!(
-                call_result.is_err(),
-                "Call execution should've failed, but didn't."
-            );
-
-            let contains_err_msg = call_result.debug_message().contains(
-                "The callee reverted, but did not encode an error in the output buffer.",
-            );
-            assert!(
-                contains_err_msg,
-                "Call execution failed for an unexpected reason."
-            );
+            if let Err(ink_e2e::Error::CallDryRun(dry_run)) = call_result {
+                assert!(dry_run
+                    .debug_message
+                    .contains("The callee reverted, but did not encode an error in the output buffer."),
+                        "Call execution failed for an unexpected reason.");
+            } else {
+                panic!("Call execution should've failed, but didn't.");
+            }
 
             Ok(())
         }
