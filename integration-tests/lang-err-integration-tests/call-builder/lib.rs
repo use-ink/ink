@@ -258,10 +258,12 @@ mod call_builder {
             let call_result = client.call(&origin, &call).dry_run().await;
 
             if let Err(ink_e2e::Error::CallDryRun(dry_run)) = call_result {
-                assert!(dry_run
-                            .debug_message
-                            .contains("Cross-contract call failed with CouldNotReadInput"),
-                        "Call execution failed for an unexpected reason.");
+                assert!(
+                    dry_run
+                        .debug_message
+                        .contains("Cross-contract call failed with CouldNotReadInput"),
+                    "Call execution failed for an unexpected reason."
+                );
             } else {
                 panic!("Call execution should've failed, but didn't.");
             }
