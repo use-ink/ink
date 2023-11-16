@@ -7,7 +7,7 @@ mod storagevec_integration_tests {
 
     #[ink(storage)]
     pub struct StorageVector {
-        /// Stores indivudual bytes values on the storage.
+        /// Stores individual bytes values on the storage.
         vec: ink::storage::StorageVec<u8>,
     }
 
