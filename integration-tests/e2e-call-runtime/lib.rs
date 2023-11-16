@@ -58,7 +58,7 @@ pub mod e2e_call_runtime {
             let pre_balance = client
                 .call(&ink_e2e::alice(), &get_balance)
                 .dry_run()
-                .await
+                .await?
                 .return_value();
 
             // Send funds from Alice to the contract using Balances::transfer
@@ -75,7 +75,7 @@ pub mod e2e_call_runtime {
             // then
             let get_balance = call.get_contract_balance();
             let get_balance_res =
-                client.call(&ink_e2e::alice(), &get_balance).dry_run().await;
+                client.call(&ink_e2e::alice(), &get_balance).dry_run().await?;
 
             assert_eq!(
                 get_balance_res.return_value(),
