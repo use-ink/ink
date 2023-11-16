@@ -341,7 +341,7 @@ where
         let account_id = (*account_id.as_ref()).into();
 
         self.bare_call_dry_run(caller, message, value, storage_deposit_limit)
-            .await;
+            .await?;
 
         if self
             .sandbox
@@ -386,7 +386,7 @@ where
                 storage_deposit_limit,
             )
         });
-        CallDryRunResult {
+        Ok(CallDryRunResult {
             exec_result: ContractResult {
                 gas_consumed: result.gas_consumed,
                 gas_required: result.gas_required,
@@ -396,7 +396,7 @@ where
                 events: None,
             },
             _marker: Default::default(),
-        }
+        })
     }
 }
 
