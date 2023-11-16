@@ -62,7 +62,7 @@ use crate::{
 ///
 /// [StorageVec] on the other hand allows to access each element individually.
 /// Thus, it can theoretically grow to infinite size.
-/// However, we currently limit the length at 2³² elements. In practice,
+/// However, we currently limit the length at 2^32 elements. In practice,
 /// even if the vector elements are single bytes, it'll allow to store
 /// more than 4 GB data in blockchain storage.
 ///
@@ -225,7 +225,7 @@ where
     ///
     /// # Panics
     ///
-    /// * If the vector is at capacity (max. of 2³² elements).
+    /// * If the vector is at capacity (max. of 2 ^ 32 elements).
     /// * If the value overgrows the static buffer size.
     /// * If there was already a value at the current index.
     pub fn push<T>(&mut self, value: &T)
