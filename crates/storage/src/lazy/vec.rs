@@ -62,7 +62,7 @@ use crate::{
 ///
 /// [StorageVec] on the other hand allows to access each element individually.
 /// Thus, it can theoretically grow to infinite size.
-/// However, we currently limit the length at 2^32 elements. In practice,
+/// However, we currently limit the length at 2 ^ 32 elements. In practice,
 /// even if the vector elements are single bytes, it'll allow to store
 /// more than 4 GB data in blockchain storage.
 ///
@@ -297,6 +297,36 @@ where
         self.elements.try_take(slot)
     }
 
+    /// Get a copy of the last element without removing it from storage.
+    ///
+    /// # Panics
+    ///
+    /// * If the value overgrows the static buffer size.
+    pub fn peek(&self) -> Option<V> {
+        if self.is_empty() {
+            return None;
+        }
+
+        let slot = self.len().checked_sub(1).unwrap();
+        self.elements.get(slot)
+    }
+
+    /// Try to get a copy of the last element without removing it from storage.
+    ///
+    /// Returns:
+    ///
+    /// `Some(Ok(_))` containing the value if it existed and was decoded successfully.
+    /// `Some(Err(_))` if the value existed but its length exceeds the static buffer size.
+    /// `None` if the vector is empty.
+    pub fn try_peek(&self) -> Option<Result<V, ink_env::Error>> {
+        if self.is_empty() {
+            return None;
+        }
+
+        let slot = self.len().checked_sub(1).unwrap();
+        self.elements.try_get(slot)
+    }
+
     /// Access an element at given `index`.
     ///
     /// Returns `None` if there was no value at the `index`.
@@ -429,6 +459,7 @@ mod tests {
             let mut array: StorageVec<String> = StorageVec::new();
 
             assert_eq!(array.pop(), None);
+            assert_eq!(array.peek(), None);
             assert_eq!(array.len(), 0);
             assert!(array.is_empty());
 
@@ -610,16 +641,34 @@ mod tests {
     }
 
     #[test]
-    fn try_push_and_try_pop_works() {
+    fn fallible_push_pop_peek_works() {
         ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
             let elems = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
             let mut array = StorageVec::<u32>::from(&elems[..]);
 
-            assert_eq!(array.try_push(&11), Ok(()));
-            assert_eq!(array.try_pop(), Some(Ok(11)));
+            assert_eq!(array.try_push(&10), Ok(()));
+            assert_eq!(array.try_pop(), Some(Ok(10)));
+            assert_eq!(array.try_peek(), Some(Ok(9)));
 
             array.clear();
             assert_eq!(array.try_pop(), None);
+            assert_eq!(array.try_peek(), None);
+
+            Ok(())
+        })
+        .unwrap()
+    }
+
+    #[test]
+    fn peek_works() {
+        ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
+            let elems = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+            let mut array = StorageVec::<u32>::from(&elems[..]);
+
+            assert_eq!(array.peek(), Some(9));
+
+            array.clear();
+            assert_eq!(array.peek(), None);
 
             Ok(())
         })
