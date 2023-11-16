@@ -19,7 +19,10 @@ use crate::{
         UploadBuilder,
     },
     builders::CreateBuilderPartial,
-    contract_results::BareInstantiationResult,
+    contract_results::{
+        BareInstantiationResult,
+        InstantiateDryRunResult,
+    },
     CallBuilder,
     CallBuilderFinal,
     CallDryRunResult,
@@ -30,7 +33,6 @@ use ink_env::{
     Environment,
 };
 use jsonrpsee::core::async_trait;
-use pallet_contracts_primitives::ContractInstantiateResult;
 use scale::{
     Decode,
     Encode,
@@ -219,7 +221,7 @@ pub trait BuilderClient<E: Environment>: ContractsBackend<E> {
         message: &CallBuilderFinal<E, Args, RetType>,
         value: E::Balance,
         storage_deposit_limit: Option<E::Balance>,
-    ) -> CallDryRunResult<E, RetType>
+    ) -> Result<CallDryRunResult<E, RetType>, Self::Error>
     where
         CallBuilderFinal<E, Args, RetType>: Clone;
 
@@ -272,5 +274,5 @@ pub trait BuilderClient<E: Environment>: ContractsBackend<E> {
         constructor: &mut CreateBuilderPartial<E, Contract, Args, R>,
         value: E::Balance,
         storage_deposit_limit: Option<E::Balance>,
-    ) -> ContractInstantiateResult<E::AccountId, E::Balance, ()>;
+    ) -> Result<InstantiateDryRunResult<E>, Self::Error>;
 }

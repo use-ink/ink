@@ -49,6 +49,7 @@ pub use backend_calls::{
 pub use contract_results::{
     CallDryRunResult,
     CallResult,
+    InstantiateDryRunResult,
     InstantiationResult,
     UploadResult,
 };
