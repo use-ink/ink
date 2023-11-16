@@ -277,17 +277,17 @@ where
             E::Balance,
             (),
         >,
-    ) -> Result<ContractResult<Result<V, sp_runtime::DispatchError>, E::Balance, ()>, Error>
+    ) -> Result<ContractResult<Result<V, sp_runtime::DispatchError>, E::Balance, ()>, DryRunError<DispatchError>>
     {
         if let Err(error) = contract_result.result {
             let debug_message = String::from_utf8(contract_result.debug_message.clone())
                 .expect("invalid utf8 debug message");
             let subxt_dispatch_err =
                 self.runtime_dispatch_error_to_subxt_dispatch_error(&error);
-            return Err(Error::InstantiateDryRun(DryRunError::<DispatchError> {
+            return Err(DryRunError::<DispatchError> {
                 debug_message,
                 error: subxt_dispatch_err,
-            }))
+            })
         } else {
             Ok(contract_result)
         }
@@ -513,6 +513,7 @@ where
             )
             .await;
         self.contract_result_to_result(result)
+            .map_err(Error::InstantiateDryRun)
     }
 
     async fn bare_upload(
@@ -603,7 +604,8 @@ where
             String::from_utf8_lossy(&exec_result.debug_message)
         ));
 
-        let exec_result = self.contract_result_to_result(exec_result)?;
+        let exec_result = self.contract_result_to_result(exec_result)
+            .map_err(Error::CallDryRun)?;
 
         Ok(CallDryRunResult {
             exec_result,
