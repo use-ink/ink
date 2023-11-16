@@ -270,6 +270,7 @@ where
 
     /// Transforms a [`ContractResult`] from a dry run into a [`Result`] type, containing
     /// details of the [`DispatchError`] if the dry run failed.
+    #[allow(clippy::type_complexity)]
     fn contract_result_to_result<V>(
         &self,
         contract_result: ContractResult<
@@ -286,7 +287,7 @@ where
                 .expect("invalid utf8 debug message");
             let subxt_dispatch_err =
                 self.runtime_dispatch_error_to_subxt_dispatch_error(&error);
-            return Err(DryRunError::<DispatchError> {
+            Err(DryRunError::<DispatchError> {
                 debug_message,
                 error: subxt_dispatch_err,
             })
@@ -302,7 +303,7 @@ where
         dispatch_error: &sp_runtime::DispatchError,
     ) -> DispatchError {
         let dispatch_err_encoded = Encode::encode(&dispatch_error);
-        DispatchError::decode_from(&dispatch_err_encoded, self.api.client.metadata())
+        DispatchError::decode_from(dispatch_err_encoded, self.api.client.metadata())
             .expect("failed to decode valid dispatch error")
     }
 }
@@ -401,8 +402,8 @@ where
                 panic!("unable to decode account info: {err:?}");
             });
 
-        let account_data = get_composite_field_value::<_, E>(&account, "data")?;
-        let balance = get_composite_field_value::<_, E>(account_data, "free")?;
+        let account_data = get_composite_field_value(&account, "data")?;
+        let balance = get_composite_field_value(account_data, "free")?;
         let balance = balance.as_u128().ok_or_else(|| {
             Error::Balance(format!("{balance:?} should convert to u128"))
         })?;
@@ -674,14 +675,10 @@ where
 /// Returns `Err` if:
 ///   - The value is not a [`Value::Composite`] with [`Composite::Named`] fields
 ///   - The value does not contain a field with the given name.
-fn get_composite_field_value<'a, T, E>(
+fn get_composite_field_value<'a, T>(
     value: &'a Value<T>,
     field_name: &str,
-) -> Result<&'a Value<T>, Error>
-where
-    E: Environment,
-    E::Balance: Debug,
-{
+) -> Result<&'a Value<T>, Error> {
     if let ValueDef::Composite(Composite::Named(fields)) = &value.value {
         let (_, field) = fields
             .iter()
