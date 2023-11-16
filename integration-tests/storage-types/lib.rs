@@ -13,7 +13,10 @@ mod storage_types {
     #[derive(Debug, Decode, Encode)]
     #[cfg_attr(feature = "std", derive(::scale_info::TypeInfo))]
     pub enum CustomError {
-        ErrorWithMessage(String),
+        EmptyError,
+        StringError(String),
+        StringStringError(String, String),
+        StringUnsignedError(String, u32),
     }
 
     #[derive(Clone, Debug, Decode, Default, Encode)]
@@ -50,6 +53,7 @@ mod storage_types {
         enum_with_values: EnumWithValues,
         array_value: [u32; 3],
         tuple_value: (u32, u32),
+        tuple_triplet_value: (i32, i32, i32),
     }
 
     #[derive(Clone, Debug, Decode, Encode)]
@@ -171,6 +175,7 @@ mod storage_types {
                     enum_without_values: EnumWithoutValues::A,
                     array_value: [3, 2, 1],
                     tuple_value: (7, 8),
+                    tuple_triplet_value: (-123, 0, 123),
                 },
                 substrate_types: SubstrateTypes {
                     account_id_value: AccountId::from([0x00; 32]),
@@ -223,9 +228,30 @@ mod storage_types {
 
         #[ink(message)]
         pub fn get_result_error(&self) -> Result<bool, CustomError> {
-            Err(CustomError::ErrorWithMessage(String::from(
+            Err(CustomError::EmptyError)
+        }
+
+        #[ink(message)]
+        pub fn get_result_error_with_string(&self) -> Result<bool, CustomError> {
+            Err(CustomError::StringError(String::from(
                 "This is the Error Message.",
             )))
+        }
+
+        #[ink(message)]
+        pub fn get_result_error_with_string_string(&self) -> Result<bool, CustomError> {
+            Err(CustomError::StringStringError(
+                "This is the Error Message.".to_string(),
+                "This is the second string of this Error Message.".to_string(),
+            ))
+        }
+
+        #[ink(message)]
+        pub fn get_result_error_with_string_unsigned(&self) -> Result<bool, CustomError> {
+            Err(CustomError::StringUnsignedError(
+                "This is the Error Message.".to_string(),
+                42,
+            ))
         }
 
         #[ink(message)]
