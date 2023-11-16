@@ -303,13 +303,6 @@ impl<E: Environment> InstantiateDryRunResult<E> {
         })
     }
 
-    /// Returns the return value as raw bytes of the message from the dry-run.
-    ///
-    /// Panics if the dry-run message call failed to execute.
-    pub fn return_data(&self) -> &[u8] {
-        &self.instantiate_return_value().result.data
-    }
-
     /// Returns any debug message output by the contract decoded as UTF-8.
     pub fn debug_message(&self) -> String {
         String::from_utf8_lossy(&self.contract_result.debug_message).into()
