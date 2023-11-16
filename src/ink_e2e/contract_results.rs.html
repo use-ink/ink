@@ -265,6 +265,62 @@
 <a href="#265" id="265">265</a>
 <a href="#266" id="266">266</a>
 <a href="#267" id="267">267</a>
+<a href="#268" id="268">268</a>
+<a href="#269" id="269">269</a>
+<a href="#270" id="270">270</a>
+<a href="#271" id="271">271</a>
+<a href="#272" id="272">272</a>
+<a href="#273" id="273">273</a>
+<a href="#274" id="274">274</a>
+<a href="#275" id="275">275</a>
+<a href="#276" id="276">276</a>
+<a href="#277" id="277">277</a>
+<a href="#278" id="278">278</a>
+<a href="#279" id="279">279</a>
+<a href="#280" id="280">280</a>
+<a href="#281" id="281">281</a>
+<a href="#282" id="282">282</a>
+<a href="#283" id="283">283</a>
+<a href="#284" id="284">284</a>
+<a href="#285" id="285">285</a>
+<a href="#286" id="286">286</a>
+<a href="#287" id="287">287</a>
+<a href="#288" id="288">288</a>
+<a href="#289" id="289">289</a>
+<a href="#290" id="290">290</a>
+<a href="#291" id="291">291</a>
+<a href="#292" id="292">292</a>
+<a href="#293" id="293">293</a>
+<a href="#294" id="294">294</a>
+<a href="#295" id="295">295</a>
+<a href="#296" id="296">296</a>
+<a href="#297" id="297">297</a>
+<a href="#298" id="298">298</a>
+<a href="#299" id="299">299</a>
+<a href="#300" id="300">300</a>
+<a href="#301" id="301">301</a>
+<a href="#302" id="302">302</a>
+<a href="#303" id="303">303</a>
+<a href="#304" id="304">304</a>
+<a href="#305" id="305">305</a>
+<a href="#306" id="306">306</a>
+<a href="#307" id="307">307</a>
+<a href="#308" id="308">308</a>
+<a href="#309" id="309">309</a>
+<a href="#310" id="310">310</a>
+<a href="#311" id="311">311</a>
+<a href="#312" id="312">312</a>
+<a href="#313" id="313">313</a>
+<a href="#314" id="314">314</a>
+<a href="#315" id="315">315</a>
+<a href="#316" id="316">316</a>
+<a href="#317" id="317">317</a>
+<a href="#318" id="318">318</a>
+<a href="#319" id="319">319</a>
+<a href="#320" id="320">320</a>
+<a href="#321" id="321">321</a>
+<a href="#322" id="322">322</a>
+<a href="#323" id="323">323</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -284,14 +340,19 @@
     call::FromAccountId,
     Environment,
 };
-<span class="kw">use </span>ink_primitives::MessageResult;
+<span class="kw">use </span>ink_primitives::{
+    ConstructorResult,
+    MessageResult,
+};
 <span class="kw">use </span>pallet_contracts_primitives::{
     CodeUploadResult,
     ContractExecResult,
     ContractInstantiateResult,
     ExecReturnValue,
+    InstantiateReturnValue,
 };
 <span class="kw">use </span>std::{
+    fmt,
     fmt::Debug,
     marker::PhantomData,
 };
@@ -339,7 +400,7 @@
     </span><span class="kw">pub </span>account_id: E::AccountId,
     <span class="doccomment">/// The result of the dry run, contains debug messages
     /// if there were any.
-    </span><span class="kw">pub </span>dry_run: ContractInstantiateResult&lt;E::AccountId, E::Balance, ()&gt;,
+    </span><span class="kw">pub </span>dry_run: InstantiateDryRunResult&lt;E&gt;,
     <span class="doccomment">/// Events that happened with the contract instantiation.
     </span><span class="kw">pub </span>events: EventLog,
 }
@@ -471,18 +532,6 @@
         <span class="self">self</span>.exec_result.result.is_err()
     }
 
-    <span class="doccomment">/// Converts the dry-run result into a `Result` type.
-    </span><span class="kw">pub fn </span>to_result&lt;Error&gt;(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, Error&gt;
-    <span class="kw">where
-        </span>Error: From&lt;ContractExecResult&lt;E::Balance, ()&gt;&gt;,
-    {
-        <span class="kw">if </span><span class="self">self</span>.is_err() {
-            <span class="prelude-val">Err</span>(Error::from(<span class="self">self</span>.exec_result))
-        } <span class="kw">else </span>{
-            <span class="prelude-val">Ok</span>(<span class="self">self</span>)
-        }
-    }
-
     <span class="doccomment">/// Returns the [`ExecReturnValue`] resulting from the dry-run message call.
     ///
     /// Panics if the dry-run message call failed to execute.
@@ -530,6 +579,69 @@
     <span class="doccomment">/// Returns any debug message output by the contract decoded as UTF-8.
     </span><span class="kw">pub fn </span>debug_message(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; String {
         String::from_utf8_lossy(<span class="kw-2">&amp;</span><span class="self">self</span>.exec_result.debug_message).into()
+    }
+}
+
+<span class="doccomment">/// Result of the dry run of a contract call.
+</span><span class="kw">pub struct </span>InstantiateDryRunResult&lt;E: Environment&gt; {
+    <span class="doccomment">/// The result of the dry run, contains debug messages if there were any.
+    </span><span class="kw">pub </span>contract_result: ContractInstantiateResult&lt;E::AccountId, E::Balance, ()&gt;,
+}
+
+<span class="kw">impl</span>&lt;E: Environment&gt; From&lt;ContractInstantiateResult&lt;E::AccountId, E::Balance, ()&gt;&gt;
+    <span class="kw">for </span>InstantiateDryRunResult&lt;E&gt;
+{
+    <span class="kw">fn </span>from(
+        contract_result: ContractInstantiateResult&lt;E::AccountId, E::Balance, ()&gt;,
+    ) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{ contract_result }
+    }
+}
+
+<span class="kw">impl</span>&lt;E: Environment&gt; InstantiateDryRunResult&lt;E&gt; {
+    <span class="doccomment">/// Returns true if the dry-run execution resulted in an error.
+    </span><span class="kw">pub fn </span>is_err(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.contract_result.result.is_err()
+    }
+
+    <span class="doccomment">/// Returns the [`InstantiateReturnValue`] resulting from the dry-run message call.
+    ///
+    /// Panics if the dry-run message call failed to execute.
+    </span><span class="kw">pub fn </span>instantiate_return_value(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>InstantiateReturnValue&lt;E::AccountId&gt; {
+        <span class="self">self</span>.contract_result
+            .result
+            .as_ref()
+            .unwrap_or_else(|call_err| <span class="macro">panic!</span>(<span class="string">&quot;Instantiate dry-run failed: {call_err:?}&quot;</span>))
+    }
+
+    <span class="doccomment">/// Returns the encoded return value from the constructor.
+    ///
+    /// # Panics
+    /// - if the dry-run message instantiate failed to execute.
+    /// - if message result cannot be decoded into the expected return value type.
+    </span><span class="kw">pub fn </span>constructor_result&lt;V: scale::Decode&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; ConstructorResult&lt;V&gt; {
+        <span class="kw">let </span>data = <span class="kw-2">&amp;</span><span class="self">self</span>.instantiate_return_value().result.data;
+        scale::Decode::decode(<span class="kw-2">&amp;mut </span>data.as_ref()).unwrap_or_else(|env_err| {
+            <span class="macro">panic!</span>(<span class="string">&quot;Decoding dry run result to constructor return type failed: {env_err}&quot;</span>)
+        })
+    }
+
+    <span class="doccomment">/// Returns any debug message output by the contract decoded as UTF-8.
+    </span><span class="kw">pub fn </span>debug_message(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; String {
+        String::from_utf8_lossy(<span class="kw-2">&amp;</span><span class="self">self</span>.contract_result.debug_message).into()
+    }
+}
+
+<span class="kw">impl</span>&lt;E&gt; Debug <span class="kw">for </span>InstantiateDryRunResult&lt;E&gt;
+<span class="kw">where
+    </span>E: Environment,
+    E::AccountId: Debug,
+    E::Balance: Debug,
+{
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
+        f.debug_struct(<span class="string">&quot;InstantiateDryRunResult&quot;</span>)
+            .field(<span class="string">&quot;contract_result&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.contract_result)
+            .finish()
     }
 }
 </code></pre></div></section></main></body></html>

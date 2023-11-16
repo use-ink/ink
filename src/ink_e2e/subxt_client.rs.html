@@ -684,6 +684,51 @@
 <a href="#684" id="684">684</a>
 <a href="#685" id="685">685</a>
 <a href="#686" id="686">686</a>
+<a href="#687" id="687">687</a>
+<a href="#688" id="688">688</a>
+<a href="#689" id="689">689</a>
+<a href="#690" id="690">690</a>
+<a href="#691" id="691">691</a>
+<a href="#692" id="692">692</a>
+<a href="#693" id="693">693</a>
+<a href="#694" id="694">694</a>
+<a href="#695" id="695">695</a>
+<a href="#696" id="696">696</a>
+<a href="#697" id="697">697</a>
+<a href="#698" id="698">698</a>
+<a href="#699" id="699">699</a>
+<a href="#700" id="700">700</a>
+<a href="#701" id="701">701</a>
+<a href="#702" id="702">702</a>
+<a href="#703" id="703">703</a>
+<a href="#704" id="704">704</a>
+<a href="#705" id="705">705</a>
+<a href="#706" id="706">706</a>
+<a href="#707" id="707">707</a>
+<a href="#708" id="708">708</a>
+<a href="#709" id="709">709</a>
+<a href="#710" id="710">710</a>
+<a href="#711" id="711">711</a>
+<a href="#712" id="712">712</a>
+<a href="#713" id="713">713</a>
+<a href="#714" id="714">714</a>
+<a href="#715" id="715">715</a>
+<a href="#716" id="716">716</a>
+<a href="#717" id="717">717</a>
+<a href="#718" id="718">718</a>
+<a href="#719" id="719">719</a>
+<a href="#720" id="720">720</a>
+<a href="#721" id="721">721</a>
+<a href="#722" id="722">722</a>
+<a href="#723" id="723">723</a>
+<a href="#724" id="724">724</a>
+<a href="#725" id="725">725</a>
+<a href="#726" id="726">726</a>
+<a href="#727" id="727">727</a>
+<a href="#728" id="728">728</a>
+<a href="#729" id="729">729</a>
+<a href="#730" id="730">730</a>
+<a href="#731" id="731">731</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -711,8 +756,8 @@
     log_error,
     log_info,
     sr25519,
-    ContractInstantiateResult,
     ContractsApi,
+    InstantiateDryRunResult,
     Keypair,
 };
 <span class="kw">use crate</span>::{
@@ -736,6 +781,7 @@
     Environment,
 };
 <span class="kw">use </span>jsonrpsee::core::async_trait;
+<span class="kw">use </span>pallet_contracts_primitives::ContractResult;
 <span class="kw">use </span>scale::{
     Decode,
     Encode,
@@ -751,6 +797,7 @@
         salt,
         ContractsRegistry,
     },
+    error::DryRunError,
     events,
     ContractsBackend,
     E2EBackend,
@@ -758,6 +805,7 @@
 <span class="kw">use </span>subxt::{
     blocks::ExtrinsicEvents,
     config::ExtrinsicParams,
+    error::DispatchError,
     events::EventDetails,
     ext::scale_value::{
         Composite,
@@ -767,12 +815,7 @@
     tx::Signer,
 };
 
-<span class="kw">pub type </span>Error&lt;E&gt; = <span class="kw">crate</span>::error::Error&lt;
-    &lt;E <span class="kw">as </span>Environment&gt;::AccountId,
-    &lt;E <span class="kw">as </span>Environment&gt;::Balance,
-    &lt;E <span class="kw">as </span>Environment&gt;::Hash,
-    subxt::error::DispatchError,
-&gt;;
+<span class="kw">pub type </span>Error = <span class="kw">crate</span>::error::Error&lt;DispatchError&gt;;
 
 <span class="doccomment">/// Represents an initialized contract message builder.
 </span><span class="kw">pub type </span>CallBuilderFinal&lt;E, Args, RetType&gt; = ink_env::call::CallBuilder&lt;
@@ -829,7 +872,7 @@
         value: E::Balance,
         gas_limit: Weight,
         storage_deposit_limit: <span class="prelude-ty">Option</span>&lt;E::Balance&gt;,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;BareInstantiationResult&lt;E, ExtrinsicEvents&lt;C&gt;&gt;, Error&lt;E&gt;&gt; {
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;BareInstantiationResult&lt;E, ExtrinsicEvents&lt;C&gt;&gt;, Error&gt; {
         <span class="kw">let </span>salt = salt();
 
         <span class="kw">let </span>tx_events = <span class="self">self
@@ -870,11 +913,11 @@
                 <span class="kw">let </span>metadata = <span class="self">self</span>.api.client.metadata();
                 <span class="kw">let </span>dispatch_error =
                     subxt::error::DispatchError::decode_from(evt.field_bytes(), metadata)
-                        .map_err(|e| Error::&lt;E&gt;::Decoding(e.to_string()))<span class="question-mark">?</span>;
+                        .map_err(|e| Error::Decoding(e.to_string()))<span class="question-mark">?</span>;
                 log_error(<span class="kw-2">&amp;</span><span class="macro">format!</span>(
                     <span class="string">&quot;extrinsic for instantiate failed: {dispatch_error}&quot;
                 </span>));
-                <span class="kw">return </span><span class="prelude-val">Err</span>(Error::&lt;E&gt;::InstantiateExtrinsic(dispatch_error))
+                <span class="kw">return </span><span class="prelude-val">Err</span>(Error::InstantiateExtrinsic(dispatch_error))
             }
         }
         <span class="kw">let </span>account_id = account_id.expect(<span class="string">&quot;cannot extract `account_id` from events&quot;</span>);
@@ -893,15 +936,16 @@
         signer: <span class="kw-2">&amp;</span>Keypair,
         code: Vec&lt;u8&gt;,
         storage_deposit_limit: <span class="prelude-ty">Option</span>&lt;E::Balance&gt;,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;UploadResult&lt;E, ExtrinsicEvents&lt;C&gt;&gt;, Error&lt;E&gt;&gt; {
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;UploadResult&lt;E, ExtrinsicEvents&lt;C&gt;&gt;, Error&gt; {
         <span class="comment">// dry run the instantiate to calculate the gas limit
         </span><span class="kw">let </span>dry_run = <span class="self">self
             </span>.api
             .upload_dry_run(signer, code.clone(), storage_deposit_limit)
             .<span class="kw">await</span>;
         log_info(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;upload dry run: {dry_run:?}&quot;</span>));
-        <span class="kw">if </span>dry_run.is_err() {
-            <span class="kw">return </span><span class="prelude-val">Err</span>(Error::&lt;E&gt;::UploadDryRun(dry_run))
+        <span class="kw">if let </span><span class="prelude-val">Err</span>(err) = dry_run {
+            <span class="kw">let </span>dispatch_err = <span class="self">self</span>.runtime_dispatch_error_to_subxt_dispatch_error(<span class="kw-2">&amp;</span>err);
+            <span class="kw">return </span><span class="prelude-val">Err</span>(Error::UploadDryRun(dispatch_err))
         }
 
         <span class="kw">let </span>tx_events = <span class="self">self</span>.api.upload(signer, code, storage_deposit_limit).<span class="kw">await</span>;
@@ -926,11 +970,11 @@
             </span>} <span class="kw">else if </span>is_extrinsic_failed_event(<span class="kw-2">&amp;</span>evt) {
                 <span class="kw">let </span>metadata = <span class="self">self</span>.api.client.metadata();
                 <span class="kw">let </span>dispatch_error =
-                    subxt::error::DispatchError::decode_from(evt.field_bytes(), metadata)
-                        .map_err(|e| Error::&lt;E&gt;::Decoding(e.to_string()))<span class="question-mark">?</span>;
+                    DispatchError::decode_from(evt.field_bytes(), metadata)
+                        .map_err(|e| Error::Decoding(e.to_string()))<span class="question-mark">?</span>;
 
                 log_error(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;extrinsic for upload failed: {dispatch_error}&quot;</span>));
-                <span class="kw">return </span><span class="prelude-val">Err</span>(Error::&lt;E&gt;::UploadExtrinsic(dispatch_error))
+                <span class="kw">return </span><span class="prelude-val">Err</span>(Error::UploadExtrinsic(dispatch_error))
             }
         }
 
@@ -953,6 +997,45 @@
             code_hash,
             events: tx_events,
         })
+    }
+
+    <span class="doccomment">/// Transforms a [`ContractResult`] from a dry run into a [`Result`] type, containing
+    /// details of the [`DispatchError`] if the dry run failed.
+    </span><span class="attr">#[allow(clippy::type_complexity)]
+    </span><span class="kw">fn </span>contract_result_to_result&lt;V&gt;(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        contract_result: ContractResult&lt;
+            <span class="prelude-ty">Result</span>&lt;V, sp_runtime::DispatchError&gt;,
+            E::Balance,
+            (),
+        &gt;,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;
+        ContractResult&lt;<span class="prelude-ty">Result</span>&lt;V, sp_runtime::DispatchError&gt;, E::Balance, ()&gt;,
+        DryRunError&lt;DispatchError&gt;,
+    &gt; {
+        <span class="kw">if let </span><span class="prelude-val">Err</span>(error) = contract_result.result {
+            <span class="kw">let </span>debug_message = String::from_utf8(contract_result.debug_message.clone())
+                .expect(<span class="string">&quot;invalid utf8 debug message&quot;</span>);
+            <span class="kw">let </span>subxt_dispatch_err =
+                <span class="self">self</span>.runtime_dispatch_error_to_subxt_dispatch_error(<span class="kw-2">&amp;</span>error);
+            <span class="prelude-val">Err</span>(DryRunError::&lt;DispatchError&gt; {
+                debug_message,
+                error: subxt_dispatch_err,
+            })
+        } <span class="kw">else </span>{
+            <span class="prelude-val">Ok</span>(contract_result)
+        }
+    }
+
+    <span class="doccomment">/// Converts a `sp_runtime::DispatchError` into a `DispatchError` which contains error
+    /// details.
+    </span><span class="kw">fn </span>runtime_dispatch_error_to_subxt_dispatch_error(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        dispatch_error: <span class="kw-2">&amp;</span>sp_runtime::DispatchError,
+    ) -&gt; DispatchError {
+        <span class="kw">let </span>dispatch_err_encoded = Encode::encode(<span class="kw-2">&amp;</span>dispatch_error);
+        DispatchError::decode_from(dispatch_err_encoded, <span class="self">self</span>.api.client.metadata())
+            .expect(<span class="string">&quot;failed to decode valid dispatch error&quot;</span>)
     }
 }
 
@@ -985,7 +1068,7 @@
 {
     <span class="kw">type </span>AccountId = E::AccountId;
     <span class="kw">type </span>Balance = E::Balance;
-    <span class="kw">type </span>Error = Error&lt;E&gt;;
+    <span class="kw">type </span>Error = Error;
     <span class="kw">type </span>EventLog = ExtrinsicEvents&lt;C&gt;;
 
     <span class="kw">async fn </span>create_and_fund_account(
@@ -1050,13 +1133,13 @@
                 <span class="macro">panic!</span>(<span class="string">&quot;unable to decode account info: {err:?}&quot;</span>);
             });
 
-        <span class="kw">let </span>account_data = get_composite_field_value::&lt;<span class="kw">_</span>, E&gt;(<span class="kw-2">&amp;</span>account, <span class="string">&quot;data&quot;</span>)<span class="question-mark">?</span>;
-        <span class="kw">let </span>balance = get_composite_field_value::&lt;<span class="kw">_</span>, E&gt;(account_data, <span class="string">&quot;free&quot;</span>)<span class="question-mark">?</span>;
+        <span class="kw">let </span>account_data = get_composite_field_value(<span class="kw-2">&amp;</span>account, <span class="string">&quot;data&quot;</span>)<span class="question-mark">?</span>;
+        <span class="kw">let </span>balance = get_composite_field_value(account_data, <span class="string">&quot;free&quot;</span>)<span class="question-mark">?</span>;
         <span class="kw">let </span>balance = balance.as_u128().ok_or_else(|| {
-            Error::&lt;E&gt;::Balance(<span class="macro">format!</span>(<span class="string">&quot;{balance:?} should convert to u128&quot;</span>))
+            Error::Balance(<span class="macro">format!</span>(<span class="string">&quot;{balance:?} should convert to u128&quot;</span>))
         })<span class="question-mark">?</span>;
         <span class="kw">let </span>balance = E::Balance::try_from(balance).map_err(|<span class="kw">_</span>| {
-            Error::&lt;E&gt;::Balance(<span class="macro">format!</span>(<span class="string">&quot;{balance:?} failed to convert from u128&quot;</span>))
+            Error::Balance(<span class="macro">format!</span>(<span class="string">&quot;{balance:?} failed to convert from u128&quot;</span>))
         })<span class="question-mark">?</span>;
 
         log_info(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;balance of contract {account:?} is {balance:?}&quot;</span>));
@@ -1084,10 +1167,10 @@
                 <span class="kw">let </span>metadata = <span class="self">self</span>.api.client.metadata();
                 <span class="kw">let </span>dispatch_error =
                     subxt::error::DispatchError::decode_from(evt.field_bytes(), metadata)
-                        .map_err(|e| Error::&lt;E&gt;::Decoding(e.to_string()))<span class="question-mark">?</span>;
+                        .map_err(|e| Error::Decoding(e.to_string()))<span class="question-mark">?</span>;
 
                 log_error(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;extrinsic for call failed: {dispatch_error}&quot;</span>));
-                <span class="kw">return </span><span class="prelude-val">Err</span>(Error::&lt;E&gt;::CallExtrinsic(dispatch_error))
+                <span class="kw">return </span><span class="prelude-val">Err</span>(Error::CallExtrinsic(dispatch_error))
             }
         }
 
@@ -1147,11 +1230,12 @@
         constructor: <span class="kw-2">&amp;mut </span>CreateBuilderPartial&lt;E, Contract, Args, R&gt;,
         value: E::Balance,
         storage_deposit_limit: <span class="prelude-ty">Option</span>&lt;E::Balance&gt;,
-    ) -&gt; ContractInstantiateResult&lt;E::AccountId, E::Balance, ()&gt; {
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;InstantiateDryRunResult&lt;E&gt;, <span class="self">Self</span>::Error&gt; {
         <span class="kw">let </span>code = <span class="self">self</span>.contracts.load_code(contract_name);
         <span class="kw">let </span>data = constructor_exec_input(constructor.clone());
 
-        <span class="self">self</span>.api
+        <span class="kw">let </span>result = <span class="self">self
+            </span>.api
             .instantiate_with_code_dry_run(
                 value,
                 storage_deposit_limit,
@@ -1160,8 +1244,14 @@
                 salt(),
                 caller,
             )
-            .<span class="kw">await
-    </span>}
+            .<span class="kw">await</span>;
+
+        <span class="kw">let </span>result = <span class="self">self
+            </span>.contract_result_to_result(result)
+            .map_err(Error::InstantiateDryRun)<span class="question-mark">?</span>;
+
+        <span class="prelude-val">Ok</span>(result.into())
+    }
 
     <span class="kw">async fn </span>bare_upload(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
@@ -1213,9 +1303,9 @@
                 <span class="kw">let </span>metadata = <span class="self">self</span>.api.client.metadata();
                 <span class="kw">let </span>dispatch_error =
                     subxt::error::DispatchError::decode_from(evt.field_bytes(), metadata)
-                        .map_err(|e| Error::&lt;E&gt;::Decoding(e.to_string()))<span class="question-mark">?</span>;
+                        .map_err(|e| Error::Decoding(e.to_string()))<span class="question-mark">?</span>;
                 log_error(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;extrinsic for call failed: {dispatch_error}&quot;</span>));
-                <span class="kw">return </span><span class="prelude-val">Err</span>(Error::&lt;E&gt;::CallExtrinsic(dispatch_error))
+                <span class="kw">return </span><span class="prelude-val">Err</span>(Error::CallExtrinsic(dispatch_error))
             }
         }
 
@@ -1228,7 +1318,7 @@
         message: <span class="kw-2">&amp;</span>CallBuilderFinal&lt;E, Args, RetType&gt;,
         value: E::Balance,
         storage_deposit_limit: <span class="prelude-ty">Option</span>&lt;E::Balance&gt;,
-    ) -&gt; CallDryRunResult&lt;E, RetType&gt;
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;CallDryRunResult&lt;E, RetType&gt;, <span class="self">Self</span>::Error&gt;
     <span class="kw">where
         </span>CallBuilderFinal&lt;E, Args, RetType&gt;: Clone,
     {
@@ -1251,10 +1341,14 @@
             String::from_utf8_lossy(<span class="kw-2">&amp;</span>exec_result.debug_message)
         ));
 
-        CallDryRunResult {
+        <span class="kw">let </span>exec_result = <span class="self">self
+            </span>.contract_result_to_result(exec_result)
+            .map_err(Error::CallDryRun)<span class="question-mark">?</span>;
+
+        <span class="prelude-val">Ok</span>(CallDryRunResult {
             exec_result,
             _marker: Default::default(),
-        }
+        })
     }
 }
 
@@ -1279,7 +1373,7 @@
         Clone + Debug + Send + Sync + From&lt;u128&gt; + scale::HasCompact + serde::Serialize,
     E::Hash: Debug + Send + scale::Encode,
 {
-    <span class="kw">type </span>Error = Error&lt;E&gt;;
+    <span class="kw">type </span>Error = Error;
     <span class="kw">type </span>EventLog = ExtrinsicEvents&lt;C&gt;;
 }
 
@@ -1312,24 +1406,20 @@
 /// Returns `Err` if:
 ///   - The value is not a [`Value::Composite`] with [`Composite::Named`] fields
 ///   - The value does not contain a field with the given name.
-</span><span class="kw">fn </span>get_composite_field_value&lt;<span class="lifetime">&#39;a</span>, T, E&gt;(
+</span><span class="kw">fn </span>get_composite_field_value&lt;<span class="lifetime">&#39;a</span>, T&gt;(
     value: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Value&lt;T&gt;,
     field_name: <span class="kw-2">&amp;</span>str,
-) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Value&lt;T&gt;, Error&lt;E&gt;&gt;
-<span class="kw">where
-    </span>E: Environment,
-    E::Balance: Debug,
-{
+) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Value&lt;T&gt;, Error&gt; {
     <span class="kw">if let </span>ValueDef::Composite(Composite::Named(fields)) = <span class="kw-2">&amp;</span>value.value {
         <span class="kw">let </span>(<span class="kw">_</span>, field) = fields
             .iter()
             .find(|(name, <span class="kw">_</span>)| name == field_name)
             .ok_or_else(|| {
-                Error::&lt;E&gt;::Balance(<span class="macro">format!</span>(<span class="string">&quot;No field named &#39;{field_name}&#39; found&quot;</span>))
+                Error::Balance(<span class="macro">format!</span>(<span class="string">&quot;No field named &#39;{field_name}&#39; found&quot;</span>))
             })<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(field)
     } <span class="kw">else </span>{
-        <span class="prelude-val">Err</span>(Error::&lt;E&gt;::Balance(
+        <span class="prelude-val">Err</span>(Error::Balance(
             <span class="string">&quot;Expected a composite type with named fields&quot;</span>.into(),
         ))
     }

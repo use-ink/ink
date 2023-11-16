@@ -425,6 +425,8 @@
 <a href="#425" id="425">425</a>
 <a href="#426" id="426">426</a>
 <a href="#427" id="427">427</a>
+<a href="#428" id="428">428</a>
+<a href="#429" id="429">429</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -457,6 +459,7 @@
     ChainBackend,
     ContractsBackend,
     E2EBackend,
+    InstantiateDryRunResult,
     UploadResult,
 };
 <span class="kw">use </span>drink::{
@@ -675,7 +678,7 @@
         constructor: <span class="kw-2">&amp;mut </span>CreateBuilderPartial&lt;E, Contract, Args, R&gt;,
         value: E::Balance,
         storage_deposit_limit: <span class="prelude-ty">Option</span>&lt;E::Balance&gt;,
-    ) -&gt; ContractInstantiateResult&lt;E::AccountId, E::Balance, <span class="self">Self</span>::EventLog&gt; {
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;InstantiateDryRunResult&lt;E&gt;, <span class="self">Self</span>::Error&gt; {
         <span class="kw">let </span>code = <span class="self">self</span>.contracts.load_code(contract_name);
         <span class="kw">let </span>data = constructor_exec_input(constructor.clone());
         <span class="kw">let </span>result = <span class="self">self</span>.sandbox.dry_run(|r| {
@@ -698,7 +701,7 @@
         };
         <span class="kw">let </span>account_id = AccountId::from(account_id_raw);
 
-        ContractInstantiateResult {
+        <span class="kw">let </span>result = ContractInstantiateResult {
             gas_consumed: result.gas_consumed,
             gas_required: result.gas_required,
             storage_deposit: result.storage_deposit,
@@ -710,7 +713,8 @@
                 }
             }),
             events: <span class="prelude-val">None</span>,
-        }
+        };
+        <span class="prelude-val">Ok</span>(result.into())
     }
 
     <span class="kw">async fn </span>bare_upload(
@@ -765,7 +769,7 @@
         <span class="kw">let </span>account_id = (<span class="kw-2">*</span>account_id.as_ref()).into();
 
         <span class="self">self</span>.bare_call_dry_run(caller, message, value, storage_deposit_limit)
-            .<span class="kw">await</span>;
+            .<span class="kw">await</span><span class="question-mark">?</span>;
 
         <span class="kw">if </span><span class="self">self
             </span>.sandbox
@@ -792,7 +796,7 @@
         message: <span class="kw-2">&amp;</span>CallBuilderFinal&lt;E, Args, RetType&gt;,
         value: E::Balance,
         storage_deposit_limit: <span class="prelude-ty">Option</span>&lt;E::Balance&gt;,
-    ) -&gt; CallDryRunResult&lt;E, RetType&gt;
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;CallDryRunResult&lt;E, RetType&gt;, <span class="self">Self</span>::Error&gt;
     <span class="kw">where
         </span>CallBuilderFinal&lt;E, Args, RetType&gt;: Clone,
     {
@@ -810,7 +814,7 @@
                 storage_deposit_limit,
             )
         });
-        CallDryRunResult {
+        <span class="prelude-val">Ok</span>(CallDryRunResult {
             exec_result: ContractResult {
                 gas_consumed: result.gas_consumed,
                 gas_required: result.gas_required,
@@ -820,7 +824,7 @@
                 events: <span class="prelude-val">None</span>,
             },
             _marker: Default::default(),
-        }
+        })
     }
 }
 

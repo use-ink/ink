@@ -403,20 +403,6 @@
 <a href="#403" id="403">403</a>
 <a href="#404" id="404">404</a>
 <a href="#405" id="405">405</a>
-<a href="#406" id="406">406</a>
-<a href="#407" id="407">407</a>
-<a href="#408" id="408">408</a>
-<a href="#409" id="409">409</a>
-<a href="#410" id="410">410</a>
-<a href="#411" id="411">411</a>
-<a href="#412" id="412">412</a>
-<a href="#413" id="413">413</a>
-<a href="#414" id="414">414</a>
-<a href="#415" id="415">415</a>
-<a href="#416" id="416">416</a>
-<a href="#417" id="417">417</a>
-<a href="#418" id="418">418</a>
-<a href="#419" id="419">419</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -432,7 +418,6 @@
 // limitations under the License.
 
 </span><span class="kw">use </span>ink_env::Environment;
-<span class="kw">use </span>pallet_contracts_primitives::ContractInstantiateResult;
 <span class="kw">use </span>scale::{
     Decode,
     Encode,
@@ -445,8 +430,8 @@
     CallBuilderFinal,
     CallDryRunResult,
     CallResult,
-    ContractExecResult,
     ContractsBackend,
+    InstantiateDryRunResult,
     InstantiationResult,
     UploadResult,
 };
@@ -559,7 +544,6 @@
     ) -&gt; <span class="prelude-ty">Result</span>&lt;CallResult&lt;E, RetType, B::EventLog&gt;, B::Error&gt;
     <span class="kw">where
         </span>CallBuilderFinal&lt;E, Args, RetType&gt;: Clone,
-        B::Error: From&lt;ContractExecResult&lt;E::Balance, ()&gt;&gt;,
     {
         <span class="kw">let </span>dry_run = B::bare_call_dry_run(
             <span class="self">self</span>.client,
@@ -568,8 +552,7 @@
             <span class="self">self</span>.value,
             <span class="self">self</span>.storage_deposit_limit,
         )
-        .<span class="kw">await
-        </span>.to_result()<span class="question-mark">?</span>;
+        .<span class="kw">await</span><span class="question-mark">?</span>;
 
         <span class="kw">let </span>gas_limit = <span class="kw">if let </span><span class="prelude-val">Some</span>(limit) = <span class="self">self</span>.gas_limit {
             limit
@@ -599,7 +582,7 @@
     }
 
     <span class="doccomment">/// Dry run the call.
-    </span><span class="kw">pub async fn </span>dry_run(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; CallDryRunResult&lt;E, RetType&gt;
+    </span><span class="kw">pub async fn </span>dry_run(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;CallDryRunResult&lt;E, RetType&gt;, B::Error&gt;
     <span class="kw">where
         </span>CallBuilderFinal&lt;E, Args, RetType&gt;: Clone,
     {
@@ -720,10 +703,7 @@
     /// to add a margin to the gas limit.
     </span><span class="kw">pub async fn </span>submit(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;InstantiationResult&lt;E, B::EventLog&gt;, B::Error&gt;
-    <span class="kw">where
-        </span>B::Error: From&lt;ContractInstantiateResult&lt;E::AccountId, E::Balance, ()&gt;&gt;,
-    {
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;InstantiationResult&lt;E, B::EventLog&gt;, B::Error&gt; {
         <span class="kw">let </span>dry_run = B::bare_instantiate_dry_run(
             <span class="self">self</span>.client,
             <span class="self">self</span>.contract_name,
@@ -732,18 +712,12 @@
             <span class="self">self</span>.value,
             <span class="self">self</span>.storage_deposit_limit,
         )
-        .<span class="kw">await</span>;
-
-        <span class="kw">let </span>dry_run = <span class="kw">if </span>dry_run.result.is_err() {
-            <span class="prelude-val">Err</span>(B::Error::from(dry_run))
-        } <span class="kw">else </span>{
-            <span class="prelude-val">Ok</span>(dry_run)
-        }<span class="question-mark">?</span>;
+        .<span class="kw">await</span><span class="question-mark">?</span>;
 
         <span class="kw">let </span>gas_limit = <span class="kw">if let </span><span class="prelude-val">Some</span>(limit) = <span class="self">self</span>.gas_limit {
             limit
         } <span class="kw">else </span>{
-            <span class="kw">let </span>gas_required = dry_run.gas_required;
+            <span class="kw">let </span>gas_required = dry_run.contract_result.gas_required;
             <span class="kw">if let </span><span class="prelude-val">Some</span>(m) = <span class="self">self</span>.extra_gas_portion {
                 gas_required + (gas_required / <span class="number">100 </span>* m)
             } <span class="kw">else </span>{
@@ -770,9 +744,7 @@
     }
 
     <span class="doccomment">/// Dry run the instantiate call.
-    </span><span class="kw">pub async fn </span>dry_run(
-        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
-    ) -&gt; ContractInstantiateResult&lt;E::AccountId, E::Balance, ()&gt; {
+    </span><span class="kw">pub async fn </span>dry_run(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;InstantiateDryRunResult&lt;E&gt;, B::Error&gt; {
         B::bare_instantiate_dry_run(
             <span class="self">self</span>.client,
             <span class="self">self</span>.contract_name,

@@ -274,6 +274,8 @@
 <a href="#274" id="274">274</a>
 <a href="#275" id="275">275</a>
 <a href="#276" id="276">276</a>
+<a href="#277" id="277">277</a>
+<a href="#278" id="278">278</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -295,7 +297,10 @@
         UploadBuilder,
     },
     builders::CreateBuilderPartial,
-    contract_results::BareInstantiationResult,
+    contract_results::{
+        BareInstantiationResult,
+        InstantiateDryRunResult,
+    },
     CallBuilder,
     CallBuilderFinal,
     CallDryRunResult,
@@ -306,7 +311,6 @@
     Environment,
 };
 <span class="kw">use </span>jsonrpsee::core::async_trait;
-<span class="kw">use </span>pallet_contracts_primitives::ContractInstantiateResult;
 <span class="kw">use </span>scale::{
     Decode,
     Encode,
@@ -495,7 +499,7 @@
         message: <span class="kw-2">&amp;</span>CallBuilderFinal&lt;E, Args, RetType&gt;,
         value: E::Balance,
         storage_deposit_limit: <span class="prelude-ty">Option</span>&lt;E::Balance&gt;,
-    ) -&gt; CallDryRunResult&lt;E, RetType&gt;
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;CallDryRunResult&lt;E, RetType&gt;, <span class="self">Self</span>::Error&gt;
     <span class="kw">where
         </span>CallBuilderFinal&lt;E, Args, RetType&gt;: Clone;
 
@@ -548,6 +552,6 @@
         constructor: <span class="kw-2">&amp;mut </span>CreateBuilderPartial&lt;E, Contract, Args, R&gt;,
         value: E::Balance,
         storage_deposit_limit: <span class="prelude-ty">Option</span>&lt;E::Balance&gt;,
-    ) -&gt; ContractInstantiateResult&lt;E::AccountId, E::Balance, ()&gt;;
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;InstantiateDryRunResult&lt;E&gt;, <span class="self">Self</span>::Error&gt;;
 }
 </code></pre></div></section></main></body></html>
