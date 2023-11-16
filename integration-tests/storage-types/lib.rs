@@ -241,15 +241,15 @@ mod storage_types {
         #[ink(message)]
         pub fn get_result_error_with_string_string(&self) -> Result<bool, CustomError> {
             Err(CustomError::StringStringError(
-                "This is the Error Message.".to_string(),
-                "This is the second string of this Error Message.".to_string(),
+                String::from("This is the Error Message."),
+                String::from("This is the second string of this Error Message."),
             ))
         }
 
         #[ink(message)]
         pub fn get_result_error_with_string_unsigned(&self) -> Result<bool, CustomError> {
             Err(CustomError::StringUnsignedError(
-                "This is the Error Message.".to_string(),
+                String::from("This is the Error Message."),
                 42,
             ))
         }
