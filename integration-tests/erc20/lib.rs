@@ -535,7 +535,7 @@ mod erc20 {
             let total_supply_res = client
                 .call(&ink_e2e::bob(), &total_supply_msg)
                 .dry_run()
-                .await;
+                .await?;
 
             let bob_account = ink_e2e::account_id(ink_e2e::AccountKeyring::Bob);
             let transfer_to_bob = 500_000_000u128;
@@ -548,7 +548,7 @@ mod erc20 {
 
             let balance_of = call.balance_of(bob_account);
             let balance_of_res =
-                client.call(&ink_e2e::alice(), &balance_of).dry_run().await;
+                client.call(&ink_e2e::alice(), &balance_of).dry_run().await?;
 
             // then
             assert_eq!(
@@ -614,7 +614,7 @@ mod erc20 {
 
             let balance_of = call.balance_of(bob_account);
             let balance_of_res =
-                client.call(&ink_e2e::alice(), &balance_of).dry_run().await;
+                client.call(&ink_e2e::alice(), &balance_of).dry_run().await?;
 
             // `transfer_from` again, this time exceeding the approved amount
             let transfer_from = call.transfer_from(bob_account, charlie_account, 1);
