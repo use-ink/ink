@@ -128,7 +128,7 @@ mod custom_allocator {
 
             // Then
             let get = call.get();
-            let get_result = client.call(&ink_e2e::alice(), &get).dry_run().await;
+            let get_result = client.call(&ink_e2e::alice(), &get).dry_run().await?;
             assert!(matches!(get_result.return_value(), false));
 
             Ok(())
@@ -148,7 +148,7 @@ mod custom_allocator {
             let mut call = contract.call::<CustomAllocator>();
 
             let get = call.get();
-            let get_result = client.call(&ink_e2e::bob(), &get).dry_run().await;
+            let get_result = client.call(&ink_e2e::bob(), &get).dry_run().await?;
             assert!(matches!(get_result.return_value(), false));
 
             // When
@@ -161,7 +161,7 @@ mod custom_allocator {
 
             // Then
             let get = call.get();
-            let get_result = client.call(&ink_e2e::bob(), &get).dry_run().await;
+            let get_result = client.call(&ink_e2e::bob(), &get).dry_run().await?;
             assert!(matches!(get_result.return_value(), true));
 
             Ok(())
