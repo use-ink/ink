@@ -62,8 +62,21 @@ declare_lint! {
 
 declare_lint_pass!(NoMain => [NO_MAIN]);
 
+/// Returns true if the target architecture is suitable to be executed on-chain
+fn is_contract_build(cx: &EarlyContext<'_>) -> bool {
+    matches!(
+        cx.sess().target.llvm_target.to_string().as_str(),
+        "wasm32-unknown-unknown" | "riscv32i-unknown-none-elf"
+    )
+}
+
 impl EarlyLintPass for NoMain {
     fn check_crate(&mut self, cx: &EarlyContext<'_>, krate: &Crate) {
+        // Disable when building for e2e tests
+        if !is_contract_build(cx) {
+            return
+        }
+
         // `no_main` is an `Inner` attribute of `#![cfg_attr(...)]`
         if krate.attrs.iter().all(|attr| {
             if_chain! {
