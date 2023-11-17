@@ -4,7 +4,10 @@
 
 #[ink::contract]
 mod lazyvec_integration_tests {
-    use ink::storage::StorageVec;
+    use ink::{
+        prelude::vec::Vec,
+        storage::StorageVec,
+    };
 
     #[cfg_attr(feature = "std", derive(ink::storage::traits::StorageLayout))]
     #[ink::scale_derive(Encode, Decode, TypeInfo)]
@@ -17,7 +20,7 @@ mod lazyvec_integration_tests {
 
     impl Proposal {
         fn is_finished(&self) -> bool {
-            self.until >= ink::env::block_number::<Environment>()
+            self.until < ink::env::block_number::<Environment>()
         }
     }
 
@@ -34,28 +37,29 @@ mod lazyvec_integration_tests {
             }
         }
 
+        /// Checks whether given account is allowed to vote and didn't already
+        /// participate.
         fn is_eligible(&self, _voter: AccountId) -> bool {
             // todo
             true
         }
 
+        /// Vote to approve the current proposal.
         #[ink(message)]
         pub fn approve(&mut self) {
-            if !self.is_eligible(self.env().caller()) {
-                return;
+            assert!(self.is_eligible(self.env().caller()));
+
+            if let Some(mut proposal) = self.proposals.pop() {
+                assert!(!proposal.is_finished());
+
+                proposal.approvals = proposal.approvals.saturating_add(1);
+                self.proposals.push(&proposal);
             }
-
-            let mut proposal = self.proposals.pop().unwrap();
-
-            if proposal.is_finished() {
-                return;
-            }
-
-            proposal.approvals = proposal.approvals.saturating_add(1);
-
-            self.proposals.push(&proposal);
         }
 
+        /// Create a new proposal.
+        ///
+        /// Returns `None` if the current proposal is not yet finished.
         #[ink(message)]
         pub fn create_proposal(
             &mut self,
@@ -70,7 +74,7 @@ mod lazyvec_integration_tests {
 
             self.proposals.push(&Proposal {
                 data,
-                until: self.env().block_number().saturating_add(duration),
+                until: self.env().block_number().saturating_add(duration.min(6000)),
                 min_approvals,
                 approvals: 0,
             });
@@ -79,15 +83,8 @@ mod lazyvec_integration_tests {
         }
 
         #[ink(message)]
-        pub fn get(&self, proposal_no: u32) -> Option<Proposal> {
-            self.proposals.get(proposal_no)
-        }
-
-        #[ink(message)]
-        pub fn was_approved(&self, proposal_no: u32) -> Option<bool> {
-            self.proposals.get(proposal_no).map(|proposal| {
-                proposal.is_finished() && proposal.approvals >= proposal.min_approvals
-            })
+        pub fn get(&self, at: u32) -> Option<Proposal> {
+            self.proposals.get(at)
         }
     }
 
@@ -99,7 +96,7 @@ mod lazyvec_integration_tests {
         type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
         #[ink_e2e::test]
-        async fn push_and_pop_works<Client: E2EBackend>(
+        async fn create_and_vote<Client: E2EBackend>(
             mut client: Client,
         ) -> E2EResult<()> {
             // given
@@ -116,33 +113,39 @@ mod lazyvec_integration_tests {
             let mut call = contract.call::<LazyVector>();
 
             // when
-            let insert = call.push(0);
+            let create = call.create_proposal(vec![0x41], 5, 1);
             let _ = client
-                .call(&ink_e2e::alice(), &insert)
+                .call(&ink_e2e::alice(), &create)
                 .submit()
                 .await
-                .expect("Calling `insert_balance` failed");
+                .expect("Calling `create_proposal` failed");
+
+            let approve = call.approve();
+            let _ = client
+                .call(&ink_e2e::alice(), &approve)
+                .submit()
+                .await
+                .expect("Voting failed");
+            let _ = client
+                .call(&ink_e2e::bob(), &approve)
+                .submit()
+                .await
+                .expect("Voting failed");
 
             // then
             let value = client
-                .call(&ink_e2e::alice(), &call.pop())
-                .dry_run()
-                .await
-                .return_value();
-            assert_eq!(value, Some(0));
-
-            client
-                .call(&ink_e2e::alice(), &call.pop())
-                .submit()
-                .await
-                .unwrap();
-
-            let value = client
-                .call(&ink_e2e::alice(), &call.pop())
+                .call(&ink_e2e::alice(), &create)
                 .dry_run()
                 .await
                 .return_value();
             assert_eq!(value, None);
+
+            let value = client
+                .call(&ink_e2e::alice(), &call.get(0))
+                .dry_run()
+                .await
+                .return_value();
+            assert_eq!(value.unwrap().approvals, 2);
 
             Ok(())
         }
