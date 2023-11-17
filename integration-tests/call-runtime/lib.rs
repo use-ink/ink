@@ -237,7 +237,7 @@ mod runtime_call {
             let call_res = client
                 .call(&ink_e2e::alice(), &transfer_message)
                 .dry_run()
-                .await
+                .await?
                 .return_value();
 
             // then

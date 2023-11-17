@@ -97,7 +97,7 @@ mod runtime_call {
                 .submit()
                 .await
                 .expect("instantiate failed");
-            let call = contract.call::<Topics>();
+            let mut call = contract.call::<Topics>();
 
             // when
             let message = call.trigger();

@@ -403,7 +403,7 @@ jobs:
         with:
           name: ${{ github.job }}-data
           path: ./crate-docs
-          retention-days: 7
+          retention-days: 1
 
   codecov:
     runs-on: ubuntu-latest
@@ -600,3 +600,50 @@ jobs:
     needs: [examples-docs, examples-contract-build, examples-test]
     uses: ./.github/workflows/measurements.yml
 
+# fuzz
+
+  fuzz:
+    # Temporarily disabled until https://github.com/paritytech/ink/issues/1374
+    # is fixed.
+    if: >
+      false &&
+        github.event_name == 'push' &&
+        github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    needs: [set-image, measurements]
+    defaults:
+      run:
+        shell: bash
+    container:
+      image: ${{ needs.set-image.outputs.IMAGE }}
+    strategy:
+      fail-fast: false
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 100
+
+      - name: Cache
+        uses: Swatinem/rust-cache@v2
+        with:
+          cache-directories: ${{ env.CARGO_TARGET_DIR }}
+
+      - name: Rust Info
+        uses: ./.github/rust-info
+
+      - name: Fuzz
+        env:
+          QUICKCHECK_TESTS:              5000
+        run: |
+          # We fuzz-test only crates which possess the `ink-fuzz-tests` feature
+          all_tests_passed=0
+          ALL_CRATES="${PURELY_STD_CRATES} ${ALSO_WASM_CRATES}"
+          for crate in ${ALL_CRATES}; do
+            if grep "ink-fuzz-tests =" ./crates/${crate}/Cargo.toml;
+            then
+              cargo test --verbose --features ink-fuzz-tests --manifest-path ./crates/${crate}/Cargo.toml --no-fail-fast -- fuzz_ || exit_code=$?;
+              all_tests_passed=$(( all_tests_passed | exit_code ));
+            fi
+          done
+          exit ${all_tests_passed}
