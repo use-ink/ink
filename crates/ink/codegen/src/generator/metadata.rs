@@ -248,7 +248,8 @@ impl Metadata<'_> {
                 let ident = message.ident();
                 let args = message.inputs().map(Self::generate_dispatch_argument);
                 let cfg_attrs = message.get_cfg_attrs(span);
-                let ret_ty = Self::generate_return_type(Some(&message.wrapped_output()));
+                let ret_ty =
+                    Self::generate_message_return_type(&message.wrapped_output());
                 quote_spanned!(span =>
                     #( #cfg_attrs )*
                     ::ink::metadata::MessageSpec::from_label(::core::stringify!(#ident))
@@ -311,7 +312,7 @@ impl Metadata<'_> {
                         as #trait_path>::__ink_TraitInfo
                         as ::ink::reflect::TraitMessageInfo<#local_id>>::SELECTOR
                 }};
-                let ret_ty = Self::generate_return_type(Some(&message.wrapped_output()));
+                let ret_ty = Self::generate_message_return_type(&message.wrapped_output());
                 let label = [trait_ident.to_string(), message_ident.to_string()].join("::");
                 quote_spanned!(message_span=>
                     #( #cfg_attrs )*
@@ -333,19 +334,10 @@ impl Metadata<'_> {
     }
 
     /// Generates ink! metadata for the given return type.
-    fn generate_return_type(ret_ty: Option<&syn::Type>) -> TokenStream2 {
-        match ret_ty {
-            None => {
-                quote! {
-                    ::ink::metadata::ReturnTypeSpec::new(::core::option::Option::None)
-                }
-            }
-            Some(ty) => {
-                let type_spec = Self::generate_type_spec(ty);
-                quote! {
-                    ::ink::metadata::ReturnTypeSpec::new(#type_spec)
-                }
-            }
+    fn generate_message_return_type(ret_ty: &syn::Type) -> TokenStream2 {
+        let type_spec = Self::generate_type_spec(ret_ty);
+        quote! {
+            ::ink::metadata::ReturnTypeSpec::new(#type_spec)
         }
     }
 
