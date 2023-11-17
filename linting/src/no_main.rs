@@ -91,7 +91,7 @@ impl EarlyLintPass for NoMain {
                 krate.spans.inner_span,
                 "contract must be annotated with the `no_main` outer attribute",
                 None,
-                "consider annotating contract with `#![cfg_attr(not(feature = \"std\"), no_std, no_main)]`"
+                "consider annotating contract with `#![cfg_attr(not(feature = \"std\"), no_std, no_main)]` or `#[no_main]`"
             )
         }
     }
