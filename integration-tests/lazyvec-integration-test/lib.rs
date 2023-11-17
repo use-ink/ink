@@ -137,6 +137,7 @@ mod lazyvec_integration_tests {
                 .call(&ink_e2e::alice(), &create)
                 .dry_run()
                 .await
+                .expect("create trapped when it shouldn't")
                 .return_value();
             assert_eq!(value, None);
 
@@ -144,6 +145,7 @@ mod lazyvec_integration_tests {
                 .call(&ink_e2e::alice(), &call.get(0))
                 .dry_run()
                 .await
+                .expect("get trapped when it shouldn't")
                 .return_value();
             assert_eq!(value.unwrap().approvals, 2);
 
