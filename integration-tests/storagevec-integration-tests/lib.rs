@@ -4,46 +4,90 @@
 
 #[ink::contract]
 mod storagevec_integration_tests {
+    use ink::{
+        prelude::vec::Vec,
+        storage::StorageVec,
+    };
+
+    #[cfg_attr(feature = "std", derive(ink::storage::traits::StorageLayout))]
+    #[ink::scale_derive(Encode, Decode, TypeInfo)]
+    #[derive(Clone, Debug)]
+    pub struct Proposal {
+        data: Vec<u8>,
+        until: BlockNumber,
+        approvals: u32,
+        min_approvals: u32,
+    }
+
+    impl Proposal {
+        fn is_finished(&self) -> bool {
+            self.until < ink::env::block_number::<Environment>()
+        }
+    }
 
     #[ink(storage)]
     pub struct StorageVector {
-        /// Stores individual bytes values on the storage.
-        vec: ink::storage::StorageVec<u8>,
+        proposals: StorageVec<Proposal>,
     }
 
     impl StorageVector {
         #[ink(constructor, payable)]
         pub fn default() -> Self {
             Self {
-                vec: Default::default(),
+                proposals: Default::default(),
             }
         }
 
-        /// Push another byte value to storage.
-        #[ink(message)]
-        pub fn push(&mut self, value: u8) {
-            self.vec.push(value);
-            self.vec.write();
+        /// Checks whether given account is allowed to vote and didn't already
+        /// participate.
+        fn is_eligible(&self, _voter: AccountId) -> bool {
+            // todo
+            true
         }
 
-        /// Pop the last byte value from storage (removing it from storage).
+        /// Vote to approve the current proposal.
         #[ink(message)]
-        pub fn pop(&mut self) -> Option<u8> {
-            let result = self.vec.pop();
-            self.vec.write();
-            result
+        pub fn approve(&mut self) {
+            assert!(self.is_eligible(self.env().caller()));
+
+            if let Some(mut proposal) = self.proposals.pop() {
+                assert!(!proposal.is_finished());
+
+                proposal.approvals = proposal.approvals.saturating_add(1);
+                self.proposals.push(proposal);
+                self.proposals.write();
+            }
         }
 
-        /// Peek at the last byte value without removing it from storage.
+        /// Create a new proposal.
+        ///
+        /// Returns `None` if the current proposal is not yet finished.
         #[ink(message)]
-        pub fn peek(&self, at: u32) -> Option<u8> {
-            self.vec.get(at).copied()
+        pub fn create_proposal(
+            &mut self,
+            data: Vec<u8>,
+            duration: BlockNumber,
+            min_approvals: u32,
+        ) -> Option<u32> {
+            let proposal_number = match self.proposals.last() {
+                Some(last) if !last.is_finished() => return None,
+                _ => self.proposals.len(),
+            };
+
+            self.proposals.push(Proposal {
+                data,
+                until: self.env().block_number().saturating_add(duration.min(6000)),
+                min_approvals,
+                approvals: 0,
+            });
+            self.proposals.write();
+
+            Some(proposal_number)
         }
 
-        /// Read and return the whole vector from storage.
         #[ink(message)]
-        pub fn get(&self) -> ink::prelude::vec::Vec<u8> {
-            self.vec.iter().copied().collect()
+        pub fn get(&self, at: u32) -> Option<Proposal> {
+            self.proposals.get(at).cloned()
         }
     }
 
@@ -55,7 +99,7 @@ mod storagevec_integration_tests {
         type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
         #[ink_e2e::test]
-        async fn push_and_pop_works<Client: E2EBackend>(
+        async fn create_and_vote<Client: E2EBackend>(
             mut client: Client,
         ) -> E2EResult<()> {
             // given
@@ -72,33 +116,41 @@ mod storagevec_integration_tests {
             let mut call = contract.call::<StorageVector>();
 
             // when
-            let insert = call.push(0);
+            let create = call.create_proposal(vec![0x41], 5, 1);
             let _ = client
-                .call(&ink_e2e::alice(), &insert)
+                .call(&ink_e2e::alice(), &create)
                 .submit()
                 .await
-                .expect("Calling `insert_balance` failed");
+                .expect("Calling `create_proposal` failed");
+
+            let approve = call.approve();
+            let _ = client
+                .call(&ink_e2e::alice(), &approve)
+                .submit()
+                .await
+                .expect("Voting failed");
+            let _ = client
+                .call(&ink_e2e::bob(), &approve)
+                .submit()
+                .await
+                .expect("Voting failed");
 
             // then
             let value = client
-                .call(&ink_e2e::alice(), &call.pop())
+                .call(&ink_e2e::alice(), &create)
                 .dry_run()
                 .await
-                .return_value();
-            assert_eq!(value, Some(0));
-
-            client
-                .call(&ink_e2e::alice(), &call.pop())
-                .submit()
-                .await
-                .unwrap();
-
-            let value = client
-                .call(&ink_e2e::alice(), &call.pop())
-                .dry_run()
-                .await
+                .expect("create trapped when it shouldn't")
                 .return_value();
             assert_eq!(value, None);
+
+            let value = client
+                .call(&ink_e2e::alice(), &call.get(0))
+                .dry_run()
+                .await
+                .expect("get trapped when it shouldn't")
+                .return_value();
+            assert_eq!(value.unwrap().approvals, 2);
 
             Ok(())
         }
