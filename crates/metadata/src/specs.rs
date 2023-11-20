@@ -468,6 +468,7 @@ pub struct ConstructorSpecBuilder<F: Form, Selector, IsPayable, Returns> {
 impl<F> ConstructorSpec<F>
 where
     F: Form,
+    TypeSpec<F>: Default,
 {
     /// Creates a new constructor spec builder.
     pub fn from_label(
@@ -484,7 +485,7 @@ where
                 selector: Selector::default(),
                 payable: Default::default(),
                 args: Vec::new(),
-                return_type: ReturnTypeSpec::new(None),
+                return_type: ReturnTypeSpec::new(TypeSpec::default()),
                 docs: Vec::new(),
                 default: false,
             },
@@ -668,6 +669,7 @@ mod state {
 impl<F> MessageSpec<F>
 where
     F: Form,
+    TypeSpec<F>: Default,
 {
     /// Creates a new message spec builder.
     pub fn from_label(
@@ -686,7 +688,7 @@ where
                 mutates: false,
                 payable: false,
                 args: Vec::new(),
-                return_type: ReturnTypeSpec::new(None),
+                return_type: ReturnTypeSpec::new(TypeSpec::default()),
                 docs: Vec::new(),
                 default: false,
             },
@@ -1282,6 +1284,11 @@ where
     pub fn new(ty: <F as Form>::Type, display_name: DisplayName<F>) -> Self {
         Self { ty, display_name }
     }
+
+    // /// Creates a new type specification for a given type and display name.
+    // pub fn of_type_with_display_name<T: TypeInfo + 'static>(display_name:
+    // DisplayName<F>) -> Self {     Self { ty: meta_type::<T>(), display_name }
+    // }
 }
 
 /// Describes a pair of parameter label and type.
@@ -1417,7 +1424,7 @@ where
 #[must_use]
 pub struct ReturnTypeSpec<F: Form = MetaForm> {
     #[serde(rename = "type")]
-    opt_type: Option<TypeSpec<F>>,
+    ret_type: TypeSpec<F>,
 }
 
 impl IntoPortable for ReturnTypeSpec {
@@ -1425,9 +1432,7 @@ impl IntoPortable for ReturnTypeSpec {
 
     fn into_portable(self, registry: &mut Registry) -> Self::Output {
         ReturnTypeSpec {
-            opt_type: self
-                .opt_type
-                .map(|opt_type| opt_type.into_portable(registry)),
+            ret_type: self.ret_type.into_portable(registry),
         }
     }
 }
@@ -1435,6 +1440,7 @@ impl IntoPortable for ReturnTypeSpec {
 impl<F> ReturnTypeSpec<F>
 where
     F: Form,
+    TypeSpec<F>: Default,
 {
     /// Creates a new return type specification from the given type or `None`.
     ///
@@ -1446,16 +1452,16 @@ where
     /// ```
     pub fn new<T>(ty: T) -> Self
     where
-        T: Into<Option<TypeSpec<F>>>,
+        T: Into<TypeSpec<F>>,
     {
         Self {
-            opt_type: ty.into(),
+            ret_type: ty.into(),
         }
     }
 
-    /// Returns the optional return type
-    pub fn opt_type(&self) -> Option<&TypeSpec<F>> {
-        self.opt_type.as_ref()
+    /// Returns the return type
+    pub fn ret_type(&self) -> &TypeSpec<F> {
+        &self.ret_type
     }
 }
 

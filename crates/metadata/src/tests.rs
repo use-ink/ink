@@ -24,11 +24,16 @@ use serde_json::json;
 #[test]
 fn spec_constructor_selector_must_serialize_to_hex() {
     // given
+    let selector_id = 123_456_789u32;
     let label = "foo";
     let cs = ConstructorSpec::from_label(label)
-        .selector(123_456_789u32.to_be_bytes())
+        .selector(selector_id.to_be_bytes())
         .payable(true)
-        .returns(ReturnTypeSpec::new(None))
+        .returns(ReturnTypeSpec::new(TypeSpec::with_name_str::<
+            ink_primitives::ConstructorResult<()>,
+        >(
+            "ink_primitives::ConstructorResult"
+        )))
         .done();
     let mut registry = Registry::new();
     let portable_spec = cs.into_portable(&mut registry);
@@ -45,7 +50,13 @@ fn spec_constructor_selector_must_serialize_to_hex() {
             "label": "foo",
             "payable": true,
             "selector": "0x075bcd15",
-            "returnType": null,
+            "returnType": {
+                "displayName": [
+                    "ink_primitives",
+                    "ConstructorResult"
+                ],
+                "type": 0
+            },
             "args": [],
             "docs": [],
             "default": false,
@@ -66,7 +77,11 @@ fn spec_contract_only_one_default_message_allowed() {
                     vec!["i32"].into_iter().map(AsRef::as_ref),
                 ))
                 .done()])
-            .returns(ReturnTypeSpec::new(None))
+            .returns(ReturnTypeSpec::new(TypeSpec::with_name_str::<
+                ink_primitives::ConstructorResult<()>,
+            >(
+                "ink_primitives::ConstructorResult"
+            )))
             .docs(Vec::new())
             .done()])
         .messages(vec![
@@ -79,7 +94,11 @@ fn spec_contract_only_one_default_message_allowed() {
                         vec!["i32"].into_iter().map(AsRef::as_ref),
                     ))
                     .done()])
-                .returns(ReturnTypeSpec::new(None))
+                .returns(ReturnTypeSpec::new(TypeSpec::with_name_str::<
+                    ink_primitives::MessageResult<()>,
+                >(
+                    "ink_primitives::MessageResult"
+                )))
                 .default(true)
                 .done(),
             MessageSpec::from_label("get")
@@ -116,7 +135,11 @@ fn spec_contract_only_one_default_constructor_allowed() {
                         vec!["i32"].into_iter().map(AsRef::as_ref),
                     ))
                     .done()])
-                .returns(ReturnTypeSpec::new(None))
+                .returns(ReturnTypeSpec::new(TypeSpec::with_name_str::<
+                    ink_primitives::ConstructorResult<()>,
+                >(
+                    "ink_primitives::ConstructorResult"
+                )))
                 .docs(Vec::new())
                 .default(true)
                 .done(),
@@ -124,7 +147,11 @@ fn spec_contract_only_one_default_constructor_allowed() {
                 .selector([2u8, 34u8, 255u8, 24u8])
                 .payable(Default::default())
                 .args(Vec::new())
-                .returns(ReturnTypeSpec::new(None))
+                .returns(ReturnTypeSpec::new(TypeSpec::with_name_str::<
+                    ink_primitives::ConstructorResult<()>,
+                >(
+                    "ink_primitives::ConstructorResult"
+                )))
                 .docs(Vec::new())
                 .default(true)
                 .done(),
@@ -138,7 +165,11 @@ fn spec_contract_only_one_default_constructor_allowed() {
                     vec!["i32"].into_iter().map(AsRef::as_ref),
                 ))
                 .done()])
-            .returns(ReturnTypeSpec::new(None))
+            .returns(ReturnTypeSpec::new(TypeSpec::with_name_str::<
+                ink_primitives::MessageResult<()>,
+            >(
+                "ink_primitives::MessageResult"
+            )))
             .default(true)
             .done()])
         .events(Vec::new())
@@ -168,7 +199,11 @@ fn spec_contract_event_definition_exceeds_environment_topics_limit() {
                     vec!["i32"].into_iter().map(AsRef::as_ref),
                 ))
                 .done()])
-            .returns(ReturnTypeSpec::new(None))
+            .returns(ReturnTypeSpec::new(TypeSpec::with_name_str::<
+                ink_primitives::ConstructorResult<()>,
+            >(
+                "ink_primitives::ConstructorResult"
+            )))
             .docs(Vec::new())
             .default(true)
             .done()])
@@ -181,7 +216,11 @@ fn spec_contract_event_definition_exceeds_environment_topics_limit() {
                     vec!["i32"].into_iter().map(AsRef::as_ref),
                 ))
                 .done()])
-            .returns(ReturnTypeSpec::new(None))
+            .returns(ReturnTypeSpec::new(TypeSpec::with_name_str::<
+                ink_primitives::MessageResult<()>,
+            >(
+                "ink_primitives::MessageResult"
+            )))
             .default(true)
             .done()])
         .events(vec![
@@ -262,7 +301,11 @@ fn spec_contract_event_definition_signature_topic_collision() {
                     vec!["i32"].into_iter().map(AsRef::as_ref),
                 ))
                 .done()])
-            .returns(ReturnTypeSpec::new(None))
+            .returns(ReturnTypeSpec::new(TypeSpec::with_name_str::<
+                ink_primitives::ConstructorResult<()>,
+            >(
+                "ink_primitives::ConstructorResult"
+            )))
             .docs(Vec::new())
             .default(true)
             .done()])
@@ -275,7 +318,11 @@ fn spec_contract_event_definition_signature_topic_collision() {
                     vec!["i32"].into_iter().map(AsRef::as_ref),
                 ))
                 .done()])
-            .returns(ReturnTypeSpec::new(None))
+            .returns(ReturnTypeSpec::new(TypeSpec::with_name_str::<
+                ink_primitives::MessageResult<()>,
+            >(
+                "ink_primitives::MessageResult"
+            )))
             .default(true)
             .done()])
         .events(vec![
@@ -337,14 +384,22 @@ fn spec_contract_json() {
                         vec!["i32"].into_iter().map(AsRef::as_ref),
                     ))
                     .done()])
-                .returns(ReturnTypeSpec::new(None))
+                .returns(ReturnTypeSpec::new(TypeSpec::with_name_str::<
+                    ink_primitives::ConstructorResult<()>,
+                >(
+                    "ink_primitives::ConstructorResult"
+                )))
                 .docs(Vec::new())
                 .done(),
             ConstructorSpec::from_label("default")
                 .selector([2u8, 34u8, 255u8, 24u8])
                 .payable(Default::default())
                 .args(Vec::new())
-                .returns(ReturnTypeSpec::new(None))
+                .returns(ReturnTypeSpec::new(TypeSpec::with_name_str::<
+                    ink_primitives::ConstructorResult<()>,
+                >(
+                    "ink_primitives::ConstructorResult"
+                )))
                 .docs(Vec::new())
                 .default(true)
                 .done(),
@@ -352,11 +407,11 @@ fn spec_contract_json() {
                 .selector([6u8, 3u8, 55u8, 123u8])
                 .payable(Default::default())
                 .args(Vec::new())
-                .returns(ReturnTypeSpec::new(Some(TypeSpec::with_name_str::<
-                    Result<(), ()>,
+                .returns(ReturnTypeSpec::new(TypeSpec::with_name_str::<
+                    ink_primitives::ConstructorResult<Result<(), ()>>,
                 >(
-                    "core::result::Result"
-                ))))
+                    "ink_primitives::ConstructorResult"
+                )))
                 .docs(Vec::new())
                 .done(),
         ])
@@ -370,7 +425,11 @@ fn spec_contract_json() {
                         vec!["i32"].into_iter().map(AsRef::as_ref),
                     ))
                     .done()])
-                .returns(ReturnTypeSpec::new(None))
+                .returns(ReturnTypeSpec::new(TypeSpec::with_name_str::<
+                    ink_primitives::MessageResult<()>,
+                >(
+                    "ink_primitives::MessageResult"
+                )))
                 .default(true)
                 .done(),
             MessageSpec::from_label("get")
@@ -460,7 +519,13 @@ fn spec_contract_json() {
                     "default": false,
                     "label": "new",
                     "payable": true,
-                    "returnType": null,
+                    "returnType": {
+                        "displayName": [
+                            "ink_primitives",
+                            "ConstructorResult"
+                        ],
+                        "type": 1
+                    },
                     "selector": "0x5ebd88d6"
                 },
                 {
@@ -469,7 +534,13 @@ fn spec_contract_json() {
                     "default": true,
                     "label": "default",
                     "payable": false,
-                    "returnType": null,
+                    "returnType": {
+                        "displayName": [
+                            "ink_primitives",
+                            "ConstructorResult"
+                        ],
+                        "type": 1
+                    },
                     "selector": "0x0222ff18"
                 },
                 {
@@ -480,11 +551,10 @@ fn spec_contract_json() {
                     "payable": false,
                     "returnType": {
                         "displayName": [
-                            "core",
-                            "result",
-                            "Result"
+                            "ink_primitives",
+                            "ConstructorResult"
                         ],
-                        "type": 1
+                        "type": 4
                     },
                     "selector": "0x0603377b"
                 }
@@ -495,39 +565,39 @@ fn spec_contract_json() {
                     "displayName":  [
                         "AccountId",
                     ],
-                    "type": 4,
+                    "type": 6,
                 },
                 "balance":  {
                     "displayName":  [
                         "Balance",
                     ],
-                    "type": 7,
+                    "type": 9,
                 },
                 "blockNumber":  {
                     "displayName":  [
                         "BlockNumber",
                     ],
-                    "type": 9,
+                    "type": 11,
                 },
                 "staticBufferSize": 16384,
                 "chainExtension":  {
                     "displayName":  [
                         "ChainExtension",
                     ],
-                    "type": 10,
+                    "type": 12,
                 },
                 "hash":  {
                     "displayName":  [
                         "Hash",
                     ],
-                    "type": 8,
+                    "type": 10,
                 },
                 "maxEventTopics": 4,
                 "timestamp":  {
                     "displayName":  [
                         "Timestamp",
                     ],
-                    "type": 7,
+                    "type": 9,
                 },
             },
             "events": [],
@@ -556,7 +626,13 @@ fn spec_contract_json() {
                     "mutates": true,
                     "payable": true,
                     "label": "inc",
-                    "returnType": null,
+                    "returnType": {
+                        "displayName": [
+                            "ink_primitives",
+                            "MessageResult"
+                        ],
+                        "type": 1
+                    },
                     "selector": "0xe7d0590f"
                 },
                 {
@@ -588,7 +664,11 @@ fn trim_docs() {
         .selector(123_456_789u32.to_be_bytes())
         .docs(vec![" foobar      "])
         .payable(Default::default())
-        .returns(ReturnTypeSpec::new(None))
+        .returns(ReturnTypeSpec::new(TypeSpec::with_name_str::<
+            ink_primitives::ConstructorResult<()>,
+        >(
+            "ink_primitives::ConstructorResult"
+        )))
         .done();
     let mut registry = Registry::new();
     let compact_spec = cs.into_portable(&mut registry);
@@ -604,7 +684,13 @@ fn trim_docs() {
         json!({
             "label": "foo",
             "payable": false,
-            "returnType": null,
+            "returnType": {
+                "displayName": [
+                    "ink_primitives",
+                    "ConstructorResult"
+                ],
+                "type": 0
+            },
             "selector": "0x075bcd15",
             "args": [],
             "docs": ["foobar"],
@@ -630,7 +716,11 @@ fn trim_docs_with_code() {
             " ```",
         ])
         .payable(Default::default())
-        .returns(ReturnTypeSpec::new(None))
+        .returns(ReturnTypeSpec::new(TypeSpec::with_name_str::<
+            ink_primitives::ConstructorResult<()>,
+        >(
+            "ink_primitives::ConstructorResult"
+        )))
         .done();
     let mut registry = Registry::new();
     let compact_spec = cs.into_portable(&mut registry);
@@ -646,7 +736,13 @@ fn trim_docs_with_code() {
         json!({
             "label": "foo",
             "payable": false,
-            "returnType": null,
+            "returnType": {
+                "displayName": [
+                    "ink_primitives",
+                    "ConstructorResult"
+                ],
+                "type": 0
+            },
             "selector": "0x075bcd15",
             "args": [],
             "docs": [
@@ -728,8 +824,12 @@ fn environment_spec() -> EnvironmentSpec<PortableForm> {
 /// Helper for creating a constructor spec at runtime
 fn runtime_constructor_spec() -> ConstructorSpec<PortableForm> {
     let path: Path<PortableForm> = Path::from_segments_unchecked(["FooType".to_string()]);
+    let lang_path: Path<PortableForm> = Path::from_segments_unchecked([
+        "ink_primitives".to_string(),
+        "ConstructorResult".to_string(),
+    ]);
     let spec = TypeSpec::new(123.into(), path);
-    let ret_spec = ReturnTypeSpec::new(None);
+    let ret_spec = ReturnTypeSpec::new(TypeSpec::new(456.into(), lang_path));
     let args = [MessageParamSpec::new("foo_arg".to_string())
         .of_type(spec)
         .done()];
@@ -794,7 +894,13 @@ fn construct_runtime_contract_spec() {
             "label": "foo",
             "selector": "0x00000000",
             "payable": true,
-            "returnType": null,
+            "returnType": {
+                "displayName": [
+                    "ink_primitives",
+                    "ConstructorResult"
+                ],
+                "type": 456
+            },
             "args": [
                 {
                     "label": "foo_arg",

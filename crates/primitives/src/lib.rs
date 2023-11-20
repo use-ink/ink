@@ -62,3 +62,7 @@ pub type MessageResult<T> = ::core::result::Result<T, LangError>;
 
 /// The `Result` type for ink! constructors.
 pub type ConstructorResult<T> = ::core::result::Result<T, LangError>;
+
+// impl Into  {
+
+// }

@@ -353,13 +353,13 @@ impl Metadata<'_> {
 
         quote_spanned!(span=>
             ::ink::metadata::ReturnTypeSpec::new(if #constructor_info::IS_RESULT {
-                ::core::option::Option::Some(::ink::metadata::TypeSpec::with_name_str::<
+                ::ink::metadata::TypeSpec::with_name_str::<
                     ::ink::ConstructorResult<::core::result::Result<(), #constructor_info::Error>>,
-                >("ink_primitives::ConstructorResult"))
+                >("ink_primitives::ConstructorResult")
             } else {
-                ::core::option::Option::Some(::ink::metadata::TypeSpec::with_name_str::<
+                ::ink::metadata::TypeSpec::with_name_str::<
                     ::ink::ConstructorResult<()>,
-                >("ink_primitives::ConstructorResult"))
+                >("ink_primitives::ConstructorResult")
             })
         )
     }
