@@ -479,14 +479,6 @@
 <a href="#479" id="479">479</a>
 <a href="#480" id="480">480</a>
 <a href="#481" id="481">481</a>
-<a href="#482" id="482">482</a>
-<a href="#483" id="483">483</a>
-<a href="#484" id="484">484</a>
-<a href="#485" id="485">485</a>
-<a href="#486" id="486">486</a>
-<a href="#487" id="487">487</a>
-<a href="#488" id="488">488</a>
-<a href="#489" id="489">489</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -737,7 +729,8 @@
                 <span class="kw">let </span>ident = message.ident();
                 <span class="kw">let </span>args = message.inputs().map(<span class="self">Self</span>::generate_dispatch_argument);
                 <span class="kw">let </span>cfg_attrs = message.get_cfg_attrs(span);
-                <span class="kw">let </span>ret_ty = <span class="self">Self</span>::generate_return_type(<span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>message.wrapped_output()));
+                <span class="kw">let </span>ret_ty =
+                    <span class="self">Self</span>::generate_message_return_type(<span class="kw-2">&amp;</span>message.wrapped_output());
                 <span class="macro">quote_spanned!</span>(span =&gt;
                     #( #cfg_attrs )*
                     ::ink::metadata::MessageSpec::from_label(<span class="macro">::core::stringify!</span>(#ident))
@@ -800,7 +793,7 @@
                         <span class="kw">as </span>#trait_path&gt;::__ink_TraitInfo
                         <span class="kw">as </span>::ink::reflect::TraitMessageInfo&lt;#local_id&gt;&gt;::SELECTOR
                 }};
-                <span class="kw">let </span>ret_ty = <span class="self">Self</span>::generate_return_type(<span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>message.wrapped_output()));
+                <span class="kw">let </span>ret_ty = <span class="self">Self</span>::generate_message_return_type(<span class="kw-2">&amp;</span>message.wrapped_output());
                 <span class="kw">let </span>label = [trait_ident.to_string(), message_ident.to_string()].join(<span class="string">&quot;::&quot;</span>);
                 <span class="macro">quote_spanned!</span>(message_span=&gt;
                     #( #cfg_attrs )*
@@ -822,19 +815,10 @@
     }
 
     <span class="doccomment">/// Generates ink! metadata for the given return type.
-    </span><span class="kw">fn </span>generate_return_type(ret_ty: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>syn::Type&gt;) -&gt; TokenStream2 {
-        <span class="kw">match </span>ret_ty {
-            <span class="prelude-val">None </span>=&gt; {
-                <span class="macro">quote! </span>{
-                    ::ink::metadata::ReturnTypeSpec::new(::core::option::Option::None)
-                }
-            }
-            <span class="prelude-val">Some</span>(ty) =&gt; {
-                <span class="kw">let </span>type_spec = <span class="self">Self</span>::generate_type_spec(ty);
-                <span class="macro">quote! </span>{
-                    ::ink::metadata::ReturnTypeSpec::new(#type_spec)
-                }
-            }
+    </span><span class="kw">fn </span>generate_message_return_type(ret_ty: <span class="kw-2">&amp;</span>syn::Type) -&gt; TokenStream2 {
+        <span class="kw">let </span>type_spec = <span class="self">Self</span>::generate_type_spec(ret_ty);
+        <span class="macro">quote! </span>{
+            ::ink::metadata::ReturnTypeSpec::new(#type_spec)
         }
     }
 
@@ -850,13 +834,13 @@
 
         <span class="macro">quote_spanned!</span>(span=&gt;
             ::ink::metadata::ReturnTypeSpec::new(<span class="kw">if </span>#constructor_info::IS_RESULT {
-                ::core::option::Option::Some(::ink::metadata::TypeSpec::with_name_str::&lt;
+                ::ink::metadata::TypeSpec::with_name_str::&lt;
                     ::ink::ConstructorResult&lt;::core::result::Result&lt;(), #constructor_info::Error&gt;&gt;,
-                &gt;(<span class="string">&quot;ink_primitives::ConstructorResult&quot;</span>))
+                &gt;(<span class="string">&quot;ink_primitives::ConstructorResult&quot;</span>)
             } <span class="kw">else </span>{
-                ::core::option::Option::Some(::ink::metadata::TypeSpec::with_name_str::&lt;
+                ::ink::metadata::TypeSpec::with_name_str::&lt;
                     ::ink::ConstructorResult&lt;()&gt;,
-                &gt;(<span class="string">&quot;ink_primitives::ConstructorResult&quot;</span>))
+                &gt;(<span class="string">&quot;ink_primitives::ConstructorResult&quot;</span>)
             })
         )
     }

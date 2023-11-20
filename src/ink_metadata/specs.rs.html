@@ -1860,6 +1860,7 @@
 <a href="#1860" id="1860">1860</a>
 <a href="#1861" id="1861">1861</a>
 <a href="#1862" id="1862">1862</a>
+<a href="#1863" id="1863">1863</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -2330,6 +2331,7 @@
 <span class="kw">impl</span>&lt;F&gt; ConstructorSpec&lt;F&gt;
 <span class="kw">where
     </span>F: Form,
+    TypeSpec&lt;F&gt;: Default,
 {
     <span class="doccomment">/// Creates a new constructor spec builder.
     </span><span class="kw">pub fn </span>from_label(
@@ -2346,7 +2348,7 @@
                 selector: Selector::default(),
                 payable: Default::default(),
                 args: Vec::new(),
-                return_type: ReturnTypeSpec::new(<span class="prelude-val">None</span>),
+                return_type: ReturnTypeSpec::new(TypeSpec::default()),
                 docs: Vec::new(),
                 default: <span class="bool-val">false</span>,
             },
@@ -2530,6 +2532,7 @@
 <span class="kw">impl</span>&lt;F&gt; MessageSpec&lt;F&gt;
 <span class="kw">where
     </span>F: Form,
+    TypeSpec&lt;F&gt;: Default,
 {
     <span class="doccomment">/// Creates a new message spec builder.
     </span><span class="kw">pub fn </span>from_label(
@@ -2548,7 +2551,7 @@
                 mutates: <span class="bool-val">false</span>,
                 payable: <span class="bool-val">false</span>,
                 args: Vec::new(),
-                return_type: ReturnTypeSpec::new(<span class="prelude-val">None</span>),
+                return_type: ReturnTypeSpec::new(TypeSpec::default()),
                 docs: Vec::new(),
                 default: <span class="bool-val">false</span>,
             },
@@ -3279,7 +3282,7 @@
 #[must_use]
 </span><span class="kw">pub struct </span>ReturnTypeSpec&lt;F: Form = MetaForm&gt; {
     <span class="attr">#[serde(rename = <span class="string">&quot;type&quot;</span>)]
-    </span>opt_type: <span class="prelude-ty">Option</span>&lt;TypeSpec&lt;F&gt;&gt;,
+    </span>ret_type: TypeSpec&lt;F&gt;,
 }
 
 <span class="kw">impl </span>IntoPortable <span class="kw">for </span>ReturnTypeSpec {
@@ -3287,9 +3290,7 @@
 
     <span class="kw">fn </span>into_portable(<span class="self">self</span>, registry: <span class="kw-2">&amp;mut </span>Registry) -&gt; <span class="self">Self</span>::Output {
         ReturnTypeSpec {
-            opt_type: <span class="self">self
-                </span>.opt_type
-                .map(|opt_type| opt_type.into_portable(registry)),
+            ret_type: <span class="self">self</span>.ret_type.into_portable(registry),
         }
     }
 }
@@ -3297,6 +3298,7 @@
 <span class="kw">impl</span>&lt;F&gt; ReturnTypeSpec&lt;F&gt;
 <span class="kw">where
     </span>F: Form,
+    TypeSpec&lt;F&gt;: Default,
 {
     <span class="doccomment">/// Creates a new return type specification from the given type or `None`.
     ///
@@ -3304,20 +3306,20 @@
     ///
     /// ```no_run
     /// # use ink_metadata::{TypeSpec, ReturnTypeSpec};
-    /// &lt;ReturnTypeSpec&lt;scale_info::form::MetaForm&gt;&gt;::new(None); // no return type;
+    /// &lt;ReturnTypeSpec&lt;scale_info::form::MetaForm&gt;&gt;::new(TypeSpec::default()); // no return type;
     /// ```
     </span><span class="kw">pub fn </span>new&lt;T&gt;(ty: T) -&gt; <span class="self">Self
     </span><span class="kw">where
-        </span>T: Into&lt;<span class="prelude-ty">Option</span>&lt;TypeSpec&lt;F&gt;&gt;&gt;,
+        </span>T: Into&lt;TypeSpec&lt;F&gt;&gt;,
     {
         <span class="self">Self </span>{
-            opt_type: ty.into(),
+            ret_type: ty.into(),
         }
     }
 
-    <span class="doccomment">/// Returns the optional return type
-    </span><span class="kw">pub fn </span>opt_type(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>TypeSpec&lt;F&gt;&gt; {
-        <span class="self">self</span>.opt_type.as_ref()
+    <span class="doccomment">/// Returns the return type
+    </span><span class="kw">pub fn </span>ret_type(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>TypeSpec&lt;F&gt; {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.ret_type
     }
 }
 
