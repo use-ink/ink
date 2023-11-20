@@ -1284,11 +1284,6 @@ where
     pub fn new(ty: <F as Form>::Type, display_name: DisplayName<F>) -> Self {
         Self { ty, display_name }
     }
-
-    // /// Creates a new type specification for a given type and display name.
-    // pub fn of_type_with_display_name<T: TypeInfo + 'static>(display_name:
-    // DisplayName<F>) -> Self {     Self { ty: meta_type::<T>(), display_name }
-    // }
 }
 
 /// Describes a pair of parameter label and type.
@@ -1448,7 +1443,7 @@ where
     ///
     /// ```no_run
     /// # use ink_metadata::{TypeSpec, ReturnTypeSpec};
-    /// <ReturnTypeSpec<scale_info::form::MetaForm>>::new(None); // no return type;
+    /// <ReturnTypeSpec<scale_info::form::MetaForm>>::new(TypeSpec::default()); // no return type;
     /// ```
     pub fn new<T>(ty: T) -> Self
     where
