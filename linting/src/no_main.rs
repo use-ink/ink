@@ -33,11 +33,11 @@ use rustc_span::sym;
 
 declare_lint! {
     /// ## What it does
-    /// Checks if a contract is annotated with the `no_main` outer attribute.
+    /// Checks if a contract is annotated with the `no_main` inner attribute.
     ///
     /// ## Why is this necessary?
-    /// Contracts must be annotated with `no_main` outer attribute when compiled to WebAssembly for
-    /// deploying on a blockchain.
+    /// Contracts must be annotated with `no_main` inner attribute when compiled for on-chain
+    /// execution.
     ///
     /// ## Example
     ///
@@ -57,7 +57,7 @@ declare_lint! {
     /// ```
     pub NO_MAIN,
     Deny,
-    "contract must be annotated with the `no_main` outer attribute"
+    "contract must be annotated with the `no_main` inner attribute"
 }
 
 declare_lint_pass!(NoMain => [NO_MAIN]);
@@ -89,9 +89,9 @@ impl EarlyLintPass for NoMain {
                 cx,
                 NO_MAIN,
                 krate.spans.inner_span,
-                "contract must be annotated with the `no_main` outer attribute",
+                "contract must be annotated with the `no_main` inner attribute",
                 None,
-                "consider annotating contract with `#![cfg_attr(not(feature = \"std\"), no_std, no_main)]` or `#[no_main]`"
+                "consider annotating contract with `#![cfg_attr(not(feature = \"std\"), no_std, no_main)]` or `#![no_main]`"
             )
         }
     }
