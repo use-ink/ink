@@ -18,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Messages return `TypeSpec` directly - #[1999](https://github.com/paritytech/ink/pull/1999)
 - Fail when decoding from storage and not all bytes consumed - [#1897](https://github.com/paritytech/ink/pull/1897)
 - [E2E] resolve DispatchError error details for dry-runs - [#1944](https://github.com/paritytech/ink/pull/1994)
+- [E2E] `set_account_balance` now can't set balance below existential deposit - [#1983](https://github.com/paritytech/ink/pull/1983)
 
 
 ## Version 5.0.0-alpha
