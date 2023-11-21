@@ -306,30 +306,30 @@ where
         instance.engine.set_callee(encoded_alice.clone());
 
         // set up the funds for the default accounts
-        let substantial = 1_000_000;
-        let some = 1_000;
+        let substantial = 1_u128 << 60;
         instance.engine.set_balance(encoded_alice, substantial);
         instance
             .engine
-            .set_balance(scale::Encode::encode(&default_accounts.bob), some);
+            .set_balance(scale::Encode::encode(&default_accounts.bob), substantial);
+        instance.engine.set_balance(
+            scale::Encode::encode(&default_accounts.charlie),
+            substantial,
+        );
         instance
             .engine
-            .set_balance(scale::Encode::encode(&default_accounts.charlie), some);
+            .set_balance(scale::Encode::encode(&default_accounts.dave), substantial);
         instance
             .engine
-            .set_balance(scale::Encode::encode(&default_accounts.dave), 0);
+            .set_balance(scale::Encode::encode(&default_accounts.eve), substantial);
         instance
             .engine
-            .set_balance(scale::Encode::encode(&default_accounts.eve), 0);
+            .set_balance(scale::Encode::encode(&default_accounts.ferdie), substantial);
         instance
             .engine
-            .set_balance(scale::Encode::encode(&default_accounts.ferdie), 0);
+            .set_balance(scale::Encode::encode(&default_accounts.one), substantial);
         instance
             .engine
-            .set_balance(scale::Encode::encode(&default_accounts.one), 0);
-        instance
-            .engine
-            .set_balance(scale::Encode::encode(&default_accounts.two), 0);
+            .set_balance(scale::Encode::encode(&default_accounts.two), substantial);
     });
     f(default_accounts)
 }
