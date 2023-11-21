@@ -93,7 +93,7 @@ mod contract_ref {
 
             let get_check = call.get_check();
             let get_call_result =
-                client.call(&ink_e2e::alice(), &get_check).dry_run().await;
+                client.call(&ink_e2e::alice(), &get_check).dry_run().await?;
 
             let initial_value = get_call_result.return_value();
 
@@ -109,7 +109,7 @@ mod contract_ref {
             );
 
             let get_call_result =
-                client.call(&ink_e2e::alice(), &get_check).dry_run().await;
+                client.call(&ink_e2e::alice(), &get_check).dry_run().await?;
             let flipped_value = get_call_result.return_value();
             assert!(flipped_value != initial_value);
 
@@ -138,7 +138,7 @@ mod contract_ref {
 
             let get_check = call.get_check();
             let get_call_result =
-                client.call(&ink_e2e::bob(), &get_check).dry_run().await;
+                client.call(&ink_e2e::bob(), &get_check).dry_run().await?;
             let initial_value = get_call_result.return_value();
 
             assert!(initial_value);
@@ -170,8 +170,8 @@ mod contract_ref {
             );
 
             let contains_err_msg = match instantiate_result.unwrap_err() {
-                ink_e2e::Error::<ink::env::DefaultEnvironment>::InstantiateDryRun(dry_run) => {
-                    String::from_utf8_lossy(&dry_run.debug_message).contains(
+                ink_e2e::Error::InstantiateDryRun(dry_run) => {
+                    dry_run.debug_message.contains(
                         "Received an error from the Flipper constructor while instantiating Flipper FlipperError"
                     )
                 }

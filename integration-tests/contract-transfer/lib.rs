@@ -213,12 +213,8 @@ pub mod give_me {
                 .await;
 
             // then
-            if let Err(ink_e2e::Error::<ink::env::DefaultEnvironment>::CallDryRun(
-                dry_run,
-            )) = call_res
-            {
-                let debug_message = String::from_utf8_lossy(&dry_run.debug_message);
-                assert!(debug_message.contains("paid an unpayable message"))
+            if let Err(ink_e2e::Error::CallDryRun(dry_run)) = call_res {
+                assert!(dry_run.debug_message.contains("paid an unpayable message"))
             } else {
                 panic!("Paying an unpayable message should fail")
             }
