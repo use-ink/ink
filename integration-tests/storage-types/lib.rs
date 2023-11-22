@@ -258,6 +258,11 @@ mod storage_types {
         pub fn get_panic(&self) -> Result<(), ()> {
             panic!("This is the Panic message.")
         }
+
+        #[ink(message, payable)]
+        pub fn payable(&self) -> Result<Balance, ()> {
+            Ok(self.env().transferred_value())
+        }
     }
 
     #[cfg(test)]
