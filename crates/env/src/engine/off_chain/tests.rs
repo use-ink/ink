@@ -12,11 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::{
-    engine::off_chain::impls::TopicsBuilder,
-    event::TopicsBuilderBackend,
-    Result,
-};
+use crate::{engine::off_chain::impls::TopicsBuilder,
+            event::TopicsBuilderBackend,
+            Result,
+            engine::off_chain::test_api::set_account_balance,
+            types::Environment,
+            DefaultEnvironment};
 
 #[test]
 fn topics_builder() -> Result<()> {
@@ -37,6 +38,31 @@ fn topics_builder() -> Result<()> {
         #[rustfmt::skip]
         let expected = vec![topics_len_encoded[0], 13, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 17, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
         assert_eq!(output, expected);
+
+        Ok(())
+    })
+}
+#[test]
+fn test_set_account_balance() -> Result<()> {
+    pub use ink_engine::ext::ChainSpec;
+
+    crate::test::run_test::<DefaultEnvironment, _>(|_| {
+
+        let minimum_balance = ChainSpec::default().minimum_balance;
+
+        let result = std::panic::catch_unwind(|| {set_account_balance::<DefaultEnvironment>(
+            <DefaultEnvironment as Environment>::AccountId::from([0x1; 32]),
+            <DefaultEnvironment as Environment>::Balance::from(minimum_balance - 1))});
+
+        assert!(result.is_err());
+
+        set_account_balance::<DefaultEnvironment>(
+            <DefaultEnvironment as Environment>::AccountId::from([0x1; 32]),
+            <DefaultEnvironment as Environment>::Balance::from(0u128));
+
+        set_account_balance::<DefaultEnvironment>(
+            <DefaultEnvironment as Environment>::AccountId::from([0x1; 32]),
+            <DefaultEnvironment as Environment>::Balance::from(minimum_balance + 1));
 
         Ok(())
     })

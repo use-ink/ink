@@ -60,7 +60,7 @@ where
     T: Environment<Balance = u128>, // Just temporary for the MVP!
 {
     let min = ChainSpec::default().minimum_balance;
-    if new_balance < T::Balance::from(min) && new_balance != 0.into(){
+    if new_balance < T::Balance::from(min) && new_balance != 0u128.into(){
         panic!("Balance must be at least [{}]. Use 0 as balance to reap the account.", min);
     }
 
