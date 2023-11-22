@@ -382,13 +382,23 @@ mod tests {
 
     #[test]
     fn inputs_works() {
+        macro_rules! expected_input {
+            ( mut $name:ident: $ty:ty  ) => {{
+                syn::parse_quote! {
+                    mut $name: $ty
+                }
+            }};
+            ( $name:ident: $ty:ty  ) => {{
+                syn::parse_quote! {
+                    $name: $ty
+                }
+            }};
+        }
         macro_rules! expected_inputs {
-            ( $( $name:ident: $ty:ty ),* ) => {{
+            ( $( $($ts:ident)+: $ty:ty ),* ) => {{
                 vec![
                     $(
-                        syn::parse_quote! {
-                            $name: $ty
-                        }
+                        expected_input!($($ts)+: $ty)
                     ),*
                 ]
             }};
@@ -411,11 +421,19 @@ mod tests {
                 },
             ),
             (
-                // Some inputs:
-                expected_inputs!(a: i32, b: u64, c: [u8; 32]),
+                // Single mutable input:
+                expected_inputs!(mut a: i32),
                 syn::parse_quote! {
                     #[ink(message)]
-                    fn my_message(&self, a: i32, b: u64, c: [u8; 32]) {}
+                    fn my_message(&self, mut a: i32) {}
+                },
+            ),
+            (
+                // Some inputs:
+                expected_inputs!(a: i32, b: u64, mut c: [u8; 32]),
+                syn::parse_quote! {
+                    #[ink(message)]
+                    fn my_message(&self, a: i32, b: u64, mut c: [u8; 32]) {}
                 },
             ),
         ];
