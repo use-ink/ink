@@ -8,7 +8,6 @@ on:
       - synchronize
     paths-ignore:
       - '**/*.md'
-      - '.gitlab-ci.yml'
       - 'CODEOWNERS'
       - 'LICENSE'
       - 'CODE_OF_CONDUCT.adoc'
@@ -21,7 +20,6 @@ on:
       - v*
     paths-ignore:
       - '**/*.md'
-      - '.gitlab-ci.yml'
       - 'CODEOWNERS'
       - 'LICENSE'
       - 'CODE_OF_CONDUCT.adoc'
