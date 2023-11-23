@@ -71,8 +71,6 @@ jobs:
     needs: [set-image]
     container:
       image: ${{ needs.set-image.outputs.IMAGE }}
-    strategy:
-      fail-fast: false
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -95,8 +93,6 @@ jobs:
     needs: [set-image]
     container:
       image: ${{ needs.set-image.outputs.IMAGE }}
-    strategy:
-      fail-fast: false
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -127,8 +123,6 @@ jobs:
     needs: [set-image]
     container:
       image: ${{ needs.set-image.outputs.IMAGE }}
-    strategy:
-      fail-fast: false
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -256,8 +250,6 @@ jobs:
     needs: [set-image]
     container:
       image: ${{ needs.set-image.outputs.IMAGE }}
-    strategy:
-      fail-fast: false
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -337,8 +329,6 @@ jobs:
         shell: bash
     container:
       image: ${{ needs.set-image.outputs.IMAGE }}
-    strategy:
-      fail-fast: false
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -374,8 +364,6 @@ jobs:
         shell: bash
     container:
       image: ${{ needs.set-image.outputs.IMAGE }}
-    strategy:
-      fail-fast: false
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -413,8 +401,6 @@ jobs:
         shell: bash
     container:
       image: ${{ needs.set-image.outputs.IMAGE }}
-    strategy:
-      fail-fast: false
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -476,8 +462,6 @@ jobs:
         shell: bash
     container:
       image: ${{ needs.set-image.outputs.IMAGE }}
-    strategy:
-      fail-fast: false
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -567,8 +551,6 @@ jobs:
         shell: bash
     container:
       image: ${{ needs.set-image.outputs.IMAGE }}
-    strategy:
-      fail-fast: false
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -616,8 +598,6 @@ jobs:
         shell: bash
     container:
       image: ${{ needs.set-image.outputs.IMAGE }}
-    strategy:
-      fail-fast: false
     steps:
       - name: Checkout
         uses: actions/checkout@v4
