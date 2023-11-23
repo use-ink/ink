@@ -28,7 +28,8 @@ pub fn output_ident(message_name: &syn::Ident) -> syn::Ident {
     format_ident!("{}Output", message_name.to_string().to_lower_camel_case())
 }
 
-/// Returns the sequence of artificial input parameter bindings for the message.
+/// Returns the sequence of artificial input parameter bindings
+/// for the message or constructor.
 ///
 /// # Note
 ///
@@ -44,6 +45,22 @@ pub fn input_bindings(inputs: ir::InputsIter) -> Vec<syn::Ident> {
 /// Returns the sequence of input types for the message.
 pub fn input_types(inputs: ir::InputsIter) -> Vec<&syn::Type> {
     inputs.map(|pat_type| &*pat_type.ty).collect::<Vec<_>>()
+}
+
+/// Returns the sequence of input idents for the message.
+pub fn input_message_idents(inputs: ir::InputsIter) -> Vec<&syn::Ident> {
+    inputs
+        .map(|input| {
+            match &*input.pat {
+                syn::Pat::Ident(ident) => &ident.ident,
+                _ => {
+                    unreachable!(
+                        "encountered ink! dispatch input with missing identifier"
+                    )
+                }
+            }
+        })
+        .collect::<Vec<_>>()
 }
 
 /// Returns a tuple type representing the types yielded by the input types.

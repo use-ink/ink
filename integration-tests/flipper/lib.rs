@@ -31,12 +31,6 @@ pub mod flipper {
         pub fn get(&self) -> bool {
             self.value
         }
-
-        /// Returns the current value of the Flipper's boolean.
-        #[ink(message)]
-        pub fn set(&mut self, mut b: bool) {
-            self.value = b;
-        }
     }
 
     #[cfg(test)]

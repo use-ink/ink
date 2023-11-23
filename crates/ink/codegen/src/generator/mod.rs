@@ -48,6 +48,7 @@ pub use self::{
         generate_reference_to_trait_info,
         input_bindings,
         input_bindings_tuple,
+        input_message_idents,
         input_types,
         input_types_tuple,
         output_ident,
