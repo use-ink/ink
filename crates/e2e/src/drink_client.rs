@@ -34,12 +34,12 @@ use crate::{
     UploadResult,
 };
 use drink::{
-    chain_api::{
-        ChainApi,
-        RuntimeCall,
+    runtime::{
+        AccountIdFor,
+        Runtime as RuntimeT,
     },
-    contract_api::ContractApi,
-    runtime::Runtime as RuntimeT,
+    BalanceOf,
+    RuntimeCall,
     Sandbox,
     Weight,
     DEFAULT_GAS_LIMIT,
@@ -83,12 +83,11 @@ unsafe impl<AccountId, Hash, Runtime: RuntimeT> Send
     for Client<AccountId, Hash, Runtime>
 {
 }
-
-type RuntimeAccountId<R> = <R as drink::runtime::frame_system::Config>::AccountId;
-
-impl<AccountId, Hash, Runtime: RuntimeT> Client<AccountId, Hash, Runtime>
+impl<AccountId, Hash, Runtime> Client<AccountId, Hash, Runtime>
 where
-    RuntimeAccountId<Runtime>: From<[u8; 32]>,
+    Runtime: RuntimeT + drink::pallet_balances::Config,
+    AccountIdFor<Runtime>: From<[u8; 32]>,
+    BalanceOf<Runtime>: From<u128>,
 {
     pub fn new<P: Into<PathBuf>>(contracts: impl IntoIterator<Item = P>) -> Self {
         let mut sandbox = Sandbox::new().expect("Failed to initialize Drink! sandbox");
@@ -117,16 +116,20 @@ where
         .map(|kp| kp.public_key().0)
         .map(From::from);
         for account in accounts.into_iter() {
-            sandbox.add_tokens(account, TOKENS);
+            sandbox
+                .mint_into(account, TOKENS.into())
+                .expect(&format!("Failed to mint {} tokens for {}", TOKENS, account));
         }
     }
 }
 
 #[async_trait]
-impl<AccountId: AsRef<[u8; 32]> + Send, Hash, Runtime: RuntimeT> ChainBackend
+impl<AccountId: AsRef<[u8; 32]> + Send, Hash, Runtime> ChainBackend
     for Client<AccountId, Hash, Runtime>
 where
-    RuntimeAccountId<Runtime>: From<[u8; 32]>,
+    Runtime: RuntimeT + drink::pallet_balances::Config,
+    AccountIdFor<Runtime>: From<[u8; 32]>,
+    BalanceOf<Runtime>: From<u128>,
 {
     type AccountId = AccountId;
     type Balance = u128;
@@ -140,7 +143,9 @@ where
     ) -> Keypair {
         let (pair, seed) = Pair::generate();
 
-        self.sandbox.add_tokens(pair.public().0.into(), amount);
+        self.sandbox
+            .mint_into(pair.public().0.into(), amount.into())
+            .expect("Failed to mint tokens");
 
         Keypair::from_seed(seed).expect("Failed to create keypair")
     }
@@ -149,7 +154,7 @@ where
         &mut self,
         account: Self::AccountId,
     ) -> Result<Self::Balance, Self::Error> {
-        let account = RuntimeAccountId::<Runtime>::from(*account.as_ref());
+        let account = AccountIdFor::<Runtime>::from(*account.as_ref());
         Ok(self.sandbox.balance(&account))
     }
 
@@ -203,7 +208,7 @@ impl<
         E: Environment<AccountId = AccountId, Balance = u128, Hash = Hash> + 'static,
     > BuilderClient<E> for Client<AccountId, Hash, Runtime>
 where
-    RuntimeAccountId<Runtime>: From<[u8; 32]> + AsRef<[u8; 32]>,
+    AccountIdFor<Runtime>: From<[u8; 32]> + AsRef<[u8; 32]>,
 {
     async fn bare_instantiate<Contract: Clone, Args: Send + Sync + Encode + Clone, R>(
         &mut self,
@@ -402,11 +407,12 @@ where
 impl<
         AccountId: Clone + Send + Sync + From<[u8; 32]> + AsRef<[u8; 32]>,
         Hash: Copy + From<[u8; 32]>,
-        Runtime: RuntimeT,
+        Runtime: RuntimeT + drink::pallet_balances::Config,
         E: Environment<AccountId = AccountId, Balance = u128, Hash = Hash> + 'static,
     > E2EBackend<E> for Client<AccountId, Hash, Runtime>
 where
-    RuntimeAccountId<Runtime>: From<[u8; 32]> + AsRef<[u8; 32]>,
+    AccountIdFor<Runtime>: From<[u8; 32]> + AsRef<[u8; 32]>,
+    BalanceOf<Runtime>: From<u128>,
 {
 }
 
@@ -422,7 +428,7 @@ impl<
         E: Environment<AccountId = AccountId, Balance = u128, Hash = Hash> + 'static,
     > ContractsBackend<E> for Client<AccountId, Hash, Runtime>
 where
-    RuntimeAccountId<Runtime>: From<[u8; 32]> + AsRef<[u8; 32]>,
+    AccountIdFor<Runtime>: From<[u8; 32]> + AsRef<[u8; 32]>,
 {
     type Error = DrinkErr;
     type EventLog = ();
