@@ -19,6 +19,7 @@
 #[ink::contract]
 mod mother {
     use ink::prelude::{
+        format,
         string::{
             String,
             ToString,
@@ -181,6 +182,13 @@ mod mother {
         pub fn debug_log(&mut self, _message: String) {
             ink::env::debug_println!("debug_log: {}", _message);
         }
+
+        /// Mutates the input string to return "Hello, {name}"
+        #[ink(message)]
+        pub fn mut_hello_world(&self, mut message: String) -> String {
+            message = format!("Hello, {}", message);
+            message
+        }
     }
 
     #[cfg(test)]
@@ -226,6 +234,13 @@ mod mother {
         fn trap_works() {
             let mut contract = Mother::default();
             let _ = contract.revert_or_trap(Some(Failure::Panic));
+        }
+
+        #[ink::test]
+        fn mut_works() {
+            let contract = Mother::default();
+            let res = contract.mut_hello_world("Alice".to_string());
+            assert_eq!("Hello, Alice", res)
         }
     }
 }
