@@ -124,7 +124,7 @@ where
         for account in accounts.into_iter() {
             sandbox
                 .mint_into(account, TOKENS.into())
-                .expect(&format!("Failed to mint {} tokens", TOKENS));
+                .unwrap_or_else(|_| panic!("Failed to mint {} tokens", TOKENS));
         }
     }
 }
@@ -149,7 +149,7 @@ where
         let (pair, seed) = Pair::generate();
 
         self.sandbox
-            .mint_into(pair.public().0.into(), amount.into())
+            .mint_into(pair.public().0.into(), amount)
             .expect("Failed to mint tokens");
 
         Keypair::from_seed(seed).expect("Failed to create keypair")
@@ -160,7 +160,7 @@ where
         account: Self::AccountId,
     ) -> Result<Self::Balance, Self::Error> {
         let account = AccountIdFor::<Runtime>::from(*account.as_ref());
-        Ok(self.sandbox.free_balance(&account).into())
+        Ok(self.sandbox.free_balance(&account))
     }
 
     async fn runtime_call<'a>(
