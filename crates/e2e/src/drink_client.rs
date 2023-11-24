@@ -240,7 +240,7 @@ where
             salt(),
             keypair_to_account(caller),
             gas_limit,
-            storage_deposit_limit.map(ContractsBalanceOf::<Runtime>::from),
+            storage_deposit_limit,
         );
 
         let account_id_raw = match &result.result {
