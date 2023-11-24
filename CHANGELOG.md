@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Fail when decoding from storage and not all bytes consumed - [#1897](https://github.com/paritytech/ink/pull/1897)
 - [E2E] resolve DispatchError error details for dry-runs - [#1944](https://github.com/paritytech/ink/pull/1994)
+- [E2E] update to new `drink` API
 
 ### Added
 - Linter: `storage_never_freed` lint - [#1932](https://github.com/paritytech/ink/pull/1932)
