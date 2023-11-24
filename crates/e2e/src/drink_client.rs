@@ -34,6 +34,8 @@ use crate::{
     UploadResult,
 };
 use drink::{
+    pallet_balances,
+    pallet_contracts,
     runtime::{
         AccountIdFor,
         Runtime as RuntimeT,
@@ -85,7 +87,7 @@ unsafe impl<AccountId, Hash, Runtime: RuntimeT> Send
 }
 impl<AccountId, Hash, Runtime> Client<AccountId, Hash, Runtime>
 where
-    Runtime: RuntimeT + drink::pallet_balances::Config,
+    Runtime: RuntimeT + pallet_balances::Config + pallet_contracts::Config,
     AccountIdFor<Runtime>: From<[u8; 32]>,
     BalanceOf<Runtime>: From<u128>,
 {
@@ -127,12 +129,11 @@ where
 impl<AccountId: AsRef<[u8; 32]> + Send, Hash, Runtime> ChainBackend
     for Client<AccountId, Hash, Runtime>
 where
-    Runtime: RuntimeT + drink::pallet_balances::Config,
+    Runtime: RuntimeT + pallet_balances::Config,
     AccountIdFor<Runtime>: From<[u8; 32]>,
-    BalanceOf<Runtime>: From<u128> + Into<u128>,
 {
     type AccountId = AccountId;
-    type Balance = u128;
+    type Balance = BalanceOf<Runtime>;
     type Error = DrinkErr;
     type EventLog = ();
 
@@ -204,8 +205,8 @@ where
 impl<
         AccountId: Clone + Send + Sync + From<[u8; 32]> + AsRef<[u8; 32]>,
         Hash: Copy + From<[u8; 32]>,
-        Runtime: RuntimeT,
-        E: Environment<AccountId = AccountId, Balance = u128, Hash = Hash> + 'static,
+        Runtime: RuntimeT + pallet_balances::Config + pallet_contracts::Config,
+        E: Environment<AccountId = AccountId, Hash = Hash> + 'static,
     > BuilderClient<E> for Client<AccountId, Hash, Runtime>
 where
     AccountIdFor<Runtime>: From<[u8; 32]> + AsRef<[u8; 32]>,
@@ -221,6 +222,7 @@ where
     ) -> Result<BareInstantiationResult<E, Self::EventLog>, Self::Error> {
         let code = self.contracts.load_code(contract_name);
         let data = constructor_exec_input(constructor.clone());
+        let value = BalanceOf::<Runtime>::from(value);
 
         let result = self.sandbox.deploy_contract(
             code,
@@ -407,12 +409,11 @@ where
 impl<
         AccountId: Clone + Send + Sync + From<[u8; 32]> + AsRef<[u8; 32]>,
         Hash: Copy + From<[u8; 32]>,
-        Runtime: RuntimeT + drink::pallet_balances::Config,
-        E: Environment<AccountId = AccountId, Balance = u128, Hash = Hash> + 'static,
+        Runtime: RuntimeT + pallet_balances::Config + pallet_contracts::Config,
+        E: Environment<AccountId = AccountId, Hash = Hash> + 'static,
     > E2EBackend<E> for Client<AccountId, Hash, Runtime>
 where
     AccountIdFor<Runtime>: From<[u8; 32]> + AsRef<[u8; 32]>,
-    BalanceOf<Runtime>: From<u128> + Into<u128>,
 {
 }
 
@@ -425,7 +426,7 @@ impl<
         AccountId: Clone + Send + Sync + From<[u8; 32]> + AsRef<[u8; 32]>,
         Hash: Copy + From<[u8; 32]>,
         Runtime: RuntimeT,
-        E: Environment<AccountId = AccountId, Balance = u128, Hash = Hash> + 'static,
+        E: Environment<AccountId = AccountId, Hash = Hash> + 'static,
     > ContractsBackend<E> for Client<AccountId, Hash, Runtime>
 where
     AccountIdFor<Runtime>: From<[u8; 32]> + AsRef<[u8; 32]>,
