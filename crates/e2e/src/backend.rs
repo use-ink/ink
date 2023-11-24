@@ -67,8 +67,8 @@ pub trait ChainBackend {
         amount: Self::Balance,
     ) -> Keypair;
 
-    /// Returns the balance of `actor`.
-    async fn balance(
+    /// Returns the free balance of `account`.
+    async fn free_balance(
         &mut self,
         account: Self::AccountId,
     ) -> Result<Self::Balance, Self::Error>;

@@ -236,7 +236,7 @@ pub mod give_me {
             let mut call = contract.call::<GiveMe>();
 
             let balance_before: Balance = client
-                .balance(contract.account_id.clone())
+                .free_balance(contract.account_id.clone())
                 .await
                 .expect("getting balance failed");
 
@@ -253,7 +253,7 @@ pub mod give_me {
             assert!(call_res.debug_message().contains("requested value: 120\n"));
 
             let balance_after: Balance = client
-                .balance(contract.account_id.clone())
+                .free_balance(contract.account_id.clone())
                 .await
                 .expect("getting balance failed");
             assert_eq!(balance_before - balance_after, 120);

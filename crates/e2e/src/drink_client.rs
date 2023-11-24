@@ -129,7 +129,7 @@ impl<AccountId: AsRef<[u8; 32]> + Send, Hash, Runtime> ChainBackend
 where
     Runtime: RuntimeT + drink::pallet_balances::Config,
     AccountIdFor<Runtime>: From<[u8; 32]>,
-    BalanceOf<Runtime>: From<u128>,
+    BalanceOf<Runtime>: From<u128> + Into<u128>,
 {
     type AccountId = AccountId;
     type Balance = u128;
@@ -150,12 +150,12 @@ where
         Keypair::from_seed(seed).expect("Failed to create keypair")
     }
 
-    async fn balance(
+    async fn free_balance(
         &mut self,
         account: Self::AccountId,
     ) -> Result<Self::Balance, Self::Error> {
         let account = AccountIdFor::<Runtime>::from(*account.as_ref());
-        Ok(self.sandbox.balance(&account))
+        Ok(self.sandbox.free_balance(&account).into())
     }
 
     async fn runtime_call<'a>(
@@ -412,7 +412,7 @@ impl<
     > E2EBackend<E> for Client<AccountId, Hash, Runtime>
 where
     AccountIdFor<Runtime>: From<[u8; 32]> + AsRef<[u8; 32]>,
-    BalanceOf<Runtime>: From<u128>,
+    BalanceOf<Runtime>: From<u128> + Into<u128>,
 {
 }
 
