@@ -12,7 +12,7 @@ instantiate it.</p>
     method: &amp;<a class="primitive" href="https://doc.rust-lang.org/1.73.0/std/primitive.str.html">str</a>,
     params: RpcParams
 ) -&gt; impl <a class="trait" href="https://doc.rust-lang.org/1.73.0/core/future/future/trait.Future.html" title="trait core::future::future::Future">Future</a>&lt;Output = <a class="enum" href="https://doc.rust-lang.org/1.73.0/core/result/enum.Result.html" title="enum core::result::Result">Result</a>&lt;Res, Error&gt;&gt;<span class="where fmt-newline">where
-    Res: <a class="trait" href="https://docs.rs/serde/1.0.192/serde/de/trait.DeserializeOwned.html" title="trait serde::de::DeserializeOwned">DeserializeOwned</a>,</span></h4></section></summary><div class="docblock"><p>Make an RPC request, given a method name and some parameters.</p>
+    Res: <a class="trait" href="https://docs.rs/serde/1.0.193/serde/de/trait.DeserializeOwned.html" title="trait serde::de::DeserializeOwned">DeserializeOwned</a>,</span></h4></section></summary><div class="docblock"><p>Make an RPC request, given a method name and some parameters.</p>
 <p>See [<code>RpcParams</code>] and the [<code>rpc_params!</code>] macro for an example of how to
 construct the parameters.</p>
 </div></details><details class="toggle method-toggle" open><summary><section id="method.subscribe" class="method"><h4 class="code-header">pub async fn <a href="#method.subscribe" class="fn">subscribe</a>&lt;Res&gt;(
@@ -21,7 +21,7 @@ construct the parameters.</p>
     params: RpcParams,
     unsub: &amp;<a class="primitive" href="https://doc.rust-lang.org/1.73.0/std/primitive.str.html">str</a>
 ) -&gt; impl <a class="trait" href="https://doc.rust-lang.org/1.73.0/core/future/future/trait.Future.html" title="trait core::future::future::Future">Future</a>&lt;Output = <a class="enum" href="https://doc.rust-lang.org/1.73.0/core/result/enum.Result.html" title="enum core::result::Result">Result</a>&lt;RpcSubscription&lt;Res&gt;, Error&gt;&gt;<span class="where fmt-newline">where
-    Res: <a class="trait" href="https://docs.rs/serde/1.0.192/serde/de/trait.DeserializeOwned.html" title="trait serde::de::DeserializeOwned">DeserializeOwned</a>,</span></h4></section></summary><div class="docblock"><p>Subscribe to an RPC endpoint, providing the parameters and the method to call to
+    Res: <a class="trait" href="https://docs.rs/serde/1.0.193/serde/de/trait.DeserializeOwned.html" title="trait serde::de::DeserializeOwned">DeserializeOwned</a>,</span></h4></section></summary><div class="docblock"><p>Subscribe to an RPC endpoint, providing the parameters and the method to call to
 unsubscribe from it again.</p>
 <p>See [<code>RpcParams</code>] and the [<code>rpc_params!</code>] macro for an example of how to
 construct the parameters.</p>
