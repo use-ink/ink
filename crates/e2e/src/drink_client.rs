@@ -34,6 +34,7 @@ use crate::{
     UploadResult,
 };
 use drink::{
+    frame_support::traits::fungible::Inspect,
     pallet_balances,
     pallet_contracts,
     runtime::{
@@ -72,6 +73,9 @@ use subxt::{
     tx::TxPayload,
 };
 use subxt_signer::sr25519::Keypair;
+
+type ContractsBalanceOf<R> =
+    <<R as pallet_contracts::Config>::Currency as Inspect<AccountIdFor<R>>>::Balance;
 pub struct Client<AccountId, Hash, Runtime: RuntimeT> {
     sandbox: Sandbox<Runtime>,
     contracts: ContractsRegistry,
@@ -120,7 +124,7 @@ where
         for account in accounts.into_iter() {
             sandbox
                 .mint_into(account, TOKENS.into())
-                .expect(&format!("Failed to mint {} tokens for {}", TOKENS, account));
+                .expect(&format!("Failed to mint {} tokens", TOKENS));
         }
     }
 }
@@ -206,10 +210,16 @@ impl<
         AccountId: Clone + Send + Sync + From<[u8; 32]> + AsRef<[u8; 32]>,
         Hash: Copy + From<[u8; 32]>,
         Runtime: RuntimeT + pallet_balances::Config + pallet_contracts::Config,
-        E: Environment<AccountId = AccountId, Hash = Hash> + 'static,
+        E: Environment<
+                AccountId = AccountId,
+                Balance = ContractsBalanceOf<Runtime>,
+                Hash = Hash,
+            > + Send
+            + 'static,
     > BuilderClient<E> for Client<AccountId, Hash, Runtime>
 where
     AccountIdFor<Runtime>: From<[u8; 32]> + AsRef<[u8; 32]>,
+    ContractsBalanceOf<Runtime>: Send + Sync,
 {
     async fn bare_instantiate<Contract: Clone, Args: Send + Sync + Encode + Clone, R>(
         &mut self,
@@ -222,7 +232,6 @@ where
     ) -> Result<BareInstantiationResult<E, Self::EventLog>, Self::Error> {
         let code = self.contracts.load_code(contract_name);
         let data = constructor_exec_input(constructor.clone());
-        let value = BalanceOf::<Runtime>::from(value);
 
         let result = self.sandbox.deploy_contract(
             code,
@@ -231,7 +240,7 @@ where
             salt(),
             keypair_to_account(caller),
             gas_limit,
-            storage_deposit_limit,
+            storage_deposit_limit.map(ContractsBalanceOf::<Runtime>::from),
         );
 
         let account_id_raw = match &result.result {
@@ -307,6 +316,7 @@ where
             code,
             keypair_to_account(caller),
             storage_deposit_limit,
+            pallet_contracts::Determinism::Enforced,
         ) {
             Ok(result) => result,
             Err(err) => {
@@ -358,6 +368,7 @@ where
                 keypair_to_account(caller),
                 DEFAULT_GAS_LIMIT,
                 storage_deposit_limit,
+                pallet_contracts::Determinism::Enforced,
             )
             .result
             .is_err()
@@ -390,6 +401,7 @@ where
                 keypair_to_account(caller),
                 DEFAULT_GAS_LIMIT,
                 storage_deposit_limit,
+                pallet_contracts::Determinism::Enforced,
             )
         });
         Ok(CallDryRunResult {
@@ -410,10 +422,16 @@ impl<
         AccountId: Clone + Send + Sync + From<[u8; 32]> + AsRef<[u8; 32]>,
         Hash: Copy + From<[u8; 32]>,
         Runtime: RuntimeT + pallet_balances::Config + pallet_contracts::Config,
-        E: Environment<AccountId = AccountId, Hash = Hash> + 'static,
+        E: Environment<
+                AccountId = AccountId,
+                Balance = ContractsBalanceOf<Runtime>,
+                Hash = Hash,
+            > + Send
+            + 'static,
     > E2EBackend<E> for Client<AccountId, Hash, Runtime>
 where
     AccountIdFor<Runtime>: From<[u8; 32]> + AsRef<[u8; 32]>,
+    ContractsBalanceOf<Runtime>: Send + Sync,
 {
 }
 
@@ -425,8 +443,12 @@ fn keypair_to_account<AccountId: From<[u8; 32]>>(keypair: &Keypair) -> AccountId
 impl<
         AccountId: Clone + Send + Sync + From<[u8; 32]> + AsRef<[u8; 32]>,
         Hash: Copy + From<[u8; 32]>,
-        Runtime: RuntimeT,
-        E: Environment<AccountId = AccountId, Hash = Hash> + 'static,
+        Runtime: RuntimeT + pallet_balances::Config + pallet_contracts::Config,
+        E: Environment<
+                AccountId = AccountId,
+                Balance = ContractsBalanceOf<Runtime>,
+                Hash = Hash,
+            > + 'static,
     > ContractsBackend<E> for Client<AccountId, Hash, Runtime>
 where
     AccountIdFor<Runtime>: From<[u8; 32]> + AsRef<[u8; 32]>,
