@@ -345,8 +345,8 @@
         amount: <span class="self">Self</span>::Balance,
     ) -&gt; Keypair;
 
-    <span class="doccomment">/// Returns the balance of `actor`.
-    </span><span class="kw">async fn </span>balance(
+    <span class="doccomment">/// Returns the free balance of `account`.
+    </span><span class="kw">async fn </span>free_balance(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         account: <span class="self">Self</span>::AccountId,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Balance, <span class="self">Self</span>::Error&gt;;
