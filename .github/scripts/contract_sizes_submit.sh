@@ -17,10 +17,10 @@ workflow_url=$2
 cc_version=$3
 diffs_markdown_table=$(</dev/stdin)
 
-# If there is already a comment by the user `paritytech-cicd-pr` in the ink! PR which triggered
+# If there is already a comment by the user `github-actions[bot]` in the ink! PR which triggered
 # this run, then we can just edit this comment (using `PATCH` instead of `POST`).
 possibly_comment_url=$(curl --silent $pr_comments_url | \
-  jq -r ".[] | select(.user.login == \"paritytech-cicd-pr\" or .user.login == \"github-actions[bot]\") | .url" | \
+  jq -r ".[] | select(.user.login == \"github-actions[bot]\") | .url" | \
   head -n1
 )
 echo $possibly_comment_url

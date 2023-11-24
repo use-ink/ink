@@ -44,5 +44,5 @@ jobs:
 
           # Submit the comparison table as a comment to the PR
           echo "Submitting contract sizes diff to ${PR_COMMENTS_URL}"
-          GITHUB_PR_TOKEN=${GITHUB_PR_TOKEN} scripts/contract_sizes_submit.sh ${PR_COMMENTS_URL} ${WORKFLOW_URL} ${CARGO_CONTRACT_VERSION} < ./contract_sizes_diff.md
+          GITHUB_PR_TOKEN=${GITHUB_PR_TOKEN} .github/scripts/contract_sizes_submit.sh ${PR_COMMENTS_URL} ${WORKFLOW_URL} ${CARGO_CONTRACT_VERSION} < ./contract_sizes_diff.md
 

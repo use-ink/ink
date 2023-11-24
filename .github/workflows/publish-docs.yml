@@ -17,8 +17,6 @@ jobs:
         github.event.workflow_run.head_branch == 'master' &&
         github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
     permissions:
       contents: write
     steps:
