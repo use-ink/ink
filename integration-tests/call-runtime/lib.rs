@@ -167,11 +167,11 @@ mod runtime_call {
             let receiver: AccountId = default_accounts::<DefaultEnvironment>().bob;
 
             let contract_balance_before = client
-                .balance(contract.account_id)
+                .free_balance(contract.account_id)
                 .await
                 .expect("Failed to get account balance");
             let receiver_balance_before = client
-                .balance(receiver)
+                .free_balance(receiver)
                 .await
                 .expect("Failed to get account balance");
 
@@ -189,11 +189,11 @@ mod runtime_call {
 
             // then
             let contract_balance_after = client
-                .balance(contract.account_id)
+                .free_balance(contract.account_id)
                 .await
                 .expect("Failed to get account balance");
             let receiver_balance_after = client
-                .balance(receiver)
+                .free_balance(receiver)
                 .await
                 .expect("Failed to get account balance");
 
