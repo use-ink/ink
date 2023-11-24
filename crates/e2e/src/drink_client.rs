@@ -214,8 +214,7 @@ impl<
                 AccountId = AccountId,
                 Balance = ContractsBalanceOf<Runtime>,
                 Hash = Hash,
-            > + Send
-            + 'static,
+            > + 'static,
     > BuilderClient<E> for Client<AccountId, Hash, Runtime>
 where
     AccountIdFor<Runtime>: From<[u8; 32]> + AsRef<[u8; 32]>,
@@ -426,8 +425,7 @@ impl<
                 AccountId = AccountId,
                 Balance = ContractsBalanceOf<Runtime>,
                 Hash = Hash,
-            > + Send
-            + 'static,
+            > + 'static,
     > E2EBackend<E> for Client<AccountId, Hash, Runtime>
 where
     AccountIdFor<Runtime>: From<[u8; 32]> + AsRef<[u8; 32]>,
