@@ -213,12 +213,8 @@ pub mod give_me {
                 .await;
 
             // then
-            if let Err(ink_e2e::Error::<ink::env::DefaultEnvironment>::CallDryRun(
-                dry_run,
-            )) = call_res
-            {
-                let debug_message = String::from_utf8_lossy(&dry_run.debug_message);
-                assert!(debug_message.contains("paid an unpayable message"))
+            if let Err(ink_e2e::Error::CallDryRun(dry_run)) = call_res {
+                assert!(dry_run.debug_message.contains("paid an unpayable message"))
             } else {
                 panic!("Paying an unpayable message should fail")
             }
@@ -240,7 +236,7 @@ pub mod give_me {
             let mut call = contract.call::<GiveMe>();
 
             let balance_before: Balance = client
-                .balance(contract.account_id.clone())
+                .free_balance(contract.account_id.clone())
                 .await
                 .expect("getting balance failed");
 
@@ -257,7 +253,7 @@ pub mod give_me {
             assert!(call_res.debug_message().contains("requested value: 120\n"));
 
             let balance_after: Balance = client
-                .balance(contract.account_id.clone())
+                .free_balance(contract.account_id.clone())
                 .await
                 .expect("getting balance failed");
             assert_eq!(balance_before - balance_after, 120);

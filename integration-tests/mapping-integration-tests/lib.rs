@@ -178,7 +178,7 @@ mod mapping_integration_tests {
             let balance = client
                 .call(&ink_e2e::alice(), &get)
                 .dry_run()
-                .await
+                .await?
                 .return_value();
 
             assert!(size.is_none());
@@ -218,7 +218,7 @@ mod mapping_integration_tests {
             let is_there = client
                 .call(&ink_e2e::bob(), &contains)
                 .dry_run()
-                .await
+                .await?
                 .return_value();
 
             assert!(is_there);
@@ -265,7 +265,7 @@ mod mapping_integration_tests {
             let balance = client
                 .call(&ink_e2e::charlie(), &get)
                 .dry_run()
-                .await
+                .await?
                 .return_value();
 
             assert_eq!(balance, Some(10_000));
@@ -311,7 +311,7 @@ mod mapping_integration_tests {
             let balance = client
                 .call(&ink_e2e::dave(), &get)
                 .dry_run()
-                .await
+                .await?
                 .return_value();
 
             assert_eq!(balance, None);
@@ -360,7 +360,7 @@ mod mapping_integration_tests {
             let is_there = client
                 .call(&ink_e2e::eve(), &contains)
                 .dry_run()
-                .await
+                .await?
                 .return_value();
 
             assert!(!is_there);
@@ -397,7 +397,7 @@ mod mapping_integration_tests {
             let expected_insert_result = client
                 .call(&ink_e2e::ferdie(), &insert)
                 .dry_run()
-                .await
+                .await?
                 .return_value();
             let received_insert_result =
                 Err(crate::mapping_integration_tests::ContractError::ValueTooLarge);
@@ -407,7 +407,7 @@ mod mapping_integration_tests {
             let received_mapping_value = client
                 .call(&ink_e2e::ferdie(), &call.try_get_names())
                 .dry_run()
-                .await
+                .await?
                 .return_value();
             let expected_mapping_value = Some(Ok(names));
             assert_eq!(received_mapping_value, expected_mapping_value);

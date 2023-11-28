@@ -25,8 +25,8 @@ use super::{
     log_error,
     log_info,
     sr25519,
-    ContractInstantiateResult,
     ContractsApi,
+    InstantiateDryRunResult,
     Keypair,
 };
 use crate::{
@@ -50,6 +50,7 @@ use ink_env::{
     Environment,
 };
 use jsonrpsee::core::async_trait;
+use pallet_contracts_primitives::ContractResult;
 use scale::{
     Decode,
     Encode,
@@ -65,6 +66,7 @@ use crate::{
         salt,
         ContractsRegistry,
     },
+    error::DryRunError,
     events,
     ContractsBackend,
     E2EBackend,
@@ -72,6 +74,7 @@ use crate::{
 use subxt::{
     blocks::ExtrinsicEvents,
     config::ExtrinsicParams,
+    error::DispatchError,
     events::EventDetails,
     ext::scale_value::{
         Composite,
@@ -81,12 +84,7 @@ use subxt::{
     tx::Signer,
 };
 
-pub type Error<E> = crate::error::Error<
-    <E as Environment>::AccountId,
-    <E as Environment>::Balance,
-    <E as Environment>::Hash,
-    subxt::error::DispatchError,
->;
+pub type Error = crate::error::Error<DispatchError>;
 
 /// Represents an initialized contract message builder.
 pub type CallBuilderFinal<E, Args, RetType> = ink_env::call::CallBuilder<
@@ -143,7 +141,7 @@ where
         value: E::Balance,
         gas_limit: Weight,
         storage_deposit_limit: Option<E::Balance>,
-    ) -> Result<BareInstantiationResult<E, ExtrinsicEvents<C>>, Error<E>> {
+    ) -> Result<BareInstantiationResult<E, ExtrinsicEvents<C>>, Error> {
         let salt = salt();
 
         let tx_events = self
@@ -184,11 +182,11 @@ where
                 let metadata = self.api.client.metadata();
                 let dispatch_error =
                     subxt::error::DispatchError::decode_from(evt.field_bytes(), metadata)
-                        .map_err(|e| Error::<E>::Decoding(e.to_string()))?;
+                        .map_err(|e| Error::Decoding(e.to_string()))?;
                 log_error(&format!(
                     "extrinsic for instantiate failed: {dispatch_error}"
                 ));
-                return Err(Error::<E>::InstantiateExtrinsic(dispatch_error))
+                return Err(Error::InstantiateExtrinsic(dispatch_error))
             }
         }
         let account_id = account_id.expect("cannot extract `account_id` from events");
@@ -207,15 +205,16 @@ where
         signer: &Keypair,
         code: Vec<u8>,
         storage_deposit_limit: Option<E::Balance>,
-    ) -> Result<UploadResult<E, ExtrinsicEvents<C>>, Error<E>> {
+    ) -> Result<UploadResult<E, ExtrinsicEvents<C>>, Error> {
         // dry run the instantiate to calculate the gas limit
         let dry_run = self
             .api
             .upload_dry_run(signer, code.clone(), storage_deposit_limit)
             .await;
         log_info(&format!("upload dry run: {dry_run:?}"));
-        if dry_run.is_err() {
-            return Err(Error::<E>::UploadDryRun(dry_run))
+        if let Err(err) = dry_run {
+            let dispatch_err = self.runtime_dispatch_error_to_subxt_dispatch_error(&err);
+            return Err(Error::UploadDryRun(dispatch_err))
         }
 
         let tx_events = self.api.upload(signer, code, storage_deposit_limit).await;
@@ -240,11 +239,11 @@ where
             } else if is_extrinsic_failed_event(&evt) {
                 let metadata = self.api.client.metadata();
                 let dispatch_error =
-                    subxt::error::DispatchError::decode_from(evt.field_bytes(), metadata)
-                        .map_err(|e| Error::<E>::Decoding(e.to_string()))?;
+                    DispatchError::decode_from(evt.field_bytes(), metadata)
+                        .map_err(|e| Error::Decoding(e.to_string()))?;
 
                 log_error(&format!("extrinsic for upload failed: {dispatch_error}"));
-                return Err(Error::<E>::UploadExtrinsic(dispatch_error))
+                return Err(Error::UploadExtrinsic(dispatch_error))
             }
         }
 
@@ -267,6 +266,45 @@ where
             code_hash,
             events: tx_events,
         })
+    }
+
+    /// Transforms a [`ContractResult`] from a dry run into a [`Result`] type, containing
+    /// details of the [`DispatchError`] if the dry run failed.
+    #[allow(clippy::type_complexity)]
+    fn contract_result_to_result<V>(
+        &self,
+        contract_result: ContractResult<
+            Result<V, sp_runtime::DispatchError>,
+            E::Balance,
+            (),
+        >,
+    ) -> Result<
+        ContractResult<Result<V, sp_runtime::DispatchError>, E::Balance, ()>,
+        DryRunError<DispatchError>,
+    > {
+        if let Err(error) = contract_result.result {
+            let debug_message = String::from_utf8(contract_result.debug_message.clone())
+                .expect("invalid utf8 debug message");
+            let subxt_dispatch_err =
+                self.runtime_dispatch_error_to_subxt_dispatch_error(&error);
+            Err(DryRunError::<DispatchError> {
+                debug_message,
+                error: subxt_dispatch_err,
+            })
+        } else {
+            Ok(contract_result)
+        }
+    }
+
+    /// Converts a `sp_runtime::DispatchError` into a `DispatchError` which contains error
+    /// details.
+    fn runtime_dispatch_error_to_subxt_dispatch_error(
+        &self,
+        dispatch_error: &sp_runtime::DispatchError,
+    ) -> DispatchError {
+        let dispatch_err_encoded = Encode::encode(&dispatch_error);
+        DispatchError::decode_from(dispatch_err_encoded, self.api.client.metadata())
+            .expect("failed to decode valid dispatch error")
     }
 }
 
@@ -299,7 +337,7 @@ where
 {
     type AccountId = E::AccountId;
     type Balance = E::Balance;
-    type Error = Error<E>;
+    type Error = Error;
     type EventLog = ExtrinsicEvents<C>;
 
     async fn create_and_fund_account(
@@ -333,7 +371,7 @@ where
         keypair
     }
 
-    async fn balance(
+    async fn free_balance(
         &mut self,
         account: Self::AccountId,
     ) -> Result<Self::Balance, Self::Error> {
@@ -364,13 +402,13 @@ where
                 panic!("unable to decode account info: {err:?}");
             });
 
-        let account_data = get_composite_field_value::<_, E>(&account, "data")?;
-        let balance = get_composite_field_value::<_, E>(account_data, "free")?;
+        let account_data = get_composite_field_value(&account, "data")?;
+        let balance = get_composite_field_value(account_data, "free")?;
         let balance = balance.as_u128().ok_or_else(|| {
-            Error::<E>::Balance(format!("{balance:?} should convert to u128"))
+            Error::Balance(format!("{balance:?} should convert to u128"))
         })?;
         let balance = E::Balance::try_from(balance).map_err(|_| {
-            Error::<E>::Balance(format!("{balance:?} failed to convert from u128"))
+            Error::Balance(format!("{balance:?} failed to convert from u128"))
         })?;
 
         log_info(&format!("balance of contract {account:?} is {balance:?}"));
@@ -398,10 +436,10 @@ where
                 let metadata = self.api.client.metadata();
                 let dispatch_error =
                     subxt::error::DispatchError::decode_from(evt.field_bytes(), metadata)
-                        .map_err(|e| Error::<E>::Decoding(e.to_string()))?;
+                        .map_err(|e| Error::Decoding(e.to_string()))?;
 
                 log_error(&format!("extrinsic for call failed: {dispatch_error}"));
-                return Err(Error::<E>::CallExtrinsic(dispatch_error))
+                return Err(Error::CallExtrinsic(dispatch_error))
             }
         }
 
@@ -461,11 +499,12 @@ where
         constructor: &mut CreateBuilderPartial<E, Contract, Args, R>,
         value: E::Balance,
         storage_deposit_limit: Option<E::Balance>,
-    ) -> ContractInstantiateResult<E::AccountId, E::Balance, ()> {
+    ) -> Result<InstantiateDryRunResult<E>, Self::Error> {
         let code = self.contracts.load_code(contract_name);
         let data = constructor_exec_input(constructor.clone());
 
-        self.api
+        let result = self
+            .api
             .instantiate_with_code_dry_run(
                 value,
                 storage_deposit_limit,
@@ -474,7 +513,13 @@ where
                 salt(),
                 caller,
             )
-            .await
+            .await;
+
+        let result = self
+            .contract_result_to_result(result)
+            .map_err(Error::InstantiateDryRun)?;
+
+        Ok(result.into())
     }
 
     async fn bare_upload(
@@ -527,9 +572,9 @@ where
                 let metadata = self.api.client.metadata();
                 let dispatch_error =
                     subxt::error::DispatchError::decode_from(evt.field_bytes(), metadata)
-                        .map_err(|e| Error::<E>::Decoding(e.to_string()))?;
+                        .map_err(|e| Error::Decoding(e.to_string()))?;
                 log_error(&format!("extrinsic for call failed: {dispatch_error}"));
-                return Err(Error::<E>::CallExtrinsic(dispatch_error))
+                return Err(Error::CallExtrinsic(dispatch_error))
             }
         }
 
@@ -542,7 +587,7 @@ where
         message: &CallBuilderFinal<E, Args, RetType>,
         value: E::Balance,
         storage_deposit_limit: Option<E::Balance>,
-    ) -> CallDryRunResult<E, RetType>
+    ) -> Result<CallDryRunResult<E, RetType>, Self::Error>
     where
         CallBuilderFinal<E, Args, RetType>: Clone,
     {
@@ -565,10 +610,14 @@ where
             String::from_utf8_lossy(&exec_result.debug_message)
         ));
 
-        CallDryRunResult {
+        let exec_result = self
+            .contract_result_to_result(exec_result)
+            .map_err(Error::CallDryRun)?;
+
+        Ok(CallDryRunResult {
             exec_result,
             _marker: Default::default(),
-        }
+        })
     }
 }
 
@@ -593,7 +642,7 @@ where
         Clone + Debug + Send + Sync + From<u128> + scale::HasCompact + serde::Serialize,
     E::Hash: Debug + Send + scale::Encode,
 {
-    type Error = Error<E>;
+    type Error = Error;
     type EventLog = ExtrinsicEvents<C>;
 }
 
@@ -626,24 +675,20 @@ where
 /// Returns `Err` if:
 ///   - The value is not a [`Value::Composite`] with [`Composite::Named`] fields
 ///   - The value does not contain a field with the given name.
-fn get_composite_field_value<'a, T, E>(
+fn get_composite_field_value<'a, T>(
     value: &'a Value<T>,
     field_name: &str,
-) -> Result<&'a Value<T>, Error<E>>
-where
-    E: Environment,
-    E::Balance: Debug,
-{
+) -> Result<&'a Value<T>, Error> {
     if let ValueDef::Composite(Composite::Named(fields)) = &value.value {
         let (_, field) = fields
             .iter()
             .find(|(name, _)| name == field_name)
             .ok_or_else(|| {
-                Error::<E>::Balance(format!("No field named '{field_name}' found"))
+                Error::Balance(format!("No field named '{field_name}' found"))
             })?;
         Ok(field)
     } else {
-        Err(Error::<E>::Balance(
+        Err(Error::Balance(
             "Expected a composite type with named fields".into(),
         ))
     }
