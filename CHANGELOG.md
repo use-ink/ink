@@ -20,6 +20,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fail when decoding from storage and not all bytes consumed - [#1897](https://github.com/paritytech/ink/pull/1897)
 - [E2E] resolve DispatchError error details for dry-runs - [#1944](https://github.com/paritytech/ink/pull/1994)
 - [E2E] update to new `drink` API - [#2005](https://github.com/paritytech/ink/pull/2005)
+- Support multiple chain extensions - [#1958](https://github.com/paritytech/ink/pull/1958)
+  - New example of how to use multiple chain extensions in one contract.
+  - Affects the usage of the `#[ink::chain_extension]` macro and the definition of the chain extension.
 
 
 ## Version 5.0.0-alpha

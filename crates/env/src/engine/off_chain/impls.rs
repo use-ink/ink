@@ -358,7 +358,7 @@ impl EnvBackend for EnvInstance {
 
     fn call_chain_extension<I, T, E, ErrorCode, F, D>(
         &mut self,
-        func_id: u32,
+        id: u32,
         input: &I,
         status_to_result: F,
         decode_to_result: D,
@@ -374,7 +374,7 @@ impl EnvBackend for EnvInstance {
         let mut output: [u8; BUFFER_SIZE] = [0; BUFFER_SIZE];
 
         self.engine
-            .call_chain_extension(func_id, enc_input, &mut &mut output[..]);
+            .call_chain_extension(id, enc_input, &mut &mut output[..]);
         let (status, out): (u32, Vec<u8>) = scale::Decode::decode(&mut &output[..])
             .unwrap_or_else(|error| {
                 panic!("could not decode `call_chain_extension` output: {error:?}")

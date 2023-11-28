@@ -26,9 +26,15 @@ use syn::{
 ///
 /// For example, the segment `env = ::my::env::Environment`
 /// in `#[ink::contract(env = ::my::env::Environment)]`.
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub struct AttributeArgs {
     args: Punctuated<MetaNameValue, Token![,]>,
+}
+
+impl quote::ToTokens for AttributeArgs {
+    fn to_tokens(&self, tokens: &mut proc_macro2::TokenStream) {
+        self.args.to_tokens(tokens)
+    }
 }
 
 impl IntoIterator for AttributeArgs {
