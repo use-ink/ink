@@ -183,7 +183,7 @@ mod mother {
             ink::env::debug_println!("debug_log: {}", _message);
         }
 
-        /// Mutates the input string to return "Hello, {name}"
+        /// Mutates the input string to return "Hello, { name }"
         #[ink(message)]
         pub fn mut_hello_world(&self, mut message: String) -> String {
             message = format!("Hello, {}", message);
