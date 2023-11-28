@@ -1549,7 +1549,7 @@
     error::ExtError <span class="kw">as _</span>,
     ir,
     ir::{
-        ExtensionId,
+        chain_extension::FunctionId,
         Selector,
     },
 };
@@ -1874,8 +1874,8 @@
     <span class="doccomment">/// `#[ink(selector = _)]`
     /// `#[ink(selector = 0xDEADBEEF)]`
     </span>Selector,
-    <span class="doccomment">/// `#[ink(extension = N: u32)]`
-    </span>Extension,
+    <span class="doccomment">/// `#[ink(function = N: u16)]`
+    </span>Function,
     <span class="doccomment">/// `#[ink(namespace = &quot;my_namespace&quot;)]`
     </span>Namespace,
     <span class="doccomment">/// `#[ink(impl)]`
@@ -1946,13 +1946,13 @@
     /// Note that ink! messages and constructors still need to be explicitly
     /// flagged as such.
     </span>Implementation,
-    <span class="doccomment">/// `#[ink(extension = N: u32)]`
+    <span class="doccomment">/// `#[ink(function = N: u16)]`
     ///
     /// Applies on ink! chain extension method to set their `func_id` parameter.
-    /// Every chain extension method must have exactly one ink! `extension` attribute.
+    /// Every chain extension method must have exactly one ink! `function` attribute.
     ///
     /// Used by the `#[ink::chain_extension]` procedural macro.
-    </span>Extension(ExtensionId),
+    </span>Function(FunctionId),
     <span class="doccomment">/// `#[ink(handle_status = flag: bool)]`
     ///
     /// Used by the `#[ink::chain_extension]` procedural macro.
@@ -1973,8 +1973,8 @@
             <span class="self">Self</span>::Selector =&gt; {
                 <span class="macro">write!</span>(f, <span class="string">&quot;selector = S:[u8; 4] || _&quot;</span>)
             }
-            <span class="self">Self</span>::Extension =&gt; {
-                <span class="macro">write!</span>(f, <span class="string">&quot;extension = N:u32)&quot;</span>)
+            <span class="self">Self</span>::Function =&gt; {
+                <span class="macro">write!</span>(f, <span class="string">&quot;function = N:u16)&quot;</span>)
             }
             <span class="self">Self</span>::Namespace =&gt; {
                 <span class="macro">write!</span>(f, <span class="string">&quot;namespace = N:string&quot;</span>)
@@ -1997,7 +1997,7 @@
             <span class="self">Self</span>::Constructor =&gt; AttributeArgKind::Constructor,
             <span class="self">Self</span>::Payable =&gt; AttributeArgKind::Payable,
             <span class="self">Self</span>::Selector(<span class="kw">_</span>) =&gt; AttributeArgKind::Selector,
-            <span class="self">Self</span>::Extension(<span class="kw">_</span>) =&gt; AttributeArgKind::Extension,
+            <span class="self">Self</span>::Function(<span class="kw">_</span>) =&gt; AttributeArgKind::Function,
             <span class="self">Self</span>::Namespace(<span class="kw">_</span>) =&gt; AttributeArgKind::Namespace,
             <span class="self">Self</span>::Implementation =&gt; AttributeArgKind::Implementation,
             <span class="self">Self</span>::HandleStatus(<span class="kw">_</span>) =&gt; AttributeArgKind::HandleStatus,
@@ -2016,8 +2016,8 @@
             <span class="self">Self</span>::Constructor =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;constructor&quot;</span>),
             <span class="self">Self</span>::Payable =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;payable&quot;</span>),
             <span class="self">Self</span>::Selector(selector) =&gt; core::fmt::Display::fmt(<span class="kw-2">&amp;</span>selector, f),
-            <span class="self">Self</span>::Extension(extension) =&gt; {
-                <span class="macro">write!</span>(f, <span class="string">&quot;extension = {:?}&quot;</span>, extension.into_u32())
+            <span class="self">Self</span>::Function(function) =&gt; {
+                <span class="macro">write!</span>(f, <span class="string">&quot;function = {:?}&quot;</span>, function.into_u16())
             }
             <span class="self">Self</span>::Namespace(namespace) =&gt; {
                 <span class="macro">write!</span>(f, <span class="string">&quot;namespace = {:?}&quot;</span>, namespace.as_bytes())
@@ -2436,19 +2436,19 @@
                         Namespace::try_from(<span class="kw-2">&amp;</span>name_value.value)
                             .map(AttributeArg::Namespace)
                     }
-                    <span class="string">&quot;extension&quot; </span>=&gt; {
+                    <span class="string">&quot;function&quot; </span>=&gt; {
                         <span class="kw">if let </span><span class="prelude-val">Some</span>(lit_int) = name_value.value.as_lit_int() {
-                            <span class="kw">let </span>id = lit_int.base10_parse::&lt;u32&gt;()
+                            <span class="kw">let </span>id = lit_int.base10_parse::&lt;u16&gt;()
                                 .map_err(|error| {
                                     <span class="macro">format_err_spanned!</span>(
                                         lit_int,
-                                        <span class="string">&quot;could not parse `N` in `#[ink(extension = N)]` into a `u32` integer: {}&quot;</span>, error)
+                                        <span class="string">&quot;could not parse `N` in `#[ink(function = N)]` into a `u16` integer: {}&quot;</span>, error)
                                 })<span class="question-mark">?</span>;
-                            <span class="prelude-val">Ok</span>(AttributeArg::Extension(ExtensionId::from_u32(id)))
+                            <span class="prelude-val">Ok</span>(AttributeArg::Function(FunctionId::from_u16(id)))
                         } <span class="kw">else </span>{
                             <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
                                 name_value.value,
-                                <span class="string">&quot;expected `u32` integer type for `N` in #[ink(extension = N)]&quot;</span>,
+                                <span class="string">&quot;expected `u16` integer type for `N` in #[ink(function = N)]&quot;</span>,
                             ))
                         }
                     }
@@ -2488,10 +2488,10 @@
                     <span class="string">&quot;default&quot; </span>=&gt; <span class="prelude-val">Ok</span>(AttributeArg::Default),
                     <span class="string">&quot;impl&quot; </span>=&gt; <span class="prelude-val">Ok</span>(AttributeArg::Implementation),
                     <span class="kw">_ </span>=&gt; <span class="kw">match </span>ident.to_string().as_str() {
-                        <span class="string">&quot;extension&quot; </span>=&gt; <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
+                        <span class="string">&quot;function&quot; </span>=&gt; <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
                             path,
-                            <span class="string">&quot;encountered #[ink(extension)] that is missing its `id` parameter. \
-                            Did you mean #[ink(extension = id: u32)] ?&quot;
+                            <span class="string">&quot;encountered #[ink(function)] that is missing its `id` parameter. \
+                            Did you mean #[ink(function = id: u16)] ?&quot;
                         </span>)),
                         <span class="string">&quot;handle_status&quot; </span>=&gt; <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
                             path,
@@ -2803,10 +2803,10 @@
     </span><span class="kw">fn </span>extension_works() {
         assert_attribute_try_from(
             <span class="macro">syn::parse_quote! </span>{
-                <span class="attr">#[ink(extension = <span class="number">42</span>)]
+                <span class="attr">#[ink(function = <span class="number">42</span>)]
             </span>},
-            <span class="prelude-val">Ok</span>(test::Attribute::Ink(<span class="macro">vec!</span>[AttributeArg::Extension(
-                ExtensionId::from_u32(<span class="number">42</span>),
+            <span class="prelude-val">Ok</span>(test::Attribute::Ink(<span class="macro">vec!</span>[AttributeArg::Function(
+                FunctionId::from_u16(<span class="number">42</span>),
             )])),
         );
     }
@@ -2815,9 +2815,9 @@
     </span><span class="kw">fn </span>extension_invalid_value_type() {
         assert_attribute_try_from(
             <span class="macro">syn::parse_quote! </span>{
-                <span class="attr">#[ink(extension = <span class="string">&quot;string&quot;</span>)]
+                <span class="attr">#[ink(function = <span class="string">&quot;string&quot;</span>)]
             </span>},
-            <span class="prelude-val">Err</span>(<span class="string">&quot;expected `u32` integer type for `N` in #[ink(extension = N)]&quot;</span>),
+            <span class="prelude-val">Err</span>(<span class="string">&quot;expected `u16` integer type for `N` in #[ink(function = N)]&quot;</span>),
         );
     }
 
@@ -2825,9 +2825,9 @@
     </span><span class="kw">fn </span>extension_negative_integer() {
         assert_attribute_try_from(
             <span class="macro">syn::parse_quote! </span>{
-                <span class="attr">#[ink(extension = -<span class="number">1</span>)]
+                <span class="attr">#[ink(function = -<span class="number">1</span>)]
             </span>},
-            <span class="prelude-val">Err</span>(<span class="string">&quot;could not parse `N` in `#[ink(extension = N)]` into a `u32` integer: invalid digit found in string&quot;</span>)
+            <span class="prelude-val">Err</span>(<span class="string">&quot;could not parse `N` in `#[ink(function = N)]` into a `u16` integer: invalid digit found in string&quot;</span>)
         );
     }
 
@@ -2836,9 +2836,9 @@
         <span class="kw">let </span>max_u32_plus_1 = (u32::MAX <span class="kw">as </span>u64) + <span class="number">1</span>;
         assert_attribute_try_from(
             <span class="macro">syn::parse_quote! </span>{
-                <span class="attr">#[ink(extension = #max_u32_plus_1)]
+                <span class="attr">#[ink(function = #max_u32_plus_1)]
             </span>},
-            <span class="prelude-val">Err</span>(<span class="string">&quot;could not parse `N` in `#[ink(extension = N)]` into a `u32` integer: number too large to fit in target type&quot;</span>),
+            <span class="prelude-val">Err</span>(<span class="string">&quot;could not parse `N` in `#[ink(function = N)]` into a `u16` integer: number too large to fit in target type&quot;</span>),
         );
     }
 
@@ -2846,11 +2846,11 @@
     </span><span class="kw">fn </span>extension_missing_parameter() {
         assert_attribute_try_from(
             <span class="macro">syn::parse_quote! </span>{
-                <span class="attr">#[ink(extension)]
+                <span class="attr">#[ink(function)]
             </span>},
             <span class="prelude-val">Err</span>(
-                <span class="string">&quot;encountered #[ink(extension)] that is missing its `id` parameter. \
-                Did you mean #[ink(extension = id: u32)] ?&quot;</span>,
+                <span class="string">&quot;encountered #[ink(function)] that is missing its `id` parameter. \
+                Did you mean #[ink(function = id: u16)] ?&quot;</span>,
             ),
         );
     }

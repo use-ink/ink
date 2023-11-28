@@ -933,7 +933,7 @@
 
     <span class="kw">fn </span>call_chain_extension&lt;I, T, E, ErrorCode, F, D&gt;(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
-        func_id: u32,
+        id: u32,
         input: <span class="kw-2">&amp;</span>I,
         status_to_result: F,
         decode_to_result: D,
@@ -949,7 +949,7 @@
         <span class="kw">let </span><span class="kw-2">mut </span>output: [u8; BUFFER_SIZE] = [<span class="number">0</span>; BUFFER_SIZE];
 
         <span class="self">self</span>.engine
-            .call_chain_extension(func_id, enc_input, <span class="kw-2">&amp;mut &amp;mut </span>output[..]);
+            .call_chain_extension(id, enc_input, <span class="kw-2">&amp;mut &amp;mut </span>output[..]);
         <span class="kw">let </span>(status, out): (u32, Vec&lt;u8&gt;) = scale::Decode::decode(<span class="kw-2">&amp;mut &amp;</span>output[..])
             .unwrap_or_else(|error| {
                 <span class="macro">panic!</span>(<span class="string">&quot;could not decode `call_chain_extension` output: {error:?}&quot;</span>)

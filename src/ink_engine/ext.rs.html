@@ -964,14 +964,14 @@
     <span class="doccomment">/// Calls the chain extension method registered at `func_id` with `input`.
     </span><span class="kw">pub fn </span>call_chain_extension(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
-        func_id: u32,
+        id: u32,
         input: <span class="kw-2">&amp;</span>[u8],
         output: <span class="kw-2">&amp;mut &amp;mut </span>[u8],
     ) {
         <span class="kw">let </span>encoded_input = input.encode();
         <span class="kw">let </span>(status_code, out) = <span class="self">self
             </span>.chain_extension_handler
-            .eval(func_id, <span class="kw-2">&amp;</span>encoded_input)
+            .eval(id, <span class="kw-2">&amp;</span>encoded_input)
             .unwrap_or_else(|error| {
                 <span class="macro">panic!</span>(
                     <span class="string">&quot;Encountered unexpected missing chain extension method: {error:?}&quot;

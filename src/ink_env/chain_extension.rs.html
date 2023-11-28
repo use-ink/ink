@@ -563,7 +563,7 @@
 ///       type. The method just returns `O`.
 </span><span class="attr">#[derive(Debug)]
 </span><span class="kw">pub struct </span>ChainExtensionMethod&lt;I, O, ErrorCode, <span class="kw">const </span>IS_RESULT: bool&gt; {
-    func_id: u32,
+    id: u32,
     <span class="attr">#[allow(clippy::type_complexity)]
     </span>state: PhantomData&lt;<span class="kw">fn</span>() -&gt; (I, O, ErrorCode)&gt;,
 }
@@ -571,9 +571,9 @@
 <span class="kw">impl </span>ChainExtensionMethod&lt;(), (), (), <span class="bool-val">false</span>&gt; {
     <span class="doccomment">/// Creates a new chain extension method instance.
     </span><span class="attr">#[inline]
-    </span><span class="kw">pub fn </span>build(func_id: u32) -&gt; <span class="self">Self </span>{
+    </span><span class="kw">pub fn </span>build(id: u32) -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{
-            func_id,
+            id,
             state: Default::default(),
         }
     }
@@ -595,7 +595,7 @@
         </span>I: scale::Encode,
     {
         ChainExtensionMethod {
-            func_id: <span class="self">self</span>.func_id,
+            id: <span class="self">self</span>.id,
             state: Default::default(),
         }
     }
@@ -619,7 +619,7 @@
         </span>O: scale::Decode,
     {
         ChainExtensionMethod {
-            func_id: <span class="self">self</span>.func_id,
+            id: <span class="self">self</span>.id,
             state: Default::default(),
         }
     }
@@ -642,7 +642,7 @@
         <span class="self">self</span>,
     ) -&gt; ChainExtensionMethod&lt;I, O, state::IgnoreErrorCode, IS_RESULT&gt; {
         ChainExtensionMethod {
-            func_id: <span class="self">self</span>.func_id,
+            id: <span class="self">self</span>.id,
             state: Default::default(),
         }
     }
@@ -661,7 +661,7 @@
         </span>ErrorCode: FromStatusCode,
     {
         ChainExtensionMethod {
-            func_id: <span class="self">self</span>.func_id,
+            id: <span class="self">self</span>.id,
             state: Default::default(),
         }
     }
@@ -752,7 +752,7 @@
                 <span class="kw">_</span>,
             &gt;(
                 instance,
-                <span class="self">self</span>.func_id,
+                <span class="self">self</span>.id,
                 input,
                 ErrorCode::from_status_code,
                 |<span class="kw-2">mut </span>output| scale::Decode::decode(<span class="kw-2">&amp;mut </span>output).map_err(Into::into),
@@ -821,7 +821,7 @@
                 <span class="kw">_</span>,
             &gt;(
                 instance,
-                <span class="self">self</span>.func_id,
+                <span class="self">self</span>.id,
                 input,
                 |_status_code| <span class="prelude-val">Ok</span>(()),
                 |<span class="kw-2">mut </span>output| scale::Decode::decode(<span class="kw-2">&amp;mut </span>output).map_err(Into::into),
@@ -882,7 +882,7 @@
         &lt;EnvInstance <span class="kw">as </span>OnInstance&gt;::on_instance(|instance| {
             EnvBackend::call_chain_extension::&lt;I, O, ErrorCode, ErrorCode, <span class="kw">_</span>, <span class="kw">_</span>&gt;(
                 instance,
-                <span class="self">self</span>.func_id,
+                <span class="self">self</span>.id,
                 input,
                 ErrorCode::from_status_code,
                 |<span class="kw-2">mut </span>output| {
@@ -932,7 +932,7 @@
         &lt;EnvInstance <span class="kw">as </span>OnInstance&gt;::on_instance(|instance| {
             EnvBackend::call_chain_extension::&lt;I, O, (), (), <span class="kw">_</span>, <span class="kw">_</span>&gt;(
                 instance,
-                <span class="self">self</span>.func_id,
+                <span class="self">self</span>.id,
                 input,
                 |_status_code| <span class="prelude-val">Ok</span>(()),
                 |<span class="kw-2">mut </span>output| {

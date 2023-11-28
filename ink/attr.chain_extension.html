@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Defines the interface for a chain extension."><title>chain_extension in ink - Rust</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../static.files/rustdoc-cb6f1f67f1bcd037.css" id="mainThemeStyle"><meta name="rustdoc-vars" data-root-path="../" data-static-root-path="../static.files/" data-current-crate="ink" data-themes="" data-resource-suffix="" data-rustdoc-version="1.73.0 (cc66ad468 2023-10-03)" data-channel="1.73.0" data-search-js="search-6dfdfced5eff6596.js" data-settings-js="settings-de11bff964e9d4e5.js" data-settings-css="settings-8c76f75bfb6bd192.css" data-theme-light-css="light-1596385f77d47ef2.css" data-theme-dark-css="dark-0a43001d3fc2282c.css" data-theme-ayu-css="ayu-fd19013d6ce078bf.css" ><script src="../static.files/storage-db41da1a38ea3cb8.js"></script><script defer src="sidebar-items.js"></script><script defer src="../static.files/main-0795b7d26be81095.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../static.files/light-1596385f77d47ef2.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../static.files/dark-0a43001d3fc2282c.css"><link rel="stylesheet" href="../static.files/noscript-cffde32267a19fd6.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc attr"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="logo-container" href="../ink/index.html"><img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></a><h2></h2></nav><nav class="sidebar"><a class="logo-container" href="../ink/index.html"><img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></a><div class="sidebar-elems"><h2><a href="index.html">In ink</a></h2></div></nav><main><div class="width-limiter"><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="main-heading"><h1>Attribute Macro <a href="index.html">ink</a>::<wbr><a class="attr" href="#">chain_extension</a><button id="copy-path" title="Copy item path to clipboard"><img src="../static.files/clipboard-7571035ce49a181d.svg" width="19" height="18" alt="Copy item path"></button></h1><span class="out-of-band"><a class="src" href="../src/ink_macro/lib.rs.html#1317">source</a> · <button id="toggle-all-docs" title="collapse all docs">[<span>&#x2212;</span>]</button></span></div><pre class="rust item-decl"><code>#[chain_extension]</code></pre><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Defines the interface for a chain extension.</p>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Defines the interface for a chain extension."><title>chain_extension in ink - Rust</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../static.files/rustdoc-cb6f1f67f1bcd037.css" id="mainThemeStyle"><meta name="rustdoc-vars" data-root-path="../" data-static-root-path="../static.files/" data-current-crate="ink" data-themes="" data-resource-suffix="" data-rustdoc-version="1.73.0 (cc66ad468 2023-10-03)" data-channel="1.73.0" data-search-js="search-6dfdfced5eff6596.js" data-settings-js="settings-de11bff964e9d4e5.js" data-settings-css="settings-8c76f75bfb6bd192.css" data-theme-light-css="light-1596385f77d47ef2.css" data-theme-dark-css="dark-0a43001d3fc2282c.css" data-theme-ayu-css="ayu-fd19013d6ce078bf.css" ><script src="../static.files/storage-db41da1a38ea3cb8.js"></script><script defer src="sidebar-items.js"></script><script defer src="../static.files/main-0795b7d26be81095.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../static.files/light-1596385f77d47ef2.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../static.files/dark-0a43001d3fc2282c.css"><link rel="stylesheet" href="../static.files/noscript-cffde32267a19fd6.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc attr"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="logo-container" href="../ink/index.html"><img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></a><h2></h2></nav><nav class="sidebar"><a class="logo-container" href="../ink/index.html"><img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></a><div class="sidebar-elems"><h2><a href="index.html">In ink</a></h2></div></nav><main><div class="width-limiter"><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="main-heading"><h1>Attribute Macro <a href="index.html">ink</a>::<wbr><a class="attr" href="#">chain_extension</a><button id="copy-path" title="Copy item path to clipboard"><img src="../static.files/clipboard-7571035ce49a181d.svg" width="19" height="18" alt="Copy item path"></button></h1><span class="out-of-band"><a class="src" href="../src/ink_macro/lib.rs.html#1327">source</a> · <button id="toggle-all-docs" title="collapse all docs">[<span>&#x2212;</span>]</button></span></div><pre class="rust item-decl"><code>#[chain_extension]</code></pre><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Defines the interface for a chain extension.</p>
 <h2 id="structure"><a href="#structure">Structure</a></h2>
 <p>The interface consists of an error code that indicates lightweight errors
 as well as the definition of some chain extension methods.</p>
@@ -15,23 +15,33 @@ by the author of the chain extension in a separate crate.
 ink! smart contracts using this chain extension simply depend on this crate
 and use its associated environment definition in order to make use of
 the methods provided by the chain extension.</p>
-<h2 id="attributes"><a href="#attributes">Attributes</a></h2>
+<h2 id="macro-attributes"><a href="#macro-attributes">Macro Attributes</a></h2>
+<p>The macro supports only one required argument:</p>
+<ul>
+<li>
+<p><code>extension = N: u16</code>:</p>
+<p>The runtime may have several chain extensions at the same time. The <code>extension</code>
+identifier points to the corresponding chain extension in the runtime.
+The value should be the same as during the definition of the chain extension.</p>
+</li>
+</ul>
+<h2 id="method-attributes"><a href="#method-attributes">Method Attributes</a></h2>
 <p>There are three different attributes with which the chain extension methods
 can be flagged:</p>
 <div><table><thead><tr><th style="text-align: left">Attribute</th><th style="text-align: center">Required</th><th style="text-align: left">Default Value</th><th style="text-align: center">Description</th></tr></thead><tbody>
-<tr><td style="text-align: left"><code>ink(extension = N: u32)</code></td><td style="text-align: center">Yes</td><td style="text-align: left">-</td><td style="text-align: center">Determines the unique function ID of the chain</td></tr>
-<tr><td style="text-align: left">extension method.</td><td style="text-align: center"></td><td style="text-align: left"><code>ink(handle_status = flag: bool)</code></td><td style="text-align: center">Optional</td></tr>
+<tr><td style="text-align: left"><code>ink(function = N: u16)</code></td><td style="text-align: center">Yes</td><td style="text-align: left">-</td><td style="text-align: center">Determines the unique function ID within the</td></tr>
+<tr><td style="text-align: left">chain extension.</td><td style="text-align: center"></td><td style="text-align: left"><code>ink(handle_status = flag: bool)</code></td><td style="text-align: center">Optional</td></tr>
 <tr><td style="text-align: left">that the returned status code of the chain extension method always indicates success</td><td style="text-align: center"></td><td style="text-align: left"></td><td style="text-align: center"></td></tr>
 <tr><td style="text-align: left">and therefore always loads and decodes the output buffer of the call.</td><td style="text-align: center"></td><td style="text-align: left"></td><td style="text-align: center"></td></tr>
 </tbody></table>
 </div>
 <p>As with all ink! attributes multiple of them can either appear in a contiguous list:</p>
 
-<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="attr">#[ink(extension = <span class="number">5</span>, handle_status = <span class="bool-val">false</span>)]
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="attr">#[ink(function = <span class="number">5</span>, handle_status = <span class="bool-val">false</span>)]
 </span><span class="kw">fn </span>key_access_for_account(key: <span class="kw-2">&amp;</span>[u8], account: <span class="kw-2">&amp;</span>[u8]) -&gt; Access;</code></pre></div>
 <p>…or as multiple stand alone ink! attributes applied to the same item:</p>
 
-<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="attr">#[ink(extension = <span class="number">5</span>)]
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="attr">#[ink(function = <span class="number">5</span>)]
 #[ink(handle_status = <span class="bool-val">false</span>)]
 </span><span class="kw">fn </span>key_access_for_account(key: <span class="kw-2">&amp;</span>[u8], account: <span class="kw-2">&amp;</span>[u8]) -&gt; Access;</code></pre></div>
 <h3 id="details-handle_status"><a href="#details-handle_status">Details: <code>handle_status</code></a></h3>
@@ -76,7 +86,7 @@ semantics:</p>
 </div><h2 id="error-code"><a href="#error-code">Error Code</a></h2>
 <p>Every chain extension defines exactly one <code>ErrorCode</code> using the following syntax:</p>
 
-<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="attr">#[ink::chain_extension]
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="attr">#[ink::chain_extension(extension = <span class="number">0</span>)]
 </span><span class="kw">pub trait </span>MyChainExtension {
     <span class="kw">type </span>ErrorCode = MyErrorCode;
 
@@ -92,7 +102,7 @@ However, chain extension authors may use whatever suits their needs.</p>
 write from and to the runtime storage using access privileges:</p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="doccomment">/// Custom chain extension to read to and write from the runtime.
-</span><span class="attr">#[ink::chain_extension]
+</span><span class="attr">#[ink::chain_extension(extension = <span class="number">0</span>)]
 </span><span class="kw">pub trait </span>RuntimeReadWrite {
     <span class="kw">type </span>ErrorCode = ReadWriteErrorCode;
 
@@ -101,7 +111,7 @@ write from and to the runtime storage using access privileges:</p>
     /// # Note
     ///
     /// Actually returns a value of type `Result&lt;Vec&lt;u8&gt;, Self::ErrorCode&gt;`.
-    </span><span class="attr">#[ink(extension = <span class="number">1</span>)]
+    </span><span class="attr">#[ink(function = <span class="number">1</span>)]
     </span><span class="kw">fn </span>read(key: <span class="kw-2">&amp;</span>[u8]) -&gt; Vec&lt;u8&gt;;
 
     <span class="doccomment">/// Reads from runtime storage.
@@ -118,7 +128,7 @@ write from and to the runtime storage using access privileges:</p>
     ///
     /// This requires `ReadWriteError` to implement `From&lt;ReadWriteErrorCode&gt;`
     /// and may potentially return any `Self::ErrorCode` through its return value.
-    </span><span class="attr">#[ink(extension = <span class="number">2</span>)]
+    </span><span class="attr">#[ink(function = <span class="number">2</span>)]
     </span><span class="kw">fn </span>read_small(key: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;(u32, [u8; <span class="number">32</span>]), ReadWriteError&gt;;
 
     <span class="doccomment">/// Writes into runtime storage.
@@ -126,7 +136,7 @@ write from and to the runtime storage using access privileges:</p>
     /// # Note
     ///
     /// Actually returns a value of type `Result&lt;(), Self::ErrorCode&gt;`.
-    </span><span class="attr">#[ink(extension = <span class="number">3</span>)]
+    </span><span class="attr">#[ink(function = <span class="number">3</span>)]
     </span><span class="kw">fn </span>write(key: <span class="kw-2">&amp;</span>[u8], value: <span class="kw-2">&amp;</span>[u8]);
 
     <span class="doccomment">/// Returns the access allowed for the key for the caller.
@@ -134,7 +144,7 @@ write from and to the runtime storage using access privileges:</p>
     /// # Note
     ///
     /// Assumes to never fail the call and therefore always returns `Option&lt;Access&gt;`.
-    </span><span class="attr">#[ink(extension = <span class="number">4</span>, handle_status = <span class="bool-val">false</span>)]
+    </span><span class="attr">#[ink(function = <span class="number">4</span>, handle_status = <span class="bool-val">false</span>)]
     </span><span class="kw">fn </span>access(key: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Option</span>&lt;Access&gt;;
 
     <span class="doccomment">/// Unlocks previously acquired permission to access key.
@@ -147,7 +157,7 @@ write from and to the runtime storage using access privileges:</p>
     ///
     /// Assumes the call to never fail and therefore does _NOT_ require `UnlockAccessError`
     /// to implement `From&lt;Self::ErrorCode&gt;` as in the `read_small` method above.
-    </span><span class="attr">#[ink(extension = <span class="number">5</span>, handle_status = <span class="bool-val">false</span>)]
+    </span><span class="attr">#[ink(function = <span class="number">5</span>, handle_status = <span class="bool-val">false</span>)]
     </span><span class="kw">fn </span>unlock_access(key: <span class="kw-2">&amp;</span>[u8], access: Access) -&gt; <span class="prelude-ty">Result</span>&lt;(), UnlockAccessError&gt;;
 }</code></pre></div>
 <p>All the error types and other utility types used in the chain extension definition

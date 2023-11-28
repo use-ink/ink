@@ -197,7 +197,7 @@
         <span class="kw">let </span>span = method.span();
         <span class="kw">let </span>attrs = method.attrs();
         <span class="kw">let </span>ident = method.ident();
-        <span class="kw">let </span>func_id = method.id().into_u32();
+        <span class="kw">let </span>id = method.id().into_u32();
         <span class="kw">let </span>sig = method.sig();
         <span class="kw">let </span>inputs = <span class="kw-2">&amp;</span>sig.inputs;
         <span class="kw">let </span>input_bindings = method.inputs().map(|pat_type| <span class="kw-2">&amp;</span>pat_type.pat);
@@ -271,7 +271,7 @@
                 <span class="kw">where
                     </span>#where_output_impls_from_error_code
                 {
-                    ::ink::env::chain_extension::ChainExtensionMethod::build(#func_id)
+                    ::ink::env::chain_extension::ChainExtensionMethod::build(#id)
                     .input::&lt;#compound_input_type&gt;()
                     .output::&lt;#output_type, {<span class="macro">::ink::is_result_type!</span>(#output_type)}&gt;()
                     #error_code_handling

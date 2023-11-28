@@ -1592,6 +1592,16 @@
 <a href="#1592" id="1592">1592</a>
 <a href="#1593" id="1593">1593</a>
 <a href="#1594" id="1594">1594</a>
+<a href="#1595" id="1595">1595</a>
+<a href="#1596" id="1596">1596</a>
+<a href="#1597" id="1597">1597</a>
+<a href="#1598" id="1598">1598</a>
+<a href="#1599" id="1599">1599</a>
+<a href="#1600" id="1600">1600</a>
+<a href="#1601" id="1601">1601</a>
+<a href="#1602" id="1602">1602</a>
+<a href="#1603" id="1603">1603</a>
+<a href="#1604" id="1604">1604</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -2500,35 +2510,45 @@
 /// and use its associated environment definition in order to make use of
 /// the methods provided by the chain extension.
 ///
-/// # Attributes
+/// # Macro Attributes
+///
+/// The macro supports only one required argument:
+///
+/// - `extension = N: u16`:
+///
+///     The runtime may have several chain extensions at the same time. The `extension`
+///     identifier points to the corresponding chain extension in the runtime.
+///     The value should be the same as during the definition of the chain extension.
+///
+/// # Method Attributes
 ///
 /// There are three different attributes with which the chain extension methods
 /// can be flagged:
 ///
 /// | Attribute | Required | Default Value | Description |
 /// |:----------|:--------:|:--------------|:-----------:|
-/// | `ink(extension = N: u32)` | Yes | - | Determines the unique function ID of the chain
-/// extension method. | | `ink(handle_status = flag: bool)` | Optional | `true` | Assumes
+/// | `ink(function = N: u16)` | Yes | - | Determines the unique function ID within the
+/// chain extension. | | `ink(handle_status = flag: bool)` | Optional | `true` | Assumes
 /// that the returned status code of the chain extension method always indicates success
 /// and therefore always loads and decodes the output buffer of the call. |
 ///
 /// As with all ink! attributes multiple of them can either appear in a contiguous list:
 /// ```
 /// # type Access = i32;
-/// # #[ink::chain_extension]
+/// # #[ink::chain_extension(extension = 1)]
 /// # pub trait MyChainExtension {
 /// #     type ErrorCode = i32;
-/// #[ink(extension = 5, handle_status = false)]
+/// #[ink(function = 5, handle_status = false)]
 /// fn key_access_for_account(key: &amp;[u8], account: &amp;[u8]) -&gt; Access;
 /// # }
 /// ```
 /// …or as multiple stand alone ink! attributes applied to the same item:
 /// ```
 /// # type Access = i32;
-/// # #[ink::chain_extension]
+/// # #[ink::chain_extension(extension = 1)]
 /// # pub trait MyChainExtension {
 /// #     type ErrorCode = i32;
-/// #[ink(extension = 5)]
+/// #[ink(function = 5)]
 /// #[ink(handle_status = false)]
 /// fn key_access_for_account(key: &amp;[u8], account: &amp;[u8]) -&gt; Access;
 /// # }
@@ -2590,7 +2610,7 @@
 /// Every chain extension defines exactly one `ErrorCode` using the following syntax:
 ///
 /// ```
-/// #[ink::chain_extension]
+/// #[ink::chain_extension(extension = 0)]
 /// pub trait MyChainExtension {
 ///     type ErrorCode = MyErrorCode;
 ///
@@ -2613,7 +2633,7 @@
 ///
 /// ```
 /// /// Custom chain extension to read to and write from the runtime.
-/// #[ink::chain_extension]
+/// #[ink::chain_extension(extension = 0)]
 /// pub trait RuntimeReadWrite {
 ///     type ErrorCode = ReadWriteErrorCode;
 ///
@@ -2622,7 +2642,7 @@
 ///     /// # Note
 ///     ///
 ///     /// Actually returns a value of type `Result&lt;Vec&lt;u8&gt;, Self::ErrorCode&gt;`.
-///     #[ink(extension = 1)]
+///     #[ink(function = 1)]
 ///     fn read(key: &amp;[u8]) -&gt; Vec&lt;u8&gt;;
 ///
 ///     /// Reads from runtime storage.
@@ -2639,7 +2659,7 @@
 ///     ///
 ///     /// This requires `ReadWriteError` to implement `From&lt;ReadWriteErrorCode&gt;`
 ///     /// and may potentially return any `Self::ErrorCode` through its return value.
-///     #[ink(extension = 2)]
+///     #[ink(function = 2)]
 ///     fn read_small(key: &amp;[u8]) -&gt; Result&lt;(u32, [u8; 32]), ReadWriteError&gt;;
 ///
 ///     /// Writes into runtime storage.
@@ -2647,7 +2667,7 @@
 ///     /// # Note
 ///     ///
 ///     /// Actually returns a value of type `Result&lt;(), Self::ErrorCode&gt;`.
-///     #[ink(extension = 3)]
+///     #[ink(function = 3)]
 ///     fn write(key: &amp;[u8], value: &amp;[u8]);
 ///
 ///     /// Returns the access allowed for the key for the caller.
@@ -2655,7 +2675,7 @@
 ///     /// # Note
 ///     ///
 ///     /// Assumes to never fail the call and therefore always returns `Option&lt;Access&gt;`.
-///     #[ink(extension = 4, handle_status = false)]
+///     #[ink(function = 4, handle_status = false)]
 ///     fn access(key: &amp;[u8]) -&gt; Option&lt;Access&gt;;
 ///
 ///     /// Unlocks previously acquired permission to access key.
@@ -2668,7 +2688,7 @@
 ///     ///
 ///     /// Assumes the call to never fail and therefore does _NOT_ require `UnlockAccessError`
 ///     /// to implement `From&lt;Self::ErrorCode&gt;` as in the `read_small` method above.
-///     #[ink(extension = 5, handle_status = false)]
+///     #[ink(function = 5, handle_status = false)]
 ///     fn unlock_access(key: &amp;[u8], access: Access) -&gt; Result&lt;(), UnlockAccessError&gt;;
 /// }
 /// # #[derive(scale::Encode, scale::Decode, scale_info::TypeInfo)]
@@ -2821,18 +2841,18 @@
 ///         }
 ///     }
 /// # /// Custom chain extension to read to and write from the runtime.
-/// # #[ink::chain_extension]
+/// # #[ink::chain_extension(extension = 13)]
 /// # pub trait RuntimeReadWrite {
 /// #     type ErrorCode = ReadWriteErrorCode;
-/// #     #[ink(extension = 1)]
+/// #     #[ink(function = 1)]
 /// #     fn read(key: &amp;[u8]) -&gt; Vec&lt;u8&gt;;
-/// #     #[ink(extension = 2)]
+/// #     #[ink(function = 2)]
 /// #     fn read_small(key: &amp;[u8]) -&gt; Result&lt;(u32, [u8; 32]), ReadWriteError&gt;;
-/// #     #[ink(extension = 3)]
+/// #     #[ink(function = 3)]
 /// #     fn write(key: &amp;[u8], value: &amp;[u8]);
-/// #     #[ink(extension = 4, handle_status = false)]
+/// #     #[ink(function = 4, handle_status = false)]
 /// #     fn access(key: &amp;[u8]) -&gt; Option&lt;Access&gt;;
-/// #     #[ink(extension = 5, handle_status = false)]
+/// #     #[ink(function = 5, handle_status = false)]
 /// #     fn unlock_access(key: &amp;[u8], access: Access) -&gt; Result&lt;(), UnlockAccessError&gt;;
 /// # }
 /// # #[derive(scale::Encode, scale::Decode, scale_info::TypeInfo)]

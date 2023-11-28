@@ -864,7 +864,7 @@
     /// drive the decoding and error management process from the outside.
     </span><span class="kw">fn </span>call_chain_extension&lt;I, T, E, ErrorCode, F, D&gt;(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
-        func_id: u32,
+        id: u32,
         input: <span class="kw-2">&amp;</span>I,
         status_to_result: F,
         decode_to_result: D,
