@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- Allow mutable parameters in messages - [#2004](https://github.com/paritytech/ink/pull/2004)
 - [E2E] Allow testing with live-chain state - [#1949](https://github.com/paritytech/ink/pull/1949)
 - [E2E] Call builders and extra gas margin option - [#1917](https://github.com/paritytech/ink/pull/1917)
 - Linter: `storage_never_freed` lint - [#1932](https://github.com/paritytech/ink/pull/1932)
