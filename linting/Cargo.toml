@@ -63,6 +63,9 @@ path = "ui/pass/strict_balance_equality.rs"
 [[example]]
 name = "strict_balance_equality_fail"
 path = "ui/fail/strict_balance_equality.rs"
+[[example]]
+name = "no_main_pass"
+path = "ui/pass/no_main.rs"
 
 [package.metadata.rust-analyzer]
 rustc_private = true
