@@ -1,3 +1,5 @@
+#![cfg_attr(not(feature = "std"), no_main)]
+
 #![cfg_attr(dylint_lib = "ink_linting", deny(storage_never_freed))]
 pub type MapAlias<K, V> = ink::storage::Mapping<K, V>;
 
