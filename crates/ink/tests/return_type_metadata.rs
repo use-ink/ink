@@ -106,7 +106,7 @@ mod tests {
         let message = metadata.spec().messages().iter().next().unwrap();
         assert_eq!("TraitDefinition::get_value", message.label());
 
-        let type_spec = message.return_type().opt_type().unwrap();
+        let type_spec = message.return_type().ret_type();
         let ty = resolve_type(&metadata, type_spec.ty().id);
         let (ok_ty, _) = extract_result(&metadata, ty);
 
@@ -119,7 +119,7 @@ mod tests {
         let constructor = metadata.spec().constructors().iter().next().unwrap();
 
         assert_eq!("try_new", constructor.label());
-        let type_spec = constructor.return_type().opt_type().unwrap();
+        let type_spec = constructor.return_type().ret_type();
         assert_eq!(
             "ink_primitives::ConstructorResult",
             format!("{}", type_spec.display_name())

@@ -30,15 +30,19 @@ use crate::{
     ChainBackend,
     ContractsBackend,
     E2EBackend,
+    InstantiateDryRunResult,
     UploadResult,
 };
 use drink::{
-    chain_api::{
-        ChainApi,
-        RuntimeCall,
+    frame_support::traits::fungible::Inspect,
+    pallet_balances,
+    pallet_contracts,
+    runtime::{
+        AccountIdFor,
+        Runtime as RuntimeT,
     },
-    contract_api::ContractApi,
-    runtime::Runtime as RuntimeT,
+    BalanceOf,
+    RuntimeCall,
     Sandbox,
     Weight,
     DEFAULT_GAS_LIMIT,
@@ -69,6 +73,9 @@ use subxt::{
     tx::TxPayload,
 };
 use subxt_signer::sr25519::Keypair;
+
+type ContractsBalanceOf<R> =
+    <<R as pallet_contracts::Config>::Currency as Inspect<AccountIdFor<R>>>::Balance;
 pub struct Client<AccountId, Hash, Runtime: RuntimeT> {
     sandbox: Sandbox<Runtime>,
     contracts: ContractsRegistry,
@@ -82,12 +89,11 @@ unsafe impl<AccountId, Hash, Runtime: RuntimeT> Send
     for Client<AccountId, Hash, Runtime>
 {
 }
-
-type RuntimeAccountId<R> = <R as drink::runtime::frame_system::Config>::AccountId;
-
-impl<AccountId, Hash, Runtime: RuntimeT> Client<AccountId, Hash, Runtime>
+impl<AccountId, Hash, Runtime> Client<AccountId, Hash, Runtime>
 where
-    RuntimeAccountId<Runtime>: From<[u8; 32]>,
+    Runtime: RuntimeT + pallet_balances::Config + pallet_contracts::Config,
+    AccountIdFor<Runtime>: From<[u8; 32]>,
+    BalanceOf<Runtime>: From<u128>,
 {
     pub fn new<P: Into<PathBuf>>(contracts: impl IntoIterator<Item = P>) -> Self {
         let mut sandbox = Sandbox::new().expect("Failed to initialize Drink! sandbox");
@@ -116,19 +122,22 @@ where
         .map(|kp| kp.public_key().0)
         .map(From::from);
         for account in accounts.into_iter() {
-            sandbox.add_tokens(account, TOKENS);
+            sandbox
+                .mint_into(account, TOKENS.into())
+                .unwrap_or_else(|_| panic!("Failed to mint {} tokens", TOKENS));
         }
     }
 }
 
 #[async_trait]
-impl<AccountId: AsRef<[u8; 32]> + Send, Hash, Runtime: RuntimeT> ChainBackend
+impl<AccountId: AsRef<[u8; 32]> + Send, Hash, Runtime> ChainBackend
     for Client<AccountId, Hash, Runtime>
 where
-    RuntimeAccountId<Runtime>: From<[u8; 32]>,
+    Runtime: RuntimeT + pallet_balances::Config,
+    AccountIdFor<Runtime>: From<[u8; 32]>,
 {
     type AccountId = AccountId;
-    type Balance = u128;
+    type Balance = BalanceOf<Runtime>;
     type Error = DrinkErr;
     type EventLog = ();
 
@@ -139,17 +148,19 @@ where
     ) -> Keypair {
         let (pair, seed) = Pair::generate();
 
-        self.sandbox.add_tokens(pair.public().0.into(), amount);
+        self.sandbox
+            .mint_into(pair.public().0.into(), amount)
+            .expect("Failed to mint tokens");
 
         Keypair::from_seed(seed).expect("Failed to create keypair")
     }
 
-    async fn balance(
+    async fn free_balance(
         &mut self,
         account: Self::AccountId,
     ) -> Result<Self::Balance, Self::Error> {
-        let account = RuntimeAccountId::<Runtime>::from(*account.as_ref());
-        Ok(self.sandbox.balance(&account))
+        let account = AccountIdFor::<Runtime>::from(*account.as_ref());
+        Ok(self.sandbox.free_balance(&account))
     }
 
     async fn runtime_call<'a>(
@@ -198,11 +209,16 @@ where
 impl<
         AccountId: Clone + Send + Sync + From<[u8; 32]> + AsRef<[u8; 32]>,
         Hash: Copy + From<[u8; 32]>,
-        Runtime: RuntimeT,
-        E: Environment<AccountId = AccountId, Balance = u128, Hash = Hash> + 'static,
+        Runtime: RuntimeT + pallet_balances::Config + pallet_contracts::Config,
+        E: Environment<
+                AccountId = AccountId,
+                Balance = ContractsBalanceOf<Runtime>,
+                Hash = Hash,
+            > + 'static,
     > BuilderClient<E> for Client<AccountId, Hash, Runtime>
 where
-    RuntimeAccountId<Runtime>: From<[u8; 32]> + AsRef<[u8; 32]>,
+    AccountIdFor<Runtime>: From<[u8; 32]> + AsRef<[u8; 32]>,
+    ContractsBalanceOf<Runtime>: Send + Sync,
 {
     async fn bare_instantiate<Contract: Clone, Args: Send + Sync + Encode + Clone, R>(
         &mut self,
@@ -248,7 +264,7 @@ where
         constructor: &mut CreateBuilderPartial<E, Contract, Args, R>,
         value: E::Balance,
         storage_deposit_limit: Option<E::Balance>,
-    ) -> ContractInstantiateResult<E::AccountId, E::Balance, Self::EventLog> {
+    ) -> Result<InstantiateDryRunResult<E>, Self::Error> {
         let code = self.contracts.load_code(contract_name);
         let data = constructor_exec_input(constructor.clone());
         let result = self.sandbox.dry_run(|r| {
@@ -271,7 +287,7 @@ where
         };
         let account_id = AccountId::from(account_id_raw);
 
-        ContractInstantiateResult {
+        let result = ContractInstantiateResult {
             gas_consumed: result.gas_consumed,
             gas_required: result.gas_required,
             storage_deposit: result.storage_deposit,
@@ -283,7 +299,8 @@ where
                 }
             }),
             events: None,
-        }
+        };
+        Ok(result.into())
     }
 
     async fn bare_upload(
@@ -298,6 +315,7 @@ where
             code,
             keypair_to_account(caller),
             storage_deposit_limit,
+            pallet_contracts::Determinism::Enforced,
         ) {
             Ok(result) => result,
             Err(err) => {
@@ -338,7 +356,7 @@ where
         let account_id = (*account_id.as_ref()).into();
 
         self.bare_call_dry_run(caller, message, value, storage_deposit_limit)
-            .await;
+            .await?;
 
         if self
             .sandbox
@@ -349,6 +367,7 @@ where
                 keypair_to_account(caller),
                 DEFAULT_GAS_LIMIT,
                 storage_deposit_limit,
+                pallet_contracts::Determinism::Enforced,
             )
             .result
             .is_err()
@@ -365,7 +384,7 @@ where
         message: &CallBuilderFinal<E, Args, RetType>,
         value: E::Balance,
         storage_deposit_limit: Option<E::Balance>,
-    ) -> CallDryRunResult<E, RetType>
+    ) -> Result<CallDryRunResult<E, RetType>, Self::Error>
     where
         CallBuilderFinal<E, Args, RetType>: Clone,
     {
@@ -381,9 +400,10 @@ where
                 keypair_to_account(caller),
                 DEFAULT_GAS_LIMIT,
                 storage_deposit_limit,
+                pallet_contracts::Determinism::Enforced,
             )
         });
-        CallDryRunResult {
+        Ok(CallDryRunResult {
             exec_result: ContractResult {
                 gas_consumed: result.gas_consumed,
                 gas_required: result.gas_required,
@@ -393,18 +413,23 @@ where
                 events: None,
             },
             _marker: Default::default(),
-        }
+        })
     }
 }
 
 impl<
         AccountId: Clone + Send + Sync + From<[u8; 32]> + AsRef<[u8; 32]>,
         Hash: Copy + From<[u8; 32]>,
-        Runtime: RuntimeT,
-        E: Environment<AccountId = AccountId, Balance = u128, Hash = Hash> + 'static,
+        Runtime: RuntimeT + pallet_balances::Config + pallet_contracts::Config,
+        E: Environment<
+                AccountId = AccountId,
+                Balance = ContractsBalanceOf<Runtime>,
+                Hash = Hash,
+            > + 'static,
     > E2EBackend<E> for Client<AccountId, Hash, Runtime>
 where
-    RuntimeAccountId<Runtime>: From<[u8; 32]> + AsRef<[u8; 32]>,
+    AccountIdFor<Runtime>: From<[u8; 32]> + AsRef<[u8; 32]>,
+    ContractsBalanceOf<Runtime>: Send + Sync,
 {
 }
 
@@ -416,11 +441,15 @@ fn keypair_to_account<AccountId: From<[u8; 32]>>(keypair: &Keypair) -> AccountId
 impl<
         AccountId: Clone + Send + Sync + From<[u8; 32]> + AsRef<[u8; 32]>,
         Hash: Copy + From<[u8; 32]>,
-        Runtime: RuntimeT,
-        E: Environment<AccountId = AccountId, Balance = u128, Hash = Hash> + 'static,
+        Runtime: RuntimeT + pallet_balances::Config + pallet_contracts::Config,
+        E: Environment<
+                AccountId = AccountId,
+                Balance = ContractsBalanceOf<Runtime>,
+                Hash = Hash,
+            > + 'static,
     > ContractsBackend<E> for Client<AccountId, Hash, Runtime>
 where
-    RuntimeAccountId<Runtime>: From<[u8; 32]> + AsRef<[u8; 32]>,
+    AccountIdFor<Runtime>: From<[u8; 32]> + AsRef<[u8; 32]>,
 {
     type Error = DrinkErr;
     type EventLog = ();

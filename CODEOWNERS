@@ -21,5 +21,6 @@
 
 # CI
 /.github/workflows/ @paritytech/ci @cmichi @ascjones @SkymanOne
-/scripts/ci/ @paritytech/ci @cmichi @ascjones @SkymanOne
-/.gitlab-ci.yml @paritytech/ci @cmichi @ascjones @SkymanOne
+/.github/scripts/ @paritytech/ci @cmichi @ascjones @SkymanOne
+/.github/download-artifact/ @paritytech/ci @cmichi @ascjones @SkymanOne
+/.github/rust-info/ @paritytech/ci @cmichi @ascjones @SkymanOne

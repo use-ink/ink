@@ -1,0 +1,74 @@
+name: continuous-intergration/measurements
+
+on:
+  workflow_call:
+
+env:
+  CARGO_TARGET_DIR:                /ci-cache/${{ github.repository }}/targets/${{ github.ref_name }}/${{ github.job }}
+
+jobs:
+  contract-sizes:
+    if: ${{ github.event_name == 'pull_request' }}
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+    container:
+      image: paritytech/ci-unified:bullseye-1.73.0
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Cache
+        uses: Swatinem/rust-cache@v2
+        with:
+          cache-directories: ${{ env.CARGO_TARGET_DIR }}
+
+      - name: Rust Info
+        uses: ./.github/rust-info
+
+      - name: Measure Contract Sizes
+        env:
+          PR_NUMBER:               ${{ github.event.number }}
+        run: |
+          # Variables
+          MEASUREMENTS_DIR="${GITHUB_WORKSPACE}/../ink-ci-measurements"
+          SCRIPTS_DIR="${GITHUB_WORKSPACE}/scripts"
+          ARTIFACTS_DIR="${GITHUB_WORKSPACE}/artifacts"
+          PR_CONTRACT_SIZES="${MEASUREMENTS_DIR}/pull_request_contract_sizes"
+          UPSTREAM_BRANCH="master"
+          UPSTREAM_CONTRACT_SIZES="${MEASUREMENTS_DIR}/${UPSTREAM_BRANCH}_contract_sizes"
+          UPSTREAM_REPO="https://github.com/paritytech/ink.git"
+          UPSTREAM_DIR="${MEASUREMENTS_DIR}/ink-${UPSTREAM_BRANCH}"
+          CONTRACT_SIZES_DIFF="${MEASUREMENTS_DIR}/contract_sizes_diff.md"
+
+          # Measure contract sizes for the current branch
+          mkdir ${MEASUREMENTS_DIR}
+          ${SCRIPTS_DIR}/for_all_contracts_exec.sh --path integration-tests --quiet -- ${SCRIPTS_DIR}/contract_size.sh {} > ${PR_CONTRACT_SIZES}
+          sed -ie 's/^integration-tests\///g' ${PR_CONTRACT_SIZES}
+          # Measure contract sizes for the upstream branch
+          git clone --verbose --depth 1 --branch ${UPSTREAM_BRANCH} ${UPSTREAM_REPO} ${UPSTREAM_DIR}
+          pushd ${UPSTREAM_DIR}
+          ${SCRIPTS_DIR}/for_all_contracts_exec.sh --path integration-tests --quiet -- ${SCRIPTS_DIR}/contract_size.sh {} > ${UPSTREAM_CONTRACT_SIZES}
+          sed -ie 's/^integration-tests\///g' ${UPSTREAM_CONTRACT_SIZES}
+          popd
+
+          # Build the comparison table
+          ${SCRIPTS_DIR}/contract_sizes_diff.sh ${UPSTREAM_CONTRACT_SIZES} ${PR_CONTRACT_SIZES} > ${CONTRACT_SIZES_DIFF}
+          cat ${CONTRACT_SIZES_DIFF}
+
+          # Create job artifact
+          mkdir ${ARTIFACTS_DIR}
+          mv ${CONTRACT_SIZES_DIFF} ${ARTIFACTS_DIR}/
+          CARGO_CONTRACT_VERSION=$(cargo-contract --version | egrep --only-matching "cargo-contract.* .*-x86" | sed -s 's/-x86//')
+          echo "CARGO_CONTRACT_VERSION=\"${CARGO_CONTRACT_VERSION}\"" > ${ARTIFACTS_DIR}/context.out
+          echo "PR_NUMBER=\"${PR_NUMBER}\"" >> ${ARTIFACTS_DIR}/context.out
+          rm -rf ${MEASUREMENTS_DIR}
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: ${{ github.job }}-data
+          path: ./artifacts
+          retention-days: 1

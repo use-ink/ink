@@ -1,0 +1,48 @@
+# The workflow has write access, so it needs to be isolated for security reasons from pull request-based workflows,
+# which may be triggered from forked repositories.
+
+name: continuous-intergration/submit-contract-sizes
+
+on:
+  workflow_run:
+    workflows:
+      - continuous-integration
+    types:
+      - completed
+
+jobs:
+  submit-contract-sizes:
+    permissions:
+      pull-requests: write
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    if: >
+      github.event.workflow_run.event == 'pull_request' &&
+        github.event.workflow_run.conclusion == 'success'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 100
+
+      - name: Download Contract Sizes
+        uses: ./.github/download-artifact
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ARTIFACT_NAME: contract-sizes-data
+
+      - name: Submit Comment
+        env:
+          GITHUB_PR_TOKEN:         ${{ secrets.github_token }}
+          GITHUB_PR_WORKFLOW_ID:   ${{ github.event.workflow_run.id }}
+        run: |
+          # context.out is considered as an untrusted file
+          PR_NUMBER=$(grep -oE 'PR_NUMBER="[^"]+"' context.out | awk -F '"' '{print $2}')
+          CARGO_CONTRACT_VERSION=$(grep -oE 'CARGO_CONTRACT_VERSION="[^"]+"' context.out | awk -F '"' '{print $2}')
+          PR_COMMENTS_URL="${GITHUB_API_URL}/repos/${GITHUB_REPOSITORY}/issues/${PR_NUMBER}/comments"
+          WORKFLOW_URL="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_PR_WORKFLOW_ID}"
+
+          # Submit the comparison table as a comment to the PR
+          echo "Submitting contract sizes diff to ${PR_COMMENTS_URL}"
+          GITHUB_PR_TOKEN=${GITHUB_PR_TOKEN} .github/scripts/contract_sizes_submit.sh ${PR_COMMENTS_URL} ${WORKFLOW_URL} ${CARGO_CONTRACT_VERSION} < ./contract_sizes_diff.md
+
