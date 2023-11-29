@@ -225,9 +225,9 @@ where
         debug_assert!(cached_len.is_none() || self.len.get() == cached_len);
 
         cached_len.unwrap_or_else(|| {
-            let value = self.len.get().unwrap_or(u32::MIN);
-            self.len_cached.0.set(Some(value));
-            value
+            let value = self.len.get();
+            self.len_cached.0.set(value);
+            value.unwrap_or(u32::MIN)
         })
     }
 
@@ -701,6 +701,28 @@ mod tests {
             assert_eq!(array.len(), 2);
             assert_eq!(array.get(0), Some(u32::MIN));
             assert_eq!(array.get(1), Some(u32::MAX));
+
+            Ok(())
+        })
+        .unwrap()
+    }
+
+    #[test]
+    #[should_panic(
+        expected = "assertion failed: cached_len.is_none() || self.len.get() == cached_len"
+    )]
+    fn cached_len_works() {
+        ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
+            let array = StorageVec::<u32>::from_iter([u32::MIN, u32::MAX]);
+
+            assert_eq!(array.len(), 2);
+
+            // Force overwrite the length
+            Lazy::<u32>::new().set(&u32::MAX);
+
+            // This should fail the debug assert
+            let _ = array.len();
+
             Ok(())
         })
         .unwrap()
