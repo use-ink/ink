@@ -421,22 +421,6 @@ where
     }
 }
 
-impl<'a, V, KeyType> From<&'a [V]> for StorageVec<V, KeyType>
-where
-    V: Packed + EncodeLike<V>,
-    KeyType: StorageKey,
-{
-    fn from(value: &'a [V]) -> Self {
-        let mut result = StorageVec::<V, KeyType>::new();
-
-        for element in value {
-            result.push(element);
-        }
-
-        result
-    }
-}
-
 impl<V, KeyType> FromIterator<V> for StorageVec<V, KeyType>
 where
     V: Packed + EncodeLike<V>,
@@ -571,7 +555,7 @@ mod tests {
     #[test]
     fn clear_works() {
         ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
-            let mut array: StorageVec<u128> = (0..1024).collect::<Vec<_>>()[..].into();
+            let mut array: StorageVec<u128> = (0..1024).collect();
 
             array.clear();
 
@@ -601,7 +585,7 @@ mod tests {
     #[test]
     fn clear_at_works() {
         ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
-            let mut array: StorageVec<u64> = (0..1024).collect::<Vec<_>>()[..].into();
+            let mut array: StorageVec<u64> = (0..1024).collect();
 
             array.clear_at(0);
             assert_eq!(array.len(), 1024);
@@ -631,8 +615,7 @@ mod tests {
     #[test]
     fn try_get_works() {
         ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
-            let elems = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
-            let array = StorageVec::<u32>::from(&elems[..]);
+            let array: StorageVec<u32> = (0..10).collect();
 
             assert_eq!(array.try_get(0), Some(Ok(0)));
             assert_eq!(array.try_get(11), None);
@@ -645,8 +628,7 @@ mod tests {
     #[test]
     fn try_set_works() {
         ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
-            let elems = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
-            let mut array = StorageVec::<u32>::from(&elems[..]);
+            let mut array: StorageVec<u32> = (0..10).collect();
 
             assert_eq!(array.try_set(0, &1), Ok(Some(4)));
             assert_eq!(array.try_set(10, &1), Err(ink_env::Error::KeyNotFound));
@@ -662,8 +644,7 @@ mod tests {
     #[test]
     fn fallible_push_pop_peek_works() {
         ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
-            let elems = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
-            let mut array = StorageVec::<u32>::from(&elems[..]);
+            let mut array: StorageVec<u32> = (0..10).collect();
 
             assert_eq!(array.try_push(&10), Ok(()));
             assert_eq!(array.try_pop(), Some(Ok(10)));
@@ -681,8 +662,7 @@ mod tests {
     #[test]
     fn peek_works() {
         ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
-            let elems = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
-            let mut array = StorageVec::<u32>::from(&elems[..]);
+            let mut array: StorageVec<u32> = (0..10).collect();
 
             assert_eq!(array.peek(), Some(9));
 
