@@ -206,6 +206,8 @@ where
     /// trigger additional storage reads.
     #[inline]
     pub fn len(&self) -> u32 {
+        debug_assert!(self.len_cached.is_none() || self.len.get() == self.len_cached);
+
         self.len_cached
             .unwrap_or_else(|| self.len.get().unwrap_or(u32::MIN))
     }
@@ -444,6 +446,7 @@ where
         f.debug_struct("StorageVec")
             .field("key", &KeyType::KEY)
             .field("len", &self.len)
+            .field("len_cached", &self.len_cached)
             .finish()
     }
 }

@@ -40,7 +40,8 @@ mod lazyvec_integration_tests {
         /// Checks whether given account is allowed to vote and didn't already
         /// participate.
         fn is_eligible(&self, _voter: AccountId) -> bool {
-            // todo
+            // ToDo: In production, the contract would actually verify eligible voters.
+            // For example, a merkle proof could be an efficient way to do this.
             true
         }
 
