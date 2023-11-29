@@ -697,7 +697,7 @@ mod tests {
     #[test]
     fn from_iter_works() {
         ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
-            let array = StorageVec::<u32>::from_iter([u32::MIN, u32::MAX].into_iter());
+            let array = StorageVec::<u32>::from_iter([u32::MIN, u32::MAX]);
 
             assert_eq!(array.len(), 2);
             assert_eq!(array.get(0), Some(u32::MIN));
