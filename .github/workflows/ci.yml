@@ -351,8 +351,8 @@ jobs:
           # at the same time, hence we use this workaround.
           QUICKCHECK_TESTS:            0
         run: |
-          cargo test --verbose --all-features --no-fail-fast --workspace
-          cargo test --verbose --all-features --no-fail-fast --workspace --doc
+          cargo test --verbose --all-features --no-fail-fast --workspace --locked
+          cargo test --verbose --all-features --no-fail-fast --workspace --doc --locked
 
   docs:
     runs-on: ubuntu-latest
@@ -438,7 +438,7 @@ jobs:
           git config --global --add safe.directory '*'
           # RUSTFLAGS are the cause target cache can't be used here
           cargo build --verbose --all-features --workspace
-          cargo test --verbose --all-features --no-fail-fast --workspace
+          cargo test --verbose --all-features --no-fail-fast --workspace --locked
           # coverage with branches
           grcov . --binary-path ./target/debug/ --source-dir . --output-type lcov --llvm --branch \
             --ignore-not-existing --ignore "/*" --ignore "tests/*" --output-path lcov-w-branch.info
