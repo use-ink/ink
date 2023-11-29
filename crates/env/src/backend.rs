@@ -327,7 +327,7 @@ pub trait EnvBackend {
     /// drive the decoding and error management process from the outside.
     fn call_chain_extension<I, T, E, ErrorCode, F, D>(
         &mut self,
-        func_id: u32,
+        id: u32,
         input: &I,
         status_to_result: F,
         decode_to_result: D,

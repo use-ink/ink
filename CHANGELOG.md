@@ -7,18 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- Allow mutable parameters in messages - [#2004](https://github.com/paritytech/ink/pull/2004)
 - [E2E] Allow testing with live-chain state - [#1949](https://github.com/paritytech/ink/pull/1949)
 - [E2E] Call builders and extra gas margin option - [#1917](https://github.com/paritytech/ink/pull/1917)
-- Make `set_code_hash` generic - [#1906](https://github.com/paritytech/ink/pull/1906)
-- Clean E2E configuration parsing - [#1922](https://github.com/paritytech/ink/pull/1922)
-
-### Changed
-- Fail when decoding from storage and not all bytes consumed - [#1897](https://github.com/paritytech/ink/pull/1897)
-- [E2E] resolve DispatchError error details for dry-runs - [#1944](https://github.com/paritytech/ink/pull/1994)
-
-### Added
 - Linter: `storage_never_freed` lint - [#1932](https://github.com/paritytech/ink/pull/1932)
 - Linter: `strict_balance_equality` lint - [#1914](https://github.com/paritytech/ink/pull/1914)
+- Linter: `no_main` lint - [#2001](https://github.com/paritytech/ink/pull/2001)
+- Clean E2E configuration parsing - [#1922](https://github.com/paritytech/ink/pull/1922)
+- Make `set_code_hash` generic - [#1906](https://github.com/paritytech/ink/pull/1906)
+
+### Changed
+- Messages return `TypeSpec` directly - #[1999](https://github.com/paritytech/ink/pull/1999)
+- Fail when decoding from storage and not all bytes consumed - [#1897](https://github.com/paritytech/ink/pull/1897)
+- [E2E] resolve DispatchError error details for dry-runs - [#1944](https://github.com/paritytech/ink/pull/1994)
+- [E2E] update to new `drink` API - [#2005](https://github.com/paritytech/ink/pull/2005)
+- Support multiple chain extensions - [#1958](https://github.com/paritytech/ink/pull/1958)
+  - New example of how to use multiple chain extensions in one contract.
+  - Affects the usage of the `#[ink::chain_extension]` macro and the definition of the chain extension.
+
 
 ## Version 5.0.0-alpha
 

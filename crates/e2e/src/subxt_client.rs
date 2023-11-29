@@ -371,7 +371,7 @@ where
         keypair
     }
 
-    async fn balance(
+    async fn free_balance(
         &mut self,
         account: Self::AccountId,
     ) -> Result<Self::Balance, Self::Error> {

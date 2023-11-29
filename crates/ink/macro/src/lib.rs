@@ -906,35 +906,45 @@ pub fn test(attr: TokenStream, item: TokenStream) -> TokenStream {
 /// and use its associated environment definition in order to make use of
 /// the methods provided by the chain extension.
 ///
-/// # Attributes
+/// # Macro Attributes
+///
+/// The macro supports only one required argument:
+///
+/// - `extension = N: u16`:
+///
+///     The runtime may have several chain extensions at the same time. The `extension`
+///     identifier points to the corresponding chain extension in the runtime.
+///     The value should be the same as during the definition of the chain extension.
+///
+/// # Method Attributes
 ///
 /// There are three different attributes with which the chain extension methods
 /// can be flagged:
 ///
 /// | Attribute | Required | Default Value | Description |
 /// |:----------|:--------:|:--------------|:-----------:|
-/// | `ink(extension = N: u32)` | Yes | - | Determines the unique function ID of the chain
-/// extension method. | | `ink(handle_status = flag: bool)` | Optional | `true` | Assumes
+/// | `ink(function = N: u16)` | Yes | - | Determines the unique function ID within the
+/// chain extension. | | `ink(handle_status = flag: bool)` | Optional | `true` | Assumes
 /// that the returned status code of the chain extension method always indicates success
 /// and therefore always loads and decodes the output buffer of the call. |
 ///
 /// As with all ink! attributes multiple of them can either appear in a contiguous list:
 /// ```
 /// # type Access = i32;
-/// # #[ink::chain_extension]
+/// # #[ink::chain_extension(extension = 1)]
 /// # pub trait MyChainExtension {
 /// #     type ErrorCode = i32;
-/// #[ink(extension = 5, handle_status = false)]
+/// #[ink(function = 5, handle_status = false)]
 /// fn key_access_for_account(key: &[u8], account: &[u8]) -> Access;
 /// # }
 /// ```
 /// …or as multiple stand alone ink! attributes applied to the same item:
 /// ```
 /// # type Access = i32;
-/// # #[ink::chain_extension]
+/// # #[ink::chain_extension(extension = 1)]
 /// # pub trait MyChainExtension {
 /// #     type ErrorCode = i32;
-/// #[ink(extension = 5)]
+/// #[ink(function = 5)]
 /// #[ink(handle_status = false)]
 /// fn key_access_for_account(key: &[u8], account: &[u8]) -> Access;
 /// # }
@@ -996,7 +1006,7 @@ pub fn test(attr: TokenStream, item: TokenStream) -> TokenStream {
 /// Every chain extension defines exactly one `ErrorCode` using the following syntax:
 ///
 /// ```
-/// #[ink::chain_extension]
+/// #[ink::chain_extension(extension = 0)]
 /// pub trait MyChainExtension {
 ///     type ErrorCode = MyErrorCode;
 ///
@@ -1019,7 +1029,7 @@ pub fn test(attr: TokenStream, item: TokenStream) -> TokenStream {
 ///
 /// ```
 /// /// Custom chain extension to read to and write from the runtime.
-/// #[ink::chain_extension]
+/// #[ink::chain_extension(extension = 0)]
 /// pub trait RuntimeReadWrite {
 ///     type ErrorCode = ReadWriteErrorCode;
 ///
@@ -1028,7 +1038,7 @@ pub fn test(attr: TokenStream, item: TokenStream) -> TokenStream {
 ///     /// # Note
 ///     ///
 ///     /// Actually returns a value of type `Result<Vec<u8>, Self::ErrorCode>`.
-///     #[ink(extension = 1)]
+///     #[ink(function = 1)]
 ///     fn read(key: &[u8]) -> Vec<u8>;
 ///
 ///     /// Reads from runtime storage.
@@ -1045,7 +1055,7 @@ pub fn test(attr: TokenStream, item: TokenStream) -> TokenStream {
 ///     ///
 ///     /// This requires `ReadWriteError` to implement `From<ReadWriteErrorCode>`
 ///     /// and may potentially return any `Self::ErrorCode` through its return value.
-///     #[ink(extension = 2)]
+///     #[ink(function = 2)]
 ///     fn read_small(key: &[u8]) -> Result<(u32, [u8; 32]), ReadWriteError>;
 ///
 ///     /// Writes into runtime storage.
@@ -1053,7 +1063,7 @@ pub fn test(attr: TokenStream, item: TokenStream) -> TokenStream {
 ///     /// # Note
 ///     ///
 ///     /// Actually returns a value of type `Result<(), Self::ErrorCode>`.
-///     #[ink(extension = 3)]
+///     #[ink(function = 3)]
 ///     fn write(key: &[u8], value: &[u8]);
 ///
 ///     /// Returns the access allowed for the key for the caller.
@@ -1061,7 +1071,7 @@ pub fn test(attr: TokenStream, item: TokenStream) -> TokenStream {
 ///     /// # Note
 ///     ///
 ///     /// Assumes to never fail the call and therefore always returns `Option<Access>`.
-///     #[ink(extension = 4, handle_status = false)]
+///     #[ink(function = 4, handle_status = false)]
 ///     fn access(key: &[u8]) -> Option<Access>;
 ///
 ///     /// Unlocks previously acquired permission to access key.
@@ -1074,7 +1084,7 @@ pub fn test(attr: TokenStream, item: TokenStream) -> TokenStream {
 ///     ///
 ///     /// Assumes the call to never fail and therefore does _NOT_ require `UnlockAccessError`
 ///     /// to implement `From<Self::ErrorCode>` as in the `read_small` method above.
-///     #[ink(extension = 5, handle_status = false)]
+///     #[ink(function = 5, handle_status = false)]
 ///     fn unlock_access(key: &[u8], access: Access) -> Result<(), UnlockAccessError>;
 /// }
 /// # #[derive(scale::Encode, scale::Decode, scale_info::TypeInfo)]
@@ -1227,18 +1237,18 @@ pub fn test(attr: TokenStream, item: TokenStream) -> TokenStream {
 ///         }
 ///     }
 /// # /// Custom chain extension to read to and write from the runtime.
-/// # #[ink::chain_extension]
+/// # #[ink::chain_extension(extension = 13)]
 /// # pub trait RuntimeReadWrite {
 /// #     type ErrorCode = ReadWriteErrorCode;
-/// #     #[ink(extension = 1)]
+/// #     #[ink(function = 1)]
 /// #     fn read(key: &[u8]) -> Vec<u8>;
-/// #     #[ink(extension = 2)]
+/// #     #[ink(function = 2)]
 /// #     fn read_small(key: &[u8]) -> Result<(u32, [u8; 32]), ReadWriteError>;
-/// #     #[ink(extension = 3)]
+/// #     #[ink(function = 3)]
 /// #     fn write(key: &[u8], value: &[u8]);
-/// #     #[ink(extension = 4, handle_status = false)]
+/// #     #[ink(function = 4, handle_status = false)]
 /// #     fn access(key: &[u8]) -> Option<Access>;
-/// #     #[ink(extension = 5, handle_status = false)]
+/// #     #[ink(function = 5, handle_status = false)]
 /// #     fn unlock_access(key: &[u8], access: Access) -> Result<(), UnlockAccessError>;
 /// # }
 /// # #[derive(scale::Encode, scale::Decode, scale_info::TypeInfo)]

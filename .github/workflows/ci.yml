@@ -8,7 +8,6 @@ on:
       - synchronize
     paths-ignore:
       - '**/*.md'
-      - '.gitlab-ci.yml'
       - 'CODEOWNERS'
       - 'LICENSE'
       - 'CODE_OF_CONDUCT.adoc'
@@ -21,7 +20,6 @@ on:
       - v*
     paths-ignore:
       - '**/*.md'
-      - '.gitlab-ci.yml'
       - 'CODEOWNERS'
       - 'LICENSE'
       - 'CODE_OF_CONDUCT.adoc'
@@ -71,8 +69,6 @@ jobs:
     needs: [set-image]
     container:
       image: ${{ needs.set-image.outputs.IMAGE }}
-    strategy:
-      fail-fast: false
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -95,8 +91,6 @@ jobs:
     needs: [set-image]
     container:
       image: ${{ needs.set-image.outputs.IMAGE }}
-    strategy:
-      fail-fast: false
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -127,8 +121,6 @@ jobs:
     needs: [set-image]
     container:
       image: ${{ needs.set-image.outputs.IMAGE }}
-    strategy:
-      fail-fast: false
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -256,8 +248,6 @@ jobs:
     needs: [set-image]
     container:
       image: ${{ needs.set-image.outputs.IMAGE }}
-    strategy:
-      fail-fast: false
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -337,8 +327,6 @@ jobs:
         shell: bash
     container:
       image: ${{ needs.set-image.outputs.IMAGE }}
-    strategy:
-      fail-fast: false
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -374,8 +362,6 @@ jobs:
         shell: bash
     container:
       image: ${{ needs.set-image.outputs.IMAGE }}
-    strategy:
-      fail-fast: false
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -413,8 +399,6 @@ jobs:
         shell: bash
     container:
       image: ${{ needs.set-image.outputs.IMAGE }}
-    strategy:
-      fail-fast: false
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -476,8 +460,6 @@ jobs:
         shell: bash
     container:
       image: ${{ needs.set-image.outputs.IMAGE }}
-    strategy:
-      fail-fast: false
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -567,8 +549,6 @@ jobs:
         shell: bash
     container:
       image: ${{ needs.set-image.outputs.IMAGE }}
-    strategy:
-      fail-fast: false
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -616,8 +596,6 @@ jobs:
         shell: bash
     container:
       image: ${{ needs.set-image.outputs.IMAGE }}
-    strategy:
-      fail-fast: false
     steps:
       - name: Checkout
         uses: actions/checkout@v4

@@ -1,3 +1,5 @@
+#![cfg_attr(not(feature = "std"), no_main)]
+
 pub type TyAlias1 = i32;
 pub type TyAlias2 = TyAlias1;
 

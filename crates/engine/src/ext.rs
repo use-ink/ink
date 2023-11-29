@@ -442,14 +442,14 @@ impl Engine {
     /// Calls the chain extension method registered at `func_id` with `input`.
     pub fn call_chain_extension(
         &mut self,
-        func_id: u32,
+        id: u32,
         input: &[u8],
         output: &mut &mut [u8],
     ) {
         let encoded_input = input.encode();
         let (status_code, out) = self
             .chain_extension_handler
-            .eval(func_id, &encoded_input)
+            .eval(id, &encoded_input)
             .unwrap_or_else(|error| {
                 panic!(
                     "Encountered unexpected missing chain extension method: {error:?}"
