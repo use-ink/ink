@@ -104,9 +104,19 @@ use crate::{
 #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
 pub struct StorageVec<V: Packed, KeyType: StorageKey = AutoKey> {
     /// The number of elements stored on-chain.
+    ///
+    /// # Note
+    ///
+    /// Because of caching, never operate on this field directly!
+    /// Always use `fn get_len()` an `fn set_len()` instead.
     len: Lazy<u32, KeyType>,
     /// The length only changes upon pushing to or popping from the vec.
     /// Hence we can cache it to prevent unnecessary reads from storage.
+    ///
+    /// # Note
+    ///
+    /// Because of caching, never operate on this field directly!
+    /// Always use `fn get_len()` an `fn set_len()` instead.
     len_cached: CachedLen,
     /// We use a [Mapping] to store all elements of the vector.
     /// Each element is living in storage under `&(KeyType::KEY, index)`.
