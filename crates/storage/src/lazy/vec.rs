@@ -681,12 +681,19 @@ mod tests {
     #[test]
     fn peek_works() {
         ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
-            let mut array: StorageVec<u32> = (0..10).collect();
+            let mut array = StorageVec::<u32>::new();
+            assert_eq!(array.peek(), None);
+
+            array.push(&0);
+            array.push(&9);
 
             assert_eq!(array.peek(), Some(9));
+            assert_eq!(array.peek(), Some(9));
+            assert_eq!(array.len(), 2);
 
             array.clear();
             assert_eq!(array.peek(), None);
+            assert_eq!(array.len(), 0);
 
             Ok(())
         })
