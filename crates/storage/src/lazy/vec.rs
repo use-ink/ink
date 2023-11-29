@@ -19,6 +19,8 @@
 //! This vector doesn't actually "own" any data.
 //! Instead it is just a simple wrapper around the contract storage facilities.
 
+use core::cell::Cell;
+
 use ink_primitives::Key;
 use ink_storage_traits::{
     AutoKey,
@@ -105,7 +107,7 @@ pub struct StorageVec<V: Packed, KeyType: StorageKey = AutoKey> {
     len: Lazy<u32, KeyType>,
     /// The length only changes upon pushing to or popping from the vec.
     /// Hence we can cache it to prevent unnecessary reads from storage.
-    len_cached: Option<u32>,
+    len_cached: CachedLen,
     /// We use a [Mapping] to store all elements of the vector.
     /// Each element is living in storage under `&(KeyType::KEY, index)`.
     /// Because [StorageVec] has a [StorageKey] parameter under which the
@@ -113,6 +115,18 @@ pub struct StorageVec<V: Packed, KeyType: StorageKey = AutoKey> {
     /// storage fields (unless contract authors purposefully craft such a
     /// storage layout).
     elements: Mapping<u32, V, KeyType>,
+}
+
+#[derive(Debug)]
+struct CachedLen(Cell<Option<u32>>);
+
+#[cfg(feature = "std")]
+impl scale_info::TypeInfo for CachedLen {
+    type Identity = Option<u32>;
+
+    fn type_info() -> scale_info::Type {
+        <Self::Identity as scale_info::TypeInfo>::type_info()
+    }
 }
 
 impl<V, KeyType> Default for StorageVec<V, KeyType>
@@ -195,7 +209,7 @@ where
     pub const fn new() -> Self {
         Self {
             len: Lazy::new(),
-            len_cached: None,
+            len_cached: CachedLen(Cell::new(None)),
             elements: Mapping::new(),
         }
     }
@@ -206,16 +220,21 @@ where
     /// trigger additional storage reads.
     #[inline]
     pub fn len(&self) -> u32 {
-        debug_assert!(self.len_cached.is_none() || self.len.get() == self.len_cached);
+        let cached_len = self.len_cached.0.get();
 
-        self.len_cached
-            .unwrap_or_else(|| self.len.get().unwrap_or(u32::MIN))
+        debug_assert!(cached_len.is_none() || self.len.get() == cached_len);
+
+        cached_len.unwrap_or_else(|| {
+            let value = self.len.get().unwrap_or(u32::MIN);
+            self.len_cached.0.set(Some(value));
+            value
+        })
     }
 
     /// Overwrite the length. Writes directly to contract storage.
     fn set_len(&mut self, new_len: u32) {
         self.len.set(&new_len);
-        self.len_cached = Some(new_len);
+        self.len_cached.0.set(Some(new_len));
     }
 
     /// Returns `true` if the vector contains no elements.
