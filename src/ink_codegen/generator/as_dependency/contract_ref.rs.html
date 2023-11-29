@@ -770,7 +770,7 @@
             ir::Receiver::RefMut =&gt; <span class="macro">quote! </span>{ forward_mut },
         };
         <span class="kw">let </span>mut_token = message.receiver().is_ref_mut().then(|| <span class="macro">quote! </span>{ <span class="kw-2">mut </span>});
-        <span class="kw">let </span>input_bindings = message.inputs().map(|input| <span class="kw-2">&amp;</span>input.pat).collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
+        <span class="kw">let </span>input_idents = generator::input_message_idents(message.inputs());
         <span class="kw">let </span>input_types = message.inputs().map(|input| <span class="kw-2">&amp;</span>input.ty).collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
         <span class="kw">let </span>cfg_attrs = message.get_cfg_attrs(span);
         <span class="macro">quote_spanned!</span>(span=&gt;
@@ -782,13 +782,13 @@
             </span>#( #cfg_attrs )*
             <span class="kw">fn </span>#message_ident(
                 &amp; #mut_token <span class="self">self
-                </span>#( , #input_bindings : #input_types )*
+                </span>#( , #input_idents : #input_types )*
             ) -&gt; <span class="self">Self</span>::#output_ident {
                 &lt;<span class="kw">_ as </span>#trait_path&gt;::#message_ident(
                     &lt;<span class="kw">_ as </span>::ink::codegen::TraitCallForwarderFor&lt;{#trait_info_id}&gt;&gt;::#forward_operator(
                         &lt;<span class="self">Self </span><span class="kw">as </span>::ink::codegen::TraitCallBuilder&gt;::#call_operator(<span class="self">self</span>),
                     )
-                    #( , #input_bindings )*
+                    #( , #input_idents )*
                 )
             }
         )
@@ -865,7 +865,7 @@
             ir::Receiver::RefMut =&gt; <span class="macro">quote! </span>{ call_mut },
         };
         <span class="kw">let </span>mut_token = message.receiver().is_ref_mut().then(|| <span class="macro">quote! </span>{ <span class="kw-2">mut </span>});
-        <span class="kw">let </span>input_bindings = message.inputs().map(|input| <span class="kw-2">&amp;</span>input.pat).collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
+        <span class="kw">let </span>input_idents = generator::input_message_idents(message.inputs());
         <span class="kw">let </span>input_types = message.inputs().map(|input| <span class="kw-2">&amp;</span>input.ty).collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
         <span class="kw">let </span>output_type = message.output().map(|ty| <span class="macro">quote! </span>{ -&gt; #ty });
         <span class="kw">let </span>wrapped_output_type = message.wrapped_output();
@@ -874,9 +874,9 @@
             <span class="attr">#[inline]
             </span><span class="kw">pub fn </span>#message_ident(
                 &amp; #mut_token <span class="self">self
-                </span>#( , #input_bindings : #input_types )*
+                </span>#( , #input_idents : #input_types )*
             ) #output_type {
-                <span class="self">self</span>.#try_message_ident( #( #input_bindings, )* )
+                <span class="self">self</span>.#try_message_ident( #( #input_idents, )* )
                     .unwrap_or_else(|error| <span class="macro">::core::panic!</span>(
                         <span class="string">&quot;encountered error while calling {}::{}: {:?}&quot;</span>,
                         <span class="macro">::core::stringify!</span>(#storage_ident),
@@ -889,10 +889,10 @@
             <span class="attr">#[inline]
             </span><span class="kw">pub fn </span>#try_message_ident(
                 &amp; #mut_token <span class="self">self
-                </span>#( , #input_bindings : #input_types )*
+                </span>#( , #input_idents : #input_types )*
             ) -&gt; #wrapped_output_type {
                 &lt;<span class="self">Self </span><span class="kw">as </span>::ink::codegen::TraitCallBuilder&gt;::#call_operator(<span class="self">self</span>)
-                    .#message_ident( #( #input_bindings ),* )
+                    .#message_ident( #( #input_idents ),* )
                     .try_invoke()
                     .unwrap_or_else(|error| <span class="macro">::core::panic!</span>(
                         <span class="string">&quot;encountered error while calling {}::{}: {:?}&quot;</span>,
