@@ -2496,15 +2496,15 @@ checksum = "8e04e2fd2b8188ea827b32ef11de88377086d690286ab35747ef7f9bf3ccb590"
 
 [[package]]
 name = "ink"
-version = "5.0.0-alpha"
+version = "5.0.0-rc"
 dependencies = [
  "derive_more",
- "ink_env 5.0.0-alpha",
+ "ink_env 5.0.0-rc",
  "ink_ir",
  "ink_macro",
- "ink_metadata 5.0.0-alpha",
- "ink_prelude 5.0.0-alpha",
- "ink_primitives 5.0.0-alpha",
+ "ink_metadata 5.0.0-rc",
+ "ink_prelude 5.0.0-rc",
+ "ink_primitives 5.0.0-rc",
  "ink_storage",
  "parity-scale-codec",
  "scale-info",
@@ -2522,7 +2522,7 @@ dependencies = [
 
 [[package]]
 name = "ink_allocator"
-version = "5.0.0-alpha"
+version = "5.0.0-rc"
 dependencies = [
  "cfg-if",
  "quickcheck",
@@ -2531,7 +2531,7 @@ dependencies = [
 
 [[package]]
 name = "ink_codegen"
-version = "5.0.0-alpha"
+version = "5.0.0-rc"
 dependencies = [
  "blake2",
  "derive_more",
@@ -2539,7 +2539,7 @@ dependencies = [
  "heck",
  "impl-serde",
  "ink_ir",
- "ink_primitives 5.0.0-alpha",
+ "ink_primitives 5.0.0-rc",
  "itertools 0.12.0",
  "parity-scale-codec",
  "proc-macro2",
@@ -2551,7 +2551,7 @@ dependencies = [
 
 [[package]]
 name = "ink_e2e"
-version = "5.0.0-alpha"
+version = "5.0.0-rc"
 dependencies = [
  "cargo_metadata 0.18.1",
  "contract-build",
@@ -2560,8 +2560,8 @@ dependencies = [
  "impl-serde",
  "ink",
  "ink_e2e_macro",
- "ink_env 5.0.0-alpha",
- "ink_primitives 5.0.0-alpha",
+ "ink_env 5.0.0-rc",
+ "ink_primitives 5.0.0-rc",
  "jsonrpsee",
  "pallet-contracts-primitives",
  "parity-scale-codec",
@@ -2585,7 +2585,7 @@ dependencies = [
 
 [[package]]
 name = "ink_e2e_macro"
-version = "5.0.0-alpha"
+version = "5.0.0-rc"
 dependencies = [
  "darling 0.20.3",
  "derive_more",
@@ -2614,11 +2614,11 @@ dependencies = [
 
 [[package]]
 name = "ink_engine"
-version = "5.0.0-alpha"
+version = "5.0.0-rc"
 dependencies = [
  "blake2",
  "derive_more",
- "ink_primitives 5.0.0-alpha",
+ "ink_primitives 5.0.0-rc",
  "parity-scale-codec",
  "secp256k1 0.28.0",
  "sha2 0.10.8",
@@ -2655,18 +2655,18 @@ dependencies = [
 
 [[package]]
 name = "ink_env"
-version = "5.0.0-alpha"
+version = "5.0.0-rc"
 dependencies = [
  "blake2",
  "cfg-if",
  "const_env",
  "derive_more",
  "ink",
- "ink_allocator 5.0.0-alpha",
- "ink_engine 5.0.0-alpha",
- "ink_prelude 5.0.0-alpha",
- "ink_primitives 5.0.0-alpha",
- "ink_storage_traits 5.0.0-alpha",
+ "ink_allocator 5.0.0-rc",
+ "ink_engine 5.0.0-rc",
+ "ink_prelude 5.0.0-rc",
+ "ink_primitives 5.0.0-rc",
+ "ink_storage_traits 5.0.0-rc",
  "num-traits",
  "parity-scale-codec",
  "paste",
@@ -2683,11 +2683,11 @@ dependencies = [
 
 [[package]]
 name = "ink_ir"
-version = "5.0.0-alpha"
+version = "5.0.0-rc"
 dependencies = [
  "blake2",
  "either",
- "ink_prelude 5.0.0-alpha",
+ "ink_prelude 5.0.0-rc",
  "itertools 0.12.0",
  "proc-macro2",
  "quote",
@@ -2696,15 +2696,15 @@ dependencies = [
 
 [[package]]
 name = "ink_macro"
-version = "5.0.0-alpha"
+version = "5.0.0-rc"
 dependencies = [
  "ink",
  "ink_codegen",
- "ink_env 5.0.0-alpha",
+ "ink_env 5.0.0-rc",
  "ink_ir",
- "ink_metadata 5.0.0-alpha",
- "ink_prelude 5.0.0-alpha",
- "ink_primitives 5.0.0-alpha",
+ "ink_metadata 5.0.0-rc",
+ "ink_prelude 5.0.0-rc",
+ "ink_primitives 5.0.0-rc",
  "ink_storage",
  "parity-scale-codec",
  "proc-macro2",
@@ -2730,12 +2730,12 @@ dependencies = [
 
 [[package]]
 name = "ink_metadata"
-version = "5.0.0-alpha"
+version = "5.0.0-rc"
 dependencies = [
  "derive_more",
  "impl-serde",
- "ink_prelude 5.0.0-alpha",
- "ink_primitives 5.0.0-alpha",
+ "ink_prelude 5.0.0-rc",
+ "ink_primitives 5.0.0-rc",
  "linkme",
  "pretty_assertions",
  "scale-info",
@@ -2755,7 +2755,7 @@ dependencies = [
 
 [[package]]
 name = "ink_prelude"
-version = "5.0.0-alpha"
+version = "5.0.0-rc"
 dependencies = [
  "cfg-if",
 ]
@@ -2777,10 +2777,10 @@ dependencies = [
 
 [[package]]
 name = "ink_primitives"
-version = "5.0.0-alpha"
+version = "5.0.0-rc"
 dependencies = [
  "derive_more",
- "ink_prelude 5.0.0-alpha",
+ "ink_prelude 5.0.0-rc",
  "parity-scale-codec",
  "scale-decode",
  "scale-encode",
@@ -2790,17 +2790,17 @@ dependencies = [
 
 [[package]]
 name = "ink_storage"
-version = "5.0.0-alpha"
+version = "5.0.0-rc"
 dependencies = [
  "array-init",
  "cfg-if",
  "derive_more",
  "ink",
- "ink_env 5.0.0-alpha",
- "ink_metadata 5.0.0-alpha",
- "ink_prelude 5.0.0-alpha",
- "ink_primitives 5.0.0-alpha",
- "ink_storage_traits 5.0.0-alpha",
+ "ink_env 5.0.0-rc",
+ "ink_metadata 5.0.0-rc",
+ "ink_prelude 5.0.0-rc",
+ "ink_primitives 5.0.0-rc",
+ "ink_storage_traits 5.0.0-rc",
  "itertools 0.12.0",
  "parity-scale-codec",
  "quickcheck",
@@ -2823,11 +2823,11 @@ dependencies = [
 
 [[package]]
 name = "ink_storage_traits"
-version = "5.0.0-alpha"
+version = "5.0.0-rc"
 dependencies = [
- "ink_metadata 5.0.0-alpha",
- "ink_prelude 5.0.0-alpha",
- "ink_primitives 5.0.0-alpha",
+ "ink_metadata 5.0.0-rc",
+ "ink_prelude 5.0.0-rc",
+ "ink_primitives 5.0.0-rc",
  "parity-scale-codec",
  "paste",
  "scale-info",

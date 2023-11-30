@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+
+## Version 5.0.0-rc
+
 ### Added
 - Allow mutable parameters in messages - [#2004](https://github.com/paritytech/ink/pull/2004)
 - [E2E] Allow testing with live-chain state - [#1949](https://github.com/paritytech/ink/pull/1949)
