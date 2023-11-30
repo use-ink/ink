@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":["Lazy","Mapping"]};
+window.SIDEBAR_ITEMS = {"struct":["Lazy","Mapping","StorageVec"]};

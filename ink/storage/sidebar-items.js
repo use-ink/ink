@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":["traits"],"struct":["Lazy","Mapping"]};
+window.SIDEBAR_ITEMS = {"mod":["traits"],"struct":["Lazy","Mapping","StorageVec"]};

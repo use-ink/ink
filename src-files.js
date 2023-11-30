@@ -11,7 +11,7 @@ var srcIndex = JSON.parse('{\
 "ink_metadata":["",[["layout",[],["mod.rs","validate.rs"]]],["lib.rs","specs.rs","utils.rs"]],\
 "ink_prelude":["",[],["lib.rs"]],\
 "ink_primitives":["",[],["key.rs","lib.rs","types.rs"]],\
-"ink_storage":["",[["lazy",[],["mapping.rs","mod.rs"]]],["lib.rs"]],\
+"ink_storage":["",[["lazy",[],["mapping.rs","mod.rs","vec.rs"]]],["lib.rs"]],\
 "ink_storage_traits":["",[["impls",[],["mod.rs"]],["layout",[],["impls.rs","mod.rs"]]],["lib.rs","storage.rs"]]\
 }');
 createSrcSidebar();

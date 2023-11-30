@@ -369,6 +369,8 @@
 <a href="#369" id="369">369</a>
 <a href="#370" id="370">370</a>
 <a href="#371" id="371">371</a>
+<a href="#372" id="372">372</a>
+<a href="#373" id="373">373</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -390,9 +392,11 @@
 //! extra care has to be taken when operating directly on them.
 
 </span><span class="kw">mod </span>mapping;
+<span class="kw">mod </span>vec;
 
 <span class="attr">#[doc(inline)]
 </span><span class="kw">pub use </span><span class="self">self</span>::mapping::Mapping;
+<span class="kw">pub use </span><span class="self">self</span>::vec::StorageVec;
 
 <span class="kw">use </span><span class="kw">crate</span>::traits::{
     AutoKey,
@@ -530,7 +534,7 @@
         <span class="kw">let </span>key_size = &lt;Key <span class="kw">as </span>Storable&gt;::encoded_size(<span class="kw-2">&amp;</span>KeyType::KEY);
 
         <span class="kw">if </span>key_size &gt;= ink_env::BUFFER_SIZE {
-            <span class="kw">return </span><span class="prelude-val">Some</span>(<span class="prelude-val">Err</span>(ink_env::Error::BufferTooSmall))
+            <span class="kw">return </span><span class="prelude-val">Some</span>(<span class="prelude-val">Err</span>(ink_env::Error::BufferTooSmall));
         }
 
         <span class="kw">let </span>value_size: usize = ink_env::contains_contract_storage(<span class="kw-2">&amp;</span>KeyType::KEY)<span class="question-mark">?
@@ -538,7 +542,7 @@
             .expect(<span class="string">&quot;targets of less than 32bit pointer size are not supported; qed&quot;</span>);
 
         <span class="kw">if </span>key_size.saturating_add(value_size) &gt; ink_env::BUFFER_SIZE {
-            <span class="kw">return </span><span class="prelude-val">Some</span>(<span class="prelude-val">Err</span>(ink_env::Error::BufferTooSmall))
+            <span class="kw">return </span><span class="prelude-val">Some</span>(<span class="prelude-val">Err</span>(ink_env::Error::BufferTooSmall));
         }
 
         <span class="self">self</span>.get().map(<span class="prelude-val">Ok</span>)
@@ -562,7 +566,7 @@
         <span class="kw">let </span>value_size = &lt;V <span class="kw">as </span>Storable&gt;::encoded_size(value);
 
         <span class="kw">if </span>key_size.saturating_add(value_size) &gt; ink_env::BUFFER_SIZE {
-            <span class="kw">return </span><span class="prelude-val">Err</span>(ink_env::Error::BufferTooSmall)
+            <span class="kw">return </span><span class="prelude-val">Err</span>(ink_env::Error::BufferTooSmall);
         };
 
         <span class="self">self</span>.set(value);
