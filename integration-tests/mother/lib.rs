@@ -27,7 +27,10 @@ mod mother {
         vec::Vec,
     };
 
-    use ink::storage::Mapping;
+    use ink::storage::{
+        Mapping,
+        StorageVec,
+    };
 
     /// Struct for storing winning bids per bidding sample (a block).
     /// Vector index corresponds to sample number.
@@ -128,6 +131,7 @@ mod mother {
     pub struct Mother {
         auction: Auction,
         balances: Mapping<AccountId, Balance>,
+        log: StorageVec<String>,
     }
 
     impl Mother {
@@ -135,6 +139,7 @@ mod mother {
         pub fn new(auction: Auction) -> Self {
             Self {
                 balances: Default::default(),
+                log: Default::default(),
                 auction,
             }
         }
