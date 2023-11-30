@@ -438,7 +438,8 @@ where
         self.set_len(0);
     }
 
-    /// Clears the value of the element at `index`. It doesn't change the length of the vector.
+    /// Clears the value of the element at `index`. It doesn't change the length of the
+    /// vector.
     ///
     /// # Panics
     ///
