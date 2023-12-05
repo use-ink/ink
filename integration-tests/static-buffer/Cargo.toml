@@ -13,6 +13,7 @@ ink_e2e = { path = "../../crates/e2e" }
 
 [lib]
 path = "lib.rs"
+doctest = false
 
 [features]
 default = ["std"]
