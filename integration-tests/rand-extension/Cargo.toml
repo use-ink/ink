@@ -1,6 +1,6 @@
 [package]
 name = "rand_extension"
-version = "5.0.0-alpha"
+version = "5.0.0-rc"
 authors = ["Parity Technologies <admin@parity.io>"]
 edition = "2021"
 publish = false

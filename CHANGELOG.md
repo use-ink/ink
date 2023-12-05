@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+
+## Version 5.0.0-rc
+
 ### Added
 - Allow mutable parameters in messages - [#2004](https://github.com/paritytech/ink/pull/2004)
 - [E2E] Allow testing with live-chain state - [#1949](https://github.com/paritytech/ink/pull/1949)
@@ -18,7 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Provide a `StorageVec` datastructure built on top of `Lazy` - [#1995](https://github.com/paritytech/ink/pull/1955)
 
 ### Changed
-- Messages return `TypeSpec` directly - #[1999](https://github.com/paritytech/ink/pull/1999)
+- Messages return `TypeSpec` directly - [#1999](https://github.com/paritytech/ink/pull/1999)
 - Fail when decoding from storage and not all bytes consumed - [#1897](https://github.com/paritytech/ink/pull/1897)
 - [E2E] resolve DispatchError error details for dry-runs - [#1944](https://github.com/paritytech/ink/pull/1994)
 - [E2E] update to new `drink` API - [#2005](https://github.com/paritytech/ink/pull/2005)
