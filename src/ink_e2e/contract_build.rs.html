@@ -197,6 +197,10 @@
 <a href="#197" id="197">197</a>
 <a href="#198" id="198">198</a>
 <a href="#199" id="199">199</a>
+<a href="#200" id="200">200</a>
+<a href="#201" id="201">201</a>
+<a href="#202" id="202">202</a>
+<a href="#203" id="203">203</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -216,6 +220,7 @@
     BuildMode,
     ExecuteArgs,
     Features,
+    ImageVariant,
     ManifestPath,
     Network,
     OptimizationPasses,
@@ -223,6 +228,7 @@
     Target,
     UnstableFlags,
     Verbosity,
+    DEFAULT_MAX_MEMORY_PAGES,
 };
 <span class="kw">use </span>std::{
     collections::{
@@ -374,10 +380,12 @@
         unstable_flags: UnstableFlags::default(),
         optimization_passes: <span class="prelude-val">Some</span>(OptimizationPasses::default()),
         keep_debug_symbols: <span class="bool-val">false</span>,
-        lint: <span class="bool-val">false</span>,
+        dylint: <span class="bool-val">false</span>,
         output_type: OutputType::HumanReadable,
         skip_wasm_validation: <span class="bool-val">false</span>,
         target: Target::Wasm,
+        max_memory_pages: DEFAULT_MAX_MEMORY_PAGES,
+        image: ImageVariant::Default,
     };
 
     <span class="kw">match </span>contract_build::execute(args) {
