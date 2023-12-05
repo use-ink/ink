@@ -584,8 +584,7 @@ jobs:
 
   fuzz:
     runs-on: ubuntu-latest
-      #    needs: [set-image, measurements]
-    needs: [set-image]
+    needs: [set-image, measurements]
     if: >
       github.event_name == 'push' &&
         github.ref == 'refs/heads/master'
