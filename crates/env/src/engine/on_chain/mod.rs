@@ -13,7 +13,6 @@
 // limitations under the License.
 
 mod buffer;
-mod ext;
 mod impls;
 
 use self::{
@@ -22,7 +21,6 @@ use self::{
         ScopedBuffer,
         StaticBuffer,
     },
-    ext::Error,
 };
 use super::OnInstance;
 
