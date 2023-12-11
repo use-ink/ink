@@ -629,7 +629,7 @@ jobs:
       - name: Create Issue
         if: ${{ failure() && steps.fuzz_test.conclusion == 'failure' }}
 
-        uses: actions/github-script@v6
+        uses: actions/github-script@v7
         with:
           script: |
             const runId = context.runId;
