@@ -66,7 +66,7 @@ jobs:
     needs: fetch-issues
     steps:
       - name: Load outputs
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: outputs
           path: outputs
