@@ -385,7 +385,7 @@ jobs:
           # FIXME: remove me after CI image gets nonroot
           chown -R nonroot:nonroot ./crate-docs
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: ${{ github.job }}-data
           path: ./crate-docs

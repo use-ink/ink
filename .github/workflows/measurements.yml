@@ -67,7 +67,7 @@ jobs:
           echo "PR_NUMBER=\"${PR_NUMBER}\"" >> ${ARTIFACTS_DIR}/context.out
           rm -rf ${MEASUREMENTS_DIR}
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: ${{ github.job }}-data
           path: ./artifacts
