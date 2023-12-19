@@ -72,7 +72,7 @@ subxt-signer = { version = "0.32.1" }
 syn = { version = "2" }
 synstructure = { version = "0.13.0" }
 thiserror = { version = "1.0.50" }
-tokio = { version = "1.35.0" }
+tokio = { version = "1.35.1" }
 tracing = { version = "0.1.37" }
 tracing-subscriber = { version = "0.3.17" }
 trybuild = { version = "1.0.60" }
