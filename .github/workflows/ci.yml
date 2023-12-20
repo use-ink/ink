@@ -26,7 +26,7 @@ on:
       - 'FILE_HEADER'
 
 env:
-  IMAGE:                           paritytech/ci-unified:bullseye-1.73.0
+  IMAGE:                           paritytech/ci-unified:bullseye-1.74.0
   CARGO_TARGET_DIR:                /ci-cache/${{ github.repository }}/targets/${{ github.ref_name }}/${{ github.job }}
   CARGO_INCREMENTAL:               0
   PURELY_STD_CRATES:               ink/codegen metadata engine e2e e2e/macro ink/ir
