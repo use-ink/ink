@@ -16,6 +16,9 @@ use crate::{
     ast,
     utils::duplicate_config_err,
 };
+use hex::decode_to_slice;
+
+use super::signature_topic;
 
 /// The configuration arguments to the `#[ink::event(..)]` attribute macro.
 #[derive(Debug, PartialEq, Eq)]
@@ -24,6 +27,9 @@ pub struct EventConfig {
     /// If set to `true`, **no** signature topic is generated or emitted for this event.,
     /// This is the default value.
     anonymous: bool,
+
+    /// Manually specified signature topic.
+    signature_topic: Option<[u8; 32]>,
 }
 
 impl TryFrom<ast::AttributeArgs> for EventConfig {
@@ -31,10 +37,11 @@ impl TryFrom<ast::AttributeArgs> for EventConfig {
 
     fn try_from(args: ast::AttributeArgs) -> Result<Self, Self::Error> {
         let mut anonymous: Option<syn::LitBool> = None;
+        let mut signature_topic: Option<[u8; 32]> = None;
         for arg in args.into_iter() {
             if arg.name.is_ident("anonymous") {
                 if let Some(lit_bool) = anonymous {
-                    return Err(duplicate_config_err(lit_bool, arg, "anonymous", "event"))
+                    return Err(duplicate_config_err(lit_bool, arg, "anonymous", "event"));
                 }
                 if let ast::MetaValue::Lit(syn::Lit::Bool(lit_bool)) = &arg.value {
                     anonymous = Some(lit_bool.clone())
@@ -44,6 +51,40 @@ impl TryFrom<ast::AttributeArgs> for EventConfig {
                         "expected a bool literal for `anonymous` ink! event item configuration argument",
                     ));
                 }
+            } else if arg.name.is_ident("signature_topic") {
+                if anonymous.is_some() {
+                    return Err(format_err_spanned!(
+                        arg,
+                        "cannot specify `signature_topic` with `anonymous` in ink! event item configuration argument",
+                    ));
+                }
+
+                if let Some(lit_str) = anonymous {
+                    return Err(duplicate_config_err(
+                        lit_str,
+                        arg,
+                        "signature_topic",
+                        "event",
+                    ));
+                }
+                if let ast::MetaValue::Lit(syn::Lit::Str(lit_str)) = &arg.value {
+                    // signature_topic = Some(lit_str.clone())
+                    let mut bytes = [0u8; 32];
+
+                    if decode_to_slice(lit_str.value(), &mut bytes).is_ok() {
+                        signature_topic = Some(bytes);
+                    } else {
+                        return Err(format_err_spanned!(
+                            arg,
+                            "`signature_topic` has invalid hex string",
+                        ));
+                    }
+                } else {
+                    return Err(format_err_spanned!(
+                        arg,
+                        "expected a string literal for `signature_topic` ink! event item configuration argument",
+                    ));
+                }
             } else {
                 return Err(format_err_spanned!(
                     arg,
@@ -51,16 +92,21 @@ impl TryFrom<ast::AttributeArgs> for EventConfig {
                 ));
             }
         }
+
         Ok(EventConfig::new(
             anonymous.map(|lit_bool| lit_bool.value).unwrap_or(false),
+            signature_topic,
         ))
     }
 }
 
 impl EventConfig {
     /// Construct a new [`EventConfig`].
-    pub fn new(anonymous: bool) -> Self {
-        Self { anonymous }
+    pub fn new(anonymous: bool, signature_topic: Option<[u8; 32]>) -> Self {
+        Self {
+            anonymous,
+            signature_topic,
+        }
     }
 
     /// Returns the anonymous configuration argument.

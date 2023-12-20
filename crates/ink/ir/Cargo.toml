@@ -24,6 +24,8 @@ proc-macro2 = { workspace = true }
 itertools = { workspace = true }
 either = { workspace = true }
 blake2 = { workspace = true }
+hex = { workspace = true }
+
 ink_prelude = { workspace = true }
 
 [features]

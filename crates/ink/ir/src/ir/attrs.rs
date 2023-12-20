@@ -43,6 +43,8 @@ use crate::{
     },
 };
 
+use super::SignatureTopic;
+
 /// An extension trait for [`syn::Attribute`] in order to query for documentation.
 pub trait IsDocAttribute {
     /// Returns `true` if the attribute is a Rust documentation attribute.
@@ -363,6 +365,8 @@ pub enum AttributeArgKind {
     /// `#[ink(selector = _)]`
     /// `#[ink(selector = 0xDEADBEEF)]`
     Selector,
+    /// `#[ink(signature_topic = "DEADBEEF")]`
+    SignatureTopic,
     /// `#[ink(function = N: u16)]`
     Function,
     /// `#[ink(namespace = "my_namespace")]`
@@ -418,6 +422,8 @@ pub enum AttributeArg {
     /// - `#[ink(selector = _)]` Applied on ink! messages to define a fallback messages
     ///   that is invoked if no other ink! message matches a given selector.
     Selector(SelectorOrWildcard),
+    /// `#[ink(signature_topic = "DEADBEEF")]`
+    SignatureTopic(SignatureTopic),
     /// `#[ink(namespace = "my_namespace")]`
     ///
     /// Applied on ink! trait implementation blocks to disambiguate other trait
@@ -462,6 +468,9 @@ impl core::fmt::Display for AttributeArgKind {
             Self::Selector => {
                 write!(f, "selector = S:[u8; 4] || _")
             }
+            Self::SignatureTopic => {
+                write!(f, "signature_topic = S:[u8; 32]")
+            }
             Self::Function => {
                 write!(f, "function = N:u16)")
             }
@@ -486,6 +495,7 @@ impl AttributeArg {
             Self::Constructor => AttributeArgKind::Constructor,
             Self::Payable => AttributeArgKind::Payable,
             Self::Selector(_) => AttributeArgKind::Selector,
+            Self::SignatureTopic(_) => AttributeArgKind::SignatureTopic,
             Self::Function(_) => AttributeArgKind::Function,
             Self::Namespace(_) => AttributeArgKind::Namespace,
             Self::Implementation => AttributeArgKind::Implementation,
@@ -505,6 +515,10 @@ impl core::fmt::Display for AttributeArg {
             Self::Constructor => write!(f, "constructor"),
             Self::Payable => write!(f, "payable"),
             Self::Selector(selector) => core::fmt::Display::fmt(&selector, f),
+            Self::SignatureTopic(sig_topic) => {
+                // TODO
+                write!(f, "signature_topic")
+            }
             Self::Function(function) => {
                 write!(f, "function = {:?}", function.into_u16())
             }

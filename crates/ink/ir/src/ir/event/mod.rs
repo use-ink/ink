@@ -13,6 +13,7 @@
 // limitations under the License.
 
 mod config;
+mod signature_topic;
 
 use config::EventConfig;
 use proc_macro2::TokenStream as TokenStream2;
@@ -23,6 +24,8 @@ use crate::{
     error::ExtError,
     ir,
 };
+
+pub use signature_topic::SignatureTopic;
 
 /// A checked ink! event with its configuration.
 #[derive(Debug, PartialEq, Eq)]

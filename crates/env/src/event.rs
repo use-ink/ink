@@ -206,6 +206,8 @@ pub trait Event: scale::Encode {
     /// default calculates this as `blake2b("Event(field1_type,field2_type)")`
     const SIGNATURE_TOPIC: Option<[u8; 32]>;
 
+    type SignatureTopic: GetSignatureTopic;
+
     /// Guides event topic serialization using the given topics builder.
     fn topics<E, B>(
         &self,
@@ -214,4 +216,12 @@ pub trait Event: scale::Encode {
     where
         E: Environment,
         B: TopicsBuilderBackend<E>;
+}
+
+/// Getter that returns the signature topic for the specific event.
+///
+/// It can be automatically calculated or manually specified.
+pub trait GetSignatureTopic {
+    /// Retrieve the signature topic
+    fn signature_topic(&self) -> Option<[u8; 32]>;
 }
