@@ -31,6 +31,8 @@ impl GenerateCode for Event<'_> {
             .item
             .anonymous()
             .then(|| quote::quote! { #[ink(anonymous)] });
+
+
         quote::quote! (
             #[cfg_attr(feature = "std", derive(::ink::EventMetadata))]
             #[derive(::ink::Event)]

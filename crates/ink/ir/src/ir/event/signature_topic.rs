@@ -12,27 +12,57 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::ir::blake2b_256;
+use hex::decode_to_slice;
+
+use crate::ast;
 
 /// The signature topic of an event variant.
 ///
 /// Calculated with `blake2b("Event(field1_type,field2_type)")`.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct SignatureTopic {
-    pub topic: Option<[u8; 32]>,
+    topic: [u8; 32],
 }
 
 impl SignatureTopic {
-    /// Computes the BLAKE-2 256-bit based signature topic from the given input bytes.
-    pub fn compute(input: &[u8]) -> Self {
-        assert!(
-            input.len() >= 32,
-            "Input array for signature topic is to short"
-        );
-        let mut output = [0; 32];
-        blake2b_256(input, &mut output);
-        Self {
-            topic: Some(output),
+    pub fn signature_topic(&self) -> [u8; 32] {
+        self.topic
+    }
+}
+
+impl From<&[u8; 32]> for SignatureTopic {
+    fn from(value: &[u8; 32]) -> Self {
+        Self { topic: *value }
+    }
+}
+
+impl TryFrom<&ast::MetaValue> for SignatureTopic {
+    type Error = syn::Error;
+
+    fn try_from(value: &ast::MetaValue) -> Result<Self, Self::Error> {
+        if let ast::MetaValue::Lit(lit) = value {
+            if let syn::Lit::Str(s) = lit {
+                let mut bytes = [0u8; 32];
+
+                if decode_to_slice(s.value(), &mut bytes).is_ok() {
+                    Ok(Self { topic: bytes })
+                } else {
+                    Err(format_err_spanned!(
+                        value,
+                        "`signature_topic` has invalid hex string",
+                    ))
+                }
+            } else {
+                Err(format_err_spanned!(
+                    value,
+                    "Expected string literal argument for the `signature_topic`"
+                ))
+            }
+        } else {
+            Err(format_err_spanned!(
+                value,
+                "Expected string argument for the `signature_topic`"
+            ))
         }
     }
 }

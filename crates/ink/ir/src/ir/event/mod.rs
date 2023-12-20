@@ -20,10 +20,7 @@ use proc_macro2::TokenStream as TokenStream2;
 use quote::ToTokens;
 use syn::spanned::Spanned as _;
 
-use crate::{
-    error::ExtError,
-    ir,
-};
+use crate::{error::ExtError, ir};
 
 pub use signature_topic::SignatureTopic;
 
@@ -51,7 +48,7 @@ impl Event {
                 return Err(format_err_spanned!(
                     attr,
                     "only one `ink::event` is allowed",
-                ))
+                ));
             }
         }
 
@@ -78,7 +75,7 @@ impl Event {
         item_struct: &syn::ItemStruct,
     ) -> Result<bool, syn::Error> {
         if !ir::contains_ink_attributes(&item_struct.attrs) {
-            return Ok(false)
+            return Ok(false);
         }
         // At this point we know that there must be at least one ink!
         // attribute. This can be either the ink! storage struct,
@@ -92,6 +89,15 @@ impl Event {
     /// generated or emitted.
     pub fn anonymous(&self) -> bool {
         self.config.anonymous()
+    }
+
+    /// Return manually specified signature topic.
+    ///
+    /// # Note
+    ///
+    /// Conflicts with `anonymous`
+    pub fn signature_topic(&self) -> Option<[u8; 32]> {
+        self.config.signature_topic()
     }
 }
 
@@ -110,21 +116,30 @@ impl TryFrom<syn::ItemStruct> for Event {
         let struct_span = item_struct.span();
         let (ink_attrs, other_attrs) = ir::sanitize_attributes(
             struct_span,
-            item_struct.attrs,
+            item_struct.attrs.clone(),
             &ir::AttributeArgKind::Event,
-            |arg| {
-                match arg.kind() {
-                    ir::AttributeArg::Event | ir::AttributeArg::Anonymous => Ok(()),
-                    _ => Err(None),
-                }
+            |arg| match arg.kind() {
+                ir::AttributeArg::Event
+                | ir::AttributeArg::SignatureTopic(_)
+                | ir::AttributeArg::Anonymous => Ok(()),
+                _ => Err(None),
             },
         )?;
+        if ink_attrs.is_anonymous() && ink_attrs.signature_topic().is_some() {
+            return Err(format_err_spanned!(
+                item_struct,
+                "cannot use use `anonymous` with `signature_topic`",
+            ));
+        }
         Ok(Self {
             item: syn::ItemStruct {
                 attrs: other_attrs,
                 ..item_struct
             },
-            config: EventConfig::new(ink_attrs.is_anonymous()),
+            config: EventConfig::new(
+                ink_attrs.is_anonymous(),
+                ink_attrs.signature_topic(),
+            ),
         })
     }
 }
@@ -135,8 +150,10 @@ mod tests {
 
     #[test]
     fn simple_try_from_works() {
+        let s = "11".repeat(32);
         let item_struct: syn::ItemStruct = syn::parse_quote! {
             #[ink(event)]
+            #[ink(signature_topic = #s)]
             pub struct MyEvent {
                 #[ink(topic)]
                 field_1: i32,
@@ -242,5 +259,22 @@ mod tests {
                 field_2: bool,
             }
         });
+    }
+    #[test]
+    fn signature_conflict_fails() {
+        let s = "11".repeat(32);
+        assert_try_from_fails(
+            syn::parse_quote! {
+                #[ink(event)]
+                #[ink(anonymous)]
+                #[ink(signature_topic = #s)]
+                pub struct MyEvent {
+                    #[ink(topic)]
+                    field_1: i32,
+                    field_2: bool,
+                }
+            },
+            "cannot use use `anonymous` with `signature_topic`",
+        )
     }
 }

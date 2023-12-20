@@ -16,31 +16,20 @@ use core::result::Result;
 use std::collections::HashMap;
 
 use ink_prelude::IIP2_WILDCARD_COMPLEMENT_SELECTOR;
-use proc_macro2::{
-    Span,
-    TokenStream as TokenStream2,
-};
+use proc_macro2::{Span, TokenStream as TokenStream2};
 use quote::ToTokens;
 use syn::{
-    parse::{
-        Parse,
-        ParseStream,
-    },
+    parse::{Parse, ParseStream},
     punctuated::Punctuated,
     spanned::Spanned,
     Token,
 };
 
 use crate::{
-    ast::{
-        self,
-    },
+    ast::{self},
     error::ExtError as _,
     ir,
-    ir::{
-        chain_extension::FunctionId,
-        Selector,
-    },
+    ir::{chain_extension::FunctionId, Selector},
 };
 
 use super::SignatureTopic;
@@ -61,13 +50,13 @@ impl IsDocAttribute for syn::Attribute {
 
     fn extract_docs(&self) -> Option<String> {
         if !self.is_doc_attribute() {
-            return None
+            return None;
         }
         match &self.meta {
             syn::Meta::NameValue(nv) => {
                 if let syn::Expr::Lit(l) = &nv.value {
                     if let syn::Lit::Str(s) = &l.lit {
-                        return Some(s.value())
+                        return Some(s.value());
                     }
                 }
             }
@@ -174,7 +163,7 @@ impl InkAttribute {
             return Err(format_err!(
                 self.span(),
                 "unexpected first ink! attribute argument",
-            ))
+            ));
         }
         Ok(())
     }
@@ -202,7 +191,7 @@ impl InkAttribute {
                 .into_combine(format_err!(
                     seen.span(),
                     "first equal ink! attribute argument here"
-                )))
+                )));
             }
             if let Some(seen) = seen2.get(&arg.kind().kind()) {
                 return Err(format_err!(
@@ -212,7 +201,7 @@ impl InkAttribute {
                 .into_combine(format_err!(
                     *seen,
                     "first equal ink! attribute argument with equal kind here"
-                )))
+                )));
             }
             seen.insert(arg);
             seen2.insert(arg.kind().kind(), arg.span());
@@ -244,7 +233,7 @@ impl InkAttribute {
             return Err(format_err!(
                 Span::call_site(),
                 "encountered unexpected empty expanded ink! attribute arguments",
-            ))
+            ));
         }
         Self::ensure_no_duplicate_args(&args)?;
         Ok(Self { args })
@@ -270,7 +259,7 @@ impl InkAttribute {
     pub fn namespace(&self) -> Option<ir::Namespace> {
         self.args().find_map(|arg| {
             if let ir::AttributeArg::Namespace(namespace) = arg.kind() {
-                return Some(namespace.clone())
+                return Some(namespace.clone());
             }
             None
         })
@@ -280,7 +269,17 @@ impl InkAttribute {
     pub fn selector(&self) -> Option<SelectorOrWildcard> {
         self.args().find_map(|arg| {
             if let ir::AttributeArg::Selector(selector) = arg.kind() {
-                return Some(*selector)
+                return Some(*selector);
+            }
+            None
+        })
+    }
+
+    /// Returns the signature topic of the ink! attribute if any.
+    pub fn signature_topic(&self) -> Option<SignatureTopic> {
+        self.args().find_map(|arg| {
+            if let ir::AttributeArg::SignatureTopic(topic) = arg.kind() {
+                return Some(*topic);
             }
             None
         })
@@ -516,8 +515,7 @@ impl core::fmt::Display for AttributeArg {
             Self::Payable => write!(f, "payable"),
             Self::Selector(selector) => core::fmt::Display::fmt(&selector, f),
             Self::SignatureTopic(sig_topic) => {
-                // TODO
-                write!(f, "signature_topic")
+                write!(f, "signature_topic = {:?}", sig_topic.signature_topic())
             }
             Self::Function(function) => {
                 write!(f, "function = {:?}", function.into_u16())
@@ -704,11 +702,9 @@ where
         .map(<Attribute as TryFrom<_>>::try_from)
         .collect::<Result<Vec<Attribute>, syn::Error>>()?
         .into_iter()
-        .partition_map(|attr| {
-            match attr {
-                Attribute::Ink(ink_attr) => Either::Left(ink_attr),
-                Attribute::Other(other_attr) => Either::Right(other_attr),
-            }
+        .partition_map(|attr| match attr {
+            Attribute::Ink(ink_attr) => Either::Left(ink_attr),
+            Attribute::Other(other_attr) => Either::Right(other_attr),
         });
     Attribute::ensure_no_duplicate_attrs(&ink_attrs)?;
     Ok((ink_attrs, others))
@@ -792,7 +788,7 @@ where
 {
     let (ink_attrs, rust_attrs) = ir::partition_attributes(attrs)?;
     if ink_attrs.is_empty() {
-        return Ok((None, rust_attrs))
+        return Ok((None, rust_attrs));
     }
     let normalized = ir::InkAttribute::from_expanded(ink_attrs).map_err(|err| {
         err.into_combine(format_err!(parent_span, "at this invocation",))
@@ -821,7 +817,7 @@ impl Attribute {
                     attr.span(),
                     "encountered duplicate ink! attribute"
                 )
-                .into_combine(format_err!(seen.span(), "first ink! attribute here")))
+                .into_combine(format_err!(seen.span(), "first ink! attribute here")));
             }
             seen.insert(attr);
         }
@@ -834,7 +830,7 @@ impl TryFrom<syn::Attribute> for Attribute {
 
     fn try_from(attr: syn::Attribute) -> Result<Self, Self::Error> {
         if attr.path().is_ident("ink") {
-            return <InkAttribute as TryFrom<_>>::try_from(attr).map(Into::into)
+            return <InkAttribute as TryFrom<_>>::try_from(attr).map(Into::into);
         }
         Ok(Attribute::Other(attr))
     }
@@ -851,7 +847,7 @@ impl TryFrom<syn::Attribute> for InkAttribute {
 
     fn try_from(attr: syn::Attribute) -> Result<Self, Self::Error> {
         if !attr.path().is_ident("ink") {
-            return Err(format_err_spanned!(attr, "unexpected non-ink! attribute"))
+            return Err(format_err_spanned!(attr, "unexpected non-ink! attribute"));
         }
 
         let args: Vec<_> = attr
@@ -864,7 +860,7 @@ impl TryFrom<syn::Attribute> for InkAttribute {
             return Err(format_err_spanned!(
                 attr,
                 "encountered unsupported empty ink! attribute"
-            ))
+            ));
         }
         Ok(InkAttribute { args })
     }
@@ -912,7 +908,7 @@ impl InkAttribute {
             }
         }
         if let Some(err) = err {
-            return Err(err)
+            return Err(err);
         }
         Ok(())
     }
@@ -931,14 +927,12 @@ impl Parse for AttributeFrag {
                     )
                 })?;
                 match ident.to_string().as_str() {
-                    "selector" => {
-                        SelectorOrWildcard::try_from(&name_value.value)
-                            .map(AttributeArg::Selector)
-                    }
-                    "namespace" => {
-                        Namespace::try_from(&name_value.value)
-                            .map(AttributeArg::Namespace)
-                    }
+                    "selector" => SelectorOrWildcard::try_from(&name_value.value)
+                        .map(AttributeArg::Selector),
+                    "signature_topic" => SignatureTopic::try_from(&name_value.value)
+                        .map(AttributeArg::SignatureTopic),
+                    "namespace" => Namespace::try_from(&name_value.value)
+                        .map(AttributeArg::Namespace),
                     "function" => {
                         if let Some(lit_int) = name_value.value.as_lit_int() {
                             let id = lit_int.base10_parse::<u16>()
@@ -965,13 +959,11 @@ impl Parse for AttributeFrag {
                             ))
                         }
                     }
-                    _ => {
-                        Err(format_err_spanned!(
-                            ident,
-                            "encountered unknown ink! attribute argument: {}",
-                            ident
-                        ))
-                    }
+                    _ => Err(format_err_spanned!(
+                        ident,
+                        "encountered unknown ink! attribute argument: {}",
+                        ident
+                    )),
                 }
             }
             ast::Meta::Path(path) => {
@@ -1093,15 +1085,13 @@ mod tests {
         impl From<ir::Attribute> for Attribute {
             fn from(attr: ir::Attribute) -> Self {
                 match attr {
-                    ir::Attribute::Ink(ink_attr) => {
-                        Self::Ink(
-                            ink_attr
-                                .args
-                                .into_iter()
-                                .map(|arg| arg.arg)
-                                .collect::<Vec<_>>(),
-                        )
-                    }
+                    ir::Attribute::Ink(ink_attr) => Self::Ink(
+                        ink_attr
+                            .args
+                            .into_iter()
+                            .map(|arg| arg.arg)
+                            .collect::<Vec<_>>(),
+                    ),
                     ir::Attribute::Other(other_attr) => Self::Other(other_attr),
                 }
             }
@@ -1521,5 +1511,18 @@ mod tests {
             ],
             Err("encountered duplicate ink! attribute"),
         )
+    }
+    #[test]
+    fn signature_topic_works() {
+        let bytes = [17u8; 32];
+        let s = "11".repeat(32);
+        assert_attribute_try_from(
+            syn::parse_quote! {
+                #[ink(signature_topic = #s)]
+            },
+            Ok(test::Attribute::Ink(vec![AttributeArg::SignatureTopic(
+                SignatureTopic::from(&bytes),
+            )])),
+        );
     }
 }
