@@ -81,8 +81,8 @@ impl ContractRef<'_> {
             .storage()
             .attrs()
             .iter()
-            .cloned()
-            .filter(syn::Attribute::is_doc_attribute);
+            .filter(|&x| syn::Attribute::is_doc_attribute(x))
+            .cloned();
         let storage_ident = self.contract.module().storage().ident();
         let ref_ident = self.generate_contract_ref_ident();
         quote_spanned!(span=>
