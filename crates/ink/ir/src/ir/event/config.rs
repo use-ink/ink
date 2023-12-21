@@ -17,7 +17,7 @@ use crate::{
     utils::duplicate_config_err,
 };
 
-use super::SignatureTopic;
+use super::SignatureTopicArg;
 
 /// The configuration arguments to the `#[ink::event(..)]` attribute macro.
 #[derive(Debug, PartialEq, Eq)]
@@ -36,7 +36,7 @@ impl TryFrom<ast::AttributeArgs> for EventConfig {
 
     fn try_from(args: ast::AttributeArgs) -> Result<Self, Self::Error> {
         let mut anonymous: Option<syn::LitBool> = None;
-        let mut signature_topic: Option<SignatureTopic> = None;
+        let mut signature_topic: Option<SignatureTopicArg> = None;
         for arg in args.into_iter() {
             if arg.name.is_ident("anonymous") {
                 if let Some(lit_bool) = anonymous {
@@ -66,7 +66,7 @@ impl TryFrom<ast::AttributeArgs> for EventConfig {
                         "event",
                     ));
                 }
-                signature_topic = Some(SignatureTopic::try_from(&arg.value)?);
+                signature_topic = Some(SignatureTopicArg::try_from(&arg.value)?);
             } else {
                 return Err(format_err_spanned!(
                     arg,
@@ -84,7 +84,7 @@ impl TryFrom<ast::AttributeArgs> for EventConfig {
 
 impl EventConfig {
     /// Construct a new [`EventConfig`].
-    pub fn new(anonymous: bool, signature_topic: Option<SignatureTopic>) -> Self {
+    pub fn new(anonymous: bool, signature_topic: Option<SignatureTopicArg>) -> Self {
         Self {
             anonymous,
             signature_topic: signature_topic.map(|s| s.signature_topic()),

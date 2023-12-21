@@ -17,8 +17,9 @@ use derive_more::From;
 use ir::HexLiteral;
 use proc_macro2::TokenStream as TokenStream2;
 use quote::quote;
+use syn::spanned::Spanned;
 
-/// Generates code for the storage item.
+/// Generates code for the event item.
 #[derive(From, Copy, Clone)]
 pub struct Event<'a> {
     /// The storage item to generate code for.
@@ -26,7 +27,7 @@ pub struct Event<'a> {
 }
 
 impl GenerateCode for Event<'_> {
-    /// Generates ink! storage item code.
+    /// Generates ink! event item code.
     fn generate_code(&self) -> TokenStream2 {
         let item = self.item.item();
         let anonymous = self
@@ -35,10 +36,13 @@ impl GenerateCode for Event<'_> {
             .then(|| quote::quote! { #[ink(anonymous)] });
 
         let signature_topic = self.generate_signature_topic();
+        let cfg_attrs = self.item.get_cfg_attrs(item.span());
 
         quote::quote! (
+            #( #cfg_attrs )*
             #signature_topic
 
+            #( #cfg_attrs )*
             #[cfg_attr(feature = "std", derive(::ink::EventMetadata))]
             #[derive(::ink::Event)]
             #[::ink::scale_derive(Encode, Decode)]

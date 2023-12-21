@@ -43,7 +43,7 @@ use crate::{
     },
 };
 
-use super::SignatureTopic;
+use super::SignatureTopicArg;
 
 /// An extension trait for [`syn::Attribute`] in order to query for documentation.
 pub trait IsDocAttribute {
@@ -287,7 +287,7 @@ impl InkAttribute {
     }
 
     /// Returns the signature topic of the ink! attribute if any.
-    pub fn signature_topic(&self) -> Option<SignatureTopic> {
+    pub fn signature_topic(&self) -> Option<SignatureTopicArg> {
         self.args().find_map(|arg| {
             if let ir::AttributeArg::SignatureTopic(topic) = arg.kind() {
                 return Some(*topic);
@@ -376,7 +376,7 @@ pub enum AttributeArgKind {
     /// `#[ink(selector = 0xDEADBEEF)]`
     Selector,
     /// `#[ink(signature_topic = "DEADBEEF")]`
-    SignatureTopic,
+    SignatureTopicArg,
     /// `#[ink(function = N: u16)]`
     Function,
     /// `#[ink(namespace = "my_namespace")]`
@@ -433,7 +433,7 @@ pub enum AttributeArg {
     ///   that is invoked if no other ink! message matches a given selector.
     Selector(SelectorOrWildcard),
     /// `#[ink(signature_topic = "DEADBEEF")]`
-    SignatureTopic(SignatureTopic),
+    SignatureTopic(SignatureTopicArg),
     /// `#[ink(namespace = "my_namespace")]`
     ///
     /// Applied on ink! trait implementation blocks to disambiguate other trait
@@ -478,7 +478,7 @@ impl core::fmt::Display for AttributeArgKind {
             Self::Selector => {
                 write!(f, "selector = S:[u8; 4] || _")
             }
-            Self::SignatureTopic => {
+            Self::SignatureTopicArg => {
                 write!(f, "signature_topic = S:[u8; 32]")
             }
             Self::Function => {
@@ -505,7 +505,7 @@ impl AttributeArg {
             Self::Constructor => AttributeArgKind::Constructor,
             Self::Payable => AttributeArgKind::Payable,
             Self::Selector(_) => AttributeArgKind::Selector,
-            Self::SignatureTopic(_) => AttributeArgKind::SignatureTopic,
+            Self::SignatureTopic(_) => AttributeArgKind::SignatureTopicArg,
             Self::Function(_) => AttributeArgKind::Function,
             Self::Namespace(_) => AttributeArgKind::Namespace,
             Self::Implementation => AttributeArgKind::Implementation,
@@ -945,7 +945,7 @@ impl Parse for AttributeFrag {
                             .map(AttributeArg::Selector)
                     }
                     "signature_topic" => {
-                        SignatureTopic::try_from(&name_value.value)
+                        SignatureTopicArg::try_from(&name_value.value)
                             .map(AttributeArg::SignatureTopic)
                     }
                     "namespace" => {
@@ -1544,7 +1544,7 @@ mod tests {
                 #[ink(signature_topic = #s)]
             },
             Ok(test::Attribute::Ink(vec![AttributeArg::SignatureTopic(
-                SignatureTopic::from(&bytes),
+                SignatureTopicArg::from(&bytes),
             )])),
         );
     }

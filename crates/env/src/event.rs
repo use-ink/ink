@@ -217,7 +217,7 @@ pub trait Event: scale::Encode + GetSignatureTopic {
 /// The unique signature topic of the event. `None` for anonymous events.
 ///
 /// Usually this is calculated using the `#[derive(ink::Event)]` derive, which by
-/// default calculates this as `blake2b("Event(field1_type,field2_type)")
+/// default calculates this as `blake2b("Event(field1_type,field2_type)")`
 pub trait GetSignatureTopic {
     /// Retrieve the signature topic
     fn signature_topic() -> Option<[u8; 32]>;

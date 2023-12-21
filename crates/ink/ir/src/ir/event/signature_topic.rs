@@ -20,23 +20,23 @@ use crate::ast;
 ///
 /// Calculated with `blake2b("Event(field1_type,field2_type)")`.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
-pub struct SignatureTopic {
+pub struct SignatureTopicArg {
     topic: [u8; 32],
 }
 
-impl SignatureTopic {
+impl SignatureTopicArg {
     pub fn signature_topic(&self) -> [u8; 32] {
         self.topic
     }
 }
 
-impl From<&[u8; 32]> for SignatureTopic {
+impl From<&[u8; 32]> for SignatureTopicArg {
     fn from(value: &[u8; 32]) -> Self {
         Self { topic: *value }
     }
 }
 
-impl TryFrom<&ast::MetaValue> for SignatureTopic {
+impl TryFrom<&ast::MetaValue> for SignatureTopicArg {
     type Error = syn::Error;
 
     fn try_from(value: &ast::MetaValue) -> Result<Self, Self::Error> {

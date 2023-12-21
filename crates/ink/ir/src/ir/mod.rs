@@ -72,7 +72,7 @@ pub use self::{
     contract::Contract,
     event::{
         Event,
-        SignatureTopic,
+        SignatureTopicArg,
     },
     ink_test::InkTest,
     item::{

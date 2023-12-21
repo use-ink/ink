@@ -16,16 +16,20 @@ mod config;
 mod signature_topic;
 
 use config::EventConfig;
-use proc_macro2::TokenStream as TokenStream2;
+use proc_macro2::{
+    Span,
+    TokenStream as TokenStream2,
+};
 use quote::ToTokens;
 use syn::spanned::Spanned as _;
 
 use crate::{
     error::ExtError,
     ir,
+    utils::extract_cfg_attributes,
 };
 
-pub use signature_topic::SignatureTopic;
+pub use signature_topic::SignatureTopicArg;
 
 /// A checked ink! event with its configuration.
 #[derive(Debug, PartialEq, Eq)]
@@ -101,6 +105,11 @@ impl Event {
     /// Conflicts with `anonymous`
     pub fn signature_topic(&self) -> Option<[u8; 32]> {
         self.config.signature_topic()
+    }
+
+    /// Returns a list of `cfg` attributes if any.
+    pub fn get_cfg_attrs(&self, span: Span) -> Vec<TokenStream2> {
+        extract_cfg_attributes(&self.item.attrs, span)
     }
 }
 

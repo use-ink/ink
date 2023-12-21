@@ -28,12 +28,6 @@ fn unit_struct_works() {
         event_derive {
             #[derive(scale::Encode)]
             struct UnitStruct;
-
-            impl ::ink::env::GetSignatureTopic for UnitStruct {
-                fn signature_topic() -> Option<[u8; 32]> {
-                    Some([0; 32])
-                }
-            }
         }
         expands to {
             const _: () = {
@@ -59,7 +53,7 @@ fn unit_struct_works() {
                     }
                 }
             };
-        }
+        } no_build
     }
 }
 
@@ -108,12 +102,6 @@ fn struct_with_fields_no_topics() {
                 field_2: u64,
                 field_3: u128,
             }
-
-            impl ::ink::env::GetSignatureTopic for Event {
-                fn signature_topic() -> Option<[u8; 32]> {
-                    Some([0; 32])
-                }
-            }
         }
         expands to {
             const _: () = {
@@ -139,7 +127,7 @@ fn struct_with_fields_no_topics() {
                     }
                 }
             };
-        }
+        } no_build
     }
 }
 
@@ -174,7 +162,7 @@ fn struct_with_fields_and_some_topics() {
                             Event { field_2 : __binding_1 , field_3 : __binding_2 , .. } => {
                                 builder
                                     .build::<Self>()
-                                    .push_topic(<Self as GetSignatureTopic>::signature_topic().as_ref())
+                                    .push_topic(<Self as ::ink::env::GetSignatureTopic>::signature_topic().as_ref())
                                     .push_topic(::ink::as_option!(__binding_1))
                                     .push_topic(::ink::as_option!(__binding_2))
                                     .finish()
