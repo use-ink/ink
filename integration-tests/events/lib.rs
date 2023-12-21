@@ -283,9 +283,10 @@ pub mod events {
                     .expect("encountered invalid contract event data buffer");
             assert_eq!(!init_value, flipped.value);
 
-            let signature_topic = <InlineFlipped as ink::env::GetSignatureTopic>::signature_topic()
-                .map(H256::from)
-                .unwrap();
+            let signature_topic =
+                <InlineFlipped as ink::env::GetSignatureTopic>::signature_topic()
+                    .map(H256::from)
+                    .unwrap();
 
             let expected_topics = vec![signature_topic];
             assert_eq!(expected_topics, contract_event.topics);
