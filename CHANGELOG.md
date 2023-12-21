@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Custom signature topic in Events - #[2031](https://github.com/paritytech/ink/pull/2031)
+
 
 ## Version 5.0.0-rc
 
