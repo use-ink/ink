@@ -29,10 +29,7 @@ use crate::{
     utils::extract_cfg_attributes,
 };
 
-pub use signature_topic::{
-    SignatureTopic,
-    SignatureTopicArg,
-};
+pub use signature_topic::SignatureTopic;
 
 /// A checked ink! event with its configuration.
 #[derive(Debug, PartialEq, Eq)]
@@ -101,13 +98,13 @@ impl Event {
         self.config.anonymous()
     }
 
-    /// Return manually specified signature topic.
+    /// Return manually specified signature topic hash.
     ///
     /// # Note
     ///
     /// Conflicts with `anonymous`
-    pub fn signature_topic(&self) -> Option<[u8; 32]> {
-        self.config.signature_topic()
+    pub fn signature_topic_hash(&self) -> Option<String> {
+        self.config.signature_topic_hash()
     }
 
     /// Returns a list of `cfg` attributes if any.
@@ -142,7 +139,7 @@ impl TryFrom<syn::ItemStruct> for Event {
                 }
             },
         )?;
-        if ink_attrs.is_anonymous() && ink_attrs.signature_topic().is_some() {
+        if ink_attrs.is_anonymous() && ink_attrs.signature_topic_hash().is_some() {
             return Err(format_err_spanned!(
                 item_struct,
                 "cannot use use `anonymous` with `signature_topic`",
@@ -155,7 +152,7 @@ impl TryFrom<syn::ItemStruct> for Event {
             },
             config: EventConfig::new(
                 ink_attrs.is_anonymous(),
-                ink_attrs.signature_topic(),
+                ink_attrs.signature_topic_hash(),
             ),
         })
     }

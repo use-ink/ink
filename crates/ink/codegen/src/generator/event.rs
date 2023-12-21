@@ -51,10 +51,9 @@ impl GenerateCode for Event<'_> {
 
 impl Event<'_> {
     fn generate_signature_topic(&self) -> TokenStream2 {
-        let signature_topic = if let Some(bytes) = self.item.signature_topic() {
-            let hash_string = hex::encode(bytes);
+        let signature_topic = if let Some(hash) = self.item.signature_topic_hash() {
             quote! {
-                #[::ink::signature_topic(hash = #hash_string)]
+                #[::ink::signature_topic(hash = #hash)]
             }
         } else if self.item.anonymous() {
             quote! {}

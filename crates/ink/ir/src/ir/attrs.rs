@@ -43,8 +43,6 @@ use crate::{
     },
 };
 
-use super::SignatureTopicArg;
-
 /// An extension trait for [`syn::Attribute`] in order to query for documentation.
 pub trait IsDocAttribute {
     /// Returns `true` if the attribute is a Rust documentation attribute.
@@ -287,10 +285,10 @@ impl InkAttribute {
     }
 
     /// Returns the signature topic of the ink! attribute if any.
-    pub fn signature_topic(&self) -> Option<SignatureTopicArg> {
+    pub fn signature_topic_hash(&self) -> Option<String> {
         self.args().find_map(|arg| {
-            if let ir::AttributeArg::SignatureTopic(topic) = arg.kind() {
-                return Some(*topic);
+            if let ir::AttributeArg::SignatureTopic(hash) = arg.kind() {
+                return Some(hash.clone());
             }
             None
         })
@@ -433,7 +431,7 @@ pub enum AttributeArg {
     ///   that is invoked if no other ink! message matches a given selector.
     Selector(SelectorOrWildcard),
     /// `#[ink(signature_topic = "DEADBEEF")]`
-    SignatureTopic(SignatureTopicArg),
+    SignatureTopic(String),
     /// `#[ink(namespace = "my_namespace")]`
     ///
     /// Applied on ink! trait implementation blocks to disambiguate other trait
@@ -525,8 +523,8 @@ impl core::fmt::Display for AttributeArg {
             Self::Constructor => write!(f, "constructor"),
             Self::Payable => write!(f, "payable"),
             Self::Selector(selector) => core::fmt::Display::fmt(&selector, f),
-            Self::SignatureTopic(sig_topic) => {
-                write!(f, "signature_topic = {:?}", sig_topic.signature_topic())
+            Self::SignatureTopic(hash) => {
+                write!(f, "signature_topic = {:?}", hash)
             }
             Self::Function(function) => {
                 write!(f, "function = {:?}", function.into_u16())
@@ -944,13 +942,19 @@ impl Parse for AttributeFrag {
                         SelectorOrWildcard::try_from(&name_value.value)
                             .map(AttributeArg::Selector)
                     }
-                    "signature_topic" => {
-                        SignatureTopicArg::try_from(&name_value.value)
-                            .map(AttributeArg::SignatureTopic)
-                    }
                     "namespace" => {
                         Namespace::try_from(&name_value.value)
                             .map(AttributeArg::Namespace)
+                    }
+                    "signature_topic" => {
+                        if let Some(hash) = name_value.value.as_string() {
+                            Ok(AttributeArg::SignatureTopic(hash))
+                        } else {
+                            Err(format_err_spanned!(
+                                name_value.value,
+                                "expected String type for `S` in #[ink(signature_topic = S)]",
+                            ))
+                        }
                     }
                     "function" => {
                         if let Some(lit_int) = name_value.value.as_lit_int() {
@@ -1537,15 +1541,12 @@ mod tests {
     }
     #[test]
     fn signature_topic_works() {
-        let bytes = [17u8; 32];
         let s = "11".repeat(32);
         assert_attribute_try_from(
             syn::parse_quote! {
                 #[ink(signature_topic = #s)]
             },
-            Ok(test::Attribute::Ink(vec![AttributeArg::SignatureTopic(
-                SignatureTopicArg::from(&bytes),
-            )])),
+            Ok(test::Attribute::Ink(vec![AttributeArg::SignatureTopic(s)])),
         );
     }
 }

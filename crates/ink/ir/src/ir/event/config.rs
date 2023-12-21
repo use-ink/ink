@@ -12,14 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use syn::spanned::Spanned;
-
 use crate::{
     ast,
     utils::duplicate_config_err,
 };
-
-use super::SignatureTopicArg;
 
 /// The configuration arguments to the `#[ink::event(..)]` attribute macro.
 #[derive(Debug, PartialEq, Eq)]
@@ -29,8 +25,8 @@ pub struct EventConfig {
     /// This is the default value.
     anonymous: bool,
 
-    /// Manually specified signature topic.
-    signature_topic: Option<[u8; 32]>,
+    /// Manually specified signature topic hash.
+    signature_topic_hash: Option<String>,
 }
 
 impl TryFrom<ast::AttributeArgs> for EventConfig {
@@ -38,7 +34,7 @@ impl TryFrom<ast::AttributeArgs> for EventConfig {
 
     fn try_from(args: ast::AttributeArgs) -> Result<Self, Self::Error> {
         let mut anonymous: Option<syn::LitBool> = None;
-        let mut signature_topic: Option<SignatureTopicArg> = None;
+        let mut signature_topic: Option<syn::LitStr> = None;
         for arg in args.into_iter() {
             if arg.name.is_ident("anonymous") {
                 if let Some(lit_bool) = anonymous {
@@ -60,13 +56,17 @@ impl TryFrom<ast::AttributeArgs> for EventConfig {
                     ));
                 }
 
-                if signature_topic.is_some() {
-                    return Err(format_err!(
-                        arg.span(),
-                        "encountered duplicate ink! configuration argument"
+                if let Some(lit_str) = signature_topic {
+                    return Err(duplicate_config_err(lit_str, arg, "anonymous", "event"));
+                }
+                if let ast::MetaValue::Lit(syn::Lit::Str(lis_str)) = &arg.value {
+                    signature_topic = Some(lis_str.clone())
+                } else {
+                    return Err(format_err_spanned!(
+                        arg,
+                        "expected a bool literal for `anonymous` ink! event item configuration argument",
                     ));
                 }
-                signature_topic = Some(SignatureTopicArg::try_from(&arg.value)?);
             } else {
                 return Err(format_err_spanned!(
                     arg,
@@ -77,17 +77,17 @@ impl TryFrom<ast::AttributeArgs> for EventConfig {
 
         Ok(EventConfig::new(
             anonymous.map(|lit_bool| lit_bool.value).unwrap_or(false),
-            signature_topic,
+            signature_topic.map(|lit_str| lit_str.value()),
         ))
     }
 }
 
 impl EventConfig {
     /// Construct a new [`EventConfig`].
-    pub fn new(anonymous: bool, signature_topic: Option<SignatureTopicArg>) -> Self {
+    pub fn new(anonymous: bool, signature_topic_hash: Option<String>) -> Self {
         Self {
             anonymous,
-            signature_topic: signature_topic.map(|s| s.signature_topic()),
+            signature_topic_hash,
         }
     }
 
@@ -97,7 +97,7 @@ impl EventConfig {
     }
 
     /// Returns the manually specified signature topic.
-    pub fn signature_topic(&self) -> Option<[u8; 32]> {
-        self.signature_topic
+    pub fn signature_topic_hash(&self) -> Option<String> {
+        self.signature_topic_hash.clone()
     }
 }
