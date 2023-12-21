@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use syn::spanned::Spanned;
+
 use crate::{
     ast,
     utils::duplicate_config_err,
@@ -58,12 +60,10 @@ impl TryFrom<ast::AttributeArgs> for EventConfig {
                     ));
                 }
 
-                if let Some(lit_str) = anonymous {
-                    return Err(duplicate_config_err(
-                        lit_str,
-                        arg,
-                        "signature_topic",
-                        "event",
+                if signature_topic.is_some() {
+                    return Err(format_err!(
+                        arg.span(),
+                        "encountered duplicate ink! configuration argument"
                     ));
                 }
                 signature_topic = Some(SignatureTopicArg::try_from(&arg.value)?);

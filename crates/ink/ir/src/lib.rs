@@ -77,6 +77,7 @@ pub use self::{
         Receiver,
         Selector,
         SelectorMacro,
+        SignatureTopic,
         Storage,
         StorageItem,
         Visibility,

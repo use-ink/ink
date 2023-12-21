@@ -13,8 +13,10 @@
 // limitations under the License.
 
 mod metadata;
+mod signature_topic;
 
 pub use metadata::event_metadata_derive;
+pub use signature_topic::generate_signature_topic;
 
 use ink_codegen::generate_code;
 use proc_macro2::TokenStream as TokenStream2;
@@ -123,7 +125,7 @@ fn event_derive_struct(mut s: synstructure::Structure) -> syn::Result<TokenStrea
         }
     );
 
-    Ok(s.bound_impl(quote!(::ink::env::Event), quote! {
+    let bound_impl = s.bound_impl(quote!(::ink::env::Event), quote! {
         type RemainingTopics = #remaining_topics_ty;
 
         fn topics<E, B>(
@@ -138,7 +140,33 @@ fn event_derive_struct(mut s: synstructure::Structure) -> syn::Result<TokenStrea
                 #topics_builder
             }
         }
-     }))
+     });
+
+    let blank_topic_impl = generate_signature_topic_blank(&s.ast().ident, anonymous);
+
+    let code = quote! {
+        #blank_topic_impl
+        #bound_impl
+    };
+
+    Ok(code)
+}
+
+fn generate_signature_topic_blank(
+    item_ident: &syn::Ident,
+    anonymous: bool,
+) -> TokenStream2 {
+    if anonymous {
+        quote! {
+            impl ::ink::env::GetSignatureTopic for #item_ident {
+                fn signature_topic() -> Option<[u8; 32]> {
+                    None
+                }
+            }
+        }
+    } else {
+        quote! {}
+    }
 }
 
 /// Checks if the given field's attributes contain an `#[ink(topic)]` attribute.

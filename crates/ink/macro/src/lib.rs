@@ -683,6 +683,11 @@ pub fn event(attr: TokenStream, item: TokenStream) -> TokenStream {
     event::generate(attr.into(), item.into()).into()
 }
 
+#[proc_macro_attribute]
+pub fn signature_topic(attr: TokenStream, item: TokenStream) -> TokenStream {
+    event::generate_signature_topic(attr.into(), item.into()).into()
+}
+
 /// Prepares the type to be fully compatible and usable with the storage.
 /// It implements all necessary traits and calculates the storage key for types.
 /// `Packed` types don't have a storage key, but non-packed types (like `Mapping`, `Lazy`

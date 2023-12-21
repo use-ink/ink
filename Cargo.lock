@@ -2630,6 +2630,7 @@ dependencies = [
  "derive_more",
  "either",
  "heck",
+ "hex",
  "impl-serde",
  "ink_ir",
  "ink_primitives 5.0.0-rc",

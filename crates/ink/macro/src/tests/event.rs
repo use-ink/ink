@@ -27,6 +27,7 @@ fn unit_struct_works() {
     crate::test_derive! {
         event_derive {
             #[derive(scale::Encode)]
+            #[::ink::signature_topic]
             struct UnitStruct;
         }
         expands to {
@@ -53,7 +54,7 @@ fn unit_struct_works() {
                     }
                 }
             };
-        } no_build
+        }
     }
 }
 
@@ -66,6 +67,11 @@ fn unit_struct_anonymous_has_no_topics() {
             struct UnitStruct;
         }
         expands to {
+            impl ::ink::env::GetSignatureTopic for UnitStruct {
+                fn signature_topic() -> Option<[u8; 32]> {
+                    None
+                }
+            }
             const _: () = {
                 impl ::ink::env::Event for UnitStruct {
                     type RemainingTopics = ::ink::env::event::state::NoRemainingTopics;
@@ -97,6 +103,7 @@ fn struct_with_fields_no_topics() {
     crate::test_derive! {
         event_derive {
             #[derive(scale::Encode)]
+            #[::ink::signature_topic]
             struct Event {
                 field_1: u32,
                 field_2: u64,
@@ -127,7 +134,7 @@ fn struct_with_fields_no_topics() {
                     }
                 }
             };
-        } no_build
+        }
     }
 }
 
@@ -136,6 +143,7 @@ fn struct_with_fields_and_some_topics() {
     crate::test_derive! {
         event_derive {
             #[derive(scale::Encode)]
+            #[::ink::signature_topic]
             struct Event {
                 field_1: u32,
                 #[ink(topic)]

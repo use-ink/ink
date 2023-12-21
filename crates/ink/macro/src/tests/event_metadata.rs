@@ -19,6 +19,7 @@ fn unit_struct_works() {
     crate::test_derive! {
         event_metadata_derive {
             #[derive(ink::Event, scale::Encode)]
+            #[::ink::signature_topic]
             struct UnitStruct;
         }
         expands to {
@@ -41,7 +42,7 @@ fn unit_struct_works() {
                     }
                 }
             };
-        } no_build
+        }
     }
 }
 
@@ -50,6 +51,7 @@ fn struct_with_fields_no_topics() {
     crate::test_derive! {
         event_metadata_derive {
             #[derive(ink::Event, scale::Encode)]
+            #[::ink::signature_topic]
             struct Event {
                 field_1: u32,
                 field_2: u64,
@@ -92,7 +94,7 @@ fn struct_with_fields_no_topics() {
                     }
                 }
             };
-        } no_build
+        }
     }
 }
 
@@ -101,6 +103,7 @@ fn struct_with_fields_and_some_topics() {
     crate::test_derive! {
         event_metadata_derive {
             #[derive(ink::Event, scale::Encode)]
+            #[::ink::signature_topic]
             struct Event {
                 field_1: u32,
                 #[ink(topic)]
@@ -145,6 +148,6 @@ fn struct_with_fields_and_some_topics() {
                     }
                 }
             };
-        } no_build
+        }
     }
 }

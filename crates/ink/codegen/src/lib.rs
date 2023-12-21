@@ -62,6 +62,10 @@ impl<'a> CodeGenerator for &'a ir::Event {
     type Generator = generator::Event<'a>;
 }
 
+impl<'a> CodeGenerator for &'a ir::SignatureTopic {
+    type Generator = generator::SignatureTopic<'a>;
+}
+
 impl<'a> CodeGenerator for &'a ir::StorageItem {
     type Generator = generator::StorageItem<'a>;
 }
