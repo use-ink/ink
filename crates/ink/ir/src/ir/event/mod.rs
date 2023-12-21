@@ -20,7 +20,10 @@ use proc_macro2::TokenStream as TokenStream2;
 use quote::ToTokens;
 use syn::spanned::Spanned as _;
 
-use crate::{error::ExtError, ir};
+use crate::{
+    error::ExtError,
+    ir,
+};
 
 pub use signature_topic::SignatureTopic;
 
@@ -118,11 +121,13 @@ impl TryFrom<syn::ItemStruct> for Event {
             struct_span,
             item_struct.attrs.clone(),
             &ir::AttributeArgKind::Event,
-            |arg| match arg.kind() {
-                ir::AttributeArg::Event
-                | ir::AttributeArg::SignatureTopic(_)
-                | ir::AttributeArg::Anonymous => Ok(()),
-                _ => Err(None),
+            |arg| {
+                match arg.kind() {
+                    ir::AttributeArg::Event
+                    | ir::AttributeArg::SignatureTopic(_)
+                    | ir::AttributeArg::Anonymous => Ok(()),
+                    _ => Err(None),
+                }
             },
         )?;
         if ink_attrs.is_anonymous() && ink_attrs.signature_topic().is_some() {

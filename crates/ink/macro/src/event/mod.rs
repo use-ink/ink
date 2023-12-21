@@ -96,18 +96,11 @@ fn event_derive_struct(mut s: synstructure::Structure) -> syn::Result<TokenStrea
         }
     };
 
-    let event_ident = variant.ast().ident;
-    let signature_topic = if !anonymous {
-        let signature_topic = signature_topic(variant.ast().fields, event_ident);
-        quote_spanned!(span=> ::core::option::Option::Some(#signature_topic))
-    } else {
-        quote_spanned!(span=> ::core::option::Option::None)
-    };
     let event_signature_topic = if anonymous {
         None
     } else {
         Some(quote_spanned!(span=>
-            .push_topic(Self::SIGNATURE_TOPIC.as_ref())
+            .push_topic(<Self as ::ink::env::GetSignatureTopic>::signature_topic().as_ref())
         ))
     };
 
@@ -133,8 +126,6 @@ fn event_derive_struct(mut s: synstructure::Structure) -> syn::Result<TokenStrea
     Ok(s.bound_impl(quote!(::ink::env::Event), quote! {
         type RemainingTopics = #remaining_topics_ty;
 
-        const SIGNATURE_TOPIC: ::core::option::Option<[::core::primitive::u8; 32]> = #signature_topic;
-
         fn topics<E, B>(
             &self,
             builder: ::ink::env::event::TopicsBuilder<::ink::env::event::state::Uninit, E, B>,
@@ -148,23 +139,6 @@ fn event_derive_struct(mut s: synstructure::Structure) -> syn::Result<TokenStrea
             }
         }
      }))
-}
-
-/// The signature topic of an event variant.
-///
-/// Calculated with `blake2b("Event(field1_type,field2_type)")`.
-fn signature_topic(fields: &syn::Fields, event_ident: &syn::Ident) -> TokenStream2 {
-    let fields = fields
-        .iter()
-        .map(|field| {
-            quote::ToTokens::to_token_stream(&field.ty)
-                .to_string()
-                .replace(' ', "")
-        })
-        .collect::<Vec<_>>()
-        .join(",");
-    let topic_str = format!("{}({fields})", event_ident);
-    quote!(::ink::blake2x256!(#topic_str))
 }
 
 /// Checks if the given field's attributes contain an `#[ink(topic)]` attribute.

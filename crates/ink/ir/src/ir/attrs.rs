@@ -16,20 +16,31 @@ use core::result::Result;
 use std::collections::HashMap;
 
 use ink_prelude::IIP2_WILDCARD_COMPLEMENT_SELECTOR;
-use proc_macro2::{Span, TokenStream as TokenStream2};
+use proc_macro2::{
+    Span,
+    TokenStream as TokenStream2,
+};
 use quote::ToTokens;
 use syn::{
-    parse::{Parse, ParseStream},
+    parse::{
+        Parse,
+        ParseStream,
+    },
     punctuated::Punctuated,
     spanned::Spanned,
     Token,
 };
 
 use crate::{
-    ast::{self},
+    ast::{
+        self,
+    },
     error::ExtError as _,
     ir,
-    ir::{chain_extension::FunctionId, Selector},
+    ir::{
+        chain_extension::FunctionId,
+        Selector,
+    },
 };
 
 use super::SignatureTopic;
@@ -702,9 +713,11 @@ where
         .map(<Attribute as TryFrom<_>>::try_from)
         .collect::<Result<Vec<Attribute>, syn::Error>>()?
         .into_iter()
-        .partition_map(|attr| match attr {
-            Attribute::Ink(ink_attr) => Either::Left(ink_attr),
-            Attribute::Other(other_attr) => Either::Right(other_attr),
+        .partition_map(|attr| {
+            match attr {
+                Attribute::Ink(ink_attr) => Either::Left(ink_attr),
+                Attribute::Other(other_attr) => Either::Right(other_attr),
+            }
         });
     Attribute::ensure_no_duplicate_attrs(&ink_attrs)?;
     Ok((ink_attrs, others))
@@ -927,12 +940,18 @@ impl Parse for AttributeFrag {
                     )
                 })?;
                 match ident.to_string().as_str() {
-                    "selector" => SelectorOrWildcard::try_from(&name_value.value)
-                        .map(AttributeArg::Selector),
-                    "signature_topic" => SignatureTopic::try_from(&name_value.value)
-                        .map(AttributeArg::SignatureTopic),
-                    "namespace" => Namespace::try_from(&name_value.value)
-                        .map(AttributeArg::Namespace),
+                    "selector" => {
+                        SelectorOrWildcard::try_from(&name_value.value)
+                            .map(AttributeArg::Selector)
+                    }
+                    "signature_topic" => {
+                        SignatureTopic::try_from(&name_value.value)
+                            .map(AttributeArg::SignatureTopic)
+                    }
+                    "namespace" => {
+                        Namespace::try_from(&name_value.value)
+                            .map(AttributeArg::Namespace)
+                    }
                     "function" => {
                         if let Some(lit_int) = name_value.value.as_lit_int() {
                             let id = lit_int.base10_parse::<u16>()
@@ -959,11 +978,13 @@ impl Parse for AttributeFrag {
                             ))
                         }
                     }
-                    _ => Err(format_err_spanned!(
-                        ident,
-                        "encountered unknown ink! attribute argument: {}",
-                        ident
-                    )),
+                    _ => {
+                        Err(format_err_spanned!(
+                            ident,
+                            "encountered unknown ink! attribute argument: {}",
+                            ident
+                        ))
+                    }
                 }
             }
             ast::Meta::Path(path) => {
@@ -1085,13 +1106,15 @@ mod tests {
         impl From<ir::Attribute> for Attribute {
             fn from(attr: ir::Attribute) -> Self {
                 match attr {
-                    ir::Attribute::Ink(ink_attr) => Self::Ink(
-                        ink_attr
-                            .args
-                            .into_iter()
-                            .map(|arg| arg.arg)
-                            .collect::<Vec<_>>(),
-                    ),
+                    ir::Attribute::Ink(ink_attr) => {
+                        Self::Ink(
+                            ink_attr
+                                .args
+                                .into_iter()
+                                .map(|arg| arg.arg)
+                                .collect::<Vec<_>>(),
+                        )
+                    }
                     ir::Attribute::Other(other_attr) => Self::Other(other_attr),
                 }
             }

@@ -14,7 +14,9 @@
 
 use crate::GenerateCode;
 use derive_more::From;
+use ir::HexLiteral;
 use proc_macro2::TokenStream as TokenStream2;
+use quote::quote;
 
 /// Generates code for the storage item.
 #[derive(From, Copy, Clone)]
@@ -32,8 +34,11 @@ impl GenerateCode for Event<'_> {
             .anonymous()
             .then(|| quote::quote! { #[ink(anonymous)] });
 
+        let signature_topic = self.generate_signature_topic();
 
         quote::quote! (
+            #signature_topic
+
             #[cfg_attr(feature = "std", derive(::ink::EventMetadata))]
             #[derive(::ink::Event)]
             #[::ink::scale_derive(Encode, Decode)]
@@ -41,4 +46,46 @@ impl GenerateCode for Event<'_> {
             #item
         )
     }
+}
+
+impl Event<'_> {
+    fn generate_signature_topic(&self) -> TokenStream2 {
+        let item_ident = &self.item.item().ident;
+        let signature_topic = if let Some(bytes) = self.item.signature_topic() {
+            let hash_bytes = bytes.map(|b| b.hex_padded_suffixed());
+            quote! {
+                ::core::option::Option::Some([ #( #hash_bytes ),* ])
+            }
+        } else if self.item.anonymous() {
+            quote! { ::core::option::Option::None }
+        } else {
+            let calculated_topic = signature_topic(&self.item.item().fields, item_ident);
+            quote! { ::core::option::Option::Some(#calculated_topic) }
+        };
+
+        quote! {
+            impl ::ink::env::GetSignatureTopic for #item_ident {
+                fn signature_topic() -> Option<[u8; 32]> {
+                    #signature_topic
+                }
+            }
+        }
+    }
+}
+
+/// The signature topic of an event variant.
+///
+/// Calculated with `blake2b("Event(field1_type,field2_type)")`.
+fn signature_topic(fields: &syn::Fields, event_ident: &syn::Ident) -> TokenStream2 {
+    let fields = fields
+        .iter()
+        .map(|field| {
+            quote::ToTokens::to_token_stream(&field.ty)
+                .to_string()
+                .replace(' ', "")
+        })
+        .collect::<Vec<_>>()
+        .join(",");
+    let topic_str = format!("{}({fields})", event_ident);
+    quote!(::ink::blake2x256!(#topic_str))
 }

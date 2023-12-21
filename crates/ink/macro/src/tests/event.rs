@@ -28,14 +28,17 @@ fn unit_struct_works() {
         event_derive {
             #[derive(scale::Encode)]
             struct UnitStruct;
+
+            impl ::ink::env::GetSignatureTopic for UnitStruct {
+                fn signature_topic() -> Option<[u8; 32]> {
+                    Some([0; 32])
+                }
+            }
         }
         expands to {
             const _: () = {
                 impl ::ink::env::Event for UnitStruct {
                     type RemainingTopics = [::ink::env::event::state::HasRemainingTopics; 1usize];
-
-                    const SIGNATURE_TOPIC: ::core::option::Option<[::core::primitive::u8; 32]> =
-                        ::core::option::Option::Some( ::ink::blake2x256!("UnitStruct()") );
 
                     fn topics<E, B>(
                         &self,
@@ -49,7 +52,7 @@ fn unit_struct_works() {
                             UnitStruct => {
                                 builder
                                     .build::<Self>()
-                                    .push_topic(Self::SIGNATURE_TOPIC.as_ref())
+                                    .push_topic(<Self as ::ink::env::GetSignatureTopic>::signature_topic().as_ref())
                                     .finish()
                             }
                         }
@@ -72,9 +75,6 @@ fn unit_struct_anonymous_has_no_topics() {
             const _: () = {
                 impl ::ink::env::Event for UnitStruct {
                     type RemainingTopics = ::ink::env::event::state::NoRemainingTopics;
-
-                    const SIGNATURE_TOPIC: ::core::option::Option<[::core::primitive::u8; 32]> =
-                        ::core::option::Option::None;
 
                     fn topics<E, B>(
                         &self,
@@ -108,14 +108,17 @@ fn struct_with_fields_no_topics() {
                 field_2: u64,
                 field_3: u128,
             }
+
+            impl ::ink::env::GetSignatureTopic for Event {
+                fn signature_topic() -> Option<[u8; 32]> {
+                    Some([0; 32])
+                }
+            }
         }
         expands to {
             const _: () = {
                 impl ::ink::env::Event for Event {
                     type RemainingTopics = [::ink::env::event::state::HasRemainingTopics; 1usize];
-
-                    const SIGNATURE_TOPIC: ::core::option::Option<[::core::primitive::u8; 32]> =
-                        ::core::option::Option::Some( ::ink::blake2x256!("Event(u32,u64,u128)") );
 
                     fn topics<E, B>(
                         &self,
@@ -129,7 +132,7 @@ fn struct_with_fields_no_topics() {
                             Event { .. } => {
                                 builder
                                     .build::<Self>()
-                                    .push_topic(Self::SIGNATURE_TOPIC.as_ref())
+                                    .push_topic(<Self as ::ink::env::GetSignatureTopic>::signature_topic().as_ref())
                                     .finish()
                             }
                         }
@@ -158,8 +161,6 @@ fn struct_with_fields_and_some_topics() {
                 impl ::ink::env::Event for Event {
                     type RemainingTopics = [::ink::env::event::state::HasRemainingTopics; 3usize];
 
-                    const SIGNATURE_TOPIC: ::core::option::Option<[::core::primitive::u8; 32]> =
-                        ::core::option::Option::Some( ::ink::blake2x256!("Event(u32,u64,u128)") );
 
                     fn topics<E, B>(
                         &self,
@@ -173,7 +174,7 @@ fn struct_with_fields_and_some_topics() {
                             Event { field_2 : __binding_1 , field_3 : __binding_2 , .. } => {
                                 builder
                                     .build::<Self>()
-                                    .push_topic(Self::SIGNATURE_TOPIC.as_ref())
+                                    .push_topic(<Self as GetSignatureTopic>::signature_topic().as_ref())
                                     .push_topic(::ink::as_option!(__binding_1))
                                     .push_topic(::ink::as_option!(__binding_2))
                                     .finish()

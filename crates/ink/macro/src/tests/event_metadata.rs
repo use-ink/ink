@@ -20,6 +20,13 @@ fn unit_struct_works() {
         event_metadata_derive {
             #[derive(ink::Event, scale::Encode)]
             struct UnitStruct;
+
+            impl ::ink::env::GetSignatureTopic for UnitStruct {
+                fn signature_topic() -> Option<[u8; 32]> {
+                    Some([0; 32])
+                }
+            }
+
         }
         expands to {
             const _: () = {
@@ -34,7 +41,7 @@ fn unit_struct_works() {
 
                         ::ink::metadata::EventSpec::new(::core::stringify!(UnitStruct))
                             .module_path(::core::module_path!())
-                            .signature_topic(<Self as ::ink::env::Event>::SIGNATURE_TOPIC)
+                            .signature_topic(<Self as ::ink::env::GetSignatureTopic>::signature_topic())
                             .args([])
                             .docs([])
                             .done()
@@ -55,6 +62,12 @@ fn struct_with_fields_no_topics() {
                 field_2: u64,
                 field_3: u128,
             }
+
+            impl ::ink::env::GetSignatureTopic for Event {
+                fn signature_topic() -> Option<[u8; 32]> {
+                    Some([0; 32])
+                }
+            }
         }
         expands to {
             const _: () = {
@@ -69,7 +82,7 @@ fn struct_with_fields_no_topics() {
 
                         ::ink::metadata::EventSpec::new(::core::stringify!(Event))
                             .module_path(::core::module_path!())
-                            .signature_topic(<Self as ::ink::env::Event>::SIGNATURE_TOPIC)
+                            .signature_topic(<Self as ::ink::env::GetSignatureTopic>::signature_topic())
                             .args([
                                 ::ink::metadata::EventParamSpec::new(::core::stringify!(field_1))
                                     .of_type(::ink::metadata::TypeSpec::of_type::<u32>())
@@ -108,6 +121,12 @@ fn struct_with_fields_and_some_topics() {
                 #[ink(topic)]
                 field_3: u128,
             }
+
+            impl ::ink::env::GetSignatureTopic for Event {
+                fn signature_topic() -> Option<[u8; 32]> {
+                    Some([0; 32])
+                }
+            }
         }
         expands to {
             const _: () = {
@@ -122,7 +141,7 @@ fn struct_with_fields_and_some_topics() {
 
                         ::ink::metadata::EventSpec::new(::core::stringify!(Event))
                             .module_path(::core::module_path!())
-                            .signature_topic(<Self as ::ink::env::Event>::SIGNATURE_TOPIC)
+                            .signature_topic(<Self as ::ink::env::GetSignatureTopic>::signature_topic())
                             .args([
                                 ::ink::metadata::EventParamSpec::new(::core::stringify!(field_1))
                                     .of_type(::ink::metadata::TypeSpec::of_type::<u32>())

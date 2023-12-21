@@ -91,7 +91,7 @@ fn event_metadata_derive_struct(s: synstructure::Structure) -> syn::Result<Token
                 ::ink::metadata::EventSpec::new(::core::stringify!(#ident))
                     .module_path(::core::module_path!())
                     .signature_topic(
-                        <Self as ::ink::env::Event>::SIGNATURE_TOPIC
+                        <Self as ::ink::env::GetSignatureTopic>::signature_topic()
                     )
                     .args([
                        #( #args ),*

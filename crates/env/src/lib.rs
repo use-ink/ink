@@ -120,7 +120,10 @@ pub use self::{
         Error,
         Result,
     },
-    event::Event,
+    event::{
+        Event,
+        GetSignatureTopic,
+    },
     types::{
         AccountIdGuard,
         DefaultEnvironment,
