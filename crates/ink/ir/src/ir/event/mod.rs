@@ -213,7 +213,34 @@ mod tests {
                 }
             },
             "encountered duplicate ink! attribute",
-        )
+        );
+        assert_try_from_fails(
+            syn::parse_quote! {
+                #[ink(event)]
+                #[ink(anonymous)]
+                #[ink(anonymous)]
+                pub struct MyEvent {
+                    #[ink(topic)]
+                    field_1: i32,
+                    field_2: bool,
+                }
+            },
+            "encountered duplicate ink! attribute",
+        );
+        let s = "11".repeat(32);
+        assert_try_from_fails(
+            syn::parse_quote! {
+                #[ink(event)]
+                #[ink(signature_topic = #s)]
+                #[ink(signature_topic = #s)]
+                pub struct MyEvent {
+                    #[ink(topic)]
+                    field_1: i32,
+                    field_2: bool,
+                }
+            },
+            "encountered duplicate ink! attribute",
+        );
     }
 
     #[test]

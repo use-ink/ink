@@ -152,6 +152,10 @@ fn event_derive_struct(mut s: synstructure::Structure) -> syn::Result<TokenStrea
     Ok(code)
 }
 
+/// Generate a blank implementation of `GetSignature` for the given event
+/// if `anonymous` argument is specified.
+///
+/// Returns `None`
 fn generate_signature_topic_blank(
     item_ident: &syn::Ident,
     anonymous: bool,

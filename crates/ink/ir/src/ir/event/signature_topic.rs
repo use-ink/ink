@@ -145,7 +145,7 @@ impl SignatureTopic {
         &self.item
     }
 
-    /// Return manually specified signature topic hash.
+    /// Return a signature topic, if required.
     pub fn signature_topic(&self) -> Option<[u8; 32]> {
         self.arg.map(|a| a.signature_topic())
     }

@@ -42,6 +42,7 @@ impl GenerateCode for SignatureTopic<'_> {
 }
 
 impl SignatureTopic<'_> {
+    /// Generates the implementation of `GetSignatureTopic` trait.
     fn generate_signature_topic(&self) -> TokenStream2 {
         let item_ident = &self.item.item().ident;
         let signature_topic = if let Some(bytes) = self.item.signature_topic() {
