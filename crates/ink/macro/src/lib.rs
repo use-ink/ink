@@ -695,7 +695,7 @@ pub fn event(attr: TokenStream, item: TokenStream) -> TokenStream {
     event::generate(attr.into(), item.into()).into()
 }
 
-/// Implements the [`ink::env::GetSignatureTopic`] traits for a `struct` to generate
+/// Implements the `GetSignatureTopic` traits for a `struct` to generate
 /// a signature topic
 ///
 /// By default, a signature topic will be generated for the event.
@@ -1463,7 +1463,7 @@ synstructure::decl_derive!(
     /// Derives the [`ink::EventMetadata`] trait for the given `struct`, which provides metadata
     /// about the event definition.
     ///
-    /// Requires that the `struct` also implements the [`ink::Event`] and `[ink::env::GetSignatureTopic]` traits,
+    /// Requires that the `struct` also implements the [`ink::Event`] and `GetSignatureTopic` traits,
     /// so this derive is usually used in combination with the [`Event`] derive and `#[ink::signature_topic]` macro.
     ///
     /// Metadata is not embedded into the contract binary, it is generated from a separate
