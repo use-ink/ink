@@ -55,9 +55,7 @@ impl SignatureTopic<'_> {
 
         quote! {
             impl ::ink::env::GetSignatureTopic for #item_ident {
-                fn signature_topic() -> Option<[u8; 32]> {
-                    #signature_topic
-                }
+                const SIGNATURE_TOPIC: ::core::option::Option<[u8; 32]> = #signature_topic;
             }
         }
     }

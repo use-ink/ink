@@ -102,7 +102,7 @@ fn event_derive_struct(mut s: synstructure::Structure) -> syn::Result<TokenStrea
         None
     } else {
         Some(quote_spanned!(span=>
-            .push_topic(<Self as ::ink::env::GetSignatureTopic>::signature_topic().as_ref())
+            .push_topic(<Self as ::ink::env::GetSignatureTopic>::SIGNATURE_TOPIC.as_ref())
         ))
     };
 
@@ -163,9 +163,7 @@ fn generate_signature_topic_blank(
     if anonymous {
         quote! {
             impl ::ink::env::GetSignatureTopic for #item_ident {
-                fn signature_topic() -> Option<[u8; 32]> {
-                    None
-                }
+                const SIGNATURE_TOPIC: ::core::option::Option<[u8; 32]> = None;
             }
         }
     } else {

@@ -220,5 +220,5 @@ pub trait Event: scale::Encode + GetSignatureTopic {
 /// default calculates this as `blake2b("Event(field1_type,field2_type)")`
 pub trait GetSignatureTopic {
     /// Retrieve the signature topic
-    fn signature_topic() -> Option<[u8; 32]>;
+    const SIGNATURE_TOPIC: core::option::Option<[u8; 32]>;
 }

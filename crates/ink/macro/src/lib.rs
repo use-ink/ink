@@ -721,7 +721,7 @@ pub fn event(attr: TokenStream, item: TokenStream) -> TokenStream {
 ///
 /// use ink::env::GetSignatureTopic;
 /// assert_eq!(Some([17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17]),
-///     <MyCustomSignatureEvent as GetSignatureTopic>::signature_topic())
+///     <MyCustomSignatureEvent as GetSignatureTopic>::SIGNATURE_TOPIC)
 #[proc_macro_attribute]
 pub fn signature_topic(attr: TokenStream, item: TokenStream) -> TokenStream {
     event::generate_signature_topic(attr.into(), item.into()).into()
@@ -1447,7 +1447,7 @@ synstructure::decl_derive!(
     /// }
     ///
     /// use ink::env::GetSignatureTopic;
-    /// assert_ne!(<MyEvent as GetSignatureTopic>::signature_topic(), <other_event::MyEvent as GetSignatureTopic>::signature_topic());
+    /// assert_ne!(<MyEvent as GetSignatureTopic>::SIGNATURE_TOPIC, <other_event::MyEvent as GetSignatureTopic>::SIGNATURE_TOPIC);
     /// ```
     ///
     /// ## Anonymous Events

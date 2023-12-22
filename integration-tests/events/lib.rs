@@ -166,7 +166,7 @@ pub mod events {
 
             assert_eq!(event.topics.len(), 3);
             let signature_topic =
-                <event_def::ThirtyTwoByteTopics as ink::env::GetSignatureTopic>::signature_topic()
+                <event_def::ThirtyTwoByteTopics as ink::env::GetSignatureTopic>::SIGNATURE_TOPIC
                     .map(|topic| topic.to_vec());
             assert_eq!(Some(&event.topics[0]), signature_topic.as_ref());
             assert_eq!(event.topics[1], [0x42; 32]);
@@ -186,7 +186,7 @@ pub mod events {
             let event = &emitted_events[0];
 
             let signature_topic =
-                <event_def::ThirtyTwoByteTopics as ink::env::GetSignatureTopic>::signature_topic()
+                <event_def::ThirtyTwoByteTopics as ink::env::GetSignatureTopic>::SIGNATURE_TOPIC
                     .map(|topic| topic.to_vec())
                     .unwrap();
 
@@ -207,7 +207,7 @@ pub mod events {
             assert_eq!(1, emitted_events.len());
 
             let signature_topic =
-                <InlineCustomFlipped as ink::env::GetSignatureTopic>::signature_topic();
+                <InlineCustomFlipped as ink::env::GetSignatureTopic>::SIGNATURE_TOPIC;
 
             assert_eq!(Some([17u8; 32]), signature_topic);
         }
@@ -230,7 +230,7 @@ pub mod events {
             assert_eq!(event.topics[0], topic);
 
             let signature_topic =
-                <InlineAnonymousEvent as ink::env::GetSignatureTopic>::signature_topic();
+                <InlineAnonymousEvent as ink::env::GetSignatureTopic>::SIGNATURE_TOPIC;
             assert_eq!(None, signature_topic);
         }
     }
@@ -278,7 +278,7 @@ pub mod events {
             assert_eq!(!init_value, flipped.value);
 
             let signature_topic =
-                <event_def::ForeignFlipped as ink::env::GetSignatureTopic>::signature_topic()
+                <event_def::ForeignFlipped as ink::env::GetSignatureTopic>::SIGNATURE_TOPIC
                     .map(H256::from)
                     .unwrap();
 
@@ -321,7 +321,7 @@ pub mod events {
             assert_eq!(!init_value, flipped.value);
 
             let signature_topic =
-                <InlineFlipped as ink::env::GetSignatureTopic>::signature_topic()
+                <InlineFlipped as ink::env::GetSignatureTopic>::SIGNATURE_TOPIC
                     .map(H256::from)
                     .unwrap();
 
@@ -364,7 +364,7 @@ pub mod events {
             assert!(event.maybe_hash.is_none());
 
             let signature_topic =
-                <event_def::ThirtyTwoByteTopics as ink::env::GetSignatureTopic>::signature_topic()
+                <event_def::ThirtyTwoByteTopics as ink::env::GetSignatureTopic>::SIGNATURE_TOPIC
                     .map(H256::from)
                     .unwrap();
 
@@ -406,7 +406,7 @@ pub mod events {
             assert_eq!(1, contract_events.len());
 
             let signature_topic =
-                <InlineCustomFlipped as ink::env::GetSignatureTopic>::signature_topic();
+                <InlineCustomFlipped as ink::env::GetSignatureTopic>::SIGNATURE_TOPIC;
 
             assert_eq!(Some([17u8; 32]), signature_topic);
 
