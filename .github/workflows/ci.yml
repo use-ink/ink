@@ -228,7 +228,7 @@ jobs:
           for crate in ${ALSO_WASM_CRATES}; do
             cargo check --verbose --no-default-features --target wasm32-unknown-unknown \
               --manifest-path ./crates/${crate}/Cargo.toml;
-          done        
+          done
 
       - name: Check RISCV
         if: ${{ matrix.type == 'RISCV' }}
@@ -238,7 +238,7 @@ jobs:
           for crate in ${ALSO_WASM_CRATES}; do
             cargo check --verbose --no-default-features --target $RISCV_TARGET -Zbuild-std="core,alloc" \
               --manifest-path ./crates/${crate}/Cargo.toml;
-          done       
+          done
 
   dylint:
     runs-on: ubuntu-latest
@@ -353,6 +353,7 @@ jobs:
         run: |
           cargo test --verbose --all-features --no-fail-fast --workspace --locked
           cargo test --verbose --all-features --no-fail-fast --workspace --doc --locked
+          pushd linting && cargo test --verbose --all-features --no-fail-fast --workspace --locked && popd
 
   docs:
     runs-on: ubuntu-latest
