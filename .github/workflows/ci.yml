@@ -336,7 +336,9 @@ jobs:
       - name: Cache
         uses: Swatinem/rust-cache@v2
         with:
-          cache-directories: ${{ env.CARGO_TARGET_DIR }} ${{ env.CARGO_TARGET_DIR/linting }}
+          cache-directories: |
+            ${{ env.CARGO_TARGET_DIR }}
+            ${{ env.CARGO_TARGET_DIR/linting }}
 
       - name: Rust Info
         uses: ./.github/rust-info
