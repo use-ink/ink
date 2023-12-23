@@ -338,7 +338,7 @@ jobs:
         with:
           cache-directories: |
             ${{ env.CARGO_TARGET_DIR }}
-            ${{ env.CARGO_TARGET_DIR/linting }}
+            ${{ env.CARGO_TARGET_DIR }}/linting
 
       - name: Rust Info
         uses: ./.github/rust-info
