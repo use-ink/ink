@@ -355,7 +355,7 @@ jobs:
         run: |
           cargo test --verbose --all-features --no-fail-fast --workspace --locked
           cargo test --verbose --all-features --no-fail-fast --workspace --doc --locked
-          pushd linting && cargo test --verbose --all-features --no-fail-fast --workspace --locked && popd
+          pushd linting && cargo test --verbose --all-features --no-fail-fast --workspace && popd
 
   docs:
     runs-on: ubuntu-latest
