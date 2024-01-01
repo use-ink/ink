@@ -36,6 +36,7 @@ mod no_main;
 mod primitive_topic;
 mod storage_never_freed;
 mod strict_balance_equality;
+mod non_fallible_api;
 
 #[doc(hidden)]
 #[no_mangle]
@@ -54,6 +55,7 @@ pub fn register_lints(
     lint_store
         .register_late_pass(|_| Box::new(strict_balance_equality::StrictBalanceEquality));
     lint_store.register_early_pass(|| Box::new(no_main::NoMain));
+    lint_store.register_late_pass(|_| Box::new(non_fallible_api::NonFallibleAPI));
 }
 
 #[test]
