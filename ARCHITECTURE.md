@@ -153,6 +153,7 @@ If you look at the implementations you'll see a common pattern of
   for contract developers.
 
 ### The pallet API
+// TODO update doc
 The function signature of the `pallet-contracts` API functions is defined in
 [`ink_env/src/engine/on_chain/ext.rs`](https://github.com/paritytech/ink/blob/master/crates/env/src/engine/on_chain/ext.rs).
 You'll see that we import different versions of API functions, something

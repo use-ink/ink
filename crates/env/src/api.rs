@@ -17,7 +17,6 @@
 use crate::{
     backend::{
         EnvBackend,
-        ReturnFlags,
         TypedEnvBackend,
     },
     call::{
@@ -42,6 +41,7 @@ use crate::{
     Result,
 };
 use ink_storage_traits::Storable;
+use pallet_contracts_uapi::ReturnFlags;
 
 /// Returns the address of the caller of the executed contract.
 ///

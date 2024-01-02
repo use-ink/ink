@@ -31,6 +31,8 @@ use ink_primitives::{
     LangError,
 };
 
+use pallet_contracts_uapi::ReturnErrorCode;
+
 /// Convert a slice into an array reference.
 ///
 /// Creates an array reference of size `$len` pointing to `$offset` within `$arr`.
@@ -89,7 +91,7 @@ where
             let output = <R as ConstructorReturnType<ContractRef>>::ok(contract_ref);
             Ok(Ok(output))
         }
-        Err(EnvError::CalleeReverted) => {
+        Err(EnvError::ReturnError(ReturnErrorCode::CalleeReverted)) => {
             decode_instantiate_err::<I, E, ContractRef, R>(out_return_value)
         }
         Err(actual_error) => Err(actual_error),

@@ -30,142 +30,143 @@ use crate::{
     Result,
 };
 use ink_storage_traits::Storable;
+use pallet_contracts_uapi::ReturnFlags;
 
-/// The flags to indicate further information about the end of a contract execution.
-#[derive(Default)]
-pub struct ReturnFlags {
-    value: u32,
-}
-
-impl ReturnFlags {
-    /// Initialize [`ReturnFlags`] with the reverted flag.
-    pub fn new_with_reverted(has_reverted: bool) -> Self {
-        Self::default().set_reverted(has_reverted)
-    }
-
-    /// Sets the bit to indicate that the execution is going to be reverted.
-    #[must_use]
-    pub fn set_reverted(mut self, has_reverted: bool) -> Self {
-        match has_reverted {
-            true => self.value |= has_reverted as u32,
-            false => self.value &= !has_reverted as u32,
-        }
-        self
-    }
-
-    /// Returns the underlying `u32` representation.
-    #[cfg(not(feature = "std"))]
-    pub(crate) fn into_u32(self) -> u32 {
-        self.value
-    }
-}
-
-/// The flags used to change the behavior of a contract call.
-#[must_use]
-#[derive(Copy, Clone, Debug, Default)]
-pub struct CallFlags {
-    forward_input: bool,
-    clone_input: bool,
-    tail_call: bool,
-    allow_reentry: bool,
-}
-
-impl CallFlags {
-    /// Forwards the input for the current function to the callee.
-    ///
-    /// # Note
-    ///
-    /// A forwarding call will consume the current contracts input. Any attempt to
-    /// access the input after this call returns (e.g. by trying another forwarding call)
-    /// will lead to a contract revert.
-    /// Consider using [`Self::set_clone_input`] in order to preserve the input.
-    pub const fn set_forward_input(mut self, forward_input: bool) -> Self {
-        self.forward_input = forward_input;
-        self
-    }
-
-    /// Identical to [`Self::set_forward_input`] but without consuming the input.
-    ///
-    /// This adds some additional weight costs to the call.
-    ///
-    /// # Note
-    ///
-    /// This implies [`Self::set_forward_input`] and takes precedence when both are set.
-    pub const fn set_clone_input(mut self, clone_input: bool) -> Self {
-        self.clone_input = clone_input;
-        self
-    }
-
-    /// Do not return from the call but rather return the result of the callee to the
-    /// callers caller.
-    ///
-    /// # Note
-    ///
-    /// This makes the current contract completely transparent to its caller by replacing
-    /// this contracts potential output with the callee ones. Any code after the contract
-    /// calls has been invoked can be safely considered unreachable.
-    pub const fn set_tail_call(mut self, tail_call: bool) -> Self {
-        self.tail_call = tail_call;
-        self
-    }
-
-    /// Allow the callee to reenter into the current contract.
-    ///
-    /// Without this flag any reentrancy into the current contract that originates from
-    /// the callee (or any of its callees) is denied. This includes the first callee:
-    /// You cannot call into yourself with this flag set.
-    pub const fn set_allow_reentry(mut self, allow_reentry: bool) -> Self {
-        self.allow_reentry = allow_reentry;
-        self
-    }
-
-    /// Returns the underlying `u32` representation of the call flags.
-    ///
-    /// This value is used to forward the call flag information to the
-    /// `contracts` pallet.
-    pub(crate) const fn into_u32(self) -> u32 {
-        self.forward_input as u32
-            | ((self.clone_input as u32) << 1)
-            | ((self.tail_call as u32) << 2)
-            | ((self.allow_reentry as u32) << 3)
-    }
-
-    /// Returns `true` if input forwarding is set.
-    ///
-    /// # Note
-    ///
-    /// See [`Self::set_forward_input`] for more information.
-    pub const fn forward_input(&self) -> bool {
-        self.forward_input
-    }
-
-    /// Returns `true` if input cloning is set.
-    ///
-    /// # Note
-    ///
-    /// See [`Self::set_clone_input`] for more information.
-    pub const fn clone_input(&self) -> bool {
-        self.clone_input
-    }
-
-    /// Returns `true` if the tail call property is set.
-    ///
-    /// # Note
-    ///
-    /// See [`Self::set_tail_call`] for more information.
-    pub const fn tail_call(&self) -> bool {
-        self.tail_call
-    }
-
-    /// Returns `true` if call reentry is allowed.
-    ///
-    /// # Note
-    ///
-    /// See [`Self::set_allow_reentry`] for more information.
-    pub const fn allow_reentry(&self) -> bool {
-        self.allow_reentry
-    }
-}
+// /// The flags to indicate further information about the end of a contract execution.
+// #[derive(Default)]
+// pub struct ReturnFlags {
+//     value: u32,
+// }
+//
+// impl ReturnFlags {
+//     /// Initialize [`ReturnFlags`] with the reverted flag.
+//     pub fn new_with_reverted(has_reverted: bool) -> Self {
+//         Self::default().set_reverted(has_reverted)
+//     }
+//
+//     /// Sets the bit to indicate that the execution is going to be reverted.
+//     #[must_use]
+//     pub fn set_reverted(mut self, has_reverted: bool) -> Self {
+//         match has_reverted {
+//             true => self.value |= has_reverted as u32,
+//             false => self.value &= !has_reverted as u32,
+//         }
+//         self
+//     }
+//
+//     /// Returns the underlying `u32` representation.
+//     #[cfg(not(feature = "std"))]
+//     pub(crate) fn into_u32(self) -> u32 {
+//         self.value
+//     }
+// }
+//
+// /// The flags used to change the behavior of a contract call.
+// #[must_use]
+// #[derive(Copy, Clone, Debug, Default)]
+// pub struct CallFlags {
+//     forward_input: bool,
+//     clone_input: bool,
+//     tail_call: bool,
+//     allow_reentry: bool,
+// }
+//
+// impl CallFlags {
+//     /// Forwards the input for the current function to the callee.
+//     ///
+//     /// # Note
+//     ///
+//     /// A forwarding call will consume the current contracts input. Any attempt to
+//     /// access the input after this call returns (e.g. by trying another forwarding call)
+//     /// will lead to a contract revert.
+//     /// Consider using [`Self::set_clone_input`] in order to preserve the input.
+//     pub const fn set_forward_input(mut self, forward_input: bool) -> Self {
+//         self.forward_input = forward_input;
+//         self
+//     }
+//
+//     /// Identical to [`Self::set_forward_input`] but without consuming the input.
+//     ///
+//     /// This adds some additional weight costs to the call.
+//     ///
+//     /// # Note
+//     ///
+//     /// This implies [`Self::set_forward_input`] and takes precedence when both are set.
+//     pub const fn set_clone_input(mut self, clone_input: bool) -> Self {
+//         self.clone_input = clone_input;
+//         self
+//     }
+//
+//     /// Do not return from the call but rather return the result of the callee to the
+//     /// callers caller.
+//     ///
+//     /// # Note
+//     ///
+//     /// This makes the current contract completely transparent to its caller by replacing
+//     /// this contracts potential output with the callee ones. Any code after the contract
+//     /// calls has been invoked can be safely considered unreachable.
+//     pub const fn set_tail_call(mut self, tail_call: bool) -> Self {
+//         self.tail_call = tail_call;
+//         self
+//     }
+//
+//     /// Allow the callee to reenter into the current contract.
+//     ///
+//     /// Without this flag any reentrancy into the current contract that originates from
+//     /// the callee (or any of its callees) is denied. This includes the first callee:
+//     /// You cannot call into yourself with this flag set.
+//     pub const fn set_allow_reentry(mut self, allow_reentry: bool) -> Self {
+//         self.allow_reentry = allow_reentry;
+//         self
+//     }
+//
+//     /// Returns the underlying `u32` representation of the call flags.
+//     ///
+//     /// This value is used to forward the call flag information to the
+//     /// `contracts` pallet.
+//     pub(crate) const fn into_u32(self) -> u32 {
+//         self.forward_input as u32
+//             | ((self.clone_input as u32) << 1)
+//             | ((self.tail_call as u32) << 2)
+//             | ((self.allow_reentry as u32) << 3)
+//     }
+//
+//     /// Returns `true` if input forwarding is set.
+//     ///
+//     /// # Note
+//     ///
+//     /// See [`Self::set_forward_input`] for more information.
+//     pub const fn forward_input(&self) -> bool {
+//         self.forward_input
+//     }
+//
+//     /// Returns `true` if input cloning is set.
+//     ///
+//     /// # Note
+//     ///
+//     /// See [`Self::set_clone_input`] for more information.
+//     pub const fn clone_input(&self) -> bool {
+//         self.clone_input
+//     }
+//
+//     /// Returns `true` if the tail call property is set.
+//     ///
+//     /// # Note
+//     ///
+//     /// See [`Self::set_tail_call`] for more information.
+//     pub const fn tail_call(&self) -> bool {
+//         self.tail_call
+//     }
+//
+//     /// Returns `true` if call reentry is allowed.
+//     ///
+//     /// # Note
+//     ///
+//     /// See [`Self::set_allow_reentry`] for more information.
+//     pub const fn allow_reentry(&self) -> bool {
+//         self.allow_reentry
+//     }
+// }
 
 /// Environmental contract functionality that does not require `Environment`.
 pub trait EnvBackend {

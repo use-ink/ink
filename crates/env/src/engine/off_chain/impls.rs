@@ -13,6 +13,7 @@
 // limitations under the License.
 
 use super::EnvInstance;
+use pallet_contracts_uapi::{ReturnErrorCode, ReturnFlags};
 use crate::{
     call::{
         Call,
@@ -37,13 +38,10 @@ use crate::{
     Clear,
     EnvBackend,
     Environment,
-    Error,
     Result,
-    ReturnFlags,
     TypedEnvBackend,
 };
 use ink_engine::{
-    ext,
     ext::Engine,
 };
 use ink_storage_traits::{
@@ -105,25 +103,6 @@ impl CryptoHash for Keccak256 {
         );
         let output: &mut OutputType = array_mut_ref!(output, 0, 32);
         Engine::hash_keccak_256(input, output);
-    }
-}
-
-impl From<ext::Error> for crate::Error {
-    fn from(ext_error: ext::Error) -> Self {
-        match ext_error {
-            ext::Error::Unknown => Self::Unknown,
-            ext::Error::CalleeTrapped => Self::CalleeTrapped,
-            ext::Error::CalleeReverted => Self::CalleeReverted,
-            ext::Error::KeyNotFound => Self::KeyNotFound,
-            ext::Error::_BelowSubsistenceThreshold => Self::_BelowSubsistenceThreshold,
-            ext::Error::TransferFailed => Self::TransferFailed,
-            ext::Error::_EndowmentTooLow => Self::_EndowmentTooLow,
-            ext::Error::CodeNotFound => Self::CodeNotFound,
-            ext::Error::NotCallable => Self::NotCallable,
-            ext::Error::LoggingDisabled => Self::LoggingDisabled,
-            ext::Error::EcdsaRecoveryFailed => Self::EcdsaRecoveryFailed,
-            ext::Error::Sr25519VerifyFailed => Self::Sr25519VerifyFailed,
-        }
     }
 }
 
@@ -210,7 +189,7 @@ impl EnvBackend for EnvInstance {
                 let decoded = decode_all(&mut &res[..])?;
                 Ok(Some(decoded))
             }
-            Err(ext::Error::KeyNotFound) => Ok(None),
+            Err(ReturnErrorCode::KeyNotFound) => Ok(None),
             Err(_) => panic!("encountered unexpected error"),
         }
     }
@@ -225,7 +204,7 @@ impl EnvBackend for EnvInstance {
                 let decoded = decode_all(&mut &output[..])?;
                 Ok(Some(decoded))
             }
-            Err(ext::Error::KeyNotFound) => Ok(None),
+            Err(ReturnErrorCode::KeyNotFound) => Ok(None),
             Err(_) => panic!("encountered unexpected error"),
         }
     }
@@ -316,7 +295,7 @@ impl EnvBackend for EnvInstance {
                 *output = pub_key.serialize();
                 Ok(())
             }
-            Err(_) => Err(Error::EcdsaRecoveryFailed),
+            Err(_) => Err(ReturnErrorCode::EcdsaRecoveryFailed.into()),
         }
     }
 
@@ -326,7 +305,7 @@ impl EnvBackend for EnvInstance {
         output: &mut [u8; 20],
     ) -> Result<()> {
         let pk = secp256k1::PublicKey::from_slice(pubkey)
-            .map_err(|_| Error::EcdsaRecoveryFailed)?;
+            .map_err(|_| ReturnErrorCode::EcdsaRecoveryFailed)?;
         let uncompressed = pk.serialize_uncompressed();
         let mut hash = <Keccak256 as HashOutput>::Type::default();
         <Keccak256>::hash(&uncompressed[1..], &mut hash);
@@ -346,14 +325,14 @@ impl EnvBackend for EnvInstance {
         let context = b"substrate";
         // attempt to parse a signature from bytes
         let signature: Signature =
-            Signature::from_bytes(signature).map_err(|_| Error::Sr25519VerifyFailed)?;
+            Signature::from_bytes(signature).map_err(|_| ReturnErrorCode::Sr25519VerifyFailed)?;
         // attempt to parse a public key from bytes
         let public_key: PublicKey =
-            PublicKey::from_bytes(pub_key).map_err(|_| Error::Sr25519VerifyFailed)?;
+            PublicKey::from_bytes(pub_key).map_err(|_| ReturnErrorCode::Sr25519VerifyFailed)?;
         // verify the signature
         public_key
             .verify_simple(context, message, &signature)
-            .map_err(|_| Error::Sr25519VerifyFailed)
+            .map_err(|_| ReturnErrorCode::Sr25519VerifyFailed.into())
     }
 
     fn call_chain_extension<I, T, E, ErrorCode, F, D>(
@@ -458,18 +437,13 @@ impl TypedEnvBackend for EnvInstance {
 
     fn invoke_contract<E, Args, R>(
         &mut self,
-        params: &CallParams<E, Call<E>, Args, R>,
+        _params: &CallParams<E, Call<E>, Args, R>,
     ) -> Result<ink_primitives::MessageResult<R>>
     where
         E: Environment,
         Args: scale::Encode,
         R: scale::Decode,
     {
-        let _gas_limit = params.gas_limit();
-        let _callee = params.callee();
-        let _call_flags = params.call_flags().into_u32();
-        let _transferred_value = params.transferred_value();
-        let _input = params.exec_input();
         unimplemented!("off-chain environment does not support contract invocation")
     }
 

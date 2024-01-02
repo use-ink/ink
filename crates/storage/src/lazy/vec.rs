@@ -20,7 +20,7 @@
 //! Instead it is just a simple wrapper around the contract storage facilities.
 
 use core::cell::Cell;
-
+use pallet_contracts_uapi::ReturnErrorCode;
 use ink_primitives::Key;
 use ink_storage_traits::{
     AutoKey,
@@ -419,7 +419,7 @@ where
         T: Storable + EncodeLike<V>,
     {
         if index >= self.len() {
-            return Err(ink_env::Error::KeyNotFound);
+            return Err(ReturnErrorCode::KeyNotFound.into());
         }
 
         self.elements.try_insert(index, value)

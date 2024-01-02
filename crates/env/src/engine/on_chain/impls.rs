@@ -13,11 +13,10 @@
 // limitations under the License.
 
 use super::{
-    ext,
     EnvInstance,
-    Error as ExtError,
     ScopedBuffer,
 };
+use pallet_contracts_uapi::{ReturnFlags, CallFlags, ReturnErrorCode, HostFn, HostFnImpl as ext};
 use crate::{
     call::{
         Call,
@@ -42,10 +41,8 @@ use crate::{
     Clear,
     EnvBackend,
     Environment,
-    Error,
     FromLittleEndian,
     Result,
-    ReturnFlags,
     TypedEnvBackend,
 };
 use ink_storage_traits::{
@@ -98,25 +95,6 @@ impl CryptoHash for Keccak256 {
         );
         let output: &mut OutputType = array_mut_ref!(output, 0, 32);
         ext::hash_keccak_256(input, output);
-    }
-}
-
-impl From<ext::Error> for Error {
-    fn from(ext_error: ext::Error) -> Self {
-        match ext_error {
-            ext::Error::Unknown => Self::Unknown,
-            ext::Error::CalleeTrapped => Self::CalleeTrapped,
-            ext::Error::CalleeReverted => Self::CalleeReverted,
-            ext::Error::KeyNotFound => Self::KeyNotFound,
-            ext::Error::_BelowSubsistenceThreshold => Self::_BelowSubsistenceThreshold,
-            ext::Error::TransferFailed => Self::TransferFailed,
-            ext::Error::_EndowmentTooLow => Self::_EndowmentTooLow,
-            ext::Error::CodeNotFound => Self::CodeNotFound,
-            ext::Error::NotCallable => Self::NotCallable,
-            ext::Error::LoggingDisabled => Self::LoggingDisabled,
-            ext::Error::CallRuntimeFailed => Self::CallRuntimeFailed,
-            ext::Error::EcdsaRecoveryFailed => Self::EcdsaRecoveryFailed,
-        }
     }
 }
 
@@ -223,7 +201,7 @@ impl EnvBackend for EnvInstance {
         let mut buffer = self.scoped_buffer();
         let key = buffer.take_encoded(key);
         let value = buffer.take_storable_encoded(value);
-        ext::set_storage(key, value)
+        ext::set_storage_v1(key, value)
     }
 
     fn get_contract_storage<K, R>(&mut self, key: &K) -> Result<Option<R>>
@@ -236,7 +214,7 @@ impl EnvBackend for EnvInstance {
         let output = &mut buffer.take_rest();
         match ext::get_storage(key, output) {
             Ok(_) => (),
-            Err(ExtError::KeyNotFound) => return Ok(None),
+            Err(ReturnErrorCode::KeyNotFound) => return Ok(None),
             Err(_) => panic!("encountered unexpected error"),
         }
         let decoded = decode_all(&mut &output[..])?;
@@ -253,7 +231,7 @@ impl EnvBackend for EnvInstance {
         let output = &mut buffer.take_rest();
         match ext::take_storage(key, output) {
             Ok(_) => (),
-            Err(ExtError::KeyNotFound) => return Ok(None),
+            Err(ReturnErrorCode::KeyNotFound) => return Ok(None),
             Err(_) => panic!("encountered unexpected error"),
         }
         let decoded = decode_all(&mut &output[..])?;
@@ -266,7 +244,7 @@ impl EnvBackend for EnvInstance {
     {
         let mut buffer = self.scoped_buffer();
         let key = buffer.take_encoded(key);
-        ext::storage_contains(key)
+        ext::contains_storage_v1(key)
     }
 
     fn clear_contract_storage<K>(&mut self, key: &K) -> Option<u32>
@@ -275,7 +253,7 @@ impl EnvBackend for EnvInstance {
     {
         let mut buffer = self.scoped_buffer();
         let key = buffer.take_encoded(key);
-        ext::clear_storage(key)
+        ext::clear_storage_v1(key)
     }
 
     fn decode_input<T>(&mut self) -> Result<T>
@@ -296,7 +274,8 @@ impl EnvBackend for EnvInstance {
     }
 
     fn debug_message(&mut self, content: &str) {
-        ext::debug_message(content)
+        // TODO fix unwrap
+        ext::debug_message(content.as_bytes()).unwrap()
     }
 
     fn hash_bytes<H>(&mut self, input: &[u8], output: &mut <H as HashOutput>::Type)
@@ -358,8 +337,8 @@ impl EnvBackend for EnvInstance {
     {
         let mut scope = self.scoped_buffer();
         let enc_input = scope.take_encoded(input);
-        let output = &mut scope.take_rest();
-        status_to_result(ext::call_chain_extension(id, enc_input, output))?;
+        let output = scope.take_rest();
+        status_to_result(ext::call_chain_extension(id, enc_input, Some(output)))?;
         let decoded = decode_to_result(&output[..])?;
         Ok(decoded)
     }
@@ -429,23 +408,23 @@ impl TypedEnvBackend for EnvInstance {
         let enc_callee = scope.take_encoded(params.callee());
         let enc_transferred_value = scope.take_encoded(params.transferred_value());
         let call_flags = params.call_flags();
-        let enc_input = if !call_flags.forward_input() && !call_flags.clone_input() {
+        let enc_input = if !call_flags.contains(CallFlags::FORWARD_INPUT) && !call_flags.contains(CallFlags::CLONE_INPUT) {
             scope.take_encoded(params.exec_input())
         } else {
             &mut []
         };
-        let output = &mut scope.take_rest();
-        let flags = params.call_flags().into_u32();
-        let call_result = ext::call(
-            flags,
+        let output = scope.take_rest();
+        let flags = params.call_flags();
+        let call_result = ext::call_v1(
+            flags.clone(),
             enc_callee,
             gas_limit,
             enc_transferred_value,
             enc_input,
-            output,
+            Some(output),
         );
         match call_result {
-            Ok(()) | Err(ext::Error::CalleeReverted) => {
+            Ok(()) | Err(ReturnErrorCode::CalleeReverted) => {
                 let decoded = scale::DecodeAll::decode_all(&mut &output[..])?;
                 Ok(decoded)
             }
@@ -465,16 +444,16 @@ impl TypedEnvBackend for EnvInstance {
         let mut scope = self.scoped_buffer();
         let call_flags = params.call_flags();
         let enc_code_hash = scope.take_encoded(params.code_hash());
-        let enc_input = if !call_flags.forward_input() && !call_flags.clone_input() {
+        let enc_input = if !call_flags.contains(CallFlags::FORWARD_INPUT) && !call_flags.contains(CallFlags::CLONE_INPUT) {
             scope.take_encoded(params.exec_input())
         } else {
             &mut []
         };
-        let output = &mut scope.take_rest();
-        let flags = params.call_flags().into_u32();
-        let call_result = ext::delegate_call(flags, enc_code_hash, enc_input, output);
+        let output = scope.take_rest();
+        let flags = params.call_flags();
+        let call_result = ext::delegate_call(flags.clone(), enc_code_hash, enc_input, Some(output));
         match call_result {
-            Ok(()) | Err(ext::Error::CalleeReverted) => {
+            Ok(()) | Err(ReturnErrorCode::CalleeReverted) => {
                 let decoded = scale::DecodeAll::decode_all(&mut &output[..])?;
                 Ok(decoded)
             }
@@ -505,17 +484,17 @@ impl TypedEnvBackend for EnvInstance {
         // We support `AccountId` types with an encoding that requires up to
         // 1024 bytes. Beyond that limit ink! contracts will trap for now.
         // In the default configuration encoded `AccountId` require 32 bytes.
-        let out_address = &mut scoped.take(1024);
+        let out_address = scoped.take(1024);
         let salt = params.salt_bytes().as_ref();
-        let out_return_value = &mut scoped.take_rest();
+        let out_return_value = scoped.take_rest();
 
-        let instantiate_result = ext::instantiate(
+        let instantiate_result = ext::instantiate_v1(
             enc_code_hash,
             gas_limit,
             enc_endowment,
             enc_input,
-            out_address,
-            out_return_value,
+            Some(out_address),
+            Some(out_return_value),
             salt,
         );
 
@@ -531,7 +510,7 @@ impl TypedEnvBackend for EnvInstance {
         E: Environment,
     {
         let buffer = self.scoped_buffer().take_encoded(&beneficiary);
-        ext::terminate(buffer);
+        ext::terminate_v1(buffer);
     }
 
     fn transfer<E>(&mut self, destination: E::AccountId, value: E::Balance) -> Result<()>

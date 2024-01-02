@@ -13,6 +13,7 @@
 // limitations under the License.
 
 use crate::ChainExtensionInstance;
+use pallet_contracts_uapi::ReturnErrorCode;
 use core::marker::PhantomData;
 use ink_env::{
     call::{
@@ -28,7 +29,6 @@ use ink_env::{
         HashOutput,
     },
     Environment,
-    Error,
     Result,
 };
 
@@ -839,7 +839,7 @@ where
         let mut output = [0; 33];
         ink_env::ecdsa_recover(signature, message_hash, &mut output)
             .map(|_| output)
-            .map_err(|_| Error::EcdsaRecoveryFailed)
+            .map_err(|_| ReturnErrorCode::EcdsaRecoveryFailed.into())
     }
 
     /// Returns an Ethereum address from the ECDSA compressed public key.
@@ -886,7 +886,7 @@ where
         let mut output = [0; 20];
         ink_env::ecdsa_to_eth_address(pubkey, &mut output)
             .map(|_| output)
-            .map_err(|_| Error::EcdsaRecoveryFailed)
+            .map_err(|_| ReturnErrorCode::EcdsaRecoveryFailed.into())
     }
 
     /// Verifies a SR25519 signature against a message and a public key.
@@ -946,7 +946,7 @@ where
         pub_key: &[u8; 32],
     ) -> Result<()> {
         ink_env::sr25519_verify(signature, message, pub_key)
-            .map_err(|_| Error::Sr25519VerifyFailed)
+            .map_err(|_| ReturnErrorCode::Sr25519VerifyFailed.into())
     }
 
     /// Checks whether a specified account belongs to a contract.

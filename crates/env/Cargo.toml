@@ -20,6 +20,7 @@ ink_allocator = { workspace = true }
 ink_storage_traits = { workspace = true }
 ink_prelude = { workspace = true }
 ink_primitives = { workspace = true }
+pallet-contracts-uapi = { workspace = true }
 
 scale = { workspace = true }
 derive_more = { workspace = true, features = ["from", "display"] }
@@ -39,6 +40,7 @@ ink_engine = { workspace = true, default-features = true, optional = true }
 sha2 = { workspace = true, optional = true }
 sha3 = { workspace = true, optional = true }
 blake2 = { workspace = true, optional = true }
+pallet-contracts-uapi = { workspace = true }
 
 # ECDSA for the off-chain environment.
 secp256k1 = { workspace = true, features = ["recovery", "global-context"], optional = true }
