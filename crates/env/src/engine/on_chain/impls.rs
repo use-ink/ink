@@ -201,7 +201,7 @@ impl EnvBackend for EnvInstance {
         let mut buffer = self.scoped_buffer();
         let key = buffer.take_encoded(key);
         let value = buffer.take_storable_encoded(value);
-        ext::set_storage_v1(key, value)
+        ext::set_storage_v2(key, value)
     }
 
     fn get_contract_storage<K, R>(&mut self, key: &K) -> Result<Option<R>>
@@ -212,7 +212,7 @@ impl EnvBackend for EnvInstance {
         let mut buffer = self.scoped_buffer();
         let key = buffer.take_encoded(key);
         let output = &mut buffer.take_rest();
-        match ext::get_storage(key, output) {
+        match ext::get_storage_v1(key, output) {
             Ok(_) => (),
             Err(ReturnErrorCode::KeyNotFound) => return Ok(None),
             Err(_) => panic!("encountered unexpected error"),
