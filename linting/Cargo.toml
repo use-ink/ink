@@ -66,11 +66,11 @@ path = "ui/fail/strict_balance_equality.rs"
 [[example]]
 name = "no_main_pass"
 path = "ui/pass/no_main.rs"
-[example]]
-ame = "non_fallible_api"
-ath = "ui/pass/non_fallible_api.rs"
 [[example]]
-name = "non_fallible_api"
+name = "non_fallible_api_pass"
+path = "ui/pass/non_fallible_api.rs"
+[[example]]
+name = "non_fallible_api_fail"
 path = "ui/fail/non_fallible_api.rs"
 
 [package.metadata.rust-analyzer]

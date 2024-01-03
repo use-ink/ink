@@ -25,18 +25,20 @@ extern crate rustc_ast;
 extern crate rustc_errors;
 extern crate rustc_hir;
 extern crate rustc_index;
+extern crate rustc_infer;
 extern crate rustc_lint;
 extern crate rustc_middle;
 extern crate rustc_mir_dataflow;
 extern crate rustc_session;
 extern crate rustc_span;
+extern crate rustc_type_ir;
 
 mod ink_utils;
 mod no_main;
+mod non_fallible_api;
 mod primitive_topic;
 mod storage_never_freed;
 mod strict_balance_equality;
-mod non_fallible_api;
 
 #[doc(hidden)]
 #[no_mangle]

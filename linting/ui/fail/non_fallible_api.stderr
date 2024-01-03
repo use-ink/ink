@@ -1,0 +1,34 @@
+error: using a non-fallible `Mapping::insert` with an argument that may not fit into the static buffer
+  --> $DIR/non_fallible_api.rs:33:32
+   |
+LL |             let _ = self.map_1.insert(a.clone(), &b);
+   |                                ^^^^^^ help: consider using `try_insert`
+   |
+   = note: `-D non-fallible-api` implied by `-D warnings`
+
+error: using a non-fallible `Mapping::get` with an argument that may not fit into the static buffer
+  --> $DIR/non_fallible_api.rs:34:32
+   |
+LL |             let _ = self.map_1.get(a.clone());
+   |                                ^^^ help: consider using `try_get`
+
+error: using a non-fallible `Mapping::take` with an argument that may not fit into the static buffer
+  --> $DIR/non_fallible_api.rs:35:32
+   |
+LL |             let _ = self.map_1.take(a.clone());
+   |                                ^^^^ help: consider using `try_take`
+
+error: using a non-fallible `Lazy::get` with an argument that may not fit into the static buffer
+  --> $DIR/non_fallible_api.rs:38:33
+   |
+LL |             let _ = self.lazy_1.get();
+   |                                 ^^^ help: consider using `try_get`
+
+error: using a non-fallible `Lazy::set` with an argument that may not fit into the static buffer
+  --> $DIR/non_fallible_api.rs:39:25
+   |
+LL |             self.lazy_1.set(&a);
+   |                         ^^^ help: consider using `try_set`
+
+error: aborting due to 5 previous errors
+

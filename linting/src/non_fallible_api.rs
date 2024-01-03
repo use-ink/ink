@@ -12,46 +12,49 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use crate::ink_utils::{
+    expand_unnamed_consts,
+    find_contract_impl_id,
+};
 use clippy_utils::{
     diagnostics::span_lint_and_then,
-    is_lint_allowed,
     match_def_path,
-    source::snippet_opt,
 };
 use if_chain::if_chain;
 use rustc_errors::Applicability;
 use rustc_hir::{
-    self,
-    def::{
-        DefKind,
-        Res,
-    },
+    self as hir,
     def_id::DefId,
-    Arm,
-    AssocItemKind,
+    intravisit::{
+        walk_body,
+        walk_expr,
+        Visitor,
+    },
+    Body,
+    Expr,
     ExprKind,
-    Impl,
     ImplItemKind,
-    ImplItemRef,
-    Item,
     ItemKind,
-    Node,
-    PatKind,
-    QPath,
+    PathSegment,
 };
+use rustc_infer::infer::TyCtxtInferExt;
 use rustc_lint::{
     LateContext,
     LateLintPass,
 };
-use rustc_middle::ty::{
-    self,
-    Ty,
-    TyKind,
+use rustc_middle::{
+    hir::nested_filter,
+    ty::{
+        self,
+        Ty,
+        TypeckResults,
+    },
 };
 use rustc_session::{
     declare_lint,
     declare_lint_pass,
 };
+use rustc_type_ir::sty::TyKind;
 
 declare_lint! {
     /// ## What it does
@@ -113,6 +116,165 @@ declare_lint! {
 
 declare_lint_pass!(NonFallibleAPI => [NON_FALLIBLE_API]);
 
+#[derive(Debug)]
+enum TyToCheck {
+    Mapping,
+    Lazy,
+}
+
+impl TyToCheck {
+    pub fn try_from_adt(cx: &LateContext<'_>, did: DefId) -> Option<Self> {
+        if match_def_path(cx, did, &["ink_storage", "lazy", "Lazy"]) {
+            return Some(Self::Lazy)
+        }
+
+        if match_def_path(cx, did, &["ink_storage", "lazy", "mapping", "Mapping"]) {
+            return Some(Self::Mapping)
+        }
+        None
+    }
+
+    pub fn find_fallible_alternative(&self, method_name: &str) -> Option<String> {
+        use TyToCheck::*;
+        match self {
+            Mapping { .. } => {
+                match method_name {
+                    "insert" => Some("try_insert".to_string()),
+                    "get" => Some("try_get".to_string()),
+                    "take" => Some("try_take".to_string()),
+                    _ => None,
+                }
+            }
+            Lazy { .. } => {
+                match method_name {
+                    "get" => Some("try_get".to_string()),
+                    "set" => Some("try_set".to_string()),
+                    _ => None,
+                }
+            }
+        }
+    }
+}
+
+/// Visitor that finds usage of non-fallible calls in the bodies of functions
+struct APIUsageChecker<'a, 'tcx> {
+    cx: &'a LateContext<'tcx>,
+    maybe_typeck_results: Option<&'tcx TypeckResults<'tcx>>,
+}
+
+impl<'a, 'tcx> APIUsageChecker<'a, 'tcx> {
+    pub fn new(cx: &'a LateContext<'tcx>) -> Self {
+        Self {
+            cx,
+            maybe_typeck_results: cx.maybe_typeck_results(),
+        }
+    }
+
+    /// Returns true iff type is a primitive, so its encoded size is statically known
+    fn is_primitive_ty(ty: &Ty) -> bool {
+        matches!(
+            ty.kind(),
+            ty::Int(_) | ty::Uint(_) | ty::Bool | ty::Char | ty::Float(_)
+        )
+    }
+
+    /// Raises warnings if the given method call is potentially unsafe and could be
+    /// replaced
+    fn check_method_call(
+        &self,
+        receiver_ty: &TyToCheck,
+        method_path: &PathSegment,
+        method_name: &str,
+        arg_ty: &Ty<'tcx>,
+    ) {
+        if_chain! {
+            if !Self::is_primitive_ty(arg_ty);
+            if let Some(fallible_method) = receiver_ty.find_fallible_alternative(method_name);
+            then {
+                span_lint_and_then(
+                    self.cx,
+                    NON_FALLIBLE_API,
+                    method_path.ident.span,
+                    format!(
+                        "using a non-fallible `{:?}::{}` with an argument that may not fit into the static buffer",
+                        receiver_ty,
+                        method_name,
+                    ).as_str(),
+                    |diag| {
+                        diag.span_suggestion(
+                            method_path.ident.span,
+                            format!("consider using `{}`", fallible_method),
+                            "",
+                            Applicability::Unspecified,
+                        );
+                    },
+                )
+            }
+        }
+    }
+}
+
+impl<'a, 'tcx> Visitor<'tcx> for APIUsageChecker<'a, 'tcx> {
+    type NestedFilter = nested_filter::OnlyBodies;
+
+    fn visit_expr(&mut self, e: &'tcx Expr<'tcx>) {
+        if_chain! {
+            if let ExprKind::MethodCall(method_path, receiver, actual_args, _) = &e.kind;
+            if let Some(typeck_results) = self.maybe_typeck_results;
+            let ty = typeck_results.expr_ty(receiver);
+            if let TyKind::Adt(def, substs) = ty.kind();
+            if let Some(ty) = TyToCheck::try_from_adt(self.cx, def.0.0.did);
+            then {
+                substs
+                    .iter()
+                    .take(substs.len() - 1)
+                    .filter_map(|subst| subst.as_type())
+                    .for_each(|arg_ty| {
+                        self.check_method_call(
+                            &ty,
+                            method_path,
+                            &method_path.ident.to_string(),
+                            &arg_ty)
+                    })
+            }
+        }
+        walk_expr(self, e);
+    }
+
+    fn visit_body(&mut self, body: &'tcx Body<'_>) {
+        let old_maybe_typeck_results = self
+            .maybe_typeck_results
+            .replace(self.cx.tcx.typeck_body(body.id()));
+        walk_body(self, body);
+        self.maybe_typeck_results = old_maybe_typeck_results;
+    }
+
+    fn nested_visit_map(&mut self) -> Self::Map {
+        self.cx.tcx.hir()
+    }
+}
+
 impl<'tcx> LateLintPass<'tcx> for NonFallibleAPI {
-    fn check_item(&mut self, cx: &LateContext<'tcx>, item: &'tcx Item<'_>) {}
+    fn check_mod(
+        &mut self,
+        cx: &LateContext<'tcx>,
+        m: &'tcx hir::Mod<'tcx>,
+        _: hir::HirId,
+    ) {
+        if_chain! {
+            let all_item_ids = expand_unnamed_consts(cx, m.item_ids);
+            if let Some(contract_impl_id) = find_contract_impl_id(cx, all_item_ids);
+            let contract_impl = cx.tcx.hir().item(contract_impl_id);
+            if let ItemKind::Impl(contract_impl) = contract_impl.kind;
+            then {
+                contract_impl.items.iter().for_each(|impl_item| {
+                    let impl_item = cx.tcx.hir().impl_item(impl_item.id);
+                    if let ImplItemKind::Fn(..) = impl_item.kind {
+                        let mut visitor = APIUsageChecker::new(cx);
+                        visitor.visit_impl_item(impl_item);
+                    }
+                })
+            }
+        }
+    }
 }
