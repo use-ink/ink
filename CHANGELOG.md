@@ -28,6 +28,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Support multiple chain extensions - [#1958](https://github.com/paritytech/ink/pull/1958)
   - New example of how to use multiple chain extensions in one contract.
   - Affects the usage of the `#[ink::chain_extension]` macro and the definition of the chain extension.
+- Split up `ink_linting` to mandatory and extra libraries - [#2032](https://github.com/paritytech/ink/pull/2032)
 
 
 ## Version 5.0.0-alpha
