@@ -341,11 +341,9 @@ where
             }) {
                 TxStatus::InBestBlock(tx_in_block)
                 | TxStatus::InFinalizedBlock(tx_in_block) => {
-                    let events =
-                        tx_in_block.wait_for_success().await.unwrap_or_else(|err| {
-                            panic!("error on call `wait_for_success`: {err:?}");
-                        });
-                    return events;
+                    return tx_in_block.fetch_events().await.unwrap_or_else(|err| {
+                        panic!("error on call `fetch_events`: {err:?}");
+                    })
                 }
                 TxStatus::Error { message } => {
                     panic!("TxStatus::Error: {message:?}");
