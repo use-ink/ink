@@ -547,6 +547,7 @@
 <a href="#547" id="547">547</a>
 <a href="#548" id="548">548</a>
 <a href="#549" id="549">549</a>
+<a href="#550" id="550">550</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -581,7 +582,10 @@
     blocks::ExtrinsicEvents,
     config::ExtrinsicParams,
     ext::scale_encode,
-    tx::Signer,
+    tx::{
+        Signer,
+        TxStatus,
+    },
     utils::MultiAddress,
     OnlineClient,
 };
@@ -799,30 +803,7 @@
         )
         .unvalidated();
 
-        <span class="kw">let </span>account_id = &lt;Keypair <span class="kw">as </span>Signer&lt;C&gt;&gt;::account_id(origin);
-        <span class="kw">let </span>account_nonce =
-            <span class="self">self</span>.get_account_nonce(<span class="kw-2">&amp;</span>account_id)
-                .<span class="kw">await
-                </span>.unwrap_or_else(|err| {
-                    <span class="macro">panic!</span>(<span class="string">&quot;error calling `get_account_nonce`: {err:?}&quot;</span>);
-                });
-
-        <span class="self">self</span>.client
-            .tx()
-            .create_signed_with_nonce(<span class="kw-2">&amp;</span>call, origin, account_nonce, Default::default())
-            .unwrap_or_else(|err| {
-                <span class="macro">panic!</span>(<span class="string">&quot;error on call `create_signed_with_nonce`: {err:?}&quot;</span>);
-            })
-            .submit_and_watch()
-            .<span class="kw">await
-            </span>.unwrap_or_else(|err| {
-                <span class="macro">panic!</span>(<span class="string">&quot;error on call `submit_and_watch`: {err:?}&quot;</span>);
-            })
-            .wait_for_in_block()
-            .<span class="kw">await
-            </span>.unwrap_or_else(|err| {
-                <span class="macro">panic!</span>(<span class="string">&quot;error on call `wait_for_in_block`: {err:?}&quot;</span>);
-            });
+        <span class="kw">let _ </span>= <span class="self">self</span>.submit_extrinsic(<span class="kw-2">&amp;</span>call, origin).<span class="kw">await</span>;
 
         <span class="prelude-val">Ok</span>(())
     }
@@ -878,7 +859,8 @@
                     <span class="macro">panic!</span>(<span class="string">&quot;error calling `get_account_nonce`: {err:?}&quot;</span>);
                 });
 
-        <span class="self">self</span>.client
+        <span class="kw">let </span><span class="kw-2">mut </span>tx = <span class="self">self
+            </span>.client
             .tx()
             .create_signed_with_nonce(call, signer, account_nonce, Default::default())
             .unwrap_or_else(|err| {
@@ -895,17 +877,37 @@
             })
             .unwrap_or_else(|err| {
                 <span class="macro">panic!</span>(<span class="string">&quot;error on call `submit_and_watch`: {err:?}&quot;</span>);
-            })
-            .wait_for_in_block()
-            .<span class="kw">await
-            </span>.unwrap_or_else(|err| {
-                <span class="macro">panic!</span>(<span class="string">&quot;error on call `wait_for_in_block`: {err:?}&quot;</span>);
-            })
-            .fetch_events()
-            .<span class="kw">await
-            </span>.unwrap_or_else(|err| {
-                <span class="macro">panic!</span>(<span class="string">&quot;error on call `fetch_events`: {err:?}&quot;</span>);
-            })
+            });
+
+        <span class="comment">// Below we use the low level API to replicate the `wait_for_in_block` behaviour
+        // which was removed in subxt 0.33.0. See https://github.com/paritytech/subxt/pull/1237.
+        //
+        // We require this because we use `substrate-contracts-node` as our development
+        // node, which does not currently support finality, so we just want to
+        // wait until it is included in a block.
+        </span><span class="kw">while let </span><span class="prelude-val">Some</span>(status) = tx.next().<span class="kw">await </span>{
+            <span class="kw">match </span>status.unwrap_or_else(|err| {
+                <span class="macro">panic!</span>(<span class="string">&quot;error subscribing to tx status: {err:?}&quot;</span>);
+            }) {
+                TxStatus::InBestBlock(tx_in_block)
+                | TxStatus::InFinalizedBlock(tx_in_block) =&gt; {
+                    <span class="kw">return </span>tx_in_block.fetch_events().<span class="kw">await</span>.unwrap_or_else(|err| {
+                        <span class="macro">panic!</span>(<span class="string">&quot;error on call `fetch_events`: {err:?}&quot;</span>);
+                    })
+                }
+                TxStatus::Error { message } =&gt; {
+                    <span class="macro">panic!</span>(<span class="string">&quot;TxStatus::Error: {message:?}&quot;</span>);
+                }
+                TxStatus::Invalid { message } =&gt; {
+                    <span class="macro">panic!</span>(<span class="string">&quot;TxStatus::Invalid: {message:?}&quot;</span>);
+                }
+                TxStatus::Dropped { message } =&gt; {
+                    <span class="macro">panic!</span>(<span class="string">&quot;TxStatus::Dropped: {message:?}&quot;</span>);
+                }
+                <span class="kw">_ </span>=&gt; <span class="kw">continue</span>,
+            }
+        }
+        <span class="macro">panic!</span>(<span class="string">&quot;Error waiting for tx status&quot;</span>)
     }
 
     <span class="doccomment">/// Return the hash of the *best* block
