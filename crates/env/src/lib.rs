@@ -102,7 +102,7 @@ mod tests;
 #[doc(inline)]
 pub use self::engine::off_chain::test_api as test;
 
-pub use pallet_contracts_uapi::{ReturnFlags, ReturnErrorCode};
+pub use pallet_contracts_uapi::{CallFlags, ReturnFlags, ReturnErrorCode};
 
 use self::backend::{
     EnvBackend,
