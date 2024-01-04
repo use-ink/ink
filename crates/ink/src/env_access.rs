@@ -13,7 +13,6 @@
 // limitations under the License.
 
 use crate::ChainExtensionInstance;
-use pallet_contracts_uapi::ReturnErrorCode;
 use core::marker::PhantomData;
 use ink_env::{
     call::{
@@ -31,6 +30,7 @@ use ink_env::{
     Environment,
     Result,
 };
+use pallet_contracts_uapi::ReturnErrorCode;
 
 /// The API behind the `self.env()` and `Self::env()` syntax in ink!.
 ///
@@ -824,7 +824,7 @@ where
     ///     let failed_result = self.env().ecdsa_recover(&signature, &[0; 32]);
     ///     assert!(failed_result.is_err());
     ///     if let Err(e) = failed_result {
-    ///         assert_eq!(e, ink::env::Error::EcdsaRecoveryFailed);
+    ///         assert_eq!(e, ink::env::ReturnErrorCode::EcdsaRecoveryFailed.into());
     ///     }
     /// }
     /// #
