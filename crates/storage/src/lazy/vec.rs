@@ -20,7 +20,6 @@
 //! Instead it is just a simple wrapper around the contract storage facilities.
 
 use core::cell::Cell;
-use pallet_contracts_uapi::ReturnErrorCode;
 use ink_primitives::Key;
 use ink_storage_traits::{
     AutoKey,
@@ -29,6 +28,7 @@ use ink_storage_traits::{
     StorableHint,
     StorageKey,
 };
+use pallet_contracts_uapi::ReturnErrorCode;
 use scale::EncodeLike;
 
 use crate::{
@@ -661,7 +661,12 @@ mod tests {
             let mut array: StorageVec<u32> = (0..10).collect();
 
             assert_eq!(array.try_set(0, &1), Ok(Some(4)));
-            assert_eq!(array.try_set(10, &1), Err(ink_env::Error::KeyNotFound));
+            assert_eq!(
+                array.try_set(10, &1),
+                Err(ink_env::Error::ReturnError(
+                    ink_env::ReturnErrorCode::KeyNotFound
+                ))
+            );
 
             array.clear_at(0);
             assert_eq!(array.try_set(0, &1), Ok(None));

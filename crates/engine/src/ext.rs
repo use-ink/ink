@@ -17,7 +17,6 @@
 //! See [the documentation for the `contract` module](https://docs.rs/crate/pallet-contracts)
 //! for more information.
 
-use pallet_contracts_uapi::ReturnErrorCode as Error;
 use crate::{
     chain_extension::ChainExtensionHandler,
     database::Database,
@@ -32,6 +31,7 @@ use crate::{
         BlockTimestamp,
     },
 };
+pub use pallet_contracts_uapi::ReturnErrorCode as Error;
 use scale::Encode;
 use std::panic::panic_any;
 

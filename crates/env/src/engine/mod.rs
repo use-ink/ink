@@ -195,7 +195,11 @@ mod decode_instantiate_result_tests {
             DefaultEnvironment,
             TestContractRef,
             Result<TestContractRef, ContractError>,
-        >(Err(Error::CalleeReverted), out_address, out_return_value)
+        >(
+            Err(Error::ReturnError(ReturnErrorCode::CalleeReverted)),
+            out_address,
+            out_return_value,
+        )
     }
 
     #[test]
