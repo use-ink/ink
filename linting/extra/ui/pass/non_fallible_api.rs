@@ -1,7 +1,13 @@
 #![cfg_attr(not(feature = "std"), no_std, no_main)]
 
+use ink_primitives::AccountId;
+
+pub type TyAlias1 = AccountId;
+pub type TyAlias2 = TyAlias1;
+
 #[ink::contract]
 pub mod non_fallible_api {
+    use crate::TyAlias2;
     use ink::storage::{
         Lazy,
         Mapping,
@@ -13,6 +19,7 @@ pub mod non_fallible_api {
         map_2: Mapping<AccountId, [AccountId; 1]>,
         map_3: Mapping<AccountId, (AccountId, AccountId)>,
         lazy_1: Lazy<AccountId>,
+        lazy_2: Lazy<TyAlias2>,
     }
 
     impl NonFallibleAPI {
@@ -23,6 +30,7 @@ pub mod non_fallible_api {
                 map_2: Mapping::new(),
                 map_3: Mapping::new(),
                 lazy_1: Lazy::new(),
+                lazy_2: Lazy::new(),
             }
         }
 
@@ -53,6 +61,8 @@ pub mod non_fallible_api {
             // Lazy
             let _ = self.lazy_1.get();
             self.lazy_1.set(&a);
+            let _ = self.lazy_2.get();
+            self.lazy_2.set(&a);
         }
     }
 }
