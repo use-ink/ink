@@ -153,9 +153,8 @@ If you look at the implementations you'll see a common pattern of
   for contract developers.
 
 ### The pallet API
-// TODO update doc
-The function signature of the `pallet-contracts` API functions is defined in
-[`ink_env/src/engine/on_chain/ext.rs`](https://github.com/paritytech/ink/blob/master/crates/env/src/engine/on_chain/ext.rs).
+Signatures of host API functions are defined in
+[`pallet-contracts-uapi`](https://github.com/paritytech/polkadot-sdk/blob/master/substrate/frame/contracts/uapi/src/host/wasm32.rs).
 You'll see that we import different versions of API functions, something
 like the following excerpt:
 
