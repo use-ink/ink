@@ -30,7 +30,7 @@ use crate::{
     Result,
 };
 use ink_storage_traits::Storable;
-use pallet_contracts_uapi::ReturnFlags;
+pub use pallet_contracts_uapi::ReturnFlags;
 
 /// Environmental contract functionality that does not require `Environment`.
 pub trait EnvBackend {
