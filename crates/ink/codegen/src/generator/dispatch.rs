@@ -786,12 +786,12 @@ impl Dispatch<'_> {
                             && ::ink::is_result_err!(result);
 
                         // no need to push back results: transaction gets reverted anyways
-                        let flag = if !is_reverted {
+                        if !is_reverted {
                             push_contract(contract, #mutates_storage);
-                            ::ink::env::ReturnFlags::empty()
-                        } else {
-                            ::ink::env::ReturnFlags::REVERT
-                        };
+                        }
+
+                        let mut flag = ::ink::env::ReturnFlags::empty();
+                        flag.set(::ink::env::ReturnFlags::REVERT, is_reverted);
 
                         ::ink::env::return_value::<::ink::MessageResult::<#message_output>>(
                             flag,
