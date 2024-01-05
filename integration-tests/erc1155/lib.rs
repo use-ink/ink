@@ -1,7 +1,6 @@
 #![cfg_attr(not(feature = "std"), no_std, no_main)]
 
 use ink::{
-    env::ReturnErrorCode,
     prelude::vec::Vec,
     primitives::AccountId,
 };
@@ -414,6 +413,8 @@ mod erc1155 {
                         )
                     }
                     Err(e) => {
+                        use ink::env::ReturnErrorCode;
+
                         match e {
                             ink::env::Error::ReturnError(
                                 ReturnErrorCode::CodeNotFound
