@@ -368,7 +368,7 @@ impl EnvBackend for EnvInstance {
         let enc_input = scope.take_encoded(input);
         let output = scope.take_rest();
         status_to_result(ext::call_chain_extension(id, enc_input, Some(output)))?;
-        let decoded = decode_to_result(&output[..])?;
+        let decoded = decode_to_result(output)?;
         Ok(decoded)
     }
 
@@ -447,7 +447,7 @@ impl TypedEnvBackend for EnvInstance {
         let output = scope.take_rest();
         let flags = params.call_flags();
         let call_result = ext::call_v1(
-            flags.clone(),
+            *flags,
             enc_callee,
             gas_limit,
             enc_transferred_value,
@@ -485,7 +485,7 @@ impl TypedEnvBackend for EnvInstance {
         let output = scope.take_rest();
         let flags = params.call_flags();
         let call_result =
-            ext::delegate_call(flags.clone(), enc_code_hash, enc_input, Some(output));
+            ext::delegate_call(*flags, enc_code_hash, enc_input, Some(output));
         match call_result {
             Ok(()) | Err(ReturnErrorCode::CalleeReverted) => {
                 let decoded = scale::DecodeAll::decode_all(&mut &output[..])?;
