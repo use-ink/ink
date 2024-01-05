@@ -18,6 +18,7 @@ use crate::ink_utils::{
 };
 use clippy_utils::{
     diagnostics::span_lint_and_then,
+    is_lint_allowed,
     match_def_path,
 };
 use if_chain::if_chain;
@@ -242,6 +243,7 @@ impl<'a, 'tcx> Visitor<'tcx> for APIUsageChecker<'a, 'tcx> {
 
     fn visit_expr(&mut self, e: &'tcx Expr<'tcx>) {
         if_chain! {
+            if !is_lint_allowed(self.cx, NON_FALLIBLE_API, e.hir_id);
             if let ExprKind::MethodCall(method_path, receiver, _, _) = &e.kind;
             if let Some(typeck_results) = self.maybe_typeck_results;
             let ty = typeck_results.expr_ty(receiver);

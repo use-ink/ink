@@ -48,6 +48,7 @@ pub fn register_lints(
         primitive_topic::PRIMITIVE_TOPIC,
         storage_never_freed::STORAGE_NEVER_FREED,
         strict_balance_equality::STRICT_BALANCE_EQUALITY,
+        non_fallible_api::NON_FALLIBLE_API,
     ]);
     lint_store.register_late_pass(|_| Box::new(primitive_topic::PrimitiveTopic));
     lint_store.register_late_pass(|_| Box::new(storage_never_freed::StorageNeverFreed));

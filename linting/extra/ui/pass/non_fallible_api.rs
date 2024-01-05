@@ -8,9 +8,12 @@ pub type TyAlias2 = TyAlias1;
 #[ink::contract]
 pub mod non_fallible_api {
     use crate::TyAlias2;
-    use ink::storage::{
-        Lazy,
-        Mapping,
+    use ink::{
+        prelude::string::String,
+        storage::{
+            Lazy,
+            Mapping,
+        },
     };
 
     #[ink(storage)]
@@ -20,6 +23,7 @@ pub mod non_fallible_api {
         map_3: Mapping<AccountId, (AccountId, AccountId)>,
         lazy_1: Lazy<AccountId>,
         lazy_2: Lazy<TyAlias2>,
+        lazy_3: Lazy<String>,
     }
 
     impl NonFallibleAPI {
@@ -31,6 +35,7 @@ pub mod non_fallible_api {
                 map_3: Mapping::new(),
                 lazy_1: Lazy::new(),
                 lazy_2: Lazy::new(),
+                lazy_3: Lazy::new(),
             }
         }
 
@@ -63,6 +68,13 @@ pub mod non_fallible_api {
             self.lazy_1.set(&a);
             let _ = self.lazy_2.get();
             self.lazy_2.set(&a);
+        }
+
+        // Check if local suppressions work
+        #[ink(message)]
+        pub fn suppressions(&mut self, a: String) {
+            #[cfg_attr(dylint_lib = "ink_linting", allow(non_fallible_api))]
+            self.lazy_3.set(&a);
         }
     }
 }
