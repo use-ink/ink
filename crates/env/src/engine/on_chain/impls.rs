@@ -16,7 +16,6 @@ use super::{
     EnvInstance,
     ScopedBuffer,
 };
-use pallet_contracts_uapi::{ReturnFlags, CallFlags, ReturnErrorCode, HostFn, HostFnImpl as ext};
 use crate::{
     call::{
         Call,
@@ -48,6 +47,13 @@ use crate::{
 use ink_storage_traits::{
     decode_all,
     Storable,
+};
+use pallet_contracts_uapi::{
+    CallFlags,
+    HostFn,
+    HostFnImpl as ext,
+    ReturnErrorCode,
+    ReturnFlags,
 };
 
 impl CryptoHash for Blake2x128 {
@@ -408,7 +414,9 @@ impl TypedEnvBackend for EnvInstance {
         let enc_callee = scope.take_encoded(params.callee());
         let enc_transferred_value = scope.take_encoded(params.transferred_value());
         let call_flags = params.call_flags();
-        let enc_input = if !call_flags.contains(CallFlags::FORWARD_INPUT) && !call_flags.contains(CallFlags::CLONE_INPUT) {
+        let enc_input = if !call_flags.contains(CallFlags::FORWARD_INPUT)
+            && !call_flags.contains(CallFlags::CLONE_INPUT)
+        {
             scope.take_encoded(params.exec_input())
         } else {
             &mut []
@@ -444,14 +452,17 @@ impl TypedEnvBackend for EnvInstance {
         let mut scope = self.scoped_buffer();
         let call_flags = params.call_flags();
         let enc_code_hash = scope.take_encoded(params.code_hash());
-        let enc_input = if !call_flags.contains(CallFlags::FORWARD_INPUT) && !call_flags.contains(CallFlags::CLONE_INPUT) {
+        let enc_input = if !call_flags.contains(CallFlags::FORWARD_INPUT)
+            && !call_flags.contains(CallFlags::CLONE_INPUT)
+        {
             scope.take_encoded(params.exec_input())
         } else {
             &mut []
         };
         let output = scope.take_rest();
         let flags = params.call_flags();
-        let call_result = ext::delegate_call(flags.clone(), enc_code_hash, enc_input, Some(output));
+        let call_result =
+            ext::delegate_call(flags.clone(), enc_code_hash, enc_input, Some(output));
         match call_result {
             Ok(()) | Err(ReturnErrorCode::CalleeReverted) => {
                 let decoded = scale::DecodeAll::decode_all(&mut &output[..])?;
