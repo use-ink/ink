@@ -1,5 +1,5 @@
 error: using a non-fallible `Mapping::insert` with an argument that may not fit into the static buffer
-  --> $DIR/non_fallible_api.rs:33:32
+  --> $DIR/non_fallible_api.rs:44:32
    |
 LL |             let _ = self.map_1.insert(a.clone(), &b);
    |                                ^^^^^^ help: consider using `try_insert`
@@ -7,28 +7,40 @@ LL |             let _ = self.map_1.insert(a.clone(), &b);
    = note: `-D non-fallible-api` implied by `-D warnings`
 
 error: using a non-fallible `Mapping::get` with an argument that may not fit into the static buffer
-  --> $DIR/non_fallible_api.rs:34:32
+  --> $DIR/non_fallible_api.rs:45:32
    |
 LL |             let _ = self.map_1.get(a.clone());
    |                                ^^^ help: consider using `try_get`
 
 error: using a non-fallible `Mapping::take` with an argument that may not fit into the static buffer
-  --> $DIR/non_fallible_api.rs:35:32
+  --> $DIR/non_fallible_api.rs:46:32
    |
 LL |             let _ = self.map_1.take(a.clone());
    |                                ^^^^ help: consider using `try_take`
 
+error: using a non-fallible `Mapping::insert` with an argument that may not fit into the static buffer
+  --> $DIR/non_fallible_api.rs:49:32
+   |
+LL |             let _ = self.map_2.insert(42, &v);
+   |                                ^^^^^^ help: consider using `try_insert`
+
 error: using a non-fallible `Lazy::get` with an argument that may not fit into the static buffer
-  --> $DIR/non_fallible_api.rs:38:33
+  --> $DIR/non_fallible_api.rs:52:33
    |
 LL |             let _ = self.lazy_1.get();
    |                                 ^^^ help: consider using `try_get`
 
 error: using a non-fallible `Lazy::set` with an argument that may not fit into the static buffer
-  --> $DIR/non_fallible_api.rs:39:25
+  --> $DIR/non_fallible_api.rs:53:25
    |
 LL |             self.lazy_1.set(&a);
    |                         ^^^ help: consider using `try_set`
 
-error: aborting due to 5 previous errors
+error: using a non-fallible `Lazy::set` with an argument that may not fit into the static buffer
+  --> $DIR/non_fallible_api.rs:54:25
+   |
+LL |             self.lazy_2.set(&(a.clone(), a));
+   |                         ^^^ help: consider using `try_set`
+
+error: aborting due to 7 previous errors
 
