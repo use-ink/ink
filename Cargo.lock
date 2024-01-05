@@ -3908,7 +3908,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "26501292b2cb980cbeaac3304f0fc4480ff1bac2473045453d7333d775658b6a"
 dependencies = [
  "polkavm-derive-impl",
- "syn 2.0.39",
+ "syn 2.0.46",
 ]
 
 [[package]]
@@ -3920,7 +3920,7 @@ dependencies = [
  "polkavm-common",
  "proc-macro2",
  "quote",
- "syn 2.0.39",
+ "syn 2.0.46",
 ]
 
 [[package]]
