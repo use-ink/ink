@@ -298,7 +298,7 @@ impl EnvBackend for EnvInstance {
         // of gas error.
         if unsafe { DEBUG_ENABLED || FIRST_RUN } {
             let ret_code = ext::debug_message(content.as_bytes());
-            if !matches!(ret_code, Err(Error::LoggingDisabled)) {
+            if !matches!(ret_code, Err(ReturnErrorCode::LoggingDisabled)) {
                 // SAFETY: safe because executing in a single threaded context
                 unsafe { DEBUG_ENABLED = true }
             }
