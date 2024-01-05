@@ -6,6 +6,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Linter: `non_fallible_api` lint - [#2004](https://github.com/paritytech/ink/pull/2004)
 
 ## Version 5.0.0-rc
 
