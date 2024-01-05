@@ -588,11 +588,8 @@ impl Dispatch<'_> {
                         );
                     }
 
-                    let flag = if output_result.is_ok() {
-                        ::ink::env::ReturnFlags::empty()
-                    } else {
-                        ::ink::env::ReturnFlags::REVERT
-                    };
+                    let mut flag = ::ink::env::ReturnFlags::empty();
+                    flag.set(::ink::env::ReturnFlags::REVERT, output_result.is_err());
 
                     ::ink::env::return_value::<
                         ::ink::ConstructorResult<
