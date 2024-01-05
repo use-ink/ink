@@ -279,9 +279,32 @@ impl EnvBackend for EnvInstance {
         ext::return_value(flags, &self.buffer[..][..len]);
     }
 
+    #[cfg(not(feature = "ink-debug"))]
+    /// A no-op. Enable the `ink-debug` feature for debug messages.
+    fn debug_message(&mut self, _content: &str) {}
+
+    #[cfg(feature = "ink-debug")]
     fn debug_message(&mut self, content: &str) {
-        // TODO fix unwrap
-        ext::debug_message(content.as_bytes()).unwrap()
+        static mut DEBUG_ENABLED: bool = false;
+        static mut FIRST_RUN: bool = true;
+
+        // SAFETY: safe because executing in a single threaded context
+        // We need those two variables in order to make sure that the assignment is
+        // performed in the "logging enabled" case. This is because during RPC
+        // execution logging might be enabled while it is disabled during the
+        // actual execution as part of a transaction. The gas estimation takes
+        // place during RPC execution. We want to overestimate instead
+        // of underestimate gas usage. Otherwise using this estimate could lead to a out
+        // of gas error.
+        if unsafe { DEBUG_ENABLED || FIRST_RUN } {
+            let ret_code = ext::debug_message(content.as_bytes());
+            if !matches!(ret_code, Err(Error::LoggingDisabled)) {
+                // SAFETY: safe because executing in a single threaded context
+                unsafe { DEBUG_ENABLED = true }
+            }
+            // SAFETY: safe because executing in a single threaded context
+            unsafe { FIRST_RUN = false }
+        }
     }
 
     fn hash_bytes<H>(&mut self, input: &[u8], output: &mut <H as HashOutput>::Type)
