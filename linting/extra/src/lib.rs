@@ -25,7 +25,6 @@ extern crate rustc_ast;
 extern crate rustc_errors;
 extern crate rustc_hir;
 extern crate rustc_index;
-extern crate rustc_infer;
 extern crate rustc_lint;
 extern crate rustc_middle;
 extern crate rustc_mir_dataflow;

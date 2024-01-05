@@ -10,6 +10,8 @@ pub mod non_fallible_api {
     #[ink(storage)]
     pub struct NonFallibleAPI {
         map_1: Mapping<AccountId, AccountId>,
+        map_2: Mapping<AccountId, [AccountId; 1]>,
+        map_3: Mapping<AccountId, (AccountId, AccountId)>,
         lazy_1: Lazy<AccountId>,
     }
 
@@ -18,6 +20,8 @@ pub mod non_fallible_api {
         pub fn new() -> Self {
             Self {
                 map_1: Mapping::new(),
+                map_2: Mapping::new(),
+                map_3: Mapping::new(),
                 lazy_1: Lazy::new(),
             }
         }
@@ -43,6 +47,8 @@ pub mod non_fallible_api {
             let _ = self.map_1.insert(a, &b);
             let _ = self.map_1.get(a);
             let _ = self.map_1.take(a);
+            let _ = self.map_2.insert(a, &[b; 1]);
+            let _ = self.map_3.insert(a, &(b, b));
 
             // Lazy
             let _ = self.lazy_1.get();

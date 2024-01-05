@@ -37,7 +37,6 @@ use rustc_hir::{
     ItemKind,
     PathSegment,
 };
-use rustc_infer::infer::TyCtxtInferExt;
 use rustc_lint::{
     LateContext,
     LateLintPass,
@@ -46,6 +45,7 @@ use rustc_middle::{
     hir::nested_filter,
     ty::{
         self,
+        ConstKind,
         Ty,
         TypeckResults,
     },
@@ -170,12 +170,35 @@ impl<'a, 'tcx> APIUsageChecker<'a, 'tcx> {
         }
     }
 
-    /// Returns true iff type is a primitive, so its encoded size is statically known
-    fn is_primitive_ty(ty: &Ty) -> bool {
-        matches!(
-            ty.kind(),
-            ty::Int(_) | ty::Uint(_) | ty::Bool | ty::Char | ty::Float(_)
-        )
+    /// Returns true iff the given type has statically known size when encoded with
+    /// `scale_codec`
+    fn is_statically_known(&self, ty: &Ty<'tcx>) -> bool {
+        match ty.kind() {
+            ty::Bool | ty::Char | ty::Int(_) | ty::Uint(_) | ty::Float(_) | ty::Str => {
+                true
+            }
+            ty::Tuple(inner_tys) => {
+                inner_tys.iter().all(|ty| self.is_statically_known(&ty))
+            }
+            ty::Ref(_, inner, _) => self.is_statically_known(inner),
+            ty::Adt(adt_def, substs) => {
+                adt_def.variants().iter().all(|variant| {
+                    variant.fields.iter().all(|field| {
+                        self.is_statically_known(&field.ty(self.cx.tcx, substs))
+                    })
+                })
+            }
+            ty::Array(inner_ty, len_const) => {
+                if_chain! {
+                    if self.is_statically_known(inner_ty);
+                    if let ConstKind::Value(ty::ValTree::Leaf(elements_count)) = len_const.kind();
+                    if let Ok(elements_size) = elements_count.try_to_target_usize(self.cx.tcx);
+                    if elements_size < (ink_env::BUFFER_SIZE as u64);
+                    then { true } else { false }
+                }
+            }
+            _ => false,
+        }
     }
 
     /// Raises warnings if the given method call is potentially unsafe and could be
@@ -185,10 +208,10 @@ impl<'a, 'tcx> APIUsageChecker<'a, 'tcx> {
         receiver_ty: &TyToCheck,
         method_path: &PathSegment,
         method_name: &str,
-        arg_ty: &Ty<'tcx>,
+        arg_ty: Ty<'tcx>,
     ) {
         if_chain! {
-            if !Self::is_primitive_ty(arg_ty);
+            if !self.is_statically_known(&arg_ty);
             if let Some(fallible_method) = receiver_ty.find_fallible_alternative(method_name);
             then {
                 span_lint_and_then(
@@ -219,7 +242,7 @@ impl<'a, 'tcx> Visitor<'tcx> for APIUsageChecker<'a, 'tcx> {
 
     fn visit_expr(&mut self, e: &'tcx Expr<'tcx>) {
         if_chain! {
-            if let ExprKind::MethodCall(method_path, receiver, actual_args, _) = &e.kind;
+            if let ExprKind::MethodCall(method_path, receiver, _, _) = &e.kind;
             if let Some(typeck_results) = self.maybe_typeck_results;
             let ty = typeck_results.expr_ty(receiver);
             if let TyKind::Adt(def, substs) = ty.kind();
@@ -234,7 +257,7 @@ impl<'a, 'tcx> Visitor<'tcx> for APIUsageChecker<'a, 'tcx> {
                             &ty,
                             method_path,
                             &method_path.ident.to_string(),
-                            &arg_ty)
+                            arg_ty)
                     })
             }
         }
