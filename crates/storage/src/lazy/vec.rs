@@ -403,9 +403,10 @@ where
     /// * `Ok(Some(_))` if the value was inserted successfully, containing the size in
     ///   bytes of the pre-existing value at the specified key if any.
     /// * `Ok(None)` if the insert was successful but there was no pre-existing value.
-    /// * Err([ink_env::Error::BufferTooSmall]) if the encoded value exceeds the static
-    ///   buffer size
-    /// * Err([ink_env::Error::KeyNotFound]) if the `index` is out of bounds.
+    /// * Err([ink_env::Error::ReturnError]([ink_env::ReturnErrorCode::BufferTooSmall]))
+    ///   if the encoded value exceeds the static buffer size
+    /// * Err([ink_env::Error::ReturnError]([ink_env::ReturnErrorCode::KeyNotFound])) if
+    ///   the `index` is out of bounds.
     ///
     /// # Panics
     ///
