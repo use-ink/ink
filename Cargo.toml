@@ -18,6 +18,7 @@ members = [
 ]
 exclude = [
     "integration-tests",
+    "linting",
 ]
 
 [workspace.package]
@@ -46,7 +47,7 @@ heck = { version = "0.4.0" }
 impl-serde = { version = "0.4.0", default-features = false }
 itertools = { version = "0.12", default-features = false }
 jsonrpsee = { version = "0.20.0" }
-linkme = { version = "0.3.9" }
+linkme = { version = "0.3.18" }
 num-traits = { version = "0.2", default-features = false }
 paste = { version = "1.0" }
 pretty_assertions = { version = "1" }
@@ -56,7 +57,7 @@ quickcheck_macros = { version = "1" }
 quote = { version = "1" }
 rlibc = { version = "1" }
 scale = { package = "parity-scale-codec", version = "3.6.9", default-features = false, features = ["derive"] }
-scale-decode = { version = "0.9.0", default-features = false }
+scale-decode = { version = "0.10.0", default-features = false }
 scale-encode = { version = "0.5.0", default-features = false }
 scale-info = { version = "2.6", default-features = false }
 schemars = { version = "0.8" }
@@ -66,13 +67,13 @@ serde_json = { version = "1.0.81" }
 sha2 = { version = "0.10" }
 sha3 = { version = "0.10" }
 static_assertions = { version = "1.1" }
-subxt = { version = "0.32.1" }
-subxt-metadata = { version = "0.32.1" }
-subxt-signer = { version = "0.32.1" }
+subxt = { version = "0.33.0 " }
+subxt-metadata = { version = "0.33.0" }
+subxt-signer = { version = "0.33.0" }
 syn = { version = "2" }
 synstructure = { version = "0.13.0" }
 thiserror = { version = "1.0.50" }
-tokio = { version = "1.18.2" }
+tokio = { version = "1.35.1" }
 tracing = { version = "0.1.37" }
 tracing-subscriber = { version = "0.3.17" }
 trybuild = { version = "1.0.60" }

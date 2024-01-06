@@ -31,11 +31,7 @@ extern crate rustc_mir_dataflow;
 extern crate rustc_session;
 extern crate rustc_span;
 
-mod ink_utils;
 mod no_main;
-mod primitive_topic;
-mod storage_never_freed;
-mod strict_balance_equality;
 
 #[doc(hidden)]
 #[no_mangle]
@@ -43,16 +39,7 @@ pub fn register_lints(
     _sess: &rustc_session::Session,
     lint_store: &mut rustc_lint::LintStore,
 ) {
-    lint_store.register_lints(&[
-        primitive_topic::PRIMITIVE_TOPIC,
-        storage_never_freed::STORAGE_NEVER_FREED,
-        strict_balance_equality::STRICT_BALANCE_EQUALITY,
-        no_main::NO_MAIN,
-    ]);
-    lint_store.register_late_pass(|_| Box::new(primitive_topic::PrimitiveTopic));
-    lint_store.register_late_pass(|_| Box::new(storage_never_freed::StorageNeverFreed));
-    lint_store
-        .register_late_pass(|_| Box::new(strict_balance_equality::StrictBalanceEquality));
+    lint_store.register_lints(&[no_main::NO_MAIN]);
     lint_store.register_early_pass(|| Box::new(no_main::NoMain));
 }
 
