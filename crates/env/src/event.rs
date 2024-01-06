@@ -195,10 +195,18 @@ impl EventTopicsAmount for state::NoRemainingTopics {
 /// builder.
 ///
 /// Normally this trait should be implemented automatically via `#[derive(ink::Event)`.
-pub trait Event: scale::Encode + GetSignatureTopic {
+pub trait Event: scale::Encode {
     /// Type state indicating how many event topics are to be expected by the topics
     /// builder.
     type RemainingTopics: EventTopicsAmount;
+
+    /// The unique signature topic of the event. `None` for anonymous events.
+    ///
+    /// It can be automatically calculated or manually specified.
+    ///
+    /// Usually this is calculated using the `#[derive(ink::Event)]` derive, which by
+    /// default calculates this as `blake2b("Event(field1_type,field2_type)"
+    const SIGNATURE_TOPIC: core::option::Option<[u8; 32]>;
 
     /// Guides event topic serialization using the given topics builder.
     fn topics<E, B>(
@@ -208,17 +216,4 @@ pub trait Event: scale::Encode + GetSignatureTopic {
     where
         E: Environment,
         B: TopicsBuilderBackend<E>;
-}
-
-/// Getter that returns the signature topic for the specific event.
-///
-/// It can be automatically calculated or manually specified.
-///
-/// The unique signature topic of the event. `None` for anonymous events.
-///
-/// Usually this is calculated using the `#[derive(ink::Event)]` derive, which by
-/// default calculates this as `blake2b("Event(field1_type,field2_type)")`
-pub trait GetSignatureTopic {
-    /// Retrieve the signature topic
-    const SIGNATURE_TOPIC: core::option::Option<[u8; 32]>;
 }

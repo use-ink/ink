@@ -73,6 +73,7 @@ pub use self::{
     event::{
         Event,
         SignatureTopic,
+        SignatureTopicArg,
     },
     ink_test::InkTest,
     item::{

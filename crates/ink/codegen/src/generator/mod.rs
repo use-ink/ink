@@ -38,7 +38,6 @@ mod ink_test;
 mod item_impls;
 mod metadata;
 mod selector;
-mod signature_topic;
 mod storage;
 mod storage_item;
 mod trait_def;
@@ -68,7 +67,6 @@ pub use self::{
         SelectorBytes,
         SelectorId,
     },
-    signature_topic::SignatureTopic,
     storage::Storage,
     storage_item::StorageItem,
     trait_def::TraitDefinition,

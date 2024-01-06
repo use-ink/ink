@@ -78,6 +78,7 @@ pub use self::{
         Selector,
         SelectorMacro,
         SignatureTopic,
+        SignatureTopicArg,
         Storage,
         StorageItem,
         Visibility,

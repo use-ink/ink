@@ -19,7 +19,6 @@ fn unit_struct_works() {
     crate::test_derive! {
         event_metadata_derive {
             #[derive(ink::Event, scale::Encode)]
-            #[::ink::signature_topic]
             struct UnitStruct;
         }
         expands to {
@@ -35,7 +34,7 @@ fn unit_struct_works() {
 
                         ::ink::metadata::EventSpec::new(::core::stringify!(UnitStruct))
                             .module_path(::core::module_path!())
-                            .signature_topic(<Self as ::ink::env::GetSignatureTopic>::SIGNATURE_TOPIC)
+                            .signature_topic(<Self as ::ink::env::Event>::SIGNATURE_TOPIC)
                             .args([])
                             .docs([])
                             .done()
@@ -51,7 +50,6 @@ fn struct_with_fields_no_topics() {
     crate::test_derive! {
         event_metadata_derive {
             #[derive(ink::Event, scale::Encode)]
-            #[::ink::signature_topic]
             struct Event {
                 field_1: u32,
                 field_2: u64,
@@ -71,7 +69,7 @@ fn struct_with_fields_no_topics() {
 
                         ::ink::metadata::EventSpec::new(::core::stringify!(Event))
                             .module_path(::core::module_path!())
-                            .signature_topic(<Self as ::ink::env::GetSignatureTopic>::SIGNATURE_TOPIC)
+                            .signature_topic(<Self as ::ink::env::Event>::SIGNATURE_TOPIC)
                             .args([
                                 ::ink::metadata::EventParamSpec::new(::core::stringify!(field_1))
                                     .of_type(::ink::metadata::TypeSpec::of_type::<u32>())
@@ -103,7 +101,6 @@ fn struct_with_fields_and_some_topics() {
     crate::test_derive! {
         event_metadata_derive {
             #[derive(ink::Event, scale::Encode)]
-            #[::ink::signature_topic]
             struct Event {
                 field_1: u32,
                 #[ink(topic)]
@@ -125,7 +122,7 @@ fn struct_with_fields_and_some_topics() {
 
                         ::ink::metadata::EventSpec::new(::core::stringify!(Event))
                             .module_path(::core::module_path!())
-                            .signature_topic(<Self as ::ink::env::GetSignatureTopic>::SIGNATURE_TOPIC)
+                            .signature_topic(<Self as ::ink::env::Event>::SIGNATURE_TOPIC)
                             .args([
                                 ::ink::metadata::EventParamSpec::new(::core::stringify!(field_1))
                                     .of_type(::ink::metadata::TypeSpec::of_type::<u32>())

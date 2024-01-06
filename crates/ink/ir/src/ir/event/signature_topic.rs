@@ -46,35 +46,43 @@ impl From<&[u8; 32]> for SignatureTopicArg {
     }
 }
 
-impl TryFrom<&ast::MetaValue> for SignatureTopicArg {
+impl TryFrom<&syn::Lit> for SignatureTopicArg {
     type Error = syn::Error;
 
-    fn try_from(value: &ast::MetaValue) -> Result<Self, Self::Error> {
-        if let ast::MetaValue::Lit(lit) = value {
-            if let syn::Lit::Str(s) = lit {
-                let bytes: [u8; 32] = serde_hex::from_hex(&s.value())
+    fn try_from(lit: &syn::Lit) -> Result<Self, Self::Error> {
+        if let syn::Lit::Str(s) = lit {
+            let bytes: [u8; 32] = serde_hex::from_hex(&s.value())
                     .map_err(|_| {
                         format_err_spanned!(
-                            value,
+                            lit,
                             "`signature_topic` has invalid hex string",
                         )
                     })?
                     .try_into()
                     .map_err(|e: Vec<u8>| {
                         format_err_spanned!(
-                            value,
+                            lit,
                             "`signature_topic` is expected to be 32-byte hash. Found {} bytes",
                             e.len()
                         )
                     })?;
 
-                Ok(Self { topic: bytes })
-            } else {
-                Err(format_err_spanned!(
-                    value,
-                    "Expected string literal argument for the `signature_topic`"
-                ))
-            }
+            Ok(Self { topic: bytes })
+        } else {
+            Err(format_err_spanned!(
+                lit,
+                "Expected string literal argument for the `signature_topic`"
+            ))
+        }
+    }
+}
+
+impl TryFrom<&ast::MetaValue> for SignatureTopicArg {
+    type Error = syn::Error;
+
+    fn try_from(value: &ast::MetaValue) -> Result<Self, Self::Error> {
+        if let ast::MetaValue::Lit(lit) = value {
+            Self::try_from(lit)
         } else {
             Err(format_err_spanned!(
                 value,
@@ -106,6 +114,22 @@ impl TryFrom<ast::AttributeArgs> for Option<SignatureTopicArg> {
             }
         }
         Ok(signature_topic)
+    }
+}
+
+impl TryFrom<&syn::MetaNameValue> for SignatureTopicArg {
+    type Error = syn::Error;
+
+    fn try_from(nv: &syn::MetaNameValue) -> Result<Self, Self::Error> {
+        if nv.path.is_ident("signature_topic") {
+            if let syn::Expr::Lit(lit_expr) = &nv.value {
+                Self::try_from(&lit_expr.lit)
+            } else {
+                Err(format_err_spanned!(&nv.value, "Expected literal argument"))
+            }
+        } else {
+            Err(format_err_spanned!(nv, "Expected `signature_topic` ident"))
+        }
     }
 }
 

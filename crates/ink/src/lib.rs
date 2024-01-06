@@ -80,7 +80,6 @@ pub use ink_macro::{
     scale_derive,
     selector_bytes,
     selector_id,
-    signature_topic,
     storage_item,
     test,
     trait_definition,

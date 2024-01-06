@@ -27,13 +27,15 @@ fn unit_struct_works() {
     crate::test_derive! {
         event_derive {
             #[derive(scale::Encode)]
-            #[::ink::signature_topic]
             struct UnitStruct;
         }
         expands to {
             const _: () = {
                 impl ::ink::env::Event for UnitStruct {
                     type RemainingTopics = [::ink::env::event::state::HasRemainingTopics; 1usize];
+
+                    const SIGNATURE_TOPIC: ::core::option::Option<[::core::primitive::u8; 32]> =
+                        ::core::option::Option::Some( ::ink::blake2x256!("UnitStruct()") );
 
                     fn topics<E, B>(
                         &self,
@@ -47,7 +49,7 @@ fn unit_struct_works() {
                             UnitStruct => {
                                 builder
                                     .build::<Self>()
-                                    .push_topic(<Self as ::ink::env::GetSignatureTopic>::SIGNATURE_TOPIC.as_ref())
+                                    .push_topic(Self::SIGNATURE_TOPIC.as_ref())
                                     .finish()
                             }
                         }
@@ -67,12 +69,12 @@ fn unit_struct_anonymous_has_no_topics() {
             struct UnitStruct;
         }
         expands to {
-            impl ::ink::env::GetSignatureTopic for UnitStruct {
-                const SIGNATURE_TOPIC: ::core::option::Option<[u8; 32]> = None;
-            }
             const _: () = {
                 impl ::ink::env::Event for UnitStruct {
                     type RemainingTopics = ::ink::env::event::state::NoRemainingTopics;
+
+                    const SIGNATURE_TOPIC: ::core::option::Option<[::core::primitive::u8; 32]> =
+                        ::core::option::Option::None;
 
                     fn topics<E, B>(
                         &self,
@@ -101,7 +103,6 @@ fn struct_with_fields_no_topics() {
     crate::test_derive! {
         event_derive {
             #[derive(scale::Encode)]
-            #[::ink::signature_topic]
             struct Event {
                 field_1: u32,
                 field_2: u64,
@@ -112,6 +113,9 @@ fn struct_with_fields_no_topics() {
             const _: () = {
                 impl ::ink::env::Event for Event {
                     type RemainingTopics = [::ink::env::event::state::HasRemainingTopics; 1usize];
+
+                    const SIGNATURE_TOPIC: ::core::option::Option<[::core::primitive::u8; 32]> =
+                        ::core::option::Option::Some( ::ink::blake2x256!("Event(u32,u64,u128)") );
 
                     fn topics<E, B>(
                         &self,
@@ -125,7 +129,7 @@ fn struct_with_fields_no_topics() {
                             Event { .. } => {
                                 builder
                                     .build::<Self>()
-                                    .push_topic(<Self as ::ink::env::GetSignatureTopic>::SIGNATURE_TOPIC.as_ref())
+                                    .push_topic(Self::SIGNATURE_TOPIC.as_ref())
                                     .finish()
                             }
                         }
@@ -141,7 +145,6 @@ fn struct_with_fields_and_some_topics() {
     crate::test_derive! {
         event_derive {
             #[derive(scale::Encode)]
-            #[::ink::signature_topic]
             struct Event {
                 field_1: u32,
                 #[ink(topic)]
@@ -155,6 +158,8 @@ fn struct_with_fields_and_some_topics() {
                 impl ::ink::env::Event for Event {
                     type RemainingTopics = [::ink::env::event::state::HasRemainingTopics; 3usize];
 
+                    const SIGNATURE_TOPIC: ::core::option::Option<[::core::primitive::u8; 32]> =
+                        ::core::option::Option::Some( ::ink::blake2x256!("Event(u32,u64,u128)") );
 
                     fn topics<E, B>(
                         &self,
@@ -168,9 +173,48 @@ fn struct_with_fields_and_some_topics() {
                             Event { field_2 : __binding_1 , field_3 : __binding_2 , .. } => {
                                 builder
                                     .build::<Self>()
-                                    .push_topic(<Self as ::ink::env::GetSignatureTopic>::SIGNATURE_TOPIC.as_ref())
+                                    .push_topic(Self::SIGNATURE_TOPIC.as_ref())
                                     .push_topic(::ink::as_option!(__binding_1))
                                     .push_topic(::ink::as_option!(__binding_2))
+                                    .finish()
+                            }
+                        }
+                    }
+                }
+            };
+        } no_build
+    }
+}
+
+#[test]
+fn custom_signature_topic() {
+    crate::test_derive! {
+        event_derive {
+            #[derive(scale::Encode)]
+            #[ink(signature_topic = "1111111111111111111111111111111111111111111111111111111111111111")]
+            struct UnitStruct;
+        }
+        expands to {
+            const _: () = {
+                impl ::ink::env::Event for UnitStruct {
+                    type RemainingTopics = [::ink::env::event::state::HasRemainingTopics; 1usize];
+
+                    const SIGNATURE_TOPIC: ::core::option::Option<[::core::primitive::u8; 32]> =
+                        ::core::option::Option::Some( [17u8, 17u8, 17u8, 17u8, 17u8, 17u8, 17u8, 17u8, 17u8, 17u8, 17u8, 17u8, 17u8, 17u8, 17u8, 17u8, 17u8, 17u8, 17u8, 17u8, 17u8, 17u8, 17u8, 17u8, 17u8, 17u8, 17u8, 17u8, 17u8, 17u8, 17u8, 17u8] );
+
+                    fn topics<E, B>(
+                        &self,
+                        builder: ::ink::env::event::TopicsBuilder<::ink::env::event::state::Uninit, E, B>,
+                    ) -> <B as ::ink::env::event::TopicsBuilderBackend<E>>::Output
+                    where
+                        E: ::ink::env::Environment,
+                        B: ::ink::env::event::TopicsBuilderBackend<E>,
+                    {
+                        match self {
+                            UnitStruct => {
+                                builder
+                                    .build::<Self>()
+                                    .push_topic(Self::SIGNATURE_TOPIC.as_ref())
                                     .finish()
                             }
                         }

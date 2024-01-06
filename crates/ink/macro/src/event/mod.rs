@@ -13,10 +13,9 @@
 // limitations under the License.
 
 mod metadata;
-mod signature_topic;
 
+use ink_ir::SignatureTopicArg;
 pub use metadata::event_metadata_derive;
-pub use signature_topic::generate_signature_topic;
 
 use ink_codegen::generate_code;
 use proc_macro2::TokenStream as TokenStream2;
@@ -24,7 +23,11 @@ use quote::{
     quote,
     quote_spanned,
 };
-use syn::spanned::Spanned;
+use syn::{
+    punctuated::Punctuated,
+    spanned::Spanned,
+    Token,
+};
 
 /// Generate code from the `#[ink::event]` attribute. This expands to the required
 /// derive macros to satisfy an event implementation.
@@ -61,7 +64,7 @@ fn event_derive_struct(mut s: synstructure::Structure) -> syn::Result<TokenStrea
         return Err(syn::Error::new(
             s.ast().generics.params.span(),
             "can only derive `Event` for structs without generics",
-        ))
+        ));
     }
 
     let span = s.ast().span();
@@ -82,7 +85,7 @@ fn event_derive_struct(mut s: synstructure::Structure) -> syn::Result<TokenStrea
         }
     });
     if let Some(err) = topic_err {
-        return Err(err)
+        return Err(err);
     }
 
     let variant = &s.variants()[0];
@@ -102,8 +105,22 @@ fn event_derive_struct(mut s: synstructure::Structure) -> syn::Result<TokenStrea
         None
     } else {
         Some(quote_spanned!(span=>
-            .push_topic(<Self as ::ink::env::GetSignatureTopic>::SIGNATURE_TOPIC.as_ref())
+            .push_topic(Self::SIGNATURE_TOPIC.as_ref())
         ))
+    };
+
+    let signature_topic = if !anonymous {
+        let event_ident = variant.ast().ident;
+        if let Some(sig_arg) = parse_signature_arg(&s.ast().attrs)? {
+            let bytes = sig_arg.signature_topic();
+            quote_spanned!(span=> ::core::option::Option::Some([ #(#bytes),* ]))
+        } else {
+            let calculated_signature_topic =
+                signature_topic(variant.ast().fields, event_ident);
+            quote_spanned!(span=> ::core::option::Option::Some(#calculated_signature_topic))
+        }
+    } else {
+        quote_spanned!(span=> ::core::option::Option::None)
     };
 
     let topics = variant.bindings().iter().fold(quote!(), |acc, field| {
@@ -125,8 +142,9 @@ fn event_derive_struct(mut s: synstructure::Structure) -> syn::Result<TokenStrea
         }
     );
 
-    let bound_impl = s.bound_impl(quote!(::ink::env::Event), quote! {
+    Ok(s.bound_impl(quote!(::ink::env::Event), quote! {
         type RemainingTopics = #remaining_topics_ty;
+        const SIGNATURE_TOPIC: ::core::option::Option<[::core::primitive::u8; 32]> = #signature_topic;
 
         fn topics<E, B>(
             &self,
@@ -140,35 +158,7 @@ fn event_derive_struct(mut s: synstructure::Structure) -> syn::Result<TokenStrea
                 #topics_builder
             }
         }
-     });
-
-    let blank_topic_impl = generate_signature_topic_blank(&s.ast().ident, anonymous);
-
-    let code = quote! {
-        #blank_topic_impl
-        #bound_impl
-    };
-
-    Ok(code)
-}
-
-/// Generate a blank implementation of `GetSignature` for the given event
-/// if `anonymous` argument is specified.
-///
-/// Returns `None`
-fn generate_signature_topic_blank(
-    item_ident: &syn::Ident,
-    anonymous: bool,
-) -> TokenStream2 {
-    if anonymous {
-        quote! {
-            impl ::ink::env::GetSignatureTopic for #item_ident {
-                const SIGNATURE_TOPIC: ::core::option::Option<[u8; 32]> = None;
-            }
-        }
-    } else {
-        quote! {}
-    }
+     }))
 }
 
 /// Checks if the given field's attributes contain an `#[ink(topic)]` attribute.
@@ -193,41 +183,92 @@ fn has_ink_topic_attribute(field: &synstructure::BindingInfo) -> syn::Result<boo
 }
 
 /// Checks if the given attributes contain an `ink` attribute with the given path.
+fn has_ink_attribute(attrs: &[syn::Attribute], path: &str) -> syn::Result<bool> {
+    let parsed_args = parse_arg_attr(attrs)?;
+    let Some(meta) = parsed_args else {
+        return Ok(false);
+    };
+    Ok(meta.path().is_ident(path))
+}
+
+/// Parses custom `ink` attribute with the arbitrary argument.
 ///
 /// # Errors
-/// - If there are multiple `ink` attributes with the given path.
-/// - If multiple arguments are given to the `ink` attribute.
-/// - If any other `ink` attributes are present other than the one with the given path.
-fn has_ink_attribute(attrs: &[syn::Attribute], path: &str) -> syn::Result<bool> {
+/// - Multiple arguments are specified
+/// - Multiple `ink` attribute present
+fn parse_arg_attr(attrs: &[syn::Attribute]) -> syn::Result<Option<syn::Meta>> {
     let ink_attrs = attrs
         .iter()
         .filter_map(|attr| {
             if attr.path().is_ident("ink") {
-                let parse_result = attr.parse_nested_meta(|meta| {
-                    if meta.path.is_ident(path) {
-                        if meta.input.is_empty() {
-                            Ok(())
-                        } else {
-                            Err(meta.error(format!(
-                                "Invalid `#[ink({path})]` attribute: multiple arguments not allowed.",
-                            )))
-                        }
+                let parse_result = || -> Result<syn::Meta, syn::Error> {
+                    let nested = attr.parse_args_with(
+                        Punctuated::<syn::Meta, Token![,]>::parse_separated_nonempty,
+                    )?;
+                    if nested.len() > 1 {
+                        Err(syn::Error::new(
+                            nested[1].span(),
+                            "Only a single argument is allowed".to_string(),
+                        ))
                     } else {
-                        Err(meta
-                            .error(format!("Only `#[ink({path})]` attribute allowed.")))
+                        Ok(nested
+                            .first()
+                            .ok_or(syn::Error::new(
+                                nested[0].span(),
+                                "Expected to have an argument".to_string(),
+                            ))?
+                            .clone())
                     }
-                });
-                Some(parse_result.map(|_| attr))
+                };
+                Some(parse_result())
             } else {
                 None
             }
         })
         .collect::<syn::Result<Vec<_>>>()?;
+
     if ink_attrs.len() > 1 {
-        return Err(syn::Error::new(
+        Err(syn::Error::new(
             ink_attrs[1].span(),
-            format!("Only a single `#[ink({})]` attribute allowed.", path),
+            "Only a single custom ink attribute is allowed.".to_string(),
         ))
+    } else {
+        Ok(ink_attrs.first().cloned())
     }
-    Ok(!ink_attrs.is_empty())
+}
+
+/// Parses signature topic from the list of attributes.
+///
+/// # Errors
+/// - Name-value pair is not specified correctly.
+/// - Provided value is of wrong format.
+/// - Provided hash string is of wrong length.
+fn parse_signature_arg(
+    attrs: &[syn::Attribute],
+) -> syn::Result<Option<SignatureTopicArg>> {
+    let Some(meta) = parse_arg_attr(attrs)? else {
+        return Ok(None);
+    };
+    if let syn::Meta::NameValue(nv) = &meta {
+        Ok(Some(SignatureTopicArg::try_from(nv)?))
+    } else {
+        Ok(None)
+    }
+}
+
+/// The signature topic of an event variant.
+///
+/// Calculated with `blake2b("Event(field1_type,field2_type)")`.
+fn signature_topic(fields: &syn::Fields, event_ident: &syn::Ident) -> TokenStream2 {
+    let fields = fields
+        .iter()
+        .map(|field| {
+            quote::ToTokens::to_token_stream(&field.ty)
+                .to_string()
+                .replace(' ', "")
+        })
+        .collect::<Vec<_>>()
+        .join(",");
+    let topic_str = format!("{}({fields})", event_ident);
+    quote!(::ink::blake2x256!(#topic_str))
 }
