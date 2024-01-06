@@ -1423,6 +1423,7 @@ synstructure::decl_derive!(
     /// 32 byte hash string of the custom signature topic.
     ///
     /// Generates custom signature topic
+    /// ```
     /// #[derive(ink::Event, scale::Encode)]
     /// #[ink(signature_topic = "1111111111111111111111111111111111111111111111111111111111111111")]
     /// pub struct MyCustomSignatureEvent {
@@ -1432,7 +1433,7 @@ synstructure::decl_derive!(
     ///
     /// assert_eq!(Some([17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17]),
     ///     <MyCustomSignatureEvent as ink::env::Event>::SIGNATURE_TOPIC)
-    ///
+    ///```
     /// ## Anonymous Events
     ///
     /// If the event is annotated with `#[ink(anonymous)]` then no signature topic is generated.
