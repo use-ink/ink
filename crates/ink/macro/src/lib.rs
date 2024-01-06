@@ -1344,8 +1344,7 @@ synstructure::decl_derive!(
     [Event, attributes(ink)] =>
     /// Derives an implementation of the [`ink::Event`] trait for the given `struct`.
     ///
-    /// **Note** [`ink::Event`] requires [`scale::Encode`] implementation,
-    /// it is up to the user to provide that: usually via the derive and `#[ink::signature_topic]` macros.
+    /// **Note** [`ink::Event`] requires [`scale::Encode`] implementation.
     ///
     /// Usually this is used in conjunction with the [`EventMetadata`] derive.
     ///

@@ -29,10 +29,7 @@ use crate::{
     utils::extract_cfg_attributes,
 };
 
-pub use signature_topic::{
-    SignatureTopic,
-    SignatureTopicArg,
-};
+pub use signature_topic::SignatureTopicArg;
 
 /// A checked ink! event with its configuration.
 #[derive(Debug, PartialEq, Eq)]

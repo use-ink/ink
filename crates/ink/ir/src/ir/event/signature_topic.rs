@@ -13,18 +13,9 @@
 // limitations under the License.
 
 use impl_serde::serialize as serde_hex;
-use proc_macro2::{
-    Span,
-    TokenStream as TokenStream2,
-};
-use quote::ToTokens;
 use syn::spanned::Spanned;
 
-use crate::{
-    ast,
-    error::ExtError,
-    utils::extract_cfg_attributes,
-};
+use crate::ast;
 
 /// The signature topic argument of an event variant.
 ///
@@ -130,59 +121,5 @@ impl TryFrom<&syn::MetaNameValue> for SignatureTopicArg {
         } else {
             Err(format_err_spanned!(nv, "Expected `signature_topic` ident"))
         }
-    }
-}
-
-/// The signature topic argument of an event variant.
-///
-/// Used as part of `ink::signature_topic` macro.
-///
-/// Calculated with `blake2b("Event(field1_type,field2_type)")`.
-#[derive(Debug, PartialEq, Eq)]
-pub struct SignatureTopic {
-    item: syn::ItemStruct,
-    arg: Option<SignatureTopicArg>,
-}
-
-impl SignatureTopic {
-    pub fn new(config: TokenStream2, item: TokenStream2) -> Result<Self, syn::Error> {
-        let item = syn::parse2::<syn::ItemStruct>(item.clone()).map_err(|err| {
-            err.into_combine(format_err_spanned!(
-                item,
-                "event definition must be a `struct`",
-            ))
-        })?;
-        let parsed_config = syn::parse2::<crate::ast::AttributeArgs>(config)?;
-        let arg = Option::<SignatureTopicArg>::try_from(parsed_config)?;
-
-        for attr in &item.attrs {
-            if attr
-                .path()
-                .to_token_stream()
-                .to_string()
-                .contains("signature_topic")
-            {
-                return Err(format_err_spanned!(
-                    attr,
-                    "only one `ink::signature_topic` is allowed",
-                ));
-            }
-        }
-        Ok(Self { item, arg })
-    }
-
-    /// Returns the event definition .
-    pub fn item(&self) -> &syn::ItemStruct {
-        &self.item
-    }
-
-    /// Return a signature topic, if required.
-    pub fn signature_topic(&self) -> Option<[u8; 32]> {
-        self.arg.map(|a| a.signature_topic())
-    }
-
-    /// Returns a list of `cfg` attributes if any.
-    pub fn get_cfg_attrs(&self, span: Span) -> Vec<TokenStream2> {
-        extract_cfg_attributes(&self.item.attrs, span)
     }
 }
