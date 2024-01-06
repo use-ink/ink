@@ -184,7 +184,7 @@ fn has_ink_topic_attribute(field: &synstructure::BindingInfo) -> syn::Result<boo
 
 /// Checks if the given attributes contain an `ink` attribute with the given path.
 fn has_ink_attribute(attrs: &[syn::Attribute], path: &str) -> syn::Result<bool> {
-    let parsed_args = parse_arg_attr(attrs)?;
+    let parsed_args = parse_arg_attr(attrs, path)?;
     let Some(meta) = parsed_args else {
         return Ok(false);
     };
@@ -196,7 +196,10 @@ fn has_ink_attribute(attrs: &[syn::Attribute], path: &str) -> syn::Result<bool> 
 /// # Errors
 /// - Multiple arguments are specified
 /// - Multiple `ink` attribute present
-fn parse_arg_attr(attrs: &[syn::Attribute]) -> syn::Result<Option<syn::Meta>> {
+fn parse_arg_attr(
+    attrs: &[syn::Attribute],
+    path: &str,
+) -> syn::Result<Option<syn::Meta>> {
     let ink_attrs = attrs
         .iter()
         .filter_map(|attr| {
@@ -208,7 +211,7 @@ fn parse_arg_attr(attrs: &[syn::Attribute]) -> syn::Result<Option<syn::Meta>> {
                     if nested.len() > 1 {
                         Err(syn::Error::new(
                             nested[1].span(),
-                            "Only a single argument is allowed".to_string(),
+                            format!("Invalid `#[ink({})]` attribute: multiple arguments not allowed", path),
                         ))
                     } else {
                         Ok(nested
@@ -230,7 +233,7 @@ fn parse_arg_attr(attrs: &[syn::Attribute]) -> syn::Result<Option<syn::Meta>> {
     if ink_attrs.len() > 1 {
         Err(syn::Error::new(
             ink_attrs[1].span(),
-            "Only a single custom ink attribute is allowed.".to_string(),
+            format!("Only a single `#[ink({})]` attribute allowed.", path),
         ))
     } else {
         Ok(ink_attrs.first().cloned())
@@ -246,7 +249,7 @@ fn parse_arg_attr(attrs: &[syn::Attribute]) -> syn::Result<Option<syn::Meta>> {
 fn parse_signature_arg(
     attrs: &[syn::Attribute],
 ) -> syn::Result<Option<SignatureTopicArg>> {
-    let Some(meta) = parse_arg_attr(attrs)? else {
+    let Some(meta) = parse_arg_attr(attrs, "signature_topic")? else {
         return Ok(None);
     };
     if let syn::Meta::NameValue(nv) = &meta {
