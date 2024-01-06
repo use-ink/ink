@@ -80,7 +80,6 @@ wasm-instrument = { version = "0.4.0" }
 which = { version = "5.0.0" }
 xxhash-rust = { version = "0.8" }
 const_env = { version = "0.1"}
-hex = { version = "0.4" }
 
 # Substrate dependencies
 pallet-contracts-primitives = { version = "26.0.0", default-features = false }

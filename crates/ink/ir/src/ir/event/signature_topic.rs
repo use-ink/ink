@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use hex::decode_to_slice;
+use impl_serde::serialize as serde_hex;
 use proc_macro2::{
     Span,
     TokenStream as TokenStream2,
@@ -52,16 +52,23 @@ impl TryFrom<&ast::MetaValue> for SignatureTopicArg {
     fn try_from(value: &ast::MetaValue) -> Result<Self, Self::Error> {
         if let ast::MetaValue::Lit(lit) = value {
             if let syn::Lit::Str(s) = lit {
-                let mut bytes = [0u8; 32];
+                let bytes: [u8; 32] = serde_hex::from_hex(&s.value())
+                    .map_err(|_| {
+                        format_err_spanned!(
+                            value,
+                            "`signature_topic` has invalid hex string",
+                        )
+                    })?
+                    .try_into()
+                    .map_err(|e: Vec<u8>| {
+                        format_err_spanned!(
+                            value,
+                            "`signature_topic` is expected to be 32-byte hash. Found {} bytes",
+                            e.len()
+                        )
+                    })?;
 
-                if decode_to_slice(s.value(), &mut bytes).is_ok() {
-                    Ok(Self { topic: bytes })
-                } else {
-                    Err(format_err_spanned!(
-                        value,
-                        "`signature_topic` has invalid hex string",
-                    ))
-                }
+                Ok(Self { topic: bytes })
             } else {
                 Err(format_err_spanned!(
                     value,
