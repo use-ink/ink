@@ -3708,7 +3708,7 @@ dependencies = [
 [[package]]
 name = "pallet-contracts-uapi"
 version = "4.0.0-dev"
-source = "git+https://github.com/paritytech/polkadot-sdk.git?branch=master#5daef5d086b16a02fcff5873898c42249ecd5d33"
+source = "git+https://github.com/paritytech/polkadot-sdk.git?branch=pg/add-fixtures#6b1578007b8fe5f2e02c79f120128e0a0afce6c3"
 dependencies = [
  "bitflags 1.3.2",
  "paste",
@@ -3897,15 +3897,15 @@ checksum = "626dec3cac7cc0e1577a2ec3fc496277ec2baa084bebad95bb6fdbfae235f84c"
 
 [[package]]
 name = "polkavm-common"
-version = "0.2.0"
+version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "01363cf0a778e8d93eff31e8a03bc59992cba35faa419ea4f3e80146b69195ba"
+checksum = "88e869d66a254db6c7069992f240626416aba8e87d65c00e4be443135babfe82"
 
 [[package]]
 name = "polkavm-derive"
-version = "0.2.0"
+version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "26501292b2cb980cbeaac3304f0fc4480ff1bac2473045453d7333d775658b6a"
+checksum = "be4d48cda44d792fd89658fddd727cf2a7a0588e3a01af022fa2e8328612aafb"
 dependencies = [
  "polkavm-derive-impl",
  "syn 2.0.46",
@@ -3913,9 +3913,9 @@ dependencies = [
 
 [[package]]
 name = "polkavm-derive-impl"
-version = "0.2.0"
+version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "903e16ad3ed768f35e6f40acff2e8aaf6afb9f2889b0a8982dd43dcbee29db2d"
+checksum = "a929871f93270e1270340887b96842b0d597f1ae5deeceef2949a29142ba3123"
 dependencies = [
  "polkavm-common",
  "proc-macro2",
