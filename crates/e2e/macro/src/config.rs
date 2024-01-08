@@ -76,7 +76,7 @@ impl E2EConfig {
         self.backend.clone()
     }
 
-    /// The URL to the running node, default value can be overriden with
+    /// The URL to the running node, default value can be overridden with
     /// `CONTRACTS_NODE_URL`. If no URL is provided, then a default node instance will
     /// be spawned per test.
     pub fn node_url(&self) -> Option<String> {
