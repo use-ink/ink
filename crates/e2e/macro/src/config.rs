@@ -46,8 +46,7 @@ pub struct E2EConfig {
     /// The type of the architecture that should be used to run test.
     #[darling(default)]
     backend: Backend,
-    /// The URL to the running node. If not set then a default node instance will be
-    /// spawned per test.
+    /// The URL to the running node. See [`Self::node_url()`] for more details.
     node_url: Option<String>,
 }
 
@@ -77,10 +76,12 @@ impl E2EConfig {
         self.backend.clone()
     }
 
-    /// The URL to the running node. If not set then a default node instance will be
-    /// spawned per test.
+    /// The URL to the running node, default to `CONTRACTS_NODE_URL` env is not set.
+    /// If no URL is provided, then a default node instance will be spawned per test.
     pub fn node_url(&self) -> Option<String> {
-        self.node_url.clone()
+        self.node_url
+            .clone()
+            .or_else(|| std::env::var("CONTRACTS_NODE_URL").ok())
     }
 }
 
