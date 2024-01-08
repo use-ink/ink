@@ -76,12 +76,13 @@ impl E2EConfig {
         self.backend.clone()
     }
 
-    /// The URL to the running node, default to `CONTRACTS_NODE_URL` if not set.
-    /// If no URL is provided, then a default node instance will be spawned per test.
+    /// The URL to the running node, default value can be overriden with
+    /// `CONTRACTS_NODE_URL`. If no URL is provided, then a default node instance will
+    /// be spawned per test.
     pub fn node_url(&self) -> Option<String> {
-        self.node_url
-            .clone()
-            .or_else(|| std::env::var("CONTRACTS_NODE_URL").ok())
+        std::env::var("CONTRACTS_NODE_URL")
+            .ok()
+            .or_else(|| self.node_url.clone())
     }
 }
 
@@ -115,7 +116,10 @@ mod tests {
         );
 
         assert_eq!(config.backend(), Backend::RuntimeOnly { runtime: None });
-        assert_eq!(config.node_url(), Some(String::from("ws://127.0.0.1:8000")))
+        assert_eq!(config.node_url(), Some(String::from("ws://127.0.0.1:8000")));
+
+        std::env::set_var("CONTRACTS_NODE_URL", "ws://127.0.0.1:9000");
+        assert_eq!(config.node_url(), Some(String::from("ws://127.0.0.1:9000")))
     }
 
     #[test]
