@@ -76,7 +76,7 @@ impl E2EConfig {
         self.backend.clone()
     }
 
-    /// The URL to the running node, default to `CONTRACTS_NODE_URL` env is not set.
+    /// The URL to the running node, default to `CONTRACTS_NODE_URL` if not set.
     /// If no URL is provided, then a default node instance will be spawned per test.
     pub fn node_url(&self) -> Option<String> {
         self.node_url
