@@ -85,7 +85,7 @@ const_env = { version = "0.1"}
 # Substrate dependencies
 pallet-contracts-primitives = { version = "26.0.0", default-features = false }
 # TODO update once released
-pallet-contracts-uapi = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "master", default-features = false }
+pallet-contracts-uapi = { path = "/Users/pg/github/polkadot-sdk/substrate/frame/contracts/uapi",  default-features = false }
 sp-core = { version = "23.0.0", default-features = false }
 sp-keyring = { version = "26.0.0", default-features = false }
 sp-runtime = { version = "26.0.0", default-features = false }
