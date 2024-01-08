@@ -456,13 +456,7 @@ impl TypedEnvBackend for EnvInstance {
         );
         match call_result {
             Ok(()) | Err(ReturnErrorCode::CalleeReverted) => {
-                let decoded = scale::DecodeAll::decode_all(&mut &output[..]).map_err(|err| {
-                    ext::debug_message(ink_prelude::format!(
-                        "Call result decoding error: {:?} output len was {:?}",
-                        err, &output.len()
-                    ).as_bytes());
-                    err
-                })?;
+                let decoded = scale::DecodeAll::decode_all(&mut &output[..])?;
                 Ok(decoded)
             }
             Err(actual_error) => Err(actual_error.into()),
