@@ -366,7 +366,7 @@ impl EnvBackend for EnvInstance {
     {
         let mut scope = self.scoped_buffer();
         let enc_input = scope.take_encoded(input);
-        let output = scope.take_rest();
+        let output = &mut scope.take_rest();
         status_to_result(ext::call_chain_extension(id, enc_input, Some(output)))?;
         let decoded = decode_to_result(output)?;
         Ok(decoded)
@@ -444,7 +444,7 @@ impl TypedEnvBackend for EnvInstance {
         } else {
             &mut []
         };
-        let output = scope.take_rest();
+        let output = &mut scope.take_rest();
         let flags = params.call_flags();
         let call_result = ext::call_v1(
             *flags,
@@ -456,7 +456,13 @@ impl TypedEnvBackend for EnvInstance {
         );
         match call_result {
             Ok(()) | Err(ReturnErrorCode::CalleeReverted) => {
-                let decoded = scale::DecodeAll::decode_all(&mut &output[..])?;
+                let decoded = scale::DecodeAll::decode_all(&mut &output[..]).map_err(|err| {
+                    ext::debug_message(ink_prelude::format!(
+                        "Call result decoding error: {:?} output len was {:?}",
+                        err, &output.len()
+                    ).as_bytes());
+                    err
+                })?;
                 Ok(decoded)
             }
             Err(actual_error) => Err(actual_error.into()),
@@ -482,7 +488,7 @@ impl TypedEnvBackend for EnvInstance {
         } else {
             &mut []
         };
-        let output = scope.take_rest();
+        let output = &mut scope.take_rest();
         let flags = params.call_flags();
         let call_result =
             ext::delegate_call(*flags, enc_code_hash, enc_input, Some(output));
@@ -518,9 +524,9 @@ impl TypedEnvBackend for EnvInstance {
         // We support `AccountId` types with an encoding that requires up to
         // 1024 bytes. Beyond that limit ink! contracts will trap for now.
         // In the default configuration encoded `AccountId` require 32 bytes.
-        let out_address = scoped.take(1024);
+        let out_address = &mut scoped.take(1024);
         let salt = params.salt_bytes().as_ref();
-        let out_return_value = scoped.take_rest();
+        let out_return_value = &mut scoped.take_rest();
 
         let instantiate_result = ext::instantiate_v1(
             enc_code_hash,
