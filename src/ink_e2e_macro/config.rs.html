@@ -134,6 +134,11 @@
 <a href="#134" id="134">134</a>
 <a href="#135" id="135">135</a>
 <a href="#136" id="136">136</a>
+<a href="#137" id="137">137</a>
+<a href="#138" id="138">138</a>
+<a href="#139" id="139">139</a>
+<a href="#140" id="140">140</a>
+<a href="#141" id="141">141</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -182,8 +187,7 @@
     <span class="doccomment">/// The type of the architecture that should be used to run test.
     </span><span class="attr">#[darling(default)]
     </span>backend: Backend,
-    <span class="doccomment">/// The URL to the running node. If not set then a default node instance will be
-    /// spawned per test.
+    <span class="doccomment">/// The URL to the running node. See [`Self::node_url()`] for more details.
     </span>node_url: <span class="prelude-ty">Option</span>&lt;String&gt;,
 }
 
@@ -213,10 +217,13 @@
         <span class="self">self</span>.backend.clone()
     }
 
-    <span class="doccomment">/// The URL to the running node. If not set then a default node instance will be
-    /// spawned per test.
+    <span class="doccomment">/// The URL to the running node, default value can be overridden with
+    /// `CONTRACTS_NODE_URL`. If no URL is provided, then a default node instance will
+    /// be spawned per test.
     </span><span class="kw">pub fn </span>node_url(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;String&gt; {
-        <span class="self">self</span>.node_url.clone()
+        std::env::var(<span class="string">&quot;CONTRACTS_NODE_URL&quot;</span>)
+            .ok()
+            .or_else(|| <span class="self">self</span>.node_url.clone())
     }
 }
 
@@ -250,7 +257,10 @@
         );
 
         <span class="macro">assert_eq!</span>(config.backend(), Backend::RuntimeOnly { runtime: <span class="prelude-val">None </span>});
-        <span class="macro">assert_eq!</span>(config.node_url(), <span class="prelude-val">Some</span>(String::from(<span class="string">&quot;ws://127.0.0.1:8000&quot;</span>)))
+        <span class="macro">assert_eq!</span>(config.node_url(), <span class="prelude-val">Some</span>(String::from(<span class="string">&quot;ws://127.0.0.1:8000&quot;</span>)));
+
+        std::env::set_var(<span class="string">&quot;CONTRACTS_NODE_URL&quot;</span>, <span class="string">&quot;ws://127.0.0.1:9000&quot;</span>);
+        <span class="macro">assert_eq!</span>(config.node_url(), <span class="prelude-val">Some</span>(String::from(<span class="string">&quot;ws://127.0.0.1:9000&quot;</span>)))
     }
 
     <span class="attr">#[test]
