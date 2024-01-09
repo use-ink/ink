@@ -138,7 +138,7 @@ impl TyToCheck {
     pub fn find_fallible_alternative(&self, method_name: &str) -> Option<String> {
         use TyToCheck::*;
         match self {
-            Mapping { .. } => {
+            Mapping => {
                 match method_name {
                     "insert" => Some("try_insert".to_string()),
                     "get" => Some("try_get".to_string()),
@@ -146,7 +146,7 @@ impl TyToCheck {
                     _ => None,
                 }
             }
-            Lazy { .. } => {
+            Lazy => {
                 match method_name {
                     "get" => Some("try_get".to_string()),
                     "set" => Some("try_set".to_string()),
