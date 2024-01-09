@@ -132,10 +132,10 @@ struct CachedLen(Cell<Option<u32>>);
 
 #[cfg(feature = "std")]
 impl scale_info::TypeInfo for CachedLen {
-    type Identity = Option<u32>;
+    type Identity = Self;
 
     fn type_info() -> scale_info::Type {
-        <Self::Identity as scale_info::TypeInfo>::type_info()
+        <() as scale_info::TypeInfo>::type_info()
     }
 }
 
