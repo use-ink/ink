@@ -35,7 +35,7 @@ impl GenerateCode for Event<'_> {
         let signature_topic = self
             .item
             .signature_topic_hash()
-            .map(|hash| quote::quote! { #[ink(signature_topic = #hash)] });
+            .map(|hex_s| quote::quote! { #[ink(signature_topic = #hex_s)] });
         let cfg_attrs = self.item.get_cfg_attrs(item.span());
 
         quote::quote! (

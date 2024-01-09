@@ -1,4 +1,4 @@
-error: Invalid `#[ink(anonymous)]` attribute: multiple arguments not allowed
+error: cannot specify `signature_topic` with `anonymous` in ink! event item configuration argument
  --> tests/ui/event/fail/conficting_attributes_inline.rs:2:18
   |
 2 | #[ink(anonymous, signature_topic = "1111111111111111111111111111111111111111111111111111111111111111")]

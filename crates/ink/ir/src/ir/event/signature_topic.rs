@@ -53,7 +53,7 @@ impl TryFrom<&syn::Lit> for SignatureTopicArg {
                     .map_err(|e: Vec<u8>| {
                         format_err_spanned!(
                             lit,
-                            "`signature_topic` is expected to be 32-byte hash. Found {} bytes",
+                            "`signature_topic` is expected to be 32-byte hex string. Found {} bytes",
                             e.len()
                         )
                     })?;
@@ -100,7 +100,7 @@ impl TryFrom<ast::AttributeArgs> for Option<SignatureTopicArg> {
             } else {
                 return Err(format_err_spanned!(
                     arg,
-                    "encountered unknown or unsupported ink! storage item configuration argument",
+                    "encountered unknown or unsupported ink! event item configuration argument",
                 ));
             }
         }

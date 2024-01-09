@@ -14,7 +14,11 @@
 
 mod metadata;
 
-use ink_ir::SignatureTopicArg;
+use ink_ir::{
+    format_err_spanned,
+    utils::duplicate_config_err,
+    SignatureTopicArg,
+};
 pub use metadata::event_metadata_derive;
 
 use ink_codegen::generate_code;
@@ -28,6 +32,81 @@ use syn::{
     spanned::Spanned,
     Token,
 };
+
+/// Event item configurations specified by nested `ink` attributes.
+struct EventConfig {
+    /// Event is anonymous.
+    pub anonymous: bool,
+    /// Event has a specified signature topic.
+    pub signature_topic: Option<SignatureTopicArg>,
+}
+
+impl EventConfig {
+    pub fn new(anonymous: bool, signature_topic: Option<SignatureTopicArg>) -> Self {
+        EventConfig {
+            anonymous,
+            signature_topic,
+        }
+    }
+}
+
+impl TryFrom<&[syn::Meta]> for EventConfig {
+    type Error = syn::Error;
+
+    fn try_from(args: &[syn::Meta]) -> Result<Self, Self::Error> {
+        let mut anonymous: Option<&syn::Meta> = None;
+        let mut signature_topic: Option<&syn::Meta> = None;
+        for arg in args.iter() {
+            if arg.path().is_ident("anonymous") {
+                if let Some(a_meta) = anonymous {
+                    return Err(duplicate_config_err(a_meta, arg, "anonymous", "event"));
+                }
+                match arg {
+                    syn::Meta::Path(_) => anonymous = Some(arg),
+                    _ => {
+                        return Err(format_err_spanned!(
+                            arg,
+                            "`#[ink(anonymous)]` takes no arguments",
+                        ));
+                    }
+                }
+            } else if arg.path().is_ident("signature_topic") {
+                if anonymous.is_some() {
+                    return Err(format_err_spanned!(
+                        arg,
+                        "cannot specify `signature_topic` with `anonymous` in ink! event item configuration argument",
+                    ));
+                }
+
+                if let Some(lit_str) = signature_topic {
+                    return Err(duplicate_config_err(lit_str, arg, "anonymous", "event"));
+                }
+                match arg {
+                    syn::Meta::NameValue(_) => signature_topic = Some(arg),
+                    _ => {
+                        return Err(format_err_spanned!(
+                            arg,
+                            "expected a name-value pair",
+                        ));
+                    }
+                }
+            } else {
+                return Err(format_err_spanned!(
+                    arg,
+                    "encountered unknown or unsupported ink! event item configuration argument",
+                ));
+            }
+        }
+
+        let signature_topic = if let Some(meta) = signature_topic {
+            Some(parse_signature_arg(meta.clone())?)
+        } else {
+            None
+        };
+
+        Ok(EventConfig::new(anonymous.is_some(), signature_topic))
+    }
+}
 
 /// Generate code from the `#[ink::event]` attribute. This expands to the required
 /// derive macros to satisfy an event implementation.
@@ -68,7 +147,9 @@ fn event_derive_struct(mut s: synstructure::Structure) -> syn::Result<TokenStrea
     }
 
     let span = s.ast().span();
-    let anonymous = has_ink_attribute(&s.ast().attrs, "anonymous")?;
+    let ink_attrs = parse_arg_attrs(&s.ast().attrs)?;
+    let config = EventConfig::try_from(ink_attrs.as_slice())?;
+    let anonymous = config.anonymous;
 
     // filter field bindings to those marked as topics
     let mut topic_err: Option<syn::Error> = None;
@@ -111,7 +192,7 @@ fn event_derive_struct(mut s: synstructure::Structure) -> syn::Result<TokenStrea
 
     let signature_topic = if !anonymous {
         let event_ident = variant.ast().ident;
-        if let Some(sig_arg) = parse_signature_arg(&s.ast().attrs)? {
+        if let Some(sig_arg) = config.signature_topic {
             let bytes = sig_arg.signature_topic();
             quote_spanned!(span=> ::core::option::Option::Some([ #(#bytes),* ]))
         } else {
@@ -178,66 +259,56 @@ fn has_ink_topic_attribute(field: &synstructure::BindingInfo) -> syn::Result<boo
             "conditional compilation is not allowed for event fields",
         ))
     } else {
-        has_ink_attribute(&field.ast().attrs, "topic")
+        let attrs = parse_arg_attrs(&field.ast().attrs)?;
+        has_ink_attribute(&attrs, "topic")
     }
 }
 
 /// Checks if the given attributes contain an `ink` attribute with the given path.
-fn has_ink_attribute(attrs: &[syn::Attribute], path: &str) -> syn::Result<bool> {
-    let parsed_args = parse_arg_attr(attrs, path)?;
-    let Some(meta) = parsed_args else {
-        return Ok(false);
-    };
-    Ok(meta.path().is_ident(path))
+fn has_ink_attribute(ink_attrs: &[syn::Meta], path: &str) -> syn::Result<bool> {
+    let mut present = false;
+    for a in ink_attrs {
+        if a.path().is_ident(path) && !present {
+            present = true;
+        } else if a.path().is_ident(path) {
+            return Err(syn::Error::new(
+                a.span(),
+                format!("Only a single `#[ink({})]` is allowed", path),
+            ));
+        } else {
+            return Err(syn::Error::new(
+                a.span(),
+                "Unknown ink! attribute at this position".to_string(),
+            ));
+        }
+    }
+    Ok(present)
 }
 
-/// Parses custom `ink` attribute with the arbitrary argument.
+/// Parses custom `ink` attributes with the arbitrary arguments.
 ///
 /// # Errors
-/// - Multiple arguments are specified
-/// - Multiple `ink` attribute present
-fn parse_arg_attr(
-    attrs: &[syn::Attribute],
-    path: &str,
-) -> syn::Result<Option<syn::Meta>> {
-    let ink_attrs = attrs
-        .iter()
-        .filter_map(|attr| {
-            if attr.path().is_ident("ink") {
-                let parse_result = || -> Result<syn::Meta, syn::Error> {
-                    let nested = attr.parse_args_with(
-                        Punctuated::<syn::Meta, Token![,]>::parse_separated_nonempty,
-                    )?;
-                    if nested.len() > 1 {
-                        Err(syn::Error::new(
-                            nested[1].span(),
-                            format!("Invalid `#[ink({})]` attribute: multiple arguments not allowed", path),
-                        ))
-                    } else {
-                        Ok(nested
-                            .first()
-                            .ok_or(syn::Error::new(
-                                nested[0].span(),
-                                "Expected to have an argument".to_string(),
-                            ))?
-                            .clone())
-                    }
-                };
-                Some(parse_result())
-            } else {
-                None
-            }
-        })
-        .collect::<syn::Result<Vec<_>>>()?;
+/// - Attribute has no argument (i.e. `#[ink()]`)
+fn parse_arg_attrs(attrs: &[syn::Attribute]) -> syn::Result<Vec<syn::Meta>> {
+    let mut ink_attrs = Vec::new();
+    for a in attrs {
+        if !a.path().is_ident("ink") {
+            continue;
+        }
 
-    if ink_attrs.len() > 1 {
-        Err(syn::Error::new(
-            ink_attrs[1].span(),
-            format!("Only a single `#[ink({})]` attribute allowed.", path),
-        ))
-    } else {
-        Ok(ink_attrs.first().cloned())
+        let nested = a.parse_args_with(
+            Punctuated::<syn::Meta, Token![,]>::parse_separated_nonempty,
+        )?;
+        if nested.is_empty() {
+            return Err(syn::Error::new(
+                a.span(),
+                "Expected to have an argument".to_string(),
+            ));
+        }
+        ink_attrs.extend(nested.into_iter())
     }
+
+    Ok(ink_attrs)
 }
 
 /// Parses signature topic from the list of attributes.
@@ -246,16 +317,14 @@ fn parse_arg_attr(
 /// - Name-value pair is not specified correctly.
 /// - Provided value is of wrong format.
 /// - Provided hash string is of wrong length.
-fn parse_signature_arg(
-    attrs: &[syn::Attribute],
-) -> syn::Result<Option<SignatureTopicArg>> {
-    let Some(meta) = parse_arg_attr(attrs, "signature_topic")? else {
-        return Ok(None);
-    };
+fn parse_signature_arg(meta: syn::Meta) -> syn::Result<SignatureTopicArg> {
     if let syn::Meta::NameValue(nv) = &meta {
-        Ok(Some(SignatureTopicArg::try_from(nv)?))
+        Ok(SignatureTopicArg::try_from(nv)?)
     } else {
-        Ok(None)
+        Err(syn::Error::new(
+            meta.span(),
+            "Expected to have an argument".to_string(),
+        ))
     }
 }
 

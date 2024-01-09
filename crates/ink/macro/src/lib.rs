@@ -680,7 +680,7 @@ pub fn trait_definition(attr: TokenStream, item: TokenStream) -> TokenStream {
 ///     #[ink(topic)]
 ///     pub topic: [u8; 32],
 /// }
-/// // Setting `signature_topic = <hash_string>` specifies custom signature topic.
+/// // Setting `signature_topic = <hex_string>` specifies custom signature topic.
 /// #[ink::event(
 ///     signature_topic = "1111111111111111111111111111111111111111111111111111111111111111"
 /// )]
@@ -1419,7 +1419,7 @@ synstructure::decl_derive!(
     /// For example, when the event definition from the other contract is not accessible.
     ///
     /// The macro provides `#[ink(signature_topic = _)]` nested macro that allows to provide
-    /// 32 byte hash string of the custom signature topic.
+    /// 32 byte hex string of the custom signature topic.
     ///
     /// Generates custom signature topic
     /// ```

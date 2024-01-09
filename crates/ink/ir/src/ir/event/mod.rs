@@ -103,7 +103,7 @@ impl Event {
     /// # Note
     ///
     /// Conflicts with `anonymous`
-    pub fn signature_topic_hash(&self) -> Option<String> {
+    pub fn signature_topic_hash(&self) -> Option<&str> {
         self.config.signature_topic_hash()
     }
 

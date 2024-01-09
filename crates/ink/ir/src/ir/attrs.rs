@@ -373,7 +373,8 @@ pub enum AttributeArgKind {
     /// `#[ink(selector = _)]`
     /// `#[ink(selector = 0xDEADBEEF)]`
     Selector,
-    /// `#[ink(signature_topic = "DEADBEEF")]`
+    /// `#[ink(signature_topic =
+    /// "325c98ff66bd0d9d1c10789ae1f2a17bdfb2dcf6aa3d8092669afafdef1cb72d")]`
     SignatureTopicArg,
     /// `#[ink(function = N: u16)]`
     Function,
@@ -430,7 +431,8 @@ pub enum AttributeArg {
     /// - `#[ink(selector = _)]` Applied on ink! messages to define a fallback messages
     ///   that is invoked if no other ink! message matches a given selector.
     Selector(SelectorOrWildcard),
-    /// `#[ink(signature_topic = "DEADBEEF")]`
+    /// `#[ink(signature_topic =
+    /// "325c98ff66bd0d9d1c10789ae1f2a17bdfb2dcf6aa3d8092669afafdef1cb72d")]`
     SignatureTopic(String),
     /// `#[ink(namespace = "my_namespace")]`
     ///

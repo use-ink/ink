@@ -70,7 +70,7 @@ impl TryFrom<ast::AttributeArgs> for EventConfig {
             } else {
                 return Err(format_err_spanned!(
                     arg,
-                    "encountered unknown or unsupported ink! storage item configuration argument",
+                    "encountered unknown or unsupported ink! event item configuration argument",
                 ));
             }
         }
@@ -97,7 +97,7 @@ impl EventConfig {
     }
 
     /// Returns the manually specified signature topic.
-    pub fn signature_topic_hash(&self) -> Option<String> {
-        self.signature_topic_hash.clone()
+    pub fn signature_topic_hash(&self) -> Option<&str> {
+        self.signature_topic_hash.as_deref()
     }
 }
