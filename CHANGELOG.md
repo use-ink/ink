@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Fixed
-- Fix `TypeInfo` for the `len_cached` field of the `StorageVec` type - [#2052](https://github.com/paritytech/ink/pull/2052)
+- Fix the `StorageVec` type by excluding the `len_cached` field from its type info - [#2052](https://github.com/paritytech/ink/pull/2052)
 
 ## Version 5.0.0-rc
 
