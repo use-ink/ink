@@ -85,29 +85,23 @@ declare_lint! {
     /// The following usage of the non-fallible API is unsafe:
     ///
     /// ```rust
-    /// pub fn test(&mut self, a: String, b: AccountId) {
-    ///   // Bad: can panic on incorrect input
-    ///   self.map.insert(a, &b);
-    /// }
+    /// // Bad: can panic if `input_string` doesn't fit into the static buffer
+    /// self.map.insert(input_string, &self.sender);
     /// ```
     ///
     /// It could be replaced with the fallible version of `Mapping::insert`:
     ///
     /// ```rust
-    /// pub fn test(&mut self, a: String, b: AccountId) {
-    ///   // Good: returns Result::Err on incorrect input
-    ///   self.map.try_insert(a, &b)?;
-    /// }
+    /// // Good: returns Result::Err on incorrect input
+    /// self.map.try_insert(input_string, &self.sender);
     /// ```
     ///
     /// Otherwise, the user could explicitly check the encoded size of the argument in their code:
     ///
     /// ```rust
-    /// pub fn test(&mut self, a: String, b: AccountId) {
-    ///   // Good: explicitly checked encoded size of the input
-    ///   if String::encoded_size(&a) < ink_env::BUFFER_SIZE {
-    ///     self.map.insert(a, &b);
-    ///   }
+    /// // Good: explicitly checked encoded size of the input
+    /// if String::encoded_size(&input_string) < ink_env::BUFFER_SIZE {
+    ///   self.map.insert(input_string, &self.sender);
     /// }
     /// ```
     pub NON_FALLIBLE_API,
