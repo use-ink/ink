@@ -117,6 +117,7 @@ pub struct StorageVec<V: Packed, KeyType: StorageKey = AutoKey> {
     ///
     /// Because of caching, never operate on this field directly!
     /// Always use `fn get_len()` an `fn set_len()` instead.
+    #[cfg_attr(feature = "std", codec(skip))]
     len_cached: CachedLen,
     /// We use a [Mapping] to store all elements of the vector.
     /// Each element is living in storage under `&(KeyType::KEY, index)`.
@@ -129,15 +130,6 @@ pub struct StorageVec<V: Packed, KeyType: StorageKey = AutoKey> {
 
 #[derive(Debug)]
 struct CachedLen(Cell<Option<u32>>);
-
-#[cfg(feature = "std")]
-impl scale_info::TypeInfo for CachedLen {
-    type Identity = Option<u32>;
-
-    fn type_info() -> scale_info::Type {
-        <Self::Identity as scale_info::TypeInfo>::type_info()
-    }
-}
 
 impl<V, KeyType> Default for StorageVec<V, KeyType>
 where
