@@ -2767,6 +2767,7 @@ dependencies = [
  "ink_prelude 5.0.0-rc",
  "ink_primitives 5.0.0-rc",
  "linkme",
+ "parity-scale-codec",
  "pretty_assertions",
  "scale-info",
  "schemars",
