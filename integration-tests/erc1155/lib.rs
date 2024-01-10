@@ -414,8 +414,8 @@ mod erc1155 {
                     }
                     Err(e) => {
                         match e {
-                            ink::env::Error::CodeNotFound | ink::env::Error::NotCallable,
-                            ) => {
+                            ink::env::Error::CodeNotFound
+                            | ink::env::Error::NotCallable => {
                                 // Our recipient wasn't a smart contract, so there's
                                 // nothing more for
                                 // us to do

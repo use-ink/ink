@@ -3708,7 +3708,7 @@ dependencies = [
 [[package]]
 name = "pallet-contracts-uapi"
 version = "4.0.0-dev"
-source = "git+https://github.com/paritytech/polkadot-sdk.git?branch=pg/add-fixtures-test-size#dd6fe124600d5dead40146065f8f73c16be3b639"
+source = "git+https://github.com/paritytech/polkadot-sdk.git?branch=pg/inline_always_uapi#885934cfac6f01d80b4361e708d9f75b0aabcaf4"
 dependencies = [
  "bitflags 1.3.2",
  "paste",
