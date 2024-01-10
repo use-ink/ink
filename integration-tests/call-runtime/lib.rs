@@ -66,7 +66,7 @@ mod runtime_call {
     impl From<EnvError> for RuntimeError {
         fn from(e: EnvError) -> Self {
             match e {
-                EnvError::ReturnError(ReturnErrorCode::CallRuntimeFailed) => {
+                EnvError::CallRuntimeFailed => {
                     RuntimeError::CallRuntimeFailed
                 }
                 _ => panic!("Unexpected error from `pallet-contracts`."),

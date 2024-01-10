@@ -28,9 +28,58 @@ pub enum Error {
     /// An error that can only occur in the off-chain environment.
     #[cfg(any(feature = "std", test, doc))]
     OffChain(OffChainError),
-    /// The error returned by the contract.
-    ReturnError(ReturnErrorCode),
+    /// The call to another contract has trapped.
+    CalleeTrapped,
+    /// The call to another contract has been reverted.
+    CalleeReverted,
+    /// The queried contract storage entry is missing.
+    KeyNotFound,
+    /// Deprecated and no longer returned: There is only the minimum balance.
+    _BelowSubsistenceThreshold,
+    /// Transfer failed for other not further specified reason. Most probably
+    /// reserved or locked balance of the sender that was preventing the transfer.
+    TransferFailed,
+    /// Deprecated and no longer returned: Endowment is no longer required.
+    _EndowmentTooLow,
+    /// No code could be found at the supplied code hash.
+    CodeNotFound,
+    /// The account that was called is no contract, but a plain account.
+    NotCallable,
+    /// An unknown error has occurred.
+    Unknown,
+    /// The call to `debug_message` had no effect because debug message
+    /// recording was disabled.
+    LoggingDisabled,
+    /// The call dispatched by `call_runtime` was executed but returned an error.
+    CallRuntimeFailed,
+    /// ECDSA pubkey recovery failed. Most probably wrong recovery id or signature.
+    EcdsaRecoveryFailed,
+    /// sr25519 signature verification failed.
+    Sr25519VerifyFailed,
 }
 
 /// A result of environmental operations.
 pub type Result<T> = core::result::Result<T, Error>;
+
+impl From<pallet_contracts_uapi::ReturnErrorCode> for Error {
+    fn from(err: pallet_contracts_uapi::ReturnErrorCode) -> Self {
+        match err {
+            ReturnErrorCode::CalleeTrapped => Self::CalleeTrapped,
+            ReturnErrorCode::CalleeReverted => Self::CalleeReverted,
+            ReturnErrorCode::KeyNotFound => Self::KeyNotFound,
+            ReturnErrorCode::_BelowSubsistenceThreshold => {
+                Self::_BelowSubsistenceThreshold
+            }
+            ReturnErrorCode::TransferFailed => Self::TransferFailed,
+            ReturnErrorCode::_EndowmentTooLow => Self::_EndowmentTooLow,
+            ReturnErrorCode::CodeNotFound => Self::CodeNotFound,
+            ReturnErrorCode::NotCallable => Self::NotCallable,
+            ReturnErrorCode::Unknown => Self::Unknown,
+            ReturnErrorCode::LoggingDisabled => Self::LoggingDisabled,
+            ReturnErrorCode::CallRuntimeFailed => Self::CallRuntimeFailed,
+            ReturnErrorCode::EcdsaRecoveryFailed => Self::EcdsaRecoveryFailed,
+            ReturnErrorCode::Sr25519VerifyFailed => Self::Sr25519VerifyFailed,
+            _ => Self::Unknown,
+        }
+    }
+}

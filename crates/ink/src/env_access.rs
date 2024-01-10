@@ -28,9 +28,9 @@ use ink_env::{
         HashOutput,
     },
     Environment,
+    Error,
     Result,
 };
-use pallet_contracts_uapi::ReturnErrorCode;
 
 /// The API behind the `self.env()` and `Self::env()` syntax in ink!.
 ///
@@ -824,7 +824,7 @@ where
     ///     let failed_result = self.env().ecdsa_recover(&signature, &[0; 32]);
     ///     assert!(failed_result.is_err());
     ///     if let Err(e) = failed_result {
-    ///         assert_eq!(e, ink::env::ReturnErrorCode::EcdsaRecoveryFailed.into());
+    ///         assert_eq!(e, ink::env::Error::EcdsaRecoveryFailed);
     ///     }
     /// }
     /// #
@@ -839,7 +839,7 @@ where
         let mut output = [0; 33];
         ink_env::ecdsa_recover(signature, message_hash, &mut output)
             .map(|_| output)
-            .map_err(|_| ReturnErrorCode::EcdsaRecoveryFailed.into())
+            .map_err(|_| Error::EcdsaRecoveryFailed)
     }
 
     /// Returns an Ethereum address from the ECDSA compressed public key.
@@ -886,7 +886,7 @@ where
         let mut output = [0; 20];
         ink_env::ecdsa_to_eth_address(pubkey, &mut output)
             .map(|_| output)
-            .map_err(|_| ReturnErrorCode::EcdsaRecoveryFailed.into())
+            .map_err(|_| Error::EcdsaRecoveryFailed)
     }
 
     /// Verifies a SR25519 signature against a message and a public key.
@@ -946,7 +946,7 @@ where
         pub_key: &[u8; 32],
     ) -> Result<()> {
         ink_env::sr25519_verify(signature, message, pub_key)
-            .map_err(|_| ReturnErrorCode::Sr25519VerifyFailed.into())
+            .map_err(|_| Error::Sr25519VerifyFailed)
     }
 
     /// Checks whether a specified account belongs to a contract.

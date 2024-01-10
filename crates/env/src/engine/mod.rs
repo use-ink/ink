@@ -21,7 +21,6 @@ use crate::{
         ConstructorReturnType,
         FromAccountId,
     },
-    Error as EnvError,
     Error,
     Result as EnvResult,
 };
@@ -30,8 +29,6 @@ use ink_primitives::{
     ConstructorResult,
     LangError,
 };
-
-use pallet_contracts_uapi::ReturnErrorCode;
 
 /// Convert a slice into an array reference.
 ///
@@ -91,7 +88,7 @@ where
             let output = <R as ConstructorReturnType<ContractRef>>::ok(contract_ref);
             Ok(Ok(output))
         }
-        Err(EnvError::ReturnError(ReturnErrorCode::CalleeReverted)) => {
+        Err(Error::CalleeReverted) => {
             decode_instantiate_err::<I, E, ContractRef, R>(out_return_value)
         }
         Err(actual_error) => Err(actual_error),
@@ -195,11 +192,7 @@ mod decode_instantiate_result_tests {
             DefaultEnvironment,
             TestContractRef,
             Result<TestContractRef, ContractError>,
-        >(
-            Err(Error::ReturnError(ReturnErrorCode::CalleeReverted)),
-            out_address,
-            out_return_value,
-        )
+        >(Err(Error::CalleeReverted), out_address, out_return_value)
     }
 
     #[test]
