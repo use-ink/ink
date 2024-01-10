@@ -717,6 +717,16 @@
 <a href="#717" id="717">717</a>
 <a href="#718" id="718">718</a>
 <a href="#719" id="719">719</a>
+<a href="#720" id="720">720</a>
+<a href="#721" id="721">721</a>
+<a href="#722" id="722">722</a>
+<a href="#723" id="723">723</a>
+<a href="#724" id="724">724</a>
+<a href="#725" id="725">725</a>
+<a href="#726" id="726">726</a>
+<a href="#727" id="727">727</a>
+<a href="#728" id="728">728</a>
+<a href="#729" id="729">729</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -748,6 +758,10 @@
 <span class="kw">use </span>derive_more::From;
 <span class="kw">use </span>ink_prelude::collections::btree_map::BTreeMap;
 <span class="kw">use </span>ink_primitives::Key;
+<span class="kw">use </span>scale::{
+    Decode,
+    Encode,
+};
 <span class="kw">use </span>scale_info::{
     form::{
         Form,
@@ -761,7 +775,10 @@
 };
 <span class="kw">use </span>schemars::JsonSchema;
 <span class="kw">use </span>serde::{
-    de::DeserializeOwned,
+    de::{
+        DeserializeOwned,
+        Error,
+    },
     Deserialize,
     Serialize,
 };
@@ -806,7 +823,7 @@
     <span class="kw">where
         </span>S: serde::Serializer,
     {
-        serde_hex::serialize(<span class="kw-2">&amp;</span><span class="self">self</span>.key.to_be_bytes(), serializer)
+        serde_hex::serialize(<span class="kw-2">&amp;</span><span class="self">self</span>.key.encode(), serializer)
     }
 }
 
@@ -817,7 +834,10 @@
     {
         <span class="kw">let </span><span class="kw-2">mut </span>arr = [<span class="number">0</span>; <span class="number">4</span>];
         serde_hex::deserialize_check_len(d, serde_hex::ExpectedLen::Exact(<span class="kw-2">&amp;mut </span>arr[..]))<span class="question-mark">?</span>;
-        <span class="prelude-val">Ok</span>(Key::from_be_bytes(arr).into())
+        <span class="kw">let </span>key = Key::decode(<span class="kw-2">&amp;mut &amp;</span>arr[..]).map_err(|err| {
+            Error::custom(<span class="macro">format!</span>(<span class="string">&quot;Error decoding layout key: {}&quot;</span>, err))
+        })<span class="question-mark">?</span>;
+        <span class="prelude-val">Ok</span>(key.into())
     }
 }
 
