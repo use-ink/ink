@@ -13,9 +13,7 @@
 // limitations under the License.
 
 use super::{
-    ext,
     EnvInstance,
-    Error as ExtError,
     ScopedBuffer,
 };
 use crate::{
@@ -42,15 +40,20 @@ use crate::{
     Clear,
     EnvBackend,
     Environment,
-    Error,
     FromLittleEndian,
     Result,
-    ReturnFlags,
     TypedEnvBackend,
 };
 use ink_storage_traits::{
     decode_all,
     Storable,
+};
+use pallet_contracts_uapi::{
+    CallFlags,
+    HostFn,
+    HostFnImpl as ext,
+    ReturnErrorCode,
+    ReturnFlags,
 };
 
 impl CryptoHash for Blake2x128 {
@@ -98,25 +101,6 @@ impl CryptoHash for Keccak256 {
         );
         let output: &mut OutputType = array_mut_ref!(output, 0, 32);
         ext::hash_keccak_256(input, output);
-    }
-}
-
-impl From<ext::Error> for Error {
-    fn from(ext_error: ext::Error) -> Self {
-        match ext_error {
-            ext::Error::Unknown => Self::Unknown,
-            ext::Error::CalleeTrapped => Self::CalleeTrapped,
-            ext::Error::CalleeReverted => Self::CalleeReverted,
-            ext::Error::KeyNotFound => Self::KeyNotFound,
-            ext::Error::_BelowSubsistenceThreshold => Self::_BelowSubsistenceThreshold,
-            ext::Error::TransferFailed => Self::TransferFailed,
-            ext::Error::_EndowmentTooLow => Self::_EndowmentTooLow,
-            ext::Error::CodeNotFound => Self::CodeNotFound,
-            ext::Error::NotCallable => Self::NotCallable,
-            ext::Error::LoggingDisabled => Self::LoggingDisabled,
-            ext::Error::CallRuntimeFailed => Self::CallRuntimeFailed,
-            ext::Error::EcdsaRecoveryFailed => Self::EcdsaRecoveryFailed,
-        }
     }
 }
 
@@ -223,7 +207,7 @@ impl EnvBackend for EnvInstance {
         let mut buffer = self.scoped_buffer();
         let key = buffer.take_encoded(key);
         let value = buffer.take_storable_encoded(value);
-        ext::set_storage(key, value)
+        ext::set_storage_v2(key, value)
     }
 
     fn get_contract_storage<K, R>(&mut self, key: &K) -> Result<Option<R>>
@@ -234,9 +218,9 @@ impl EnvBackend for EnvInstance {
         let mut buffer = self.scoped_buffer();
         let key = buffer.take_encoded(key);
         let output = &mut buffer.take_rest();
-        match ext::get_storage(key, output) {
+        match ext::get_storage_v1(key, output) {
             Ok(_) => (),
-            Err(ExtError::KeyNotFound) => return Ok(None),
+            Err(ReturnErrorCode::KeyNotFound) => return Ok(None),
             Err(_) => panic!("encountered unexpected error"),
         }
         let decoded = decode_all(&mut &output[..])?;
@@ -253,7 +237,7 @@ impl EnvBackend for EnvInstance {
         let output = &mut buffer.take_rest();
         match ext::take_storage(key, output) {
             Ok(_) => (),
-            Err(ExtError::KeyNotFound) => return Ok(None),
+            Err(ReturnErrorCode::KeyNotFound) => return Ok(None),
             Err(_) => panic!("encountered unexpected error"),
         }
         let decoded = decode_all(&mut &output[..])?;
@@ -266,7 +250,7 @@ impl EnvBackend for EnvInstance {
     {
         let mut buffer = self.scoped_buffer();
         let key = buffer.take_encoded(key);
-        ext::storage_contains(key)
+        ext::contains_storage_v1(key)
     }
 
     fn clear_contract_storage<K>(&mut self, key: &K) -> Option<u32>
@@ -275,7 +259,7 @@ impl EnvBackend for EnvInstance {
     {
         let mut buffer = self.scoped_buffer();
         let key = buffer.take_encoded(key);
-        ext::clear_storage(key)
+        ext::clear_storage_v1(key)
     }
 
     fn decode_input<T>(&mut self) -> Result<T>
@@ -295,8 +279,32 @@ impl EnvBackend for EnvInstance {
         ext::return_value(flags, &self.buffer[..][..len]);
     }
 
+    #[cfg(not(feature = "ink-debug"))]
+    /// A no-op. Enable the `ink-debug` feature for debug messages.
+    fn debug_message(&mut self, _content: &str) {}
+
+    #[cfg(feature = "ink-debug")]
     fn debug_message(&mut self, content: &str) {
-        ext::debug_message(content)
+        static mut DEBUG_ENABLED: bool = false;
+        static mut FIRST_RUN: bool = true;
+
+        // SAFETY: safe because executing in a single threaded context
+        // We need those two variables in order to make sure that the assignment is
+        // performed in the "logging enabled" case. This is because during RPC
+        // execution logging might be enabled while it is disabled during the
+        // actual execution as part of a transaction. The gas estimation takes
+        // place during RPC execution. We want to overestimate instead
+        // of underestimate gas usage. Otherwise using this estimate could lead to a out
+        // of gas error.
+        if unsafe { DEBUG_ENABLED || FIRST_RUN } {
+            let ret_code = ext::debug_message(content.as_bytes());
+            if !matches!(ret_code, Err(ext::Error::LoggingDisabled)) {
+                // SAFETY: safe because executing in a single threaded context
+                unsafe { DEBUG_ENABLED = true }
+            }
+            // SAFETY: safe because executing in a single threaded context
+            unsafe { FIRST_RUN = false }
+        }
     }
 
     fn hash_bytes<H>(&mut self, input: &[u8], output: &mut <H as HashOutput>::Type)
@@ -344,10 +352,10 @@ impl EnvBackend for EnvInstance {
 
     fn call_chain_extension<I, T, E, ErrorCode, F, D>(
         &mut self,
-        id: u32,
-        input: &I,
-        status_to_result: F,
-        decode_to_result: D,
+        _id: u32,
+        _input: &I,
+        _status_to_result: F,
+        _decode_to_result: D,
     ) -> ::core::result::Result<T, E>
     where
         I: scale::Encode,
@@ -356,12 +364,7 @@ impl EnvBackend for EnvInstance {
         F: FnOnce(u32) -> ::core::result::Result<(), ErrorCode>,
         D: FnOnce(&[u8]) -> ::core::result::Result<T, E>,
     {
-        let mut scope = self.scoped_buffer();
-        let enc_input = scope.take_encoded(input);
-        let output = &mut scope.take_rest();
-        status_to_result(ext::call_chain_extension(id, enc_input, output))?;
-        let decoded = decode_to_result(&output[..])?;
-        Ok(decoded)
+        todo!()
     }
 
     fn set_code_hash(&mut self, code_hash_ptr: &[u8]) -> Result<()> {
@@ -429,15 +432,17 @@ impl TypedEnvBackend for EnvInstance {
         let enc_callee = scope.take_encoded(params.callee());
         let enc_transferred_value = scope.take_encoded(params.transferred_value());
         let call_flags = params.call_flags();
-        let enc_input = if !call_flags.forward_input() && !call_flags.clone_input() {
+        let enc_input = if !call_flags.contains(CallFlags::FORWARD_INPUT)
+            && !call_flags.contains(CallFlags::CLONE_INPUT)
+        {
             scope.take_encoded(params.exec_input())
         } else {
             &mut []
         };
         let output = &mut scope.take_rest();
-        let flags = params.call_flags().into_u32();
-        let call_result = ext::call(
-            flags,
+        let flags = params.call_flags();
+        let call_result = ext::call_v1(
+            *flags,
             enc_callee,
             gas_limit,
             enc_transferred_value,
@@ -445,7 +450,7 @@ impl TypedEnvBackend for EnvInstance {
             output,
         );
         match call_result {
-            Ok(()) | Err(ext::Error::CalleeReverted) => {
+            Ok(()) | Err(ReturnErrorCode::CalleeReverted) => {
                 let decoded = scale::DecodeAll::decode_all(&mut &output[..])?;
                 Ok(decoded)
             }
@@ -465,16 +470,19 @@ impl TypedEnvBackend for EnvInstance {
         let mut scope = self.scoped_buffer();
         let call_flags = params.call_flags();
         let enc_code_hash = scope.take_encoded(params.code_hash());
-        let enc_input = if !call_flags.forward_input() && !call_flags.clone_input() {
+        let enc_input = if !call_flags.contains(CallFlags::FORWARD_INPUT)
+            && !call_flags.contains(CallFlags::CLONE_INPUT)
+        {
             scope.take_encoded(params.exec_input())
         } else {
             &mut []
         };
         let output = &mut scope.take_rest();
-        let flags = params.call_flags().into_u32();
-        let call_result = ext::delegate_call(flags, enc_code_hash, enc_input, output);
+        let flags = params.call_flags();
+        let call_result =
+            ext::delegate_call(*flags, enc_code_hash, enc_input, output);
         match call_result {
-            Ok(()) | Err(ext::Error::CalleeReverted) => {
+            Ok(()) | Err(ReturnErrorCode::CalleeReverted) => {
                 let decoded = scale::DecodeAll::decode_all(&mut &output[..])?;
                 Ok(decoded)
             }
@@ -509,7 +517,7 @@ impl TypedEnvBackend for EnvInstance {
         let salt = params.salt_bytes().as_ref();
         let out_return_value = &mut scoped.take_rest();
 
-        let instantiate_result = ext::instantiate(
+        let instantiate_result = ext::instantiate_v1(
             enc_code_hash,
             gas_limit,
             enc_endowment,
@@ -531,7 +539,7 @@ impl TypedEnvBackend for EnvInstance {
         E: Environment,
     {
         let buffer = self.scoped_buffer().take_encoded(&beneficiary);
-        ext::terminate(buffer);
+        ext::terminate_v1(buffer);
     }
 
     fn transfer<E>(&mut self, destination: E::AccountId, value: E::Balance) -> Result<()>

@@ -21,7 +21,6 @@ use crate::{
         ConstructorReturnType,
         FromAccountId,
     },
-    Error as EnvError,
     Error,
     Result as EnvResult,
 };
@@ -89,7 +88,7 @@ where
             let output = <R as ConstructorReturnType<ContractRef>>::ok(contract_ref);
             Ok(Ok(output))
         }
-        Err(EnvError::CalleeReverted) => {
+        Err(crate::Error::CalleeReverted) => {
             decode_instantiate_err::<I, E, ContractRef, R>(out_return_value)
         }
         Err(actual_error) => Err(actual_error),
@@ -193,7 +192,11 @@ mod decode_instantiate_result_tests {
             DefaultEnvironment,
             TestContractRef,
             Result<TestContractRef, ContractError>,
-        >(Err(Error::CalleeReverted), out_address, out_return_value)
+        >(
+            Err(Error::ReturnError(ReturnErrorCode::CalleeReverted)),
+            out_address,
+            out_return_value,
+        )
     }
 
     #[test]

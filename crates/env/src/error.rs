@@ -16,6 +16,7 @@ use derive_more::From;
 
 #[cfg(any(feature = "std", test, doc))]
 use crate::engine::off_chain::OffChainError;
+use pallet_contracts_uapi::ReturnErrorCode;
 
 /// Errors that can be encountered upon environmental interaction.
 #[derive(Debug, From, PartialEq, Eq)]
@@ -59,3 +60,24 @@ pub enum Error {
 
 /// A result of environmental operations.
 pub type Result<T> = core::result::Result<T, Error>;
+
+impl From<pallet_contracts_uapi::ReturnErrorCode> for Error {
+    fn from(err: pallet_contracts_uapi::ReturnErrorCode) -> Self {
+        match err {
+            ReturnErrorCode::CalleeTrapped => Self::CalleeTrapped,
+            ReturnErrorCode::CalleeReverted => Self::CalleeReverted,
+            ReturnErrorCode::KeyNotFound => Self::KeyNotFound,
+            ReturnErrorCode::_BelowSubsistenceThreshold => Self::_BelowSubsistenceThreshold,
+            ReturnErrorCode::TransferFailed => Self::TransferFailed,
+            ReturnErrorCode::_EndowmentTooLow => Self::_EndowmentTooLow,
+            ReturnErrorCode::CodeNotFound => Self::CodeNotFound,
+            ReturnErrorCode::NotCallable => Self::NotCallable,
+            ReturnErrorCode::Unknown => Self::Unknown,
+            ReturnErrorCode::LoggingDisabled => Self::LoggingDisabled,
+            ReturnErrorCode::CallRuntimeFailed => Self::CallRuntimeFailed,
+            ReturnErrorCode::EcdsaRecoveryFailed => Self::EcdsaRecoveryFailed,
+            ReturnErrorCode::Sr25519VerifyFailed => Self::Sr25519VerifyFailed,
+            _ => Self::Unknown,
+        }
+    }
+}

@@ -46,7 +46,10 @@ mod runtime_call {
         RuntimeCall,
     };
 
-    use ink::env::Error as EnvError;
+    use ink::env::{
+        Error as EnvError,
+        ReturnErrorCode,
+    };
 
     /// A trivial contract with a single message, that uses `call-runtime` API for
     /// performing native token transfer.
@@ -63,7 +66,9 @@ mod runtime_call {
     impl From<EnvError> for RuntimeError {
         fn from(e: EnvError) -> Self {
             match e {
-                EnvError::CallRuntimeFailed => RuntimeError::CallRuntimeFailed,
+                EnvError::ReturnError(ReturnErrorCode::CallRuntimeFailed) => {
+                    RuntimeError::CallRuntimeFailed
+                }
                 _ => panic!("Unexpected error from `pallet-contracts`."),
             }
         }
