@@ -48,7 +48,7 @@ pub mod delegator {
             let selector = ink::selector_bytes!("inc");
             let _ = build_call::<DefaultEnvironment>()
                 .delegate(hash)
-                // We specify `set_tail_call(true)` to use the delegatee last memory frame
+                // We specify `CallFlags::TAIL_CALL` to use the delegatee last memory frame
                 // as the end of the execution cycle.
                 // So any mutations to `Packed` types, made by delegatee,
                 // will be flushed to storage.
@@ -56,14 +56,14 @@ pub mod delegator {
                 // If we don't specify this flag.
                 // The storage state before the delegate call will be flushed to storage instead.
                 // See https://substrate.stackexchange.com/questions/3336/i-found-set-allow-reentry-may-have-some-problems/3352#3352
-                .call_flags(CallFlags::default().set_tail_call(true))
+                .call_flags(CallFlags::TAIL_CALL)
                 .exec_input(ExecutionInput::new(Selector::new(selector)))
                 .returns::<()>()
                 .try_invoke();
         }
 
         /// Adds entry to `addresses` using delegate call.
-        /// Note that we don't need `set_tail_call(true)` flag
+        /// Note that we don't need `CallFlags::TAIL_CALL` flag
         /// because `Mapping` updates the storage instantly on-demand.
         #[ink(message)]
         pub fn add_entry_delegate(&mut self, hash: Hash) {

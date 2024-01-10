@@ -39,7 +39,7 @@ pub mod constructors_return_value {
         #[ink(constructor)]
         pub fn revert_new(_init_value: bool) -> Self {
             ink::env::return_value::<ink::ConstructorResult<AccountId>>(
-                ink::env::ReturnFlags::new_with_reverted(true),
+                ink::env::ReturnFlags::REVERT,
                 &Ok(AccountId::from([0u8; 32])),
             )
         }
@@ -56,7 +56,7 @@ pub mod constructors_return_value {
 
             ink::env::return_value::<
                 ink::ConstructorResult<Result<AccountId, ConstructorError>>,
-            >(ink::env::ReturnFlags::new_with_reverted(true), &value)
+            >(ink::env::ReturnFlags::REVERT, &value)
         }
 
         /// Returns the current value of the contract storage.
