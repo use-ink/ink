@@ -2,7 +2,9 @@
 contract.</p>
 <p>By default, a signature topic will be generated for the event. This allows consumers
 to filter and identify events of this type. Marking an event with <code>anonymous = true</code>
-means no signature topic will be generated or emitted.</p>
+means no signature topic will be generated or emitted.
+Custom signature topic can be specified with <code>signature_topic = &lt;32 byte hex string&gt;</code>.</p>
+<p><code>signature_topic</code> and <code>anonymous</code> are conflicting arguments.</p>
 <h2 id="examples"><a href="#examples">Examples</a></h2>
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="attr">#[ink::event]
 </span><span class="kw">pub struct </span>MyEvent {
@@ -14,6 +16,15 @@ means no signature topic will be generated or emitted.</p>
 <span class="comment">// Setting `anonymous = true` means no signature topic will be emitted for the event.
 </span><span class="attr">#[ink::event(anonymous = <span class="bool-val">true</span>)]
 </span><span class="kw">pub struct </span>MyAnonEvent {
+    <span class="kw">pub </span>field: u32,
+    <span class="attr">#[ink(topic)]
+    </span><span class="kw">pub </span>topic: [u8; <span class="number">32</span>],
+}
+<span class="comment">// Setting `signature_topic = &lt;hex_string&gt;` specifies custom signature topic.
+</span><span class="attr">#[ink::event(
+    signature_topic = <span class="string">&quot;1111111111111111111111111111111111111111111111111111111111111111&quot;
+</span>)]
+</span><span class="kw">pub struct </span>MyCustomSignatureEvent {
     <span class="kw">pub </span>field: u32,
     <span class="attr">#[ink(topic)]
     </span><span class="kw">pub </span>topic: [u8; <span class="number">32</span>],

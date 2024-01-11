@@ -215,6 +215,8 @@
 <a href="#215" id="215">215</a>
 <a href="#216" id="216">216</a>
 <a href="#217" id="217">217</a>
+<a href="#218" id="218">218</a>
+<a href="#219" id="219">219</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -419,9 +421,11 @@
 
     <span class="doccomment">/// The unique signature topic of the event. `None` for anonymous events.
     ///
+    /// It can be automatically calculated or manually specified.
+    ///
     /// Usually this is calculated using the `#[derive(ink::Event)]` derive, which by
-    /// default calculates this as `blake2b(&quot;Event(field1_type,field2_type)&quot;)`
-    </span><span class="kw">const </span>SIGNATURE_TOPIC: <span class="prelude-ty">Option</span>&lt;[u8; <span class="number">32</span>]&gt;;
+    /// default calculates this as `blake2b(&quot;Event(field1_type,field2_type)&quot;`
+    </span><span class="kw">const </span>SIGNATURE_TOPIC: core::option::Option&lt;[u8; <span class="number">32</span>]&gt;;
 
     <span class="doccomment">/// Guides event topic serialization using the given topics builder.
     </span><span class="kw">fn </span>topics&lt;E, B&gt;(

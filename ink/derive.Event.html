@@ -4,8 +4,7 @@
     #[ink]
 }
 </code></pre><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Derives an implementation of the [<code>ink::Event</code>] trait for the given <code>struct</code>.</p>
-<p><strong>Note</strong> [<code>ink::Event</code>] requires a [<code>scale::Encode</code>] implementation, it is up to
-the user to provide that: usually via the derive.</p>
+<p><strong>Note</strong> [<code>ink::Event</code>] requires [<code>scale::Encode</code>] implementation.</p>
 <p>Usually this is used in conjunction with the [<code>EventMetadata</code>] derive.</p>
 <p>For convenience there is the [<code>event</code>] attribute macro that will expand to all the necessary
 derives for an event implementation, including this one.</p>
@@ -59,8 +58,24 @@ will have different signature topics:</p>
     }
 }
 
-<span class="kw">use </span>ink::env::Event;
-<span class="macro">assert_ne!</span>(&lt;MyEvent <span class="kw">as </span>Event&gt;::SIGNATURE_TOPIC, &lt;other_event::MyEvent <span class="kw">as </span>Event&gt;::SIGNATURE_TOPIC);</code></pre></div>
+<span class="macro">assert_ne!</span>(&lt;MyEvent <span class="kw">as </span>ink::env::Event&gt;::SIGNATURE_TOPIC, &lt;other_event::MyEvent <span class="kw">as </span>ink::env::Event&gt;::SIGNATURE_TOPIC);</code></pre></div>
+<h3 id="custom-signature"><a href="#custom-signature">Custom Signature</a></h3>
+<p>Sometimes it is useful to specify the custom signature topic.
+For example, when the event definition from the other contract is not accessible.</p>
+<p>The macro provides <code>#[ink(signature_topic = _)]</code> nested macro that allows to provide
+32 byte hex string of the custom signature topic.</p>
+<p>Generates custom signature topic</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="attr">#[derive(ink::Event, scale::Encode)]
+#[ink(signature_topic = <span class="string">&quot;1111111111111111111111111111111111111111111111111111111111111111&quot;</span>)]
+</span><span class="kw">pub struct </span>MyCustomSignatureEvent {
+    <span class="kw">pub </span>field: u32,
+    <span class="kw">pub </span>topic: [u8; <span class="number">32</span>],
+}
+
+<span class="macro">assert_eq!</span>(<span class="prelude-val">Some</span>([<span class="number">17</span>, <span class="number">17</span>, <span class="number">17</span>, <span class="number">17</span>, <span class="number">17</span>, <span class="number">17</span>, <span class="number">17</span>, <span class="number">17</span>, <span class="number">17</span>, <span class="number">17</span>, <span class="number">17</span>, <span class="number">17</span>, <span class="number">17</span>, <span class="number">17</span>, <span class="number">17</span>, <span class="number">17</span>, <span class="number">17</span>, <span class="number">17</span>, <span class="number">17</span>, <span class="number">17</span>, <span class="number">17</span>, <span class="number">17</span>, <span class="number">17</span>, <span class="number">17</span>, <span class="number">17</span>, <span class="number">17</span>, <span class="number">17</span>, <span class="number">17</span>, <span class="number">17</span>, <span class="number">17</span>, <span class="number">17</span>, <span class="number">17</span>]),
+    &lt;MyCustomSignatureEvent <span class="kw">as </span>ink::env::Event&gt;::SIGNATURE_TOPIC)</code></pre></div>
 <h3 id="anonymous-events"><a href="#anonymous-events">Anonymous Events</a></h3>
-<p>If the event is annotated with <code>#[ink(anonymous)]</code> then no signature topic is generated.</p>
+<p>If the event is annotated with <code>#[ink(anonymous)]</code> then no signature topic is generated.
+<code>#[ink(signature_topic = _)]</code> should not be used.</p>
 </div></details></section></div></main></body></html>
