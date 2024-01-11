@@ -405,7 +405,8 @@ where
     /// * `Ok(None)` if the insert was successful but there was no pre-existing value.
     /// * Err([`ink_env::Error::BufferTooSmall`]) if the encoded value exceeds the static
     ///   buffer size
-    /// * Err([`ink_env::Error::KeyNotFound`]) if the `index` is out of bounds.
+    /// * Err([`ink_env::Error::ReturnError`]\([`ink_env::ReturnErrorCode::KeyNotFound`]))
+    ///   if the `index` is out of bounds.
     ///
     /// # Panics
     ///
@@ -661,7 +662,12 @@ mod tests {
             let mut array: StorageVec<u32> = (0..10).collect();
 
             assert_eq!(array.try_set(0, &1), Ok(Some(4)));
-            assert_eq!(array.try_set(10, &1), Err(ink_env::Error::KeyNotFound));
+            assert_eq!(
+                array.try_set(10, &1),
+                Err(ink_env::Error::ReturnError(
+                    ink_env::ReturnErrorCode::KeyNotFound
+                ))
+            );
 
             array.clear_at(0);
             assert_eq!(array.try_set(0, &1), Ok(None));
