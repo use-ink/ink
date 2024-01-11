@@ -16,8 +16,8 @@ use ast::{
     AttrStyle,
     Crate,
 };
-use clippy_utils::diagnostics::span_lint_and_help;
 use if_chain::if_chain;
+use ink_linting_clippy_utils::diagnostics::span_lint_and_help;
 use rustc_ast as ast;
 use rustc_lint::{
     EarlyContext,

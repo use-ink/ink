@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use clippy_utils::match_def_path;
 use if_chain::if_chain;
+use ink_linting_clippy_utils::match_def_path;
 use rustc_hir::{
     ExprKind,
     HirId,

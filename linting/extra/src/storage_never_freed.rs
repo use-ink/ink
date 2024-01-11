@@ -17,13 +17,13 @@ use crate::ink_utils::{
     find_contract_impl_id,
     find_storage_struct,
 };
-use clippy_utils::{
+use if_chain::if_chain;
+use ink_linting_clippy_utils::{
     diagnostics::span_lint_and_help,
     is_lint_allowed,
     match_def_path,
     match_path,
 };
-use if_chain::if_chain;
 use rustc_hir::{
     self as hir,
     def::{
