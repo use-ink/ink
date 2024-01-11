@@ -484,8 +484,7 @@ impl TypedEnvBackend for EnvInstance {
         };
         let output = &mut scope.take_rest();
         let flags = params.call_flags();
-        let call_result =
-            ext::delegate_call(*flags, enc_code_hash, enc_input, output);
+        let call_result = ext::delegate_call(*flags, enc_code_hash, enc_input, output);
         match call_result {
             Ok(()) | Err(ReturnErrorCode::CalleeReverted) => {
                 let decoded = scale::DecodeAll::decode_all(&mut &output[..])?;
