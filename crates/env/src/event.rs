@@ -202,9 +202,11 @@ pub trait Event: scale::Encode {
 
     /// The unique signature topic of the event. `None` for anonymous events.
     ///
+    /// It can be automatically calculated or manually specified.
+    ///
     /// Usually this is calculated using the `#[derive(ink::Event)]` derive, which by
-    /// default calculates this as `blake2b("Event(field1_type,field2_type)")`
-    const SIGNATURE_TOPIC: Option<[u8; 32]>;
+    /// default calculates this as `blake2b("Event(field1_type,field2_type)"`
+    const SIGNATURE_TOPIC: core::option::Option<[u8; 32]>;
 
     /// Guides event topic serialization using the given topics builder.
     fn topics<E, B>(

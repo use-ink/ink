@@ -2731,6 +2731,7 @@ version = "5.0.0-rc"
 dependencies = [
  "blake2",
  "either",
+ "impl-serde",
  "ink_prelude 5.0.0-rc",
  "itertools 0.12.0",
  "proc-macro2",

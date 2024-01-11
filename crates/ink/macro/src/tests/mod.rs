@@ -26,6 +26,7 @@ use crate::storage::{
     storage_layout_derive,
 };
 
+#[cfg(test)]
 #[macro_export]
 macro_rules! test_derive {
     ($name:path { $($i:tt)* } expands to { $($o:tt)* }) => {

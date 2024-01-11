@@ -59,13 +59,13 @@ impl IsDocAttribute for syn::Attribute {
 
     fn extract_docs(&self) -> Option<String> {
         if !self.is_doc_attribute() {
-            return None
+            return None;
         }
         match &self.meta {
             syn::Meta::NameValue(nv) => {
                 if let syn::Expr::Lit(l) = &nv.value {
                     if let syn::Lit::Str(s) = &l.lit {
-                        return Some(s.value())
+                        return Some(s.value());
                     }
                 }
             }
@@ -172,7 +172,7 @@ impl InkAttribute {
             return Err(format_err!(
                 self.span(),
                 "unexpected first ink! attribute argument",
-            ))
+            ));
         }
         Ok(())
     }
@@ -200,7 +200,7 @@ impl InkAttribute {
                 .into_combine(format_err!(
                     seen.span(),
                     "first equal ink! attribute argument here"
-                )))
+                )));
             }
             if let Some(seen) = seen2.get(&arg.kind().kind()) {
                 return Err(format_err!(
@@ -210,7 +210,7 @@ impl InkAttribute {
                 .into_combine(format_err!(
                     *seen,
                     "first equal ink! attribute argument with equal kind here"
-                )))
+                )));
             }
             seen.insert(arg);
             seen2.insert(arg.kind().kind(), arg.span());
@@ -242,7 +242,7 @@ impl InkAttribute {
             return Err(format_err!(
                 Span::call_site(),
                 "encountered unexpected empty expanded ink! attribute arguments",
-            ))
+            ));
         }
         Self::ensure_no_duplicate_args(&args)?;
         Ok(Self { args })
@@ -268,7 +268,7 @@ impl InkAttribute {
     pub fn namespace(&self) -> Option<ir::Namespace> {
         self.args().find_map(|arg| {
             if let ir::AttributeArg::Namespace(namespace) = arg.kind() {
-                return Some(namespace.clone())
+                return Some(namespace.clone());
             }
             None
         })
@@ -278,7 +278,17 @@ impl InkAttribute {
     pub fn selector(&self) -> Option<SelectorOrWildcard> {
         self.args().find_map(|arg| {
             if let ir::AttributeArg::Selector(selector) = arg.kind() {
-                return Some(*selector)
+                return Some(*selector);
+            }
+            None
+        })
+    }
+
+    /// Returns the signature topic of the ink! attribute if any.
+    pub fn signature_topic_hex(&self) -> Option<String> {
+        self.args().find_map(|arg| {
+            if let ir::AttributeArg::SignatureTopic(hash) = arg.kind() {
+                return Some(hash.clone());
             }
             None
         })
@@ -363,6 +373,9 @@ pub enum AttributeArgKind {
     /// `#[ink(selector = _)]`
     /// `#[ink(selector = 0xDEADBEEF)]`
     Selector,
+    /// `#[ink(signature_topic =
+    /// "325c98ff66bd0d9d1c10789ae1f2a17bdfb2dcf6aa3d8092669afafdef1cb72d")]`
+    SignatureTopicArg,
     /// `#[ink(function = N: u16)]`
     Function,
     /// `#[ink(namespace = "my_namespace")]`
@@ -418,6 +431,9 @@ pub enum AttributeArg {
     /// - `#[ink(selector = _)]` Applied on ink! messages to define a fallback messages
     ///   that is invoked if no other ink! message matches a given selector.
     Selector(SelectorOrWildcard),
+    /// `#[ink(signature_topic =
+    /// "325c98ff66bd0d9d1c10789ae1f2a17bdfb2dcf6aa3d8092669afafdef1cb72d")]`
+    SignatureTopic(String),
     /// `#[ink(namespace = "my_namespace")]`
     ///
     /// Applied on ink! trait implementation blocks to disambiguate other trait
@@ -462,6 +478,9 @@ impl core::fmt::Display for AttributeArgKind {
             Self::Selector => {
                 write!(f, "selector = S:[u8; 4] || _")
             }
+            Self::SignatureTopicArg => {
+                write!(f, "signature_topic = S:[u8; 32]")
+            }
             Self::Function => {
                 write!(f, "function = N:u16)")
             }
@@ -486,6 +505,7 @@ impl AttributeArg {
             Self::Constructor => AttributeArgKind::Constructor,
             Self::Payable => AttributeArgKind::Payable,
             Self::Selector(_) => AttributeArgKind::Selector,
+            Self::SignatureTopic(_) => AttributeArgKind::SignatureTopicArg,
             Self::Function(_) => AttributeArgKind::Function,
             Self::Namespace(_) => AttributeArgKind::Namespace,
             Self::Implementation => AttributeArgKind::Implementation,
@@ -505,6 +525,9 @@ impl core::fmt::Display for AttributeArg {
             Self::Constructor => write!(f, "constructor"),
             Self::Payable => write!(f, "payable"),
             Self::Selector(selector) => core::fmt::Display::fmt(&selector, f),
+            Self::SignatureTopic(hash) => {
+                write!(f, "signature_topic = {:?}", hash)
+            }
             Self::Function(function) => {
                 write!(f, "function = {:?}", function.into_u16())
             }
@@ -778,7 +801,7 @@ where
 {
     let (ink_attrs, rust_attrs) = ir::partition_attributes(attrs)?;
     if ink_attrs.is_empty() {
-        return Ok((None, rust_attrs))
+        return Ok((None, rust_attrs));
     }
     let normalized = ir::InkAttribute::from_expanded(ink_attrs).map_err(|err| {
         err.into_combine(format_err!(parent_span, "at this invocation",))
@@ -807,7 +830,7 @@ impl Attribute {
                     attr.span(),
                     "encountered duplicate ink! attribute"
                 )
-                .into_combine(format_err!(seen.span(), "first ink! attribute here")))
+                .into_combine(format_err!(seen.span(), "first ink! attribute here")));
             }
             seen.insert(attr);
         }
@@ -820,7 +843,7 @@ impl TryFrom<syn::Attribute> for Attribute {
 
     fn try_from(attr: syn::Attribute) -> Result<Self, Self::Error> {
         if attr.path().is_ident("ink") {
-            return <InkAttribute as TryFrom<_>>::try_from(attr).map(Into::into)
+            return <InkAttribute as TryFrom<_>>::try_from(attr).map(Into::into);
         }
         Ok(Attribute::Other(attr))
     }
@@ -837,7 +860,7 @@ impl TryFrom<syn::Attribute> for InkAttribute {
 
     fn try_from(attr: syn::Attribute) -> Result<Self, Self::Error> {
         if !attr.path().is_ident("ink") {
-            return Err(format_err_spanned!(attr, "unexpected non-ink! attribute"))
+            return Err(format_err_spanned!(attr, "unexpected non-ink! attribute"));
         }
 
         let args: Vec<_> = attr
@@ -850,7 +873,7 @@ impl TryFrom<syn::Attribute> for InkAttribute {
             return Err(format_err_spanned!(
                 attr,
                 "encountered unsupported empty ink! attribute"
-            ))
+            ));
         }
         Ok(InkAttribute { args })
     }
@@ -898,7 +921,7 @@ impl InkAttribute {
             }
         }
         if let Some(err) = err {
-            return Err(err)
+            return Err(err);
         }
         Ok(())
     }
@@ -924,6 +947,16 @@ impl Parse for AttributeFrag {
                     "namespace" => {
                         Namespace::try_from(&name_value.value)
                             .map(AttributeArg::Namespace)
+                    }
+                    "signature_topic" => {
+                        if let Some(hash) = name_value.value.as_string() {
+                            Ok(AttributeArg::SignatureTopic(hash))
+                        } else {
+                            Err(format_err_spanned!(
+                                name_value.value,
+                                "expected String type for `S` in #[ink(signature_topic = S)]",
+                            ))
+                        }
                     }
                     "function" => {
                         if let Some(lit_int) = name_value.value.as_lit_int() {
@@ -1507,5 +1540,15 @@ mod tests {
             ],
             Err("encountered duplicate ink! attribute"),
         )
+    }
+    #[test]
+    fn signature_topic_works() {
+        let s = "11".repeat(32);
+        assert_attribute_try_from(
+            syn::parse_quote! {
+                #[ink(signature_topic = #s)]
+            },
+            Ok(test::Attribute::Ink(vec![AttributeArg::SignatureTopic(s)])),
+        );
     }
 }

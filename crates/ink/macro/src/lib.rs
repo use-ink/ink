@@ -659,6 +659,9 @@ pub fn trait_definition(attr: TokenStream, item: TokenStream) -> TokenStream {
 /// By default, a signature topic will be generated for the event. This allows consumers
 /// to filter and identify events of this type. Marking an event with `anonymous = true`
 /// means no signature topic will be generated or emitted.
+/// Custom signature topic can be specified with `signature_topic = <32 byte hex string>`.
+///
+/// `signature_topic` and `anonymous` are conflicting arguments.
 ///
 /// # Examples
 ///
@@ -673,6 +676,15 @@ pub fn trait_definition(attr: TokenStream, item: TokenStream) -> TokenStream {
 /// // Setting `anonymous = true` means no signature topic will be emitted for the event.
 /// #[ink::event(anonymous = true)]
 /// pub struct MyAnonEvent {
+///     pub field: u32,
+///     #[ink(topic)]
+///     pub topic: [u8; 32],
+/// }
+/// // Setting `signature_topic = <hex_string>` specifies custom signature topic.
+/// #[ink::event(
+///     signature_topic = "1111111111111111111111111111111111111111111111111111111111111111"
+/// )]
+/// pub struct MyCustomSignatureEvent {
 ///     pub field: u32,
 ///     #[ink(topic)]
 ///     pub topic: [u8; 32],
@@ -1332,8 +1344,7 @@ synstructure::decl_derive!(
     [Event, attributes(ink)] =>
     /// Derives an implementation of the [`ink::Event`] trait for the given `struct`.
     ///
-    /// **Note** [`ink::Event`] requires a [`scale::Encode`] implementation, it is up to
-    /// the user to provide that: usually via the derive.
+    /// **Note** [`ink::Event`] requires [`scale::Encode`] implementation.
     ///
     /// Usually this is used in conjunction with the [`EventMetadata`] derive.
     ///
@@ -1399,13 +1410,33 @@ synstructure::decl_derive!(
     ///     }
     /// }
     ///
-    /// use ink::env::Event;
-    /// assert_ne!(<MyEvent as Event>::SIGNATURE_TOPIC, <other_event::MyEvent as Event>::SIGNATURE_TOPIC);
+    /// assert_ne!(<MyEvent as ink::env::Event>::SIGNATURE_TOPIC, <other_event::MyEvent as ink::env::Event>::SIGNATURE_TOPIC);
     /// ```
     ///
+    /// ## Custom Signature
+    ///
+    /// Sometimes it is useful to specify the custom signature topic.
+    /// For example, when the event definition from the other contract is not accessible.
+    ///
+    /// The macro provides `#[ink(signature_topic = _)]` nested macro that allows to provide
+    /// 32 byte hex string of the custom signature topic.
+    ///
+    /// Generates custom signature topic
+    /// ```
+    /// #[derive(ink::Event, scale::Encode)]
+    /// #[ink(signature_topic = "1111111111111111111111111111111111111111111111111111111111111111")]
+    /// pub struct MyCustomSignatureEvent {
+    ///     pub field: u32,
+    ///     pub topic: [u8; 32],
+    /// }
+    ///
+    /// assert_eq!(Some([17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17]),
+    ///     <MyCustomSignatureEvent as ink::env::Event>::SIGNATURE_TOPIC)
+    ///```
     /// ## Anonymous Events
     ///
     /// If the event is annotated with `#[ink(anonymous)]` then no signature topic is generated.
+    /// `#[ink(signature_topic = _)]` should not be used.
     event::event_derive
 );
 
@@ -1414,8 +1445,8 @@ synstructure::decl_derive!(
     /// Derives the [`ink::EventMetadata`] trait for the given `struct`, which provides metadata
     /// about the event definition.
     ///
-    /// Requires that the `struct` also implements the [`ink::Event`] trait, so this derive is
-    /// usually used in combination with the [`Event`] derive.
+    /// Requires that the `struct` also implements the [`ink::Event`] trait,
+    /// so this derive is usually used in combination with the [`Event`] derive.
     ///
     /// Metadata is not embedded into the contract binary, it is generated from a separate
     /// compilation of the contract with the `std` feature, therefore this derive must be
