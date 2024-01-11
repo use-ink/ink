@@ -367,7 +367,7 @@ impl EnvBackend for EnvInstance {
         let mut scope = self.scoped_buffer();
         let enc_input = scope.take_encoded(input);
         let output = &mut scope.take_rest();
-        status_to_result(ext::call_chain_extension(id, enc_input, Some(output)))?;
+        status_to_result(ext::call_chain_extension(id, enc_input, output))?;
         let decoded = decode_to_result(output)?;
         Ok(decoded)
     }
@@ -452,7 +452,7 @@ impl TypedEnvBackend for EnvInstance {
             gas_limit,
             enc_transferred_value,
             enc_input,
-            Some(output),
+            output,
         );
         match call_result {
             Ok(()) | Err(ReturnErrorCode::CalleeReverted) => {
@@ -485,7 +485,7 @@ impl TypedEnvBackend for EnvInstance {
         let output = &mut scope.take_rest();
         let flags = params.call_flags();
         let call_result =
-            ext::delegate_call(*flags, enc_code_hash, enc_input, Some(output));
+            ext::delegate_call(*flags, enc_code_hash, enc_input, output);
         match call_result {
             Ok(()) | Err(ReturnErrorCode::CalleeReverted) => {
                 let decoded = scale::DecodeAll::decode_all(&mut &output[..])?;
@@ -527,8 +527,8 @@ impl TypedEnvBackend for EnvInstance {
             gas_limit,
             enc_endowment,
             enc_input,
-            Some(out_address),
-            Some(out_return_value),
+            out_address,
+            out_return_value,
             salt,
         );
 
