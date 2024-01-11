@@ -26,7 +26,7 @@ pub struct EventConfig {
     anonymous: bool,
 
     /// Manually specified signature topic hash.
-    signature_topic_hash: Option<String>,
+    signature_topic_hex: Option<String>,
 }
 
 impl TryFrom<ast::AttributeArgs> for EventConfig {
@@ -84,10 +84,10 @@ impl TryFrom<ast::AttributeArgs> for EventConfig {
 
 impl EventConfig {
     /// Construct a new [`EventConfig`].
-    pub fn new(anonymous: bool, signature_topic_hash: Option<String>) -> Self {
+    pub fn new(anonymous: bool, signature_topic_hex: Option<String>) -> Self {
         Self {
             anonymous,
-            signature_topic_hash,
+            signature_topic_hex,
         }
     }
 
@@ -97,7 +97,7 @@ impl EventConfig {
     }
 
     /// Returns the manually specified signature topic.
-    pub fn signature_topic_hash(&self) -> Option<&str> {
-        self.signature_topic_hash.as_deref()
+    pub fn signature_topic_hex(&self) -> Option<&str> {
+        self.signature_topic_hex.as_deref()
     }
 }
