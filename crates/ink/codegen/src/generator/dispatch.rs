@@ -588,8 +588,11 @@ impl Dispatch<'_> {
                         );
                     }
 
-                    let mut flag = ::ink::env::ReturnFlags::empty();
-                    flag.set(::ink::env::ReturnFlags::REVERT, output_result.is_err());
+                    let flag = if output_result.is_err()  {
+                        ::ink::env::ReturnFlags::REVERT
+                    } else {
+                        ::ink::env::ReturnFlags::empty()
+                    };
 
                     ::ink::env::return_value::<
                         ::ink::ConstructorResult<
@@ -785,13 +788,13 @@ impl Dispatch<'_> {
                         let is_reverted = ::ink::is_result_type!(#message_output)
                             && ::ink::is_result_err!(result);
 
+                        let flag = if is_reverted {
+                            ::ink::env::ReturnFlags::REVERT
                         // no need to push back results: transaction gets reverted anyways
-                        if !is_reverted {
+                        } else {
                             push_contract(contract, #mutates_storage);
-                        }
-
-                        let mut flag = ::ink::env::ReturnFlags::empty();
-                        flag.set(::ink::env::ReturnFlags::REVERT, is_reverted);
+                            ::ink::env::ReturnFlags::empty()
+                        };
 
                         ::ink::env::return_value::<::ink::MessageResult::<#message_output>>(
                             flag,
