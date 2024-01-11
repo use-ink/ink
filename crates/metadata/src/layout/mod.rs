@@ -29,6 +29,10 @@ use crate::{
 use derive_more::From;
 use ink_prelude::collections::btree_map::BTreeMap;
 use ink_primitives::Key;
+use scale::{
+    Decode,
+    Encode,
+};
 use scale_info::{
     form::{
         Form,
@@ -42,7 +46,10 @@ use scale_info::{
 };
 use schemars::JsonSchema;
 use serde::{
-    de::DeserializeOwned,
+    de::{
+        DeserializeOwned,
+        Error,
+    },
     Deserialize,
     Serialize,
 };
@@ -87,7 +94,7 @@ impl serde::Serialize for LayoutKey {
     where
         S: serde::Serializer,
     {
-        serde_hex::serialize(&self.key.to_be_bytes(), serializer)
+        serde_hex::serialize(&self.key.encode(), serializer)
     }
 }
 
@@ -98,7 +105,10 @@ impl<'de> serde::Deserialize<'de> for LayoutKey {
     {
         let mut arr = [0; 4];
         serde_hex::deserialize_check_len(d, serde_hex::ExpectedLen::Exact(&mut arr[..]))?;
-        Ok(Key::from_be_bytes(arr).into())
+        let key = Key::decode(&mut &arr[..]).map_err(|err| {
+            Error::custom(format!("Error decoding layout key: {}", err))
+        })?;
+        Ok(key.into())
     }
 }
 

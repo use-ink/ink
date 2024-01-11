@@ -22,6 +22,7 @@ serde = { workspace = true, features = ["derive", "alloc"] }
 impl-serde = { workspace = true, default-features = true }
 derive_more = { workspace = true, features = ["from"] }
 linkme = { workspace = true }
+scale = { workspace = true }
 scale-info = { workspace = true, features = ["derive", "serde", "decode", "schema"] }
 schemars = { workspace = true }
 

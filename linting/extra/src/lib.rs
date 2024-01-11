@@ -30,8 +30,10 @@ extern crate rustc_middle;
 extern crate rustc_mir_dataflow;
 extern crate rustc_session;
 extern crate rustc_span;
+extern crate rustc_type_ir;
 
 mod ink_utils;
+mod non_fallible_api;
 mod primitive_topic;
 mod storage_never_freed;
 mod strict_balance_equality;
@@ -46,11 +48,13 @@ pub fn register_lints(
         primitive_topic::PRIMITIVE_TOPIC,
         storage_never_freed::STORAGE_NEVER_FREED,
         strict_balance_equality::STRICT_BALANCE_EQUALITY,
+        non_fallible_api::NON_FALLIBLE_API,
     ]);
     lint_store.register_late_pass(|_| Box::new(primitive_topic::PrimitiveTopic));
     lint_store.register_late_pass(|_| Box::new(storage_never_freed::StorageNeverFreed));
     lint_store
         .register_late_pass(|_| Box::new(strict_balance_equality::StrictBalanceEquality));
+    lint_store.register_late_pass(|_| Box::new(non_fallible_api::NonFallibleAPI));
 }
 
 #[test]

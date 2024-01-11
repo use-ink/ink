@@ -2648,7 +2648,7 @@ dependencies = [
  "derive_more",
  "ink_primitives 5.0.0-rc",
  "parity-scale-codec",
- "secp256k1 0.28.0",
+ "secp256k1 0.28.1",
  "sha2 0.10.8",
  "sha3",
 ]
@@ -2663,7 +2663,7 @@ dependencies = [
  "derive_more",
  "ink_primitives 5.0.0-rc (registry+https://github.com/rust-lang/crates.io-index)",
  "parity-scale-codec",
- "secp256k1 0.28.0",
+ "secp256k1 0.28.1",
  "sha2 0.10.8",
  "sha3",
 ]
@@ -2690,7 +2690,7 @@ dependencies = [
  "scale-encode",
  "scale-info",
  "schnorrkel 0.11.4",
- "secp256k1 0.28.0",
+ "secp256k1 0.28.1",
  "sha2 0.10.8",
  "sha3",
  "static_assertions",
@@ -2719,7 +2719,7 @@ dependencies = [
  "scale-encode",
  "scale-info",
  "schnorrkel 0.11.4",
- "secp256k1 0.28.0",
+ "secp256k1 0.28.1",
  "sha2 0.10.8",
  "sha3",
  "static_assertions",
@@ -2768,6 +2768,7 @@ dependencies = [
  "ink_prelude 5.0.0-rc",
  "ink_primitives 5.0.0-rc",
  "linkme",
+ "parity-scale-codec",
  "pretty_assertions",
  "scale-info",
  "schemars",
@@ -3182,18 +3183,18 @@ dependencies = [
 
 [[package]]
 name = "linkme"
-version = "0.3.21"
+version = "0.3.22"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "437a510b7d9717b70720ff35a13bbe203f985235dedd6473c72ac51d8312be23"
+checksum = "8b53ad6a33de58864705954edb5ad5d571a010f9e296865ed43dc72a5621b430"
 dependencies = [
  "linkme-impl",
 ]
 
 [[package]]
 name = "linkme-impl"
-version = "0.3.21"
+version = "0.3.22"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "de09dc283fb2f502fd8173d200675ea5ac0559f37c67b77166d75a67565c0e3d"
+checksum = "04e542a18c94a9b6fcc7adb090fa3ba6b79ee220a16404f325672729f32a66ff"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -4014,9 +4015,9 @@ dependencies = [
 
 [[package]]
 name = "proc-macro2"
-version = "1.0.74"
+version = "1.0.76"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2de98502f212cfcea8d0bb305bd0f49d7ebdd75b64ba0a68f937d888f4e0d6db"
+checksum = "95fc56cda0b5c3325f5fbbd7ff9fda9e02bb00bb3dac51252d2f1bfa1cb8cc8c"
 dependencies = [
  "unicode-ident",
 ]
@@ -4668,11 +4669,11 @@ dependencies = [
 
 [[package]]
 name = "secp256k1"
-version = "0.28.0"
+version = "0.28.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2acea373acb8c21ecb5a23741452acd2593ed44ee3d343e72baaa143bc89d0d5"
+checksum = "3f622567e3b4b38154fb8190bcf6b160d7a4301d70595a49195b48c116007a27"
 dependencies = [
- "secp256k1-sys 0.9.1",
+ "secp256k1-sys 0.9.2",
 ]
 
 [[package]]
@@ -4686,9 +4687,9 @@ dependencies = [
 
 [[package]]
 name = "secp256k1-sys"
-version = "0.9.1"
+version = "0.9.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4dd97a086ec737e30053fd5c46f097465d25bb81dd3608825f65298c4c98be83"
+checksum = "e5d1746aae42c19d583c3c1a8c646bfad910498e2051c551a7f2e3c0c9fbb7eb"
 dependencies = [
  "cc",
 ]
@@ -4736,9 +4737,9 @@ dependencies = [
 
 [[package]]
 name = "serde"
-version = "1.0.194"
+version = "1.0.195"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0b114498256798c94a0689e1a15fec6005dee8ac1f41de56404b67afc2a4b773"
+checksum = "63261df402c67811e9ac6def069e4786148c4563f4b50fd4bf30aa370d626b02"
 dependencies = [
  "serde_derive",
 ]
@@ -4754,9 +4755,9 @@ dependencies = [
 
 [[package]]
 name = "serde_derive"
-version = "1.0.194"
+version = "1.0.195"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a3385e45322e8f9931410f01b3031ec534c3947d0e94c18049af4d9f9907d4e0"
+checksum = "46fe8f8603d81ba86327b23a2e9cdf49e1255fb94a4c5f297f6ee0547178ea2c"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -4776,9 +4777,9 @@ dependencies = [
 
 [[package]]
 name = "serde_json"
-version = "1.0.110"
+version = "1.0.111"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6fbd975230bada99c8bb618e0c365c2eefa219158d5c6c29610fd09ff1833257"
+checksum = "176e46fa42316f18edd598015a5166857fc835ec732f5215eac6b7bdbf0a84f4"
 dependencies = [
  "itoa",
  "ryu",
@@ -5847,7 +5848,7 @@ dependencies = [
  "pbkdf2 0.12.2",
  "regex",
  "schnorrkel 0.11.4",
- "secp256k1 0.28.0",
+ "secp256k1 0.28.1",
  "secrecy",
  "sha2 0.10.8",
  "sp-core-hashing 13.0.0",
@@ -6318,9 +6319,9 @@ checksum = "e421abadd41a4225275504ea4d6566923418b7f05506fbc9c0fe86ba7396114b"
 
 [[package]]
 name = "trybuild"
-version = "1.0.87"
+version = "1.0.88"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ee6b2fc10a33500845468aa7c06567a9226581b24f03c6f891e6dda2dc9a1c8b"
+checksum = "76de4f783e610194f6c98bfd53f9fc52bb2e0d02c947621e8a0f4ecc799b2880"
 dependencies = [
  "basic-toml",
  "dissimilar",
