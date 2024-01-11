@@ -588,11 +588,13 @@ impl Dispatch<'_> {
                         );
                     }
 
-                    let flag = if output_result.is_err() {
-                        ::ink::env::ReturnFlags::REVERT
-                    } else {
-                        ::ink::env::ReturnFlags::empty()
-                    };
+                    // NOTE: we can't use an if/else expression here
+                    // It fails inside quote_spanned! macro.
+                    // See https://github.com/rust-lang/rust-clippy/issues/6249
+                    let mut flag = ::ink::env::ReturnFlags::empty();
+                    if output_result.is_err() {
+                        flag = ::ink::env::ReturnFlags::REVERT;
+                    }
 
                     ::ink::env::return_value::<
                         ::ink::ConstructorResult<
