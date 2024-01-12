@@ -115,6 +115,7 @@ declare_lint_pass!(NonFallibleAPI => [NON_FALLIBLE_API]);
 enum TyToCheck {
     Mapping,
     Lazy,
+    StorageVec,
 }
 
 impl TyToCheck {
@@ -125,6 +126,9 @@ impl TyToCheck {
 
         if match_def_path(cx, did, &["ink_storage", "lazy", "mapping", "Mapping"]) {
             return Some(Self::Mapping)
+        }
+        if match_def_path(cx, did, &["ink_storage", "lazy", "vec", "StorageVec"]) {
+            return Some(Self::StorageVec)
         }
         None
     }
@@ -144,6 +148,16 @@ impl TyToCheck {
                 match method_name {
                     "get" => Some("try_get".to_string()),
                     "set" => Some("try_set".to_string()),
+                    _ => None,
+                }
+            }
+            StorageVec => {
+                match method_name {
+                    "peek" => Some("try_peek".to_string()),
+                    "get" => Some("try_get".to_string()),
+                    "set" => Some("try_set".to_string()),
+                    "pop" => Some("try_pop".to_string()),
+                    "push" => Some("try_push".to_string()),
                     _ => None,
                 }
             }
