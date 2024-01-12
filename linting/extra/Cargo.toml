@@ -3,7 +3,6 @@ name = "ink_linting"
 version = "5.0.0-rc"
 authors = ["Parity Technologies <admin@parity.io>"]
 edition = "2021"
-publish = false
 
 license = "Apache-2.0"
 readme = "README.md"
@@ -18,11 +17,11 @@ include = ["Cargo.toml", "*.rs", "LICENSE"]
 crate-type = ["cdylib"]
 
 [dependencies]
-ink_linting_clippy_utils = "0.1.73"
 dylint_linting = "2.1.12"
 if_chain = "1.0.2"
 log = "0.4.14"
 regex = "1.5.4"
+ink_utils = { path = "../utils" }
 # ink! dependencies used in the linter implementation
 ink_env = { path = "../../crates/env", default-features = false }
 

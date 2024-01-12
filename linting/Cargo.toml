@@ -3,6 +3,7 @@ resolver = "2"
 members = [
     "mandatory",
     "extra",
+    "utils",
 ]
 
 [workspace.metadata.dylint]

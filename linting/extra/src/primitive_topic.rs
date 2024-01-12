@@ -13,7 +13,7 @@
 // limitations under the License.
 
 use if_chain::if_chain;
-use ink_linting_clippy_utils::{
+use ink_utils::clippy::{
     diagnostics::span_lint_and_then,
     is_lint_allowed,
     match_def_path,
