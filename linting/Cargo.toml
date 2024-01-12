@@ -15,6 +15,9 @@ repository = "https://github.com/paritytech/ink"
 homepage = "https://www.parity.io/"
 keywords = ["parity", "blockchain", "edsl", "dylint", "linting"]
 
+[workspace.dependencies]
+ink_linting_utils = { version = "=5.0.0-rc", path = "utils" }
+
 [workspace.metadata.dylint]
 libraries = [
     { path = "mandatory" },
