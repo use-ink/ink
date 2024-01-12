@@ -25,12 +25,17 @@ ink_linting_utils = { workspace = true }
 
 [dev-dependencies]
 dylint_testing = "2.1.12"
-# The following are ink! dependencies, they are only required for the `ui` tests.
-ink_env = { path = "../../crates/env", default-features = false }
-ink = { path = "../../crates/ink", default-features = false, features = ["std"] }
-ink_metadata = { path = "../../crates/metadata", default-features = false }
-ink_primitives = { path = "../../crates/primitives", default-features = false }
-ink_storage = { path = "../../crates/storage", default-features = false }
+
+# The ink! dependencies used to build the `ui` tests and to compile the linting
+# library with `--default-features=std` (see the `features` section bellow).
+#
+# These cannot be moved to the workspace level because `cargo` does not provide
+# the `[[workspace.dev-dependencies]]` directive.
+ink = { version = "=5.0.0-rc", path = "../../crates/ink", default-features = false, features = ["std"] }
+ink_env = { version = "=5.0.0-rc", path = "../../crates/env", default-features = false }
+ink_metadata = { version = "=5.0.0-rc", path = "../../crates/metadata", default-features = false }
+ink_primitives = { version = "=5.0.0-rc", path = "../../crates/primitives", default-features = false }
+ink_storage = { version = "=5.0.0-rc", path = "../../crates/storage", default-features = false }
 scale = { package = "parity-scale-codec", version = "3.4", default-features = false, features = ["derive"] }
 scale-info = { version = "2.6", default-features = false, features = ["derive"] }
 
