@@ -21,7 +21,7 @@ dylint_linting = "2.1.12"
 if_chain = "1.0.2"
 log = "0.4.14"
 regex = "1.5.4"
-ink_utils = { path = "../utils" }
+ink_linting_utils = { path = "../utils" }
 # ink! dependencies used in the linter implementation
 ink_env = { path = "../../crates/env", default-features = false }
 
