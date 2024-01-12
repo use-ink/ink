@@ -9,7 +9,7 @@ readme = "README.md"
 repository.workspace = true
 documentation = "https://docs.rs/ink_linting_utils"
 homepage.workspace = true
-description = "Utilities used internally in ink_linting crates"
+description = "Utilities used internally in ink_linting"
 keywords.workspace = true
 include = ["Cargo.toml", "*.rs", "LICENSE"]
 
