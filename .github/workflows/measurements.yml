@@ -38,7 +38,7 @@ jobs:
           SCRIPTS_DIR="${GITHUB_WORKSPACE}/scripts"
           ARTIFACTS_DIR="${GITHUB_WORKSPACE}/artifacts"
           PR_CONTRACT_SIZES="${MEASUREMENTS_DIR}/pull_request_contract_sizes"
-          UPSTREAM_BRANCH="master"
+          UPSTREAM_BRANCH="pg/uapi"
           UPSTREAM_CONTRACT_SIZES="${MEASUREMENTS_DIR}/${UPSTREAM_BRANCH}_contract_sizes"
           UPSTREAM_REPO="https://github.com/paritytech/ink.git"
           UPSTREAM_DIR="${MEASUREMENTS_DIR}/ink-${UPSTREAM_BRANCH}"
