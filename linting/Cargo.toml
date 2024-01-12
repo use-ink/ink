@@ -6,6 +6,15 @@ members = [
     "utils",
 ]
 
+[workspace.package]
+version = "5.0.0-rc"
+authors = ["Parity Technologies <admin@parity.io>"]
+edition = "2021"
+license = "Apache-2.0"
+repository = "https://github.com/paritytech/ink"
+homepage = "https://www.parity.io/"
+keywords = ["parity", "blockchain", "edsl", "dylint", "linting"]
+
 [workspace.metadata.dylint]
 libraries = [
     { path = "mandatory" },

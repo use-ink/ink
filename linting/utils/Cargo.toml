@@ -1,16 +1,16 @@
 [package]
 name = "ink_utils"
-version = "5.0.0-rc"
-authors = ["Parity Technologies <admin@parity.io>"]
-edition = "2021"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
 
-license = "Apache-2.0"
+license.workspace = true
 readme = "README.md"
-repository = "https://github.com/paritytech/ink"
-documentation = "https://docs.rs/ink_linting"
-homepage = "https://github.com/paritytech/ink"
+repository.workspace = true
+documentation = "https://docs.rs/ink_utils"
+homepage.workspace = true
 description = "Utilities used internally in ink_linting crates"
-keywords = ["parity", "blockchain", "ink", "smart contracts", "substrate"]
+keywords.workspace = true
 include = ["Cargo.toml", "*.rs", "LICENSE"]
 
 [dependencies]
