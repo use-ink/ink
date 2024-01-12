@@ -9,7 +9,7 @@ readme = "README.md"
 repository.workspace = true
 documentation = "https://docs.rs/ink_linting_mandatory"
 homepage.workspace = true
-description = "Mandatory ink! linting rules integrated in contracts' build process"
+description = "Mandatory ink! linting rules"
 keywords.workspace = true
 include = ["Cargo.toml", "*.rs", "LICENSE"]
 
