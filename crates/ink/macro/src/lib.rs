@@ -659,6 +659,9 @@ pub fn trait_definition(attr: TokenStream, item: TokenStream) -> TokenStream {
 /// By default, a signature topic will be generated for the event. This allows consumers
 /// to filter and identify events of this type. Marking an event with `anonymous = true`
 /// means no signature topic will be generated or emitted.
+/// Custom signature topic can be specified with `signature_topic = <32 byte hex string>`.
+///
+/// `signature_topic` and `anonymous` are conflicting arguments.
 ///
 /// # Examples
 ///
@@ -673,6 +676,15 @@ pub fn trait_definition(attr: TokenStream, item: TokenStream) -> TokenStream {
 /// // Setting `anonymous = true` means no signature topic will be emitted for the event.
 /// #[ink::event(anonymous = true)]
 /// pub struct MyAnonEvent {
+///     pub field: u32,
+///     #[ink(topic)]
+///     pub topic: [u8; 32],
+/// }
+/// // Setting `signature_topic = <hex_string>` specifies custom signature topic.
+/// #[ink::event(
+///     signature_topic = "1111111111111111111111111111111111111111111111111111111111111111"
+/// )]
+/// pub struct MyCustomSignatureEvent {
 ///     pub field: u32,
 ///     #[ink(topic)]
 ///     pub topic: [u8; 32],
@@ -906,35 +918,45 @@ pub fn test(attr: TokenStream, item: TokenStream) -> TokenStream {
 /// and use its associated environment definition in order to make use of
 /// the methods provided by the chain extension.
 ///
-/// # Attributes
+/// # Macro Attributes
+///
+/// The macro supports only one required argument:
+///
+/// - `extension = N: u16`:
+///
+///     The runtime may have several chain extensions at the same time. The `extension`
+///     identifier points to the corresponding chain extension in the runtime.
+///     The value should be the same as during the definition of the chain extension.
+///
+/// # Method Attributes
 ///
 /// There are three different attributes with which the chain extension methods
 /// can be flagged:
 ///
 /// | Attribute | Required | Default Value | Description |
 /// |:----------|:--------:|:--------------|:-----------:|
-/// | `ink(extension = N: u32)` | Yes | - | Determines the unique function ID of the chain
-/// extension method. | | `ink(handle_status = flag: bool)` | Optional | `true` | Assumes
+/// | `ink(function = N: u16)` | Yes | - | Determines the unique function ID within the
+/// chain extension. | | `ink(handle_status = flag: bool)` | Optional | `true` | Assumes
 /// that the returned status code of the chain extension method always indicates success
 /// and therefore always loads and decodes the output buffer of the call. |
 ///
 /// As with all ink! attributes multiple of them can either appear in a contiguous list:
 /// ```
 /// # type Access = i32;
-/// # #[ink::chain_extension]
+/// # #[ink::chain_extension(extension = 1)]
 /// # pub trait MyChainExtension {
 /// #     type ErrorCode = i32;
-/// #[ink(extension = 5, handle_status = false)]
+/// #[ink(function = 5, handle_status = false)]
 /// fn key_access_for_account(key: &[u8], account: &[u8]) -> Access;
 /// # }
 /// ```
 /// …or as multiple stand alone ink! attributes applied to the same item:
 /// ```
 /// # type Access = i32;
-/// # #[ink::chain_extension]
+/// # #[ink::chain_extension(extension = 1)]
 /// # pub trait MyChainExtension {
 /// #     type ErrorCode = i32;
-/// #[ink(extension = 5)]
+/// #[ink(function = 5)]
 /// #[ink(handle_status = false)]
 /// fn key_access_for_account(key: &[u8], account: &[u8]) -> Access;
 /// # }
@@ -996,7 +1018,7 @@ pub fn test(attr: TokenStream, item: TokenStream) -> TokenStream {
 /// Every chain extension defines exactly one `ErrorCode` using the following syntax:
 ///
 /// ```
-/// #[ink::chain_extension]
+/// #[ink::chain_extension(extension = 0)]
 /// pub trait MyChainExtension {
 ///     type ErrorCode = MyErrorCode;
 ///
@@ -1019,7 +1041,7 @@ pub fn test(attr: TokenStream, item: TokenStream) -> TokenStream {
 ///
 /// ```
 /// /// Custom chain extension to read to and write from the runtime.
-/// #[ink::chain_extension]
+/// #[ink::chain_extension(extension = 0)]
 /// pub trait RuntimeReadWrite {
 ///     type ErrorCode = ReadWriteErrorCode;
 ///
@@ -1028,7 +1050,7 @@ pub fn test(attr: TokenStream, item: TokenStream) -> TokenStream {
 ///     /// # Note
 ///     ///
 ///     /// Actually returns a value of type `Result<Vec<u8>, Self::ErrorCode>`.
-///     #[ink(extension = 1)]
+///     #[ink(function = 1)]
 ///     fn read(key: &[u8]) -> Vec<u8>;
 ///
 ///     /// Reads from runtime storage.
@@ -1045,7 +1067,7 @@ pub fn test(attr: TokenStream, item: TokenStream) -> TokenStream {
 ///     ///
 ///     /// This requires `ReadWriteError` to implement `From<ReadWriteErrorCode>`
 ///     /// and may potentially return any `Self::ErrorCode` through its return value.
-///     #[ink(extension = 2)]
+///     #[ink(function = 2)]
 ///     fn read_small(key: &[u8]) -> Result<(u32, [u8; 32]), ReadWriteError>;
 ///
 ///     /// Writes into runtime storage.
@@ -1053,7 +1075,7 @@ pub fn test(attr: TokenStream, item: TokenStream) -> TokenStream {
 ///     /// # Note
 ///     ///
 ///     /// Actually returns a value of type `Result<(), Self::ErrorCode>`.
-///     #[ink(extension = 3)]
+///     #[ink(function = 3)]
 ///     fn write(key: &[u8], value: &[u8]);
 ///
 ///     /// Returns the access allowed for the key for the caller.
@@ -1061,10 +1083,10 @@ pub fn test(attr: TokenStream, item: TokenStream) -> TokenStream {
 ///     /// # Note
 ///     ///
 ///     /// Assumes to never fail the call and therefore always returns `Option<Access>`.
-///     #[ink(extension = 4, handle_status = false)]
+///     #[ink(function = 4, handle_status = false)]
 ///     fn access(key: &[u8]) -> Option<Access>;
 ///
-///     /// Unlocks previously aquired permission to access key.
+///     /// Unlocks previously acquired permission to access key.
 ///     ///
 ///     /// # Errors
 ///     ///
@@ -1074,7 +1096,7 @@ pub fn test(attr: TokenStream, item: TokenStream) -> TokenStream {
 ///     ///
 ///     /// Assumes the call to never fail and therefore does _NOT_ require `UnlockAccessError`
 ///     /// to implement `From<Self::ErrorCode>` as in the `read_small` method above.
-///     #[ink(extension = 5, handle_status = false)]
+///     #[ink(function = 5, handle_status = false)]
 ///     fn unlock_access(key: &[u8], access: Access) -> Result<(), UnlockAccessError>;
 /// }
 /// # #[derive(scale::Encode, scale::Decode, scale_info::TypeInfo)]
@@ -1227,18 +1249,18 @@ pub fn test(attr: TokenStream, item: TokenStream) -> TokenStream {
 ///         }
 ///     }
 /// # /// Custom chain extension to read to and write from the runtime.
-/// # #[ink::chain_extension]
+/// # #[ink::chain_extension(extension = 13)]
 /// # pub trait RuntimeReadWrite {
 /// #     type ErrorCode = ReadWriteErrorCode;
-/// #     #[ink(extension = 1)]
+/// #     #[ink(function = 1)]
 /// #     fn read(key: &[u8]) -> Vec<u8>;
-/// #     #[ink(extension = 2)]
+/// #     #[ink(function = 2)]
 /// #     fn read_small(key: &[u8]) -> Result<(u32, [u8; 32]), ReadWriteError>;
-/// #     #[ink(extension = 3)]
+/// #     #[ink(function = 3)]
 /// #     fn write(key: &[u8], value: &[u8]);
-/// #     #[ink(extension = 4, handle_status = false)]
+/// #     #[ink(function = 4, handle_status = false)]
 /// #     fn access(key: &[u8]) -> Option<Access>;
-/// #     #[ink(extension = 5, handle_status = false)]
+/// #     #[ink(function = 5, handle_status = false)]
 /// #     fn unlock_access(key: &[u8], access: Access) -> Result<(), UnlockAccessError>;
 /// # }
 /// # #[derive(scale::Encode, scale::Decode, scale_info::TypeInfo)]
@@ -1322,8 +1344,7 @@ synstructure::decl_derive!(
     [Event, attributes(ink)] =>
     /// Derives an implementation of the [`ink::Event`] trait for the given `struct`.
     ///
-    /// **Note** [`ink::Event`] requires a [`scale::Encode`] implementation, it is up to
-    /// the user to provide that: usually via the derive.
+    /// **Note** [`ink::Event`] requires [`scale::Encode`] implementation.
     ///
     /// Usually this is used in conjunction with the [`EventMetadata`] derive.
     ///
@@ -1389,13 +1410,33 @@ synstructure::decl_derive!(
     ///     }
     /// }
     ///
-    /// use ink::env::Event;
-    /// assert_ne!(<MyEvent as Event>::SIGNATURE_TOPIC, <other_event::MyEvent as Event>::SIGNATURE_TOPIC);
+    /// assert_ne!(<MyEvent as ink::env::Event>::SIGNATURE_TOPIC, <other_event::MyEvent as ink::env::Event>::SIGNATURE_TOPIC);
     /// ```
     ///
+    /// ## Custom Signature
+    ///
+    /// Sometimes it is useful to specify the custom signature topic.
+    /// For example, when the event definition from the other contract is not accessible.
+    ///
+    /// The macro provides `#[ink(signature_topic = _)]` nested macro that allows to provide
+    /// 32 byte hex string of the custom signature topic.
+    ///
+    /// Generates custom signature topic
+    /// ```
+    /// #[derive(ink::Event, scale::Encode)]
+    /// #[ink(signature_topic = "1111111111111111111111111111111111111111111111111111111111111111")]
+    /// pub struct MyCustomSignatureEvent {
+    ///     pub field: u32,
+    ///     pub topic: [u8; 32],
+    /// }
+    ///
+    /// assert_eq!(Some([17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17]),
+    ///     <MyCustomSignatureEvent as ink::env::Event>::SIGNATURE_TOPIC)
+    ///```
     /// ## Anonymous Events
     ///
     /// If the event is annotated with `#[ink(anonymous)]` then no signature topic is generated.
+    /// `#[ink(signature_topic = _)]` should not be used.
     event::event_derive
 );
 
@@ -1404,8 +1445,8 @@ synstructure::decl_derive!(
     /// Derives the [`ink::EventMetadata`] trait for the given `struct`, which provides metadata
     /// about the event definition.
     ///
-    /// Requires that the `struct` also implements the [`ink::Event`] trait, so this derive is
-    /// usually used in combination with the [`Event`] derive.
+    /// Requires that the `struct` also implements the [`ink::Event`] trait,
+    /// so this derive is usually used in combination with the [`Event`] derive.
     ///
     /// Metadata is not embedded into the contract binary, it is generated from a separate
     /// compilation of the contract with the `std` feature, therefore this derive must be

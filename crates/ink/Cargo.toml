@@ -23,7 +23,7 @@ ink_metadata = { workspace = true, optional = true }
 ink_prelude = { workspace = true }
 ink_macro = { workspace = true }
 
-scale = { package = "parity-scale-codec", workspace = true }
+scale = { workspace = true }
 scale-info = { workspace = true, default-features = false, features = ["derive"], optional = true }
 derive_more = { workspace = true, features = ["from"] }
 

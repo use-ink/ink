@@ -7,14 +7,14 @@ use ink::env::Environment;
 /// file `runtime/chain-extension-example.rs` for that implementation.
 ///
 /// Here we define the operations to interact with the Substrate runtime.
-#[ink::chain_extension]
+#[ink::chain_extension(extension = 666)]
 pub trait FetchRandom {
     type ErrorCode = RandomReadErr;
 
     /// Note: this gives the operation a corresponding `func_id` (1101 in this case),
     /// and the chain-side chain extension will get the `func_id` to do further
     /// operations.
-    #[ink(extension = 1101)]
+    #[ink(function = 1101)]
     fn fetch_random(subject: [u8; 32]) -> [u8; 32];
 }
 
@@ -122,11 +122,11 @@ mod rand_extension {
         #[ink::test]
         fn chain_extension_works() {
             // given
-            struct MockedExtension;
-            impl ink::env::test::ChainExtension for MockedExtension {
+            struct MockedRandExtension;
+            impl ink::env::test::ChainExtension for MockedRandExtension {
                 /// The static function id of the chain extension.
-                fn func_id(&self) -> u32 {
-                    1101
+                fn ext_id(&self) -> u32 {
+                    666
                 }
 
                 /// The chain extension is called with the given input.
@@ -135,13 +135,18 @@ mod rand_extension {
                 /// SCALE encoded result. The error code is taken from the
                 /// `ink::env::chain_extension::FromStatusCode` implementation for
                 /// `RandomReadErr`.
-                fn call(&mut self, _input: &[u8], output: &mut Vec<u8>) -> u32 {
+                fn call(
+                    &mut self,
+                    _func_id: u16,
+                    _input: &[u8],
+                    output: &mut Vec<u8>,
+                ) -> u32 {
                     let ret: [u8; 32] = [1; 32];
                     ink::scale::Encode::encode_to(&ret, output);
                     0
                 }
             }
-            ink::env::test::register_chain_extension(MockedExtension);
+            ink::env::test::register_chain_extension(MockedRandExtension);
             let mut rand_extension = RandExtension::new_default();
             assert_eq!(rand_extension.get(), [0; 32]);
 

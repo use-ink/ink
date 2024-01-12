@@ -19,6 +19,14 @@ pub mod events {
         value: bool,
     }
 
+    #[ink(
+        event,
+        signature_topic = "1111111111111111111111111111111111111111111111111111111111111111"
+    )]
+    pub struct InlineCustomFlipped {
+        value: bool,
+    }
+
     #[ink(event)]
     #[ink(anonymous)]
     pub struct InlineAnonymousEvent {
@@ -47,6 +55,14 @@ pub mod events {
         pub fn flip_with_inline_event(&mut self) {
             self.value = !self.value;
             self.env().emit_event(InlineFlipped { value: self.value })
+        }
+
+        /// Flips the current value of the boolean.
+        #[ink(message)]
+        pub fn flip_with_inline_custom_event(&mut self) {
+            self.value = !self.value;
+            self.env()
+                .emit_event(InlineCustomFlipped { value: self.value })
         }
 
         /// Emit an event with a 32 byte topic.
@@ -94,7 +110,7 @@ pub mod events {
         #[test]
         fn collects_specs_for_all_linked_and_used_events() {
             let event_specs = ink::metadata::collect_events();
-            assert_eq!(7, event_specs.len());
+            assert_eq!(8, event_specs.len());
 
             assert!(event_specs
                 .iter()
@@ -102,6 +118,9 @@ pub mod events {
             assert!(event_specs
                 .iter()
                 .any(|evt| evt.label() == &"InlineFlipped"));
+            assert!(event_specs
+                .iter()
+                .any(|evt| evt.label() == &"InlineCustomFlipped"));
             assert!(event_specs
                 .iter()
                 .any(|evt| evt.label() == &"ThirtyTwoByteTopics"));
@@ -180,6 +199,20 @@ pub mod events {
         }
 
         #[ink::test]
+        fn custom_signature_topic() {
+            let mut events = Events::new(false);
+            events.flip_with_inline_custom_event();
+
+            let emitted_events = ink::env::test::recorded_events().collect::<Vec<_>>();
+            assert_eq!(1, emitted_events.len());
+
+            let signature_topic =
+                <InlineCustomFlipped as ink::env::Event>::SIGNATURE_TOPIC;
+
+            assert_eq!(Some([17u8; 32]), signature_topic);
+        }
+
+        #[ink::test]
         fn anonymous_events_emit_no_signature_topics() {
             let events = Events::new(false);
             let topic = [0x42; 32];
@@ -195,6 +228,10 @@ pub mod events {
             let event = &emitted_events[1];
             assert_eq!(event.topics.len(), 1);
             assert_eq!(event.topics[0], topic);
+
+            let signature_topic =
+                <InlineAnonymousEvent as ink::env::Event>::SIGNATURE_TOPIC;
+            assert_eq!(None, signature_topic);
         }
     }
 
@@ -336,6 +373,41 @@ pub mod events {
                 [0x00; 32].into(), // None is encoded as 0x00
             ];
             assert_eq!(expected_topics, contract_event.topics);
+
+            Ok(())
+        }
+
+        #[ink_e2e::test]
+        async fn emits_custom_signature_event<Client: E2EBackend>(
+            mut client: Client,
+        ) -> E2EResult<()> {
+            // given
+            let init_value = false;
+            let mut constructor = EventsRef::new(init_value);
+            let contract = client
+                .instantiate("events", &ink_e2e::alice(), &mut constructor)
+                .submit()
+                .await
+                .expect("instantiate failed");
+            let mut call = contract.call::<Events>();
+
+            // when
+            let call = call.flip_with_inline_custom_event();
+            let call_res = client
+                .call(&ink_e2e::bob(), &call)
+                .submit()
+                .await
+                .expect("flip_with_inline_custom_event failed");
+
+            let contract_events = call_res.contract_emitted_events()?;
+
+            // then
+            assert_eq!(1, contract_events.len());
+
+            let signature_topic =
+                <InlineCustomFlipped as ink::env::Event>::SIGNATURE_TOPIC;
+
+            assert_eq!(Some([17u8; 32]), signature_topic);
 
             Ok(())
         }

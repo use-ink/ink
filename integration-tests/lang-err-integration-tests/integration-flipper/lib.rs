@@ -30,7 +30,7 @@ pub mod integration_flipper {
             Self::new(Default::default())
         }
 
-        /// Attemps to create a new integration_flipper smart contract initialized with
+        /// Attempts to create a new integration_flipper smart contract initialized with
         /// the given value.
         #[ink(constructor)]
         pub fn try_new(succeed: bool) -> Result<Self, FlipperError> {
@@ -87,7 +87,7 @@ pub mod integration_flipper {
             let initial_value = client
                 .call(&ink_e2e::alice(), &get)
                 .dry_run()
-                .await
+                .await?
                 .return_value();
 
             let flip = call.flip();
@@ -104,7 +104,7 @@ pub mod integration_flipper {
             let flipped_value = client
                 .call(&ink_e2e::alice(), &get)
                 .dry_run()
-                .await
+                .await?
                 .return_value();
             assert!(flipped_value != initial_value);
 
@@ -127,7 +127,7 @@ pub mod integration_flipper {
             let initial_value = client
                 .call(&ink_e2e::bob(), &get)
                 .dry_run()
-                .await
+                .await?
                 .return_value();
 
             let err_flip = call.err_flip();
@@ -136,13 +136,13 @@ pub mod integration_flipper {
 
             assert!(matches!(
                 err_flip_call_result,
-                Err(ink_e2e::Error::<ink::env::DefaultEnvironment>::CallExtrinsic(_))
+                Err(ink_e2e::Error::CallExtrinsic(_))
             ));
 
             let flipped_value = client
                 .call(&ink_e2e::bob(), &get)
                 .dry_run()
-                .await
+                .await?
                 .return_value();
             assert!(flipped_value == initial_value);
 

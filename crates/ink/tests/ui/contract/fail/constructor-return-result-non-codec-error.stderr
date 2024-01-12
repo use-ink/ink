@@ -1,8 +1,10 @@
 error[E0277]: the trait bound `Result<Result<(), &contract::Error>, LangError>: Encode` is not satisfied
   --> tests/ui/contract/fail/constructor-return-result-non-codec-error.rs:13:9
    |
-13 |         pub fn constructor() -> Result<Self, Error> {
-   |         ^^^ the trait `Encode` is not implemented for `Result<Result<(), &contract::Error>, LangError>`
+13 | /         pub fn constructor() -> Result<Self, Error> {
+14 | |             Ok(Self {})
+15 | |         }
+   | |_________^ the trait `Encode` is not implemented for `Result<Result<(), &contract::Error>, LangError>`
    |
    = help: the trait `Encode` is implemented for `Result<T, E>`
 note: required by a bound in `return_value`
@@ -15,10 +17,15 @@ note: required by a bound in `return_value`
    |        ^^^^^^^^^^^^^ required by this bound in `return_value`
 
 error[E0277]: the trait bound `contract::Error: WrapperTypeDecode` is not satisfied
-  --> tests/ui/contract/fail/constructor-return-result-non-codec-error.rs:13:9
+  --> tests/ui/contract/fail/constructor-return-result-non-codec-error.rs:13:33
    |
-13 |         pub fn constructor() -> Result<Self, Error> {
-   |         ^^^ the trait `WrapperTypeDecode` is not implemented for `contract::Error`
+13 |           pub fn constructor() -> Result<Self, Error> {
+   |           -                       ^^^^^^^^^^^^^^^^^^^ the trait `WrapperTypeDecode` is not implemented for `contract::Error`
+   |  _________|
+   | |
+14 | |             Ok(Self {})
+15 | |         }
+   | |_________- required by a bound introduced by this call
    |
    = help: the following other types implement trait `WrapperTypeDecode`:
              Box<T>

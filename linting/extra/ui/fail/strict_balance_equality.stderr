@@ -1,0 +1,76 @@
+error: dangerous strict balance equality
+  --> $DIR/strict_balance_equality.rs:59:16
+   |
+LL |             if self.env().balance() == 10 { /* ... */ }
+   |                ^^^^^^^^^^^^^^^^^^^^^^^^^^ help: consider using non-strict equality operators instead: `<`, `>`
+   |
+   = note: `-D strict-balance-equality` implied by `-D warnings`
+
+error: dangerous strict balance equality
+  --> $DIR/strict_balance_equality.rs:60:16
+   |
+LL |             if value == 11 { /* ... */ }
+   |                ^^^^^^^^^^^ help: consider using non-strict equality operators instead: `<`, `>`
+
+error: dangerous strict balance equality
+  --> $DIR/strict_balance_equality.rs:61:16
+   |
+LL |             if self.env().balance() == threshold { /* ... */ }
+   |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: consider using non-strict equality operators instead: `<`, `>`
+
+error: dangerous strict balance equality
+  --> $DIR/strict_balance_equality.rs:64:16
+   |
+LL |             if self.get_balance_1() == 10 { /* ... */ }
+   |                ^^^^^^^^^^^^^^^^^^^^^^^^^^ help: consider using non-strict equality operators instead: `<`, `>`
+
+error: dangerous strict balance equality
+  --> $DIR/strict_balance_equality.rs:65:16
+   |
+LL |             if self.get_balance_2() == 10 { /* ... */ }
+   |                ^^^^^^^^^^^^^^^^^^^^^^^^^^ help: consider using non-strict equality operators instead: `<`, `>`
+
+error: dangerous strict balance equality
+  --> $DIR/strict_balance_equality.rs:66:16
+   |
+LL |             if self.get_balance_3() == 10 { /* ... */ }
+   |                ^^^^^^^^^^^^^^^^^^^^^^^^^^ help: consider using non-strict equality operators instead: `<`, `>`
+
+error: dangerous strict balance equality
+  --> $DIR/strict_balance_equality.rs:67:16
+   |
+LL |             if self.get_balance_recursive(&10) == 10 { /* ... */ }
+   |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: consider using non-strict equality operators instead: `<`, `>`
+
+error: dangerous strict balance equality
+  --> $DIR/strict_balance_equality.rs:71:16
+   |
+LL |             if self.cmp_balance_1(&10) { /* ... */ }
+   |                ^^^^^^^^^^^^^^^^^^^^^^^ help: consider using non-strict equality operators instead: `<`, `>`
+
+error: dangerous strict balance equality
+  --> $DIR/strict_balance_equality.rs:72:16
+   |
+LL |             if self.cmp_balance_2(&self.env().balance(), &threshold) { /* ... */ }
+   |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: consider using non-strict equality operators instead: `<`, `>`
+
+error: dangerous strict balance equality
+  --> $DIR/strict_balance_equality.rs:73:16
+   |
+LL |             if self.cmp_balance_3(self.env().balance(), threshold) { /* ... */ }
+   |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: consider using non-strict equality operators instead: `<`, `>`
+
+error: dangerous strict balance equality
+  --> $DIR/strict_balance_equality.rs:78:16
+   |
+LL |             if res_1 == 10 { /* ... */ }
+   |                ^^^^^^^^^^^ help: consider using non-strict equality operators instead: `<`, `>`
+
+error: dangerous strict balance equality
+  --> $DIR/strict_balance_equality.rs:81:16
+   |
+LL |             if res_2 == 10 { /* ... */ }
+   |                ^^^^^^^^^^^ help: consider using non-strict equality operators instead: `<`, `>`
+
+error: aborting due to 12 previous errors
+

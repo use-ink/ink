@@ -17,6 +17,7 @@ use contract_build::{
     BuildMode,
     ExecuteArgs,
     Features,
+    ImageVariant,
     ManifestPath,
     Network,
     OptimizationPasses,
@@ -24,6 +25,7 @@ use contract_build::{
     Target,
     UnstableFlags,
     Verbosity,
+    DEFAULT_MAX_MEMORY_PAGES,
 };
 use std::{
     collections::{
@@ -175,10 +177,12 @@ fn build_contract(path_to_cargo_toml: &Path) -> PathBuf {
         unstable_flags: UnstableFlags::default(),
         optimization_passes: Some(OptimizationPasses::default()),
         keep_debug_symbols: false,
-        lint: false,
+        dylint: false,
         output_type: OutputType::HumanReadable,
         skip_wasm_validation: false,
         target: Target::Wasm,
+        max_memory_pages: DEFAULT_MAX_MEMORY_PAGES,
+        image: ImageVariant::Default,
     };
 
     match contract_build::execute(args) {

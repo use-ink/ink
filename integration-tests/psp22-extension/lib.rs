@@ -8,30 +8,30 @@ use ink::{
 type DefaultAccountId = <ink::env::DefaultEnvironment as Environment>::AccountId;
 type DefaultBalance = <ink::env::DefaultEnvironment as Environment>::Balance;
 
-#[ink::chain_extension]
+#[ink::chain_extension(extension = 13)]
 pub trait Psp22Extension {
     type ErrorCode = Psp22Error;
 
     // PSP22 Metadata interfaces
 
-    #[ink(extension = 0x3d26)]
+    #[ink(function = 0x3d26)]
     fn token_name(asset_id: u32) -> Result<Vec<u8>>;
 
-    #[ink(extension = 0x3420)]
+    #[ink(function = 0x3420)]
     fn token_symbol(asset_id: u32) -> Result<Vec<u8>>;
 
-    #[ink(extension = 0x7271)]
+    #[ink(function = 0x7271)]
     fn token_decimals(asset_id: u32) -> Result<u8>;
 
     // PSP22 interface queries
 
-    #[ink(extension = 0x162d)]
+    #[ink(function = 0x162d)]
     fn total_supply(asset_id: u32) -> Result<DefaultBalance>;
 
-    #[ink(extension = 0x6568)]
+    #[ink(function = 0x6568)]
     fn balance_of(asset_id: u32, owner: DefaultAccountId) -> Result<DefaultBalance>;
 
-    #[ink(extension = 0x4d47)]
+    #[ink(function = 0x4d47)]
     fn allowance(
         asset_id: u32,
         owner: DefaultAccountId,
@@ -39,12 +39,12 @@ pub trait Psp22Extension {
     ) -> Result<DefaultBalance>;
 
     // PSP22 transfer
-    #[ink(extension = 0xdb20)]
+    #[ink(function = 0xdb20)]
     fn transfer(asset_id: u32, to: DefaultAccountId, value: DefaultBalance)
         -> Result<()>;
 
     // PSP22 transfer_from
-    #[ink(extension = 0x54b3)]
+    #[ink(function = 0x54b3)]
     fn transfer_from(
         asset_id: u32,
         from: DefaultAccountId,
@@ -53,7 +53,7 @@ pub trait Psp22Extension {
     ) -> Result<()>;
 
     // PSP22 approve
-    #[ink(extension = 0xb20f)]
+    #[ink(function = 0xb20f)]
     fn approve(
         asset_id: u32,
         spender: DefaultAccountId,
@@ -61,7 +61,7 @@ pub trait Psp22Extension {
     ) -> Result<()>;
 
     // PSP22 increase_allowance
-    #[ink(extension = 0x96d6)]
+    #[ink(function = 0x96d6)]
     fn increase_allowance(
         asset_id: u32,
         spender: DefaultAccountId,
@@ -69,7 +69,7 @@ pub trait Psp22Extension {
     ) -> Result<()>;
 
     // PSP22 decrease_allowance
-    #[ink(extension = 0xfecb)]
+    #[ink(function = 0xfecb)]
     fn decrease_allowance(
         asset_id: u32,
         spender: DefaultAccountId,
@@ -77,6 +77,7 @@ pub trait Psp22Extension {
     ) -> Result<()>;
 }
 
+#[derive(Debug, PartialEq, Eq)]
 #[ink::scale_derive(Encode, Decode, TypeInfo)]
 pub enum Psp22Error {
     TotalSupplyFailed,

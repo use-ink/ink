@@ -185,3 +185,42 @@ fn struct_with_fields_and_some_topics() {
         } no_build
     }
 }
+
+#[test]
+fn custom_signature_topic() {
+    crate::test_derive! {
+        event_derive {
+            #[derive(scale::Encode)]
+            #[ink(signature_topic = "1111111111111111111111111111111111111111111111111111111111111111")]
+            struct UnitStruct;
+        }
+        expands to {
+            const _: () = {
+                impl ::ink::env::Event for UnitStruct {
+                    type RemainingTopics = [::ink::env::event::state::HasRemainingTopics; 1usize];
+
+                    const SIGNATURE_TOPIC: ::core::option::Option<[::core::primitive::u8; 32]> =
+                        ::core::option::Option::Some( [17u8, 17u8, 17u8, 17u8, 17u8, 17u8, 17u8, 17u8, 17u8, 17u8, 17u8, 17u8, 17u8, 17u8, 17u8, 17u8, 17u8, 17u8, 17u8, 17u8, 17u8, 17u8, 17u8, 17u8, 17u8, 17u8, 17u8, 17u8, 17u8, 17u8, 17u8, 17u8] );
+
+                    fn topics<E, B>(
+                        &self,
+                        builder: ::ink::env::event::TopicsBuilder<::ink::env::event::state::Uninit, E, B>,
+                    ) -> <B as ::ink::env::event::TopicsBuilderBackend<E>>::Output
+                    where
+                        E: ::ink::env::Environment,
+                        B: ::ink::env::event::TopicsBuilderBackend<E>,
+                    {
+                        match self {
+                            UnitStruct => {
+                                builder
+                                    .build::<Self>()
+                                    .push_topic(Self::SIGNATURE_TOPIC.as_ref())
+                                    .finish()
+                            }
+                        }
+                    }
+                }
+            };
+        } no_build
+    }
+}

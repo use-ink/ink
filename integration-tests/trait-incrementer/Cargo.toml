@@ -1,6 +1,6 @@
 [package]
 name = "trait-incrementer"
-version = "5.0.0-alpha"
+version = "5.0.0-rc"
 authors = ["Parity Technologies <admin@parity.io>"]
 edition = "2021"
 publish = false
@@ -8,8 +8,6 @@ publish = false
 [dependencies]
 ink = { path = "../../crates/ink", default-features = false }
 
-scale = { package = "parity-scale-codec", version = "3", default-features = false, features = ["derive"] }
-scale-info = { version = "2.6", default-features = false, features = ["derive"], optional = true }
 traits = { path = "./traits", default-features = false }
 
 [lib]

@@ -94,7 +94,7 @@ older nodes, please do the following:
 1. Mark the old `ink_env::function()` (which depends on the imported `[seal0]` function)
    with the `#[deprecated]` attribute. Please, specify the `since` field with the ink!
    version which will introduce the new API. We will leave this function in for backwards
-   compatibility purposes. Specifing some additional helpful info in the `note` field
+   compatibility purposes. Specifying some additional helpful info in the `note` field
    could also be a good idea.
 2. Name the new function (which depends on the `[seal1] function()`) in a descriptive
    way, like `ink_env::function_whats_special()`.

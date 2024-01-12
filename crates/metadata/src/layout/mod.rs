@@ -29,6 +29,10 @@ use crate::{
 use derive_more::From;
 use ink_prelude::collections::btree_map::BTreeMap;
 use ink_primitives::Key;
+use scale::{
+    Decode,
+    Encode,
+};
 use scale_info::{
     form::{
         Form,
@@ -42,7 +46,10 @@ use scale_info::{
 };
 use schemars::JsonSchema;
 use serde::{
-    de::DeserializeOwned,
+    de::{
+        DeserializeOwned,
+        Error,
+    },
     Deserialize,
     Serialize,
 };
@@ -87,7 +94,7 @@ impl serde::Serialize for LayoutKey {
     where
         S: serde::Serializer,
     {
-        serde_hex::serialize(&self.key.to_be_bytes(), serializer)
+        serde_hex::serialize(&self.key.encode(), serializer)
     }
 }
 
@@ -98,7 +105,10 @@ impl<'de> serde::Deserialize<'de> for LayoutKey {
     {
         let mut arr = [0; 4];
         serde_hex::deserialize_check_len(d, serde_hex::ExpectedLen::Exact(&mut arr[..]))?;
-        Ok(Key::from_be_bytes(arr).into())
+        let key = Key::decode(&mut &arr[..]).map_err(|err| {
+            Error::custom(format!("Error decoding layout key: {}", err))
+        })?;
+        Ok(key.into())
     }
 }
 
@@ -154,25 +164,12 @@ impl IntoPortable for RootLayout {
 }
 
 impl RootLayout<MetaForm> {
-    /// Creates a new root layout.
-    pub fn new<Root, L>(root_key: LayoutKey, layout: L) -> Self
-    where
-        Root: TypeInfo + 'static,
-        L: Into<Layout<MetaForm>>,
-    {
-        Self {
-            root_key,
-            layout: Box::new(layout.into()),
-            ty: meta_type::<Root>(),
-        }
-    }
-
     /// Creates a new root layout with empty root type.
     pub fn new_empty<L>(root_key: LayoutKey, layout: L) -> Self
     where
         L: Into<Layout<MetaForm>>,
     {
-        Self::new::<(), L>(root_key, layout)
+        Self::new::<L>(root_key, layout, meta_type::<()>())
     }
 }
 
@@ -180,6 +177,18 @@ impl<F> RootLayout<F>
 where
     F: Form,
 {
+    /// Create a new root layout
+    pub fn new<L>(root_key: LayoutKey, layout: L, ty: <F as Form>::Type) -> Self
+    where
+        L: Into<Layout<F>>,
+    {
+        Self {
+            root_key,
+            layout: Box::new(layout.into()),
+            ty,
+        }
+    }
+
     /// Returns the root key of the sub-tree.
     pub fn root_key(&self) -> &LayoutKey {
         &self.root_key

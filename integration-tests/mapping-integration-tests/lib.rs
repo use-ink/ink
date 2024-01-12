@@ -4,7 +4,19 @@
 
 #[ink::contract]
 mod mapping_integration_tests {
-    use ink::storage::Mapping;
+    use ink::{
+        prelude::{
+            string::String,
+            vec::Vec,
+        },
+        storage::Mapping,
+    };
+
+    #[derive(Debug, PartialEq)]
+    #[ink::scale_derive(Encode, Decode, TypeInfo)]
+    pub enum ContractError {
+        ValueTooLarge,
+    }
 
     /// A contract for testing `Mapping` functionality.
     #[ink(storage)]
@@ -12,6 +24,8 @@ mod mapping_integration_tests {
     pub struct Mappings {
         /// Mapping from owner to number of owned token.
         balances: Mapping<AccountId, Balance>,
+        /// Mapping from owner to aliases.
+        names: Mapping<AccountId, Vec<String>>,
     }
 
     impl Mappings {
@@ -21,7 +35,8 @@ mod mapping_integration_tests {
         #[ink(constructor)]
         pub fn new() -> Self {
             let balances = Mapping::default();
-            Self { balances }
+            let names = Mapping::default();
+            Self { balances, names }
         }
 
         /// Demonstrates the usage of `Mapping::get()`.
@@ -84,6 +99,45 @@ mod mapping_integration_tests {
             let caller = Self::env().caller();
             self.balances.take(caller)
         }
+
+        /// Demonstrates the usage of `Mappings::try_take()` and `Mappings::try_insert()`.
+        ///
+        /// Adds a name of a given account.
+        ///
+        /// Returns `Ok(None)` if the account is not in the `Mapping`.
+        /// Returns `Ok(Some(_))` if the account was already in the `Mapping`
+        /// Returns `Err(_)` if the mapping value couldn't be encoded.
+        #[ink(message)]
+        pub fn try_insert_name(&mut self, name: String) -> Result<(), ContractError> {
+            let caller = Self::env().caller();
+            let mut names = match self.names.try_take(caller) {
+                None => Vec::new(),
+                Some(value) => value.map_err(|_| ContractError::ValueTooLarge)?,
+            };
+
+            names.push(name);
+
+            self.names
+                .try_insert(caller, &names)
+                .map_err(|_| ContractError::ValueTooLarge)?;
+
+            Ok(())
+        }
+
+        /// Demonstrates the usage of `Mappings::try_get()`.
+        ///
+        /// Returns the name of a given account.
+        ///
+        /// Returns `Ok(None)` if the account is not in the `Mapping`.
+        /// Returns `Ok(Some(_))` if the account was already in the `Mapping`
+        /// Returns `Err(_)` if the mapping value couldn't be encoded.
+        #[ink(message)]
+        pub fn try_get_names(&mut self) -> Option<Result<Vec<String>, ContractError>> {
+            let caller = Self::env().caller();
+            self.names
+                .try_get(caller)
+                .map(|result| result.map_err(|_| ContractError::ValueTooLarge))
+        }
     }
 
     #[cfg(all(test, feature = "e2e-tests"))]
@@ -124,7 +178,7 @@ mod mapping_integration_tests {
             let balance = client
                 .call(&ink_e2e::alice(), &get)
                 .dry_run()
-                .await
+                .await?
                 .return_value();
 
             assert!(size.is_none());
@@ -164,7 +218,7 @@ mod mapping_integration_tests {
             let is_there = client
                 .call(&ink_e2e::bob(), &contains)
                 .dry_run()
-                .await
+                .await?
                 .return_value();
 
             assert!(is_there);
@@ -211,7 +265,7 @@ mod mapping_integration_tests {
             let balance = client
                 .call(&ink_e2e::charlie(), &get)
                 .dry_run()
-                .await
+                .await?
                 .return_value();
 
             assert_eq!(balance, Some(10_000));
@@ -257,7 +311,7 @@ mod mapping_integration_tests {
             let balance = client
                 .call(&ink_e2e::dave(), &get)
                 .dry_run()
-                .await
+                .await?
                 .return_value();
 
             assert_eq!(balance, None);
@@ -306,10 +360,57 @@ mod mapping_integration_tests {
             let is_there = client
                 .call(&ink_e2e::eve(), &contains)
                 .dry_run()
-                .await
+                .await?
                 .return_value();
 
             assert!(!is_there);
+
+            Ok(())
+        }
+
+        #[ink_e2e::test]
+        async fn fallible_storage_methods_work<Client: E2EBackend>(
+            mut client: Client,
+        ) -> E2EResult<()> {
+            // given
+            let mut constructor = MappingsRef::new();
+            let contract = client
+                .instantiate(
+                    "mapping-integration-tests",
+                    &ink_e2e::ferdie(),
+                    &mut constructor,
+                )
+                .submit()
+                .await
+                .expect("instantiate failed");
+            let mut call = contract.call::<Mappings>();
+
+            // when the mapping value overgrows the buffer
+            let name = ink_e2e::ferdie().public_key().to_account_id().to_string();
+            let insert = call.try_insert_name(name.clone());
+            let mut names = Vec::new();
+            while let Ok(_) = client.call(&ink_e2e::ferdie(), &insert).submit().await {
+                names.push(name.clone())
+            }
+
+            // then adding another one should fail gracefully
+            let expected_insert_result = client
+                .call(&ink_e2e::ferdie(), &insert)
+                .dry_run()
+                .await?
+                .return_value();
+            let received_insert_result =
+                Err(crate::mapping_integration_tests::ContractError::ValueTooLarge);
+            assert_eq!(received_insert_result, expected_insert_result);
+
+            // then there should be 4 entries (that's what fits into the 256kb buffer)
+            let received_mapping_value = client
+                .call(&ink_e2e::ferdie(), &call.try_get_names())
+                .dry_run()
+                .await?
+                .return_value();
+            let expected_mapping_value = Some(Ok(names));
+            assert_eq!(received_mapping_value, expected_mapping_value);
 
             Ok(())
         }

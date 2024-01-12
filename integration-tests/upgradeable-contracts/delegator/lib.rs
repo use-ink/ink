@@ -139,7 +139,7 @@ pub mod delegator {
             let call_get_result = client
                 .call(&origin, &call_get)
                 .dry_run()
-                .await
+                .await?
                 .return_value();
 
             // This fails

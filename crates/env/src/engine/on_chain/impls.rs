@@ -344,7 +344,7 @@ impl EnvBackend for EnvInstance {
 
     fn call_chain_extension<I, T, E, ErrorCode, F, D>(
         &mut self,
-        func_id: u32,
+        id: u32,
         input: &I,
         status_to_result: F,
         decode_to_result: D,
@@ -359,7 +359,7 @@ impl EnvBackend for EnvInstance {
         let mut scope = self.scoped_buffer();
         let enc_input = scope.take_encoded(input);
         let output = &mut scope.take_rest();
-        status_to_result(ext::call_chain_extension(func_id, enc_input, output))?;
+        status_to_result(ext::call_chain_extension(id, enc_input, output))?;
         let decoded = decode_to_result(&output[..])?;
         Ok(decoded)
     }
