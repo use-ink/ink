@@ -14,6 +14,7 @@ pub mod non_fallible_api {
         storage::{
             Lazy,
             Mapping,
+            StorageVec,
         },
     };
 
@@ -23,6 +24,7 @@ pub mod non_fallible_api {
         map_2: Mapping<i32, TyAlias2>,
         lazy_1: Lazy<String>,
         lazy_2: Lazy<(String, String)>,
+        vec_1: StorageVec<String>,
     }
 
     impl NonFallibleAPI {
@@ -33,6 +35,7 @@ pub mod non_fallible_api {
                 map_2: Mapping::new(),
                 lazy_1: Lazy::new(),
                 lazy_2: Lazy::new(),
+                vec_1: StorageVec::new(),
             }
         }
 
@@ -51,7 +54,14 @@ pub mod non_fallible_api {
             // Lazy
             let _ = self.lazy_1.get();
             self.lazy_1.set(&a);
-            self.lazy_2.set(&(a.clone(), a));
+            self.lazy_2.set(&(a.clone(), a.clone()));
+
+            // StorageVec
+            let _ = self.vec_1.peek();
+            let _ = self.vec_1.get(0);
+            self.vec_1.set(0, &a.clone());
+            let _ = self.vec_1.pop();
+            self.vec_1.push(&a.clone());
         }
     }
 }
