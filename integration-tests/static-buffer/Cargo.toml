@@ -1,6 +1,6 @@
 [package]
 name = "static-buffer"
-version = "5.0.0-rc"
+version = "5.0.0"
 authors = ["Parity Technologies <admin@parity.io>"]
 edition = "2021"
 publish = false
