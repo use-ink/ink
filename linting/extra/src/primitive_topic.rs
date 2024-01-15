@@ -12,13 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use clippy_utils::{
+use if_chain::if_chain;
+use ink_linting_utils::clippy::{
     diagnostics::span_lint_and_then,
     is_lint_allowed,
     match_def_path,
     source::snippet_opt,
 };
-use if_chain::if_chain;
 use rustc_errors::Applicability;
 use rustc_hir::{
     self,

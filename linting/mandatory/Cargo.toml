@@ -1,37 +1,41 @@
 [package]
 name = "ink_linting_mandatory"
-version = "5.0.0-rc"
-authors = ["Parity Technologies <admin@parity.io>"]
-edition = "2021"
-publish = false
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
 
-license = "Apache-2.0"
+license.workspace = true
 readme = "README.md"
-repository = "https://github.com/paritytech/ink"
-documentation = "https://docs.rs/ink_linting"
-homepage = "https://github.com/paritytech/ink"
-description = "Mandatory ink! linting rules integrated in contracts' build process"
-keywords = ["parity", "blockchain", "ink", "smart contracts", "substrate"]
+repository.workspace = true
+documentation = "https://docs.rs/ink_linting_mandatory"
+homepage.workspace = true
+description = "Mandatory ink! linting rules"
+keywords.workspace = true
 include = ["Cargo.toml", "*.rs", "LICENSE"]
 
 [lib]
 crate-type = ["cdylib"]
 
 [dependencies]
-clippy_utils = { git = "https://github.com/rust-lang/rust-clippy", rev = "1d334696587ac22b3a9e651e7ac684ac9e0697b2" }
 dylint_linting = "2.1.12"
 if_chain = "1.0.2"
 log = "0.4.14"
 regex = "1.5.4"
+ink_linting_utils = { workspace = true }
 
 [dev-dependencies]
 dylint_testing = "2.1.12"
-# The following are ink! dependencies, they are only required for the `ui` tests.
-ink_env = { path = "../../crates/env", default-features = false }
-ink = { path = "../../crates/ink", default-features = false, features = ["std"] }
-ink_metadata = { path = "../../crates/metadata", default-features = false }
-ink_primitives = { path = "../../crates/primitives", default-features = false }
-ink_storage = { path = "../../crates/storage", default-features = false }
+
+# The ink! dependencies used to build the `ui` tests and to compile the linting
+# library with `--default-features=std` (see the `features` section bellow).
+#
+# These cannot be moved to the workspace level because `cargo` does not provide
+# the `[[workspace.dev-dependencies]]` directive.
+ink = { version = "=5.0.0-rc", path = "../../crates/ink", default-features = false, features = ["std"] }
+ink_env = { version = "=5.0.0-rc", path = "../../crates/env", default-features = false }
+ink_metadata = { version = "=5.0.0-rc", path = "../../crates/metadata", default-features = false }
+ink_primitives = { version = "=5.0.0-rc", path = "../../crates/primitives", default-features = false }
+ink_storage = { version = "=5.0.0-rc", path = "../../crates/storage", default-features = false }
 scale = { package = "parity-scale-codec", version = "3.4", default-features = false, features = ["derive"] }
 scale-info = { version = "2.6", default-features = false, features = ["derive"] }
 

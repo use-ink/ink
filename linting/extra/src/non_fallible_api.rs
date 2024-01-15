@@ -12,16 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::ink_utils::{
+use if_chain::if_chain;
+use ink_linting_utils::{
+    clippy::{
+        diagnostics::span_lint_and_then,
+        is_lint_allowed,
+        match_def_path,
+    },
     expand_unnamed_consts,
     find_contract_impl_id,
 };
-use clippy_utils::{
-    diagnostics::span_lint_and_then,
-    is_lint_allowed,
-    match_def_path,
-};
-use if_chain::if_chain;
 use rustc_errors::Applicability;
 use rustc_hir::{
     self as hir,
