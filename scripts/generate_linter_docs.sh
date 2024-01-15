@@ -19,7 +19,7 @@ fi
 ink_docs_dir="$1"
 tmp_file=$(mktemp /tmp/linting_docs.XXXXXX.md)
 had_update=0
-for lint_src in linting/src/*.rs; do
+for lint_src in linting/{mandatory,extra}/src/*.rs; do
     lint_name="$(basename "${lint_src%.*}")"
     lint_doc_file="$ink_docs_dir/docs/linter/rules/$lint_name.md"
     lint_doc_filestring="$(sed -n '/^declare_lint! {$/,/^}$/p' "$lint_src")"
