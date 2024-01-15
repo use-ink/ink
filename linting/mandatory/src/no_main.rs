@@ -42,7 +42,8 @@ declare_lint! {
     /// ## Example
     ///
     /// ```rust
-    /// // Bad: Contract does not contain the `no_main` attribute, so it cannot be compiled to Wasm
+    /// // Bad: Contract does not contain the `no_main` attribute,
+    /// // so it cannot be compiled to Wasm
     /// #![cfg_attr(not(feature = "std"), no_std)]
     ///	#[ink::contract]
     ///	mod my_contract { /* ... */ }
