@@ -33,6 +33,9 @@ jobs:
 
       - name: Push docs
         run: |
+          # Set git config
+          git config user.email "paritytech-ci@parity.io"
+          git config user.name "paritytech-ci"
           git fetch origin gh-pages
           # saving README and docs
           cp -r ./crate-docs/ /tmp/doc/
