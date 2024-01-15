@@ -17,13 +17,12 @@ jobs:
         github.event.workflow_run.head_branch == 'master' &&
         github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 100
+          token: ${{ secrets.GH_PAGES }}
 
       - name: Download Contract Sizes
         uses: ./.github/download-artifact
@@ -34,9 +33,6 @@ jobs:
 
       - name: Push docs
         run: |
-          # Set git config
-          git config user.email "paritytech-ci@parity.io"
-          git config user.name "paritytech-ci"
           git fetch origin gh-pages
           # saving README and docs
           cp -r ./crate-docs/ /tmp/doc/
