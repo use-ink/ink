@@ -1,0 +1,76 @@
+error: using a non-fallible `Mapping::insert` with an argument that may not fit into the static buffer
+  --> $DIR/non_fallible_api.rs:47:32
+   |
+LL |             let _ = self.map_1.insert(a.clone(), &b);
+   |                                ^^^^^^ help: consider using `try_insert`
+   |
+   = note: `-D non-fallible-api` implied by `-D warnings`
+
+error: using a non-fallible `Mapping::get` with an argument that may not fit into the static buffer
+  --> $DIR/non_fallible_api.rs:48:32
+   |
+LL |             let _ = self.map_1.get(a.clone());
+   |                                ^^^ help: consider using `try_get`
+
+error: using a non-fallible `Mapping::take` with an argument that may not fit into the static buffer
+  --> $DIR/non_fallible_api.rs:49:32
+   |
+LL |             let _ = self.map_1.take(a.clone());
+   |                                ^^^^ help: consider using `try_take`
+
+error: using a non-fallible `Mapping::insert` with an argument that may not fit into the static buffer
+  --> $DIR/non_fallible_api.rs:52:32
+   |
+LL |             let _ = self.map_2.insert(42, &v);
+   |                                ^^^^^^ help: consider using `try_insert`
+
+error: using a non-fallible `Lazy::get` with an argument that may not fit into the static buffer
+  --> $DIR/non_fallible_api.rs:55:33
+   |
+LL |             let _ = self.lazy_1.get();
+   |                                 ^^^ help: consider using `try_get`
+
+error: using a non-fallible `Lazy::set` with an argument that may not fit into the static buffer
+  --> $DIR/non_fallible_api.rs:56:25
+   |
+LL |             self.lazy_1.set(&a);
+   |                         ^^^ help: consider using `try_set`
+
+error: using a non-fallible `Lazy::set` with an argument that may not fit into the static buffer
+  --> $DIR/non_fallible_api.rs:57:25
+   |
+LL |             self.lazy_2.set(&(a.clone(), a.clone()));
+   |                         ^^^ help: consider using `try_set`
+
+error: using a non-fallible `StorageVec::peek` with an argument that may not fit into the static buffer
+  --> $DIR/non_fallible_api.rs:60:32
+   |
+LL |             let _ = self.vec_1.peek();
+   |                                ^^^^ help: consider using `try_peek`
+
+error: using a non-fallible `StorageVec::get` with an argument that may not fit into the static buffer
+  --> $DIR/non_fallible_api.rs:61:32
+   |
+LL |             let _ = self.vec_1.get(0);
+   |                                ^^^ help: consider using `try_get`
+
+error: using a non-fallible `StorageVec::set` with an argument that may not fit into the static buffer
+  --> $DIR/non_fallible_api.rs:62:24
+   |
+LL |             self.vec_1.set(0, &a.clone());
+   |                        ^^^ help: consider using `try_set`
+
+error: using a non-fallible `StorageVec::pop` with an argument that may not fit into the static buffer
+  --> $DIR/non_fallible_api.rs:63:32
+   |
+LL |             let _ = self.vec_1.pop();
+   |                                ^^^ help: consider using `try_pop`
+
+error: using a non-fallible `StorageVec::push` with an argument that may not fit into the static buffer
+  --> $DIR/non_fallible_api.rs:64:24
+   |
+LL |             self.vec_1.push(&a.clone());
+   |                        ^^^^ help: consider using `try_push`
+
+error: aborting due to 12 previous errors
+

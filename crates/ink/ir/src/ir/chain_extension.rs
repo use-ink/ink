@@ -13,6 +13,7 @@
 // limitations under the License.
 
 use crate::{
+    ast,
     error::ExtError,
     ir,
     ir::idents_lint,
@@ -29,6 +30,7 @@ use syn::{
 #[derive(Debug, PartialEq, Eq)]
 pub struct ChainExtension {
     item: syn::ItemTrait,
+    config: Config,
     error_code: syn::TraitItemType,
     methods: Vec<ChainExtensionMethod>,
 }
@@ -66,13 +68,74 @@ impl ChainExtension {
     }
 }
 
+/// The chain extension configuration.
+#[derive(Default, Debug, PartialEq, Eq)]
+pub struct Config {
+    ext_id: ExtensionId,
+}
+
+impl TryFrom<ast::AttributeArgs> for Config {
+    type Error = syn::Error;
+
+    fn try_from(args: ast::AttributeArgs) -> Result<Self> {
+        let mut ext_id: Option<ExtensionId> = None;
+
+        for arg in args.clone().into_iter() {
+            if arg.name.is_ident("extension") {
+                if ext_id.is_some() {
+                    return Err(format_err_spanned!(
+                        arg.value,
+                        "encountered duplicate ink! contract `extension` configuration argument",
+                    ))
+                }
+
+                if let Some(lit_int) = arg.value.as_lit_int() {
+                    let id = lit_int.base10_parse::<u16>()
+                        .map_err(|error| {
+                            format_err_spanned!(
+                                        lit_int,
+                                        "could not parse `N` in `extension = N` into a `u16` integer: {}", error)
+                        })?;
+                    ext_id = Some(ExtensionId::from_u16(id));
+                } else {
+                    return Err(format_err_spanned!(
+                        arg.value,
+                        "expected `u16` integer type for `N` in `extension = N`",
+                    ))
+                }
+            } else {
+                return Err(format_err_spanned!(
+                    arg,
+                    "encountered unknown or unsupported chain extension configuration argument",
+                ))
+            }
+        }
+
+        if let Some(ext_id) = ext_id {
+            Ok(Config { ext_id })
+        } else {
+            Err(format_err_spanned!(
+                args,
+                "missing required `extension = N: u16` argument on ink! chain extension",
+            ))
+        }
+    }
+}
+
+impl Config {
+    /// Returns the chain extension identifier.
+    pub fn ext_id(&self) -> ExtensionId {
+        self.ext_id
+    }
+}
+
 /// An ink! chain extension method.
 #[derive(Debug, PartialEq, Eq)]
 pub struct ChainExtensionMethod {
     /// The underlying validated AST of the chain extension method.
     item: syn::TraitItemFn,
     /// The unique identifier of the chain extension method.
-    id: ExtensionId,
+    id: GlobalMethodId,
     /// If `false` the `u32` status code of the chain extension method call is going to
     /// be ignored and assumed to be always successful. The output buffer in this
     /// case is going to be queried and decoded into the chain extension method's
@@ -118,7 +181,7 @@ impl ChainExtensionMethod {
     }
 
     /// Returns the unique ID of the chain extension method.
-    pub fn id(&self) -> ExtensionId {
+    pub fn id(&self) -> GlobalMethodId {
         self.id
     }
 
@@ -158,22 +221,76 @@ impl<'a> Iterator for ChainExtensionMethodInputs<'a> {
     }
 }
 
-/// The unique ID of an ink! chain extension method.
+/// The unique ID of an chain extension.
 ///
 /// # Note
 ///
-/// The ink! attribute `#[ink(extension = N: u32)]` for chain extension methods.
-///
-/// Has a `func_id` extension ID to identify the associated chain extension method.
-#[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
+/// The ink! attribute `#[ink::chain_extension(extension = N: u16)]` for chain extension.
+#[derive(Default, Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct ExtensionId {
-    index: u32,
+    index: u16,
 }
 
 impl ExtensionId {
-    /// Creates a new chain extension method ID from the given `u32`.
-    pub fn from_u32(index: u32) -> Self {
+    /// Creates a new chain extension ID from the given `u16`.
+    pub fn from_u16(index: u16) -> Self {
         Self { index }
+    }
+
+    /// Returns the underlying raw `u16` index.
+    pub fn into_u16(self) -> u16 {
+        self.index
+    }
+}
+
+/// The unique ID of the method within the chain extension.
+///
+/// # Note
+///
+/// The ink! attribute `#[ink(function = N: u16)]` for chain extension methods.
+#[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub struct FunctionId {
+    index: u16,
+}
+
+impl FunctionId {
+    /// Creates a new chain extension function ID from the given `u16`.
+    pub fn from_u16(index: u16) -> Self {
+        Self { index }
+    }
+
+    /// Returns the underlying raw `u16` index.
+    pub fn into_u16(self) -> u16 {
+        self.index
+    }
+}
+
+/// The unique ID of a chain extension method across all chain extensions.
+///
+/// # Note
+///
+/// It is a combination of the [`ExtensionId`] and [`FunctionId`].
+#[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub struct GlobalMethodId {
+    index: u32,
+}
+
+impl GlobalMethodId {
+    /// Creates a new chain extension method global ID.
+    pub fn new(ext_id: ExtensionId, func_id: FunctionId) -> Self {
+        Self {
+            index: ((ext_id.index as u32) << 16) | func_id.index as u32,
+        }
+    }
+
+    /// Returns the identifier of the function within the chain extension.
+    pub fn func_id(&self) -> FunctionId {
+        FunctionId::from_u16((self.index & 0x0000FFFF) as u16)
+    }
+
+    /// Returns the identifier of the chain extension.
+    pub fn ext_id(&self) -> ExtensionId {
+        ExtensionId::from_u16((self.index >> 16) as u16)
     }
 
     /// Returns the underlying raw `u32` index.
@@ -182,15 +299,22 @@ impl ExtensionId {
     }
 }
 
-impl TryFrom<syn::ItemTrait> for ChainExtension {
-    type Error = syn::Error;
-
-    fn try_from(item_trait: syn::ItemTrait) -> core::result::Result<Self, Self::Error> {
+impl ChainExtension {
+    /// Creates a new ink! chain extension from the given configuration and trait item.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if some of the chain extension rules are violated.
+    pub fn try_from(
+        item_trait: syn::ItemTrait,
+        config: Config,
+    ) -> core::result::Result<Self, syn::Error> {
         idents_lint::ensure_no_ink_identifiers(&item_trait)?;
         Self::analyse_properties(&item_trait)?;
-        let (error_code, methods) = Self::analyse_items(&item_trait)?;
+        let (error_code, methods) = Self::analyse_items(config.ext_id, &item_trait)?;
         Ok(Self {
             item: item_trait,
+            config,
             error_code,
             methods,
         })
@@ -200,14 +324,10 @@ impl TryFrom<syn::ItemTrait> for ChainExtension {
 impl ChainExtension {
     /// Returns `Ok` if the trait matches all requirements for an ink! chain extension.
     pub fn new(attr: TokenStream2, input: TokenStream2) -> Result<Self> {
-        if !attr.is_empty() {
-            return Err(format_err_spanned!(
-                attr,
-                "unexpected attribute input for ink! chain extension"
-            ))
-        }
+        let args = syn::parse2::<ast::AttributeArgs>(attr)?;
+        let config = Config::try_from(args)?;
         let item_trait = syn::parse2::<syn::ItemTrait>(input)?;
-        ChainExtension::try_from(item_trait)
+        ChainExtension::try_from(item_trait, config)
     }
 
     /// Analyses the properties of the ink! chain extension.
@@ -320,8 +440,8 @@ impl ChainExtension {
     /// - If the trait contains methods which do not respect the ink! trait definition
     ///   requirements:
     ///     - All trait methods must not have a `self` receiver.
-    ///     - All trait methods must have an `#[ink(extension = N: u32)]` attribute that
-    ///       is the ID that corresponds with the function ID of the respective chain
+    ///     - All trait methods must have an `#[ink(function = N: u16)]` attribute that is
+    ///       the ID that corresponds with the function ID of the respective chain
     ///       extension call.
     ///
     /// # Note
@@ -329,6 +449,7 @@ impl ChainExtension {
     /// The input Rust trait item is going to be replaced with a concrete chain extension
     /// type definition as a result of this procedural macro invocation.
     fn analyse_items(
+        ext_id: ExtensionId,
         item_trait: &syn::ItemTrait,
     ) -> Result<(syn::TraitItemType, Vec<ChainExtensionMethod>)> {
         let mut methods = Vec::new();
@@ -358,7 +479,7 @@ impl ChainExtension {
                     ))
                 }
                 syn::TraitItem::Fn(fn_trait_item) => {
-                    let method = Self::analyse_methods(fn_trait_item)?;
+                    let method = Self::analyse_methods(ext_id, fn_trait_item)?;
                     let method_id = method.id();
                     if let Some(previous) = seen_ids.get(&method_id) {
                         return Err(format_err!(
@@ -396,12 +517,15 @@ impl ChainExtension {
     ///
     /// # Errors
     ///
-    /// - If the method is missing the `#[ink(extension = N: u32)]` attribute.
+    /// - If the method is missing the `#[ink(function = N: u16)]` attribute.
     /// - If the method has a `self` receiver.
     /// - If the method declared as `unsafe`, `const` or `async`.
     /// - If the method has some explicit API.
     /// - If the method is variadic or has generic parameters.
-    fn analyse_methods(method: &syn::TraitItemFn) -> Result<ChainExtensionMethod> {
+    fn analyse_methods(
+        ext_id: ExtensionId,
+        method: &syn::TraitItemFn,
+    ) -> Result<ChainExtensionMethod> {
         if let Some(default_impl) = &method.default {
             return Err(format_err_spanned!(
                 default_impl,
@@ -446,19 +570,19 @@ impl ChainExtension {
         }
         match ir::first_ink_attribute(&method.attrs)?
                 .map(|attr| attr.first().kind().clone()) {
-            Some(ir::AttributeArg::Extension(extension)) => {
-                Self::analyse_chain_extension_method(method, extension)
+            Some(ir::AttributeArg::Function(func_id)) => {
+                Self::analyse_chain_extension_method(method, ext_id, func_id)
             }
             Some(_unsupported) => {
                 Err(format_err_spanned!(
                     method,
-                    "encountered unsupported ink! attribute for ink! chain extension method. expected #[ink(extension = N: u32)] attribute"
+                    "encountered unsupported ink! attribute for ink! chain extension method. expected #[ink(function = N: u16)] attribute"
                 ))
             }
             None => {
                 Err(format_err_spanned!(
                     method,
-                    "missing #[ink(extension = N: u32)] flag on ink! chain extension method"
+                    "missing #[ink(function = N: u16)] flag on ink! chain extension method"
                 ))
             }
         }
@@ -471,16 +595,18 @@ impl ChainExtension {
     /// - If the chain extension method has a `self` receiver as first argument.
     fn analyse_chain_extension_method(
         item_method: &syn::TraitItemFn,
-        extension: ExtensionId,
+        ext_id: ExtensionId,
+        func_id: FunctionId,
     ) -> Result<ChainExtensionMethod> {
         let (ink_attrs, _) = ir::sanitize_attributes(
             item_method.span(),
             item_method.attrs.clone(),
-            &ir::AttributeArgKind::Extension,
+            &ir::AttributeArgKind::Function,
             |arg| {
                 match arg.kind() {
-                    ir::AttributeArg::Extension(_)
-                    | ir::AttributeArg::HandleStatus(_) => Ok(()),
+                    ir::AttributeArg::Function(_) | ir::AttributeArg::HandleStatus(_) => {
+                        Ok(())
+                    }
                     _ => Err(None),
                 }
             },
@@ -492,7 +618,7 @@ impl ChainExtension {
             ))
         }
         let result = ChainExtensionMethod {
-            id: extension,
+            id: GlobalMethodId::new(ext_id, func_id),
             item: item_method.clone(),
             handle_status: ink_attrs.is_handle_status(),
         };
@@ -509,9 +635,12 @@ mod tests {
     macro_rules! assert_ink_chain_extension_eq_err {
         ( error: $err_str:literal, $($chain_extension:tt)* ) => {
             assert_eq!(
-                <ChainExtension as TryFrom<syn::ItemTrait>>::try_from(syn::parse_quote! {
-                    $( $chain_extension )*
-                })
+                ChainExtension::try_from(
+                    syn::parse_quote! {
+                        $( $chain_extension )*
+                    },
+                    Config::default()
+                )
                 .map_err(|err| err.to_string()),
                 Err(
                     $err_str.to_string()
@@ -632,19 +761,19 @@ mod tests {
     #[test]
     fn chain_extension_containing_non_flagged_method_is_denied() {
         assert_ink_chain_extension_eq_err!(
-            error: "missing #[ink(extension = N: u32)] flag on ink! chain extension method",
+            error: "missing #[ink(function = N: u16)] flag on ink! chain extension method",
             pub trait MyChainExtension {
                 fn non_flagged_1(&self);
             }
         );
         assert_ink_chain_extension_eq_err!(
-            error: "missing #[ink(extension = N: u32)] flag on ink! chain extension method",
+            error: "missing #[ink(function = N: u16)] flag on ink! chain extension method",
             pub trait MyChainExtension {
                 fn non_flagged_2(&mut self);
             }
         );
         assert_ink_chain_extension_eq_err!(
-            error: "missing #[ink(extension = N: u32)] flag on ink! chain extension method",
+            error: "missing #[ink(function = N: u16)] flag on ink! chain extension method",
             pub trait MyChainExtension {
                 fn non_flagged_3() -> Self;
             }
@@ -667,7 +796,7 @@ mod tests {
         assert_ink_chain_extension_eq_err!(
             error: "const ink! chain extension methods are not supported",
             pub trait MyChainExtension {
-                #[ink(extension = 1)]
+                #[ink(function = 1)]
                 const fn const_constructor() -> Self;
             }
         );
@@ -678,7 +807,7 @@ mod tests {
         assert_ink_chain_extension_eq_err!(
             error: "async ink! chain extension methods are not supported",
             pub trait MyChainExtension {
-                #[ink(extension = 1)]
+                #[ink(function = 1)]
                 async fn const_constructor() -> Self;
             }
         );
@@ -689,7 +818,7 @@ mod tests {
         assert_ink_chain_extension_eq_err!(
             error: "unsafe ink! chain extension methods are not supported",
             pub trait MyChainExtension {
-                #[ink(extension = 1)]
+                #[ink(function = 1)]
                 unsafe fn const_constructor() -> Self;
             }
         );
@@ -700,7 +829,7 @@ mod tests {
         assert_ink_chain_extension_eq_err!(
             error: "ink! chain extension methods with non default ABI are not supported",
             pub trait MyChainExtension {
-                #[ink(extension = 1)]
+                #[ink(function = 1)]
                 extern fn const_constructor() -> Self;
             }
         );
@@ -711,7 +840,7 @@ mod tests {
         assert_ink_chain_extension_eq_err!(
             error: "variadic ink! chain extension methods are not supported",
             pub trait MyChainExtension {
-                #[ink(extension = 1)]
+                #[ink(function = 1)]
                 fn const_constructor(...) -> Self;
             }
         );
@@ -722,7 +851,7 @@ mod tests {
         assert_ink_chain_extension_eq_err!(
             error: "generic ink! chain extension methods are not supported",
             pub trait MyChainExtension {
-                #[ink(extension = 1)]
+                #[ink(function = 1)]
                 fn const_constructor<T>() -> Self;
             }
         );
@@ -733,7 +862,7 @@ mod tests {
         assert_ink_chain_extension_eq_err!(
             error: "\
                 encountered unsupported ink! attribute for ink! chain extension method. \
-                expected #[ink(extension = N: u32)] attribute",
+                expected #[ink(function = N: u16)] attribute",
             pub trait MyChainExtension {
                 #[ink(message)]
                 fn unsupported_ink_attribute(&self);
@@ -751,34 +880,34 @@ mod tests {
     #[test]
     fn chain_extension_containing_method_with_invalid_marker() {
         assert_ink_chain_extension_eq_err!(
-            error: "could not parse `N` in `#[ink(extension = N)]` into a `u32` integer: \
+            error: "could not parse `N` in `#[ink(function = N)]` into a `u16` integer: \
             invalid digit found in string",
             pub trait MyChainExtension {
-                #[ink(extension = -1)]
+                #[ink(function = -1)]
                 fn has_self_receiver();
             }
         );
-        let too_large = (u32::MAX as u64) + 1;
+        let too_large = (u16::MAX as u64) + 1;
         assert_ink_chain_extension_eq_err!(
-            error: "could not parse `N` in `#[ink(extension = N)]` into a `u32` integer: \
+            error: "could not parse `N` in `#[ink(function = N)]` into a `u16` integer: \
             number too large to fit in target type",
             pub trait MyChainExtension {
-                #[ink(extension = #too_large)]
+                #[ink(function = #too_large)]
                 fn has_self_receiver();
             }
         );
         assert_ink_chain_extension_eq_err!(
-            error: "expected `u32` integer type for `N` in #[ink(extension = N)]",
+            error: "expected `u16` integer type for `N` in #[ink(function = N)]",
             pub trait MyChainExtension {
-                #[ink(extension = "Hello, World!")]
+                #[ink(function = "Hello, World!")]
                 fn has_self_receiver();
             }
         );
         assert_ink_chain_extension_eq_err!(
-            error: "encountered #[ink(extension)] that is missing its `id` parameter. \
-                    Did you mean #[ink(extension = id: u32)] ?",
+            error: "encountered #[ink(function)] that is missing its `id` parameter. \
+                    Did you mean #[ink(function = id: u16)] ?",
             pub trait MyChainExtension {
-                #[ink(extension)]
+                #[ink(function)]
                 fn has_self_receiver();
             }
         );
@@ -786,23 +915,23 @@ mod tests {
         assert_ink_chain_extension_eq_err!(
             error: "encountered duplicate ink! attribute",
             pub trait MyChainExtension {
-                #[ink(extension = 42)]
-                #[ink(extension = 42)]
+                #[ink(function = 42)]
+                #[ink(function = 42)]
                 fn duplicate_attributes() -> Self;
             }
         );
         assert_ink_chain_extension_eq_err!(
             error: "encountered ink! attribute arguments with equal kinds",
             pub trait MyChainExtension {
-                #[ink(extension = 1)]
-                #[ink(extension = 2)]
+                #[ink(function = 1)]
+                #[ink(function = 2)]
                 fn duplicate_attributes() -> Self;
             }
         );
         assert_ink_chain_extension_eq_err!(
             error: "encountered conflicting ink! attribute argument",
             pub trait MyChainExtension {
-                #[ink(extension = 1)]
+                #[ink(function = 1)]
                 #[ink(message)]
                 fn conflicting_attributes() -> Self;
             }
@@ -816,7 +945,7 @@ mod tests {
             pub trait MyChainExtension {
                 type ErrorCode = ();
 
-                #[ink(extension = 1)]
+                #[ink(function = 1)]
                 fn has_self_receiver(&self) -> Self;
             }
         );
@@ -825,7 +954,7 @@ mod tests {
             pub trait MyChainExtension {
                 type ErrorCode = ();
 
-                #[ink(extension = 1)]
+                #[ink(function = 1)]
                 fn has_self_receiver(&mut self) -> Self;
             }
         );
@@ -834,7 +963,7 @@ mod tests {
             pub trait MyChainExtension {
                 type ErrorCode = ();
 
-                #[ink(extension = 1)]
+                #[ink(function = 1)]
                 fn has_self_receiver(self) -> Self;
             }
         );
@@ -843,7 +972,7 @@ mod tests {
             pub trait MyChainExtension {
                 type ErrorCode = ();
 
-                #[ink(extension = 1)]
+                #[ink(function = 1)]
                 fn has_self_receiver(self: &Self) -> Self;
             }
         );
@@ -852,7 +981,7 @@ mod tests {
             pub trait MyChainExtension {
                 type ErrorCode = ();
 
-                #[ink(extension = 1)]
+                #[ink(function = 1)]
                 fn has_self_receiver(self: Self) -> Self;
             }
         );
@@ -863,9 +992,9 @@ mod tests {
         assert_ink_chain_extension_eq_err!(
             error: "encountered duplicate extension identifiers for the same chain extension",
             pub trait MyChainExtension {
-                #[ink(extension = 1)]
+                #[ink(function = 1)]
                 fn same_id_1();
-                #[ink(extension = 1)]
+                #[ink(function = 1)]
                 fn same_id_2();
             }
         );
@@ -873,22 +1002,22 @@ mod tests {
 
     #[test]
     fn chain_extension_is_ok() {
-        let chain_extension = <ChainExtension as TryFrom<syn::ItemTrait>>::try_from(syn::parse_quote! {
+        let chain_extension = ChainExtension::try_from(syn::parse_quote! {
                 pub trait MyChainExtension {
                     type ErrorCode = ();
 
-                    #[ink(extension = 1)]
+                    #[ink(function = 1)]
                     fn extension_1();
-                    #[ink(extension = 2)]
+                    #[ink(function = 2)]
                     fn extension_2(input: i32);
-                    #[ink(extension = 3)]
+                    #[ink(function = 3)]
                     fn extension_3() -> i32;
-                    #[ink(extension = 4)]
+                    #[ink(function = 4)]
                     fn extension_4(input: i32) -> i32;
-                    #[ink(extension = 5)]
+                    #[ink(function = 5)]
                     fn extension_5(in1: i8, in2: i16, in3: i32, in4: i64) -> (u8, u16, u32, u64);
                 }
-            }).unwrap();
+            }, Config::default()).unwrap();
         assert_eq!(chain_extension.methods.len(), 5);
         for (actual, expected) in chain_extension
             .methods
@@ -920,28 +1049,30 @@ mod tests {
 
     #[test]
     fn chain_extension_with_params_is_ok() {
-        let chain_extension =
-            <ChainExtension as TryFrom<syn::ItemTrait>>::try_from(syn::parse_quote! {
+        let chain_extension = ChainExtension::try_from(
+            syn::parse_quote! {
                 pub trait MyChainExtension {
                     type ErrorCode = ();
 
-                    #[ink(extension = 1, handle_status = false)]
+                    #[ink(function = 1, handle_status = false)]
                     fn extension_a();
-                    #[ink(extension = 2)]
+                    #[ink(function = 2)]
                     fn extension_b();
-                    #[ink(extension = 3, handle_status = false)]
+                    #[ink(function = 3, handle_status = false)]
                     fn extension_c();
-                    #[ink(extension = 4)]
+                    #[ink(function = 4)]
                     #[ink(handle_status = false)]
                     fn extension_d();
-                    #[ink(extension = 5)]
+                    #[ink(function = 5)]
                     fn extension_e();
-                    #[ink(extension = 6)]
+                    #[ink(function = 6)]
                     #[ink(handle_status = false)]
                     fn extension_f();
                 }
-            })
-            .unwrap();
+            },
+            Config::default(),
+        )
+        .unwrap();
         let expected_methods = 6;
         assert_eq!(chain_extension.methods.len(), expected_methods);
         for (actual, expected) in chain_extension
@@ -971,5 +1102,65 @@ mod tests {
         {
             assert_eq!(actual, expected);
         }
+    }
+
+    /// Asserts that the given input configuration attribute argument are converted
+    /// into the expected ink! configuration or yields the expected error message.
+    fn assert_config(
+        input: ast::AttributeArgs,
+        expected: core::result::Result<Config, &'static str>,
+    ) {
+        assert_eq!(
+            <Config as TryFrom<ast::AttributeArgs>>::try_from(input)
+                .map_err(|err| err.to_string()),
+            expected.map_err(ToString::to_string),
+        );
+    }
+
+    #[test]
+    fn empty_config_fails() {
+        assert_config(
+            syn::parse_quote! {},
+            Err("missing required `extension = N: u16` argument on ink! chain extension"),
+        )
+    }
+
+    #[test]
+    fn extension_works() {
+        assert_config(
+            syn::parse_quote! {
+                extension = 13
+            },
+            Ok(Config {
+                ext_id: ExtensionId::from_u16(13),
+            }),
+        )
+    }
+
+    #[test]
+    fn extension_invalid_value_fails() {
+        assert_config(
+            syn::parse_quote! { extension = "invalid" },
+            Err("expected `u16` integer type for `N` in `extension = N`"),
+        );
+    }
+
+    #[test]
+    fn unknown_arg_fails() {
+        assert_config(
+            syn::parse_quote! { unknown = argument },
+            Err("encountered unknown or unsupported chain extension configuration argument"),
+        );
+    }
+
+    #[test]
+    fn duplicate_args_fails() {
+        assert_config(
+            syn::parse_quote! {
+                extension = 13,
+                extension = 123,
+            },
+            Err("encountered duplicate ink! contract `extension` configuration argument"),
+        );
     }
 }

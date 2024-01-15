@@ -1,0 +1,63 @@
+error: field's storage cannot be freed
+  --> $DIR/storage_never_freed.rs:18:9
+   |
+LL |         map_1: Mapping<AccountId, AccountId>,
+   |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = help: consider adding operations to remove elements available to the user
+note: the lint level is defined here
+  --> $DIR/storage_never_freed.rs:2:46
+   |
+LL | #![cfg_attr(dylint_lib = "ink_linting", deny(storage_never_freed))]
+   |                                              ^^^^^^^^^^^^^^^^^^^
+
+error: field's storage cannot be freed
+  --> $DIR/storage_never_freed.rs:19:9
+   |
+LL |         map_2: Mapping<AccountId, AccountId>,
+   |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = help: consider adding operations to remove elements available to the user
+
+error: field's storage cannot be freed
+  --> $DIR/storage_never_freed.rs:20:9
+   |
+LL |         map_3: Mapping<AccountId, AccountId>,
+   |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = help: consider adding operations to remove elements available to the user
+
+error: field's storage cannot be freed
+  --> $DIR/storage_never_freed.rs:21:9
+   |
+LL |         map_alias: MapAlias2<AccountId, AccountId>,
+   |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = help: consider adding operations to remove elements available to the user
+
+error: field's storage cannot be freed
+  --> $DIR/storage_never_freed.rs:15:9
+   |
+LL |         vec_1: Vec<AccountId>,
+   |         ^^^^^^^^^^^^^^^^^^^^^
+   |
+   = help: consider adding operations to remove elements available to the user
+
+error: field's storage cannot be freed
+  --> $DIR/storage_never_freed.rs:16:9
+   |
+LL |         vec_2: Vec<bool>,
+   |         ^^^^^^^^^^^^^^^^
+   |
+   = help: consider adding operations to remove elements available to the user
+
+error: field's storage cannot be freed
+  --> $DIR/storage_never_freed.rs:17:9
+   |
+LL |         vec_subscription: Vec<AccountId>,
+   |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = help: consider adding operations to remove elements available to the user
+
+error: aborting due to 7 previous errors
+

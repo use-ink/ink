@@ -24,6 +24,9 @@ pub struct EventConfig {
     /// If set to `true`, **no** signature topic is generated or emitted for this event.,
     /// This is the default value.
     anonymous: bool,
+
+    /// Manually specified signature topic hash.
+    signature_topic_hex: Option<String>,
 }
 
 impl TryFrom<ast::AttributeArgs> for EventConfig {
@@ -31,10 +34,11 @@ impl TryFrom<ast::AttributeArgs> for EventConfig {
 
     fn try_from(args: ast::AttributeArgs) -> Result<Self, Self::Error> {
         let mut anonymous: Option<syn::LitBool> = None;
+        let mut signature_topic: Option<syn::LitStr> = None;
         for arg in args.into_iter() {
             if arg.name.is_ident("anonymous") {
                 if let Some(lit_bool) = anonymous {
-                    return Err(duplicate_config_err(lit_bool, arg, "anonymous", "event"))
+                    return Err(duplicate_config_err(lit_bool, arg, "anonymous", "event"));
                 }
                 if let ast::MetaValue::Lit(syn::Lit::Bool(lit_bool)) = &arg.value {
                     anonymous = Some(lit_bool.clone())
@@ -44,27 +48,56 @@ impl TryFrom<ast::AttributeArgs> for EventConfig {
                         "expected a bool literal for `anonymous` ink! event item configuration argument",
                     ));
                 }
+            } else if arg.name.is_ident("signature_topic") {
+                if anonymous.is_some() {
+                    return Err(format_err_spanned!(
+                        arg,
+                        "cannot specify `signature_topic` with `anonymous` in ink! event item configuration argument",
+                    ));
+                }
+
+                if let Some(lit_str) = signature_topic {
+                    return Err(duplicate_config_err(lit_str, arg, "anonymous", "event"));
+                }
+                if let ast::MetaValue::Lit(syn::Lit::Str(lis_str)) = &arg.value {
+                    signature_topic = Some(lis_str.clone())
+                } else {
+                    return Err(format_err_spanned!(
+                        arg,
+                        "expected a bool literal for `anonymous` ink! event item configuration argument",
+                    ));
+                }
             } else {
                 return Err(format_err_spanned!(
                     arg,
-                    "encountered unknown or unsupported ink! storage item configuration argument",
+                    "encountered unknown or unsupported ink! event item configuration argument",
                 ));
             }
         }
+
         Ok(EventConfig::new(
             anonymous.map(|lit_bool| lit_bool.value).unwrap_or(false),
+            signature_topic.map(|lit_str| lit_str.value()),
         ))
     }
 }
 
 impl EventConfig {
     /// Construct a new [`EventConfig`].
-    pub fn new(anonymous: bool) -> Self {
-        Self { anonymous }
+    pub fn new(anonymous: bool, signature_topic_hex: Option<String>) -> Self {
+        Self {
+            anonymous,
+            signature_topic_hex,
+        }
     }
 
     /// Returns the anonymous configuration argument.
     pub fn anonymous(&self) -> bool {
         self.anonymous
+    }
+
+    /// Returns the manually specified signature topic.
+    pub fn signature_topic_hex(&self) -> Option<&str> {
+        self.signature_topic_hex.as_deref()
     }
 }

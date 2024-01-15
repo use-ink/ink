@@ -1,0 +1,89 @@
+[package]
+name = "ink_linting"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+
+license.workspace = true
+readme = "README.md"
+repository.workspace = true
+documentation = "https://docs.rs/ink_linting"
+homepage.workspace = true
+description = "Extra ink! linting rules"
+keywords.workspace = true
+include = ["Cargo.toml", "*.rs", "LICENSE"]
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+dylint_linting = "2.1.12"
+if_chain = "1.0.2"
+log = "0.4.14"
+regex = "1.5.4"
+ink_linting_utils = { workspace = true }
+ink_env = { version = "=5.0.0-rc", path = "../../crates/env", default-features = false }
+
+[dev-dependencies]
+dylint_testing = "2.1.12"
+
+# The ink! dependencies used to build the `ui` tests and to compile the linting
+# library with `--default-features=std` (see the `features` section bellow).
+#
+# These cannot be moved to the workspace level because `cargo` does not provide
+# the `[[workspace.dev-dependencies]]` directive.
+ink = { version = "=5.0.0-rc", path = "../../crates/ink", default-features = false, features = ["std"] }
+ink_metadata = { version = "=5.0.0-rc", path = "../../crates/metadata", default-features = false }
+ink_primitives = { version = "=5.0.0-rc", path = "../../crates/primitives", default-features = false }
+ink_storage = { version = "=5.0.0-rc", path = "../../crates/storage", default-features = false }
+scale = { package = "parity-scale-codec", version = "3.4", default-features = false, features = ["derive"] }
+scale-info = { version = "2.6", default-features = false, features = ["derive"] }
+
+# For the moment we have to include the tests as examples and
+# then use `dylint_testing::ui_test_examples`.
+#
+# The reason is that the `dylint_testing` API currently does not
+# provide any other option to run the tests on those files
+# *while giving us the option to specify the dependencies*.
+#
+# Those files require the ink! dependencies though, by having
+# them as examples here, they inherit the `dev-dependencies`.
+[[example]]
+name = "primitive_topic_pass"
+path = "ui/pass/primitive_topic.rs"
+[[example]]
+name = "primitive_topic_fail"
+path = "ui/fail/primitive_topic.rs"
+[[example]]
+name = "storage_never_freed_pass"
+path = "ui/pass/storage_never_freed.rs"
+[[example]]
+name = "storage_never_freed_fail"
+path = "ui/fail/storage_never_freed.rs"
+[[example]]
+name = "strict_balance_equality_pass"
+path = "ui/pass/strict_balance_equality.rs"
+[[example]]
+name = "strict_balance_equality_fail"
+path = "ui/fail/strict_balance_equality.rs"
+[[example]]
+name = "non_fallible_api_pass"
+path = "ui/pass/non_fallible_api.rs"
+[[example]]
+name = "non_fallible_api_fail"
+path = "ui/fail/non_fallible_api.rs"
+
+[package.metadata.rust-analyzer]
+rustc_private = true
+
+[features]
+default = ["std"]
+std = [
+    "ink_metadata/std",
+    "ink_env/std",
+    "ink_storage/std",
+    "ink_primitives/std",
+    "scale/std",
+    "scale-info/std",
+]
+ink-as-dependency = []

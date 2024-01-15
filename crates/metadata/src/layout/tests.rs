@@ -20,7 +20,7 @@ use scale_info::Path;
 fn layout_key_works() {
     let layout_key = LayoutKey::from(&1);
     let json = serde_json::to_string(&layout_key).unwrap();
-    assert_eq!(json, "\"0x00000001\"",);
+    assert_eq!(json, "\"0x01000000\"",);
 }
 
 fn named_fields_struct_layout(key: &Key) -> Layout {
@@ -47,7 +47,7 @@ fn named_fields_work() {
                     {
                         "layout": {
                             "leaf": {
-                                "key": "0x00000159",
+                                "key": "0x59010000",
                                 "ty": 0,
                             }
                         },
@@ -56,7 +56,7 @@ fn named_fields_work() {
                     {
                         "layout": {
                             "leaf": {
-                                "key": "0x00000159",
+                                "key": "0x59010000",
                                 "ty": 1,
                             }
                         },
@@ -94,7 +94,7 @@ fn tuple_struct_work() {
                     {
                         "layout": {
                             "leaf": {
-                                "key": "0x000000ea",
+                                "key": "0xea000000",
                                 "ty": 0,
                             }
                         },
@@ -103,7 +103,7 @@ fn tuple_struct_work() {
                     {
                         "layout": {
                             "leaf": {
-                                "key": "0x000000ea",
+                                "key": "0xea000000",
                                 "ty": 1,
                             }
                         },
@@ -139,7 +139,7 @@ fn clike_enum_work() {
     let expected = serde_json::json! {
         {
             "enum": {
-                "dispatchKey": "0x0000007b",
+                "dispatchKey": "0x7b000000",
                 "name": "Enum",
                 "variants": {
                     "0": {
@@ -219,7 +219,7 @@ fn mixed_enum_work() {
     let expected = serde_json::json! {
         {
             "enum": {
-                "dispatchKey": "0x000001c8",
+                "dispatchKey": "0xc8010000",
                 "name": "Enum",
                 "variants": {
                     "0": {
@@ -231,7 +231,7 @@ fn mixed_enum_work() {
                             {
                                 "layout": {
                                     "leaf": {
-                                        "key": "0x000001c8",
+                                        "key": "0xc8010000",
                                         "ty": 0,
                                     }
                                 },
@@ -240,7 +240,7 @@ fn mixed_enum_work() {
                             {
                                 "layout": {
                                     "leaf": {
-                                        "key": "0x000001c8",
+                                        "key": "0xc8010000",
                                         "ty": 1,
                                     }
                                 },
@@ -254,7 +254,7 @@ fn mixed_enum_work() {
                             {
                                 "layout": {
                                     "leaf": {
-                                        "key": "0x000001c8",
+                                        "key": "0xc8010000",
                                         "ty": 0,
                                     }
                                 },
@@ -263,7 +263,7 @@ fn mixed_enum_work() {
                             {
                                 "layout": {
                                     "leaf": {
-                                        "key": "0x000001c8",
+                                        "key": "0xc8010000",
                                         "ty": 1,
                                     }
                                 },
@@ -304,11 +304,11 @@ fn unbounded_layout_works() {
             "hash": {
                 "layout": {
                     "leaf": {
-                        "key": "0x00000237",
+                        "key": "0x37020000",
                         "ty": 0
                     }
                 },
-                "offset": "0x00000237",
+                "offset": "0x37020000",
                 "strategy": {
                         "hasher": "Blake2x256",
                         "prefix": "0x696e6b2073746f7261676520686173686d6170",
@@ -350,4 +350,13 @@ fn runtime_storage_layout_works() {
         }
     );
     assert_eq!(json, expected);
+}
+
+#[test]
+fn ensure_portable_root_layout_are_supported() {
+    let root_key = LayoutKey::new(0u32);
+    let layout = Layout::Struct(StructLayout::new(String::new(), Vec::new()));
+    let ty = 0.into();
+
+    let _: RootLayout<PortableForm> = RootLayout::new(root_key, layout, ty);
 }

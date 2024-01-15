@@ -151,7 +151,7 @@ fn events() {
     let event = events.next().expect("event must exist");
     assert_eq!(event.topics.len(), 2);
     assert_eq!(
-        event.topics.get(0).expect("first topic must exist"),
+        event.topics.first().expect("first topic must exist"),
         &topic1
     );
     assert_eq!(

@@ -81,8 +81,8 @@ impl ContractRef<'_> {
             .storage()
             .attrs()
             .iter()
-            .cloned()
-            .filter(syn::Attribute::is_doc_attribute);
+            .filter(|&x| syn::Attribute::is_doc_attribute(x))
+            .cloned();
         let storage_ident = self.contract.module().storage().ident();
         let ref_ident = self.generate_contract_ref_ident();
         quote_spanned!(span=>
@@ -289,7 +289,7 @@ impl ContractRef<'_> {
             ir::Receiver::RefMut => quote! { forward_mut },
         };
         let mut_token = message.receiver().is_ref_mut().then(|| quote! { mut });
-        let input_bindings = message.inputs().map(|input| &input.pat).collect::<Vec<_>>();
+        let input_idents = generator::input_message_idents(message.inputs());
         let input_types = message.inputs().map(|input| &input.ty).collect::<Vec<_>>();
         let cfg_attrs = message.get_cfg_attrs(span);
         quote_spanned!(span=>
@@ -301,13 +301,13 @@ impl ContractRef<'_> {
             #( #cfg_attrs )*
             fn #message_ident(
                 & #mut_token self
-                #( , #input_bindings : #input_types )*
+                #( , #input_idents : #input_types )*
             ) -> Self::#output_ident {
                 <_ as #trait_path>::#message_ident(
                     <_ as ::ink::codegen::TraitCallForwarderFor<{#trait_info_id}>>::#forward_operator(
                         <Self as ::ink::codegen::TraitCallBuilder>::#call_operator(self),
                     )
-                    #( , #input_bindings )*
+                    #( , #input_idents )*
                 )
             }
         )
@@ -384,7 +384,7 @@ impl ContractRef<'_> {
             ir::Receiver::RefMut => quote! { call_mut },
         };
         let mut_token = message.receiver().is_ref_mut().then(|| quote! { mut });
-        let input_bindings = message.inputs().map(|input| &input.pat).collect::<Vec<_>>();
+        let input_idents = generator::input_message_idents(message.inputs());
         let input_types = message.inputs().map(|input| &input.ty).collect::<Vec<_>>();
         let output_type = message.output().map(|ty| quote! { -> #ty });
         let wrapped_output_type = message.wrapped_output();
@@ -393,9 +393,9 @@ impl ContractRef<'_> {
             #[inline]
             pub fn #message_ident(
                 & #mut_token self
-                #( , #input_bindings : #input_types )*
+                #( , #input_idents : #input_types )*
             ) #output_type {
-                self.#try_message_ident( #( #input_bindings, )* )
+                self.#try_message_ident( #( #input_idents, )* )
                     .unwrap_or_else(|error| ::core::panic!(
                         "encountered error while calling {}::{}: {:?}",
                         ::core::stringify!(#storage_ident),
@@ -408,10 +408,10 @@ impl ContractRef<'_> {
             #[inline]
             pub fn #try_message_ident(
                 & #mut_token self
-                #( , #input_bindings : #input_types )*
+                #( , #input_idents : #input_types )*
             ) -> #wrapped_output_type {
                 <Self as ::ink::codegen::TraitCallBuilder>::#call_operator(self)
-                    .#message_ident( #( #input_bindings ),* )
+                    .#message_ident( #( #input_idents ),* )
                     .try_invoke()
                     .unwrap_or_else(|error| ::core::panic!(
                         "encountered error while calling {}::{}: {:?}",

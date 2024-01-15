@@ -70,7 +70,10 @@ pub use self::{
     },
     config::Config,
     contract::Contract,
-    event::Event,
+    event::{
+        Event,
+        SignatureTopicArg,
+    },
     ink_test::InkTest,
     item::{
         InkItem,

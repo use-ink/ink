@@ -107,7 +107,7 @@ mod e2e_tests {
         let value = client
             .call(&ink_e2e::alice(), &get)
             .dry_run()
-            .await
+            .await?
             .return_value();
         assert_eq!(value, 0);
 
@@ -126,7 +126,7 @@ mod e2e_tests {
         let value = client
             .call(&ink_e2e::alice(), &get)
             .dry_run()
-            .await
+            .await?
             .return_value();
         assert_eq!(value, 1);
 
