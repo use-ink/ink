@@ -408,7 +408,7 @@ pub struct CreateBuilder<
 ///     .salt_bytes(&[0xDE, 0xAD, 0xBE, 0xEF])
 ///     .returns::<Result<MyContractRef, ConstructorError>>()
 ///     .instantiate()
-///     .expect("Constructor should have executed succesfully.");
+///     .expect("Constructor should have executed successfully.");
 /// ```
 #[allow(clippy::type_complexity)]
 pub fn build_create<ContractRef>() -> CreateBuilder<
