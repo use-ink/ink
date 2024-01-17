@@ -69,7 +69,7 @@ should work fine in on-chain environments.</p>
 <h2 id="handling-langerrors"><a href="#handling-langerrors">Handling <code>LangError</code>s</a></h2>
 <p>It is also important to note that there are certain types of errors which can happen
 during cross-contract calls which can be handled know as
-<a href="../../ink_primitives/enum.LangError.html" title="enum ink_primitives::LangError"><code>LangError</code></a>.</p>
+[<code>LangError</code>][<code>ink_primitives::LangError</code>].</p>
 <p>If you want to handle these errors use the <a href="struct.CallBuilder.html#method.try_invoke" title="method ink_env::call::CallBuilder::try_invoke"><code>CallBuilder::try_invoke</code></a> methods instead
 of the <a href="struct.CallBuilder.html#method.invoke" title="method ink_env::call::CallBuilder::invoke"><code>CallBuilder::invoke</code></a> ones.</p>
 <p><strong>Note:</strong> The shown examples panic because there is currently no cross-calling
