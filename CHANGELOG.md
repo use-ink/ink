@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
-- Custom signature topic in Events - #[2031](https://github.com/paritytech/ink/pull/2031)
+- Custom signature topic in Events - [#2031](https://github.com/paritytech/ink/pull/2031)
 - Linter: `non_fallible_api` lint - [#2004](https://github.com/paritytech/ink/pull/2004)
 - Linter: Publish the linting crates on crates.io - [#2060](https://github.com/paritytech/ink/pull/2060)
 
@@ -20,9 +20,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Allow mutable parameters in messages - [#2004](https://github.com/paritytech/ink/pull/2004)
 - [E2E] Allow testing with live-chain state - [#1949](https://github.com/paritytech/ink/pull/1949)
 - [E2E] Call builders and extra gas margin option - [#1917](https://github.com/paritytech/ink/pull/1917)
-- Linter: `storage_never_freed` lint - [#1932](https://github.com/paritytech/ink/pull/1932)
-- Linter: `strict_balance_equality` lint - [#1914](https://github.com/paritytech/ink/pull/1914)
-- Linter: `no_main` lint - [#2001](https://github.com/paritytech/ink/pull/2001)
+- [Linter] `storage_never_freed` lint - [#1932](https://github.com/paritytech/ink/pull/1932)
+- [Linter] `strict_balance_equality` lint - [#1914](https://github.com/paritytech/ink/pull/1914)
+- [Linter] `no_main` lint - [#2001](https://github.com/paritytech/ink/pull/2001)
 - Clean E2E configuration parsing - [#1922](https://github.com/paritytech/ink/pull/1922)
 - Make `set_code_hash` generic - [#1906](https://github.com/paritytech/ink/pull/1906)
 - Provide a `StorageVec` datastructure built on top of `Lazy` - [#1995](https://github.com/paritytech/ink/pull/1995)
@@ -44,7 +44,7 @@ The preview release of the ink! 5.0.0 release.
 This release addresses the majority of issues raised in the OpenZeppelin audit
 in particular we addressed the proxy selector clashing attack.
 As of this release, ink! only allows exactly one other message with a well-known reserved selector to be defined.
-You can read more about the change in the [PR](https://github.com/paritytech/ink/pull/1708)
+You can read more about the change in the [PR](https://github.com/paritytech/ink/pull/1708).
 
 There are also other notable changes:
 
@@ -68,7 +68,7 @@ You can see a more detailed log of changes below:
 - [Drink backend]: Backend traits - [#1857](https://github.com/paritytech/ink/pull/1857)
 - [Drink backend]: Abstract error and result structs - [#1844](https://github.com/paritytech/ink/pull/1844)
 - Added `sr25519_verify` function to `ink_env` [#1840](https://github.com/paritytech/ink/pull/1840)
-- Warn when primitive number is annotated as event topic - [#1837](https://github.com/paritytech/ink/pull/1837)
+- [Linter] Warn when primitive number is annotated as event topic - [#1837](https://github.com/paritytech/ink/pull/1837)
 - Events `2.0` - [#1827](https://github.com/paritytech/ink/pull/1827)
 - Add `set_block_number` to off-chain test api `Engine` - [#1806](https://github.com/paritytech/ink/pull/1806)
 - Stabilize `call_runtime` ‒ [#1749](https://github.com/paritytech/ink/pull/1749)
@@ -77,12 +77,12 @@ You can see a more detailed log of changes below:
 
 ### Changed
 - Reexport `scale` dependencies, introduce `#[ink::scale_derive]` ‒ [#1890](https://github.com/paritytech/ink/pull/1890)
-- `[ink_e2e]` build contracts at runtime instead of during codegen - [#1881](https://github.com/paritytech/ink/pull/1881)
+- [E2E] build contracts at runtime instead of during codegen - [#1881](https://github.com/paritytech/ink/pull/1881)
 - Use of workspace dependencies and properties - [#1835](https://github.com/paritytech/ink/pull/1835)
 - Remove of unchecked arithmetic - [#1831](https://github.com/paritytech/ink/pull/1831)
-- E2E crate refactoring - [#1830](https://github.com/paritytech/ink/pull/1830)
-- Use `decode_all`` for decoding cross contract call result - [#1810](https://github.com/paritytech/ink/pull/1810)
-- E2E: improve call API, remove `build_message` + callback - [#1782](https://github.com/paritytech/ink/pull/1782)
+- [E2E] crate refactoring - [#1830](https://github.com/paritytech/ink/pull/1830)
+- Use `decode_all` for decoding cross contract call result - [#1810](https://github.com/paritytech/ink/pull/1810)
+- [E2E] improve call API, remove `build_message` + callback - [#1782](https://github.com/paritytech/ink/pull/1782)
 
 ### Fixed
 - `RootLayout::new()` is generic again to allow using `ink_metadata` in pure `PortableForm` contexts - [#1989](https://github.com/paritytech/ink/pull/1989)
