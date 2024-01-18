@@ -383,7 +383,10 @@ jobs:
         env:
           RUSTDOCFLAGS:                  -Dwarnings
         run: |
-          cargo doc --no-deps --all-features
+          for package in $(cargo metadata --format-version 1 | jq -r '.workspace_members[]' | awk '{print $1}'); do
+            # Run cargo doc for each workspace member
+            cargo doc --no-deps --all-features -p ${package}
+          done
           mv ${CARGO_TARGET_DIR}/doc ./crate-docs
           # FIXME: remove me after CI image gets nonroot
           chown -R nonroot:nonroot ./crate-docs
