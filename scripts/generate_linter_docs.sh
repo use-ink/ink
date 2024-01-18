@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+set -eu
+
 usage() {
   echo "Usage: $0 PATH"
   echo "Creates or updates the documentation for ink_linting hosted at use.ink."
