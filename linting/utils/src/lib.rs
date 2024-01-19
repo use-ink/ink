@@ -75,7 +75,7 @@ pub fn find_storage_struct(cx: &LateContext, item_ids: &[ItemId]) -> Option<Item
 /// implementations of a contract.
 fn items_in_unnamed_const(cx: &LateContext<'_>, id: &ItemId) -> Vec<ItemId> {
     if_chain! {
-        if let ItemKind::Const(ty, body_id) = cx.tcx.hir().item(*id).kind;
+        if let ItemKind::Const(ty, _, body_id) = cx.tcx.hir().item(*id).kind;
         if let TyKind::Tup([]) = ty.kind;
         let body = cx.tcx.hir().body(body_id);
         if let ExprKind::Block(block, _) = body.value.kind;

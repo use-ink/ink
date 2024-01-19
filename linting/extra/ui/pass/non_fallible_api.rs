@@ -57,9 +57,9 @@ pub mod non_fallible_api {
             // StorageVec
             let _ = self.vec_1.try_peek();
             let _ = self.vec_1.try_get(0);
-            self.vec_1.try_set(0, &a);
+            let _ = self.vec_1.try_set(0, &a);
             let _ = self.vec_1.try_pop();
-            self.vec_1.try_push(&a);
+            let _ = self.vec_1.try_push(&a);
         }
 
         // Don't raise warnings when using non-fallible API with argument which encoded
