@@ -55,7 +55,7 @@ use rustc_session::{
     declare_lint,
     declare_lint_pass,
 };
-use rustc_type_ir::sty::TyKind;
+use rustc_type_ir::ty_kind::TyKind;
 
 declare_lint! {
     /// ## What it does

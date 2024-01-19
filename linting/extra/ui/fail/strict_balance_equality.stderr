@@ -5,6 +5,7 @@ LL |             if self.env().balance() == 10 { /* ... */ }
    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^ help: consider using non-strict equality operators instead: `<`, `>`
    |
    = note: `-D strict-balance-equality` implied by `-D warnings`
+   = help: to override `-D warnings` add `#[allow(strict_balance_equality)]`
 
 error: dangerous strict balance equality
   --> $DIR/strict_balance_equality.rs:60:16

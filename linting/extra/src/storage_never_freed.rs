@@ -168,7 +168,7 @@ fn find_collection_def_id(
     if_chain! {
         if let Res::Def(DefKind::TyAlias, def_id) = path.res;
         if let Some(local_id) = def_id.as_local();
-        if let Some(alias_ty) = cx.tcx.hir().get_by_def_id(local_id).alias_ty();
+        if let Some(alias_ty) = cx.tcx.hir_node_by_def_id(local_id).alias_ty();
         if let TyKind::Path(QPath::Resolved(_, path)) = alias_ty.kind;
         then { return find_collection_def_id(cx, path); }
     };
@@ -214,7 +214,7 @@ fn find_collection_fields(cx: &LateContext, storage_struct_id: ItemId) -> Fields
 /// Reports the given field definition
 fn report_field(cx: &LateContext, field_info: &FieldInfo) {
     if_chain! {
-        if let Node::Field(field) = cx.tcx.hir().get_by_def_id(field_info.did);
+        if let Node::Field(field) = cx.tcx.hir_node_by_def_id(field_info.did);
         if !is_lint_allowed(cx, STORAGE_NEVER_FREED, field.hir_id);
         then {
             span_lint_and_help(
@@ -257,7 +257,7 @@ impl<'hir> Visitor<'hir> for InsertRemoveCollector<'_> {
         match &e.kind {
             ExprKind::Assign(lhs, ..) => {
                 if_chain! {
-                    if let ExprKind::Index(field, _) = lhs.kind;
+                    if let ExprKind::Index(field, _, _) = lhs.kind;
                     if let Some(field_name) = self.find_field_name(field);
                     then {
                         self.fields

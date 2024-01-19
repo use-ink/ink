@@ -5,6 +5,7 @@ LL |             let _ = self.map_1.insert(a.clone(), &b);
    |                                ^^^^^^ help: consider using `try_insert`
    |
    = note: `-D non-fallible-api` implied by `-D warnings`
+   = help: to override `-D warnings` add `#[allow(non_fallible_api)]`
 
 error: using a non-fallible `Mapping::get` with an argument that may not fit into the static buffer
   --> $DIR/non_fallible_api.rs:48:32

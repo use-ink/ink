@@ -42,7 +42,8 @@ use rustc_middle::{
         BinOp,
         Body,
         BorrowKind,
-        Constant,
+        CallReturnPlaces,
+        ConstOperand,
         HasLocalDecls,
         Local,
         Location,
@@ -51,6 +52,7 @@ use rustc_middle::{
         Rvalue,
         Statement,
         Terminator,
+        TerminatorEdges,
         TerminatorKind,
     },
     ty as mir_ty,
@@ -58,8 +60,6 @@ use rustc_middle::{
 use rustc_mir_dataflow::{
     Analysis,
     AnalysisDomain,
-    CallReturnPlaces,
-    Forward,
 };
 use rustc_session::{
     declare_lint,
@@ -224,8 +224,6 @@ impl<'a, 'tcx> AnalysisDomain<'tcx> for StrictBalanceEqualityAnalysis<'a, 'tcx> 
 
     const NAME: &'static str = "strict_balance_equality";
 
-    type Direction = Forward;
-
     fn bottom_value(&self, body: &Body) -> Self::Domain {
         // bottom = no balance taints
         BitSet::new_empty(body.local_decls().len())
@@ -262,12 +260,12 @@ impl<'a, 'tcx> Analysis<'tcx> for StrictBalanceEqualityAnalysis<'a, 'tcx> {
         .visit_statement(statement, location);
     }
 
-    fn apply_terminator_effect(
+    fn apply_terminator_effect<'mir>(
         &mut self,
         state: &mut Self::Domain,
-        terminator: &Terminator,
+        terminator: &'mir Terminator<'tcx>,
         location: Location,
-    ) {
+    ) -> TerminatorEdges<'mir, 'tcx> {
         TransferFunction::new(
             self.cx,
             self.fun_cache,
@@ -275,6 +273,7 @@ impl<'a, 'tcx> Analysis<'tcx> for StrictBalanceEqualityAnalysis<'a, 'tcx> {
             &mut self.mutable_references,
         )
         .visit_terminator(terminator, location);
+        terminator.edges()
     }
 
     fn apply_call_return_effect(
@@ -422,7 +421,7 @@ impl<'tcx> TransferFunction<'_, 'tcx> {
         fn_def_id.is_local()
     }
 
-    fn visit_call(&mut self, func: &Constant, args: &[Operand], destination: &Place) {
+    fn visit_call(&mut self, func: &ConstOperand, args: &[Operand], destination: &Place) {
         let init_taints = args.iter().fold(Vec::new(), |mut acc, arg| {
             if let Operand::Move(place) | Operand::Copy(place) = arg {
                 acc.push(self.state.contains(place.local))
@@ -431,7 +430,7 @@ impl<'tcx> TransferFunction<'_, 'tcx> {
         });
 
         let fn_def_id =
-            if let mir_ty::TyKind::FnDef(fn_def_id, _) = func.literal.ty().kind() {
+            if let mir_ty::TyKind::FnDef(fn_def_id, _) = func.const_.ty().kind() {
                 fn_def_id
             } else {
                 return
