@@ -151,7 +151,6 @@ mod decode_instantiate_result_tests {
     use crate::{
         DefaultEnvironment,
         Environment,
-        Error,
     };
     use scale::Encode;
 
