@@ -195,7 +195,7 @@ mod decode_instantiate_result_tests {
             TestContractRef,
             Result<TestContractRef, ContractError>,
         >(
-            Err(Error::ReturnError(ReturnErrorCode::CalleeReverted)),
+            Err(ReturnErrorCode::CalleeReverted.into()),
             out_address,
             out_return_value,
         )

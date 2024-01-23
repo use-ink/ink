@@ -102,6 +102,7 @@ mod tests;
 #[doc(inline)]
 pub use self::engine::off_chain::test_api as test;
 
+#[doc(inline)]
 pub use pallet_contracts_uapi::{
     CallFlags,
     ReturnErrorCode,
