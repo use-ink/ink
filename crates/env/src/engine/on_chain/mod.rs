@@ -13,16 +13,12 @@
 // limitations under the License.
 
 mod buffer;
-mod ext;
 mod impls;
 
-use self::{
-    buffer::{
-        EncodeScope,
-        ScopedBuffer,
-        StaticBuffer,
-    },
-    ext::Error,
+use self::buffer::{
+    EncodeScope,
+    ScopedBuffer,
+    StaticBuffer,
 };
 use super::OnInstance;
 

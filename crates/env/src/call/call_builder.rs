@@ -13,7 +13,6 @@
 // limitations under the License.
 
 use crate::{
-    backend::CallFlags,
     call::{
         utils::{
             EmptyArgumentList,
@@ -29,6 +28,7 @@ use crate::{
 };
 use core::marker::PhantomData;
 use num_traits::Zero;
+use pallet_contracts_uapi::CallFlags;
 
 /// The final parameters to the cross-contract call.
 #[derive(Debug)]
@@ -328,7 +328,7 @@ where
 {
     CallBuilder {
         call_type: Default::default(),
-        call_flags: Default::default(),
+        call_flags: CallFlags::empty(),
         exec_input: Default::default(),
         return_type: Default::default(),
         _phantom: Default::default(),

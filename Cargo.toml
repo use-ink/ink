@@ -84,6 +84,7 @@ const_env = { version = "0.1"}
 
 # Substrate dependencies
 pallet-contracts-primitives = { version = "26.0.0", default-features = false }
+pallet-contracts-uapi = { package = "ink-pallet-contracts-uapi", version = "6.0.0", default-features = false }
 sp-core = { version = "23.0.0", default-features = false }
 sp-keyring = { version = "26.0.0", default-features = false }
 sp-runtime = { version = "26.0.0", default-features = false }

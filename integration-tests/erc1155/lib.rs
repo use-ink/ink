@@ -413,9 +413,13 @@ mod erc1155 {
                         )
                     }
                     Err(e) => {
+                        use ink::env::ReturnErrorCode;
+
                         match e {
-                            ink::env::Error::CodeNotFound
-                            | ink::env::Error::NotCallable => {
+                            ink::env::Error::ReturnError(
+                                ReturnErrorCode::CodeNotFound
+                                | ReturnErrorCode::NotCallable,
+                            ) => {
                                 // Our recipient wasn't a smart contract, so there's
                                 // nothing more for
                                 // us to do

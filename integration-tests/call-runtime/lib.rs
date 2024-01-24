@@ -62,8 +62,11 @@ mod runtime_call {
 
     impl From<EnvError> for RuntimeError {
         fn from(e: EnvError) -> Self {
+            use ink::env::ReturnErrorCode;
             match e {
-                EnvError::CallRuntimeFailed => RuntimeError::CallRuntimeFailed,
+                EnvError::ReturnError(ReturnErrorCode::CallRuntimeFailed) => {
+                    RuntimeError::CallRuntimeFailed
+                }
                 _ => panic!("Unexpected error from `pallet-contracts`."),
             }
         }

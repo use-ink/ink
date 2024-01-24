@@ -16,6 +16,7 @@ use derive_more::From;
 
 #[cfg(any(feature = "std", test, doc))]
 use crate::engine::off_chain::OffChainError;
+use pallet_contracts_uapi::ReturnErrorCode;
 
 /// Errors that can be encountered upon environmental interaction.
 #[derive(Debug, From, PartialEq, Eq)]
@@ -27,34 +28,8 @@ pub enum Error {
     /// An error that can only occur in the off-chain environment.
     #[cfg(any(feature = "std", test, doc))]
     OffChain(OffChainError),
-    /// The call to another contract has trapped.
-    CalleeTrapped,
-    /// The call to another contract has been reverted.
-    CalleeReverted,
-    /// The queried contract storage entry is missing.
-    KeyNotFound,
-    /// Deprecated and no longer returned: There is only the minimum balance.
-    _BelowSubsistenceThreshold,
-    /// Transfer failed for other not further specified reason. Most probably
-    /// reserved or locked balance of the sender that was preventing the transfer.
-    TransferFailed,
-    /// Deprecated and no longer returned: Endowment is no longer required.
-    _EndowmentTooLow,
-    /// No code could be found at the supplied code hash.
-    CodeNotFound,
-    /// The account that was called is no contract, but a plain account.
-    NotCallable,
-    /// An unknown error has occurred.
-    Unknown,
-    /// The call to `debug_message` had no effect because debug message
-    /// recording was disabled.
-    LoggingDisabled,
-    /// The call dispatched by `call_runtime` was executed but returned an error.
-    CallRuntimeFailed,
-    /// ECDSA pubkey recovery failed. Most probably wrong recovery id or signature.
-    EcdsaRecoveryFailed,
-    /// sr25519 signature verification failed.
-    Sr25519VerifyFailed,
+    /// The error returned by the contract.
+    ReturnError(ReturnErrorCode),
 }
 
 /// A result of environmental operations.

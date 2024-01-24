@@ -374,7 +374,7 @@ impl Dispatch<'_> {
                         // This is okay since we're going to only be encoding the `Err` variant
                         // into the output buffer anyways.
                         ::ink::env::return_value::<::ink::ConstructorResult<()>>(
-                            ::ink::env::ReturnFlags::new_with_reverted(true),
+                            ::ink::env::ReturnFlags::REVERT,
                             &error,
                         );
                     }
@@ -410,7 +410,7 @@ impl Dispatch<'_> {
                         // This is okay since we're going to only be encoding the `Err` variant
                         // into the output buffer anyways.
                         ::ink::env::return_value::<::ink::MessageResult<()>>(
-                            ::ink::env::ReturnFlags::new_with_reverted(true),
+                            ::ink::env::ReturnFlags::REVERT,
                             &error,
                         );
                     }
@@ -588,12 +588,20 @@ impl Dispatch<'_> {
                         );
                     }
 
+                    // NOTE: we can't use an if/else expression here
+                    // It fails inside quote_spanned! macro.
+                    // See https://github.com/rust-lang/rust-clippy/issues/6249
+                    let mut flag = ::ink::env::ReturnFlags::empty();
+                    if output_result.is_err() {
+                        flag = ::ink::env::ReturnFlags::REVERT;
+                    }
+
                     ::ink::env::return_value::<
                         ::ink::ConstructorResult<
                             ::core::result::Result<(), &#constructor_value::Error>
                         >,
                     >(
-                        ::ink::env::ReturnFlags::new_with_reverted(output_result.is_err()),
+                        flag,
                         // Currently no `LangError`s are raised at this level of the
                         // dispatch logic so `Ok` is always returned to the caller.
                         &::ink::ConstructorResult::Ok(output_result.map(|_| ())),
@@ -773,7 +781,6 @@ impl Dispatch<'_> {
                 quote_spanned!(message_span=>
                     #( #cfg_attrs )*
                     Self::#message_ident(input) => {
-
                         if #any_message_accepts_payment && #deny_payment {
                             ::ink::codegen::deny_payment::<
                                 <#storage_ident as ::ink::env::ContractEnv>::Env>()?;
@@ -783,13 +790,19 @@ impl Dispatch<'_> {
                         let is_reverted = ::ink::is_result_type!(#message_output)
                             && ::ink::is_result_err!(result);
 
+                        // NOTE: we can't use an if/else expression here
+                        // It fails inside quote_spanned! macro.
+                        // See https://github.com/rust-lang/rust-clippy/issues/6249
+                        let mut flag = ::ink::env::ReturnFlags::REVERT;
+
                         // no need to push back results: transaction gets reverted anyways
                         if !is_reverted {
+                            flag = ::ink::env::ReturnFlags::empty();
                             push_contract(contract, #mutates_storage);
                         }
 
                         ::ink::env::return_value::<::ink::MessageResult::<#message_output>>(
-                            ::ink::env::ReturnFlags::new_with_reverted(is_reverted),
+                            flag,
                             // Currently no `LangError`s are raised at this level of the
                             // dispatch logic so `Ok` is always returned to the caller.
                             &::ink::MessageResult::Ok(result),
