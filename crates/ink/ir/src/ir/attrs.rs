@@ -38,7 +38,7 @@ use crate::{
     error::ExtError as _,
     ir,
     ir::{
-        ExtensionId,
+        chain_extension::FunctionId,
         Selector,
     },
 };
@@ -363,8 +363,8 @@ pub enum AttributeArgKind {
     /// `#[ink(selector = _)]`
     /// `#[ink(selector = 0xDEADBEEF)]`
     Selector,
-    /// `#[ink(extension = N: u32)]`
-    Extension,
+    /// `#[ink(function = N: u16)]`
+    Function,
     /// `#[ink(namespace = "my_namespace")]`
     Namespace,
     /// `#[ink(impl)]`
@@ -435,13 +435,13 @@ pub enum AttributeArg {
     /// Note that ink! messages and constructors still need to be explicitly
     /// flagged as such.
     Implementation,
-    /// `#[ink(extension = N: u32)]`
+    /// `#[ink(function = N: u16)]`
     ///
     /// Applies on ink! chain extension method to set their `func_id` parameter.
-    /// Every chain extension method must have exactly one ink! `extension` attribute.
+    /// Every chain extension method must have exactly one ink! `function` attribute.
     ///
     /// Used by the `#[ink::chain_extension]` procedural macro.
-    Extension(ExtensionId),
+    Function(FunctionId),
     /// `#[ink(handle_status = flag: bool)]`
     ///
     /// Used by the `#[ink::chain_extension]` procedural macro.
@@ -462,8 +462,8 @@ impl core::fmt::Display for AttributeArgKind {
             Self::Selector => {
                 write!(f, "selector = S:[u8; 4] || _")
             }
-            Self::Extension => {
-                write!(f, "extension = N:u32)")
+            Self::Function => {
+                write!(f, "function = N:u16)")
             }
             Self::Namespace => {
                 write!(f, "namespace = N:string")
@@ -486,7 +486,7 @@ impl AttributeArg {
             Self::Constructor => AttributeArgKind::Constructor,
             Self::Payable => AttributeArgKind::Payable,
             Self::Selector(_) => AttributeArgKind::Selector,
-            Self::Extension(_) => AttributeArgKind::Extension,
+            Self::Function(_) => AttributeArgKind::Function,
             Self::Namespace(_) => AttributeArgKind::Namespace,
             Self::Implementation => AttributeArgKind::Implementation,
             Self::HandleStatus(_) => AttributeArgKind::HandleStatus,
@@ -505,8 +505,8 @@ impl core::fmt::Display for AttributeArg {
             Self::Constructor => write!(f, "constructor"),
             Self::Payable => write!(f, "payable"),
             Self::Selector(selector) => core::fmt::Display::fmt(&selector, f),
-            Self::Extension(extension) => {
-                write!(f, "extension = {:?}", extension.into_u32())
+            Self::Function(function) => {
+                write!(f, "function = {:?}", function.into_u16())
             }
             Self::Namespace(namespace) => {
                 write!(f, "namespace = {:?}", namespace.as_bytes())
@@ -925,19 +925,19 @@ impl Parse for AttributeFrag {
                         Namespace::try_from(&name_value.value)
                             .map(AttributeArg::Namespace)
                     }
-                    "extension" => {
+                    "function" => {
                         if let Some(lit_int) = name_value.value.as_lit_int() {
-                            let id = lit_int.base10_parse::<u32>()
+                            let id = lit_int.base10_parse::<u16>()
                                 .map_err(|error| {
                                     format_err_spanned!(
                                         lit_int,
-                                        "could not parse `N` in `#[ink(extension = N)]` into a `u32` integer: {}", error)
+                                        "could not parse `N` in `#[ink(function = N)]` into a `u16` integer: {}", error)
                                 })?;
-                            Ok(AttributeArg::Extension(ExtensionId::from_u32(id)))
+                            Ok(AttributeArg::Function(FunctionId::from_u16(id)))
                         } else {
                             Err(format_err_spanned!(
                                 name_value.value,
-                                "expected `u32` integer type for `N` in #[ink(extension = N)]",
+                                "expected `u16` integer type for `N` in #[ink(function = N)]",
                             ))
                         }
                     }
@@ -977,10 +977,10 @@ impl Parse for AttributeFrag {
                     "default" => Ok(AttributeArg::Default),
                     "impl" => Ok(AttributeArg::Implementation),
                     _ => match ident.to_string().as_str() {
-                        "extension" => Err(format_err_spanned!(
+                        "function" => Err(format_err_spanned!(
                             path,
-                            "encountered #[ink(extension)] that is missing its `id` parameter. \
-                            Did you mean #[ink(extension = id: u32)] ?"
+                            "encountered #[ink(function)] that is missing its `id` parameter. \
+                            Did you mean #[ink(function = id: u16)] ?"
                         )),
                         "handle_status" => Err(format_err_spanned!(
                             path,
@@ -1292,10 +1292,10 @@ mod tests {
     fn extension_works() {
         assert_attribute_try_from(
             syn::parse_quote! {
-                #[ink(extension = 42)]
+                #[ink(function = 42)]
             },
-            Ok(test::Attribute::Ink(vec![AttributeArg::Extension(
-                ExtensionId::from_u32(42),
+            Ok(test::Attribute::Ink(vec![AttributeArg::Function(
+                FunctionId::from_u16(42),
             )])),
         );
     }
@@ -1304,9 +1304,9 @@ mod tests {
     fn extension_invalid_value_type() {
         assert_attribute_try_from(
             syn::parse_quote! {
-                #[ink(extension = "string")]
+                #[ink(function = "string")]
             },
-            Err("expected `u32` integer type for `N` in #[ink(extension = N)]"),
+            Err("expected `u16` integer type for `N` in #[ink(function = N)]"),
         );
     }
 
@@ -1314,9 +1314,9 @@ mod tests {
     fn extension_negative_integer() {
         assert_attribute_try_from(
             syn::parse_quote! {
-                #[ink(extension = -1)]
+                #[ink(function = -1)]
             },
-            Err("could not parse `N` in `#[ink(extension = N)]` into a `u32` integer: invalid digit found in string")
+            Err("could not parse `N` in `#[ink(function = N)]` into a `u16` integer: invalid digit found in string")
         );
     }
 
@@ -1325,9 +1325,9 @@ mod tests {
         let max_u32_plus_1 = (u32::MAX as u64) + 1;
         assert_attribute_try_from(
             syn::parse_quote! {
-                #[ink(extension = #max_u32_plus_1)]
+                #[ink(function = #max_u32_plus_1)]
             },
-            Err("could not parse `N` in `#[ink(extension = N)]` into a `u32` integer: number too large to fit in target type"),
+            Err("could not parse `N` in `#[ink(function = N)]` into a `u16` integer: number too large to fit in target type"),
         );
     }
 
@@ -1335,11 +1335,11 @@ mod tests {
     fn extension_missing_parameter() {
         assert_attribute_try_from(
             syn::parse_quote! {
-                #[ink(extension)]
+                #[ink(function)]
             },
             Err(
-                "encountered #[ink(extension)] that is missing its `id` parameter. \
-                Did you mean #[ink(extension = id: u32)] ?",
+                "encountered #[ink(function)] that is missing its `id` parameter. \
+                Did you mean #[ink(function = id: u16)] ?",
             ),
         );
     }

@@ -32,7 +32,10 @@ use subxt::{
     blocks::ExtrinsicEvents,
     config::ExtrinsicParams,
     ext::scale_encode,
-    tx::Signer,
+    tx::{
+        Signer,
+        TxStatus,
+    },
     utils::MultiAddress,
     OnlineClient,
 };
@@ -250,30 +253,7 @@ where
         )
         .unvalidated();
 
-        let account_id = <Keypair as Signer<C>>::account_id(origin);
-        let account_nonce =
-            self.get_account_nonce(&account_id)
-                .await
-                .unwrap_or_else(|err| {
-                    panic!("error calling `get_account_nonce`: {err:?}");
-                });
-
-        self.client
-            .tx()
-            .create_signed_with_nonce(&call, origin, account_nonce, Default::default())
-            .unwrap_or_else(|err| {
-                panic!("error on call `create_signed_with_nonce`: {err:?}");
-            })
-            .submit_and_watch()
-            .await
-            .unwrap_or_else(|err| {
-                panic!("error on call `submit_and_watch`: {err:?}");
-            })
-            .wait_for_in_block()
-            .await
-            .unwrap_or_else(|err| {
-                panic!("error on call `wait_for_in_block`: {err:?}");
-            });
+        let _ = self.submit_extrinsic(&call, origin).await;
 
         Ok(())
     }
@@ -329,7 +309,8 @@ where
                     panic!("error calling `get_account_nonce`: {err:?}");
                 });
 
-        self.client
+        let mut tx = self
+            .client
             .tx()
             .create_signed_with_nonce(call, signer, account_nonce, Default::default())
             .unwrap_or_else(|err| {
@@ -346,17 +327,37 @@ where
             })
             .unwrap_or_else(|err| {
                 panic!("error on call `submit_and_watch`: {err:?}");
-            })
-            .wait_for_in_block()
-            .await
-            .unwrap_or_else(|err| {
-                panic!("error on call `wait_for_in_block`: {err:?}");
-            })
-            .fetch_events()
-            .await
-            .unwrap_or_else(|err| {
-                panic!("error on call `fetch_events`: {err:?}");
-            })
+            });
+
+        // Below we use the low level API to replicate the `wait_for_in_block` behaviour
+        // which was removed in subxt 0.33.0. See https://github.com/paritytech/subxt/pull/1237.
+        //
+        // We require this because we use `substrate-contracts-node` as our development
+        // node, which does not currently support finality, so we just want to
+        // wait until it is included in a block.
+        while let Some(status) = tx.next().await {
+            match status.unwrap_or_else(|err| {
+                panic!("error subscribing to tx status: {err:?}");
+            }) {
+                TxStatus::InBestBlock(tx_in_block)
+                | TxStatus::InFinalizedBlock(tx_in_block) => {
+                    return tx_in_block.fetch_events().await.unwrap_or_else(|err| {
+                        panic!("error on call `fetch_events`: {err:?}");
+                    })
+                }
+                TxStatus::Error { message } => {
+                    panic!("TxStatus::Error: {message:?}");
+                }
+                TxStatus::Invalid { message } => {
+                    panic!("TxStatus::Invalid: {message:?}");
+                }
+                TxStatus::Dropped { message } => {
+                    panic!("TxStatus::Dropped: {message:?}");
+                }
+                _ => continue,
+            }
+        }
+        panic!("Error waiting for tx status")
     }
 
     /// Return the hash of the *best* block

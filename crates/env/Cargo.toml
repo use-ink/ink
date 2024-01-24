@@ -21,7 +21,7 @@ ink_storage_traits = { workspace = true }
 ink_prelude = { workspace = true }
 ink_primitives = { workspace = true }
 
-scale = { package = "parity-scale-codec", workspace = true }
+scale = { workspace = true }
 derive_more = { workspace = true, features = ["from", "display"] }
 num-traits = { workspace = true, features = ["i128"] }
 cfg-if = { workspace = true }
@@ -44,7 +44,7 @@ blake2 = { workspace = true, optional = true }
 secp256k1 = { workspace = true, features = ["recovery", "global-context"], optional = true }
 
 # schnorrkel for the off-chain environment.
-schnorrkel = { version = "0.11.2", optional = true }
+schnorrkel = { version = "0.11.4", optional = true }
 
 # Only used in the off-chain environment.
 #

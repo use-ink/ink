@@ -32,7 +32,7 @@ impl InkE2ETest {
     pub fn generate_code(&self) -> TokenStream2 {
         #[cfg(clippy)]
         if true {
-            return quote! {}
+            return quote! {};
         }
 
         let item_fn = &self.test.item_fn.item_fn;
@@ -64,8 +64,12 @@ impl InkE2ETest {
             }
         };
 
+        let node_url = self.test.config.node_url();
+
         let client_building = match self.test.config.backend() {
-            Backend::Full => build_full_client(&environment, exec_build_contracts),
+            Backend::Full => {
+                build_full_client(&environment, exec_build_contracts, node_url)
+            }
             Backend::Network => build_network(exec_build_contracts),
             #[cfg(any(test, feature = "drink"))]
             Backend::RuntimeOnly { runtime } => {
@@ -111,22 +115,42 @@ impl InkE2ETest {
     }
 }
 
-fn build_full_client(environment: &syn::Path, contracts: TokenStream2) -> TokenStream2 {
-    quote! {
-        // Spawn a contracts node process just for this test.
-        let node_proc = ::ink_e2e::TestNodeProcess::<::ink_e2e::PolkadotConfig>
-            ::build_with_env_or_default()
-            .spawn()
-            .await
-            .unwrap_or_else(|err|
-                ::core::panic!("Error spawning substrate-contracts-node: {err:?}")
-            );
-
-        let contracts = #contracts;
-        let mut client = ::ink_e2e::Client::<
-            ::ink_e2e::PolkadotConfig,
-            #environment
-        >::new(node_proc.rpc(), contracts).await?;
+fn build_full_client(
+    environment: &syn::Path,
+    contracts: TokenStream2,
+    node_url: Option<String>,
+) -> TokenStream2 {
+    match node_url {
+        Some(url) => {
+            quote! {
+                let rpc = ::ink_e2e::RpcClient::from_url(#url)
+                    .await
+                    .unwrap_or_else(|err|
+                        ::core::panic!("Error connecting to Chopsticks node: {err:?}")
+                    );
+                let contracts = #contracts;
+                let mut client = ::ink_e2e::Client::<
+                    ::ink_e2e::PolkadotConfig,
+                    #environment
+                >::new(rpc, contracts).await?;
+            }
+        }
+        None => {
+            quote! {
+                let node_rpc = ::ink_e2e::TestNodeProcess::<::ink_e2e::PolkadotConfig>
+                    ::build_with_env_or_default()
+                    .spawn()
+                    .await
+                    .unwrap_or_else(|err|
+                        ::core::panic!("Error spawning substrate-contracts-node: {err:?}")
+                    );
+                let contracts = #contracts;
+                let mut client = ::ink_e2e::Client::<
+                    ::ink_e2e::PolkadotConfig,
+                    #environment
+                >::new(node_rpc.rpc(), contracts).await?;
+            }
+        }
     }
 }
 

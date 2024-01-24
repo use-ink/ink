@@ -98,3 +98,78 @@ mod private {
     /// Seals the `Output` trait so that it cannot be implemented outside this module.
     pub trait OutputSealed {}
 }
+
+/// Macro defines the combined chain extension via structure definition.
+/// Each sub-extension can be accessed by the corresponding field.
+///
+/// The macro expects a structure definition as an input where each field should
+/// implement [`ChainExtensionInstance`]. Usually, this trait is implemented
+/// by the `#[ink::chain_extension]` macro during the definition of the chain extension.
+///
+/// ```rust
+/// #[ink::scale_derive(TypeInfo)]
+/// struct ExtensionOne;
+/// impl ink::ChainExtensionInstance for ExtensionOne {
+///     type Instance = Self;
+///
+///     fn instantiate() -> Self::Instance {
+///         Self {}
+///     }
+/// }
+///
+/// #[ink::scale_derive(TypeInfo)]
+/// struct ExtensionTwo;
+/// impl ink::ChainExtensionInstance for ExtensionTwo {
+///     type Instance = Self;
+///
+///     fn instantiate() -> Self::Instance {
+///         Self {}
+///     }
+/// }
+///
+/// ink::combine_extensions! {
+///     /// Defines a combined extension with [`ExtensionOne`] and [`ExtensionTwo`].
+///     struct Combined {
+///         /// This field can be used to access the first extension like
+///         /// `self.env().extension().extension_one` in the contract's context.
+///         extension_one: ExtensionOne,
+///         /// This field can be used to access the second extension like
+///         /// `self.env().extension().extension_two` in the contract's context.
+///         extension_two: ExtensionTwo,
+///     }
+/// }
+/// ```
+#[macro_export]
+macro_rules! combine_extensions {
+    ($(#[$meta:meta])* $vis:vis struct $name:ident {
+        $($(#[$field_meta:meta])* $field_vis:vis $field_name:ident: $field_type:ty,)*
+    }) => {
+        $(#[$meta])*
+        #[::ink::scale_derive(TypeInfo)]
+        $vis struct $name {
+            $($(#[$field_meta])* $field_vis $field_name: $field_type,)*
+        }
+
+        const _: () = {
+            /// Each chain extension has an abstract type `$name` that describes
+            /// it and the actual instance that provides access to methods.
+            /// This structure is an instance that is returned by the `self.env().extension()` call.
+            ///
+            /// Because it is a combination of corresponding sub-instances, we need to initialize
+            /// each sub-instance in the same way by calling [`ChainExtensionInstance::instantiate`].
+            pub struct Private {
+                $($(#[$field_meta])* $field_vis $field_name: <$field_type as ::ink::ChainExtensionInstance>::Instance,)*
+            }
+
+            impl ::ink::ChainExtensionInstance for $name {
+                type Instance = Private;
+
+                fn instantiate() -> Self::Instance {
+                    Self::Instance {
+                        $($field_name: <$field_type as ::ink::ChainExtensionInstance>::instantiate(),)*
+                    }
+                }
+            }
+        };
+    }
+}

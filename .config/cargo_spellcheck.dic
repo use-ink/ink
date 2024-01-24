@@ -52,6 +52,7 @@ fuzzer
 getter
 growable
 ident
+idents
 interoperate
 invariants
 kB
@@ -120,5 +121,12 @@ payability
 unpayable
 initializer
 WebSocket/S
+StorageVec
 zombienet
 sdk
+KiB
+GB
+BufferTooSmall
+KeyNotFound
+ink_env
+^

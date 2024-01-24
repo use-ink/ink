@@ -57,6 +57,7 @@ pub mod storage {
     pub use ink_storage::{
         Lazy,
         Mapping,
+        StorageVec,
     };
 }
 

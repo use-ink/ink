@@ -19,7 +19,7 @@ name = "ink_codegen"
 
 [dependencies]
 ink_primitives = { workspace = true }
-ir = { version = "=5.0.0-alpha", package = "ink_ir", path = "../ir", default-features = false }
+ir = { version = "=5.0.0-rc", package = "ink_ir", path = "../ir", default-features = false }
 quote = { workspace = true }
 syn = { workspace = true, features = ["parsing", "full", "extra-traits"] }
 proc-macro2 = { workspace = true }
@@ -28,7 +28,7 @@ itertools = { workspace = true }
 either = { workspace = true }
 blake2 = { workspace = true }
 heck = { workspace = true }
-scale = { package = "parity-scale-codec", workspace = true }
+scale = { workspace = true }
 impl-serde = { workspace = true, default-features = true }
 
 serde = { workspace = true, features = ["derive"] }

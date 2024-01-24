@@ -1,0 +1,62 @@
+# The workflow has write access, so it needs to be isolated for security reasons from pull request-based workflows,
+# which may be triggered from forked repositories.
+
+name: continuous-intergration/publish-docs
+
+on: 
+  workflow_run:
+    workflows: 
+      - continuous-integration
+    types:
+      - completed
+
+jobs:
+  publish-docs:
+    if: >
+      github.event.workflow_run.event == 'push' &&
+        github.event.workflow_run.head_branch == 'master' &&
+        github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 100
+
+      - name: Download Contract Sizes
+        uses: ./.github/download-artifact
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ARTIFACT_NAME: docs-data
+          DOWNLOAD_DIR: crate-docs
+
+      - name: Push docs
+        run: |
+          # Set git config
+          git config user.email "paritytech-ci@parity.io"
+          git config user.name "paritytech-ci"
+          git fetch origin gh-pages
+          # saving README and docs
+          cp -r ./crate-docs/ /tmp/doc/
+          cp ./README.md /tmp/doc/
+          cp -r ./.images/ /tmp/doc/
+          git checkout gh-pages
+          mv _config.yml /tmp/doc/
+          # remove everything and restore generated docs, README and Jekyll config
+          rm -rf ./*
+          rm -rf ./.images
+          mv /tmp/doc/* .
+          mv /tmp/doc/.images .
+          # Upload files
+          git add --all --force
+          git status
+          # `git commit` has an exit code of > 0 if there is nothing to commit.
+          # This unfortunately causes Github to exit immediately and mark this
+          # job as failed subsequently.
+          # We don't want to mark the entire job as failed if there's nothing to
+          # publish though, hence the `|| true`.
+          git commit -m "Updated docs for ${{ github.event.workflow_run.head_branch }}} and pushed to gh-pages" || true
+          git push origin gh-pages --force
+          rm -rf .git/ ./*

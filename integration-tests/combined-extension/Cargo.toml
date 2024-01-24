@@ -1,0 +1,26 @@
+[package]
+name = "combined_extension"
+version = "5.0.0-rc"
+authors = ["Parity Technologies <admin@parity.io>"]
+edition = "2021"
+publish = false
+
+[dependencies]
+ink = { path = "../../crates/ink", default-features = false }
+psp22_extension = { path = "../psp22-extension", default-features = false, features = ["ink-as-dependency"] }
+rand_extension = { path = "../rand-extension", default-features = false, features = ["ink-as-dependency"] }
+
+[lib]
+path = "lib.rs"
+
+[features]
+default = ["std"]
+std = [
+    "ink/std",
+    "psp22_extension/std",
+    "rand_extension/std",
+]
+ink-as-dependency = [
+    "psp22_extension/ink-as-dependency",
+    "rand_extension/ink-as-dependency",
+]

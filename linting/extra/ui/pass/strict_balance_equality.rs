@@ -1,3 +1,5 @@
+#![cfg_attr(not(feature = "std"), no_main)]
+
 #[ink::contract]
 pub mod strict_balance_equality {
     #[ink(storage)]

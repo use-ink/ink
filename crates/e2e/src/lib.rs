@@ -50,6 +50,7 @@ pub use backend_calls::{
 pub use contract_results::{
     CallDryRunResult,
     CallResult,
+    InstantiateDryRunResult,
     InstantiationResult,
     UploadResult,
 };
@@ -61,7 +62,10 @@ pub use node_proc::{
 };
 pub use sp_core::H256;
 pub use sp_keyring::AccountKeyring;
-pub use subxt;
+pub use subxt::{
+    self,
+    backend::rpc::RpcClient,
+};
 pub use subxt_client::{
     CallBuilderFinal,
     Client,
