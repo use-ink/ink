@@ -125,7 +125,7 @@ fn build_full_client(
                 let rpc = ::ink_e2e::RpcClient::from_url(#url)
                     .await
                     .unwrap_or_else(|err|
-                        ::core::panic!("Error connecting to Chopsticks node: {err:?}")
+                        ::core::panic!("Error connecting to node at {}: {err:?}", #url)
                     );
                 let contracts = #contracts;
                 let mut client = ::ink_e2e::Client::<
