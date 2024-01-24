@@ -399,7 +399,7 @@ and stores the result in <code>output</code>.</p>
     </span><span class="kw">let </span>failed_result = <span class="self">self</span>.env().ecdsa_recover(<span class="kw-2">&amp;</span>signature, <span class="kw-2">&amp;</span>[<span class="number">0</span>; <span class="number">32</span>]);
     <span class="macro">assert!</span>(failed_result.is_err());
     <span class="kw">if let </span><span class="prelude-val">Err</span>(e) = failed_result {
-        <span class="macro">assert_eq!</span>(e, ink::env::Error::EcdsaRecoveryFailed);
+        <span class="macro">assert_eq!</span>(e, ink::env::ReturnErrorCode::EcdsaRecoveryFailed.into());
     }
 }</code></pre></div>
 </div></details><details class="toggle method-toggle" open><summary><section id="method.ecdsa_to_eth_address" class="method"><a class="src rightside" href="../src/ink/env_access.rs.html#885-890">source</a><h4 class="code-header">pub fn <a href="#method.ecdsa_to_eth_address" class="fn">ecdsa_to_eth_address</a>(self, pubkey: &amp;[<a class="primitive" href="https://doc.rust-lang.org/1.74.0/std/primitive.u8.html">u8</a>; <a class="primitive" href="https://doc.rust-lang.org/1.74.0/std/primitive.array.html">33</a>]) -&gt; Result&lt;[<a class="primitive" href="https://doc.rust-lang.org/1.74.0/std/primitive.u8.html">u8</a>; <a class="primitive" href="https://doc.rust-lang.org/1.74.0/std/primitive.array.html">20</a>]&gt;</h4></section></summary><div class="docblock"><p>Returns an Ethereum address from the ECDSA compressed public key.</p>

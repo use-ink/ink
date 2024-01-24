@@ -949,6 +949,19 @@
 <a href="#949" id="949">949</a>
 <a href="#950" id="950">950</a>
 <a href="#951" id="951">951</a>
+<a href="#952" id="952">952</a>
+<a href="#953" id="953">953</a>
+<a href="#954" id="954">954</a>
+<a href="#955" id="955">955</a>
+<a href="#956" id="956">956</a>
+<a href="#957" id="957">957</a>
+<a href="#958" id="958">958</a>
+<a href="#959" id="959">959</a>
+<a href="#960" id="960">960</a>
+<a href="#961" id="961">961</a>
+<a href="#962" id="962">962</a>
+<a href="#963" id="963">963</a>
+<a href="#964" id="964">964</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -1325,7 +1338,7 @@
                         // This is okay since we&#39;re going to only be encoding the `Err` variant
                         // into the output buffer anyways.
                         </span>::ink::env::return_value::&lt;::ink::ConstructorResult&lt;()&gt;&gt;(
-                            ::ink::env::ReturnFlags::new_with_reverted(<span class="bool-val">true</span>),
+                            ::ink::env::ReturnFlags::REVERT,
                             <span class="kw-2">&amp;</span>error,
                         );
                     }
@@ -1361,7 +1374,7 @@
                         // This is okay since we&#39;re going to only be encoding the `Err` variant
                         // into the output buffer anyways.
                         </span>::ink::env::return_value::&lt;::ink::MessageResult&lt;()&gt;&gt;(
-                            ::ink::env::ReturnFlags::new_with_reverted(<span class="bool-val">true</span>),
+                            ::ink::env::ReturnFlags::REVERT,
                             <span class="kw-2">&amp;</span>error,
                         );
                     }
@@ -1539,12 +1552,20 @@
                         );
                     }
 
+                    <span class="comment">// NOTE: we can&#39;t use an if/else expression here
+                    // It fails inside quote_spanned! macro.
+                    // See https://github.com/rust-lang/rust-clippy/issues/6249
+                    </span><span class="kw">let </span><span class="kw-2">mut </span>flag = ::ink::env::ReturnFlags::empty();
+                    <span class="kw">if </span>output_result.is_err() {
+                        flag = ::ink::env::ReturnFlags::REVERT;
+                    }
+
                     ::ink::env::return_value::&lt;
                         ::ink::ConstructorResult&lt;
                             ::core::result::Result&lt;(), <span class="kw-2">&amp;</span>#constructor_value::Error&gt;
                         &gt;,
                     &gt;(
-                        ::ink::env::ReturnFlags::new_with_reverted(output_result.is_err()),
+                        flag,
                         <span class="comment">// Currently no `LangError`s are raised at this level of the
                         // dispatch logic so `Ok` is always returned to the caller.
                         </span><span class="kw-2">&amp;</span>::ink::ConstructorResult::Ok(output_result.map(|<span class="kw">_</span>| ())),
@@ -1724,7 +1745,6 @@
                 <span class="macro">quote_spanned!</span>(message_span=&gt;
                     #( #cfg_attrs )*
                     <span class="self">Self</span>::#message_ident(input) =&gt; {
-
                         <span class="kw">if </span>#any_message_accepts_payment &amp;&amp; #deny_payment {
                             ::ink::codegen::deny_payment::&lt;
                                 &lt;#storage_ident <span class="kw">as </span>::ink::env::ContractEnv&gt;::Env&gt;()<span class="question-mark">?</span>;
@@ -1734,13 +1754,19 @@
                         <span class="kw">let </span>is_reverted = <span class="macro">::ink::is_result_type!</span>(#message_output)
                             &amp;&amp; <span class="macro">::ink::is_result_err!</span>(result);
 
+                        <span class="comment">// NOTE: we can&#39;t use an if/else expression here
+                        // It fails inside quote_spanned! macro.
+                        // See https://github.com/rust-lang/rust-clippy/issues/6249
+                        </span><span class="kw">let </span><span class="kw-2">mut </span>flag = ::ink::env::ReturnFlags::REVERT;
+
                         <span class="comment">// no need to push back results: transaction gets reverted anyways
                         </span><span class="kw">if </span>!is_reverted {
+                            flag = ::ink::env::ReturnFlags::empty();
                             push_contract(contract, #mutates_storage);
                         }
 
                         ::ink::env::return_value::&lt;::ink::MessageResult::&lt;#message_output&gt;&gt;(
-                            ::ink::env::ReturnFlags::new_with_reverted(is_reverted),
+                            flag,
                             <span class="comment">// Currently no `LangError`s are raised at this level of the
                             // dispatch logic so `Ok` is always returned to the caller.
                             </span><span class="kw-2">&amp;</span>::ink::MessageResult::Ok(result),

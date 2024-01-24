@@ -806,7 +806,6 @@
 </span><span class="kw">use crate</span>::{
     backend::{
         EnvBackend,
-        ReturnFlags,
         TypedEnvBackend,
     },
     call::{
@@ -831,6 +830,7 @@
     <span class="prelude-ty">Result</span>,
 };
 <span class="kw">use </span>ink_storage_traits::Storable;
+<span class="kw">use </span>pallet_contracts_uapi::ReturnFlags;
 
 <span class="doccomment">/// Returns the address of the caller of the executed contract.
 ///

@@ -738,6 +738,12 @@
 <a href="#738" id="738">738</a>
 <a href="#739" id="739">739</a>
 <a href="#740" id="740">740</a>
+<a href="#741" id="741">741</a>
+<a href="#742" id="742">742</a>
+<a href="#743" id="743">743</a>
+<a href="#744" id="744">744</a>
+<a href="#745" id="745">745</a>
+<a href="#746" id="746">746</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -760,7 +766,6 @@
 //! Instead it is just a simple wrapper around the contract storage facilities.
 
 </span><span class="kw">use </span>core::cell::Cell;
-
 <span class="kw">use </span>ink_primitives::Key;
 <span class="kw">use </span>ink_storage_traits::{
     AutoKey,
@@ -769,6 +774,7 @@
     StorableHint,
     StorageKey,
 };
+<span class="kw">use </span>pallet_contracts_uapi::ReturnErrorCode;
 <span class="kw">use </span>scale::EncodeLike;
 
 <span class="kw">use crate</span>::{
@@ -1135,9 +1141,10 @@
     /// * `Ok(Some(_))` if the value was inserted successfully, containing the size in
     ///   bytes of the pre-existing value at the specified key if any.
     /// * `Ok(None)` if the insert was successful but there was no pre-existing value.
-    /// * Err([ink_env::Error::BufferTooSmall]) if the encoded value exceeds the static
+    /// * Err([`ink_env::Error::BufferTooSmall`]) if the encoded value exceeds the static
     ///   buffer size
-    /// * Err([ink_env::Error::KeyNotFound]) if the `index` is out of bounds.
+    /// * Err([`ink_env::Error::ReturnError`]\([`ink_env::ReturnErrorCode::KeyNotFound`]))
+    ///   if the `index` is out of bounds.
     ///
     /// # Panics
     ///
@@ -1151,7 +1158,7 @@
         </span>T: Storable + EncodeLike&lt;V&gt;,
     {
         <span class="kw">if </span>index &gt;= <span class="self">self</span>.len() {
-            <span class="kw">return </span><span class="prelude-val">Err</span>(ink_env::Error::KeyNotFound);
+            <span class="kw">return </span><span class="prelude-val">Err</span>(ReturnErrorCode::KeyNotFound.into());
         }
 
         <span class="self">self</span>.elements.try_insert(index, value)
@@ -1393,7 +1400,12 @@
             <span class="kw">let </span><span class="kw-2">mut </span>array: StorageVec&lt;u32&gt; = (<span class="number">0</span>..<span class="number">10</span>).collect();
 
             <span class="macro">assert_eq!</span>(array.try_set(<span class="number">0</span>, <span class="kw-2">&amp;</span><span class="number">1</span>), <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<span class="number">4</span>)));
-            <span class="macro">assert_eq!</span>(array.try_set(<span class="number">10</span>, <span class="kw-2">&amp;</span><span class="number">1</span>), <span class="prelude-val">Err</span>(ink_env::Error::KeyNotFound));
+            <span class="macro">assert_eq!</span>(
+                array.try_set(<span class="number">10</span>, <span class="kw-2">&amp;</span><span class="number">1</span>),
+                <span class="prelude-val">Err</span>(ink_env::Error::ReturnError(
+                    ink_env::ReturnErrorCode::KeyNotFound
+                ))
+            );
 
             array.clear_at(<span class="number">0</span>);
             <span class="macro">assert_eq!</span>(array.try_set(<span class="number">0</span>, <span class="kw-2">&amp;</span><span class="number">1</span>), <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>));

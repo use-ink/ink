@@ -801,7 +801,6 @@
 // limitations under the License.
 
 </span><span class="kw">use crate</span>::{
-    backend::CallFlags,
     call::{
         utils::{
             EmptyArgumentList,
@@ -817,6 +816,7 @@
 };
 <span class="kw">use </span>core::marker::PhantomData;
 <span class="kw">use </span>num_traits::Zero;
+<span class="kw">use </span>pallet_contracts_uapi::CallFlags;
 
 <span class="doccomment">/// The final parameters to the cross-contract call.
 </span><span class="attr">#[derive(Debug)]
@@ -1116,7 +1116,7 @@
 {
     CallBuilder {
         call_type: Default::default(),
-        call_flags: Default::default(),
+        call_flags: CallFlags::empty(),
         exec_input: Default::default(),
         return_type: Default::default(),
         _phantom: Default::default(),

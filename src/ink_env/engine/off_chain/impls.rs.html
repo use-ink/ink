@@ -548,31 +548,6 @@
 <a href="#548" id="548">548</a>
 <a href="#549" id="549">549</a>
 <a href="#550" id="550">550</a>
-<a href="#551" id="551">551</a>
-<a href="#552" id="552">552</a>
-<a href="#553" id="553">553</a>
-<a href="#554" id="554">554</a>
-<a href="#555" id="555">555</a>
-<a href="#556" id="556">556</a>
-<a href="#557" id="557">557</a>
-<a href="#558" id="558">558</a>
-<a href="#559" id="559">559</a>
-<a href="#560" id="560">560</a>
-<a href="#561" id="561">561</a>
-<a href="#562" id="562">562</a>
-<a href="#563" id="563">563</a>
-<a href="#564" id="564">564</a>
-<a href="#565" id="565">565</a>
-<a href="#566" id="566">566</a>
-<a href="#567" id="567">567</a>
-<a href="#568" id="568">568</a>
-<a href="#569" id="569">569</a>
-<a href="#570" id="570">570</a>
-<a href="#571" id="571">571</a>
-<a href="#572" id="572">572</a>
-<a href="#573" id="573">573</a>
-<a href="#574" id="574">574</a>
-<a href="#575" id="575">575</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -612,18 +587,17 @@
     Clear,
     EnvBackend,
     Environment,
-    Error,
     <span class="prelude-ty">Result</span>,
-    ReturnFlags,
     TypedEnvBackend,
 };
-<span class="kw">use </span>ink_engine::{
-    ext,
-    ext::Engine,
-};
+<span class="kw">use </span>ink_engine::ext::Engine;
 <span class="kw">use </span>ink_storage_traits::{
     decode_all,
     Storable,
+};
+<span class="kw">use </span>pallet_contracts_uapi::{
+    ReturnErrorCode,
+    ReturnFlags,
 };
 <span class="kw">use </span>schnorrkel::{
     PublicKey,
@@ -680,25 +654,6 @@
         );
         <span class="kw">let </span>output: <span class="kw-2">&amp;mut </span>OutputType = <span class="macro">array_mut_ref!</span>(output, <span class="number">0</span>, <span class="number">32</span>);
         Engine::hash_keccak_256(input, output);
-    }
-}
-
-<span class="kw">impl </span>From&lt;ext::Error&gt; <span class="kw">for </span><span class="kw">crate</span>::Error {
-    <span class="kw">fn </span>from(ext_error: ext::Error) -&gt; <span class="self">Self </span>{
-        <span class="kw">match </span>ext_error {
-            ext::Error::Unknown =&gt; <span class="self">Self</span>::Unknown,
-            ext::Error::CalleeTrapped =&gt; <span class="self">Self</span>::CalleeTrapped,
-            ext::Error::CalleeReverted =&gt; <span class="self">Self</span>::CalleeReverted,
-            ext::Error::KeyNotFound =&gt; <span class="self">Self</span>::KeyNotFound,
-            ext::Error::_BelowSubsistenceThreshold =&gt; <span class="self">Self</span>::_BelowSubsistenceThreshold,
-            ext::Error::TransferFailed =&gt; <span class="self">Self</span>::TransferFailed,
-            ext::Error::_EndowmentTooLow =&gt; <span class="self">Self</span>::_EndowmentTooLow,
-            ext::Error::CodeNotFound =&gt; <span class="self">Self</span>::CodeNotFound,
-            ext::Error::NotCallable =&gt; <span class="self">Self</span>::NotCallable,
-            ext::Error::LoggingDisabled =&gt; <span class="self">Self</span>::LoggingDisabled,
-            ext::Error::EcdsaRecoveryFailed =&gt; <span class="self">Self</span>::EcdsaRecoveryFailed,
-            ext::Error::Sr25519VerifyFailed =&gt; <span class="self">Self</span>::Sr25519VerifyFailed,
-        }
     }
 }
 
@@ -785,7 +740,7 @@
                 <span class="kw">let </span>decoded = decode_all(<span class="kw-2">&amp;mut &amp;</span>res[..])<span class="question-mark">?</span>;
                 <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(decoded))
             }
-            <span class="prelude-val">Err</span>(ext::Error::KeyNotFound) =&gt; <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>),
+            <span class="prelude-val">Err</span>(ReturnErrorCode::KeyNotFound) =&gt; <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>),
             <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="macro">panic!</span>(<span class="string">&quot;encountered unexpected error&quot;</span>),
         }
     }
@@ -800,7 +755,7 @@
                 <span class="kw">let </span>decoded = decode_all(<span class="kw-2">&amp;mut &amp;</span>output[..])<span class="question-mark">?</span>;
                 <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(decoded))
             }
-            <span class="prelude-val">Err</span>(ext::Error::KeyNotFound) =&gt; <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>),
+            <span class="prelude-val">Err</span>(ReturnErrorCode::KeyNotFound) =&gt; <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>),
             <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="macro">panic!</span>(<span class="string">&quot;encountered unexpected error&quot;</span>),
         }
     }
@@ -891,7 +846,7 @@
                 <span class="kw-2">*</span>output = pub_key.serialize();
                 <span class="prelude-val">Ok</span>(())
             }
-            <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="prelude-val">Err</span>(Error::EcdsaRecoveryFailed),
+            <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="prelude-val">Err</span>(ReturnErrorCode::EcdsaRecoveryFailed.into()),
         }
     }
 
@@ -901,7 +856,7 @@
         output: <span class="kw-2">&amp;mut </span>[u8; <span class="number">20</span>],
     ) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
         <span class="kw">let </span>pk = secp256k1::PublicKey::from_slice(pubkey)
-            .map_err(|<span class="kw">_</span>| Error::EcdsaRecoveryFailed)<span class="question-mark">?</span>;
+            .map_err(|<span class="kw">_</span>| ReturnErrorCode::EcdsaRecoveryFailed)<span class="question-mark">?</span>;
         <span class="kw">let </span>uncompressed = pk.serialize_uncompressed();
         <span class="kw">let </span><span class="kw-2">mut </span>hash = &lt;Keccak256 <span class="kw">as </span>HashOutput&gt;::Type::default();
         &lt;Keccak256&gt;::hash(<span class="kw-2">&amp;</span>uncompressed[<span class="number">1</span>..], <span class="kw-2">&amp;mut </span>hash);
@@ -920,15 +875,15 @@
         // https://github.com/paritytech/substrate/blob/c32f5ed2ae6746d6f791f08cecbfc22fa188f5f9/primitives/core/src/sr25519.rs#L60
         </span><span class="kw">let </span>context = <span class="string">b&quot;substrate&quot;</span>;
         <span class="comment">// attempt to parse a signature from bytes
-        </span><span class="kw">let </span>signature: Signature =
-            Signature::from_bytes(signature).map_err(|<span class="kw">_</span>| Error::Sr25519VerifyFailed)<span class="question-mark">?</span>;
+        </span><span class="kw">let </span>signature: Signature = Signature::from_bytes(signature)
+            .map_err(|<span class="kw">_</span>| ReturnErrorCode::Sr25519VerifyFailed)<span class="question-mark">?</span>;
         <span class="comment">// attempt to parse a public key from bytes
-        </span><span class="kw">let </span>public_key: PublicKey =
-            PublicKey::from_bytes(pub_key).map_err(|<span class="kw">_</span>| Error::Sr25519VerifyFailed)<span class="question-mark">?</span>;
+        </span><span class="kw">let </span>public_key: PublicKey = PublicKey::from_bytes(pub_key)
+            .map_err(|<span class="kw">_</span>| ReturnErrorCode::Sr25519VerifyFailed)<span class="question-mark">?</span>;
         <span class="comment">// verify the signature
         </span>public_key
             .verify_simple(context, message, <span class="kw-2">&amp;</span>signature)
-            .map_err(|<span class="kw">_</span>| Error::Sr25519VerifyFailed)
+            .map_err(|<span class="kw">_</span>| ReturnErrorCode::Sr25519VerifyFailed.into())
     }
 
     <span class="kw">fn </span>call_chain_extension&lt;I, T, E, ErrorCode, F, D&gt;(
@@ -1033,18 +988,13 @@
 
     <span class="kw">fn </span>invoke_contract&lt;E, Args, R&gt;(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
-        params: <span class="kw-2">&amp;</span>CallParams&lt;E, Call&lt;E&gt;, Args, R&gt;,
+        _params: <span class="kw-2">&amp;</span>CallParams&lt;E, Call&lt;E&gt;, Args, R&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;ink_primitives::MessageResult&lt;R&gt;&gt;
     <span class="kw">where
         </span>E: Environment,
         Args: scale::Encode,
         R: scale::Decode,
     {
-        <span class="kw">let </span>_gas_limit = params.gas_limit();
-        <span class="kw">let </span>_callee = params.callee();
-        <span class="kw">let </span>_call_flags = params.call_flags().into_u32();
-        <span class="kw">let </span>_transferred_value = params.transferred_value();
-        <span class="kw">let </span>_input = params.exec_input();
         <span class="macro">unimplemented!</span>(<span class="string">&quot;off-chain environment does not support contract invocation&quot;</span>)
     }
 

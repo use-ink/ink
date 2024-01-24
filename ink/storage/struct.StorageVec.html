@@ -130,9 +130,10 @@ size.</li>
 <li><code>Ok(Some(_))</code> if the value was inserted successfully, containing the size in
 bytes of the pre-existing value at the specified key if any.</li>
 <li><code>Ok(None)</code> if the insert was successful but there was no pre-existing value.</li>
-<li>Err([ink_env::Error::BufferTooSmall]) if the encoded value exceeds the static
+<li>Err([<code>ink_env::Error::BufferTooSmall</code>]) if the encoded value exceeds the static
 buffer size</li>
-<li>Err([ink_env::Error::KeyNotFound]) if the <code>index</code> is out of bounds.</li>
+<li>Err([<code>ink_env::Error::ReturnError</code>]([<code>ink_env::ReturnErrorCode::KeyNotFound</code>]))
+if the <code>index</code> is out of bounds.</li>
 </ul>
 <h5 id="panics-5"><a href="#panics-5">Panics</a></h5>
 <p>Panics if <code>index</code> exceeds the length of the vector.</p>

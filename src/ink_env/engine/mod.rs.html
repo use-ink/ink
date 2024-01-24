@@ -248,6 +248,10 @@
 <a href="#248" id="248">248</a>
 <a href="#249" id="249">249</a>
 <a href="#250" id="250">250</a>
+<a href="#251" id="251">251</a>
+<a href="#252" id="252">252</a>
+<a href="#253" id="253">253</a>
+<a href="#254" id="254">254</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -271,7 +275,6 @@
         ConstructorReturnType,
         FromAccountId,
     },
-    Error <span class="kw">as </span>EnvError,
     Error,
     <span class="prelude-ty">Result </span><span class="kw">as </span>EnvResult,
 };
@@ -280,6 +283,8 @@
     ConstructorResult,
     LangError,
 };
+
+<span class="kw">use </span>pallet_contracts_uapi::ReturnErrorCode;
 
 <span class="doccomment">/// Convert a slice into an array reference.
 ///
@@ -339,7 +344,7 @@
             <span class="kw">let </span>output = &lt;R <span class="kw">as </span>ConstructorReturnType&lt;ContractRef&gt;&gt;::ok(contract_ref);
             <span class="prelude-val">Ok</span>(<span class="prelude-val">Ok</span>(output))
         }
-        <span class="prelude-val">Err</span>(EnvError::CalleeReverted) =&gt; {
+        <span class="prelude-val">Err</span>(Error::ReturnError(ReturnErrorCode::CalleeReverted)) =&gt; {
             decode_instantiate_err::&lt;I, E, ContractRef, R&gt;(out_return_value)
         }
         <span class="prelude-val">Err</span>(actual_error) =&gt; <span class="prelude-val">Err</span>(actual_error),
@@ -400,7 +405,6 @@
     <span class="kw">use crate</span>::{
         DefaultEnvironment,
         Environment,
-        Error,
     };
     <span class="kw">use </span>scale::Encode;
 
@@ -443,7 +447,11 @@
             DefaultEnvironment,
             TestContractRef,
             <span class="prelude-ty">Result</span>&lt;TestContractRef, ContractError&gt;,
-        &gt;(<span class="prelude-val">Err</span>(Error::CalleeReverted), out_address, out_return_value)
+        &gt;(
+            <span class="prelude-val">Err</span>(ReturnErrorCode::CalleeReverted.into()),
+            out_address,
+            out_return_value,
+        )
     }
 
     <span class="attr">#[test]

@@ -1143,9 +1143,9 @@
         HashOutput,
     },
     Environment,
-    Error,
     <span class="prelude-ty">Result</span>,
 };
+<span class="kw">use </span>pallet_contracts_uapi::ReturnErrorCode;
 
 <span class="doccomment">/// The API behind the `self.env()` and `Self::env()` syntax in ink!.
 ///
@@ -1939,7 +1939,7 @@
     ///     let failed_result = self.env().ecdsa_recover(&amp;signature, &amp;[0; 32]);
     ///     assert!(failed_result.is_err());
     ///     if let Err(e) = failed_result {
-    ///         assert_eq!(e, ink::env::Error::EcdsaRecoveryFailed);
+    ///         assert_eq!(e, ink::env::ReturnErrorCode::EcdsaRecoveryFailed.into());
     ///     }
     /// }
     /// #
@@ -1954,7 +1954,7 @@
         <span class="kw">let </span><span class="kw-2">mut </span>output = [<span class="number">0</span>; <span class="number">33</span>];
         ink_env::ecdsa_recover(signature, message_hash, <span class="kw-2">&amp;mut </span>output)
             .map(|<span class="kw">_</span>| output)
-            .map_err(|<span class="kw">_</span>| Error::EcdsaRecoveryFailed)
+            .map_err(|<span class="kw">_</span>| ReturnErrorCode::EcdsaRecoveryFailed.into())
     }
 
     <span class="doccomment">/// Returns an Ethereum address from the ECDSA compressed public key.
@@ -2001,7 +2001,7 @@
         <span class="kw">let </span><span class="kw-2">mut </span>output = [<span class="number">0</span>; <span class="number">20</span>];
         ink_env::ecdsa_to_eth_address(pubkey, <span class="kw-2">&amp;mut </span>output)
             .map(|<span class="kw">_</span>| output)
-            .map_err(|<span class="kw">_</span>| Error::EcdsaRecoveryFailed)
+            .map_err(|<span class="kw">_</span>| ReturnErrorCode::EcdsaRecoveryFailed.into())
     }
 
     <span class="doccomment">/// Verifies a SR25519 signature against a message and a public key.
@@ -2061,7 +2061,7 @@
         pub_key: <span class="kw-2">&amp;</span>[u8; <span class="number">32</span>],
     ) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
         ink_env::sr25519_verify(signature, message, pub_key)
-            .map_err(|<span class="kw">_</span>| Error::Sr25519VerifyFailed)
+            .map_err(|<span class="kw">_</span>| ReturnErrorCode::Sr25519VerifyFailed.into())
     }
 
     <span class="doccomment">/// Checks whether a specified account belongs to a contract.
