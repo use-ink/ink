@@ -22,6 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Clean E2E configuration parsing - [#1922](https://github.com/paritytech/ink/pull/1922)
 - Make `set_code_hash` generic - [#1906](https://github.com/paritytech/ink/pull/1906)
 - Provide a `StorageVec` datastructure built on top of `Lazy` - [#1995](https://github.com/paritytech/ink/pull/1995)
+- Add fallible methods for `Mapping` and `Lazy` - [#1910](https://github.com/paritytech/ink/pull/1910)
 - [E2E] Allow testing with live-chain state - [#1949](https://github.com/paritytech/ink/pull/1949)
 - [E2E] Call builders and extra gas margin option - [#1917](https://github.com/paritytech/ink/pull/1917)
 - [Linter] `storage_never_freed` lint - [#1932](https://github.com/paritytech/ink/pull/1932)
