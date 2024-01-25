@@ -85,6 +85,8 @@ mod dns {
         NameAlreadyExists,
         /// Returned if caller is not owner while required to.
         CallerIsNotOwner,
+        /// Returned if stored value is to large.
+        ValueTooLarge,
     }
 
     /// Type alias for the contract's result type.
@@ -105,7 +107,8 @@ mod dns {
                 return Err(Error::NameAlreadyExists)
             }
 
-            self.name_to_owner.insert(name, &caller);
+            self.name_to_owner.try_insert(name, &caller)
+            .map_err(|_| Error::ValueTooLarge)?;
             self.env().emit_event(Register { name, from: caller });
 
             Ok(())
@@ -115,13 +118,13 @@ mod dns {
         #[ink(message)]
         pub fn set_address(&mut self, name: Hash, new_address: AccountId) -> Result<()> {
             let caller = self.env().caller();
-            let owner = self.get_owner_or_default(name);
+            let owner = self.get_owner_or_default(name)?;
             if caller != owner {
                 return Err(Error::CallerIsNotOwner)
             }
 
             let old_address = self.name_to_address.get(name);
-            self.name_to_address.insert(name, &new_address);
+            self.name_to_address.try_insert(name, &new_address).map_err(|_| Error::ValueTooLarge)?;
 
             self.env().emit_event(SetAddress {
                 name,
@@ -136,13 +139,13 @@ mod dns {
         #[ink(message)]
         pub fn transfer(&mut self, name: Hash, to: AccountId) -> Result<()> {
             let caller = self.env().caller();
-            let owner = self.get_owner_or_default(name);
+            let owner = self.get_owner_or_default(name)?;
             if caller != owner {
                 return Err(Error::CallerIsNotOwner)
             }
 
             let old_owner = self.name_to_owner.get(name);
-            self.name_to_owner.insert(name, &to);
+            self.name_to_owner.try_insert(name, &to).map_err(|_| Error::ValueTooLarge)?;
 
             self.env().emit_event(Transfer {
                 name,
@@ -156,26 +159,28 @@ mod dns {
 
         /// Get address for specific name.
         #[ink(message)]
-        pub fn get_address(&self, name: Hash) -> AccountId {
+        pub fn get_address(&self, name: Hash) -> Result<AccountId> {
             self.get_address_or_default(name)
         }
 
         /// Get owner of specific name.
         #[ink(message)]
-        pub fn get_owner(&self, name: Hash) -> AccountId {
+        pub fn get_owner(&self, name: Hash) -> Result<AccountId> {
             self.get_owner_or_default(name)
         }
 
         /// Returns the owner given the hash or the default address.
-        fn get_owner_or_default(&self, name: Hash) -> AccountId {
-            self.name_to_owner.get(name).unwrap_or(self.default_address)
+        fn get_owner_or_default(&self, name: Hash) -> Result<AccountId> {
+            self.name_to_owner.try_get(name).map(|result| result.map_err(|_| Error::ValueTooLarge))
+            .unwrap_or(Ok(self.default_address))
         }
 
         /// Returns the address given the hash or the default address.
-        fn get_address_or_default(&self, name: Hash) -> AccountId {
+        fn get_address_or_default(&self, name: Hash) -> Result<AccountId> {
             self.name_to_address
-                .get(name)
-                .unwrap_or(self.default_address)
+                .try_get(name)
+                .map(|result| result.map_err(|_| Error::ValueTooLarge))
+                .unwrap_or(Ok(self.default_address))
         }
     }
 
@@ -231,7 +236,7 @@ mod dns {
             // Caller is owner, set_address will be successful
             set_next_caller(accounts.alice);
             assert_eq!(contract.set_address(name, accounts.bob), Ok(()));
-            assert_eq!(contract.get_address(name), accounts.bob);
+            assert_eq!(contract.get_address(name), Ok(accounts.bob));
         }
 
         #[ink::test]
@@ -256,7 +261,7 @@ mod dns {
             set_next_caller(accounts.bob);
             // Now owner is bob, `set_address` should be successful.
             assert_eq!(contract.set_address(name, accounts.bob), Ok(()));
-            assert_eq!(contract.get_address(name), accounts.bob);
+            assert_eq!(contract.get_address(name), Ok(accounts.bob));
         }
     }
 }

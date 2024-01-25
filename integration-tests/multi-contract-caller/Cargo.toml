@@ -22,7 +22,6 @@ path = "lib.rs"
 default = ["std"]
 std = [
     "ink/std",
-
     "adder/std",
     "subber/std",
     "accumulator/std",
