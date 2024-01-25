@@ -292,7 +292,7 @@
                 <span class="kw">let </span>rpc = ::ink_e2e::RpcClient::from_url(#url)
                     .<span class="kw">await
                     </span>.unwrap_or_else(|err|
-                        <span class="macro">::core::panic!</span>(<span class="string">&quot;Error connecting to Chopsticks node: {err:?}&quot;</span>)
+                        <span class="macro">::core::panic!</span>(<span class="string">&quot;Error connecting to node at {}: {err:?}&quot;</span>, #url)
                     );
                 <span class="kw">let </span>contracts = #contracts;
                 <span class="kw">let </span><span class="kw-2">mut </span>client = ::ink_e2e::Client::&lt;
