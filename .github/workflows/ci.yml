@@ -488,6 +488,7 @@ jobs:
           scripts/for_all_contracts_exec.sh --path integration-tests --ignore static-buffer -- cargo test \
             --verbose --all-features --manifest-path {}
           # run flipper E2E test with on-chain contract
+          substrate-contracts-node -lruntime::contracts=debug  2>&1 | tee /tmp/contracts-node.log &
           cargo contract build --release --manifest-path integration-tests/flipper/Cargo.toml
           cargo contract instantiate --suri //Alice --args true -x -y --manifest-path=integration-tests/flipper/Cargo.toml
           export CONTRACT_HEX=$(cargo contract instantiate --manifest-path integration-tests/flipper/Cargo.toml --suri //Alice --args true -x -y --output-json | jq -r .contract | xargs subkey inspect | grep -o "0x.*" | head -n1)
