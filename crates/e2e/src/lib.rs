@@ -53,7 +53,6 @@ pub use contract_results::{
     InstantiationResult,
     UploadResult,
 };
-pub use ink::codegen::ContractCallBuilder;
 pub use ink_e2e_macro::test;
 pub use node_proc::{
     TestNodeProcess,
