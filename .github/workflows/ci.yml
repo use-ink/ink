@@ -491,7 +491,7 @@ jobs:
           # run flipper E2E test with on-chain contract
           substrate-contracts-node -lruntime::contracts=debug 2>&1 &
           cargo contract build --release --manifest-path integration-tests/flipper/Cargo.toml
-          export CONTRACT_HEX=$(cargo contract instantiate \
+          export CONTRACT_ADDR_HEX=$(cargo contract instantiate \
             --manifest-path integration-tests/flipper/Cargo.toml \
             --suri //Alice --args true -x -y --output-json | \
             jq -r .contract | xargs subkey inspect | grep -o "0x.*" | head -n1)
