@@ -787,3 +787,23 @@ where
         TypedEnvBackend::call_runtime::<E, _>(instance, call)
     })
 }
+
+/// todo: add_delegate_dependency docs
+pub fn add_delegate_dependency<E>(code_hash: &E::Hash) -> Result<()>
+where
+    E: Environment,
+{
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        instance.add_delegate_dependency::<E>(code_hash)
+    })
+}
+
+/// todo: remove_delegate_dependency docs
+pub fn remove_delegate_dependency<E>(code_hash: &E::Hash) -> Result<()>
+where
+    E: Environment,
+{
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        instance.remove_delegate_dependency::<E>(code_hash)
+    })
+}

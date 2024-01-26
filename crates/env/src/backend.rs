@@ -399,4 +399,33 @@ pub trait TypedEnvBackend: EnvBackend {
     where
         E: Environment,
         Call: scale::Encode;
+
+    /// Adds a new delegate dependency to the contract.
+    ///
+    /// This guarantees that the code of the dependency cannot be removed without first
+    /// calling [`remove_delegate_dependency`]. It charges a fraction of the code
+    /// deposit.
+    ///
+    /// # Errors
+    ///
+    /// - If the supplied `code_hash` cannot be found on-chain.
+    /// - If the `code_hash` is the same as the calling contract.
+    /// - If the maximum number of delegate_dependencies is reached
+    /// - If the delegate dependency already exists.
+    fn add_delegate_dependency<E>(&mut self, code_hash: &E::Hash) -> Result<()>
+    where
+        E: Environment;
+
+    /// Removes the delegate dependency from the contract.
+    ///
+    /// This removes the lock and refunds the deposit from the call to
+    /// [`add_delegate_dependency`]. The code of the dependency can be removed if the
+    /// reference count for the code hash is now zero.
+    ///
+    /// # Errors
+    ///
+    /// - If the delegate dependency does not exist.
+    fn remove_delegate_dependency<E>(&mut self, code_hash: &E::Hash) -> Result<()>
+    where
+        E: Environment;
 }

@@ -1112,4 +1112,14 @@ where
     pub fn call_runtime<Call: scale::Encode>(self, call: &Call) -> Result<()> {
         ink_env::call_runtime::<E, _>(call)
     }
+
+    /// todo: add_delegate_dependency docs
+    pub fn add_delegate_dependency(self, code_hash: &E::Hash) -> Result<()> {
+        ink_env::add_delegate_dependency::<E>(code_hash)
+    }
+
+    /// todo: remove_delegate_dependency docs
+    pub fn remove_delegate_dependency(self, code_hash: &E::Hash) -> Result<()> {
+        ink_env::remove_delegate_dependency::<E>(code_hash)
+    }
 }

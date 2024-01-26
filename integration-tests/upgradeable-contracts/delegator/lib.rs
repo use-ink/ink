@@ -3,26 +3,30 @@
 #[ink::contract]
 pub mod delegator {
     use ink::{
-        env::CallFlags,
-        storage::Mapping,
-    };
-
-    use ink::{
         env::{
             call::{
                 build_call,
                 ExecutionInput,
                 Selector,
             },
+            CallFlags,
             DefaultEnvironment,
         },
-        storage::traits::ManualKey,
+        prelude::{
+            format,
+            string::String,
+        },
+        storage::{
+            traits::ManualKey,
+            Mapping,
+        },
     };
 
     #[ink(storage)]
     pub struct Delegator {
         addresses: Mapping<AccountId, i32, ManualKey<0x23>>,
         counter: i32,
+        delegate_to: Option<Hash>,
     }
 
     impl Delegator {
@@ -33,6 +37,7 @@ pub mod delegator {
             Self {
                 addresses: v,
                 counter: init_value,
+                delegate_to: None,
             }
         }
 
@@ -40,6 +45,20 @@ pub mod delegator {
         #[ink(constructor)]
         pub fn new_default() -> Self {
             Self::new(Default::default())
+        }
+
+        #[ink(message)]
+        pub fn update_delegate(&mut self, hash: Hash) -> Result<(), String> {
+            if let Some(old_hash) = self.delegate_to {
+                self.env()
+                    .remove_delegate_dependency(&old_hash)
+                    .map_err(|e| format!("remove_delegate_dependency failed: {:?}", e))?;
+            }
+            self.env()
+                .add_delegate_dependency(&hash)
+                .map_err(|e| format!("remove_delegate_dependency failed: {:?}", e))?;
+            self.delegate_to = Some(hash);
+            Ok(())
         }
 
         /// Increment the current value using delegate call.
