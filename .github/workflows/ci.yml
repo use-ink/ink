@@ -493,7 +493,7 @@ jobs:
           cargo install subkey
           cargo contract instantiate --salt 10 --manifest-path integration-tests/flipper/Cargo.toml --suri //Alice --args true -x -y --output-json | jq -r .contract | xargs subkey inspect | grep -o "0x.*" | head -n1
           export CONTRACT_HEX=$(cargo contract instantiate --manifest-path integration-tests/flipper/Cargo.toml --suri //Alice --args true -x -y --output-json | jq -r .contract | xargs subkey inspect | grep -o "0x.*" | head -n1)
-          RUST_LOG=info CONTRACTS_NODE_URL=ws://127.0.0.1:9944 cargo test --features e2e-tests e2e_test_deployed_contract -- --ignored --nocapture
+          RUST_LOG=info CONTRACTS_NODE_URL=ws://127.0.0.1:9944 cargo test --features e2e-tests e2e_test_deployed_contract --manifest-path integration-tests/flipper/Cargo.toml -- --ignored --nocapture
           # run the static buffer test with a custom buffer size
           cargo clean --manifest-path integration-tests/static-buffer/Cargo.toml
           INK_STATIC_BUFFER_SIZE=30 cargo test --verbose --manifest-path integration-tests/static-buffer/Cargo.toml --all-features
