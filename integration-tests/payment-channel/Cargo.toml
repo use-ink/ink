@@ -1,0 +1,25 @@
+[package]
+name = "payment_channel"
+version = "5.0.0-rc"
+authors = ["Parity Technologies <admin@parity.io>"]
+edition = "2021"
+publish = false
+
+[dependencies]
+ink = { path = "../../crates/ink", default-features = false }
+
+[dev-dependencies]
+hex-literal = { version = "0.4.1" }
+sp-core = { version = "21.0.0", default-features = false }
+
+[lib]
+path = "lib.rs"
+
+[features]
+default = ["std"]
+std = [
+    "ink/std",
+    "sp-core/std",
+]
+
+ink-as-dependency = []

@@ -1,0 +1,22 @@
+[package]
+name = "adder"
+version = "5.0.0-rc"
+authors = ["Parity Technologies <admin@parity.io>"]
+edition = "2021"
+
+[dependencies]
+ink = { path = "../../../crates/ink", default-features = false }
+
+accumulator = { path = "../accumulator", default-features = false, features = ["ink-as-dependency"] }
+
+[lib]
+path = "lib.rs"
+
+[features]
+default = ["std"]
+std = [
+    "ink/std",
+
+    "accumulator/std",
+]
+ink-as-dependency = []

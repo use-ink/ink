@@ -1,0 +1,23 @@
+[package]
+name = "mother"
+description = "Mother of all contracts"
+version = "5.0.0-rc"
+authors = ["Parity Technologies <admin@parity.io>"]
+edition = "2021"
+publish = false
+
+[dependencies]
+ink = { path = "../../crates/ink", default-features = false }
+
+[dev-dependencies]
+ink_e2e = { path = "../../crates/e2e" }
+
+[lib]
+path = "lib.rs"
+
+[features]
+default = ["std"]
+std = [
+    "ink/std",
+]
+ink-as-dependency = []

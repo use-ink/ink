@@ -1,0 +1,32 @@
+[package]
+name = "basic-contract-caller"
+version = "5.0.0-rc"
+authors = ["Parity Technologies <admin@parity.io>"]
+edition = "2021"
+publish = false
+
+[dependencies]
+ink = { path = "../../crates/ink", default-features = false }
+
+# Note: We **need** to specify the `ink-as-dependency` feature.
+#
+# If we don't we will end up with linking errors!
+other-contract = { path = "other-contract", default-features = false, features = ["ink-as-dependency"] }
+
+[dev-dependencies]
+ink_e2e = { path = "../../crates/e2e" }
+
+[lib]
+path = "lib.rs"
+
+[features]
+default = ["std"]
+std = [
+    "ink/std",
+
+    # Note: The metadata generation step requires `std`. If we don't specify this the metadata
+    # generation for our contract will fail!
+    "other-contract/std",
+]
+ink-as-dependency = []
+e2e-tests = []

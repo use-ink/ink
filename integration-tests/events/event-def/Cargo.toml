@@ -1,0 +1,13 @@
+[package]
+name = "event-def"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+ink = { path = "../../../crates/ink", default-features = false }
+
+[features]
+default = ["std"]
+std = [
+    "ink/std",
+]

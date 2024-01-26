@@ -1,0 +1,27 @@
+[package]
+name = "call_builder_return_value"
+version = "5.0.0-rc"
+authors = ["Parity Technologies <admin@parity.io>"]
+edition = "2021"
+publish = false
+
+[dependencies]
+ink = { path = "../../crates/ink", default-features = false }
+
+incrementer = { path = "../incrementer", default-features = false, features = ["ink-as-dependency"] }
+
+[dev-dependencies]
+ink_e2e = { path = "../../crates/e2e" }
+
+[lib]
+path = "lib.rs"
+
+[features]
+default = ["std"]
+std = [
+    "ink/std",
+
+    "incrementer/std",
+]
+ink-as-dependency = []
+e2e-tests = []
