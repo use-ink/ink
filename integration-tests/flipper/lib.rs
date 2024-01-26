@@ -116,37 +116,39 @@ pub mod flipper {
         /// You can utilize this to e.g. create a snapshot of a production chain
         /// and run the E2E tests against a deployed contract there.
         /// This process is explained [here](https://use.ink/5.x/basics/contract-testing/chain-snapshot).
-        /// It requires a node to be run in the background, before executing the test.
         ///
-        /// The test is run like this:
+        /// Before executing the test:
+        ///   * Make sure you have a node running in the background,
+        ///   * Supply the env `CONTRACT_HEX` that points to a deployed flipper. You can
+        ///     take the SS58 address which `cargo contract instantiate` gives you and
+        ///     convert it to hex using `subkey inspect <SS58>`.
+        ///
+        /// The test is then run like this:
         ///
         /// ```
         /// # The env variable needs to be set, otherwise `ink_e2e` will spawn a new
         /// # node process for each test.
         /// $ export CONTRACTS_NODE_URL=ws://127.0.0.1:9944
         ///
-        /// $ cargo test --features e2e-tests e2e_test_deployed_contract
+        /// $ export CONTRACT_HEX=0x2c75f0aa09dbfbfd49e6286a0f2edd3b4913f04a58b13391c79e96782f5713e3
+        /// $ cargo test --features e2e-tests e2e_test_deployed_contract -- --ignored
         /// ```
+        ///
+        /// # Developer Note
+        ///
+        /// The test is marked as ignored, as it has the above pre-conditions to succeed.
         #[ink_e2e::test]
         #[ignore]
         async fn e2e_test_deployed_contract<Client: E2EBackend>(
             mut client: Client,
         ) -> E2EResult<()> {
             // given
-            // You can take a SS58 address and convert it to hex using the `subkey` tool:
-            //
-            // ```
-            // subkey inspect 5D4zzvxGZq4wx3SYuaDomSMSAS1h1Knm35gz62UAk4Tqscey
-            //   ...
-            //   Public key (hex):   0x2c75f0aa09dbfbfd49e6286a0f2edd3b4913f04a58b13391c79e96782f5713e3
-            // ```
-            let acc_id = hex_literal::hex!(
-                "2c75f0aa09dbfbfd49e6286a0f2edd3b4913f04a58b13391c79e96782f5713e3"
-            );
-            let acc_id = AccountId::from(acc_id);
+            let addr = std::env::var("HEX").unwrap().replace("0x", "");
+            let acc_id = hex::decode(addr).unwrap();
+            let acc_id = AccountId::try_from(&acc_id[..]).unwrap();
 
             // when
-            // Invoke `Flipper::get()` from Bob
+            // Invoke `Flipper::get()` from Bob's account
             let call_builder = ink_e2e::create_call_builder::<Flipper>(acc_id);
             let get = call_builder.get();
             let get_res = client.call(&ink_e2e::bob(), &get).dry_run().await?;

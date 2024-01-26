@@ -82,6 +82,7 @@ pub use {
     drink_client::Client as DrinkClient,
 };
 
+use ink::codegen::ContractCallBuilder;
 use ink_env::{
     call::FromAccountId,
     ContractEnv,
