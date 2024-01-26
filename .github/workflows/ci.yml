@@ -490,6 +490,7 @@ jobs:
           # run flipper E2E test with on-chain contract
           substrate-contracts-node -lruntime::contracts=debug  2>&1 | tee /tmp/contracts-node.log &
           cargo contract build --release --manifest-path integration-tests/flipper/Cargo.toml
+          cargo install subkey
           export CONTRACT_HEX=$(cargo contract instantiate --manifest-path integration-tests/flipper/Cargo.toml --suri //Alice --args true -x -y --output-json | jq -r .contract | xargs subkey inspect | grep -o "0x.*" | head -n1)
           CONTRACTS_NODE_URL=ws://127.0.0.1:9944 cargo test --features e2e-tests e2e_test_deployed_contract -- --ignored
           # run the static buffer test with a custom buffer size
