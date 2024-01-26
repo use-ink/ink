@@ -1,6 +1,9 @@
 #![cfg_attr(not(feature = "std"), no_std, no_main)]
 
-use ink::env::{DefaultEnvironment, Environment};
+use ink::env::{
+    DefaultEnvironment,
+    Environment,
+};
 
 /// Our custom environment diverges from the `DefaultEnvironment` in the event topics
 /// limit.
@@ -133,9 +136,7 @@ mod runtime_call {
             let message = call.trigger();
 
             // when
-            let call_res = client
-                .call(&ink_e2e::alice(), &message).dry_run()
-                .await;
+            let call_res = client.call(&ink_e2e::alice(), &message).dry_run().await;
 
             // then
             assert!(call_res.is_err());
