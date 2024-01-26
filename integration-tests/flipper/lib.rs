@@ -143,7 +143,7 @@ pub mod flipper {
             mut client: Client,
         ) -> E2EResult<()> {
             // given
-            let addr = std::env::var("HEX").unwrap().replace("0x", "");
+            let addr = std::env::var("CONTRACT_HEX").unwrap().replace("0x", "");
             let acc_id = hex::decode(addr).unwrap();
             let acc_id = AccountId::try_from(&acc_id[..]).unwrap();
 
