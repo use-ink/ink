@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Custom signature topic in Events - [#2031](https://github.com/paritytech/ink/pull/2031)
 - Linter: `non_fallible_api` lint - [#2004](https://github.com/paritytech/ink/pull/2004)
 - Linter: Publish the linting crates on crates.io - [#2060](https://github.com/paritytech/ink/pull/2060)
+- [E2E] Added `create_call_builder` for testing existing contracts - [#2075](https://github.com/paritytech/ink/pull/2075)
 
 ### Fixed
 - Fix the `StorageVec` type by excluding the `len_cached` field from its type info - [#2052](https://github.com/paritytech/ink/pull/2052)
