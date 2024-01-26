@@ -127,7 +127,6 @@ pub mod flipper {
         ///
         /// $ cargo test --features e2e-tests e2e_test_deployed_contract
         /// ```
-        ///
         #[ink_e2e::test]
         #[ignore]
         async fn e2e_test_deployed_contract<Client: E2EBackend>(

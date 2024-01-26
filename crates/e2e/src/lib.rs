@@ -137,11 +137,11 @@ pub fn account_id(account: AccountKeyring) -> ink_primitives::AccountId {
 pub fn create_call_builder<Contract>(
     acc_id: <<Contract as ContractEnv>::Env as Environment>::AccountId,
 ) -> <Contract as ContractCallBuilder>::Type
-    where
-        <Contract as ContractEnv>::Env: Environment,
-        Contract: ContractCallBuilder,
-        Contract: ContractEnv,
-        Contract::Type: FromAccountId<<Contract as ContractEnv>::Env>,
+where
+    <Contract as ContractEnv>::Env: Environment,
+    Contract: ContractCallBuilder,
+    Contract: ContractEnv,
+    Contract::Type: FromAccountId<<Contract as ContractEnv>::Env>,
 {
     <<Contract as ContractCallBuilder>::Type as FromAccountId<
         <Contract as ContractEnv>::Env,
