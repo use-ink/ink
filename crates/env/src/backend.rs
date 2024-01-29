@@ -16,6 +16,7 @@ use crate::{
     call::{
         Call,
         CallParams,
+        CallV2,
         ConstructorReturnType,
         CreateParams,
         DelegateCall,
@@ -298,6 +299,15 @@ pub trait TypedEnvBackend: EnvBackend {
     fn invoke_contract<E, Args, R>(
         &mut self,
         call_data: &CallParams<E, Call<E>, Args, R>,
+    ) -> Result<ink_primitives::MessageResult<R>>
+    where
+        E: Environment,
+        Args: scale::Encode,
+        R: scale::Decode;
+
+    fn invoke_contract_v2<E, Args, R>(
+        &mut self,
+        call_data: &CallParams<E, CallV2<E>, Args, R>,
     ) -> Result<ink_primitives::MessageResult<R>>
     where
         E: Environment,

@@ -20,6 +20,7 @@ use crate::{
     call::{
         Call,
         CallParams,
+        CallV2,
         ConstructorReturnType,
         CreateParams,
         DelegateCall,
@@ -450,6 +451,48 @@ impl TypedEnvBackend for EnvInstance {
             *flags,
             enc_callee,
             gas_limit,
+            enc_transferred_value,
+            enc_input,
+            Some(output),
+        );
+        match call_result {
+            Ok(()) | Err(ReturnErrorCode::CalleeReverted) => {
+                let decoded = scale::DecodeAll::decode_all(&mut &output[..])?;
+                Ok(decoded)
+            }
+            Err(actual_error) => Err(actual_error.into()),
+        }
+    }
+
+    fn invoke_contract_v2<E, Args, R>(
+        &mut self,
+        params: &CallParams<E, CallV2<E>, Args, R>,
+    ) -> Result<ink_primitives::MessageResult<R>>
+    where
+        E: Environment,
+        Args: scale::Encode,
+        R: scale::Decode,
+    {
+        let mut scope = self.scoped_buffer();
+        let ref_time_limit = params.ref_time_limit();
+        let proof_time_limit = params.proof_time_limit();
+        let enc_callee = scope.take_encoded(params.callee());
+        let enc_transferred_value = scope.take_encoded(params.transferred_value());
+        let call_flags = params.call_flags();
+        let enc_input = if !call_flags.contains(CallFlags::FORWARD_INPUT)
+            && !call_flags.contains(CallFlags::CLONE_INPUT)
+        {
+            scope.take_encoded(params.exec_input())
+        } else {
+            &mut []
+        };
+        let output = &mut scope.take_rest();
+        let flags = params.call_flags();
+        let call_result = ext::call_v2(
+            *flags,
+            enc_callee,
+            ref_time_limit,
+            proof_time_limit,
             enc_transferred_value,
             enc_input,
             Some(output),

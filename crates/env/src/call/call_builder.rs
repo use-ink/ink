@@ -88,6 +88,35 @@ where
     }
 }
 
+impl<E, Args, R> CallParams<E, CallV2<E>, Args, R>
+where
+    E: Environment,
+{
+    /// Returns the account ID of the called contract instance.
+    #[inline]
+    pub fn callee(&self) -> &E::AccountId {
+        &self.call_type.callee
+    }
+
+    /// Returns the chosen ref time limit for the called contract execution.
+    #[inline]
+    pub fn ref_time_limit(&self) -> Gas {
+        self.call_type.ref_time_limit
+    }
+
+    /// Returns the chosen proof time limit for the called contract execution.
+    #[inline]
+    pub fn proof_time_limit(&self) -> Gas {
+        self.call_type.proof_time_limit
+    }
+
+    /// Returns the transferred value for the called contract.
+    #[inline]
+    pub fn transferred_value(&self) -> &E::Balance {
+        &self.call_type.transferred_value
+    }
+}
+
 impl<E, Args, R> CallParams<E, DelegateCall<E>, Args, R>
 where
     E: Environment,
@@ -135,6 +164,45 @@ where
     /// handled by the caller.
     pub fn try_invoke(&self) -> Result<ink_primitives::MessageResult<R>, crate::Error> {
         crate::invoke_contract(self)
+    }
+}
+
+impl<E, Args, R> CallParams<E, CallV2<E>, Args, R>
+where
+    E: Environment,
+    Args: scale::Encode,
+    R: scale::Decode,
+{
+    /// Invokes the contract with the given built-up call parameters.
+    ///
+    /// Returns the result of the contract execution.
+    ///
+    /// # Panics
+    ///
+    /// This method panics if it encounters an [`ink::env::Error`][`crate::Error`] or an
+    /// [`ink::primitives::LangError`][`ink_primitives::LangError`]. If you want to handle
+    /// those use the [`try_invoke`][`CallParams::try_invoke`] method instead.
+    pub fn invoke(&self) -> R {
+        crate::invoke_contract_v2(self)
+            .unwrap_or_else(|env_error| {
+                panic!("Cross-contract call failed with {env_error:?}")
+            })
+            .unwrap_or_else(|lang_error| {
+                panic!("Cross-contract call failed with {lang_error:?}")
+            })
+    }
+
+    /// Invokes the contract with the given built-up call parameters.
+    ///
+    /// Returns the result of the contract execution.
+    ///
+    /// # Note
+    ///
+    /// On failure this returns an outer [`ink::env::Error`][`crate::Error`] or inner
+    /// [`ink::primitives::LangError`][`ink_primitives::LangError`], both of which can be
+    /// handled by the caller.
+    pub fn try_invoke(&self) -> Result<ink_primitives::MessageResult<R>, crate::Error> {
+        crate::invoke_contract_v2(self)
     }
 }
 
@@ -378,6 +446,52 @@ where
     }
 }
 
+/// todo: [AJ] docs
+#[derive(Clone)]
+pub struct CallV2<E: Environment> {
+    callee: E::AccountId,
+    ref_time_limit: Gas,
+    proof_time_limit: Gas,
+    transferred_value: E::Balance,
+}
+
+impl<E: Environment> CallV2<E> {
+    /// Returns a clean builder for [`Call`].
+    pub fn new(callee: E::AccountId) -> Self {
+        Self {
+            callee,
+            ref_time_limit: Default::default(),
+            proof_time_limit: Default::default(),
+            transferred_value: E::Balance::zero(),
+        }
+    }
+}
+
+impl<E> CallV2<E>
+where
+    E: Environment,
+{
+    /// Sets the `gas_limit` for the current cross-contract call.
+    pub fn weight_limit(self, ref_time_limit: Gas, proof_time_limit: Gas) -> Self {
+        CallV2 {
+            callee: self.callee,
+            ref_time_limit,
+            proof_time_limit,
+            transferred_value: self.transferred_value,
+        }
+    }
+
+    /// Sets the `transferred_value` for the current cross-contract call.
+    pub fn transferred_value(self, transferred_value: E::Balance) -> Self {
+        CallV2 {
+            callee: self.callee,
+            ref_time_limit: self.ref_time_limit,
+            proof_time_limit: self.proof_time_limit,
+            transferred_value,
+        }
+    }
+}
+
 /// The `delegatecall` call type. Performs a call with the given code hash.
 #[derive(Clone)]
 pub struct DelegateCall<E: Environment> {
@@ -514,6 +628,20 @@ where
         }
     }
 
+    /// todo: [AJ] docs
+    pub fn call_v2(
+        self,
+        callee: E::AccountId,
+    ) -> CallBuilder<E, Set<CallV2<E>>, Args, RetType> {
+        CallBuilder {
+            call_type: Set(CallV2::new(callee)),
+            call_flags: self.call_flags,
+            exec_input: self.exec_input,
+            return_type: self.return_type,
+            _phantom: Default::default(),
+        }
+    }
+
     /// Prepares the `CallBuilder` for a cross-contract [`DelegateCall`].
     pub fn delegate(
         self,
@@ -556,6 +684,46 @@ where
             call_type: Set(Call {
                 callee: call_type.callee,
                 gas_limit: call_type.gas_limit,
+                transferred_value,
+            }),
+            call_flags: self.call_flags,
+            exec_input: self.exec_input,
+            return_type: self.return_type,
+            _phantom: Default::default(),
+        }
+    }
+}
+
+impl<E, Args, RetType> CallBuilder<E, Set<CallV2<E>>, Args, RetType>
+where
+    E: Environment,
+{
+    /// Sets the `ref_time_limit` and the `proof_time_limit` for the current
+    /// cross-contract call.
+    pub fn weight_limit(self, ref_time_limit: Gas, proof_time_limit: Gas) -> Self {
+        let call_type = self.call_type.value();
+        CallBuilder {
+            call_type: Set(CallV2 {
+                callee: call_type.callee,
+                ref_time_limit,
+                proof_time_limit,
+                transferred_value: call_type.transferred_value,
+            }),
+            call_flags: self.call_flags,
+            exec_input: self.exec_input,
+            return_type: self.return_type,
+            _phantom: Default::default(),
+        }
+    }
+
+    /// Sets the `transferred_value` for the current cross-contract call.
+    pub fn transferred_value(self, transferred_value: E::Balance) -> Self {
+        let call_type = self.call_type.value();
+        CallBuilder {
+            call_type: Set(CallV2 {
+                callee: call_type.callee,
+                ref_time_limit: call_type.ref_time_limit,
+                proof_time_limit: call_type.proof_time_limit,
                 transferred_value,
             }),
             call_flags: self.call_flags,

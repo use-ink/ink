@@ -18,6 +18,7 @@ use ink_env::{
     call::{
         Call,
         CallParams,
+        CallV2,
         ConstructorReturnType,
         CreateParams,
         DelegateCall,
@@ -576,6 +577,18 @@ where
         R: scale::Decode,
     {
         ink_env::invoke_contract::<E, Args, R>(params)
+    }
+
+    /// todo: [AJ] docs
+    pub fn invoke_contract_v2<Args, R>(
+        self,
+        params: &CallParams<E, CallV2<E>, Args, R>,
+    ) -> Result<ink_primitives::MessageResult<R>>
+    where
+        Args: scale::Encode,
+        R: scale::Decode,
+    {
+        ink_env::invoke_contract_v2::<E, Args, R>(params)
     }
 
     /// Invokes in delegate manner a code message and returns its result.

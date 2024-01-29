@@ -22,6 +22,7 @@ use crate::{
     call::{
         Call,
         CallParams,
+        CallV2,
         ConstructorReturnType,
         CreateParams,
         DelegateCall,
@@ -283,6 +284,20 @@ where
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         TypedEnvBackend::invoke_contract::<E, Args, R>(instance, params)
+    })
+}
+
+/// todo: [AJ] docs
+pub fn invoke_contract_v2<E, Args, R>(
+    params: &CallParams<E, CallV2<E>, Args, R>,
+) -> Result<ink_primitives::MessageResult<R>>
+where
+    E: Environment,
+    Args: scale::Encode,
+    R: scale::Decode,
+{
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        TypedEnvBackend::invoke_contract_v2::<E, Args, R>(instance, params)
     })
 }
 
