@@ -405,7 +405,7 @@ mod mapping_integration_tests {
 
             // then there should be 4 entries (that's what fits into the 256kb buffer)
             let received_mapping_value = client
-                .call(&ink_e2e::ferdie(), &let call_builder = contract.calltry_get_names())
+                .call(&ink_e2e::ferdie(), &call_builder.try_get_names())
                 .dry_run()
                 .await?
                 .return_value();

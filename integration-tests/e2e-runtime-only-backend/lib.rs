@@ -73,10 +73,16 @@ pub mod flipper {
 
             // when
             let mut call_builder = contract.call_builder::<Flipper>();
-            let _flip_res = client.call(&ink_e2e::bob(), &call_builder.flip()).submit().await;
+            let _flip_res = client
+                .call(&ink_e2e::bob(), &call_builder.flip())
+                .submit()
+                .await;
 
             // then
-            let get_res = client.call(&ink_e2e::bob(), &call_builder.get()).dry_run().await?;
+            let get_res = client
+                .call(&ink_e2e::bob(), &call_builder.get())
+                .dry_run()
+                .await?;
             assert_eq!(get_res.return_value(), !INITIAL_VALUE);
 
             Ok(())

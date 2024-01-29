@@ -234,8 +234,8 @@ mod runtime_call {
             let receiver: AccountId = default_accounts::<DefaultEnvironment>().bob;
 
             // when
-            let transfer_message =
-                call_builder.transfer_through_runtime(receiver, INSUFFICIENT_TRANSFER_VALUE);
+            let transfer_message = call_builder
+                .transfer_through_runtime(receiver, INSUFFICIENT_TRANSFER_VALUE);
 
             let call_res = client
                 .call(&ink_e2e::alice(), &transfer_message)

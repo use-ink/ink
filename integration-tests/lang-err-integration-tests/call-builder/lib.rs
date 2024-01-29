@@ -191,7 +191,8 @@ mod call_builder {
                 .submit()
                 .await
                 .expect("instantiate failed");
-            let mut call_builder_call = call_builder_contract.call_builder::<CallBuilderTest>();
+            let mut call_builder_call =
+                call_builder_contract.call_builder::<CallBuilderTest>();
 
             let mut flipper_constructor = FlipperRef::new_default();
             let flipper = client

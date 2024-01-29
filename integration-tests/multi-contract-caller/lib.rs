@@ -157,7 +157,8 @@ mod multi_contract_caller {
                 .submit()
                 .await
                 .expect("instantiate failed");
-            let mut call_builder = multi_contract_caller.call_builder::<MultiContractCaller>();
+            let mut call_builder =
+                multi_contract_caller.call_builder::<MultiContractCaller>();
 
             // when
             let get = call_builder.get();

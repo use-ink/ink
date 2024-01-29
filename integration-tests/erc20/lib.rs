@@ -582,7 +582,8 @@ mod erc20 {
 
             let amount = 500_000_000u128;
             // tx
-            let transfer_from = call_builder.transfer_from(bob_account, charlie_account, amount);
+            let transfer_from =
+                call_builder.transfer_from(bob_account, charlie_account, amount);
             let transfer_from_result = client
                 .call(&ink_e2e::charlie(), &transfer_from)
                 .submit()
@@ -621,7 +622,8 @@ mod erc20 {
                 .await?;
 
             // `transfer_from` again, this time exceeding the approved amount
-            let transfer_from = call_builder.transfer_from(bob_account, charlie_account, 1);
+            let transfer_from =
+                call_builder.transfer_from(bob_account, charlie_account, 1);
             let transfer_from_result = client
                 .call(&ink_e2e::charlie(), &transfer_from)
                 .submit()
