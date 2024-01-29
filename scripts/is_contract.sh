@@ -34,7 +34,7 @@ SOURCE_PATH=$(cargo metadata --format-version=1 --manifest-path "$MANIFEST_PATH"
     | select(.id == $ROOT_PACKAGE).targets[]
     | select(.kind[] | contains("lib")).src_path')
 
-if grep -q '^#\[ink::contract\]' $SOURCE_PATH; then
+if grep -q '^#\[ink::contract\([^]]*\)\]' $SOURCE_PATH; then
     exit 0
 else
     exit 1

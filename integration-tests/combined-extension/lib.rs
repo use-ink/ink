@@ -45,8 +45,8 @@ impl Environment for CustomEnvironment {
 
     /// Setting up the combined chain extension as a primary extension.
     ///
-    /// The `self.env().extension()` call returns the [`CombinedInstance`]
-    /// that provides access two both chain extensions.
+    /// The `self.env().extension()` call returns the instance that provides access to
+    /// both chain extensions.
     type ChainExtension = CombinedChainExtension;
 }
 
