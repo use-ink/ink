@@ -133,7 +133,7 @@ pub mod delegator {
 
             // then
             let expected_value = 4;
-            let call = call_builder.call_builder::<Delegator>();
+            let call_builder = call_builder.call_builder::<Delegator>();
 
             let call_get = call_builder.get_counter();
             let call_get_result = client
