@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- `Mapping`: Reflect all possible failure cases in comments ‒ [#2079](https://github.com/paritytech/ink/pull/2079)
+
 ### Added
 - Custom signature topic in Events - [#2031](https://github.com/paritytech/ink/pull/2031)
 - [Linter] `non_fallible_api` lint - [#2004](https://github.com/paritytech/ink/pull/2004)
