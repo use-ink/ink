@@ -1018,7 +1018,7 @@ dependencies = [
  "indexmap 2.1.0",
  "ink_env 5.0.0-rc (registry+https://github.com/rust-lang/crates.io-index)",
  "ink_metadata 5.0.0-rc (registry+https://github.com/rust-lang/crates.io-index)",
- "itertools 0.12.0",
+ "itertools 0.12.1",
  "nom",
  "nom-supreme",
  "parity-scale-codec",
@@ -2595,7 +2595,7 @@ dependencies = [
  "impl-serde",
  "ink_ir",
  "ink_primitives 5.0.0-rc",
- "itertools 0.12.0",
+ "itertools 0.12.1",
  "parity-scale-codec",
  "proc-macro2",
  "quote",
@@ -2747,7 +2747,7 @@ dependencies = [
  "either",
  "impl-serde",
  "ink_prelude 5.0.0-rc",
- "itertools 0.12.0",
+ "itertools 0.12.1",
  "proc-macro2",
  "quote",
  "syn 2.0.46",
@@ -2864,7 +2864,7 @@ dependencies = [
  "ink_prelude 5.0.0-rc",
  "ink_primitives 5.0.0-rc",
  "ink_storage_traits 5.0.0-rc",
- "itertools 0.12.0",
+ "itertools 0.12.1",
  "parity-scale-codec",
  "quickcheck",
  "quickcheck_macros",
@@ -2954,9 +2954,9 @@ dependencies = [
 
 [[package]]
 name = "itertools"
-version = "0.12.0"
+version = "0.12.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "25db6b064527c5d482d0423354fcd07a89a2dfe07b67892e62411946db7f07b0"
+checksum = "ba291022dbbd398a455acf126c1e341954079855bc60dfdda641363bd6922569"
 dependencies = [
  "either",
 ]
