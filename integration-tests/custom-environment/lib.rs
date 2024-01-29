@@ -12,10 +12,11 @@ use ink::env::{
 pub enum EnvironmentWithManyTopics {}
 
 impl Environment for EnvironmentWithManyTopics {
-    // We allow for 5 topics in the event, therefore the contract pallet's schedule must
-    // allow for 6 of them (to allow the implicit topic for the event signature).
+    // We allow for 3 topics in the event, including the implicit topic for the event
+    // signature. Therefore, the contract pallet's schedule must also allow for at
+    // least 3 of them.
     const MAX_EVENT_TOPICS: usize =
-        <DefaultEnvironment as Environment>::MAX_EVENT_TOPICS + 1;
+        <DefaultEnvironment as Environment>::MAX_EVENT_TOPICS - 1;
 
     type AccountId = <DefaultEnvironment as Environment>::AccountId;
     type Balance = <DefaultEnvironment as Environment>::Balance;
@@ -42,8 +43,6 @@ mod runtime_call {
         first_topic: Balance,
         #[ink(topic)]
         second_topic: Balance,
-        #[ink(topic)]
-        third_topic: Balance,
     }
 
     impl Topics {
