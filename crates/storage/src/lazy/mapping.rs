@@ -138,7 +138,7 @@ where
     ///
     /// # Panics
     ///
-    /// Traps if the encoded `value` doesn't fit into the static buffer.
+    /// Traps if the the encoded `key` or `value` doesn't fit into the static buffer.
     #[inline]
     pub fn insert<Q, R>(&mut self, key: Q, value: &R) -> Option<u32>
     where
@@ -150,13 +150,13 @@ where
 
     /// Try to insert the given `value` into the mapping under given `key`.
     ///
-    /// Fails if `value` exceeds the static buffer size.
+    /// Fails if `key` or `value` exceeds the static buffer size.
     ///
     /// Returns:
     /// - `Ok(Some(_))` if the value was inserted successfully, containing the size in
     ///   bytes of the pre-existing value at the specified key if any.
     /// - `Ok(None)` if the insert was successful but there was no pre-existing value.
-    /// - `Err(_)` if the encoded value exceeds the static buffer size.
+    /// - `Err(_)` if the encoded `key` or `value` exceeds the static buffer size.
     #[inline]
     pub fn try_insert<Q, R>(&mut self, key: Q, value: &R) -> ink_env::Result<Option<u32>>
     where
@@ -184,7 +184,7 @@ where
     ///
     /// # Panics
     ///
-    /// Traps if the encoded `value` doesn't fit into the static buffer.
+    /// Traps if the the encoded `key` or `value` doesn't fit into the static buffer.
     #[inline]
     pub fn get<Q>(&self, key: Q) -> Option<V>
     where
@@ -198,8 +198,8 @@ where
     ///
     /// Returns:
     /// - `Some(Ok(_))` containing the value if it existed and was decoded successfully.
-    /// - `Some(Err(_))` if the value existed but its length exceeds the static buffer
-    ///   size.
+    /// - `Some(Err(_))` if either (a) the encoded key doesn't fit into the static buffer
+    ///   or (b) the value existed but its length exceeds the static buffer size.
     /// - `None` if there was no value under this mapping key.
     #[inline]
     pub fn try_get<Q>(&self, key: Q) -> Option<ink_env::Result<V>>
@@ -231,7 +231,7 @@ where
     ///
     /// # Panics
     ///
-    /// Traps if the encoded `value` doesn't fit into the static buffer.
+    /// Traps if the encoded `key` or `value` doesn't fit into the static buffer.
     ///
     /// # Warning
     ///
@@ -252,8 +252,8 @@ where
     ///
     /// Returns:
     /// - `Some(Ok(_))` containing the value if it existed and was decoded successfully.
-    /// - `Some(Err(_))` if the value existed but its length exceeds the static buffer
-    ///   size.
+    /// - `Some(Err(_))` if either (a) the encoded key doesn't fit into the static buffer
+    ///   or (b) the value existed but its length exceeds the static buffer size.
     /// - `None` if there was no value under this mapping key.
     ////
     /// # Warning
