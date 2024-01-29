@@ -184,9 +184,9 @@ pub mod constructors_return_value {
                 .submit()
                 .await
                 .expect("instantiate failed");
-            let call = contract.call::<ConstructorsReturnValue>();
+            let call_builder = contract.call_builder::<ConstructorsReturnValue>();
 
-            let get = call.get_value();
+            let get = call_builder.get_value();
             let value = client
                 .call(&ink_e2e::bob(), &get)
                 .dry_run()

@@ -137,7 +137,7 @@ mod call_builder {
                 .submit()
                 .await
                 .expect("instantiate failed");
-            let mut call_builder_call = call_builder.call::<CallBuilderReturnValue>();
+            let mut call_builder_call = call_builder.call_builder::<CallBuilderReturnValue>();
 
             let code_hash = client
                 .upload("incrementer", &origin)
@@ -179,7 +179,7 @@ mod call_builder {
                 .submit()
                 .await
                 .expect("instantiate failed");
-            let mut call_builder_call = call_builder.call::<CallBuilderReturnValue>();
+            let mut call_builder_call = call_builder.call_builder::<CallBuilderReturnValue>();
 
             let code_hash = client
                 .upload("incrementer", &origin)
@@ -223,7 +223,7 @@ mod call_builder {
                 .submit()
                 .await
                 .expect("instantiate failed");
-            let mut call_builder_call = call_builder.call::<CallBuilderReturnValue>();
+            let mut call_builder_call = call_builder.call_builder::<CallBuilderReturnValue>();
 
             let expected_value = 42;
             let mut incrementer_constructor = IncrementerRef::new(expected_value);
@@ -266,7 +266,7 @@ mod call_builder {
                 .submit()
                 .await
                 .expect("instantiate failed");
-            let mut call_builder_call = call_builder.call::<CallBuilderReturnValue>();
+            let mut call_builder_call = call_builder.call_builder::<CallBuilderReturnValue>();
 
             let expected_value = 42;
             let mut incrementer_constructor = IncrementerRef::new(expected_value);

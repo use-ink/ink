@@ -116,7 +116,7 @@ mod call_builder {
                 .await
                 .expect("instantiate failed");
             let mut call_builder_call =
-                call_builder_contract.call::<CallBuilderDelegateTest>();
+                call_builder_contract.call_builder::<CallBuilderDelegateTest>();
 
             let code_hash = client
                 .upload("incrementer", &origin)
@@ -156,7 +156,7 @@ mod call_builder {
                 .await
                 .expect("instantiate failed");
             let mut call_builder_call =
-                call_builder_contract.call::<CallBuilderDelegateTest>();
+                call_builder_contract.call_builder::<CallBuilderDelegateTest>();
 
             let code_hash = client
                 .upload("incrementer", &origin)

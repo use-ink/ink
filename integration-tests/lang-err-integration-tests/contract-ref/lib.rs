@@ -89,15 +89,15 @@ mod contract_ref {
                 .submit()
                 .await
                 .expect("instantiate failed");
-            let mut call = contract_ref.call::<ContractRef>();
+            let mut call_builder = contract_ref.call_builder::<ContractRef>();
 
-            let get_check = call.get_check();
+            let get_check = call_builder.get_check();
             let get_call_result =
                 client.call(&ink_e2e::alice(), &get_check).dry_run().await?;
 
             let initial_value = get_call_result.return_value();
 
-            let flip_check = call.flip_check();
+            let flip_check = call_builder.flip_check();
             let flip_call_result = client
                 .call(&ink_e2e::alice(), &flip_check)
                 .submit()
@@ -134,9 +134,9 @@ mod contract_ref {
                 .submit()
                 .await
                 .expect("instantiate failed");
-            let mut call = contract_ref.call::<ContractRef>();
+            let mut call_builder = contract_ref.call_builder::<ContractRef>();
 
-            let get_check = call.get_check();
+            let get_check = call_builder.get_check();
             let get_call_result =
                 client.call(&ink_e2e::bob(), &get_check).dry_run().await?;
             let initial_value = get_call_result.return_value();

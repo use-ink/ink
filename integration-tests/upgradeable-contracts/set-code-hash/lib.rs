@@ -81,20 +81,20 @@ pub mod incrementer {
                 .submit()
                 .await
                 .expect("instantiate failed");
-            let mut call = contract.call::<Incrementer>();
+            let mut call_builder = contract.call_builder::<Incrementer>();
 
-            let get = call.get();
+            let get = call_builder.get();
             let get_res = client.call(&ink_e2e::alice(), &get).dry_run().await?;
             assert!(matches!(get_res.return_value(), 0));
 
-            let inc = call.inc();
+            let inc = call_builder.inc();
             let _inc_result = client
                 .call(&ink_e2e::alice(), &inc)
                 .submit()
                 .await
                 .expect("`inc` failed");
 
-            let get = call.get();
+            let get = call_builder.get();
             let get_res = client.call(&ink_e2e::alice(), &get).dry_run().await?;
             assert!(matches!(get_res.return_value(), 1));
 
@@ -107,7 +107,7 @@ pub mod incrementer {
                 .code_hash;
 
             let new_code_hash = new_code_hash.as_ref().try_into().unwrap();
-            let set_code = call.set_code(new_code_hash);
+            let set_code = call_builder.set_code(new_code_hash);
 
             let _set_code_result = client
                 .call(&ink_e2e::alice(), &set_code)
@@ -118,7 +118,7 @@ pub mod incrementer {
             // Then
             // Note that our contract's `AccountId` (so `contract_acc_id`) has stayed the
             // same between updates!
-            let inc = call.inc();
+            let inc = call_builder.inc();
 
             let _inc_result = client
                 .call(&ink_e2e::alice(), &inc)
@@ -126,7 +126,7 @@ pub mod incrementer {
                 .await
                 .expect("`inc` failed");
 
-            let get = call.get();
+            let get = call_builder.get();
             let get_res = client.call(&ink_e2e::alice(), &get).dry_run().await?;
 
             // Remember, we updated our incrementer contract to increment by `4`.

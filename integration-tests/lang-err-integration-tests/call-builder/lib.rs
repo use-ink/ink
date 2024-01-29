@@ -191,7 +191,7 @@ mod call_builder {
                 .submit()
                 .await
                 .expect("instantiate failed");
-            let mut call_builder_call = call_builder_contract.call::<CallBuilderTest>();
+            let mut call_builder_call = call_builder_contract.call_builder::<CallBuilderTest>();
 
             let mut flipper_constructor = FlipperRef::new_default();
             let flipper = client
@@ -199,7 +199,7 @@ mod call_builder {
                 .submit()
                 .await
                 .expect("instantiate `flipper` failed");
-            let flipper_call = flipper.call::<Flipper>();
+            let flipper_call = flipper.call_builder::<Flipper>();
 
             let flipper_get = flipper_call.get();
             let get_call_result = client.call(&origin, &flipper_get).dry_run().await?;
@@ -242,7 +242,7 @@ mod call_builder {
                 .submit()
                 .await
                 .expect("instantiate failed");
-            let mut call_builder_call = call_builder.call::<CallBuilderTest>();
+            let mut call_builder_call = call_builder.call_builder::<CallBuilderTest>();
 
             let mut flipper_constructor = FlipperRef::new_default();
             let flipper = client
@@ -285,7 +285,7 @@ mod call_builder {
                 .submit()
                 .await
                 .expect("instantiate failed");
-            let mut call_builder_call = call_builder.call::<CallBuilderTest>();
+            let mut call_builder_call = call_builder.call_builder::<CallBuilderTest>();
 
             let code_hash = client
                 .upload("constructors_return_value", &origin)
@@ -327,7 +327,7 @@ mod call_builder {
                 .submit()
                 .await
                 .expect("instantiate failed");
-            let mut call_builder_call = call_builder.call::<CallBuilderTest>();
+            let mut call_builder_call = call_builder.call_builder::<CallBuilderTest>();
 
             let code_hash = client
                 .upload("constructors_return_value", &origin)
@@ -371,7 +371,7 @@ mod call_builder {
                 .submit()
                 .await
                 .expect("instantiate failed");
-            let mut call_builder_call = call_builder.call::<CallBuilderTest>();
+            let mut call_builder_call = call_builder.call_builder::<CallBuilderTest>();
 
             let code_hash = client
                 .upload("constructors_return_value", &origin)
@@ -415,7 +415,7 @@ mod call_builder {
                 .submit()
                 .await
                 .expect("instantiate failed");
-            let mut call_builder_call = call_builder.call::<CallBuilderTest>();
+            let mut call_builder_call = call_builder.call_builder::<CallBuilderTest>();
 
             let code_hash = client
                 .upload("constructors_return_value", &origin)
@@ -459,7 +459,7 @@ mod call_builder {
                 .submit()
                 .await
                 .expect("instantiate failed");
-            let mut call_builder_call = call_builder.call::<CallBuilderTest>();
+            let mut call_builder_call = call_builder.call_builder::<CallBuilderTest>();
 
             let code_hash = client
                 .upload("constructors_return_value", &origin)
@@ -510,7 +510,7 @@ mod call_builder {
                 .submit()
                 .await
                 .expect("instantiate failed");
-            let mut call_builder_call = call_builder.call::<CallBuilderTest>();
+            let mut call_builder_call = call_builder.call_builder::<CallBuilderTest>();
 
             let code_hash = client
                 .upload("constructors_return_value", &origin)
@@ -553,7 +553,7 @@ mod call_builder {
                 .submit()
                 .await
                 .expect("instantiate failed");
-            let mut call_builder_call = call_builder.call::<CallBuilderTest>();
+            let mut call_builder_call = call_builder.call_builder::<CallBuilderTest>();
 
             let code_hash = client
                 .upload("constructors_return_value", &origin)

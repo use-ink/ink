@@ -113,7 +113,7 @@ pub mod delegator {
                 .submit()
                 .await
                 .expect("instantiate failed");
-            let mut call_builder_call = call_builder.call::<Delegator>();
+            let mut call_builder_call = call_builder.call_builder::<Delegator>();
 
             let code_hash = client
                 .upload("delegatee", &origin)
@@ -133,9 +133,9 @@ pub mod delegator {
 
             // then
             let expected_value = 4;
-            let call = call_builder.call::<Delegator>();
+            let call = call_builder.call_builder::<Delegator>();
 
-            let call_get = call.get_counter();
+            let call_get = call_builder.get_counter();
             let call_get_result = client
                 .call(&origin, &call_get)
                 .dry_run()
@@ -166,7 +166,7 @@ pub mod delegator {
                 .submit()
                 .await
                 .expect("instantiate failed");
-            let mut call_builder_call = call_builder.call::<Delegator>();
+            let mut call_builder_call = call_builder.call_builder::<Delegator>();
 
             let code_hash = client
                 .upload("delegatee", &origin)

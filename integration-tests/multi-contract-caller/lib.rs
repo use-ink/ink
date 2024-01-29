@@ -157,17 +157,17 @@ mod multi_contract_caller {
                 .submit()
                 .await
                 .expect("instantiate failed");
-            let mut call = multi_contract_caller.call::<MultiContractCaller>();
+            let mut call_builder = multi_contract_caller.call_builder::<MultiContractCaller>();
 
             // when
-            let get = call.get();
+            let get = call_builder.get();
             let value = client
                 .call(&ink_e2e::bob(), &get)
                 .dry_run()
                 .await?
                 .return_value();
             assert_eq!(value, 1234);
-            let change = call.change(6);
+            let change = call_builder.change(6);
             let _ = client
                 .call(&ink_e2e::bob(), &change)
                 .submit()
@@ -175,7 +175,7 @@ mod multi_contract_caller {
                 .expect("calling `change` failed");
 
             // then
-            let get = call.get();
+            let get = call_builder.get();
             let value = client
                 .call(&ink_e2e::bob(), &get)
                 .dry_run()
@@ -184,13 +184,13 @@ mod multi_contract_caller {
             assert_eq!(value, 1234 + 6);
 
             // when
-            let switch = call.switch();
+            let switch = call_builder.switch();
             let _ = client
                 .call(&ink_e2e::bob(), &switch)
                 .submit()
                 .await
                 .expect("calling `switch` failed");
-            let change = call.change(3);
+            let change = call_builder.change(3);
             let _ = client
                 .call(&ink_e2e::bob(), &change)
                 .submit()
@@ -198,7 +198,7 @@ mod multi_contract_caller {
                 .expect("calling `change` failed");
 
             // then
-            let get = call.get();
+            let get = call_builder.get();
             let value = client
                 .call(&ink_e2e::bob(), &get)
                 .dry_run()
