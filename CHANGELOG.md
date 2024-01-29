@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Changed
-- [E2E] Rename `.call` to `.call_builder` ‒ [#2076](https://github.com/paritytech/ink/pull/2076)
+- [E2E] Rename `.call` to `.call_builder` ‒ [#2078](https://github.com/paritytech/ink/pull/2078)
 
 ### Added
 - Custom signature topic in Events - [#2031](https://github.com/paritytech/ink/pull/2031)
