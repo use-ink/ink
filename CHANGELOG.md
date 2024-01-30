@@ -12,6 +12,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Linter: Publish the linting crates on crates.io - [#2060](https://github.com/paritytech/ink/pull/2060)
 - [E2E] Added `create_call_builder` for testing existing contracts - [#2075](https://github.com/paritytech/ink/pull/2075)
 
+### Changed
+- Improve syntax for ink! e2e `runtime_only` attribute argument - [#2083](https://github.com/paritytech/ink/pull/2083)
+
 ### Fixed
 - Fix the `StorageVec` type by excluding the `len_cached` field from its type info - [#2052](https://github.com/paritytech/ink/pull/2052)
 

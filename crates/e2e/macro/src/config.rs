@@ -26,7 +26,27 @@ pub enum Backend {
     /// This runs a runtime emulator within `TestExternalities` (using drink! library) in
     /// the same process as the test.
     #[cfg(any(test, feature = "drink"))]
-    RuntimeOnly { runtime: Option<syn::Path> },
+    RuntimeOnly(RuntimeOnly),
+}
+
+/// The runtime emulator that should be used within `TestExternalities` (using drink!
+/// library).
+#[cfg(any(test, feature = "drink"))]
+#[derive(Clone, Eq, PartialEq, Debug, darling::FromMeta)]
+pub enum RuntimeOnly {
+    #[darling(word)]
+    Default,
+    Runtime(syn::Path),
+}
+
+#[cfg(any(test, feature = "drink"))]
+impl From<RuntimeOnly> for syn::Path {
+    fn from(value: RuntimeOnly) -> Self {
+        match value {
+            RuntimeOnly::Default => syn::parse_quote! { ::ink_e2e::MinimalRuntime },
+            RuntimeOnly::Runtime(path) => path,
+        }
+    }
 }
 
 /// The End-to-End test configuration.
@@ -100,7 +120,7 @@ mod tests {
         let input = quote! {
             additional_contracts = "adder/Cargo.toml flipper/Cargo.toml",
             environment = crate::CustomEnvironment,
-            backend(runtime_only()),
+            backend(runtime_only),
             node_url = "ws://127.0.0.1:8000"
         };
         let config =
@@ -115,7 +135,7 @@ mod tests {
             Some(syn::parse_quote! { crate::CustomEnvironment })
         );
 
-        assert_eq!(config.backend(), Backend::RuntimeOnly { runtime: None });
+        assert_eq!(config.backend(), Backend::RuntimeOnly(RuntimeOnly::Default));
         assert_eq!(config.node_url(), Some(String::from("ws://127.0.0.1:8000")));
 
         std::env::set_var("CONTRACTS_NODE_URL", "ws://127.0.0.1:9000");
@@ -132,9 +152,9 @@ mod tests {
 
         assert_eq!(
             config.backend(),
-            Backend::RuntimeOnly {
-                runtime: Some(syn::parse_quote! { ::ink_e2e::MinimalRuntime })
-            }
+            Backend::RuntimeOnly(RuntimeOnly::Runtime(
+                syn::parse_quote! { ::ink_e2e::MinimalRuntime }
+            ))
         );
         assert_eq!(config.node_url(), None)
     }
