@@ -3,7 +3,7 @@
 //! Demonstrates how to use [`set_code_hash`](https://docs.rs/ink_env/latest/ink_env/fn.set_code_hash.html)
 //! to swap out the `code_hash` of an on-chain contract.
 //!
-//! We will swap the code of our `Incrementer` contract with that of the an `Incrementer`
+//! We will swap the code of our `Incrementer` contract with that of the `Incrementer`
 //! found in the `updated_incrementer` folder.
 //!
 //! See the included End-to-End tests an example update workflow.
