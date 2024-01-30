@@ -38,7 +38,7 @@ blake2 = { version = "0.10" }
 cargo_metadata = { version = "0.18.0" }
 cfg-if = { version = "1.0" }
 contract-build = { version = "4.0.0-rc.1" }
-darling = { version = "0.20.3" }
+darling = { version = "0.20.4" }
 derive_more = { version = "0.99.17", default-features = false }
 drink = { version = "=0.8.5" }
 either = { version = "1.5", default-features = false }
