@@ -45,7 +45,8 @@ calculation strategy.</p>
     R: <a class="trait" href="traits/trait.Storable.html" title="trait ink::storage::traits::Storable">Storable</a> + EncodeLike&lt;V&gt;,</span></h4></section></summary><div class="docblock"><p>Insert the given <code>value</code> to the contract storage.</p>
 <p>Returns the size in bytes of the pre-existing value at the specified key if any.</p>
 <h5 id="panics"><a href="#panics">Panics</a></h5>
-<p>Traps if the encoded <code>value</code> doesn’t fit into the static buffer.</p>
+<p>Traps if encoding the <code>key</code> together with the <code>value</code> doesn’t fit into the static
+buffer.</p>
 </div></details><details class="toggle method-toggle" open><summary><section id="method.try_insert" class="method"><h4 class="code-header">pub fn <a href="#method.try_insert" class="fn">try_insert</a>&lt;Q, R&gt;(
     &amp;mut self,
     key: Q,
@@ -53,26 +54,27 @@ calculation strategy.</p>
 ) -&gt; <a class="enum" href="https://doc.rust-lang.org/1.75.0/core/result/enum.Result.html" title="enum core::result::Result">Result</a>&lt;<a class="enum" href="https://doc.rust-lang.org/1.75.0/core/option/enum.Option.html" title="enum core::option::Option">Option</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/1.75.0/std/primitive.u32.html">u32</a>&gt;, Error&gt;<span class="where fmt-newline">where
     Q: EncodeLike&lt;K&gt;,
     R: <a class="trait" href="traits/trait.Storable.html" title="trait ink::storage::traits::Storable">Storable</a> + EncodeLike&lt;V&gt;,</span></h4></section></summary><div class="docblock"><p>Try to insert the given <code>value</code> into the mapping under given <code>key</code>.</p>
-<p>Fails if <code>value</code> exceeds the static buffer size.</p>
+<p>Fails if <code>key</code> or <code>value</code> exceeds the static buffer size.</p>
 <p>Returns:</p>
 <ul>
 <li><code>Ok(Some(_))</code> if the value was inserted successfully, containing the size in
 bytes of the pre-existing value at the specified key if any.</li>
 <li><code>Ok(None)</code> if the insert was successful but there was no pre-existing value.</li>
-<li><code>Err(_)</code> if the encoded value exceeds the static buffer size.</li>
+<li><code>Err(_)</code> if encoding the <code>key</code> together with the <code>value</code> exceeds the static
+buffer size.</li>
 </ul>
 </div></details><details class="toggle method-toggle" open><summary><section id="method.get" class="method"><h4 class="code-header">pub fn <a href="#method.get" class="fn">get</a>&lt;Q&gt;(&amp;self, key: Q) -&gt; <a class="enum" href="https://doc.rust-lang.org/1.75.0/core/option/enum.Option.html" title="enum core::option::Option">Option</a>&lt;V&gt;<span class="where fmt-newline">where
     Q: EncodeLike&lt;K&gt;,</span></h4></section></summary><div class="docblock"><p>Get the <code>value</code> at <code>key</code> from the contract storage.</p>
 <p>Returns <code>None</code> if no <code>value</code> exists at the given <code>key</code>.</p>
 <h5 id="panics-1"><a href="#panics-1">Panics</a></h5>
-<p>Traps if the encoded <code>value</code> doesn’t fit into the static buffer.</p>
+<p>Traps if the the encoded <code>key</code> or <code>value</code> doesn’t fit into the static buffer.</p>
 </div></details><details class="toggle method-toggle" open><summary><section id="method.try_get" class="method"><h4 class="code-header">pub fn <a href="#method.try_get" class="fn">try_get</a>&lt;Q&gt;(&amp;self, key: Q) -&gt; <a class="enum" href="https://doc.rust-lang.org/1.75.0/core/option/enum.Option.html" title="enum core::option::Option">Option</a>&lt;<a class="enum" href="https://doc.rust-lang.org/1.75.0/core/result/enum.Result.html" title="enum core::result::Result">Result</a>&lt;V, Error&gt;&gt;<span class="where fmt-newline">where
     Q: EncodeLike&lt;K&gt;,</span></h4></section></summary><div class="docblock"><p>Try to get the <code>value</code> at the given <code>key</code>.</p>
 <p>Returns:</p>
 <ul>
 <li><code>Some(Ok(_))</code> containing the value if it existed and was decoded successfully.</li>
-<li><code>Some(Err(_))</code> if the value existed but its length exceeds the static buffer
-size.</li>
+<li><code>Some(Err(_))</code> if either (a) the encoded key doesn’t fit into the static buffer
+or (b) the value existed but its length exceeds the static buffer size.</li>
 <li><code>None</code> if there was no value under this mapping key.</li>
 </ul>
 </div></details><details class="toggle method-toggle" open><summary><section id="method.take" class="method"><h4 class="code-header">pub fn <a href="#method.take" class="fn">take</a>&lt;Q&gt;(&amp;self, key: Q) -&gt; <a class="enum" href="https://doc.rust-lang.org/1.75.0/core/option/enum.Option.html" title="enum core::option::Option">Option</a>&lt;V&gt;<span class="where fmt-newline">where
@@ -80,7 +82,7 @@ size.</li>
 storage.</p>
 <p>Returns <code>None</code> if no <code>value</code> exists at the given <code>key</code>.</p>
 <h5 id="panics-2"><a href="#panics-2">Panics</a></h5>
-<p>Traps if the encoded <code>value</code> doesn’t fit into the static buffer.</p>
+<p>Traps if the encoded <code>key</code> or <code>value</code> doesn’t fit into the static buffer.</p>
 <h5 id="warning"><a href="#warning">Warning</a></h5>
 <p>This method uses the
 <a href="https://github.com/paritytech/substrate/tree/master/frame/contracts#unstable-interfaces">unstable interface</a>,
@@ -91,8 +93,8 @@ On success, this operation will remove the value from the mapping</p>
 <p>Returns:</p>
 <ul>
 <li><code>Some(Ok(_))</code> containing the value if it existed and was decoded successfully.</li>
-<li><code>Some(Err(_))</code> if the value existed but its length exceeds the static buffer
-size.</li>
+<li><code>Some(Err(_))</code> if either (a) the encoded key doesn’t fit into the static buffer
+or (b) the value existed but its length exceeds the static buffer size.</li>
 <li><code>None</code> if there was no value under this mapping key.</li>
 </ul>
 <h5 id="warning-1"><a href="#warning-1">Warning</a></h5>

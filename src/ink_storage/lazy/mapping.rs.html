@@ -561,6 +561,8 @@
 <a href="#561" id="561">561</a>
 <a href="#562" id="562">562</a>
 <a href="#563" id="563">563</a>
+<a href="#564" id="564">564</a>
+<a href="#565" id="565">565</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -701,7 +703,8 @@
     ///
     /// # Panics
     ///
-    /// Traps if the encoded `value` doesn&#39;t fit into the static buffer.
+    /// Traps if encoding the `key` together with the `value` doesn&#39;t fit into the static
+    /// buffer.
     </span><span class="attr">#[inline]
     </span><span class="kw">pub fn </span>insert&lt;Q, R&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, key: Q, value: <span class="kw-2">&amp;</span>R) -&gt; <span class="prelude-ty">Option</span>&lt;u32&gt;
     <span class="kw">where
@@ -713,13 +716,14 @@
 
     <span class="doccomment">/// Try to insert the given `value` into the mapping under given `key`.
     ///
-    /// Fails if `value` exceeds the static buffer size.
+    /// Fails if `key` or `value` exceeds the static buffer size.
     ///
     /// Returns:
     /// - `Ok(Some(_))` if the value was inserted successfully, containing the size in
     ///   bytes of the pre-existing value at the specified key if any.
     /// - `Ok(None)` if the insert was successful but there was no pre-existing value.
-    /// - `Err(_)` if the encoded value exceeds the static buffer size.
+    /// - `Err(_)` if encoding the `key` together with the `value` exceeds the static
+    ///   buffer size.
     </span><span class="attr">#[inline]
     </span><span class="kw">pub fn </span>try_insert&lt;Q, R&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, key: Q, value: <span class="kw-2">&amp;</span>R) -&gt; ink_env::Result&lt;<span class="prelude-ty">Option</span>&lt;u32&gt;&gt;
     <span class="kw">where
@@ -747,7 +751,7 @@
     ///
     /// # Panics
     ///
-    /// Traps if the encoded `value` doesn&#39;t fit into the static buffer.
+    /// Traps if the the encoded `key` or `value` doesn&#39;t fit into the static buffer.
     </span><span class="attr">#[inline]
     </span><span class="kw">pub fn </span>get&lt;Q&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, key: Q) -&gt; <span class="prelude-ty">Option</span>&lt;V&gt;
     <span class="kw">where
@@ -761,8 +765,8 @@
     ///
     /// Returns:
     /// - `Some(Ok(_))` containing the value if it existed and was decoded successfully.
-    /// - `Some(Err(_))` if the value existed but its length exceeds the static buffer
-    ///   size.
+    /// - `Some(Err(_))` if either (a) the encoded key doesn&#39;t fit into the static buffer
+    ///   or (b) the value existed but its length exceeds the static buffer size.
     /// - `None` if there was no value under this mapping key.
     </span><span class="attr">#[inline]
     </span><span class="kw">pub fn </span>try_get&lt;Q&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, key: Q) -&gt; <span class="prelude-ty">Option</span>&lt;ink_env::Result&lt;V&gt;&gt;
@@ -794,7 +798,7 @@
     ///
     /// # Panics
     ///
-    /// Traps if the encoded `value` doesn&#39;t fit into the static buffer.
+    /// Traps if the encoded `key` or `value` doesn&#39;t fit into the static buffer.
     ///
     /// # Warning
     ///
@@ -815,8 +819,8 @@
     ///
     /// Returns:
     /// - `Some(Ok(_))` containing the value if it existed and was decoded successfully.
-    /// - `Some(Err(_))` if the value existed but its length exceeds the static buffer
-    ///   size.
+    /// - `Some(Err(_))` if either (a) the encoded key doesn&#39;t fit into the static buffer
+    ///   or (b) the value existed but its length exceeds the static buffer size.
     /// - `None` if there was no value under this mapping key.
     </span><span class="comment">////
     </span><span class="doccomment">/// # Warning
