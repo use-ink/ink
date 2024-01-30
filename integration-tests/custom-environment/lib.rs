@@ -97,10 +97,10 @@ mod runtime_call {
                 .submit()
                 .await
                 .expect("instantiate failed");
-            let mut call = contract.call::<Topics>();
+            let mut call_builder = contract.call_builder::<Topics>();
 
             // when
-            let message = call.trigger();
+            let message = call_builder.trigger();
 
             let call_res = client
                 .call(&ink_e2e::alice(), &message)
@@ -128,9 +128,9 @@ mod runtime_call {
                 .submit()
                 .await
                 .expect("instantiate failed");
-            let mut call = contract.call::<Topics>();
+            let mut call_builder = contract.call_builder::<Topics>();
 
-            let message = call.trigger();
+            let message = call_builder.trigger();
 
             // when
             let call_res = client.call(&ink_e2e::alice(), &message).dry_run().await;

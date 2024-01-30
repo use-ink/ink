@@ -72,11 +72,17 @@ pub mod flipper {
                 .expect("deploy failed");
 
             // when
-            let mut call = contract.call::<Flipper>();
-            let _flip_res = client.call(&ink_e2e::bob(), &call.flip()).submit().await;
+            let mut call_builder = contract.call_builder::<Flipper>();
+            let _flip_res = client
+                .call(&ink_e2e::bob(), &call_builder.flip())
+                .submit()
+                .await;
 
             // then
-            let get_res = client.call(&ink_e2e::bob(), &call.get()).dry_run().await?;
+            let get_res = client
+                .call(&ink_e2e::bob(), &call_builder.get())
+                .dry_run()
+                .await?;
             assert_eq!(get_res.return_value(), !INITIAL_VALUE);
 
             Ok(())
@@ -102,10 +108,10 @@ pub mod flipper {
                 .submit()
                 .await
                 .expect("deploy failed");
-            let call = contract.call::<Flipper>();
+            let call_builder = contract.call_builder::<Flipper>();
 
             let old_balance = client
-                .call(&ink_e2e::alice(), &call.get_contract_balance())
+                .call(&ink_e2e::alice(), &call_builder.get_contract_balance())
                 .submit()
                 .await
                 .expect("get_contract_balance failed")
@@ -130,7 +136,7 @@ pub mod flipper {
 
             // then
             let new_balance = client
-                .call(&ink_e2e::alice(), &call.get_contract_balance())
+                .call(&ink_e2e::alice(), &call_builder.get_contract_balance())
                 .submit()
                 .await
                 .expect("get_contract_balance failed")

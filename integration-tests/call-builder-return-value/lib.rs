@@ -132,12 +132,12 @@ mod call_builder {
 
             let expected_value = 42;
             let mut constructor = CallBuilderReturnValueRef::new(expected_value);
-            let call_builder = client
+            let contract = client
                 .instantiate("call_builder_return_value", &origin, &mut constructor)
                 .submit()
                 .await
                 .expect("instantiate failed");
-            let mut call_builder_call = call_builder.call::<CallBuilderReturnValue>();
+            let mut call_builder = contract.call_builder::<CallBuilderReturnValue>();
 
             let code_hash = client
                 .upload("incrementer", &origin)
@@ -147,7 +147,7 @@ mod call_builder {
                 .code_hash;
 
             let selector = ink::selector_bytes!("get");
-            let call = call_builder_call.delegate_call(code_hash, selector);
+            let call = call_builder.delegate_call(code_hash, selector);
             let call_result = client
                 .call(&origin, &call)
                 .submit()
@@ -174,12 +174,12 @@ mod call_builder {
                 .await;
 
             let mut constructor = CallBuilderReturnValueRef::new(42);
-            let call_builder = client
+            let contract = client
                 .instantiate("call_builder_return_value", &origin, &mut constructor)
                 .submit()
                 .await
                 .expect("instantiate failed");
-            let mut call_builder_call = call_builder.call::<CallBuilderReturnValue>();
+            let mut call_builder = contract.call_builder::<CallBuilderReturnValue>();
 
             let code_hash = client
                 .upload("incrementer", &origin)
@@ -189,8 +189,7 @@ mod call_builder {
                 .code_hash;
 
             let selector = ink::selector_bytes!("get");
-            let call =
-                call_builder_call.delegate_call_short_return_type(code_hash, selector);
+            let call = call_builder.delegate_call_short_return_type(code_hash, selector);
             let call_result: Result<i8, String> =
                 client.call(&origin, &call).dry_run().await?.return_value();
 
@@ -218,12 +217,12 @@ mod call_builder {
                 .await;
 
             let mut constructor = CallBuilderReturnValueRef::new(0);
-            let call_builder = client
+            let contract = client
                 .instantiate("call_builder_return_value", &origin, &mut constructor)
                 .submit()
                 .await
                 .expect("instantiate failed");
-            let mut call_builder_call = call_builder.call::<CallBuilderReturnValue>();
+            let mut call_builder = contract.call_builder::<CallBuilderReturnValue>();
 
             let expected_value = 42;
             let mut incrementer_constructor = IncrementerRef::new(expected_value);
@@ -234,7 +233,7 @@ mod call_builder {
                 .expect("instantiate failed");
 
             let selector = ink::selector_bytes!("get");
-            let call = call_builder_call.forward_call(incrementer.account_id, selector);
+            let call = call_builder.forward_call(incrementer.account_id, selector);
             let call_result = client
                 .call(&origin, &call)
                 .submit()
@@ -261,12 +260,12 @@ mod call_builder {
                 .await;
 
             let mut constructor = CallBuilderReturnValueRef::new(0);
-            let call_builder = client
+            let contract = client
                 .instantiate("call_builder_return_value", &origin, &mut constructor)
                 .submit()
                 .await
                 .expect("instantiate failed");
-            let mut call_builder_call = call_builder.call::<CallBuilderReturnValue>();
+            let mut call_builder = contract.call_builder::<CallBuilderReturnValue>();
 
             let expected_value = 42;
             let mut incrementer_constructor = IncrementerRef::new(expected_value);
@@ -277,7 +276,7 @@ mod call_builder {
                 .expect("instantiate failed");
 
             let selector = ink::selector_bytes!("get");
-            let call = call_builder_call
+            let call = call_builder
                 .forward_call_short_return_type(incrementer.account_id, selector);
             let call_result: Result<i8, String> =
                 client.call(&origin, &call).dry_run().await?.return_value();

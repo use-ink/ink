@@ -68,14 +68,14 @@ pub mod flipper {
                 .submit()
                 .await
                 .expect("instantiate failed");
-            let mut call = contract.call::<Flipper>();
+            let mut call_builder = contract.call_builder::<Flipper>();
 
-            let get = call.get();
+            let get = call_builder.get();
             let get_res = client.call(&ink_e2e::bob(), &get).dry_run().await?;
             assert!(matches!(get_res.return_value(), false));
 
             // when
-            let flip = call.flip();
+            let flip = call_builder.flip();
             let _flip_res = client
                 .call(&ink_e2e::bob(), &flip)
                 .submit()
@@ -83,7 +83,7 @@ pub mod flipper {
                 .expect("flip failed");
 
             // then
-            let get = call.get();
+            let get = call_builder.get();
             let get_res = client.call(&ink_e2e::bob(), &get).dry_run().await?;
             assert!(matches!(get_res.return_value(), true));
 
@@ -101,10 +101,10 @@ pub mod flipper {
                 .submit()
                 .await
                 .expect("instantiate failed");
-            let call = contract.call::<Flipper>();
+            let call_builder = contract.call_builder::<Flipper>();
 
             // then
-            let get = call.get();
+            let get = call_builder.get();
             let get_res = client.call(&ink_e2e::bob(), &get).dry_run().await?;
             assert!(matches!(get_res.return_value(), false));
 

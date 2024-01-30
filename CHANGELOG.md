@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - `Mapping`: Reflect all possible failure cases in comments ‒ [#2079](https://github.com/paritytech/ink/pull/2079)
+- [E2E] Rename `.call` to `.call_builder` ‒ [#2078](https://github.com/paritytech/ink/pull/2078)
 
 ### Added
 - Custom signature topic in Events - [#2031](https://github.com/paritytech/ink/pull/2031)

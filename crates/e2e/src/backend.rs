@@ -165,7 +165,7 @@ pub trait ContractsBackend<E: Environment> {
     ///
     /// ```ignore
     /// // Message method
-    /// let get = call.get();
+    /// let get = call_builder.get();
     /// let get_res = client
     ///    .call(&ink_e2e::bob(), &get)
     ///     // Optional arguments

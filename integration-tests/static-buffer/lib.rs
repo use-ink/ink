@@ -60,10 +60,10 @@ pub mod static_buffer {
                 .submit()
                 .await
                 .expect("instantiate failed");
-            let call = contract.call::<StaticBuffer>();
+            let call_builder = contract.call_builder::<StaticBuffer>();
 
             // when
-            let get = call.get_caller();
+            let get = call_builder.get_caller();
             // then panics if `INK_STATIC_BUFFER_SIZE` is less than 32 bytes.
             let res = client.call(&ink_e2e::bob(), &get).dry_run().await;
             println!("{}", super::BUFFER_SIZE);
