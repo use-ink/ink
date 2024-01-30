@@ -147,7 +147,7 @@ mod call_builder {
                 .code_hash;
 
             let selector = ink::selector_bytes!("get");
-            let call = contract.delegate_call(code_hash, selector);
+            let call = call_builder.delegate_call(code_hash, selector);
             let call_result = client
                 .call(&origin, &call)
                 .submit()
