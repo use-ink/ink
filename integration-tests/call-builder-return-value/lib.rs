@@ -132,12 +132,12 @@ mod call_builder {
 
             let expected_value = 42;
             let mut constructor = CallBuilderReturnValueRef::new(expected_value);
-            let call_builder = client
+            let contract = client
                 .instantiate("call_builder_return_value", &origin, &mut constructor)
                 .submit()
                 .await
                 .expect("instantiate failed");
-            let mut contract = call_builder.call_builder::<CallBuilderReturnValue>();
+            let mut call_builder = call_builder.call_builder::<CallBuilderReturnValue>();
 
             let code_hash = client
                 .upload("incrementer", &origin)
