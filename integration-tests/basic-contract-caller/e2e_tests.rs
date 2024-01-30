@@ -20,7 +20,7 @@ async fn flip_and_get<Client: E2EBackend>(
         .submit()
         .await
         .expect("basic-contract-caller instantiate failed");
-    let call_builder = contract.call_builder::<BasicContractCaller>();
+    let mut call_builder = contract.call_builder::<BasicContractCaller>();
     let call = call_builder.flip_and_get();
 
     // when
@@ -34,7 +34,7 @@ async fn flip_and_get<Client: E2EBackend>(
         .expect("Calling `flip_and_get` failed")
         .return_value();
 
-    assert!(result);
+    assert_eq!(result, false);
 
     Ok(())
 }
