@@ -139,6 +139,26 @@
 <a href="#139" id="139">139</a>
 <a href="#140" id="140">140</a>
 <a href="#141" id="141">141</a>
+<a href="#142" id="142">142</a>
+<a href="#143" id="143">143</a>
+<a href="#144" id="144">144</a>
+<a href="#145" id="145">145</a>
+<a href="#146" id="146">146</a>
+<a href="#147" id="147">147</a>
+<a href="#148" id="148">148</a>
+<a href="#149" id="149">149</a>
+<a href="#150" id="150">150</a>
+<a href="#151" id="151">151</a>
+<a href="#152" id="152">152</a>
+<a href="#153" id="153">153</a>
+<a href="#154" id="154">154</a>
+<a href="#155" id="155">155</a>
+<a href="#156" id="156">156</a>
+<a href="#157" id="157">157</a>
+<a href="#158" id="158">158</a>
+<a href="#159" id="159">159</a>
+<a href="#160" id="160">160</a>
+<a href="#161" id="161">161</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -167,7 +187,27 @@
     /// This runs a runtime emulator within `TestExternalities` (using drink! library) in
     /// the same process as the test.
     </span><span class="attr">#[cfg(any(test, feature = <span class="string">&quot;drink&quot;</span>))]
-    </span>RuntimeOnly { runtime: <span class="prelude-ty">Option</span>&lt;syn::Path&gt; },
+    </span>RuntimeOnly(RuntimeOnly),
+}
+
+<span class="doccomment">/// The runtime emulator that should be used within `TestExternalities` (using drink!
+/// library).
+</span><span class="attr">#[cfg(any(test, feature = <span class="string">&quot;drink&quot;</span>))]
+#[derive(Clone, Eq, PartialEq, Debug, darling::FromMeta)]
+</span><span class="kw">pub enum </span>RuntimeOnly {
+    <span class="attr">#[darling(word)]
+    </span>Default,
+    Runtime(syn::Path),
+}
+
+<span class="attr">#[cfg(any(test, feature = <span class="string">&quot;drink&quot;</span>))]
+</span><span class="kw">impl </span>From&lt;RuntimeOnly&gt; <span class="kw">for </span>syn::Path {
+    <span class="kw">fn </span>from(value: RuntimeOnly) -&gt; <span class="self">Self </span>{
+        <span class="kw">match </span>value {
+            RuntimeOnly::Default =&gt; <span class="macro">syn::parse_quote! </span>{ ::ink_e2e::MinimalRuntime },
+            RuntimeOnly::Runtime(path) =&gt; path,
+        }
+    }
 }
 
 <span class="doccomment">/// The End-to-End test configuration.
@@ -241,7 +281,7 @@
         <span class="kw">let </span>input = <span class="macro">quote! </span>{
             additional_contracts = <span class="string">&quot;adder/Cargo.toml flipper/Cargo.toml&quot;</span>,
             environment = <span class="kw">crate</span>::CustomEnvironment,
-            backend(runtime_only()),
+            backend(runtime_only),
             node_url = <span class="string">&quot;ws://127.0.0.1:8000&quot;
         </span>};
         <span class="kw">let </span>config =
@@ -256,7 +296,7 @@
             <span class="prelude-val">Some</span>(<span class="macro">syn::parse_quote! </span>{ <span class="kw">crate</span>::CustomEnvironment })
         );
 
-        <span class="macro">assert_eq!</span>(config.backend(), Backend::RuntimeOnly { runtime: <span class="prelude-val">None </span>});
+        <span class="macro">assert_eq!</span>(config.backend(), Backend::RuntimeOnly(RuntimeOnly::Default));
         <span class="macro">assert_eq!</span>(config.node_url(), <span class="prelude-val">Some</span>(String::from(<span class="string">&quot;ws://127.0.0.1:8000&quot;</span>)));
 
         std::env::set_var(<span class="string">&quot;CONTRACTS_NODE_URL&quot;</span>, <span class="string">&quot;ws://127.0.0.1:9000&quot;</span>);
@@ -273,9 +313,9 @@
 
         <span class="macro">assert_eq!</span>(
             config.backend(),
-            Backend::RuntimeOnly {
-                runtime: <span class="prelude-val">Some</span>(<span class="macro">syn::parse_quote! </span>{ ::ink_e2e::MinimalRuntime })
-            }
+            Backend::RuntimeOnly(RuntimeOnly::Runtime(
+                <span class="macro">syn::parse_quote! </span>{ ::ink_e2e::MinimalRuntime }
+            ))
         );
         <span class="macro">assert_eq!</span>(config.node_url(), <span class="prelude-val">None</span>)
     }
