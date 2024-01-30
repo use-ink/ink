@@ -110,13 +110,12 @@ mod call_builder {
                 .await;
 
             let mut constructor = CallBuilderDelegateTestRef::new(Default::default());
-            let call_builder_contract = client
+            let contract = client
                 .instantiate("call_builder_delegate", &origin, &mut constructor)
                 .submit()
                 .await
                 .expect("instantiate failed");
-            let mut call_builder_call =
-                call_builder_contract.call_builder::<CallBuilderDelegateTest>();
+            let mut call_builder = contract.call_builder::<CallBuilderDelegateTest>();
 
             let code_hash = client
                 .upload("incrementer", &origin)
@@ -126,7 +125,7 @@ mod call_builder {
                 .code_hash;
 
             let selector = ink::selector_bytes!("invalid_selector");
-            let call = call_builder_call.delegate(code_hash, selector);
+            let call = call_builder.delegate(code_hash, selector);
             let call_result = client
                 .call(&origin, &call)
                 .submit()
@@ -150,13 +149,12 @@ mod call_builder {
                 .await;
 
             let mut constructor = CallBuilderDelegateTestRef::new(Default::default());
-            let call_builder_contract = client
+            let contract = client
                 .instantiate("call_builder_delegate", &origin, &mut constructor)
                 .submit()
                 .await
                 .expect("instantiate failed");
-            let mut call_builder_call =
-                call_builder_contract.call_builder::<CallBuilderDelegateTest>();
+            let mut call_builder = contract.call_builder::<CallBuilderDelegateTest>();
 
             let code_hash = client
                 .upload("incrementer", &origin)
@@ -168,7 +166,7 @@ mod call_builder {
             // Since `LangError`s can't be handled by the `CallBuilder::invoke()` method
             // we expect this to panic.
             let selector = ink::selector_bytes!("invalid_selector");
-            let call = call_builder_call.invoke(code_hash, selector);
+            let call = call_builder.invoke(code_hash, selector);
             let call_result = client.call(&origin, &call).dry_run().await;
 
             if let Err(ink_e2e::Error::CallDryRun(dry_run)) = call_result {
