@@ -407,7 +407,7 @@
 
 <span class="kw">impl</span>&lt;E: Environment, EventLog&gt; InstantiationResult&lt;E, EventLog&gt; {
     <span class="doccomment">/// Returns the account id at which the contract was instantiated.
-    </span><span class="kw">pub fn </span>call&lt;Contract&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; &lt;Contract <span class="kw">as </span>ContractCallBuilder&gt;::Type
+    </span><span class="kw">pub fn </span>call_builder&lt;Contract&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; &lt;Contract <span class="kw">as </span>ContractCallBuilder&gt;::Type
     <span class="kw">where
         </span>Contract: ContractCallBuilder,
         Contract::Type: FromAccountId&lt;E&gt;,

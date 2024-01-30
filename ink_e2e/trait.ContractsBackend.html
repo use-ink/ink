@@ -70,7 +70,7 @@
     Self: <a class="trait" href="https://doc.rust-lang.org/1.75.0/core/marker/trait.Sized.html" title="trait core::marker::Sized">Sized</a> + BuilderClient&lt;E&gt;,</span></h4></section></summary><div class="docblock"><p>Start building a call using a builder pattern.</p>
 <h5 id="example-2"><a href="#example-2">Example</a></h5>
 <div class="example-wrap ignore"><a href="#" class="tooltip" title="This example is not tested">ⓘ</a><pre class="rust rust-example-rendered"><code><span class="comment">// Message method
-</span><span class="kw">let </span>get = call.get();
+</span><span class="kw">let </span>get = call_builder.get();
 <span class="kw">let </span>get_res = client
    .call(<span class="kw-2">&amp;</span>ink_e2e::bob(), <span class="kw-2">&amp;</span>get)
     <span class="comment">// Optional arguments

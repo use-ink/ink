@@ -148,14 +148,6 @@
 <a href="#148" id="148">148</a>
 <a href="#149" id="149">149</a>
 <a href="#150" id="150">150</a>
-<a href="#151" id="151">151</a>
-<a href="#152" id="152">152</a>
-<a href="#153" id="153">153</a>
-<a href="#154" id="154">154</a>
-<a href="#155" id="155">155</a>
-<a href="#156" id="156">156</a>
-<a href="#157" id="157">157</a>
-<a href="#158" id="158">158</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -305,13 +297,5 @@
     &lt;&lt;Contract <span class="kw">as </span>ContractCallBuilder&gt;::Type <span class="kw">as </span>FromAccountId&lt;
         &lt;Contract <span class="kw">as </span>ContractEnv&gt;::Env,
     &gt;&gt;::from_account_id(acc_id)
-}
-
-<span class="doccomment">/// Builds a contract and imports its scaffolded structure as a module.
-</span><span class="attr">#[macro_export]
-</span><span class="macro">macro_rules! </span>build {
-        ($(<span class="macro-nonterminal">$arg</span>:tt)<span class="kw-2">*</span>) =&gt; (
-            <span class="macro">ink_e2e::smart_bench_macro::contract!</span>($(<span class="macro-nonterminal">$arg</span>)<span class="kw-2">*</span>)
-        );
 }
 </code></pre></div></section></main></body></html>
