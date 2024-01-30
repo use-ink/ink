@@ -40,7 +40,7 @@ pub mod e2e_call_runtime {
                 .submit()
                 .await
                 .expect("instantiate failed");
-            let call = contract.call::<Contract>();
+            let call_builder = contract.call_builder::<Contract>();
 
             let transfer_amount = 100_000_000_000u128;
 
@@ -54,7 +54,7 @@ pub mod e2e_call_runtime {
                 Value::u128(transfer_amount),
             ];
 
-            let get_balance = call.get_contract_balance();
+            let get_balance = call_builder.get_contract_balance();
             let pre_balance = client
                 .call(&ink_e2e::alice(), &get_balance)
                 .dry_run()
@@ -73,7 +73,7 @@ pub mod e2e_call_runtime {
                 .expect("runtime call failed");
 
             // then
-            let get_balance = call.get_contract_balance();
+            let get_balance = call_builder.get_contract_balance();
             let get_balance_res = client
                 .call(&ink_e2e::alice(), &get_balance)
                 .dry_run()

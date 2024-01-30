@@ -84,7 +84,7 @@ pub struct InstantiationResult<E: Environment, EventLog> {
 
 impl<E: Environment, EventLog> InstantiationResult<E, EventLog> {
     /// Returns the account id at which the contract was instantiated.
-    pub fn call<Contract>(&self) -> <Contract as ContractCallBuilder>::Type
+    pub fn call_builder<Contract>(&self) -> <Contract as ContractCallBuilder>::Type
     where
         Contract: ContractCallBuilder,
         Contract::Type: FromAccountId<E>,

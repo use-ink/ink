@@ -81,16 +81,16 @@ pub mod integration_flipper {
                 .submit()
                 .await
                 .expect("Instantiate `integration_flipper` failed");
-            let mut call = flipper.call::<Flipper>();
+            let mut call_builder = flipper.call_builder::<Flipper>();
 
-            let get = call.get();
+            let get = call_builder.get();
             let initial_value = client
                 .call(&ink_e2e::alice(), &get)
                 .dry_run()
                 .await?
                 .return_value();
 
-            let flip = call.flip();
+            let flip = call_builder.flip();
             let flip_call_result = client
                 .call(&ink_e2e::alice(), &flip)
                 .submit()
@@ -121,16 +121,16 @@ pub mod integration_flipper {
                 .submit()
                 .await
                 .expect("instantiate failed");
-            let mut call = flipper.call::<Flipper>();
+            let mut call_builder = flipper.call_builder::<Flipper>();
 
-            let get = call.get();
+            let get = call_builder.get();
             let initial_value = client
                 .call(&ink_e2e::bob(), &get)
                 .dry_run()
                 .await?
                 .return_value();
 
-            let err_flip = call.err_flip();
+            let err_flip = call_builder.err_flip();
             let err_flip_call_result =
                 client.call(&ink_e2e::bob(), &err_flip).submit().await;
 

@@ -124,10 +124,10 @@ mod custom_allocator {
                 .submit()
                 .await
                 .expect("instantiate failed");
-            let call = contract.call::<CustomAllocator>();
+            let call_builder = contract.call_builder::<CustomAllocator>();
 
             // Then
-            let get = call.get();
+            let get = call_builder.get();
             let get_result = client.call(&ink_e2e::alice(), &get).dry_run().await?;
             assert!(matches!(get_result.return_value(), false));
 
@@ -145,14 +145,14 @@ mod custom_allocator {
                 .submit()
                 .await
                 .expect("instantiate failed");
-            let mut call = contract.call::<CustomAllocator>();
+            let mut call_builder = contract.call_builder::<CustomAllocator>();
 
-            let get = call.get();
+            let get = call_builder.get();
             let get_result = client.call(&ink_e2e::bob(), &get).dry_run().await?;
             assert!(matches!(get_result.return_value(), false));
 
             // When
-            let flip = call.flip();
+            let flip = call_builder.flip();
             let _flip_result = client
                 .call(&ink_e2e::bob(), &flip)
                 .submit()
@@ -160,7 +160,7 @@ mod custom_allocator {
                 .expect("flip failed");
 
             // Then
-            let get = call.get();
+            let get = call_builder.get();
             let get_result = client.call(&ink_e2e::bob(), &get).dry_run().await?;
             assert!(matches!(get_result.return_value(), true));
 

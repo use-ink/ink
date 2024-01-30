@@ -16,7 +16,6 @@ path = "lib.rs"
 default = ["std"]
 std = [
     "ink/std",
-
     "accumulator/std",
 ]
 ink-as-dependency = []

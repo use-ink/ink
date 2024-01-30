@@ -87,7 +87,7 @@ mod e2e_tests {
             .submit()
             .await
             .expect("instantiate failed");
-        let incrementer_call = incrementer.call::<Incrementer>();
+        let incrementer_call = incrementer.call_builder::<Incrementer>();
 
         let mut constructor = CallerRef::new(incrementer.account_id.clone());
 
@@ -100,7 +100,7 @@ mod e2e_tests {
             .submit()
             .await
             .expect("instantiate failed");
-        let mut caller_call = caller.call::<Caller>();
+        let mut caller_call = caller.call_builder::<Caller>();
 
         // Check through the caller that the value of the incrementer is zero
         let get = caller_call.get();

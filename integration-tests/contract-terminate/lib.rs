@@ -71,10 +71,10 @@ pub mod just_terminates {
                 .submit()
                 .await
                 .expect("instantiate failed");
-            let mut call = contract.call::<JustTerminate>();
+            let mut call_builder = contract.call_builder::<JustTerminate>();
 
             // when
-            let terminate_me = call.terminate_me();
+            let terminate_me = call_builder.terminate_me();
             let call_res = client
                 .call(&ink_e2e::alice(), &terminate_me)
                 .submit()

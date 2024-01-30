@@ -148,11 +148,3 @@ where
         <Contract as ContractEnv>::Env,
     >>::from_account_id(acc_id)
 }
-
-/// Builds a contract and imports its scaffolded structure as a module.
-#[macro_export]
-macro_rules! build {
-        ($($arg:tt)*) => (
-            ink_e2e::smart_bench_macro::contract!($($arg)*)
-        );
-}
