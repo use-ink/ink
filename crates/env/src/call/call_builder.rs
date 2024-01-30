@@ -628,20 +628,6 @@ where
         }
     }
 
-    /// todo: [AJ] docs
-    pub fn call_v2(
-        self,
-        callee: E::AccountId,
-    ) -> CallBuilder<E, Set<CallV2<E>>, Args, RetType> {
-        CallBuilder {
-            call_type: Set(CallV2::new(callee)),
-            call_flags: self.call_flags,
-            exec_input: self.exec_input,
-            return_type: self.return_type,
-            _phantom: Default::default(),
-        }
-    }
-
     /// Prepares the `CallBuilder` for a cross-contract [`DelegateCall`].
     pub fn delegate(
         self,
@@ -661,6 +647,25 @@ impl<E, Args, RetType> CallBuilder<E, Set<Call<E>>, Args, RetType>
 where
     E: Environment,
 {
+    /// todo: [AJ] docs
+    pub fn v2(
+        self,
+    ) -> CallBuilder<E, Set<CallV2<E>>, Args, RetType> {
+        let call_type = self.call_type.value();
+        CallBuilder {
+            call_type: Set(CallV2 {
+                callee: call_type.callee,
+                ref_time_limit: call_type.gas_limit,
+                proof_time_limit: Default::default(),
+                transferred_value: call_type.transferred_value,
+            } ),
+            call_flags: self.call_flags,
+            exec_input: self.exec_input,
+            return_type: self.return_type,
+            _phantom: Default::default(),
+        }
+    }
+
     /// Sets the `gas_limit` for the current cross-contract call.
     pub fn gas_limit(self, gas_limit: Gas) -> Self {
         let call_type = self.call_type.value();
