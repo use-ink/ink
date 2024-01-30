@@ -127,11 +127,3 @@ pub fn account_id(account: AccountKeyring) -> ink_primitives::AccountId {
     ink_primitives::AccountId::try_from(account.to_account_id().as_ref())
         .expect("account keyring has a valid account id")
 }
-
-/// Builds a contract and imports its scaffolded structure as a module.
-#[macro_export]
-macro_rules! build {
-        ($($arg:tt)*) => (
-            ink_e2e::smart_bench_macro::contract!($($arg)*)
-        );
-}
