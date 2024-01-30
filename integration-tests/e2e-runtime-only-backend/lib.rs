@@ -55,7 +55,7 @@ pub mod flipper {
         /// - flip the flipper
         /// - get the flipper's value
         /// - assert that the value is `true`
-        #[ink_e2e::test(backend(runtime_only()))]
+        #[ink_e2e::test(backend(runtime_only))]
         async fn it_works<Client: E2EBackend>(mut client: Client) -> E2EResult<()> {
             // given
             const INITIAL_VALUE: bool = false;
@@ -88,7 +88,7 @@ pub mod flipper {
         /// - transfer some funds to the contract using runtime call
         /// - get the contract's balance again
         /// - assert that the contract's balance increased by the transferred amount
-        #[ink_e2e::test(backend(runtime_only()))]
+        #[ink_e2e::test(backend(runtime_only))]
         async fn runtime_call_works() -> E2EResult<()> {
             // given
             let mut constructor = FlipperRef::new(false);

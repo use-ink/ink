@@ -71,8 +71,8 @@ impl InkE2ETest {
                 build_full_client(&environment, exec_build_contracts, node_url)
             }
             #[cfg(any(test, feature = "drink"))]
-            Backend::RuntimeOnly { runtime } => {
-                build_runtime_client(exec_build_contracts, runtime)
+            Backend::RuntimeOnly(runtime) => {
+                build_runtime_client(exec_build_contracts, runtime.into())
             }
         };
 
@@ -125,7 +125,7 @@ fn build_full_client(
                 let rpc = ::ink_e2e::RpcClient::from_url(#url)
                     .await
                     .unwrap_or_else(|err|
-                        ::core::panic!("Error connecting to Chopsticks node: {err:?}")
+                        ::core::panic!("Error connecting to node at {}: {err:?}", #url)
                     );
                 let contracts = #contracts;
                 let mut client = ::ink_e2e::Client::<
@@ -154,12 +154,7 @@ fn build_full_client(
 }
 
 #[cfg(any(test, feature = "drink"))]
-fn build_runtime_client(
-    contracts: TokenStream2,
-    runtime: Option<syn::Path>,
-) -> TokenStream2 {
-    let runtime =
-        runtime.unwrap_or_else(|| syn::parse_quote! { ::ink_e2e::MinimalRuntime });
+fn build_runtime_client(contracts: TokenStream2, runtime: syn::Path) -> TokenStream2 {
     quote! {
         let contracts = #contracts;
         let mut client = ::ink_e2e::DrinkClient::<_, _, #runtime>::new(contracts);

@@ -10,6 +10,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Custom signature topic in Events - [#2031](https://github.com/paritytech/ink/pull/2031)
 - Linter: `non_fallible_api` lint - [#2004](https://github.com/paritytech/ink/pull/2004)
 - Linter: Publish the linting crates on crates.io - [#2060](https://github.com/paritytech/ink/pull/2060)
+- [E2E] Added `create_call_builder` for testing existing contracts - [#2075](https://github.com/paritytech/ink/pull/2075)
+
+### Changed
+- Improve syntax for ink! e2e `runtime_only` attribute argument - [#2083](https://github.com/paritytech/ink/pull/2083)
 
 ### Fixed
 - Fix the `StorageVec` type by excluding the `len_cached` field from its type info - [#2052](https://github.com/paritytech/ink/pull/2052)
@@ -18,24 +22,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - Allow mutable parameters in messages - [#2004](https://github.com/paritytech/ink/pull/2004)
+- Clean E2E configuration parsing - [#1922](https://github.com/paritytech/ink/pull/1922)
+- Make `set_code_hash` generic - [#1906](https://github.com/paritytech/ink/pull/1906)
+- Provide a `StorageVec` datastructure built on top of `Lazy` - [#1995](https://github.com/paritytech/ink/pull/1995)
 - [E2E] Allow testing with live-chain state - [#1949](https://github.com/paritytech/ink/pull/1949)
 - [E2E] Call builders and extra gas margin option - [#1917](https://github.com/paritytech/ink/pull/1917)
 - [Linter] `storage_never_freed` lint - [#1932](https://github.com/paritytech/ink/pull/1932)
 - [Linter] `strict_balance_equality` lint - [#1914](https://github.com/paritytech/ink/pull/1914)
 - [Linter] `no_main` lint - [#2001](https://github.com/paritytech/ink/pull/2001)
-- Clean E2E configuration parsing - [#1922](https://github.com/paritytech/ink/pull/1922)
-- Make `set_code_hash` generic - [#1906](https://github.com/paritytech/ink/pull/1906)
-- Provide a `StorageVec` datastructure built on top of `Lazy` - [#1995](https://github.com/paritytech/ink/pull/1995)
 
 ### Changed
 - Messages return `TypeSpec` directly - [#1999](https://github.com/paritytech/ink/pull/1999)
 - Fail when decoding from storage and not all bytes consumed - [#1897](https://github.com/paritytech/ink/pull/1897)
-- [E2E] resolve DispatchError error details for dry-runs - [#1994](https://github.com/paritytech/ink/pull/1994)
-- [E2E] update to new `drink` API - [#2005](https://github.com/paritytech/ink/pull/2005)
 - Support multiple chain extensions - [#1958](https://github.com/paritytech/ink/pull/1958)
   - New example of how to use multiple chain extensions in one contract.
   - Affects the usage of the `#[ink::chain_extension]` macro and the definition of the chain extension.
 - Split up `ink_linting` to mandatory and extra libraries - [#2032](https://github.com/paritytech/ink/pull/2032)
+- [E2E] resolve DispatchError error details for dry-runs - [#1994](https://github.com/paritytech/ink/pull/1994)
+- [E2E] update to new `drink` API - [#2005](https://github.com/paritytech/ink/pull/2005)
 
 
 ## Version 5.0.0-alpha
@@ -46,42 +50,42 @@ in particular we addressed the proxy selector clashing attack.
 As of this release, ink! only allows exactly one other message with a well-known reserved selector to be defined.
 You can read more about the change in the [PR](https://github.com/paritytech/ink/pull/1708).
 
-There are also other notable changes:
+Other notable changes:
 
 - Rework of event definitions - [#1827](https://github.com/paritytech/ink/pull/1827).
-- Updated upgradeable contract example illustrating `delegate_call`
-- Removal of unchecked arithmetic. `cargo-contract` will fail compiling the contract with raw arithmetic operations.
-- Introduction of an alternative off-chain E2E testing backend, drink!
-**Big thanks to @pmikolajczyk41 for this massive contribution!**
+- Updated upgradeable contract example illustrating `delegate_call` - [#1889](https://github.com/paritytech/ink/pull/1889).
+- Removal of unchecked arithmetic. `cargo-contract` will fail compiling the contract with raw arithmetic operations - [#1831](https://github.com/paritytech/ink/pull/1831).
+- Introduction of an alternative off-chain E2E testing backend, [DRink!](https://github.com/inkdevhub/drink?tab=readme-ov-file#as-an-alternative-backend-to-inks-e2e-testing-framework).
+**Big thanks to [@pmikolajczyk41](https://github.com/pmikolajczyk41) for this massive contribution!**
 
 You can see a more detailed log of changes below:
 
 ### Added
-- [Drink backend]: allow for arbitrary runtime - [#1892](https://github.com/paritytech/ink/pull/1892)
-- [Drink backend]: support runtime call - [#1891](https://github.com/paritytech/ink/pull/1891)
 - Reexport `scale` dependencies, introduce `#[ink::scale_derive]` - [#1890](https://github.com/paritytech/ink/pull/1890)
 - Upgradeable contracts example - [#1889](https://github.com/paritytech/ink/pull/1889)
 - Persist static buffer size in metadata - [#1880](https://github.com/paritytech/ink/pull/1880)
 - Modify static buffer size via environmental variables - [#1869](https://github.com/paritytech/ink/pull/1869)
-- [Drink backend]: Make tests generic `E2EBackend` trait - [#1867](https://github.com/paritytech/ink/pull/1867)
-- [Drink backend]: Backend choice  ‒ [#1864](https://github.com/paritytech/ink/pull/1864)
-- [Drink backend]: Backend traits - [#1857](https://github.com/paritytech/ink/pull/1857)
-- [Drink backend]: Abstract error and result structs - [#1844](https://github.com/paritytech/ink/pull/1844)
 - Added `sr25519_verify` function to `ink_env` [#1840](https://github.com/paritytech/ink/pull/1840)
-- [Linter] Warn when primitive number is annotated as event topic - [#1837](https://github.com/paritytech/ink/pull/1837)
 - Events `2.0` - [#1827](https://github.com/paritytech/ink/pull/1827)
 - Add `set_block_number` to off-chain test api `Engine` - [#1806](https://github.com/paritytech/ink/pull/1806)
 - Stabilize `call_runtime` ‒ [#1749](https://github.com/paritytech/ink/pull/1749)
 - Schema generation - [#1765](https://github.com/paritytech/ink/pull/1765)
 - Restrict wildcard selectors to have exactly one other message - [#1708](https://github.com/paritytech/ink/pull/1708)
+- [Linter] Warn when primitive number is annotated as event topic - [#1837](https://github.com/paritytech/ink/pull/1837)
+- [Drink backend] allow for arbitrary runtime - [#1892](https://github.com/paritytech/ink/pull/1892)
+- [Drink backend] support runtime call - [#1891](https://github.com/paritytech/ink/pull/1891)
+- [Drink backend] Make tests generic `E2EBackend` trait - [#1867](https://github.com/paritytech/ink/pull/1867)
+- [Drink backend] Backend choice  ‒ [#1864](https://github.com/paritytech/ink/pull/1864)
+- [Drink backend] Backend traits - [#1857](https://github.com/paritytech/ink/pull/1857)
+- [Drink backend] Abstract error and result structs - [#1844](https://github.com/paritytech/ink/pull/1844)
 
 ### Changed
 - Reexport `scale` dependencies, introduce `#[ink::scale_derive]` ‒ [#1890](https://github.com/paritytech/ink/pull/1890)
-- [E2E] build contracts at runtime instead of during codegen - [#1881](https://github.com/paritytech/ink/pull/1881)
 - Use of workspace dependencies and properties - [#1835](https://github.com/paritytech/ink/pull/1835)
 - Remove of unchecked arithmetic - [#1831](https://github.com/paritytech/ink/pull/1831)
-- [E2E] crate refactoring - [#1830](https://github.com/paritytech/ink/pull/1830)
 - Use `decode_all` for decoding cross contract call result - [#1810](https://github.com/paritytech/ink/pull/1810)
+- [E2E] build contracts at runtime instead of during codegen - [#1881](https://github.com/paritytech/ink/pull/1881)
+- [E2E] crate refactoring - [#1830](https://github.com/paritytech/ink/pull/1830)
 - [E2E] improve call API, remove `build_message` + callback - [#1782](https://github.com/paritytech/ink/pull/1782)
 
 ### Fixed
