@@ -138,7 +138,8 @@ where
     ///
     /// # Panics
     ///
-    /// Traps if the the encoded `key` or `value` doesn't fit into the static buffer.
+    /// Traps if encoding the `key` together with the `value` doesn't fit into the static
+    /// buffer.
     #[inline]
     pub fn insert<Q, R>(&mut self, key: Q, value: &R) -> Option<u32>
     where
@@ -156,7 +157,8 @@ where
     /// - `Ok(Some(_))` if the value was inserted successfully, containing the size in
     ///   bytes of the pre-existing value at the specified key if any.
     /// - `Ok(None)` if the insert was successful but there was no pre-existing value.
-    /// - `Err(_)` if the encoded `key` or `value` exceeds the static buffer size.
+    /// - `Err(_)` if encoding the `key` together with the `value` exceeds the static
+    ///   buffer size.
     #[inline]
     pub fn try_insert<Q, R>(&mut self, key: Q, value: &R) -> ink_env::Result<Option<u32>>
     where
