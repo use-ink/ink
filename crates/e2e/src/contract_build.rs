@@ -173,7 +173,7 @@ fn build_contract(path_to_cargo_toml: &Path) -> PathBuf {
         build_mode: BuildMode::Debug,
         features: Features::default(),
         network: Network::Online,
-        build_artifact: BuildArtifacts::CodeOnly,
+        build_artifact: BuildArtifacts::All,
         unstable_flags: UnstableFlags::default(),
         optimization_passes: Some(OptimizationPasses::default()),
         keep_debug_symbols: false,

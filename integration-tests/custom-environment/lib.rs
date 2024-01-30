@@ -1,6 +1,9 @@
 #![cfg_attr(not(feature = "std"), no_std, no_main)]
 
-use ink::env::{DefaultEnvironment, Environment};
+use ink::env::{
+    DefaultEnvironment,
+    Environment,
+};
 
 /// Our custom environment diverges from the `DefaultEnvironment` in the event topics
 /// limit.
@@ -9,10 +12,11 @@ use ink::env::{DefaultEnvironment, Environment};
 pub enum EnvironmentWithManyTopics {}
 
 impl Environment for EnvironmentWithManyTopics {
-    // We allow for 5 topics in the event, therefore the contract pallet's schedule must
-    // allow for 6 of them (to allow the implicit topic for the event signature).
+    // We allow for 3 topics in the event, including the implicit topic for the event
+    // signature. Therefore, the contract pallet's schedule must also allow for at
+    // least 3 of them.
     const MAX_EVENT_TOPICS: usize =
-        <DefaultEnvironment as Environment>::MAX_EVENT_TOPICS + 1;
+        <DefaultEnvironment as Environment>::MAX_EVENT_TOPICS - 1;
 
     type AccountId = <DefaultEnvironment as Environment>::AccountId;
     type Balance = <DefaultEnvironment as Environment>::Balance;
@@ -39,10 +43,6 @@ mod runtime_call {
         first_topic: Balance,
         #[ink(topic)]
         second_topic: Balance,
-        #[ink(topic)]
-        third_topic: Balance,
-        #[ink(topic)]
-        fourth_topic: Balance,
     }
 
     impl Topics {
@@ -133,9 +133,7 @@ mod runtime_call {
             let message = call_builder.trigger();
 
             // when
-            let call_res = client
-                .call(&ink_e2e::alice(), &message).dry_run()
-                .await;
+            let call_res = client.call(&ink_e2e::alice(), &message).dry_run().await;
 
             // then
             assert!(call_res.is_err());

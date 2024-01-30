@@ -7,13 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Changed
+- `Mapping`: Reflect all possible failure cases in comments ‒ [#2079](https://github.com/paritytech/ink/pull/2079)
 - [E2E] Rename `.call` to `.call_builder` ‒ [#2078](https://github.com/paritytech/ink/pull/2078)
 
 ### Added
 - Custom signature topic in Events - [#2031](https://github.com/paritytech/ink/pull/2031)
-- Linter: `non_fallible_api` lint - [#2004](https://github.com/paritytech/ink/pull/2004)
-- Linter: Publish the linting crates on crates.io - [#2060](https://github.com/paritytech/ink/pull/2060)
+- [Linter] `non_fallible_api` lint - [#2004](https://github.com/paritytech/ink/pull/2004)
+- [Linter] Publish the linting crates on crates.io - [#2060](https://github.com/paritytech/ink/pull/2060)
 - [E2E] Added `create_call_builder` for testing existing contracts - [#2075](https://github.com/paritytech/ink/pull/2075)
+
+### Changed
+- Improve syntax for ink! e2e `runtime_only` attribute argument - [#2083](https://github.com/paritytech/ink/pull/2083)
 
 ### Fixed
 - Fix the `StorageVec` type by excluding the `len_cached` field from its type info - [#2052](https://github.com/paritytech/ink/pull/2052)
@@ -25,6 +29,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Clean E2E configuration parsing - [#1922](https://github.com/paritytech/ink/pull/1922)
 - Make `set_code_hash` generic - [#1906](https://github.com/paritytech/ink/pull/1906)
 - Provide a `StorageVec` datastructure built on top of `Lazy` - [#1995](https://github.com/paritytech/ink/pull/1995)
+- Add fallible methods for `Mapping` and `Lazy` - [#1910](https://github.com/paritytech/ink/pull/1910)
 - [E2E] Allow testing with live-chain state - [#1949](https://github.com/paritytech/ink/pull/1949)
 - [E2E] Call builders and extra gas margin option - [#1917](https://github.com/paritytech/ink/pull/1917)
 - [Linter] `storage_never_freed` lint - [#1932](https://github.com/paritytech/ink/pull/1932)
