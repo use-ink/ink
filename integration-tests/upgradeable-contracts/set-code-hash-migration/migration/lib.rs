@@ -43,16 +43,22 @@ pub mod incrementer {
         /// # Note
         ///
         /// This function necessarily accepts a `&self` instead of a `&mut self` because
-        /// we are modifying storage directly for the migration. Using `&mut self`
-        /// would overwrite our migration changes with the contents of the
-        /// original `Incrementer`.
+        /// we are modifying storage directly for the migration.
+        ///
+        /// The `self` in `&mut self` is the original `Incrementer` storage struct, and
+        /// would be implicitly written to storage following the function execution,
+        /// overwriting the migrated storage.
         #[ink(message)]
         pub fn migrate(&self, inc_by: u8, code_hash: Hash) {
             let incrementer_new = IncrementerNew {
                 count: self.count as u64,
                 inc_by,
             };
-            const STORAGE_KEY: u32 = 0x00000000;
+
+            // overwrite the original storage struct with the migrated storage struct,
+            // which has a layout compatible with the new contract code.
+            const STORAGE_KEY: u32 =
+                <Incrementer as ink::storage::traits::StorageKey>::KEY;
             ink::env::set_contract_storage(&STORAGE_KEY, &incrementer_new);
 
             ink::env::set_code_hash::<<Self as ink::env::ContractEnv>::Env>(&code_hash)
