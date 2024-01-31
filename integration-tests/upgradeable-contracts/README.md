@@ -16,7 +16,7 @@ You can read more about storage compatibility on [use.ink](https://use.ink/basic
 
 When upgrading a contract, the new code may have a different storage layout. This example illustrates a method to 
 migrate the storage from the old layout to the new layout. It does so by using an intermediate `migration` contract
-which performs the storage upgrade. Thw workflow is as follows:
+which performs the storage upgrade. The workflow is as follows:
 
 
 1. Upload a `migration` contract with a message `migrate` which performs the storage migration.
