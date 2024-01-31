@@ -61,22 +61,24 @@ ink = { path = "../ink" }
 [features]
 default = ["std"]
 std = [
-    "ink_allocator/std",
-    "ink_prelude/std",
-    "ink_primitives/std",
-    "ink_storage_traits/std",
-    "ink_engine/std",
-    "scale/std",
-    "scale-decode",
-    "scale-encode",
-    "scale-info/std",
-    "secp256k1",
-    "schnorrkel",
-    "num-traits/std",
+	"ink_allocator/std",
+	"ink_prelude/std",
+	"ink_primitives/std",
+	"ink_storage_traits/std",
+	"ink_engine/std",
+	"scale/std",
+	"scale-decode",
+	"scale-encode",
+	"scale-info/std",
+	"secp256k1",
+	"schnorrkel",
+	"num-traits/std",
     # Enables hashing crates for off-chain environment.
-    "sha2",
-    "sha3",
-    "blake2",
+	"sha2",
+	"sha3",
+	"blake2",
+	"scale-decode?/std",
+	"scale-encode?/std"
 ]
 
 # Enable contract debug messages via `debug_print!` and `debug_println!`.

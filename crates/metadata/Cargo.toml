@@ -36,9 +36,10 @@ default = [
     "derive",
 ]
 std = [
-    "ink_prelude/std",
-    "ink_primitives/std",
-    "serde/std",
-    "scale-info/std",
+	"ink_prelude/std",
+	"ink_primitives/std",
+	"serde/std",
+	"scale-info/std",
+	"scale/std"
 ]
 derive = []

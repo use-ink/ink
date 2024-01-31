@@ -26,9 +26,11 @@ xxhash-rust = { workspace = true, features = ["const_xxh32"] }
 [features]
 default = ["std"]
 std = [
-    "ink_prelude/std",
-    "scale/std",
-    "scale-decode",
-    "scale-encode",
-    "scale-info/std",
+	"ink_prelude/std",
+	"scale/std",
+	"scale-decode",
+	"scale-encode",
+	"scale-info/std",
+	"scale-decode?/std",
+	"scale-encode?/std"
 ]
