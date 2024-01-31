@@ -12,16 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::ink_utils::{
+use if_chain::if_chain;
+use ink_linting_utils::{
+    clippy::{
+        diagnostics::span_lint_hir_and_then,
+        match_any_def_paths,
+        match_def_path,
+    },
     expand_unnamed_consts,
     find_contract_impl_id,
 };
-use clippy_utils::{
-    diagnostics::span_lint_hir_and_then,
-    match_any_def_paths,
-    match_def_path,
-};
-use if_chain::if_chain;
 use rustc_errors::Applicability;
 use rustc_hir::{
     self as hir,
@@ -42,7 +42,8 @@ use rustc_middle::{
         BinOp,
         Body,
         BorrowKind,
-        Constant,
+        CallReturnPlaces,
+        ConstOperand,
         HasLocalDecls,
         Local,
         Location,
@@ -51,6 +52,7 @@ use rustc_middle::{
         Rvalue,
         Statement,
         Terminator,
+        TerminatorEdges,
         TerminatorKind,
     },
     ty as mir_ty,
@@ -58,8 +60,6 @@ use rustc_middle::{
 use rustc_mir_dataflow::{
     Analysis,
     AnalysisDomain,
-    CallReturnPlaces,
-    Forward,
 };
 use rustc_session::{
     declare_lint,
@@ -72,22 +72,25 @@ use std::collections::{
 };
 
 declare_lint! {
-    /// **What it does:** Looks for strict equalities with balance in ink! contracts.
+    /// ## What it does
+    /// Looks for strict equalities with balance in ink! contracts.
     ///
-    /// **Why is this bad?** The problem with strict balance equality is that it is always possible
-    /// to forcibly send tokens to a contract. For example, using
+    /// ## Why is this bad?
+    /// The problem with strict balance equality is that it is always possible to forcibly send
+    /// tokens to a contract. For example, using
     /// [`terminate_contract`](https://paritytech.github.io/ink/ink_env/fn.terminate_contract.html).
     /// In such a case, the condition involving the contract balance will work incorrectly, what
     /// may lead to security issues, including DoS attacks and draining contract's gas.
     ///
-    /// **Known problems**: There are many ways to implement balance comparison in ink! contracts.
-    /// This lint is not trying to be exhaustive. Instead, it addresses the most common cases that
-    /// may occur in real-world contracts and focuses on precision and lack of false positives.
+    /// ## Known problems
+    /// There are many ways to implement balance comparison in ink! contracts. This lint is not
+    /// trying to be exhaustive. Instead, it addresses the most common cases that may occur in
+    /// real-world contracts and focuses on precision and lack of false positives.
     ///
-    /// **Example:**
-    ///
+    /// ## Example
     /// Assume, there is an attacker contract that sends all its funds to the target contract when
     /// terminated:
+    ///
     /// ```rust
     /// #[ink::contract]
     /// pub mod attacker {
@@ -101,6 +104,7 @@ declare_lint! {
     ///
     /// If the target contains a condition with strict balance equality, this may be manipulated by
     /// the attacker:
+    ///
     /// ```rust
     /// #[ink::contract]
     /// pub mod target {
@@ -116,6 +120,7 @@ declare_lint! {
     ///
     /// This could be mitigated using non-strict equality operators in the condition with the
     /// balance:
+    ///
     /// ```rust
     /// #[ink::contract]
     /// pub mod target {
@@ -219,8 +224,6 @@ impl<'a, 'tcx> AnalysisDomain<'tcx> for StrictBalanceEqualityAnalysis<'a, 'tcx> 
 
     const NAME: &'static str = "strict_balance_equality";
 
-    type Direction = Forward;
-
     fn bottom_value(&self, body: &Body) -> Self::Domain {
         // bottom = no balance taints
         BitSet::new_empty(body.local_decls().len())
@@ -257,12 +260,12 @@ impl<'a, 'tcx> Analysis<'tcx> for StrictBalanceEqualityAnalysis<'a, 'tcx> {
         .visit_statement(statement, location);
     }
 
-    fn apply_terminator_effect(
+    fn apply_terminator_effect<'mir>(
         &mut self,
         state: &mut Self::Domain,
-        terminator: &Terminator,
+        terminator: &'mir Terminator<'tcx>,
         location: Location,
-    ) {
+    ) -> TerminatorEdges<'mir, 'tcx> {
         TransferFunction::new(
             self.cx,
             self.fun_cache,
@@ -270,6 +273,7 @@ impl<'a, 'tcx> Analysis<'tcx> for StrictBalanceEqualityAnalysis<'a, 'tcx> {
             &mut self.mutable_references,
         )
         .visit_terminator(terminator, location);
+        terminator.edges()
     }
 
     fn apply_call_return_effect(
@@ -417,7 +421,7 @@ impl<'tcx> TransferFunction<'_, 'tcx> {
         fn_def_id.is_local()
     }
 
-    fn visit_call(&mut self, func: &Constant, args: &[Operand], destination: &Place) {
+    fn visit_call(&mut self, func: &ConstOperand, args: &[Operand], destination: &Place) {
         let init_taints = args.iter().fold(Vec::new(), |mut acc, arg| {
             if let Operand::Move(place) | Operand::Copy(place) = arg {
                 acc.push(self.state.contains(place.local))
@@ -426,7 +430,7 @@ impl<'tcx> TransferFunction<'_, 'tcx> {
         });
 
         let fn_def_id =
-            if let mir_ty::TyKind::FnDef(fn_def_id, _) = func.literal.ty().kind() {
+            if let mir_ty::TyKind::FnDef(fn_def_id, _) = func.const_.ty().kind() {
                 fn_def_id
             } else {
                 return

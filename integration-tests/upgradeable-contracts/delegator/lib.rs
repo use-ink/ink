@@ -48,7 +48,7 @@ pub mod delegator {
             let selector = ink::selector_bytes!("inc");
             let _ = build_call::<DefaultEnvironment>()
                 .delegate(hash)
-                // We specify `set_tail_call(true)` to use the delegatee last memory frame
+                // We specify `CallFlags::TAIL_CALL` to use the delegatee last memory frame
                 // as the end of the execution cycle.
                 // So any mutations to `Packed` types, made by delegatee,
                 // will be flushed to storage.
@@ -56,14 +56,14 @@ pub mod delegator {
                 // If we don't specify this flag.
                 // The storage state before the delegate call will be flushed to storage instead.
                 // See https://substrate.stackexchange.com/questions/3336/i-found-set-allow-reentry-may-have-some-problems/3352#3352
-                .call_flags(CallFlags::default().set_tail_call(true))
+                .call_flags(CallFlags::TAIL_CALL)
                 .exec_input(ExecutionInput::new(Selector::new(selector)))
                 .returns::<()>()
                 .try_invoke();
         }
 
         /// Adds entry to `addresses` using delegate call.
-        /// Note that we don't need `set_tail_call(true)` flag
+        /// Note that we don't need `CallFlags::TAIL_CALL` flag
         /// because `Mapping` updates the storage instantly on-demand.
         #[ink(message)]
         pub fn add_entry_delegate(&mut self, hash: Hash) {
@@ -108,12 +108,12 @@ pub mod delegator {
                 .await;
 
             let mut constructor = DelegatorRef::new_default();
-            let call_builder = client
+            let contract = client
                 .instantiate("delegator", &origin, &mut constructor)
                 .submit()
                 .await
                 .expect("instantiate failed");
-            let mut call_builder_call = call_builder.call::<Delegator>();
+            let mut call_builder = contract.call_builder::<Delegator>();
 
             let code_hash = client
                 .upload("delegatee", &origin)
@@ -123,7 +123,7 @@ pub mod delegator {
                 .code_hash;
 
             // when
-            let call_delegate = call_builder_call.inc_delegate(code_hash);
+            let call_delegate = call_builder.inc_delegate(code_hash);
 
             let result = client.call(&origin, &call_delegate).submit().await;
             assert!(result.is_ok(), "delegate call failed.");
@@ -133,9 +133,9 @@ pub mod delegator {
 
             // then
             let expected_value = 4;
-            let call = call_builder.call::<Delegator>();
+            let call_builder = contract.call_builder::<Delegator>();
 
-            let call_get = call.get_counter();
+            let call_get = call_builder.get_counter();
             let call_get_result = client
                 .call(&origin, &call_get)
                 .dry_run()
@@ -161,12 +161,12 @@ pub mod delegator {
 
             // given
             let mut constructor = DelegatorRef::new(10);
-            let call_builder = client
+            let contract = client
                 .instantiate("delegator", &origin, &mut constructor)
                 .submit()
                 .await
                 .expect("instantiate failed");
-            let mut call_builder_call = call_builder.call::<Delegator>();
+            let mut call_builder = contract.call_builder::<Delegator>();
 
             let code_hash = client
                 .upload("delegatee", &origin)
@@ -176,7 +176,7 @@ pub mod delegator {
                 .code_hash;
 
             // when
-            let call_delegate = call_builder_call.add_entry_delegate(code_hash);
+            let call_delegate = call_builder.add_entry_delegate(code_hash);
             let result = client.call(&origin, &call_delegate).submit().await;
             assert!(result.is_ok(), "delegate call failed.");
 
@@ -188,7 +188,7 @@ pub mod delegator {
             // Alice's address
             let address = AccountId::from(origin.public_key().to_account_id().0);
 
-            let call_get_value = call_builder_call.get_value(address);
+            let call_get_value = call_builder.get_value(address);
             let call_get_result = client
                 .call(&origin, &call_get_value)
                 .submit()

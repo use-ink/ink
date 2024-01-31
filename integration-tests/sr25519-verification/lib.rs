@@ -73,7 +73,10 @@ pub mod sr25519_verification {
                 143,
             ];
             let result = ink::env::sr25519_verify(&signature, &message, &public_key);
-            assert_eq!(result, Err(ink::env::Error::Sr25519VerifyFailed));
+            assert_eq!(
+                result,
+                Err(ink::env::ReturnErrorCode::Sr25519VerifyFailed.into())
+            );
         }
 
         #[ink::test]
@@ -99,7 +102,10 @@ pub mod sr25519_verification {
                 143,
             ];
             let result = ink::env::sr25519_verify(&signature, &message, &public_key);
-            assert_eq!(result, Err(ink::env::Error::Sr25519VerifyFailed));
+            assert_eq!(
+                result,
+                Err(ink::env::ReturnErrorCode::Sr25519VerifyFailed.into())
+            );
         }
 
         #[ink::test]
@@ -125,7 +131,10 @@ pub mod sr25519_verification {
                 143,
             ];
             let result = ink::env::sr25519_verify(&signature, &message, &public_key);
-            assert_eq!(result, Err(ink::env::Error::Sr25519VerifyFailed));
+            assert_eq!(
+                result,
+                Err(ink::env::ReturnErrorCode::Sr25519VerifyFailed.into())
+            );
         }
     }
 }

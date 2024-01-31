@@ -5,6 +5,7 @@ LL |         value_1: u8,
    |         ^^^^^^^^^^^ help: consider removing `#[ink(topic)]`: `value_1: u8`
    |
    = note: `-D primitive-topic` implied by `-D warnings`
+   = help: to override `-D warnings` add `#[allow(primitive_topic)]`
 
 error: using `#[ink(topic)]` for a field with a primitive number type
   --> $DIR/primitive_topic.rs:16:9

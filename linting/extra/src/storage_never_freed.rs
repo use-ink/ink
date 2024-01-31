@@ -12,18 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::ink_utils::{
+use if_chain::if_chain;
+use ink_linting_utils::{
+    clippy::{
+        diagnostics::span_lint_and_help,
+        is_lint_allowed,
+        match_def_path,
+        match_path,
+    },
     expand_unnamed_consts,
     find_contract_impl_id,
     find_storage_struct,
 };
-use clippy_utils::{
-    diagnostics::span_lint_and_help,
-    is_lint_allowed,
-    match_def_path,
-    match_path,
-};
-use if_chain::if_chain;
 use rustc_hir::{
     self as hir,
     def::{
@@ -63,18 +63,17 @@ use std::collections::{
 };
 
 declare_lint! {
-    /// **What it does:**
+    /// ## What it does
     /// This lint ensures that for every storage field with a collection type, when there is an
     /// operation to insert new elements, there's also an operation for removing elements.
     ///
-    /// **Why is this bad?**
+    /// ## Why is this bad?
     /// When a user executes a contract function that writes to storage, they have to put a
     /// deposit down for the amount of storage space used. Whoever frees up that storage at some
     /// later point gets the deposit back. Therefore, it is always a good idea to make it possible
     /// for users to free up their storage space.
     ///
-    /// **Example:**
-    ///
+    /// ## Example
     /// In the following example there is a storage field with the `Mapping` type that has an
     /// function that inserts new elements:
     ///
@@ -169,7 +168,7 @@ fn find_collection_def_id(
     if_chain! {
         if let Res::Def(DefKind::TyAlias, def_id) = path.res;
         if let Some(local_id) = def_id.as_local();
-        if let Some(alias_ty) = cx.tcx.hir().get_by_def_id(local_id).alias_ty();
+        if let Some(alias_ty) = cx.tcx.hir_node_by_def_id(local_id).alias_ty();
         if let TyKind::Path(QPath::Resolved(_, path)) = alias_ty.kind;
         then { return find_collection_def_id(cx, path); }
     };
@@ -215,7 +214,7 @@ fn find_collection_fields(cx: &LateContext, storage_struct_id: ItemId) -> Fields
 /// Reports the given field definition
 fn report_field(cx: &LateContext, field_info: &FieldInfo) {
     if_chain! {
-        if let Node::Field(field) = cx.tcx.hir().get_by_def_id(field_info.did);
+        if let Node::Field(field) = cx.tcx.hir_node_by_def_id(field_info.did);
         if !is_lint_allowed(cx, STORAGE_NEVER_FREED, field.hir_id);
         then {
             span_lint_and_help(
@@ -258,7 +257,7 @@ impl<'hir> Visitor<'hir> for InsertRemoveCollector<'_> {
         match &e.kind {
             ExprKind::Assign(lhs, ..) => {
                 if_chain! {
-                    if let ExprKind::Index(field, _) = lhs.kind;
+                    if let ExprKind::Index(field, _, _) = lhs.kind;
                     if let Some(field_name) = self.find_field_name(field);
                     then {
                         self.fields

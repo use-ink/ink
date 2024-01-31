@@ -201,10 +201,10 @@ pub mod give_me {
                 .submit()
                 .await
                 .expect("instantiate failed");
-            let mut call = contract.call::<GiveMe>();
+            let mut call_builder = contract.call_builder::<GiveMe>();
 
             // when
-            let transfer = call.give_me(120);
+            let transfer = call_builder.give_me(120);
 
             let call_res = client
                 .call(&ink_e2e::bob(), &transfer)
@@ -233,7 +233,7 @@ pub mod give_me {
                 .submit()
                 .await
                 .expect("instantiate failed");
-            let mut call = contract.call::<GiveMe>();
+            let mut call_builder = contract.call_builder::<GiveMe>();
 
             let balance_before: Balance = client
                 .free_balance(contract.account_id.clone())
@@ -241,7 +241,7 @@ pub mod give_me {
                 .expect("getting balance failed");
 
             // when
-            let transfer = call.give_me(120);
+            let transfer = call_builder.give_me(120);
 
             let call_res = client
                 .call(&ink_e2e::eve(), &transfer)

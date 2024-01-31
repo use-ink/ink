@@ -32,7 +32,6 @@ extern crate rustc_session;
 extern crate rustc_span;
 extern crate rustc_type_ir;
 
-mod ink_utils;
 mod non_fallible_api;
 mod primitive_topic;
 mod storage_never_freed;

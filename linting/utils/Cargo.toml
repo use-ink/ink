@@ -1,0 +1,21 @@
+[package]
+name = "ink_linting_utils"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+
+license.workspace = true
+readme = "README.md"
+repository.workspace = true
+documentation = "https://docs.rs/ink_linting_utils"
+homepage.workspace = true
+description = "Utilities used internally in ink_linting"
+keywords.workspace = true
+include = ["Cargo.toml", "*.rs", "LICENSE"]
+
+[dependencies]
+if_chain = "1.0.2"
+parity_clippy_utils = { package = "clippy_utils", git = "https://github.com/rust-lang/rust-clippy", rev = "3fceca23bb64e304df56b3bd86d26790b5301bdf" }
+
+[package.metadata.rust-analyzer]
+rustc_private = true

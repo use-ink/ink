@@ -26,7 +26,7 @@ on:
       - 'FILE_HEADER'
 
 env:
-  IMAGE:                           paritytech/ci-unified:bullseye-1.74.0
+  IMAGE:                           paritytech/ci-unified:bullseye-1.75.0
   CARGO_TARGET_DIR:                /ci-cache/${{ github.repository }}/targets/${{ github.ref_name }}/${{ github.job }}
   CARGO_INCREMENTAL:               0
   PURELY_STD_CRATES:               ink/codegen metadata engine e2e e2e/macro ink/ir
@@ -39,7 +39,7 @@ env:
   # We plan to fully support RISC-V as a bytecode for contracts soon.
   # RISC-V does not have a standard library in contrast to Wasm. Compiling against
   # this target also makes sure that we don't pull in `std` by accident (through dependencies).
-  # RISC-V is a modular archtitecture. We might switch to a different flavor with more features
+  # RISC-V is a modular architecture. We might switch to a different flavor with more features
   # later. For example, `riscv32imc-unknown-none-elf`.
   RISCV_TARGET:                    riscv32i-unknown-none-elf
 
@@ -383,7 +383,10 @@ jobs:
         env:
           RUSTDOCFLAGS:                  -Dwarnings
         run: |
-          cargo doc --no-deps --all-features
+          for package in $(cargo metadata --format-version 1 | jq -r '.workspace_members[]' | awk '{print $1}'); do
+            # Run cargo doc for each workspace member
+            cargo doc --no-deps --all-features -p ${package}
+          done
           mv ${CARGO_TARGET_DIR}/doc ./crate-docs
           # FIXME: remove me after CI image gets nonroot
           chown -R nonroot:nonroot ./crate-docs
@@ -487,6 +490,24 @@ jobs:
           # run the static buffer test with a custom buffer size
           cargo clean --manifest-path integration-tests/static-buffer/Cargo.toml
           INK_STATIC_BUFFER_SIZE=30 cargo test --verbose --manifest-path integration-tests/static-buffer/Cargo.toml --all-features
+
+      - name: Run E2E test with on-chain contract
+        env:
+            # Fix linking of `linkme`: https://github.com/dtolnay/linkme/issues/49
+            RUSTFLAGS:                     -Clink-arg=-z -Clink-arg=nostart-stop-gc
+        run: |
+            # run flipper E2E test with on-chain contract
+            substrate-contracts-node -lruntime::contracts=debug 2>&1 &
+            cargo contract build --release --manifest-path integration-tests/flipper/Cargo.toml
+            export CONTRACT_ADDR_HEX=$(cargo contract instantiate \
+              --manifest-path integration-tests/flipper/Cargo.toml \
+              --suri //Alice --args true -x -y --output-json | \
+              jq -r .contract | xargs subkey inspect | grep -o "0x.*" | head -n1)
+            CONTRACTS_NODE_URL=ws://127.0.0.1:9944 cargo test \
+              --features e2e-tests \
+              --manifest-path integration-tests/flipper/Cargo.toml \
+              e2e_test_deployed_contract \
+              -- --ignored --nocapture
 
   examples-contract-build:
     runs-on: ubuntu-latest

@@ -62,8 +62,11 @@ mod runtime_call {
 
     impl From<EnvError> for RuntimeError {
         fn from(e: EnvError) -> Self {
+            use ink::env::ReturnErrorCode;
             match e {
-                EnvError::CallRuntimeFailed => RuntimeError::CallRuntimeFailed,
+                EnvError::ReturnError(ReturnErrorCode::CallRuntimeFailed) => {
+                    RuntimeError::CallRuntimeFailed
+                }
                 _ => panic!("Unexpected error from `pallet-contracts`."),
             }
         }
@@ -162,7 +165,7 @@ mod runtime_call {
                 .submit()
                 .await
                 .expect("instantiate failed");
-            let mut call = contract.call::<RuntimeCaller>();
+            let mut call_builder = contract.call_builder::<RuntimeCaller>();
 
             let receiver: AccountId = default_accounts::<DefaultEnvironment>().bob;
 
@@ -177,7 +180,7 @@ mod runtime_call {
 
             // when
             let transfer_message =
-                call.transfer_through_runtime(receiver, TRANSFER_VALUE);
+                call_builder.transfer_through_runtime(receiver, TRANSFER_VALUE);
 
             let call_res = client
                 .call(&ink_e2e::alice(), &transfer_message)
@@ -226,13 +229,13 @@ mod runtime_call {
                 .submit()
                 .await
                 .expect("instantiate failed");
-            let mut call = contract.call::<RuntimeCaller>();
+            let mut call_builder = contract.call_builder::<RuntimeCaller>();
 
             let receiver: AccountId = default_accounts::<DefaultEnvironment>().bob;
 
             // when
-            let transfer_message =
-                call.transfer_through_runtime(receiver, INSUFFICIENT_TRANSFER_VALUE);
+            let transfer_message = call_builder
+                .transfer_through_runtime(receiver, INSUFFICIENT_TRANSFER_VALUE);
 
             let call_res = client
                 .call(&ink_e2e::alice(), &transfer_message)
@@ -262,10 +265,10 @@ mod runtime_call {
                 .submit()
                 .await
                 .expect("instantiate failed");
-            let mut call = contract.call::<RuntimeCaller>();
+            let mut call_builder = contract.call_builder::<RuntimeCaller>();
 
             // when
-            let transfer_message = call.call_nonexistent_extrinsic();
+            let transfer_message = call_builder.call_nonexistent_extrinsic();
 
             let call_res = client
                 .call(&ink_e2e::alice(), &transfer_message)

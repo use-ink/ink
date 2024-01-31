@@ -82,6 +82,12 @@ pub use {
     drink_client::Client as DrinkClient,
 };
 
+use ink::codegen::ContractCallBuilder;
+use ink_env::{
+    call::FromAccountId,
+    ContractEnv,
+    Environment,
+};
 use pallet_contracts_primitives::{
     ContractExecResult,
     ContractInstantiateResult,
@@ -128,10 +134,17 @@ pub fn account_id(account: AccountKeyring) -> ink_primitives::AccountId {
         .expect("account keyring has a valid account id")
 }
 
-/// Builds a contract and imports its scaffolded structure as a module.
-#[macro_export]
-macro_rules! build {
-        ($($arg:tt)*) => (
-            ink_e2e::smart_bench_macro::contract!($($arg)*)
-        );
+/// Creates a call builder builder for `Contract`, based on an account id.
+pub fn create_call_builder<Contract>(
+    acc_id: <<Contract as ContractEnv>::Env as Environment>::AccountId,
+) -> <Contract as ContractCallBuilder>::Type
+where
+    <Contract as ContractEnv>::Env: Environment,
+    Contract: ContractCallBuilder,
+    Contract: ContractEnv,
+    Contract::Type: FromAccountId<<Contract as ContractEnv>::Env>,
+{
+    <<Contract as ContractCallBuilder>::Type as FromAccountId<
+        <Contract as ContractEnv>::Env,
+    >>::from_account_id(acc_id)
 }

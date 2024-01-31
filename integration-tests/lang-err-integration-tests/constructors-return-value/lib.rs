@@ -39,7 +39,7 @@ pub mod constructors_return_value {
         #[ink(constructor)]
         pub fn revert_new(_init_value: bool) -> Self {
             ink::env::return_value::<ink::ConstructorResult<AccountId>>(
-                ink::env::ReturnFlags::new_with_reverted(true),
+                ink::env::ReturnFlags::REVERT,
                 &Ok(AccountId::from([0u8; 32])),
             )
         }
@@ -56,7 +56,7 @@ pub mod constructors_return_value {
 
             ink::env::return_value::<
                 ink::ConstructorResult<Result<AccountId, ConstructorError>>,
-            >(ink::env::ReturnFlags::new_with_reverted(true), &value)
+            >(ink::env::ReturnFlags::REVERT, &value)
         }
 
         /// Returns the current value of the contract storage.
@@ -184,9 +184,9 @@ pub mod constructors_return_value {
                 .submit()
                 .await
                 .expect("instantiate failed");
-            let call = contract.call::<ConstructorsReturnValue>();
+            let call_builder = contract.call_builder::<ConstructorsReturnValue>();
 
-            let get = call.get_value();
+            let get = call_builder.get_value();
             let value = client
                 .call(&ink_e2e::bob(), &get)
                 .dry_run()

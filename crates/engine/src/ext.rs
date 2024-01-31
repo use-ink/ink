@@ -31,84 +31,9 @@ use crate::{
         BlockTimestamp,
     },
 };
+pub use pallet_contracts_uapi::ReturnErrorCode as Error;
 use scale::Encode;
 use std::panic::panic_any;
-
-macro_rules! define_error_codes {
-    (
-        $(
-            $( #[$attr:meta] )*
-            $name:ident = $discr:literal,
-        )*
-    ) => {
-        /// Every error that can be returned to a contract when it calls any of the host functions.
-        #[cfg_attr(test, derive(PartialEq, Eq))]
-        #[derive(Debug)]
-        #[repr(u32)]
-        pub enum Error {
-            $(
-                $( #[$attr] )*
-                $name = $discr,
-            )*
-            /// Returns if an unknown error was received from the host module.
-            Unknown,
-        }
-
-        impl From<ReturnCode> for Result<(), Error> {
-            #[inline]
-            fn from(return_code: ReturnCode) -> Self {
-                match return_code.0 {
-                    0 => Ok(()),
-                    $(
-                        $discr => Err(Error::$name),
-                    )*
-                    _ => Err(Error::Unknown),
-                }
-            }
-        }
-    };
-}
-define_error_codes! {
-    /// The called function trapped and has its state changes reverted.
-    /// In this case no output buffer is returned.
-    /// Can only be returned from `call` and `instantiate`.
-    CalleeTrapped = 1,
-    /// The called function ran to completion but decided to revert its state.
-    /// An output buffer is returned when one was supplied.
-    /// Can only be returned from `call` and `instantiate`.
-    CalleeReverted = 2,
-    /// The passed key does not exist in storage.
-    KeyNotFound = 3,
-    /// Deprecated and no longer returned: There is only the minimum balance.
-    _BelowSubsistenceThreshold = 4,
-    /// Transfer failed for other not further specified reason. Most probably
-    /// reserved or locked balance of the sender that was preventing the transfer.
-    TransferFailed = 5,
-    /// Deprecated and no longer returned: Endowment is no longer required.
-    _EndowmentTooLow = 6,
-    /// No code could be found at the supplied code hash.
-    CodeNotFound = 7,
-    /// The account that was called is no contract.
-    NotCallable = 8,
-    /// The call to `debug_message` had no effect because debug message
-    /// recording was disabled.
-    LoggingDisabled = 9,
-    /// ECDSA public key recovery failed. Most probably wrong recovery id or signature.
-    EcdsaRecoveryFailed = 11,
-    /// sr25519 signature verification failed. This may be because of an invalid public key, invalid message or invalid signature.
-    Sr25519VerifyFailed = 12,
-}
-
-/// The raw return code returned by the host side.
-#[repr(transparent)]
-pub struct ReturnCode(u32);
-
-impl ReturnCode {
-    /// Returns the raw underlying `u32` representation.
-    pub fn into_u32(self) -> u32 {
-        self.0
-    }
-}
 
 /// The off-chain engine.
 pub struct Engine {

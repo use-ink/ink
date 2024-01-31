@@ -13,6 +13,7 @@ pub mod non_fallible_api {
         storage::{
             Lazy,
             Mapping,
+            StorageVec,
         },
     };
 
@@ -24,6 +25,7 @@ pub mod non_fallible_api {
         lazy_1: Lazy<AccountId>,
         lazy_2: Lazy<TyAlias2>,
         lazy_3: Lazy<String>,
+        vec_1: StorageVec<AccountId>,
     }
 
     impl NonFallibleAPI {
@@ -36,6 +38,7 @@ pub mod non_fallible_api {
                 lazy_1: Lazy::new(),
                 lazy_2: Lazy::new(),
                 lazy_3: Lazy::new(),
+                vec_1: StorageVec::new(),
             }
         }
 
@@ -50,6 +53,13 @@ pub mod non_fallible_api {
             // Lazy
             let _ = self.lazy_1.try_get();
             let _ = self.lazy_1.try_set(&a);
+
+            // StorageVec
+            let _ = self.vec_1.try_peek();
+            let _ = self.vec_1.try_get(0);
+            let _ = self.vec_1.try_set(0, &a);
+            let _ = self.vec_1.try_pop();
+            let _ = self.vec_1.try_push(&a);
         }
 
         // Don't raise warnings when using non-fallible API with argument which encoded
@@ -68,6 +78,13 @@ pub mod non_fallible_api {
             self.lazy_1.set(&a);
             let _ = self.lazy_2.get();
             self.lazy_2.set(&a);
+
+            // StorageVec
+            let _ = self.vec_1.peek();
+            let _ = self.vec_1.get(0);
+            self.vec_1.set(0, &a);
+            let _ = self.vec_1.pop();
+            self.vec_1.push(&a);
         }
 
         // Check if local suppressions work

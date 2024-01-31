@@ -16,8 +16,8 @@ use ast::{
     AttrStyle,
     Crate,
 };
-use clippy_utils::diagnostics::span_lint_and_help;
 use if_chain::if_chain;
+use ink_linting_utils::clippy::diagnostics::span_lint_and_help;
 use rustc_ast as ast;
 use rustc_lint::{
     EarlyContext,
@@ -42,7 +42,8 @@ declare_lint! {
     /// ## Example
     ///
     /// ```rust
-    /// // Bad: Contract does not contain the `no_main` attribute, so it cannot be compiled to Wasm
+    /// // Bad: Contract does not contain the `no_main` attribute,
+    /// // so it cannot be compiled to Wasm
     /// #![cfg_attr(not(feature = "std"), no_std)]
     ///	#[ink::contract]
     ///	mod my_contract { /* ... */ }

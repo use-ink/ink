@@ -12,16 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::ink_utils::{
+use if_chain::if_chain;
+use ink_linting_utils::{
+    clippy::{
+        diagnostics::span_lint_and_then,
+        is_lint_allowed,
+        match_def_path,
+    },
     expand_unnamed_consts,
     find_contract_impl_id,
 };
-use clippy_utils::{
-    diagnostics::span_lint_and_then,
-    is_lint_allowed,
-    match_def_path,
-};
-use if_chain::if_chain;
 use rustc_errors::Applicability;
 use rustc_hir::{
     self as hir,
@@ -55,7 +55,7 @@ use rustc_session::{
     declare_lint,
     declare_lint_pass,
 };
-use rustc_type_ir::sty::TyKind;
+use rustc_type_ir::ty_kind::TyKind;
 
 declare_lint! {
     /// ## What it does
@@ -115,6 +115,7 @@ declare_lint_pass!(NonFallibleAPI => [NON_FALLIBLE_API]);
 enum TyToCheck {
     Mapping,
     Lazy,
+    StorageVec,
 }
 
 impl TyToCheck {
@@ -125,6 +126,9 @@ impl TyToCheck {
 
         if match_def_path(cx, did, &["ink_storage", "lazy", "mapping", "Mapping"]) {
             return Some(Self::Mapping)
+        }
+        if match_def_path(cx, did, &["ink_storage", "lazy", "vec", "StorageVec"]) {
+            return Some(Self::StorageVec)
         }
         None
     }
@@ -144,6 +148,16 @@ impl TyToCheck {
                 match method_name {
                     "get" => Some("try_get".to_string()),
                     "set" => Some("try_set".to_string()),
+                    _ => None,
+                }
+            }
+            StorageVec => {
+                match method_name {
+                    "peek" => Some("try_peek".to_string()),
+                    "get" => Some("try_get".to_string()),
+                    "set" => Some("try_set".to_string()),
+                    "pop" => Some("try_pop".to_string()),
+                    "push" => Some("try_push".to_string()),
                     _ => None,
                 }
             }
