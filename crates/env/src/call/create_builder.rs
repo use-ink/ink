@@ -24,6 +24,7 @@ use crate::{
         ExecutionInput,
         Selector,
     },
+    types::Gas,
     ContractEnv,
     Environment,
     Error,
@@ -175,7 +176,12 @@ where
     /// The code hash of the created contract.
     code_hash: E::Hash,
     /// The maximum gas costs allowed for the instantiation.
-    gas_limit: u64,
+    /// todo: [AJ] ref_time_limit docs
+    ref_time_limit: Gas,
+    /// todo: [AJ] `proof_time_limit` docs
+    proof_time_limit: Gas,
+    /// todo: [AJ] `storage_deposit_limit` docs
+    storage_deposit_limit: Option<E::Balance>,
     /// The endowment for the instantiated contract.
     endowment: E::Balance,
     /// The input data for the instantiation.
@@ -198,10 +204,21 @@ where
         &self.code_hash
     }
 
-    /// The gas limit for the contract instantiation.
+    /// todo: [AJ] ref_time_limit docs
     #[inline]
-    pub fn gas_limit(&self) -> u64 {
-        self.gas_limit
+    pub fn ref_time_limit(&self) -> u64 {
+        self.ref_time_limit
+    }
+
+    /// todo: [AJ] proof_time_limit docs
+    #[inline]
+    pub fn proof_time_limit(&self) -> u64 {
+        self.proof_time_limit
+    }
+
+    /// todo: [AJ] `storage_deposit_limit` docs
+    pub fn storage_deposit_limit(&self) -> u64 {
+        self.proof_time_limit
     }
 
     /// The endowment for the instantiated contract.
@@ -698,7 +715,7 @@ where
     pub fn params(self) -> CreateParams<E, ContractRef, Args, Salt, RetType> {
         CreateParams {
             code_hash: self.code_hash.value(),
-            gas_limit: self.gas_limit.unwrap_or_else(|| 0),
+            ref_time_limit: self.gas_limit.unwrap_or_else(|| 0),
             endowment: self.endowment.value(),
             exec_input: self.exec_input.value(),
             salt_bytes: self.salt.value(),
