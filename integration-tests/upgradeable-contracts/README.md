@@ -12,6 +12,21 @@ This is exactly what `set_code_hash()` function does.
 However, developers needs to be mindful of storage compatibility.
 You can read more about storage compatibility on [use.ink](https://use.ink/basics/upgradeable-contracts#replacing-contract-code-with-set_code_hash)
 
+## [`set-code-hash`](set-code-hash-migration/)
+
+When upgrading a contract, the new code may have a different storage layout. This example illustrates a method to 
+migrate the storage from the old layout to the new layout. It does so by using an intermediate `migration` contract
+which performs the storage upgrade. The workflow is as follows:
+
+
+1. Upload a `migration` contract with a message `migrate` which performs the storage migration.
+2. Set code hash to the `migration` contract.
+3. Upload the upgraded version of the original contract.
+4. Call `migrate` on the `migration` contract, passing the code hash of the new updated incrementer contract from `3.` 
+This must happen as a single message, because following the storage migration, the contract will not be able to be 
+called again, since it will fail to load the migrated storage.
+
+
 ## [Delegator](delegator/)
 
 Delegator patter is based around a low level cross contract call function `delegate_call`.
