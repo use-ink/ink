@@ -44,6 +44,9 @@ pub use scale;
 #[cfg(feature = "std")]
 pub use scale_info;
 
+pub use xcm;
+pub use xcm_executor;
+
 pub mod storage {
     pub mod traits {
         pub use ink_macro::{

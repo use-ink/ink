@@ -37,6 +37,7 @@ use crate::{
         Keccak256,
         Sha2x256,
     },
+    types::XcmQueryId,
     Clear,
     EnvBackend,
     Environment,
@@ -589,6 +590,45 @@ impl TypedEnvBackend for EnvInstance {
     }
 
     fn lock_delegate_dependency<E>(&mut self, _code_hash: &E::Hash)
+
+    fn xcm_execute<E, Call>(&mut self, _msg: &xcm::VersionedXcm<Call>) -> Result<()>
+    where
+        E: Environment,
+    {
+        unimplemented!("off-chain environment does not support `xcm_execute`")
+    }
+
+    fn xcm_send<E, Call>(
+        &mut self,
+        _dest: &xcm::VersionedLocation,
+        _msg: &xcm::VersionedXcm<Call>,
+    ) -> Result<xcm::v4::XcmHash>
+    where
+        E: Environment,
+    {
+        unimplemented!("off-chain environment does not support `xcm_send`")
+    }
+
+    fn xcm_query<E>(
+        &mut self,
+        _timeout: &E::BlockNumber,
+        _match_querier: &xcm::VersionedLocation,
+    ) -> Result<XcmQueryId>
+    where
+        E: Environment,
+    {
+        unimplemented!("off-chain environment does not support `xcm_query`")
+    }
+
+    fn xcm_take_response<E>(
+        &mut self,
+        _query_id: &XcmQueryId,
+    ) -> Result<xcm_executor::traits::QueryResponseStatus<E::BlockNumber>>
+    where
+        E: Environment,
+    {
+        unimplemented!("off-chain environment does not support `xcm_take_response`")
+    }
     where
         E: Environment,
     {

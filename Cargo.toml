@@ -32,6 +32,7 @@ repository = "https://github.com/paritytech/ink"
 version = "5.0.0"
 
 [workspace.dependencies]
+log = "0.4.14"
 arrayref = { version = "0.3" }
 array-init = { version = "2.0", default-features = false }
 blake2 = { version = "0.10" }
@@ -87,6 +88,9 @@ frame-support = { version = "30.0.0", default-features = false }
 pallet-contracts = { version = "29.0.0", default-features = false }
 pallet-contracts-uapi = { package = "pallet-contracts-uapi-next", version = "=6.0.3", default-features = false }
 pallet-contracts-mock-network = { version = "5.0.0", default-features = false }
+xcm = { package = "staging-xcm", version = "9.0.0", default-features = false }
+xcm-builder = { package = "staging-xcm-builder", version = "9.0.0", default-features = false }
+xcm-executor = { package = "staging-xcm-executor", version = "9.0.0", default-features = false }
 sp-core = { version = "30.0.0", default-features = false }
 sp-keyring = { version = "33.0.0", default-features = false }
 sp-runtime = { version = "33.0.0", default-features = false }
@@ -110,3 +114,4 @@ ink_storage_traits = { version = "=5.0.0", path = "crates/storage/traits", defau
 [profile.release]
 panic = "abort"
 lto = true
+

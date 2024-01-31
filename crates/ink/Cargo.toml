@@ -27,6 +27,10 @@ scale = { workspace = true }
 scale-info = { workspace = true, default-features = false, features = ["derive"], optional = true }
 derive_more = { workspace = true, features = ["from"] }
 
+xcm = { workspace = true}
+xcm-builder = { workspace = true}
+xcm-executor = { workspace = true}
+
 [dev-dependencies]
 ink_ir = { workspace = true, default-features = true }
 ink_metadata = { workspace = true }
@@ -45,6 +49,8 @@ std = [
     "ink_macro/std",
     "scale/std",
     "scale-info/std",
+    "xcm/std",
+    "xcm-builder/std",
 ]
 # Enable contract debug messages via `debug_print!` and `debug_println!`.
 ink-debug = [

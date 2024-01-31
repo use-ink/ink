@@ -181,7 +181,8 @@ pub trait Environment: Clone {
         + PartialEq
         + Eq
         + AtLeast32BitUnsigned
-        + FromLittleEndian;
+        + FromLittleEndian
+        + core::fmt::Debug;
 
     /// The chain extension for the environment.
     ///
@@ -224,3 +225,6 @@ pub type Gas = u64;
 
 /// The default block number type.
 pub type BlockNumber = u32;
+
+/// The default query id type.
+pub type XcmQueryId = u64;

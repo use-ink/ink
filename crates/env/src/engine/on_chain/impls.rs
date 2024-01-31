@@ -46,6 +46,7 @@ use crate::{
     FromLittleEndian,
     Result,
     TypedEnvBackend,
+    XcmQueryId,
 };
 use ink_storage_traits::{
     decode_all,
@@ -58,6 +59,7 @@ use pallet_contracts_uapi::{
     ReturnErrorCode,
     ReturnFlags,
 };
+use xcm::VersionedXcm;
 
 impl CryptoHash for Blake2x128 {
     fn hash(input: &[u8], output: &mut <Self as HashOutput>::Type) {
@@ -725,5 +727,76 @@ impl TypedEnvBackend for EnvInstance {
         let mut scope = self.scoped_buffer();
         let enc_code_hash = scope.take_encoded(code_hash);
         ext::unlock_delegate_dependency(enc_code_hash)
+    }
+
+    fn xcm_execute<E, Call>(&mut self, msg: &VersionedXcm<Call>) -> Result<()>
+    where
+        E: Environment,
+        Call: scale::Encode,
+    {
+        let mut scope = self.scoped_buffer();
+        let enc_msg = scope.take_encoded(msg);
+        #[allow(deprecated)]
+        ext::xcm_execute(enc_msg).map_err(Into::into)
+    }
+
+    fn xcm_send<E, Call>(
+        &mut self,
+        dest: &xcm::VersionedLocation,
+        msg: &VersionedXcm<Call>,
+    ) -> Result<xcm::v4::XcmHash>
+    where
+        E: Environment,
+        Call: scale::Encode,
+    {
+        let mut scope = self.scoped_buffer();
+        let output = scope.take(32);
+        scope.append_encoded(dest);
+        let enc_dest = scope.take_appended();
+        scope.append_encoded(msg);
+        let enc_msg = scope.take_appended();
+        #[allow(deprecated)]
+        ext::xcm_send(enc_dest, enc_msg, output.try_into().unwrap())?;
+        let hash: xcm::v4::XcmHash = scale::Decode::decode(&mut &output[..])?;
+        Ok(hash)
+    }
+
+    fn xcm_query<E>(
+        &mut self,
+        timeout: &E::BlockNumber,
+        match_querier: &xcm::VersionedLocation,
+    ) -> Result<XcmQueryId>
+    where
+        E: Environment,
+    {
+        let mut scope = self.scoped_buffer();
+        let output = scope.take(8);
+        scope.append_encoded(timeout);
+        let enc_timeout = scope.take_appended();
+        scope.append_encoded(match_querier);
+        let enc_match_querier = scope.take_appended();
+
+        #[allow(deprecated)]
+        ext::xcm_query(enc_timeout, enc_match_querier, output)?;
+        let id = scale::Decode::decode(&mut &output[..])?;
+        Ok(id)
+    }
+
+    fn xcm_take_response<E>(
+        &mut self,
+        query_id: &XcmQueryId,
+    ) -> Result<xcm_executor::traits::QueryResponseStatus<E::BlockNumber>>
+    where
+        E: Environment,
+    {
+        let mut scope = self.scoped_buffer();
+        let output = scope.take(64); // TOSO use max_enoded_len
+        scope.append_encoded(query_id);
+        let enc_query_id = scope.take_appended();
+
+        #[allow(deprecated)]
+        ext::xcm_take_response(enc_query_id, output)?;
+        let response = scale::Decode::decode(&mut &output[..])?;
+        Ok(response)
     }
 }

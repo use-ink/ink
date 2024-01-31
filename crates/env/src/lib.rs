@@ -131,6 +131,7 @@ pub use self::{
         FromLittleEndian,
         Gas,
         NoChainExtension,
+        XcmQueryId,
     },
 };
 use ink_primitives::Clear;

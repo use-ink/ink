@@ -32,6 +32,7 @@ use ink_env::{
     },
     Environment,
     Result,
+    XcmQueryId,
 };
 use pallet_contracts_uapi::ReturnErrorCode;
 
@@ -1340,5 +1341,35 @@ where
     /// For more details visit: [`ink_env::unlock_delegate_dependency`]
     pub fn unlock_delegate_dependency(self, code_hash: &E::Hash) {
         ink_env::unlock_delegate_dependency::<E>(code_hash)
+    }
+
+    pub fn xcm_execute<Call: scale::Encode>(
+        self,
+        msg: &xcm::VersionedXcm<Call>,
+    ) -> Result<()> {
+        ink_env::xcm_execute::<E, _>(msg)
+    }
+
+    pub fn xcm_send<Call: scale::Encode>(
+        self,
+        dest: &xcm::VersionedLocation,
+        msg: &xcm::VersionedXcm<Call>,
+    ) -> Result<xcm::v4::XcmHash> {
+        ink_env::xcm_send::<E, _>(dest, msg)
+    }
+
+    pub fn xcm_query(
+        self,
+        timeout: &E::BlockNumber,
+        match_querier: &xcm::VersionedLocation,
+    ) -> Result<XcmQueryId> {
+        ink_env::xcm_query::<E>(timeout, match_querier)
+    }
+
+    pub fn xcm_take_response(
+        self,
+        query_id: &XcmQueryId,
+    ) -> Result<xcm_executor::traits::QueryResponseStatus<E::BlockNumber>> {
+        ink_env::xcm_take_response::<E>(query_id)
     }
 }

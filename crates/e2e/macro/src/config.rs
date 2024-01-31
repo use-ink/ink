@@ -112,12 +112,13 @@ impl E2EConfig {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
     use darling::{
         ast::NestedMeta,
         FromMeta,
     };
     use quote::quote;
+
+    use super::*;
 
     #[test]
     fn config_works_backend_runtime_only() {

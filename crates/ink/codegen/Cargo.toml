@@ -37,7 +37,10 @@ serde_json = { workspace = true }
 [features]
 default = ["std"]
 std = [
-    "itertools/use_std",
-    "either/use_std",
-    "ir/std"
+	"itertools/use_std",
+	"either/use_std",
+	"ir/std",
+	"ink_primitives/std",
+	"scale/std",
+	"serde/std"
 ]

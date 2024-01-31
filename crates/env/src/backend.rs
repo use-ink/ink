@@ -31,6 +31,7 @@ use crate::{
     },
     Environment,
     Result,
+    XcmQueryId,
 };
 use ink_storage_traits::Storable;
 pub use pallet_contracts_uapi::ReturnFlags;
@@ -345,8 +346,6 @@ pub trait TypedEnvBackend: EnvBackend {
     /// # Note
     ///
     /// For more details visit: [`instantiate_contract`][`crate::instantiate_contract`]
-    fn instantiate_contract<E, ContractRef, Args, Salt, R>(
-        &mut self,
         params: &CreateParams<E, ContractRef, LimitParamsV2<E>, Args, Salt, R>,
     ) -> Result<
         ink_primitives::ConstructorResult<
@@ -455,4 +454,54 @@ pub trait TypedEnvBackend: EnvBackend {
     fn unlock_delegate_dependency<E>(&mut self, code_hash: &E::Hash)
     where
         E: Environment;
+
+    /// Execute an XCM message locally, using the contract's address as the origin.
+    ///
+    /// # Note
+    ///
+    /// For more details visit: [`xcm`][`crate::xcm_execute`]
+    fn xcm_execute<E, Call>(&mut self, msg: &xcm::VersionedXcm<Call>) -> Result<()>
+    where
+        E: Environment,
+        Call: scale::Encode;
+
+    /// Send an XCM message, using the contract's address as the origin.
+    ///
+    /// # Note
+    ///
+    /// For more details visit: [`xcm`][`crate::xcm_send`]
+    fn xcm_send<E, Call>(
+        &mut self,
+        dest: &xcm::VersionedLocation,
+        msg: &xcm::VersionedXcm<Call>,
+    ) -> Result<xcm::v4::XcmHash>
+    where
+        E: Environment,
+        Call: scale::Encode;
+
+    /// Create a new query, using the contract's address as the responder.
+    ///
+    /// # Note
+    ///
+    /// For more details visit: [`xcm`][`crate::xcm_query`]
+    fn xcm_query<E>(
+        &mut self,
+        timeout: &E::BlockNumber,
+        match_querier: &xcm::VersionedLocation,
+    ) -> Result<XcmQueryId>
+    where
+        E: Environment;
+
+    /// Take an XCM response for the specified query.
+    ///
+    /// # Note
+    ///
+    /// For more details visit: [`xcm`][`crate::xcm_take_response`]
+    fn xcm_take_response<E>(
+        &mut self,
+        query_id: &XcmQueryId,
+    ) -> Result<xcm_executor::traits::QueryResponseStatus<E::BlockNumber>>
+    where
+        E: Environment;
+}
 }
