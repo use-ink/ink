@@ -72,17 +72,32 @@ fn struct_with_fields_no_topics() {
                             .signature_topic(<Self as ::ink::env::Event>::SIGNATURE_TOPIC)
                             .args([
                                 ::ink::metadata::EventParamSpec::new(::core::stringify!(field_1))
-                                    .of_type(::ink::metadata::TypeSpec::of_type::<u32>())
+                                    .of_type(::ink::metadata::TypeSpec::with_name_segs::<u32, _>(
+                                        ::core::iter::Iterator::map(
+                                            ::core::iter::IntoIterator::into_iter([::core::stringify!(u32)]),
+                                            ::core::convert::AsRef::as_ref
+                                        )
+                                    ))
                                     .indexed(false)
                                     .docs([])
                                     .done(),
                                 ::ink::metadata::EventParamSpec::new(::core::stringify!(field_2))
-                                    .of_type(::ink::metadata::TypeSpec::of_type::<u64>())
+                                    .of_type(::ink::metadata::TypeSpec::with_name_segs::<u64, _>(
+                                        ::core::iter::Iterator::map(
+                                            ::core::iter::IntoIterator::into_iter([::core::stringify!(u64)]),
+                                            ::core::convert::AsRef::as_ref
+                                        )
+                                    ))
                                     .indexed(false)
                                     .docs([])
                                     .done(),
                                 ::ink::metadata::EventParamSpec::new(::core::stringify!(field_3))
-                                    .of_type(::ink::metadata::TypeSpec::of_type::<u128>())
+                                    .of_type(::ink::metadata::TypeSpec::with_name_segs::<u128, _>(
+                                        ::core::iter::Iterator::map(
+                                            ::core::iter::IntoIterator::into_iter([::core::stringify!(u128)]),
+                                            ::core::convert::AsRef::as_ref
+                                        )
+                                    ))
                                     .indexed(false)
                                     .docs([])
                                     .done()
@@ -125,17 +140,32 @@ fn struct_with_fields_and_some_topics() {
                             .signature_topic(<Self as ::ink::env::Event>::SIGNATURE_TOPIC)
                             .args([
                                 ::ink::metadata::EventParamSpec::new(::core::stringify!(field_1))
-                                    .of_type(::ink::metadata::TypeSpec::of_type::<u32>())
+                                    .of_type(::ink::metadata::TypeSpec::with_name_segs::<u32, _>(
+                                        ::core::iter::Iterator::map(
+                                            ::core::iter::IntoIterator::into_iter([::core::stringify!(u32)]),
+                                            ::core::convert::AsRef::as_ref
+                                        )
+                                    ))
                                     .indexed(false)
                                     .docs([])
                                     .done(),
                                 ::ink::metadata::EventParamSpec::new(::core::stringify!(field_2))
-                                    .of_type(::ink::metadata::TypeSpec::of_type::<u64>())
+                                    .of_type(::ink::metadata::TypeSpec::with_name_segs::<u64, _>(
+                                        ::core::iter::Iterator::map(
+                                            ::core::iter::IntoIterator::into_iter([::core::stringify!(u64)]),
+                                            ::core::convert::AsRef::as_ref
+                                        )
+                                    ))
                                     .indexed(true)
                                     .docs([])
                                     .done(),
                                 ::ink::metadata::EventParamSpec::new(::core::stringify!(field_3))
-                                    .of_type(::ink::metadata::TypeSpec::of_type::<u128>())
+                                    .of_type(::ink::metadata::TypeSpec::with_name_segs::<u128, _>(
+                                        ::core::iter::Iterator::map(
+                                            ::core::iter::IntoIterator::into_iter([::core::stringify!(u128)]),
+                                            ::core::convert::AsRef::as_ref
+                                        )
+                                    ))
                                     .indexed(true)
                                     .docs([])
                                     .done()
