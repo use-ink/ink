@@ -19,7 +19,7 @@ mod cross_contract_calls {
         ///
         /// To do this we will use the uploaded `code_hash` of `OtherContract`.
         #[ink(constructor)]
-        pub fn new(other_contract_code_hash: Hash) -> Self {
+        pub fn new(other_contract: AccountId) -> Self {
             // todo: need to add instantiate_v2 methods...
             let other_contract = OtherContractRef::new(true)
                 .code_hash(other_contract_code_hash)
