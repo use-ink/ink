@@ -104,6 +104,7 @@
 <a href="#104" id="104">104</a>
 <a href="#105" id="105">105</a>
 <a href="#106" id="106">106</a>
+<a href="#107" id="107">107</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -166,9 +167,10 @@
                 .attrs
                 .iter()
                 .filter_map(|attr| attr.extract_docs());
+            <span class="kw">let </span>ty_spec = ink_codegen::generate_type_spec(field_ty);
             <span class="prelude-val">Ok</span>(<span class="macro">quote_spanned!</span>(field_span =&gt;
                 ::ink::metadata::EventParamSpec::new(<span class="macro">::core::stringify!</span>(#field_name))
-                    .of_type(::ink::metadata::TypeSpec::of_type::&lt;#field_ty&gt;())
+                    .of_type(#ty_spec)
                     .indexed(#indexed)
                     .docs([ #( #docs ),* ])
                     .done()

@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["generate_code"],"trait":["CodeGenerator"]};
+window.SIDEBAR_ITEMS = {"fn":["generate_code","generate_type_spec"],"trait":["CodeGenerator"]};

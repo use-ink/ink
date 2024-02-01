@@ -478,7 +478,6 @@
 <a href="#478" id="478">478</a>
 <a href="#479" id="479">479</a>
 <a href="#480" id="480">480</a>
-<a href="#481" id="481">481</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -579,7 +578,7 @@
         <span class="kw">let </span>error_ty = <span class="macro">syn::parse_quote! </span>{
             ::ink::LangError
         };
-        <span class="kw">let </span>error = <span class="self">Self</span>::generate_type_spec(<span class="kw-2">&amp;</span>error_ty);
+        <span class="kw">let </span>error = generate_type_spec(<span class="kw-2">&amp;</span>error_ty);
         <span class="kw">let </span>environment = <span class="self">self</span>.generate_environment();
         <span class="macro">quote! </span>{
             ::ink::metadata::ContractSpec::new()
@@ -658,46 +657,13 @@
             syn::Pat::Ident(ident) =&gt; <span class="kw-2">&amp;</span>ident.ident,
             <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;encountered ink! dispatch input with missing identifier&quot;</span>),
         };
-        <span class="kw">let </span>type_spec = <span class="self">Self</span>::generate_type_spec(<span class="kw-2">&amp;</span>pat_type.ty);
+        <span class="kw">let </span>type_spec = generate_type_spec(<span class="kw-2">&amp;</span>pat_type.ty);
         <span class="macro">quote! </span>{
             ::ink::metadata::MessageParamSpec::new(<span class="macro">::core::stringify!</span>(#ident))
                 .of_type(#type_spec)
                 .done()
         }
     }
-
-    <span class="doccomment">/// Generates the ink! metadata for the given type.
-    </span><span class="kw">fn </span>generate_type_spec(ty: <span class="kw-2">&amp;</span>syn::Type) -&gt; TokenStream2 {
-        <span class="kw">fn </span>without_display_name(ty: <span class="kw-2">&amp;</span>syn::Type) -&gt; TokenStream2 {
-            <span class="macro">quote! </span>{ ::ink::metadata::TypeSpec::of_type::&lt;#ty&gt;() }
-        }
-
-        <span class="kw">if let </span>syn::Type::Path(type_path) = ty {
-            <span class="kw">if </span>type_path.qself.is_some() {
-                <span class="kw">return </span>without_display_name(ty)
-            }
-            <span class="kw">let </span>path = <span class="kw-2">&amp;</span>type_path.path;
-            <span class="kw">if </span>path.segments.is_empty() {
-                <span class="kw">return </span>without_display_name(ty)
-            }
-            <span class="kw">let </span>segs = path
-                .segments
-                .iter()
-                .map(|seg| <span class="kw-2">&amp;</span>seg.ident)
-                .collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
-            <span class="macro">quote! </span>{
-                ::ink::metadata::TypeSpec::with_name_segs::&lt;#ty, <span class="kw">_</span>&gt;(
-                    ::core::iter::Iterator::map(
-                        ::core::iter::IntoIterator::into_iter([ #( <span class="macro">::core::stringify!</span>(#segs) ),* ]),
-                        ::core::convert::AsRef::as_ref
-                    )
-                )
-            }
-        } <span class="kw">else </span>{
-            without_display_name(ty)
-        }
-    }
-
     <span class="doccomment">/// Generates the ink! metadata for all ink! smart contract messages.
     </span><span class="kw">fn </span>generate_messages(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Vec&lt;TokenStream2&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>messages = Vec::new();
@@ -816,7 +782,7 @@
 
     <span class="doccomment">/// Generates ink! metadata for the given return type.
     </span><span class="kw">fn </span>generate_message_return_type(ret_ty: <span class="kw-2">&amp;</span>syn::Type) -&gt; TokenStream2 {
-        <span class="kw">let </span>type_spec = <span class="self">Self</span>::generate_type_spec(ret_ty);
+        <span class="kw">let </span>type_spec = generate_type_spec(ret_ty);
         <span class="macro">quote! </span>{
             ::ink::metadata::ReturnTypeSpec::new(#type_spec)
         }
@@ -855,12 +821,12 @@
         <span class="kw">let </span>block_number: syn::Type = <span class="macro">parse_quote!</span>(BlockNumber);
         <span class="kw">let </span>chain_extension: syn::Type = <span class="macro">parse_quote!</span>(ChainExtension);
 
-        <span class="kw">let </span>account_id = <span class="self">Self</span>::generate_type_spec(<span class="kw-2">&amp;</span>account_id);
-        <span class="kw">let </span>balance = <span class="self">Self</span>::generate_type_spec(<span class="kw-2">&amp;</span>balance);
-        <span class="kw">let </span>hash = <span class="self">Self</span>::generate_type_spec(<span class="kw-2">&amp;</span>hash);
-        <span class="kw">let </span>timestamp = <span class="self">Self</span>::generate_type_spec(<span class="kw-2">&amp;</span>timestamp);
-        <span class="kw">let </span>block_number = <span class="self">Self</span>::generate_type_spec(<span class="kw-2">&amp;</span>block_number);
-        <span class="kw">let </span>chain_extension = <span class="self">Self</span>::generate_type_spec(<span class="kw-2">&amp;</span>chain_extension);
+        <span class="kw">let </span>account_id = generate_type_spec(<span class="kw-2">&amp;</span>account_id);
+        <span class="kw">let </span>balance = generate_type_spec(<span class="kw-2">&amp;</span>balance);
+        <span class="kw">let </span>hash = generate_type_spec(<span class="kw-2">&amp;</span>hash);
+        <span class="kw">let </span>timestamp = generate_type_spec(<span class="kw-2">&amp;</span>timestamp);
+        <span class="kw">let </span>block_number = generate_type_spec(<span class="kw-2">&amp;</span>block_number);
+        <span class="kw">let </span>chain_extension = generate_type_spec(<span class="kw-2">&amp;</span>chain_extension);
         <span class="kw">let </span>buffer_size_const = <span class="macro">quote!</span>(::ink::env::BUFFER_SIZE);
         <span class="macro">quote_spanned!</span>(span=&gt;
             ::ink::metadata::EnvironmentSpec::new()
@@ -874,6 +840,38 @@
                 .static_buffer_size(#buffer_size_const)
                 .done()
         )
+    }
+}
+
+<span class="doccomment">/// Generates the ink! metadata for the given type.
+</span><span class="kw">pub fn </span>generate_type_spec(ty: <span class="kw-2">&amp;</span>syn::Type) -&gt; TokenStream2 {
+    <span class="kw">fn </span>without_display_name(ty: <span class="kw-2">&amp;</span>syn::Type) -&gt; TokenStream2 {
+        <span class="macro">quote! </span>{ ::ink::metadata::TypeSpec::of_type::&lt;#ty&gt;() }
+    }
+
+    <span class="kw">if let </span>syn::Type::Path(type_path) = ty {
+        <span class="kw">if </span>type_path.qself.is_some() {
+            <span class="kw">return </span>without_display_name(ty)
+        }
+        <span class="kw">let </span>path = <span class="kw-2">&amp;</span>type_path.path;
+        <span class="kw">if </span>path.segments.is_empty() {
+            <span class="kw">return </span>without_display_name(ty)
+        }
+        <span class="kw">let </span>segs = path
+            .segments
+            .iter()
+            .map(|seg| <span class="kw-2">&amp;</span>seg.ident)
+            .collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
+        <span class="macro">quote! </span>{
+            ::ink::metadata::TypeSpec::with_name_segs::&lt;#ty, <span class="kw">_</span>&gt;(
+                ::core::iter::Iterator::map(
+                    ::core::iter::IntoIterator::into_iter([ #( <span class="macro">::core::stringify!</span>(#segs) ),* ]),
+                    ::core::convert::AsRef::as_ref
+                )
+            )
+        }
+    } <span class="kw">else </span>{
+        without_display_name(ty)
     }
 }
 

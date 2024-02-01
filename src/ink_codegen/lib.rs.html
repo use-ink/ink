@@ -97,6 +97,8 @@
 <a href="#97" id="97">97</a>
 <a href="#98" id="98">98</a>
 <a href="#99" id="99">99</a>
+<a href="#100" id="100">100</a>
+<a href="#101" id="101">101</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -137,6 +139,8 @@
 </span><span class="kw">mod </span>enforced_error;
 <span class="kw">mod </span>generator;
 <span class="kw">mod </span>traits;
+
+<span class="kw">pub use </span>generator::generate_type_spec;
 
 <span class="kw">use </span><span class="self">self</span>::{
     enforced_error::EnforcedErrors,
