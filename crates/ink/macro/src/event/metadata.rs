@@ -60,9 +60,10 @@ fn event_metadata_derive_struct(s: synstructure::Structure) -> syn::Result<Token
                 .attrs
                 .iter()
                 .filter_map(|attr| attr.extract_docs());
+            let ty_spec = ink_codegen::generate_type_spec(field_ty);
             Ok(quote_spanned!(field_span =>
                 ::ink::metadata::EventParamSpec::new(::core::stringify!(#field_name))
-                    .of_type(::ink::metadata::TypeSpec::of_type::<#field_ty>())
+                    .of_type(#ty_spec)
                     .indexed(#indexed)
                     .docs([ #( #docs ),* ])
                     .done()
