@@ -1642,9 +1642,9 @@ checksum = "9ea835d29036a4087793836fa931b08837ad5e957da9e23886b29586fb9b6650"
 
 [[package]]
 name = "drink"
-version = "0.8.5"
+version = "0.8.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2c67a3581586495c81a0347a667f6ed5ca69af0125f3a3a138e48d4d0ee4201b"
+checksum = "6af1b156accb976b3267e114d60ef6ec1075f3be58fc667de7745306ae0f46fd"
 dependencies = [
  "contract-metadata",
  "contract-transcode",
@@ -1669,14 +1669,15 @@ dependencies = [
 
 [[package]]
 name = "drink-test-macro"
-version = "0.8.5"
+version = "0.8.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9425dcc749a80945d760092eec0ec91ed1c6d751dfa0eb8dba899b005c6cfb88"
+checksum = "9f4463d6959118375d87065e1dae96c58ad65e98a62b71c86f65e1ad08715408"
 dependencies = [
  "cargo_metadata",
  "contract-build",
  "contract-metadata",
  "convert_case 0.6.0",
+ "darling 0.20.4",
  "proc-macro2",
  "quote",
  "syn 2.0.48",
