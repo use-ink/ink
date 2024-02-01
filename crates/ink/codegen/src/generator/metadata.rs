@@ -98,7 +98,7 @@ impl Metadata<'_> {
         let error_ty = syn::parse_quote! {
             ::ink::LangError
         };
-        let error = Self::generate_type_spec(&error_ty);
+        let error = generate_type_spec(&error_ty);
         let environment = self.generate_environment();
         quote! {
             ::ink::metadata::ContractSpec::new()
@@ -177,46 +177,13 @@ impl Metadata<'_> {
             syn::Pat::Ident(ident) => &ident.ident,
             _ => unreachable!("encountered ink! dispatch input with missing identifier"),
         };
-        let type_spec = Self::generate_type_spec(&pat_type.ty);
+        let type_spec = generate_type_spec(&pat_type.ty);
         quote! {
             ::ink::metadata::MessageParamSpec::new(::core::stringify!(#ident))
                 .of_type(#type_spec)
                 .done()
         }
     }
-
-    /// Generates the ink! metadata for the given type.
-    fn generate_type_spec(ty: &syn::Type) -> TokenStream2 {
-        fn without_display_name(ty: &syn::Type) -> TokenStream2 {
-            quote! { ::ink::metadata::TypeSpec::of_type::<#ty>() }
-        }
-
-        if let syn::Type::Path(type_path) = ty {
-            if type_path.qself.is_some() {
-                return without_display_name(ty)
-            }
-            let path = &type_path.path;
-            if path.segments.is_empty() {
-                return without_display_name(ty)
-            }
-            let segs = path
-                .segments
-                .iter()
-                .map(|seg| &seg.ident)
-                .collect::<Vec<_>>();
-            quote! {
-                ::ink::metadata::TypeSpec::with_name_segs::<#ty, _>(
-                    ::core::iter::Iterator::map(
-                        ::core::iter::IntoIterator::into_iter([ #( ::core::stringify!(#segs) ),* ]),
-                        ::core::convert::AsRef::as_ref
-                    )
-                )
-            }
-        } else {
-            without_display_name(ty)
-        }
-    }
-
     /// Generates the ink! metadata for all ink! smart contract messages.
     fn generate_messages(&self) -> Vec<TokenStream2> {
         let mut messages = Vec::new();
@@ -335,7 +302,7 @@ impl Metadata<'_> {
 
     /// Generates ink! metadata for the given return type.
     fn generate_message_return_type(ret_ty: &syn::Type) -> TokenStream2 {
-        let type_spec = Self::generate_type_spec(ret_ty);
+        let type_spec = generate_type_spec(ret_ty);
         quote! {
             ::ink::metadata::ReturnTypeSpec::new(#type_spec)
         }
@@ -374,12 +341,12 @@ impl Metadata<'_> {
         let block_number: syn::Type = parse_quote!(BlockNumber);
         let chain_extension: syn::Type = parse_quote!(ChainExtension);
 
-        let account_id = Self::generate_type_spec(&account_id);
-        let balance = Self::generate_type_spec(&balance);
-        let hash = Self::generate_type_spec(&hash);
-        let timestamp = Self::generate_type_spec(&timestamp);
-        let block_number = Self::generate_type_spec(&block_number);
-        let chain_extension = Self::generate_type_spec(&chain_extension);
+        let account_id = generate_type_spec(&account_id);
+        let balance = generate_type_spec(&balance);
+        let hash = generate_type_spec(&hash);
+        let timestamp = generate_type_spec(&timestamp);
+        let block_number = generate_type_spec(&block_number);
+        let chain_extension = generate_type_spec(&chain_extension);
         let buffer_size_const = quote!(::ink::env::BUFFER_SIZE);
         quote_spanned!(span=>
             ::ink::metadata::EnvironmentSpec::new()
@@ -393,6 +360,38 @@ impl Metadata<'_> {
                 .static_buffer_size(#buffer_size_const)
                 .done()
         )
+    }
+}
+
+/// Generates the ink! metadata for the given type.
+pub fn generate_type_spec(ty: &syn::Type) -> TokenStream2 {
+    fn without_display_name(ty: &syn::Type) -> TokenStream2 {
+        quote! { ::ink::metadata::TypeSpec::of_type::<#ty>() }
+    }
+
+    if let syn::Type::Path(type_path) = ty {
+        if type_path.qself.is_some() {
+            return without_display_name(ty)
+        }
+        let path = &type_path.path;
+        if path.segments.is_empty() {
+            return without_display_name(ty)
+        }
+        let segs = path
+            .segments
+            .iter()
+            .map(|seg| &seg.ident)
+            .collect::<Vec<_>>();
+        quote! {
+            ::ink::metadata::TypeSpec::with_name_segs::<#ty, _>(
+                ::core::iter::Iterator::map(
+                    ::core::iter::IntoIterator::into_iter([ #( ::core::stringify!(#segs) ),* ]),
+                    ::core::convert::AsRef::as_ref
+                )
+            )
+        }
+    } else {
+        without_display_name(ty)
     }
 }
 

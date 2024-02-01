@@ -39,6 +39,8 @@ mod enforced_error;
 mod generator;
 mod traits;
 
+pub use generator::generate_type_spec;
+
 use self::{
     enforced_error::EnforcedErrors,
     traits::{
