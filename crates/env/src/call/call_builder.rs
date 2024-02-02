@@ -730,9 +730,9 @@ where
         CallBuilder {
             call_type: Set(CallV2 {
                 ref_time_limit,
-                .. call_type
+                ..call_type
             }),
-            .. self
+            ..self
         }
     }
 
@@ -743,9 +743,9 @@ where
         CallBuilder {
             call_type: Set(CallV2 {
                 proof_time_limit,
-                .. call_type
+                ..call_type
             }),
-            .. self
+            ..self
         }
     }
 
@@ -755,9 +755,9 @@ where
         CallBuilder {
             call_type: Set(CallV2 {
                 storage_deposit_limit: Some(storage_deposit_limit),
-                .. call_type
+                ..call_type
             }),
-            .. self
+            ..self
         }
     }
 
@@ -767,9 +767,9 @@ where
         CallBuilder {
             call_type: Set(CallV2 {
                 transferred_value,
-                .. call_type
+                ..call_type
             }),
-            .. self
+            ..self
         }
     }
 }
