@@ -70,7 +70,6 @@ mod cross_contract_calls {
         #[ink(message)]
         pub fn flip_and_get_invoke_v2_no_weight_limit(&mut self) -> bool {
             self.other_contract_call_builder.flip().v2().invoke();
-
             self.other_contract_call_builder.get().v2().invoke()
         }
     }
