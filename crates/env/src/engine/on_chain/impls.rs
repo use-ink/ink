@@ -488,6 +488,7 @@ impl TypedEnvBackend for EnvInstance {
         };
         let output = &mut scope.take_rest();
         let flags = params.call_flags();
+        #[allow(deprecated)]
         let call_result = ext::call_v2(
             *flags,
             enc_callee,
