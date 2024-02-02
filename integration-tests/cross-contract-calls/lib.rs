@@ -5,11 +5,14 @@ mod cross_contract_calls {
     use ink::{
         codegen::ContractCallBuilder,
         env::{
+            call::FromAccountId,
             ContractEnv,
-            call::FromAccountId
         },
     };
-    use other_contract::{OtherContract, OtherContractRef};
+    use other_contract::{
+        OtherContract,
+        OtherContractRef,
+    };
 
     type Env = <CrossContractCalls as ContractEnv>::Env;
     type OtherContractCallBuilder = <OtherContract as ContractCallBuilder>::Type;
@@ -31,11 +34,14 @@ mod cross_contract_calls {
                 .salt_bytes([0xDE, 0xAD, 0xBE, 0xEF])
                 .instantiate();
 
-            let other_contract_call_builder = <OtherContractCallBuilder as FromAccountId<Env>>::from_account_id(
-                *other_contract.as_ref(),
-            );
+            let other_contract_call_builder =
+                <OtherContractCallBuilder as FromAccountId<Env>>::from_account_id(
+                    *other_contract.as_ref(),
+                );
 
-            Self { other_contract_call_builder }
+            Self {
+                other_contract_call_builder,
+            }
         }
 
         /// Using the `ContractRef` we can call all the messages of the `OtherContract` as
@@ -45,14 +51,11 @@ mod cross_contract_calls {
         pub fn flip_and_get(&mut self) -> bool {
             self.other_contract_call_builder
                 .flip()
-                // .v2()
-                // .weight_limit(0, 0)
+                .v2()
+                .weight_limit(0, 0)
                 .invoke();
 
-            self.other_contract_call_builder
-                .get()
-                // .v2()
-                .invoke()
+            self.other_contract_call_builder.get().v2().invoke()
         }
     }
 }

@@ -648,9 +648,7 @@ where
     E: Environment,
 {
     /// todo: [AJ] docs
-    pub fn v2(
-        self,
-    ) -> CallBuilder<E, Set<CallV2<E>>, Args, RetType> {
+    pub fn v2(self) -> CallBuilder<E, Set<CallV2<E>>, Args, RetType> {
         let call_type = self.call_type.value();
         CallBuilder {
             call_type: Set(CallV2 {
@@ -658,7 +656,7 @@ where
                 ref_time_limit: call_type.gas_limit,
                 proof_time_limit: Default::default(),
                 transferred_value: call_type.transferred_value,
-            } ),
+            }),
             call_flags: self.call_flags,
             exec_input: self.exec_input,
             return_type: self.return_type,
@@ -773,6 +771,23 @@ where
 }
 
 impl<E, Args, RetType>
+    CallBuilder<E, Set<CallV2<E>>, Set<ExecutionInput<Args>>, Set<ReturnType<RetType>>>
+where
+    E: Environment,
+{
+    /// Finalizes the call builder to call a function.
+    pub fn params(self) -> CallParams<E, CallV2<E>, Args, RetType> {
+        CallParams {
+            call_type: self.call_type.value(),
+            call_flags: self.call_flags,
+            _return_type: Default::default(),
+            exec_input: self.exec_input.value(),
+            _phantom: self._phantom,
+        }
+    }
+}
+
+impl<E, Args, RetType>
     CallBuilder<
         E,
         Set<DelegateCall<E>>,
@@ -801,6 +816,28 @@ where
 {
     /// Finalizes the call builder to call a function.
     pub fn params(self) -> CallParams<E, Call<E>, EmptyArgumentList, ()> {
+        CallParams {
+            call_type: self.call_type.value(),
+            call_flags: self.call_flags,
+            _return_type: Default::default(),
+            exec_input: Default::default(),
+            _phantom: self._phantom,
+        }
+    }
+}
+
+impl<E, RetType>
+    CallBuilder<
+        E,
+        Set<CallV2<E>>,
+        Unset<ExecutionInput<EmptyArgumentList>>,
+        Unset<RetType>,
+    >
+where
+    E: Environment,
+{
+    /// Finalizes the call builder to call a function.
+    pub fn params(self) -> CallParams<E, CallV2<E>, EmptyArgumentList, ()> {
         CallParams {
             call_type: self.call_type.value(),
             call_flags: self.call_flags,
@@ -869,6 +906,39 @@ where
 impl<E>
     CallBuilder<
         E,
+        Set<CallV2<E>>,
+        Unset<ExecutionInput<EmptyArgumentList>>,
+        Unset<ReturnType<()>>,
+    >
+where
+    E: Environment,
+{
+    /// Invokes the cross-chain function call.
+    ///
+    /// # Panics
+    ///
+    /// This method panics if it encounters an [`ink::env::Error`][`crate::Error`] or an
+    /// [`ink::primitives::LangError`][`ink_primitives::LangError`]. If you want to handle
+    /// those use the [`try_invoke`][`CallBuilder::try_invoke`] method instead.
+    pub fn invoke(self) {
+        self.params().invoke()
+    }
+
+    /// Invokes the cross-chain function call.
+    ///
+    /// # Note
+    ///
+    /// On failure this returns an outer [`ink::env::Error`][`crate::Error`] or inner
+    /// [`ink::primitives::LangError`][`ink_primitives::LangError`], both of which can be
+    /// handled by the caller.
+    pub fn try_invoke(self) -> Result<ink_primitives::MessageResult<()>, Error> {
+        self.params().try_invoke()
+    }
+}
+
+impl<E>
+    CallBuilder<
+        E,
         Set<DelegateCall<E>>,
         Unset<ExecutionInput<EmptyArgumentList>>,
         Unset<ReturnType<()>>,
@@ -900,6 +970,36 @@ where
 
 impl<E, Args, R>
     CallBuilder<E, Set<Call<E>>, Set<ExecutionInput<Args>>, Set<ReturnType<R>>>
+where
+    E: Environment,
+    Args: scale::Encode,
+    R: scale::Decode,
+{
+    /// Invokes the cross-chain function call and returns the result.
+    ///
+    /// # Panics
+    ///
+    /// This method panics if it encounters an [`ink::env::Error`][`crate::Error`] or an
+    /// [`ink::primitives::LangError`][`ink_primitives::LangError`]. If you want to handle
+    /// those use the [`try_invoke`][`CallBuilder::try_invoke`] method instead.
+    pub fn invoke(self) -> R {
+        self.params().invoke()
+    }
+
+    /// Invokes the cross-chain function call and returns the result.
+    ///
+    /// # Note
+    ///
+    /// On failure this returns an outer [`ink::env::Error`][`crate::Error`] or inner
+    /// [`ink::primitives::LangError`][`ink_primitives::LangError`], both of which can be
+    /// handled by the caller.
+    pub fn try_invoke(self) -> Result<ink_primitives::MessageResult<R>, Error> {
+        self.params().try_invoke()
+    }
+}
+
+impl<E, Args, R>
+    CallBuilder<E, Set<CallV2<E>>, Set<ExecutionInput<Args>>, Set<ReturnType<R>>>
 where
     E: Environment,
     Args: scale::Encode,
