@@ -188,6 +188,9 @@ mod erc721 {
             to: AccountId,
             id: TokenId,
         ) -> Result<(), Error> {
+            if self.token_owner.get(id) != Some(from) {
+                return Err(Error::NotOwner)
+            };
             self.transfer_token_from(&from, &to, id)?;
             Ok(())
         }
@@ -628,6 +631,29 @@ mod erc721 {
             // Try burning this token with a different account
             set_caller(accounts.eve);
             assert_eq!(erc721.burn(1), Err(Error::NotOwner));
+        }
+
+        #[ink::test]
+        fn transfer_from_fails_not_owner() {
+            let accounts =
+                ink::env::test::default_accounts::<ink::env::DefaultEnvironment>();
+            // Create a new contract instance.
+            let mut erc721 = Erc721::new();
+            // Create token Id 1 for Alice
+            assert_eq!(erc721.mint(1), Ok(()));
+            // Bob can transfer alice's tokens
+            assert_eq!(erc721.set_approval_for_all(accounts.bob, true), Ok(()));
+            // Set caller to Frank
+            set_caller(accounts.frank);
+            // Create token Id 2 for Frank
+            assert_eq!(erc721.mint(2), Ok(()));
+            // Set caller to Bob
+            set_caller(accounts.bob);
+            // Bob makes invalid call to transfer_from
+            assert_eq!(
+                erc721.transfer_from(accounts.frank, accounts.bob, 1),
+                Err(Error::NotOwner)
+            );
         }
 
         fn set_caller(sender: AccountId) {
