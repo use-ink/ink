@@ -729,16 +729,10 @@ where
         let call_type = self.call_type.value();
         CallBuilder {
             call_type: Set(CallV2 {
-                callee: call_type.callee,
                 ref_time_limit,
-                proof_time_limit: call_type.proof_time_limit,
-                storage_deposit_limit: call_type.storage_deposit_limit,
-                transferred_value: call_type.transferred_value,
+                .. call_type
             }),
-            call_flags: self.call_flags,
-            exec_input: self.exec_input,
-            return_type: self.return_type,
-            _phantom: Default::default(),
+            .. self
         }
     }
 
@@ -748,16 +742,10 @@ where
         let call_type = self.call_type.value();
         CallBuilder {
             call_type: Set(CallV2 {
-                callee: call_type.callee,
-                ref_time_limit: call_type.ref_time_limit,
                 proof_time_limit,
-                storage_deposit_limit: call_type.storage_deposit_limit,
-                transferred_value: call_type.transferred_value,
+                .. call_type
             }),
-            call_flags: self.call_flags,
-            exec_input: self.exec_input,
-            return_type: self.return_type,
-            _phantom: Default::default(),
+            .. self
         }
     }
 
@@ -766,16 +754,10 @@ where
         let call_type = self.call_type.value();
         CallBuilder {
             call_type: Set(CallV2 {
-                callee: call_type.callee,
-                ref_time_limit: call_type.ref_time_limit,
-                proof_time_limit: call_type.proof_time_limit,
                 storage_deposit_limit: Some(storage_deposit_limit),
-                transferred_value: call_type.transferred_value,
+                .. call_type
             }),
-            call_flags: self.call_flags,
-            exec_input: self.exec_input,
-            return_type: self.return_type,
-            _phantom: Default::default(),
+            .. self
         }
     }
 
@@ -784,16 +766,10 @@ where
         let call_type = self.call_type.value();
         CallBuilder {
             call_type: Set(CallV2 {
-                callee: call_type.callee,
-                ref_time_limit: call_type.ref_time_limit,
-                proof_time_limit: call_type.proof_time_limit,
-                storage_deposit_limit: call_type.storage_deposit_limit,
                 transferred_value,
+                .. call_type
             }),
-            call_flags: self.call_flags,
-            exec_input: self.exec_input,
-            return_type: self.return_type,
-            _phantom: Default::default(),
+            .. self
         }
     }
 }
