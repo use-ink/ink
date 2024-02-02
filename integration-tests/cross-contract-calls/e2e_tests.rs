@@ -37,7 +37,7 @@ async fn flip_and_get<Client: E2EBackend>(mut client: Client) -> E2EResult<()> {
         .expect("Calling `flip_and_get` failed")
         .return_value();
 
-    assert_eq!(result, false);
+    assert!(!result);
 
     let call = call_builder.flip_and_get_invoke_v2_no_weight_limit();
     let result = client
@@ -47,7 +47,7 @@ async fn flip_and_get<Client: E2EBackend>(mut client: Client) -> E2EResult<()> {
         .expect("Calling `flip_and_get` failed")
         .return_value();
 
-    assert_eq!(result, true);
+    assert!(result);
 
     Ok(())
 }
