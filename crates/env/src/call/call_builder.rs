@@ -701,14 +701,31 @@ impl<E, Args, RetType> CallBuilder<E, Set<CallV2<E>>, Args, RetType>
 where
     E: Environment,
 {
-    /// Sets the `ref_time_limit` and the `proof_time_limit` for the current
-    /// cross-contract call.
-    pub fn weight_limit(self, ref_time_limit: Gas, proof_time_limit: Gas) -> Self {
+    /// Sets the `ref_time_limit` for the current cross-contract call.
+    pub fn ref_time_limit(self, ref_time_limit: Gas) -> Self {
         let call_type = self.call_type.value();
         CallBuilder {
             call_type: Set(CallV2 {
                 callee: call_type.callee,
                 ref_time_limit,
+                proof_time_limit: call_type.proof_time_limit,
+                transferred_value: call_type.transferred_value,
+            }),
+            call_flags: self.call_flags,
+            exec_input: self.exec_input,
+            return_type: self.return_type,
+            _phantom: Default::default(),
+        }
+    }
+
+    /// Sets the `ref_time_limit` and the `proof_time_limit` for the current
+    /// cross-contract call.
+    pub fn proof_time_limit(self, proof_time_limit: Gas) -> Self {
+        let call_type = self.call_type.value();
+        CallBuilder {
+            call_type: Set(CallV2 {
+                callee: call_type.callee,
+                ref_time_limit: call_type.ref_time_limit,
                 proof_time_limit,
                 transferred_value: call_type.transferred_value,
             }),

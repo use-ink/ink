@@ -23,9 +23,7 @@ mod cross_contract_calls {
     }
 
     impl CrossContractCalls {
-        /// In order to use the `OtherContract` we first need to **instantiate** it.
-        ///
-        /// To do this we will use the uploaded `code_hash` of `OtherContract`.
+        /// todo: [AJ] comment
         #[ink(constructor)]
         pub fn new(other_contract_code_hash: Hash) -> Self {
             let other_contract = OtherContractRef::new(true)
@@ -44,16 +42,31 @@ mod cross_contract_calls {
             }
         }
 
-        /// Using the `ContractRef` we can call all the messages of the `OtherContract` as
-        /// if they were normal Rust methods (because at the end of the day, they
-        /// are!).
+        /// todo: [AJ] comment
         #[ink(message)]
-        pub fn flip_and_get(&mut self) -> bool {
+        pub fn flip_and_get_invoke_v2_with_weight_limit(
+            &mut self,
+            ref_time_limit: u64,
+            proof_time_limit: u64,
+        ) -> bool {
             self.other_contract_call_builder
                 .flip()
                 .v2()
-                .weight_limit(0, 0)
+                .ref_time_limit(ref_time_limit)
+                .proof_time_limit(proof_time_limit)
                 .invoke();
+
+            self.other_contract_call_builder
+                .get()
+                .v2()
+                .ref_time_limit(ref_time_limit)
+                .proof_time_limit(proof_time_limit)
+                .invoke()
+        }
+
+        #[ink(message)]
+        pub fn flip_and_get_invoke_v2_no_weight_limit(&mut self) -> bool {
+            self.other_contract_call_builder.flip().v2().invoke();
 
             self.other_contract_call_builder.get().v2().invoke()
         }
