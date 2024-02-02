@@ -44,16 +44,18 @@ mod cross_contract_calls {
 
         /// todo: [AJ] comment
         #[ink(message)]
-        pub fn flip_and_get_invoke_v2_with_weight_limit(
+        pub fn flip_and_get_invoke_v2_with_limits(
             &mut self,
             ref_time_limit: u64,
             proof_time_limit: u64,
+            storage_deposit_limit: Balance,
         ) -> bool {
             self.other_contract_call_builder
                 .flip()
                 .v2()
                 .ref_time_limit(ref_time_limit)
                 .proof_time_limit(proof_time_limit)
+                .storage_deposit_limit(storage_deposit_limit)
                 .invoke();
 
             self.other_contract_call_builder
@@ -61,6 +63,7 @@ mod cross_contract_calls {
                 .v2()
                 .ref_time_limit(ref_time_limit)
                 .proof_time_limit(proof_time_limit)
+                .storage_deposit_limit(storage_deposit_limit)
                 .invoke()
         }
 

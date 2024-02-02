@@ -100,14 +100,20 @@ where
 
     /// Returns the chosen ref time limit for the called contract execution.
     #[inline]
-    pub fn ref_time_limit(&self) -> Gas {
+    pub fn ref_time_limit(&self) -> u64 {
         self.call_type.ref_time_limit
     }
 
     /// Returns the chosen proof time limit for the called contract execution.
     #[inline]
-    pub fn proof_time_limit(&self) -> Gas {
+    pub fn proof_time_limit(&self) -> u64 {
         self.call_type.proof_time_limit
+    }
+
+    /// Returns the chosen storage deposit limit for the called contract execution.
+    #[inline]
+    pub fn storage_deposit_limit(&self) -> Option<&E::Balance> {
+        self.call_type.storage_deposit_limit.as_ref()
     }
 
     /// Returns the transferred value for the called contract.
@@ -450,8 +456,9 @@ where
 #[derive(Clone)]
 pub struct CallV2<E: Environment> {
     callee: E::AccountId,
-    ref_time_limit: Gas,
-    proof_time_limit: Gas,
+    ref_time_limit: u64,
+    proof_time_limit: u64,
+    storage_deposit_limit: Option<E::Balance>,
     transferred_value: E::Balance,
 }
 
@@ -462,6 +469,7 @@ impl<E: Environment> CallV2<E> {
             callee,
             ref_time_limit: Default::default(),
             proof_time_limit: Default::default(),
+            storage_deposit_limit: None,
             transferred_value: E::Balance::zero(),
         }
     }
@@ -471,12 +479,24 @@ impl<E> CallV2<E>
 where
     E: Environment,
 {
-    /// Sets the `gas_limit` for the current cross-contract call.
-    pub fn weight_limit(self, ref_time_limit: Gas, proof_time_limit: Gas) -> Self {
+    /// Sets the `weight_limit` for the current cross-contract call.
+    pub fn weight_limit(self, ref_time_limit: u64, proof_time_limit: u64) -> Self {
         CallV2 {
             callee: self.callee,
             ref_time_limit,
             proof_time_limit,
+            storage_deposit_limit: self.storage_deposit_limit,
+            transferred_value: self.transferred_value,
+        }
+    }
+
+    /// todo: [AJ] storage_deposit_limit docs
+    pub fn storage_deposit_limit(self, storage_deposit_limit: E::Balance) -> Self {
+        CallV2 {
+            callee: self.callee,
+            ref_time_limit: self.ref_time_limit,
+            proof_time_limit: self.proof_time_limit,
+            storage_deposit_limit: Some(storage_deposit_limit),
             transferred_value: self.transferred_value,
         }
     }
@@ -487,6 +507,7 @@ where
             callee: self.callee,
             ref_time_limit: self.ref_time_limit,
             proof_time_limit: self.proof_time_limit,
+            storage_deposit_limit: self.storage_deposit_limit,
             transferred_value,
         }
     }
@@ -655,6 +676,7 @@ where
                 callee: call_type.callee,
                 ref_time_limit: call_type.gas_limit,
                 proof_time_limit: Default::default(),
+                storage_deposit_limit: None,
                 transferred_value: call_type.transferred_value,
             }),
             call_flags: self.call_flags,
@@ -701,7 +723,8 @@ impl<E, Args, RetType> CallBuilder<E, Set<CallV2<E>>, Args, RetType>
 where
     E: Environment,
 {
-    /// Sets the `ref_time_limit` for the current cross-contract call.
+    /// Sets the `ref_time_limit` part of the weight limit for the current cross-contract
+    /// call.
     pub fn ref_time_limit(self, ref_time_limit: Gas) -> Self {
         let call_type = self.call_type.value();
         CallBuilder {
@@ -709,6 +732,7 @@ where
                 callee: call_type.callee,
                 ref_time_limit,
                 proof_time_limit: call_type.proof_time_limit,
+                storage_deposit_limit: call_type.storage_deposit_limit,
                 transferred_value: call_type.transferred_value,
             }),
             call_flags: self.call_flags,
@@ -718,7 +742,7 @@ where
         }
     }
 
-    /// Sets the `ref_time_limit` and the `proof_time_limit` for the current
+    /// Sets the `proof_time_limit` part of the weight limit for the current
     /// cross-contract call.
     pub fn proof_time_limit(self, proof_time_limit: Gas) -> Self {
         let call_type = self.call_type.value();
@@ -727,6 +751,25 @@ where
                 callee: call_type.callee,
                 ref_time_limit: call_type.ref_time_limit,
                 proof_time_limit,
+                storage_deposit_limit: call_type.storage_deposit_limit,
+                transferred_value: call_type.transferred_value,
+            }),
+            call_flags: self.call_flags,
+            exec_input: self.exec_input,
+            return_type: self.return_type,
+            _phantom: Default::default(),
+        }
+    }
+
+    /// Sets the `storage_deposit_limit` for the current cross-contract call.
+    pub fn storage_deposit_limit(self, storage_deposit_limit: E::Balance) -> Self {
+        let call_type = self.call_type.value();
+        CallBuilder {
+            call_type: Set(CallV2 {
+                callee: call_type.callee,
+                ref_time_limit: call_type.ref_time_limit,
+                proof_time_limit: call_type.proof_time_limit,
+                storage_deposit_limit: Some(storage_deposit_limit),
                 transferred_value: call_type.transferred_value,
             }),
             call_flags: self.call_flags,
@@ -744,6 +787,7 @@ where
                 callee: call_type.callee,
                 ref_time_limit: call_type.ref_time_limit,
                 proof_time_limit: call_type.proof_time_limit,
+                storage_deposit_limit: call_type.storage_deposit_limit,
                 transferred_value,
             }),
             call_flags: self.call_flags,

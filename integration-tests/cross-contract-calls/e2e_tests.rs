@@ -22,10 +22,14 @@ async fn flip_and_get<Client: E2EBackend>(mut client: Client) -> E2EResult<()> {
 
     const REF_TIME_LIMIT: u64 = 500_000_000;
     const PROOF_TIME_LIMIT: u64 = 100_000;
+    const STORAGE_DEPOSIT_LIMIT: u128 = 1_000_000_000;
 
     // when
-    let call = call_builder
-        .flip_and_get_invoke_v2_with_weight_limit(REF_TIME_LIMIT, PROOF_TIME_LIMIT);
+    let call = call_builder.flip_and_get_invoke_v2_with_limits(
+        REF_TIME_LIMIT,
+        PROOF_TIME_LIMIT,
+        STORAGE_DEPOSIT_LIMIT,
+    );
     let result = client
         .call(&ink_e2e::alice(), &call)
         .submit()

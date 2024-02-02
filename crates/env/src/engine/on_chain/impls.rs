@@ -476,6 +476,9 @@ impl TypedEnvBackend for EnvInstance {
         let mut scope = self.scoped_buffer();
         let ref_time_limit = params.ref_time_limit();
         let proof_time_limit = params.proof_time_limit();
+        let storage_deposit_limit = params
+            .storage_deposit_limit()
+            .map(|limit| &*scope.take_encoded(limit));
         let enc_callee = scope.take_encoded(params.callee());
         let enc_transferred_value = scope.take_encoded(params.transferred_value());
         let call_flags = params.call_flags();
@@ -494,7 +497,7 @@ impl TypedEnvBackend for EnvInstance {
             enc_callee,
             ref_time_limit,
             proof_time_limit,
-            None, // todo: add storage_deposit_limit to CallParams
+            storage_deposit_limit,
             enc_transferred_value,
             enc_input,
             Some(output),
