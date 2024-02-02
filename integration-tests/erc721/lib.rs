@@ -188,9 +188,6 @@ mod erc721 {
             to: AccountId,
             id: TokenId,
         ) -> Result<(), Error> {
-            if self.token_owner.get(id) != Some(from) {
-                return Err(Error::NotOwner)
-            };
             self.transfer_token_from(&from, &to, id)?;
             Ok(())
         }
@@ -252,6 +249,9 @@ mod erc721 {
             };
             if !self.approved_or_owner(Some(caller), id) {
                 return Err(Error::NotApproved)
+            };
+            if self.token_owner.get(id) != Some(*from) {
+                return Err(Error::NotOwner)
             };
             self.clear_approval(id);
             self.remove_token_from(from, id)?;
@@ -649,11 +649,27 @@ mod erc721 {
             assert_eq!(erc721.mint(2), Ok(()));
             // Set caller to Bob
             set_caller(accounts.bob);
-            // Bob makes invalid call to transfer_from
+            // Bob makes invalid call to transfer_from (Alice is token owner, not Frank)
             assert_eq!(
                 erc721.transfer_from(accounts.frank, accounts.bob, 1),
                 Err(Error::NotOwner)
             );
+        }
+
+        #[ink::test]
+        fn transfer_fails_not_owner() {
+            let accounts =
+                ink::env::test::default_accounts::<ink::env::DefaultEnvironment>();
+            // Create a new contract instance.
+            let mut erc721 = Erc721::new();
+            // Create token Id 1 for Alice
+            assert_eq!(erc721.mint(1), Ok(()));
+            // Bob can transfer alice's tokens
+            assert_eq!(erc721.set_approval_for_all(accounts.bob, true), Ok(()));
+            // Set caller to bob
+            set_caller(accounts.bob);
+            // Bob makes invalid call to transfer (he is not token owner, Alice is)
+            assert_eq!(erc721.transfer(accounts.bob, 1), Err(Error::NotOwner));
         }
 
         fn set_caller(sender: AccountId) {
