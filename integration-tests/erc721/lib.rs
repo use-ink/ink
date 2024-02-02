@@ -343,9 +343,8 @@ mod erc721 {
         /// the message's sender.
         fn approve_for(&mut self, to: &AccountId, id: TokenId) -> Result<(), Error> {
             let caller = self.env().caller();
-            let owner = self.owner_of(id);
-            if !(owner == Some(caller)
-                || self.approved_for_all(owner.expect("Error with AccountId"), caller))
+            let owner = self.owner_of(id).ok_or(Error::TokenNotFound)?;
+            if !(owner == caller || self.approved_for_all(owner, caller))
             {
                 return Err(Error::NotAllowed)
             };
@@ -558,6 +557,16 @@ mod erc721 {
             assert_eq!(erc721.set_approval_for_all(accounts.bob, false), Ok(()));
             // Bob is not an approved operator for Alice.
             assert!(!erc721.is_approved_for_all(accounts.alice, accounts.bob));
+        }
+
+        #[ink::test]
+        fn approve_nonexistent_token_should_fail() {
+            let accounts =
+                ink::env::test::default_accounts::<ink::env::DefaultEnvironment>();
+            // Create a new contract instance.
+            let mut erc721 = Erc721::new();
+            // Approve transfer of nonexistent token id 1
+            assert_eq!(erc721.approve(accounts.bob, 1), Err(Error::TokenNotFound));
         }
 
         #[ink::test]
