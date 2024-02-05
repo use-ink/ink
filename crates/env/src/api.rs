@@ -287,7 +287,24 @@ where
     })
 }
 
-/// todo: [AJ] docs
+/// Invokes a contract message and returns its result.
+///
+/// # Note
+///
+/// **This will call into a new version of the host function which allows setting new
+/// weight and storage limit parameters.**
+///
+/// This is a low level way to evaluate another smart contract.
+/// Prefer to use the ink! guided and type safe approach to using this.
+///
+/// # Errors
+///
+/// - If the called account does not exist.
+/// - If the called account is not a contract.
+/// - If arguments passed to the called contract message are invalid.
+/// - If the called contract execution has trapped.
+/// - If the called contract ran out of gas upon execution.
+/// - If the returned value failed to decode properly.
 pub fn invoke_contract_v2<E, Args, R>(
     params: &CallParams<E, CallV2<E>, Args, R>,
 ) -> Result<ink_primitives::MessageResult<R>>

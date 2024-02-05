@@ -579,7 +579,65 @@ where
         ink_env::invoke_contract::<E, Args, R>(params)
     }
 
-    /// todo: [AJ] docs
+    /// Invokes a contract message and returns its result.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # #[ink::contract]
+    /// # pub mod my_contract {
+    /// use ink::env::{
+    ///     call::{
+    ///         build_call,
+    ///         Call,
+    ///         ExecutionInput,
+    ///         Selector,
+    ///     },
+    ///     DefaultEnvironment,
+    /// };
+    ///
+    /// #
+    /// #     #[ink(storage)]
+    /// #     pub struct MyContract { }
+    /// #
+    /// #     impl MyContract {
+    /// #         #[ink(constructor)]
+    /// #         pub fn new() -> Self {
+    /// #             Self {}
+    /// #         }
+    /// #
+    /// /// Invokes a contract message and fetches the result.
+    /// #[ink(message)]
+    /// pub fn invoke_contract(&self) -> i32 {
+    ///     let call_params = build_call::<DefaultEnvironment>()
+    ///         .call_v2()
+    ///         .ref_time_limit(500_000_000)
+    ///         .proof_time_limit(100_000)
+    ///         .storage_deposit_limit(1_000_000_000)
+    ///         .exec_input(
+    ///             ExecutionInput::new(Selector::new([0xCA, 0xFE, 0xBA, 0xBE]))
+    ///                 .push_arg(42u8)
+    ///                 .push_arg(true)
+    ///                 .push_arg(&[0x10u8; 32]),
+    ///         )
+    ///         .returns::<i32>()
+    ///         .params();
+    ///
+    ///     self.env()
+    ///         .invoke_contract(&call_params)
+    ///         .unwrap_or_else(|env_err| {
+    ///             panic!("Received an error from the Environment: {:?}", env_err)
+    ///         })
+    ///         .unwrap_or_else(|lang_err| panic!("Received a `LangError`: {:?}", lang_err))
+    /// }
+    /// #
+    /// #     }
+    /// # }
+    /// ```
+    ///
+    /// # Note
+    ///
+    /// For more details visit: [`ink_env::invoke_contract_v2`]
     pub fn invoke_contract_v2<Args, R>(
         self,
         params: &CallParams<E, CallV2<E>, Args, R>,
