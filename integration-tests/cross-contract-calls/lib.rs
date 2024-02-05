@@ -29,7 +29,7 @@ mod cross_contract_calls {
         /// result.
         ///
         /// This demonstrates how to set the new weight and storage limit parameters via
-        /// the call builder api.
+        /// the call builder API.
         #[ink(message)]
         pub fn flip_and_get_invoke_v2_with_limits(
             &mut self,
