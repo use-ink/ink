@@ -11,7 +11,8 @@ mod cross_contract_calls {
     }
 
     impl CrossContractCalls {
-        /// todo: [AJ] comment
+        /// Initializes the contract by instantiating the code at the given code hash and
+        /// storing the resulting account id.
         #[ink(constructor)]
         pub fn new(other_contract_code_hash: Hash) -> Self {
             let other_contract = OtherContractRef::new(true)
@@ -23,7 +24,12 @@ mod cross_contract_calls {
             Self { other_contract }
         }
 
-        /// todo: [AJ] comment
+        /// Use the new `call_v2` host function via the call builder to forward calls to
+        /// the other contract, initially calling `flip` and then `get` to return the
+        /// result.
+        ///
+        /// This demonstrates how to set the new weight and storage limit parameters via
+        /// the call builder api.
         #[ink(message)]
         pub fn flip_and_get_invoke_v2_with_limits(
             &mut self,
@@ -50,6 +56,8 @@ mod cross_contract_calls {
                 .invoke()
         }
 
+        /// Demonstrate that the `call_v2` succeeds without having specified the weight
+        /// and storage limit parameters
         #[ink(message)]
         pub fn flip_and_get_invoke_v2_no_weight_limit(&mut self) -> bool {
             let call_builder = self.other_contract.call_mut();
