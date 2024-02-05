@@ -1,7 +1,7 @@
 #![cfg_attr(not(feature = "std"), no_std, no_main)]
 
 #[ink::contract]
-mod other_contract {
+pub mod other_contract {
 
     #[ink(storage)]
     pub struct OtherContract {
