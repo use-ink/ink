@@ -2,24 +2,12 @@
 
 #[ink::contract]
 mod cross_contract_calls {
-    use ink::{
-        codegen::ContractCallBuilder,
-        env::{
-            call::FromAccountId,
-            ContractEnv,
-        },
-    };
-    use other_contract::{
-        OtherContract,
-        OtherContractRef,
-    };
-
-    type Env = <CrossContractCalls as ContractEnv>::Env;
-    type OtherContractCallBuilder = <OtherContract as ContractCallBuilder>::Type;
+    use ink::codegen::TraitCallBuilder;
+    use other_contract::OtherContractRef;
 
     #[ink(storage)]
     pub struct CrossContractCalls {
-        other_contract_call_builder: OtherContractCallBuilder,
+        other_contract: OtherContractRef,
     }
 
     impl CrossContractCalls {
@@ -32,14 +20,7 @@ mod cross_contract_calls {
                 .salt_bytes([0xDE, 0xAD, 0xBE, 0xEF])
                 .instantiate();
 
-            let other_contract_call_builder =
-                <OtherContractCallBuilder as FromAccountId<Env>>::from_account_id(
-                    *other_contract.as_ref(),
-                );
-
-            Self {
-                other_contract_call_builder,
-            }
+            Self { other_contract }
         }
 
         /// todo: [AJ] comment
@@ -50,7 +31,9 @@ mod cross_contract_calls {
             proof_time_limit: u64,
             storage_deposit_limit: Balance,
         ) -> bool {
-            self.other_contract_call_builder
+            let call_builder = self.other_contract.call_mut();
+
+            call_builder
                 .flip()
                 .v2()
                 .ref_time_limit(ref_time_limit)
@@ -58,7 +41,7 @@ mod cross_contract_calls {
                 .storage_deposit_limit(storage_deposit_limit)
                 .invoke();
 
-            self.other_contract_call_builder
+            call_builder
                 .get()
                 .v2()
                 .ref_time_limit(ref_time_limit)
@@ -69,8 +52,10 @@ mod cross_contract_calls {
 
         #[ink(message)]
         pub fn flip_and_get_invoke_v2_no_weight_limit(&mut self) -> bool {
-            self.other_contract_call_builder.flip().v2().invoke();
-            self.other_contract_call_builder.get().v2().invoke()
+            let call_builder = self.other_contract.call_mut();
+
+            call_builder.flip().v2().invoke();
+            call_builder.get().v2().invoke()
         }
     }
 }
