@@ -452,7 +452,9 @@ where
     }
 }
 
-/// todo: [AJ] docs
+/// The new version (V2) of default call type [`Call`] for cross-contract calls. This adds
+/// the additional weight limit parameter `proof_time_limit` as well as
+/// `storage_deposit_limit`, which are passed to the new host function `call_v2`.
 #[derive(Clone)]
 pub struct CallV2<E: Environment> {
     callee: E::AccountId,
