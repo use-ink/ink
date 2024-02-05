@@ -257,10 +257,10 @@ pub mod events {
                 .submit()
                 .await
                 .expect("instantiate failed");
-            let mut call = contract.call::<Events>();
+            let mut call_builder = contract.call_builder::<Events>();
 
             // when
-            let flip = call.flip_with_foreign_event();
+            let flip = call_builder.flip_with_foreign_event();
             let flip_res = client
                 .call(&ink_e2e::bob(), &flip)
                 .submit()
@@ -300,10 +300,10 @@ pub mod events {
                 .submit()
                 .await
                 .expect("instantiate failed");
-            let mut call = contract.call::<Events>();
+            let mut call_builder = contract.call_builder::<Events>();
 
             // when
-            let flip = call.flip_with_inline_event();
+            let flip = call_builder.flip_with_inline_event();
             let flip_res = client
                 .call(&ink_e2e::bob(), &flip)
                 .submit()
@@ -342,10 +342,10 @@ pub mod events {
                 .submit()
                 .await
                 .expect("instantiate failed");
-            let call = contract.call::<Events>();
+            let call_builder = contract.call_builder::<Events>();
 
             // when
-            let call = call.emit_32_byte_topic_event(None);
+            let call = call_builder.emit_32_byte_topic_event(None);
             let call_res = client
                 .call(&ink_e2e::bob(), &call)
                 .submit()
@@ -389,10 +389,10 @@ pub mod events {
                 .submit()
                 .await
                 .expect("instantiate failed");
-            let mut call = contract.call::<Events>();
+            let mut call_builder = contract.call_builder::<Events>();
 
             // when
-            let call = call.flip_with_inline_custom_event();
+            let call = call_builder.flip_with_inline_custom_event();
             let call_res = client
                 .call(&ink_e2e::bob(), &call)
                 .submit()

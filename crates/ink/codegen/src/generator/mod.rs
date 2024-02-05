@@ -62,7 +62,10 @@ pub use self::{
     event::Event,
     ink_test::InkTest,
     item_impls::ItemImpls,
-    metadata::Metadata,
+    metadata::{
+        generate_type_spec,
+        Metadata,
+    },
     selector::{
         SelectorBytes,
         SelectorId,

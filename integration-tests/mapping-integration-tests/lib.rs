@@ -162,10 +162,10 @@ mod mapping_integration_tests {
                 .submit()
                 .await
                 .expect("instantiate failed");
-            let mut call = contract.call::<Mappings>();
+            let mut call_builder = contract.call_builder::<Mappings>();
 
             // when
-            let insert = call.insert_balance(1_000);
+            let insert = call_builder.insert_balance(1_000);
             let size = client
                 .call(&ink_e2e::alice(), &insert)
                 .submit()
@@ -174,7 +174,7 @@ mod mapping_integration_tests {
                 .return_value();
 
             // then
-            let get = call.get_balance();
+            let get = call_builder.get_balance();
             let balance = client
                 .call(&ink_e2e::alice(), &get)
                 .dry_run()
@@ -202,10 +202,10 @@ mod mapping_integration_tests {
                 .submit()
                 .await
                 .expect("instantiate failed");
-            let mut call = contract.call::<Mappings>();
+            let mut call_builder = contract.call_builder::<Mappings>();
 
             // when
-            let insert = call.insert_balance(1_000);
+            let insert = call_builder.insert_balance(1_000);
             let _ = client
                 .call(&ink_e2e::bob(), &insert)
                 .submit()
@@ -214,7 +214,7 @@ mod mapping_integration_tests {
                 .return_value();
 
             // then
-            let contains = call.contains_balance();
+            let contains = call_builder.contains_balance();
             let is_there = client
                 .call(&ink_e2e::bob(), &contains)
                 .dry_run()
@@ -239,10 +239,10 @@ mod mapping_integration_tests {
                 .submit()
                 .await
                 .expect("instantiate failed");
-            let mut call = contract.call::<Mappings>();
+            let mut call_builder = contract.call_builder::<Mappings>();
 
             // when
-            let first_insert = call.insert_balance(1_000);
+            let first_insert = call_builder.insert_balance(1_000);
             let _ = client
                 .call(&ink_e2e::charlie(), &first_insert)
                 .submit()
@@ -250,7 +250,7 @@ mod mapping_integration_tests {
                 .expect("Calling `insert_balance` failed")
                 .return_value();
 
-            let insert = call.insert_balance(10_000);
+            let insert = call_builder.insert_balance(10_000);
             let size = client
                 .call(&ink_e2e::charlie(), &insert)
                 .submit()
@@ -261,7 +261,7 @@ mod mapping_integration_tests {
             // then
             assert!(size.is_some());
 
-            let get = call.get_balance();
+            let get = call_builder.get_balance();
             let balance = client
                 .call(&ink_e2e::charlie(), &get)
                 .dry_run()
@@ -288,10 +288,10 @@ mod mapping_integration_tests {
                 .submit()
                 .await
                 .expect("instantiate failed");
-            let mut call = contract.call::<Mappings>();
+            let mut call_builder = contract.call_builder::<Mappings>();
 
             // when
-            let insert = call.insert_balance(3_000);
+            let insert = call_builder.insert_balance(3_000);
             let _ = client
                 .call(&ink_e2e::dave(), &insert)
                 .submit()
@@ -299,7 +299,7 @@ mod mapping_integration_tests {
                 .expect("Calling `insert_balance` failed")
                 .return_value();
 
-            let remove = call.remove_balance();
+            let remove = call_builder.remove_balance();
             let _ = client
                 .call(&ink_e2e::dave(), &remove)
                 .submit()
@@ -307,7 +307,7 @@ mod mapping_integration_tests {
                 .expect("Calling `remove_balance` failed");
 
             // then
-            let get = call.get_balance();
+            let get = call_builder.get_balance();
             let balance = client
                 .call(&ink_e2e::dave(), &get)
                 .dry_run()
@@ -334,10 +334,10 @@ mod mapping_integration_tests {
                 .submit()
                 .await
                 .expect("instantiate failed");
-            let mut call = contract.call::<Mappings>();
+            let mut call_builder = contract.call_builder::<Mappings>();
 
             // when
-            let insert = call.insert_balance(4_000);
+            let insert = call_builder.insert_balance(4_000);
             let _ = client
                 .call(&ink_e2e::eve(), &insert)
                 .submit()
@@ -345,7 +345,7 @@ mod mapping_integration_tests {
                 .expect("Calling `insert_balance` failed")
                 .return_value();
 
-            let take = call.take_balance();
+            let take = call_builder.take_balance();
             let balance = client
                 .call(&ink_e2e::eve(), &take)
                 .submit()
@@ -356,7 +356,7 @@ mod mapping_integration_tests {
             // then
             assert_eq!(balance, Some(4_000));
 
-            let contains = call.contains_balance();
+            let contains = call_builder.contains_balance();
             let is_there = client
                 .call(&ink_e2e::eve(), &contains)
                 .dry_run()
@@ -383,11 +383,11 @@ mod mapping_integration_tests {
                 .submit()
                 .await
                 .expect("instantiate failed");
-            let mut call = contract.call::<Mappings>();
+            let mut call_builder = contract.call_builder::<Mappings>();
 
             // when the mapping value overgrows the buffer
             let name = ink_e2e::ferdie().public_key().to_account_id().to_string();
-            let insert = call.try_insert_name(name.clone());
+            let insert = call_builder.try_insert_name(name.clone());
             let mut names = Vec::new();
             while let Ok(_) = client.call(&ink_e2e::ferdie(), &insert).submit().await {
                 names.push(name.clone())
@@ -405,7 +405,7 @@ mod mapping_integration_tests {
 
             // then there should be 4 entries (that's what fits into the 256kb buffer)
             let received_mapping_value = client
-                .call(&ink_e2e::ferdie(), &call.try_get_names())
+                .call(&ink_e2e::ferdie(), &call_builder.try_get_names())
                 .dry_run()
                 .await?
                 .return_value();

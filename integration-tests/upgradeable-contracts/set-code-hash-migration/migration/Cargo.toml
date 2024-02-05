@@ -1,12 +1,12 @@
 [package]
-name = "dyn-traits"
-version = "5.0.0-rc"
+name = "migration"
+version = "5.0.0-alpha"
 authors = ["Parity Technologies <admin@parity.io>"]
 edition = "2021"
 publish = false
 
 [dependencies]
-ink = { path = "../../../crates/ink", default-features = false }
+ink = { path = "../../../../crates/ink", default-features = false }
 
 [lib]
 path = "lib.rs"
@@ -16,3 +16,4 @@ default = ["std"]
 std = [
     "ink/std",
 ]
+ink-as-dependency = []

@@ -111,17 +111,17 @@ mod lazyvec_integration_tests {
                 .submit()
                 .await
                 .expect("instantiate failed");
-            let mut call = contract.call::<LazyVector>();
+            let mut call_builder = contract.call_builder::<LazyVector>();
 
             // when
-            let create = call.create_proposal(vec![0x41], 5, 1);
+            let create = call_builder.create_proposal(vec![0x41], 5, 1);
             let _ = client
                 .call(&ink_e2e::alice(), &create)
                 .submit()
                 .await
                 .expect("Calling `create_proposal` failed");
 
-            let approve = call.approve();
+            let approve = call_builder.approve();
             let _ = client
                 .call(&ink_e2e::alice(), &approve)
                 .submit()
@@ -143,7 +143,7 @@ mod lazyvec_integration_tests {
             assert_eq!(value, None);
 
             let value = client
-                .call(&ink_e2e::alice(), &call.get(0))
+                .call(&ink_e2e::alice(), &call_builder.get(0))
                 .dry_run()
                 .await
                 .expect("get trapped when it shouldn't")

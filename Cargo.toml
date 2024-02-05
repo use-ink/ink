@@ -38,7 +38,7 @@ blake2 = { version = "0.10" }
 cargo_metadata = { version = "0.18.0" }
 cfg-if = { version = "1.0" }
 contract-build = { version = "4.0.0-rc.1" }
-darling = { version = "0.20.3" }
+darling = { version = "0.20.5" }
 derive_more = { version = "0.99.17", default-features = false }
 drink = { version = "=0.8.5" }
 either = { version = "1.5", default-features = false }
@@ -61,9 +61,9 @@ scale-decode = { version = "0.10.0", default-features = false }
 scale-encode = { version = "0.5.0", default-features = false }
 scale-info = { version = "2.6", default-features = false }
 schemars = { version = "0.8" }
-secp256k1 = { version = "0.28.1" }
-serde = { version = "1.0.195", default-features = false }
-serde_json = { version = "1.0.111" }
+secp256k1 = { version = "0.28.2" }
+serde = { version = "1.0.196", default-features = false }
+serde_json = { version = "1.0.113" }
 sha2 = { version = "0.10" }
 sha3 = { version = "0.10" }
 static_assertions = { version = "1.1" }
@@ -71,9 +71,9 @@ subxt = { version = "0.33.0 " }
 subxt-metadata = { version = "0.33.0" }
 subxt-signer = { version = "0.33.0" }
 syn = { version = "2" }
-synstructure = { version = "0.13.0" }
+synstructure = { version = "0.13.1" }
 thiserror = { version = "1.0.50" }
-tokio = { version = "1.35.1" }
+tokio = { version = "1.36.0" }
 tracing = { version = "0.1.37" }
 tracing-subscriber = { version = "0.3.17" }
 trybuild = { version = "1.0.89" }

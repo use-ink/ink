@@ -25,6 +25,12 @@ error[E0599]: no function or associated item named `constructor_2` found for str
    | |               |function or associated item not found in `Contract`
    | |_______________|help: there is an associated function with a similar name: `constructor_1`
    |
+   |
+note: if you're trying to build a new `Contract`, consider using `contract::_::<impl Contract>::constructor_1` which returns `Contract`
+  --> tests/ui/contract/fail/impl-block-for-non-storage-01.rs:8:9
+   |
+8  |         pub fn constructor_1() -> Self {
+   |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 error[E0599]: no function or associated item named `message_2` found for struct `Contract` in the current scope
   --> tests/ui/contract/fail/impl-block-for-non-storage-01.rs:25:16
@@ -44,3 +50,9 @@ error[E0599]: no function or associated item named `message_2` found for struct 
    | |               |function or associated item not found in `Contract`
    | |_______________|help: there is a method with a similar name: `message_1`
    |
+   |
+note: if you're trying to build a new `Contract`, consider using `contract::_::<impl Contract>::constructor_1` which returns `Contract`
+  --> tests/ui/contract/fail/impl-block-for-non-storage-01.rs:8:9
+   |
+8  |         pub fn constructor_1() -> Self {
+   |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

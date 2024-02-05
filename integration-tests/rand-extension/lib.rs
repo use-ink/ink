@@ -125,7 +125,7 @@ mod rand_extension {
             struct MockedRandExtension;
             impl ink::env::test::ChainExtension for MockedRandExtension {
                 /// The static function id of the chain extension.
-                fn ext_id(&self) -> u32 {
+                fn ext_id(&self) -> u16 {
                     666
                 }
 

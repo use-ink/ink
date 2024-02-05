@@ -14,13 +14,13 @@ async fn get_contract_storage_consumes_entire_buffer<Client: E2EBackend>(
         .submit()
         .await
         .expect("instantiate failed");
-    let call = contract.call::<ContractStorage>();
+    let call_builder = contract.call_builder::<ContractStorage>();
 
     // when
     let result = client
         .call(
             &ink_e2e::alice(),
-            &call.set_and_get_storage_all_data_consumed(),
+            &call_builder.set_and_get_storage_all_data_consumed(),
         )
         .submit()
         .await
@@ -43,13 +43,13 @@ async fn get_contract_storage_fails_when_extra_data<Client: E2EBackend>(
         .submit()
         .await
         .expect("instantiate failed");
-    let call = contract.call::<ContractStorage>();
+    let call_builder = contract.call_builder::<ContractStorage>();
 
     // when
     let result = client
         .call(
             &ink_e2e::alice(),
-            &call.set_and_get_storage_partial_data_consumed(),
+            &call_builder.set_and_get_storage_partial_data_consumed(),
         )
         .submit()
         .await;
@@ -73,13 +73,13 @@ async fn take_contract_storage_consumes_entire_buffer<Client: E2EBackend>(
         .submit()
         .await
         .expect("instantiate failed");
-    let call = contract.call::<ContractStorage>();
+    let call_builder = contract.call_builder::<ContractStorage>();
 
     // when
     let result = client
         .call(
             &ink_e2e::alice(),
-            &call.set_and_take_storage_all_data_consumed(),
+            &call_builder.set_and_take_storage_all_data_consumed(),
         )
         .submit()
         .await
@@ -102,13 +102,13 @@ async fn take_contract_storage_fails_when_extra_data<Client: E2EBackend>(
         .submit()
         .await
         .expect("instantiate failed");
-    let call = contract.call::<ContractStorage>();
+    let call_builder = contract.call_builder::<ContractStorage>();
 
     // when
     let result = client
         .call(
             &ink_e2e::alice(),
-            &call.set_and_take_storage_partial_data_consumed(),
+            &call_builder.set_and_take_storage_partial_data_consumed(),
         )
         .submit()
         .await;

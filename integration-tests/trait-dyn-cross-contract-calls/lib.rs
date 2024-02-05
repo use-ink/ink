@@ -62,7 +62,7 @@ mod e2e_tests {
     ///
     /// The test verifies that we can increment the value of the `Incrementer` contract
     /// through the `Caller` contract.
-    #[ink_e2e::test(additional_contracts = "contracts/incrementer/Cargo.toml")]
+    #[ink_e2e::test]
     async fn e2e_cross_contract_calls<Client: E2EBackend>(
         mut client: Client,
     ) -> E2EResult<()> {
@@ -87,7 +87,7 @@ mod e2e_tests {
             .submit()
             .await
             .expect("instantiate failed");
-        let incrementer_call = incrementer.call::<Incrementer>();
+        let incrementer_call = incrementer.call_builder::<Incrementer>();
 
         let mut constructor = CallerRef::new(incrementer.account_id.clone());
 
@@ -100,7 +100,7 @@ mod e2e_tests {
             .submit()
             .await
             .expect("instantiate failed");
-        let mut caller_call = caller.call::<Caller>();
+        let mut caller_call = caller.call_builder::<Caller>();
 
         // Check through the caller that the value of the incrementer is zero
         let get = caller_call.get();
