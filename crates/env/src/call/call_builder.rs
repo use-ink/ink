@@ -477,44 +477,6 @@ impl<E: Environment> CallV2<E> {
     }
 }
 
-impl<E> CallV2<E>
-where
-    E: Environment,
-{
-    /// Sets the `weight_limit` for the current cross-contract call.
-    pub fn weight_limit(self, ref_time_limit: u64, proof_time_limit: u64) -> Self {
-        CallV2 {
-            callee: self.callee,
-            ref_time_limit,
-            proof_time_limit,
-            storage_deposit_limit: self.storage_deposit_limit,
-            transferred_value: self.transferred_value,
-        }
-    }
-
-    /// todo: [AJ] storage_deposit_limit docs
-    pub fn storage_deposit_limit(self, storage_deposit_limit: E::Balance) -> Self {
-        CallV2 {
-            callee: self.callee,
-            ref_time_limit: self.ref_time_limit,
-            proof_time_limit: self.proof_time_limit,
-            storage_deposit_limit: Some(storage_deposit_limit),
-            transferred_value: self.transferred_value,
-        }
-    }
-
-    /// Sets the `transferred_value` for the current cross-contract call.
-    pub fn transferred_value(self, transferred_value: E::Balance) -> Self {
-        CallV2 {
-            callee: self.callee,
-            ref_time_limit: self.ref_time_limit,
-            proof_time_limit: self.proof_time_limit,
-            storage_deposit_limit: self.storage_deposit_limit,
-            transferred_value,
-        }
-    }
-}
-
 /// The `delegatecall` call type. Performs a call with the given code hash.
 #[derive(Clone)]
 pub struct DelegateCall<E: Environment> {
