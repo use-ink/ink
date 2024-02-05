@@ -52,9 +52,6 @@ impl From<RuntimeOnly> for syn::Path {
 /// The End-to-End test configuration.
 #[derive(Debug, Default, PartialEq, Eq, darling::FromMeta)]
 pub struct E2EConfig {
-    /// Additional contracts that have to be built before executing the test.
-    #[darling(default)]
-    additional_contracts: String,
     /// The [`Environment`](https://docs.rs/ink_env/4.1.0/ink_env/trait.Environment.html) to use
     /// during test execution.
     ///
@@ -71,21 +68,6 @@ pub struct E2EConfig {
 }
 
 impl E2EConfig {
-    /// Returns a vector of additional contracts that have to be built
-    /// and imported before executing the test.
-    pub fn additional_contracts(&self) -> Vec<String> {
-        self.additional_contracts
-            .split(' ')
-            .filter_map(|s| {
-                if s.is_empty() {
-                    None
-                } else {
-                    Some(s.to_owned())
-                }
-            })
-            .collect()
-    }
-
     /// Custom environment for the contracts, if specified.
     pub fn environment(&self) -> Option<syn::Path> {
         self.environment.clone()
@@ -118,7 +100,6 @@ mod tests {
     #[test]
     fn config_works() {
         let input = quote! {
-            additional_contracts = "adder/Cargo.toml flipper/Cargo.toml",
             environment = crate::CustomEnvironment,
             backend(runtime_only),
             node_url = "ws://127.0.0.1:8000"
@@ -126,10 +107,6 @@ mod tests {
         let config =
             E2EConfig::from_list(&NestedMeta::parse_meta_list(input).unwrap()).unwrap();
 
-        assert_eq!(
-            config.additional_contracts(),
-            vec!["adder/Cargo.toml", "flipper/Cargo.toml"]
-        );
         assert_eq!(
             config.environment(),
             Some(syn::parse_quote! { crate::CustomEnvironment })

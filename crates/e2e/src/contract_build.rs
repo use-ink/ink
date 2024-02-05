@@ -43,20 +43,6 @@ use std::{
 };
 
 /// Builds the "root" contract (the contract in which the E2E tests are defined) together
-/// with the additional contracts specified in the `additional_contracts` argument.
-pub fn build_root_and_additional_contracts<P>(
-    additional_contracts: impl IntoIterator<Item = P>,
-) -> Vec<PathBuf>
-where
-    PathBuf: From<P>,
-{
-    let contract_project = ContractProject::new();
-    let contract_manifests =
-        contract_project.root_with_additional_contracts(additional_contracts);
-    build_contracts(&contract_manifests)
-}
-
-/// Builds the "root" contract (the contract in which the E2E tests are defined) together
 /// with any contracts which are a dependency of the root contract.
 pub fn build_root_and_contract_dependencies() -> Vec<PathBuf> {
     let contract_project = ContractProject::new();
