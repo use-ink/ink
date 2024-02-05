@@ -305,6 +305,13 @@ pub trait TypedEnvBackend: EnvBackend {
         Args: scale::Encode,
         R: scale::Decode;
 
+    /// Invokes a contract message and returns its result.
+    ///
+    /// # Note
+    ///
+    /// **This will call into the new `call_v2` host function.**
+    ///
+    /// For more details visit: [`invoke_contract`][`crate::invoke_contract_v2`]
     fn invoke_contract_v2<E, Args, R>(
         &mut self,
         call_data: &CallParams<E, CallV2<E>, Args, R>,
