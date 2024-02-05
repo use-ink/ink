@@ -62,7 +62,7 @@ mod e2e_tests {
     ///
     /// The test verifies that we can increment the value of the `Incrementer` contract
     /// through the `Caller` contract.
-    #[ink_e2e::test(additional_contracts = "contracts/incrementer/Cargo.toml")]
+    #[ink_e2e::test]
     async fn e2e_cross_contract_calls<Client: E2EBackend>(
         mut client: Client,
     ) -> E2EResult<()> {

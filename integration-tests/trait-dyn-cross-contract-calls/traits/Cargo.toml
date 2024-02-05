@@ -16,4 +16,3 @@ default = ["std"]
 std = [
     "ink/std",
 ]
-ink-as-dependency = []
