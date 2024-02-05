@@ -1,7 +1,12 @@
 #![cfg_attr(not(feature = "std"), no_std, no_main)]
 
+pub use self::other_contract::{
+    OtherContract,
+    OtherContractRef,
+};
+
 #[ink::contract]
-pub mod other_contract {
+mod other_contract {
 
     #[ink(storage)]
     pub struct OtherContract {
