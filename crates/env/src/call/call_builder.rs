@@ -632,8 +632,9 @@ impl<E, Args, RetType> CallBuilder<E, Set<Call<E>>, Args, RetType>
 where
     E: Environment,
 {
-    /// todo: [AJ] docs
-    pub fn v2(self) -> CallBuilder<E, Set<CallV2<E>>, Args, RetType> {
+    /// Switch to the `call_v2` host function API, which allows configuring
+    /// `proof_time_limit` and `storage_deposit_limit`.
+    pub fn call_v2(self) -> CallBuilder<E, Set<CallV2<E>>, Args, RetType> {
         let call_type = self.call_type.value();
         CallBuilder {
             call_type: Set(CallV2 {

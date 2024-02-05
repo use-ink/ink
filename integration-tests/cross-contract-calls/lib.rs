@@ -41,7 +41,7 @@ mod cross_contract_calls {
 
             call_builder
                 .flip()
-                .v2()
+                .call_v2()
                 .ref_time_limit(ref_time_limit)
                 .proof_time_limit(proof_time_limit)
                 .storage_deposit_limit(storage_deposit_limit)
@@ -49,7 +49,7 @@ mod cross_contract_calls {
 
             call_builder
                 .get()
-                .v2()
+                .call_v2()
                 .ref_time_limit(ref_time_limit)
                 .proof_time_limit(proof_time_limit)
                 .storage_deposit_limit(storage_deposit_limit)
@@ -62,8 +62,8 @@ mod cross_contract_calls {
         pub fn flip_and_get_invoke_v2_no_weight_limit(&mut self) -> bool {
             let call_builder = self.other_contract.call_mut();
 
-            call_builder.flip().v2().invoke();
-            call_builder.get().v2().invoke()
+            call_builder.flip().call_v2().invoke();
+            call_builder.get().call_v2().invoke()
         }
     }
 }
