@@ -9,7 +9,7 @@ mod cross_contract_calls {
             ContractEnv,
         },
     };
-    use other_contract::{
+    use other_contract::other_contract::{
         OtherContract,
         OtherContractRef,
     };
