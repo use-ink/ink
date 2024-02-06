@@ -608,9 +608,9 @@ where
     /// #
     /// /// Invokes a contract message and fetches the result.
     /// #[ink(message)]
-    /// pub fn invoke_contract(&self) -> i32 {
+    /// pub fn invoke_contract_v2(&self) -> i32 {
     ///     let call_params = build_call::<DefaultEnvironment>()
-    ///         .call_v2()
+    ///         .call_v2(AccountId::from([0x42; 32]))
     ///         .ref_time_limit(500_000_000)
     ///         .proof_time_limit(100_000)
     ///         .storage_deposit_limit(1_000_000_000)
@@ -624,7 +624,7 @@ where
     ///         .params();
     ///
     ///     self.env()
-    ///         .invoke_contract(&call_params)
+    ///         .invoke_contract_v2(&call_params)
     ///         .unwrap_or_else(|env_err| {
     ///             panic!("Received an error from the Environment: {:?}", env_err)
     ///         })
