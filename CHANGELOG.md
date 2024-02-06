@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - Fix the `StorageVec` type by excluding the `len_cached` field from its type info - [#2052](https://github.com/paritytech/ink/pull/2052)
+- Fix panic in `approve_for` in the ERC-721 example - [#2092](https://github.com/paritytech/ink/pull/2092)
 - ERC-721: `transfer_token_from` now ensures the token owner is correct - [#2093](https://github.com/paritytech/ink/pull/2093)
 
 ## Version 5.0.0-rc
