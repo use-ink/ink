@@ -19,7 +19,7 @@ async fn flip_and_get<Client: E2EBackend>(mut client: Client) -> E2EResult<()> {
         .await
         .expect("basic-contract-caller instantiate failed");
     let mut call_builder = contract.call_builder::<CrossContractCalls>();
-    let call = call_builder.flip_and_get();
+    let call = call_builder.flip_and_get_v1();
 
     // when
     let result = client

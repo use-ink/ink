@@ -17,7 +17,7 @@ use crate::{
     call::{
         Call,
         CallParams,
-        CallV2,
+        CallV1,
         ConstructorReturnType,
         CreateParams,
         DelegateCall,
@@ -439,7 +439,7 @@ impl TypedEnvBackend for EnvInstance {
 
     fn invoke_contract<E, Args, R>(
         &mut self,
-        _params: &CallParams<E, Call<E>, Args, R>,
+        _params: &CallParams<E, CallV1<E>, Args, R>,
     ) -> Result<ink_primitives::MessageResult<R>>
     where
         E: Environment,
@@ -451,7 +451,7 @@ impl TypedEnvBackend for EnvInstance {
 
     fn invoke_contract_v2<E, Args, R>(
         &mut self,
-        _params: &CallParams<E, CallV2<E>, Args, R>,
+        _params: &CallParams<E, Call<E>, Args, R>,
     ) -> Result<ink_primitives::MessageResult<R>>
     where
         E: Environment,

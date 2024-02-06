@@ -18,7 +18,7 @@ use ink_env::{
     call::{
         Call,
         CallParams,
-        CallV2,
+        CallV1,
         ConstructorReturnType,
         CreateParams,
         DelegateCall,
@@ -518,7 +518,7 @@ where
     /// use ink::env::{
     ///     call::{
     ///         build_call,
-    ///         Call,
+    ///         CallV1,
     ///         ExecutionInput,
     ///         Selector,
     ///     },
@@ -540,7 +540,7 @@ where
     /// pub fn invoke_contract(&self) -> i32 {
     ///     let call_params = build_call::<DefaultEnvironment>()
     ///         .call_type(
-    ///             Call::new(AccountId::from([0x42; 32]))
+    ///             CallV1::new(AccountId::from([0x42; 32]))
     ///                 .gas_limit(5000)
     ///                 .transferred_value(10),
     ///         )
@@ -570,7 +570,7 @@ where
     /// For more details visit: [`ink_env::invoke_contract`]
     pub fn invoke_contract<Args, R>(
         self,
-        params: &CallParams<E, Call<E>, Args, R>,
+        params: &CallParams<E, CallV1<E>, Args, R>,
     ) -> Result<ink_primitives::MessageResult<R>>
     where
         Args: scale::Encode,
@@ -589,7 +589,7 @@ where
     /// use ink::env::{
     ///     call::{
     ///         build_call,
-    ///         Call,
+    ///         CallV1,
     ///         ExecutionInput,
     ///         Selector,
     ///     },
@@ -610,7 +610,7 @@ where
     /// #[ink(message)]
     /// pub fn invoke_contract_v2(&self) -> i32 {
     ///     let call_params = build_call::<DefaultEnvironment>()
-    ///         .call_v2(AccountId::from([0x42; 32]))
+    ///         .call(AccountId::from([0x42; 32]))
     ///         .ref_time_limit(500_000_000)
     ///         .proof_time_limit(100_000)
     ///         .storage_deposit_limit(1_000_000_000)
@@ -640,7 +640,7 @@ where
     /// For more details visit: [`ink_env::invoke_contract_v2`]
     pub fn invoke_contract_v2<Args, R>(
         self,
-        params: &CallParams<E, CallV2<E>, Args, R>,
+        params: &CallParams<E, Call<E>, Args, R>,
     ) -> Result<ink_primitives::MessageResult<R>>
     where
         Args: scale::Encode,

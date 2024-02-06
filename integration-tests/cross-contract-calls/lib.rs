@@ -26,11 +26,14 @@ mod cross_contract_calls {
 
         /// Basic invocation of the other contract via the contract reference.
         ///
-        /// *Note* this will invoke the original `call` (V1) host function.
+        /// *Note* this will invoke the original `call` (V1) host function, which will be
+        /// deprecated in the future.
         #[ink(message)]
-        pub fn flip_and_get(&mut self) -> bool {
-            self.other_contract.flip();
-            self.other_contract.get()
+        pub fn flip_and_get_v1(&mut self) -> bool {
+            let call_builder = self.other_contract.call_mut();
+
+            call_builder.flip().call_v1().invoke();
+            call_builder.get().call_v1().invoke()
         }
 
         /// Use the new `call_v2` host function via the call builder to forward calls to
@@ -50,7 +53,6 @@ mod cross_contract_calls {
 
             call_builder
                 .flip()
-                .call_v2()
                 .ref_time_limit(ref_time_limit)
                 .proof_time_limit(proof_time_limit)
                 .storage_deposit_limit(storage_deposit_limit)
@@ -58,7 +60,6 @@ mod cross_contract_calls {
 
             call_builder
                 .get()
-                .call_v2()
                 .ref_time_limit(ref_time_limit)
                 .proof_time_limit(proof_time_limit)
                 .storage_deposit_limit(storage_deposit_limit)
@@ -69,10 +70,8 @@ mod cross_contract_calls {
         /// and storage limit parameters
         #[ink(message)]
         pub fn flip_and_get_invoke_v2_no_weight_limit(&mut self) -> bool {
-            let call_builder = self.other_contract.call_mut();
-
-            call_builder.flip().call_v2().invoke();
-            call_builder.get().call_v2().invoke()
+            self.other_contract.flip();
+            self.other_contract.get()
         }
     }
 }

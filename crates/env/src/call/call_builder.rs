@@ -65,7 +65,7 @@ where
     }
 }
 
-impl<E, Args, R> CallParams<E, Call<E>, Args, R>
+impl<E, Args, R> CallParams<E, CallV1<E>, Args, R>
 where
     E: Environment,
 {
@@ -88,7 +88,7 @@ where
     }
 }
 
-impl<E, Args, R> CallParams<E, CallV2<E>, Args, R>
+impl<E, Args, R> CallParams<E, Call<E>, Args, R>
 where
     E: Environment,
 {
@@ -134,7 +134,7 @@ where
     }
 }
 
-impl<E, Args, R> CallParams<E, Call<E>, Args, R>
+impl<E, Args, R> CallParams<E, CallV1<E>, Args, R>
 where
     E: Environment,
     Args: scale::Encode,
@@ -173,7 +173,7 @@ where
     }
 }
 
-impl<E, Args, R> CallParams<E, CallV2<E>, Args, R>
+impl<E, Args, R> CallParams<E, Call<E>, Args, R>
 where
     E: Environment,
     Args: scale::Encode,
@@ -278,11 +278,11 @@ where
 /// #     DefaultEnvironment,
 /// #     call::{build_call, Selector, ExecutionInput}
 /// # };
-/// # use ink_env::call::Call;
+/// # use ink_env::call::CallV1;
 /// # type AccountId = <DefaultEnvironment as Environment>::AccountId;
 /// # type Balance = <DefaultEnvironment as Environment>::Balance;
 /// build_call::<DefaultEnvironment>()
-///     .call(AccountId::from([0x42; 32]))
+///     .call_v1(AccountId::from([0x42; 32]))
 ///     .gas_limit(5000)
 ///     .transferred_value(10)
 ///     .exec_input(
@@ -310,11 +310,11 @@ where
 /// # use ::ink_env::{
 /// #     Environment,
 /// #     DefaultEnvironment,
-/// #     call::{build_call, Selector, ExecutionInput, Call},
+/// #     call::{build_call, Selector, ExecutionInput, CallV1},
 /// # };
 /// # type AccountId = <DefaultEnvironment as Environment>::AccountId;
 /// let my_return_value: i32 = build_call::<DefaultEnvironment>()
-///     .call_type(Call::new(AccountId::from([0x42; 32])))
+///     .call_type(CallV1::new(AccountId::from([0x42; 32])))
 ///     .gas_limit(5000)
 ///     .transferred_value(10)
 ///     .exec_input(
@@ -374,11 +374,11 @@ where
 /// #     DefaultEnvironment,
 /// #     call::{build_call, Selector, ExecutionInput}
 /// # };
-/// # use ink_env::call::Call;
+/// # use ink_env::call::CallV1;
 /// # type AccountId = <DefaultEnvironment as Environment>::AccountId;
 /// # type Balance = <DefaultEnvironment as Environment>::Balance;
 /// let call_result = build_call::<DefaultEnvironment>()
-///     .call(AccountId::from([0x42; 32]))
+///     .call_v1(AccountId::from([0x42; 32]))
 ///     .gas_limit(5000)
 ///     .transferred_value(10)
 ///     .try_invoke()
@@ -393,7 +393,7 @@ where
 #[allow(clippy::type_complexity)]
 pub fn build_call<E>() -> CallBuilder<
     E,
-    Unset<Call<E>>,
+    Unset<CallV1<E>>,
     Unset<ExecutionInput<EmptyArgumentList>>,
     Unset<ReturnType<()>>,
 >
@@ -409,17 +409,19 @@ where
     }
 }
 
-/// The default call type for cross-contract calls. Performs a cross-contract call to
+/// The legacy call type for cross-contract calls. Performs a cross-contract call to
 /// `callee` with gas limit `gas_limit`, transferring `transferred_value` of currency.
+///
+/// Calls into the original `call` host function.
 #[derive(Clone)]
-pub struct Call<E: Environment> {
+pub struct CallV1<E: Environment> {
     callee: E::AccountId,
     gas_limit: Gas,
     transferred_value: E::Balance,
 }
 
-impl<E: Environment> Call<E> {
-    /// Returns a clean builder for [`Call`].
+impl<E: Environment> CallV1<E> {
+    /// Returns a clean builder for [`CallV1`].
     pub fn new(callee: E::AccountId) -> Self {
         Self {
             callee,
@@ -429,13 +431,13 @@ impl<E: Environment> Call<E> {
     }
 }
 
-impl<E> Call<E>
+impl<E> CallV1<E>
 where
     E: Environment,
 {
     /// Sets the `gas_limit` for the current cross-contract call.
     pub fn gas_limit(self, gas_limit: Gas) -> Self {
-        Call {
+        CallV1 {
             callee: self.callee,
             gas_limit,
             transferred_value: self.transferred_value,
@@ -444,7 +446,7 @@ where
 
     /// Sets the `transferred_value` for the current cross-contract call.
     pub fn transferred_value(self, transferred_value: E::Balance) -> Self {
-        Call {
+        CallV1 {
             callee: self.callee,
             gas_limit: self.gas_limit,
             transferred_value,
@@ -452,11 +454,11 @@ where
     }
 }
 
-/// The new version (V2) of default call type [`Call`] for cross-contract calls. This adds
-/// the additional weight limit parameter `proof_time_limit` as well as
-/// `storage_deposit_limit`, which are passed to the new host function `call_v2`.
+/// The default call type for cross-contract calls, for calling into the latest `call_v2`
+/// host function. This adds the additional weight limit parameter `proof_time_limit` as
+/// well as `storage_deposit_limit`.
 #[derive(Clone)]
-pub struct CallV2<E: Environment> {
+pub struct Call<E: Environment> {
     callee: E::AccountId,
     ref_time_limit: u64,
     proof_time_limit: u64,
@@ -464,8 +466,8 @@ pub struct CallV2<E: Environment> {
     transferred_value: E::Balance,
 }
 
-impl<E: Environment> CallV2<E> {
-    /// Returns a clean builder for [`Call`].
+impl<E: Environment> Call<E> {
+    /// Returns a clean builder for [`CallV1`].
     pub fn new(callee: E::AccountId) -> Self {
         Self {
             callee,
@@ -599,13 +601,14 @@ impl<E, CallType, Args, RetType> CallBuilder<E, Unset<CallType>, Args, RetType>
 where
     E: Environment,
 {
-    /// Prepares the `CallBuilder` for a cross-contract [`Call`].
-    pub fn call(
+    /// Prepares the `CallBuilder` for a cross-contract [`CallV1`], calling into the
+    /// original `call` host function.
+    pub fn call_v1(
         self,
         callee: E::AccountId,
-    ) -> CallBuilder<E, Set<Call<E>>, Args, RetType> {
+    ) -> CallBuilder<E, Set<CallV1<E>>, Args, RetType> {
         CallBuilder {
-            call_type: Set(Call::new(callee)),
+            call_type: Set(CallV1::new(callee)),
             call_flags: self.call_flags,
             exec_input: self.exec_input,
             return_type: self.return_type,
@@ -613,14 +616,14 @@ where
         }
     }
 
-    /// Prepares the `CallBuilder` for a cross-contract [`CallV2`] to the new `call_v2`
+    /// Prepares the `CallBuilder` for a cross-contract [`Call`] to the latest `call_v2`
     /// host function.
-    pub fn call_v2(
+    pub fn call(
         self,
         callee: E::AccountId,
-    ) -> CallBuilder<E, Set<CallV2<E>>, Args, RetType> {
+    ) -> CallBuilder<E, Set<Call<E>>, Args, RetType> {
         CallBuilder {
-            call_type: Set(CallV2::new(callee)),
+            call_type: Set(Call::new(callee)),
             call_flags: self.call_flags,
             exec_input: self.exec_input,
             return_type: self.return_type,
@@ -643,37 +646,15 @@ where
     }
 }
 
-impl<E, Args, RetType> CallBuilder<E, Set<Call<E>>, Args, RetType>
+impl<E, Args, RetType> CallBuilder<E, Set<CallV1<E>>, Args, RetType>
 where
     E: Environment,
 {
-    /// Switch to the `call_v2` host function API, which allows configuring
-    /// `proof_time_limit` and `storage_deposit_limit`.
-    ///
-    /// This method instance is used to allow usage of the generated call builder methods
-    /// for messages which initialize the builder with the original [`Call`] type.
-    pub fn call_v2(self) -> CallBuilder<E, Set<CallV2<E>>, Args, RetType> {
-        let call_type = self.call_type.value();
-        CallBuilder {
-            call_type: Set(CallV2 {
-                callee: call_type.callee,
-                ref_time_limit: call_type.gas_limit,
-                proof_time_limit: Default::default(),
-                storage_deposit_limit: None,
-                transferred_value: call_type.transferred_value,
-            }),
-            call_flags: self.call_flags,
-            exec_input: self.exec_input,
-            return_type: self.return_type,
-            _phantom: Default::default(),
-        }
-    }
-
     /// Sets the `gas_limit` for the current cross-contract call.
     pub fn gas_limit(self, gas_limit: Gas) -> Self {
         let call_type = self.call_type.value();
         CallBuilder {
-            call_type: Set(Call {
+            call_type: Set(CallV1 {
                 callee: call_type.callee,
                 gas_limit,
                 transferred_value: call_type.transferred_value,
@@ -689,7 +670,7 @@ where
     pub fn transferred_value(self, transferred_value: E::Balance) -> Self {
         let call_type = self.call_type.value();
         CallBuilder {
-            call_type: Set(Call {
+            call_type: Set(CallV1 {
                 callee: call_type.callee,
                 gas_limit: call_type.gas_limit,
                 transferred_value,
@@ -702,16 +683,36 @@ where
     }
 }
 
-impl<E, Args, RetType> CallBuilder<E, Set<CallV2<E>>, Args, RetType>
+impl<E, Args, RetType> CallBuilder<E, Set<Call<E>>, Args, RetType>
 where
     E: Environment,
 {
+    /// Switch to the original `call` host function API, which only allows the `gas_limit`
+    /// limit parameter (equivalent to the `ref_time_limit` in the latest `call_v2`).
+    ///
+    /// This method instance is used to allow usage of the generated call builder methods
+    /// for messages which initialize the builder with the original [`CallV1`] type.
+    pub fn call_v1(self) -> CallBuilder<E, Set<CallV1<E>>, Args, RetType> {
+        let call_type = self.call_type.value();
+        CallBuilder {
+            call_type: Set(CallV1 {
+                callee: call_type.callee,
+                gas_limit: call_type.ref_time_limit,
+                transferred_value: call_type.transferred_value,
+            }),
+            call_flags: self.call_flags,
+            exec_input: self.exec_input,
+            return_type: self.return_type,
+            _phantom: Default::default(),
+        }
+    }
+
     /// Sets the `ref_time_limit` part of the weight limit for the current cross-contract
     /// call.
     pub fn ref_time_limit(self, ref_time_limit: Gas) -> Self {
         let call_type = self.call_type.value();
         CallBuilder {
-            call_type: Set(CallV2 {
+            call_type: Set(Call {
                 ref_time_limit,
                 ..call_type
             }),
@@ -724,7 +725,7 @@ where
     pub fn proof_time_limit(self, proof_time_limit: Gas) -> Self {
         let call_type = self.call_type.value();
         CallBuilder {
-            call_type: Set(CallV2 {
+            call_type: Set(Call {
                 proof_time_limit,
                 ..call_type
             }),
@@ -736,7 +737,7 @@ where
     pub fn storage_deposit_limit(self, storage_deposit_limit: E::Balance) -> Self {
         let call_type = self.call_type.value();
         CallBuilder {
-            call_type: Set(CallV2 {
+            call_type: Set(Call {
                 storage_deposit_limit: Some(storage_deposit_limit),
                 ..call_type
             }),
@@ -748,7 +749,7 @@ where
     pub fn transferred_value(self, transferred_value: E::Balance) -> Self {
         let call_type = self.call_type.value();
         CallBuilder {
-            call_type: Set(CallV2 {
+            call_type: Set(Call {
                 transferred_value,
                 ..call_type
             }),
@@ -774,12 +775,12 @@ where
 }
 
 impl<E, Args, RetType>
-    CallBuilder<E, Set<Call<E>>, Set<ExecutionInput<Args>>, Set<ReturnType<RetType>>>
+    CallBuilder<E, Set<CallV1<E>>, Set<ExecutionInput<Args>>, Set<ReturnType<RetType>>>
 where
     E: Environment,
 {
     /// Finalizes the call builder to call a function.
-    pub fn params(self) -> CallParams<E, Call<E>, Args, RetType> {
+    pub fn params(self) -> CallParams<E, CallV1<E>, Args, RetType> {
         CallParams {
             call_type: self.call_type.value(),
             call_flags: self.call_flags,
@@ -791,12 +792,12 @@ where
 }
 
 impl<E, Args, RetType>
-    CallBuilder<E, Set<CallV2<E>>, Set<ExecutionInput<Args>>, Set<ReturnType<RetType>>>
+    CallBuilder<E, Set<Call<E>>, Set<ExecutionInput<Args>>, Set<ReturnType<RetType>>>
 where
     E: Environment,
 {
     /// Finalizes the call builder to call a function.
-    pub fn params(self) -> CallParams<E, CallV2<E>, Args, RetType> {
+    pub fn params(self) -> CallParams<E, Call<E>, Args, RetType> {
         CallParams {
             call_type: self.call_type.value(),
             call_flags: self.call_flags,
@@ -830,12 +831,17 @@ where
 }
 
 impl<E, RetType>
-    CallBuilder<E, Set<Call<E>>, Unset<ExecutionInput<EmptyArgumentList>>, Unset<RetType>>
+    CallBuilder<
+        E,
+        Set<CallV1<E>>,
+        Unset<ExecutionInput<EmptyArgumentList>>,
+        Unset<RetType>,
+    >
 where
     E: Environment,
 {
     /// Finalizes the call builder to call a function.
-    pub fn params(self) -> CallParams<E, Call<E>, EmptyArgumentList, ()> {
+    pub fn params(self) -> CallParams<E, CallV1<E>, EmptyArgumentList, ()> {
         CallParams {
             call_type: self.call_type.value(),
             call_flags: self.call_flags,
@@ -847,17 +853,12 @@ where
 }
 
 impl<E, RetType>
-    CallBuilder<
-        E,
-        Set<CallV2<E>>,
-        Unset<ExecutionInput<EmptyArgumentList>>,
-        Unset<RetType>,
-    >
+    CallBuilder<E, Set<Call<E>>, Unset<ExecutionInput<EmptyArgumentList>>, Unset<RetType>>
 where
     E: Environment,
 {
     /// Finalizes the call builder to call a function.
-    pub fn params(self) -> CallParams<E, CallV2<E>, EmptyArgumentList, ()> {
+    pub fn params(self) -> CallParams<E, Call<E>, EmptyArgumentList, ()> {
         CallParams {
             call_type: self.call_type.value(),
             call_flags: self.call_flags,
@@ -893,7 +894,7 @@ where
 impl<E>
     CallBuilder<
         E,
-        Set<Call<E>>,
+        Set<CallV1<E>>,
         Unset<ExecutionInput<EmptyArgumentList>>,
         Unset<ReturnType<()>>,
     >
@@ -926,7 +927,7 @@ where
 impl<E>
     CallBuilder<
         E,
-        Set<CallV2<E>>,
+        Set<Call<E>>,
         Unset<ExecutionInput<EmptyArgumentList>>,
         Unset<ReturnType<()>>,
     >
@@ -989,7 +990,7 @@ where
 }
 
 impl<E, Args, R>
-    CallBuilder<E, Set<Call<E>>, Set<ExecutionInput<Args>>, Set<ReturnType<R>>>
+    CallBuilder<E, Set<CallV1<E>>, Set<ExecutionInput<Args>>, Set<ReturnType<R>>>
 where
     E: Environment,
     Args: scale::Encode,
@@ -1019,7 +1020,7 @@ where
 }
 
 impl<E, Args, R>
-    CallBuilder<E, Set<CallV2<E>>, Set<ExecutionInput<Args>>, Set<ReturnType<R>>>
+    CallBuilder<E, Set<Call<E>>, Set<ExecutionInput<Args>>, Set<ReturnType<R>>>
 where
     E: Environment,
     Args: scale::Encode,

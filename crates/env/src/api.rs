@@ -22,7 +22,7 @@ use crate::{
     call::{
         Call,
         CallParams,
-        CallV2,
+        CallV1,
         ConstructorReturnType,
         CreateParams,
         DelegateCall,
@@ -275,7 +275,7 @@ where
 /// - If the called contract ran out of gas upon execution.
 /// - If the returned value failed to decode properly.
 pub fn invoke_contract<E, Args, R>(
-    params: &CallParams<E, Call<E>, Args, R>,
+    params: &CallParams<E, CallV1<E>, Args, R>,
 ) -> Result<ink_primitives::MessageResult<R>>
 where
     E: Environment,
@@ -306,7 +306,7 @@ where
 /// - If the called contract ran out of gas upon execution.
 /// - If the returned value failed to decode properly.
 pub fn invoke_contract_v2<E, Args, R>(
-    params: &CallParams<E, CallV2<E>, Args, R>,
+    params: &CallParams<E, Call<E>, Args, R>,
 ) -> Result<ink_primitives::MessageResult<R>>
 where
     E: Environment,
