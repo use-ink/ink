@@ -52,16 +52,8 @@ impl InkE2ETest {
             .environment()
             .unwrap_or_else(|| syn::parse_quote! { ::ink::env::DefaultEnvironment });
 
-        let additional_contracts = self.test.config.additional_contracts();
-
-        let exec_build_contracts = if additional_contracts.is_empty() {
-            quote! {
-                ::ink_e2e::build_root_and_contract_dependencies()
-            }
-        } else {
-            quote! {
-                ::ink_e2e::build_root_and_additional_contracts([ #( #additional_contracts ),* ])
-            }
+        let exec_build_contracts = quote! {
+            ::ink_e2e::build_root_and_contract_dependencies()
         };
 
         let node_url = self.test.config.node_url();
