@@ -567,7 +567,7 @@ where
     ///
     /// # Note
     ///
-    /// For more details visit: [`ink_env::invoke_contract`]
+    /// For more details visit: [`ink_env::invoke_contract_v1`]
     pub fn invoke_contract_v1<Args, R>(
         self,
         params: &CallParams<E, CallV1<E>, Args, R>,
@@ -637,7 +637,7 @@ where
     ///
     /// # Note
     ///
-    /// For more details visit: [`ink_env::invoke_contract_v2`]
+    /// For more details visit: [`ink_env::invoke_contract`]
     pub fn invoke_contract<Args, R>(
         self,
         params: &CallParams<E, Call<E>, Args, R>,
