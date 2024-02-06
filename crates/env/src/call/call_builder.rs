@@ -759,7 +759,7 @@ where
 
     /// Sets the `transferred_value` for the current cross-contract call.
     ///
-    /// This value specifies the amount of user funds that are transferred 
+    /// This value specifies the amount of user funds that are transferred
     /// to the other contract with this call.
     pub fn transferred_value(self, transferred_value: E::Balance) -> Self {
         let call_type = self.call_type.value();
