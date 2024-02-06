@@ -554,7 +554,7 @@ where
     ///         .params();
     ///
     ///     self.env()
-    ///         .invoke_contract(&call_params)
+    ///         .invoke_contract_v1(&call_params)
     ///         .unwrap_or_else(|env_err| {
     ///             panic!("Received an error from the Environment: {:?}", env_err)
     ///         })
@@ -624,7 +624,7 @@ where
     ///         .params();
     ///
     ///     self.env()
-    ///         .invoke_contract_v2(&call_params)
+    ///         .invoke_contract(&call_params)
     ///         .unwrap_or_else(|env_err| {
     ///             panic!("Received an error from the Environment: {:?}", env_err)
     ///         })
