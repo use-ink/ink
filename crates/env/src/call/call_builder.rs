@@ -709,6 +709,10 @@ where
 
     /// Sets the `ref_time_limit` part of the weight limit for the current cross-contract
     /// call.
+    ///
+    /// `ref_time` refers to the amount of computational time that can be
+    /// used for execution, in picoseconds. You can find more info
+    /// [here](https://use.ink/basics/cross-contract-calling/).
     pub fn ref_time_limit(self, ref_time_limit: Gas) -> Self {
         let call_type = self.call_type.value();
         CallBuilder {
