@@ -21,6 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fix outdated docs for `[ink_e2e::test]` ‒ [#2162](https://github.com/use-ink/ink/pull/2162)
 - [E2E] build contracts before initializing node rpc ‒ [#2168](https://github.com/use-ink/ink/pull/2162)
 - [E2E] `set_account_balance` now can't set balance below existential deposit - [#1983](https://github.com/paritytech/ink/pull/1983) (thanks [@0xLucca](https://github.com/0xLucca)!)
+- ERC-721: `burn()` clears token approval - [#2099](https://github.com/paritytech/ink/pull/2099)
 
 ## Version 5.0.0
 
