@@ -424,7 +424,7 @@ impl TypedEnvBackend for EnvInstance {
         ext::deposit_event(enc_topics, enc_data);
     }
 
-    fn invoke_contract<E, Args, R>(
+    fn invoke_contract_v1<E, Args, R>(
         &mut self,
         params: &CallParams<E, CallV1<E>, Args, R>,
     ) -> Result<ink_primitives::MessageResult<R>>
@@ -464,7 +464,7 @@ impl TypedEnvBackend for EnvInstance {
         }
     }
 
-    fn invoke_contract_v2<E, Args, R>(
+    fn invoke_contract<E, Args, R>(
         &mut self,
         params: &CallParams<E, Call<E>, Args, R>,
     ) -> Result<ink_primitives::MessageResult<R>>

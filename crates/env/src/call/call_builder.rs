@@ -150,7 +150,7 @@ where
     /// [`ink::primitives::LangError`][`ink_primitives::LangError`]. If you want to handle
     /// those use the [`try_invoke`][`CallParams::try_invoke`] method instead.
     pub fn invoke(&self) -> R {
-        crate::invoke_contract(self)
+        crate::invoke_contract_v1(self)
             .unwrap_or_else(|env_error| {
                 panic!("Cross-contract call failed with {env_error:?}")
             })
@@ -169,7 +169,7 @@ where
     /// [`ink::primitives::LangError`][`ink_primitives::LangError`], both of which can be
     /// handled by the caller.
     pub fn try_invoke(&self) -> Result<ink_primitives::MessageResult<R>, crate::Error> {
-        crate::invoke_contract(self)
+        crate::invoke_contract_v1(self)
     }
 }
 
@@ -189,7 +189,7 @@ where
     /// [`ink::primitives::LangError`][`ink_primitives::LangError`]. If you want to handle
     /// those use the [`try_invoke`][`CallParams::try_invoke`] method instead.
     pub fn invoke(&self) -> R {
-        crate::invoke_contract_v2(self)
+        crate::invoke_contract(self)
             .unwrap_or_else(|env_error| {
                 panic!("Cross-contract call failed with {env_error:?}")
             })
@@ -208,7 +208,7 @@ where
     /// [`ink::primitives::LangError`][`ink_primitives::LangError`], both of which can be
     /// handled by the caller.
     pub fn try_invoke(&self) -> Result<ink_primitives::MessageResult<R>, crate::Error> {
-        crate::invoke_contract_v2(self)
+        crate::invoke_contract(self)
     }
 }
 

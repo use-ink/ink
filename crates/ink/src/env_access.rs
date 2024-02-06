@@ -568,7 +568,7 @@ where
     /// # Note
     ///
     /// For more details visit: [`ink_env::invoke_contract`]
-    pub fn invoke_contract<Args, R>(
+    pub fn invoke_contract_v1<Args, R>(
         self,
         params: &CallParams<E, CallV1<E>, Args, R>,
     ) -> Result<ink_primitives::MessageResult<R>>
@@ -576,7 +576,7 @@ where
         Args: scale::Encode,
         R: scale::Decode,
     {
-        ink_env::invoke_contract::<E, Args, R>(params)
+        ink_env::invoke_contract_v1::<E, Args, R>(params)
     }
 
     /// Invokes a contract message and returns its result.
@@ -638,7 +638,7 @@ where
     /// # Note
     ///
     /// For more details visit: [`ink_env::invoke_contract_v2`]
-    pub fn invoke_contract_v2<Args, R>(
+    pub fn invoke_contract<Args, R>(
         self,
         params: &CallParams<E, Call<E>, Args, R>,
     ) -> Result<ink_primitives::MessageResult<R>>
@@ -646,7 +646,7 @@ where
         Args: scale::Encode,
         R: scale::Decode,
     {
-        ink_env::invoke_contract_v2::<E, Args, R>(params)
+        ink_env::invoke_contract::<E, Args, R>(params)
     }
 
     /// Invokes in delegate manner a code message and returns its result.

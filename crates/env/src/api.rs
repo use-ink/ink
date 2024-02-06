@@ -266,6 +266,9 @@ where
 /// This is a low level way to evaluate another smart contract.
 /// Prefer to use the ink! guided and type safe approach to using this.
 ///
+/// **This will call into the original version of the host function. It is recommended to
+/// use [`invoke_contract`] to use the latest version if the target runtime supports it.**
+///
 /// # Errors
 ///
 /// - If the called account does not exist.
@@ -274,7 +277,7 @@ where
 /// - If the called contract execution has trapped.
 /// - If the called contract ran out of gas upon execution.
 /// - If the returned value failed to decode properly.
-pub fn invoke_contract<E, Args, R>(
+pub fn invoke_contract_v1<E, Args, R>(
     params: &CallParams<E, CallV1<E>, Args, R>,
 ) -> Result<ink_primitives::MessageResult<R>>
 where
@@ -283,7 +286,7 @@ where
     R: scale::Decode,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        TypedEnvBackend::invoke_contract::<E, Args, R>(instance, params)
+        TypedEnvBackend::invoke_contract_v1::<E, Args, R>(instance, params)
     })
 }
 
@@ -291,7 +294,7 @@ where
 ///
 /// # Note
 ///
-/// **This will call into a new version of the host function which allows setting new
+/// **This will call into the latest version of the host function which allows setting new
 /// weight and storage limit parameters.**
 ///
 /// This is a low level way to evaluate another smart contract.
@@ -305,7 +308,7 @@ where
 /// - If the called contract execution has trapped.
 /// - If the called contract ran out of gas upon execution.
 /// - If the returned value failed to decode properly.
-pub fn invoke_contract_v2<E, Args, R>(
+pub fn invoke_contract<E, Args, R>(
     params: &CallParams<E, Call<E>, Args, R>,
 ) -> Result<ink_primitives::MessageResult<R>>
 where
@@ -314,7 +317,7 @@ where
     R: scale::Decode,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        TypedEnvBackend::invoke_contract_v2::<E, Args, R>(instance, params)
+        TypedEnvBackend::invoke_contract::<E, Args, R>(instance, params)
     })
 }
 

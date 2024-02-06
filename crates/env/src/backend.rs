@@ -295,8 +295,10 @@ pub trait TypedEnvBackend: EnvBackend {
     ///
     /// # Note
     ///
-    /// For more details visit: [`invoke_contract`][`crate::invoke_contract`]
-    fn invoke_contract<E, Args, R>(
+    /// **This will call into the original `call` host function.**
+    ///
+    /// For more details visit: [`invoke_contract`][`crate::invoke_contract_v1`]
+    fn invoke_contract_v1<E, Args, R>(
         &mut self,
         call_data: &CallParams<E, CallV1<E>, Args, R>,
     ) -> Result<ink_primitives::MessageResult<R>>
@@ -309,10 +311,10 @@ pub trait TypedEnvBackend: EnvBackend {
     ///
     /// # Note
     ///
-    /// **This will call into the new `call_v2` host function.**
+    /// **This will call into the latest `call_v2` host function.**
     ///
-    /// For more details visit: [`invoke_contract`][`crate::invoke_contract_v2`]
-    fn invoke_contract_v2<E, Args, R>(
+    /// For more details visit: [`invoke_contract`][`crate::invoke_contract`]
+    fn invoke_contract<E, Args, R>(
         &mut self,
         call_data: &CallParams<E, Call<E>, Args, R>,
     ) -> Result<ink_primitives::MessageResult<R>>
