@@ -24,6 +24,15 @@ mod cross_contract_calls {
             Self { other_contract }
         }
 
+        /// Basic invocation of the other contract via the contract reference.
+        ///
+        /// *Note* this will invoke the original `call` (V1) host function.
+        #[ink(message)]
+        pub fn flip_and_get(&mut self) -> bool {
+            self.other_contract.flip();
+            self.other_contract.get()
+        }
+
         /// Use the new `call_v2` host function via the call builder to forward calls to
         /// the other contract, initially calling `flip` and then `get` to return the
         /// result.

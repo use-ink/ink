@@ -17,6 +17,37 @@ async fn flip_and_get<Client: E2EBackend>(mut client: Client) -> E2EResult<()> {
         .instantiate("cross-contract-calls", &ink_e2e::alice(), &mut constructor)
         .submit()
         .await
+        .expect("basic-contract-caller instantiate failed");
+    let mut call_builder = contract.call_builder::<CrossContractCalls>();
+    let call = call_builder.flip_and_get();
+
+    // when
+    let result = client
+        .call(&ink_e2e::alice(), &call)
+        .submit()
+        .await
+        .expect("Calling `flip_and_get` failed")
+        .return_value();
+
+    assert_eq!(result, false);
+
+    Ok(())
+}
+
+#[ink_e2e::test]
+async fn flip_and_get_v2<Client: E2EBackend>(mut client: Client) -> E2EResult<()> {
+    // given
+    let other_contract_code = client
+        .upload("other-contract", &ink_e2e::alice())
+        .submit()
+        .await
+        .expect("other_contract upload failed");
+
+    let mut constructor = CrossContractCallsRef::new(other_contract_code.code_hash);
+    let contract = client
+        .instantiate("cross-contract-calls", &ink_e2e::alice(), &mut constructor)
+        .submit()
+        .await
         .expect("cross-contract-calls instantiate failed");
     let mut call_builder = contract.call_builder::<CrossContractCalls>();
 
