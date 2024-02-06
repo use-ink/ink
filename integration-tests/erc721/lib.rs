@@ -217,7 +217,7 @@ mod erc721 {
 
             let owner = token_owner.get(id).ok_or(Error::TokenNotFound)?;
             if owner != caller {
-                return Err(Error::NotOwner)
+                return Err(Error::NotOwner);
             };
 
             let count = owned_tokens_count
@@ -244,14 +244,12 @@ mod erc721 {
             id: TokenId,
         ) -> Result<(), Error> {
             let caller = self.env().caller();
-            if !self.exists(id) {
-                return Err(Error::TokenNotFound)
+            let owner = self.owner_of(id).ok_or(Error::TokenNotFound)?;
+            if !self.approved_or_owner(caller, id, owner) {
+                return Err(Error::NotApproved);
             };
-            if !self.approved_or_owner(Some(caller), id) {
-                return Err(Error::NotApproved)
-            };
-            if self.token_owner.get(id) != Some(*from) {
-                return Err(Error::NotOwner)
+            if owner != *from {
+                return Err(Error::NotOwner);
             };
             self.clear_approval(id);
             self.remove_token_from(from, id)?;
@@ -277,7 +275,7 @@ mod erc721 {
             } = self;
 
             if !token_owner.contains(id) {
-                return Err(Error::TokenNotFound)
+                return Err(Error::TokenNotFound);
             }
 
             let count = owned_tokens_count
@@ -299,11 +297,11 @@ mod erc721 {
             } = self;
 
             if token_owner.contains(id) {
-                return Err(Error::TokenExists)
+                return Err(Error::TokenExists);
             }
 
             if *to == AccountId::from([0x0; 32]) {
-                return Err(Error::NotAllowed)
+                return Err(Error::NotAllowed);
             };
 
             let count = owned_tokens_count
@@ -325,7 +323,7 @@ mod erc721 {
         ) -> Result<(), Error> {
             let caller = self.env().caller();
             if to == caller {
-                return Err(Error::NotAllowed)
+                return Err(Error::NotAllowed);
             }
             self.env().emit_event(ApprovalForAll {
                 owner: caller,
@@ -347,17 +345,16 @@ mod erc721 {
         fn approve_for(&mut self, to: &AccountId, id: TokenId) -> Result<(), Error> {
             let caller = self.env().caller();
             let owner = self.owner_of(id).ok_or(Error::TokenNotFound)?;
-            if !(owner == caller || self.approved_for_all(owner, caller))
-            {
-                return Err(Error::NotAllowed)
+            if !(owner == caller || self.approved_for_all(owner, caller)) {
+                return Err(Error::NotAllowed);
             };
 
             if *to == AccountId::from([0x0; 32]) {
-                return Err(Error::NotAllowed)
+                return Err(Error::NotAllowed);
             };
 
             if self.token_approvals.contains(id) {
-                return Err(Error::CannotInsert)
+                return Err(Error::CannotInsert);
             } else {
                 self.token_approvals.insert(id, to);
             }
@@ -388,20 +385,16 @@ mod erc721 {
 
         /// Returns true if the `AccountId` `from` is the owner of token `id`
         /// or it has been approved on behalf of the token `id` owner.
-        fn approved_or_owner(&self, from: Option<AccountId>, id: TokenId) -> bool {
-            let owner = self.owner_of(id);
-            from != Some(AccountId::from([0x0; 32]))
+        fn approved_or_owner(
+            &self,
+            from: AccountId,
+            id: TokenId,
+            owner: AccountId,
+        ) -> bool {
+            from != AccountId::from([0x0; 32])
                 && (from == owner
-                    || from == self.token_approvals.get(id)
-                    || self.approved_for_all(
-                        owner.expect("Error with AccountId"),
-                        from.expect("Error with AccountId"),
-                    ))
-        }
-
-        /// Returns true if token `id` exists or false if it does not.
-        fn exists(&self, id: TokenId) -> bool {
-            self.token_owner.contains(id)
+                    || self.token_approvals.get(id) == Some(from)
+                    || self.approved_for_all(owner, from))
         }
     }
 
