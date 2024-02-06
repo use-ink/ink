@@ -742,6 +742,10 @@ where
     }
 
     /// Sets the `storage_deposit_limit` for the current cross-contract call.
+    ///
+    /// The `storage_deposit_limit` specifies the amount of user funds that
+    /// can be charged for creating storage. You can find more info
+    /// [here](https://use.ink/basics/cross-contract-calling/).
     pub fn storage_deposit_limit(self, storage_deposit_limit: E::Balance) -> Self {
         let call_type = self.call_type.value();
         CallBuilder {
