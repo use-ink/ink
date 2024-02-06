@@ -36,11 +36,11 @@ pub mod flipper {
 
         #[ink(message)]
         pub fn buffer(&self) {
-            let buf1 = Vec::<u8>::with_capacity(3);
-            let buf2 = Vec::<u64>::with_capacity(1);
+            let buf1 = Vec::<bool>::with_capacity(3);
+            let buf2 = Vec::<bool>::with_capacity(1);
             ink::env::debug_println!("ptr to buf1 :{:?}", buf1.as_ptr());
             ink::env::debug_println!("ptr to buf2 :{:?}", buf2.as_ptr());
-            ink::env::debug_println!("align of u64:{}", core::mem::align_of::<Vec<u64>>());
+            ink::env::debug_println!("align of u64:{}", core::mem::align_of::<Vec<bool>>());
         }
     }
 

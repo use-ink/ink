@@ -335,6 +335,18 @@ mod tests {
         let expected_alloc_start = 2 * PAGE_SIZE + size_of::<u8>();
         assert_eq!(inner.next, expected_alloc_start);
     }
+
+    #[test]
+    fn correct_alloc_types() {
+        let mut inner = InnerAlloc::new();
+        let layout1 = Layout::for_value(&Vec::<u128>::with_capacity(3));
+        assert_eq!(inner.alloc(layout1), Some(0));
+        assert_eq!(inner.next, 24);
+
+        let layout2 = Layout::for_value(&Vec::<u128>::with_capacity(1));
+        assert_eq!(inner.alloc(layout2), Some(24));
+        assert_eq!(inner.next, 48);
+    }
 }
 
 #[cfg(all(test, feature = "ink-fuzz-tests"))]
