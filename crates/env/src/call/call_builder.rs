@@ -726,6 +726,10 @@ where
 
     /// Sets the `proof_time_limit` part of the weight limit for the current
     /// cross-contract call.
+    ///
+    /// `proof_time` refers to the amount of storage in bytes that a transaction
+    /// is allowed to read. You can find more info
+    /// [here](https://use.ink/basics/cross-contract-calling/).
     pub fn proof_time_limit(self, proof_time_limit: Gas) -> Self {
         let call_type = self.call_type.value();
         CallBuilder {
