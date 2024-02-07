@@ -174,9 +174,9 @@ impl InnerAlloc {
     /// Note: This implementation results in internal fragmentation when allocating across
     /// pages.
     fn alloc(&mut self, layout: Layout) -> Option<usize> {
-        let alloc_start = self.get_aligned_ptr(&layout);
+        let alloc_start = self.align_ptr(&layout);
 
-        let aligned_size = layout.pad_to_align().size();
+        let aligned_size = layout.size();
 
         let alloc_end = alloc_start.checked_add(aligned_size)?;
 
@@ -197,7 +197,7 @@ impl InnerAlloc {
     }
 
     /// Aligns the start pointer of the next allocation.
-    fn get_aligned_ptr(&self, layout: &Layout) -> usize {
+    fn align_ptr(&self, layout: &Layout) -> usize {
         (self.next + layout.align() - 1) & !(layout.align() - 1)
     }
 }
