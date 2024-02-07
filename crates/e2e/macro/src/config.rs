@@ -35,13 +35,13 @@ impl Default for Backend {
 }
 
 /// Configure whether to automatically spawn a node instance for the test or to use
-/// an already running node at the supplied url
+/// an already running node at the supplied URL.
 #[derive(Clone, Eq, PartialEq, Debug, darling::FromMeta)]
 pub enum Node {
     /// A fresh node instance will be spawned for the lifetime of the test.
     #[darling(word)]
     Auto,
-    /// The test will run against an already running node at the supplied url.
+    /// The test will run against an already running node at the supplied URL.
     Url(String),
 }
 
