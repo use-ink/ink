@@ -72,7 +72,7 @@ pub mod incrementer {
 
         type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
-        #[ink_e2e::test(additional_contracts = "./updated-incrementer/Cargo.toml")]
+        #[ink_e2e::test]
         async fn set_code_works<Client: E2EBackend>(mut client: Client) -> E2EResult<()> {
             // Given
             let mut constructor = IncrementerRef::new();
