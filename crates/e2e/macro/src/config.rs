@@ -13,13 +13,12 @@
 // limitations under the License.
 
 /// The type of the architecture that should be used to run test.
-#[derive(Clone, Eq, PartialEq, Debug, Default, darling::FromMeta)]
+#[derive(Clone, Eq, PartialEq, Debug, darling::FromMeta)]
 #[darling(rename_all = "snake_case")]
 pub enum Backend {
     /// The standard approach with running dedicated single-node blockchain in a
     /// background process.
-    #[default]
-    Full,
+    Node(Node),
 
     /// The lightweight approach skipping node layer.
     ///
@@ -27,6 +26,38 @@ pub enum Backend {
     /// the same process as the test.
     #[cfg(any(test, feature = "drink"))]
     RuntimeOnly(RuntimeOnly),
+}
+
+impl Default for Backend {
+    fn default() -> Self {
+        Backend::Node(Node::Auto)
+    }
+}
+
+/// Configure whether to automatically spawn a node instance for the test or to use
+/// an already running node at the supplied url
+#[derive(Clone, Eq, PartialEq, Debug, darling::FromMeta)]
+pub enum Node {
+    /// A fresh node instance will be spawned for the lifetime of the test.
+    #[darling(word)]
+    Auto,
+    /// The test will run against an already running node at the supplied url.
+    Url(String),
+}
+
+impl Node {
+    /// The URL to the running node, default value can be overridden with
+    /// `CONTRACTS_NODE_URL`.
+    ///
+    /// Returns `None` if [`Self::Auto`] and `CONTRACTS_NODE_URL` not specified.
+    pub fn url(&self) -> Option<String> {
+        std::env::var("CONTRACTS_NODE_URL").ok().or_else(|| {
+            match self {
+                Node::Auto => None,
+                Node::Url(url) => Some(url.clone()),
+            }
+        })
+    }
 }
 
 /// The runtime emulator that should be used within `TestExternalities` (using drink!
@@ -63,8 +94,6 @@ pub struct E2EConfig {
     /// The type of the architecture that should be used to run test.
     #[darling(default)]
     backend: Backend,
-    /// The URL to the running node. See [`Self::node_url()`] for more details.
-    node_url: Option<String>,
 }
 
 impl E2EConfig {
@@ -76,15 +105,6 @@ impl E2EConfig {
     /// The type of the architecture that should be used to run test.
     pub fn backend(&self) -> Backend {
         self.backend.clone()
-    }
-
-    /// The URL to the running node, default value can be overridden with
-    /// `CONTRACTS_NODE_URL`. If no URL is provided, then a default node instance will
-    /// be spawned per test.
-    pub fn node_url(&self) -> Option<String> {
-        std::env::var("CONTRACTS_NODE_URL")
-            .ok()
-            .or_else(|| self.node_url.clone())
     }
 }
 
@@ -98,11 +118,10 @@ mod tests {
     use quote::quote;
 
     #[test]
-    fn config_works() {
+    fn config_works_backend_runtime_only() {
         let input = quote! {
             environment = crate::CustomEnvironment,
             backend(runtime_only),
-            node_url = "ws://127.0.0.1:8000"
         };
         let config =
             E2EConfig::from_list(&NestedMeta::parse_meta_list(input).unwrap()).unwrap();
@@ -113,14 +132,10 @@ mod tests {
         );
 
         assert_eq!(config.backend(), Backend::RuntimeOnly(RuntimeOnly::Default));
-        assert_eq!(config.node_url(), Some(String::from("ws://127.0.0.1:8000")));
-
-        std::env::set_var("CONTRACTS_NODE_URL", "ws://127.0.0.1:9000");
-        assert_eq!(config.node_url(), Some(String::from("ws://127.0.0.1:9000")))
     }
 
     #[test]
-    fn config_works_with_custom_backend() {
+    fn config_works_runtime_only_with_custom_backend() {
         let input = quote! {
             backend(runtime_only(runtime = ::ink_e2e::MinimalRuntime)),
         };
@@ -133,6 +148,60 @@ mod tests {
                 syn::parse_quote! { ::ink_e2e::MinimalRuntime }
             ))
         );
-        assert_eq!(config.node_url(), None)
+    }
+
+    #[test]
+    fn config_works_backend_node_default_auto() {
+        let input = quote! {
+            backend(node),
+        };
+        let config =
+            E2EConfig::from_list(&NestedMeta::parse_meta_list(input).unwrap()).unwrap();
+
+        assert_eq!(config.backend(), Backend::Node(Node::Auto));
+    }
+
+    #[test]
+    fn config_works_backend_node_auto() {
+        let input = quote! {
+            backend(node(auto)),
+        };
+        let config =
+            E2EConfig::from_list(&NestedMeta::parse_meta_list(input).unwrap()).unwrap();
+
+        match config.backend() {
+            Backend::Node(node_config) => {
+                assert_eq!(node_config, Node::Auto);
+
+                std::env::remove_var("CONTRACTS_NODE_URL");
+                assert_eq!(node_config.url(), None);
+
+                std::env::set_var("CONTRACTS_NODE_URL", "ws://127.0.0.1:9000");
+                assert_eq!(node_config.url(), Some(String::from("ws://127.0.0.1:9000")));
+            }
+            _ => panic!("Expected Backend::Node"),
+        }
+    }
+
+    #[test]
+    fn config_works_backend_node_url() {
+        let input = quote! {
+            backend(node(url = "ws://0.0.0.0:9999")),
+        };
+        let config =
+            E2EConfig::from_list(&NestedMeta::parse_meta_list(input).unwrap()).unwrap();
+
+        match config.backend() {
+            Backend::Node(node_config) => {
+                assert_eq!(node_config, Node::Url("ws://0.0.0.0:9999".to_owned()));
+
+                std::env::remove_var("CONTRACTS_NODE_URL");
+                assert_eq!(node_config.url(), Some("ws://0.0.0.0:9999".to_owned()));
+
+                std::env::set_var("CONTRACTS_NODE_URL", "ws://127.0.0.1:9000");
+                assert_eq!(node_config.url(), Some(String::from("ws://127.0.0.1:9000")));
+            }
+            _ => panic!("Expected Backend::Node"),
+        }
     }
 }
