@@ -613,21 +613,21 @@ impl TypedEnvBackend for EnvInstance {
         ext::call_runtime(enc_call).map_err(Into::into)
     }
 
-    fn add_delegate_dependency<E>(&mut self, code_hash: &E::Hash) -> Result<()>
+    fn add_delegate_dependency<E>(&mut self, code_hash: &E::Hash)
     where
         E: Environment,
     {
         let mut scope = self.scoped_buffer();
         let enc_code_hash = scope.take_encoded(code_hash);
-        ext::add_delegate_dependency(enc_code_hash).map_err(Into::into)
+        ext::add_delegate_dependency(enc_code_hash)
     }
 
-    fn remove_delegate_dependency<E>(&mut self, code_hash: &E::Hash) -> Result<()>
+    fn remove_delegate_dependency<E>(&mut self, code_hash: &E::Hash)
     where
         E: Environment,
     {
         let mut scope = self.scoped_buffer();
         let enc_code_hash = scope.take_encoded(code_hash);
-        ext::remove_delegate_dependency(enc_code_hash).map_err(Into::into)
+        ext::remove_delegate_dependency(enc_code_hash)
     }
 }

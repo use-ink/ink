@@ -1114,12 +1114,12 @@ where
     }
 
     /// todo: add_delegate_dependency docs
-    pub fn add_delegate_dependency(self, code_hash: &E::Hash) -> Result<()> {
+    pub fn add_delegate_dependency(self, code_hash: &E::Hash) {
         ink_env::add_delegate_dependency::<E>(code_hash)
     }
 
     /// todo: remove_delegate_dependency docs
-    pub fn remove_delegate_dependency(self, code_hash: &E::Hash) -> Result<()> {
+    pub fn remove_delegate_dependency(self, code_hash: &E::Hash) {
         ink_env::remove_delegate_dependency::<E>(code_hash)
     }
 }

@@ -48,17 +48,12 @@ pub mod delegator {
         }
 
         #[ink(message)]
-        pub fn update_delegate(&mut self, hash: Hash) -> Result<(), String> {
+        pub fn update_delegate(&mut self, hash: Hash) {
             if let Some(old_hash) = self.delegate_to {
-                self.env()
-                    .remove_delegate_dependency(&old_hash)
-                    .map_err(|e| format!("remove_delegate_dependency failed: {:?}", e))?;
+                self.env().remove_delegate_dependency(&old_hash)
             }
-            self.env()
-                .add_delegate_dependency(&hash)
-                .map_err(|e| format!("remove_delegate_dependency failed: {:?}", e))?;
+            self.env().add_delegate_dependency(&hash);
             self.delegate_to = Some(hash);
-            Ok(())
         }
 
         /// Increment the current value using delegate call.
