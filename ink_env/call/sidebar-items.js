@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["build_call","build_create"],"mod":["state","utils"],"struct":["Call","CallBuilder","CallParams","CreateBuilder","CreateParams","DelegateCall","ExecutionInput","Selector"],"trait":["ConstructorReturnType","FromAccountId"]};
+window.SIDEBAR_ITEMS = {"fn":["build_call","build_create"],"mod":["state","utils"],"struct":["Call","CallBuilder","CallParams","CallV1","CreateBuilder","CreateParams","DelegateCall","ExecutionInput","Selector"],"trait":["ConstructorReturnType","FromAccountId"]};

@@ -153,13 +153,6 @@
 <a href="#153" id="153">153</a>
 <a href="#154" id="154">154</a>
 <a href="#155" id="155">155</a>
-<a href="#156" id="156">156</a>
-<a href="#157" id="157">157</a>
-<a href="#158" id="158">158</a>
-<a href="#159" id="159">159</a>
-<a href="#160" id="160">160</a>
-<a href="#161" id="161">161</a>
-<a href="#162" id="162">162</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -175,7 +168,10 @@
 // limitations under the License.
 
 </span><span class="kw">use crate</span>::{
-    config::Backend,
+    config::{
+        Backend,
+        Node,
+    },
     ir,
 };
 <span class="kw">use </span>derive_more::From;
@@ -214,23 +210,13 @@
             .environment()
             .unwrap_or_else(|| <span class="macro">syn::parse_quote! </span>{ ::ink::env::DefaultEnvironment });
 
-        <span class="kw">let </span>additional_contracts = <span class="self">self</span>.test.config.additional_contracts();
-
-        <span class="kw">let </span>exec_build_contracts = <span class="kw">if </span>additional_contracts.is_empty() {
-            <span class="macro">quote! </span>{
-                ::ink_e2e::build_root_and_contract_dependencies()
-            }
-        } <span class="kw">else </span>{
-            <span class="macro">quote! </span>{
-                ::ink_e2e::build_root_and_additional_contracts([ #( #additional_contracts ),* ])
-            }
+        <span class="kw">let </span>exec_build_contracts = <span class="macro">quote! </span>{
+            ::ink_e2e::build_root_and_contract_dependencies()
         };
 
-        <span class="kw">let </span>node_url = <span class="self">self</span>.test.config.node_url();
-
         <span class="kw">let </span>client_building = <span class="kw">match </span><span class="self">self</span>.test.config.backend() {
-            Backend::Full =&gt; {
-                build_full_client(<span class="kw-2">&amp;</span>environment, exec_build_contracts, node_url)
+            Backend::Node(node_config) =&gt; {
+                build_full_client(<span class="kw-2">&amp;</span>environment, exec_build_contracts, node_config)
             }
             <span class="attr">#[cfg(any(test, feature = <span class="string">&quot;drink&quot;</span>))]
             </span>Backend::RuntimeOnly(runtime) =&gt; {
@@ -279,9 +265,9 @@
 <span class="kw">fn </span>build_full_client(
     environment: <span class="kw-2">&amp;</span>syn::Path,
     contracts: TokenStream2,
-    node_url: <span class="prelude-ty">Option</span>&lt;String&gt;,
+    node_config: Node,
 ) -&gt; TokenStream2 {
-    <span class="kw">match </span>node_url {
+    <span class="kw">match </span>node_config.url() {
         <span class="prelude-val">Some</span>(url) =&gt; {
             <span class="macro">quote! </span>{
                 <span class="kw">let </span>rpc = ::ink_e2e::RpcClient::from_url(#url)

@@ -1113,6 +1113,77 @@
 <a href="#1113" id="1113">1113</a>
 <a href="#1114" id="1114">1114</a>
 <a href="#1115" id="1115">1115</a>
+<a href="#1116" id="1116">1116</a>
+<a href="#1117" id="1117">1117</a>
+<a href="#1118" id="1118">1118</a>
+<a href="#1119" id="1119">1119</a>
+<a href="#1120" id="1120">1120</a>
+<a href="#1121" id="1121">1121</a>
+<a href="#1122" id="1122">1122</a>
+<a href="#1123" id="1123">1123</a>
+<a href="#1124" id="1124">1124</a>
+<a href="#1125" id="1125">1125</a>
+<a href="#1126" id="1126">1126</a>
+<a href="#1127" id="1127">1127</a>
+<a href="#1128" id="1128">1128</a>
+<a href="#1129" id="1129">1129</a>
+<a href="#1130" id="1130">1130</a>
+<a href="#1131" id="1131">1131</a>
+<a href="#1132" id="1132">1132</a>
+<a href="#1133" id="1133">1133</a>
+<a href="#1134" id="1134">1134</a>
+<a href="#1135" id="1135">1135</a>
+<a href="#1136" id="1136">1136</a>
+<a href="#1137" id="1137">1137</a>
+<a href="#1138" id="1138">1138</a>
+<a href="#1139" id="1139">1139</a>
+<a href="#1140" id="1140">1140</a>
+<a href="#1141" id="1141">1141</a>
+<a href="#1142" id="1142">1142</a>
+<a href="#1143" id="1143">1143</a>
+<a href="#1144" id="1144">1144</a>
+<a href="#1145" id="1145">1145</a>
+<a href="#1146" id="1146">1146</a>
+<a href="#1147" id="1147">1147</a>
+<a href="#1148" id="1148">1148</a>
+<a href="#1149" id="1149">1149</a>
+<a href="#1150" id="1150">1150</a>
+<a href="#1151" id="1151">1151</a>
+<a href="#1152" id="1152">1152</a>
+<a href="#1153" id="1153">1153</a>
+<a href="#1154" id="1154">1154</a>
+<a href="#1155" id="1155">1155</a>
+<a href="#1156" id="1156">1156</a>
+<a href="#1157" id="1157">1157</a>
+<a href="#1158" id="1158">1158</a>
+<a href="#1159" id="1159">1159</a>
+<a href="#1160" id="1160">1160</a>
+<a href="#1161" id="1161">1161</a>
+<a href="#1162" id="1162">1162</a>
+<a href="#1163" id="1163">1163</a>
+<a href="#1164" id="1164">1164</a>
+<a href="#1165" id="1165">1165</a>
+<a href="#1166" id="1166">1166</a>
+<a href="#1167" id="1167">1167</a>
+<a href="#1168" id="1168">1168</a>
+<a href="#1169" id="1169">1169</a>
+<a href="#1170" id="1170">1170</a>
+<a href="#1171" id="1171">1171</a>
+<a href="#1172" id="1172">1172</a>
+<a href="#1173" id="1173">1173</a>
+<a href="#1174" id="1174">1174</a>
+<a href="#1175" id="1175">1175</a>
+<a href="#1176" id="1176">1176</a>
+<a href="#1177" id="1177">1177</a>
+<a href="#1178" id="1178">1178</a>
+<a href="#1179" id="1179">1179</a>
+<a href="#1180" id="1180">1180</a>
+<a href="#1181" id="1181">1181</a>
+<a href="#1182" id="1182">1182</a>
+<a href="#1183" id="1183">1183</a>
+<a href="#1184" id="1184">1184</a>
+<a href="#1185" id="1185">1185</a>
+<a href="#1186" id="1186">1186</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -1133,6 +1204,7 @@
     call::{
         Call,
         CallParams,
+        CallV1,
         ConstructorReturnType,
         CreateParams,
         DelegateCall,
@@ -1632,7 +1704,7 @@
     /// use ink::env::{
     ///     call::{
     ///         build_call,
-    ///         Call,
+    ///         CallV1,
     ///         ExecutionInput,
     ///         Selector,
     ///     },
@@ -1654,10 +1726,80 @@
     /// pub fn invoke_contract(&amp;self) -&gt; i32 {
     ///     let call_params = build_call::&lt;DefaultEnvironment&gt;()
     ///         .call_type(
-    ///             Call::new(AccountId::from([0x42; 32]))
+    ///             CallV1::new(AccountId::from([0x42; 32]))
     ///                 .gas_limit(5000)
     ///                 .transferred_value(10),
     ///         )
+    ///         .exec_input(
+    ///             ExecutionInput::new(Selector::new([0xCA, 0xFE, 0xBA, 0xBE]))
+    ///                 .push_arg(42u8)
+    ///                 .push_arg(true)
+    ///                 .push_arg(&amp;[0x10u8; 32]),
+    ///         )
+    ///         .returns::&lt;i32&gt;()
+    ///         .params();
+    ///
+    ///     self.env()
+    ///         .invoke_contract_v1(&amp;call_params)
+    ///         .unwrap_or_else(|env_err| {
+    ///             panic!(&quot;Received an error from the Environment: {:?}&quot;, env_err)
+    ///         })
+    ///         .unwrap_or_else(|lang_err| panic!(&quot;Received a `LangError`: {:?}&quot;, lang_err))
+    /// }
+    /// #
+    /// #     }
+    /// # }
+    /// ```
+    ///
+    /// # Note
+    ///
+    /// For more details visit: [`ink_env::invoke_contract_v1`]
+    </span><span class="kw">pub fn </span>invoke_contract_v1&lt;Args, R&gt;(
+        <span class="self">self</span>,
+        params: <span class="kw-2">&amp;</span>CallParams&lt;E, CallV1&lt;E&gt;, Args, R&gt;,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;ink_primitives::MessageResult&lt;R&gt;&gt;
+    <span class="kw">where
+        </span>Args: scale::Encode,
+        R: scale::Decode,
+    {
+        ink_env::invoke_contract_v1::&lt;E, Args, R&gt;(params)
+    }
+
+    <span class="doccomment">/// Invokes a contract message and returns its result.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # #[ink::contract]
+    /// # pub mod my_contract {
+    /// use ink::env::{
+    ///     call::{
+    ///         build_call,
+    ///         CallV1,
+    ///         ExecutionInput,
+    ///         Selector,
+    ///     },
+    ///     DefaultEnvironment,
+    /// };
+    ///
+    /// #
+    /// #     #[ink(storage)]
+    /// #     pub struct MyContract { }
+    /// #
+    /// #     impl MyContract {
+    /// #         #[ink(constructor)]
+    /// #         pub fn new() -&gt; Self {
+    /// #             Self {}
+    /// #         }
+    /// #
+    /// /// Invokes a contract message and fetches the result.
+    /// #[ink(message)]
+    /// pub fn invoke_contract_v2(&amp;self) -&gt; i32 {
+    ///     let call_params = build_call::&lt;DefaultEnvironment&gt;()
+    ///         .call(AccountId::from([0x42; 32]))
+    ///         .ref_time_limit(500_000_000)
+    ///         .proof_time_limit(100_000)
+    ///         .storage_deposit_limit(1_000_000_000)
     ///         .exec_input(
     ///             ExecutionInput::new(Selector::new([0xCA, 0xFE, 0xBA, 0xBE]))
     ///                 .push_arg(42u8)

@@ -159,6 +159,52 @@
 <a href="#159" id="159">159</a>
 <a href="#160" id="160">160</a>
 <a href="#161" id="161">161</a>
+<a href="#162" id="162">162</a>
+<a href="#163" id="163">163</a>
+<a href="#164" id="164">164</a>
+<a href="#165" id="165">165</a>
+<a href="#166" id="166">166</a>
+<a href="#167" id="167">167</a>
+<a href="#168" id="168">168</a>
+<a href="#169" id="169">169</a>
+<a href="#170" id="170">170</a>
+<a href="#171" id="171">171</a>
+<a href="#172" id="172">172</a>
+<a href="#173" id="173">173</a>
+<a href="#174" id="174">174</a>
+<a href="#175" id="175">175</a>
+<a href="#176" id="176">176</a>
+<a href="#177" id="177">177</a>
+<a href="#178" id="178">178</a>
+<a href="#179" id="179">179</a>
+<a href="#180" id="180">180</a>
+<a href="#181" id="181">181</a>
+<a href="#182" id="182">182</a>
+<a href="#183" id="183">183</a>
+<a href="#184" id="184">184</a>
+<a href="#185" id="185">185</a>
+<a href="#186" id="186">186</a>
+<a href="#187" id="187">187</a>
+<a href="#188" id="188">188</a>
+<a href="#189" id="189">189</a>
+<a href="#190" id="190">190</a>
+<a href="#191" id="191">191</a>
+<a href="#192" id="192">192</a>
+<a href="#193" id="193">193</a>
+<a href="#194" id="194">194</a>
+<a href="#195" id="195">195</a>
+<a href="#196" id="196">196</a>
+<a href="#197" id="197">197</a>
+<a href="#198" id="198">198</a>
+<a href="#199" id="199">199</a>
+<a href="#200" id="200">200</a>
+<a href="#201" id="201">201</a>
+<a href="#202" id="202">202</a>
+<a href="#203" id="203">203</a>
+<a href="#204" id="204">204</a>
+<a href="#205" id="205">205</a>
+<a href="#206" id="206">206</a>
+<a href="#207" id="207">207</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -174,13 +220,12 @@
 // limitations under the License.
 
 </span><span class="doccomment">/// The type of the architecture that should be used to run test.
-</span><span class="attr">#[derive(Clone, Eq, PartialEq, Debug, Default, darling::FromMeta)]
+</span><span class="attr">#[derive(Clone, Eq, PartialEq, Debug, darling::FromMeta)]
 #[darling(rename_all = <span class="string">&quot;snake_case&quot;</span>)]
 </span><span class="kw">pub enum </span>Backend {
     <span class="doccomment">/// The standard approach with running dedicated single-node blockchain in a
     /// background process.
-    </span><span class="attr">#[default]
-    </span>Full,
+    </span>Node(Node),
 
     <span class="doccomment">/// The lightweight approach skipping node layer.
     ///
@@ -188,6 +233,38 @@
     /// the same process as the test.
     </span><span class="attr">#[cfg(any(test, feature = <span class="string">&quot;drink&quot;</span>))]
     </span>RuntimeOnly(RuntimeOnly),
+}
+
+<span class="kw">impl </span>Default <span class="kw">for </span>Backend {
+    <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
+        Backend::Node(Node::Auto)
+    }
+}
+
+<span class="doccomment">/// Configure whether to automatically spawn a node instance for the test or to use
+/// an already running node at the supplied URL.
+</span><span class="attr">#[derive(Clone, Eq, PartialEq, Debug, darling::FromMeta)]
+</span><span class="kw">pub enum </span>Node {
+    <span class="doccomment">/// A fresh node instance will be spawned for the lifetime of the test.
+    </span><span class="attr">#[darling(word)]
+    </span>Auto,
+    <span class="doccomment">/// The test will run against an already running node at the supplied URL.
+    </span>Url(String),
+}
+
+<span class="kw">impl </span>Node {
+    <span class="doccomment">/// The URL to the running node, default value can be overridden with
+    /// `CONTRACTS_NODE_URL`.
+    ///
+    /// Returns `None` if [`Self::Auto`] and `CONTRACTS_NODE_URL` not specified.
+    </span><span class="kw">pub fn </span>url(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;String&gt; {
+        std::env::var(<span class="string">&quot;CONTRACTS_NODE_URL&quot;</span>).ok().or_else(|| {
+            <span class="kw">match </span><span class="self">self </span>{
+                Node::Auto =&gt; <span class="prelude-val">None</span>,
+                Node::Url(url) =&gt; <span class="prelude-val">Some</span>(url.clone()),
+            }
+        })
+    }
 }
 
 <span class="doccomment">/// The runtime emulator that should be used within `TestExternalities` (using drink!
@@ -213,9 +290,6 @@
 <span class="doccomment">/// The End-to-End test configuration.
 </span><span class="attr">#[derive(Debug, Default, PartialEq, Eq, darling::FromMeta)]
 </span><span class="kw">pub struct </span>E2EConfig {
-    <span class="doccomment">/// Additional contracts that have to be built before executing the test.
-    </span><span class="attr">#[darling(default)]
-    </span>additional_contracts: String,
     <span class="doccomment">/// The [`Environment`](https://docs.rs/ink_env/4.1.0/ink_env/trait.Environment.html) to use
     /// during test execution.
     ///
@@ -227,26 +301,9 @@
     <span class="doccomment">/// The type of the architecture that should be used to run test.
     </span><span class="attr">#[darling(default)]
     </span>backend: Backend,
-    <span class="doccomment">/// The URL to the running node. See [`Self::node_url()`] for more details.
-    </span>node_url: <span class="prelude-ty">Option</span>&lt;String&gt;,
 }
 
 <span class="kw">impl </span>E2EConfig {
-    <span class="doccomment">/// Returns a vector of additional contracts that have to be built
-    /// and imported before executing the test.
-    </span><span class="kw">pub fn </span>additional_contracts(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Vec&lt;String&gt; {
-        <span class="self">self</span>.additional_contracts
-            .split(<span class="string">&#39; &#39;</span>)
-            .filter_map(|s| {
-                <span class="kw">if </span>s.is_empty() {
-                    <span class="prelude-val">None
-                </span>} <span class="kw">else </span>{
-                    <span class="prelude-val">Some</span>(s.to_owned())
-                }
-            })
-            .collect()
-    }
-
     <span class="doccomment">/// Custom environment for the contracts, if specified.
     </span><span class="kw">pub fn </span>environment(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;syn::Path&gt; {
         <span class="self">self</span>.environment.clone()
@@ -255,15 +312,6 @@
     <span class="doccomment">/// The type of the architecture that should be used to run test.
     </span><span class="kw">pub fn </span>backend(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Backend {
         <span class="self">self</span>.backend.clone()
-    }
-
-    <span class="doccomment">/// The URL to the running node, default value can be overridden with
-    /// `CONTRACTS_NODE_URL`. If no URL is provided, then a default node instance will
-    /// be spawned per test.
-    </span><span class="kw">pub fn </span>node_url(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;String&gt; {
-        std::env::var(<span class="string">&quot;CONTRACTS_NODE_URL&quot;</span>)
-            .ok()
-            .or_else(|| <span class="self">self</span>.node_url.clone())
     }
 }
 
@@ -277,34 +325,24 @@
     <span class="kw">use </span>quote::quote;
 
     <span class="attr">#[test]
-    </span><span class="kw">fn </span>config_works() {
+    </span><span class="kw">fn </span>config_works_backend_runtime_only() {
         <span class="kw">let </span>input = <span class="macro">quote! </span>{
-            additional_contracts = <span class="string">&quot;adder/Cargo.toml flipper/Cargo.toml&quot;</span>,
             environment = <span class="kw">crate</span>::CustomEnvironment,
             backend(runtime_only),
-            node_url = <span class="string">&quot;ws://127.0.0.1:8000&quot;
-        </span>};
+        };
         <span class="kw">let </span>config =
             E2EConfig::from_list(<span class="kw-2">&amp;</span>NestedMeta::parse_meta_list(input).unwrap()).unwrap();
 
-        <span class="macro">assert_eq!</span>(
-            config.additional_contracts(),
-            <span class="macro">vec!</span>[<span class="string">&quot;adder/Cargo.toml&quot;</span>, <span class="string">&quot;flipper/Cargo.toml&quot;</span>]
-        );
         <span class="macro">assert_eq!</span>(
             config.environment(),
             <span class="prelude-val">Some</span>(<span class="macro">syn::parse_quote! </span>{ <span class="kw">crate</span>::CustomEnvironment })
         );
 
         <span class="macro">assert_eq!</span>(config.backend(), Backend::RuntimeOnly(RuntimeOnly::Default));
-        <span class="macro">assert_eq!</span>(config.node_url(), <span class="prelude-val">Some</span>(String::from(<span class="string">&quot;ws://127.0.0.1:8000&quot;</span>)));
-
-        std::env::set_var(<span class="string">&quot;CONTRACTS_NODE_URL&quot;</span>, <span class="string">&quot;ws://127.0.0.1:9000&quot;</span>);
-        <span class="macro">assert_eq!</span>(config.node_url(), <span class="prelude-val">Some</span>(String::from(<span class="string">&quot;ws://127.0.0.1:9000&quot;</span>)))
     }
 
     <span class="attr">#[test]
-    </span><span class="kw">fn </span>config_works_with_custom_backend() {
+    </span><span class="kw">fn </span>config_works_runtime_only_with_custom_backend() {
         <span class="kw">let </span>input = <span class="macro">quote! </span>{
             backend(runtime_only(runtime = ::ink_e2e::MinimalRuntime)),
         };
@@ -317,7 +355,61 @@
                 <span class="macro">syn::parse_quote! </span>{ ::ink_e2e::MinimalRuntime }
             ))
         );
-        <span class="macro">assert_eq!</span>(config.node_url(), <span class="prelude-val">None</span>)
+    }
+
+    <span class="attr">#[test]
+    </span><span class="kw">fn </span>config_works_backend_node_default_auto() {
+        <span class="kw">let </span>input = <span class="macro">quote! </span>{
+            backend(node),
+        };
+        <span class="kw">let </span>config =
+            E2EConfig::from_list(<span class="kw-2">&amp;</span>NestedMeta::parse_meta_list(input).unwrap()).unwrap();
+
+        <span class="macro">assert_eq!</span>(config.backend(), Backend::Node(Node::Auto));
+    }
+
+    <span class="attr">#[test]
+    </span><span class="kw">fn </span>config_works_backend_node_auto() {
+        <span class="kw">let </span>input = <span class="macro">quote! </span>{
+            backend(node(auto)),
+        };
+        <span class="kw">let </span>config =
+            E2EConfig::from_list(<span class="kw-2">&amp;</span>NestedMeta::parse_meta_list(input).unwrap()).unwrap();
+
+        <span class="kw">match </span>config.backend() {
+            Backend::Node(node_config) =&gt; {
+                <span class="macro">assert_eq!</span>(node_config, Node::Auto);
+
+                std::env::remove_var(<span class="string">&quot;CONTRACTS_NODE_URL&quot;</span>);
+                <span class="macro">assert_eq!</span>(node_config.url(), <span class="prelude-val">None</span>);
+
+                std::env::set_var(<span class="string">&quot;CONTRACTS_NODE_URL&quot;</span>, <span class="string">&quot;ws://127.0.0.1:9000&quot;</span>);
+                <span class="macro">assert_eq!</span>(node_config.url(), <span class="prelude-val">Some</span>(String::from(<span class="string">&quot;ws://127.0.0.1:9000&quot;</span>)));
+            }
+            <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">&quot;Expected Backend::Node&quot;</span>),
+        }
+    }
+
+    <span class="attr">#[test]
+    </span><span class="kw">fn </span>config_works_backend_node_url() {
+        <span class="kw">let </span>input = <span class="macro">quote! </span>{
+            backend(node(url = <span class="string">&quot;ws://0.0.0.0:9999&quot;</span>)),
+        };
+        <span class="kw">let </span>config =
+            E2EConfig::from_list(<span class="kw-2">&amp;</span>NestedMeta::parse_meta_list(input).unwrap()).unwrap();
+
+        <span class="kw">match </span>config.backend() {
+            Backend::Node(node_config) =&gt; {
+                <span class="macro">assert_eq!</span>(node_config, Node::Url(<span class="string">&quot;ws://0.0.0.0:9999&quot;</span>.to_owned()));
+
+                std::env::remove_var(<span class="string">&quot;CONTRACTS_NODE_URL&quot;</span>);
+                <span class="macro">assert_eq!</span>(node_config.url(), <span class="prelude-val">Some</span>(<span class="string">&quot;ws://0.0.0.0:9999&quot;</span>.to_owned()));
+
+                std::env::set_var(<span class="string">&quot;CONTRACTS_NODE_URL&quot;</span>, <span class="string">&quot;ws://127.0.0.1:9000&quot;</span>);
+                <span class="macro">assert_eq!</span>(node_config.url(), <span class="prelude-val">Some</span>(String::from(<span class="string">&quot;ws://127.0.0.1:9000&quot;</span>)));
+            }
+            <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">&quot;Expected Backend::Node&quot;</span>),
+        }
     }
 }
 </code></pre></div></section></main></body></html>
