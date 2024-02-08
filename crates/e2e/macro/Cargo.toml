@@ -28,5 +28,8 @@ syn = { workspace = true }
 proc-macro2 = { workspace = true }
 quote = { workspace = true }
 
+[dev-dependencies]
+temp-env = "0.3.6"
+
 [features]
 drink = []
