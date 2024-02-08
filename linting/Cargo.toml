@@ -17,7 +17,12 @@ keywords = ["parity", "blockchain", "edsl", "dylint", "linting"]
 
 [workspace.dependencies]
 ink_linting_utils = { version = "=5.0.0-rc", path = "utils" }
-
+curve25519-dalek = { version = "=4.1.1", default-features = false, features = [
+    "digest",
+    "zeroize",
+    "precomputed-tables",
+    "legacy_compatibility",
+] }
 [workspace.metadata.dylint]
 libraries = [
     { path = "mandatory" },

@@ -22,6 +22,7 @@ if_chain = "1.0.2"
 log = "0.4.14"
 regex = "1.5.4"
 ink_linting_utils = { workspace = true }
+curve25519-dalek = { workspace = true }
 
 [dev-dependencies]
 dylint_testing = "2.6.0"

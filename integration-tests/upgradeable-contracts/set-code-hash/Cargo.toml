@@ -10,6 +10,7 @@ ink = { path = "../../../crates/ink", default-features = false }
 
 [dev-dependencies]
 ink_e2e = { path = "../../../crates/e2e" }
+updated-incrementer = { path = "updated-incrementer", default-features = false, features = ["ink-as-dependency"] }
 
 [lib]
 path = "lib.rs"
