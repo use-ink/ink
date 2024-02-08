@@ -17,6 +17,7 @@ use crate::{
     call::{
         Call,
         CallParams,
+        CallV1,
         ConstructorReturnType,
         CreateParams,
         DelegateCall,
@@ -434,6 +435,18 @@ impl TypedEnvBackend for EnvInstance {
         let enc_topics = event.topics::<E, _>(builder.into());
         let enc_data = &scale::Encode::encode(&event)[..];
         self.engine.deposit_event(&enc_topics[..], enc_data);
+    }
+
+    fn invoke_contract_v1<E, Args, R>(
+        &mut self,
+        _params: &CallParams<E, CallV1<E>, Args, R>,
+    ) -> Result<ink_primitives::MessageResult<R>>
+    where
+        E: Environment,
+        Args: scale::Encode,
+        R: scale::Decode,
+    {
+        unimplemented!("off-chain environment does not support contract invocation")
     }
 
     fn invoke_contract<E, Args, R>(
