@@ -13,7 +13,10 @@
 // limitations under the License.
 
 use crate::{
-    config::Backend,
+    config::{
+        Backend,
+        Node,
+    },
     ir,
 };
 use derive_more::From;
@@ -56,11 +59,9 @@ impl InkE2ETest {
             ::ink_e2e::build_root_and_contract_dependencies()
         };
 
-        let node_url = self.test.config.node_url();
-
         let client_building = match self.test.config.backend() {
-            Backend::Full => {
-                build_full_client(&environment, exec_build_contracts, node_url)
+            Backend::Node(node_config) => {
+                build_full_client(&environment, exec_build_contracts, node_config)
             }
             #[cfg(any(test, feature = "drink"))]
             Backend::RuntimeOnly(runtime) => {
@@ -109,9 +110,9 @@ impl InkE2ETest {
 fn build_full_client(
     environment: &syn::Path,
     contracts: TokenStream2,
-    node_url: Option<String>,
+    node_config: Node,
 ) -> TokenStream2 {
-    match node_url {
+    match node_config.url() {
         Some(url) => {
             quote! {
                 let rpc = ::ink_e2e::RpcClient::from_url(#url)
