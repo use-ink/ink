@@ -173,11 +173,19 @@ mod tests {
             Backend::Node(node_config) => {
                 assert_eq!(node_config, Node::Auto);
 
-                std::env::remove_var("CONTRACTS_NODE_URL");
-                assert_eq!(node_config.url(), None);
+                temp_env::with_vars([("CONTRACTS_NODE_URL", None::<&str>)], || {
+                    assert_eq!(node_config.url(), None);
+                });
 
-                std::env::set_var("CONTRACTS_NODE_URL", "ws://127.0.0.1:9000");
-                assert_eq!(node_config.url(), Some(String::from("ws://127.0.0.1:9000")));
+                temp_env::with_vars(
+                    [("CONTRACTS_NODE_URL", Some("ws://127.0.0.1:9000"))],
+                    || {
+                        assert_eq!(
+                            node_config.url(),
+                            Some(String::from("ws://127.0.0.1:9000"))
+                        );
+                    },
+                );
             }
             _ => panic!("Expected Backend::Node"),
         }
@@ -195,11 +203,19 @@ mod tests {
             Backend::Node(node_config) => {
                 assert_eq!(node_config, Node::Url("ws://0.0.0.0:9999".to_owned()));
 
-                std::env::remove_var("CONTRACTS_NODE_URL");
-                assert_eq!(node_config.url(), Some("ws://0.0.0.0:9999".to_owned()));
+                temp_env::with_vars([("CONTRACTS_NODE_URL", None::<&str>)], || {
+                    assert_eq!(node_config.url(), Some("ws://0.0.0.0:9999".to_owned()));
+                });
 
-                std::env::set_var("CONTRACTS_NODE_URL", "ws://127.0.0.1:9000");
-                assert_eq!(node_config.url(), Some(String::from("ws://127.0.0.1:9000")));
+                temp_env::with_vars(
+                    [("CONTRACTS_NODE_URL", Some("ws://127.0.0.1:9000"))],
+                    || {
+                        assert_eq!(
+                            node_config.url(),
+                            Some(String::from("ws://127.0.0.1:9000"))
+                        );
+                    },
+                );
             }
             _ => panic!("Expected Backend::Node"),
         }
