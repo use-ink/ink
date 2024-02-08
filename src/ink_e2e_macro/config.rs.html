@@ -205,6 +205,22 @@
 <a href="#205" id="205">205</a>
 <a href="#206" id="206">206</a>
 <a href="#207" id="207">207</a>
+<a href="#208" id="208">208</a>
+<a href="#209" id="209">209</a>
+<a href="#210" id="210">210</a>
+<a href="#211" id="211">211</a>
+<a href="#212" id="212">212</a>
+<a href="#213" id="213">213</a>
+<a href="#214" id="214">214</a>
+<a href="#215" id="215">215</a>
+<a href="#216" id="216">216</a>
+<a href="#217" id="217">217</a>
+<a href="#218" id="218">218</a>
+<a href="#219" id="219">219</a>
+<a href="#220" id="220">220</a>
+<a href="#221" id="221">221</a>
+<a href="#222" id="222">222</a>
+<a href="#223" id="223">223</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -380,11 +396,19 @@
             Backend::Node(node_config) =&gt; {
                 <span class="macro">assert_eq!</span>(node_config, Node::Auto);
 
-                std::env::remove_var(<span class="string">&quot;CONTRACTS_NODE_URL&quot;</span>);
-                <span class="macro">assert_eq!</span>(node_config.url(), <span class="prelude-val">None</span>);
+                temp_env::with_vars([(<span class="string">&quot;CONTRACTS_NODE_URL&quot;</span>, <span class="prelude-val">None</span>::&lt;<span class="kw-2">&amp;</span>str&gt;)], || {
+                    <span class="macro">assert_eq!</span>(node_config.url(), <span class="prelude-val">None</span>);
+                });
 
-                std::env::set_var(<span class="string">&quot;CONTRACTS_NODE_URL&quot;</span>, <span class="string">&quot;ws://127.0.0.1:9000&quot;</span>);
-                <span class="macro">assert_eq!</span>(node_config.url(), <span class="prelude-val">Some</span>(String::from(<span class="string">&quot;ws://127.0.0.1:9000&quot;</span>)));
+                temp_env::with_vars(
+                    [(<span class="string">&quot;CONTRACTS_NODE_URL&quot;</span>, <span class="prelude-val">Some</span>(<span class="string">&quot;ws://127.0.0.1:9000&quot;</span>))],
+                    || {
+                        <span class="macro">assert_eq!</span>(
+                            node_config.url(),
+                            <span class="prelude-val">Some</span>(String::from(<span class="string">&quot;ws://127.0.0.1:9000&quot;</span>))
+                        );
+                    },
+                );
             }
             <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">&quot;Expected Backend::Node&quot;</span>),
         }
@@ -402,11 +426,19 @@
             Backend::Node(node_config) =&gt; {
                 <span class="macro">assert_eq!</span>(node_config, Node::Url(<span class="string">&quot;ws://0.0.0.0:9999&quot;</span>.to_owned()));
 
-                std::env::remove_var(<span class="string">&quot;CONTRACTS_NODE_URL&quot;</span>);
-                <span class="macro">assert_eq!</span>(node_config.url(), <span class="prelude-val">Some</span>(<span class="string">&quot;ws://0.0.0.0:9999&quot;</span>.to_owned()));
+                temp_env::with_vars([(<span class="string">&quot;CONTRACTS_NODE_URL&quot;</span>, <span class="prelude-val">None</span>::&lt;<span class="kw-2">&amp;</span>str&gt;)], || {
+                    <span class="macro">assert_eq!</span>(node_config.url(), <span class="prelude-val">Some</span>(<span class="string">&quot;ws://0.0.0.0:9999&quot;</span>.to_owned()));
+                });
 
-                std::env::set_var(<span class="string">&quot;CONTRACTS_NODE_URL&quot;</span>, <span class="string">&quot;ws://127.0.0.1:9000&quot;</span>);
-                <span class="macro">assert_eq!</span>(node_config.url(), <span class="prelude-val">Some</span>(String::from(<span class="string">&quot;ws://127.0.0.1:9000&quot;</span>)));
+                temp_env::with_vars(
+                    [(<span class="string">&quot;CONTRACTS_NODE_URL&quot;</span>, <span class="prelude-val">Some</span>(<span class="string">&quot;ws://127.0.0.1:9000&quot;</span>))],
+                    || {
+                        <span class="macro">assert_eq!</span>(
+                            node_config.url(),
+                            <span class="prelude-val">Some</span>(String::from(<span class="string">&quot;ws://127.0.0.1:9000&quot;</span>))
+                        );
+                    },
+                );
             }
             <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">&quot;Expected Backend::Node&quot;</span>),
         }
