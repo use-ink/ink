@@ -251,6 +251,9 @@ mod erc721 {
             if owner != *from {
                 return Err(Error::NotOwner);
             };
+            if *to == AccountId::from([0x0; 32]) {
+                return Err(Error::NotAllowed);
+            };
             self.clear_approval(id);
             self.remove_token_from(from, id)?;
             self.add_token_to(to, id)?;
@@ -459,6 +462,23 @@ mod erc721 {
             assert_eq!(2, ink::env::test::recorded_events().count());
             // Bob owns token 1
             assert_eq!(erc721.balance_of(accounts.bob), 1);
+        }
+
+        #[ink::test]
+        fn failing_transfer_preserves_owner() {
+            let accounts =
+                ink::env::test::default_accounts::<ink::env::DefaultEnvironment>();
+            // Create a new contract instance.
+            let mut erc721 = Erc721::new();
+            // Create token Id 1 for Alice
+            assert_eq!(erc721.mint(1), Ok(()));
+            // Make invalid transfer to account 0
+            assert_eq!(
+                erc721.transfer(AccountId::from([0x0; 32]), 1),
+                Err(Error::NotAllowed)
+            );
+            // Alice still owns token 1
+            assert_eq!(erc721.owner_of(1), Some(accounts.alice));
         }
 
         #[ink::test]
