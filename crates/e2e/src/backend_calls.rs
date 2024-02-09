@@ -429,7 +429,7 @@ where
         }
     }
 
-    /// Execute the upload.
+    /// Submit the remove code extrinsic.
     pub async fn submit(&mut self) -> Result<B::EventLog, B::Error> {
         B::bare_remove_code(self.client, self.caller, self.code_hash).await
     }
