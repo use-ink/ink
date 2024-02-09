@@ -404,7 +404,7 @@ where
     }
 }
 
-/// Allows to build an end-to-end upload call using a builder pattern.
+/// Allows to build an end-to-end remove code call using a builder pattern.
 pub struct RemoveCodeBuilder<'a, E, B>
 where
     E: Environment,
