@@ -37,7 +37,7 @@ array-init = { version = "2.0", default-features = false }
 blake2 = { version = "0.10" }
 cargo_metadata = { version = "0.18.0" }
 cfg-if = { version = "1.0" }
-contract-build = { version = "4.0.0-rc.1" }
+contract-build = { version = "4.0.0-rc.2" }
 darling = { version = "0.20.5" }
 derive_more = { version = "0.99.17", default-features = false }
 drink = { version = "=0.8.5" }
