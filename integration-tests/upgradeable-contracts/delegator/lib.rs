@@ -15,6 +15,7 @@ pub mod delegator {
         storage::{
             traits::ManualKey,
             Mapping,
+            Lazy,
         },
     };
 
@@ -22,7 +23,7 @@ pub mod delegator {
     pub struct Delegator {
         addresses: Mapping<AccountId, i32, ManualKey<0x23>>,
         counter: i32,
-        delegate_to: Option<Hash>,
+        delegate_to: Lazy<Hash>,
     }
 
     impl Delegator {
@@ -33,7 +34,7 @@ pub mod delegator {
             Self {
                 addresses: v,
                 counter: init_value,
-                delegate_to: None,
+                delegate_to: Lazy::new(),
             }
         }
 
@@ -45,11 +46,11 @@ pub mod delegator {
 
         #[ink(message)]
         pub fn update_delegate(&mut self, hash: Hash) {
-            if let Some(old_hash) = self.delegate_to {
+            if let Some(old_hash) = self.delegate_to.get() {
                 self.env().remove_delegate_dependency(&old_hash)
             }
             self.env().add_delegate_dependency(&hash);
-            self.delegate_to = Some(hash);
+            self.delegate_to.set(&hash);
         }
 
         /// Increment the current value using delegate call.
