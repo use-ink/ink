@@ -57,7 +57,7 @@ in the future.
 1. Before releasing, take note of the release order:
     - `ink_e2e` is dependent on the `cargo-contract` crates, which are dependent on the `ink` "core" crates.
     - Therefore, first release all `ink` crates except `ink_e2e`.
-    - If there are new versions of the `cargo-contract` crates, release them.
+    - Release `cargo-contract` crates.
     - Release `ink_e2e`
 2. Do a dry run with `cargo release [new_version] -v --no-tag --no-push`
     - `[new_version]` should be the **exact** SemVer compatible version you are attempting
