@@ -29,21 +29,25 @@ pub mod delegator {
     impl Delegator {
         /// Creates a new delegator smart contract initialized with the given value.
         #[ink(constructor)]
-        pub fn new(init_value: i32) -> Self {
+        pub fn new(init_value: i32, hash: Hash) -> Self {
             let v = Mapping::new();
+
+            // Initialize the hash of the contract to delegate to.
+            // Adds a delegate dependency, ensuring that the delegated to code cannot be removed.
+            let mut delegate_to = Lazy::new();
+            delegate_to.set(&hash);
+            Self::env().add_delegate_dependency(&hash);
+
             Self {
                 addresses: v,
                 counter: init_value,
-                delegate_to: Lazy::new(),
+                delegate_to,
             }
         }
 
-        /// Creates a new contract with default values.
-        #[ink(constructor)]
-        pub fn new_default() -> Self {
-            Self::new(Default::default())
-        }
-
+        /// Update the hash of the contract to delegate to.
+        /// - Removes the old delegate dependency, releasing the deposit and allowing old delegated to code to be removed.
+        /// - Adds a new delegate dependency, ensuring that the new delegated to code cannot be removed.
         #[ink(message)]
         pub fn update_delegate(&mut self, hash: Hash) {
             if let Some(old_hash) = self.delegate_to.get() {
@@ -55,10 +59,10 @@ pub mod delegator {
 
         /// Increment the current value using delegate call.
         #[ink(message)]
-        pub fn inc_delegate(&mut self, hash: Hash) {
+        pub fn inc_delegate(&mut self) {
             let selector = ink::selector_bytes!("inc");
             let _ = build_call::<DefaultEnvironment>()
-                .delegate(hash)
+                .delegate(self.delegate_to())
                 // We specify `CallFlags::TAIL_CALL` to use the delegatee last memory frame
                 // as the end of the execution cycle.
                 // So any mutations to `Packed` types, made by delegatee,
@@ -77,10 +81,10 @@ pub mod delegator {
         /// Note that we don't need `CallFlags::TAIL_CALL` flag
         /// because `Mapping` updates the storage instantly on-demand.
         #[ink(message)]
-        pub fn add_entry_delegate(&mut self, hash: Hash) {
+        pub fn add_entry_delegate(&mut self) {
             let selector = ink::selector_bytes!("append_address_value");
             let _ = build_call::<DefaultEnvironment>()
-                .delegate(hash)
+                .delegate(self.delegate_to())
                 .exec_input(ExecutionInput::new(Selector::new(selector)))
                 .returns::<()>()
                 .try_invoke();
@@ -96,6 +100,10 @@ pub mod delegator {
         #[ink(message)]
         pub fn get_value(&self, address: AccountId) -> (AccountId, Option<i32>) {
             (self.env().caller(), self.addresses.get(address))
+        }
+
+        fn delegate_to(&self) -> Hash {
+            self.delegate_to.get().expect("delegate_to always has a value")
         }
     }
 
@@ -118,14 +126,6 @@ pub mod delegator {
                 .create_and_fund_account(&ink_e2e::alice(), 10_000_000_000_000)
                 .await;
 
-            let mut constructor = DelegatorRef::new_default();
-            let contract = client
-                .instantiate("delegator", &origin, &mut constructor)
-                .submit()
-                .await
-                .expect("instantiate failed");
-            let mut call_builder = contract.call_builder::<Delegator>();
-
             let code_hash = client
                 .upload("delegatee", &origin)
                 .submit()
@@ -133,8 +133,16 @@ pub mod delegator {
                 .expect("upload `delegatee` failed")
                 .code_hash;
 
+            let mut constructor = DelegatorRef::new(0, code_hash);
+            let contract = client
+                .instantiate("delegator", &origin, &mut constructor)
+                .submit()
+                .await
+                .expect("instantiate failed");
+            let mut call_builder = contract.call_builder::<Delegator>();
+
             // when
-            let call_delegate = call_builder.inc_delegate(code_hash);
+            let call_delegate = call_builder.inc_delegate();
 
             let result = client.call(&origin, &call_delegate).submit().await;
             assert!(result.is_ok(), "delegate call failed.");
@@ -170,15 +178,6 @@ pub mod delegator {
                 .create_and_fund_account(&ink_e2e::alice(), 10_000_000_000_000)
                 .await;
 
-            // given
-            let mut constructor = DelegatorRef::new(10);
-            let contract = client
-                .instantiate("delegator", &origin, &mut constructor)
-                .submit()
-                .await
-                .expect("instantiate failed");
-            let mut call_builder = contract.call_builder::<Delegator>();
-
             let code_hash = client
                 .upload("delegatee", &origin)
                 .submit()
@@ -186,8 +185,17 @@ pub mod delegator {
                 .expect("upload `delegatee` failed")
                 .code_hash;
 
+            // given
+            let mut constructor = DelegatorRef::new(10, code_hash);
+            let contract = client
+                .instantiate("delegator", &origin, &mut constructor)
+                .submit()
+                .await
+                .expect("instantiate failed");
+            let mut call_builder = contract.call_builder::<Delegator>();
+
             // when
-            let call_delegate = call_builder.add_entry_delegate(code_hash);
+            let call_delegate = call_builder.add_entry_delegate();
             let result = client.call(&origin, &call_delegate).submit().await;
             assert!(result.is_ok(), "delegate call failed.");
 
