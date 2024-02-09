@@ -12,10 +12,6 @@ pub mod delegator {
             CallFlags,
             DefaultEnvironment,
         },
-        prelude::{
-            format,
-            string::String,
-        },
         storage::{
             traits::ManualKey,
             Mapping,
