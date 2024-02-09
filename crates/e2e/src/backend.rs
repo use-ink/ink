@@ -160,12 +160,12 @@ pub trait ContractsBackend<E: Environment> {
         UploadBuilder::new(self, contract_name, caller)
     }
 
-    /// Start building an upload call.
+    /// Start building a remove code call.
     /// # Example
     ///
     /// ```ignore
     /// let contract = client
-    ///     .remove(&ink_e2e::alice(), code_hash)
+    ///     .remove_code(&ink_e2e::alice(), code_hash)
     ///     // Submit the call for on-chain execution.
     ///     .submit()
     ///     .await
