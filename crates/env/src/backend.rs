@@ -423,7 +423,8 @@ pub trait TypedEnvBackend: EnvBackend {
     ///
     /// # Note
     ///
-    /// For more details visit: [`remove_delegate_dependency`][`crate::remove_delegate_dependency`]
+    /// For more details visit:
+    /// [`remove_delegate_dependency`][`crate::remove_delegate_dependency`]
     fn add_delegate_dependency<E>(&mut self, code_hash: &E::Hash)
     where
         E: Environment;
@@ -432,7 +433,8 @@ pub trait TypedEnvBackend: EnvBackend {
     ///
     /// # Note
     ///
-    /// For more details visit: [`remove_delegate_dependency`][`crate::remove_delegate_dependency`]
+    /// For more details visit:
+    /// [`remove_delegate_dependency`][`crate::remove_delegate_dependency`]
     fn remove_delegate_dependency<E>(&mut self, code_hash: &E::Hash)
     where
         E: Environment;

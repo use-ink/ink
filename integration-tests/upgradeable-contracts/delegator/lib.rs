@@ -14,8 +14,8 @@ pub mod delegator {
         },
         storage::{
             traits::ManualKey,
-            Mapping,
             Lazy,
+            Mapping,
         },
     };
 
@@ -33,7 +33,8 @@ pub mod delegator {
             let v = Mapping::new();
 
             // Initialize the hash of the contract to delegate to.
-            // Adds a delegate dependency, ensuring that the delegated to code cannot be removed.
+            // Adds a delegate dependency, ensuring that the delegated to code cannot be
+            // removed.
             let mut delegate_to = Lazy::new();
             delegate_to.set(&hash);
             Self::env().add_delegate_dependency(&hash);
@@ -46,10 +47,12 @@ pub mod delegator {
         }
 
         /// Update the hash of the contract to delegate to.
-        /// - Removes the old delegate dependency, releasing the deposit and allowing old delegated to code to be removed.
-        /// - Adds a new delegate dependency, ensuring that the new delegated to code cannot be removed.
+        /// - Removes the old delegate dependency, releasing the deposit and allowing old
+        ///   delegated to code to be removed.
+        /// - Adds a new delegate dependency, ensuring that the new delegated to code
+        ///   cannot be removed.
         #[ink(message)]
-        pub fn update_delegate(&mut self, hash: Hash) {
+        pub fn update_delegate_to(&mut self, hash: Hash) {
             if let Some(old_hash) = self.delegate_to.get() {
                 self.env().remove_delegate_dependency(&old_hash)
             }
@@ -103,7 +106,9 @@ pub mod delegator {
         }
 
         fn delegate_to(&self) -> Hash {
-            self.delegate_to.get().expect("delegate_to always has a value")
+            self.delegate_to
+                .get()
+                .expect("delegate_to always has a value")
         }
     }
 
@@ -220,6 +225,58 @@ pub mod delegator {
                 (address, Some(expected_value)),
                 "Decoded an unexpected value from the call."
             );
+
+            Ok(())
+        }
+
+        #[ink_e2e::test]
+        async fn update_delegate<Client: E2EBackend>(
+            mut client: Client,
+        ) -> E2EResult<()> {
+            // given
+            let origin = client
+                .create_and_fund_account(&ink_e2e::alice(), 10_000_000_000_000)
+                .await;
+
+            let code_hash = client
+                .upload("delegatee", &origin)
+                .submit()
+                .await
+                .expect("upload `delegatee` failed")
+                .code_hash;
+
+            let code_hash2 = client
+                .upload("delegatee2", &origin)
+                .submit()
+                .await
+                .expect("upload `delegatee2` failed")
+                .code_hash;
+
+            let mut constructor = DelegatorRef::new(10, code_hash);
+            let contract = client
+                .instantiate("delegator", &origin, &mut constructor)
+                .submit()
+                .await
+                .expect("instantiate failed");
+            let mut call_builder = contract.call_builder::<Delegator>();
+
+            // when
+            let call_delegate = call_builder.update_delegate_to(code_hash2);
+            let result = client.call(&origin, &call_delegate).submit().await;
+            assert!(result.is_ok(), "update_delegate_to failed.");
+
+            // then
+
+            // remove the original delegatee code.
+            // should succeed because the delegate dependency has been removed.
+            let original_code_removed =
+                client.remove_code(&origin, code_hash).submit().await;
+            assert!(original_code_removed.is_ok());
+
+            // attempt to remove the new delegatee code.
+            // should fail because of the delegate dependency.
+            let new_code_removed = client.remove_code(&origin, code_hash2).submit().await;
+            assert!(new_code_removed.is_err());
 
             Ok(())
         }
