@@ -667,6 +667,7 @@ impl TypedEnvBackend for EnvInstance {
     {
         let mut scope = self.scoped_buffer();
         let enc_code_hash = scope.take_encoded(code_hash);
+        #[allow(deprecated)]
         ext::add_delegate_dependency(enc_code_hash)
     }
 
@@ -676,6 +677,7 @@ impl TypedEnvBackend for EnvInstance {
     {
         let mut scope = self.scoped_buffer();
         let enc_code_hash = scope.take_encoded(code_hash);
+        #[allow(deprecated)]
         ext::remove_delegate_dependency(enc_code_hash)
     }
 }
