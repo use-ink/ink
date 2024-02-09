@@ -340,6 +340,14 @@ where
         })
     }
 
+    async fn bare_remove_code(
+        &mut self,
+        _caller: &Keypair,
+        _code_hash: E::Hash,
+    ) -> Result<Self::EventLog, Self::Error> {
+        unimplemented!("drink! sandbox does not yet support remove_code")
+    }
+
     async fn bare_call<Args: Sync + Encode + Clone, RetType: Send + Decode>(
         &mut self,
         caller: &Keypair,
