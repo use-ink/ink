@@ -1,5 +1,5 @@
 [package]
-name = "basic-contract-caller"
+name = "cross-contract-calls"
 version = "5.0.0-rc"
 authors = ["Parity Technologies <admin@parity.io>"]
 edition = "2021"

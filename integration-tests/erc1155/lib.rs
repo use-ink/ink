@@ -383,7 +383,7 @@ mod erc1155 {
                 // reject this transfer. If they reject it we need to revert the call.
                 let result = build_call::<Environment>()
                     .call(to)
-                    .gas_limit(5000)
+                    .ref_time_limit(5000)
                     .exec_input(
                         ExecutionInput::new(Selector::new(ON_ERC_1155_RECEIVED_SELECTOR))
                             .push_arg(caller)
