@@ -208,7 +208,7 @@ where
 #[async_trait]
 impl<
         AccountId: Clone + Send + Sync + From<[u8; 32]> + AsRef<[u8; 32]>,
-        Hash: Copy + From<[u8; 32]>,
+        Hash: Copy + Send + From<[u8; 32]>,
         Runtime: RuntimeT + pallet_balances::Config + pallet_contracts::Config,
         E: Environment<
                 AccountId = AccountId,
@@ -427,7 +427,7 @@ where
 
 impl<
         AccountId: Clone + Send + Sync + From<[u8; 32]> + AsRef<[u8; 32]>,
-        Hash: Copy + From<[u8; 32]>,
+        Hash: Copy + Send + From<[u8; 32]>,
         Runtime: RuntimeT + pallet_balances::Config + pallet_contracts::Config,
         E: Environment<
                 AccountId = AccountId,
