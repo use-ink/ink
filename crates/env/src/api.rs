@@ -834,7 +834,7 @@ where
 ///
 /// - If the supplied `code_hash` cannot be found on-chain.
 /// - If the `code_hash` is the same as the calling contract.
-/// - If the maximum number of delegate_dependencies is reached
+/// - If the maximum number of delegate dependencies is reached
 /// - If the delegate dependency already exists.
 pub fn add_delegate_dependency<E>(code_hash: &E::Hash)
 where

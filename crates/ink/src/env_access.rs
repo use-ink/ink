@@ -1184,12 +1184,65 @@ where
         ink_env::call_runtime::<E, _>(call)
     }
 
-    /// todo: add_delegate_dependency docs
+    /// Adds a new delegate dependency for the given `code_hash` to prevent it from being
+    /// deleted.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # #[ink::contract]
+    /// # pub mod my_contract {
+    /// #     #[ink(storage)]
+    /// #     pub struct MyContract { }
+    /// #
+    /// #     impl MyContract {
+    /// #         #[ink(constructor)]
+    /// #         pub fn new() -> Self {
+    /// #             Self {}
+    /// #         }
+    /// #
+    /// #[ink(message)]
+    /// pub fn add_delegate_dependency(&mut self, code_hash: Hash) {
+    ///     self.env().add_delegate_dependency(&code_hash)
+    /// }
+    /// #    }
+    /// # }
+    /// ```
+    ///
+    /// # Note
+    ///
+    /// For more details visit: [`ink_env::add_delegate_dependency`]
     pub fn add_delegate_dependency(self, code_hash: &E::Hash) {
         ink_env::add_delegate_dependency::<E>(code_hash)
     }
 
-    /// todo: remove_delegate_dependency docs
+    /// Removes the delegate dependency from this contract for the given `code_hash`.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # #[ink::contract]
+    /// # pub mod my_contract {
+    /// #     #[ink(storage)]
+    /// #     pub struct MyContract { }
+    /// #
+    /// #     impl MyContract {
+    /// #         #[ink(constructor)]
+    /// #         pub fn new() -> Self {
+    /// #             Self {}
+    /// #         }
+    /// #
+    /// #[ink(message)]
+    /// pub fn remove_delegate_dependency(&mut self, code_hash: Hash) {
+    ///     self.env().remove_delegate_dependency(&code_hash)
+    /// }
+    /// #    }
+    /// # }
+    /// ```
+    ///
+    /// # Note
+    ///
+    /// For more details visit: [`ink_env::remove_delegate_dependency`]
     pub fn remove_delegate_dependency(self, code_hash: &E::Hash) {
         ink_env::remove_delegate_dependency::<E>(code_hash)
     }
