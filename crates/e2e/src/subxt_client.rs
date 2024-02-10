@@ -38,7 +38,6 @@ use crate::{
         UploadResult,
     },
 };
-use drink::Weight;
 use ink_env::{
     call::{
         utils::{
@@ -56,6 +55,7 @@ use scale::{
     Decode,
     Encode,
 };
+use sp_weights::Weight;
 #[cfg(feature = "std")]
 use std::fmt::Debug;
 use std::path::PathBuf;

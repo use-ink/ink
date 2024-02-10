@@ -42,9 +42,11 @@ use drink::{
     RuntimeCall,
     Sandbox,
     SandboxConfig,
-    Weight,
     DEFAULT_GAS_LIMIT,
 };
+
+use sp_weigths::Weight;
+
 use pallet_contracts_primitives::ContractResult;
 
 use ink_env::Environment;

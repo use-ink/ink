@@ -12,12 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use drink::Weight;
 use ink_env::Environment;
 use scale::{
     Decode,
     Encode,
 };
+use sp_weights::Weight;
 
 use crate::{
     backend::BuilderClient,
@@ -109,7 +109,7 @@ where
     /// Overwrites any values specified for `extra_gas_portion`.
     ///  The gas estimate fro dry-run will be ignored.
     pub fn gas_limit(&mut self, limit: Weight) -> &mut Self {
-        if limit == Weight::from(0) {
+        if limit == Weight::from_parts(0, 0) {
             self.gas_limit = None
         } else {
             self.gas_limit = Some(limit)
@@ -269,7 +269,7 @@ where
     /// Overwrites any values specified for `extra_gas_portion`.
     /// The gas estimate fro dry-run will be ignored.
     pub fn gas_limit(&mut self, limit: Weight) -> &mut Self {
-        if limit == Weight::from(0) {
+        if limit == Weight::from_parts(0, 0) {
             self.gas_limit = None
         } else {
             self.gas_limit = Some(limit)

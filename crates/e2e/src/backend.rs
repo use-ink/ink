@@ -28,7 +28,6 @@ use crate::{
     CallDryRunResult,
     UploadResult,
 };
-use drink::Weight;
 use ink_env::{
     DefaultEnvironment,
     Environment,
@@ -38,6 +37,7 @@ use scale::{
     Decode,
     Encode,
 };
+use sp_weights::Weight;
 use subxt::dynamic::Value;
 
 /// Full E2E testing backend: combines general chain API and contract-specific operations.
