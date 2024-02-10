@@ -83,12 +83,13 @@ xxhash-rust = { version = "0.8" }
 const_env = { version = "0.1"}
 
 # Substrate dependencies
-pallet-contracts-primitives = { version = "26.0.0", default-features = false }
-pallet-contracts-uapi = { package = "ink-pallet-contracts-uapi", version = "6.0.0", default-features = false }
-sp-core = { version = "23.0.0", default-features = false }
-sp-keyring = { version = "26.0.0", default-features = false }
-sp-runtime = { version = "26.0.0", default-features = false }
-sp-weights = { version = "22.0.0", default-features = false }
+pallet-contracts-primitives = { version = "=29.0.0", default-features = false }
+pallet-contracts-uapi = { package = "ink-pallet-contracts-uapi", version = "=7.0.0", default-features = false }
+sp-core = { version = "=28.0.0", default-features = false }
+sp-keyring = { version = "=31.0.0", default-features = false }
+sp-runtime = { version = "=31.0.1", default-features = false }
+sp-weights = { version = "=27.0.0", default-features = false }
+sp-externalities = { version = "=0.25.0" }
 
 # Local dependencies
 ink = { version = "=5.0.0-rc.1", path = "crates/ink", default-features = false }

@@ -12,12 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use drink::Weight;
 use ink_env::Environment;
 use scale::{
     Decode,
     Encode,
 };
-use sp_weights::Weight;
 
 use crate::{
     backend::BuilderClient,
@@ -153,11 +153,9 @@ where
             limit
         } else {
             let gas_required = dry_run.exec_result.gas_required;
-            if let Some(m) = self.extra_gas_portion {
-                gas_required + (gas_required / 100 * m)
-            } else {
-                gas_required
-            }
+            let proof_size = gas_required.proof_size();
+            let ref_time = gas_required.ref_time();
+            calculate_weight(proof_size, ref_time, self.extra_gas_portion)
         };
 
         let call_result = B::bare_call(
@@ -313,11 +311,9 @@ where
             limit
         } else {
             let gas_required = dry_run.contract_result.gas_required;
-            if let Some(m) = self.extra_gas_portion {
-                gas_required + (gas_required / 100 * m)
-            } else {
-                gas_required
-            }
+            let proof_size = gas_required.proof_size();
+            let ref_time = gas_required.ref_time();
+            calculate_weight(proof_size, ref_time, self.extra_gas_portion)
         };
 
         let instantiate_result = B::bare_instantiate(
@@ -402,4 +398,16 @@ where
         )
         .await
     }
+}
+
+fn calculate_weight(
+    mut proof_size: u64,
+    mut ref_time: u64,
+    portion: Option<u64>,
+) -> Weight {
+    if let Some(m) = portion {
+        ref_time += ref_time / 100 * m;
+        proof_size += proof_size / 100 * m;
+    }
+    Weight::from_parts(ref_time, proof_size)
 }

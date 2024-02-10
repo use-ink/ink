@@ -65,8 +65,8 @@ pub struct Weight {
     proof_size: u64,
 }
 
-impl From<sp_weights::Weight> for Weight {
-    fn from(weight: sp_weights::Weight) -> Self {
+impl From<drink::Weight> for Weight {
+    fn from(weight: drink::Weight) -> Self {
         Self {
             ref_time: weight.ref_time(),
             proof_size: weight.proof_size(),
@@ -74,9 +74,9 @@ impl From<sp_weights::Weight> for Weight {
     }
 }
 
-impl From<Weight> for sp_weights::Weight {
+impl From<Weight> for drink::Weight {
     fn from(weight: Weight) -> Self {
-        sp_weights::Weight::from_parts(weight.ref_time, weight.proof_size)
+        drink::Weight::from_parts(weight.ref_time, weight.proof_size)
     }
 }
 

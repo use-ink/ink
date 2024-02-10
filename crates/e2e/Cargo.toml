@@ -44,7 +44,6 @@ pallet-contracts-primitives = { workspace = true }
 sp-core = { workspace = true }
 sp-keyring = { workspace = true }
 sp-runtime = { workspace = true }
-sp-weights = { workspace = true }
 
 [dev-dependencies]
 # Required for the doctest of `MessageBuilder::call`
