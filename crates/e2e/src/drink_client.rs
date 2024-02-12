@@ -42,16 +42,15 @@ use drink::{
     RuntimeCall,
     Sandbox,
     SandboxConfig,
+    Weight,
     DEFAULT_GAS_LIMIT,
 };
 
-use sp_weigths::Weight;
-
-use pallet_contracts_primitives::ContractResult;
+use pallet_contracts::ContractResult;
 
 use ink_env::Environment;
 use jsonrpsee::core::async_trait;
-use pallet_contracts_primitives::{
+use pallet_contracts::{
     CodeUploadReturnValue,
     ContractInstantiateResult,
     InstantiateReturnValue,

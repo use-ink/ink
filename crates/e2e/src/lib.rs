@@ -85,7 +85,7 @@ use ink_env::{
     ContractEnv,
     Environment,
 };
-use pallet_contracts_primitives::{
+use pallet_contracts::{
     ContractExecResult,
     ContractInstantiateResult,
 };
