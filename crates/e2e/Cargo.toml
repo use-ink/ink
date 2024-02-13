@@ -40,7 +40,7 @@ wasm-instrument = { workspace = true }
 which = { workspace = true }
 
 # Substrate
-pallet-contracts-primitives = { workspace = true }
+pallet-contracts = { workspace = true }
 sp-core = { workspace = true }
 sp-keyring = { workspace = true }
 sp-runtime = { workspace = true }
@@ -52,7 +52,17 @@ scale-info = { workspace = true, features = ["derive"] }
 
 [features]
 default = ["std"]
-std = []
+std = [
+	"impl-serde/std",
+	"pallet-contracts/std",
+	"scale/std",
+	"scale-info/std",
+	"serde/std",
+	"sp-core/std",
+	"sp-runtime/std",
+	"sp-weights/std",
+	"ink_e2e_macro/std"
+]
 drink = [
     "dep:drink",
     "subxt-metadata",
