@@ -1403,12 +1403,12 @@ dependencies = [
 
 [[package]]
 name = "darling"
-version = "0.20.5"
+version = "0.20.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "fc5d6b04b3fd0ba9926f945895de7d806260a2d7431ba82e7edaecb043c4c6b8"
+checksum = "c376d08ea6aa96aafe61237c7200d1241cb177b7d3a542d791f2d118e9cbb955"
 dependencies = [
- "darling_core 0.20.5",
- "darling_macro 0.20.5",
+ "darling_core 0.20.6",
+ "darling_macro 0.20.6",
 ]
 
 [[package]]
@@ -1427,9 +1427,9 @@ dependencies = [
 
 [[package]]
 name = "darling_core"
-version = "0.20.5"
+version = "0.20.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "04e48a959bcd5c761246f5d090ebc2fbf7b9cd527a492b07a67510c108f1e7e3"
+checksum = "33043dcd19068b8192064c704b3f83eb464f91f1ff527b44a4e2b08d9cdb8855"
 dependencies = [
  "fnv",
  "ident_case",
@@ -1452,11 +1452,11 @@ dependencies = [
 
 [[package]]
 name = "darling_macro"
-version = "0.20.5"
+version = "0.20.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1d1545d67a2149e1d93b7e5c7752dce5a7426eb5d1357ddcfd89336b94444f77"
+checksum = "c5a91391accf613803c2a9bf9abccdbaa07c54b4244a5b64883f9c3c137c86be"
 dependencies = [
- "darling_core 0.20.5",
+ "darling_core 0.20.6",
  "quote",
  "syn 2.0.48",
 ]
@@ -1628,7 +1628,7 @@ dependencies = [
  "contract-build",
  "contract-metadata",
  "convert_case 0.6.0",
- "darling 0.20.5",
+ "darling 0.20.6",
  "proc-macro2",
  "quote",
  "syn 2.0.48",
@@ -2726,7 +2726,7 @@ dependencies = [
 name = "ink_e2e_macro"
 version = "5.0.0-rc.1"
 dependencies = [
- "darling 0.20.5",
+ "darling 0.20.6",
  "derive_more",
  "ink_ir",
  "proc-macro2",
@@ -6067,7 +6067,7 @@ version = "0.34.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "365251668613323064803427af8c7c7bc366cd8b28e33639640757669dafebd5"
 dependencies = [
- "darling 0.20.5",
+ "darling 0.20.6",
  "parity-scale-codec",
  "proc-macro-error",
  "quote",
