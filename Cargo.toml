@@ -46,7 +46,7 @@ funty = { version = "2.0.0" }
 heck = { version = "0.4.0" }
 impl-serde = { version = "0.4.0", default-features = false }
 itertools = { version = "0.12", default-features = false }
-jsonrpsee = { version = "0.22.0" }
+jsonrpsee = { version = "0.22.1" }
 linkme = { version = "0.3.22" }
 num-traits = { version = "0.2", default-features = false }
 paste = { version = "1.0" }
