@@ -22,7 +22,7 @@ use super::{
 use ink_env::Environment;
 
 use core::marker::PhantomData;
-use pallet_contracts_primitives::CodeUploadResult;
+use pallet_contracts::CodeUploadResult;
 use sp_core::H256;
 use subxt::{
     backend::{

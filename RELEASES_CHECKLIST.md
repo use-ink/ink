@@ -31,14 +31,14 @@ crates.io.
 
 ## Checklist
 
-We'll be using [`cargo-release`](https://github.com/crate-ci/cargo-release) to release 
-ink!. There are still a few manual steps though, and we hope to make this more streamlined 
+We'll be using [`cargo-release`](https://github.com/crate-ci/cargo-release) to release
+ink!. There are still a few manual steps though, and we hope to make this more streamlined
 in the future.
 
 1. Create a new feature branch off `master`.
 1. Copy the release notes that appear in the [`CHANGELOG.md`](https://github.com/paritytech/ink/blob/master/CHANGELOG.md)
-   into the PR description. 
-   - This will cause the individual PRs to be linked to the release in which they are 
+   into the PR description.
+   - This will cause the individual PRs to be linked to the release in which they are
      included.
 1. Bump the version in all TOML files to the new version.
     ```
@@ -54,53 +54,58 @@ in the future.
 1. Open a release PR
     - Wait for approvals from Core team members.
     - Ensure the entire CI pipeline is green.
-1. Do a dry run with `cargo release [new_version] -v --no-tag --no-push`
-    - `[new_version]` should be the **exact** SemVer compatible version you are attempting 
-      to release e.g. `4.0.0-alpha.3`
-      - It is possible to supply a SemVer level here e.g. `major`, `minor`, `patch` or 
-        `<pre-release-name>`, however this will automatically bump and commit the changes 
-        to the `Cargo.toml` manifests. We have already done that in an earlier step so it 
+1. Before releasing, take note of the release order:
+    - `ink_e2e` is dependent on the `cargo-contract` crates, which are dependent on the `ink` "core" crates.
+    - Therefore, first release all `ink` crates except `ink_e2e`.
+    - Release `cargo-contract` crates.
+    - Release `ink_e2e`
+2. Do a dry run with `cargo release [new_version] -v --no-tag --no-push`
+    - `[new_version]` should be the **exact** SemVer compatible version you are attempting
+      to release e.g. `5.0.0`
+      - It is possible to supply a SemVer level here e.g. `major`, `minor`, `patch` or
+        `<pre-release-name>`, however this will automatically bump and commit the changes
+        to the `Cargo.toml` manifests. We have already done that in an earlier step so it
         is not necessary.
     - We don't want `cargo-release` to create any releases or push any code, we'll do
       that manually once we've actually published to `crates.io`.
-1. Check the output of the dry run:
+3. Check the output of the dry run:
    - Does not show any automatic bumping of crate versions.
    - Runs without error.
-1. Following a successful dry run, we can now publish to crates.io. 
+4. Following a successful dry run, we can now publish to crates.io.
    - This will be done from the release branch itself.
-   - This is because it is possible for the dry run to succeed but for the actual publish 
+   - This is because it is possible for the dry run to succeed but for the actual publish
      to fail and require some changes. So before running the next step:
-     - Ensure there have been no new commits to `master` which are not included in this 
+     - Ensure there have been no new commits to `master` which are not included in this
        branch.
-     - Notify core team members in the Element channel that no PRs should be merged to 
+     - Notify core team members in the Element channel that no PRs should be merged to
        `master` during the release.
-     - The above are to ensure that the bundled code pushed to crates.io is the same as 
+     - The above are to ensure that the bundled code pushed to crates.io is the same as
        the tagged release on GitHub.
-1. Publish with `cargo release [new_version] -v --no-tag --no-push --execute`
-    - Ensure the same `[new_version]` as the dry run, which should be the **exact** SemVer 
+5. Publish with `cargo release [new_version] -v --no-tag --no-push --execute`
+    - Ensure the same `[new_version]` as the dry run, which should be the **exact** SemVer
       compatible version you are attempting to release e.g. `4.0.0-alpha.3`.
     - We add the grace period since crates depend on one another.
     - We add the `--execute` flag to _actually_ publish things to crates.io.
-1. Following a successful release from the release PR branch, now the PR can be merged 
+6. Following a successful release from the release PR branch, now the PR can be merged
    into `master`
-    - Once merged, notify core team members in the Element channel that PRs can be merged 
+    - Once merged, notify core team members in the Element channel that PRs can be merged
       again into `master`
-1. Replace `vX.X.X` with the new version in the following command and then execute it:
+7. Replace `vX.X.X` with the new version in the following command and then execute it:
     ```
     git tag -s vX.X.X && git push origin vX.X.X
     ```
     - Ensure your tag is signed with an offline GPG key!
-    - Alternatively, the `Create release` GitHub UI below allows creating this tag when 
+    - Alternatively, the `Create release` GitHub UI below allows creating this tag when
       creating the release.
-1. Update the [`ink-examples`](https://github.com/paritytech/ink-examples) repository with
+8. Update the [`ink-examples`](https://github.com/paritytech/ink-examples) repository with
    the content of `integration-tests` (minus `mother`, `lang-err-integration-tests` and
    `mapping-integration-tests`). Besides copying those folders over, the only change you
    need to do manually is to switch the dependencies in the `Cargo.toml`'s to use the
    published version of your release.
-1. Create a GitHub release for this tag. In the [tag overview](https://github.com/paritytech/ink/tags)
-   you'll see your new tag appear. Click the `…` on the right of the tag and then 
+9.  Create a GitHub release for this tag. In the [tag overview](https://github.com/paritytech/ink/tags)
+   you'll see your new tag appear. Click the `…` on the right of the tag and then
    `Create release`.
-1. Paste the release notes that appear in the [`CHANGELOG.md`](https://github.com/paritytech/ink/blob/master/CHANGELOG.md)
+10. Paste the release notes that appear in the [`CHANGELOG.md`](https://github.com/paritytech/ink/blob/master/CHANGELOG.md)
    there. The title of the release should be `vX.X.X`.
-1. Post an announcement to those Element channels:
+11. Post an announcement to those Element channels:
     * [Smart Contracts & Parity ink!](https://matrix.to/#/#ink:matrix.parity.io)
