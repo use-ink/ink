@@ -35,8 +35,8 @@ pub mod static_buffer {
         pub fn buffer(&self) {
             let _buf1 = Vec::<u8>::with_capacity(3);
             let _buf2 = Vec::<u64>::with_capacity(1);
-            ink::env::debug_println!("{:?}", buf1.as_ptr());
-            ink::env::debug_println!("{:?}", buf2.as_ptr());
+            ink::env::debug_println!("{:?}", _buf1.as_ptr());
+            ink::env::debug_println!("{:?}", _buf2.as_ptr());
             ink::env::debug_println!("{}", core::mem::align_of::<Vec<bool>>());
         }
     }
