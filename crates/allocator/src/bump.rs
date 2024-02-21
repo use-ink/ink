@@ -197,6 +197,13 @@ impl InnerAlloc {
     }
 
     /// Aligns the start pointer of the next allocation.
+    ///
+    /// We inductively calculate the start index
+    /// of a layout in the linear memory.
+    /// - Initially `self.next` is `0`` and aligned
+    /// - `layout.align() - 1` accounts for `0` as the first index.
+    /// - the binary with the inverse of the align ensures
+    /// that the next allocated pointer address is of the power of 2.
     fn align_ptr(&self, layout: &Layout) -> usize {
         (self.next + layout.align() - 1) & !(layout.align() - 1)
     }
@@ -369,7 +376,7 @@ mod fuzz_tests {
             Err(_) => return TestResult::discard(),
         };
 
-        let size = layout.pad_to_align().size();
+        let size = layout.size();
         assert_eq!(
             inner.alloc(layout),
             Some(0),
@@ -408,7 +415,7 @@ mod fuzz_tests {
             Err(_) => return TestResult::discard(),
         };
 
-        let size = layout.pad_to_align().size();
+        let size = layout.size();
         assert_eq!(
             inner.alloc(layout),
             Some(0),
@@ -477,7 +484,7 @@ mod fuzz_tests {
                 Err(_) => return TestResult::discard(),
             };
 
-            let size = layout.pad_to_align().size();
+            let size = layout.size();
 
             let current_page_limit = PAGE_SIZE * required_pages(inner.next).unwrap();
             let is_too_big_for_current_page = inner.next + size > current_page_limit;
