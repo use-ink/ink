@@ -169,7 +169,7 @@ pub trait ContractsBackend<E: Environment> {
     ///     // Submit the call for on-chain execution.
     ///     .submit()
     ///     .await
-    ///     .expect("upload failed");
+    ///     .expect("remove failed");
     /// ```
     fn remove_code<'a>(
         &'a mut self,
