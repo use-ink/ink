@@ -127,7 +127,7 @@ mod multisig {
         /// The amount of chain balance that is transferred to the callee.
         pub transferred_value: Balance,
         /// Gas limit for the execution of the call.
-        pub gas_limit: u64,
+        pub ref_time_limit: u64,
         /// If set to true the transaction will be allowed to re-enter the multisig
         /// contract. Re-entrancy can lead to vulnerabilities. Use at your own
         /// risk.
@@ -335,7 +335,7 @@ mod multisig {
         ///     selector: selector_bytes!("add_owner"),
         ///     input: add_owner_args.encode(),
         ///     transferred_value: 0,
-        ///     gas_limit: 0,
+        ///     ref_time_limit: 0,
         ///     allow_reentry: true,
         /// };
         ///
@@ -345,7 +345,7 @@ mod multisig {
         /// // are `[86, 244, 13, 223]`.
         /// let (id, _status) = ink::env::call::build_call::<Env>()
         ///     .call_type(Call::new(wallet_id))
-        ///     .gas_limit(0)
+        ///     .ref_time_limit(0)
         ///     .exec_input(
         ///         ExecutionInput::new(Selector::new([86, 244, 13, 223]))
         ///             .push_arg(&transaction_candidate),
@@ -359,7 +359,7 @@ mod multisig {
         /// // are `[185, 50, 225, 236]`.
         /// ink::env::call::build_call::<Env>()
         ///     .call_type(Call::new(wallet_id))
-        ///     .gas_limit(0)
+        ///     .ref_time_limit(0)
         ///     .exec_input(ExecutionInput::new(Selector::new([185, 50, 225, 236])).push_arg(&id))
         ///     .returns::<()>()
         ///     .invoke();
@@ -553,7 +553,7 @@ mod multisig {
 
             let result = build_call::<<Self as ::ink::env::ContractEnv>::Env>()
                 .call(t.callee)
-                .gas_limit(t.gas_limit)
+                .ref_time_limit(t.ref_time_limit)
                 .transferred_value(t.transferred_value)
                 .call_flags(call_flags)
                 .exec_input(
@@ -594,7 +594,7 @@ mod multisig {
 
             let result = build_call::<<Self as ::ink::env::ContractEnv>::Env>()
                 .call(t.callee)
-                .gas_limit(t.gas_limit)
+                .ref_time_limit(t.ref_time_limit)
                 .transferred_value(t.transferred_value)
                 .call_flags(call_flags)
                 .exec_input(
@@ -758,7 +758,7 @@ mod multisig {
                     selector: ink::selector_bytes!("change_requirement"),
                     input: call_args.encode(),
                     transferred_value: 0,
-                    gas_limit: 1000000,
+                    ref_time_limit: 1000000,
                     allow_reentry: false,
                 }
             }

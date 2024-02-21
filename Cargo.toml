@@ -29,7 +29,7 @@ homepage = "https://www.parity.io/"
 keywords = ["wasm", "parity", "webassembly", "blockchain", "edsl"]
 license = "Apache-2.0"
 repository = "https://github.com/paritytech/ink"
-version = "5.0.0-rc"
+version = "5.0.0-rc.1"
 
 [workspace.dependencies]
 arrayref = { version = "0.3" }
@@ -37,17 +37,17 @@ array-init = { version = "2.0", default-features = false }
 blake2 = { version = "0.10" }
 cargo_metadata = { version = "0.18.0" }
 cfg-if = { version = "1.0" }
-contract-build = { version = "4.0.0-rc.1" }
-darling = { version = "0.20.5" }
+contract-build = { version = "4.0.0-rc.2" }
+darling = { version = "0.20.6" }
 derive_more = { version = "0.99.17", default-features = false }
-drink = { version = "=0.8.5" }
+drink = { version = "=0.10.0" }
 either = { version = "1.5", default-features = false }
 funty = { version = "2.0.0" }
 heck = { version = "0.4.0" }
 impl-serde = { version = "0.4.0", default-features = false }
 itertools = { version = "0.12", default-features = false }
-jsonrpsee = { version = "0.20.0" }
-linkme = { version = "0.3.22" }
+jsonrpsee = { version = "0.22.1" }
+linkme = { version = "0.3.23" }
 num-traits = { version = "0.2", default-features = false }
 paste = { version = "1.0" }
 pretty_assertions = { version = "1" }
@@ -62,48 +62,48 @@ scale-encode = { version = "0.5.0", default-features = false }
 scale-info = { version = "2.6", default-features = false }
 schemars = { version = "0.8" }
 secp256k1 = { version = "0.28.2" }
-serde = { version = "1.0.196", default-features = false }
-serde_json = { version = "1.0.113" }
+serde = { version = "1.0.197", default-features = false }
+serde_json = { version = "1.0.114" }
 sha2 = { version = "0.10" }
 sha3 = { version = "0.10" }
 static_assertions = { version = "1.1" }
-subxt = { version = "0.33.0 " }
-subxt-metadata = { version = "0.33.0" }
-subxt-signer = { version = "0.33.0" }
+subxt = { version = "0.34.0 " }
+subxt-metadata = { version = "0.34.0" }
+subxt-signer = { version = "0.34.0" }
 syn = { version = "2" }
 synstructure = { version = "0.13.1" }
-thiserror = { version = "1.0.50" }
+thiserror = { version = "1.0.57" }
 tokio = { version = "1.36.0" }
 tracing = { version = "0.1.37" }
 tracing-subscriber = { version = "0.3.17" }
 trybuild = { version = "1.0.89" }
 wasm-instrument = { version = "0.4.0" }
-which = { version = "5.0.0" }
+which = { version = "6.0.0" }
 xxhash-rust = { version = "0.8" }
 const_env = { version = "0.1"}
 
 # Substrate dependencies
-pallet-contracts-primitives = { version = "26.0.0", default-features = false }
-pallet-contracts-uapi = { package = "ink-pallet-contracts-uapi", version = "6.0.0", default-features = false }
-sp-core = { version = "23.0.0", default-features = false }
-sp-keyring = { version = "26.0.0", default-features = false }
-sp-runtime = { version = "26.0.0", default-features = false }
-sp-weights = { version = "22.0.0", default-features = false }
+pallet-contracts = { version = "27.0.0", default-features = false }
+pallet-contracts-uapi = { package = "ink-pallet-contracts-uapi", version = "=6.0.0", default-features = false }
+sp-core = { version = "28.0.0", default-features = false }
+sp-keyring = { version = "31.0.0", default-features = false }
+sp-runtime = { version = "31.0.1", default-features = false }
+sp-weights = { version = "27.0.0", default-features = false }
 
 # Local dependencies
-ink = { version = "=5.0.0-rc", path = "crates/ink", default-features = false }
-ink_allocator = { version = "=5.0.0-rc", path = "crates/allocator", default-features = false }
-ink_codegen = { version = "=5.0.0-rc", path = "crates/ink/codegen", default-features = false }
-ink_e2e_macro = { version = "=5.0.0-rc", path = "crates/e2e/macro", default-features = false }
-ink_engine = { version = "=5.0.0-rc", path = "crates/engine", default-features = false }
-ink_env = { version = "=5.0.0-rc", path = "crates/env", default-features = false }
-ink_ir = { version = "=5.0.0-rc", path = "crates/ink/ir", default-features = false }
-ink_macro = { version = "=5.0.0-rc", path = "crates/ink/macro", default-features = false }
-ink_metadata = { version = "=5.0.0-rc", path = "crates/metadata", default-features = false }
-ink_prelude = { version = "=5.0.0-rc", path = "crates/prelude", default-features = false }
-ink_primitives = { version = "=5.0.0-rc", path = "crates/primitives", default-features = false }
-ink_storage = { version = "=5.0.0-rc", path = "crates/storage", default-features = false }
-ink_storage_traits = { version = "=5.0.0-rc", path = "crates/storage/traits", default-features = false }
+ink = { version = "=5.0.0-rc.1", path = "crates/ink", default-features = false }
+ink_allocator = { version = "=5.0.0-rc.1", path = "crates/allocator", default-features = false }
+ink_codegen = { version = "=5.0.0-rc.1", path = "crates/ink/codegen", default-features = false }
+ink_e2e_macro = { version = "=5.0.0-rc.1", path = "crates/e2e/macro", default-features = false }
+ink_engine = { version = "=5.0.0-rc.1", path = "crates/engine", default-features = false }
+ink_env = { version = "=5.0.0-rc.1", path = "crates/env", default-features = false }
+ink_ir = { version = "=5.0.0-rc.1", path = "crates/ink/ir", default-features = false }
+ink_macro = { version = "=5.0.0-rc.1", path = "crates/ink/macro", default-features = false }
+ink_metadata = { version = "=5.0.0-rc.1", path = "crates/metadata", default-features = false }
+ink_prelude = { version = "=5.0.0-rc.1", path = "crates/prelude", default-features = false }
+ink_primitives = { version = "=5.0.0-rc.1", path = "crates/primitives", default-features = false }
+ink_storage = { version = "=5.0.0-rc.1", path = "crates/storage", default-features = false }
+ink_storage_traits = { version = "=5.0.0-rc.1", path = "crates/storage/traits", default-features = false }
 
 [profile.release]
 panic = "abort"

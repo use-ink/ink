@@ -109,6 +109,8 @@ instantiation/S
 layout/JG
 namespace/S
 parameterize/SD
+parachain/S
+picosecond/S
 runtime/S
 storable
 struct/S
