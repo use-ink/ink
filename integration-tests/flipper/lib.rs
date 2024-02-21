@@ -2,8 +2,6 @@
 
 #[ink::contract]
 pub mod flipper {
-    use ink::prelude::vec::Vec;
-
     #[ink(storage)]
     pub struct Flipper {
         value: bool,
@@ -32,15 +30,6 @@ pub mod flipper {
         #[ink(message)]
         pub fn get(&self) -> bool {
             self.value
-        }
-
-        #[ink(message)]
-        pub fn buffer(&self) {
-            let buf1 = Vec::<bool>::with_capacity(3);
-            let buf2 = Vec::<bool>::with_capacity(1);
-            ink::env::debug_println!("ptr to buf1 :{:?}", buf1.as_ptr());
-            ink::env::debug_println!("ptr to buf2 :{:?}", buf2.as_ptr());
-            ink::env::debug_println!("align of u64:{}", core::mem::align_of::<Vec<bool>>());
         }
     }
 
@@ -169,28 +158,6 @@ pub mod flipper {
 
             // then
             assert!(matches!(get_res.return_value(), true));
-            Ok(())
-        }
-
-        #[ink_e2e::test]
-        async fn buffer<Client: E2EBackend>(mut client: Client) -> E2EResult<()> {
-            // given
-            let mut constructor = FlipperRef::new_default();
-
-            // when
-            let contract = client
-                .instantiate("flipper", &ink_e2e::bob(), &mut constructor)
-                .submit()
-                .await
-                .expect("instantiate failed");
-            let call_builder = contract.call_builder::<Flipper>();
-
-            // then
-            let get = call_builder.buffer();
-            let get_res = client.call(&ink_e2e::bob(), &get).submit().await?;
-            // assert!(matches!(get_res.return_value(), false));
-            panic!("{}", get_res.debug_message());
-
             Ok(())
         }
     }
