@@ -55,6 +55,8 @@ pub use self::{
         CreateBuilder,
         CreateParams,
         FromAccountId,
+        LimitParamsV1,
+        LimitParamsV2,
     },
     execution_input::ExecutionInput,
     selector::Selector,

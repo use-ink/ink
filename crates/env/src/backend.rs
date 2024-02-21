@@ -21,6 +21,8 @@ use crate::{
         CreateParams,
         DelegateCall,
         FromAccountId,
+        LimitParamsV1,
+        LimitParamsV2,
     },
     event::Event,
     hash::{
@@ -345,7 +347,22 @@ pub trait TypedEnvBackend: EnvBackend {
     /// For more details visit: [`instantiate_contract`][`crate::instantiate_contract`]
     fn instantiate_contract<E, ContractRef, Args, Salt, R>(
         &mut self,
-        params: &CreateParams<E, ContractRef, Args, Salt, R>,
+        params: &CreateParams<E, ContractRef, LimitParamsV2<E>, Args, Salt, R>,
+    ) -> Result<
+        ink_primitives::ConstructorResult<
+            <R as ConstructorReturnType<ContractRef>>::Output,
+        >,
+    >
+    where
+        E: Environment,
+        ContractRef: FromAccountId<E>,
+        Args: scale::Encode,
+        Salt: AsRef<[u8]>,
+        R: ConstructorReturnType<ContractRef>;
+
+    fn instantiate_contract_v1<E, ContractRef, Args, Salt, R>(
+        &mut self,
+        params: &CreateParams<E, ContractRef, LimitParamsV1, Args, Salt, R>,
     ) -> Result<
         ink_primitives::ConstructorResult<
             <R as ConstructorReturnType<ContractRef>>::Output,

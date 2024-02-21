@@ -543,9 +543,9 @@ impl TypedEnvBackend for EnvInstance {
         }
     }
 
-    fn instantiate_contract<E, ContractRef, Args, Salt, RetType>(
+    fn instantiate_contract<E, ContractRef, Limits, Args, Salt, RetType>(
         &mut self,
-        params: &CreateParams<E, ContractRef, Args, Salt, RetType>,
+        params: &CreateParams<E, ContractRef, Limits, Args, Salt, RetType>,
     ) -> Result<
         ink_primitives::ConstructorResult<
             <RetType as ConstructorReturnType<ContractRef>>::Output,

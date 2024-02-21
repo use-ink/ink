@@ -27,6 +27,8 @@ use crate::{
         CreateParams,
         DelegateCall,
         FromAccountId,
+        LimitParamsV1,
+        LimitParamsV2,
     },
     engine::{
         EnvInstance,
@@ -366,7 +368,7 @@ where
 /// - If given insufficient endowment.
 /// - If the returned account ID failed to decode properly.
 pub fn instantiate_contract<E, ContractRef, Args, Salt, R>(
-    params: &CreateParams<E, ContractRef, Args, Salt, R>,
+    params: &CreateParams<E, ContractRef, LimitParamsV2<E>, Args, Salt, R>,
 ) -> Result<
     ink_primitives::ConstructorResult<<R as ConstructorReturnType<ContractRef>>::Output>,
 >
@@ -379,6 +381,43 @@ where
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         TypedEnvBackend::instantiate_contract::<E, ContractRef, Args, Salt, R>(
+            instance, params,
+        )
+    })
+}
+
+/// Instantiates another contract.
+///
+/// # Note
+///
+/// This is a low level way to instantiate another smart contract.
+///
+/// Prefer to use methods on a `ContractRef` or the
+/// [`CreateBuilder`](`crate::call::CreateBuilder`)
+/// through [`build_create`](`crate::call::build_create`) instead.
+///
+/// # Errors
+///
+/// - If the code hash is invalid.
+/// - If the arguments passed to the instantiation process are invalid.
+/// - If the instantiation process traps.
+/// - If the instantiation process runs out of gas.
+/// - If given insufficient endowment.
+/// - If the returned account ID failed to decode properly.
+pub fn instantiate_contract_v1<E, ContractRef, Args, Salt, R>(
+    params: &CreateParams<E, ContractRef, LimitParamsV1, Args, Salt, R>,
+) -> Result<
+    ink_primitives::ConstructorResult<<R as ConstructorReturnType<ContractRef>>::Output>,
+>
+where
+    E: Environment,
+    ContractRef: FromAccountId<E>,
+    Args: scale::Encode,
+    Salt: AsRef<[u8]>,
+    R: ConstructorReturnType<ContractRef>,
+{
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        TypedEnvBackend::instantiate_contract_v1::<E, ContractRef, Args, Salt, R>(
             instance, params,
         )
     })

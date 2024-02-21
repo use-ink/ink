@@ -23,6 +23,8 @@ use ink_env::{
         CreateParams,
         DelegateCall,
         FromAccountId,
+        LimitParamsV1,
+        LimitParamsV2,
     },
     hash::{
         CryptoHash,
@@ -493,7 +495,7 @@ where
     /// For more details visit: [`ink_env::instantiate_contract`]
     pub fn instantiate_contract<ContractRef, Args, Salt, R>(
         self,
-        params: &CreateParams<E, ContractRef, Args, Salt, R>,
+        params: &CreateParams<E, ContractRef, LimitParamsV2<E>, Args, Salt, R>,
     ) -> Result<
         ink_primitives::ConstructorResult<
             <R as ConstructorReturnType<ContractRef>>::Output,
@@ -506,6 +508,24 @@ where
         R: ConstructorReturnType<ContractRef>,
     {
         ink_env::instantiate_contract::<E, ContractRef, Args, Salt, R>(params)
+    }
+
+    /// todo: [AJ] docs
+    pub fn instantiate_contract_v1<ContractRef, Args, Salt, R>(
+        self,
+        params: &CreateParams<E, ContractRef, LimitParamsV1, Args, Salt, R>,
+    ) -> Result<
+        ink_primitives::ConstructorResult<
+            <R as ConstructorReturnType<ContractRef>>::Output,
+        >,
+    >
+    where
+        ContractRef: FromAccountId<E>,
+        Args: scale::Encode,
+        Salt: AsRef<[u8]>,
+        R: ConstructorReturnType<ContractRef>,
+    {
+        ink_env::instantiate_contract_v1::<E, ContractRef, Args, Salt, R>(params)
     }
 
     /// Invokes a contract message and returns its result.
