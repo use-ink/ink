@@ -447,6 +447,7 @@ impl TypedEnvBackend for EnvInstance {
         };
         let output = &mut scope.take_rest();
         let flags = params.call_flags();
+        #[allow(deprecated)]
         let call_result = ext::call_v1(
             *flags,
             enc_callee,
@@ -570,6 +571,7 @@ impl TypedEnvBackend for EnvInstance {
         let salt = params.salt_bytes().as_ref();
         let out_return_value = &mut scoped.take_rest();
 
+        #[allow(deprecated)]
         let instantiate_result = ext::instantiate_v1(
             enc_code_hash,
             gas_limit,
