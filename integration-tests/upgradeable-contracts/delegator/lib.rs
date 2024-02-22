@@ -27,7 +27,11 @@ pub mod delegator {
     }
 
     impl Delegator {
-        /// Creates a new delegator smart contract initialized with the given value.
+        /// Creates a new delegator smart contract with an initial value, and the hash of
+        /// the contract code to delegate to.
+        ///
+        /// Additionally, this code hash will be locked to prevent its deletion, since
+        /// this contract depends on it.
         #[ink(constructor)]
         pub fn new(init_value: i32, hash: Hash) -> Self {
             let v = Mapping::new();
