@@ -14,9 +14,6 @@
 
 //! A simple bump allocator.
 //!
-//! Its goal to have a much smaller footprint than the admittedly more full-featured
-//! `wee_alloc` allocator which is currently being used by ink! smart contracts.
-//!
 //! The heap which is used by this allocator is built from pages of Wasm memory (each page
 //! is `64KiB`). We will request new pages of memory as needed until we run out of memory,
 //! at which point we will crash with an `OOM` error instead of freeing any memory.
