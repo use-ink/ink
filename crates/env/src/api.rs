@@ -824,10 +824,10 @@ where
     })
 }
 
-/// Adds a new delegate dependency to the contract.
+/// Adds a new delegate dependency lock to the contract.
 ///
 /// This guarantees that the code of the dependency cannot be removed without first
-/// calling [`remove_delegate_dependency`]. It charges a fraction of the code
+/// calling [`unlock_delegate_dependency`]. It charges a fraction of the code
 /// deposit.
 ///
 /// # Errors
@@ -836,29 +836,29 @@ where
 /// - If the `code_hash` is the same as the calling contract.
 /// - If the maximum number of delegate dependencies is reached
 /// - If the delegate dependency already exists.
-pub fn add_delegate_dependency<E>(code_hash: &E::Hash)
+pub fn lock_delegate_dependency<E>(code_hash: &E::Hash)
 where
     E: Environment,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        instance.add_delegate_dependency::<E>(code_hash)
+        instance.lock_delegate_dependency::<E>(code_hash)
     })
 }
 
-/// Removes the delegate dependency from the contract.
+/// Unlocks the delegate dependency from the contract.
 ///
 /// This removes the lock and refunds the deposit from the call to
-/// [`add_delegate_dependency`]. The code of the dependency can be removed if the
+/// [`lock_delegate_dependency`]. The code of the dependency can be removed if the
 /// reference count for the code hash is now zero.
 ///
 /// # Errors
 ///
 /// - If the delegate dependency does not exist.
-pub fn remove_delegate_dependency<E>(code_hash: &E::Hash)
+pub fn unlock_delegate_dependency<E>(code_hash: &E::Hash)
 where
     E: Environment,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        instance.remove_delegate_dependency::<E>(code_hash)
+        instance.unlock_delegate_dependency::<E>(code_hash)
     })
 }

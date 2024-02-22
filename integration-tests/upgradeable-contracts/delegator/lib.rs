@@ -33,11 +33,11 @@ pub mod delegator {
             let v = Mapping::new();
 
             // Initialize the hash of the contract to delegate to.
-            // Adds a delegate dependency, ensuring that the delegated to code cannot be
-            // removed.
+            // Adds a delegate dependency lock, ensuring that the delegated to code cannot
+            // be removed.
             let mut delegate_to = Lazy::new();
             delegate_to.set(&hash);
-            Self::env().add_delegate_dependency(&hash);
+            Self::env().lock_delegate_dependency(&hash);
 
             Self {
                 addresses: v,
@@ -47,16 +47,16 @@ pub mod delegator {
         }
 
         /// Update the hash of the contract to delegate to.
-        /// - Removes the old delegate dependency, releasing the deposit and allowing old
+        /// - Unlocks the old delegate dependency, releasing the deposit and allowing old
         ///   delegated to code to be removed.
-        /// - Adds a new delegate dependency, ensuring that the new delegated to code
+        /// - Adds a new delegate dependency lock, ensuring that the new delegated to code
         ///   cannot be removed.
         #[ink(message)]
         pub fn update_delegate_to(&mut self, hash: Hash) {
             if let Some(old_hash) = self.delegate_to.get() {
-                self.env().remove_delegate_dependency(&old_hash)
+                self.env().unlock_delegate_dependency(&old_hash)
             }
-            self.env().add_delegate_dependency(&hash);
+            self.env().lock_delegate_dependency(&hash);
             self.delegate_to.set(&hash);
         }
 

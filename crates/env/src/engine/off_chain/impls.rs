@@ -561,14 +561,14 @@ impl TypedEnvBackend for EnvInstance {
         unimplemented!("off-chain environment does not support `call_runtime`")
     }
 
-    fn add_delegate_dependency<E>(&mut self, _code_hash: &E::Hash)
+    fn lock_delegate_dependency<E>(&mut self, _code_hash: &E::Hash)
     where
         E: Environment,
     {
         unimplemented!("off-chain environment does not support delegate dependencies")
     }
 
-    fn remove_delegate_dependency<E>(&mut self, _code_hash: &E::Hash)
+    fn unlock_delegate_dependency<E>(&mut self, _code_hash: &E::Hash)
     where
         E: Environment,
     {
