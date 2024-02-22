@@ -828,7 +828,7 @@ where
 ///
 /// This guarantees that the code of the dependency cannot be removed without first
 /// calling [`unlock_delegate_dependency`]. It charges a fraction of the code
-/// deposit.
+/// deposit, see [`pallet_contracts::Config::CodeHashLockupDepositPercent`](https://docs.rs/pallet-contracts/latest/pallet_contracts/pallet/trait.Config.html#associatedtype.CodeHashLockupDepositPercent) for details.
 ///
 /// # Errors
 ///
