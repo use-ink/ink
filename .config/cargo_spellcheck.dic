@@ -25,6 +25,7 @@ Wasm32
 WebAssembly
 adjunctive
 bitvector
+bitmask
 bitwise
 callee
 codegen
