@@ -46,8 +46,8 @@ funty = { version = "2.0.0" }
 heck = { version = "0.4.0" }
 impl-serde = { version = "0.4.0", default-features = false }
 itertools = { version = "0.12", default-features = false }
-jsonrpsee = { version = "0.22.0" }
-linkme = { version = "0.3.22" }
+jsonrpsee = { version = "0.22.1" }
+linkme = { version = "0.3.23" }
 num-traits = { version = "0.2", default-features = false }
 paste = { version = "1.0" }
 pretty_assertions = { version = "1" }
@@ -62,8 +62,8 @@ scale-encode = { version = "0.5.0", default-features = false }
 scale-info = { version = "2.6", default-features = false }
 schemars = { version = "0.8" }
 secp256k1 = { version = "0.28.2" }
-serde = { version = "1.0.196", default-features = false }
-serde_json = { version = "1.0.113" }
+serde = { version = "1.0.197", default-features = false }
+serde_json = { version = "1.0.114" }
 sha2 = { version = "0.10" }
 sha3 = { version = "0.10" }
 static_assertions = { version = "1.1" }
