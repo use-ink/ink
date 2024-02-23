@@ -13,23 +13,21 @@ jobs:
       matrix:
         # List of repositories to fetch the issues
         repo:
-          - ink
+          - awesome-ink
           - cargo-contract
-          - substrate-contracts-node
           - contracts-ui
+          - ink
           - ink-docs
-          - smart-bench
+          - ink-examples
           - ink-waterfall
-          - ink-playground
+          - ink-workshop
+          - link
           - nft-marketplace-demo
           - pallet-contracts-xcm
-          - link
-          - ink-examples
-          - useink
-          - awesome-ink
-          - squink-splash-beginner
+          - smart-bench
           - squink-splash-advanced
-          - ink-workshop
+          - squink-splash-beginner
+          - substrate-contracts-node
     steps:
       - name: Generate token
         id: generate_token
