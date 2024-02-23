@@ -42,21 +42,19 @@ jobs:
 
       - name: Install toolchain
         id: toolchain
-        uses: actions-rs/toolchain@v1
+        uses: dtolnay/rust-toolchain@master
         with:
-          profile: minimal
           toolchain: ${{ matrix.toolchain }}
           components: rust-src
-          override: true
 
       - name: Install cargo-dylint
-        uses: baptiste0928/cargo-install@1cd874a5478fdca35d868ccc74640c5aabbb8f1b # v3.0.0
+        uses: baptiste0928/cargo-install@v3
         with:
           crate: cargo-dylint
           version: 1
 
       - name: Install dylint-link
-        uses: baptiste0928/cargo-install@1cd874a5478fdca35d868ccc74640c5aabbb8f1b # v3.0.0
+        uses: baptiste0928/cargo-install@v3
         with:
           crate: dylint-link
           version: 1
@@ -79,10 +77,11 @@ jobs:
         uses: Swatinem/rust-cache@v2.7.1
 
       - name: Install `cargo-contract` `master`
-        uses: actions-rs/cargo@v1
+        uses: baptiste0928/cargo-install@v3
         with:
-            command: install
-            args: --git https://github.com/paritytech/cargo-contract.git
+            crate: cargo-contract
+            git: https://github.com/paritytech/cargo-contract.git
+            branch: master
 
       - name: Output versions
         run: |
