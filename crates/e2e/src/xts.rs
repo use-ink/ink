@@ -144,6 +144,13 @@ pub enum Determinism {
     Relaxed,
 }
 
+/// A raw call to `pallet-contracts`'s `remove_code`.
+#[derive(Debug, scale::Encode, scale::Decode, scale_encode::EncodeAsType)]
+#[encode_as_type(trait_bounds = "", crate_path = "subxt::ext::scale_encode")]
+pub struct RemoveCode<E: Environment> {
+    code_hash: E::Hash,
+}
+
 /// A raw call to `pallet-contracts`'s `upload`.
 #[derive(Debug, scale::Encode, scale::Decode, scale_encode::EncodeAsType)]
 #[encode_as_type(trait_bounds = "", crate_path = "subxt::ext::scale_encode")]
@@ -465,6 +472,25 @@ where
                 storage_deposit_limit,
                 determinism: Determinism::Enforced,
             },
+        )
+        .unvalidated();
+
+        self.submit_extrinsic(&call, signer).await
+    }
+
+    /// Submits an extrinsic to remove the code at the given hash.
+    ///
+    /// Returns when the transaction is included in a block. The return value
+    /// contains all events that are associated with this transaction.
+    pub async fn remove_code(
+        &self,
+        signer: &Keypair,
+        code_hash: E::Hash,
+    ) -> ExtrinsicEvents<C> {
+        let call = subxt::tx::Payload::new(
+            "Contracts",
+            "remove_code",
+            RemoveCode::<E> { code_hash },
         )
         .unvalidated();
 

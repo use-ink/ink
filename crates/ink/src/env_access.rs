@@ -1183,4 +1183,67 @@ where
     pub fn call_runtime<Call: scale::Encode>(self, call: &Call) -> Result<()> {
         ink_env::call_runtime::<E, _>(call)
     }
+
+    /// Adds a new delegate dependency lock for the given `code_hash` to prevent it from
+    /// being deleted.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # #[ink::contract]
+    /// # pub mod my_contract {
+    /// #     #[ink(storage)]
+    /// #     pub struct MyContract { }
+    /// #
+    /// #     impl MyContract {
+    /// #         #[ink(constructor)]
+    /// #         pub fn new() -> Self {
+    /// #             Self {}
+    /// #         }
+    /// #
+    /// #[ink(message)]
+    /// pub fn lock_delegate_dependency(&mut self, code_hash: Hash) {
+    ///     self.env().lock_delegate_dependency(&code_hash)
+    /// }
+    /// #    }
+    /// # }
+    /// ```
+    ///
+    /// # Note
+    ///
+    /// For more details visit: [`ink_env::lock_delegate_dependency`]
+    pub fn lock_delegate_dependency(self, code_hash: &E::Hash) {
+        ink_env::lock_delegate_dependency::<E>(code_hash)
+    }
+
+    /// Removes the delegate dependency lock from this contract for the given `code_hash`.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # #[ink::contract]
+    /// # pub mod my_contract {
+    /// #     #[ink(storage)]
+    /// #     pub struct MyContract { }
+    /// #
+    /// #     impl MyContract {
+    /// #         #[ink(constructor)]
+    /// #         pub fn new() -> Self {
+    /// #             Self {}
+    /// #         }
+    /// #
+    /// #[ink(message)]
+    /// pub fn unlock_delegate_dependency(&mut self, code_hash: Hash) {
+    ///     self.env().unlock_delegate_dependency(&code_hash)
+    /// }
+    /// #    }
+    /// # }
+    /// ```
+    ///
+    /// # Note
+    ///
+    /// For more details visit: [`ink_env::unlock_delegate_dependency`]
+    pub fn unlock_delegate_dependency(self, code_hash: &E::Hash) {
+        ink_env::unlock_delegate_dependency::<E>(code_hash)
+    }
 }

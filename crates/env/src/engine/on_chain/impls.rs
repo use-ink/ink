@@ -447,6 +447,7 @@ impl TypedEnvBackend for EnvInstance {
         };
         let output = &mut scope.take_rest();
         let flags = params.call_flags();
+        #[allow(deprecated)]
         let call_result = ext::call_v1(
             *flags,
             enc_callee,
@@ -570,6 +571,7 @@ impl TypedEnvBackend for EnvInstance {
         let salt = params.salt_bytes().as_ref();
         let out_return_value = &mut scoped.take_rest();
 
+        #[allow(deprecated)]
         let instantiate_result = ext::instantiate_v1(
             enc_code_hash,
             gas_limit,
@@ -659,5 +661,23 @@ impl TypedEnvBackend for EnvInstance {
         let mut scope = self.scoped_buffer();
         let enc_call = scope.take_encoded(call);
         ext::call_runtime(enc_call).map_err(Into::into)
+    }
+
+    fn lock_delegate_dependency<E>(&mut self, code_hash: &E::Hash)
+    where
+        E: Environment,
+    {
+        let mut scope = self.scoped_buffer();
+        let enc_code_hash = scope.take_encoded(code_hash);
+        ext::lock_delegate_dependency(enc_code_hash)
+    }
+
+    fn unlock_delegate_dependency<E>(&mut self, code_hash: &E::Hash)
+    where
+        E: Environment,
+    {
+        let mut scope = self.scoped_buffer();
+        let enc_code_hash = scope.take_encoded(code_hash);
+        ext::unlock_delegate_dependency(enc_code_hash)
     }
 }

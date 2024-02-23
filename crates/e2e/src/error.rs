@@ -44,6 +44,9 @@ pub enum Error<DispatchError: fmt::Debug + fmt::Display> {
     /// The `call` extrinsic failed.
     #[error("Call extrinsic error: {0}")]
     CallExtrinsic(DispatchError),
+    /// The `remove_code` extrinsic failed.
+    #[error("Remove code extrinsic error: {0}")]
+    RemoveCodeExtrinsic(DispatchError),
     /// Error fetching account balance.
     #[error("Fetching account Balance error: {0}")]
     Balance(String),

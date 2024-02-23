@@ -468,7 +468,7 @@ where
     E::AccountId: Debug + Send + Sync,
     E::Balance:
         Clone + Debug + Send + Sync + From<u128> + scale::HasCompact + serde::Serialize,
-    E::Hash: Debug + Send + scale::Encode,
+    E::Hash: Debug + Send + Sync + scale::Encode,
 {
     async fn bare_instantiate<Contract: Clone, Args: Send + Sync + Encode + Clone, R>(
         &mut self,
@@ -536,6 +536,30 @@ where
         Ok(ret)
     }
 
+    async fn bare_remove_code(
+        &mut self,
+        caller: &Keypair,
+        code_hash: E::Hash,
+    ) -> Result<Self::EventLog, Self::Error> {
+        let tx_events = self.api.remove_code(caller, code_hash).await;
+
+        for evt in tx_events.iter() {
+            let evt = evt.unwrap_or_else(|err| {
+                panic!("unable to unwrap event: {err:?}");
+            });
+
+            if is_extrinsic_failed_event(&evt) {
+                let metadata = self.api.client.metadata();
+                let dispatch_error =
+                    DispatchError::decode_from(evt.field_bytes(), metadata)
+                        .map_err(|e| Error::Decoding(e.to_string()))?;
+                return Err(Error::RemoveCodeExtrinsic(dispatch_error))
+            }
+        }
+
+        Ok(tx_events)
+    }
+
     async fn bare_call<Args: Sync + Encode + Clone, RetType: Send + Decode>(
         &mut self,
         caller: &Keypair,
@@ -571,7 +595,7 @@ where
             if is_extrinsic_failed_event(&evt) {
                 let metadata = self.api.client.metadata();
                 let dispatch_error =
-                    subxt::error::DispatchError::decode_from(evt.field_bytes(), metadata)
+                    DispatchError::decode_from(evt.field_bytes(), metadata)
                         .map_err(|e| Error::Decoding(e.to_string()))?;
                 log_error(&format!("extrinsic for call failed: {dispatch_error}"));
                 return Err(Error::CallExtrinsic(dispatch_error))
@@ -660,13 +684,14 @@ where
     C::Address: From<sr25519::PublicKey>,
     C::Signature: From<sr25519::Signature>,
     C::Address: Send + Sync,
-    <<C as subxt::Config>::ExtrinsicParams as subxt::config::ExtrinsicParams<C>>::OtherParams: Default + Send + Sync,
+    <<C as subxt::Config>::ExtrinsicParams as ExtrinsicParams<C>>::OtherParams:
+        Default + Send + Sync,
 
     E: Environment,
     E::AccountId: Debug + Send + Sync,
     E::Balance:
         Clone + Debug + Send + Sync + From<u128> + scale::HasCompact + serde::Serialize,
-    E::Hash: Debug + Send + scale::Encode,
+    E::Hash: Debug + Send + Sync + scale::Encode,
 {
 }
 

@@ -208,7 +208,7 @@ where
 #[async_trait]
 impl<
         AccountId: Clone + Send + Sync + From<[u8; 32]> + AsRef<[u8; 32]>,
-        Hash: Copy + From<[u8; 32]>,
+        Hash: Copy + Send + From<[u8; 32]>,
         Config: SandboxConfig,
         E: Environment<
                 AccountId = AccountId,
@@ -341,6 +341,14 @@ where
         })
     }
 
+    async fn bare_remove_code(
+        &mut self,
+        _caller: &Keypair,
+        _code_hash: E::Hash,
+    ) -> Result<Self::EventLog, Self::Error> {
+        unimplemented!("drink! sandbox does not yet support remove_code")
+    }
+
     async fn bare_call<Args: Sync + Encode + Clone, RetType: Send + Decode>(
         &mut self,
         caller: &Keypair,
@@ -417,7 +425,7 @@ where
 
 impl<
         AccountId: Clone + Send + Sync + From<[u8; 32]> + AsRef<[u8; 32]>,
-        Hash: Copy + From<[u8; 32]>,
+        Hash: Copy + Send + From<[u8; 32]>,
         Config: SandboxConfig,
         E: Environment<
                 AccountId = AccountId,

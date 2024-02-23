@@ -418,4 +418,24 @@ pub trait TypedEnvBackend: EnvBackend {
     where
         E: Environment,
         Call: scale::Encode;
+
+    /// Adds a new delegate dependency lock to the contract.
+    ///
+    /// # Note
+    ///
+    /// For more details visit:
+    /// [`lock_delegate_dependency`][`crate::lock_delegate_dependency`]
+    fn lock_delegate_dependency<E>(&mut self, code_hash: &E::Hash)
+    where
+        E: Environment;
+
+    /// Unlocks the delegate dependency from the contract.
+    ///
+    /// # Note
+    ///
+    /// For more details visit:
+    /// [`unlock_delegate_dependency`][`crate::unlock_delegate_dependency`].
+    fn unlock_delegate_dependency<E>(&mut self, code_hash: &E::Hash)
+    where
+        E: Environment;
 }

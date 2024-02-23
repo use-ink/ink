@@ -2626,7 +2626,6 @@ name = "ink"
 version = "5.0.0-rc.1"
 dependencies = [
  "derive_more",
- "ink-pallet-contracts-uapi",
  "ink_env 5.0.0-rc.1",
  "ink_ir",
  "ink_macro",
@@ -2634,6 +2633,7 @@ dependencies = [
  "ink_prelude 5.0.0-rc.1",
  "ink_primitives 5.0.0-rc.1",
  "ink_storage",
+ "pallet-contracts-uapi-next",
  "parity-scale-codec",
  "scale-info",
  "trybuild",
@@ -2647,7 +2647,7 @@ checksum = "dd3e608f5410d03e529145875eb736305e0d7cae4b989faf54f932eff31bc048"
 dependencies = [
  "bitflags 1.3.2",
  "paste",
- "polkavm-derive",
+ "polkavm-derive 0.4.0",
 ]
 
 [[package]]
@@ -2743,8 +2743,8 @@ version = "5.0.0-rc.1"
 dependencies = [
  "blake2",
  "derive_more",
- "ink-pallet-contracts-uapi",
  "ink_primitives 5.0.0-rc.1",
+ "pallet-contracts-uapi-next",
  "parity-scale-codec",
  "secp256k1",
  "sha2 0.10.8",
@@ -2776,13 +2776,13 @@ dependencies = [
  "const_env",
  "derive_more",
  "ink",
- "ink-pallet-contracts-uapi",
  "ink_allocator 5.0.0-rc.1",
  "ink_engine 5.0.0-rc.1",
  "ink_prelude 5.0.0-rc.1",
  "ink_primitives 5.0.0-rc.1",
  "ink_storage_traits 5.0.0-rc.1",
  "num-traits",
+ "pallet-contracts-uapi-next",
  "parity-scale-codec",
  "paste",
  "rlibc",
@@ -2946,13 +2946,13 @@ dependencies = [
  "cfg-if",
  "derive_more",
  "ink",
- "ink-pallet-contracts-uapi",
  "ink_env 5.0.0-rc.1",
  "ink_metadata 5.0.0-rc.1",
  "ink_prelude 5.0.0-rc.1",
  "ink_primitives 5.0.0-rc.1",
  "ink_storage_traits 5.0.0-rc.1",
  "itertools 0.12.1",
+ "pallet-contracts-uapi-next",
  "parity-scale-codec",
  "quickcheck",
  "quickcheck_macros",
@@ -3862,8 +3862,19 @@ dependencies = [
  "bitflags 1.3.2",
  "parity-scale-codec",
  "paste",
- "polkavm-derive",
+ "polkavm-derive 0.4.0",
  "scale-info",
+]
+
+[[package]]
+name = "pallet-contracts-uapi-next"
+version = "6.0.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e941fe56abf3b3d127c80d0a82989323f240ad81e6222421a56f1a3142db1e16"
+dependencies = [
+ "bitflags 1.3.2",
+ "paste",
+ "polkavm-derive 0.5.0",
 ]
 
 [[package]]
@@ -4093,12 +4104,28 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "fecd2caacfc4a7ee34243758dd7348859e6dec73f5e5df059890f5742ee46f0e"
 
 [[package]]
+name = "polkavm-common"
+version = "0.5.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "88b4e215c80fe876147f3d58158d5dfeae7dabdd6047e175af77095b78d0035c"
+
+[[package]]
 name = "polkavm-derive"
 version = "0.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "db65a500d4adf574893c726ae365e37e4fbb7f2cbd403f6eaa1b665457456adc"
 dependencies = [
- "polkavm-derive-impl",
+ "polkavm-derive-impl 0.4.0",
+ "syn 2.0.48",
+]
+
+[[package]]
+name = "polkavm-derive"
+version = "0.5.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6380dbe1fb03ecc74ad55d841cfc75480222d153ba69ddcb00977866cbdabdb8"
+dependencies = [
+ "polkavm-derive-impl 0.5.0",
  "syn 2.0.48",
 ]
 
@@ -4108,7 +4135,19 @@ version = "0.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c99f4e7a9ff434ef9c885b874c99d824c3a5693bf5e3e8569bb1d2245a8c1b7f"
 dependencies = [
- "polkavm-common",
+ "polkavm-common 0.4.0",
+ "proc-macro2",
+ "quote",
+ "syn 2.0.48",
+]
+
+[[package]]
+name = "polkavm-derive-impl"
+version = "0.5.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "dc8211b3365bbafb2fb32057d68b0e1ca55d079f5cf6f9da9b98079b94b3987d"
+dependencies = [
+ "polkavm-common 0.5.0",
  "proc-macro2",
  "quote",
  "syn 2.0.48",

@@ -400,6 +400,37 @@ where
     }
 }
 
+/// Allows to build an end-to-end remove code call using a builder pattern.
+pub struct RemoveCodeBuilder<'a, E, B>
+where
+    E: Environment,
+    B: BuilderClient<E>,
+{
+    client: &'a mut B,
+    caller: &'a Keypair,
+    code_hash: E::Hash,
+}
+
+impl<'a, E, B> RemoveCodeBuilder<'a, E, B>
+where
+    E: Environment,
+    B: BuilderClient<E>,
+{
+    /// Initialize a remove code builder with essential values.
+    pub fn new(client: &'a mut B, caller: &'a Keypair, code_hash: E::Hash) -> Self {
+        Self {
+            client,
+            caller,
+            code_hash,
+        }
+    }
+
+    /// Submit the remove code extrinsic.
+    pub async fn submit(&mut self) -> Result<B::EventLog, B::Error> {
+        B::bare_remove_code(self.client, self.caller, self.code_hash).await
+    }
+}
+
 fn calculate_weight(
     mut proof_size: u64,
     mut ref_time: u64,

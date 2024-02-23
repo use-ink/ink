@@ -8,6 +8,7 @@ publish = false
 [dependencies]
 ink = { path = "../../../crates/ink", default-features = false }
 delegatee = { path = "delegatee", default-features = false, features = ["ink-as-dependency"] }
+delegatee2 = { path = "delegatee2", default-features = false, features = ["ink-as-dependency"] }
 
 [dev-dependencies]
 ink_e2e = { path = "../../../crates/e2e" }
