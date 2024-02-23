@@ -354,7 +354,7 @@ where
         caller: &Keypair,
         message: &CallBuilderFinal<E, Args, RetType>,
         value: E::Balance,
-        _gas_limit: Weight,
+        gas_limit: Weight,
         storage_deposit_limit: Option<E::Balance>,
     ) -> Result<Self::EventLog, Self::Error>
     where
@@ -364,9 +364,6 @@ where
         let exec_input = Encode::encode(message.clone().params().exec_input());
         let account_id = (*account_id.as_ref()).into();
 
-        self.bare_call_dry_run(caller, message, value, storage_deposit_limit)
-            .await?;
-
         if self
             .sandbox
             .call_contract(
@@ -374,7 +371,7 @@ where
                 value,
                 exec_input,
                 keypair_to_account(caller),
-                DEFAULT_GAS_LIMIT,
+                gas_limit,
                 storage_deposit_limit,
                 pallet_contracts::Determinism::Enforced,
             )
