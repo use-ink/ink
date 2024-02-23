@@ -161,6 +161,7 @@ pub trait ContractsBackend<E: Environment> {
     }
 
     /// Start building a remove code call.
+    ///
     /// # Example
     ///
     /// ```ignore
