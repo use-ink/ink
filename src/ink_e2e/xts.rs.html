@@ -548,6 +548,32 @@
 <a href="#548" id="548">548</a>
 <a href="#549" id="549">549</a>
 <a href="#550" id="550">550</a>
+<a href="#551" id="551">551</a>
+<a href="#552" id="552">552</a>
+<a href="#553" id="553">553</a>
+<a href="#554" id="554">554</a>
+<a href="#555" id="555">555</a>
+<a href="#556" id="556">556</a>
+<a href="#557" id="557">557</a>
+<a href="#558" id="558">558</a>
+<a href="#559" id="559">559</a>
+<a href="#560" id="560">560</a>
+<a href="#561" id="561">561</a>
+<a href="#562" id="562">562</a>
+<a href="#563" id="563">563</a>
+<a href="#564" id="564">564</a>
+<a href="#565" id="565">565</a>
+<a href="#566" id="566">566</a>
+<a href="#567" id="567">567</a>
+<a href="#568" id="568">568</a>
+<a href="#569" id="569">569</a>
+<a href="#570" id="570">570</a>
+<a href="#571" id="571">571</a>
+<a href="#572" id="572">572</a>
+<a href="#573" id="573">573</a>
+<a href="#574" id="574">574</a>
+<a href="#575" id="575">575</a>
+<a href="#576" id="576">576</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -692,6 +718,13 @@
     ///
     /// **Never** use this mode for on-chain execution.
     </span>Relaxed,
+}
+
+<span class="doccomment">/// A raw call to `pallet-contracts`&#39;s `remove_code`.
+</span><span class="attr">#[derive(Debug, scale::Encode, scale::Decode, scale_encode::EncodeAsType)]
+#[encode_as_type(trait_bounds = <span class="string">&quot;&quot;</span>, crate_path = <span class="string">&quot;subxt::ext::scale_encode&quot;</span>)]
+</span><span class="kw">pub struct </span>RemoveCode&lt;E: Environment&gt; {
+    code_hash: E::Hash,
 }
 
 <span class="doccomment">/// A raw call to `pallet-contracts`&#39;s `upload`.
@@ -1015,6 +1048,25 @@
                 storage_deposit_limit,
                 determinism: Determinism::Enforced,
             },
+        )
+        .unvalidated();
+
+        <span class="self">self</span>.submit_extrinsic(<span class="kw-2">&amp;</span>call, signer).<span class="kw">await
+    </span>}
+
+    <span class="doccomment">/// Submits an extrinsic to remove the code at the given hash.
+    ///
+    /// Returns when the transaction is included in a block. The return value
+    /// contains all events that are associated with this transaction.
+    </span><span class="kw">pub async fn </span>remove_code(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        signer: <span class="kw-2">&amp;</span>Keypair,
+        code_hash: E::Hash,
+    ) -&gt; ExtrinsicEvents&lt;C&gt; {
+        <span class="kw">let </span>call = subxt::tx::Payload::new(
+            <span class="string">&quot;Contracts&quot;</span>,
+            <span class="string">&quot;remove_code&quot;</span>,
+            RemoveCode::&lt;E&gt; { code_hash },
         )
         .unvalidated();
 

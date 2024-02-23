@@ -276,6 +276,37 @@
 <a href="#276" id="276">276</a>
 <a href="#277" id="277">277</a>
 <a href="#278" id="278">278</a>
+<a href="#279" id="279">279</a>
+<a href="#280" id="280">280</a>
+<a href="#281" id="281">281</a>
+<a href="#282" id="282">282</a>
+<a href="#283" id="283">283</a>
+<a href="#284" id="284">284</a>
+<a href="#285" id="285">285</a>
+<a href="#286" id="286">286</a>
+<a href="#287" id="287">287</a>
+<a href="#288" id="288">288</a>
+<a href="#289" id="289">289</a>
+<a href="#290" id="290">290</a>
+<a href="#291" id="291">291</a>
+<a href="#292" id="292">292</a>
+<a href="#293" id="293">293</a>
+<a href="#294" id="294">294</a>
+<a href="#295" id="295">295</a>
+<a href="#296" id="296">296</a>
+<a href="#297" id="297">297</a>
+<a href="#298" id="298">298</a>
+<a href="#299" id="299">299</a>
+<a href="#300" id="300">300</a>
+<a href="#301" id="301">301</a>
+<a href="#302" id="302">302</a>
+<a href="#303" id="303">303</a>
+<a href="#304" id="304">304</a>
+<a href="#305" id="305">305</a>
+<a href="#306" id="306">306</a>
+<a href="#307" id="307">307</a>
+<a href="#308" id="308">308</a>
+<a href="#309" id="309">309</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -294,6 +325,7 @@
 <span class="kw">use crate</span>::{
     backend_calls::{
         InstantiateBuilder,
+        RemoveCodeBuilder,
         UploadBuilder,
     },
     builders::CreateBuilderPartial,
@@ -437,6 +469,29 @@
         UploadBuilder::new(<span class="self">self</span>, contract_name, caller)
     }
 
+    <span class="doccomment">/// Start building a remove code call.
+    ///
+    /// # Example
+    ///
+    /// ```ignore
+    /// let contract = client
+    ///     .remove_code(&amp;ink_e2e::alice(), code_hash)
+    ///     // Submit the call for on-chain execution.
+    ///     .submit()
+    ///     .await
+    ///     .expect(&quot;remove failed&quot;);
+    /// ```
+    </span><span class="kw">fn </span>remove_code&lt;<span class="lifetime">&#39;a</span>&gt;(
+        <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span><span class="self">self</span>,
+        caller: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Keypair,
+        code_hash: E::Hash,
+    ) -&gt; RemoveCodeBuilder&lt;E, <span class="self">Self</span>&gt;
+    <span class="kw">where
+        </span><span class="self">Self</span>: Sized + BuilderClient&lt;E&gt;,
+    {
+        RemoveCodeBuilder::new(<span class="self">self</span>, caller, code_hash)
+    }
+
     <span class="doccomment">/// Start building a call using a builder pattern.
     ///
     /// # Example
@@ -471,8 +526,8 @@
 
 <span class="attr">#[async_trait]
 </span><span class="kw">pub trait </span>BuilderClient&lt;E: Environment&gt;: ContractsBackend&lt;E&gt; {
-    <span class="doccomment">/// Executes a bare `call` for the contract at `account_id`. This function does
-    /// perform a dry-run, and user is expected to provide the gas limit.
+    <span class="doccomment">/// Executes a bare `call` for the contract at `account_id`. This function does not
+    /// perform a dry-run, and the user is expected to provide the gas limit.
     ///
     /// Use it when you want to have a more precise control over submitting extrinsic.
     ///
@@ -516,6 +571,13 @@
         caller: <span class="kw-2">&amp;</span>Keypair,
         storage_deposit_limit: <span class="prelude-ty">Option</span>&lt;E::Balance&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;UploadResult&lt;E, <span class="self">Self</span>::EventLog&gt;, <span class="self">Self</span>::Error&gt;;
+
+    <span class="doccomment">/// Removes the code of the contract at `code_hash`.
+    </span><span class="kw">async fn </span>bare_remove_code(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        caller: <span class="kw-2">&amp;</span>Keypair,
+        code_hash: E::Hash,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::EventLog, <span class="self">Self</span>::Error&gt;;
 
     <span class="doccomment">/// Bare instantiate call. This function does not perform a dry-run,
     /// and user is expected to provide the gas limit.
