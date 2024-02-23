@@ -217,7 +217,7 @@ pub trait ContractsBackend<E: Environment> {
 #[async_trait]
 pub trait BuilderClient<E: Environment>: ContractsBackend<E> {
     /// Executes a bare `call` for the contract at `account_id`. This function does not
-    /// perform a dry-run, and user is expected to provide the gas limit.
+    /// perform a dry-run, and the user is expected to provide the gas limit.
     ///
     /// Use it when you want to have a more precise control over submitting extrinsic.
     ///
