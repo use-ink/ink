@@ -16,6 +16,7 @@ use crate::{
     call::{
         Call,
         CallParams,
+        CallV1,
         ConstructorReturnType,
         CreateParams,
         DelegateCall,
@@ -293,6 +294,24 @@ pub trait TypedEnvBackend: EnvBackend {
     /// Invokes a contract message and returns its result.
     ///
     /// # Note
+    ///
+    /// **This will call into the original `call` host function.**
+    ///
+    /// For more details visit: [`invoke_contract`][`crate::invoke_contract_v1`]
+    fn invoke_contract_v1<E, Args, R>(
+        &mut self,
+        call_data: &CallParams<E, CallV1<E>, Args, R>,
+    ) -> Result<ink_primitives::MessageResult<R>>
+    where
+        E: Environment,
+        Args: scale::Encode,
+        R: scale::Decode;
+
+    /// Invokes a contract message and returns its result.
+    ///
+    /// # Note
+    ///
+    /// **This will call into the latest `call_v2` host function.**
     ///
     /// For more details visit: [`invoke_contract`][`crate::invoke_contract`]
     fn invoke_contract<E, Args, R>(

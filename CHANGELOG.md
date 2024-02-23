@@ -6,17 +6,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## Version 5.0.0-rc.1
+
 ### Added
 - Custom signature topic in Events - [#2031](https://github.com/paritytech/ink/pull/2031)
 - [Linter] `non_fallible_api` lint - [#2004](https://github.com/paritytech/ink/pull/2004)
 - [Linter] Publish the linting crates on crates.io - [#2060](https://github.com/paritytech/ink/pull/2060)
 - [E2E] Added `create_call_builder` for testing existing contracts - [#2075](https://github.com/paritytech/ink/pull/2075)
+- `call_v2` cross-contract calls with additional limit parameters - [#2077](https://github.com/paritytech/ink/pull/2077)
 
 ### Changed
 - `Mapping`: Reflect all possible failure cases in comments ‒ [#2079](https://github.com/paritytech/ink/pull/2079)
 - [E2E] Rename `.call` to `.call_builder` ‒ [#2078](https://github.com/paritytech/ink/pull/2078)
 - Improve syntax for ink! e2e `runtime_only` attribute argument - [#2083](https://github.com/paritytech/ink/pull/2083)
 - [E2E] Remove `additional_contracts` parameter [#2098](https://github.com/paritytech/ink/pull/2098)
+- [E2E] change node url backend config - [#2101](https://github.com/paritytech/ink/pull/2101)
 
 ### Fixed
 - Fix the `StorageVec` type by excluding the `len_cached` field from its type info - [#2052](https://github.com/paritytech/ink/pull/2052)

@@ -45,6 +45,7 @@ pub use self::{
         Call,
         CallBuilder,
         CallParams,
+        CallV1,
         DelegateCall,
     },
     create_builder::{

@@ -22,6 +22,7 @@ if_chain = "1.0.2"
 log = "0.4.14"
 regex = "1.5.4"
 ink_linting_utils = { workspace = true }
+curve25519-dalek = { workspace = true }
 
 [dev-dependencies]
 dylint_testing = "2.6.0"
@@ -31,11 +32,11 @@ dylint_testing = "2.6.0"
 #
 # These cannot be moved to the workspace level because `cargo` does not provide
 # the `[[workspace.dev-dependencies]]` directive.
-ink = { version = "=5.0.0-rc", path = "../../crates/ink", default-features = false, features = ["std"] }
-ink_env = { version = "=5.0.0-rc", path = "../../crates/env", default-features = false }
-ink_metadata = { version = "=5.0.0-rc", path = "../../crates/metadata", default-features = false }
-ink_primitives = { version = "=5.0.0-rc", path = "../../crates/primitives", default-features = false }
-ink_storage = { version = "=5.0.0-rc", path = "../../crates/storage", default-features = false }
+ink = { version = "=5.0.0-rc.1", path = "../../crates/ink", default-features = false, features = ["std"] }
+ink_env = { version = "=5.0.0-rc.1", path = "../../crates/env", default-features = false }
+ink_metadata = { version = "=5.0.0-rc.1", path = "../../crates/metadata", default-features = false }
+ink_primitives = { version = "=5.0.0-rc.1", path = "../../crates/primitives", default-features = false }
+ink_storage = { version = "=5.0.0-rc.1", path = "../../crates/storage", default-features = false }
 scale = { package = "parity-scale-codec", version = "3.4", default-features = false, features = ["derive"] }
 scale-info = { version = "2.6", default-features = false, features = ["derive"] }
 
