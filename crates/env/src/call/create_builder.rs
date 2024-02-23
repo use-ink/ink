@@ -593,6 +593,31 @@ where
 {
     /// todo: [AJ] comment
     #[inline]
+    pub fn instantiate_v1(self) -> CreateBuilder<
+        E,
+        ContractRef,
+        CodeHash,
+        Set<LimitParamsV1>,
+        Endowment,
+        Args,
+        Salt,
+        RetType,
+    > {
+        CreateBuilder {
+            code_hash: (),
+            limits: Set(LimitParamsV1 {
+                gas_limit: self.limits.value().ref_time_limit,
+            }),
+            endowment: self.endowment,
+            exec_input: self.exec_input,
+            salt: self.salt,
+            return_type: self.return_type,
+            _phantom: Default::default(),
+        }
+    }
+
+    /// todo: [AJ] comment
+    #[inline]
     pub fn ref_time_limit(self, ref_time_limit: u64) -> Self {
         CreateBuilder {
             limits: Set(LimitParamsV2 {
