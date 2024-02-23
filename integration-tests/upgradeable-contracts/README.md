@@ -29,7 +29,7 @@ called again, since it will fail to load the migrated storage.
 
 ## [Delegator](delegator/)
 
-Delegator patter is based around a low level cross contract call function `delegate_call`.
+The Delegator pattern is based around the low level host function `delegate_call`.
 It allows a contract to delegate its execution to some on-chain uploaded code.
 
 It is different from a traditional cross-contract call
