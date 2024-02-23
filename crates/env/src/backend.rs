@@ -434,7 +434,7 @@ pub trait TypedEnvBackend: EnvBackend {
     /// # Note
     ///
     /// For more details visit:
-    /// [`unlock_delegate_dependency`][`crate::unlock_delegate_dependency`]
+    /// [`unlock_delegate_dependency`][`crate::unlock_delegate_dependency`].
     fn unlock_delegate_dependency<E>(&mut self, code_hash: &E::Hash)
     where
         E: Environment;
