@@ -166,13 +166,13 @@ where
 }
 
 /// todo: [AJ] docs
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct LimitParamsV1 {
     gas_limit: u64,
 }
 
 /// todo: [AJ] docs
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct LimitParamsV2<E>
 where
     E: Environment,
@@ -604,7 +604,7 @@ where
         RetType,
     > {
         CreateBuilder {
-            code_hash: (),
+            code_hash: self.code_hash,
             limits: Set(LimitParamsV1 {
                 gas_limit: self.limits.value().ref_time_limit,
             }),

@@ -21,6 +21,7 @@ use ink_env::{
         },
         CreateBuilder,
         ExecutionInput,
+        LimitParamsV2,
     },
     Environment,
 };
@@ -32,7 +33,7 @@ pub type CreateBuilderPartial<E, ContractRef, Args, R> = CreateBuilder<
     E,
     ContractRef,
     Unset<<E as Environment>::Hash>,
-    Unset<u64>,
+    Set<LimitParamsV2<E>>,
     Unset<<E as Environment>::Balance>,
     Set<ExecutionInput<Args>>,
     Unset<ink_env::call::state::Salt>,
