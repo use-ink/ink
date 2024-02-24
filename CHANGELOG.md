@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- Fix alignment in allocator [#2100](https://github.com/paritytech/ink/pull/2100)
+
 ## Version 5.0.0-rc.1
 
 ### Added
