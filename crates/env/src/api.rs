@@ -353,7 +353,8 @@ where
 ///
 /// # Note
 ///
-/// This is a low level way to instantiate another smart contract.
+/// This is a low level way to instantiate another smart contract, calling the latest
+/// `instantiate_v2` host function.
 ///
 /// Prefer to use methods on a `ContractRef` or the
 /// [`CreateBuilder`](`crate::call::CreateBuilder`)
@@ -390,7 +391,8 @@ where
 ///
 /// # Note
 ///
-/// This is a low level way to instantiate another smart contract.
+/// This is a low level way to instantiate another smart contract, calling the legacy
+/// `instantiate_v1` host function.
 ///
 /// Prefer to use methods on a `ContractRef` or the
 /// [`CreateBuilder`](`crate::call::CreateBuilder`)
