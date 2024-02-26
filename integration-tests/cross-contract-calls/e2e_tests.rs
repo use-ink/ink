@@ -29,7 +29,7 @@ async fn flip_and_get<Client: E2EBackend>(mut client: Client) -> E2EResult<()> {
         .expect("Calling `flip_and_get` failed")
         .return_value();
 
-    assert_eq!(result, false);
+    assert!(!result);
 
     Ok(())
 }
