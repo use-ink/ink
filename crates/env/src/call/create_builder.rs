@@ -446,7 +446,6 @@ where
 /// # use contract::MyContractRef;
 /// let my_contract: MyContractRef = build_create::<MyContractRef>()
 ///     .code_hash(Hash::from([0x42; 32]))
-///     .gas_limit(4000)
 ///     .endowment(25)
 ///     .exec_input(
 ///         ExecutionInput::new(Selector::new(ink::selector_bytes!("my_constructor")))
@@ -491,7 +490,6 @@ where
 /// # use contract::{MyContractRef, ConstructorError};
 /// let my_contract: MyContractRef = build_create::<MyContractRef>()
 ///     .code_hash(Hash::from([0x42; 32]))
-///     .gas_limit(4000)
 ///     .endowment(25)
 ///     .exec_input(
 ///         ExecutionInput::new(Selector::new(ink::selector_bytes!("my_constructor")))
