@@ -14,9 +14,6 @@
 
 //! A simple bump allocator.
 //!
-//! Its goal to have a much smaller footprint than the admittedly more full-featured
-//! `wee_alloc` allocator which is currently being used by ink! smart contracts.
-//!
 //! The heap which is used by this allocator is built from pages of Wasm memory (each page
 //! is `64KiB`). We will request new pages of memory as needed until we run out of memory,
 //! at which point we will crash with an `OOM` error instead of freeing any memory.
@@ -174,9 +171,10 @@ impl InnerAlloc {
     /// Note: This implementation results in internal fragmentation when allocating across
     /// pages.
     fn alloc(&mut self, layout: Layout) -> Option<usize> {
-        let alloc_start = self.next;
+        let alloc_start = self.align_ptr(&layout);
 
-        let aligned_size = layout.pad_to_align().size();
+        let aligned_size = layout.size();
+
         let alloc_end = alloc_start.checked_add(aligned_size)?;
 
         if alloc_end > self.upper_limit {
@@ -193,6 +191,20 @@ impl InnerAlloc {
             self.next = alloc_end;
             Some(alloc_start)
         }
+    }
+
+    /// Aligns the start pointer of the next allocation.
+    ///
+    /// We inductively calculate the start index
+    /// of a layout in the linear memory.
+    /// - Initially `self.next` is `0`` and aligned
+    /// - `layout.align() - 1` accounts for `0` as the first index.
+    /// - the binary with the inverse of the align creates a
+    /// bitmask that is used to zero out bits, ensuring alignment according to type
+    /// requirements and ensures that the next allocated pointer address is of the
+    /// power of 2.
+    fn align_ptr(&self, layout: &Layout) -> usize {
+        (self.next + layout.align() - 1) & !(layout.align() - 1)
     }
 }
 
@@ -329,6 +341,18 @@ mod tests {
         let expected_alloc_start = 2 * PAGE_SIZE + size_of::<u8>();
         assert_eq!(inner.next, expected_alloc_start);
     }
+
+    #[test]
+    fn correct_alloc_types() {
+        let mut inner = InnerAlloc::new();
+        let layout1 = Layout::for_value(&Vec::<u128>::with_capacity(3));
+        assert_eq!(inner.alloc(layout1), Some(0));
+        assert_eq!(inner.next, 24);
+
+        let layout2 = Layout::for_value(&Vec::<u128>::with_capacity(1));
+        assert_eq!(inner.alloc(layout2), Some(24));
+        assert_eq!(inner.next, 48);
+    }
 }
 
 #[cfg(all(test, feature = "ink-fuzz-tests"))]
@@ -351,7 +375,7 @@ mod fuzz_tests {
             Err(_) => return TestResult::discard(),
         };
 
-        let size = layout.pad_to_align().size();
+        let size = layout.size();
         assert_eq!(
             inner.alloc(layout),
             Some(0),
@@ -390,7 +414,7 @@ mod fuzz_tests {
             Err(_) => return TestResult::discard(),
         };
 
-        let size = layout.pad_to_align().size();
+        let size = layout.size();
         assert_eq!(
             inner.alloc(layout),
             Some(0),
@@ -459,7 +483,7 @@ mod fuzz_tests {
                 Err(_) => return TestResult::discard(),
             };
 
-            let size = layout.pad_to_align().size();
+            let size = layout.size();
 
             let current_page_limit = PAGE_SIZE * required_pages(inner.next).unwrap();
             let is_too_big_for_current_page = inner.next + size > current_page_limit;
