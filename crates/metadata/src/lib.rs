@@ -99,7 +99,7 @@ impl InkProject {
         let mut registry = Registry::new();
 
         Self {
-            version: Default::default(),
+            version: METADATA_VERSION,
             layout: layout.into().into_portable(&mut registry),
             spec: spec.into().into_portable(&mut registry),
             registry: registry.into(),
