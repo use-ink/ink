@@ -593,7 +593,9 @@ where
 {
     /// todo: [AJ] comment
     #[inline]
-    pub fn instantiate_v1(self) -> CreateBuilder<
+    pub fn instantiate_v1(
+        self,
+    ) -> CreateBuilder<
         E,
         ContractRef,
         CodeHash,
