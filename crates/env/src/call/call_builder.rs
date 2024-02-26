@@ -691,7 +691,7 @@ where
     /// limit parameter (equivalent to the `ref_time_limit` in the latest `call_v2`).
     ///
     /// This method instance is used to allow usage of the generated call builder methods
-    /// for messages which initialize the builder with the original [`CallV1`] type.
+    /// for messages which initialize the builder with the new [`Call`] type.
     pub fn call_v1(self) -> CallBuilder<E, Set<CallV1<E>>, Args, RetType> {
         let call_type = self.call_type.value();
         CallBuilder {

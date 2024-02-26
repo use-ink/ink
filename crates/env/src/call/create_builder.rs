@@ -20,6 +20,7 @@ use crate::{
             Set,
             Unset,
         },
+        CallV1,
         ExecutionInput,
         Selector,
     },
@@ -165,13 +166,15 @@ where
     }
 }
 
-/// todo: [AJ] docs
+/// Defines the limit params for the legacy `ext::instantiate_v1` host function,
+/// consisting of the `gas_limit` which is equivalent to the `ref_time_limit` in the new
+/// `ext::instantiate`.
 #[derive(Clone, Debug)]
 pub struct LimitParamsV1 {
     gas_limit: u64,
 }
 
-/// todo: [AJ] docs
+/// Defines the limit params for the new `ext::instantiate` host function.
 #[derive(Clone, Debug)]
 pub struct LimitParamsV2<E>
 where
@@ -242,19 +245,20 @@ impl<E, ContractRef, Args, Salt, R>
 where
     E: Environment,
 {
-    /// todo: [AJ] docs
+    /// Gets the `ref_time_limit` part of the weight limit for the contract instantiation.
     #[inline]
     pub fn ref_time_limit(&self) -> u64 {
         self.limits.ref_time_limit
     }
 
-    /// todo: [AJ] docs
+    /// Gets the `proof_time_limit` part of the weight limit for the contract
+    /// instantiation.
     #[inline]
     pub fn proof_time_limit(&self) -> u64 {
         self.limits.proof_time_limit
     }
 
-    /// todo: [AJ] docs
+    /// Gets the `storage_deposit_limit` for the contract instantiation.
     #[inline]
     pub fn storage_deposit_limit(&self) -> Option<&E::Balance> {
         self.limits.storage_deposit_limit.as_ref()
@@ -591,7 +595,12 @@ impl<E, ContractRef, CodeHash, Endowment, Args, Salt, RetType>
 where
     E: Environment,
 {
-    /// todo: [AJ] comment
+    /// Switch to the original `instantiate` host function API, which only allows the
+    /// `gas_limit` limit parameter (equivalent to the `ref_time_limit` in the latest
+    /// `instantiate_v2`).
+    ///
+    /// This method instance is used to allow usage of the generated builder methods
+    /// for constructors which initialize the builder with the new [`LimitParamsV2`] type.
     #[inline]
     pub fn instantiate_v1(
         self,
@@ -618,7 +627,7 @@ where
         }
     }
 
-    /// todo: [AJ] comment
+    /// Sets the `ref_time_limit` part of the weight limit for the contract instantiation.
     #[inline]
     pub fn ref_time_limit(self, ref_time_limit: u64) -> Self {
         CreateBuilder {
@@ -630,7 +639,8 @@ where
         }
     }
 
-    /// todo: [AJ] comment
+    /// Sets the `proof_time_limit` part of the weight limit for the contract
+    /// instantiation.
     #[inline]
     pub fn proof_time_limit(self, proof_time_limit: u64) -> Self {
         CreateBuilder {
@@ -642,7 +652,7 @@ where
         }
     }
 
-    /// todo: [AJ] comment
+    /// Sets the `storage_deposit_limit` for the contract instantiation.
     #[inline]
     pub fn storage_deposit_limit(self, storage_deposit_limit: E::Balance) -> Self {
         CreateBuilder {
