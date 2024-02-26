@@ -75,30 +75,12 @@ use serde::{
 ///
 /// The serialized metadata format (which this represents) is different from the
 /// version of this crate or the contract for Rust semantic versioning purposes.
-///
-/// # Note
-///
-/// Versions other than the `Default` are considered deprecated. If you want to
-/// deserialize legacy metadata versions you will need to use an old version of
-/// this crate.
-#[derive(Debug, Serialize, Deserialize, Eq, PartialEq, JsonSchema)]
-pub enum MetadataVersion {
-    #[serde(rename = "5")]
-    V5,
-    #[serde(rename = "4")]
-    V4,
-}
-
-impl Default for MetadataVersion {
-    fn default() -> Self {
-        Self::V5
-    }
-}
+const METADATA_VERSION: u64 = 5;
 
 /// An entire ink! project for metadata file generation purposes.
 #[derive(Debug, Serialize, Deserialize, JsonSchema)]
 pub struct InkProject {
-    version: MetadataVersion,
+    version: u64,
     #[serde(flatten)]
     registry: PortableRegistry,
     #[serde(rename = "storage")]
@@ -133,7 +115,7 @@ impl InkProject {
         registry: PortableRegistry,
     ) -> Self {
         Self {
-            version: Default::default(),
+            version: METADATA_VERSION,
             layout,
             spec,
             registry,
@@ -141,7 +123,7 @@ impl InkProject {
     }
 
     /// Returns the metadata version used by the contract.
-    pub fn version(&self) -> &MetadataVersion {
+    pub fn version(&self) -> &u64 {
         &self.version
     }
 
