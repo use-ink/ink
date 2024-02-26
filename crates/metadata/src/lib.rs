@@ -83,13 +83,15 @@ use serde::{
 /// this crate.
 #[derive(Debug, Serialize, Deserialize, Eq, PartialEq, JsonSchema)]
 pub enum MetadataVersion {
+    #[serde(rename = "5")]
+    V5,
     #[serde(rename = "4")]
     V4,
 }
 
 impl Default for MetadataVersion {
     fn default() -> Self {
-        Self::V4
+        Self::V5
     }
 }
 
