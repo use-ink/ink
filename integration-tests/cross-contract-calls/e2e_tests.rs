@@ -35,7 +35,9 @@ async fn flip_and_get<Client: E2EBackend>(mut client: Client) -> E2EResult<()> {
 }
 
 #[ink_e2e::test]
-async fn instantiate_v2_with_limits<Client: E2EBackend>(mut client: Client) -> E2EResult<()> {
+async fn instantiate_v2_with_limits<Client: E2EBackend>(
+    mut client: Client,
+) -> E2EResult<()> {
     // given
     let other_contract_code = client
         .upload("other-contract", &ink_e2e::alice())
@@ -47,10 +49,11 @@ async fn instantiate_v2_with_limits<Client: E2EBackend>(mut client: Client) -> E
     const PROOF_TIME_LIMIT: u64 = 100_000;
     const STORAGE_DEPOSIT_LIMIT: u128 = 1_000_000_000;
 
-    let mut constructor = CrossContractCallsRef::new_v2_with_limits(other_contract_code.code_hash,
+    let mut constructor = CrossContractCallsRef::new_v2_with_limits(
+        other_contract_code.code_hash,
         REF_TIME_LIMIT,
         PROOF_TIME_LIMIT,
-        STORAGE_DEPOSIT_LIMIT
+        STORAGE_DEPOSIT_LIMIT,
     );
     let contract = client
         .instantiate("cross-contract-calls", &ink_e2e::alice(), &mut constructor)
@@ -61,7 +64,9 @@ async fn instantiate_v2_with_limits<Client: E2EBackend>(mut client: Client) -> E
 }
 
 #[ink_e2e::test]
-async fn instantiate_v2_no_limits<Client: E2EBackend>(mut client: Client) -> E2EResult<()> {
+async fn instantiate_v2_no_limits<Client: E2EBackend>(
+    mut client: Client,
+) -> E2EResult<()> {
     // given
     let other_contract_code = client
         .upload("other-contract", &ink_e2e::alice())
@@ -69,7 +74,8 @@ async fn instantiate_v2_no_limits<Client: E2EBackend>(mut client: Client) -> E2E
         .await
         .expect("other_contract upload failed");
 
-    let mut constructor = CrossContractCallsRef::new_v2_no_limits(other_contract_code.code_hash);
+    let mut constructor =
+        CrossContractCallsRef::new_v2_no_limits(other_contract_code.code_hash);
     let contract = client
         .instantiate("cross-contract-calls", &ink_e2e::alice(), &mut constructor)
         .submit()
