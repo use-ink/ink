@@ -570,10 +570,7 @@ impl TypedEnvBackend for EnvInstance {
         let enc_code_hash = scoped.take_encoded(params.code_hash());
         let enc_endowment = scoped.take_encoded(params.endowment());
         let enc_input = scoped.take_encoded(params.exec_input());
-        // We support `AccountId` types with an encoding that requires up to
-        // 1024 bytes. Beyond that limit ink! contracts will trap for now.
-        // In the default configuration encoded `AccountId` require 32 bytes.
-        let out_address = &mut scoped.take(1024);
+        let out_address = &mut scoped.take_max_encoded_len::<E::AccountId>();
         let salt = params.salt_bytes().as_ref();
         let out_return_value = &mut scoped.take_rest();
 
@@ -616,10 +613,7 @@ impl TypedEnvBackend for EnvInstance {
         let enc_code_hash = scoped.take_encoded(params.code_hash());
         let enc_endowment = scoped.take_encoded(params.endowment());
         let enc_input = scoped.take_encoded(params.exec_input());
-        // We support `AccountId` types with an encoding that requires up to
-        // 1024 bytes. Beyond that limit ink! contracts will trap for now.
-        // In the default configuration encoded `AccountId` require 32 bytes.
-        let out_address = &mut scoped.take(1024);
+        let out_address = &mut scoped.take_max_encoded_len::<E::AccountId>();
         let salt = params.salt_bytes().as_ref();
         let out_return_value = &mut scoped.take_rest();
 
@@ -686,7 +680,7 @@ impl TypedEnvBackend for EnvInstance {
         E: Environment,
     {
         let mut scope = self.scoped_buffer();
-        let output = scope.take(32);
+        let output = scope.take_max_encoded_len::<E::Hash>();
         scope.append_encoded(account_id);
         let enc_account_id = scope.take_appended();
 
@@ -699,7 +693,7 @@ impl TypedEnvBackend for EnvInstance {
     where
         E: Environment,
     {
-        let output = &mut self.scoped_buffer().take(32);
+        let output = &mut self.scoped_buffer().take_max_encoded_len::<E::Hash>();
         ext::own_code_hash(output);
         let hash = scale::Decode::decode(&mut &output[..])?;
         Ok(hash)
