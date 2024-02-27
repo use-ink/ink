@@ -45,7 +45,6 @@ fn main() {
     let _: fn() -> CalleeRef = || {
         CalleeRef::new_self()
             .code_hash(ink_primitives::Clear::CLEAR_HASH)
-            .gas_limit(4000)
             .endowment(25)
             .salt_bytes([0xDE, 0xAD, 0xBE, 0xEF])
             .instantiate()
@@ -55,7 +54,6 @@ fn main() {
     let _: fn() -> CalleeRef = || {
         CalleeRef::new_storage_name()
             .code_hash(ink_primitives::Clear::CLEAR_HASH)
-            .gas_limit(4000)
             .endowment(25)
             .salt_bytes([0xDE, 0xAD, 0xBE, 0xEF])
             .instantiate()
@@ -65,7 +63,6 @@ fn main() {
     let _: fn() -> Result<CalleeRef, Error> = || {
         CalleeRef::new_result_self()
             .code_hash(ink_primitives::Clear::CLEAR_HASH)
-            .gas_limit(4000)
             .endowment(25)
             .salt_bytes([0xDE, 0xAD, 0xBE, 0xEF])
             .instantiate()
@@ -75,7 +72,6 @@ fn main() {
     let _: fn() -> Result<CalleeRef, Error> = || {
         CalleeRef::new_result_self()
             .code_hash(ink_primitives::Clear::CLEAR_HASH)
-            .gas_limit(4000)
             .endowment(25)
             .salt_bytes([0xDE, 0xAD, 0xBE, 0xEF])
             .instantiate()

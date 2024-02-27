@@ -29,7 +29,7 @@ called again, since it will fail to load the migrated storage.
 
 ## [Delegator](delegator/)
 
-Delegator patter is based around a low level cross contract call function `delegate_call`.
+The Delegator pattern is based around the low level host function `delegate_call`.
 It allows a contract to delegate its execution to some on-chain uploaded code.
 
 It is different from a traditional cross-contract call
@@ -48,4 +48,15 @@ If the delegated code only modifies `Lazy` or `Mapping` field, the keys must be 
 This is because `Lazy` and `Mapping` interact with the storage directly instead of loading and flushing storage states.
 
 If your storage is completely layoutless (it only contains `Lazy` and `Mapping` fields), the order of fields and layout do not need to match for the same reason as mentioned above.
+
+### Delegate dependency locks
+
+The `delegator` contract depends upon the contract code to which it delegates. Since code
+can be deleted by anybody if there are no instances of the contract on the chain, this 
+would break the `delegator` contract. To prevent this, the `delegator` contract utilizes
+the `lock_delegate_dependency` and `unlock_delegate_dependency` host functions. Calling
+`lock_delegate_dependency` will prevent the code at the given hash from being deleted, 
+until `unlock_delegate_dependency` is called from within the `delegator` contract instance.
+Note that these two methods can be called by anybody executing the contract, so it is the
+responsibility of the contract developer to ensure correct access control.
 

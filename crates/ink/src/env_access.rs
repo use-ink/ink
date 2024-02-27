@@ -23,6 +23,8 @@ use ink_env::{
         CreateParams,
         DelegateCall,
         FromAccountId,
+        LimitParamsV1,
+        LimitParamsV2,
     },
     hash::{
         CryptoHash,
@@ -422,7 +424,10 @@ where
         ink_env::emit_event::<E, Evt>(event)
     }
 
-    /// Instantiates another contract.
+    /// Instantiates another contract using the supplied code hash.
+    ///
+    /// Invokes the `instantiate_v2` host function which allows passing all weight and
+    /// storage limit parameters.
     ///
     /// # Example
     ///
@@ -459,7 +464,9 @@ where
     /// pub fn instantiate_contract(&self) -> MyContractRef {
     ///     let create_params = build_create::<OtherContractRef>()
     ///         .code_hash(Hash::from([0x42; 32]))
-    ///         .gas_limit(4000)
+    ///         .ref_time_limit(500_000_000)
+    ///         .proof_time_limit(100_000)
+    ///         .storage_deposit_limit(500_000_000_000)
     ///         .endowment(25)
     ///         .exec_input(
     ///             ExecutionInput::new(Selector::new(ink::selector_bytes!("new")))
@@ -493,7 +500,7 @@ where
     /// For more details visit: [`ink_env::instantiate_contract`]
     pub fn instantiate_contract<ContractRef, Args, Salt, R>(
         self,
-        params: &CreateParams<E, ContractRef, Args, Salt, R>,
+        params: &CreateParams<E, ContractRef, LimitParamsV2<E>, Args, Salt, R>,
     ) -> Result<
         ink_primitives::ConstructorResult<
             <R as ConstructorReturnType<ContractRef>>::Output,
@@ -506,6 +513,94 @@ where
         R: ConstructorReturnType<ContractRef>,
     {
         ink_env::instantiate_contract::<E, ContractRef, Args, Salt, R>(params)
+    }
+
+    /// Instantiates another contract using the supplied code hash.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # #[ink::contract]
+    /// # pub mod my_contract {
+    /// # // In order for this to actually work with another contract we'd need a way
+    /// # // to turn the `ink-as-dependency` crate feature on in doctests, which we
+    /// # // can't do.
+    /// # //
+    /// # // Instead we use our own contract's `Ref`, which is fine for this example
+    /// # // (just need something that implements the `ContractRef` trait).
+    /// # pub mod other_contract {
+    /// #     pub use super::MyContractRef as OtherContractRef;
+    /// # }
+    /// use ink::env::{
+    ///     DefaultEnvironment,
+    ///     call::{build_create, Selector, ExecutionInput}
+    /// };
+    /// use other_contract::OtherContractRef;
+    /// #
+    /// #     #[ink(storage)]
+    /// #     pub struct MyContract { }
+    /// #
+    /// #     impl MyContract {
+    /// #         #[ink(constructor)]
+    /// #         pub fn new() -> Self {
+    /// #             Self {}
+    /// #         }
+    /// #
+    ///
+    /// /// Instantiates another contract.
+    /// #[ink(message)]
+    /// pub fn instantiate_contract(&self) -> MyContractRef {
+    ///     let create_params = build_create::<OtherContractRef>()
+    ///         .instantiate_v1()
+    ///         .code_hash(Hash::from([0x42; 32]))
+    ///         .gas_limit(500_000_000)
+    ///         .endowment(25)
+    ///         .exec_input(
+    ///             ExecutionInput::new(Selector::new(ink::selector_bytes!("new")))
+    ///                 .push_arg(42)
+    ///                 .push_arg(true)
+    ///                 .push_arg(&[0x10u8; 32]),
+    ///         )
+    ///         .salt_bytes(&[0xCA, 0xFE, 0xBA, 0xBE])
+    ///         .returns::<OtherContractRef>()
+    ///         .params();
+    ///     self.env()
+    ///         .instantiate_contract_v1(&create_params)
+    ///         .unwrap_or_else(|error| {
+    ///             panic!(
+    ///                 "Received an error from the Contracts pallet while instantiating: {:?}",
+    ///                 error
+    ///             )
+    ///         })
+    ///         .unwrap_or_else(|error| panic!("Received a `LangError` while instatiating: {:?}", error))
+    /// }
+    /// #
+    /// #     }
+    /// # }
+    /// ```
+    ///
+    /// See [our `delegator` example](https://github.com/paritytech/ink/tree/master/integration-tests/integration%20tests/examples/delegator)
+    /// for a complete contract example.
+    ///
+    /// # Note
+    ///
+    /// For more details visit: [`ink_env::instantiate_contract_v1`]
+
+    pub fn instantiate_contract_v1<ContractRef, Args, Salt, R>(
+        self,
+        params: &CreateParams<E, ContractRef, LimitParamsV1, Args, Salt, R>,
+    ) -> Result<
+        ink_primitives::ConstructorResult<
+            <R as ConstructorReturnType<ContractRef>>::Output,
+        >,
+    >
+    where
+        ContractRef: FromAccountId<E>,
+        Args: scale::Encode,
+        Salt: AsRef<[u8]>,
+        R: ConstructorReturnType<ContractRef>,
+    {
+        ink_env::instantiate_contract_v1::<E, ContractRef, Args, Salt, R>(params)
     }
 
     /// Invokes a contract message and returns its result.

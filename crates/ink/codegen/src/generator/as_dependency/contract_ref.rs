@@ -444,6 +444,7 @@ impl ContractRef<'_> {
         let selector_bytes = constructor.composed_selector().hex_lits();
         let input_bindings = generator::input_bindings(constructor.inputs());
         let input_types = generator::input_types(constructor.inputs());
+        let storage_ident = self.contract.module().storage().ident();
         let arg_list = generator::generate_argument_list(input_types.iter().cloned());
         let ret_type = constructor
             .output()
@@ -459,7 +460,7 @@ impl ContractRef<'_> {
                 Environment,
                 Self,
                 ::ink::env::call::utils::Unset<Hash>,
-                ::ink::env::call::utils::Unset<u64>,
+                ::ink::env::call::utils::Set<::ink::env::call::LimitParamsV2<<#storage_ident as ::ink::env::ContractEnv>::Env>>,
                 ::ink::env::call::utils::Unset<Balance>,
                 ::ink::env::call::utils::Set<::ink::env::call::ExecutionInput<#arg_list>>,
                 ::ink::env::call::utils::Unset<::ink::env::call::state::Salt>,

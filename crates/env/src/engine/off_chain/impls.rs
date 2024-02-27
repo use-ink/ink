@@ -22,6 +22,8 @@ use crate::{
         CreateParams,
         DelegateCall,
         FromAccountId,
+        LimitParamsV1,
+        LimitParamsV2,
     },
     event::{
         Event,
@@ -478,7 +480,7 @@ impl TypedEnvBackend for EnvInstance {
 
     fn instantiate_contract<E, ContractRef, Args, Salt, R>(
         &mut self,
-        params: &CreateParams<E, ContractRef, Args, Salt, R>,
+        params: &CreateParams<E, ContractRef, LimitParamsV2<E>, Args, Salt, R>,
     ) -> Result<
         ink_primitives::ConstructorResult<
             <R as ConstructorReturnType<ContractRef>>::Output,
@@ -492,7 +494,32 @@ impl TypedEnvBackend for EnvInstance {
         R: ConstructorReturnType<ContractRef>,
     {
         let _code_hash = params.code_hash();
-        let _gas_limit = params.gas_limit();
+        let _ref_time_limit = params.ref_time_limit();
+        let _proof_time_limit = params.proof_time_limit();
+        let _storage_deposit_limit = params.storage_deposit_limit();
+        let _endowment = params.endowment();
+        let _input = params.exec_input();
+        let _salt_bytes = params.salt_bytes();
+        unimplemented!("off-chain environment does not support contract instantiation")
+    }
+
+    fn instantiate_contract_v1<E, ContractRef, Args, Salt, R>(
+        &mut self,
+        params: &CreateParams<E, ContractRef, LimitParamsV1, Args, Salt, R>,
+    ) -> Result<
+        ink_primitives::ConstructorResult<
+            <R as ConstructorReturnType<ContractRef>>::Output,
+        >,
+    >
+    where
+        E: Environment,
+        ContractRef: FromAccountId<E>,
+        Args: scale::Encode,
+        Salt: AsRef<[u8]>,
+        R: ConstructorReturnType<ContractRef>,
+    {
+        let _code_hash = params.code_hash();
+        let _ref_time_limit = params.gas_limit();
         let _endowment = params.endowment();
         let _input = params.exec_input();
         let _salt_bytes = params.salt_bytes();
