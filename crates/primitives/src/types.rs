@@ -103,6 +103,7 @@ impl<'a> TryFrom<&'a [u8]> for AccountId {
     Hash,
     Decode,
     Encode,
+    MaxEncodedLen,
     From,
     Default,
 )]

@@ -150,6 +150,7 @@ pub trait Environment: Clone {
     /// The type of hash.
     type Hash: 'static
         + scale::Codec
+        + scale::MaxEncodedLen
         + CodecAsType
         + Copy
         + Clone
