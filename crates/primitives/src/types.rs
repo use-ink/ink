@@ -17,6 +17,7 @@ use derive_more::From;
 use scale::{
     Decode,
     Encode,
+    MaxEncodedLen,
 };
 #[cfg(feature = "std")]
 use {
@@ -42,7 +43,7 @@ use {
     Hash,
     Decode,
     Encode,
-    scale::MaxEncodedLen,
+    MaxEncodedLen,
     From,
 )]
 #[cfg_attr(feature = "std", derive(TypeInfo, DecodeAsType, EncodeAsType))]
