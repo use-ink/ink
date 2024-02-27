@@ -680,7 +680,7 @@ impl TypedEnvBackend for EnvInstance {
         E: Environment,
     {
         let mut scope = self.scoped_buffer();
-        let output = scope.take(32);
+        let output = scope.take_max_encoded_len::<E::Hash>();
         scope.append_encoded(account_id);
         let enc_account_id = scope.take_appended();
 
@@ -693,7 +693,7 @@ impl TypedEnvBackend for EnvInstance {
     where
         E: Environment,
     {
-        let output = &mut self.scoped_buffer().take(32);
+        let output = &mut self.scoped_buffer().take_max_encoded_len::<E::Hash>();
         ext::own_code_hash(output);
         let hash = scale::Decode::decode(&mut &output[..])?;
         Ok(hash)
