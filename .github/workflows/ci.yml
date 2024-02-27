@@ -128,7 +128,7 @@ jobs:
           fetch-depth: 100
 
       - name: Cache
-        uses: Swatinem/rust-cache@v2
+        uses: Swatinem/rust-cache@23bce251a8cd2ffc3c1075eaa2367cf899916d84 # v2.7.3
         with:
           cache-directories: ${{ env.CARGO_TARGET_DIR }}
 
@@ -169,7 +169,7 @@ jobs:
           fetch-depth: 100
 
       - name: Cache
-        uses: Swatinem/rust-cache@v2
+        uses: Swatinem/rust-cache@23bce251a8cd2ffc3c1075eaa2367cf899916d84 # v2.7.3
         with:
           cache-directories: ${{ env.CARGO_TARGET_DIR }}
 
@@ -207,7 +207,7 @@ jobs:
           fetch-depth: 100
 
       - name: Cache
-        uses: Swatinem/rust-cache@v2
+        uses: Swatinem/rust-cache@23bce251a8cd2ffc3c1075eaa2367cf899916d84 # v2.7.3
         with:
           cache-directories: ${{ env.CARGO_TARGET_DIR }}
 
@@ -255,7 +255,7 @@ jobs:
           fetch-depth: 100
 
       - name: Cache
-        uses: Swatinem/rust-cache@v2
+        uses: Swatinem/rust-cache@23bce251a8cd2ffc3c1075eaa2367cf899916d84 # v2.7.3
         with:
           cache-directories: ${{ env.CARGO_TARGET_DIR }}
 
@@ -296,7 +296,7 @@ jobs:
           fetch-depth: 100
 
       - name: Cache
-        uses: Swatinem/rust-cache@v2
+        uses: Swatinem/rust-cache@23bce251a8cd2ffc3c1075eaa2367cf899916d84 # v2.7.3
         with:
           cache-directories: ${{ env.CARGO_TARGET_DIR }}
 
@@ -334,7 +334,7 @@ jobs:
           fetch-depth: 100
 
       - name: Cache
-        uses: Swatinem/rust-cache@v2
+        uses: Swatinem/rust-cache@23bce251a8cd2ffc3c1075eaa2367cf899916d84 # v2.7.3
         with:
           cache-directories: |
             ${{ env.CARGO_TARGET_DIR }}
@@ -372,7 +372,7 @@ jobs:
           fetch-depth: 100
 
       - name: Cache
-        uses: Swatinem/rust-cache@v2
+        uses: Swatinem/rust-cache@23bce251a8cd2ffc3c1075eaa2367cf899916d84 # v2.7.3
         with:
           cache-directories: ${{ env.CARGO_TARGET_DIR }}
 
@@ -472,7 +472,7 @@ jobs:
           fetch-depth: 100
 
       - name: Cache
-        uses: Swatinem/rust-cache@v2
+        uses: Swatinem/rust-cache@23bce251a8cd2ffc3c1075eaa2367cf899916d84 # v2.7.3
         with:
           cache-directories: ${{ env.CARGO_TARGET_DIR }}
 
@@ -528,7 +528,7 @@ jobs:
           fetch-depth: 100
 
       - name: Cache
-        uses: Swatinem/rust-cache@v2
+        uses: Swatinem/rust-cache@23bce251a8cd2ffc3c1075eaa2367cf899916d84 # v2.7.3
         with:
           cache-directories: ${{ env.CARGO_TARGET_DIR }}
 
@@ -579,7 +579,7 @@ jobs:
           fetch-depth: 100
 
       - name: Cache
-        uses: Swatinem/rust-cache@v2
+        uses: Swatinem/rust-cache@23bce251a8cd2ffc3c1075eaa2367cf899916d84 # v2.7.3
         with:
           cache-directories: ${{ env.CARGO_TARGET_DIR }}
 
@@ -626,7 +626,7 @@ jobs:
           fetch-depth: 100
 
       - name: Cache
-        uses: Swatinem/rust-cache@v2
+        uses: Swatinem/rust-cache@23bce251a8cd2ffc3c1075eaa2367cf899916d84 # v2.7.3
         with:
           cache-directories: ${{ env.CARGO_TARGET_DIR }}
 
