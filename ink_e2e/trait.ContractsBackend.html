@@ -7,7 +7,7 @@
         &amp;'a mut self,
         contract_name: &amp;'a <a class="primitive" href="https://doc.rust-lang.org/1.75.0/std/primitive.str.html">str</a>,
         caller: &amp;'a <a class="struct" href="struct.Keypair.html" title="struct ink_e2e::Keypair">Keypair</a>,
-        constructor: &amp;'a mut CreateBuilder&lt;E, Contract, Unset&lt;&lt;E as Environment&gt;::Hash&gt;, Unset&lt;<a class="primitive" href="https://doc.rust-lang.org/1.75.0/std/primitive.u64.html">u64</a>&gt;, Unset&lt;&lt;E as Environment&gt;::Balance&gt;, Set&lt;ExecutionInput&lt;Args&gt;&gt;, Unset&lt;Salt&gt;, Set&lt;ReturnType&lt;R&gt;&gt;&gt;
+        constructor: &amp;'a mut CreateBuilder&lt;E, Contract, Unset&lt;&lt;E as Environment&gt;::Hash&gt;, Set&lt;LimitParamsV2&lt;E&gt;&gt;, Unset&lt;&lt;E as Environment&gt;::Balance&gt;, Set&lt;ExecutionInput&lt;Args&gt;&gt;, Unset&lt;Salt&gt;, Set&lt;ReturnType&lt;R&gt;&gt;&gt;
     ) -&gt; <a class="struct" href="struct.InstantiateBuilder.html" title="struct ink_e2e::InstantiateBuilder">InstantiateBuilder</a>&lt;'a, E, Contract, Args, R, Self&gt;
        <span class="where">where Self: <a class="trait" href="https://doc.rust-lang.org/1.75.0/core/marker/trait.Sized.html" title="trait core::marker::Sized">Sized</a> + BuilderClient&lt;E&gt;</span> { ... }
 <span class="item-spacer"></span>    fn <a href="#method.upload" class="fn">upload</a>&lt;'a&gt;(
@@ -35,7 +35,7 @@
     &amp;'a mut self,
     contract_name: &amp;'a <a class="primitive" href="https://doc.rust-lang.org/1.75.0/std/primitive.str.html">str</a>,
     caller: &amp;'a <a class="struct" href="struct.Keypair.html" title="struct ink_e2e::Keypair">Keypair</a>,
-    constructor: &amp;'a mut CreateBuilder&lt;E, Contract, Unset&lt;&lt;E as Environment&gt;::Hash&gt;, Unset&lt;<a class="primitive" href="https://doc.rust-lang.org/1.75.0/std/primitive.u64.html">u64</a>&gt;, Unset&lt;&lt;E as Environment&gt;::Balance&gt;, Set&lt;ExecutionInput&lt;Args&gt;&gt;, Unset&lt;Salt&gt;, Set&lt;ReturnType&lt;R&gt;&gt;&gt;
+    constructor: &amp;'a mut CreateBuilder&lt;E, Contract, Unset&lt;&lt;E as Environment&gt;::Hash&gt;, Set&lt;LimitParamsV2&lt;E&gt;&gt;, Unset&lt;&lt;E as Environment&gt;::Balance&gt;, Set&lt;ExecutionInput&lt;Args&gt;&gt;, Unset&lt;Salt&gt;, Set&lt;ReturnType&lt;R&gt;&gt;&gt;
 ) -&gt; <a class="struct" href="struct.InstantiateBuilder.html" title="struct ink_e2e::InstantiateBuilder">InstantiateBuilder</a>&lt;'a, E, Contract, Args, R, Self&gt;<span class="where fmt-newline">where
     Self: <a class="trait" href="https://doc.rust-lang.org/1.75.0/core/marker/trait.Sized.html" title="trait core::marker::Sized">Sized</a> + BuilderClient&lt;E&gt;,</span></h4></section></summary><div class="docblock"><p>Start building an instantiate call using a builder pattern.</p>
 <h5 id="example"><a href="#example">Example</a></h5>

@@ -479,6 +479,7 @@
 <a href="#479" id="479">479</a>
 <a href="#480" id="480">480</a>
 <a href="#481" id="481">481</a>
+<a href="#482" id="482">482</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -925,6 +926,7 @@
         <span class="kw">let </span>selector_bytes = constructor.composed_selector().hex_lits();
         <span class="kw">let </span>input_bindings = generator::input_bindings(constructor.inputs());
         <span class="kw">let </span>input_types = generator::input_types(constructor.inputs());
+        <span class="kw">let </span>storage_ident = <span class="self">self</span>.contract.module().storage().ident();
         <span class="kw">let </span>arg_list = generator::generate_argument_list(input_types.iter().cloned());
         <span class="kw">let </span>ret_type = constructor
             .output()
@@ -940,7 +942,7 @@
                 Environment,
                 <span class="self">Self</span>,
                 ::ink::env::call::utils::Unset&lt;Hash&gt;,
-                ::ink::env::call::utils::Unset&lt;u64&gt;,
+                ::ink::env::call::utils::Set&lt;::ink::env::call::LimitParamsV2&lt;&lt;#storage_ident <span class="kw">as </span>::ink::env::ContractEnv&gt;::Env&gt;&gt;,
                 ::ink::env::call::utils::Unset&lt;Balance&gt;,
                 ::ink::env::call::utils::Set&lt;::ink::env::call::ExecutionInput&lt;#arg_list&gt;&gt;,
                 ::ink::env::call::utils::Unset&lt;::ink::env::call::state::Salt&gt;,

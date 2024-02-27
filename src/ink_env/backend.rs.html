@@ -439,6 +439,23 @@
 <a href="#439" id="439">439</a>
 <a href="#440" id="440">440</a>
 <a href="#441" id="441">441</a>
+<a href="#442" id="442">442</a>
+<a href="#443" id="443">443</a>
+<a href="#444" id="444">444</a>
+<a href="#445" id="445">445</a>
+<a href="#446" id="446">446</a>
+<a href="#447" id="447">447</a>
+<a href="#448" id="448">448</a>
+<a href="#449" id="449">449</a>
+<a href="#450" id="450">450</a>
+<a href="#451" id="451">451</a>
+<a href="#452" id="452">452</a>
+<a href="#453" id="453">453</a>
+<a href="#454" id="454">454</a>
+<a href="#455" id="455">455</a>
+<a href="#456" id="456">456</a>
+<a href="#457" id="457">457</a>
+<a href="#458" id="458">458</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -462,6 +479,8 @@
         CreateParams,
         DelegateCall,
         FromAccountId,
+        LimitParamsV1,
+        LimitParamsV2,
     },
     event::Event,
     hash::{
@@ -786,7 +805,22 @@
     /// For more details visit: [`instantiate_contract`][`crate::instantiate_contract`]
     </span><span class="kw">fn </span>instantiate_contract&lt;E, ContractRef, Args, Salt, R&gt;(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
-        params: <span class="kw-2">&amp;</span>CreateParams&lt;E, ContractRef, Args, Salt, R&gt;,
+        params: <span class="kw-2">&amp;</span>CreateParams&lt;E, ContractRef, LimitParamsV2&lt;E&gt;, Args, Salt, R&gt;,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;
+        ink_primitives::ConstructorResult&lt;
+            &lt;R <span class="kw">as </span>ConstructorReturnType&lt;ContractRef&gt;&gt;::Output,
+        &gt;,
+    &gt;
+    <span class="kw">where
+        </span>E: Environment,
+        ContractRef: FromAccountId&lt;E&gt;,
+        Args: scale::Encode,
+        Salt: AsRef&lt;[u8]&gt;,
+        R: ConstructorReturnType&lt;ContractRef&gt;;
+
+    <span class="kw">fn </span>instantiate_contract_v1&lt;E, ContractRef, Args, Salt, R&gt;(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        params: <span class="kw-2">&amp;</span>CreateParams&lt;E, ContractRef, LimitParamsV1, Args, Salt, R&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;
         ink_primitives::ConstructorResult&lt;
             &lt;R <span class="kw">as </span>ConstructorReturnType&lt;ContractRef&gt;&gt;::Output,

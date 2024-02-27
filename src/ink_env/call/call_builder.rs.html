@@ -1793,7 +1793,7 @@
     /// limit parameter (equivalent to the `ref_time_limit` in the latest `call_v2`).
     ///
     /// This method instance is used to allow usage of the generated call builder methods
-    /// for messages which initialize the builder with the original [`CallV1`] type.
+    /// for messages which initialize the builder with the new [`Call`] type.
     </span><span class="kw">pub fn </span>call_v1(<span class="self">self</span>) -&gt; CallBuilder&lt;E, Set&lt;CallV1&lt;E&gt;&gt;, Args, RetType&gt; {
         <span class="kw">let </span>call_type = <span class="self">self</span>.call_type.value();
         CallBuilder {

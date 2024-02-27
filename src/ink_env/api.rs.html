@@ -862,6 +862,47 @@
 <a href="#862" id="862">862</a>
 <a href="#863" id="863">863</a>
 <a href="#864" id="864">864</a>
+<a href="#865" id="865">865</a>
+<a href="#866" id="866">866</a>
+<a href="#867" id="867">867</a>
+<a href="#868" id="868">868</a>
+<a href="#869" id="869">869</a>
+<a href="#870" id="870">870</a>
+<a href="#871" id="871">871</a>
+<a href="#872" id="872">872</a>
+<a href="#873" id="873">873</a>
+<a href="#874" id="874">874</a>
+<a href="#875" id="875">875</a>
+<a href="#876" id="876">876</a>
+<a href="#877" id="877">877</a>
+<a href="#878" id="878">878</a>
+<a href="#879" id="879">879</a>
+<a href="#880" id="880">880</a>
+<a href="#881" id="881">881</a>
+<a href="#882" id="882">882</a>
+<a href="#883" id="883">883</a>
+<a href="#884" id="884">884</a>
+<a href="#885" id="885">885</a>
+<a href="#886" id="886">886</a>
+<a href="#887" id="887">887</a>
+<a href="#888" id="888">888</a>
+<a href="#889" id="889">889</a>
+<a href="#890" id="890">890</a>
+<a href="#891" id="891">891</a>
+<a href="#892" id="892">892</a>
+<a href="#893" id="893">893</a>
+<a href="#894" id="894">894</a>
+<a href="#895" id="895">895</a>
+<a href="#896" id="896">896</a>
+<a href="#897" id="897">897</a>
+<a href="#898" id="898">898</a>
+<a href="#899" id="899">899</a>
+<a href="#900" id="900">900</a>
+<a href="#901" id="901">901</a>
+<a href="#902" id="902">902</a>
+<a href="#903" id="903">903</a>
+<a href="#904" id="904">904</a>
+<a href="#905" id="905">905</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -891,6 +932,8 @@
         CreateParams,
         DelegateCall,
         FromAccountId,
+        LimitParamsV1,
+        LimitParamsV2,
     },
     engine::{
         EnvInstance,
@@ -1215,7 +1258,8 @@
 ///
 /// # Note
 ///
-/// This is a low level way to instantiate another smart contract.
+/// This is a low level way to instantiate another smart contract, calling the latest
+/// `instantiate_v2` host function.
 ///
 /// Prefer to use methods on a `ContractRef` or the
 /// [`CreateBuilder`](`crate::call::CreateBuilder`)
@@ -1230,7 +1274,7 @@
 /// - If given insufficient endowment.
 /// - If the returned account ID failed to decode properly.
 </span><span class="kw">pub fn </span>instantiate_contract&lt;E, ContractRef, Args, Salt, R&gt;(
-    params: <span class="kw-2">&amp;</span>CreateParams&lt;E, ContractRef, Args, Salt, R&gt;,
+    params: <span class="kw-2">&amp;</span>CreateParams&lt;E, ContractRef, LimitParamsV2&lt;E&gt;, Args, Salt, R&gt;,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;
     ink_primitives::ConstructorResult&lt;&lt;R <span class="kw">as </span>ConstructorReturnType&lt;ContractRef&gt;&gt;::Output&gt;,
 &gt;
@@ -1243,6 +1287,44 @@
 {
     &lt;EnvInstance <span class="kw">as </span>OnInstance&gt;::on_instance(|instance| {
         TypedEnvBackend::instantiate_contract::&lt;E, ContractRef, Args, Salt, R&gt;(
+            instance, params,
+        )
+    })
+}
+
+<span class="doccomment">/// Instantiates another contract.
+///
+/// # Note
+///
+/// This is a low level way to instantiate another smart contract, calling the legacy
+/// `instantiate_v1` host function.
+///
+/// Prefer to use methods on a `ContractRef` or the
+/// [`CreateBuilder`](`crate::call::CreateBuilder`)
+/// through [`build_create`](`crate::call::build_create`) instead.
+///
+/// # Errors
+///
+/// - If the code hash is invalid.
+/// - If the arguments passed to the instantiation process are invalid.
+/// - If the instantiation process traps.
+/// - If the instantiation process runs out of gas.
+/// - If given insufficient endowment.
+/// - If the returned account ID failed to decode properly.
+</span><span class="kw">pub fn </span>instantiate_contract_v1&lt;E, ContractRef, Args, Salt, R&gt;(
+    params: <span class="kw-2">&amp;</span>CreateParams&lt;E, ContractRef, LimitParamsV1, Args, Salt, R&gt;,
+) -&gt; <span class="prelude-ty">Result</span>&lt;
+    ink_primitives::ConstructorResult&lt;&lt;R <span class="kw">as </span>ConstructorReturnType&lt;ContractRef&gt;&gt;::Output&gt;,
+&gt;
+<span class="kw">where
+    </span>E: Environment,
+    ContractRef: FromAccountId&lt;E&gt;,
+    Args: scale::Encode,
+    Salt: AsRef&lt;[u8]&gt;,
+    R: ConstructorReturnType&lt;ContractRef&gt;,
+{
+    &lt;EnvInstance <span class="kw">as </span>OnInstance&gt;::on_instance(|instance| {
+        TypedEnvBackend::instantiate_contract_v1::&lt;E, ContractRef, Args, Salt, R&gt;(
             instance, params,
         )
     })
