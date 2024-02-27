@@ -32,7 +32,18 @@ use {
 /// This is a mirror of the `AccountId` type used in the default configuration
 /// of PALLET contracts.
 #[derive(
-    Debug, Copy, Clone, PartialEq, Eq, Ord, PartialOrd, Hash, Decode, Encode, From,
+    Debug,
+    Copy,
+    Clone,
+    PartialEq,
+    Eq,
+    Ord,
+    PartialOrd,
+    Hash,
+    Decode,
+    Encode,
+    scale::MaxEncodedLen,
+    From,
 )]
 #[cfg_attr(feature = "std", derive(TypeInfo, DecodeAsType, EncodeAsType))]
 pub struct AccountId([u8; 32]);

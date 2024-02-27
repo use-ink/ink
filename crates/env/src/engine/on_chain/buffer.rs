@@ -149,6 +149,17 @@ impl<'a> ScopedBuffer<'a> {
         lhs
     }
 
+    /// Returns the first [`scale::MaxEncodedLen::max_encoded_len`] bytes of the buffer as
+    /// a mutable slice.
+    #[inline(always)]
+    pub fn take_max_encoded_len<T>(&mut self) -> &'a mut [u8]
+    where
+        T: scale::MaxEncodedLen,
+    {
+        let len = T::max_encoded_len();
+        self.take(len)
+    }
+
     /// Encode the given value into the scoped buffer and return the sub slice
     /// containing all the encoded bytes.
     #[inline(always)]

@@ -127,6 +127,7 @@ pub trait Environment: Clone {
     /// The account id type.
     type AccountId: 'static
         + scale::Codec
+        + scale::MaxEncodedLen
         + CodecAsType
         + Clone
         + PartialEq
