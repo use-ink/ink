@@ -150,6 +150,19 @@
 <a href="#150" id="150">150</a>
 <a href="#151" id="151">151</a>
 <a href="#152" id="152">152</a>
+<a href="#153" id="153">153</a>
+<a href="#154" id="154">154</a>
+<a href="#155" id="155">155</a>
+<a href="#156" id="156">156</a>
+<a href="#157" id="157">157</a>
+<a href="#158" id="158">158</a>
+<a href="#159" id="159">159</a>
+<a href="#160" id="160">160</a>
+<a href="#161" id="161">161</a>
+<a href="#162" id="162">162</a>
+<a href="#163" id="163">163</a>
+<a href="#164" id="164">164</a>
+<a href="#165" id="165">165</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -169,6 +182,7 @@
 <span class="kw">use </span>scale::{
     Decode,
     Encode,
+    MaxEncodedLen,
 };
 <span class="attr">#[cfg(feature = <span class="string">&quot;std&quot;</span>)]
 </span><span class="kw">use </span>{
@@ -184,7 +198,18 @@
 /// This is a mirror of the `AccountId` type used in the default configuration
 /// of PALLET contracts.
 </span><span class="attr">#[derive(
-    Debug, Copy, Clone, PartialEq, Eq, Ord, PartialOrd, Hash, Decode, Encode, From,
+    Debug,
+    Copy,
+    Clone,
+    PartialEq,
+    Eq,
+    Ord,
+    PartialOrd,
+    Hash,
+    Decode,
+    Encode,
+    MaxEncodedLen,
+    From,
 )]
 #[cfg_attr(feature = <span class="string">&quot;std&quot;</span>, derive(TypeInfo, DecodeAsType, EncodeAsType))]
 </span><span class="kw">pub struct </span>AccountId([u8; <span class="number">32</span>]);
@@ -243,6 +268,7 @@
     Hash,
     Decode,
     Encode,
+    MaxEncodedLen,
     From,
     Default,
 )]
