@@ -14,7 +14,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Bump metadata version to 5 [#2126](https://github.com/paritytech/ink/pull/2126)
 - Use `MaxEncodedLen` for output buffer size [#2128](https://github.com/paritytech/ink/pull/2128)
--
 
 ### Fixed
 - Fix alignment in allocator [#2100](https://github.com/paritytech/ink/pull/2100)
