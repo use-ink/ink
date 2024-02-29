@@ -1111,9 +1111,9 @@ dependencies = [
 
 [[package]]
 name = "contract-transcode"
-version = "4.0.0-rc.2"
+version = "4.0.0-rc.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "414fce0008626b0e7835ec62caadc1e028bd8f8236a8962c9d38739829d97eb2"
+checksum = "d8bf87e763e9b67379c987c68749d55676a0e14878f38048c120165ecc3c4214"
 dependencies = [
  "anyhow",
  "base58",
@@ -1121,9 +1121,9 @@ dependencies = [
  "contract-metadata",
  "escape8259",
  "hex",
- "indexmap 2.2.2",
- "ink_env 5.0.0-rc.1",
- "ink_metadata 5.0.0-rc.1",
+ "indexmap 2.2.4",
+ "ink_env 5.0.0-rc.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "ink_metadata 5.0.0-rc.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "itertools 0.12.1",
  "nom",
  "nom-supreme",
@@ -1593,9 +1593,9 @@ checksum = "9ea835d29036a4087793836fa931b08837ad5e957da9e23886b29586fb9b6650"
 
 [[package]]
 name = "drink"
-version = "0.10.0"
+version = "0.11.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6fe74f1b23038c882501682b6ea1ba97be124960adb68a0aea5aa2128a5df2e0"
+checksum = "12b656f1801a4714fa3d35ec4dff33f8e157a17e5772a19e953cbec0f0c9989b"
 dependencies = [
  "contract-metadata",
  "contract-transcode",
@@ -1620,9 +1620,9 @@ dependencies = [
 
 [[package]]
 name = "drink-test-macro"
-version = "0.10.0"
+version = "0.11.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ea166fddef10682aa3ebd1ce9da0fd84e8ca9d5397b70e93fcebac877d53139c"
+checksum = "62e6dde131c2f74134d628c5a66571999acdef4a719e5070ece7b537c3cc09d7"
 dependencies = [
  "cargo_metadata",
  "contract-build",
@@ -2295,7 +2295,7 @@ dependencies = [
  "futures-sink",
  "futures-util",
  "http",
- "indexmap 2.2.2",
+ "indexmap 2.2.4",
  "slab",
  "tokio",
  "tokio-util",
@@ -2606,9 +2606,9 @@ dependencies = [
 
 [[package]]
 name = "indexmap"
-version = "2.2.2"
+version = "2.2.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "824b2ae422412366ba479e8111fd301f7b5faece8149317bb81925979a53f520"
+checksum = "967d6dd42f16dbf0eb8040cb9e477933562684d3918f7d253f2ff9087fb3e7a3"
 dependencies = [
  "equivalent",
  "hashbrown 0.14.3",
@@ -2640,32 +2640,21 @@ dependencies = [
 ]
 
 [[package]]
-name = "ink-pallet-contracts-uapi"
-version = "6.0.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "dd3e608f5410d03e529145875eb736305e0d7cae4b989faf54f932eff31bc048"
-dependencies = [
- "bitflags 1.3.2",
- "paste",
- "polkavm-derive 0.4.0",
-]
-
-[[package]]
-name = "ink_allocator"
-version = "5.0.0-rc.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e66999b81e12f6e4e735594394f05e5e8ba8b5d887ce454f62bac9732527c738"
-dependencies = [
- "cfg-if",
-]
-
-[[package]]
 name = "ink_allocator"
 version = "5.0.0-rc.2"
 dependencies = [
  "cfg-if",
  "quickcheck",
  "quickcheck_macros",
+]
+
+[[package]]
+name = "ink_allocator"
+version = "5.0.0-rc.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1db87a731bd2534af4629d5bbf84b2fa659010f020f490abe996e5f76cfbcfd4"
+dependencies = [
+ "cfg-if",
 ]
 
 [[package]]
@@ -2739,22 +2728,6 @@ dependencies = [
 
 [[package]]
 name = "ink_engine"
-version = "5.0.0-rc.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5a6311f58a385f6301aa0eb7766e13473ab6be7151b9ed90b0f01c6249fa6d29"
-dependencies = [
- "blake2",
- "derive_more",
- "ink-pallet-contracts-uapi",
- "ink_primitives 5.0.0-rc.1",
- "parity-scale-codec",
- "secp256k1",
- "sha2 0.10.8",
- "sha3",
-]
-
-[[package]]
-name = "ink_engine"
 version = "5.0.0-rc.2"
 dependencies = [
  "blake2",
@@ -2768,33 +2741,19 @@ dependencies = [
 ]
 
 [[package]]
-name = "ink_env"
-version = "5.0.0-rc.1"
+name = "ink_engine"
+version = "5.0.0-rc.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "de851cc0a0d017d69521e0e5d4aeefe78d8a7cb4363a8a22cf673325efd07b5a"
+checksum = "3f2b07ba4113fa49d1d36771190a666b74cd5cff4840be572fb8194af9ca034f"
 dependencies = [
  "blake2",
- "cfg-if",
- "const_env",
  "derive_more",
- "ink-pallet-contracts-uapi",
- "ink_allocator 5.0.0-rc.1",
- "ink_engine 5.0.0-rc.1",
- "ink_prelude 5.0.0-rc.1",
- "ink_primitives 5.0.0-rc.1",
- "ink_storage_traits 5.0.0-rc.1",
- "num-traits",
+ "ink_primitives 5.0.0-rc.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "pallet-contracts-uapi-next",
  "parity-scale-codec",
- "paste",
- "rlibc",
- "scale-decode",
- "scale-encode",
- "scale-info",
- "schnorrkel 0.11.4",
  "secp256k1",
  "sha2 0.10.8",
  "sha3",
- "static_assertions",
 ]
 
 [[package]]
@@ -2811,6 +2770,36 @@ dependencies = [
  "ink_prelude 5.0.0-rc.2",
  "ink_primitives 5.0.0-rc.2",
  "ink_storage_traits 5.0.0-rc.2",
+ "num-traits",
+ "pallet-contracts-uapi-next",
+ "parity-scale-codec",
+ "paste",
+ "rlibc",
+ "scale-decode",
+ "scale-encode",
+ "scale-info",
+ "schnorrkel 0.11.4",
+ "secp256k1",
+ "sha2 0.10.8",
+ "sha3",
+ "static_assertions",
+]
+
+[[package]]
+name = "ink_env"
+version = "5.0.0-rc.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "abc1fd2c16521d8c585e7b0dbee65a9bbbb8d37cb78a57b57ca27a76bfc06266"
+dependencies = [
+ "blake2",
+ "cfg-if",
+ "const_env",
+ "derive_more",
+ "ink_allocator 5.0.0-rc.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "ink_engine 5.0.0-rc.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "ink_prelude 5.0.0-rc.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "ink_primitives 5.0.0-rc.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "ink_storage_traits 5.0.0-rc.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "num-traits",
  "pallet-contracts-uapi-next",
  "parity-scale-codec",
@@ -2862,23 +2851,6 @@ dependencies = [
 
 [[package]]
 name = "ink_metadata"
-version = "5.0.0-rc.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0400c331aab950f0483638962e45049f1e40bf0102d4a7bf8428e6d15c798278"
-dependencies = [
- "derive_more",
- "impl-serde",
- "ink_prelude 5.0.0-rc.1",
- "ink_primitives 5.0.0-rc.1",
- "linkme",
- "parity-scale-codec",
- "scale-info",
- "schemars",
- "serde",
-]
-
-[[package]]
-name = "ink_metadata"
 version = "5.0.0-rc.2"
 dependencies = [
  "derive_more",
@@ -2895,12 +2867,20 @@ dependencies = [
 ]
 
 [[package]]
-name = "ink_prelude"
-version = "5.0.0-rc.1"
+name = "ink_metadata"
+version = "5.0.0-rc.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bd2ed651848272442a9e41cd35405aa31c3ca9c6267254d2d84643c8163c69f3"
+checksum = "505fb52d8a5dccd6ca160d20aacb0f8d6f9e13f8a0f1f53bf05e8a4e083129ea"
 dependencies = [
- "cfg-if",
+ "derive_more",
+ "impl-serde",
+ "ink_prelude 5.0.0-rc.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "ink_primitives 5.0.0-rc.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "linkme",
+ "parity-scale-codec",
+ "scale-info",
+ "schemars",
+ "serde",
 ]
 
 [[package]]
@@ -2911,13 +2891,20 @@ dependencies = [
 ]
 
 [[package]]
-name = "ink_primitives"
-version = "5.0.0-rc.1"
+name = "ink_prelude"
+version = "5.0.0-rc.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b8e6d5e9f34949655f4102916078ed8cef5d8c869f1d3a516b4d3683bf614415"
+checksum = "a69a99f23d3a0a2d173f81a2c57a055d9e46acc530634c79c54548b5b9deb7b9"
+dependencies = [
+ "cfg-if",
+]
+
+[[package]]
+name = "ink_primitives"
+version = "5.0.0-rc.2"
 dependencies = [
  "derive_more",
- "ink_prelude 5.0.0-rc.1",
+ "ink_prelude 5.0.0-rc.2",
  "parity-scale-codec",
  "scale-decode",
  "scale-encode",
@@ -2928,9 +2915,11 @@ dependencies = [
 [[package]]
 name = "ink_primitives"
 version = "5.0.0-rc.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8be98091b19e2e7f6cdc128b405863fbb6c59ef8e361f3a60589ef029f69f6a8"
 dependencies = [
  "derive_more",
- "ink_prelude 5.0.0-rc.2",
+ "ink_prelude 5.0.0-rc.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "parity-scale-codec",
  "scale-decode",
  "scale-encode",
@@ -2961,19 +2950,6 @@ dependencies = [
 
 [[package]]
 name = "ink_storage_traits"
-version = "5.0.0-rc.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3566bca9c7755422c6aa87d13ff1bcd802e3f555ebfb4578272f5b0edeae115a"
-dependencies = [
- "ink_metadata 5.0.0-rc.1",
- "ink_prelude 5.0.0-rc.1",
- "ink_primitives 5.0.0-rc.1",
- "parity-scale-codec",
- "scale-info",
-]
-
-[[package]]
-name = "ink_storage_traits"
 version = "5.0.0-rc.2"
 dependencies = [
  "ink_metadata 5.0.0-rc.2",
@@ -2981,6 +2957,19 @@ dependencies = [
  "ink_primitives 5.0.0-rc.2",
  "parity-scale-codec",
  "paste",
+ "scale-info",
+]
+
+[[package]]
+name = "ink_storage_traits"
+version = "5.0.0-rc.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "469fbbf0e1933ba34732ad9ca35a3d0da48934068759e97dbb5d34762e3ab3d4"
+dependencies = [
+ "ink_metadata 5.0.0-rc.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "ink_prelude 5.0.0-rc.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "ink_primitives 5.0.0-rc.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "parity-scale-codec",
  "scale-info",
 ]
 
@@ -5062,7 +5051,7 @@ dependencies = [
  "chrono",
  "hex",
  "indexmap 1.9.3",
- "indexmap 2.2.2",
+ "indexmap 2.2.4",
  "serde",
  "serde_derive",
  "serde_json",
@@ -6424,7 +6413,7 @@ version = "0.19.15"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1b5bb770da30e5cbfde35a2d7b9b8a2c4b8ef89548a7a6aeab5c9a576e3e7421"
 dependencies = [
- "indexmap 2.2.2",
+ "indexmap 2.2.4",
  "toml_datetime",
  "winnow",
 ]
@@ -6435,7 +6424,7 @@ version = "0.20.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "70f427fce4d84c72b5b732388bf4a9f4531b53f74e2887e3ecb2481f68f66d81"
 dependencies = [
- "indexmap 2.2.2",
+ "indexmap 2.2.4",
  "toml_datetime",
  "winnow",
 ]
@@ -6446,7 +6435,7 @@ version = "0.21.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "6a8534fd7f78b5405e860340ad6575217ce99f38d4d5c8f2442cb5ecb50090e1"
 dependencies = [
- "indexmap 2.2.2",
+ "indexmap 2.2.4",
  "toml_datetime",
  "winnow",
 ]
@@ -6457,7 +6446,7 @@ version = "0.22.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0c9ffdf896f8daaabf9b66ba8e77ea1ed5ed0f72821b398aba62352e95062951"
 dependencies = [
- "indexmap 2.2.2",
+ "indexmap 2.2.4",
  "serde",
  "serde_spanned",
  "toml_datetime",
