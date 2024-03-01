@@ -111,7 +111,7 @@ jobs:
         run: |
           scripts/for_all_contracts_exec.sh --path integration-tests -- cargo +nightly fmt --verbose --manifest-path {} -- --check
           # This file is not a part of the cargo project, so it wouldn't be formatted the usual way
-          rustfmt +nightly --verbose --check ./integration-tests/psp22-extension/runtime/psp22-extension-example.rs
+          rustfmt +nightly --verbose --check ./integration-tests/public/psp22-extension/runtime/psp22-extension-example.rs
 
   clippy:
     runs-on: ubuntu-latest
@@ -485,11 +485,11 @@ jobs:
           RUSTFLAGS:                     -Clink-arg=-z -Clink-arg=nostart-stop-gc
         run: |
           # run all tests with --all-features, which will run the e2e-tests feature if present
-          scripts/for_all_contracts_exec.sh --path integration-tests --ignore static-buffer -- cargo test \
+          scripts/for_all_contracts_exec.sh --path integration-tests --ignore public/static-buffer -- cargo test \
             --verbose --all-features --manifest-path {}
           # run the static buffer test with a custom buffer size
-          cargo clean --manifest-path integration-tests/static-buffer/Cargo.toml
-          INK_STATIC_BUFFER_SIZE=30 cargo test --verbose --manifest-path integration-tests/static-buffer/Cargo.toml --all-features
+          cargo clean --manifest-path integration-tests/public/static-buffer/Cargo.toml
+          INK_STATIC_BUFFER_SIZE=30 cargo test --verbose --manifest-path integration-tests/public/static-buffer/Cargo.toml --all-features
 
       - name: Run E2E test with on-chain contract
         env:
@@ -498,14 +498,14 @@ jobs:
         run: |
             # run flipper E2E test with on-chain contract
             substrate-contracts-node -lruntime::contracts=debug 2>&1 &
-            cargo contract build --release --manifest-path integration-tests/flipper/Cargo.toml
+            cargo contract build --release --manifest-path integration-tests/public/flipper/Cargo.toml
             export CONTRACT_ADDR_HEX=$(cargo contract instantiate \
-              --manifest-path integration-tests/flipper/Cargo.toml \
+              --manifest-path integration-tests/public/flipper/Cargo.toml \
               --suri //Alice --args true -x -y --output-json | \
               jq -r .contract | xargs subkey inspect | grep -o "0x.*" | head -n1)
             CONTRACTS_NODE_URL=ws://127.0.0.1:9944 cargo test \
               --features e2e-tests \
-              --manifest-path integration-tests/flipper/Cargo.toml \
+              --manifest-path integration-tests/public/flipper/Cargo.toml \
               e2e_test_deployed_contract \
               -- --ignored --nocapture
 
@@ -543,7 +543,7 @@ jobs:
           # Build all examples
           scripts/for_all_contracts_exec.sh --path integration-tests -- cargo contract build --release --manifest-path {}
           # Build the different features for the conditional compilation example
-          pushd ./integration-tests/conditional-compilation
+          pushd ./integration-tests/public/conditional-compilation
           cargo contract build --release --features "foo"
           cargo contract build --release --features "bar"
           cargo contract build --release --features "foo, bar"
@@ -561,7 +561,7 @@ jobs:
           #   - custom_allocator
           # Pulls in sp-std which needlessly requires atomic pointers (TODO: Fix sp-std and enable this example)
           #   - call-runtime
-          scripts/for_all_contracts_exec.sh --path integration-tests --ignore custom-allocator --ignore call-runtime \
+          scripts/for_all_contracts_exec.sh --path integration-tests --ignore public/custom-allocator --ignore public/call-runtime \
             -- cargo build --manifest-path {} --no-default-features --target $RISCV_TARGET -Zbuild-std="core,alloc"
 
   examples-docs:
