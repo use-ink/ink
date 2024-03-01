@@ -6,10 +6,10 @@ edition = "2021"
 publish = false
 
 [dependencies]
-ink = { path = "../../crates/ink", default-features = false }
+ink = { path = "../../../crates/ink", default-features = false }
 
 [dev-dependencies]
-ink_e2e = { path = "../../crates/e2e", features = ["drink"] }
+ink_e2e = { path = "../../../crates/e2e", features = ["drink"] }
 
 [lib]
 path = "lib.rs"

@@ -6,7 +6,7 @@ edition = "2021"
 publish = false
 
 [dependencies]
-ink = { path = "../../crates/ink", default-features = false }
+ink = { path = "../../../crates/ink", default-features = false }
 
 [dev-dependencies]
 hex-literal = { version = "0.4.1" }

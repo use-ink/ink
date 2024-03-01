@@ -6,7 +6,7 @@ edition = "2021"
 publish = false
 
 [dependencies]
-ink = { path = "../../crates/ink", default-features = false }
+ink = { path = "../../../crates/ink", default-features = false }
 
 # Substrate
 #
@@ -18,7 +18,7 @@ sp-io = { version = "23.0.0", default-features = false, features = ["disable_pan
 sp-runtime = { version = "24.0.0", default-features = false }
 
 [dev-dependencies]
-ink_e2e = { path = "../../crates/e2e" }
+ink_e2e = { path = "../../../crates/e2e" }
 
 [lib]
 path = "lib.rs"
