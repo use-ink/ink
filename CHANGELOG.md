@@ -5,8 +5,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## Version 5.0.0-rc.2
+
+### Added
+- `instantiate_v2` with additional limit parameters [#2123](https://github.com/paritytech/ink/pull/2123)
+
 ### Changed
 - Bump metadata version to 5 [#2126](https://github.com/paritytech/ink/pull/2126)
+- Use `MaxEncodedLen` for output buffer size [#2128](https://github.com/paritytech/ink/pull/2128)
 
 ### Fixed
 - Fix alignment in allocator [#2100](https://github.com/paritytech/ink/pull/2100)
