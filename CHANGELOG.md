@@ -14,15 +14,15 @@ As of this release, ink! only allows exactly one other message with a well-known
 You can read more about the change in the [#1708](https://github.com/paritytech/ink/pull/1708).
 
 ink! 5.0.0 features a significant number of new features:
-- We have introduced a new API for the event definition based on the calculated or specified selectors. This allows events to be defined in separate files and modules, and be shared across multiple ink! contracts - [#1827](https://github.com/paritytech/ink/pull/1827) and [#2031](https://github.com/paritytech/ink/pull/2031).
-- [@pmikolajczyk41](https://github.com/pmikolajczyk41) has introduced an alternative E2E testing framework, [DRink!](https://github.com/inkdevhub/drink?tab=readme-ov-file#as-an-alternative-backend-to-inks-e2e-testing-framework), that support quasi-testing model, it allows the test simulate a running node as part of the E2E test, while improving debugging experience such as allowing to set break point and step through each stage of execution cycle.
+- We have introduced a new API based on the calculated or specified selectors for the event definition. This allows events to be defined in separate files and modules, and be shared across multiple ink! contracts - [#1827](https://github.com/paritytech/ink/pull/1827) and [#2031](https://github.com/paritytech/ink/pull/2031).
+- [@pmikolajczyk41](https://github.com/pmikolajczyk41) has introduced an alternative E2E testing framework, [DRink!](https://github.com/inkdevhub/drink?tab=readme-ov-file#as-an-alternative-backend-to-inks-e2e-testing-framework), that support quasi-testing model, it allows the test simulate a running node as part of the E2E test while improving debugging experience such as allowing to set breakpoint and step through each stage of execution cycle.
 - Following improvements in E2E, we have added a call builder API that allows to easily build calls while significantly reducing boilerplate code - [#1917](https://github.com/paritytech/ink/pull/1917) and [#2075](https://github.com/paritytech/ink/pull/2075)
-- Another notable introduction in 5.0.0 release is the support for multiple chain extensions that empowers developers
+- Another notable introduction in 5.0.0 release is the support for multiple chain extensions that empower developers
 to build even more sophisticated and advanced contracts for supported chains - [#1958](https://github.com/paritytech/ink/pull/1958).
-- To further address our consideration of intrinsic security of ink! smart contracts,
-we have disallowed unchecked arithmetic expressions. `cargo-contract` will fail compiling the contract with raw arithmetic operation - [#1831](https://github.com/paritytech/ink/pull/1831).
+- To further address our consideration of the intrinsic security of ink! smart contracts,
+we have disallowed unchecked arithmetic expressions. `cargo-contract` will fail to compile the contract with the raw arithmetic operation - [#1831](https://github.com/paritytech/ink/pull/1831).
 
-These are one the main features we have introduced in this release. We also encourage developers
+These are the main features we have introduced in this release. We also encourage developers
 to have a look at more detailed changelog entries to find out about any breaking changes that may affect
 the development of new ink! contracts.
 
