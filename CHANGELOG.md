@@ -8,6 +8,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Version 5.0.0
 
+This is a release addressing the rest of severities described in the [OpenZeppelin report](https://blog.openzeppelin.com/security-review-ink-cargo-contract).
+In particular, one of the notable addressed issues is the proxy selector clashing attack.
+As of this release, ink! only allows exactly one other message with a well-known reserved selector to be defined.
+You can read more about the change in the [#1708](https://github.com/paritytech/ink/pull/1708).
+
+ink! 5.0.0 features a significant number of new features:
+- We have introduced a new API for the event definition based on the calculated or specified selectors. This allows events to be defined in separate files and modules, and be shared across multiple ink! contracts - [#1827](https://github.com/paritytech/ink/pull/1827) and [#2031](https://github.com/paritytech/ink/pull/2031).
+- [@pmikolajczyk41](https://github.com/pmikolajczyk41) has introduced an alternative E2E testing framework, [DRink!](https://github.com/inkdevhub/drink?tab=readme-ov-file#as-an-alternative-backend-to-inks-e2e-testing-framework), that support quasi-testing model, it allows the test simulate a running node as part of the E2E test, while improving debugging experience such as allowing to set break point and step through each stage of execution cycle.
+- Following improvements in E2E, we have added a call builder API that allows to easily build calls while significantly reducing boilerplate code - [#1917](https://github.com/paritytech/ink/pull/1917) and [#2075](https://github.com/paritytech/ink/pull/2075)
+- Another notable introduction in 5.0.0 release is the support for multiple chain extensions that empowers developers
+to build even more sophisticated and advanced contracts for supported chains - [#1958](https://github.com/paritytech/ink/pull/1958).
+- To further address our consideration of intrinsic security of ink! smart contracts,
+we have disallowed unchecked arithmetic expressions. `cargo-contract` will fail compiling the contract with raw arithmetic operation - [#1831](https://github.com/paritytech/ink/pull/1831).
+
+These are one the main features we have introduced in this release. We also encourage developers
+to have a look at more detailed changelog entries to find out about any breaking changes that may affect
+the development of new ink! contracts.
+
+
 ### Added
 - `instantiate_v2` with additional limit parameters [#2123](https://github.com/paritytech/ink/pull/2123)
 - Custom signature topic in Events - [#2031](https://github.com/paritytech/ink/pull/2031)
@@ -892,10 +911,10 @@ This is the 7th release candidate for ink! 3.0.
 Since our last release candidate we implemented a number of contract size improvements.
 With those improvements the size of our `erc20` example has reduced significantly:
 
-|          |             | Release Build with `cargo-contract` |
-|:---------|:------------|:------------------------------------|
-| `erc20`  | `3.0.0-rc6` | 29.3 K                              |
-| `erc20`  | `3.0.0-rc7` | 10.4 K                              |
+|         |             | Release Build with `cargo-contract` |
+| :------ | :---------- | :---------------------------------- |
+| `erc20` | `3.0.0-rc6` | 29.3 K                              |
+| `erc20` | `3.0.0-rc7` | 10.4 K                              |
 
 The savings apply partly to our other examples; for `erc20` they are most
 significant since it has been migrated to use a new [`Mapping`](https://paritytech.github.io/ink/ink_storage/lazy/struct.Mapping.html)
@@ -1358,15 +1377,15 @@ However, their APIs look very different. Whereas the `HashMap` provides a rich a
 
 The fundamental difference of both data structures is that `HashMap` is aware of the keys that have been stored in it and thus can reconstruct exactly which elements and storage regions apply to it. This enables it to provide iteration and automated deletion as well as efficient way to defragment its underlying storage to free some storage space again. This goes very well in the vein of Substrate's storage rent model where contracts have to pay for the storage they are using.
 
-| Data Structure | level of abstraction | caching | lazy | element type | container |
-|:--|:-:|:-:|:-:|:-:|:-:|
-| `T` | - | yes | no | `T` | primitive value |
-| `Lazy<T>` | high-level | yes | yes | `T` | single element container |
-| `LazyCell<T>` | low-level | yes | yes | `Option<T>` | single element, no container |
-| `Vec<T>` | high-level | yes | yes | `T` | Rust vector-like container |
-| `LazyIndexMap<T>` | low-level | yes | yes | `Option<T>` | similar to Solidity mapping |
-| `HashMap<K, V>` | high-level | yes | yes | `V` (key type `K`) | Rust map-like container |
-| `LazyHashMap<K, V>` | low-level | yes | yes | `Option<V>` (key type `K`) | similar to Solidity mapping |
+| Data Structure      | level of abstraction | caching | lazy  |        element type        |          container           |
+| :------------------ | :------------------: | :-----: | :---: | :------------------------: | :--------------------------: |
+| `T`                 |          -           |   yes   |  no   |            `T`             |       primitive value        |
+| `Lazy<T>`           |      high-level      |   yes   |  yes  |            `T`             |   single element container   |
+| `LazyCell<T>`       |      low-level       |   yes   |  yes  |        `Option<T>`         | single element, no container |
+| `Vec<T>`            |      high-level      |   yes   |  yes  |            `T`             |  Rust vector-like container  |
+| `LazyIndexMap<T>`   |      low-level       |   yes   |  yes  |        `Option<T>`         | similar to Solidity mapping  |
+| `HashMap<K, V>`     |      high-level      |   yes   |  yes  |     `V` (key type `K`)     |   Rust map-like container    |
+| `LazyHashMap<K, V>` |      low-level       |   yes   |  yes  | `Option<V>` (key type `K`) | similar to Solidity mapping  |
 
 There are many more! For more information about the specifics please take a look into [the `ink_storage` crate documentation](https://paritytech.github.io/ink/ink_storage/).
 
@@ -1552,18 +1571,18 @@ mod erc20 {
 
 We won't be going into the details for any of those but will briefly present the entire set of ink! specific attributes below:
 
-| Attribute | Where Applicable | Description |
-|:--|:--|:--|
-| `#[ink(storage)]` | On `struct` definitions. | Defines the ink! storage struct. There can only be one ink! storage definition per contract. |
-| `#[ink(event)]` | On `struct` definitions. | Defines an ink! event. A contract can define multiple such ink! events. |
-| `#[ink(anonymous)]` **new** | Applicable to ink! events. | Tells the ink! codegen to treat the ink! event as anonymous which omits the event signature as topic upon emitting. Very similar to anonymous events in Solidity. |
-| `#[ink(topic)]` | Applicate on ink! event field. | Tells the ink! codegen to provide a topic hash for the given field. Every ink! event can only have a limited number of such topic field. Similar semantics as to indexed event arguments in Solidity. |
-| `#[ink(message)]` | Applicable to methods. | Flags a method for the ink! storage struct as message making it available to the API for calling the contract. |
-| `#[ink(constructor)]` | Applicable to method. | Flags a method for the ink! storage struct as constructor making it available to the API for instantiating the contract. |
-| `#[ink(payable)]` **new** | Applicable to ink! messages. | Allows receiving value as part of the call of the ink! message. ink! constructors are implicitly payable. |
-| `#[ink(selector = "..")]` **new** | Applicable to ink! messages and ink! constructors. | Specifies a concrete dispatch selector for the flagged entity. This allows a contract author to precisely control the selectors of their APIs making it possible to rename their API without breakage. |
-| `#[ink(namespace = "..")]` **new** | Applicable to ink! trait implementation blocks. | Changes the resulting selectors of all the ink! messages and ink! constructors within the trait implementation. Allows to disambiguate between trait implementations with overlapping message or constructor names. Use only with great care and consideration! |
-| `#[ink(impl)]` **new** | Applicable to ink! implementation blocks. | Tells the ink! codegen that some implementation block shall be granted access to ink! internals even without it containing any ink! messages or ink! constructors. |
+| Attribute                          | Where Applicable                                   | Description                                                                                                                                                                                                                                                     |
+| :--------------------------------- | :------------------------------------------------- | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `#[ink(storage)]`                  | On `struct` definitions.                           | Defines the ink! storage struct. There can only be one ink! storage definition per contract.                                                                                                                                                                    |
+| `#[ink(event)]`                    | On `struct` definitions.                           | Defines an ink! event. A contract can define multiple such ink! events.                                                                                                                                                                                         |
+| `#[ink(anonymous)]` **new**        | Applicable to ink! events.                         | Tells the ink! codegen to treat the ink! event as anonymous which omits the event signature as topic upon emitting. Very similar to anonymous events in Solidity.                                                                                               |
+| `#[ink(topic)]`                    | Applicate on ink! event field.                     | Tells the ink! codegen to provide a topic hash for the given field. Every ink! event can only have a limited number of such topic field. Similar semantics as to indexed event arguments in Solidity.                                                           |
+| `#[ink(message)]`                  | Applicable to methods.                             | Flags a method for the ink! storage struct as message making it available to the API for calling the contract.                                                                                                                                                  |
+| `#[ink(constructor)]`              | Applicable to method.                              | Flags a method for the ink! storage struct as constructor making it available to the API for instantiating the contract.                                                                                                                                        |
+| `#[ink(payable)]` **new**          | Applicable to ink! messages.                       | Allows receiving value as part of the call of the ink! message. ink! constructors are implicitly payable.                                                                                                                                                       |
+| `#[ink(selector = "..")]` **new**  | Applicable to ink! messages and ink! constructors. | Specifies a concrete dispatch selector for the flagged entity. This allows a contract author to precisely control the selectors of their APIs making it possible to rename their API without breakage.                                                          |
+| `#[ink(namespace = "..")]` **new** | Applicable to ink! trait implementation blocks.    | Changes the resulting selectors of all the ink! messages and ink! constructors within the trait implementation. Allows to disambiguate between trait implementations with overlapping message or constructor names. Use only with great care and consideration! |
+| `#[ink(impl)]` **new**             | Applicable to ink! implementation blocks.          | Tells the ink! codegen that some implementation block shall be granted access to ink! internals even without it containing any ink! messages or ink! constructors.                                                                                              |
 
 ### Merging of ink! Attributes
 
