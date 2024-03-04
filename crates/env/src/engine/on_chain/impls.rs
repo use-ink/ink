@@ -478,7 +478,7 @@ impl TypedEnvBackend for EnvInstance {
     {
         let mut scope = self.scoped_buffer();
         let ref_time_limit = params.ref_time_limit();
-        let proof_time_limit = params.proof_time_limit();
+        let proof_size_limit = params.proof_size_limit();
         let storage_deposit_limit = params
             .storage_deposit_limit()
             .map(|limit| &*scope.take_encoded(limit));
@@ -499,7 +499,7 @@ impl TypedEnvBackend for EnvInstance {
             *flags,
             enc_callee,
             ref_time_limit,
-            proof_time_limit,
+            proof_size_limit,
             storage_deposit_limit,
             enc_transferred_value,
             enc_input,
@@ -563,7 +563,7 @@ impl TypedEnvBackend for EnvInstance {
     {
         let mut scoped = self.scoped_buffer();
         let ref_time_limit = params.ref_time_limit();
-        let proof_time_limit = params.proof_time_limit();
+        let proof_size_limit = params.proof_size_limit();
         let storage_deposit_limit = params
             .storage_deposit_limit()
             .map(|limit| &*scoped.take_encoded(limit));
@@ -577,7 +577,7 @@ impl TypedEnvBackend for EnvInstance {
         let instantiate_result = ext::instantiate_v2(
             enc_code_hash,
             ref_time_limit,
-            proof_time_limit,
+            proof_size_limit,
             storage_deposit_limit,
             enc_endowment,
             enc_input,
