@@ -6,12 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## Version 5.0.0
-
+# Summary
 This is a release addressing the rest of severities described in the [OpenZeppelin report](https://blog.openzeppelin.com/security-review-ink-cargo-contract).
 In particular, one of the notable addressed issues is the proxy selector clashing attack.
 As of this release, ink! only allows exactly one other message with a well-known reserved selector to be defined.
-You can read more about the change in the [#1708](https://github.com/paritytech/ink/pull/1708).
+You can read more about the change in the [#1827](https://github.com/paritytech/ink/pull/1827) and [#2031](https://github.com/paritytech/ink/pull/2031).
 
 ink! 5.0.0 features a significant number of new features:
 - We have introduced a new API based on the calculated or specified selectors for the event definition. This allows events to be defined in separate files and modules, and be shared across multiple ink! contracts - [#1827](https://github.com/paritytech/ink/pull/1827) and [#2031](https://github.com/paritytech/ink/pull/2031).
@@ -26,15 +25,21 @@ These are the main features we have introduced in this release. We also encourag
 to have a look at more detailed changelog entries to find out about any breaking changes that may affect
 the development of new ink! contracts.
 
+# Compatability
 
-### Added
+- Rust: `>=1.70`
+- cargo-contract: `>=4.0.0-rc.3`
+- polkadot-sdk: [>=1.1.0](https://github.com/paritytech/polkadot-sdk/releases/tag/polkadot-v1.1.0) **if** using the new host functions introduced in [#2123](https://github.com/paritytech/ink/pull/2123) and [#2077](https://github.com/paritytech/ink/pull/2077)
+
+# Changelog
+
+## Added
 - `instantiate_v2` with additional limit parameters [#2123](https://github.com/paritytech/ink/pull/2123)
 - Custom signature topic in Events - [#2031](https://github.com/paritytech/ink/pull/2031)
 - [Linter] `non_fallible_api` lint - [#2004](https://github.com/paritytech/ink/pull/2004)
 - [Linter] Publish the linting crates on crates.io - [#2060](https://github.com/paritytech/ink/pull/2060)
 - [E2E] Added `create_call_builder` for testing existing contracts - [#2075](https://github.com/paritytech/ink/pull/2075)
 - `call_v2` cross-contract calls with additional limit parameters - [#2077](https://github.com/paritytech/ink/pull/2077)
-- `instantiate_v2` with additional limit parameters - [#2123](https://github.com/paritytech/ink/pull/2123)
 - `delegate_dependency` api calls - [#2076](https://github.com/paritytech/ink/pull/2076)
 - Allow mutable parameters in messages - [#2004](https://github.com/paritytech/ink/pull/2004)
 - Clean E2E configuration parsing - [#1922](https://github.com/paritytech/ink/pull/1922)
