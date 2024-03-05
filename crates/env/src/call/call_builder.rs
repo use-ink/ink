@@ -104,7 +104,7 @@ where
         self.call_type.ref_time_limit
     }
 
-    /// Returns the chosen proof time limit for the called contract execution.
+    /// Returns the chosen proof size limit for the called contract execution.
     #[inline]
     pub fn proof_size_limit(&self) -> u64 {
         self.call_type.proof_size_limit
