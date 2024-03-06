@@ -6,9 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## Version 5.0.0
+
 ### Summary
 This is a release addressing the rest of severities described in the [OpenZeppelin report](https://blog.openzeppelin.com/security-review-ink-cargo-contract).
-In particular, one of the notable addressed issues is the proxy selector clashing attack.
+One of the notable addressed issues is the proxy selector clashing attack.
 As of this release, ink! only allows exactly one other message with a well-known reserved selector to be defined.
 You can read more about the change in the [#1827](https://github.com/paritytech/ink/pull/1827) and [#2031](https://github.com/paritytech/ink/pull/2031).
 
@@ -28,11 +30,14 @@ the development of new ink! contracts.
 ### Compatability
 
 - Rust: `>=1.70`
-- cargo-contract: `>=4.0.0-rc.3`, `>=4.0.0`
-- polkadot-sdk: `polkadot-v1.8.0` release (in the [`d250a6`](https://github.com/paritytech/polkadot-sdk/commit/d250a6e4270a77f28e2737a4faa3fb78c8ea7a85) commit) **if** using the new host functions introduced in [#2123](https://github.com/paritytech/ink/pull/2123) and [#2077](https://github.com/paritytech/ink/pull/2077)
+- `cargo-contract`: `>=4.0.0`
+- polkadot-sdk: [>= 0.9.3](https://github.com/paritytech/polkadot-sdk/releases/tag/polkadot-v0.9.3), but if using the new functions introduced in [#2123](https://github.com/paritytech/ink/pull/2123) and [#2077](https://github.com/paritytech/ink/pull/2077) [>= 1.8.0](https://github.com/paritytech/polkadot-sdk/releases/tag/polkadot-v1.8.0).
+- `polkadot-js/api` and `polkadot-js/api-contract`:  `>=10.12.1`
+- `substrate-contracts-node`: `>= 0.39.0`
 
+### Changelog
 
-## Added
+#### Added
 - `instantiate_v2` with additional limit parameters [#2123](https://github.com/paritytech/ink/pull/2123)
 - Custom signature topic in Events - [#2031](https://github.com/paritytech/ink/pull/2031)
 - [Linter] `non_fallible_api` lint - [#2004](https://github.com/paritytech/ink/pull/2004)
@@ -68,7 +73,7 @@ the development of new ink! contracts.
 - [Drink backend] Backend traits - [#1857](https://github.com/paritytech/ink/pull/1857)
 - [Drink backend] Abstract error and result structs - [#1844](https://github.com/paritytech/ink/pull/1844)
 
-### Changed
+#### Changed
 - Bump metadata version to 5 [#2126](https://github.com/paritytech/ink/pull/2126)
 - Use `MaxEncodedLen` for output buffer size [#2128](https://github.com/paritytech/ink/pull/2128)
 - `Mapping`: Reflect all possible failure cases in comments ‒ [#2079](https://github.com/paritytech/ink/pull/2079)
@@ -92,7 +97,7 @@ the development of new ink! contracts.
 - [E2E] crate refactoring - [#1830](https://github.com/paritytech/ink/pull/1830)
 - [E2E] improve call API, remove `build_message` + callback - [#1782](https://github.com/paritytech/ink/pull/1782)
 
-### Fixed
+#### Fixed
 - Fix alignment in allocator [#2100](https://github.com/paritytech/ink/pull/2100)
 - Fix the `StorageVec` type by excluding the `len_cached` field from its type info - [#2052](https://github.com/paritytech/ink/pull/2052)
 - Fix panic in `approve_for` in the ERC-721 example - [#2092](https://github.com/paritytech/ink/pull/2092)
