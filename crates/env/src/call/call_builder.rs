@@ -712,7 +712,7 @@ where
     ///
     /// `ref_time` refers to the amount of computational time that can be
     /// used for execution, in picoseconds. You can find more info
-    /// [here](https://use.ink/basics/cross-contract-calling/).
+    /// [here](https://use.ink/basics/gas).
     pub fn ref_time_limit(self, ref_time_limit: Gas) -> Self {
         let call_type = self.call_type.value();
         CallBuilder {
@@ -729,7 +729,7 @@ where
     ///
     /// `proof_size` refers to the amount of storage in bytes that a transaction
     /// is allowed to read. You can find more info
-    /// [here](https://use.ink/basics/cross-contract-calling/).
+    /// [here](https://use.ink/basics/gas).
     ///
     /// **Note**
     ///
@@ -750,7 +750,7 @@ where
     ///
     /// The `storage_deposit_limit` specifies the amount of user funds that
     /// can be charged for creating storage. You can find more info
-    /// [here](https://use.ink/basics/cross-contract-calling/).
+    /// [here](https://use.ink/basics/gas).
     pub fn storage_deposit_limit(self, storage_deposit_limit: E::Balance) -> Self {
         let call_type = self.call_type.value();
         CallBuilder {
