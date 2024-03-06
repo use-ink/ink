@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-# Summary
+### Summary
 This is a release addressing the rest of severities described in the [OpenZeppelin report](https://blog.openzeppelin.com/security-review-ink-cargo-contract).
 In particular, one of the notable addressed issues is the proxy selector clashing attack.
 As of this release, ink! only allows exactly one other message with a well-known reserved selector to be defined.
@@ -25,13 +25,12 @@ These are the main features we have introduced in this release. We also encourag
 to have a look at more detailed changelog entries to find out about any breaking changes that may affect
 the development of new ink! contracts.
 
-# Compatability
+### Compatability
 
 - Rust: `>=1.70`
-- cargo-contract: `>=4.0.0-rc.3`
-- polkadot-sdk: [>=1.1.0](https://github.com/paritytech/polkadot-sdk/releases/tag/polkadot-v1.1.0) **if** using the new host functions introduced in [#2123](https://github.com/paritytech/ink/pull/2123) and [#2077](https://github.com/paritytech/ink/pull/2077)
+- cargo-contract: `>=4.0.0-rc.3`, `>=4.0.0`
+- polkadot-sdk: `polkadot-v1.8.0` release (in the [`d250a6`](https://github.com/paritytech/polkadot-sdk/commit/d250a6e4270a77f28e2737a4faa3fb78c8ea7a85) commit) **if** using the new host functions introduced in [#2123](https://github.com/paritytech/ink/pull/2123) and [#2077](https://github.com/paritytech/ink/pull/2077)
 
-# Changelog
 
 ## Added
 - `instantiate_v2` with additional limit parameters [#2123](https://github.com/paritytech/ink/pull/2123)
