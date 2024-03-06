@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Version 5.0.0
 
 ### Summary
-This is a release addressing the rest of severities described in the [OpenZeppelin report](https://blog.openzeppelin.com/security-review-ink-cargo-contract).
+This is a release addressing the rest of the severities described in the [OpenZeppelin security review](https://blog.openzeppelin.com/security-review-ink-cargo-contract) of ink! and `cargo-contract`.
 One of the notable addressed issues is the proxy selector clashing attack.
 As of this release, ink! only allows exactly one other message with a well-known reserved selector to be defined.
 You can read more about the change in the [#1827](https://github.com/paritytech/ink/pull/1827) and [#2031](https://github.com/paritytech/ink/pull/2031).
