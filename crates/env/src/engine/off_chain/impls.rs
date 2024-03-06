@@ -495,7 +495,7 @@ impl TypedEnvBackend for EnvInstance {
     {
         let _code_hash = params.code_hash();
         let _ref_time_limit = params.ref_time_limit();
-        let _proof_time_limit = params.proof_time_limit();
+        let _proof_size_limit = params.proof_size_limit();
         let _storage_deposit_limit = params.storage_deposit_limit();
         let _endowment = params.endowment();
         let _input = params.exec_input();
