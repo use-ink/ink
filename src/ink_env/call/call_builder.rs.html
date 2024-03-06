@@ -1206,10 +1206,10 @@
         <span class="self">self</span>.call_type.ref_time_limit
     }
 
-    <span class="doccomment">/// Returns the chosen proof time limit for the called contract execution.
+    <span class="doccomment">/// Returns the chosen proof size limit for the called contract execution.
     </span><span class="attr">#[inline]
-    </span><span class="kw">pub fn </span>proof_time_limit(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u64 {
-        <span class="self">self</span>.call_type.proof_time_limit
+    </span><span class="kw">pub fn </span>proof_size_limit(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u64 {
+        <span class="self">self</span>.call_type.proof_size_limit
     }
 
     <span class="doccomment">/// Returns the chosen storage deposit limit for the called contract execution.
@@ -1557,13 +1557,13 @@
 }
 
 <span class="doccomment">/// The default call type for cross-contract calls, for calling into the latest `call_v2`
-/// host function. This adds the additional weight limit parameter `proof_time_limit` as
+/// host function. This adds the additional weight limit parameter `proof_size_limit` as
 /// well as `storage_deposit_limit`.
 </span><span class="attr">#[derive(Clone)]
 </span><span class="kw">pub struct </span>Call&lt;E: Environment&gt; {
     callee: E::AccountId,
     ref_time_limit: u64,
-    proof_time_limit: u64,
+    proof_size_limit: u64,
     storage_deposit_limit: <span class="prelude-ty">Option</span>&lt;E::Balance&gt;,
     transferred_value: E::Balance,
 }
@@ -1574,7 +1574,7 @@
         <span class="self">Self </span>{
             callee,
             ref_time_limit: Default::default(),
-            proof_time_limit: Default::default(),
+            proof_size_limit: Default::default(),
             storage_deposit_limit: <span class="prelude-val">None</span>,
             transferred_value: E::Balance::zero(),
         }
@@ -1826,10 +1826,10 @@
         </span>}
     }
 
-    <span class="doccomment">/// Sets the `proof_time_limit` part of the weight limit for the current
+    <span class="doccomment">/// Sets the `proof_size_limit` part of the weight limit for the current
     /// cross-contract call.
     ///
-    /// `proof_time` refers to the amount of storage in bytes that a transaction
+    /// `proof_size` refers to the amount of storage in bytes that a transaction
     /// is allowed to read. You can find more info
     /// [here](https://use.ink/basics/cross-contract-calling/).
     ///
@@ -1837,11 +1837,11 @@
     ///
     /// This limit is only relevant for parachains, not for standalone chains which do not
     /// require sending a Proof-of-validity to the relay chain.
-    </span><span class="kw">pub fn </span>proof_time_limit(<span class="self">self</span>, proof_time_limit: Gas) -&gt; <span class="self">Self </span>{
+    </span><span class="kw">pub fn </span>proof_size_limit(<span class="self">self</span>, proof_size_limit: Gas) -&gt; <span class="self">Self </span>{
         <span class="kw">let </span>call_type = <span class="self">self</span>.call_type.value();
         CallBuilder {
             call_type: Set(Call {
-                proof_time_limit,
+                proof_size_limit,
                 ..call_type
             }),
             ..<span class="self">self

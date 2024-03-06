@@ -196,7 +196,7 @@ storage limit parameters.</p>
     <span class="kw">let </span>create_params = build_create::&lt;OtherContractRef&gt;()
         .code_hash(Hash::from([<span class="number">0x42</span>; <span class="number">32</span>]))
         .ref_time_limit(<span class="number">500_000_000</span>)
-        .proof_time_limit(<span class="number">100_000</span>)
+        .proof_size_limit(<span class="number">100_000</span>)
         .storage_deposit_limit(<span class="number">500_000_000_000</span>)
         .endowment(<span class="number">25</span>)
         .exec_input(
@@ -335,7 +335,7 @@ for a complete contract example.</p>
     <span class="kw">let </span>call_params = build_call::&lt;DefaultEnvironment&gt;()
         .call(AccountId::from([<span class="number">0x42</span>; <span class="number">32</span>]))
         .ref_time_limit(<span class="number">500_000_000</span>)
-        .proof_time_limit(<span class="number">100_000</span>)
+        .proof_size_limit(<span class="number">100_000</span>)
         .storage_deposit_limit(<span class="number">1_000_000_000</span>)
         .exec_input(
             ExecutionInput::new(Selector::new([<span class="number">0xCA</span>, <span class="number">0xFE</span>, <span class="number">0xBA</span>, <span class="number">0xBE</span>]))
