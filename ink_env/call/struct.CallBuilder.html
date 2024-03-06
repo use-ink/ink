@@ -47,19 +47,19 @@ for messages which initialize the builder with the new <a href="struct.Call.html
 call.</p>
 <p><code>ref_time</code> refers to the amount of computational time that can be
 used for execution, in picoseconds. You can find more info
-<a href="https://use.ink/basics/cross-contract-calling/">here</a>.</p>
+<a href="https://use.ink/basics/gas">here</a>.</p>
 </div></details><details class="toggle method-toggle" open><summary><section id="method.proof_size_limit" class="method"><a class="src rightside" href="../../src/ink_env/call/call_builder.rs.html#738-747">source</a><h4 class="code-header">pub fn <a href="#method.proof_size_limit" class="fn">proof_size_limit</a>(self, proof_size_limit: <a class="type" href="../type.Gas.html" title="type ink_env::Gas">Gas</a>) -&gt; Self</h4></section></summary><div class="docblock"><p>Sets the <code>proof_size_limit</code> part of the weight limit for the current
 cross-contract call.</p>
 <p><code>proof_size</code> refers to the amount of storage in bytes that a transaction
 is allowed to read. You can find more info
-<a href="https://use.ink/basics/cross-contract-calling/">here</a>.</p>
+<a href="https://use.ink/basics/gas">here</a>.</p>
 <p><strong>Note</strong></p>
 <p>This limit is only relevant for parachains, not for standalone chains which do not
 require sending a Proof-of-validity to the relay chain.</p>
 </div></details><details class="toggle method-toggle" open><summary><section id="method.storage_deposit_limit" class="method"><a class="src rightside" href="../../src/ink_env/call/call_builder.rs.html#754-763">source</a><h4 class="code-header">pub fn <a href="#method.storage_deposit_limit" class="fn">storage_deposit_limit</a>(self, storage_deposit_limit: E::<a class="associatedtype" href="../trait.Environment.html#associatedtype.Balance" title="type ink_env::Environment::Balance">Balance</a>) -&gt; Self</h4></section></summary><div class="docblock"><p>Sets the <code>storage_deposit_limit</code> for the current cross-contract call.</p>
 <p>The <code>storage_deposit_limit</code> specifies the amount of user funds that
 can be charged for creating storage. You can find more info
-<a href="https://use.ink/basics/cross-contract-calling/">here</a>.</p>
+<a href="https://use.ink/basics/gas">here</a>.</p>
 </div></details><details class="toggle method-toggle" open><summary><section id="method.transferred_value-1" class="method"><a class="src rightside" href="../../src/ink_env/call/call_builder.rs.html#769-778">source</a><h4 class="code-header">pub fn <a href="#method.transferred_value-1" class="fn">transferred_value</a>(self, transferred_value: E::<a class="associatedtype" href="../trait.Environment.html#associatedtype.Balance" title="type ink_env::Environment::Balance">Balance</a>) -&gt; Self</h4></section></summary><div class="docblock"><p>Sets the <code>transferred_value</code> for the current cross-contract call.</p>
 <p>This value specifies the amount of user funds that are transferred
 to the other contract with this call.</p>
