@@ -18,7 +18,7 @@ mod cross_contract_calls {
         pub fn new_v2_with_limits(
             other_contract_code_hash: Hash,
             ref_time_limit: u64,
-            proof_time_limit: u64,
+            proof_size_limit: u64,
             storage_deposit_limit: Balance,
         ) -> Self {
             let other_contract = OtherContractRef::new(true)
@@ -26,7 +26,7 @@ mod cross_contract_calls {
                 .endowment(0)
                 .salt_bytes([0xDE, 0xAD, 0xBE, 0xEF])
                 .ref_time_limit(ref_time_limit)
-                .proof_time_limit(proof_time_limit)
+                .proof_size_limit(proof_size_limit)
                 .storage_deposit_limit(storage_deposit_limit)
                 .instantiate();
 
@@ -82,7 +82,7 @@ mod cross_contract_calls {
         pub fn flip_and_get_invoke_v2_with_limits(
             &mut self,
             ref_time_limit: u64,
-            proof_time_limit: u64,
+            proof_size_limit: u64,
             storage_deposit_limit: Balance,
         ) -> bool {
             let call_builder = self.other_contract.call_mut();
@@ -90,14 +90,14 @@ mod cross_contract_calls {
             call_builder
                 .flip()
                 .ref_time_limit(ref_time_limit)
-                .proof_time_limit(proof_time_limit)
+                .proof_size_limit(proof_size_limit)
                 .storage_deposit_limit(storage_deposit_limit)
                 .invoke();
 
             call_builder
                 .get()
                 .ref_time_limit(ref_time_limit)
-                .proof_time_limit(proof_time_limit)
+                .proof_size_limit(proof_size_limit)
                 .storage_deposit_limit(storage_deposit_limit)
                 .invoke()
         }

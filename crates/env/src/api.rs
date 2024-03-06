@@ -308,7 +308,7 @@ where
 /// - If the called account is not a contract.
 /// - If arguments passed to the called contract message are invalid.
 /// - If the called contract execution has trapped.
-/// - If the called contract ran out of gas, proof time, or storage deposit upon
+/// - If the called contract ran out of gas, proof size, or storage deposit upon
 ///   execution.
 /// - If the returned value failed to decode properly.
 pub fn invoke_contract<E, Args, R>(
