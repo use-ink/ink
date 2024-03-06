@@ -27,6 +27,10 @@ These are the main features we have introduced in this release. We also encourag
 to have a look at more detailed changelog entries to find out about any breaking changes that may affect
 the development of new ink! contracts.
 
+_We have created a migration guide from ink! 4 to ink! 5. It also contains an
+overview over all breaking changes and newly added features.
+You can view it [here](https://use.ink/faq/migrating-from-ink-4-to-5)._
+
 ### Compatability
 
 - Rust: `>=1.70`
