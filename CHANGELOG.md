@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- Use name-only syntax for `anonymous` ink! event item configuration argument - [#2140](https://github.com/paritytech/ink/pull/2140)
+
 ## Version 5.0.0-rc.2
 
 ### Added
