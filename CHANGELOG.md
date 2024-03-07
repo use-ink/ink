@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## Version 5.0.0-rc.3
+
+- Bump Substrate crates
+- Minor fixes
+
 ## Version 5.0.0-rc.2
 
 ### Added
