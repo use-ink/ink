@@ -31,7 +31,7 @@ _We have created a migration guide from ink! 4 to ink! 5. It also contains an
 overview over all breaking changes and newly added features.
 You can view it [here](https://use.ink/faq/migrating-from-ink-4-to-5)._
 
-### Compatability
+### Compatibility
 
 - Rust: `>=1.70`
 - `cargo-contract`: `>=4.0.0`
