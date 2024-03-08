@@ -3,9 +3,9 @@
 traits without depending directly on the <code>parity-scale-codec</code> and <code>scale-info</code> crates.</p>
 <h2 id="options"><a href="#options">Options</a></h2>
 <ul>
-<li><code>encode</code>: derives <code>ink::scale::Encode</code></li>
-<li><code>decode</code>: derives <code>ink::scale::Decode</code></li>
-<li><code>type_info</code>: derives <code>ink::scale_info::TypeInfo</code></li>
+<li><code>Encode</code>: derives <code>ink::scale::Encode</code></li>
+<li><code>Decode</code>: derives <code>ink::scale::Decode</code></li>
+<li><code>TypeInfo</code>: derives <code>ink::scale_info::TypeInfo</code></li>
 </ul>
 <h2 id="examples"><a href="#examples">Examples</a></h2>
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="attr">#[ink::scale_derive(Encode, Decode, TypeInfo)]
