@@ -2658,7 +2658,7 @@ checksum = "8e04e2fd2b8188ea827b32ef11de88377086d690286ab35747ef7f9bf3ccb590"
 
 [[package]]
 name = "ink"
-version = "5.0.0-rc.2"
+version = "5.0.0-rc.3"
 dependencies = [
  "derive_more",
  "ink_env",
@@ -2676,7 +2676,7 @@ dependencies = [
 
 [[package]]
 name = "ink_allocator"
-version = "5.0.0-rc.2"
+version = "5.0.0-rc.3"
 dependencies = [
  "cfg-if",
  "quickcheck",
@@ -2685,7 +2685,7 @@ dependencies = [
 
 [[package]]
 name = "ink_codegen"
-version = "5.0.0-rc.2"
+version = "5.0.0-rc.3"
 dependencies = [
  "blake2",
  "derive_more",
@@ -2705,7 +2705,7 @@ dependencies = [
 
 [[package]]
 name = "ink_e2e"
-version = "5.0.0-rc.2"
+version = "5.0.0-rc.3"
 dependencies = [
  "cargo_metadata",
  "contract-build",
@@ -2739,7 +2739,7 @@ dependencies = [
 
 [[package]]
 name = "ink_e2e_macro"
-version = "5.0.0-rc.2"
+version = "5.0.0-rc.3"
 dependencies = [
  "darling 0.20.8",
  "derive_more",
@@ -2754,7 +2754,7 @@ dependencies = [
 
 [[package]]
 name = "ink_engine"
-version = "5.0.0-rc.2"
+version = "5.0.0-rc.3"
 dependencies = [
  "blake2",
  "derive_more",
@@ -2768,7 +2768,7 @@ dependencies = [
 
 [[package]]
 name = "ink_env"
-version = "5.0.0-rc.2"
+version = "5.0.0-rc.3"
 dependencies = [
  "blake2",
  "cfg-if",
@@ -2797,7 +2797,7 @@ dependencies = [
 
 [[package]]
 name = "ink_ir"
-version = "5.0.0-rc.2"
+version = "5.0.0-rc.3"
 dependencies = [
  "blake2",
  "either",
@@ -2811,7 +2811,7 @@ dependencies = [
 
 [[package]]
 name = "ink_macro"
-version = "5.0.0-rc.2"
+version = "5.0.0-rc.3"
 dependencies = [
  "ink",
  "ink_codegen",
@@ -2831,7 +2831,7 @@ dependencies = [
 
 [[package]]
 name = "ink_metadata"
-version = "5.0.0-rc.2"
+version = "5.0.0-rc.3"
 dependencies = [
  "derive_more",
  "impl-serde",
@@ -2848,14 +2848,14 @@ dependencies = [
 
 [[package]]
 name = "ink_prelude"
-version = "5.0.0-rc.2"
+version = "5.0.0-rc.3"
 dependencies = [
  "cfg-if",
 ]
 
 [[package]]
 name = "ink_primitives"
-version = "5.0.0-rc.2"
+version = "5.0.0-rc.3"
 dependencies = [
  "derive_more",
  "ink_prelude",
@@ -2868,7 +2868,7 @@ dependencies = [
 
 [[package]]
 name = "ink_storage"
-version = "5.0.0-rc.2"
+version = "5.0.0-rc.3"
 dependencies = [
  "array-init",
  "cfg-if",
@@ -2889,7 +2889,7 @@ dependencies = [
 
 [[package]]
 name = "ink_storage_traits"
-version = "5.0.0-rc.2"
+version = "5.0.0-rc.3"
 dependencies = [
  "ink_metadata",
  "ink_prelude",

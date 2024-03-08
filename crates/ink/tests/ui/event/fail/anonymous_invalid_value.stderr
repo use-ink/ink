@@ -1,0 +1,5 @@
+error: encountered an unexpected value for `anonymous` ink! event item configuration argument. Did you mean #[ink::event(anonymous)] ?
+ --> tests/ui/event/fail/anonymous_invalid_value.rs:1:14
+  |
+1 | #[ink::event(anonymous = true)]
+  |              ^^^^^^^^^^^^^^^^

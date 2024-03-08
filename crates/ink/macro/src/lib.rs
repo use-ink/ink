@@ -657,7 +657,7 @@ pub fn trait_definition(attr: TokenStream, item: TokenStream) -> TokenStream {
 /// contract.
 ///
 /// By default, a signature topic will be generated for the event. This allows consumers
-/// to filter and identify events of this type. Marking an event with `anonymous = true`
+/// to filter and identify events of this type. Marking an event with `anonymous`
 /// means no signature topic will be generated or emitted.
 /// Custom signature topic can be specified with `signature_topic = <32 byte hex string>`.
 ///
@@ -673,8 +673,8 @@ pub fn trait_definition(attr: TokenStream, item: TokenStream) -> TokenStream {
 ///     pub topic: [u8; 32],
 /// }
 ///
-/// // Setting `anonymous = true` means no signature topic will be emitted for the event.
-/// #[ink::event(anonymous = true)]
+/// // Setting `anonymous` means no signature topic will be emitted for the event.
+/// #[ink::event(anonymous)]
 /// pub struct MyAnonEvent {
 ///     pub field: u32,
 ///     #[ink(topic)]
@@ -1600,9 +1600,9 @@ synstructure::decl_derive!(
 /// traits without depending directly on the `parity-scale-codec` and `scale-info` crates.
 ///
 /// # Options
-///   - `encode`: derives `ink::scale::Encode`
-///   - `decode`: derives `ink::scale::Decode`
-///   - `type_info`: derives `ink::scale_info::TypeInfo`
+///   - `Encode`: derives `ink::scale::Encode`
+///   - `Decode`: derives `ink::scale::Decode`
+///   - `TypeInfo`: derives `ink::scale_info::TypeInfo`
 ///
 /// # Examples
 ///

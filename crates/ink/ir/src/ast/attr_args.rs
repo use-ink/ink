@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use super::MetaNameValue;
+use super::Meta;
 use syn::{
     parse::{
         Parse,
@@ -28,7 +28,7 @@ use syn::{
 /// in `#[ink::contract(env = ::my::env::Environment)]`.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct AttributeArgs {
-    args: Punctuated<MetaNameValue, Token![,]>,
+    args: Punctuated<Meta, Token![,]>,
 }
 
 impl quote::ToTokens for AttributeArgs {
@@ -38,8 +38,8 @@ impl quote::ToTokens for AttributeArgs {
 }
 
 impl IntoIterator for AttributeArgs {
-    type Item = MetaNameValue;
-    type IntoIter = syn::punctuated::IntoIter<MetaNameValue>;
+    type Item = Meta;
+    type IntoIter = syn::punctuated::IntoIter<Meta>;
 
     fn into_iter(self) -> Self::IntoIter {
         self.args.into_iter()
@@ -57,14 +57,17 @@ impl Parse for AttributeArgs {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::ast::MetaValue;
+    use crate::ast::{
+        MetaNameValue,
+        MetaValue,
+    };
     use quote::quote;
 
     impl AttributeArgs {
         /// Creates a new attribute argument list from the given arguments.
         pub fn new<I>(args: I) -> Self
         where
-            I: IntoIterator<Item = MetaNameValue>,
+            I: IntoIterator<Item = Meta>,
         {
             Self {
                 args: args.into_iter().collect(),
@@ -81,14 +84,22 @@ mod tests {
     }
 
     #[test]
+    fn flag_works() {
+        assert_eq!(
+            syn::parse2::<AttributeArgs>(quote! { flag }).unwrap(),
+            AttributeArgs::new(vec![Meta::Path(syn::parse_quote! { flag })])
+        )
+    }
+
+    #[test]
     fn literal_bool_value_works() {
         assert_eq!(
             syn::parse2::<AttributeArgs>(quote! { name = true }).unwrap(),
-            AttributeArgs::new(vec![MetaNameValue {
+            AttributeArgs::new(vec![Meta::NameValue(MetaNameValue {
                 name: syn::parse_quote! { name },
                 eq_token: syn::parse_quote! { = },
                 value: MetaValue::Lit(syn::parse_quote! { true }),
-            }])
+            })])
         )
     }
 
@@ -96,11 +107,11 @@ mod tests {
     fn literal_str_value_works() {
         assert_eq!(
             syn::parse2::<AttributeArgs>(quote! { name = "string literal" }).unwrap(),
-            AttributeArgs::new(vec![MetaNameValue {
+            AttributeArgs::new(vec![Meta::NameValue(MetaNameValue {
                 name: syn::parse_quote! { name },
                 eq_token: syn::parse_quote! { = },
                 value: MetaValue::Lit(syn::parse_quote! { "string literal" }),
-            }])
+            })])
         )
     }
 
@@ -108,11 +119,11 @@ mod tests {
     fn ident_value_works() {
         assert_eq!(
             syn::parse2::<AttributeArgs>(quote! { name = MyIdentifier }).unwrap(),
-            AttributeArgs::new(vec![MetaNameValue {
+            AttributeArgs::new(vec![Meta::NameValue(MetaNameValue {
                 name: syn::parse_quote! { name },
                 eq_token: syn::parse_quote! { = },
                 value: MetaValue::Path(syn::parse_quote! { MyIdentifier }),
-            }])
+            })])
         )
     }
 
@@ -120,11 +131,11 @@ mod tests {
     fn root_path_value_works() {
         assert_eq!(
             syn::parse2::<AttributeArgs>(quote! { name = ::this::is::my::Path }).unwrap(),
-            AttributeArgs::new(vec![MetaNameValue {
+            AttributeArgs::new(vec![Meta::NameValue(MetaNameValue {
                 name: syn::parse_quote! { name },
                 eq_token: syn::parse_quote! { = },
                 value: MetaValue::Path(syn::parse_quote! { ::this::is::my::Path }),
-            }])
+            })])
         )
     }
 
@@ -133,24 +144,24 @@ mod tests {
         assert_eq!(
             syn::parse2::<AttributeArgs>(quote! { name = this::is::my::relative::Path })
                 .unwrap(),
-            AttributeArgs::new(vec![MetaNameValue {
+            AttributeArgs::new(vec![Meta::NameValue(MetaNameValue {
                 name: syn::parse_quote! { name },
                 eq_token: syn::parse_quote! { = },
                 value: MetaValue::Path(
                     syn::parse_quote! { this::is::my::relative::Path }
                 ),
-            }])
+            })])
         )
     }
 
     #[test]
     fn trailing_comma_works() {
         let mut expected_args = Punctuated::new();
-        expected_args.push_value(MetaNameValue {
+        expected_args.push_value(Meta::NameValue(MetaNameValue {
             name: syn::parse_quote! { name },
             eq_token: syn::parse_quote! { = },
             value: MetaValue::Path(syn::parse_quote! { value }),
-        });
+        }));
         expected_args.push_punct(<Token![,]>::default());
         assert_eq!(
             syn::parse2::<AttributeArgs>(quote! { name = value, }).unwrap(),
@@ -164,6 +175,7 @@ mod tests {
     fn many_mixed_works() {
         assert_eq!(
             syn::parse2::<AttributeArgs>(quote! {
+                flag,
                 name1 = ::root::Path,
                 name2 = false,
                 name3 = "string literal",
@@ -172,31 +184,32 @@ mod tests {
             })
             .unwrap(),
             AttributeArgs::new(vec![
-                MetaNameValue {
+                Meta::Path(syn::parse_quote! { flag }),
+                Meta::NameValue(MetaNameValue {
                     name: syn::parse_quote! { name1 },
                     eq_token: syn::parse_quote! { = },
                     value: MetaValue::Path(syn::parse_quote! { ::root::Path }),
-                },
-                MetaNameValue {
+                }),
+                Meta::NameValue(MetaNameValue {
                     name: syn::parse_quote! { name2 },
                     eq_token: syn::parse_quote! { = },
                     value: MetaValue::Lit(syn::parse_quote! { false }),
-                },
-                MetaNameValue {
+                }),
+                Meta::NameValue(MetaNameValue {
                     name: syn::parse_quote! { name3 },
                     eq_token: syn::parse_quote! { = },
                     value: MetaValue::Lit(syn::parse_quote! { "string literal" }),
-                },
-                MetaNameValue {
+                }),
+                Meta::NameValue(MetaNameValue {
                     name: syn::parse_quote! { name4 },
                     eq_token: syn::parse_quote! { = },
                     value: MetaValue::Lit(syn::parse_quote! { 42 }),
-                },
-                MetaNameValue {
+                }),
+                Meta::NameValue(MetaNameValue {
                     name: syn::parse_quote! { name5 },
                     eq_token: syn::parse_quote! { = },
                     value: MetaValue::Lit(syn::parse_quote! { 7.7 }),
-                },
+                }),
             ])
         )
     }
