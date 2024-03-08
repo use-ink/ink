@@ -69,6 +69,7 @@
 <a href="#69" id="69">69</a>
 <a href="#70" id="70">70</a>
 <a href="#71" id="71">71</a>
+<a href="#72" id="72">72</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -104,21 +105,22 @@
     <span class="kw">fn </span>try_from(args: ast::AttributeArgs) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, <span class="self">Self</span>::Error&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>derive: <span class="prelude-ty">Option</span>&lt;syn::LitBool&gt; = <span class="prelude-val">None</span>;
         <span class="kw">for </span>arg <span class="kw">in </span>args.into_iter() {
-            <span class="kw">if </span>arg.name.is_ident(<span class="string">&quot;derive&quot;</span>) {
+            <span class="kw">if </span>arg.name().is_ident(<span class="string">&quot;derive&quot;</span>) {
                 <span class="kw">if let </span><span class="prelude-val">Some</span>(lit_bool) = derive {
                     <span class="kw">return </span><span class="prelude-val">Err</span>(duplicate_config_err(
                         lit_bool,
                         arg,
                         <span class="string">&quot;derive&quot;</span>,
                         <span class="string">&quot;storage item&quot;</span>,
-                    ))
+                    ));
                 }
-                <span class="kw">if let </span>ast::MetaValue::Lit(syn::Lit::Bool(lit_bool)) = <span class="kw-2">&amp;</span>arg.value {
+                <span class="kw">if let </span><span class="prelude-val">Some</span>(lit_bool) = arg.value().and_then(ast::MetaValue::as_lit_bool)
+                {
                     derive = <span class="prelude-val">Some</span>(lit_bool.clone())
                 } <span class="kw">else </span>{
                     <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
                         arg,
-                        <span class="string">&quot;expected a bool literal for `derive` ink! storage item configuration argument&quot;</span>,
+                        <span class="string">&quot;expected a bool literal value for `derive` ink! storage item configuration argument&quot;</span>,
                     ));
                 }
             } <span class="kw">else </span>{

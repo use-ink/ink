@@ -1247,15 +1247,15 @@
         <span class="kw">let </span><span class="kw-2">mut </span>ext_id: <span class="prelude-ty">Option</span>&lt;ExtensionId&gt; = <span class="prelude-val">None</span>;
 
         <span class="kw">for </span>arg <span class="kw">in </span>args.clone().into_iter() {
-            <span class="kw">if </span>arg.name.is_ident(<span class="string">&quot;extension&quot;</span>) {
+            <span class="kw">if </span>arg.name().is_ident(<span class="string">&quot;extension&quot;</span>) {
                 <span class="kw">if </span>ext_id.is_some() {
-                    <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
-                        arg.value,
+                    <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">format_err_spanned_value!</span>(
+                        arg,
                         <span class="string">&quot;encountered duplicate ink! contract `extension` configuration argument&quot;</span>,
-                    ))
+                    ));
                 }
 
-                <span class="kw">if let </span><span class="prelude-val">Some</span>(lit_int) = arg.value.as_lit_int() {
+                <span class="kw">if let </span><span class="prelude-val">Some</span>(lit_int) = arg.value().and_then(ast::MetaValue::as_lit_int) {
                     <span class="kw">let </span>id = lit_int.base10_parse::&lt;u16&gt;()
                         .map_err(|error| {
                             <span class="macro">format_err_spanned!</span>(
@@ -1264,16 +1264,16 @@
                         })<span class="question-mark">?</span>;
                     ext_id = <span class="prelude-val">Some</span>(ExtensionId::from_u16(id));
                 } <span class="kw">else </span>{
-                    <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
-                        arg.value,
+                    <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">format_err_spanned_value!</span>(
+                        arg,
                         <span class="string">&quot;expected `u16` integer type for `N` in `extension = N`&quot;</span>,
-                    ))
+                    ));
                 }
             } <span class="kw">else </span>{
                 <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
                     arg,
                     <span class="string">&quot;encountered unknown or unsupported chain extension configuration argument&quot;</span>,
-                ))
+                ));
             }
         }
 

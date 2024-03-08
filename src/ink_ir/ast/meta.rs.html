@@ -244,6 +244,70 @@
 <a href="#244" id="244">244</a>
 <a href="#245" id="245">245</a>
 <a href="#246" id="246">246</a>
+<a href="#247" id="247">247</a>
+<a href="#248" id="248">248</a>
+<a href="#249" id="249">249</a>
+<a href="#250" id="250">250</a>
+<a href="#251" id="251">251</a>
+<a href="#252" id="252">252</a>
+<a href="#253" id="253">253</a>
+<a href="#254" id="254">254</a>
+<a href="#255" id="255">255</a>
+<a href="#256" id="256">256</a>
+<a href="#257" id="257">257</a>
+<a href="#258" id="258">258</a>
+<a href="#259" id="259">259</a>
+<a href="#260" id="260">260</a>
+<a href="#261" id="261">261</a>
+<a href="#262" id="262">262</a>
+<a href="#263" id="263">263</a>
+<a href="#264" id="264">264</a>
+<a href="#265" id="265">265</a>
+<a href="#266" id="266">266</a>
+<a href="#267" id="267">267</a>
+<a href="#268" id="268">268</a>
+<a href="#269" id="269">269</a>
+<a href="#270" id="270">270</a>
+<a href="#271" id="271">271</a>
+<a href="#272" id="272">272</a>
+<a href="#273" id="273">273</a>
+<a href="#274" id="274">274</a>
+<a href="#275" id="275">275</a>
+<a href="#276" id="276">276</a>
+<a href="#277" id="277">277</a>
+<a href="#278" id="278">278</a>
+<a href="#279" id="279">279</a>
+<a href="#280" id="280">280</a>
+<a href="#281" id="281">281</a>
+<a href="#282" id="282">282</a>
+<a href="#283" id="283">283</a>
+<a href="#284" id="284">284</a>
+<a href="#285" id="285">285</a>
+<a href="#286" id="286">286</a>
+<a href="#287" id="287">287</a>
+<a href="#288" id="288">288</a>
+<a href="#289" id="289">289</a>
+<a href="#290" id="290">290</a>
+<a href="#291" id="291">291</a>
+<a href="#292" id="292">292</a>
+<a href="#293" id="293">293</a>
+<a href="#294" id="294">294</a>
+<a href="#295" id="295">295</a>
+<a href="#296" id="296">296</a>
+<a href="#297" id="297">297</a>
+<a href="#298" id="298">298</a>
+<a href="#299" id="299">299</a>
+<a href="#300" id="300">300</a>
+<a href="#301" id="301">301</a>
+<a href="#302" id="302">302</a>
+<a href="#303" id="303">303</a>
+<a href="#304" id="304">304</a>
+<a href="#305" id="305">305</a>
+<a href="#306" id="306">306</a>
+<a href="#307" id="307">307</a>
+<a href="#308" id="308">308</a>
+<a href="#309" id="309">309</a>
+<a href="#310" id="310">310</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -271,7 +335,9 @@
     },
     punctuated::Punctuated,
     spanned::Spanned,
+    LitBool,
     LitInt,
+    LitStr,
     Token,
 };
 
@@ -304,6 +370,32 @@
         <span class="kw">match </span><span class="self">self </span>{
             <span class="self">Self</span>::Path(path) =&gt; path.to_tokens(tokens),
             <span class="self">Self</span>::NameValue(name_value) =&gt; name_value.to_tokens(tokens),
+        }
+    }
+}
+
+<span class="kw">impl </span>Meta {
+    <span class="doccomment">/// Returns the meta-item name.
+    </span><span class="kw">pub fn </span>name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>syn::Path {
+        <span class="kw">match </span><span class="self">self </span>{
+            Meta::Path(path) =&gt; path,
+            Meta::NameValue(name_value) =&gt; <span class="kw-2">&amp;</span>name_value.name,
+        }
+    }
+
+    <span class="doccomment">/// Returns the meta-item value (if any).
+    </span><span class="kw">pub fn </span>value(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>MetaValue&gt; {
+        <span class="kw">match </span><span class="self">self </span>{
+            Meta::Path(<span class="kw">_</span>) =&gt; <span class="prelude-val">None</span>,
+            Meta::NameValue(name_value) =&gt; <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>name_value.value),
+        }
+    }
+
+    <span class="doccomment">/// Returns the `NameValue` variant (if any).
+    </span><span class="kw">pub fn </span>name_value(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>MetaNameValue&gt; {
+        <span class="kw">match </span><span class="self">self </span>{
+            Meta::NameValue(name_value) =&gt; <span class="prelude-val">Some</span>(name_value),
+            Meta::Path(<span class="kw">_</span>) =&gt; <span class="prelude-val">None</span>,
         }
     }
 }
@@ -403,10 +495,34 @@
         }
     }
 
-    <span class="doccomment">/// Returns the the literal if it is an integer literal.
+    <span class="doccomment">/// Returns the literal if it is an integer literal.
     </span><span class="kw">pub fn </span>as_lit_int(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>LitInt&gt; {
         <span class="kw">match </span><span class="self">self </span>{
             <span class="self">Self</span>::Lit(syn::Lit::Int(lit_int)) =&gt; <span class="prelude-val">Some</span>(lit_int),
+            <span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>,
+        }
+    }
+
+    <span class="doccomment">/// Returns the literal if it is a boolean literal.
+    </span><span class="kw">pub fn </span>as_lit_bool(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>LitBool&gt; {
+        <span class="kw">match </span><span class="self">self </span>{
+            <span class="self">Self</span>::Lit(syn::Lit::Bool(lit_bool)) =&gt; <span class="prelude-val">Some</span>(lit_bool),
+            <span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>,
+        }
+    }
+
+    <span class="doccomment">/// Returns the literal if it is a string literal.
+    </span><span class="kw">pub fn </span>as_lit_string(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>LitStr&gt; {
+        <span class="kw">match </span><span class="self">self </span>{
+            <span class="self">Self</span>::Lit(syn::Lit::Str(lit_str)) =&gt; <span class="prelude-val">Some</span>(lit_str),
+            <span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>,
+        }
+    }
+
+    <span class="doccomment">/// Returns the path (if the value is a path).
+    </span><span class="kw">pub fn </span>as_path(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>syn::Path&gt; {
+        <span class="kw">match </span><span class="self">self </span>{
+            <span class="self">Self</span>::Path(path) =&gt; <span class="prelude-val">Some</span>(path),
             <span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>,
         }
     }
@@ -486,6 +602,18 @@
                 name: <span class="macro">syn::parse_quote! </span>{ selector },
                 eq_token: <span class="macro">syn::parse_quote! </span>{ = },
                 value: MetaValue::Symbol(Symbol::Underscore(<span class="macro">syn::parse_quote! </span>{ <span class="kw">_ </span>})),
+            })
+        )
+    }
+
+    <span class="attr">#[test]
+    </span><span class="kw">fn </span>at_token_works() {
+        <span class="macro">assert_eq!</span>(
+            syn::parse2::&lt;Meta&gt;(<span class="macro">quote! </span>{ selector = @ }).unwrap(),
+            Meta::NameValue(MetaNameValue {
+                name: <span class="macro">syn::parse_quote! </span>{ selector },
+                eq_token: <span class="macro">syn::parse_quote! </span>{ = },
+                value: MetaValue::Symbol(Symbol::AtSign(<span class="macro">syn::parse_quote! </span>{ @ })),
             })
         )
     }

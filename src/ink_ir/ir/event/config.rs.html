@@ -101,6 +101,13 @@
 <a href="#101" id="101">101</a>
 <a href="#102" id="102">102</a>
 <a href="#103" id="103">103</a>
+<a href="#104" id="104">104</a>
+<a href="#105" id="105">105</a>
+<a href="#106" id="106">106</a>
+<a href="#107" id="107">107</a>
+<a href="#108" id="108">108</a>
+<a href="#109" id="109">109</a>
+<a href="#110" id="110">110</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -136,22 +143,23 @@
     <span class="kw">type </span>Error = syn::Error;
 
     <span class="kw">fn </span>try_from(args: ast::AttributeArgs) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, <span class="self">Self</span>::Error&gt; {
-        <span class="kw">let </span><span class="kw-2">mut </span>anonymous: <span class="prelude-ty">Option</span>&lt;syn::LitBool&gt; = <span class="prelude-val">None</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>anonymous: <span class="prelude-ty">Option</span>&lt;syn::Path&gt; = <span class="prelude-val">None</span>;
         <span class="kw">let </span><span class="kw-2">mut </span>signature_topic: <span class="prelude-ty">Option</span>&lt;syn::LitStr&gt; = <span class="prelude-val">None</span>;
         <span class="kw">for </span>arg <span class="kw">in </span>args.into_iter() {
-            <span class="kw">if </span>arg.name.is_ident(<span class="string">&quot;anonymous&quot;</span>) {
+            <span class="kw">if </span>arg.name().is_ident(<span class="string">&quot;anonymous&quot;</span>) {
                 <span class="kw">if let </span><span class="prelude-val">Some</span>(lit_bool) = anonymous {
                     <span class="kw">return </span><span class="prelude-val">Err</span>(duplicate_config_err(lit_bool, arg, <span class="string">&quot;anonymous&quot;</span>, <span class="string">&quot;event&quot;</span>));
                 }
-                <span class="kw">if let </span>ast::MetaValue::Lit(syn::Lit::Bool(lit_bool)) = <span class="kw-2">&amp;</span>arg.value {
-                    anonymous = <span class="prelude-val">Some</span>(lit_bool.clone())
+                <span class="kw">if let </span>ast::Meta::Path(path) = arg {
+                    anonymous = <span class="prelude-val">Some</span>(path)
                 } <span class="kw">else </span>{
                     <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
                         arg,
-                        <span class="string">&quot;expected a bool literal for `anonymous` ink! event item configuration argument&quot;</span>,
+                        <span class="string">&quot;encountered an unexpected value for `anonymous` ink! event item configuration argument. \
+                        Did you mean #[ink::event(anonymous)] ?&quot;</span>,
                     ));
                 }
-            } <span class="kw">else if </span>arg.name.is_ident(<span class="string">&quot;signature_topic&quot;</span>) {
+            } <span class="kw">else if </span>arg.name().is_ident(<span class="string">&quot;signature_topic&quot;</span>) {
                 <span class="kw">if </span>anonymous.is_some() {
                     <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
                         arg,
@@ -160,14 +168,20 @@
                 }
 
                 <span class="kw">if let </span><span class="prelude-val">Some</span>(lit_str) = signature_topic {
-                    <span class="kw">return </span><span class="prelude-val">Err</span>(duplicate_config_err(lit_str, arg, <span class="string">&quot;anonymous&quot;</span>, <span class="string">&quot;event&quot;</span>));
+                    <span class="kw">return </span><span class="prelude-val">Err</span>(duplicate_config_err(
+                        lit_str,
+                        arg,
+                        <span class="string">&quot;signature_topic&quot;</span>,
+                        <span class="string">&quot;event&quot;</span>,
+                    ));
                 }
-                <span class="kw">if let </span>ast::MetaValue::Lit(syn::Lit::Str(lis_str)) = <span class="kw-2">&amp;</span>arg.value {
-                    signature_topic = <span class="prelude-val">Some</span>(lis_str.clone())
+                <span class="kw">if let </span><span class="prelude-val">Some</span>(lit_str) = arg.value().and_then(ast::MetaValue::as_lit_string)
+                {
+                    signature_topic = <span class="prelude-val">Some</span>(lit_str.clone())
                 } <span class="kw">else </span>{
                     <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
                         arg,
-                        <span class="string">&quot;expected a bool literal for `anonymous` ink! event item configuration argument&quot;</span>,
+                        <span class="string">&quot;expected a string literal value for `signature_topic` ink! event item configuration argument&quot;</span>,
                     ));
                 }
             } <span class="kw">else </span>{
@@ -179,7 +193,7 @@
         }
 
         <span class="prelude-val">Ok</span>(EventConfig::new(
-            anonymous.map(|lit_bool| lit_bool.value).unwrap_or(<span class="bool-val">false</span>),
+            anonymous.is_some(),
             signature_topic.map(|lit_str| lit_str.value()),
         ))
     }

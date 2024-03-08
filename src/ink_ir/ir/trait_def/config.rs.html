@@ -108,6 +108,16 @@
 <a href="#108" id="108">108</a>
 <a href="#109" id="109">109</a>
 <a href="#110" id="110">110</a>
+<a href="#111" id="111">111</a>
+<a href="#112" id="112">112</a>
+<a href="#113" id="113">113</a>
+<a href="#114" id="114">114</a>
+<a href="#115" id="115">115</a>
+<a href="#116" id="116">116</a>
+<a href="#117" id="117">117</a>
+<a href="#118" id="118">118</a>
+<a href="#119" id="119">119</a>
+<a href="#120" id="120">120</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -167,31 +177,41 @@
         <span class="kw">let </span><span class="kw-2">mut </span>namespace: <span class="prelude-ty">Option</span>&lt;(syn::LitStr, ast::MetaNameValue)&gt; = <span class="prelude-val">None</span>;
         <span class="kw">let </span><span class="kw-2">mut </span>whitelisted_attributes = WhitelistedAttributes::default();
         <span class="kw">for </span>arg <span class="kw">in </span>args.into_iter() {
-            <span class="kw">if </span>arg.name.is_ident(<span class="string">&quot;namespace&quot;</span>) {
+            <span class="kw">if </span>arg.name().is_ident(<span class="string">&quot;namespace&quot;</span>) {
                 <span class="kw">if let </span><span class="prelude-val">Some</span>((<span class="kw">_</span>, meta_name_value)) = namespace {
                     <span class="kw">return </span><span class="prelude-val">Err</span>(duplicate_config_err(
                         meta_name_value,
                         arg,
                         <span class="string">&quot;namespace&quot;</span>,
                         <span class="string">&quot;trait definition&quot;</span>,
-                    ))
+                    ));
                 }
-                <span class="kw">if let </span>ast::MetaValue::Lit(syn::Lit::Str(lit_str)) = <span class="kw-2">&amp;</span>arg.value {
+                <span class="kw">let </span>namespace_info = arg
+                    .name_value()
+                    .zip(arg.value().and_then(ast::MetaValue::as_lit_string));
+                <span class="kw">if let </span><span class="prelude-val">Some</span>((name_value, lit_str)) = namespace_info {
                     <span class="kw">if </span>syn::parse_str::&lt;syn::Ident&gt;(<span class="kw-2">&amp;</span>lit_str.value()).is_err() {
                         <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
                             lit_str,
                             <span class="string">&quot;encountered invalid Rust identifier for the ink! namespace configuration parameter&quot;
                         </span>));
                     }
-                    namespace = <span class="prelude-val">Some</span>((lit_str.clone(), arg))
+                    namespace = <span class="prelude-val">Some</span>((lit_str.clone(), name_value.clone()))
                 } <span class="kw">else </span>{
                     <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
                         arg,
-                        <span class="string">&quot;expected a string literal for `namespace` ink! trait definition configuration argument&quot;</span>,
+                        <span class="string">&quot;expected a string literal value for `namespace` ink! trait definition configuration argument&quot;</span>,
                     ));
                 }
-            } <span class="kw">else if </span>arg.name.is_ident(<span class="string">&quot;keep_attr&quot;</span>) {
-                whitelisted_attributes.parse_arg_value(<span class="kw-2">&amp;</span>arg)<span class="question-mark">?</span>;
+            } <span class="kw">else if </span>arg.name().is_ident(<span class="string">&quot;keep_attr&quot;</span>) {
+                <span class="kw">if let </span><span class="prelude-val">Some</span>(name_value) = arg.name_value() {
+                    whitelisted_attributes.parse_arg_value(name_value)<span class="question-mark">?</span>;
+                } <span class="kw">else </span>{
+                    <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
+                        arg,
+                        <span class="string">&quot;expected a string literal value for `keep_attr` ink! configuration argument&quot;</span>,
+                    ));
+                }
             } <span class="kw">else </span>{
                 <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
                     arg,

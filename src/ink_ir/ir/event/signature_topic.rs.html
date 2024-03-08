@@ -123,6 +123,7 @@
 <a href="#123" id="123">123</a>
 <a href="#124" id="124">124</a>
 <a href="#125" id="125">125</a>
+<a href="#126" id="126">126</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -214,14 +215,15 @@
     <span class="kw">fn </span>try_from(args: ast::AttributeArgs) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, <span class="self">Self</span>::Error&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>signature_topic: <span class="prelude-ty">Option</span>&lt;SignatureTopicArg&gt; = <span class="prelude-val">None</span>;
         <span class="kw">for </span>arg <span class="kw">in </span>args.into_iter() {
-            <span class="kw">if </span>arg.name.is_ident(<span class="string">&quot;hash&quot;</span>) {
+            <span class="kw">if </span>arg.name().is_ident(<span class="string">&quot;hash&quot;</span>) {
                 <span class="kw">if </span>signature_topic.is_some() {
                     <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">format_err!</span>(
                         arg.span(),
                         <span class="string">&quot;encountered duplicate ink! event configuration argument&quot;
                     </span>));
                 }
-                signature_topic = <span class="prelude-val">Some</span>(SignatureTopicArg::try_from(<span class="kw-2">&amp;</span>arg.value)<span class="question-mark">?</span>);
+                signature_topic =
+                    arg.value().map(SignatureTopicArg::try_from).transpose()<span class="question-mark">?</span>;
             } <span class="kw">else </span>{
                 <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
                     arg,
