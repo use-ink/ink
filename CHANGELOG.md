@@ -8,8 +8,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Version 5.0.0
 
+_ℹ️ We have created a migration guide from ink! 4 to ink! 5. It also contains an
+overview over all breaking changes and newly added features.
+
+You can view it [here](https://use.ink/faq/migrating-from-ink-4-to-5)._
+
+
 ### Summary
-This is a release addressing the rest of the severities described in the [OpenZeppelin security review](https://blog.openzeppelin.com/security-review-ink-cargo-contract) of ink! and `cargo-contract`.
+This release addresses the rest of the severities described in the [OpenZeppelin security review](https://blog.openzeppelin.com/security-review-ink-cargo-contract) of ink! and `cargo-contract`.
 One of the notable addressed issues is the proxy selector clashing attack.
 As of this release, ink! only allows exactly one other message with a well-known reserved selector to be defined.
 You can read more about the change in the [#1827](https://github.com/paritytech/ink/pull/1827) and [#2031](https://github.com/paritytech/ink/pull/2031).
@@ -27,16 +33,14 @@ These are the main features we have introduced in this release. We also encourag
 to have a look at more detailed changelog entries to find out about any breaking changes that may affect
 the development of new ink! contracts.
 
-_We have created a migration guide from ink! 4 to ink! 5. It also contains an
-overview over all breaking changes and newly added features.
-You can view it [here](https://use.ink/faq/migrating-from-ink-4-to-5)._
-
 ### Compatibility
 
-- Rust: `>=1.70`
-- `cargo-contract`: `>=4.0.0`
-- polkadot-sdk: [>= 0.9.3](https://github.com/paritytech/polkadot-sdk/releases/tag/polkadot-v0.9.3), but if using the new functions introduced in [#2123](https://github.com/paritytech/ink/pull/2123) and [#2077](https://github.com/paritytech/ink/pull/2077) [>= 1.8.0](https://github.com/paritytech/polkadot-sdk/releases/tag/polkadot-v1.8.0).
-- `polkadot-js/api` and `polkadot-js/api-contract`:  `>=10.12.1`
+See [the compatibility section](https://use.ink/faq/migrating-from-ink-4-to-5/#compatibility) of our migration guide for a detailed description. On a high level:
+
+- Rust: `>= 1.70`
+- `cargo-contract`: `>= 4.0.0`
+- polkadot-sdk: [>= 0.9.3](https://github.com/paritytech/polkadot-sdk/releases/tag/polkadot-v0.9.3). But if using the new functions introduced in [#2123](https://github.com/paritytech/ink/pull/2123) and [#2077](https://github.com/paritytech/ink/pull/2077) [>= 1.8.0](https://github.com/paritytech/polkadot-sdk/releases/tag/polkadot-v1.8.0) and if using the new functions introduced in [#2076](https://github.com/paritytech/ink/pull/2076) [>= 1.9.0](https://github.com/paritytech/polkadot-sdk/releases/tag/polkadot-v1.8.0).
+- `polkadot-js/api` and `polkadot-js/api-contract`: `>= 10.12.1`
 - `substrate-contracts-node`: `>= 0.39.0`
 
 ### Changelog
