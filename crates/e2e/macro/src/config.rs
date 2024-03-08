@@ -40,6 +40,7 @@ impl Default for Backend {
 pub enum Node {
     /// A fresh node instance will be spawned for the lifetime of the test.
     #[darling(word)]
+    #[darling(skip)]
     Auto,
     /// The test will run against an already running node at the supplied URL.
     Url(String),
@@ -137,7 +138,7 @@ mod tests {
 
     #[test]
     #[should_panic(expected = "ErrorUnknownField")]
-    fn config_works_backend_runtime_only_default_not_allowed() {
+    fn config_backend_runtime_only_default_not_allowed() {
         let input = quote! {
             backend(runtime_only(default)),
         };
@@ -164,7 +165,7 @@ mod tests {
     }
 
     #[test]
-    fn config_works_backend_node_default_auto() {
+    fn config_works_backend_node() {
         let input = quote! {
             backend(node),
         };
@@ -172,15 +173,6 @@ mod tests {
             E2EConfig::from_list(&NestedMeta::parse_meta_list(input).unwrap()).unwrap();
 
         assert_eq!(config.backend(), Backend::Node(Node::Auto));
-    }
-
-    #[test]
-    fn config_works_backend_node_auto() {
-        let input = quote! {
-            backend(node(auto)),
-        };
-        let config =
-            E2EConfig::from_list(&NestedMeta::parse_meta_list(input).unwrap()).unwrap();
 
         match config.backend() {
             Backend::Node(node_config) => {
@@ -202,6 +194,18 @@ mod tests {
             }
             _ => panic!("Expected Backend::Node"),
         }
+    }
+
+    #[test]
+    #[should_panic(expected = "ErrorUnknownField")]
+    fn config_backend_node_auto_not_allowed() {
+        let input = quote! {
+            backend(node(auto)),
+        };
+        let config =
+            E2EConfig::from_list(&NestedMeta::parse_meta_list(input).unwrap()).unwrap();
+
+        assert_eq!(config.backend(), Backend::Node(Node::Auto));
     }
 
     #[test]
