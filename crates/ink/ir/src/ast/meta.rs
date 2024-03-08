@@ -25,7 +25,9 @@ use syn::{
     },
     punctuated::Punctuated,
     spanned::Spanned,
+    LitBool,
     LitInt,
+    LitStr,
     Token,
 };
 
@@ -58,6 +60,32 @@ impl ToTokens for Meta {
         match self {
             Self::Path(path) => path.to_tokens(tokens),
             Self::NameValue(name_value) => name_value.to_tokens(tokens),
+        }
+    }
+}
+
+impl Meta {
+    /// Returns the meta-item name.
+    pub fn name(&self) -> &syn::Path {
+        match self {
+            Meta::Path(path) => path,
+            Meta::NameValue(name_value) => &name_value.name,
+        }
+    }
+
+    /// Returns the meta-item value (if any).
+    pub fn value(&self) -> Option<&MetaValue> {
+        match self {
+            Meta::Path(_) => None,
+            Meta::NameValue(name_value) => Some(&name_value.value),
+        }
+    }
+
+    /// Returns the `NameValue` variant (if any).
+    pub fn name_value(&self) -> Option<&MetaNameValue> {
+        match self {
+            Meta::NameValue(name_value) => Some(name_value),
+            Meta::Path(_) => None,
         }
     }
 }
@@ -157,10 +185,34 @@ impl MetaValue {
         }
     }
 
-    /// Returns the the literal if it is an integer literal.
+    /// Returns the literal if it is an integer literal.
     pub fn as_lit_int(&self) -> Option<&LitInt> {
         match self {
             Self::Lit(syn::Lit::Int(lit_int)) => Some(lit_int),
+            _ => None,
+        }
+    }
+
+    /// Returns the literal if it is a boolean literal.
+    pub fn as_lit_bool(&self) -> Option<&LitBool> {
+        match self {
+            Self::Lit(syn::Lit::Bool(lit_bool)) => Some(lit_bool),
+            _ => None,
+        }
+    }
+
+    /// Returns the literal if it is a string literal.
+    pub fn as_lit_string(&self) -> Option<&LitStr> {
+        match self {
+            Self::Lit(syn::Lit::Str(lit_str)) => Some(lit_str),
+            _ => None,
+        }
+    }
+
+    /// Returns the path (if the value is a path).
+    pub fn as_path(&self) -> Option<&syn::Path> {
+        match self {
+            Self::Path(path) => Some(path),
             _ => None,
         }
     }
@@ -240,6 +292,18 @@ mod tests {
                 name: syn::parse_quote! { selector },
                 eq_token: syn::parse_quote! { = },
                 value: MetaValue::Symbol(Symbol::Underscore(syn::parse_quote! { _ })),
+            })
+        )
+    }
+
+    #[test]
+    fn at_token_works() {
+        assert_eq!(
+            syn::parse2::<Meta>(quote! { selector = @ }).unwrap(),
+            Meta::NameValue(MetaNameValue {
+                name: syn::parse_quote! { selector },
+                eq_token: syn::parse_quote! { = },
+                value: MetaValue::Symbol(Symbol::AtSign(syn::parse_quote! { @ })),
             })
         )
     }

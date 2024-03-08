@@ -1,0 +1,5 @@
+error: expected a string literal value for `signature_topic` ink! event item configuration argument
+ --> tests/ui/event/fail/signature_missing_value.rs:1:14
+  |
+1 | #[ink::event(signature_topic)]
+  |              ^^^^^^^^^^^^^^^
