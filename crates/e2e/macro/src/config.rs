@@ -66,6 +66,7 @@ impl Node {
 #[derive(Clone, Eq, PartialEq, Debug, darling::FromMeta)]
 pub enum RuntimeOnly {
     #[darling(word)]
+    #[darling(skip)]
     Default,
     Runtime(syn::Path),
 }
@@ -130,6 +131,18 @@ mod tests {
             config.environment(),
             Some(syn::parse_quote! { crate::CustomEnvironment })
         );
+
+        assert_eq!(config.backend(), Backend::RuntimeOnly(RuntimeOnly::Default));
+    }
+
+    #[test]
+    #[should_panic(expected = "ErrorUnknownField")]
+    fn config_works_backend_runtime_only_default_not_allowed() {
+        let input = quote! {
+            backend(runtime_only(default)),
+        };
+        let config =
+            E2EConfig::from_list(&NestedMeta::parse_meta_list(input).unwrap()).unwrap();
 
         assert_eq!(config.backend(), Backend::RuntimeOnly(RuntimeOnly::Default));
     }
