@@ -8,8 +8,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Version 5.0.0-rc.3
 
-- Bump Substrate crates
-- Minor fixes
+### Changed
+- Bump Substrate crates - [#2141](https://github.com/paritytech/ink/pull/2141)
+- Minor fixes - [#2144](https://github.com/paritytech/ink/pull/2144),
+[#2137](https://github.com/paritytech/ink/pull/2137), [#2132](https://github.com/paritytech/ink/pull/2132)
 
 ## Version 5.0.0-rc.2
 
