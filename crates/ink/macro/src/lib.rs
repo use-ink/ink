@@ -1600,9 +1600,9 @@ synstructure::decl_derive!(
 /// traits without depending directly on the `parity-scale-codec` and `scale-info` crates.
 ///
 /// # Options
-///   - `encode`: derives `ink::scale::Encode`
-///   - `decode`: derives `ink::scale::Decode`
-///   - `type_info`: derives `ink::scale_info::TypeInfo`
+///   - `Encode`: derives `ink::scale::Encode`
+///   - `Decode`: derives `ink::scale::Decode`
+///   - `TypeInfo`: derives `ink::scale_info::TypeInfo`
 ///
 /// # Examples
 ///
