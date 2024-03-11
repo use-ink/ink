@@ -82,6 +82,12 @@ See [the compatibility section](https://use.ink/faq/migrating-from-ink-4-to-5/#c
 - [Drink backend] Abstract error and result structs - [#1844](https://github.com/paritytech/ink/pull/1844)
 
 #### Changed
+- Use name-only syntax for `anonymous` ink! event item configuration argument - [#2140](https://github.com/paritytech/ink/pull/2140)
+- Restrict syntax for setting default ink! e2e test runtime-only emulator - [#2143](https://github.com/paritytech/ink/pull/2143)
+- Restrict syntax for setting ink! e2e test node to auto - [#2146](https://github.com/paritytech/ink/pull/2146)
+- Bump Substrate crates - [#2141](https://github.com/paritytech/ink/pull/2141)
+- Minor fixes - [#2144](https://github.com/paritytech/ink/pull/2144),
+[#2137](https://github.com/paritytech/ink/pull/2137), [#2132](https://github.com/paritytech/ink/pull/2132)
 - Bump metadata version to 5 [#2126](https://github.com/paritytech/ink/pull/2126)
 - Use `MaxEncodedLen` for output buffer size [#2128](https://github.com/paritytech/ink/pull/2128)
 - `Mapping`: Reflect all possible failure cases in comments ‒ [#2079](https://github.com/paritytech/ink/pull/2079)
@@ -112,6 +118,15 @@ See [the compatibility section](https://use.ink/faq/migrating-from-ink-4-to-5/#c
 - ERC-721: `transfer_token_from` now ensures the token owner is correct - [#2093](https://github.com/paritytech/ink/pull/2093)
 - `RootLayout::new()` is generic again to allow using `ink_metadata` in pure `PortableForm` contexts - [#1989](https://github.com/paritytech/ink/pull/1989)
 
+## Version 5.0.0-rc.3
+
+### Changed
+- Use name-only syntax for `anonymous` ink! event item configuration argument - [#2140](https://github.com/paritytech/ink/pull/2140)
+- Restrict syntax for setting default ink! e2e test runtime-only emulator - [#2143](https://github.com/paritytech/ink/pull/2143)
+- Restrict syntax for setting ink! e2e test node to auto - [#2146](https://github.com/paritytech/ink/pull/2146)
+- Bump Substrate crates - [#2141](https://github.com/paritytech/ink/pull/2141)
+- Minor fixes - [#2144](https://github.com/paritytech/ink/pull/2144),
+[#2137](https://github.com/paritytech/ink/pull/2137), [#2132](https://github.com/paritytech/ink/pull/2132)
 
 ## Version 5.0.0-rc.2
 

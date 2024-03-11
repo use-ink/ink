@@ -1,6 +1,6 @@
 #![cfg_attr(not(feature = "std"), no_std, no_main)]
 
-#[ink::event(anonymous = true)]
+#[ink::event(anonymous)]
 pub struct AnonymousEvent {
     #[ink(topic)]
     pub topic: [u8; 32],

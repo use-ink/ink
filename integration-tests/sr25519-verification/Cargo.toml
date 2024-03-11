@@ -1,6 +1,10 @@
 [package]
 name = "sr25519_verification"
+<<<<<<< HEAD
 version = "5.0.0"
+=======
+version = "5.0.0-rc.3"
+>>>>>>> master
 authors = ["Parity Technologies <admin@parity.io>", "George Oastler <goastler4@gmail.com>"]
 edition = "2021"
 publish = false

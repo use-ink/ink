@@ -492,7 +492,7 @@ where
     /// # }
     /// ```
     ///
-    /// See [our `delegator` example](https://github.com/paritytech/ink/tree/master/integration-tests/integration%20tests/examples/delegator)
+    /// See [our `delegator` example](https://github.com/paritytech/ink-examples/tree/main/upgradeable-contracts#delegator)
     /// for a complete contract example.
     ///
     /// # Note
@@ -579,7 +579,7 @@ where
     /// # }
     /// ```
     ///
-    /// See [our `delegator` example](https://github.com/paritytech/ink/tree/master/integration-tests/integration%20tests/examples/delegator)
+    /// See [our `delegator` example](https://github.com/paritytech/ink-examples/tree/main/upgradeable-contracts#delegator)
     /// for a complete contract example.
     ///
     /// # Note

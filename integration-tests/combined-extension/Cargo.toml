@@ -1,6 +1,10 @@
 [package]
 name = "combined_extension"
+<<<<<<< HEAD
 version = "5.0.0"
+=======
+version = "5.0.0-rc.3"
+>>>>>>> master
 authors = ["Parity Technologies <admin@parity.io>"]
 edition = "2021"
 publish = false
