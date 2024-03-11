@@ -6,10 +6,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## Version 5.0.0-rc.3
+
 ### Changed
 - Use name-only syntax for `anonymous` ink! event item configuration argument - [#2140](https://github.com/paritytech/ink/pull/2140)
 - Restrict syntax for setting default ink! e2e test runtime-only emulator - [#2143](https://github.com/paritytech/ink/pull/2143)
 - Restrict syntax for setting ink! e2e test node to auto - [#2146](https://github.com/paritytech/ink/pull/2146)
+- Bump Substrate crates - [#2141](https://github.com/paritytech/ink/pull/2141)
+- Minor fixes - [#2144](https://github.com/paritytech/ink/pull/2144),
+[#2137](https://github.com/paritytech/ink/pull/2137), [#2132](https://github.com/paritytech/ink/pull/2132)
 
 ## Version 5.0.0-rc.2
 

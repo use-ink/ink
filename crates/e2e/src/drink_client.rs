@@ -34,11 +34,10 @@ use crate::{
     UploadResult,
 };
 use drink::{
-    frame_support::traits::fungible::Inspect,
     pallet_balances,
     pallet_contracts,
     runtime::AccountIdFor,
-    BalanceOf,
+    BalanceOf as ContractsBalanceOf,
     RuntimeCall,
     Sandbox,
     SandboxConfig,
@@ -73,8 +72,8 @@ use subxt::{
 };
 use subxt_signer::sr25519::Keypair;
 
-type ContractsBalanceOf<R> =
-    <<R as pallet_contracts::Config>::Currency as Inspect<AccountIdFor<R>>>::Balance;
+type BalanceOf<R> = <R as pallet_balances::Config>::Balance;
+
 pub struct Client<AccountId, Hash, Config: SandboxConfig> {
     sandbox: Sandbox<Config>,
     contracts: ContractsRegistry,
