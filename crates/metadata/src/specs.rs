@@ -1094,7 +1094,8 @@ where
 }
 
 /// The 4 byte selector to identify constructors and messages
-#[derive(Debug, Default, PartialEq, Eq, derive_more::From, JsonSchema, Hash)]
+#[cfg_attr(feature = "std", derive(Hash))]
+#[derive(Debug, Default, PartialEq, Eq, derive_more::From, JsonSchema)]
 pub struct Selector(#[schemars(with = "String")] [u8; 4]);
 
 impl serde::Serialize for Selector {
