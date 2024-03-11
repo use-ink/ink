@@ -234,6 +234,10 @@
 <a href="#234" id="234">234</a>
 <a href="#235" id="235">235</a>
 <a href="#236" id="236">236</a>
+<a href="#237" id="237">237</a>
+<a href="#238" id="238">238</a>
+<a href="#239" id="239">239</a>
+<a href="#240" id="240">240</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -276,6 +280,7 @@
 </span><span class="kw">pub enum </span>Node {
     <span class="doccomment">/// A fresh node instance will be spawned for the lifetime of the test.
     </span><span class="attr">#[darling(word)]
+    #[darling(skip)]
     </span>Auto,
     <span class="doccomment">/// The test will run against an already running node at the supplied URL.
     </span>Url(String),
@@ -373,7 +378,7 @@
 
     <span class="attr">#[test]
     #[should_panic(expected = <span class="string">&quot;ErrorUnknownField&quot;</span>)]
-    </span><span class="kw">fn </span>config_works_backend_runtime_only_default_not_allowed() {
+    </span><span class="kw">fn </span>config_backend_runtime_only_default_not_allowed() {
         <span class="kw">let </span>input = <span class="macro">quote! </span>{
             backend(runtime_only(default)),
         };
@@ -400,7 +405,7 @@
     }
 
     <span class="attr">#[test]
-    </span><span class="kw">fn </span>config_works_backend_node_default_auto() {
+    </span><span class="kw">fn </span>config_works_backend_node() {
         <span class="kw">let </span>input = <span class="macro">quote! </span>{
             backend(node),
         };
@@ -408,15 +413,6 @@
             E2EConfig::from_list(<span class="kw-2">&amp;</span>NestedMeta::parse_meta_list(input).unwrap()).unwrap();
 
         <span class="macro">assert_eq!</span>(config.backend(), Backend::Node(Node::Auto));
-    }
-
-    <span class="attr">#[test]
-    </span><span class="kw">fn </span>config_works_backend_node_auto() {
-        <span class="kw">let </span>input = <span class="macro">quote! </span>{
-            backend(node(auto)),
-        };
-        <span class="kw">let </span>config =
-            E2EConfig::from_list(<span class="kw-2">&amp;</span>NestedMeta::parse_meta_list(input).unwrap()).unwrap();
 
         <span class="kw">match </span>config.backend() {
             Backend::Node(node_config) =&gt; {
@@ -438,6 +434,18 @@
             }
             <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">&quot;Expected Backend::Node&quot;</span>),
         }
+    }
+
+    <span class="attr">#[test]
+    #[should_panic(expected = <span class="string">&quot;ErrorUnknownField&quot;</span>)]
+    </span><span class="kw">fn </span>config_backend_node_auto_not_allowed() {
+        <span class="kw">let </span>input = <span class="macro">quote! </span>{
+            backend(node(auto)),
+        };
+        <span class="kw">let </span>config =
+            E2EConfig::from_list(<span class="kw-2">&amp;</span>NestedMeta::parse_meta_list(input).unwrap()).unwrap();
+
+        <span class="macro">assert_eq!</span>(config.backend(), Backend::Node(Node::Auto));
     }
 
     <span class="attr">#[test]
