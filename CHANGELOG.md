@@ -5,7 +5,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
-- Add Hash trait to Selector struct
 
 ## Version 5.0.0
 
@@ -47,6 +46,7 @@ See [the compatibility section](https://use.ink/faq/migrating-from-ink-4-to-5/#c
 ### Changelog
 
 #### Added
+- Add Hash trait to Selector struct - [#2149](https://github.com/paritytech/ink/pull/2149)
 - `instantiate_v2` with additional limit parameters [#2123](https://github.com/paritytech/ink/pull/2123)
 - Custom signature topic in Events - [#2031](https://github.com/paritytech/ink/pull/2031)
 - [Linter] `non_fallible_api` lint - [#2004](https://github.com/paritytech/ink/pull/2004)
