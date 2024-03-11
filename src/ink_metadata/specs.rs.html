@@ -1861,6 +1861,10 @@
 <a href="#1861" id="1861">1861</a>
 <a href="#1862" id="1862">1862</a>
 <a href="#1863" id="1863">1863</a>
+<a href="#1864" id="1864">1864</a>
+<a href="#1865" id="1865">1865</a>
+<a href="#1866" id="1866">1866</a>
+<a href="#1867" id="1867">1867</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -1915,7 +1919,10 @@
     Serialize,
 };
 <span class="attr">#[cfg(feature = <span class="string">&quot;std&quot;</span>)]
-</span><span class="kw">use </span>std::collections::BTreeMap;
+</span><span class="kw">use </span>std::{
+    collections::BTreeMap,
+    hash::Hash,
+};
 
 <span class="doccomment">/// Describes a contract.
 </span><span class="attr">#[derive(Debug, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
@@ -2954,7 +2961,8 @@
 }
 
 <span class="doccomment">/// The 4 byte selector to identify constructors and messages
-</span><span class="attr">#[derive(Debug, Default, PartialEq, Eq, derive_more::From, JsonSchema)]
+</span><span class="attr">#[cfg_attr(feature = <span class="string">&quot;std&quot;</span>, derive(Hash))]
+#[derive(Debug, Default, PartialEq, Eq, derive_more::From, JsonSchema)]
 </span><span class="kw">pub struct </span>Selector(<span class="attr">#[schemars(with = <span class="string">&quot;String&quot;</span>)] </span>[u8; <span class="number">4</span>]);
 
 <span class="kw">impl </span>serde::Serialize <span class="kw">for </span>Selector {
