@@ -868,6 +868,27 @@ where
     })
 }
 
+/// Adds a new delegate dependency lock to the contract.
+///
+/// This guarantees that the code of the dependency cannot be removed without first
+/// calling [`unlock_delegate_dependency`]. It charges a fraction of the code
+/// deposit, see [`pallet_contracts::Config::CodeHashLockupDepositPercent`](https://docs.rs/pallet-contracts/latest/pallet_contracts/pallet/trait.Config.html#associatedtype.CodeHashLockupDepositPercent) for details.
+///
+/// # Errors
+///
+/// - If the supplied `code_hash` cannot be found on-chain.
+/// - If the `code_hash` is the same as the calling contract.
+/// - If the maximum number of delegate dependencies is reached.
+/// - If the delegate dependency already exists.
+pub fn lock_delegate_dependency<E>(code_hash: &E::Hash)
+where
+    E: Environment,
+{
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        instance.lock_delegate_dependency::<E>(code_hash)
+    })
+}
+
 /// Unlocks the delegate dependency from the contract.
 ///
 /// This removes the lock and refunds the deposit from the call to

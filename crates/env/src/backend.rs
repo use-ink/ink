@@ -346,6 +346,8 @@ pub trait TypedEnvBackend: EnvBackend {
     /// # Note
     ///
     /// For more details visit: [`instantiate_contract`][`crate::instantiate_contract`]
+    fn instantiate_contract<E, ContractRef, Args, Salt, R>(
+        &mut self,
         params: &CreateParams<E, ContractRef, LimitParamsV2<E>, Args, Salt, R>,
     ) -> Result<
         ink_primitives::ConstructorResult<
@@ -503,5 +505,4 @@ pub trait TypedEnvBackend: EnvBackend {
     ) -> Result<xcm_executor::traits::QueryResponseStatus<E::BlockNumber>>
     where
         E: Environment;
-}
 }

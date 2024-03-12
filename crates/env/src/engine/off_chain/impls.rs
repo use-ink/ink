@@ -590,6 +590,11 @@ impl TypedEnvBackend for EnvInstance {
     }
 
     fn lock_delegate_dependency<E>(&mut self, _code_hash: &E::Hash)
+    where
+        E: Environment,
+    {
+        unimplemented!("off-chain environment does not support delegate dependencies")
+    }
 
     fn xcm_execute<E, Call>(&mut self, _msg: &xcm::VersionedXcm<Call>) -> Result<()>
     where
@@ -628,11 +633,6 @@ impl TypedEnvBackend for EnvInstance {
         E: Environment,
     {
         unimplemented!("off-chain environment does not support `xcm_take_response`")
-    }
-    where
-        E: Environment,
-    {
-        unimplemented!("off-chain environment does not support delegate dependencies")
     }
 
     fn unlock_delegate_dependency<E>(&mut self, _code_hash: &E::Hash)

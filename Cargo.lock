@@ -2644,6 +2644,9 @@ dependencies = [
  "pallet-contracts-uapi-next",
  "parity-scale-codec",
  "scale-info",
+ "staging-xcm",
+ "staging-xcm-builder",
+ "staging-xcm-executor",
  "trybuild",
 ]
 
@@ -2755,6 +2758,7 @@ dependencies = [
  "ink_prelude",
  "ink_primitives",
  "ink_storage_traits",
+ "log",
  "num-traits",
  "pallet-contracts-uapi-next",
  "parity-scale-codec",
@@ -2767,6 +2771,9 @@ dependencies = [
  "secp256k1",
  "sha2 0.10.8",
  "sha3",
+ "staging-xcm",
+ "staging-xcm-builder",
+ "staging-xcm-executor",
  "static_assertions",
 ]
 
