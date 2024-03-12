@@ -40,7 +40,7 @@ cfg-if = { version = "1.0" }
 contract-build = { version = "4.0.0-rc.3" }
 darling = { version = "0.20.8" }
 derive_more = { version = "0.99.17", default-features = false }
-drink = { version = "=0.13.0", default-features = false, features = ["std"] }
+drink = { version = "=0.14.0", default-features = false, features = ["std"] }
 either = { version = "1.5", default-features = false }
 funty = { version = "2.0.0" }
 heck = { version = "0.4.0" }
@@ -83,9 +83,10 @@ xxhash-rust = { version = "0.8" }
 const_env = { version = "0.1"}
 
 # Substrate dependencies
-# Substrate dependencies
+frame-support = { version = "30.0.0", default-features = false }
 pallet-contracts = { version = "29.0.0", default-features = false }
 pallet-contracts-uapi = { package = "pallet-contracts-uapi-next", version = "=6.0.3", default-features = false }
+pallet-contracts-mock-network = { version = "5.0.0", default-features = false }
 sp-core = { version = "30.0.0", default-features = false }
 sp-keyring = { version = "33.0.0", default-features = false }
 sp-runtime = { version = "33.0.0", default-features = false }

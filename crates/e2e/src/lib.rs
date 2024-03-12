@@ -50,6 +50,8 @@ pub use contract_results::{
     InstantiationResult,
     UploadResult,
 };
+#[cfg(feature = "drink")]
+pub use drink_client::Client as DrinkClient;
 pub use ink_e2e_macro::test;
 pub use node_proc::{
     TestNodeProcess,
@@ -73,11 +75,6 @@ pub use subxt_signer::sr25519::{
 };
 pub use tokio;
 pub use tracing_subscriber;
-#[cfg(feature = "drink")]
-pub use {
-    drink::runtime::MinimalRuntime,
-    drink_client::Client as DrinkClient,
-};
 
 use ink::codegen::ContractCallBuilder;
 use ink_env::{
