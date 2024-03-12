@@ -76,6 +76,9 @@ pub use subxt_signer::sr25519::{
 pub use tokio;
 pub use tracing_subscriber;
 
+#[cfg(feature = "drink")]
+pub use drink::runtime::MinimalSandbox;
+
 use ink::codegen::ContractCallBuilder;
 use ink_env::{
     call::FromAccountId,
