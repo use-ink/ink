@@ -68,10 +68,13 @@ pub use subxt_client::{
     Client,
     Error,
 };
-pub use subxt_signer::sr25519::{
+pub use subxt_signer::{
     self,
-    dev::*,
-    Keypair,
+    sr25519::{
+        self,
+        dev::*,
+        Keypair,
+    },
 };
 pub use tokio;
 pub use tracing_subscriber;
