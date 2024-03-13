@@ -343,6 +343,10 @@ jobs:
       - name: Rust Info
         uses: ./.github/rust-info
 
+      - name: Install nextest
+        run: |
+          cargo install cargo-nextest
+
       - name: Test
         env:
           # Fix for linking of `linkme` for `cargo test`: https://github.com/dtolnay/linkme/issues/49
@@ -353,9 +357,9 @@ jobs:
           # at the same time, hence we use this workaround.
           QUICKCHECK_TESTS:            0
         run: |
-          cargo test --verbose --all-features --no-fail-fast --workspace --locked
+          cargo nextest run --verbose --all-features --no-fail-fast --workspace --locked
           cargo test --verbose --all-features --no-fail-fast --workspace --doc --locked
-          pushd linting && cargo test --verbose --all-features --no-fail-fast --workspace && popd
+          pushd linting && cargo nextest run --verbose --all-features --no-fail-fast --workspace && popd
 
   docs:
     runs-on: ubuntu-latest
@@ -414,6 +418,10 @@ jobs:
       - name: Rust Info
         uses: ./.github/rust-info
 
+      - name: Install nextest
+        run: |
+          cargo install cargo-nextest
+
       - name: Codecov
         env:
           # For codecov it's sufficient to run the fuzz tests only once.
@@ -443,7 +451,7 @@ jobs:
           git config --global --add safe.directory '*'
           # RUSTFLAGS are the cause target cache can't be used here
           cargo build --verbose --all-features --workspace
-          cargo test --verbose --all-features --no-fail-fast --workspace --locked
+          cargo nextest run --verbose --all-features --no-fail-fast --workspace --locked
           # coverage with branches
           grcov . --binary-path ./target/debug/ --source-dir . --output-type lcov --llvm --branch \
             --ignore-not-existing --ignore "/*" --ignore "tests/*" --output-path lcov-w-branch.info
@@ -479,17 +487,21 @@ jobs:
       - name: Rust Info
         uses: ./.github/rust-info
 
+      - name: Install nextest
+        run: |
+          cargo install cargo-nextest
+
       - name: Test Examples
         env:
           # Fix linking of `linkme`: https://github.com/dtolnay/linkme/issues/49
           RUSTFLAGS:                     -Clink-arg=-z -Clink-arg=nostart-stop-gc
         run: |
           # run all tests with --all-features, which will run the e2e-tests feature if present
-          scripts/for_all_contracts_exec.sh --path integration-tests --ignore static-buffer -- cargo test \
+          scripts/for_all_contracts_exec.sh --path integration-tests --ignore static-buffer -- cargo nextest run \
             --verbose --all-features --manifest-path {}
           # run the static buffer test with a custom buffer size
           cargo clean --manifest-path integration-tests/static-buffer/Cargo.toml
-          INK_STATIC_BUFFER_SIZE=30 cargo test --verbose --manifest-path integration-tests/static-buffer/Cargo.toml --all-features
+          INK_STATIC_BUFFER_SIZE=30 cargo nextest run --verbose --manifest-path integration-tests/static-buffer/Cargo.toml --all-features
 
       - name: Run E2E test with on-chain contract
         env:
@@ -503,7 +515,7 @@ jobs:
               --manifest-path integration-tests/flipper/Cargo.toml \
               --suri //Alice --args true -x -y --output-json | \
               jq -r .contract | xargs subkey inspect | grep -o "0x.*" | head -n1)
-            CONTRACTS_NODE_URL=ws://127.0.0.1:9944 cargo test \
+            CONTRACTS_NODE_URL=ws://127.0.0.1:9944 cargo nextest run \
               --features e2e-tests \
               --manifest-path integration-tests/flipper/Cargo.toml \
               e2e_test_deployed_contract \
