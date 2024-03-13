@@ -69,15 +69,15 @@ pub enum RuntimeOnly {
     #[darling(word)]
     #[darling(skip)]
     Default,
-    Runtime(syn::Path),
+    Sandbox(syn::Path),
 }
 
 #[cfg(any(test, feature = "drink"))]
 impl From<RuntimeOnly> for syn::Path {
     fn from(value: RuntimeOnly) -> Self {
         match value {
-            RuntimeOnly::Default => syn::parse_quote! { ::ink_e2e::MinimalRuntime },
-            RuntimeOnly::Runtime(path) => path,
+            RuntimeOnly::Default => syn::parse_quote! { ::ink_e2e::MinimalSandbox },
+            RuntimeOnly::Sandbox(path) => path,
         }
     }
 }
@@ -151,15 +151,15 @@ mod tests {
     #[test]
     fn config_works_runtime_only_with_custom_backend() {
         let input = quote! {
-            backend(runtime_only(runtime = ::ink_e2e::MinimalRuntime)),
+            backend(runtime_only(sandbox = ::ink_e2e::MinimalSandbox)),
         };
         let config =
             E2EConfig::from_list(&NestedMeta::parse_meta_list(input).unwrap()).unwrap();
 
         assert_eq!(
             config.backend(),
-            Backend::RuntimeOnly(RuntimeOnly::Runtime(
-                syn::parse_quote! { ::ink_e2e::MinimalRuntime }
+            Backend::RuntimeOnly(RuntimeOnly::Sandbox(
+                syn::parse_quote! { ::ink_e2e::MinimalSandbox }
             ))
         );
     }

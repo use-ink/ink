@@ -23,6 +23,7 @@ ink_primitives = { workspace = true, default-features = true }
 cargo_metadata = { workspace = true }
 contract-build = { workspace = true }
 drink = { workspace = true, optional = true }
+pallet-contracts-mock-network = { workspace = true, optional = true }
 funty = { workspace = true }
 impl-serde = { workspace = true }
 jsonrpsee = { workspace = true, features = ["ws-client"] }
@@ -40,6 +41,7 @@ wasm-instrument = { workspace = true }
 which = { workspace = true }
 
 # Substrate
+frame-support = { workspace = true }
 pallet-contracts = { workspace = true }
 sp-core = { workspace = true }
 sp-keyring = { workspace = true }
@@ -66,5 +68,6 @@ std = [
 drink = [
     "dep:drink",
     "subxt-metadata",
+    "pallet-contracts-mock-network",
     "ink_e2e_macro/drink",
 ]
