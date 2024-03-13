@@ -8,11 +8,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Version 5.0.0
 
-_ℹ️ We have created a migration guide from ink! 4 to ink! 5. It also contains an
-overview over all breaking changes and newly added features.
+ℹ️ _We've created a migration guide from ink! 4 to ink! 5. It also contains an
+overview over all breaking changes and newly added features._
 
-You can view it [here](https://use.ink/faq/migrating-from-ink-4-to-5)._
-
+👉 _You can view it [here](https://use.ink/faq/migrating-from-ink-4-to-5)._
 
 ### Summary
 This release addresses the rest of the severities described in the [OpenZeppelin security review](https://blog.openzeppelin.com/security-review-ink-cargo-contract) of ink! and `cargo-contract`.
