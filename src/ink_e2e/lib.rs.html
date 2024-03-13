@@ -145,6 +145,9 @@
 <a href="#145" id="145">145</a>
 <a href="#146" id="146">146</a>
 <a href="#147" id="147">147</a>
+<a href="#148" id="148">148</a>
+<a href="#149" id="149">149</a>
+<a href="#150" id="150">150</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -197,6 +200,8 @@
     InstantiationResult,
     UploadResult,
 };
+<span class="attr">#[cfg(feature = <span class="string">&quot;drink&quot;</span>)]
+</span><span class="kw">pub use </span>drink_client::Client <span class="kw">as </span>DrinkClient;
 <span class="kw">pub use </span>ink_e2e_macro::test;
 <span class="kw">pub use </span>node_proc::{
     TestNodeProcess,
@@ -213,18 +218,19 @@
     Client,
     Error,
 };
-<span class="kw">pub use </span>subxt_signer::sr25519::{
+<span class="kw">pub use </span>subxt_signer::{
     <span class="self">self</span>,
-    dev::<span class="kw-2">*</span>,
-    Keypair,
+    sr25519::{
+        <span class="self">self</span>,
+        dev::<span class="kw-2">*</span>,
+        Keypair,
+    },
 };
 <span class="kw">pub use </span>tokio;
 <span class="kw">pub use </span>tracing_subscriber;
+
 <span class="attr">#[cfg(feature = <span class="string">&quot;drink&quot;</span>)]
-</span><span class="kw">pub use </span>{
-    drink::runtime::MinimalRuntime,
-    drink_client::Client <span class="kw">as </span>DrinkClient,
-};
+</span><span class="kw">pub use </span>drink::runtime::MinimalSandbox;
 
 <span class="kw">use </span>ink::codegen::ContractCallBuilder;
 <span class="kw">use </span>ink_env::{
