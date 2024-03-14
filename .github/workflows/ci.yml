@@ -343,10 +343,6 @@ jobs:
       - name: Rust Info
         uses: ./.github/rust-info
 
-      - name: Install nextest
-        run: |
-          cargo install cargo-nextest
-
       - name: Test
         env:
           # Fix for linking of `linkme` for `cargo test`: https://github.com/dtolnay/linkme/issues/49
@@ -418,10 +414,6 @@ jobs:
       - name: Rust Info
         uses: ./.github/rust-info
 
-      - name: Install nextest
-        run: |
-          cargo install cargo-nextest
-
       - name: Codecov
         env:
           # For codecov it's sufficient to run the fuzz tests only once.
@@ -486,10 +478,6 @@ jobs:
 
       - name: Rust Info
         uses: ./.github/rust-info
-
-      - name: Install nextest
-        run: |
-          cargo install cargo-nextest
 
       - name: Test Examples
         env:
