@@ -132,3 +132,5 @@ BufferTooSmall
 KeyNotFound
 ink_env
 ^
+externalities
+sandbox_client
