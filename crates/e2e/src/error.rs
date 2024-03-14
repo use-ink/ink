@@ -71,19 +71,18 @@ where
     }
 }
 
-/// Dummy error type for drink!
-///
+/// Dummy error type for sandbox_client
 /// todo: https://github.com/Cardinal-Cryptography/drink/issues/32
 #[derive(Debug, thiserror::Error)]
-pub struct DrinkErr;
+pub struct SandboxErr;
 
-impl fmt::Display for DrinkErr {
+impl fmt::Display for SandboxErr {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "DrinkErr")
+        write!(f, "SandboxErr")
     }
 }
 
-impl<Balance> From<ContractExecResult<Balance, ()>> for DrinkErr {
+impl<Balance> From<ContractExecResult<Balance, ()>> for SandboxErr {
     fn from(_value: ContractExecResult<Balance, ()>) -> Self {
         Self {}
     }

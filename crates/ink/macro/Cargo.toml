@@ -40,9 +40,9 @@ proc-macro = true
 [features]
 default = [ "std" ]
 std = [
-	"ink_codegen/std",
+	"scale/std",
 	"ink_ir/std",
 	"ink_primitives/std",
-	"scale/std", 
+	"ink_codegen/std",
 	"scale-info/std"
 ]

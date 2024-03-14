@@ -33,4 +33,4 @@ temp-env = "0.3.6"
 
 [features]
 std = []
-drink = []
+sandbox = []

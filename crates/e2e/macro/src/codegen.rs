@@ -63,7 +63,7 @@ impl InkE2ETest {
             Backend::Node(node_config) => {
                 build_full_client(&environment, exec_build_contracts, node_config)
             }
-            #[cfg(any(test, feature = "drink"))]
+            #[cfg(any(test, feature = "sandbox"))]
             Backend::RuntimeOnly(runtime) => {
                 build_runtime_client(exec_build_contracts, runtime.into())
             }
@@ -146,10 +146,10 @@ fn build_full_client(
     }
 }
 
-#[cfg(any(test, feature = "drink"))]
+#[cfg(any(test, feature = "sandbox"))]
 fn build_runtime_client(contracts: TokenStream2, runtime: syn::Path) -> TokenStream2 {
     quote! {
         let contracts = #contracts;
-        let mut client = ::ink_e2e::DrinkClient::<_, _, #runtime>::new(contracts);
+        let mut client = ::ink_e2e::SandboxClient::<_, _, #runtime>::new(contracts);
     }
 }
