@@ -23,7 +23,6 @@ fn ui_tests_blake2b_pass() {
 fn ui_tests_blake2b_fail() {
     let t = trybuild::TestCases::new();
     t.compile_fail("tests/ui/blake2b/fail/*.rs");
-
 }
 
 #[test]
