@@ -16,7 +16,7 @@ pub use macros::{
     MinimalSandbox,
 };
 
-/// Export pallets that are used in [`macros::create_minimal_sandbox`]
+/// Export pallets that are used in [`crate::create_minimal_sandbox`]
 pub use {
     frame_support,
     frame_system,
