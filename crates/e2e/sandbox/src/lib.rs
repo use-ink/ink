@@ -44,28 +44,38 @@ use pallet_contracts::{
     ContractInstantiateResult,
 };
 
+/// Alias for the balance type.
 type BalanceOf<R> =
     <<R as pallet_contracts::Config>::Currency as Inspect<AccountIdFor<R>>>::Balance;
 
-/// The type of an account identifier.
+/// Alias for the account ID type.
 pub type AccountIdFor<R> = <R as frame_system::Config>::AccountId;
 
-/// Alias for `frame-system`'s `RuntimeCall` type.
+/// Alias for the runtime call type.
 pub type RuntimeCall<R> = <R as frame_system::Config>::RuntimeCall;
 
+/// Alias for the event record type.
 pub type EventRecordOf<Runtime> = EventRecord<
     <Runtime as frame_system::Config>::RuntimeEvent,
     <Runtime as frame_system::Config>::Hash,
 >;
 
+/// Alias for the contract instantiate result.
 pub type ContractInstantiateResultFor<Runtime> = ContractInstantiateResult<
     AccountIdFor<Runtime>,
     BalanceOf<Runtime>,
     EventRecordOf<Runtime>,
 >;
 
+/// Alias for the contract exec result.
 pub type ContractExecResultFor<Runtime> =
     ContractExecResult<BalanceOf<Runtime>, EventRecordOf<Runtime>>;
+
+/// Alias for the runtime of a sandbox.
+pub type RuntimeOf<S> = <S as Sandbox>::Runtime;
+
+/// Alias for the runtime event of a sandbox.
+pub type RuntimeEventOf<S> = <RuntimeOf<S> as frame_system::Config>::RuntimeEvent;
 
 /// Sandbox defines the API of a sandboxed runtime.
 pub trait Sandbox {

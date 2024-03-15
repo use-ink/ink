@@ -103,6 +103,8 @@ mod tests {
         prelude::*,
         DefaultSandbox,
         RuntimeCall,
+        RuntimeEventOf,
+        RuntimeOf,
         Sandbox,
     };
     use frame_support::sp_runtime::{
@@ -110,8 +112,6 @@ mod tests {
         AccountId32,
         DispatchResultWithInfo,
     };
-    type RuntimeEventOf<T> = <T as frame_system::Config>::RuntimeEvent;
-    type RuntimeOf<S> = <S as Sandbox>::Runtime;
 
     fn make_transfer(
         sandbox: &mut DefaultSandbox,
@@ -178,7 +178,7 @@ mod tests {
         assert!(!events_after.is_empty());
         assert!(matches!(
             events_after.last().unwrap().event,
-            RuntimeEventOf::<RuntimeOf<DefaultSandbox>>::Balances(_)
+            RuntimeEventOf::<DefaultSandbox>::Balances(_)
         ));
     }
 

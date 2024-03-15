@@ -247,12 +247,11 @@ mod tests {
     use crate::{
         prelude::*,
         DefaultSandbox,
+        RuntimeEventOf,
+        RuntimeOf,
     };
     use frame_support::sp_runtime::traits::Hash;
     use pallet_contracts::Origin;
-
-    type RuntimeOf<S> = <S as Sandbox>::Runtime;
-    type RuntimeEventOf<T> = <T as frame_system::Config>::RuntimeEvent;
 
     fn compile_module(contract_name: &str) -> Vec<u8> {
         let path = [
@@ -309,14 +308,14 @@ mod tests {
         let instantiation_event = events[event_count - 2].clone();
         assert!(matches!(
             instantiation_event.event,
-            RuntimeEventOf::<RuntimeOf<DefaultSandbox>>::Contracts(
-                pallet_contracts::Event::<RuntimeOf<DefaultSandbox>>::Instantiated { .. }
-            )
+            RuntimeEventOf::<DefaultSandbox>::Contracts(pallet_contracts::Event::<
+                RuntimeOf<DefaultSandbox>,
+            >::Instantiated { .. })
         ));
         let deposit_event = events[event_count - 1].clone();
         assert!(matches!(
             deposit_event.event,
-            RuntimeEventOf::<RuntimeOf<DefaultSandbox>>::Contracts(
+            RuntimeEventOf::<DefaultSandbox>::Contracts(
                 pallet_contracts::Event::<RuntimeOf<DefaultSandbox>>::StorageDepositTransferredAndHeld { .. }
             )
         ));
@@ -362,22 +361,22 @@ mod tests {
 
         assert_eq!(
             events[0].event,
-            RuntimeEventOf::<RuntimeOf<DefaultSandbox>>::Contracts(
-                pallet_contracts::Event::<RuntimeOf<DefaultSandbox>>::ContractEmitted {
-                    contract: contract_address.clone(),
-                    data: vec![0, 0, 0, 0],
-                }
-            )
+            RuntimeEventOf::<DefaultSandbox>::Contracts(pallet_contracts::Event::<
+                RuntimeOf<DefaultSandbox>,
+            >::ContractEmitted {
+                contract: contract_address.clone(),
+                data: vec![0, 0, 0, 0],
+            })
         );
 
         assert_eq!(
             events[1].event,
-            RuntimeEventOf::<RuntimeOf<DefaultSandbox>>::Contracts(
-                pallet_contracts::Event::<RuntimeOf<DefaultSandbox>>::Called {
-                    contract: contract_address,
-                    caller: Origin::Signed(actor),
-                }
-            ),
+            RuntimeEventOf::<DefaultSandbox>::Contracts(pallet_contracts::Event::<
+                RuntimeOf<DefaultSandbox>,
+            >::Called {
+                contract: contract_address,
+                caller: Origin::Signed(actor),
+            }),
         );
     }
 }
