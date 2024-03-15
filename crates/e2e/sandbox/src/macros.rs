@@ -205,7 +205,7 @@ mod construct_runtime {
         type ApiVersion = ();
     }
 
-    // ------------ Implement `crate::Sandbox` trait ---------------------------------------------------
+    // Implement `crate::Sandbox` trait
 
     /// Default initial balance for the default account.
     pub const INITIAL_BALANCE: u128 = 1_000_000_000_000_000;
@@ -278,7 +278,7 @@ mod construct_runtime {
     }
 }
 
-// ------------ Export runtime type itself, pallets and useful types from the auxiliary module -----
+// Export runtime type itself, pallets and useful types from the auxiliary module
 pub use construct_runtime::{
     $sandbox, $runtime, Balances, Contracts, PalletInfo, RuntimeCall, RuntimeEvent, RuntimeHoldReason,
     RuntimeOrigin, System, Timestamp,
