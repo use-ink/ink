@@ -34,7 +34,7 @@ use syn::Result;
 ///   and install it on your PATH, or provide a path to an executable using the
 ///   `CONTRACTS_NODE` environment variable.
 ///
-/// Before the test function is invoked the contract will be build. Any errors that occur
+/// Before the test function is invoked the contract will be built. Any errors that occur
 /// during the contract build will prevent the test function from being invoked.
 ///
 /// ## Header Arguments
