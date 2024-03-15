@@ -106,7 +106,7 @@ mod construct_runtime {
         weights::Weight,
     };
 
-    // ------------ Define the runtime type as a collection of pallets -----------------------------
+    // Define the runtime type as a collection of pallets
     construct_runtime!(
         pub enum $runtime {
             System: $crate::frame_system,
