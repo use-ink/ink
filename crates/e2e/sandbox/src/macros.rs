@@ -125,7 +125,7 @@ mod construct_runtime {
         type AccountData = $crate::pallet_balances::AccountData<<$runtime as $crate::pallet_balances::Config>::Balance>;
     }
 
-    // ------------ Configure pallet balances ------------------------------------------------------
+    // Configure pallet balances
     impl $crate::pallet_balances::Config for $runtime {
         type RuntimeEvent = RuntimeEvent;
         type WeightInfo = ();
