@@ -34,63 +34,106 @@ use syn::Result;
 ///   and install it on your PATH, or provide a path to an executable using the
 ///   `CONTRACTS_NODE` environment variable.
 ///
-/// Before the test function is invoked the contract will have been build. Any errors
-/// that occur during the contract build will prevent the test function from being
-/// invoked.
+/// Before the test function is invoked the contract will be build. Any errors that occur
+/// during the contract build will prevent the test function from being invoked.
 ///
 /// ## Header Arguments
 ///
-/// The `#[ink::e2e_test]` macro can be provided with some additional comma-separated
-/// header arguments:
+/// The `#[ink_e2e::test]` macro can be provided with additional arguments.
 ///
-/// # Example
+/// ### Custom Environment
 ///
-/// ```no_compile
-/// # // TODO(#xxx) Remove the `no_compile`.
-/// #[cfg(test)]
-/// mod tests {
-///     use ::ink_e2e::*;
-///     type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
+/// You can specify the usage of a custom environment:
 ///
-///     #[ink::e2e_test]
-///     async fn e2e_test_2(mut client: ::ink_e2e::Client<C,E>) -> E2EResult<()> {
-///         // given
-///         let constructor = contract_transfer::constructors::new();
-///         let contract_acc_id = client.instantiate(
-///             &mut ::ink_e2e::alice(),
-///             constructor,
-///             1337,
-///             None,
-///         )
-///         .await
-///         .expect("instantiating contract failed")
-///         .account_id;
+/// ```ignore
+/// #[ink_e2e::test(environment = crate::EnvironmentWithManyTopics)]
+/// ```
 ///
-///         // when
-///         let transfer = contract_transfer::messages::give_me(120);
-///         let call_res = client.call(
-///             &mut ::ink_e2e::bob(),
-///             contract_acc_id.clone(),
-///             transfer.into(),
-///             10,
-///             None,
-///         )
-///         .await;
+/// Our documentation contains [an explainer of what custom environments are](https://use.ink/basics/chain-environment-types).
+/// For a full example [see here](https://github.com/paritytech/ink-examples/tree/v5.x.x/custom-environment).
 ///
-///         // then
-///         assert!(call_res.is_ok());
-///         Ok(())
-///     }
+/// ### Custom Backend
+///
+/// You can switch the E2E test to use the [DRink!](https://use.ink/basics/contract-testing/drink)
+/// testing framework with this syntax:
+///
+/// ```
+/// type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
+///
+/// #[ink_e2e::test(backend(runtime_only))]
+/// async fn runtime_call_works() -> E2EResult<()> {
+///   // ...
 /// }
 /// ```
 ///
-/// You can also use build the `Signer` type yourself, without going through
-/// the pre-defined functions:
+/// In this configuration the test will not run against a node that is running in the background,
+/// but against an in-process slimmed down `pallet-contracts` execution environment.
 ///
-/// ```no_compile
-/// let mut bob = ::ink_e2e::PairSigner::new(
-///     ::ink_e2e::AccountKeyring::Bob.pair()
-/// );
+/// Please see [the page on testing with DRink!](https://use.ink/basics/contract-testing/drink)
+/// in our documentation for more details.
+/// For a full example [see here](https://github.com/paritytech/ink-examples/tree/v5.x.x/e2e-runtime-only-backend).
+///
+/// # Example
+///
+/// ```
+/// # use ink::env::{
+/// #    Environment,
+/// #    DefaultEnvironment,
+/// # };
+/// # type AccountId = <DefaultEnvironment as Environment>::AccountId;
+/// #
+/// #[ink::contract]
+/// mod my_module {
+///     #[ink(storage)]
+///     pub struct MyContract { }
+///
+///     impl MyContract {
+///         #[ink(constructor)]
+///         pub fn new() -> Self {
+///             Self { }
+///         }
+///
+///         #[ink(message)]
+///         pub fn my_message(&self) { }
+///     }
+/// }
+///
+/// type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
+///
+/// #[ink_e2e::test]
+/// async fn e2e_test(mut client: ::ink_e2e::Client<C,E>) -> E2EResult<()> {
+///     // given
+///     use my_module::MyContract;
+///     let mut constructor = MyContract::new();
+///     let contract = client
+///         .instantiate("contract_transfer", &ink_e2e::bob(), &mut constructor)
+///         .submit()
+///         .await
+///         .expect("instantiate failed");
+///     let mut call_builder = contract.call_builder::<MyContract>();
+///
+///     // when
+///     let my_message = call_builder.my_message();
+///     let call_res = client
+///         .call(&ink_e2e::eve(), &my_message)
+///         .submit()
+///         .await
+///         .expect("call failed");
+///
+///     // then
+///     assert!(call_res.is_ok());
+///
+///     Ok(())
+/// }
+/// ```
+///
+/// You can also build the `Keypair` type yourself, without going through
+/// the pre-defined functions (`ink_e2e::alice()`, …):
+///
+/// ```
+/// use std::str::FromStr;
+/// let suri = ::ink_e2e::subxt_signer::SecretUri::from_str("//Alice").unwrap();
+/// let alice = ::ink_e2e::Keypair::from_uri(&suri).unwrap();
 /// ```
 #[proc_macro_attribute]
 pub fn test(attr: TokenStream, item: TokenStream) -> TokenStream {
