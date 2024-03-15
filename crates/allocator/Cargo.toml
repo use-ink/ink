@@ -22,7 +22,7 @@ quickcheck = { workspace = true }
 quickcheck_macros = { workspace = true }
 
 [features]
-default = ["std"]
+default = [ "std" ]
 std = []
-ink-fuzz-tests = ["std"]
+ink-fuzz-tests = [ "std" ]
 no-allocator = []
