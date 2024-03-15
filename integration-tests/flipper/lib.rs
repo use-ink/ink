@@ -131,7 +131,7 @@ pub mod flipper {
         /// # node process for each test.
         /// $ export CONTRACTS_NODE_URL=ws://127.0.0.1:9944
         ///
-        /// $ export CONTRACT_HEX=0x2c75f0aa09dbfbfd49e6286a0f2edd3b4913f04a58b13391c79e96782f5713e3
+        /// $ export CONTRACT_ADDR_HEX=0x2c75f0aa09dbfbfd49e6286a0f2edd3b4913f04a58b13391c79e96782f5713e3
         /// $ cargo test --features e2e-tests e2e_test_deployed_contract -- --ignored
         /// ```
         ///
