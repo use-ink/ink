@@ -142,7 +142,7 @@ mod construct_runtime {
         type RuntimeFreezeReason = RuntimeFreezeReason;
     }
 
-    // ------------ Configure pallet timestamp -----------------------------------------------------
+    // Configure pallet timestamp
     impl $crate::pallet_timestamp::Config for $runtime {
         type Moment = u64;
         type OnTimestampSet = ();
