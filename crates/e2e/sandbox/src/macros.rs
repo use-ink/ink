@@ -150,7 +150,7 @@ mod construct_runtime {
         type WeightInfo = ();
     }
 
-    // ------------ Configure pallet contracts -----------------------------------------------------
+    // Configure pallet contracts
     pub enum SandboxRandomness {}
     impl Randomness<H256, u32> for SandboxRandomness {
         fn random(_subject: &[u8]) -> (H256, u32) {
