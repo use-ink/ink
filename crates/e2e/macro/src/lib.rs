@@ -62,12 +62,13 @@ use syn::Result;
 ///
 /// #[ink_e2e::test(backend(runtime_only))]
 /// async fn runtime_call_works() -> E2EResult<()> {
-///   // ...
+///     // ...
 /// }
 /// ```
 ///
-/// In this configuration the test will not run against a node that is running in the background,
-/// but against an in-process slimmed down `pallet-contracts` execution environment.
+/// In this configuration the test will not run against a node that is running in the
+/// background, but against an in-process slimmed down `pallet-contracts` execution
+/// environment.
 ///
 /// Please see [the page on testing with DRink!](https://use.ink/basics/contract-testing/drink)
 /// in our documentation for more details.
@@ -85,23 +86,23 @@ use syn::Result;
 /// #[ink::contract]
 /// mod my_module {
 ///     #[ink(storage)]
-///     pub struct MyContract { }
+///     pub struct MyContract {}
 ///
 ///     impl MyContract {
 ///         #[ink(constructor)]
 ///         pub fn new() -> Self {
-///             Self { }
+///             Self {}
 ///         }
 ///
 ///         #[ink(message)]
-///         pub fn my_message(&self) { }
+///         pub fn my_message(&self) {}
 ///     }
 /// }
 ///
 /// type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 ///
 /// #[ink_e2e::test]
-/// async fn e2e_test(mut client: ::ink_e2e::Client<C,E>) -> E2EResult<()> {
+/// async fn e2e_test(mut client: ::ink_e2e::Client<C, E>) -> E2EResult<()> {
 ///     // given
 ///     use my_module::MyContract;
 ///     let mut constructor = MyContract::new();
