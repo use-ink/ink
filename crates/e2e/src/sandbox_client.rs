@@ -244,7 +244,7 @@ where
         let account_id_raw = match &result.result {
             Err(err) => {
                 log_error(&format!("Instantiation failed: {err:?}"));
-                return Err(SandboxErr); // todo: make a proper error type
+                return Err(SandboxErr);
             }
             Ok(res) => *res.account_id.as_ref(),
         };
@@ -319,7 +319,7 @@ where
             Ok(result) => result,
             Err(err) => {
                 log_error(&format!("Upload failed: {err:?}"));
-                return Err(SandboxErr); // todo: make a proper error type
+                return Err(SandboxErr);
             }
         };
 

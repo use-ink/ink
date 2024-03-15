@@ -72,7 +72,6 @@ where
 }
 
 /// Dummy error type for sandbox_client
-/// todo: https://github.com/Cardinal-Cryptography/drink/issues/32
 #[derive(Debug, thiserror::Error)]
 pub struct SandboxErr;
 
