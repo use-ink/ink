@@ -61,22 +61,22 @@ ink = { path = "../ink" }
 [features]
 default = [ "std" ]
 std = [
+	"blake2",
 	"ink_allocator/std",
+	"ink_engine/std",
 	"ink_prelude/std",
 	"ink_primitives/std",
 	"ink_storage_traits/std",
-	"ink_engine/std",
-	"scale/std",
+	"num-traits/std",
 	"scale-decode",
 	"scale-encode",
 	"scale-info/std",
-	"secp256k1",
+	"scale/std",
 	"schnorrkel",
-	"num-traits/std",
-    # Enables hashing crates for off-chain environment.
+	"secp256k1",
+	# Enables hashing crates for off-chain environment.
 	"sha2",
 	"sha3",
-	"blake2",
 	"scale-decode?/std",
 	"scale-encode?/std"
 ]
