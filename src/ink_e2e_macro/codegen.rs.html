@@ -178,7 +178,7 @@
 <span class="kw">use </span>proc_macro2::TokenStream <span class="kw">as </span>TokenStream2;
 <span class="kw">use </span>quote::quote;
 
-<span class="doccomment">/// Generates code for the `[ink::e2e_test]` macro.
+<span class="doccomment">/// Generates code for the `[ink_e2e::test]` macro.
 </span><span class="attr">#[derive(From)]
 </span><span class="kw">pub struct </span>InkE2ETest {
     <span class="doccomment">/// The test function to generate code for.
@@ -186,7 +186,7 @@
 }
 
 <span class="kw">impl </span>InkE2ETest {
-    <span class="doccomment">/// Generates the code for `#[ink:e2e_test]`.
+    <span class="doccomment">/// Generates the code for `#[ink_e2e:test]`.
     </span><span class="kw">pub fn </span>generate_code(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; TokenStream2 {
         <span class="attr">#[cfg(clippy)]
         </span><span class="kw">if </span><span class="bool-val">true </span>{
