@@ -4036,11 +4036,14 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "085a71440a945fae1bc6077fd40bdf1780a7e31747b86b2012bba18b18f0d6ef"
 dependencies = [
  "bounded-collections",
+ "frame-benchmarking",
  "frame-support",
  "frame-system",
  "log",
+ "pallet-balances",
  "parity-scale-codec",
  "scale-info",
+ "serde",
  "sp-core",
  "sp-io",
  "sp-runtime",

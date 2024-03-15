@@ -102,6 +102,7 @@ jobs:
 
       - name: Check Formatting
         run: |
+          zepter run check
           cargo +nightly fmt --all -- --check
           # For the UI tests we need to disable the license check
           cargo +nightly fmt --all -- --check ./crates/ink/tests/ui/contract/{pass,fail}/*.rs
