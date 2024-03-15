@@ -89,7 +89,7 @@ macro_rules! create_minimal_sandbox {
     ($sandbox:ident, $runtime:ident, $chain_extension: ty, $debug: ty) => {
 
 
-// ------------ Put all the boilerplate into an auxiliary module -----------------------------------
+// Put all the boilerplate into an auxiliary module
 mod construct_runtime {
 
     // ------------ Bring some common types into the scope -----------------------------------------
