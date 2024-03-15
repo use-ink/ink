@@ -80,7 +80,7 @@ pub use tokio;
 pub use tracing_subscriber;
 
 #[cfg(feature = "sandbox")]
-pub use ink_sandbox::MinimalSandbox;
+pub use ink_sandbox::DefaultSandbox;
 
 use ink::codegen::ContractCallBuilder;
 use ink_env::{

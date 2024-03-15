@@ -246,7 +246,7 @@ mod tests {
     use super::*;
     use crate::{
         prelude::*,
-        MinimalSandbox,
+        DefaultSandbox,
     };
     use frame_support::sp_runtime::traits::Hash;
     use pallet_contracts::Origin;
@@ -267,15 +267,15 @@ mod tests {
 
     #[test]
     fn can_upload_code() {
-        let mut sandbox = MinimalSandbox::default();
+        let mut sandbox = DefaultSandbox::default();
         let wasm_binary = compile_module("dummy");
-        let hash = <<RuntimeOf<MinimalSandbox> as frame_system::Config>::Hashing>::hash(
+        let hash = <<RuntimeOf<DefaultSandbox> as frame_system::Config>::Hashing>::hash(
             &wasm_binary,
         );
 
         let result = sandbox.upload_contract(
             wasm_binary,
-            MinimalSandbox::default_actor(),
+            DefaultSandbox::default_actor(),
             None,
             Determinism::Enforced,
         );
@@ -286,7 +286,7 @@ mod tests {
 
     #[test]
     fn can_deploy_contract() {
-        let mut sandbox = MinimalSandbox::default();
+        let mut sandbox = DefaultSandbox::default();
         let wasm_binary = compile_module("dummy");
 
         let events_before = sandbox.events();
@@ -297,8 +297,8 @@ mod tests {
             0,
             vec![],
             vec![],
-            MinimalSandbox::default_actor(),
-            MinimalSandbox::default_gas_limit(),
+            DefaultSandbox::default_actor(),
+            DefaultSandbox::default_gas_limit(),
             None,
         );
         assert!(result.result.is_ok());
@@ -309,23 +309,23 @@ mod tests {
         let instantiation_event = events[event_count - 2].clone();
         assert!(matches!(
             instantiation_event.event,
-            RuntimeEventOf::<RuntimeOf<MinimalSandbox>>::Contracts(
-                pallet_contracts::Event::<RuntimeOf<MinimalSandbox>>::Instantiated { .. }
+            RuntimeEventOf::<RuntimeOf<DefaultSandbox>>::Contracts(
+                pallet_contracts::Event::<RuntimeOf<DefaultSandbox>>::Instantiated { .. }
             )
         ));
         let deposit_event = events[event_count - 1].clone();
         assert!(matches!(
             deposit_event.event,
-            RuntimeEventOf::<RuntimeOf<MinimalSandbox>>::Contracts(
-                pallet_contracts::Event::<RuntimeOf<MinimalSandbox>>::StorageDepositTransferredAndHeld { .. }
+            RuntimeEventOf::<RuntimeOf<DefaultSandbox>>::Contracts(
+                pallet_contracts::Event::<RuntimeOf<DefaultSandbox>>::StorageDepositTransferredAndHeld { .. }
             )
         ));
     }
 
     #[test]
     fn can_call_contract() {
-        let mut sandbox = MinimalSandbox::default();
-        let actor = MinimalSandbox::default_actor();
+        let mut sandbox = DefaultSandbox::default();
+        let actor = DefaultSandbox::default_actor();
         let wasm_binary = compile_module("dummy");
 
         let result = sandbox.deploy_contract(
@@ -334,7 +334,7 @@ mod tests {
             vec![],
             vec![],
             actor.clone(),
-            MinimalSandbox::default_gas_limit(),
+            DefaultSandbox::default_gas_limit(),
             None,
         );
 
@@ -350,7 +350,7 @@ mod tests {
             0,
             vec![],
             actor.clone(),
-            MinimalSandbox::default_gas_limit(),
+            DefaultSandbox::default_gas_limit(),
             None,
             Determinism::Enforced,
         );
@@ -362,8 +362,8 @@ mod tests {
 
         assert_eq!(
             events[0].event,
-            RuntimeEventOf::<RuntimeOf<MinimalSandbox>>::Contracts(
-                pallet_contracts::Event::<RuntimeOf<MinimalSandbox>>::ContractEmitted {
+            RuntimeEventOf::<RuntimeOf<DefaultSandbox>>::Contracts(
+                pallet_contracts::Event::<RuntimeOf<DefaultSandbox>>::ContractEmitted {
                     contract: contract_address.clone(),
                     data: vec![0, 0, 0, 0],
                 }
@@ -372,8 +372,8 @@ mod tests {
 
         assert_eq!(
             events[1].event,
-            RuntimeEventOf::<RuntimeOf<MinimalSandbox>>::Contracts(
-                pallet_contracts::Event::<RuntimeOf<MinimalSandbox>>::Called {
+            RuntimeEventOf::<RuntimeOf<DefaultSandbox>>::Contracts(
+                pallet_contracts::Event::<RuntimeOf<DefaultSandbox>>::Called {
                     contract: contract_address,
                     caller: Origin::Signed(actor),
                 }

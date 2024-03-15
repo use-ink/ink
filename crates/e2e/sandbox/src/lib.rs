@@ -13,10 +13,10 @@ pub mod prelude {
 
 pub use macros::{
     BlockBuilder,
-    MinimalSandbox,
+    DefaultSandbox,
 };
 
-/// Export pallets that are used in [`crate::create_minimal_sandbox`]
+/// Export pallets that are used in [`crate::create_sandbox`]
 pub use {
     frame_support,
     frame_system,

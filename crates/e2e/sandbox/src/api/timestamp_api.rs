@@ -41,12 +41,12 @@ where
 mod tests {
     use crate::{
         prelude::*,
-        MinimalSandbox,
+        DefaultSandbox,
     };
 
     #[test]
     fn getting_and_setting_timestamp_works() {
-        let mut sandbox = MinimalSandbox::default();
+        let mut sandbox = DefaultSandbox::default();
         for timestamp in 0..10 {
             assert_ne!(sandbox.get_timestamp(), timestamp);
             sandbox.set_timestamp(timestamp);

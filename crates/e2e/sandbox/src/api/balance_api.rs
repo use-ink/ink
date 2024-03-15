@@ -64,18 +64,18 @@ where
 #[cfg(test)]
 mod test {
     use super::*;
-    use crate::MinimalSandbox;
+    use crate::DefaultSandbox;
     #[test]
     fn mint_works() {
-        let mut sandbox = MinimalSandbox::default();
-        let balance = sandbox.free_balance(&MinimalSandbox::default_actor());
+        let mut sandbox = DefaultSandbox::default();
+        let balance = sandbox.free_balance(&DefaultSandbox::default_actor());
 
         sandbox
-            .mint_into(&MinimalSandbox::default_actor(), 100)
+            .mint_into(&DefaultSandbox::default_actor(), 100)
             .unwrap();
 
         assert_eq!(
-            sandbox.free_balance(&MinimalSandbox::default_actor()),
+            sandbox.free_balance(&DefaultSandbox::default_actor()),
             balance + 100
         );
     }

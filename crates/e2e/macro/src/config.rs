@@ -75,7 +75,7 @@ pub enum RuntimeOnly {
 impl From<RuntimeOnly> for syn::Path {
     fn from(value: RuntimeOnly) -> Self {
         match value {
-            RuntimeOnly::Default => syn::parse_quote! { ::ink_e2e::MinimalSandbox },
+            RuntimeOnly::Default => syn::parse_quote! { ::ink_e2e::DefaultSandbox },
             RuntimeOnly::Sandbox(path) => path,
         }
     }
@@ -150,7 +150,7 @@ mod tests {
     #[test]
     fn config_works_runtime_only_with_custom_backend() {
         let input = quote! {
-            backend(runtime_only(sandbox = ::ink_e2e::MinimalSandbox)),
+            backend(runtime_only(sandbox = ::ink_e2e::DefaultSandbox)),
         };
         let config =
             E2EConfig::from_list(&NestedMeta::parse_meta_list(input).unwrap()).unwrap();
@@ -158,7 +158,7 @@ mod tests {
         assert_eq!(
             config.backend(),
             Backend::RuntimeOnly(RuntimeOnly::Sandbox(
-                syn::parse_quote! { ::ink_e2e::MinimalSandbox }
+                syn::parse_quote! { ::ink_e2e::DefaultSandbox }
             ))
         );
     }

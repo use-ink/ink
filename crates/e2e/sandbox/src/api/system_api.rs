@@ -101,7 +101,7 @@ where
 mod tests {
     use crate::{
         prelude::*,
-        MinimalSandbox,
+        DefaultSandbox,
         RuntimeCall,
         Sandbox,
     };
@@ -114,32 +114,32 @@ mod tests {
     type RuntimeOf<S> = <S as Sandbox>::Runtime;
 
     fn make_transfer(
-        sandbox: &mut MinimalSandbox,
+        sandbox: &mut DefaultSandbox,
         dest: AccountId32,
         value: u128,
     ) -> DispatchResultWithInfo<
-        <RuntimeCall<<MinimalSandbox as Sandbox>::Runtime> as Dispatchable>::PostInfo,
+        <RuntimeCall<<DefaultSandbox as Sandbox>::Runtime> as Dispatchable>::PostInfo,
     > {
         assert_ne!(
-            MinimalSandbox::default_actor(),
+            DefaultSandbox::default_actor(),
             dest,
             "make_transfer should send to account different than default_actor"
         );
         sandbox.runtime_call(
-            RuntimeCall::<RuntimeOf<MinimalSandbox>>::Balances(pallet_balances::Call::<
-                RuntimeOf<MinimalSandbox>,
+            RuntimeCall::<RuntimeOf<DefaultSandbox>>::Balances(pallet_balances::Call::<
+                RuntimeOf<DefaultSandbox>,
             >::transfer_allow_death {
                 dest: dest.into(),
                 value,
             }),
-            Some(MinimalSandbox::default_actor()),
+            Some(DefaultSandbox::default_actor()),
         )
     }
 
     #[test]
     fn dry_run_works() {
-        let mut sandbox = MinimalSandbox::default();
-        let actor = MinimalSandbox::default_actor();
+        let mut sandbox = DefaultSandbox::default();
+        let actor = DefaultSandbox::default_actor();
         let initial_balance = sandbox.free_balance(&actor);
 
         sandbox.dry_run(|sandbox| {
@@ -152,7 +152,7 @@ mod tests {
 
     #[test]
     fn runtime_call_works() {
-        let mut sandbox = MinimalSandbox::default();
+        let mut sandbox = DefaultSandbox::default();
 
         const RECIPIENT: AccountId32 = AccountId32::new([2u8; 32]);
         let initial_balance = sandbox.free_balance(&RECIPIENT);
@@ -166,7 +166,7 @@ mod tests {
 
     #[test]
     fn current_events() {
-        let mut sandbox = MinimalSandbox::default();
+        let mut sandbox = DefaultSandbox::default();
         const RECIPIENT: AccountId32 = AccountId32::new([2u8; 32]);
 
         let events_before = sandbox.events();
@@ -178,13 +178,13 @@ mod tests {
         assert!(!events_after.is_empty());
         assert!(matches!(
             events_after.last().unwrap().event,
-            RuntimeEventOf::<RuntimeOf<MinimalSandbox>>::Balances(_)
+            RuntimeEventOf::<RuntimeOf<DefaultSandbox>>::Balances(_)
         ));
     }
 
     #[test]
     fn resetting_events() {
-        let mut sandbox = MinimalSandbox::default();
+        let mut sandbox = DefaultSandbox::default();
         const RECIPIENT: AccountId32 = AccountId32::new([3u8; 32]);
 
         make_transfer(&mut sandbox, RECIPIENT.clone(), 1)

@@ -75,15 +75,15 @@ impl<
 ///
 /// The new macro will automatically implement `crate::Sandbox`.
 #[macro_export]
-macro_rules! create_minimal_sandbox {
+macro_rules! create_sandbox {
     ($name:ident) => {
         $crate::paste::paste! {
-            $crate::create_minimal_sandbox!($name, [<$name Runtime>], (), ());
+            $crate::create_sandbox!($name, [<$name Runtime>], (), ());
         }
     };
     ($name:ident, $chain_extension: ty, $debug: ty) => {
         $crate::paste::paste! {
-            $crate::create_minimal_sandbox!($name, [<$name Runtime>], $chain_extension, ty);
+            $crate::create_sandbox!($name, [<$name Runtime>], $chain_extension, ty);
         }
     };
     ($sandbox:ident, $runtime:ident, $chain_extension: ty, $debug: ty) => {
@@ -286,4 +286,4 @@ pub use construct_runtime::{
     };
 }
 
-create_minimal_sandbox!(MinimalSandbox);
+create_sandbox!(DefaultSandbox);
