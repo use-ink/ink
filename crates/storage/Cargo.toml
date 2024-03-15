@@ -36,14 +36,14 @@ itertools = { workspace = true, default-features = true }
 ink = { path = "../ink"}
 
 [features]
-default = ["std"]
+default = [ "std" ]
 std = [
-    "ink_metadata/std",
-    "ink_env/std",
-    "ink_prelude/std",
-    "ink_primitives/std",
-    "ink_storage_traits/std",
-    "scale/std",
-    "scale-info/std",
+	"ink_env/std",
+	"ink_metadata/std",
+	"ink_prelude/std",
+	"ink_primitives/std",
+	"ink_storage_traits/std",
+	"scale-info/std",
+	"scale/std",
 ]
-ink-fuzz-tests = ["std"]
+ink-fuzz-tests = [ "std" ]

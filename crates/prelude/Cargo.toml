@@ -18,5 +18,5 @@ include = ["/Cargo.toml", "src/**/*.rs", "/README.md", "/LICENSE"]
 cfg-if = { workspace = true }
 
 [features]
-default = ["std"]
+default = [ "std" ]
 std = []

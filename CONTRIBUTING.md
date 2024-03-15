@@ -65,6 +65,9 @@ Verify the following locally, otherwise the CI will fail:
     - `cargo +nightly fmt --all`
 1. Is `clippy` happy with it?
     - `cargo clippy --all-targets --all-features` -- -D warnings;
+1. Are Cargo.toml files formatted properly?
+    * `cargo install zepter`
+    * `zepter run`
 1. Does the code still compile?
     - `cargo check --all-features`
 1. Do all the integration tests/examples still compile?

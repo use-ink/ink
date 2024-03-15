@@ -159,9 +159,9 @@ dependencies = [
 
 [[package]]
 name = "anyhow"
-version = "1.0.80"
+version = "1.0.81"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5ad32ce52e4161730f7098c077cd2ed6229b5804ccf99e5366be1ab72a98b4e1"
+checksum = "0952808a6c2afd1aa8947271f3a60f1a6763c7b912d210184c5149b5cf147247"
 
 [[package]]
 name = "approx"
@@ -1020,9 +1020,9 @@ checksum = "cd7e35aee659887cbfb97aaf227ac12cad1a9d7c71e55ff3376839ed4e282d08"
 
 [[package]]
 name = "contract-build"
-version = "4.0.0"
+version = "4.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9f4e6c03a261bc36c858fb67f12c21045d372b731b2239372584ded4648b3538"
+checksum = "e59e7ba4d6a3a167d79fcf6b5dfa04470be79f6e879932abd219feb3e1faa99c"
 dependencies = [
  "anyhow",
  "blake2",
@@ -1060,9 +1060,9 @@ dependencies = [
 
 [[package]]
 name = "contract-metadata"
-version = "4.0.0"
+version = "4.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "71d239a78947aa2d0c63a9936754927551f275d3064a221384427c2c2ff1504b"
+checksum = "71f11032155f6d52a55b0652e08ddc73f516aaa8901e909ecd49e3485759c238"
 dependencies = [
  "anyhow",
  "impl-serde",
@@ -4036,11 +4036,14 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "085a71440a945fae1bc6077fd40bdf1780a7e31747b86b2012bba18b18f0d6ef"
 dependencies = [
  "bounded-collections",
+ "frame-benchmarking",
  "frame-support",
  "frame-system",
  "log",
+ "pallet-balances",
  "parity-scale-codec",
  "scale-info",
+ "serde",
  "sp-core",
  "sp-io",
  "sp-runtime",
@@ -5001,9 +5004,9 @@ dependencies = [
 
 [[package]]
 name = "scale-info"
-version = "2.10.0"
+version = "2.11.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7f7d66a1128282b7ef025a8ead62a4a9fcf017382ec53b8ffbf4d7bf77bd3c60"
+checksum = "2ef2175c2907e7c8bc0a9c3f86aeb5ec1f3b275300ad58a44d0c3ae379a5e52e"
 dependencies = [
  "bitvec",
  "cfg-if",

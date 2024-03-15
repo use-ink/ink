@@ -31,7 +31,7 @@ env:
   CARGO_INCREMENTAL:               0
   PURELY_STD_CRATES:               ink/codegen metadata engine e2e e2e/macro ink/ir
   ALSO_WASM_CRATES:                env storage storage/traits allocator prelude primitives ink ink/macro
-  # TODO `cargo clippy --verbose --all-targets --all-features` for this crate
+  # TODO `cargo clippy --all-targets --all-features` for this crate
   # currently fails on `stable`, but succeeds on `nightly`. This is due to
   # this fix not yet in stable: https://github.com/rust-lang/rust-clippy/issues/8895.
   # Remove the following line again as soon as `clippy` on stable succeeds again.
@@ -102,16 +102,17 @@ jobs:
 
       - name: Check Formatting
         run: |
-          cargo +nightly fmt --verbose --all -- --check
+          zepter run check
+          cargo +nightly fmt --all -- --check
           # For the UI tests we need to disable the license check
-          cargo +nightly fmt --verbose --all -- --check ./crates/ink/tests/ui/contract/{pass,fail}/*.rs
-          cargo +nightly fmt --verbose --all -- --check ./crates/ink/tests/ui/trait_def/{pass,fail}/*.rs
+          cargo +nightly fmt --all -- --check ./crates/ink/tests/ui/contract/{pass,fail}/*.rs
+          cargo +nightly fmt --all -- --check ./crates/ink/tests/ui/trait_def/{pass,fail}/*.rs
 
       - name: Check Examples Formatting
         run: |
-          scripts/for_all_contracts_exec.sh --path integration-tests -- cargo +nightly fmt --verbose --manifest-path {} -- --check
+          scripts/for_all_contracts_exec.sh --path integration-tests -- cargo +nightly fmt --manifest-path {} -- --check
           # This file is not a part of the cargo project, so it wouldn't be formatted the usual way
-          rustfmt +nightly --verbose --check ./integration-tests/psp22-extension/runtime/psp22-extension-example.rs
+          rustfmt +nightly --check ./integration-tests/psp22-extension/runtime/psp22-extension-example.rs
 
   clippy:
     runs-on: ubuntu-latest
@@ -139,14 +140,14 @@ jobs:
         run: |
           ALL_CRATES="${PURELY_STD_CRATES} ${ALSO_WASM_CRATES}"
           for crate in ${ALL_CRATES}; do
-            cargo clippy --verbose --all-targets --all-features --manifest-path ./crates/${crate}/Cargo.toml \
+            cargo clippy --all-targets --all-features --manifest-path ./crates/${crate}/Cargo.toml \
               -- -D warnings -A ${CLIPPY_ALLOWED};
           done
 
       - name: Run Clippy for WASM Crates
         run: |
           for crate in ${ALSO_WASM_CRATES}; do
-            cargo clippy --verbose --no-default-features --manifest-path ./crates/${crate}/Cargo.toml --target wasm32-unknown-unknown \
+            cargo clippy --no-default-features --manifest-path ./crates/${crate}/Cargo.toml --target wasm32-unknown-unknown \
               -- -D warnings -A ${CLIPPY_ALLOWED};
           done
 
@@ -179,13 +180,13 @@ jobs:
       - name: Run Clippy for Examples
         if: ${{ matrix.type == 'STD' }}
         run: |
-          scripts/for_all_contracts_exec.sh --path integration-tests -- cargo clippy --verbose --all-targets \
+          scripts/for_all_contracts_exec.sh --path integration-tests -- cargo clippy --all-targets \
             --manifest-path {} -- -D warnings -A $CLIPPY_ALLOWED
 
       - name: Run Clippy for WASM Examples
         if: ${{ matrix.type == 'WASM' }}
         run: |
-          scripts/for_all_contracts_exec.sh --path integration-tests -- cargo clippy --verbose --no-default-features \
+          scripts/for_all_contracts_exec.sh --path integration-tests -- cargo clippy --no-default-features \
             --target wasm32-unknown-unknown --manifest-path {} -- -D warnings -A $CLIPPY_ALLOWED
 
   check:
@@ -219,14 +220,14 @@ jobs:
         run: |
           ALL_CRATES="${PURELY_STD_CRATES} ${ALSO_WASM_CRATES}"
           for crate in ${ALL_CRATES}; do
-            cargo check --verbose --all-features --manifest-path ./crates/${crate}/Cargo.toml;
+            cargo check --all-features --manifest-path ./crates/${crate}/Cargo.toml;
           done
 
       - name: Check WASM
         if: ${{ matrix.type == 'WASM' }}
         run: |
           for crate in ${ALSO_WASM_CRATES}; do
-            cargo check --verbose --no-default-features --target wasm32-unknown-unknown \
+            cargo check --no-default-features --target wasm32-unknown-unknown \
               --manifest-path ./crates/${crate}/Cargo.toml;
           done
 
@@ -236,7 +237,7 @@ jobs:
           RUSTC_BOOTSTRAP:               1
         run: |
           for crate in ${ALSO_WASM_CRATES}; do
-            cargo check --verbose --no-default-features --target $RISCV_TARGET -Zbuild-std="core,alloc" \
+            cargo check --no-default-features --target $RISCV_TARGET -Zbuild-std="core,alloc" \
               --manifest-path ./crates/${crate}/Cargo.toml;
           done
 
@@ -269,11 +270,11 @@ jobs:
           # add required components for CI
           rustup component add rustfmt clippy
           cargo check --verbose
-          cargo +nightly fmt --verbose --all -- --check
-          cargo clippy --verbose -- -D warnings;
+          cargo +nightly fmt --all -- --check
+          cargo clippy -- -D warnings;
           # Needed until https://github.com/mozilla/sccache/issues/1000 is fixed.
           unset RUSTC_WRAPPER
-          cargo test --verbose --all-features
+          cargo test --all-features
 
 ### workspace
 
@@ -308,14 +309,14 @@ jobs:
         run: |
           ALL_CRATES="${PURELY_STD_CRATES} ${ALSO_WASM_CRATES}"
           for crate in ${ALL_CRATES}; do
-            cargo build --verbose --all-features --release --manifest-path ./crates/${crate}/Cargo.toml;
+            cargo build --all-features --release --manifest-path ./crates/${crate}/Cargo.toml;
           done
 
       - name: Build WASM
         if: ${{ matrix.type == 'WASM' }}
         run: |
           for crate in ${ALSO_WASM_CRATES}; do
-            cargo build --verbose --no-default-features --release --target wasm32-unknown-unknown \
+            cargo build --no-default-features --release --target wasm32-unknown-unknown \
               --manifest-path ./crates/${crate}/Cargo.toml;
           done
 
@@ -353,9 +354,9 @@ jobs:
           # at the same time, hence we use this workaround.
           QUICKCHECK_TESTS:            0
         run: |
-          cargo nextest run --verbose --all-features --no-fail-fast --workspace --locked
-          cargo test --verbose --all-features --no-fail-fast --workspace --doc --locked
-          pushd linting && cargo nextest run --verbose --all-features --no-fail-fast --workspace && popd
+          cargo nextest run --all-features --no-fail-fast --workspace --locked
+          cargo test --all-features --no-fail-fast --workspace --doc --locked
+          pushd linting && cargo nextest run --all-features --no-fail-fast --workspace && popd
 
   docs:
     runs-on: ubuntu-latest
@@ -442,8 +443,8 @@ jobs:
           # FIXME: Access from 2 users, should be solved once ci-image works from a non-root user
           git config --global --add safe.directory '*'
           # RUSTFLAGS are the cause target cache can't be used here
-          cargo build --verbose --all-features --workspace
-          cargo nextest run --verbose --all-features --no-fail-fast --workspace --locked -E 'not test(ui_tests)'
+          cargo build --all-features --workspace
+          cargo nextest run --all-features --no-fail-fast --workspace --locked -E 'not test(ui_tests)'
           # coverage with branches
           grcov . --binary-path ./target/debug/ --source-dir . --output-type lcov --llvm --branch \
             --ignore-not-existing --ignore "/*" --ignore "tests/*" --ignore "nextest/*" --output-path lcov-w-branch.info
@@ -486,10 +487,10 @@ jobs:
         run: |
           # run all tests with --all-features, which will run the e2e-tests feature if present
           scripts/for_all_contracts_exec.sh --path integration-tests --ignore static-buffer -- cargo nextest run \
-            --verbose --all-features --manifest-path {}
+            --all-features -j 1 --manifest-path {}
           # run the static buffer test with a custom buffer size
           cargo clean --manifest-path integration-tests/static-buffer/Cargo.toml
-          INK_STATIC_BUFFER_SIZE=30 cargo nextest run --verbose --manifest-path integration-tests/static-buffer/Cargo.toml --all-features
+          INK_STATIC_BUFFER_SIZE=30 cargo nextest run --manifest-path integration-tests/static-buffer/Cargo.toml --all-features
 
       - name: Run E2E test with on-chain contract
         env:
@@ -595,7 +596,7 @@ jobs:
           # Once https://github.com/paritytech/ink/issues/336 has been implemented we can get rid
           # of this flag.
           scripts/for_all_contracts_exec.sh --path integration-tests -- cargo doc --manifest-path {} \
-            --document-private-items --verbose --no-deps
+            --document-private-items --no-deps
 
 # measurements
 
@@ -644,7 +645,7 @@ jobs:
           for crate in ${ALL_CRATES}; do
             if grep "ink-fuzz-tests =" ./crates/${crate}/Cargo.toml;
             then
-              cargo test --verbose --features ink-fuzz-tests --manifest-path ./crates/${crate}/Cargo.toml --no-fail-fast -- fuzz_ || exit_code=$?;
+              cargo test --features ink-fuzz-tests --manifest-path ./crates/${crate}/Cargo.toml --no-fail-fast -- fuzz_ || exit_code=$?;
               all_tests_passed=$(( all_tests_passed | exit_code ));
             fi
           done
