@@ -30,6 +30,5 @@ members = [
     "trait-erc20",
     "trait-flipper",
     "trait-incrementer",
-    "upgradeable-contracts",
     "wildcard-selector",
 ]

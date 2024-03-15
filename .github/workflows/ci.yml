@@ -533,6 +533,8 @@ jobs:
           # run all tests which have own workspace
           cargo nextest run --manifest-path integration-tests/multi-contract-caller/Cargo.toml --all-features
           cargo nextest run --manifest-path integration-tests/trait-dyn-cross-contract-calls/Cargo.toml --all-features
+          scripts/for_all_contracts_exec.sh --path integration-tests/upgradeable-contracts -- cargo nextest run \
+            --all-features -j 1 --manifest-path {}
           # run compilation tests
           scripts/for_all_contracts_exec.sh --path integration-tests/lang-err-integration-tests -- cargo nextest run \
             --all-features --manifest-path {}
