@@ -92,7 +92,7 @@ macro_rules! create_minimal_sandbox {
 // Put all the boilerplate into an auxiliary module
 mod construct_runtime {
 
-    // ------------ Bring some common types into the scope -----------------------------------------
+    // Bring some common types into the scope
     use $crate::frame_support::{
         construct_runtime,
         derive_impl,
