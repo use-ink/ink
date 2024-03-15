@@ -65,7 +65,9 @@ std = [
 	"sp-runtime/std",
 	"sp-weights/std",
 	"ink_e2e_macro/std",
-    "ink_sandbox/std"
+	"ink_sandbox/std",
+	"frame-support/std",
+	"pallet-contracts-mock-network?/std"
 ]
 
 sandbox = [
