@@ -457,10 +457,37 @@ jobs:
           codecov --token "$CODECOV_L_TOKEN" --file lcov-lines-fixed.info --nonZero
 
 ### examples
+  examples-test-build-artifact:
+    runs-on: ubuntu-latest-8-cores
+    needs: [set-image]
+    defaults:
+      run:
+        shell: bash
+    container:
+      image: ${{ needs.set-image.outputs.IMAGE }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 100
+      - name: Build and archive tests
+        run: |
+          pushd integration-tests
+          cargo nextest archive --archive-file nextest-archive.tar.zst
+          popd
+
+      - name: Upload examples archive
+        uses: actions/upload-artifact@v4
+        with:
+          name: nextest-examples
+          path: integration-tests/nextest-examples.tar.zst
+          retention-days: 1
 
   examples-test:
     runs-on: ubuntu-latest-8-cores
-    needs: [set-image, clippy]
+    needs: [set-image, examples-test-build-artifact]
+    strategy:
+      matrix:
+        partition: [1, 2]
     defaults:
       run:
         shell: bash
@@ -480,14 +507,23 @@ jobs:
       - name: Rust Info
         uses: ./.github/rust-info
 
+      - name: Download examples archive
+        uses: actions/download-artifact@v4
+        with:
+          name: nextest-examples
+          path: ./integration-tests
+
       - name: Test Examples from workspace
         env:
           # Fix linking of `linkme`: https://github.com/dtolnay/linkme/issues/49
           RUSTFLAGS:                     -Clink-arg=-z -Clink-arg=nostart-stop-gc
         run: |
           # run all tests with --all-features, which will run the e2e-tests feature if present
+          pushd integration-tests
           # Tests cannot be run in parallel, as the contract build used in E2E tests cleans artifacts with each build.
-          cargo nextest run --all-features -j 1
+          cargo nextest run --all-features -j 1 --archive-file nextest-archive.tar.zst \
+            --partition count:${{ matrix.partition }}/2
+          popd
 
       - name: Test Examples
         env:
