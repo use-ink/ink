@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Fixed
--Fix outdated docs for `[ink_e2e::test]` ‒ [#2162](https://github.com/paritytech/ink/pull/2162)
+- Fix outdated docs for `[ink_e2e::test]` ‒ [#2162](https://github.com/paritytech/ink/pull/2162)
 
 ## Version 5.0.0
 
