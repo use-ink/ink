@@ -480,17 +480,30 @@ jobs:
       - name: Rust Info
         uses: ./.github/rust-info
 
-      - name: Test Examples
+      - name: Test Examples from workspace
         env:
           # Fix linking of `linkme`: https://github.com/dtolnay/linkme/issues/49
           RUSTFLAGS:                     -Clink-arg=-z -Clink-arg=nostart-stop-gc
         run: |
           # run all tests with --all-features, which will run the e2e-tests feature if present
-          scripts/for_all_contracts_exec.sh --path integration-tests --ignore static-buffer -- cargo nextest run \
-            --all-features -j 1 --manifest-path {}
+          # Tests cannot be run in parallel, as the contract build used in E2E tests cleans artifacts with each build.
+          cargo nextest run --all-features -j 1
+
+      - name: Test Examples
+        env:
+          # Fix linking of `linkme`: https://github.com/dtolnay/linkme/issues/49
+          RUSTFLAGS:                     -Clink-arg=-z -Clink-arg=nostart-stop-gc
+        run: |
+          # run all tests which have own workspace
+          cargo nextest run --manifest-path integration-tests/multi-contract-caller/Cargo.toml --all-features
+          cargo nextest run --manifest-path integration-tests/trait-dyn-cross-contract-calls/Cargo.toml --all-features
+          # run compilation tests
+          scripts/for_all_contracts_exec.sh --path integration-tests/lang-err-integration-tests -- cargo nextest run \
+            --all-features --manifest-path {}
+
           # run the static buffer test with a custom buffer size
           cargo clean --manifest-path integration-tests/static-buffer/Cargo.toml
-          INK_STATIC_BUFFER_SIZE=30 cargo nextest run --manifest-path integration-tests/static-buffer/Cargo.toml --all-features
+          INK_STATIC_BUFFER_SIZE=30 cargo nextest run --manifest-path integration-tests/static-buffer/Cargo.toml --all-features -j 1
 
       - name: Run E2E test with on-chain contract
         env:
