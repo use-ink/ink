@@ -116,7 +116,7 @@ mod construct_runtime {
         }
     );
 
-    // ------------ Configure pallet system --------------------------------------------------------
+    // Configure pallet system
     #[derive_impl($crate::frame_system::config_preludes::SolochainDefaultConfig as $crate::frame_system::DefaultConfig)]
     impl $crate::frame_system::Config for $runtime {
         type Block = $crate::frame_system::mocking::MockBlockU32<$runtime>;
