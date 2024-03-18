@@ -84,3 +84,6 @@ ink-debug = []
 
 # Disable the ink! provided global memory allocator.
 no-allocator = ["ink_allocator/no-allocator"]
+
+# Disable the ink! provided panic handler.
+no-panic-handler = []
