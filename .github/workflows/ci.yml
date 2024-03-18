@@ -475,7 +475,7 @@ jobs:
           RUSTFLAGS:                     -Clink-arg=-z -Clink-arg=nostart-stop-gc
         run: |
           pushd integration-tests
-          cargo nextest archive --archive-file nextest-examples.tar.zst
+          cargo nextest archive --all-features --archive-file nextest-examples.tar.zst
           popd
 
       - name: Upload examples archive
@@ -524,7 +524,7 @@ jobs:
           # run all tests with --all-features, which will run the e2e-tests feature if present
           pushd integration-tests
           # Tests cannot be run in parallel, as the contract build used in E2E tests cleans artifacts with each build.
-          cargo nextest run --all-features -j 1 --archive-file nextest-examples.tar.zst \
+          cargo nextest run -j 1 --archive-file nextest-examples.tar.zst \
             --partition count:${{ matrix.partition }}/2
           popd
 
