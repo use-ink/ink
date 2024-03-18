@@ -490,7 +490,7 @@ jobs:
     needs: [set-image, examples-test-build-artifact]
     strategy:
       matrix:
-        partition: [0, 1, 2, 3]
+        partition: [1, 2, 3, 4]
     defaults:
       run:
         shell: bash
@@ -525,7 +525,7 @@ jobs:
           pushd integration-tests
           # Tests cannot be run in parallel, as the contract build used in E2E tests cleans artifacts with each build.
           cargo nextest run -j 1 --archive-file nextest-examples.tar.zst \
-            --partition count:${{ matrix.partition }}%4
+            --partition count:${{ matrix.partition }}/4
           popd
 
       - name: Test Examples
