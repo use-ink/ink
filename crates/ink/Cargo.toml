@@ -53,3 +53,6 @@ show-codegen-docs = []
 
 # Disable the ink! provided global memory allocator.
 no-allocator = [ "ink_env/no-allocator" ]
+
+# Disable the ink! provided panic handler.
+no-panic-handler = ["ink_env/no-panic-handler"]
