@@ -29,12 +29,15 @@ members = [
     "sr25519-verification",
     "trait-erc20",
     "trait-flipper",
-    "trait-incrementer",
     "wildcard-selector",
 ]
 exclude = [
+    "trait-incrementer",
+
     "lang-err-integration-tests",
     "static-buffer",
-    "upgradeable-contracts"
+    "upgradeable-contracts",
+    "multi-contract-caller",
+    "trait-dyn-cross-contract-calls",
 ]
 resolver = "2"
