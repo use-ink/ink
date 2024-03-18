@@ -2,10 +2,7 @@ use std::time::SystemTime;
 
 use frame_support::{
     sp_runtime::{
-        traits::{
-            Header,
-            One,
-        },
+        traits::{Header, One},
         BuildStorage,
     },
     traits::Hooks,
@@ -17,9 +14,7 @@ use sp_io::TestExternalities;
 pub struct BlockBuilder<T>(std::marker::PhantomData<T>);
 
 impl<
-        T: pallet_balances::Config
-            + pallet_timestamp::Config<Moment = u64>
-            + pallet_contracts::Config,
+        T: pallet_balances::Config + pallet_timestamp::Config<Moment = u64> + pallet_contracts::Config,
     > BlockBuilder<T>
 {
     /// Create a new externalities with the given balances.
@@ -34,9 +29,7 @@ impl<
 
         let mut ext = TestExternalities::new(storage);
 
-        ext.execute_with(|| {
-            Self::initialize_block(BlockNumberFor::<T>::one(), Default::default())
-        });
+        ext.execute_with(|| Self::initialize_block(BlockNumberFor::<T>::one(), Default::default()));
         ext
     }
 
@@ -83,7 +76,7 @@ macro_rules! create_sandbox {
     };
     ($name:ident, $chain_extension: ty, $debug: ty) => {
         $crate::paste::paste! {
-            $crate::create_sandbox!($name, [<$name Runtime>], $chain_extension, ty);
+            $crate::create_sandbox!($name, [<$name Runtime>], $chain_extension, $debug);
         }
     };
     ($sandbox:ident, $runtime:ident, $chain_extension: ty, $debug: ty) => {
