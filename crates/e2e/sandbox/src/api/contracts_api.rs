@@ -245,7 +245,7 @@ pub fn decode_debug_buffer(buffer: &[u8]) -> Vec<String> {
 mod tests {
     use super::*;
     use crate::{
-        prelude::*,
+        api::prelude::*,
         DefaultSandbox,
         RuntimeEventOf,
         RuntimeOf,

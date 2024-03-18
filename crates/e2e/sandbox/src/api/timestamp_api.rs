@@ -40,7 +40,7 @@ where
 #[cfg(test)]
 mod tests {
     use crate::{
-        prelude::*,
+        api::prelude::*,
         DefaultSandbox,
     };
 
