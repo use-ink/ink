@@ -23,7 +23,7 @@ use derive_more::From;
 use proc_macro2::TokenStream as TokenStream2;
 use quote::quote;
 
-/// Generates code for the `[ink::e2e_test]` macro.
+/// Generates code for the `[ink_e2e::test]` macro.
 #[derive(From)]
 pub struct InkE2ETest {
     /// The test function to generate code for.
@@ -31,7 +31,7 @@ pub struct InkE2ETest {
 }
 
 impl InkE2ETest {
-    /// Generates the code for `#[ink:e2e_test]`.
+    /// Generates the code for `#[ink_e2e:test]`.
     pub fn generate_code(&self) -> TokenStream2 {
         #[cfg(clippy)]
         if true {

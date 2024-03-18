@@ -25,11 +25,11 @@ scale-info = { workspace = true, features = ["derive"], optional = true }
 paste = { workspace = true }
 
 [features]
-default = ["std"]
+default = [ "std" ]
 std = [
-    "ink_metadata/std",
-    "ink_primitives/std",
-    "ink_prelude/std",
-    "scale/std",
-    "scale-info/std",
+	"ink_metadata/std",
+	"ink_prelude/std",
+	"ink_primitives/std",
+	"scale-info/std",
+	"scale/std",
 ]
