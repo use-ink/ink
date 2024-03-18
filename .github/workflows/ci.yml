@@ -488,9 +488,9 @@ jobs:
   examples-test:
     runs-on: ubuntu-latest-8-cores
     needs: [set-image, examples-test-build-artifact]
-    strategy:
-      matrix:
-        partition: [1, 2, 3, 4]
+    # strategy:
+    #   matrix:
+    #     partition: [1, 2, 3, 4]
     defaults:
       run:
         shell: bash
@@ -524,8 +524,8 @@ jobs:
           # run all tests with --all-features, which will run the e2e-tests feature if present
           pushd integration-tests
           # Tests cannot be run in parallel, as the contract build used in E2E tests cleans artifacts with each build.
-          cargo nextest run -j 1 --archive-file nextest-examples.tar.zst \
-            --partition count:${{ matrix.partition }}/4 --verbose
+          cargo nextest run -j 1 --archive-file nextest-examples.tar.zst
+          #   --partition count:${{ matrix.partition }}/4 --verbose
           popd
 
       - name: Test Examples
