@@ -110,7 +110,7 @@ jobs:
 
       - name: Check Examples Formatting
         run: |
-          scripts/for_all_contracts_exec.sh --path integration-tests/*/ -- cargo +nightly fmt --manifest-path {} -- --check
+          scripts/for_all_contracts_exec.sh --path integration-tests --ignore integration-tests/Cargo.toml -- cargo +nightly fmt --manifest-path {} -- --check
           # This file is not a part of the cargo project, so it wouldn't be formatted the usual way
           rustfmt +nightly --check ./integration-tests/psp22-extension/runtime/psp22-extension-example.rs
 
@@ -180,13 +180,13 @@ jobs:
       - name: Run Clippy for Examples
         if: ${{ matrix.type == 'STD' }}
         run: |
-          scripts/for_all_contracts_exec.sh --path integration-tests/*/ -- cargo clippy --all-targets \
+          scripts/for_all_contracts_exec.sh --path integration-tests --ignore integration-tests/Cargo.toml -- cargo clippy --all-targets \
             --manifest-path {} -- -D warnings -A $CLIPPY_ALLOWED
 
       - name: Run Clippy for WASM Examples
         if: ${{ matrix.type == 'WASM' }}
         run: |
-          scripts/for_all_contracts_exec.sh --path integration-tests/*/ -- cargo clippy --no-default-features \
+          scripts/for_all_contracts_exec.sh --path integration-tests --ignore integration-tests/Cargo.toml -- cargo clippy --no-default-features \
             --target wasm32-unknown-unknown --manifest-path {} -- -D warnings -A $CLIPPY_ALLOWED
 
   check:
@@ -596,7 +596,7 @@ jobs:
           rustup component add rust-src --toolchain stable
           cargo contract -V
           # Build all examples
-          scripts/for_all_contracts_exec.sh --path integration-tests/*/ -- cargo contract build --release --manifest-path {}
+          scripts/for_all_contracts_exec.sh --path integration-tests --ignore integration-tests/Cargo.toml -- cargo contract build --release --manifest-path {}
           # Build the different features for the conditional compilation example
           pushd ./integration-tests/conditional-compilation
           cargo contract build --release --features "foo"
@@ -616,7 +616,7 @@ jobs:
           #   - custom_allocator
           # Pulls in sp-std which needlessly requires atomic pointers (TODO: Fix sp-std and enable this example)
           #   - call-runtime
-          scripts/for_all_contracts_exec.sh --path integration-tests/*/ --ignore custom-allocator --ignore call-runtime \
+          scripts/for_all_contracts_exec.sh --path integration-tests --ignore integration-tests/Cargo.toml --ignore custom-allocator --ignore call-runtime \
             -- cargo build --manifest-path {} --no-default-features --target $RISCV_TARGET -Zbuild-std="core,alloc"
 
   examples-docs:
@@ -649,7 +649,7 @@ jobs:
           # puts the contract functions in a private module.
           # Once https://github.com/paritytech/ink/issues/336 has been implemented we can get rid
           # of this flag.
-          scripts/for_all_contracts_exec.sh --path integration-tests/*/ -- cargo doc --manifest-path {} \
+          scripts/for_all_contracts_exec.sh --path integration-tests --ignore integration-tests/Cargo.toml -- cargo doc --manifest-path {} \
             --document-private-items --no-deps
 
 # measurements

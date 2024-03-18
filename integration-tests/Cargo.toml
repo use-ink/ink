@@ -32,3 +32,9 @@ members = [
     "trait-incrementer",
     "wildcard-selector",
 ]
+exclude = [
+    "lang-err-integration-tests",
+    "static-buffer",
+    "upgradeable-contracts"
+]
+resolver = "2"

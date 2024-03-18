@@ -87,15 +87,15 @@ for i in "${!command[@]}"; do
   fi
 done
 
-for manifest_path in "$path"/**/Cargo.toml;
-  do if "$scripts_path"/is_contract.sh "$manifest_path"; then
-    manifest_parent="$(dirname "$manifest_path" | cut -d'/' -f2-)"
-    if [[ "${ignore[*]}" =~ ${manifest_parent} ]]; then
-      if [ "$quiet" = false ]; then
-        >&2 echo "Ignoring $manifest_path"
-      fi
-      continue
+for manifest_path in "$path"/**/Cargo.toml; do
+  manifest_parent="$(dirname "$manifest_path" | cut -d'/' -f2-)"
+  if [[ "${ignore[*]}" =~ ${manifest_parent} ]]; then
+    if [ "$quiet" = false ]; then
+      >&2 echo "Ignoring $manifest_path"
     fi
+    continue
+  fi
+  if "$scripts_path"/is_contract.sh "$manifest_path"; then
     command[$arg_index]="$manifest_path"
     if [ "$quiet" = false ]; then
       >&2 echo Running: "${command[@]}"
