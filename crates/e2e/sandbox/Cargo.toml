@@ -1,6 +1,6 @@
 [package]
 name = "ink_sandbox"
-version.workspace = true
+version = "5.0.0"
 authors = ["Cardinal Cryptography", "Parity Technologies <admin@parity.io>"]
 edition.workspace = true
 license.workspace = true

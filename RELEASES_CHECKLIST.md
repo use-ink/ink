@@ -60,7 +60,7 @@ in the future.
     - Release `cargo-contract` crates.
     - Request update of `drink` client, which depends on the `cargo-contract` crates.
     - Release `ink_e2e`.
-2. Do a dry run with `cargo release [new_version] -v --no-tag --no-push`
+2. Do a dry run with `cargo release [new_version] -v --no-tag --no-push --exclude ink_sandbox`
     - `[new_version]` should be the **exact** SemVer compatible version you are attempting
       to release e.g. `5.0.0`
       - It is possible to supply a SemVer level here e.g. `major`, `minor`, `patch` or
@@ -69,6 +69,7 @@ in the future.
         is not necessary.
     - We don't want `cargo-release` to create any releases or push any code, we'll do
       that manually once we've actually published to `crates.io`.
+    - Note that `ink_sandbox` is released separetly and is excluded via the `--exclude` flag.
 3. Check the output of the dry run:
    - Does not show any automatic bumping of crate versions.
    - Runs without error.
@@ -82,7 +83,7 @@ in the future.
        `master` during the release.
      - The above are to ensure that the bundled code pushed to crates.io is the same as
        the tagged release on GitHub.
-5. Publish with `cargo release [new_version] -v --no-tag --no-push --execute`
+5. Publish with `cargo release [new_version] -v --no-tag --no-push --execute --exclude ink_sandbox`
     - Ensure the same `[new_version]` as the dry run, which should be the **exact** SemVer
       compatible version you are attempting to release e.g. `4.0.0-alpha.3`.
     - We add the grace period since crates depend on one another.
