@@ -1,7 +1,9 @@
 [workspace]
 members = [
-    "call-builder-return-value",
     "call-runtime",
+]
+exclude = [
+    "call-builder-return-value",
     "combined-extension",
     "conditional-compilation",
     "contract-storage",
@@ -30,8 +32,7 @@ members = [
     "trait-erc20",
     "trait-flipper",
     "wildcard-selector",
-]
-exclude = [
+
     "trait-incrementer",
 
     "lang-err-integration-tests",
