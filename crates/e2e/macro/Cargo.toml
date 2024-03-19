@@ -30,9 +30,9 @@ quote = { workspace = true }
 
 [dev-dependencies]
 ink = { path = "../../ink" }
-ink_e2e = { path = "../", features = ["drink"] }
+ink_e2e = { path = "../", features = ["sandbox"] }
 temp-env = "0.3.6"
 
 [features]
 std = []
-drink = []
+sandbox = []

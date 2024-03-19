@@ -1070,15 +1070,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "6245d59a3e82a7fc217c5828a6692dbc6dfb63a0c8c90495621f7b9d79704a0e"
 
 [[package]]
-name = "convert_case"
-version = "0.6.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ec182b0ca2f35d8fc196cf3404988fd8b8c739a4d270ff118a398feb0cbec1ca"
-dependencies = [
- "unicode-segmentation",
-]
-
-[[package]]
 name = "core-foundation"
 version = "0.9.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1422,7 +1413,7 @@ version = "0.99.17"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "4fb810d30a7c1953f91334de7244731fc3f3c10d7fe163338a35b9f640960321"
 dependencies = [
- "convert_case 0.4.0",
+ "convert_case",
  "proc-macro2",
  "quote",
  "rustc_version 0.4.0",
@@ -1494,47 +1485,6 @@ name = "downcast-rs"
 version = "1.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9ea835d29036a4087793836fa931b08837ad5e957da9e23886b29586fb9b6650"
-
-[[package]]
-name = "drink"
-version = "0.14.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f702c1985b7202b8dd6eaa2490d4c7da5a7fdeee88fab858438ccce4e0eee58b"
-dependencies = [
- "drink-test-macro",
- "frame-metadata 16.0.0",
- "frame-support",
- "frame-system",
- "pallet-balances",
- "pallet-contracts",
- "pallet-contracts-uapi-next",
- "pallet-timestamp",
- "parity-scale-codec",
- "parity-scale-codec-derive",
- "paste",
- "scale-info",
- "sp-externalities",
- "sp-io",
- "sp-runtime-interface",
- "thiserror",
- "wat",
-]
-
-[[package]]
-name = "drink-test-macro"
-version = "0.14.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "27646ddbf1bf4919eea90312cc98f7780f50358365637d8889a06842590bca4d"
-dependencies = [
- "cargo_metadata",
- "contract-build",
- "contract-metadata",
- "convert_case 0.6.0",
- "darling 0.20.8",
- "proc-macro2",
- "quote",
- "syn 2.0.52",
-]
 
 [[package]]
 name = "duct"
@@ -2673,7 +2623,6 @@ version = "5.0.0"
 dependencies = [
  "cargo_metadata",
  "contract-build",
- "drink",
  "frame-support",
  "funty",
  "impl-serde",
@@ -2681,6 +2630,7 @@ dependencies = [
  "ink_e2e_macro",
  "ink_env",
  "ink_primitives",
+ "ink_sandbox",
  "jsonrpsee 0.22.2",
  "pallet-contracts",
  "pallet-contracts-mock-network",
@@ -2832,6 +2782,25 @@ dependencies = [
  "scale-encode",
  "scale-info",
  "xxhash-rust",
+]
+
+[[package]]
+name = "ink_sandbox"
+version = "5.0.0"
+dependencies = [
+ "frame-metadata 16.0.0",
+ "frame-support",
+ "frame-system",
+ "pallet-balances",
+ "pallet-contracts",
+ "pallet-timestamp",
+ "parity-scale-codec",
+ "paste",
+ "scale-info",
+ "sp-core",
+ "sp-externalities",
+ "sp-io",
+ "wat",
 ]
 
 [[package]]
@@ -7038,12 +7007,6 @@ checksum = "5c5713f0fc4b5db668a2ac63cdb7bb4469d8c9fed047b1d0292cc7b0ce2ba921"
 dependencies = [
  "tinyvec",
 ]
-
-[[package]]
-name = "unicode-segmentation"
-version = "1.11.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d4c87d22b6e3f4a18d4d40ef354e97c90fcb14dd91d7dc0aa9d8a1172ebf7202"
 
 [[package]]
 name = "unicode-width"

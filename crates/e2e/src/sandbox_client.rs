@@ -23,7 +23,7 @@ use crate::{
         ContractsRegistry,
     },
     contract_results::BareInstantiationResult,
-    error::DrinkErr,
+    error::SandboxErr,
     log_error,
     CallBuilderFinal,
     CallDryRunResult,
@@ -34,17 +34,16 @@ use crate::{
     UploadResult,
 };
 
-use drink::{
+use frame_support::traits::fungible::Inspect;
+use ink_sandbox::{
+    api::prelude::*,
     pallet_balances,
     pallet_contracts,
-    runtime::AccountIdFor,
-    sandbox::prelude::*,
+    AccountIdFor,
     RuntimeCall,
     Sandbox,
     Weight,
-    DEFAULT_GAS_LIMIT,
 };
-use frame_support::traits::fungible::Inspect;
 use pallet_contracts::ContractResult;
 
 use ink_env::Environment;
@@ -136,7 +135,7 @@ where
 {
     type AccountId = AccountId;
     type Balance = BalanceOf<S::Runtime>;
-    type Error = DrinkErr;
+    type Error = SandboxErr;
     type EventLog = ();
 
     async fn create_and_fund_account(
@@ -169,10 +168,10 @@ where
         call_data: Vec<Value>,
     ) -> Result<Self::EventLog, Self::Error> {
         // Since in general, `ChainBackend::runtime_call` must be dynamic, we have to
-        // perform some translation here in order to invoke strongly-typed drink!
-        // API.
+        // perform some translation here in order to invoke strongly-typed
+        // [`ink_sandbox::Sandbox`] API.
 
-        // Get metadata of the drink! runtime, so that we can encode the call object.
+        // Get metadata of the Sandbox runtime, so that we can encode the call object.
         // Panic on error - metadata of the static im-memory runtime should always be
         // available.
         let raw_metadata: Vec<u8> = S::get_metadata().into();
@@ -183,7 +182,7 @@ where
         let call = subxt::dynamic::tx(pallet_name, call_name, call_data);
         let encoded_call = call
             .encode_call_data(&metadata.into())
-            .map_err(|_| DrinkErr)?;
+            .map_err(|_| SandboxErr)?;
 
         // Decode the call object.
         // Panic on error - we just encoded a validated call object, so it should be
@@ -198,7 +197,7 @@ where
                 decoded_call,
                 S::convert_account_to_origin(keypair_to_account(origin)),
             )
-            .map_err(|_| DrinkErr)?;
+            .map_err(|_| SandboxErr)?;
 
         Ok(())
     }
@@ -245,7 +244,7 @@ where
         let account_id_raw = match &result.result {
             Err(err) => {
                 log_error(&format!("Instantiation failed: {err:?}"));
-                return Err(DrinkErr); // todo: make a proper error type
+                return Err(SandboxErr);
             }
             Ok(res) => *res.account_id.as_ref(),
         };
@@ -274,7 +273,7 @@ where
                 data,
                 salt(),
                 keypair_to_account(caller),
-                DEFAULT_GAS_LIMIT,
+                S::default_gas_limit(),
                 storage_deposit_limit,
             )
         });
@@ -320,7 +319,7 @@ where
             Ok(result) => result,
             Err(err) => {
                 log_error(&format!("Upload failed: {err:?}"));
-                return Err(DrinkErr); // todo: make a proper error type
+                return Err(SandboxErr);
             }
         };
 
@@ -345,7 +344,7 @@ where
         _caller: &Keypair,
         _code_hash: E::Hash,
     ) -> Result<Self::EventLog, Self::Error> {
-        unimplemented!("drink! sandbox does not yet support remove_code")
+        unimplemented!("sandbox does not yet support remove_code")
     }
 
     async fn bare_call<Args: Sync + Encode + Clone, RetType: Send + Decode>(
@@ -377,7 +376,7 @@ where
             .result
             .is_err()
         {
-            return Err(DrinkErr);
+            return Err(SandboxErr);
         }
 
         Ok(())
@@ -403,7 +402,7 @@ where
                 value,
                 exec_input,
                 keypair_to_account(caller),
-                DEFAULT_GAS_LIMIT,
+                S::default_gas_limit(),
                 storage_deposit_limit,
                 pallet_contracts::Determinism::Enforced,
             )
@@ -458,27 +457,25 @@ where
     S::Runtime: pallet_balances::Config + pallet_contracts::Config,
     AccountIdFor<S::Runtime>: From<[u8; 32]> + AsRef<[u8; 32]>,
 {
-    type Error = DrinkErr;
+    type Error = SandboxErr;
     type EventLog = ();
 }
 
 /// Exposes preset sandbox configurations to be used in tests.
 pub mod preset {
     pub mod mock_network {
-        use drink::{
+        use ink_sandbox::{
             frame_system,
-            minimal,
-            runtime::{
-                AccountIdFor,
-                RuntimeMetadataPrefixed,
-            },
+            AccountIdFor,
+            BlockBuilder,
             Extension,
+            RuntimeMetadataPrefixed,
             Sandbox,
         };
         pub use pallet_contracts_mock_network::*;
         use sp_runtime::traits::Dispatchable;
 
-        /// A [`drink::Sandbox`] that can be used to test contracts
+        /// A [`ink_sandbox::Sandbox`] that can be used to test contracts
         /// with a mock network of relay chain and parachains.
         ///
         /// ```no_compile
@@ -516,16 +513,13 @@ pub mod preset {
                 height: frame_system::pallet_prelude::BlockNumberFor<Self::Runtime>,
                 parent_hash: <Self::Runtime as frame_system::Config>::Hash,
             ) {
-                minimal::BlockBuilder::<Self::Runtime>::initialize_block(
-                    height,
-                    parent_hash,
-                )
+                BlockBuilder::<Self::Runtime>::initialize_block(height, parent_hash)
             }
 
             fn finalize_block(
                 height: frame_system::pallet_prelude::BlockNumberFor<Self::Runtime>,
             ) -> <Self::Runtime as frame_system::Config>::Hash {
-                minimal::BlockBuilder::<Self::Runtime>::finalize_block(height)
+                BlockBuilder::<Self::Runtime>::finalize_block(height)
             }
 
             fn default_actor() -> AccountIdFor<Self::Runtime> {
