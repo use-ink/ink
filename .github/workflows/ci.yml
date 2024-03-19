@@ -469,6 +469,13 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 100
+
+      - name: Cache
+        uses: Swatinem/rust-cache@23bce251a8cd2ffc3c1075eaa2367cf899916d84 # v2.7.3
+        with:
+          cache-directories: ${{ env.CARGO_TARGET_DIR }}
+          shared-key: examples-test
+
       - name: Build and archive tests
         env:
           # Fix linking of `linkme`: https://github.com/dtolnay/linkme/issues/49
@@ -506,6 +513,7 @@ jobs:
         uses: Swatinem/rust-cache@23bce251a8cd2ffc3c1075eaa2367cf899916d84 # v2.7.3
         with:
           cache-directories: ${{ env.CARGO_TARGET_DIR }}
+          shared-key: examples-test
 
       - name: Rust Info
         uses: ./.github/rust-info
