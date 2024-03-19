@@ -36,9 +36,9 @@ use crate::{
 
 use frame_support::traits::fungible::Inspect;
 use ink_sandbox::{
+    api::prelude::*,
     pallet_balances,
     pallet_contracts,
-    prelude::*,
     AccountIdFor,
     RuntimeCall,
     Sandbox,
