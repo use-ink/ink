@@ -395,7 +395,7 @@ pub fn recorded_events() -> impl Iterator<Item = EmittedEvent> {
 /// );
 /// ```
 ///
-/// See our [`contract-terminate`](https://github.com/paritytech/ink-examples/tree/main/contract-terminate)
+/// See our [`contract-terminate`](https://github.com/paritytech/ink-examples/tree/v5.x.x/contract-terminate)
 /// example for a complete usage exemplification.
 pub fn assert_contract_termination<T, F>(
     should_terminate: F,
