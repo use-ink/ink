@@ -384,6 +384,7 @@ pub fn recorded_events() -> impl Iterator<Item = EmittedEvent> {
 ///   remaining value in the contract
 /// * `expected_value_transferred_to_beneficiary`: The value which should have been
 ///   transferred to the `expected_beneficiary`.
+///
 /// # Usage
 ///
 /// ```no_compile
