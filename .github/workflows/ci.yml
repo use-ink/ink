@@ -524,7 +524,7 @@ jobs:
           # run all tests with --all-features, which will run the e2e-tests feature if present
           pushd integration-tests
           # Tests cannot be run in parallel, as the contract build used in E2E tests cleans artifacts with each build.
-          cargo nextest run -j 1 --archive-file nextest-examples.tar.zst
+          cargo nextest run -j 1 --archive-file nextest-examples.tar.zst \
             --partition count:${{ matrix.partition }}/4
           popd
 
