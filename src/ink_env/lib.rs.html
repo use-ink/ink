@@ -245,7 +245,7 @@
 #[allow(unused_extern_crates)]
 </span><span class="kw">extern crate </span>rlibc;
 
-<span class="attr">#[cfg(not(feature = <span class="string">&quot;std&quot;</span>))]
+<span class="attr">#[cfg(not(any(feature = <span class="string">&quot;std&quot;</span>, feature = <span class="string">&quot;no-panic-handler&quot;</span>)))]
 #[allow(unused_variables)]
 #[panic_handler]
 </span><span class="kw">fn </span>panic(info: <span class="kw-2">&amp;</span>core::panic::PanicInfo) -&gt; ! {
