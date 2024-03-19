@@ -482,7 +482,7 @@ jobs:
           RUSTFLAGS:                     -Clink-arg=-z -Clink-arg=nostart-stop-gc
         run: |
           pushd integration-tests
-          cargo nextest archive --archive-file nextest-examples.tar.zst
+          cargo nextest archive --all-features --archive-file nextest-examples.tar.zst --workspace
           popd
 
       - name: Upload examples archive
@@ -497,7 +497,7 @@ jobs:
     needs: [set-image, examples-test-build-artifact]
     strategy:
       matrix:
-        partition: [1, 2, 3, 4]
+        partition: [1, 2]
     defaults:
       run:
         shell: bash
@@ -542,7 +542,7 @@ jobs:
           RUSTFLAGS:                     -Clink-arg=-z -Clink-arg=nostart-stop-gc
         run: |
           # run all tests which have own workspace
-          cargo nextest run --manifest-path integration-tests/multi-contract-caller/Cargo.toml --all-features
+          #cargo nextest run --manifest-path integration-tests/multi-contract-caller/Cargo.toml --all-features
           cargo nextest run --manifest-path integration-tests/trait-dyn-cross-contract-calls/Cargo.toml --all-features
           scripts/for_all_contracts_exec.sh --path integration-tests/upgradeable-contracts -- cargo nextest run \
             --all-features -j 1 --manifest-path {}
