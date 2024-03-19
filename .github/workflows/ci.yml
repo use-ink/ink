@@ -533,7 +533,7 @@ jobs:
           pushd integration-tests
           # Tests cannot be run in parallel, as the contract build used in E2E tests cleans artifacts with each build.
           cargo nextest run -j 1 --archive-file nextest-examples.tar.zst \
-            --partition count:${{ matrix.partition }}/4
+            --partition count:${{ matrix.partition }}/2
           popd
 
       - name: Test Examples
