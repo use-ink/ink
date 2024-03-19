@@ -180,7 +180,7 @@ mod flipper {
     }
 }
 ```
-The [`flipper/src/lib.rs`](https://github.com/paritytech/ink-examples/blob/v4.0.1/flipper/lib.rs)
+The [`flipper/src/lib.rs`](https://github.com/paritytech/ink-examples/blob/v5.x.x/flipper/lib.rs)
 file in our examples folder contains exactly this code. Run `cargo contract build` to build your
 first ink! smart contract.
 
@@ -243,11 +243,11 @@ See [here](https://paritytech.github.io/ink/ink/attr.contract.html) for a more d
 ### Trait Definitions
 
 Use `#[ink::trait_definition]` to define your very own trait definitions that are then implementable by ink! smart contracts.
-See e.g. the [`examples/trait-erc20`](https://github.com/paritytech/ink-examples/blob/v4.0.1/trait-erc20/lib.rs#L20-L22) contract on how to utilize it or [the documentation](https://paritytech.github.io/ink/ink/attr.trait_definition.html) for details.
+See e.g. the [`examples/trait-erc20`](https://github.com/paritytech/ink-examples/blob/v5.x.x/trait-erc20/lib.rs#L20-L22) contract on how to utilize it or [the documentation](https://paritytech.github.io/ink/ink/attr.trait_definition.html) for details.
 
 ### Off-chain Testing
 
-The `#[ink::test]` procedural macro enables off-chain testing. See e.g. the [`examples/erc20`](https://github.com/paritytech/ink-examples/blob/v4.0.1/erc20/lib.rs#L276-L277) contract on how to utilize those or [the documentation](https://paritytech.github.io/ink/ink/attr.test.html) for details.
+The `#[ink::test]` procedural macro enables off-chain testing. See e.g. the [`examples/erc20`](https://github.com/paritytech/ink-examples/blob/v5.x.x/erc20/lib.rs#L276-L277) contract on how to utilize those or [the documentation](https://paritytech.github.io/ink/ink/attr.test.html) for details.
 
 ## Developer Documentation
 

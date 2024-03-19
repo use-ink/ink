@@ -431,6 +431,7 @@
 <a href="#431" id="431">431</a>
 <a href="#432" id="432">432</a>
 <a href="#433" id="433">433</a>
+<a href="#434" id="434">434</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -817,6 +818,7 @@
 ///   remaining value in the contract
 /// * `expected_value_transferred_to_beneficiary`: The value which should have been
 ///   transferred to the `expected_beneficiary`.
+///
 /// # Usage
 ///
 /// ```no_compile
@@ -828,7 +830,7 @@
 /// );
 /// ```
 ///
-/// See our [`contract-terminate`](https://github.com/paritytech/ink-examples/tree/main/contract-terminate)
+/// See our [`contract-terminate`](https://github.com/paritytech/ink-examples/tree/v5.x.x/contract-terminate)
 /// example for a complete usage exemplification.
 </span><span class="kw">pub fn </span>assert_contract_termination&lt;T, F&gt;(
     should_terminate: F,
