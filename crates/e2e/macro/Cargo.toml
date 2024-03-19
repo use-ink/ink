@@ -29,6 +29,8 @@ proc-macro2 = { workspace = true }
 quote = { workspace = true }
 
 [dev-dependencies]
+ink = { path = "../../ink" }
+ink_e2e = { path = "../", features = ["drink"] }
 temp-env = "0.3.6"
 
 [features]

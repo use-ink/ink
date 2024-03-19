@@ -2668,6 +2668,8 @@ version = "5.0.0"
 dependencies = [
  "darling 0.20.8",
  "derive_more",
+ "ink",
+ "ink_e2e",
  "ink_ir",
  "proc-macro2",
  "quote",
