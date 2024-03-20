@@ -129,6 +129,7 @@ fn build_full_client(
         }
         None => {
             quote! {
+                let contracts = #contracts;
                 let node_rpc = ::ink_e2e::TestNodeProcess::<::ink_e2e::PolkadotConfig>
                     ::build_with_env_or_default()
                     .spawn()
@@ -136,7 +137,6 @@ fn build_full_client(
                     .unwrap_or_else(|err|
                         ::core::panic!("Error spawning substrate-contracts-node: {err:?}")
                     );
-                let contracts = #contracts;
                 let mut client = ::ink_e2e::Client::<
                     ::ink_e2e::PolkadotConfig,
                     #environment
