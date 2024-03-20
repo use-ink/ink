@@ -237,7 +237,6 @@
 <a href="#237" id="237">237</a>
 <a href="#238" id="238">238</a>
 <a href="#239" id="239">239</a>
-<a href="#240" id="240">240</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -262,9 +261,9 @@
 
     <span class="doccomment">/// The lightweight approach skipping node layer.
     ///
-    /// This runs a runtime emulator within `TestExternalities` (using drink! library) in
+    /// This runs a runtime emulator within `TestExternalities`
     /// the same process as the test.
-    </span><span class="attr">#[cfg(any(test, feature = <span class="string">&quot;drink&quot;</span>))]
+    </span><span class="attr">#[cfg(any(test, feature = <span class="string">&quot;sandbox&quot;</span>))]
     </span>RuntimeOnly(RuntimeOnly),
 }
 
@@ -301,9 +300,8 @@
     }
 }
 
-<span class="doccomment">/// The runtime emulator that should be used within `TestExternalities` (using drink!
-/// library).
-</span><span class="attr">#[cfg(any(test, feature = <span class="string">&quot;drink&quot;</span>))]
+<span class="doccomment">/// The runtime emulator that should be used within `TestExternalities`
+</span><span class="attr">#[cfg(any(test, feature = <span class="string">&quot;sandbox&quot;</span>))]
 #[derive(Clone, Eq, PartialEq, Debug, darling::FromMeta)]
 </span><span class="kw">pub enum </span>RuntimeOnly {
     <span class="attr">#[darling(word)]
@@ -312,11 +310,11 @@
     Sandbox(syn::Path),
 }
 
-<span class="attr">#[cfg(any(test, feature = <span class="string">&quot;drink&quot;</span>))]
+<span class="attr">#[cfg(any(test, feature = <span class="string">&quot;sandbox&quot;</span>))]
 </span><span class="kw">impl </span>From&lt;RuntimeOnly&gt; <span class="kw">for </span>syn::Path {
     <span class="kw">fn </span>from(value: RuntimeOnly) -&gt; <span class="self">Self </span>{
         <span class="kw">match </span>value {
-            RuntimeOnly::Default =&gt; <span class="macro">syn::parse_quote! </span>{ ::ink_e2e::MinimalSandbox },
+            RuntimeOnly::Default =&gt; <span class="macro">syn::parse_quote! </span>{ ::ink_e2e::DefaultSandbox },
             RuntimeOnly::Sandbox(path) =&gt; path,
         }
     }
@@ -391,7 +389,7 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>config_works_runtime_only_with_custom_backend() {
         <span class="kw">let </span>input = <span class="macro">quote! </span>{
-            backend(runtime_only(sandbox = ::ink_e2e::MinimalSandbox)),
+            backend(runtime_only(sandbox = ::ink_e2e::DefaultSandbox)),
         };
         <span class="kw">let </span>config =
             E2EConfig::from_list(<span class="kw-2">&amp;</span>NestedMeta::parse_meta_list(input).unwrap()).unwrap();
@@ -399,7 +397,7 @@
         <span class="macro">assert_eq!</span>(
             config.backend(),
             Backend::RuntimeOnly(RuntimeOnly::Sandbox(
-                <span class="macro">syn::parse_quote! </span>{ ::ink_e2e::MinimalSandbox }
+                <span class="macro">syn::parse_quote! </span>{ ::ink_e2e::DefaultSandbox }
             ))
         );
     }

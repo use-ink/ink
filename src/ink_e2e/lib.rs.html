@@ -175,11 +175,11 @@
 <span class="kw">mod </span>client_utils;
 <span class="kw">mod </span>contract_build;
 <span class="kw">mod </span>contract_results;
-<span class="attr">#[cfg(feature = <span class="string">&quot;drink&quot;</span>)]
-</span><span class="kw">mod </span>drink_client;
 <span class="kw">mod </span>error;
 <span class="kw">pub mod </span>events;
 <span class="kw">mod </span>node_proc;
+<span class="attr">#[cfg(feature = <span class="string">&quot;sandbox&quot;</span>)]
+</span><span class="kw">mod </span>sandbox_client;
 <span class="kw">mod </span>subxt_client;
 <span class="kw">mod </span>xts;
 
@@ -200,13 +200,13 @@
     InstantiationResult,
     UploadResult,
 };
-<span class="attr">#[cfg(feature = <span class="string">&quot;drink&quot;</span>)]
-</span><span class="kw">pub use </span>drink_client::Client <span class="kw">as </span>DrinkClient;
 <span class="kw">pub use </span>ink_e2e_macro::test;
 <span class="kw">pub use </span>node_proc::{
     TestNodeProcess,
     TestNodeProcessBuilder,
 };
+<span class="attr">#[cfg(feature = <span class="string">&quot;sandbox&quot;</span>)]
+</span><span class="kw">pub use </span>sandbox_client::Client <span class="kw">as </span>SandboxClient;
 <span class="kw">pub use </span>sp_core::H256;
 <span class="kw">pub use </span>sp_keyring::AccountKeyring;
 <span class="kw">pub use </span>subxt::{
@@ -229,8 +229,8 @@
 <span class="kw">pub use </span>tokio;
 <span class="kw">pub use </span>tracing_subscriber;
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;drink&quot;</span>)]
-</span><span class="kw">pub use </span>drink::runtime::MinimalSandbox;
+<span class="attr">#[cfg(feature = <span class="string">&quot;sandbox&quot;</span>)]
+</span><span class="kw">pub use </span>ink_sandbox::DefaultSandbox;
 
 <span class="kw">use </span>ink::codegen::ContractCallBuilder;
 <span class="kw">use </span>ink_env::{

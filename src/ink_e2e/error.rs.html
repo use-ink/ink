@@ -86,8 +86,6 @@
 <a href="#86" id="86">86</a>
 <a href="#87" id="87">87</a>
 <a href="#88" id="88">88</a>
-<a href="#89" id="89">89</a>
-<a href="#90" id="90">90</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -161,19 +159,17 @@
     }
 }
 
-<span class="doccomment">/// Dummy error type for drink!
-///
-/// todo: https://github.com/Cardinal-Cryptography/drink/issues/32
+<span class="doccomment">/// Dummy error type for sandbox_client
 </span><span class="attr">#[derive(Debug, thiserror::Error)]
-</span><span class="kw">pub struct </span>DrinkErr;
+</span><span class="kw">pub struct </span>SandboxErr;
 
-<span class="kw">impl </span>fmt::Display <span class="kw">for </span>DrinkErr {
+<span class="kw">impl </span>fmt::Display <span class="kw">for </span>SandboxErr {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
-        <span class="macro">write!</span>(f, <span class="string">&quot;DrinkErr&quot;</span>)
+        <span class="macro">write!</span>(f, <span class="string">&quot;SandboxErr&quot;</span>)
     }
 }
 
-<span class="kw">impl</span>&lt;Balance&gt; From&lt;ContractExecResult&lt;Balance, ()&gt;&gt; <span class="kw">for </span>DrinkErr {
+<span class="kw">impl</span>&lt;Balance&gt; From&lt;ContractExecResult&lt;Balance, ()&gt;&gt; <span class="kw">for </span>SandboxErr {
     <span class="kw">fn </span>from(_value: ContractExecResult&lt;Balance, ()&gt;) -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{}
     }

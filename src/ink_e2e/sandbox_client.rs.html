@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/e2e/src/drink_client.rs`."><title>drink_client.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="ink_e2e" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../ink_e2e/index.html"><img src="https://use.ink/img/crate-docs/logo.png" alt="ink_e2e"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/e2e/src/sandbox_client.rs`."><title>sandbox_client.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="ink_e2e" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../ink_e2e/index.html"><img src="https://use.ink/img/crate-docs/logo.png" alt="ink_e2e"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -539,12 +539,6 @@
 <a href="#539" id="539">539</a>
 <a href="#540" id="540">540</a>
 <a href="#541" id="541">541</a>
-<a href="#542" id="542">542</a>
-<a href="#543" id="543">543</a>
-<a href="#544" id="544">544</a>
-<a href="#545" id="545">545</a>
-<a href="#546" id="546">546</a>
-<a href="#547" id="547">547</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -570,7 +564,7 @@
         ContractsRegistry,
     },
     contract_results::BareInstantiationResult,
-    error::DrinkErr,
+    error::SandboxErr,
     log_error,
     CallBuilderFinal,
     CallDryRunResult,
@@ -581,17 +575,16 @@
     UploadResult,
 };
 
-<span class="kw">use </span>drink::{
+<span class="kw">use </span>frame_support::traits::fungible::Inspect;
+<span class="kw">use </span>ink_sandbox::{
+    api::prelude::<span class="kw-2">*</span>,
     pallet_balances,
     pallet_contracts,
-    runtime::AccountIdFor,
-    sandbox::prelude::<span class="kw-2">*</span>,
+    AccountIdFor,
     RuntimeCall,
     Sandbox,
     Weight,
-    DEFAULT_GAS_LIMIT,
 };
-<span class="kw">use </span>frame_support::traits::fungible::Inspect;
 <span class="kw">use </span>pallet_contracts::ContractResult;
 
 <span class="kw">use </span>ink_env::Environment;
@@ -683,7 +676,7 @@
 {
     <span class="kw">type </span>AccountId = AccountId;
     <span class="kw">type </span>Balance = BalanceOf&lt;S::Runtime&gt;;
-    <span class="kw">type </span>Error = DrinkErr;
+    <span class="kw">type </span>Error = SandboxErr;
     <span class="kw">type </span>EventLog = ();
 
     <span class="kw">async fn </span>create_and_fund_account(
@@ -716,10 +709,10 @@
         call_data: Vec&lt;Value&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::EventLog, <span class="self">Self</span>::Error&gt; {
         <span class="comment">// Since in general, `ChainBackend::runtime_call` must be dynamic, we have to
-        // perform some translation here in order to invoke strongly-typed drink!
-        // API.
+        // perform some translation here in order to invoke strongly-typed
+        // [`ink_sandbox::Sandbox`] API.
 
-        // Get metadata of the drink! runtime, so that we can encode the call object.
+        // Get metadata of the Sandbox runtime, so that we can encode the call object.
         // Panic on error - metadata of the static im-memory runtime should always be
         // available.
         </span><span class="kw">let </span>raw_metadata: Vec&lt;u8&gt; = S::get_metadata().into();
@@ -730,7 +723,7 @@
         </span><span class="kw">let </span>call = subxt::dynamic::tx(pallet_name, call_name, call_data);
         <span class="kw">let </span>encoded_call = call
             .encode_call_data(<span class="kw-2">&amp;</span>metadata.into())
-            .map_err(|<span class="kw">_</span>| DrinkErr)<span class="question-mark">?</span>;
+            .map_err(|<span class="kw">_</span>| SandboxErr)<span class="question-mark">?</span>;
 
         <span class="comment">// Decode the call object.
         // Panic on error - we just encoded a validated call object, so it should be
@@ -745,7 +738,7 @@
                 decoded_call,
                 S::convert_account_to_origin(keypair_to_account(origin)),
             )
-            .map_err(|<span class="kw">_</span>| DrinkErr)<span class="question-mark">?</span>;
+            .map_err(|<span class="kw">_</span>| SandboxErr)<span class="question-mark">?</span>;
 
         <span class="prelude-val">Ok</span>(())
     }
@@ -792,8 +785,8 @@
         <span class="kw">let </span>account_id_raw = <span class="kw">match </span><span class="kw-2">&amp;</span>result.result {
             <span class="prelude-val">Err</span>(err) =&gt; {
                 log_error(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;Instantiation failed: {err:?}&quot;</span>));
-                <span class="kw">return </span><span class="prelude-val">Err</span>(DrinkErr); <span class="comment">// todo: make a proper error type
-            </span>}
+                <span class="kw">return </span><span class="prelude-val">Err</span>(SandboxErr);
+            }
             <span class="prelude-val">Ok</span>(res) =&gt; <span class="kw-2">*</span>res.account_id.as_ref(),
         };
         <span class="kw">let </span>account_id = AccountId::from(account_id_raw);
@@ -821,7 +814,7 @@
                 data,
                 salt(),
                 keypair_to_account(caller),
-                DEFAULT_GAS_LIMIT,
+                S::default_gas_limit(),
                 storage_deposit_limit,
             )
         });
@@ -867,8 +860,8 @@
             <span class="prelude-val">Ok</span>(result) =&gt; result,
             <span class="prelude-val">Err</span>(err) =&gt; {
                 log_error(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;Upload failed: {err:?}&quot;</span>));
-                <span class="kw">return </span><span class="prelude-val">Err</span>(DrinkErr); <span class="comment">// todo: make a proper error type
-            </span>}
+                <span class="kw">return </span><span class="prelude-val">Err</span>(SandboxErr);
+            }
         };
 
         <span class="kw">let </span>code_hash_raw: [u8; <span class="number">32</span>] = result
@@ -892,7 +885,7 @@
         _caller: <span class="kw-2">&amp;</span>Keypair,
         _code_hash: E::Hash,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::EventLog, <span class="self">Self</span>::Error&gt; {
-        <span class="macro">unimplemented!</span>(<span class="string">&quot;drink! sandbox does not yet support remove_code&quot;</span>)
+        <span class="macro">unimplemented!</span>(<span class="string">&quot;sandbox does not yet support remove_code&quot;</span>)
     }
 
     <span class="kw">async fn </span>bare_call&lt;Args: Sync + Encode + Clone, RetType: Send + Decode&gt;(
@@ -924,7 +917,7 @@
             .result
             .is_err()
         {
-            <span class="kw">return </span><span class="prelude-val">Err</span>(DrinkErr);
+            <span class="kw">return </span><span class="prelude-val">Err</span>(SandboxErr);
         }
 
         <span class="prelude-val">Ok</span>(())
@@ -950,7 +943,7 @@
                 value,
                 exec_input,
                 keypair_to_account(caller),
-                DEFAULT_GAS_LIMIT,
+                S::default_gas_limit(),
                 storage_deposit_limit,
                 pallet_contracts::Determinism::Enforced,
             )
@@ -1005,27 +998,25 @@
     </span>S::Runtime: pallet_balances::Config + pallet_contracts::Config,
     AccountIdFor&lt;S::Runtime&gt;: From&lt;[u8; <span class="number">32</span>]&gt; + AsRef&lt;[u8; <span class="number">32</span>]&gt;,
 {
-    <span class="kw">type </span>Error = DrinkErr;
+    <span class="kw">type </span>Error = SandboxErr;
     <span class="kw">type </span>EventLog = ();
 }
 
 <span class="doccomment">/// Exposes preset sandbox configurations to be used in tests.
 </span><span class="kw">pub mod </span>preset {
     <span class="kw">pub mod </span>mock_network {
-        <span class="kw">use </span>drink::{
+        <span class="kw">use </span>ink_sandbox::{
             frame_system,
-            minimal,
-            runtime::{
-                AccountIdFor,
-                RuntimeMetadataPrefixed,
-            },
+            AccountIdFor,
+            BlockBuilder,
             Extension,
+            RuntimeMetadataPrefixed,
             Sandbox,
         };
         <span class="kw">pub use </span>pallet_contracts_mock_network::<span class="kw-2">*</span>;
         <span class="kw">use </span>sp_runtime::traits::Dispatchable;
 
-        <span class="doccomment">/// A [`drink::Sandbox`] that can be used to test contracts
+        <span class="doccomment">/// A [`ink_sandbox::Sandbox`] that can be used to test contracts
         /// with a mock network of relay chain and parachains.
         ///
         /// ```no_compile
@@ -1063,16 +1054,13 @@
                 height: frame_system::pallet_prelude::BlockNumberFor&lt;<span class="self">Self</span>::Runtime&gt;,
                 parent_hash: &lt;<span class="self">Self</span>::Runtime <span class="kw">as </span>frame_system::Config&gt;::Hash,
             ) {
-                minimal::BlockBuilder::&lt;<span class="self">Self</span>::Runtime&gt;::initialize_block(
-                    height,
-                    parent_hash,
-                )
+                BlockBuilder::&lt;<span class="self">Self</span>::Runtime&gt;::initialize_block(height, parent_hash)
             }
 
             <span class="kw">fn </span>finalize_block(
                 height: frame_system::pallet_prelude::BlockNumberFor&lt;<span class="self">Self</span>::Runtime&gt;,
             ) -&gt; &lt;<span class="self">Self</span>::Runtime <span class="kw">as </span>frame_system::Config&gt;::Hash {
-                minimal::BlockBuilder::&lt;<span class="self">Self</span>::Runtime&gt;::finalize_block(height)
+                BlockBuilder::&lt;<span class="self">Self</span>::Runtime&gt;::finalize_block(height)
             }
 
             <span class="kw">fn </span>default_actor() -&gt; AccountIdFor&lt;<span class="self">Self</span>::Runtime&gt; {
