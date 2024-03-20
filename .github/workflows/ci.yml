@@ -468,7 +468,7 @@ jobs:
       image: ${{ needs.set-image.outputs.IMAGE }}
     strategy:
       matrix:
-        partition: [0, 1, 2, 3]
+        partition: [1, 2, 3, 4]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -494,7 +494,7 @@ jobs:
           # run the static buffer test with a custom buffer size
 
       - name: Test Examples
-        if: ${{ matrix.partition == 3 }}
+        if: ${{ matrix.partition == 1 }}
         env:
           # Fix linking of `linkme`: https://github.com/dtolnay/linkme/issues/49
           RUSTFLAGS:                     -Clink-arg=-z -Clink-arg=nostart-stop-gc
@@ -503,7 +503,7 @@ jobs:
           INK_STATIC_BUFFER_SIZE=30 cargo test --manifest-path integration-tests/static-buffer/Cargo.toml --all-features
 
       - name: Run E2E test with on-chain contract
-        if: ${{ matrix.partition == 3 }}
+        if: ${{ matrix.partition == 1 }}
         env:
             # Fix linking of `linkme`: https://github.com/dtolnay/linkme/issues/49
             RUSTFLAGS:                     -Clink-arg=-z -Clink-arg=nostart-stop-gc

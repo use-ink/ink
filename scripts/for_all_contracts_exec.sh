@@ -80,7 +80,9 @@ done
 
 command=("${@}")
 
-if [ -z "$path" ] || ([ "$partitioning" = true ] && (! [[ "$m" =~ ^[0-9]+$ ]] || ! [[ "$n" =~ ^[0-9]+$ ]] || [ "$m" -ge "$n" ] || [ "$m" -le 0 ] || [ "$n" -le 0 ])) || [ "${#command[@]}" -le 0 ]; then
+if [ -z "$path" ] || ([ "$partitioning" = true ] && \
+  (! [[ "$m" =~ ^[0-9]+$ ]] || ! [[ "$n" =~ ^[0-9]+$ ]] || [ "$m" -gt "$n" ] || [ "$m" -le 0 ] || [ "$n" -le 0 ])) || \
+  [ "${#command[@]}" -le 0 ]; then
   usage
   exit 1
 fi
@@ -98,7 +100,7 @@ for i in "${!command[@]}"; do
   fi
 done
 
-# Filter out ignored paths and check if each manifest is a contract
+# filter out ignored paths and check if each manifest is a contract
 filtered_manifests=()
 for manifest_path in "$path"/**/Cargo.toml; do
   manifest_parent="$(dirname "$manifest_path" | cut -d'/' -f2-)"
@@ -115,12 +117,17 @@ for manifest_path in "$path"/**/Cargo.toml; do
   fi
 done
 
-# Determine the total number of filtered Cargo.toml files
+# determine the total number of filtered Cargo.toml files
 total_manifests=${#filtered_manifests[@]}
 if [ "$partitioning" = true ]; then
-    # Calculate the partition start and end index
-    start=$(( m * total_manifests / n ))
-    end=$(( (m + 1) * total_manifests / n - 1 ))
+    # calculate the partition start and end index
+    partition_size=$(( total_manifests / n ))
+    start=$(( (m - 1) * partition_size ))
+    end=$(( m * partition_size - 1 ))
+    if [ "$m" -eq "$n" ]; then
+    # last partition
+      end=$((total_manifests - 1))
+    fi
 else
     start=0
     end=$((total_manifests - 1))
