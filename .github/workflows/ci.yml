@@ -444,15 +444,15 @@ jobs:
           git config --global --add safe.directory '*'
           # RUSTFLAGS are the cause target cache can't be used here
           cargo build --all-features --workspace
-          cargo nextest run --all-features --no-fail-fast --workspace --locked -E 'not test(ui_tests)'
+          cargo test --all-features --no-fail-fast --workspace --locked
           # coverage with branches
           grcov . --binary-path ./target/debug/ --source-dir . --output-type lcov --llvm --branch \
-            --ignore-not-existing --ignore "/*" --ignore "tests/*" --ignore "nextest/*" --output-path lcov-w-branch.info
+            --ignore-not-existing --ignore "/*" --ignore "tests/*" --output-path lcov-w-branch.info
           rust-covfix lcov-w-branch.info --output lcov-w-branch-fixed.info
           codecov --token "$CODECOV_L_TOKEN" --file lcov-w-branch-fixed.info --nonZero
           # lines coverage
           grcov . --binary-path ./target/debug/ --source-dir . --output-type lcov --llvm \
-            --ignore-not-existing --ignore "/*" --ignore "tests/*" --ignore "nextest/*" --output-path lcov-lines.info
+            --ignore-not-existing --ignore "/*" --ignore "tests/*" --output-path lcov-lines.info
           rust-covfix lcov-lines.info --output lcov-lines-fixed.info
           codecov --token "$CODECOV_L_TOKEN" --file lcov-lines-fixed.info --nonZero
 
