@@ -126,11 +126,11 @@ if [ "$partitioning" = true ]; then
     end=$(( m * partition_size - 1 ))
     if [ "$m" -eq "$n" ]; then
     # last partition
-      end=$((total_manifests - 1))
+      end=$(( total_manifests - 1 ))
     fi
 else
     start=0
-    end=$((total_manifests - 1))
+    end=$(( total_manifests - 1 ))
 fi
 
 for (( i = start; i <= end; i++ )); do
