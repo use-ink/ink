@@ -115,12 +115,12 @@ fn build_full_client(
     match node_config.url() {
         Some(url) => {
             quote! {
+                let contracts = #contracts;
                 let rpc = ::ink_e2e::RpcClient::from_url(#url)
                     .await
                     .unwrap_or_else(|err|
                         ::core::panic!("Error connecting to node at {}: {err:?}", #url)
                     );
-                let contracts = #contracts;
                 let mut client = ::ink_e2e::Client::<
                     ::ink_e2e::PolkadotConfig,
                     #environment
