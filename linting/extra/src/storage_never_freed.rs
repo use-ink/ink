@@ -223,7 +223,8 @@ fn report_field(cx: &LateContext, field_info: &FieldInfo) {
                 field.span,
                 "field's storage cannot be freed",
                 None,
-                "consider adding operations to remove elements available to the user"
+                "consider adding operations to remove elements available to the user\n\
+                for further information visit https://use.ink/linter/rules/storage_never_freed"
             )
 
         }
