@@ -2610,7 +2610,7 @@ dependencies = [
  "blake2",
  "derive_more",
  "either",
- "heck 0.4.1",
+ "heck 0.5.0",
  "impl-serde",
  "ink_ir",
  "ink_primitives",
