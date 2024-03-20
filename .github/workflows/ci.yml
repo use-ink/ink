@@ -533,6 +533,10 @@ jobs:
       fail-fast: false
       matrix:
         type: [WASM, RISCV]
+        partition: [1, 2]
+        exclude:
+          - type: RISCV
+            partition: 2
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -553,13 +557,15 @@ jobs:
           rustup component add rust-src --toolchain stable
           cargo contract -V
           # Build all examples
-          scripts/for_all_contracts_exec.sh --path integration-tests -- cargo contract build --release --manifest-path {}
-          # Build the different features for the conditional compilation example
-          pushd ./integration-tests/conditional-compilation
-          cargo contract build --release --features "foo"
-          cargo contract build --release --features "bar"
-          cargo contract build --release --features "foo, bar"
-          popd
+          scripts/for_all_contracts_exec.sh --path integration-tests --partition ${{ matrix.partition }}/2 -- cargo contract build --release --manifest-path {}
+          if [ ${{ matrix.partition }} -eq 1 ]; then
+            # Build the different features for the conditional compilation example
+            pushd ./integration-tests/conditional-compilation
+            cargo contract build --release --features "foo"
+            cargo contract build --release --features "bar"
+            cargo contract build --release --features "foo, bar"
+            popd
+          fi
 
       - name: Build Contract RISCV Examples
         if: ${{ matrix.type == 'RISCV' }}
