@@ -553,15 +553,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8c3c1a368f70d6cf7302d78f8f7093da241fb8e8807c05cc9e51a125895a6d5b"
 
 [[package]]
-name = "basic-toml"
-version = "0.1.8"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2db21524cad41c5591204d22d75e1970a2d1f71060214ca931dc7d5afe2c14e5"
-dependencies = [
- "serde",
-]
-
-[[package]]
 name = "beef"
 version = "0.5.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -901,7 +892,7 @@ version = "4.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "307bc0538d5f0f83b8248db3087aa92fe504e4691294d0c96c0eabc33f47ba47"
 dependencies = [
- "heck",
+ "heck 0.4.1",
  "proc-macro2",
  "quote",
  "syn 2.0.52",
@@ -1020,9 +1011,9 @@ checksum = "cd7e35aee659887cbfb97aaf227ac12cad1a9d7c71e55ff3376839ed4e282d08"
 
 [[package]]
 name = "contract-build"
-version = "4.0.1"
+version = "4.0.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e59e7ba4d6a3a167d79fcf6b5dfa04470be79f6e879932abd219feb3e1faa99c"
+checksum = "a1419d360c4519b3995a7e390f0f6a72a386c2cfb9a187f1114a3e9c719e02c1"
 dependencies = [
  "anyhow",
  "blake2",
@@ -1033,7 +1024,7 @@ dependencies = [
  "contract-metadata",
  "crossterm",
  "duct",
- "heck",
+ "heck 0.5.0",
  "hex",
  "impl-serde",
  "parity-scale-codec",
@@ -1060,9 +1051,9 @@ dependencies = [
 
 [[package]]
 name = "contract-metadata"
-version = "4.0.1"
+version = "4.0.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "71f11032155f6d52a55b0652e08ddc73f516aaa8901e909ecd49e3485759c238"
+checksum = "7b31736c09a0d23fec6263686d4bce595634faeed1875520fecf191985f7a2db"
 dependencies = [
  "anyhow",
  "impl-serde",
@@ -1077,15 +1068,6 @@ name = "convert_case"
 version = "0.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "6245d59a3e82a7fc217c5828a6692dbc6dfb63a0c8c90495621f7b9d79704a0e"
-
-[[package]]
-name = "convert_case"
-version = "0.6.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ec182b0ca2f35d8fc196cf3404988fd8b8c739a4d270ff118a398feb0cbec1ca"
-dependencies = [
- "unicode-segmentation",
-]
 
 [[package]]
 name = "core-foundation"
@@ -1431,7 +1413,7 @@ version = "0.99.17"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "4fb810d30a7c1953f91334de7244731fc3f3c10d7fe163338a35b9f640960321"
 dependencies = [
- "convert_case 0.4.0",
+ "convert_case",
  "proc-macro2",
  "quote",
  "rustc_version 0.4.0",
@@ -1503,47 +1485,6 @@ name = "downcast-rs"
 version = "1.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9ea835d29036a4087793836fa931b08837ad5e957da9e23886b29586fb9b6650"
-
-[[package]]
-name = "drink"
-version = "0.14.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f702c1985b7202b8dd6eaa2490d4c7da5a7fdeee88fab858438ccce4e0eee58b"
-dependencies = [
- "drink-test-macro",
- "frame-metadata 16.0.0",
- "frame-support",
- "frame-system",
- "pallet-balances",
- "pallet-contracts",
- "pallet-contracts-uapi-next",
- "pallet-timestamp",
- "parity-scale-codec",
- "parity-scale-codec-derive",
- "paste",
- "scale-info",
- "sp-externalities",
- "sp-io",
- "sp-runtime-interface",
- "thiserror",
- "wat",
-]
-
-[[package]]
-name = "drink-test-macro"
-version = "0.14.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "27646ddbf1bf4919eea90312cc98f7780f50358365637d8889a06842590bca4d"
-dependencies = [
- "cargo_metadata",
- "contract-build",
- "contract-metadata",
- "convert_case 0.6.0",
- "darling 0.20.8",
- "proc-macro2",
- "quote",
- "syn 2.0.52",
-]
 
 [[package]]
 name = "duct"
@@ -2271,6 +2212,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "95505c38b4572b2d910cecb0281560f54b440a19336cbbcb27bf6ce6adc6f5a8"
 
 [[package]]
+name = "heck"
+version = "0.5.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2304e00983f87ffb38b55b444b5e3b60a884b5d30c0fca7d82fe33449bbe55ea"
+
+[[package]]
 name = "hermit-abi"
 version = "0.3.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2663,7 +2610,7 @@ dependencies = [
  "blake2",
  "derive_more",
  "either",
- "heck",
+ "heck 0.5.0",
  "impl-serde",
  "ink_ir",
  "ink_primitives",
@@ -2682,7 +2629,6 @@ version = "5.0.0"
 dependencies = [
  "cargo_metadata",
  "contract-build",
- "drink",
  "frame-support",
  "funty",
  "impl-serde",
@@ -2690,7 +2636,8 @@ dependencies = [
  "ink_e2e_macro",
  "ink_env",
  "ink_primitives",
- "jsonrpsee 0.22.2",
+ "ink_sandbox",
+ "jsonrpsee 0.22.3",
  "pallet-contracts",
  "pallet-contracts-mock-network",
  "parity-scale-codec",
@@ -2718,6 +2665,8 @@ version = "5.0.0"
 dependencies = [
  "darling 0.20.8",
  "derive_more",
+ "ink",
+ "ink_e2e",
  "ink_ir",
  "proc-macro2",
  "quote",
@@ -2839,6 +2788,25 @@ dependencies = [
  "scale-encode",
  "scale-info",
  "xxhash-rust",
+]
+
+[[package]]
+name = "ink_sandbox"
+version = "5.0.0"
+dependencies = [
+ "frame-metadata 16.0.0",
+ "frame-support",
+ "frame-system",
+ "pallet-balances",
+ "pallet-contracts",
+ "pallet-timestamp",
+ "parity-scale-codec",
+ "paste",
+ "scale-info",
+ "sp-core",
+ "sp-externalities",
+ "sp-io",
+ "wat",
 ]
 
 [[package]]
@@ -2968,12 +2936,12 @@ dependencies = [
 
 [[package]]
 name = "jsonrpsee"
-version = "0.22.2"
+version = "0.22.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "87f3ae45a64cfc0882934f963be9431b2a165d667f53140358181f262aca0702"
+checksum = "3cdbb7cb6f3ba28f5b212dd250ab4483105efc3e381f5c8bb90340f14f0a2cc3"
 dependencies = [
- "jsonrpsee-core 0.22.2",
- "jsonrpsee-types 0.22.2",
+ "jsonrpsee-core 0.22.3",
+ "jsonrpsee-types 0.22.3",
  "jsonrpsee-ws-client",
 ]
 
@@ -3000,13 +2968,13 @@ dependencies = [
 
 [[package]]
 name = "jsonrpsee-client-transport"
-version = "0.22.2"
+version = "0.22.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "455fc882e56f58228df2aee36b88a1340eafd707c76af2fa68cf94b37d461131"
+checksum = "9ab2e14e727d2faf388c99d9ca5210566ed3b044f07d92c29c3611718d178380"
 dependencies = [
  "futures-util",
  "http 0.2.12",
- "jsonrpsee-core 0.22.2",
+ "jsonrpsee-core 0.22.3",
  "pin-project",
  "rustls-native-certs 0.7.0",
  "rustls-pki-types",
@@ -3045,9 +3013,9 @@ dependencies = [
 
 [[package]]
 name = "jsonrpsee-core"
-version = "0.22.2"
+version = "0.22.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b75568f4f9696e3a47426e1985b548e1a9fcb13372a5e320372acaf04aca30d1"
+checksum = "71962a1c49af43adf81d337e4ebc93f3c915faf6eccaa14d74e255107dfd7723"
 dependencies = [
  "anyhow",
  "async-lock 3.3.0",
@@ -3055,7 +3023,7 @@ dependencies = [
  "beef",
  "futures-timer",
  "futures-util",
- "jsonrpsee-types 0.22.2",
+ "jsonrpsee-types 0.22.3",
  "pin-project",
  "rustc-hash",
  "serde",
@@ -3101,9 +3069,9 @@ dependencies = [
 
 [[package]]
 name = "jsonrpsee-types"
-version = "0.22.2"
+version = "0.22.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3467fd35feeee179f71ab294516bdf3a81139e7aeebdd860e46897c12e1a3368"
+checksum = "1e53c72de6cd2ad6ac1aa6e848206ef8b736f92ed02354959130373dfa5b3cbd"
 dependencies = [
  "anyhow",
  "beef",
@@ -3114,14 +3082,14 @@ dependencies = [
 
 [[package]]
 name = "jsonrpsee-ws-client"
-version = "0.22.2"
+version = "0.22.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "68ca71e74983f624c0cb67828e480a981586074da8ad3a2f214c6a3f884edab9"
+checksum = "c8a07ab8da9a283b906f6735ddd17d3680158bb72259e853441d1dd0167079ec"
 dependencies = [
  "http 0.2.12",
- "jsonrpsee-client-transport 0.22.2",
- "jsonrpsee-core 0.22.2",
- "jsonrpsee-types 0.22.2",
+ "jsonrpsee-client-transport 0.22.3",
+ "jsonrpsee-core 0.22.3",
+ "jsonrpsee-types 0.22.3",
  "url",
 ]
 
@@ -6337,7 +6305,7 @@ version = "0.24.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1e385be0d24f186b4ce2f9982191e7101bb737312ad61c1f2f984f34bcf85d59"
 dependencies = [
- "heck",
+ "heck 0.4.1",
  "proc-macro2",
  "quote",
  "rustversion",
@@ -6350,7 +6318,7 @@ version = "0.26.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c6cf59daf282c0a494ba14fd21610a0325f9f90ec9d1231dea26bcb1d696c946"
 dependencies = [
- "heck",
+ "heck 0.4.1",
  "proc-macro2",
  "quote",
  "rustversion",
@@ -6419,7 +6387,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2d0e58c3f88651cff26aa52bae0a0a85f806a2e923a20eb438c16474990743ea"
 dependencies = [
  "frame-metadata 16.0.0",
- "heck",
+ "heck 0.4.1",
  "hex",
  "jsonrpsee 0.21.0",
  "parity-scale-codec",
@@ -6975,11 +6943,10 @@ checksum = "e421abadd41a4225275504ea4d6566923418b7f05506fbc9c0fe86ba7396114b"
 
 [[package]]
 name = "trybuild"
-version = "1.0.89"
+version = "1.0.90"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9a9d3ba662913483d6722303f619e75ea10b7855b0f8e0d72799cf8621bb488f"
+checksum = "2aa6f84ec205ebf87fb7a0abdbcd1467fa5af0e86878eb6d888b78ecbb10b6d5"
 dependencies = [
- "basic-toml",
  "dissimilar",
  "glob",
  "once_cell",
@@ -6987,6 +6954,7 @@ dependencies = [
  "serde_derive",
  "serde_json",
  "termcolor",
+ "toml",
 ]
 
 [[package]]
@@ -7045,12 +7013,6 @@ checksum = "5c5713f0fc4b5db668a2ac63cdb7bb4469d8c9fed047b1d0292cc7b0ce2ba921"
 dependencies = [
  "tinyvec",
 ]
-
-[[package]]
-name = "unicode-segmentation"
-version = "1.11.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d4c87d22b6e3f4a18d4d40ef354e97c90fcb14dd91d7dc0aa9d8a1172ebf7202"
 
 [[package]]
 name = "unicode-width"
