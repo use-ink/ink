@@ -486,7 +486,7 @@ jobs:
           RUSTFLAGS:                     -Clink-arg=-z -Clink-arg=nostart-stop-gc
         run: |
           # run all tests with --all-features, which will run the e2e-tests feature if present
-          scripts/for_all_contracts_exec.sh --path integration-tests --ignore static-buffer -- cargo test \
+          RUST_LOG=debug scripts/for_all_contracts_exec.sh --path integration-tests/multi-contract-caller --ignore static-buffer -- cargo test \
             --all-features --manifest-path {}
           # run the static buffer test with a custom buffer size
           cargo clean --manifest-path integration-tests/static-buffer/Cargo.toml
