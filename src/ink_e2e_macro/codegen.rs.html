@@ -270,12 +270,12 @@
     <span class="kw">match </span>node_config.url() {
         <span class="prelude-val">Some</span>(url) =&gt; {
             <span class="macro">quote! </span>{
+                <span class="kw">let </span>contracts = #contracts;
                 <span class="kw">let </span>rpc = ::ink_e2e::RpcClient::from_url(#url)
                     .<span class="kw">await
                     </span>.unwrap_or_else(|err|
                         <span class="macro">::core::panic!</span>(<span class="string">&quot;Error connecting to node at {}: {err:?}&quot;</span>, #url)
                     );
-                <span class="kw">let </span>contracts = #contracts;
                 <span class="kw">let </span><span class="kw-2">mut </span>client = ::ink_e2e::Client::&lt;
                     ::ink_e2e::PolkadotConfig,
                     #environment
@@ -284,6 +284,7 @@
         }
         <span class="prelude-val">None </span>=&gt; {
             <span class="macro">quote! </span>{
+                <span class="kw">let </span>contracts = #contracts;
                 <span class="kw">let </span>node_rpc = ::ink_e2e::TestNodeProcess::&lt;::ink_e2e::PolkadotConfig&gt;
                     ::build_with_env_or_default()
                     .spawn()
@@ -291,7 +292,6 @@
                     </span>.unwrap_or_else(|err|
                         <span class="macro">::core::panic!</span>(<span class="string">&quot;Error spawning substrate-contracts-node: {err:?}&quot;</span>)
                     );
-                <span class="kw">let </span>contracts = #contracts;
                 <span class="kw">let </span><span class="kw-2">mut </span>client = ::ink_e2e::Client::&lt;
                     ::ink_e2e::PolkadotConfig,
                     #environment
