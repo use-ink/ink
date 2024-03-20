@@ -459,7 +459,7 @@ jobs:
 ### examples
 
   examples-test:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest-8-cores
     needs: [set-image, clippy]
     defaults:
       run:
@@ -492,7 +492,7 @@ jobs:
           scripts/for_all_contracts_exec.sh --path integration-tests --ignore static-buffer --partition ${{ matrix.partition }}/4 -- cargo test \
             --all-features --manifest-path {}
 
-      - name: Test Examples
+      - name: Test static-buffer example
         if: ${{ matrix.partition == 3 }}
         env:
           # Fix linking of `linkme`: https://github.com/dtolnay/linkme/issues/49

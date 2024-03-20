@@ -10,5 +10,4 @@ runs:
         cargo +nightly --version
         cargo spellcheck --version
         bash --version
-        substrate-contracts-node --version
       shell: bash
