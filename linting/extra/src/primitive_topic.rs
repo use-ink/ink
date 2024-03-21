@@ -150,6 +150,9 @@ fn report_field(cx: &LateContext, event_def_id: DefId, field_name: &str) {
                         snippet,
                         Applicability::Unspecified,
                     );
+                    diag.help(
+                        "for further information visit https://use.ink/linter/rules/primitive_topic".to_string(),
+                    );
                 },
             )
         }

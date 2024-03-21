@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- [Linter] Add links to detailed lint description ‒ [#2170](https://github.com/paritytech/ink/pull/2170)
+
 ### Fixed
 - Fix outdated docs for `[ink_e2e::test]` ‒ [#2162](https://github.com/paritytech/ink/pull/2162)
 - [E2E] build contracts before initializing node rpc ‒ [#2168](https://github.com/paritytech/ink/pull/2162)
