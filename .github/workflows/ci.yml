@@ -321,30 +321,42 @@ jobs:
           done
 
   test:
-    runs-on: ubuntu-latest-8-cores
+    runs-on: ubuntu-latest
     needs: [set-image, check]
     defaults:
       run:
         shell: bash
     container:
       image: ${{ needs.set-image.outputs.IMAGE }}
+    strategy:
+      fail-fast: false
+      matrix:
+        workspace: [ink, linting]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 100
 
-      - name: Cache
+      - name: Cache Ink
+        if: ${{ matrix.workspace == 'ink' }}
         uses: Swatinem/rust-cache@23bce251a8cd2ffc3c1075eaa2367cf899916d84 # v2.7.3
         with:
           cache-directories: |
             ${{ env.CARGO_TARGET_DIR }}
+
+      - name: Cache Linting
+        if: ${{ matrix.workspace == 'linting' }}
+        uses: Swatinem/rust-cache@23bce251a8cd2ffc3c1075eaa2367cf899916d84 # v2.7.3
+        with:
+          cache-directories: |
             ${{ env.CARGO_TARGET_DIR }}/linting
 
       - name: Rust Info
         uses: ./.github/rust-info
 
       - name: Test
+        if: ${{ matrix.workspace == 'ink' }}
         env:
           # Fix for linking of `linkme` for `cargo test`: https://github.com/dtolnay/linkme/issues/49
           RUSTFLAGS:                   -Clink-arg=-z -Clink-arg=nostart-stop-gc
@@ -356,6 +368,18 @@ jobs:
         run: |
           cargo nextest run --all-features --no-fail-fast --workspace --locked
           cargo test --all-features --no-fail-fast --workspace --doc --locked
+
+      - name: Test Linting
+        if: ${{ matrix.workspace == 'linting' }}
+        env:
+          # Fix for linking of `linkme` for `cargo test`: https://github.com/dtolnay/linkme/issues/49
+          RUSTFLAGS:                   -Clink-arg=-z -Clink-arg=nostart-stop-gc
+          # Since we run the tests with `--all-features` this implies the feature
+          # `ink-fuzz-tests` as well -- i.e. the fuzz tests are run.
+          # There's no way to disable a single feature while enabling all features
+          # at the same time, hence we use this workaround.
+          QUICKCHECK_TESTS:            0
+        run: |
           pushd linting && cargo nextest run --all-features --no-fail-fast --workspace && popd
 
   docs:
