@@ -423,7 +423,7 @@ jobs:
           retention-days: 1
 
   codecov:
-    runs-on: ubuntu-latest-8-cores
+    runs-on: ubuntu-latest
     needs: [set-image, check, fmt, clippy, clippy-examples, dylint, spellcheck]
     defaults:
       run:
@@ -489,7 +489,7 @@ jobs:
 ### examples
 
   examples-test:
-    runs-on: ubuntu-latest-8-cores
+    runs-on: ubuntu-latest
     needs: [set-image, clippy]
     defaults:
       run:
@@ -656,7 +656,7 @@ jobs:
 # measurements
 
   measurements:
-  #  needs: [examples-docs, examples-contract-build, examples-test]
+    needs: [examples-docs, examples-contract-build, examples-test]
     uses: ./.github/workflows/measurements.yml
 
 # fuzz

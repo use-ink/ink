@@ -25,13 +25,13 @@ jobs:
         with:
           fetch-depth: 100
 
-      - name: Download Contract Sizes
+      - name: Download Master Contract Sizes
         uses: ./.github/download-artifact
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           ARTIFACT_NAME: contract-sizes-master-data
 
-      - name: Download Contract Sizes
+      - name: Download Pull-Request Contract Sizes
         uses: ./.github/download-artifact
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
