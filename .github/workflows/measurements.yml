@@ -81,12 +81,14 @@ jobs:
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           ARTIFACT_NAME: contract-sizes-master-data
+          RUN_ID: ${{ github.run_id }}
 
       - name: Download Contract Sizes
         uses: ./.github/download-artifact
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           ARTIFACT_NAME: contract-sizes-pull_request-data
+          RUN_ID: ${{ github.run_id }}
 
       - name: Collect Contract Sizes
         env:
