@@ -423,7 +423,7 @@ jobs:
           retention-days: 1
 
   codecov:
-    runs-on: ubuntu-latest-8-cores
+    runs-on: ubuntu-latest-8
     needs: [set-image, check, fmt, clippy, clippy-examples, dylint, spellcheck]
     defaults:
       run:

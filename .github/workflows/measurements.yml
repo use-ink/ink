@@ -20,17 +20,17 @@ jobs:
       matrix:
         branch: [master, pull_request]
     steps:
-      - name: Checkout Master
+      - name: Checkout Pull Request
         if: ${{ matrix.branch == 'pull_request' }}
         uses: actions/checkout@v4
         with:
           fetch-depth: 1
 
-      - name: Checkout Pull Request
+      - name: Checkout Master
         if: ${{ matrix.branch == 'master' }}
         uses: actions/checkout@v4
         with:
-          branch: master
+          ref: master
           fetch-depth: 1
 
       - name: Cache
