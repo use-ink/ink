@@ -73,7 +73,6 @@ use crate::{
 };
 use subxt::{
     blocks::ExtrinsicEvents,
-    config::ExtrinsicParams,
     error::DispatchError,
     events::EventDetails,
     ext::scale_value::{
@@ -114,7 +113,6 @@ where
         From<sr25519::PublicKey> + scale::Codec + serde::de::DeserializeOwned + Debug,
     C::Address: From<sr25519::PublicKey>,
     C::Signature: From<sr25519::Signature>,
-    <C::ExtrinsicParams as ExtrinsicParams<C>>::OtherParams: Default,
 
     E: Environment,
     E::AccountId: Debug,
@@ -323,7 +321,6 @@ where
     C::Address: From<sr25519::PublicKey>,
     C::Signature: From<sr25519::Signature>,
     C::Address: Send + Sync,
-    <C::ExtrinsicParams as ExtrinsicParams<C>>::OtherParams: Default + Send + Sync,
 
     E: Environment,
     E::AccountId: Debug + Send + Sync,
@@ -462,7 +459,6 @@ where
     C::Address: From<sr25519::PublicKey>,
     C::Signature: From<sr25519::Signature>,
     C::Address: Send + Sync,
-    <C::ExtrinsicParams as ExtrinsicParams<C>>::OtherParams: Default + Send + Sync,
 
     E: Environment,
     E::AccountId: Debug + Send + Sync,
@@ -684,8 +680,6 @@ where
     C::Address: From<sr25519::PublicKey>,
     C::Signature: From<sr25519::Signature>,
     C::Address: Send + Sync,
-    <<C as subxt::Config>::ExtrinsicParams as ExtrinsicParams<C>>::OtherParams:
-        Default + Send + Sync,
 
     E: Environment,
     E::AccountId: Debug + Send + Sync,
