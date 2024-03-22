@@ -91,25 +91,16 @@ jobs:
           RUN_ID: ${{ github.run_id }}
 
       - name: Collect Contract Sizes
-        env:
-          PR_NUMBER:               ${{ github.event.workflow_run.event.number }}
         run: |
-          # Variables
-          SCRIPTS_DIR="${GITHUB_WORKSPACE}/scripts"
-          PR_CONTRACT_SIZES="pull_request_contract_sizes"
-          UPSTREAM_CONTRACT_SIZES="master_contract_sizes"
-
           # Build the comparison table
-          ${SCRIPTS_DIR}/contract_sizes_diff.sh ${UPSTREAM_CONTRACT_SIZES} ${PR_CONTRACT_SIZES} > contract_sizes_diff.md
-          cat ${CONTRACT_SIZES_DIFF}
-          CARGO_CONTRACT_VERSION=$(cargo-contract --version | egrep --only-matching "cargo-contract.* .*-x86" | sed -s 's/-x86//')
+          ./scripts/contract_sizes_diff.sh master_contract_sizes pull_request_contract_sizes > contract_sizes_diff.md
+          cat contract_sizes_diff.md
 
       - name: Submit Comment
         env:
           GITHUB_PR_TOKEN:         ${{ secrets.github_token }}
           GITHUB_PR_WORKFLOW_ID:   ${{ github.event.workflow_run.id }}
         run: |
-          SCRIPTS_DIR="${GITHUB_WORKSPACE}/scripts"
           # context.out is considered as an untrusted file
           PR_NUMBER=$(grep -oE 'PR_NUMBER="[^"]+"' context.out | awk -F '"' '{print $2}')
           CARGO_CONTRACT_VERSION=$(grep -oE 'CARGO_CONTRACT_VERSION="[^"]+"' context.out | awk -F '"' '{print $2}')
@@ -118,5 +109,5 @@ jobs:
 
           # Submit the comparison table as a comment to the PR
           echo "Submitting contract sizes diff to ${PR_COMMENTS_URL}"
-          GITHUB_PR_TOKEN=${GITHUB_PR_TOKEN} ${SCRIPTS_DIR}/contract_sizes_submit.sh ${PR_COMMENTS_URL} ${WORKFLOW_URL} ${CARGO_CONTRACT_VERSION} < ./contract_sizes_diff.md
+          GITHUB_PR_TOKEN=${GITHUB_PR_TOKEN} ./.github/scripts/contract_sizes_submit.sh ${PR_COMMENTS_URL} ${WORKFLOW_URL} ${CARGO_CONTRACT_VERSION} < ./contract_sizes_diff.md
 
