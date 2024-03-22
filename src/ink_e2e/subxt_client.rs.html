@@ -754,6 +754,12 @@
 <a href="#754" id="754">754</a>
 <a href="#755" id="755">755</a>
 <a href="#756" id="756">756</a>
+<a href="#757" id="757">757</a>
+<a href="#758" id="758">758</a>
+<a href="#759" id="759">759</a>
+<a href="#760" id="760">760</a>
+<a href="#761" id="761">761</a>
+<a href="#762" id="762">762</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -829,7 +835,10 @@
 };
 <span class="kw">use </span>subxt::{
     blocks::ExtrinsicEvents,
-    config::ExtrinsicParams,
+    config::{
+        DefaultExtrinsicParams,
+        ExtrinsicParams,
+    },
     error::DispatchError,
     events::EventDetails,
     ext::scale_value::{
@@ -870,7 +879,8 @@
         From&lt;sr25519::PublicKey&gt; + scale::Codec + serde::de::DeserializeOwned + Debug,
     C::Address: From&lt;sr25519::PublicKey&gt;,
     C::Signature: From&lt;sr25519::Signature&gt;,
-    &lt;C::ExtrinsicParams <span class="kw">as </span>ExtrinsicParams&lt;C&gt;&gt;::OtherParams: Default,
+    &lt;C::ExtrinsicParams <span class="kw">as </span>ExtrinsicParams&lt;C&gt;&gt;::Params:
+        From&lt;&lt;DefaultExtrinsicParams&lt;C&gt; <span class="kw">as </span>ExtrinsicParams&lt;C&gt;&gt;::Params&gt;,
 
     E: Environment,
     E::AccountId: Debug,
@@ -1079,7 +1089,8 @@
     C::Address: From&lt;sr25519::PublicKey&gt;,
     C::Signature: From&lt;sr25519::Signature&gt;,
     C::Address: Send + Sync,
-    &lt;C::ExtrinsicParams <span class="kw">as </span>ExtrinsicParams&lt;C&gt;&gt;::OtherParams: Default + Send + Sync,
+    &lt;C::ExtrinsicParams <span class="kw">as </span>ExtrinsicParams&lt;C&gt;&gt;::Params:
+        From&lt;&lt;DefaultExtrinsicParams&lt;C&gt; <span class="kw">as </span>ExtrinsicParams&lt;C&gt;&gt;::Params&gt;,
 
     E: Environment,
     E::AccountId: Debug + Send + Sync,
@@ -1218,7 +1229,8 @@
     C::Address: From&lt;sr25519::PublicKey&gt;,
     C::Signature: From&lt;sr25519::Signature&gt;,
     C::Address: Send + Sync,
-    &lt;C::ExtrinsicParams <span class="kw">as </span>ExtrinsicParams&lt;C&gt;&gt;::OtherParams: Default + Send + Sync,
+    &lt;C::ExtrinsicParams <span class="kw">as </span>ExtrinsicParams&lt;C&gt;&gt;::Params:
+        From&lt;&lt;DefaultExtrinsicParams&lt;C&gt; <span class="kw">as </span>ExtrinsicParams&lt;C&gt;&gt;::Params&gt;,
 
     E: Environment,
     E::AccountId: Debug + Send + Sync,
@@ -1440,8 +1452,8 @@
     C::Address: From&lt;sr25519::PublicKey&gt;,
     C::Signature: From&lt;sr25519::Signature&gt;,
     C::Address: Send + Sync,
-    &lt;&lt;C <span class="kw">as </span>subxt::Config&gt;::ExtrinsicParams <span class="kw">as </span>ExtrinsicParams&lt;C&gt;&gt;::OtherParams:
-        Default + Send + Sync,
+    &lt;C::ExtrinsicParams <span class="kw">as </span>ExtrinsicParams&lt;C&gt;&gt;::Params:
+        From&lt;&lt;DefaultExtrinsicParams&lt;C&gt; <span class="kw">as </span>ExtrinsicParams&lt;C&gt;&gt;::Params&gt;,
 
     E: Environment,
     E::AccountId: Debug + Send + Sync,
