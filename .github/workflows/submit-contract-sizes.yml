@@ -29,13 +29,34 @@ jobs:
         uses: ./.github/download-artifact
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          ARTIFACT_NAME: contract-sizes-data
+          ARTIFACT_NAME: contract-sizes-master-data
+
+      - name: Download Contract Sizes
+        uses: ./.github/download-artifact
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ARTIFACT_NAME: contract-sizes-pull_request-data
+
+      - name: Collect Contract Sizes
+        env:
+          PR_NUMBER:               ${{ github.event.workflow_run.event.number }}
+        run: |
+          # Variables
+          SCRIPTS_DIR="${GITHUB_WORKSPACE}/scripts"
+          PR_CONTRACT_SIZES="pull_request_contract_sizes"
+          UPSTREAM_CONTRACT_SIZES="master_contract_sizes"
+
+          # Build the comparison table
+          ${SCRIPTS_DIR}/contract_sizes_diff.sh ${UPSTREAM_CONTRACT_SIZES} ${PR_CONTRACT_SIZES} > contract_sizes_diff.md
+          cat ${CONTRACT_SIZES_DIFF}
+          CARGO_CONTRACT_VERSION=$(cargo-contract --version | egrep --only-matching "cargo-contract.* .*-x86" | sed -s 's/-x86//')
 
       - name: Submit Comment
         env:
           GITHUB_PR_TOKEN:         ${{ secrets.github_token }}
           GITHUB_PR_WORKFLOW_ID:   ${{ github.event.workflow_run.id }}
         run: |
+          SCRIPTS_DIR="${GITHUB_WORKSPACE}/scripts"
           # context.out is considered as an untrusted file
           PR_NUMBER=$(grep -oE 'PR_NUMBER="[^"]+"' context.out | awk -F '"' '{print $2}')
           CARGO_CONTRACT_VERSION=$(grep -oE 'CARGO_CONTRACT_VERSION="[^"]+"' context.out | awk -F '"' '{print $2}')
@@ -44,5 +65,5 @@ jobs:
 
           # Submit the comparison table as a comment to the PR
           echo "Submitting contract sizes diff to ${PR_COMMENTS_URL}"
-          GITHUB_PR_TOKEN=${GITHUB_PR_TOKEN} .github/scripts/contract_sizes_submit.sh ${PR_COMMENTS_URL} ${WORKFLOW_URL} ${CARGO_CONTRACT_VERSION} < ./contract_sizes_diff.md
+          GITHUB_PR_TOKEN=${GITHUB_PR_TOKEN} ${SCRIPTS_DIR}/contract_sizes_submit.sh ${PR_COMMENTS_URL} ${WORKFLOW_URL} ${CARGO_CONTRACT_VERSION} < ./contract_sizes_diff.md
 
