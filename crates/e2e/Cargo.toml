@@ -62,6 +62,7 @@ std = [
 	"scale/std",
 	"serde/std",
 	"sp-core/std",
+	"sp-keyring/std",
 	"sp-runtime/std",
 	"sp-weights/std",
 	"ink_e2e_macro/std",
