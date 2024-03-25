@@ -479,7 +479,7 @@ jobs:
     needs: [clippy]
     strategy:
       matrix:
-        partition: [1, 2, 3, 4]
+        partition: [1, 2, 3, 4, 5, 6, 7, 8]
     steps:
       # We go out of storage on runners
       - name: Clean runner
@@ -506,7 +506,8 @@ jobs:
         uses: docker://paritytech/ci-unified:bullseye-1.75.0
         with:
           # run all tests with --all-features, which will run the e2e-tests feature if present
-          args: /bin/bash -c "scripts/for_all_contracts_exec.sh --path integration-tests --ignore static-buffer --partition ${{ matrix.partition }}/4 -- cargo test --all-features --manifest-path {}"
+          args: /bin/bash -c "scripts/for_all_contracts_exec.sh --path integration-tests --ignore static-buffer --partition ${{ matrix.partition }}/8 -- cargo test \
+            --all-features --manifest-path {}"
 
   examples-custom-test:
     runs-on: ubuntu-latest
