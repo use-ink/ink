@@ -468,29 +468,24 @@ jobs:
           git config --global --add safe.directory '*'
           # RUSTFLAGS are the cause target cache can't be used here
           cargo build --all-features --workspace
-          df -h .
           cargo test --all-features --no-fail-fast --workspace --locked -- --skip ui_tests
-          df -h .
           # coverage with branches
           grcov . --binary-path ./target/debug/ --source-dir . --output-type lcov --llvm --branch \
             --ignore-not-existing --ignore "/*" --ignore "tests/*" --output-path lcov-w-branch.info
-          df -h .
           rust-covfix lcov-w-branch.info --output lcov-w-branch-fixed.info
-          df -h .
           codecov --token "$CODECOV_L_TOKEN" --file lcov-w-branch-fixed.info --nonZero
           # lines coverage
           grcov . --binary-path ./target/debug/ --source-dir . --output-type lcov --llvm \
             --ignore-not-existing --ignore "/*" --ignore "tests/*" --output-path lcov-lines.info
-          df -h .
           rust-covfix lcov-lines.info --output lcov-lines-fixed.info
-          df -h .
           codecov --token "$CODECOV_L_TOKEN" --file lcov-lines-fixed.info --nonZero
 
 ### examples
 
   examples-test:
     runs-on: ubuntu-latest
-    needs: [set-image, clippy]
+    #needs: [set-image, clippy]
+    needs: [set-image]
     defaults:
       run:
         shell: bash
@@ -498,7 +493,7 @@ jobs:
       image: ${{ needs.set-image.outputs.IMAGE }}
     strategy:
       matrix:
-        partition: [1, 2, 3, 4]
+        partition: [1, 2, 3, 4, 5, 6, 7, 8]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
