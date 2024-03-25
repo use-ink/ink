@@ -513,8 +513,8 @@ jobs:
         with:
           cache-directories: ${{ env.CARGO_TARGET_DIR }}
 
-      - name: Rust Info
-        uses: ./.github/rust-info
+      # - name: Rust Info
+      #   uses: ./.github/rust-info
 
       - name: Test Examples
         env:
