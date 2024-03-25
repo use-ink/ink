@@ -515,7 +515,7 @@ jobs:
         run: |
           df -h .
           # run all tests with --all-features, which will run the e2e-tests feature if present
-          scripts/for_all_contracts_exec.sh --path integration-tests --ignore static-buffer --partition ${{ matrix.partition }}/4 -- cargo test \
+          scripts/for_all_contracts_exec.sh --path integration-tests --ignore static-buffer --partition ${{ matrix.partition }}/8 -- cargo test \
             --all-features --manifest-path {}
           df -h .
 
