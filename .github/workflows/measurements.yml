@@ -43,7 +43,7 @@ jobs:
 
       - name: Measure Contract Sizes
         env:
-          PR_NUMBER:                ${{ github.event.number }}
+          PR_NUMBER:               ${{ github.event.number }}
         run: |
           # Variables
           MEASUREMENTS_DIR="${GITHUB_WORKSPACE}/measurements"

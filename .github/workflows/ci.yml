@@ -338,19 +338,11 @@ jobs:
         with:
           fetch-depth: 100
 
-      - name: Cache Ink
-        if: ${{ matrix.workspace == 'ink' }}
+      - name: Cache
         uses: Swatinem/rust-cache@23bce251a8cd2ffc3c1075eaa2367cf899916d84 # v2.7.3
         with:
           cache-directories: |
             ${{ env.CARGO_TARGET_DIR }}
-
-      - name: Cache Linting
-        if: ${{ matrix.workspace == 'linting' }}
-        uses: Swatinem/rust-cache@23bce251a8cd2ffc3c1075eaa2367cf899916d84 # v2.7.3
-        with:
-          cache-directories: |
-            ${{ env.CARGO_TARGET_DIR }}/linting
 
       - name: Rust Info
         uses: ./.github/rust-info
@@ -490,7 +482,7 @@ jobs:
         partition: [1, 2, 3, 4]
     steps:
       # We go out of storage on runners
-      - name: Clean worker
+      - name: Clean runner
         run: |
           sudo rm -rf /usr/share/dotnet
           sudo rm -rf /opt/ghc
