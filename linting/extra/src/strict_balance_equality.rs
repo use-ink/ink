@@ -606,6 +606,9 @@ impl<'tcx> StrictBalanceEquality {
                                 "",
                                 Applicability::Unspecified,
                             );
+                            diag.help(
+                                "for further information visit https://use.ink/linter/rules/strict_balance_equality".to_string(),
+                            );
                         },
                     )
                 }

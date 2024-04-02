@@ -6,6 +6,138 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- [Linter] Add links to detailed lint description ‒ [#2170](https://github.com/paritytech/ink/pull/2170)
+
+### Changed
+- [E2E] Update `subxt` and `polkadot-sdk` dependencies ‒ [#2174](https://github.com/paritytech/ink/pull/2174)
+
+### Fixed
+- Fix outdated docs for `[ink_e2e::test]` ‒ [#2162](https://github.com/paritytech/ink/pull/2162)
+- [E2E] build contracts before initializing node rpc ‒ [#2168](https://github.com/paritytech/ink/pull/2162)
+
+## Version 5.0.0
+
+ℹ️ _We've created a migration guide from ink! 4 to ink! 5. It also contains an
+overview over all breaking changes and newly added features._
+
+👉 _You can view it [here](https://use.ink/faq/migrating-from-ink-4-to-5)._
+
+### Summary
+This release addresses the rest of the severities described in the [OpenZeppelin security review](https://blog.openzeppelin.com/security-review-ink-cargo-contract) of ink! and `cargo-contract`.
+One of the notable addressed issues is the proxy selector clashing attack.
+As of this release, ink! only allows exactly one other message with a well-known reserved selector to be defined.
+You can read more about the change in the [#1827](https://github.com/paritytech/ink/pull/1827) and [#2031](https://github.com/paritytech/ink/pull/2031).
+
+ink! 5.0.0 features a significant number of new features:
+- We have introduced a new API based on the calculated or specified selectors for the event definition. This allows events to be defined in separate files and modules, and be shared across multiple ink! contracts - [#1827](https://github.com/paritytech/ink/pull/1827) and [#2031](https://github.com/paritytech/ink/pull/2031).
+- [@pmikolajczyk41](https://github.com/pmikolajczyk41) has introduced an alternative E2E testing framework, [DRink!](https://github.com/inkdevhub/drink?tab=readme-ov-file#as-an-alternative-backend-to-inks-e2e-testing-framework), that support quasi-testing model, it allows the test simulate a running node as part of the E2E test while improving debugging experience such as allowing to set breakpoint and step through each stage of execution cycle.
+- Following improvements in E2E, we have added a call builder API that allows to easily build calls while significantly reducing boilerplate code - [#1917](https://github.com/paritytech/ink/pull/1917) and [#2075](https://github.com/paritytech/ink/pull/2075)
+- Another notable introduction in 5.0.0 release is the support for multiple chain extensions that empower developers
+to build even more sophisticated and advanced contracts for supported chains - [#1958](https://github.com/paritytech/ink/pull/1958).
+- To further address our consideration of the intrinsic security of ink! smart contracts,
+we have disallowed unchecked arithmetic expressions. `cargo-contract` will fail to compile the contract with the raw arithmetic operation - [#1831](https://github.com/paritytech/ink/pull/1831).
+
+These are the main features we have introduced in this release. We also encourage developers
+to have a look at more detailed changelog entries to find out about any breaking changes that may affect
+the development of new ink! contracts.
+
+### Compatibility
+
+See [the compatibility section](https://use.ink/faq/migrating-from-ink-4-to-5/#compatibility) of our migration guide for a detailed description. On a high level:
+
+- Rust: `>= 1.70`
+- `cargo-contract`: `>= 4.0.0`
+- polkadot-sdk: [>= 0.9.3](https://github.com/paritytech/polkadot-sdk/releases/tag/polkadot-v0.9.3). But if using the new functions introduced in [#2123](https://github.com/paritytech/ink/pull/2123) and [#2077](https://github.com/paritytech/ink/pull/2077) [>= 1.8.0](https://github.com/paritytech/polkadot-sdk/releases/tag/polkadot-v1.8.0) and if using the new functions introduced in [#2076](https://github.com/paritytech/ink/pull/2076) [>= 1.9.0](https://github.com/paritytech/polkadot-sdk/releases/tag/polkadot-v1.8.0).
+- `polkadot-js/api` and `polkadot-js/api-contract`: `>= 10.12.1`
+- `substrate-contracts-node`: `>= 0.39.0`
+
+### Changelog
+
+#### Added
+- Add Hash trait to Selector struct - [#2149](https://github.com/paritytech/ink/pull/2149)
+- `instantiate_v2` with additional limit parameters [#2123](https://github.com/paritytech/ink/pull/2123)
+- Custom signature topic in Events - [#2031](https://github.com/paritytech/ink/pull/2031)
+- [Linter] `non_fallible_api` lint - [#2004](https://github.com/paritytech/ink/pull/2004)
+- [Linter] Publish the linting crates on crates.io - [#2060](https://github.com/paritytech/ink/pull/2060)
+- [E2E] Added `create_call_builder` for testing existing contracts - [#2075](https://github.com/paritytech/ink/pull/2075)
+- `call_v2` cross-contract calls with additional limit parameters - [#2077](https://github.com/paritytech/ink/pull/2077)
+- `delegate_dependency` api calls - [#2076](https://github.com/paritytech/ink/pull/2076)
+- Allow mutable parameters in messages - [#2004](https://github.com/paritytech/ink/pull/2004)
+- Clean E2E configuration parsing - [#1922](https://github.com/paritytech/ink/pull/1922)
+- Make `set_code_hash` generic - [#1906](https://github.com/paritytech/ink/pull/1906)
+- Provide a `StorageVec` datastructure built on top of `Lazy` - [#1995](https://github.com/paritytech/ink/pull/1995)
+- Add fallible methods for `Mapping` and `Lazy` - [#1910](https://github.com/paritytech/ink/pull/1910)
+- [E2E] Allow testing with live-chain state - [#1949](https://github.com/paritytech/ink/pull/1949)
+- [E2E] Call builders and extra gas margin option - [#1917](https://github.com/paritytech/ink/pull/1917)
+- [Linter] `storage_never_freed` lint - [#1932](https://github.com/paritytech/ink/pull/1932)
+- [Linter] `strict_balance_equality` lint - [#1914](https://github.com/paritytech/ink/pull/1914)
+- [Linter] `no_main` lint - [#2001](https://github.com/paritytech/ink/pull/2001)
+- Reexport `scale` dependencies, introduce `#[ink::scale_derive]` - [#1890](https://github.com/paritytech/ink/pull/1890)
+- Upgradeable contracts example - [#1889](https://github.com/paritytech/ink/pull/1889)
+- Persist static buffer size in metadata - [#1880](https://github.com/paritytech/ink/pull/1880)
+- Modify static buffer size via environmental variables - [#1869](https://github.com/paritytech/ink/pull/1869)
+- Added `sr25519_verify` function to `ink_env` [#1840](https://github.com/paritytech/ink/pull/1840)
+- Events `2.0` - [#1827](https://github.com/paritytech/ink/pull/1827)
+- Add `set_block_number` to off-chain test api `Engine` - [#1806](https://github.com/paritytech/ink/pull/1806)
+- Stabilize `call_runtime` ‒ [#1749](https://github.com/paritytech/ink/pull/1749)
+- Schema generation - [#1765](https://github.com/paritytech/ink/pull/1765)
+- Restrict wildcard selectors to have exactly one other message - [#1708](https://github.com/paritytech/ink/pull/1708)
+- [Linter] Warn when primitive number is annotated as event topic - [#1837](https://github.com/paritytech/ink/pull/1837)
+- [Drink backend] allow for arbitrary runtime - [#1892](https://github.com/paritytech/ink/pull/1892)
+- [Drink backend] support runtime call - [#1891](https://github.com/paritytech/ink/pull/1891)
+- [Drink backend] Make tests generic `E2EBackend` trait - [#1867](https://github.com/paritytech/ink/pull/1867)
+- [Drink backend] Backend choice  ‒ [#1864](https://github.com/paritytech/ink/pull/1864)
+- [Drink backend] Backend traits - [#1857](https://github.com/paritytech/ink/pull/1857)
+- [Drink backend] Abstract error and result structs - [#1844](https://github.com/paritytech/ink/pull/1844)
+
+#### Changed
+- Use name-only syntax for `anonymous` ink! event item configuration argument - [#2140](https://github.com/paritytech/ink/pull/2140)
+- Restrict syntax for setting default ink! e2e test runtime-only emulator - [#2143](https://github.com/paritytech/ink/pull/2143)
+- Restrict syntax for setting ink! e2e test node to auto - [#2146](https://github.com/paritytech/ink/pull/2146)
+- Bump Substrate crates - [#2141](https://github.com/paritytech/ink/pull/2141)
+- Minor fixes - [#2144](https://github.com/paritytech/ink/pull/2144),
+[#2137](https://github.com/paritytech/ink/pull/2137), [#2132](https://github.com/paritytech/ink/pull/2132)
+- Bump metadata version to 5 [#2126](https://github.com/paritytech/ink/pull/2126)
+- Use `MaxEncodedLen` for output buffer size [#2128](https://github.com/paritytech/ink/pull/2128)
+- `Mapping`: Reflect all possible failure cases in comments ‒ [#2079](https://github.com/paritytech/ink/pull/2079)
+- [E2E] Rename `.call` to `.call_builder` ‒ [#2078](https://github.com/paritytech/ink/pull/2078)
+- Improve syntax for ink! e2e `runtime_only` attribute argument - [#2083](https://github.com/paritytech/ink/pull/2083)
+- [E2E] Remove `additional_contracts` parameter [#2098](https://github.com/paritytech/ink/pull/2098)
+- [E2E] change node url backend config - [#2101](https://github.com/paritytech/ink/pull/2101)
+- Messages return `TypeSpec` directly - [#1999](https://github.com/paritytech/ink/pull/1999)
+- Fail when decoding from storage and not all bytes consumed - [#1897](https://github.com/paritytech/ink/pull/1897)
+- Support multiple chain extensions - [#1958](https://github.com/paritytech/ink/pull/1958)
+  - New example of how to use multiple chain extensions in one contract.
+  - Affects the usage of the `#[ink::chain_extension]` macro and the definition of the chain extension.
+- Split up `ink_linting` to mandatory and extra libraries - [#2032](https://github.com/paritytech/ink/pull/2032)
+- [E2E] resolve DispatchError error details for dry-runs - [#1994](https://github.com/paritytech/ink/pull/1994)
+- [E2E] update to new `drink` API - [#2005](https://github.com/paritytech/ink/pull/2005)
+- Reexport `scale` dependencies, introduce `#[ink::scale_derive]` ‒ [#1890](https://github.com/paritytech/ink/pull/1890)
+- Use of workspace dependencies and properties - [#1835](https://github.com/paritytech/ink/pull/1835)
+- Remove of unchecked arithmetic - [#1831](https://github.com/paritytech/ink/pull/1831)
+- Use `decode_all` for decoding cross contract call result - [#1810](https://github.com/paritytech/ink/pull/1810)
+- [E2E] build contracts at runtime instead of during codegen - [#1881](https://github.com/paritytech/ink/pull/1881)
+- [E2E] crate refactoring - [#1830](https://github.com/paritytech/ink/pull/1830)
+- [E2E] improve call API, remove `build_message` + callback - [#1782](https://github.com/paritytech/ink/pull/1782)
+
+#### Fixed
+- Fix alignment in allocator [#2100](https://github.com/paritytech/ink/pull/2100)
+- Fix the `StorageVec` type by excluding the `len_cached` field from its type info - [#2052](https://github.com/paritytech/ink/pull/2052)
+- Fix panic in `approve_for` in the ERC-721 example - [#2092](https://github.com/paritytech/ink/pull/2092)
+- ERC-721: `transfer_token_from` now ensures the token owner is correct - [#2093](https://github.com/paritytech/ink/pull/2093)
+- `RootLayout::new()` is generic again to allow using `ink_metadata` in pure `PortableForm` contexts - [#1989](https://github.com/paritytech/ink/pull/1989)
+
+## Version 5.0.0-rc.3
+
+### Changed
+- Use name-only syntax for `anonymous` ink! event item configuration argument - [#2140](https://github.com/paritytech/ink/pull/2140)
+- Restrict syntax for setting default ink! e2e test runtime-only emulator - [#2143](https://github.com/paritytech/ink/pull/2143)
+- Restrict syntax for setting ink! e2e test node to auto - [#2146](https://github.com/paritytech/ink/pull/2146)
+- Bump Substrate crates - [#2141](https://github.com/paritytech/ink/pull/2141)
+- Minor fixes - [#2144](https://github.com/paritytech/ink/pull/2144),
+[#2137](https://github.com/paritytech/ink/pull/2137), [#2132](https://github.com/paritytech/ink/pull/2132)
+
 ## Version 5.0.0-rc.2
 
 ### Added
@@ -821,10 +953,10 @@ This is the 7th release candidate for ink! 3.0.
 Since our last release candidate we implemented a number of contract size improvements.
 With those improvements the size of our `erc20` example has reduced significantly:
 
-|          |             | Release Build with `cargo-contract` |
-|:---------|:------------|:------------------------------------|
-| `erc20`  | `3.0.0-rc6` | 29.3 K                              |
-| `erc20`  | `3.0.0-rc7` | 10.4 K                              |
+|         |             | Release Build with `cargo-contract` |
+| :------ | :---------- | :---------------------------------- |
+| `erc20` | `3.0.0-rc6` | 29.3 K                              |
+| `erc20` | `3.0.0-rc7` | 10.4 K                              |
 
 The savings apply partly to our other examples; for `erc20` they are most
 significant since it has been migrated to use a new [`Mapping`](https://paritytech.github.io/ink/ink_storage/lazy/struct.Mapping.html)
@@ -1287,15 +1419,15 @@ However, their APIs look very different. Whereas the `HashMap` provides a rich a
 
 The fundamental difference of both data structures is that `HashMap` is aware of the keys that have been stored in it and thus can reconstruct exactly which elements and storage regions apply to it. This enables it to provide iteration and automated deletion as well as efficient way to defragment its underlying storage to free some storage space again. This goes very well in the vein of Substrate's storage rent model where contracts have to pay for the storage they are using.
 
-| Data Structure | level of abstraction | caching | lazy | element type | container |
-|:--|:-:|:-:|:-:|:-:|:-:|
-| `T` | - | yes | no | `T` | primitive value |
-| `Lazy<T>` | high-level | yes | yes | `T` | single element container |
-| `LazyCell<T>` | low-level | yes | yes | `Option<T>` | single element, no container |
-| `Vec<T>` | high-level | yes | yes | `T` | Rust vector-like container |
-| `LazyIndexMap<T>` | low-level | yes | yes | `Option<T>` | similar to Solidity mapping |
-| `HashMap<K, V>` | high-level | yes | yes | `V` (key type `K`) | Rust map-like container |
-| `LazyHashMap<K, V>` | low-level | yes | yes | `Option<V>` (key type `K`) | similar to Solidity mapping |
+| Data Structure      | level of abstraction | caching | lazy  |        element type        |          container           |
+| :------------------ | :------------------: | :-----: | :---: | :------------------------: | :--------------------------: |
+| `T`                 |          -           |   yes   |  no   |            `T`             |       primitive value        |
+| `Lazy<T>`           |      high-level      |   yes   |  yes  |            `T`             |   single element container   |
+| `LazyCell<T>`       |      low-level       |   yes   |  yes  |        `Option<T>`         | single element, no container |
+| `Vec<T>`            |      high-level      |   yes   |  yes  |            `T`             |  Rust vector-like container  |
+| `LazyIndexMap<T>`   |      low-level       |   yes   |  yes  |        `Option<T>`         | similar to Solidity mapping  |
+| `HashMap<K, V>`     |      high-level      |   yes   |  yes  |     `V` (key type `K`)     |   Rust map-like container    |
+| `LazyHashMap<K, V>` |      low-level       |   yes   |  yes  | `Option<V>` (key type `K`) | similar to Solidity mapping  |
 
 There are many more! For more information about the specifics please take a look into [the `ink_storage` crate documentation](https://paritytech.github.io/ink/ink_storage/).
 
@@ -1481,18 +1613,18 @@ mod erc20 {
 
 We won't be going into the details for any of those but will briefly present the entire set of ink! specific attributes below:
 
-| Attribute | Where Applicable | Description |
-|:--|:--|:--|
-| `#[ink(storage)]` | On `struct` definitions. | Defines the ink! storage struct. There can only be one ink! storage definition per contract. |
-| `#[ink(event)]` | On `struct` definitions. | Defines an ink! event. A contract can define multiple such ink! events. |
-| `#[ink(anonymous)]` **new** | Applicable to ink! events. | Tells the ink! codegen to treat the ink! event as anonymous which omits the event signature as topic upon emitting. Very similar to anonymous events in Solidity. |
-| `#[ink(topic)]` | Applicate on ink! event field. | Tells the ink! codegen to provide a topic hash for the given field. Every ink! event can only have a limited number of such topic field. Similar semantics as to indexed event arguments in Solidity. |
-| `#[ink(message)]` | Applicable to methods. | Flags a method for the ink! storage struct as message making it available to the API for calling the contract. |
-| `#[ink(constructor)]` | Applicable to method. | Flags a method for the ink! storage struct as constructor making it available to the API for instantiating the contract. |
-| `#[ink(payable)]` **new** | Applicable to ink! messages. | Allows receiving value as part of the call of the ink! message. ink! constructors are implicitly payable. |
-| `#[ink(selector = "..")]` **new** | Applicable to ink! messages and ink! constructors. | Specifies a concrete dispatch selector for the flagged entity. This allows a contract author to precisely control the selectors of their APIs making it possible to rename their API without breakage. |
-| `#[ink(namespace = "..")]` **new** | Applicable to ink! trait implementation blocks. | Changes the resulting selectors of all the ink! messages and ink! constructors within the trait implementation. Allows to disambiguate between trait implementations with overlapping message or constructor names. Use only with great care and consideration! |
-| `#[ink(impl)]` **new** | Applicable to ink! implementation blocks. | Tells the ink! codegen that some implementation block shall be granted access to ink! internals even without it containing any ink! messages or ink! constructors. |
+| Attribute                          | Where Applicable                                   | Description                                                                                                                                                                                                                                                     |
+| :--------------------------------- | :------------------------------------------------- | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `#[ink(storage)]`                  | On `struct` definitions.                           | Defines the ink! storage struct. There can only be one ink! storage definition per contract.                                                                                                                                                                    |
+| `#[ink(event)]`                    | On `struct` definitions.                           | Defines an ink! event. A contract can define multiple such ink! events.                                                                                                                                                                                         |
+| `#[ink(anonymous)]` **new**        | Applicable to ink! events.                         | Tells the ink! codegen to treat the ink! event as anonymous which omits the event signature as topic upon emitting. Very similar to anonymous events in Solidity.                                                                                               |
+| `#[ink(topic)]`                    | Applicate on ink! event field.                     | Tells the ink! codegen to provide a topic hash for the given field. Every ink! event can only have a limited number of such topic field. Similar semantics as to indexed event arguments in Solidity.                                                           |
+| `#[ink(message)]`                  | Applicable to methods.                             | Flags a method for the ink! storage struct as message making it available to the API for calling the contract.                                                                                                                                                  |
+| `#[ink(constructor)]`              | Applicable to method.                              | Flags a method for the ink! storage struct as constructor making it available to the API for instantiating the contract.                                                                                                                                        |
+| `#[ink(payable)]` **new**          | Applicable to ink! messages.                       | Allows receiving value as part of the call of the ink! message. ink! constructors are implicitly payable.                                                                                                                                                       |
+| `#[ink(selector = "..")]` **new**  | Applicable to ink! messages and ink! constructors. | Specifies a concrete dispatch selector for the flagged entity. This allows a contract author to precisely control the selectors of their APIs making it possible to rename their API without breakage.                                                          |
+| `#[ink(namespace = "..")]` **new** | Applicable to ink! trait implementation blocks.    | Changes the resulting selectors of all the ink! messages and ink! constructors within the trait implementation. Allows to disambiguate between trait implementations with overlapping message or constructor names. Use only with great care and consideration! |
+| `#[ink(impl)]` **new**             | Applicable to ink! implementation blocks.          | Tells the ink! codegen that some implementation block shall be granted access to ink! internals even without it containing any ink! messages or ink! constructors.                                                                                              |
 
 ### Merging of ink! Attributes
 

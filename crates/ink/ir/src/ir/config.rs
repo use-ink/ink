@@ -41,25 +41,35 @@ impl TryFrom<ast::AttributeArgs> for Config {
         let mut whitelisted_attributes = WhitelistedAttributes::default();
 
         for arg in args.into_iter() {
-            if arg.name.is_ident("env") {
+            if arg.name().is_ident("env") {
                 if let Some((_, ast)) = env {
-                    return Err(duplicate_config_err(ast, arg, "env", "contract"))
+                    return Err(duplicate_config_err(ast, arg, "env", "contract"));
                 }
-                if let ast::MetaValue::Path(path) = &arg.value {
-                    env = Some((Environment { path: path.clone() }, arg))
+                let env_info = arg
+                    .name_value()
+                    .zip(arg.value().and_then(ast::MetaValue::as_path));
+                if let Some((name_value, path)) = env_info {
+                    env = Some((Environment { path: path.clone() }, name_value.clone()))
                 } else {
                     return Err(format_err_spanned!(
                         arg,
-                        "expected a path for `env` ink! configuration argument",
-                    ))
+                        "expected a path value for `env` ink! configuration argument",
+                    ));
                 }
-            } else if arg.name.is_ident("keep_attr") {
-                whitelisted_attributes.parse_arg_value(&arg)?;
+            } else if arg.name().is_ident("keep_attr") {
+                if let Some(name_value) = arg.name_value() {
+                    whitelisted_attributes.parse_arg_value(name_value)?;
+                } else {
+                    return Err(format_err_spanned!(
+                        arg,
+                        "expected a string literal value for `keep_attr` ink! configuration argument",
+                    ));
+                }
             } else {
                 return Err(format_err_spanned!(
                     arg,
                     "encountered unknown or unsupported ink! configuration argument",
-                ))
+                ));
             }
         }
         Ok(Config {
@@ -143,7 +153,15 @@ mod tests {
     fn env_invalid_value_fails() {
         assert_try_from(
             syn::parse_quote! { env = "invalid" },
-            Err("expected a path for `env` ink! configuration argument"),
+            Err("expected a path value for `env` ink! configuration argument"),
+        );
+    }
+
+    #[test]
+    fn env_missing_value_fails() {
+        assert_try_from(
+            syn::parse_quote! { env },
+            Err("expected a path value for `env` ink! configuration argument"),
         );
     }
 
@@ -187,6 +205,14 @@ mod tests {
         assert_try_from(
             syn::parse_quote! { keep_attr = 1u16 },
             Err("expected a string with attributes separated by `,`"),
+        );
+    }
+
+    #[test]
+    fn keep_attr_missing_value_fails() {
+        assert_try_from(
+            syn::parse_quote! { keep_attr },
+            Err("expected a string literal value for `keep_attr` ink! configuration argument"),
         );
     }
 }

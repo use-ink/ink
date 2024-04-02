@@ -1,4 +1,4 @@
-error: ink! config options require an argument separated by '='
+error: expected a string literal value for `namespace` ink! trait definition configuration argument
  --> tests/ui/trait_def/fail/config_namespace_invalid_2.rs:1:25
   |
 1 | #[ink::trait_definition(namespace)]

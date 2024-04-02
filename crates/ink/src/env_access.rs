@@ -465,7 +465,7 @@ where
     ///     let create_params = build_create::<OtherContractRef>()
     ///         .code_hash(Hash::from([0x42; 32]))
     ///         .ref_time_limit(500_000_000)
-    ///         .proof_time_limit(100_000)
+    ///         .proof_size_limit(100_000)
     ///         .storage_deposit_limit(500_000_000_000)
     ///         .endowment(25)
     ///         .exec_input(
@@ -492,7 +492,7 @@ where
     /// # }
     /// ```
     ///
-    /// See [our `delegator` example](https://github.com/paritytech/ink/tree/master/integration-tests/integration%20tests/examples/delegator)
+    /// See [our `delegator` example](https://github.com/paritytech/ink-examples/tree/main/upgradeable-contracts#delegator)
     /// for a complete contract example.
     ///
     /// # Note
@@ -579,7 +579,7 @@ where
     /// # }
     /// ```
     ///
-    /// See [our `delegator` example](https://github.com/paritytech/ink/tree/master/integration-tests/integration%20tests/examples/delegator)
+    /// See [our `delegator` example](https://github.com/paritytech/ink-examples/tree/main/upgradeable-contracts#delegator)
     /// for a complete contract example.
     ///
     /// # Note
@@ -707,7 +707,7 @@ where
     ///     let call_params = build_call::<DefaultEnvironment>()
     ///         .call(AccountId::from([0x42; 32]))
     ///         .ref_time_limit(500_000_000)
-    ///         .proof_time_limit(100_000)
+    ///         .proof_size_limit(100_000)
     ///         .storage_deposit_limit(1_000_000_000)
     ///         .exec_input(
     ///             ExecutionInput::new(Selector::new([0xCA, 0xFE, 0xBA, 0xBE]))

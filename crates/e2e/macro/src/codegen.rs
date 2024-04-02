@@ -23,7 +23,7 @@ use derive_more::From;
 use proc_macro2::TokenStream as TokenStream2;
 use quote::quote;
 
-/// Generates code for the `[ink::e2e_test]` macro.
+/// Generates code for the `[ink_e2e::test]` macro.
 #[derive(From)]
 pub struct InkE2ETest {
     /// The test function to generate code for.
@@ -31,7 +31,7 @@ pub struct InkE2ETest {
 }
 
 impl InkE2ETest {
-    /// Generates the code for `#[ink:e2e_test]`.
+    /// Generates the code for `#[ink_e2e:test]`.
     pub fn generate_code(&self) -> TokenStream2 {
         #[cfg(clippy)]
         if true {
@@ -63,7 +63,7 @@ impl InkE2ETest {
             Backend::Node(node_config) => {
                 build_full_client(&environment, exec_build_contracts, node_config)
             }
-            #[cfg(any(test, feature = "drink"))]
+            #[cfg(any(test, feature = "sandbox"))]
             Backend::RuntimeOnly(runtime) => {
                 build_runtime_client(exec_build_contracts, runtime.into())
             }
@@ -115,12 +115,12 @@ fn build_full_client(
     match node_config.url() {
         Some(url) => {
             quote! {
+                let contracts = #contracts;
                 let rpc = ::ink_e2e::RpcClient::from_url(#url)
                     .await
                     .unwrap_or_else(|err|
                         ::core::panic!("Error connecting to node at {}: {err:?}", #url)
                     );
-                let contracts = #contracts;
                 let mut client = ::ink_e2e::Client::<
                     ::ink_e2e::PolkadotConfig,
                     #environment
@@ -129,6 +129,7 @@ fn build_full_client(
         }
         None => {
             quote! {
+                let contracts = #contracts;
                 let node_rpc = ::ink_e2e::TestNodeProcess::<::ink_e2e::PolkadotConfig>
                     ::build_with_env_or_default()
                     .spawn()
@@ -136,7 +137,6 @@ fn build_full_client(
                     .unwrap_or_else(|err|
                         ::core::panic!("Error spawning substrate-contracts-node: {err:?}")
                     );
-                let contracts = #contracts;
                 let mut client = ::ink_e2e::Client::<
                     ::ink_e2e::PolkadotConfig,
                     #environment
@@ -146,10 +146,10 @@ fn build_full_client(
     }
 }
 
-#[cfg(any(test, feature = "drink"))]
+#[cfg(any(test, feature = "sandbox"))]
 fn build_runtime_client(contracts: TokenStream2, runtime: syn::Path) -> TokenStream2 {
     quote! {
         let contracts = #contracts;
-        let mut client = ::ink_e2e::DrinkClient::<_, _, #runtime>::new(contracts);
+        let mut client = ::ink_e2e::SandboxClient::<_, _, #runtime>::new(contracts);
     }
 }

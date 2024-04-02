@@ -131,7 +131,7 @@ pub mod flipper {
         /// # node process for each test.
         /// $ export CONTRACTS_NODE_URL=ws://127.0.0.1:9944
         ///
-        /// $ export CONTRACT_HEX=0x2c75f0aa09dbfbfd49e6286a0f2edd3b4913f04a58b13391c79e96782f5713e3
+        /// $ export CONTRACT_ADDR_HEX=0x2c75f0aa09dbfbfd49e6286a0f2edd3b4913f04a58b13391c79e96782f5713e3
         /// $ cargo test --features e2e-tests e2e_test_deployed_contract -- --ignored
         /// ```
         ///
@@ -150,14 +150,19 @@ pub mod flipper {
             let acc_id = hex::decode(addr).unwrap();
             let acc_id = AccountId::try_from(&acc_id[..]).unwrap();
 
+            use std::str::FromStr;
+            let suri = ink_e2e::subxt_signer::SecretUri::from_str("//Alice").unwrap();
+            let caller = ink_e2e::Keypair::from_uri(&suri).unwrap();
+
             // when
-            // Invoke `Flipper::get()` from Bob's account
+            // Invoke `Flipper::get()` from `caller`'s account
             let call_builder = ink_e2e::create_call_builder::<Flipper>(acc_id);
             let get = call_builder.get();
-            let get_res = client.call(&ink_e2e::bob(), &get).dry_run().await?;
+            let get_res = client.call(&caller, &get).dry_run().await?;
 
             // then
-            assert!(matches!(get_res.return_value(), true));
+            assert_eq!(get_res.return_value(), true);
+
             Ok(())
         }
     }

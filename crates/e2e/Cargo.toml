@@ -22,7 +22,8 @@ ink_primitives = { workspace = true, default-features = true }
 
 cargo_metadata = { workspace = true }
 contract-build = { workspace = true }
-drink = { workspace = true, optional = true }
+ink_sandbox = { path =  "./sandbox", optional = true }
+pallet-contracts-mock-network = { workspace = true, optional = true }
 funty = { workspace = true }
 impl-serde = { workspace = true }
 jsonrpsee = { workspace = true, features = ["ws-client"] }
@@ -40,6 +41,7 @@ wasm-instrument = { workspace = true }
 which = { workspace = true }
 
 # Substrate
+frame-support = { workspace = true }
 pallet-contracts = { workspace = true }
 sp-core = { workspace = true }
 sp-keyring = { workspace = true }
@@ -51,20 +53,27 @@ sp-weights = { workspace = true }
 scale-info = { workspace = true, features = ["derive"] }
 
 [features]
-default = ["std"]
+default = [ "std" ]
 std = [
 	"impl-serde/std",
+	"ink_e2e_macro/std",
 	"pallet-contracts/std",
-	"scale/std",
 	"scale-info/std",
+	"scale/std",
 	"serde/std",
 	"sp-core/std",
+	"sp-keyring/std",
 	"sp-runtime/std",
 	"sp-weights/std",
-	"ink_e2e_macro/std"
+	"ink_e2e_macro/std",
+	"ink_sandbox/std",
+	"frame-support/std",
+	"pallet-contracts-mock-network?/std"
 ]
-drink = [
-    "dep:drink",
+
+sandbox = [
+    "dep:ink_sandbox",
     "subxt-metadata",
-    "ink_e2e_macro/drink",
+    "pallet-contracts-mock-network",
+    "ink_e2e_macro/sandbox",
 ]

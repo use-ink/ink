@@ -1,6 +1,6 @@
 [package]
 name = "e2e-runtime-only-backend"
-version = "5.0.0-rc.2"
+version = "5.0.0"
 authors = ["Parity Technologies <admin@parity.io>"]
 edition = "2021"
 publish = false
@@ -9,7 +9,7 @@ publish = false
 ink = { path = "../../../crates/ink", default-features = false }
 
 [dev-dependencies]
-ink_e2e = { path = "../../../crates/e2e", features = ["drink"] }
+ink_e2e = { path = "../../../crates/e2e", features = ["sandbox"] }
 
 [lib]
 path = "lib.rs"

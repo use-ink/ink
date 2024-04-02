@@ -23,7 +23,7 @@ use crate::{
         ContractsRegistry,
     },
     contract_results::BareInstantiationResult,
-    error::DrinkErr,
+    error::SandboxErr,
     log_error,
     CallBuilderFinal,
     CallDryRunResult,
@@ -33,19 +33,17 @@ use crate::{
     InstantiateDryRunResult,
     UploadResult,
 };
-use drink::{
-    frame_support::traits::fungible::Inspect,
+
+use frame_support::traits::fungible::Inspect;
+use ink_sandbox::{
+    api::prelude::*,
     pallet_balances,
     pallet_contracts,
-    runtime::AccountIdFor,
-    BalanceOf,
+    AccountIdFor,
     RuntimeCall,
     Sandbox,
-    SandboxConfig,
     Weight,
-    DEFAULT_GAS_LIMIT,
 };
-
 use pallet_contracts::ContractResult;
 
 use ink_env::Environment;
@@ -73,10 +71,12 @@ use subxt::{
 };
 use subxt_signer::sr25519::Keypair;
 
+type BalanceOf<R> = <R as pallet_balances::Config>::Balance;
 type ContractsBalanceOf<R> =
     <<R as pallet_contracts::Config>::Currency as Inspect<AccountIdFor<R>>>::Balance;
-pub struct Client<AccountId, Hash, Config: SandboxConfig> {
-    sandbox: Sandbox<Config>,
+
+pub struct Client<AccountId, Hash, S: Sandbox> {
+    sandbox: S,
     contracts: ContractsRegistry,
     _phantom: PhantomData<(AccountId, Hash)>,
 }
@@ -84,18 +84,16 @@ pub struct Client<AccountId, Hash, Config: SandboxConfig> {
 // While it is not necessary true that `Client` is `Send`, it will not be used in a way
 // that would violate this bound. In particular, all `Client` instances will be operating
 // synchronously.
-unsafe impl<AccountId, Hash, Config: SandboxConfig> Send
-    for Client<AccountId, Hash, Config>
-{
-}
-impl<AccountId, Hash, Config: SandboxConfig> Client<AccountId, Hash, Config>
+unsafe impl<AccountId, Hash, S: Sandbox> Send for Client<AccountId, Hash, S> {}
+impl<AccountId, Hash, S: Sandbox> Client<AccountId, Hash, S>
 where
-    Config::Runtime: pallet_balances::Config + pallet_contracts::Config,
-    AccountIdFor<Config::Runtime>: From<[u8; 32]>,
-    BalanceOf<Config::Runtime>: From<u128>,
+    S: Default,
+    S::Runtime: pallet_balances::Config + pallet_contracts::Config,
+    AccountIdFor<S::Runtime>: From<[u8; 32]>,
+    BalanceOf<S::Runtime>: From<u128>,
 {
     pub fn new<P: Into<PathBuf>>(contracts: impl IntoIterator<Item = P>) -> Self {
-        let mut sandbox = Sandbox::new().expect("Failed to initialize Drink! sandbox");
+        let mut sandbox = S::default();
         Self::fund_accounts(&mut sandbox);
 
         Self {
@@ -105,7 +103,7 @@ where
         }
     }
 
-    fn fund_accounts(sandbox: &mut Sandbox<Config>) {
+    fn fund_accounts(sandbox: &mut S) {
         const TOKENS: u128 = 1_000_000_000_000_000;
 
         let accounts = [
@@ -120,7 +118,7 @@ where
         ]
         .map(|kp| kp.public_key().0)
         .map(From::from);
-        for account in accounts.into_iter() {
+        for account in accounts.iter() {
             sandbox
                 .mint_into(account, TOKENS.into())
                 .unwrap_or_else(|_| panic!("Failed to mint {} tokens", TOKENS));
@@ -129,15 +127,15 @@ where
 }
 
 #[async_trait]
-impl<AccountId: AsRef<[u8; 32]> + Send, Hash, Config: SandboxConfig> ChainBackend
-    for Client<AccountId, Hash, Config>
+impl<AccountId: AsRef<[u8; 32]> + Send, Hash, S: Sandbox> ChainBackend
+    for Client<AccountId, Hash, S>
 where
-    Config::Runtime: pallet_balances::Config,
-    AccountIdFor<Config::Runtime>: From<[u8; 32]>,
+    S::Runtime: pallet_balances::Config,
+    AccountIdFor<S::Runtime>: From<[u8; 32]>,
 {
     type AccountId = AccountId;
-    type Balance = BalanceOf<Config::Runtime>;
-    type Error = DrinkErr;
+    type Balance = BalanceOf<S::Runtime>;
+    type Error = SandboxErr;
     type EventLog = ();
 
     async fn create_and_fund_account(
@@ -148,7 +146,7 @@ where
         let (pair, seed) = Pair::generate();
 
         self.sandbox
-            .mint_into(pair.public().0.into(), amount)
+            .mint_into(&pair.public().0.into(), amount)
             .expect("Failed to mint tokens");
 
         Keypair::from_seed(seed).expect("Failed to create keypair")
@@ -158,7 +156,7 @@ where
         &mut self,
         account: Self::AccountId,
     ) -> Result<Self::Balance, Self::Error> {
-        let account = AccountIdFor::<Config::Runtime>::from(*account.as_ref());
+        let account = AccountIdFor::<S::Runtime>::from(*account.as_ref());
         Ok(self.sandbox.free_balance(&account))
     }
 
@@ -170,13 +168,13 @@ where
         call_data: Vec<Value>,
     ) -> Result<Self::EventLog, Self::Error> {
         // Since in general, `ChainBackend::runtime_call` must be dynamic, we have to
-        // perform some translation here in order to invoke strongly-typed drink!
-        // API.
+        // perform some translation here in order to invoke strongly-typed
+        // [`ink_sandbox::Sandbox`] API.
 
-        // Get metadata of the drink! runtime, so that we can encode the call object.
+        // Get metadata of the Sandbox runtime, so that we can encode the call object.
         // Panic on error - metadata of the static im-memory runtime should always be
         // available.
-        let raw_metadata: Vec<u8> = Config::get_metadata().into();
+        let raw_metadata: Vec<u8> = S::get_metadata().into();
         let metadata = subxt_metadata::Metadata::decode(&mut raw_metadata.as_slice())
             .expect("Failed to decode metadata");
 
@@ -184,22 +182,22 @@ where
         let call = subxt::dynamic::tx(pallet_name, call_name, call_data);
         let encoded_call = call
             .encode_call_data(&metadata.into())
-            .map_err(|_| DrinkErr)?;
+            .map_err(|_| SandboxErr)?;
 
         // Decode the call object.
         // Panic on error - we just encoded a validated call object, so it should be
         // decodable.
         let decoded_call =
-            RuntimeCall::<Config::Runtime>::decode(&mut encoded_call.as_slice())
+            RuntimeCall::<S::Runtime>::decode(&mut encoded_call.as_slice())
                 .expect("Failed to decode runtime call");
 
         // Execute the call.
         self.sandbox
             .runtime_call(
                 decoded_call,
-                Config::convert_account_to_origin(keypair_to_account(origin)),
+                S::convert_account_to_origin(keypair_to_account(origin)),
             )
-            .map_err(|_| DrinkErr)?;
+            .map_err(|_| SandboxErr)?;
 
         Ok(())
     }
@@ -209,17 +207,17 @@ where
 impl<
         AccountId: Clone + Send + Sync + From<[u8; 32]> + AsRef<[u8; 32]>,
         Hash: Copy + Send + From<[u8; 32]>,
-        Config: SandboxConfig,
+        S: Sandbox,
         E: Environment<
                 AccountId = AccountId,
-                Balance = ContractsBalanceOf<Config::Runtime>,
+                Balance = ContractsBalanceOf<S::Runtime>,
                 Hash = Hash,
             > + 'static,
-    > BuilderClient<E> for Client<AccountId, Hash, Config>
+    > BuilderClient<E> for Client<AccountId, Hash, S>
 where
-    Config::Runtime: pallet_balances::Config + pallet_contracts::Config,
-    AccountIdFor<Config::Runtime>: From<[u8; 32]> + AsRef<[u8; 32]>,
-    ContractsBalanceOf<Config::Runtime>: Send + Sync,
+    S::Runtime: pallet_balances::Config + pallet_contracts::Config,
+    AccountIdFor<S::Runtime>: From<[u8; 32]> + AsRef<[u8; 32]>,
+    ContractsBalanceOf<S::Runtime>: Send + Sync,
 {
     async fn bare_instantiate<Contract: Clone, Args: Send + Sync + Encode + Clone, R>(
         &mut self,
@@ -246,7 +244,7 @@ where
         let account_id_raw = match &result.result {
             Err(err) => {
                 log_error(&format!("Instantiation failed: {err:?}"));
-                return Err(DrinkErr); // todo: make a proper error type
+                return Err(SandboxErr);
             }
             Ok(res) => *res.account_id.as_ref(),
         };
@@ -268,21 +266,21 @@ where
     ) -> Result<InstantiateDryRunResult<E>, Self::Error> {
         let code = self.contracts.load_code(contract_name);
         let data = constructor_exec_input(constructor.clone());
-        let result = self.sandbox.dry_run(|r| {
-            r.deploy_contract(
+        let result = self.sandbox.dry_run(|sandbox| {
+            sandbox.deploy_contract(
                 code,
                 value,
                 data,
                 salt(),
                 keypair_to_account(caller),
-                DEFAULT_GAS_LIMIT,
+                S::default_gas_limit(),
                 storage_deposit_limit,
             )
         });
 
         let account_id_raw = match &result.result {
-            Err(_) => {
-                panic!("Instantiate dry-run failed!")
+            Err(err) => {
+                panic!("Instantiate dry-run failed: {err:?}!")
             }
             Ok(res) => *res.account_id.as_ref(),
         };
@@ -321,7 +319,7 @@ where
             Ok(result) => result,
             Err(err) => {
                 log_error(&format!("Upload failed: {err:?}"));
-                return Err(DrinkErr); // todo: make a proper error type
+                return Err(SandboxErr);
             }
         };
 
@@ -346,7 +344,7 @@ where
         _caller: &Keypair,
         _code_hash: E::Hash,
     ) -> Result<Self::EventLog, Self::Error> {
-        unimplemented!("drink! sandbox does not yet support remove_code")
+        unimplemented!("sandbox does not yet support remove_code")
     }
 
     async fn bare_call<Args: Sync + Encode + Clone, RetType: Send + Decode>(
@@ -378,7 +376,7 @@ where
             .result
             .is_err()
         {
-            return Err(DrinkErr);
+            return Err(SandboxErr);
         }
 
         Ok(())
@@ -398,13 +396,13 @@ where
         let exec_input = Encode::encode(message.clone().params().exec_input());
         let account_id = (*account_id.as_ref()).into();
 
-        let result = self.sandbox.dry_run(|r| {
-            r.call_contract(
+        let result = self.sandbox.dry_run(|sandbox| {
+            sandbox.call_contract(
                 account_id,
                 value,
                 exec_input,
                 keypair_to_account(caller),
-                DEFAULT_GAS_LIMIT,
+                S::default_gas_limit(),
                 storage_deposit_limit,
                 pallet_contracts::Determinism::Enforced,
             )
@@ -426,7 +424,7 @@ where
 impl<
         AccountId: Clone + Send + Sync + From<[u8; 32]> + AsRef<[u8; 32]>,
         Hash: Copy + Send + From<[u8; 32]>,
-        Config: SandboxConfig,
+        Config: Sandbox,
         E: Environment<
                 AccountId = AccountId,
                 Balance = ContractsBalanceOf<Config::Runtime>,
@@ -448,17 +446,96 @@ fn keypair_to_account<AccountId: From<[u8; 32]>>(keypair: &Keypair) -> AccountId
 impl<
         AccountId: Clone + Send + Sync + From<[u8; 32]> + AsRef<[u8; 32]>,
         Hash: Copy + From<[u8; 32]>,
-        Config: SandboxConfig,
+        S: Sandbox,
         E: Environment<
                 AccountId = AccountId,
-                Balance = ContractsBalanceOf<Config::Runtime>,
+                Balance = ContractsBalanceOf<S::Runtime>,
                 Hash = Hash,
             > + 'static,
-    > ContractsBackend<E> for Client<AccountId, Hash, Config>
+    > ContractsBackend<E> for Client<AccountId, Hash, S>
 where
-    Config::Runtime: pallet_balances::Config + pallet_contracts::Config,
-    AccountIdFor<Config::Runtime>: From<[u8; 32]> + AsRef<[u8; 32]>,
+    S::Runtime: pallet_balances::Config + pallet_contracts::Config,
+    AccountIdFor<S::Runtime>: From<[u8; 32]> + AsRef<[u8; 32]>,
 {
-    type Error = DrinkErr;
+    type Error = SandboxErr;
     type EventLog = ();
+}
+
+/// Exposes preset sandbox configurations to be used in tests.
+pub mod preset {
+    pub mod mock_network {
+        use ink_sandbox::{
+            frame_system,
+            AccountIdFor,
+            BlockBuilder,
+            Extension,
+            RuntimeMetadataPrefixed,
+            Sandbox,
+        };
+        pub use pallet_contracts_mock_network::*;
+        use sp_runtime::traits::Dispatchable;
+
+        /// A [`ink_sandbox::Sandbox`] that can be used to test contracts
+        /// with a mock network of relay chain and parachains.
+        ///
+        /// ```no_compile
+        /// #[ink_e2e::test(backend(runtime_only(sandbox = MockNetworkSandbox)))]
+        /// async fn my_test<Client: E2EBackend>(mut client: Client) -> E2EResult<()> {
+        ///   // ...
+        /// }
+        /// ```
+        #[derive(Default)]
+        pub struct MockNetworkSandbox;
+        impl Sandbox for MockNetworkSandbox {
+            type Runtime = parachain::Runtime;
+
+            fn execute_with<T>(&mut self, execute: impl FnOnce() -> T) -> T {
+                ParaA::execute_with(execute)
+            }
+
+            fn dry_run<T>(&mut self, action: impl FnOnce(&mut Self) -> T) -> T {
+                EXT_PARAA.with(|v| {
+                    let backend_backup = v.borrow_mut().as_backend();
+                    let result = action(self);
+
+                    let mut v = v.borrow_mut();
+                    v.commit_all().expect("Failed to commit changes");
+                    v.backend = backend_backup;
+                    result
+                })
+            }
+
+            fn register_extension<E: ::core::any::Any + Extension>(&mut self, ext: E) {
+                EXT_PARAA.with(|v| v.borrow_mut().register_extension(ext));
+            }
+
+            fn initialize_block(
+                height: frame_system::pallet_prelude::BlockNumberFor<Self::Runtime>,
+                parent_hash: <Self::Runtime as frame_system::Config>::Hash,
+            ) {
+                BlockBuilder::<Self::Runtime>::initialize_block(height, parent_hash)
+            }
+
+            fn finalize_block(
+                height: frame_system::pallet_prelude::BlockNumberFor<Self::Runtime>,
+            ) -> <Self::Runtime as frame_system::Config>::Hash {
+                BlockBuilder::<Self::Runtime>::finalize_block(height)
+            }
+
+            fn default_actor() -> AccountIdFor<Self::Runtime> {
+                ALICE
+            }
+
+            fn get_metadata() -> RuntimeMetadataPrefixed {
+                parachain::Runtime::metadata()
+            }
+
+            fn convert_account_to_origin(
+                account: AccountIdFor<Self::Runtime>,
+            ) -> <<Self::Runtime as frame_system::Config>::RuntimeCall as Dispatchable>::RuntimeOrigin
+            {
+                Some(account).into()
+            }
+        }
+    }
 }

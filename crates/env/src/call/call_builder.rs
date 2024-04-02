@@ -104,10 +104,10 @@ where
         self.call_type.ref_time_limit
     }
 
-    /// Returns the chosen proof time limit for the called contract execution.
+    /// Returns the chosen proof size limit for the called contract execution.
     #[inline]
-    pub fn proof_time_limit(&self) -> u64 {
-        self.call_type.proof_time_limit
+    pub fn proof_size_limit(&self) -> u64 {
+        self.call_type.proof_size_limit
     }
 
     /// Returns the chosen storage deposit limit for the called contract execution.
@@ -455,13 +455,13 @@ where
 }
 
 /// The default call type for cross-contract calls, for calling into the latest `call_v2`
-/// host function. This adds the additional weight limit parameter `proof_time_limit` as
+/// host function. This adds the additional weight limit parameter `proof_size_limit` as
 /// well as `storage_deposit_limit`.
 #[derive(Clone)]
 pub struct Call<E: Environment> {
     callee: E::AccountId,
     ref_time_limit: u64,
-    proof_time_limit: u64,
+    proof_size_limit: u64,
     storage_deposit_limit: Option<E::Balance>,
     transferred_value: E::Balance,
 }
@@ -472,7 +472,7 @@ impl<E: Environment> Call<E> {
         Self {
             callee,
             ref_time_limit: Default::default(),
-            proof_time_limit: Default::default(),
+            proof_size_limit: Default::default(),
             storage_deposit_limit: None,
             transferred_value: E::Balance::zero(),
         }
@@ -712,7 +712,7 @@ where
     ///
     /// `ref_time` refers to the amount of computational time that can be
     /// used for execution, in picoseconds. You can find more info
-    /// [here](https://use.ink/basics/cross-contract-calling/).
+    /// [here](https://use.ink/basics/gas).
     pub fn ref_time_limit(self, ref_time_limit: Gas) -> Self {
         let call_type = self.call_type.value();
         CallBuilder {
@@ -724,22 +724,22 @@ where
         }
     }
 
-    /// Sets the `proof_time_limit` part of the weight limit for the current
+    /// Sets the `proof_size_limit` part of the weight limit for the current
     /// cross-contract call.
     ///
-    /// `proof_time` refers to the amount of storage in bytes that a transaction
+    /// `proof_size` refers to the amount of storage in bytes that a transaction
     /// is allowed to read. You can find more info
-    /// [here](https://use.ink/basics/cross-contract-calling/).
+    /// [here](https://use.ink/basics/gas).
     ///
     /// **Note**
     ///
     /// This limit is only relevant for parachains, not for standalone chains which do not
     /// require sending a Proof-of-validity to the relay chain.
-    pub fn proof_time_limit(self, proof_time_limit: Gas) -> Self {
+    pub fn proof_size_limit(self, proof_size_limit: Gas) -> Self {
         let call_type = self.call_type.value();
         CallBuilder {
             call_type: Set(Call {
-                proof_time_limit,
+                proof_size_limit,
                 ..call_type
             }),
             ..self
@@ -750,7 +750,7 @@ where
     ///
     /// The `storage_deposit_limit` specifies the amount of user funds that
     /// can be charged for creating storage. You can find more info
-    /// [here](https://use.ink/basics/cross-contract-calling/).
+    /// [here](https://use.ink/basics/gas).
     pub fn storage_deposit_limit(self, storage_deposit_limit: E::Balance) -> Self {
         let call_type = self.call_type.value();
         CallBuilder {

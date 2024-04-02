@@ -147,7 +147,7 @@ pub mod flipper {
         }
 
         /// Just instantiate a contract using non-default runtime.
-        #[ink_e2e::test(backend(runtime_only(runtime = ink_e2e::MinimalRuntime)))]
+        #[ink_e2e::test(backend(runtime_only(sandbox = ink_e2e::DefaultSandbox)))]
         async fn custom_runtime<Client: E2EBackend>(mut client: Client) -> E2EResult<()> {
             client
                 .instantiate(

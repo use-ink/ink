@@ -46,13 +46,13 @@ async fn instantiate_v2_with_insufficient_storage_deposit_limit<Client: E2EBacke
         .expect("other_contract upload failed");
 
     const REF_TIME_LIMIT: u64 = 500_000_000;
-    const PROOF_TIME_LIMIT: u64 = 100_000;
+    const PROOF_SIZE_LIMIT: u64 = 100_000;
     const STORAGE_DEPOSIT_LIMIT: u128 = 100_000_000_000;
 
     let mut constructor = CrossContractCallsRef::new_v2_with_limits(
         other_contract_code.code_hash,
         REF_TIME_LIMIT,
-        PROOF_TIME_LIMIT,
+        PROOF_SIZE_LIMIT,
         STORAGE_DEPOSIT_LIMIT,
     );
     let contract = client
@@ -87,13 +87,13 @@ async fn instantiate_v2_with_sufficient_limits<Client: E2EBackend>(
         .expect("other_contract upload failed");
 
     const REF_TIME_LIMIT: u64 = 500_000_000;
-    const PROOF_TIME_LIMIT: u64 = 100_000;
+    const PROOF_SIZE_LIMIT: u64 = 100_000;
     const STORAGE_DEPOSIT_LIMIT: u128 = 500_000_000_000;
 
     let mut constructor = CrossContractCallsRef::new_v2_with_limits(
         other_contract_code.code_hash,
         REF_TIME_LIMIT,
-        PROOF_TIME_LIMIT,
+        PROOF_SIZE_LIMIT,
         STORAGE_DEPOSIT_LIMIT,
     );
     let contract = client
@@ -147,13 +147,13 @@ async fn flip_and_get_v2<Client: E2EBackend>(mut client: Client) -> E2EResult<()
     let mut call_builder = contract.call_builder::<CrossContractCalls>();
 
     const REF_TIME_LIMIT: u64 = 500_000_000;
-    const PROOF_TIME_LIMIT: u64 = 100_000;
+    const PROOF_SIZE_LIMIT: u64 = 100_000;
     const STORAGE_DEPOSIT_LIMIT: u128 = 1_000_000_000;
 
     // when
     let call = call_builder.flip_and_get_invoke_v2_with_limits(
         REF_TIME_LIMIT,
-        PROOF_TIME_LIMIT,
+        PROOF_SIZE_LIMIT,
         STORAGE_DEPOSIT_LIMIT,
     );
     let result = client

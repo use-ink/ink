@@ -180,7 +180,7 @@ where
     E: Environment,
 {
     ref_time_limit: u64,
-    proof_time_limit: u64,
+    proof_size_limit: u64,
     storage_deposit_limit: Option<E::Balance>,
 }
 
@@ -250,11 +250,11 @@ where
         self.limits.ref_time_limit
     }
 
-    /// Gets the `proof_time_limit` part of the weight limit for the contract
+    /// Gets the `proof_size_limit` part of the weight limit for the contract
     /// instantiation.
     #[inline]
-    pub fn proof_time_limit(&self) -> u64 {
-        self.limits.proof_time_limit
+    pub fn proof_size_limit(&self) -> u64 {
+        self.limits.proof_size_limit
     }
 
     /// Gets the `storage_deposit_limit` for the contract instantiation.
@@ -519,7 +519,7 @@ where
         code_hash: Default::default(),
         limits: Set(LimitParamsV2 {
             ref_time_limit: 0,
-            proof_time_limit: 0,
+            proof_size_limit: 0,
             storage_deposit_limit: None,
         }),
         endowment: Default::default(),
@@ -636,13 +636,13 @@ where
         }
     }
 
-    /// Sets the `proof_time_limit` part of the weight limit for the contract
+    /// Sets the `proof_size_limit` part of the weight limit for the contract
     /// instantiation.
     #[inline]
-    pub fn proof_time_limit(self, proof_time_limit: u64) -> Self {
+    pub fn proof_size_limit(self, proof_size_limit: u64) -> Self {
         CreateBuilder {
             limits: Set(LimitParamsV2 {
-                proof_time_limit,
+                proof_size_limit,
                 ..self.limits.value()
             }),
             ..self

@@ -48,13 +48,13 @@ jobs:
           components: rust-src
 
       - name: Install cargo-dylint
-        uses: baptiste0928/cargo-install@1cd874a5478fdca35d868ccc74640c5aabbb8f1b # v3.0.0
+        uses: baptiste0928/cargo-install@94e1849646e5797d0c8b34d8e525124ae9ae1d86 # v3.0.1
         with:
           crate: cargo-dylint
           version: 1
 
       - name: Install dylint-link
-        uses: baptiste0928/cargo-install@1cd874a5478fdca35d868ccc74640c5aabbb8f1b # v3.0.0
+        uses: baptiste0928/cargo-install@94e1849646e5797d0c8b34d8e525124ae9ae1d86 # v3.0.1
         with:
           crate: dylint-link
           version: 1
@@ -77,7 +77,7 @@ jobs:
         uses: Swatinem/rust-cache@23bce251a8cd2ffc3c1075eaa2367cf899916d84 # v2.7.3
 
       - name: Install `cargo-contract` `master`
-        uses: baptiste0928/cargo-install@1cd874a5478fdca35d868ccc74640c5aabbb8f1b # v3.0.0
+        uses: baptiste0928/cargo-install@94e1849646e5797d0c8b34d8e525124ae9ae1d86 # v3.0.1
         with:
             crate: cargo-contract
             git: https://github.com/paritytech/cargo-contract.git
@@ -94,19 +94,19 @@ jobs:
            $delegator_subcontracts = "accumulator","adder","subber"
            foreach ($contract in $delegator_subcontracts) {
                echo "Processing delegator contract: $contract";
-               cargo ${{ matrix.job }} --verbose --manifest-path integration-tests/delegator/${contract}/Cargo.toml;
+               cargo ${{ matrix.job }} --manifest-path integration-tests/delegator/${contract}/Cargo.toml;
            }
            $upgradeable_contracts = "forward-calls","set-code-hash"
            foreach ($contract in $upgradeable_contracts) {
                echo "Processing upgradeable contract: $contract";
-               cargo ${{ matrix.job }} --verbose --manifest-path integration-tests/upgradeable-contracts/${contract}/Cargo.toml;
+               cargo ${{ matrix.job }} --manifest-path integration-tests/upgradeable-contracts/${contract}/Cargo.toml;
            }
-           cargo ${{ matrix.job }} --verbose --manifest-path integration-tests/upgradeable-contracts/set-code-hash/updated-incrementer/Cargo.toml;
+           cargo ${{ matrix.job }} --manifest-path integration-tests/upgradeable-contracts/set-code-hash/updated-incrementer/Cargo.toml;
            foreach ($example in Get-ChildItem  -Directory "integration-tests\*") {
                if ($example -Match 'upgradeable-contracts') { continue }
                if ($example -Match 'lang-err-integration-tests') { continue }
                echo "Processing example: $example";
-               cargo ${{ matrix.job }} --verbose --manifest-path=$example/Cargo.toml;
+               cargo ${{ matrix.job }} --manifest-path=$example/Cargo.toml;
                cargo clean --manifest-path=$example/Cargo.toml;
            }
 
@@ -115,16 +115,16 @@ jobs:
         run: |
            for contract in ${DELEGATOR_SUBCONTRACTS}; do
                echo "Processing delegator contract: $contract";
-               cargo ${{ matrix.job }} --verbose --manifest-path integration-tests/delegator/${contract}/Cargo.toml;
+               cargo ${{ matrix.job }} --manifest-path integration-tests/delegator/${contract}/Cargo.toml;
            done
            for contract in ${UPGRADEABLE_CONTRACTS}; do
                 echo "Processing upgradeable contract: $contract";
-                cargo ${{ matrix.job }} --verbose --manifest-path=integration-tests/upgradeable-contracts/$contract/Cargo.toml;
+                cargo ${{ matrix.job }} --manifest-path=integration-tests/upgradeable-contracts/$contract/Cargo.toml;
            done
-           cargo ${{ matrix.job }} --verbose --manifest-path=integration-tests/upgradeable-contracts/set-code-hash/updated-incrementer/Cargo.toml;
+           cargo ${{ matrix.job }} --manifest-path=integration-tests/upgradeable-contracts/set-code-hash/updated-incrementer/Cargo.toml;
            for example in integration-tests/*/; do
                if [ "$example" = "integration-tests/upgradeable-contracts/" ]; then continue; fi;
                if [ "$example" = "integration-tests/lang-err-integration-tests/" ]; then continue; fi;
                echo "Processing example: $example";
-               cargo ${{ matrix.job }} --verbose --manifest-path=$example/Cargo.toml;
+               cargo ${{ matrix.job }} --manifest-path=$example/Cargo.toml;
            done

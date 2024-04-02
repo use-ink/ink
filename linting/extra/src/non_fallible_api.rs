@@ -239,7 +239,10 @@ impl<'a, 'tcx> APIUsageChecker<'a, 'tcx> {
                             "",
                             Applicability::Unspecified,
                         );
-                    },
+                        diag.help(
+                            "for further information visit https://use.ink/linter/rules/non_fallible_api".to_string(),
+                        );
+                },
                 )
             }
         }

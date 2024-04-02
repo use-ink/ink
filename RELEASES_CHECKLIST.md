@@ -69,6 +69,7 @@ in the future.
         is not necessary.
     - We don't want `cargo-release` to create any releases or push any code, we'll do
       that manually once we've actually published to `crates.io`.
+    - Note that `ink_sandbox` has its own version number and can be released separately of the other crates.
 3. Check the output of the dry run:
    - Does not show any automatic bumping of crate versions.
    - Runs without error.

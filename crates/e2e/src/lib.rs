@@ -25,11 +25,11 @@ mod builders;
 mod client_utils;
 mod contract_build;
 mod contract_results;
-#[cfg(feature = "drink")]
-mod drink_client;
 mod error;
 pub mod events;
 mod node_proc;
+#[cfg(feature = "sandbox")]
+mod sandbox_client;
 mod subxt_client;
 mod xts;
 
@@ -55,6 +55,8 @@ pub use node_proc::{
     TestNodeProcess,
     TestNodeProcessBuilder,
 };
+#[cfg(feature = "sandbox")]
+pub use sandbox_client::Client as SandboxClient;
 pub use sp_core::H256;
 pub use sp_keyring::AccountKeyring;
 pub use subxt::{
@@ -66,18 +68,19 @@ pub use subxt_client::{
     Client,
     Error,
 };
-pub use subxt_signer::sr25519::{
+pub use subxt_signer::{
     self,
-    dev::*,
-    Keypair,
+    sr25519::{
+        self,
+        dev::*,
+        Keypair,
+    },
 };
 pub use tokio;
 pub use tracing_subscriber;
-#[cfg(feature = "drink")]
-pub use {
-    drink::runtime::MinimalRuntime,
-    drink_client::Client as DrinkClient,
-};
+
+#[cfg(feature = "sandbox")]
+pub use ink_sandbox::DefaultSandbox;
 
 use ink::codegen::ContractCallBuilder;
 use ink_env::{
