@@ -354,9 +354,9 @@ jobs:
           # at the same time, hence we use this workaround.
           QUICKCHECK_TESTS:            0
         run: |
-          cargo test --all-features --no-fail-fast --workspace --locked
+          cargo nextest run --all-features --no-fail-fast --workspace --locked
           cargo test --all-features --no-fail-fast --workspace --doc --locked
-          pushd linting && cargo test --all-features --no-fail-fast --workspace && popd
+          pushd linting && cargo nextest run --all-features --no-fail-fast --workspace && popd
 
   docs:
     runs-on: ubuntu-latest
@@ -444,7 +444,7 @@ jobs:
           git config --global --add safe.directory '*'
           # RUSTFLAGS are the cause target cache can't be used here
           cargo build --all-features --workspace
-          cargo test --all-features --no-fail-fast --workspace --locked
+          cargo test --all-features --no-fail-fast --workspace --locked -- --skip ui_tests
           # coverage with branches
           grcov . --binary-path ./target/debug/ --source-dir . --output-type lcov --llvm --branch \
             --ignore-not-existing --ignore "/*" --ignore "tests/*" --output-path lcov-w-branch.info
@@ -466,6 +466,9 @@ jobs:
         shell: bash
     container:
       image: ${{ needs.set-image.outputs.IMAGE }}
+    strategy:
+      matrix:
+        partition: [1, 2, 3, 4]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -486,13 +489,21 @@ jobs:
           RUSTFLAGS:                     -Clink-arg=-z -Clink-arg=nostart-stop-gc
         run: |
           # run all tests with --all-features, which will run the e2e-tests feature if present
-          scripts/for_all_contracts_exec.sh --path integration-tests --ignore static-buffer -- cargo test \
+          scripts/for_all_contracts_exec.sh --path integration-tests --ignore static-buffer --partition ${{ matrix.partition }}/4 -- cargo test \
             --all-features --manifest-path {}
+
+      - name: Test static-buffer example
+        if: ${{ matrix.partition == 3 }}
+        env:
+          # Fix linking of `linkme`: https://github.com/dtolnay/linkme/issues/49
+          RUSTFLAGS:                     -Clink-arg=-z -Clink-arg=nostart-stop-gc
+        run: |
           # run the static buffer test with a custom buffer size
           cargo clean --manifest-path integration-tests/static-buffer/Cargo.toml
           INK_STATIC_BUFFER_SIZE=30 cargo test --manifest-path integration-tests/static-buffer/Cargo.toml --all-features
 
       - name: Run E2E test with on-chain contract
+        if: ${{ matrix.partition == 4 }}
         env:
             # Fix linking of `linkme`: https://github.com/dtolnay/linkme/issues/49
             RUSTFLAGS:                     -Clink-arg=-z -Clink-arg=nostart-stop-gc
@@ -522,6 +533,14 @@ jobs:
       fail-fast: false
       matrix:
         type: [WASM, RISCV]
+        partition: [1, 2, 3, 4]
+        exclude:
+          - type: RISCV
+            partition: 2
+          - type: RISCV
+            partition: 3
+          - type: RISCV
+            partition: 4
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -542,13 +561,15 @@ jobs:
           rustup component add rust-src --toolchain stable
           cargo contract -V
           # Build all examples
-          scripts/for_all_contracts_exec.sh --path integration-tests -- cargo contract build --release --manifest-path {}
-          # Build the different features for the conditional compilation example
-          pushd ./integration-tests/conditional-compilation
-          cargo contract build --release --features "foo"
-          cargo contract build --release --features "bar"
-          cargo contract build --release --features "foo, bar"
-          popd
+          scripts/for_all_contracts_exec.sh --path integration-tests --partition ${{ matrix.partition }}/4 -- cargo contract build --release --manifest-path {}
+          if [ ${{ matrix.partition }} -eq 4 ]; then
+            # Build the different features for the conditional compilation example
+            pushd ./integration-tests/conditional-compilation
+            cargo contract build --release --features "foo"
+            cargo contract build --release --features "bar"
+            cargo contract build --release --features "foo, bar"
+            popd
+          fi
 
       - name: Build Contract RISCV Examples
         if: ${{ matrix.type == 'RISCV' }}

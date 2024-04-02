@@ -30,7 +30,11 @@ use subxt::{
         rpc::RpcClient,
     },
     blocks::ExtrinsicEvents,
-    config::ExtrinsicParams,
+    config::{
+        DefaultExtrinsicParams,
+        DefaultExtrinsicParamsBuilder,
+        ExtrinsicParams,
+    },
     ext::scale_encode,
     tx::{
         Signer,
@@ -224,7 +228,8 @@ where
     C::AccountId: From<sr25519::PublicKey> + serde::de::DeserializeOwned + scale::Codec,
     C::Address: From<sr25519::PublicKey>,
     C::Signature: From<sr25519::Signature>,
-    <C::ExtrinsicParams as ExtrinsicParams<C>>::OtherParams: Default,
+    <C::ExtrinsicParams as ExtrinsicParams<C>>::Params:
+        From<<DefaultExtrinsicParams<C> as ExtrinsicParams<C>>::Params>,
 
     E: Environment,
     E::Balance: scale::HasCompact + serde::Serialize,
@@ -316,10 +321,13 @@ where
                     panic!("error calling `get_account_nonce`: {err:?}");
                 });
 
+        let params = DefaultExtrinsicParamsBuilder::new()
+            .nonce(account_nonce)
+            .build();
         let mut tx = self
             .client
             .tx()
-            .create_signed_with_nonce(call, signer, account_nonce, Default::default())
+            .create_signed_offline(call, signer, params.into())
             .unwrap_or_else(|err| {
                 panic!("error on call `create_signed_with_nonce`: {err:?}");
             })
