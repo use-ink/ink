@@ -1,5 +1,5 @@
 [package]
-name = "lazyvec-integration-tests"
+name = "lazyvec"
 version = "5.0.0"
 authors = ["Parity Technologies <admin@parity.io>"]
 edition = "2021"
