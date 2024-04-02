@@ -3,7 +3,7 @@
 #![cfg_attr(not(feature = "std"), no_std, no_main)]
 
 #[ink::contract]
-mod mapping_integration_tests {
+mod mapping {
     use ink::{
         prelude::{
             string::String,
@@ -155,7 +155,7 @@ mod mapping_integration_tests {
             let mut constructor = MappingsRef::new();
             let contract = client
                 .instantiate(
-                    "mapping-integration-tests",
+                    "mapping",
                     &ink_e2e::alice(),
                     &mut constructor,
                 )
@@ -195,7 +195,7 @@ mod mapping_integration_tests {
             let mut constructor = MappingsRef::new();
             let contract = client
                 .instantiate(
-                    "mapping-integration-tests",
+                    "mapping",
                     &ink_e2e::bob(),
                     &mut constructor,
                 )
@@ -232,7 +232,7 @@ mod mapping_integration_tests {
             let mut constructor = MappingsRef::new();
             let contract = client
                 .instantiate(
-                    "mapping-integration-tests",
+                    "mapping",
                     &ink_e2e::charlie(),
                     &mut constructor,
                 )
@@ -281,7 +281,7 @@ mod mapping_integration_tests {
             let mut constructor = MappingsRef::new();
             let contract = client
                 .instantiate(
-                    "mapping-integration-tests",
+                    "mapping",
                     &ink_e2e::dave(),
                     &mut constructor,
                 )
@@ -327,7 +327,7 @@ mod mapping_integration_tests {
             let mut constructor = MappingsRef::new();
             let contract = client
                 .instantiate(
-                    "mapping-integration-tests",
+                    "mapping",
                     &ink_e2e::eve(),
                     &mut constructor,
                 )
@@ -376,7 +376,7 @@ mod mapping_integration_tests {
             let mut constructor = MappingsRef::new();
             let contract = client
                 .instantiate(
-                    "mapping-integration-tests",
+                    "mapping",
                     &ink_e2e::ferdie(),
                     &mut constructor,
                 )
