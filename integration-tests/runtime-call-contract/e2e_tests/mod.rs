@@ -1,123 +1,26 @@
-#[cfg(all(test, feature = "e2e-tests"))]
-mod e2e_tests {
-    use super::*;
-    use ink_e2e::{
-        subxt::dynamic::Value,
-        ChainBackend,
-        ContractsBackend,
-    };
+mod runtime;
 
-    type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
+use super::*;
+use ink_e2e::{
+    subxt::dynamic::Value,
+    ChainBackend,
+    ContractsBackend,
+};
 
-    /// Tests standard flipper scenario:
-    /// - deploy the flipper contract with initial value `false`
-    /// - flip the flipper
-    /// - get the flipper's value
-    /// - assert that the value is `true`
-    #[ink_e2e::test(backend(runtime_only))]
-    async fn it_works<Client: E2EBackend>(mut client: Client) -> E2EResult<()> {
-        // given
-        const INITIAL_VALUE: bool = false;
-        let mut constructor = FlipperRef::new(INITIAL_VALUE);
+type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
-        let contract = client
-            .instantiate(
-                "e2e-runtime-only-backend",
-                &ink_e2e::alice(),
-                &mut constructor,
-            )
-            .submit()
-            .await
-            .expect("deploy failed");
+/// Just instantiate a contract using non-default runtime.
+#[ink_e2e::test(backend(runtime_only(sandbox = runtime::ContractCallerSandbox)))]
+async fn custom_runtime<Client: E2EBackend>(mut client: Client) -> E2EResult<()> {
+    client
+        .instantiate(
+            "runtime-call-contract",
+            &ink_e2e::alice(),
+            &mut FlipperRef::new(false),
+        )
+        .submit()
+        .await
+        .expect("instantiate failed");
 
-        // when
-        let mut call_builder = contract.call_builder::<Flipper>();
-        let _flip_res = client
-            .call(&ink_e2e::bob(), &call_builder.flip())
-            .submit()
-            .await;
-
-        // then
-        let get_res = client
-            .call(&ink_e2e::bob(), &call_builder.get())
-            .dry_run()
-            .await?;
-        assert_eq!(get_res.return_value(), !INITIAL_VALUE);
-
-        Ok(())
-    }
-
-    /// Tests runtime call scenario:
-    /// - deploy the flipper contract
-    /// - get the contract's balance
-    /// - transfer some funds to the contract using runtime call
-    /// - get the contract's balance again
-    /// - assert that the contract's balance increased by the transferred amount
-    #[ink_e2e::test(backend(runtime_only))]
-    async fn runtime_call_works() -> E2EResult<()> {
-        // given
-        let mut constructor = FlipperRef::new(false);
-
-        let contract = client
-            .instantiate(
-                "e2e-runtime-only-backend",
-                &ink_e2e::alice(),
-                &mut constructor,
-            )
-            .submit()
-            .await
-            .expect("deploy failed");
-        let call_builder = contract.call_builder::<Flipper>();
-
-        let old_balance = client
-            .call(&ink_e2e::alice(), &call_builder.get_contract_balance())
-            .submit()
-            .await
-            .expect("get_contract_balance failed")
-            .return_value();
-
-        const ENDOWMENT: u128 = 10;
-
-        // when
-        let call_data = vec![
-            Value::unnamed_variant("Id", [Value::from_bytes(contract.account_id)]),
-            Value::u128(ENDOWMENT),
-        ];
-        client
-            .runtime_call(
-                &ink_e2e::alice(),
-                "Balances",
-                "transfer_allow_death",
-                call_data,
-            )
-            .await
-            .expect("runtime call failed");
-
-        // then
-        let new_balance = client
-            .call(&ink_e2e::alice(), &call_builder.get_contract_balance())
-            .submit()
-            .await
-            .expect("get_contract_balance failed")
-            .return_value();
-
-        assert_eq!(old_balance + ENDOWMENT, new_balance);
-        Ok(())
-    }
-
-    /// Just instantiate a contract using non-default runtime.
-    #[ink_e2e::test(backend(runtime_only(sandbox = ink_e2e::DefaultSandbox)))]
-    async fn custom_runtime<Client: E2EBackend>(mut client: Client) -> E2EResult<()> {
-        client
-            .instantiate(
-                "e2e-runtime-only-backend",
-                &ink_e2e::alice(),
-                &mut FlipperRef::new(false),
-            )
-            .submit()
-            .await
-            .expect("instantiate failed");
-
-        Ok(())
-    }
+    Ok(())
 }

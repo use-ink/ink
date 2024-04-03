@@ -23,12 +23,10 @@ use pallet_contracts::{
 };
 /// Export pallets that are used in [`crate::create_sandbox`]
 pub use {
-    frame_support::{
-        self,
-        sp_runtime::{
-            AccountId32,
-            DispatchError,
-        },
+    frame_support,
+    frame_support::sp_runtime::{
+        AccountId32,
+        DispatchError,
     },
     frame_system,
     pallet_balances,

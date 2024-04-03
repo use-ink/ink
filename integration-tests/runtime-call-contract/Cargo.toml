@@ -7,9 +7,15 @@ publish = false
 
 [dependencies]
 ink = { path = "../../crates/ink", default-features = false }
+flipper-traits = { path = "traits", default-features = false }
 
 [dev-dependencies]
 ink_e2e = { path = "../../crates/e2e", features = ["sandbox"] }
+ink_sandbox = { path = "../../crates/e2e/sandbox" }
+frame-support = "31.0.0"
+frame-system = "31.0.0"
+parity-scale-codec = "3.6.9"
+scale-info = "2.11.1"
 
 [lib]
 path = "lib.rs"
@@ -18,6 +24,7 @@ path = "lib.rs"
 default = ["std"]
 std = [
     "ink/std",
+    "ink_sandbox/std",
 ]
 ink-as-dependency = []
 e2e-tests = []
