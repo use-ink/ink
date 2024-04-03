@@ -5,7 +5,7 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 
 #[frame_support::pallet]
-pub mod pallet {
+pub mod pallet_contract_caller {
     use super::*;
     use flipper_traits::Flip;
     use frame_support::{
@@ -86,6 +86,8 @@ pub mod pallet {
     }
 }
 
-ink_sandbox::create_sandbox!(ContractCallerSandbox);
+ink_sandbox::create_sandbox!(ContractCallerSandbox, (), (), {
+    ContractCaller: pallet_contract_caller,
+});
 
-impl pallet::Config for <ContractCallerSandbox as ink_sandbox::Sandbox>::Runtime {}
+impl pallet_contract_caller::Config for <ContractCallerSandbox as ink_sandbox::Sandbox>::Runtime {}

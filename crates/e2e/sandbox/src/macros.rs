@@ -78,15 +78,20 @@ impl<
 macro_rules! create_sandbox {
     ($name:ident) => {
         $crate::paste::paste! {
-            $crate::create_sandbox!($name, [<$name Runtime>], (), ());
+            $crate::create_sandbox!($name, [<$name Runtime>], (), (), {});
         }
     };
     ($name:ident, $chain_extension: ty, $debug: ty) => {
         $crate::paste::paste! {
-            $crate::create_sandbox!($name, [<$name Runtime>], $chain_extension, $debug);
+            $crate::create_sandbox!($name, [<$name Runtime>], $chain_extension, $debug, {});
         }
     };
-    ($sandbox:ident, $runtime:ident, $chain_extension: ty, $debug: ty) => {
+    ($name:ident, $chain_extension: ty, $debug: ty, $pallets: tt) => {
+        $crate::paste::paste! {
+            $crate::create_sandbox!($name, [<$name Runtime>], $chain_extension, $debug, $pallets);
+        }
+    };
+    ($sandbox:ident, $runtime:ident, $chain_extension: ty, $debug: ty, $pallets: tt) => {
 
 
 // Put all the boilerplate into an auxiliary module
