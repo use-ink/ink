@@ -6,12 +6,12 @@ edition = "2021"
 publish = false
 
 [dependencies]
-ink = { path = "../../crates/ink", default-features = false }
+ink = { path = "../../../crates/ink", default-features = false }
 flipper-traits = { path = "traits", default-features = false }
 
 [dev-dependencies]
-ink_e2e = { path = "../../crates/e2e", features = ["sandbox"] }
-ink_sandbox = { path = "../../crates/e2e/sandbox" }
+ink_e2e = { path = "../../../crates/e2e", features = ["sandbox"] }
+ink_sandbox = { path = "../../../crates/e2e/sandbox" }
 frame-support = "31.0.0"
 frame-system = "31.0.0"
 parity-scale-codec = "3.6.9"

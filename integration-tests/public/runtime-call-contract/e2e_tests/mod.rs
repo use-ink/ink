@@ -1,6 +1,6 @@
 mod runtime;
 
-use super::*;
+use super::flipper::*;
 use ink_e2e::{
     subxt::dynamic::Value,
     ChainBackend,
