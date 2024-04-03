@@ -154,11 +154,7 @@ mod mapping {
             // given
             let mut constructor = MappingsRef::new();
             let contract = client
-                .instantiate(
-                    "mapping",
-                    &ink_e2e::alice(),
-                    &mut constructor,
-                )
+                .instantiate("mapping", &ink_e2e::alice(), &mut constructor)
                 .submit()
                 .await
                 .expect("instantiate failed");
@@ -194,11 +190,7 @@ mod mapping {
             // given
             let mut constructor = MappingsRef::new();
             let contract = client
-                .instantiate(
-                    "mapping",
-                    &ink_e2e::bob(),
-                    &mut constructor,
-                )
+                .instantiate("mapping", &ink_e2e::bob(), &mut constructor)
                 .submit()
                 .await
                 .expect("instantiate failed");
@@ -231,11 +223,7 @@ mod mapping {
             // given
             let mut constructor = MappingsRef::new();
             let contract = client
-                .instantiate(
-                    "mapping",
-                    &ink_e2e::charlie(),
-                    &mut constructor,
-                )
+                .instantiate("mapping", &ink_e2e::charlie(), &mut constructor)
                 .submit()
                 .await
                 .expect("instantiate failed");
@@ -280,11 +268,7 @@ mod mapping {
             // given
             let mut constructor = MappingsRef::new();
             let contract = client
-                .instantiate(
-                    "mapping",
-                    &ink_e2e::dave(),
-                    &mut constructor,
-                )
+                .instantiate("mapping", &ink_e2e::dave(), &mut constructor)
                 .submit()
                 .await
                 .expect("instantiate failed");
@@ -326,11 +310,7 @@ mod mapping {
             // given
             let mut constructor = MappingsRef::new();
             let contract = client
-                .instantiate(
-                    "mapping",
-                    &ink_e2e::eve(),
-                    &mut constructor,
-                )
+                .instantiate("mapping", &ink_e2e::eve(), &mut constructor)
                 .submit()
                 .await
                 .expect("instantiate failed");
@@ -375,11 +355,7 @@ mod mapping {
             // given
             let mut constructor = MappingsRef::new();
             let contract = client
-                .instantiate(
-                    "mapping",
-                    &ink_e2e::ferdie(),
-                    &mut constructor,
-                )
+                .instantiate("mapping", &ink_e2e::ferdie(), &mut constructor)
                 .submit()
                 .await
                 .expect("instantiate failed");
@@ -400,7 +376,7 @@ mod mapping {
                 .await?
                 .return_value();
             let received_insert_result =
-                Err(crate::mapping_integration_tests::ContractError::ValueTooLarge);
+                Err(crate::mapping::ContractError::ValueTooLarge);
             assert_eq!(received_insert_result, expected_insert_result);
 
             // then there should be 4 entries (that's what fits into the 256kb buffer)

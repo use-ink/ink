@@ -103,11 +103,7 @@ mod lazyvec {
             // given
             let mut constructor = LazyVectorRef::default();
             let contract = client
-                .instantiate(
-                    "lazyvec",
-                    &ink_e2e::alice(),
-                    &mut constructor,
-                )
+                .instantiate("lazyvec", &ink_e2e::alice(), &mut constructor)
                 .submit()
                 .await
                 .expect("instantiate failed");
