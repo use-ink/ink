@@ -53,7 +53,7 @@ jobs:
           # Measure contract sizes for the current branch
           mkdir ${MEASUREMENTS_DIR}
           ${SCRIPTS_DIR}/for_all_contracts_exec.sh --path integration-tests --quiet -- ${SCRIPTS_DIR}/contract_size.sh {} > ${CONTRACT_SIZES}
-          sed -i 's/^integration-tests\///g' ${CONTRACT_SIZES}
+          sed -ie 's/^integration-tests\/\(public\/\|internal\/\)\?//' ${CONTRACT_SIZES}
 
           CARGO_CONTRACT_VERSION=$(cargo-contract --version | egrep --only-matching "cargo-contract.* .*-x86" | sed -s 's/-x86//')
           echo "CARGO_CONTRACT_VERSION=\"${CARGO_CONTRACT_VERSION}\"" > ${MEASUREMENTS_DIR}/context.out
