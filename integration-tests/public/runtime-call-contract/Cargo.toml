@@ -1,3 +1,23 @@
+[workspace]
+members = ["e2e_tests/pallet-contract-caller"]
+
+[workspace.package]
+authors = ["Parity Technologies <admin@parity.io>"]
+edition = "2021"
+homepage = "https://www.parity.io/"
+keywords = ["wasm", "parity", "webassembly", "blockchain", "edsl"]
+license = "Apache-2.0"
+repository = "https://github.com/paritytech/ink"
+
+[workspace.dependencies]
+ink = { path = "../../../crates/ink", default-features = false }
+flipper-traits = { path = "traits", default-features = false }
+frame-support = { version = "31.0.0", default-features = false }
+frame-system = { version = "31.0.0", default-features = false }
+pallet-contracts = { version = "30.0.0", default-features = false }
+codec = { package = "parity-scale-codec", version =  "3.6.9", default-features = false }
+scale-info = { version = "2.11.1", default-features = false }
+
 [package]
 name = "runtime-call-contract"
 version = "5.0.0"
@@ -6,17 +26,18 @@ edition = "2021"
 publish = false
 
 [dependencies]
-ink = { path = "../../../crates/ink", default-features = false }
-flipper-traits = { path = "traits", default-features = false }
+ink = { workspace = true }
+flipper-traits = { workspace = true }
 
 [dev-dependencies]
 ink_e2e = { path = "../../../crates/e2e", features = ["sandbox"] }
-ink_sandbox = { path = "../../../crates/e2e/sandbox" }#
+ink_sandbox = { path = "../../../crates/e2e/sandbox" }
+pallet-contract-caller = { path = "e2e_tests/pallet-contract-caller" }
 # dependencies of `ink_sandbox::create_sandbox!` macro
-frame-support = "31.0.0"
-frame-system = "31.0.0"
-parity-scale-codec = "3.6.9"
-scale-info = "2.11.1"
+frame-support = { workspace = true }
+frame-system = { workspace = true }
+codec = { workspace = true }
+scale-info = { workspace = true }
 
 [lib]
 path = "lib.rs"
