@@ -1,12 +1,9 @@
 [package]
 name = "flipper"
-version = "0.1.0"
-authors.workspace = true
-edition.workspace = true
-homepage.workspace = true
-keywords.workspace = true
-license.workspace = true
-repository.workspace = true
+version = "5.0.0"
+authors = ["Parity Technologies <admin@parity.io>"]
+edition = "2021"
+publish = false
 
 [dependencies]
 ink = { workspace = true }
