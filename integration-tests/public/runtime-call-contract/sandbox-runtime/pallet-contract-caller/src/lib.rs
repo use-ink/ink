@@ -79,8 +79,6 @@ pub mod pallet {
                 pallet_contracts::Determinism::Enforced,
             );
 
-            println!("Flip result: {:?}", result);
-
             assert!(!result.result?.did_revert());
 
             Ok(())
