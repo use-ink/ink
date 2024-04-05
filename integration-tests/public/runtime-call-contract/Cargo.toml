@@ -30,6 +30,7 @@ ink = { workspace = true }
 ink_e2e = { path = "../../../crates/e2e", features = ["sandbox"] }
 flipper-traits = { workspace = true }
 flipper = { path = "flipper", default-features = false, features = ["ink-as-dependency"] }
+sandbox-runtime = { path = "sandbox-runtime", default-features = false }
 
 [lib]
 path = "lib.rs"
@@ -38,4 +39,7 @@ path = "lib.rs"
 default = ["std"]
 std = [
     "ink/std",
+    "sandbox-runtime/std",
+    "flipper/std",
+    "flipper-traits/std",
 ]
