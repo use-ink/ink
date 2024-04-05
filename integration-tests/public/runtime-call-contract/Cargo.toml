@@ -10,8 +10,6 @@ license = "Apache-2.0"
 repository = "https://github.com/paritytech/ink"
 
 [workspace.dependencies]
-ink = { path = "../../../crates/ink", default-features = false }
-flipper-traits = { path = "traits", default-features = false }
 frame-support = { version = "31.0.0", default-features = false }
 frame-system = { version = "31.0.0", default-features = false }
 pallet-contracts = { version = "30.0.0", default-features = false }
@@ -26,9 +24,9 @@ edition = "2021"
 publish = false
 
 [dependencies]
-ink = { workspace = true }
+ink = { path = "../../../crates/ink", default-features = false }
 ink_e2e = { path = "../../../crates/e2e", features = ["sandbox"] }
-flipper-traits = { workspace = true }
+flipper-traits = { path = "traits", default-features = false }
 flipper = { path = "flipper", default-features = false, features = ["ink-as-dependency"] }
 sandbox-runtime = { path = "sandbox-runtime", default-features = false }
 

@@ -6,8 +6,8 @@ edition = "2021"
 publish = false
 
 [dependencies]
-ink = { workspace = true }
-flipper-traits = { workspace = true }
+ink = { path = "../../../../crates/ink", default-features = false }
+flipper-traits = { path = "../traits", default-features = false }
 
 [lib]
 path = "lib.rs"

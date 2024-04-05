@@ -19,8 +19,8 @@ frame-support = { workspace = true, default-features = false }
 frame-system = { workspace = true, default-features = false }
 
 pallet-contracts = { workspace = true, default-features = false }
-flipper-traits = { workspace = true, default-features = false }
-ink = { workspace = true, features = ["no-panic-handler", "no-allocator"] }
+flipper-traits = { path = "../../traits", default-features = false }
+ink = { path = "../../../../../crates/ink", features = ["no-panic-handler", "no-allocator"] }
 
 [features]
 default = ["std"]
