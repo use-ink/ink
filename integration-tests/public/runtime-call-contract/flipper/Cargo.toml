@@ -12,6 +12,9 @@ repository.workspace = true
 ink = { workspace = true }
 flipper-traits = { workspace = true }
 
+[lib]
+path = "lib.rs"
+
 [features]
 default = ["std"]
 std = [

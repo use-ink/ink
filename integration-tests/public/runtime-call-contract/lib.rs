@@ -11,7 +11,7 @@ type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 async fn custom_runtime<Client: E2EBackend>(mut client: Client) -> E2EResult<()> {
     client
         .instantiate(
-            "runtime-call-contract",
+            "flipper",
             &ink_e2e::alice(),
             &mut FlipperRef::new(false),
         )
