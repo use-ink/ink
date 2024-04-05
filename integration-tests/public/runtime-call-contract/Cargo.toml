@@ -29,6 +29,8 @@ ink_e2e = { path = "../../../crates/e2e", features = ["sandbox"] }
 flipper-traits = { path = "traits", default-features = false }
 flipper = { path = "flipper", default-features = false, features = ["ink-as-dependency"] }
 sandbox-runtime = { path = "sandbox-runtime", default-features = false }
+scale-value = "0.14.1"
+frame-support = { workspace = true }
 
 [lib]
 path = "lib.rs"

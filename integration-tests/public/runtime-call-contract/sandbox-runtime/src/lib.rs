@@ -8,6 +8,4 @@ ink_sandbox::create_sandbox!(ContractCallerSandbox, ContractCallerSandboxRuntime
     ContractCaller: pallet_contract_caller,
 });
 
-impl pallet_contract_caller::Config for ContractCallerSandboxRuntime
-{
-}
+impl pallet_contract_caller::Config for ContractCallerSandboxRuntime {}
