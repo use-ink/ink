@@ -1,4 +1,4 @@
-use flipper::*;
+use flipper::FlipperRef;
 use ink_e2e::{
     ChainBackend,
     ContractsBackend,

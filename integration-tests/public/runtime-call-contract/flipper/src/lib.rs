@@ -1,7 +1,12 @@
 #![cfg_attr(not(feature = "std"), no_std, no_main)]
 
+pub use flipper::{
+    Flipper,
+    FlipperRef,
+};
+
 #[ink::contract]
-pub mod flipper {
+mod flipper {
     #[ink(storage)]
     pub struct Flipper {
         value: bool,
@@ -39,6 +44,3 @@ pub mod flipper {
         }
     }
 }
-
-#[cfg(all(test, feature = "e2e-tests"))]
-mod e2e_tests;
