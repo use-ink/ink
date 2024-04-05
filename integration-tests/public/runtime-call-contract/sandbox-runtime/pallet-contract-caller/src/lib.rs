@@ -74,13 +74,14 @@ pub mod pallet {
                 weight,
                 storage_deposit_limit,
                 data,
-                pallet_contracts::DebugInfo::Skip,
+                pallet_contracts::DebugInfo::UnsafeDebug,
                 pallet_contracts::CollectEvents::Skip,
                 pallet_contracts::Determinism::Enforced,
-            )
-            .result?;
+            );
 
-            assert!(!result.did_revert());
+            println!("Flip result: {:?}", result);
+
+            assert!(!result.result?.did_revert());
 
             Ok(())
         }
