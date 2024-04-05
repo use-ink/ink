@@ -1,5 +1,5 @@
 [workspace]
-members = ["e2e_tests/pallet-contract-caller"]
+members = [ "flipper", "sandbox-runtime", "traits"]
 
 [workspace.package]
 authors = ["Parity Technologies <admin@parity.io>"]
@@ -27,17 +27,9 @@ publish = false
 
 [dependencies]
 ink = { workspace = true }
-flipper-traits = { workspace = true }
-
-[dev-dependencies]
 ink_e2e = { path = "../../../crates/e2e", features = ["sandbox"] }
-ink_sandbox = { path = "../../../crates/e2e/sandbox" }
-pallet-contract-caller = { path = "e2e_tests/pallet-contract-caller" }
-# dependencies of `ink_sandbox::create_sandbox!` macro
-frame-support = { workspace = true }
-frame-system = { workspace = true }
-codec = { workspace = true }
-scale-info = { workspace = true }
+flipper-traits = { workspace = true }
+flipper = { path = "flipper", default-features = false, features = ["ink-as-dependency"] }
 
 [lib]
 path = "lib.rs"
@@ -46,7 +38,4 @@ path = "lib.rs"
 default = ["std"]
 std = [
     "ink/std",
-    "ink_sandbox/std",
 ]
-ink-as-dependency = []
-e2e-tests = []
