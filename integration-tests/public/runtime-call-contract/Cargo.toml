@@ -1,5 +1,5 @@
 [workspace]
-members = [ "flipper", "sandbox-runtime", "traits"]
+members = ["sandbox-runtime", "traits"]
 
 [workspace.package]
 authors = ["Parity Technologies <admin@parity.io>"]
@@ -25,12 +25,15 @@ publish = false
 
 [dependencies]
 ink = { path = "../../../crates/ink", default-features = false }
-ink_e2e = { path = "../../../crates/e2e", features = ["sandbox"] }
 flipper-traits = { path = "traits", default-features = false }
-flipper = { path = "flipper", default-features = false, features = ["ink-as-dependency"] }
+
+[dev-dependencies]
+ink_e2e = { path = "../../../crates/e2e", features = ["sandbox"] }
 sandbox-runtime = { path = "sandbox-runtime", default-features = false }
 scale-value = "0.14.1"
-frame-support = { workspace = true }
+# can't use workspace dependency because of `cargo-contract` build not
+# working with workspace dependencies
+frame-support = { version = "31.0.0", default-features = false }
 
 [lib]
 path = "lib.rs"
@@ -40,6 +43,6 @@ default = ["std"]
 std = [
     "ink/std",
     "sandbox-runtime/std",
-    "flipper/std",
     "flipper-traits/std",
 ]
+ink-as-dependency = []
