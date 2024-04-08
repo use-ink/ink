@@ -46,6 +46,17 @@ pub mod pallet {
         ) -> DispatchResult {
             let who = ensure_signed(origin)?;
 
+            // let contract_caller = ink::runtime_contract!(&contract, Flip);
+            // contract_caller.flip()
+            //                 .ref_time_limit(gas_limit.ref_time())
+            //                 .proof_size_limit(gas_limit.proof_size())
+
+            // thinking for first iteration, *not* to have integration API for simplicity?
+            // key: we don't want a dependency on `pallet-contract` from `ink`, can we just use
+            // Into and TryInto traits to do the type conversions, then "register" `pallet_contracts::bare_call`?
+
+            // step 1: KISS, multi step process: build call args, then separately perform invocation?
+
             let ink_account_id =
                 ink::primitives::AccountId::from(<[u8; 32]>::from(contract.clone()));
             let mut flipper: ink::contract_ref!(Flip, ink::env::DefaultEnvironment) =
