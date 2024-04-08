@@ -289,6 +289,18 @@
 <a href="#289" id="289">289</a>
 <a href="#290" id="290">290</a>
 <a href="#291" id="291">291</a>
+<a href="#292" id="292">292</a>
+<a href="#293" id="293">293</a>
+<a href="#294" id="294">294</a>
+<a href="#295" id="295">295</a>
+<a href="#296" id="296">296</a>
+<a href="#297" id="297">297</a>
+<a href="#298" id="298">298</a>
+<a href="#299" id="299">299</a>
+<a href="#300" id="300">300</a>
+<a href="#301" id="301">301</a>
+<a href="#302" id="302">302</a>
+<a href="#303" id="303">303</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::time::SystemTime;
 
 <span class="kw">use </span>frame_support::{
@@ -369,15 +381,24 @@
 </span><span class="macro">macro_rules! </span>create_sandbox {
     (<span class="macro-nonterminal">$name</span>:ident) =&gt; {
         <span class="macro-nonterminal">$</span><span class="macro">crate::paste::paste! </span>{
-            <span class="macro-nonterminal">$</span><span class="macro">crate::create_sandbox!</span>(<span class="macro-nonterminal">$name</span>, [&lt;<span class="macro-nonterminal">$name </span>Runtime&gt;], (), ());
+            <span class="macro-nonterminal">$</span><span class="macro">crate::create_sandbox!</span>(<span class="macro-nonterminal">$name</span>, [&lt;<span class="macro-nonterminal">$name </span>Runtime&gt;], (), (), {});
         }
     };
     (<span class="macro-nonterminal">$name</span>:ident, <span class="macro-nonterminal">$chain_extension</span>: ty, <span class="macro-nonterminal">$debug</span>: ty) =&gt; {
         <span class="macro-nonterminal">$</span><span class="macro">crate::paste::paste! </span>{
-            <span class="macro-nonterminal">$</span><span class="macro">crate::create_sandbox!</span>(<span class="macro-nonterminal">$name</span>, [&lt;<span class="macro-nonterminal">$name </span>Runtime&gt;], <span class="macro-nonterminal">$chain_extension</span>, <span class="macro-nonterminal">$debug</span>);
+            <span class="macro-nonterminal">$</span><span class="macro">crate::create_sandbox!</span>(<span class="macro-nonterminal">$name</span>, [&lt;<span class="macro-nonterminal">$name </span>Runtime&gt;], <span class="macro-nonterminal">$chain_extension</span>, <span class="macro-nonterminal">$debug</span>, {});
         }
     };
-    (<span class="macro-nonterminal">$sandbox</span>:ident, <span class="macro-nonterminal">$runtime</span>:ident, <span class="macro-nonterminal">$chain_extension</span>: ty, <span class="macro-nonterminal">$debug</span>: ty) =&gt; {
+    (<span class="macro-nonterminal">$name</span>:ident, <span class="macro-nonterminal">$chain_extension</span>: ty, <span class="macro-nonterminal">$debug</span>: ty, { $( <span class="macro-nonterminal">$pallet_name</span>:tt : <span class="macro-nonterminal">$pallet</span>:ident ),* $(,)<span class="question-mark">? </span>}) =&gt; {
+        <span class="macro-nonterminal">$</span><span class="macro">crate::paste::paste! </span>{
+            <span class="macro-nonterminal">$</span><span class="macro">crate::create_sandbox!</span>(<span class="macro-nonterminal">$name</span>, [&lt;<span class="macro-nonterminal">$name </span>Runtime&gt;], <span class="macro-nonterminal">$chain_extension</span>, <span class="macro-nonterminal">$debug</span>, {
+                $(
+                    <span class="macro-nonterminal">$pallet_name </span>: <span class="macro-nonterminal">$pallet</span>,
+                )*
+            });
+        }
+    };
+    (<span class="macro-nonterminal">$sandbox</span>:ident, <span class="macro-nonterminal">$runtime</span>:ident, <span class="macro-nonterminal">$chain_extension</span>: ty, <span class="macro-nonterminal">$debug</span>: ty, { $( <span class="macro-nonterminal">$pallet_name</span>:tt : <span class="macro-nonterminal">$pallet</span>:ident ),* $(,)<span class="question-mark">? </span>}) =&gt; {
 
 
 <span class="comment">// Put all the boilerplate into an auxiliary module
@@ -404,6 +425,9 @@
             Balances: <span class="macro-nonterminal">$crate::pallet_balances</span>,
             Timestamp: <span class="macro-nonterminal">$crate::pallet_timestamp</span>,
             Contracts: <span class="macro-nonterminal">$crate::pallet_contracts</span>,
+            $(
+                <span class="macro-nonterminal">$pallet_name</span>: <span class="macro-nonterminal">$pallet</span>,
+            )*
         }
     );
 
