@@ -31,15 +31,12 @@ pretty_assertions = "1"
 serde_json = "1"
 
 [features]
-default = [
-    "std",
-    "derive",
-]
+default = [ "derive", "std" ]
 std = [
 	"ink_prelude/std",
 	"ink_primitives/std",
-	"serde/std",
 	"scale-info/std",
+	"serde/std",
 	"scale/std"
 ]
 derive = []

@@ -55,7 +55,7 @@ pub const BUFFER_SIZE: usize = 16384;
 #[allow(unused_extern_crates)]
 extern crate rlibc;
 
-#[cfg(not(feature = "std"))]
+#[cfg(not(any(feature = "std", feature = "no-panic-handler")))]
 #[allow(unused_variables)]
 #[panic_handler]
 fn panic(info: &core::panic::PanicInfo) -> ! {

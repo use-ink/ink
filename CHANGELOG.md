@@ -6,6 +6,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- [Linter] Add links to detailed lint description ‒ [#2170](https://github.com/paritytech/ink/pull/2170)
+
+### Changed
+- [E2E] Update `subxt` and `polkadot-sdk` dependencies ‒ [#2174](https://github.com/paritytech/ink/pull/2174)
+
+### Fixed
+- Fix outdated docs for `[ink_e2e::test]` ‒ [#2162](https://github.com/paritytech/ink/pull/2162)
+- [E2E] build contracts before initializing node rpc ‒ [#2168](https://github.com/paritytech/ink/pull/2162)
+
 ## Version 5.0.0
 
 ℹ️ _We've created a migration guide from ink! 4 to ink! 5. It also contains an

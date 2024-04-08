@@ -38,11 +38,11 @@ name = "ink_macro"
 proc-macro = true
 
 [features]
-default = ["std"]
+default = [ "std" ]
 std = [
-	"scale/std",
+	"ink_codegen/std",
 	"ink_ir/std",
 	"ink_primitives/std",
-	"ink_codegen/std",
+	"scale/std",
 	"scale-info/std"
 ]

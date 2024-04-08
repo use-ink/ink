@@ -28,10 +28,10 @@ impl-serde = { workspace = true }
 ink_prelude = { workspace = true }
 
 [features]
-default = ["std"]
+default = [ "std" ]
 std = [
-	"itertools/use_std",
 	"either/use_std",
-	"impl-serde/std",
-	"ink_prelude/std"
+	"ink_prelude/std",
+	"itertools/use_std",
+	"impl-serde/std"
 ]

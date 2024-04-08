@@ -63,8 +63,9 @@ scale-info = { workspace = true, features = ["derive"], optional = true }
 ink = { path = "../ink" }
 
 [features]
-default = ["std"]
+default = [ "std" ]
 std = [
+	"blake2",
 	"ink_allocator/std",
 	"ink_prelude/std",
 	"ink_primitives/std",
@@ -80,7 +81,6 @@ std = [
     # Enables hashing crates for off-chain environment.
 	"sha2",
 	"sha3",
-	"blake2",
 	"scale-decode?/std",
 	"scale-encode?/std"
 ]
@@ -89,4 +89,7 @@ std = [
 ink-debug = []
 
 # Disable the ink! provided global memory allocator.
-no-allocator = ["ink_allocator/no-allocator"]
+no-allocator = [ "ink_allocator/no-allocator" ]
+
+# Disable the ink! provided panic handler.
+no-panic-handler = []

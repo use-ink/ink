@@ -64,7 +64,7 @@ declare_lint! {
     /// It typically doesn't make sense to annotate types like `u32` or `i32` as a topic, if those
     /// fields can take continuous values that could be anywhere between `::MIN` and `::MAX`. An
     /// example of a case where it doesn't make sense at all to have a topic on the storage field
-    /// is something like `value: Balance` in the examle below.
+    /// is something like `value: Balance` in the example below.
     ///
     /// ## Example
     /// ```rust
@@ -149,6 +149,9 @@ fn report_field(cx: &LateContext, event_def_id: DefId, field_name: &str) {
                         "consider removing `#[ink(topic)]`".to_string(),
                         snippet,
                         Applicability::Unspecified,
+                    );
+                    diag.help(
+                        "for further information visit https://use.ink/linter/rules/primitive_topic".to_string(),
                     );
                 },
             )

@@ -28,9 +28,5 @@ blake2 = { workspace = true }
 secp256k1 = { workspace = true, features = ["recovery", "global-context"], optional = true }
 
 [features]
-default = ["std"]
-std = [
-	"scale/std",
-	"secp256k1",
-	"ink_primitives/std"
-]
+default = [ "std" ]
+std = [ "ink_primitives/std", "scale/std", "secp256k1" ]
