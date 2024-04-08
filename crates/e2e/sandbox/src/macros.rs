@@ -78,15 +78,24 @@ impl<
 macro_rules! create_sandbox {
     ($name:ident) => {
         $crate::paste::paste! {
-            $crate::create_sandbox!($name, [<$name Runtime>], (), ());
+            $crate::create_sandbox!($name, [<$name Runtime>], (), (), {});
         }
     };
     ($name:ident, $chain_extension: ty, $debug: ty) => {
         $crate::paste::paste! {
-            $crate::create_sandbox!($name, [<$name Runtime>], $chain_extension, $debug);
+            $crate::create_sandbox!($name, [<$name Runtime>], $chain_extension, $debug, {});
         }
     };
-    ($sandbox:ident, $runtime:ident, $chain_extension: ty, $debug: ty) => {
+    ($name:ident, $chain_extension: ty, $debug: ty, { $( $pallet_name:tt : $pallet:ident ),* $(,)? }) => {
+        $crate::paste::paste! {
+            $crate::create_sandbox!($name, [<$name Runtime>], $chain_extension, $debug, {
+                $(
+                    $pallet_name : $pallet,
+                )*
+            });
+        }
+    };
+    ($sandbox:ident, $runtime:ident, $chain_extension: ty, $debug: ty, { $( $pallet_name:tt : $pallet:ident ),* $(,)? }) => {
 
 
 // Put all the boilerplate into an auxiliary module
@@ -113,6 +122,9 @@ mod construct_runtime {
             Balances: $crate::pallet_balances,
             Timestamp: $crate::pallet_timestamp,
             Contracts: $crate::pallet_contracts,
+            $(
+                $pallet_name: $pallet,
+            )*
         }
     );
 
