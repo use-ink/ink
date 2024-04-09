@@ -911,7 +911,7 @@ where
 ///
 /// # Errors
 ///
-/// - If the msg cannot be properly decoded on the pallet contracts side.
+/// - If the message cannot be properly decoded on the pallet contracts side.
 /// - If the runtime doesn't allow for the contract unstable feature.
 /// - If the XCM execution fails because of the runtime's XCM configuration.
 ///
@@ -938,7 +938,7 @@ where
 ///
 /// # Errors
 ///
-/// - If the msg cannot be properly decoded on the pallet contracts side.
+/// - If the message cannot be properly decoded on the pallet contracts side.
 /// - If the runtime doesn't allow for the contract unstable feature.
 ///
 /// # Panics

@@ -5,7 +5,11 @@ mod contract_xcm {
     use ink::{
         env::Error as EnvError,
         prelude::*,
-        xcm::{v4::prelude::*, VersionedLocation, VersionedXcm},
+        xcm::{
+            v4::prelude::*,
+            VersionedLocation,
+            VersionedXcm,
+        },
     };
 
     /// A trivial contract used to exercise the XCM APIs.
@@ -104,12 +108,19 @@ mod contract_xcm {
     #[cfg(all(test, feature = "e2e-tests"))]
     mod e2e_tests {
         use ink::{
-            env::{test::default_accounts, DefaultEnvironment},
+            env::{
+                test::default_accounts,
+                DefaultEnvironment,
+            },
             primitives::AccountId,
         };
         use ink_e2e::{
-            preset::mock_network::{self, MockNetworkSandbox},
-            ChainBackend, ContractsBackend,
+            preset::mock_network::{
+                self,
+                MockNetworkSandbox,
+            },
+            ChainBackend,
+            ContractsBackend,
         };
 
         use super::*;
@@ -218,12 +229,23 @@ mod contract_xcm {
 
         #[ink_e2e::test(backend(runtime_only(sandbox = MockNetworkSandbox)))]
         async fn xcm_send_works<Client: E2EBackend>(mut client: Client) -> E2EResult<()> {
-            use frame_support::traits::{fungibles::Mutate, tokens::currency::Currency};
-            use mock_network::{
-                parachain, parachain_account_sovereign_account_id, relay_chain, ParaA,
-                Relay, TestExt, INITIAL_BALANCE,
+            use frame_support::traits::{
+                fungibles::Mutate,
+                tokens::currency::Currency,
             };
-            use pallet_balances::{BalanceLock, Reasons};
+            use mock_network::{
+                parachain,
+                parachain_account_sovereign_account_id,
+                relay_chain,
+                ParaA,
+                Relay,
+                TestExt,
+                INITIAL_BALANCE,
+            };
+            use pallet_balances::{
+                BalanceLock,
+                Reasons,
+            };
 
             let mut constructor = ContractXcmRef::new();
             let contract = client
