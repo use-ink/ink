@@ -45,7 +45,6 @@ pub use scale;
 pub use scale_info;
 
 pub use xcm;
-pub use xcm_executor;
 
 pub mod storage {
     pub mod traits {

@@ -2561,7 +2561,6 @@ dependencies = [
  "scale-info",
  "staging-xcm",
  "staging-xcm-builder",
- "staging-xcm-executor",
  "trybuild",
 ]
 
@@ -2619,7 +2618,6 @@ dependencies = [
  "sp-keyring",
  "sp-runtime",
  "sp-weights",
- "staging-xcm-executor",
  "subxt",
  "subxt-metadata",
  "subxt-signer",
@@ -2690,7 +2688,6 @@ dependencies = [
  "sha3",
  "staging-xcm",
  "staging-xcm-builder",
- "staging-xcm-executor",
  "static_assertions",
 ]
 

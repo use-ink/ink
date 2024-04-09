@@ -29,7 +29,6 @@ derive_more = { workspace = true, features = ["from"] }
 
 xcm = { workspace = true}
 xcm-builder = { workspace = true}
-xcm-executor = { workspace = true}
 
 [dev-dependencies]
 ink_ir = { workspace = true, default-features = true }
@@ -50,7 +49,6 @@ std = [
 	"scale-info/std",
 	"scale/std",
 	"xcm-builder/std",
-	"xcm-executor/std",
 	"xcm/std"
 ]
 # Enable contract debug messages via `debug_print!` and `debug_println!`.

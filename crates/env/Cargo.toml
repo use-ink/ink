@@ -31,7 +31,6 @@ static_assertions = { workspace = true }
 const_env = { workspace = true }
 xcm = { workspace = true }
 xcm-builder = { workspace = true }
-xcm-executor = { workspace = true }
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
 rlibc = "1"
@@ -83,7 +82,6 @@ std = [
 	"scale-decode?/std",
 	"scale-encode?/std",
 	"xcm-builder/std",
-	"xcm-executor/std",
 	"xcm/std"
 ]
 

@@ -47,7 +47,6 @@ sp-core = { workspace = true }
 sp-keyring = { workspace = true }
 sp-runtime = { workspace = true }
 sp-weights = { workspace = true }
-xcm-executor = { workspace = true, optional = true }
 
 [dev-dependencies]
 # Required for the doctest of `MessageBuilder::call`
@@ -70,7 +69,6 @@ std = [
 	"ink_sandbox/std",
 	"frame-support/std",
 	"pallet-contracts-mock-network?/std",
-	"xcm-executor?/std"
 ]
 
 sandbox = [
@@ -78,5 +76,4 @@ sandbox = [
     "subxt-metadata",
     "pallet-contracts-mock-network",
     "ink_e2e_macro/sandbox",
-    "xcm-executor"
 ]
