@@ -181,8 +181,7 @@ pub trait Environment: Clone {
         + PartialEq
         + Eq
         + AtLeast32BitUnsigned
-        + FromLittleEndian
-        + core::fmt::Debug;
+        + FromLittleEndian;
 
     /// The chain extension for the environment.
     ///
