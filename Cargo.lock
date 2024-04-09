@@ -6433,9 +6433,9 @@ dependencies = [
 
 [[package]]
 name = "subxt-metadata"
-version = "0.35.1"
+version = "0.35.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5e2ed94dbebe8a093c8990bfced142ac5377a1be8e5e2c8cfa5e0d7dce851289"
+checksum = "65ffc8b7d246ebd38611f818547ee8e09fd69717cb79aae22e3a54fc423e6e14"
 dependencies = [
  "derive_more",
  "frame-metadata 16.0.0",
