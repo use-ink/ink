@@ -108,7 +108,7 @@ mod contract_xcm {
             primitives::AccountId,
         };
         use ink_e2e::{
-            preset::mock_network::{self, MockNetworkSandbox, TestExt},
+            preset::mock_network::{self, MockNetworkSandbox},
             ChainBackend, ContractsBackend,
         };
 
