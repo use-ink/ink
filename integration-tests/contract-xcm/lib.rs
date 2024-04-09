@@ -12,7 +12,7 @@ mod contract_xcm {
         },
     };
 
-    /// A trivial contract used to exercise the XCM APIs.
+    /// A trivial contract used to exercise XCM API.
     #[ink(storage)]
     #[derive(Default)]
     pub struct ContractXcm;
