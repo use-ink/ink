@@ -7,8 +7,8 @@ publish = false
 
 [dependencies]
 ink = { path = "../../crates/ink", default-features = false }
-frame-support = { git = "https://github.com/paritytech/polkadot-sdk", rev = "59f868d1e9502cb4e434127cac6e439d01d7dd2b", default-features = false }
-pallet-balances = { git = "https://github.com/paritytech/polkadot-sdk", rev = "59f868d1e9502cb4e434127cac6e439d01d7dd2b", default-features = false }
+frame-support = { version = "32.0.0", default-features = false }
+pallet-balances = { version = "33.0.0", default-features = false }
 
 # Substrate
 #
@@ -16,8 +16,9 @@ pallet-balances = { git = "https://github.com/paritytech/polkadot-sdk", rev = "5
 # (especially for global allocator).
 #
 # See also: https://substrate.stackexchange.com/questions/4733/error-when-compiling-a-contract-using-the-xcm-chain-extension.
-sp-io = { git = "https://github.com/paritytech/polkadot-sdk", rev = "59f868d1e9502cb4e434127cac6e439d01d7dd2b", default-features = false, features = ["disable_panic_handler", "disable_oom", "disable_allocator"] }
-sp-runtime = { git = "https://github.com/paritytech/polkadot-sdk", rev = "59f868d1e9502cb4e434127cac6e439d01d7dd2b", default-features = false }
+
+sp-io = { version = "34.0.0", default-features = false, features = ["disable_panic_handler", "disable_oom", "disable_allocator"] }
+sp-runtime = { version = "27.0.0", default-features = false }
 
 [dev-dependencies]
 ink_e2e = { path = "../../crates/e2e", features = ["sandbox"] }
