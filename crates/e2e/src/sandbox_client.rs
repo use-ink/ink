@@ -474,7 +474,6 @@ pub mod preset {
         };
         pub use pallet_contracts_mock_network::*;
         use sp_runtime::traits::Dispatchable;
-        pub use xcm_executor;
 
         /// A [`ink_sandbox::Sandbox`] that can be used to test contracts
         /// with a mock network of relay chain and parachains.
