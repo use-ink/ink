@@ -15,36 +15,16 @@
 //! The public raw interface towards the host Wasm engine.
 
 use crate::{
-    backend::{
-        EnvBackend,
-        TypedEnvBackend,
-    },
+    backend::{EnvBackend, TypedEnvBackend},
     call::{
-        Call,
-        CallParams,
-        CallV1,
-        ConstructorReturnType,
-        CreateParams,
-        DelegateCall,
-        FromAccountId,
-        LimitParamsV1,
-        LimitParamsV2,
+        Call, CallParams, CallV1, ConstructorReturnType, CreateParams, DelegateCall,
+        FromAccountId, LimitParamsV1, LimitParamsV2,
     },
-    engine::{
-        EnvInstance,
-        OnInstance,
-    },
+    engine::{EnvInstance, OnInstance},
     event::Event,
-    hash::{
-        CryptoHash,
-        HashOutput,
-    },
-    types::{
-        Gas,
-        XcmQueryId,
-    },
-    Environment,
-    Result,
+    hash::{CryptoHash, HashOutput},
+    types::Gas,
+    Environment, Result,
 };
 use ink_storage_traits::Storable;
 use pallet_contracts_uapi::ReturnFlags;
@@ -957,54 +937,5 @@ where
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         TypedEnvBackend::xcm_send::<E, _>(instance, dest, msg)
-    })
-}
-
-/// Create a new query, using the contract's address as the responder.
-///
-/// For more details consult
-/// [host function documentation](https://paritytech.github.io/substrate/master/pallet_contracts/api_doc/trait.Current.html#tymethod.xcm_query).
-///
-/// # Errors
-///
-/// - If parameters cannot be properly decoded on the pallet contracts side.
-/// - If the runtime doesn't allow for the contract unstable feature.
-///
-/// # Panics
-///
-/// Panics in the off-chain environment.
-pub fn xcm_query<E>(
-    timeout: &E::BlockNumber,
-    match_querier: &xcm::VersionedLocation,
-) -> Result<XcmQueryId>
-where
-    E: Environment,
-{
-    <EnvInstance as OnInstance>::on_instance(|instance| {
-        TypedEnvBackend::xcm_query::<E>(instance, timeout, match_querier)
-    })
-}
-
-/// Take an XCM response for the specified query.
-///
-/// For more details consult
-/// [host function documentation](https://paritytech.github.io/substrate/master/pallet_contracts/api_doc/trait.Current.html#tymethod.xcm_take_response).
-///
-/// # Errors
-///
-/// - If the query_id cannot be properly decoded on the pallet contracts side.
-/// - If the runtime doesn't allow for the contract unstable feature.
-///
-/// # Panics
-///
-/// Panics in the off-chain environment.
-pub fn xcm_take_response<E>(
-    query_id: &XcmQueryId,
-) -> Result<xcm_executor::traits::QueryResponseStatus<E::BlockNumber>>
-where
-    E: Environment,
-{
-    <EnvInstance as OnInstance>::on_instance(|instance| {
-        TypedEnvBackend::xcm_take_response::<E>(instance, query_id)
     })
 }

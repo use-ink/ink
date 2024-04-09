@@ -14,24 +14,12 @@
 
 use crate::{
     call::{
-        Call,
-        CallParams,
-        CallV1,
-        ConstructorReturnType,
-        CreateParams,
-        DelegateCall,
-        FromAccountId,
-        LimitParamsV1,
-        LimitParamsV2,
+        Call, CallParams, CallV1, ConstructorReturnType, CreateParams, DelegateCall,
+        FromAccountId, LimitParamsV1, LimitParamsV2,
     },
     event::Event,
-    hash::{
-        CryptoHash,
-        HashOutput,
-    },
-    Environment,
-    Result,
-    XcmQueryId,
+    hash::{CryptoHash, HashOutput},
+    Environment, Result,
 };
 use ink_storage_traits::Storable;
 pub use pallet_contracts_uapi::ReturnFlags;
@@ -480,29 +468,4 @@ pub trait TypedEnvBackend: EnvBackend {
     where
         E: Environment,
         Call: scale::Encode;
-
-    /// Create a new query, using the contract's address as the responder.
-    ///
-    /// # Note
-    ///
-    /// For more details visit: [`xcm`][`crate::xcm_query`]
-    fn xcm_query<E>(
-        &mut self,
-        timeout: &E::BlockNumber,
-        match_querier: &xcm::VersionedLocation,
-    ) -> Result<XcmQueryId>
-    where
-        E: Environment;
-
-    /// Take an XCM response for the specified query.
-    ///
-    /// # Note
-    ///
-    /// For more details visit: [`xcm`][`crate::xcm_take_response`]
-    fn xcm_take_response<E>(
-        &mut self,
-        query_id: &XcmQueryId,
-    ) -> Result<xcm_executor::traits::QueryResponseStatus<E::BlockNumber>>
-    where
-        E: Environment;
 }

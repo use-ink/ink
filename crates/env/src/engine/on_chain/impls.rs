@@ -12,52 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use super::{
-    EnvInstance,
-    ScopedBuffer,
-};
+use super::{EnvInstance, ScopedBuffer};
 use crate::{
     call::{
-        Call,
-        CallParams,
-        CallV1,
-        ConstructorReturnType,
-        CreateParams,
-        DelegateCall,
-        FromAccountId,
-        LimitParamsV1,
-        LimitParamsV2,
+        Call, CallParams, CallV1, ConstructorReturnType, CreateParams, DelegateCall,
+        FromAccountId, LimitParamsV1, LimitParamsV2,
     },
-    event::{
-        Event,
-        TopicsBuilderBackend,
-    },
-    hash::{
-        Blake2x128,
-        Blake2x256,
-        CryptoHash,
-        HashOutput,
-        Keccak256,
-        Sha2x256,
-    },
-    Clear,
-    EnvBackend,
-    Environment,
-    FromLittleEndian,
-    Result,
-    TypedEnvBackend,
-    XcmQueryId,
+    event::{Event, TopicsBuilderBackend},
+    hash::{Blake2x128, Blake2x256, CryptoHash, HashOutput, Keccak256, Sha2x256},
+    Clear, EnvBackend, Environment, FromLittleEndian, Result, TypedEnvBackend,
 };
-use ink_storage_traits::{
-    decode_all,
-    Storable,
-};
+use ink_storage_traits::{decode_all, Storable};
 use pallet_contracts_uapi::{
-    CallFlags,
-    HostFn,
-    HostFnImpl as ext,
-    ReturnErrorCode,
-    ReturnFlags,
+    CallFlags, HostFn, HostFnImpl as ext, ReturnErrorCode, ReturnFlags,
 };
 use xcm::VersionedXcm;
 
@@ -735,7 +702,9 @@ impl TypedEnvBackend for EnvInstance {
         Call: scale::Encode,
     {
         let mut scope = self.scoped_buffer();
-        let enc_msg = scope.take_encoded(msg);
+
+        // Double encoding the message as the host fn expects an encoded message.
+        let enc_msg = scope.take_encoded(&scale::Encode::encode(msg));
         #[allow(deprecated)]
         ext::xcm_execute(enc_msg).map_err(Into::into)
     }
@@ -753,50 +722,13 @@ impl TypedEnvBackend for EnvInstance {
         let output = scope.take(32);
         scope.append_encoded(dest);
         let enc_dest = scope.take_appended();
-        scope.append_encoded(msg);
+
+        // Double encoding the message as the host fn expects an encoded message.
+        scope.append_encoded(&scale::Encode::encode(msg));
         let enc_msg = scope.take_appended();
         #[allow(deprecated)]
         ext::xcm_send(enc_dest, enc_msg, output.try_into().unwrap())?;
         let hash: xcm::v4::XcmHash = scale::Decode::decode(&mut &output[..])?;
         Ok(hash)
-    }
-
-    fn xcm_query<E>(
-        &mut self,
-        timeout: &E::BlockNumber,
-        match_querier: &xcm::VersionedLocation,
-    ) -> Result<XcmQueryId>
-    where
-        E: Environment,
-    {
-        let mut scope = self.scoped_buffer();
-        let output = scope.take(8);
-        scope.append_encoded(timeout);
-        let enc_timeout = scope.take_appended();
-        scope.append_encoded(match_querier);
-        let enc_match_querier = scope.take_appended();
-
-        #[allow(deprecated)]
-        ext::xcm_query(enc_timeout, enc_match_querier, output)?;
-        let id = scale::Decode::decode(&mut &output[..])?;
-        Ok(id)
-    }
-
-    fn xcm_take_response<E>(
-        &mut self,
-        query_id: &XcmQueryId,
-    ) -> Result<xcm_executor::traits::QueryResponseStatus<E::BlockNumber>>
-    where
-        E: Environment,
-    {
-        let mut scope = self.scoped_buffer();
-        let output = scope.take(64); // TOSO use max_enoded_len
-        scope.append_encoded(query_id);
-        let enc_query_id = scope.take_appended();
-
-        #[allow(deprecated)]
-        ext::xcm_take_response(enc_query_id, output)?;
-        let response = scale::Decode::decode(&mut &output[..])?;
-        Ok(response)
     }
 }

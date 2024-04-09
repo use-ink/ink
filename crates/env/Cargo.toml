@@ -22,7 +22,6 @@ ink_prelude = { workspace = true }
 ink_primitives = { workspace = true }
 pallet-contracts-uapi = { workspace = true }
 
-log = { workspace = true }
 scale = { workspace = true, features = ["max-encoded-len"] }
 derive_more = { workspace = true, features = ["from", "display"] }
 num-traits = { workspace = true, features = ["i128"] }
@@ -82,7 +81,10 @@ std = [
 	"sha2",
 	"sha3",
 	"scale-decode?/std",
-	"scale-encode?/std"
+	"scale-encode?/std",
+	"xcm-builder/std",
+	"xcm-executor/std",
+	"xcm/std"
 ]
 
 # Enable contract debug messages via `debug_print!` and `debug_println!`.

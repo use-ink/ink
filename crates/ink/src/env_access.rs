@@ -16,23 +16,11 @@ use crate::ChainExtensionInstance;
 use core::marker::PhantomData;
 use ink_env::{
     call::{
-        Call,
-        CallParams,
-        CallV1,
-        ConstructorReturnType,
-        CreateParams,
-        DelegateCall,
-        FromAccountId,
-        LimitParamsV1,
-        LimitParamsV2,
+        Call, CallParams, CallV1, ConstructorReturnType, CreateParams, DelegateCall,
+        FromAccountId, LimitParamsV1, LimitParamsV2,
     },
-    hash::{
-        CryptoHash,
-        HashOutput,
-    },
-    Environment,
-    Result,
-    XcmQueryId,
+    hash::{CryptoHash, HashOutput},
+    Environment, Result,
 };
 use pallet_contracts_uapi::ReturnErrorCode;
 
@@ -1356,20 +1344,5 @@ where
         msg: &xcm::VersionedXcm<Call>,
     ) -> Result<xcm::v4::XcmHash> {
         ink_env::xcm_send::<E, _>(dest, msg)
-    }
-
-    pub fn xcm_query(
-        self,
-        timeout: &E::BlockNumber,
-        match_querier: &xcm::VersionedLocation,
-    ) -> Result<XcmQueryId> {
-        ink_env::xcm_query::<E>(timeout, match_querier)
-    }
-
-    pub fn xcm_take_response(
-        self,
-        query_id: &XcmQueryId,
-    ) -> Result<xcm_executor::traits::QueryResponseStatus<E::BlockNumber>> {
-        ink_env::xcm_take_response::<E>(query_id)
     }
 }

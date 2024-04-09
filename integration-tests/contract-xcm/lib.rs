@@ -5,12 +5,7 @@ mod contract_xcm {
     use ink::{
         env::Error as EnvError,
         prelude::*,
-        xcm::{
-            v4::prelude::*,
-            VersionedLocation,
-            VersionedXcm,
-        },
-        xcm_executor,
+        xcm::{v4::prelude::*, VersionedLocation, VersionedXcm},
     };
 
     /// A trivial contract used to exercise the XCM APIs.
@@ -104,51 +99,17 @@ mod contract_xcm {
             )?;
             Ok(hash)
         }
-
-        #[ink(message)]
-        pub fn xcm_query(&mut self) -> Result<u64, RuntimeError> {
-            let account_id = self.env().account_id();
-            let account_id: &[u8; 32] = account_id.as_ref();
-            let account_id: [u8; 32] = account_id.clone();
-            let account_id = AccountId32 {
-                network: None,
-                id: account_id.into(),
-            };
-            let match_querier = Location::from(account_id);
-            let match_querier = VersionedLocation::V4(match_querier);
-            let query_id = self.env().xcm_query(&1u32, &match_querier)?;
-            return Ok(query_id);
-        }
-
-        #[ink(message)]
-
-        pub fn xcm_take_response(
-            &mut self,
-        ) -> Result<xcm_executor::traits::QueryResponseStatus<u32>, RuntimeError>
-        {
-            let query_id = self.xcm_query()?;
-            let response = self.env().xcm_take_response(&query_id)?;
-            return Ok(response)
-        }
     }
 
     #[cfg(all(test, feature = "e2e-tests"))]
     mod e2e_tests {
         use ink::{
-            env::{
-                test::default_accounts,
-                DefaultEnvironment,
-            },
+            env::{test::default_accounts, DefaultEnvironment},
             primitives::AccountId,
         };
         use ink_e2e::{
-            preset::mock_network::{
-                self,
-                MockNetworkSandbox,
-                TestExt,
-            },
-            ChainBackend,
-            ContractsBackend,
+            preset::mock_network::{self, MockNetworkSandbox, TestExt},
+            ChainBackend, ContractsBackend,
         };
 
         use super::*;
@@ -257,23 +218,12 @@ mod contract_xcm {
 
         #[ink_e2e::test(backend(runtime_only(sandbox = MockNetworkSandbox)))]
         async fn xcm_send_works<Client: E2EBackend>(mut client: Client) -> E2EResult<()> {
-            use frame_support::traits::{
-                fungibles::Mutate,
-                tokens::currency::Currency,
-            };
+            use frame_support::traits::{fungibles::Mutate, tokens::currency::Currency};
             use mock_network::{
-                parachain,
-                parachain_account_sovereign_account_id,
-                relay_chain,
-                ParaA,
-                Relay,
-                TestExt,
-                INITIAL_BALANCE,
+                parachain, parachain_account_sovereign_account_id, relay_chain, ParaA,
+                Relay, TestExt, INITIAL_BALANCE,
             };
-            use pallet_balances::{
-                BalanceLock,
-                Reasons,
-            };
+            use pallet_balances::{BalanceLock, Reasons};
 
             let mut constructor = ContractXcmRef::new();
             let contract = client
@@ -322,71 +272,6 @@ mod contract_xcm {
                 );
             });
 
-            Ok(())
-        }
-
-        #[ink_e2e::test(backend(runtime_only(sandbox = MockNetworkSandbox)))]
-        async fn xcm_query_works<Client: E2EBackend>(
-            mut client: Client,
-        ) -> E2EResult<()> {
-            use mock_network::{
-                xcm_executor::traits::{
-                    QueryHandler,
-                    QueryResponseStatus,
-                },
-                ParaA,
-                ParachainPalletXcm,
-            };
-            let mut constructor = ContractXcmRef::new();
-            let contract = client
-                .instantiate("contract_xcm", &ink_e2e::alice(), &mut constructor)
-                .value(CONTRACT_BALANCE)
-                .submit()
-                .await
-                .expect("instantiate failed");
-
-            let mut call_builder = contract.call_builder::<ContractXcm>();
-            let message = call_builder.xcm_query();
-            let call_res = client.call(&ink_e2e::alice(), &message).submit().await?;
-            let query_id = call_res.return_value().unwrap();
-
-            ParaA::execute_with(|| {
-                // Verify that the query exists and is pending.
-                let response =
-                    <ParachainPalletXcm as QueryHandler>::take_response(query_id);
-                let expected_response = QueryResponseStatus::Pending { timeout: 1 };
-                assert_eq!(response, expected_response);
-            });
-
-            Ok(())
-        }
-
-        #[ink_e2e::test(backend(runtime_only(sandbox = MockNetworkSandbox)))]
-        async fn xcm_take_response_works<Client: E2EBackend>(
-            mut client: Client,
-        ) -> E2EResult<()> {
-            use mock_network::{
-                xcm_executor::traits::{
-                    QueryHandler,
-                    QueryResponseStatus,
-                },
-                ParaA,
-                ParachainPalletXcm,
-            };
-            let mut constructor = ContractXcmRef::new();
-            let contract = client
-                .instantiate("contract_xcm", &ink_e2e::alice(), &mut constructor)
-                .value(CONTRACT_BALANCE)
-                .submit()
-                .await
-                .expect("instantiate failed");
-
-            let mut call_builder = contract.call_builder::<ContractXcm>();
-            let message = call_builder.xcm_take_response();
-            let call_res = client.call(&ink_e2e::alice(), &message).submit().await?;
-            let response = call_res.return_value().unwrap();
-
-            println!("response: {:?}", response);
             Ok(())
         }
     }
