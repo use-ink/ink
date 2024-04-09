@@ -6447,9 +6447,9 @@ dependencies = [
 
 [[package]]
 name = "subxt-signer"
-version = "0.35.1"
+version = "0.35.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0718d2b5411c92481498728839cf3db00c0018635e302b22a02871dfde6ae075"
+checksum = "cccee87fcaa2c64a57d098f5d0b26c315a9febf7eac91990be8ff1f37c78a308"
 dependencies = [
  "bip39",
  "cfg-if",
