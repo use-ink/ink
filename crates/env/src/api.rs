@@ -906,12 +906,12 @@ where
 
 /// Execute an XCM message locally, using the contract's address as the origin.
 ///
-/// For more details consult
+/// For more details consult the
 /// [host function documentation](https://paritytech.github.io/substrate/master/pallet_contracts/api_doc/trait.Current.html#tymethod.xcm_execute).
 ///
 /// # Errors
 ///
-/// - If the message cannot be properly decoded on the pallet contracts side.
+/// - If the message cannot be properly decoded on the `pallet-contracts` side.
 /// - If the runtime doesn't allow for the contract unstable feature.
 /// - If the XCM execution fails because of the runtime's XCM configuration.
 ///
@@ -930,8 +930,8 @@ where
 
 /// Send an XCM message, using the contract's address as the origin.
 ///
-/// `msg` (after SCALE encoding) should be decodable to a valid instance of `RuntimeCall`
-/// enum.
+/// The `msg` argument has to be SCALE encoded, it needs to be decodable to a valid 
+/// instance of the `RuntimeCall` enum.
 ///
 /// For more details consult
 /// [host function documentation](https://paritytech.github.io/substrate/master/pallet_contracts/api_doc/trait.Current.html#tymethod.xcm_send).

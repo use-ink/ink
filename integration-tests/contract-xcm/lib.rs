@@ -52,7 +52,7 @@ mod contract_xcm {
         ///
         /// Fails if:
         ///  - called in the off-chain environment
-        ///  - the chain is not configured with Xcm
+        ///  - the chain is not configured to support XCM 
         ///  - the XCM program executed failed (e.g contract doesn't have enough balance)
         #[ink(message)]
         pub fn transfer_through_xcm(
@@ -79,7 +79,7 @@ mod contract_xcm {
         ///
         /// Fails if:
         ///  - called in the off-chain environment
-        ///  - the chain is not configured with Xcm
+        ///  - the chain is not configured to support XCM
         ///  - the XCM program executed failed (e.g contract doesn't have enough balance)
         #[ink(message)]
         pub fn lock_funds_to_relay(
