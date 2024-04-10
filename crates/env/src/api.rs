@@ -912,7 +912,6 @@ where
 /// # Errors
 ///
 /// - If the message cannot be properly decoded on the `pallet-contracts` side.
-/// - If the runtime doesn't allow for the contract unstable feature.
 /// - If the XCM execution fails because of the runtime's XCM configuration.
 ///
 /// # Panics
@@ -930,7 +929,7 @@ where
 
 /// Send an XCM message, using the contract's address as the origin.
 ///
-/// The `msg` argument has to be SCALE encoded, it needs to be decodable to a valid 
+/// The `msg` argument has to be SCALE encoded, it needs to be decodable to a valid
 /// instance of the `RuntimeCall` enum.
 ///
 /// For more details consult
@@ -939,7 +938,6 @@ where
 /// # Errors
 ///
 /// - If the message cannot be properly decoded on the `pallet-contracts` side.
-/// - If the runtime doesn't allow for the contract unstable feature.
 ///
 /// # Panics
 ///
