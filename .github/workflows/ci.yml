@@ -612,7 +612,8 @@ jobs:
       - name: Build Contract RISCV Examples
         if: ${{ matrix.type == 'RISCV' }}
         env:
-          RUSTC_BOOTSTRAP:               1
+          RUSTC_BOOTSTRAP: 1
+          RUSTUP_TOOLCHAIN: rve-nightly
         run: |
           rustup component add rust-src --toolchain stable
           cargo contract -V
