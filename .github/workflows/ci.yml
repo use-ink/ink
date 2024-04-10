@@ -321,13 +321,17 @@ jobs:
           done
 
   test:
-    runs-on: ubuntu-latest-8-cores
+    runs-on: ubuntu-latest
     needs: [set-image, check]
     defaults:
       run:
         shell: bash
     container:
       image: ${{ needs.set-image.outputs.IMAGE }}
+    strategy:
+      fail-fast: false
+      matrix:
+        workspace: [ink, linting]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -339,12 +343,12 @@ jobs:
         with:
           cache-directories: |
             ${{ env.CARGO_TARGET_DIR }}
-            ${{ env.CARGO_TARGET_DIR }}/linting
 
       - name: Rust Info
         uses: ./.github/rust-info
 
       - name: Test
+        if: ${{ matrix.workspace == 'ink' }}
         env:
           # Fix for linking of `linkme` for `cargo test`: https://github.com/dtolnay/linkme/issues/49
           RUSTFLAGS:                   -Clink-arg=-z -Clink-arg=nostart-stop-gc
@@ -356,6 +360,18 @@ jobs:
         run: |
           cargo nextest run --all-features --no-fail-fast --workspace --locked
           cargo test --all-features --no-fail-fast --workspace --doc --locked
+
+      - name: Test Linting
+        if: ${{ matrix.workspace == 'linting' }}
+        env:
+          # Fix for linking of `linkme` for `cargo test`: https://github.com/dtolnay/linkme/issues/49
+          RUSTFLAGS:                   -Clink-arg=-z -Clink-arg=nostart-stop-gc
+          # Since we run the tests with `--all-features` this implies the feature
+          # `ink-fuzz-tests` as well -- i.e. the fuzz tests are run.
+          # There's no way to disable a single feature while enabling all features
+          # at the same time, hence we use this workaround.
+          QUICKCHECK_TESTS:            0
+        run: |
           pushd linting && cargo nextest run --all-features --no-fail-fast --workspace && popd
 
   docs:
@@ -399,7 +415,7 @@ jobs:
           retention-days: 1
 
   codecov:
-    runs-on: ubuntu-latest-8-cores
+    runs-on: ubuntu-latest
     needs: [set-image, check, fmt, clippy, clippy-examples, dylint, spellcheck]
     defaults:
       run:
@@ -459,16 +475,48 @@ jobs:
 ### examples
 
   examples-test:
-    runs-on: ubuntu-latest-8-cores
+    runs-on: ubuntu-latest
+    needs: [clippy]
+    strategy:
+      matrix:
+        partition: [1, 2, 3, 4, 5, 6]
+    steps:
+      # We go out of storage on runners
+      - name: Clean runner
+        run: |
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /opt/ghc
+          sudo rm -rf "/usr/local/share/boost"
+          sudo rm -rf "$AGENT_TOOLSDIRECTORY"
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 100
+
+      - name: Cache
+        uses: Swatinem/rust-cache@23bce251a8cd2ffc3c1075eaa2367cf899916d84 # v2.7.3
+        with:
+          cache-directories: ${{ env.CARGO_TARGET_DIR }}
+
+      - name: Test Examples
+        env:
+          # Fix linking of `linkme`: https://github.com/dtolnay/linkme/issues/49
+          RUSTFLAGS:                     -Clink-arg=-z -Clink-arg=nostart-stop-gc
+        uses: docker://paritytech/ci-unified:bullseye-1.75.0
+        with:
+          # run all tests with --all-features, which will run the e2e-tests feature if present
+          args: /bin/bash -c "scripts/for_all_contracts_exec.sh --path integration-tests --ignore public/static-buffer --partition ${{ matrix.partition }}/6 -- cargo test \
+            --all-features --manifest-path {}"
+
+  examples-custom-test:
+    runs-on: ubuntu-latest
     needs: [set-image, clippy]
     defaults:
       run:
         shell: bash
     container:
       image: ${{ needs.set-image.outputs.IMAGE }}
-    strategy:
-      matrix:
-        partition: [1, 2, 3, 4]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -483,17 +531,7 @@ jobs:
       - name: Rust Info
         uses: ./.github/rust-info
 
-      - name: Test Examples
-        env:
-          # Fix linking of `linkme`: https://github.com/dtolnay/linkme/issues/49
-          RUSTFLAGS:                     -Clink-arg=-z -Clink-arg=nostart-stop-gc
-        run: |
-          # run all tests with --all-features, which will run the e2e-tests feature if present
-          scripts/for_all_contracts_exec.sh --path integration-tests --ignore public/static-buffer --partition ${{ matrix.partition }}/4 -- cargo test \
-            --all-features --manifest-path {}
-
       - name: Test static-buffer example
-        if: ${{ matrix.partition == 3 }}
         env:
           # Fix linking of `linkme`: https://github.com/dtolnay/linkme/issues/49
           RUSTFLAGS:                     -Clink-arg=-z -Clink-arg=nostart-stop-gc
@@ -503,23 +541,22 @@ jobs:
           INK_STATIC_BUFFER_SIZE=30 cargo test --manifest-path integration-tests/public/static-buffer/Cargo.toml --all-features
 
       - name: Run E2E test with on-chain contract
-        if: ${{ matrix.partition == 4 }}
         env:
-            # Fix linking of `linkme`: https://github.com/dtolnay/linkme/issues/49
-            RUSTFLAGS:                     -Clink-arg=-z -Clink-arg=nostart-stop-gc
+          # Fix linking of `linkme`: https://github.com/dtolnay/linkme/issues/49
+          RUSTFLAGS:                     -Clink-arg=-z -Clink-arg=nostart-stop-gc
         run: |
-            # run flipper E2E test with on-chain contract
-            substrate-contracts-node -lruntime::contracts=debug 2>&1 &
-            cargo contract build --release --manifest-path integration-tests/public/flipper/Cargo.toml
-            export CONTRACT_ADDR_HEX=$(cargo contract instantiate \
-              --manifest-path integration-tests/public/flipper/Cargo.toml \
-              --suri //Alice --args true -x -y --output-json | \
-              jq -r .contract | xargs subkey inspect | grep -o "0x.*" | head -n1)
-            CONTRACTS_NODE_URL=ws://127.0.0.1:9944 cargo test \
-              --features e2e-tests \
-              --manifest-path integration-tests/public/flipper/Cargo.toml \
-              e2e_test_deployed_contract \
-              -- --ignored --nocapture
+          # run flipper E2E test with on-chain contract
+          substrate-contracts-node -lruntime::contracts=debug 2>&1 &
+          cargo contract build --release --manifest-path integration-tests/public/flipper/Cargo.toml
+          export CONTRACT_ADDR_HEX=$(cargo contract instantiate \
+            --manifest-path integration-tests/public/flipper/Cargo.toml \
+            --suri //Alice --args true -x -y --output-json | \
+            jq -r .contract | xargs subkey inspect | grep -o "0x.*" | head -n1)
+          CONTRACTS_NODE_URL=ws://127.0.0.1:9944 cargo test \
+            --features e2e-tests \
+            --manifest-path integration-tests/public/flipper/Cargo.toml \
+            e2e_test_deployed_contract \
+            -- --ignored --nocapture
 
   examples-contract-build:
     runs-on: ubuntu-latest
@@ -622,14 +659,14 @@ jobs:
 # measurements
 
   measurements:
-    needs: [examples-docs, examples-contract-build, examples-test]
+    needs: [examples-docs, examples-contract-build, examples-test, examples-custom-test]
     uses: ./.github/workflows/measurements.yml
 
 # fuzz
 
   fuzz:
     runs-on: ubuntu-latest
-    needs: [set-image, examples-docs, examples-contract-build, examples-test]
+    needs: [set-image, examples-docs, examples-contract-build, examples-test, examples-custom-test]
     if: >
       github.event_name == 'push' &&
         github.ref == 'refs/heads/master'
