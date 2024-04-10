@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - [Linter] Add links to detailed lint description ‒ [#2170](https://github.com/paritytech/ink/pull/2170)
+- Add `xcm_execute` and `xcm_send` support - [#1912](https://github.com/paritytech/ink/pull/1912)
 
 ### Changed
 - [E2E] Update `subxt` and `polkadot-sdk` dependencies ‒ [#2174](https://github.com/paritytech/ink/pull/2174)
