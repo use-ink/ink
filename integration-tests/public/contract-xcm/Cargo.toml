@@ -6,7 +6,7 @@ edition = "2021"
 publish = false
 
 [dependencies]
-ink = { path = "../../crates/ink", default-features = false }
+ink = { path = "../../../crates/ink", default-features = false }
 frame-support = { version = "32.0.0", default-features = false }
 pallet-balances = { version = "33.0.0", default-features = false }
 
@@ -21,7 +21,7 @@ sp-io = { version = "34.0.0", default-features = false, features = ["disable_pan
 sp-runtime = { version = "27.0.0", default-features = false }
 
 [dev-dependencies]
-ink_e2e = { path = "../../crates/e2e", features = ["sandbox"] }
+ink_e2e = { path = "../../../crates/e2e", features = ["sandbox"] }
 
 [lib]
 path = "lib.rs"
