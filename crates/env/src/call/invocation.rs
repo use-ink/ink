@@ -16,7 +16,7 @@ use core::marker::PhantomData;
 use crate::Environment;
 use super::{ExecutionInput, utils::ReturnType};
 
-/// todo: create a new generated type a la ContractBuilder which produces an insstance of this per message.
+/// todo: create a new generated type a la ContractBuilder which produces an instance of this per message.
 /// `ink::invoke!(Flip)::flip()` // returns Invoke instance
 pub struct Invoke<Args, Output> {
     input: ExecutionInput<Args>,
