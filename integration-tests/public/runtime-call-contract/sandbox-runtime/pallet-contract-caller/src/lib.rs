@@ -4,7 +4,17 @@
 
 #![cfg_attr(not(feature = "std"), no_std)]
 
+use frame_support::pallet_prelude::Weight;
+use frame_support::traits::fungible::Inspect;
+use ink::codegen::ImpliesReturn;
+use ink::env::call::{CallBuilder, ExecutionInput, Invoke, Invoker};
+use ink::env::call::utils::{ReturnType, Set};
 pub use pallet::*;
+use ink::env::Environment;
+use ink::scale;
+
+type AccountIdOf<R> = <R as frame_system::Config>::AccountId;
+type BalanceOf<R> = <<R as pallet_contracts::Config>::Currency as Inspect<<R as frame_system::Config>::AccountId>>::Balance;
 
 #[frame_support::pallet]
 pub mod pallet {
@@ -16,8 +26,7 @@ pub mod pallet {
     };
     use frame_system::pallet_prelude::*;
     use ink::codegen::TraitCallBuilder;
-
-    type AccountIdOf<Runtime> = <Runtime as frame_system::Config>::AccountId;
+    use ink::env::call::utils::EmptyArgumentList;
 
     #[pallet::pallet]
     pub struct Pallet<T>(_);
@@ -43,19 +52,9 @@ pub mod pallet {
             origin: OriginFor<T>,
             contract: AccountIdOf<T>,
             gas_limit: Weight,
+            storage_deposit_limit: Option<BalanceOf<T>>,
         ) -> DispatchResult {
             let who = ensure_signed(origin)?;
-
-            // let contract_caller = ink::runtime_contract!(&contract, Flip);
-            // contract_caller.flip()
-            //                 .ref_time_limit(gas_limit.ref_time())
-            //                 .proof_size_limit(gas_limit.proof_size())
-
-            // thinking for first iteration, *not* to have integration API for simplicity?
-            // key: we don't want a dependency on `pallet-contract` from `ink`, can we just use
-            // Into and TryInto traits to do the type conversions, then "register" `pallet_contracts::bare_call`?
-
-            // step 1: KISS, multi step process: build call args, then separately perform invocation?
 
             let ink_account_id =
                 ink::primitives::AccountId::from(<[u8; 32]>::from(contract.clone()));
@@ -63,36 +62,64 @@ pub mod pallet {
                 ink_account_id.into();
             let call_builder = flipper.call_mut();
 
-            let params = call_builder
-                .flip()
-                .ref_time_limit(gas_limit.ref_time())
-                .proof_size_limit(gas_limit.proof_size())
-                .params();
-
-            // Next step is to explore ways to encapsulate the following into the call
-            // builder.
-            let value = *params.transferred_value();
-            let data = params.exec_input().encode();
-            let weight =
-                Weight::from_parts(params.ref_time_limit(), params.proof_size_limit());
-            let storage_deposit_limit =
-                params.storage_deposit_limit().map(|limit| (*limit).into());
-
-            let result = pallet_contracts::Pallet::<T>::bare_call(
-                who.clone(),
-                contract.clone(),
-                value.into(),
-                weight,
+            let invoker = PalletContractsInvoker::<ink::env::DefaultEnvironment, T> {
+                origin: who.clone(),
+                contract: contract.clone(),
+                value: 0.into(),
+                gas_limit,
                 storage_deposit_limit,
-                data,
-                pallet_contracts::DebugInfo::UnsafeDebug,
-                pallet_contracts::CollectEvents::Skip,
-                pallet_contracts::Determinism::Enforced,
-            );
+                marker: Default::default()
+            };
 
-            assert!(!result.result?.did_revert());
+            let call = call_builder.flip().params();
+
+            let invoke = Invoke::<EmptyArgumentList, ()>::new(call.exec_input().clone());
+
+            let result = invoke.invoke(invoker).unwrap();
+            //
+            // assert!(result.is_ok());
 
             Ok(())
         }
     }
 }
+
+struct PalletContractsInvoker<E: Environment, Runtime: pallet_contracts::Config> {
+    origin: AccountIdOf<Runtime>,
+    contract: AccountIdOf<Runtime>,
+    value: BalanceOf<Runtime>,
+    gas_limit: Weight,
+    storage_deposit_limit: Option<BalanceOf<Runtime>>,
+    marker: core::marker::PhantomData<E>,
+}
+
+impl<E, R> Invoker<E> for PalletContractsInvoker<E, R>
+where
+    E: Environment,
+    R: pallet_contracts::Config,
+{
+    fn invoke<Args, Output>(self, input: &ExecutionInput<Args>) -> Result<ink::MessageResult<Output>, ()>
+    where
+        Args: codec::Encode,
+        Output: codec::Decode,
+    {
+        let data = codec::Encode::encode(&input);
+
+        let result = pallet_contracts::Pallet::<R>::bare_call(
+            self.origin,
+            self.contract,
+            self.value,
+            self.gas_limit,
+            self.storage_deposit_limit,
+            data,
+            pallet_contracts::DebugInfo::UnsafeDebug,
+            pallet_contracts::CollectEvents::Skip,
+            pallet_contracts::Determinism::Enforced,
+        );
+
+        let output = result.result.unwrap().data;
+
+        Ok(codec::Decode::decode(&mut &output[..]).unwrap())
+    }
+}
+
