@@ -6,12 +6,9 @@
 
 use frame_support::pallet_prelude::Weight;
 use frame_support::traits::fungible::Inspect;
-use ink::codegen::ImpliesReturn;
-use ink::env::call::{CallBuilder, ExecutionInput, Invoke, Invoker};
-use ink::env::call::utils::{ReturnType, Set};
+use ink::env::call::{ExecutionInput, Invoke, Invoker};
 pub use pallet::*;
 use ink::env::Environment;
-use ink::scale;
 
 type AccountIdOf<R> = <R as frame_system::Config>::AccountId;
 type BalanceOf<R> = <<R as pallet_contracts::Config>::Currency as Inspect<<R as frame_system::Config>::AccountId>>::Balance;
@@ -76,8 +73,8 @@ pub mod pallet {
             let invoke = Invoke::<EmptyArgumentList, ()>::new(call.exec_input().clone());
 
             let result = invoke.invoke(invoker).unwrap();
-            //
-            // assert!(result.is_ok());
+
+            assert!(result.is_ok());
 
             Ok(())
         }
