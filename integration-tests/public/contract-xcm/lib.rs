@@ -286,6 +286,8 @@ mod contract_xcm {
                     relay_chain::Balances::locks(
                         &parachain_account_sovereign_account_id(1, account_id)
                     ),
+                    // The LockAsset instruction should have locked the asset under the
+                    // `py/xcmlk` identifier.
                     vec![BalanceLock {
                         id: *b"py/xcmlk",
                         amount: TRANSFER_VALUE,
