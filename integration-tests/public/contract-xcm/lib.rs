@@ -4,7 +4,6 @@
 mod contract_xcm {
     use ink::{
         env::Error as EnvError,
-        prelude::*,
         xcm::prelude::*,
     };
 
@@ -65,7 +64,7 @@ mod contract_xcm {
 
             let message: Xcm<()> = Xcm::builder()
                 .withdraw_asset(assets.clone().into())
-                .buy_execution(assets.clone().into(), Unlimited)
+                .buy_execution(assets.clone(), Unlimited)
                 .deposit_asset(assets.into(), beneficiary)
                 .build();
 
