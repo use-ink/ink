@@ -100,7 +100,6 @@ sp-keyring = { version = "35.0.0", default-features = false }
 sp-runtime = { version = "35.0.0", default-features = false }
 sp-weights = { version = "31.0.0", default-features = false }
 xcm = { package = "staging-xcm", version = "11.0.0", default-features = false }
-xcm-builder = { package = "staging-xcm-builder", version = "11.0.0", default-features = false }
 
 # Local dependencies
 ink = { version = "=5.0.0", path = "crates/ink", default-features = false }

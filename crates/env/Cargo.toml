@@ -30,7 +30,6 @@ paste = { workspace = true }
 static_assertions = { workspace = true }
 const_env = { workspace = true }
 xcm = { workspace = true }
-xcm-builder = { workspace = true }
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
 rlibc = "1"
@@ -81,7 +80,6 @@ std = [
 	"sha3",
 	"scale-decode?/std",
 	"scale-encode?/std",
-	"xcm-builder/std",
 	"xcm/std"
 ]
 

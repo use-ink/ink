@@ -2552,7 +2552,6 @@ dependencies = [
  "parity-scale-codec",
  "scale-info",
  "staging-xcm",
- "staging-xcm-builder",
  "trybuild",
 ]
 
@@ -2679,7 +2678,6 @@ dependencies = [
  "sha2 0.10.8",
  "sha3",
  "staging-xcm",
- "staging-xcm-builder",
  "static_assertions",
 ]
 
