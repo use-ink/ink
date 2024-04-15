@@ -5,11 +5,7 @@ mod contract_xcm {
     use ink::{
         env::Error as EnvError,
         prelude::*,
-        xcm::{
-            v4::prelude::*,
-            VersionedLocation,
-            VersionedXcm,
-        },
+        xcm::prelude::*,
     };
 
     /// A trivial contract used to exercise XCM API.
@@ -60,18 +56,21 @@ mod contract_xcm {
             receiver: AccountId,
             value: Balance,
         ) -> Result<(), RuntimeError> {
+            let assets: Asset = (Here, value).into();
+            let beneficiary = AccountId32 {
+                network: None,
+                id: *receiver.as_ref(),
+            }
+            .into();
+
+            let message: Xcm<()> = Xcm::builder()
+                .withdraw_asset(assets.clone().into())
+                .buy_execution(assets.clone().into(), Unlimited)
+                .deposit_asset(assets.into(), beneficiary)
+                .build();
+
             self.env()
-                .xcm_execute(&VersionedXcm::V4(Xcm::<()>(vec![
-                    WithdrawAsset(vec![(Here, value).into()].into()),
-                    DepositAsset {
-                        assets: All.into(),
-                        beneficiary: AccountId32 {
-                            network: None,
-                            id: *receiver.as_ref(),
-                        }
-                        .into(),
-                    },
-                ])))
+                .xcm_execute(&VersionedXcm::V4(message))
                 .map_err(Into::into)
         }
 
@@ -87,19 +86,15 @@ mod contract_xcm {
             value: Balance,
             fee: Balance,
         ) -> Result<XcmHash, RuntimeError> {
+            let message: Xcm<()> = Xcm::builder()
+                .withdraw_asset((Here, fee).into())
+                .buy_execution((Here, fee).into(), WeightLimit::Unlimited)
+                .lock_asset((Here, value).into(), (Parachain(1)).into())
+                .build();
+
             let hash = self.env().xcm_send(
                 &VersionedLocation::V4(Location::from(Parent)),
-                &VersionedXcm::V4(Xcm::<()>(vec![
-                    WithdrawAsset((Here, fee).into()),
-                    BuyExecution {
-                        fees: (Here, fee).into(),
-                        weight_limit: WeightLimit::Unlimited,
-                    },
-                    LockAsset {
-                        asset: (Here, value).into(),
-                        unlocker: (Parachain(1)).into(),
-                    },
-                ])),
+                &VersionedXcm::V4(message),
             )?;
             Ok(hash)
         }
