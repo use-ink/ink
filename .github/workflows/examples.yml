@@ -42,7 +42,7 @@ jobs:
 
       - name: Install toolchain
         id: toolchain
-        uses: dtolnay/rust-toolchain@dc6353516c68da0f06325f42ad880f76a5e77ec9 # Master branch, Rust up to 1.74.1
+        uses: dtolnay/rust-toolchain@bb45937a053e097f8591208d8e74c90db1873d07 # Master branch, Rust up to 1.74.1
         with:
           toolchain: ${{ matrix.toolchain }}
           components: rust-src
