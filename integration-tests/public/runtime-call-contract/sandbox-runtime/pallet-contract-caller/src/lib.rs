@@ -68,6 +68,8 @@ pub mod pallet {
                 marker: Default::default()
             };
 
+            // flipper.flip().invoke(invoker);
+
             let call = call_builder.flip().params();
 
             let invoke = Invoke::<EmptyArgumentList, ()>::new(call.exec_input().clone());
@@ -90,12 +92,14 @@ struct PalletContractsInvoker<E: Environment, Runtime: pallet_contracts::Config>
     marker: core::marker::PhantomData<E>,
 }
 
-impl<E, R> Invoker<E> for PalletContractsInvoker<E, R>
+use ink::reflect::InvokableMessageInfo;
+
+impl<E, R> PalletContractsInvoker<E, R>
 where
     E: Environment,
     R: pallet_contracts::Config,
 {
-    fn invoke<Args, Output>(self, input: &ExecutionInput<Args>) -> Result<ink::MessageResult<Output>, ()>
+    fn invoke<<MessageInfo: >>(self, input: &ExecutionInput<Args>) -> Result<ink::MessageResult<Output>, ()>
     where
         Args: codec::Encode,
         Output: codec::Decode,

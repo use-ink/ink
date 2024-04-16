@@ -60,6 +60,6 @@ pub use self::{
         LimitParamsV2,
     },
     execution_input::ExecutionInput,
-    invocation::{Invoke, Invoker},
+    invocation::{InvokableMessage, Invoke, Invoker},
     selector::Selector,
 };
