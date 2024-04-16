@@ -26,7 +26,6 @@
 mod contract;
 mod dispatch;
 mod trait_def;
-mod invoke;
 
 pub use self::{
     contract::ContractName,
@@ -41,7 +40,6 @@ pub use self::{
         DispatchableMessageInfo,
         ExecuteDispatchable,
     },
-    invoke::InvokableMessageInfo,
     trait_def::{
         TraitDefinitionRegistry,
         TraitInfo,

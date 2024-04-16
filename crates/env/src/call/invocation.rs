@@ -15,17 +15,6 @@
 use crate::Environment;
 use super::{ExecutionInput, utils::ReturnType};
 
-/// todo: docs
-pub trait InvokableMessage {
-    const SELECTOR: [u8; 4];
-    type Input: codec::Encode;
-    type Args;
-    type Output: codec::Decode;
-
-    /// todo: docs
-    fn exec_input(input: Self::Input) -> ExecutionInput<Self::Args>;
-}
-
 /// todo: create a new generated type a la ContractBuilder which produces an instance of this per message.
 /// `ink::invoke!(Flip)::flip()` // returns Invoke instance
 pub struct Invoke<Args, Output> {

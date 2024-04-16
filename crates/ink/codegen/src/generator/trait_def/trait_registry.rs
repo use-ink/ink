@@ -327,21 +327,11 @@ impl TraitRegistry<'_> {
         let local_id = message.local_id();
         let selector_bytes = selector.hex_lits();
         let is_payable = message.ink_attrs().is_payable();
-        let input_types = generator::input_types(message.inputs());
-        let arg_list = generator::generate_argument_list(input_types.iter().cloned());
-        let output_type =
-            message.output().map_or_else(|| quote! { () }, |output| quote! { #output });
         quote_spanned!(span=>
             impl<E> ::ink::reflect::TraitMessageInfo<#local_id> for #trait_info_ident<E> {
                 const PAYABLE: ::core::primitive::bool = #is_payable;
 
                 const SELECTOR: [::core::primitive::u8; 4usize] = [ #( #selector_bytes ),* ];
-            }
-
-            impl<E> ::ink::reflect::InvokableMessageInfo<#local_id> for #trait_info_ident<E> {
-                const SELECTOR: [::core::primitive::u8; 4usize] = [ #( #selector_bytes ),* ];
-                type Input: ::ink::env::call::ExecutionInput<#arg_list>;
-                type Output: #output_type;
             }
         )
     }
