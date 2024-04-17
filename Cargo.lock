@@ -1007,9 +1007,9 @@ checksum = "cd7e35aee659887cbfb97aaf227ac12cad1a9d7c71e55ff3376839ed4e282d08"
 
 [[package]]
 name = "contract-build"
-version = "4.1.0"
+version = "4.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3a763393bc398ab511cf51628627d9588a2fa893fc1ec0e1dfe05d7b173fd786"
+checksum = "d30f629d8cb26692c4e5f4155e8ab37649f1b2fd0abab64a4c1b3c95c9bcf3df"
 dependencies = [
  "anyhow",
  "blake2",
@@ -1047,9 +1047,9 @@ dependencies = [
 
 [[package]]
 name = "contract-metadata"
-version = "4.1.0"
+version = "4.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6677355cffc5ddf3619573fb10da3cd4464e4995444d2e3b5d6811cb29056116"
+checksum = "dd54ed69476dc2076d6ebda17351babe1c2f33751170877f66719e8129078d3a"
 dependencies = [
  "anyhow",
  "impl-serde",
