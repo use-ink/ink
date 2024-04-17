@@ -45,6 +45,8 @@ jobs:
         env:
           PR_NUMBER:               ${{ github.event.number }}
         run: |
+          cargo install --force --git https://github.com/paritytech/cargo-contract.git --branch cmichi-experiment-with-wasm-target-features
+
           # Variables
           MEASUREMENTS_DIR="${GITHUB_WORKSPACE}/measurements"
           SCRIPTS_DIR="${GITHUB_WORKSPACE}/scripts"
