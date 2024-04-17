@@ -73,34 +73,44 @@ mod contract_xcm {
                 .map_err(Into::into)
         }
 
-        /// Sends an lock some funds to the relay chain.
+        /// Transfer some funds on the relay chain via XCM from the contract's derivative
+        /// account to the caller's account.
         ///
         /// Fails if:
         ///  - called in the off-chain environment
         ///  - the chain is not configured to support XCM
         ///  - the XCM program executed failed (e.g contract doesn't have enough balance)
         #[ink(message)]
-        pub fn lock_funds_to_relay(
-            &mut self,
-            value: Balance,
-            fee: Balance,
-        ) -> Result<XcmHash, RuntimeError> {
+        pub fn send_funds(&mut self, value: Balance) -> Result<XcmHash, RuntimeError> {
+            let fee: Balance = 8_000;
+            let assets: Asset = (Here, value).into();
+            let beneficiary = AccountId32 {
+                network: None,
+                id: *self.env().caller().as_ref(),
+            }
+            .into();
+
             let message: Xcm<()> = Xcm::builder()
-                .withdraw_asset((Here, fee).into())
+                .withdraw_asset(assets.clone().into())
                 .buy_execution((Here, fee).into(), WeightLimit::Unlimited)
-                .lock_asset((Here, value).into(), (Parachain(1)).into())
+                .deposit_asset(assets.into(), beneficiary)
                 .build();
 
             let hash = self.env().xcm_send(
                 &VersionedLocation::V4(Location::from(Parent)),
                 &VersionedXcm::V4(message),
             )?;
+
             Ok(hash)
         }
     }
 
     #[cfg(all(test, feature = "e2e-tests"))]
     mod e2e_tests {
+        use frame_support::{
+            sp_runtime::AccountId32,
+            traits::tokens::currency::Currency,
+        };
         use ink::{
             env::{
                 test::default_accounts,
@@ -111,30 +121,32 @@ mod contract_xcm {
         use ink_e2e::{
             preset::mock_network::{
                 self,
+                primitives::{
+                    CENTS,
+                    UNITS,
+                },
                 MockNetworkSandbox,
             },
             ChainBackend,
             ContractsBackend,
         };
+        use mock_network::{
+            parachain::estimate_message_fee,
+            parachain_account_sovereign_account_id,
+            relay_chain,
+            Relay,
+            TestExt,
+        };
 
         use super::*;
 
+        /// The contract will be given 1000 tokens during instantiation.
+        pub const CONTRACT_BALANCE: u128 = 1_000 * UNITS;
+
         type E2EResult<T> = Result<T, Box<dyn std::error::Error>>;
 
-        /// The base number of indivisible units for balances on the
-        /// `substrate-contracts-node`.
-        const UNIT: Balance = 1_000_000_000_000;
-
-        /// The contract will be given 1000 tokens during instantiation.
-        const CONTRACT_BALANCE: Balance = 10 * UNIT;
-
-        /// The receiver will get enough funds to have the required existential deposit.
-        ///
-        /// If your chain has this threshold higher, increase the transfer value.
-        const TRANSFER_VALUE: Balance = 1 * UNIT;
-
         #[ink_e2e::test(backend(runtime_only(sandbox = MockNetworkSandbox)))]
-        async fn transfer_with_xcm_execute_works<Client: E2EBackend>(
+        async fn xcm_execute_works<Client: E2EBackend>(
             mut client: Client,
         ) -> E2EResult<()> {
             // given
@@ -159,8 +171,8 @@ mod contract_xcm {
                 .expect("Failed to get account balance");
 
             // when
-            let transfer_message =
-                call_builder.transfer_through_xcm(receiver, TRANSFER_VALUE);
+            let amount = 1000 * CENTS;
+            let transfer_message = call_builder.transfer_through_xcm(receiver, amount);
 
             let call_res = client
                 .call(&ink_e2e::alice(), &transfer_message)
@@ -180,14 +192,8 @@ mod contract_xcm {
                 .await
                 .expect("Failed to get account balance");
 
-            assert_eq!(
-                contract_balance_before,
-                contract_balance_after + TRANSFER_VALUE
-            );
-            assert_eq!(
-                receiver_balance_before,
-                receiver_balance_after - TRANSFER_VALUE
-            );
+            assert_eq!(contract_balance_before, contract_balance_after + amount);
+            assert_eq!(receiver_balance_before, receiver_balance_after - amount);
 
             Ok(())
         }
@@ -213,7 +219,7 @@ mod contract_xcm {
 
             let call_res = client
                 .call(&ink_e2e::alice(), &transfer_message)
-                .dry_run()
+                .submit()
                 .await?
                 .return_value();
 
@@ -223,24 +229,6 @@ mod contract_xcm {
 
         #[ink_e2e::test(backend(runtime_only(sandbox = MockNetworkSandbox)))]
         async fn xcm_send_works<Client: E2EBackend>(mut client: Client) -> E2EResult<()> {
-            use frame_support::traits::{
-                fungibles::Mutate,
-                tokens::currency::Currency,
-            };
-            use mock_network::{
-                parachain,
-                parachain_account_sovereign_account_id,
-                relay_chain,
-                ParaA,
-                Relay,
-                TestExt,
-                INITIAL_BALANCE,
-            };
-            use pallet_balances::{
-                BalanceLock,
-                Reasons,
-            };
-
             let mut constructor = ContractXcmRef::new();
             let contract = client
                 .instantiate("contract_xcm", &ink_e2e::alice(), &mut constructor)
@@ -249,45 +237,31 @@ mod contract_xcm {
                 .await
                 .expect("instantiate failed");
 
-            let account_id: &[u8; 32] = contract.account_id.as_ref();
-            let account_id: [u8; 32] = account_id.clone();
-            let account_id = account_id.into();
-
-            ParaA::execute_with(|| {
-                parachain::Balances::make_free_balance_be(&account_id, INITIAL_BALANCE);
-                parachain::Assets::mint_into(0u32.into(), &account_id, INITIAL_BALANCE)
-                    .unwrap();
-            });
-
             Relay::execute_with(|| {
-                let sovereign_account =
-                    parachain_account_sovereign_account_id(1u32, account_id.clone());
+                let sovereign_account = parachain_account_sovereign_account_id(
+                    1u32,
+                    AccountId32::from(contract.account_id.0),
+                );
+
+                // Fund the contract's derivative account, so we can use it as a sink, to
+                // transfer funds to the caller.
                 relay_chain::Balances::make_free_balance_be(
                     &sovereign_account,
-                    INITIAL_BALANCE,
+                    CONTRACT_BALANCE,
                 );
             });
 
-            let mut call_builder = contract.call_builder::<ContractXcm>();
-            let message = call_builder.lock_funds_to_relay(TRANSFER_VALUE, 8_000);
-            let call_res = client.call(&ink_e2e::alice(), &message).submit().await?;
+            let amount = 1000 * CENTS;
+            let fee = estimate_message_fee(4);
 
+            let mut call_builder = contract.call_builder::<ContractXcm>();
+            let message = call_builder.send_funds(amount);
+            let call_res = client.call(&ink_e2e::alice(), &message).submit().await?;
             assert!(call_res.return_value().is_ok());
 
-            // Check if the funds are locked on the relay chain.
             Relay::execute_with(|| {
-                assert_eq!(
-                    relay_chain::Balances::locks(
-                        &parachain_account_sovereign_account_id(1, account_id)
-                    ),
-                    // The LockAsset instruction should have locked the asset under the
-                    // `py/xcmlk` identifier.
-                    vec![BalanceLock {
-                        id: *b"py/xcmlk",
-                        amount: TRANSFER_VALUE,
-                        reasons: Reasons::All
-                    }]
-                );
+                let alice = AccountId32::from(ink_e2e::alice().public_key().0);
+                assert_eq!(relay_chain::Balances::free_balance(&alice), amount - fee);
             });
 
             Ok(())
