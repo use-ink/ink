@@ -55,17 +55,16 @@ mod contract_xcm {
             receiver: AccountId,
             value: Balance,
         ) -> Result<(), RuntimeError> {
-            let assets: Asset = (Here, value).into();
+            let asset: Asset = (Here, value).into();
             let beneficiary = AccountId32 {
                 network: None,
                 id: *receiver.as_ref(),
-            }
-            .into();
+            };
 
             let message: Xcm<()> = Xcm::builder()
-                .withdraw_asset(assets.clone().into())
-                .buy_execution(assets.clone(), Unlimited)
-                .deposit_asset(assets.into(), beneficiary)
+                .withdraw_asset(asset.clone().into())
+                .buy_execution(asset.clone(), Unlimited)
+                .deposit_asset(asset.into(), beneficiary.into())
                 .build();
 
             self.env()
@@ -81,23 +80,26 @@ mod contract_xcm {
         ///  - the chain is not configured to support XCM
         ///  - the XCM program executed failed (e.g contract doesn't have enough balance)
         #[ink(message)]
-        pub fn send_funds(&mut self, value: Balance) -> Result<XcmHash, RuntimeError> {
-            let fee: Balance = 8_000;
-            let assets: Asset = (Here, value).into();
+        pub fn send_funds(
+            &mut self,
+            value: Balance,
+            fee: Balance,
+        ) -> Result<XcmHash, RuntimeError> {
+            let destination: Location = Parent.into();
+            let asset: Asset = (Here, value).into();
             let beneficiary = AccountId32 {
                 network: None,
                 id: *self.env().caller().as_ref(),
-            }
-            .into();
+            };
 
             let message: Xcm<()> = Xcm::builder()
-                .withdraw_asset(assets.clone().into())
+                .withdraw_asset(asset.clone().into())
                 .buy_execution((Here, fee).into(), WeightLimit::Unlimited)
-                .deposit_asset(assets.into(), beneficiary)
+                .deposit_asset(asset.into(), beneficiary.into())
                 .build();
 
             let hash = self.env().xcm_send(
-                &VersionedLocation::V4(Location::from(Parent)),
+                &VersionedLocation::V4(destination),
                 &VersionedXcm::V4(message),
             )?;
 
@@ -255,7 +257,7 @@ mod contract_xcm {
             let fee = estimate_message_fee(4);
 
             let mut call_builder = contract.call_builder::<ContractXcm>();
-            let message = call_builder.send_funds(amount);
+            let message = call_builder.send_funds(amount, fee);
             let call_res = client.call(&ink_e2e::alice(), &message).submit().await?;
             assert!(call_res.return_value().is_ok());
 
