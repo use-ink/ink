@@ -397,7 +397,7 @@ impl<'tcx> TransferFunction<'_, 'tcx> {
     // with balance after calling the function.
     fn get_tainted_input_args(
         &self,
-        input_args: &Vec<Spanned<Operand<'_>>>,
+        input_args: &[Spanned<Operand<'_>>],
         fn_mir: &Body,
         fn_state: &BitSet<Local>,
     ) -> Vec<Local> {
@@ -427,7 +427,7 @@ impl<'tcx> TransferFunction<'_, 'tcx> {
     fn visit_call(
         &mut self,
         func: &ConstOperand,
-        args: &Vec<Spanned<Operand<'_>>>,
+        args: &[Spanned<Operand<'_>>],
         destination: &Place,
     ) {
         let init_taints = args.iter().fold(Vec::new(), |mut acc, arg| {
