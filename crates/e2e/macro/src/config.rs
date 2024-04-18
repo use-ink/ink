@@ -22,9 +22,9 @@ pub enum Backend {
 
     /// The lightweight approach skipping node layer.
     ///
-    /// This runs a runtime emulator within `TestExternalities` (using drink! library) in
+    /// This runs a runtime emulator within `TestExternalities`
     /// the same process as the test.
-    #[cfg(any(test, feature = "drink"))]
+    #[cfg(any(test, feature = "sandbox"))]
     RuntimeOnly(RuntimeOnly),
 }
 
@@ -40,6 +40,7 @@ impl Default for Backend {
 pub enum Node {
     /// A fresh node instance will be spawned for the lifetime of the test.
     #[darling(word)]
+    #[darling(skip)]
     Auto,
     /// The test will run against an already running node at the supplied URL.
     Url(String),
@@ -60,22 +61,22 @@ impl Node {
     }
 }
 
-/// The runtime emulator that should be used within `TestExternalities` (using drink!
-/// library).
-#[cfg(any(test, feature = "drink"))]
+/// The runtime emulator that should be used within `TestExternalities`
+#[cfg(any(test, feature = "sandbox"))]
 #[derive(Clone, Eq, PartialEq, Debug, darling::FromMeta)]
 pub enum RuntimeOnly {
     #[darling(word)]
+    #[darling(skip)]
     Default,
-    Runtime(syn::Path),
+    Sandbox(syn::Path),
 }
 
-#[cfg(any(test, feature = "drink"))]
+#[cfg(any(test, feature = "sandbox"))]
 impl From<RuntimeOnly> for syn::Path {
     fn from(value: RuntimeOnly) -> Self {
         match value {
-            RuntimeOnly::Default => syn::parse_quote! { ::ink_e2e::MinimalRuntime },
-            RuntimeOnly::Runtime(path) => path,
+            RuntimeOnly::Default => syn::parse_quote! { ::ink_e2e::DefaultSandbox },
+            RuntimeOnly::Sandbox(path) => path,
         }
     }
 }
@@ -135,23 +136,35 @@ mod tests {
     }
 
     #[test]
+    #[should_panic(expected = "ErrorUnknownField")]
+    fn config_backend_runtime_only_default_not_allowed() {
+        let input = quote! {
+            backend(runtime_only(default)),
+        };
+        let config =
+            E2EConfig::from_list(&NestedMeta::parse_meta_list(input).unwrap()).unwrap();
+
+        assert_eq!(config.backend(), Backend::RuntimeOnly(RuntimeOnly::Default));
+    }
+
+    #[test]
     fn config_works_runtime_only_with_custom_backend() {
         let input = quote! {
-            backend(runtime_only(runtime = ::ink_e2e::MinimalRuntime)),
+            backend(runtime_only(sandbox = ::ink_e2e::DefaultSandbox)),
         };
         let config =
             E2EConfig::from_list(&NestedMeta::parse_meta_list(input).unwrap()).unwrap();
 
         assert_eq!(
             config.backend(),
-            Backend::RuntimeOnly(RuntimeOnly::Runtime(
-                syn::parse_quote! { ::ink_e2e::MinimalRuntime }
+            Backend::RuntimeOnly(RuntimeOnly::Sandbox(
+                syn::parse_quote! { ::ink_e2e::DefaultSandbox }
             ))
         );
     }
 
     #[test]
-    fn config_works_backend_node_default_auto() {
+    fn config_works_backend_node() {
         let input = quote! {
             backend(node),
         };
@@ -159,15 +172,6 @@ mod tests {
             E2EConfig::from_list(&NestedMeta::parse_meta_list(input).unwrap()).unwrap();
 
         assert_eq!(config.backend(), Backend::Node(Node::Auto));
-    }
-
-    #[test]
-    fn config_works_backend_node_auto() {
-        let input = quote! {
-            backend(node(auto)),
-        };
-        let config =
-            E2EConfig::from_list(&NestedMeta::parse_meta_list(input).unwrap()).unwrap();
 
         match config.backend() {
             Backend::Node(node_config) => {
@@ -189,6 +193,18 @@ mod tests {
             }
             _ => panic!("Expected Backend::Node"),
         }
+    }
+
+    #[test]
+    #[should_panic(expected = "ErrorUnknownField")]
+    fn config_backend_node_auto_not_allowed() {
+        let input = quote! {
+            backend(node(auto)),
+        };
+        let config =
+            E2EConfig::from_list(&NestedMeta::parse_meta_list(input).unwrap()).unwrap();
+
+        assert_eq!(config.backend(), Backend::Node(Node::Auto));
     }
 
     #[test]

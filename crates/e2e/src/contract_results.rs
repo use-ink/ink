@@ -21,7 +21,7 @@ use ink_primitives::{
     ConstructorResult,
     MessageResult,
 };
-use pallet_contracts_primitives::{
+use pallet_contracts::{
     CodeUploadResult,
     ContractExecResult,
     ContractInstantiateResult,

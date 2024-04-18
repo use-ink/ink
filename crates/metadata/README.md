@@ -4,7 +4,7 @@ The ink! metadata is used to describe a contracts properties in a platform indep
 way. To learn more about it see [the section in the ink! docs](http://use.ink/basics/metadata).
 
 __Note:__ The metadata version is independent of the ink! version!
-The version 3 of the metadata which is described here is also valid for ink! v4.
+The version 4 of the metadata which is described here is used in ink! v5.
 
 ## Metadata JSON Schema
 

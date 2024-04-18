@@ -22,7 +22,7 @@ ink_prelude = { workspace = true }
 ink_primitives = { workspace = true }
 pallet-contracts-uapi = { workspace = true }
 
-scale = { workspace = true }
+scale = { workspace = true, features = ["max-encoded-len"] }
 derive_more = { workspace = true, features = ["from", "display"] }
 num-traits = { workspace = true, features = ["i128"] }
 cfg-if = { workspace = true }
@@ -59,28 +59,33 @@ scale-info = { workspace = true, features = ["derive"], optional = true }
 ink = { path = "../ink" }
 
 [features]
-default = ["std"]
+default = [ "std" ]
 std = [
-    "ink_allocator/std",
-    "ink_prelude/std",
-    "ink_primitives/std",
-    "ink_storage_traits/std",
-    "ink_engine/std",
-    "scale/std",
-    "scale-decode",
-    "scale-encode",
-    "scale-info/std",
-    "secp256k1",
-    "schnorrkel",
-    "num-traits/std",
-    # Enables hashing crates for off-chain environment.
-    "sha2",
-    "sha3",
-    "blake2",
+	"blake2",
+	"ink_allocator/std",
+	"ink_engine/std",
+	"ink_prelude/std",
+	"ink_primitives/std",
+	"ink_storage_traits/std",
+	"num-traits/std",
+	"scale-decode",
+	"scale-encode",
+	"scale-info/std",
+	"scale/std",
+	"schnorrkel",
+	"secp256k1",
+	# Enables hashing crates for off-chain environment.
+	"sha2",
+	"sha3",
+	"scale-decode?/std",
+	"scale-encode?/std"
 ]
 
 # Enable contract debug messages via `debug_print!` and `debug_println!`.
 ink-debug = []
 
 # Disable the ink! provided global memory allocator.
-no-allocator = ["ink_allocator/no-allocator"]
+no-allocator = [ "ink_allocator/no-allocator" ]
+
+# Disable the ink! provided panic handler.
+no-panic-handler = []

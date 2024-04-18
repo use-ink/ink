@@ -7,6 +7,10 @@ inputs:
   ARTIFACT_NAME:
     description: Name of the artifact to be downloaded
     required: true
+  RUN_ID:
+    description: The Run ID of the workflow from which the artifact is to be downloaded
+    required: false
+    default: ${{ github.event.workflow_run.id }}
   DOWNLOAD_DIR:
     description: Destination directory
     required: false
@@ -26,7 +30,7 @@ runs:
             var artifacts = await github.rest.actions.listWorkflowRunArtifacts({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              run_id: ${{ github.event.workflow_run.id }},
+              run_id: ${{ inputs.RUN_ID }},
             });
             const matchArtifact = artifacts.data.artifacts.find((artifact) => artifact.name === artifactName);
 
@@ -43,5 +47,5 @@ runs:
               core.setFailed(`Artifact ${artifactName} not found.`);
             }
 
-      - run: unzip data.zip -d ./${{ inputs.DOWNLOAD_DIR }}
+      - run: unzip -o data.zip -d ./${{ inputs.DOWNLOAD_DIR }}
         shell: bash

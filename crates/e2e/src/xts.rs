@@ -22,7 +22,7 @@ use super::{
 use ink_env::Environment;
 
 use core::marker::PhantomData;
-use pallet_contracts_primitives::CodeUploadResult;
+use pallet_contracts::CodeUploadResult;
 use sp_core::H256;
 use subxt::{
     backend::{
@@ -30,7 +30,11 @@ use subxt::{
         rpc::RpcClient,
     },
     blocks::ExtrinsicEvents,
-    config::ExtrinsicParams,
+    config::{
+        DefaultExtrinsicParams,
+        DefaultExtrinsicParamsBuilder,
+        ExtrinsicParams,
+    },
     ext::scale_encode,
     tx::{
         Signer,
@@ -144,6 +148,13 @@ pub enum Determinism {
     Relaxed,
 }
 
+/// A raw call to `pallet-contracts`'s `remove_code`.
+#[derive(Debug, scale::Encode, scale::Decode, scale_encode::EncodeAsType)]
+#[encode_as_type(trait_bounds = "", crate_path = "subxt::ext::scale_encode")]
+pub struct RemoveCode<E: Environment> {
+    code_hash: E::Hash,
+}
+
 /// A raw call to `pallet-contracts`'s `upload`.
 #[derive(Debug, scale::Encode, scale::Decode, scale_encode::EncodeAsType)]
 #[encode_as_type(trait_bounds = "", crate_path = "subxt::ext::scale_encode")]
@@ -217,7 +228,8 @@ where
     C::AccountId: From<sr25519::PublicKey> + serde::de::DeserializeOwned + scale::Codec,
     C::Address: From<sr25519::PublicKey>,
     C::Signature: From<sr25519::Signature>,
-    <C::ExtrinsicParams as ExtrinsicParams<C>>::OtherParams: Default,
+    <C::ExtrinsicParams as ExtrinsicParams<C>>::Params:
+        From<<DefaultExtrinsicParams<C> as ExtrinsicParams<C>>::Params>,
 
     E: Environment,
     E::Balance: scale::HasCompact + serde::Serialize,
@@ -309,10 +321,13 @@ where
                     panic!("error calling `get_account_nonce`: {err:?}");
                 });
 
+        let params = DefaultExtrinsicParamsBuilder::new()
+            .nonce(account_nonce)
+            .build();
         let mut tx = self
             .client
             .tx()
-            .create_signed_with_nonce(call, signer, account_nonce, Default::default())
+            .create_signed_offline(call, signer, params.into())
             .unwrap_or_else(|err| {
                 panic!("error on call `create_signed_with_nonce`: {err:?}");
             })
@@ -465,6 +480,25 @@ where
                 storage_deposit_limit,
                 determinism: Determinism::Enforced,
             },
+        )
+        .unvalidated();
+
+        self.submit_extrinsic(&call, signer).await
+    }
+
+    /// Submits an extrinsic to remove the code at the given hash.
+    ///
+    /// Returns when the transaction is included in a block. The return value
+    /// contains all events that are associated with this transaction.
+    pub async fn remove_code(
+        &self,
+        signer: &Keypair,
+        code_hash: E::Hash,
+    ) -> ExtrinsicEvents<C> {
+        let call = subxt::tx::Payload::new(
+            "Contracts",
+            "remove_code",
+            RemoveCode::<E> { code_hash },
         )
         .unvalidated();
 

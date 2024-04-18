@@ -1,14 +1,5 @@
-# Ignore build artifacts from the local tests sub-crate.
-/target/
-/core/target/
-/model/target/
-/lang/target/
-/primitives/target/
-/integration-tests/**/target/
+**/target/
 /design/
-
-# Ignore backup files creates by cargo fmt.
-**/*.rs.bk
 
 # Ignore history files.
 **/.history/**

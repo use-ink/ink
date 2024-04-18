@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use pallet_contracts_primitives::ContractExecResult;
+use pallet_contracts::ContractExecResult;
 
 use std::fmt;
 
@@ -44,6 +44,9 @@ pub enum Error<DispatchError: fmt::Debug + fmt::Display> {
     /// The `call` extrinsic failed.
     #[error("Call extrinsic error: {0}")]
     CallExtrinsic(DispatchError),
+    /// The `remove_code` extrinsic failed.
+    #[error("Remove code extrinsic error: {0}")]
+    RemoveCodeExtrinsic(DispatchError),
     /// Error fetching account balance.
     #[error("Fetching account Balance error: {0}")]
     Balance(String),
@@ -68,19 +71,17 @@ where
     }
 }
 
-/// Dummy error type for drink!
-///
-/// todo: https://github.com/Cardinal-Cryptography/drink/issues/32
+/// Dummy error type for sandbox_client
 #[derive(Debug, thiserror::Error)]
-pub struct DrinkErr;
+pub struct SandboxErr;
 
-impl fmt::Display for DrinkErr {
+impl fmt::Display for SandboxErr {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "DrinkErr")
+        write!(f, "SandboxErr")
     }
 }
 
-impl<Balance> From<ContractExecResult<Balance, ()>> for DrinkErr {
+impl<Balance> From<ContractExecResult<Balance, ()>> for SandboxErr {
     fn from(_value: ContractExecResult<Balance, ()>) -> Self {
         Self {}
     }

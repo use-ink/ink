@@ -81,15 +81,15 @@ impl TryFrom<ast::AttributeArgs> for Config {
         let mut ext_id: Option<ExtensionId> = None;
 
         for arg in args.clone().into_iter() {
-            if arg.name.is_ident("extension") {
+            if arg.name().is_ident("extension") {
                 if ext_id.is_some() {
-                    return Err(format_err_spanned!(
-                        arg.value,
+                    return Err(format_err_spanned_value!(
+                        arg,
                         "encountered duplicate ink! contract `extension` configuration argument",
-                    ))
+                    ));
                 }
 
-                if let Some(lit_int) = arg.value.as_lit_int() {
+                if let Some(lit_int) = arg.value().and_then(ast::MetaValue::as_lit_int) {
                     let id = lit_int.base10_parse::<u16>()
                         .map_err(|error| {
                             format_err_spanned!(
@@ -98,16 +98,16 @@ impl TryFrom<ast::AttributeArgs> for Config {
                         })?;
                     ext_id = Some(ExtensionId::from_u16(id));
                 } else {
-                    return Err(format_err_spanned!(
-                        arg.value,
+                    return Err(format_err_spanned_value!(
+                        arg,
                         "expected `u16` integer type for `N` in `extension = N`",
-                    ))
+                    ));
                 }
             } else {
                 return Err(format_err_spanned!(
                     arg,
                     "encountered unknown or unsupported chain extension configuration argument",
-                ))
+                ));
             }
         }
 

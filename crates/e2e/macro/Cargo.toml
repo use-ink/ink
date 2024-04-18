@@ -29,7 +29,10 @@ proc-macro2 = { workspace = true }
 quote = { workspace = true }
 
 [dev-dependencies]
+ink = { path = "../../ink" }
+ink_e2e = { path = "../", features = ["sandbox"] }
 temp-env = "0.3.6"
 
 [features]
-drink = []
+std = []
+sandbox = []

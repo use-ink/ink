@@ -17,6 +17,7 @@ use derive_more::From;
 use scale::{
     Decode,
     Encode,
+    MaxEncodedLen,
 };
 #[cfg(feature = "std")]
 use {
@@ -32,7 +33,18 @@ use {
 /// This is a mirror of the `AccountId` type used in the default configuration
 /// of PALLET contracts.
 #[derive(
-    Debug, Copy, Clone, PartialEq, Eq, Ord, PartialOrd, Hash, Decode, Encode, From,
+    Debug,
+    Copy,
+    Clone,
+    PartialEq,
+    Eq,
+    Ord,
+    PartialOrd,
+    Hash,
+    Decode,
+    Encode,
+    MaxEncodedLen,
+    From,
 )]
 #[cfg_attr(feature = "std", derive(TypeInfo, DecodeAsType, EncodeAsType))]
 pub struct AccountId([u8; 32]);
@@ -91,6 +103,7 @@ impl<'a> TryFrom<&'a [u8]> for AccountId {
     Hash,
     Decode,
     Encode,
+    MaxEncodedLen,
     From,
     Default,
 )]

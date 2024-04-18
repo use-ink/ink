@@ -25,6 +25,8 @@ use crate::{
         CreateParams,
         DelegateCall,
         FromAccountId,
+        LimitParamsV1,
+        LimitParamsV2,
     },
     event::{
         Event,
@@ -447,6 +449,7 @@ impl TypedEnvBackend for EnvInstance {
         };
         let output = &mut scope.take_rest();
         let flags = params.call_flags();
+        #[allow(deprecated)]
         let call_result = ext::call_v1(
             *flags,
             enc_callee,
@@ -475,7 +478,7 @@ impl TypedEnvBackend for EnvInstance {
     {
         let mut scope = self.scoped_buffer();
         let ref_time_limit = params.ref_time_limit();
-        let proof_time_limit = params.proof_time_limit();
+        let proof_size_limit = params.proof_size_limit();
         let storage_deposit_limit = params
             .storage_deposit_limit()
             .map(|limit| &*scope.take_encoded(limit));
@@ -496,7 +499,7 @@ impl TypedEnvBackend for EnvInstance {
             *flags,
             enc_callee,
             ref_time_limit,
-            proof_time_limit,
+            proof_size_limit,
             storage_deposit_limit,
             enc_transferred_value,
             enc_input,
@@ -545,7 +548,54 @@ impl TypedEnvBackend for EnvInstance {
 
     fn instantiate_contract<E, ContractRef, Args, Salt, RetType>(
         &mut self,
-        params: &CreateParams<E, ContractRef, Args, Salt, RetType>,
+        params: &CreateParams<E, ContractRef, LimitParamsV2<E>, Args, Salt, RetType>,
+    ) -> Result<
+        ink_primitives::ConstructorResult<
+            <RetType as ConstructorReturnType<ContractRef>>::Output,
+        >,
+    >
+    where
+        E: Environment,
+        ContractRef: FromAccountId<E>,
+        Args: scale::Encode,
+        Salt: AsRef<[u8]>,
+        RetType: ConstructorReturnType<ContractRef>,
+    {
+        let mut scoped = self.scoped_buffer();
+        let ref_time_limit = params.ref_time_limit();
+        let proof_size_limit = params.proof_size_limit();
+        let storage_deposit_limit = params
+            .storage_deposit_limit()
+            .map(|limit| &*scoped.take_encoded(limit));
+        let enc_code_hash = scoped.take_encoded(params.code_hash());
+        let enc_endowment = scoped.take_encoded(params.endowment());
+        let enc_input = scoped.take_encoded(params.exec_input());
+        let out_address = &mut scoped.take_max_encoded_len::<E::AccountId>();
+        let salt = params.salt_bytes().as_ref();
+        let out_return_value = &mut scoped.take_rest();
+
+        let instantiate_result = ext::instantiate_v2(
+            enc_code_hash,
+            ref_time_limit,
+            proof_size_limit,
+            storage_deposit_limit,
+            enc_endowment,
+            enc_input,
+            Some(out_address),
+            Some(out_return_value),
+            salt,
+        );
+
+        crate::engine::decode_instantiate_result::<_, E, ContractRef, RetType>(
+            instantiate_result.map_err(Into::into),
+            &mut &out_address[..],
+            &mut &out_return_value[..],
+        )
+    }
+
+    fn instantiate_contract_v1<E, ContractRef, Args, Salt, RetType>(
+        &mut self,
+        params: &CreateParams<E, ContractRef, LimitParamsV1, Args, Salt, RetType>,
     ) -> Result<
         ink_primitives::ConstructorResult<
             <RetType as ConstructorReturnType<ContractRef>>::Output,
@@ -563,13 +613,11 @@ impl TypedEnvBackend for EnvInstance {
         let enc_code_hash = scoped.take_encoded(params.code_hash());
         let enc_endowment = scoped.take_encoded(params.endowment());
         let enc_input = scoped.take_encoded(params.exec_input());
-        // We support `AccountId` types with an encoding that requires up to
-        // 1024 bytes. Beyond that limit ink! contracts will trap for now.
-        // In the default configuration encoded `AccountId` require 32 bytes.
-        let out_address = &mut scoped.take(1024);
+        let out_address = &mut scoped.take_max_encoded_len::<E::AccountId>();
         let salt = params.salt_bytes().as_ref();
         let out_return_value = &mut scoped.take_rest();
 
+        #[allow(deprecated)]
         let instantiate_result = ext::instantiate_v1(
             enc_code_hash,
             gas_limit,
@@ -632,7 +680,7 @@ impl TypedEnvBackend for EnvInstance {
         E: Environment,
     {
         let mut scope = self.scoped_buffer();
-        let output = scope.take(32);
+        let output = scope.take_max_encoded_len::<E::Hash>();
         scope.append_encoded(account_id);
         let enc_account_id = scope.take_appended();
 
@@ -645,7 +693,7 @@ impl TypedEnvBackend for EnvInstance {
     where
         E: Environment,
     {
-        let output = &mut self.scoped_buffer().take(32);
+        let output = &mut self.scoped_buffer().take_max_encoded_len::<E::Hash>();
         ext::own_code_hash(output);
         let hash = scale::Decode::decode(&mut &output[..])?;
         Ok(hash)
@@ -659,5 +707,23 @@ impl TypedEnvBackend for EnvInstance {
         let mut scope = self.scoped_buffer();
         let enc_call = scope.take_encoded(call);
         ext::call_runtime(enc_call).map_err(Into::into)
+    }
+
+    fn lock_delegate_dependency<E>(&mut self, code_hash: &E::Hash)
+    where
+        E: Environment,
+    {
+        let mut scope = self.scoped_buffer();
+        let enc_code_hash = scope.take_encoded(code_hash);
+        ext::lock_delegate_dependency(enc_code_hash)
+    }
+
+    fn unlock_delegate_dependency<E>(&mut self, code_hash: &E::Hash)
+    where
+        E: Environment,
+    {
+        let mut scope = self.scoped_buffer();
+        let enc_code_hash = scope.take_encoded(code_hash);
+        ext::unlock_delegate_dependency(enc_code_hash)
     }
 }

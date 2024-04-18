@@ -89,14 +89,15 @@ impl TryFrom<ast::AttributeArgs> for Option<SignatureTopicArg> {
     fn try_from(args: ast::AttributeArgs) -> Result<Self, Self::Error> {
         let mut signature_topic: Option<SignatureTopicArg> = None;
         for arg in args.into_iter() {
-            if arg.name.is_ident("hash") {
+            if arg.name().is_ident("hash") {
                 if signature_topic.is_some() {
                     return Err(format_err!(
                         arg.span(),
                         "encountered duplicate ink! event configuration argument"
                     ));
                 }
-                signature_topic = Some(SignatureTopicArg::try_from(&arg.value)?);
+                signature_topic =
+                    arg.value().map(SignatureTopicArg::try_from).transpose()?;
             } else {
                 return Err(format_err_spanned!(
                     arg,

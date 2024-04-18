@@ -25,6 +25,7 @@ Wasm32
 WebAssembly
 adjunctive
 bitvector
+bitmask
 bitwise
 callee
 codegen
@@ -127,7 +128,7 @@ WebSocket/S
 StorageVec
 KiB
 GB
-BufferTooSmall
-KeyNotFound
-ink_env
+DRink
 ^
+externalities
+sandbox_client
