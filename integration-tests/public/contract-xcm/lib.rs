@@ -85,7 +85,7 @@ mod contract_xcm {
             value: Balance,
             fee: Balance,
         ) -> Result<XcmHash, RuntimeError> {
-            let destination  Location = Parent.into();
+            let destination: Location = Parent.into();
             let asset: Asset = (Here, value).into();
             let beneficiary = AccountId32 {
                 network: None,
