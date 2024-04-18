@@ -65,7 +65,10 @@ use rustc_session::{
     declare_lint,
     declare_lint_pass,
 };
-use rustc_span::Span;
+use rustc_span::{
+    source_map::Spanned,
+    Span,
+};
 use std::collections::{
     HashMap,
     HashSet,
@@ -394,7 +397,7 @@ impl<'tcx> TransferFunction<'_, 'tcx> {
     // with balance after calling the function.
     fn get_tainted_input_args(
         &self,
-        input_args: &[Operand],
+        input_args: &Vec<Spanned<Operand<'_>>>,
         fn_mir: &Body,
         fn_state: &BitSet<Local>,
     ) -> Vec<Local> {
@@ -403,7 +406,7 @@ impl<'tcx> TransferFunction<'_, 'tcx> {
             |mut acc, (caller_op, callee_local)| {
                 if_chain! {
                     if fn_state.contains(callee_local);
-                    if let Some(caller_place) = caller_op.place();
+                    if let Some(caller_place) = caller_op.node.place();
                     then {
                         let ref_local = caller_place.local;
                         acc.push(ref_local);
@@ -421,9 +424,14 @@ impl<'tcx> TransferFunction<'_, 'tcx> {
         fn_def_id.is_local()
     }
 
-    fn visit_call(&mut self, func: &ConstOperand, args: &[Operand], destination: &Place) {
+    fn visit_call(
+        &mut self,
+        func: &ConstOperand,
+        args: &Vec<Spanned<Operand<'_>>>,
+        destination: &Place,
+    ) {
         let init_taints = args.iter().fold(Vec::new(), |mut acc, arg| {
-            if let Operand::Move(place) | Operand::Copy(place) = arg {
+            if let Operand::Move(place) | Operand::Copy(place) = arg.node {
                 acc.push(self.state.contains(place.local))
             }
             acc
