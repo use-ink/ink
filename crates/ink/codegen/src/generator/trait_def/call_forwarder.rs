@@ -115,7 +115,7 @@ impl CallForwarder<'_> {
             where
                 E: ::ink::env::Environment,
             {
-                builder: <Self as ::ink::codegen::TraitCallBuilder>::Builder,
+                account_id: <E as ::ink::env::Environment>::AccountId,
             }
         )
     }
@@ -141,8 +141,18 @@ impl CallForwarder<'_> {
                 fn layout(
                     __key: &::ink::primitives::Key,
                 ) -> ::ink::metadata::layout::Layout {
-                    <<Self as ::ink::codegen::TraitCallBuilder>::Builder
-                        as ::ink::storage::traits::StorageLayout>::layout(__key)
+                    ::ink::metadata::layout::Layout::Struct(
+                        ::ink::metadata::layout::StructLayout::new(
+                            ::core::stringify!(#call_forwarder_ident),
+                            [
+                                ::ink::metadata::layout::FieldLayout::new(
+                                    "account_id",
+                                    <<E as ::ink::env::Environment>::AccountId
+                                        as ::ink::storage::traits::StorageLayout>::layout(__key)
+                                )
+                            ]
+                        )
+                    )
                 }
             }
         )
@@ -169,8 +179,7 @@ impl CallForwarder<'_> {
                 #[inline]
                 fn clone(&self) -> Self {
                     Self {
-                        builder: <<Self as ::ink::codegen::TraitCallBuilder>::Builder
-                            as ::core::clone::Clone>::clone(&self.builder),
+                        account_id: ::core::clone::Clone::clone(&self.account_id),
                     }
                 }
             }
@@ -183,7 +192,7 @@ impl CallForwarder<'_> {
             {
                 fn fmt(&self, f: &mut ::core::fmt::Formatter) -> ::core::fmt::Result {
                     f.debug_struct(::core::stringify!(#call_forwarder_ident))
-                        .field("account_id", &self.builder.account_id)
+                        .field("account_id", &self.account_id)
                         .finish()
                 }
             }
@@ -195,14 +204,10 @@ impl CallForwarder<'_> {
                 E: ::ink::env::Environment,
                 <E as ::ink::env::Environment>::AccountId: ::ink::scale_info::TypeInfo + 'static,
             {
-                type Identity = <
-                    <Self as ::ink::codegen::TraitCallBuilder>::Builder as ::ink::scale_info::TypeInfo
-                >::Identity;
+                type Identity = <E as ::ink::env::Environment>::AccountId;
 
                 fn type_info() -> ::ink::scale_info::Type {
-                    <
-                        <Self as ::ink::codegen::TraitCallBuilder>::Builder as ::ink::scale_info::TypeInfo
-                    >::type_info()
+                    <<E as ::ink::env::Environment>::AccountId as ::ink::scale_info::TypeInfo>::type_info()
                 }
             }
         )
@@ -226,8 +231,7 @@ impl CallForwarder<'_> {
             {
                 #[inline]
                 fn from_account_id(account_id: <E as ::ink::env::Environment>::AccountId) -> Self {
-                    Self { builder: <<Self as ::ink::codegen::TraitCallBuilder>::Builder
-                        as ::ink::env::call::FromAccountId<E>>::from_account_id(account_id) }
+                    Self { account_id }
                 }
             }
 
@@ -247,8 +251,7 @@ impl CallForwarder<'_> {
             {
                 #[inline]
                 fn to_account_id(&self) -> <E as ::ink::env::Environment>::AccountId {
-                    <<Self as ::ink::codegen::TraitCallBuilder>::Builder
-                        as ::ink::ToAccountId<E>>::to_account_id(&self.builder)
+                    <<E as ::ink::env::Environment>::AccountId as ::core::clone::Clone>::clone(&self.account_id)
                 }
             }
 
@@ -257,7 +260,7 @@ impl CallForwarder<'_> {
                 E: ::ink::env::Environment<AccountId = AccountId>,
             {
                 fn as_ref(&self) -> &AccountId {
-                    <_ as ::core::convert::AsRef<AccountId>>::as_ref(&self.builder)
+                    &self.account_id
                 }
             }
 
@@ -266,7 +269,7 @@ impl CallForwarder<'_> {
                 E: ::ink::env::Environment<AccountId = AccountId>,
             {
                 fn as_mut(&mut self) -> &mut AccountId {
-                    <_ as ::core::convert::AsMut<AccountId>>::as_mut(&mut self.builder)
+                    &mut self.account_id
                 }
             }
         )
@@ -294,16 +297,6 @@ impl CallForwarder<'_> {
                 E: ::ink::env::Environment,
             {
                 type Builder = #call_builder_ident<E>;
-
-                #[inline]
-                fn call(&self) -> &<Self as ::ink::codegen::TraitCallBuilder>::Builder {
-                    &self.builder
-                }
-
-                #[inline]
-                fn call_mut(&mut self) -> &mut <Self as ::ink::codegen::TraitCallBuilder>::Builder {
-                    &mut self.builder
-                }
             }
         )
     }
@@ -399,12 +392,16 @@ impl CallForwarder<'_> {
                 & #mut_tok self
                 #( , #input_bindings : #input_types )*
             ) -> Self::#output_ident {
+                let #mut_tok builder = <
+                    Self as ::ink::codegen::TraitCallBuilder>::Builder as ::core::default::Default
+                >::default();
                 <<Self as ::ink::codegen::TraitCallBuilder>::Builder as #trait_ident>::#message_ident(
-                    <Self as ::ink::codegen::TraitCallBuilder>::#call_op(self)
+                    & #mut_tok builder
                     #(
                         , #input_bindings
                     )*
                 )
+                    .#call_op()
                     .try_invoke()
                     .unwrap_or_else(|env_err| ::core::panic!("{}: {:?}", #panic_str, env_err))
                     .unwrap_or_else(|lang_err| ::core::panic!("{}: {:?}", #panic_str, lang_err))

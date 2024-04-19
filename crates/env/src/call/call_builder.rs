@@ -29,6 +29,7 @@ use crate::{
 use core::marker::PhantomData;
 use num_traits::Zero;
 use pallet_contracts_uapi::CallFlags;
+use crate::call::Invoke;
 
 /// The final parameters to the cross-contract call.
 #[derive(Debug)]
@@ -592,6 +593,21 @@ where
             call_flags: self.call_flags,
             exec_input: Set(exec_input),
             return_type: self.return_type,
+            _phantom: Default::default(),
+        }
+    }
+}
+
+impl<E, CallType, Args, RetType> From<Invoke<Args, RetType>> for CallBuilder<E, Unset<CallType>, Args, RetType>
+    where
+        E: Environment,
+{
+    fn from(invoke: Invoke<Args, RetType>) -> Self {
+        CallBuilder {
+            call_type: Default::default(),
+            call_flags: CallFlags::empty(),
+            exec_input: Set(invoke.input),
+            return_type: Default::default(),
             _phantom: Default::default(),
         }
     }

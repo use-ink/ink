@@ -301,6 +301,8 @@ impl CallBuilder<'_> {
                 as ::ink::codegen::TraitCallBuilder>::Builder
                 as #trait_path>::#output_ident;
 
+            // todo: how to transfort Invoke<Args,RetType> into CallBuilder output ident
+
             #[inline]
             #( #attrs )*
             fn #message_ident(
