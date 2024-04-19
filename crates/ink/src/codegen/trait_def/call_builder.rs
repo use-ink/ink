@@ -15,7 +15,17 @@
 /// The global call builder type for an ink! trait definition.
 pub trait TraitCallBuilder {
     /// The call builder type.
-    type Builder: Default;
+    type Builder;
+
+    /// Returns a shared reference to the global call builder type.
+    ///
+    /// This allows to call `&self` ink! trait messages.
+    fn call(&self) -> &Self::Builder;
+
+    /// Returns an exclusive reference to the global call builder type.
+    ///
+    /// This allows to call any ink! trait message.
+    fn call_mut(&mut self) -> &mut Self::Builder;
 }
 
 /// Implemented by the global trait info provider.

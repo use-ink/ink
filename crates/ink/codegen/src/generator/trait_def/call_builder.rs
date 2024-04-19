@@ -56,11 +56,15 @@ struct CallBuilder<'a> {
 impl GenerateCode for CallBuilder<'_> {
     fn generate_code(&self) -> TokenStream2 {
         let struct_definition = self.generate_struct_definition();
+        let storage_layout_impl = self.generate_storage_layout_impl();
         let auxiliary_trait_impls = self.generate_auxiliary_trait_impls();
+        let to_from_account_id_impls = self.generate_to_from_account_id_impls();
         let ink_trait_impl = self.generate_ink_trait_impl();
         quote! {
             #struct_definition
+            #storage_layout_impl
             #auxiliary_trait_impls
+            #to_from_account_id_impls
             #ink_trait_impl
         }
     }
@@ -103,35 +107,169 @@ impl CallBuilder<'_> {
             #[allow(non_camel_case_types)]
             #[::ink::scale_derive(Encode, Decode)]
             #[repr(transparent)]
-            pub struct #call_builder_ident<E> {
-                marker: ::core::marker::PhantomData<fn() -> E>,
+            pub struct #call_builder_ident<E>
+            where
+                E: ::ink::env::Environment,
+            {
+                account_id: <E as ::ink::env::Environment>::AccountId,
             }
         )
     }
 
-    /// Generates trait implementations for auxiliary traits.
+    /// Generates the `StorageLayout` trait implementation for the account wrapper.
     ///
     /// # Note
     ///
-    /// Auxiliary traits currently include:
-    ///
-    /// - `Default`: To allow constructing a new instance of the call builder.
-    fn generate_auxiliary_trait_impls(&self) -> TokenStream2 {
+    /// Due to the generic parameter `E` and Rust's default rules for derive generated
+    /// trait bounds it is not recommended to derive the `StorageLayout` trait
+    /// implementation.
+    fn generate_storage_layout_impl(&self) -> TokenStream2 {
         let span = self.span();
         let call_builder_ident = self.ident();
         quote_spanned!(span=>
-            /// We require this manual implementation since the derive produces incorrect trait bounds.
-            impl<E> ::core::default::Default for #call_builder_ident<E>
+            #[cfg(feature = "std")]
+            impl<E> ::ink::storage::traits::StorageLayout
+                for #call_builder_ident<E>
             where
                 E: ::ink::env::Environment,
+                <E as ::ink::env::Environment>::AccountId: ::ink::storage::traits::StorageLayout,
             {
-                fn default() -> Self {
-                    Self { marker: ::core::default::Default::default() }
+                fn layout(
+                    __key: &::ink::primitives::Key,
+                ) -> ::ink::metadata::layout::Layout {
+                    ::ink::metadata::layout::Layout::Struct(
+                        ::ink::metadata::layout::StructLayout::new(
+                            ::core::stringify!(#call_builder_ident),
+                            [
+                                ::ink::metadata::layout::FieldLayout::new(
+                                    "account_id",
+                                    <<E as ::ink::env::Environment>::AccountId
+                                        as ::ink::storage::traits::StorageLayout>::layout(__key)
+                                )
+                            ]
+                        )
+                    )
                 }
             }
         )
     }
 
+    /// Generates trait implementations for auxiliary traits for the account wrapper.
+    ///
+    /// # Note
+    ///
+    /// Auxiliary traits currently include:
+    ///
+    /// - `Clone`: To allow cloning contract references in the long run.
+    /// - `Debug`: To better debug internal contract state.
+    fn generate_auxiliary_trait_impls(&self) -> TokenStream2 {
+        let span = self.span();
+        let call_builder_ident = self.ident();
+        quote_spanned!(span=>
+            /// We require this manual implementation since the derive produces incorrect trait bounds.
+            impl<E> ::core::clone::Clone for #call_builder_ident<E>
+            where
+                E: ::ink::env::Environment,
+                <E as ::ink::env::Environment>::AccountId: ::core::clone::Clone,
+            {
+                #[inline]
+                fn clone(&self) -> Self {
+                    Self {
+                        account_id: ::core::clone::Clone::clone(&self.account_id),
+                    }
+                }
+            }
+
+            /// We require this manual implementation since the derive produces incorrect trait bounds.
+            impl<E> ::core::fmt::Debug for #call_builder_ident<E>
+            where
+                E: ::ink::env::Environment,
+                <E as ::ink::env::Environment>::AccountId: ::core::fmt::Debug,
+            {
+                fn fmt(&self, f: &mut ::core::fmt::Formatter) -> ::core::fmt::Result {
+                    f.debug_struct(::core::stringify!(#call_builder_ident))
+                        .field("account_id", &self.account_id)
+                        .finish()
+                }
+            }
+
+            #[cfg(feature = "std")]
+            /// We require this manual implementation since the derive produces incorrect trait bounds.
+            impl<E> ::ink::scale_info::TypeInfo for #call_builder_ident<E>
+            where
+                E: ::ink::env::Environment,
+                <E as ::ink::env::Environment>::AccountId: ::ink::scale_info::TypeInfo + 'static,
+            {
+                type Identity = <E as ::ink::env::Environment>::AccountId;
+
+                fn type_info() -> ::ink::scale_info::Type {
+                    <<E as ::ink::env::Environment>::AccountId as ::ink::scale_info::TypeInfo>::type_info()
+                }
+            }
+        )
+    }
+
+    /// Generate trait implementations for `FromAccountId` and `ToAccountId` for the
+    /// account wrapper.
+    ///
+    /// # Note
+    ///
+    /// This allows user code to conveniently transform from and to `AccountId` when
+    /// interacting with typed contracts.
+    fn generate_to_from_account_id_impls(&self) -> TokenStream2 {
+        let span = self.span();
+        let call_builder_ident = self.ident();
+        quote_spanned!(span=>
+            impl<E> ::ink::env::call::FromAccountId<E>
+                for #call_builder_ident<E>
+            where
+                E: ::ink::env::Environment,
+            {
+                #[inline]
+                fn from_account_id(account_id: <E as ::ink::env::Environment>::AccountId) -> Self {
+                    Self { account_id }
+                }
+            }
+
+            impl<E, AccountId> ::core::convert::From<AccountId> for #call_builder_ident<E>
+            where
+                E: ::ink::env::Environment<AccountId = AccountId>,
+                AccountId: ::ink::env::AccountIdGuard,
+            {
+                fn from(value: AccountId) -> Self {
+                    <Self as ::ink::env::call::FromAccountId<E>>::from_account_id(value)
+                }
+            }
+
+            impl<E> ::ink::ToAccountId<E> for #call_builder_ident<E>
+            where
+                E: ::ink::env::Environment,
+            {
+                #[inline]
+                fn to_account_id(&self) -> <E as ::ink::env::Environment>::AccountId {
+                    <<E as ::ink::env::Environment>::AccountId as ::core::clone::Clone>::clone(&self.account_id)
+                }
+            }
+
+            impl<E, AccountId> ::core::convert::AsRef<AccountId> for #call_builder_ident<E>
+            where
+                E: ::ink::env::Environment<AccountId = AccountId>,
+            {
+                fn as_ref(&self) -> &AccountId {
+                    &self.account_id
+                }
+            }
+
+            impl<E, AccountId> ::core::convert::AsMut<AccountId> for #call_builder_ident<E>
+            where
+                E: ::ink::env::Environment<AccountId = AccountId>,
+            {
+                fn as_mut(&mut self) -> &mut AccountId {
+                    &mut self.account_id
+                }
+            }
+        )
+    }
 
     /// Generates the implementation of the associated ink! trait definition.
     ///
@@ -211,9 +349,11 @@ impl CallBuilder<'_> {
         quote_spanned!(span =>
             #[allow(clippy::type_complexity)]
             #( #cfg_attrs )*
-            type #output_ident = ::ink::env::call::Invoke<
-                #arg_list,
-                #output_type,
+            type #output_ident = ::ink::env::call::CallBuilder<
+                Self::Env,
+                ::ink::env::call::utils::Set< ::ink::env::call::Call< Self::Env > >,
+                ::ink::env::call::utils::Set< ::ink::env::call::ExecutionInput<#arg_list> >,
+                ::ink::env::call::utils::Set< ::ink::env::call::utils::ReturnType<#output_type> >,
             >;
 
             #( #attrs )*
@@ -222,14 +362,17 @@ impl CallBuilder<'_> {
                 & #mut_tok self
                 #( , #input_bindings : #input_types )*
             ) -> Self::#output_ident {
-                ::ink::env::call::Invoke::new(
-                    ::ink::env::call::ExecutionInput::new(
-                        ::ink::env::call::Selector::new([ #( #selector_bytes ),* ])
+                ::ink::env::call::build_call::<Self::Env>()
+                    .call(::ink::ToAccountId::to_account_id(self))
+                    .exec_input(
+                        ::ink::env::call::ExecutionInput::new(
+                            ::ink::env::call::Selector::new([ #( #selector_bytes ),* ])
+                        )
+                        #(
+                            .push_arg(#input_bindings)
+                        )*
                     )
-                    #(
-                        .push_arg(#input_bindings)
-                    )*
-                )
+                    .returns::<#output_type>()
             }
         )
     }
