@@ -18,8 +18,8 @@ mod call_builder;
 mod common;
 mod create_builder;
 mod execution_input;
-mod selector;
 mod invocation;
+mod selector;
 
 /// Utility types for the cross-contract calling API.
 pub mod utils {
@@ -60,6 +60,9 @@ pub use self::{
         LimitParamsV2,
     },
     execution_input::ExecutionInput,
-    invocation::{Invoke, Invoker},
+    invocation::{
+        Invoke,
+        Invoker,
+    },
     selector::Selector,
 };

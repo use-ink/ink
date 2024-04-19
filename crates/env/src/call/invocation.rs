@@ -12,11 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use super::{
+    utils::ReturnType,
+    ExecutionInput,
+};
 use crate::Environment;
-use super::{ExecutionInput, utils::ReturnType};
 
-/// todo: create a new generated type a la ContractBuilder which produces an instance of this per message.
-/// `ink::invoke!(Flip)::flip()` // returns Invoke instance
+/// todo: create a new generated type a la ContractBuilder which produces an instance of
+/// this per message. `ink::invoke!(Flip)::flip()` // returns Invoke instance
 pub struct Invoke<Args, Output> {
     input: ExecutionInput<Args>,
     _output: ReturnType<Output>,
@@ -25,7 +28,7 @@ pub struct Invoke<Args, Output> {
 impl<Args, Output> Invoke<Args, Output>
 where
     Args: scale::Encode,
-    Output: scale::Decode
+    Output: scale::Decode,
 {
     /// todo: docs
     pub fn new(input: ExecutionInput<Args>) -> Self {
@@ -36,7 +39,10 @@ where
     }
 
     /// todo: docs
-    pub fn invoke<I, E>(self, invoker: I) -> Result<ink_primitives::MessageResult<Output>, ()>
+    pub fn invoke<I, E>(
+        self,
+        invoker: I,
+    ) -> Result<ink_primitives::MessageResult<Output>, ()>
     where
         E: Environment,
         I: Invoker<E>,
@@ -48,8 +54,11 @@ where
 /// todo: docs
 pub trait Invoker<E: Environment> {
     /// todo: docs
-    fn invoke<Args, Output>(self, input: &ExecutionInput<Args>) -> Result<ink_primitives::MessageResult<Output>, ()>
-        where
-            Args: scale::Encode,
-            Output: scale::Decode;
+    fn invoke<Args, Output>(
+        self,
+        input: &ExecutionInput<Args>,
+    ) -> Result<ink_primitives::MessageResult<Output>, ()>
+    where
+        Args: scale::Encode,
+        Output: scale::Decode;
 }

@@ -59,12 +59,14 @@ impl GenerateCode for CallBuilder<'_> {
         let storage_layout_impl = self.generate_storage_layout_impl();
         let auxiliary_trait_impls = self.generate_auxiliary_trait_impls();
         let to_from_account_id_impls = self.generate_to_from_account_id_impls();
+        let message_builder_trait_impl = self.generate_message_builder_trait_impl();
         let ink_trait_impl = self.generate_ink_trait_impl();
         quote! {
             #struct_definition
             #storage_layout_impl
             #auxiliary_trait_impls
             #to_from_account_id_impls
+            #message_builder_trait_impl
             #ink_trait_impl
         }
     }
@@ -267,6 +269,28 @@ impl CallBuilder<'_> {
                 fn as_mut(&mut self) -> &mut AccountId {
                     &mut self.account_id
                 }
+            }
+        )
+    }
+
+    /// Generate the trait implementation for `MessageBuilder` for the ink! trait call
+    /// builder.
+    ///
+    /// # Note
+    ///
+    /// Through the implementation of this trait it is possible to refer to the
+    /// ink! trait messsage builder that is associated to this ink! trait call builder.
+    fn generate_message_builder_trait_impl(&self) -> TokenStream2 {
+        let span = self.trait_def.span();
+        let call_builder_ident = self.ident();
+        let message_builder_ident = self.trait_def.message_builder_ident();
+        quote_spanned!(span=>
+            /// This trait allows to bridge from the call builder to message builder.
+            impl<E> ::ink::codegen::TraitMessageBuilder for #call_builder_ident<E>
+            where
+                E: ::ink::env::Environment<AccountId = AccountId>,
+            {
+                type MessageBuilder = #message_builder_ident<E>;
             }
         )
     }
