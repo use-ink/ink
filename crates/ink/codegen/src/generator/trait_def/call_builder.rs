@@ -334,10 +334,9 @@ impl CallBuilder<'_> {
     /// builder.
     fn generate_ink_trait_impl_messages(&self) -> TokenStream2 {
         let messages = self.trait_def.trait_def.item().iter_items().filter_map(
-            |(item, selector)| {
-                item.filter_map_message().map(|message| {
-                    self.generate_ink_trait_impl_for_message(&message, selector)
-                })
+            |(item, _selector)| {
+                item.filter_map_message()
+                    .map(|message| self.generate_ink_trait_impl_for_message(&message))
             },
         );
         quote! {
@@ -350,9 +349,9 @@ impl CallBuilder<'_> {
     fn generate_ink_trait_impl_for_message(
         &self,
         message: &ir::InkTraitMessage,
-        selector: ir::Selector,
     ) -> TokenStream2 {
         let span = message.span();
+        let trait_ident = self.trait_def.trait_def.item().ident();
         let message_ident = message.ident();
         let attrs = self
             .trait_def
@@ -364,7 +363,6 @@ impl CallBuilder<'_> {
         let output = message.output();
         let output_type =
             output.map_or_else(|| quote! { () }, |output| quote! { #output });
-        let selector_bytes = selector.hex_lits();
         let input_bindings = generator::input_bindings(message.inputs());
         let input_types = generator::input_types(message.inputs());
         let arg_list = generator::generate_argument_list(input_types.iter().cloned());
@@ -386,18 +384,26 @@ impl CallBuilder<'_> {
                 & #mut_tok self
                 #( , #input_bindings : #input_types )*
             ) -> Self::#output_ident {
-                let message = <Self as ::ink::codegen::TraitMessageBuilder>::MessageBuilder::default();
-                ::ink::env::call::build_call::<Self::Env>()
+                let message =
+                    <<Self as ::ink::codegen::TraitMessageBuilder>::MessageBuilder as #trait_ident>
+                        ::#message_ident(
+                            & #mut_tok <<Self
+                                as ::ink::codegen::TraitMessageBuilder>::MessageBuilder
+                                as ::core::default::Default>::default()
+                            #(
+                                , #input_bindings
+                            )*
+                        );
+
+                <::ink::env::call::CallBuilder<
+                        Self::Env,
+                        ::ink::env::call::utils::Unset< ::ink::env::call::Call< Self::Env > >,
+                        ::ink::env::call::utils::Set< ::ink::env::call::ExecutionInput<#arg_list> >,
+                        ::ink::env::call::utils::Set< ::ink::env::call::utils::ReturnType<#output_type> >,
+                    > as ::core::convert::From::<
+                        <<Self as ::ink::codegen::TraitMessageBuilder>::MessageBuilder as #trait_ident>::#output_ident
+                    >>::from(message)
                     .call(::ink::ToAccountId::to_account_id(self))
-                    .exec_input(
-                        ::ink::env::call::ExecutionInput::new(
-                            ::ink::env::call::Selector::new([ #( #selector_bytes ),* ])
-                        )
-                        #(
-                            .push_arg(#input_bindings)
-                        )*
-                    )
-                    .returns::<#output_type>()
             }
         )
     }

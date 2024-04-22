@@ -21,8 +21,10 @@ use crate::Environment;
 /// todo: create a new generated type a la ContractBuilder which produces an instance of
 /// this per message. `ink::invoke!(Flip)::flip()` // returns Invoke instance
 pub struct Invoke<Args, Output> {
-    input: ExecutionInput<Args>,
-    _output: ReturnType<Output>,
+    /// todo: docs
+    pub input: ExecutionInput<Args>,
+    /// todo: docs
+    pub output: ReturnType<Output>,
 }
 
 impl<Args, Output> Invoke<Args, Output>
@@ -34,7 +36,7 @@ where
     pub fn new(input: ExecutionInput<Args>) -> Self {
         Self {
             input,
-            _output: ReturnType::default(),
+            output: ReturnType::default(),
         }
     }
 
