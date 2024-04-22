@@ -288,7 +288,7 @@ impl CallBuilder<'_> {
             /// This trait allows to bridge from the call builder to message builder.
             impl<E> ::ink::codegen::TraitMessageBuilder for #call_builder_ident<E>
             where
-                E: ::ink::env::Environment<AccountId = AccountId>,
+                E: ::ink::env::Environment
             {
                 type MessageBuilder = #message_builder_ident<E>;
             }
@@ -386,6 +386,7 @@ impl CallBuilder<'_> {
                 & #mut_tok self
                 #( , #input_bindings : #input_types )*
             ) -> Self::#output_ident {
+                let message = <Self as ::ink::codegen::TraitMessageBuilder>::MessageBuilder::default();
                 ::ink::env::call::build_call::<Self::Env>()
                     .call(::ink::ToAccountId::to_account_id(self))
                     .exec_input(
