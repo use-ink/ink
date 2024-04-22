@@ -384,7 +384,12 @@ impl CallBuilder<'_> {
                 & #mut_tok self
                 #( , #input_bindings : #input_types )*
             ) -> Self::#output_ident {
-                let message =
+                <::ink::env::call::CallBuilder<
+                    Self::Env,
+                    ::ink::env::call::utils::Unset< ::ink::env::call::Call< Self::Env > >,
+                    ::ink::env::call::utils::Set< ::ink::env::call::ExecutionInput<#arg_list> >,
+                    ::ink::env::call::utils::Set< ::ink::env::call::utils::ReturnType<#output_type> >,
+                > as ::core::convert::From::<_>>::from(
                     <<Self as ::ink::codegen::TraitMessageBuilder>::MessageBuilder as #trait_ident>
                         ::#message_ident(
                             & #mut_tok <<Self
@@ -393,16 +398,8 @@ impl CallBuilder<'_> {
                             #(
                                 , #input_bindings
                             )*
-                        );
-
-                <::ink::env::call::CallBuilder<
-                        Self::Env,
-                        ::ink::env::call::utils::Unset< ::ink::env::call::Call< Self::Env > >,
-                        ::ink::env::call::utils::Set< ::ink::env::call::ExecutionInput<#arg_list> >,
-                        ::ink::env::call::utils::Set< ::ink::env::call::utils::ReturnType<#output_type> >,
-                    > as ::core::convert::From::<
-                        <<Self as ::ink::codegen::TraitMessageBuilder>::MessageBuilder as #trait_ident>::#output_ident
-                    >>::from(message)
+                        )
+                )
                     .call(::ink::ToAccountId::to_account_id(self))
             }
         )
