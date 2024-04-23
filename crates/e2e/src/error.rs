@@ -78,7 +78,14 @@ pub struct SandboxErr {
 }
 
 impl SandboxErr {
+    /// Create a new `SandboxErr` with the given message.
     pub fn new(msg: String) -> Self {
+        Self { msg }
+    }
+}
+
+impl From<String> for SandboxErr {
+    fn from(msg: String) -> Self {
         Self { msg }
     }
 }
