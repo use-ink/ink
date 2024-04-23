@@ -95,10 +95,12 @@ where
     E: Environment,
     R: pallet_contracts::Config,
 {
+    type Error = ();
+
     fn invoke<Args, Output>(
         self,
         input: &ExecutionInput<Args>,
-    ) -> Result<ink::MessageResult<Output>, ()>
+    ) -> Result<ink::MessageResult<Output>, Self::Error>
     where
         Args: codec::Encode,
         Output: codec::Decode,
@@ -121,4 +123,9 @@ where
 
         Ok(codec::Decode::decode(&mut &output[..]).unwrap())
     }
+}
+
+pub enum PalletContractsInvokerError {
+    Codec(codec::Error),
+    Dispatch(sp_runtime::DispatchError),
 }

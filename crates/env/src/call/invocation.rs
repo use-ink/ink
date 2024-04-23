@@ -44,7 +44,7 @@ where
     pub fn invoke<I, E>(
         self,
         invoker: I,
-    ) -> Result<ink_primitives::MessageResult<Output>, ()>
+    ) -> Result<ink_primitives::MessageResult<Output>, I::Error>
     where
         E: Environment,
         I: Invoker<E>,
@@ -56,10 +56,12 @@ where
 /// todo: docs
 pub trait Invoker<E: Environment> {
     /// todo: docs
+    type Error;
+    /// todo: docs
     fn invoke<Args, Output>(
         self,
         input: &ExecutionInput<Args>,
-    ) -> Result<ink_primitives::MessageResult<Output>, ()>
+    ) -> Result<ink_primitives::MessageResult<Output>, Self::Error>
     where
         Args: scale::Encode,
         Output: scale::Decode;

@@ -12,6 +12,7 @@ repository = "https://github.com/paritytech/ink"
 [workspace.dependencies]
 frame-support = { version = "31.0.0", default-features = false }
 frame-system = { version = "31.0.0", default-features = false }
+sp-runtime = { version = "34.0.0", default-features = false }
 pallet-contracts = { version = "30.0.0", default-features = false }
 codec = { package = "parity-scale-codec", version =  "3.6.9", default-features = false }
 scale-info = { version = "2.11.1", default-features = false }
