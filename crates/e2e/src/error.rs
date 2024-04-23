@@ -73,26 +73,16 @@ where
 
 /// Dummy error type for sandbox_client
 #[derive(Debug, thiserror::Error)]
-pub struct SandboxErr {
-    msg: String,
-}
-
-impl SandboxErr {
-    pub fn new(msg: String) -> Self {
-        Self { msg }
-    }
-}
+pub struct SandboxErr;
 
 impl fmt::Display for SandboxErr {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "SandboxErr: {}", self.msg)
+        write!(f, "SandboxErr")
     }
 }
 
 impl<Balance> From<ContractExecResult<Balance, ()>> for SandboxErr {
     fn from(_value: ContractExecResult<Balance, ()>) -> Self {
-        Self {
-            msg: "ContractExecResult".to_string(),
-        }
+        Self {}
     }
 }
