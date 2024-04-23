@@ -11,7 +11,7 @@ use frame_support::{
 use ink::env::{
     call::{
         ExecutionInput,
-        Invoker,
+        Executor,
     },
     Environment,
 };
@@ -60,7 +60,7 @@ pub mod pallet {
         ) -> DispatchResult {
             let who = ensure_signed(origin)?;
 
-            let invoker = PalletContractsInvoker::<ink::env::DefaultEnvironment, T> {
+            let executor = PalletContractsExecutor::<ink::env::DefaultEnvironment, T> {
                 origin: who.clone(),
                 contract: contract.clone(),
                 value: 0.into(),
@@ -72,7 +72,7 @@ pub mod pallet {
             let mut flipper = ink::message_builder!(Flip);
             let flip = flipper.flip();
 
-            let result = flip.invoke(invoker).unwrap();
+            let result = flip.exec(executor).unwrap();
 
             assert!(result.is_ok());
 
@@ -81,7 +81,7 @@ pub mod pallet {
     }
 }
 
-struct PalletContractsInvoker<E: Environment, Runtime: pallet_contracts::Config> {
+struct PalletContractsExecutor<E: Environment, Runtime: pallet_contracts::Config> {
     origin: AccountIdOf<Runtime>,
     contract: AccountIdOf<Runtime>,
     value: BalanceOf<Runtime>,
@@ -90,14 +90,14 @@ struct PalletContractsInvoker<E: Environment, Runtime: pallet_contracts::Config>
     marker: core::marker::PhantomData<E>,
 }
 
-impl<E, R> Invoker<E> for PalletContractsInvoker<E, R>
+impl<E, R> Executor<E> for PalletContractsExecutor<E, R>
 where
     E: Environment,
     R: pallet_contracts::Config,
 {
-    type Error = ();
+    type Error = PalletContractsExecutorError;
 
-    fn invoke<Args, Output>(
+    fn exec<Args, Output>(
         self,
         input: &ExecutionInput<Args>,
     ) -> Result<ink::MessageResult<Output>, Self::Error>
@@ -119,13 +119,26 @@ where
             pallet_contracts::Determinism::Enforced,
         );
 
-        let output = result.result.unwrap().data;
+        let output = result.result?.data;
 
-        Ok(codec::Decode::decode(&mut &output[..]).unwrap())
+        Ok(codec::Decode::decode(&mut &output[..])?)
     }
 }
 
-pub enum PalletContractsInvokerError {
+#[derive(Debug)]
+pub enum PalletContractsExecutorError {
     Codec(codec::Error),
     Dispatch(sp_runtime::DispatchError),
+}
+
+impl From<codec::Error> for PalletContractsExecutorError {
+    fn from(err: codec::Error) -> Self {
+        PalletContractsExecutorError::Codec(err)
+    }
+}
+
+impl From<sp_runtime::DispatchError> for PalletContractsExecutorError {
+    fn from(err: sp_runtime::DispatchError) -> Self {
+        PalletContractsExecutorError::Dispatch(err)
+    }
 }

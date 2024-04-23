@@ -12,7 +12,60 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::call::Selector;
+use super::{
+    utils::ReturnType,
+    Selector,
+};
+use crate::Environment;
+
+/// todo: create a new generated type a la ContractBuilder which produces an instance of
+/// this per message. `ink::invoke!(Flip)::flip()` // returns Invoke instance
+pub struct Execution<Args, Output> {
+    /// todo: docs
+    pub input: ExecutionInput<Args>,
+    /// todo: docs
+    pub output: ReturnType<Output>,
+}
+
+impl<Args, Output> Execution<Args, Output>
+where
+    Args: scale::Encode,
+    Output: scale::Decode,
+{
+    /// todo: docs
+    pub fn new(input: ExecutionInput<Args>) -> Self {
+        Self {
+            input,
+            output: ReturnType::default(),
+        }
+    }
+
+    /// todo: docs
+    pub fn exec<I, E>(
+        self,
+        executor: I,
+    ) -> Result<ink_primitives::MessageResult<Output>, I::Error>
+    where
+        E: Environment,
+        I: Executor<E>,
+    {
+        executor.exec(&self.input)
+    }
+}
+
+/// todo: docs
+pub trait Executor<E: Environment> {
+    /// todo: docs
+    type Error;
+    /// todo: docs
+    fn exec<Args, Output>(
+        self,
+        input: &ExecutionInput<Args>,
+    ) -> Result<ink_primitives::MessageResult<Output>, Self::Error>
+    where
+        Args: scale::Encode,
+        Output: scale::Decode;
+}
 
 /// The input data for a smart contract execution.
 #[derive(Clone, Default, Debug)]

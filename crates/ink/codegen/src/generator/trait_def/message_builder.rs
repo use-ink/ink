@@ -202,7 +202,7 @@ impl MessageBuilder<'_> {
         let cfg_attrs = message.get_cfg_attrs(span);
         quote_spanned!(span =>
             #( #cfg_attrs )*
-            type #output_ident = ::ink::env::call::Invoke<
+            type #output_ident = ::ink::env::call::Execution<
                 #arg_list,
                 #output_type,
             >;
@@ -213,7 +213,7 @@ impl MessageBuilder<'_> {
                 & #mut_tok self
                 #( , #input_bindings : #input_types )*
             ) -> Self::#output_ident {
-                ::ink::env::call::Invoke::new(
+                ::ink::env::call::Execution::new(
                     ::ink::env::call::ExecutionInput::new(
                         ::ink::env::call::Selector::new([ #( #selector_bytes ),* ])
                     )

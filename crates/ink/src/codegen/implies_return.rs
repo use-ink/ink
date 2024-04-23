@@ -19,8 +19,8 @@ use ink_env::{
             Set,
         },
         CallBuilder,
+        Execution,
         ExecutionInput,
-        Invoke,
     },
     Environment,
 };
@@ -52,4 +52,4 @@ where
 {
 }
 
-impl<Args, RetType> ImpliesReturn<RetType> for Invoke<Args, RetType> {}
+impl<Args, RetType> ImpliesReturn<RetType> for Execution<Args, RetType> {}

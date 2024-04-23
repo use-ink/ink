@@ -17,8 +17,7 @@
 mod call_builder;
 mod common;
 mod create_builder;
-mod execution_input;
-mod invocation;
+mod execution;
 mod selector;
 
 /// Utility types for the cross-contract calling API.
@@ -30,7 +29,7 @@ pub mod utils {
             Unset,
             Unwrap,
         },
-        execution_input::{
+        execution::{
             ArgsList,
             Argument,
             ArgumentList,
@@ -59,10 +58,10 @@ pub use self::{
         LimitParamsV1,
         LimitParamsV2,
     },
-    execution_input::ExecutionInput,
-    invocation::{
-        Invoke,
-        Invoker,
+    execution::{
+        Execution,
+        ExecutionInput,
+        Executor,
     },
     selector::Selector,
 };
