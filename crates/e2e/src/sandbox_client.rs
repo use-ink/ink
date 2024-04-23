@@ -180,9 +180,9 @@ where
 
         // Encode the call object.
         let call = subxt::dynamic::tx(pallet_name, call_name, call_data);
-        let encoded_call = call
-            .encode_call_data(&metadata.into())
-            .map_err(|_| SandboxErr)?;
+        let encoded_call = call.encode_call_data(&metadata.into()).map_err(|err| {
+            SandboxErr::new(format!("runtime_call: Error encoding call: {err:?}"))
+        })?;
 
         // Decode the call object.
         // Panic on error - we just encoded a validated call object, so it should be
@@ -197,7 +197,7 @@ where
                 decoded_call,
                 S::convert_account_to_origin(keypair_to_account(origin)),
             )
-            .map_err(|_| SandboxErr)?;
+            .map_err(|_| SandboxErr::new(format!("runtime_call: execution error")))?;
 
         Ok(())
     }
@@ -244,7 +244,7 @@ where
         let account_id_raw = match &result.result {
             Err(err) => {
                 log_error(&format!("Instantiation failed: {err:?}"));
-                return Err(SandboxErr);
+                return Err(SandboxErr::new(format!("bare_instantiate: {err:?}")));
             }
             Ok(res) => *res.account_id.as_ref(),
         };
@@ -319,7 +319,7 @@ where
             Ok(result) => result,
             Err(err) => {
                 log_error(&format!("Upload failed: {err:?}"));
-                return Err(SandboxErr);
+                return Err(SandboxErr::new(format!("bare_upload: {err:?}")))
             }
         };
 
@@ -362,8 +362,7 @@ where
         let exec_input = Encode::encode(message.clone().params().exec_input());
         let account_id = (*account_id.as_ref()).into();
 
-        if self
-            .sandbox
+        self.sandbox
             .call_contract(
                 account_id,
                 value,
@@ -374,10 +373,7 @@ where
                 pallet_contracts::Determinism::Enforced,
             )
             .result
-            .is_err()
-        {
-            return Err(SandboxErr);
-        }
+            .map_err(|err| SandboxErr::new(format!("bare_call: {err:?}")))?;
 
         Ok(())
     }
