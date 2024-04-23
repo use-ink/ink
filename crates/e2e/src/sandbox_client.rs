@@ -197,7 +197,9 @@ where
                 decoded_call,
                 S::convert_account_to_origin(keypair_to_account(origin)),
             )
-            .map_err(|_| SandboxErr::new(format!("runtime_call: execution error")))?;
+            .map_err(|err| {
+                SandboxErr::new(format!("runtime_call: execution error {:?}", err.error))
+            })?;
 
         Ok(())
     }
