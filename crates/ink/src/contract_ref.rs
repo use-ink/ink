@@ -219,9 +219,9 @@ macro_rules! message_builder {
     // The case of the custom `Environment`
     ( $trait_path:path, $env:ty ) => {
         <<<$crate::reflect::TraitDefinitionRegistry<$env>
-                    as $trait_path>::__ink_TraitInfo
-                    as $crate::codegen::TraitMessageBuilder>::MessageBuilder
-                    as ::core::default::Default>::default()
+                            as $trait_path>::__ink_TraitInfo
+                            as $crate::codegen::TraitMessageBuilder>::MessageBuilder
+                            as ::core::default::Default>::default()
     };
 }
 
