@@ -4,16 +4,11 @@
 
 #![cfg_attr(not(feature = "std"), no_std)]
 
+mod executor;
+
 use frame_support::{
     pallet_prelude::Weight,
     traits::fungible::Inspect,
-};
-use ink::env::{
-    call::{
-        ExecutionInput,
-        Executor,
-    },
-    Environment,
 };
 pub use pallet::*;
 
@@ -60,85 +55,22 @@ pub mod pallet {
         ) -> DispatchResult {
             let who = ensure_signed(origin)?;
 
-            let executor = PalletContractsExecutor::<ink::env::DefaultEnvironment, T> {
-                origin: who.clone(),
-                contract: contract.clone(),
-                value: 0.into(),
-                gas_limit,
-                storage_deposit_limit,
-                marker: Default::default(),
-            };
+            let executor =
+                executor::PalletContractsExecutor::<ink::env::DefaultEnvironment, T> {
+                    origin: who.clone(),
+                    contract: contract.clone(),
+                    value: 0.into(),
+                    gas_limit,
+                    storage_deposit_limit,
+                    marker: Default::default(),
+                };
 
             let mut flipper = ink::message_builder!(Flip);
-            let flip = flipper.flip();
-
-            let result = flip.exec(executor).unwrap();
+            let result = flipper.flip().exec(executor)?;
 
             assert!(result.is_ok());
 
             Ok(())
         }
-    }
-}
-
-struct PalletContractsExecutor<E: Environment, Runtime: pallet_contracts::Config> {
-    origin: AccountIdOf<Runtime>,
-    contract: AccountIdOf<Runtime>,
-    value: BalanceOf<Runtime>,
-    gas_limit: Weight,
-    storage_deposit_limit: Option<BalanceOf<Runtime>>,
-    marker: core::marker::PhantomData<E>,
-}
-
-impl<E, R> Executor<E> for PalletContractsExecutor<E, R>
-where
-    E: Environment,
-    R: pallet_contracts::Config,
-{
-    type Error = PalletContractsExecutorError;
-
-    fn exec<Args, Output>(
-        self,
-        input: &ExecutionInput<Args>,
-    ) -> Result<ink::MessageResult<Output>, Self::Error>
-    where
-        Args: codec::Encode,
-        Output: codec::Decode,
-    {
-        let data = codec::Encode::encode(&input);
-
-        let result = pallet_contracts::Pallet::<R>::bare_call(
-            self.origin,
-            self.contract,
-            self.value,
-            self.gas_limit,
-            self.storage_deposit_limit,
-            data,
-            pallet_contracts::DebugInfo::UnsafeDebug,
-            pallet_contracts::CollectEvents::Skip,
-            pallet_contracts::Determinism::Enforced,
-        );
-
-        let output = result.result?.data;
-
-        Ok(codec::Decode::decode(&mut &output[..])?)
-    }
-}
-
-#[derive(Debug)]
-pub enum PalletContractsExecutorError {
-    Codec(codec::Error),
-    Dispatch(sp_runtime::DispatchError),
-}
-
-impl From<codec::Error> for PalletContractsExecutorError {
-    fn from(err: codec::Error) -> Self {
-        PalletContractsExecutorError::Codec(err)
-    }
-}
-
-impl From<sp_runtime::DispatchError> for PalletContractsExecutorError {
-    fn from(err: sp_runtime::DispatchError) -> Self {
-        PalletContractsExecutorError::Dispatch(err)
     }
 }
