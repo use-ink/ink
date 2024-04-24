@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-/// todo: [AJ] docs
+/// Access the trait message builder implementation.
 pub trait TraitMessageBuilder {
     /// The message builder type.
     type MessageBuilder: Default;
@@ -21,7 +21,7 @@ pub trait TraitMessageBuilder {
 /// The global call builder type for an ink! trait definition.
 pub trait TraitCallBuilder {
     /// The call builder type.
-    type Builder; //: TraitMessageBuilder;
+    type Builder;
 
     /// Returns a shared reference to the global call builder type.
     ///
