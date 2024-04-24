@@ -18,12 +18,11 @@ use super::{
 };
 use crate::Environment;
 
-/// todo: create a new generated type a la ContractBuilder which produces an instance of
-/// this per message. `ink::invoke!(Flip)::flip()` // returns Invoke instance
+/// The input data and the expected return type of a contract execution.
 pub struct Execution<Args, Output> {
-    /// todo: docs
+    /// The input data for initiating a contract execution.
     pub input: ExecutionInput<Args>,
-    /// todo: docs
+    /// The type of the expected return value of the contract execution.
     pub output: ReturnType<Output>,
 }
 
@@ -32,7 +31,7 @@ where
     Args: scale::Encode,
     Output: scale::Decode,
 {
-    /// todo: docs
+    /// Construct a new contract execution with the given input data.
     pub fn new(input: ExecutionInput<Args>) -> Self {
         Self {
             input,
@@ -40,7 +39,7 @@ where
         }
     }
 
-    /// todo: docs
+    /// Perform the execution of the contract with the given executor.
     pub fn exec<I, E>(
         self,
         executor: I,
@@ -53,11 +52,11 @@ where
     }
 }
 
-/// todo: docs
+/// Implemented in different environments to perform contract execution.
 pub trait Executor<E: Environment> {
-    /// todo: docs
+    /// The type of the error that can be returned during execution.
     type Error;
-    /// todo: docs
+    /// Perform the contract execution with the given input data, and return the result.
     fn exec<Args, Output>(
         self,
         input: &ExecutionInput<Args>,
