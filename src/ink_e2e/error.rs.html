@@ -86,6 +86,23 @@
 <a href="#86" id="86">86</a>
 <a href="#87" id="87">87</a>
 <a href="#88" id="88">88</a>
+<a href="#89" id="89">89</a>
+<a href="#90" id="90">90</a>
+<a href="#91" id="91">91</a>
+<a href="#92" id="92">92</a>
+<a href="#93" id="93">93</a>
+<a href="#94" id="94">94</a>
+<a href="#95" id="95">95</a>
+<a href="#96" id="96">96</a>
+<a href="#97" id="97">97</a>
+<a href="#98" id="98">98</a>
+<a href="#99" id="99">99</a>
+<a href="#100" id="100">100</a>
+<a href="#101" id="101">101</a>
+<a href="#102" id="102">102</a>
+<a href="#103" id="103">103</a>
+<a href="#104" id="104">104</a>
+<a href="#105" id="105">105</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -161,17 +178,34 @@
 
 <span class="doccomment">/// Dummy error type for sandbox_client
 </span><span class="attr">#[derive(Debug, thiserror::Error)]
-</span><span class="kw">pub struct </span>SandboxErr;
+</span><span class="kw">pub struct </span>SandboxErr {
+    msg: String,
+}
+
+<span class="kw">impl </span>SandboxErr {
+    <span class="doccomment">/// Create a new `SandboxErr` with the given message.
+    </span><span class="kw">pub fn </span>new(msg: String) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{ msg }
+    }
+}
+
+<span class="kw">impl </span>From&lt;String&gt; <span class="kw">for </span>SandboxErr {
+    <span class="kw">fn </span>from(msg: String) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{ msg }
+    }
+}
 
 <span class="kw">impl </span>fmt::Display <span class="kw">for </span>SandboxErr {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
-        <span class="macro">write!</span>(f, <span class="string">&quot;SandboxErr&quot;</span>)
+        <span class="macro">write!</span>(f, <span class="string">&quot;SandboxErr: {}&quot;</span>, <span class="self">self</span>.msg)
     }
 }
 
 <span class="kw">impl</span>&lt;Balance&gt; From&lt;ContractExecResult&lt;Balance, ()&gt;&gt; <span class="kw">for </span>SandboxErr {
     <span class="kw">fn </span>from(_value: ContractExecResult&lt;Balance, ()&gt;) -&gt; <span class="self">Self </span>{
-        <span class="self">Self </span>{}
+        <span class="self">Self </span>{
+            msg: <span class="string">&quot;ContractExecResult&quot;</span>.to_string(),
+        }
     }
 }
 </code></pre></div></section></main></body></html>
