@@ -80,7 +80,7 @@ jobs:
         uses: baptiste0928/cargo-install@9f6037ed331dcf7da101461a20656273fa72abf0 # v3.1.0
         with:
             crate: cargo-contract
-            git: https://github.com/paritytech/cargo-contract.git
+            git: https://github.com/use-ink/cargo-contract.git
             branch: master
 
       - name: Output versions

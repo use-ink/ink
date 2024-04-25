@@ -84,7 +84,7 @@ crates on which `ink` relies heavily:
 ## Building ink! contracts
 
 While you can build an ink! smart contract with just `cargo build`, we
-recommend using our build tool [`cargo-contract`](https://github.com/paritytech/cargo-contract).
+recommend using our build tool [`cargo-contract`](https://github.com/use-ink/cargo-contract).
 It automatically compiles for the correct WebAssembly target
 architecture and uses an optimal set of compiler flags.
 

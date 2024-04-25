@@ -34,7 +34,7 @@ fi
 echo $verb
 echo $pr_comments_url
 
-ink_master_head=$(curl -s "https://api.github.com/repos/paritytech/ink/commits/master" | jq -r .sha)
+ink_master_head=$(curl -s "https://api.github.com/repos/use-ink/ink/commits/master" | jq -r .sha)
 head_in_branch=$(git log | grep -q $ink_master_head; echo $?)
 
 master_ahead=""

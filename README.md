@@ -43,7 +43,7 @@
 
 More relevant links:
 * [Substrate Stack Exchange](https://substrate.stackexchange.com/questions/tagged/ink?tab=Votes) ‒ Forum for getting your ink! questions answered
-* [`cargo-contract`](https://github.com/paritytech/cargo-contract) ‒ CLI tool for ink! contracts
+* [`cargo-contract`](https://github.com/use-ink/cargo-contract) ‒ CLI tool for ink! contracts
 * [Contracts UI](https://contracts-ui.substrate.io/) ‒ Frontend for contract instantiation and interaction
 * [Substrate Contracts Node](https://github.com/paritytech/substrate-contracts-node) ‒ Simple Substrate blockchain which includes smart contract functionality
 * [Awesome ink!](https://github.com/paritytech/awesome-ink) - A curated list of awesome projects for Parity's ink!
@@ -91,7 +91,7 @@ contract to a chain and interact with it.
 
 A prerequisite for compiling smart contracts is to have Rust and Cargo installed. Here's [an installation guide](https://doc.rust-lang.org/cargo/getting-started/installation.html).
 
-We recommend installing [`cargo-contract`](https://github.com/paritytech/cargo-contract) as well.
+We recommend installing [`cargo-contract`](https://github.com/use-ink/cargo-contract) as well.
 It's a CLI tool which helps set up and manage WebAssembly smart contracts written with ink!:
 
 ```

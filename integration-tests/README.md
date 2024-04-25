@@ -9,14 +9,14 @@ and `internal`, which contains examples testing specific features
 that are distinct from real-world examples.
 
 We have an external repository for ink! contract examples:
-[`ink-examples`](https://github.com/paritytech/ink-examples).
+[`ink-examples`](https://github.com/use-ink/ink-examples).
 
 All public examples in this folder can also be found
 in this repository. The difference is that the contracts in this
 folder may already contain unreleased breaking changes.
 
 For end users it's better to take a look at the
-[`ink-examples`](https://github.com/paritytech/ink-examples)
+[`ink-examples`](https://github.com/use-ink/ink-examples)
 repository. The contracts in there are ensured to be running with
 the latest published ink! version.
 

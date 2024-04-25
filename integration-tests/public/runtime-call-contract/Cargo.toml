@@ -7,7 +7,7 @@ edition = "2021"
 homepage = "https://www.parity.io/"
 keywords = ["wasm", "parity", "webassembly", "blockchain", "edsl"]
 license = "Apache-2.0"
-repository = "https://github.com/paritytech/ink"
+repository = "https://github.com/use-ink/ink"
 
 [workspace.dependencies]
 frame-support = { version = "32.0.0", default-features = false }
