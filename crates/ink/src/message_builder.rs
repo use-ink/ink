@@ -37,10 +37,15 @@
 /// ```rust
 /// use ink::message_builder;
 /// use ink_env::{
-///     call::Executor,
+///     call::{
+///         Executor,
+///        ExecutionInput
+///    },
 ///     DefaultEnvironment,
 /// };
-/// use ink_primitives::AccountId;
+/// use ink_primitives::{
+///     AccountId, MessageResult};
+/// use scale::{Decode, Encode};
 ///
 /// #[ink::trait_definition]
 /// pub trait Erc20 {
@@ -72,7 +77,7 @@
 /// }
 ///
 /// impl<E> ExampleExecutor<E> {
-///   pub fn new() -> Self { marker: core::marker::PhantomData }
+///   pub fn new() -> Self { Self { marker: core::marker::PhantomData } }
 /// }
 ///
 /// impl<E> Executor<E> for ExampleExecutor<E>
@@ -81,7 +86,7 @@
 /// {
 ///     type Error = ();
 ///     fn exec<Args, Output>(
-///         self,
+///         &self,
 ///         input: &ExecutionInput<Args>,
 ///     ) -> Result<MessageResult<Output>, Self::Error>
 ///     where
@@ -93,27 +98,27 @@
 ///     }
 /// }
 ///
-/// fn default(to: <DefaultEnvironment as ink_env::Environment>::AccountId) {
+/// fn default(to: AccountId) {
 ///     let executor = ExampleExecutor::<DefaultEnvironment>::new();
-///     let contract = message_builder!(Erc20);
-///     let total_supply = contract.total_supply().exec(executor).unwrap();
-///     contract.transfer(total_supply, to).exec(executor).unwrap();
+///     let mut contract = message_builder!(Erc20);
+///     let total_supply = contract.total_supply().exec(&executor).unwrap().unwrap();
+///     contract.transfer(total_supply, to).exec(&executor).unwrap();
 /// }
 ///
-/// fn custom(to: <CustomEnv as ink_env::Environment>::AccountId) {
+/// fn custom(to: AccountId) {
 ///     let executor = ExampleExecutor::<CustomEnv>::new();
-///     let contract = message_builder!(Erc20, CustomEnv);
-///     let total_supply = contract.total_supply().exec(executor).unwrap();
-///     contract.transfer(total_supply, to).exec(executor).unwrap();
+///     let mut contract = message_builder!(Erc20, CustomEnv);
+///     let total_supply = contract.total_supply().exec(&executor).unwrap().unwrap();
+///     contract.transfer(total_supply, to).exec(&executor).unwrap();
 /// }
 ///
-/// fn generic<E>(to: E::AccountId)
+/// fn generic<E>(to: AccountId)
 /// where E: ink_env::Environment
 /// {
 ///     let executor = ExampleExecutor::<E>::new();
-///     let contract = message_builder!(Erc20, E);
-///     let total_supply = contract.total_supply().exec(executor).unwrap();
-///     contract.transfer(total_supply, to).exec(executor).unwrap();
+///     let mut contract = message_builder!(Erc20, E);
+///     let total_supply = contract.total_supply().exec(&executor).unwrap().unwrap();
+///     contract.transfer(total_supply, to).exec(&executor).unwrap();
 /// }
 /// ```
 #[macro_export]
