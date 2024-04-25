@@ -1,18 +1,18 @@
 <div align="center">
-    <img src="https://raw.githubusercontent.com/paritytech/ink/master/.images/ink-logo-glow.svg" alt="ink!" height="136" />
+    <img src="https://raw.githubusercontent.com/use-ink/ink/master/.images/ink-logo-glow.svg" alt="ink!" height="136" />
 <h1 align="center">
     Parity's ink! for writing smart contracts
 </h1>
 
 [![linux][a1]][a2] [![codecov][c1]][c2] [![coveralls][d1]][d2] [![loc][e1]][e2] [![stack-exchange][s1]][s2]
 
-[a1]: https://github.com/paritytech/ink/workflows/continuous-integration/badge.svg
-[a2]: https://github.com/paritytech/ink/actions?query=workflow%3Acontinuous-integration+branch%3Amaster
-[c1]: https://codecov.io/gh/paritytech/ink/branch/master/graph/badge.svg
-[c2]: https://codecov.io/gh/paritytech/ink/branch/master
-[d1]: https://coveralls.io/repos/github/paritytech/ink/badge.svg?branch=master
-[d2]: https://coveralls.io/github/paritytech/ink?branch=master
-[e1]: https://tokei.rs/b1/github/paritytech/ink?category=code
+[a1]: https://github.com/use-ink/ink/workflows/continuous-integration/badge.svg
+[a2]: https://github.com/use-ink/ink/actions?query=workflow%3Acontinuous-integration+branch%3Amaster
+[c1]: https://codecov.io/gh/use-ink/ink/branch/master/graph/badge.svg
+[c2]: https://codecov.io/gh/use-ink/ink/branch/master
+[d1]: https://coveralls.io/repos/github/use-ink/ink/badge.svg?branch=master
+[d2]: https://coveralls.io/github/use-ink/ink?branch=master
+[e1]: https://tokei.rs/b1/github/use-ink/ink?category=code
 [e2]: https://github.com/Aaronepower/tokei#badges
 [f1]: https://img.shields.io/badge/click-blue.svg
 [f2]: https://paritytech.github.io/ink/ink_storage
@@ -29,7 +29,7 @@
 [s1]: https://img.shields.io/badge/click-white.svg?logo=StackExchange&label=ink!%20Support%20on%20StackExchange&labelColor=white&color=blue
 [s2]: https://substrate.stackexchange.com/questions/tagged/ink?tab=Votes
 
-> <img src="https://raw.githubusercontent.com/paritytech/ink/master/.images/ink-squid.svg" alt="squink, the ink! mascot" style="vertical-align: middle" align="left" height="60" />ink! is an [eDSL](https://wiki.haskell.org/Embedded_domain_specific_language) to write smart contracts in Rust for blockchains built on the [Substrate](https://github.com/paritytech/substrate) framework. ink! contracts are compiled to WebAssembly.
+> <img src="https://raw.githubusercontent.com/use-ink/ink/master/.images/ink-squid.svg" alt="squink, the ink! mascot" style="vertical-align: middle" align="left" height="60" />ink! is an [eDSL](https://wiki.haskell.org/Embedded_domain_specific_language) to write smart contracts in Rust for blockchains built on the [Substrate](https://github.com/paritytech/substrate) framework. ink! contracts are compiled to WebAssembly.
 
 <br/>
 
@@ -180,13 +180,13 @@ mod flipper {
     }
 }
 ```
-The [`flipper/src/lib.rs`](https://github.com/paritytech/ink-examples/blob/v5.x.x/flipper/lib.rs)
+The [`flipper/src/lib.rs`](https://github.com/use-ink/ink-examples/blob/v5.x.x/flipper/lib.rs)
 file in our examples folder contains exactly this code. Run `cargo contract build` to build your
 first ink! smart contract.
 
 ## Examples
 
-In the [`examples`](https://github.com/paritytech/ink-examples) repository you'll find a number of examples written in ink!.
+In the [`examples`](https://github.com/use-ink/ink-examples) repository you'll find a number of examples written in ink!.
 
 Some of the most interesting ones:
 
@@ -243,11 +243,11 @@ See [here](https://paritytech.github.io/ink/ink/attr.contract.html) for a more d
 ### Trait Definitions
 
 Use `#[ink::trait_definition]` to define your very own trait definitions that are then implementable by ink! smart contracts.
-See e.g. the [`examples/trait-erc20`](https://github.com/paritytech/ink-examples/blob/v5.x.x/trait-erc20/lib.rs#L20-L22) contract on how to utilize it or [the documentation](https://paritytech.github.io/ink/ink/attr.trait_definition.html) for details.
+See e.g. the [`examples/trait-erc20`](https://github.com/use-ink/ink-examples/blob/v5.x.x/trait-erc20/lib.rs#L20-L22) contract on how to utilize it or [the documentation](https://paritytech.github.io/ink/ink/attr.trait_definition.html) for details.
 
 ### Off-chain Testing
 
-The `#[ink::test]` procedural macro enables off-chain testing. See e.g. the [`examples/erc20`](https://github.com/paritytech/ink-examples/blob/v5.x.x/erc20/lib.rs#L276-L277) contract on how to utilize those or [the documentation](https://paritytech.github.io/ink/ink/attr.test.html) for details.
+The `#[ink::test]` procedural macro enables off-chain testing. See e.g. the [`examples/erc20`](https://github.com/use-ink/ink-examples/blob/v5.x.x/erc20/lib.rs#L276-L277) contract on how to utilize those or [the documentation](https://paritytech.github.io/ink/ink/attr.test.html) for details.
 
 ## Developer Documentation
 
@@ -266,18 +266,18 @@ the relevant links:
 
 ### Normal Design
 
-[![Built with ink!](https://raw.githubusercontent.com/paritytech/ink/master/.images/badge.svg)](https://github.com/paritytech/ink)
+[![Built with ink!](https://raw.githubusercontent.com/use-ink/ink/master/.images/badge.svg)](https://github.com/use-ink/ink)
 
 ```markdown
-[![Built with ink!](https://raw.githubusercontent.com/paritytech/ink/master/.images/badge.svg)](https://github.com/paritytech/ink)
+[![Built with ink!](https://raw.githubusercontent.com/use-ink/ink/master/.images/badge.svg)](https://github.com/use-ink/ink)
 ```
 
 ### Flat Design
 
-[![Built with ink!](https://raw.githubusercontent.com/paritytech/ink/master/.images/badge_flat.svg)](https://github.com/paritytech/ink)
+[![Built with ink!](https://raw.githubusercontent.com/use-ink/ink/master/.images/badge_flat.svg)](https://github.com/use-ink/ink)
 
 ```markdown
-[![Built with ink!](https://raw.githubusercontent.com/paritytech/ink/master/.images/badge_flat.svg)](https://github.com/paritytech/ink)
+[![Built with ink!](https://raw.githubusercontent.com/use-ink/ink/master/.images/badge_flat.svg)](https://github.com/use-ink/ink)
 ```
 
 ## Contributing
