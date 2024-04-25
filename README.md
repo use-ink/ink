@@ -15,13 +15,13 @@
 [e1]: https://tokei.rs/b1/github/use-ink/ink?category=code
 [e2]: https://github.com/Aaronepower/tokei#badges
 [f1]: https://img.shields.io/badge/click-blue.svg
-[f2]: https://paritytech.github.io/ink/ink_storage
+[f2]: https://use-ink.github.io/ink/ink_storage
 [g1]: https://img.shields.io/badge/click-blue.svg
-[g2]: https://paritytech.github.io/ink/ink_env
+[g2]: https://use-ink.github.io/ink/ink_env
 [i1]: https://img.shields.io/badge/click-blue.svg
-[i2]: https://paritytech.github.io/ink/ink_prelude
+[i2]: https://use-ink.github.io/ink/ink_prelude
 [j1]: https://img.shields.io/badge/click-blue.svg
-[j2]: https://paritytech.github.io/ink/ink
+[j2]: https://use-ink.github.io/ink/ink
 [k1]: https://img.shields.io/badge/matrix-chat-brightgreen.svg?style=flat
 [k2]: https://app.element.io/#/room/#ink:matrix.parity.io
 [l1]: https://img.shields.io/discord/722223075629727774?style=flat-square&label=discord
@@ -35,7 +35,7 @@
 
 [Guided Tutorial for Beginners](https://docs.substrate.io/tutorials/smart-contracts/)&nbsp;&nbsp;•&nbsp;&nbsp;
 [ink! Documentation Portal](https://use.ink)&nbsp;&nbsp;•&nbsp;&nbsp;
-[Developer Documentation](https://paritytech.github.io/ink/ink)
+[Developer Documentation](https://use-ink.github.io/ink/ink)
 
 
 <br/>
@@ -238,16 +238,16 @@ In a module annotated with `#[ink::contract]` these attributes are available:
 | `#[ink(namespace = N:string)]` | Applicable to ink! trait implementation blocks. | Changes the resulting selectors of all the ink! messages and ink! constructors within the trait implementation. Allows to disambiguate between trait implementations with overlapping message or constructor names. Use only with great care and consideration! |
 | `#[ink(impl)]` | Applicable to ink! implementation blocks. | Tells the ink! codegen that some implementation block shall be granted access to ink! internals even without it containing any ink! messages or ink! constructors. |
 
-See [here](https://paritytech.github.io/ink/ink/attr.contract.html) for a more detailed description of those and also for details on the `#[ink::contract]` macro.
+See [here](https://use-ink.github.io/ink/ink/attr.contract.html) for a more detailed description of those and also for details on the `#[ink::contract]` macro.
 
 ### Trait Definitions
 
 Use `#[ink::trait_definition]` to define your very own trait definitions that are then implementable by ink! smart contracts.
-See e.g. the [`examples/trait-erc20`](https://github.com/use-ink/ink-examples/blob/v5.x.x/trait-erc20/lib.rs#L20-L22) contract on how to utilize it or [the documentation](https://paritytech.github.io/ink/ink/attr.trait_definition.html) for details.
+See e.g. the [`examples/trait-erc20`](https://github.com/use-ink/ink-examples/blob/v5.x.x/trait-erc20/lib.rs#L20-L22) contract on how to utilize it or [the documentation](https://use-ink.github.io/ink/ink/attr.trait_definition.html) for details.
 
 ### Off-chain Testing
 
-The `#[ink::test]` procedural macro enables off-chain testing. See e.g. the [`examples/erc20`](https://github.com/use-ink/ink-examples/blob/v5.x.x/erc20/lib.rs#L276-L277) contract on how to utilize those or [the documentation](https://paritytech.github.io/ink/ink/attr.test.html) for details.
+The `#[ink::test]` procedural macro enables off-chain testing. See e.g. the [`examples/erc20`](https://github.com/use-ink/ink-examples/blob/v5.x.x/erc20/lib.rs#L276-L277) contract on how to utilize those or [the documentation](https://use-ink.github.io/ink/ink/attr.test.html) for details.
 
 ## Developer Documentation
 
@@ -257,9 +257,9 @@ the relevant links:
 
 | Crate | Docs | Description |
 |:--|:--|:--|
-`ink` | [![][j1]][j2] | Language features exposed by ink!. See [here](https://paritytech.github.io/ink/ink/attr.contract.html) for a detailed description of attributes which you can use in an `#[ink::contract]`. |
+`ink` | [![][j1]][j2] | Language features exposed by ink!. See [here](https://use-ink.github.io/ink/ink/attr.contract.html) for a detailed description of attributes which you can use in an `#[ink::contract]`. |
 `ink_storage` | [![][f1]][f2] | Data structures available in ink!. |
-`ink_env` | [![][g1]][g2] | Low-level interface for interacting with the smart contract Wasm executor. Contains [the off-chain testing API](https://paritytech.github.io/ink/ink_env/test/index.html) as well. |
+`ink_env` | [![][g1]][g2] | Low-level interface for interacting with the smart contract Wasm executor. Contains [the off-chain testing API](https://use-ink.github.io/ink/ink_env/test/index.html) as well. |
 `ink_prelude` | [![][i1]][i2] | Common API for no_std and std to access alloc crate types. |
 
 ## Community Badges

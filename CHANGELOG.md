@@ -692,7 +692,7 @@ This is the case in the latest release of the [`substrate-contracts-node`](https
 - Contract size optimization in case contract doesn't accept payment ‒ [#1267](https://github.com/use-ink/ink/pull/1267) (thanks [@xgreenx](https://github.com/xgreenx)).
 
 ### Changed
-- Two functions have been stabilized: [`ink_env::ecdsa_recover`](https://paritytech.github.io/ink/ink_env/fn.ecdsa_recover.html) and [`ink_env::ecdsa_to_eth_address`](https://paritytech.github.io/ink/ink_env/fn.ecdsa_to_eth_address.html) ‒ [#1270](https://github.com/use-ink/ink/pull/1270) [#1273](https://github.com/use-ink/ink/pull/1273)
+- Two functions have been stabilized: [`ink_env::ecdsa_recover`](https://use-ink.github.io/ink/ink_env/fn.ecdsa_recover.html) and [`ink_env::ecdsa_to_eth_address`](https://use-ink.github.io/ink/ink_env/fn.ecdsa_to_eth_address.html) ‒ [#1270](https://github.com/use-ink/ink/pull/1270) [#1273](https://github.com/use-ink/ink/pull/1273)
 
 ### Fixed
 - Fixed bug with recent Rust and `cargo test` ‒ [#1272](https://github.com/use-ink/ink/pull/1272) (thanks [@xgreenx](https://github.com/xgreenx)).
@@ -715,7 +715,7 @@ There are two breaking changes in this release:
   your contract may change. A change of selectors would affect your client, frontend, Dapp, etc..
 * As part of [#1233](https://github.com/use-ink/ink/pull/1235) we removed the `eth_compatibility`
   crate.<br><br>
-  Its recovery functionality has been moved to `ink_env` now: [`ink_env::ecdsa_to_eth_address`](https://paritytech.github.io/ink/ink_env/fn.ecdsa_to_eth_address.html).
+  Its recovery functionality has been moved to `ink_env` now: [`ink_env::ecdsa_to_eth_address`](https://use-ink.github.io/ink/ink_env/fn.ecdsa_to_eth_address.html).
   The reason for this change is that we moved the gas-expensive crypto operations into `pallet-contracts`.<br><br>
   The crates `to_default_account_id` function has been removed; the reason for this change is that ink!
   doesn't have knowledge about the specific Substrate types on the underlying chain.
@@ -725,28 +725,28 @@ There are two breaking changes in this release:
 
 ### New API functions
 We added two new `Mapping` API functions:
-[`Mapping::contains`](https://paritytech.github.io/ink/ink_storage/struct.Mapping.html#method.contains) and
-[`Mapping::insert_return_size`](https://paritytech.github.io/ink/ink_storage/struct.Mapping.html#method.insert_return_size) ‒ [#1224](https://github.com/use-ink/ink/pull/1224).
+[`Mapping::contains`](https://use-ink.github.io/ink/ink_storage/struct.Mapping.html#method.contains) and
+[`Mapping::insert_return_size`](https://use-ink.github.io/ink/ink_storage/struct.Mapping.html#method.insert_return_size) ‒ [#1224](https://github.com/use-ink/ink/pull/1224).
 These are more gas-efficient than whatever you were using previously.
 
 Additionally there are a couple new `ink_env` functions now:
-* [`ink_env::set_code_hash`](https://paritytech.github.io/ink/ink_env/fn.set_code_hash.html)
-* [`ink_env::own_code_hash`](https://paritytech.github.io/ink/ink_env/fn.own_code_hash.html)
-* [`ink_env::code_hash`](https://paritytech.github.io/ink/ink_env/fn.code_hash.html)
-* [`ink_env::ecdsa_to_eth_address`](https://paritytech.github.io/ink/ink_env/fn.ecdsa_to_eth_address.html)
+* [`ink_env::set_code_hash`](https://use-ink.github.io/ink/ink_env/fn.set_code_hash.html)
+* [`ink_env::own_code_hash`](https://use-ink.github.io/ink/ink_env/fn.own_code_hash.html)
+* [`ink_env::code_hash`](https://use-ink.github.io/ink/ink_env/fn.code_hash.html)
+* [`ink_env::ecdsa_to_eth_address`](https://use-ink.github.io/ink/ink_env/fn.ecdsa_to_eth_address.html)
 
 ### New Upgradeable Contract Example
 
 We've added a new example: [`upgradeable-contracts/set-code-hash`](https://github.com/use-ink/ink-examples/tree/main/upgradeable-contracts#set-code-hash#set-code-hash).
 
-It illustrates how the newly added [`ink_env::set_code_hash`](https://paritytech.github.io/ink/ink_env/fn.set_code_hash.html)
+It illustrates how the newly added [`ink_env::set_code_hash`](https://use-ink.github.io/ink/ink_env/fn.set_code_hash.html)
 can be used to implement an upgradeable contract that replaces its own code.
 
 ### Added
 - Implement `seal_code_hash` and `seal_own_code_hash` ‒ [#1205](https://github.com/use-ink/ink/pull/1205)
 - Add `set_code_hash` function and example ‒ [#1203](https://github.com/use-ink/ink/pull/1203)
-- Implement [`ink_env::ecdsa_to_eth_address`](https://paritytech.github.io/ink/ink_env/fn.ecdsa_to_eth_address.html) ‒ [#1233](https://github.com/use-ink/ink/pull/1233)
-- Add [`Mapping::contains(key)`](https://paritytech.github.io/ink/ink_storage/struct.Mapping.html#method.contains) and [`Mapping::insert_return_size(key, val)`](https://paritytech.github.io/ink/ink_storage/struct.Mapping.html#method.insert_return_size) ‒ [#1224](https://github.com/use-ink/ink/pull/1224)
+- Implement [`ink_env::ecdsa_to_eth_address`](https://use-ink.github.io/ink/ink_env/fn.ecdsa_to_eth_address.html) ‒ [#1233](https://github.com/use-ink/ink/pull/1233)
+- Add [`Mapping::contains(key)`](https://use-ink.github.io/ink/ink_storage/struct.Mapping.html#method.contains) and [`Mapping::insert_return_size(key, val)`](https://use-ink.github.io/ink/ink_storage/struct.Mapping.html#method.insert_return_size) ‒ [#1224](https://github.com/use-ink/ink/pull/1224)
 
 ### Fixed
 - Fix ordering of message ids if the trait is implemented before the inherent section ‒ [#1235](https://github.com/use-ink/ink/pull/1235)
@@ -789,7 +789,7 @@ one, which has a bit of a different API.
 
 The major changes are that there is no longer any notion of "execution
 context" ‒ so no more `push_execution_context` or `pop_execution_context`.
-You can achieve all the same things with the new API, see [here](https://paritytech.github.io/ink/ink_env/test/index.html)
+You can achieve all the same things with the new API, see [here](https://use-ink.github.io/ink/ink_env/test/index.html)
 for the API documentation.
 
 We've also switched all our examples to this new environment, you
@@ -855,9 +855,9 @@ If you used `Memory` in your contract, you can achieve the same functionality
 by passing this data via arguments. If you think there's a case to be
 made for bringing it back, please get in contact with us.
 
-If you use [`ink_storage::Mapping`](https://paritytech.github.io/ink/ink_storage/struct.Mapping.html)
+If you use [`ink_storage::Mapping`](https://use-ink.github.io/ink/ink_storage/struct.Mapping.html)
 in your contract, you need to initialize the data structure using the helper function
-[`ink_lang::utils::initialize_contract(…)`](https://paritytech.github.io/ink/ink_lang/utils/fn.initialize_contract.html).
+[`ink_lang::utils::initialize_contract(…)`](https://use-ink.github.io/ink/ink_lang/utils/fn.initialize_contract.html).
 For more code examples you can take a look at our examples, e.g.
 [`erc20`](https://github.com/use-ink/ink/blob/master/examples/erc20/lib.rs).
 
@@ -960,7 +960,7 @@ With those improvements the size of our `erc20` example has reduced significantl
 | `erc20` | `3.0.0-rc7` | 10.4 K                              |
 
 The savings apply partly to our other examples; for `erc20` they are most
-significant since it has been migrated to use a new [`Mapping`](https://paritytech.github.io/ink/ink_storage/lazy/struct.Mapping.html)
+significant since it has been migrated to use a new [`Mapping`](https://use-ink.github.io/ink/ink_storage/lazy/struct.Mapping.html)
 data structure, which we introduce with this release candidate.
 The other examples will be migrated to this new data structure as a next step.
 
@@ -988,7 +988,7 @@ Specifically you need to upgrade to at least the pallet version
 - Upgraded to the `seal_call` v1 API ‒ [#960](https://github.com/use-ink/ink/pull/960).
   - This API now enables control over the behavior of cross-contract calls, e.g. to forward/clone input,
     enable tail calls and control reentrancy.
-    The crate documentation contains more details on the [`CallFlags`](https://paritytech.github.io/ink/ink_env/struct.CallFlags.html).
+    The crate documentation contains more details on the [`CallFlags`](https://use-ink.github.io/ink/ink_env/struct.CallFlags.html).
   - **Note:** The default behavior of cross-contract calls now disallows reentering the calling contract.
 - ink! contract definitions via `#[ink::contract]` ‒ [#665](https://github.com/use-ink/ink/pull/665).<br/>
   For ink! smart contracts we now generate two contract types. Given `MyContract`:
@@ -1155,7 +1155,7 @@ of key improvements to our testing setup:
   which runs End-to-End tests through our entire stack.
   All our examples are continuously built using the latest `cargo-contract`. They are
   subsequently deployed on the latest `substrate-contracts-node` by emulating browser interactions with
-  both the [`canvas-ui`](https://paritytech.github.io/canvas-ui/#/) and the
+  both the [`canvas-ui`](https://use-ink.github.io/canvas-ui/#/) and the
   [`polkadot-js`](https://polkadot.js.org/apps/#/) UI.
   This testing setup enables us to detect bugs which only appear in the context of using
   multiple components together early on.
@@ -1173,7 +1173,7 @@ of key improvements to our testing setup:
       for more information.
     - The examples have been updated to reflect this new way of printing debug messages.
 - Added usage comments with code examples to the `ink_env` API ‒ [#797](https://github.com/use-ink/ink/pull/797).
-    - The [published crate documentation](https://paritytech.github.io/ink/ink_lang/struct.EnvAccess.html) now contains
+    - The [published crate documentation](https://use-ink.github.io/ink/ink_lang/struct.EnvAccess.html) now contains
       much more code examples for the methods behind `self.env()` and `Self::env()`.
 - Added an example implementation for ERC-1155, a multi-token standard ‒ [#800](https://github.com/use-ink/ink/pull/800).
 - Implemented binary search for `collections::Vec` ‒ [#836](https://github.com/use-ink/ink/pull/836).
@@ -1430,7 +1430,7 @@ The fundamental difference of both data structures is that `HashMap` is aware of
 | `HashMap<K, V>`     |      high-level      |   yes   |  yes  |     `V` (key type `K`)     |   Rust map-like container    |
 | `LazyHashMap<K, V>` |      low-level       |   yes   |  yes  | `Option<V>` (key type `K`) | similar to Solidity mapping  |
 
-There are many more! For more information about the specifics please take a look into [the `ink_storage` crate documentation](https://paritytech.github.io/ink/ink_storage/).
+There are many more! For more information about the specifics please take a look into [the `ink_storage` crate documentation](https://use-ink.github.io/ink/ink_storage/).
 
 #### Spread & Packed Modes
 
@@ -1585,7 +1585,7 @@ The new `ink_storage` crate provides everything you need to operate on your cont
 There are low-level and high-level data structures depending on your need of control.
 All provided data structures operate lazily on the contract's storage and cache their reads and writes for a more gas efficient storage access.
 Users should prefer high-level data structures found in the `collections` module over the low-level data structures found in the `lazy` module.
-For a list of all the new storage data structure visit [`ink_storage`'s documentation](https://paritytech.github.io/ink/ink_storage/).
+For a list of all the new storage data structure visit [`ink_storage`'s documentation](https://use-ink.github.io/ink/ink_storage/).
 
 ### ink! Attributes
 

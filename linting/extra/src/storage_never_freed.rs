@@ -108,7 +108,7 @@ declare_lint! {
 declare_lint_pass!(StorageNeverFreed => [STORAGE_NEVER_FREED]);
 
 mod methods {
-    // https://paritytech.github.io/ink/ink_prelude/vec/struct.Vec.html
+    // https://use-ink.github.io/ink/ink_prelude/vec/struct.Vec.html
     pub const VEC_INSERT: [&str; 6] = [
         "append",
         "extend_from_slice",
@@ -129,7 +129,7 @@ mod methods {
     ];
     pub const VEC_IGNORE: [&str; 2] = ["as_mut_ptr", "as_mut_slice"];
 
-    // https://paritytech.github.io/ink/ink_storage/struct.Mapping.html
+    // https://use-ink.github.io/ink/ink_storage/struct.Mapping.html
     pub const MAP_INSERT: [&str; 1] = ["insert"];
     pub const MAP_REMOVE: [&str; 2] = ["remove", "take"];
 }

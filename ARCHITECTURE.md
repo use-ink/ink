@@ -10,7 +10,7 @@ You can find the crate documentation on docs.rs or for our
 `master` branch under GitHub pages. So for `ink` e.g.:
 
 * [https://docs.rs/ink/latest/ink](https://docs.rs/ink/latest/ink) (latest published release)
-* [https://paritytech.github.io/ink/ink](https://paritytech.github.io/ink/ink) (`master`)
+* [https://use-ink.github.io/ink/ink](https://use-ink.github.io/ink/ink) (`master`)
 
 ink! is composed of a number of crates that are all found in the
 `crates/` folder. On a high-level those can be grouped as:
@@ -203,15 +203,15 @@ type as Ethereum for their `AccountId`.
 
 The `Environment` trait is how ink! knows the concretes types of the chain
 to which the contract will be deployed to.
-Specifically, our `ink_env` crate defines a trait [`Environment`](https://paritytech.github.io/ink/ink_env/trait.Environment.html)
+Specifically, our `ink_env` crate defines a trait [`Environment`](https://use-ink.github.io/ink/ink_env/trait.Environment.html)
 which specifies the types.
 By default, ink! uses the default Substrate types, the `ink_env` crate
 exports an implementation of the `Environment` trait for that:
-[`DefaultEnvironment`](https://paritytech.github.io/ink/ink_env/enum.DefaultEnvironment.html).
+[`DefaultEnvironment`](https://use-ink.github.io/ink/ink_env/enum.DefaultEnvironment.html).
 
 If you are developing for a chain that uses different types than the
 Substrate default types you can configure a different environment in
-the contract macro ([documentation here](https://paritytech.github.io/ink/ink/attr.contract.html#header-arguments)):
+the contract macro ([documentation here](https://use-ink.github.io/ink/ink/attr.contract.html#header-arguments)):
 
 ```rust
 #[ink::contract(env = MyCustomTypes)]
