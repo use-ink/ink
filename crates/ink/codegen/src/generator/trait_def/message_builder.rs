@@ -78,15 +78,8 @@ impl MessageBuilder<'_> {
     /// Generates the struct type definition for the account wrapper type.
     ///
     /// This type is going to implement the trait so that invoking its trait
-    /// methods will perform contract calls via contract's pallet contract
-    /// execution abstraction.
-    ///
-    /// # Note
-    ///
-    /// Unlike the layout specific traits it is possible to derive the SCALE
-    /// `Encode` and `Decode` traits since they generate trait bounds per field
-    /// instead of per generic parameter which is exactly what we need here.
-    /// However, it should be noted that this is not Rust default behavior.
+    /// methods will return an `Execution` instance populated with the message selector,
+    /// arguments and return type, which can then be executed via the `exec` method.
     fn generate_struct_definition(&self) -> TokenStream2 {
         let span = self.span();
         let message_builder_ident = self.trait_def.message_builder_ident();
@@ -129,11 +122,9 @@ impl MessageBuilder<'_> {
     ///
     /// # Note
     ///
-    /// The implemented messages call the SEAL host runtime in order to dispatch
-    /// the respective ink! trait message calls of the called smart contract
-    /// instance.
-    /// The way these messages are built-up allows the caller to customize message
-    /// parameters such as gas limit and transferred value.
+    /// The implemented messages create an instance of the `Execution` type which
+    /// encapsulates the execution input (the selector and arguments) and the output
+    /// type of the message.
     fn generate_ink_trait_impl(&self) -> TokenStream2 {
         let span = self.trait_def.span();
         let trait_ident = self.trait_def.trait_def.item().ident();
