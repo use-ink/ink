@@ -208,23 +208,6 @@ macro_rules! contract_ref {
                     ::__ink_TraitInfo as $crate::codegen::TraitCallForwarder>::Forwarder
     };
 }
-
-/// todo: docs
-#[macro_export]
-macro_rules! message_builder {
-    // The case of the default `Environment`
-    ( $trait_path:path ) => {
-        $crate::message_builder!($trait_path, $crate::env::DefaultEnvironment)
-    };
-    // The case of the custom `Environment`
-    ( $trait_path:path, $env:ty ) => {
-        <<<$crate::reflect::TraitDefinitionRegistry<$env>
-                            as $trait_path>::__ink_TraitInfo
-                            as $crate::codegen::TraitMessageBuilder>::MessageBuilder
-                            as ::core::default::Default>::default()
-    };
-}
-
 /// Implemented by contracts that are compiled as dependencies.
 ///
 /// Allows them to return their underlying account identifier.

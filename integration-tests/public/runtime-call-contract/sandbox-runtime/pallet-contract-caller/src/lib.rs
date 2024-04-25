@@ -66,7 +66,7 @@ pub mod pallet {
                 };
 
             let mut flipper = ink::message_builder!(Flip);
-            let result = flipper.flip().exec(executor)?;
+            let result = flipper.flip().exec(&executor)?;
 
             assert!(result.is_ok());
 

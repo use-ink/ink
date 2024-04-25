@@ -28,7 +28,7 @@ where
     type Error = sp_runtime::DispatchError;
 
     fn exec<Args, Output>(
-        self,
+        &self,
         input: &ExecutionInput<Args>,
     ) -> Result<ink::MessageResult<Output>, Self::Error>
     where
@@ -38,8 +38,8 @@ where
         let data = codec::Encode::encode(&input);
 
         let result = pallet_contracts::Pallet::<R>::bare_call(
-            self.origin,
-            self.contract,
+            self.origin.clone(),
+            self.contract.clone(),
             self.value,
             self.gas_limit,
             self.storage_deposit_limit,

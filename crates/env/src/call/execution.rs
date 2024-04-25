@@ -42,7 +42,7 @@ where
     /// Perform the execution of the contract with the given executor.
     pub fn exec<I, E>(
         self,
-        executor: I,
+        executor: &I,
     ) -> Result<ink_primitives::MessageResult<Output>, I::Error>
     where
         E: Environment,
@@ -58,7 +58,7 @@ pub trait Executor<E: Environment> {
     type Error;
     /// Perform the contract execution with the given input data, and return the result.
     fn exec<Args, Output>(
-        self,
+        &self,
         input: &ExecutionInput<Args>,
     ) -> Result<ink_primitives::MessageResult<Output>, Self::Error>
     where
