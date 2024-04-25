@@ -174,12 +174,9 @@ impl CallBuilder<'_> {
     ) -> TokenStream2 {
         let call_forwarder_impl =
             self.generate_call_forwarder_for_trait_impl(trait_path, impl_block);
-        let message_builder_impl =
-            self.generate_message_builder_trait_impl(trait_path, impl_block);
         let ink_trait_impl = self.generate_ink_trait_impl(trait_path, impl_block);
         quote! {
             #call_forwarder_impl
-            #message_builder_impl
             #ink_trait_impl
         }
     }
@@ -240,23 +237,6 @@ impl CallBuilder<'_> {
                         <Self as ::ink::codegen::TraitCallForwarderFor<{#trait_info_id}>>::forward_mut(self)
                     )
                 }
-            }
-        )
-    }
-
-    /// Generate the trait implementation for `MessageBuilder` for the generated call
-    /// builder
-    fn generate_message_builder_trait_impl(
-        &self,
-        trait_path: &syn::Path,
-        impl_block: &ir::ItemImpl,
-    ) -> TokenStream2 {
-        let span = impl_block.span();
-        let cb_ident = Self::call_builder_ident();
-        quote_spanned!(span=>
-            /// This trait allows to bridge from the call builder to message builder.
-            impl ::ink::codegen::TraitMessageBuilder for #cb_ident {
-                type MessageBuilder = <<Self as #trait_path>::__ink_TraitInfo as ::ink::codegen::TraitMessageBuilder>::MessageBuilder;
             }
         )
     }
