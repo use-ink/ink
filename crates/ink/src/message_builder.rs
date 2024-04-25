@@ -20,7 +20,7 @@
 /// The macro returns an instance of the generated message builder type which implements
 /// the trait, allowing the user to create and invoke messages on the trait.
 ///
-/// This is similar to the call builder syntax accessible via the [`crate::contract_ref`]
+/// This is similar to the call builder syntax accessible via the [`crate::contract_ref!`]
 /// macro, except that it is decoupled from the callee account id, as well as the
 /// underlying execution environment. This allows it to be used in execution contexts
 /// other than cross-contract calls.
@@ -32,7 +32,7 @@
 /// - The second argument is the type of the [`ink_env::Environment`].
 ///
 /// If the second argument is not specified, the macro uses the
-/// [`ink::env::DefaultEnvironment`].
+/// [`ink_env::DefaultEnvironment`].
 ///
 /// ```rust
 /// use ink::message_builder;
