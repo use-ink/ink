@@ -38,14 +38,19 @@
 /// use ink::message_builder;
 /// use ink_env::{
 ///     call::{
+///         ExecutionInput,
 ///         Executor,
-///        ExecutionInput
-///    },
+///     },
 ///     DefaultEnvironment,
 /// };
 /// use ink_primitives::{
-///     AccountId, MessageResult};
-/// use scale::{Decode, Encode};
+///     AccountId,
+///     MessageResult,
+/// };
+/// use scale::{
+///     Decode,
+///     Encode,
+/// };
 ///
 /// #[ink::trait_definition]
 /// pub trait Erc20 {
@@ -77,7 +82,11 @@
 /// }
 ///
 /// impl<E> ExampleExecutor<E> {
-///   pub fn new() -> Self { Self { marker: core::marker::PhantomData } }
+///     pub fn new() -> Self {
+///         Self {
+///             marker: core::marker::PhantomData,
+///         }
+///     }
 /// }
 ///
 /// impl<E> Executor<E> for ExampleExecutor<E>
@@ -113,7 +122,8 @@
 /// }
 ///
 /// fn generic<E>(to: AccountId)
-/// where E: ink_env::Environment
+/// where
+///     E: ink_env::Environment,
 /// {
 ///     let executor = ExampleExecutor::<E>::new();
 ///     let mut contract = message_builder!(Erc20, E);
