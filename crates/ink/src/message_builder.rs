@@ -25,7 +25,7 @@
 /// underlying execution environment. This allows it to be used in execution contexts
 /// other than cross-contract calls.
 ///
-/// # Usage outside of the `#[ink::contract]` context
+/// # Usage
 ///
 /// The macro expects two arguments:
 /// - The first argument is the path to the trait, e.g. `Erc20` or `erc20::Erc20`.
@@ -71,6 +71,10 @@
 ///     marker: core::marker::PhantomData<E>,
 /// }
 ///
+/// impl<E> ExampleExecutor<E> {
+///   pub fn new() -> Self { marker: core::marker::PhantomData }
+/// }
+///
 /// impl<E> Executor<E> for ExampleExecutor<E>
 /// where
 ///     E: ink_env::Environment,
@@ -89,50 +93,27 @@
 ///     }
 /// }
 ///
-/// fn default(executor: &ExampleExecutor<DefaultEnvironment>) {
-///     let contract = message_builder!(Erc20, DefaultEnvironment);
+/// fn default(to: <DefaultEnvironment as ink_env::Environment>::AccountId) {
+///     let executor = ExampleExecutor::<DefaultEnvironment>::new();
+///     let contract = message_builder!(Erc20);
 ///     let total_supply = contract.total_supply().exec(executor).unwrap();
-///     contract.transfer(total_supply, to);
+///     contract.transfer(total_supply, to).exec(executor).unwrap();
 /// }
 ///
-/// fn default_alias(mut contract: AliasWithDefaultEnv) {
-///     default(contract)
+/// fn custom(to: <CustomEnv as ink_env::Environment>::AccountId) {
+///     let executor = ExampleExecutor::<CustomEnv>::new();
+///     let contract = message_builder!(Erc20, CustomEnv);
+///     let total_supply = contract.total_supply().exec(executor).unwrap();
+///     contract.transfer(total_supply, to).exec(executor).unwrap();
 /// }
 ///
-/// fn custom(mut contract: contract_ref!(Erc20, CustomEnv)) {
-///     let total_supply = contract.total_supply();
-///     let to: [u8; 32] = contract.as_ref().clone();
-///     contract.transfer(total_supply, to.into());
-/// }
-///
-/// fn custom_alias(mut contract: AliasWithCustomEnv) {
-///     custom(contract)
-/// }
-///
-/// fn generic<E, A>(mut contract: contract_ref!(Erc20, E))
-/// where
-///     E: ink_env::Environment<AccountId = A>,
-///     A: Into<AccountId> + Clone,
+/// fn generic<E>(to: E::AccountId)
+/// where E: ink_env::Environment
 /// {
-///     let total_supply = contract.total_supply();
-///     let to = contract.as_ref().clone();
-///     contract.transfer(total_supply, to.into());
-/// }
-///
-/// fn generic_alias<E, A>(mut contract: AliasWithGenericEnv<E>)
-/// where
-///     E: ink_env::Environment<AccountId = A>,
-///     A: Into<AccountId> + Clone,
-/// {
-///     generic(contract)
-/// }
-///
-/// type Environment = DefaultEnvironment;
-///
-/// fn contract_ref_default_behaviour(mut contract: contract_ref!(Erc20)) {
-///     let total_supply = contract.total_supply();
-///     let to: AccountId = contract.as_ref().clone();
-///     contract.transfer(total_supply, to);
+///     let executor = ExampleExecutor::<E>::new();
+///     let contract = message_builder!(Erc20, E);
+///     let total_supply = contract.total_supply().exec(executor).unwrap();
+///     contract.transfer(total_supply, to).exec(executor).unwrap();
 /// }
 /// ```
 #[macro_export]
