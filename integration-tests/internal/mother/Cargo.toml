@@ -2,7 +2,7 @@
 name = "mother"
 description = "Mother of all contracts"
 version = "5.0.0"
-authors = ["Parity Technologies <admin@parity.io>"]
+authors = ["Use Ink <ink@r0gue.io>"]
 edition = "2021"
 publish = false
 
