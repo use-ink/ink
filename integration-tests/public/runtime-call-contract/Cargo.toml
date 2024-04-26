@@ -2,7 +2,7 @@
 members = ["sandbox-runtime", "traits"]
 
 [workspace.package]
-authors = ["Parity Technologies <admin@parity.io>"]
+authors = ["Use Ink <ink@r0gue.io>"]
 edition = "2021"
 homepage = "https://www.parity.io/"
 keywords = ["wasm", "parity", "webassembly", "blockchain", "edsl"]
@@ -19,7 +19,7 @@ scale-info = { version = "2.11.1", default-features = false }
 [package]
 name = "runtime-call-contract"
 version = "5.0.0"
-authors = ["Parity Technologies <admin@parity.io>"]
+authors = ["Use Ink <ink@r0gue.io>"]
 edition = "2021"
 publish = false
 

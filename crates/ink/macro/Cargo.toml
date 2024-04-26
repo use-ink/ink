@@ -1,7 +1,7 @@
 [package]
 name = "ink_macro"
 version.workspace = true
-authors = ["Parity Technologies <admin@parity.io>", "Robin Freyler <robin@parity.io>"]
+authors = ["Use Ink <ink@r0gue.io>"]
 edition.workspace = true
 
 license.workspace = true
@@ -43,6 +43,6 @@ std = [
 	"ink_codegen/std",
 	"ink_ir/std",
 	"ink_primitives/std",
-	"scale/std", 
+	"scale/std",
 	"scale-info/std"
 ]

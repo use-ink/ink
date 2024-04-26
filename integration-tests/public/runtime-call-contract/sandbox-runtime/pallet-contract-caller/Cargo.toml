@@ -2,7 +2,7 @@
 name = "pallet-contract-caller"
 version = "0.1.0"
 description = "Demonstrate calling an ink! contract from a pallet"
-authors = ["Substrate DevHub <https://github.com/substrate-developer-hub>"]
+authors = ["Use Ink <ink@r0gue.io>"]
 homepage = "https://substrate.io"
 edition.workspace = true
 license = "MIT-0"

@@ -23,7 +23,7 @@ exclude = [
 ]
 
 [workspace.package]
-authors = ["Parity Technologies <admin@parity.io>"]
+authors = ["Use Ink <ink@r0gue.io>"]
 categories = ["no-std", "embedded"]
 edition = "2021"
 homepage = "https://www.parity.io/"
