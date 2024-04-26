@@ -602,6 +602,24 @@
 <a href="#602" id="602">602</a>
 <a href="#603" id="603">603</a>
 <a href="#604" id="604">604</a>
+<a href="#605" id="605">605</a>
+<a href="#606" id="606">606</a>
+<a href="#607" id="607">607</a>
+<a href="#608" id="608">608</a>
+<a href="#609" id="609">609</a>
+<a href="#610" id="610">610</a>
+<a href="#611" id="611">611</a>
+<a href="#612" id="612">612</a>
+<a href="#613" id="613">613</a>
+<a href="#614" id="614">614</a>
+<a href="#615" id="615">615</a>
+<a href="#616" id="616">616</a>
+<a href="#617" id="617">617</a>
+<a href="#618" id="618">618</a>
+<a href="#619" id="619">619</a>
+<a href="#620" id="620">620</a>
+<a href="#621" id="621">621</a>
+<a href="#622" id="622">622</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) Use Ink (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -1197,6 +1215,24 @@
         </span>E: Environment,
     {
         <span class="macro">unimplemented!</span>(<span class="string">&quot;off-chain environment does not support delegate dependencies&quot;</span>)
+    }
+
+    <span class="kw">fn </span>xcm_execute&lt;E, Call&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _msg: <span class="kw-2">&amp;</span>xcm::VersionedXcm&lt;Call&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt;
+    <span class="kw">where
+        </span>E: Environment,
+    {
+        <span class="macro">unimplemented!</span>(<span class="string">&quot;off-chain environment does not support `xcm_execute`&quot;</span>)
+    }
+
+    <span class="kw">fn </span>xcm_send&lt;E, Call&gt;(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        _dest: <span class="kw-2">&amp;</span>xcm::VersionedLocation,
+        _msg: <span class="kw-2">&amp;</span>xcm::VersionedXcm&lt;Call&gt;,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;xcm::v4::XcmHash&gt;
+    <span class="kw">where
+        </span>E: Environment,
+    {
+        <span class="macro">unimplemented!</span>(<span class="string">&quot;off-chain environment does not support `xcm_send`&quot;</span>)
     }
 
     <span class="kw">fn </span>unlock_delegate_dependency&lt;E&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _code_hash: <span class="kw-2">&amp;</span>E::Hash)

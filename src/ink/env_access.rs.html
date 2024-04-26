@@ -1342,6 +1342,21 @@
 <a href="#1342" id="1342">1342</a>
 <a href="#1343" id="1343">1343</a>
 <a href="#1344" id="1344">1344</a>
+<a href="#1345" id="1345">1345</a>
+<a href="#1346" id="1346">1346</a>
+<a href="#1347" id="1347">1347</a>
+<a href="#1348" id="1348">1348</a>
+<a href="#1349" id="1349">1349</a>
+<a href="#1350" id="1350">1350</a>
+<a href="#1351" id="1351">1351</a>
+<a href="#1352" id="1352">1352</a>
+<a href="#1353" id="1353">1353</a>
+<a href="#1354" id="1354">1354</a>
+<a href="#1355" id="1355">1355</a>
+<a href="#1356" id="1356">1356</a>
+<a href="#1357" id="1357">1357</a>
+<a href="#1358" id="1358">1358</a>
+<a href="#1359" id="1359">1359</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) Use Ink (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -2684,6 +2699,21 @@
     /// For more details visit: [`ink_env::unlock_delegate_dependency`]
     </span><span class="kw">pub fn </span>unlock_delegate_dependency(<span class="self">self</span>, code_hash: <span class="kw-2">&amp;</span>E::Hash) {
         ink_env::unlock_delegate_dependency::&lt;E&gt;(code_hash)
+    }
+
+    <span class="kw">pub fn </span>xcm_execute&lt;Call: scale::Encode&gt;(
+        <span class="self">self</span>,
+        msg: <span class="kw-2">&amp;</span>xcm::VersionedXcm&lt;Call&gt;,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+        ink_env::xcm_execute::&lt;E, <span class="kw">_</span>&gt;(msg)
+    }
+
+    <span class="kw">pub fn </span>xcm_send&lt;Call: scale::Encode&gt;(
+        <span class="self">self</span>,
+        dest: <span class="kw-2">&amp;</span>xcm::VersionedLocation,
+        msg: <span class="kw-2">&amp;</span>xcm::VersionedXcm&lt;Call&gt;,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;xcm::v4::XcmHash&gt; {
+        ink_env::xcm_send::&lt;E, <span class="kw">_</span>&gt;(dest, msg)
     }
 }
 </code></pre></div></section></main></body></html>

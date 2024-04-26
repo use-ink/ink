@@ -212,7 +212,7 @@
     From,
 )]
 #[cfg_attr(feature = <span class="string">&quot;std&quot;</span>, derive(TypeInfo, DecodeAsType, EncodeAsType))]
-</span><span class="kw">pub struct </span>AccountId([u8; <span class="number">32</span>]);
+</span><span class="kw">pub struct </span>AccountId(<span class="kw">pub </span>[u8; <span class="number">32</span>]);
 
 <span class="kw">impl </span>AsRef&lt;[u8; <span class="number">32</span>]&gt; <span class="kw">for </span>AccountId {
     <span class="attr">#[inline]
