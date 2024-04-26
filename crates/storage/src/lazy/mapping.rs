@@ -1,4 +1,4 @@
-// Copyright (C) Parity Technologies (UK) Ltd.
+// Copyright (C) Use Ink (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -83,7 +83,7 @@ use scale::{
 /// # }
 /// ```
 ///
-/// More usage examples can be found [in the ink! examples](https://github.com/paritytech/ink-examples).
+/// More usage examples can be found [in the ink! examples](https://github.com/use-ink/ink-examples).
 #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
 pub struct Mapping<K, V: Packed, KeyType: StorageKey = AutoKey> {
     #[allow(clippy::type_complexity)]

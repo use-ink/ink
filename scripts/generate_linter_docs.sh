@@ -7,7 +7,7 @@ usage() {
   echo "Creates or updates the documentation for ink_linting hosted at use.ink."
   echo
   echo "Arguments:"
-  echo "  PATH Path to the local clone of https://github.com/paritytech/ink-docs"
+  echo "  PATH Path to the local clone of https://github.com/use-ink/ink-docs"
   echo
   echo "Examples:"
   echo "  $0 ~/ink-docs"

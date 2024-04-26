@@ -1,4 +1,4 @@
-// Copyright (C) Parity Technologies (UK) Ltd.
+// Copyright (C) Use Ink (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -1153,7 +1153,7 @@ pub fn test(attr: TokenStream, item: TokenStream) -> TokenStream {
 /// `Decode` as well as `scale-info`'s `TypeInfo` trait.
 ///
 /// A full example of the above chain extension definition can be seen
-/// [here](https://github.com/paritytech/ink/blob/017f71d60799b764425334f86b732cc7b7065fe6/crates/lang/macro/tests/ui/chain_extension/simple.rs).
+/// [here](https://github.com/use-ink/ink/blob/017f71d60799b764425334f86b732cc7b7065fe6/crates/lang/macro/tests/ui/chain_extension/simple.rs).
 ///
 /// # Example: Environment
 ///

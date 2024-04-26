@@ -1,4 +1,4 @@
-// Copyright (C) Parity Technologies (UK) Ltd.
+// Copyright (C) Use Ink (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -396,7 +396,7 @@ pub fn recorded_events() -> impl Iterator<Item = EmittedEvent> {
 /// );
 /// ```
 ///
-/// See our [`contract-terminate`](https://github.com/paritytech/ink-examples/tree/v5.x.x/contract-terminate)
+/// See our [`contract-terminate`](https://github.com/use-ink/ink-examples/tree/v5.x.x/contract-terminate)
 /// example for a complete usage exemplification.
 pub fn assert_contract_termination<T, F>(
     should_terminate: F,

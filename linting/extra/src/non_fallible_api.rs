@@ -1,4 +1,4 @@
-// Copyright (C) Parity Technologies (UK) Ltd.
+// Copyright (C) Use Ink (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -71,7 +71,7 @@ declare_lint! {
     /// checks and will panic on incorrect input, placing the responsibility on the user to
     /// implement these checks.
     ///
-    /// For more context, see: [ink#1910](https://github.com/paritytech/ink/pull/1910).
+    /// For more context, see: [ink#1910](https://github.com/use-ink/ink/pull/1910).
     ///
     /// ## Example
     ///

@@ -1,4 +1,4 @@
-// Copyright (C) Parity Technologies (UK) Ltd.
+// Copyright (C) Use Ink (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -65,7 +65,10 @@ use rustc_session::{
     declare_lint,
     declare_lint_pass,
 };
-use rustc_span::Span;
+use rustc_span::{
+    source_map::Spanned,
+    Span,
+};
 use std::collections::{
     HashMap,
     HashSet,
@@ -78,7 +81,7 @@ declare_lint! {
     /// ## Why is this bad?
     /// The problem with strict balance equality is that it is always possible to forcibly send
     /// tokens to a contract. For example, using
-    /// [`terminate_contract`](https://paritytech.github.io/ink/ink_env/fn.terminate_contract.html).
+    /// [`terminate_contract`](https://use-ink.github.io/ink/ink_env/fn.terminate_contract.html).
     /// In such a case, the condition involving the contract balance will work incorrectly, what
     /// may lead to security issues, including DoS attacks and draining contract's gas.
     ///
@@ -394,7 +397,7 @@ impl<'tcx> TransferFunction<'_, 'tcx> {
     // with balance after calling the function.
     fn get_tainted_input_args(
         &self,
-        input_args: &[Operand],
+        input_args: &[Spanned<Operand<'_>>],
         fn_mir: &Body,
         fn_state: &BitSet<Local>,
     ) -> Vec<Local> {
@@ -403,7 +406,7 @@ impl<'tcx> TransferFunction<'_, 'tcx> {
             |mut acc, (caller_op, callee_local)| {
                 if_chain! {
                     if fn_state.contains(callee_local);
-                    if let Some(caller_place) = caller_op.place();
+                    if let Some(caller_place) = caller_op.node.place();
                     then {
                         let ref_local = caller_place.local;
                         acc.push(ref_local);
@@ -421,9 +424,14 @@ impl<'tcx> TransferFunction<'_, 'tcx> {
         fn_def_id.is_local()
     }
 
-    fn visit_call(&mut self, func: &ConstOperand, args: &[Operand], destination: &Place) {
+    fn visit_call(
+        &mut self,
+        func: &ConstOperand,
+        args: &[Spanned<Operand<'_>>],
+        destination: &Place,
+    ) {
         let init_taints = args.iter().fold(Vec::new(), |mut acc, arg| {
-            if let Operand::Move(place) | Operand::Copy(place) = arg {
+            if let Operand::Move(place) | Operand::Copy(place) = arg.node {
                 acc.push(self.state.contains(place.local))
             }
             acc

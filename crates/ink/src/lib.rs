@@ -1,4 +1,4 @@
-// Copyright (C) Parity Technologies (UK) Ltd.
+// Copyright (C) Use Ink (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -34,6 +34,7 @@ pub mod reflect;
 mod chain_extension;
 mod contract_ref;
 mod env_access;
+mod message_builder;
 
 pub use ink_env as env;
 #[cfg(feature = "std")]

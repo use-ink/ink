@@ -43,6 +43,7 @@ async fn instantiate_and_get<Client: E2EBackend>(mut client: Client) -> E2EResul
                     gas_required.proof_size(),
                 ))
                 .unwrap(),
+                scale_value::serde::to_value(None::<u128>).unwrap(),
             ],
         )
         .await

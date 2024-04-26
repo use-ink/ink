@@ -20,7 +20,7 @@
 * @cmichi @ascjones @smiasojed
 
 # CI
-/.github/workflows/ @paritytech/ci @cmichi @ascjones @smiasojed
-/.github/scripts/ @paritytech/ci @cmichi @ascjones @smiasojed
-/.github/download-artifact/ @paritytech/ci @cmichi @ascjones @smiasojed
-/.github/rust-info/ @paritytech/ci @cmichi @ascjones @smiasojed
+/.github/workflows/ @cmichi @ascjones @smiasojed
+/.github/scripts/ @cmichi @ascjones @smiasojed
+/.github/download-artifact/ @cmichi @ascjones @smiasojed
+/.github/rust-info/ @cmichi @ascjones @smiasojed

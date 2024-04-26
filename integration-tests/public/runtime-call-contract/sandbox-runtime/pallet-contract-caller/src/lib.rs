@@ -4,7 +4,18 @@
 
 #![cfg_attr(not(feature = "std"), no_std)]
 
+mod executor;
+
+use frame_support::{
+    pallet_prelude::Weight,
+    traits::fungible::Inspect,
+};
 pub use pallet::*;
+
+type AccountIdOf<R> = <R as frame_system::Config>::AccountId;
+type BalanceOf<R> = <<R as pallet_contracts::Config>::Currency as Inspect<
+    <R as frame_system::Config>::AccountId,
+>>::Balance;
 
 #[frame_support::pallet]
 pub mod pallet {
@@ -15,9 +26,6 @@ pub mod pallet {
         traits::fungible::Inspect,
     };
     use frame_system::pallet_prelude::*;
-    use ink::codegen::TraitCallBuilder;
-
-    type AccountIdOf<Runtime> = <Runtime as frame_system::Config>::AccountId;
 
     #[pallet::pallet]
     pub struct Pallet<T>(_);
@@ -43,43 +51,24 @@ pub mod pallet {
             origin: OriginFor<T>,
             contract: AccountIdOf<T>,
             gas_limit: Weight,
+            storage_deposit_limit: Option<BalanceOf<T>>,
         ) -> DispatchResult {
             let who = ensure_signed(origin)?;
 
-            let ink_account_id =
-                ink::primitives::AccountId::from(<[u8; 32]>::from(contract.clone()));
-            let mut flipper: ink::contract_ref!(Flip, ink::env::DefaultEnvironment) =
-                ink_account_id.into();
-            let call_builder = flipper.call_mut();
+            let executor =
+                executor::PalletContractsExecutor::<ink::env::DefaultEnvironment, T> {
+                    origin: who.clone(),
+                    contract: contract.clone(),
+                    value: 0.into(),
+                    gas_limit,
+                    storage_deposit_limit,
+                    marker: Default::default(),
+                };
 
-            let params = call_builder
-                .flip()
-                .ref_time_limit(gas_limit.ref_time())
-                .proof_size_limit(gas_limit.proof_size())
-                .params();
+            let mut flipper = ink::message_builder!(Flip);
+            let result = flipper.flip().exec(&executor)?;
 
-            // Next step is to explore ways to encapsulate the following into the call
-            // builder.
-            let value = *params.transferred_value();
-            let data = params.exec_input().encode();
-            let weight =
-                Weight::from_parts(params.ref_time_limit(), params.proof_size_limit());
-            let storage_deposit_limit =
-                params.storage_deposit_limit().map(|limit| (*limit).into());
-
-            let result = pallet_contracts::Pallet::<T>::bare_call(
-                who.clone(),
-                contract.clone(),
-                value.into(),
-                weight,
-                storage_deposit_limit,
-                data,
-                pallet_contracts::DebugInfo::UnsafeDebug,
-                pallet_contracts::CollectEvents::Skip,
-                pallet_contracts::Determinism::Enforced,
-            );
-
-            assert!(!result.result?.did_revert());
+            assert!(result.is_ok());
 
             Ok(())
         }

@@ -42,19 +42,19 @@ jobs:
 
       - name: Install toolchain
         id: toolchain
-        uses: dtolnay/rust-toolchain@dc6353516c68da0f06325f42ad880f76a5e77ec9 # Master branch, Rust up to 1.74.1
+        uses: dtolnay/rust-toolchain@bb45937a053e097f8591208d8e74c90db1873d07 # Master branch, Rust up to 1.74.1
         with:
           toolchain: ${{ matrix.toolchain }}
           components: rust-src
 
       - name: Install cargo-dylint
-        uses: baptiste0928/cargo-install@94e1849646e5797d0c8b34d8e525124ae9ae1d86 # v3.0.1
+        uses: baptiste0928/cargo-install@9f6037ed331dcf7da101461a20656273fa72abf0 # v3.1.0
         with:
           crate: cargo-dylint
           version: 1
 
       - name: Install dylint-link
-        uses: baptiste0928/cargo-install@94e1849646e5797d0c8b34d8e525124ae9ae1d86 # v3.0.1
+        uses: baptiste0928/cargo-install@9f6037ed331dcf7da101461a20656273fa72abf0 # v3.1.0
         with:
           crate: dylint-link
           version: 1
@@ -77,10 +77,10 @@ jobs:
         uses: Swatinem/rust-cache@23bce251a8cd2ffc3c1075eaa2367cf899916d84 # v2.7.3
 
       - name: Install `cargo-contract` `master`
-        uses: baptiste0928/cargo-install@94e1849646e5797d0c8b34d8e525124ae9ae1d86 # v3.0.1
+        uses: baptiste0928/cargo-install@9f6037ed331dcf7da101461a20656273fa72abf0 # v3.1.0
         with:
             crate: cargo-contract
-            git: https://github.com/paritytech/cargo-contract.git
+            git: https://github.com/use-ink/cargo-contract.git
             branch: master
 
       - name: Output versions
