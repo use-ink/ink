@@ -22,20 +22,33 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 100
-          token: ${{ secrets.GH_PAGES }}
 
-      - name: Download Contract Sizes
+      - name: Download Docs
         uses: ./.github/download-artifact
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           ARTIFACT_NAME: docs-data
           DOWNLOAD_DIR: crate-docs
 
+      - name: Add key to allow access to repository
+        env:
+          SSH_AUTH_SOCK: /tmp/ssh_agent.sock
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan github.com >> ~/.ssh/known_hosts
+          echo "${{ secrets.GH_PAGES_DEPLOY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          cat <<EOT >> ~/.ssh/config
+          Host github.com
+          HostName github.com
+          IdentityFile ~/.ssh/id_rsa
+          EOT
+
       - name: Push docs
         run: |
           # Set git config
-          git config user.email "paritytech-ci@parity.io"
-          git config user.name "paritytech-ci"
+          git config user.email "actions@github.com"
+          git config user.name "actions"
           git fetch origin gh-pages
           # saving README and docs
           cp -r ./crate-docs/ /tmp/doc/
