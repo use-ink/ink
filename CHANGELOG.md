@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - [Linter] Add links to detailed lint description ‒ [#2170](https://github.com/use-ink/ink/pull/2170)
+- Add `xcm_execute` and `xcm_send` support - [#1912](https://github.com/paritytech/ink/pull/1912)
 -  Environment agnostic contract invocation API ‒ [#219](https://github.com/use-ink/ink/pull/2219)
 
 ### Changed

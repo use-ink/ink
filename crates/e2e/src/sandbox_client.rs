@@ -483,18 +483,27 @@ pub mod preset {
         /// }
         /// ```
         #[derive(Default)]
-        pub struct MockNetworkSandbox;
+        pub struct MockNetworkSandbox {
+            dry_run: bool,
+        }
+
         impl Sandbox for MockNetworkSandbox {
             type Runtime = parachain::Runtime;
 
             fn execute_with<T>(&mut self, execute: impl FnOnce() -> T) -> T {
-                ParaA::execute_with(execute)
+                if self.dry_run {
+                    ParaA::execute_with(execute)
+                } else {
+                    ParaA::execute_without_dispatch(execute)
+                }
             }
 
             fn dry_run<T>(&mut self, action: impl FnOnce(&mut Self) -> T) -> T {
                 EXT_PARAA.with(|v| {
                     let backend_backup = v.borrow_mut().as_backend();
+                    self.dry_run = true;
                     let result = action(self);
+                    self.dry_run = false;
 
                     let mut v = v.borrow_mut();
                     v.commit_all().expect("Failed to commit changes");

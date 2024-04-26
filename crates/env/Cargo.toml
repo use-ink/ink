@@ -29,6 +29,7 @@ cfg-if = { workspace = true }
 paste = { workspace = true }
 static_assertions = { workspace = true }
 const_env = { workspace = true }
+xcm = { workspace = true }
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
 rlibc = "1"
@@ -63,22 +64,23 @@ default = [ "std" ]
 std = [
 	"blake2",
 	"ink_allocator/std",
-	"ink_engine/std",
 	"ink_prelude/std",
 	"ink_primitives/std",
 	"ink_storage_traits/std",
-	"num-traits/std",
+	"ink_engine/std",
+	"scale/std",
 	"scale-decode",
 	"scale-encode",
 	"scale-info/std",
-	"scale/std",
-	"schnorrkel",
 	"secp256k1",
-	# Enables hashing crates for off-chain environment.
+	"schnorrkel",
+	"num-traits/std",
+    # Enables hashing crates for off-chain environment.
 	"sha2",
 	"sha3",
 	"scale-decode?/std",
-	"scale-encode?/std"
+	"scale-encode?/std",
+	"xcm/std"
 ]
 
 # Enable contract debug messages via `debug_print!` and `debug_println!`.

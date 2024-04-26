@@ -1,0 +1,27 @@
+[package]
+name = "contract-xcm"
+version = "4.0.0"
+authors = ["Parity Technologies <admin@parity.io>"]
+edition = "2021"
+publish = false
+
+[dependencies]
+ink = { path = "../../../crates/ink", default-features = false }
+frame-support = { version = "32.0.0", default-features = false }
+pallet-balances = { version = "33.0.0", default-features = false }
+
+[dev-dependencies]
+ink_e2e = { path = "../../../crates/e2e", features = ["sandbox"] }
+
+[lib]
+path = "lib.rs"
+
+[features]
+default = ["std"]
+std = [
+    "ink/std",
+    "pallet-balances/std",
+    "frame-support/std",
+]
+ink-as-dependency = []
+e2e-tests = []

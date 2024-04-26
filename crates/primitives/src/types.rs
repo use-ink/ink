@@ -47,7 +47,7 @@ use {
     From,
 )]
 #[cfg_attr(feature = "std", derive(TypeInfo, DecodeAsType, EncodeAsType))]
-pub struct AccountId([u8; 32]);
+pub struct AccountId(pub [u8; 32]);
 
 impl AsRef<[u8; 32]> for AccountId {
     #[inline]

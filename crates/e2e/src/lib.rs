@@ -56,7 +56,10 @@ pub use node_proc::{
     TestNodeProcessBuilder,
 };
 #[cfg(feature = "sandbox")]
-pub use sandbox_client::Client as SandboxClient;
+pub use sandbox_client::{
+    preset,
+    Client as SandboxClient,
+};
 pub use sp_core::H256;
 pub use sp_keyring::AccountKeyring;
 pub use subxt::{

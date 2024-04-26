@@ -1341,4 +1341,19 @@ where
     pub fn unlock_delegate_dependency(self, code_hash: &E::Hash) {
         ink_env::unlock_delegate_dependency::<E>(code_hash)
     }
+
+    pub fn xcm_execute<Call: scale::Encode>(
+        self,
+        msg: &xcm::VersionedXcm<Call>,
+    ) -> Result<()> {
+        ink_env::xcm_execute::<E, _>(msg)
+    }
+
+    pub fn xcm_send<Call: scale::Encode>(
+        self,
+        dest: &xcm::VersionedLocation,
+        msg: &xcm::VersionedXcm<Call>,
+    ) -> Result<xcm::v4::XcmHash> {
+        ink_env::xcm_send::<E, _>(dest, msg)
+    }
 }

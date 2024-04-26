@@ -44,6 +44,7 @@ pub use ink_primitives as primitives;
 pub use scale;
 #[cfg(feature = "std")]
 pub use scale_info;
+pub use xcm;
 
 pub mod storage {
     pub mod traits {

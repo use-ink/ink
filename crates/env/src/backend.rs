@@ -455,4 +455,28 @@ pub trait TypedEnvBackend: EnvBackend {
     fn unlock_delegate_dependency<E>(&mut self, code_hash: &E::Hash)
     where
         E: Environment;
+
+    /// Execute an XCM message locally, using the contract's address as the origin.
+    ///
+    /// # Note
+    ///
+    /// For more details visit: [`xcm`][`crate::xcm_execute`].
+    fn xcm_execute<E, Call>(&mut self, msg: &xcm::VersionedXcm<Call>) -> Result<()>
+    where
+        E: Environment,
+        Call: scale::Encode;
+
+    /// Send an XCM message, using the contract's address as the origin.
+    ///
+    /// # Note
+    ///
+    /// For more details visit: [`xcm`][`crate::xcm_send`].
+    fn xcm_send<E, Call>(
+        &mut self,
+        dest: &xcm::VersionedLocation,
+        msg: &xcm::VersionedXcm<Call>,
+    ) -> Result<xcm::v4::XcmHash>
+    where
+        E: Environment,
+        Call: scale::Encode;
 }
