@@ -1,7 +1,7 @@
 # ink! linting rules
 
 This crate uses [`dylint`](https://github.com/trailofbits/dylint) to define custom
-linting rules for [ink!](https://github.com/paritytech/ink).
+linting rules for [ink!](https://github.com/use-ink/ink).
 
 It is not part of the workspace because it needs a custom linker to be built.
 
@@ -17,7 +17,7 @@ You can use them by running `cargo dylint` after adding this to your `Cargo.toml
 ```toml
 [workspace.metadata.dylint]
 libraries = [
-    { git = "https://github.com/paritytech/ink.git", pattern = "linting/mandatory" },
-    { git = "https://github.com/paritytech/ink.git", pattern = "linting/extra" },
+    { git = "https://github.com/use-ink/ink.git", pattern = "linting/mandatory" },
+    { git = "https://github.com/use-ink/ink.git", pattern = "linting/extra" },
 ]
 ```

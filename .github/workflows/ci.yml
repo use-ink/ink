@@ -653,7 +653,7 @@ jobs:
         run: |
           # `--document-private-items` needs to be in here because currently our contract macro
           # puts the contract functions in a private module.
-          # Once https://github.com/paritytech/ink/issues/336 has been implemented we can get rid
+          # Once https://github.com/use-ink/ink/issues/336 has been implemented we can get rid
           # of this flag.
           scripts/for_all_contracts_exec.sh --path integration-tests -- cargo doc --manifest-path {} \
             --document-private-items --no-deps

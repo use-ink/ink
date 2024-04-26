@@ -50,7 +50,7 @@ use syn::Result;
 /// ```
 ///
 /// Our documentation contains [an explainer of what custom environments are](https://use.ink/basics/chain-environment-types).
-/// For a full example [see here](https://github.com/paritytech/ink-examples/tree/v5.x.x/custom-environment).
+/// For a full example [see here](https://github.com/use-ink/ink-examples/tree/v5.x.x/custom-environment).
 ///
 /// ### Custom Backend
 ///
@@ -72,7 +72,7 @@ use syn::Result;
 ///
 /// Please see [the page on testing with DRink!](https://use.ink/basics/contract-testing/drink)
 /// in our documentation for more details.
-/// For a full example [see here](https://github.com/paritytech/ink-examples/tree/v5.x.x/e2e-runtime-only-backend).
+/// For a full example [see here](https://github.com/use-ink/ink-examples/tree/v5.x.x/e2e-runtime-only-backend).
 ///
 /// # Example
 ///

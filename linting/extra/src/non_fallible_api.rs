@@ -71,7 +71,7 @@ declare_lint! {
     /// checks and will panic on incorrect input, placing the responsibility on the user to
     /// implement these checks.
     ///
-    /// For more context, see: [ink#1910](https://github.com/paritytech/ink/pull/1910).
+    /// For more context, see: [ink#1910](https://github.com/use-ink/ink/pull/1910).
     ///
     /// ## Example
     ///

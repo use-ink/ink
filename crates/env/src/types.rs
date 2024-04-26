@@ -189,7 +189,7 @@ pub trait Environment: Clone {
     /// macro. For more information about usage and definition click
     /// [this][chain_extension] link.
     ///
-    /// [chain_extension]: https://paritytech.github.io/ink/ink/attr.chain_extension.html
+    /// [chain_extension]: https://use-ink.github.io/ink/ink/attr.chain_extension.html
     type ChainExtension;
 }
 

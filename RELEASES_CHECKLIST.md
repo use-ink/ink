@@ -5,7 +5,7 @@ mono-repository in lockstep.
 It does not matter if it's a `PATCH`, `MINOR`, `MAJOR` release.
 
 Reasons for doing it this way:
-* Keeps our [`RELEASES.md`](https://github.com/paritytech/ink/blob/master/RELEASES.md)
+* Keeps our [`RELEASES.md`](https://github.com/use-ink/ink/blob/master/RELEASES.md)
   simple and easy to grasp.<br>
   We can still bundle all changes there together and don't have to go to a
   more fine-grained crate level.
@@ -36,7 +36,7 @@ ink!. There are still a few manual steps though, and we hope to make this more s
 in the future.
 
 1. Create a new feature branch off `master`.
-1. Copy the release notes that appear in the [`CHANGELOG.md`](https://github.com/paritytech/ink/blob/master/CHANGELOG.md)
+1. Copy the release notes that appear in the [`CHANGELOG.md`](https://github.com/use-ink/ink/blob/master/CHANGELOG.md)
    into the PR description.
    - This will cause the individual PRs to be linked to the release in which they are
      included.
@@ -99,15 +99,15 @@ in the future.
     - Ensure your tag is signed with an offline GPG key!
     - Alternatively, the `Create release` GitHub UI below allows creating this tag when
       creating the release.
-8. Update the [`ink-examples`](https://github.com/paritytech/ink-examples) repository with
+8. Update the [`ink-examples`](https://github.com/use-ink/ink-examples) repository with
    the content of `integration-tests` (minus `mother`, `lang-err-integration-tests` and
    `mapping-integration-tests`). Besides copying those folders over, the only change you
    need to do manually is to switch the dependencies in the `Cargo.toml`'s to use the
    published version of your release.
-9.  Create a GitHub release for this tag. In the [tag overview](https://github.com/paritytech/ink/tags)
+9.  Create a GitHub release for this tag. In the [tag overview](https://github.com/use-ink/ink/tags)
    you'll see your new tag appear. Click the `…` on the right of the tag and then
    `Create release`.
-10. Paste the release notes that appear in the [`CHANGELOG.md`](https://github.com/paritytech/ink/blob/master/CHANGELOG.md)
+10. Paste the release notes that appear in the [`CHANGELOG.md`](https://github.com/use-ink/ink/blob/master/CHANGELOG.md)
    there. The title of the release should be `vX.X.X`.
 11. Post an announcement to those Element channels:
     * [Smart Contracts & Parity ink!](https://matrix.to/#/#ink:matrix.parity.io)
