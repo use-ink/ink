@@ -250,6 +250,7 @@ impl TraitRegistry<'_> {
         let trait_ident = self.trait_ident();
         let trait_info_ident = self.trait_def.trait_info_ident();
         let trait_call_forwarder = self.trait_def.call_forwarder_ident();
+        let trait_message_builder = self.trait_def.message_builder_ident();
         let trait_message_info = self.generate_info_for_trait_messages();
         quote_spanned!(span =>
             #[doc(hidden)]
@@ -276,6 +277,13 @@ impl TraitRegistry<'_> {
                 E: ::ink::env::Environment,
             {
                 type Forwarder = #trait_call_forwarder<E>;
+            }
+
+            impl<E> ::ink::codegen::TraitMessageBuilder for #trait_info_ident<E>
+            where
+                E: ::ink::env::Environment,
+            {
+                type MessageBuilder = #trait_message_builder<E>;
             }
         )
     }

@@ -17,6 +17,7 @@ codec = { workspace = true, default-features = false, features = ["derive"] }
 scale-info = { workspace = true, default-features = false, features = ["derive"] }
 frame-support = { workspace = true, default-features = false }
 frame-system = { workspace = true, default-features = false }
+sp-runtime = { workspace = true, default-features = false }
 
 pallet-contracts = { workspace = true, default-features = false }
 flipper-traits = { path = "../../traits", default-features = false }
@@ -28,6 +29,7 @@ std = [
     "codec/std",
     "frame-support/std",
     "frame-system/std",
+    "sp-runtime/std",
     "scale-info/std",
     "pallet-contracts/std",
     "ink/std"

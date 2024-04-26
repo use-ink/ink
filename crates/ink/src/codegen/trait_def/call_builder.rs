@@ -12,6 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+/// Access the trait message builder implementation.
+pub trait TraitMessageBuilder {
+    /// The message builder type.
+    type MessageBuilder: Default;
+}
+
 /// The global call builder type for an ink! trait definition.
 pub trait TraitCallBuilder {
     /// The call builder type.

@@ -20,6 +20,7 @@ use crate::{
             Set,
             Unset,
         },
+        Execution,
         ExecutionInput,
     },
     types::Gas,
@@ -511,6 +512,27 @@ where
     exec_input: Args,
     return_type: RetType,
     _phantom: PhantomData<fn() -> E>,
+}
+
+impl<E, Args, RetType> From<Execution<Args, RetType>>
+    for CallBuilder<
+        E,
+        Unset<Call<E>>,
+        Set<ExecutionInput<Args>>,
+        Set<ReturnType<RetType>>,
+    >
+where
+    E: Environment,
+{
+    fn from(invoke: Execution<Args, RetType>) -> Self {
+        CallBuilder {
+            call_type: Default::default(),
+            call_flags: CallFlags::empty(),
+            exec_input: Set(invoke.input),
+            return_type: Set(invoke.output),
+            _phantom: Default::default(),
+        }
+    }
 }
 
 impl<E, CallType, Args, RetType> CallBuilder<E, Unset<CallType>, Args, RetType>

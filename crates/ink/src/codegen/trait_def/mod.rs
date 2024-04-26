@@ -20,6 +20,7 @@ pub use self::{
         TraitCallBuilder,
         TraitCallForwarder,
         TraitCallForwarderFor,
+        TraitMessageBuilder,
     },
     trait_message::{
         TraitMessagePayable,

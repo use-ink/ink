@@ -12,7 +12,59 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::call::Selector;
+use super::{
+    utils::ReturnType,
+    Selector,
+};
+use crate::Environment;
+
+/// The input data and the expected return type of a contract execution.
+pub struct Execution<Args, Output> {
+    /// The input data for initiating a contract execution.
+    pub input: ExecutionInput<Args>,
+    /// The type of the expected return value of the contract execution.
+    pub output: ReturnType<Output>,
+}
+
+impl<Args, Output> Execution<Args, Output>
+where
+    Args: scale::Encode,
+    Output: scale::Decode,
+{
+    /// Construct a new contract execution with the given input data.
+    pub fn new(input: ExecutionInput<Args>) -> Self {
+        Self {
+            input,
+            output: ReturnType::default(),
+        }
+    }
+
+    /// Perform the execution of the contract with the given executor.
+    pub fn exec<I, E>(
+        self,
+        executor: &I,
+    ) -> Result<ink_primitives::MessageResult<Output>, I::Error>
+    where
+        E: Environment,
+        I: Executor<E>,
+    {
+        executor.exec(&self.input)
+    }
+}
+
+/// Implemented in different environments to perform contract execution.
+pub trait Executor<E: Environment> {
+    /// The type of the error that can be returned during execution.
+    type Error;
+    /// Perform the contract execution with the given input data, and return the result.
+    fn exec<Args, Output>(
+        &self,
+        input: &ExecutionInput<Args>,
+    ) -> Result<ink_primitives::MessageResult<Output>, Self::Error>
+    where
+        Args: scale::Encode,
+        Output: scale::Decode;
+}
 
 /// The input data for a smart contract execution.
 #[derive(Clone, Default, Debug)]

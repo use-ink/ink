@@ -34,6 +34,7 @@ pub mod reflect;
 mod chain_extension;
 mod contract_ref;
 mod env_access;
+mod message_builder;
 
 pub use ink_env as env;
 #[cfg(feature = "std")]
