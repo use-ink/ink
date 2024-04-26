@@ -377,7 +377,35 @@
 <a href="#377" id="377">377</a>
 <a href="#378" id="378">378</a>
 <a href="#379" id="379">379</a>
-</pre></div><pre class="rust"><code><span class="comment">// Copyright (C) Parity Technologies (UK) Ltd.
+<a href="#380" id="380">380</a>
+<a href="#381" id="381">381</a>
+<a href="#382" id="382">382</a>
+<a href="#383" id="383">383</a>
+<a href="#384" id="384">384</a>
+<a href="#385" id="385">385</a>
+<a href="#386" id="386">386</a>
+<a href="#387" id="387">387</a>
+<a href="#388" id="388">388</a>
+<a href="#389" id="389">389</a>
+<a href="#390" id="390">390</a>
+<a href="#391" id="391">391</a>
+<a href="#392" id="392">392</a>
+<a href="#393" id="393">393</a>
+<a href="#394" id="394">394</a>
+<a href="#395" id="395">395</a>
+<a href="#396" id="396">396</a>
+<a href="#397" id="397">397</a>
+<a href="#398" id="398">398</a>
+<a href="#399" id="399">399</a>
+<a href="#400" id="400">400</a>
+<a href="#401" id="401">401</a>
+<a href="#402" id="402">402</a>
+<a href="#403" id="403">403</a>
+<a href="#404" id="404">404</a>
+<a href="#405" id="405">405</a>
+<a href="#406" id="406">406</a>
+<a href="#407" id="407">407</a>
+</pre></div><pre class="rust"><code><span class="comment">// Copyright (C) Use Ink (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
 // you may not use this file except in compliance with the License.
@@ -438,12 +466,14 @@
         <span class="kw">let </span>storage_layout_impl = <span class="self">self</span>.generate_storage_layout_impl();
         <span class="kw">let </span>auxiliary_trait_impls = <span class="self">self</span>.generate_auxiliary_trait_impls();
         <span class="kw">let </span>to_from_account_id_impls = <span class="self">self</span>.generate_to_from_account_id_impls();
+        <span class="kw">let </span>message_builder_trait_impl = <span class="self">self</span>.generate_message_builder_trait_impl();
         <span class="kw">let </span>ink_trait_impl = <span class="self">self</span>.generate_ink_trait_impl();
         <span class="macro">quote! </span>{
             #struct_definition
             #storage_layout_impl
             #auxiliary_trait_impls
             #to_from_account_id_impls
+            #message_builder_trait_impl
             #ink_trait_impl
         }
     }
@@ -650,6 +680,28 @@
         )
     }
 
+    <span class="doccomment">/// Generate the trait implementation for `MessageBuilder` for the ink! trait call
+    /// builder.
+    ///
+    /// # Note
+    ///
+    /// Through the implementation of this trait it is possible to refer to the
+    /// ink! trait messsage builder that is associated to this ink! trait call builder.
+    </span><span class="kw">fn </span>generate_message_builder_trait_impl(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; TokenStream2 {
+        <span class="kw">let </span>span = <span class="self">self</span>.trait_def.span();
+        <span class="kw">let </span>call_builder_ident = <span class="self">self</span>.ident();
+        <span class="kw">let </span>message_builder_ident = <span class="self">self</span>.trait_def.message_builder_ident();
+        <span class="macro">quote_spanned!</span>(span=&gt;
+            <span class="doccomment">/// This trait allows to bridge from the call builder to message builder.
+            </span><span class="kw">impl</span>&lt;E&gt; ::ink::codegen::TraitMessageBuilder <span class="kw">for </span>#call_builder_ident&lt;E&gt;
+            <span class="kw">where
+                </span>E: ::ink::env::Environment
+            {
+                <span class="kw">type </span>MessageBuilder = #message_builder_ident&lt;E&gt;;
+            }
+        )
+    }
+
     <span class="doccomment">/// Generates the implementation of the associated ink! trait definition.
     ///
     /// # Note
@@ -689,10 +741,9 @@
     /// builder.
     </span><span class="kw">fn </span>generate_ink_trait_impl_messages(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; TokenStream2 {
         <span class="kw">let </span>messages = <span class="self">self</span>.trait_def.trait_def.item().iter_items().filter_map(
-            |(item, selector)| {
-                item.filter_map_message().map(|message| {
-                    <span class="self">self</span>.generate_ink_trait_impl_for_message(<span class="kw-2">&amp;</span>message, selector)
-                })
+            |(item, _selector)| {
+                item.filter_map_message()
+                    .map(|message| <span class="self">self</span>.generate_ink_trait_impl_for_message(<span class="kw-2">&amp;</span>message))
             },
         );
         <span class="macro">quote! </span>{
@@ -705,9 +756,9 @@
     </span><span class="kw">fn </span>generate_ink_trait_impl_for_message(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         message: <span class="kw-2">&amp;</span>ir::InkTraitMessage,
-        selector: ir::Selector,
     ) -&gt; TokenStream2 {
         <span class="kw">let </span>span = message.span();
+        <span class="kw">let </span>trait_ident = <span class="self">self</span>.trait_def.trait_def.item().ident();
         <span class="kw">let </span>message_ident = message.ident();
         <span class="kw">let </span>attrs = <span class="self">self
             </span>.trait_def
@@ -719,7 +770,6 @@
         <span class="kw">let </span>output = message.output();
         <span class="kw">let </span>output_type =
             output.map_or_else(|| <span class="macro">quote! </span>{ () }, |output| <span class="macro">quote! </span>{ #output });
-        <span class="kw">let </span>selector_bytes = selector.hex_lits();
         <span class="kw">let </span>input_bindings = generator::input_bindings(message.inputs());
         <span class="kw">let </span>input_types = generator::input_types(message.inputs());
         <span class="kw">let </span>arg_list = generator::generate_argument_list(input_types.iter().cloned());
@@ -741,17 +791,23 @@
                 &amp; #mut_tok <span class="self">self
                 </span>#( , #input_bindings : #input_types )*
             ) -&gt; <span class="self">Self</span>::#output_ident {
-                ::ink::env::call::build_call::&lt;<span class="self">Self</span>::Env&gt;()
-                    .call(::ink::ToAccountId::to_account_id(<span class="self">self</span>))
-                    .exec_input(
-                        ::ink::env::call::ExecutionInput::new(
-                            ::ink::env::call::Selector::new([ #( #selector_bytes ),* ])
+                &lt;::ink::env::call::CallBuilder&lt;
+                    <span class="self">Self</span>::Env,
+                    ::ink::env::call::utils::Unset&lt; ::ink::env::call::Call&lt; <span class="self">Self</span>::Env &gt; &gt;,
+                    ::ink::env::call::utils::Set&lt; ::ink::env::call::ExecutionInput&lt;#arg_list&gt; &gt;,
+                    ::ink::env::call::utils::Set&lt; ::ink::env::call::utils::ReturnType&lt;#output_type&gt; &gt;,
+                &gt; <span class="kw">as </span>::core::convert::From::&lt;<span class="kw">_</span>&gt;&gt;::from(
+                    &lt;&lt;<span class="self">Self </span><span class="kw">as </span>::ink::codegen::TraitMessageBuilder&gt;::MessageBuilder <span class="kw">as </span>#trait_ident&gt;
+                        ::#message_ident(
+                            &amp; #mut_tok &lt;&lt;<span class="self">Self
+                                </span><span class="kw">as </span>::ink::codegen::TraitMessageBuilder&gt;::MessageBuilder
+                                <span class="kw">as </span>::core::default::Default&gt;::default()
+                            #(
+                                , #input_bindings
+                            )*
                         )
-                        #(
-                            .push_arg(#input_bindings)
-                        )*
-                    )
-                    .returns::&lt;#output_type&gt;()
+                )
+                    .call(::ink::ToAccountId::to_account_id(<span class="self">self</span>))
             }
         )
     }

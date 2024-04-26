@@ -67,7 +67,10 @@
 <a href="#67" id="67">67</a>
 <a href="#68" id="68">68</a>
 <a href="#69" id="69">69</a>
-</pre></div><pre class="rust"><code><span class="comment">// Copyright (C) Parity Technologies (UK) Ltd.
+<a href="#70" id="70">70</a>
+<a href="#71" id="71">71</a>
+<a href="#72" id="72">72</a>
+</pre></div><pre class="rust"><code><span class="comment">// Copyright (C) Use Ink (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
 // you may not use this file except in compliance with the License.
@@ -84,6 +87,7 @@
 </span><span class="kw">mod </span>call_builder;
 <span class="kw">mod </span>call_forwarder;
 <span class="kw">mod </span>definition;
+<span class="kw">mod </span>message_builder;
 <span class="kw">mod </span>trait_registry;
 
 <span class="kw">use </span><span class="kw">crate</span>::GenerateCode;
@@ -124,12 +128,14 @@
         <span class="kw">let </span>span = <span class="self">self</span>.trait_def.item().span();
         <span class="kw">let </span>trait_definition = <span class="self">self</span>.generate_trait_definition();
         <span class="kw">let </span>trait_registry = <span class="self">self</span>.generate_trait_registry_impl();
+        <span class="kw">let </span>trait_message_builder = <span class="self">self</span>.generate_message_builder();
         <span class="kw">let </span>trait_call_builder = <span class="self">self</span>.generate_call_builder();
         <span class="kw">let </span>trait_call_forwarder = <span class="self">self</span>.generate_call_forwarder();
         <span class="macro">quote_spanned!</span>(span =&gt;
             #trait_definition
             <span class="kw">const _</span>: () = {
                 #trait_registry
+                #trait_message_builder
                 #trait_call_builder
                 #trait_call_forwarder
             };

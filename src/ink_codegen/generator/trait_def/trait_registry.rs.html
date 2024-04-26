@@ -336,7 +336,15 @@
 <a href="#336" id="336">336</a>
 <a href="#337" id="337">337</a>
 <a href="#338" id="338">338</a>
-</pre></div><pre class="rust"><code><span class="comment">// Copyright (C) Parity Technologies (UK) Ltd.
+<a href="#339" id="339">339</a>
+<a href="#340" id="340">340</a>
+<a href="#341" id="341">341</a>
+<a href="#342" id="342">342</a>
+<a href="#343" id="343">343</a>
+<a href="#344" id="344">344</a>
+<a href="#345" id="345">345</a>
+<a href="#346" id="346">346</a>
+</pre></div><pre class="rust"><code><span class="comment">// Copyright (C) Use Ink (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
 // you may not use this file except in compliance with the License.
@@ -588,6 +596,7 @@
         <span class="kw">let </span>trait_ident = <span class="self">self</span>.trait_ident();
         <span class="kw">let </span>trait_info_ident = <span class="self">self</span>.trait_def.trait_info_ident();
         <span class="kw">let </span>trait_call_forwarder = <span class="self">self</span>.trait_def.call_forwarder_ident();
+        <span class="kw">let </span>trait_message_builder = <span class="self">self</span>.trait_def.message_builder_ident();
         <span class="kw">let </span>trait_message_info = <span class="self">self</span>.generate_info_for_trait_messages();
         <span class="macro">quote_spanned!</span>(span =&gt;
             <span class="attr">#[doc(hidden)]
@@ -614,6 +623,13 @@
                 </span>E: ::ink::env::Environment,
             {
                 <span class="kw">type </span>Forwarder = #trait_call_forwarder&lt;E&gt;;
+            }
+
+            <span class="kw">impl</span>&lt;E&gt; ::ink::codegen::TraitMessageBuilder <span class="kw">for </span>#trait_info_ident&lt;E&gt;
+            <span class="kw">where
+                </span>E: ::ink::env::Environment,
+            {
+                <span class="kw">type </span>MessageBuilder = #trait_message_builder&lt;E&gt;;
             }
         )
     }

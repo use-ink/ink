@@ -79,7 +79,13 @@
 <a href="#79" id="79">79</a>
 <a href="#80" id="80">80</a>
 <a href="#81" id="81">81</a>
-</pre></div><pre class="rust"><code><span class="comment">// Copyright (C) Parity Technologies (UK) Ltd.
+<a href="#82" id="82">82</a>
+<a href="#83" id="83">83</a>
+<a href="#84" id="84">84</a>
+<a href="#85" id="85">85</a>
+<a href="#86" id="86">86</a>
+<a href="#87" id="87">87</a>
+</pre></div><pre class="rust"><code><span class="comment">// Copyright (C) Use Ink (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
 // you may not use this file except in compliance with the License.
@@ -93,7 +99,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-</span><span class="doccomment">/// The global call builder type for an ink! trait definition.
+</span><span class="doccomment">/// Access the trait message builder implementation.
+</span><span class="kw">pub trait </span>TraitMessageBuilder {
+    <span class="doccomment">/// The message builder type.
+    </span><span class="kw">type </span>MessageBuilder: Default;
+}
+
+<span class="doccomment">/// The global call builder type for an ink! trait definition.
 </span><span class="kw">pub trait </span>TraitCallBuilder {
     <span class="doccomment">/// The call builder type.
     </span><span class="kw">type </span>Builder;

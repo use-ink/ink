@@ -1100,7 +1100,29 @@
 <a href="#1100" id="1100">1100</a>
 <a href="#1101" id="1101">1101</a>
 <a href="#1102" id="1102">1102</a>
-</pre></div><pre class="rust"><code><span class="comment">// Copyright (C) Parity Technologies (UK) Ltd.
+<a href="#1103" id="1103">1103</a>
+<a href="#1104" id="1104">1104</a>
+<a href="#1105" id="1105">1105</a>
+<a href="#1106" id="1106">1106</a>
+<a href="#1107" id="1107">1107</a>
+<a href="#1108" id="1108">1108</a>
+<a href="#1109" id="1109">1109</a>
+<a href="#1110" id="1110">1110</a>
+<a href="#1111" id="1111">1111</a>
+<a href="#1112" id="1112">1112</a>
+<a href="#1113" id="1113">1113</a>
+<a href="#1114" id="1114">1114</a>
+<a href="#1115" id="1115">1115</a>
+<a href="#1116" id="1116">1116</a>
+<a href="#1117" id="1117">1117</a>
+<a href="#1118" id="1118">1118</a>
+<a href="#1119" id="1119">1119</a>
+<a href="#1120" id="1120">1120</a>
+<a href="#1121" id="1121">1121</a>
+<a href="#1122" id="1122">1122</a>
+<a href="#1123" id="1123">1123</a>
+<a href="#1124" id="1124">1124</a>
+</pre></div><pre class="rust"><code><span class="comment">// Copyright (C) Use Ink (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
 // you may not use this file except in compliance with the License.
@@ -1122,6 +1144,7 @@
             Set,
             Unset,
         },
+        Execution,
         ExecutionInput,
     },
     types::Gas,
@@ -1613,6 +1636,27 @@
     exec_input: Args,
     return_type: RetType,
     _phantom: PhantomData&lt;<span class="kw">fn</span>() -&gt; E&gt;,
+}
+
+<span class="kw">impl</span>&lt;E, Args, RetType&gt; From&lt;Execution&lt;Args, RetType&gt;&gt;
+    <span class="kw">for </span>CallBuilder&lt;
+        E,
+        Unset&lt;Call&lt;E&gt;&gt;,
+        Set&lt;ExecutionInput&lt;Args&gt;&gt;,
+        Set&lt;ReturnType&lt;RetType&gt;&gt;,
+    &gt;
+<span class="kw">where
+    </span>E: Environment,
+{
+    <span class="kw">fn </span>from(invoke: Execution&lt;Args, RetType&gt;) -&gt; <span class="self">Self </span>{
+        CallBuilder {
+            call_type: Default::default(),
+            call_flags: CallFlags::empty(),
+            exec_input: Set(invoke.input),
+            return_type: Set(invoke.output),
+            _phantom: Default::default(),
+        }
+    }
 }
 
 <span class="kw">impl</span>&lt;E, CallType, Args, RetType&gt; CallBuilder&lt;E, Unset&lt;CallType&gt;, Args, RetType&gt;
