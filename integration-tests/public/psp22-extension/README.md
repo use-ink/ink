@@ -9,7 +9,7 @@ as a chain extension, supporting a multi-token system provided by the
 It effectively allows ink! contracts (L2) to interact with native assets (L1) from the
 chain runtime in a standardized way.
 
-See [this chapter](https://paritytech.github.io/ink-docs/macros-attributes/chain-extension)
+See [this chapter](https://use-ink.github.io/ink-docs/macros-attributes/chain-extension)
 in our ink! documentation for more details about chain extensions.
 
 There are two parts to this example:

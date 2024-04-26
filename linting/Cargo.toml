@@ -8,10 +8,10 @@ members = [
 
 [workspace.package]
 version = "5.0.0"
-authors = ["Parity Technologies <admin@parity.io>"]
+authors = ["Use Ink <ink@r0gue.io>"]
 edition = "2021"
 license = "Apache-2.0"
-repository = "https://github.com/paritytech/ink"
+repository = "https://github.com/use-ink/ink"
 homepage = "https://www.parity.io/"
 keywords = ["parity", "blockchain", "edsl", "dylint", "linting"]
 
