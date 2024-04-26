@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - [Linter] Add links to detailed lint description ‒ [#2170](https://github.com/use-ink/ink/pull/2170)
+-  Environment agnostic contract invocation API ‒ [#219](https://github.com/use-ink/ink/pull/2219)
 
 ### Changed
 - [E2E] Update `subxt` and `polkadot-sdk` dependencies ‒ [#2174](https://github.com/use-ink/ink/pull/2174)
