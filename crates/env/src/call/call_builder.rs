@@ -39,8 +39,6 @@ where
 {
     /// A marker to indicate which type of call to perform.
     call_type: CallType,
-    /// The flags used to change the behavior of a contract call.
-    call_flags: CallFlags,
     /// The expected return type.
     _return_type: ReturnType<R>,
     /// The inputs to the execution which is a selector and encoded arguments.
@@ -53,12 +51,6 @@ impl<E, CallType, Args, R> CallParams<E, CallType, Args, R>
 where
     E: Environment,
 {
-    /// Returns the call flags.
-    #[inline]
-    pub fn call_flags(&self) -> &CallFlags {
-        &self.call_flags
-    }
-
     /// Returns the execution input.
     #[inline]
     pub fn exec_input(&self) -> &ExecutionInput<Args> {
@@ -86,6 +78,12 @@ where
     #[inline]
     pub fn transferred_value(&self) -> &E::Balance {
         &self.call_type.transferred_value
+    }
+
+    /// Returns the call flags.
+    #[inline]
+    pub fn call_flags(&self) -> &CallFlags {
+        &self.call_type.call_flags
     }
 }
 
@@ -122,6 +120,12 @@ where
     pub fn transferred_value(&self) -> &E::Balance {
         &self.call_type.transferred_value
     }
+
+    /// Returns the call flags.
+    #[inline]
+    pub fn call_flags(&self) -> &CallFlags {
+        &self.call_type.call_flags
+    }
 }
 
 impl<E, Args, R> CallParams<E, DelegateCall<E>, Args, R>
@@ -132,6 +136,12 @@ where
     #[inline]
     pub fn code_hash(&self) -> &E::Hash {
         &self.call_type.code_hash
+    }
+
+    /// Returns the call flags.
+    #[inline]
+    pub fn call_flags(&self) -> &CallFlags {
+        &self.call_type.call_flags
     }
 }
 
@@ -403,7 +413,6 @@ where
 {
     CallBuilder {
         call_type: Default::default(),
-        call_flags: CallFlags::empty(),
         exec_input: Default::default(),
         return_type: Default::default(),
         _phantom: Default::default(),
@@ -419,6 +428,7 @@ pub struct CallV1<E: Environment> {
     callee: E::AccountId,
     gas_limit: Gas,
     transferred_value: E::Balance,
+    call_flags: CallFlags,
 }
 
 impl<E: Environment> CallV1<E> {
@@ -428,6 +438,7 @@ impl<E: Environment> CallV1<E> {
             callee,
             gas_limit: Default::default(),
             transferred_value: E::Balance::zero(),
+            call_flags: CallFlags::empty(),
         }
     }
 }
@@ -438,19 +449,14 @@ where
 {
     /// Sets the `gas_limit` for the current cross-contract call.
     pub fn gas_limit(self, gas_limit: Gas) -> Self {
-        CallV1 {
-            callee: self.callee,
-            gas_limit,
-            transferred_value: self.transferred_value,
-        }
+        CallV1 { gas_limit, ..self }
     }
 
     /// Sets the `transferred_value` for the current cross-contract call.
     pub fn transferred_value(self, transferred_value: E::Balance) -> Self {
         CallV1 {
-            callee: self.callee,
-            gas_limit: self.gas_limit,
             transferred_value,
+            ..self
         }
     }
 }
@@ -465,6 +471,7 @@ pub struct Call<E: Environment> {
     proof_size_limit: u64,
     storage_deposit_limit: Option<E::Balance>,
     transferred_value: E::Balance,
+    call_flags: CallFlags,
 }
 
 impl<E: Environment> Call<E> {
@@ -476,6 +483,7 @@ impl<E: Environment> Call<E> {
             proof_size_limit: Default::default(),
             storage_deposit_limit: None,
             transferred_value: E::Balance::zero(),
+            call_flags: CallFlags::empty(),
         }
     }
 }
@@ -484,19 +492,26 @@ impl<E: Environment> Call<E> {
 #[derive(Clone)]
 pub struct DelegateCall<E: Environment> {
     code_hash: E::Hash,
+    call_flags: CallFlags,
 }
 
 impl<E: Environment> DelegateCall<E> {
     /// Returns a clean builder for [`DelegateCall`]
     pub const fn new(code_hash: E::Hash) -> Self {
-        DelegateCall { code_hash }
+        DelegateCall {
+            code_hash,
+            call_flags: CallFlags::empty(),
+        }
     }
 }
 
 impl<E: Environment> DelegateCall<E> {
     /// Sets the `code_hash` to perform a delegate call with.
     pub fn code_hash(self, code_hash: E::Hash) -> Self {
-        DelegateCall { code_hash }
+        DelegateCall {
+            code_hash,
+            call_flags: CallFlags::empty(),
+        }
     }
 }
 
@@ -508,7 +523,6 @@ where
 {
     /// The current parameters that have been built up so far.
     call_type: CallType,
-    call_flags: CallFlags,
     exec_input: Args,
     return_type: RetType,
     _phantom: PhantomData<fn() -> E>,
@@ -527,7 +541,6 @@ where
     fn from(invoke: Execution<Args, RetType>) -> Self {
         CallBuilder {
             call_type: Default::default(),
-            call_flags: CallFlags::empty(),
             exec_input: Set(invoke.input),
             return_type: Set(invoke.output),
             _phantom: Default::default(),
@@ -548,28 +561,6 @@ where
     ) -> CallBuilder<E, Set<NewCallType>, Args, RetType> {
         CallBuilder {
             call_type: Set(call_type),
-            call_flags: self.call_flags,
-            exec_input: self.exec_input,
-            return_type: self.return_type,
-            _phantom: Default::default(),
-        }
-    }
-}
-
-impl<E, CallType, Args, RetType> CallBuilder<E, CallType, Args, RetType>
-where
-    E: Environment,
-{
-    /// The flags used to change the behavior of the contract call.
-    #[inline]
-    #[must_use]
-    pub fn call_flags(
-        self,
-        call_flags: CallFlags,
-    ) -> CallBuilder<E, CallType, Args, RetType> {
-        CallBuilder {
-            call_type: self.call_type,
-            call_flags,
             exec_input: self.exec_input,
             return_type: self.return_type,
             _phantom: Default::default(),
@@ -591,7 +582,6 @@ where
     pub fn returns<R>(self) -> CallBuilder<E, CallType, Args, Set<ReturnType<R>>> {
         CallBuilder {
             call_type: self.call_type,
-            call_flags: self.call_flags,
             exec_input: self.exec_input,
             return_type: Set(Default::default()),
             _phantom: Default::default(),
@@ -611,7 +601,6 @@ where
     ) -> CallBuilder<E, CallType, Set<ExecutionInput<Args>>, RetType> {
         CallBuilder {
             call_type: self.call_type,
-            call_flags: self.call_flags,
             exec_input: Set(exec_input),
             return_type: self.return_type,
             _phantom: Default::default(),
@@ -631,7 +620,6 @@ where
     ) -> CallBuilder<E, Set<CallV1<E>>, Args, RetType> {
         CallBuilder {
             call_type: Set(CallV1::new(callee)),
-            call_flags: self.call_flags,
             exec_input: self.exec_input,
             return_type: self.return_type,
             _phantom: Default::default(),
@@ -646,7 +634,6 @@ where
     ) -> CallBuilder<E, Set<Call<E>>, Args, RetType> {
         CallBuilder {
             call_type: Set(Call::new(callee)),
-            call_flags: self.call_flags,
             exec_input: self.exec_input,
             return_type: self.return_type,
             _phantom: Default::default(),
@@ -660,7 +647,6 @@ where
     ) -> CallBuilder<E, Set<DelegateCall<E>>, Args, RetType> {
         CallBuilder {
             call_type: Set(DelegateCall::new(code_hash)),
-            call_flags: self.call_flags,
             exec_input: self.exec_input,
             return_type: self.return_type,
             _phantom: Default::default(),
@@ -680,8 +666,8 @@ where
                 callee: call_type.callee,
                 gas_limit,
                 transferred_value: call_type.transferred_value,
+                call_flags: call_type.call_flags,
             }),
-            call_flags: self.call_flags,
             exec_input: self.exec_input,
             return_type: self.return_type,
             _phantom: Default::default(),
@@ -696,8 +682,26 @@ where
                 callee: call_type.callee,
                 gas_limit: call_type.gas_limit,
                 transferred_value,
+                call_flags: call_type.call_flags,
             }),
-            call_flags: self.call_flags,
+            exec_input: self.exec_input,
+            return_type: self.return_type,
+            _phantom: Default::default(),
+        }
+    }
+
+    /// Sets the flags used to change the behavior of the contract call.
+    #[inline]
+    #[must_use]
+    pub fn call_flags(self, call_flags: CallFlags) -> Self {
+        let call_type = self.call_type.value();
+        CallBuilder {
+            call_type: Set(CallV1 {
+                callee: call_type.callee,
+                gas_limit: call_type.gas_limit,
+                transferred_value: call_type.transferred_value,
+                call_flags,
+            }),
             exec_input: self.exec_input,
             return_type: self.return_type,
             _phantom: Default::default(),
@@ -721,8 +725,8 @@ where
                 callee: call_type.callee,
                 gas_limit: call_type.ref_time_limit,
                 transferred_value: call_type.transferred_value,
+                call_flags: call_type.call_flags,
             }),
-            call_flags: self.call_flags,
             exec_input: self.exec_input,
             return_type: self.return_type,
             _phantom: Default::default(),
@@ -798,6 +802,20 @@ where
             ..self
         }
     }
+
+    /// Sets the `call_flags` for the current cross-contract call.
+    ///
+    /// These flags are used to change the behavior of the contract call.
+    pub fn call_flags(self, call_flags: CallFlags) -> Self {
+        let call_type = self.call_type.value();
+        CallBuilder {
+            call_type: Set(Call {
+                call_flags,
+                ..call_type
+            }),
+            ..self
+        }
+    }
 }
 
 impl<E, Args, RetType> CallBuilder<E, Set<DelegateCall<E>>, Args, RetType>
@@ -806,9 +824,23 @@ where
 {
     /// Sets the `code_hash` to perform a delegate call with.
     pub fn code_hash(self, code_hash: E::Hash) -> Self {
+        let call_type = self.call_type.value();
         CallBuilder {
-            call_type: Set(DelegateCall { code_hash }),
-            call_flags: self.call_flags,
+            call_type: Set(DelegateCall {
+                code_hash,
+                ..call_type
+            }),
+            ..self
+        }
+    }
+
+    /// Sets the `code_hash` to perform a delegate call with.
+    pub fn call_flags(self, call_flags: CallFlags) -> Self {
+        CallBuilder {
+            call_type: Set(DelegateCall {
+                call_flags,
+                ..self.call_type.value()
+            }),
             exec_input: self.exec_input,
             return_type: self.return_type,
             _phantom: Default::default(),
@@ -825,7 +857,6 @@ where
     pub fn params(self) -> CallParams<E, CallV1<E>, Args, RetType> {
         CallParams {
             call_type: self.call_type.value(),
-            call_flags: self.call_flags,
             _return_type: Default::default(),
             exec_input: self.exec_input.value(),
             _phantom: self._phantom,
@@ -842,7 +873,6 @@ where
     pub fn params(self) -> CallParams<E, Call<E>, Args, RetType> {
         CallParams {
             call_type: self.call_type.value(),
-            call_flags: self.call_flags,
             _return_type: Default::default(),
             exec_input: self.exec_input.value(),
             _phantom: self._phantom,
@@ -864,7 +894,6 @@ where
     pub fn params(self) -> CallParams<E, DelegateCall<E>, Args, RetType> {
         CallParams {
             call_type: self.call_type.value(),
-            call_flags: self.call_flags,
             _return_type: Default::default(),
             exec_input: self.exec_input.value(),
             _phantom: self._phantom,
@@ -886,7 +915,6 @@ where
     pub fn params(self) -> CallParams<E, CallV1<E>, EmptyArgumentList, ()> {
         CallParams {
             call_type: self.call_type.value(),
-            call_flags: self.call_flags,
             _return_type: Default::default(),
             exec_input: Default::default(),
             _phantom: self._phantom,
@@ -903,7 +931,6 @@ where
     pub fn params(self) -> CallParams<E, Call<E>, EmptyArgumentList, ()> {
         CallParams {
             call_type: self.call_type.value(),
-            call_flags: self.call_flags,
             _return_type: Default::default(),
             exec_input: Default::default(),
             _phantom: self._phantom,
@@ -925,7 +952,6 @@ where
     pub fn params(self) -> CallParams<E, DelegateCall<E>, EmptyArgumentList, ()> {
         CallParams {
             call_type: self.call_type.value(),
-            call_flags: self.call_flags,
             _return_type: Default::default(),
             exec_input: Default::default(),
             _phantom: self._phantom,
