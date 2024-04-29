@@ -14,6 +14,16 @@
 
 use super::CallParams;
 use crate::{
+    call::{
+        common::{
+            ReturnType,
+            Set,
+            Unset,
+        },
+        execution::EmptyArgumentList,
+        CallBuilder,
+        ExecutionInput,
+    },
     Environment,
     Gas,
 };
@@ -58,6 +68,98 @@ where
         CallV1 {
             transferred_value,
             ..self
+        }
+    }
+}
+
+impl<E, Args, RetType> CallBuilder<E, Set<CallV1<E>>, Args, RetType>
+where
+    E: Environment,
+{
+    /// Sets the `gas_limit` for the current cross-contract call.
+    pub fn gas_limit(self, gas_limit: Gas) -> Self {
+        let call_type = self.call_type.value();
+        CallBuilder {
+            call_type: Set(CallV1 {
+                callee: call_type.callee,
+                gas_limit,
+                transferred_value: call_type.transferred_value,
+                call_flags: call_type.call_flags,
+            }),
+            exec_input: self.exec_input,
+            return_type: self.return_type,
+            _phantom: Default::default(),
+        }
+    }
+
+    /// Sets the `transferred_value` for the current cross-contract call.
+    pub fn transferred_value(self, transferred_value: E::Balance) -> Self {
+        let call_type = self.call_type.value();
+        CallBuilder {
+            call_type: Set(CallV1 {
+                callee: call_type.callee,
+                gas_limit: call_type.gas_limit,
+                transferred_value,
+                call_flags: call_type.call_flags,
+            }),
+            exec_input: self.exec_input,
+            return_type: self.return_type,
+            _phantom: Default::default(),
+        }
+    }
+
+    /// Sets the flags used to change the behavior of the contract call.
+    #[inline]
+    #[must_use]
+    pub fn call_flags(self, call_flags: CallFlags) -> Self {
+        let call_type = self.call_type.value();
+        CallBuilder {
+            call_type: Set(CallV1 {
+                callee: call_type.callee,
+                gas_limit: call_type.gas_limit,
+                transferred_value: call_type.transferred_value,
+                call_flags,
+            }),
+            exec_input: self.exec_input,
+            return_type: self.return_type,
+            _phantom: Default::default(),
+        }
+    }
+}
+
+impl<E, Args, RetType>
+    CallBuilder<E, Set<CallV1<E>>, Set<ExecutionInput<Args>>, Set<ReturnType<RetType>>>
+where
+    E: Environment,
+{
+    /// Finalizes the call builder to call a function.
+    pub fn params(self) -> CallParams<E, CallV1<E>, Args, RetType> {
+        CallParams {
+            call_type: self.call_type.value(),
+            _return_type: Default::default(),
+            exec_input: self.exec_input.value(),
+            _phantom: self._phantom,
+        }
+    }
+}
+
+impl<E, RetType>
+    CallBuilder<
+        E,
+        Set<CallV1<E>>,
+        Unset<ExecutionInput<EmptyArgumentList>>,
+        Unset<RetType>,
+    >
+where
+    E: Environment,
+{
+    /// Finalizes the call builder to call a function.
+    pub fn params(self) -> CallParams<E, CallV1<E>, EmptyArgumentList, ()> {
+        CallParams {
+            call_type: self.call_type.value(),
+            _return_type: Default::default(),
+            exec_input: Default::default(),
+            _phantom: self._phantom,
         }
     }
 }
