@@ -25,6 +25,7 @@ use crate::{
         ExecutionInput,
     },
     Environment,
+    Error,
     Gas,
 };
 use num_traits::Zero;
@@ -161,6 +162,69 @@ where
             exec_input: Default::default(),
             _phantom: self._phantom,
         }
+    }
+}
+
+impl<E>
+    CallBuilder<
+        E,
+        Set<CallV1<E>>,
+        Unset<ExecutionInput<EmptyArgumentList>>,
+        Unset<ReturnType<()>>,
+    >
+where
+    E: Environment,
+{
+    /// Invokes the cross-chain function call.
+    ///
+    /// # Panics
+    ///
+    /// This method panics if it encounters an [`ink::env::Error`][`crate::Error`] or an
+    /// [`ink::primitives::LangError`][`ink_primitives::LangError`]. If you want to handle
+    /// those use the [`try_invoke`][`CallBuilder::try_invoke`] method instead.
+    pub fn invoke(self) {
+        self.params().invoke()
+    }
+
+    /// Invokes the cross-chain function call.
+    ///
+    /// # Note
+    ///
+    /// On failure this returns an outer [`ink::env::Error`][`crate::Error`] or inner
+    /// [`ink::primitives::LangError`][`ink_primitives::LangError`], both of which can be
+    /// handled by the caller.
+    pub fn try_invoke(self) -> Result<ink_primitives::MessageResult<()>, Error> {
+        self.params().try_invoke()
+    }
+}
+
+impl<E, Args, R>
+    CallBuilder<E, Set<CallV1<E>>, Set<ExecutionInput<Args>>, Set<ReturnType<R>>>
+where
+    E: Environment,
+    Args: scale::Encode,
+    R: scale::Decode,
+{
+    /// Invokes the cross-chain function call and returns the result.
+    ///
+    /// # Panics
+    ///
+    /// This method panics if it encounters an [`ink::env::Error`][`crate::Error`] or an
+    /// [`ink::primitives::LangError`][`ink_primitives::LangError`]. If you want to handle
+    /// those use the [`try_invoke`][`CallBuilder::try_invoke`] method instead.
+    pub fn invoke(self) -> R {
+        self.params().invoke()
+    }
+
+    /// Invokes the cross-chain function call and returns the result.
+    ///
+    /// # Note
+    ///
+    /// On failure this returns an outer [`ink::env::Error`][`crate::Error`] or inner
+    /// [`ink::primitives::LangError`][`ink_primitives::LangError`], both of which can be
+    /// handled by the caller.
+    pub fn try_invoke(self) -> Result<ink_primitives::MessageResult<R>, Error> {
+        self.params().try_invoke()
     }
 }
 
