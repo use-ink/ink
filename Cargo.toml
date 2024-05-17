@@ -23,10 +23,10 @@ exclude = [
 ]
 
 [workspace.package]
-authors = ["Use Ink <ink@r0gue.io>"]
+authors = ["Use Ink <ink@use.ink>"]
 categories = ["no-std", "embedded"]
 edition = "2021"
-homepage = "https://www.parity.io/"
+homepage = "https://use.ink"
 keywords = ["wasm", "parity", "webassembly", "blockchain", "edsl"]
 license = "Apache-2.0"
 repository = "https://github.com/use-ink/ink"

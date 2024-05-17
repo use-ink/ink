@@ -844,7 +844,7 @@ where
 /// enum.
 ///
 /// For more details consult
-/// [host function documentation](https://use-ink.github.io/substrate/master/pallet_contracts/api_doc/trait.Current.html#tymethod.call_runtime).
+/// [host function documentation](https://paritytech.github.io/substrate/master/pallet_contracts/api_doc/trait.Current.html#tymethod.call_runtime).
 ///
 /// # Errors
 ///
