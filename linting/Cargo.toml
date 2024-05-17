@@ -13,7 +13,7 @@ edition = "2021"
 license = "Apache-2.0"
 repository = "https://github.com/use-ink/ink"
 homepage = "https://use.ink"
-keywords = ["parity", "blockchain", "edsl", "dylint", "linting"]
+keywords = ["ink", "blockchain", "edsl", "dylint", "linting"]
 
 [workspace.dependencies]
 ink_linting_utils = { version = "=5.0.0", path = "utils" }

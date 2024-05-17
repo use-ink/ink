@@ -5,7 +5,7 @@ members = ["sandbox-runtime", "traits"]
 authors = ["Use Ink <ink@use.ink>"]
 edition = "2021"
 homepage = "https://use.ink"
-keywords = ["wasm", "parity", "webassembly", "blockchain", "edsl"]
+keywords = ["wasm", "ink", "webassembly", "blockchain", "edsl"]
 license = "Apache-2.0"
 repository = "https://github.com/use-ink/ink"
 
