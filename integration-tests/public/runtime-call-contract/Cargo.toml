@@ -2,10 +2,10 @@
 members = ["sandbox-runtime", "traits"]
 
 [workspace.package]
-authors = ["Use Ink <ink@r0gue.io>"]
+authors = ["Use Ink <ink@use.ink>"]
 edition = "2021"
-homepage = "https://www.parity.io/"
-keywords = ["wasm", "parity", "webassembly", "blockchain", "edsl"]
+homepage = "https://use.ink"
+keywords = ["wasm", "ink", "webassembly", "blockchain", "edsl"]
 license = "Apache-2.0"
 repository = "https://github.com/use-ink/ink"
 
@@ -20,7 +20,7 @@ scale-info = { version = "2.11.1", default-features = false }
 [package]
 name = "runtime-call-contract"
 version = "5.0.0"
-authors = ["Use Ink <ink@r0gue.io>"]
+authors = ["Use Ink <ink@use.ink>"]
 edition = "2021"
 publish = false
 

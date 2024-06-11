@@ -8,12 +8,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - [Linter] Add links to detailed lint description ‒ [#2170](https://github.com/use-ink/ink/pull/2170)
-- Add `xcm_execute` and `xcm_send` support - [#1912](https://github.com/paritytech/ink/pull/1912)
+- Add `xcm_execute` and `xcm_send` support - [#1912](https://github.com/use-ink/ink/pull/1912)
 -  Environment agnostic contract invocation API ‒ [#219](https://github.com/use-ink/ink/pull/2219)
 
 ### Changed
 - [E2E] Update `subxt` and `polkadot-sdk` dependencies ‒ [#2174](https://github.com/use-ink/ink/pull/2174)
-- Update repository URLs from `paritytech` GitHub organization to new `use-ink` one ‒ [#2220](https://github.com/use-ink/ink/pull/2220)
+- Update repository URLs & references from `paritytech` GitHub organization to new `use-ink` one ‒ [#2220](https://github.com/use-ink/ink/pull/2220) and [#2248](https://github.com/use-ink/ink/pull/2248)
 
 ### Fixed
 - Fix outdated docs for `[ink_e2e::test]` ‒ [#2162](https://github.com/use-ink/ink/pull/2162)

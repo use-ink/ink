@@ -1,7 +1,7 @@
 <div align="center">
     <img src="https://raw.githubusercontent.com/use-ink/ink/master/.images/ink-logo-glow.svg" alt="ink!" height="136" />
 <h1 align="center">
-    Parity's ink! for writing smart contracts
+    Polkadot's ink! for writing smart contracts
 </h1>
 
 [![linux][a1]][a2] [![codecov][c1]][c2] [![coveralls][d1]][d2] [![loc][e1]][e2] [![stack-exchange][s1]][s2]
@@ -46,7 +46,7 @@ More relevant links:
 * [`cargo-contract`](https://github.com/use-ink/cargo-contract) ‒ CLI tool for ink! contracts
 * [Contracts UI](https://contracts-ui.substrate.io/) ‒ Frontend for contract instantiation and interaction
 * [Substrate Contracts Node](https://github.com/paritytech/substrate-contracts-node) ‒ Simple Substrate blockchain which includes smart contract functionality
-* [Awesome ink!](https://github.com/use-ink/awesome-ink) - A curated list of awesome projects for Parity's ink!
+* [Awesome ink!](https://github.com/use-ink/awesome-ink) - A curated list of awesome projects for Polkadot's ink!
 * We post announcements on [Matrix][k2] and [Discord][l2] (in the
   [`ink_smart-contracts`](https://discord.com/channels/722223075629727774/765280480609828864) channel).
 
@@ -290,4 +290,3 @@ Use the scripts provided under `scripts/check-*` directory in order to run check
 
 The entire code within this repository is licensed under the [Apache License 2.0](LICENSE).
 
-Please [contact us](https://www.parity.io/contact/) if you have questions about the licensing of our products.
