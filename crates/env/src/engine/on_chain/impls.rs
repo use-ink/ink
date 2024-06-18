@@ -1,4 +1,4 @@
-// Copyright (C) Parity Technologies (UK) Ltd.
+// Copyright (C) Use Ink (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -58,6 +58,7 @@ use pallet_contracts_uapi::{
     ReturnErrorCode,
     ReturnFlags,
 };
+use xcm::VersionedXcm;
 
 impl CryptoHash for Blake2x128 {
     fn hash(input: &[u8], output: &mut <Self as HashOutput>::Type) {
@@ -725,5 +726,41 @@ impl TypedEnvBackend for EnvInstance {
         let mut scope = self.scoped_buffer();
         let enc_code_hash = scope.take_encoded(code_hash);
         ext::unlock_delegate_dependency(enc_code_hash)
+    }
+
+    fn xcm_execute<E, Call>(&mut self, msg: &VersionedXcm<Call>) -> Result<()>
+    where
+        E: Environment,
+        Call: scale::Encode,
+    {
+        let mut scope = self.scoped_buffer();
+
+        // Double encoding the message as the host fn expects an encoded message.
+        let enc_msg = scope.take_encoded(&scale::Encode::encode(msg));
+        #[allow(deprecated)]
+        ext::xcm_execute(enc_msg).map_err(Into::into)
+    }
+
+    fn xcm_send<E, Call>(
+        &mut self,
+        dest: &xcm::VersionedLocation,
+        msg: &VersionedXcm<Call>,
+    ) -> Result<xcm::v4::XcmHash>
+    where
+        E: Environment,
+        Call: scale::Encode,
+    {
+        let mut scope = self.scoped_buffer();
+        let output = scope.take(32);
+        scope.append_encoded(dest);
+        let enc_dest = scope.take_appended();
+
+        // Double encoding the message as the host fn expects an encoded message.
+        scope.append_encoded(&scale::Encode::encode(msg));
+        let enc_msg = scope.take_appended();
+        #[allow(deprecated)]
+        ext::xcm_send(enc_dest, enc_msg, output.try_into().unwrap())?;
+        let hash: xcm::v4::XcmHash = scale::Decode::decode(&mut &output[..])?;
+        Ok(hash)
     }
 }

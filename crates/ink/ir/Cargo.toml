@@ -1,7 +1,7 @@
 [package]
 name = "ink_ir"
 version.workspace = true
-authors = ["Parity Technologies <admin@parity.io>", "Robin Freyler <robin@parity.io>"]
+authors = ["Use Ink <ink@use.ink>"]
 edition.workspace = true
 
 license.workspace = true
@@ -32,6 +32,6 @@ default = [ "std" ]
 std = [
 	"either/use_std",
 	"ink_prelude/std",
-	"itertools/use_std", 
+	"itertools/use_std",
 	"impl-serde/std"
 ]

@@ -1,4 +1,4 @@
-// Copyright (C) Parity Technologies (UK) Ltd.
+// Copyright (C) Use Ink (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -901,5 +901,56 @@ where
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         instance.unlock_delegate_dependency::<E>(code_hash)
+    })
+}
+
+/// Execute an XCM message locally, using the contract's address as the origin.
+///
+/// For more details consult the
+/// [host function documentation](https://paritytech.github.io/substrate/master/pallet_contracts/api_doc/trait.Current.html#tymethod.xcm_execute).
+///
+/// # Errors
+///
+/// - If the message cannot be properly decoded on the `pallet-contracts` side.
+/// - If the XCM execution fails because of the runtime's XCM configuration.
+///
+/// # Panics
+///
+/// Panics in the off-chain environment.
+pub fn xcm_execute<E, Call>(msg: &xcm::VersionedXcm<Call>) -> Result<()>
+where
+    E: Environment,
+    Call: scale::Encode,
+{
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        TypedEnvBackend::xcm_execute::<E, _>(instance, msg)
+    })
+}
+
+/// Send an XCM message, using the contract's address as the origin.
+///
+/// The `msg` argument has to be SCALE encoded, it needs to be decodable to a valid
+/// instance of the `RuntimeCall` enum.
+///
+/// For more details consult
+/// [host function documentation](https://paritytech.github.io/substrate/master/pallet_contracts/api_doc/trait.Current.html#tymethod.xcm_send).
+///
+/// # Errors
+///
+/// - If the message cannot be properly decoded on the `pallet-contracts` side.
+///
+/// # Panics
+///
+/// Panics in the off-chain environment.
+pub fn xcm_send<E, Call>(
+    dest: &xcm::VersionedLocation,
+    msg: &xcm::VersionedXcm<Call>,
+) -> Result<xcm::v4::XcmHash>
+where
+    E: Environment,
+    Call: scale::Encode,
+{
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        TypedEnvBackend::xcm_send::<E, _>(instance, dest, msg)
     })
 }

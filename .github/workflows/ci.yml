@@ -41,7 +41,7 @@ env:
   # this target also makes sure that we don't pull in `std` by accident (through dependencies).
   # RISC-V is a modular architecture. We might switch to a different flavor with more features
   # later. For example, `riscv32imc-unknown-none-elf`.
-  RISCV_TARGET:                    riscv32i-unknown-none-elf
+  RISCV_TARGET:                    riscv32ema-unknown-none-elf
 
 concurrency:
   # Cancel in-progress jobs triggered only on pull_requests
@@ -234,7 +234,8 @@ jobs:
       - name: Check RISCV
         if: ${{ matrix.type == 'RISCV' }}
         env:
-          RUSTC_BOOTSTRAP:               1
+          RUSTC_BOOTSTRAP: 1
+          RUSTUP_TOOLCHAIN: rve-nightly
         run: |
           for crate in ${ALSO_WASM_CRATES}; do
             cargo check --no-default-features --target $RISCV_TARGET -Zbuild-std="core,alloc" \
@@ -611,7 +612,8 @@ jobs:
       - name: Build Contract RISCV Examples
         if: ${{ matrix.type == 'RISCV' }}
         env:
-          RUSTC_BOOTSTRAP:               1
+          RUSTC_BOOTSTRAP: 1
+          RUSTUP_TOOLCHAIN: rve-nightly
         run: |
           rustup component add rust-src --toolchain stable
           cargo contract -V
@@ -620,7 +622,7 @@ jobs:
           #   - custom_allocator
           # Pulls in sp-std which needlessly requires atomic pointers (TODO: Fix sp-std and enable this example)
           #   - call-runtime
-          scripts/for_all_contracts_exec.sh --path integration-tests --ignore public/custom-allocator --ignore public/call-runtime \
+          scripts/for_all_contracts_exec.sh --path integration-tests --ignore public/custom-allocator --ignore public/call-runtime --ignore public/contract-xcm \
             -- cargo build --manifest-path {} --no-default-features --target $RISCV_TARGET -Zbuild-std="core,alloc"
 
   examples-docs:
@@ -651,7 +653,7 @@ jobs:
         run: |
           # `--document-private-items` needs to be in here because currently our contract macro
           # puts the contract functions in a private module.
-          # Once https://github.com/paritytech/ink/issues/336 has been implemented we can get rid
+          # Once https://github.com/use-ink/ink/issues/336 has been implemented we can get rid
           # of this flag.
           scripts/for_all_contracts_exec.sh --path integration-tests -- cargo doc --manifest-path {} \
             --document-private-items --no-deps

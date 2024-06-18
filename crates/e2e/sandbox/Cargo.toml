@@ -1,7 +1,7 @@
 [package]
 name = "ink_sandbox"
 version = "5.0.0"
-authors = ["Cardinal Cryptography", "Parity Technologies <admin@parity.io>"]
+authors = ["Use Ink <ink@use.ink>", "Cardinal Cryptography"]
 edition.workspace = true
 license.workspace = true
 description = "Sandbox runtime environment for ink! e2e tests"

@@ -1,7 +1,7 @@
 [package]
 name = "ink_engine"
 version.workspace = true
-authors = ["Parity Technologies <admin@parity.io>", "Michael Müller <michi@parity.io>"]
+authors = ["Use Ink <ink@use.ink>"]
 edition.workspace = true
 
 license.workspace = true

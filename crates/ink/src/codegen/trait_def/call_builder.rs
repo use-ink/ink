@@ -1,4 +1,4 @@
-// Copyright (C) Parity Technologies (UK) Ltd.
+// Copyright (C) Use Ink (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,6 +11,12 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+
+/// Access the trait message builder implementation.
+pub trait TraitMessageBuilder {
+    /// The message builder type.
+    type MessageBuilder: Default;
+}
 
 /// The global call builder type for an ink! trait definition.
 pub trait TraitCallBuilder {

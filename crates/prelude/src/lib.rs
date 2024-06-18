@@ -1,4 +1,4 @@
-// Copyright (C) Parity Technologies (UK) Ltd.
+// Copyright (C) Use Ink (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -32,7 +32,7 @@ extern crate alloc;
 use cfg_if::cfg_if;
 
 /// A well know selector reserved for the message required to be defined
-/// alongside a wildcard selector. See [IIP-2](https://github.com/paritytech/ink/issues/1676).
+/// alongside a wildcard selector. See [IIP-2](https://github.com/use-ink/ink/issues/1676).
 ///
 /// Calculated from `selector_bytes!("IIP2_WILDCARD_COMPLEMENT")`
 pub const IIP2_WILDCARD_COMPLEMENT_SELECTOR: [u8; 4] = [0x9B, 0xAE, 0x9D, 0x5E];

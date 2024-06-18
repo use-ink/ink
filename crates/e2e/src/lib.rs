@@ -1,4 +1,4 @@
-// Copyright (C) Parity Technologies (UK) Ltd.
+// Copyright (C) Use Ink (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -56,7 +56,10 @@ pub use node_proc::{
     TestNodeProcessBuilder,
 };
 #[cfg(feature = "sandbox")]
-pub use sandbox_client::Client as SandboxClient;
+pub use sandbox_client::{
+    preset,
+    Client as SandboxClient,
+};
 pub use sp_core::H256;
 pub use sp_keyring::AccountKeyring;
 pub use subxt::{

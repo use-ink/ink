@@ -1,4 +1,4 @@
-// Copyright (C) Parity Technologies (UK) Ltd.
+// Copyright (C) Use Ink (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -47,7 +47,7 @@ use {
     From,
 )]
 #[cfg_attr(feature = "std", derive(TypeInfo, DecodeAsType, EncodeAsType))]
-pub struct AccountId([u8; 32]);
+pub struct AccountId(pub [u8; 32]);
 
 impl AsRef<[u8; 32]> for AccountId {
     #[inline]

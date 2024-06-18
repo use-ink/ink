@@ -68,7 +68,7 @@ std = [
 	"ink_e2e_macro/std",
 	"ink_sandbox/std",
 	"frame-support/std",
-	"pallet-contracts-mock-network?/std"
+	"pallet-contracts-mock-network?/std",
 ]
 
 sandbox = [

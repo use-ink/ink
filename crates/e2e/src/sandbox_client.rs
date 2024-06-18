@@ -1,4 +1,4 @@
-// Copyright (C) Parity Technologies (UK) Ltd.
+// Copyright (C) Use Ink (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -180,9 +180,9 @@ where
 
         // Encode the call object.
         let call = subxt::dynamic::tx(pallet_name, call_name, call_data);
-        let encoded_call = call
-            .encode_call_data(&metadata.into())
-            .map_err(|_| SandboxErr)?;
+        let encoded_call = call.encode_call_data(&metadata.into()).map_err(|err| {
+            SandboxErr::new(format!("runtime_call: Error encoding call: {err:?}"))
+        })?;
 
         // Decode the call object.
         // Panic on error - we just encoded a validated call object, so it should be
@@ -197,7 +197,9 @@ where
                 decoded_call,
                 S::convert_account_to_origin(keypair_to_account(origin)),
             )
-            .map_err(|_| SandboxErr)?;
+            .map_err(|err| {
+                SandboxErr::new(format!("runtime_call: execution error {:?}", err.error))
+            })?;
 
         Ok(())
     }
@@ -244,7 +246,7 @@ where
         let account_id_raw = match &result.result {
             Err(err) => {
                 log_error(&format!("Instantiation failed: {err:?}"));
-                return Err(SandboxErr);
+                return Err(SandboxErr::new(format!("bare_instantiate: {err:?}")));
             }
             Ok(res) => *res.account_id.as_ref(),
         };
@@ -319,7 +321,7 @@ where
             Ok(result) => result,
             Err(err) => {
                 log_error(&format!("Upload failed: {err:?}"));
-                return Err(SandboxErr);
+                return Err(SandboxErr::new(format!("bare_upload: {err:?}")))
             }
         };
 
@@ -362,8 +364,7 @@ where
         let exec_input = Encode::encode(message.clone().params().exec_input());
         let account_id = (*account_id.as_ref()).into();
 
-        if self
-            .sandbox
+        self.sandbox
             .call_contract(
                 account_id,
                 value,
@@ -374,10 +375,7 @@ where
                 pallet_contracts::Determinism::Enforced,
             )
             .result
-            .is_err()
-        {
-            return Err(SandboxErr);
-        }
+            .map_err(|err| SandboxErr::new(format!("bare_call: {err:?}")))?;
 
         Ok(())
     }
@@ -485,18 +483,27 @@ pub mod preset {
         /// }
         /// ```
         #[derive(Default)]
-        pub struct MockNetworkSandbox;
+        pub struct MockNetworkSandbox {
+            dry_run: bool,
+        }
+
         impl Sandbox for MockNetworkSandbox {
             type Runtime = parachain::Runtime;
 
             fn execute_with<T>(&mut self, execute: impl FnOnce() -> T) -> T {
-                ParaA::execute_with(execute)
+                if self.dry_run {
+                    ParaA::execute_with(execute)
+                } else {
+                    ParaA::execute_without_dispatch(execute)
+                }
             }
 
             fn dry_run<T>(&mut self, action: impl FnOnce(&mut Self) -> T) -> T {
                 EXT_PARAA.with(|v| {
                     let backend_backup = v.borrow_mut().as_backend();
+                    self.dry_run = true;
                     let result = action(self);
+                    self.dry_run = false;
 
                     let mut v = v.borrow_mut();
                     v.commit_all().expect("Failed to commit changes");
