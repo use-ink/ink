@@ -48,9 +48,9 @@ pub use {
 #[derive(Clone, Debug)]
 pub struct Snapshot {
     /// The storage raw key-value pairs.
-    storage: RawStorage,
+    pub storage: RawStorage,
     /// The storage root hash.
-    storage_root: StorageRoot,
+    pub storage_root: StorageRoot,
 }
 
 pub type RawStorage = Vec<(Vec<u8>, (Vec<u8>, i32))>;
