@@ -81,7 +81,7 @@ wasm-instrument = { version = "0.4.0" }
 which = { version = "6.0.1" }
 xxhash-rust = { version = "0.8" }
 const_env = { version = "0.1"}
-wat = { version = "1.207.0" }
+wat = { version = "1.212.0" }
 
 # Substrate dependencies
 frame-metadata = { version = "16.0.0" }
