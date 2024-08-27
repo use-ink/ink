@@ -735,8 +735,8 @@ impl TypedEnvBackend for EnvInstance {
     {
         let mut scope = self.scoped_buffer();
 
-        // Double encoding the message as the host fn expects an encoded message.
-        let enc_msg = scope.take_encoded(&scale::Encode::encode(msg));
+        let enc_msg = scope.take_encoded(msg);
+
         #[allow(deprecated)]
         ext::xcm_execute(enc_msg).map_err(Into::into)
     }
@@ -755,8 +755,7 @@ impl TypedEnvBackend for EnvInstance {
         scope.append_encoded(dest);
         let enc_dest = scope.take_appended();
 
-        // Double encoding the message as the host fn expects an encoded message.
-        scope.append_encoded(&scale::Encode::encode(msg));
+        scope.append_encoded(msg);
         let enc_msg = scope.take_appended();
         #[allow(deprecated)]
         ext::xcm_send(enc_dest, enc_msg, output.try_into().unwrap())?;
