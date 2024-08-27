@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - [E2E] Update `subxt` and `polkadot-sdk` dependencies ‒ [#2174](https://github.com/use-ink/ink/pull/2174)
 - Update repository URLs & references from `paritytech` GitHub organization to new `use-ink` one ‒ [#2220](https://github.com/use-ink/ink/pull/2220) and [#2248](https://github.com/use-ink/ink/pull/2248)
+- Fix XCM-support to single encode the XCM message [#2278](https://github.com/use-ink/ink/pull/2278)
 
 ### Fixed
 - Fix outdated docs for `[ink_e2e::test]` ‒ [#2162](https://github.com/use-ink/ink/pull/2162)
