@@ -24,6 +24,7 @@ on:
       - 'LICENSE'
       - 'CODE_OF_CONDUCT.adoc'
       - 'FILE_HEADER'
+  workflow_dispatch:
 
 env:
   IMAGE:                           paritytech/ci-unified:bullseye-1.77.0
