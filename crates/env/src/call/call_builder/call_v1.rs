@@ -29,7 +29,7 @@ use crate::{
     Gas,
 };
 use num_traits::Zero;
-use pallet_contracts_uapi::CallFlags;
+use pallet_revive_uapi::CallFlags;
 
 /// The legacy call type for cross-contract calls. Performs a cross-contract call to
 /// `callee` with gas limit `gas_limit`, transferring `transferred_value` of currency.

@@ -12,15 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use super::{
+use crate::engine::on_chain::{
     EnvInstance,
     ScopedBuffer,
+    EncodeScope
 };
 use crate::{
     call::{
         Call,
         CallParams,
-        CallV1,
+        // CallV1,
         ConstructorReturnType,
         CreateParams,
         DelegateCall,
@@ -51,12 +52,13 @@ use ink_storage_traits::{
     decode_all,
     Storable,
 };
-use pallet_contracts_uapi::{
+use pallet_revive_uapi::{
     CallFlags,
     HostFn,
     HostFnImpl as ext,
     ReturnErrorCode,
     ReturnFlags,
+    StorageFlags
 };
 use xcm::VersionedXcm;
 
@@ -202,6 +204,8 @@ impl EnvInstance {
     }
 }
 
+const STORAGE_FLAGS: StorageFlags = StorageFlags::empty();
+
 impl EnvBackend for EnvInstance {
     fn set_contract_storage<K, V>(&mut self, key: &K, value: &V) -> Option<u32>
     where
@@ -211,7 +215,7 @@ impl EnvBackend for EnvInstance {
         let mut buffer = self.scoped_buffer();
         let key = buffer.take_encoded(key);
         let value = buffer.take_storable_encoded(value);
-        ext::set_storage_v2(key, value)
+        ext::set_storage(STORAGE_FLAGS, key, value)
     }
 
     fn get_contract_storage<K, R>(&mut self, key: &K) -> Result<Option<R>>
@@ -222,7 +226,7 @@ impl EnvBackend for EnvInstance {
         let mut buffer = self.scoped_buffer();
         let key = buffer.take_encoded(key);
         let output = &mut buffer.take_rest();
-        match ext::get_storage_v1(key, output) {
+        match ext::get_storage(STORAGE_FLAGS, key, output) {
             Ok(_) => (),
             Err(ReturnErrorCode::KeyNotFound) => return Ok(None),
             Err(_) => panic!("encountered unexpected error"),
@@ -239,7 +243,7 @@ impl EnvBackend for EnvInstance {
         let mut buffer = self.scoped_buffer();
         let key = buffer.take_encoded(key);
         let output = &mut buffer.take_rest();
-        match ext::take_storage(key, output) {
+        match ext::take_storage(STORAGE_FLAGS, key, output) {
             Ok(_) => (),
             Err(ReturnErrorCode::KeyNotFound) => return Ok(None),
             Err(_) => panic!("encountered unexpected error"),
@@ -254,7 +258,7 @@ impl EnvBackend for EnvInstance {
     {
         let mut buffer = self.scoped_buffer();
         let key = buffer.take_encoded(key);
-        ext::contains_storage_v1(key)
+        ext::contains_storage(STORAGE_FLAGS, key)
     }
 
     fn clear_contract_storage<K>(&mut self, key: &K) -> Option<u32>
@@ -263,7 +267,7 @@ impl EnvBackend for EnvInstance {
     {
         let mut buffer = self.scoped_buffer();
         let key = buffer.take_encoded(key);
-        ext::clear_storage_v1(key)
+        ext::clear_storage(STORAGE_FLAGS, key)
     }
 
     fn decode_input<T>(&mut self) -> Result<T>
@@ -277,7 +281,7 @@ impl EnvBackend for EnvInstance {
     where
         R: scale::Encode,
     {
-        let mut scope = super::EncodeScope::from(&mut self.buffer[..]);
+        let mut scope = EncodeScope::from(&mut self.buffer[..]);
         return_value.encode_to(&mut scope);
         let len = scope.len();
         ext::return_value(flags, &self.buffer[..][..len]);
@@ -391,9 +395,9 @@ impl TypedEnvBackend for EnvInstance {
         self.get_property_little_endian::<E::Balance>(ext::value_transferred)
     }
 
-    fn gas_left<E: Environment>(&mut self) -> u64 {
-        self.get_property_little_endian::<u64>(ext::gas_left)
-    }
+    // fn gas_left<E: Environment>(&mut self) -> u64 {
+    //     self.get_property_little_endian::<u64>(ext::gas_left)
+    // }
 
     fn block_timestamp<E: Environment>(&mut self) -> E::Timestamp {
         self.get_property_little_endian::<E::Timestamp>(ext::now)
@@ -427,47 +431,6 @@ impl TypedEnvBackend for EnvInstance {
         ext::deposit_event(enc_topics, enc_data);
     }
 
-    fn invoke_contract_v1<E, Args, R>(
-        &mut self,
-        params: &CallParams<E, CallV1<E>, Args, R>,
-    ) -> Result<ink_primitives::MessageResult<R>>
-    where
-        E: Environment,
-        Args: scale::Encode,
-        R: scale::Decode,
-    {
-        let mut scope = self.scoped_buffer();
-        let gas_limit = params.gas_limit();
-        let enc_callee = scope.take_encoded(params.callee());
-        let enc_transferred_value = scope.take_encoded(params.transferred_value());
-        let call_flags = params.call_flags();
-        let enc_input = if !call_flags.contains(CallFlags::FORWARD_INPUT)
-            && !call_flags.contains(CallFlags::CLONE_INPUT)
-        {
-            scope.take_encoded(params.exec_input())
-        } else {
-            &mut []
-        };
-        let output = &mut scope.take_rest();
-        let flags = params.call_flags();
-        #[allow(deprecated)]
-        let call_result = ext::call_v1(
-            *flags,
-            enc_callee,
-            gas_limit,
-            enc_transferred_value,
-            enc_input,
-            Some(output),
-        );
-        match call_result {
-            Ok(()) | Err(ReturnErrorCode::CalleeReverted) => {
-                let decoded = scale::DecodeAll::decode_all(&mut &output[..])?;
-                Ok(decoded)
-            }
-            Err(actual_error) => Err(actual_error.into()),
-        }
-    }
-
     fn invoke_contract<E, Args, R>(
         &mut self,
         params: &CallParams<E, Call<E>, Args, R>,
@@ -496,7 +459,7 @@ impl TypedEnvBackend for EnvInstance {
         let output = &mut scope.take_rest();
         let flags = params.call_flags();
         #[allow(deprecated)]
-        let call_result = ext::call_v2(
+        let call_result = ext::call(
             *flags,
             enc_callee,
             ref_time_limit,
@@ -575,53 +538,11 @@ impl TypedEnvBackend for EnvInstance {
         let salt = params.salt_bytes().as_ref();
         let out_return_value = &mut scoped.take_rest();
 
-        let instantiate_result = ext::instantiate_v2(
+        let instantiate_result = ext::instantiate(
             enc_code_hash,
             ref_time_limit,
             proof_size_limit,
             storage_deposit_limit,
-            enc_endowment,
-            enc_input,
-            Some(out_address),
-            Some(out_return_value),
-            salt,
-        );
-
-        crate::engine::decode_instantiate_result::<_, E, ContractRef, RetType>(
-            instantiate_result.map_err(Into::into),
-            &mut &out_address[..],
-            &mut &out_return_value[..],
-        )
-    }
-
-    fn instantiate_contract_v1<E, ContractRef, Args, Salt, RetType>(
-        &mut self,
-        params: &CreateParams<E, ContractRef, LimitParamsV1, Args, Salt, RetType>,
-    ) -> Result<
-        ink_primitives::ConstructorResult<
-            <RetType as ConstructorReturnType<ContractRef>>::Output,
-        >,
-    >
-    where
-        E: Environment,
-        ContractRef: FromAccountId<E>,
-        Args: scale::Encode,
-        Salt: AsRef<[u8]>,
-        RetType: ConstructorReturnType<ContractRef>,
-    {
-        let mut scoped = self.scoped_buffer();
-        let gas_limit = params.gas_limit();
-        let enc_code_hash = scoped.take_encoded(params.code_hash());
-        let enc_endowment = scoped.take_encoded(params.endowment());
-        let enc_input = scoped.take_encoded(params.exec_input());
-        let out_address = &mut scoped.take_max_encoded_len::<E::AccountId>();
-        let salt = params.salt_bytes().as_ref();
-        let out_return_value = &mut scoped.take_rest();
-
-        #[allow(deprecated)]
-        let instantiate_result = ext::instantiate_v1(
-            enc_code_hash,
-            gas_limit,
             enc_endowment,
             enc_input,
             Some(out_address),
@@ -641,7 +562,7 @@ impl TypedEnvBackend for EnvInstance {
         E: Environment,
     {
         let buffer = self.scoped_buffer().take_encoded(&beneficiary);
-        ext::terminate_v1(buffer);
+        ext::terminate(buffer);
     }
 
     fn transfer<E>(&mut self, destination: E::AccountId, value: E::Balance) -> Result<()>
@@ -656,7 +577,8 @@ impl TypedEnvBackend for EnvInstance {
 
     fn weight_to_fee<E: Environment>(&mut self, gas: u64) -> E::Balance {
         let mut result = <E::Balance as FromLittleEndian>::Bytes::default();
-        ext::weight_to_fee(gas, &mut result.as_mut());
+        // TODO: needs ref and proof
+        ext::weight_to_fee(gas, gas, &mut result.as_mut());
         <E::Balance as FromLittleEndian>::from_le_bytes(result)
     }
 
@@ -735,8 +657,8 @@ impl TypedEnvBackend for EnvInstance {
     {
         let mut scope = self.scoped_buffer();
 
-        let enc_msg = scope.take_encoded(msg);
-
+        // Double encoding the message as the host fn expects an encoded message.
+        let enc_msg = scope.take_encoded(&scale::Encode::encode(msg));
         #[allow(deprecated)]
         ext::xcm_execute(enc_msg).map_err(Into::into)
     }
@@ -755,7 +677,8 @@ impl TypedEnvBackend for EnvInstance {
         scope.append_encoded(dest);
         let enc_dest = scope.take_appended();
 
-        scope.append_encoded(msg);
+        // Double encoding the message as the host fn expects an encoded message.
+        scope.append_encoded(&scale::Encode::encode(msg));
         let enc_msg = scope.take_appended();
         #[allow(deprecated)]
         ext::xcm_send(enc_dest, enc_msg, output.try_into().unwrap())?;

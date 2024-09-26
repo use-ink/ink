@@ -337,53 +337,53 @@ where
     }
 }
 
-impl<E, ContractRef, Args, Salt, R>
-    CreateParams<E, ContractRef, LimitParamsV1, Args, Salt, R>
-where
-    E: Environment,
-    ContractRef: FromAccountId<E>,
-    Args: scale::Encode,
-    Salt: AsRef<[u8]>,
-    R: ConstructorReturnType<ContractRef>,
-{
-    /// Instantiates the contract and returns its account ID back to the caller.
-    ///
-    /// # Panics
-    ///
-    /// This method panics if it encounters an [`ink::env::Error`][`crate::Error`] or an
-    /// [`ink::primitives::LangError`][`ink_primitives::LangError`]. If you want to handle
-    /// those use the [`try_instantiate`][`CreateParams::try_instantiate`] method
-    /// instead.
-    #[inline]
-    pub fn instantiate(&self) -> <R as ConstructorReturnType<ContractRef>>::Output {
-        self.try_instantiate()
-            .unwrap_or_else(|env_error| {
-                panic!("Cross-contract instantiation failed with {env_error:?}")
-            })
-            .unwrap_or_else(|lang_error| {
-                panic!("Received a `LangError` while instantiating: {lang_error:?}")
-            })
-    }
-
-    /// Instantiates the contract and returns its account ID back to the caller.
-    ///
-    /// # Note
-    ///
-    /// On failure this returns an outer [`ink::env::Error`][`crate::Error`] or inner
-    /// [`ink::primitives::LangError`][`ink_primitives::LangError`], both of which can be
-    /// handled by the caller.
-    #[inline]
-    pub fn try_instantiate(
-        &self,
-    ) -> Result<
-        ink_primitives::ConstructorResult<
-            <R as ConstructorReturnType<ContractRef>>::Output,
-        >,
-        Error,
-    > {
-        crate::instantiate_contract_v1(self)
-    }
-}
+// impl<E, ContractRef, Args, Salt, R>
+//     CreateParams<E, ContractRef, LimitParamsV1, Args, Salt, R>
+// where
+//     E: Environment,
+//     ContractRef: FromAccountId<E>,
+//     Args: scale::Encode,
+//     Salt: AsRef<[u8]>,
+//     R: ConstructorReturnType<ContractRef>,
+// {
+//     /// Instantiates the contract and returns its account ID back to the caller.
+//     ///
+//     /// # Panics
+//     ///
+//     /// This method panics if it encounters an [`ink::env::Error`][`crate::Error`] or an
+//     /// [`ink::primitives::LangError`][`ink_primitives::LangError`]. If you want to handle
+//     /// those use the [`try_instantiate`][`CreateParams::try_instantiate`] method
+//     /// instead.
+//     #[inline]
+//     pub fn instantiate(&self) -> <R as ConstructorReturnType<ContractRef>>::Output {
+//         self.try_instantiate()
+//             .unwrap_or_else(|env_error| {
+//                 panic!("Cross-contract instantiation failed with {env_error:?}")
+//             })
+//             .unwrap_or_else(|lang_error| {
+//                 panic!("Received a `LangError` while instantiating: {lang_error:?}")
+//             })
+//     }
+//
+//     /// Instantiates the contract and returns its account ID back to the caller.
+//     ///
+//     /// # Note
+//     ///
+//     /// On failure this returns an outer [`ink::env::Error`][`crate::Error`] or inner
+//     /// [`ink::primitives::LangError`][`ink_primitives::LangError`], both of which can be
+//     /// handled by the caller.
+//     #[inline]
+//     pub fn try_instantiate(
+//         &self,
+//     ) -> Result<
+//         ink_primitives::ConstructorResult<
+//             <R as ConstructorReturnType<ContractRef>>::Output,
+//         >,
+//         Error,
+//     > {
+//         crate::instantiate_contract_v1(self)
+//     }
+// }
 
 /// Builds up contract instantiations.
 #[derive(Clone)]
@@ -920,53 +920,53 @@ where
     }
 }
 
-impl<E, ContractRef, Args, Salt, RetType>
-    CreateBuilder<
-        E,
-        ContractRef,
-        Set<E::Hash>,
-        Set<LimitParamsV1>,
-        Set<E::Balance>,
-        Set<ExecutionInput<Args>>,
-        Set<Salt>,
-        Set<ReturnType<RetType>>,
-    >
-where
-    E: Environment,
-    ContractRef: FromAccountId<E>,
-    Args: scale::Encode,
-    Salt: AsRef<[u8]>,
-    RetType: ConstructorReturnType<ContractRef>,
-{
-    /// Instantiates the contract and returns its account ID back to the caller.
-    ///
-    /// # Panics
-    ///
-    /// This method panics if it encounters an [`ink::env::Error`][`crate::Error`] or an
-    /// [`ink::primitives::LangError`][`ink_primitives::LangError`]. If you want to handle
-    /// those use the [`try_instantiate`][`CreateBuilder::try_instantiate`] method
-    /// instead.
-    #[inline]
-    pub fn instantiate(self) -> <RetType as ConstructorReturnType<ContractRef>>::Output {
-        self.params().instantiate()
-    }
-
-    /// Instantiates the contract and returns its account ID back to the caller.
-    ///
-    /// # Note
-    ///
-    /// On failure this returns an outer [`ink::env::Error`][`crate::Error`] or inner
-    /// [`ink::primitives::LangError`][`ink_primitives::LangError`], both of which can be
-    /// handled by the caller.
-    #[inline]
-    pub fn try_instantiate(
-        self,
-    ) -> Result<
-        ink_primitives::ConstructorResult<
-            <RetType as ConstructorReturnType<ContractRef>>::Output,
-        >,
-        Error,
-    > {
-        self.params().try_instantiate()
-    }
-}
+// impl<E, ContractRef, Args, Salt, RetType>
+//     CreateBuilder<
+//         E,
+//         ContractRef,
+//         Set<E::Hash>,
+//         Set<LimitParamsV1>,
+//         Set<E::Balance>,
+//         Set<ExecutionInput<Args>>,
+//         Set<Salt>,
+//         Set<ReturnType<RetType>>,
+//     >
+// where
+//     E: Environment,
+//     ContractRef: FromAccountId<E>,
+//     Args: scale::Encode,
+//     Salt: AsRef<[u8]>,
+//     RetType: ConstructorReturnType<ContractRef>,
+// {
+//     /// Instantiates the contract and returns its account ID back to the caller.
+//     ///
+//     /// # Panics
+//     ///
+//     /// This method panics if it encounters an [`ink::env::Error`][`crate::Error`] or an
+//     /// [`ink::primitives::LangError`][`ink_primitives::LangError`]. If you want to handle
+//     /// those use the [`try_instantiate`][`CreateBuilder::try_instantiate`] method
+//     /// instead.
+//     #[inline]
+//     pub fn instantiate(self) -> <RetType as ConstructorReturnType<ContractRef>>::Output {
+//         self.params().instantiate()
+//     }
+//
+//     /// Instantiates the contract and returns its account ID back to the caller.
+//     ///
+//     /// # Note
+//     ///
+//     /// On failure this returns an outer [`ink::env::Error`][`crate::Error`] or inner
+//     /// [`ink::primitives::LangError`][`ink_primitives::LangError`], both of which can be
+//     /// handled by the caller.
+//     #[inline]
+//     pub fn try_instantiate(
+//         self,
+//     ) -> Result<
+//         ink_primitives::ConstructorResult<
+//             <RetType as ConstructorReturnType<ContractRef>>::Output,
+//         >,
+//         Error,
+//     > {
+//         self.params().try_instantiate()
+//     }
+// }

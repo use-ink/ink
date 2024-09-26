@@ -2694,6 +2694,7 @@ dependencies = [
  "ink_primitives",
  "ink_storage",
  "pallet-contracts-uapi",
+ "pallet-revive-uapi",
  "parity-scale-codec",
  "scale-info",
  "staging-xcm",
@@ -2722,6 +2723,7 @@ dependencies = [
  "ink_primitives",
  "itertools 0.12.1",
  "parity-scale-codec",
+ "polkavm-derive 0.11.0",
  "proc-macro2",
  "quote",
  "serde",
@@ -2790,6 +2792,7 @@ dependencies = [
  "derive_more 1.0.0",
  "ink_primitives",
  "pallet-contracts-uapi",
+ "pallet-revive-uapi",
  "parity-scale-codec",
  "secp256k1",
  "sha2 0.10.8",
@@ -2812,8 +2815,10 @@ dependencies = [
  "ink_storage_traits",
  "num-traits",
  "pallet-contracts-uapi",
+ "pallet-revive-uapi",
  "parity-scale-codec",
  "paste",
+ "polkavm-derive 0.11.0",
  "rlibc",
  "scale-decode",
  "scale-encode",
@@ -2931,6 +2936,7 @@ dependencies = [
  "ink_storage_traits",
  "itertools 0.12.1",
  "pallet-contracts-uapi",
+ "pallet-revive-uapi",
  "parity-scale-codec",
  "quickcheck",
  "quickcheck_macros",
@@ -3799,7 +3805,7 @@ dependencies = [
  "bitflags 1.3.2",
  "parity-scale-codec",
  "paste",
- "polkavm-derive",
+ "polkavm-derive 0.9.1",
  "scale-info",
 ]
 
@@ -3853,6 +3859,19 @@ dependencies = [
  "sp-io",
  "sp-runtime",
  "sp-std",
+]
+
+[[package]]
+name = "pallet-revive-uapi"
+version = "0.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ecb4686c8415619cc13e43fadef146ffff46424d9b4d037fe4c069de52708aac"
+dependencies = [
+ "bitflags 1.3.2",
+ "parity-scale-codec",
+ "paste",
+ "polkavm-derive 0.10.0",
+ "scale-info",
 ]
 
 [[package]]
@@ -4031,7 +4050,11 @@ version = "3.6.12"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d830939c76d294956402033aee57a6da7b438f2294eb94864c37b0569053a42c"
 dependencies = [
+<<<<<<< HEAD
  "proc-macro-crate 3.2.0",
+=======
+ "proc-macro-crate 3.1.0",
+>>>>>>> f6cb112e44 (hack together RiscV support for ink! -- works!)
  "proc-macro2",
  "quote",
  "syn 1.0.109",
@@ -4287,12 +4310,42 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1d9428a5cfcc85c5d7b9fc4b6a18c4b802d0173d768182a51cc7751640f08b92"
 
 [[package]]
+name = "polkavm-common"
+version = "0.10.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0097b48bc0bedf9f3f537ce8f37e8f1202d8d83f9b621bdb21ff2c59b9097c50"
+
+[[package]]
+name = "polkavm-common"
+version = "0.11.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "254b19b64ff9b57c06b32c0affed961cb9a32429b8d3e5cf2633cad7fbb3e270"
+
+[[package]]
 name = "polkavm-derive"
 version = "0.9.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ae8c4bea6f3e11cd89bb18bcdddac10bd9a24015399bd1c485ad68a985a19606"
 dependencies = [
- "polkavm-derive-impl-macro",
+ "polkavm-derive-impl-macro 0.9.0",
+]
+
+[[package]]
+name = "polkavm-derive"
+version = "0.10.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0dcc701385c08c31bdb0569f0c51a290c580d892fa77f1dd88a7352a62679ecf"
+dependencies = [
+ "polkavm-derive-impl-macro 0.10.0",
+]
+
+[[package]]
+name = "polkavm-derive"
+version = "0.11.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f565f0106fbb3598d64b8528d5cb966b6a87a8dd93fbcfe09fb6388ff2865711"
+dependencies = [
+ "polkavm-derive-impl-macro 0.11.0",
 ]
 
 [[package]]
@@ -4301,7 +4354,31 @@ version = "0.9.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "5c4fdfc49717fb9a196e74a5d28e0bc764eb394a2c803eb11133a31ac996c60c"
 dependencies = [
- "polkavm-common",
+ "polkavm-common 0.9.0",
+ "proc-macro2",
+ "quote",
+ "syn 2.0.87",
+]
+
+[[package]]
+name = "polkavm-derive-impl"
+version = "0.10.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7855353a5a783dd5d09e3b915474bddf66575f5a3cf45dec8d1c5e051ba320dc"
+dependencies = [
+ "polkavm-common 0.10.0",
+ "proc-macro2",
+ "quote",
+ "syn 2.0.87",
+]
+
+[[package]]
+name = "polkavm-derive-impl"
+version = "0.11.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "314445fb5688b4769354087d92be2ac94c487e63ffe74a6fb7bb312e57f20827"
+dependencies = [
+ "polkavm-common 0.11.0",
  "proc-macro2",
  "quote",
  "syn 2.0.87",
@@ -4313,7 +4390,27 @@ version = "0.9.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8ba81f7b5faac81e528eb6158a6f3c9e0bb1008e0ffa19653bc8dea925ecb429"
 dependencies = [
- "polkavm-derive-impl",
+ "polkavm-derive-impl 0.9.0",
+ "syn 2.0.87",
+]
+
+[[package]]
+name = "polkavm-derive-impl-macro"
+version = "0.10.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9324fe036de37c17829af233b46ef6b5562d4a0c09bb7fdb9f8378856dee30cf"
+dependencies = [
+ "polkavm-derive-impl 0.10.0",
+ "syn 2.0.87",
+]
+
+[[package]]
+name = "polkavm-derive-impl-macro"
+version = "0.11.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1bf952e05bc5ce7d81293bae18cb44c271c78615b201d75e983cdcc40d5c6ef1"
+dependencies = [
+ "polkavm-derive-impl 0.11.0",
  "syn 2.0.87",
 ]
 
@@ -4403,11 +4500,19 @@ dependencies = [
 
 [[package]]
 name = "proc-macro-crate"
+<<<<<<< HEAD
 version = "3.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8ecf48c7ca261d60b74ab1a7b20da18bede46776b2e55535cb958eb595c5fa7b"
 dependencies = [
  "toml_edit 0.22.22",
+=======
+version = "3.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6d37c51ca738a55da99dc0c4a34860fd675453b8b36209178c2249bb13651284"
+dependencies = [
+ "toml_edit 0.21.1",
+>>>>>>> f6cb112e44 (hack together RiscV support for ink! -- works!)
 ]
 
 [[package]]
@@ -5782,7 +5887,7 @@ dependencies = [
  "libsecp256k1",
  "log",
  "parity-scale-codec",
- "polkavm-derive",
+ "polkavm-derive 0.9.1",
  "rustversion",
  "secp256k1",
  "sp-core",
@@ -5891,7 +5996,7 @@ dependencies = [
  "bytes",
  "impl-trait-for-tuples",
  "parity-scale-codec",
- "polkavm-derive",
+ "polkavm-derive 0.9.1",
  "primitive-types",
  "sp-externalities",
  "sp-runtime-interface-proc-macro",
@@ -6684,11 +6789,30 @@ dependencies = [
 
 [[package]]
 name = "toml_edit"
+<<<<<<< HEAD
 version = "0.22.22"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "4ae48d6208a266e853d946088ed816055e556cc6028c5e8e2b84d9fa5dd7c7f5"
 dependencies = [
  "indexmap 2.6.0",
+=======
+version = "0.21.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6a8534fd7f78b5405e860340ad6575217ce99f38d4d5c8f2442cb5ecb50090e1"
+dependencies = [
+ "indexmap 2.2.5",
+ "toml_datetime",
+ "winnow 0.5.40",
+]
+
+[[package]]
+name = "toml_edit"
+version = "0.22.9"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8e40bb779c5187258fd7aad0eb68cb8706a0a81fa712fbea808ab43c4b8374c4"
+dependencies = [
+ "indexmap 2.2.5",
+>>>>>>> f6cb112e44 (hack together RiscV support for ink! -- works!)
  "serde",
  "serde_spanned",
  "toml_datetime",

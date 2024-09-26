@@ -22,7 +22,7 @@ use crate::{
     call::{
         Call,
         CallParams,
-        CallV1,
+        // CallV1,
         ConstructorReturnType,
         CreateParams,
         DelegateCall,
@@ -44,7 +44,8 @@ use crate::{
     Result,
 };
 use ink_storage_traits::Storable;
-use pallet_contracts_uapi::ReturnFlags;
+// use pallet_revive_uapi::ReturnFlags;
+use pallet_revive_uapi::ReturnFlags;
 
 /// Returns the address of the caller of the executed contract.
 ///
@@ -93,14 +94,14 @@ where
 /// # Errors
 ///
 /// If the returned value cannot be properly decoded.
-pub fn gas_left<E>() -> Gas
-where
-    E: Environment,
-{
-    <EnvInstance as OnInstance>::on_instance(|instance| {
-        TypedEnvBackend::gas_left::<E>(instance)
-    })
-}
+// pub fn gas_left<E>() -> Gas
+// where
+//     E: Environment,
+// {
+//     <EnvInstance as OnInstance>::on_instance(|instance| {
+//         TypedEnvBackend::gas_left::<E>(instance)
+//     })
+// }
 
 /// Returns the current block timestamp.
 ///
@@ -279,18 +280,18 @@ where
 /// - If the called contract execution has trapped.
 /// - If the called contract ran out of gas upon execution.
 /// - If the returned value failed to decode properly.
-pub fn invoke_contract_v1<E, Args, R>(
-    params: &CallParams<E, CallV1<E>, Args, R>,
-) -> Result<ink_primitives::MessageResult<R>>
-where
-    E: Environment,
-    Args: scale::Encode,
-    R: scale::Decode,
-{
-    <EnvInstance as OnInstance>::on_instance(|instance| {
-        TypedEnvBackend::invoke_contract_v1::<E, Args, R>(instance, params)
-    })
-}
+// pub fn invoke_contract_v1<E, Args, R>(
+//     params: &CallParams<E, CallV1<E>, Args, R>,
+// ) -> Result<ink_primitives::MessageResult<R>>
+// where
+//     E: Environment,
+//     Args: scale::Encode,
+//     R: scale::Decode,
+// {
+//     <EnvInstance as OnInstance>::on_instance(|instance| {
+//         TypedEnvBackend::invoke_contract_v1::<E, Args, R>(instance, params)
+//     })
+// }
 
 /// Invokes a contract message and returns its result.
 ///
@@ -406,24 +407,24 @@ where
 /// - If the instantiation process runs out of gas.
 /// - If given insufficient endowment.
 /// - If the returned account ID failed to decode properly.
-pub fn instantiate_contract_v1<E, ContractRef, Args, Salt, R>(
-    params: &CreateParams<E, ContractRef, LimitParamsV1, Args, Salt, R>,
-) -> Result<
-    ink_primitives::ConstructorResult<<R as ConstructorReturnType<ContractRef>>::Output>,
->
-where
-    E: Environment,
-    ContractRef: FromAccountId<E>,
-    Args: scale::Encode,
-    Salt: AsRef<[u8]>,
-    R: ConstructorReturnType<ContractRef>,
-{
-    <EnvInstance as OnInstance>::on_instance(|instance| {
-        TypedEnvBackend::instantiate_contract_v1::<E, ContractRef, Args, Salt, R>(
-            instance, params,
-        )
-    })
-}
+// pub fn instantiate_contract_v1<E, ContractRef, Args, Salt, R>(
+//     params: &CreateParams<E, ContractRef, LimitParamsV1, Args, Salt, R>,
+// ) -> Result<
+//     ink_primitives::ConstructorResult<<R as ConstructorReturnType<ContractRef>>::Output>,
+// >
+// where
+//     E: Environment,
+//     ContractRef: FromAccountId<E>,
+//     Args: scale::Encode,
+//     Salt: AsRef<[u8]>,
+//     R: ConstructorReturnType<ContractRef>,
+// {
+//     <EnvInstance as OnInstance>::on_instance(|instance| {
+//         TypedEnvBackend::instantiate_contract_v1::<E, ContractRef, Args, Salt, R>(
+//             instance, params,
+//         )
+//     })
+// }
 
 /// Terminates the existence of the currently executed smart contract.
 ///

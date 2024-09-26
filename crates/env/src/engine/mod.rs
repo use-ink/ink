@@ -30,7 +30,7 @@ use ink_primitives::{
     LangError,
 };
 
-use pallet_contracts_uapi::ReturnErrorCode;
+use pallet_revive_uapi::ReturnErrorCode;
 
 /// Convert a slice into an array reference.
 ///
