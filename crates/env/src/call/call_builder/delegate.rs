@@ -27,7 +27,7 @@ use crate::{
     Environment,
     Error,
 };
-use pallet_contracts_uapi::CallFlags;
+use pallet_revive_uapi::CallFlags;
 
 /// The `delegatecall` call type. Performs a call with the given code hash.
 #[derive(Clone)]

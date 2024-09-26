@@ -28,7 +28,7 @@ use ink_storage_traits::{
     StorableHint,
     StorageKey,
 };
-use pallet_contracts_uapi::ReturnErrorCode;
+use pallet_revive_uapi::ReturnErrorCode;
 use scale::EncodeLike;
 
 use crate::{

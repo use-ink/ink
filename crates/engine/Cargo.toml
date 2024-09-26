@@ -18,6 +18,7 @@ include = ["Cargo.toml", "src/**/*.rs", "README.md", "LICENSE"]
 ink_primitives = { workspace = true }
 scale = { workspace = true }
 pallet-contracts-uapi = { workspace = true }
+pallet-revive-uapi = { workspace = true }
 derive_more = { workspace = true, features = ["from", "display"] }
 
 sha2 = { workspace = true }

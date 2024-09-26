@@ -91,6 +91,7 @@ pallet-contracts = { version = "31.0.0", default-features = false }
 pallet-balances = { version = "33.0.0", default-features = false }
 pallet-timestamp = { version = "31.0.0", default-features = false }
 pallet-contracts-uapi = { version = "9.0.0", default-features = false }
+pallet-revive-uapi = "0.1.1-rc.1"
 pallet-contracts-mock-network = { version = "7.0.0", default-features = false }
 sp-externalities = { version = "0.28.0", default-features = false }
 sp-io = { version = "34.0.0", default-features = false }
@@ -100,6 +101,9 @@ sp-keyring = { version = "35.0.0", default-features = false }
 sp-runtime = { version = "35.0.0", default-features = false }
 sp-weights = { version = "31.0.0", default-features = false }
 xcm = { package = "staging-xcm", version = "11.0.0", default-features = false }
+
+# Polkavm dependencies
+polkavm-derive = "0.11.0"
 
 # Local dependencies
 ink = { version = "=5.0.0", path = "crates/ink", default-features = false }

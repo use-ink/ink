@@ -1,49 +1,56 @@
 [package]
-name = "ink_env"
-version.workspace = true
 authors = ["Use Ink <ink@use.ink>"]
 edition.workspace = true
+name = "ink_env"
 rust-version = "1.68"
+version.workspace = true
 
+categories.workspace = true
+description = "[ink!] Low-level interface for interacting with the smart contract Wasm executor."
+documentation = "https://docs.rs/ink_env/"
+homepage.workspace = true
+include = ["Cargo.toml", "LICENSE", "README.md", "src/**/*.rs"]
+keywords.workspace = true
 license.workspace = true
 readme = "README.md"
 repository.workspace = true
-documentation = "https://docs.rs/ink_env/"
-homepage.workspace = true
-description = "[ink!] Low-level interface for interacting with the smart contract Wasm executor."
-keywords.workspace = true
-categories.workspace = true
-include = ["Cargo.toml", "src/**/*.rs", "README.md", "LICENSE"]
 
 [dependencies]
 ink_allocator = { workspace = true }
-ink_storage_traits = { workspace = true }
 ink_prelude = { workspace = true }
 ink_primitives = { workspace = true }
+ink_storage_traits = { workspace = true }
 pallet-contracts-uapi = { workspace = true }
+pallet-revive-uapi = { workspace = true }
 
-scale = { workspace = true, features = ["max-encoded-len"] }
-derive_more = { workspace = true, features = ["from", "display"] }
-num-traits = { workspace = true, features = ["i128"] }
 cfg-if = { workspace = true }
-paste = { workspace = true }
-static_assertions = { workspace = true }
 const_env = { workspace = true }
+derive_more = { workspace = true, features = ["display", "from"] }
+num-traits = { workspace = true, features = ["i128"] }
+paste = { workspace = true }
+scale = { workspace = true, features = ["max-encoded-len"] }
+static_assertions = { workspace = true }
 xcm = { workspace = true }
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
 rlibc = "1"
 
+[target.'cfg(target_arch = "riscv32")'.dependencies]
+polkavm-derive = { workspace = true }
+
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
 ink_engine = { workspace = true, default-features = true, optional = true }
 
 # Hashes for the off-chain environment.
+blake2 = { workspace = true, optional = true }
 sha2 = { workspace = true, optional = true }
 sha3 = { workspace = true, optional = true }
-blake2 = { workspace = true, optional = true }
 
 # ECDSA for the off-chain environment.
-secp256k1 = { workspace = true, features = ["recovery", "global-context"], optional = true }
+secp256k1 = { workspace = true, features = [
+	"global-context",
+	"recovery",
+], optional = true }
 
 # schnorrkel for the off-chain environment.
 schnorrkel = { version = "0.11.4", optional = true }
@@ -60,34 +67,34 @@ scale-info = { workspace = true, features = ["derive"], optional = true }
 ink = { path = "../ink" }
 
 [features]
-default = [ "std" ]
+default = ["std"]
 std = [
 	"blake2",
 	"ink_allocator/std",
+	"ink_engine/std",
 	"ink_prelude/std",
 	"ink_primitives/std",
 	"ink_storage_traits/std",
-	"ink_engine/std",
-	"scale/std",
+	"num-traits/std",
 	"scale-decode",
 	"scale-encode",
 	"scale-info/std",
-	"secp256k1",
+	"scale/std",
 	"schnorrkel",
-	"num-traits/std",
-    # Enables hashing crates for off-chain environment.
-	"sha2",
-	"sha3",
+	"secp256k1",
+	# Enables hashing crates for off-chain environment.
 	"scale-decode?/std",
 	"scale-encode?/std",
-	"xcm/std"
+	"sha2",
+	"sha3",
+	"xcm/std",
 ]
 
 # Enable contract debug messages via `debug_print!` and `debug_println!`.
 ink-debug = []
 
 # Disable the ink! provided global memory allocator.
-no-allocator = [ "ink_allocator/no-allocator" ]
+no-allocator = ["ink_allocator/no-allocator"]
 
 # Disable the ink! provided panic handler.
 no-panic-handler = []
