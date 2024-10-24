@@ -13,9 +13,9 @@
 // limitations under the License.
 
 use crate::engine::on_chain::{
+    EncodeScope,
     EnvInstance,
     ScopedBuffer,
-    EncodeScope
 };
 use crate::{
     call::{
@@ -58,7 +58,7 @@ use pallet_revive_uapi::{
     HostFnImpl as ext,
     ReturnErrorCode,
     ReturnFlags,
-    StorageFlags
+    StorageFlags,
 };
 use xcm::VersionedXcm;
 
@@ -183,12 +183,16 @@ impl EnvInstance {
     /// This skips the potentially costly decoding step that is often equivalent to a
     /// `memcpy`.
     #[inline(always)]
-    fn get_property_little_endian<T>(&mut self, ext_fn: fn(output: &mut &mut [u8])) -> T
+    fn get_property_little_endian<T>(&mut self, ext_fn: fn(output: &mut [u8; 32])) -> T
     where
         T: FromLittleEndian,
     {
+        let mut scope = self.scoped_buffer();
+        let u256: &mut [u8; 32] = scope.take(32).try_into().unwrap();
+        ext_fn(u256);
         let mut result = <T as FromLittleEndian>::Bytes::default();
-        ext_fn(&mut result.as_mut());
+        let len = result.as_ref().len();
+        result.as_mut()[..].copy_from_slice(&u256[..len]);
         <T as FromLittleEndian>::from_le_bytes(result)
     }
 
@@ -381,13 +385,22 @@ impl EnvBackend for EnvInstance {
     }
 
     fn set_code_hash(&mut self, code_hash_ptr: &[u8]) -> Result<()> {
-        ext::set_code_hash(code_hash_ptr).map_err(Into::into)
+        let code_hash: &[u8; 32] = code_hash_ptr.try_into().unwrap();
+        ext::set_code_hash(code_hash).map_err(Into::into)
     }
 }
 
 impl TypedEnvBackend for EnvInstance {
     fn caller<E: Environment>(&mut self) -> E::AccountId {
-        self.get_property::<E::AccountId>(ext::caller)
+        let mut scope = self.scoped_buffer();
+
+        let h160: &mut [u8; 20] = scope.take(20).try_into().unwrap();
+        ext::caller(h160);
+
+        let account_id: &mut [u8; 32] = scope.take(32).try_into().unwrap();
+        ext::to_account_id(h160, account_id);
+
+        scale::Decode::decode(&mut &account_id[..])
             .expect("The executed contract must have a caller with a valid account id.")
     }
 
@@ -404,7 +417,14 @@ impl TypedEnvBackend for EnvInstance {
     }
 
     fn account_id<E: Environment>(&mut self) -> E::AccountId {
-        self.get_property::<E::AccountId>(ext::address)
+        let mut scope = self.scoped_buffer();
+
+        let account_id: &mut [u8; 32] = scope.take(32).try_into().unwrap();
+        account_id[20..].fill(0xEE);
+        let h160: &mut [u8; 20] = account_id[..20].as_mut().try_into().unwrap();
+        ext::address(h160);
+
+        scale::Decode::decode(&mut &account_id[..])
             .expect("A contract being executed must have a valid account id.")
     }
 
@@ -427,6 +447,11 @@ impl TypedEnvBackend for EnvInstance {
     {
         let (mut scope, enc_topics) =
             event.topics::<E, _>(TopicsBuilder::from(self.scoped_buffer()).into());
+        // TODO: improve
+        let enc_topics = &enc_topics
+            .chunks_exact(32)
+            .map(|c| c.try_into().unwrap())
+            .collect::<ink_prelude::vec::Vec<_>>();
         let enc_data = scope.take_encoded(&event);
         ext::deposit_event(enc_topics, enc_data);
     }
@@ -443,11 +468,18 @@ impl TypedEnvBackend for EnvInstance {
         let mut scope = self.scoped_buffer();
         let ref_time_limit = params.ref_time_limit();
         let proof_size_limit = params.proof_size_limit();
-        let storage_deposit_limit = params
-            .storage_deposit_limit()
-            .map(|limit| &*scope.take_encoded(limit));
-        let enc_callee = scope.take_encoded(params.callee());
-        let enc_transferred_value = scope.take_encoded(params.transferred_value());
+        let storage_deposit_limit = params.storage_deposit_limit().map(|limit| {
+            let mut enc_storage_limit = EncodeScope::from(scope.take(32));
+            scale::Encode::encode_to(&limit, &mut enc_storage_limit);
+            let enc_storage_limit: &mut [u8; 32] =
+                enc_storage_limit.into_buffer().try_into().unwrap();
+            enc_storage_limit
+        });
+        let enc_callee: &[u8; 20] = params.callee().as_ref().try_into().unwrap();
+        let mut enc_transferred_value = EncodeScope::from(scope.take(32));
+        scale::Encode::encode_to(&params.transferred_value(), &mut enc_transferred_value);
+        let enc_transferred_value: &mut [u8; 32] =
+            enc_transferred_value.into_buffer().try_into().unwrap();
         let call_flags = params.call_flags();
         let enc_input = if !call_flags.contains(CallFlags::FORWARD_INPUT)
             && !call_flags.contains(CallFlags::CLONE_INPUT)
@@ -464,7 +496,7 @@ impl TypedEnvBackend for EnvInstance {
             enc_callee,
             ref_time_limit,
             proof_size_limit,
-            storage_deposit_limit,
+            storage_deposit_limit.as_deref(),
             enc_transferred_value,
             enc_input,
             Some(output),
@@ -489,7 +521,8 @@ impl TypedEnvBackend for EnvInstance {
     {
         let mut scope = self.scoped_buffer();
         let call_flags = params.call_flags();
-        let enc_code_hash = scope.take_encoded(params.code_hash());
+        let enc_code_hash: &mut [u8; 32] =
+            scope.take_encoded(params.code_hash()).try_into().unwrap();
         let enc_input = if !call_flags.contains(CallFlags::FORWARD_INPUT)
             && !call_flags.contains(CallFlags::CLONE_INPUT)
         {
@@ -528,26 +561,34 @@ impl TypedEnvBackend for EnvInstance {
         let mut scoped = self.scoped_buffer();
         let ref_time_limit = params.ref_time_limit();
         let proof_size_limit = params.proof_size_limit();
-        let storage_deposit_limit = params
-            .storage_deposit_limit()
-            .map(|limit| &*scoped.take_encoded(limit));
-        let enc_code_hash = scoped.take_encoded(params.code_hash());
-        let enc_endowment = scoped.take_encoded(params.endowment());
+        let storage_deposit_limit = params.storage_deposit_limit().map(|limit| {
+            let mut enc_storage_limit = EncodeScope::from(scoped.take(32));
+            scale::Encode::encode_to(&limit, &mut enc_storage_limit);
+            let enc_storage_limit: &mut [u8; 32] =
+                enc_storage_limit.into_buffer().try_into().unwrap();
+            enc_storage_limit
+        });
+        let enc_code_hash: &mut [u8; 32] =
+            scoped.take_encoded(params.code_hash()).try_into().unwrap();
+        let mut enc_endowment = EncodeScope::from(scoped.take(32));
+        scale::Encode::encode_to(&params.endowment(), &mut enc_endowment);
+        let enc_endowment: &mut [u8; 32] =
+            enc_endowment.into_buffer().try_into().unwrap();
         let enc_input = scoped.take_encoded(params.exec_input());
-        let out_address = &mut scoped.take_max_encoded_len::<E::AccountId>();
-        let salt = params.salt_bytes().as_ref();
+        let out_address: &mut [u8; 20] = scoped.take(20).try_into().unwrap();
+        let salt: &[u8; 32] = params.salt_bytes().as_ref().try_into().unwrap();
         let out_return_value = &mut scoped.take_rest();
 
         let instantiate_result = ext::instantiate(
             enc_code_hash,
             ref_time_limit,
             proof_size_limit,
-            storage_deposit_limit,
+            storage_deposit_limit.as_deref(),
             enc_endowment,
             enc_input,
             Some(out_address),
             Some(out_return_value),
-            salt,
+            Some(salt),
         );
 
         crate::engine::decode_instantiate_result::<_, E, ContractRef, RetType>(
@@ -561,7 +602,11 @@ impl TypedEnvBackend for EnvInstance {
     where
         E: Environment,
     {
-        let buffer = self.scoped_buffer().take_encoded(&beneficiary);
+        let buffer: &mut [u8; 20] = self
+            .scoped_buffer()
+            .take_encoded(&beneficiary)[0..20].as_mut()
+            .try_into()
+            .unwrap();
         ext::terminate(buffer);
     }
 
@@ -570,15 +615,22 @@ impl TypedEnvBackend for EnvInstance {
         E: Environment,
     {
         let mut scope = self.scoped_buffer();
-        let enc_destination = scope.take_encoded(&destination);
-        let enc_value = scope.take_encoded(&value);
+        let enc_destination: &mut [u8; 20] = scope.take_encoded(&destination)[..20].as_mut().try_into().unwrap();
+        let enc_value = scope.take(32);
+        let mut encode_scope = EncodeScope::from(enc_value);
+        scale::Encode::encode_to(&value, &mut encode_scope);
+        let enc_value: &mut [u8; 32] = array_mut_ref!(encode_scope.into_buffer(), 0, 32);
         ext::transfer(enc_destination, enc_value).map_err(Into::into)
     }
 
     fn weight_to_fee<E: Environment>(&mut self, gas: u64) -> E::Balance {
-        let mut result = <E::Balance as FromLittleEndian>::Bytes::default();
+        let mut scope = self.scoped_buffer();
+        let u256: &mut [u8; 32] = scope.take(32).try_into().unwrap();
         // TODO: needs ref and proof
-        ext::weight_to_fee(gas, gas, &mut result.as_mut());
+        ext::weight_to_fee(gas, gas, u256);
+        let mut result = <E::Balance as FromLittleEndian>::Bytes::default();
+        let len = result.as_ref().len();
+        result.as_mut().copy_from_slice(&u256[..len]);
         <E::Balance as FromLittleEndian>::from_le_bytes(result)
     }
 
@@ -587,7 +639,8 @@ impl TypedEnvBackend for EnvInstance {
         E: Environment,
     {
         let mut scope = self.scoped_buffer();
-        let enc_account_id = scope.take_encoded(account_id);
+        let enc_account_id: &mut [u8; 20] =
+            scope.take_encoded(account_id)[..20].as_mut().try_into().unwrap();
         ext::is_contract(enc_account_id)
     }
 
@@ -603,10 +656,9 @@ impl TypedEnvBackend for EnvInstance {
         E: Environment,
     {
         let mut scope = self.scoped_buffer();
-        let output = scope.take_max_encoded_len::<E::Hash>();
-        scope.append_encoded(account_id);
-        let enc_account_id = scope.take_appended();
-
+        let enc_account_id: &mut [u8; 20] = scope.take_encoded(account_id)[..20].as_mut().try_into().unwrap();
+        let output: &mut [u8; 32] =
+            scope.take_max_encoded_len::<E::Hash>().try_into().unwrap();
         ext::code_hash(enc_account_id, output)?;
         let hash = scale::Decode::decode(&mut &output[..])?;
         Ok(hash)
@@ -616,7 +668,11 @@ impl TypedEnvBackend for EnvInstance {
     where
         E: Environment,
     {
-        let output = &mut self.scoped_buffer().take_max_encoded_len::<E::Hash>();
+        let output: &mut [u8; 32] = &mut self
+            .scoped_buffer()
+            .take_max_encoded_len::<E::Hash>()
+            .try_into()
+            .unwrap();
         ext::own_code_hash(output);
         let hash = scale::Decode::decode(&mut &output[..])?;
         Ok(hash)
@@ -637,7 +693,8 @@ impl TypedEnvBackend for EnvInstance {
         E: Environment,
     {
         let mut scope = self.scoped_buffer();
-        let enc_code_hash = scope.take_encoded(code_hash);
+        let enc_code_hash: &mut [u8; 32] =
+            scope.take_encoded(code_hash).try_into().unwrap();
         ext::lock_delegate_dependency(enc_code_hash)
     }
 
@@ -646,7 +703,8 @@ impl TypedEnvBackend for EnvInstance {
         E: Environment,
     {
         let mut scope = self.scoped_buffer();
-        let enc_code_hash = scope.take_encoded(code_hash);
+        let enc_code_hash: &mut [u8; 32] =
+            scope.take_encoded(code_hash).try_into().unwrap();
         ext::unlock_delegate_dependency(enc_code_hash)
     }
 
@@ -657,8 +715,8 @@ impl TypedEnvBackend for EnvInstance {
     {
         let mut scope = self.scoped_buffer();
 
-        // Double encoding the message as the host fn expects an encoded message.
-        let enc_msg = scope.take_encoded(&scale::Encode::encode(msg));
+        let enc_msg = scope.take_encoded(msg);
+
         #[allow(deprecated)]
         ext::xcm_execute(enc_msg).map_err(Into::into)
     }
@@ -677,8 +735,7 @@ impl TypedEnvBackend for EnvInstance {
         scope.append_encoded(dest);
         let enc_dest = scope.take_appended();
 
-        // Double encoding the message as the host fn expects an encoded message.
-        scope.append_encoded(&scale::Encode::encode(msg));
+        scope.append_encoded(msg);
         let enc_msg = scope.take_appended();
         #[allow(deprecated)]
         ext::xcm_send(enc_dest, enc_msg, output.try_into().unwrap())?;
