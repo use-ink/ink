@@ -90,7 +90,7 @@ impl Selector {
     /// selector is computed as follows:
     ///
     /// 1. Apply `BLAKE2` 256-bit hash `H` on the bytes of the ASCII representation of
-    ///   the `fn_ident` identifier.
+    ///    the `fn_ident` identifier.
     /// 1. The first 4 bytes of `H` make up the selector.
     ///
     /// # Trait Implementation Blocks
