@@ -136,6 +136,7 @@ impl<T> AtLeast32BitUnsigned for T where T: AtLeast32Bit + Unsigned {}
 
 /// Saturating arithmetic operations, returning maximum or minimum values instead of
 /// overflowing.
+#[allow(dead_code)]
 pub trait Saturating {
     /// Saturating addition. Compute `self + rhs`, saturating at the numeric bounds
     /// instead of overflowing.
