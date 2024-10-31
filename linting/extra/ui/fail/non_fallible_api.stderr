@@ -5,8 +5,7 @@ LL |             let _ = self.map_1.insert(a.clone(), &b);
    |                                ^^^^^^ help: consider using `try_insert`
    |
    = help: for further information visit https://use.ink/linter/rules/non_fallible_api
-   = note: `-D non-fallible-api` implied by `-D warnings`
-   = help: to override `-D warnings` add `#[allow(non_fallible_api)]`
+   = note: `#[warn(non_fallible_api)]` on by default
 
 warning: using a non-fallible `Mapping::get` with an argument that may not fit into the static buffer
   --> $DIR/non_fallible_api.rs:48:32
@@ -96,5 +95,5 @@ LL |             self.vec_1.push(&a.clone());
    |
    = help: for further information visit https://use.ink/linter/rules/non_fallible_api
 
-error: aborting due to 12 previous errors
+warning: 12 warnings emitted
 
