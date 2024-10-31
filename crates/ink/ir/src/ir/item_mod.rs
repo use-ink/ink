@@ -240,10 +240,10 @@ impl ItemMod {
     }
 
     /// Ensures that:
-    /// - At most one wildcard selector exists among ink! messages, as well as
-    ///   ink! constructors.
-    /// - Where a wildcard selector is defined for a message, at most one other
-    ///   message is defined which must have a well known selector.
+    /// - At most one wildcard selector exists among ink! messages, as well as ink!
+    ///   constructors.
+    /// - Where a wildcard selector is defined for a message, at most one other message is
+    ///   defined which must have a well known selector.
     fn ensure_valid_wildcard_selector_usage(
         items: &[ir::Item],
     ) -> Result<(), syn::Error> {
