@@ -18,7 +18,7 @@ note: if you're trying to build a new `Contract` consider using one of the follo
 19 |         fn constructor_impl() -> Self {
    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    = help: items from traits can only be used if the trait is in scope
-help: the following trait is implemented but not in scope; perhaps add a `use` for it:
+help: trait `StaticEnv` which provides `env` is implemented but not in scope; perhaps you want to import it
    |
 1  + use ink::codegen::StaticEnv;
    |
