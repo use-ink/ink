@@ -15,7 +15,7 @@ include = ["Cargo.toml", "*.rs", "LICENSE"]
 
 [dependencies]
 if_chain = "1.0.2"
-parity_clippy_utils = { package = "clippy_utils", git = "https://github.com/rust-lang/rust-clippy", rev = "a109190d7060236e655fc75533373fa274ec5343" }
+parity_clippy_utils = { package = "clippy_utils", git = "https://github.com/rust-lang/rust-clippy", rev = "9aa23b8317de0fe68415f120b1cbf589fcf3d052" }
 
 [package.metadata.rust-analyzer]
 rustc_private = true
