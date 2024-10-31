@@ -161,6 +161,7 @@ mod decode_instantiate_result_tests {
     struct ContractError(String);
 
     type AccountId = <DefaultEnvironment as Environment>::AccountId;
+    #[allow(dead_code)]
     struct TestContractRef(AccountId);
 
     impl crate::ContractEnv for TestContractRef {
