@@ -270,6 +270,7 @@ jobs:
           # we are using a toolchain file in this directory
           # add required components for CI
           rustup component add rustfmt clippy
+          rustup component add rust-src rustc-dev llvm-tools-preview
           cargo check --verbose
           cargo +nightly fmt --all -- --check
           cargo clippy -- -D warnings;
