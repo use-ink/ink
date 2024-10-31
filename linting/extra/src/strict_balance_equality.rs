@@ -295,7 +295,7 @@ impl Visitor<'_> for TransferFunction<'_, '_> {
             // Direct comparison with the balance or propagation to a value tainted with
             // some operation with the balance
             Rvalue::BinaryOp(binop, box (lhs, rhs))
-            | Rvalue::CheckedBinaryOp(binop, box (lhs, rhs))
+
                 if self.binop_strict_eq(binop) || self.binop_other(binop) =>
             {
                 if tainted_with_balance(self.state, lhs).is_some()
