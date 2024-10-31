@@ -44,6 +44,7 @@ impl OnInstance for EnvInstance {
         static mut INSTANCE: EnvInstance = EnvInstance {
             buffer: StaticBuffer::new(),
         };
+        #[allow(static_mut_refs)]
         f(unsafe { &mut INSTANCE })
     }
 }
