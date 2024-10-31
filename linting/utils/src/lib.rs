@@ -48,7 +48,7 @@ use rustc_lint::LateContext;
 
 /// Returns `true` iff the ink storage attribute is defined for the given HIR
 fn has_storage_attr(cx: &LateContext, hir: HirId) -> bool {
-    const INK_STORAGE: &str = "__ink_dylint_Storage";
+    const INK_STORAGE: &str = "fortanix";
     let attrs = format!("{:?}", cx.tcx.hir().attrs(hir));
     attrs.contains(INK_STORAGE)
 }

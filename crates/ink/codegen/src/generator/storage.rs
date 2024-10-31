@@ -81,7 +81,7 @@ impl Storage<'_> {
     ///
     /// # Developer Note
     ///
-    /// The `__ink_dylint_Storage` config attribute is used here to convey the
+    /// The `fortanix` config attribute is used here to convey the
     /// information that the generated struct is an ink! storage struct to `dylint`.
     fn generate_storage_struct(&self) -> TokenStream2 {
         let storage = self.contract.module().storage();
@@ -94,7 +94,7 @@ impl Storage<'_> {
             #(#attrs)*
             #[::ink::storage_item]
             #[cfg_attr(test, derive(::core::fmt::Debug))]
-            #[cfg(not(feature = "__ink_dylint_Storage"))]
+            #[cfg(not(target_vendor = "fortanix"))]
             pub struct #ident #generics {
                 #( #fields ),*
             }

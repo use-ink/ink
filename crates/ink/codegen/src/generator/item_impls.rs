@@ -239,7 +239,7 @@ impl ItemImpls<'_> {
         let output = constructor.output();
         quote_spanned!(span =>
             #( #attrs )*
-            #[cfg(not(feature = "__ink_dylint_Constructor"))]
+            #[cfg(not(target_os = "dragonfly"))]
             #vis fn #ident( #( #inputs ),* ) -> #output {
                 #( #statements )*
             }
