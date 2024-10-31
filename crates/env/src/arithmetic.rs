@@ -195,53 +195,26 @@ mod tests {
 
     #[test]
     fn saturating_add() {
-        assert_eq!(
-            u64::MAX,
-            Saturating::saturating_add(u64::MAX, 1)
-        )
+        assert_eq!(u64::MAX, Saturating::saturating_add(u64::MAX, 1))
     }
 
     #[test]
     fn saturatiung_sub() {
-        assert_eq!(
-            u64::MIN,
-            Saturating::saturating_sub(u64::MIN, 1)
-        )
+        assert_eq!(u64::MIN, Saturating::saturating_sub(u64::MIN, 1))
     }
 
     #[test]
     fn saturating_mul() {
-        assert_eq!(
-            u64::MAX,
-            Saturating::saturating_mul(u64::MAX, 2)
-        );
-        assert_eq!(
-            i64::MAX,
-            Saturating::saturating_mul(i64::MAX, 2)
-        );
-        assert_eq!(
-            i64::MIN,
-            Saturating::saturating_mul(i64::MIN, 2)
-        );
-        assert_eq!(
-            i64::MIN,
-            Saturating::saturating_mul(2, i64::MIN)
-        );
+        assert_eq!(u64::MAX, Saturating::saturating_mul(u64::MAX, 2));
+        assert_eq!(i64::MAX, Saturating::saturating_mul(i64::MAX, 2));
+        assert_eq!(i64::MIN, Saturating::saturating_mul(i64::MIN, 2));
+        assert_eq!(i64::MIN, Saturating::saturating_mul(2, i64::MIN));
     }
 
     #[test]
     fn saturating_pow() {
-        assert_eq!(
-            u64::MAX,
-            Saturating::saturating_pow(u64::MAX, 2)
-        );
-        assert_eq!(
-            i64::MAX,
-            Saturating::saturating_pow(i64::MIN, 2)
-        );
-        assert_eq!(
-            i64::MIN,
-            Saturating::saturating_pow(i64::MIN, 3)
-        );
+        assert_eq!(u64::MAX, Saturating::saturating_pow(u64::MAX, 2));
+        assert_eq!(i64::MAX, Saturating::saturating_pow(i64::MIN, 2));
+        assert_eq!(i64::MIN, Saturating::saturating_pow(i64::MIN, 3));
     }
 }
