@@ -11,5 +11,7 @@ runs:
         cargo spellcheck --version
         bash --version
         substrate-contracts-node --version
+
+        cargo install --git https://github.com/paritytech/cargo-contract --locked --branch master --force
         cargo-contract --version
       shell: bash
