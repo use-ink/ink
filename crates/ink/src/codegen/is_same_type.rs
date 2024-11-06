@@ -43,3 +43,9 @@ impl<T> IsSameType<T> {
         }
     }
 }
+
+impl<T> Default for IsSameType<T> {
+    fn default() -> Self {
+        Self::new()
+    }
+}

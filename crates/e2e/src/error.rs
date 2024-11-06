@@ -79,6 +79,7 @@ pub struct SandboxErr {
 
 impl SandboxErr {
     /// Create a new `SandboxErr` with the given message.
+    #[allow(dead_code)]
     pub fn new(msg: String) -> Self {
         Self { msg }
     }
