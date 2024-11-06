@@ -12,6 +12,13 @@ runs:
         bash --version
         substrate-contracts-node --version
 
+        # TODO: The installation of `cargo-contract` here can be removed after
+        # a new image of https://hub.docker.com/r/paritytech/ci-unified/tags has
+        # been published. At the time of this commit the Docker image is from
+        # Sep 11, 2024. This means that the `cargo-contract` binary in the image
+        # is also that old. There was a bug with `cargo-contract` erring on
+        # newer Rust versions (https://github.com/use-ink/cargo-contract/pull/1786),
+        # hence we make sure to use the latest `cargo-contract` here.
         cargo install --git https://github.com/paritytech/cargo-contract --locked --branch master --force
         cargo-contract --version
       shell: bash
