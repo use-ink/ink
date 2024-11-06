@@ -1,4 +1,4 @@
-// Copyright (C) Parity Technologies (UK) Ltd.
+// Copyright (C) Use Ink (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -40,8 +40,7 @@ impl ExtError for syn::Error {
 ///
 /// On stable Rust this might yield higher quality error span information to the user
 /// than [`format_err`](`crate::format_err`).
-/// - Source:
-/// [`syn::Error::new_spanned`](https://docs.rs/syn/1.0.33/syn/struct.Error.html#method.new_spanned)
+/// - Source: [`syn::Error::new_spanned`](https://docs.rs/syn/1.0.33/syn/struct.Error.html#method.new_spanned)
 /// - Tracking issue: [`#54725`](https://github.com/rust-lang/rust/issues/54725)
 #[macro_export]
 macro_rules! format_err_spanned {
@@ -51,6 +50,21 @@ macro_rules! format_err_spanned {
             format_args!($($msg)*)
         )
     }
+}
+
+/// Creates a [`syn::Error`] with the format message and infers the
+/// [`Span`](`proc_macro2::Span`) using the [`ToTokens`](`quote::ToTokens`) implementation
+/// for the [`MetaValue`][crate::ast::MetaValue] (if possible).
+///
+/// See [`format_err_spanned`] for more details.
+macro_rules! format_err_spanned_value {
+    ($arg:expr, $($msg:tt)*) => {
+        if let Some(value) = $arg.value() {
+            format_err_spanned!(value, $($msg)*)
+        } else {
+            format_err_spanned!($arg, $($msg)*)
+        }
+    };
 }
 
 /// Creates a [`syn::Error`] with the format message and infers the
@@ -66,8 +80,7 @@ macro_rules! format_err_spanned {
 ///
 /// On stable Rust this might yield worse error span information to the user
 /// than [`format_err_spanned`].
-/// - Source:
-/// [`syn::Error::new_spanned`](https://docs.rs/syn/1.0.33/syn/struct.Error.html#method.new_spanned)
+/// - Source: [`syn::Error::new_spanned`](https://docs.rs/syn/1.0.33/syn/struct.Error.html#method.new_spanned)
 /// - Tracking issue: [`#54725`](https://github.com/rust-lang/rust/issues/54725)
 #[macro_export]
 macro_rules! format_err {

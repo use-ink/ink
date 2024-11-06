@@ -1,4 +1,4 @@
-// Copyright (C) Parity Technologies (UK) Ltd.
+// Copyright (C) Use Ink (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -57,31 +57,41 @@ impl TryFrom<ast::AttributeArgs> for TraitDefinitionConfig {
         let mut namespace: Option<(syn::LitStr, ast::MetaNameValue)> = None;
         let mut whitelisted_attributes = WhitelistedAttributes::default();
         for arg in args.into_iter() {
-            if arg.name.is_ident("namespace") {
+            if arg.name().is_ident("namespace") {
                 if let Some((_, meta_name_value)) = namespace {
                     return Err(duplicate_config_err(
                         meta_name_value,
                         arg,
                         "namespace",
                         "trait definition",
-                    ))
+                    ));
                 }
-                if let ast::MetaValue::Lit(syn::Lit::Str(lit_str)) = &arg.value {
+                let namespace_info = arg
+                    .name_value()
+                    .zip(arg.value().and_then(ast::MetaValue::as_lit_string));
+                if let Some((name_value, lit_str)) = namespace_info {
                     if syn::parse_str::<syn::Ident>(&lit_str.value()).is_err() {
                         return Err(format_err_spanned!(
                             lit_str,
                             "encountered invalid Rust identifier for the ink! namespace configuration parameter"
                         ));
                     }
-                    namespace = Some((lit_str.clone(), arg))
+                    namespace = Some((lit_str.clone(), name_value.clone()))
                 } else {
                     return Err(format_err_spanned!(
                         arg,
-                        "expected a string literal for `namespace` ink! trait definition configuration argument",
+                        "expected a string literal value for `namespace` ink! trait definition configuration argument",
                     ));
                 }
-            } else if arg.name.is_ident("keep_attr") {
-                whitelisted_attributes.parse_arg_value(&arg)?;
+            } else if arg.name().is_ident("keep_attr") {
+                if let Some(name_value) = arg.name_value() {
+                    whitelisted_attributes.parse_arg_value(name_value)?;
+                } else {
+                    return Err(format_err_spanned!(
+                        arg,
+                        "expected a string literal value for `keep_attr` ink! configuration argument",
+                    ));
+                }
             } else {
                 return Err(format_err_spanned!(
                     arg,

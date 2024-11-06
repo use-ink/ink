@@ -1,0 +1,35 @@
+warning: using `#[ink(topic)]` for a field with a primitive number type
+  --> $DIR/primitive_topic.rs:13:9
+   |
+LL |         value_1: u8,
+   |         ^^^^^^^^^^^ help: consider removing `#[ink(topic)]`: `value_1: u8`
+   |
+   = help: for further information visit https://use.ink/linter/rules/primitive_topic
+   = note: `#[warn(primitive_topic)]` on by default
+
+warning: using `#[ink(topic)]` for a field with a primitive number type
+  --> $DIR/primitive_topic.rs:16:9
+   |
+LL |         value_2: Balance,
+   |         ^^^^^^^^^^^^^^^^ help: consider removing `#[ink(topic)]`: `value_2: Balance`
+   |
+   = help: for further information visit https://use.ink/linter/rules/primitive_topic
+
+warning: using `#[ink(topic)]` for a field with a primitive number type
+  --> $DIR/primitive_topic.rs:19:9
+   |
+LL |         value_3: crate::TyAlias1,
+   |         ^^^^^^^^^^^^^^^^^^^^^^^^ help: consider removing `#[ink(topic)]`: `value_3: crate::TyAlias1`
+   |
+   = help: for further information visit https://use.ink/linter/rules/primitive_topic
+
+warning: using `#[ink(topic)]` for a field with a primitive number type
+  --> $DIR/primitive_topic.rs:22:9
+   |
+LL |         value_4: crate::TyAlias2,
+   |         ^^^^^^^^^^^^^^^^^^^^^^^^ help: consider removing `#[ink(topic)]`: `value_4: crate::TyAlias2`
+   |
+   = help: for further information visit https://use.ink/linter/rules/primitive_topic
+
+warning: 4 warnings emitted
+

@@ -1,4 +1,4 @@
-// Copyright (C) Parity Technologies (UK) Ltd.
+// Copyright (C) Use Ink (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -19,8 +19,6 @@ mod types;
 
 #[cfg(test)]
 mod tests;
-
-pub use call_data::CallData;
 
 use super::OnInstance;
 use crate::Error;

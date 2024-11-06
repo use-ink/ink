@@ -1,4 +1,4 @@
-// Copyright (C) Parity Technologies (UK) Ltd.
+// Copyright (C) Use Ink (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -70,7 +70,10 @@ pub use self::{
     },
     config::Config,
     contract::Contract,
-    event::Event,
+    event::{
+        Event,
+        SignatureTopicArg,
+    },
     ink_test::InkTest,
     item::{
         InkItem,

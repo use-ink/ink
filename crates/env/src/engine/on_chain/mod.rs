@@ -1,4 +1,4 @@
-// Copyright (C) Parity Technologies (UK) Ltd.
+// Copyright (C) Use Ink (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -13,16 +13,12 @@
 // limitations under the License.
 
 mod buffer;
-mod ext;
 mod impls;
 
-use self::{
-    buffer::{
-        EncodeScope,
-        ScopedBuffer,
-        StaticBuffer,
-    },
-    ext::Error,
+use self::buffer::{
+    EncodeScope,
+    ScopedBuffer,
+    StaticBuffer,
 };
 use super::OnInstance;
 
@@ -48,6 +44,7 @@ impl OnInstance for EnvInstance {
         static mut INSTANCE: EnvInstance = EnvInstance {
             buffer: StaticBuffer::new(),
         };
+        #[allow(static_mut_refs)]
         f(unsafe { &mut INSTANCE })
     }
 }

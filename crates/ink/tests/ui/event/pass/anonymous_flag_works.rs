@@ -1,4 +1,4 @@
-#[ink::event(anonymous = true)]
+#[ink::event(anonymous)]
 pub struct Event {
     #[ink(topic)]
     pub topic: [u8; 32],

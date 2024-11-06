@@ -1,4 +1,4 @@
-// Copyright (C) Parity Technologies (UK) Ltd.
+// Copyright (C) Use Ink (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -48,6 +48,7 @@ pub use self::{
         generate_reference_to_trait_info,
         input_bindings,
         input_bindings_tuple,
+        input_message_idents,
         input_types,
         input_types_tuple,
         output_ident,
@@ -61,7 +62,10 @@ pub use self::{
     event::Event,
     ink_test::InkTest,
     item_impls::ItemImpls,
-    metadata::Metadata,
+    metadata::{
+        generate_type_spec,
+        Metadata,
+    },
     selector::{
         SelectorBytes,
         SelectorId,

@@ -1,7 +1,7 @@
 [package]
 name = "ink_storage"
 version.workspace = true
-authors = ["Parity Technologies <admin@parity.io>", "Robin Freyler <robin@parity.io>"]
+authors = ["Use Ink <ink@use.ink>"]
 edition.workspace = true
 
 license.workspace = true
@@ -20,8 +20,9 @@ ink_metadata = { workspace = true, optional = true }
 ink_primitives = { workspace = true }
 ink_storage_traits = { workspace = true }
 ink_prelude = { workspace = true }
+pallet-contracts-uapi = { workspace = true}
 
-scale = { package = "parity-scale-codec", workspace = true }
+scale = { workspace = true }
 derive_more = { workspace = true, features = ["from", "display"] }
 scale-info = { workspace = true, features = ["derive"], optional = true }
 cfg-if = { workspace = true }
@@ -35,14 +36,14 @@ itertools = { workspace = true, default-features = true }
 ink = { path = "../ink"}
 
 [features]
-default = ["std"]
+default = [ "std" ]
 std = [
-    "ink_metadata/std",
-    "ink_env/std",
-    "ink_prelude/std",
-    "ink_primitives/std",
-    "ink_storage_traits/std",
-    "scale/std",
-    "scale-info/std",
+	"ink_env/std",
+	"ink_metadata/std",
+	"ink_prelude/std",
+	"ink_primitives/std",
+	"ink_storage_traits/std",
+	"scale-info/std",
+	"scale/std",
 ]
-ink-fuzz-tests = ["std"]
+ink-fuzz-tests = [ "std" ]

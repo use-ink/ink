@@ -1,4 +1,4 @@
-// Copyright (C) Parity Technologies (UK) Ltd.
+// Copyright (C) Use Ink (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -127,6 +127,7 @@ pub trait Environment: Clone {
     /// The account id type.
     type AccountId: 'static
         + scale::Codec
+        + scale::MaxEncodedLen
         + CodecAsType
         + Clone
         + PartialEq
@@ -149,6 +150,7 @@ pub trait Environment: Clone {
     /// The type of hash.
     type Hash: 'static
         + scale::Codec
+        + scale::MaxEncodedLen
         + CodecAsType
         + Copy
         + Clone
@@ -187,7 +189,7 @@ pub trait Environment: Clone {
     /// macro. For more information about usage and definition click
     /// [this][chain_extension] link.
     ///
-    /// [chain_extension]: https://paritytech.github.io/ink/ink/attr.chain_extension.html
+    /// [chain_extension]: https://use-ink.github.io/ink/ink/attr.chain_extension.html
     type ChainExtension;
 }
 

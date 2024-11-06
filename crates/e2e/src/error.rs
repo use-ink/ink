@@ -1,4 +1,4 @@
-// Copyright (C) Parity Technologies (UK) Ltd.
+// Copyright (C) Use Ink (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use pallet_contracts_primitives::ContractExecResult;
+use pallet_contracts::ContractExecResult;
 
 use std::fmt;
 
@@ -44,6 +44,9 @@ pub enum Error<DispatchError: fmt::Debug + fmt::Display> {
     /// The `call` extrinsic failed.
     #[error("Call extrinsic error: {0}")]
     CallExtrinsic(DispatchError),
+    /// The `remove_code` extrinsic failed.
+    #[error("Remove code extrinsic error: {0}")]
+    RemoveCodeExtrinsic(DispatchError),
     /// Error fetching account balance.
     #[error("Fetching account Balance error: {0}")]
     Balance(String),
@@ -68,20 +71,36 @@ where
     }
 }
 
-/// Dummy error type for drink!
-///
-/// todo: https://github.com/Cardinal-Cryptography/drink/issues/32
+/// Dummy error type for sandbox_client
 #[derive(Debug, thiserror::Error)]
-pub struct DrinkErr;
+pub struct SandboxErr {
+    msg: String,
+}
 
-impl fmt::Display for DrinkErr {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "DrinkErr")
+impl SandboxErr {
+    /// Create a new `SandboxErr` with the given message.
+    #[allow(dead_code)]
+    pub fn new(msg: String) -> Self {
+        Self { msg }
     }
 }
 
-impl<Balance> From<ContractExecResult<Balance, ()>> for DrinkErr {
+impl From<String> for SandboxErr {
+    fn from(msg: String) -> Self {
+        Self { msg }
+    }
+}
+
+impl fmt::Display for SandboxErr {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "SandboxErr: {}", self.msg)
+    }
+}
+
+impl<Balance> From<ContractExecResult<Balance, ()>> for SandboxErr {
     fn from(_value: ContractExecResult<Balance, ()>) -> Self {
-        Self {}
+        Self {
+            msg: "ContractExecResult".to_string(),
+        }
     }
 }

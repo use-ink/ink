@@ -10,16 +10,16 @@ You can find the crate documentation on docs.rs or for our
 `master` branch under GitHub pages. So for `ink` e.g.:
 
 * [https://docs.rs/ink/latest/ink](https://docs.rs/ink/latest/ink) (latest published release)
-* [https://paritytech.github.io/ink/ink](https://paritytech.github.io/ink/ink) (`master`)
+* [https://use-ink.github.io/ink/ink](https://use-ink.github.io/ink/ink) (`master`)
 
 ink! is composed of a number of crates that are all found in the
 `crates/` folder. On a high-level those can be grouped as:
 
-* [`ink`](https://github.com/paritytech/ink/tree/master/crates/ink):
+* [`ink`](https://github.com/use-ink/ink/tree/master/crates/ink):
   The ink! language itself.
-* [`allocator`](https://github.com/paritytech/ink/tree/master/crates/allocator):
+* [`allocator`](https://github.com/use-ink/ink/tree/master/crates/allocator):
   The allocator used for dynamic memory allocation in a contract.
-* [`env`](https://github.com/paritytech/ink/tree/master/crates/env):
+* [`env`](https://github.com/use-ink/ink/tree/master/crates/env):
   Serves two roles:
   * Exposes environmental functions, like information about the caller
     of a contract call or e.g. self-terminating the contract.
@@ -27,23 +27,23 @@ ink! is composed of a number of crates that are all found in the
     so anything that calls into the underlying execution engine of the smart contract.
     This includes getting and setting a smart contracts storage, as well
     as the mentioned environmental functions.
-* [`metadata`](https://github.com/paritytech/ink/tree/master/crates/metadata):
+* [`metadata`](https://github.com/use-ink/ink/tree/master/crates/metadata):
   Describes the contract in a platform agnostic way, i.e. its interface
   and the types, its storage layout, etc.
-* [`prelude`](https://github.com/paritytech/ink/tree/master/crates/prelude):
+* [`prelude`](https://github.com/use-ink/ink/tree/master/crates/prelude):
   Provides an interface to typical standard library types and
   functionality (like `vec` or `string`). Since contracts are run in a
   `no_std` environment we provide this crate as an entrypoint for accessing
   functionality of the standard library.
-* [`primitives`](https://github.com/paritytech/ink/tree/master/crates/primitives):
+* [`primitives`](https://github.com/use-ink/ink/tree/master/crates/primitives):
   Utilities that are used internally by multiple ink! crates.
-* [`storage`](https://github.com/paritytech/ink/tree/master/crates/storage):
+* [`storage`](https://github.com/use-ink/ink/tree/master/crates/storage):
   The collections that are available for contract developers to put in
   a smart contracts storage.
-* [`engine`](https://github.com/paritytech/ink/tree/master/crates/engine):
+* [`engine`](https://github.com/use-ink/ink/tree/master/crates/engine):
   An off-chain testing engine, it simulates a blockchain environment and allows
   mocking specified conditions.
-* [`e2e`](https://github.com/paritytech/ink/tree/master/crates/e2e):
+* [`e2e`](https://github.com/use-ink/ink/tree/master/crates/e2e):
   An end-to-end testing framework for ink! contracts. It requires a Substrate node
   which includes `pallet-contracts` running in the background. The crate provides a
   macro which can be used
@@ -84,7 +84,7 @@ crates on which `ink` relies heavily:
 ## Building ink! contracts
 
 While you can build an ink! smart contract with just `cargo build`, we
-recommend using our build tool [`cargo-contract`](https://github.com/paritytech/cargo-contract).
+recommend using our build tool [`cargo-contract`](https://github.com/use-ink/cargo-contract).
 It automatically compiles for the correct WebAssembly target
 architecture and uses an optimal set of compiler flags.
 
@@ -141,9 +141,9 @@ to move data between the pallet and a smart contract.
 The advantage of a static buffer is that no gas-expensive heap allocations
 are necessary, all allocations are done using simple pointer arithmetic.
 The implementation of this static buffer is found in
-[`ink_env/src/engine/on_chain/buffer.rs`](https://github.com/paritytech/ink/blob/master/crates/env/src/engine/on_chain/buffer.rs).
+[`ink_env/src/engine/on_chain/buffer.rs`](https://github.com/use-ink/ink/blob/master/crates/env/src/engine/on_chain/buffer.rs).
 
-The methods for communicating with the pallet are found in [`ink_env/src/engine/on_chain/impls.rs`](https://github.com/paritytech/ink/blob/master/crates/env/src/engine/on_chain/impls.rs).
+The methods for communicating with the pallet are found in [`ink_env/src/engine/on_chain/impls.rs`](https://github.com/use-ink/ink/blob/master/crates/env/src/engine/on_chain/impls.rs).
 If you look at the implementations you'll see a common pattern of
 
 * SCALE-encoding values on the ink! side in order to pass them as a slice
@@ -153,8 +153,8 @@ If you look at the implementations you'll see a common pattern of
   for contract developers.
 
 ### The pallet API
-The function signature of the `pallet-contracts` API functions is defined in
-[`ink_env/src/engine/on_chain/ext.rs`](https://github.com/paritytech/ink/blob/master/crates/env/src/engine/on_chain/ext.rs).
+Signatures of host API functions are defined in
+[`pallet-contracts-uapi`](https://github.com/paritytech/polkadot-sdk/blob/master/substrate/frame/contracts/uapi/src/host/wasm32.rs).
 You'll see that we import different versions of API functions, something
 like the following excerpt:
 
@@ -203,15 +203,15 @@ type as Ethereum for their `AccountId`.
 
 The `Environment` trait is how ink! knows the concretes types of the chain
 to which the contract will be deployed to.
-Specifically, our `ink_env` crate defines a trait [`Environment`](https://paritytech.github.io/ink/ink_env/trait.Environment.html)
+Specifically, our `ink_env` crate defines a trait [`Environment`](https://use-ink.github.io/ink/ink_env/trait.Environment.html)
 which specifies the types.
 By default, ink! uses the default Substrate types, the `ink_env` crate
 exports an implementation of the `Environment` trait for that:
-[`DefaultEnvironment`](https://paritytech.github.io/ink/ink_env/enum.DefaultEnvironment.html).
+[`DefaultEnvironment`](https://use-ink.github.io/ink/ink_env/enum.DefaultEnvironment.html).
 
 If you are developing for a chain that uses different types than the
 Substrate default types you can configure a different environment in
-the contract macro ([documentation here](https://paritytech.github.io/ink/ink/attr.contract.html#header-arguments)):
+the contract macro ([documentation here](https://use-ink.github.io/ink/ink/attr.contract.html#header-arguments)):
 
 ```rust
 #[ink::contract(env = MyCustomTypes)]

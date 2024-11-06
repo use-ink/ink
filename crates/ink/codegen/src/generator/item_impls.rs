@@ -1,4 +1,4 @@
-// Copyright (C) Parity Technologies (UK) Ltd.
+// Copyright (C) Use Ink (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -227,8 +227,14 @@ impl ItemImpls<'_> {
     ///
     /// # Developer Note
     ///
-    /// The `__ink_dylint_Constructor` config attribute is used here to convey the
+    /// The `dragonfly` config attribute is used here to convey the
     /// information that the generated function is an ink! constructor to `dylint`.
+    ///
+    ///
+    /// We decided on this attribute to mark the function, as it has to be a
+    /// key-value pair that is well known to `cargo`. dragonfly seems like an
+    /// obscure target which it is highly unlikely that someone will ever
+    /// compile a contract for.
     fn generate_inherent_constructor(constructor: &ir::Constructor) -> TokenStream2 {
         let span = constructor.span();
         let attrs = constructor.attrs();
@@ -239,7 +245,7 @@ impl ItemImpls<'_> {
         let output = constructor.output();
         quote_spanned!(span =>
             #( #attrs )*
-            #[cfg(not(feature = "__ink_dylint_Constructor"))]
+            #[cfg(not(target_os = "dragonfly"))]
             #vis fn #ident( #( #inputs ),* ) -> #output {
                 #( #statements )*
             }

@@ -1,4 +1,4 @@
-// Copyright (C) Parity Technologies (UK) Ltd.
+// Copyright (C) Use Ink (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -50,7 +50,7 @@ use ink_env::{
     Environment,
 };
 use jsonrpsee::core::async_trait;
-use pallet_contracts_primitives::ContractResult;
+use pallet_contracts::ContractResult;
 use scale::{
     Decode,
     Encode,
@@ -73,7 +73,10 @@ use crate::{
 };
 use subxt::{
     blocks::ExtrinsicEvents,
-    config::ExtrinsicParams,
+    config::{
+        DefaultExtrinsicParams,
+        ExtrinsicParams,
+    },
     error::DispatchError,
     events::EventDetails,
     ext::scale_value::{
@@ -114,7 +117,8 @@ where
         From<sr25519::PublicKey> + scale::Codec + serde::de::DeserializeOwned + Debug,
     C::Address: From<sr25519::PublicKey>,
     C::Signature: From<sr25519::Signature>,
-    <C::ExtrinsicParams as ExtrinsicParams<C>>::OtherParams: Default,
+    <C::ExtrinsicParams as ExtrinsicParams<C>>::Params:
+        From<<DefaultExtrinsicParams<C> as ExtrinsicParams<C>>::Params>,
 
     E: Environment,
     E::AccountId: Debug,
@@ -323,7 +327,8 @@ where
     C::Address: From<sr25519::PublicKey>,
     C::Signature: From<sr25519::Signature>,
     C::Address: Send + Sync,
-    <C::ExtrinsicParams as ExtrinsicParams<C>>::OtherParams: Default + Send + Sync,
+    <C::ExtrinsicParams as ExtrinsicParams<C>>::Params:
+        From<<DefaultExtrinsicParams<C> as ExtrinsicParams<C>>::Params>,
 
     E: Environment,
     E::AccountId: Debug + Send + Sync,
@@ -371,7 +376,7 @@ where
         keypair
     }
 
-    async fn balance(
+    async fn free_balance(
         &mut self,
         account: Self::AccountId,
     ) -> Result<Self::Balance, Self::Error> {
@@ -462,13 +467,14 @@ where
     C::Address: From<sr25519::PublicKey>,
     C::Signature: From<sr25519::Signature>,
     C::Address: Send + Sync,
-    <C::ExtrinsicParams as ExtrinsicParams<C>>::OtherParams: Default + Send + Sync,
+    <C::ExtrinsicParams as ExtrinsicParams<C>>::Params:
+        From<<DefaultExtrinsicParams<C> as ExtrinsicParams<C>>::Params>,
 
     E: Environment,
     E::AccountId: Debug + Send + Sync,
     E::Balance:
         Clone + Debug + Send + Sync + From<u128> + scale::HasCompact + serde::Serialize,
-    E::Hash: Debug + Send + scale::Encode,
+    E::Hash: Debug + Send + Sync + scale::Encode,
 {
     async fn bare_instantiate<Contract: Clone, Args: Send + Sync + Encode + Clone, R>(
         &mut self,
@@ -536,6 +542,30 @@ where
         Ok(ret)
     }
 
+    async fn bare_remove_code(
+        &mut self,
+        caller: &Keypair,
+        code_hash: E::Hash,
+    ) -> Result<Self::EventLog, Self::Error> {
+        let tx_events = self.api.remove_code(caller, code_hash).await;
+
+        for evt in tx_events.iter() {
+            let evt = evt.unwrap_or_else(|err| {
+                panic!("unable to unwrap event: {err:?}");
+            });
+
+            if is_extrinsic_failed_event(&evt) {
+                let metadata = self.api.client.metadata();
+                let dispatch_error =
+                    DispatchError::decode_from(evt.field_bytes(), metadata)
+                        .map_err(|e| Error::Decoding(e.to_string()))?;
+                return Err(Error::RemoveCodeExtrinsic(dispatch_error))
+            }
+        }
+
+        Ok(tx_events)
+    }
+
     async fn bare_call<Args: Sync + Encode + Clone, RetType: Send + Decode>(
         &mut self,
         caller: &Keypair,
@@ -571,7 +601,7 @@ where
             if is_extrinsic_failed_event(&evt) {
                 let metadata = self.api.client.metadata();
                 let dispatch_error =
-                    subxt::error::DispatchError::decode_from(evt.field_bytes(), metadata)
+                    DispatchError::decode_from(evt.field_bytes(), metadata)
                         .map_err(|e| Error::Decoding(e.to_string()))?;
                 log_error(&format!("extrinsic for call failed: {dispatch_error}"));
                 return Err(Error::CallExtrinsic(dispatch_error))
@@ -660,13 +690,14 @@ where
     C::Address: From<sr25519::PublicKey>,
     C::Signature: From<sr25519::Signature>,
     C::Address: Send + Sync,
-    <<C as subxt::Config>::ExtrinsicParams as subxt::config::ExtrinsicParams<C>>::OtherParams: Default + Send + Sync,
+    <C::ExtrinsicParams as ExtrinsicParams<C>>::Params:
+        From<<DefaultExtrinsicParams<C> as ExtrinsicParams<C>>::Params>,
 
     E: Environment,
     E::AccountId: Debug + Send + Sync,
     E::Balance:
         Clone + Debug + Send + Sync + From<u128> + scale::HasCompact + serde::Serialize,
-    E::Hash: Debug + Send + scale::Encode,
+    E::Hash: Debug + Send + Sync + scale::Encode,
 {
 }
 

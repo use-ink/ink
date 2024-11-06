@@ -8,7 +8,6 @@ on:
       - synchronize
     paths-ignore:
       - '**/*.md'
-      - '.gitlab-ci.yml'
       - 'CODEOWNERS'
       - 'LICENSE'
       - 'CODE_OF_CONDUCT.adoc'
@@ -21,19 +20,18 @@ on:
       - v*
     paths-ignore:
       - '**/*.md'
-      - '.gitlab-ci.yml'
       - 'CODEOWNERS'
       - 'LICENSE'
       - 'CODE_OF_CONDUCT.adoc'
       - 'FILE_HEADER'
 
 env:
-  IMAGE:                           paritytech/ci-unified:bullseye-1.73.0
+  IMAGE:                           paritytech/ci-unified:bullseye-1.81.0
   CARGO_TARGET_DIR:                /ci-cache/${{ github.repository }}/targets/${{ github.ref_name }}/${{ github.job }}
   CARGO_INCREMENTAL:               0
   PURELY_STD_CRATES:               ink/codegen metadata engine e2e e2e/macro ink/ir
   ALSO_WASM_CRATES:                env storage storage/traits allocator prelude primitives ink ink/macro
-  # TODO `cargo clippy --verbose --all-targets --all-features` for this crate
+  # TODO `cargo clippy --all-targets --all-features` for this crate
   # currently fails on `stable`, but succeeds on `nightly`. This is due to
   # this fix not yet in stable: https://github.com/rust-lang/rust-clippy/issues/8895.
   # Remove the following line again as soon as `clippy` on stable succeeds again.
@@ -41,9 +39,9 @@ env:
   # We plan to fully support RISC-V as a bytecode for contracts soon.
   # RISC-V does not have a standard library in contrast to Wasm. Compiling against
   # this target also makes sure that we don't pull in `std` by accident (through dependencies).
-  # RISC-V is a modular archtitecture. We might switch to a different flavor with more features
+  # RISC-V is a modular architecture. We might switch to a different flavor with more features
   # later. For example, `riscv32imc-unknown-none-elf`.
-  RISCV_TARGET:                    riscv32i-unknown-none-elf
+  RISCV_TARGET:                    riscv32ema-unknown-none-elf
 
 concurrency:
   # Cancel in-progress jobs triggered only on pull_requests
@@ -71,8 +69,6 @@ jobs:
     needs: [set-image]
     container:
       image: ${{ needs.set-image.outputs.IMAGE }}
-    strategy:
-      fail-fast: false
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -95,8 +91,6 @@ jobs:
     needs: [set-image]
     container:
       image: ${{ needs.set-image.outputs.IMAGE }}
-    strategy:
-      fail-fast: false
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -108,16 +102,17 @@ jobs:
 
       - name: Check Formatting
         run: |
-          cargo +nightly fmt --verbose --all -- --check
+          zepter run check
+          cargo +nightly fmt --all -- --check
           # For the UI tests we need to disable the license check
-          cargo +nightly fmt --verbose --all -- --check ./crates/ink/tests/ui/contract/{pass,fail}/*.rs
-          cargo +nightly fmt --verbose --all -- --check ./crates/ink/tests/ui/trait_def/{pass,fail}/*.rs
+          cargo +nightly fmt --all -- --check ./crates/ink/tests/ui/contract/{pass,fail}/*.rs
+          cargo +nightly fmt --all -- --check ./crates/ink/tests/ui/trait_def/{pass,fail}/*.rs
 
       - name: Check Examples Formatting
         run: |
-          scripts/for_all_contracts_exec.sh --path integration-tests -- cargo +nightly fmt --verbose --manifest-path {} -- --check
+          scripts/for_all_contracts_exec.sh --path integration-tests -- cargo +nightly fmt --manifest-path {} -- --check
           # This file is not a part of the cargo project, so it wouldn't be formatted the usual way
-          rustfmt +nightly --verbose --check ./integration-tests/psp22-extension/runtime/psp22-extension-example.rs
+          rustfmt +nightly --check ./integration-tests/public/psp22-extension/runtime/psp22-extension-example.rs
 
   clippy:
     runs-on: ubuntu-latest
@@ -127,8 +122,6 @@ jobs:
     needs: [set-image]
     container:
       image: ${{ needs.set-image.outputs.IMAGE }}
-    strategy:
-      fail-fast: false
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -136,7 +129,7 @@ jobs:
           fetch-depth: 100
 
       - name: Cache
-        uses: Swatinem/rust-cache@v2
+        uses: Swatinem/rust-cache@23bce251a8cd2ffc3c1075eaa2367cf899916d84 # v2.7.3
         with:
           cache-directories: ${{ env.CARGO_TARGET_DIR }}
 
@@ -147,14 +140,14 @@ jobs:
         run: |
           ALL_CRATES="${PURELY_STD_CRATES} ${ALSO_WASM_CRATES}"
           for crate in ${ALL_CRATES}; do
-            cargo clippy --verbose --all-targets --all-features --manifest-path ./crates/${crate}/Cargo.toml \
+            cargo clippy --all-targets --all-features --manifest-path ./crates/${crate}/Cargo.toml \
               -- -D warnings -A ${CLIPPY_ALLOWED};
           done
 
       - name: Run Clippy for WASM Crates
         run: |
           for crate in ${ALSO_WASM_CRATES}; do
-            cargo clippy --verbose --no-default-features --manifest-path ./crates/${crate}/Cargo.toml --target wasm32-unknown-unknown \
+            cargo clippy --no-default-features --manifest-path ./crates/${crate}/Cargo.toml --target wasm32-unknown-unknown \
               -- -D warnings -A ${CLIPPY_ALLOWED};
           done
 
@@ -177,7 +170,7 @@ jobs:
           fetch-depth: 100
 
       - name: Cache
-        uses: Swatinem/rust-cache@v2
+        uses: Swatinem/rust-cache@23bce251a8cd2ffc3c1075eaa2367cf899916d84 # v2.7.3
         with:
           cache-directories: ${{ env.CARGO_TARGET_DIR }}
 
@@ -187,13 +180,13 @@ jobs:
       - name: Run Clippy for Examples
         if: ${{ matrix.type == 'STD' }}
         run: |
-          scripts/for_all_contracts_exec.sh --path integration-tests -- cargo clippy --verbose --all-targets \
+          scripts/for_all_contracts_exec.sh --path integration-tests -- cargo clippy --all-targets \
             --manifest-path {} -- -D warnings -A $CLIPPY_ALLOWED
 
       - name: Run Clippy for WASM Examples
         if: ${{ matrix.type == 'WASM' }}
         run: |
-          scripts/for_all_contracts_exec.sh --path integration-tests -- cargo clippy --verbose --no-default-features \
+          scripts/for_all_contracts_exec.sh --path integration-tests -- cargo clippy --no-default-features \
             --target wasm32-unknown-unknown --manifest-path {} -- -D warnings -A $CLIPPY_ALLOWED
 
   check:
@@ -215,7 +208,7 @@ jobs:
           fetch-depth: 100
 
       - name: Cache
-        uses: Swatinem/rust-cache@v2
+        uses: Swatinem/rust-cache@23bce251a8cd2ffc3c1075eaa2367cf899916d84 # v2.7.3
         with:
           cache-directories: ${{ env.CARGO_TARGET_DIR }}
 
@@ -227,26 +220,27 @@ jobs:
         run: |
           ALL_CRATES="${PURELY_STD_CRATES} ${ALSO_WASM_CRATES}"
           for crate in ${ALL_CRATES}; do
-            cargo check --verbose --all-features --manifest-path ./crates/${crate}/Cargo.toml;
+            cargo check --all-features --manifest-path ./crates/${crate}/Cargo.toml;
           done
 
       - name: Check WASM
         if: ${{ matrix.type == 'WASM' }}
         run: |
           for crate in ${ALSO_WASM_CRATES}; do
-            cargo check --verbose --no-default-features --target wasm32-unknown-unknown \
+            cargo check --no-default-features --target wasm32-unknown-unknown \
               --manifest-path ./crates/${crate}/Cargo.toml;
-          done        
+          done
 
       - name: Check RISCV
         if: ${{ matrix.type == 'RISCV' }}
         env:
-          RUSTC_BOOTSTRAP:               1
+          RUSTC_BOOTSTRAP: 1
+          RUSTUP_TOOLCHAIN: rve-nightly
         run: |
           for crate in ${ALSO_WASM_CRATES}; do
-            cargo check --verbose --no-default-features --target $RISCV_TARGET -Zbuild-std="core,alloc" \
+            cargo check --no-default-features --target $RISCV_TARGET -Zbuild-std="core,alloc" \
               --manifest-path ./crates/${crate}/Cargo.toml;
-          done       
+          done
 
   dylint:
     runs-on: ubuntu-latest
@@ -256,8 +250,6 @@ jobs:
     needs: [set-image]
     container:
       image: ${{ needs.set-image.outputs.IMAGE }}
-    strategy:
-      fail-fast: false
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -265,7 +257,7 @@ jobs:
           fetch-depth: 100
 
       - name: Cache
-        uses: Swatinem/rust-cache@v2
+        uses: Swatinem/rust-cache@23bce251a8cd2ffc3c1075eaa2367cf899916d84 # v2.7.3
         with:
           cache-directories: ${{ env.CARGO_TARGET_DIR }}
 
@@ -278,12 +270,13 @@ jobs:
           # we are using a toolchain file in this directory
           # add required components for CI
           rustup component add rustfmt clippy
+          rustup component add rust-src rustc-dev llvm-tools-preview
           cargo check --verbose
-          cargo +nightly fmt --verbose --all -- --check
-          cargo clippy --verbose -- -D warnings;
+          cargo +nightly fmt --all -- --check
+          cargo clippy -- -D warnings;
           # Needed until https://github.com/mozilla/sccache/issues/1000 is fixed.
           unset RUSTC_WRAPPER
-          cargo test --verbose --all-features
+          cargo test --all-features
 
 ### workspace
 
@@ -306,7 +299,7 @@ jobs:
           fetch-depth: 100
 
       - name: Cache
-        uses: Swatinem/rust-cache@v2
+        uses: Swatinem/rust-cache@23bce251a8cd2ffc3c1075eaa2367cf899916d84 # v2.7.3
         with:
           cache-directories: ${{ env.CARGO_TARGET_DIR }}
 
@@ -318,19 +311,19 @@ jobs:
         run: |
           ALL_CRATES="${PURELY_STD_CRATES} ${ALSO_WASM_CRATES}"
           for crate in ${ALL_CRATES}; do
-            cargo build --verbose --all-features --release --manifest-path ./crates/${crate}/Cargo.toml;
+            cargo build --all-features --release --manifest-path ./crates/${crate}/Cargo.toml;
           done
 
       - name: Build WASM
         if: ${{ matrix.type == 'WASM' }}
         run: |
           for crate in ${ALSO_WASM_CRATES}; do
-            cargo build --verbose --no-default-features --release --target wasm32-unknown-unknown \
+            cargo build --no-default-features --release --target wasm32-unknown-unknown \
               --manifest-path ./crates/${crate}/Cargo.toml;
           done
 
   test:
-    runs-on: ubuntu-latest-8-cores
+    runs-on: ubuntu-latest
     needs: [set-image, check]
     defaults:
       run:
@@ -339,6 +332,8 @@ jobs:
       image: ${{ needs.set-image.outputs.IMAGE }}
     strategy:
       fail-fast: false
+      matrix:
+        workspace: [ink, linting]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -346,14 +341,16 @@ jobs:
           fetch-depth: 100
 
       - name: Cache
-        uses: Swatinem/rust-cache@v2
+        uses: Swatinem/rust-cache@23bce251a8cd2ffc3c1075eaa2367cf899916d84 # v2.7.3
         with:
-          cache-directories: ${{ env.CARGO_TARGET_DIR }}
+          cache-directories: |
+            ${{ env.CARGO_TARGET_DIR }}
 
       - name: Rust Info
         uses: ./.github/rust-info
 
       - name: Test
+        if: ${{ matrix.workspace == 'ink' }}
         env:
           # Fix for linking of `linkme` for `cargo test`: https://github.com/dtolnay/linkme/issues/49
           RUSTFLAGS:                   -Clink-arg=-z -Clink-arg=nostart-stop-gc
@@ -363,8 +360,21 @@ jobs:
           # at the same time, hence we use this workaround.
           QUICKCHECK_TESTS:            0
         run: |
-          cargo test --verbose --all-features --no-fail-fast --workspace
-          cargo test --verbose --all-features --no-fail-fast --workspace --doc
+          cargo nextest run --all-features --no-fail-fast --workspace --locked
+          cargo test --all-features --no-fail-fast --workspace --doc --locked
+
+      - name: Test Linting
+        if: ${{ matrix.workspace == 'linting' }}
+        env:
+          # Fix for linking of `linkme` for `cargo test`: https://github.com/dtolnay/linkme/issues/49
+          RUSTFLAGS:                   -Clink-arg=-z -Clink-arg=nostart-stop-gc
+          # Since we run the tests with `--all-features` this implies the feature
+          # `ink-fuzz-tests` as well -- i.e. the fuzz tests are run.
+          # There's no way to disable a single feature while enabling all features
+          # at the same time, hence we use this workaround.
+          QUICKCHECK_TESTS:            0
+        run: |
+          pushd linting && cargo nextest run --all-features --no-fail-fast --workspace && popd
 
   docs:
     runs-on: ubuntu-latest
@@ -374,8 +384,6 @@ jobs:
         shell: bash
     container:
       image: ${{ needs.set-image.outputs.IMAGE }}
-    strategy:
-      fail-fast: false
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -383,7 +391,7 @@ jobs:
           fetch-depth: 100
 
       - name: Cache
-        uses: Swatinem/rust-cache@v2
+        uses: Swatinem/rust-cache@23bce251a8cd2ffc3c1075eaa2367cf899916d84 # v2.7.3
         with:
           cache-directories: ${{ env.CARGO_TARGET_DIR }}
 
@@ -394,12 +402,15 @@ jobs:
         env:
           RUSTDOCFLAGS:                  -Dwarnings
         run: |
-          cargo doc --no-deps --all-features
+          for package in $(cargo metadata --format-version 1 | jq -r '.workspace_members[]' | awk '{print $1}'); do
+            # Run cargo doc for each workspace member
+            cargo doc --no-deps --all-features -p ${package}
+          done
           mv ${CARGO_TARGET_DIR}/doc ./crate-docs
           # FIXME: remove me after CI image gets nonroot
           chown -R nonroot:nonroot ./crate-docs
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: ${{ github.job }}-data
           path: ./crate-docs
@@ -413,8 +424,6 @@ jobs:
         shell: bash
     container:
       image: ${{ needs.set-image.outputs.IMAGE }}
-    strategy:
-      fail-fast: false
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -439,7 +448,6 @@ jobs:
           # The `cargo-taurpalin` coverage reporting tool seems to have better code instrumentation and thus
           # produces better results for Rust codebases in general. However, unlike `grcov` it requires
           # running docker with `--security-opt seccomp=unconfined` which is why we use `grcov` instead.
-          CODECOV_P_TOKEN:               ${{ secrets.CODECOV_P_TOKEN }}
           CODECOV_L_TOKEN:               ${{ secrets.CODECOV_L_TOKEN }}
         run: |
           # RUSTFLAGS are the cause target cache can't be used here
@@ -453,13 +461,13 @@ jobs:
           # FIXME: Access from 2 users, should be solved once ci-image works from a non-root user
           git config --global --add safe.directory '*'
           # RUSTFLAGS are the cause target cache can't be used here
-          cargo build --verbose --all-features --workspace
-          cargo test --verbose --all-features --no-fail-fast --workspace
+          cargo build --all-features --workspace
+          cargo test --all-features --no-fail-fast --workspace --locked -- --skip ui_tests
           # coverage with branches
           grcov . --binary-path ./target/debug/ --source-dir . --output-type lcov --llvm --branch \
             --ignore-not-existing --ignore "/*" --ignore "tests/*" --output-path lcov-w-branch.info
           rust-covfix lcov-w-branch.info --output lcov-w-branch-fixed.info
-          codecov --token "$CODECOV_P_TOKEN" --file lcov-w-branch-fixed.info --nonZero
+          codecov --token "$CODECOV_L_TOKEN" --file lcov-w-branch-fixed.info --nonZero
           # lines coverage
           grcov . --binary-path ./target/debug/ --source-dir . --output-type lcov --llvm \
             --ignore-not-existing --ignore "/*" --ignore "tests/*" --output-path lcov-lines.info
@@ -469,15 +477,48 @@ jobs:
 ### examples
 
   examples-test:
-    runs-on: ubuntu-latest-8-cores
+    runs-on: ubuntu-latest
+    needs: [clippy]
+    strategy:
+      matrix:
+        partition: [1, 2, 3, 4, 5, 6]
+    steps:
+      # We go out of storage on runners
+      - name: Clean runner
+        run: |
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /opt/ghc
+          sudo rm -rf "/usr/local/share/boost"
+          sudo rm -rf "$AGENT_TOOLSDIRECTORY"
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 100
+
+      - name: Cache
+        uses: Swatinem/rust-cache@23bce251a8cd2ffc3c1075eaa2367cf899916d84 # v2.7.3
+        with:
+          cache-directories: ${{ env.CARGO_TARGET_DIR }}
+
+      - name: Test Examples
+        env:
+          # Fix linking of `linkme`: https://github.com/dtolnay/linkme/issues/49
+          RUSTFLAGS:                     -Clink-arg=-z -Clink-arg=nostart-stop-gc
+        uses: docker://paritytech/ci-unified:bullseye-1.81.0
+        with:
+          # run all tests with --all-features, which will run the e2e-tests feature if present
+          args: /bin/bash -c "scripts/for_all_contracts_exec.sh --path integration-tests --ignore public/static-buffer --partition ${{ matrix.partition }}/6 -- cargo test \
+            --all-features --manifest-path {}"
+
+  examples-custom-test:
+    runs-on: ubuntu-latest
     needs: [set-image, clippy]
     defaults:
       run:
         shell: bash
     container:
       image: ${{ needs.set-image.outputs.IMAGE }}
-    strategy:
-      fail-fast: false
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -485,24 +526,39 @@ jobs:
           fetch-depth: 100
 
       - name: Cache
-        uses: Swatinem/rust-cache@v2
+        uses: Swatinem/rust-cache@23bce251a8cd2ffc3c1075eaa2367cf899916d84 # v2.7.3
         with:
           cache-directories: ${{ env.CARGO_TARGET_DIR }}
 
       - name: Rust Info
         uses: ./.github/rust-info
 
-      - name: Test Examples
+      - name: Test static-buffer example
         env:
           # Fix linking of `linkme`: https://github.com/dtolnay/linkme/issues/49
           RUSTFLAGS:                     -Clink-arg=-z -Clink-arg=nostart-stop-gc
         run: |
-          # run all tests with --all-features, which will run the e2e-tests feature if present
-          scripts/for_all_contracts_exec.sh --path integration-tests --ignore static-buffer -- cargo test \
-            --verbose --all-features --manifest-path {}
           # run the static buffer test with a custom buffer size
-          cargo clean --manifest-path integration-tests/static-buffer/Cargo.toml
-          INK_STATIC_BUFFER_SIZE=30 cargo test --verbose --manifest-path integration-tests/static-buffer/Cargo.toml --all-features
+          cargo clean --manifest-path integration-tests/public/static-buffer/Cargo.toml
+          INK_STATIC_BUFFER_SIZE=30 cargo test --manifest-path integration-tests/public/static-buffer/Cargo.toml --all-features
+
+      - name: Run E2E test with on-chain contract
+        env:
+          # Fix linking of `linkme`: https://github.com/dtolnay/linkme/issues/49
+          RUSTFLAGS:                     -Clink-arg=-z -Clink-arg=nostart-stop-gc
+        run: |
+          # run flipper E2E test with on-chain contract
+          substrate-contracts-node -lruntime::contracts=debug 2>&1 &
+          cargo contract build --release --manifest-path integration-tests/public/flipper/Cargo.toml
+          export CONTRACT_ADDR_HEX=$(cargo contract instantiate \
+            --manifest-path integration-tests/public/flipper/Cargo.toml \
+            --suri //Alice --args true -x -y --output-json | \
+            jq -r .contract | xargs subkey inspect | grep -o "0x.*" | head -n1)
+          CONTRACTS_NODE_URL=ws://127.0.0.1:9944 cargo test \
+            --features e2e-tests \
+            --manifest-path integration-tests/public/flipper/Cargo.toml \
+            e2e_test_deployed_contract \
+            -- --ignored --nocapture
 
   examples-contract-build:
     runs-on: ubuntu-latest
@@ -516,6 +572,14 @@ jobs:
       fail-fast: false
       matrix:
         type: [WASM, RISCV]
+        partition: [1, 2, 3, 4]
+        exclude:
+          - type: RISCV
+            partition: 2
+          - type: RISCV
+            partition: 3
+          - type: RISCV
+            partition: 4
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -523,7 +587,7 @@ jobs:
           fetch-depth: 100
 
       - name: Cache
-        uses: Swatinem/rust-cache@v2
+        uses: Swatinem/rust-cache@23bce251a8cd2ffc3c1075eaa2367cf899916d84 # v2.7.3
         with:
           cache-directories: ${{ env.CARGO_TARGET_DIR }}
 
@@ -536,18 +600,21 @@ jobs:
           rustup component add rust-src --toolchain stable
           cargo contract -V
           # Build all examples
-          scripts/for_all_contracts_exec.sh --path integration-tests -- cargo contract build --release --manifest-path {}
-          # Build the different features for the conditional compilation example
-          pushd ./integration-tests/conditional-compilation
-          cargo contract build --release --features "foo"
-          cargo contract build --release --features "bar"
-          cargo contract build --release --features "foo, bar"
-          popd
+          scripts/for_all_contracts_exec.sh --path integration-tests --partition ${{ matrix.partition }}/4 -- cargo contract build --release --manifest-path {}
+          if [ ${{ matrix.partition }} -eq 4 ]; then
+            # Build the different features for the conditional compilation example
+            pushd ./integration-tests/public/conditional-compilation
+            cargo contract build --release --features "foo"
+            cargo contract build --release --features "bar"
+            cargo contract build --release --features "foo, bar"
+            popd
+          fi
 
       - name: Build Contract RISCV Examples
         if: ${{ matrix.type == 'RISCV' }}
         env:
-          RUSTC_BOOTSTRAP:               1
+          RUSTC_BOOTSTRAP: 1
+          RUSTUP_TOOLCHAIN: rve-nightly
         run: |
           rustup component add rust-src --toolchain stable
           cargo contract -V
@@ -556,7 +623,7 @@ jobs:
           #   - custom_allocator
           # Pulls in sp-std which needlessly requires atomic pointers (TODO: Fix sp-std and enable this example)
           #   - call-runtime
-          scripts/for_all_contracts_exec.sh --path integration-tests --ignore custom-allocator --ignore call-runtime \
+          scripts/for_all_contracts_exec.sh --path integration-tests --ignore public/custom-allocator --ignore public/call-runtime --ignore public/contract-xcm \
             -- cargo build --manifest-path {} --no-default-features --target $RISCV_TARGET -Zbuild-std="core,alloc"
 
   examples-docs:
@@ -567,8 +634,6 @@ jobs:
         shell: bash
     container:
       image: ${{ needs.set-image.outputs.IMAGE }}
-    strategy:
-      fail-fast: false
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -576,7 +641,7 @@ jobs:
           fetch-depth: 100
 
       - name: Cache
-        uses: Swatinem/rust-cache@v2
+        uses: Swatinem/rust-cache@23bce251a8cd2ffc3c1075eaa2367cf899916d84 # v2.7.3
         with:
           cache-directories: ${{ env.CARGO_TARGET_DIR }}
 
@@ -589,35 +654,33 @@ jobs:
         run: |
           # `--document-private-items` needs to be in here because currently our contract macro
           # puts the contract functions in a private module.
-          # Once https://github.com/paritytech/ink/issues/336 has been implemented we can get rid
+          # Once https://github.com/use-ink/ink/issues/336 has been implemented we can get rid
           # of this flag.
           scripts/for_all_contracts_exec.sh --path integration-tests -- cargo doc --manifest-path {} \
-            --document-private-items --verbose --no-deps
+            --document-private-items --no-deps
 
 # measurements
 
   measurements:
-    needs: [examples-docs, examples-contract-build, examples-test]
+    needs: [examples-docs, examples-contract-build, examples-test, examples-custom-test]
     uses: ./.github/workflows/measurements.yml
 
 # fuzz
 
   fuzz:
-    # Temporarily disabled until https://github.com/paritytech/ink/issues/1374
-    # is fixed.
-    if: >
-      false &&
-        github.event_name == 'push' &&
-        github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest
-    needs: [set-image, measurements]
+    needs: [set-image, examples-docs, examples-contract-build, examples-test, examples-custom-test]
+    if: >
+      github.event_name == 'push' &&
+        github.ref == 'refs/heads/master'
+
+    permissions:
+      issues: write
     defaults:
       run:
         shell: bash
     container:
       image: ${{ needs.set-image.outputs.IMAGE }}
-    strategy:
-      fail-fast: false
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -625,7 +688,7 @@ jobs:
           fetch-depth: 100
 
       - name: Cache
-        uses: Swatinem/rust-cache@v2
+        uses: Swatinem/rust-cache@23bce251a8cd2ffc3c1075eaa2367cf899916d84 # v2.7.3
         with:
           cache-directories: ${{ env.CARGO_TARGET_DIR }}
 
@@ -633,6 +696,7 @@ jobs:
         uses: ./.github/rust-info
 
       - name: Fuzz
+        id: fuzz_test
         env:
           QUICKCHECK_TESTS:              5000
         run: |
@@ -642,8 +706,52 @@ jobs:
           for crate in ${ALL_CRATES}; do
             if grep "ink-fuzz-tests =" ./crates/${crate}/Cargo.toml;
             then
-              cargo test --verbose --features ink-fuzz-tests --manifest-path ./crates/${crate}/Cargo.toml --no-fail-fast -- fuzz_ || exit_code=$?;
+              cargo test --features ink-fuzz-tests --manifest-path ./crates/${crate}/Cargo.toml --no-fail-fast -- fuzz_ || exit_code=$?;
               all_tests_passed=$(( all_tests_passed | exit_code ));
             fi
           done
           exit ${all_tests_passed}
+
+      - name: Create Issue
+        if: ${{ failure() && steps.fuzz_test.conclusion == 'failure' }}
+
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const runId = context.runId;
+
+            // Get the list of jobs for the current run using GitHub API
+            const jobs = await github.rest.actions.listJobsForWorkflowRun({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              run_id: runId
+            });
+
+            // Find the job ID by name
+            const job = jobs.data.jobs.find(job => job.name === context.job);
+
+            if (!job) {
+              console.error(`Job with name '${jobName}' not found.`);
+              return;
+            }
+
+            const jobId = job.id;
+            const title = "[ci] Failing fuzz tests on master ('" + new Date().toLocaleDateString() + "')";
+            const runUrl = context.serverUrl + "/" + context.repo.owner + "/" + context.repo.repo + "/actions/runs/" + runId + "/job/" + jobId;
+            const commitUrl = context.serverUrl + "/" + context.repo.owner + "/" + context.repo.repo + "/commit/" + context.sha;
+            const message = context.payload.head_commit.message;
+            const body = `
+            The CI job [${runId}](${runUrl}) just failed.
+
+            The offending commit is [${message}](${commitUrl}).
+            `;
+
+            const issue = await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: title,
+              body: body,
+              assignees: [],
+              labels: ['P-high']
+            });
+            console.log(`Issue created: ${issue.data.html_url}`);

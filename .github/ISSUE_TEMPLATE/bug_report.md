@@ -10,7 +10,7 @@ assignees: ''
 **Questions**
 
 - Is this a bug concerning building of ink! smart contracts?
-    - If **yes** then you might instead want to file a bug report to ink!'s build tool: https://github.com/paritytech/cargo-contract
+    - If **yes** then you might instead want to file a bug report to ink!'s build tool: https://github.com/use-ink/cargo-contract
 - Is this a bug that appears when interacting with smart contracts via the Polkadot JS browser UI?
     - If **yes** then you might instead want to file a bug report to the Polkadot JS Apps project instead: https://github.com/polkadot-js/apps
 

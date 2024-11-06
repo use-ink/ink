@@ -1,4 +1,4 @@
-// Copyright (C) Parity Technologies (UK) Ltd.
+// Copyright (C) Use Ink (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@ use ink_primitives::{
     ConstructorResult,
     MessageResult,
 };
-use pallet_contracts_primitives::{
+use pallet_contracts::{
     CodeUploadResult,
     ContractExecResult,
     ContractInstantiateResult,
@@ -84,7 +84,7 @@ pub struct InstantiationResult<E: Environment, EventLog> {
 
 impl<E: Environment, EventLog> InstantiationResult<E, EventLog> {
     /// Returns the account id at which the contract was instantiated.
-    pub fn call<Contract>(&self) -> <Contract as ContractCallBuilder>::Type
+    pub fn call_builder<Contract>(&self) -> <Contract as ContractCallBuilder>::Type
     where
         Contract: ContractCallBuilder,
         Contract::Type: FromAccountId<E>,

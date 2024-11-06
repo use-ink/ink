@@ -1,0 +1,49 @@
+[workspace]
+members = ["sandbox-runtime", "traits"]
+
+[workspace.package]
+authors = ["Use Ink <ink@use.ink>"]
+edition = "2021"
+homepage = "https://use.ink"
+keywords = ["wasm", "ink", "webassembly", "blockchain", "edsl"]
+license = "Apache-2.0"
+repository = "https://github.com/use-ink/ink"
+
+[workspace.dependencies]
+frame-support = { version = "32.0.0", default-features = false }
+frame-system = { version = "32.0.0", default-features = false }
+pallet-contracts = { version = "31.0.0", default-features = false }
+sp-runtime = { version = "35.0.0", default-features = false }
+codec = { package = "parity-scale-codec", version =  "3.6.9", default-features = false }
+scale-info = { version = "2.11.1", default-features = false }
+
+[package]
+name = "runtime-call-contract"
+version = "5.0.0"
+authors = ["Use Ink <ink@use.ink>"]
+edition = "2021"
+publish = false
+
+[dependencies]
+ink = { path = "../../../crates/ink", default-features = false }
+flipper-traits = { path = "traits", default-features = false }
+
+[dev-dependencies]
+ink_e2e = { path = "../../../crates/e2e", features = ["sandbox"] }
+sandbox-runtime = { path = "sandbox-runtime", default-features = false }
+scale-value = "0.14.1"
+# can't use workspace dependency because of `cargo-contract` build not
+# working with workspace dependencies
+frame-support = { version = "32.0.0", default-features = false }
+
+[lib]
+path = "lib.rs"
+
+[features]
+default = ["std"]
+std = [
+    "ink/std",
+    "sandbox-runtime/std",
+    "flipper-traits/std",
+]
+ink-as-dependency = []

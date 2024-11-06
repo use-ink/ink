@@ -1,7 +1,7 @@
 [package]
 name = "ink_ir"
 version.workspace = true
-authors = ["Parity Technologies <admin@parity.io>", "Robin Freyler <robin@parity.io>"]
+authors = ["Use Ink <ink@use.ink>"]
 edition.workspace = true
 
 license.workspace = true
@@ -24,11 +24,14 @@ proc-macro2 = { workspace = true }
 itertools = { workspace = true }
 either = { workspace = true }
 blake2 = { workspace = true }
+impl-serde = { workspace = true }
 ink_prelude = { workspace = true }
 
 [features]
-default = ["std"]
+default = [ "std" ]
 std = [
-    "itertools/use_std",
-    "either/use_std",
+	"either/use_std",
+	"ink_prelude/std",
+	"itertools/use_std",
+	"impl-serde/std"
 ]

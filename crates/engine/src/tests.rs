@@ -1,4 +1,4 @@
-// Copyright (C) Parity Technologies (UK) Ltd.
+// Copyright (C) Use Ink (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -151,7 +151,7 @@ fn events() {
     let event = events.next().expect("event must exist");
     assert_eq!(event.topics.len(), 2);
     assert_eq!(
-        event.topics.get(0).expect("first topic must exist"),
+        event.topics.first().expect("first topic must exist"),
         &topic1
     );
     assert_eq!(

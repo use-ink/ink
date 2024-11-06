@@ -1,4 +1,4 @@
-// Copyright (C) Parity Technologies (UK) Ltd.
+// Copyright (C) Use Ink (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,16 +17,18 @@
 use crate::{
     backend::{
         EnvBackend,
-        ReturnFlags,
         TypedEnvBackend,
     },
     call::{
         Call,
         CallParams,
+        CallV1,
         ConstructorReturnType,
         CreateParams,
         DelegateCall,
         FromAccountId,
+        LimitParamsV1,
+        LimitParamsV2,
     },
     engine::{
         EnvInstance,
@@ -42,6 +44,7 @@ use crate::{
     Result,
 };
 use ink_storage_traits::Storable;
+use pallet_contracts_uapi::ReturnFlags;
 
 /// Returns the address of the caller of the executed contract.
 ///
@@ -265,6 +268,9 @@ where
 /// This is a low level way to evaluate another smart contract.
 /// Prefer to use the ink! guided and type safe approach to using this.
 ///
+/// **This will call into the original version of the host function. It is recommended to
+/// use [`invoke_contract`] to use the latest version if the target runtime supports it.**
+///
 /// # Errors
 ///
 /// - If the called account does not exist.
@@ -272,6 +278,38 @@ where
 /// - If arguments passed to the called contract message are invalid.
 /// - If the called contract execution has trapped.
 /// - If the called contract ran out of gas upon execution.
+/// - If the returned value failed to decode properly.
+pub fn invoke_contract_v1<E, Args, R>(
+    params: &CallParams<E, CallV1<E>, Args, R>,
+) -> Result<ink_primitives::MessageResult<R>>
+where
+    E: Environment,
+    Args: scale::Encode,
+    R: scale::Decode,
+{
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        TypedEnvBackend::invoke_contract_v1::<E, Args, R>(instance, params)
+    })
+}
+
+/// Invokes a contract message and returns its result.
+///
+/// # Note
+///
+/// **This will call into the latest version of the host function which allows setting new
+/// weight and storage limit parameters.**
+///
+/// This is a low level way to evaluate another smart contract.
+/// Prefer to use the ink! guided and type safe approach to using this.
+///
+/// # Errors
+///
+/// - If the called account does not exist.
+/// - If the called account is not a contract.
+/// - If arguments passed to the called contract message are invalid.
+/// - If the called contract execution has trapped.
+/// - If the called contract ran out of gas, proof size, or storage deposit upon
+///   execution.
 /// - If the returned value failed to decode properly.
 pub fn invoke_contract<E, Args, R>(
     params: &CallParams<E, Call<E>, Args, R>,
@@ -315,7 +353,8 @@ where
 ///
 /// # Note
 ///
-/// This is a low level way to instantiate another smart contract.
+/// This is a low level way to instantiate another smart contract, calling the latest
+/// `instantiate_v2` host function.
 ///
 /// Prefer to use methods on a `ContractRef` or the
 /// [`CreateBuilder`](`crate::call::CreateBuilder`)
@@ -330,7 +369,7 @@ where
 /// - If given insufficient endowment.
 /// - If the returned account ID failed to decode properly.
 pub fn instantiate_contract<E, ContractRef, Args, Salt, R>(
-    params: &CreateParams<E, ContractRef, Args, Salt, R>,
+    params: &CreateParams<E, ContractRef, LimitParamsV2<E>, Args, Salt, R>,
 ) -> Result<
     ink_primitives::ConstructorResult<<R as ConstructorReturnType<ContractRef>>::Output>,
 >
@@ -343,6 +382,44 @@ where
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         TypedEnvBackend::instantiate_contract::<E, ContractRef, Args, Salt, R>(
+            instance, params,
+        )
+    })
+}
+
+/// Instantiates another contract.
+///
+/// # Note
+///
+/// This is a low level way to instantiate another smart contract, calling the legacy
+/// `instantiate_v1` host function.
+///
+/// Prefer to use methods on a `ContractRef` or the
+/// [`CreateBuilder`](`crate::call::CreateBuilder`)
+/// through [`build_create`](`crate::call::build_create`) instead.
+///
+/// # Errors
+///
+/// - If the code hash is invalid.
+/// - If the arguments passed to the instantiation process are invalid.
+/// - If the instantiation process traps.
+/// - If the instantiation process runs out of gas.
+/// - If given insufficient endowment.
+/// - If the returned account ID failed to decode properly.
+pub fn instantiate_contract_v1<E, ContractRef, Args, Salt, R>(
+    params: &CreateParams<E, ContractRef, LimitParamsV1, Args, Salt, R>,
+) -> Result<
+    ink_primitives::ConstructorResult<<R as ConstructorReturnType<ContractRef>>::Output>,
+>
+where
+    E: Environment,
+    ContractRef: FromAccountId<E>,
+    Args: scale::Encode,
+    Salt: AsRef<[u8]>,
+    R: ConstructorReturnType<ContractRef>,
+{
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        TypedEnvBackend::instantiate_contract_v1::<E, ContractRef, Args, Salt, R>(
             instance, params,
         )
     })
@@ -785,5 +862,95 @@ where
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         TypedEnvBackend::call_runtime::<E, _>(instance, call)
+    })
+}
+
+/// Adds a new delegate dependency lock to the contract.
+///
+/// This guarantees that the code of the dependency cannot be removed without first
+/// calling [`unlock_delegate_dependency`]. It charges a fraction of the code
+/// deposit, see [`pallet_contracts::Config::CodeHashLockupDepositPercent`](https://docs.rs/pallet-contracts/latest/pallet_contracts/pallet/trait.Config.html#associatedtype.CodeHashLockupDepositPercent) for details.
+///
+/// # Errors
+///
+/// - If the supplied `code_hash` cannot be found on-chain.
+/// - If the `code_hash` is the same as the calling contract.
+/// - If the maximum number of delegate dependencies is reached.
+/// - If the delegate dependency already exists.
+pub fn lock_delegate_dependency<E>(code_hash: &E::Hash)
+where
+    E: Environment,
+{
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        instance.lock_delegate_dependency::<E>(code_hash)
+    })
+}
+
+/// Unlocks the delegate dependency from the contract.
+///
+/// This removes the lock and refunds the deposit from the call to
+/// [`lock_delegate_dependency`]. The code of the dependency can be removed if the
+/// reference count for the code hash is now zero.
+///
+/// # Errors
+///
+/// - If the delegate dependency does not exist.
+pub fn unlock_delegate_dependency<E>(code_hash: &E::Hash)
+where
+    E: Environment,
+{
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        instance.unlock_delegate_dependency::<E>(code_hash)
+    })
+}
+
+/// Execute an XCM message locally, using the contract's address as the origin.
+///
+/// For more details consult the
+/// [host function documentation](https://paritytech.github.io/substrate/master/pallet_contracts/api_doc/trait.Current.html#tymethod.xcm_execute).
+///
+/// # Errors
+///
+/// - If the message cannot be properly decoded on the `pallet-contracts` side.
+/// - If the XCM execution fails because of the runtime's XCM configuration.
+///
+/// # Panics
+///
+/// Panics in the off-chain environment.
+pub fn xcm_execute<E, Call>(msg: &xcm::VersionedXcm<Call>) -> Result<()>
+where
+    E: Environment,
+    Call: scale::Encode,
+{
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        TypedEnvBackend::xcm_execute::<E, _>(instance, msg)
+    })
+}
+
+/// Send an XCM message, using the contract's address as the origin.
+///
+/// The `msg` argument has to be SCALE encoded, it needs to be decodable to a valid
+/// instance of the `RuntimeCall` enum.
+///
+/// For more details consult
+/// [host function documentation](https://paritytech.github.io/substrate/master/pallet_contracts/api_doc/trait.Current.html#tymethod.xcm_send).
+///
+/// # Errors
+///
+/// - If the message cannot be properly decoded on the `pallet-contracts` side.
+///
+/// # Panics
+///
+/// Panics in the off-chain environment.
+pub fn xcm_send<E, Call>(
+    dest: &xcm::VersionedLocation,
+    msg: &xcm::VersionedXcm<Call>,
+) -> Result<xcm::v4::XcmHash>
+where
+    E: Environment,
+    Call: scale::Encode,
+{
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        TypedEnvBackend::xcm_send::<E, _>(instance, dest, msg)
     })
 }

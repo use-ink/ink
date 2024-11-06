@@ -1,4 +1,4 @@
-// Copyright (C) Parity Technologies (UK) Ltd.
+// Copyright (C) Use Ink (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -13,19 +13,20 @@
 // limitations under the License.
 
 use super::{
-    ext,
     EnvInstance,
-    Error as ExtError,
     ScopedBuffer,
 };
 use crate::{
     call::{
         Call,
         CallParams,
+        CallV1,
         ConstructorReturnType,
         CreateParams,
         DelegateCall,
         FromAccountId,
+        LimitParamsV1,
+        LimitParamsV2,
     },
     event::{
         Event,
@@ -42,16 +43,22 @@ use crate::{
     Clear,
     EnvBackend,
     Environment,
-    Error,
     FromLittleEndian,
     Result,
-    ReturnFlags,
     TypedEnvBackend,
 };
 use ink_storage_traits::{
     decode_all,
     Storable,
 };
+use pallet_contracts_uapi::{
+    CallFlags,
+    HostFn,
+    HostFnImpl as ext,
+    ReturnErrorCode,
+    ReturnFlags,
+};
+use xcm::VersionedXcm;
 
 impl CryptoHash for Blake2x128 {
     fn hash(input: &[u8], output: &mut <Self as HashOutput>::Type) {
@@ -98,25 +105,6 @@ impl CryptoHash for Keccak256 {
         );
         let output: &mut OutputType = array_mut_ref!(output, 0, 32);
         ext::hash_keccak_256(input, output);
-    }
-}
-
-impl From<ext::Error> for Error {
-    fn from(ext_error: ext::Error) -> Self {
-        match ext_error {
-            ext::Error::Unknown => Self::Unknown,
-            ext::Error::CalleeTrapped => Self::CalleeTrapped,
-            ext::Error::CalleeReverted => Self::CalleeReverted,
-            ext::Error::KeyNotFound => Self::KeyNotFound,
-            ext::Error::_BelowSubsistenceThreshold => Self::_BelowSubsistenceThreshold,
-            ext::Error::TransferFailed => Self::TransferFailed,
-            ext::Error::_EndowmentTooLow => Self::_EndowmentTooLow,
-            ext::Error::CodeNotFound => Self::CodeNotFound,
-            ext::Error::NotCallable => Self::NotCallable,
-            ext::Error::LoggingDisabled => Self::LoggingDisabled,
-            ext::Error::CallRuntimeFailed => Self::CallRuntimeFailed,
-            ext::Error::EcdsaRecoveryFailed => Self::EcdsaRecoveryFailed,
-        }
     }
 }
 
@@ -223,7 +211,7 @@ impl EnvBackend for EnvInstance {
         let mut buffer = self.scoped_buffer();
         let key = buffer.take_encoded(key);
         let value = buffer.take_storable_encoded(value);
-        ext::set_storage(key, value)
+        ext::set_storage_v2(key, value)
     }
 
     fn get_contract_storage<K, R>(&mut self, key: &K) -> Result<Option<R>>
@@ -234,9 +222,9 @@ impl EnvBackend for EnvInstance {
         let mut buffer = self.scoped_buffer();
         let key = buffer.take_encoded(key);
         let output = &mut buffer.take_rest();
-        match ext::get_storage(key, output) {
+        match ext::get_storage_v1(key, output) {
             Ok(_) => (),
-            Err(ExtError::KeyNotFound) => return Ok(None),
+            Err(ReturnErrorCode::KeyNotFound) => return Ok(None),
             Err(_) => panic!("encountered unexpected error"),
         }
         let decoded = decode_all(&mut &output[..])?;
@@ -253,7 +241,7 @@ impl EnvBackend for EnvInstance {
         let output = &mut buffer.take_rest();
         match ext::take_storage(key, output) {
             Ok(_) => (),
-            Err(ExtError::KeyNotFound) => return Ok(None),
+            Err(ReturnErrorCode::KeyNotFound) => return Ok(None),
             Err(_) => panic!("encountered unexpected error"),
         }
         let decoded = decode_all(&mut &output[..])?;
@@ -266,7 +254,7 @@ impl EnvBackend for EnvInstance {
     {
         let mut buffer = self.scoped_buffer();
         let key = buffer.take_encoded(key);
-        ext::storage_contains(key)
+        ext::contains_storage_v1(key)
     }
 
     fn clear_contract_storage<K>(&mut self, key: &K) -> Option<u32>
@@ -275,7 +263,7 @@ impl EnvBackend for EnvInstance {
     {
         let mut buffer = self.scoped_buffer();
         let key = buffer.take_encoded(key);
-        ext::clear_storage(key)
+        ext::clear_storage_v1(key)
     }
 
     fn decode_input<T>(&mut self) -> Result<T>
@@ -295,8 +283,32 @@ impl EnvBackend for EnvInstance {
         ext::return_value(flags, &self.buffer[..][..len]);
     }
 
+    #[cfg(not(feature = "ink-debug"))]
+    /// A no-op. Enable the `ink-debug` feature for debug messages.
+    fn debug_message(&mut self, _content: &str) {}
+
+    #[cfg(feature = "ink-debug")]
     fn debug_message(&mut self, content: &str) {
-        ext::debug_message(content)
+        static mut DEBUG_ENABLED: bool = false;
+        static mut FIRST_RUN: bool = true;
+
+        // SAFETY: safe because executing in a single threaded context
+        // We need those two variables in order to make sure that the assignment is
+        // performed in the "logging enabled" case. This is because during RPC
+        // execution logging might be enabled while it is disabled during the
+        // actual execution as part of a transaction. The gas estimation takes
+        // place during RPC execution. We want to overestimate instead
+        // of underestimate gas usage. Otherwise using this estimate could lead to a out
+        // of gas error.
+        if unsafe { DEBUG_ENABLED || FIRST_RUN } {
+            let ret_code = ext::debug_message(content.as_bytes());
+            if !matches!(ret_code, Err(ReturnErrorCode::LoggingDisabled)) {
+                // SAFETY: safe because executing in a single threaded context
+                unsafe { DEBUG_ENABLED = true }
+            }
+            // SAFETY: safe because executing in a single threaded context
+            unsafe { FIRST_RUN = false }
+        }
     }
 
     fn hash_bytes<H>(&mut self, input: &[u8], output: &mut <H as HashOutput>::Type)
@@ -344,7 +356,7 @@ impl EnvBackend for EnvInstance {
 
     fn call_chain_extension<I, T, E, ErrorCode, F, D>(
         &mut self,
-        func_id: u32,
+        id: u32,
         input: &I,
         status_to_result: F,
         decode_to_result: D,
@@ -359,8 +371,8 @@ impl EnvBackend for EnvInstance {
         let mut scope = self.scoped_buffer();
         let enc_input = scope.take_encoded(input);
         let output = &mut scope.take_rest();
-        status_to_result(ext::call_chain_extension(func_id, enc_input, output))?;
-        let decoded = decode_to_result(&output[..])?;
+        status_to_result(ext::call_chain_extension(id, enc_input, Some(output)))?;
+        let decoded = decode_to_result(output)?;
         Ok(decoded)
     }
 
@@ -415,9 +427,9 @@ impl TypedEnvBackend for EnvInstance {
         ext::deposit_event(enc_topics, enc_data);
     }
 
-    fn invoke_contract<E, Args, R>(
+    fn invoke_contract_v1<E, Args, R>(
         &mut self,
-        params: &CallParams<E, Call<E>, Args, R>,
+        params: &CallParams<E, CallV1<E>, Args, R>,
     ) -> Result<ink_primitives::MessageResult<R>>
     where
         E: Environment,
@@ -429,23 +441,73 @@ impl TypedEnvBackend for EnvInstance {
         let enc_callee = scope.take_encoded(params.callee());
         let enc_transferred_value = scope.take_encoded(params.transferred_value());
         let call_flags = params.call_flags();
-        let enc_input = if !call_flags.forward_input() && !call_flags.clone_input() {
+        let enc_input = if !call_flags.contains(CallFlags::FORWARD_INPUT)
+            && !call_flags.contains(CallFlags::CLONE_INPUT)
+        {
             scope.take_encoded(params.exec_input())
         } else {
             &mut []
         };
         let output = &mut scope.take_rest();
-        let flags = params.call_flags().into_u32();
-        let call_result = ext::call(
-            flags,
+        let flags = params.call_flags();
+        #[allow(deprecated)]
+        let call_result = ext::call_v1(
+            *flags,
             enc_callee,
             gas_limit,
             enc_transferred_value,
             enc_input,
-            output,
+            Some(output),
         );
         match call_result {
-            Ok(()) | Err(ext::Error::CalleeReverted) => {
+            Ok(()) | Err(ReturnErrorCode::CalleeReverted) => {
+                let decoded = scale::DecodeAll::decode_all(&mut &output[..])?;
+                Ok(decoded)
+            }
+            Err(actual_error) => Err(actual_error.into()),
+        }
+    }
+
+    fn invoke_contract<E, Args, R>(
+        &mut self,
+        params: &CallParams<E, Call<E>, Args, R>,
+    ) -> Result<ink_primitives::MessageResult<R>>
+    where
+        E: Environment,
+        Args: scale::Encode,
+        R: scale::Decode,
+    {
+        let mut scope = self.scoped_buffer();
+        let ref_time_limit = params.ref_time_limit();
+        let proof_size_limit = params.proof_size_limit();
+        let storage_deposit_limit = params
+            .storage_deposit_limit()
+            .map(|limit| &*scope.take_encoded(limit));
+        let enc_callee = scope.take_encoded(params.callee());
+        let enc_transferred_value = scope.take_encoded(params.transferred_value());
+        let call_flags = params.call_flags();
+        let enc_input = if !call_flags.contains(CallFlags::FORWARD_INPUT)
+            && !call_flags.contains(CallFlags::CLONE_INPUT)
+        {
+            scope.take_encoded(params.exec_input())
+        } else {
+            &mut []
+        };
+        let output = &mut scope.take_rest();
+        let flags = params.call_flags();
+        #[allow(deprecated)]
+        let call_result = ext::call_v2(
+            *flags,
+            enc_callee,
+            ref_time_limit,
+            proof_size_limit,
+            storage_deposit_limit,
+            enc_transferred_value,
+            enc_input,
+            Some(output),
+        );
+        match call_result {
+            Ok(()) | Err(ReturnErrorCode::CalleeReverted) => {
                 let decoded = scale::DecodeAll::decode_all(&mut &output[..])?;
                 Ok(decoded)
             }
@@ -465,16 +527,19 @@ impl TypedEnvBackend for EnvInstance {
         let mut scope = self.scoped_buffer();
         let call_flags = params.call_flags();
         let enc_code_hash = scope.take_encoded(params.code_hash());
-        let enc_input = if !call_flags.forward_input() && !call_flags.clone_input() {
+        let enc_input = if !call_flags.contains(CallFlags::FORWARD_INPUT)
+            && !call_flags.contains(CallFlags::CLONE_INPUT)
+        {
             scope.take_encoded(params.exec_input())
         } else {
             &mut []
         };
         let output = &mut scope.take_rest();
-        let flags = params.call_flags().into_u32();
-        let call_result = ext::delegate_call(flags, enc_code_hash, enc_input, output);
+        let flags = params.call_flags();
+        let call_result =
+            ext::delegate_call(*flags, enc_code_hash, enc_input, Some(output));
         match call_result {
-            Ok(()) | Err(ext::Error::CalleeReverted) => {
+            Ok(()) | Err(ReturnErrorCode::CalleeReverted) => {
                 let decoded = scale::DecodeAll::decode_all(&mut &output[..])?;
                 Ok(decoded)
             }
@@ -484,7 +549,54 @@ impl TypedEnvBackend for EnvInstance {
 
     fn instantiate_contract<E, ContractRef, Args, Salt, RetType>(
         &mut self,
-        params: &CreateParams<E, ContractRef, Args, Salt, RetType>,
+        params: &CreateParams<E, ContractRef, LimitParamsV2<E>, Args, Salt, RetType>,
+    ) -> Result<
+        ink_primitives::ConstructorResult<
+            <RetType as ConstructorReturnType<ContractRef>>::Output,
+        >,
+    >
+    where
+        E: Environment,
+        ContractRef: FromAccountId<E>,
+        Args: scale::Encode,
+        Salt: AsRef<[u8]>,
+        RetType: ConstructorReturnType<ContractRef>,
+    {
+        let mut scoped = self.scoped_buffer();
+        let ref_time_limit = params.ref_time_limit();
+        let proof_size_limit = params.proof_size_limit();
+        let storage_deposit_limit = params
+            .storage_deposit_limit()
+            .map(|limit| &*scoped.take_encoded(limit));
+        let enc_code_hash = scoped.take_encoded(params.code_hash());
+        let enc_endowment = scoped.take_encoded(params.endowment());
+        let enc_input = scoped.take_encoded(params.exec_input());
+        let out_address = &mut scoped.take_max_encoded_len::<E::AccountId>();
+        let salt = params.salt_bytes().as_ref();
+        let out_return_value = &mut scoped.take_rest();
+
+        let instantiate_result = ext::instantiate_v2(
+            enc_code_hash,
+            ref_time_limit,
+            proof_size_limit,
+            storage_deposit_limit,
+            enc_endowment,
+            enc_input,
+            Some(out_address),
+            Some(out_return_value),
+            salt,
+        );
+
+        crate::engine::decode_instantiate_result::<_, E, ContractRef, RetType>(
+            instantiate_result.map_err(Into::into),
+            &mut &out_address[..],
+            &mut &out_return_value[..],
+        )
+    }
+
+    fn instantiate_contract_v1<E, ContractRef, Args, Salt, RetType>(
+        &mut self,
+        params: &CreateParams<E, ContractRef, LimitParamsV1, Args, Salt, RetType>,
     ) -> Result<
         ink_primitives::ConstructorResult<
             <RetType as ConstructorReturnType<ContractRef>>::Output,
@@ -502,20 +614,18 @@ impl TypedEnvBackend for EnvInstance {
         let enc_code_hash = scoped.take_encoded(params.code_hash());
         let enc_endowment = scoped.take_encoded(params.endowment());
         let enc_input = scoped.take_encoded(params.exec_input());
-        // We support `AccountId` types with an encoding that requires up to
-        // 1024 bytes. Beyond that limit ink! contracts will trap for now.
-        // In the default configuration encoded `AccountId` require 32 bytes.
-        let out_address = &mut scoped.take(1024);
+        let out_address = &mut scoped.take_max_encoded_len::<E::AccountId>();
         let salt = params.salt_bytes().as_ref();
         let out_return_value = &mut scoped.take_rest();
 
-        let instantiate_result = ext::instantiate(
+        #[allow(deprecated)]
+        let instantiate_result = ext::instantiate_v1(
             enc_code_hash,
             gas_limit,
             enc_endowment,
             enc_input,
-            out_address,
-            out_return_value,
+            Some(out_address),
+            Some(out_return_value),
             salt,
         );
 
@@ -531,7 +641,7 @@ impl TypedEnvBackend for EnvInstance {
         E: Environment,
     {
         let buffer = self.scoped_buffer().take_encoded(&beneficiary);
-        ext::terminate(buffer);
+        ext::terminate_v1(buffer);
     }
 
     fn transfer<E>(&mut self, destination: E::AccountId, value: E::Balance) -> Result<()>
@@ -571,7 +681,7 @@ impl TypedEnvBackend for EnvInstance {
         E: Environment,
     {
         let mut scope = self.scoped_buffer();
-        let output = scope.take(32);
+        let output = scope.take_max_encoded_len::<E::Hash>();
         scope.append_encoded(account_id);
         let enc_account_id = scope.take_appended();
 
@@ -584,7 +694,7 @@ impl TypedEnvBackend for EnvInstance {
     where
         E: Environment,
     {
-        let output = &mut self.scoped_buffer().take(32);
+        let output = &mut self.scoped_buffer().take_max_encoded_len::<E::Hash>();
         ext::own_code_hash(output);
         let hash = scale::Decode::decode(&mut &output[..])?;
         Ok(hash)
@@ -598,5 +708,58 @@ impl TypedEnvBackend for EnvInstance {
         let mut scope = self.scoped_buffer();
         let enc_call = scope.take_encoded(call);
         ext::call_runtime(enc_call).map_err(Into::into)
+    }
+
+    fn lock_delegate_dependency<E>(&mut self, code_hash: &E::Hash)
+    where
+        E: Environment,
+    {
+        let mut scope = self.scoped_buffer();
+        let enc_code_hash = scope.take_encoded(code_hash);
+        ext::lock_delegate_dependency(enc_code_hash)
+    }
+
+    fn unlock_delegate_dependency<E>(&mut self, code_hash: &E::Hash)
+    where
+        E: Environment,
+    {
+        let mut scope = self.scoped_buffer();
+        let enc_code_hash = scope.take_encoded(code_hash);
+        ext::unlock_delegate_dependency(enc_code_hash)
+    }
+
+    fn xcm_execute<E, Call>(&mut self, msg: &VersionedXcm<Call>) -> Result<()>
+    where
+        E: Environment,
+        Call: scale::Encode,
+    {
+        let mut scope = self.scoped_buffer();
+
+        let enc_msg = scope.take_encoded(msg);
+
+        #[allow(deprecated)]
+        ext::xcm_execute(enc_msg).map_err(Into::into)
+    }
+
+    fn xcm_send<E, Call>(
+        &mut self,
+        dest: &xcm::VersionedLocation,
+        msg: &VersionedXcm<Call>,
+    ) -> Result<xcm::v4::XcmHash>
+    where
+        E: Environment,
+        Call: scale::Encode,
+    {
+        let mut scope = self.scoped_buffer();
+        let output = scope.take(32);
+        scope.append_encoded(dest);
+        let enc_dest = scope.take_appended();
+
+        scope.append_encoded(msg);
+        let enc_msg = scope.take_appended();
+        #[allow(deprecated)]
+        ext::xcm_send(enc_dest, enc_msg, output.try_into().unwrap())?;
+        let hash: xcm::v4::XcmHash = scale::Decode::decode(&mut &output[..])?;
+        Ok(hash)
     }
 }

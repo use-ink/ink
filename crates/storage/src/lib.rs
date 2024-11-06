@@ -1,4 +1,4 @@
-// Copyright (C) Parity Technologies (UK) Ltd.
+// Copyright (C) Use Ink (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -35,7 +35,6 @@
     overflowing_literals,
     path_statements,
     patterns_in_fns_without_body,
-    private_in_public,
     unconditional_recursion,
     unused_allocation,
     unused_comparisons,
@@ -55,4 +54,5 @@ pub(crate) mod lazy;
 pub use self::lazy::{
     Lazy,
     Mapping,
+    StorageVec,
 };

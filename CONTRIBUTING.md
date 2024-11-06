@@ -65,6 +65,9 @@ Verify the following locally, otherwise the CI will fail:
     - `cargo +nightly fmt --all`
 1. Is `clippy` happy with it?
     - `cargo clippy --all-targets --all-features` -- -D warnings;
+1. Are Cargo.toml files formatted properly?
+    * `cargo install zepter`
+    * `zepter run`
 1. Does the code still compile?
     - `cargo check --all-features`
 1. Do all the integration tests/examples still compile?
@@ -102,7 +105,7 @@ older nodes, please do the following:
 4. Never use the new function with existing language features. Only use it with newly
    added functions.
 
-You can have a look at the [PR#1284](https://github.com/paritytech/ink/pull/1284/files#diff-e7cc1cdb3856da1293c785de863703d5961c324aa2018decb0166ea1eb0631e8R191) for a reference of how the described way could be implemented.
+You can have a look at the [PR#1284](https://github.com/use-ink/ink/pull/1284/files#diff-e7cc1cdb3856da1293c785de863703d5961c324aa2018decb0166ea1eb0631e8R191) for a reference of how the described way could be implemented.
 
 
 ## Issues and Pull Requests

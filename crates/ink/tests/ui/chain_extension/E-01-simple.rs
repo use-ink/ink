@@ -1,12 +1,12 @@
 use ink_env::Environment;
 
 /// Custom chain extension to read to and write from the runtime.
-#[ink::chain_extension]
+#[ink::chain_extension(extension = 0)]
 pub trait RuntimeReadWrite {
     type ErrorCode = ReadWriteErrorCode;
 
     /// Reads from runtime storage.
-    #[ink(extension = 1)]
+    #[ink(function = 1)]
     fn read(key: &[u8]) -> Vec<u8>;
 
     /// Reads from runtime storage.
@@ -18,15 +18,15 @@ pub trait RuntimeReadWrite {
     ///
     /// If the runtime storage cell stores a value that requires more than
     /// 32 bytes.
-    #[ink(extension = 2)]
+    #[ink(function = 2)]
     fn read_small(key: &[u8]) -> Result<(u32, [u8; 32]), ReadWriteError>;
 
     /// Writes into runtime storage.
-    #[ink(extension = 3)]
+    #[ink(function = 3)]
     fn write(key: &[u8], value: &[u8]);
 
     /// Returns the access allowed for the key for the caller.
-    #[ink(extension = 4, handle_status = false)]
+    #[ink(function = 4, handle_status = false)]
     fn access(key: &[u8]) -> Option<Access>;
 
     /// Unlocks previously acquired permission to access key.
@@ -34,7 +34,7 @@ pub trait RuntimeReadWrite {
     /// # Errors
     ///
     /// If the permission was not granted.
-    #[ink(extension = 5, handle_status = false)]
+    #[ink(function = 5, handle_status = false)]
     fn unlock_access(key: &[u8], access: Access) -> Result<(), UnlockAccessError>;
 }
 

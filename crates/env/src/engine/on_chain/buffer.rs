@@ -1,4 +1,4 @@
-// Copyright (C) Parity Technologies (UK) Ltd.
+// Copyright (C) Use Ink (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -147,6 +147,17 @@ impl<'a> ScopedBuffer<'a> {
         let len_after = self.buffer.len();
         debug_assert_eq!(len_before.checked_sub(len_after).unwrap(), len);
         lhs
+    }
+
+    /// Returns the first [`scale::MaxEncodedLen::max_encoded_len`] bytes of the buffer as
+    /// a mutable slice.
+    #[inline(always)]
+    pub fn take_max_encoded_len<T>(&mut self) -> &'a mut [u8]
+    where
+        T: scale::MaxEncodedLen,
+    {
+        let len = T::max_encoded_len();
+        self.take(len)
     }
 
     /// Encode the given value into the scoped buffer and return the sub slice

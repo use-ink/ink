@@ -1,5 +1,6 @@
 error: ink! messages must have `&self` or `&mut self` receiver
   --> tests/ui/contract/fail/message-self-receiver-missing.rs:12:9
    |
-12 |         #[ink(message)]
-   |         ^
+12 | /         #[ink(message)]
+13 | |         pub fn message() {}
+   | |___________________________^

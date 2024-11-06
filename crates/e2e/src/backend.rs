@@ -1,4 +1,4 @@
-// Copyright (C) Parity Technologies (UK) Ltd.
+// Copyright (C) Use Ink (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@ use super::Keypair;
 use crate::{
     backend_calls::{
         InstantiateBuilder,
+        RemoveCodeBuilder,
         UploadBuilder,
     },
     builders::CreateBuilderPartial,
@@ -67,8 +68,8 @@ pub trait ChainBackend {
         amount: Self::Balance,
     ) -> Keypair;
 
-    /// Returns the balance of `actor`.
-    async fn balance(
+    /// Returns the free balance of `account`.
+    async fn free_balance(
         &mut self,
         account: Self::AccountId,
     ) -> Result<Self::Balance, Self::Error>;
@@ -159,13 +160,36 @@ pub trait ContractsBackend<E: Environment> {
         UploadBuilder::new(self, contract_name, caller)
     }
 
+    /// Start building a remove code call.
+    ///
+    /// # Example
+    ///
+    /// ```ignore
+    /// let contract = client
+    ///     .remove_code(&ink_e2e::alice(), code_hash)
+    ///     // Submit the call for on-chain execution.
+    ///     .submit()
+    ///     .await
+    ///     .expect("remove failed");
+    /// ```
+    fn remove_code<'a>(
+        &'a mut self,
+        caller: &'a Keypair,
+        code_hash: E::Hash,
+    ) -> RemoveCodeBuilder<E, Self>
+    where
+        Self: Sized + BuilderClient<E>,
+    {
+        RemoveCodeBuilder::new(self, caller, code_hash)
+    }
+
     /// Start building a call using a builder pattern.
     ///
     /// # Example
     ///
     /// ```ignore
     /// // Message method
-    /// let get = call.get();
+    /// let get = call_builder.get();
     /// let get_res = client
     ///    .call(&ink_e2e::bob(), &get)
     ///     // Optional arguments
@@ -193,8 +217,8 @@ pub trait ContractsBackend<E: Environment> {
 
 #[async_trait]
 pub trait BuilderClient<E: Environment>: ContractsBackend<E> {
-    /// Executes a bare `call` for the contract at `account_id`. This function does
-    /// perform a dry-run, and user is expected to provide the gas limit.
+    /// Executes a bare `call` for the contract at `account_id`. This function does not
+    /// perform a dry-run, and the user is expected to provide the gas limit.
     ///
     /// Use it when you want to have a more precise control over submitting extrinsic.
     ///
@@ -238,6 +262,13 @@ pub trait BuilderClient<E: Environment>: ContractsBackend<E> {
         caller: &Keypair,
         storage_deposit_limit: Option<E::Balance>,
     ) -> Result<UploadResult<E, Self::EventLog>, Self::Error>;
+
+    /// Removes the code of the contract at `code_hash`.
+    async fn bare_remove_code(
+        &mut self,
+        caller: &Keypair,
+        code_hash: E::Hash,
+    ) -> Result<Self::EventLog, Self::Error>;
 
     /// Bare instantiate call. This function does not perform a dry-run,
     /// and user is expected to provide the gas limit.

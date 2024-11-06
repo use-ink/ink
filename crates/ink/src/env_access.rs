@@ -1,4 +1,4 @@
-// Copyright (C) Parity Technologies (UK) Ltd.
+// Copyright (C) Use Ink (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,19 +18,22 @@ use ink_env::{
     call::{
         Call,
         CallParams,
+        CallV1,
         ConstructorReturnType,
         CreateParams,
         DelegateCall,
         FromAccountId,
+        LimitParamsV1,
+        LimitParamsV2,
     },
     hash::{
         CryptoHash,
         HashOutput,
     },
     Environment,
-    Error,
     Result,
 };
+use pallet_contracts_uapi::ReturnErrorCode;
 
 /// The API behind the `self.env()` and `Self::env()` syntax in ink!.
 ///
@@ -421,7 +424,10 @@ where
         ink_env::emit_event::<E, Evt>(event)
     }
 
-    /// Instantiates another contract.
+    /// Instantiates another contract using the supplied code hash.
+    ///
+    /// Invokes the `instantiate_v2` host function which allows passing all weight and
+    /// storage limit parameters.
     ///
     /// # Example
     ///
@@ -458,7 +464,9 @@ where
     /// pub fn instantiate_contract(&self) -> MyContractRef {
     ///     let create_params = build_create::<OtherContractRef>()
     ///         .code_hash(Hash::from([0x42; 32]))
-    ///         .gas_limit(4000)
+    ///         .ref_time_limit(500_000_000)
+    ///         .proof_size_limit(100_000)
+    ///         .storage_deposit_limit(500_000_000_000)
     ///         .endowment(25)
     ///         .exec_input(
     ///             ExecutionInput::new(Selector::new(ink::selector_bytes!("new")))
@@ -484,7 +492,7 @@ where
     /// # }
     /// ```
     ///
-    /// See [our `delegator` example](https://github.com/paritytech/ink/tree/master/integration-tests/integration%20tests/examples/delegator)
+    /// See [our `delegator` example](https://github.com/use-ink/ink-examples/tree/main/upgradeable-contracts#delegator)
     /// for a complete contract example.
     ///
     /// # Note
@@ -492,7 +500,7 @@ where
     /// For more details visit: [`ink_env::instantiate_contract`]
     pub fn instantiate_contract<ContractRef, Args, Salt, R>(
         self,
-        params: &CreateParams<E, ContractRef, Args, Salt, R>,
+        params: &CreateParams<E, ContractRef, LimitParamsV2<E>, Args, Salt, R>,
     ) -> Result<
         ink_primitives::ConstructorResult<
             <R as ConstructorReturnType<ContractRef>>::Output,
@@ -507,6 +515,94 @@ where
         ink_env::instantiate_contract::<E, ContractRef, Args, Salt, R>(params)
     }
 
+    /// Instantiates another contract using the supplied code hash.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # #[ink::contract]
+    /// # pub mod my_contract {
+    /// # // In order for this to actually work with another contract we'd need a way
+    /// # // to turn the `ink-as-dependency` crate feature on in doctests, which we
+    /// # // can't do.
+    /// # //
+    /// # // Instead we use our own contract's `Ref`, which is fine for this example
+    /// # // (just need something that implements the `ContractRef` trait).
+    /// # pub mod other_contract {
+    /// #     pub use super::MyContractRef as OtherContractRef;
+    /// # }
+    /// use ink::env::{
+    ///     DefaultEnvironment,
+    ///     call::{build_create, Selector, ExecutionInput}
+    /// };
+    /// use other_contract::OtherContractRef;
+    /// #
+    /// #     #[ink(storage)]
+    /// #     pub struct MyContract { }
+    /// #
+    /// #     impl MyContract {
+    /// #         #[ink(constructor)]
+    /// #         pub fn new() -> Self {
+    /// #             Self {}
+    /// #         }
+    /// #
+    ///
+    /// /// Instantiates another contract.
+    /// #[ink(message)]
+    /// pub fn instantiate_contract(&self) -> MyContractRef {
+    ///     let create_params = build_create::<OtherContractRef>()
+    ///         .instantiate_v1()
+    ///         .code_hash(Hash::from([0x42; 32]))
+    ///         .gas_limit(500_000_000)
+    ///         .endowment(25)
+    ///         .exec_input(
+    ///             ExecutionInput::new(Selector::new(ink::selector_bytes!("new")))
+    ///                 .push_arg(42)
+    ///                 .push_arg(true)
+    ///                 .push_arg(&[0x10u8; 32]),
+    ///         )
+    ///         .salt_bytes(&[0xCA, 0xFE, 0xBA, 0xBE])
+    ///         .returns::<OtherContractRef>()
+    ///         .params();
+    ///     self.env()
+    ///         .instantiate_contract_v1(&create_params)
+    ///         .unwrap_or_else(|error| {
+    ///             panic!(
+    ///                 "Received an error from the Contracts pallet while instantiating: {:?}",
+    ///                 error
+    ///             )
+    ///         })
+    ///         .unwrap_or_else(|error| panic!("Received a `LangError` while instatiating: {:?}", error))
+    /// }
+    /// #
+    /// #     }
+    /// # }
+    /// ```
+    ///
+    /// See [our `delegator` example](https://github.com/use-ink/ink-examples/tree/main/upgradeable-contracts#delegator)
+    /// for a complete contract example.
+    ///
+    /// # Note
+    ///
+    /// For more details visit: [`ink_env::instantiate_contract_v1`]
+
+    pub fn instantiate_contract_v1<ContractRef, Args, Salt, R>(
+        self,
+        params: &CreateParams<E, ContractRef, LimitParamsV1, Args, Salt, R>,
+    ) -> Result<
+        ink_primitives::ConstructorResult<
+            <R as ConstructorReturnType<ContractRef>>::Output,
+        >,
+    >
+    where
+        ContractRef: FromAccountId<E>,
+        Args: scale::Encode,
+        Salt: AsRef<[u8]>,
+        R: ConstructorReturnType<ContractRef>,
+    {
+        ink_env::instantiate_contract_v1::<E, ContractRef, Args, Salt, R>(params)
+    }
+
     /// Invokes a contract message and returns its result.
     ///
     /// # Example
@@ -517,7 +613,7 @@ where
     /// use ink::env::{
     ///     call::{
     ///         build_call,
-    ///         Call,
+    ///         CallV1,
     ///         ExecutionInput,
     ///         Selector,
     ///     },
@@ -539,10 +635,80 @@ where
     /// pub fn invoke_contract(&self) -> i32 {
     ///     let call_params = build_call::<DefaultEnvironment>()
     ///         .call_type(
-    ///             Call::new(AccountId::from([0x42; 32]))
+    ///             CallV1::new(AccountId::from([0x42; 32]))
     ///                 .gas_limit(5000)
     ///                 .transferred_value(10),
     ///         )
+    ///         .exec_input(
+    ///             ExecutionInput::new(Selector::new([0xCA, 0xFE, 0xBA, 0xBE]))
+    ///                 .push_arg(42u8)
+    ///                 .push_arg(true)
+    ///                 .push_arg(&[0x10u8; 32]),
+    ///         )
+    ///         .returns::<i32>()
+    ///         .params();
+    ///
+    ///     self.env()
+    ///         .invoke_contract_v1(&call_params)
+    ///         .unwrap_or_else(|env_err| {
+    ///             panic!("Received an error from the Environment: {:?}", env_err)
+    ///         })
+    ///         .unwrap_or_else(|lang_err| panic!("Received a `LangError`: {:?}", lang_err))
+    /// }
+    /// #
+    /// #     }
+    /// # }
+    /// ```
+    ///
+    /// # Note
+    ///
+    /// For more details visit: [`ink_env::invoke_contract_v1`]
+    pub fn invoke_contract_v1<Args, R>(
+        self,
+        params: &CallParams<E, CallV1<E>, Args, R>,
+    ) -> Result<ink_primitives::MessageResult<R>>
+    where
+        Args: scale::Encode,
+        R: scale::Decode,
+    {
+        ink_env::invoke_contract_v1::<E, Args, R>(params)
+    }
+
+    /// Invokes a contract message and returns its result.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # #[ink::contract]
+    /// # pub mod my_contract {
+    /// use ink::env::{
+    ///     call::{
+    ///         build_call,
+    ///         CallV1,
+    ///         ExecutionInput,
+    ///         Selector,
+    ///     },
+    ///     DefaultEnvironment,
+    /// };
+    ///
+    /// #
+    /// #     #[ink(storage)]
+    /// #     pub struct MyContract { }
+    /// #
+    /// #     impl MyContract {
+    /// #         #[ink(constructor)]
+    /// #         pub fn new() -> Self {
+    /// #             Self {}
+    /// #         }
+    /// #
+    /// /// Invokes a contract message and fetches the result.
+    /// #[ink(message)]
+    /// pub fn invoke_contract_v2(&self) -> i32 {
+    ///     let call_params = build_call::<DefaultEnvironment>()
+    ///         .call(AccountId::from([0x42; 32]))
+    ///         .ref_time_limit(500_000_000)
+    ///         .proof_size_limit(100_000)
+    ///         .storage_deposit_limit(1_000_000_000)
     ///         .exec_input(
     ///             ExecutionInput::new(Selector::new([0xCA, 0xFE, 0xBA, 0xBE]))
     ///                 .push_arg(42u8)
@@ -824,7 +990,7 @@ where
     ///     let failed_result = self.env().ecdsa_recover(&signature, &[0; 32]);
     ///     assert!(failed_result.is_err());
     ///     if let Err(e) = failed_result {
-    ///         assert_eq!(e, ink::env::Error::EcdsaRecoveryFailed);
+    ///         assert_eq!(e, ink::env::ReturnErrorCode::EcdsaRecoveryFailed.into());
     ///     }
     /// }
     /// #
@@ -839,7 +1005,7 @@ where
         let mut output = [0; 33];
         ink_env::ecdsa_recover(signature, message_hash, &mut output)
             .map(|_| output)
-            .map_err(|_| Error::EcdsaRecoveryFailed)
+            .map_err(|_| ReturnErrorCode::EcdsaRecoveryFailed.into())
     }
 
     /// Returns an Ethereum address from the ECDSA compressed public key.
@@ -886,7 +1052,7 @@ where
         let mut output = [0; 20];
         ink_env::ecdsa_to_eth_address(pubkey, &mut output)
             .map(|_| output)
-            .map_err(|_| Error::EcdsaRecoveryFailed)
+            .map_err(|_| ReturnErrorCode::EcdsaRecoveryFailed.into())
     }
 
     /// Verifies a SR25519 signature against a message and a public key.
@@ -946,7 +1112,7 @@ where
         pub_key: &[u8; 32],
     ) -> Result<()> {
         ink_env::sr25519_verify(signature, message, pub_key)
-            .map_err(|_| Error::Sr25519VerifyFailed)
+            .map_err(|_| ReturnErrorCode::Sr25519VerifyFailed.into())
     }
 
     /// Checks whether a specified account belongs to a contract.
@@ -1111,5 +1277,83 @@ where
 
     pub fn call_runtime<Call: scale::Encode>(self, call: &Call) -> Result<()> {
         ink_env::call_runtime::<E, _>(call)
+    }
+
+    /// Adds a new delegate dependency lock for the given `code_hash` to prevent it from
+    /// being deleted.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # #[ink::contract]
+    /// # pub mod my_contract {
+    /// #     #[ink(storage)]
+    /// #     pub struct MyContract { }
+    /// #
+    /// #     impl MyContract {
+    /// #         #[ink(constructor)]
+    /// #         pub fn new() -> Self {
+    /// #             Self {}
+    /// #         }
+    /// #
+    /// #[ink(message)]
+    /// pub fn lock_delegate_dependency(&mut self, code_hash: Hash) {
+    ///     self.env().lock_delegate_dependency(&code_hash)
+    /// }
+    /// #    }
+    /// # }
+    /// ```
+    ///
+    /// # Note
+    ///
+    /// For more details visit: [`ink_env::lock_delegate_dependency`]
+    pub fn lock_delegate_dependency(self, code_hash: &E::Hash) {
+        ink_env::lock_delegate_dependency::<E>(code_hash)
+    }
+
+    /// Removes the delegate dependency lock from this contract for the given `code_hash`.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # #[ink::contract]
+    /// # pub mod my_contract {
+    /// #     #[ink(storage)]
+    /// #     pub struct MyContract { }
+    /// #
+    /// #     impl MyContract {
+    /// #         #[ink(constructor)]
+    /// #         pub fn new() -> Self {
+    /// #             Self {}
+    /// #         }
+    /// #
+    /// #[ink(message)]
+    /// pub fn unlock_delegate_dependency(&mut self, code_hash: Hash) {
+    ///     self.env().unlock_delegate_dependency(&code_hash)
+    /// }
+    /// #    }
+    /// # }
+    /// ```
+    ///
+    /// # Note
+    ///
+    /// For more details visit: [`ink_env::unlock_delegate_dependency`]
+    pub fn unlock_delegate_dependency(self, code_hash: &E::Hash) {
+        ink_env::unlock_delegate_dependency::<E>(code_hash)
+    }
+
+    pub fn xcm_execute<Call: scale::Encode>(
+        self,
+        msg: &xcm::VersionedXcm<Call>,
+    ) -> Result<()> {
+        ink_env::xcm_execute::<E, _>(msg)
+    }
+
+    pub fn xcm_send<Call: scale::Encode>(
+        self,
+        dest: &xcm::VersionedLocation,
+        msg: &xcm::VersionedXcm<Call>,
+    ) -> Result<xcm::v4::XcmHash> {
+        ink_env::xcm_send::<E, _>(dest, msg)
     }
 }

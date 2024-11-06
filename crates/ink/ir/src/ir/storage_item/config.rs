@@ -1,4 +1,4 @@
-// Copyright (C) Parity Technologies (UK) Ltd.
+// Copyright (C) Use Ink (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -33,21 +33,22 @@ impl TryFrom<ast::AttributeArgs> for StorageItemConfig {
     fn try_from(args: ast::AttributeArgs) -> Result<Self, Self::Error> {
         let mut derive: Option<syn::LitBool> = None;
         for arg in args.into_iter() {
-            if arg.name.is_ident("derive") {
+            if arg.name().is_ident("derive") {
                 if let Some(lit_bool) = derive {
                     return Err(duplicate_config_err(
                         lit_bool,
                         arg,
                         "derive",
                         "storage item",
-                    ))
+                    ));
                 }
-                if let ast::MetaValue::Lit(syn::Lit::Bool(lit_bool)) = &arg.value {
+                if let Some(lit_bool) = arg.value().and_then(ast::MetaValue::as_lit_bool)
+                {
                     derive = Some(lit_bool.clone())
                 } else {
                     return Err(format_err_spanned!(
                         arg,
-                        "expected a bool literal for `derive` ink! storage item configuration argument",
+                        "expected a bool literal value for `derive` ink! storage item configuration argument",
                     ));
                 }
             } else {

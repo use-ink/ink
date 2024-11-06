@@ -1,4 +1,4 @@
-// Copyright (C) Parity Technologies (UK) Ltd.
+// Copyright (C) Use Ink (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -52,7 +52,10 @@ use serde::{
     Serialize,
 };
 #[cfg(feature = "std")]
-use std::collections::BTreeMap;
+use std::{
+    collections::BTreeMap,
+    hash::Hash,
+};
 
 /// Describes a contract.
 #[derive(Debug, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
@@ -1091,6 +1094,7 @@ where
 }
 
 /// The 4 byte selector to identify constructors and messages
+#[cfg_attr(feature = "std", derive(Hash))]
 #[derive(Debug, Default, PartialEq, Eq, derive_more::From, JsonSchema)]
 pub struct Selector(#[schemars(with = "String")] [u8; 4]);
 

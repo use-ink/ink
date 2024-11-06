@@ -1,4 +1,4 @@
-// Copyright (C) Parity Technologies (UK) Ltd.
+// Copyright (C) Use Ink (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -41,5 +41,11 @@ impl<T> IsSameType<T> {
         Self {
             _marker: PhantomData,
         }
+    }
+}
+
+impl<T> Default for IsSameType<T> {
+    fn default() -> Self {
+        Self::new()
     }
 }

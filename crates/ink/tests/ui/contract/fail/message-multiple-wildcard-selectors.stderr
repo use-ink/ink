@@ -2,10 +2,10 @@ error: encountered ink! messages with overlapping wildcard selectors
   --> tests/ui/contract/fail/message-multiple-wildcard-selectors.rs:16:9
    |
 16 |         pub fn message2(&self) {}
-   |         ^^^
+   |         ^^^^^^^^^^^^^^^^^^^^^^^^^
 
 error: first ink! message with overlapping wildcard selector here
   --> tests/ui/contract/fail/message-multiple-wildcard-selectors.rs:13:9
    |
 13 |         pub fn message1(&self) {}
-   |         ^^^
+   |         ^^^^^^^^^^^^^^^^^^^^^^^^^

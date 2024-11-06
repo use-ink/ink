@@ -25,6 +25,7 @@ Wasm32
 WebAssembly
 adjunctive
 bitvector
+bitmask
 bitwise
 callee
 codegen
@@ -52,6 +53,7 @@ fuzzer
 getter
 growable
 ident
+idents
 interoperate
 invariants
 kB
@@ -67,6 +69,7 @@ scalability
 scalable
 scale_derive
 sr25519
+SS58
 stdin
 stdout
 subber
@@ -107,6 +110,8 @@ instantiation/S
 layout/JG
 namespace/S
 parameterize/SD
+parachain/S
+picosecond/S
 runtime/S
 storable
 struct/S
@@ -120,3 +125,11 @@ payability
 unpayable
 initializer
 WebSocket/S
+StorageVec
+KiB
+GB
+DRink
+^
+externalities
+sandbox_client
+xcm

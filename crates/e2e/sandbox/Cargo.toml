@@ -1,0 +1,41 @@
+[package]
+name = "ink_sandbox"
+version = "5.0.0"
+authors = ["Use Ink <ink@use.ink>", "Cardinal Cryptography"]
+edition.workspace = true
+license.workspace = true
+description = "Sandbox runtime environment for ink! e2e tests"
+
+[dependencies]
+frame-metadata = { workspace = true }
+frame-support = { workspace = true }
+frame-system = { workspace = true }
+pallet-balances = { workspace = true }
+pallet-contracts = { workspace = true }
+pallet-timestamp = { workspace = true }
+scale = { workspace = true }
+sp-core = { workspace = true }
+sp-externalities = { workspace = true }
+sp-io = { workspace = true }
+
+paste = { workspace = true }
+scale-info = { workspace = true }
+wat = { workspace = true }
+
+[features]
+default = [
+    # This is required for the runtime-interface to work properly in the std env.
+    "std",
+]
+std = [
+	"frame-support/std",
+	"frame-system/std",
+	"pallet-balances/std",
+	"pallet-contracts/std",
+	"pallet-timestamp/std",
+	"scale/std",
+	"scale-info/std",
+	"sp-core/std",
+	"sp-externalities/std",
+	"sp-io/std"
+]
