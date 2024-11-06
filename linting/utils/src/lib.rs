@@ -55,14 +55,15 @@ use rustc_lint::LateContext;
 /// allowed dylint to identify the storage struct in a contract.
 ///
 /// Starting with Rust 1.81, `cargo` throws a warning for features that
-/// are not declared in the `Cargo.toml` and also for not well-known key-value pairs.
+/// are not declared in the `Cargo.toml` and also for not well-known
+/// key-value pairs.
 ///
 /// We don't want to burden contract developers with putting features that
 /// are just for internal use there. The only alternative we found is to
-/// use an obscure `cfg` condition, that is highly unlikely to be ever annotated
-/// in a contract by a developer. Hence, we decided to use
-/// `#[cfg(not(target_vendor = "fortanix"))]`, as it seems unlikely that a contract will
-/// ever be compiled for this target.
+/// use an obscure `cfg` condition, that is highly unlikely to be ever
+/// annotated in a contract by a developer. Hence, we decided to use
+/// `#[cfg(not(target_vendor = "fortanix"))]`, as it seems unlikely that a
+/// contract will ever be compiled for this target.
 ///
 /// We have to continue checking for the `__ink_dylint_Storage` attribute
 /// here, as the linting will otherwise stop working for ink! 5.0.0 contracts.

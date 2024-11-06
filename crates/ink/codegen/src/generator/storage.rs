@@ -83,6 +83,11 @@ impl Storage<'_> {
     ///
     /// The `fortanix` config attribute is used here to convey the
     /// information that the generated struct is an ink! storage struct to `dylint`.
+    ///
+    /// We decided on this attribute to mark the function, as it has to be a
+    /// key-value pair that is well known to `cargo`. fortanix seems like an obscure
+    /// vendor, for  which it is highly unlikely that someone will ever compile
+    /// a contract for.
     fn generate_storage_struct(&self) -> TokenStream2 {
         let storage = self.contract.module().storage();
         let span = storage.span();

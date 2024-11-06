@@ -229,6 +229,12 @@ impl ItemImpls<'_> {
     ///
     /// The `dragonfly` config attribute is used here to convey the
     /// information that the generated function is an ink! constructor to `dylint`.
+    ///
+    ///
+    /// We decided on this attribute to mark the function, as it has to be a
+    /// key-value pair that is well known to `cargo`. dragonfly seems like an
+    /// obscure target which it is highly unlikely that someone will ever
+    /// compile a contract for.
     fn generate_inherent_constructor(constructor: &ir::Constructor) -> TokenStream2 {
         let span = constructor.span();
         let attrs = constructor.attrs();
