@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/ink/src/env_access.rs`."><title>env_access.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="ink" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../ink/index.html"><img src="https://use.ink/img/crate-docs/logo.png" alt="ink"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/ink/src/env_access.rs`."><title>env_access.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-c5d6553a23f1e5a6.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="ink" data-themes="" data-resource-suffix="" data-rustdoc-version="1.81.0 (eeb90cda1 2024-09-04)" data-channel="1.81.0" data-search-js="search-d234aafac6c221dd.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-d2fab2bf619172d3.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1359,14 +1359,14 @@
 <a href="#1359" id="1359">1359</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) Use Ink (UK) Ltd.
 //
-// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
 //     http://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// distributed under the License is distributed on an "AS IS" BASIS,
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
@@ -1399,12 +1399,12 @@
 /// This allows ink! messages to make use of the environment efficiently
 /// and user friendly while also maintaining access invariants.
 </span><span class="attr">#[derive(Copy, Clone)]
-</span><span class="kw">pub struct </span>EnvAccess&lt;<span class="lifetime">&#39;a</span>, E&gt; {
+</span><span class="kw">pub struct </span>EnvAccess&lt;<span class="lifetime">'a</span>, E&gt; {
     <span class="doccomment">/// Tricks the Rust compiler into thinking that we use `E`.
-    </span>marker: PhantomData&lt;<span class="kw">fn</span>() -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>E&gt;,
+    </span>marker: PhantomData&lt;<span class="kw">fn</span>() -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'a </span>E&gt;,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, E&gt; Default <span class="kw">for </span>EnvAccess&lt;<span class="lifetime">&#39;a</span>, E&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, E&gt; Default <span class="kw">for </span>EnvAccess&lt;<span class="lifetime">'a</span>, E&gt; {
     <span class="attr">#[inline]
     </span><span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{
@@ -1413,13 +1413,13 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, E&gt; core::fmt::Debug <span class="kw">for </span>EnvAccess&lt;<span class="lifetime">&#39;a</span>, E&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, E&gt; core::fmt::Debug <span class="kw">for </span>EnvAccess&lt;<span class="lifetime">'a</span>, E&gt; {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>core::fmt::Formatter) -&gt; core::fmt::Result {
-        f.debug_struct(<span class="string">&quot;EnvAccess&quot;</span>).finish()
+        f.debug_struct(<span class="string">"EnvAccess"</span>).finish()
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, E&gt; EnvAccess&lt;<span class="lifetime">&#39;a</span>, E&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, E&gt; EnvAccess&lt;<span class="lifetime">'a</span>, E&gt;
 <span class="kw">where
     </span>E: Environment,
     &lt;E <span class="kw">as </span>Environment&gt;::ChainExtension: ChainExtensionInstance,
@@ -1432,7 +1432,7 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, E&gt; EnvAccess&lt;<span class="lifetime">&#39;a</span>, E&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, E&gt; EnvAccess&lt;<span class="lifetime">'a</span>, E&gt;
 <span class="kw">where
     </span>E: Environment,
 {
@@ -1455,7 +1455,7 @@
     /// #[ink(message)]
     /// pub fn call_me(&amp;self) {
     ///     let caller = self.env().caller();
-    ///     ink::env::debug_println!(&quot;got a call from {:?}&quot;, &amp;caller);
+    ///     ink::env::debug_println!("got a call from {:?}", &amp;caller);
     /// }
     /// #
     /// #     }
@@ -1491,7 +1491,7 @@
     ///     let caller = self.env().caller();
     ///     let value = self.env().transferred_value();
     ///     ink::env::debug_println!(
-    ///         &quot;thanks for the funding of {:?} from {:?}&quot;,
+    ///         "thanks for the funding of {:?} from {:?}",
     ///         value,
     ///         caller
     ///     );
@@ -1649,7 +1649,7 @@
     ///             }
     ///         }
     ///
-    ///         /// Allows incrementing the contract&#39;s `value` only
+    ///         /// Allows incrementing the contract's `value` only
     ///         /// for the owner (i.e. the account which instantiated
     ///         /// this contract.
     ///         ///
@@ -1687,7 +1687,7 @@
     /// #             Self {}
     /// #         }
     /// #
-    /// /// Returns the contract&#39;s balance.
+    /// /// Returns the contract's balance.
     /// #[ink(message)]
     /// pub fn my_balance(&amp;self) -&gt; Balance {
     ///     self.env().balance()
@@ -1743,7 +1743,7 @@
     }
 
     <span class="doccomment">/// Returns the minimum balance that is required for creating an account
-    /// (i.e. the chain&#39;s existential deposit).
+    /// (i.e. the chain's existential deposit).
     ///
     /// # Example
     ///
@@ -1793,11 +1793,11 @@
     /// ```
     /// # #[ink::contract]
     /// # pub mod my_contract {
-    /// # // In order for this to actually work with another contract we&#39;d need a way
+    /// # // In order for this to actually work with another contract we'd need a way
     /// # // to turn the `ink-as-dependency` crate feature on in doctests, which we
-    /// # // can&#39;t do.
+    /// # // can't do.
     /// # //
-    /// # // Instead we use our own contract&#39;s `Ref`, which is fine for this example
+    /// # // Instead we use our own contract's `Ref`, which is fine for this example
     /// # // (just need something that implements the `ContractRef` trait).
     /// # pub mod other_contract {
     /// #     pub use super::MyContractRef as OtherContractRef;
@@ -1828,7 +1828,7 @@
     ///         .storage_deposit_limit(500_000_000_000)
     ///         .endowment(25)
     ///         .exec_input(
-    ///             ExecutionInput::new(Selector::new(ink::selector_bytes!(&quot;new&quot;)))
+    ///             ExecutionInput::new(Selector::new(ink::selector_bytes!("new")))
     ///                 .push_arg(42)
     ///                 .push_arg(true)
     ///                 .push_arg(&amp;[0x10u8; 32]),
@@ -1840,11 +1840,11 @@
     ///         .instantiate_contract(&amp;create_params)
     ///         .unwrap_or_else(|error| {
     ///             panic!(
-    ///                 &quot;Received an error from the Contracts pallet while instantiating: {:?}&quot;,
+    ///                 "Received an error from the Contracts pallet while instantiating: {:?}",
     ///                 error
     ///             )
     ///         })
-    ///         .unwrap_or_else(|error| panic!(&quot;Received a `LangError` while instatiating: {:?}&quot;, error))
+    ///         .unwrap_or_else(|error| panic!("Received a `LangError` while instatiating: {:?}", error))
     /// }
     /// #
     /// #     }
@@ -1881,11 +1881,11 @@
     /// ```
     /// # #[ink::contract]
     /// # pub mod my_contract {
-    /// # // In order for this to actually work with another contract we&#39;d need a way
+    /// # // In order for this to actually work with another contract we'd need a way
     /// # // to turn the `ink-as-dependency` crate feature on in doctests, which we
-    /// # // can&#39;t do.
+    /// # // can't do.
     /// # //
-    /// # // Instead we use our own contract&#39;s `Ref`, which is fine for this example
+    /// # // Instead we use our own contract's `Ref`, which is fine for this example
     /// # // (just need something that implements the `ContractRef` trait).
     /// # pub mod other_contract {
     /// #     pub use super::MyContractRef as OtherContractRef;
@@ -1915,7 +1915,7 @@
     ///         .gas_limit(500_000_000)
     ///         .endowment(25)
     ///         .exec_input(
-    ///             ExecutionInput::new(Selector::new(ink::selector_bytes!(&quot;new&quot;)))
+    ///             ExecutionInput::new(Selector::new(ink::selector_bytes!("new")))
     ///                 .push_arg(42)
     ///                 .push_arg(true)
     ///                 .push_arg(&amp;[0x10u8; 32]),
@@ -1927,11 +1927,11 @@
     ///         .instantiate_contract_v1(&amp;create_params)
     ///         .unwrap_or_else(|error| {
     ///             panic!(
-    ///                 &quot;Received an error from the Contracts pallet while instantiating: {:?}&quot;,
+    ///                 "Received an error from the Contracts pallet while instantiating: {:?}",
     ///                 error
     ///             )
     ///         })
-    ///         .unwrap_or_else(|error| panic!(&quot;Received a `LangError` while instatiating: {:?}&quot;, error))
+    ///         .unwrap_or_else(|error| panic!("Received a `LangError` while instatiating: {:?}", error))
     /// }
     /// #
     /// #     }
@@ -2010,9 +2010,9 @@
     ///     self.env()
     ///         .invoke_contract_v1(&amp;call_params)
     ///         .unwrap_or_else(|env_err| {
-    ///             panic!(&quot;Received an error from the Environment: {:?}&quot;, env_err)
+    ///             panic!("Received an error from the Environment: {:?}", env_err)
     ///         })
-    ///         .unwrap_or_else(|lang_err| panic!(&quot;Received a `LangError`: {:?}&quot;, lang_err))
+    ///         .unwrap_or_else(|lang_err| panic!("Received a `LangError`: {:?}", lang_err))
     /// }
     /// #
     /// #     }
@@ -2080,9 +2080,9 @@
     ///     self.env()
     ///         .invoke_contract(&amp;call_params)
     ///         .unwrap_or_else(|env_err| {
-    ///             panic!(&quot;Received an error from the Environment: {:?}&quot;, env_err)
+    ///             panic!("Received an error from the Environment: {:?}", env_err)
     ///         })
-    ///         .unwrap_or_else(|lang_err| panic!(&quot;Received a `LangError`: {:?}&quot;, lang_err))
+    ///         .unwrap_or_else(|lang_err| panic!("Received a `LangError`: {:?}", lang_err))
     /// }
     /// #
     /// #     }
@@ -2150,9 +2150,9 @@
     ///     self.env()
     ///         .invoke_contract_delegate(&amp;call_params)
     ///         .unwrap_or_else(|env_err| {
-    ///             panic!(&quot;Received an error from the Environment: {:?}&quot;, env_err)
+    ///             panic!("Received an error from the Environment: {:?}", env_err)
     ///         })
-    ///         .unwrap_or_else(|lang_err| panic!(&quot;Received a `LangError`: {:?}&quot;, lang_err))
+    ///         .unwrap_or_else(|lang_err| panic!("Received a `LangError`: {:?}", lang_err))
     /// }
     /// #
     /// #     }
@@ -2228,7 +2228,7 @@
     ///     let value: Balance = 10;
     ///     self.env()
     ///         .transfer(self.env().caller(), value)
-    ///         .unwrap_or_else(|err| panic!(&quot;transfer failed: {:?}&quot;, err));
+    ///         .unwrap_or_else(|err| panic!("transfer failed: {:?}", err));
     /// }
     /// #
     /// #     }
@@ -2280,7 +2280,7 @@
     ///     Sha2x256,
     /// };
     ///
-    /// let encodable = (42, &quot;foo&quot;, true); // Implements `scale::Encode`
+    /// let encodable = (42, "foo", true); // Implements `scale::Encode`
     /// let mut output = &lt;Sha2x256 as HashOutput&gt;::Type::default(); // 256-bit buffer
     /// ink_env::hash_encoded::&lt;Sha2x256, _&gt;(&amp;encodable, &amp;mut output);
     ///
@@ -2396,7 +2396,7 @@
     ///     let output = self
     ///         .env()
     ///         .ecdsa_to_eth_address(&amp;pub_key)
-    ///         .unwrap_or_else(|err| panic!(&quot;must return an Ethereum address for the compressed public key: {:?}&quot;, err));
+    ///         .unwrap_or_else(|err| panic!("must return an Ethereum address for the compressed public key: {:?}", err));
     ///     assert_eq!(output, EXPECTED_ETH_ADDRESS);
     /// }
     /// #
@@ -2457,7 +2457,7 @@
     ///
     /// # Note
     ///
-    /// The context for sr25519 signing is hard-coded to &quot;substrate&quot; to match sr25519
+    /// The context for sr25519 signing is hard-coded to "substrate" to match sr25519
     /// signing in substrate.
     ///
     /// For more details visit: [`ink_env::sr25519_verify`]
@@ -2588,7 +2588,7 @@
     /// pub fn own_code_hash(&amp;mut self) -&gt; Hash {
     ///     self.env()
     ///         .own_code_hash()
-    ///         .unwrap_or_else(|err| panic!(&quot;contract should have a code hash: {:?}&quot;, err))
+    ///         .unwrap_or_else(|err| panic!("contract should have a code hash: {:?}", err))
     /// }
     /// #    }
     /// # }
@@ -2621,7 +2621,7 @@
     /// pub fn set_code_hash(&amp;mut self, code_hash: Hash) {
     ///     self.env()
     ///         .set_code_hash(&amp;code_hash)
-    ///         .unwrap_or_else(|err| panic!(&quot;failed to set code hash: {:?}&quot;, err))
+    ///         .unwrap_or_else(|err| panic!("failed to set code hash: {:?}", err))
     /// }
     /// #    }
     /// # }

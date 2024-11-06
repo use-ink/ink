@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/env/src/engine/off_chain/test_api.rs`."><title>test_api.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="ink_env" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../../ink_env/index.html"><img src="https://use.ink/img/crate-docs/logo.png" alt="ink_env"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/env/src/engine/off_chain/test_api.rs`."><title>test_api.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-c5d6553a23f1e5a6.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="ink_env" data-themes="" data-resource-suffix="" data-rustdoc-version="1.81.0 (eeb90cda1 2024-09-04)" data-channel="1.81.0" data-search-js="search-d234aafac6c221dd.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-d2fab2bf619172d3.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -434,14 +434,14 @@
 <a href="#434" id="434">434</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) Use Ink (UK) Ltd.
 //
-// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
 //     http://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// distributed under the License is distributed on an "AS IS" BASIS,
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
@@ -522,7 +522,7 @@
 <span class="doccomment">/// Registers a new chain extension.
 </span><span class="kw">pub fn </span>register_chain_extension&lt;E&gt;(extension: E)
 <span class="kw">where
-    </span>E: ink_engine::ChainExtension + <span class="lifetime">&#39;static</span>,
+    </span>E: ink_engine::ChainExtension + <span class="lifetime">'static</span>,
 {
     &lt;EnvInstance <span class="kw">as </span>OnInstance&gt;::on_instance(|instance| {
         instance
@@ -548,7 +548,7 @@
 /// they are dropped.
 </span><span class="kw">pub fn </span>set_clear_storage_disabled(_disable: bool) {
     <span class="macro">unimplemented!</span>(
-        <span class="string">&quot;off-chain environment does not yet support `set_clear_storage_disabled`&quot;
+        <span class="string">"off-chain environment does not yet support `set_clear_storage_disabled`"
     </span>);
 }
 
@@ -620,11 +620,11 @@
     &lt;EnvInstance <span class="kw">as </span>OnInstance&gt;::on_instance(|instance| {
         <span class="kw">let </span>callee = instance.engine.get_callee();
         scale::Decode::decode(<span class="kw-2">&amp;mut &amp;</span>callee[..])
-            .unwrap_or_else(|err| <span class="macro">panic!</span>(<span class="string">&quot;encoding failed: {err}&quot;</span>))
+            .unwrap_or_else(|err| <span class="macro">panic!</span>(<span class="string">"encoding failed: {err}"</span>))
     })
 }
 
-<span class="doccomment">/// Returns the total number of reads and writes of the contract&#39;s storage.
+<span class="doccomment">/// Returns the total number of reads and writes of the contract's storage.
 </span><span class="kw">pub fn </span>get_contract_storage_rw&lt;T&gt;(account_id: <span class="kw-2">&amp;</span>T::AccountId) -&gt; (usize, usize)
 <span class="kw">where
     </span>T: Environment,
@@ -663,7 +663,7 @@
             .exec_context
             .caller
             .as_ref()
-            .expect(<span class="string">&quot;no caller has been set&quot;</span>)
+            .expect(<span class="string">"no caller has been set"</span>)
             .as_bytes()
             .to_vec();
 
@@ -843,16 +843,16 @@
     &lt;T <span class="kw">as </span>Environment&gt;::Balance: Debug,
 {
     <span class="kw">let </span>value_any = ::std::panic::catch_unwind(should_terminate)
-        .expect_err(<span class="string">&quot;contract did not terminate&quot;</span>);
+        .expect_err(<span class="string">"contract did not terminate"</span>);
     <span class="kw">let </span>encoded_input = value_any
         .downcast_ref::&lt;Vec&lt;u8&gt;&gt;()
-        .expect(<span class="string">&quot;panic object can not be cast&quot;</span>);
+        .expect(<span class="string">"panic object can not be cast"</span>);
     <span class="kw">let </span>(value_transferred, encoded_beneficiary): (T::Balance, Vec&lt;u8&gt;) =
         scale::Decode::decode(<span class="kw-2">&amp;mut &amp;</span>encoded_input[..])
-            .unwrap_or_else(|err| <span class="macro">panic!</span>(<span class="string">&quot;input can not be decoded: {err}&quot;</span>));
+            .unwrap_or_else(|err| <span class="macro">panic!</span>(<span class="string">"input can not be decoded: {err}"</span>));
     <span class="kw">let </span>beneficiary =
         &lt;T::AccountId <span class="kw">as </span>scale::Decode&gt;::decode(<span class="kw-2">&amp;mut &amp;</span>encoded_beneficiary[..])
-            .unwrap_or_else(|err| <span class="macro">panic!</span>(<span class="string">&quot;input can not be decoded: {err}&quot;</span>));
+            .unwrap_or_else(|err| <span class="macro">panic!</span>(<span class="string">"input can not be decoded: {err}"</span>));
     <span class="macro">assert_eq!</span>(value_transferred, expected_value_transferred_to_beneficiary);
     <span class="macro">assert_eq!</span>(beneficiary, expected_beneficiary);
 }
@@ -860,7 +860,7 @@
 <span class="doccomment">/// Prepend contract message call with value transfer. Used for tests in off-chain
 /// environment.
 </span><span class="attr">#[macro_export]
-</span><span class="macro">macro_rules! </span>pay_with_call {
+</span><span class="macro">macro_rules!</span> pay_with_call {
     (<span class="macro-nonterminal">$contract</span>:ident . <span class="macro-nonterminal">$message</span>:ident ( $( <span class="macro-nonterminal">$params</span>:expr ),* ) , <span class="macro-nonterminal">$amount</span>:expr) =&gt; {{
         <span class="macro-nonterminal">$crate::test::transfer_in</span>::&lt;Environment&gt;(<span class="macro-nonterminal">$amount</span>);
         <span class="macro-nonterminal">$contract</span>.<span class="macro-nonterminal">$message</span>($ (<span class="macro-nonterminal">$params</span>) ,<span class="kw-2">*</span>)

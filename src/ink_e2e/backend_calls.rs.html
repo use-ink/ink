@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/e2e/src/backend_calls.rs`."><title>backend_calls.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="ink_e2e" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../ink_e2e/index.html"><img src="https://use.ink/img/crate-docs/logo.png" alt="ink_e2e"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/e2e/src/backend_calls.rs`."><title>backend_calls.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-c5d6553a23f1e5a6.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="ink_e2e" data-themes="" data-resource-suffix="" data-rustdoc-version="1.81.0 (eeb90cda1 2024-09-04)" data-channel="1.81.0" data-search-js="search-d234aafac6c221dd.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-d2fab2bf619172d3.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -444,14 +444,14 @@
 <a href="#444" id="444">444</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) Use Ink (UK) Ltd.
 //
-// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
 //     http://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// distributed under the License is distributed on an "AS IS" BASIS,
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
@@ -478,7 +478,7 @@
 <span class="kw">use </span><span class="kw">super</span>::Keypair;
 
 <span class="doccomment">/// Allows to build an end-to-end call using a builder pattern.
-</span><span class="kw">pub struct </span>CallBuilder&lt;<span class="lifetime">&#39;a</span>, E, Args, RetType, B&gt;
+</span><span class="kw">pub struct </span>CallBuilder&lt;<span class="lifetime">'a</span>, E, Args, RetType, B&gt;
 <span class="kw">where
     </span>E: Environment,
     Args: Encode + Clone,
@@ -486,16 +486,16 @@
 
     B: BuilderClient&lt;E&gt;,
 {
-    client: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>B,
-    caller: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Keypair,
-    message: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>CallBuilderFinal&lt;E, Args, RetType&gt;,
+    client: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>B,
+    caller: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Keypair,
+    message: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>CallBuilderFinal&lt;E, Args, RetType&gt;,
     value: E::Balance,
     extra_gas_portion: <span class="prelude-ty">Option</span>&lt;u64&gt;,
     gas_limit: <span class="prelude-ty">Option</span>&lt;Weight&gt;,
     storage_deposit_limit: <span class="prelude-ty">Option</span>&lt;E::Balance&gt;,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, E, Args, RetType, B&gt; CallBuilder&lt;<span class="lifetime">&#39;a</span>, E, Args, RetType, B&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, E, Args, RetType, B&gt; CallBuilder&lt;<span class="lifetime">'a</span>, E, Args, RetType, B&gt;
 <span class="kw">where
     </span>E: Environment,
     Args: Sync + Encode + Clone,
@@ -505,10 +505,10 @@
 {
     <span class="doccomment">/// Initialize a call builder with defaults values.
     </span><span class="kw">pub fn </span>new(
-        client: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>B,
-        caller: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Keypair,
-        message: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>CallBuilderFinal&lt;E, Args, RetType&gt;,
-    ) -&gt; CallBuilder&lt;<span class="lifetime">&#39;a</span>, E, Args, RetType, B&gt;
+        client: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>B,
+        caller: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Keypair,
+        message: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>CallBuilderFinal&lt;E, Args, RetType&gt;,
+    ) -&gt; CallBuilder&lt;<span class="lifetime">'a</span>, E, Args, RetType, B&gt;
     <span class="kw">where
         </span>E::Balance: From&lt;u32&gt;,
     {
@@ -530,7 +530,7 @@
     </span>}
 
     <span class="doccomment">/// Increases the gas limit marginally by a specified percent.
-    /// Useful when the message&#39;s gas usage depends on the runtime state
+    /// Useful when the message's gas usage depends on the runtime state
     /// and the dry run does not produce an accurate gas estimate.
     ///
     /// # Example
@@ -635,7 +635,7 @@
 }
 
 <span class="doccomment">/// Allows to build an end-to-end instantiation call using a builder pattern.
-</span><span class="kw">pub struct </span>InstantiateBuilder&lt;<span class="lifetime">&#39;a</span>, E, Contract, Args, R, B&gt;
+</span><span class="kw">pub struct </span>InstantiateBuilder&lt;<span class="lifetime">'a</span>, E, Contract, Args, R, B&gt;
 <span class="kw">where
     </span>E: Environment,
     Args: Encode + Clone,
@@ -643,17 +643,17 @@
 
     B: ContractsBackend&lt;E&gt;,
 {
-    client: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>B,
-    caller: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Keypair,
-    contract_name: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str,
-    constructor: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>CreateBuilderPartial&lt;E, Contract, Args, R&gt;,
+    client: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>B,
+    caller: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Keypair,
+    contract_name: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str,
+    constructor: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>CreateBuilderPartial&lt;E, Contract, Args, R&gt;,
     value: E::Balance,
     extra_gas_portion: <span class="prelude-ty">Option</span>&lt;u64&gt;,
     gas_limit: <span class="prelude-ty">Option</span>&lt;Weight&gt;,
     storage_deposit_limit: <span class="prelude-ty">Option</span>&lt;E::Balance&gt;,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, E, Contract, Args, R, B&gt; InstantiateBuilder&lt;<span class="lifetime">&#39;a</span>, E, Contract, Args, R, B&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, E, Contract, Args, R, B&gt; InstantiateBuilder&lt;<span class="lifetime">'a</span>, E, Contract, Args, R, B&gt;
 <span class="kw">where
     </span>E: Environment,
     Args: Encode + Clone + Send + Sync,
@@ -663,11 +663,11 @@
 {
     <span class="doccomment">/// Initialize a call builder with essential values.
     </span><span class="kw">pub fn </span>new(
-        client: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>B,
-        caller: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Keypair,
-        contract_name: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str,
-        constructor: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>CreateBuilderPartial&lt;E, Contract, Args, R&gt;,
-    ) -&gt; InstantiateBuilder&lt;<span class="lifetime">&#39;a</span>, E, Contract, Args, R, B&gt;
+        client: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>B,
+        caller: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Keypair,
+        contract_name: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str,
+        constructor: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>CreateBuilderPartial&lt;E, Contract, Args, R&gt;,
+    ) -&gt; InstantiateBuilder&lt;<span class="lifetime">'a</span>, E, Contract, Args, R, B&gt;
     <span class="kw">where
         </span>E::Balance: From&lt;u32&gt;,
     {
@@ -690,7 +690,7 @@
     </span>}
 
     <span class="doccomment">/// Increases the gas limit marginally by a specified percent.
-    /// Useful when the message&#39;s gas usage depends on the runtime state
+    /// Useful when the message's gas usage depends on the runtime state
     /// and the dry run does not produce an accurate gas estimate.
     ///
     /// # Example
@@ -793,24 +793,24 @@
 }
 
 <span class="doccomment">/// Allows to build an end-to-end upload call using a builder pattern.
-</span><span class="kw">pub struct </span>UploadBuilder&lt;<span class="lifetime">&#39;a</span>, E, B&gt;
+</span><span class="kw">pub struct </span>UploadBuilder&lt;<span class="lifetime">'a</span>, E, B&gt;
 <span class="kw">where
     </span>E: Environment,
     B: BuilderClient&lt;E&gt;,
 {
-    client: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>B,
-    contract_name: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str,
-    caller: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Keypair,
+    client: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>B,
+    contract_name: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str,
+    caller: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Keypair,
     storage_deposit_limit: <span class="prelude-ty">Option</span>&lt;E::Balance&gt;,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, E, B&gt; UploadBuilder&lt;<span class="lifetime">&#39;a</span>, E, B&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, E, B&gt; UploadBuilder&lt;<span class="lifetime">'a</span>, E, B&gt;
 <span class="kw">where
     </span>E: Environment,
     B: BuilderClient&lt;E&gt;,
 {
     <span class="doccomment">/// Initialize an upload builder with essential values.
-    </span><span class="kw">pub fn </span>new(client: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>B, contract_name: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str, caller: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Keypair) -&gt; <span class="self">Self </span>{
+    </span><span class="kw">pub fn </span>new(client: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>B, contract_name: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str, caller: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Keypair) -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{
             client,
             contract_name,
@@ -845,23 +845,23 @@
 }
 
 <span class="doccomment">/// Allows to build an end-to-end remove code call using a builder pattern.
-</span><span class="kw">pub struct </span>RemoveCodeBuilder&lt;<span class="lifetime">&#39;a</span>, E, B&gt;
+</span><span class="kw">pub struct </span>RemoveCodeBuilder&lt;<span class="lifetime">'a</span>, E, B&gt;
 <span class="kw">where
     </span>E: Environment,
     B: BuilderClient&lt;E&gt;,
 {
-    client: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>B,
-    caller: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Keypair,
+    client: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>B,
+    caller: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Keypair,
     code_hash: E::Hash,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, E, B&gt; RemoveCodeBuilder&lt;<span class="lifetime">&#39;a</span>, E, B&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, E, B&gt; RemoveCodeBuilder&lt;<span class="lifetime">'a</span>, E, B&gt;
 <span class="kw">where
     </span>E: Environment,
     B: BuilderClient&lt;E&gt;,
 {
     <span class="doccomment">/// Initialize a remove code builder with essential values.
-    </span><span class="kw">pub fn </span>new(client: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>B, caller: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Keypair, code_hash: E::Hash) -&gt; <span class="self">Self </span>{
+    </span><span class="kw">pub fn </span>new(client: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>B, caller: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Keypair, code_hash: E::Hash) -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{
             client,
             caller,

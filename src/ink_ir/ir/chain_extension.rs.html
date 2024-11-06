@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/ink/ir/src/ir/chain_extension.rs`."><title>chain_extension.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="ink_ir" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../ink_ir/index.html"><img src="https://use.ink/img/crate-docs/logo.png" alt="ink_ir"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/ink/ir/src/ir/chain_extension.rs`."><title>chain_extension.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-c5d6553a23f1e5a6.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="ink_ir" data-themes="" data-resource-suffix="" data-rustdoc-version="1.81.0 (eeb90cda1 2024-09-04)" data-channel="1.81.0" data-search-js="search-d234aafac6c221dd.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-d2fab2bf619172d3.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1166,14 +1166,14 @@
 <a href="#1166" id="1166">1166</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) Use Ink (UK) Ltd.
 //
-// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
 //     http://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// distributed under the License is distributed on an "AS IS" BASIS,
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
@@ -1205,7 +1205,7 @@
     <span class="doccomment">/// Returns the Rust attributes of the ink! chain extension.
     </span><span class="kw">pub fn </span>attrs(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Vec&lt;syn::Attribute&gt; {
         <span class="kw">let </span>(<span class="kw">_</span>, attrs) = ir::partition_attributes(<span class="self">self</span>.item.attrs.iter().cloned())
-            .unwrap_or_else(|err| <span class="macro">panic!</span>(<span class="string">&quot;encountered unexpected invalid attributes for ink! chain extension: {err}&quot;</span>));
+            .unwrap_or_else(|err| <span class="macro">panic!</span>(<span class="string">"encountered unexpected invalid attributes for ink! chain extension: {err}"</span>));
         attrs
     }
 
@@ -1230,7 +1230,7 @@
             .default
             .as_ref()
             .map(|(_token, ty)| ty)
-            .expect(<span class="string">&quot;unexpected missing default type for error code&quot;</span>)
+            .expect(<span class="string">"unexpected missing default type for error code"</span>)
     }
 }
 
@@ -1247,11 +1247,11 @@
         <span class="kw">let </span><span class="kw-2">mut </span>ext_id: <span class="prelude-ty">Option</span>&lt;ExtensionId&gt; = <span class="prelude-val">None</span>;
 
         <span class="kw">for </span>arg <span class="kw">in </span>args.clone().into_iter() {
-            <span class="kw">if </span>arg.name().is_ident(<span class="string">&quot;extension&quot;</span>) {
+            <span class="kw">if </span>arg.name().is_ident(<span class="string">"extension"</span>) {
                 <span class="kw">if </span>ext_id.is_some() {
                     <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">format_err_spanned_value!</span>(
                         arg,
-                        <span class="string">&quot;encountered duplicate ink! contract `extension` configuration argument&quot;</span>,
+                        <span class="string">"encountered duplicate ink! contract `extension` configuration argument"</span>,
                     ));
                 }
 
@@ -1260,19 +1260,19 @@
                         .map_err(|error| {
                             <span class="macro">format_err_spanned!</span>(
                                         lit_int,
-                                        <span class="string">&quot;could not parse `N` in `extension = N` into a `u16` integer: {}&quot;</span>, error)
+                                        <span class="string">"could not parse `N` in `extension = N` into a `u16` integer: {}"</span>, error)
                         })<span class="question-mark">?</span>;
                     ext_id = <span class="prelude-val">Some</span>(ExtensionId::from_u16(id));
                 } <span class="kw">else </span>{
                     <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">format_err_spanned_value!</span>(
                         arg,
-                        <span class="string">&quot;expected `u16` integer type for `N` in `extension = N`&quot;</span>,
+                        <span class="string">"expected `u16` integer type for `N` in `extension = N`"</span>,
                     ));
                 }
             } <span class="kw">else </span>{
                 <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
                     arg,
-                    <span class="string">&quot;encountered unknown or unsupported chain extension configuration argument&quot;</span>,
+                    <span class="string">"encountered unknown or unsupported chain extension configuration argument"</span>,
                 ));
             }
         }
@@ -1282,7 +1282,7 @@
         } <span class="kw">else </span>{
             <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
                 args,
-                <span class="string">&quot;missing required `extension = N: u16` argument on ink! chain extension&quot;</span>,
+                <span class="string">"missing required `extension = N: u16` argument on ink! chain extension"</span>,
             ))
         }
     }
@@ -1304,7 +1304,7 @@
     </span>id: GlobalMethodId,
     <span class="doccomment">/// If `false` the `u32` status code of the chain extension method call is going to
     /// be ignored and assumed to be always successful. The output buffer in this
-    /// case is going to be queried and decoded into the chain extension method&#39;s
+    /// case is going to be queried and decoded into the chain extension method's
     /// output type.
     ///
     /// If `true` the returned `u32` status code `code` is queried and
@@ -1315,7 +1315,7 @@
     /// `Result&lt;T, E&gt;` if the chain extension method returns a `Result` type.
     /// In case the chain extension method does _NOT_ return a `Result` type the call
     /// returns `Result&lt;T, Self::ErrorCode&gt;` where `T` is the chain extension
-    /// method&#39;s return type.
+    /// method's return type.
     ///
     /// The default for this flag is `true`.
     </span>handle_status: bool,
@@ -1326,7 +1326,7 @@
     </span><span class="kw">pub fn </span>attrs(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Vec&lt;syn::Attribute&gt; {
         <span class="kw">let </span>(<span class="kw">_</span>, attrs) = ir::partition_attributes(<span class="self">self</span>.item.attrs.iter().cloned())
             .expect(
-            <span class="string">&quot;encountered unexpected invalid attributes for ink! chain extension method&quot;</span>,
+            <span class="string">"encountered unexpected invalid attributes for ink! chain extension method"</span>,
         );
         attrs
     }
@@ -1365,12 +1365,12 @@
     }
 }
 
-<span class="kw">pub struct </span>ChainExtensionMethodInputs&lt;<span class="lifetime">&#39;a</span>&gt; {
-    iter: syn::punctuated::Iter&lt;<span class="lifetime">&#39;a</span>, syn::FnArg&gt;,
+<span class="kw">pub struct </span>ChainExtensionMethodInputs&lt;<span class="lifetime">'a</span>&gt; {
+    iter: syn::punctuated::Iter&lt;<span class="lifetime">'a</span>, syn::FnArg&gt;,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Iterator <span class="kw">for </span>ChainExtensionMethodInputs&lt;<span class="lifetime">&#39;a</span>&gt; {
-    <span class="kw">type </span>Item = <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>syn::PatType;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; Iterator <span class="kw">for </span>ChainExtensionMethodInputs&lt;<span class="lifetime">'a</span>&gt; {
+    <span class="kw">type </span>Item = <span class="kw-2">&amp;</span><span class="lifetime">'a </span>syn::PatType;
 
     <span class="kw">fn </span>size_hint(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; (usize, <span class="prelude-ty">Option</span>&lt;usize&gt;) {
         <span class="self">self</span>.iter.size_hint()
@@ -1380,7 +1380,7 @@
         <span class="kw">let </span>item = <span class="self">self</span>.iter.next()<span class="question-mark">?</span>;
         <span class="kw">match </span>item {
             syn::FnArg::Receiver(receiver) =&gt; {
-                <span class="macro">panic!</span>(<span class="string">&quot;encountered unexpected receiver in chain extension method input: {receiver:?}&quot;</span>)
+                <span class="macro">panic!</span>(<span class="string">"encountered unexpected receiver in chain extension method input: {receiver:?}"</span>)
             }
             syn::FnArg::Typed(pat_type) =&gt; <span class="prelude-val">Some</span>(pat_type),
         }
@@ -1503,37 +1503,37 @@
     /// - If the input trait has been defined as `unsafe`.
     /// - If the input trait is an automatically implemented trait (`auto trait`).
     /// - If the input trait is generic over some set of types.
-    /// - If the input trait&#39;s visibility is not public (`pub`).
+    /// - If the input trait's visibility is not public (`pub`).
     /// - If the input trait has super-traits.
     </span><span class="kw">fn </span>analyse_properties(item_trait: <span class="kw-2">&amp;</span>syn::ItemTrait) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
         <span class="kw">if let </span><span class="prelude-val">Some</span>(unsafety) = <span class="kw-2">&amp;</span>item_trait.unsafety {
             <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
                 unsafety,
-                <span class="string">&quot;ink! chain extensions cannot be unsafe&quot;
+                <span class="string">"ink! chain extensions cannot be unsafe"
             </span>))
         }
         <span class="kw">if let </span><span class="prelude-val">Some</span>(auto) = <span class="kw-2">&amp;</span>item_trait.auto_token {
             <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
                 auto,
-                <span class="string">&quot;ink! chain extensions cannot be automatically implemented traits&quot;
+                <span class="string">"ink! chain extensions cannot be automatically implemented traits"
             </span>))
         }
         <span class="kw">if </span>!item_trait.generics.params.is_empty() {
             <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
                 item_trait.generics.params,
-                <span class="string">&quot;ink! chain extensions must not be generic&quot;
+                <span class="string">"ink! chain extensions must not be generic"
             </span>))
         }
         <span class="kw">if </span>!<span class="macro">matches!</span>(item_trait.vis, syn::Visibility::Public(<span class="kw">_</span>)) {
             <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
                 item_trait.vis,
-                <span class="string">&quot;ink! chain extensions must have public visibility&quot;
+                <span class="string">"ink! chain extensions must have public visibility"
             </span>))
         }
         <span class="kw">if </span>!item_trait.supertraits.is_empty() {
             <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
                 item_trait.supertraits,
-                <span class="string">&quot;ink! chain extensions with super-traits are not supported, yet&quot;
+                <span class="string">"ink! chain extensions with super-traits are not supported, yet"
             </span>))
         }
         <span class="prelude-val">Ok</span>(())
@@ -1550,39 +1550,39 @@
         item_type: <span class="kw-2">&amp;</span>syn::TraitItemType,
         previous: <span class="kw-2">&amp;mut </span><span class="prelude-ty">Option</span>&lt;syn::TraitItemType&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-        <span class="kw">if </span>item_type.ident != <span class="string">&quot;ErrorCode&quot; </span>{
+        <span class="kw">if </span>item_type.ident != <span class="string">"ErrorCode" </span>{
             <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
                 item_type.ident,
-                <span class="string">&quot;chain extensions expect an associated type with name `ErrorCode` but found {}&quot;</span>,
+                <span class="string">"chain extensions expect an associated type with name `ErrorCode` but found {}"</span>,
                 item_type.ident,
             ));
         }
         <span class="kw">if </span>!item_type.generics.params.is_empty() {
             <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
                 item_type.generics,
-                <span class="string">&quot;generic chain extension `ErrorCode` types are not supported&quot;</span>,
+                <span class="string">"generic chain extension `ErrorCode` types are not supported"</span>,
             ))
         }
         <span class="kw">if </span>!item_type.bounds.is_empty() {
             <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
                 item_type.bounds,
-                <span class="string">&quot;bounded chain extension `ErrorCode` types are not supported&quot;</span>,
+                <span class="string">"bounded chain extension `ErrorCode` types are not supported"</span>,
             ))
         }
         <span class="kw">if </span>item_type.default.is_none() {
             <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
                 item_type,
-                <span class="string">&quot;expected a default type for the ink! chain extension ErrorCode&quot;</span>,
+                <span class="string">"expected a default type for the ink! chain extension ErrorCode"</span>,
             ))
         }
         <span class="kw">match </span>previous {
             <span class="prelude-val">Some</span>(previous_error_code) =&gt; {
                 <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
                     item_type,
-                    <span class="string">&quot;encountered duplicate `ErrorCode` associated types for the chain extension&quot;</span>,
+                    <span class="string">"encountered duplicate `ErrorCode` associated types for the chain extension"</span>,
                 )).map_err(|err| err.into_combine(<span class="macro">format_err_spanned!</span>(
                     previous_error_code,
-                    <span class="string">&quot;first `ErrorCode` associated type here&quot;</span>,
+                    <span class="string">"first `ErrorCode` associated type here"</span>,
                 )))
             }
             <span class="prelude-val">None </span>=&gt; {
@@ -1626,13 +1626,13 @@
                 syn::TraitItem::Const(const_trait_item) =&gt; {
                     <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
                         const_trait_item,
-                        <span class="string">&quot;associated constants in ink! chain extensions are not supported, yet&quot;
+                        <span class="string">"associated constants in ink! chain extensions are not supported, yet"
                     </span>))
                 }
                 syn::TraitItem::Macro(macro_trait_item) =&gt; {
                     <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
                         macro_trait_item,
-                        <span class="string">&quot;macros in ink! chain extensions are not supported&quot;
+                        <span class="string">"macros in ink! chain extensions are not supported"
                     </span>))
                 }
                 syn::TraitItem::Type(type_trait_item) =&gt; {
@@ -1641,7 +1641,7 @@
                 syn::TraitItem::Verbatim(verbatim) =&gt; {
                     <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
                         verbatim,
-                        <span class="string">&quot;encountered unsupported item in ink! chain extensions&quot;
+                        <span class="string">"encountered unsupported item in ink! chain extensions"
                     </span>))
                 }
                 syn::TraitItem::Fn(fn_trait_item) =&gt; {
@@ -1650,10 +1650,10 @@
                     <span class="kw">if let </span><span class="prelude-val">Some</span>(previous) = seen_ids.get(<span class="kw-2">&amp;</span>method_id) {
                         <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">format_err!</span>(
                             method.span(),
-                            <span class="string">&quot;encountered duplicate extension identifiers for the same chain extension&quot;</span>,
+                            <span class="string">"encountered duplicate extension identifiers for the same chain extension"</span>,
                         ).into_combine(<span class="macro">format_err!</span>(
                             <span class="kw-2">*</span>previous,
-                            <span class="string">&quot;previous duplicate extension identifier here&quot;</span>,
+                            <span class="string">"previous duplicate extension identifier here"</span>,
                         )))
                     }
                     seen_ids.insert(method_id, method.span());
@@ -1662,7 +1662,7 @@
                 unknown =&gt; {
                     <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
                         unknown,
-                        <span class="string">&quot;encountered unknown or unsupported item in ink! chain extensions&quot;
+                        <span class="string">"encountered unknown or unsupported item in ink! chain extensions"
                     </span>))
                 }
             }
@@ -1672,7 +1672,7 @@
             <span class="prelude-val">None </span>=&gt; {
                 <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
                     item_trait,
-                    <span class="string">&quot;missing ErrorCode associated type from ink! chain extension&quot;</span>,
+                    <span class="string">"missing ErrorCode associated type from ink! chain extension"</span>,
                 ))
             }
         };
@@ -1695,43 +1695,43 @@
         <span class="kw">if let </span><span class="prelude-val">Some</span>(default_impl) = <span class="kw-2">&amp;</span>method.default {
             <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
                 default_impl,
-                <span class="string">&quot;ink! chain extension methods with default implementations are not supported&quot;
+                <span class="string">"ink! chain extension methods with default implementations are not supported"
             </span>));
         }
         <span class="kw">if let </span><span class="prelude-val">Some</span>(constness) = <span class="kw-2">&amp;</span>method.sig.constness {
             <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
                 constness,
-                <span class="string">&quot;const ink! chain extension methods are not supported&quot;
+                <span class="string">"const ink! chain extension methods are not supported"
             </span>))
         }
         <span class="kw">if let </span><span class="prelude-val">Some</span>(asyncness) = <span class="kw-2">&amp;</span>method.sig.asyncness {
             <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
                 asyncness,
-                <span class="string">&quot;async ink! chain extension methods are not supported&quot;
+                <span class="string">"async ink! chain extension methods are not supported"
             </span>))
         }
         <span class="kw">if let </span><span class="prelude-val">Some</span>(unsafety) = <span class="kw-2">&amp;</span>method.sig.unsafety {
             <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
                 unsafety,
-                <span class="string">&quot;unsafe ink! chain extension methods are not supported&quot;
+                <span class="string">"unsafe ink! chain extension methods are not supported"
             </span>))
         }
         <span class="kw">if let </span><span class="prelude-val">Some</span>(abi) = <span class="kw-2">&amp;</span>method.sig.abi {
             <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
                 abi,
-                <span class="string">&quot;ink! chain extension methods with non default ABI are not supported&quot;
+                <span class="string">"ink! chain extension methods with non default ABI are not supported"
             </span>))
         }
         <span class="kw">if let </span><span class="prelude-val">Some</span>(variadic) = <span class="kw-2">&amp;</span>method.sig.variadic {
             <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
                 variadic,
-                <span class="string">&quot;variadic ink! chain extension methods are not supported&quot;
+                <span class="string">"variadic ink! chain extension methods are not supported"
             </span>))
         }
         <span class="kw">if </span>!method.sig.generics.params.is_empty() {
             <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
                 method.sig.generics.params,
-                <span class="string">&quot;generic ink! chain extension methods are not supported&quot;
+                <span class="string">"generic ink! chain extension methods are not supported"
             </span>))
         }
         <span class="kw">match </span>ir::first_ink_attribute(<span class="kw-2">&amp;</span>method.attrs)<span class="question-mark">?
@@ -1742,13 +1742,13 @@
             <span class="prelude-val">Some</span>(_unsupported) =&gt; {
                 <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
                     method,
-                    <span class="string">&quot;encountered unsupported ink! attribute for ink! chain extension method. expected #[ink(function = N: u16)] attribute&quot;
+                    <span class="string">"encountered unsupported ink! attribute for ink! chain extension method. expected #[ink(function = N: u16)] attribute"
                 </span>))
             }
             <span class="prelude-val">None </span>=&gt; {
                 <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
                     method,
-                    <span class="string">&quot;missing #[ink(function = N: u16)] flag on ink! chain extension method&quot;
+                    <span class="string">"missing #[ink(function = N: u16)] flag on ink! chain extension method"
                 </span>))
             }
         }
@@ -1780,7 +1780,7 @@
         <span class="kw">if let </span><span class="prelude-val">Some</span>(receiver) = item_method.sig.receiver() {
             <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
                 receiver,
-                <span class="string">&quot;ink! chain extension method must not have a `self` receiver&quot;</span>,
+                <span class="string">"ink! chain extension method must not have a `self` receiver"</span>,
             ))
         }
         <span class="kw">let </span>result = ChainExtensionMethod {
@@ -1798,11 +1798,11 @@
 
     <span class="doccomment">/// Checks if the token stream in `$chain_extension` results in the expected error
     /// message.
-    </span><span class="macro">macro_rules! </span>assert_ink_chain_extension_eq_err {
+    </span><span class="macro">macro_rules!</span> assert_ink_chain_extension_eq_err {
         ( error: <span class="macro-nonterminal">$err_str</span>:literal, $(<span class="macro-nonterminal">$chain_extension</span>:tt)* ) =&gt; {
             <span class="macro">assert_eq!</span>(
                 ChainExtension::try_from(
-                    <span class="macro">syn::parse_quote! </span>{
+                    <span class="macro">syn::parse_quote!</span> {
                         $( <span class="macro-nonterminal">$chain_extension </span>)*
                     },
                     Config::default()
@@ -1818,7 +1818,7 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>unsafe_chain_extension_is_denied() {
         <span class="macro">assert_ink_chain_extension_eq_err!</span>(
-            error: <span class="string">&quot;ink! chain extensions cannot be unsafe&quot;</span>,
+            error: <span class="string">"ink! chain extensions cannot be unsafe"</span>,
             <span class="kw">pub unsafe trait </span>MyChainExtension {}
         );
     }
@@ -1826,7 +1826,7 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>auto_chain_extension_is_denied() {
         <span class="macro">assert_ink_chain_extension_eq_err!</span>(
-            error: <span class="string">&quot;ink! chain extensions cannot be automatically implemented traits&quot;</span>,
+            error: <span class="string">"ink! chain extensions cannot be automatically implemented traits"</span>,
             <span class="kw">pub </span>auto <span class="kw">trait </span>MyChainExtension {}
         );
     }
@@ -1834,11 +1834,11 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>non_pub_chain_extension_is_denied() {
         <span class="macro">assert_ink_chain_extension_eq_err!</span>(
-            error: <span class="string">&quot;ink! chain extensions must have public visibility&quot;</span>,
+            error: <span class="string">"ink! chain extensions must have public visibility"</span>,
             <span class="kw">trait </span>MyChainExtension {}
         );
         <span class="macro">assert_ink_chain_extension_eq_err!</span>(
-            error: <span class="string">&quot;ink! chain extensions must have public visibility&quot;</span>,
+            error: <span class="string">"ink! chain extensions must have public visibility"</span>,
             <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">trait </span>MyChainExtension {}
         );
     }
@@ -1846,7 +1846,7 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>generic_chain_extension_is_denied() {
         <span class="macro">assert_ink_chain_extension_eq_err!</span>(
-            error: <span class="string">&quot;ink! chain extensions must not be generic&quot;</span>,
+            error: <span class="string">"ink! chain extensions must not be generic"</span>,
             <span class="kw">pub trait </span>MyChainExtension&lt;T&gt; {}
         );
     }
@@ -1854,7 +1854,7 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>chain_extension_with_supertraits_is_denied() {
         <span class="macro">assert_ink_chain_extension_eq_err!</span>(
-            error: <span class="string">&quot;ink! chain extensions with super-traits are not supported, yet&quot;</span>,
+            error: <span class="string">"ink! chain extensions with super-traits are not supported, yet"</span>,
             <span class="kw">pub trait </span>MyChainExtension: SuperChainExtension {}
         );
     }
@@ -1862,7 +1862,7 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>chain_extension_containing_const_item_is_denied() {
         <span class="macro">assert_ink_chain_extension_eq_err!</span>(
-            error: <span class="string">&quot;associated constants in ink! chain extensions are not supported, yet&quot;</span>,
+            error: <span class="string">"associated constants in ink! chain extensions are not supported, yet"</span>,
             <span class="kw">pub trait </span>MyChainExtension {
                 <span class="kw">const </span>T: i32;
             }
@@ -1872,7 +1872,7 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>chain_extension_containing_invalid_associated_type_is_denied() {
         <span class="macro">assert_ink_chain_extension_eq_err!</span>(
-            error: <span class="string">&quot;chain extensions expect an associated type with name `ErrorCode` but found Type&quot;</span>,
+            error: <span class="string">"chain extensions expect an associated type with name `ErrorCode` but found Type"</span>,
             <span class="kw">pub trait </span>MyChainExtension {
                 <span class="kw">type </span>Type;
             }
@@ -1882,31 +1882,31 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>chain_extension_with_invalid_error_code() {
         <span class="macro">assert_ink_chain_extension_eq_err!</span>(
-            error: <span class="string">&quot;chain extensions expect an associated type with name `ErrorCode` but found IncorrectName&quot;</span>,
+            error: <span class="string">"chain extensions expect an associated type with name `ErrorCode` but found IncorrectName"</span>,
             <span class="kw">pub trait </span>MyChainExtension {
                 <span class="kw">type </span>IncorrectName = ();
             }
         );
         <span class="macro">assert_ink_chain_extension_eq_err!</span>(
-            error: <span class="string">&quot;generic chain extension `ErrorCode` types are not supported&quot;</span>,
+            error: <span class="string">"generic chain extension `ErrorCode` types are not supported"</span>,
             <span class="kw">pub trait </span>MyChainExtension {
                 <span class="kw">type </span>ErrorCode&lt;T&gt; = ();
             }
         );
         <span class="macro">assert_ink_chain_extension_eq_err!</span>(
-            error: <span class="string">&quot;bounded chain extension `ErrorCode` types are not supported&quot;</span>,
+            error: <span class="string">"bounded chain extension `ErrorCode` types are not supported"</span>,
             <span class="kw">pub trait </span>MyChainExtension {
                 <span class="kw">type </span>ErrorCode: Copy = ();
             }
         );
         <span class="macro">assert_ink_chain_extension_eq_err!</span>(
-            error: <span class="string">&quot;expected a default type for the ink! chain extension ErrorCode&quot;</span>,
+            error: <span class="string">"expected a default type for the ink! chain extension ErrorCode"</span>,
             <span class="kw">pub trait </span>MyChainExtension {
                 <span class="kw">type </span>ErrorCode;
             }
         );
         <span class="macro">assert_ink_chain_extension_eq_err!</span>(
-            error: <span class="string">&quot;encountered duplicate `ErrorCode` associated types for the chain extension&quot;</span>,
+            error: <span class="string">"encountered duplicate `ErrorCode` associated types for the chain extension"</span>,
             <span class="kw">pub trait </span>MyChainExtension {
                 <span class="kw">type </span>ErrorCode = ();
                 <span class="kw">type </span>ErrorCode = ();
@@ -1917,7 +1917,7 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>chain_extension_containing_macro_is_denied() {
         <span class="macro">assert_ink_chain_extension_eq_err!</span>(
-            error: <span class="string">&quot;macros in ink! chain extensions are not supported&quot;</span>,
+            error: <span class="string">"macros in ink! chain extensions are not supported"</span>,
             <span class="kw">pub trait </span>MyChainExtension {
                 <span class="macro">my_macro_call!</span>();
             }
@@ -1927,19 +1927,19 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>chain_extension_containing_non_flagged_method_is_denied() {
         <span class="macro">assert_ink_chain_extension_eq_err!</span>(
-            error: <span class="string">&quot;missing #[ink(function = N: u16)] flag on ink! chain extension method&quot;</span>,
+            error: <span class="string">"missing #[ink(function = N: u16)] flag on ink! chain extension method"</span>,
             <span class="kw">pub trait </span>MyChainExtension {
                 <span class="kw">fn </span>non_flagged_1(<span class="kw-2">&amp;</span><span class="self">self</span>);
             }
         );
         <span class="macro">assert_ink_chain_extension_eq_err!</span>(
-            error: <span class="string">&quot;missing #[ink(function = N: u16)] flag on ink! chain extension method&quot;</span>,
+            error: <span class="string">"missing #[ink(function = N: u16)] flag on ink! chain extension method"</span>,
             <span class="kw">pub trait </span>MyChainExtension {
                 <span class="kw">fn </span>non_flagged_2(<span class="kw-2">&amp;mut </span><span class="self">self</span>);
             }
         );
         <span class="macro">assert_ink_chain_extension_eq_err!</span>(
-            error: <span class="string">&quot;missing #[ink(function = N: u16)] flag on ink! chain extension method&quot;</span>,
+            error: <span class="string">"missing #[ink(function = N: u16)] flag on ink! chain extension method"</span>,
             <span class="kw">pub trait </span>MyChainExtension {
                 <span class="kw">fn </span>non_flagged_3() -&gt; <span class="self">Self</span>;
             }
@@ -1949,7 +1949,7 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>chain_extension_containing_default_implemented_methods_is_denied() {
         <span class="macro">assert_ink_chain_extension_eq_err!</span>(
-            error: <span class="string">&quot;ink! chain extension methods with default implementations are not supported&quot;</span>,
+            error: <span class="string">"ink! chain extension methods with default implementations are not supported"</span>,
             <span class="kw">pub trait </span>MyChainExtension {
                 <span class="attr">#[ink(constructor)]
                 </span><span class="kw">fn </span>default_implemented() -&gt; <span class="self">Self </span>{}
@@ -1960,7 +1960,7 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>chain_extension_containing_const_methods_is_denied() {
         <span class="macro">assert_ink_chain_extension_eq_err!</span>(
-            error: <span class="string">&quot;const ink! chain extension methods are not supported&quot;</span>,
+            error: <span class="string">"const ink! chain extension methods are not supported"</span>,
             <span class="kw">pub trait </span>MyChainExtension {
                 <span class="attr">#[ink(function = <span class="number">1</span>)]
                 </span><span class="kw">const fn </span>const_constructor() -&gt; <span class="self">Self</span>;
@@ -1971,7 +1971,7 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>chain_extension_containing_async_methods_is_denied() {
         <span class="macro">assert_ink_chain_extension_eq_err!</span>(
-            error: <span class="string">&quot;async ink! chain extension methods are not supported&quot;</span>,
+            error: <span class="string">"async ink! chain extension methods are not supported"</span>,
             <span class="kw">pub trait </span>MyChainExtension {
                 <span class="attr">#[ink(function = <span class="number">1</span>)]
                 </span><span class="kw">async fn </span>const_constructor() -&gt; <span class="self">Self</span>;
@@ -1982,7 +1982,7 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>chain_extension_containing_unsafe_methods_is_denied() {
         <span class="macro">assert_ink_chain_extension_eq_err!</span>(
-            error: <span class="string">&quot;unsafe ink! chain extension methods are not supported&quot;</span>,
+            error: <span class="string">"unsafe ink! chain extension methods are not supported"</span>,
             <span class="kw">pub trait </span>MyChainExtension {
                 <span class="attr">#[ink(function = <span class="number">1</span>)]
                 </span><span class="kw">unsafe fn </span>const_constructor() -&gt; <span class="self">Self</span>;
@@ -1993,7 +1993,7 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>chain_extension_containing_methods_using_explicit_abi_is_denied() {
         <span class="macro">assert_ink_chain_extension_eq_err!</span>(
-            error: <span class="string">&quot;ink! chain extension methods with non default ABI are not supported&quot;</span>,
+            error: <span class="string">"ink! chain extension methods with non default ABI are not supported"</span>,
             <span class="kw">pub trait </span>MyChainExtension {
                 <span class="attr">#[ink(function = <span class="number">1</span>)]
                 </span><span class="kw">extern fn </span>const_constructor() -&gt; <span class="self">Self</span>;
@@ -2004,7 +2004,7 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>chain_extension_containing_variadic_methods_is_denied() {
         <span class="macro">assert_ink_chain_extension_eq_err!</span>(
-            error: <span class="string">&quot;variadic ink! chain extension methods are not supported&quot;</span>,
+            error: <span class="string">"variadic ink! chain extension methods are not supported"</span>,
             <span class="kw">pub trait </span>MyChainExtension {
                 <span class="attr">#[ink(function = <span class="number">1</span>)]
                 </span><span class="kw">fn </span>const_constructor(...) -&gt; <span class="self">Self</span>;
@@ -2015,7 +2015,7 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>chain_extension_containing_generic_methods_is_denied() {
         <span class="macro">assert_ink_chain_extension_eq_err!</span>(
-            error: <span class="string">&quot;generic ink! chain extension methods are not supported&quot;</span>,
+            error: <span class="string">"generic ink! chain extension methods are not supported"</span>,
             <span class="kw">pub trait </span>MyChainExtension {
                 <span class="attr">#[ink(function = <span class="number">1</span>)]
                 </span><span class="kw">fn </span>const_constructor&lt;T&gt;() -&gt; <span class="self">Self</span>;
@@ -2026,16 +2026,16 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>chain_extension_containing_method_with_unsupported_ink_attribute_is_denied() {
         <span class="macro">assert_ink_chain_extension_eq_err!</span>(
-            error: <span class="string">&quot;\
+            error: <span class="string">"\
                 encountered unsupported ink! attribute for ink! chain extension method. \
-                expected #[ink(function = N: u16)] attribute&quot;</span>,
+                expected #[ink(function = N: u16)] attribute"</span>,
             <span class="kw">pub trait </span>MyChainExtension {
                 <span class="attr">#[ink(message)]
                 </span><span class="kw">fn </span>unsupported_ink_attribute(<span class="kw-2">&amp;</span><span class="self">self</span>);
             }
         );
         <span class="macro">assert_ink_chain_extension_eq_err!</span>(
-            error: <span class="string">&quot;encountered unknown ink! attribute argument: unknown&quot;</span>,
+            error: <span class="string">"encountered unknown ink! attribute argument: unknown"</span>,
             <span class="kw">pub trait </span>MyChainExtension {
                 <span class="attr">#[ink(unknown)]
                 </span><span class="kw">fn </span>unknown_ink_attribute(<span class="kw-2">&amp;</span><span class="self">self</span>);
@@ -2046,8 +2046,8 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>chain_extension_containing_method_with_invalid_marker() {
         <span class="macro">assert_ink_chain_extension_eq_err!</span>(
-            error: <span class="string">&quot;could not parse `N` in `#[ink(function = N)]` into a `u16` integer: \
-            invalid digit found in string&quot;</span>,
+            error: <span class="string">"could not parse `N` in `#[ink(function = N)]` into a `u16` integer: \
+            invalid digit found in string"</span>,
             <span class="kw">pub trait </span>MyChainExtension {
                 <span class="attr">#[ink(function = -<span class="number">1</span>)]
                 </span><span class="kw">fn </span>has_self_receiver();
@@ -2055,23 +2055,23 @@
         );
         <span class="kw">let </span>too_large = (u16::MAX <span class="kw">as </span>u64) + <span class="number">1</span>;
         <span class="macro">assert_ink_chain_extension_eq_err!</span>(
-            error: <span class="string">&quot;could not parse `N` in `#[ink(function = N)]` into a `u16` integer: \
-            number too large to fit in target type&quot;</span>,
+            error: <span class="string">"could not parse `N` in `#[ink(function = N)]` into a `u16` integer: \
+            number too large to fit in target type"</span>,
             <span class="kw">pub trait </span>MyChainExtension {
                 <span class="attr">#[ink(function = #too_large)]
                 </span><span class="kw">fn </span>has_self_receiver();
             }
         );
         <span class="macro">assert_ink_chain_extension_eq_err!</span>(
-            error: <span class="string">&quot;expected `u16` integer type for `N` in #[ink(function = N)]&quot;</span>,
+            error: <span class="string">"expected `u16` integer type for `N` in #[ink(function = N)]"</span>,
             <span class="kw">pub trait </span>MyChainExtension {
-                <span class="attr">#[ink(function = <span class="string">&quot;Hello, World!&quot;</span>)]
+                <span class="attr">#[ink(function = <span class="string">"Hello, World!"</span>)]
                 </span><span class="kw">fn </span>has_self_receiver();
             }
         );
         <span class="macro">assert_ink_chain_extension_eq_err!</span>(
-            error: <span class="string">&quot;encountered #[ink(function)] that is missing its `id` parameter. \
-                    Did you mean #[ink(function = id: u16)] ?&quot;</span>,
+            error: <span class="string">"encountered #[ink(function)] that is missing its `id` parameter. \
+                    Did you mean #[ink(function = id: u16)] ?"</span>,
             <span class="kw">pub trait </span>MyChainExtension {
                 <span class="attr">#[ink(function)]
                 </span><span class="kw">fn </span>has_self_receiver();
@@ -2079,7 +2079,7 @@
         );
 
         <span class="macro">assert_ink_chain_extension_eq_err!</span>(
-            error: <span class="string">&quot;encountered duplicate ink! attribute&quot;</span>,
+            error: <span class="string">"encountered duplicate ink! attribute"</span>,
             <span class="kw">pub trait </span>MyChainExtension {
                 <span class="attr">#[ink(function = <span class="number">42</span>)]
                 #[ink(function = <span class="number">42</span>)]
@@ -2087,7 +2087,7 @@
             }
         );
         <span class="macro">assert_ink_chain_extension_eq_err!</span>(
-            error: <span class="string">&quot;encountered ink! attribute arguments with equal kinds&quot;</span>,
+            error: <span class="string">"encountered ink! attribute arguments with equal kinds"</span>,
             <span class="kw">pub trait </span>MyChainExtension {
                 <span class="attr">#[ink(function = <span class="number">1</span>)]
                 #[ink(function = <span class="number">2</span>)]
@@ -2095,7 +2095,7 @@
             }
         );
         <span class="macro">assert_ink_chain_extension_eq_err!</span>(
-            error: <span class="string">&quot;encountered conflicting ink! attribute argument&quot;</span>,
+            error: <span class="string">"encountered conflicting ink! attribute argument"</span>,
             <span class="kw">pub trait </span>MyChainExtension {
                 <span class="attr">#[ink(function = <span class="number">1</span>)]
                 #[ink(message)]
@@ -2107,7 +2107,7 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>chain_extension_containing_method_with_self_receiver_is_denied() {
         <span class="macro">assert_ink_chain_extension_eq_err!</span>(
-            error: <span class="string">&quot;ink! chain extension method must not have a `self` receiver&quot;</span>,
+            error: <span class="string">"ink! chain extension method must not have a `self` receiver"</span>,
             <span class="kw">pub trait </span>MyChainExtension {
                 <span class="kw">type </span>ErrorCode = ();
 
@@ -2116,7 +2116,7 @@
             }
         );
         <span class="macro">assert_ink_chain_extension_eq_err!</span>(
-            error: <span class="string">&quot;ink! chain extension method must not have a `self` receiver&quot;</span>,
+            error: <span class="string">"ink! chain extension method must not have a `self` receiver"</span>,
             <span class="kw">pub trait </span>MyChainExtension {
                 <span class="kw">type </span>ErrorCode = ();
 
@@ -2125,7 +2125,7 @@
             }
         );
         <span class="macro">assert_ink_chain_extension_eq_err!</span>(
-            error: <span class="string">&quot;ink! chain extension method must not have a `self` receiver&quot;</span>,
+            error: <span class="string">"ink! chain extension method must not have a `self` receiver"</span>,
             <span class="kw">pub trait </span>MyChainExtension {
                 <span class="kw">type </span>ErrorCode = ();
 
@@ -2134,7 +2134,7 @@
             }
         );
         <span class="macro">assert_ink_chain_extension_eq_err!</span>(
-            error: <span class="string">&quot;ink! chain extension method must not have a `self` receiver&quot;</span>,
+            error: <span class="string">"ink! chain extension method must not have a `self` receiver"</span>,
             <span class="kw">pub trait </span>MyChainExtension {
                 <span class="kw">type </span>ErrorCode = ();
 
@@ -2143,7 +2143,7 @@
             }
         );
         <span class="macro">assert_ink_chain_extension_eq_err!</span>(
-            error: <span class="string">&quot;ink! chain extension method must not have a `self` receiver&quot;</span>,
+            error: <span class="string">"ink! chain extension method must not have a `self` receiver"</span>,
             <span class="kw">pub trait </span>MyChainExtension {
                 <span class="kw">type </span>ErrorCode = ();
 
@@ -2156,7 +2156,7 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>chain_extension_with_overlapping_extension_ids() {
         <span class="macro">assert_ink_chain_extension_eq_err!</span>(
-            error: <span class="string">&quot;encountered duplicate extension identifiers for the same chain extension&quot;</span>,
+            error: <span class="string">"encountered duplicate extension identifiers for the same chain extension"</span>,
             <span class="kw">pub trait </span>MyChainExtension {
                 <span class="attr">#[ink(function = <span class="number">1</span>)]
                 </span><span class="kw">fn </span>same_id_1();
@@ -2168,7 +2168,7 @@
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>chain_extension_is_ok() {
-        <span class="kw">let </span>chain_extension = ChainExtension::try_from(<span class="macro">syn::parse_quote! </span>{
+        <span class="kw">let </span>chain_extension = ChainExtension::try_from(<span class="macro">syn::parse_quote!</span> {
                 <span class="kw">pub trait </span>MyChainExtension {
                     <span class="kw">type </span>ErrorCode = ();
 
@@ -2199,11 +2199,11 @@
             .map(|method| method.ident().to_string())
             .zip(
                 [
-                    <span class="string">&quot;extension_1&quot;</span>,
-                    <span class="string">&quot;extension_2&quot;</span>,
-                    <span class="string">&quot;extension_3&quot;</span>,
-                    <span class="string">&quot;extension_4&quot;</span>,
-                    <span class="string">&quot;extension_5&quot;</span>,
+                    <span class="string">"extension_1"</span>,
+                    <span class="string">"extension_2"</span>,
+                    <span class="string">"extension_3"</span>,
+                    <span class="string">"extension_4"</span>,
+                    <span class="string">"extension_5"</span>,
                 ]
                 .iter()
                 .map(ToString::to_string),
@@ -2216,7 +2216,7 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>chain_extension_with_params_is_ok() {
         <span class="kw">let </span>chain_extension = ChainExtension::try_from(
-            <span class="macro">syn::parse_quote! </span>{
+            <span class="macro">syn::parse_quote!</span> {
                 <span class="kw">pub trait </span>MyChainExtension {
                     <span class="kw">type </span>ErrorCode = ();
 
@@ -2255,12 +2255,12 @@
             .map(|method| method.ident().to_string())
             .zip(
                 [
-                    <span class="string">&quot;extension_a&quot;</span>,
-                    <span class="string">&quot;extension_b&quot;</span>,
-                    <span class="string">&quot;extension_c&quot;</span>,
-                    <span class="string">&quot;extension_d&quot;</span>,
-                    <span class="string">&quot;extension_e&quot;</span>,
-                    <span class="string">&quot;extension_f&quot;</span>,
+                    <span class="string">"extension_a"</span>,
+                    <span class="string">"extension_b"</span>,
+                    <span class="string">"extension_c"</span>,
+                    <span class="string">"extension_d"</span>,
+                    <span class="string">"extension_e"</span>,
+                    <span class="string">"extension_f"</span>,
                 ]
                 .iter()
                 .map(ToString::to_string),
@@ -2274,7 +2274,7 @@
     /// into the expected ink! configuration or yields the expected error message.
     </span><span class="kw">fn </span>assert_config(
         input: ast::AttributeArgs,
-        expected: core::result::Result&lt;Config, <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str&gt;,
+        expected: core::result::Result&lt;Config, <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str&gt;,
     ) {
         <span class="macro">assert_eq!</span>(
             &lt;Config <span class="kw">as </span>TryFrom&lt;ast::AttributeArgs&gt;&gt;::try_from(input)
@@ -2286,15 +2286,15 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>empty_config_fails() {
         assert_config(
-            <span class="macro">syn::parse_quote! </span>{},
-            <span class="prelude-val">Err</span>(<span class="string">&quot;missing required `extension = N: u16` argument on ink! chain extension&quot;</span>),
+            <span class="macro">syn::parse_quote!</span> {},
+            <span class="prelude-val">Err</span>(<span class="string">"missing required `extension = N: u16` argument on ink! chain extension"</span>),
         )
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>extension_works() {
         assert_config(
-            <span class="macro">syn::parse_quote! </span>{
+            <span class="macro">syn::parse_quote!</span> {
                 extension = <span class="number">13
             </span>},
             <span class="prelude-val">Ok</span>(Config {
@@ -2306,27 +2306,27 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>extension_invalid_value_fails() {
         assert_config(
-            <span class="macro">syn::parse_quote! </span>{ extension = <span class="string">&quot;invalid&quot; </span>},
-            <span class="prelude-val">Err</span>(<span class="string">&quot;expected `u16` integer type for `N` in `extension = N`&quot;</span>),
+            <span class="macro">syn::parse_quote!</span> { extension = <span class="string">"invalid" </span>},
+            <span class="prelude-val">Err</span>(<span class="string">"expected `u16` integer type for `N` in `extension = N`"</span>),
         );
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>unknown_arg_fails() {
         assert_config(
-            <span class="macro">syn::parse_quote! </span>{ unknown = argument },
-            <span class="prelude-val">Err</span>(<span class="string">&quot;encountered unknown or unsupported chain extension configuration argument&quot;</span>),
+            <span class="macro">syn::parse_quote!</span> { unknown = argument },
+            <span class="prelude-val">Err</span>(<span class="string">"encountered unknown or unsupported chain extension configuration argument"</span>),
         );
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>duplicate_args_fails() {
         assert_config(
-            <span class="macro">syn::parse_quote! </span>{
+            <span class="macro">syn::parse_quote!</span> {
                 extension = <span class="number">13</span>,
                 extension = <span class="number">123</span>,
             },
-            <span class="prelude-val">Err</span>(<span class="string">&quot;encountered duplicate ink! contract `extension` configuration argument&quot;</span>),
+            <span class="prelude-val">Err</span>(<span class="string">"encountered duplicate ink! contract `extension` configuration argument"</span>),
         );
     }
 }

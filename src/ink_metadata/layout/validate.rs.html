@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/metadata/src/layout/validate.rs`."><title>validate.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="ink_metadata" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../ink_metadata/index.html"><img src="https://use.ink/img/crate-docs/logo.png" alt="ink_metadata"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/metadata/src/layout/validate.rs`."><title>validate.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-c5d6553a23f1e5a6.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="ink_metadata" data-themes="" data-resource-suffix="" data-rustdoc-version="1.81.0 (eeb90cda1 2024-09-04)" data-channel="1.81.0" data-search-js="search-d234aafac6c221dd.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-d2fab2bf619172d3.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -298,14 +298,14 @@
 <a href="#298" id="298">298</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) Use Ink (UK) Ltd.
 //
-// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
 //     http://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// distributed under the License is distributed on an "AS IS" BASIS,
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
@@ -319,7 +319,7 @@
 <span class="kw">use </span>ink_primitives::Key;
 <span class="kw">use </span>scale_info::form::MetaForm;
 
-<span class="doccomment">/// It validates that the storage layout doesn&#39;t have conflicting storage keys.
+<span class="doccomment">/// It validates that the storage layout doesn't have conflicting storage keys.
 /// Otherwise an error with a description of the conflict is returned.
 </span><span class="kw">pub struct </span>ValidateLayout {
     first_entry: HashMap&lt;Key, String&gt;,
@@ -350,11 +350,11 @@
             Layout::Struct(st) =&gt; <span class="self">self</span>.check_struct_layout(st),
             Layout::Enum(en) =&gt; {
                 <span class="comment">// After `Enum::` we will have the struct -&gt; `Enum::Struct`
-                </span><span class="self">self</span>.name_stack.push(<span class="macro">format!</span>(<span class="string">&quot;{}::&quot;</span>, en.name()));
+                </span><span class="self">self</span>.name_stack.push(<span class="macro">format!</span>(<span class="string">"{}::"</span>, en.name()));
                 <span class="kw">for </span>variant <span class="kw">in </span>en.variants().values() {
                     <span class="self">self</span>.check_struct_layout(variant)<span class="question-mark">?</span>;
                 }
-                <span class="self">self</span>.name_stack.pop().expect(<span class="string">&quot;stack is not empty; qed&quot;</span>);
+                <span class="self">self</span>.name_stack.pop().expect(<span class="string">"stack is not empty; qed"</span>);
                 <span class="prelude-val">Ok</span>(())
             }
             <span class="kw">_ </span>=&gt; <span class="prelude-val">Ok</span>(()),
@@ -367,7 +367,7 @@
             <span class="kw">let </span>name = layout.name();
             <span class="comment">// After `Struct` we always have fields -&gt; `Struct.field`
             // After field we have `Struct` or `Enum` -&gt; `Struct.field:Struct`
-            </span><span class="self">self</span>.name_stack.push(<span class="macro">format!</span>(<span class="string">&quot;.{name}:&quot;</span>));
+            </span><span class="self">self</span>.name_stack.push(<span class="macro">format!</span>(<span class="string">".{name}:"</span>));
 
             <span class="self">self</span>.recursive_validate(layout.layout())<span class="question-mark">?</span>;
 
@@ -378,7 +378,7 @@
     }
 
     <span class="kw">fn </span>check_key(<span class="kw-2">&amp;mut </span><span class="self">self</span>, key: <span class="kw-2">&amp;</span>Key) -&gt; <span class="prelude-ty">Result</span>&lt;(), MetadataError&gt; {
-        <span class="kw">let </span>path = <span class="self">self</span>.name_stack.join(<span class="string">&quot;&quot;</span>);
+        <span class="kw">let </span>path = <span class="self">self</span>.name_stack.join(<span class="string">""</span>);
         <span class="kw">if let </span><span class="prelude-val">Some</span>(prev_path) = <span class="self">self</span>.first_entry.get(key) {
             <span class="prelude-val">Err</span>(MetadataError::Collision(prev_path.clone(), path))
         } <span class="kw">else </span>{
@@ -450,32 +450,32 @@
         </span><span class="kw">let </span>layout = RootLayout::new_empty(
             root_0,
             StructLayout::new(
-                <span class="string">&quot;Contract&quot;</span>,
+                <span class="string">"Contract"</span>,
                 <span class="macro">vec!</span>[
                     FieldLayout::new(
-                        <span class="string">&quot;a&quot;</span>,
+                        <span class="string">"a"</span>,
                         StructLayout::new(
-                            <span class="string">&quot;Struct0&quot;</span>,
+                            <span class="string">"Struct0"</span>,
                             <span class="macro">vec!</span>[
-                                FieldLayout::new(<span class="string">&quot;d&quot;</span>, LeafLayout::from_key::&lt;u128&gt;(root_0)),
+                                FieldLayout::new(<span class="string">"d"</span>, LeafLayout::from_key::&lt;u128&gt;(root_0)),
                                 FieldLayout::new(
-                                    <span class="string">&quot;f&quot;</span>,
+                                    <span class="string">"f"</span>,
                                     RootLayout::new_empty(
                                         root_2,
                                         EnumLayout::new(
-                                            <span class="string">&quot;Enum&quot;</span>,
+                                            <span class="string">"Enum"</span>,
                                             root_2,
                                             <span class="macro">vec!</span>[
                                                 (
                                                     <span class="number">0</span>.into(),
                                                     StructLayout::new(
-                                                        <span class="string">&quot;First&quot;</span>,
+                                                        <span class="string">"First"</span>,
                                                         <span class="macro">vec!</span>[FieldLayout::new(
-                                                            <span class="string">&quot;0&quot;</span>,
+                                                            <span class="string">"0"</span>,
                                                             StructLayout::new(
-                                                                <span class="string">&quot;Struct1&quot;</span>,
+                                                                <span class="string">"Struct1"</span>,
                                                                 <span class="macro">vec!</span>[FieldLayout::new(
-                                                                    <span class="string">&quot;g&quot;</span>,
+                                                                    <span class="string">"g"</span>,
                                                                     RootLayout::new_empty(
                                                                         root_4,
                                                                         LeafLayout::from_key::&lt;
@@ -492,9 +492,9 @@
                                                 (
                                                     <span class="number">1</span>.into(),
                                                     StructLayout::new(
-                                                        <span class="string">&quot;Second&quot;</span>,
+                                                        <span class="string">"Second"</span>,
                                                         <span class="macro">vec!</span>[FieldLayout::new(
-                                                            <span class="string">&quot;0&quot;</span>,
+                                                            <span class="string">"0"</span>,
                                                             LeafLayout::from_key::&lt;u8&gt;(root_2),
                                                         )],
                                                     ),
@@ -502,9 +502,9 @@
                                                 (
                                                     <span class="number">2</span>.into(),
                                                     StructLayout::new(
-                                                        <span class="string">&quot;Third&quot;</span>,
+                                                        <span class="string">"Third"</span>,
                                                         <span class="macro">vec!</span>[FieldLayout::new(
-                                                            <span class="string">&quot;0&quot;</span>,
+                                                            <span class="string">"0"</span>,
                                                             RootLayout::new_empty(
                                                                 root_3,
                                                                 LeafLayout::from_key::&lt;String&gt;(
@@ -521,9 +521,9 @@
                             ],
                         ),
                     ),
-                    FieldLayout::new(<span class="string">&quot;b&quot;</span>, LeafLayout::from_key::&lt;u32&gt;(root_0)),
+                    FieldLayout::new(<span class="string">"b"</span>, LeafLayout::from_key::&lt;u32&gt;(root_0)),
                     FieldLayout::new(
-                        <span class="string">&quot;c&quot;</span>,
+                        <span class="string">"c"</span>,
                         RootLayout::new_empty(root_1, LeafLayout::from_key::&lt;Vec&lt;u8&gt;&gt;(root_1)),
                     ),
                 ],
@@ -543,8 +543,8 @@
     </span><span class="kw">fn </span>conflict_0_and_1() {
         <span class="macro">assert_eq!</span>(
             <span class="prelude-val">Err</span>(MetadataError::Collision(
-                <span class="string">&quot;&quot;</span>.to_string(),
-                <span class="string">&quot;Contract.c:&quot;</span>.to_string()
+                <span class="string">""</span>.to_string(),
+                <span class="string">"Contract.c:"</span>.to_string()
             )),
             valid_big_layout_tree(<span class="number">0</span>, <span class="number">0</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>)
         )
@@ -554,8 +554,8 @@
     </span><span class="kw">fn </span>conflict_0_and_2() {
         <span class="macro">assert_eq!</span>(
             <span class="prelude-val">Err</span>(MetadataError::Collision(
-                <span class="string">&quot;&quot;</span>.to_string(),
-                <span class="string">&quot;Contract.a:Struct0.f:&quot;</span>.to_string()
+                <span class="string">""</span>.to_string(),
+                <span class="string">"Contract.a:Struct0.f:"</span>.to_string()
             )),
             valid_big_layout_tree(<span class="number">0</span>, <span class="number">1</span>, <span class="number">0</span>, <span class="number">3</span>, <span class="number">4</span>)
         )
@@ -565,8 +565,8 @@
     </span><span class="kw">fn </span>conflict_0_and_3() {
         <span class="macro">assert_eq!</span>(
             <span class="prelude-val">Err</span>(MetadataError::Collision(
-                <span class="string">&quot;&quot;</span>.to_string(),
-                <span class="string">&quot;Contract.a:Struct0.f:Enum::Third.0:&quot;</span>.to_string()
+                <span class="string">""</span>.to_string(),
+                <span class="string">"Contract.a:Struct0.f:Enum::Third.0:"</span>.to_string()
             )),
             valid_big_layout_tree(<span class="number">0</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">0</span>, <span class="number">4</span>)
         )
@@ -576,8 +576,8 @@
     </span><span class="kw">fn </span>conflict_0_and_4() {
         <span class="macro">assert_eq!</span>(
             <span class="prelude-val">Err</span>(MetadataError::Collision(
-                <span class="string">&quot;&quot;</span>.to_string(),
-                <span class="string">&quot;Contract.a:Struct0.f:Enum::First.0:Struct1.g:&quot;</span>.to_string()
+                <span class="string">""</span>.to_string(),
+                <span class="string">"Contract.a:Struct0.f:Enum::First.0:Struct1.g:"</span>.to_string()
             )),
             valid_big_layout_tree(<span class="number">0</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">0</span>)
         )
@@ -587,8 +587,8 @@
     </span><span class="kw">fn </span>conflict_3_and_4() {
         <span class="macro">assert_eq!</span>(
             <span class="prelude-val">Err</span>(MetadataError::Collision(
-                <span class="string">&quot;Contract.a:Struct0.f:Enum::First.0:Struct1.g:&quot;</span>.to_string(),
-                <span class="string">&quot;Contract.a:Struct0.f:Enum::Third.0:&quot;</span>.to_string()
+                <span class="string">"Contract.a:Struct0.f:Enum::First.0:Struct1.g:"</span>.to_string(),
+                <span class="string">"Contract.a:Struct0.f:Enum::Third.0:"</span>.to_string()
             )),
             valid_big_layout_tree(<span class="number">0</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">3</span>)
         )

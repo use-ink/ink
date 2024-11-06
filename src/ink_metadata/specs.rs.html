@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/metadata/src/specs.rs`."><title>specs.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="ink_metadata" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../ink_metadata/index.html"><img src="https://use.ink/img/crate-docs/logo.png" alt="ink_metadata"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/metadata/src/specs.rs`."><title>specs.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-c5d6553a23f1e5a6.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="ink_metadata" data-themes="" data-resource-suffix="" data-rustdoc-version="1.81.0 (eeb90cda1 2024-09-04)" data-channel="1.81.0" data-search-js="search-d234aafac6c221dd.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-d2fab2bf619172d3.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1867,14 +1867,14 @@
 <a href="#1867" id="1867">1867</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) Use Ink (UK) Ltd.
 //
-// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
 //     http://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// distributed under the License is distributed on an "AS IS" BASIS,
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
@@ -1889,7 +1889,7 @@
         trim_extra_whitespace,
     },
 };
-<span class="attr">#[cfg(not(feature = <span class="string">&quot;std&quot;</span>))]
+<span class="attr">#[cfg(not(feature = <span class="string">"std"</span>))]
 </span><span class="kw">use </span>alloc::{
     collections::BTreeMap,
     format,
@@ -1918,7 +1918,7 @@
     Deserialize,
     Serialize,
 };
-<span class="attr">#[cfg(feature = <span class="string">&quot;std&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
 </span><span class="kw">use </span>std::{
     collections::BTreeMap,
     hash::Hash,
@@ -1927,8 +1927,8 @@
 <span class="doccomment">/// Describes a contract.
 </span><span class="attr">#[derive(Debug, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
 #[serde(bound(
-    serialize = <span class="string">&quot;F::Type: Serialize, F::String: Serialize&quot;</span>,
-    deserialize = <span class="string">&quot;F::Type: DeserializeOwned, F::String: DeserializeOwned&quot;
+    serialize = <span class="string">"F::Type: Serialize, F::String: Serialize"</span>,
+    deserialize = <span class="string">"F::Type: DeserializeOwned, F::String: DeserializeOwned"
 </span>))]
 </span><span class="kw">pub struct </span>ContractSpec&lt;F: Form = MetaForm&gt;
 <span class="kw">where
@@ -2138,19 +2138,19 @@
     </span><span class="kw">pub fn </span>done(<span class="self">self</span>) -&gt; ContractSpec&lt;F&gt; {
         <span class="macro">assert!</span>(
             !<span class="self">self</span>.spec.constructors.is_empty(),
-            <span class="string">&quot;must have at least one constructor&quot;
+            <span class="string">"must have at least one constructor"
         </span>);
         <span class="macro">assert!</span>(
             !<span class="self">self</span>.spec.messages.is_empty(),
-            <span class="string">&quot;must have at least one message&quot;
+            <span class="string">"must have at least one message"
         </span>);
         <span class="macro">assert!</span>(
             <span class="self">self</span>.spec.constructors.iter().filter(|c| c.default).count() &lt; <span class="number">2</span>,
-            <span class="string">&quot;only one default constructor is allowed&quot;
+            <span class="string">"only one default constructor is allowed"
         </span>);
         <span class="macro">assert!</span>(
             <span class="self">self</span>.spec.messages.iter().filter(|m| m.default).count() &lt; <span class="number">2</span>,
-            <span class="string">&quot;only one default message is allowed&quot;
+            <span class="string">"only one default message is allowed"
         </span>);
 
         <span class="kw">let </span>max_topics = <span class="self">self</span>.spec.environment.max_event_topics;
@@ -2164,7 +2164,7 @@
                     signature_topic + e.args.iter().filter(|a| a.indexed).count();
                 <span class="kw">if </span>topics_count &gt; max_topics {
                     <span class="prelude-val">Some</span>(<span class="macro">format!</span>(
-                        <span class="string">&quot;`{}::{}` ({} topics)&quot;</span>,
+                        <span class="string">"`{}::{}` ({} topics)"</span>,
                         e.module_path, e.label, topics_count
                     ))
                 } <span class="kw">else </span>{
@@ -2174,8 +2174,8 @@
             .collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
         <span class="macro">assert!</span>(
             events_exceeding_max_topics_limit.is_empty(),
-            <span class="string">&quot;maximum of {max_topics} event topics exceeded: {}&quot;</span>,
-            events_exceeding_max_topics_limit.join(<span class="string">&quot;, &quot;</span>)
+            <span class="string">"maximum of {max_topics} event topics exceeded: {}"</span>,
+            events_exceeding_max_topics_limit.join(<span class="string">", "</span>)
         );
 
         <span class="kw">let </span><span class="kw-2">mut </span>signature_topics: BTreeMap&lt;Vec&lt;u8&gt;, Vec&lt;String&gt;&gt; = BTreeMap::new();
@@ -2184,7 +2184,7 @@
                 signature_topics
                     .entry(signature_topic.bytes.clone())
                     .or_default()
-                    .push(<span class="macro">format!</span>(<span class="string">&quot;`{}::{}`&quot;</span>, e.module_path, e.label));
+                    .push(<span class="macro">format!</span>(<span class="string">"`{}::{}`"</span>, e.module_path, e.label));
             }
         }
         <span class="kw">let </span>signature_topic_collisions = signature_topics
@@ -2192,8 +2192,8 @@
             .filter_map(|(<span class="kw">_</span>, topics)| {
                 <span class="kw">if </span>topics.len() &gt; <span class="number">1 </span>{
                     <span class="prelude-val">Some</span>(<span class="macro">format!</span>(
-                        <span class="string">&quot;event signature topic collision: {}&quot;</span>,
-                        topics.join(<span class="string">&quot;, &quot;</span>)
+                        <span class="string">"event signature topic collision: {}"</span>,
+                        topics.join(<span class="string">", "</span>)
                     ))
                 } <span class="kw">else </span>{
                     <span class="prelude-val">None
@@ -2202,8 +2202,8 @@
             .collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
         <span class="macro">assert!</span>(
             signature_topic_collisions.is_empty(),
-            <span class="string">&quot;{}&quot;</span>,
-            signature_topic_collisions.join(<span class="string">&quot;\n&quot;</span>)
+            <span class="string">"{}"</span>,
+            signature_topic_collisions.join(<span class="string">"\n"</span>)
         );
 
         <span class="self">self</span>.spec
@@ -2235,10 +2235,10 @@
 <span class="doccomment">/// Describes a constructor of a contract.
 </span><span class="attr">#[derive(Debug, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
 #[serde(bound(
-    serialize = <span class="string">&quot;F::Type: Serialize, F::String: Serialize&quot;</span>,
-    deserialize = <span class="string">&quot;F::Type: DeserializeOwned, F::String: DeserializeOwned&quot;</span>,
+    serialize = <span class="string">"F::Type: Serialize, F::String: Serialize"</span>,
+    deserialize = <span class="string">"F::Type: DeserializeOwned, F::String: DeserializeOwned"</span>,
 ))]
-#[serde(rename_all = <span class="string">&quot;camelCase&quot;</span>)]
+#[serde(rename_all = <span class="string">"camelCase"</span>)]
 </span><span class="kw">pub struct </span>ConstructorSpec&lt;F: Form = MetaForm&gt; {
     <span class="doccomment">/// The label of the constructor.
     ///
@@ -2437,10 +2437,10 @@
     }
 
     <span class="doccomment">/// Sets the documentation of the constructor specification.
-    </span><span class="kw">pub fn </span>docs&lt;<span class="lifetime">&#39;a</span>, D&gt;(<span class="self">self</span>, docs: D) -&gt; <span class="self">Self
+    </span><span class="kw">pub fn </span>docs&lt;<span class="lifetime">'a</span>, D&gt;(<span class="self">self</span>, docs: D) -&gt; <span class="self">Self
     </span><span class="kw">where
-        </span>D: IntoIterator&lt;Item = <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str&gt;,
-        F::String: From&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str&gt;,
+        </span>D: IntoIterator&lt;Item = <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str&gt;,
+        F::String: From&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>str&gt;,
     {
         <span class="kw">let </span><span class="kw-2">mut </span>this = <span class="self">self</span>;
         <span class="macro">debug_assert!</span>(this.spec.docs.is_empty());
@@ -2476,10 +2476,10 @@
 <span class="doccomment">/// Describes a contract message.
 </span><span class="attr">#[derive(Debug, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
 #[serde(bound(
-    serialize = <span class="string">&quot;F::Type: Serialize, F::String: Serialize&quot;</span>,
-    deserialize = <span class="string">&quot;F::Type: DeserializeOwned, F::String: DeserializeOwned&quot;
+    serialize = <span class="string">"F::Type: Serialize, F::String: Serialize"</span>,
+    deserialize = <span class="string">"F::Type: DeserializeOwned, F::String: DeserializeOwned"
 </span>))]
-#[serde(rename_all = <span class="string">&quot;camelCase&quot;</span>)]
+#[serde(rename_all = <span class="string">"camelCase"</span>)]
 </span><span class="kw">pub struct </span>MessageSpec&lt;F: Form = MetaForm&gt; {
     <span class="doccomment">/// The label of the message.
     ///
@@ -2787,8 +2787,8 @@
 <span class="doccomment">/// Describes an event definition.
 </span><span class="attr">#[derive(Debug, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
 #[serde(bound(
-    serialize = <span class="string">&quot;F::Type: Serialize, F::String: Serialize&quot;</span>,
-    deserialize = <span class="string">&quot;F::Type: DeserializeOwned, F::String: DeserializeOwned&quot;
+    serialize = <span class="string">"F::Type: Serialize, F::String: Serialize"</span>,
+    deserialize = <span class="string">"F::Type: DeserializeOwned, F::String: DeserializeOwned"
 </span>))]
 </span><span class="kw">pub struct </span>EventSpec&lt;F: Form = MetaForm&gt; {
     <span class="doccomment">/// The label of the event.
@@ -2808,8 +2808,8 @@
 #[serde(transparent)]
 </span><span class="kw">pub struct </span>SignatureTopic {
     <span class="attr">#[serde(
-        serialize_with = <span class="string">&quot;serialize_as_byte_str&quot;</span>,
-        deserialize_with = <span class="string">&quot;deserialize_from_byte_str&quot;
+        serialize_with = <span class="string">"serialize_as_byte_str"</span>,
+        deserialize_with = <span class="string">"deserialize_from_byte_str"
     </span>)]
     </span>bytes: Vec&lt;u8&gt;,
 }
@@ -2846,9 +2846,9 @@
     </span>F: Form,
 {
     <span class="doccomment">/// Sets the module path to the event type definition.
-    </span><span class="kw">pub fn </span>module_path&lt;<span class="lifetime">&#39;a</span>&gt;(<span class="self">self</span>, path: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str) -&gt; <span class="self">Self
+    </span><span class="kw">pub fn </span>module_path&lt;<span class="lifetime">'a</span>&gt;(<span class="self">self</span>, path: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str) -&gt; <span class="self">Self
     </span><span class="kw">where
-        </span>F::String: From&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str&gt;,
+        </span>F::String: From&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>str&gt;,
     {
         <span class="kw">let </span><span class="kw-2">mut </span>this = <span class="self">self</span>;
         this.spec.module_path = path.into();
@@ -2878,10 +2878,10 @@
     }
 
     <span class="doccomment">/// Sets the input arguments of the event specification.
-    </span><span class="kw">pub fn </span>docs&lt;<span class="lifetime">&#39;a</span>, D&gt;(<span class="self">self</span>, docs: D) -&gt; <span class="self">Self
+    </span><span class="kw">pub fn </span>docs&lt;<span class="lifetime">'a</span>, D&gt;(<span class="self">self</span>, docs: D) -&gt; <span class="self">Self
     </span><span class="kw">where
-        </span>D: IntoIterator&lt;Item = <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str&gt;,
-        F::String: From&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str&gt;,
+        </span>D: IntoIterator&lt;Item = <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str&gt;,
+        F::String: From&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>str&gt;,
     {
         <span class="kw">let </span><span class="kw-2">mut </span>this = <span class="self">self</span>;
         <span class="macro">debug_assert!</span>(this.spec.docs.is_empty());
@@ -2961,9 +2961,9 @@
 }
 
 <span class="doccomment">/// The 4 byte selector to identify constructors and messages
-</span><span class="attr">#[cfg_attr(feature = <span class="string">&quot;std&quot;</span>, derive(Hash))]
+</span><span class="attr">#[cfg_attr(feature = <span class="string">"std"</span>, derive(Hash))]
 #[derive(Debug, Default, PartialEq, Eq, derive_more::From, JsonSchema)]
-</span><span class="kw">pub struct </span>Selector(<span class="attr">#[schemars(with = <span class="string">&quot;String&quot;</span>)] </span>[u8; <span class="number">4</span>]);
+</span><span class="kw">pub struct </span>Selector(<span class="attr">#[schemars(with = <span class="string">"String"</span>)] </span>[u8; <span class="number">4</span>]);
 
 <span class="kw">impl </span>serde::Serialize <span class="kw">for </span>Selector {
     <span class="kw">fn </span>serialize&lt;S&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, serializer: S) -&gt; <span class="prelude-ty">Result</span>&lt;S::Ok, S::Error&gt;
@@ -2974,10 +2974,10 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;de</span>&gt; serde::Deserialize&lt;<span class="lifetime">&#39;de</span>&gt; <span class="kw">for </span>Selector {
+<span class="kw">impl</span>&lt;<span class="lifetime">'de</span>&gt; serde::Deserialize&lt;<span class="lifetime">'de</span>&gt; <span class="kw">for </span>Selector {
     <span class="kw">fn </span>deserialize&lt;D&gt;(d: D) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, D::Error&gt;
     <span class="kw">where
-        </span>D: serde::Deserializer&lt;<span class="lifetime">&#39;de</span>&gt;,
+        </span>D: serde::Deserializer&lt;<span class="lifetime">'de</span>&gt;,
     {
         <span class="kw">let </span><span class="kw-2">mut </span>arr = [<span class="number">0</span>; <span class="number">4</span>];
         serde_hex::deserialize_check_len(d, serde_hex::ExpectedLen::Exact(<span class="kw-2">&amp;mut </span>arr[..]))<span class="question-mark">?</span>;
@@ -3038,13 +3038,13 @@
 /// simply be a type alias to `fn(i32, i32) -&gt; Ordering`.
 </span><span class="attr">#[derive(Debug, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
 #[serde(bound(
-    serialize = <span class="string">&quot;F::Type: Serialize, F::String: Serialize&quot;</span>,
-    deserialize = <span class="string">&quot;F::Type: DeserializeOwned, F::String: DeserializeOwned&quot;
+    serialize = <span class="string">"F::Type: Serialize, F::String: Serialize"</span>,
+    deserialize = <span class="string">"F::Type: DeserializeOwned, F::String: DeserializeOwned"
 </span>))]
-#[serde(rename_all = <span class="string">&quot;camelCase&quot;</span>)]
+#[serde(rename_all = <span class="string">"camelCase"</span>)]
 </span><span class="kw">pub struct </span>TypeSpec&lt;F: Form = MetaForm&gt; {
     <span class="doccomment">/// The actual type.
-    </span><span class="attr">#[serde(rename = <span class="string">&quot;type&quot;</span>)]
+    </span><span class="attr">#[serde(rename = <span class="string">"type"</span>)]
     </span>ty: F::Type,
     <span class="doccomment">/// The compile-time known displayed representation of the type.
     </span>display_name: DisplayName&lt;F&gt;,
@@ -3088,11 +3088,11 @@
     /// # Panics
     ///
     /// Panics if the given display name is invalid.
-    </span><span class="kw">pub fn </span>with_name_str&lt;T&gt;(display_name: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str) -&gt; <span class="self">Self
+    </span><span class="kw">pub fn </span>with_name_str&lt;T&gt;(display_name: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str) -&gt; <span class="self">Self
     </span><span class="kw">where
-        </span>T: TypeInfo + <span class="lifetime">&#39;static</span>,
+        </span>T: TypeInfo + <span class="lifetime">'static</span>,
     {
-        <span class="self">Self</span>::with_name_segs::&lt;T, <span class="kw">_</span>&gt;(display_name.split(<span class="string">&quot;::&quot;</span>))
+        <span class="self">Self</span>::with_name_segs::&lt;T, <span class="kw">_</span>&gt;(display_name.split(<span class="string">"::"</span>))
     }
 
     <span class="doccomment">/// Creates a new type specification with a display name
@@ -3109,13 +3109,13 @@
     /// Panics if the given display name is invalid.
     </span><span class="kw">pub fn </span>with_name_segs&lt;T, S&gt;(segments: S) -&gt; <span class="self">Self
     </span><span class="kw">where
-        </span>T: TypeInfo + <span class="lifetime">&#39;static</span>,
-        S: IntoIterator&lt;Item = <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str&gt;,
+        </span>T: TypeInfo + <span class="lifetime">'static</span>,
+        S: IntoIterator&lt;Item = <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str&gt;,
     {
         <span class="self">Self </span>{
             ty: meta_type::&lt;T&gt;(),
             display_name: DisplayName::from_segments(segments)
-                .unwrap_or_else(|err| <span class="macro">panic!</span>(<span class="string">&quot;display name is invalid: {err:?}&quot;</span>)),
+                .unwrap_or_else(|err| <span class="macro">panic!</span>(<span class="string">"display name is invalid: {err:?}"</span>)),
         }
     }
 
@@ -3128,7 +3128,7 @@
     /// ```
     </span><span class="kw">pub fn </span>of_type&lt;T&gt;() -&gt; <span class="self">Self
     </span><span class="kw">where
-        </span>T: TypeInfo + <span class="lifetime">&#39;static</span>,
+        </span>T: TypeInfo + <span class="lifetime">'static</span>,
     {
         <span class="self">Self </span>{
             ty: meta_type::&lt;T&gt;(),
@@ -3160,8 +3160,8 @@
 <span class="doccomment">/// Describes a pair of parameter label and type.
 </span><span class="attr">#[derive(Debug, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
 #[serde(bound(
-    serialize = <span class="string">&quot;F::Type: Serialize, F::String: Serialize&quot;</span>,
-    deserialize = <span class="string">&quot;F::Type: DeserializeOwned, F::String: DeserializeOwned&quot;
+    serialize = <span class="string">"F::Type: Serialize, F::String: Serialize"</span>,
+    deserialize = <span class="string">"F::Type: DeserializeOwned, F::String: DeserializeOwned"
 </span>))]
 </span><span class="kw">pub struct </span>EventParamSpec&lt;F: Form = MetaForm&gt; {
     <span class="doccomment">/// The label of the parameter.
@@ -3169,7 +3169,7 @@
     <span class="doccomment">/// If the event parameter is indexed as a topic.
     </span>indexed: bool,
     <span class="doccomment">/// The type of the parameter.
-    </span><span class="attr">#[serde(rename = <span class="string">&quot;type&quot;</span>)]
+    </span><span class="attr">#[serde(rename = <span class="string">"type"</span>)]
     </span>ty: TypeSpec&lt;F&gt;,
     <span class="doccomment">/// The documentation associated with the arguments.
     </span>docs: Vec&lt;F::String&gt;,
@@ -3257,10 +3257,10 @@
     }
 
     <span class="doccomment">/// Sets the documentation of the event parameter.
-    </span><span class="kw">pub fn </span>docs&lt;<span class="lifetime">&#39;a</span>, D&gt;(<span class="self">self</span>, docs: D) -&gt; <span class="self">Self
+    </span><span class="kw">pub fn </span>docs&lt;<span class="lifetime">'a</span>, D&gt;(<span class="self">self</span>, docs: D) -&gt; <span class="self">Self
     </span><span class="kw">where
-        </span>D: IntoIterator&lt;Item = <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str&gt;,
-        F::String: From&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str&gt;,
+        </span>D: IntoIterator&lt;Item = <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str&gt;,
+        F::String: From&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>str&gt;,
     {
         <span class="macro">debug_assert!</span>(<span class="self">self</span>.spec.docs.is_empty());
         <span class="self">Self </span>{
@@ -3284,12 +3284,12 @@
 </span><span class="attr">#[derive(Debug, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
 #[serde(transparent)]
 #[serde(bound(
-    serialize = <span class="string">&quot;F::Type: Serialize, F::String: Serialize&quot;</span>,
-    deserialize = <span class="string">&quot;F::Type: DeserializeOwned, F::String: DeserializeOwned&quot;
+    serialize = <span class="string">"F::Type: Serialize, F::String: Serialize"</span>,
+    deserialize = <span class="string">"F::Type: DeserializeOwned, F::String: DeserializeOwned"
 </span>))]
 #[must_use]
 </span><span class="kw">pub struct </span>ReturnTypeSpec&lt;F: Form = MetaForm&gt; {
-    <span class="attr">#[serde(rename = <span class="string">&quot;type&quot;</span>)]
+    <span class="attr">#[serde(rename = <span class="string">"type"</span>)]
     </span>ret_type: TypeSpec&lt;F&gt;,
 }
 
@@ -3334,14 +3334,14 @@
 <span class="doccomment">/// Describes a pair of parameter label and type.
 </span><span class="attr">#[derive(Debug, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
 #[serde(bound(
-    serialize = <span class="string">&quot;F::Type: Serialize, F::String: Serialize&quot;</span>,
-    deserialize = <span class="string">&quot;F::Type: DeserializeOwned, F::String: DeserializeOwned&quot;
+    serialize = <span class="string">"F::Type: Serialize, F::String: Serialize"</span>,
+    deserialize = <span class="string">"F::Type: DeserializeOwned, F::String: DeserializeOwned"
 </span>))]
 </span><span class="kw">pub struct </span>MessageParamSpec&lt;F: Form = MetaForm&gt; {
     <span class="doccomment">/// The label of the parameter.
     </span>label: F::String,
     <span class="doccomment">/// The type of the parameter.
-    </span><span class="attr">#[serde(rename = <span class="string">&quot;type&quot;</span>)]
+    </span><span class="attr">#[serde(rename = <span class="string">"type"</span>)]
     </span>ty: TypeSpec&lt;F&gt;,
 }
 
@@ -3410,10 +3410,10 @@
 <span class="doccomment">/// Describes a contract environment.
 </span><span class="attr">#[derive(Debug, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
 #[serde(bound(
-    serialize = <span class="string">&quot;F::Type: Serialize, F::String: Serialize&quot;</span>,
-    deserialize = <span class="string">&quot;F::Type: DeserializeOwned, F::String: DeserializeOwned&quot;
+    serialize = <span class="string">"F::Type: Serialize, F::String: Serialize"</span>,
+    deserialize = <span class="string">"F::Type: DeserializeOwned, F::String: DeserializeOwned"
 </span>))]
-#[serde(rename_all = <span class="string">&quot;camelCase&quot;</span>)]
+#[serde(rename_all = <span class="string">"camelCase"</span>)]
 </span><span class="kw">pub struct </span>EnvironmentSpec&lt;F: Form = MetaForm&gt;
 <span class="kw">where
     </span>TypeSpec&lt;F&gt;: Default,

@@ -1,0 +1,1 @@
+searchState.loadedDescShard("ink_allocator", 0, "Crate providing allocator support for all Wasm …")

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/metadata/src/layout/mod.rs`."><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="ink_metadata" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../ink_metadata/index.html"><img src="https://use.ink/img/crate-docs/logo.png" alt="ink_metadata"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/metadata/src/layout/mod.rs`."><title>mod.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-c5d6553a23f1e5a6.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="ink_metadata" data-themes="" data-resource-suffix="" data-rustdoc-version="1.81.0 (eeb90cda1 2024-09-04)" data-channel="1.81.0" data-search-js="search-d234aafac6c221dd.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-d2fab2bf619172d3.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -729,14 +729,14 @@
 <a href="#729" id="729">729</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) Use Ink (UK) Ltd.
 //
-// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
 //     http://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// distributed under the License is distributed on an "AS IS" BASIS,
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
@@ -788,10 +788,10 @@
     Debug, PartialEq, Eq, PartialOrd, Ord, From, Serialize, Deserialize, JsonSchema,
 )]
 #[serde(bound(
-    serialize = <span class="string">&quot;F::Type: Serialize, F::String: Serialize&quot;</span>,
-    deserialize = <span class="string">&quot;F::Type: DeserializeOwned, F::String: DeserializeOwned&quot;
+    serialize = <span class="string">"F::Type: Serialize, F::String: Serialize"</span>,
+    deserialize = <span class="string">"F::Type: DeserializeOwned, F::String: DeserializeOwned"
 </span>))]
-#[serde(rename_all = <span class="string">&quot;camelCase&quot;</span>)]
+#[serde(rename_all = <span class="string">"camelCase"</span>)]
 </span><span class="kw">pub enum </span>Layout&lt;F: Form = MetaForm&gt; {
     <span class="doccomment">/// An encoded cell.
     ///
@@ -827,22 +827,22 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;de</span>&gt; serde::Deserialize&lt;<span class="lifetime">&#39;de</span>&gt; <span class="kw">for </span>LayoutKey {
+<span class="kw">impl</span>&lt;<span class="lifetime">'de</span>&gt; serde::Deserialize&lt;<span class="lifetime">'de</span>&gt; <span class="kw">for </span>LayoutKey {
     <span class="kw">fn </span>deserialize&lt;D&gt;(d: D) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, D::Error&gt;
     <span class="kw">where
-        </span>D: serde::Deserializer&lt;<span class="lifetime">&#39;de</span>&gt;,
+        </span>D: serde::Deserializer&lt;<span class="lifetime">'de</span>&gt;,
     {
         <span class="kw">let </span><span class="kw-2">mut </span>arr = [<span class="number">0</span>; <span class="number">4</span>];
         serde_hex::deserialize_check_len(d, serde_hex::ExpectedLen::Exact(<span class="kw-2">&amp;mut </span>arr[..]))<span class="question-mark">?</span>;
         <span class="kw">let </span>key = Key::decode(<span class="kw-2">&amp;mut &amp;</span>arr[..]).map_err(|err| {
-            Error::custom(<span class="macro">format!</span>(<span class="string">&quot;Error decoding layout key: {}&quot;</span>, err))
+            Error::custom(<span class="macro">format!</span>(<span class="string">"Error decoding layout key: {}"</span>, err))
         })<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(key.into())
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; From&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Key&gt; <span class="kw">for </span>LayoutKey {
-    <span class="kw">fn </span>from(key: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Key) -&gt; <span class="self">Self </span>{
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; From&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>Key&gt; <span class="kw">for </span>LayoutKey {
+    <span class="kw">fn </span>from(key: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Key) -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{ key: <span class="kw-2">*</span>key }
     }
 }
@@ -867,12 +867,12 @@
     Debug, PartialEq, Eq, PartialOrd, Ord, From, Serialize, Deserialize, JsonSchema,
 )]
 #[serde(bound(
-    serialize = <span class="string">&quot;F::Type: Serialize, F::String: Serialize&quot;</span>,
-    deserialize = <span class="string">&quot;F::Type: DeserializeOwned, F::String: DeserializeOwned&quot;
+    serialize = <span class="string">"F::Type: Serialize, F::String: Serialize"</span>,
+    deserialize = <span class="string">"F::Type: DeserializeOwned, F::String: DeserializeOwned"
 </span>))]
 </span><span class="kw">pub struct </span>RootLayout&lt;F: Form = MetaForm&gt; {
     <span class="doccomment">/// The root key of the sub-tree.
-    </span><span class="attr">#[schemars(with = <span class="string">&quot;String&quot;</span>)]
+    </span><span class="attr">#[schemars(with = <span class="string">"String"</span>)]
     </span>root_key: LayoutKey,
     <span class="doccomment">/// The storage layout of the unbounded layout elements.
     </span>layout: Box&lt;Layout&lt;F&gt;&gt;,
@@ -939,12 +939,12 @@
     Debug, PartialEq, Eq, PartialOrd, Ord, From, Serialize, Deserialize, JsonSchema,
 )]
 #[serde(bound(
-    serialize = <span class="string">&quot;F::Type: Serialize, F::String: Serialize&quot;</span>,
-    deserialize = <span class="string">&quot;F::Type: DeserializeOwned, F::String: DeserializeOwned&quot;
+    serialize = <span class="string">"F::Type: Serialize, F::String: Serialize"</span>,
+    deserialize = <span class="string">"F::Type: DeserializeOwned, F::String: DeserializeOwned"
 </span>))]
 </span><span class="kw">pub struct </span>LeafLayout&lt;F: Form = MetaForm&gt; {
     <span class="doccomment">/// The offset key into the storage.
-    </span><span class="attr">#[schemars(with = <span class="string">&quot;String&quot;</span>)]
+    </span><span class="attr">#[schemars(with = <span class="string">"String"</span>)]
     </span>key: LayoutKey,
     <span class="doccomment">/// The type of the encoded entity.
     </span>ty: &lt;F <span class="kw">as </span>Form&gt;::Type,
@@ -954,7 +954,7 @@
     <span class="doccomment">/// Creates a new cell layout.
     </span><span class="kw">pub fn </span>from_key&lt;T&gt;(key: LayoutKey) -&gt; <span class="self">Self
     </span><span class="kw">where
-        </span>T: TypeInfo + <span class="lifetime">&#39;static</span>,
+        </span>T: TypeInfo + <span class="lifetime">'static</span>,
     {
         <span class="self">Self </span>{
             key,
@@ -1025,12 +1025,12 @@
 /// Every hashing layout has an offset and a strategy to compute its keys.
 </span><span class="attr">#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize, JsonSchema)]
 #[serde(bound(
-    serialize = <span class="string">&quot;F::Type: Serialize, F::String: Serialize&quot;</span>,
-    deserialize = <span class="string">&quot;F::Type: DeserializeOwned, F::String: DeserializeOwned&quot;
+    serialize = <span class="string">"F::Type: Serialize, F::String: Serialize"</span>,
+    deserialize = <span class="string">"F::Type: DeserializeOwned, F::String: DeserializeOwned"
 </span>))]
 </span><span class="kw">pub struct </span>HashLayout&lt;F: Form = MetaForm&gt; {
     <span class="doccomment">/// The key offset used by the strategy.
-    </span><span class="attr">#[schemars(with = <span class="string">&quot;String&quot;</span>)]
+    </span><span class="attr">#[schemars(with = <span class="string">"String"</span>)]
     </span>offset: LayoutKey,
     <span class="doccomment">/// The hashing strategy to layout the underlying elements.
     </span>strategy: HashingStrategy,
@@ -1096,14 +1096,14 @@
     </span>hasher: CryptoHasher,
     <span class="doccomment">/// An optional prefix to the computed hash.
     </span><span class="attr">#[serde(
-        serialize_with = <span class="string">&quot;serialize_as_byte_str&quot;</span>,
-        deserialize_with = <span class="string">&quot;deserialize_from_byte_str&quot;
+        serialize_with = <span class="string">"serialize_as_byte_str"</span>,
+        deserialize_with = <span class="string">"deserialize_from_byte_str"
     </span>)]
     </span>prefix: Vec&lt;u8&gt;,
     <span class="doccomment">/// An optional postfix to the computed hash.
     </span><span class="attr">#[serde(
-        serialize_with = <span class="string">&quot;serialize_as_byte_str&quot;</span>,
-        deserialize_with = <span class="string">&quot;deserialize_from_byte_str&quot;
+        serialize_with = <span class="string">"serialize_as_byte_str"</span>,
+        deserialize_with = <span class="string">"deserialize_from_byte_str"
     </span>)]
     </span>postfix: Vec&lt;u8&gt;,
 }
@@ -1148,15 +1148,15 @@
 <span class="doccomment">/// A layout for an array of associated cells with the same encoding.
 </span><span class="attr">#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize, JsonSchema)]
 #[serde(bound(
-    serialize = <span class="string">&quot;F::Type: Serialize, F::String: Serialize&quot;</span>,
-    deserialize = <span class="string">&quot;F::Type: DeserializeOwned, F::String: DeserializeOwned&quot;
+    serialize = <span class="string">"F::Type: Serialize, F::String: Serialize"</span>,
+    deserialize = <span class="string">"F::Type: DeserializeOwned, F::String: DeserializeOwned"
 </span>))]
-#[serde(rename_all = <span class="string">&quot;camelCase&quot;</span>)]
+#[serde(rename_all = <span class="string">"camelCase"</span>)]
 </span><span class="kw">pub struct </span>ArrayLayout&lt;F: Form = MetaForm&gt; {
     <span class="doccomment">/// The offset key of the array layout.
     ///
     /// This is the same key as the element at index 0 of the array layout.
-    </span><span class="attr">#[schemars(with = <span class="string">&quot;String&quot;</span>)]
+    </span><span class="attr">#[schemars(with = <span class="string">"String"</span>)]
     </span>offset: LayoutKey,
     <span class="doccomment">/// The number of elements in the array layout.
     </span>len: u32,
@@ -1217,8 +1217,8 @@
 <span class="doccomment">/// A struct layout with consecutive fields of different layout.
 </span><span class="attr">#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize, JsonSchema)]
 #[serde(bound(
-    serialize = <span class="string">&quot;F::Type: Serialize, F::String: Serialize&quot;</span>,
-    deserialize = <span class="string">&quot;F::Type: DeserializeOwned, F::String: DeserializeOwned&quot;
+    serialize = <span class="string">"F::Type: Serialize, F::String: Serialize"</span>,
+    deserialize = <span class="string">"F::Type: DeserializeOwned, F::String: DeserializeOwned"
 </span>))]
 </span><span class="kw">pub struct </span>StructLayout&lt;F: Form = MetaForm&gt; {
     <span class="doccomment">/// The name of the struct.
@@ -1271,8 +1271,8 @@
 <span class="doccomment">/// The layout for a particular field of a struct layout.
 </span><span class="attr">#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize, JsonSchema)]
 #[serde(bound(
-    serialize = <span class="string">&quot;F::Type: Serialize, F::String: Serialize&quot;</span>,
-    deserialize = <span class="string">&quot;F::Type: DeserializeOwned, F::String: DeserializeOwned&quot;
+    serialize = <span class="string">"F::Type: Serialize, F::String: Serialize"</span>,
+    deserialize = <span class="string">"F::Type: DeserializeOwned, F::String: DeserializeOwned"
 </span>))]
 </span><span class="kw">pub struct </span>FieldLayout&lt;F: Form = MetaForm&gt; {
     <span class="doccomment">/// The name of the field.
@@ -1347,15 +1347,15 @@
 <span class="doccomment">/// An enum storage layout.
 </span><span class="attr">#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize, JsonSchema)]
 #[serde(bound(
-    serialize = <span class="string">&quot;F::Type: Serialize, F::String: Serialize&quot;</span>,
-    deserialize = <span class="string">&quot;F::Type: DeserializeOwned, F::String: DeserializeOwned&quot;
+    serialize = <span class="string">"F::Type: Serialize, F::String: Serialize"</span>,
+    deserialize = <span class="string">"F::Type: DeserializeOwned, F::String: DeserializeOwned"
 </span>))]
-#[serde(rename_all = <span class="string">&quot;camelCase&quot;</span>)]
+#[serde(rename_all = <span class="string">"camelCase"</span>)]
 </span><span class="kw">pub struct </span>EnumLayout&lt;F: Form = MetaForm&gt; {
     <span class="doccomment">/// The name of the Enum.
     </span>name: F::String,
     <span class="doccomment">/// The key where the discriminant is stored to dispatch the variants.
-    </span><span class="attr">#[schemars(with = <span class="string">&quot;String&quot;</span>)]
+    </span><span class="attr">#[schemars(with = <span class="string">"String"</span>)]
     </span>dispatch_key: LayoutKey,
     <span class="doccomment">/// The variants of the enum.
     </span>variants: BTreeMap&lt;Discriminant, StructLayout&lt;F&gt;&gt;,
@@ -1428,11 +1428,11 @@
             <span class="self">Self</span>::Collision(prev_path, curr_path) =&gt; {
                 <span class="macro">write!</span>(
                     f,
-                    <span class="string">&quot;storage key collision occurred for `{}`. \
-                    The same storage key is occupied by the `{}`.&quot;</span>,
+                    <span class="string">"storage key collision occurred for `{}`. \
+                    The same storage key is occupied by the `{}`."</span>,
                     curr_path,
                     <span class="kw">if </span>prev_path.is_empty() {
-                        <span class="string">&quot;contract storage&quot;
+                        <span class="string">"contract storage"
                     </span>} <span class="kw">else </span>{
                         prev_path
                     }
@@ -1445,15 +1445,15 @@
 <span class="attr">#[test]
 </span><span class="kw">fn </span>valid_error_message() {
     <span class="macro">assert_eq!</span>(
-        MetadataError::Collision(<span class="string">&quot;&quot;</span>.to_string(), <span class="string">&quot;Contract.c:&quot;</span>.to_string()).to_string(),
-        <span class="string">&quot;storage key collision occurred for `Contract.c:`. \
-        The same storage key is occupied by the `contract storage`.&quot;
+        MetadataError::Collision(<span class="string">""</span>.to_string(), <span class="string">"Contract.c:"</span>.to_string()).to_string(),
+        <span class="string">"storage key collision occurred for `Contract.c:`. \
+        The same storage key is occupied by the `contract storage`."
     </span>);
     <span class="macro">assert_eq!</span>(
-        MetadataError::Collision(<span class="string">&quot;Contract.a:&quot;</span>.to_string(), <span class="string">&quot;Contract.c:&quot;</span>.to_string())
+        MetadataError::Collision(<span class="string">"Contract.a:"</span>.to_string(), <span class="string">"Contract.c:"</span>.to_string())
             .to_string(),
-        <span class="string">&quot;storage key collision occurred for `Contract.c:`. \
-        The same storage key is occupied by the `Contract.a:`.&quot;
+        <span class="string">"storage key collision occurred for `Contract.c:`. \
+        The same storage key is occupied by the `Contract.a:`."
     </span>)
 }
 </code></pre></div></section></main></body></html>

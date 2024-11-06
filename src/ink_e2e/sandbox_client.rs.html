@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/e2e/src/sandbox_client.rs`."><title>sandbox_client.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="ink_e2e" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../ink_e2e/index.html"><img src="https://use.ink/img/crate-docs/logo.png" alt="ink_e2e"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/e2e/src/sandbox_client.rs`."><title>sandbox_client.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-c5d6553a23f1e5a6.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="ink_e2e" data-themes="" data-resource-suffix="" data-rustdoc-version="1.81.0 (eeb90cda1 2024-09-04)" data-channel="1.81.0" data-search-js="search-d234aafac6c221dd.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-d2fab2bf619172d3.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -548,14 +548,14 @@
 <a href="#548" id="548">548</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) Use Ink (UK) Ltd.
 //
-// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
 //     http://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// distributed under the License is distributed on an "AS IS" BASIS,
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
@@ -669,7 +669,7 @@
         <span class="kw">for </span>account <span class="kw">in </span>accounts.iter() {
             sandbox
                 .mint_into(account, TOKENS.into())
-                .unwrap_or_else(|<span class="kw">_</span>| <span class="macro">panic!</span>(<span class="string">&quot;Failed to mint {} tokens&quot;</span>, TOKENS));
+                .unwrap_or_else(|<span class="kw">_</span>| <span class="macro">panic!</span>(<span class="string">"Failed to mint {} tokens"</span>, TOKENS));
         }
     }
 }
@@ -695,9 +695,9 @@
 
         <span class="self">self</span>.sandbox
             .mint_into(<span class="kw-2">&amp;</span>pair.public().<span class="number">0</span>.into(), amount)
-            .expect(<span class="string">&quot;Failed to mint tokens&quot;</span>);
+            .expect(<span class="string">"Failed to mint tokens"</span>);
 
-        Keypair::from_seed(seed).expect(<span class="string">&quot;Failed to create keypair&quot;</span>)
+        Keypair::from_seed(seed).expect(<span class="string">"Failed to create keypair"</span>)
     }
 
     <span class="kw">async fn </span>free_balance(
@@ -708,11 +708,11 @@
         <span class="prelude-val">Ok</span>(<span class="self">self</span>.sandbox.free_balance(<span class="kw-2">&amp;</span>account))
     }
 
-    <span class="kw">async fn </span>runtime_call&lt;<span class="lifetime">&#39;a</span>&gt;(
+    <span class="kw">async fn </span>runtime_call&lt;<span class="lifetime">'a</span>&gt;(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         origin: <span class="kw-2">&amp;</span>Keypair,
-        pallet_name: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str,
-        call_name: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str,
+        pallet_name: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str,
+        call_name: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str,
         call_data: Vec&lt;Value&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::EventLog, <span class="self">Self</span>::Error&gt; {
         <span class="comment">// Since in general, `ChainBackend::runtime_call` must be dynamic, we have to
@@ -724,12 +724,12 @@
         // available.
         </span><span class="kw">let </span>raw_metadata: Vec&lt;u8&gt; = S::get_metadata().into();
         <span class="kw">let </span>metadata = subxt_metadata::Metadata::decode(<span class="kw-2">&amp;mut </span>raw_metadata.as_slice())
-            .expect(<span class="string">&quot;Failed to decode metadata&quot;</span>);
+            .expect(<span class="string">"Failed to decode metadata"</span>);
 
         <span class="comment">// Encode the call object.
         </span><span class="kw">let </span>call = subxt::dynamic::tx(pallet_name, call_name, call_data);
         <span class="kw">let </span>encoded_call = call.encode_call_data(<span class="kw-2">&amp;</span>metadata.into()).map_err(|err| {
-            SandboxErr::new(<span class="macro">format!</span>(<span class="string">&quot;runtime_call: Error encoding call: {err:?}&quot;</span>))
+            SandboxErr::new(<span class="macro">format!</span>(<span class="string">"runtime_call: Error encoding call: {err:?}"</span>))
         })<span class="question-mark">?</span>;
 
         <span class="comment">// Decode the call object.
@@ -737,7 +737,7 @@
         // decodable.
         </span><span class="kw">let </span>decoded_call =
             RuntimeCall::&lt;S::Runtime&gt;::decode(<span class="kw-2">&amp;mut </span>encoded_call.as_slice())
-                .expect(<span class="string">&quot;Failed to decode runtime call&quot;</span>);
+                .expect(<span class="string">"Failed to decode runtime call"</span>);
 
         <span class="comment">// Execute the call.
         </span><span class="self">self</span>.sandbox
@@ -746,7 +746,7 @@
                 S::convert_account_to_origin(keypair_to_account(origin)),
             )
             .map_err(|err| {
-                SandboxErr::new(<span class="macro">format!</span>(<span class="string">&quot;runtime_call: execution error {:?}&quot;</span>, err.error))
+                SandboxErr::new(<span class="macro">format!</span>(<span class="string">"runtime_call: execution error {:?}"</span>, err.error))
             })<span class="question-mark">?</span>;
 
         <span class="prelude-val">Ok</span>(())
@@ -762,7 +762,7 @@
                 AccountId = AccountId,
                 Balance = ContractsBalanceOf&lt;S::Runtime&gt;,
                 Hash = Hash,
-            &gt; + <span class="lifetime">&#39;static</span>,
+            &gt; + <span class="lifetime">'static</span>,
     &gt; BuilderClient&lt;E&gt; <span class="kw">for </span>Client&lt;AccountId, Hash, S&gt;
 <span class="kw">where
     </span>S::Runtime: pallet_balances::Config + pallet_contracts::Config,
@@ -793,8 +793,8 @@
 
         <span class="kw">let </span>account_id_raw = <span class="kw">match </span><span class="kw-2">&amp;</span>result.result {
             <span class="prelude-val">Err</span>(err) =&gt; {
-                log_error(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;Instantiation failed: {err:?}&quot;</span>));
-                <span class="kw">return </span><span class="prelude-val">Err</span>(SandboxErr::new(<span class="macro">format!</span>(<span class="string">&quot;bare_instantiate: {err:?}&quot;</span>)));
+                log_error(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"Instantiation failed: {err:?}"</span>));
+                <span class="kw">return </span><span class="prelude-val">Err</span>(SandboxErr::new(<span class="macro">format!</span>(<span class="string">"bare_instantiate: {err:?}"</span>)));
             }
             <span class="prelude-val">Ok</span>(res) =&gt; <span class="kw-2">*</span>res.account_id.as_ref(),
         };
@@ -830,7 +830,7 @@
 
         <span class="kw">let </span>account_id_raw = <span class="kw">match </span><span class="kw-2">&amp;</span>result.result {
             <span class="prelude-val">Err</span>(err) =&gt; {
-                <span class="macro">panic!</span>(<span class="string">&quot;Instantiate dry-run failed: {err:?}!&quot;</span>)
+                <span class="macro">panic!</span>(<span class="string">"Instantiate dry-run failed: {err:?}!"</span>)
             }
             <span class="prelude-val">Ok</span>(res) =&gt; <span class="kw-2">*</span>res.account_id.as_ref(),
         };
@@ -868,8 +868,8 @@
         ) {
             <span class="prelude-val">Ok</span>(result) =&gt; result,
             <span class="prelude-val">Err</span>(err) =&gt; {
-                log_error(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;Upload failed: {err:?}&quot;</span>));
-                <span class="kw">return </span><span class="prelude-val">Err</span>(SandboxErr::new(<span class="macro">format!</span>(<span class="string">&quot;bare_upload: {err:?}&quot;</span>)))
+                log_error(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"Upload failed: {err:?}"</span>));
+                <span class="kw">return </span><span class="prelude-val">Err</span>(SandboxErr::new(<span class="macro">format!</span>(<span class="string">"bare_upload: {err:?}"</span>)))
             }
         };
 
@@ -877,7 +877,7 @@
             .code_hash
             .as_ref()
             .try_into()
-            .expect(<span class="string">&quot;Invalid code hash&quot;</span>);
+            .expect(<span class="string">"Invalid code hash"</span>);
         <span class="kw">let </span>code_hash = Hash::from(code_hash_raw);
         <span class="prelude-val">Ok</span>(UploadResult {
             code_hash,
@@ -894,7 +894,7 @@
         _caller: <span class="kw-2">&amp;</span>Keypair,
         _code_hash: E::Hash,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::EventLog, <span class="self">Self</span>::Error&gt; {
-        <span class="macro">unimplemented!</span>(<span class="string">&quot;sandbox does not yet support remove_code&quot;</span>)
+        <span class="macro">unimplemented!</span>(<span class="string">"sandbox does not yet support remove_code"</span>)
     }
 
     <span class="kw">async fn </span>bare_call&lt;Args: Sync + Encode + Clone, RetType: Send + Decode&gt;(
@@ -923,7 +923,7 @@
                 pallet_contracts::Determinism::Enforced,
             )
             .result
-            .map_err(|err| SandboxErr::new(<span class="macro">format!</span>(<span class="string">&quot;bare_call: {err:?}&quot;</span>)))<span class="question-mark">?</span>;
+            .map_err(|err| SandboxErr::new(<span class="macro">format!</span>(<span class="string">"bare_call: {err:?}"</span>)))<span class="question-mark">?</span>;
 
         <span class="prelude-val">Ok</span>(())
     }
@@ -975,7 +975,7 @@
                 AccountId = AccountId,
                 Balance = ContractsBalanceOf&lt;Config::Runtime&gt;,
                 Hash = Hash,
-            &gt; + <span class="lifetime">&#39;static</span>,
+            &gt; + <span class="lifetime">'static</span>,
     &gt; E2EBackend&lt;E&gt; <span class="kw">for </span>Client&lt;AccountId, Hash, Config&gt;
 <span class="kw">where
     </span>Config::Runtime: pallet_balances::Config + pallet_contracts::Config,
@@ -997,7 +997,7 @@
                 AccountId = AccountId,
                 Balance = ContractsBalanceOf&lt;S::Runtime&gt;,
                 Hash = Hash,
-            &gt; + <span class="lifetime">&#39;static</span>,
+            &gt; + <span class="lifetime">'static</span>,
     &gt; ContractsBackend&lt;E&gt; <span class="kw">for </span>Client&lt;AccountId, Hash, S&gt;
 <span class="kw">where
     </span>S::Runtime: pallet_balances::Config + pallet_contracts::Config,
@@ -1054,7 +1054,7 @@
                     <span class="self">self</span>.dry_run = <span class="bool-val">false</span>;
 
                     <span class="kw">let </span><span class="kw-2">mut </span>v = v.borrow_mut();
-                    v.commit_all().expect(<span class="string">&quot;Failed to commit changes&quot;</span>);
+                    v.commit_all().expect(<span class="string">"Failed to commit changes"</span>);
                     v.backend = backend_backup;
                     result
                 })

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/allocator/src/bump.rs`."><title>bump.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="ink_allocator" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../ink_allocator/index.html"><img src="https://use.ink/img/crate-docs/logo.png" alt="ink_allocator"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/allocator/src/bump.rs`."><title>bump.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-c5d6553a23f1e5a6.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="ink_allocator" data-themes="" data-resource-suffix="" data-rustdoc-version="1.81.0 (eeb90cda1 2024-09-04)" data-channel="1.81.0" data-search-js="search-d234aafac6c221dd.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-d2fab2bf619172d3.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -575,17 +575,16 @@
 <a href="#575" id="575">575</a>
 <a href="#576" id="576">576</a>
 <a href="#577" id="577">577</a>
-<a href="#578" id="578">578</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) Use Ink (UK) Ltd.
 //
-// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
 //     http://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// distributed under the License is distributed on an "AS IS" BASIS,
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
@@ -617,7 +616,7 @@
         };
         <span class="kw">match </span>INNER
             .as_mut()
-            .expect(<span class="string">&quot;We just set the value above; qed&quot;</span>)
+            .expect(<span class="string">"We just set the value above; qed"</span>)
             .alloc(layout)
         {
             <span class="prelude-val">Some</span>(start) =&gt; start <span class="kw">as </span><span class="kw-2">*mut </span>u8,
@@ -638,7 +637,7 @@
     </span><span class="kw">unsafe fn </span>dealloc(<span class="kw-2">&amp;</span><span class="self">self</span>, _ptr: <span class="kw-2">*mut </span>u8, _layout: Layout) {}
 }
 
-<span class="attr">#[cfg_attr(feature = <span class="string">&quot;std&quot;</span>, derive(Debug, Copy, Clone))]
+<span class="attr">#[cfg_attr(feature = <span class="string">"std"</span>, derive(Debug, Copy, Clone))]
 </span><span class="kw">struct </span>InnerAlloc {
     <span class="doccomment">/// Points to the start of the next available allocation.
     </span>next: usize,
@@ -655,7 +654,7 @@
         }
     }
 
-    <span class="macro">cfg_if::cfg_if! </span>{
+    <span class="macro">cfg_if::cfg_if!</span> {
         <span class="kw">if </span><span class="attr">#[cfg(test)] </span>{
             <span class="kw">fn </span>heap_start() -&gt; usize {
                 <span class="number">0
@@ -674,7 +673,7 @@
             </span><span class="kw">fn </span>request_pages(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _pages: usize) -&gt; <span class="prelude-ty">Option</span>&lt;usize&gt; {
                 <span class="prelude-val">Some</span>(<span class="self">self</span>.upper_limit)
             }
-        } <span class="kw">else if </span><span class="attr">#[cfg(feature = <span class="string">&quot;std&quot;</span>)] </span>{
+        } <span class="kw">else if </span><span class="attr">#[cfg(feature = <span class="string">"std"</span>)] </span>{
             <span class="kw">fn </span>heap_start() -&gt; usize {
                 <span class="number">0
             </span>}
@@ -685,13 +684,13 @@
 
             <span class="kw">fn </span>request_pages(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _pages: usize) -&gt; <span class="prelude-ty">Option</span>&lt;usize&gt; {
                 <span class="macro">unreachable!</span>(
-                    <span class="string">&quot;This branch is only used to keep the compiler happy when building tests, and
-                     should never actually be called outside of a test run.&quot;
+                    <span class="string">"This branch is only used to keep the compiler happy when building tests, and
+                     should never actually be called outside of a test run."
                 </span>)
             }
-        } <span class="kw">else if </span><span class="attr">#[cfg(target_arch = <span class="string">&quot;wasm32&quot;</span>)] </span>{
+        } <span class="kw">else if </span><span class="attr">#[cfg(target_arch = <span class="string">"wasm32"</span>)] </span>{
             <span class="kw">fn </span>heap_start() -&gt; usize {
-                <span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
+                <span class="kw">extern </span><span class="string">"C" </span>{
                     <span class="kw">static </span>__heap_base: usize;
                 }
                 <span class="comment">// # SAFETY
@@ -699,9 +698,9 @@
                 // The `__heap_base` symbol is defined by the wasm linker and is guaranteed
                 // to point to the start of the heap.
                 </span><span class="kw">let </span>heap_start =  <span class="kw">unsafe </span>{ <span class="kw-2">&amp;</span>__heap_base <span class="kw">as </span><span class="kw-2">*const </span>usize <span class="kw">as </span>usize };
-                <span class="comment">// if the symbol isn&#39;t found it will resolve to 0
+                <span class="comment">// if the symbol isn't found it will resolve to 0
                 // for that to happen the rust compiler or linker need to break or change
-                </span><span class="macro">assert_ne!</span>(heap_start, <span class="number">0</span>, <span class="string">&quot;Can&#39;t find `__heap_base` symbol.&quot;</span>);
+                </span><span class="macro">assert_ne!</span>(heap_start, <span class="number">0</span>, <span class="string">"Can't find `__heap_base` symbol."</span>);
                 heap_start
             }
 
@@ -722,7 +721,7 @@
                 <span class="comment">// Cannot overflow on this architecture
                 </span><span class="prelude-val">Some</span>(prev_page * PAGE_SIZE)
             }
-        } <span class="kw">else if </span><span class="attr">#[cfg(target_arch = <span class="string">&quot;riscv32&quot;</span>)] </span>{
+        } <span class="kw">else if </span><span class="attr">#[cfg(target_arch = <span class="string">"riscv32"</span>)] </span>{
             <span class="kw">const fn </span>heap_start() -&gt; usize {
                 <span class="comment">// Placeholder value until we specified our riscv VM
                 </span><span class="number">0x7000_0000
@@ -730,21 +729,21 @@
 
             <span class="kw">const fn </span>heap_end() -&gt; usize {
                 <span class="comment">// Placeholder value until we specified our riscv VM
-                // Let&#39;s just assume a cool megabyte of mem for now
+                // Let's just assume a cool megabyte of mem for now
                 </span><span class="number">0x7000_0400
             </span>}
 
             <span class="kw">fn </span>request_pages(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _pages: usize) -&gt; <span class="prelude-ty">Option</span>&lt;usize&gt; {
-                <span class="comment">// On riscv the memory can&#39;t be grown
+                <span class="comment">// On riscv the memory can't be grown
                 </span><span class="prelude-val">None
             </span>}
         } <span class="kw">else </span>{
-            <span class="macro">core::compile_error!</span>(<span class="string">&quot;ink! only supports wasm32 and riscv32&quot;</span>);
+            <span class="macro">core::compile_error!</span>(<span class="string">"ink! only supports wasm32 and riscv32"</span>);
         }
     }
 
     <span class="doccomment">/// Tries to allocate enough memory on the heap for the given `Layout`. If there is
-    /// not enough room on the heap it&#39;ll try and grow it by a page.
+    /// not enough room on the heap it'll try and grow it by a page.
     ///
     /// Note: This implementation results in internal fragmentation when allocating across
     /// pages.
@@ -777,10 +776,9 @@
     /// of a layout in the linear memory.
     /// - Initially `self.next` is `0`` and aligned
     /// - `layout.align() - 1` accounts for `0` as the first index.
-    /// - the binary with the inverse of the align creates a
-    /// bitmask that is used to zero out bits, ensuring alignment according to type
-    /// requirements and ensures that the next allocated pointer address is of the
-    /// power of 2.
+    /// - the binary with the inverse of the align creates a bitmask that is used to zero
+    ///   out bits, ensuring alignment according to type requirements and ensures that the
+    ///   next allocated pointer address is of the power of 2.
     </span><span class="kw">fn </span>align_ptr(<span class="kw-2">&amp;</span><span class="self">self</span>, layout: <span class="kw-2">&amp;</span>Layout) -&gt; usize {
         (<span class="self">self</span>.next + layout.align() - <span class="number">1</span>) &amp; !(layout.align() - <span class="number">1</span>)
     }
@@ -866,7 +864,7 @@
             _foo: [u8; PAGE_SIZE - <span class="number">1</span>],
         }
 
-        <span class="comment">// First, let&#39;s allocate a struct which is _almost_ a full page
+        <span class="comment">// First, let's allocate a struct which is _almost_ a full page
         </span><span class="kw">let </span>layout = Layout::new::&lt;Foo&gt;();
         <span class="macro">assert_eq!</span>(inner.alloc(layout), <span class="prelude-val">Some</span>(<span class="number">0</span>));
 
@@ -877,7 +875,7 @@
         <span class="kw">let </span>expected_alloc_start = size_of::&lt;Foo&gt;();
         <span class="macro">assert_eq!</span>(inner.next, expected_alloc_start);
 
-        <span class="comment">// Now we&#39;ll allocate two bytes which will push us over to the next page
+        <span class="comment">// Now we'll allocate two bytes which will push us over to the next page
         </span><span class="kw">let </span>layout = Layout::new::&lt;u16&gt;();
         <span class="macro">assert_eq!</span>(inner.alloc(layout), <span class="prelude-val">Some</span>(PAGE_SIZE));
 
@@ -933,7 +931,7 @@
     }
 }
 
-<span class="attr">#[cfg(all(test, feature = <span class="string">&quot;ink-fuzz-tests&quot;</span>))]
+<span class="attr">#[cfg(all(test, feature = <span class="string">"ink-fuzz-tests"</span>))]
 </span><span class="kw">mod </span>fuzz_tests {
     <span class="kw">use super</span>::<span class="kw-2">*</span>;
     <span class="kw">use </span>quickcheck::{
@@ -946,7 +944,7 @@
     </span><span class="kw">fn </span>should_allocate_arbitrary_sized_bytes(n: usize) -&gt; TestResult {
         <span class="kw">let </span><span class="kw-2">mut </span>inner = InnerAlloc::new();
 
-        <span class="comment">// If we&#39;re going to end up creating an invalid `Layout` we don&#39;t want to use
+        <span class="comment">// If we're going to end up creating an invalid `Layout` we don't want to use
         // these test inputs.
         </span><span class="kw">let </span>layout = <span class="kw">match </span>Layout::from_size_align(n, size_of::&lt;usize&gt;()) {
             <span class="prelude-val">Ok</span>(l) =&gt; l,
@@ -957,19 +955,19 @@
         <span class="macro">assert_eq!</span>(
             inner.alloc(layout),
             <span class="prelude-val">Some</span>(<span class="number">0</span>),
-            <span class="string">&quot;The given pointer for the allocation doesn&#39;t match.&quot;
+            <span class="string">"The given pointer for the allocation doesn't match."
         </span>);
 
         <span class="kw">let </span>expected_alloc_start = size;
         <span class="macro">assert_eq!</span>(
             inner.next, expected_alloc_start,
-            <span class="string">&quot;Our next allocation doesn&#39;t match where it should start.&quot;
+            <span class="string">"Our next allocation doesn't match where it should start."
         </span>);
 
         <span class="kw">let </span>expected_limit = PAGE_SIZE * required_pages(size).unwrap();
         <span class="macro">assert_eq!</span>(
             inner.upper_limit, expected_limit,
-            <span class="string">&quot;The upper bound of our heap doesn&#39;t match.&quot;
+            <span class="string">"The upper bound of our heap doesn't match."
         </span>);
 
         TestResult::passed()
@@ -985,7 +983,7 @@
 
         <span class="kw">let </span><span class="kw-2">mut </span>inner = InnerAlloc::new();
 
-        <span class="comment">// If we&#39;re going to end up creating an invalid `Layout` we don&#39;t want to use
+        <span class="comment">// If we're going to end up creating an invalid `Layout` we don't want to use
         // these test inputs.
         </span><span class="kw">let </span>layout = <span class="kw">match </span>Layout::from_size_align(n, align) {
             <span class="prelude-val">Ok</span>(l) =&gt; l,
@@ -996,19 +994,19 @@
         <span class="macro">assert_eq!</span>(
             inner.alloc(layout),
             <span class="prelude-val">Some</span>(<span class="number">0</span>),
-            <span class="string">&quot;The given pointer for the allocation doesn&#39;t match.&quot;
+            <span class="string">"The given pointer for the allocation doesn't match."
         </span>);
 
         <span class="kw">let </span>expected_alloc_start = size;
         <span class="macro">assert_eq!</span>(
             inner.next, expected_alloc_start,
-            <span class="string">&quot;Our next allocation doesn&#39;t match where it should start.&quot;
+            <span class="string">"Our next allocation doesn't match where it should start."
         </span>);
 
         <span class="kw">let </span>expected_limit = PAGE_SIZE * required_pages(size).unwrap();
         <span class="macro">assert_eq!</span>(
             inner.upper_limit, expected_limit,
-            <span class="string">&quot;The upper bound of our heap doesn&#39;t match.&quot;
+            <span class="string">"The upper bound of our heap doesn't match."
         </span>);
 
         TestResult::passed()
@@ -1031,20 +1029,20 @@
             <span class="kw">return </span>TestResult::discard()
         }
 
-        <span class="comment">// We don&#39;t want any negative numbers so we can be sure our conversions to `usize`
+        <span class="comment">// We don't want any negative numbers so we can be sure our conversions to `usize`
         // later are valid
         </span><span class="kw">if </span>!sequence.iter().all(|n| n.is_positive()) {
             <span class="kw">return </span>TestResult::discard()
         }
 
-        <span class="comment">// We can&#39;t just use `required_pages(Iterator::sum())` here because it ends up
+        <span class="comment">// We can't just use `required_pages(Iterator::sum())` here because it ends up
         // underestimating the pages due to the ceil rounding at each step
         </span><span class="kw">let </span>pages_required = sequence
             .iter()
             .fold(<span class="number">0</span>, |acc, <span class="kw-2">&amp;</span>x| acc + required_pages(x <span class="kw">as </span>usize).unwrap());
         <span class="kw">let </span>max_pages = required_pages(usize::MAX - PAGE_SIZE + <span class="number">1</span>).unwrap();
 
-        <span class="comment">// We know this is going to end up overflowing, we&#39;ll check this case in a
+        <span class="comment">// We know this is going to end up overflowing, we'll check this case in a
         // different test
         </span><span class="kw">if </span>pages_required &gt; max_pages {
             <span class="kw">return </span>TestResult::discard()
@@ -1078,21 +1076,21 @@
             <span class="macro">assert_eq!</span>(
                 inner.alloc(layout),
                 <span class="prelude-val">Some</span>(expected_alloc_start),
-                <span class="string">&quot;The given pointer for the allocation doesn&#39;t match.&quot;
+                <span class="string">"The given pointer for the allocation doesn't match."
             </span>);
             total_bytes_requested += size;
 
             expected_alloc_start = total_bytes_requested + total_bytes_fragmented;
             <span class="macro">assert_eq!</span>(
                 inner.next, expected_alloc_start,
-                <span class="string">&quot;Our next allocation doesn&#39;t match where it should start.&quot;
+                <span class="string">"Our next allocation doesn't match where it should start."
             </span>);
 
             <span class="kw">let </span>pages_required = required_pages(expected_alloc_start).unwrap();
             <span class="kw">let </span>expected_limit = PAGE_SIZE * pages_required;
             <span class="macro">assert_eq!</span>(
                 inner.upper_limit, expected_limit,
-                <span class="string">&quot;The upper bound of our heap doesn&#39;t match.&quot;
+                <span class="string">"The upper bound of our heap doesn't match."
             </span>);
         }
 
@@ -1102,8 +1100,8 @@
     <span class="comment">// For this test we have sequences of allocations which will eventually overflow the
     // maximum amount of pages (in practice this means our heap will be OOM).
     //
-    // We don&#39;t care about the allocations that succeed (those are checked in other
-    // tests), we just care that eventually an allocation doesn&#39;t success.
+    // We don't care about the allocations that succeed (those are checked in other
+    // tests), we just care that eventually an allocation doesn't success.
     </span><span class="attr">#[quickcheck]
     </span><span class="kw">fn </span>should_not_allocate_arbitrary_byte_sequences_which_eventually_overflow(
         sequence: Vec&lt;isize&gt;,
@@ -1114,13 +1112,13 @@
             <span class="kw">return </span>TestResult::discard()
         }
 
-        <span class="comment">// We don&#39;t want any negative numbers so we can be sure our conversions to `usize`
+        <span class="comment">// We don't want any negative numbers so we can be sure our conversions to `usize`
         // later are valid
         </span><span class="kw">if </span>!sequence.iter().all(|n| n.is_positive()) {
             <span class="kw">return </span>TestResult::discard()
         }
 
-        <span class="comment">// We can&#39;t just use `required_pages(Iterator::sum())` here because it ends up
+        <span class="comment">// We can't just use `required_pages(Iterator::sum())` here because it ends up
         // underestimating the pages due to the ceil rounding at each step
         </span><span class="kw">let </span>pages_required = sequence
             .iter()
@@ -1148,7 +1146,7 @@
         // calculations.
         </span><span class="macro">assert!</span>(
             results.iter().any(|r| r.is_none()),
-            <span class="string">&quot;Expected an allocation to overflow our heap, but this didn&#39;t happen.&quot;
+            <span class="string">"Expected an allocation to overflow our heap, but this didn't happen."
         </span>);
 
         TestResult::passed()

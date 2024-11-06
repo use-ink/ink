@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/ink/codegen/src/generator/storage.rs`."><title>storage.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="ink_codegen" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../ink_codegen/index.html"><img src="https://use.ink/img/crate-docs/logo.png" alt="ink_codegen"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/ink/codegen/src/generator/storage.rs`."><title>storage.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-c5d6553a23f1e5a6.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="ink_codegen" data-themes="" data-resource-suffix="" data-rustdoc-version="1.81.0 (eeb90cda1 2024-09-04)" data-channel="1.81.0" data-search-js="search-d234aafac6c221dd.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-d2fab2bf619172d3.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -107,16 +107,21 @@
 <a href="#107" id="107">107</a>
 <a href="#108" id="108">108</a>
 <a href="#109" id="109">109</a>
+<a href="#110" id="110">110</a>
+<a href="#111" id="111">111</a>
+<a href="#112" id="112">112</a>
+<a href="#113" id="113">113</a>
+<a href="#114" id="114">114</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) Use Ink (UK) Ltd.
 //
-// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
 //     http://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// distributed under the License is distributed on an "AS IS" BASIS,
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
@@ -132,12 +137,12 @@
 
 <span class="doccomment">/// Generator to create the ink! storage struct and important trait implementations.
 </span><span class="attr">#[derive(From)]
-</span><span class="kw">pub struct </span>Storage&lt;<span class="lifetime">&#39;a</span>&gt; {
-    contract: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ir::Contract,
+</span><span class="kw">pub struct </span>Storage&lt;<span class="lifetime">'a</span>&gt; {
+    contract: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>ir::Contract,
 }
 <span class="macro">impl_as_ref_for_generator!</span>(Storage);
 
-<span class="kw">impl </span>GenerateCode <span class="kw">for </span>Storage&lt;<span class="lifetime">&#39;_</span>&gt; {
+<span class="kw">impl </span>GenerateCode <span class="kw">for </span>Storage&lt;<span class="lifetime">'_</span>&gt; {
     <span class="kw">fn </span>generate_code(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; TokenStream2 {
         <span class="kw">let </span>storage_span = <span class="self">self</span>.contract.module().storage().span();
         <span class="kw">let </span>access_env_impls = <span class="self">self</span>.generate_access_env_trait_impls();
@@ -158,14 +163,14 @@
     }
 }
 
-<span class="kw">impl </span>Storage&lt;<span class="lifetime">&#39;_</span>&gt; {
+<span class="kw">impl </span>Storage&lt;<span class="lifetime">'_</span>&gt; {
     <span class="kw">fn </span>generate_access_env_trait_impls(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; TokenStream2 {
         <span class="kw">let </span>storage_ident = <span class="kw-2">&amp;</span><span class="self">self</span>.contract.module().storage().ident();
-        <span class="macro">quote! </span>{
+        <span class="macro">quote!</span> {
             <span class="kw">const _</span>: () = {
-                <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; ::ink::codegen::Env <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>#storage_ident {
+                <span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; ::ink::codegen::Env <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">'a </span>#storage_ident {
                     <span class="kw">type </span>EnvAccess = ::ink::EnvAccess&lt;
-                        <span class="lifetime">&#39;a</span>, &lt;#storage_ident <span class="kw">as </span>::ink::env::ContractEnv&gt;::Env&gt;;
+                        <span class="lifetime">'a</span>, &lt;#storage_ident <span class="kw">as </span>::ink::env::ContractEnv&gt;::Env&gt;;
 
                     <span class="kw">fn </span>env(<span class="self">self</span>) -&gt; <span class="self">Self</span>::EnvAccess {
                         &lt;&lt;<span class="self">Self </span><span class="kw">as </span>::ink::codegen::Env&gt;::EnvAccess
@@ -173,9 +178,9 @@
                     }
                 }
 
-                <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; ::ink::codegen::StaticEnv <span class="kw">for </span>#storage_ident {
+                <span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; ::ink::codegen::StaticEnv <span class="kw">for </span>#storage_ident {
                     <span class="kw">type </span>EnvAccess = ::ink::EnvAccess&lt;
-                        <span class="lifetime">&#39;static</span>, &lt;#storage_ident <span class="kw">as </span>::ink::env::ContractEnv&gt;::Env&gt;;
+                        <span class="lifetime">'static</span>, &lt;#storage_ident <span class="kw">as </span>::ink::env::ContractEnv&gt;::Env&gt;;
 
                     <span class="kw">fn </span>env() -&gt; <span class="self">Self</span>::EnvAccess {
                         &lt;&lt;<span class="self">Self </span><span class="kw">as </span>::ink::codegen::StaticEnv&gt;::EnvAccess
@@ -190,8 +195,13 @@
     ///
     /// # Developer Note
     ///
-    /// The `__ink_dylint_Storage` config attribute is used here to convey the
+    /// The `fortanix` config attribute is used here to convey the
     /// information that the generated struct is an ink! storage struct to `dylint`.
+    ///
+    /// We decided on this attribute to mark the function, as it has to be a
+    /// key-value pair that is well known to `cargo`. `fortanix` seems like an obscure
+    /// vendor, for  which it is highly unlikely that someone will ever compile
+    /// a contract for.
     </span><span class="kw">fn </span>generate_storage_struct(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; TokenStream2 {
         <span class="kw">let </span>storage = <span class="self">self</span>.contract.module().storage();
         <span class="kw">let </span>span = storage.span();
@@ -203,14 +213,14 @@
             #(#attrs)*
             <span class="attr">#[::ink::storage_item]
             #[cfg_attr(test, derive(::core::fmt::Debug))]
-            #[cfg(not(feature = <span class="string">&quot;__ink_dylint_Storage&quot;</span>))]
+            #[cfg(not(target_vendor = <span class="string">"fortanix"</span>))]
             </span><span class="kw">pub struct </span>#ident #generics {
                 #( #fields ),*
             }
 
             <span class="kw">const _</span>: () = {
                 <span class="kw">impl </span>::ink::reflect::ContractName <span class="kw">for </span>#ident {
-                    <span class="kw">const </span>NAME: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str = <span class="macro">::core::stringify!</span>(#ident);
+                    <span class="kw">const </span>NAME: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str = <span class="macro">::core::stringify!</span>(#ident);
                 }
             };
         )

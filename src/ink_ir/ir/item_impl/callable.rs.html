@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/ink/ir/src/ir/item_impl/callable.rs`."><title>callable.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="ink_ir" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../../ink_ir/index.html"><img src="https://use.ink/img/crate-docs/logo.png" alt="ink_ir"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/ink/ir/src/ir/item_impl/callable.rs`."><title>callable.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-c5d6553a23f1e5a6.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="ink_ir" data-themes="" data-resource-suffix="" data-rustdoc-version="1.81.0 (eeb90cda1 2024-09-04)" data-channel="1.81.0" data-search-js="search-d234aafac6c221dd.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-d2fab2bf619172d3.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -668,14 +668,14 @@
 <a href="#668" id="668">668</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) Use Ink (UK) Ltd.
 //
-// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
 //     http://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// distributed under the License is distributed on an "AS IS" BASIS,
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
@@ -702,39 +702,39 @@
 }
 
 <span class="kw">impl </span>fmt::Display <span class="kw">for </span>CallableKind {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
         <span class="kw">match </span><span class="self">self </span>{
-            <span class="self">Self</span>::Message =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;message&quot;</span>),
-            <span class="self">Self</span>::Constructor =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;constructor&quot;</span>),
+            <span class="self">Self</span>::Message =&gt; <span class="macro">write!</span>(f, <span class="string">"message"</span>),
+            <span class="self">Self</span>::Constructor =&gt; <span class="macro">write!</span>(f, <span class="string">"constructor"</span>),
         }
     }
 }
 
 <span class="doccomment">/// Wrapper for a callable that adds its composed selector.
 </span><span class="attr">#[derive(Debug)]
-</span><span class="kw">pub struct </span>CallableWithSelector&lt;<span class="lifetime">&#39;a</span>, C&gt; {
+</span><span class="kw">pub struct </span>CallableWithSelector&lt;<span class="lifetime">'a</span>, C&gt; {
     <span class="doccomment">/// The composed selector computed by the associated implementation block
     /// and the given callable.
     </span>composed_selector: ir::Selector,
     <span class="doccomment">/// The parent implementation block.
-    </span>item_impl: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ir::ItemImpl,
+    </span>item_impl: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>ir::ItemImpl,
     <span class="doccomment">/// The actual callable.
-    </span>callable: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>C,
+    </span>callable: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>C,
 }
 
-<span class="kw">impl</span>&lt;C&gt; Copy <span class="kw">for </span>CallableWithSelector&lt;<span class="lifetime">&#39;_</span>, C&gt; {}
-<span class="kw">impl</span>&lt;C&gt; Clone <span class="kw">for </span>CallableWithSelector&lt;<span class="lifetime">&#39;_</span>, C&gt; {
+<span class="kw">impl</span>&lt;C&gt; Copy <span class="kw">for </span>CallableWithSelector&lt;<span class="lifetime">'_</span>, C&gt; {}
+<span class="kw">impl</span>&lt;C&gt; Clone <span class="kw">for </span>CallableWithSelector&lt;<span class="lifetime">'_</span>, C&gt; {
     <span class="kw">fn </span>clone(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self </span>{
         <span class="kw-2">*</span><span class="self">self
     </span>}
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, C&gt; CallableWithSelector&lt;<span class="lifetime">&#39;a</span>, C&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, C&gt; CallableWithSelector&lt;<span class="lifetime">'a</span>, C&gt;
 <span class="kw">where
     </span>C: Callable,
 {
     <span class="doccomment">/// Creates a new wrapper around the given callable and parent `impl` block.
-    </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>new(item_impl: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ir::ItemImpl, callable: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>C) -&gt; <span class="self">Self </span>{
+    </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>new(item_impl: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>ir::ItemImpl, callable: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>C) -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{
             composed_selector: compose_selector(item_impl, callable),
             item_impl,
@@ -743,24 +743,24 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, C&gt; CallableWithSelector&lt;<span class="lifetime">&#39;a</span>, C&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, C&gt; CallableWithSelector&lt;<span class="lifetime">'a</span>, C&gt; {
     <span class="doccomment">/// Returns the composed selector of the ink! callable the `impl` block.
     </span><span class="kw">pub fn </span>composed_selector(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; ir::Selector {
         <span class="self">self</span>.composed_selector
     }
 
     <span class="doccomment">/// Returns a shared reference to the underlying callable.
-    </span><span class="kw">pub fn </span>callable(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>C {
+    </span><span class="kw">pub fn </span>callable(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'a </span>C {
         <span class="self">self</span>.callable
     }
 
     <span class="doccomment">/// Returns the parent implementation block of the ink! callable.
-    </span><span class="kw">pub fn </span>item_impl(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ir::ItemImpl {
+    </span><span class="kw">pub fn </span>item_impl(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'a </span>ir::ItemImpl {
         <span class="self">self</span>.item_impl
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, C&gt; Callable <span class="kw">for </span>CallableWithSelector&lt;<span class="lifetime">&#39;a</span>, C&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, C&gt; Callable <span class="kw">for </span>CallableWithSelector&lt;<span class="lifetime">'a</span>, C&gt;
 <span class="kw">where
     </span>C: Callable,
 {
@@ -809,7 +809,7 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, C&gt; ::core::ops::Deref <span class="kw">for </span>CallableWithSelector&lt;<span class="lifetime">&#39;a</span>, C&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, C&gt; ::core::ops::Deref <span class="kw">for </span>CallableWithSelector&lt;<span class="lifetime">'a</span>, C&gt; {
     <span class="kw">type </span>Target = C;
 
     <span class="kw">fn </span>deref(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="self">Self</span>::Target {
@@ -882,7 +882,7 @@
 /// - If `s` is given we simply return `s`.
 /// - Otherwise if `T` is not `None` (trait `impl` block) we concatenate `S`, `T` and `i`
 ///   with `::` as separator if `T` refers to a full-path. If `T` refers to a relative
-///   path or is just an identifier we only take its last segment `p` (e.g. the trait&#39;s
+///   path or is just an identifier we only take its last segment `p` (e.g. the trait's
 ///   identifier) into consideration and use it instead of `P` in the above concatenation.
 ///   In the following we refer to the resulting concatenation as `C`.
 /// - Now we take the BLAKE-2 hash of `C` which results in 32 bytes of output and take the
@@ -917,7 +917,7 @@
 ///
 /// …then the selector of `my_message` is composed such as:
 /// ```no_compile
-/// BLAKE2(&quot;my_message&quot;.to_string().as_bytes())[0..4]
+/// BLAKE2("my_message".to_string().as_bytes())[0..4]
 /// ```
 ///
 /// ## Trait implementation block
@@ -933,7 +933,7 @@
 ///
 /// …then the selector of `my_message` is composed such as:
 /// ```no_compile
-/// BLAKE2(&quot;MyTrait::my_message&quot;.to_string().as_bytes())[0..4]
+/// BLAKE2("MyTrait::my_message".to_string().as_bytes())[0..4]
 /// ```
 ///
 /// ## Using full path for trait
@@ -949,7 +949,7 @@
 ///
 /// …then the selector of `my_message` is composed such as:
 /// ```no_compile
-/// BLAKE2(&quot;::my_full::long_path::MyTrait::my_message&quot;.to_string().as_bytes())[0..4]
+/// BLAKE2("::my_full::long_path::MyTrait::my_message".to_string().as_bytes())[0..4]
 /// ```
 ///
 /// ## Using a namespace
@@ -957,7 +957,7 @@
 /// Given
 ///
 /// ```no_compile
-/// #[ink(namespace = &quot;my_namespace&quot;)]
+/// #[ink(namespace = "my_namespace")]
 /// impl MyTrait for MyStorage {
 ///     #[ink(message)]
 ///     fn my_message(&amp;self) {}
@@ -966,7 +966,7 @@
 ///
 /// …then the selector of `my_message` is composed such as:
 /// ```no_compile
-/// BLAKE2(&quot;my_namespace::MyTrait::my_message&quot;.to_string().as_bytes())[0..4]
+/// BLAKE2("my_namespace::MyTrait::my_message".to_string().as_bytes())[0..4]
 /// ```
 ///
 /// ## Note
@@ -977,9 +977,9 @@
 ///
 /// These recommendation mainly apply to trait implementation blocks:
 ///
-/// - The recommendation by the ink! team is to use the full-path approach
-/// wherever possible; OR import the trait and use only its identifier with
-/// an additional namespace if required to disambiguate selectors.
+/// - The recommendation by the ink! team is to use the full-path approach wherever
+///   possible; OR import the trait and use only its identifier with an additional
+///   namespace if required to disambiguate selectors.
 /// - Try not to intermix the above recommendations.
 /// - Avoid directly setting the selector of an ink! message or constructor. Only do this
 ///   if nothing else helps and you need a very specific selector, e.g. in case of
@@ -997,7 +997,7 @@
         .namespace()
         .map(|namespace| namespace.as_bytes().to_vec())
         .unwrap_or_default();
-    <span class="kw">let </span>separator = <span class="kw-2">&amp;</span><span class="string">b&quot;::&quot;</span>[..];
+    <span class="kw">let </span>separator = <span class="kw-2">&amp;</span><span class="string">b"::"</span>[..];
     <span class="kw">let </span>joined = <span class="kw">match </span>item_impl.trait_path() {
         <span class="prelude-val">None </span>=&gt; {
             <span class="comment">// Inherent implementation block:
@@ -1019,7 +1019,7 @@
             } <span class="kw">else </span>{
                 path.segments
                     .last()
-                    .expect(<span class="string">&quot;encountered empty trait path&quot;</span>)
+                    .expect(<span class="string">"encountered empty trait path"</span>)
                     .ident
                     .to_string()
                     .into_bytes()
@@ -1045,7 +1045,7 @@
 ///  - `async` (asynchronous WebAssembly smart contract calling is not allowed)
 ///  - `unsafe` (caller provided assertions not yet stable)
 /// - Furthermore this is `true` if the externally callable is defined for a non default
-///   ABI (e.g. `extern &quot;C&quot;`) or does not have valid visibility.
+///   ABI (e.g. `extern "C"`) or does not have valid visibility.
 </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>ensure_callable_invariants(
     method_item: <span class="kw-2">&amp;</span>syn::ImplItemFn,
     kind: CallableKind,
@@ -1058,49 +1058,49 @@
     <span class="kw">if let </span><span class="prelude-val">Some</span>(bad_visibility) = bad_visibility {
         <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">format_err!</span>(
             bad_visibility,
-            <span class="string">&quot;ink! {}s must have public or inherited visibility&quot;</span>,
+            <span class="string">"ink! {}s must have public or inherited visibility"</span>,
             kind
         ))
     }
     <span class="kw">if </span>!method_item.sig.generics.params.is_empty() {
         <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
             method_item.sig.generics.params,
-            <span class="string">&quot;ink! {}s must not be generic&quot;</span>,
+            <span class="string">"ink! {}s must not be generic"</span>,
             kind,
         ))
     }
     <span class="kw">if </span>method_item.sig.constness.is_some() {
         <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
             method_item.sig.constness,
-            <span class="string">&quot;ink! {}s must not be const&quot;</span>,
+            <span class="string">"ink! {}s must not be const"</span>,
             kind,
         ))
     }
     <span class="kw">if </span>method_item.sig.asyncness.is_some() {
         <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
             method_item.sig.asyncness,
-            <span class="string">&quot;ink! {}s must not be async&quot;</span>,
+            <span class="string">"ink! {}s must not be async"</span>,
             kind,
         ))
     }
     <span class="kw">if </span>method_item.sig.unsafety.is_some() {
         <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
             method_item.sig.unsafety,
-            <span class="string">&quot;ink! {}s must not be unsafe&quot;</span>,
+            <span class="string">"ink! {}s must not be unsafe"</span>,
             kind,
         ))
     }
     <span class="kw">if </span>method_item.sig.abi.is_some() {
         <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
             method_item.sig.abi,
-            <span class="string">&quot;ink! {}s must not have explicit ABI&quot;</span>,
+            <span class="string">"ink! {}s must not have explicit ABI"</span>,
             kind,
         ))
     }
     <span class="kw">if </span>method_item.sig.variadic.is_some() {
         <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
             method_item.sig.variadic,
-            <span class="string">&quot;ink! {}s must not be variadic&quot;</span>,
+            <span class="string">"ink! {}s must not be variadic"</span>,
             kind,
         ))
     }
@@ -1113,7 +1113,7 @@
     }) {
         <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
             arg,
-            <span class="string">&quot;ink! {} arguments must have an identifier&quot;</span>,
+            <span class="string">"ink! {} arguments must have an identifier"</span>,
             kind
         ))
     }
@@ -1168,46 +1168,46 @@
 <span class="doccomment">/// Iterator over the input parameters of an ink! message or constructor.
 ///
 /// Does not yield the self receiver of ink! messages.
-</span><span class="kw">pub struct </span>InputsIter&lt;<span class="lifetime">&#39;a</span>&gt; {
-    iter: syn::punctuated::Iter&lt;<span class="lifetime">&#39;a</span>, syn::FnArg&gt;,
+</span><span class="kw">pub struct </span>InputsIter&lt;<span class="lifetime">'a</span>&gt; {
+    iter: syn::punctuated::Iter&lt;<span class="lifetime">'a</span>, syn::FnArg&gt;,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; InputsIter&lt;<span class="lifetime">&#39;a</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; InputsIter&lt;<span class="lifetime">'a</span>&gt; {
     <span class="doccomment">/// Creates a new inputs iterator over the given `syn` punctuation.
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>new&lt;P&gt;(inputs: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>syn::punctuated::Punctuated&lt;syn::FnArg, P&gt;) -&gt; <span class="self">Self </span>{
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>new&lt;P&gt;(inputs: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>syn::punctuated::Punctuated&lt;syn::FnArg, P&gt;) -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{
             iter: inputs.iter(),
         }
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; From&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ir::Message&gt; <span class="kw">for </span>InputsIter&lt;<span class="lifetime">&#39;a</span>&gt; {
-    <span class="kw">fn </span>from(message: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ir::Message) -&gt; <span class="self">Self </span>{
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; From&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>ir::Message&gt; <span class="kw">for </span>InputsIter&lt;<span class="lifetime">'a</span>&gt; {
+    <span class="kw">fn </span>from(message: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>ir::Message) -&gt; <span class="self">Self </span>{
         <span class="self">Self</span>::new(<span class="kw-2">&amp;</span>message.item.sig.inputs)
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; From&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ir::Constructor&gt; <span class="kw">for </span>InputsIter&lt;<span class="lifetime">&#39;a</span>&gt; {
-    <span class="kw">fn </span>from(constructor: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ir::Constructor) -&gt; <span class="self">Self </span>{
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; From&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>ir::Constructor&gt; <span class="kw">for </span>InputsIter&lt;<span class="lifetime">'a</span>&gt; {
+    <span class="kw">fn </span>from(constructor: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>ir::Constructor) -&gt; <span class="self">Self </span>{
         <span class="self">Self</span>::new(<span class="kw-2">&amp;</span>constructor.item.sig.inputs)
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Iterator <span class="kw">for </span>InputsIter&lt;<span class="lifetime">&#39;a</span>&gt; {
-    <span class="kw">type </span>Item = <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>syn::PatType;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; Iterator <span class="kw">for </span>InputsIter&lt;<span class="lifetime">'a</span>&gt; {
+    <span class="kw">type </span>Item = <span class="kw-2">&amp;</span><span class="lifetime">'a </span>syn::PatType;
 
     <span class="kw">fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>::Item&gt; {
-        <span class="lifetime">&#39;repeat</span>: <span class="kw">loop </span>{
+        <span class="lifetime">'repeat</span>: <span class="kw">loop </span>{
             <span class="kw">match </span><span class="self">self</span>.iter.next() {
                 <span class="prelude-val">None </span>=&gt; <span class="kw">return </span><span class="prelude-val">None</span>,
                 <span class="prelude-val">Some</span>(syn::FnArg::Typed(pat_typed)) =&gt; <span class="kw">return </span><span class="prelude-val">Some</span>(pat_typed),
-                <span class="prelude-val">Some</span>(syn::FnArg::Receiver(<span class="kw">_</span>)) =&gt; <span class="kw">continue </span><span class="lifetime">&#39;repeat</span>,
+                <span class="prelude-val">Some</span>(syn::FnArg::Receiver(<span class="kw">_</span>)) =&gt; <span class="kw">continue </span><span class="lifetime">'repeat</span>,
             }
         }
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; ExactSizeIterator <span class="kw">for </span>InputsIter&lt;<span class="lifetime">&#39;a</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; ExactSizeIterator <span class="kw">for </span>InputsIter&lt;<span class="lifetime">'a</span>&gt; {
     <span class="kw">fn </span>len(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
         <span class="self">self</span>.iter.len()
     }
@@ -1267,70 +1267,70 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>compose_selector_works() {
         assert_compose_selector::&lt;ir::Message, <span class="kw">_</span>&gt;(
-            <span class="macro">syn::parse_quote! </span>{
+            <span class="macro">syn::parse_quote!</span> {
                 <span class="attr">#[ink(<span class="kw">impl</span>)]
                 </span><span class="kw">impl </span>MyStorage {}
             },
-            <span class="macro">syn::parse_quote! </span>{
+            <span class="macro">syn::parse_quote!</span> {
                 <span class="attr">#[ink(message)]
                 </span><span class="kw">fn </span>my_message(<span class="kw-2">&amp;</span><span class="self">self</span>) {}
             },
-            <span class="string">b&quot;my_message&quot;</span>.to_vec(),
+            <span class="string">b"my_message"</span>.to_vec(),
         );
         assert_compose_selector::&lt;ir::Message, <span class="kw">_</span>&gt;(
-            <span class="macro">syn::parse_quote! </span>{
+            <span class="macro">syn::parse_quote!</span> {
                 <span class="attr">#[ink(<span class="kw">impl</span>)]
                 </span><span class="kw">impl </span>MyTrait <span class="kw">for </span>MyStorage {}
             },
-            <span class="macro">syn::parse_quote! </span>{
+            <span class="macro">syn::parse_quote!</span> {
                 <span class="attr">#[ink(message)]
                 </span><span class="kw">fn </span>my_message(<span class="kw-2">&amp;</span><span class="self">self</span>) {}
             },
-            <span class="string">b&quot;MyTrait::my_message&quot;</span>.to_vec(),
+            <span class="string">b"MyTrait::my_message"</span>.to_vec(),
         );
         assert_compose_selector::&lt;ir::Message, <span class="kw">_</span>&gt;(
-            <span class="macro">syn::parse_quote! </span>{
+            <span class="macro">syn::parse_quote!</span> {
                 <span class="attr">#[ink(<span class="kw">impl</span>)]
                 </span><span class="kw">impl </span>::my::full::path::MyTrait <span class="kw">for </span>MyStorage {}
             },
-            <span class="macro">syn::parse_quote! </span>{
+            <span class="macro">syn::parse_quote!</span> {
                 <span class="attr">#[ink(message)]
                 </span><span class="kw">fn </span>my_message(<span class="kw-2">&amp;</span><span class="self">self</span>) {}
             },
-            <span class="string">b&quot;::my::full::path::MyTrait::my_message&quot;</span>.to_vec(),
+            <span class="string">b"::my::full::path::MyTrait::my_message"</span>.to_vec(),
         );
         assert_compose_selector::&lt;ir::Message, <span class="kw">_</span>&gt;(
-            <span class="macro">syn::parse_quote! </span>{
-                <span class="attr">#[ink(<span class="kw">impl</span>, namespace = <span class="string">&quot;my_namespace&quot;</span>)]
+            <span class="macro">syn::parse_quote!</span> {
+                <span class="attr">#[ink(<span class="kw">impl</span>, namespace = <span class="string">"my_namespace"</span>)]
                 </span><span class="kw">impl </span>MyStorage {}
             },
-            <span class="macro">syn::parse_quote! </span>{
+            <span class="macro">syn::parse_quote!</span> {
                 <span class="attr">#[ink(message)]
                 </span><span class="kw">fn </span>my_message(<span class="kw-2">&amp;</span><span class="self">self</span>) {}
             },
-            <span class="string">b&quot;my_namespace::my_message&quot;</span>.to_vec(),
+            <span class="string">b"my_namespace::my_message"</span>.to_vec(),
         );
         assert_compose_selector::&lt;ir::Message, <span class="kw">_</span>&gt;(
-            <span class="macro">syn::parse_quote! </span>{
+            <span class="macro">syn::parse_quote!</span> {
                 <span class="attr">#[ink(<span class="kw">impl</span>)]
                 </span><span class="kw">impl </span>MyTrait <span class="kw">for </span>MyStorage {}
             },
-            <span class="macro">syn::parse_quote! </span>{
+            <span class="macro">syn::parse_quote!</span> {
                 <span class="attr">#[ink(message, selector = <span class="number">0xDEADBEEF</span>)]
                 </span><span class="kw">fn </span>my_message(<span class="kw-2">&amp;</span><span class="self">self</span>) {}
             },
             [<span class="number">0xDE</span>, <span class="number">0xAD</span>, <span class="number">0xBE</span>, <span class="number">0xEF</span>],
         );
         assert_compose_selector::&lt;ir::Message, <span class="kw">_</span>&gt;(
-            <span class="macro">syn::parse_quote! </span>{
+            <span class="macro">syn::parse_quote!</span> {
                 <span class="attr">#[ink(<span class="kw">impl</span>)]
                 </span><span class="kw">impl </span>relative::path_to::MyTrait <span class="kw">for </span>MyStorage {}
             },
-            <span class="macro">syn::parse_quote! </span>{
+            <span class="macro">syn::parse_quote!</span> {
                 <span class="attr">#[ink(message)]
                 </span><span class="kw">fn </span>my_message(<span class="kw-2">&amp;</span><span class="self">self</span>) {}
             },
-            <span class="string">b&quot;MyTrait::my_message&quot;</span>.to_vec(),
+            <span class="string">b"MyTrait::my_message"</span>.to_vec(),
         );
     }
 }

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/ink/ir/src/ir/item_impl/message.rs`."><title>message.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="ink_ir" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../../ink_ir/index.html"><img src="https://use.ink/img/crate-docs/logo.png" alt="ink_ir"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/ink/ir/src/ir/item_impl/message.rs`."><title>message.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-c5d6553a23f1e5a6.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="ink_ir" data-themes="" data-resource-suffix="" data-rustdoc-version="1.81.0 (eeb90cda1 2024-09-04)" data-channel="1.81.0" data-search-js="search-d234aafac6c221dd.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-d2fab2bf619172d3.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -864,14 +864,14 @@
 <a href="#864" id="864">864</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) Use Ink (UK) Ltd.
 //
-// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
 //     http://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// distributed under the License is distributed on an "AS IS" BASIS,
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
@@ -908,8 +908,8 @@
 <span class="kw">impl </span>quote::ToTokens <span class="kw">for </span>Receiver {
     <span class="kw">fn </span>to_tokens(<span class="kw-2">&amp;</span><span class="self">self</span>, tokens: <span class="kw-2">&amp;mut </span>proc_macro2::TokenStream) {
         <span class="kw">let </span>receiver = <span class="kw">match </span><span class="self">self </span>{
-            <span class="self">Self</span>::Ref =&gt; <span class="macro">quote::quote! </span>{ <span class="kw-2">&amp;</span><span class="self">self </span>},
-            <span class="self">Self</span>::RefMut =&gt; <span class="macro">quote::quote! </span>{ <span class="kw-2">&amp;mut </span><span class="self">self </span>},
+            <span class="self">Self</span>::Ref =&gt; <span class="macro">quote::quote!</span> { <span class="kw-2">&amp;</span><span class="self">self </span>},
+            <span class="self">Self</span>::RefMut =&gt; <span class="macro">quote::quote!</span> { <span class="kw-2">&amp;mut </span><span class="self">self </span>},
         };
         tokens.extend(receiver);
     }
@@ -1000,7 +1000,7 @@
         <span class="kw">fn </span>bail(span: Span) -&gt; syn::Error {
             <span class="macro">format_err!</span>(
                 span,
-                <span class="string">&quot;ink! messages must have `&amp;self` or `&amp;mut self` receiver&quot;</span>,
+                <span class="string">"ink! messages must have `&amp;self` or `&amp;mut self` receiver"</span>,
             )
         }
         <span class="kw">match </span>fn_args.next() {
@@ -1025,10 +1025,10 @@
             syn::ReturnType::Default =&gt; (),
             syn::ReturnType::Type(_arrow, ret_type) =&gt; {
                 <span class="kw">if let </span>syn::Type::Path(type_path) = <span class="kw-2">&amp;**</span>ret_type {
-                    <span class="kw">if </span>type_path.path.is_ident(<span class="string">&quot;Self&quot;</span>) {
+                    <span class="kw">if </span>type_path.path.is_ident(<span class="string">"Self"</span>) {
                         <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">format_err!</span>(
                             ret_type,
-                            <span class="string">&quot;ink! messages must not return `Self`&quot;
+                            <span class="string">"ink! messages must not return `Self`"
                         </span>))
                     }
                 }
@@ -1119,7 +1119,7 @@
         <span class="kw">match </span><span class="kw-2">&amp;</span><span class="self">self</span>.item.vis {
             syn::Visibility::Public(vis_public) =&gt; Visibility::Public(<span class="kw-2">*</span>vis_public),
             syn::Visibility::Inherited =&gt; Visibility::Inherited,
-            <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;encountered invalid visibility for ink! message&quot;</span>),
+            <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">"encountered invalid visibility for ink! message"</span>),
         }
     }
 
@@ -1158,7 +1158,7 @@
                     Receiver::Ref
                 }
             }
-            <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;encountered invalid receiver argument for ink! message&quot;</span>),
+            <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">"encountered invalid receiver argument for ink! message"</span>),
         }
     }
 
@@ -1178,9 +1178,9 @@
         <span class="kw">let </span>return_type = <span class="self">self
             </span>.output()
             .map(quote::ToTokens::to_token_stream)
-            .unwrap_or_else(|| <span class="macro">quote::quote! </span>{ () });
+            .unwrap_or_else(|| <span class="macro">quote::quote!</span> { () });
 
-        <span class="macro">syn::parse_quote! </span>{
+        <span class="macro">syn::parse_quote!</span> {
             ::ink::MessageResult&lt;#return_type&gt;
         }
     }
@@ -1199,7 +1199,7 @@
 
     <span class="doccomment">/// Returns the identifier of the message with an additional `try_` prefix attached.
     </span><span class="kw">pub fn </span>try_ident(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Ident {
-        <span class="macro">quote::format_ident!</span>(<span class="string">&quot;try_{}&quot;</span>, <span class="self">self</span>.ident())
+        <span class="macro">quote::format_ident!</span>(<span class="string">"try_{}"</span>, <span class="self">self</span>.ident())
     }
 }
 
@@ -1213,23 +1213,23 @@
             (
                 <span class="comment">// No output:
                 </span><span class="prelude-val">None</span>,
-                <span class="macro">syn::parse_quote! </span>{
+                <span class="macro">syn::parse_quote!</span> {
                     <span class="attr">#[ink(message)]
                     </span><span class="kw">fn </span>my_message(<span class="kw-2">&amp;</span><span class="self">self</span>) {}
                 },
             ),
             (
                 <span class="comment">// Single output:
-                </span><span class="prelude-val">Some</span>(<span class="macro">syn::parse_quote! </span>{ i32 }),
-                <span class="macro">syn::parse_quote! </span>{
+                </span><span class="prelude-val">Some</span>(<span class="macro">syn::parse_quote!</span> { i32 }),
+                <span class="macro">syn::parse_quote!</span> {
                     <span class="attr">#[ink(message)]
                     </span><span class="kw">fn </span>my_message(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; i32 {}
                 },
             ),
             (
                 <span class="comment">// Tuple output:
-                </span><span class="prelude-val">Some</span>(<span class="macro">syn::parse_quote! </span>{ (i32, u64, bool) }),
-                <span class="macro">syn::parse_quote! </span>{
+                </span><span class="prelude-val">Some</span>(<span class="macro">syn::parse_quote!</span> { (i32, u64, bool) }),
+                <span class="macro">syn::parse_quote!</span> {
                     <span class="attr">#[ink(message)]
                     </span><span class="kw">fn </span>my_message(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; (i32, u64, bool) {}
                 },
@@ -1246,19 +1246,19 @@
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>inputs_works() {
-        <span class="macro">macro_rules! </span>expected_input {
+        <span class="macro">macro_rules!</span> expected_input {
             ( <span class="kw-2">mut </span><span class="macro-nonterminal">$name</span>:ident: <span class="macro-nonterminal">$ty</span>:ty  ) =&gt; {{
-                <span class="macro">syn::parse_quote! </span>{
+                <span class="macro">syn::parse_quote!</span> {
                     <span class="kw-2">mut </span><span class="macro-nonterminal">$name</span>: <span class="macro-nonterminal">$ty
                 </span>}
             }};
             ( <span class="macro-nonterminal">$name</span>:ident: <span class="macro-nonterminal">$ty</span>:ty  ) =&gt; {{
-                <span class="macro">syn::parse_quote! </span>{
+                <span class="macro">syn::parse_quote!</span> {
                     <span class="macro-nonterminal">$name</span>: <span class="macro-nonterminal">$ty
                 </span>}
             }};
         }
-        <span class="macro">macro_rules! </span>expected_inputs {
+        <span class="macro">macro_rules!</span> expected_inputs {
             ( $( $(<span class="macro-nonterminal">$ts</span>:ident)+: <span class="macro-nonterminal">$ty</span>:ty ),* ) =&gt; {{
                 <span class="macro">vec!</span>[
                     $(
@@ -1271,7 +1271,7 @@
             (
                 <span class="comment">// No inputs:
                 </span><span class="macro">expected_inputs!</span>(),
-                <span class="macro">syn::parse_quote! </span>{
+                <span class="macro">syn::parse_quote!</span> {
                     <span class="attr">#[ink(message)]
                     </span><span class="kw">fn </span>my_message(<span class="kw-2">&amp;</span><span class="self">self</span>) {}
                 },
@@ -1279,7 +1279,7 @@
             (
                 <span class="comment">// Single input:
                 </span><span class="macro">expected_inputs!</span>(a: i32),
-                <span class="macro">syn::parse_quote! </span>{
+                <span class="macro">syn::parse_quote!</span> {
                     <span class="attr">#[ink(message)]
                     </span><span class="kw">fn </span>my_message(<span class="kw-2">&amp;</span><span class="self">self</span>, a: i32) {}
                 },
@@ -1287,7 +1287,7 @@
             (
                 <span class="comment">// Single mutable input:
                 </span><span class="macro">expected_inputs!</span>(<span class="kw-2">mut </span>a: i32),
-                <span class="macro">syn::parse_quote! </span>{
+                <span class="macro">syn::parse_quote!</span> {
                     <span class="attr">#[ink(message)]
                     </span><span class="kw">fn </span>my_message(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw-2">mut </span>a: i32) {}
                 },
@@ -1295,7 +1295,7 @@
             (
                 <span class="comment">// Some inputs:
                 </span><span class="macro">expected_inputs!</span>(a: i32, b: u64, <span class="kw-2">mut </span>c: [u8; <span class="number">32</span>]),
-                <span class="macro">syn::parse_quote! </span>{
+                <span class="macro">syn::parse_quote!</span> {
                     <span class="attr">#[ink(message)]
                     </span><span class="kw">fn </span>my_message(<span class="kw-2">&amp;</span><span class="self">self</span>, a: i32, b: u64, <span class="kw-2">mut </span>c: [u8; <span class="number">32</span>]) {}
                 },
@@ -1318,7 +1318,7 @@
             <span class="comment">// Not payable.
             </span>(
                 <span class="bool-val">false</span>,
-                <span class="macro">syn::parse_quote! </span>{
+                <span class="macro">syn::parse_quote!</span> {
                     <span class="attr">#[ink(message)]
                     </span><span class="kw">fn </span>my_message(<span class="kw-2">&amp;</span><span class="self">self</span>) {}
                 },
@@ -1326,7 +1326,7 @@
             <span class="comment">// Normalized ink! attribute.
             </span>(
                 <span class="bool-val">true</span>,
-                <span class="macro">syn::parse_quote! </span>{
+                <span class="macro">syn::parse_quote!</span> {
                     <span class="attr">#[ink(message, payable)]
                     </span><span class="kw">pub fn </span>my_message(<span class="kw-2">&amp;</span><span class="self">self</span>) {}
                 },
@@ -1334,7 +1334,7 @@
             <span class="comment">// Different ink! attributes.
             </span>(
                 <span class="bool-val">true</span>,
-                <span class="macro">syn::parse_quote! </span>{
+                <span class="macro">syn::parse_quote!</span> {
                     <span class="attr">#[ink(message)]
                     #[ink(payable)]
                     </span><span class="kw">pub fn </span>my_message(<span class="kw-2">&amp;</span><span class="self">self</span>) {}
@@ -1343,7 +1343,7 @@
             <span class="comment">// Another ink! attribute, separate and normalized attribute.
             </span>(
                 <span class="bool-val">true</span>,
-                <span class="macro">syn::parse_quote! </span>{
+                <span class="macro">syn::parse_quote!</span> {
                     <span class="attr">#[ink(message)]
                     #[ink(selector = <span class="number">0xDEADBEEF</span>, payable)]
                     </span><span class="kw">pub fn </span>my_message(<span class="kw-2">&amp;</span><span class="self">self</span>) {}
@@ -1364,7 +1364,7 @@
             <span class="comment">// Not default.
             </span>(
                 <span class="bool-val">false</span>,
-                <span class="macro">syn::parse_quote! </span>{
+                <span class="macro">syn::parse_quote!</span> {
                     <span class="attr">#[ink(message)]
                     </span><span class="kw">fn </span>my_message(<span class="kw-2">&amp;</span><span class="self">self</span>) {}
                 },
@@ -1372,7 +1372,7 @@
             <span class="comment">// Default message.
             </span>(
                 <span class="bool-val">true</span>,
-                <span class="macro">syn::parse_quote! </span>{
+                <span class="macro">syn::parse_quote!</span> {
                     <span class="attr">#[ink(message, payable, default)]
                     </span><span class="kw">pub fn </span>my_message(<span class="kw-2">&amp;</span><span class="self">self</span>) {}
                 },
@@ -1391,14 +1391,14 @@
         <span class="kw">let </span>test_inputs: Vec&lt;(Receiver, syn::ImplItemFn)&gt; = <span class="macro">vec!</span>[
             (
                 Receiver::Ref,
-                <span class="macro">syn::parse_quote! </span>{
+                <span class="macro">syn::parse_quote!</span> {
                     <span class="attr">#[ink(message)]
                     </span><span class="kw">fn </span>my_message(<span class="kw-2">&amp;</span><span class="self">self</span>) {}
                 },
             ),
             (
                 Receiver::RefMut,
-                <span class="macro">syn::parse_quote! </span>{
+                <span class="macro">syn::parse_quote!</span> {
                     <span class="attr">#[ink(message, payable)]
                     </span><span class="kw">fn </span>my_message(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {}
                 },
@@ -1418,7 +1418,7 @@
             <span class="comment">// &amp;self
             </span>(
                 <span class="bool-val">false</span>,
-                <span class="macro">syn::parse_quote! </span>{
+                <span class="macro">syn::parse_quote!</span> {
                     <span class="attr">#[ink(message)]
                     </span><span class="kw">fn </span>my_message(<span class="kw-2">&amp;</span><span class="self">self</span>) {}
                 },
@@ -1426,7 +1426,7 @@
             <span class="comment">// &amp;self + pub
             </span>(
                 <span class="bool-val">true</span>,
-                <span class="macro">syn::parse_quote! </span>{
+                <span class="macro">syn::parse_quote!</span> {
                     <span class="attr">#[ink(message)]
                     </span><span class="kw">pub fn </span>my_message(<span class="kw-2">&amp;</span><span class="self">self</span>) {}
                 },
@@ -1434,7 +1434,7 @@
             <span class="comment">// &amp;mut self
             </span>(
                 <span class="bool-val">false</span>,
-                <span class="macro">syn::parse_quote! </span>{
+                <span class="macro">syn::parse_quote!</span> {
                     <span class="attr">#[ink(message)]
                     </span><span class="kw">fn </span>my_message(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {}
                 },
@@ -1442,7 +1442,7 @@
             <span class="comment">// &amp;mut self + pub
             </span>(
                 <span class="bool-val">true</span>,
-                <span class="macro">syn::parse_quote! </span>{
+                <span class="macro">syn::parse_quote!</span> {
                     <span class="attr">#[ink(message)]
                     </span><span class="kw">pub fn </span>my_message(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {}
                 },
@@ -1461,42 +1461,42 @@
     </span><span class="kw">fn </span>try_from_works() {
         <span class="kw">let </span>item_methods: Vec&lt;syn::ImplItemFn&gt; = <span class="macro">vec!</span>[
             <span class="comment">// &amp;self
-            </span><span class="macro">syn::parse_quote! </span>{
+            </span><span class="macro">syn::parse_quote!</span> {
                 <span class="attr">#[ink(message)]
                 </span><span class="kw">fn </span>my_message(<span class="kw-2">&amp;</span><span class="self">self</span>) {}
             },
             <span class="comment">// &amp;self + pub
-            </span><span class="macro">syn::parse_quote! </span>{
+            </span><span class="macro">syn::parse_quote!</span> {
                 <span class="attr">#[ink(message)]
                 </span><span class="kw">pub fn </span>my_message(<span class="kw-2">&amp;</span><span class="self">self</span>) {}
             },
             <span class="comment">// &amp;mut self
-            </span><span class="macro">syn::parse_quote! </span>{
+            </span><span class="macro">syn::parse_quote!</span> {
                 <span class="attr">#[ink(message)]
                 </span><span class="kw">fn </span>my_message(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {}
             },
             <span class="comment">// &amp;mut self + pub
-            </span><span class="macro">syn::parse_quote! </span>{
+            </span><span class="macro">syn::parse_quote!</span> {
                 <span class="attr">#[ink(message)]
                 </span><span class="kw">pub fn </span>my_message(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {}
             },
             <span class="comment">// &amp;self + payable
-            </span><span class="macro">syn::parse_quote! </span>{
+            </span><span class="macro">syn::parse_quote!</span> {
                 <span class="attr">#[ink(message, payable)]
                 </span><span class="kw">fn </span>my_message(<span class="kw-2">&amp;</span><span class="self">self</span>) {}
             },
             <span class="comment">// &amp;mut self + payable
-            </span><span class="macro">syn::parse_quote! </span>{
+            </span><span class="macro">syn::parse_quote!</span> {
                 <span class="attr">#[ink(message, payable)]
                 </span><span class="kw">fn </span>my_message(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {}
             },
             <span class="comment">// &amp;self + many inputs + output works
-            </span><span class="macro">syn::parse_quote! </span>{
+            </span><span class="macro">syn::parse_quote!</span> {
                 <span class="attr">#[ink(message)]
                 </span><span class="kw">fn </span>my_message(<span class="kw-2">&amp;</span><span class="self">self</span>, input1: i32, input2: i64, input3: u32, input4: u64) -&gt; bool {}
             },
             <span class="comment">// &amp;mut self + many inputs + output works
-            </span><span class="macro">syn::parse_quote! </span>{
+            </span><span class="macro">syn::parse_quote!</span> {
                 <span class="attr">#[ink(message)]
                 </span><span class="kw">fn </span>my_message(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input1: i32, input2: i64, input3: u32, input4: u64) -&gt; bool {}
             },
@@ -1517,48 +1517,48 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>try_from_generics_fails() {
         <span class="kw">let </span>item_methods: Vec&lt;syn::ImplItemFn&gt; = <span class="macro">vec!</span>[
-            <span class="macro">syn::parse_quote! </span>{
+            <span class="macro">syn::parse_quote!</span> {
                 <span class="attr">#[ink(message)]
                 </span><span class="kw">fn </span>my_message&lt;T&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>) {}
             },
-            <span class="macro">syn::parse_quote! </span>{
+            <span class="macro">syn::parse_quote!</span> {
                 <span class="attr">#[ink(message)]
                 </span><span class="kw">pub fn </span>my_message&lt;T&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>) {}
             },
-            <span class="macro">syn::parse_quote! </span>{
+            <span class="macro">syn::parse_quote!</span> {
                 <span class="attr">#[ink(message)]
                 </span><span class="kw">fn </span>my_message&lt;T&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {}
             },
-            <span class="macro">syn::parse_quote! </span>{
+            <span class="macro">syn::parse_quote!</span> {
                 <span class="attr">#[ink(message)]
                 </span><span class="kw">pub fn </span>my_message&lt;T&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {}
             },
         ];
         <span class="kw">for </span>item_method <span class="kw">in </span>item_methods {
-            assert_try_from_fails(item_method, <span class="string">&quot;ink! messages must not be generic&quot;</span>)
+            assert_try_from_fails(item_method, <span class="string">"ink! messages must not be generic"</span>)
         }
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>try_from_receiver_fails() {
         <span class="kw">let </span>item_methods: Vec&lt;syn::ImplItemFn&gt; = <span class="macro">vec!</span>[
-            <span class="macro">syn::parse_quote! </span>{
+            <span class="macro">syn::parse_quote!</span> {
                 <span class="attr">#[ink(message)]
                 </span><span class="kw">fn </span>my_message() {}
             },
-            <span class="macro">syn::parse_quote! </span>{
+            <span class="macro">syn::parse_quote!</span> {
                 <span class="attr">#[ink(message)]
                 </span><span class="kw">fn </span>my_message(<span class="self">self</span>) {}
             },
-            <span class="macro">syn::parse_quote! </span>{
+            <span class="macro">syn::parse_quote!</span> {
                 <span class="attr">#[ink(message)]
                 </span><span class="kw">pub fn </span>my_message(<span class="kw-2">mut </span><span class="self">self</span>) {}
             },
-            <span class="macro">syn::parse_quote! </span>{
+            <span class="macro">syn::parse_quote!</span> {
                 <span class="attr">#[ink(message)]
                 </span><span class="kw">fn </span>my_message(this: <span class="kw-2">&amp;</span><span class="self">Self</span>) {}
             },
-            <span class="macro">syn::parse_quote! </span>{
+            <span class="macro">syn::parse_quote!</span> {
                 <span class="attr">#[ink(message)]
                 </span><span class="kw">pub fn </span>my_message(this: <span class="kw-2">&amp;mut </span><span class="self">Self</span>) {}
             },
@@ -1566,7 +1566,7 @@
         <span class="kw">for </span>item_method <span class="kw">in </span>item_methods {
             assert_try_from_fails(
                 item_method,
-                <span class="string">&quot;ink! messages must have `&amp;self` or `&amp;mut self` receiver&quot;</span>,
+                <span class="string">"ink! messages must have `&amp;self` or `&amp;mut self` receiver"</span>,
             )
         }
     }
@@ -1575,18 +1575,18 @@
     </span><span class="kw">fn </span>try_from_const_fails() {
         <span class="kw">let </span>item_methods: Vec&lt;syn::ImplItemFn&gt; = <span class="macro">vec!</span>[
             <span class="comment">// &amp;self
-            </span><span class="macro">syn::parse_quote! </span>{
+            </span><span class="macro">syn::parse_quote!</span> {
                 <span class="attr">#[ink(message)]
                 </span><span class="kw">const fn </span>my_message(<span class="kw-2">&amp;</span><span class="self">self</span>) {}
             },
             <span class="comment">// &amp;mut self
-            </span><span class="macro">syn::parse_quote! </span>{
+            </span><span class="macro">syn::parse_quote!</span> {
                 <span class="attr">#[ink(message)]
                 </span><span class="kw">const fn </span>my_message(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {}
             },
         ];
         <span class="kw">for </span>item_method <span class="kw">in </span>item_methods {
-            assert_try_from_fails(item_method, <span class="string">&quot;ink! messages must not be const&quot;</span>)
+            assert_try_from_fails(item_method, <span class="string">"ink! messages must not be const"</span>)
         }
     }
 
@@ -1594,18 +1594,18 @@
     </span><span class="kw">fn </span>try_from_async_fails() {
         <span class="kw">let </span>item_methods: Vec&lt;syn::ImplItemFn&gt; = <span class="macro">vec!</span>[
             <span class="comment">// &amp;self
-            </span><span class="macro">syn::parse_quote! </span>{
+            </span><span class="macro">syn::parse_quote!</span> {
                 <span class="attr">#[ink(message)]
                 </span><span class="kw">async fn </span>my_message(<span class="kw-2">&amp;</span><span class="self">self</span>) {}
             },
             <span class="comment">// &amp;mut self
-            </span><span class="macro">syn::parse_quote! </span>{
+            </span><span class="macro">syn::parse_quote!</span> {
                 <span class="attr">#[ink(message)]
                 </span><span class="kw">async fn </span>my_message(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {}
             },
         ];
         <span class="kw">for </span>item_method <span class="kw">in </span>item_methods {
-            assert_try_from_fails(item_method, <span class="string">&quot;ink! messages must not be async&quot;</span>)
+            assert_try_from_fails(item_method, <span class="string">"ink! messages must not be async"</span>)
         }
     }
 
@@ -1613,18 +1613,18 @@
     </span><span class="kw">fn </span>try_from_unsafe_fails() {
         <span class="kw">let </span>item_methods: Vec&lt;syn::ImplItemFn&gt; = <span class="macro">vec!</span>[
             <span class="comment">// &amp;self
-            </span><span class="macro">syn::parse_quote! </span>{
+            </span><span class="macro">syn::parse_quote!</span> {
                 <span class="attr">#[ink(message)]
                 </span><span class="kw">unsafe fn </span>my_message(<span class="kw-2">&amp;</span><span class="self">self</span>) {}
             },
             <span class="comment">// &amp;mut self
-            </span><span class="macro">syn::parse_quote! </span>{
+            </span><span class="macro">syn::parse_quote!</span> {
                 <span class="attr">#[ink(message)]
                 </span><span class="kw">unsafe fn </span>my_message(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {}
             },
         ];
         <span class="kw">for </span>item_method <span class="kw">in </span>item_methods {
-            assert_try_from_fails(item_method, <span class="string">&quot;ink! messages must not be unsafe&quot;</span>)
+            assert_try_from_fails(item_method, <span class="string">"ink! messages must not be unsafe"</span>)
         }
     }
 
@@ -1632,18 +1632,18 @@
     </span><span class="kw">fn </span>try_from_explicit_abi_fails() {
         <span class="kw">let </span>item_methods: Vec&lt;syn::ImplItemFn&gt; = <span class="macro">vec!</span>[
             <span class="comment">// &amp;self
-            </span><span class="macro">syn::parse_quote! </span>{
+            </span><span class="macro">syn::parse_quote!</span> {
                 <span class="attr">#[ink(message)]
-                </span><span class="kw">extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn </span>my_message(<span class="kw-2">&amp;</span><span class="self">self</span>) {}
+                </span><span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn </span>my_message(<span class="kw-2">&amp;</span><span class="self">self</span>) {}
             },
             <span class="comment">// &amp;mut self
-            </span><span class="macro">syn::parse_quote! </span>{
+            </span><span class="macro">syn::parse_quote!</span> {
                 <span class="attr">#[ink(message)]
-                </span><span class="kw">extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn </span>my_message(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {}
+                </span><span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn </span>my_message(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {}
             },
         ];
         <span class="kw">for </span>item_method <span class="kw">in </span>item_methods {
-            assert_try_from_fails(item_method, <span class="string">&quot;ink! messages must not have explicit ABI&quot;</span>)
+            assert_try_from_fails(item_method, <span class="string">"ink! messages must not have explicit ABI"</span>)
         }
     }
 
@@ -1651,18 +1651,18 @@
     </span><span class="kw">fn </span>try_from_variadic_fails() {
         <span class="kw">let </span>item_methods: Vec&lt;syn::ImplItemFn&gt; = <span class="macro">vec!</span>[
             <span class="comment">// &amp;self
-            </span><span class="macro">syn::parse_quote! </span>{
+            </span><span class="macro">syn::parse_quote!</span> {
                 <span class="attr">#[ink(message)]
                 </span><span class="kw">fn </span>my_message(<span class="kw-2">&amp;</span><span class="self">self</span>, ...) {}
             },
             <span class="comment">// &amp;mut self
-            </span><span class="macro">syn::parse_quote! </span>{
+            </span><span class="macro">syn::parse_quote!</span> {
                 <span class="attr">#[ink(message)]
                 </span><span class="kw">fn </span>my_message(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ...) {}
             },
         ];
         <span class="kw">for </span>item_method <span class="kw">in </span>item_methods {
-            assert_try_from_fails(item_method, <span class="string">&quot;ink! messages must not be variadic&quot;</span>)
+            assert_try_from_fails(item_method, <span class="string">"ink! messages must not be variadic"</span>)
         }
     }
 
@@ -1670,22 +1670,22 @@
     </span><span class="kw">fn </span>try_from_visibility_fails() {
         <span class="kw">let </span>item_methods: Vec&lt;syn::ImplItemFn&gt; = <span class="macro">vec!</span>[
             <span class="comment">// &amp;self + crate visibility
-            </span><span class="macro">syn::parse_quote! </span>{
+            </span><span class="macro">syn::parse_quote!</span> {
                 <span class="attr">#[ink(message)]
                 </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>my_message(<span class="kw-2">&amp;</span><span class="self">self</span>) {}
             },
             <span class="comment">// &amp;mut self + crate visibility
-            </span><span class="macro">syn::parse_quote! </span>{
+            </span><span class="macro">syn::parse_quote!</span> {
                 <span class="attr">#[ink(message)]
                 </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>my_message(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {}
             },
             <span class="comment">// &amp;self + pub restricted visibility
-            </span><span class="macro">syn::parse_quote! </span>{
+            </span><span class="macro">syn::parse_quote!</span> {
                 <span class="attr">#[ink(message)]
                 </span><span class="kw">pub</span>(<span class="kw">in </span>my::path) <span class="kw">fn </span>my_message(<span class="kw-2">&amp;</span><span class="self">self</span>) {}
             },
             <span class="comment">// &amp;mut self + pub restricted visibility
-            </span><span class="macro">syn::parse_quote! </span>{
+            </span><span class="macro">syn::parse_quote!</span> {
                 <span class="attr">#[ink(message)]
                 </span><span class="kw">pub</span>(<span class="kw">in </span>my::path) <span class="kw">fn </span>my_message(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {}
             },
@@ -1693,7 +1693,7 @@
         <span class="kw">for </span>item_method <span class="kw">in </span>item_methods {
             assert_try_from_fails(
                 item_method,
-                <span class="string">&quot;ink! messages must have public or inherited visibility&quot;</span>,
+                <span class="string">"ink! messages must have public or inherited visibility"</span>,
             )
         }
     }
@@ -1702,17 +1702,17 @@
     </span><span class="kw">fn </span>conflicting_attributes_fails() {
         <span class="kw">let </span>item_methods: Vec&lt;syn::ImplItemFn&gt; = <span class="macro">vec!</span>[
             <span class="comment">// storage
-            </span><span class="macro">syn::parse_quote! </span>{
+            </span><span class="macro">syn::parse_quote!</span> {
                 <span class="attr">#[ink(message, storage)]
                 </span><span class="kw">fn </span>my_message(<span class="kw-2">&amp;</span><span class="self">self</span>) {}
             },
             <span class="comment">// namespace
-            </span><span class="macro">syn::parse_quote! </span>{
-                <span class="attr">#[ink(message, namespace = <span class="string">&quot;my_namespace&quot;</span>)]
+            </span><span class="macro">syn::parse_quote!</span> {
+                <span class="attr">#[ink(message, namespace = <span class="string">"my_namespace"</span>)]
                 </span><span class="kw">fn </span>my_message(<span class="kw-2">&amp;</span><span class="self">self</span>) {}
             },
             <span class="comment">// event + multiple attributes
-            </span><span class="macro">syn::parse_quote! </span>{
+            </span><span class="macro">syn::parse_quote!</span> {
                 <span class="attr">#[ink(message)]
                 #[ink(event)]
                 </span><span class="kw">fn </span>my_message(<span class="kw-2">&amp;</span><span class="self">self</span>) {}
@@ -1721,7 +1721,7 @@
         <span class="kw">for </span>item_method <span class="kw">in </span>item_methods {
             assert_try_from_fails(
                 item_method,
-                <span class="string">&quot;encountered conflicting ink! attribute argument&quot;</span>,
+                <span class="string">"encountered conflicting ink! attribute argument"</span>,
             )
         }
     }

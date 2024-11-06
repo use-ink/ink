@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/ink/macro/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="ink_macro" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../ink_macro/index.html"><img src="https://use.ink/img/crate-docs/logo.png" alt="ink_macro"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/ink/macro/src/lib.rs`."><title>lib.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-c5d6553a23f1e5a6.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="ink_macro" data-themes="" data-resource-suffix="" data-rustdoc-version="1.81.0 (eeb90cda1 2024-09-04)" data-channel="1.81.0" data-search-js="search-d234aafac6c221dd.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-d2fab2bf619172d3.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1635,21 +1635,21 @@
 <a href="#1635" id="1635">1635</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) Use Ink (UK) Ltd.
 //
-// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
 //     http://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// distributed under the License is distributed on an "AS IS" BASIS,
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
 </span><span class="attr">#![doc(
-    html_logo_url = <span class="string">&quot;https://use.ink/img/crate-docs/logo.png&quot;</span>,
-    html_favicon_url = <span class="string">&quot;https://use.ink/crate-docs/favicon.png&quot;
+    html_logo_url = <span class="string">"https://use.ink/img/crate-docs/logo.png"</span>,
+    html_favicon_url = <span class="string">"https://use.ink/crate-docs/favicon.png"
 </span>)]
 
 </span><span class="kw">extern crate </span>proc_macro;
@@ -1682,9 +1682,9 @@
 /// ```
 /// # use ink_macro::blake2x256;
 /// # use ink_ir::blake2b_256;
-/// assert_eq!(blake2x256!(&quot;hello&quot;), {
+/// assert_eq!(blake2x256!("hello"), {
 ///     let mut output = [0u8; 32];
-///     blake2b_256(b&quot;hello&quot;, &amp;mut output);
+///     blake2b_256(b"hello", &amp;mut output);
 ///     output
 /// });
 /// ```
@@ -1703,7 +1703,7 @@
 ///
 /// ```
 /// # use ink_macro::selector_id;
-/// assert_eq!(selector_id!(&quot;hello&quot;), 843960066,);
+/// assert_eq!(selector_id!("hello"), 843960066,);
 /// ```
 </span><span class="attr">#[proc_macro]
 </span><span class="kw">pub fn </span>selector_id(input: TokenStream) -&gt; TokenStream {
@@ -1720,7 +1720,7 @@
 ///
 /// ```
 /// # use ink_macro::selector_bytes;
-/// assert_eq!(selector_bytes!(&quot;hello&quot;), [50, 77, 207, 2],);
+/// assert_eq!(selector_bytes!("hello"), [50, 77, 207, 2],);
 /// ```
 </span><span class="attr">#[proc_macro]
 </span><span class="kw">pub fn </span>selector_bytes(input: TokenStream) -&gt; TokenStream {
@@ -1761,7 +1761,7 @@
 ///
 ///     **Usage Example:**
 ///     ```
-///     #[ink::contract(keep_attr = &quot;foo, bar&quot;)]
+///     #[ink::contract(keep_attr = "foo, bar")]
 ///     mod my_contract {
 ///         # #[ink(storage)]
 ///         # pub struct MyStorage;
@@ -1778,18 +1778,18 @@
 ///     ```
 ///
 ///     **Allowed attributes by default:** `cfg`, `cfg_attr`, `allow`, `warn`, `deny`,
-/// `forbid`,         `deprecated`, `must_use`, `doc`, `rustfmt`.
+///     `forbid`, `deprecated`, `must_use`, `doc`, `rustfmt`.
 ///
 /// - `env: impl Environment`
 ///
 ///     Tells the ink! code generator which environment to use for the ink! smart
-/// contract.     The environment must implement the `Environment` (defined in `ink_env`)
-/// trait and provides     all the necessary fundamental type definitions for `Balance`,
-/// `AccountId` etc.
+///     contract. The environment must implement the `Environment` (defined in `ink_env`)
+///     trait and provides all the necessary fundamental type definitions for `Balance`,
+///     `AccountId` etc.
 ///
 ///     When using a custom `Environment` implementation for a smart contract all types
 ///     that it exposes to the ink! smart contract and the mirrored types used in the
-/// runtime     must be aligned with respect to SCALE encoding and semantics.
+///     runtime must be aligned with respect to SCALE encoding and semantics.
 ///
 ///     **Usage Example:**
 ///
@@ -1809,7 +1809,7 @@
 ///     }
 ///     ```
 ///     A user might implement their ink! smart contract using the above custom
-/// `Environment`     implementation as demonstrated below:
+///     `Environment` implementation as demonstrated below:
 ///     ```
 ///     #[ink::contract(env = MyEnvironment)]
 ///     mod my_contract {
@@ -1850,9 +1850,9 @@
 /// - There must be exactly one `#[ink(storage)]` struct.
 ///
 ///     This struct defines the layout of the storage that the ink! smart contract
-/// operates on.     The user is able to use a variety of built-in facilities, combine
-/// them in various ways     or even provide their own implementations of storage data
-/// structures.
+///     operates on. The user is able to use a variety of built-in facilities, combine
+///     them in various ways or even provide their own implementations of storage data
+///     structures.
 ///
 ///     For more information visit the `ink::storage` crate documentation.
 ///
@@ -1877,9 +1877,9 @@
 /// - There must be at least one `#[ink(constructor)]` defined method.
 ///
 ///     Methods flagged with `#[ink(constructor)]` are special in that they are
-/// dispatchable     upon contract instantiation. A contract may define multiple such
-/// constructors which     allow users of the contract to instantiate a contract in
-/// multiple different ways.
+///     dispatchable upon contract instantiation. A contract may define multiple such
+///     constructors which allow users of the contract to instantiate a contract in
+///     multiple different ways.
 ///
 ///     **Example:**
 ///
@@ -1908,19 +1908,19 @@
 ///
 ///     Methods flagged with `#[ink(message)]` are special in that they are dispatchable
 ///     upon contract invocation. The set of ink! messages defined for an ink! smart
-/// contract     define its API surface with which users are allowed to interact.
+///     contract define its API surface with which users are allowed to interact.
 ///
 ///     An ink! smart contract can have multiple such ink! messages defined.
 ///
 ///     **Note:**
 ///
 ///     - An ink! message with a `&amp;self` receiver may only read state whereas an ink!
-///       message with a `&amp;mut self` receiver may mutate the contract&#39;s storage.
+///       message with a `&amp;mut self` receiver may mutate the contract's storage.
 ///
 ///     **Example:**
 ///
 ///     Given the `Flipper` contract definition above we add some `#[ink(message)]`
-/// definitions     as follows:
+///     definitions as follows:
 ///
 ///     ```
 ///     # #[ink::contract]
@@ -1952,11 +1952,11 @@
 ///     **Payable Messages:**
 ///
 ///     An ink! message by default will reject calls that additional fund the smart
-/// contract.     Authors of ink! smart contracts can make an ink! message payable by
-/// adding the `payable`     flag to it. An example below:
+///     contract. Authors of ink! smart contracts can make an ink! message payable by
+///     adding the `payable` flag to it. An example below:
 ///
 ///     Note that ink! constructors are always implicitly payable and thus cannot be
-/// flagged     as such.
+///     flagged as such.
 ///
 ///     ```
 ///     # #[ink::contract]
@@ -1990,7 +1990,7 @@
 ///
 ///     Every ink! message and ink! constructor has a unique selector with which the
 ///     message or constructor can be uniquely identified within the ink! smart contract.
-///     These selectors are mainly used to drive the contract&#39;s dispatch upon calling it.
+///     These selectors are mainly used to drive the contract's dispatch upon calling it.
 ///
 ///     An ink! smart contract author can control the selector of an ink! message or ink!
 ///     constructor using the `selector` flag. An example is shown below:
@@ -2030,7 +2030,7 @@
 /// The `ink_env` crate provides facilities to interact with the contract executor that
 /// connects ink! smart contracts with the outer world.
 ///
-/// For example it is possible to query the current call&#39;s caller via:
+/// For example it is possible to query the current call's caller via:
 /// ```
 /// # ink_env::test::run_test::&lt;ink_env::DefaultEnvironment, _&gt;(|_| {
 /// let caller = ink_env::caller::&lt;ink_env::DefaultEnvironment&gt;();
@@ -2054,7 +2054,7 @@
 ///         #[ink(constructor)]
 ///         pub fn new() -&gt; Self {
 ///             let caller = Self::env().caller();
-///             debug_println!(&quot;thanks for instantiation {:?}&quot;, caller);
+///             debug_println!("thanks for instantiation {:?}", caller);
 ///             Greeter {}
 ///         }
 ///
@@ -2062,7 +2062,7 @@
 ///         pub fn fund(&amp;self) {
 ///             let caller = self.env().caller();
 ///             let value = self.env().transferred_value();
-///             debug_println!(&quot;thanks for the funding of {:?} from {:?}&quot;, value, caller);
+///             debug_println!("thanks for the funding of {:?} from {:?}", value, caller);
 ///         }
 ///     }
 /// }
@@ -2072,7 +2072,7 @@
 ///
 /// An ink! smart contract may define events that it can emit during contract execution.
 /// Emitting events can be used by third party tools to query information about a
-/// contract&#39;s execution and state.
+/// contract's execution and state.
 ///
 /// The following example ink! contract shows how an event `Transferred` is defined and
 /// emitted in the `#[ink(constructor)]`.
@@ -2120,7 +2120,7 @@
 ///
 /// The below code shows the complete implementation of the so-called Flipper
 /// ink! smart contract.
-/// For us it acts as the &quot;Hello, World!&quot; of the ink! smart contracts because
+/// For us it acts as the "Hello, World!" of the ink! smart contracts because
 /// it is minimal while still providing some more or less useful functionality.
 ///
 /// It controls a single `bool` value that can be either `false` or `true`
@@ -2142,13 +2142,13 @@
 ///             Self { value: init_value }
 ///         }
 ///
-///         /// Flips the current value of the Flipper&#39;s boolean.
+///         /// Flips the current value of the Flipper's boolean.
 ///         #[ink(message)]
 ///         pub fn flip(&amp;mut self) {
 ///             self.value = !self.value;
 ///         }
 ///
-///         /// Returns the current value of the Flipper&#39;s boolean.
+///         /// Returns the current value of the Flipper's boolean.
 ///         #[ink(message)]
 ///         pub fn get(&amp;self) -&gt; bool {
 ///             self.value
@@ -2249,7 +2249,7 @@
 ///
 ///     **Usage Example:**
 ///     ```
-///     #[ink::trait_definition(namespace = &quot;foo&quot;)]
+///     #[ink::trait_definition(namespace = "foo")]
 ///     pub trait TraitDefinition {
 ///         #[ink(message)]
 ///         fn message1(&amp;self);
@@ -2269,7 +2269,7 @@
 ///
 ///     **Usage Example:**
 ///     ```
-///     #[ink::trait_definition(keep_attr = &quot;foo, bar&quot;)]
+///     #[ink::trait_definition(keep_attr = "foo, bar")]
 ///     pub trait Storage {
 ///         #[ink(message)]
 ///     //  #[foo]
@@ -2282,7 +2282,7 @@
 ///     ```
 ///
 ///     **Allowed attributes by default:** `cfg`, `cfg_attr`, `allow`, `warn`, `deny`,
-/// `forbid`,         `deprecated`, `must_use`, `doc`, `rustfmt`.
+///     `forbid`, `deprecated`, `must_use`, `doc`, `rustfmt`.
 </span><span class="attr">#[proc_macro_attribute]
 </span><span class="kw">pub fn </span>trait_definition(attr: TokenStream, item: TokenStream) -&gt; TokenStream {
     trait_def::analyze(attr.into(), item.into()).into()
@@ -2317,7 +2317,7 @@
 /// }
 /// // Setting `signature_topic = &lt;hex_string&gt;` specifies custom signature topic.
 /// #[ink::event(
-///     signature_topic = &quot;1111111111111111111111111111111111111111111111111111111111111111&quot;
+///     signature_topic = "1111111111111111111111111111111111111111111111111111111111111111"
 /// )]
 /// pub struct MyCustomSignatureEvent {
 ///     pub field: u32,
@@ -2332,7 +2332,7 @@
 
 <span class="doccomment">/// Prepares the type to be fully compatible and usable with the storage.
 /// It implements all necessary traits and calculates the storage key for types.
-/// `Packed` types don&#39;t have a storage key, but non-packed types (like `Mapping`, `Lazy`
+/// `Packed` types don't have a storage key, but non-packed types (like `Mapping`, `Lazy`
 /// etc.) require calculating the storage key during compilation.
 ///
 /// Consider annotating structs and enums that are intended to be a part of
@@ -2342,10 +2342,10 @@
 /// If the type is non-packed it is best to rely on automatic storage key
 /// calculation via `ink::storage_item`.
 ///
-/// The usage of `KEY: StorageKey` generic allows to propagate the parent&#39;s storage key to
+/// The usage of `KEY: StorageKey` generic allows to propagate the parent's storage key to
 /// the type and offset the storage key of the type. It is helpful for non-packed types
 /// that can be used several times in the contract. Each field should have a unique
-/// storage key, so propagation of the parent&#39;s storage key allows one to achieve it.
+/// storage key, so propagation of the parent's storage key allows one to achieve it.
 ///
 /// The macro should be called before `derive` macros because it can change the type.
 ///
@@ -2374,7 +2374,7 @@
 /// // required traits to be storable.
 /// #[derive(scale::Decode, scale::Encode)]
 /// #[cfg_attr(
-///     feature = &quot;std&quot;,
+///     feature = "std",
 ///     derive(scale_info::TypeInfo, ink::storage::traits::StorageLayout)
 /// )]
 /// #[derive(Default, Debug)]
@@ -2388,7 +2388,7 @@
 /// // Example of how to define the packed type with generic.
 /// #[derive(scale::Decode, scale::Encode)]
 /// #[cfg_attr(
-///     feature = &quot;std&quot;,
+///     feature = "std",
 ///     derive(scale_info::TypeInfo, ink::storage::traits::StorageLayout)
 /// )]
 /// #[derive(Default, Debug)]
@@ -2410,7 +2410,7 @@
 /// #[ink::storage_item(derive = false)]
 /// #[derive(Storable, StorableHint, StorageKey)]
 /// #[cfg_attr(
-///     feature = &quot;std&quot;,
+///     feature = "std",
 ///     derive(scale_info::TypeInfo, ink::storage::traits::StorageLayout)
 /// )]
 /// #[derive(Default, Debug)]
@@ -2427,7 +2427,7 @@
 /// // Example of how to define a complex packed type.
 /// #[derive(scale::Decode, scale::Encode)]
 /// #[cfg_attr(
-///     feature = &quot;std&quot;,
+///     feature = "std",
 ///     derive(scale_info::TypeInfo, ink::storage::traits::StorageLayout)
 /// )]
 /// #[derive(Default, Debug)]
@@ -2486,12 +2486,12 @@
     storage_item::generate(attr.into(), item.into()).into()
 }
 
-<span class="doccomment">/// Defines a unit test that makes use of ink!&#39;s off-chain testing capabilities.
+<span class="doccomment">/// Defines a unit test that makes use of ink!'s off-chain testing capabilities.
 ///
 /// If your unit test does not require the existence of an off-chain environment
 /// it is fine to not use this macro since it bears some overhead with the test.
 ///
-/// Note that this macro is not required to run unit tests that require ink!&#39;s
+/// Note that this macro is not required to run unit tests that require ink!'s
 /// off-chain testing capabilities but merely improves code readability.
 ///
 /// ## How do you find out if your test requires the off-chain environment?
@@ -2752,7 +2752,7 @@
 /// # }
 /// # impl From&lt;scale::Error&gt; for ReadWriteError {
 /// #     fn from(_: scale::Error) -&gt; Self {
-/// #         panic!(&quot;encountered unexpected invalid SCALE encoding&quot;)
+/// #         panic!("encountered unexpected invalid SCALE encoding")
 /// #     }
 /// # }
 /// # #[derive(scale::Encode, scale::Decode, scale_info::TypeInfo)]
@@ -2761,7 +2761,7 @@
 /// # }
 /// # impl From&lt;scale::Error&gt; for UnlockAccessError {
 /// #     fn from(_: scale::Error) -&gt; Self {
-/// #         panic!(&quot;encountered unexpected invalid SCALE encoding&quot;)
+/// #         panic!("encountered unexpected invalid SCALE encoding")
 /// #     }
 /// # }
 /// # #[derive(scale::Encode, scale::Decode, scale_info::TypeInfo, Clone)]
@@ -2777,15 +2777,15 @@
 /// #             1 =&gt; Err(Self::InvalidKey),
 /// #             2 =&gt; Err(Self::CannotWriteToKey),
 /// #             3 =&gt; Err(Self::CannotReadFromKey),
-/// #             _ =&gt; panic!(&quot;encountered unknown status code&quot;),
+/// #             _ =&gt; panic!("encountered unknown status code"),
 /// #         }
 /// #     }
 /// # }
 /// ```
 ///
 /// All the error types and other utility types used in the chain extension definition
-/// above are often required to implement various traits such as SCALE&#39;s `Encode` and
-/// `Decode` as well as `scale-info`&#39;s `TypeInfo` trait.
+/// above are often required to implement various traits such as SCALE's `Encode` and
+/// `Decode` as well as `scale-info`'s `TypeInfo` trait.
 ///
 /// A full example of the above chain extension definition can be seen
 /// [here](https://github.com/use-ink/ink/blob/017f71d60799b764425334f86b732cc7b7065fe6/crates/lang/macro/tests/ui/chain_extension/simple.rs).
@@ -2820,7 +2820,7 @@
 /// }
 /// ```
 ///
-/// Above we defined the `CustomEnvironment` which defaults to ink!&#39;s `DefaultEnvironment`
+/// Above we defined the `CustomEnvironment` which defaults to ink!'s `DefaultEnvironment`
 /// for all constants and types but the `ChainExtension` type which is assigned to our
 /// newly defined chain extension.
 ///
@@ -2916,7 +2916,7 @@
 /// # }
 /// # impl From&lt;scale::Error&gt; for ReadWriteError {
 /// #     fn from(_: scale::Error) -&gt; Self {
-/// #         panic!(&quot;encountered unexpected invalid SCALE encoding&quot;)
+/// #         panic!("encountered unexpected invalid SCALE encoding")
 /// #     }
 /// # }
 /// # #[derive(scale::Encode, scale::Decode, scale_info::TypeInfo)]
@@ -2925,7 +2925,7 @@
 /// # }
 /// # impl From&lt;scale::Error&gt; for UnlockAccessError {
 /// #     fn from(_: scale::Error) -&gt; Self {
-/// #         panic!(&quot;encountered unexpected invalid SCALE encoding&quot;)
+/// #         panic!("encountered unexpected invalid SCALE encoding")
 /// #     }
 /// # }
 /// # #[derive(scale::Encode, scale::Decode, scale_info::TypeInfo, Clone)]
@@ -2941,7 +2941,7 @@
 /// #             1 =&gt; Err(Self::InvalidKey),
 /// #             2 =&gt; Err(Self::CannotWriteToKey),
 /// #             3 =&gt; Err(Self::CannotReadFromKey),
-/// #             _ =&gt; panic!(&quot;encountered unknown status code&quot;),
+/// #             _ =&gt; panic!("encountered unknown status code"),
 /// #         }
 /// #     }
 /// # }
@@ -3018,7 +3018,7 @@
     ///
     /// By default, the [`ink::Event::SIGNATURE_TOPIC`] is calculated as follows:
     ///
-    /// `blake2b(&quot;EventStructName(field1_type_name,field2_type_name)&quot;)`
+    /// `blake2b("EventStructName(field1_type_name,field2_type_name)")`
     ///
     /// The hashing of the topic is done at codegen time in the derive macro, and as such only has
     /// access to the **names** of the field types as they appear in the code. As such, if the
@@ -3059,7 +3059,7 @@
     /// Generates custom signature topic
     /// ```
     /// #[derive(ink::Event, scale::Encode)]
-    /// #[ink(signature_topic = &quot;1111111111111111111111111111111111111111111111111111111111111111&quot;)]
+    /// #[ink(signature_topic = "1111111111111111111111111111111111111111111111111111111111111111")]
     /// pub struct MyCustomSignatureEvent {
     ///     pub field: u32,
     ///     pub topic: [u8; 32],
@@ -3085,7 +3085,7 @@
     ///
     /// Metadata is not embedded into the contract binary, it is generated from a separate
     /// compilation of the contract with the `std` feature, therefore this derive must be
-    /// conditionally compiled e.g. `#[cfg_attr(feature = &quot;std&quot;, derive(::ink::EventMetadata))]`
+    /// conditionally compiled e.g. `#[cfg_attr(feature = "std", derive(::ink::EventMetadata))]`
     /// (see example below).
     ///
     /// For convenience there is the [`event`] attribute macro that will expand to all the necessary
@@ -3100,7 +3100,7 @@
     /// };
     /// use scale::Encode;
     ///
-    /// #[cfg_attr(feature = &quot;std&quot;, derive(::ink::EventMetadata))]
+    /// #[cfg_attr(feature = "std", derive(::ink::EventMetadata))]
     /// #[derive(Event, Encode)]
     /// struct MyEvent {
     ///     a: u32,
@@ -3119,7 +3119,7 @@
 
 <span class="macro">synstructure::decl_derive!</span>(
     [Storable] =&gt;
-    <span class="doccomment">/// Derives `ink::storage`&#39;s `Storable` trait for the given `struct`, `enum` or `union`.
+    <span class="doccomment">/// Derives `ink::storage`'s `Storable` trait for the given `struct`, `enum` or `union`.
     ///
     /// # Examples
     ///
@@ -3138,7 +3138,7 @@
 );
 <span class="macro">synstructure::decl_derive!</span>(
     [StorableHint] =&gt;
-    <span class="doccomment">/// Derives `ink::storage`&#39;s `StorableHint` trait for the given `struct` or `enum`.
+    <span class="doccomment">/// Derives `ink::storage`'s `StorableHint` trait for the given `struct` or `enum`.
     ///
     /// If the type declaration contains generic `StorageKey`,
     /// it will use it as salt to generate a combined storage key.
@@ -3168,7 +3168,7 @@
 );
 <span class="macro">synstructure::decl_derive!</span>(
     [StorageKey] =&gt;
-    <span class="doccomment">/// Derives `ink::storage`&#39;s `StorageKey` trait for the given `struct` or `enum`.
+    <span class="doccomment">/// Derives `ink::storage`'s `StorageKey` trait for the given `struct` or `enum`.
     ///
     /// # Examples
     ///
@@ -3202,7 +3202,7 @@
 );
 <span class="macro">synstructure::decl_derive!</span>(
     [StorageLayout] =&gt;
-    <span class="doccomment">/// Derives `ink::storage`&#39;s `StorageLayout` trait for the given `struct` or `enum`.
+    <span class="doccomment">/// Derives `ink::storage`'s `StorageLayout` trait for the given `struct` or `enum`.
     ///
     /// # Examples
     ///
@@ -3223,8 +3223,8 @@
     /// };
     ///
     /// if let Struct(layout) = &lt;NamedFields as StorageLayout&gt;::layout(&amp;key) {
-    ///     assert_eq!(*layout.fields()[0].name(), &quot;a&quot;);
-    ///     assert_eq!(*layout.fields()[1].name(), &quot;b&quot;);
+    ///     assert_eq!(*layout.fields()[0].name(), "a");
+    ///     assert_eq!(*layout.fields()[1].name(), "b");
     /// }
     /// ```
     </span>storage::storage_layout_derive
@@ -3252,7 +3252,7 @@
 /// #[derive(::ink::scale::Encode, ::ink::scale::Decode)]
 /// #[codec(crate = ::ink::scale)]
 /// #[cfg_attr(
-///   feature = &quot;std&quot;,
+///   feature = "std",
 ///   derive(::scale_info::TypeInfo),
 ///   scale_info(crate = ::ink::scale_info)
 /// )]

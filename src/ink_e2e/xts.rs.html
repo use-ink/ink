@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/e2e/src/xts.rs`."><title>xts.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="ink_e2e" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../ink_e2e/index.html"><img src="https://use.ink/img/crate-docs/logo.png" alt="ink_e2e"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/e2e/src/xts.rs`."><title>xts.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-c5d6553a23f1e5a6.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="ink_e2e" data-themes="" data-resource-suffix="" data-rustdoc-version="1.81.0 (eeb90cda1 2024-09-04)" data-channel="1.81.0" data-search-js="search-d234aafac6c221dd.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-d2fab2bf619172d3.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -581,17 +581,16 @@
 <a href="#581" id="581">581</a>
 <a href="#582" id="582">582</a>
 <a href="#583" id="583">583</a>
-<a href="#584" id="584">584</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) Use Ink (UK) Ltd.
 //
-// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
 //     http://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// distributed under the License is distributed on an "AS IS" BASIS,
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
@@ -643,7 +642,7 @@
     serde::Serialize,
     serde::Deserialize,
 )]
-#[encode_as_type(crate_path = <span class="string">&quot;subxt::ext::scale_encode&quot;</span>)]
+#[encode_as_type(crate_path = <span class="string">"subxt::ext::scale_encode"</span>)]
 </span><span class="kw">pub struct </span>Weight {
     <span class="attr">#[codec(compact)]
     </span><span class="doccomment">/// The weight of computational time used based on some reference hardware.
@@ -668,9 +667,9 @@
     }
 }
 
-<span class="doccomment">/// A raw call to `pallet-contracts`&#39;s `instantiate_with_code`.
+<span class="doccomment">/// A raw call to `pallet-contracts`'s `instantiate_with_code`.
 </span><span class="attr">#[derive(Debug, scale::Encode, scale::Decode, scale_encode::EncodeAsType)]
-#[encode_as_type(trait_bounds = <span class="string">&quot;&quot;</span>, crate_path = <span class="string">&quot;subxt::ext::scale_encode&quot;</span>)]
+#[encode_as_type(trait_bounds = <span class="string">""</span>, crate_path = <span class="string">"subxt::ext::scale_encode"</span>)]
 </span><span class="kw">pub struct </span>InstantiateWithCode&lt;E: Environment&gt; {
     <span class="attr">#[codec(compact)]
     </span>value: E::Balance,
@@ -681,9 +680,9 @@
     salt: Vec&lt;u8&gt;,
 }
 
-<span class="doccomment">/// A raw call to `pallet-contracts`&#39;s `call`.
+<span class="doccomment">/// A raw call to `pallet-contracts`'s `call`.
 </span><span class="attr">#[derive(Debug, scale::Decode, scale::Encode, scale_encode::EncodeAsType)]
-#[encode_as_type(trait_bounds = <span class="string">&quot;&quot;</span>, crate_path = <span class="string">&quot;subxt::ext::scale_encode&quot;</span>)]
+#[encode_as_type(trait_bounds = <span class="string">""</span>, crate_path = <span class="string">"subxt::ext::scale_encode"</span>)]
 </span><span class="kw">pub struct </span>Call&lt;E: Environment&gt; {
     dest: MultiAddress&lt;E::AccountId, ()&gt;,
     <span class="attr">#[codec(compact)]
@@ -693,9 +692,9 @@
     data: Vec&lt;u8&gt;,
 }
 
-<span class="doccomment">/// A raw call to `pallet-contracts`&#39;s `call`.
+<span class="doccomment">/// A raw call to `pallet-contracts`'s `call`.
 </span><span class="attr">#[derive(Debug, scale::Decode, scale::Encode, scale_encode::EncodeAsType)]
-#[encode_as_type(trait_bounds = <span class="string">&quot;&quot;</span>, crate_path = <span class="string">&quot;subxt::ext::scale_encode&quot;</span>)]
+#[encode_as_type(trait_bounds = <span class="string">""</span>, crate_path = <span class="string">"subxt::ext::scale_encode"</span>)]
 </span><span class="kw">pub struct </span>Transfer&lt;E: Environment, C: subxt::Config&gt; {
     dest: subxt::utils::Static&lt;C::Address&gt;,
     <span class="attr">#[codec(compact)]
@@ -713,7 +712,7 @@
     scale::Encode,
     scale_encode::EncodeAsType,
 )]
-#[encode_as_type(crate_path = <span class="string">&quot;subxt::ext::scale_encode&quot;</span>)]
+#[encode_as_type(crate_path = <span class="string">"subxt::ext::scale_encode"</span>)]
 </span><span class="kw">pub enum </span>Determinism {
     <span class="doccomment">/// The execution should be deterministic and hence no indeterministic instructions
     /// are allowed.
@@ -732,16 +731,16 @@
     </span>Relaxed,
 }
 
-<span class="doccomment">/// A raw call to `pallet-contracts`&#39;s `remove_code`.
+<span class="doccomment">/// A raw call to `pallet-contracts`'s `remove_code`.
 </span><span class="attr">#[derive(Debug, scale::Encode, scale::Decode, scale_encode::EncodeAsType)]
-#[encode_as_type(trait_bounds = <span class="string">&quot;&quot;</span>, crate_path = <span class="string">&quot;subxt::ext::scale_encode&quot;</span>)]
+#[encode_as_type(trait_bounds = <span class="string">""</span>, crate_path = <span class="string">"subxt::ext::scale_encode"</span>)]
 </span><span class="kw">pub struct </span>RemoveCode&lt;E: Environment&gt; {
     code_hash: E::Hash,
 }
 
-<span class="doccomment">/// A raw call to `pallet-contracts`&#39;s `upload`.
+<span class="doccomment">/// A raw call to `pallet-contracts`'s `upload`.
 </span><span class="attr">#[derive(Debug, scale::Encode, scale::Decode, scale_encode::EncodeAsType)]
-#[encode_as_type(trait_bounds = <span class="string">&quot;&quot;</span>, crate_path = <span class="string">&quot;subxt::ext::scale_encode&quot;</span>)]
+#[encode_as_type(trait_bounds = <span class="string">""</span>, crate_path = <span class="string">"subxt::ext::scale_encode"</span>)]
 </span><span class="kw">pub struct </span>UploadCode&lt;E: Environment&gt; {
     code: Vec&lt;u8&gt;,
     storage_deposit_limit: <span class="prelude-ty">Option</span>&lt;E::Balance&gt;,
@@ -750,7 +749,7 @@
 
 <span class="doccomment">/// A struct that encodes RPC parameters required to instantiate a new smart contract.
 </span><span class="attr">#[derive(serde::Serialize, scale::Encode)]
-#[serde(rename_all = <span class="string">&quot;camelCase&quot;</span>)]
+#[serde(rename_all = <span class="string">"camelCase"</span>)]
 </span><span class="kw">struct </span>RpcInstantiateRequest&lt;C: subxt::Config, E: Environment&gt; {
     origin: C::AccountId,
     value: E::Balance,
@@ -763,7 +762,7 @@
 
 <span class="doccomment">/// A struct that encodes RPC parameters required to upload a new smart contract.
 </span><span class="attr">#[derive(serde::Serialize, scale::Encode)]
-#[serde(rename_all = <span class="string">&quot;camelCase&quot;</span>)]
+#[serde(rename_all = <span class="string">"camelCase"</span>)]
 </span><span class="kw">struct </span>RpcCodeUploadRequest&lt;C: subxt::Config, E: Environment&gt;
 <span class="kw">where
     </span>E::Balance: serde::Serialize,
@@ -778,7 +777,7 @@
 ///
 /// Copied from [`pallet-contracts-rpc`].
 </span><span class="attr">#[derive(serde::Serialize, scale::Encode)]
-#[serde(rename_all = <span class="string">&quot;camelCase&quot;</span>)]
+#[serde(rename_all = <span class="string">"camelCase"</span>)]
 </span><span class="kw">struct </span>RpcCallRequest&lt;C: subxt::Config, E: Environment&gt; {
     origin: C::AccountId,
     dest: E::AccountId,
@@ -790,7 +789,7 @@
 
 <span class="doccomment">/// Reference to an existing code hash or a new Wasm module.
 </span><span class="attr">#[derive(serde::Serialize, scale::Encode)]
-#[serde(rename_all = <span class="string">&quot;camelCase&quot;</span>)]
+#[serde(rename_all = <span class="string">"camelCase"</span>)]
 </span><span class="kw">enum </span>Code {
     <span class="doccomment">/// A Wasm module as raw bytes.
     </span>Upload(Vec&lt;u8&gt;),
@@ -840,8 +839,8 @@
         value: E::Balance,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;(), subxt::Error&gt; {
         <span class="kw">let </span>call = subxt::tx::Payload::new(
-            <span class="string">&quot;Balances&quot;</span>,
-            <span class="string">&quot;transfer_allow_death&quot;</span>,
+            <span class="string">"Balances"</span>,
+            <span class="string">"transfer_allow_death"</span>,
             Transfer::&lt;E, C&gt; {
                 dest: subxt::utils::Static(dest.into()),
                 value,
@@ -874,17 +873,17 @@
             data,
             salt,
         };
-        <span class="kw">let </span>func = <span class="string">&quot;ContractsApi_instantiate&quot;</span>;
+        <span class="kw">let </span>func = <span class="string">"ContractsApi_instantiate"</span>;
         <span class="kw">let </span>params = scale::Encode::encode(<span class="kw-2">&amp;</span>call_request);
         <span class="kw">let </span>bytes = <span class="self">self
             </span>.rpc
             .state_call(func, <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>params), <span class="prelude-val">None</span>)
             .<span class="kw">await
             </span>.unwrap_or_else(|err| {
-                <span class="macro">panic!</span>(<span class="string">&quot;error on ws request `contracts_instantiate`: {err:?}&quot;</span>);
+                <span class="macro">panic!</span>(<span class="string">"error on ws request `contracts_instantiate`: {err:?}"</span>);
             });
         scale::Decode::decode(<span class="kw-2">&amp;mut </span>bytes.as_ref()).unwrap_or_else(|err| {
-            <span class="macro">panic!</span>(<span class="string">&quot;decoding ContractInstantiateResult failed: {err}&quot;</span>)
+            <span class="macro">panic!</span>(<span class="string">"decoding ContractInstantiateResult failed: {err}"</span>)
         })
     }
 
@@ -902,7 +901,7 @@
             <span class="self">self</span>.get_account_nonce(<span class="kw-2">&amp;</span>account_id)
                 .<span class="kw">await
                 </span>.unwrap_or_else(|err| {
-                    <span class="macro">panic!</span>(<span class="string">&quot;error calling `get_account_nonce`: {err:?}&quot;</span>);
+                    <span class="macro">panic!</span>(<span class="string">"error calling `get_account_nonce`: {err:?}"</span>);
                 });
 
         <span class="kw">let </span>params = DefaultExtrinsicParamsBuilder::new()
@@ -913,19 +912,18 @@
             .tx()
             .create_signed_offline(call, signer, params.into())
             .unwrap_or_else(|err| {
-                <span class="macro">panic!</span>(<span class="string">&quot;error on call `create_signed_with_nonce`: {err:?}&quot;</span>);
+                <span class="macro">panic!</span>(<span class="string">"error on call `create_signed_with_nonce`: {err:?}"</span>);
             })
             .submit_and_watch()
             .<span class="kw">await
-            </span>.map(|tx_progress| {
+            </span>.inspect(|tx_progress| {
                 log_info(<span class="kw-2">&amp;</span><span class="macro">format!</span>(
-                    <span class="string">&quot;signed and submitted tx with hash {:?}&quot;</span>,
+                    <span class="string">"signed and submitted tx with hash {:?}"</span>,
                     tx_progress.extrinsic_hash()
                 ));
-                tx_progress
             })
             .unwrap_or_else(|err| {
-                <span class="macro">panic!</span>(<span class="string">&quot;error on call `submit_and_watch`: {err:?}&quot;</span>);
+                <span class="macro">panic!</span>(<span class="string">"error on call `submit_and_watch`: {err:?}"</span>);
             });
 
         <span class="comment">// Below we use the low level API to replicate the `wait_for_in_block` behaviour
@@ -936,27 +934,27 @@
         // wait until it is included in a block.
         </span><span class="kw">while let </span><span class="prelude-val">Some</span>(status) = tx.next().<span class="kw">await </span>{
             <span class="kw">match </span>status.unwrap_or_else(|err| {
-                <span class="macro">panic!</span>(<span class="string">&quot;error subscribing to tx status: {err:?}&quot;</span>);
+                <span class="macro">panic!</span>(<span class="string">"error subscribing to tx status: {err:?}"</span>);
             }) {
                 TxStatus::InBestBlock(tx_in_block)
                 | TxStatus::InFinalizedBlock(tx_in_block) =&gt; {
                     <span class="kw">return </span>tx_in_block.fetch_events().<span class="kw">await</span>.unwrap_or_else(|err| {
-                        <span class="macro">panic!</span>(<span class="string">&quot;error on call `fetch_events`: {err:?}&quot;</span>);
+                        <span class="macro">panic!</span>(<span class="string">"error on call `fetch_events`: {err:?}"</span>);
                     })
                 }
                 TxStatus::Error { message } =&gt; {
-                    <span class="macro">panic!</span>(<span class="string">&quot;TxStatus::Error: {message:?}&quot;</span>);
+                    <span class="macro">panic!</span>(<span class="string">"TxStatus::Error: {message:?}"</span>);
                 }
                 TxStatus::Invalid { message } =&gt; {
-                    <span class="macro">panic!</span>(<span class="string">&quot;TxStatus::Invalid: {message:?}&quot;</span>);
+                    <span class="macro">panic!</span>(<span class="string">"TxStatus::Invalid: {message:?}"</span>);
                 }
                 TxStatus::Dropped { message } =&gt; {
-                    <span class="macro">panic!</span>(<span class="string">&quot;TxStatus::Dropped: {message:?}&quot;</span>);
+                    <span class="macro">panic!</span>(<span class="string">"TxStatus::Dropped: {message:?}"</span>);
                 }
                 <span class="kw">_ </span>=&gt; <span class="kw">continue</span>,
             }
         }
-        <span class="macro">panic!</span>(<span class="string">&quot;Error waiting for tx status&quot;</span>)
+        <span class="macro">panic!</span>(<span class="string">"Error waiting for tx status"</span>)
     }
 
     <span class="doccomment">/// Return the hash of the *best* block
@@ -965,10 +963,10 @@
             .chain_get_block_hash(<span class="prelude-val">None</span>)
             .<span class="kw">await
             </span>.unwrap_or_else(|err| {
-                <span class="macro">panic!</span>(<span class="string">&quot;error on call `chain_get_block_hash`: {err:?}&quot;</span>);
+                <span class="macro">panic!</span>(<span class="string">"error on call `chain_get_block_hash`: {err:?}"</span>);
             })
             .unwrap_or_else(|| {
-                <span class="macro">panic!</span>(<span class="string">&quot;error on call `chain_get_block_hash`: no best block found&quot;</span>);
+                <span class="macro">panic!</span>(<span class="string">"error on call `chain_get_block_hash`: no best block found"</span>);
             })
     }
 
@@ -1004,8 +1002,8 @@
         signer: <span class="kw-2">&amp;</span>Keypair,
     ) -&gt; ExtrinsicEvents&lt;C&gt; {
         <span class="kw">let </span>call = subxt::tx::Payload::new(
-            <span class="string">&quot;Contracts&quot;</span>,
-            <span class="string">&quot;instantiate_with_code&quot;</span>,
+            <span class="string">"Contracts"</span>,
+            <span class="string">"instantiate_with_code"</span>,
             InstantiateWithCode::&lt;E&gt; {
                 value,
                 gas_limit,
@@ -1033,17 +1031,17 @@
             storage_deposit_limit,
             determinism: Determinism::Enforced,
         };
-        <span class="kw">let </span>func = <span class="string">&quot;ContractsApi_upload_code&quot;</span>;
+        <span class="kw">let </span>func = <span class="string">"ContractsApi_upload_code"</span>;
         <span class="kw">let </span>params = scale::Encode::encode(<span class="kw-2">&amp;</span>call_request);
         <span class="kw">let </span>bytes = <span class="self">self
             </span>.rpc
             .state_call(func, <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>params), <span class="prelude-val">None</span>)
             .<span class="kw">await
             </span>.unwrap_or_else(|err| {
-                <span class="macro">panic!</span>(<span class="string">&quot;error on ws request `upload_code`: {err:?}&quot;</span>);
+                <span class="macro">panic!</span>(<span class="string">"error on ws request `upload_code`: {err:?}"</span>);
             });
         scale::Decode::decode(<span class="kw-2">&amp;mut </span>bytes.as_ref())
-            .unwrap_or_else(|err| <span class="macro">panic!</span>(<span class="string">&quot;decoding CodeUploadResult failed: {err}&quot;</span>))
+            .unwrap_or_else(|err| <span class="macro">panic!</span>(<span class="string">"decoding CodeUploadResult failed: {err}"</span>))
     }
 
     <span class="doccomment">/// Submits an extrinsic to upload a given code.
@@ -1057,8 +1055,8 @@
         storage_deposit_limit: <span class="prelude-ty">Option</span>&lt;E::Balance&gt;,
     ) -&gt; ExtrinsicEvents&lt;C&gt; {
         <span class="kw">let </span>call = subxt::tx::Payload::new(
-            <span class="string">&quot;Contracts&quot;</span>,
-            <span class="string">&quot;upload_code&quot;</span>,
+            <span class="string">"Contracts"</span>,
+            <span class="string">"upload_code"</span>,
             UploadCode::&lt;E&gt; {
                 code,
                 storage_deposit_limit,
@@ -1080,8 +1078,8 @@
         code_hash: E::Hash,
     ) -&gt; ExtrinsicEvents&lt;C&gt; {
         <span class="kw">let </span>call = subxt::tx::Payload::new(
-            <span class="string">&quot;Contracts&quot;</span>,
-            <span class="string">&quot;remove_code&quot;</span>,
+            <span class="string">"Contracts"</span>,
+            <span class="string">"remove_code"</span>,
             RemoveCode::&lt;E&gt; { code_hash },
         )
         .unvalidated();
@@ -1106,17 +1104,17 @@
             storage_deposit_limit,
             input_data,
         };
-        <span class="kw">let </span>func = <span class="string">&quot;ContractsApi_call&quot;</span>;
+        <span class="kw">let </span>func = <span class="string">"ContractsApi_call"</span>;
         <span class="kw">let </span>params = scale::Encode::encode(<span class="kw-2">&amp;</span>call_request);
         <span class="kw">let </span>bytes = <span class="self">self
             </span>.rpc
             .state_call(func, <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>params), <span class="prelude-val">None</span>)
             .<span class="kw">await
             </span>.unwrap_or_else(|err| {
-                <span class="macro">panic!</span>(<span class="string">&quot;error on ws request `contracts_call`: {err:?}&quot;</span>);
+                <span class="macro">panic!</span>(<span class="string">"error on ws request `contracts_call`: {err:?}"</span>);
             });
         scale::Decode::decode(<span class="kw-2">&amp;mut </span>bytes.as_ref())
-            .unwrap_or_else(|err| <span class="macro">panic!</span>(<span class="string">&quot;decoding ContractExecResult failed: {err}&quot;</span>))
+            .unwrap_or_else(|err| <span class="macro">panic!</span>(<span class="string">"decoding ContractExecResult failed: {err}"</span>))
     }
 
     <span class="doccomment">/// Submits an extrinsic to call a contract with the given parameters.
@@ -1133,8 +1131,8 @@
         signer: <span class="kw-2">&amp;</span>Keypair,
     ) -&gt; ExtrinsicEvents&lt;C&gt; {
         <span class="kw">let </span>call = subxt::tx::Payload::new(
-            <span class="string">&quot;Contracts&quot;</span>,
-            <span class="string">&quot;call&quot;</span>,
+            <span class="string">"Contracts"</span>,
+            <span class="string">"call"</span>,
             Call::&lt;E&gt; {
                 dest: contract,
                 value,
@@ -1154,11 +1152,11 @@
     ///
     /// Returns when the transaction is included in a block. The return value
     /// contains all events that are associated with this transaction.
-    </span><span class="kw">pub async fn </span>runtime_call&lt;<span class="lifetime">&#39;a</span>&gt;(
+    </span><span class="kw">pub async fn </span>runtime_call&lt;<span class="lifetime">'a</span>&gt;(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         signer: <span class="kw-2">&amp;</span>Keypair,
-        pallet_name: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str,
-        call_name: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str,
+        pallet_name: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str,
+        call_name: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str,
         call_data: Vec&lt;subxt::dynamic::Value&gt;,
     ) -&gt; ExtrinsicEvents&lt;C&gt; {
         <span class="kw">let </span>call = subxt::dynamic::tx(pallet_name, call_name, call_data);

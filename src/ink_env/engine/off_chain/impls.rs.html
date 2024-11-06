@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/env/src/engine/off_chain/impls.rs`."><title>impls.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="ink_env" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../../ink_env/index.html"><img src="https://use.ink/img/crate-docs/logo.png" alt="ink_env"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/env/src/engine/off_chain/impls.rs`."><title>impls.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-c5d6553a23f1e5a6.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="ink_env" data-themes="" data-resource-suffix="" data-rustdoc-version="1.81.0 (eeb90cda1 2024-09-04)" data-channel="1.81.0" data-search-js="search-d234aafac6c221dd.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-d2fab2bf619172d3.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -622,14 +622,14 @@
 <a href="#622" id="622">622</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) Use Ink (UK) Ltd.
 //
-// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
 //     http://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// distributed under the License is distributed on an "AS IS" BASIS,
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
@@ -816,7 +816,7 @@
                 <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(decoded))
             }
             <span class="prelude-val">Err</span>(ReturnErrorCode::KeyNotFound) =&gt; <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>),
-            <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="macro">panic!</span>(<span class="string">&quot;encountered unexpected error&quot;</span>),
+            <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="macro">panic!</span>(<span class="string">"encountered unexpected error"</span>),
         }
     }
 
@@ -831,7 +831,7 @@
                 <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(decoded))
             }
             <span class="prelude-val">Err</span>(ReturnErrorCode::KeyNotFound) =&gt; <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>),
-            <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="macro">panic!</span>(<span class="string">&quot;encountered unexpected error&quot;</span>),
+            <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="macro">panic!</span>(<span class="string">"encountered unexpected error"</span>),
         }
     }
 
@@ -853,14 +853,14 @@
     <span class="kw">where
         </span>T: scale::Decode,
     {
-        <span class="macro">unimplemented!</span>(<span class="string">&quot;the off-chain env does not implement `input`&quot;</span>)
+        <span class="macro">unimplemented!</span>(<span class="string">"the off-chain env does not implement `input`"</span>)
     }
 
     <span class="kw">fn </span>return_value&lt;R&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _flags: ReturnFlags, _return_value: <span class="kw-2">&amp;</span>R) -&gt; !
     <span class="kw">where
         </span>R: scale::Encode,
     {
-        <span class="macro">unimplemented!</span>(<span class="string">&quot;the off-chain env does not implement `return_value`&quot;</span>)
+        <span class="macro">unimplemented!</span>(<span class="string">"the off-chain env does not implement `return_value`"</span>)
     }
 
     <span class="kw">fn </span>debug_message(<span class="kw-2">&amp;mut </span><span class="self">self</span>, message: <span class="kw-2">&amp;</span>str) {
@@ -907,13 +907,13 @@
             signature[<span class="number">64</span>]
         };
         <span class="kw">let </span>recovery_id = RecoveryId::from_i32(recovery_byte <span class="kw">as </span>i32)
-            .unwrap_or_else(|error| <span class="macro">panic!</span>(<span class="string">&quot;Unable to parse the recovery id: {error}&quot;</span>));
+            .unwrap_or_else(|error| <span class="macro">panic!</span>(<span class="string">"Unable to parse the recovery id: {error}"</span>));
         <span class="kw">let </span>message = Message::from_digest_slice(message_hash).unwrap_or_else(|error| {
-            <span class="macro">panic!</span>(<span class="string">&quot;Unable to create the message from hash: {error}&quot;</span>)
+            <span class="macro">panic!</span>(<span class="string">"Unable to create the message from hash: {error}"</span>)
         });
         <span class="kw">let </span>signature =
             RecoverableSignature::from_compact(<span class="kw-2">&amp;</span>signature[<span class="number">0</span>..<span class="number">64</span>], recovery_id)
-                .unwrap_or_else(|error| <span class="macro">panic!</span>(<span class="string">&quot;Unable to parse the signature: {error}&quot;</span>));
+                .unwrap_or_else(|error| <span class="macro">panic!</span>(<span class="string">"Unable to parse the signature: {error}"</span>));
 
         <span class="kw">let </span>pub_key = SECP256K1.recover_ecdsa(<span class="kw-2">&amp;</span>message, <span class="kw-2">&amp;</span>signature);
         <span class="kw">match </span>pub_key {
@@ -946,9 +946,9 @@
         pub_key: <span class="kw-2">&amp;</span>[u8; <span class="number">32</span>],
     ) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
         <span class="comment">// the context associated with the signing (specific to the sr25519 algorithm)
-        // defaults to &quot;substrate&quot; in substrate, but could be different elsewhere
+        // defaults to "substrate" in substrate, but could be different elsewhere
         // https://github.com/paritytech/substrate/blob/c32f5ed2ae6746d6f791f08cecbfc22fa188f5f9/primitives/core/src/sr25519.rs#L60
-        </span><span class="kw">let </span>context = <span class="string">b&quot;substrate&quot;</span>;
+        </span><span class="kw">let </span>context = <span class="string">b"substrate"</span>;
         <span class="comment">// attempt to parse a signature from bytes
         </span><span class="kw">let </span>signature: Signature = Signature::from_bytes(signature)
             .map_err(|<span class="kw">_</span>| ReturnErrorCode::Sr25519VerifyFailed)<span class="question-mark">?</span>;
@@ -982,7 +982,7 @@
             .call_chain_extension(id, enc_input, <span class="kw-2">&amp;mut &amp;mut </span>output[..]);
         <span class="kw">let </span>(status, out): (u32, Vec&lt;u8&gt;) = scale::Decode::decode(<span class="kw-2">&amp;mut &amp;</span>output[..])
             .unwrap_or_else(|error| {
-                <span class="macro">panic!</span>(<span class="string">&quot;could not decode `call_chain_extension` output: {error:?}&quot;</span>)
+                <span class="macro">panic!</span>(<span class="string">"could not decode `call_chain_extension` output: {error:?}"</span>)
             });
 
         status_to_result(status)<span class="question-mark">?</span>;
@@ -991,62 +991,62 @@
     }
 
     <span class="kw">fn </span>set_code_hash(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _code_hash: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-        <span class="macro">unimplemented!</span>(<span class="string">&quot;off-chain environment does not support `set_code_hash`&quot;</span>)
+        <span class="macro">unimplemented!</span>(<span class="string">"off-chain environment does not support `set_code_hash`"</span>)
     }
 }
 
 <span class="kw">impl </span>TypedEnvBackend <span class="kw">for </span>EnvInstance {
     <span class="kw">fn </span>caller&lt;E: Environment&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; E::AccountId {
         <span class="self">self</span>.get_property::&lt;E::AccountId&gt;(Engine::caller)
-            .unwrap_or_else(|error| <span class="macro">panic!</span>(<span class="string">&quot;could not read `caller` property: {error:?}&quot;</span>))
+            .unwrap_or_else(|error| <span class="macro">panic!</span>(<span class="string">"could not read `caller` property: {error:?}"</span>))
     }
 
     <span class="kw">fn </span>transferred_value&lt;E: Environment&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; E::Balance {
         <span class="self">self</span>.get_property::&lt;E::Balance&gt;(Engine::value_transferred)
             .unwrap_or_else(|error| {
-                <span class="macro">panic!</span>(<span class="string">&quot;could not read `transferred_value` property: {error:?}&quot;</span>)
+                <span class="macro">panic!</span>(<span class="string">"could not read `transferred_value` property: {error:?}"</span>)
             })
     }
 
     <span class="kw">fn </span>gas_left&lt;E: Environment&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; u64 {
         <span class="self">self</span>.get_property::&lt;u64&gt;(Engine::gas_left)
             .unwrap_or_else(|error| {
-                <span class="macro">panic!</span>(<span class="string">&quot;could not read `gas_left` property: {error:?}&quot;</span>)
+                <span class="macro">panic!</span>(<span class="string">"could not read `gas_left` property: {error:?}"</span>)
             })
     }
 
     <span class="kw">fn </span>block_timestamp&lt;E: Environment&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; E::Timestamp {
         <span class="self">self</span>.get_property::&lt;E::Timestamp&gt;(Engine::block_timestamp)
             .unwrap_or_else(|error| {
-                <span class="macro">panic!</span>(<span class="string">&quot;could not read `block_timestamp` property: {error:?}&quot;</span>)
+                <span class="macro">panic!</span>(<span class="string">"could not read `block_timestamp` property: {error:?}"</span>)
             })
     }
 
     <span class="kw">fn </span>account_id&lt;E: Environment&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; E::AccountId {
         <span class="self">self</span>.get_property::&lt;E::AccountId&gt;(Engine::address)
             .unwrap_or_else(|error| {
-                <span class="macro">panic!</span>(<span class="string">&quot;could not read `account_id` property: {error:?}&quot;</span>)
+                <span class="macro">panic!</span>(<span class="string">"could not read `account_id` property: {error:?}"</span>)
             })
     }
 
     <span class="kw">fn </span>balance&lt;E: Environment&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; E::Balance {
         <span class="self">self</span>.get_property::&lt;E::Balance&gt;(Engine::balance)
             .unwrap_or_else(|error| {
-                <span class="macro">panic!</span>(<span class="string">&quot;could not read `balance` property: {error:?}&quot;</span>)
+                <span class="macro">panic!</span>(<span class="string">"could not read `balance` property: {error:?}"</span>)
             })
     }
 
     <span class="kw">fn </span>block_number&lt;E: Environment&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; E::BlockNumber {
         <span class="self">self</span>.get_property::&lt;E::BlockNumber&gt;(Engine::block_number)
             .unwrap_or_else(|error| {
-                <span class="macro">panic!</span>(<span class="string">&quot;could not read `block_number` property: {error:?}&quot;</span>)
+                <span class="macro">panic!</span>(<span class="string">"could not read `block_number` property: {error:?}"</span>)
             })
     }
 
     <span class="kw">fn </span>minimum_balance&lt;E: Environment&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; E::Balance {
         <span class="self">self</span>.get_property::&lt;E::Balance&gt;(Engine::minimum_balance)
             .unwrap_or_else(|error| {
-                <span class="macro">panic!</span>(<span class="string">&quot;could not read `minimum_balance` property: {error:?}&quot;</span>)
+                <span class="macro">panic!</span>(<span class="string">"could not read `minimum_balance` property: {error:?}"</span>)
             })
     }
 
@@ -1070,7 +1070,7 @@
         Args: scale::Encode,
         R: scale::Decode,
     {
-        <span class="macro">unimplemented!</span>(<span class="string">&quot;off-chain environment does not support contract invocation&quot;</span>)
+        <span class="macro">unimplemented!</span>(<span class="string">"off-chain environment does not support contract invocation"</span>)
     }
 
     <span class="kw">fn </span>invoke_contract&lt;E, Args, R&gt;(
@@ -1082,7 +1082,7 @@
         Args: scale::Encode,
         R: scale::Decode,
     {
-        <span class="macro">unimplemented!</span>(<span class="string">&quot;off-chain environment does not support contract invocation&quot;</span>)
+        <span class="macro">unimplemented!</span>(<span class="string">"off-chain environment does not support contract invocation"</span>)
     }
 
     <span class="kw">fn </span>invoke_contract_delegate&lt;E, Args, R&gt;(
@@ -1096,7 +1096,7 @@
     {
         <span class="kw">let </span>_code_hash = params.code_hash();
         <span class="macro">unimplemented!</span>(
-            <span class="string">&quot;off-chain environment does not support delegated contract invocation&quot;
+            <span class="string">"off-chain environment does not support delegated contract invocation"
         </span>)
     }
 
@@ -1122,7 +1122,7 @@
         <span class="kw">let </span>_endowment = params.endowment();
         <span class="kw">let </span>_input = params.exec_input();
         <span class="kw">let </span>_salt_bytes = params.salt_bytes();
-        <span class="macro">unimplemented!</span>(<span class="string">&quot;off-chain environment does not support contract instantiation&quot;</span>)
+        <span class="macro">unimplemented!</span>(<span class="string">"off-chain environment does not support contract instantiation"</span>)
     }
 
     <span class="kw">fn </span>instantiate_contract_v1&lt;E, ContractRef, Args, Salt, R&gt;(
@@ -1145,7 +1145,7 @@
         <span class="kw">let </span>_endowment = params.endowment();
         <span class="kw">let </span>_input = params.exec_input();
         <span class="kw">let </span>_salt_bytes = params.salt_bytes();
-        <span class="macro">unimplemented!</span>(<span class="string">&quot;off-chain environment does not support contract instantiation&quot;</span>)
+        <span class="macro">unimplemented!</span>(<span class="string">"off-chain environment does not support contract instantiation"</span>)
     }
 
     <span class="kw">fn </span>terminate_contract&lt;E&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, beneficiary: E::AccountId) -&gt; !
@@ -1171,7 +1171,7 @@
         <span class="kw">let </span><span class="kw-2">mut </span>output: [u8; BUFFER_SIZE] = [<span class="number">0</span>; BUFFER_SIZE];
         <span class="self">self</span>.engine.weight_to_fee(gas, <span class="kw-2">&amp;mut &amp;mut </span>output[..]);
         scale::Decode::decode(<span class="kw-2">&amp;mut &amp;</span>output[..]).unwrap_or_else(|error| {
-            <span class="macro">panic!</span>(<span class="string">&quot;could not read `weight_to_fee` property: {error:?}&quot;</span>)
+            <span class="macro">panic!</span>(<span class="string">"could not read `weight_to_fee` property: {error:?}"</span>)
         })
     }
 
@@ -1186,42 +1186,42 @@
     <span class="kw">where
         </span>E: Environment,
     {
-        <span class="macro">unimplemented!</span>(<span class="string">&quot;off-chain environment does not support cross-contract calls&quot;</span>)
+        <span class="macro">unimplemented!</span>(<span class="string">"off-chain environment does not support cross-contract calls"</span>)
     }
 
     <span class="kw">fn </span>code_hash&lt;E&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _account: <span class="kw-2">&amp;</span>E::AccountId) -&gt; <span class="prelude-ty">Result</span>&lt;E::Hash&gt;
     <span class="kw">where
         </span>E: Environment,
     {
-        <span class="macro">unimplemented!</span>(<span class="string">&quot;off-chain environment does not support `code_hash`&quot;</span>)
+        <span class="macro">unimplemented!</span>(<span class="string">"off-chain environment does not support `code_hash`"</span>)
     }
 
     <span class="kw">fn </span>own_code_hash&lt;E&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;E::Hash&gt;
     <span class="kw">where
         </span>E: Environment,
     {
-        <span class="macro">unimplemented!</span>(<span class="string">&quot;off-chain environment does not support `own_code_hash`&quot;</span>)
+        <span class="macro">unimplemented!</span>(<span class="string">"off-chain environment does not support `own_code_hash`"</span>)
     }
 
     <span class="kw">fn </span>call_runtime&lt;E, Call&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _call: <span class="kw-2">&amp;</span>Call) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt;
     <span class="kw">where
         </span>E: Environment,
     {
-        <span class="macro">unimplemented!</span>(<span class="string">&quot;off-chain environment does not support `call_runtime`&quot;</span>)
+        <span class="macro">unimplemented!</span>(<span class="string">"off-chain environment does not support `call_runtime`"</span>)
     }
 
     <span class="kw">fn </span>lock_delegate_dependency&lt;E&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _code_hash: <span class="kw-2">&amp;</span>E::Hash)
     <span class="kw">where
         </span>E: Environment,
     {
-        <span class="macro">unimplemented!</span>(<span class="string">&quot;off-chain environment does not support delegate dependencies&quot;</span>)
+        <span class="macro">unimplemented!</span>(<span class="string">"off-chain environment does not support delegate dependencies"</span>)
     }
 
     <span class="kw">fn </span>xcm_execute&lt;E, Call&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _msg: <span class="kw-2">&amp;</span>xcm::VersionedXcm&lt;Call&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt;
     <span class="kw">where
         </span>E: Environment,
     {
-        <span class="macro">unimplemented!</span>(<span class="string">&quot;off-chain environment does not support `xcm_execute`&quot;</span>)
+        <span class="macro">unimplemented!</span>(<span class="string">"off-chain environment does not support `xcm_execute`"</span>)
     }
 
     <span class="kw">fn </span>xcm_send&lt;E, Call&gt;(
@@ -1232,14 +1232,14 @@
     <span class="kw">where
         </span>E: Environment,
     {
-        <span class="macro">unimplemented!</span>(<span class="string">&quot;off-chain environment does not support `xcm_send`&quot;</span>)
+        <span class="macro">unimplemented!</span>(<span class="string">"off-chain environment does not support `xcm_send`"</span>)
     }
 
     <span class="kw">fn </span>unlock_delegate_dependency&lt;E&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _code_hash: <span class="kw-2">&amp;</span>E::Hash)
     <span class="kw">where
         </span>E: Environment,
     {
-        <span class="macro">unimplemented!</span>(<span class="string">&quot;off-chain environment does not support delegate dependencies&quot;</span>)
+        <span class="macro">unimplemented!</span>(<span class="string">"off-chain environment does not support delegate dependencies"</span>)
     }
 }
 </code></pre></div></section></main></body></html>

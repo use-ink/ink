@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/ink/src/reflect/dispatch.rs`."><title>dispatch.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="ink" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../ink/index.html"><img src="https://use.ink/img/crate-docs/logo.png" alt="ink"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/ink/src/reflect/dispatch.rs`."><title>dispatch.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-c5d6553a23f1e5a6.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="ink" data-themes="" data-resource-suffix="" data-rustdoc-version="1.81.0 (eeb90cda1 2024-09-04)" data-channel="1.81.0" data-search-js="search-d234aafac6c221dd.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-d2fab2bf619172d3.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -619,14 +619,14 @@
 <a href="#619" id="619">619</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) Use Ink (UK) Ltd.
 //
-// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
 //     http://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// distributed under the License is distributed on an "AS IS" BASIS,
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
@@ -699,17 +699,17 @@
 /// }
 ///
 /// fn main() {
-///     assert_message_info::&lt;(), (), { selector_id!(&quot;message1&quot;) }&gt;(
+///     assert_message_info::&lt;(), (), { selector_id!("message1") }&gt;(
 ///         false,
 ///         false,
-///         selector_bytes!(&quot;message1&quot;),
-///         &quot;message1&quot;,
+///         selector_bytes!("message1"),
+///         "message1",
 ///     );
 ///     assert_message_info::&lt;(i32, i64), (bool, i32), 0xC0DECAFE_u32&gt;(
 ///         true,
 ///         true,
 ///         [0xC0, 0xDE, 0xCA, 0xFE],
-///         &quot;message2&quot;,
+///         "message2",
 ///     );
 /// }
 /// ```
@@ -737,7 +737,7 @@
     <span class="doccomment">/// The selectors of the dispatchable ink! message.
     </span><span class="kw">const </span>SELECTOR: [u8; <span class="number">4</span>];
     <span class="doccomment">/// The label of the dispatchable ink! message.
-    </span><span class="kw">const </span>LABEL: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str;
+    </span><span class="kw">const </span>LABEL: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str;
 }
 
 <span class="doccomment">/// Stores various information of the respective dispatchable ink! constructor.
@@ -797,13 +797,13 @@
 /// }
 ///
 /// fn main() {
-///     assert_constructor_info::&lt;(), { selector_id!(&quot;constructor1&quot;) }&gt;(
-///         selector_bytes!(&quot;constructor1&quot;),
-///         &quot;constructor1&quot;,
+///     assert_constructor_info::&lt;(), { selector_id!("constructor1") }&gt;(
+///         selector_bytes!("constructor1"),
+///         "constructor1",
 ///     );
 ///     assert_constructor_info::&lt;(i32, i64), 0xC0DECAFE_u32&gt;(
 ///         [0xC0, 0xDE, 0xCA, 0xFE],
-///         &quot;constructor2&quot;,
+///         "constructor2",
 ///     );
 /// }
 /// ```
@@ -831,7 +831,7 @@
     </span><span class="kw">const </span>SELECTOR: [u8; <span class="number">4</span>];
 
     <span class="doccomment">/// The label of the dispatchable ink! constructor.
-    </span><span class="kw">const </span>LABEL: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str;
+    </span><span class="kw">const </span>LABEL: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str;
 }
 
 <span class="kw">mod </span>private {
@@ -890,7 +890,7 @@
 <span class="kw">impl</span>&lt;T&gt; private::Sealed <span class="kw">for </span>ConstructorOutputValue&lt;T&gt; {}
 
 <span class="kw">impl</span>&lt;C&gt; ConstructorOutput&lt;C&gt; <span class="kw">for </span>ConstructorOutputValue&lt;C&gt; {
-    <span class="kw">type </span>Error = <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>();
+    <span class="kw">type </span>Error = <span class="kw-2">&amp;</span><span class="lifetime">'static </span>();
 
     <span class="attr">#[inline(always)]
     </span><span class="kw">fn </span>as_result(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span>C, <span class="kw-2">&amp;</span><span class="self">Self</span>::Error&gt; {
@@ -949,7 +949,7 @@
 ///     // Call to `message1` without input parameters.
 ///     {
 ///         let mut input_bytes = Vec::new();
-///         input_bytes.extend(selector_bytes!(&quot;message1&quot;));
+///         input_bytes.extend(selector_bytes!("message1"));
 ///         assert!(
 ///             &lt;&lt;Contract as ContractMessageDecoder&gt;::Type as Decode&gt;::decode(
 ///                 &amp;mut &amp;input_bytes[..]
@@ -960,7 +960,7 @@
 ///     // Call to `message2` with 2 parameters.
 ///     {
 ///         let mut input_bytes = Vec::new();
-///         input_bytes.extend(selector_bytes!(&quot;message2&quot;));
+///         input_bytes.extend(selector_bytes!("message2"));
 ///         input_bytes.extend(true.encode());
 ///         input_bytes.extend(42i32.encode());
 ///         assert!(
@@ -973,7 +973,7 @@
 ///     // Call with invalid ink! message selector.
 ///     {
 ///         let mut input_bytes = Vec::new();
-///         input_bytes.extend(selector_bytes!(&quot;non_existing_message&quot;));
+///         input_bytes.extend(selector_bytes!("non_existing_message"));
 ///         assert!(
 ///             &lt;&lt;Contract as ContractMessageDecoder&gt;::Type as Decode&gt;::decode(
 ///                 &amp;mut &amp;input_bytes[..]
@@ -984,7 +984,7 @@
 ///     // Call with invalid ink! message parameters.
 ///     {
 ///         let mut input_bytes = Vec::new();
-///         input_bytes.extend(selector_bytes!(&quot;message2&quot;));
+///         input_bytes.extend(selector_bytes!("message2"));
 ///         assert!(
 ///             &lt;&lt;Contract as ContractMessageDecoder&gt;::Type as Decode&gt;::decode(
 ///                 &amp;mut &amp;input_bytes[..]
@@ -1042,7 +1042,7 @@
 ///     // Call to `constructor1` without input parameters.
 ///     {
 ///         let mut input_bytes = Vec::new();
-///         input_bytes.extend(selector_bytes!(&quot;constructor1&quot;));
+///         input_bytes.extend(selector_bytes!("constructor1"));
 ///         assert!(
 ///             &lt;&lt;Contract as ContractConstructorDecoder&gt;::Type as Decode&gt;::decode(
 ///                 &amp;mut &amp;input_bytes[..]
@@ -1053,7 +1053,7 @@
 ///     // Call to `constructor2` with 2 parameters.
 ///     {
 ///         let mut input_bytes = Vec::new();
-///         input_bytes.extend(selector_bytes!(&quot;constructor2&quot;));
+///         input_bytes.extend(selector_bytes!("constructor2"));
 ///         input_bytes.extend(true.encode());
 ///         input_bytes.extend(42i32.encode());
 ///         assert!(
@@ -1066,7 +1066,7 @@
 ///     // Call with invalid ink! constructor selector.
 ///     {
 ///         let mut input_bytes = Vec::new();
-///         input_bytes.extend(selector_bytes!(&quot;non_existing_constructor&quot;));
+///         input_bytes.extend(selector_bytes!("non_existing_constructor"));
 ///         assert!(
 ///             &lt;&lt;Contract as ContractConstructorDecoder&gt;::Type as Decode&gt;::decode(
 ///                 &amp;mut &amp;input_bytes[..]
@@ -1077,7 +1077,7 @@
 ///     // Call with invalid ink! constructor parameters.
 ///     {
 ///         let mut input_bytes = Vec::new();
-///         input_bytes.extend(selector_bytes!(&quot;constructor2&quot;));
+///         input_bytes.extend(selector_bytes!("constructor2"));
 ///         assert!(
 ///             &lt;&lt;Contract as ContractConstructorDecoder&gt;::Type as Decode&gt;::decode(
 ///                 &amp;mut &amp;input_bytes[..]
@@ -1119,20 +1119,20 @@
 
 <span class="kw">impl </span>Display <span class="kw">for </span>DispatchError {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>core::fmt::Formatter) -&gt; core::fmt::Result {
-        <span class="macro">write!</span>(f, <span class="string">&quot;{}&quot;</span>, <span class="self">self</span>.as_str())
+        <span class="macro">write!</span>(f, <span class="string">"{}"</span>, <span class="self">self</span>.as_str())
     }
 }
 
 <span class="kw">impl </span>DispatchError {
     <span class="doccomment">/// Returns a string representation of the error.
     </span><span class="attr">#[inline]
-    </span><span class="kw">fn </span>as_str(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str {
+    </span><span class="kw">fn </span>as_str(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str {
         <span class="kw">match </span><span class="self">self </span>{
-            <span class="self">Self</span>::InvalidSelector =&gt; <span class="string">&quot;unable to decode selector&quot;</span>,
-            <span class="self">Self</span>::UnknownSelector =&gt; <span class="string">&quot;encountered unknown selector&quot;</span>,
-            <span class="self">Self</span>::InvalidParameters =&gt; <span class="string">&quot;unable to decode input&quot;</span>,
-            <span class="self">Self</span>::CouldNotReadInput =&gt; <span class="string">&quot;could not read input&quot;</span>,
-            <span class="self">Self</span>::PaidUnpayableMessage =&gt; <span class="string">&quot;paid an unpayable message&quot;</span>,
+            <span class="self">Self</span>::InvalidSelector =&gt; <span class="string">"unable to decode selector"</span>,
+            <span class="self">Self</span>::UnknownSelector =&gt; <span class="string">"encountered unknown selector"</span>,
+            <span class="self">Self</span>::InvalidParameters =&gt; <span class="string">"unable to decode input"</span>,
+            <span class="self">Self</span>::CouldNotReadInput =&gt; <span class="string">"could not read input"</span>,
+            <span class="self">Self</span>::PaidUnpayableMessage =&gt; <span class="string">"paid an unpayable message"</span>,
         }
     }
 }
@@ -1188,7 +1188,7 @@
 ///     // Valid call to `message`:
 ///     {
 ///         let mut input_bytes = Vec::new();
-///         input_bytes.extend(selector_bytes!(&quot;message&quot;));
+///         input_bytes.extend(selector_bytes!("message"));
 ///         input_bytes.extend(true.encode());
 ///         input_bytes.extend(42i32.encode());
 ///         assert!(
@@ -1210,7 +1210,7 @@
 ///     // Invalid call to `message` with unknown selector.
 ///     {
 ///         let mut input_bytes = Vec::new();
-///         input_bytes.extend(selector_bytes!(&quot;unknown_selector&quot;));
+///         input_bytes.extend(selector_bytes!("unknown_selector"));
 ///         assert_eq!(
 ///             &lt;&lt;Contract as ContractMessageDecoder&gt;::Type
 ///                 as DecodeDispatch&gt;::decode_dispatch(&amp;mut &amp;input_bytes[..])
@@ -1222,7 +1222,7 @@
 ///     // Invalid call to `message` with invalid (or missing) parameters.
 ///     {
 ///         let mut input_bytes = Vec::new();
-///         input_bytes.extend(selector_bytes!(&quot;message&quot;));
+///         input_bytes.extend(selector_bytes!("message"));
 ///         assert_eq!(
 ///             &lt;&lt;Contract as ContractMessageDecoder&gt;::Type
 ///                 as DecodeDispatch&gt;::decode_dispatch(&amp;mut &amp;input_bytes[..])

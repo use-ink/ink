@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/e2e/macro/src/codegen.rs`."><title>codegen.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="ink_e2e_macro" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../ink_e2e_macro/index.html"><img src="https://use.ink/img/crate-docs/logo.png" alt="ink_e2e_macro"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/e2e/macro/src/codegen.rs`."><title>codegen.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-c5d6553a23f1e5a6.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="ink_e2e_macro" data-themes="" data-resource-suffix="" data-rustdoc-version="1.81.0 (eeb90cda1 2024-09-04)" data-channel="1.81.0" data-search-js="search-d234aafac6c221dd.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-d2fab2bf619172d3.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -155,14 +155,14 @@
 <a href="#155" id="155">155</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) Use Ink (UK) Ltd.
 //
-// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
 //     http://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// distributed under the License is distributed on an "AS IS" BASIS,
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
@@ -190,7 +190,7 @@
     </span><span class="kw">pub fn </span>generate_code(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; TokenStream2 {
         <span class="attr">#[cfg(clippy)]
         </span><span class="kw">if </span><span class="bool-val">true </span>{
-            <span class="kw">return </span><span class="macro">quote! </span>{};
+            <span class="kw">return </span><span class="macro">quote!</span> {};
         }
 
         <span class="kw">let </span>item_fn = <span class="kw-2">&amp;</span><span class="self">self</span>.test.item_fn.item_fn;
@@ -200,17 +200,17 @@
         <span class="kw">let </span>vis = <span class="kw-2">&amp;</span>item_fn.vis;
         <span class="kw">let </span>attrs = <span class="kw-2">&amp;</span>item_fn.attrs;
         <span class="kw">let </span>ret = <span class="kw">match </span>fn_return_type {
-            syn::ReturnType::Default =&gt; <span class="macro">quote! </span>{},
-            syn::ReturnType::Type(rarrow, ret_type) =&gt; <span class="macro">quote! </span>{ #rarrow #ret_type },
+            syn::ReturnType::Default =&gt; <span class="macro">quote!</span> {},
+            syn::ReturnType::Type(rarrow, ret_type) =&gt; <span class="macro">quote!</span> { #rarrow #ret_type },
         };
 
         <span class="kw">let </span>environment = <span class="self">self
             </span>.test
             .config
             .environment()
-            .unwrap_or_else(|| <span class="macro">syn::parse_quote! </span>{ ::ink::env::DefaultEnvironment });
+            .unwrap_or_else(|| <span class="macro">syn::parse_quote!</span> { ::ink::env::DefaultEnvironment });
 
-        <span class="kw">let </span>exec_build_contracts = <span class="macro">quote! </span>{
+        <span class="kw">let </span>exec_build_contracts = <span class="macro">quote!</span> {
             ::ink_e2e::build_root_and_contract_dependencies()
         };
 
@@ -218,28 +218,28 @@
             Backend::Node(node_config) =&gt; {
                 build_full_client(<span class="kw-2">&amp;</span>environment, exec_build_contracts, node_config)
             }
-            <span class="attr">#[cfg(any(test, feature = <span class="string">&quot;sandbox&quot;</span>))]
+            <span class="attr">#[cfg(any(test, feature = <span class="string">"sandbox"</span>))]
             </span>Backend::RuntimeOnly(runtime) =&gt; {
                 build_runtime_client(exec_build_contracts, runtime.into())
             }
         };
 
-        <span class="macro">quote! </span>{
+        <span class="macro">quote!</span> {
             #( #attrs )*
             <span class="attr">#[test]
             </span>#vis <span class="kw">fn </span>#fn_name () #ret {
                 <span class="kw">use </span>::ink_e2e::log_info;
                 ::ink_e2e::LOG_PREFIX.with(|log_prefix| {
-                    <span class="kw">let </span>str = <span class="macro">format!</span>(<span class="string">&quot;test: {}&quot;</span>, <span class="macro">stringify!</span>(#fn_name));
+                    <span class="kw">let </span>str = <span class="macro">format!</span>(<span class="string">"test: {}"</span>, <span class="macro">stringify!</span>(#fn_name));
                     <span class="kw-2">*</span>log_prefix.borrow_mut() = String::from(str);
                 });
-                log_info(<span class="string">&quot;setting up e2e test&quot;</span>);
+                log_info(<span class="string">"setting up e2e test"</span>);
 
                 ::ink_e2e::INIT.call_once(|| {
                     ::ink_e2e::tracing_subscriber::fmt::init();
                 });
 
-                log_info(<span class="string">&quot;creating new client&quot;</span>);
+                log_info(<span class="string">"creating new client"</span>);
 
                 <span class="kw">let </span>run = <span class="kw">async </span>{
                     #client_building
@@ -254,7 +254,7 @@
                     <span class="kw">return </span>::ink_e2e::tokio::runtime::Builder::new_current_thread()
                         .enable_all()
                         .build()
-                        .unwrap_or_else(|err| <span class="macro">panic!</span>(<span class="string">&quot;Failed building the Runtime: {err}&quot;</span>))
+                        .unwrap_or_else(|err| <span class="macro">panic!</span>(<span class="string">"Failed building the Runtime: {err}"</span>))
                         .block_on(run);
                 }
             }
@@ -269,12 +269,12 @@
 ) -&gt; TokenStream2 {
     <span class="kw">match </span>node_config.url() {
         <span class="prelude-val">Some</span>(url) =&gt; {
-            <span class="macro">quote! </span>{
+            <span class="macro">quote!</span> {
                 <span class="kw">let </span>contracts = #contracts;
                 <span class="kw">let </span>rpc = ::ink_e2e::RpcClient::from_url(#url)
                     .<span class="kw">await
                     </span>.unwrap_or_else(|err|
-                        <span class="macro">::core::panic!</span>(<span class="string">&quot;Error connecting to node at {}: {err:?}&quot;</span>, #url)
+                        <span class="macro">::core::panic!</span>(<span class="string">"Error connecting to node at {}: {err:?}"</span>, #url)
                     );
                 <span class="kw">let </span><span class="kw-2">mut </span>client = ::ink_e2e::Client::&lt;
                     ::ink_e2e::PolkadotConfig,
@@ -283,14 +283,14 @@
             }
         }
         <span class="prelude-val">None </span>=&gt; {
-            <span class="macro">quote! </span>{
+            <span class="macro">quote!</span> {
                 <span class="kw">let </span>contracts = #contracts;
                 <span class="kw">let </span>node_rpc = ::ink_e2e::TestNodeProcess::&lt;::ink_e2e::PolkadotConfig&gt;
                     ::build_with_env_or_default()
                     .spawn()
                     .<span class="kw">await
                     </span>.unwrap_or_else(|err|
-                        <span class="macro">::core::panic!</span>(<span class="string">&quot;Error spawning substrate-contracts-node: {err:?}&quot;</span>)
+                        <span class="macro">::core::panic!</span>(<span class="string">"Error spawning substrate-contracts-node: {err:?}"</span>)
                     );
                 <span class="kw">let </span><span class="kw-2">mut </span>client = ::ink_e2e::Client::&lt;
                     ::ink_e2e::PolkadotConfig,
@@ -301,9 +301,9 @@
     }
 }
 
-<span class="attr">#[cfg(any(test, feature = <span class="string">&quot;sandbox&quot;</span>))]
+<span class="attr">#[cfg(any(test, feature = <span class="string">"sandbox"</span>))]
 </span><span class="kw">fn </span>build_runtime_client(contracts: TokenStream2, runtime: syn::Path) -&gt; TokenStream2 {
-    <span class="macro">quote! </span>{
+    <span class="macro">quote!</span> {
         <span class="kw">let </span>contracts = #contracts;
         <span class="kw">let </span><span class="kw-2">mut </span>client = ::ink_e2e::SandboxClient::&lt;<span class="kw">_</span>, <span class="kw">_</span>, #runtime&gt;::new(contracts);
     }

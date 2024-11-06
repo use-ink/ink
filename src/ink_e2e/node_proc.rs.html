@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/e2e/src/node_proc.rs`."><title>node_proc.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="ink_e2e" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../ink_e2e/index.html"><img src="https://use.ink/img/crate-docs/logo.png" alt="ink_e2e"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/e2e/src/node_proc.rs`."><title>node_proc.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-c5d6553a23f1e5a6.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="ink_e2e" data-themes="" data-resource-suffix="" data-rustdoc-version="1.81.0 (eeb90cda1 2024-09-04)" data-channel="1.81.0" data-search-js="search-d234aafac6c221dd.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-d2fab2bf619172d3.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -272,14 +272,14 @@
 <a href="#272" id="272">272</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) Use Ink (UK) Ltd.
 //
-// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
 //     http://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// distributed under the License is distributed on an "AS IS" BASIS,
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
@@ -335,21 +335,21 @@
     <span class="doccomment">/// Construct a builder for spawning a test node process, using the environment
     /// variable `CONTRACTS_NODE`, otherwise using the default contracts node.
     </span><span class="kw">pub fn </span>build_with_env_or_default() -&gt; TestNodeProcessBuilder&lt;R&gt; {
-        <span class="kw">const </span>DEFAULT_CONTRACTS_NODE: <span class="kw-2">&amp;</span>str = <span class="string">&quot;substrate-contracts-node&quot;</span>;
+        <span class="kw">const </span>DEFAULT_CONTRACTS_NODE: <span class="kw-2">&amp;</span>str = <span class="string">"substrate-contracts-node"</span>;
 
         <span class="comment">// Use the user supplied `CONTRACTS_NODE` or default to `DEFAULT_CONTRACTS_NODE`.
         </span><span class="kw">let </span>contracts_node =
-            std::env::var(<span class="string">&quot;CONTRACTS_NODE&quot;</span>).unwrap_or(DEFAULT_CONTRACTS_NODE.to_owned());
+            std::env::var(<span class="string">"CONTRACTS_NODE"</span>).unwrap_or(DEFAULT_CONTRACTS_NODE.to_owned());
 
         <span class="comment">// Check the specified contracts node.
         </span><span class="kw">if </span>which::which(<span class="kw-2">&amp;</span>contracts_node).is_err() {
             <span class="kw">if </span>contracts_node == DEFAULT_CONTRACTS_NODE {
                 <span class="macro">panic!</span>(
-                    <span class="string">&quot;The &#39;{DEFAULT_CONTRACTS_NODE}&#39; executable was not found. Install &#39;{DEFAULT_CONTRACTS_NODE}&#39; on the PATH, \
-                    or specify the `CONTRACTS_NODE` environment variable.&quot;</span>,
+                    <span class="string">"The '{DEFAULT_CONTRACTS_NODE}' executable was not found. Install '{DEFAULT_CONTRACTS_NODE}' on the PATH, \
+                    or specify the `CONTRACTS_NODE` environment variable."</span>,
                 )
             } <span class="kw">else </span>{
-                <span class="macro">panic!</span>(<span class="string">&quot;The contracts node executable &#39;{contracts_node}&#39; was not found.&quot;</span>)
+                <span class="macro">panic!</span>(<span class="string">"The contracts node executable '{contracts_node}' was not found."</span>)
             }
         }
         <span class="self">Self</span>::build(contracts_node)
@@ -357,10 +357,10 @@
 
     <span class="doccomment">/// Attempt to kill the running substrate process.
     </span><span class="kw">pub fn </span>kill(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;(), String&gt; {
-        <span class="macro">tracing::info!</span>(<span class="string">&quot;Killing node process {}&quot;</span>, <span class="self">self</span>.proc.id());
+        <span class="macro">tracing::info!</span>(<span class="string">"Killing node process {}"</span>, <span class="self">self</span>.proc.id());
         <span class="kw">if let </span><span class="prelude-val">Err</span>(err) = <span class="self">self</span>.proc.kill() {
-            <span class="kw">let </span>err = <span class="macro">format!</span>(<span class="string">&quot;Error killing node process {}: {}&quot;</span>, <span class="self">self</span>.proc.id(), err);
-            <span class="macro">tracing::error!</span>(<span class="string">&quot;{}&quot;</span>, err);
+            <span class="kw">let </span>err = <span class="macro">format!</span>(<span class="string">"Error killing node process {}: {}"</span>, <span class="self">self</span>.proc.id(), err);
+            <span class="macro">tracing::error!</span>(<span class="string">"{}"</span>, err);
             <span class="kw">return </span><span class="prelude-val">Err</span>(err)
         }
         <span class="prelude-val">Ok</span>(())
@@ -413,36 +413,36 @@
     <span class="doccomment">/// Spawn the substrate node at the given path, and wait for RPC to be initialized.
     </span><span class="kw">pub async fn </span>spawn(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;TestNodeProcess&lt;R&gt;, String&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>cmd = process::Command::new(<span class="kw-2">&amp;</span><span class="self">self</span>.node_path);
-        cmd.env(<span class="string">&quot;RUST_LOG&quot;</span>, <span class="string">&quot;info&quot;</span>)
-            .arg(<span class="string">&quot;--dev&quot;</span>)
+        cmd.env(<span class="string">"RUST_LOG"</span>, <span class="string">"info"</span>)
+            .arg(<span class="string">"--dev"</span>)
             .stdout(process::Stdio::piped())
             .stderr(process::Stdio::piped())
-            .arg(<span class="string">&quot;--port=0&quot;</span>)
-            .arg(<span class="string">&quot;--rpc-port=0&quot;</span>);
+            .arg(<span class="string">"--port=0"</span>)
+            .arg(<span class="string">"--rpc-port=0"</span>);
 
         <span class="kw">if let </span><span class="prelude-val">Some</span>(authority) = <span class="self">self</span>.authority {
-            <span class="kw">let </span>authority = <span class="macro">format!</span>(<span class="string">&quot;{authority:?}&quot;</span>);
-            <span class="kw">let </span>arg = <span class="macro">format!</span>(<span class="string">&quot;--{}&quot;</span>, authority.as_str().to_lowercase());
+            <span class="kw">let </span>authority = <span class="macro">format!</span>(<span class="string">"{authority:?}"</span>);
+            <span class="kw">let </span>arg = <span class="macro">format!</span>(<span class="string">"--{}"</span>, authority.as_str().to_lowercase());
             cmd.arg(arg);
         }
 
         <span class="kw">let </span><span class="kw-2">mut </span>proc = cmd.spawn().map_err(|e| {
             <span class="macro">format!</span>(
-                <span class="string">&quot;Error spawning substrate node &#39;{}&#39;: {}&quot;</span>,
+                <span class="string">"Error spawning substrate node '{}': {}"</span>,
                 <span class="self">self</span>.node_path.to_string_lossy(),
                 e
             )
         })<span class="question-mark">?</span>;
 
-        <span class="comment">// Wait for RPC port to be logged (it&#39;s logged to stderr):
+        <span class="comment">// Wait for RPC port to be logged (it's logged to stderr):
         </span><span class="kw">let </span>stderr = proc.stderr.take().unwrap();
         <span class="kw">let </span>port = find_substrate_port_from_output(stderr);
-        <span class="kw">let </span>url = <span class="macro">format!</span>(<span class="string">&quot;ws://127.0.0.1:{port}&quot;</span>);
+        <span class="kw">let </span>url = <span class="macro">format!</span>(<span class="string">"ws://127.0.0.1:{port}"</span>);
 
         <span class="comment">// Connect to the node with a `subxt` client:
         </span><span class="kw">let </span>rpc = RpcClient::from_url(url.clone())
             .<span class="kw">await
-            </span>.map_err(|err| <span class="macro">format!</span>(<span class="string">&quot;Error initializing rpc client: {}&quot;</span>, err))<span class="question-mark">?</span>;
+            </span>.map_err(|err| <span class="macro">format!</span>(<span class="string">"Error initializing rpc client: {}"</span>, err))<span class="question-mark">?</span>;
         <span class="kw">let </span>client = OnlineClient::from_url(url.clone()).<span class="kw">await</span>;
         <span class="kw">match </span>client {
             <span class="prelude-val">Ok</span>(client) =&gt; {
@@ -454,10 +454,10 @@
                 })
             }
             <span class="prelude-val">Err</span>(err) =&gt; {
-                <span class="kw">let </span>err = <span class="macro">format!</span>(<span class="string">&quot;Failed to connect to node rpc at {url}: {err}&quot;</span>);
-                <span class="macro">tracing::error!</span>(<span class="string">&quot;{}&quot;</span>, err);
+                <span class="kw">let </span>err = <span class="macro">format!</span>(<span class="string">"Failed to connect to node rpc at {url}: {err}"</span>);
+                <span class="macro">tracing::error!</span>(<span class="string">"{}"</span>, err);
                 proc.kill().map_err(|e| {
-                    <span class="macro">format!</span>(<span class="string">&quot;Error killing substrate process &#39;{}&#39;: {}&quot;</span>, proc.id(), e)
+                    <span class="macro">format!</span>(<span class="string">"Error killing substrate process '{}': {}"</span>, proc.id(), e)
                 })<span class="question-mark">?</span>;
                 <span class="prelude-val">Err</span>(err)
             }
@@ -467,35 +467,35 @@
 
 <span class="comment">// Consume a stderr reader from a spawned substrate command and
 // locate the port number that is logged out to it.
-</span><span class="kw">fn </span>find_substrate_port_from_output(r: <span class="kw">impl </span>Read + Send + <span class="lifetime">&#39;static</span>) -&gt; u16 {
+</span><span class="kw">fn </span>find_substrate_port_from_output(r: <span class="kw">impl </span>Read + Send + <span class="lifetime">'static</span>) -&gt; u16 {
     BufReader::new(r)
         .lines()
         .find_map(|line| {
             <span class="kw">let </span>line =
-                line.expect(<span class="string">&quot;failed to obtain next line from stdout for port discovery&quot;</span>);
+                line.expect(<span class="string">"failed to obtain next line from stdout for port discovery"</span>);
 
             <span class="comment">// does the line contain our port (we expect this specific output from
             // substrate).
             </span><span class="kw">let </span>line_end = line
-                .rsplit_once(<span class="string">&quot;Listening for new connections on 127.0.0.1:&quot;</span>)
+                .rsplit_once(<span class="string">"Listening for new connections on 127.0.0.1:"</span>)
                 .or_else(|| {
-                    line.rsplit_once(<span class="string">&quot;Running JSON-RPC WS server: addr=127.0.0.1:&quot;</span>)
+                    line.rsplit_once(<span class="string">"Running JSON-RPC WS server: addr=127.0.0.1:"</span>)
                 })
-                .or_else(|| line.rsplit_once(<span class="string">&quot;Running JSON-RPC server: addr=127.0.0.1:&quot;</span>))
+                .or_else(|| line.rsplit_once(<span class="string">"Running JSON-RPC server: addr=127.0.0.1:"</span>))
                 .map(|(<span class="kw">_</span>, port_str)| port_str)<span class="question-mark">?</span>;
 
             <span class="comment">// trim non-numeric chars from the end of the port part of the line.
             </span><span class="kw">let </span>port_str = line_end.trim_end_matches(|b: char| !b.is_ascii_digit());
 
-            <span class="comment">// expect to have a number here (the chars after &#39;127.0.0.1:&#39;) and parse them
+            <span class="comment">// expect to have a number here (the chars after '127.0.0.1:') and parse them
             // into a u16.
             </span><span class="kw">let </span>port_num = port_str.parse().unwrap_or_else(|<span class="kw">_</span>| {
-                <span class="macro">panic!</span>(<span class="string">&quot;valid port expected for tracing line, got &#39;{port_str}&#39;&quot;</span>)
+                <span class="macro">panic!</span>(<span class="string">"valid port expected for tracing line, got '{port_str}'"</span>)
             });
 
             <span class="prelude-val">Some</span>(port_num)
         })
-        .expect(<span class="string">&quot;We should find a port before the reader ends&quot;</span>)
+        .expect(<span class="string">"We should find a port before the reader ends"</span>)
 }
 
 <span class="attr">#[cfg(test)]
@@ -514,14 +514,14 @@
 
         {
             <span class="kw">let </span>node_proc1 =
-                TestNodeProcess::&lt;SubxtConfig&gt;::build(<span class="string">&quot;substrate-contracts-node&quot;</span>)
+                TestNodeProcess::&lt;SubxtConfig&gt;::build(<span class="string">"substrate-contracts-node"</span>)
                     .spawn()
                     .<span class="kw">await
                     </span>.unwrap();
             client1 = <span class="prelude-val">Some</span>(LegacyRpcMethods::new(node_proc1.rpc()));
 
             <span class="kw">let </span>node_proc2 =
-                TestNodeProcess::&lt;SubxtConfig&gt;::build(<span class="string">&quot;substrate-contracts-node&quot;</span>)
+                TestNodeProcess::&lt;SubxtConfig&gt;::build(<span class="string">"substrate-contracts-node"</span>)
                     .spawn()
                     .<span class="kw">await
                     </span>.unwrap();
