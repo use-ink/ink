@@ -161,6 +161,7 @@ mod decode_instantiate_result_tests {
     struct ContractError(String);
 
     type AccountId = <DefaultEnvironment as Environment>::AccountId;
+    // The `allow(dead_code)` is for the `AccountId` in the struct.
     #[allow(dead_code)]
     struct TestContractRef(AccountId);
 
