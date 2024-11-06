@@ -51,7 +51,7 @@ use rustc_lint::LateContext;
 /// # Developer Note
 ///
 /// The ink! 5.0.0 our code generation added the annotation
-/// `#[cfg(not(feature = "__ink_dylyint_Storage"))] to contracts. This
+/// `#[cfg(not(feature = "__ink_dylint_Storage"))] to contracts. This
 /// allowed dylint to identify the storage struct in a contract.
 ///
 /// Starting with Rust 1.81, `cargo` throws a warning for features that
