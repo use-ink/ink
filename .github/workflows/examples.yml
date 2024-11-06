@@ -48,13 +48,13 @@ jobs:
           components: rust-src
 
       - name: Install cargo-dylint
-        uses: baptiste0928/cargo-install@9f6037ed331dcf7da101461a20656273fa72abf0 # v3.1.0
+        uses: baptiste0928/cargo-install@904927dbe77864e0f2281519fe9d5bd097a220b3 # v3.1.1
         with:
           crate: cargo-dylint
           version: 1
 
       - name: Install dylint-link
-        uses: baptiste0928/cargo-install@9f6037ed331dcf7da101461a20656273fa72abf0 # v3.1.0
+        uses: baptiste0928/cargo-install@904927dbe77864e0f2281519fe9d5bd097a220b3 # v3.1.1
         with:
           crate: dylint-link
           version: 1
@@ -77,7 +77,7 @@ jobs:
         uses: Swatinem/rust-cache@23bce251a8cd2ffc3c1075eaa2367cf899916d84 # v2.7.3
 
       - name: Install `cargo-contract` `master`
-        uses: baptiste0928/cargo-install@9f6037ed331dcf7da101461a20656273fa72abf0 # v3.1.0
+        uses: baptiste0928/cargo-install@904927dbe77864e0f2281519fe9d5bd097a220b3 # v3.1.1
         with:
             crate: cargo-contract
             git: https://github.com/use-ink/cargo-contract.git
