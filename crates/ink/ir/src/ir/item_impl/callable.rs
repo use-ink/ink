@@ -309,9 +309,9 @@ pub trait Callable {
 ///
 /// These recommendation mainly apply to trait implementation blocks:
 ///
-/// - The recommendation by the ink! team is to use the full-path approach
-/// wherever possible; OR import the trait and use only its identifier with
-/// an additional namespace if required to disambiguate selectors.
+/// - The recommendation by the ink! team is to use the full-path approach wherever
+///   possible; OR import the trait and use only its identifier with an additional
+///   namespace if required to disambiguate selectors.
 /// - Try not to intermix the above recommendations.
 /// - Avoid directly setting the selector of an ink! message or constructor. Only do this
 ///   if nothing else helps and you need a very specific selector, e.g. in case of

@@ -4,7 +4,6 @@ error: missing ink! constructor
 2  | / mod contract {
 3  | |     #[ink(storage)]
 4  | |     pub struct Contract {}
-5  | |
 ...  |
 9  | |     }
 10 | | }

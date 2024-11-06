@@ -333,12 +333,11 @@ where
             })
             .submit_and_watch()
             .await
-            .map(|tx_progress| {
+            .inspect(|tx_progress| {
                 log_info(&format!(
                     "signed and submitted tx with hash {:?}",
                     tx_progress.extrinsic_hash()
                 ));
-                tx_progress
             })
             .unwrap_or_else(|err| {
                 panic!("error on call `submit_and_watch`: {err:?}");

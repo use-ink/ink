@@ -20,10 +20,8 @@ error[E0599]: no function or associated item named `constructor_2` found for str
 ...  |
 19 | |         #[ink(constructor)]
 20 | |         pub fn constructor_2() -> Self {
-   | |               -^^^^^^^^^^^^^
-   | |               ||
-   | |               |function or associated item not found in `Contract`
-   | |_______________|help: there is an associated function with a similar name: `constructor_1`
+   | |               -^^^^^^^^^^^^^ function or associated item not found in `Contract`
+   | |_______________|
    |
    |
 note: if you're trying to build a new `Contract`, consider using `contract::_::<impl Contract>::constructor_1` which returns `Contract`
@@ -31,6 +29,10 @@ note: if you're trying to build a new `Contract`, consider using `contract::_::<
    |
 8  |         pub fn constructor_1() -> Self {
    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+help: there is an associated function `constructor_1` with a similar name
+   |
+20 |         pub fn constructor_1() -> Self {
+   |                ~~~~~~~~~~~~~
 
 error[E0599]: no function or associated item named `message_2` found for struct `Contract` in the current scope
   --> tests/ui/contract/fail/impl-block-for-non-storage-01.rs:25:16
@@ -45,10 +47,8 @@ error[E0599]: no function or associated item named `message_2` found for struct 
 ...  |
 24 | |         #[ink(message)]
 25 | |         pub fn message_2(&self) {}
-   | |               -^^^^^^^^^
-   | |               ||
-   | |               |function or associated item not found in `Contract`
-   | |_______________|help: there is a method with a similar name: `message_1`
+   | |               -^^^^^^^^^ function or associated item not found in `Contract`
+   | |_______________|
    |
    |
 note: if you're trying to build a new `Contract`, consider using `contract::_::<impl Contract>::constructor_1` which returns `Contract`
@@ -56,3 +56,8 @@ note: if you're trying to build a new `Contract`, consider using `contract::_::<
    |
 8  |         pub fn constructor_1() -> Self {
    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+help: there is a method `message_1` with a similar name, but with different arguments
+  --> tests/ui/contract/fail/impl-block-for-non-storage-01.rs:13:9
+   |
+13 |         pub fn message_1(&self) {}
+   |         ^^^^^^^^^^^^^^^^^^^^^^^^^^
