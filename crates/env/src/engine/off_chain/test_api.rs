@@ -27,8 +27,10 @@ use ink_engine::test_api::RecordedDebugMessages;
 use std::panic::UnwindSafe;
 
 pub use super::call_data::CallData;
-pub use ink_engine::ext::ChainSpec;
-pub use ink_engine::ChainExtension;
+pub use ink_engine::{
+    ext::ChainSpec,
+    ChainExtension,
+};
 
 /// Record for an emitted event.
 #[derive(Clone)]
@@ -60,8 +62,11 @@ where
     T: Environment<Balance = u128>, // Just temporary for the MVP!
 {
     let min = ChainSpec::default().minimum_balance;
-    if new_balance < T::Balance::from(min) && new_balance != 0u128.into(){
-        panic!("Balance must be at least [{}]. Use 0 as balance to reap the account.", min);
+    if new_balance < min && new_balance != 0u128 {
+        panic!(
+            "Balance must be at least [{}]. Use 0 as balance to reap the account.",
+            min
+        );
     }
 
     <EnvInstance as OnInstance>::on_instance(|instance| {
