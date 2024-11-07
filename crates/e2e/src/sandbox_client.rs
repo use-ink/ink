@@ -469,6 +469,7 @@ pub mod preset {
             Extension,
             RuntimeMetadataPrefixed,
             Sandbox,
+            Snapshot,
         };
         pub use pallet_contracts_mock_network::*;
         use sp_runtime::traits::Dispatchable;
@@ -542,6 +543,37 @@ pub mod preset {
             ) -> <<Self::Runtime as frame_system::Config>::RuntimeCall as Dispatchable>::RuntimeOrigin
             {
                 Some(account).into()
+            }
+
+            fn take_snapshot(&mut self) -> Snapshot {
+                EXT_PARAA.with(|v| {
+                    let v = v.borrow();
+                    let mut backend = v.as_backend().clone();
+                    let raw_key_values = backend
+                        .backend_storage_mut()
+                        .drain()
+                        .into_iter()
+                        .filter(|(_, (_, r))| *r > 0)
+                        .collect::<Vec<(Vec<u8>, (Vec<u8>, i32))>>();
+                    let root = backend.root().to_owned();
+
+                    Snapshot {
+                        storage: raw_key_values,
+                        storage_root: root,
+                    }
+                })
+            }
+
+            fn restore_snapshot(&mut self, snapshot: ink_sandbox::Snapshot) {
+                EXT_PARAA.with(|v| {
+                    let mut v = v.borrow_mut();
+
+                    *v = ink_sandbox::TestExternalities::from_raw_snapshot(
+                        snapshot.storage,
+                        snapshot.storage_root,
+                        Default::default(),
+                    );
+                })
             }
         }
     }
