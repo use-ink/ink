@@ -76,7 +76,7 @@ thiserror = { version = "1.0.68" }
 tokio = { version = "1.41.1" }
 tracing = { version = "0.1.37" }
 tracing-subscriber = { version = "0.3.17" }
-trybuild = { version = "1.0.96" }
+trybuild = { version = "1.0.101" }
 wasm-instrument = { version = "0.4.0" }
 which = { version = "6.0.3" }
 xxhash-rust = { version = "0.8" }
