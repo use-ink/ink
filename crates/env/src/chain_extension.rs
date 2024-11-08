@@ -68,7 +68,7 @@ pub trait FromStatusCode: Sized {
 /// The type states for type parameter `O` and `ErrorCode` represent 4 different states:
 ///
 /// 1. The chain extension method makes use of the chain extension's error code:
-/// `HandleErrorCode(E)`
+///    `HandleErrorCode(E)`
 ///     - **A:** The chain extension method returns a `Result<T, E>` type, i.e.
 ///       `IS_RESULT` is set to `true`.
 ///     - **B:** The chain extension method returns a type `O` that is not a `Result`

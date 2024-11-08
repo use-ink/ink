@@ -33,6 +33,7 @@ pub trait ChainExtensionInstance {
 ///
 /// Every chain extension defines a set of chain extension methods
 /// that share a common error code type.
+#[allow(dead_code)]
 pub trait ChainExtension {
     /// The error code that determines whether a chain extension method call was
     /// successful.

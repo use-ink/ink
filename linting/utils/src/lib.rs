@@ -47,10 +47,31 @@ use rustc_hir::{
 use rustc_lint::LateContext;
 
 /// Returns `true` iff the ink storage attribute is defined for the given HIR
+///
+/// # Developer Note
+///
+/// The ink! 5.0.0 our code generation added the annotation
+/// `#[cfg(not(feature = "__ink_dylint_Storage"))] to contracts. This
+/// allowed dylint to identify the storage struct in a contract.
+///
+/// Starting with Rust 1.81, `cargo` throws a warning for features that
+/// are not declared in the `Cargo.toml` and also for not well-known
+/// key-value pairs.
+///
+/// We don't want to burden contract developers with putting features that
+/// are just for internal use there. The only alternative we found is to
+/// use an obscure `cfg` condition, that is highly unlikely to be ever
+/// annotated in a contract by a developer. Hence, we decided to use
+/// `#[cfg(not(target_vendor = "fortanix"))]`, as it seems unlikely that a
+/// contract will ever be compiled for this target.
+///
+/// We have to continue checking for the `__ink_dylint_Storage` attribute
+/// here, as the linting will otherwise stop working for ink! 5.0.0 contracts.
 fn has_storage_attr(cx: &LateContext, hir: HirId) -> bool {
-    const INK_STORAGE: &str = "__ink_dylint_Storage";
+    const INK_STORAGE_1: &str = "__ink_dylint_Storage";
+    const INK_STORAGE_2: &str = "fortanix";
     let attrs = format!("{:?}", cx.tcx.hir().attrs(hir));
-    attrs.contains(INK_STORAGE)
+    attrs.contains(INK_STORAGE_1) || attrs.contains(INK_STORAGE_2)
 }
 
 /// Returns `ItemId` of the structure annotated with `#[ink(storage)]`

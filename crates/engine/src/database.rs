@@ -70,7 +70,7 @@ impl Database {
         key: &[u8],
     ) -> Option<&Vec<u8>> {
         let hashed_key = storage_of_contract_key(account_id, key);
-        self.hmap.get(&hashed_key.to_vec())
+        self.hmap.get(hashed_key.as_slice())
     }
 
     /// Inserts `value` into the contract storage of `account_id` at storage key `key`.
@@ -91,7 +91,7 @@ impl Database {
         key: &[u8],
     ) -> Option<Vec<u8>> {
         let hashed_key = storage_of_contract_key(account_id, key);
-        self.hmap.remove(&hashed_key.to_vec())
+        self.hmap.remove(hashed_key.as_slice())
     }
 
     /// Removes a key from the storage, returning the value at the key if the key

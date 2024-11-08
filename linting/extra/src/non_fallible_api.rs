@@ -55,7 +55,7 @@ use rustc_session::{
     declare_lint,
     declare_lint_pass,
 };
-use rustc_type_ir::ty_kind::TyKind;
+use rustc_type_ir::TyKind;
 
 declare_lint! {
     /// ## What it does
@@ -200,8 +200,8 @@ impl<'a, 'tcx> APIUsageChecker<'a, 'tcx> {
             ty::Array(inner_ty, len_const) => {
                 if_chain! {
                     if self.is_statically_known(inner_ty);
-                    if let ConstKind::Value(ty::ValTree::Leaf(elements_count)) = len_const.kind();
-                    if let Ok(elements_size) = elements_count.try_to_target_usize(self.cx.tcx);
+                    if let ConstKind::Value(_, ty::ValTree::Leaf(elements_count)) = len_const.kind();
+                    let elements_size = elements_count.to_target_usize(self.cx.tcx);
                     if elements_size < (ink_env::BUFFER_SIZE as u64);
                     then { true } else { false }
                 }
@@ -231,7 +231,7 @@ impl<'a, 'tcx> APIUsageChecker<'a, 'tcx> {
                         "using a non-fallible `{:?}::{}` with an argument that may not fit into the static buffer",
                         receiver_ty,
                         method_name,
-                    ).as_str(),
+                    ).as_str().to_owned(),
                     |diag| {
                         diag.span_suggestion(
                             method_path.ident.span,
@@ -277,7 +277,7 @@ impl<'a, 'tcx> Visitor<'tcx> for APIUsageChecker<'a, 'tcx> {
         walk_expr(self, e);
     }
 
-    fn visit_body(&mut self, body: &'tcx Body<'_>) {
+    fn visit_body(&mut self, body: &Body<'tcx>) {
         let old_maybe_typeck_results = self
             .maybe_typeck_results
             .replace(self.cx.tcx.typeck_body(body.id()));

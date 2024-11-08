@@ -34,3 +34,4 @@ std = [
     "pallet-contracts/std",
     "ink/std"
 ]
+try-runtime = []

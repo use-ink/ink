@@ -26,7 +26,7 @@ on:
       - 'FILE_HEADER'
 
 env:
-  IMAGE:                           paritytech/ci-unified:bullseye-1.75.0
+  IMAGE:                           paritytech/ci-unified:bullseye-1.81.0
   CARGO_TARGET_DIR:                /ci-cache/${{ github.repository }}/targets/${{ github.ref_name }}/${{ github.job }}
   CARGO_INCREMENTAL:               0
   PURELY_STD_CRATES:               ink/codegen metadata engine e2e e2e/macro ink/ir
@@ -129,7 +129,7 @@ jobs:
           fetch-depth: 100
 
       - name: Cache
-        uses: Swatinem/rust-cache@23bce251a8cd2ffc3c1075eaa2367cf899916d84 # v2.7.3
+        uses: Swatinem/rust-cache@82a92a6e8fbeee089604da2575dc567ae9ddeaab # v2.7.5
         with:
           cache-directories: ${{ env.CARGO_TARGET_DIR }}
 
@@ -170,7 +170,7 @@ jobs:
           fetch-depth: 100
 
       - name: Cache
-        uses: Swatinem/rust-cache@23bce251a8cd2ffc3c1075eaa2367cf899916d84 # v2.7.3
+        uses: Swatinem/rust-cache@82a92a6e8fbeee089604da2575dc567ae9ddeaab # v2.7.5
         with:
           cache-directories: ${{ env.CARGO_TARGET_DIR }}
 
@@ -208,7 +208,7 @@ jobs:
           fetch-depth: 100
 
       - name: Cache
-        uses: Swatinem/rust-cache@23bce251a8cd2ffc3c1075eaa2367cf899916d84 # v2.7.3
+        uses: Swatinem/rust-cache@82a92a6e8fbeee089604da2575dc567ae9ddeaab # v2.7.5
         with:
           cache-directories: ${{ env.CARGO_TARGET_DIR }}
 
@@ -257,7 +257,7 @@ jobs:
           fetch-depth: 100
 
       - name: Cache
-        uses: Swatinem/rust-cache@23bce251a8cd2ffc3c1075eaa2367cf899916d84 # v2.7.3
+        uses: Swatinem/rust-cache@82a92a6e8fbeee089604da2575dc567ae9ddeaab # v2.7.5
         with:
           cache-directories: ${{ env.CARGO_TARGET_DIR }}
 
@@ -270,6 +270,7 @@ jobs:
           # we are using a toolchain file in this directory
           # add required components for CI
           rustup component add rustfmt clippy
+          rustup component add rust-src rustc-dev llvm-tools-preview
           cargo check --verbose
           cargo +nightly fmt --all -- --check
           cargo clippy -- -D warnings;
@@ -298,7 +299,7 @@ jobs:
           fetch-depth: 100
 
       - name: Cache
-        uses: Swatinem/rust-cache@23bce251a8cd2ffc3c1075eaa2367cf899916d84 # v2.7.3
+        uses: Swatinem/rust-cache@82a92a6e8fbeee089604da2575dc567ae9ddeaab # v2.7.5
         with:
           cache-directories: ${{ env.CARGO_TARGET_DIR }}
 
@@ -340,7 +341,7 @@ jobs:
           fetch-depth: 100
 
       - name: Cache
-        uses: Swatinem/rust-cache@23bce251a8cd2ffc3c1075eaa2367cf899916d84 # v2.7.3
+        uses: Swatinem/rust-cache@82a92a6e8fbeee089604da2575dc567ae9ddeaab # v2.7.5
         with:
           cache-directories: |
             ${{ env.CARGO_TARGET_DIR }}
@@ -390,7 +391,7 @@ jobs:
           fetch-depth: 100
 
       - name: Cache
-        uses: Swatinem/rust-cache@23bce251a8cd2ffc3c1075eaa2367cf899916d84 # v2.7.3
+        uses: Swatinem/rust-cache@82a92a6e8fbeee089604da2575dc567ae9ddeaab # v2.7.5
         with:
           cache-directories: ${{ env.CARGO_TARGET_DIR }}
 
@@ -496,7 +497,7 @@ jobs:
           fetch-depth: 100
 
       - name: Cache
-        uses: Swatinem/rust-cache@23bce251a8cd2ffc3c1075eaa2367cf899916d84 # v2.7.3
+        uses: Swatinem/rust-cache@82a92a6e8fbeee089604da2575dc567ae9ddeaab # v2.7.5
         with:
           cache-directories: ${{ env.CARGO_TARGET_DIR }}
 
@@ -504,7 +505,7 @@ jobs:
         env:
           # Fix linking of `linkme`: https://github.com/dtolnay/linkme/issues/49
           RUSTFLAGS:                     -Clink-arg=-z -Clink-arg=nostart-stop-gc
-        uses: docker://paritytech/ci-unified:bullseye-1.75.0
+        uses: docker://paritytech/ci-unified:bullseye-1.81.0
         with:
           # run all tests with --all-features, which will run the e2e-tests feature if present
           args: /bin/bash -c "scripts/for_all_contracts_exec.sh --path integration-tests --ignore public/static-buffer --partition ${{ matrix.partition }}/6 -- cargo test \
@@ -525,7 +526,7 @@ jobs:
           fetch-depth: 100
 
       - name: Cache
-        uses: Swatinem/rust-cache@23bce251a8cd2ffc3c1075eaa2367cf899916d84 # v2.7.3
+        uses: Swatinem/rust-cache@82a92a6e8fbeee089604da2575dc567ae9ddeaab # v2.7.5
         with:
           cache-directories: ${{ env.CARGO_TARGET_DIR }}
 
@@ -586,7 +587,7 @@ jobs:
           fetch-depth: 100
 
       - name: Cache
-        uses: Swatinem/rust-cache@23bce251a8cd2ffc3c1075eaa2367cf899916d84 # v2.7.3
+        uses: Swatinem/rust-cache@82a92a6e8fbeee089604da2575dc567ae9ddeaab # v2.7.5
         with:
           cache-directories: ${{ env.CARGO_TARGET_DIR }}
 
@@ -640,7 +641,7 @@ jobs:
           fetch-depth: 100
 
       - name: Cache
-        uses: Swatinem/rust-cache@23bce251a8cd2ffc3c1075eaa2367cf899916d84 # v2.7.3
+        uses: Swatinem/rust-cache@82a92a6e8fbeee089604da2575dc567ae9ddeaab # v2.7.5
         with:
           cache-directories: ${{ env.CARGO_TARGET_DIR }}
 
@@ -687,7 +688,7 @@ jobs:
           fetch-depth: 100
 
       - name: Cache
-        uses: Swatinem/rust-cache@23bce251a8cd2ffc3c1075eaa2367cf899916d84 # v2.7.3
+        uses: Swatinem/rust-cache@82a92a6e8fbeee089604da2575dc567ae9ddeaab # v2.7.5
         with:
           cache-directories: ${{ env.CARGO_TARGET_DIR }}
 
