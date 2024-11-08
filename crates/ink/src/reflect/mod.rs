@@ -38,6 +38,7 @@ pub use self::{
         DispatchError,
         DispatchableConstructorInfo,
         DispatchableMessageInfo,
+        Encoding,
         ExecuteDispatchable,
     },
     trait_def::{

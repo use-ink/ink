@@ -119,6 +119,8 @@ pub trait DispatchableMessageInfo<const ID: u32> {
     const SELECTOR: [u8; 4];
     /// The label of the dispatchable ink! message.
     const LABEL: &'static str;
+    /// The encoding of input and output data for the message
+    const ENCODING: Encoding;
 }
 
 /// Stores various information of the respective dispatchable ink! constructor.
@@ -213,6 +215,12 @@ pub trait DispatchableConstructorInfo<const ID: u32> {
 
     /// The label of the dispatchable ink! constructor.
     const LABEL: &'static str;
+}
+
+/// todo: comment
+pub enum Encoding {
+    Scale,
+    Rlp,
 }
 
 mod private {

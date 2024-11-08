@@ -26,6 +26,7 @@ mod item;
 mod item_impl;
 mod item_mod;
 mod selector;
+mod sha3;
 mod storage_item;
 mod trait_def;
 pub mod utils;

@@ -237,13 +237,15 @@ impl Dispatch<'_> {
             .impls()
             .filter(|item_impl| item_impl.trait_path().is_none())
             .flat_map(|item_impl| item_impl.iter_messages())
-            .map(|message| {
+            .flat_map(|message| {
                 let message_span = message.span();
                 let message_ident = message.ident();
                 let payable = message.is_payable();
                 let mutates = message.receiver().is_ref_mut();
                 let selector_id = message.composed_selector().into_be_u32().hex_padded_suffixed();
                 let selector_bytes = message.composed_selector().hex_lits();
+                let rlp_selector_id = message.composed_rlp_selector().into_be_u32().hex_padded_suffixed();
+                let rlp_selector_bytes = message.composed_rlp_selector().hex_lits();
                 let cfg_attrs = message.get_cfg_attrs(message_span);
                 let output_tuple_type = message
                     .output()
@@ -252,23 +254,46 @@ impl Dispatch<'_> {
                 let input_bindings = generator::input_bindings(message.inputs());
                 let input_tuple_type = generator::input_types_tuple(message.inputs());
                 let input_tuple_bindings = generator::input_bindings_tuple(message.inputs());
-                quote_spanned!(message_span=>
-                    #( #cfg_attrs )*
-                    impl ::ink::reflect::DispatchableMessageInfo<#selector_id> for #storage_ident {
-                        type Input = #input_tuple_type;
-                        type Output = #output_tuple_type;
-                        type Storage = #storage_ident;
 
-                        const CALLABLE: fn(&mut Self::Storage, Self::Input) -> Self::Output =
-                            |storage, #input_tuple_bindings| {
-                                #storage_ident::#message_ident( storage #( , #input_bindings )* )
-                            };
-                        const SELECTOR: [::core::primitive::u8; 4usize] = [ #( #selector_bytes ),* ];
-                        const PAYABLE: ::core::primitive::bool = #payable;
-                        const MUTATES: ::core::primitive::bool = #mutates;
-                        const LABEL: &'static ::core::primitive::str = ::core::stringify!(#message_ident);
-                    }
-                )
+                let scale_message_info =
+                    quote_spanned!(message_span=>
+                        #( #cfg_attrs )*
+                        impl ::ink::reflect::DispatchableMessageInfo<#selector_id> for #storage_ident {
+                            type Input = #input_tuple_type;
+                            type Output = #output_tuple_type;
+                            type Storage = #storage_ident;
+
+                            const CALLABLE: fn(&mut Self::Storage, Self::Input) -> Self::Output =
+                                |storage, #input_tuple_bindings| {
+                                    #storage_ident::#message_ident( storage #( , #input_bindings )* )
+                                };
+                            const SELECTOR: [::core::primitive::u8; 4usize] = [ #( #selector_bytes ),* ];
+                            const PAYABLE: ::core::primitive::bool = #payable;
+                            const MUTATES: ::core::primitive::bool = #mutates;
+                            const LABEL: &'static ::core::primitive::str = ::core::stringify!(#message_ident);
+                            const ENCODING: ::ink::reflect::Encoding = ::ink::reflect::Encoding::Scale;
+                        }
+                    );
+                let rlp_message_info =
+                    quote_spanned!(message_span=>
+                        #( #cfg_attrs )*
+                        impl ::ink::reflect::DispatchableMessageInfo<#rlp_selector_id> for #storage_ident {
+                            type Input = #input_tuple_type;
+                            type Output = #output_tuple_type;
+                            type Storage = #storage_ident;
+
+                            const CALLABLE: fn(&mut Self::Storage, Self::Input) -> Self::Output =
+                                |storage, #input_tuple_bindings| {
+                                    #storage_ident::#message_ident( storage #( , #input_bindings )* )
+                                };
+                            const SELECTOR: [::core::primitive::u8; 4usize] = [ #( #rlp_selector_bytes ),* ];
+                            const PAYABLE: ::core::primitive::bool = #payable;
+                            const MUTATES: ::core::primitive::bool = #mutates;
+                            const LABEL: &'static ::core::primitive::str = ::core::stringify!(#message_ident);
+                            const ENCODING: ::ink::reflect::Encoding = ::ink::reflect::Encoding::Rlp;
+                        }
+                    );
+                [scale_message_info, rlp_message_info]
             });
         let trait_message_infos = self
             .contract
@@ -286,6 +311,7 @@ impl Dispatch<'_> {
             })
             .flatten()
             .map(|((trait_ident, trait_path), message)| {
+                // todo: trait message RLP encoding
                 let message_span = message.span();
                 let message_ident = message.ident();
                 let mutates = message.receiver().is_ref_mut();
@@ -327,6 +353,7 @@ impl Dispatch<'_> {
                         const PAYABLE: ::core::primitive::bool = #payable;
                         const MUTATES: ::core::primitive::bool = #mutates;
                         const LABEL: &'static ::core::primitive::str = #label;
+                        const ENCODING: ::ink::reflect::Encoding = ::ink::reflect::Encoding::Scale;
                     }
                 )
             });

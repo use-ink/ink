@@ -2692,6 +2692,7 @@ dependencies = [
  "itertools 0.12.1",
  "proc-macro2",
  "quote",
+ "sha3",
  "syn 2.0.58",
 ]
 

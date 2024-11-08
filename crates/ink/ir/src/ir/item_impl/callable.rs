@@ -48,6 +48,8 @@ pub struct CallableWithSelector<'a, C> {
     /// The composed selector computed by the associated implementation block
     /// and the given callable.
     composed_selector: ir::Selector,
+    /// The composed selector for the callable with RLP encoding.
+    composed_rlp_selector: ir::Selector,
     /// The parent implementation block.
     item_impl: &'a ir::ItemImpl,
     /// The actual callable.
@@ -69,6 +71,7 @@ where
     pub(super) fn new(item_impl: &'a ir::ItemImpl, callable: &'a C) -> Self {
         Self {
             composed_selector: compose_selector(item_impl, callable),
+            composed_rlp_selector: compose_selector_rlp(item_impl, callable),
             item_impl,
             callable,
         }
@@ -79,6 +82,11 @@ impl<'a, C> CallableWithSelector<'a, C> {
     /// Returns the composed selector of the ink! callable the `impl` block.
     pub fn composed_selector(&self) -> ir::Selector {
         self.composed_selector
+    }
+
+    /// Returns the composed selector of the ink! callable with RLP encoding.
+    pub fn composed_rlp_selector(&self) -> ir::Selector {
+        self.composed_rlp_selector
     }
 
     /// Returns a shared reference to the underlying callable.
@@ -324,13 +332,34 @@ where
     if let Some(selector) = callable.user_provided_selector() {
         return *selector
     }
+    let preimage = compose_selector_preimage(item_impl, callable);
+    ir::Selector::compute(&preimage)
+}
+
+/// Returns the composed selector of the ink! callable.
+fn compose_selector_rlp<C>(item_impl: &ir::ItemImpl, callable: &C) -> ir::Selector
+where
+    C: Callable,
+{
+    // todo: handle user provided RLP selector...
+    if let Some(selector) = callable.user_provided_selector() {
+        return *selector
+    }
+    let preimage = compose_selector_preimage(item_impl, callable);
+    ir::Selector::compute_keccak(&preimage)
+}
+
+fn compose_selector_preimage<C>(item_impl: &ir::ItemImpl, callable: &C) -> Vec<u8>
+where
+    C: Callable,
+{
     let callable_ident = callable.ident().to_string().into_bytes();
     let namespace_bytes = item_impl
         .namespace()
         .map(|namespace| namespace.as_bytes().to_vec())
         .unwrap_or_default();
     let separator = &b"::"[..];
-    let joined = match item_impl.trait_path() {
+    match item_impl.trait_path() {
         None => {
             // Inherent implementation block:
             if namespace_bytes.is_empty() {
@@ -362,8 +391,7 @@ where
                 [namespace_bytes, path_bytes, callable_ident].join(separator)
             }
         }
-    };
-    ir::Selector::compute(&joined)
+    }
 }
 
 /// Ensures that common invariants of externally callable ink! entities are met.
