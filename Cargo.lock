@@ -1417,6 +1417,7 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn 2.0.87",
+ "unicode-xid",
 ]
 
 [[package]]
@@ -2560,7 +2561,7 @@ checksum = "8e04e2fd2b8188ea827b32ef11de88377086d690286ab35747ef7f9bf3ccb590"
 name = "ink"
 version = "5.0.0"
 dependencies = [
- "derive_more 0.99.18",
+ "derive_more 1.0.0",
  "ink_env",
  "ink_ir",
  "ink_macro",
@@ -2589,7 +2590,7 @@ name = "ink_codegen"
 version = "5.0.0"
 dependencies = [
  "blake2",
- "derive_more 0.99.18",
+ "derive_more 1.0.0",
  "either",
  "heck 0.5.0",
  "impl-serde",
@@ -2645,7 +2646,7 @@ name = "ink_e2e_macro"
 version = "5.0.0"
 dependencies = [
  "darling 0.20.10",
- "derive_more 0.99.18",
+ "derive_more 1.0.0",
  "ink",
  "ink_e2e",
  "ink_ir",
@@ -2662,7 +2663,7 @@ name = "ink_engine"
 version = "5.0.0"
 dependencies = [
  "blake2",
- "derive_more 0.99.18",
+ "derive_more 1.0.0",
  "ink_primitives",
  "pallet-contracts-uapi",
  "parity-scale-codec",
@@ -2678,7 +2679,7 @@ dependencies = [
  "blake2",
  "cfg-if",
  "const_env",
- "derive_more 0.99.18",
+ "derive_more 1.0.0",
  "ink",
  "ink_allocator",
  "ink_engine",
@@ -2739,7 +2740,7 @@ dependencies = [
 name = "ink_metadata"
 version = "5.0.0"
 dependencies = [
- "derive_more 0.99.18",
+ "derive_more 1.0.0",
  "impl-serde",
  "ink_prelude",
  "ink_primitives",
@@ -2763,7 +2764,7 @@ dependencies = [
 name = "ink_primitives"
 version = "5.0.0"
 dependencies = [
- "derive_more 0.99.18",
+ "derive_more 1.0.0",
  "ink_prelude",
  "parity-scale-codec",
  "scale-decode",
@@ -2797,7 +2798,7 @@ version = "5.0.0"
 dependencies = [
  "array-init",
  "cfg-if",
- "derive_more 0.99.18",
+ "derive_more 1.0.0",
  "ink",
  "ink_env",
  "ink_metadata",

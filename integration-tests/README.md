@@ -1,6 +1,6 @@
 # ink! Integration Tests
 
-This folder contains a set of example contracts for Ink!.
+This folder contains a set of example contracts for ink!.
 The main purpose of the examples in this folder is for testing ink!
 end to end as part of the development/CI process.
 Examples are split into two directories: `public`,
