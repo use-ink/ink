@@ -32,7 +32,7 @@ workflows:
 # Will be displayed when any workflow fails:
 help:
   text: |
-    Ink! uses the Zepter CLI to detect abnormalities in the feature configuration.
+    ink! uses the Zepter CLI to detect abnormalities in the feature configuration.
     It looks like one more more checks failed; please check the console output. You can try to automatically address them by running `zepter`.
     Otherwise please ask directly in the Merge Request, GitHub Discussions or on Matrix Chat, thank you.
   links:
