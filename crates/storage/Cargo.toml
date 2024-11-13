@@ -45,5 +45,6 @@ std = [
 	"ink_storage_traits/std",
 	"scale-info/std",
 	"scale/std",
+	"derive_more/std"
 ]
 ink-fuzz-tests = [ "std" ]

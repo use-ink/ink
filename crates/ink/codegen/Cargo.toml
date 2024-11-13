@@ -42,5 +42,6 @@ std = [
 	"ir/std",
 	"itertools/use_std",
 	"scale/std",
-	"serde/std"
+	"serde/std",
+	"derive_more/std"
 ]
