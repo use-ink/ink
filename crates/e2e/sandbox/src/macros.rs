@@ -115,6 +115,8 @@ mod construct_runtime {
         weights::Weight,
     };
 
+    use $crate::Snapshot;
+
     // Define the runtime type as a collection of pallets
     construct_runtime!(
         pub enum $runtime {
@@ -289,6 +291,31 @@ mod construct_runtime {
         ) -> <<Self::Runtime as $crate::frame_system::Config>::RuntimeCall as $crate::frame_support::sp_runtime::traits::Dispatchable>::RuntimeOrigin {
             Some(account).into()
         }
+
+        fn take_snapshot(&mut self) -> Snapshot {
+            let mut backend = self.ext.as_backend().clone();
+            let raw_key_values = backend
+                .backend_storage_mut()
+                .drain()
+                .into_iter()
+                .filter(|(_, (_, r))| *r > 0)
+                .collect::<Vec<(Vec<u8>, (Vec<u8>, i32))>>();
+            let root = backend.root().to_owned();
+            Snapshot {
+                storage: raw_key_values,
+                storage_root: root,
+            }
+        }
+
+        fn restore_snapshot(&mut self, snapshot: Snapshot) {
+            self.ext = $crate::TestExternalities::from_raw_snapshot(
+                snapshot.storage,
+                snapshot.storage_root,
+                Default::default(),
+            );
+        }
+
+
     }
 }
 
