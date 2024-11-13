@@ -512,6 +512,20 @@ where
     })
 }
 
+/// Returns the *RLP encoded* value back to the caller of the executed contract.
+///
+/// # Note
+///
+/// This function  stops the execution of the contract immediately.
+pub fn return_value_rlp<R>(return_flags: ReturnFlags, return_value: &R) -> !
+where
+    R: alloy_rlp::Encodable,
+{
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        todo!("impl backend encoding")
+    })
+}
+
 /// Appends the given message to the debug message buffer.
 pub fn debug_message(message: &str) {
     <EnvInstance as OnInstance>::on_instance(|instance| {

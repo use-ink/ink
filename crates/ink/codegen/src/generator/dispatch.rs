@@ -254,6 +254,12 @@ impl Dispatch<'_> {
                 let input_bindings = generator::input_bindings(message.inputs());
                 let input_tuple_type = generator::input_types_tuple(message.inputs());
                 let input_tuple_bindings = generator::input_bindings_tuple(message.inputs());
+                let rlp_return_value = message
+                    .output()
+                    .map(|_| quote! { ::ink::env::return_value_rlp::<Self::Output>(flags, output) })
+                    .unwrap_or_else(|| quote! { 
+                        ::ink::env::return_value_rlp::<::ink::reflect::RlpUnit>(flags, ::ink::reflect::RlpUnit) 
+                    });
 
                 let scale_message_info =
                     quote_spanned!(message_span=>
@@ -266,6 +272,15 @@ impl Dispatch<'_> {
                             const CALLABLE: fn(&mut Self::Storage, Self::Input) -> Self::Output =
                                 |storage, #input_tuple_bindings| {
                                     #storage_ident::#message_ident( storage #( , #input_bindings )* )
+                                };
+                            const RETURN: fn(::ink::env::ReturnFlags, Self::Output) -> ! =
+                                |flags, output| {
+                                    ::ink::env::return_value::<::ink::MessageResult::<Self::Output>>(
+                                        flags,
+                                        // Currently no `LangError`s are raised at this level of the
+                                        // dispatch logic so `Ok` is always returned to the caller.
+                                        &::ink::MessageResult::Ok(output),
+                                    )
                                 };
                             const SELECTOR: [::core::primitive::u8; 4usize] = [ #( #selector_bytes ),* ];
                             const PAYABLE: ::core::primitive::bool = #payable;
@@ -285,6 +300,10 @@ impl Dispatch<'_> {
                             const CALLABLE: fn(&mut Self::Storage, Self::Input) -> Self::Output =
                                 |storage, #input_tuple_bindings| {
                                     #storage_ident::#message_ident( storage #( , #input_bindings )* )
+                                };
+                            const RETURN: fn(::ink::env::ReturnFlags, Self::Output) -> ! =
+                                |flags, output| {
+                                    #rlp_return_value
                                 };
                             const SELECTOR: [::core::primitive::u8; 4usize] = [ #( #rlp_selector_bytes ),* ];
                             const PAYABLE: ::core::primitive::bool = #payable;
@@ -750,13 +769,21 @@ impl Dispatch<'_> {
                 let message_span = item.message.span();
                 let cfg_attrs = item.message.get_cfg_attrs(message_span);
                 let message_input = expand_message_input(message_span, storage_ident, item.id.clone());
+                let id = item.id.clone();
                 quote_spanned!(message_span=>
                    #( #cfg_attrs )*
                     #const_ident => {
-                        ::core::result::Result::Ok(Self::#message_ident(
-                            <#message_input as ::ink::scale::Decode>::decode(input)
-                                .map_err(|_| ::ink::reflect::DispatchError::InvalidParameters)?
-                        ))
+                        match <#storage_ident as ::ink::reflect::DispatchableMessageInfo< #id >>::ENCODING {
+                            ::ink::reflect::Encoding::Scale => {
+                                ::core::result::Result::Ok(Self::#message_ident(
+                                    <#message_input as ::ink::scale::Decode>::decode(input)
+                                        .map_err(|_| ::ink::reflect::DispatchError::InvalidParameters)?
+                                ))
+                            },
+                            ::ink::reflect::Encoding::Rlp => {
+                                todo!("impl RLP decoding/encoding")
+                            }
+                        }
                     }
                 )
         });
@@ -792,6 +819,9 @@ impl Dispatch<'_> {
                 let message_callable = quote_spanned!(message_span=>
                     <#storage_ident as ::ink::reflect::DispatchableMessageInfo< #id >>::CALLABLE
                 );
+                let message_return = quote_spanned!(message_span=>
+                    <#storage_ident as ::ink::reflect::DispatchableMessageInfo< #id >>::RETURN
+                );
                 let message_output = quote_spanned!(message_span=>
                     <#storage_ident as ::ink::reflect::DispatchableMessageInfo< #id >>::Output
                 );
@@ -800,6 +830,9 @@ impl Dispatch<'_> {
                 );
                 let mutates_storage = quote_spanned!(message_span=>
                     <#storage_ident as ::ink::reflect::DispatchableMessageInfo< #id >>::MUTATES
+                );
+                let encoding = quote_spanned!(message_span=>
+                    <#storage_ident as ::ink::reflect::DispatchableMessageInfo< #id >>::ENCODING
                 );
 
                 let any_message_accepts_payment =
@@ -828,12 +861,7 @@ impl Dispatch<'_> {
                             push_contract(contract, #mutates_storage);
                         }
 
-                        ::ink::env::return_value::<::ink::MessageResult::<#message_output>>(
-                            flag,
-                            // Currently no `LangError`s are raised at this level of the
-                            // dispatch logic so `Ok` is always returned to the caller.
-                            &::ink::MessageResult::Ok(result),
-                        )
+                        #message_return(flag, result)
                     }
                 )
         });

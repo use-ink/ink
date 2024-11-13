@@ -17,6 +17,7 @@ include = ["/Cargo.toml", "src/**/*.rs", "/README.md", "/LICENSE"]
 [dependencies]
 derive_more = { workspace = true, features = ["from", "display"] }
 ink_prelude = { workspace = true }
+alloy-rlp = { workspace = true, features = ["derive"] }
 scale = { workspace = true, features = ["max-encoded-len"] }
 scale-decode = { workspace = true, features = ["derive"], optional = true }
 scale-encode = { workspace = true, features = ["derive"], optional = true }

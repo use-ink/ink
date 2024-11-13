@@ -111,6 +111,10 @@ pub trait DispatchableMessageInfo<const ID: u32> {
     /// `&mut self` to `&self` with our current dispatch codegen architecture.
     const CALLABLE: fn(&mut Self::Storage, Self::Input) -> Self::Output;
 
+    
+    /// closure for returning per encoding todo: docs
+    const RETURN: fn(ink_env::ReturnFlags, Self::Output) -> ! ;
+
     /// Yields `true` if the dispatchable ink! message mutates the ink! storage.
     const MUTATES: bool;
     /// Yields `true` if the dispatchable ink! message is payable.
@@ -222,6 +226,11 @@ pub enum Encoding {
     Scale,
     Rlp,
 }
+
+/// Custom unit type for RLP encodable messages which return `()`.
+/// This is because ['alloy_rlp::Encodable`] is not implemented for the build-in `()` type
+#[derive(alloy_rlp::RlpEncodable)]
+pub struct RlpUnit {}
 
 mod private {
     /// Seals the implementation of `ConstructorReturnType`.
