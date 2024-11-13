@@ -57,7 +57,7 @@ error[E0599]: the method `try_invoke` exists for struct `CallBuilder<DefaultEnvi
            `NonCodecType: WrapperTypeDecode`
            which is required by `NonCodecType: ink::parity_scale_codec::Decode`
 note: the trait `WrapperTypeDecode` must be implemented
-  --> $CARGO/parity-scale-codec-3.6.9/src/codec.rs
+  --> $CARGO/parity-scale-codec-3.6.12/src/codec.rs
    |
    | pub trait WrapperTypeDecode: Sized {
    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
