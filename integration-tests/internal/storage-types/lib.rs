@@ -16,6 +16,7 @@ mod storage_types {
     #[derive(Debug)]
     #[cfg_attr(feature = "std", derive(ink::storage::traits::StorageLayout))]
     #[ink::scale_derive(Encode, Decode, TypeInfo)]
+    #[allow(clippy::enum_variant_names)]
     pub enum CustomError {
         EmptyError,
         StringError(String),
