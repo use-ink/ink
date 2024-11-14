@@ -40,6 +40,7 @@ pub use self::{
         DispatchableMessageInfo,
         Encoding,
         ExecuteDispatchable,
+        RlpUnit,
     },
     trait_def::{
         TraitDefinitionRegistry,

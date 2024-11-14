@@ -27,6 +27,7 @@ xxhash-rust = { workspace = true, features = ["const_xxh32"] }
 [features]
 default = [ "std" ]
 std = [
+	"alloy-rlp/std",
 	"ink_prelude/std",
 	"scale-decode",
 	"scale-encode",

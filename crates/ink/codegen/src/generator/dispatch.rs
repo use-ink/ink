@@ -256,9 +256,14 @@ impl Dispatch<'_> {
                 let input_tuple_bindings = generator::input_bindings_tuple(message.inputs());
                 let rlp_return_value = message
                     .output()
-                    .map(|_| quote! { ::ink::env::return_value_rlp::<Self::Output>(flags, output) })
+                    .map(|_| quote! { 
+                        ::ink::env::return_value_rlp::<Self::Output>(flags, &output) 
+                    })
                     .unwrap_or_else(|| quote! { 
-                        ::ink::env::return_value_rlp::<::ink::reflect::RlpUnit>(flags, ::ink::reflect::RlpUnit) 
+                        ::ink::env::return_value_rlp::<::ink::reflect::RlpUnit>(
+                            flags, 
+                            &::ink::reflect::RlpUnit {}
+                        ) 
                     });
 
                 let scale_message_info =

@@ -63,6 +63,7 @@ ink = { path = "../ink" }
 [features]
 default = [ "std" ]
 std = [
+	"alloy-rlp/std",
 	"blake2",
 	"ink_allocator/std",
 	"ink_prelude/std",
