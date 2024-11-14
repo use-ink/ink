@@ -19,11 +19,9 @@ mod storage_types {
         StringUnsignedError(String, u32),
     }
 
-    #[derive(Clone, Debug, Decode, Default, Encode)]
-    #[cfg_attr(
-        feature = "std",
-        derive(scale_info::TypeInfo, ink::storage::traits::StorageLayout)
-    )]
+    #[derive(Debug, PartialEq, Eq, Clone, Default)]
+    #[cfg_attr(feature = "std", derive(ink::storage::traits::StorageLayout))]
+    #[ink::scale_derive(Encode, Decode, TypeInfo)]
     pub enum EnumWithoutValues {
         #[default]
         A,
