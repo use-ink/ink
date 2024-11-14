@@ -12,10 +12,6 @@ mod storage_types {
         vec,
         vec::Vec,
     };
-    use scale::{
-        Decode,
-        Encode,
-    };
 
     #[derive(Debug)]
     #[cfg_attr(feature = "std", derive(ink::storage::traits::StorageLayout))]
