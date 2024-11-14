@@ -111,9 +111,8 @@ pub trait DispatchableMessageInfo<const ID: u32> {
     /// `&mut self` to `&self` with our current dispatch codegen architecture.
     const CALLABLE: fn(&mut Self::Storage, Self::Input) -> Self::Output;
 
-    
     /// closure for returning per encoding todo: docs
-    const RETURN: fn(ink_env::ReturnFlags, Self::Output) -> ! ;
+    const RETURN: fn(ink_env::ReturnFlags, Self::Output) -> !;
 
     /// Yields `true` if the dispatchable ink! message mutates the ink! storage.
     const MUTATES: bool;

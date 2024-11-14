@@ -521,9 +521,7 @@ pub fn return_value_rlp<R>(return_flags: ReturnFlags, return_value: &R) -> !
 where
     R: alloy_rlp::Encodable,
 {
-    <EnvInstance as OnInstance>::on_instance(|instance| {
-        todo!("impl backend encoding")
-    })
+    <EnvInstance as OnInstance>::on_instance(|instance| todo!("impl backend encoding"))
 }
 
 /// Appends the given message to the debug message buffer.
