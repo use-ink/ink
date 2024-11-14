@@ -71,7 +71,7 @@ help: consider removing this method call, as the receiver has type `ExecutionInp
 6 |     fn message(&self, input: NonCodec);
   |
 
-error[E0599]: the method `try_invoke` exists for struct `CallBuilder<E, Set<Call<E>>, Set<ExecutionInput<ArgumentList<Argument<NonCodec>, ...>>>, ...>`, but its trait bounds were not satisfied
+error[E0599]: the method `try_invoke` exists for struct `CallBuilder<E, Set<Call<E>>, Set<ExecutionInput<ArgumentList<Argument<NonCodec>, ArgumentList<ArgumentListEnd, ArgumentListEnd>>>>, Set<ReturnType<()>>>`, but its trait bounds were not satisfied
  --> tests/ui/trait_def/fail/message_input_non_codec.rs:5:5
   |
 5 |       #[ink(message)]
@@ -84,6 +84,5 @@ error[E0599]: the method `try_invoke` exists for struct `CallBuilder<E, Set<Call
   |   pub struct ArgumentList<Head, Rest> {
   |   ----------------------------------- doesn't satisfy `_: Encode`
   |
-  = note: consider using `--verbose` to print the full type name to the console
   = note: the following trait bounds were not satisfied:
           `ArgumentList<Argument<NonCodec>, ArgumentList<ArgumentListEnd, ArgumentListEnd>>: Encode`

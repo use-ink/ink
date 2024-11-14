@@ -37,6 +37,7 @@ std = [
 	"ink_primitives/std",
 	"scale-info/std",
 	"serde/std",
-	"scale/std"
+	"scale/std",
+	"derive_more/std"
 ]
 derive = []

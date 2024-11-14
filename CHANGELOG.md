@@ -200,6 +200,7 @@ See [the compatibility section](https://use.ink/faq/migrating-from-ink-4-to-5/#c
 - Split up `ink_linting` to mandatory and extra libraries - [#2032](https://github.com/use-ink/ink/pull/2032)
 - [E2E] resolve DispatchError error details for dry-runs - [#1994](https://github.com/use-ink/ink/pull/1994)
 - [E2E] update to new `drink` API - [#2005](https://github.com/use-ink/ink/pull/2005)
+- [E2E] `set_account_balance` now can't set balance below existential deposit - [#1983](https://github.com/paritytech/ink/pull/1983)
 
 
 ## Version 5.0.0-alpha

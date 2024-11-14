@@ -197,4 +197,26 @@ mod tests {
         make_transfer(&mut sandbox, RECIPIENT, 1).expect("Failed to make transfer");
         assert!(!sandbox.events().is_empty());
     }
+
+    #[test]
+    fn snapshot_works() {
+        let mut sandbox = DefaultSandbox::default();
+
+        // Check state before
+        let block_before = sandbox.block_number();
+        let snapshot_before = sandbox.take_snapshot();
+
+        // Advance some blocks to have some state change
+        let _ = sandbox.build_blocks(5);
+        let block_after = sandbox.block_number();
+
+        // Check block number and state after
+        assert_eq!(block_before + 5, block_after);
+
+        // Restore state
+        sandbox.restore_snapshot(snapshot_before);
+
+        // Check state after restore
+        assert_eq!(block_before, sandbox.block_number());
+    }
 }

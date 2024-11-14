@@ -38,16 +38,16 @@ array-init = { version = "2.0", default-features = false }
 blake2 = { version = "0.10" }
 cargo_metadata = { version = "0.18.0" }
 cfg-if = { version = "1.0" }
-contract-build = { version = "4.1.1" }
+contract-build = { version = "4.1.2" }
 darling = { version = "0.20.10" }
-derive_more = { version = "0.99.18", default-features = false }
+derive_more = { version = "1.0.0", default-features = false }
 either = { version = "1.13", default-features = false }
 funty = { version = "2.0.0" }
 heck = { version = "0.5.0" }
 impl-serde = { version = "0.4.0", default-features = false }
 itertools = { version = "0.12", default-features = false }
 jsonrpsee = { version = "0.22.5" }
-linkme = { version = "0.3.29" }
+linkme = { version = "0.3.30" }
 num-traits = { version = "0.2", default-features = false }
 paste = { version = "1.0" }
 pretty_assertions = { version = "1" }
@@ -63,7 +63,7 @@ scale-encode = { version = "0.6.0", default-features = false }
 scale-info = { version = "2.11", default-features = false }
 schemars = { version = "0.8" }
 secp256k1 = { version = "0.28.2" }
-serde = { version = "1.0.214", default-features = false }
+serde = { version = "1.0.215", default-features = false }
 serde_json = { version = "1.0.132" }
 sha2 = { version = "0.10" }
 sha3 = { version = "0.10" }
@@ -73,13 +73,13 @@ subxt-metadata = { version = "0.35.2" }
 subxt-signer = { version = "0.35.3" }
 syn = { version = "2" }
 synstructure = { version = "0.13.1" }
-thiserror = { version = "1.0.68" }
+thiserror = { version = "1.0.69" }
 tokio = { version = "1.41.1" }
 tracing = { version = "0.1.37" }
 tracing-subscriber = { version = "0.3.17" }
-trybuild = { version = "1.0.96" }
+trybuild = { version = "1.0.101" }
 wasm-instrument = { version = "0.4.0" }
-which = { version = "6.0.1" }
+which = { version = "6.0.3" }
 xxhash-rust = { version = "0.8" }
 const_env = { version = "0.1"}
 wat = { version = "1.219.1" }

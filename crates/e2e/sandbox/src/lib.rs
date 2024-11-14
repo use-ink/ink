@@ -23,6 +23,7 @@ use pallet_contracts::{
 };
 /// Export pallets that are used in [`crate::create_sandbox`]
 pub use {
+    frame_support::sp_runtime::testing::H256,
     frame_support::{
         self,
         sp_runtime::{
@@ -42,6 +43,18 @@ pub use {
     },
     sp_io::TestExternalities,
 };
+
+/// A snapshot of the storage.
+#[derive(Clone, Debug)]
+pub struct Snapshot {
+    /// The storage raw key-value pairs.
+    pub storage: RawStorage,
+    /// The storage root hash.
+    pub storage_root: StorageRoot,
+}
+
+pub type RawStorage = Vec<(Vec<u8>, (Vec<u8>, i32))>;
+pub type StorageRoot = H256;
 
 /// Alias for the balance type.
 type BalanceOf<R> =
@@ -118,4 +131,10 @@ pub trait Sandbox {
     fn convert_account_to_origin(
         account: AccountIdFor<Self::Runtime>,
     ) -> <<Self::Runtime as frame_system::Config>::RuntimeCall as Dispatchable>::RuntimeOrigin;
+
+    /// Take a snapshot of the storage.
+    fn take_snapshot(&mut self) -> Snapshot;
+
+    /// Restore the storage from the given snapshot.
+    fn restore_snapshot(&mut self, snapshot: Snapshot);
 }
