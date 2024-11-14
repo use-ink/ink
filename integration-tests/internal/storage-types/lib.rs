@@ -89,7 +89,7 @@ mod storage_types {
         vec_vec_string_value: Vec<Vec<String>>,
     }
 
-    #[derive(Clone)]
+    #[derive(Debug, Clone)]
     #[cfg_attr(feature = "std", derive(ink::storage::traits::StorageLayout))]
     #[ink::scale_derive(Encode, Decode, TypeInfo)]
     pub struct UnsignedIntegers {
