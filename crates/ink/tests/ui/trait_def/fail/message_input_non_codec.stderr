@@ -66,10 +66,6 @@ note: required by a bound in `Execution::<Args, Output>::new`
 ...
   |     pub fn new(input: ExecutionInput<Args>) -> Self {
   |            --- required by a bound in this associated function
-help: consider removing this method call, as the receiver has type `ExecutionInput<ArgumentList<ArgumentListEnd, ArgumentListEnd>>` and `ExecutionInput<ArgumentList<ArgumentListEnd, ArgumentListEnd>>: Encode` trivially holds
-  |
-6 |     fn message(&self, input: NonCodec);
-  |
 
 error[E0599]: the method `try_invoke` exists for struct `CallBuilder<E, Set<Call<E>>, Set<ExecutionInput<ArgumentList<Argument<NonCodec>, ArgumentList<ArgumentListEnd, ArgumentListEnd>>>>, Set<ReturnType<()>>>`, but its trait bounds were not satisfied
  --> tests/ui/trait_def/fail/message_input_non_codec.rs:5:5
