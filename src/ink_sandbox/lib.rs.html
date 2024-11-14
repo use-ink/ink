@@ -119,6 +119,25 @@
 <a href="#119" id="119">119</a>
 <a href="#120" id="120">120</a>
 <a href="#121" id="121">121</a>
+<a href="#122" id="122">122</a>
+<a href="#123" id="123">123</a>
+<a href="#124" id="124">124</a>
+<a href="#125" id="125">125</a>
+<a href="#126" id="126">126</a>
+<a href="#127" id="127">127</a>
+<a href="#128" id="128">128</a>
+<a href="#129" id="129">129</a>
+<a href="#130" id="130">130</a>
+<a href="#131" id="131">131</a>
+<a href="#132" id="132">132</a>
+<a href="#133" id="133">133</a>
+<a href="#134" id="134">134</a>
+<a href="#135" id="135">135</a>
+<a href="#136" id="136">136</a>
+<a href="#137" id="137">137</a>
+<a href="#138" id="138">138</a>
+<a href="#139" id="139">139</a>
+<a href="#140" id="140">140</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>core::any::Any;
 
 <span class="kw">pub mod </span>api;
@@ -144,6 +163,7 @@
 };
 <span class="doccomment">/// Export pallets that are used in [`crate::create_sandbox`]
 </span><span class="kw">pub use </span>{
+    frame_support::sp_runtime::testing::H256,
     frame_support::{
         <span class="self">self</span>,
         sp_runtime::{
@@ -163,6 +183,18 @@
     },
     sp_io::TestExternalities,
 };
+
+<span class="doccomment">/// A snapshot of the storage.
+</span><span class="attr">#[derive(Clone, Debug)]
+</span><span class="kw">pub struct </span>Snapshot {
+    <span class="doccomment">/// The storage raw key-value pairs.
+    </span><span class="kw">pub </span>storage: RawStorage,
+    <span class="doccomment">/// The storage root hash.
+    </span><span class="kw">pub </span>storage_root: StorageRoot,
+}
+
+<span class="kw">pub type </span>RawStorage = Vec&lt;(Vec&lt;u8&gt;, (Vec&lt;u8&gt;, i32))&gt;;
+<span class="kw">pub type </span>StorageRoot = H256;
 
 <span class="doccomment">/// Alias for the balance type.
 </span><span class="kw">type </span>BalanceOf&lt;R&gt; =
@@ -239,5 +271,11 @@
     </span><span class="kw">fn </span>convert_account_to_origin(
         account: AccountIdFor&lt;<span class="self">Self</span>::Runtime&gt;,
     ) -&gt; &lt;&lt;<span class="self">Self</span>::Runtime <span class="kw">as </span>frame_system::Config&gt;::RuntimeCall <span class="kw">as </span>Dispatchable&gt;::RuntimeOrigin;
+
+    <span class="doccomment">/// Take a snapshot of the storage.
+    </span><span class="kw">fn </span>take_snapshot(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; Snapshot;
+
+    <span class="doccomment">/// Restore the storage from the given snapshot.
+    </span><span class="kw">fn </span>restore_snapshot(<span class="kw-2">&amp;mut </span><span class="self">self</span>, snapshot: Snapshot);
 }
 </code></pre></div></section></main></body></html>

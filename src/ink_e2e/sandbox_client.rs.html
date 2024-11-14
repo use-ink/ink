@@ -546,6 +546,38 @@
 <a href="#546" id="546">546</a>
 <a href="#547" id="547">547</a>
 <a href="#548" id="548">548</a>
+<a href="#549" id="549">549</a>
+<a href="#550" id="550">550</a>
+<a href="#551" id="551">551</a>
+<a href="#552" id="552">552</a>
+<a href="#553" id="553">553</a>
+<a href="#554" id="554">554</a>
+<a href="#555" id="555">555</a>
+<a href="#556" id="556">556</a>
+<a href="#557" id="557">557</a>
+<a href="#558" id="558">558</a>
+<a href="#559" id="559">559</a>
+<a href="#560" id="560">560</a>
+<a href="#561" id="561">561</a>
+<a href="#562" id="562">562</a>
+<a href="#563" id="563">563</a>
+<a href="#564" id="564">564</a>
+<a href="#565" id="565">565</a>
+<a href="#566" id="566">566</a>
+<a href="#567" id="567">567</a>
+<a href="#568" id="568">568</a>
+<a href="#569" id="569">569</a>
+<a href="#570" id="570">570</a>
+<a href="#571" id="571">571</a>
+<a href="#572" id="572">572</a>
+<a href="#573" id="573">573</a>
+<a href="#574" id="574">574</a>
+<a href="#575" id="575">575</a>
+<a href="#576" id="576">576</a>
+<a href="#577" id="577">577</a>
+<a href="#578" id="578">578</a>
+<a href="#579" id="579">579</a>
+<a href="#580" id="580">580</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) Use Ink (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -1017,6 +1049,7 @@
             Extension,
             RuntimeMetadataPrefixed,
             Sandbox,
+            Snapshot,
         };
         <span class="kw">pub use </span>pallet_contracts_mock_network::<span class="kw-2">*</span>;
         <span class="kw">use </span>sp_runtime::traits::Dispatchable;
@@ -1090,6 +1123,37 @@
             ) -&gt; &lt;&lt;<span class="self">Self</span>::Runtime <span class="kw">as </span>frame_system::Config&gt;::RuntimeCall <span class="kw">as </span>Dispatchable&gt;::RuntimeOrigin
             {
                 <span class="prelude-val">Some</span>(account).into()
+            }
+
+            <span class="kw">fn </span>take_snapshot(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; Snapshot {
+                EXT_PARAA.with(|v| {
+                    <span class="kw">let </span>v = v.borrow();
+                    <span class="kw">let </span><span class="kw-2">mut </span>backend = v.as_backend().clone();
+                    <span class="kw">let </span>raw_key_values = backend
+                        .backend_storage_mut()
+                        .drain()
+                        .into_iter()
+                        .filter(|(<span class="kw">_</span>, (<span class="kw">_</span>, r))| <span class="kw-2">*</span>r &gt; <span class="number">0</span>)
+                        .collect::&lt;Vec&lt;(Vec&lt;u8&gt;, (Vec&lt;u8&gt;, i32))&gt;&gt;();
+                    <span class="kw">let </span>root = backend.root().to_owned();
+
+                    Snapshot {
+                        storage: raw_key_values,
+                        storage_root: root,
+                    }
+                })
+            }
+
+            <span class="kw">fn </span>restore_snapshot(<span class="kw-2">&amp;mut </span><span class="self">self</span>, snapshot: ink_sandbox::Snapshot) {
+                EXT_PARAA.with(|v| {
+                    <span class="kw">let </span><span class="kw-2">mut </span>v = v.borrow_mut();
+
+                    <span class="kw-2">*</span>v = ink_sandbox::TestExternalities::from_raw_snapshot(
+                        snapshot.storage,
+                        snapshot.storage_root,
+                        Default::default(),
+                    );
+                })
             }
         }
     }

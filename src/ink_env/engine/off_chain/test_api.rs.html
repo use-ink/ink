@@ -432,6 +432,21 @@
 <a href="#432" id="432">432</a>
 <a href="#433" id="433">433</a>
 <a href="#434" id="434">434</a>
+<a href="#435" id="435">435</a>
+<a href="#436" id="436">436</a>
+<a href="#437" id="437">437</a>
+<a href="#438" id="438">438</a>
+<a href="#439" id="439">439</a>
+<a href="#440" id="440">440</a>
+<a href="#441" id="441">441</a>
+<a href="#442" id="442">442</a>
+<a href="#443" id="443">443</a>
+<a href="#444" id="444">444</a>
+<a href="#445" id="445">445</a>
+<a href="#446" id="446">446</a>
+<a href="#447" id="447">447</a>
+<a href="#448" id="448">448</a>
+<a href="#449" id="449">449</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) Use Ink (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -461,7 +476,10 @@
 <span class="kw">use </span>std::panic::UnwindSafe;
 
 <span class="kw">pub use </span><span class="kw">super</span>::call_data::CallData;
-<span class="kw">pub use </span>ink_engine::ChainExtension;
+<span class="kw">pub use </span>ink_engine::{
+    ext::ChainSpec,
+    ChainExtension,
+};
 
 <span class="doccomment">/// Record for an emitted event.
 </span><span class="attr">#[derive(Clone)]
@@ -479,15 +497,27 @@
 /// Note that account could refer to either a user account or
 /// a smart contract account.
 ///
+/// If a 0 balance is set, this would not fail. This is useful for
+/// reaping an account.
+///
 /// # Errors
 ///
 /// - If `account` does not exist.
 /// - If the underlying `account` type does not match.
 /// - If the underlying `new_balance` type does not match.
+/// - If the `new_balance` is less than the existential minimum.
 </span><span class="kw">pub fn </span>set_account_balance&lt;T&gt;(account_id: T::AccountId, new_balance: T::Balance)
 <span class="kw">where
     </span>T: Environment&lt;Balance = u128&gt;, <span class="comment">// Just temporary for the MVP!
 </span>{
+    <span class="kw">let </span>min = ChainSpec::default().minimum_balance;
+    <span class="kw">if </span>new_balance &lt; min &amp;&amp; new_balance != <span class="number">0u128 </span>{
+        <span class="macro">panic!</span>(
+            <span class="string">"Balance must be at least [{}]. Use 0 as balance to reap the account."</span>,
+            min
+        );
+    }
+
     &lt;EnvInstance <span class="kw">as </span>OnInstance&gt;::on_instance(|instance| {
         instance
             .engine

@@ -198,6 +198,28 @@
 <a href="#198" id="198">198</a>
 <a href="#199" id="199">199</a>
 <a href="#200" id="200">200</a>
+<a href="#201" id="201">201</a>
+<a href="#202" id="202">202</a>
+<a href="#203" id="203">203</a>
+<a href="#204" id="204">204</a>
+<a href="#205" id="205">205</a>
+<a href="#206" id="206">206</a>
+<a href="#207" id="207">207</a>
+<a href="#208" id="208">208</a>
+<a href="#209" id="209">209</a>
+<a href="#210" id="210">210</a>
+<a href="#211" id="211">211</a>
+<a href="#212" id="212">212</a>
+<a href="#213" id="213">213</a>
+<a href="#214" id="214">214</a>
+<a href="#215" id="215">215</a>
+<a href="#216" id="216">216</a>
+<a href="#217" id="217">217</a>
+<a href="#218" id="218">218</a>
+<a href="#219" id="219">219</a>
+<a href="#220" id="220">220</a>
+<a href="#221" id="221">221</a>
+<a href="#222" id="222">222</a>
 </pre></div><pre class="rust"><code><span class="kw">use crate</span>::{
     EventRecordOf,
     RuntimeCall,
@@ -396,6 +418,28 @@
 
         make_transfer(<span class="kw-2">&amp;mut </span>sandbox, RECIPIENT, <span class="number">1</span>).expect(<span class="string">"Failed to make transfer"</span>);
         <span class="macro">assert!</span>(!sandbox.events().is_empty());
+    }
+
+    <span class="attr">#[test]
+    </span><span class="kw">fn </span>snapshot_works() {
+        <span class="kw">let </span><span class="kw-2">mut </span>sandbox = DefaultSandbox::default();
+
+        <span class="comment">// Check state before
+        </span><span class="kw">let </span>block_before = sandbox.block_number();
+        <span class="kw">let </span>snapshot_before = sandbox.take_snapshot();
+
+        <span class="comment">// Advance some blocks to have some state change
+        </span><span class="kw">let _ </span>= sandbox.build_blocks(<span class="number">5</span>);
+        <span class="kw">let </span>block_after = sandbox.block_number();
+
+        <span class="comment">// Check block number and state after
+        </span><span class="macro">assert_eq!</span>(block_before + <span class="number">5</span>, block_after);
+
+        <span class="comment">// Restore state
+        </span>sandbox.restore_snapshot(snapshot_before);
+
+        <span class="comment">// Check state after restore
+        </span><span class="macro">assert_eq!</span>(block_before, sandbox.block_number());
     }
 }
 </code></pre></div></section></main></body></html>
