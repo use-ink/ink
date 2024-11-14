@@ -77,6 +77,28 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "45862d1c77f2228b9e10bc609d5bc203d86ebc9b87ad8d5d5167a6c9abf739d9"
 
 [[package]]
+name = "alloy-rlp"
+version = "0.3.9"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "da0822426598f95e45dd1ea32a738dac057529a709ee645fcc516ffa4cbde08f"
+dependencies = [
+ "alloy-rlp-derive",
+ "arrayvec 0.7.6",
+ "bytes",
+]
+
+[[package]]
+name = "alloy-rlp-derive"
+version = "0.3.9"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2b09cae092c27b6f1bde952653a22708691802e57bfef4a2973b80bea21efd3f"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn 2.0.87",
+]
+
+[[package]]
 name = "android-tzdata"
 version = "0.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2685,6 +2707,7 @@ checksum = "8e04e2fd2b8188ea827b32ef11de88377086d690286ab35747ef7f9bf3ccb590"
 name = "ink"
 version = "5.0.0"
 dependencies = [
+ "alloy-rlp",
  "derive_more 1.0.0",
  "ink_env",
  "ink_ir",
@@ -2800,6 +2823,7 @@ dependencies = [
 name = "ink_env"
 version = "5.0.0"
 dependencies = [
+ "alloy-rlp",
  "blake2",
  "cfg-if",
  "const_env",
@@ -2837,6 +2861,7 @@ dependencies = [
  "itertools 0.12.1",
  "proc-macro2",
  "quote",
+ "sha3",
  "syn 2.0.87",
 ]
 
@@ -2888,6 +2913,7 @@ dependencies = [
 name = "ink_primitives"
 version = "5.0.0"
 dependencies = [
+ "alloy-rlp",
  "derive_more 1.0.0",
  "ink_prelude",
  "parity-scale-codec",
