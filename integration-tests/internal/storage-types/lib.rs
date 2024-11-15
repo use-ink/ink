@@ -7,11 +7,16 @@
 
 #[ink::contract]
 mod storage_types {
-    use ink::prelude::{string::String, vec, vec::Vec};
-    use scale::{Decode, Encode};
+    use ink::prelude::{
+        string::String,
+        vec,
+        vec::Vec,
+    };
 
-    #[derive(Debug, Decode, Encode)]
-    #[cfg_attr(feature = "std", derive(::scale_info::TypeInfo))]
+    #[derive(Debug)]
+    #[cfg_attr(feature = "std", derive(ink::storage::traits::StorageLayout))]
+    #[ink::scale_derive(Encode, Decode, TypeInfo)]
+    #[allow(clippy::enum_variant_names)]
     pub enum CustomError {
         EmptyError,
         StringError(String),
@@ -19,11 +24,9 @@ mod storage_types {
         StringUnsignedError(String, u32),
     }
 
-    #[derive(Clone, Debug, Decode, Default, Encode)]
-    #[cfg_attr(
-        feature = "std",
-        derive(scale_info::TypeInfo, ink::storage::traits::StorageLayout)
-    )]
+    #[derive(Debug, PartialEq, Eq, Clone, Default)]
+    #[cfg_attr(feature = "std", derive(ink::storage::traits::StorageLayout))]
+    #[ink::scale_derive(Encode, Decode, TypeInfo)]
     pub enum EnumWithoutValues {
         #[default]
         A,
@@ -31,22 +34,18 @@ mod storage_types {
         C,
     }
 
-    #[derive(Clone, Debug, Decode, Encode)]
-    #[cfg_attr(
-        feature = "std",
-        derive(scale_info::TypeInfo, ink::storage::traits::StorageLayout)
-    )]
+    #[derive(Debug, Clone)]
+    #[cfg_attr(feature = "std", derive(ink::storage::traits::StorageLayout))]
+    #[ink::scale_derive(Encode, Decode, TypeInfo)]
     pub enum EnumWithValues {
         OneValue(u32),
         TwoValues(u32, u32),
         ThreeValues(u32, u32, u32),
     }
 
-    #[derive(Clone, Debug, Decode, Encode)]
-    #[cfg_attr(
-        feature = "std",
-        derive(scale_info::TypeInfo, ink::storage::traits::StorageLayout)
-    )]
+    #[derive(Debug, Clone)]
+    #[cfg_attr(feature = "std", derive(ink::storage::traits::StorageLayout))]
+    #[ink::scale_derive(Encode, Decode, TypeInfo)]
     pub struct PrimitiveTypes {
         bool_value: bool,
         enum_without_values: EnumWithoutValues,
@@ -56,11 +55,9 @@ mod storage_types {
         tuple_triplet_value: (i32, i32, i32),
     }
 
-    #[derive(Clone, Debug, Decode, Encode)]
-    #[cfg_attr(
-        feature = "std",
-        derive(scale_info::TypeInfo, ink::storage::traits::StorageLayout)
-    )]
+    #[derive(Debug, Clone)]
+    #[cfg_attr(feature = "std", derive(ink::storage::traits::StorageLayout))]
+    #[ink::scale_derive(Encode, Decode, TypeInfo)]
     pub struct SignedIntegers {
         i128_value_max: i128,
         i128_value_min: i128,
@@ -74,11 +71,9 @@ mod storage_types {
         i8_value_min: i8,
     }
 
-    #[derive(Clone, Debug, Decode, Encode)]
-    #[cfg_attr(
-        feature = "std",
-        derive(scale_info::TypeInfo, ink::storage::traits::StorageLayout)
-    )]
+    #[derive(Debug, Clone)]
+    #[cfg_attr(feature = "std", derive(ink::storage::traits::StorageLayout))]
+    #[ink::scale_derive(Encode, Decode, TypeInfo)]
     pub struct SubstrateTypes {
         account_id_value: AccountId,
         balance_value_max: Balance,
@@ -86,22 +81,18 @@ mod storage_types {
         hash_value: Hash,
     }
 
-    #[derive(Clone, Debug, Decode, scale::Encode)]
-    #[cfg_attr(
-        feature = "std",
-        derive(scale_info::TypeInfo, ink::storage::traits::StorageLayout)
-    )]
+    #[derive(Debug, Clone)]
+    #[cfg_attr(feature = "std", derive(ink::storage::traits::StorageLayout))]
+    #[ink::scale_derive(Encode, Decode, TypeInfo)]
     pub struct InkPreludeTypes {
         string_value: String,
         vec_string_value: Vec<String>,
         vec_vec_string_value: Vec<Vec<String>>,
     }
 
-    #[derive(Clone, Decode, Encode)]
-    #[cfg_attr(
-        feature = "std",
-        derive(Debug, scale_info::TypeInfo, ink::storage::traits::StorageLayout)
-    )]
+    #[derive(Debug, Clone)]
+    #[cfg_attr(feature = "std", derive(ink::storage::traits::StorageLayout))]
+    #[ink::scale_derive(Encode, Decode, TypeInfo)]
     pub struct UnsignedIntegers {
         u128_value_max: u128,
         u128_value_min: u128,

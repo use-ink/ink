@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - [Linter] Add links to detailed lint description ‒ [#2170](https://github.com/use-ink/ink/pull/2170)
 - Add `xcm_execute` and `xcm_send` support - [#1912](https://github.com/use-ink/ink/pull/1912)
 -  Environment agnostic contract invocation API ‒ [#219](https://github.com/use-ink/ink/pull/2219)
+- [E2E] Add ability to take and restore snapshots - [#2261](https://github.com/paritytech/ink/pull/2261) (thanks [@0xLucca](https://github.com/0xLucca)!)
 
 ### Changed
 - [E2E] Update `subxt` and `polkadot-sdk` dependencies ‒ [#2174](https://github.com/use-ink/ink/pull/2174)
@@ -19,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Fix outdated docs for `[ink_e2e::test]` ‒ [#2162](https://github.com/use-ink/ink/pull/2162)
 - [E2E] build contracts before initializing node rpc ‒ [#2168](https://github.com/use-ink/ink/pull/2162)
+- [E2E] `set_account_balance` now can't set balance below existential deposit - [#1983](https://github.com/paritytech/ink/pull/1983) (thanks [@0xLucca](https://github.com/0xLucca)!)
 
 ## Version 5.0.0
 
@@ -200,7 +202,6 @@ See [the compatibility section](https://use.ink/faq/migrating-from-ink-4-to-5/#c
 - Split up `ink_linting` to mandatory and extra libraries - [#2032](https://github.com/use-ink/ink/pull/2032)
 - [E2E] resolve DispatchError error details for dry-runs - [#1994](https://github.com/use-ink/ink/pull/1994)
 - [E2E] update to new `drink` API - [#2005](https://github.com/use-ink/ink/pull/2005)
-- [E2E] `set_account_balance` now can't set balance below existential deposit - [#1983](https://github.com/paritytech/ink/pull/1983)
 
 
 ## Version 5.0.0-alpha

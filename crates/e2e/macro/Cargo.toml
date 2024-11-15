@@ -21,7 +21,7 @@ proc-macro = true
 [dependencies]
 darling = { workspace = true }
 ink_ir = { workspace = true, default-features = true }
-derive_more = { workspace = true, default-features = true }
+derive_more = { workspace = true, features = ["from"] }
 tracing-subscriber = { workspace = true, features = ["env-filter"] }
 serde_json = { workspace = true }
 syn = { workspace = true }
@@ -34,5 +34,5 @@ ink_e2e = { path = "../", features = ["sandbox"] }
 temp-env = "0.3.6"
 
 [features]
-std = []
+std = ["derive_more/std"]
 sandbox = []
