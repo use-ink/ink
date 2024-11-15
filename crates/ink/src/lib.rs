@@ -42,6 +42,7 @@ pub use ink_metadata as metadata;
 pub use ink_prelude as prelude;
 pub use ink_primitives as primitives;
 pub use scale;
+pub use alloy_rlp as rlp;
 #[cfg(feature = "std")]
 pub use scale_info;
 pub use xcm;

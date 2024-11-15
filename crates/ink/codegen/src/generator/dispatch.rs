@@ -254,6 +254,24 @@ impl Dispatch<'_> {
                 let input_bindings = generator::input_bindings(message.inputs());
                 let input_tuple_type = generator::input_types_tuple(message.inputs());
                 let input_tuple_bindings = generator::input_bindings_tuple(message.inputs());
+                
+                // todo: refactor and figure out if there is a bug with the message.inputs() iterator
+                let input_types_len = generator::input_types(message.inputs()).len();
+                println!("LEN {}, input_types_len {}, {}", message.inputs().len(), input_types_len, input_tuple_type.to_string());
+                let rlp_decode = if input_types_len == 0 {
+                    quote! {
+                        |_input| {
+                            ::core::result::Result::Ok(()) // todo: should we decode `RlpUnit` instead, e.g. what if some data...
+                        };
+                    }
+                } else {
+                    quote! {
+                        |input| {
+                            <Self::Input as ::ink::rlp::Decodable>::decode(input)
+                                .map_err(|_| ::ink::env::DispatchError::InvalidParameters)
+                        };
+                    }
+                };
                 let rlp_return_value = message
                     .output()
                     .map(|_| quote! {
@@ -312,13 +330,10 @@ impl Dispatch<'_> {
                                     #storage_ident::#message_ident( storage #( , #input_bindings )* )
                                 };
                             const DECODE: fn(&mut &[::core::primitive::u8]) -> ::core::result::Result<Self::Input, ::ink::env::DispatchError> =
-                                |input| {
-                                    <Self::Input as ::ink::scale::Decode>::decode(input)
-                                        .map_err(|_| ::ink::env::DispatchError::InvalidParameters)
-                                };
+                                #rlp_decode
                             const RETURN: fn(::ink::env::ReturnFlags, Self::Output) -> ! =
                                 |flags, output| {
-                                    todo!("impl RLP decoding/encoding")
+                                    todo!("impl RLP encoding")
                                 };
                             const SELECTOR: [::core::primitive::u8; 4usize] = [ #( #rlp_selector_bytes ),* ];
                             const PAYABLE: ::core::primitive::bool = #payable;
