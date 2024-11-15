@@ -13,6 +13,7 @@
 // limitations under the License.
 
 use core::fmt::Display;
+use ink_env::DecodeDispatch;
 
 /// Stores various information of the respective dispatchable ink! message.
 ///
@@ -110,6 +111,11 @@ pub trait DispatchableMessageInfo<const ID: u32> {
     /// This is mainly done for simplification but also because we can easily convert from
     /// `&mut self` to `&self` with our current dispatch codegen architecture.
     const CALLABLE: fn(&mut Self::Storage, Self::Input) -> Self::Output;
+
+    /// closure for decoding
+    const DECODE: fn(
+        &mut &[::core::primitive::u8],
+    ) -> Result<Self::Input, ink_env::DispatchError>;
 
     /// closure for returning per encoding todo: docs
     const RETURN: fn(ink_env::ReturnFlags, Self::Output) -> !;
@@ -393,7 +399,7 @@ impl<C, E> ConstructorOutput<C> for ConstructorOutputValue<Result<C, E>> {
 /// ```
 pub trait ContractMessageDecoder {
     /// The ink! smart contract message decoder type.
-    type Type: scale::Decode + ExecuteDispatchable;
+    type Type: DecodeDispatch + ExecuteDispatchable;
 }
 
 /// Generated type used to decode all dispatchable ink! constructors of the ink! smart
@@ -496,140 +502,5 @@ pub trait ContractConstructorDecoder {
 /// Implemented by the ink! smart contract message or constructor decoder.
 pub trait ExecuteDispatchable {
     /// Executes the ink! smart contract message or constructor.
-    fn execute_dispatchable(self) -> Result<(), DispatchError>;
-}
-
-/// An error that can occur during dispatch of ink! dispatchables.
-#[derive(Debug, Copy, Clone, PartialEq, Eq)]
-pub enum DispatchError {
-    /// Failed to decode into a valid dispatch selector.
-    InvalidSelector,
-    /// The decoded selector is not known to the dispatch decoder.
-    UnknownSelector,
-    /// Failed to decode the parameters for the selected dispatchable.
-    InvalidParameters,
-    /// Failed to read execution input for the dispatchable.
-    CouldNotReadInput,
-    /// Invalidly paid an unpayable dispatchable.
-    PaidUnpayableMessage,
-}
-
-impl Display for DispatchError {
-    fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
-        write!(f, "{}", self.as_str())
-    }
-}
-
-impl DispatchError {
-    /// Returns a string representation of the error.
-    #[inline]
-    fn as_str(&self) -> &'static str {
-        match self {
-            Self::InvalidSelector => "unable to decode selector",
-            Self::UnknownSelector => "encountered unknown selector",
-            Self::InvalidParameters => "unable to decode input",
-            Self::CouldNotReadInput => "could not read input",
-            Self::PaidUnpayableMessage => "paid an unpayable message",
-        }
-    }
-}
-
-impl From<DispatchError> for scale::Error {
-    #[inline]
-    fn from(error: DispatchError) -> Self {
-        Self::from(error.as_str())
-    }
-}
-
-/// Decodes an ink! dispatch input into a known selector and its expected parameters.
-///
-/// # Note
-///
-/// This trait is automatically implemented for ink! message and constructor decoders.
-///
-/// # Errors
-///
-/// Returns an error if any of the decode steps failed:
-///
-/// - `InvalidSelector`: The first four bytes could not properly decoded into the
-///   selector.
-/// - `UnknownSelector`: The decoded selector did not match any of the expected ones.
-/// - `InvalidParameters`: Failed to decoded the parameters for the selected dispatchable.
-///
-/// The other dispatch errors are handled by other structures usually.
-///
-/// # Usage
-///
-/// ```
-/// # use ink::reflect::{ContractMessageDecoder, DecodeDispatch, DispatchError};
-/// # use ink::selector_bytes;
-/// # use scale::Encode;
-///
-/// #[ink::contract]
-/// pub mod contract {
-///     #[ink(storage)]
-///     pub struct Contract {}
-///
-///     impl Contract {
-///         #[ink(constructor)]
-///         pub fn constructor() -> Self { Self {} }
-///
-///         #[ink(message)]
-///         pub fn message(&self, input_1: bool, input_2: i32) {}
-///     }
-/// }
-///
-/// use contract::Contract;
-///
-/// fn main() {
-///     // Valid call to `message`:
-///     {
-///         let mut input_bytes = Vec::new();
-///         input_bytes.extend(selector_bytes!("message"));
-///         input_bytes.extend(true.encode());
-///         input_bytes.extend(42i32.encode());
-///         assert!(
-///             <<Contract as ContractMessageDecoder>::Type as DecodeDispatch>::decode_dispatch(
-///                 &mut &input_bytes[..]).is_ok()
-///         );
-///     }
-///     // Invalid call with invalid selector (or empty input).
-///     {
-///         let mut input_bytes = Vec::new();
-///         assert_eq!(
-///             <<Contract as ContractMessageDecoder>::Type
-///                 as DecodeDispatch>::decode_dispatch(&mut &input_bytes[..])
-///                 # .map(|_| ())
-///                 .unwrap_err(),
-///             DispatchError::InvalidSelector,
-///         );
-///     }
-///     // Invalid call to `message` with unknown selector.
-///     {
-///         let mut input_bytes = Vec::new();
-///         input_bytes.extend(selector_bytes!("unknown_selector"));
-///         assert_eq!(
-///             <<Contract as ContractMessageDecoder>::Type
-///                 as DecodeDispatch>::decode_dispatch(&mut &input_bytes[..])
-///                 # .map(|_| ())
-///                 .unwrap_err(),
-///             DispatchError::UnknownSelector,
-///         );
-///     }
-///     // Invalid call to `message` with invalid (or missing) parameters.
-///     {
-///         let mut input_bytes = Vec::new();
-///         input_bytes.extend(selector_bytes!("message"));
-///         assert_eq!(
-///             <<Contract as ContractMessageDecoder>::Type
-///                 as DecodeDispatch>::decode_dispatch(&mut &input_bytes[..])
-///                 # .map(|_| ())
-///                 .unwrap_err(),
-///             DispatchError::InvalidParameters,
-///         );
-///     }
-/// }
-/// ```
-pub trait DecodeDispatch: scale::Decode {
-    fn decode_dispatch<I: scale::Input>(input: &mut I) -> Result<Self, DispatchError>;
+    fn execute_dispatchable(self) -> Result<(), ink_env::DispatchError>;
 }

@@ -28,6 +28,10 @@ use crate::{
         LimitParamsV1,
         LimitParamsV2,
     },
+    dispatch::{
+        DecodeDispatch,
+        DispatchError,
+    },
     event::{
         Event,
         TopicsBuilderBackend,
@@ -266,11 +270,13 @@ impl EnvBackend for EnvInstance {
         ext::clear_storage_v1(key)
     }
 
-    fn decode_input<T>(&mut self) -> Result<T>
+    fn decode_input<T>(&mut self) -> core::result::Result<T, DispatchError>
     where
-        T: scale::Decode,
+        T: DecodeDispatch,
     {
-        self.get_property::<T>(ext::input)
+        let full_scope = &mut self.scoped_buffer().take_rest();
+        ext::input(full_scope);
+        DecodeDispatch::decode_dispatch(&mut &full_scope[..])
     }
 
     fn return_value<R>(&mut self, flags: ReturnFlags, return_value: &R) -> !

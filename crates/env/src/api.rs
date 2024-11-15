@@ -30,6 +30,7 @@ use crate::{
         LimitParamsV1,
         LimitParamsV2,
     },
+    dispatch::DecodeDispatch,
     engine::{
         EnvInstance,
         OnInstance,
@@ -40,6 +41,7 @@ use crate::{
         HashOutput,
     },
     types::Gas,
+    DispatchError,
     Environment,
     Result,
 };
@@ -489,9 +491,9 @@ where
 /// # Errors
 ///
 /// If the given `T` cannot be properly decoded from the expected input.
-pub fn decode_input<T>() -> Result<T>
+pub fn decode_input<T>() -> core::result::Result<T, DispatchError>
 where
-    T: scale::Decode,
+    T: DecodeDispatch,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         EnvBackend::decode_input::<T>(instance)

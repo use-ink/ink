@@ -256,14 +256,14 @@ impl Dispatch<'_> {
                 let input_tuple_bindings = generator::input_bindings_tuple(message.inputs());
                 let rlp_return_value = message
                     .output()
-                    .map(|_| quote! { 
-                        ::ink::env::return_value_rlp::<Self::Output>(flags, &output) 
+                    .map(|_| quote! {
+                        ::ink::env::return_value_rlp::<Self::Output>(flags, &output)
                     })
-                    .unwrap_or_else(|| quote! { 
+                    .unwrap_or_else(|| quote! {
                         ::ink::env::return_value_rlp::<::ink::reflect::RlpUnit>(
-                            flags, 
+                            flags,
                             &::ink::reflect::RlpUnit {}
-                        ) 
+                        )
                     });
 
                 let scale_message_info =
@@ -277,6 +277,11 @@ impl Dispatch<'_> {
                             const CALLABLE: fn(&mut Self::Storage, Self::Input) -> Self::Output =
                                 |storage, #input_tuple_bindings| {
                                     #storage_ident::#message_ident( storage #( , #input_bindings )* )
+                                };
+                            const DECODE: fn(&mut &[::core::primitive::u8]) -> ::core::result::Result<Self::Input, ::ink::env::DispatchError> =
+                                |input| {
+                                    <Self::Input as ::ink::scale::Decode>::decode(input)
+                                        .map_err(|_| ::ink::env::DispatchError::InvalidParameters)
                                 };
                             const RETURN: fn(::ink::env::ReturnFlags, Self::Output) -> ! =
                                 |flags, output| {
@@ -306,9 +311,14 @@ impl Dispatch<'_> {
                                 |storage, #input_tuple_bindings| {
                                     #storage_ident::#message_ident( storage #( , #input_bindings )* )
                                 };
+                            const DECODE: fn(&mut &[::core::primitive::u8]) -> ::core::result::Result<Self::Input, ::ink::env::DispatchError> =
+                                |input| {
+                                    <Self::Input as ::ink::scale::Decode>::decode(input)
+                                        .map_err(|_| ::ink::env::DispatchError::InvalidParameters)
+                                };
                             const RETURN: fn(::ink::env::ReturnFlags, Self::Output) -> ! =
                                 |flags, output| {
-                                    #rlp_return_value
+                                    todo!("impl RLP decoding/encoding")
                                 };
                             const SELECTOR: [::core::primitive::u8; 4usize] = [ #( #rlp_selector_bytes ),* ];
                             const PAYABLE: ::core::primitive::bool = #payable;
@@ -559,14 +569,18 @@ impl Dispatch<'_> {
             let constructor_span = item.constructor.span();
             let constructor_ident = constructor_variant_ident(index);
             let const_ident = format_ident!("CONSTRUCTOR_{}", index);
-            let constructor_input = expand_constructor_input(constructor_span, storage_ident, item.id.clone());
+            let constructor_input = expand_constructor_input(
+                constructor_span,
+                storage_ident,
+                item.id.clone(),
+            );
             let cfg_attrs = item.constructor.get_cfg_attrs(constructor_span);
             quote_spanned!(constructor_span=>
                 #( #cfg_attrs )*
                 #const_ident => {
                     ::core::result::Result::Ok(Self::#constructor_ident(
                         <#constructor_input as ::ink::scale::Decode>::decode(input)
-                            .map_err(|_| ::ink::reflect::DispatchError::InvalidParameters)?
+                            .map_err(|_| ::ink::env::DispatchError::InvalidParameters)?
                     ))
                 }
             )
@@ -586,13 +600,13 @@ impl Dispatch<'_> {
                 quote! {
                     ::core::result::Result::Ok(Self::#constructor_ident(
                         <#constructor_input as ::ink::scale::Decode>::decode(input)
-                            .map_err(|_| ::ink::reflect::DispatchError::InvalidParameters)?
+                            .map_err(|_| ::ink::env::DispatchError::InvalidParameters)?
                     ))
                 }
             }
             None => {
                 quote! {
-                    ::core::result::Result::Err(::ink::reflect::DispatchError::UnknownSelector)
+                    ::core::result::Result::Err(::ink::env::DispatchError::UnknownSelector)
                 }
             }
         };
@@ -667,17 +681,14 @@ impl Dispatch<'_> {
                     #( #constructors_variants ),*
                 }
 
-                impl ::ink::reflect::DecodeDispatch for __ink_ConstructorDecoder {
-                    fn decode_dispatch<I>(input: &mut I)
-                        -> ::core::result::Result<Self, ::ink::reflect::DispatchError>
-                    where
-                        I: ::ink::scale::Input,
-                    {
+                impl ::ink::env::DecodeDispatch for __ink_ConstructorDecoder {
+                    fn decode_dispatch(input: &mut &[::core::primitive::u8])
+                        -> ::core::result::Result<Self, ::ink::env::DispatchError> {
                         #(
                             #constructor_selector
                         )*
                         match <[::core::primitive::u8; 4usize] as ::ink::scale::Decode>::decode(input)
-                            .map_err(|_| ::ink::reflect::DispatchError::InvalidSelector)?
+                            .map_err(|_| ::ink::env::DispatchError::InvalidSelector)?
                         {
                             #( #constructor_match , )*
                             _invalid => #possibly_wildcard_selector_constructor
@@ -685,19 +696,9 @@ impl Dispatch<'_> {
                     }
                 }
 
-                impl ::ink::scale::Decode for __ink_ConstructorDecoder {
-                    fn decode<I>(input: &mut I) -> ::core::result::Result<Self, ::ink::scale::Error>
-                    where
-                        I: ::ink::scale::Input,
-                    {
-                        <Self as ::ink::reflect::DecodeDispatch>::decode_dispatch(input)
-                            .map_err(::core::convert::Into::into)
-                    }
-                }
-
                 impl ::ink::reflect::ExecuteDispatchable for __ink_ConstructorDecoder {
                     #[allow(clippy::nonminimal_bool)]
-                    fn execute_dispatchable(self) -> ::core::result::Result<(), ::ink::reflect::DispatchError> {
+                    fn execute_dispatchable(self) -> ::core::result::Result<(), ::ink::env::DispatchError> {
                         match self {
                             #( #constructor_execute ),*
                         }
@@ -773,22 +774,13 @@ impl Dispatch<'_> {
                 let const_ident = format_ident!("MESSAGE_{}", index);
                 let message_span = item.message.span();
                 let cfg_attrs = item.message.get_cfg_attrs(message_span);
-                let message_input = expand_message_input(message_span, storage_ident, item.id.clone());
                 let id = item.id.clone();
                 quote_spanned!(message_span=>
                    #( #cfg_attrs )*
                     #const_ident => {
-                        match <#storage_ident as ::ink::reflect::DispatchableMessageInfo< #id >>::ENCODING {
-                            ::ink::reflect::Encoding::Scale => {
-                                ::core::result::Result::Ok(Self::#message_ident(
-                                    <#message_input as ::ink::scale::Decode>::decode(input)
-                                        .map_err(|_| ::ink::reflect::DispatchError::InvalidParameters)?
-                                ))
-                            },
-                            ::ink::reflect::Encoding::Rlp => {
-                                todo!("impl RLP decoding/encoding")
-                            }
-                        }
+                        ::core::result::Result::Ok(Self::#message_ident(
+                            <#storage_ident as ::ink::reflect::DispatchableMessageInfo< #id >>::DECODE(input)?
+                        ))
                     }
                 )
         });
@@ -802,13 +794,13 @@ impl Dispatch<'_> {
                 quote! {
                     ::core::result::Result::Ok(Self::#message_ident(
                         <#message_input as ::ink::scale::Decode>::decode(input)
-                            .map_err(|_| ::ink::reflect::DispatchError::InvalidParameters)?
+                            .map_err(|_| ::ink::env::DispatchError::InvalidParameters)?
                     ))
                 }
             }
             None => {
                 quote! {
-                    ::core::result::Result::Err(::ink::reflect::DispatchError::UnknownSelector)
+                    ::core::result::Result::Err(::ink::env::DispatchError::UnknownSelector)
                 }
             }
         };
@@ -835,9 +827,6 @@ impl Dispatch<'_> {
                 );
                 let mutates_storage = quote_spanned!(message_span=>
                     <#storage_ident as ::ink::reflect::DispatchableMessageInfo< #id >>::MUTATES
-                );
-                let encoding = quote_spanned!(message_span=>
-                    <#storage_ident as ::ink::reflect::DispatchableMessageInfo< #id >>::ENCODING
                 );
 
                 let any_message_accepts_payment =
@@ -878,31 +867,18 @@ impl Dispatch<'_> {
                     #( #message_variants ),*
                 }
 
-                impl ::ink::reflect::DecodeDispatch for __ink_MessageDecoder {
-                    fn decode_dispatch<I>(input: &mut I)
-                        -> ::core::result::Result<Self, ::ink::reflect::DispatchError>
-                    where
-                        I: ::ink::scale::Input,
-                    {
+                impl ::ink::env::DecodeDispatch for __ink_MessageDecoder {
+                    fn decode_dispatch(input: &mut &[::core::primitive::u8])
+                        -> ::core::result::Result<Self, ::ink::env::DispatchError> {
                         #(
                             #message_selector
                         )*
                         match <[::core::primitive::u8; 4usize] as ::ink::scale::Decode>::decode(input)
-                            .map_err(|_| ::ink::reflect::DispatchError::InvalidSelector)?
+                            .map_err(|_| ::ink::env::DispatchError::InvalidSelector)?
                         {
                             #( #message_match , )*
                             _invalid => #possibly_wildcard_selector_message
                         }
-                    }
-                }
-
-                impl ::ink::scale::Decode for __ink_MessageDecoder {
-                    fn decode<I>(input: &mut I) -> ::core::result::Result<Self, ::ink::scale::Error>
-                    where
-                        I: ::ink::scale::Input,
-                    {
-                        <Self as ::ink::reflect::DecodeDispatch>::decode_dispatch(input)
-                            .map_err(::core::convert::Into::into)
                     }
                 }
 
@@ -919,7 +895,7 @@ impl Dispatch<'_> {
                     #[allow(clippy::nonminimal_bool, clippy::let_unit_value)]
                     fn execute_dispatchable(
                         self
-                    ) -> ::core::result::Result<(), ::ink::reflect::DispatchError> {
+                    ) -> ::core::result::Result<(), ::ink::env::DispatchError> {
                         let key = <#storage_ident as ::ink::storage::traits::StorageKey>::KEY;
                         let mut contract: ::core::mem::ManuallyDrop<#storage_ident> =
                             ::core::mem::ManuallyDrop::new(

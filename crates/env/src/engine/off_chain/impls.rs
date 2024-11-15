@@ -38,6 +38,8 @@ use crate::{
         Sha2x256,
     },
     Clear,
+    DecodeDispatch,
+    DispatchError,
     EnvBackend,
     Environment,
     Result,
@@ -227,9 +229,9 @@ impl EnvBackend for EnvInstance {
         self.engine.clear_storage(&key.encode())
     }
 
-    fn decode_input<T>(&mut self) -> Result<T>
+    fn decode_input<T>(&mut self) -> core::result::Result<T, DispatchError>
     where
-        T: scale::Decode,
+        T: DecodeDispatch,
     {
         unimplemented!("the off-chain env does not implement `input`")
     }

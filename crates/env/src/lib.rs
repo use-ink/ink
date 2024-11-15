@@ -95,6 +95,7 @@ pub mod event;
 pub mod hash;
 mod types;
 
+mod dispatch;
 #[cfg(test)]
 mod tests;
 
@@ -118,6 +119,10 @@ pub use self::{
     contract::{
         ContractEnv,
         ContractReference,
+    },
+    dispatch::{
+        DecodeDispatch,
+        DispatchError,
     },
     error::{
         Error,

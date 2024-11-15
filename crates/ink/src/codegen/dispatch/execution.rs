@@ -12,8 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::reflect::DispatchError;
-use ink_env::Environment;
+use ink_env::{
+    DispatchError,
+    Environment,
+};
 
 /// Returns `Ok` if the caller did not transfer additional value to the callee.
 ///
