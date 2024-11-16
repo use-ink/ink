@@ -1178,6 +1178,11 @@ where
         ink_env::caller_is_origin::<E>()
     }
 
+    /// Checks whether the caller of the current contract is root.
+    pub fn caller_is_root(self) -> bool {
+        ink_env::caller_is_root::<E>()
+    }
+
     /// Returns the code hash of the contract at the given `account` id.
     ///
     /// # Example

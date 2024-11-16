@@ -729,6 +729,16 @@ where
     })
 }
 
+/// Checks whether the caller of the current contract is root.
+pub fn caller_is_root<E>() -> bool
+where
+    E: Environment,
+{
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        TypedEnvBackend::caller_is_root::<E>(instance)
+    })
+}
+
 /// Replace the contract code at the specified address with new code.
 ///
 /// # Note

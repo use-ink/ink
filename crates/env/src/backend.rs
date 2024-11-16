@@ -413,6 +413,11 @@ pub trait TypedEnvBackend: EnvBackend {
     where
         E: Environment;
 
+    /// Checks whether the caller of the current contract is root.
+    fn caller_is_root<E>(&mut self) -> bool
+    where
+        E: Environment;
+
     /// Retrieves the code hash of the contract at the given `account` id.
     ///
     /// # Note
