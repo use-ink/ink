@@ -106,6 +106,15 @@ impl<'a> scale::Output for EncodeScope<'a> {
     }
 }
 
+unsafe impl<'a> alloy_rlp::bytes::BufMut for EncodeScope<'a> {
+    fn remaining_mut(&self) -> usize {
+        0
+    }
+    unsafe fn advance_mut(&mut self, cnt: usize) {}
+
+    fn chunk_mut(&mut self) -> &mut alloy_rlp::bytes::buf::UninitSlice { todo!() }
+}
+
 /// Scoped access to an underlying bytes buffer.
 ///
 /// # Note
