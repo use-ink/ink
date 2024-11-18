@@ -66,7 +66,7 @@ pub fn input_message_idents(inputs: ir::InputsIter) -> Vec<&syn::Ident> {
 /// Returns a tuple type representing the types yielded by the input types.
 pub fn input_types_tuple(inputs: ir::InputsIter) -> TokenStream2 {
     let input_types = input_types(inputs);
-    println!("input_types_tuple {}", input_types.len());
+    // println!("input_types_tuple {}", input_types.len());
     if input_types.len() != 1 {
         // Pack all types into a tuple if they are not exactly 1.
         // This results in `()` for zero input types.

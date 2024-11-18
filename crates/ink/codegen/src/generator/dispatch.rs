@@ -257,7 +257,7 @@ impl Dispatch<'_> {
                 
                 // todo: refactor and figure out if there is a bug with the message.inputs() iterator
                 let input_types_len = generator::input_types(message.inputs()).len();
-                println!("LEN {}, input_types_len {}, {}", message.inputs().len(), input_types_len, input_tuple_type.to_string());
+                // println!("LEN {}, input_types_len {}, {}", message.inputs().len(), input_types_len, input_tuple_type.to_string());
                 let rlp_decode = if input_types_len == 0 {
                     quote! {
                         |_input| {
