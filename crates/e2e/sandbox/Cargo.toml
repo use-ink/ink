@@ -12,6 +12,7 @@ frame-support = { workspace = true }
 frame-system = { workspace = true }
 pallet-balances = { workspace = true }
 pallet-contracts = { workspace = true }
+pallet-revive = { workspace = true }
 pallet-timestamp = { workspace = true }
 scale = { workspace = true }
 sp-core = { workspace = true }
