@@ -226,6 +226,7 @@ mod erc721 {
                 .ok_or(Error::CannotFetchValue)?;
             owned_tokens_count.insert(caller, &count);
             token_owner.remove(id);
+            self.clear_approval(id);
 
             self.env().emit_event(Transfer {
                 from: Some(caller),
@@ -633,6 +634,31 @@ mod erc721 {
             // Try burning this token with a different account
             set_caller(accounts.eve);
             assert_eq!(erc721.burn(1), Err(Error::NotOwner));
+        }
+
+        #[ink::test]
+        fn burn_clears_approval() {
+            let accounts =
+                ink::env::test::default_accounts::<ink::env::DefaultEnvironment>();
+            // Create a new contract instance.
+            let mut erc721 = Erc721::new();
+            // Create token Id 1 for Alice
+            assert_eq!(erc721.mint(1), Ok(()));
+            // Alice gives approval to Bob to transfer token Id 1
+            assert_eq!(erc721.approve(accounts.bob, 1), Ok(()));
+            // Alice burns token
+            assert_eq!(erc721.burn(1), Ok(()));
+            // Set caller to Frank
+            set_caller(accounts.frank);
+            // Frank mints token Id 1
+            assert_eq!(erc721.mint(1), Ok(()));
+            // Set caller to Bob
+            set_caller(accounts.bob);
+            // Bob tries to transfer token Id 1 from Frank to himself
+            assert_eq!(
+                erc721.transfer_from(accounts.frank, accounts.bob, 1),
+                Err(Error::NotApproved)
+            );
         }
 
         #[ink::test]
