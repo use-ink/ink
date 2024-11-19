@@ -289,6 +289,16 @@ impl EnvBackend for EnvInstance {
         ext::return_value(flags, &self.buffer[..][..len]);
     }
 
+    fn return_value_rlp<R>(&mut self, flags: ReturnFlags, return_value: &R) -> !
+    where
+        R: alloy_rlp::Encodable,
+    {
+        let mut scope = super::EncodeScope::from(&mut self.buffer[..]);
+        return_value.encode(&mut scope);
+        let len = scope.len();
+        ext::return_value(flags, &self.buffer[..][..len]);
+    }
+
     #[cfg(not(feature = "ink-debug"))]
     /// A no-op. Enable the `ink-debug` feature for debug messages.
     fn debug_message(&mut self, _content: &str) {}

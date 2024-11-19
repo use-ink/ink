@@ -18,10 +18,7 @@ async fn get_contract_storage_consumes_entire_buffer<Client: E2EBackend>(
 
     // when
     let result = client
-        .call(
-            &ink_e2e::alice(),
-            &call_builder.set_value(true),
-        )
+        .call(&ink_e2e::alice(), &call_builder.set_value(true))
         .submit()
         .await
         .expect("Calling `set_value` failed");

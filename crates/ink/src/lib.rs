@@ -36,13 +36,13 @@ mod contract_ref;
 mod env_access;
 mod message_builder;
 
+pub use alloy_rlp as rlp;
 pub use ink_env as env;
 #[cfg(feature = "std")]
 pub use ink_metadata as metadata;
 pub use ink_prelude as prelude;
 pub use ink_primitives as primitives;
 pub use scale;
-pub use alloy_rlp as rlp;
 #[cfg(feature = "std")]
 pub use scale_info;
 pub use xcm;

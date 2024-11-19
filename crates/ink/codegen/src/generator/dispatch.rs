@@ -254,7 +254,7 @@ impl Dispatch<'_> {
                 let input_bindings = generator::input_bindings(message.inputs());
                 let input_tuple_type = generator::input_types_tuple(message.inputs());
                 let input_tuple_bindings = generator::input_bindings_tuple(message.inputs());
-                
+
                 // todo: refactor and figure out if there is a bug with the message.inputs() iterator
                 let input_types_len = generator::input_types(message.inputs()).len();
                 // println!("LEN {}, input_types_len {}, {}", message.inputs().len(), input_types_len, input_tuple_type.to_string());
