@@ -414,6 +414,10 @@ pub trait TypedEnvBackend: EnvBackend {
         E: Environment;
 
     /// Checks whether the caller of the current contract is root.
+    ///
+    /// # Note
+    ///
+    /// For more details visit: [`caller_is_root`][`crate::caller_is_root`]
     fn caller_is_root<E>(&mut self) -> bool
     where
         E: Environment;
