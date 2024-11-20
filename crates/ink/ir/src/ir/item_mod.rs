@@ -239,6 +239,96 @@ impl ItemMod {
         Ok(())
     }
 
+    /// Ensures that the `#[cfg(…)]` contains only valid attributes.
+    ///
+    /// # Note
+    ///
+    /// This restriction was added to prevent contract developers from
+    /// adding public constructors/messages that don't show up in the
+    /// ink! metadata, but are compiled into the Wasm.
+    ///
+    /// Or formulated differently: we allow only `#[cfg(…)]`'s that don't
+    /// allow differentiating between compiling for Wasm vs. native.
+    ///
+    /// Without this restriction users that view the metadata can be
+    /// deceived as to what functions the contract provides to the public.
+    fn ensure_only_allowed_cfgs(items: &[ir::Item]) -> Result<(), syn::Error> {
+        const ERR_HELP: &str = "Allowed in `#[cfg(…)]`:\n\
+               - `test`\n\
+               - `feature` (without `std`)\n\
+               - `any`\n\
+               - `not`\n\
+               - `all`";
+
+        fn verify_attr(a: &syn::Attribute) -> Result<(), syn::Error> {
+            match &a.meta {
+                syn::Meta::List(list) => {
+                    if let Some(ident) = list.path.get_ident() {
+                        if ident.eq("cfg") {
+                            return list.parse_nested_meta(verify_cfg_attrs);
+                        }
+                    }
+                    Ok(())
+                }
+                syn::Meta::Path(_) => {
+                    // not relevant, we are only looking at `#[cfg(…)]`
+                    Ok(())
+                }
+                syn::Meta::NameValue(_) => {
+                    // not relevant, we are only looking at `#[cfg(…)]`
+                    Ok(())
+                }
+            }
+        }
+
+        fn verify_cfg_attrs(meta: syn::meta::ParseNestedMeta) -> Result<(), syn::Error> {
+            if meta.path.is_ident("test") {
+                return Ok(());
+            }
+            if meta.path.is_ident("any")
+                || meta.path.is_ident("all")
+                || meta.path.is_ident("not")
+            {
+                return meta.parse_nested_meta(verify_cfg_attrs);
+            }
+
+            if meta.path.is_ident("feature") {
+                let value = meta.value()?;
+                let value: syn::LitStr = value.parse()?;
+                if value.value().eq("std") {
+                    return Err(format_err_spanned!(
+                        meta.path,
+                        "The feature `std` is not allowed in `cfg`.\n\n{ERR_HELP}"
+                    ))
+                }
+                return Ok(());
+            }
+
+            Err(format_err_spanned!(
+                meta.path,
+                "This `cfg` attribute is not allowed.\n\n{ERR_HELP}"
+            ))
+        }
+
+        for item_impl in items
+            .iter()
+            .filter_map(ir::Item::map_ink_item)
+            .filter_map(ir::InkItem::filter_map_impl_block)
+        {
+            for message in item_impl.iter_messages() {
+                for a in message.get_cfg_syn_attrs() {
+                    verify_attr(&a)?;
+                }
+            }
+            for constructor in item_impl.iter_constructors() {
+                for a in constructor.get_cfg_syn_attrs() {
+                    verify_attr(&a)?;
+                }
+            }
+        }
+        Ok(())
+    }
+
     /// Ensures that:
     /// - At most one wildcard selector exists among ink! messages, as well as ink!
     ///   constructors.
@@ -383,6 +473,7 @@ impl TryFrom<syn::ItemMod> for ItemMod {
         Self::ensure_contains_constructor(module_span, &items)?;
         Self::ensure_no_overlapping_selectors(&items)?;
         Self::ensure_valid_wildcard_selector_usage(&items)?;
+        Self::ensure_only_allowed_cfgs(&items)?;
         Ok(Self {
             attrs: other_attrs,
             vis: module.vis,

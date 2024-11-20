@@ -1,0 +1,6 @@
+error: This `cfg` attribute is not allowed.
+       Allowed in `#[cfg(…)]`: `test`, `feature` (without `std`), `any`, `not`, `all`.
+  --> tests/ui/contract/fail/cfg-forbidden-usage-05.rs:16:15
+   |
+16 |         #[cfg(target_pointer_width = "32")]
+   |               ^^^^^^^^^^^^^^^^^^^^
