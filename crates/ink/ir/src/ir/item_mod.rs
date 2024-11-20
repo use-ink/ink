@@ -268,15 +268,15 @@ impl ItemMod {
                             return list.parse_nested_meta(verify_cfg_attrs);
                         }
                     }
-                    Ok(())
+                    unreachable!("`verify_attr` can only be called for `#[cfg(…)]`, not for other `List`");
                 }
                 syn::Meta::Path(_) => {
                     // not relevant, we are only looking at `#[cfg(…)]`
-                    Ok(())
+                    unreachable!("`verify_attr` can only be called for `#[cfg(…)]`, not for `Path`");
                 }
                 syn::Meta::NameValue(_) => {
                     // not relevant, we are only looking at `#[cfg(…)]`
-                    Ok(())
+                    unreachable!("`verify_attr` can only be called for `#[cfg(…)]`, not for `NameValue`");
                 }
             }
         }
