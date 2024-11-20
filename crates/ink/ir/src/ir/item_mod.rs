@@ -1340,10 +1340,10 @@ mod tests {
 
                 impl MyStorage {
                     #[ink(constructor)]
+                    #[cfg(any(not(target_os = "wasm")))]
                     pub fn my_constructor() -> Self {}
 
                     #[ink(message)]
-                    #[cfg(any(not(target_os = "wasm")))]
                     pub fn not_allowed(&self) {}
                 }
             }
