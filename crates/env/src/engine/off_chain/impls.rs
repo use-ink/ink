@@ -243,6 +243,13 @@ impl EnvBackend for EnvInstance {
         unimplemented!("the off-chain env does not implement `return_value`")
     }
 
+    fn return_value_rlp<R>(&mut self, _flags: ReturnFlags, _return_value: &R) -> !
+    where
+        R: alloy_rlp::Encodable,
+    {
+        unimplemented!("the off-chain env does not implement `return_value_rlp`")
+    }
+
     fn debug_message(&mut self, message: &str) {
         self.engine.debug_message(message)
     }
