@@ -20,6 +20,7 @@ use crate::{
         UploadBuilder,
     },
     builders::CreateBuilderPartial,
+    client_utils::ContractsRegistry,
     contract_results::{
         BareInstantiationResult,
         InstantiateDryRunResult,
@@ -104,6 +105,11 @@ pub trait ContractsBackend<E: Environment> {
     type Error;
     /// Event log type.
     type EventLog;
+
+    /// Returns the registry of the set of contracts available to interact with in the E2E
+    /// test.
+    fn contracts(&self) -> &ContractsRegistry;
+
     /// Start building an instantiate call using a builder pattern.
     ///
     /// # Example

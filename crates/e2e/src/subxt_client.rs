@@ -674,6 +674,10 @@ where
 {
     type Error = Error;
     type EventLog = ExtrinsicEvents<C>;
+
+    fn contracts(&self) -> &ContractsRegistry {
+        &self.contracts
+    }
 }
 
 impl<C, E> E2EBackend<E> for Client<C, E>
