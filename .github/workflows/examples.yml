@@ -61,8 +61,13 @@ jobs:
 
       - name: Download and run latest `substrate-contracts-node` binary
         if: matrix.os == 'macOS-latest'
+        env:
+            CONTRACTS_NODE_URL: https://github.com/paritytech/substrate-contracts-node/releases/latest/download/substrate-contracts-node-
+            CONTRACTS_NODE_OS: mac-universal
         run: |
-            curl -L -o substrate-contracts-node.zip 'https://gitlab.parity.io/parity/mirrors/substrate-contracts-node/-/jobs/artifacts/main/download?job=build-mac' && \
+            curl -L -o substrate-contracts-node.tar.gz "$CONTRACTS_NODE_URL$CONTRACTS_NODE_OS.tar.gz" && \
+            tar xfzv substrate-contracts-node.tar.gz && \
+            chmod +x artifacts/substrate-contracts-node-*/substrate-contracts-node && \
             unzip substrate-contracts-node.zip && \
             chmod +x artifacts/substrate-contracts-node-mac/substrate-contracts-node &&
             ./artifacts/substrate-contracts-node-mac/substrate-contracts-node -linfo,runtime::contracts=debug  2>&1 | tee /tmp/contracts-node.log &
