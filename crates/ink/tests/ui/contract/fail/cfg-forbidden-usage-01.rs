@@ -1,4 +1,4 @@
-#[ink::contract(keep_attr = "cfg")]
+#[ink::contract]
 mod contract {
     #[ink(storage)]
     pub struct Contract {}
@@ -13,7 +13,7 @@ mod contract {
         pub fn message1(&self) {}
 
         #[ink(message)]
-        #[cfg(target_os = "wasm")]
+        #[cfg(any(test, target_family = "wasm"))]
         pub fn message2(&self) {}
     }
 }

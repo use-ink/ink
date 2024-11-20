@@ -1,4 +1,4 @@
-#[ink::contract(keep_attr = "cfg")]
+#[ink::contract]
 mod contract {
     #[ink(storage)]
     pub struct Contract {}
@@ -9,11 +9,17 @@ mod contract {
             Self {}
         }
 
+        #[cfg(test)]
+        #[ink(constructor)]
+        pub fn constructor2() -> Self {
+            Self {}
+        }
+
         #[ink(message)]
         pub fn message1(&self) {}
 
         #[ink(message)]
-        #[cfg(target_os = "wasm")]
+        #[cfg(test)]
         pub fn message2(&self) {}
     }
 }
