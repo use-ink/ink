@@ -1261,4 +1261,98 @@ mod tests {
             wildcard `selector = _` defined",
         )
     }
+
+    #[test]
+    fn cfg_feature_std_not_allowed() {
+        let item_mod = syn::parse_quote! {
+            mod my_module {
+                #[ink(storage)]
+                pub struct MyStorage {}
+
+                impl MyStorage {
+                    #[ink(constructor)]
+                    pub fn my_constructor() -> Self {}
+
+                    #[ink(message)]
+                    #[cfg(feature = "std")]
+                    pub fn not_allowed(&self) {}
+                }
+            }
+        };
+        let res = <ir::ItemMod as TryFrom<syn::ItemMod>>::try_from(item_mod)
+            .map_err(|err| err.to_string());
+        assert!(res.is_err());
+        assert!(res
+            .unwrap_err()
+            .starts_with("The feature `std` is not allowed in `cfg`."));
+    }
+
+    #[test]
+    fn cfg_feature_other_than_std_allowed() {
+        let item_mod = syn::parse_quote! {
+            mod my_module {
+                #[ink(storage)]
+                pub struct MyStorage {}
+
+                impl MyStorage {
+                    #[ink(constructor)]
+                    pub fn my_constructor() -> Self {}
+
+                    #[ink(message)]
+                    #[cfg(feature = "foo")]
+                    pub fn not_allowed(&self) {}
+                }
+            }
+        };
+        let res = <ir::ItemMod as TryFrom<syn::ItemMod>>::try_from(item_mod)
+            .map_err(|err| err.to_string());
+        assert!(res.is_ok());
+    }
+
+    #[test]
+    fn cfg_test_allowed() {
+        let item_mod = syn::parse_quote! {
+            mod my_module {
+                #[ink(storage)]
+                pub struct MyStorage {}
+
+                impl MyStorage {
+                    #[ink(constructor)]
+                    pub fn my_constructor() -> Self {}
+
+                    #[ink(message)]
+                    #[cfg(test)]
+                    pub fn not_allowed(&self) {}
+                }
+            }
+        };
+        let res = <ir::ItemMod as TryFrom<syn::ItemMod>>::try_from(item_mod)
+            .map_err(|err| err.to_string());
+        assert!(res.is_ok());
+    }
+
+    #[test]
+    fn cfg_nested_forbidden_must_be_found() {
+        let item_mod = syn::parse_quote! {
+            mod my_module {
+                #[ink(storage)]
+                pub struct MyStorage {}
+
+                impl MyStorage {
+                    #[ink(constructor)]
+                    pub fn my_constructor() -> Self {}
+
+                    #[ink(message)]
+                    #[cfg(any(not(target_os = "wasm")))]
+                    pub fn not_allowed(&self) {}
+                }
+            }
+        };
+        let res = <ir::ItemMod as TryFrom<syn::ItemMod>>::try_from(item_mod)
+            .map_err(|err| err.to_string());
+        assert!(res.is_err());
+        assert!(res
+            .unwrap_err()
+            .starts_with("This `cfg` attribute is not allowed."));
+    }
 }
