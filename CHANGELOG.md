@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - [E2E] Add ability to take and restore snapshots - [#2261](https://github.com/paritytech/ink/pull/2261) (thanks [@0xLucca](https://github.com/0xLucca)!)
 
 ### Changed
+- Restrict which `cfg` attributes can be used ‒ [#2313](https://github.com/use-ink/ink/pull/2313)
 - [E2E] Update `subxt` and `polkadot-sdk` dependencies ‒ [#2174](https://github.com/use-ink/ink/pull/2174)
 - Update repository URLs & references from `paritytech` GitHub organization to new `use-ink` one ‒ [#2220](https://github.com/use-ink/ink/pull/2220) and [#2248](https://github.com/use-ink/ink/pull/2248)
 - Fix XCM-support to single encode the XCM message [#2278](https://github.com/use-ink/ink/pull/2278)
