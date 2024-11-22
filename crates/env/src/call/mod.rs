@@ -45,7 +45,6 @@ pub use self::{
         Call,
         CallBuilder,
         CallParams,
-        // CallV1,
         DelegateCall,
     },
     create_builder::{
@@ -65,3 +64,5 @@ pub use self::{
     },
     selector::Selector,
 };
+#[cfg(not(feature = "revive"))]
+pub use self::call_builder::CallV1;

@@ -46,3 +46,4 @@ std = [
 	"scale/std",
 	"serde/std"
 ]
+revive = [ ]

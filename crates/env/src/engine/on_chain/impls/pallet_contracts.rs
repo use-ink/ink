@@ -51,7 +51,7 @@ use ink_storage_traits::{
     decode_all,
     Storable,
 };
-use pallet_revive_uapi::{
+use pallet_contracts_uapi::{
     CallFlags,
     HostFn,
     HostFnImpl as ext,

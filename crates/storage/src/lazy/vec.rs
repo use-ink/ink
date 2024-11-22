@@ -28,6 +28,9 @@ use ink_storage_traits::{
     StorableHint,
     StorageKey,
 };
+#[cfg(not(feature = "revive"))]
+use pallet_contracts_uapi::ReturnErrorCode;
+#[cfg(feature = "revive")]
 use pallet_revive_uapi::ReturnErrorCode;
 use scale::EncodeLike;
 
