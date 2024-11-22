@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add `xcm_execute` and `xcm_send` support - [#1912](https://github.com/use-ink/ink/pull/1912)
 -  Environment agnostic contract invocation API ‒ [#219](https://github.com/use-ink/ink/pull/2219)
 - [E2E] Add ability to take and restore snapshots - [#2261](https://github.com/paritytech/ink/pull/2261) (thanks [@0xLucca](https://github.com/0xLucca)!)
+- Add feature flag to compile contracts for `pallet-revive` ‒ [#2318](https://github.com/use-ink/ink/pull/2318)
 
 ### Changed
 - [E2E] Update `subxt` and `polkadot-sdk` dependencies ‒ [#2174](https://github.com/use-ink/ink/pull/2174)
