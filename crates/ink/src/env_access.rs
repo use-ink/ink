@@ -14,6 +14,11 @@
 
 use crate::ChainExtensionInstance;
 use core::marker::PhantomData;
+#[cfg(not(feature = "revive"))]
+use ink_env::call::{
+    CallV1,
+    LimitParamsV1,
+};
 use ink_env::{
     call::{
         Call,
@@ -22,7 +27,6 @@ use ink_env::{
         CreateParams,
         DelegateCall,
         FromAccountId,
-        LimitParamsV1,
         LimitParamsV2,
     },
     hash::{
@@ -32,8 +36,6 @@ use ink_env::{
     Environment,
     Result,
 };
-#[cfg(not(feature = "revive"))]
-use ink_env::call::CallV1;
 #[cfg(not(feature = "revive"))]
 use pallet_contracts_uapi::ReturnErrorCode;
 #[cfg(feature = "revive")]
@@ -230,8 +232,8 @@ where
     /// For more details visit: [`ink_env::gas_left`]
     #[cfg(not(feature = "revive"))]
     pub fn gas_left(self) -> u64 {
-         ink_env::gas_left::<E>()
-     }
+        ink_env::gas_left::<E>()
+    }
 
     /// Returns the timestamp of the current block.
     ///
@@ -592,22 +594,22 @@ where
     /// For more details visit: [`ink_env::instantiate_contract_v1`]
 
     #[cfg(not(feature = "revive"))]
-     pub fn instantiate_contract_v1<ContractRef, Args, Salt, R>(
-         self,
-         params: &CreateParams<E, ContractRef, LimitParamsV1, Args, Salt, R>,
-     ) -> Result<
-         ink_primitives::ConstructorResult<
-             <R as ConstructorReturnType<ContractRef>>::Output,
-         >,
-     >
-     where
+    pub fn instantiate_contract_v1<ContractRef, Args, Salt, R>(
+        self,
+        params: &CreateParams<E, ContractRef, LimitParamsV1, Args, Salt, R>,
+    ) -> Result<
+        ink_primitives::ConstructorResult<
+            <R as ConstructorReturnType<ContractRef>>::Output,
+        >,
+    >
+    where
         ContractRef: FromAccountId<E>,
-         Args: scale::Encode,
-         Salt: AsRef<[u8]>,
-         R: ConstructorReturnType<ContractRef>,
-     {
-         ink_env::instantiate_contract_v1::<E, ContractRef, Args, Salt, R>(params)
-     }
+        Args: scale::Encode,
+        Salt: AsRef<[u8]>,
+        R: ConstructorReturnType<ContractRef>,
+    {
+        ink_env::instantiate_contract_v1::<E, ContractRef, Args, Salt, R>(params)
+    }
 
     /// Invokes a contract message and returns its result.
     ///
@@ -670,16 +672,16 @@ where
     ///
     /// For more details visit: [`ink_env::invoke_contract_v1`]
     #[cfg(not(feature = "revive"))]
-     pub fn invoke_contract_v1<Args, R>(
-         self,
-         params: &CallParams<E, CallV1<E>, Args, R>,
-     ) -> Result<ink_primitives::MessageResult<R>>
-     where
-         Args: scale::Encode,
-         R: scale::Decode,
-     {
-         ink_env::invoke_contract_v1::<E, Args, R>(params)
-     }
+    pub fn invoke_contract_v1<Args, R>(
+        self,
+        params: &CallParams<E, CallV1<E>, Args, R>,
+    ) -> Result<ink_primitives::MessageResult<R>>
+    where
+        Args: scale::Encode,
+        R: scale::Decode,
+    {
+        ink_env::invoke_contract_v1::<E, Args, R>(params)
+    }
 
     /// Invokes a contract message and returns its result.
     ///

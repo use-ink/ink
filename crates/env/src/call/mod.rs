@@ -39,6 +39,8 @@ pub mod utils {
     };
 }
 
+#[cfg(not(feature = "revive"))]
+pub use self::call_builder::CallV1;
 pub use self::{
     call_builder::{
         build_call,
@@ -64,5 +66,3 @@ pub use self::{
     },
     selector::Selector,
 };
-#[cfg(not(feature = "revive"))]
-pub use self::call_builder::CallV1;

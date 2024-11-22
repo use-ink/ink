@@ -319,17 +319,17 @@ where
     /// Prepares the `CallBuilder` for a cross-contract [`CallV1`], calling into the
     /// original `call` host function.
     #[cfg(not(feature = "revive"))]
-     pub fn call_v1(
-         self,
-         callee: E::AccountId,
-     ) -> CallBuilder<E, Set<CallV1<E>>, Args, RetType> {
-         CallBuilder {
-             call_type: Set(CallV1::new(callee)),
-             exec_input: self.exec_input,
-             return_type: self.return_type,
-             _phantom: Default::default(),
-         }
-     }
+    pub fn call_v1(
+        self,
+        callee: E::AccountId,
+    ) -> CallBuilder<E, Set<CallV1<E>>, Args, RetType> {
+        CallBuilder {
+            call_type: Set(CallV1::new(callee)),
+            exec_input: self.exec_input,
+            return_type: self.return_type,
+            _phantom: Default::default(),
+        }
+    }
 
     /// Prepares the `CallBuilder` for a cross-contract [`Call`] to the latest `call_v2`
     /// host function.

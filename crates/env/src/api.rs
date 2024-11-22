@@ -14,6 +14,11 @@
 
 //! The public raw interface towards the host Wasm engine.
 
+#[cfg(not(feature = "revive"))]
+use crate::call::{
+    CallV1,
+    LimitParamsV1,
+};
 use crate::{
     backend::{
         EnvBackend,
@@ -26,7 +31,6 @@ use crate::{
         CreateParams,
         DelegateCall,
         FromAccountId,
-        LimitParamsV1,
         LimitParamsV2,
     },
     engine::{
@@ -43,8 +47,6 @@ use crate::{
     Result,
 };
 use ink_storage_traits::Storable;
-#[cfg(not(feature = "revive"))]
-use crate::call::CallV1;
 #[cfg(not(feature = "revive"))]
 use pallet_contracts_uapi::ReturnFlags;
 #[cfg(feature = "revive")]
@@ -100,11 +102,11 @@ where
 #[cfg(not(feature = "revive"))]
 pub fn gas_left<E>() -> Gas
 where
-     E: Environment,
+    E: Environment,
 {
-     <EnvInstance as OnInstance>::on_instance(|instance| {
-         TypedEnvBackend::gas_left::<E>(instance)
-     })
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        TypedEnvBackend::gas_left::<E>(instance)
+    })
 }
 
 /// Returns the current block timestamp.
@@ -286,16 +288,16 @@ where
 /// - If the returned value failed to decode properly.
 #[cfg(not(feature = "revive"))]
 pub fn invoke_contract_v1<E, Args, R>(
-     params: &CallParams<E, CallV1<E>, Args, R>,
+    params: &CallParams<E, CallV1<E>, Args, R>,
 ) -> Result<ink_primitives::MessageResult<R>>
-  where
-     E: Environment,
-     Args: scale::Encode,
-     R: scale::Decode,
+where
+    E: Environment,
+    Args: scale::Encode,
+    R: scale::Decode,
 {
-     <EnvInstance as OnInstance>::on_instance(|instance| {
-         TypedEnvBackend::invoke_contract_v1::<E, Args, R>(instance, params)
-     })
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        TypedEnvBackend::invoke_contract_v1::<E, Args, R>(instance, params)
+    })
 }
 
 /// Invokes a contract message and returns its result.
@@ -414,23 +416,23 @@ where
 /// - If the returned account ID failed to decode properly.
 #[cfg(not(feature = "revive"))]
 pub fn instantiate_contract_v1<E, ContractRef, Args, Salt, R>(
-     params: &CreateParams<E, ContractRef, LimitParamsV1, Args, Salt, R>,
- ) -> Result<
-     ink_primitives::ConstructorResult<<R as ConstructorReturnType<ContractRef>>::Output>,
- >
- where
-     E: Environment,
-     ContractRef: FromAccountId<E>,
-     Args: scale::Encode,
-     Salt: AsRef<[u8]>,
-     R: ConstructorReturnType<ContractRef>,
- {
-     <EnvInstance as OnInstance>::on_instance(|instance| {
-         TypedEnvBackend::instantiate_contract_v1::<E, ContractRef, Args, Salt, R>(
-             instance, params,
-         )
-     })
- }
+    params: &CreateParams<E, ContractRef, LimitParamsV1, Args, Salt, R>,
+) -> Result<
+    ink_primitives::ConstructorResult<<R as ConstructorReturnType<ContractRef>>::Output>,
+>
+where
+    E: Environment,
+    ContractRef: FromAccountId<E>,
+    Args: scale::Encode,
+    Salt: AsRef<[u8]>,
+    R: ConstructorReturnType<ContractRef>,
+{
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        TypedEnvBackend::instantiate_contract_v1::<E, ContractRef, Args, Salt, R>(
+            instance, params,
+        )
+    })
+}
 
 /// Terminates the existence of the currently executed smart contract.
 ///

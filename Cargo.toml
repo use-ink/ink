@@ -91,10 +91,8 @@ pallet-contracts = { version = "31.0.0", default-features = false }
 pallet-balances = { version = "33.0.0", default-features = false }
 pallet-timestamp = { version = "31.0.0", default-features = false }
 pallet-contracts-uapi = { version = "9.0.0", default-features = false }
-# TODO: pop-node revive fork exposes host fn `to_account_id`
- pallet-revive-uapi = { git = "https://github.com/paritytech/polkadot-sdk" }
-# pallet-revive-uapi = { git = "https://github.com/r0gue-io/pop-node", branch = "sub0" }
-# pallet-revive-uapi = { version  = "0.1.1" }
+pallet-revive-uapi = { git = "https://github.com/paritytech/polkadot-sdk" }
+# TODO include mock-network for revive
 pallet-contracts-mock-network = { version = "7.0.0", default-features = false }
 sp-externalities = { version = "0.28.0", default-features = false }
 sp-io = { version = "34.0.0", default-features = false }
@@ -105,7 +103,7 @@ sp-runtime = { version = "35.0.0", default-features = false }
 sp-weights = { version = "31.0.0", default-features = false }
 xcm = { package = "staging-xcm", version = "11.0.0", default-features = false }
 
-# Polkavm dependencies
+# PolkaVM dependencies
 polkavm-derive = "0.17.1"
 
 # Local dependencies

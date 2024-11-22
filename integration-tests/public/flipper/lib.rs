@@ -15,21 +15,19 @@ pub mod flipper {
         }
 
         /// Creates a new flipper smart contract initialized to `false`.
-        #[ink(constructor, payable)]
+        #[ink(constructor)]
         pub fn new_default() -> Self {
-           ink::env::debug_println!("IN THE CONSTRUCTOR OF PVM") ;
             Self::new(Default::default())
         }
 
         /// Flips the current value of the Flipper's boolean.
-        #[ink(message, payable)]
+        #[ink(message)]
         pub fn flip(&mut self) {
-            ink::env::debug_println!("IN THE flip OF PVM") ;
             self.value = !self.value;
         }
 
         /// Returns the current value of the Flipper's boolean.
-        #[ink(message, payable)]
+        #[ink(message)]
         pub fn get(&self) -> bool {
             self.value
         }

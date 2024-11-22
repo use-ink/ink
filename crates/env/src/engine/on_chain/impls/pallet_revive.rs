@@ -12,11 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::engine::on_chain::{
-    EncodeScope,
-    EnvInstance,
-    ScopedBuffer,
-};
 use crate::{
     call::{
         Call,
@@ -27,6 +22,11 @@ use crate::{
         FromAccountId,
         LimitParamsV1,
         LimitParamsV2,
+    },
+    engine::on_chain::{
+        EncodeScope,
+        EnvInstance,
+        ScopedBuffer,
     },
     event::{
         Event,
@@ -398,7 +398,7 @@ impl TypedEnvBackend for EnvInstance {
 
         let account_id: &mut [u8; 32] = scope.take(32).try_into().unwrap();
         // TODO
-        //ext::to_account_id(h160, account_id);
+        // ext::to_account_id(h160, account_id);
 
         scale::Decode::decode(&mut &account_id[..])
             .expect("The executed contract must have a caller with a valid account id.")
@@ -532,19 +532,17 @@ impl TypedEnvBackend for EnvInstance {
         };
         let output = &mut scope.take_rest();
         let flags = params.call_flags();
-        /*
-        let call_result =
-            ext::delegate_call(*flags, enc_code_hash, enc_input, Some(output));
-        match call_result {
-            Ok(()) | Err(ReturnErrorCode::CalleeReverted) => {
-                let decoded = scale::DecodeAll::decode_all(&mut &output[..])?;
-                Ok(decoded)
-            }
-            Err(actual_error) => Err(actual_error.into()),
-        }
-         */
+        // let call_result =
+        // ext::delegate_call(*flags, enc_code_hash, enc_input, Some(output));
+        // match call_result {
+        // Ok(()) | Err(ReturnErrorCode::CalleeReverted) => {
+        // let decoded = scale::DecodeAll::decode_all(&mut &output[..])?;
+        // Ok(decoded)
+        // }
+        // Err(actual_error) => Err(actual_error.into()),
+        // }
         // TODO
-        //Err(ReturnErrorCode::KeyNotFound)
+        // Err(ReturnErrorCode::KeyNotFound)
         panic!("foo")
     }
 
@@ -607,9 +605,9 @@ impl TypedEnvBackend for EnvInstance {
     where
         E: Environment,
     {
-        let buffer: &mut [u8; 20] = self
-            .scoped_buffer()
-            .take_encoded(&beneficiary)[0..20].as_mut()
+        let buffer: &mut [u8; 20] = self.scoped_buffer().take_encoded(&beneficiary)
+            [0..20]
+            .as_mut()
             .try_into()
             .unwrap();
         ext::terminate(buffer);
@@ -620,13 +618,16 @@ impl TypedEnvBackend for EnvInstance {
         E: Environment,
     {
         let mut scope = self.scoped_buffer();
-        let enc_destination: &mut [u8; 20] = scope.take_encoded(&destination)[..20].as_mut().try_into().unwrap();
+        let enc_destination: &mut [u8; 20] = scope.take_encoded(&destination)[..20]
+            .as_mut()
+            .try_into()
+            .unwrap();
         let enc_value = scope.take(32);
         let mut encode_scope = EncodeScope::from(enc_value);
         scale::Encode::encode_to(&value, &mut encode_scope);
         let enc_value: &mut [u8; 32] = array_mut_ref!(encode_scope.into_buffer(), 0, 32);
-        //TODO
-        //ext::transfer(enc_destination, enc_value).map_err(Into::into)
+        // TODO
+        // ext::transfer(enc_destination, enc_value).map_err(Into::into)
         Ok(())
     }
 
@@ -646,8 +647,10 @@ impl TypedEnvBackend for EnvInstance {
         E: Environment,
     {
         let mut scope = self.scoped_buffer();
-        let enc_account_id: &mut [u8; 20] =
-            scope.take_encoded(account_id)[..20].as_mut().try_into().unwrap();
+        let enc_account_id: &mut [u8; 20] = scope.take_encoded(account_id)[..20]
+            .as_mut()
+            .try_into()
+            .unwrap();
         ext::is_contract(enc_account_id)
     }
 
@@ -663,11 +666,14 @@ impl TypedEnvBackend for EnvInstance {
         E: Environment,
     {
         let mut scope = self.scoped_buffer();
-        let enc_account_id: &mut [u8; 20] = scope.take_encoded(account_id)[..20].as_mut().try_into().unwrap();
+        let enc_account_id: &mut [u8; 20] = scope.take_encoded(account_id)[..20]
+            .as_mut()
+            .try_into()
+            .unwrap();
         let output: &mut [u8; 32] =
             scope.take_max_encoded_len::<E::Hash>().try_into().unwrap();
-        //TODO
-        //ext::code_hash(enc_account_id, output)?;
+        // TODO
+        // ext::code_hash(enc_account_id, output)?;
         ext::code_hash(enc_account_id, output);
         let hash = scale::Decode::decode(&mut &output[..])?;
         Ok(hash)

@@ -77,3 +77,7 @@ sandbox = [
     "pallet-contracts-mock-network",
     "ink_e2e_macro/sandbox",
 ]
+revive = [
+    "ink/revive",
+    "ink_env/revive"
+]

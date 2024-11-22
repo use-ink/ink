@@ -13,6 +13,11 @@
 // limitations under the License.
 
 use super::EnvInstance;
+#[cfg(not(feature = "revive"))]
+use crate::call::{
+    CallV1,
+    LimitParamsV1,
+};
 use crate::{
     call::{
         Call,
@@ -21,7 +26,6 @@ use crate::{
         CreateParams,
         DelegateCall,
         FromAccountId,
-        LimitParamsV1,
         LimitParamsV2,
     },
     event::{
@@ -42,8 +46,6 @@ use crate::{
     Result,
     TypedEnvBackend,
 };
-#[cfg(not(feature = "revive"))]
-use crate::call::CallV1;
 use ink_engine::ext::Engine;
 use ink_storage_traits::{
     decode_all,
@@ -394,12 +396,12 @@ impl TypedEnvBackend for EnvInstance {
     }
 
     #[cfg(not(feature = "revive"))]
-     fn gas_left<E: Environment>(&mut self) -> u64 {
-         self.get_property::<u64>(Engine::gas_left)
-             .unwrap_or_else(|error| {
-                 panic!("could not read `gas_left` property: {error:?}")
-             })
-     }
+    fn gas_left<E: Environment>(&mut self) -> u64 {
+        self.get_property::<u64>(Engine::gas_left)
+            .unwrap_or_else(|error| {
+                panic!("could not read `gas_left` property: {error:?}")
+            })
+    }
 
     fn block_timestamp<E: Environment>(&mut self) -> E::Timestamp {
         self.get_property::<E::Timestamp>(Engine::block_timestamp)
@@ -448,17 +450,17 @@ impl TypedEnvBackend for EnvInstance {
     }
 
     #[cfg(not(feature = "revive"))]
-     fn invoke_contract_v1<E, Args, R>(
-         &mut self,
-         _params: &CallParams<E, CallV1<E>, Args, R>,
-     ) -> Result<ink_primitives::MessageResult<R>>
-     where
-         E: Environment,
-         Args: scale::Encode,
-         R: scale::Decode,
-     {
-         unimplemented!("off-chain environment does not support contract invocation")
-     }
+    fn invoke_contract_v1<E, Args, R>(
+        &mut self,
+        _params: &CallParams<E, CallV1<E>, Args, R>,
+    ) -> Result<ink_primitives::MessageResult<R>>
+    where
+        E: Environment,
+        Args: scale::Encode,
+        R: scale::Decode,
+    {
+        unimplemented!("off-chain environment does not support contract invocation")
+    }
 
     fn invoke_contract<E, Args, R>(
         &mut self,
@@ -513,28 +515,28 @@ impl TypedEnvBackend for EnvInstance {
     }
 
     #[cfg(not(feature = "revive"))]
-     fn instantiate_contract_v1<E, ContractRef, Args, Salt, R>(
-         &mut self,
-         params: &CreateParams<E, ContractRef, LimitParamsV1, Args, Salt, R>,
-     ) -> Result<
-         ink_primitives::ConstructorResult<
-             <R as ConstructorReturnType<ContractRef>>::Output,
-         >,
-     >
-     where
-         E: Environment,
-         ContractRef: FromAccountId<E>,
-         Args: scale::Encode,
-         Salt: AsRef<[u8]>,
-         R: ConstructorReturnType<ContractRef>,
-     {
-         let _code_hash = params.code_hash();
-         let _ref_time_limit = params.gas_limit();
-         let _endowment = params.endowment();
-         let _input = params.exec_input();
-         let _salt_bytes = params.salt_bytes();
-         unimplemented!("off-chain environment does not support contract instantiation")
-     }
+    fn instantiate_contract_v1<E, ContractRef, Args, Salt, R>(
+        &mut self,
+        params: &CreateParams<E, ContractRef, LimitParamsV1, Args, Salt, R>,
+    ) -> Result<
+        ink_primitives::ConstructorResult<
+            <R as ConstructorReturnType<ContractRef>>::Output,
+        >,
+    >
+    where
+        E: Environment,
+        ContractRef: FromAccountId<E>,
+        Args: scale::Encode,
+        Salt: AsRef<[u8]>,
+        R: ConstructorReturnType<ContractRef>,
+    {
+        let _code_hash = params.code_hash();
+        let _ref_time_limit = params.gas_limit();
+        let _endowment = params.endowment();
+        let _input = params.exec_input();
+        let _salt_bytes = params.salt_bytes();
+        unimplemented!("off-chain environment does not support contract instantiation")
+    }
 
     fn terminate_contract<E>(&mut self, beneficiary: E::AccountId) -> !
     where
