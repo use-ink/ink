@@ -92,7 +92,13 @@ impl GenerateCode for Dispatch<'_> {
             #message_decoder_type
 
             #[cfg(not(any(test, feature = "std", feature = "ink-as-dependency")))]
+            /*
             const _: () = {
+                #entry_points
+            }
+             */
+            mod __do_not_access__ {
+                use super::*;
                 #entry_points
             }
         };
