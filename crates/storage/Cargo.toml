@@ -49,4 +49,4 @@ std = [
 	"derive_more/std"
 ]
 ink-fuzz-tests = [ "std" ]
-revive = []
+revive = [ "ink_env/revive"]

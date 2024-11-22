@@ -36,8 +36,9 @@ xcm = { workspace = true }
 rlibc = "1"
 
 [target.'cfg(target_arch = "riscv32")'.dependencies]
-polkavm-derive = { workspace = true }
+polkavm-derive = { workspace = true, default-features = false }
 
+# TODO
 [target.'cfg(all(not(target_arch = "wasm32"), not(target_arch = "risc32")))'.dependencies]
 ink_engine = { workspace = true, default-features = true, optional = true }
 
@@ -47,7 +48,7 @@ sha3 = { workspace = true, optional = true }
 blake2 = { workspace = true, optional = true }
 
 # ECDSA for the off-chain environment.
-secp256k1 = { workspace = true, features = ["recovery", "global-context"], optional = true }
+#secp256k1 = { workspace = true, features = ["recovery", "global-context"], optional = true }
 
 # schnorrkel for the off-chain environment.
 schnorrkel = { version = "0.11.4", optional = true }
@@ -73,17 +74,13 @@ std = [
 	"ink_storage_traits/std",
 	"ink_engine/std",
 	"scale/std",
-	"scale-decode",
-	"scale-encode",
 	"scale-info/std",
-	"secp256k1",
+	#"secp256k1",
 	"schnorrkel",
 	"num-traits/std",
 	# Enables hashing crates for off-chain environment.
 	"sha2",
 	"sha3",
-	"scale-decode?/std",
-	"scale-encode?/std",
 	"xcm/std",
 	"derive_more/std"
 ]

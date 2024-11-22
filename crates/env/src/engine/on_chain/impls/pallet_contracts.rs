@@ -12,9 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use super::{
+use crate::engine::{
     EnvInstance,
-    ScopedBuffer,
+    on_chain::EncodeScope,
+    on_chain::ScopedBuffer,
 };
 use crate::{
     call::{
@@ -277,7 +278,7 @@ impl EnvBackend for EnvInstance {
     where
         R: scale::Encode,
     {
-        let mut scope = super::EncodeScope::from(&mut self.buffer[..]);
+        let mut scope = EncodeScope::from(&mut self.buffer[..]);
         return_value.encode_to(&mut scope);
         let len = scope.len();
         ext::return_value(flags, &self.buffer[..][..len]);

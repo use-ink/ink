@@ -46,4 +46,4 @@ std = [
 	"scale/std",
 	"scale-info/std"
 ]
-revive = [ "ink/revive", "ink_env/revive" ]
+revive = [ "ink/revive", "ink_env/revive", "ink_codegen/revive", "ink_storage/revive" ]
