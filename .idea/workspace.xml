@@ -11,7 +11,31 @@
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Cargo.lock" beforeDir="false" afterPath="$PROJECT_DIR$/Cargo.lock" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Cargo.toml" beforeDir="false" afterPath="$PROJECT_DIR$/Cargo.toml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/crates/engine/Cargo.toml" beforeDir="false" afterPath="$PROJECT_DIR$/crates/engine/Cargo.toml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/crates/engine/src/ext.rs" beforeDir="false" afterPath="$PROJECT_DIR$/crates/engine/src/ext.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/crates/env/Cargo.toml" beforeDir="false" afterPath="$PROJECT_DIR$/crates/env/Cargo.toml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/crates/env/src/api.rs" beforeDir="false" afterPath="$PROJECT_DIR$/crates/env/src/api.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/crates/env/src/backend.rs" beforeDir="false" afterPath="$PROJECT_DIR$/crates/env/src/backend.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/crates/env/src/call/call_builder/call.rs" beforeDir="false" afterPath="$PROJECT_DIR$/crates/env/src/call/call_builder/call.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/crates/env/src/call/call_builder/call_v1.rs" beforeDir="false" afterPath="$PROJECT_DIR$/crates/env/src/call/call_builder/call_v1.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/crates/env/src/call/call_builder/delegate.rs" beforeDir="false" afterPath="$PROJECT_DIR$/crates/env/src/call/call_builder/delegate.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/crates/env/src/call/call_builder/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/crates/env/src/call/call_builder/mod.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/crates/env/src/call/create_builder.rs" beforeDir="false" afterPath="$PROJECT_DIR$/crates/env/src/call/create_builder.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/crates/env/src/call/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/crates/env/src/call/mod.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/crates/env/src/engine/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/crates/env/src/engine/mod.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/crates/env/src/engine/off_chain/impls.rs" beforeDir="false" afterPath="$PROJECT_DIR$/crates/env/src/engine/off_chain/impls.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/crates/env/src/engine/on_chain/impls/pallet_contracts.rs" beforeDir="false" afterPath="$PROJECT_DIR$/crates/env/src/engine/on_chain/impls/pallet_contracts.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/crates/env/src/engine/on_chain/impls/pallet_revive.rs" beforeDir="false" afterPath="$PROJECT_DIR$/crates/env/src/engine/on_chain/impls/pallet_revive.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/crates/env/src/error.rs" beforeDir="false" afterPath="$PROJECT_DIR$/crates/env/src/error.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/crates/env/src/lib.rs" beforeDir="false" afterPath="$PROJECT_DIR$/crates/env/src/lib.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/crates/ink/Cargo.toml" beforeDir="false" afterPath="$PROJECT_DIR$/crates/ink/Cargo.toml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/crates/ink/codegen/Cargo.toml" beforeDir="false" afterPath="$PROJECT_DIR$/crates/ink/codegen/Cargo.toml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/crates/ink/codegen/src/generator/dispatch.rs" beforeDir="false" afterPath="$PROJECT_DIR$/crates/ink/codegen/src/generator/dispatch.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/crates/ink/macro/Cargo.toml" beforeDir="false" afterPath="$PROJECT_DIR$/crates/ink/macro/Cargo.toml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/crates/ink/src/env_access.rs" beforeDir="false" afterPath="$PROJECT_DIR$/crates/ink/src/env_access.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/crates/storage/src/lazy/vec.rs" beforeDir="false" afterPath="$PROJECT_DIR$/crates/storage/src/lazy/vec.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/integration-tests/public/erc20/Cargo.toml" beforeDir="false" afterPath="$PROJECT_DIR$/integration-tests/public/erc20/Cargo.toml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/integration-tests/public/flipper/Cargo.toml" beforeDir="false" afterPath="$PROJECT_DIR$/integration-tests/public/flipper/Cargo.toml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

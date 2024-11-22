@@ -31,6 +31,9 @@ use crate::{
         BlockTimestamp,
     },
 };
+#[cfg(not(feature = "revive"))]
+pub use pallet_contracts_uapi::ReturnErrorCode as Error;
+#[cfg(feature = "revive")]
 pub use pallet_revive_uapi::ReturnErrorCode as Error;
 use scale::Encode;
 use std::panic::panic_any;

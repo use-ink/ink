@@ -33,6 +33,7 @@ default = [ "std" ]
 std = [
 	"ink_primitives/std",
 	"scale/std",
-	"secp256k1", 
+	"secp256k1",
 	"derive_more/std"
 ]
+revive = []

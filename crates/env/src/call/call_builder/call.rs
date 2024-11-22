@@ -22,7 +22,6 @@ use crate::{
         execution::EmptyArgumentList,
         CallBuilder,
         CallParams,
-        // CallV1,
         ExecutionInput,
     },
     Environment,
@@ -30,6 +29,11 @@ use crate::{
     Gas,
 };
 use num_traits::Zero;
+#[cfg(not(feature = "revive"))]
+use crate::call::CallV1;
+#[cfg(not(feature = "revive"))]
+use pallet_contracts_uapi::CallFlags;
+#[cfg(feature = "revive")]
 use pallet_revive_uapi::CallFlags;
 
 /// The default call type for cross-contract calls, for calling into the latest `call_v2`
@@ -68,20 +72,21 @@ where
     ///
     /// This method instance is used to allow usage of the generated call builder methods
     /// for messages which initialize the builder with the new [`Call`] type.
-    // pub fn call_v1(self) -> CallBuilder<E, Set<CallV1<E>>, Args, RetType> {
-    //     let call_type = self.call_type.value();
-    //     CallBuilder {
-    //         call_type: Set(CallV1 {
-    //             callee: call_type.callee,
-    //             gas_limit: call_type.ref_time_limit,
-    //             transferred_value: call_type.transferred_value,
-    //             call_flags: call_type.call_flags,
-    //         }),
-    //         exec_input: self.exec_input,
-    //         return_type: self.return_type,
-    //         _phantom: Default::default(),
-    //     }
-    // }
+    #[cfg(not(feature = "revive"))]
+     pub fn call_v1(self) -> CallBuilder<E, Set<CallV1<E>>, Args, RetType> {
+         let call_type = self.call_type.value();
+         CallBuilder {
+             call_type: Set(CallV1 {
+                 callee: call_type.callee,
+                 gas_limit: call_type.ref_time_limit,
+                 transferred_value: call_type.transferred_value,
+                 call_flags: call_type.call_flags,
+             }),
+             exec_input: self.exec_input,
+             return_type: self.return_type,
+             _phantom: Default::default(),
+        }
+    }
 
     /// Sets the `ref_time_limit` part of the weight limit for the current cross-contract
     /// call.

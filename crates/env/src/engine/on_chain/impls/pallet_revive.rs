@@ -21,7 +21,6 @@ use crate::{
     call::{
         Call,
         CallParams,
-        // CallV1,
         ConstructorReturnType,
         CreateParams,
         DelegateCall,
@@ -398,7 +397,8 @@ impl TypedEnvBackend for EnvInstance {
         ext::caller(h160);
 
         let account_id: &mut [u8; 32] = scope.take(32).try_into().unwrap();
-        ext::to_account_id(h160, account_id);
+        // TODO
+        //ext::to_account_id(h160, account_id);
 
         scale::Decode::decode(&mut &account_id[..])
             .expect("The executed contract must have a caller with a valid account id.")
@@ -532,6 +532,7 @@ impl TypedEnvBackend for EnvInstance {
         };
         let output = &mut scope.take_rest();
         let flags = params.call_flags();
+        /*
         let call_result =
             ext::delegate_call(*flags, enc_code_hash, enc_input, Some(output));
         match call_result {
@@ -541,6 +542,10 @@ impl TypedEnvBackend for EnvInstance {
             }
             Err(actual_error) => Err(actual_error.into()),
         }
+         */
+        // TODO
+        //Err(ReturnErrorCode::KeyNotFound)
+        panic!("foo")
     }
 
     fn instantiate_contract<E, ContractRef, Args, Salt, RetType>(
@@ -620,7 +625,9 @@ impl TypedEnvBackend for EnvInstance {
         let mut encode_scope = EncodeScope::from(enc_value);
         scale::Encode::encode_to(&value, &mut encode_scope);
         let enc_value: &mut [u8; 32] = array_mut_ref!(encode_scope.into_buffer(), 0, 32);
-        ext::transfer(enc_destination, enc_value).map_err(Into::into)
+        //TODO
+        //ext::transfer(enc_destination, enc_value).map_err(Into::into)
+        Ok(())
     }
 
     fn weight_to_fee<E: Environment>(&mut self, gas: u64) -> E::Balance {
@@ -659,7 +666,9 @@ impl TypedEnvBackend for EnvInstance {
         let enc_account_id: &mut [u8; 20] = scope.take_encoded(account_id)[..20].as_mut().try_into().unwrap();
         let output: &mut [u8; 32] =
             scope.take_max_encoded_len::<E::Hash>().try_into().unwrap();
-        ext::code_hash(enc_account_id, output)?;
+        //TODO
+        //ext::code_hash(enc_account_id, output)?;
+        ext::code_hash(enc_account_id, output);
         let hash = scale::Decode::decode(&mut &output[..])?;
         Ok(hash)
     }

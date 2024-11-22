@@ -16,6 +16,9 @@ use derive_more::From;
 
 #[cfg(any(feature = "std", test, doc))]
 use crate::engine::off_chain::OffChainError;
+#[cfg(not(feature = "revive"))]
+use pallet_contracts_uapi::ReturnErrorCode;
+#[cfg(feature = "revive")]
 use pallet_revive_uapi::ReturnErrorCode;
 
 /// Errors that can be encountered upon environmental interaction.

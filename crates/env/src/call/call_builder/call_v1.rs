@@ -29,6 +29,9 @@ use crate::{
     Gas,
 };
 use num_traits::Zero;
+#[cfg(not(feature = "revive"))]
+use pallet_contracts_uapi::CallFlags;
+#[cfg(feature = "revive")]
 use pallet_revive_uapi::CallFlags;
 
 /// The legacy call type for cross-contract calls. Performs a cross-contract call to
