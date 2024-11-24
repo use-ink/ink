@@ -38,7 +38,7 @@ array-init = { version = "2.0", default-features = false }
 blake2 = { version = "0.10" }
 cargo_metadata = { version = "0.18.0" }
 cfg-if = { version = "1.0" }
-contract-build = { version = "4.1.2" }
+contract-build = { version = "4.1.3" }
 darling = { version = "0.20.10" }
 derive_more = { version = "1.0.0", default-features = false }
 either = { version = "1.13", default-features = false }
@@ -63,7 +63,7 @@ scale-info = { version = "2.11", default-features = false }
 schemars = { version = "0.8" }
 secp256k1 = { version = "0.28.2" }
 serde = { version = "1.0.215", default-features = false }
-serde_json = { version = "1.0.132" }
+serde_json = { version = "1.0.133" }
 sha2 = { version = "0.10" }
 sha3 = { version = "0.10" }
 static_assertions = { version = "1.1" }
