@@ -14,18 +14,11 @@
 
 use crate::{
     call::{
-        common::{
-            ReturnType,
-            Set,
-            Unset,
-        },
+        common::{ReturnType, Set, Unset},
         execution::EmptyArgumentList,
-        CallBuilder,
-        CallParams,
-        ExecutionInput,
+        CallBuilder, CallParams, ExecutionInput,
     },
-    Environment,
-    Error,
+    Environment, Error,
 };
 use pallet_contracts_uapi::CallFlags;
 

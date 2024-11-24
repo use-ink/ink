@@ -16,10 +16,7 @@
 
 /// Conduct the BLAKE2 256-bit hash and place the result into `output`.
 pub fn blake2b_256(input: &[u8], output: &mut [u8; 32]) {
-    use ::blake2::digest::{
-        consts::U32,
-        Digest as _,
-    };
+    use ::blake2::digest::{consts::U32, Digest as _};
 
     type Blake2b256 = ::blake2::Blake2b<U32>;
 
@@ -31,10 +28,7 @@ pub fn blake2b_256(input: &[u8], output: &mut [u8; 32]) {
 
 /// Conduct the BLAKE2 128-bit hash and place the result into `output`.
 pub fn blake2b_128(input: &[u8], output: &mut [u8; 16]) {
-    use ::blake2::digest::{
-        consts::U16,
-        Digest as _,
-    };
+    use ::blake2::digest::{consts::U16, Digest as _};
 
     type Blake2b128 = ::blake2::Blake2b<U16>;
 
@@ -46,10 +40,7 @@ pub fn blake2b_128(input: &[u8], output: &mut [u8; 16]) {
 
 /// Conduct the KECCAK 256-bit hash and place the result into `output`.
 pub fn keccak_256(input: &[u8], output: &mut [u8; 32]) {
-    use sha3::{
-        digest::generic_array::GenericArray,
-        Digest as _,
-    };
+    use sha3::{digest::generic_array::GenericArray, Digest as _};
     let mut hasher = sha3::Keccak256::new();
     hasher.update(input);
     hasher.finalize_into(<&mut GenericArray<u8, _>>::from(&mut output[..]));
@@ -57,10 +48,7 @@ pub fn keccak_256(input: &[u8], output: &mut [u8; 32]) {
 
 /// Conduct the SHA-2 256-bit hash and place the result into `output`.
 pub fn sha2_256(input: &[u8], output: &mut [u8; 32]) {
-    use sha2::{
-        digest::generic_array::GenericArray,
-        Digest as _,
-    };
+    use sha2::{digest::generic_array::GenericArray, Digest as _};
     let mut hasher = sha2::Sha256::new();
     hasher.update(input);
     hasher.finalize_into(<&mut GenericArray<u8, _>>::from(&mut output[..]));

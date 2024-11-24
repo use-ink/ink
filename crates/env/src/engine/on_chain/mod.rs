@@ -15,11 +15,7 @@
 mod buffer;
 mod impls;
 
-use self::buffer::{
-    EncodeScope,
-    ScopedBuffer,
-    StaticBuffer,
-};
+use self::buffer::{EncodeScope, ScopedBuffer, StaticBuffer};
 use super::OnInstance;
 
 /// The on-chain environment.

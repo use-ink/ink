@@ -15,33 +15,16 @@
 //! The public raw interface towards the host Wasm engine.
 
 use crate::{
-    backend::{
-        EnvBackend,
-        TypedEnvBackend,
-    },
+    backend::{EnvBackend, TypedEnvBackend},
     call::{
-        Call,
-        CallParams,
-        CallV1,
-        ConstructorReturnType,
-        CreateParams,
-        DelegateCall,
-        FromAccountId,
-        LimitParamsV1,
-        LimitParamsV2,
+        Call, CallParams, CallV1, ConstructorReturnType, CreateParams, DelegateCall,
+        FromAccountId, LimitParamsV1, LimitParamsV2,
     },
-    engine::{
-        EnvInstance,
-        OnInstance,
-    },
+    engine::{EnvInstance, OnInstance},
     event::Event,
-    hash::{
-        CryptoHash,
-        HashOutput,
-    },
+    hash::{CryptoHash, HashOutput},
     types::Gas,
-    Environment,
-    Result,
+    Environment, Result,
 };
 use ink_storage_traits::Storable;
 use pallet_contracts_uapi::ReturnFlags;

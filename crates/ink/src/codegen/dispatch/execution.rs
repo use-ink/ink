@@ -27,7 +27,7 @@ where
 {
     let transferred = ink_env::transferred_value::<E>();
     if transferred != <E as Environment>::Balance::from(0_u32) {
-        return Err(DispatchError::PaidUnpayableMessage)
+        return Err(DispatchError::PaidUnpayableMessage);
     }
     Ok(())
 }

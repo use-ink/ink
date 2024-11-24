@@ -13,10 +13,7 @@
 // limitations under the License.
 
 use crate::config::E2EConfig;
-use darling::{
-    ast::NestedMeta,
-    FromMeta,
-};
+use darling::{ast::NestedMeta, FromMeta};
 use proc_macro2::TokenStream as TokenStream2;
 
 /// The End-to-End test with all required information.

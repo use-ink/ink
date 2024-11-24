@@ -13,33 +13,14 @@
 // limitations under the License.
 
 use contract_build::{
-    BuildArtifacts,
-    BuildMode,
-    ExecuteArgs,
-    Features,
-    ImageVariant,
-    ManifestPath,
-    Network,
-    OptimizationPasses,
-    OutputType,
-    Target,
-    UnstableFlags,
-    Verbosity,
+    BuildArtifacts, BuildMode, ExecuteArgs, Features, ImageVariant, ManifestPath,
+    Network, OptimizationPasses, OutputType, Target, UnstableFlags, Verbosity,
     DEFAULT_MAX_MEMORY_PAGES,
 };
 use std::{
-    collections::{
-        hash_map::Entry,
-        HashMap,
-    },
-    path::{
-        Path,
-        PathBuf,
-    },
-    sync::{
-        Mutex,
-        OnceLock,
-    },
+    collections::{hash_map::Entry, HashMap},
+    path::{Path, PathBuf},
+    sync::{Mutex, OnceLock},
 };
 
 /// Builds the "root" contract (the contract in which the E2E tests are defined) together
@@ -172,13 +153,11 @@ fn build_contract(path_to_cargo_toml: &Path) -> PathBuf {
     };
 
     match contract_build::execute(args) {
-        Ok(build_result) => {
-            build_result
-                .dest_wasm
-                .expect("Wasm code artifact not generated")
-                .canonicalize()
-                .expect("Invalid dest bundle path")
-        }
+        Ok(build_result) => build_result
+            .dest_wasm
+            .expect("Wasm code artifact not generated")
+            .canonicalize()
+            .expect("Invalid dest bundle path"),
         Err(err) => {
             panic!(
                 "contract build for {} failed: {err}",

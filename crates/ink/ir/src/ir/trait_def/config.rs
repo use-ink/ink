@@ -14,10 +14,7 @@
 
 use crate::{
     ast,
-    utils::{
-        duplicate_config_err,
-        WhitelistedAttributes,
-    },
+    utils::{duplicate_config_err, WhitelistedAttributes},
 };
 
 /// The ink! configuration.

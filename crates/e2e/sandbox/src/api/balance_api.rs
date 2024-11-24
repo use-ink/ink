@@ -1,11 +1,5 @@
-use crate::{
-    AccountIdFor,
-    Sandbox,
-};
-use frame_support::{
-    sp_runtime::DispatchError,
-    traits::fungible::Mutate,
-};
+use crate::{AccountIdFor, Sandbox};
+use frame_support::{sp_runtime::DispatchError, traits::fungible::Mutate};
 
 type BalanceOf<R> = <R as pallet_balances::Config>::Balance;
 

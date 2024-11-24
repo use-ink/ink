@@ -23,8 +23,6 @@ mod storage_key;
 mod storage_layout;
 
 pub use self::{
-    storable::storable_derive,
-    storable_hint::storable_hint_derive,
-    storage_key::storage_key_derive,
-    storage_layout::storage_layout_derive,
+    storable::storable_derive, storable_hint::storable_hint_derive,
+    storage_key::storage_key_derive, storage_layout::storage_layout_derive,
 };
