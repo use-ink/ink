@@ -97,6 +97,7 @@ See [the compatibility section](https://use.ink/faq/migrating-from-ink-4-to-5/#c
 - [Drink backend] Backend choice  ‒ [#1864](https://github.com/use-ink/ink/pull/1864)
 - [Drink backend] Backend traits - [#1857](https://github.com/use-ink/ink/pull/1857)
 - [Drink backend] Abstract error and result structs - [#1844](https://github.com/use-ink/ink/pull/1844)
+- Added support for caller_is_root - [#2310] (https://github.com/use-ink/ink/pull/2310)
 
 #### Changed
 - Use name-only syntax for `anonymous` ink! event item configuration argument - [#2140](https://github.com/use-ink/ink/pull/2140)
