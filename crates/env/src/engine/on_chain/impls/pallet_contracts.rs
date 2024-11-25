@@ -12,11 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::engine::{
-    EnvInstance,
-    on_chain::EncodeScope,
-    on_chain::ScopedBuffer,
-};
 use crate::{
     call::{
         Call,
@@ -28,6 +23,13 @@ use crate::{
         FromAccountId,
         LimitParamsV1,
         LimitParamsV2,
+    },
+    engine::{
+        on_chain::{
+            EncodeScope,
+            ScopedBuffer,
+        },
+        EnvInstance,
     },
     event::{
         Event,

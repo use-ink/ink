@@ -16,7 +16,6 @@ use crate::ext::{
     Engine,
     Error,
 };
-/*
 use secp256k1::{
     ecdsa::RecoverableSignature,
     Message,
@@ -25,9 +24,6 @@ use secp256k1::{
     SECP256K1,
 };
 
- */
-
-/*
 /// The public methods of the `contracts` pallet write their result into an
 /// `output` buffer instead of returning them. Since we aim to emulate this
 /// behavior, we have to provide some buffer for our tests to pass into these
@@ -291,6 +287,3 @@ fn setting_getting_block_number() {
         .expect("decoding value transferred failed");
     assert_eq!(output, new_block_number);
 }
-
-
- */

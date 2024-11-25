@@ -396,7 +396,6 @@ impl Engine {
         message_hash: &[u8; 32],
         output: &mut [u8; 33],
     ) -> Result<(), Error> {
-        /*
         use secp256k1::{
             ecdsa::{
                 RecoverableSignature,
@@ -433,8 +432,6 @@ impl Engine {
             }
             Err(_) => Err(Error::EcdsaRecoveryFailed),
         }
-         */
-        panic!("oha");
     }
 }
 

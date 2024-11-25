@@ -276,7 +276,6 @@ impl EnvBackend for EnvInstance {
         message_hash: &[u8; 32],
         output: &mut [u8; 33],
     ) -> Result<()> {
-        /*
         use secp256k1::{
             ecdsa::{
                 RecoverableSignature,
@@ -311,8 +310,6 @@ impl EnvBackend for EnvInstance {
             }
             Err(_) => Err(ReturnErrorCode::EcdsaRecoveryFailed.into()),
         }
-         */
-        panic!("oha");
     }
 
     fn ecdsa_to_eth_address(
@@ -320,15 +317,12 @@ impl EnvBackend for EnvInstance {
         pubkey: &[u8; 33],
         output: &mut [u8; 20],
     ) -> Result<()> {
-        /*
         let pk = secp256k1::PublicKey::from_slice(pubkey)
             .map_err(|_| ReturnErrorCode::EcdsaRecoveryFailed)?;
         let uncompressed = pk.serialize_uncompressed();
         let mut hash = <Keccak256 as HashOutput>::Type::default();
         <Keccak256>::hash(&uncompressed[1..], &mut hash);
         output.as_mut().copy_from_slice(&hash[12..]);
-
-         */
         Ok(())
     }
 

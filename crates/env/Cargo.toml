@@ -23,14 +23,15 @@ ink_primitives = { workspace = true }
 pallet-contracts-uapi = { workspace = true }
 pallet-revive-uapi = { workspace = true }
 
-scale = { workspace = true, features = ["max-encoded-len"] }
+scale = { package = "parity-scale-codec", workspace = true, features = ["max-encoded-len"], default-features = false  }
+#scale = { package = "parity-scale-codec", workspace = true, features = ["max-encoded-len"], default-features = false  }
 derive_more = { workspace = true, features = ["from", "display"] }
 num-traits = { workspace = true, features = ["i128"] }
 cfg-if = { workspace = true }
 paste = { workspace = true }
 static_assertions = { workspace = true }
 const_env = { workspace = true }
-xcm = { workspace = true }
+xcm = { package = "staging-xcm", workspace = true }
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
 rlibc = "1"
@@ -39,7 +40,7 @@ rlibc = "1"
 polkavm-derive = { workspace = true, default-features = false }
 
 # TODO
-[target.'cfg(all(not(target_arch = "wasm32"), not(target_arch = "risc32")))'.dependencies]
+[target.'cfg(all(not(target_arch = "wasm32"), not(target_arch = "riscv32")))'.dependencies]
 ink_engine = { workspace = true, default-features = true, optional = true }
 
 # Hashes for the off-chain environment.
@@ -48,7 +49,7 @@ sha3 = { workspace = true, optional = true }
 blake2 = { workspace = true, optional = true }
 
 # ECDSA for the off-chain environment.
-#secp256k1 = { workspace = true, features = ["recovery", "global-context"], optional = true }
+secp256k1 = { workspace = true, features = ["recovery", "global-context"], optional = true }
 
 # schnorrkel for the off-chain environment.
 schnorrkel = { version = "0.11.4", optional = true }
@@ -75,12 +76,14 @@ std = [
 	"ink_engine/std",
 	"scale/std",
 	"scale-info/std",
-	#"secp256k1",
+	"secp256k1",
 	"schnorrkel",
 	"num-traits/std",
 	# Enables hashing crates for off-chain environment.
 	"sha2",
 	"sha3",
+	"scale-decode",
+	"scale-encode",
 	"xcm/std",
 	"derive_more/std"
 ]

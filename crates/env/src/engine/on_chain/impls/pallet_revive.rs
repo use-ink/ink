@@ -20,7 +20,6 @@ use crate::{
         CreateParams,
         DelegateCall,
         FromAccountId,
-        LimitParamsV1,
         LimitParamsV2,
     },
     engine::on_chain::{
@@ -512,26 +511,26 @@ impl TypedEnvBackend for EnvInstance {
 
     fn invoke_contract_delegate<E, Args, R>(
         &mut self,
-        params: &CallParams<E, DelegateCall<E>, Args, R>,
+        _params: &CallParams<E, DelegateCall<E>, Args, R>,
     ) -> Result<ink_primitives::MessageResult<R>>
     where
         E: Environment,
         Args: scale::Encode,
         R: scale::Decode,
     {
-        let mut scope = self.scoped_buffer();
-        let call_flags = params.call_flags();
-        let enc_code_hash: &mut [u8; 32] =
-            scope.take_encoded(params.code_hash()).try_into().unwrap();
-        let enc_input = if !call_flags.contains(CallFlags::FORWARD_INPUT)
-            && !call_flags.contains(CallFlags::CLONE_INPUT)
-        {
-            scope.take_encoded(params.exec_input())
-        } else {
-            &mut []
-        };
-        let output = &mut scope.take_rest();
-        let flags = params.call_flags();
+        // let mut scope = self.scoped_buffer();
+        // let call_flags = params.call_flags();
+        // let enc_code_hash: &mut [u8; 32] =
+        // scope.take_encoded(params.code_hash()).try_into().unwrap();
+        // let enc_input = if !call_flags.contains(CallFlags::FORWARD_INPUT)
+        // && !call_flags.contains(CallFlags::CLONE_INPUT)
+        // {
+        // scope.take_encoded(params.exec_input())
+        // } else {
+        // &mut []
+        // };
+        // let output = &mut scope.take_rest();
+        // let flags = params.call_flags();
         // let call_result =
         // ext::delegate_call(*flags, enc_code_hash, enc_input, Some(output));
         // match call_result {
@@ -541,9 +540,7 @@ impl TypedEnvBackend for EnvInstance {
         // }
         // Err(actual_error) => Err(actual_error.into()),
         // }
-        // TODO
-        // Err(ReturnErrorCode::KeyNotFound)
-        panic!("foo")
+        panic!("TODO has to be implemented")
     }
 
     fn instantiate_contract<E, ContractRef, Args, Salt, RetType>(
@@ -613,22 +610,25 @@ impl TypedEnvBackend for EnvInstance {
         ext::terminate(buffer);
     }
 
-    fn transfer<E>(&mut self, destination: E::AccountId, value: E::Balance) -> Result<()>
+    fn transfer<E>(
+        &mut self,
+        _destination: E::AccountId,
+        _value: E::Balance,
+    ) -> Result<()>
     where
         E: Environment,
     {
-        let mut scope = self.scoped_buffer();
-        let enc_destination: &mut [u8; 20] = scope.take_encoded(&destination)[..20]
-            .as_mut()
-            .try_into()
-            .unwrap();
-        let enc_value = scope.take(32);
-        let mut encode_scope = EncodeScope::from(enc_value);
-        scale::Encode::encode_to(&value, &mut encode_scope);
-        let enc_value: &mut [u8; 32] = array_mut_ref!(encode_scope.into_buffer(), 0, 32);
-        // TODO
-        // ext::transfer(enc_destination, enc_value).map_err(Into::into)
-        Ok(())
+        // let mut scope = self.scoped_buffer();
+        // let enc_destination: &mut [u8; 20] = scope.take_encoded(&destination)[..20]
+        // .as_mut()
+        // .try_into()
+        // .unwrap();
+        // let enc_value = scope.take(32);
+        // let mut encode_scope = EncodeScope::from(enc_value);
+        // scale::Encode::encode_to(&value, &mut encode_scope);
+        // let enc_value: &mut [u8; 32] = array_mut_ref!(encode_scope.into_buffer(), 0,
+        // 32); ext::transfer(enc_destination, enc_value).map_err(Into::into)
+        panic!("TODO has to be implemented");
     }
 
     fn weight_to_fee<E: Environment>(&mut self, gas: u64) -> E::Balance {
