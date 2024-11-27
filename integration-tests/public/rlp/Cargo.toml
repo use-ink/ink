@@ -10,6 +10,8 @@ ink = { path = "../../../crates/ink", default-features = false }
 
 [dev-dependencies]
 ink_e2e = { path = "../../../crates/e2e", features = ["sandbox"] }
+ink_sandbox = { path =  "../../../crates/e2e/sandbox" }
+pallet-contracts = { version = "31.0.0", default-features = false }
 
 [lib]
 path = "lib.rs"
