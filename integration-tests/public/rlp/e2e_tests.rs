@@ -2,6 +2,7 @@ use super::rlp::*;
 use ink_e2e::{
     ContractsRegistry
 };
+use ink_sandbox::api::balance_api::BalanceAPI;
 
 #[test]
 fn call_rlp_encoded_message() {
@@ -10,8 +11,12 @@ fn call_rlp_encoded_message() {
     let contracts = ContractsRegistry::new(built_contracts);
 
     let mut sandbox = ink_e2e::DefaultSandbox::default();
-
     let caller = ink_e2e::alice();
+
+    sandbox
+        .mint_into(&caller.public_key().0.into(), 1_000_000_000_000_000u128.into())
+        .unwrap_or_else(|_| panic!("Failed to mint tokens"));
+
     // given
     let mut constructor = RlpRef::new(false);
     let params = constructor
