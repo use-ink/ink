@@ -1,27 +1,27 @@
 use super::rlp::*;
 use ink_e2e::{
-    ContractsBackend
+    ContractsRegistry
 };
 
-type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
+#[test]
+fn call_rlp_encoded_message() {
 
-#[ink_e2e::test(backend(runtime_only))]
-async fn call_rlp_encoded_message<Client: E2EBackend>(
-    mut client: Client,
-) -> E2EResult<()> {
+    let built_contracts = ::ink_e2e::build_root_and_contract_dependencies();
+    let contracts = ContractsRegistry::new(built_contracts);
+
     let mut sandbox = ink_e2e::DefaultSandbox::default();
 
     let caller = ink_e2e::alice();
     // given
     let mut constructor = RlpRef::new(false);
-    let exec_input = constructor
+    let params = constructor
         .endowment(0u32.into())
         .code_hash(ink::primitives::Clear::CLEAR_HASH)
         .salt_bytes(Vec::new())
-        .params()
-        .exec_input();
+        .params();
+    let exec_input = params.exec_input();
 
-    let code = client.contracts().load_code("rlp");
+    let code = contracts.load_code("rlp");
     let contract_account_id = <ink_e2e::DefaultSandbox as ink_sandbox::api::contracts_api::ContractAPI>
         ::deploy_contract(
             &mut sandbox,
@@ -37,7 +37,7 @@ async fn call_rlp_encoded_message<Client: E2EBackend>(
         .expect("sandbox deploy contract failed")
         .account_id;
     
-    let account_id = (*<ink::primitives::AccountId as AsRef<[u8; 32]>>::as_ref(&contract_account_id)).into();
+    // let account_id = (*<ink::primitives::AccountId as AsRef<[u8; 32]>>::as_ref(&contract_account_id)).into();
 
     let set_value_selector = Vec::<u8>::new(); // todo: calculate and append selector
     let mut set_value_data = Vec::new();
@@ -46,7 +46,7 @@ async fn call_rlp_encoded_message<Client: E2EBackend>(
     <ink_e2e::DefaultSandbox as ink_sandbox::api::contracts_api::ContractAPI>
         ::call_contract(
             &mut sandbox,
-            account_id,
+            contract_account_id,
             0,
             set_value_data,
             caller.public_key().0.into(),
@@ -56,6 +56,4 @@ async fn call_rlp_encoded_message<Client: E2EBackend>(
         )
         .result
         .expect("sandbox call contract failed");
-
-    Ok(())
 }

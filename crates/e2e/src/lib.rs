@@ -43,6 +43,7 @@ pub use backend_calls::{
     CallBuilder,
     InstantiateBuilder,
 };
+pub use client_utils::ContractsRegistry;
 pub use contract_results::{
     CallDryRunResult,
     CallResult,
