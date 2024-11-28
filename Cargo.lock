@@ -2762,7 +2762,7 @@ dependencies = [
  "derive_more 1.0.0",
  "either",
  "heck 0.5.0",
- "impl-serde 0.4.0",
+ "impl-serde 0.5.0",
  "ink_ir",
  "ink_primitives",
  "itertools 0.12.1",
@@ -2782,7 +2782,7 @@ dependencies = [
  "contract-build",
  "frame-support",
  "funty",
- "impl-serde 0.4.0",
+ "impl-serde 0.5.0",
  "ink",
  "ink_e2e_macro",
  "ink_env",
@@ -2877,7 +2877,7 @@ version = "5.1.0"
 dependencies = [
  "blake2",
  "either",
- "impl-serde 0.4.0",
+ "impl-serde 0.5.0",
  "ink_prelude",
  "itertools 0.12.1",
  "proc-macro2",
@@ -2910,7 +2910,7 @@ name = "ink_metadata"
 version = "5.1.0"
 dependencies = [
  "derive_more 1.0.0",
- "impl-serde 0.4.0",
+ "impl-serde 0.5.0",
  "ink_prelude",
  "ink_primitives",
  "linkme",
