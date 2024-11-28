@@ -790,6 +790,20 @@ dependencies = [
 ]
 
 [[package]]
+name = "cargo_metadata"
+version = "0.19.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "afc309ed89476c8957c50fb818f56fe894db857866c3e163335faa91dc34eb85"
+dependencies = [
+ "camino",
+ "cargo-platform",
+ "semver 1.0.23",
+ "serde",
+ "serde_json",
+ "thiserror 1.0.69",
+]
+
+[[package]]
 name = "cc"
 version = "1.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -996,14 +1010,14 @@ checksum = "cd7e35aee659887cbfb97aaf227ac12cad1a9d7c71e55ff3376839ed4e282d08"
 
 [[package]]
 name = "contract-build"
-version = "5.0.0"
+version = "5.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "63b7e48ce82b55009a14504e1e2f752586b2a69f7948c5fab4875734cac5fa1d"
+checksum = "857769855bf40d230e41baf6575cc44bd5e6869f69f88f45f6791da793f49a0c"
 dependencies = [
  "anyhow",
  "blake2",
  "bollard",
- "cargo_metadata",
+ "cargo_metadata 0.19.0",
  "clap",
  "colored",
  "contract-metadata",
@@ -1037,9 +1051,9 @@ dependencies = [
 
 [[package]]
 name = "contract-metadata"
-version = "5.0.0"
+version = "5.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9a1d29496c0cd6277d822e41c9e757ddd56e6bc063a0106e2e90f1b897bf1314"
+checksum = "733a6624ea05dd71050641c3cd9baff7a1445032a0082f0e55c800c078716424"
 dependencies = [
  "anyhow",
  "impl-serde 0.5.0",
@@ -2764,7 +2778,7 @@ dependencies = [
 name = "ink_e2e"
 version = "5.1.0"
 dependencies = [
- "cargo_metadata",
+ "cargo_metadata 0.18.1",
  "contract-build",
  "frame-support",
  "funty",
@@ -6957,9 +6971,9 @@ checksum = "8ecb6da28b8a351d773b68d5825ac39017e680750f980f3a1a85cd8dd28a47c1"
 
 [[package]]
 name = "url"
-version = "2.5.3"
+version = "2.5.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8d157f1b96d14500ffdc1f10ba712e780825526c03d9a49b4d0324b0d9113ada"
+checksum = "32f8b686cadd1473f4bd0117a5d28d36b1ade384ea9b5069a1c40aefed7fda60"
 dependencies = [
  "form_urlencoded",
  "idna",
