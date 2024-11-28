@@ -30,19 +30,19 @@ ink! 5.1 supports the usage of XCM in contracts, developers are no longer limite
 to cross-contract calls, but can now execute cross-parachain calls.
 
 We added a contract example that demonstrates the usage:
-[`contract-xcm`](https://github.com/use-ink/ink/tree/master/integration-tests/public/runtime-call-contract)
+[`contract-xcm`](https://github.com/use-ink/ink-examples/tree/main/contract-xcm)
 
 We also added a new page on our documentation website: TODO.
 
 You can view the Rust docs of the two functions here:
 
-* [`xcm_send`](https://use-ink.github.io/ink/ink_env/fn.xcm_send.html)
-* [`xcm_execute`](https://use-ink.github.io/ink/ink_env/fn.xcm_execute.html)
+* [`xcm_send`](https://docs.rs/ink_env/5.1.0/ink_env/fn.xcm_send.html)
+* [`xcm_execute`](https://docs.rs/ink_env/5.1.0/ink_env/fn.xcm_execute.html)
 
 #### (2) Call an ink! contract from a `polkadot-sdk` runtime
 
 ink! 5.1 comes with basic support for calling contracts from a Polkadot runtime.
-We've added [this example](https://github.com/use-ink/ink/tree/master/integration-tests/public/runtime-call-contract)
+We've added [this example](https://github.com/use-ink/ink-examples/tree/main/runtime-call-contract)
 that demonstrates how to call `flipper` from a `polkadot-sdk` runtime pallet.
 
 Calling a contract from the runtime is an interesting application for parachains,
@@ -61,8 +61,10 @@ The limitations currently are:
 #### (3) E2E Testing
 
 We replaced our `drink` sandbox dependency with an internal ink! crate.
-In case you use [DRink!](https://use.ink/basics/contract-testing/drink), these are
-the two changes you have to make:
+In case you use [DRink!](https://use.ink/basics/contract-testing/drink):
+
+First, you should upgrade your `drink` dependency to `version = "0.18.0"`.
+Second, these are the two changes you have to make:
 
 ```diff
 - #[ink_e2e::test(backend(runtime_only(sandbox = ink_e2e::MinimalSandbox)))]
@@ -83,7 +85,7 @@ The compatibility changes a bit to ink! 5.0:
 - `polkadot-sdk`: [>= v1.12.0](https://github.com/paritytech/polkadot-sdk/releases/tag/polkadot-v1.12.0)
   (this release stabilized the `pallet-contracts` XCM functions that ink! uses)
 - `substrate-contracts-node`: `>= 0.42.0`
-- [DRink!](https://github.com/inkdevhub/drink): `>= 0.15.0`
+- [DRink!](https://github.com/inkdevhub/drink): `>= 0.18.0`
 
 ### Added
 - [Runtime-to-Contract Calls] Environment agnostic contract invocation API, for calling contracts from runtime ‒ [#2219](https://github.com/use-ink/ink/pull/2219)
@@ -94,7 +96,6 @@ The compatibility changes a bit to ink! 5.0:
 - [E2E] Adds a message to SandboxErr to add context for easier debugging ‒ [#2218](https://github.com/use-ink/ink/pull/2218)
 - [E2E] Add ability to take and restore snapshots ‒ [#2261](https://github.com/paritytech/ink/pull/2261) (thanks [@0xLucca](https://github.com/0xLucca)!)
 - [E2E] Demonstrate usage of seeds for secret URIs in E2E test for chain snapshots ‒ [#2163](https://github.com/paritytech/ink/pull/2163)
-
 
 ### Changed
 - Update repository URLs & references from `paritytech` GitHub organization to new `use-ink` one ‒ [#2220](https://github.com/use-ink/ink/pull/2220) and [#2248](https://github.com/use-ink/ink/pull/2248)
