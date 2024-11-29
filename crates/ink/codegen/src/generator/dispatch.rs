@@ -333,7 +333,7 @@ impl Dispatch<'_> {
                                 #rlp_decode
                             const RETURN: fn(::ink::env::ReturnFlags, Self::Output) -> ! =
                                 |flags, output| {
-                                    todo!("impl RLP encoding")
+                                    #rlp_return_value
                                 };
                             const SELECTOR: [::core::primitive::u8; 4usize] = [ #( #rlp_selector_bytes ),* ];
                             const PAYABLE: ::core::primitive::bool = #payable;
