@@ -78,7 +78,7 @@ tracing = { version = "0.1.41" }
 tracing-subscriber = { version = "0.3.17" }
 trybuild = { version = "1.0.101" }
 wasm-instrument = { version = "0.4.0" }
-which = { version = "6.0.3" }
+which = { version = "7.0.0" }
 xxhash-rust = { version = "0.8" }
 const_env = { version = "0.1"}
 wat = { version = "1.221.0" }
