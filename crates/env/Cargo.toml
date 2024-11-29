@@ -23,15 +23,14 @@ ink_primitives = { workspace = true }
 pallet-contracts-uapi = { workspace = true }
 pallet-revive-uapi = { workspace = true }
 
-scale = { package = "parity-scale-codec", workspace = true, features = ["max-encoded-len"], default-features = false  }
-#scale = { package = "parity-scale-codec", workspace = true, features = ["max-encoded-len"], default-features = false  }
+scale = { workspace = true, features = ["max-encoded-len"] }
 derive_more = { workspace = true, features = ["from", "display"] }
 num-traits = { workspace = true, features = ["i128"] }
 cfg-if = { workspace = true }
 paste = { workspace = true }
 static_assertions = { workspace = true }
 const_env = { workspace = true }
-xcm = { package = "staging-xcm", workspace = true }
+xcm = { workspace = true }
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
 rlibc = "1"
@@ -82,8 +81,8 @@ std = [
 	# Enables hashing crates for off-chain environment.
 	"sha2",
 	"sha3",
-	"scale-decode",
-	"scale-encode",
+    "scale-decode",
+    "scale-encode",
 	"xcm/std",
 	"derive_more/std"
 ]

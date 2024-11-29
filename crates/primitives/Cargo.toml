@@ -17,7 +17,7 @@ include = ["/Cargo.toml", "src/**/*.rs", "/README.md", "/LICENSE"]
 [dependencies]
 derive_more = { workspace = true, features = ["from", "display"] }
 ink_prelude = { workspace = true }
-scale = { package = "parity-scale-codec", workspace = true, features = ["max-encoded-len"], default-features = false  }
+scale = { workspace = true, features = ["max-encoded-len"] }
 scale-decode = { workspace = true, features = ["derive"], optional = true }
 scale-encode = { workspace = true, features = ["derive"], optional = true }
 scale-info = { workspace = true, features = ["derive"], optional = true }
@@ -27,10 +27,10 @@ xxhash-rust = { workspace = true, features = ["const_xxh32"] }
 default = [ "std" ]
 std = [
 	"ink_prelude/std",
+    "scale-decode",
+    "scale-encode",
 	"scale-info/std",
 	"scale/std",
-	"scale-decode",
-	"scale-encode",
 	"derive_more/std",
 	"xxhash-rust/std"
 ]

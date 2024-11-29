@@ -60,17 +60,17 @@ scale = { package = "parity-scale-codec", version = "3.7.0", default-features = 
 scale-decode = { version = "0.16.0", default-features = false }
 scale-encode = { version = "0.10.0", default-features = false }
 scale-info = { version = "2.11", default-features = false }
-schemars = { version = "0.8", default-features = false }
-secp256k1 = { version = "0.28.2", default-features = false }
+schemars = { version = "0.8" }
+secp256k1 = { version = "0.28.2" }
 serde = { version = "1.0.215", default-features = false }
 serde_json = { version = "1.0.133" }
 sha2 = { version = "0.10" }
 sha3 = { version = "0.10" }
 static_assertions = { version = "1.1" }
-subxt = { version = "0.38.0", default-features = false }
-subxt-metadata = { version = "0.38.0", default-features = false  }
-subxt-signer = { version = "0.38.0", default-features = false  }
-syn = { version = "2", default-features = false }
+subxt = { version = "0.38.0" }
+subxt-metadata = { version = "0.38.0" }
+subxt-signer = { version = "0.38.0" }
+syn = { version = "2" }
 synstructure = { version = "0.13.1" }
 thiserror = { version = "1.0.69" }
 tokio = { version = "1.41.1" }
