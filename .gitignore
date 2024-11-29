@@ -3,3 +3,6 @@
 
 # Ignore history files.
 **/.history/**
+
+**/.DS_Store
+**/.idea/

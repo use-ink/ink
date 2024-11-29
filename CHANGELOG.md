@@ -4,25 +4,117 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+[Unreleased]
+
+## Changed
+- Restrict which `cfg` attributes can be used ‒ [#2313](https://github.com/use-ink/ink/pull/2313)
+
+## Version 5.1.0
+
+This is the first ink! release outside of Parity. ink! was started at Parity and
+during this year became a community project maintained by the ink! Alliance, a
+loose group of former Parity employees and teams who want ink! to ensure a bright
+future for ink!.
+
+You can find more details about the community handover in
+[this X post](https://x.com/ink_lang/status/1783877356819783916).
+Generally, the only thing changing on the user-facing side is that the repositories
+have been moved from `paritytech` to the new GitHub organization `use-ink`.
+
+❣ _We want to say a big thank you to our Polkadot community, which recently decided on
+funding the continued maintenance and development of ink! with
+[a Polkadot Treasury grant](https://polkadot.polkassembly.io/referenda/1123)._
+
+### Highlights
+
+This version of ink! comes with three highlights plus some minor fixes.
+
+#### (1) XCM Support
+
+ink! 5.1 supports the usage of XCM in contracts, developers are no longer limited
+to cross-contract calls, but can now execute cross-parachain calls.
+
+We added a contract example that demonstrates the usage:
+[`contract-xcm`](https://github.com/use-ink/ink-examples/tree/main/contract-xcm)
+
+We also added a new page on our documentation website: 
+[https://use.ink/basics/xcm](https://use.ink/basics/xcm).
+
+You can view the Rust docs of the two functions here:
+
+* [`xcm_send`](https://docs.rs/ink_env/5.1.0/ink_env/fn.xcm_send.html)
+* [`xcm_execute`](https://docs.rs/ink_env/5.1.0/ink_env/fn.xcm_execute.html)
+
+#### (2) Call an ink! contract from a `polkadot-sdk` runtime
+
+ink! 5.1 comes with basic support for calling contracts from a Polkadot runtime.
+We've added [this example](https://github.com/use-ink/ink-examples/tree/main/runtime-call-contract)
+that demonstrates how to call `flipper` from a `polkadot-sdk` runtime pallet.
+
+Calling a contract from the runtime is an interesting application for parachains,
+as they can put logic into a contract instead of their runtime. Contracts have
+a number of advantages, as they are easier to upgrade and allow for
+faster development iteration cycles.
+
+The limitations currently are:
+
+* Contract calls can only be made to trait messages. This makes sense in the
+  `pallet-contracts` context, as it is better to depend on a trait rather
+  than a contract impl, since you are working against an interface.
+* Only contract messages can be called currently, no constructors.
+* The API could be nicer.
+
+#### (3) E2E Testing
+
+We replaced our `drink` sandbox dependency with an internal ink! crate.
+In case you use [DRink!](https://use.ink/basics/contract-testing/drink):
+
+First, you should upgrade your `drink` dependency to `version = "0.18.0"`.
+Second, these are the two changes you have to make:
+
+```diff
+- #[ink_e2e::test(backend(runtime_only(sandbox = ink_e2e::MinimalSandbox)))]
++ #[ink_e2e::test(backend(runtime_only(sandbox = ink_e2e::DefaultSandbox)))]
+```
+
+```diff
+- ink_e2e = { version = "5", features = ["drink"] }
++ ink_e2e = { version = "5", features = ["sandbox"] }
+```
+
+### Compatibility
+
+The compatibility changes a bit to ink! 5.0:
+
+- Rust: `>= 1.81`
+- `cargo-contract`: `>= 5.0.0`
+- `polkadot-sdk`: [>= v1.12.0](https://github.com/paritytech/polkadot-sdk/releases/tag/polkadot-v1.12.0)
+  (this release stabilized the `pallet-contracts` XCM functions that ink! uses)
+- `substrate-contracts-node`: `>= 0.42.0`
+- [DRink!](https://github.com/inkdevhub/drink): `>= 0.18.0`
 
 ### Added
+- [Runtime-to-Contract Calls] Environment agnostic contract invocation API, for calling contracts from runtime ‒ [#2219](https://github.com/use-ink/ink/pull/2219)
+- [Runtime-to-Contract Calls] Add `no-panic-handler` feature ‒ [#2164](https://github.com/paritytech/ink/pull/2164)
+- [Runtime-to-Contract Calls] Add example for calling a contract from a runtime pallet ‒ [#2189](https://github.com/paritytech/ink/pull/2189)
+- [XCM] Add `xcm_execute` and `xcm_send` support ‒ [#1912](https://github.com/use-ink/ink/pull/1912)
 - [Linter] Add links to detailed lint description ‒ [#2170](https://github.com/use-ink/ink/pull/2170)
-- Add `xcm_execute` and `xcm_send` support - [#1912](https://github.com/use-ink/ink/pull/1912)
--  Environment agnostic contract invocation API ‒ [#219](https://github.com/use-ink/ink/pull/2219)
-- [E2E] Add ability to take and restore snapshots - [#2261](https://github.com/paritytech/ink/pull/2261) (thanks [@0xLucca](https://github.com/0xLucca)!)
+- [E2E] Adds a message to SandboxErr to add context for easier debugging ‒ [#2218](https://github.com/use-ink/ink/pull/2218)
+- [E2E] Add ability to take and restore snapshots ‒ [#2261](https://github.com/paritytech/ink/pull/2261) (thanks [@0xLucca](https://github.com/0xLucca)!)
+- [E2E] Demonstrate usage of seeds for secret URIs in E2E test for chain snapshots ‒ [#2163](https://github.com/paritytech/ink/pull/2163)
 
 ### Changed
-- Restrict which `cfg` attributes can be used ‒ [#2313](https://github.com/use-ink/ink/pull/2313)
-- [E2E] Update `subxt` and `polkadot-sdk` dependencies ‒ [#2174](https://github.com/use-ink/ink/pull/2174)
 - Update repository URLs & references from `paritytech` GitHub organization to new `use-ink` one ‒ [#2220](https://github.com/use-ink/ink/pull/2220) and [#2248](https://github.com/use-ink/ink/pull/2248)
-- Fix XCM-support to single encode the XCM message [#2278](https://github.com/use-ink/ink/pull/2278)
+- [E2E] Update `subxt` and `polkadot-sdk` dependencies ‒ [#2174](https://github.com/use-ink/ink/pull/2174)
+- [Drink backend] Replace `drink` sandbox with internal `ink_sandbox` ‒ [#2158](https://github.com/use-ink/ink/pull/2158)
 
 ### Fixed
-- Fix outdated docs for `[ink_e2e::test]` ‒ [#2162](https://github.com/use-ink/ink/pull/2162)
-- [E2E] build contracts before initializing node rpc ‒ [#2168](https://github.com/use-ink/ink/pull/2162)
-- [E2E] `set_account_balance` now can't set balance below existential deposit - [#1983](https://github.com/paritytech/ink/pull/1983) (thanks [@0xLucca](https://github.com/0xLucca)!)
-- ERC-721: `burn()` clears token approval - [#2099](https://github.com/paritytech/ink/pull/2099)
+- [XCM] Fix XCM-support to single encode the XCM message ‒ [#2278](https://github.com/use-ink/ink/pull/2278)
+- [Examples] ERC-721: `burn()` clears token approval ‒ [#2099](https://github.com/paritytech/ink/pull/2099)
+- [E2E] Fix outdated docs for `[ink_e2e::test]` ‒ [#2162](https://github.com/use-ink/ink/pull/2162)
+- [E2E] Build contracts before initializing node rpc ‒ [#2168](https://github.com/use-ink/ink/pull/2162)
+- [E2E] `set_account_balance` now can't set balance below existential deposit ‒ [#1983](https://github.com/paritytech/ink/pull/1983) (thanks [@0xLucca](https://github.com/0xLucca)!)
+- [E2E] Fix outdated docs for `[ink_e2e::test]` ‒ [#2162](https://github.com/paritytech/ink/pull/2162)
 
 ## Version 5.0.0
 

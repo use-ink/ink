@@ -50,7 +50,7 @@ use rustc_lint::LateContext;
 ///
 /// # Developer Note
 ///
-/// The ink! 5.0.0 our code generation added the annotation
+/// In ink! 5.0.0 our code generation added the annotation
 /// `#[cfg(not(feature = "__ink_dylint_Storage"))] to contracts. This
 /// allowed dylint to identify the storage struct in a contract.
 ///
