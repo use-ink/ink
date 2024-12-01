@@ -232,7 +232,7 @@ jobs:
           done
 
       - name: Check RISCV
-        if: ${{ matrix.type == 'RISCV' }}
+        if: ${{ matrix.type == 'RISCV-disabled' }}
         env:
           RUSTC_BOOTSTRAP: 1
           RUSTUP_TOOLCHAIN: rve-nightly
@@ -611,7 +611,7 @@ jobs:
           fi
 
       - name: Build Contract RISCV Examples
-        if: ${{ matrix.type == 'RISCV' }}
+        if: ${{ matrix.type == 'RISCV-disabled' }}
         env:
           RUSTC_BOOTSTRAP: 1
           RUSTUP_TOOLCHAIN: rve-nightly
