@@ -39,8 +39,8 @@ async fn instantiate_and_get<Client: E2EBackend>(mut client: Client) -> E2EResul
             vec![
                 ink_e2e::subxt::dynamic::Value::from_bytes(contract.account_id),
                 {
-                    // TODO: Once XX is merged
-                    // replace with
+                    // TODO: Once https://github.com/paritytech/subxt/pull/1877 is merged
+                    // and released replace the code below with
                     // ```
                     // ink_e2e::subxt::dynamic::serde::to_value(frame_support::weights::Weight::from_parts(
                     //      gas_required.ref_time(),
@@ -59,8 +59,8 @@ async fn instantiate_and_get<Client: E2EBackend>(mut client: Client) -> E2EResul
                     subxt_value
                 },
                 {
-                    // TODO: Once XX is merged
-                    // replace with
+                    // TODO: Once https://github.com/paritytech/subxt/pull/1877 is merged
+                    // and released replace the code below with
                     // ```
                     // ink_e2e::subxt::dynamic::serde::to_value(None::<u128>).unwrap()
                     // ```
