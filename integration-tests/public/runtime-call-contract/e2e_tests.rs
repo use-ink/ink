@@ -37,13 +37,39 @@ async fn instantiate_and_get<Client: E2EBackend>(mut client: Client) -> E2EResul
             "ContractCaller",
             "contract_call_flip",
             vec![
-                scale_value::Value::from_bytes(contract.account_id),
-                scale_value::serde::to_value(frame_support::weights::Weight::from_parts(
-                    gas_required.ref_time(),
-                    gas_required.proof_size(),
-                ))
-                .unwrap(),
-                scale_value::serde::to_value(None::<u128>).unwrap(),
+                ink_e2e::subxt::dynamic::Value::from_bytes(contract.account_id),
+                {
+                    // TODO: Once XX is merged
+                    // replace with
+                    // ```
+                    // ink_e2e::subxt::dynamic::serde::to_value(frame_support::weights::Weight::from_parts(
+                    //      gas_required.ref_time(),
+                    //      gas_required.proof_size(),
+                    // )).unwrap(),
+                    // ```
+                    let parts: frame_support::weights::Weight =
+                        frame_support::weights::Weight::from_parts(
+                            gas_required.ref_time(),
+                            gas_required.proof_size(),
+                        );
+                    let scale_value: scale_value::Value =
+                        scale_value::serde::to_value(parts).unwrap();
+                    let subxt_value: ink_e2e::subxt::dynamic::Value =
+                        unsafe { std::mem::transmute(scale_value) };
+                    subxt_value
+                },
+                {
+                    // TODO: Once XX is merged
+                    // replace with
+                    // ```
+                    // ink_e2e::subxt::dynamic::serde::to_value(None::<u128>).unwrap()
+                    // ```
+                    let value = None::<u128>;
+                    let scale_value = scale_value::serde::to_value(value).unwrap();
+                    let subxt_value: ink_e2e::subxt::dynamic::Value =
+                        unsafe { std::mem::transmute(scale_value) };
+                    subxt_value
+                },
             ],
         )
         .await
