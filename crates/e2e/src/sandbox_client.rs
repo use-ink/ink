@@ -67,7 +67,7 @@ use std::{
 };
 use subxt::{
     dynamic::Value,
-    tx::TxPayload,
+    tx::Payload,
 };
 use subxt_signer::sr25519::Keypair;
 
