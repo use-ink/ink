@@ -3086,7 +3086,7 @@ dependencies = [
  "rustls 0.23.19",
  "rustls-pki-types",
  "rustls-platform-verifier",
- "soketto 0.8.0",
+ "soketto 0.8.1",
  "thiserror 1.0.69",
  "tokio",
  "tokio-rustls 0.26.0",
@@ -4106,9 +4106,9 @@ dependencies = [
 
 [[package]]
 name = "parity-scale-codec"
-version = "3.7.0"
+version = "3.6.12"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8be4817d39f3272f69c59fe05d0535ae6456c2dc2fa1ba02910296c7e0a5c590"
+checksum = "306800abfa29c7f16596b5970a588435e3d5b3149683d00c12b699cc19f895ee"
 dependencies = [
  "arrayvec 0.7.6",
  "bitvec",
@@ -4116,7 +4116,6 @@ dependencies = [
  "bytes",
  "impl-trait-for-tuples",
  "parity-scale-codec-derive",
- "rustversion",
  "serde",
 ]
 
@@ -5718,7 +5717,7 @@ dependencies = [
  "siphasher",
  "slab",
  "smallvec",
- "soketto 0.8.0",
+ "soketto 0.8.1",
  "twox-hash",
  "wasmi",
  "x25519-dalek",
@@ -5788,9 +5787,9 @@ dependencies = [
 
 [[package]]
 name = "soketto"
-version = "0.8.0"
+version = "0.8.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "37468c595637c10857701c990f93a40ce0e357cedb0953d1c26c8d8027f9bb53"
+checksum = "2e859df029d160cb88608f5d7df7fb4753fd20fdfb4de5644f3d8b8440841721"
 dependencies = [
  "base64 0.22.1",
  "bytes",
