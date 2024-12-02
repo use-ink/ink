@@ -149,7 +149,7 @@ where
             .mint_into(&pair.public().0.into(), amount)
             .expect("Failed to mint tokens");
 
-        Keypair::from_seed(seed).expect("Failed to create keypair")
+        Keypair::from_secret_key(seed).expect("Failed to create keypair")
     }
 
     async fn free_balance(
