@@ -87,7 +87,11 @@ impl From<Weight> for sp_weights::Weight {
 /// A raw call to `pallet-contracts`'s `instantiate_with_code`.
 #[derive(Debug, scale::Encode, scale::Decode, scale_encode::EncodeAsType)]
 #[encode_as_type(trait_bounds = "", crate_path = "subxt::ext::scale_encode")]
-pub struct InstantiateWithCode<E: Environment> {
+pub struct InstantiateWithCode<E>
+where
+    E: Environment,
+    E::Balance: scale_encode::EncodeAsType,
+{
     #[codec(compact)]
     value: E::Balance,
     gas_limit: Weight,
@@ -100,7 +104,11 @@ pub struct InstantiateWithCode<E: Environment> {
 /// A raw call to `pallet-contracts`'s `call`.
 #[derive(Debug, scale::Decode, scale::Encode, scale_encode::EncodeAsType)]
 #[encode_as_type(trait_bounds = "", crate_path = "subxt::ext::scale_encode")]
-pub struct Call<E: Environment> {
+pub struct Call<E: Environment>
+where
+    E::AccountId: scale_encode::EncodeAsType,
+    E::Balance: scale_encode::EncodeAsType,
+{
     dest: MultiAddress<E::AccountId, ()>,
     #[codec(compact)]
     value: E::Balance,
@@ -112,7 +120,10 @@ pub struct Call<E: Environment> {
 /// A raw call to `pallet-contracts`'s `call`.
 #[derive(Debug, scale::Decode, scale::Encode, scale_encode::EncodeAsType)]
 #[encode_as_type(trait_bounds = "", crate_path = "subxt::ext::scale_encode")]
-pub struct Transfer<E: Environment, C: subxt::Config> {
+pub struct Transfer<E: Environment, C: subxt::Config>
+where
+    E::Balance: scale_encode::EncodeAsType,
+{
     dest: subxt::utils::Static<C::Address>,
     #[codec(compact)]
     value: E::Balance,
@@ -151,14 +162,22 @@ pub enum Determinism {
 /// A raw call to `pallet-contracts`'s `remove_code`.
 #[derive(Debug, scale::Encode, scale::Decode, scale_encode::EncodeAsType)]
 #[encode_as_type(trait_bounds = "", crate_path = "subxt::ext::scale_encode")]
-pub struct RemoveCode<E: Environment> {
+pub struct RemoveCode<E>
+where
+    E: Environment,
+    E::Hash: scale_encode::EncodeAsType,
+{
     code_hash: E::Hash,
 }
 
 /// A raw call to `pallet-contracts`'s `upload`.
 #[derive(Debug, scale::Encode, scale::Decode, scale_encode::EncodeAsType)]
 #[encode_as_type(trait_bounds = "", crate_path = "subxt::ext::scale_encode")]
-pub struct UploadCode<E: Environment> {
+pub struct UploadCode<E>
+where
+    E: Environment,
+    E::Balance: scale_encode::EncodeAsType,
+{
     code: Vec<u8>,
     storage_deposit_limit: Option<E::Balance>,
     determinism: Determinism,
@@ -225,14 +244,19 @@ pub struct ContractsApi<C: subxt::Config, E: Environment> {
 impl<C, E> ContractsApi<C, E>
 where
     C: subxt::Config,
-    C::AccountId: From<sr25519::PublicKey> + serde::de::DeserializeOwned + scale::Codec,
+    C::AccountId: From<sr25519::PublicKey>
+        + serde::de::DeserializeOwned
+        + scale::Codec
+        + scale_encode::EncodeAsType,
     C::Address: From<sr25519::PublicKey>,
     C::Signature: From<sr25519::Signature>,
     <C::ExtrinsicParams as ExtrinsicParams<C>>::Params:
         From<<DefaultExtrinsicParams<C> as ExtrinsicParams<C>>::Params>,
 
     E: Environment,
-    E::Balance: scale::HasCompact + serde::Serialize,
+    E::Balance: scale::HasCompact + serde::Serialize + scale_encode::EncodeAsType,
+    E::AccountId: scale_encode::EncodeAsType,
+    E::Hash: scale_encode::EncodeAsType,
 {
     /// Creates a new [`ContractsApi`] instance.
     pub async fn new(rpc: RpcClient) -> Result<Self, subxt::Error> {

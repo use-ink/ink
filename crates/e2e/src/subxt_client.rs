@@ -79,10 +79,14 @@ use subxt::{
     },
     error::DispatchError,
     events::EventDetails,
-    ext::scale_value::{
-        Composite,
-        Value,
-        ValueDef,
+    ext::{
+        scale_decode,
+        scale_encode,
+        scale_value::{
+            Composite,
+            Value,
+            ValueDef,
+        },
     },
     tx::Signer,
 };
@@ -113,17 +117,21 @@ where
 impl<C, E> Client<C, E>
 where
     C: subxt::Config,
-    C::AccountId:
-        From<sr25519::PublicKey> + scale::Codec + serde::de::DeserializeOwned + Debug,
+    C::AccountId: From<sr25519::PublicKey>
+        + scale::Codec
+        + serde::de::DeserializeOwned
+        + Debug
+        + scale_encode::EncodeAsType,
     C::Address: From<sr25519::PublicKey>,
     C::Signature: From<sr25519::Signature>,
     <C::ExtrinsicParams as ExtrinsicParams<C>>::Params:
         From<<DefaultExtrinsicParams<C> as ExtrinsicParams<C>>::Params>,
 
-    E: Environment,
-    E::AccountId: Debug,
-    E::Balance: Debug + scale::HasCompact + serde::Serialize,
-    E::Hash: Debug + scale::Encode,
+    E: Environment + scale_decode::IntoVisitor,
+    E::AccountId: Debug + scale_decode::IntoVisitor + scale_encode::EncodeAsType,
+    E::Balance: Debug + scale::HasCompact + serde::Serialize + scale_encode::EncodeAsType,
+    E::Hash:
+        Debug + scale::Encode + scale_decode::IntoVisitor + scale_encode::EncodeAsType,
 {
     /// Creates a new [`Client`] instance using a `subxt` client.
     pub async fn new<P: Into<PathBuf>>(
@@ -323,22 +331,27 @@ where
         + core::fmt::Display
         + scale::Codec
         + From<sr25519::PublicKey>
-        + serde::de::DeserializeOwned,
+        + serde::de::DeserializeOwned
+        + scale_encode::EncodeAsType,
     C::Address: From<sr25519::PublicKey>,
     C::Signature: From<sr25519::Signature>,
     C::Address: Send + Sync,
     <C::ExtrinsicParams as ExtrinsicParams<C>>::Params:
         From<<DefaultExtrinsicParams<C> as ExtrinsicParams<C>>::Params>,
 
-    E: Environment,
-    E::AccountId: Debug + Send + Sync,
+    E: Environment + scale_decode::IntoVisitor,
+    E::AccountId:
+        Debug + Send + Sync + scale_decode::IntoVisitor + scale_encode::EncodeAsType,
+    E::Hash: scale_decode::IntoVisitor + scale_encode::EncodeAsType,
     E::Balance: Clone
         + Debug
         + Send
         + Sync
         + TryFrom<u128>
         + scale::HasCompact
-        + serde::Serialize,
+        + serde::Serialize
+        + scale_decode::IntoVisitor
+        + scale_encode::EncodeAsType,
 {
     type AccountId = E::AccountId;
     type Balance = E::Balance;
@@ -463,18 +476,31 @@ where
         + core::fmt::Display
         + scale::Codec
         + From<sr25519::PublicKey>
-        + serde::de::DeserializeOwned,
+        + serde::de::DeserializeOwned
+        + scale_encode::EncodeAsType,
     C::Address: From<sr25519::PublicKey>,
     C::Signature: From<sr25519::Signature>,
     C::Address: Send + Sync,
     <C::ExtrinsicParams as ExtrinsicParams<C>>::Params:
         From<<DefaultExtrinsicParams<C> as ExtrinsicParams<C>>::Params>,
 
-    E: Environment,
-    E::AccountId: Debug + Send + Sync,
-    E::Balance:
-        Clone + Debug + Send + Sync + From<u128> + scale::HasCompact + serde::Serialize,
-    E::Hash: Debug + Send + Sync + scale::Encode,
+    E: Environment + scale_decode::IntoVisitor,
+    E::AccountId:
+        Debug + Send + Sync + scale_decode::IntoVisitor + scale_encode::EncodeAsType,
+    E::Balance: Clone
+        + Debug
+        + Send
+        + Sync
+        + From<u128>
+        + scale::HasCompact
+        + serde::Serialize
+        + scale_encode::EncodeAsType,
+    E::Hash: Debug
+        + Send
+        + Sync
+        + scale::Encode
+        + scale_decode::IntoVisitor
+        + scale_encode::EncodeAsType,
 {
     async fn bare_instantiate<Contract: Clone, Args: Send + Sync + Encode + Clone, R>(
         &mut self,
@@ -666,8 +692,8 @@ where
     C::Signature: From<sr25519::Signature>,
     C::Address: Send + Sync,
 
-    E: Environment,
-    E::AccountId: Debug + Send + Sync,
+    E: Environment + scale_decode::IntoVisitor,
+    E::AccountId: Debug + Send + Sync + scale_decode::IntoVisitor,
     E::Balance:
         Clone + Debug + Send + Sync + From<u128> + scale::HasCompact + serde::Serialize,
     E::Hash: Debug + Send + scale::Encode,
@@ -686,18 +712,32 @@ where
         + core::fmt::Display
         + scale::Codec
         + From<sr25519::PublicKey>
-        + serde::de::DeserializeOwned,
+        + serde::de::DeserializeOwned
+        + scale_encode::EncodeAsType,
     C::Address: From<sr25519::PublicKey>,
     C::Signature: From<sr25519::Signature>,
     C::Address: Send + Sync,
     <C::ExtrinsicParams as ExtrinsicParams<C>>::Params:
         From<<DefaultExtrinsicParams<C> as ExtrinsicParams<C>>::Params>,
 
-    E: Environment,
-    E::AccountId: Debug + Send + Sync,
-    E::Balance:
-        Clone + Debug + Send + Sync + From<u128> + scale::HasCompact + serde::Serialize,
-    E::Hash: Debug + Send + Sync + scale::Encode,
+    E: Environment + scale_decode::IntoVisitor,
+    E::AccountId:
+        Debug + Send + Sync + scale_decode::IntoVisitor + scale_encode::EncodeAsType,
+    E::Balance: Clone
+        + Debug
+        + Send
+        + Sync
+        + From<u128>
+        + scale::HasCompact
+        + serde::Serialize
+        + scale_decode::IntoVisitor
+        + scale_encode::EncodeAsType,
+    E::Hash: Debug
+        + Send
+        + Sync
+        + scale::Encode
+        + scale_decode::IntoVisitor
+        + scale_encode::EncodeAsType,
 {
 }
 
@@ -730,7 +770,12 @@ fn is_extrinsic_failed_event<C: subxt::Config>(event: &EventDetails<C>) -> bool 
     event.pallet_name() == "System" && event.variant_name() == "ExtrinsicFailed"
 }
 
-impl<E: Environment, V, C: subxt::Config> CallResult<E, V, ExtrinsicEvents<C>> {
+impl<E, V, C> CallResult<E, V, ExtrinsicEvents<C>>
+where
+    C: subxt::Config,
+    E: Environment + scale_decode::IntoVisitor,
+    E::AccountId: scale_decode::IntoVisitor + scale_encode::EncodeAsType,
+{
     /// Returns true if the specified event was triggered by the call.
     pub fn contains_event(&self, pallet_name: &str, variant_name: &str) -> bool {
         self.events.iter().any(|event| {
