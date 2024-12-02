@@ -547,7 +547,7 @@ pub mod preset {
 
             fn take_snapshot(&mut self) -> Snapshot {
                 EXT_PARAA.with(|v| {
-                    let v = v.borrow();
+                    let mut v = v.borrow_mut();
                     let mut backend = v.as_backend().clone();
                     let raw_key_values = backend
                         .backend_storage_mut()
