@@ -127,7 +127,7 @@ where
     <C::ExtrinsicParams as ExtrinsicParams<C>>::Params:
         From<<DefaultExtrinsicParams<C> as ExtrinsicParams<C>>::Params>,
 
-    E: Environment + scale_decode::IntoVisitor,
+    E: Environment,
     E::AccountId: Debug + scale_decode::IntoVisitor + scale_encode::EncodeAsType,
     E::Balance: Debug + scale::HasCompact + serde::Serialize + scale_encode::EncodeAsType,
     E::Hash:
@@ -339,7 +339,7 @@ where
     <C::ExtrinsicParams as ExtrinsicParams<C>>::Params:
         From<<DefaultExtrinsicParams<C> as ExtrinsicParams<C>>::Params>,
 
-    E: Environment + scale_decode::IntoVisitor,
+    E: Environment,
     E::AccountId:
         Debug + Send + Sync + scale_decode::IntoVisitor + scale_encode::EncodeAsType,
     E::Hash: scale_decode::IntoVisitor + scale_encode::EncodeAsType,
@@ -484,7 +484,7 @@ where
     <C::ExtrinsicParams as ExtrinsicParams<C>>::Params:
         From<<DefaultExtrinsicParams<C> as ExtrinsicParams<C>>::Params>,
 
-    E: Environment + scale_decode::IntoVisitor,
+    E: Environment,
     E::AccountId:
         Debug + Send + Sync + scale_decode::IntoVisitor + scale_encode::EncodeAsType,
     E::Balance: Clone
@@ -692,7 +692,7 @@ where
     C::Signature: From<sr25519::Signature>,
     C::Address: Send + Sync,
 
-    E: Environment + scale_decode::IntoVisitor,
+    E: Environment,
     E::AccountId: Debug + Send + Sync + scale_decode::IntoVisitor,
     E::Balance:
         Clone + Debug + Send + Sync + From<u128> + scale::HasCompact + serde::Serialize,
@@ -720,7 +720,7 @@ where
     <C::ExtrinsicParams as ExtrinsicParams<C>>::Params:
         From<<DefaultExtrinsicParams<C> as ExtrinsicParams<C>>::Params>,
 
-    E: Environment + scale_decode::IntoVisitor,
+    E: Environment,
     E::AccountId:
         Debug + Send + Sync + scale_decode::IntoVisitor + scale_encode::EncodeAsType,
     E::Balance: Clone
@@ -773,7 +773,7 @@ fn is_extrinsic_failed_event<C: subxt::Config>(event: &EventDetails<C>) -> bool 
 impl<E, V, C> CallResult<E, V, ExtrinsicEvents<C>>
 where
     C: subxt::Config,
-    E: Environment + scale_decode::IntoVisitor,
+    E: Environment,
     E::AccountId: scale_decode::IntoVisitor + scale_encode::EncodeAsType,
 {
     /// Returns true if the specified event was triggered by the call.

@@ -48,7 +48,6 @@ where
 impl<E> StaticEvent for ContractInstantiatedEvent<E>
 where
     E: Environment,
-    E: scale_decode::IntoVisitor,
     E::AccountId: scale_decode::IntoVisitor + scale_encode::EncodeAsType,
 {
     const PALLET: &'static str = "Contracts";
@@ -77,7 +76,6 @@ where
 impl<E> StaticEvent for CodeStoredEvent<E>
 where
     E: Environment,
-    E: scale_decode::IntoVisitor,
     E::Hash: scale_decode::IntoVisitor + scale_encode::EncodeAsType,
 {
     const PALLET: &'static str = "Contracts";
@@ -107,7 +105,6 @@ impl<E> StaticEvent for ContractEmitted<E>
 where
     E: Environment,
     E::AccountId: scale_decode::IntoVisitor + scale_encode::EncodeAsType,
-    E: scale_decode::IntoVisitor,
 {
     const PALLET: &'static str = "Contracts";
     const EVENT: &'static str = "ContractEmitted";
