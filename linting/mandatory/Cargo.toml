@@ -36,7 +36,7 @@ ink_env = { version = "=5.1.0", path = "../../crates/env", default-features = fa
 ink_metadata = { version = "=5.1.0", path = "../../crates/metadata", default-features = false }
 ink_primitives = { version = "=5.1.0", path = "../../crates/primitives", default-features = false }
 ink_storage = { version = "=5.1.0", path = "../../crates/storage", default-features = false }
-scale = { package = "parity-scale-codec", version = "3.6.12", default-features = false, features = ["derive"] }
+scale = { package = "parity-scale-codec", version = "3.7.0", default-features = false, features = ["derive"] }
 scale-info = { version = "2.6", default-features = false, features = ["derive"] }
 
 # For the moment we have to include the tests as examples and
