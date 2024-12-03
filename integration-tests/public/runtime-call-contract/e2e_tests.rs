@@ -38,38 +38,14 @@ async fn instantiate_and_get<Client: E2EBackend>(mut client: Client) -> E2EResul
             "contract_call_flip",
             vec![
                 ink_e2e::subxt::dynamic::Value::from_bytes(contract.account_id),
-                {
-                    // TODO: Once https://github.com/paritytech/subxt/pull/1877 is merged
-                    // and released replace the code below with
-                    // ```
-                    // ink_e2e::subxt::dynamic::serde::to_value(frame_support::weights::Weight::from_parts(
-                    //      gas_required.ref_time(),
-                    //      gas_required.proof_size(),
-                    // )).unwrap(),
-                    // ```
-                    let parts: frame_support::weights::Weight =
-                        frame_support::weights::Weight::from_parts(
-                            gas_required.ref_time(),
-                            gas_required.proof_size(),
-                        );
-                    let scale_value: scale_value::Value =
-                        scale_value::serde::to_value(parts).unwrap();
-                    let subxt_value: ink_e2e::subxt::dynamic::Value =
-                        unsafe { std::mem::transmute(scale_value) };
-                    subxt_value
-                },
-                {
-                    // TODO: Once https://github.com/paritytech/subxt/pull/1877 is merged
-                    // and released replace the code below with
-                    // ```
-                    // ink_e2e::subxt::dynamic::serde::to_value(None::<u128>).unwrap()
-                    // ```
-                    let value = None::<u128>;
-                    let scale_value = scale_value::serde::to_value(value).unwrap();
-                    let subxt_value: ink_e2e::subxt::dynamic::Value =
-                        unsafe { std::mem::transmute(scale_value) };
-                    subxt_value
-                },
+                ink_e2e::subxt::ext::scale_value::serde::to_value(
+                    frame_support::weights::Weight::from_parts(
+                        gas_required.ref_time(),
+                        gas_required.proof_size(),
+                    ),
+                )
+                .unwrap(),
+                ink_e2e::subxt::ext::scale_value::serde::to_value(None::<u128>).unwrap(),
             ],
         )
         .await
