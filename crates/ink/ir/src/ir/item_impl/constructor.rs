@@ -15,7 +15,13 @@
 use super::{ensure_callable_invariants, Callable, CallableKind, InputsIter, Visibility};
 use crate::{
     ir,
-    ir::{attrs::SelectorOrWildcard, utils::extract_cfg_attributes},
+    ir::{
+        attrs::SelectorOrWildcard,
+        utils::{
+            extract_cfg_attributes,
+            extract_cfg_syn_attributes,
+        },
+    },
 };
 use proc_macro2::{Ident, Span, TokenStream};
 use syn::spanned::Spanned as _;
@@ -220,6 +226,11 @@ impl Constructor {
     /// Returns a list of `cfg` attributes if any.
     pub fn get_cfg_attrs(&self, span: Span) -> Vec<TokenStream> {
         extract_cfg_attributes(self.attrs(), span)
+    }
+
+    /// Returns a list of `cfg` attributes as `syn::Attribute` if any.
+    pub fn get_cfg_syn_attrs(&self) -> Vec<syn::Attribute> {
+        extract_cfg_syn_attributes(self.attrs())
     }
 
     /// Returns the return type of the ink! constructor if any.

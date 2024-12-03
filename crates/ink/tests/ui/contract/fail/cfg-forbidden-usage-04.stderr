@@ -1,0 +1,12 @@
+error: This `cfg` attribute is not allowed.
+
+       Allowed in `#[cfg(…)]`:
+       - `test`
+       - `feature` (without `std`)
+       - `any`
+       - `not`
+       - `all`
+ --> tests/ui/contract/fail/cfg-forbidden-usage-04.rs:7:25
+  |
+7 |         #[cfg(any(test, target_family = "wasm", feature = "std"))]
+  |                         ^^^^^^^^^^^^^
