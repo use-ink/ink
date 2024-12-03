@@ -647,6 +647,14 @@
 <a href="#647" id="647">647</a>
 <a href="#648" id="648">648</a>
 <a href="#649" id="649">649</a>
+<a href="#650" id="650">650</a>
+<a href="#651" id="651">651</a>
+<a href="#652" id="652">652</a>
+<a href="#653" id="653">653</a>
+<a href="#654" id="654">654</a>
+<a href="#655" id="655">655</a>
+<a href="#656" id="656">656</a>
+<a href="#657" id="657">657</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) Use Ink (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -672,7 +680,10 @@
     ir,
     ir::{
         attrs::SelectorOrWildcard,
-        utils::extract_cfg_attributes,
+        utils::{
+            extract_cfg_attributes,
+            extract_cfg_syn_attributes,
+        },
     },
 };
 <span class="kw">use </span>proc_macro2::{
@@ -884,6 +895,11 @@
     <span class="doccomment">/// Returns a list of `cfg` attributes if any.
     </span><span class="kw">pub fn </span>get_cfg_attrs(<span class="kw-2">&amp;</span><span class="self">self</span>, span: Span) -&gt; Vec&lt;TokenStream&gt; {
         extract_cfg_attributes(<span class="self">self</span>.attrs(), span)
+    }
+
+    <span class="doccomment">/// Returns a list of `cfg` attributes as `syn::Attribute` if any.
+    </span><span class="kw">pub fn </span>get_cfg_syn_attrs(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Vec&lt;syn::Attribute&gt; {
+        extract_cfg_syn_attributes(<span class="self">self</span>.attrs())
     }
 
     <span class="doccomment">/// Returns the return type of the ink! constructor if any.

@@ -177,6 +177,15 @@
 <a href="#177" id="177">177</a>
 <a href="#178" id="178">178</a>
 <a href="#179" id="179">179</a>
+<a href="#180" id="180">180</a>
+<a href="#181" id="181">181</a>
+<a href="#182" id="182">182</a>
+<a href="#183" id="183">183</a>
+<a href="#184" id="184">184</a>
+<a href="#185" id="185">185</a>
+<a href="#186" id="186">186</a>
+<a href="#187" id="187">187</a>
+<a href="#188" id="188">188</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) Use Ink (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -354,6 +363,15 @@
         .iter()
         .filter(|a| a.path().is_ident(<span class="kw">super</span>::CFG_IDENT))
         .map(|a| <span class="macro">quote::quote_spanned!</span>(span=&gt; #a ))
+        .collect()
+}
+
+<span class="doccomment">/// Extracts `cfg` attributes from the given set of attributes
+</span><span class="kw">pub fn </span>extract_cfg_syn_attributes(attrs: <span class="kw-2">&amp;</span>[syn::Attribute]) -&gt; Vec&lt;syn::Attribute&gt; {
+    attrs
+        .iter()
+        .filter(|a| a.path().is_ident(<span class="kw">super</span>::CFG_IDENT))
+        .cloned()
         .collect()
 }
 </code></pre></div></section></main></body></html>
