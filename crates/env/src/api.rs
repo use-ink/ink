@@ -729,6 +729,26 @@ where
     })
 }
 
+/// Checks whether the caller of the current contract is root.
+///
+/// Note that only the origin of the call stack can be root. Hence this function returning
+/// `true` implies that the contract is being called by the origin.
+///
+/// A return value of `true` indicates that this contract is being called by a root origin,
+/// and `false` indicates that the caller is a signed origin.
+///
+/// # Errors
+///
+/// If the returned value cannot be properly decoded.
+pub fn caller_is_root<E>() -> bool
+where
+    E: Environment,
+{
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        TypedEnvBackend::caller_is_root::<E>(instance)
+    })
+}
+
 /// Replace the contract code at the specified address with new code.
 ///
 /// # Note
