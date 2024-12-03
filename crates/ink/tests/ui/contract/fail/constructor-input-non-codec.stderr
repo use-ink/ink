@@ -18,6 +18,7 @@ note: required by a bound in `DispatchInput`
    | where
    |     T: scale::Decode + 'static;
    |        ^^^^^^^^^^^^^ required by this bound in `DispatchInput`
+
 error[E0277]: the trait bound `NonCodecType: ink::parity_scale_codec::Decode` is not satisfied
   --> tests/ui/contract/fail/constructor-input-non-codec.rs:11:9
    |
@@ -32,6 +33,7 @@ error[E0277]: the trait bound `NonCodecType: ink::parity_scale_codec::Decode` is
              Rc<T>
              sp_core::Bytes
    = note: required for `NonCodecType` to implement `ink::parity_scale_codec::Decode`
+
 error[E0277]: the trait bound `NonCodecType: Encode` is not satisfied
   --> tests/ui/contract/fail/constructor-input-non-codec.rs:1:1
    |

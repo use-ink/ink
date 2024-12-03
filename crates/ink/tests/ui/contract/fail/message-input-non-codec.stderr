@@ -18,6 +18,7 @@ note: required by a bound in `DispatchInput`
    | where
    |     T: scale::Decode + 'static;
    |        ^^^^^^^^^^^^^ required by this bound in `DispatchInput`
+
 error[E0277]: the trait bound `NonCodecType: ink::parity_scale_codec::Decode` is not satisfied
   --> tests/ui/contract/fail/message-input-non-codec.rs:16:9
    |
@@ -30,6 +31,7 @@ error[E0277]: the trait bound `NonCodecType: ink::parity_scale_codec::Decode` is
              Rc<T>
              sp_core::Bytes
    = note: required for `NonCodecType` to implement `ink::parity_scale_codec::Decode`
+
 error[E0277]: the trait bound `NonCodecType: Encode` is not satisfied
   --> tests/ui/contract/fail/message-input-non-codec.rs:1:1
    |
@@ -58,6 +60,7 @@ note: required by a bound in `ExecutionInput::<ArgumentList<ArgumentListEnd, Arg
 ...
    |         T: scale::Encode,
    |            ^^^^^^^^^^^^^ required by this bound in `ExecutionInput::<ArgumentList<ArgumentListEnd, ArgumentListEnd>>::push_arg`
+
 error[E0599]: the method `try_invoke` exists for struct `CallBuilder<DefaultEnvironment, Set<Call<DefaultEnvironment>>, Set<ExecutionInput<ArgumentList<Argument<NonCodecType>, ArgumentList<ArgumentListEnd, ArgumentListEnd>>>>, Set<ReturnType<()>>>`, but its trait bounds were not satisfied
   --> tests/ui/contract/fail/message-input-non-codec.rs:16:9
    |
