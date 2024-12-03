@@ -32,7 +32,6 @@ flipper-traits = { path = "traits", default-features = false }
 ink_e2e = { path = "../../../crates/e2e", features = ["sandbox"] }
 sandbox-runtime = { path = "sandbox-runtime", default-features = false }
 scale-value = "0.18.0"
-scale-encode = "0.10.0"
 # can't use workspace dependency because of `cargo-contract` build not
 # working with workspace dependencies
 frame-support = { version = "38.0.0", default-features = false }
