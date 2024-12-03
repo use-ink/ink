@@ -102,6 +102,7 @@ The compatibility changes a bit to ink! 5.0:
 - [E2E] Adds a message to SandboxErr to add context for easier debugging ‒ [#2218](https://github.com/use-ink/ink/pull/2218)
 - [E2E] Add ability to take and restore snapshots ‒ [#2261](https://github.com/paritytech/ink/pull/2261) (thanks [@0xLucca](https://github.com/0xLucca)!)
 - [E2E] Demonstrate usage of seeds for secret URIs in E2E test for chain snapshots ‒ [#2163](https://github.com/paritytech/ink/pull/2163)
+- Support for `caller_is_root` - [#2332] (https://github.com/use-ink/ink/pull/2332)
 
 ### Changed
 - Update repository URLs & references from `paritytech` GitHub organization to new `use-ink` one ‒ [#2220](https://github.com/use-ink/ink/pull/2220) and [#2248](https://github.com/use-ink/ink/pull/2248)
