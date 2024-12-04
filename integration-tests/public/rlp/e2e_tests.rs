@@ -74,7 +74,8 @@ fn call_rlp_encoded_message() {
             )
             .result
             .expect("sandbox call contract failed");
-    println!("result: {:?}", result);
+
+    assert!(!result.did_revert(), "set_value failed {:?}", result);
 
     // get value
     let mut get_value_data = keccak_selector(b"Rlp::get_value");
@@ -92,5 +93,6 @@ fn call_rlp_encoded_message() {
             )
             .result
             .expect("sandbox call contract failed");
-    println!("result: {:?}", result);
+
+    assert!(!result.did_revert(), "set_value failed {:?}", result);
 }
