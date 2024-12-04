@@ -2792,6 +2792,7 @@ dependencies = [
  "pallet-contracts",
  "pallet-contracts-mock-network",
  "parity-scale-codec",
+ "regex",
  "scale-info",
  "serde",
  "serde_json",
