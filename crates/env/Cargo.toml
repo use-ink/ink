@@ -78,8 +78,8 @@ std = [
     # Enables hashing crates for off-chain environment.
 	"sha2",
 	"sha3",
-	"scale-decode",
-	"scale-encode",
+	"scale-decode?/std",
+	"scale-encode?/std",
 	"xcm/std",
 	"derive_more/std"
 ]
