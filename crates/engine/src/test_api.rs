@@ -14,14 +14,8 @@
 
 use crate::{
     ext::Engine,
-    types::{
-        AccountId,
-        Balance,
-        BlockNumber,
-        BlockTimestamp,
-    },
-    AccountError,
-    Error,
+    types::{AccountId, Balance, BlockNumber, BlockTimestamp},
+    AccountError, Error,
 };
 use std::collections::HashMap;
 

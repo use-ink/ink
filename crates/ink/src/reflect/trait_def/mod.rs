@@ -16,9 +16,6 @@ mod info;
 mod registry;
 
 pub use self::{
-    info::{
-        TraitInfo,
-        TraitMessageInfo,
-    },
+    info::{TraitInfo, TraitMessageInfo},
     registry::TraitDefinitionRegistry,
 };

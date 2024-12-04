@@ -12,11 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::layout::{
-    Layout,
-    MetadataError,
-    StructLayout,
-};
+use crate::layout::{Layout, MetadataError, StructLayout};
 use ink_prelude::collections::HashMap;
 use ink_primitives::Key;
 use scale_info::form::MetaForm;
@@ -93,14 +89,8 @@ impl ValidateLayout {
 #[cfg(test)]
 mod tests {
     use crate::layout::{
-        EnumLayout,
-        FieldLayout,
-        Layout,
-        LeafLayout,
-        MetadataError,
-        RootLayout,
-        StructLayout,
-        ValidateLayout,
+        EnumLayout, FieldLayout, Layout, LeafLayout, MetadataError, RootLayout,
+        StructLayout, ValidateLayout,
     };
     use ink_primitives::Key;
     use std::collections::BTreeSet;

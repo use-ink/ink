@@ -12,27 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use super::{
-    ensure_callable_invariants,
-    Callable,
-    CallableKind,
-    InputsIter,
-    Visibility,
-};
+use super::{ensure_callable_invariants, Callable, CallableKind, InputsIter, Visibility};
 use crate::ir::{
     self,
     attrs::SelectorOrWildcard,
     utils,
-    utils::{
-        extract_cfg_attributes,
-        extract_cfg_syn_attributes,
-    },
+    utils::{extract_cfg_attributes, extract_cfg_syn_attributes},
 };
-use proc_macro2::{
-    Ident,
-    Span,
-    TokenStream,
-};
+use proc_macro2::{Ident, Span, TokenStream};
 use syn::spanned::Spanned as _;
 
 /// The receiver of an ink! message.
@@ -147,7 +134,7 @@ impl Message {
             Some(syn::FnArg::Typed(pat_typed)) => return Err(bail(pat_typed.span())),
             Some(syn::FnArg::Receiver(receiver)) => {
                 if receiver.reference.is_none() {
-                    return Err(bail(receiver.span()))
+                    return Err(bail(receiver.span()));
                 }
             }
         }
@@ -168,7 +155,7 @@ impl Message {
                         return Err(format_err!(
                             ret_type,
                             "ink! messages must not return `Self`"
-                        ))
+                        ));
                     }
                 }
             }
@@ -186,14 +173,12 @@ impl Message {
             method_item.span(),
             method_item.attrs.clone(),
             &ir::AttributeArgKind::Message,
-            |arg| {
-                match arg.kind() {
-                    ir::AttributeArg::Message
-                    | ir::AttributeArg::Payable
-                    | ir::AttributeArg::Default
-                    | ir::AttributeArg::Selector(_) => Ok(()),
-                    _ => Err(None),
-                }
+            |arg| match arg.kind() {
+                ir::AttributeArg::Message
+                | ir::AttributeArg::Payable
+                | ir::AttributeArg::Default
+                | ir::AttributeArg::Selector(_) => Ok(()),
+                _ => Err(None),
             },
         )
     }
@@ -233,7 +218,7 @@ impl Callable for Message {
 
     fn user_provided_selector(&self) -> Option<&ir::Selector> {
         if let Some(SelectorOrWildcard::UserProvided(selector)) = self.selector.as_ref() {
-            return Some(selector)
+            return Some(selector);
         }
         None
     }

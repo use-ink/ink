@@ -12,10 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::{
-    ast,
-    utils::duplicate_config_err,
-};
+use crate::{ast, utils::duplicate_config_err};
 
 /// The configuration arguments to the `#[ink::event(..)]` attribute macro.
 #[derive(Debug, PartialEq, Eq)]
@@ -38,7 +35,12 @@ impl TryFrom<ast::AttributeArgs> for EventConfig {
         for arg in args.into_iter() {
             if arg.name().is_ident("anonymous") {
                 if let Some(lit_bool) = anonymous {
-                    return Err(duplicate_config_err(lit_bool, arg, "anonymous", "event"));
+                    return Err(duplicate_config_err(
+                        lit_bool,
+                        arg,
+                        "anonymous",
+                        "event",
+                    ));
                 }
                 if let ast::Meta::Path(path) = arg {
                     anonymous = Some(path)

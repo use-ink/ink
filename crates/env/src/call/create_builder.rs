@@ -14,18 +14,10 @@
 
 use crate::{
     call::{
-        utils::{
-            EmptyArgumentList,
-            ReturnType,
-            Set,
-            Unset,
-        },
-        ExecutionInput,
-        Selector,
+        utils::{EmptyArgumentList, ReturnType, Set, Unset},
+        ExecutionInput, Selector,
     },
-    ContractEnv,
-    Environment,
-    Error,
+    ContractEnv, Environment, Error,
 };
 use core::marker::PhantomData;
 

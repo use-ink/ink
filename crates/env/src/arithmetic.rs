@@ -14,24 +14,8 @@
 
 //! Primitive traits for runtime arithmetic, copied from substrate
 
-use core::ops::{
-    Add,
-    AddAssign,
-    Div,
-    DivAssign,
-    Mul,
-    MulAssign,
-    Sub,
-    SubAssign,
-};
-use num_traits::{
-    checked_pow,
-    Bounded,
-    CheckedMul,
-    One,
-    Unsigned,
-    Zero,
-};
+use core::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Sub, SubAssign};
+use num_traits::{checked_pow, Bounded, CheckedMul, One, Unsigned, Zero};
 
 /// Types that allow for simple arithmetic operations.
 ///

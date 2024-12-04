@@ -32,11 +32,7 @@
 //! the trait bounds on the `Environment` trait types.
 
 use super::arithmetic::AtLeast32BitUnsigned;
-use ink_primitives::{
-    AccountId,
-    Clear,
-    Hash,
-};
+use ink_primitives::{AccountId, Clear, Hash};
 #[cfg(feature = "std")]
 use scale_info::TypeInfo;
 

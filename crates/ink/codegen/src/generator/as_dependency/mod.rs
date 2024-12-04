@@ -15,14 +15,8 @@
 mod call_builder;
 mod contract_ref;
 
-use self::{
-    call_builder::CallBuilder,
-    contract_ref::ContractRef,
-};
-use crate::{
-    traits::GenerateCodeUsing,
-    GenerateCode,
-};
+use self::{call_builder::CallBuilder, contract_ref::ContractRef};
+use crate::{traits::GenerateCodeUsing, GenerateCode};
 use derive_more::From;
 use proc_macro2::TokenStream as TokenStream2;
 use quote::quote;

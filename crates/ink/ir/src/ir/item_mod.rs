@@ -12,22 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::{
-    error::ExtError as _,
-    ir,
-    ir::idents_lint,
-    Callable,
-};
-use proc_macro2::{
-    Ident,
-    Span,
-};
+use crate::{error::ExtError as _, ir, ir::idents_lint, Callable};
+use proc_macro2::{Ident, Span};
 use quote::TokenStreamExt as _;
 use std::collections::HashMap;
-use syn::{
-    spanned::Spanned,
-    token,
-};
+use syn::{spanned::Spanned, token};
 
 /// The ink! module.
 ///
@@ -106,7 +95,7 @@ impl ItemMod {
             .iter()
             .filter(|item| matches!(item, ir::Item::Ink(ir::InkItem::Storage(_))));
         if storage_iter.clone().next().is_none() {
-            return Err(format_err!(module_span, "missing ink! storage struct",))
+            return Err(format_err!(module_span, "missing ink! storage struct",));
         }
         if storage_iter.clone().count() >= 2 {
             let mut error = format_err!(
@@ -116,7 +105,7 @@ impl ItemMod {
             for storage in storage_iter {
                 error.combine(format_err!(storage, "ink! storage struct here"))
             }
-            return Err(error)
+            return Err(error);
         }
         Ok(())
     }
@@ -128,17 +117,15 @@ impl ItemMod {
     ) -> Result<(), syn::Error> {
         let found_message = items
             .iter()
-            .filter_map(|item| {
-                match item {
-                    ir::Item::Ink(ir::InkItem::ImplBlock(item_impl)) => {
-                        Some(item_impl.iter_messages())
-                    }
-                    _ => None,
+            .filter_map(|item| match item {
+                ir::Item::Ink(ir::InkItem::ImplBlock(item_impl)) => {
+                    Some(item_impl.iter_messages())
                 }
+                _ => None,
             })
             .any(|mut messages| messages.next().is_some());
         if !found_message {
-            return Err(format_err!(module_span, "missing ink! message"))
+            return Err(format_err!(module_span, "missing ink! message"));
         }
         Ok(())
     }
@@ -150,17 +137,15 @@ impl ItemMod {
     ) -> Result<(), syn::Error> {
         let found_constructor = items
             .iter()
-            .filter_map(|item| {
-                match item {
-                    ir::Item::Ink(ir::InkItem::ImplBlock(item_impl)) => {
-                        Some(item_impl.iter_constructors())
-                    }
-                    _ => None,
+            .filter_map(|item| match item {
+                ir::Item::Ink(ir::InkItem::ImplBlock(item_impl)) => {
+                    Some(item_impl.iter_constructors())
                 }
+                _ => None,
             })
             .any(|mut constructors| constructors.next().is_some());
         if !found_constructor {
-            return Err(format_err!(module_span, "missing ink! constructor"))
+            return Err(format_err!(module_span, "missing ink! constructor"));
         }
         Ok(())
     }
@@ -299,7 +284,7 @@ impl ItemMod {
                     return Err(format_err_spanned!(
                         meta.path,
                         "The feature `std` is not allowed in `cfg`.\n\n{ERR_HELP}"
-                    ))
+                    ));
                 }
                 return Ok(());
             }
@@ -347,7 +332,7 @@ impl ItemMod {
             for message in item_impl.iter_messages() {
                 if !message.has_wildcard_selector() {
                     other_messages.push(message);
-                    continue
+                    continue;
                 }
                 match wildcard_selector {
                     None => wildcard_selector = Some(message.callable()),
@@ -360,7 +345,7 @@ impl ItemMod {
                             overlap.span(),
                             "first ink! message with overlapping wildcard selector here",
                         );
-                        return Err(err.into_combine(overlap_err))
+                        return Err(err.into_combine(overlap_err));
                     }
                 }
             }
@@ -414,7 +399,7 @@ impl ItemMod {
             let mut wildcard_selector: Option<&ir::Constructor> = None;
             for constructor in item_impl.iter_constructors() {
                 if !constructor.has_wildcard_selector() {
-                    continue
+                    continue;
                 }
                 match wildcard_selector {
                     None => wildcard_selector = Some(constructor.callable()),
@@ -462,7 +447,7 @@ impl TryFrom<syn::ItemMod> for ItemMod {
                     "invalid ink! attribute on module"
                 ))
             }
-            return Err(error)
+            return Err(error);
         }
         let items = items
             .into_iter()
@@ -655,9 +640,9 @@ impl<'a> Iterator for IterInkItems<'a> {
                 None => return None,
                 Some(item) => {
                     if let Some(event) = item.map_ink_item() {
-                        return Some(event)
+                        return Some(event);
                     }
-                    continue 'repeat
+                    continue 'repeat;
                 }
             }
         }
@@ -688,9 +673,9 @@ impl<'a> Iterator for IterEvents<'a> {
                 None => return None,
                 Some(ink_item) => {
                     if let Some(event) = ink_item.filter_map_event_item() {
-                        return Some(event)
+                        return Some(event);
                     }
-                    continue 'repeat
+                    continue 'repeat;
                 }
             }
         }
@@ -721,9 +706,9 @@ impl<'a> Iterator for IterItemImpls<'a> {
                 None => return None,
                 Some(ink_item) => {
                     if let Some(event) = ink_item.filter_map_impl_block() {
-                        return Some(event)
+                        return Some(event);
                     }
-                    continue 'repeat
+                    continue 'repeat;
                 }
             }
         }

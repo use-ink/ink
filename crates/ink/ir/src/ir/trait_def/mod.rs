@@ -20,12 +20,7 @@ mod tests;
 
 pub use self::{
     config::TraitDefinitionConfig,
-    item::{
-        InkItemTrait,
-        InkTraitItem,
-        InkTraitMessage,
-        IterInkTraitItems,
-    },
+    item::{InkItemTrait, InkTraitItem, InkTraitMessage, IterInkTraitItems},
 };
 use super::attrs::InkAttribute;
 use proc_macro2::TokenStream as TokenStream2;

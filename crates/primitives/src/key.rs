@@ -52,7 +52,7 @@ impl KeyComposer {
     /// Returns the storage key from the supplied `bytes`.
     pub const fn from_bytes(bytes: &[u8]) -> Key {
         if bytes.is_empty() {
-            return 0
+            return 0;
         }
 
         xxh32(bytes, XXH32_SEED)
@@ -77,10 +77,10 @@ impl KeyComposer {
         field_name: &str,
     ) -> Result<Key, Error> {
         if struct_name.is_empty() {
-            return Err(Error::StructNameIsEmpty)
+            return Err(Error::StructNameIsEmpty);
         }
         if field_name.is_empty() {
-            return Err(Error::FieldNameIsEmpty)
+            return Err(Error::FieldNameIsEmpty);
         }
 
         let separator = &b"::"[..];

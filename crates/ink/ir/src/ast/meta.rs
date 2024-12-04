@@ -12,23 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use proc_macro2::{
-    Ident,
-    TokenStream as TokenStream2,
-};
+use proc_macro2::{Ident, TokenStream as TokenStream2};
 use quote::ToTokens;
 use syn::{
     ext::IdentExt as _,
-    parse::{
-        Parse,
-        ParseStream,
-    },
+    parse::{Parse, ParseStream},
     punctuated::Punctuated,
     spanned::Spanned,
-    LitBool,
-    LitInt,
-    LitStr,
-    Token,
+    LitBool, LitInt, LitStr, Token,
 };
 
 /// Content of a compile-time structured attribute.
@@ -146,13 +137,13 @@ pub enum MetaValue {
 impl Parse for MetaValue {
     fn parse(input: ParseStream) -> Result<Self, syn::Error> {
         if input.peek(Token![_]) || input.peek(Token![@]) {
-            return input.parse::<Symbol>().map(MetaValue::Symbol)
+            return input.parse::<Symbol>().map(MetaValue::Symbol);
         }
         if input.fork().peek(syn::Lit) {
-            return input.parse::<syn::Lit>().map(MetaValue::Lit)
+            return input.parse::<syn::Lit>().map(MetaValue::Lit);
         }
         if input.fork().peek(Ident::peek_any) || input.fork().peek(Token![::]) {
-            return input.call(parse_meta_path).map(MetaValue::Path)
+            return input.call(parse_meta_path).map(MetaValue::Path);
         }
         Err(input.error("expected a literal, a path or a punct for a meta value"))
     }
@@ -260,15 +251,15 @@ fn parse_meta_path(input: ParseStream) -> Result<syn::Path, syn::Error> {
                 let ident = Ident::parse_any(input)?;
                 segments.push_value(syn::PathSegment::from(ident));
                 if !input.peek(syn::Token![::]) {
-                    break
+                    break;
                 }
                 let punct = input.parse()?;
                 segments.push_punct(punct);
             }
             if segments.is_empty() {
-                return Err(input.error("expected path"))
+                return Err(input.error("expected path"));
             } else if segments.trailing_punct() {
-                return Err(input.error("expected path segment"))
+                return Err(input.error("expected path segment"));
             }
             segments
         },
@@ -278,10 +269,7 @@ fn parse_meta_path(input: ParseStream) -> Result<syn::Path, syn::Error> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::ast::{
-        MetaValue,
-        Symbol,
-    };
+    use crate::ast::{MetaValue, Symbol};
     use quote::quote;
 
     #[test]

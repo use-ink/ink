@@ -15,12 +15,7 @@
 //! Contains the necessary conversions from `ink_engine` types to types
 //! of this crate.
 
-use super::{
-    test_api::EmittedEvent,
-    AccountError,
-    Error,
-    OffChainError,
-};
+use super::{test_api::EmittedEvent, AccountError, Error, OffChainError};
 
 impl From<ink_engine::test_api::EmittedEvent> for EmittedEvent {
     fn from(evt: ink_engine::test_api::EmittedEvent) -> Self {

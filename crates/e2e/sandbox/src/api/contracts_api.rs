@@ -1,21 +1,11 @@
 use crate::{
-    AccountIdFor,
-    ContractExecResultFor,
-    ContractInstantiateResultFor,
-    EventRecordOf,
+    AccountIdFor, ContractExecResultFor, ContractInstantiateResultFor, EventRecordOf,
     Sandbox,
 };
-use frame_support::{
-    traits::fungible::Inspect,
-    weights::Weight,
-};
+use frame_support::{traits::fungible::Inspect, weights::Weight};
 use frame_system::Config as SysConfig;
 use pallet_contracts::{
-    Code,
-    CodeUploadResult,
-    CollectEvents,
-    ContractInstantiateResult,
-    DebugInfo,
+    Code, CodeUploadResult, CollectEvents, ContractInstantiateResult, DebugInfo,
     Determinism,
 };
 use scale::Decode as _;
@@ -244,12 +234,7 @@ pub fn decode_debug_buffer(buffer: &[u8]) -> Vec<String> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::{
-        api::prelude::*,
-        DefaultSandbox,
-        RuntimeEventOf,
-        RuntimeOf,
-    };
+    use crate::{api::prelude::*, DefaultSandbox, RuntimeEventOf, RuntimeOf};
     use frame_support::sp_runtime::traits::Hash;
     use pallet_contracts::Origin;
 

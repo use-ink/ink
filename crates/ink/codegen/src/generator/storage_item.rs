@@ -14,27 +14,9 @@
 
 use crate::GenerateCode;
 use derive_more::From;
-use proc_macro2::{
-    Ident,
-    TokenStream as TokenStream2,
-    TokenStream,
-};
-use quote::{
-    format_ident,
-    quote,
-    quote_spanned,
-    ToTokens,
-};
-use syn::{
-    spanned::Spanned,
-    Data,
-    DataEnum,
-    DataStruct,
-    DataUnion,
-    Field,
-    Fields,
-    Type,
-};
+use proc_macro2::{Ident, TokenStream as TokenStream2, TokenStream};
+use quote::{format_ident, quote, quote_spanned, ToTokens};
+use syn::{spanned::Spanned, Data, DataEnum, DataStruct, DataUnion, Field, Fields, Type};
 
 /// Generates code for the storage item.
 #[derive(From, Copy, Clone)]

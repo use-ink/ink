@@ -39,10 +39,7 @@ where
 
 #[cfg(test)]
 mod tests {
-    use crate::{
-        api::prelude::*,
-        DefaultSandbox,
-    };
+    use crate::{api::prelude::*, DefaultSandbox};
 
     #[test]
     fn getting_and_setting_timestamp_works() {

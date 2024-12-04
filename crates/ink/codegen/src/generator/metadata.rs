@@ -15,23 +15,10 @@
 use crate::GenerateCode;
 use ::core::iter;
 use derive_more::From;
-use ir::{
-    Callable as _,
-    HexLiteral,
-    IsDocAttribute,
-};
-use proc_macro2::{
-    Ident,
-    TokenStream as TokenStream2,
-};
-use quote::{
-    quote,
-    quote_spanned,
-};
-use syn::{
-    parse_quote,
-    spanned::Spanned as _,
-};
+use ir::{Callable as _, HexLiteral, IsDocAttribute};
+use proc_macro2::{Ident, TokenStream as TokenStream2};
+use quote::{quote, quote_spanned};
+use syn::{parse_quote, spanned::Spanned as _};
 
 /// Generates code to generate the metadata of the contract.
 #[derive(From)]
@@ -371,11 +358,11 @@ pub fn generate_type_spec(ty: &syn::Type) -> TokenStream2 {
 
     if let syn::Type::Path(type_path) = ty {
         if type_path.qself.is_some() {
-            return without_display_name(ty)
+            return without_display_name(ty);
         }
         let path = &type_path.path;
         if path.segments.is_empty() {
-            return without_display_name(ty)
+            return without_display_name(ty);
         }
         let segs = path
             .segments

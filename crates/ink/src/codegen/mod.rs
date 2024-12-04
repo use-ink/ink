@@ -21,23 +21,11 @@ mod trait_def;
 pub mod utils;
 
 pub use self::{
-    dispatch::{
-        deny_payment,
-        ContractCallBuilder,
-        DispatchInput,
-        DispatchOutput,
-    },
-    env::{
-        Env,
-        StaticEnv,
-    },
+    dispatch::{deny_payment, ContractCallBuilder, DispatchInput, DispatchOutput},
+    env::{Env, StaticEnv},
     implies_return::ImpliesReturn,
     trait_def::{
-        TraitCallBuilder,
-        TraitCallForwarder,
-        TraitCallForwarderFor,
-        TraitMessageBuilder,
-        TraitMessagePayable,
-        TraitMessageSelector,
+        TraitCallBuilder, TraitCallForwarder, TraitCallForwarderFor, TraitMessageBuilder,
+        TraitMessagePayable, TraitMessageSelector,
     },
 };

@@ -14,10 +14,7 @@
 
 use super::Meta;
 use syn::{
-    parse::{
-        Parse,
-        ParseStream,
-    },
+    parse::{Parse, ParseStream},
     punctuated::Punctuated,
     Token,
 };
@@ -57,10 +54,7 @@ impl Parse for AttributeArgs {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::ast::{
-        MetaNameValue,
-        MetaValue,
-    };
+    use crate::ast::{MetaNameValue, MetaValue};
     use quote::quote;
 
     impl AttributeArgs {

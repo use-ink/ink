@@ -17,17 +17,9 @@ use core::iter;
 use crate::GenerateCode;
 use derive_more::From;
 use heck::ToLowerCamelCase as _;
-use ir::{
-    Callable as _,
-    HexLiteral,
-};
+use ir::{Callable as _, HexLiteral};
 use proc_macro2::TokenStream as TokenStream2;
-use quote::{
-    format_ident,
-    quote,
-    quote_spanned,
-    ToTokens,
-};
+use quote::{format_ident, quote, quote_spanned, ToTokens};
 use syn::spanned::Spanned as _;
 
 /// Generates code for all ink! implementation blocks.

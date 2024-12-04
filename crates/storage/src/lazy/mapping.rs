@@ -19,21 +19,11 @@
 //! This mapping doesn't actually "own" any data.
 //! Instead it is just a simple wrapper around the contract storage facilities.
 
-use crate::traits::{
-    AutoKey,
-    Packed,
-    StorableHint,
-    StorageKey,
-};
+use crate::traits::{AutoKey, Packed, StorableHint, StorageKey};
 use core::marker::PhantomData;
 use ink_primitives::Key;
 use ink_storage_traits::Storable;
-use scale::{
-    Encode,
-    Error,
-    Input,
-    Output,
-};
+use scale::{Encode, Error, Input, Output};
 
 /// A mapping of key-value pairs directly into contract storage.
 ///
@@ -168,13 +158,13 @@ where
         let key_size = <Q as Encode>::encoded_size(&key);
 
         if key_size > ink_env::BUFFER_SIZE {
-            return Err(ink_env::Error::BufferTooSmall)
+            return Err(ink_env::Error::BufferTooSmall);
         }
 
         let value_size = <R as Storable>::encoded_size(value);
 
         if key_size.saturating_add(value_size) > ink_env::BUFFER_SIZE {
-            return Err(ink_env::Error::BufferTooSmall)
+            return Err(ink_env::Error::BufferTooSmall);
         }
 
         Ok(self.insert(key, value))
@@ -211,7 +201,7 @@ where
         let key_size = <Q as Encode>::encoded_size(&key);
 
         if key_size > ink_env::BUFFER_SIZE {
-            return Some(Err(ink_env::Error::BufferTooSmall))
+            return Some(Err(ink_env::Error::BufferTooSmall));
         }
 
         let value_size: usize =
@@ -220,7 +210,7 @@ where
                 .expect("targets of less than 32bit pointer size are not supported; qed");
 
         if key_size.saturating_add(value_size) > ink_env::BUFFER_SIZE {
-            return Some(Err(ink_env::Error::BufferTooSmall))
+            return Some(Err(ink_env::Error::BufferTooSmall));
         }
 
         self.get(key).map(Ok)
@@ -271,7 +261,7 @@ where
         let key_size = <Q as Encode>::encoded_size(&key);
 
         if key_size > ink_env::BUFFER_SIZE {
-            return Some(Err(ink_env::Error::BufferTooSmall))
+            return Some(Err(ink_env::Error::BufferTooSmall));
         }
 
         let value_size: usize =
@@ -280,7 +270,7 @@ where
                 .expect("targets of less than 32bit pointer size are not supported; qed");
 
         if key_size.saturating_add(value_size) > ink_env::BUFFER_SIZE {
-            return Some(Err(ink_env::Error::BufferTooSmall))
+            return Some(Err(ink_env::Error::BufferTooSmall));
         }
 
         self.take(key).map(Ok)
@@ -358,11 +348,7 @@ where
 #[cfg(feature = "std")]
 const _: () = {
     use crate::traits::StorageLayout;
-    use ink_metadata::layout::{
-        Layout,
-        LayoutKey,
-        RootLayout,
-    };
+    use ink_metadata::layout::{Layout, LayoutKey, RootLayout};
 
     impl<K, V, KeyType> StorageLayout for Mapping<K, V, KeyType>
     where

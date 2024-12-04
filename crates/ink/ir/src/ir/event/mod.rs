@@ -16,18 +16,11 @@ mod config;
 mod signature_topic;
 
 use config::EventConfig;
-use proc_macro2::{
-    Span,
-    TokenStream as TokenStream2,
-};
+use proc_macro2::{Span, TokenStream as TokenStream2};
 use quote::ToTokens;
 use syn::spanned::Spanned as _;
 
-use crate::{
-    error::ExtError,
-    ir,
-    utils::extract_cfg_attributes,
-};
+use crate::{error::ExtError, ir, utils::extract_cfg_attributes};
 
 pub use signature_topic::SignatureTopicArg;
 
@@ -130,13 +123,11 @@ impl TryFrom<syn::ItemStruct> for Event {
             struct_span,
             item_struct.attrs.clone(),
             &ir::AttributeArgKind::Event,
-            |arg| {
-                match arg.kind() {
-                    ir::AttributeArg::Event
-                    | ir::AttributeArg::SignatureTopic(_)
-                    | ir::AttributeArg::Anonymous => Ok(()),
-                    _ => Err(None),
-                }
+            |arg| match arg.kind() {
+                ir::AttributeArg::Event
+                | ir::AttributeArg::SignatureTopic(_)
+                | ir::AttributeArg::Anonymous => Ok(()),
+                _ => Err(None),
             },
         )?;
         if ink_attrs.is_anonymous() && ink_attrs.signature_topic_hex().is_some() {
