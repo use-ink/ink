@@ -95,4 +95,8 @@ fn call_rlp_encoded_message() {
             .expect("sandbox call contract failed");
 
     assert!(!result.did_revert(), "get_value failed {:?}", result);
+
+    let value: bool =
+        ink::rlp::Decodable::decode(&mut &result.data[..]).expect("decode failed");
+    assert!(value, "value should have been set to true");
 }
