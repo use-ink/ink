@@ -87,11 +87,7 @@ impl From<Weight> for sp_weights::Weight {
 /// A raw call to `pallet-contracts`'s `instantiate_with_code`.
 #[derive(Debug, scale::Encode, scale::Decode, scale_encode::EncodeAsType)]
 #[encode_as_type(trait_bounds = "", crate_path = "subxt::ext::scale_encode")]
-pub struct InstantiateWithCode<E>
-where
-    E: Environment,
-    E::Balance: scale_encode::EncodeAsType,
-{
+pub struct InstantiateWithCode<E: Environment> {
     #[codec(compact)]
     value: E::Balance,
     gas_limit: Weight,

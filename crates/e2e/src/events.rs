@@ -92,11 +92,7 @@ where
 #[decode_as_type(trait_bounds = "", crate_path = "subxt::ext::scale_decode")]
 #[encode_as_type(trait_bounds = "", crate_path = "subxt::ext::scale_encode")]
 /// A custom event emitted by the contract.
-pub struct ContractEmitted<E>
-where
-    E: Environment,
-    E::AccountId: scale_decode::IntoVisitor + scale_encode::EncodeAsType,
-{
+pub struct ContractEmitted<E: Environment> {
     pub contract: E::AccountId,
     pub data: Vec<u8>,
 }
@@ -104,7 +100,6 @@ where
 impl<E> StaticEvent for ContractEmitted<E>
 where
     E: Environment,
-    E::AccountId: scale_decode::IntoVisitor + scale_encode::EncodeAsType,
 {
     const PALLET: &'static str = "Contracts";
     const EVENT: &'static str = "ContractEmitted";
