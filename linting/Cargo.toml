@@ -7,7 +7,7 @@ members = [
 ]
 
 [workspace.package]
-version = "5.1.0"
+version = "5.1.1"
 authors = ["Use Ink <ink@use.ink>"]
 edition = "2021"
 license = "Apache-2.0"
@@ -16,7 +16,7 @@ homepage = "https://use.ink"
 keywords = ["ink", "blockchain", "edsl", "dylint", "linting"]
 
 [workspace.dependencies]
-ink_linting_utils = { version = "=5.1.0", path = "utils" }
+ink_linting_utils = { version = "=5.1.1", path = "utils" }
 
 [workspace.metadata.dylint]
 libraries = [

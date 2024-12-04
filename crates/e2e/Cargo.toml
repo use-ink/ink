@@ -22,7 +22,7 @@ ink_primitives = { workspace = true, default-features = true }
 
 cargo_metadata = { workspace = true }
 contract-build = { workspace = true }
-ink_sandbox = { version = "=5.1.0", path =  "./sandbox", optional = true }
+ink_sandbox = { version = "=5.1.1", path =  "./sandbox", optional = true }
 pallet-contracts-mock-network = { workspace = true, optional = true }
 funty = { workspace = true }
 impl-serde = { workspace = true }
@@ -47,6 +47,7 @@ sp-core = { workspace = true }
 sp-keyring = { workspace = true }
 sp-runtime = { workspace = true }
 sp-weights = { workspace = true }
+regex = "1.11.1"
 
 [dev-dependencies]
 # Required for the doctest of `MessageBuilder::call`
