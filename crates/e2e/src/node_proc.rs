@@ -212,8 +212,17 @@ fn find_substrate_port_from_output(r: impl Read + Send + 'static) -> u16 {
                 .or_else(|| line.rsplit_once("Running JSON-RPC server: addr=127.0.0.1:"))
                 .map(|(_, port_str)| port_str)?;
 
-            // trim non-numeric chars from the end of the port part of the line.
-            let port_str = line_end.trim_end_matches(|b: char| !b.is_ascii_digit());
+            // match the first group of digits
+            let re = regex::Regex::new(r"^\d+").expect("regex creation failed");
+            let port_capture = re
+                .captures(line_end)
+                .unwrap_or_else(|| panic!("unable to extract port from '{}'", line_end));
+            assert!(
+                port_capture.len() == 1,
+                "captured more than one port from '{}'",
+                line_end
+            );
+            let port_str = &port_capture[0];
 
             // expect to have a number here (the chars after '127.0.0.1:') and parse them
             // into a u16.
@@ -268,5 +277,26 @@ mod tests {
 
         assert!(res1.is_err());
         assert!(res2.is_err());
+    }
+
+    #[test]
+    fn parse_port_from_node_output() {
+        let log = "2024-12-04 10:57:03.893  INFO main sc_rpc_server: Running JSON-RPC server: addr=127.0.0.1:9944,[::1]:9944  ";
+        let port = find_substrate_port_from_output(log.as_bytes());
+        assert_eq!(port, 9944);
+
+        let log = "2024-12-04 10:57:03.893  INFO main sc_rpc_server: Running JSON-RPC server: addr=127.0.0.1:9944  ";
+        let port = find_substrate_port_from_output(log.as_bytes());
+        assert_eq!(port, 9944);
+
+        let log = r#"2024-12-04 11:02:24.637  INFO main sc_cli::runner: 👤 Role: AUTHORITY
+2024-12-04 11:02:24.637  INFO main sc_cli::runner: 💾 Database: RocksDb at /var/folders/s5/5gcp8ck95k39z006fj059_0c0000gn/T/substrateHZoRbb/chains/dev/db/full
+2024-12-04 11:02:25.324  WARN main sc_service::config: Using default protocol ID "sup" because none is configured in the chain specs
+2024-12-04 11:02:25.327  INFO main sc_rpc_server: Running JSON-RPC server: addr=127.0.0.1:9944,[::1]:9944
+2024-12-04 11:02:24.637  INFO main sc_cli::runner: 💾 Database: RocksDb at /var/folders/s5/5gcp8ck95k39z006fj059_0c0000gn/T/substrateHZoRbb/chains/dev/db/full
+2024-12-04 11:02:24.637  INFO main sc_cli::runner: 💾 Database: RocksDb at /var/folders/s5/5gcp8ck95k39z006fj059_0c0000gn/T/substrateHZoRbb/chains/dev/db/full
+"#;
+        let port = find_substrate_port_from_output(log.as_bytes());
+        assert_eq!(port, 9944);
     }
 }
