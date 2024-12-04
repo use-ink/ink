@@ -37,7 +37,7 @@ to cross-contract calls, but can now execute cross-parachain calls.
 We added a contract example that demonstrates the usage:
 [`contract-xcm`](https://github.com/use-ink/ink-examples/tree/main/contract-xcm)
 
-We also added a new page on our documentation website: 
+We also added a new page on our documentation website:
 [https://use.ink/basics/xcm](https://use.ink/basics/xcm).
 
 You can view the Rust docs of the two functions here:
