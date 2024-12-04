@@ -75,13 +75,13 @@ synstructure = { version = "0.13.1" }
 thiserror = { version = "1.0.69" }
 tokio = { version = "1.41.1" }
 tracing = { version = "0.1.41" }
-tracing-subscriber = { version = "0.3.17" }
+tracing-subscriber = { version = "0.3.19" }
 trybuild = { version = "1.0.101" }
 wasm-instrument = { version = "0.4.0" }
 which = { version = "7.0.0" }
 xxhash-rust = { version = "0.8" }
 const_env = { version = "0.1"}
-wat = { version = "1.221.0" }
+wat = { version = "1.221.2" }
 
 # Substrate dependencies
 frame-metadata = { version = "16.0.0" }
