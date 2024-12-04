@@ -79,14 +79,10 @@ use subxt::{
     },
     error::DispatchError,
     events::EventDetails,
-    ext::{
-        scale_decode,
-        scale_encode,
-        scale_value::{
-            Composite,
-            Value,
-            ValueDef,
-        },
+    ext::scale_value::{
+        Composite,
+        Value,
+        ValueDef,
     },
     tx::Signer,
 };
@@ -117,21 +113,17 @@ where
 impl<C, E> Client<C, E>
 where
     C: subxt::Config,
-    C::AccountId: From<sr25519::PublicKey>
-        + scale::Codec
-        + serde::de::DeserializeOwned
-        + Debug
-        + scale_encode::EncodeAsType,
+    C::AccountId:
+        From<sr25519::PublicKey> + scale::Codec + serde::de::DeserializeOwned + Debug,
     C::Address: From<sr25519::PublicKey>,
     C::Signature: From<sr25519::Signature>,
     <C::ExtrinsicParams as ExtrinsicParams<C>>::Params:
         From<<DefaultExtrinsicParams<C> as ExtrinsicParams<C>>::Params>,
 
     E: Environment,
-    E::AccountId: Debug + scale_decode::IntoVisitor + scale_encode::EncodeAsType,
-    E::Balance: Debug + scale::HasCompact + serde::Serialize + scale_encode::EncodeAsType,
-    E::Hash:
-        Debug + scale::Encode + scale_decode::IntoVisitor + scale_encode::EncodeAsType,
+    E::AccountId: Debug,
+    E::Balance: Debug + scale::HasCompact + serde::Serialize,
+    E::Hash: Debug + scale::Encode,
 {
     /// Creates a new [`Client`] instance using a `subxt` client.
     pub async fn new<P: Into<PathBuf>>(
@@ -331,8 +323,7 @@ where
         + core::fmt::Display
         + scale::Codec
         + From<sr25519::PublicKey>
-        + serde::de::DeserializeOwned
-        + scale_encode::EncodeAsType,
+        + serde::de::DeserializeOwned,
     C::Address: From<sr25519::PublicKey>,
     C::Signature: From<sr25519::Signature>,
     C::Address: Send + Sync,
@@ -340,18 +331,14 @@ where
         From<<DefaultExtrinsicParams<C> as ExtrinsicParams<C>>::Params>,
 
     E: Environment,
-    E::AccountId:
-        Debug + Send + Sync + scale_decode::IntoVisitor + scale_encode::EncodeAsType,
-    E::Hash: scale_decode::IntoVisitor + scale_encode::EncodeAsType,
+    E::AccountId: Debug + Send + Sync,
     E::Balance: Clone
         + Debug
         + Send
         + Sync
         + TryFrom<u128>
         + scale::HasCompact
-        + serde::Serialize
-        + scale_decode::IntoVisitor
-        + scale_encode::EncodeAsType,
+        + serde::Serialize,
 {
     type AccountId = E::AccountId;
     type Balance = E::Balance;
@@ -476,8 +463,7 @@ where
         + core::fmt::Display
         + scale::Codec
         + From<sr25519::PublicKey>
-        + serde::de::DeserializeOwned
-        + scale_encode::EncodeAsType,
+        + serde::de::DeserializeOwned,
     C::Address: From<sr25519::PublicKey>,
     C::Signature: From<sr25519::Signature>,
     C::Address: Send + Sync,
@@ -485,22 +471,10 @@ where
         From<<DefaultExtrinsicParams<C> as ExtrinsicParams<C>>::Params>,
 
     E: Environment,
-    E::AccountId:
-        Debug + Send + Sync + scale_decode::IntoVisitor + scale_encode::EncodeAsType,
-    E::Balance: Clone
-        + Debug
-        + Send
-        + Sync
-        + From<u128>
-        + scale::HasCompact
-        + serde::Serialize
-        + scale_encode::EncodeAsType,
-    E::Hash: Debug
-        + Send
-        + Sync
-        + scale::Encode
-        + scale_decode::IntoVisitor
-        + scale_encode::EncodeAsType,
+    E::AccountId: Debug + Send + Sync,
+    E::Balance:
+        Clone + Debug + Send + Sync + From<u128> + scale::HasCompact + serde::Serialize,
+    E::Hash: Debug + Send + Sync + scale::Encode,
 {
     async fn bare_instantiate<Contract: Clone, Args: Send + Sync + Encode + Clone, R>(
         &mut self,
@@ -693,7 +667,7 @@ where
     C::Address: Send + Sync,
 
     E: Environment,
-    E::AccountId: Debug + Send + Sync + scale_decode::IntoVisitor,
+    E::AccountId: Debug + Send + Sync,
     E::Balance:
         Clone + Debug + Send + Sync + From<u128> + scale::HasCompact + serde::Serialize,
     E::Hash: Debug + Send + scale::Encode,
@@ -712,8 +686,7 @@ where
         + core::fmt::Display
         + scale::Codec
         + From<sr25519::PublicKey>
-        + serde::de::DeserializeOwned
-        + scale_encode::EncodeAsType,
+        + serde::de::DeserializeOwned,
     C::Address: From<sr25519::PublicKey>,
     C::Signature: From<sr25519::Signature>,
     C::Address: Send + Sync,
@@ -721,23 +694,10 @@ where
         From<<DefaultExtrinsicParams<C> as ExtrinsicParams<C>>::Params>,
 
     E: Environment,
-    E::AccountId:
-        Debug + Send + Sync + scale_decode::IntoVisitor + scale_encode::EncodeAsType,
-    E::Balance: Clone
-        + Debug
-        + Send
-        + Sync
-        + From<u128>
-        + scale::HasCompact
-        + serde::Serialize
-        + scale_decode::IntoVisitor
-        + scale_encode::EncodeAsType,
-    E::Hash: Debug
-        + Send
-        + Sync
-        + scale::Encode
-        + scale_decode::IntoVisitor
-        + scale_encode::EncodeAsType,
+    E::AccountId: Debug + Send + Sync,
+    E::Balance:
+        Clone + Debug + Send + Sync + From<u128> + scale::HasCompact + serde::Serialize,
+    E::Hash: Debug + Send + Sync + scale::Encode,
 {
 }
 

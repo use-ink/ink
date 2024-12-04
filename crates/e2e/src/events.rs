@@ -33,12 +33,8 @@ use subxt::{
     scale_encode::EncodeAsType,
 )]
 #[decode_as_type(trait_bounds = "", crate_path = "subxt::ext::scale_decode")]
-#[encode_as_type(trait_bounds = "", crate_path = "subxt::ext::scale_encode")]
-pub struct ContractInstantiatedEvent<E>
-where
-    E: Environment,
-    E::AccountId: scale_decode::IntoVisitor + scale_encode::EncodeAsType,
-{
+#[encode_as_type(crate_path = "subxt::ext::scale_encode")]
+pub struct ContractInstantiatedEvent<E: Environment> {
     /// Account id of the deployer.
     pub deployer: E::AccountId,
     /// Account id where the contract was instantiated to.
@@ -48,7 +44,6 @@ where
 impl<E> StaticEvent for ContractInstantiatedEvent<E>
 where
     E: Environment,
-    E::AccountId: scale_decode::IntoVisitor + scale_encode::EncodeAsType,
 {
     const PALLET: &'static str = "Contracts";
     const EVENT: &'static str = "Instantiated";
@@ -63,12 +58,8 @@ where
     scale_encode::EncodeAsType,
 )]
 #[decode_as_type(trait_bounds = "", crate_path = "subxt::ext::scale_decode")]
-#[encode_as_type(trait_bounds = "", crate_path = "subxt::ext::scale_encode")]
-pub struct CodeStoredEvent<E>
-where
-    E: Environment,
-    E::Hash: scale_decode::IntoVisitor + scale_encode::EncodeAsType,
-{
+#[encode_as_type(crate_path = "subxt::ext::scale_encode")]
+pub struct CodeStoredEvent<E: Environment> {
     /// Hash under which the contract code was stored.
     pub code_hash: E::Hash,
 }
@@ -76,7 +67,6 @@ where
 impl<E> StaticEvent for CodeStoredEvent<E>
 where
     E: Environment,
-    E::Hash: scale_decode::IntoVisitor + scale_encode::EncodeAsType,
 {
     const PALLET: &'static str = "Contracts";
     const EVENT: &'static str = "CodeStored";
@@ -90,7 +80,7 @@ where
     Debug,
 )]
 #[decode_as_type(trait_bounds = "", crate_path = "subxt::ext::scale_decode")]
-#[encode_as_type(trait_bounds = "", crate_path = "subxt::ext::scale_encode")]
+#[encode_as_type(crate_path = "subxt::ext::scale_encode")]
 /// A custom event emitted by the contract.
 pub struct ContractEmitted<E: Environment> {
     pub contract: E::AccountId,
