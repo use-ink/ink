@@ -1,12 +1,9 @@
 use super::rlp::*;
-use ink_e2e::{
-    ContractsRegistry
-};
+use ink_e2e::ContractsRegistry;
 use ink_sandbox::api::balance_api::BalanceAPI;
 
 #[test]
 fn call_rlp_encoded_message() {
-
     let built_contracts = ::ink_e2e::build_root_and_contract_dependencies();
     let contracts = ContractsRegistry::new(built_contracts);
 
@@ -14,7 +11,10 @@ fn call_rlp_encoded_message() {
     let caller = ink_e2e::alice();
 
     sandbox
-        .mint_into(&caller.public_key().0.into(), 1_000_000_000_000_000u128.into())
+        .mint_into(
+            &caller.public_key().0.into(),
+            1_000_000_000_000_000u128.into(),
+        )
         .unwrap_or_else(|_| panic!("Failed to mint tokens"));
 
     // given
@@ -55,7 +55,7 @@ fn call_rlp_encoded_message() {
     }
 
     // set value
-    let mut set_value_data = keccak_selector(b"Rlp::set_value");
+    let mut set_value_data = keccak_selector(b"set_value");
     let mut value_buf = Vec::new();
     ink::rlp::Encodable::encode(&true, &mut value_buf);
     set_value_data.append(&mut value_buf);
@@ -78,7 +78,7 @@ fn call_rlp_encoded_message() {
     assert!(!result.did_revert(), "set_value failed {:?}", result);
 
     // get value
-    let mut get_value_data = keccak_selector(b"Rlp::get_value");
+    let mut get_value_data = keccak_selector(b"get_value");
     let result =
         <ink_e2e::DefaultSandbox as ink_sandbox::api::contracts_api::ContractAPI>
             ::call_contract(
@@ -94,5 +94,5 @@ fn call_rlp_encoded_message() {
             .result
             .expect("sandbox call contract failed");
 
-    assert!(!result.did_revert(), "set_value failed {:?}", result);
+    assert!(!result.did_revert(), "get_value failed {:?}", result);
 }

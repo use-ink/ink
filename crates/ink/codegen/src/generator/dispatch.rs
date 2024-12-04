@@ -128,7 +128,7 @@ impl Dispatch<'_> {
             .flat_map(|item_impl| {
                 iter::repeat(item_impl.trait_path()).zip(item_impl.iter_messages())
             })
-            .map(|(trait_path, message)| {
+            .flat_map(|(trait_path, message)| {
                 let span = message.span();
                 let id = if let Some(trait_path) = trait_path {
                     let local_id = message.local_id().hex_padded_suffixed();
@@ -150,7 +150,22 @@ impl Dispatch<'_> {
                         #id
                     )
                 };
-                MessageDispatchable { message, id }
+
+                // todo: handle traits
+                let composed_selector =  message
+                    .composed_rlp_selector();
+
+                // println!("COMPOSED SELECTOR: {:?}", composed_selector);
+
+                let rlp_selector = composed_selector
+                    .into_be_u32()
+                    .hex_padded_suffixed();
+                // todo: only enable if rlp encoding enabled
+                let rlp_id = quote_spanned!(span=>
+                    #rlp_selector
+                );
+
+                [ MessageDispatchable { message, id }, MessageDispatchable { message, id: rlp_id } ]
             })
             .collect::<Vec<_>>()
     }
