@@ -676,6 +676,13 @@ impl TypedEnvBackend for EnvInstance {
         ext::caller_is_origin()
     }
 
+    fn caller_is_root<E>(&mut self) -> bool
+    where
+        E: Environment,
+    {
+        ext::caller_is_root()
+    }
+
     fn code_hash<E>(&mut self, account_id: &E::AccountId) -> Result<E::Hash>
     where
         E: Environment,
