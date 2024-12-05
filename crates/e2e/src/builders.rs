@@ -14,14 +14,8 @@
 
 use ink_env::{
     call::{
-        utils::{
-            ReturnType,
-            Set,
-            Unset,
-        },
-        CreateBuilder,
-        ExecutionInput,
-        LimitParamsV2,
+        utils::{ReturnType, Set, Unset},
+        CreateBuilder, ExecutionInput, LimitParamsV2,
     },
     Environment,
 };

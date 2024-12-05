@@ -12,22 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::{
-    error::ExtError as _,
-    ir,
-    ir::idents_lint,
-    Callable,
-};
-use proc_macro2::{
-    Ident,
-    Span,
-};
+use crate::{error::ExtError as _, ir, ir::idents_lint, Callable};
+use proc_macro2::{Ident, Span};
 use quote::TokenStreamExt as _;
 use std::collections::HashMap;
-use syn::{
-    spanned::Spanned,
-    token,
-};
+use syn::{spanned::Spanned, token};
 
 /// The ink! module.
 ///
@@ -128,13 +117,11 @@ impl ItemMod {
     ) -> Result<(), syn::Error> {
         let found_message = items
             .iter()
-            .filter_map(|item| {
-                match item {
-                    ir::Item::Ink(ir::InkItem::ImplBlock(item_impl)) => {
-                        Some(item_impl.iter_messages())
-                    }
-                    _ => None,
+            .filter_map(|item| match item {
+                ir::Item::Ink(ir::InkItem::ImplBlock(item_impl)) => {
+                    Some(item_impl.iter_messages())
                 }
+                _ => None,
             })
             .any(|mut messages| messages.next().is_some());
         if !found_message {
@@ -150,13 +137,11 @@ impl ItemMod {
     ) -> Result<(), syn::Error> {
         let found_constructor = items
             .iter()
-            .filter_map(|item| {
-                match item {
-                    ir::Item::Ink(ir::InkItem::ImplBlock(item_impl)) => {
-                        Some(item_impl.iter_constructors())
-                    }
-                    _ => None,
+            .filter_map(|item| match item {
+                ir::Item::Ink(ir::InkItem::ImplBlock(item_impl)) => {
+                    Some(item_impl.iter_constructors())
                 }
+                _ => None,
             })
             .any(|mut constructors| constructors.next().is_some());
         if !found_constructor {

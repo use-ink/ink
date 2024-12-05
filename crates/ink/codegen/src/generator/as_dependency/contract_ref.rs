@@ -12,20 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::{
-    generator,
-    GenerateCode,
-};
+use crate::{generator, GenerateCode};
 use derive_more::From;
-use ir::{
-    Callable,
-    IsDocAttribute as _,
-};
+use ir::{Callable, IsDocAttribute as _};
 use proc_macro2::TokenStream as TokenStream2;
-use quote::{
-    quote,
-    quote_spanned,
-};
+use quote::{quote, quote_spanned};
 use syn::spanned::Spanned as _;
 
 /// Generates code for the contract reference of the ink! smart contract.

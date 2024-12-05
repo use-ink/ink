@@ -12,20 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::{
-    AutoStorableHint,
-    Packed,
-    StorableHint,
-    StorageKey,
-};
-use core::{
-    fmt::Debug,
-    marker::PhantomData,
-};
-use ink_primitives::{
-    Key,
-    KeyComposer,
-};
+use crate::{AutoStorableHint, Packed, StorableHint, StorageKey};
+use core::{fmt::Debug, marker::PhantomData};
+use ink_primitives::{Key, KeyComposer};
 
 /// The private trait helping identify the [`AutoKey`] key type.
 trait KeyType {

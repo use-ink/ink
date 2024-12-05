@@ -13,10 +13,7 @@
 // limitations under the License.
 
 use crate::log_info;
-use std::{
-    collections::BTreeMap,
-    path::PathBuf,
-};
+use std::{collections::BTreeMap, path::PathBuf};
 
 /// Generate a unique salt based on the system time.
 pub fn salt() -> Vec<u8> {

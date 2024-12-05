@@ -12,16 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::{
-    error::ExtError as _,
-    ir,
-    ir::attrs::Attrs as _,
-};
-use proc_macro2::{
-    Ident,
-    Span,
-    TokenStream,
-};
+use crate::{error::ExtError as _, ir, ir::attrs::Attrs as _};
+use proc_macro2::{Ident, Span, TokenStream};
 
 mod callable;
 mod constructor;
@@ -34,23 +26,11 @@ mod tests;
 
 use self::callable::ensure_callable_invariants;
 pub use self::{
-    callable::{
-        Callable,
-        CallableKind,
-        CallableWithSelector,
-        InputsIter,
-        Visibility,
-    },
+    callable::{Callable, CallableKind, CallableWithSelector, InputsIter, Visibility},
     constructor::Constructor,
     impl_item::ImplItem,
-    iter::{
-        IterConstructors,
-        IterMessages,
-    },
-    message::{
-        Message,
-        Receiver,
-    },
+    iter::{IterConstructors, IterMessages},
+    message::{Message, Receiver},
 };
 use quote::TokenStreamExt as _;
 use syn::spanned::Spanned;
@@ -303,13 +283,11 @@ impl TryFrom<syn::ItemImpl> for ItemImpl {
                 ir::InkAttribute::from_expanded(ink_attrs).map_err(|err| {
                     err.into_combine(format_err!(impl_block_span, "at this invocation",))
                 })?;
-            normalized.ensure_no_conflicts(|arg| {
-                match arg.kind() {
-                    ir::AttributeArg::Implementation | ir::AttributeArg::Namespace(_) => {
-                        Ok(())
-                    }
-                    _ => Err(None),
+            normalized.ensure_no_conflicts(|arg| match arg.kind() {
+                ir::AttributeArg::Implementation | ir::AttributeArg::Namespace(_) => {
+                    Ok(())
                 }
+                _ => Err(None),
             })?;
             namespace = normalized.namespace();
         }

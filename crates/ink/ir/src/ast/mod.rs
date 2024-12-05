@@ -29,10 +29,5 @@ mod meta;
 
 pub use self::{
     attr_args::AttributeArgs,
-    meta::{
-        Meta,
-        MetaNameValue,
-        MetaValue,
-        Symbol,
-    },
+    meta::{Meta, MetaNameValue, MetaValue, Symbol},
 };

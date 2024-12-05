@@ -12,13 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::{
-    ir,
-    InkItemTrait,
-    InkTraitItem,
-    InkTraitMessage,
-    Selector,
-};
+use crate::{ir, InkItemTrait, InkTraitItem, InkTraitMessage, Selector};
 use std::collections::HashMap;
 
 /// Iterator over all the ink! trait items of an ink! trait definition.

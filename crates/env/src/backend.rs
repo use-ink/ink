@@ -14,23 +14,12 @@
 
 use crate::{
     call::{
-        Call,
-        CallParams,
-        CallV1,
-        ConstructorReturnType,
-        CreateParams,
-        DelegateCall,
-        FromAccountId,
-        LimitParamsV1,
-        LimitParamsV2,
+        Call, CallParams, CallV1, ConstructorReturnType, CreateParams, DelegateCall,
+        FromAccountId, LimitParamsV1, LimitParamsV2,
     },
     event::Event,
-    hash::{
-        CryptoHash,
-        HashOutput,
-    },
-    Environment,
-    Result,
+    hash::{CryptoHash, HashOutput},
+    Environment, Result,
 };
 use ink_storage_traits::Storable;
 pub use pallet_contracts_uapi::ReturnFlags;

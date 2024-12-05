@@ -13,10 +13,7 @@
 // limitations under the License.
 
 use proc_macro2::TokenStream as TokenStream2;
-use quote::{
-    quote,
-    quote_spanned,
-};
+use quote::{quote, quote_spanned};
 use syn::spanned::Spanned;
 
 /// `Storable` derive implementation for `struct` types.

@@ -22,14 +22,8 @@ pub use delegate::DelegateCall;
 
 use crate::{
     call::{
-        utils::{
-            EmptyArgumentList,
-            ReturnType,
-            Set,
-            Unset,
-        },
-        Execution,
-        ExecutionInput,
+        utils::{EmptyArgumentList, ReturnType, Set, Unset},
+        Execution, ExecutionInput,
     },
     Environment,
 };

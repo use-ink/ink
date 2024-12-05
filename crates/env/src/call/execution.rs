@@ -12,10 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use super::{
-    utils::ReturnType,
-    Selector,
-};
+use super::{utils::ReturnType, Selector};
 use crate::Environment;
 
 /// The input data and the expected return type of a contract execution.

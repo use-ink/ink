@@ -13,48 +13,26 @@
 // limitations under the License.
 
 use super::{
-    builders::{
-        constructor_exec_input,
-        CreateBuilderPartial,
-    },
-    events::{
-        CodeStoredEvent,
-        ContractInstantiatedEvent,
-        EventWithTopics,
-    },
-    log_error,
-    log_info,
-    sr25519,
-    ContractsApi,
-    InstantiateDryRunResult,
-    Keypair,
+    builders::{constructor_exec_input, CreateBuilderPartial},
+    events::{CodeStoredEvent, ContractInstantiatedEvent, EventWithTopics},
+    log_error, log_info, sr25519, ContractsApi, InstantiateDryRunResult, Keypair,
 };
 use crate::{
     backend::BuilderClient,
     contract_results::{
-        BareInstantiationResult,
-        CallDryRunResult,
-        CallResult,
-        UploadResult,
+        BareInstantiationResult, CallDryRunResult, CallResult, UploadResult,
     },
 };
 use ink_env::{
     call::{
-        utils::{
-            ReturnType,
-            Set,
-        },
-        Call,
-        ExecutionInput,
+        utils::{ReturnType, Set},
+        Call, ExecutionInput,
     },
     Environment,
 };
 use jsonrpsee::core::async_trait;
 use pallet_contracts::ContractResult;
-use scale::{
-    Decode,
-    Encode,
-};
+use scale::{Decode, Encode};
 use sp_weights::Weight;
 #[cfg(feature = "std")]
 use std::fmt::Debug;
@@ -62,28 +40,16 @@ use std::path::PathBuf;
 
 use crate::{
     backend::ChainBackend,
-    client_utils::{
-        salt,
-        ContractsRegistry,
-    },
+    client_utils::{salt, ContractsRegistry},
     error::DryRunError,
-    events,
-    ContractsBackend,
-    E2EBackend,
+    events, ContractsBackend, E2EBackend,
 };
 use subxt::{
     blocks::ExtrinsicEvents,
-    config::{
-        DefaultExtrinsicParams,
-        ExtrinsicParams,
-    },
+    config::{DefaultExtrinsicParams, ExtrinsicParams},
     error::DispatchError,
     events::EventDetails,
-    ext::scale_value::{
-        Composite,
-        Value,
-        ValueDef,
-    },
+    ext::scale_value::{Composite, Value, ValueDef},
     tx::Signer,
 };
 

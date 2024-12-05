@@ -20,10 +20,7 @@ mod storage_key;
 mod storage_layout;
 
 use crate::storage::{
-    storable_derive,
-    storable_hint_derive,
-    storage_key_derive,
-    storage_layout_derive,
+    storable_derive, storable_hint_derive, storage_key_derive, storage_layout_derive,
 };
 
 #[cfg(test)]

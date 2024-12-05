@@ -12,10 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::{
-    ir,
-    ir::utils,
-};
+use crate::{ir, ir::utils};
 use proc_macro2::Ident;
 use syn::spanned::Spanned as _;
 
@@ -84,11 +81,9 @@ impl TryFrom<syn::ItemStruct> for Storage {
             struct_span,
             item_struct.attrs,
             &ir::AttributeArgKind::Storage,
-            |arg| {
-                match arg.kind() {
-                    ir::AttributeArg::Storage => Ok(()),
-                    _ => Err(None),
-                }
+            |arg| match arg.kind() {
+                ir::AttributeArg::Storage => Ok(()),
+                _ => Err(None),
             },
         )?;
         utils::ensure_pub_visibility("storage structs", struct_span, &item_struct.vis)?;

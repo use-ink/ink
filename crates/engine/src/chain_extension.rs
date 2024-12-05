@@ -14,10 +14,7 @@
 
 use super::Error;
 use derive_more::From;
-use std::collections::{
-    hash_map::Entry,
-    HashMap,
-};
+use std::collections::{hash_map::Entry, HashMap};
 
 /// Chain extension registry.
 ///

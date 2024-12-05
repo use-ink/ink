@@ -14,13 +14,8 @@
 
 use ink_env::{
     call::{
-        utils::{
-            ReturnType,
-            Set,
-        },
-        CallBuilder,
-        Execution,
-        ExecutionInput,
+        utils::{ReturnType, Set},
+        CallBuilder, Execution, ExecutionInput,
     },
     Environment,
 };

@@ -17,11 +17,7 @@
 use super::TraitDefinition;
 use heck::ToLowerCamelCase as _;
 use proc_macro2::TokenStream as TokenStream2;
-use quote::{
-    format_ident,
-    quote,
-    quote_spanned,
-};
+use quote::{format_ident, quote, quote_spanned};
 
 impl<'a> TraitDefinition<'a> {
     fn generate_for_message(message: ir::InkTraitMessage<'a>) -> TokenStream2 {

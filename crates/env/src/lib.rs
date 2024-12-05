@@ -103,33 +103,16 @@ mod tests;
 pub use self::engine::off_chain::test_api as test;
 
 #[doc(inline)]
-pub use pallet_contracts_uapi::{
-    CallFlags,
-    ReturnErrorCode,
-    ReturnFlags,
-};
+pub use pallet_contracts_uapi::{CallFlags, ReturnErrorCode, ReturnFlags};
 
-use self::backend::{
-    EnvBackend,
-    TypedEnvBackend,
-};
+use self::backend::{EnvBackend, TypedEnvBackend};
 pub use self::{
     api::*,
-    contract::{
-        ContractEnv,
-        ContractReference,
-    },
-    error::{
-        Error,
-        Result,
-    },
+    contract::{ContractEnv, ContractReference},
+    error::{Error, Result},
     event::Event,
     types::{
-        AccountIdGuard,
-        DefaultEnvironment,
-        Environment,
-        FromLittleEndian,
-        Gas,
+        AccountIdGuard, DefaultEnvironment, Environment, FromLittleEndian, Gas,
         NoChainExtension,
     },
 };
