@@ -28,10 +28,6 @@ use ink_storage_traits::{
     StorableHint,
     StorageKey,
 };
-#[cfg(not(feature = "revive"))]
-use pallet_contracts_uapi::ReturnErrorCode;
-#[cfg(feature = "revive")]
-use pallet_revive_uapi::ReturnErrorCode;
 use scale::EncodeLike;
 
 use crate::{
@@ -415,7 +411,7 @@ where
         T: Storable + EncodeLike<V>,
     {
         if index >= self.len() {
-            return Err(ReturnErrorCode::KeyNotFound.into());
+            return Err(ink_env::ReturnErrorCode::KeyNotFound.into());
         }
 
         self.elements.try_insert(index, value)
