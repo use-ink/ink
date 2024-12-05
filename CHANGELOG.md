@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Changed
 - Restrict which `cfg` attributes can be used ‒ [#2313](https://github.com/use-ink/ink/pull/2313)
 
+## Added
+- Support for `caller_is_root` - [#2332] (https://github.com/use-ink/ink/pull/2332)
+
 ## Fixed
 - [E2E] Have port parsing handle comma-separated list ‒ [#2336](https://github.com/use-ink/ink/pull/2336)
 

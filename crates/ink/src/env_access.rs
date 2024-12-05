@@ -1178,6 +1178,37 @@ where
         ink_env::caller_is_origin::<E>()
     }
 
+    /// Checks whether the caller of the current contract is root.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # #[ink::contract]
+    /// # pub mod my_contract {
+    /// #     #[ink(storage)]
+    /// #     pub struct MyContract { }
+    /// #
+    /// #     impl MyContract {
+    /// #         #[ink(constructor)]
+    /// #         pub fn new() -> Self {
+    /// #             Self {}
+    /// #         }
+    /// #
+    /// #[ink(message)]
+    /// pub fn caller_is_root(&mut self) -> bool {
+    ///     self.env().caller_is_root()
+    /// }
+    /// #    }
+    /// # }
+    /// ```
+    ///
+    /// # Note
+    ///
+    /// For more details visit: [`ink_env::caller_is_root`]
+    pub fn caller_is_root(self) -> bool {
+        ink_env::caller_is_root::<E>()
+    }
+
     /// Returns the code hash of the contract at the given `account` id.
     ///
     /// # Example
