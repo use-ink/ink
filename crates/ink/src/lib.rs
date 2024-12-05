@@ -46,7 +46,6 @@ pub use scale;
 pub use scale_info;
 pub use xcm;
 
-#[macro_use]
 pub extern crate polkavm_derive;
 #[doc(hidden)]
 pub use polkavm_derive::*;
