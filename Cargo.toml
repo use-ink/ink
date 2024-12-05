@@ -84,7 +84,7 @@ const_env = { version = "0.1"}
 wat = { version = "1.221.2" }
 
 # Substrate dependencies
-frame-metadata = { version = "16.0.0" }
+frame-metadata = { version = "17.0.0" }
 frame-system = { version = "38.0.0", default-features = false }
 frame-support = { version = "38.0.0", default-features = false }
 pallet-contracts = { version = "38.0.0", default-features = false }

@@ -2864,7 +2864,7 @@ dependencies = [
 name = "ink_sandbox"
 version = "5.1.0"
 dependencies = [
- "frame-metadata 16.0.0",
+ "frame-metadata 17.0.0",
  "frame-support",
  "frame-system",
  "pallet-balances",
