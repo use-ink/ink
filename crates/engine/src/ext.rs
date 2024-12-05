@@ -323,6 +323,7 @@ impl Engine {
         set_output(output, &block_timestamp[..])
     }
 
+    #[cfg(not(feature = "revive"))]
     pub fn gas_left(&self, _output: &mut &mut [u8]) {
         unimplemented!("off-chain environment does not yet support `gas_left`");
     }
