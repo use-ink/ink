@@ -680,7 +680,9 @@ impl TypedEnvBackend for EnvInstance {
     where
         E: Environment,
     {
-        ext::caller_is_root()
+        // `ext::caller_is_root()` currently returns `u32`.
+        // See https://github.com/paritytech/polkadot-sdk/issues/6767 for more details.
+        ext::caller_is_root() != 0u32
     }
 
     fn code_hash<E>(&mut self, account_id: &E::AccountId) -> Result<E::Hash>
