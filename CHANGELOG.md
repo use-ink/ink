@@ -99,6 +99,16 @@ The compatibility changes a bit to ink! 5.0:
 - `substrate-contracts-node`: `>= 0.42.0`
 - [DRink!](https://github.com/inkdevhub/drink): `>= 0.18.0`
 
+For the linter in `cargo-contract` the Rust toolchain version changed.
+To upgrade:
+
+```
+export TOOLCHAIN_VERSION=nightly-2024-09-05
+rustup install $TOOLCHAIN_VERSION
+rustup component add rust-src --toolchain $TOOLCHAIN_VERSION
+rustup run $TOOLCHAIN_VERSION cargo install cargo-dylint dylint-link
+```
+
 ### Added
 - [Runtime-to-Contract Calls] Environment agnostic contract invocation API, for calling contracts from runtime ‒ [#2219](https://github.com/use-ink/ink/pull/2219)
 - [Runtime-to-Contract Calls] Add `no-panic-handler` feature ‒ [#2164](https://github.com/paritytech/ink/pull/2164)
