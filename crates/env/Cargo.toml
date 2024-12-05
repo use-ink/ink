@@ -74,8 +74,8 @@ std = [
 	"ink_storage_traits/std",
 	"ink_engine/std",
 	"scale/std",
-    "scale-decode",
-    "scale-encode",
+	"scale-decode",
+	"scale-encode",
 	"scale-info/std",
 	"secp256k1",
 	"schnorrkel",
@@ -83,8 +83,8 @@ std = [
 	# Enables hashing crates for off-chain environment.
 	"sha2",
 	"sha3",
-    "scale-decode?/std",
-    "scale-encode?/std",
+	"scale-decode?/std",
+	"scale-encode?/std",
 	"xcm/std",
 	"derive_more/std"
 ]
