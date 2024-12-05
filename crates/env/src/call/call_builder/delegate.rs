@@ -27,9 +27,6 @@ use crate::{
     Environment,
     Error,
 };
-#[cfg(not(feature = "revive"))]
-use pallet_contracts_uapi::CallFlags;
-#[cfg(feature = "revive")]
 use pallet_revive_uapi::CallFlags;
 
 /// The `delegatecall` call type. Performs a call with the given code hash.

@@ -12,11 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#[cfg(not(feature = "revive"))]
-use crate::call::{
-    CallV1,
-    LimitParamsV1,
-};
 use crate::{
     call::{
         Call,
@@ -36,9 +31,6 @@ use crate::{
     Result,
 };
 use ink_storage_traits::Storable;
-#[cfg(not(feature = "revive"))]
-pub use pallet_contracts_uapi::ReturnFlags;
-#[cfg(feature = "revive")]
 pub use pallet_revive_uapi::ReturnFlags;
 
 /// Environmental contract functionality that does not require `Environment`.
@@ -246,14 +238,6 @@ pub trait TypedEnvBackend: EnvBackend {
     /// For more details visit: [`weight_to_fee`][`crate::weight_to_fee`]
     fn weight_to_fee<E: Environment>(&mut self, gas: u64) -> E::Balance;
 
-    /// Returns the amount of gas left for the contract execution.
-    ///
-    /// # Note
-    ///
-    /// For more details visit: [`gas_left`][`crate::gas_left`]
-    #[cfg(not(feature = "revive"))]
-    fn gas_left<E: Environment>(&mut self) -> u64;
-
     /// Returns the timestamp of the current block.
     ///
     /// # Note
@@ -304,23 +288,6 @@ pub trait TypedEnvBackend: EnvBackend {
     ///
     /// # Note
     ///
-    /// **This will call into the original `call` host function.**
-    ///
-    /// For more details visit: [`invoke_contract`][`crate::invoke_contract_v1`]
-    #[cfg(not(feature = "revive"))]
-    fn invoke_contract_v1<E, Args, R>(
-        &mut self,
-        call_data: &CallParams<E, CallV1<E>, Args, R>,
-    ) -> Result<ink_primitives::MessageResult<R>>
-    where
-        E: Environment,
-        Args: scale::Encode,
-        R: scale::Decode;
-
-    /// Invokes a contract message and returns its result.
-    ///
-    /// # Note
-    ///
     /// **This will call into the latest `call_v2` host function.**
     ///
     /// For more details visit: [`invoke_contract`][`crate::invoke_contract`]
@@ -356,22 +323,6 @@ pub trait TypedEnvBackend: EnvBackend {
     fn instantiate_contract<E, ContractRef, Args, Salt, R>(
         &mut self,
         params: &CreateParams<E, ContractRef, LimitParamsV2<E>, Args, Salt, R>,
-    ) -> Result<
-        ink_primitives::ConstructorResult<
-            <R as ConstructorReturnType<ContractRef>>::Output,
-        >,
-    >
-    where
-        E: Environment,
-        ContractRef: FromAccountId<E>,
-        Args: scale::Encode,
-        Salt: AsRef<[u8]>,
-        R: ConstructorReturnType<ContractRef>;
-
-    #[cfg(not(feature = "revive"))]
-    fn instantiate_contract_v1<E, ContractRef, Args, Salt, R>(
-        &mut self,
-        params: &CreateParams<E, ContractRef, LimitParamsV1, Args, Salt, R>,
     ) -> Result<
         ink_primitives::ConstructorResult<
             <R as ConstructorReturnType<ContractRef>>::Output,

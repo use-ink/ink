@@ -31,9 +31,6 @@ use crate::{
         BlockTimestamp,
     },
 };
-#[cfg(not(feature = "revive"))]
-pub use pallet_contracts_uapi::ReturnErrorCode as Error;
-#[cfg(feature = "revive")]
 pub use pallet_revive_uapi::ReturnErrorCode as Error;
 use scale::Encode;
 use std::panic::panic_any;
@@ -321,11 +318,6 @@ impl Engine {
         let block_timestamp: Vec<u8> =
             scale::Encode::encode(&self.exec_context.block_timestamp);
         set_output(output, &block_timestamp[..])
-    }
-
-    #[cfg(not(feature = "revive"))]
-    pub fn gas_left(&self, _output: &mut &mut [u8]) {
-        unimplemented!("off-chain environment does not yet support `gas_left`");
     }
 
     /// Returns the minimum balance that is required for creating an account

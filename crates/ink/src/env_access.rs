@@ -14,11 +14,6 @@
 
 use crate::ChainExtensionInstance;
 use core::marker::PhantomData;
-#[cfg(not(feature = "revive"))]
-use ink_env::call::{
-    CallV1,
-    LimitParamsV1,
-};
 use ink_env::{
     call::{
         Call,
@@ -36,9 +31,6 @@ use ink_env::{
     Environment,
     Result,
 };
-#[cfg(not(feature = "revive"))]
-use pallet_contracts_uapi::ReturnErrorCode;
-#[cfg(feature = "revive")]
 use pallet_revive_uapi::ReturnErrorCode;
 
 /// The API behind the `self.env()` and `Self::env()` syntax in ink!.
@@ -194,45 +186,6 @@ where
     /// For more details visit: [`ink_env::weight_to_fee`]
     pub fn weight_to_fee(self, gas: u64) -> E::Balance {
         ink_env::weight_to_fee::<E>(gas)
-    }
-
-    /// Returns the amount of gas left for the contract execution.
-    ///
-    /// # Example
-    ///
-    /// ```
-    /// # #[ink::contract]
-    /// # pub mod my_contract {
-    /// #     #[ink(storage)]
-    /// #     pub struct MyContract { }
-    /// #
-    /// #     impl MyContract {
-    /// #         #[ink(constructor)]
-    /// #         pub fn new() -> Self {
-    /// #             Self {}
-    /// #         }
-    /// #
-    /// /// Returns a tuple of
-    /// ///   - the result of adding the `rhs` to the `lhs` and
-    /// ///   - the gas used for this addition operation.
-    /// #[ink(message)]
-    /// pub fn addition_gas_cost(&self, rhs: i32, lhs: i32) -> (i32, u64) {
-    ///     let before = self.env().gas_left();
-    ///     let result = rhs + lhs;
-    ///     let after = self.env().gas_left();
-    ///     (result, after - before)
-    /// }
-    /// #
-    /// #     }
-    /// # }
-    /// ```
-    ///
-    /// # Note
-    ///
-    /// For more details visit: [`ink_env::gas_left`]
-    #[cfg(not(feature = "revive"))]
-    pub fn gas_left(self) -> u64 {
-        ink_env::gas_left::<E>()
     }
 
     /// Returns the timestamp of the current block.
@@ -520,167 +473,6 @@ where
         R: ConstructorReturnType<ContractRef>,
     {
         ink_env::instantiate_contract::<E, ContractRef, Args, Salt, R>(params)
-    }
-
-    /// Instantiates another contract using the supplied code hash.
-    ///
-    /// # Example
-    ///
-    /// ```
-    /// # #[ink::contract]
-    /// # pub mod my_contract {
-    /// # // In order for this to actually work with another contract we'd need a way
-    /// # // to turn the `ink-as-dependency` crate feature on in doctests, which we
-    /// # // can't do.
-    /// # //
-    /// # // Instead we use our own contract's `Ref`, which is fine for this example
-    /// # // (just need something that implements the `ContractRef` trait).
-    /// # pub mod other_contract {
-    /// #     pub use super::MyContractRef as OtherContractRef;
-    /// # }
-    /// use ink::env::{
-    ///     DefaultEnvironment,
-    ///     call::{build_create, Selector, ExecutionInput}
-    /// };
-    /// use other_contract::OtherContractRef;
-    /// #
-    /// #     #[ink(storage)]
-    /// #     pub struct MyContract { }
-    /// #
-    /// #     impl MyContract {
-    /// #         #[ink(constructor)]
-    /// #         pub fn new() -> Self {
-    /// #             Self {}
-    /// #         }
-    /// #
-    ///
-    /// /// Instantiates another contract.
-    /// #[ink(message)]
-    /// pub fn instantiate_contract(&self) -> MyContractRef {
-    ///     let create_params = build_create::<OtherContractRef>()
-    ///         .instantiate_v1()
-    ///         .code_hash(Hash::from([0x42; 32]))
-    ///         .gas_limit(500_000_000)
-    ///         .endowment(25)
-    ///         .exec_input(
-    ///             ExecutionInput::new(Selector::new(ink::selector_bytes!("new")))
-    ///                 .push_arg(42)
-    ///                 .push_arg(true)
-    ///                 .push_arg(&[0x10u8; 32]),
-    ///         )
-    ///         .salt_bytes(&[0xCA, 0xFE, 0xBA, 0xBE])
-    ///         .returns::<OtherContractRef>()
-    ///         .params();
-    ///     self.env()
-    ///         .instantiate_contract_v1(&create_params)
-    ///         .unwrap_or_else(|error| {
-    ///             panic!(
-    ///                 "Received an error from the Contracts pallet while instantiating: {:?}",
-    ///                 error
-    ///             )
-    ///         })
-    ///         .unwrap_or_else(|error| panic!("Received a `LangError` while instatiating: {:?}", error))
-    /// }
-    /// #
-    /// #     }
-    /// # }
-    /// ```
-    ///
-    /// See [our `delegator` example](https://github.com/use-ink/ink-examples/tree/main/upgradeable-contracts#delegator)
-    /// for a complete contract example.
-    ///
-    /// # Note
-    ///
-    /// For more details visit: [`ink_env::instantiate_contract_v1`]
-
-    #[cfg(not(feature = "revive"))]
-    pub fn instantiate_contract_v1<ContractRef, Args, Salt, R>(
-        self,
-        params: &CreateParams<E, ContractRef, LimitParamsV1, Args, Salt, R>,
-    ) -> Result<
-        ink_primitives::ConstructorResult<
-            <R as ConstructorReturnType<ContractRef>>::Output,
-        >,
-    >
-    where
-        ContractRef: FromAccountId<E>,
-        Args: scale::Encode,
-        Salt: AsRef<[u8]>,
-        R: ConstructorReturnType<ContractRef>,
-    {
-        ink_env::instantiate_contract_v1::<E, ContractRef, Args, Salt, R>(params)
-    }
-
-    /// Invokes a contract message and returns its result.
-    ///
-    /// # Example
-    ///
-    /// ```
-    /// # #[ink::contract]
-    /// # pub mod my_contract {
-    /// use ink::env::{
-    ///     call::{
-    ///         build_call,
-    ///         CallV1,
-    ///         ExecutionInput,
-    ///         Selector,
-    ///     },
-    ///     DefaultEnvironment,
-    /// };
-    ///
-    /// #
-    /// #     #[ink(storage)]
-    /// #     pub struct MyContract { }
-    /// #
-    /// #     impl MyContract {
-    /// #         #[ink(constructor)]
-    /// #         pub fn new() -> Self {
-    /// #             Self {}
-    /// #         }
-    /// #
-    /// /// Invokes a contract message and fetches the result.
-    /// #[ink(message)]
-    /// pub fn invoke_contract(&self) -> i32 {
-    ///     let call_params = build_call::<DefaultEnvironment>()
-    ///         .call_type(
-    ///             CallV1::new(AccountId::from([0x42; 32]))
-    ///                 .gas_limit(5000)
-    ///                 .transferred_value(10),
-    ///         )
-    ///         .exec_input(
-    ///             ExecutionInput::new(Selector::new([0xCA, 0xFE, 0xBA, 0xBE]))
-    ///                 .push_arg(42u8)
-    ///                 .push_arg(true)
-    ///                 .push_arg(&[0x10u8; 32]),
-    ///         )
-    ///         .returns::<i32>()
-    ///         .params();
-    ///
-    ///     self.env()
-    ///         .invoke_contract_v1(&call_params)
-    ///         .unwrap_or_else(|env_err| {
-    ///             panic!("Received an error from the Environment: {:?}", env_err)
-    ///         })
-    ///         .unwrap_or_else(|lang_err| panic!("Received a `LangError`: {:?}", lang_err))
-    /// }
-    /// #
-    /// #     }
-    /// # }
-    /// ```
-    ///
-    /// # Note
-    ///
-    /// For more details visit: [`ink_env::invoke_contract_v1`]
-    #[cfg(not(feature = "revive"))]
-    pub fn invoke_contract_v1<Args, R>(
-        self,
-        params: &CallParams<E, CallV1<E>, Args, R>,
-    ) -> Result<ink_primitives::MessageResult<R>>
-    where
-        Args: scale::Encode,
-        R: scale::Decode,
-    {
-        ink_env::invoke_contract_v1::<E, Args, R>(params)
     }
 
     /// Invokes a contract message and returns its result.
