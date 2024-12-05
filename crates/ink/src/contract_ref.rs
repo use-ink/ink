@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use ink_env::Environment;
+use ink_primitives::H160;
 
 /// Generates a wrapper which can be used for interacting with the contract.
 ///
@@ -120,7 +120,7 @@ use ink_env::Environment;
 /// ```rust
 /// use ink::contract_ref;
 /// use ink_env::DefaultEnvironment;
-/// use ink_primitives::AccountId;
+/// use ink_primitives::H160;
 ///
 /// #[ink::trait_definition]
 /// pub trait Erc20 {
@@ -130,7 +130,7 @@ use ink_env::Environment;
 ///
 ///     /// Transfers balance from the caller to the given address.
 ///     #[ink(message)]
-///     fn transfer(&mut self, amount: u128, to: AccountId) -> bool;
+///     fn transfer(&mut self, amount: u128, to: H160) -> bool;
 /// }
 ///
 /// #[derive(Clone)]
@@ -152,7 +152,7 @@ use ink_env::Environment;
 ///
 /// fn default(mut contract: contract_ref!(Erc20, DefaultEnvironment)) {
 ///     let total_supply = contract.total_supply();
-///     let to: AccountId = contract.as_ref().clone();
+///     let to: H160 = contract.as_ref().clone();
 ///     contract.transfer(total_supply, to);
 /// }
 ///
@@ -162,7 +162,7 @@ use ink_env::Environment;
 ///
 /// fn custom(mut contract: contract_ref!(Erc20, CustomEnv)) {
 ///     let total_supply = contract.total_supply();
-///     let to: [u8; 32] = contract.as_ref().clone();
+///     let to: [u8; 20] = contract.as_ref().clone();
 ///     contract.transfer(total_supply, to.into());
 /// }
 ///
@@ -173,7 +173,7 @@ use ink_env::Environment;
 /// fn generic<E, A>(mut contract: contract_ref!(Erc20, E))
 /// where
 ///     E: ink_env::Environment<AccountId = A>,
-///     A: Into<AccountId> + Clone,
+///     A: Into<H160> + Clone,
 /// {
 ///     let total_supply = contract.total_supply();
 ///     let to = contract.as_ref().clone();
@@ -183,7 +183,7 @@ use ink_env::Environment;
 /// fn generic_alias<E, A>(mut contract: AliasWithGenericEnv<E>)
 /// where
 ///     E: ink_env::Environment<AccountId = A>,
-///     A: Into<AccountId> + Clone,
+///     A: Into<H160> + Clone,
 /// {
 ///     generic(contract)
 /// }
@@ -192,7 +192,7 @@ use ink_env::Environment;
 ///
 /// fn contract_ref_default_behaviour(mut contract: contract_ref!(Erc20)) {
 ///     let total_supply = contract.total_supply();
-///     let to: AccountId = contract.as_ref().clone();
+///     let to: H160 = contract.as_ref().clone();
 ///     contract.transfer(total_supply, to);
 /// }
 /// ```
@@ -209,13 +209,11 @@ macro_rules! contract_ref {
     };
 }
 
+// todo remove FromAccountId + ToAccountId
 /// Implemented by contracts that are compiled as dependencies.
 ///
 /// Allows them to return their underlying account identifier.
-pub trait ToAccountId<T>
-where
-    T: Environment,
-{
+pub trait ToAddr {
     /// Returns the underlying account identifier of the instantiated contract.
-    fn to_account_id(&self) -> <T as Environment>::AccountId;
+    fn to_addr(&self) -> H160;
 }

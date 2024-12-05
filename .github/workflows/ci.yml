@@ -26,6 +26,7 @@ on:
       - 'FILE_HEADER'
 
 env:
+  # Image can be edited at https://github.com/use-ink/docker-images
   IMAGE:                           useink/ci
   CARGO_TARGET_DIR:                /ci-cache/${{ github.repository }}/targets/${{ github.ref_name }}/${{ github.job }}
   CARGO_INCREMENTAL:               0
@@ -40,8 +41,8 @@ env:
   # RISC-V does not have a standard library in contrast to Wasm. Compiling against
   # this target also makes sure that we don't pull in `std` by accident (through dependencies).
   # RISC-V is a modular architecture. We might switch to a different flavor with more features
-  # later. For example, `riscv32imc-unknown-none-elf`.
-  RISCV_TARGET:                    riscv32ema-unknown-none-elf
+  # later. For example, `riscv64imc-unknown-none-elf`.
+  RISCV_TARGET:                    .github/riscv64emac-unknown-none-polkavm.json
 
 concurrency:
   # Cancel in-progress jobs triggered only on pull_requests
@@ -83,7 +84,7 @@ jobs:
           cargo spellcheck check -v --cfg=.config/cargo_spellcheck.toml --checkers hunspell --code 1 -- recursive .
           cargo spellcheck check -v --cfg=.config/cargo_spellcheck.toml --checkers hunspell --code 1 -- recursive ./integration-tests/*
 
-  fmt:
+  .fmt:
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -148,7 +149,7 @@ jobs:
         run: |
           for crate in ${ALSO_RISCV_CRATES}; do
             cargo clippy --no-default-features --manifest-path ./crates/${crate}/Cargo.toml \
-              --target .github/riscv32emac-unknown-none-polkavm.json \
+              --target ${RISCV_TARGET} \
               -- -D warnings -A ${CLIPPY_ALLOWED};
           done
 
@@ -188,7 +189,7 @@ jobs:
         if: ${{ matrix.type == 'RISCV' }}
         run: |
           scripts/for_all_contracts_exec.sh --path integration-tests -- cargo clippy --no-default-features \
-            --target .github/riscv32emac-unknown-none-polkavm.json \
+            --target ${RISCV_TARGET} \
             --manifest-path {} -- -D warnings -A $CLIPPY_ALLOWED
 
   check:
@@ -229,7 +230,6 @@ jobs:
         if: ${{ matrix.type == 'RISCV' }}
         env:
           RUSTC_BOOTSTRAP: 1
-          RUSTUP_TOOLCHAIN: rve-nightly
         run: |
           for crate in ${ALSO_RISCV_CRATES}; do
             cargo check --no-default-features --target $RISCV_TARGET -Zbuild-std="core,alloc" \
@@ -313,7 +313,7 @@ jobs:
         run: |
           for crate in ${ALSO_WASM_CRATES}; do
             cargo build --no-default-features --release
-              --target .github/riscv32emac-unknown-none-polkavm.json \
+              --target RISCV_TARGET \
               --manifest-path ./crates/${crate}/Cargo.toml;
           done
 
@@ -586,7 +586,6 @@ jobs:
         if: ${{ matrix.type == 'RISCV' }}
         env:
           RUSTC_BOOTSTRAP: 1
-          RUSTUP_TOOLCHAIN: rve-nightly
         run: |
           rustup component add rust-src --toolchain stable
           cargo contract -V

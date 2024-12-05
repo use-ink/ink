@@ -1,5 +1,5 @@
 [package]
-name = "pallet-contract-caller"
+name = "pallet-revive-caller"
 version = "0.1.0"
 description = "Demonstrate calling an ink! contract from a pallet"
 authors = ["Use Ink <ink@use.ink>"]
@@ -19,7 +19,7 @@ frame-support = { workspace = true, default-features = false, features = ["try-r
 frame-system = { workspace = true, default-features = false }
 sp-runtime = { workspace = true, default-features = false }
 
-pallet-contracts = { workspace = true, default-features = false }
+pallet-revive = { workspace = true, default-features = false, features = ["try-runtime"] }
 flipper-traits = { path = "../../traits", default-features = false }
 ink = { path = "../../../../../crates/ink", features = ["no-panic-handler", "no-allocator"] }
 
@@ -31,7 +31,7 @@ std = [
     "frame-system/std",
     "sp-runtime/std",
     "scale-info/std",
-    "pallet-contracts/std",
+    "pallet-revive/std",
     "ink/std"
 ]
 try-runtime = []

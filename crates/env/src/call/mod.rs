@@ -53,7 +53,7 @@ pub use self::{
         ConstructorReturnType,
         CreateBuilder,
         CreateParams,
-        FromAccountId,
+        FromAddr,
         LimitParamsV2,
     },
     execution::{

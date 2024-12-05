@@ -118,7 +118,7 @@ mod multisig {
     #[ink::scale_derive(Encode, Decode, TypeInfo)]
     pub struct Transaction {
         /// The `AccountId` of the contract that is called in this transaction.
-        pub callee: AccountId,
+        pub callee: H160,
         /// The selector bytes that identifies the function of the callee that should be
         /// called.
         pub selector: [u8; 4],
@@ -754,7 +754,7 @@ mod multisig {
 
                 // Multisig::change_requirement()
                 Self {
-                    callee: AccountId::from(WALLET),
+                    callee: H160::from(WALLET),
                     selector: ink::selector_bytes!("change_requirement"),
                     input: call_args.encode(),
                     transferred_value: 0,
@@ -789,7 +789,7 @@ mod multisig {
 
         fn build_contract() -> Multisig {
             // Set the contract's address as `WALLET`.
-            let callee: AccountId = AccountId::from(WALLET);
+            let callee: H160 = H160::from(WALLET);
             ink::env::test::set_callee::<ink::env::DefaultEnvironment>(callee);
 
             let accounts = default_accounts();

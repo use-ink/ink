@@ -18,20 +18,21 @@ include = ["/Cargo.toml", "src/**/*.rs", "/README.md", "/LICENSE"]
 derive_more = { workspace = true, features = ["from", "display"] }
 ink_prelude = { workspace = true }
 scale = { workspace = true, features = ["max-encoded-len"] }
-scale-decode = { workspace = true, features = ["derive"], optional = true }
+scale-decode = { workspace = true, features = ["derive", "primitive-types"] }
 scale-encode = { workspace = true, features = ["derive"], optional = true }
 scale-info = { workspace = true, features = ["derive"], optional = true }
 xxhash-rust = { workspace = true, features = ["const_xxh32"] }
+serde = { version = "1.0.215", features = ["derive"], default-features = false, optional = true }
 
 [features]
 default = [ "std" ]
 std = [
 	"ink_prelude/std",
-	"scale-decode",
+    "serde",
+	"scale-decode/std",
 	"scale-encode",
 	"scale-info/std",
 	"scale/std",
-	"scale-decode?/std",
 	"scale-encode?/std",
 	"derive_more/std",
 	"xxhash-rust/std"

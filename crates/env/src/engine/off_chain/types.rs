@@ -57,6 +57,9 @@ impl From<ink_engine::AccountError> for AccountError {
             ink_engine::AccountError::NoAccountForId(acc) => {
                 AccountError::NoAccountForId(acc)
             }
+            ink_engine::AccountError::NoContractForId(addr) => {
+                AccountError::NoContractForId(addr)
+            }
         }
     }
 }

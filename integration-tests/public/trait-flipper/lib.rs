@@ -1,7 +1,7 @@
 #![cfg_attr(not(feature = "std"), no_std, no_main)]
 #![allow(clippy::new_without_default)]
 
-#[ink::trait_definition]
+#[::ink::trait_definition]
 pub trait Flip {
     /// Flips the current value of the Flipper's boolean.
     #[ink(message)]
@@ -12,7 +12,7 @@ pub trait Flip {
     fn get(&self) -> bool;
 }
 
-#[ink::contract]
+#[::ink::contract]
 pub mod flipper {
     use super::Flip;
 
@@ -26,7 +26,7 @@ pub mod flipper {
         #[ink(constructor)]
         pub fn new() -> Self {
             Self {
-                value: Default::default(),
+                value: true,
             }
         }
     }
@@ -47,13 +47,13 @@ pub mod flipper {
     mod tests {
         use super::*;
 
-        #[ink::test]
+        #[::ink::test]
         fn default_works() {
             let flipper = Flipper::new();
             assert!(!flipper.get());
         }
 
-        #[ink::test]
+        #[::ink::test]
         fn it_works() {
             let mut flipper = Flipper::new();
             // Can call using universal call syntax using the trait.

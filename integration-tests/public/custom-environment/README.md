@@ -11,8 +11,8 @@ To integrate this example into Substrate you need to adjust pallet contracts con
 ```rust
 // In your node's runtime configuration file (runtime.rs)
 parameter_types! {
-  pub Schedule: pallet_contracts::Schedule<Runtime> = pallet_contracts::Schedule::<Runtime> {
-    limits: pallet_contracts::Limits {
+  pub Schedule: pallet_revive::Schedule<Runtime> = pallet_revive::Schedule::<Runtime> {
+    limits: pallet_revive::Limits {
       event_topics: 6,
       ..Default::default()
     },
@@ -20,7 +20,7 @@ parameter_types! {
   };
 }
 
-impl pallet_contracts::Config for Runtime {
+impl pallet_revive::Config for Runtime {
   …
   type Schedule = Schedule;
   …

@@ -15,6 +15,7 @@ impl ink_env::Environment for EnvironmentMoreTopics {
     type Timestamp = <DefaultEnvironment as Environment>::Timestamp;
     type BlockNumber = <DefaultEnvironment as Environment>::BlockNumber;
     type ChainExtension = ();
+    type EventRecord = <DefaultEnvironment as Environment>::EventRecord;
 }
 
 #[ink::contract(env = super::EnvironmentMoreTopics)]

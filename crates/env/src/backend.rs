@@ -19,7 +19,7 @@ use crate::{
         ConstructorReturnType,
         CreateParams,
         DelegateCall,
-        FromAccountId,
+        FromAddr,
         LimitParamsV2,
     },
     event::Event,
@@ -30,6 +30,7 @@ use crate::{
     Environment,
     Result,
 };
+use ink_primitives::{H160, H256, U256};
 use ink_storage_traits::Storable;
 pub use pallet_revive_uapi::ReturnFlags;
 
@@ -222,14 +223,14 @@ pub trait TypedEnvBackend: EnvBackend {
     /// # Note
     ///
     /// For more details visit: [`caller`][`crate::caller`]
-    fn caller<E: Environment>(&mut self) -> E::AccountId;
+    fn caller(&mut self) -> H160;
 
     /// Returns the transferred value for the contract execution.
     ///
     /// # Note
     ///
     /// For more details visit: [`transferred_value`][`crate::transferred_value`]
-    fn transferred_value<E: Environment>(&mut self) -> E::Balance;
+    fn transferred_value(&mut self) -> U256;
 
     /// Returns the price for the specified amount of gas.
     ///
@@ -251,6 +252,13 @@ pub trait TypedEnvBackend: EnvBackend {
     ///
     /// For more details visit: [`account_id`][`crate::account_id`]
     fn account_id<E: Environment>(&mut self) -> E::AccountId;
+
+    /// Returns the address of the executed contract.
+    ///
+    /// # Note
+    ///
+    /// For more details visit: [`address`][`crate::address`]
+    fn address(&mut self) -> H160;
 
     /// Returns the balance of the executed contract.
     ///
@@ -308,7 +316,7 @@ pub trait TypedEnvBackend: EnvBackend {
     /// [`invoke_contract_delegate`][`crate::invoke_contract_delegate`]
     fn invoke_contract_delegate<E, Args, R>(
         &mut self,
-        call_data: &CallParams<E, DelegateCall<E>, Args, R>,
+        call_data: &CallParams<E, DelegateCall, Args, R>,
     ) -> Result<ink_primitives::MessageResult<R>>
     where
         E: Environment,
@@ -330,7 +338,7 @@ pub trait TypedEnvBackend: EnvBackend {
     >
     where
         E: Environment,
-        ContractRef: FromAccountId<E>,
+        ContractRef: FromAddr,
         Args: scale::Encode,
         Salt: AsRef<[u8]>,
         R: ConstructorReturnType<ContractRef>;
@@ -340,28 +348,24 @@ pub trait TypedEnvBackend: EnvBackend {
     /// # Note
     ///
     /// For more details visit: [`terminate_contract`][`crate::terminate_contract`]
-    fn terminate_contract<E>(&mut self, beneficiary: E::AccountId) -> !
-    where
-        E: Environment;
+    fn terminate_contract(&mut self, beneficiary: H160) -> !;
 
     /// Transfers value from the contract to the destination account ID.
     ///
     /// # Note
     ///
     /// For more details visit: [`transfer`][`crate::transfer`]
-    fn transfer<E>(&mut self, destination: E::AccountId, value: E::Balance) -> Result<()>
+    fn transfer<E>(&mut self, destination: H160, value: E::Balance) -> Result<()>
     where
         E: Environment;
 
-    /// Checks whether a specified account belongs to a contract.
+    /// Checks whether a specified contract lives at `addr`.
     ///
     /// # Note
     ///
     /// For more details visit: [`is_contract`][`crate::is_contract`]
     #[allow(clippy::wrong_self_convention)]
-    fn is_contract<E>(&mut self, account: &E::AccountId) -> bool
-    where
-        E: Environment;
+    fn is_contract(&mut self, account: &H160) -> bool;
 
     /// Checks whether the caller of the current contract is the origin of the whole call
     /// stack.
@@ -387,16 +391,14 @@ pub trait TypedEnvBackend: EnvBackend {
     /// # Note
     ///
     /// For more details visit: [`code_hash`][`crate::code_hash`]
-    fn code_hash<E>(&mut self, account: &E::AccountId) -> Result<E::Hash>
-    where
-        E: Environment;
+    fn code_hash(&mut self, account: &H160) -> Result<H256>;
 
     /// Retrieves the code hash of the currently executing contract.
     ///
     /// # Note
     ///
     /// For more details visit: [`own_code_hash`][`crate::own_code_hash`]
-    fn own_code_hash<E>(&mut self) -> Result<E::Hash>
+    fn own_code_hash<E>(&mut self) -> Result<H256>
     where
         E: Environment;
 
@@ -411,7 +413,7 @@ pub trait TypedEnvBackend: EnvBackend {
     ///
     /// For more details visit:
     /// [`lock_delegate_dependency`][`crate::lock_delegate_dependency`]
-    fn lock_delegate_dependency<E>(&mut self, code_hash: &E::Hash)
+    fn lock_delegate_dependency<E>(&mut self, code_hash: &H256)
     where
         E: Environment;
 
@@ -421,7 +423,7 @@ pub trait TypedEnvBackend: EnvBackend {
     ///
     /// For more details visit:
     /// [`unlock_delegate_dependency`][`crate::unlock_delegate_dependency`].
-    fn unlock_delegate_dependency<E>(&mut self, code_hash: &E::Hash)
+    fn unlock_delegate_dependency<E>(&mut self, code_hash: &H256)
     where
         E: Environment;
 

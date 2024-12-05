@@ -26,9 +26,9 @@ use crate::{
         EmittedEvent,
     },
     types::{
-        AccountId,
         Balance,
         BlockTimestamp,
+        H160,
     },
 };
 pub use pallet_revive_uapi::ReturnErrorCode as Error;
@@ -73,7 +73,7 @@ impl Default for ChainSpec {
     fn default() -> Self {
         Self {
             gas_price: 100,
-            minimum_balance: 1000000,
+            minimum_balance: 42,
             block_time: 6,
         }
     }
@@ -100,18 +100,17 @@ impl Default for Engine {
 
 impl Engine {
     /// Transfers value from the contract to the destination account.
-    pub fn transfer(&mut self, account_id: &[u8], mut value: &[u8]) -> Result<(), Error> {
+    pub fn transfer(&mut self, dest: H160, mut value: &[u8]) -> Result<(), Error> {
         // Note that a transfer of `0` is allowed here
         let increment = <u128 as scale::Decode>::decode(&mut value)
             .map_err(|_| Error::TransferFailed)?;
 
-        let dest = account_id.to_vec();
         // Note that the destination account does not have to exist
-        let dest_old_balance = self.get_balance(dest.clone()).unwrap_or_default();
+        let dest_old_balance = self.get_balance(dest).unwrap_or_default();
 
         let contract = self.get_callee();
         let contract_old_balance = self
-            .get_balance(contract.clone())
+            .get_balance(contract)
             .map_err(|_| Error::TransferFailed)?;
 
         self.database
@@ -152,11 +151,10 @@ impl Engine {
     /// Returns the size of the previously stored value at the key if any.
     pub fn set_storage(&mut self, key: &[u8], encoded_value: &[u8]) -> Option<u32> {
         let callee = self.get_callee();
-        let account_id = AccountId::from_bytes(&callee[..]);
 
-        self.debug_info.inc_writes(account_id.clone());
+        self.debug_info.inc_writes(callee);
         self.debug_info
-            .record_cell_for_account(account_id, key.to_vec());
+            .record_cell_for_account(callee, key.to_vec());
 
         self.database
             .insert_into_contract_storage(&callee, key, encoded_value.to_vec())
@@ -166,9 +164,8 @@ impl Engine {
     /// Returns the contract storage bytes at the key if any.
     pub fn get_storage(&mut self, key: &[u8]) -> Result<&[u8], Error> {
         let callee = self.get_callee();
-        let account_id = AccountId::from_bytes(&callee[..]);
 
-        self.debug_info.inc_reads(account_id);
+        self.debug_info.inc_reads(callee);
         match self.database.get_from_contract_storage(&callee, key) {
             Some(val) => Ok(val),
             None => Err(Error::KeyNotFound),
@@ -179,9 +176,8 @@ impl Engine {
     /// returning previously stored value at the key if any.
     pub fn take_storage(&mut self, key: &[u8]) -> Result<Vec<u8>, Error> {
         let callee = self.get_callee();
-        let account_id = AccountId::from_bytes(&callee[..]);
 
-        self.debug_info.inc_writes(account_id);
+        self.debug_info.inc_writes(callee);
         match self.database.remove_contract_storage(&callee, key) {
             Some(val) => Ok(val),
             None => Err(Error::KeyNotFound),
@@ -191,9 +187,8 @@ impl Engine {
     /// Returns the size of the value stored in the contract storage at the key if any.
     pub fn contains_storage(&mut self, key: &[u8]) -> Option<u32> {
         let callee = self.get_callee();
-        let account_id = AccountId::from_bytes(&callee[..]);
 
-        self.debug_info.inc_reads(account_id);
+        self.debug_info.inc_reads(callee);
         self.database
             .get_from_contract_storage(&callee, key)
             .map(|val| val.len() as u32)
@@ -203,11 +198,10 @@ impl Engine {
     /// Returns the size of the previously stored value at the key if any.
     pub fn clear_storage(&mut self, key: &[u8]) -> Option<u32> {
         let callee = self.get_callee();
-        let account_id = AccountId::from_bytes(&callee[..]);
-        self.debug_info.inc_writes(account_id.clone());
+        self.debug_info.inc_writes(callee);
         let _ = self
             .debug_info
-            .remove_cell_for_account(account_id, key.to_vec());
+            .remove_cell_for_account(callee, key.to_vec());
         self.database
             .remove_contract_storage(&callee, key)
             .map(|val| val.len() as u32)
@@ -218,7 +212,7 @@ impl Engine {
     /// This function never returns. Either the termination was successful and the
     /// execution of the destroyed contract is halted. Or it failed during the
     /// termination which is considered fatal.
-    pub fn terminate(&mut self, beneficiary: &[u8]) -> ! {
+    pub fn terminate(&mut self, beneficiary: H160) -> ! {
         // Send the remaining balance to the beneficiary
         let contract = self.get_callee();
         let all = self
@@ -231,19 +225,15 @@ impl Engine {
         // Encode the result of the termination and panic with it.
         // This enables testing for the proper result and makes sure this
         // method returns `Never`.
-        let res = (all, beneficiary.to_vec());
+        let res = (all, beneficiary);
         panic_any(scale::Encode::encode(&res));
     }
 
     /// Returns the address of the caller.
     pub fn caller(&self, output: &mut &mut [u8]) {
-        let caller = self
-            .exec_context
-            .caller
-            .as_ref()
-            .expect("no caller has been set")
-            .as_bytes();
-        set_output(output, caller);
+        let caller = self.exec_context.caller;
+        let caller = scale::Encode::encode(&caller);
+        set_output(output, &caller[..])
     }
 
     /// Returns the balance of the executed contract.
@@ -256,7 +246,7 @@ impl Engine {
 
         let balance_in_storage = self
             .database
-            .get_balance(contract.as_bytes())
+            .get_balance(contract)
             .expect("currently executing contract must exist");
         let balance = scale::Encode::encode(&balance_in_storage);
         set_output(output, &balance[..])

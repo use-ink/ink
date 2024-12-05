@@ -22,7 +22,6 @@ use contract_build::{
     Network,
     OptimizationPasses,
     OutputType,
-    Target,
     UnstableFlags,
     Verbosity,
     DEFAULT_MAX_MEMORY_PAGES,
@@ -144,6 +143,7 @@ fn build_contracts(contract_manifests: &[PathBuf]) -> Vec<PathBuf> {
     wasm_paths
 }
 
+// todo replace all mentions of Wasm
 /// Builds the contract at `manifest_path`, returns the path to the contract
 /// Wasm build artifact.
 fn build_contract(path_to_cargo_toml: &Path) -> PathBuf {
@@ -165,8 +165,8 @@ fn build_contract(path_to_cargo_toml: &Path) -> PathBuf {
         keep_debug_symbols: false,
         extra_lints: false,
         output_type: OutputType::HumanReadable,
+        // todo remove
         skip_wasm_validation: false,
-        target: Target::Wasm,
         max_memory_pages: DEFAULT_MAX_MEMORY_PAGES,
         image: ImageVariant::Default,
     };
@@ -175,6 +175,7 @@ fn build_contract(path_to_cargo_toml: &Path) -> PathBuf {
         Ok(build_result) => {
             build_result
                 .dest_wasm
+                // todo Replace Wasm with Risc-V everywhere
                 .expect("Wasm code artifact not generated")
                 .canonicalize()
                 .expect("Invalid dest bundle path")

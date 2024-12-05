@@ -46,6 +46,7 @@
 /// use ink_primitives::{
 ///     AccountId,
 ///     MessageResult,
+///     H160,
 /// };
 /// use scale::{
 ///     Decode,
@@ -60,7 +61,7 @@
 ///
 ///     /// Transfers balance from the caller to the given address.
 ///     #[ink(message)]
-///     fn transfer(&mut self, amount: u128, to: AccountId) -> bool;
+///     fn transfer(&mut self, amount: u128, to: H160) -> bool;
 /// }
 ///
 /// #[derive(Clone)]

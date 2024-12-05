@@ -150,6 +150,6 @@ fn build_full_client(
 fn build_runtime_client(contracts: TokenStream2, runtime: syn::Path) -> TokenStream2 {
     quote! {
         let contracts = #contracts;
-        let mut client = ::ink_e2e::SandboxClient::<_, _, #runtime>::new(contracts);
+        let mut client = ::ink_e2e::SandboxClient::<_, #runtime>::new(contracts);
     }
 }
