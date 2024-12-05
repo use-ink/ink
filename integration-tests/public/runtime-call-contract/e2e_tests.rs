@@ -37,13 +37,15 @@ async fn instantiate_and_get<Client: E2EBackend>(mut client: Client) -> E2EResul
             "ContractCaller",
             "contract_call_flip",
             vec![
-                scale_value::Value::from_bytes(contract.account_id),
-                scale_value::serde::to_value(frame_support::weights::Weight::from_parts(
-                    gas_required.ref_time(),
-                    gas_required.proof_size(),
-                ))
+                ink_e2e::subxt::dynamic::Value::from_bytes(contract.account_id),
+                ink_e2e::subxt::ext::scale_value::serde::to_value(
+                    frame_support::weights::Weight::from_parts(
+                        gas_required.ref_time(),
+                        gas_required.proof_size(),
+                    ),
+                )
                 .unwrap(),
-                scale_value::serde::to_value(None::<u128>).unwrap(),
+                ink_e2e::subxt::ext::scale_value::serde::to_value(None::<u128>).unwrap(),
             ],
         )
         .await
