@@ -23,6 +23,7 @@ use secp256k1::{
     SecretKey,
     SECP256K1,
 };
+use crate::types::{H160};
 
 /// The public methods of the `contracts` pallet write their result into an
 /// `output` buffer instead of returning them. Since we aim to emulate this
@@ -38,7 +39,7 @@ fn get_buffer() -> [u8; 1024] {
 #[test]
 fn store_load_clear() {
     let mut engine = Engine::new();
-    engine.set_callee(vec![1; 32]);
+    engine.set_callee(H160::from([1; 20]));
     let key: &[u8; 32] = &[0x42; 32];
     let res = engine.get_storage(key);
     assert_eq!(res, Err(Error::KeyNotFound));
@@ -57,10 +58,10 @@ fn store_load_clear() {
 fn setting_getting_balance() {
     // given
     let mut engine = Engine::new();
-    let account_id = vec![1; 32];
+    let addr = H160::from([1; 20]);
     let balance = 1337;
-    engine.set_callee(account_id.clone());
-    engine.set_balance(account_id, balance);
+    engine.set_callee(addr.clone());
+    engine.set_balance_of(addr, balance);
 
     // when
     let mut output = get_buffer();
@@ -76,48 +77,49 @@ fn setting_getting_balance() {
 fn setting_getting_caller() {
     // given
     let mut engine = Engine::new();
-    let account_id = vec![1; 32];
+    let caller = H160::from([1u8; 20]);
 
     // when
-    engine.set_caller(account_id.clone());
+    engine.set_caller(caller.clone());
 
     // then
     let mut output = get_buffer();
     engine.caller(&mut &mut output[..]);
-    assert_eq!(&output[..account_id.len()], &account_id);
+    let val = scale::Encode::encode(&caller);
+    assert!(&output[..val.len()].eq(val.as_slice()));
 }
 
 #[test]
 fn address() {
     // given
     let mut engine = Engine::new();
-    let account_id = vec![1; 32];
-    engine.set_callee(account_id.clone());
+    let addr = H160::from([1; 20]);
+    engine.set_callee(addr.clone());
 
     // when
     let mut output = get_buffer();
     engine.address(&mut &mut output[..]);
 
     // then
-    assert_eq!(&output[..account_id.len()], &account_id);
+    assert!(&output[..20].eq(addr.as_bytes()));
 }
 
 #[test]
 fn transfer() {
     // given
     let mut engine = Engine::new();
-    let alice = vec![1; 32];
-    let bob = vec![2; 32];
+    let alice = H160::from([1; 20]);
+    let bob = H160::from([2; 20]);
     engine.set_callee(alice.clone());
-    engine.set_balance(alice.clone(), 1337);
+    engine.set_balance_of(alice.clone(), 1337);
 
     // when
     let val = scale::Encode::encode(&337u128);
-    assert_eq!(engine.transfer(&bob, &val), Ok(()));
+    assert_eq!(engine.transfer(bob, &val), Ok(()));
 
     // then
-    assert_eq!(engine.get_balance(alice), Ok(1000));
-    assert_eq!(engine.get_balance(bob), Ok(337));
+    assert_eq!(engine.get_balance_of(alice), Ok(1000));
+    assert_eq!(engine.get_balance_of(bob), Ok(337));
 }
 
 #[test]

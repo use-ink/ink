@@ -22,7 +22,6 @@ use contract_build::{
     Network,
     OptimizationPasses,
     OutputType,
-    Target,
     UnstableFlags,
     Verbosity,
     DEFAULT_MAX_MEMORY_PAGES,
@@ -166,7 +165,6 @@ fn build_contract(path_to_cargo_toml: &Path) -> PathBuf {
         extra_lints: false,
         output_type: OutputType::HumanReadable,
         skip_wasm_validation: false,
-        target: Target::Wasm,
         max_memory_pages: DEFAULT_MAX_MEMORY_PAGES,
         image: ImageVariant::Default,
     };

@@ -20,7 +20,7 @@ use crate::{
         ConstructorReturnType,
         CreateParams,
         DelegateCall,
-        FromAccountId,
+        FromAddr,
         LimitParamsV2,
     },
     event::{
@@ -50,6 +50,7 @@ use pallet_revive_uapi::{
     ReturnErrorCode,
     ReturnFlags,
 };
+use ink_primitives::{H160, H256};
 use schnorrkel::{
     PublicKey,
     Signature,
@@ -372,8 +373,8 @@ impl EnvBackend for EnvInstance {
 }
 
 impl TypedEnvBackend for EnvInstance {
-    fn caller<E: Environment>(&mut self) -> E::AccountId {
-        self.get_property::<E::AccountId>(Engine::caller)
+    fn caller(&mut self) -> H160 {
+        self.get_property::<H160>(Engine::caller)
             .unwrap_or_else(|error| panic!("could not read `caller` property: {error:?}"))
     }
 
@@ -444,7 +445,7 @@ impl TypedEnvBackend for EnvInstance {
 
     fn invoke_contract_delegate<E, Args, R>(
         &mut self,
-        params: &CallParams<E, DelegateCall<E>, Args, R>,
+        params: &CallParams<E, DelegateCall, Args, R>,
     ) -> Result<ink_primitives::MessageResult<R>>
     where
         E: Environment,
@@ -467,7 +468,7 @@ impl TypedEnvBackend for EnvInstance {
     >
     where
         E: Environment,
-        ContractRef: FromAccountId<E>,
+        ContractRef: FromAddr,
         Args: scale::Encode,
         Salt: AsRef<[u8]>,
         R: ConstructorReturnType<ContractRef>,
@@ -482,22 +483,18 @@ impl TypedEnvBackend for EnvInstance {
         unimplemented!("off-chain environment does not support contract instantiation")
     }
 
-    fn terminate_contract<E>(&mut self, beneficiary: E::AccountId) -> !
-    where
-        E: Environment,
+    fn terminate_contract(&mut self, beneficiary: H160) -> !
     {
-        let buffer = scale::Encode::encode(&beneficiary);
-        self.engine.terminate(&buffer[..])
+        self.engine.terminate(beneficiary)
     }
 
-    fn transfer<E>(&mut self, destination: E::AccountId, value: E::Balance) -> Result<()>
+    fn transfer<E>(&mut self, destination: H160, value: E::Balance) -> Result<()>
     where
         E: Environment,
     {
-        let enc_destination = &scale::Encode::encode(&destination)[..];
         let enc_value = &scale::Encode::encode(&value)[..];
         self.engine
-            .transfer(enc_destination, enc_value)
+            .transfer(destination, enc_value)
             .map_err(Into::into)
     }
 
@@ -509,11 +506,9 @@ impl TypedEnvBackend for EnvInstance {
         })
     }
 
-    fn is_contract<E>(&mut self, account: &E::AccountId) -> bool
-    where
-        E: Environment,
+    fn is_contract(&mut self, account: &H160) -> bool
     {
-        self.engine.is_contract(scale::Encode::encode(&account))
+        self.engine.is_contract(account)
     }
 
     fn caller_is_origin<E>(&mut self) -> bool
@@ -530,14 +525,12 @@ impl TypedEnvBackend for EnvInstance {
         unimplemented!("off-chain environment does not support `caller_is_root`")
     }
 
-    fn code_hash<E>(&mut self, _account: &E::AccountId) -> Result<E::Hash>
-    where
-        E: Environment,
+    fn code_hash(&mut self, _addr: &H160) -> Result<H256>
     {
         unimplemented!("off-chain environment does not support `code_hash`")
     }
 
-    fn own_code_hash<E>(&mut self) -> Result<E::Hash>
+    fn own_code_hash<E>(&mut self) -> Result<H256>
     where
         E: Environment,
     {
@@ -551,7 +544,7 @@ impl TypedEnvBackend for EnvInstance {
         unimplemented!("off-chain environment does not support `call_runtime`")
     }
 
-    fn lock_delegate_dependency<E>(&mut self, _code_hash: &E::Hash)
+    fn lock_delegate_dependency<E>(&mut self, _code_hash: &H256)
     where
         E: Environment,
     {
@@ -576,7 +569,7 @@ impl TypedEnvBackend for EnvInstance {
         unimplemented!("off-chain environment does not support `xcm_send`")
     }
 
-    fn unlock_delegate_dependency<E>(&mut self, _code_hash: &E::Hash)
+    fn unlock_delegate_dependency<E>(&mut self, _code_hash: &H256)
     where
         E: Environment,
     {

@@ -87,13 +87,9 @@ pub use ink_sandbox::DefaultSandbox;
 
 use ink::codegen::ContractCallBuilder;
 use ink_env::{
-    call::FromAccountId,
+    call::FromAddr,
     ContractEnv,
     Environment,
-};
-use pallet_contracts::{
-    ContractExecResult,
-    ContractInstantiateResult,
 };
 use std::{
     cell::RefCell,
@@ -102,6 +98,7 @@ use std::{
 use xts::ContractsApi;
 
 pub use subxt::PolkadotConfig;
+use ink_primitives::H160;
 
 /// We use this to only initialize `env_logger` once.
 pub static INIT: Once = Once::new();
@@ -139,15 +136,13 @@ pub fn account_id(account: AccountKeyring) -> ink_primitives::AccountId {
 
 /// Creates a call builder builder for `Contract`, based on an account id.
 pub fn create_call_builder<Contract>(
-    acc_id: <<Contract as ContractEnv>::Env as Environment>::AccountId,
+    acc_id: H160,
 ) -> <Contract as ContractCallBuilder>::Type
 where
     <Contract as ContractEnv>::Env: Environment,
     Contract: ContractCallBuilder,
     Contract: ContractEnv,
-    Contract::Type: FromAccountId<<Contract as ContractEnv>::Env>,
+    Contract::Type: FromAddr,
 {
-    <<Contract as ContractCallBuilder>::Type as FromAccountId<
-        <Contract as ContractEnv>::Env,
-    >>::from_account_id(acc_id)
+    <<Contract as ContractCallBuilder>::Type as FromAddr>::from_addr(acc_id)
 }

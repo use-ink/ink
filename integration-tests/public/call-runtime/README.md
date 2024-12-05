@@ -9,10 +9,10 @@ It demonstrates how to call a runtime dispatchable from an ink! contract.
 To integrate this example into Substrate you need to adjust pallet contracts configuration in your runtime:
   ```rust
   // In your node's runtime configuration file (runtime.rs)
-  impl pallet_contracts::Config for Runtime {
+  impl pallet_revive::Config for Runtime {
     …
     // `Everything` or anything that will allow for the `Balances::transfer` extrinsic.
-    type CallFilter = frame_support::traits::Everything; 
+    type CallFilter = frame_support::traits::Everything;
     type UnsafeUnstableInterface = ConstBool<true>;
     …
   }
@@ -21,7 +21,7 @@ To integrate this example into Substrate you need to adjust pallet contracts con
 ## Comparison to `ChainExtension`
 
 Just as a chain extension, `call_runtime` API allows contracts for direct calling to the runtime.
-You can trigger any extrinsic that is not forbidden by `pallet_contracts::Config::CallFilter`.
+You can trigger any extrinsic that is not forbidden by `pallet_revive::Config::CallFilter`.
 Consider writing a chain extension if you need to perform one of the following tasks:
 - Return data.
 - Provide functionality **exclusively** to contracts.

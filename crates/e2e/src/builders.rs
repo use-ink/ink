@@ -26,13 +26,13 @@ use ink_env::{
     Environment,
 };
 use scale::Encode;
+use crate::H256;
 
 /// The type returned from `ContractRef` constructors, partially initialized with the
 /// execution input arguments.
 pub type CreateBuilderPartial<E, ContractRef, Args, R> = CreateBuilder<
     E,
     ContractRef,
-    Unset<<E as Environment>::Hash>,
     Set<LimitParamsV2<E>>,
     Unset<<E as Environment>::Balance>,
     Set<ExecutionInput<Args>>,
@@ -50,7 +50,7 @@ where
     // set all the other properties to default values, we only require the `exec_input`.
     builder
         .endowment(0u32.into())
-        .code_hash(ink_primitives::Clear::CLEAR_HASH)
+        .code_hash(H256::zero())
         .salt_bytes(Vec::new())
         .params()
         .exec_input()

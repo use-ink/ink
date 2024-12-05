@@ -1,5 +1,5 @@
 {
-    "arch": "riscv32",
+    "arch": "riscv64",
     "cpu": "generic-rv32",
     "crt-objects-fallback": "false",
     "data-layout": "e-m:e-p:32:32-i64:64-n32-S32",
@@ -9,7 +9,7 @@
     "linker": "rust-lld",
     "linker-flavor": "ld.lld",
     "llvm-abiname": "ilp32e",
-    "llvm-target": "riscv32",
+    "llvm-target": "riscv64",
     "max-atomic-width": 32,
     "panic-strategy": "abort",
     "relocation-model": "pie",

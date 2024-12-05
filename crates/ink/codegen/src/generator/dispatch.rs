@@ -354,16 +354,14 @@ impl Dispatch<'_> {
         let any_message_accepts_payment = self.any_message_accepts_payment(messages);
 
         let fn_call: syn::ItemFn = syn::parse_quote! {
-            #[cfg(any(target_arch = "wasm32", target_arch = "riscv32"))]
-            #[cfg_attr(target_arch = "wasm32", no_mangle)]
+            #[cfg(target_arch = "riscv64")]
             #[ink::polkavm_export(abi = ink::polkavm_derive::default_abi)]
             pub extern "C" fn call() {
                 internal_call()
             }
         };
         let fn_deploy: syn::ItemFn = syn::parse_quote! {
-            #[cfg(any(target_arch = "wasm32", target_arch = "riscv32"))]
-            #[cfg_attr(target_arch = "wasm32", no_mangle)]
+            #[cfg(target_arch = "riscv64")]
             #[ink::polkavm_export(abi = ink::polkavm_derive::default_abi)]
             pub extern "C" fn deploy() {
                 internal_deploy()

@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use pallet_contracts::ContractExecResult;
+//use pallet_revive::ContractResult;
 
 use std::fmt;
 
@@ -97,6 +97,7 @@ impl fmt::Display for SandboxErr {
     }
 }
 
+/*
 impl<Balance> From<ContractExecResult<Balance, ()>> for SandboxErr {
     fn from(_value: ContractExecResult<Balance, ()>) -> Self {
         Self {
@@ -104,3 +105,6 @@ impl<Balance> From<ContractExecResult<Balance, ()>> for SandboxErr {
         }
     }
 }
+
+
+ */

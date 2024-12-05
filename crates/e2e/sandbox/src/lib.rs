@@ -13,14 +13,12 @@ use frame_system::{
     pallet_prelude::BlockNumberFor,
     EventRecord,
 };
+use frame_system::pallet_prelude::OriginFor;
 pub use macros::{
     BlockBuilder,
     DefaultSandbox,
 };
-use pallet_contracts::{
-    ContractExecResult,
-    ContractInstantiateResult,
-};
+use pallet_revive::{ContractResult, ExecReturnValue, InstantiateReturnValue};
 /// Export pallets that are used in [`crate::create_sandbox`]
 pub use {
     frame_support::sp_runtime::testing::H256,
@@ -33,7 +31,7 @@ pub use {
     },
     frame_system,
     pallet_balances,
-    pallet_contracts,
+    pallet_revive,
     pallet_timestamp,
     paste,
     sp_core::crypto::Ss58Codec,
@@ -58,7 +56,7 @@ pub type StorageRoot = H256;
 
 /// Alias for the balance type.
 type BalanceOf<R> =
-    <<R as pallet_contracts::Config>::Currency as Inspect<AccountIdFor<R>>>::Balance;
+    <<R as pallet_revive::Config>::Currency as Inspect<AccountIdFor<R>>>::Balance;
 
 /// Alias for the account ID type.
 pub type AccountIdFor<R> = <R as frame_system::Config>::AccountId;
@@ -73,15 +71,21 @@ pub type EventRecordOf<Runtime> = EventRecord<
 >;
 
 /// Alias for the contract instantiate result.
-pub type ContractInstantiateResultFor<Runtime> = ContractInstantiateResult<
-    AccountIdFor<Runtime>,
-    BalanceOf<Runtime>,
-    EventRecordOf<Runtime>,
->;
+pub type ContractInstantiateResultFor<Runtime> =
+    ContractResult<OriginFor<Runtime>, BalanceOf<Runtime>, EventRecordOf<Runtime>>;
+
+pub type ContractResultFor<Runtime> =
+    ContractResult<Runtime, BalanceOf<Runtime>, EventRecordOf<Runtime>>;
+//pub type ContractInstantiateResultFor<Runtime> =
+//ContractResult<AccountIdFor<Runtime>, BalanceOf<Runtime>, EventRecordOf<Runtime>>;
+
+pub type ContractResultInstantiate<Runtime> =
+    ContractResult<InstantiateReturnValue, BalanceOf<Runtime>, EventRecordOf<Runtime>>;
+//pub type ContractInstantiateResultFor<Runtime> =
 
 /// Alias for the contract exec result.
 pub type ContractExecResultFor<Runtime> =
-    ContractExecResult<BalanceOf<Runtime>, EventRecordOf<Runtime>>;
+    ContractResult<ExecReturnValue, BalanceOf<Runtime>, EventRecordOf<Runtime>>;
 
 /// Alias for the runtime of a sandbox.
 pub type RuntimeOf<S> = <S as Sandbox>::Runtime;

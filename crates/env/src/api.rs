@@ -25,7 +25,7 @@ use crate::{
         ConstructorReturnType,
         CreateParams,
         DelegateCall,
-        FromAccountId,
+        FromAddr,
         LimitParamsV2,
     },
     engine::{
@@ -43,18 +43,17 @@ use crate::{
 };
 use ink_storage_traits::Storable;
 use pallet_revive_uapi::ReturnFlags;
+use ink_primitives::{H160, H256};
 
 /// Returns the address of the caller of the executed contract.
 ///
 /// # Errors
 ///
 /// If the returned caller cannot be properly decoded.
-pub fn caller<E>() -> E::AccountId
-where
-    E: Environment,
+pub fn caller() -> H160
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        TypedEnvBackend::caller::<E>(instance)
+        TypedEnvBackend::caller(instance)
     })
 }
 
@@ -290,7 +289,7 @@ where
 /// - If arguments passed to the called code message are invalid.
 /// - If the called code execution has trapped.
 pub fn invoke_contract_delegate<E, Args, R>(
-    params: &CallParams<E, DelegateCall<E>, Args, R>,
+    params: &CallParams<E, DelegateCall, Args, R>,
 ) -> Result<ink_primitives::MessageResult<R>>
 where
     E: Environment,
@@ -328,7 +327,7 @@ pub fn instantiate_contract<E, ContractRef, Args, Salt, R>(
 >
 where
     E: Environment,
-    ContractRef: FromAccountId<E>,
+    ContractRef: FromAddr,
     Args: scale::Encode,
     Salt: AsRef<[u8]>,
     R: ConstructorReturnType<ContractRef>,
@@ -350,15 +349,14 @@ where
 /// This function never returns. Either the termination was successful and the
 /// execution of the destroyed contract is halted. Or it failed during the termination
 /// which is considered fatal and results in a trap and rollback.
-pub fn terminate_contract<E>(beneficiary: E::AccountId) -> !
-where
-    E: Environment,
+pub fn terminate_contract(beneficiary: H160) -> !
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        TypedEnvBackend::terminate_contract::<E>(instance, beneficiary)
+        TypedEnvBackend::terminate_contract(instance, beneficiary)
     })
 }
 
+/*
 /// Transfers value from the contract to the destination account ID.
 ///
 /// # Note
@@ -372,6 +370,7 @@ where
 /// - If the contract does not have sufficient free funds.
 /// - If the transfer had brought the sender's total balance below the minimum balance.
 ///   You need to use [`terminate_contract`] in case this is your intention.
+// todo remove
 pub fn transfer<E>(destination: E::AccountId, value: E::Balance) -> Result<()>
 where
     E: Environment,
@@ -380,6 +379,7 @@ where
         TypedEnvBackend::transfer::<E>(instance, destination, value)
     })
 }
+*/
 
 /// Returns the execution input to the executed contract and decodes it as `T`.
 ///
@@ -584,12 +584,10 @@ pub fn sr25519_verify(
 /// # Errors
 ///
 /// If the returned value cannot be properly decoded.
-pub fn is_contract<E>(account: &E::AccountId) -> bool
-where
-    E: Environment,
+pub fn is_contract(account: &H160) -> bool
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        TypedEnvBackend::is_contract::<E>(instance, account)
+        TypedEnvBackend::is_contract(instance, account)
     })
 }
 
@@ -599,12 +597,10 @@ where
 ///
 /// - If no code hash was found for the specified account id.
 /// - If the returned value cannot be properly decoded.
-pub fn code_hash<E>(account: &E::AccountId) -> Result<E::Hash>
-where
-    E: Environment,
+pub fn code_hash(addr: &H160) -> Result<H256>
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        TypedEnvBackend::code_hash::<E>(instance, account)
+        TypedEnvBackend::code_hash(instance, addr)
     })
 }
 
@@ -613,7 +609,7 @@ where
 /// # Errors
 ///
 /// If the returned value cannot be properly decoded.
-pub fn own_code_hash<E>() -> Result<E::Hash>
+pub fn own_code_hash<E>() -> Result<H256>
 where
     E: Environment,
 {
@@ -764,7 +760,7 @@ where
 /// Please refer to the
 /// [Open Zeppelin docs](https://docs.openzeppelin.com/upgrades-plugins/1.x/writing-upgradeable#modifying-your-contracts)
 /// for more details and examples.
-pub fn set_code_hash<E>(code_hash: &E::Hash) -> Result<()>
+pub fn set_code_hash<E>(code_hash: &H256) -> Result<()>
 where
     E: Environment,
 {
@@ -812,7 +808,7 @@ where
 /// - If the `code_hash` is the same as the calling contract.
 /// - If the maximum number of delegate dependencies is reached.
 /// - If the delegate dependency already exists.
-pub fn lock_delegate_dependency<E>(code_hash: &E::Hash)
+pub fn lock_delegate_dependency<E>(code_hash: &H256)
 where
     E: Environment,
 {
@@ -830,7 +826,7 @@ where
 /// # Errors
 ///
 /// - If the delegate dependency does not exist.
-pub fn unlock_delegate_dependency<E>(code_hash: &E::Hash)
+pub fn unlock_delegate_dependency<E>(code_hash: &H256)
 where
     E: Environment,
 {

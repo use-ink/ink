@@ -14,24 +14,20 @@
 
 use crate::ChainExtensionInstance;
 use core::marker::PhantomData;
-use ink_env::{
-    call::{
-        Call,
-        CallParams,
-        ConstructorReturnType,
-        CreateParams,
-        DelegateCall,
-        FromAccountId,
-        LimitParamsV2,
-    },
-    hash::{
-        CryptoHash,
-        HashOutput,
-    },
-    Environment,
-    Result,
-};
+use ink_env::{call::{
+    Call,
+    CallParams,
+    ConstructorReturnType,
+    CreateParams,
+    DelegateCall,
+    FromAddr,
+    LimitParamsV2,
+}, hash::{
+    CryptoHash,
+    HashOutput,
+}, Environment, Result};
 use pallet_revive_uapi::ReturnErrorCode;
+use ink_primitives::{H160, H256};
 
 /// The API behind the `self.env()` and `Self::env()` syntax in ink!.
 ///
@@ -105,7 +101,8 @@ where
     ///
     /// For more details visit: [`ink_env::caller`]
     pub fn caller(self) -> E::AccountId {
-        ink_env::caller::<E>()
+        //ink_env::caller::<E>()
+        todo!()
     }
 
     /// Returns the transferred value for the contract execution.
@@ -467,7 +464,7 @@ where
         >,
     >
     where
-        ContractRef: FromAccountId<E>,
+        ContractRef: FromAddr,
         Args: scale::Encode,
         Salt: AsRef<[u8]>,
         R: ConstructorReturnType<ContractRef>,
@@ -485,7 +482,6 @@ where
     /// use ink::env::{
     ///     call::{
     ///         build_call,
-    ///         CallV1,
     ///         ExecutionInput,
     ///         Selector,
     ///     },
@@ -506,7 +502,7 @@ where
     /// #[ink(message)]
     /// pub fn invoke_contract_v2(&self) -> i32 {
     ///     let call_params = build_call::<DefaultEnvironment>()
-    ///         .call(AccountId::from([0x42; 32]))
+    ///         .call(H160::from([0x42; 20]))
     ///         .ref_time_limit(500_000_000)
     ///         .proof_size_limit(100_000)
     ///         .storage_deposit_limit(1_000_000_000)
@@ -606,7 +602,7 @@ where
     /// For more details visit: [`ink_env::invoke_contract_delegate`]
     pub fn invoke_contract_delegate<Args, R>(
         self,
-        params: &CallParams<E, DelegateCall<E>, Args, R>,
+        params: &CallParams<E, DelegateCall, Args, R>,
     ) -> Result<ink_primitives::MessageResult<R>>
     where
         Args: scale::Encode,
@@ -634,6 +630,7 @@ where
     /// /// Terminates with the caller as beneficiary.
     /// #[ink(message)]
     /// pub fn terminate_me(&mut self) {
+    /// // todo check this example. if caller returns origin it's no longer possible.
     ///     self.env().terminate_contract(self.env().caller());
     /// }
     /// #
@@ -644,10 +641,11 @@ where
     /// # Note
     ///
     /// For more details visit: [`ink_env::terminate_contract`]
-    pub fn terminate_contract(self, beneficiary: E::AccountId) -> ! {
-        ink_env::terminate_contract::<E>(beneficiary)
+    pub fn terminate_contract(self, beneficiary: H160) -> ! {
+        ink_env::terminate_contract(beneficiary)
     }
 
+    /*
     /// Transfers value from the contract to the destination account ID.
     ///
     /// # Example
@@ -683,6 +681,7 @@ where
     pub fn transfer(self, destination: E::AccountId, value: E::Balance) -> Result<()> {
         ink_env::transfer::<E>(destination, value)
     }
+    */
 
     /// Computes the hash of the given bytes using the cryptographic hash `H`.
     ///
@@ -916,7 +915,8 @@ where
             .map_err(|_| ReturnErrorCode::Sr25519VerifyFailed.into())
     }
 
-    /// Checks whether a specified account belongs to a contract.
+    /// Checks whether a contract lives under `addr`.
+    /// todo update comment
     ///
     /// # Example
     ///
@@ -933,8 +933,8 @@ where
     /// #         }
     /// #
     /// #[ink(message)]
-    /// pub fn is_contract(&mut self, account_id: AccountId) -> bool {
-    ///     self.env().is_contract(&account_id)
+    /// pub fn is_contract(&mut self, addr: H160) -> bool {
+    ///     self.env().is_contract(&addr)
     /// }
     /// #    }
     /// # }
@@ -943,8 +943,8 @@ where
     /// # Note
     ///
     /// For more details visit: [`ink_env::is_contract`]
-    pub fn is_contract(self, account_id: &E::AccountId) -> bool {
-        ink_env::is_contract::<E>(account_id)
+    pub fn is_contract(self, addr: &H160) -> bool {
+        ink_env::is_contract(addr)
     }
 
     /// Checks whether the caller of the current contract is the origin of the whole call
@@ -1027,6 +1027,7 @@ where
     /// #         }
     /// #
     /// #[ink(message)]
+    /// // todo
     /// pub fn code_hash(&mut self, account_id: AccountId) -> Option<Hash> {
     ///     self.env().code_hash(&account_id).ok()
     /// }
@@ -1037,8 +1038,8 @@ where
     /// # Note
     ///
     /// For more details visit: [`ink_env::code_hash`]
-    pub fn code_hash(self, account_id: &E::AccountId) -> Result<E::Hash> {
-        ink_env::code_hash::<E>(account_id)
+    pub fn code_hash(self, addr: &H160) -> Result<H256> {
+        ink_env::code_hash(addr)
     }
 
     /// Returns the code hash of the contract at the given `account` id.
@@ -1070,7 +1071,7 @@ where
     /// # Note
     ///
     /// For more details visit: [`ink_env::own_code_hash`]
-    pub fn own_code_hash(self) -> Result<E::Hash> {
+    pub fn own_code_hash(self) -> Result<H256> {
         ink_env::own_code_hash::<E>()
     }
 
@@ -1103,7 +1104,7 @@ where
     /// # Note
     ///
     /// For more details visit: [`ink_env::set_code_hash`]
-    pub fn set_code_hash(self, code_hash: &E::Hash) -> Result<()> {
+    pub fn set_code_hash(self, code_hash: &H256) -> Result<()> {
         ink_env::set_code_hash::<E>(code_hash)
     }
 
@@ -1139,7 +1140,7 @@ where
     /// # Note
     ///
     /// For more details visit: [`ink_env::lock_delegate_dependency`]
-    pub fn lock_delegate_dependency(self, code_hash: &E::Hash) {
+    pub fn lock_delegate_dependency(self, code_hash: &H256) {
         ink_env::lock_delegate_dependency::<E>(code_hash)
     }
 
@@ -1170,7 +1171,7 @@ where
     /// # Note
     ///
     /// For more details visit: [`ink_env::unlock_delegate_dependency`]
-    pub fn unlock_delegate_dependency(self, code_hash: &E::Hash) {
+    pub fn unlock_delegate_dependency(self, code_hash: &H256) {
         ink_env::unlock_delegate_dependency::<E>(code_hash)
     }
 

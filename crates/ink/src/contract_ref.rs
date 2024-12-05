@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use ink_env::Environment;
+use ink_primitives::H160;
 
 /// Generates a wrapper which can be used for interacting with the contract.
 ///
@@ -209,13 +209,12 @@ macro_rules! contract_ref {
     };
 }
 
+// todo remove FromAccountId + ToAccountId
 /// Implemented by contracts that are compiled as dependencies.
 ///
 /// Allows them to return their underlying account identifier.
-pub trait ToAccountId<T>
-where
-    T: Environment,
+pub trait ToAddr
 {
     /// Returns the underlying account identifier of the instantiated contract.
-    fn to_account_id(&self) -> <T as Environment>::AccountId;
+    fn to_addr(&self) -> H160;
 }

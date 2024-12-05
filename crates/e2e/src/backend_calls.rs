@@ -12,25 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use std::marker::PhantomData;
 use ink_env::Environment;
 use scale::{
     Decode,
     Encode,
 };
 use sp_weights::Weight;
+use ink_primitives::DepositLimit;
 
-use crate::{
-    backend::BuilderClient,
-    builders::CreateBuilderPartial,
-    CallBuilderFinal,
-    CallDryRunResult,
-    CallResult,
-    ContractsBackend,
-    InstantiateDryRunResult,
-    InstantiationResult,
-    UploadResult,
-};
-
+use crate::{backend::BuilderClient, builders::CreateBuilderPartial, CallBuilderFinal, CallDryRunResult, CallResult, ContractsBackend, InstantiationResult, UploadResult, H256};
+use crate::contract_results::BareInstantiationDryRunResult;
 use super::Keypair;
 
 /// Allows to build an end-to-end call using a builder pattern.
@@ -48,7 +40,7 @@ where
     value: E::Balance,
     extra_gas_portion: Option<u64>,
     gas_limit: Option<Weight>,
-    storage_deposit_limit: Option<E::Balance>,
+    storage_deposit_limit: DepositLimit<E::Balance>,
 }
 
 impl<'a, E, Args, RetType, B> CallBuilder<'a, E, Args, RetType, B>
@@ -75,7 +67,7 @@ where
             value: 0u32.into(),
             extra_gas_portion: None,
             gas_limit: None,
-            storage_deposit_limit: None,
+            storage_deposit_limit: DepositLimit::Unchecked,
         }
     }
 
@@ -107,7 +99,7 @@ where
     /// # Notes
     ///
     /// Overwrites any values specified for `extra_gas_portion`.
-    ///  The gas estimate fro dry-run will be ignored.
+    /// The gas estimate from the dry-run will be ignored.
     pub fn gas_limit(&mut self, limit: Weight) -> &mut Self {
         if limit == Weight::from_parts(0, 0) {
             self.gas_limit = None
@@ -120,13 +112,9 @@ where
     /// Specify the max amount of funds that can be charged for storage.
     pub fn storage_deposit_limit(
         &mut self,
-        storage_deposit_limit: E::Balance,
+        storage_deposit_limit: DepositLimit<E::Balance>
     ) -> &mut Self {
-        if storage_deposit_limit == 0u32.into() {
-            self.storage_deposit_limit = None
-        } else {
-            self.storage_deposit_limit = Some(storage_deposit_limit)
-        }
+        self.storage_deposit_limit = storage_deposit_limit;
         self
     }
 
@@ -145,7 +133,7 @@ where
             self.caller,
             self.message,
             self.value,
-            self.storage_deposit_limit,
+            self.storage_deposit_limit.clone(),
         )
         .await?;
 
@@ -164,7 +152,7 @@ where
             self.message,
             self.value,
             gas_limit,
-            self.storage_deposit_limit,
+            self.storage_deposit_limit.clone(),
         )
         .await?;
 
@@ -184,7 +172,7 @@ where
             self.caller,
             self.message,
             self.value,
-            self.storage_deposit_limit,
+            self.storage_deposit_limit.clone(),
         )
         .await
     }
@@ -206,7 +194,7 @@ where
     value: E::Balance,
     extra_gas_portion: Option<u64>,
     gas_limit: Option<Weight>,
-    storage_deposit_limit: Option<E::Balance>,
+    storage_deposit_limit: DepositLimit<E::Balance>,
 }
 
 impl<'a, E, Contract, Args, R, B> InstantiateBuilder<'a, E, Contract, Args, R, B>
@@ -235,7 +223,7 @@ where
             value: 0u32.into(),
             extra_gas_portion: None,
             gas_limit: None,
-            storage_deposit_limit: None,
+            storage_deposit_limit: DepositLimit::Unchecked,
         }
     }
 
@@ -280,13 +268,9 @@ where
     /// Specify the max amount of funds that can be charged for storage.
     pub fn storage_deposit_limit(
         &mut self,
-        storage_deposit_limit: E::Balance,
+        storage_deposit_limit: DepositLimit<E::Balance>,
     ) -> &mut Self {
-        if storage_deposit_limit == 0u32.into() {
-            self.storage_deposit_limit = None
-        } else {
-            self.storage_deposit_limit = Some(storage_deposit_limit)
-        }
+        self.storage_deposit_limit = storage_deposit_limit;
         self
     }
 
@@ -303,14 +287,15 @@ where
             self.caller,
             self.constructor,
             self.value,
-            self.storage_deposit_limit,
+            self.storage_deposit_limit.clone(),
         )
         .await?;
 
         let gas_limit = if let Some(limit) = self.gas_limit {
             limit
         } else {
-            let gas_required = dry_run.contract_result.gas_required;
+            //let gas_required = dry_run.contract_result.gas_required;
+            let gas_required = dry_run.gas_required;
             let proof_size = gas_required.proof_size();
             let ref_time = gas_required.ref_time();
             calculate_weight(proof_size, ref_time, self.extra_gas_portion)
@@ -323,26 +308,26 @@ where
             self.constructor,
             self.value,
             gas_limit,
-            self.storage_deposit_limit,
+            self.storage_deposit_limit.clone(),
         )
         .await?;
 
         Ok(InstantiationResult {
-            account_id: instantiate_result.account_id,
+            addr: instantiate_result.addr,
             dry_run,
             events: instantiate_result.events,
         })
     }
 
     /// Dry run the instantiate call.
-    pub async fn dry_run(&mut self) -> Result<InstantiateDryRunResult<E>, B::Error> {
+    pub async fn dry_run(&mut self) -> Result<BareInstantiationDryRunResult<E>, B::Error> {
         B::bare_instantiate_dry_run(
             self.client,
             self.contract_name,
             self.caller,
             self.constructor,
             self.value,
-            self.storage_deposit_limit,
+            self.storage_deposit_limit.clone(),
         )
         .await
     }
@@ -357,7 +342,7 @@ where
     client: &'a mut B,
     contract_name: &'a str,
     caller: &'a Keypair,
-    storage_deposit_limit: Option<E::Balance>,
+    storage_deposit_limit: E::Balance,
 }
 
 impl<'a, E, B> UploadBuilder<'a, E, B>
@@ -371,7 +356,7 @@ where
             client,
             contract_name,
             caller,
-            storage_deposit_limit: None,
+            storage_deposit_limit: 0u32.into(),
         }
     }
 
@@ -380,11 +365,14 @@ where
         &mut self,
         storage_deposit_limit: E::Balance,
     ) -> &mut Self {
+        /*
         if storage_deposit_limit == 0u32.into() {
             self.storage_deposit_limit = None
         } else {
             self.storage_deposit_limit = Some(storage_deposit_limit)
         }
+        */
+        self.storage_deposit_limit = storage_deposit_limit;
         self
     }
 
@@ -408,7 +396,8 @@ where
 {
     client: &'a mut B,
     caller: &'a Keypair,
-    code_hash: E::Hash,
+    code_hash: crate::H256,
+    _phantom: PhantomData<fn() -> E>,
 }
 
 impl<'a, E, B> RemoveCodeBuilder<'a, E, B>
@@ -417,11 +406,12 @@ where
     B: BuilderClient<E>,
 {
     /// Initialize a remove code builder with essential values.
-    pub fn new(client: &'a mut B, caller: &'a Keypair, code_hash: E::Hash) -> Self {
+    pub fn new(client: &'a mut B, caller: &'a Keypair, code_hash: H256) -> Self {
         Self {
             client,
             caller,
             code_hash,
+            _phantom: Default::default(),
         }
     }
 

@@ -31,6 +31,7 @@
 //! there is no knowledge of the concrete types, the functionality is restricted to
 //! the trait bounds on the `Environment` trait types.
 
+use scale::{Decode, Encode, MaxEncodedLen};
 use super::arithmetic::AtLeast32BitUnsigned;
 use ink_primitives::{
     AccountId,
@@ -160,6 +161,7 @@ pub trait Environment: Clone {
         + Ord
         + AsRef<[u8]>
         + AsMut<[u8]>;
+        //+ frame_support::traits::IsType<sp_core::H256>;
 
     /// The type of a timestamp.
     type Timestamp: 'static
@@ -191,6 +193,15 @@ pub trait Environment: Clone {
     ///
     /// [chain_extension]: https://use-ink.github.io/ink/ink/attr.chain_extension.html
     type ChainExtension;
+
+    /// The type of block number.
+    type EventRecord: 'static
+    + scale::Codec;
+    //+ CodecAsType;
+    //+ Copy
+    //+ Clone
+    //+ PartialEq
+    //+ Eq;
 }
 
 /// Placeholder for chains that have no defined chain extension.
@@ -211,6 +222,7 @@ impl Environment for DefaultEnvironment {
     type Timestamp = Timestamp;
     type BlockNumber = BlockNumber;
     type ChainExtension = NoChainExtension;
+    type EventRecord = EventRecord;
 }
 
 /// The default balance type.
@@ -224,3 +236,47 @@ pub type Gas = u64;
 
 /// The default block number type.
 pub type BlockNumber = u32;
+
+// todo replace with ()
+#[derive(Encode, Decode, MaxEncodedLen, Debug)]
+pub struct RuntimeEvent();
+
+/// The default event record type.
+pub type EventRecord = EventRecordFoo<
+    RuntimeEvent,
+    Hash
+>;
+
+#[derive(Encode, Decode, Debug)]
+#[cfg_attr(feature = "std", derive(TypeInfo))]
+pub struct EventRecordFoo<E, H> {
+    /// The phase of the block it happened in.
+    pub phase: Phase,
+    /// The event itself.
+    pub event: E,
+    /// The list of the topics this event has.
+    pub topics: ink_prelude::vec::Vec<H>,
+}
+
+/// A phase of a block's execution.
+#[derive(Debug, Encode, Decode, MaxEncodedLen)]
+//#[cfg_attr(feature = "std", derive(Serialize, PartialEq, Eq, Clone))]
+#[cfg_attr(feature = "std", derive(PartialEq, Eq, Clone, TypeInfo))]
+pub enum Phase {
+    /// Applying an extrinsic.
+    ApplyExtrinsic(u32),
+    /// Finalizing the block.
+    Finalization,
+    /// Initializing the block.
+    Initialization,
+}
+//type EventRecordOf<T> =
+//  EventRecord<<T as frame_system::Config>::RuntimeEvent, <T as frame_system::Config>::Hash>;
+
+/// The type of origins supported by `pallet-revive`.
+#[derive(Clone, ::scale::Encode, ::scale::Decode, PartialEq)]
+#[cfg_attr(feature = "std", derive(::scale_info::TypeInfo))]
+pub enum Origin<E: Environment> {
+    Root,
+    Signed(E::AccountId),
+}

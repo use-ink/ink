@@ -40,8 +40,12 @@ pub use self::{
         AccountId,
         Clear,
         Hash,
+        DepositLimit,
     },
 };
+
+pub use scale_decode::ext::primitive_types::H256;
+pub use scale_decode::ext::primitive_types::H160;
 
 /// An error emitted by the smart contracting language.
 ///

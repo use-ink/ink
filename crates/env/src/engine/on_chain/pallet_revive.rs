@@ -19,7 +19,7 @@ use crate::{
         ConstructorReturnType,
         CreateParams,
         DelegateCall,
-        FromAccountId,
+        FromAddr,
         LimitParamsV2,
     },
     engine::on_chain::{
@@ -59,6 +59,7 @@ use pallet_revive_uapi::{
     StorageFlags,
 };
 use xcm::VersionedXcm;
+use ink_primitives::{H256, H160};
 
 impl CryptoHash for Blake2x128 {
     fn hash(input: &[u8], output: &mut <Self as HashOutput>::Type) {
@@ -388,8 +389,9 @@ impl EnvBackend for EnvInstance {
     }
 }
 
+// TODO alles mit hash kann weg
 impl TypedEnvBackend for EnvInstance {
-    fn caller<E: Environment>(&mut self) -> E::AccountId {
+    fn caller(&mut self) -> H160 {
         let mut scope = self.scoped_buffer();
 
         let h160: &mut [u8; 20] = scope.take(20).try_into().unwrap();
@@ -406,10 +408,6 @@ impl TypedEnvBackend for EnvInstance {
     fn transferred_value<E: Environment>(&mut self) -> E::Balance {
         self.get_property_little_endian::<E::Balance>(ext::value_transferred)
     }
-
-    // fn gas_left<E: Environment>(&mut self) -> u64 {
-    //     self.get_property_little_endian::<u64>(ext::gas_left)
-    // }
 
     fn block_timestamp<E: Environment>(&mut self) -> E::Timestamp {
         self.get_property_little_endian::<E::Timestamp>(ext::now)
@@ -511,7 +509,7 @@ impl TypedEnvBackend for EnvInstance {
 
     fn invoke_contract_delegate<E, Args, R>(
         &mut self,
-        _params: &CallParams<E, DelegateCall<E>, Args, R>,
+        _params: &CallParams<E, DelegateCall, Args, R>,
     ) -> Result<ink_primitives::MessageResult<R>>
     where
         E: Environment,
@@ -531,7 +529,7 @@ impl TypedEnvBackend for EnvInstance {
     >
     where
         E: Environment,
-        ContractRef: FromAccountId<E>,
+        ContractRef: FromAddr, // todo remove
         Args: scale::Encode,
         Salt: AsRef<[u8]>,
         RetType: ConstructorReturnType<ContractRef>,
@@ -576,9 +574,7 @@ impl TypedEnvBackend for EnvInstance {
         )
     }
 
-    fn terminate_contract<E>(&mut self, beneficiary: E::AccountId) -> !
-    where
-        E: Environment,
+    fn terminate_contract(&mut self, beneficiary: H160) -> !
     {
         let buffer: &mut [u8; 20] = self.scoped_buffer().take_encoded(&beneficiary)
             [0..20]
@@ -590,7 +586,7 @@ impl TypedEnvBackend for EnvInstance {
 
     fn transfer<E>(
         &mut self,
-        _destination: E::AccountId,
+        _destination: H160,
         _value: E::Balance,
     ) -> Result<()>
     where
@@ -610,16 +606,14 @@ impl TypedEnvBackend for EnvInstance {
         <E::Balance as FromLittleEndian>::from_le_bytes(result)
     }
 
-    fn is_contract<E>(&mut self, account_id: &E::AccountId) -> bool
-    where
-        E: Environment,
+    fn is_contract(&mut self, addr: &H160) -> bool
     {
         let mut scope = self.scoped_buffer();
-        let enc_account_id: &mut [u8; 20] = scope.take_encoded(account_id)[..20]
+        let enc_addr: &mut [u8; 20] = scope.take_encoded(addr)[..20]
             .as_mut()
             .try_into()
             .unwrap();
-        ext::is_contract(enc_account_id)
+        ext::is_contract(enc_addr)
     }
 
     fn caller_is_origin<E>(&mut self) -> bool
@@ -643,17 +637,16 @@ impl TypedEnvBackend for EnvInstance {
         }
     }
 
-    fn code_hash<E>(&mut self, account_id: &E::AccountId) -> Result<E::Hash>
-    where
-        E: Environment,
+    fn code_hash(&mut self, addr: &H160) -> Result<H256>
     {
         let mut scope = self.scoped_buffer();
-        let enc_account_id: &mut [u8; 20] = scope.take_encoded(account_id)[..20]
+        // todo can be simplified
+        let enc_account_id: &mut [u8; 20] = scope.take_encoded(addr)[..20]
             .as_mut()
             .try_into()
             .unwrap();
         let output: &mut [u8; 32] =
-            scope.take_max_encoded_len::<E::Hash>().try_into().unwrap();
+            scope.take_max_encoded_len::<H256>().try_into().unwrap();
         // TODO
         // ext::code_hash(enc_account_id, output)?;
         ext::code_hash(enc_account_id, output);
@@ -661,13 +654,13 @@ impl TypedEnvBackend for EnvInstance {
         Ok(hash)
     }
 
-    fn own_code_hash<E>(&mut self) -> Result<E::Hash>
+    fn own_code_hash<E>(&mut self) -> Result<H256>
     where
         E: Environment,
     {
         let output: &mut [u8; 32] = &mut self
             .scoped_buffer()
-            .take_max_encoded_len::<E::Hash>()
+            .take_max_encoded_len::<H256>()
             .try_into()
             .unwrap();
         ext::own_code_hash(output);
@@ -685,7 +678,7 @@ impl TypedEnvBackend for EnvInstance {
         ext::call_runtime(enc_call).map_err(Into::into)
     }
 
-    fn lock_delegate_dependency<E>(&mut self, code_hash: &E::Hash)
+    fn lock_delegate_dependency<E>(&mut self, code_hash: &H256)
     where
         E: Environment,
     {
@@ -695,7 +688,7 @@ impl TypedEnvBackend for EnvInstance {
         ext::lock_delegate_dependency(enc_code_hash)
     }
 
-    fn unlock_delegate_dependency<E>(&mut self, code_hash: &E::Hash)
+    fn unlock_delegate_dependency<E>(&mut self, code_hash: &H256)
     where
         E: Environment,
     {

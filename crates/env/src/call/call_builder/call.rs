@@ -30,13 +30,14 @@ use crate::{
 };
 use num_traits::Zero;
 use pallet_revive_uapi::CallFlags;
+use ink_primitives::H160;
 
 /// The default call type for cross-contract calls, for calling into the latest `call_v2`
 /// host function. This adds the additional weight limit parameter `proof_size_limit` as
 /// well as `storage_deposit_limit`.
 #[derive(Clone)]
 pub struct Call<E: Environment> {
-    callee: E::AccountId,
+    callee: H160,
     ref_time_limit: u64,
     proof_size_limit: u64,
     storage_deposit_limit: Option<E::Balance>,
@@ -46,7 +47,7 @@ pub struct Call<E: Environment> {
 
 impl<E: Environment> Call<E> {
     /// Returns a clean builder for [`Call`].
-    pub fn new(callee: E::AccountId) -> Self {
+    pub fn new(callee: H160) -> Self {
         Self {
             callee,
             ref_time_limit: Default::default(),
@@ -246,9 +247,9 @@ impl<E, Args, R> CallParams<E, Call<E>, Args, R>
 where
     E: Environment,
 {
-    /// Returns the account ID of the called contract instance.
+    /// Returns the contract address of the called contract instance.
     #[inline]
-    pub fn callee(&self) -> &E::AccountId {
+    pub fn callee(&self) -> &H160 {
         &self.call_type.callee
     }
 
