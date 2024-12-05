@@ -21,14 +21,26 @@
 
 use super::TraitDefinition;
 use crate::{
-    generator::{self},
+    generator::{
+        self,
+    },
     traits::GenerateCode,
     EnforcedErrors,
 };
 use derive_more::From;
-use proc_macro2::{Span, TokenStream as TokenStream2};
-use quote::{format_ident, quote, quote_spanned};
-use syn::{parse_quote, spanned::Spanned};
+use proc_macro2::{
+    Span,
+    TokenStream as TokenStream2,
+};
+use quote::{
+    format_ident,
+    quote,
+    quote_spanned,
+};
+use syn::{
+    parse_quote,
+    spanned::Spanned,
+};
 
 impl<'a> TraitDefinition<'a> {
     /// Generates the code for the global trait registry implementation.

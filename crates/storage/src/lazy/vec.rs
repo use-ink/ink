@@ -21,11 +21,20 @@
 
 use core::cell::Cell;
 use ink_primitives::Key;
-use ink_storage_traits::{AutoKey, Packed, Storable, StorableHint, StorageKey};
+use ink_storage_traits::{
+    AutoKey,
+    Packed,
+    Storable,
+    StorableHint,
+    StorageKey,
+};
 use pallet_contracts_uapi::ReturnErrorCode;
 use scale::EncodeLike;
 
-use crate::{Lazy, Mapping};
+use crate::{
+    Lazy,
+    Mapping,
+};
 
 /// A vector of values (elements) directly on contract storage.
 ///
@@ -172,7 +181,11 @@ where
 #[cfg(feature = "std")]
 const _: () = {
     use crate::traits::StorageLayout;
-    use ink_metadata::layout::{Layout, LayoutKey, RootLayout};
+    use ink_metadata::layout::{
+        Layout,
+        LayoutKey,
+        RootLayout,
+    };
 
     impl<V, KeyType> StorageLayout for StorageVec<V, KeyType>
     where

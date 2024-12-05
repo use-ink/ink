@@ -32,8 +32,15 @@ mod key;
 mod types;
 
 pub use self::{
-    key::{Key, KeyComposer},
-    types::{AccountId, Clear, Hash},
+    key::{
+        Key,
+        KeyComposer,
+    },
+    types::{
+        AccountId,
+        Clear,
+        Hash,
+    },
 };
 
 /// An error emitted by the smart contracting language.

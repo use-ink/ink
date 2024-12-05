@@ -15,11 +15,18 @@
 use super::CallParams;
 use crate::{
     call::{
-        common::{ReturnType, Set, Unset},
+        common::{
+            ReturnType,
+            Set,
+            Unset,
+        },
         execution::EmptyArgumentList,
-        CallBuilder, ExecutionInput,
+        CallBuilder,
+        ExecutionInput,
     },
-    Environment, Error, Gas,
+    Environment,
+    Error,
+    Gas,
 };
 use num_traits::Zero;
 use pallet_contracts_uapi::CallFlags;

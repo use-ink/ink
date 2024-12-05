@@ -20,8 +20,14 @@ mod trait_registry;
 
 use crate::GenerateCode;
 use derive_more::From;
-use proc_macro2::{Span, TokenStream as TokenStream2};
-use quote::{format_ident, quote_spanned};
+use proc_macro2::{
+    Span,
+    TokenStream as TokenStream2,
+};
+use quote::{
+    format_ident,
+    quote_spanned,
+};
 
 /// Generator to create the ink! storage struct and important trait implementations.
 #[derive(From, Copy, Clone)]

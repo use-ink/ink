@@ -14,30 +14,61 @@
 
 use crate::{
     backend::BuilderClient,
-    builders::{constructor_exec_input, CreateBuilderPartial},
-    client_utils::{salt, ContractsRegistry},
+    builders::{
+        constructor_exec_input,
+        CreateBuilderPartial,
+    },
+    client_utils::{
+        salt,
+        ContractsRegistry,
+    },
     contract_results::BareInstantiationResult,
     error::SandboxErr,
-    log_error, CallBuilderFinal, CallDryRunResult, ChainBackend, ContractsBackend,
-    E2EBackend, InstantiateDryRunResult, UploadResult,
+    log_error,
+    CallBuilderFinal,
+    CallDryRunResult,
+    ChainBackend,
+    ContractsBackend,
+    E2EBackend,
+    InstantiateDryRunResult,
+    UploadResult,
 };
 
 use frame_support::traits::fungible::Inspect;
 use ink_sandbox::{
-    api::prelude::*, pallet_balances, pallet_contracts, AccountIdFor, RuntimeCall,
-    Sandbox, Weight,
+    api::prelude::*,
+    pallet_balances,
+    pallet_contracts,
+    AccountIdFor,
+    RuntimeCall,
+    Sandbox,
+    Weight,
 };
 use pallet_contracts::ContractResult;
 
 use ink_env::Environment;
 use jsonrpsee::core::async_trait;
 use pallet_contracts::{
-    CodeUploadReturnValue, ContractInstantiateResult, InstantiateReturnValue,
+    CodeUploadReturnValue,
+    ContractInstantiateResult,
+    InstantiateReturnValue,
 };
-use scale::{Decode, Encode};
-use sp_core::{sr25519::Pair, Pair as _};
-use std::{marker::PhantomData, path::PathBuf};
-use subxt::{dynamic::Value, tx::TxPayload};
+use scale::{
+    Decode,
+    Encode,
+};
+use sp_core::{
+    sr25519::Pair,
+    Pair as _,
+};
+use std::{
+    marker::PhantomData,
+    path::PathBuf,
+};
+use subxt::{
+    dynamic::Value,
+    tx::TxPayload,
+};
 use subxt_signer::sr25519::Keypair;
 
 type BalanceOf<R> = <R as pallet_balances::Config>::Balance;
@@ -262,9 +293,11 @@ where
             gas_required: result.gas_required,
             storage_deposit: result.storage_deposit,
             debug_message: result.debug_message,
-            result: result.result.map(|r| InstantiateReturnValue {
-                result: r.result,
-                account_id,
+            result: result.result.map(|r| {
+                InstantiateReturnValue {
+                    result: r.result,
+                    account_id,
+                }
             }),
             events: None,
         };
@@ -288,7 +321,7 @@ where
             Ok(result) => result,
             Err(err) => {
                 log_error(&format!("Upload failed: {err:?}"));
-                return Err(SandboxErr::new(format!("bare_upload: {err:?}")));
+                return Err(SandboxErr::new(format!("bare_upload: {err:?}")))
             }
         };
 
@@ -430,8 +463,13 @@ where
 pub mod preset {
     pub mod mock_network {
         use ink_sandbox::{
-            frame_system, AccountIdFor, BlockBuilder, Extension, RuntimeMetadataPrefixed,
-            Sandbox, Snapshot,
+            frame_system,
+            AccountIdFor,
+            BlockBuilder,
+            Extension,
+            RuntimeMetadataPrefixed,
+            Sandbox,
+            Snapshot,
         };
         pub use pallet_contracts_mock_network::*;
         use sp_runtime::traits::Dispatchable;

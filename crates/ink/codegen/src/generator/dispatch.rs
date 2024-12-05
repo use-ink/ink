@@ -14,12 +14,28 @@
 
 use core::iter;
 
-use crate::{generator, GenerateCode};
+use crate::{
+    generator,
+    GenerateCode,
+};
 use derive_more::From;
-use ir::{Callable, CallableWithSelector, Constructor, HexLiteral as _, Message};
+use ir::{
+    Callable,
+    CallableWithSelector,
+    Constructor,
+    HexLiteral as _,
+    Message,
+};
 use proc_macro2::TokenStream as TokenStream2;
-use quote::{format_ident, quote, quote_spanned};
-use syn::{spanned::Spanned as _, LitInt};
+use quote::{
+    format_ident,
+    quote,
+    quote_spanned,
+};
+use syn::{
+    spanned::Spanned as _,
+    LitInt,
+};
 
 /// A message to be dispatched.
 /// Contains its callable and calculated unique id

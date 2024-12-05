@@ -5,7 +5,9 @@ pub mod timestamp_api;
 
 pub mod prelude {
     pub use super::{
-        balance_api::BalanceAPI, contracts_api::ContractAPI, system_api::SystemAPI,
+        balance_api::BalanceAPI,
+        contracts_api::ContractAPI,
+        system_api::SystemAPI,
         timestamp_api::TimestampAPI,
     };
 }

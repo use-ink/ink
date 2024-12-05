@@ -13,10 +13,19 @@
 // limitations under the License.
 
 use super::TraitDefinition;
-use crate::{generator, traits::GenerateCode};
+use crate::{
+    generator,
+    traits::GenerateCode,
+};
 use derive_more::From;
-use proc_macro2::{Span, TokenStream as TokenStream2};
-use quote::{quote, quote_spanned};
+use proc_macro2::{
+    Span,
+    TokenStream as TokenStream2,
+};
+use quote::{
+    quote,
+    quote_spanned,
+};
 
 impl<'a> TraitDefinition<'a> {
     /// Generates code for the global trait call builder for an ink! trait.

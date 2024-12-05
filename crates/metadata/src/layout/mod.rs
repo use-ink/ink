@@ -21,20 +21,37 @@ pub use validate::ValidateLayout;
 
 use crate::{
     serde_hex,
-    utils::{deserialize_from_byte_str, serialize_as_byte_str},
+    utils::{
+        deserialize_from_byte_str,
+        serialize_as_byte_str,
+    },
 };
 use derive_more::From;
 use ink_prelude::collections::btree_map::BTreeMap;
 use ink_primitives::Key;
-use scale::{Decode, Encode};
+use scale::{
+    Decode,
+    Encode,
+};
 use scale_info::{
-    form::{Form, MetaForm, PortableForm},
-    meta_type, IntoPortable, Registry, TypeInfo,
+    form::{
+        Form,
+        MetaForm,
+        PortableForm,
+    },
+    meta_type,
+    IntoPortable,
+    Registry,
+    TypeInfo,
 };
 use schemars::JsonSchema;
 use serde::{
-    de::{DeserializeOwned, Error},
-    Deserialize, Serialize,
+    de::{
+        DeserializeOwned,
+        Error,
+    },
+    Deserialize,
+    Serialize,
 };
 
 /// Represents the static storage layout of an ink! smart contract.

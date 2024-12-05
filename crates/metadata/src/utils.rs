@@ -22,7 +22,7 @@ where
 {
     if bytes.is_empty() {
         // Return empty string without prepended `0x`.
-        return serializer.serialize_str("");
+        return serializer.serialize_str("")
     }
     serde_hex::serialize(bytes, serializer)
 }

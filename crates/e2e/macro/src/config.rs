@@ -52,12 +52,12 @@ impl Node {
     ///
     /// Returns `None` if [`Self::Auto`] and `CONTRACTS_NODE_URL` not specified.
     pub fn url(&self) -> Option<String> {
-        std::env::var("CONTRACTS_NODE_URL")
-            .ok()
-            .or_else(|| match self {
+        std::env::var("CONTRACTS_NODE_URL").ok().or_else(|| {
+            match self {
                 Node::Auto => None,
                 Node::Url(url) => Some(url.clone()),
-            })
+            }
+        })
     }
 }
 
@@ -112,7 +112,10 @@ impl E2EConfig {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use darling::{ast::NestedMeta, FromMeta};
+    use darling::{
+        ast::NestedMeta,
+        FromMeta,
+    };
     use quote::quote;
 
     #[test]

@@ -17,7 +17,10 @@ mod config;
 use crate::utils::find_storage_key_salt;
 use config::StorageItemConfig;
 use proc_macro2::TokenStream as TokenStream2;
-use quote::{quote, ToTokens};
+use quote::{
+    quote,
+    ToTokens,
+};
 use std::collections::HashSet;
 
 /// A checked ink! storage item with its configuration.
@@ -43,7 +46,7 @@ impl StorageItem {
                 return Err(format_err_spanned!(
                     attr,
                     "only one `ink::storage_item` is allowed",
-                ));
+                ))
             }
         }
 
@@ -61,18 +64,20 @@ impl StorageItem {
             syn::Data::Struct(st) => {
                 st.fields.iter().map(|field| field.ty.clone()).collect()
             }
-            syn::Data::Enum(en) => en
-                .variants
-                .iter()
-                .flat_map(|variant| variant.fields.iter())
-                .map(|field| field.ty.clone())
-                .collect(),
-            syn::Data::Union(un) => un
-                .fields
-                .named
-                .iter()
-                .map(|field| field.ty.clone())
-                .collect(),
+            syn::Data::Enum(en) => {
+                en.variants
+                    .iter()
+                    .flat_map(|variant| variant.fields.iter())
+                    .map(|field| field.ty.clone())
+                    .collect()
+            }
+            syn::Data::Union(un) => {
+                un.fields
+                    .named
+                    .iter()
+                    .map(|field| field.ty.clone())
+                    .collect()
+            }
         };
         let mut set = HashSet::new();
         res.into_iter()

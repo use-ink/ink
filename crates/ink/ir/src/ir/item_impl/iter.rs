@@ -12,7 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use super::{CallableWithSelector, ImplItem, ItemImpl};
+use super::{
+    CallableWithSelector,
+    ImplItem,
+    ItemImpl,
+};
 use crate::ir;
 
 /// Iterator yielding all ink! constructor within a source ink!
@@ -44,9 +48,9 @@ impl<'a> Iterator for IterConstructors<'a> {
                         return Some(CallableWithSelector::new(
                             self.item_impl,
                             constructor,
-                        ));
+                        ))
                     }
-                    continue 'repeat;
+                    continue 'repeat
                 }
             }
         }
@@ -79,9 +83,9 @@ impl<'a> Iterator for IterMessages<'a> {
                 None => return None,
                 Some(impl_item) => {
                     if let Some(message) = impl_item.filter_map_message() {
-                        return Some(CallableWithSelector::new(self.item_impl, message));
+                        return Some(CallableWithSelector::new(self.item_impl, message))
                     }
-                    continue 'repeat;
+                    continue 'repeat
                 }
             }
         }

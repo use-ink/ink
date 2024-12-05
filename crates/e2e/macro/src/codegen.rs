@@ -13,7 +13,10 @@
 // limitations under the License.
 
 use crate::{
-    config::{Backend, Node},
+    config::{
+        Backend,
+        Node,
+    },
     ir,
 };
 use derive_more::From;

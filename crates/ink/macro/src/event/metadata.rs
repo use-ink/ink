@@ -26,11 +26,13 @@ pub fn event_metadata_derive(mut s: synstructure::Structure) -> TokenStream2 {
         syn::Data::Struct(_) => {
             event_metadata_derive_struct(s).unwrap_or_else(|err| err.to_compile_error())
         }
-        _ => syn::Error::new(
-            s.ast().span(),
-            "can only derive `EventMetadata` for Rust `struct` items",
-        )
-        .to_compile_error(),
+        _ => {
+            syn::Error::new(
+                s.ast().span(),
+                "can only derive `EventMetadata` for Rust `struct` items",
+            )
+            .to_compile_error()
+        }
     }
 }
 

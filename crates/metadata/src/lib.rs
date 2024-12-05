@@ -32,10 +32,23 @@ mod utils;
 pub use ink_primitives::LangError;
 
 pub use self::specs::{
-    ConstructorSpec, ConstructorSpecBuilder, ContractSpec, ContractSpecBuilder,
-    DisplayName, EnvironmentSpec, EnvironmentSpecBuilder, EventParamSpec,
-    EventParamSpecBuilder, EventSpec, EventSpecBuilder, MessageParamSpec,
-    MessageParamSpecBuilder, MessageSpec, MessageSpecBuilder, ReturnTypeSpec, Selector,
+    ConstructorSpec,
+    ConstructorSpecBuilder,
+    ContractSpec,
+    ContractSpecBuilder,
+    DisplayName,
+    EnvironmentSpec,
+    EnvironmentSpecBuilder,
+    EventParamSpec,
+    EventParamSpecBuilder,
+    EventSpec,
+    EventSpecBuilder,
+    MessageParamSpec,
+    MessageParamSpecBuilder,
+    MessageSpec,
+    MessageSpecBuilder,
+    ReturnTypeSpec,
+    Selector,
     TypeSpec,
 };
 
@@ -46,9 +59,17 @@ pub use linkme;
 pub use scale_info::TypeInfo;
 
 #[cfg(feature = "derive")]
-use scale_info::{form::PortableForm, IntoPortable as _, PortableRegistry, Registry};
+use scale_info::{
+    form::PortableForm,
+    IntoPortable as _,
+    PortableRegistry,
+    Registry,
+};
 use schemars::JsonSchema;
-use serde::{Deserialize, Serialize};
+use serde::{
+    Deserialize,
+    Serialize,
+};
 
 /// The metadata version of the generated ink! contract.
 ///

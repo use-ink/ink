@@ -1,6 +1,13 @@
-use crate::{EventRecordOf, RuntimeCall, Sandbox};
+use crate::{
+    EventRecordOf,
+    RuntimeCall,
+    Sandbox,
+};
 use frame_support::sp_runtime::{
-    traits::{Dispatchable, Saturating},
+    traits::{
+        Dispatchable,
+        Saturating,
+    },
     DispatchResultWithInfo,
 };
 use frame_system::pallet_prelude::BlockNumberFor;
@@ -93,10 +100,17 @@ where
 #[cfg(test)]
 mod tests {
     use crate::{
-        api::prelude::*, DefaultSandbox, RuntimeCall, RuntimeEventOf, RuntimeOf, Sandbox,
+        api::prelude::*,
+        DefaultSandbox,
+        RuntimeCall,
+        RuntimeEventOf,
+        RuntimeOf,
+        Sandbox,
     };
     use frame_support::sp_runtime::{
-        traits::Dispatchable, AccountId32, DispatchResultWithInfo,
+        traits::Dispatchable,
+        AccountId32,
+        DispatchResultWithInfo,
     };
 
     fn make_transfer(

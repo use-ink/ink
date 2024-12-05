@@ -14,13 +14,24 @@
 
 mod metadata;
 
-use ink_ir::{format_err_spanned, utils::duplicate_config_err, SignatureTopicArg};
+use ink_ir::{
+    format_err_spanned,
+    utils::duplicate_config_err,
+    SignatureTopicArg,
+};
 pub use metadata::event_metadata_derive;
 
 use ink_codegen::generate_code;
 use proc_macro2::TokenStream as TokenStream2;
-use quote::{quote, quote_spanned};
-use syn::{punctuated::Punctuated, spanned::Spanned, Token};
+use quote::{
+    quote,
+    quote_spanned,
+};
+use syn::{
+    punctuated::Punctuated,
+    spanned::Spanned,
+    Token,
+};
 
 /// Event item configurations specified by nested `ink` attributes.
 struct EventConfig {
@@ -114,11 +125,13 @@ pub fn event_derive(mut s: synstructure::Structure) -> TokenStream2 {
         syn::Data::Struct(_) => {
             event_derive_struct(s).unwrap_or_else(|err| err.to_compile_error())
         }
-        _ => syn::Error::new(
-            s.ast().span(),
-            "can only derive `Event` for Rust `struct` items",
-        )
-        .to_compile_error(),
+        _ => {
+            syn::Error::new(
+                s.ast().span(),
+                "can only derive `Event` for Rust `struct` items",
+            )
+            .to_compile_error()
+        }
     }
 }
 
@@ -140,14 +153,16 @@ fn event_derive_struct(mut s: synstructure::Structure) -> syn::Result<TokenStrea
 
     // filter field bindings to those marked as topics
     let mut topic_err: Option<syn::Error> = None;
-    s.variants_mut()[0].filter(|bi| match has_ink_topic_attribute(bi) {
-        Ok(has_attr) => has_attr,
-        Err(err) => {
-            match topic_err {
-                Some(ref mut topic_err) => topic_err.combine(err),
-                None => topic_err = Some(err),
+    s.variants_mut()[0].filter(|bi| {
+        match has_ink_topic_attribute(bi) {
+            Ok(has_attr) => has_attr,
+            Err(err) => {
+                match topic_err {
+                    Some(ref mut topic_err) => topic_err.combine(err),
+                    None => topic_err = Some(err),
+                }
+                false
             }
-            false
         }
     });
     if let Some(err) = topic_err {

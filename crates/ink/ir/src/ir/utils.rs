@@ -13,7 +13,12 @@
 // limitations under the License.
 
 use super::Selector;
-use crate::{ast, ast::MetaNameValue, error::ExtError as _, format_err};
+use crate::{
+    ast,
+    ast::MetaNameValue,
+    error::ExtError as _,
+    format_err,
+};
 use proc_macro2::Span;
 use std::collections::HashMap;
 use syn::spanned::Spanned;
@@ -39,7 +44,7 @@ pub fn ensure_pub_visibility(
             bad_visibility,
             "non `pub` ink! {} are not supported",
             name
-        ));
+        ))
     }
     Ok(())
 }
@@ -97,7 +102,7 @@ impl WhitelistedAttributes {
                 arg,
                 "expected a string with attributes separated by `,`",
             ))
-        };
+        }
     }
 
     /// Returns the filtered input vector of whitelisted attributes.
@@ -152,7 +157,7 @@ pub fn find_storage_key_salt(input: &syn::DeriveInput) -> Option<syn::TypeParam>
                 let segments = &trait_bound.path.segments;
                 if let Some(last) = segments.last() {
                     if last.ident == "StorageKey" {
-                        return Some(type_param.clone());
+                        return Some(type_param.clone())
                     }
                 }
             }

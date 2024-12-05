@@ -18,7 +18,10 @@ use std::fmt::Debug;
 
 use subxt::{
     events::StaticEvent,
-    ext::{scale_decode, scale_encode},
+    ext::{
+        scale_decode,
+        scale_encode,
+    },
 };
 
 /// A contract was successfully instantiated.

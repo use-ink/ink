@@ -12,15 +12,28 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use super::{ensure_callable_invariants, Callable, CallableKind, InputsIter, Visibility};
+use super::{
+    ensure_callable_invariants,
+    Callable,
+    CallableKind,
+    InputsIter,
+    Visibility,
+};
 use crate::{
     ir,
     ir::{
         attrs::SelectorOrWildcard,
-        utils::{extract_cfg_attributes, extract_cfg_syn_attributes},
+        utils::{
+            extract_cfg_attributes,
+            extract_cfg_syn_attributes,
+        },
     },
 };
-use proc_macro2::{Ident, Span, TokenStream};
+use proc_macro2::{
+    Ident,
+    Span,
+    TokenStream,
+};
 use syn::spanned::Spanned as _;
 
 /// An ink! constructor definition.
@@ -91,7 +104,7 @@ impl Constructor {
             return Err(format_err_spanned!(
                 &method_item.sig,
                 "missing return for ink! constructor",
-            ));
+            ))
         }
         Ok(())
     }
@@ -127,12 +140,14 @@ impl Constructor {
             method_item.span(),
             method_item.attrs.clone(),
             &ir::AttributeArgKind::Constructor,
-            |arg| match arg.kind() {
-                ir::AttributeArg::Constructor
-                | ir::AttributeArg::Payable
-                | ir::AttributeArg::Default
-                | ir::AttributeArg::Selector(_) => Ok(()),
-                _ => Err(None),
+            |arg| {
+                match arg.kind() {
+                    ir::AttributeArg::Constructor
+                    | ir::AttributeArg::Payable
+                    | ir::AttributeArg::Default
+                    | ir::AttributeArg::Selector(_) => Ok(()),
+                    _ => Err(None),
+                }
             },
         )
     }
@@ -172,7 +187,7 @@ impl Callable for Constructor {
 
     fn user_provided_selector(&self) -> Option<&ir::Selector> {
         if let Some(SelectorOrWildcard::UserProvided(selector)) = self.selector.as_ref() {
-            return Some(selector);
+            return Some(selector)
         }
         None
     }

@@ -12,18 +12,35 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::{Packed, StorageLayout};
+use crate::{
+    Packed,
+    StorageLayout,
+};
 use ink_metadata::layout::{
-    ArrayLayout, Discriminant, EnumLayout, FieldLayout, Layout, LayoutKey, LeafLayout,
+    ArrayLayout,
+    Discriminant,
+    EnumLayout,
+    FieldLayout,
+    Layout,
+    LayoutKey,
+    LeafLayout,
     StructLayout,
 };
 use ink_prelude::{
     boxed::Box,
-    collections::{BTreeMap, BTreeSet, VecDeque},
+    collections::{
+        BTreeMap,
+        BTreeSet,
+        VecDeque,
+    },
     string::String,
     vec::Vec,
 };
-use ink_primitives::{AccountId, Hash, Key};
+use ink_primitives::{
+    AccountId,
+    Hash,
+    Key,
+};
 use scale_info::TypeInfo;
 
 macro_rules! impl_storage_layout_for_primitives {

@@ -30,9 +30,19 @@ mod trait_def;
 pub use self::{
     contract::ContractName,
     dispatch::{
-        ConstructorOutput, ConstructorOutputValue, ContractConstructorDecoder,
-        ContractMessageDecoder, DecodeDispatch, DispatchError,
-        DispatchableConstructorInfo, DispatchableMessageInfo, ExecuteDispatchable,
+        ConstructorOutput,
+        ConstructorOutputValue,
+        ContractConstructorDecoder,
+        ContractMessageDecoder,
+        DecodeDispatch,
+        DispatchError,
+        DispatchableConstructorInfo,
+        DispatchableMessageInfo,
+        ExecuteDispatchable,
     },
-    trait_def::{TraitDefinitionRegistry, TraitInfo, TraitMessageInfo},
+    trait_def::{
+        TraitDefinitionRegistry,
+        TraitInfo,
+        TraitMessageInfo,
+    },
 };

@@ -12,18 +12,34 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use super::{log_info, sr25519, ContractExecResult, ContractInstantiateResult, Keypair};
+use super::{
+    log_info,
+    sr25519,
+    ContractExecResult,
+    ContractInstantiateResult,
+    Keypair,
+};
 use ink_env::Environment;
 
 use core::marker::PhantomData;
 use pallet_contracts::CodeUploadResult;
 use sp_core::H256;
 use subxt::{
-    backend::{legacy::LegacyRpcMethods, rpc::RpcClient},
+    backend::{
+        legacy::LegacyRpcMethods,
+        rpc::RpcClient,
+    },
     blocks::ExtrinsicEvents,
-    config::{DefaultExtrinsicParams, DefaultExtrinsicParamsBuilder, ExtrinsicParams},
+    config::{
+        DefaultExtrinsicParams,
+        DefaultExtrinsicParamsBuilder,
+        ExtrinsicParams,
+    },
     ext::scale_encode,
-    tx::{Signer, TxStatus},
+    tx::{
+        Signer,
+        TxStatus,
+    },
     utils::MultiAddress,
     OnlineClient,
 };

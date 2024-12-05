@@ -12,7 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::{ast, ir};
+use crate::{
+    ast,
+    ir,
+};
 use proc_macro2::TokenStream as TokenStream2;
 
 /// An ink! contract definition consisting of the ink! configuration and module.
