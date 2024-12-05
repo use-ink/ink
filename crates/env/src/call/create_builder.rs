@@ -165,14 +165,6 @@ where
     }
 }
 
-/// Defines the limit params for the legacy `ext::instantiate_v1` host function,
-/// consisting of the `gas_limit` which is equivalent to the `ref_time_limit` in the new
-/// `ext::instantiate`.
-#[derive(Clone, Debug)]
-pub struct LimitParamsV1 {
-    gas_limit: u64,
-}
-
 /// Defines the limit params for the new `ext::instantiate` host function.
 #[derive(Clone, Debug)]
 pub struct LimitParamsV2<E>
@@ -261,18 +253,6 @@ where
     #[inline]
     pub fn storage_deposit_limit(&self) -> Option<&E::Balance> {
         self.limits.storage_deposit_limit.as_ref()
-    }
-}
-
-impl<E, ContractRef, Args, Salt, R>
-    CreateParams<E, ContractRef, LimitParamsV1, Args, Salt, R>
-where
-    E: Environment,
-{
-    /// The gas limit for the contract instantiation.
-    #[inline]
-    pub fn gas_limit(&self) -> u64 {
-        self.limits.gas_limit
     }
 }
 
@@ -511,30 +491,6 @@ impl<E, ContractRef, CodeHash, Endowment, Args, Salt, RetType>
         E,
         ContractRef,
         CodeHash,
-        Set<LimitParamsV1>,
-        Endowment,
-        Args,
-        Salt,
-        RetType,
-    >
-where
-    E: Environment,
-{
-    /// Sets the maximum allowed gas costs for the contract instantiation.
-    #[inline]
-    pub fn gas_limit(self, gas_limit: u64) -> Self {
-        CreateBuilder {
-            limits: Set(LimitParamsV1 { gas_limit }),
-            ..self
-        }
-    }
-}
-
-impl<E, ContractRef, CodeHash, Endowment, Args, Salt, RetType>
-    CreateBuilder<
-        E,
-        ContractRef,
-        CodeHash,
         Set<LimitParamsV2<E>>,
         Endowment,
         Args,
@@ -544,38 +500,6 @@ impl<E, ContractRef, CodeHash, Endowment, Args, Salt, RetType>
 where
     E: Environment,
 {
-    /// Switch to the original `instantiate` host function API, which only allows the
-    /// `gas_limit` limit parameter (equivalent to the `ref_time_limit` in the latest
-    /// `instantiate_v2`).
-    ///
-    /// This method instance is used to allow usage of the generated builder methods
-    /// for constructors which initialize the builder with the new [`LimitParamsV2`] type.
-    #[inline]
-    pub fn instantiate_v1(
-        self,
-    ) -> CreateBuilder<
-        E,
-        ContractRef,
-        CodeHash,
-        Set<LimitParamsV1>,
-        Endowment,
-        Args,
-        Salt,
-        RetType,
-    > {
-        CreateBuilder {
-            code_hash: self.code_hash,
-            limits: Set(LimitParamsV1 {
-                gas_limit: self.limits.value().ref_time_limit,
-            }),
-            endowment: self.endowment,
-            exec_input: self.exec_input,
-            salt: self.salt,
-            return_type: self.return_type,
-            _phantom: Default::default(),
-        }
-    }
-
     /// Sets the `ref_time_limit` part of the weight limit for the contract instantiation.
     #[inline]
     pub fn ref_time_limit(self, ref_time_limit: u64) -> Self {
