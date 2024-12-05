@@ -9,6 +9,7 @@ impl ink_env::Environment for CustomEnv {
     type Timestamp = u64;
     type BlockNumber = u64;
     type ChainExtension = ();
+    type EventRecord = ();
 }
 
 #[ink::contract(env = super::CustomEnv)]

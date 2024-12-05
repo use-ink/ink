@@ -17,13 +17,15 @@ pub mod delegator {
             Lazy,
             Mapping,
         },
+        H160,
+        primitives::H256,
     };
 
     #[ink(storage)]
     pub struct Delegator {
-        addresses: Mapping<AccountId, i32, ManualKey<0x23>>,
+        addresses: Mapping<H160, i32, ManualKey<0x23>>,
         counter: i32,
-        delegate_to: Lazy<Hash>,
+        delegate_to: Lazy<H256>,
     }
 
     impl Delegator {
@@ -33,7 +35,7 @@ pub mod delegator {
         /// Additionally, this code hash will be locked to prevent its deletion, since
         /// this contract depends on it.
         #[ink(constructor)]
-        pub fn new(init_value: i32, hash: Hash) -> Self {
+        pub fn new(init_value: i32, hash: H256) -> Self {
             let v = Mapping::new();
 
             // Initialize the hash of the contract to delegate to.
@@ -56,7 +58,7 @@ pub mod delegator {
         /// - Adds a new delegate dependency lock, ensuring that the new delegated to code
         ///   cannot be removed.
         #[ink(message)]
-        pub fn update_delegate_to(&mut self, hash: Hash) {
+        pub fn update_delegate_to(&mut self, hash: H256) {
             if let Some(old_hash) = self.delegate_to.get() {
                 self.env().unlock_delegate_dependency(&old_hash)
             }
@@ -105,11 +107,11 @@ pub mod delegator {
 
         /// Returns the current value of the address.
         #[ink(message)]
-        pub fn get_value(&self, address: AccountId) -> (AccountId, Option<i32>) {
+        pub fn get_value(&self, address: H160) -> (H160, Option<i32>) {
             (self.env().caller(), self.addresses.get(address))
         }
 
-        fn delegate_to(&self) -> Hash {
+        fn delegate_to(&self) -> H256 {
             self.delegate_to
                 .get()
                 .expect("delegate_to always has a value")
@@ -214,7 +216,9 @@ pub mod delegator {
             // assigned to Alice.
             let expected_value = 10;
             // Alice's address
-            let address = AccountId::from(origin.public_key().to_account_id().0);
+            // todo
+            let foo = origin.public_key().to_account_id().0;
+            let address = H160::from_slice(&foo[0..20]);
 
             let call_get_value = call_builder.get_value(address);
             let call_get_result = client

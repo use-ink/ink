@@ -151,33 +151,33 @@ impl ContractRef<'_> {
         let storage_ident = self.contract.module().storage().ident();
         let ref_ident = self.generate_contract_ref_ident();
         quote_spanned!(span=>
-            impl ::ink::env::call::FromAccountId<Environment> for #ref_ident {
+            impl ::ink::env::call::FromAddr for #ref_ident {
                 #[inline]
-                fn from_account_id(account_id: AccountId) -> Self {
+                fn from_addr(addr: ::ink::H160) -> Self {
                     Self { inner: <<#storage_ident
                         as ::ink::codegen::ContractCallBuilder>::Type
-                        as ::ink::env::call::FromAccountId<Environment>>::from_account_id(account_id)
+                        as ::ink::env::call::FromAddr>::from_addr(addr)
                     }
                 }
             }
 
-            impl ::ink::ToAccountId<Environment> for #ref_ident {
+            impl ::ink::ToAddr for #ref_ident {
                 #[inline]
-                fn to_account_id(&self) -> AccountId {
+                fn to_addr(&self) -> ::ink::H160 {
                     <<#storage_ident as ::ink::codegen::ContractCallBuilder>::Type
-                        as ::ink::ToAccountId<Environment>>::to_account_id(&self.inner)
+                        as ::ink::ToAddr>::to_addr(&self.inner)
                 }
             }
 
-            impl ::core::convert::AsRef<AccountId> for #ref_ident {
-                fn as_ref(&self) -> &AccountId {
-                    <_ as ::core::convert::AsRef<AccountId>>::as_ref(&self.inner)
+            impl ::core::convert::AsRef<::ink::H160> for #ref_ident {
+                fn as_ref(&self) -> &::ink::H160 {
+                    <_ as ::core::convert::AsRef<::ink::H160>>::as_ref(&self.inner)
                 }
             }
 
-            impl ::core::convert::AsMut<AccountId> for #ref_ident {
-                fn as_mut(&mut self) -> &mut AccountId {
-                    <_ as ::core::convert::AsMut<AccountId>>::as_mut(&mut self.inner)
+            impl ::core::convert::AsMut<::ink::H160> for #ref_ident {
+                fn as_mut(&mut self) -> &mut ::ink::H160 {
+                    <_ as ::core::convert::AsMut<::ink::H160>>::as_mut(&mut self.inner)
                 }
             }
         )
@@ -459,7 +459,6 @@ impl ContractRef<'_> {
             ) -> ::ink::env::call::CreateBuilder<
                 Environment,
                 Self,
-                ::ink::env::call::utils::Unset<Hash>,
                 ::ink::env::call::utils::Set<::ink::env::call::LimitParamsV2<<#storage_ident as ::ink::env::ContractEnv>::Env>>,
                 ::ink::env::call::utils::Unset<Balance>,
                 ::ink::env::call::utils::Set<::ink::env::call::ExecutionInput<#arg_list>>,

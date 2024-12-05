@@ -115,6 +115,7 @@ impl Environment for CustomEnvironment {
     type Hash = <ink_env::DefaultEnvironment as Environment>::Hash;
     type BlockNumber = <ink_env::DefaultEnvironment as Environment>::BlockNumber;
     type Timestamp = <ink_env::DefaultEnvironment as Environment>::Timestamp;
+    type EventRecord = <ink_env::DefaultEnvironment as Environment>::EventRecord;
 
     type ChainExtension = RuntimeReadWrite;
 }

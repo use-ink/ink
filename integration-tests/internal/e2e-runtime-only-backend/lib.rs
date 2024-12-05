@@ -121,7 +121,9 @@ pub mod flipper {
 
             // when
             let call_data = vec![
-                Value::unnamed_variant("Id", [Value::from_bytes(contract.account_id)]),
+                // todo addr
+                Value::unnamed_variant("Id", [Value::from_bytes(contract.addr)]),
+                // todo check next line
                 Value::u128(ENDOWMENT),
             ];
             client

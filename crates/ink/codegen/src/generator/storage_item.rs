@@ -80,7 +80,7 @@ impl GenerateCode for StorageItem<'_> {
     }
 }
 
-impl<'a> StorageItem<'a> {
+impl StorageItem<'_> {
     fn generate_struct(&self, struct_item: DataStruct) -> TokenStream2 {
         let item = self.item;
         let struct_ident = item.ident();

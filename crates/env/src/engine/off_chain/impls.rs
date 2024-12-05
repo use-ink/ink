@@ -20,7 +20,7 @@ use crate::{
         ConstructorReturnType,
         CreateParams,
         DelegateCall,
-        FromAccountId,
+        FromAddr,
         LimitParamsV2,
     },
     event::{
@@ -42,6 +42,7 @@ use crate::{
     TypedEnvBackend,
 };
 use ink_engine::ext::Engine;
+use ink_primitives::{H160, H256, U256};
 use ink_storage_traits::{
     decode_all,
     Storable,
@@ -259,6 +260,7 @@ impl EnvBackend for EnvInstance {
         <H as CryptoHash>::hash(enc_input, output)
     }
 
+    #[allow(clippy::arithmetic_side_effects)] // todo
     fn ecdsa_recover(
         &mut self,
         signature: &[u8; 65],
@@ -372,13 +374,13 @@ impl EnvBackend for EnvInstance {
 }
 
 impl TypedEnvBackend for EnvInstance {
-    fn caller<E: Environment>(&mut self) -> E::AccountId {
-        self.get_property::<E::AccountId>(Engine::caller)
+    fn caller(&mut self) -> H160 {
+        self.get_property::<H160>(Engine::caller)
             .unwrap_or_else(|error| panic!("could not read `caller` property: {error:?}"))
     }
 
-    fn transferred_value<E: Environment>(&mut self) -> E::Balance {
-        self.get_property::<E::Balance>(Engine::value_transferred)
+    fn transferred_value(&mut self) -> U256 {
+        self.get_property(Engine::value_transferred)
             .unwrap_or_else(|error| {
                 panic!("could not read `transferred_value` property: {error:?}")
             })
@@ -392,7 +394,15 @@ impl TypedEnvBackend for EnvInstance {
     }
 
     fn account_id<E: Environment>(&mut self) -> E::AccountId {
+        // todo should not use `Engine::account_id`
         self.get_property::<E::AccountId>(Engine::address)
+            .unwrap_or_else(|error| {
+                panic!("could not read `account_id` property: {error:?}")
+            })
+    }
+
+    fn address(&mut self) -> H160 {
+        self.get_property::<H160>(Engine::address)
             .unwrap_or_else(|error| {
                 panic!("could not read `account_id` property: {error:?}")
             })
@@ -444,7 +454,7 @@ impl TypedEnvBackend for EnvInstance {
 
     fn invoke_contract_delegate<E, Args, R>(
         &mut self,
-        params: &CallParams<E, DelegateCall<E>, Args, R>,
+        params: &CallParams<E, DelegateCall, Args, R>,
     ) -> Result<ink_primitives::MessageResult<R>>
     where
         E: Environment,
@@ -467,7 +477,7 @@ impl TypedEnvBackend for EnvInstance {
     >
     where
         E: Environment,
-        ContractRef: FromAccountId<E>,
+        ContractRef: FromAddr,
         Args: scale::Encode,
         Salt: AsRef<[u8]>,
         R: ConstructorReturnType<ContractRef>,
@@ -482,22 +492,17 @@ impl TypedEnvBackend for EnvInstance {
         unimplemented!("off-chain environment does not support contract instantiation")
     }
 
-    fn terminate_contract<E>(&mut self, beneficiary: E::AccountId) -> !
-    where
-        E: Environment,
-    {
-        let buffer = scale::Encode::encode(&beneficiary);
-        self.engine.terminate(&buffer[..])
+    fn terminate_contract(&mut self, beneficiary: H160) -> ! {
+        self.engine.terminate(beneficiary)
     }
 
-    fn transfer<E>(&mut self, destination: E::AccountId, value: E::Balance) -> Result<()>
+    fn transfer<E>(&mut self, destination: H160, value: E::Balance) -> Result<()>
     where
         E: Environment,
     {
-        let enc_destination = &scale::Encode::encode(&destination)[..];
         let enc_value = &scale::Encode::encode(&value)[..];
         self.engine
-            .transfer(enc_destination, enc_value)
+            .transfer(destination, enc_value)
             .map_err(Into::into)
     }
 
@@ -509,11 +514,8 @@ impl TypedEnvBackend for EnvInstance {
         })
     }
 
-    fn is_contract<E>(&mut self, account: &E::AccountId) -> bool
-    where
-        E: Environment,
-    {
-        self.engine.is_contract(scale::Encode::encode(&account))
+    fn is_contract(&mut self, account: &H160) -> bool {
+        self.engine.is_contract(account)
     }
 
     fn caller_is_origin<E>(&mut self) -> bool
@@ -530,14 +532,11 @@ impl TypedEnvBackend for EnvInstance {
         unimplemented!("off-chain environment does not support `caller_is_root`")
     }
 
-    fn code_hash<E>(&mut self, _account: &E::AccountId) -> Result<E::Hash>
-    where
-        E: Environment,
-    {
+    fn code_hash(&mut self, _addr: &H160) -> Result<H256> {
         unimplemented!("off-chain environment does not support `code_hash`")
     }
 
-    fn own_code_hash<E>(&mut self) -> Result<E::Hash>
+    fn own_code_hash<E>(&mut self) -> Result<H256>
     where
         E: Environment,
     {
@@ -551,7 +550,7 @@ impl TypedEnvBackend for EnvInstance {
         unimplemented!("off-chain environment does not support `call_runtime`")
     }
 
-    fn lock_delegate_dependency<E>(&mut self, _code_hash: &E::Hash)
+    fn lock_delegate_dependency<E>(&mut self, _code_hash: &H256)
     where
         E: Environment,
     {
@@ -576,7 +575,7 @@ impl TypedEnvBackend for EnvInstance {
         unimplemented!("off-chain environment does not support `xcm_send`")
     }
 
-    fn unlock_delegate_dependency<E>(&mut self, _code_hash: &E::Hash)
+    fn unlock_delegate_dependency<E>(&mut self, _code_hash: &H256)
     where
         E: Environment,
     {

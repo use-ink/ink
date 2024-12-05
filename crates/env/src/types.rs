@@ -32,10 +32,11 @@
 //! the trait bounds on the `Environment` trait types.
 
 use super::arithmetic::AtLeast32BitUnsigned;
-use ink_primitives::{
-    AccountId,
-    Clear,
-    Hash,
+use ink_primitives::{AccountId, Clear, Hash, H160, U256};
+use scale::{
+    Decode,
+    Encode,
+    MaxEncodedLen,
 };
 #[cfg(feature = "std")]
 use scale_info::TypeInfo;
@@ -94,6 +95,38 @@ impl FromLittleEndian for u128 {
     }
 }
 
+impl FromLittleEndian for U256 {
+    type Bytes = [u8; 32];
+
+    #[inline]
+    fn from_le_bytes(bytes: Self::Bytes) -> Self {
+        U256::from_little_endian(&bytes)
+        //U256::from_le_bytes(bytes)
+    }
+}
+
+/*
+impl FromLittleEndian for H160 {
+    type Bytes = [u8; 20];
+
+    #[inline]
+    fn from_le_bytes(bytes: Self::Bytes) -> Self {
+        //H160::from_le_bytes(bytes)
+        ink_primitives::H160::from_le_bytes(bytes)
+    }
+}
+
+impl FromLittleEndian for H256 {
+    type Bytes = [u8; 32];
+
+    #[inline]
+    fn from_le_bytes(bytes: Self::Bytes) -> Self {
+        ink_primitives::H256::from_le_bytes(bytes)
+    }
+}
+ */
+
+/// todo remove
 /// A trait to enforce that a type should be an [`Environment::AccountId`].
 ///
 /// If you have an [`Environment`] which uses an [`Environment::AccountId`] type other
@@ -105,6 +138,8 @@ pub trait AccountIdGuard {}
 /// The ink! provided [`AccountId`](https://docs.rs/ink_primitives/latest/ink_primitives/struct.AccountId.html)
 /// used in the [`DefaultEnvironment`].
 impl AccountIdGuard for AccountId {}
+
+impl AccountIdGuard for H160 {}
 
 cfg_if::cfg_if! {
     if #[cfg(feature = "std")] {
@@ -160,6 +195,7 @@ pub trait Environment: Clone {
         + Ord
         + AsRef<[u8]>
         + AsMut<[u8]>;
+    //+ frame_support::traits::IsType<sp_core::H256>;
 
     /// The type of a timestamp.
     type Timestamp: 'static
@@ -191,6 +227,9 @@ pub trait Environment: Clone {
     ///
     /// [chain_extension]: https://use-ink.github.io/ink/ink/attr.chain_extension.html
     type ChainExtension;
+
+    /// TODO comment
+    type EventRecord: 'static + scale::Codec;
 }
 
 /// Placeholder for chains that have no defined chain extension.
@@ -211,10 +250,27 @@ impl Environment for DefaultEnvironment {
     type Timestamp = Timestamp;
     type BlockNumber = BlockNumber;
     type ChainExtension = NoChainExtension;
+    type EventRecord = EventRecord;
 }
 
 /// The default balance type.
 pub type Balance = u128;
+
+//pub type Balance = U256;
+
+//#[derive(codec::Encode, codec::Decode, Clone, PartialEq, Eq, Debug)]
+//struct U256(scale_decode::ext::primitive_types::U256);
+/*
+impl num_traits::Saturating for U256 {
+    fn saturating_add(self, v: Self) -> Self {
+        <Self as num_traits::Saturating>::saturating_add(self, v)
+    }
+
+    fn saturating_sub(self, v: Self) -> Self {
+        <Self as num_traits::Saturating>::saturating_sub(self, v)
+    }
+}
+*/
 
 /// The default timestamp type.
 pub type Timestamp = u64;
@@ -224,3 +280,42 @@ pub type Gas = u64;
 
 /// The default block number type.
 pub type BlockNumber = u32;
+
+// todo replace with ()
+#[derive(Encode, Decode, MaxEncodedLen, Debug)]
+pub struct RuntimeEvent();
+
+/// The default event record type.
+pub type EventRecord = EventRecordFoo<RuntimeEvent, Hash>;
+
+#[derive(Encode, Decode, Debug)]
+#[cfg_attr(feature = "std", derive(TypeInfo))]
+pub struct EventRecordFoo<E, H> {
+    /// The phase of the block it happened in.
+    pub phase: Phase,
+    /// The event itself.
+    pub event: E,
+    /// The list of the topics this event has.
+    pub topics: ink_prelude::vec::Vec<H>,
+}
+
+/// A phase of a block's execution.
+#[derive(Debug, Encode, Decode, MaxEncodedLen)]
+//#[cfg_attr(feature = "std", derive(Serialize, PartialEq, Eq, Clone))]
+#[cfg_attr(feature = "std", derive(PartialEq, Eq, Clone, TypeInfo))]
+pub enum Phase {
+    /// Applying an extrinsic.
+    ApplyExtrinsic(u32),
+    /// Finalizing the block.
+    Finalization,
+    /// Initializing the block.
+    Initialization,
+}
+
+/// The type of origins supported by `pallet-revive`.
+#[derive(Clone, ::scale::Encode, ::scale::Decode, PartialEq)]
+#[cfg_attr(feature = "std", derive(::scale_info::TypeInfo))]
+pub enum Origin<E: Environment> {
+    Root,
+    Signed(E::AccountId),
+}

@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use sp_keyring::AccountKeyring;
+use sp_keyring::Sr25519Keyring;
 use std::{
     ffi::{
         OsStr,
@@ -113,7 +113,7 @@ where
 /// Construct a test node process.
 pub struct TestNodeProcessBuilder<R> {
     node_path: OsString,
-    authority: Option<AccountKeyring>,
+    authority: Option<Sr25519Keyring>,
     marker: std::marker::PhantomData<R>,
 }
 
@@ -133,7 +133,7 @@ where
     }
 
     /// Set the authority development account for a node in validator mode e.g. --alice.
-    pub fn with_authority(&mut self, account: AccountKeyring) -> &mut Self {
+    pub fn with_authority(&mut self, account: Sr25519Keyring) -> &mut Self {
         self.authority = Some(account);
         self
     }

@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use crate::H256;
 use ink_env::{
     call::{
         utils::{
@@ -32,7 +33,6 @@ use scale::Encode;
 pub type CreateBuilderPartial<E, ContractRef, Args, R> = CreateBuilder<
     E,
     ContractRef,
-    Unset<<E as Environment>::Hash>,
     Set<LimitParamsV2<E>>,
     Unset<<E as Environment>::Balance>,
     Set<ExecutionInput<Args>>,
@@ -50,7 +50,7 @@ where
     // set all the other properties to default values, we only require the `exec_input`.
     builder
         .endowment(0u32.into())
-        .code_hash(ink_primitives::Clear::CLEAR_HASH)
+        .code_hash(H256::zero())
         .salt_bytes(Vec::new())
         .params()
         .exec_input()

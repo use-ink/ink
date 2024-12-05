@@ -39,9 +39,12 @@ pub use self::{
     types::{
         AccountId,
         Clear,
+        DepositLimit,
         Hash,
     },
 };
+
+pub use primitive_types::{H160, H256, U256};
 
 /// An error emitted by the smart contracting language.
 ///

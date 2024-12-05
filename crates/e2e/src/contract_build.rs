@@ -22,7 +22,6 @@ use contract_build::{
     Network,
     OptimizationPasses,
     OutputType,
-    Target,
     UnstableFlags,
     Verbosity,
     DEFAULT_MAX_MEMORY_PAGES,
@@ -47,6 +46,7 @@ use std::{
 pub fn build_root_and_contract_dependencies() -> Vec<PathBuf> {
     let contract_project = ContractProject::new();
     let contract_manifests = contract_project.root_with_contract_dependencies();
+    eprintln!("contract_manifests {:?}", contract_manifests);
     build_contracts(&contract_manifests)
 }
 
@@ -113,6 +113,7 @@ impl ContractProject {
     }
 
     fn root_with_contract_dependencies(&self) -> Vec<PathBuf> {
+        eprintln!("contract dependencies {:#?}", self.contract_dependencies);
         self.root_with_additional_contracts(&self.contract_dependencies)
     }
 }
@@ -129,8 +130,10 @@ fn build_contracts(contract_manifests: &[PathBuf]) -> Vec<PathBuf> {
         .lock()
         .unwrap();
 
+    // todo rename wasm to riscv
     let mut wasm_paths = Vec::new();
     for manifest in contract_manifests {
+        eprintln!("processing {:?}", manifest);
         let wasm_path = match contract_build_jobs.entry(manifest.clone()) {
             Entry::Occupied(entry) => entry.get().clone(),
             Entry::Vacant(entry) => {
@@ -144,6 +147,7 @@ fn build_contracts(contract_manifests: &[PathBuf]) -> Vec<PathBuf> {
     wasm_paths
 }
 
+// todo replace all mentions of Wasm
 /// Builds the contract at `manifest_path`, returns the path to the contract
 /// Wasm build artifact.
 fn build_contract(path_to_cargo_toml: &Path) -> PathBuf {
@@ -165,8 +169,8 @@ fn build_contract(path_to_cargo_toml: &Path) -> PathBuf {
         keep_debug_symbols: false,
         extra_lints: false,
         output_type: OutputType::HumanReadable,
+        // todo remove
         skip_wasm_validation: false,
-        target: Target::Wasm,
         max_memory_pages: DEFAULT_MAX_MEMORY_PAGES,
         image: ImageVariant::Default,
     };
@@ -175,6 +179,7 @@ fn build_contract(path_to_cargo_toml: &Path) -> PathBuf {
         Ok(build_result) => {
             build_result
                 .dest_wasm
+                // todo Replace Wasm with Risc-V everywhere
                 .expect("Wasm code artifact not generated")
                 .canonicalize()
                 .expect("Invalid dest bundle path")

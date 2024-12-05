@@ -19,16 +19,19 @@ use std::{
 };
 
 /// Generate a unique salt based on the system time.
-pub fn salt() -> Vec<u8> {
+pub fn salt() -> Option<[u8; 32]> {
     use funty::Fundamental as _;
 
-    std::time::SystemTime::now()
+    let mut arr = [0u8; 32];
+    let t: [u8; 16] = std::time::SystemTime::now()
         .duration_since(std::time::UNIX_EPOCH)
         .unwrap_or_else(|err| panic!("unable to get unix time: {err}"))
         .as_millis()
         .as_u128()
-        .to_le_bytes()
-        .to_vec()
+        .to_le_bytes();
+    arr[..16].copy_from_slice(t.as_slice());
+    arr[16..].copy_from_slice(t.as_slice());
+    Some(arr)
 }
 
 /// A registry of contracts that can be loaded.
@@ -65,6 +68,7 @@ impl ContractsRegistry {
                     self.contracts.keys()
                 )
             );
+        eprintln!("wasm path {:?}", wasm_path);
         let code = std::fs::read(wasm_path).unwrap_or_else(|err| {
             panic!("Error loading '{}': {:?}", wasm_path.display(), err)
         });

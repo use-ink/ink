@@ -27,18 +27,19 @@ use crate::{
     Environment,
     Error,
 };
+use ink_primitives::H256;
 use pallet_revive_uapi::CallFlags;
 
 /// The `delegatecall` call type. Performs a call with the given code hash.
 #[derive(Clone)]
-pub struct DelegateCall<E: Environment> {
-    code_hash: E::Hash,
+pub struct DelegateCall {
+    code_hash: H256,
     call_flags: CallFlags,
 }
 
-impl<E: Environment> DelegateCall<E> {
+impl DelegateCall {
     /// Returns a clean builder for [`DelegateCall`]
-    pub const fn new(code_hash: E::Hash) -> Self {
+    pub const fn new(code_hash: H256) -> Self {
         DelegateCall {
             code_hash,
             call_flags: CallFlags::empty(),
@@ -46,7 +47,7 @@ impl<E: Environment> DelegateCall<E> {
     }
 
     /// Sets the `code_hash` to perform a delegate call with.
-    pub fn code_hash(self, code_hash: E::Hash) -> Self {
+    pub fn code_hash(self, code_hash: H256) -> Self {
         DelegateCall {
             code_hash,
             call_flags: CallFlags::empty(),
@@ -54,12 +55,12 @@ impl<E: Environment> DelegateCall<E> {
     }
 }
 
-impl<E, Args, RetType> CallBuilder<E, Set<DelegateCall<E>>, Args, RetType>
+impl<E, Args, RetType> CallBuilder<E, Set<DelegateCall>, Args, RetType>
 where
     E: Environment,
 {
     /// Sets the `code_hash` to perform a delegate call with.
-    pub fn code_hash(self, code_hash: E::Hash) -> Self {
+    pub fn code_hash(self, code_hash: H256) -> Self {
         let call_type = self.call_type.value();
         CallBuilder {
             call_type: Set(DelegateCall {
@@ -85,17 +86,12 @@ where
 }
 
 impl<E, Args, RetType>
-    CallBuilder<
-        E,
-        Set<DelegateCall<E>>,
-        Set<ExecutionInput<Args>>,
-        Set<ReturnType<RetType>>,
-    >
+    CallBuilder<E, Set<DelegateCall>, Set<ExecutionInput<Args>>, Set<ReturnType<RetType>>>
 where
     E: Environment,
 {
     /// Finalizes the call builder to call a function.
-    pub fn params(self) -> CallParams<E, DelegateCall<E>, Args, RetType> {
+    pub fn params(self) -> CallParams<E, DelegateCall, Args, RetType> {
         CallParams {
             call_type: self.call_type.value(),
             _return_type: Default::default(),
@@ -108,7 +104,7 @@ where
 impl<E, RetType>
     CallBuilder<
         E,
-        Set<DelegateCall<E>>,
+        Set<DelegateCall>,
         Unset<ExecutionInput<EmptyArgumentList>>,
         Unset<RetType>,
     >
@@ -116,7 +112,7 @@ where
     E: Environment,
 {
     /// Finalizes the call builder to call a function.
-    pub fn params(self) -> CallParams<E, DelegateCall<E>, EmptyArgumentList, ()> {
+    pub fn params(self) -> CallParams<E, DelegateCall, EmptyArgumentList, ()> {
         CallParams {
             call_type: self.call_type.value(),
             _return_type: Default::default(),
@@ -129,7 +125,7 @@ where
 impl<E>
     CallBuilder<
         E,
-        Set<DelegateCall<E>>,
+        Set<DelegateCall>,
         Unset<ExecutionInput<EmptyArgumentList>>,
         Unset<ReturnType<()>>,
     >
@@ -159,7 +155,7 @@ where
 }
 
 impl<E, Args, R>
-    CallBuilder<E, Set<DelegateCall<E>>, Set<ExecutionInput<Args>>, Set<ReturnType<R>>>
+    CallBuilder<E, Set<DelegateCall>, Set<ExecutionInput<Args>>, Set<ReturnType<R>>>
 where
     E: Environment,
     Args: scale::Encode,
@@ -190,13 +186,13 @@ where
     }
 }
 
-impl<E, Args, R> CallParams<E, DelegateCall<E>, Args, R>
+impl<E, Args, R> CallParams<E, DelegateCall, Args, R>
 where
     E: Environment,
 {
     /// Returns the code hash which we use to perform a delegate call.
     #[inline]
-    pub fn code_hash(&self) -> &E::Hash {
+    pub fn code_hash(&self) -> &H256 {
         &self.call_type.code_hash
     }
 
@@ -207,7 +203,7 @@ where
     }
 }
 
-impl<E, Args, R> CallParams<E, DelegateCall<E>, Args, R>
+impl<E, Args, R> CallParams<E, DelegateCall, Args, R>
 where
     E: Environment,
     Args: scale::Encode,

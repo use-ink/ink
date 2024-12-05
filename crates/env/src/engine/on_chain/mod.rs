@@ -13,7 +13,7 @@
 // limitations under the License.
 
 mod buffer;
-mod impls;
+mod pallet_revive;
 
 use self::buffer::{
     EncodeScope,

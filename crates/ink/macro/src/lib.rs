@@ -549,7 +549,7 @@ pub fn contract(attr: TokenStream, item: TokenStream) -> TokenStream {
 ///
 ///     /// Transfers balance from the caller to the given address.
 ///     #[ink(message)]
-///     fn transfer(&mut self, amount: Balance, to: AccountId) -> bool;
+///     fn transfer(&mut self, amount: Balance, to: ink::H160) -> bool;
 ///
 ///     // etc.
 /// }
@@ -571,7 +571,7 @@ pub fn contract(attr: TokenStream, item: TokenStream) -> TokenStream {
 /// #
 /// #       /// Transfers balance from the caller to the given address.
 /// #       #[ink(message)]
-/// #       fn transfer(&mut self, amount: Balance, to: AccountId) -> bool;
+/// #       fn transfer(&mut self, amount: Balance, to: H160) -> bool;
 /// #    }
 /// #
 ///     #[ink(storage)]
@@ -594,7 +594,7 @@ pub fn contract(attr: TokenStream, item: TokenStream) -> TokenStream {
 ///         }
 ///
 ///         #[ink(message)]
-///         fn transfer(&mut self, amount: Balance, to: AccountId) -> bool {
+///         fn transfer(&mut self, amount: Balance, to: H160) -> bool {
 ///             unimplemented!()
 ///         }
 ///     }

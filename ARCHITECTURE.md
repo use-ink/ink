@@ -154,7 +154,7 @@ If you look at the implementations you'll see a common pattern of
 
 ### The pallet API
 Signatures of host API functions are defined in
-[`pallet-contracts-uapi`](https://github.com/paritytech/polkadot-sdk/blob/master/substrate/frame/contracts/uapi/src/host/wasm32.rs).
+[`pallet-revive-uapi`](https://github.com/paritytech/polkadot-sdk/blob/master/substrate/frame/revive/uapi/src/host/riscv64.rs).
 You'll see that we import different versions of API functions, something
 like the following excerpt:
 

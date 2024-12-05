@@ -11,7 +11,6 @@ mod contract {
             let _ = Self::env().block_timestamp();
             let _ = Self::env().block_number();
             let _ = Self::env().caller();
-            let _ = Self::env().gas_left();
             let _ = Self::env().minimum_balance();
             let _ = Self::env().transferred_value();
             let _ = Self::env().weight_to_fee(0);
@@ -25,7 +24,6 @@ mod contract {
             let _ = self.env().block_timestamp();
             let _ = self.env().block_number();
             let _ = self.env().caller();
-            let _ = self.env().gas_left();
             let _ = self.env().minimum_balance();
             let _ = self.env().transferred_value();
             let _ = self.env().weight_to_fee(0);

@@ -35,7 +35,7 @@ pub struct TraitDefinition<'a> {
     trait_def: &'a ir::InkTraitDefinition,
 }
 
-impl<'a> TraitDefinition<'a> {
+impl TraitDefinition<'_> {
     /// Appends the trait suffix to the string and forms an identifier.
     ///
     /// This appends the `_$NAME_$TRAIT_ID` string to the prefix string

@@ -27,7 +27,7 @@ pub mod conditional_compilation {
         // attributing event field with `cfg` is not allowed
         new_value: bool,
         #[ink(topic)]
-        by: AccountId,
+        by: ink::H160,
     }
 
     /// Feature gated event
@@ -37,7 +37,7 @@ pub mod conditional_compilation {
         // attributing event field with `cfg` is not allowed
         new_value: bool,
         #[ink(topic)]
-        by: AccountId,
+        by: ink::H160,
         when: BlockNumber,
     }
 

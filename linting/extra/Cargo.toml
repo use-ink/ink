@@ -89,8 +89,3 @@ std = [
     "scale-info/std",
 ]
 ink-as-dependency = []
-revive = [
-    "ink/revive",
-    "ink_env/revive",
-    "ink_storage/revive"
-]
