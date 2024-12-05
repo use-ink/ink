@@ -354,17 +354,15 @@ impl Dispatch<'_> {
         let any_message_accepts_payment = self.any_message_accepts_payment(messages);
 
         let fn_call: syn::ItemFn = syn::parse_quote! {
-            #[cfg(any(target_arch = "wasm32", target_arch = "riscv32"))]
-            #[cfg_attr(target_arch = "wasm32", no_mangle)]
-            #[ink::polkavm_export(abi = ink::polkavm_derive::default_abi)]
+            #[cfg(target_arch = "riscv64")]
+            #[::ink::polkavm_export(abi = ::ink::polkavm_derive::default_abi)]
             pub extern "C" fn call() {
                 internal_call()
             }
         };
         let fn_deploy: syn::ItemFn = syn::parse_quote! {
-            #[cfg(any(target_arch = "wasm32", target_arch = "riscv32"))]
-            #[cfg_attr(target_arch = "wasm32", no_mangle)]
-            #[ink::polkavm_export(abi = ink::polkavm_derive::default_abi)]
+            #[cfg(target_arch = "riscv64")]
+            #[::ink::polkavm_export(abi = ::ink::polkavm_derive::default_abi)]
             pub extern "C" fn deploy() {
                 internal_deploy()
             }
@@ -386,12 +384,12 @@ impl Dispatch<'_> {
                     ::core::result::Result::Err(_decoding_error) => {
                         let error = ::ink::ConstructorResult::Err(::ink::LangError::CouldNotReadInput);
 
-                        // At this point we're unable to set the `Ok` variant to be the any "real"
+                        // At this point we're unable to set the `Ok` variant to be the "real"
                         // constructor output since we were unable to figure out what the caller wanted
                         // to dispatch in the first place, so we set it to `()`.
                         //
                         // This is okay since we're going to only be encoding the `Err` variant
-                        // into the output buffer anyways.
+                        // into the output buffer anyway.
                         ::ink::env::return_value::<::ink::ConstructorResult<()>>(
                             ::ink::env::ReturnFlags::REVERT,
                             &error,
@@ -402,7 +400,7 @@ impl Dispatch<'_> {
                 <<#storage_ident as ::ink::reflect::ContractConstructorDecoder>::Type
                     as ::ink::reflect::ExecuteDispatchable>::execute_dispatchable(dispatchable)
                 .unwrap_or_else(|error| {
-                    ::core::panic!("dispatching ink! message failed: {}", error)
+                    ::core::panic!("dispatching ink! constructor failed: {}", error)
                 })
             }
 
@@ -413,21 +411,23 @@ impl Dispatch<'_> {
                         .unwrap_or_else(|error| ::core::panic!("{}", error))
                 }
 
+                //::ink::env::debug_println!("before decode");
                 let dispatchable = match ::ink::env::decode_input::<
                     <#storage_ident as ::ink::reflect::ContractMessageDecoder>::Type,
                 >() {
                     ::core::result::Result::Ok(decoded_dispatchable) => {
+                        //::ink::env::debug_println!("in ok");
                         decoded_dispatchable
                     }
                     ::core::result::Result::Err(_decoding_error) => {
                         let error = ::ink::MessageResult::Err(::ink::LangError::CouldNotReadInput);
 
-                        // At this point we're unable to set the `Ok` variant to be the any "real"
+                        // At this point we're unable to set the `Ok` variant to be the "real"
                         // message output since we were unable to figure out what the caller wanted
                         // to dispatch in the first place, so we set it to `()`.
                         //
                         // This is okay since we're going to only be encoding the `Err` variant
-                        // into the output buffer anyways.
+                        // into the output buffer anyway.
                         ::ink::env::return_value::<::ink::MessageResult<()>>(
                             ::ink::env::ReturnFlags::REVERT,
                             &error,
@@ -438,6 +438,7 @@ impl Dispatch<'_> {
                 <<#storage_ident as ::ink::reflect::ContractMessageDecoder>::Type
                     as ::ink::reflect::ExecuteDispatchable>::execute_dispatchable(dispatchable)
                 .unwrap_or_else(|error| {
+                    //::ink::env::debug_println!("dispatching failed");
                     ::core::panic!("dispatching ink! message failed: {}", error)
                 })
             }
@@ -782,6 +783,22 @@ impl Dispatch<'_> {
                     #( #cfg_attrs )*
                     Self::#message_ident(input) => {
                         if #any_message_accepts_payment && #deny_payment {
+
+                            /*
+                            let bar = ::ink::reflect::DispatchError::UnknownSelector;
+                            ::ink::env::debug_print!("bar: {:?}", bar);
+                            //let foo = format_args!("{}", bar);
+                            //let s = ::alloc::fmt::format(format_args!("{}", bar));
+                            let s = ::ink::env::format!("{}", ::ink::reflect::DispatchError::UnknownSelector);
+                            if s.eq("encountered unknown selector") {
+                                    ink::env::debug_print!("TRUE");
+                            } else {
+                                    ink::env::debug_print!("FALSE");
+                            }
+                             */
+
+                            //let foo = Err(::ink::reflect::DispatchError::UnknownSelector);
+                            //foo?
                             ::ink::codegen::deny_payment::<
                                 <#storage_ident as ::ink::env::ContractEnv>::Env>()?;
                         }

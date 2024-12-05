@@ -22,4 +22,3 @@ std = [
 ]
 ink-as-dependency = []
 e2e-tests = []
-revive = ["ink/revive", "ink_e2e/revive"]

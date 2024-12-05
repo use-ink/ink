@@ -19,13 +19,17 @@
 #[ink::contract]
 mod call_builder {
     use constructors_return_value::ConstructorsReturnValueRef;
-    use ink::env::{
-        call::{
-            build_call,
-            ExecutionInput,
-            Selector,
+    use ink::{
+        env::{
+            call::{
+                build_call,
+                ExecutionInput,
+                Selector,
+            },
+            DefaultEnvironment,
         },
-        DefaultEnvironment,
+        H160,
+        H256,
     };
 
     #[ink(storage)]
@@ -49,7 +53,7 @@ mod call_builder {
         #[ink(message)]
         pub fn call(
             &mut self,
-            address: AccountId,
+            address: H160,
             selector: [u8; 4],
         ) -> Option<ink::LangError> {
             let result = build_call::<DefaultEnvironment>()
@@ -77,7 +81,7 @@ mod call_builder {
         /// This message does not allow the caller to handle any `LangErrors`, for that
         /// use the `call` message instead.
         #[ink(message)]
-        pub fn invoke(&mut self, address: AccountId, selector: [u8; 4]) {
+        pub fn invoke(&mut self, address: H160, selector: [u8; 4]) {
             use ink::env::call::build_call;
 
             build_call::<DefaultEnvironment>()
@@ -98,7 +102,7 @@ mod call_builder {
         #[ink(message)]
         pub fn call_instantiate(
             &mut self,
-            code_hash: Hash,
+            code_hash: H256,
             selector: [u8; 4],
             init_value: bool,
         ) -> Option<ink::LangError> {
@@ -134,12 +138,12 @@ mod call_builder {
         #[ink(message)]
         pub fn call_instantiate_fallible(
             &mut self,
-            code_hash: Hash,
+            code_hash: H256,
             selector: [u8; 4],
             init_value: bool,
         ) -> Option<
             Result<
-                Result<AccountId, constructors_return_value::ConstructorError>,
+                Result<H160, constructors_return_value::ConstructorError>,
                 ink::LangError,
             >,
         > {
@@ -156,7 +160,7 @@ mod call_builder {
                 .expect("Error from the Contracts pallet.");
 
             Some(lang_result.map(|contract_result| {
-                contract_result.map(|inner| ink::ToAccountId::to_account_id(&inner))
+                contract_result.map(|inner| ink::ToAddr::to_addr(&inner))
             }))
         }
     }
@@ -204,7 +208,7 @@ mod call_builder {
             let initial_value = get_call_result.return_value();
 
             let selector = ink::selector_bytes!("invalid_selector");
-            let call = call_builder.call(flipper.account_id, selector);
+            let call = call_builder.call(flipper.addr, selector);
             let call_result = client
                 .call(&origin, &call)
                 .submit()
@@ -252,7 +256,7 @@ mod call_builder {
             // Since `LangError`s can't be handled by the `CallBuilder::invoke()` method
             // we expect this to panic.
             let invalid_selector = [0x00, 0x00, 0x00, 0x00];
-            let call = call_builder.invoke(flipper.account_id, invalid_selector);
+            let call = call_builder.invoke(flipper.addr, invalid_selector);
             let call_result = client.call(&origin, &call).dry_run().await;
 
             if let Err(ink_e2e::Error::CallDryRun(dry_run)) = call_result {

@@ -28,7 +28,7 @@ use crate::{
     Error,
     Gas,
 };
-use num_traits::Zero;
+use ink_primitives::{H160, U256};
 use pallet_revive_uapi::CallFlags;
 
 /// The default call type for cross-contract calls, for calling into the latest `call_v2`
@@ -36,23 +36,23 @@ use pallet_revive_uapi::CallFlags;
 /// well as `storage_deposit_limit`.
 #[derive(Clone)]
 pub struct Call<E: Environment> {
-    callee: E::AccountId,
+    callee: H160,
     ref_time_limit: u64,
     proof_size_limit: u64,
-    storage_deposit_limit: Option<E::Balance>,
-    transferred_value: E::Balance,
+    storage_deposit_limit: Option<E::Balance>, // todo
+    transferred_value: U256,
     call_flags: CallFlags,
 }
 
 impl<E: Environment> Call<E> {
     /// Returns a clean builder for [`Call`].
-    pub fn new(callee: E::AccountId) -> Self {
+    pub fn new(callee: H160) -> Self {
         Self {
             callee,
             ref_time_limit: Default::default(),
             proof_size_limit: Default::default(),
             storage_deposit_limit: None,
-            transferred_value: E::Balance::zero(),
+            transferred_value: U256::zero(),
             call_flags: CallFlags::empty(),
         }
     }
@@ -121,7 +121,7 @@ where
     ///
     /// This value specifies the amount of user funds that are transferred
     /// to the other contract with this call.
-    pub fn transferred_value(self, transferred_value: E::Balance) -> Self {
+    pub fn transferred_value(self, transferred_value: U256) -> Self {
         let call_type = self.call_type.value();
         CallBuilder {
             call_type: Set(Call {
@@ -246,9 +246,9 @@ impl<E, Args, R> CallParams<E, Call<E>, Args, R>
 where
     E: Environment,
 {
-    /// Returns the account ID of the called contract instance.
+    /// Returns the contract address of the called contract instance.
     #[inline]
-    pub fn callee(&self) -> &E::AccountId {
+    pub fn callee(&self) -> &H160 {
         &self.call_type.callee
     }
 
@@ -265,6 +265,7 @@ where
     }
 
     /// Returns the chosen storage deposit limit for the called contract execution.
+    /// todo
     #[inline]
     pub fn storage_deposit_limit(&self) -> Option<&E::Balance> {
         self.call_type.storage_deposit_limit.as_ref()
@@ -272,7 +273,7 @@ where
 
     /// Returns the transferred value for the called contract.
     #[inline]
-    pub fn transferred_value(&self) -> &E::Balance {
+    pub fn transferred_value(&self) -> &U256 {
         &self.call_type.transferred_value
     }
 

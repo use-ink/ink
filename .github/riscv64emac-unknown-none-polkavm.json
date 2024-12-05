@@ -1,0 +1,26 @@
+{
+  "arch": "riscv64",
+  "cpu": "generic-rv64",
+  "crt-objects-fallback": "false",
+  "data-layout": "e-m:e-p:64:64-i64:64-i128:128-n32:64-S64",
+  "eh-frame-header": false,
+  "emit-debug-gdb-scripts": false,
+  "features": "+e,+m,+a,+c,+auipc-addi-fusion,+ld-add-fusion,+lui-addi-fusion,+xtheadcondmov",
+  "linker": "rust-lld",
+  "linker-flavor": "ld.lld",
+  "llvm-abiname": "lp64e",
+  "llvm-target": "riscv64",
+  "max-atomic-width": 64,
+  "panic-strategy": "abort",
+  "relocation-model": "pie",
+  "target-pointer-width": "64",
+  "singlethread": true,
+  "pre-link-args": {
+    "ld": [
+      "--emit-relocs",
+      "--unique",
+      "--relocatable"
+    ]
+  },
+  "env": "polkavm"
+}

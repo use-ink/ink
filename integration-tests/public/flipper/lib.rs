@@ -144,11 +144,12 @@ pub mod flipper {
             mut client: Client,
         ) -> E2EResult<()> {
             // given
+            use ink::H160;
             let addr = std::env::var("CONTRACT_ADDR_HEX")
                 .unwrap()
                 .replace("0x", "");
-            let acc_id = hex::decode(addr).unwrap();
-            let acc_id = AccountId::try_from(&acc_id[..]).unwrap();
+            let addr_bytes: Vec<u8> = hex::decode(addr).unwrap();
+            let addr = H160::from_slice(&addr_bytes[..]);
 
             use std::str::FromStr;
             let suri = ink_e2e::subxt_signer::SecretUri::from_str("//Alice").unwrap();
@@ -156,7 +157,7 @@ pub mod flipper {
 
             // when
             // Invoke `Flipper::get()` from `caller`'s account
-            let call_builder = ink_e2e::create_call_builder::<Flipper>(acc_id);
+            let call_builder = ink_e2e::create_call_builder::<Flipper>(addr);
             let get = call_builder.get();
             let get_res = client.call(&caller, &get).dry_run().await?;
 

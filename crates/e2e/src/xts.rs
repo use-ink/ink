@@ -15,14 +15,17 @@
 use super::{
     log_info,
     sr25519,
-    ContractExecResult,
-    ContractInstantiateResult,
     Keypair,
 };
 use ink_env::Environment;
 
+use crate::contract_results::{BareInstantiationDryRunResult, ContractExecResultFor};
 use core::marker::PhantomData;
-use pallet_contracts::CodeUploadResult;
+use ink_primitives::DepositLimit;
+use pallet_revive::{
+    evm::H160,
+    CodeUploadResult,
+};
 use sp_core::H256;
 use subxt::{
     backend::{
@@ -40,7 +43,6 @@ use subxt::{
         Signer,
         TxStatus,
     },
-    utils::MultiAddress,
     OnlineClient,
 };
 
@@ -91,22 +93,30 @@ pub struct InstantiateWithCode<E: Environment> {
     #[codec(compact)]
     value: E::Balance,
     gas_limit: Weight,
-    storage_deposit_limit: Option<E::Balance>,
+    #[codec(compact)]
+    storage_deposit_limit: E::Balance,
     code: Vec<u8>,
     data: Vec<u8>,
-    salt: Vec<u8>,
+    salt: Option<[u8; 32]>,
 }
 
 /// A raw call to `pallet-contracts`'s `call`.
 #[derive(Debug, scale::Decode, scale::Encode, scale_encode::EncodeAsType)]
 #[encode_as_type(trait_bounds = "", crate_path = "subxt::ext::scale_encode")]
 pub struct Call<E: Environment> {
-    dest: MultiAddress<E::AccountId, ()>,
+    dest: H160,
     #[codec(compact)]
     value: E::Balance,
     gas_limit: Weight,
-    storage_deposit_limit: Option<E::Balance>,
+    #[codec(compact)]
+    storage_deposit_limit: E::Balance,
     data: Vec<u8>,
+}
+
+/// A raw call to `pallet-contracts`'s `map_account`.
+#[derive(Debug, scale::Decode, scale::Encode, scale_encode::EncodeAsType)]
+#[encode_as_type(trait_bounds = "", crate_path = "subxt::ext::scale_encode")]
+pub struct MapAccount {
 }
 
 /// A raw call to `pallet-contracts`'s `call`.
@@ -118,89 +128,61 @@ pub struct Transfer<E: Environment, C: subxt::Config> {
     value: E::Balance,
 }
 
-#[derive(
-    Debug,
-    Clone,
-    Copy,
-    PartialEq,
-    Eq,
-    serde::Serialize,
-    scale::Decode,
-    scale::Encode,
-    scale_encode::EncodeAsType,
-)]
-#[encode_as_type(crate_path = "subxt::ext::scale_encode")]
-pub enum Determinism {
-    /// The execution should be deterministic and hence no indeterministic instructions
-    /// are allowed.
-    ///
-    /// Dispatchables always use this mode in order to make on-chain execution
-    /// deterministic.
-    Enforced,
-    /// Allow calling or uploading an indeterministic code.
-    ///
-    /// This is only possible when calling into `pallet-contracts` directly via
-    /// [`crate::Pallet::bare_call`].
-    ///
-    /// # Note
-    ///
-    /// **Never** use this mode for on-chain execution.
-    Relaxed,
-}
-
 /// A raw call to `pallet-contracts`'s `remove_code`.
 #[derive(Debug, scale::Encode, scale::Decode, scale_encode::EncodeAsType)]
 #[encode_as_type(trait_bounds = "", crate_path = "subxt::ext::scale_encode")]
-pub struct RemoveCode<E: Environment> {
-    code_hash: E::Hash,
+pub struct RemoveCode {
+    code_hash: H256,
 }
 
-/// A raw call to `pallet-contracts`'s `upload`.
+/// A raw call to `pallet-contracts`'s `upload_code`.
 #[derive(Debug, scale::Encode, scale::Decode, scale_encode::EncodeAsType)]
 #[encode_as_type(trait_bounds = "", crate_path = "subxt::ext::scale_encode")]
 pub struct UploadCode<E: Environment> {
     code: Vec<u8>,
-    storage_deposit_limit: Option<E::Balance>,
-    determinism: Determinism,
+    #[codec(compact)]
+    storage_deposit_limit: E::Balance,
 }
 
 /// A struct that encodes RPC parameters required to instantiate a new smart contract.
-#[derive(serde::Serialize, scale::Encode)]
-#[serde(rename_all = "camelCase")]
+#[derive(scale::Encode)]
+// todo: #[derive(serde::Serialize, scale::Encode)]
+// todo: #[serde(rename_all = "camelCase")]
 struct RpcInstantiateRequest<C: subxt::Config, E: Environment> {
     origin: C::AccountId,
     value: E::Balance,
     gas_limit: Option<Weight>,
-    storage_deposit_limit: Option<E::Balance>,
+    storage_deposit_limit: DepositLimit<E::Balance>,
     code: Code,
     data: Vec<u8>,
-    salt: Vec<u8>,
+    salt: Option<[u8; 32]>,
 }
 
 /// A struct that encodes RPC parameters required to upload a new smart contract.
-#[derive(serde::Serialize, scale::Encode)]
-#[serde(rename_all = "camelCase")]
+#[derive(scale::Encode)]
+// todo: #[derive(serde::Serialize, scale::Encode)]
+// todo: #[serde(rename_all = "camelCase")]
 struct RpcCodeUploadRequest<C: subxt::Config, E: Environment>
 where
     E::Balance: serde::Serialize,
 {
     origin: C::AccountId,
     code: Vec<u8>,
-    storage_deposit_limit: Option<E::Balance>,
-    determinism: Determinism,
+    storage_deposit_limit: E::Balance,
 }
 
 /// A struct that encodes RPC parameters required for a call to a smart contract.
 ///
 /// Copied from [`pallet-contracts-rpc`].
-#[derive(serde::Serialize, scale::Encode)]
-#[serde(rename_all = "camelCase")]
+#[derive(scale::Encode)]
+// todo: #[derive(serde::Serialize, scale::Encode)]
+// todo: #[serde(rename_all = "camelCase")]
 struct RpcCallRequest<C: subxt::Config, E: Environment> {
     origin: C::AccountId,
-    dest: E::AccountId,
+    dest: H160,
     value: E::Balance,
     gas_limit: Option<Weight>,
-    storage_deposit_limit: Option<E::Balance>,
+    storage_deposit_limit: DepositLimit<E::Balance>,
     input_data: Vec<u8>,
 }
 
@@ -215,7 +197,7 @@ enum Code {
     Existing(H256),
 }
 
-/// Provides functions for interacting with the `pallet-contracts` API.
+/// Provides functions for interacting with the `pallet-revive` API.
 pub struct ContractsApi<C: subxt::Config, E: Environment> {
     pub rpc: LegacyRpcMethods<C>,
     pub client: OnlineClient<C>,
@@ -274,12 +256,13 @@ where
     pub async fn instantiate_with_code_dry_run(
         &self,
         value: E::Balance,
-        storage_deposit_limit: Option<E::Balance>,
+        storage_deposit_limit: DepositLimit<E::Balance>,
         code: Vec<u8>,
         data: Vec<u8>,
-        salt: Vec<u8>,
+        salt: Option<[u8; 32]>,
         signer: &Keypair,
-    ) -> ContractInstantiateResult<E::AccountId, E::Balance, ()> {
+    ) -> BareInstantiationDryRunResult<E> {
+        // todo map_account beforehand?
         let code = Code::Upload(code);
         let call_request = RpcInstantiateRequest::<C, E> {
             origin: Signer::<C>::account_id(signer),
@@ -290,14 +273,14 @@ where
             data,
             salt,
         };
-        let func = "ContractsApi_instantiate";
+        let func = "ReviveApi_instantiate";
         let params = scale::Encode::encode(&call_request);
         let bytes = self
             .rpc
             .state_call(func, Some(&params), None)
             .await
             .unwrap_or_else(|err| {
-                panic!("error on ws request `contracts_instantiate`: {err:?}");
+                panic!("error on ws request `revive_instantiate`: {err:?}");
             });
         scale::Decode::decode(&mut bytes.as_ref()).unwrap_or_else(|err| {
             panic!("decoding ContractInstantiateResult failed: {err}")
@@ -412,19 +395,19 @@ where
         &self,
         value: E::Balance,
         gas_limit: Weight,
-        storage_deposit_limit: Option<E::Balance>,
+        storage_deposit_limit: E::Balance,
         code: Vec<u8>,
         data: Vec<u8>,
-        salt: Vec<u8>,
+        salt: Option<[u8; 32]>,
         signer: &Keypair,
     ) -> ExtrinsicEvents<C> {
         let call = subxt::tx::DefaultPayload::new(
-            "Contracts",
+            "Revive",
             "instantiate_with_code",
             InstantiateWithCode::<E> {
                 value,
                 gas_limit,
-                storage_deposit_limit,
+                storage_deposit_limit, // todo
                 code,
                 data,
                 salt,
@@ -440,15 +423,14 @@ where
         &self,
         signer: &Keypair,
         code: Vec<u8>,
-        storage_deposit_limit: Option<E::Balance>,
-    ) -> CodeUploadResult<E::Hash, E::Balance> {
+        storage_deposit_limit: E::Balance,
+    ) -> CodeUploadResult<E::Balance> {
         let call_request = RpcCodeUploadRequest::<C, E> {
             origin: Signer::<C>::account_id(signer),
             code,
             storage_deposit_limit,
-            determinism: Determinism::Enforced,
         };
-        let func = "ContractsApi_upload_code";
+        let func = "ReviveApi_upload_code";
         let params = scale::Encode::encode(&call_request);
         let bytes = self
             .rpc
@@ -469,15 +451,14 @@ where
         &self,
         signer: &Keypair,
         code: Vec<u8>,
-        storage_deposit_limit: Option<E::Balance>,
+        storage_deposit_limit: E::Balance,
     ) -> ExtrinsicEvents<C> {
         let call = subxt::tx::DefaultPayload::new(
-            "Contracts",
+            "Revive",
             "upload_code",
             UploadCode::<E> {
                 code,
                 storage_deposit_limit,
-                determinism: Determinism::Enforced,
             },
         )
         .unvalidated();
@@ -492,12 +473,12 @@ where
     pub async fn remove_code(
         &self,
         signer: &Keypair,
-        code_hash: E::Hash,
+        code_hash: H256,
     ) -> ExtrinsicEvents<C> {
         let call = subxt::tx::DefaultPayload::new(
-            "Contracts",
+            "Revive",
             "remove_code",
-            RemoveCode::<E> { code_hash },
+            RemoveCode { code_hash },
         )
         .unvalidated();
 
@@ -508,20 +489,20 @@ where
     pub async fn call_dry_run(
         &self,
         origin: C::AccountId,
-        dest: E::AccountId,
+        dest: H160,
         input_data: Vec<u8>,
         value: E::Balance,
-        storage_deposit_limit: Option<E::Balance>,
-    ) -> ContractExecResult<E::Balance, ()> {
+        _storage_deposit_limit: E::Balance, // todo
+    ) -> ContractExecResultFor<E> {
         let call_request = RpcCallRequest::<C, E> {
             origin,
             dest,
             value,
             gas_limit: None,
-            storage_deposit_limit,
+            storage_deposit_limit: DepositLimit::Unchecked,
             input_data,
         };
-        let func = "ContractsApi_call";
+        let func = "ReviveApi_call";
         let params = scale::Encode::encode(&call_request);
         let bytes = self
             .rpc
@@ -540,15 +521,15 @@ where
     /// contains all events that are associated with this transaction.
     pub async fn call(
         &self,
-        contract: MultiAddress<E::AccountId, ()>,
+        contract: H160,
         value: E::Balance,
         gas_limit: Weight,
-        storage_deposit_limit: Option<E::Balance>,
+        storage_deposit_limit: E::Balance,
         data: Vec<u8>,
         signer: &Keypair,
     ) -> ExtrinsicEvents<C> {
         let call = subxt::tx::DefaultPayload::new(
-            "Contracts",
+            "Revive",
             "call",
             Call::<E> {
                 dest: contract,
@@ -559,6 +540,25 @@ where
             },
         )
         .unvalidated();
+
+        self.submit_extrinsic(&call, signer).await
+    }
+
+    /// todo
+    /// Submits an extrinsic to call a contract with the given parameters.
+    ///
+    /// Returns when the transaction is included in a block. The return value
+    /// contains all events that are associated with this transaction.
+    pub async fn map_account(
+        &self,
+        signer: &Keypair,
+    ) -> ExtrinsicEvents<C> {
+        let call = subxt::tx::DefaultPayload::new(
+            "Revive",
+            "map_account",
+            MapAccount{}
+        )
+            .unvalidated();
 
         self.submit_extrinsic(&call, signer).await
     }

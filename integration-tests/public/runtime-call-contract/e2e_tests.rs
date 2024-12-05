@@ -1,3 +1,4 @@
+use ink::primitives::DepositLimit;
 use super::{
     Flipper,
     FlipperRef,
@@ -29,6 +30,7 @@ async fn instantiate_and_get<Client: E2EBackend>(mut client: Client) -> E2EResul
         .dry_run()
         .await?;
     let gas_required = flip_dry_run.exec_result.gas_required;
+    // todo do same thing as above with storage_deposit_limit
 
     // call pallet dispatchable
     client
@@ -37,7 +39,7 @@ async fn instantiate_and_get<Client: E2EBackend>(mut client: Client) -> E2EResul
             "ContractCaller",
             "contract_call_flip",
             vec![
-                ink_e2e::subxt::dynamic::Value::from_bytes(contract.account_id),
+                ink_e2e::subxt::dynamic::Value::from_bytes(contract.addr),
                 ink_e2e::subxt::ext::scale_value::serde::to_value(
                     frame_support::weights::Weight::from_parts(
                         gas_required.ref_time(),
@@ -45,7 +47,14 @@ async fn instantiate_and_get<Client: E2EBackend>(mut client: Client) -> E2EResul
                     ),
                 )
                 .unwrap(),
-                ink_e2e::subxt::ext::scale_value::serde::to_value(None::<u128>).unwrap(),
+                //ink_e2e::subxt::dynamic::Value::from_bytes(contract.addr),
+                // todo
+                //ink_e2e::subxt::ext::scale_value::serde::to_value(None::<u128>).unwrap(),
+                ink_e2e::subxt::ext::scale_value::serde::to_value(0u128).unwrap(),
+                //ink_e2e::subxt::ext::scale_value::serde::to_value(DepositLimit::<u128>::Unchecked).unwrap(),
+                //ink_e2e::subxt::ext::scale_value::serde::to_value(0u128).unwrap(),
+
+                //ink_e2e::subxt::ext::scale_value::serde::to_value(DepositLimit::<u128>::Unchecked).unwrap(),
             ],
         )
         .await
