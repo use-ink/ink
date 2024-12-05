@@ -4,4 +4,4 @@
 RUSTC_BOOTSTRAP = "1"
 
 [build]
-rustflags = "--cfg substrate_runtime"
+rustflags = ["--cfg", "substrate_runtime"]
