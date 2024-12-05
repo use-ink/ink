@@ -38,17 +38,17 @@ use frame_support::traits::fungible::Inspect;
 use ink_sandbox::{
     api::prelude::*,
     pallet_balances,
-    pallet_contracts,
+    pallet_revive,
     AccountIdFor,
     RuntimeCall,
     Sandbox,
     Weight,
 };
-use pallet_contracts::ContractResult;
+use pallet_revive::ContractResult;
 
 use ink_env::Environment;
 use jsonrpsee::core::async_trait;
-use pallet_contracts::{
+use pallet_revive::{
     CodeUploadReturnValue,
     ContractInstantiateResult,
     InstantiateReturnValue,
@@ -73,7 +73,7 @@ use subxt_signer::sr25519::Keypair;
 
 type BalanceOf<R> = <R as pallet_balances::Config>::Balance;
 type ContractsBalanceOf<R> =
-    <<R as pallet_contracts::Config>::Currency as Inspect<AccountIdFor<R>>>::Balance;
+    <<R as pallet_revive::Config>::Currency as Inspect<AccountIdFor<R>>>::Balance;
 
 pub struct Client<AccountId, Hash, S: Sandbox> {
     sandbox: S,
@@ -88,7 +88,7 @@ unsafe impl<AccountId, Hash, S: Sandbox> Send for Client<AccountId, Hash, S> {}
 impl<AccountId, Hash, S: Sandbox> Client<AccountId, Hash, S>
 where
     S: Default,
-    S::Runtime: pallet_balances::Config + pallet_contracts::Config,
+    S::Runtime: pallet_balances::Config + pallet_revive::Config,
     AccountIdFor<S::Runtime>: From<[u8; 32]>,
     BalanceOf<S::Runtime>: From<u128>,
 {
@@ -217,7 +217,7 @@ impl<
             > + 'static,
     > BuilderClient<E> for Client<AccountId, Hash, S>
 where
-    S::Runtime: pallet_balances::Config + pallet_contracts::Config,
+    S::Runtime: pallet_balances::Config + pallet_revive::Config,
     AccountIdFor<S::Runtime>: From<[u8; 32]> + AsRef<[u8; 32]>,
     ContractsBalanceOf<S::Runtime>: Send + Sync,
 {
@@ -316,7 +316,6 @@ where
             code,
             keypair_to_account(caller),
             storage_deposit_limit,
-            pallet_contracts::Determinism::Enforced,
         ) {
             Ok(result) => result,
             Err(err) => {
@@ -372,7 +371,6 @@ where
                 keypair_to_account(caller),
                 gas_limit,
                 storage_deposit_limit,
-                pallet_contracts::Determinism::Enforced,
             )
             .result
             .map_err(|err| SandboxErr::new(format!("bare_call: {err:?}")))?;
@@ -402,7 +400,6 @@ where
                 keypair_to_account(caller),
                 S::default_gas_limit(),
                 storage_deposit_limit,
-                pallet_contracts::Determinism::Enforced,
             )
         });
         Ok(CallDryRunResult {
@@ -430,7 +427,7 @@ impl<
             > + 'static,
     > E2EBackend<E> for Client<AccountId, Hash, Config>
 where
-    Config::Runtime: pallet_balances::Config + pallet_contracts::Config,
+    Config::Runtime: pallet_balances::Config + pallet_revive::Config,
     AccountIdFor<Config::Runtime>: From<[u8; 32]> + AsRef<[u8; 32]>,
     ContractsBalanceOf<Config::Runtime>: Send + Sync,
 {
@@ -452,7 +449,7 @@ impl<
             > + 'static,
     > ContractsBackend<E> for Client<AccountId, Hash, S>
 where
-    S::Runtime: pallet_balances::Config + pallet_contracts::Config,
+    S::Runtime: pallet_balances::Config + pallet_revive::Config,
     AccountIdFor<S::Runtime>: From<[u8; 32]> + AsRef<[u8; 32]>,
 {
     type Error = SandboxErr;
@@ -471,7 +468,7 @@ pub mod preset {
             Sandbox,
             Snapshot,
         };
-        pub use pallet_contracts_mock_network::*;
+        pub use pallet_revive_mock_network::*;
         use sp_runtime::traits::Dispatchable;
 
         /// A [`ink_sandbox::Sandbox`] that can be used to test contracts

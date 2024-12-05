@@ -407,10 +407,6 @@ impl TypedEnvBackend for EnvInstance {
         self.get_property_little_endian::<E::Balance>(ext::value_transferred)
     }
 
-    // fn gas_left<E: Environment>(&mut self) -> u64 {
-    //     self.get_property_little_endian::<u64>(ext::gas_left)
-    // }
-
     fn block_timestamp<E: Environment>(&mut self) -> E::Timestamp {
         self.get_property_little_endian::<E::Timestamp>(ext::now)
     }

@@ -21,10 +21,9 @@ use ink_primitives::{
     ConstructorResult,
     MessageResult,
 };
-use pallet_contracts::{
+use pallet_revive::{
     CodeUploadResult,
-    ContractExecResult,
-    ContractInstantiateResult,
+    ContractResult,
     ExecReturnValue,
     InstantiateReturnValue,
 };

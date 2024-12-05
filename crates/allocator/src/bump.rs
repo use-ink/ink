@@ -115,39 +115,6 @@ impl InnerAlloc {
                      should never actually be called outside of a test run."
                 )
             }
-        } else if #[cfg(target_arch = "wasm32")] {
-            fn heap_start() -> usize {
-                extern "C" {
-                    static __heap_base: usize;
-                }
-                // # SAFETY
-                //
-                // The `__heap_base` symbol is defined by the wasm linker and is guaranteed
-                // to point to the start of the heap.
-                let heap_start =  unsafe { &__heap_base as *const usize as usize };
-                // if the symbol isn't found it will resolve to 0
-                // for that to happen the rust compiler or linker need to break or change
-                assert_ne!(heap_start, 0, "Can't find `__heap_base` symbol.");
-                heap_start
-            }
-
-            fn heap_end() -> usize {
-                // Cannot overflow on this architecture
-                core::arch::wasm32::memory_size(0) * PAGE_SIZE
-            }
-
-            /// Request a `pages` number of pages of Wasm memory. Each page is `64KiB` in size.
-            ///
-            /// Returns `None` if a page is not available.
-            fn request_pages(&mut self, pages: usize) -> Option<usize> {
-                let prev_page = core::arch::wasm32::memory_grow(0, pages);
-                if prev_page == usize::MAX {
-                    return None;
-                }
-
-                // Cannot overflow on this architecture
-                Some(prev_page * PAGE_SIZE)
-            }
         } else if #[cfg(target_arch = "riscv32")] {
             fn heap_start() -> usize {
                 unsafe {

@@ -85,12 +85,12 @@ where
 /// #     DefaultEnvironment,
 /// #     call::{build_call, Selector, ExecutionInput}
 /// # };
-/// # use ink_env::call::CallV1;
+/// # use ink_env::call::Call;
 /// # type AccountId = <DefaultEnvironment as Environment>::AccountId;
 /// # type Balance = <DefaultEnvironment as Environment>::Balance;
 /// build_call::<DefaultEnvironment>()
-///     .call_v1(AccountId::from([0x42; 32]))
-///     .gas_limit(5000)
+///     .call(AccountId::from([0x42; 32]))
+///     .ref_time_limit(5000)
 ///     .transferred_value(10)
 ///     .exec_input(
 ///         ExecutionInput::new(Selector::new([0xDE, 0xAD, 0xBE, 0xEF]))
@@ -117,12 +117,12 @@ where
 /// # use ::ink_env::{
 /// #     Environment,
 /// #     DefaultEnvironment,
-/// #     call::{build_call, Selector, ExecutionInput, CallV1},
+/// #     call::{build_call, Selector, ExecutionInput, Call},
 /// # };
 /// # type AccountId = <DefaultEnvironment as Environment>::AccountId;
 /// let my_return_value: i32 = build_call::<DefaultEnvironment>()
-///     .call_type(CallV1::new(AccountId::from([0x42; 32])))
-///     .gas_limit(5000)
+///     .call_type(Call::new(AccountId::from([0x42; 32])))
+///     .ref_time_limit(5000)
 ///     .transferred_value(10)
 ///     .exec_input(
 ///         ExecutionInput::new(Selector::new([0xDE, 0xAD, 0xBE, 0xEF]))
@@ -181,12 +181,12 @@ where
 /// #     DefaultEnvironment,
 /// #     call::{build_call, Selector, ExecutionInput}
 /// # };
-/// # use ink_env::call::CallV1;
+/// # use ink_env::call::Call;
 /// # type AccountId = <DefaultEnvironment as Environment>::AccountId;
 /// # type Balance = <DefaultEnvironment as Environment>::Balance;
 /// let call_result = build_call::<DefaultEnvironment>()
-///     .call_v1(AccountId::from([0x42; 32]))
-///     .gas_limit(5000)
+///     .call(AccountId::from([0x42; 32]))
+///     .ref_time_limit(5000)
 ///     .transferred_value(10)
 ///     .try_invoke()
 ///     .expect("Got an error from the Contract's pallet.");

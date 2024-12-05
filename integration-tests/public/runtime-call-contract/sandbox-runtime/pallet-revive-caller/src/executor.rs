@@ -11,7 +11,7 @@ use ink::env::{
     Environment,
 };
 
-pub struct PalletContractsExecutor<E: Environment, Runtime: pallet_contracts::Config> {
+pub struct PalletReviveExecutor<E: Environment, Runtime: pallet_revive::Config> {
     pub origin: AccountIdOf<Runtime>,
     pub contract: AccountIdOf<Runtime>,
     pub value: BalanceOf<Runtime>,
@@ -20,10 +20,10 @@ pub struct PalletContractsExecutor<E: Environment, Runtime: pallet_contracts::Co
     pub marker: core::marker::PhantomData<E>,
 }
 
-impl<E, R> Executor<E> for PalletContractsExecutor<E, R>
+impl<E, R> Executor<E> for PalletReviveExecutor<E, R>
 where
     E: Environment,
-    R: pallet_contracts::Config,
+    R: pallet_revive::Config,
 {
     type Error = sp_runtime::DispatchError;
 
@@ -37,16 +37,15 @@ where
     {
         let data = codec::Encode::encode(&input);
 
-        let result = pallet_contracts::Pallet::<R>::bare_call(
+        let result = pallet_revive::Pallet::<R>::bare_call(
             self.origin.clone(),
             self.contract.clone(),
             self.value,
             self.gas_limit,
             self.storage_deposit_limit,
             data,
-            pallet_contracts::DebugInfo::UnsafeDebug,
-            pallet_contracts::CollectEvents::Skip,
-            pallet_contracts::Determinism::Enforced,
+            pallet_revive::DebugInfo::UnsafeDebug,
+            pallet_revive::CollectEvents::Skip,
         );
 
         let output = result.result?.data;

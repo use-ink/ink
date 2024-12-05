@@ -10,24 +10,23 @@ use frame_support::{
     weights::Weight,
 };
 use frame_system::Config as SysConfig;
-use pallet_contracts::{
+use pallet_revive::{
     Code,
     CodeUploadResult,
     CollectEvents,
-    ContractInstantiateResult,
+    ContractResult,
     DebugInfo,
-    Determinism,
 };
 use scale::Decode as _;
 use std::ops::Not;
 
 type BalanceOf<R> =
-    <<R as pallet_contracts::Config>::Currency as Inspect<AccountIdFor<R>>>::Balance;
+    <<R as pallet_revive::Config>::Currency as Inspect<AccountIdFor<R>>>::Balance;
 
 /// Contract API used to interact with the contracts pallet.
 pub trait ContractAPI {
     /// The runtime contract config.
-    type T: pallet_contracts::Config;
+    type T: pallet_revive::Config;
 
     /// Interface for `bare_instantiate` contract call with a simultaneous upload.
     ///
@@ -97,7 +96,6 @@ pub trait ContractAPI {
         contract_bytes: Vec<u8>,
         origin: AccountIdFor<Self::T>,
         storage_deposit_limit: Option<BalanceOf<Self::T>>,
-        determinism: Determinism,
     ) -> CodeUploadResult<<Self::T as frame_system::Config>::Hash, BalanceOf<Self::T>>;
 
     /// Interface for `bare_call` contract call.
@@ -119,14 +117,13 @@ pub trait ContractAPI {
         origin: AccountIdFor<Self::T>,
         gas_limit: Weight,
         storage_deposit_limit: Option<BalanceOf<Self::T>>,
-        determinism: Determinism,
     ) -> ContractExecResultFor<Self::T>;
 }
 
 impl<T> ContractAPI for T
 where
     T: Sandbox,
-    T::Runtime: pallet_contracts::Config,
+    T::Runtime: pallet_revive::Config,
 {
     type T = T::Runtime;
 
@@ -141,7 +138,7 @@ where
         storage_deposit_limit: Option<BalanceOf<Self::T>>,
     ) -> ContractInstantiateResultFor<Self::T> {
         self.execute_with(|| {
-            pallet_contracts::Pallet::<Self::T>::bare_instantiate(
+            pallet_revive::Pallet::<Self::T>::bare_instantiate(
                 origin,
                 value,
                 gas_limit,
@@ -171,7 +168,7 @@ where
     > {
         let mut code_hash = &code_hash[..];
         self.execute_with(|| {
-            pallet_contracts::Pallet::<Self::T>::bare_instantiate(
+            pallet_revive::Pallet::<Self::T>::bare_instantiate(
                 origin,
                 value,
                 gas_limit,
@@ -193,15 +190,13 @@ where
         contract_bytes: Vec<u8>,
         origin: AccountIdFor<Self::T>,
         storage_deposit_limit: Option<BalanceOf<Self::T>>,
-        determinism: Determinism,
     ) -> CodeUploadResult<<Self::T as frame_system::Config>::Hash, BalanceOf<Self::T>>
     {
         self.execute_with(|| {
-            pallet_contracts::Pallet::<Self::T>::bare_upload_code(
+            pallet_revive::Pallet::<Self::T>::bare_upload_code(
                 origin,
                 contract_bytes,
                 storage_deposit_limit,
-                determinism,
             )
         })
     }
@@ -214,10 +209,9 @@ where
         origin: AccountIdFor<Self::T>,
         gas_limit: Weight,
         storage_deposit_limit: Option<BalanceOf<Self::T>>,
-        determinism: Determinism,
     ) -> ContractExecResultFor<Self::T> {
         self.execute_with(|| {
-            pallet_contracts::Pallet::<Self::T>::bare_call(
+            pallet_revive::Pallet::<Self::T>::bare_call(
                 origin,
                 address,
                 value,
@@ -226,7 +220,6 @@ where
                 data,
                 DebugInfo::UnsafeDebug,
                 CollectEvents::UnsafeCollect,
-                determinism,
             )
         })
     }
@@ -251,7 +244,7 @@ mod tests {
         RuntimeOf,
     };
     use frame_support::sp_runtime::traits::Hash;
-    use pallet_contracts::Origin;
+    use pallet_revive::Origin;
 
     fn compile_module(contract_name: &str) -> Vec<u8> {
         let path = [
@@ -272,12 +265,8 @@ mod tests {
             &wasm_binary,
         );
 
-        let result = sandbox.upload_contract(
-            wasm_binary,
-            DefaultSandbox::default_actor(),
-            None,
-            Determinism::Enforced,
-        );
+        let result =
+            sandbox.upload_contract(wasm_binary, DefaultSandbox::default_actor(), None);
 
         assert!(result.is_ok());
         assert_eq!(hash, result.unwrap().code_hash);
@@ -308,16 +297,16 @@ mod tests {
         let instantiation_event = events[event_count - 2].clone();
         assert!(matches!(
             instantiation_event.event,
-            RuntimeEventOf::<DefaultSandbox>::Contracts(pallet_contracts::Event::<
+            RuntimeEventOf::<DefaultSandbox>::Revive(pallet_revive::Event::<
                 RuntimeOf<DefaultSandbox>,
             >::Instantiated { .. })
         ));
         let deposit_event = events[event_count - 1].clone();
         assert!(matches!(
             deposit_event.event,
-            RuntimeEventOf::<DefaultSandbox>::Contracts(
-                pallet_contracts::Event::<RuntimeOf<DefaultSandbox>>::StorageDepositTransferredAndHeld { .. }
-            )
+            RuntimeEventOf::<DefaultSandbox>::Revive(pallet_revive::Event::<
+                RuntimeOf<DefaultSandbox>,
+            >::StorageDepositTransferredAndHeld { .. })
         ));
     }
 
@@ -351,7 +340,6 @@ mod tests {
             actor.clone(),
             DefaultSandbox::default_gas_limit(),
             None,
-            Determinism::Enforced,
         );
         assert!(result.result.is_ok());
         assert!(!result.result.unwrap().did_revert());
@@ -361,7 +349,7 @@ mod tests {
 
         assert_eq!(
             events[0].event,
-            RuntimeEventOf::<DefaultSandbox>::Contracts(pallet_contracts::Event::<
+            RuntimeEventOf::<DefaultSandbox>::Revive(pallet_revive::Event::<
                 RuntimeOf<DefaultSandbox>,
             >::ContractEmitted {
                 contract: contract_address.clone(),
@@ -371,7 +359,7 @@ mod tests {
 
         assert_eq!(
             events[1].event,
-            RuntimeEventOf::<DefaultSandbox>::Contracts(pallet_contracts::Event::<
+            RuntimeEventOf::<DefaultSandbox>::Revive(pallet_revive::Event::<
                 RuntimeOf<DefaultSandbox>,
             >::Called {
                 contract: contract_address,

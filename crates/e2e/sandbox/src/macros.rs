@@ -19,7 +19,7 @@ pub struct BlockBuilder<T>(std::marker::PhantomData<T>);
 impl<
         T: pallet_balances::Config
             + pallet_timestamp::Config<Moment = u64>
-            + pallet_contracts::Config,
+            + pallet_revive::Config,
     > BlockBuilder<T>
 {
     /// Create a new externalities with the given balances.
@@ -55,7 +55,7 @@ impl<
                 .as_secs(),
         );
         pallet_timestamp::Pallet::<T>::on_initialize(height);
-        pallet_contracts::Pallet::<T>::on_initialize(height);
+        pallet_revive::Pallet::<T>::on_initialize(height);
         frame_system::Pallet::<T>::note_finished_initialize();
     }
 
@@ -63,7 +63,7 @@ impl<
     pub fn finalize_block(
         height: frame_system::pallet_prelude::BlockNumberFor<T>,
     ) -> <T as frame_system::Config>::Hash {
-        pallet_contracts::Pallet::<T>::on_finalize(height);
+        pallet_revive::Pallet::<T>::on_finalize(height);
         pallet_timestamp::Pallet::<T>::on_finalize(height);
         pallet_balances::Pallet::<T>::on_finalize(height);
         frame_system::Pallet::<T>::finalize().hash()
@@ -123,7 +123,7 @@ mod construct_runtime {
             System: $crate::frame_system,
             Balances: $crate::pallet_balances,
             Timestamp: $crate::pallet_timestamp,
-            Contracts: $crate::pallet_contracts,
+            Revive: $crate::pallet_revive,
             $(
                 $pallet_name: $pallet,
             )*
@@ -164,7 +164,7 @@ mod construct_runtime {
         type WeightInfo = ();
     }
 
-    // Configure pallet contracts
+    // Configure pallet revive
     pub enum SandboxRandomness {}
     impl Randomness<H256, u32> for SandboxRandomness {
         fn random(_subject: &[u8]) -> (H256, u32) {
@@ -180,8 +180,8 @@ mod construct_runtime {
     }
 
     parameter_types! {
-        pub SandboxSchedule: $crate::pallet_contracts::Schedule<$runtime> = {
-            <$crate::pallet_contracts::Schedule<$runtime>>::default()
+        pub SandboxSchedule: $crate::pallet_revive::Schedule<$runtime> = {
+            <$crate::pallet_revive::Schedule<$runtime>>::default()
         };
         pub DeletionWeightLimit: Weight = Weight::zero();
         pub DefaultDepositLimit: BalanceOf = 10_000_000;
@@ -189,37 +189,29 @@ mod construct_runtime {
         pub MaxDelegateDependencies: u32 = 32;
     }
 
-    impl $crate::pallet_contracts::Config for $runtime {
+    impl $crate::pallet_revive::Config for $runtime {
         type Time = Timestamp;
-        type Randomness = SandboxRandomness;
         type Currency = Balances;
         type RuntimeEvent = RuntimeEvent;
         type RuntimeCall = RuntimeCall;
         type CallFilter = ();
+        type DepositPerItem = ConstU128<1>;
+        type DepositPerByte = ConstU128<1>;
         type WeightPrice = Self;
         type WeightInfo = ();
         type ChainExtension = $chain_extension;
-        type Schedule = SandboxSchedule;
-        type CallStack = [$crate::pallet_contracts::Frame<Self>; 5];
-        type DepositPerByte = ConstU128<1>;
-        type DepositPerItem = ConstU128<1>;
-        type AddressGenerator = $crate::pallet_contracts::DefaultAddressGenerator;
+        type AddressGenerator = $crate::pallet_revive::DefaultAddressGenerator;
         type MaxCodeLen = ConstU32<{ 123 * 1024 }>;
-        type MaxStorageKeyLen = ConstU32<128>;
-        type MaxTransientStorageSize = ConstU32<{ 1024 * 1024 }>;
-        type UnsafeUnstableInterface = ConstBool<false>;
+        type RuntimeMemory = ConstU32<{ 128 * 1024 * 1024 }>;
+        type PVFMemory = ConstU32<{ 512 * 1024 * 1024 }>;
+        type UnsafeUnstableInterface = ConstBool<true>;
+        type CodeHashLockupDepositPercent = CodeHashLockupDepositPercent;
+        type RuntimeHoldReason = RuntimeHoldReason;
+        type Debug = $debug;
+        type Migrations = ();
+        type Xcm = ();
         type UploadOrigin = $crate::frame_system::EnsureSigned<Self::AccountId>;
         type InstantiateOrigin = $crate::frame_system::EnsureSigned<Self::AccountId>;
-        type MaxDebugBufferLen = ConstU32<{ 2 * 1024 * 1024 }>;
-        type Migrations = ();
-        type DefaultDepositLimit = DefaultDepositLimit;
-        type Debug = $debug;
-        type CodeHashLockupDepositPercent = CodeHashLockupDepositPercent;
-        type MaxDelegateDependencies = MaxDelegateDependencies;
-        type RuntimeHoldReason = RuntimeHoldReason;
-        type Environment = ();
-        type Xcm = ();
-        type ApiVersion = ();
     }
 
     // Implement `crate::Sandbox` trait
@@ -320,7 +312,7 @@ mod construct_runtime {
 
 // Export runtime type itself, pallets and useful types from the auxiliary module
 pub use construct_runtime::{
-    $sandbox, $runtime, Balances, Contracts, PalletInfo, RuntimeCall, RuntimeEvent, RuntimeHoldReason,
+    $sandbox, $runtime, Balances, Revive, PalletInfo, RuntimeCall, RuntimeEvent, RuntimeHoldReason,
     RuntimeOrigin, System, Timestamp,
 };
     };

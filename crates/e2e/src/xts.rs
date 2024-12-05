@@ -15,14 +15,13 @@
 use super::{
     log_info,
     sr25519,
-    ContractExecResult,
-    ContractInstantiateResult,
+    ContractResult,
     Keypair,
 };
 use ink_env::Environment;
 
 use core::marker::PhantomData;
-use pallet_contracts::CodeUploadResult;
+use pallet_revive::CodeUploadResult;
 use sp_core::H256;
 use subxt::{
     backend::{
@@ -118,36 +117,6 @@ pub struct Transfer<E: Environment, C: subxt::Config> {
     value: E::Balance,
 }
 
-#[derive(
-    Debug,
-    Clone,
-    Copy,
-    PartialEq,
-    Eq,
-    serde::Serialize,
-    scale::Decode,
-    scale::Encode,
-    scale_encode::EncodeAsType,
-)]
-#[encode_as_type(crate_path = "subxt::ext::scale_encode")]
-pub enum Determinism {
-    /// The execution should be deterministic and hence no indeterministic instructions
-    /// are allowed.
-    ///
-    /// Dispatchables always use this mode in order to make on-chain execution
-    /// deterministic.
-    Enforced,
-    /// Allow calling or uploading an indeterministic code.
-    ///
-    /// This is only possible when calling into `pallet-contracts` directly via
-    /// [`crate::Pallet::bare_call`].
-    ///
-    /// # Note
-    ///
-    /// **Never** use this mode for on-chain execution.
-    Relaxed,
-}
-
 /// A raw call to `pallet-contracts`'s `remove_code`.
 #[derive(Debug, scale::Encode, scale::Decode, scale_encode::EncodeAsType)]
 #[encode_as_type(trait_bounds = "", crate_path = "subxt::ext::scale_encode")]
@@ -161,7 +130,6 @@ pub struct RemoveCode<E: Environment> {
 pub struct UploadCode<E: Environment> {
     code: Vec<u8>,
     storage_deposit_limit: Option<E::Balance>,
-    determinism: Determinism,
 }
 
 /// A struct that encodes RPC parameters required to instantiate a new smart contract.
@@ -187,7 +155,6 @@ where
     origin: C::AccountId,
     code: Vec<u8>,
     storage_deposit_limit: Option<E::Balance>,
-    determinism: Determinism,
 }
 
 /// A struct that encodes RPC parameters required for a call to a smart contract.
@@ -446,7 +413,6 @@ where
             origin: Signer::<C>::account_id(signer),
             code,
             storage_deposit_limit,
-            determinism: Determinism::Enforced,
         };
         let func = "ContractsApi_upload_code";
         let params = scale::Encode::encode(&call_request);
@@ -477,7 +443,6 @@ where
             UploadCode::<E> {
                 code,
                 storage_deposit_limit,
-                determinism: Determinism::Enforced,
             },
         )
         .unvalidated();

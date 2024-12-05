@@ -50,7 +50,7 @@ use ink_env::{
     Environment,
 };
 use jsonrpsee::core::async_trait;
-use pallet_contracts::ContractResult;
+use pallet_revive::ContractResult;
 use scale::{
     Decode,
     Encode,

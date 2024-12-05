@@ -485,7 +485,6 @@ where
     /// use ink::env::{
     ///     call::{
     ///         build_call,
-    ///         CallV1,
     ///         ExecutionInput,
     ///         Selector,
     ///     },

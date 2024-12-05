@@ -10,10 +10,12 @@ license = "Apache-2.0"
 repository = "https://github.com/use-ink/ink"
 
 [workspace.dependencies]
-frame-support = { version = "38.0.0", default-features = false }
-frame-system = { version = "38.0.0", default-features = false }
-pallet-contracts = { version = "38.0.0", default-features = false }
-sp-runtime = { version = "39.0.2", default-features = false }
+frame-support = { git = "https://github.com/paritytech/polkadot-sdk", tag = "polkadot-stable2412-rc2", default-features = false }
+frame-system = { git = "https://github.com/paritytech/polkadot-sdk", tag = "polkadot-stable2412-rc2", default-features = false }
+pallet-balances = { git = "https://github.com/paritytech/polkadot-sdk", tag = "polkadot-stable2412-rc2", default-features = false }
+pallet-balances = { git = "https://github.com/paritytech/polkadot-sdk", tag = "polkadot-stable2412-rc2", default-features = false }
+pallet-revive = { git = "https://github.com/paritytech/polkadot-sdk", tag = "polkadot-stable2412-rc2", default-features = false }
+sp-runtime = { git = "https://github.com/paritytech/polkadot-sdk", tag = "polkadot-stable2412-rc2", default-features = false }
 codec = { package = "parity-scale-codec", version =  "3.6.12", default-features = false }
 scale-info = { version = "2.11.1", default-features = false }
 

@@ -13,7 +13,7 @@ use frame_support::{
 pub use pallet::*;
 
 type AccountIdOf<R> = <R as frame_system::Config>::AccountId;
-type BalanceOf<R> = <<R as pallet_contracts::Config>::Currency as Inspect<
+type BalanceOf<R> = <<R as pallet_revive::Config>::Currency as Inspect<
     <R as frame_system::Config>::AccountId,
 >>::Balance;
 
@@ -31,7 +31,7 @@ pub mod pallet {
     pub struct Pallet<T>(_);
 
     #[pallet::config]
-    pub trait Config: frame_system::Config + pallet_contracts::Config {}
+    pub trait Config: frame_system::Config + pallet_revive::Config {}
 
     #[pallet::error]
     pub enum Error<T> {}
@@ -40,13 +40,13 @@ pub mod pallet {
     impl<T: Config> Pallet<T>
     where
         [u8; 32]: From<<T as frame_system::Config>::AccountId>,
-        <<T as pallet_contracts::Config>::Currency as Inspect<
+        <<T as pallet_revive::Config>::Currency as Inspect<
             <T as frame_system::Config>::AccountId,
         >>::Balance: From<u128>,
     {
         /// Call the flip method on the contract at the given `contract` account.
         #[pallet::call_index(0)]
-        #[pallet::weight(<T::WeightInfo as pallet_contracts::WeightInfo>::call().saturating_add(*gas_limit))]
+        #[pallet::weight(<T::WeightInfo as pallet_revive::WeightInfo>::call().saturating_add(*gas_limit))]
         pub fn contract_call_flip(
             origin: OriginFor<T>,
             contract: AccountIdOf<T>,
@@ -56,7 +56,7 @@ pub mod pallet {
             let who = ensure_signed(origin)?;
 
             let executor =
-                executor::PalletContractsExecutor::<ink::env::DefaultEnvironment, T> {
+                executor::PalletReviveExecutor::<ink::env::DefaultEnvironment, T> {
                     origin: who.clone(),
                     contract: contract.clone(),
                     value: 0.into(),

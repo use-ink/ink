@@ -91,10 +91,7 @@ use ink_env::{
     ContractEnv,
     Environment,
 };
-use pallet_contracts::{
-    ContractExecResult,
-    ContractInstantiateResult,
-};
+use pallet_revive::ContractResult;
 use std::{
     cell::RefCell,
     sync::Once,
