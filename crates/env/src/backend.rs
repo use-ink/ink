@@ -12,16 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#[cfg(not(feature = "revive"))]
+use crate::call::{
+    CallV1,
+    LimitParamsV1,
+};
 use crate::{
     call::{
         Call,
         CallParams,
-        CallV1,
         ConstructorReturnType,
         CreateParams,
         DelegateCall,
         FromAccountId,
-        LimitParamsV1,
         LimitParamsV2,
     },
     event::Event,
@@ -33,7 +36,10 @@ use crate::{
     Result,
 };
 use ink_storage_traits::Storable;
+#[cfg(not(feature = "revive"))]
 pub use pallet_contracts_uapi::ReturnFlags;
+#[cfg(feature = "revive")]
+pub use pallet_revive_uapi::ReturnFlags;
 
 /// Environmental contract functionality that does not require `Environment`.
 pub trait EnvBackend {
@@ -245,6 +251,7 @@ pub trait TypedEnvBackend: EnvBackend {
     /// # Note
     ///
     /// For more details visit: [`gas_left`][`crate::gas_left`]
+    #[cfg(not(feature = "revive"))]
     fn gas_left<E: Environment>(&mut self) -> u64;
 
     /// Returns the timestamp of the current block.
@@ -300,6 +307,7 @@ pub trait TypedEnvBackend: EnvBackend {
     /// **This will call into the original `call` host function.**
     ///
     /// For more details visit: [`invoke_contract`][`crate::invoke_contract_v1`]
+    #[cfg(not(feature = "revive"))]
     fn invoke_contract_v1<E, Args, R>(
         &mut self,
         call_data: &CallParams<E, CallV1<E>, Args, R>,
@@ -360,6 +368,7 @@ pub trait TypedEnvBackend: EnvBackend {
         Salt: AsRef<[u8]>,
         R: ConstructorReturnType<ContractRef>;
 
+    #[cfg(not(feature = "revive"))]
     fn instantiate_contract_v1<E, ContractRef, Args, Salt, R>(
         &mut self,
         params: &CreateParams<E, ContractRef, LimitParamsV1, Args, Salt, R>,

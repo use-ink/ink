@@ -91,6 +91,8 @@ pallet-contracts = { version = "38.0.0", default-features = false }
 pallet-balances = { version = "39.0.0", default-features = false }
 pallet-timestamp = { version = "37.0.0", default-features = false }
 pallet-contracts-uapi = { version = "12.0.0", default-features = false }
+pallet-revive-uapi = { git = "https://github.com/paritytech/polkadot-sdk", tag = "polkadot-stable2412-rc2", default-features = false }
+# TODO include mock-network for revive
 pallet-contracts-mock-network = { version = "14.0.0", default-features = false }
 sp-externalities = { version = "0.29.0", default-features = false }
 sp-io = { version = "38.0.0", default-features = false }
@@ -100,6 +102,9 @@ sp-keyring = { version = "39.0.0", default-features = false }
 sp-runtime = { version = "39.0.2", default-features = false }
 sp-weights = { version = "31.0.0", default-features = false }
 xcm = { package = "staging-xcm", version = "14.2.0", default-features = false }
+
+# PolkaVM dependencies
+polkavm-derive = {  version = "0.17.1", default-features = false }
 
 # Local dependencies
 ink = { version = "=5.1.0", path = "crates/ink", default-features = false }

@@ -23,10 +23,16 @@ ink_metadata = { workspace = true, optional = true }
 ink_prelude = { workspace = true }
 ink_macro = { workspace = true }
 pallet-contracts-uapi = { workspace = true }
+pallet-revive-uapi = { workspace = true }
 scale = { workspace = true }
 scale-info = { workspace = true, default-features = false, features = ["derive"], optional = true }
 derive_more = { workspace = true, features = ["from"] }
-xcm = { workspace = true}
+
+# TODO add explainer
+xcm = { workspace = true, default-features = false }
+sp-io = { version = "38.0.0", default-features = false, features = ["disable_panic_handler", "disable_oom", "disable_allocator"] }
+
+polkavm-derive = { workspace = true }
 
 [dev-dependencies]
 ink_ir = { workspace = true, default-features = true }
@@ -45,7 +51,8 @@ std = [
 	"scale-info/std",
 	"scale/std",
 	"xcm/std",
-	"derive_more/std"
+	"derive_more/std",
+	"sp-io/std"
 ]
 # Enable contract debug messages via `debug_print!` and `debug_println!`.
 ink-debug = [ "ink_env/ink-debug" ]
@@ -57,3 +64,9 @@ no-allocator = [ "ink_env/no-allocator" ]
 
 # Disable the ink! provided panic handler.
 no-panic-handler = ["ink_env/no-panic-handler"]
+
+revive = [
+	"ink_env/revive",
+	"ink_storage/revive",
+	"ink_macro/revive"
+]

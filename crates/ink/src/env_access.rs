@@ -14,16 +14,19 @@
 
 use crate::ChainExtensionInstance;
 use core::marker::PhantomData;
+#[cfg(not(feature = "revive"))]
+use ink_env::call::{
+    CallV1,
+    LimitParamsV1,
+};
 use ink_env::{
     call::{
         Call,
         CallParams,
-        CallV1,
         ConstructorReturnType,
         CreateParams,
         DelegateCall,
         FromAccountId,
-        LimitParamsV1,
         LimitParamsV2,
     },
     hash::{
@@ -33,7 +36,10 @@ use ink_env::{
     Environment,
     Result,
 };
+#[cfg(not(feature = "revive"))]
 use pallet_contracts_uapi::ReturnErrorCode;
+#[cfg(feature = "revive")]
+use pallet_revive_uapi::ReturnErrorCode;
 
 /// The API behind the `self.env()` and `Self::env()` syntax in ink!.
 ///
@@ -224,6 +230,7 @@ where
     /// # Note
     ///
     /// For more details visit: [`ink_env::gas_left`]
+    #[cfg(not(feature = "revive"))]
     pub fn gas_left(self) -> u64 {
         ink_env::gas_left::<E>()
     }
@@ -586,6 +593,7 @@ where
     ///
     /// For more details visit: [`ink_env::instantiate_contract_v1`]
 
+    #[cfg(not(feature = "revive"))]
     pub fn instantiate_contract_v1<ContractRef, Args, Salt, R>(
         self,
         params: &CreateParams<E, ContractRef, LimitParamsV1, Args, Salt, R>,
@@ -663,6 +671,7 @@ where
     /// # Note
     ///
     /// For more details visit: [`ink_env::invoke_contract_v1`]
+    #[cfg(not(feature = "revive"))]
     pub fn invoke_contract_v1<Args, R>(
         self,
         params: &CallParams<E, CallV1<E>, Args, R>,

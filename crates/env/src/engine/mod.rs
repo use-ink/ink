@@ -30,7 +30,10 @@ use ink_primitives::{
     LangError,
 };
 
+#[cfg(not(feature = "revive"))]
 use pallet_contracts_uapi::ReturnErrorCode;
+#[cfg(feature = "revive")]
+use pallet_revive_uapi::ReturnErrorCode;
 
 /// Convert a slice into an array reference.
 ///

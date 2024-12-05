@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#[cfg(not(feature = "revive"))]
+use crate::call::CallV1;
 use crate::{
     call::{
         common::{
@@ -22,7 +24,6 @@ use crate::{
         execution::EmptyArgumentList,
         CallBuilder,
         CallParams,
-        CallV1,
         ExecutionInput,
     },
     Environment,
@@ -30,7 +31,10 @@ use crate::{
     Gas,
 };
 use num_traits::Zero;
+#[cfg(not(feature = "revive"))]
 use pallet_contracts_uapi::CallFlags;
+#[cfg(feature = "revive")]
+use pallet_revive_uapi::CallFlags;
 
 /// The default call type for cross-contract calls, for calling into the latest `call_v2`
 /// host function. This adds the additional weight limit parameter `proof_size_limit` as
@@ -68,6 +72,7 @@ where
     ///
     /// This method instance is used to allow usage of the generated call builder methods
     /// for messages which initialize the builder with the new [`Call`] type.
+    #[cfg(not(feature = "revive"))]
     pub fn call_v1(self) -> CallBuilder<E, Set<CallV1<E>>, Args, RetType> {
         let call_type = self.call_type.value();
         CallBuilder {

@@ -13,16 +13,19 @@
 // limitations under the License.
 
 use super::EnvInstance;
+#[cfg(not(feature = "revive"))]
+use crate::call::{
+    CallV1,
+    LimitParamsV1,
+};
 use crate::{
     call::{
         Call,
         CallParams,
-        CallV1,
         ConstructorReturnType,
         CreateParams,
         DelegateCall,
         FromAccountId,
-        LimitParamsV1,
         LimitParamsV2,
     },
     event::{
@@ -48,7 +51,13 @@ use ink_storage_traits::{
     decode_all,
     Storable,
 };
+#[cfg(not(feature = "revive"))]
 use pallet_contracts_uapi::{
+    ReturnErrorCode,
+    ReturnFlags,
+};
+#[cfg(feature = "revive")]
+use pallet_revive_uapi::{
     ReturnErrorCode,
     ReturnFlags,
 };
@@ -386,6 +395,7 @@ impl TypedEnvBackend for EnvInstance {
             })
     }
 
+    #[cfg(not(feature = "revive"))]
     fn gas_left<E: Environment>(&mut self) -> u64 {
         self.get_property::<u64>(Engine::gas_left)
             .unwrap_or_else(|error| {
@@ -439,6 +449,7 @@ impl TypedEnvBackend for EnvInstance {
         self.engine.deposit_event(&enc_topics[..], enc_data);
     }
 
+    #[cfg(not(feature = "revive"))]
     fn invoke_contract_v1<E, Args, R>(
         &mut self,
         _params: &CallParams<E, CallV1<E>, Args, R>,
@@ -503,6 +514,7 @@ impl TypedEnvBackend for EnvInstance {
         unimplemented!("off-chain environment does not support contract instantiation")
     }
 
+    #[cfg(not(feature = "revive"))]
     fn instantiate_contract_v1<E, ContractRef, Args, Salt, R>(
         &mut self,
         params: &CreateParams<E, ContractRef, LimitParamsV1, Args, Salt, R>,
