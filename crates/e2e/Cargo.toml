@@ -22,7 +22,7 @@ ink_primitives = { workspace = true, default-features = true }
 
 cargo_metadata = { workspace = true }
 contract-build = { workspace = true }
-ink_sandbox = { version = "=5.1.0", path =  "./sandbox", optional = true }
+ink_sandbox = { version = "=6.0.0-alpha", path =  "./sandbox", optional = true }
 pallet-contracts-mock-network = { workspace = true, optional = true }
 funty = { workspace = true }
 impl-serde = { workspace = true }

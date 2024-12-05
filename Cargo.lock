@@ -131,9 +131,9 @@ dependencies = [
 
 [[package]]
 name = "anyhow"
-version = "1.0.93"
+version = "1.0.94"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4c95c10ba0b00a02636238b814946408b1322d5ac4760326e6fb8ec956d85775"
+checksum = "c1fd03a028ef38ba2276dce7e33fcd6369c158a1bca17946c4b1b701891c1ff7"
 
 [[package]]
 name = "approx"
@@ -857,9 +857,9 @@ dependencies = [
 
 [[package]]
 name = "clap"
-version = "4.5.21"
+version = "4.5.22"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "fb3b4b9e5a7c7514dfa52869339ee98b3156b0bfb4e8a77c4ff4babb64b1604f"
+checksum = "69371e34337c4c984bbe322360c2547210bf632eb2814bbe78a6e87a2935bd2b"
 dependencies = [
  "clap_builder",
  "clap_derive",
@@ -867,9 +867,9 @@ dependencies = [
 
 [[package]]
 name = "clap_builder"
-version = "4.5.21"
+version = "4.5.22"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b17a95aa67cc7b5ebd32aa5370189aa0d79069ef1c64ce893bd30fb24bff20ec"
+checksum = "6e24c1b4099818523236a8ca881d2b45db98dadfb4625cf6608c12069fcbbde1"
 dependencies = [
  "anstream",
  "anstyle",
@@ -2657,7 +2657,7 @@ checksum = "8e04e2fd2b8188ea827b32ef11de88377086d690286ab35747ef7f9bf3ccb590"
 
 [[package]]
 name = "ink"
-version = "5.1.0"
+version = "6.0.0-alpha"
 dependencies = [
  "derive_more 1.0.0",
  "ink_env",
@@ -2676,7 +2676,7 @@ dependencies = [
 
 [[package]]
 name = "ink_allocator"
-version = "5.1.0"
+version = "6.0.0-alpha"
 dependencies = [
  "cfg-if",
  "quickcheck",
@@ -2685,7 +2685,7 @@ dependencies = [
 
 [[package]]
 name = "ink_codegen"
-version = "5.1.0"
+version = "6.0.0-alpha"
 dependencies = [
  "blake2",
  "derive_more 1.0.0",
@@ -2705,7 +2705,7 @@ dependencies = [
 
 [[package]]
 name = "ink_e2e"
-version = "5.1.0"
+version = "6.0.0-alpha"
 dependencies = [
  "cargo_metadata",
  "contract-build",
@@ -2742,7 +2742,7 @@ dependencies = [
 
 [[package]]
 name = "ink_e2e_macro"
-version = "5.1.0"
+version = "6.0.0-alpha"
 dependencies = [
  "darling",
  "derive_more 1.0.0",
@@ -2759,7 +2759,7 @@ dependencies = [
 
 [[package]]
 name = "ink_engine"
-version = "5.1.0"
+version = "6.0.0-alpha"
 dependencies = [
  "blake2",
  "derive_more 1.0.0",
@@ -2773,7 +2773,7 @@ dependencies = [
 
 [[package]]
 name = "ink_env"
-version = "5.1.0"
+version = "6.0.0-alpha"
 dependencies = [
  "blake2",
  "cfg-if",
@@ -2803,7 +2803,7 @@ dependencies = [
 
 [[package]]
 name = "ink_ir"
-version = "5.1.0"
+version = "6.0.0-alpha"
 dependencies = [
  "blake2",
  "either",
@@ -2817,7 +2817,7 @@ dependencies = [
 
 [[package]]
 name = "ink_macro"
-version = "5.1.0"
+version = "6.0.0-alpha"
 dependencies = [
  "ink",
  "ink_codegen",
@@ -2837,7 +2837,7 @@ dependencies = [
 
 [[package]]
 name = "ink_metadata"
-version = "5.1.0"
+version = "6.0.0-alpha"
 dependencies = [
  "derive_more 1.0.0",
  "impl-serde 0.4.0",
@@ -2854,14 +2854,14 @@ dependencies = [
 
 [[package]]
 name = "ink_prelude"
-version = "5.1.0"
+version = "6.0.0-alpha"
 dependencies = [
  "cfg-if",
 ]
 
 [[package]]
 name = "ink_primitives"
-version = "5.1.0"
+version = "6.0.0-alpha"
 dependencies = [
  "derive_more 1.0.0",
  "ink_prelude",
@@ -2874,7 +2874,7 @@ dependencies = [
 
 [[package]]
 name = "ink_sandbox"
-version = "5.1.0"
+version = "6.0.0-alpha"
 dependencies = [
  "frame-metadata 16.0.0",
  "frame-support",
@@ -2893,7 +2893,7 @@ dependencies = [
 
 [[package]]
 name = "ink_storage"
-version = "5.1.0"
+version = "6.0.0-alpha"
 dependencies = [
  "array-init",
  "cfg-if",
@@ -2914,7 +2914,7 @@ dependencies = [
 
 [[package]]
 name = "ink_storage_traits"
-version = "5.1.0"
+version = "6.0.0-alpha"
 dependencies = [
  "ink_metadata",
  "ink_prelude",
@@ -6926,9 +6926,9 @@ dependencies = [
 
 [[package]]
 name = "tokio-util"
-version = "0.7.12"
+version = "0.7.13"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "61e7c3654c13bcd040d4a03abee2c75b1d14a37b423cf5a813ceae1cc903ec6a"
+checksum = "d7fcaa8d55a2bdd6b83ace262b016eca0d79ee02818c5c1bcdf0305114081078"
 dependencies = [
  "bytes",
  "futures-core",
