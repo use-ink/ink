@@ -153,7 +153,7 @@ pub trait ContractsBackend<E: Environment> {
         &'a mut self,
         contract_name: &'a str,
         caller: &'a Keypair,
-    ) -> UploadBuilder<E, Self>
+    ) -> UploadBuilder<'a, E, Self>
     where
         Self: Sized + BuilderClient<E>,
     {
@@ -176,7 +176,7 @@ pub trait ContractsBackend<E: Environment> {
         &'a mut self,
         caller: &'a Keypair,
         code_hash: E::Hash,
-    ) -> RemoveCodeBuilder<E, Self>
+    ) -> RemoveCodeBuilder<'a, E, Self>
     where
         Self: Sized + BuilderClient<E>,
     {
