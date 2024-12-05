@@ -80,7 +80,7 @@ std = [
 	"secp256k1",
 	"schnorrkel",
 	"num-traits/std",
-    # Enables hashing crates for off-chain environment.
+	# Enables hashing crates for off-chain environment.
 	"sha2",
 	"sha3",
     "scale-decode?/std",

@@ -36,6 +36,7 @@ pub struct BumpAllocator;
 
 unsafe impl GlobalAlloc for BumpAllocator {
     #[inline]
+    #[allow(static_mut_refs)]
     unsafe fn alloc(&self, layout: Layout) -> *mut u8 {
         if INNER.is_none() {
             INNER = Some(InnerAlloc::new());

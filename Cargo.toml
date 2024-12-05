@@ -44,9 +44,9 @@ derive_more = { version = "1.0.0", default-features = false }
 either = { version = "1.13", default-features = false }
 funty = { version = "2.0.0" }
 heck = { version = "0.5.0" }
-impl-serde = { version = "0.4.0", default-features = false }
-itertools = { version = "0.12", default-features = false }
-jsonrpsee = { version = "0.22.5" }
+impl-serde = { version = "0.5.0", default-features = false }
+itertools = { version = "0.13.0", default-features = false }
+jsonrpsee = { version = "0.24.7" }
 linkme = { version = "0.3.30" }
 num-traits = { version = "0.2", default-features = false }
 paste = { version = "1.0" }
@@ -61,7 +61,7 @@ scale-decode = { version = "0.14.0", default-features = false }
 scale-encode = { version = "0.8.0", default-features = false }
 scale-info = { version = "2.11", default-features = false }
 schemars = { version = "0.8" }
-secp256k1 = { version = "0.28.2" }
+secp256k1 = { version = "0.30.0" }
 serde = { version = "1.0.215", default-features = false }
 serde_json = { version = "1.0.133" }
 sha2 = { version = "0.10" }
@@ -72,7 +72,7 @@ subxt-metadata = { version = "0.38.0" }
 subxt-signer = { version = "0.38.0" }
 syn = { version = "2" }
 synstructure = { version = "0.13.1" }
-thiserror = { version = "1.0.69" }
+thiserror = { version = "2.0.4" }
 tokio = { version = "1.41.1" }
 tracing = { version = "0.1.41" }
 tracing-subscriber = { version = "0.3.19" }

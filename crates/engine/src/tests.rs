@@ -235,7 +235,8 @@ fn ecdsa_recovery_with_secp256k1_crate() {
     let recoverable_signature: RecoverableSignature =
         SECP256K1.sign_ecdsa_recoverable(&msg, &seckey);
 
-    let recovery_id = recoverable_signature.serialize_compact().0.to_i32() as u8;
+    let recovery_id: i32 = recoverable_signature.serialize_compact().0.into();
+    let recovery_id = recovery_id as u8;
     let mut signature = recoverable_signature.serialize_compact().1.to_vec();
     signature.push(recovery_id);
     let signature_with_recovery_id: [u8; 65] = signature
