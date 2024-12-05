@@ -51,7 +51,8 @@ std = [
 	"scale-info/std",
 	"scale/std",
 	"xcm/std",
-	"derive_more/std"
+	"derive_more/std",
+	"sp-io/std"
 ]
 # Enable contract debug messages via `debug_print!` and `debug_println!`.
 ink-debug = [ "ink_env/ink-debug" ]
