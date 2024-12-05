@@ -12,11 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::{ast, error::ExtError, ir, ir::idents_lint};
+use crate::{
+    ast,
+    error::ExtError,
+    ir,
+    ir::idents_lint,
+};
 use core::slice::Iter as SliceIter;
 use proc_macro2::TokenStream as TokenStream2;
 use std::collections::HashMap;
-use syn::{spanned::Spanned as _, Result};
+use syn::{
+    spanned::Spanned as _,
+    Result,
+};
 
 /// An ink! chain extension.
 #[derive(Debug, PartialEq, Eq)]
@@ -594,11 +602,13 @@ impl ChainExtension {
             item_method.span(),
             item_method.attrs.clone(),
             &ir::AttributeArgKind::Function,
-            |arg| match arg.kind() {
-                ir::AttributeArg::Function(_) | ir::AttributeArg::HandleStatus(_) => {
-                    Ok(())
+            |arg| {
+                match arg.kind() {
+                    ir::AttributeArg::Function(_) | ir::AttributeArg::HandleStatus(_) => {
+                        Ok(())
+                    }
+                    _ => Err(None),
                 }
-                _ => Err(None),
             },
         )?;
         if let Some(receiver) = item_method.sig.receiver() {

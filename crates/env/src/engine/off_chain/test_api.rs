@@ -14,14 +14,23 @@
 
 //! Operations on the off-chain testing environment.
 
-use super::{EnvInstance, OnInstance};
-use crate::{Environment, Result};
+use super::{
+    EnvInstance,
+    OnInstance,
+};
+use crate::{
+    Environment,
+    Result,
+};
 use core::fmt::Debug;
 use ink_engine::test_api::RecordedDebugMessages;
 use std::panic::UnwindSafe;
 
 pub use super::call_data::CallData;
-pub use ink_engine::{ext::ChainSpec, ChainExtension};
+pub use ink_engine::{
+    ext::ChainSpec,
+    ChainExtension,
+};
 
 /// Record for an emitted event.
 #[derive(Clone)]

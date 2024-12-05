@@ -48,20 +48,48 @@ pub use xcm;
 
 pub mod storage {
     pub mod traits {
-        pub use ink_macro::{Storable, StorableHint, StorageKey, StorageLayout};
+        pub use ink_macro::{
+            Storable,
+            StorableHint,
+            StorageKey,
+            StorageLayout,
+        };
         pub use ink_storage::traits::*;
     }
-    pub use ink_storage::{Lazy, Mapping, StorageVec};
+    pub use ink_storage::{
+        Lazy,
+        Mapping,
+        StorageVec,
+    };
 }
 
 pub use self::{
-    chain_extension::{ChainExtensionInstance, IsResultType, Output, ValueReturned},
+    chain_extension::{
+        ChainExtensionInstance,
+        IsResultType,
+        Output,
+        ValueReturned,
+    },
     contract_ref::ToAccountId,
     env_access::EnvAccess,
     prelude::IIP2_WILDCARD_COMPLEMENT_SELECTOR,
 };
 pub use ink_macro::{
-    blake2x256, chain_extension, contract, event, scale_derive, selector_bytes,
-    selector_id, storage_item, test, trait_definition, Event, EventMetadata,
+    blake2x256,
+    chain_extension,
+    contract,
+    event,
+    scale_derive,
+    selector_bytes,
+    selector_id,
+    storage_item,
+    test,
+    trait_definition,
+    Event,
+    EventMetadata,
 };
-pub use ink_primitives::{ConstructorResult, LangError, MessageResult};
+pub use ink_primitives::{
+    ConstructorResult,
+    LangError,
+    MessageResult,
+};

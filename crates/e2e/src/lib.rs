@@ -34,23 +34,50 @@ mod subxt_client;
 mod xts;
 
 pub use crate::contract_build::build_root_and_contract_dependencies;
-pub use backend::{ChainBackend, ContractsBackend, E2EBackend};
-pub use backend_calls::{CallBuilder, InstantiateBuilder};
+pub use backend::{
+    ChainBackend,
+    ContractsBackend,
+    E2EBackend,
+};
+pub use backend_calls::{
+    CallBuilder,
+    InstantiateBuilder,
+};
 pub use contract_results::{
-    CallDryRunResult, CallResult, InstantiateDryRunResult, InstantiationResult,
+    CallDryRunResult,
+    CallResult,
+    InstantiateDryRunResult,
+    InstantiationResult,
     UploadResult,
 };
 pub use ink_e2e_macro::test;
-pub use node_proc::{TestNodeProcess, TestNodeProcessBuilder};
+pub use node_proc::{
+    TestNodeProcess,
+    TestNodeProcessBuilder,
+};
 #[cfg(feature = "sandbox")]
-pub use sandbox_client::{preset, Client as SandboxClient};
+pub use sandbox_client::{
+    preset,
+    Client as SandboxClient,
+};
 pub use sp_core::H256;
 pub use sp_keyring::AccountKeyring;
-pub use subxt::{self, backend::rpc::RpcClient};
-pub use subxt_client::{CallBuilderFinal, Client, Error};
+pub use subxt::{
+    self,
+    backend::rpc::RpcClient,
+};
+pub use subxt_client::{
+    CallBuilderFinal,
+    Client,
+    Error,
+};
 pub use subxt_signer::{
     self,
-    sr25519::{self, dev::*, Keypair},
+    sr25519::{
+        self,
+        dev::*,
+        Keypair,
+    },
 };
 pub use tokio;
 pub use tracing_subscriber;
@@ -59,9 +86,19 @@ pub use tracing_subscriber;
 pub use ink_sandbox::DefaultSandbox;
 
 use ink::codegen::ContractCallBuilder;
-use ink_env::{call::FromAccountId, ContractEnv, Environment};
-use pallet_contracts::{ContractExecResult, ContractInstantiateResult};
-use std::{cell::RefCell, sync::Once};
+use ink_env::{
+    call::FromAccountId,
+    ContractEnv,
+    Environment,
+};
+use pallet_contracts::{
+    ContractExecResult,
+    ContractInstantiateResult,
+};
+use std::{
+    cell::RefCell,
+    sync::Once,
+};
 use xts::ContractsApi;
 
 pub use subxt::PolkadotConfig;

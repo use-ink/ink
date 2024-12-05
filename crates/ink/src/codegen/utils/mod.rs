@@ -17,4 +17,7 @@
 mod identity_type;
 mod same_type;
 
-pub use self::{identity_type::consume_type, same_type::IsSameType};
+pub use self::{
+    identity_type::consume_type,
+    same_type::IsSameType,
+};

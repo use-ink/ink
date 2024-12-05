@@ -18,7 +18,10 @@
 //! is `64KiB`). We will request new pages of memory as needed until we run out of memory,
 //! at which point we will crash with an `OOM` error instead of freeing any memory.
 
-use core::alloc::{GlobalAlloc, Layout};
+use core::alloc::{
+    GlobalAlloc,
+    Layout,
+};
 
 /// A page in Wasm is `64KiB`
 const PAGE_SIZE: usize = 64 * 1024;
@@ -354,7 +357,10 @@ mod tests {
 #[cfg(all(test, feature = "ink-fuzz-tests"))]
 mod fuzz_tests {
     use super::*;
-    use quickcheck::{quickcheck, TestResult};
+    use quickcheck::{
+        quickcheck,
+        TestResult,
+    };
     use std::mem::size_of;
 
     #[quickcheck]

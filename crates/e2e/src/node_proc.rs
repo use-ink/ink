@@ -14,11 +14,22 @@
 
 use sp_keyring::AccountKeyring;
 use std::{
-    ffi::{OsStr, OsString},
-    io::{BufRead, BufReader, Read},
+    ffi::{
+        OsStr,
+        OsString,
+    },
+    io::{
+        BufRead,
+        BufReader,
+        Read,
+    },
     process,
 };
-use subxt::{backend::rpc::RpcClient, Config, OnlineClient};
+use subxt::{
+    backend::rpc::RpcClient,
+    Config,
+    OnlineClient,
+};
 
 /// Spawn a local substrate node for testing.
 pub struct TestNodeProcess<R: Config> {
@@ -162,12 +173,14 @@ where
             .map_err(|err| format!("Error initializing rpc client: {}", err))?;
         let client = OnlineClient::from_url(url.clone()).await;
         match client {
-            Ok(client) => Ok(TestNodeProcess {
-                proc,
-                rpc,
-                client,
-                url: url.clone(),
-            }),
+            Ok(client) => {
+                Ok(TestNodeProcess {
+                    proc,
+                    rpc,
+                    client,
+                    url: url.clone(),
+                })
+            }
             Err(err) => {
                 let err = format!("Failed to connect to node rpc at {url}: {err}");
                 tracing::error!("{}", err);
@@ -225,7 +238,10 @@ fn find_substrate_port_from_output(r: impl Read + Send + 'static) -> u16 {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use subxt::{backend::legacy::LegacyRpcMethods, PolkadotConfig as SubxtConfig};
+    use subxt::{
+        backend::legacy::LegacyRpcMethods,
+        PolkadotConfig as SubxtConfig,
+    };
 
     #[tokio::test]
     #[allow(unused_assignments)]

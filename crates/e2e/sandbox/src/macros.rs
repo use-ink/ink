@@ -2,7 +2,10 @@ use std::time::SystemTime;
 
 use frame_support::{
     sp_runtime::{
-        traits::{Header, One},
+        traits::{
+            Header,
+            One,
+        },
         BuildStorage,
     },
     traits::Hooks,

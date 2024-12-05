@@ -13,8 +13,15 @@
 // limitations under the License.
 
 use heck::ToLowerCamelCase as _;
-use proc_macro2::{Span, TokenStream as TokenStream2};
-use quote::{format_ident, quote, quote_spanned};
+use proc_macro2::{
+    Span,
+    TokenStream as TokenStream2,
+};
+use quote::{
+    format_ident,
+    quote,
+    quote_spanned,
+};
 
 /// Returns the associated output type for an ink! trait message.
 pub fn output_ident(message_name: &syn::Ident) -> syn::Ident {
@@ -43,10 +50,14 @@ pub fn input_types(inputs: ir::InputsIter) -> Vec<&syn::Type> {
 /// Returns the sequence of input idents for the message.
 pub fn input_message_idents(inputs: ir::InputsIter) -> Vec<&syn::Ident> {
     inputs
-        .map(|input| match &*input.pat {
-            syn::Pat::Ident(ident) => &ident.ident,
-            _ => {
-                unreachable!("encountered ink! dispatch input with missing identifier")
+        .map(|input| {
+            match &*input.pat {
+                syn::Pat::Ident(ident) => &ident.ident,
+                _ => {
+                    unreachable!(
+                        "encountered ink! dispatch input with missing identifier"
+                    )
+                }
             }
         })
         .collect::<Vec<_>>()

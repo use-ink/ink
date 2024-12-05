@@ -12,7 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::{ast, utils::duplicate_config_err};
+use crate::{
+    ast,
+    utils::duplicate_config_err,
+};
 
 /// The ink! configuration.
 #[derive(Debug, Default, PartialEq, Eq)]

@@ -19,7 +19,11 @@ mod tests;
 
 pub use self::storage::Storage;
 
-use crate::{error::ExtError as _, ir, ir::attrs::Attrs as _};
+use crate::{
+    error::ExtError as _,
+    ir,
+    ir::attrs::Attrs as _,
+};
 use syn::spanned::Spanned as _;
 
 /// An item in the root of the ink! module ([`ir::ItemMod`](`crate::ir::ItemMod`)).
@@ -69,10 +73,12 @@ impl TryFrom<syn::Item> for Item {
                             .map(Into::into)
                             .map(Self::Ink)
                     }
-                    _invalid => Err(format_err!(
-                        attr.span(),
-                        "encountered unsupported ink! attribute argument on struct",
-                    )),
+                    _invalid => {
+                        Err(format_err!(
+                            attr.span(),
+                            "encountered unsupported ink! attribute argument on struct",
+                        ))
+                    }
                 }
             }
             syn::Item::Impl(item_impl) => {

@@ -16,7 +16,10 @@ use crate::GenerateCode;
 use derive_more::From;
 use ir::ChainExtensionMethod;
 use proc_macro2::TokenStream as TokenStream2;
-use quote::{format_ident, quote_spanned};
+use quote::{
+    format_ident,
+    quote_spanned,
+};
 use syn::spanned::Spanned;
 
 /// Generator to create an ink! chain extension.

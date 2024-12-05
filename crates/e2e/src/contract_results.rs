@@ -13,13 +13,26 @@
 // limitations under the License.
 
 use ink::codegen::ContractCallBuilder;
-use ink_env::{call::FromAccountId, Environment};
-use ink_primitives::{ConstructorResult, MessageResult};
+use ink_env::{
+    call::FromAccountId,
+    Environment,
+};
+use ink_primitives::{
+    ConstructorResult,
+    MessageResult,
+};
 use pallet_contracts::{
-    CodeUploadResult, ContractExecResult, ContractInstantiateResult, ExecReturnValue,
+    CodeUploadResult,
+    ContractExecResult,
+    ContractInstantiateResult,
+    ExecReturnValue,
     InstantiateReturnValue,
 };
-use std::{fmt, fmt::Debug, marker::PhantomData};
+use std::{
+    fmt,
+    fmt::Debug,
+    marker::PhantomData,
+};
 
 /// Result of a contract instantiation using bare call.
 pub struct BareInstantiationResult<E: Environment, EventLog> {

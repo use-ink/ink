@@ -14,8 +14,15 @@
 
 use ink_ir::utils::find_storage_key_salt;
 use proc_macro2::TokenStream as TokenStream2;
-use quote::{format_ident, quote, ToTokens};
-use syn::{parse2, GenericParam};
+use quote::{
+    format_ident,
+    quote,
+    ToTokens,
+};
+use syn::{
+    parse2,
+    GenericParam,
+};
 
 fn storable_hint_inner(s: synstructure::Structure) -> TokenStream2 {
     let ident = s.ast().ident.clone();

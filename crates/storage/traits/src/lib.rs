@@ -41,6 +41,17 @@ mod layout;
 #[cfg(feature = "std")]
 pub use self::layout::StorageLayout;
 pub use self::{
-    impls::{AutoKey, ManualKey, ResolverKey},
-    storage::{decode_all, AutoStorableHint, Packed, Storable, StorableHint, StorageKey},
+    impls::{
+        AutoKey,
+        ManualKey,
+        ResolverKey,
+    },
+    storage::{
+        decode_all,
+        AutoStorableHint,
+        Packed,
+        Storable,
+        StorableHint,
+        StorageKey,
+    },
 };

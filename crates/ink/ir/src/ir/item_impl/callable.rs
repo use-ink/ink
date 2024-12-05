@@ -17,7 +17,10 @@
 
 use crate::ir;
 use core::fmt;
-use proc_macro2::{Ident, Span};
+use proc_macro2::{
+    Ident,
+    Span,
+};
 use quote::ToTokens as _;
 use syn::spanned::Spanned as _;
 
@@ -434,9 +437,11 @@ pub(super) fn ensure_callable_invariants(
         ));
     }
 
-    if let Some(arg) = method_item.sig.inputs.iter().find(|input| match input {
-        syn::FnArg::Typed(pat) => !matches!(*pat.pat, syn::Pat::Ident(_)),
-        _ => false,
+    if let Some(arg) = method_item.sig.inputs.iter().find(|input| {
+        match input {
+            syn::FnArg::Typed(pat) => !matches!(*pat.pat, syn::Pat::Ident(_)),
+            _ => false,
+        }
     }) {
         return Err(format_err_spanned!(
             arg,

@@ -16,19 +16,46 @@
 
 use crate::{
     serde_hex,
-    utils::{deserialize_from_byte_str, serialize_as_byte_str, trim_extra_whitespace},
+    utils::{
+        deserialize_from_byte_str,
+        serialize_as_byte_str,
+        trim_extra_whitespace,
+    },
 };
 #[cfg(not(feature = "std"))]
-use alloc::{collections::BTreeMap, format, string::String, vec, vec::Vec};
-use core::{fmt::Display, marker::PhantomData};
+use alloc::{
+    collections::BTreeMap,
+    format,
+    string::String,
+    vec,
+    vec::Vec,
+};
+use core::{
+    fmt::Display,
+    marker::PhantomData,
+};
 use scale_info::{
-    form::{Form, MetaForm, PortableForm},
-    meta_type, IntoPortable, Registry, TypeInfo,
+    form::{
+        Form,
+        MetaForm,
+        PortableForm,
+    },
+    meta_type,
+    IntoPortable,
+    Registry,
+    TypeInfo,
 };
 use schemars::JsonSchema;
-use serde::{de::DeserializeOwned, Deserialize, Serialize};
+use serde::{
+    de::DeserializeOwned,
+    Deserialize,
+    Serialize,
+};
 #[cfg(feature = "std")]
-use std::{collections::BTreeMap, hash::Hash};
+use std::{
+    collections::BTreeMap,
+    hash::Hash,
+};
 
 /// Describes a contract.
 #[derive(Debug, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]

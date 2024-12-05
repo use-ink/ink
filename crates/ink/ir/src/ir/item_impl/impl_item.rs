@@ -12,8 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use super::{Constructor, Message};
-use crate::{error::ExtError as _, ir, ir::attrs::Attrs as _};
+use super::{
+    Constructor,
+    Message,
+};
+use crate::{
+    error::ExtError as _,
+    ir,
+    ir::attrs::Attrs as _,
+};
 use syn::spanned::Spanned as _;
 
 /// An item within an ink! implementation block.

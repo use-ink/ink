@@ -14,14 +14,30 @@
 
 use super::Keypair;
 use crate::{
-    backend_calls::{InstantiateBuilder, RemoveCodeBuilder, UploadBuilder},
+    backend_calls::{
+        InstantiateBuilder,
+        RemoveCodeBuilder,
+        UploadBuilder,
+    },
     builders::CreateBuilderPartial,
-    contract_results::{BareInstantiationResult, InstantiateDryRunResult},
-    CallBuilder, CallBuilderFinal, CallDryRunResult, UploadResult,
+    contract_results::{
+        BareInstantiationResult,
+        InstantiateDryRunResult,
+    },
+    CallBuilder,
+    CallBuilderFinal,
+    CallDryRunResult,
+    UploadResult,
 };
-use ink_env::{DefaultEnvironment, Environment};
+use ink_env::{
+    DefaultEnvironment,
+    Environment,
+};
 use jsonrpsee::core::async_trait;
-use scale::{Decode, Encode};
+use scale::{
+    Decode,
+    Encode,
+};
 use sp_weights::Weight;
 use subxt::dynamic::Value;
 

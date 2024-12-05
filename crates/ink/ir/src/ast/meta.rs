@@ -12,14 +12,23 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use proc_macro2::{Ident, TokenStream as TokenStream2};
+use proc_macro2::{
+    Ident,
+    TokenStream as TokenStream2,
+};
 use quote::ToTokens;
 use syn::{
     ext::IdentExt as _,
-    parse::{Parse, ParseStream},
+    parse::{
+        Parse,
+        ParseStream,
+    },
     punctuated::Punctuated,
     spanned::Spanned,
-    LitBool, LitInt, LitStr, Token,
+    LitBool,
+    LitInt,
+    LitStr,
+    Token,
 };
 
 /// Content of a compile-time structured attribute.
@@ -269,7 +278,10 @@ fn parse_meta_path(input: ParseStream) -> Result<syn::Path, syn::Error> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::ast::{MetaValue, Symbol};
+    use crate::ast::{
+        MetaValue,
+        Symbol,
+    };
     use quote::quote;
 
     #[test]

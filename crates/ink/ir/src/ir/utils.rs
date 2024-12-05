@@ -13,7 +13,12 @@
 // limitations under the License.
 
 use super::Selector;
-use crate::{ast, ast::MetaNameValue, error::ExtError as _, format_err};
+use crate::{
+    ast,
+    ast::MetaNameValue,
+    error::ExtError as _,
+    format_err,
+};
 use proc_macro2::Span;
 use std::collections::HashMap;
 use syn::spanned::Spanned;

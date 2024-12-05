@@ -13,7 +13,10 @@
 // limitations under the License.
 
 use crate::call::Selector;
-use ink_prelude::{vec, vec::Vec};
+use ink_prelude::{
+    vec,
+    vec::Vec,
+};
 
 /// The raw ABI respecting input data to a call.
 ///

@@ -21,8 +21,15 @@ use crate::{
     chain_extension::ChainExtensionHandler,
     database::Database,
     exec_context::ExecContext,
-    test_api::{DebugInfo, EmittedEvent},
-    types::{AccountId, Balance, BlockTimestamp},
+    test_api::{
+        DebugInfo,
+        EmittedEvent,
+    },
+    types::{
+        AccountId,
+        Balance,
+        BlockTimestamp,
+    },
 };
 pub use pallet_contracts_uapi::ReturnErrorCode as Error;
 use scale::Encode;
@@ -387,8 +394,12 @@ impl Engine {
         output: &mut [u8; 33],
     ) -> Result<(), Error> {
         use secp256k1::{
-            ecdsa::{RecoverableSignature, RecoveryId},
-            Message, SECP256K1,
+            ecdsa::{
+                RecoverableSignature,
+                RecoveryId,
+            },
+            Message,
+            SECP256K1,
         };
 
         // In most implementations, the v is just 0 or 1 internally, but 27 was added

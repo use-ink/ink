@@ -18,18 +18,30 @@ mod trait_item;
 use self::iter::IterInkTraitItemsRaw;
 pub use self::{
     iter::IterInkTraitItems,
-    trait_item::{InkTraitItem, InkTraitMessage},
+    trait_item::{
+        InkTraitItem,
+        InkTraitMessage,
+    },
 };
 use super::TraitDefinitionConfig;
 use crate::{
     ir,
-    ir::{attrs::SelectorOrWildcard, idents_lint},
+    ir::{
+        attrs::SelectorOrWildcard,
+        idents_lint,
+    },
     Selector,
 };
 use ir::TraitPrefix;
-use proc_macro2::{Ident, Span};
+use proc_macro2::{
+    Ident,
+    Span,
+};
 use std::collections::HashMap;
-use syn::{spanned::Spanned as _, Result};
+use syn::{
+    spanned::Spanned as _,
+    Result,
+};
 
 /// A checked ink! trait definition without its configuration.
 #[derive(Debug, PartialEq, Eq)]

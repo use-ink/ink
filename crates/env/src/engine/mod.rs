@@ -13,12 +13,22 @@
 // limitations under the License.
 
 use crate::{
-    backend::{EnvBackend, TypedEnvBackend},
-    call::{ConstructorReturnType, FromAccountId},
-    Error, Result as EnvResult,
+    backend::{
+        EnvBackend,
+        TypedEnvBackend,
+    },
+    call::{
+        ConstructorReturnType,
+        FromAccountId,
+    },
+    Error,
+    Result as EnvResult,
 };
 use cfg_if::cfg_if;
-use ink_primitives::{ConstructorResult, LangError};
+use ink_primitives::{
+    ConstructorResult,
+    LangError,
+};
 
 use pallet_contracts_uapi::ReturnErrorCode;
 
@@ -138,7 +148,10 @@ where
 #[cfg(test)]
 mod decode_instantiate_result_tests {
     use super::*;
-    use crate::{DefaultEnvironment, Environment};
+    use crate::{
+        DefaultEnvironment,
+        Environment,
+    };
     use scale::Encode;
 
     // The `Result` type used to represent the programmer defined contract output.

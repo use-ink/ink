@@ -14,9 +14,17 @@
 
 use core::array::TryFromSliceError;
 use derive_more::From;
-use scale::{Decode, Encode, MaxEncodedLen};
+use scale::{
+    Decode,
+    Encode,
+    MaxEncodedLen,
+};
 #[cfg(feature = "std")]
-use {scale_decode::DecodeAsType, scale_encode::EncodeAsType, scale_info::TypeInfo};
+use {
+    scale_decode::DecodeAsType,
+    scale_encode::EncodeAsType,
+    scale_info::TypeInfo,
+};
 
 /// The default environment `AccountId` type.
 ///

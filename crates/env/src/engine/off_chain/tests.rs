@@ -13,10 +13,14 @@
 // limitations under the License.
 
 use crate::{
-    engine::off_chain::{impls::TopicsBuilder, test_api::set_account_balance},
+    engine::off_chain::{
+        impls::TopicsBuilder,
+        test_api::set_account_balance,
+    },
     event::TopicsBuilderBackend,
     types::Environment,
-    DefaultEnvironment, Result,
+    DefaultEnvironment,
+    Result,
 };
 
 #[test]
