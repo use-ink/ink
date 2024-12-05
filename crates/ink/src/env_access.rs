@@ -1179,7 +1179,7 @@ where
     }
 
     /// Checks whether the caller of the current contract is root.
-        ///
+    ///
     /// # Example
     ///
     /// ```

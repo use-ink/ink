@@ -734,8 +734,8 @@ where
 /// Note that only the origin of the call stack can be root. Hence this function returning
 /// `true` implies that the contract is being called by the origin.
 ///
-/// A return value of `true` indicates that this contract is being called by a root origin,
-/// and `false` indicates that the caller is a signed origin.
+/// A return value of `true` indicates that this contract is being called by a root
+/// origin, and `false` indicates that the caller is a signed origin.
 ///
 /// # Errors
 ///
