@@ -34,5 +34,5 @@ std = [
 	"scale-decode?/std",
 	"scale-encode?/std",
 	"derive_more/std",
-  "xxhash-rust/std"
+	"xxhash-rust/std"
 ]

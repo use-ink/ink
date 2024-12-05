@@ -15,7 +15,7 @@ targets = ["x86_64-unknown-linux-gnu"]
 [dependencies]
 codec = { workspace = true, default-features = false, features = ["derive"] }
 scale-info = { workspace = true, default-features = false, features = ["derive"] }
-frame-support = { workspace = true, default-features = false }
+frame-support = { workspace = true, default-features = false, features = ["try-runtime"] }
 frame-system = { workspace = true, default-features = false }
 sp-runtime = { workspace = true, default-features = false }
 

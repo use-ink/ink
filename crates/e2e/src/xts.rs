@@ -255,7 +255,7 @@ where
         dest: C::AccountId,
         value: E::Balance,
     ) -> Result<(), subxt::Error> {
-        let call = subxt::tx::Payload::new(
+        let call = subxt::tx::DefaultPayload::new(
             "Balances",
             "transfer_allow_death",
             Transfer::<E, C> {
@@ -311,7 +311,7 @@ where
         signer: &Keypair,
     ) -> ExtrinsicEvents<C>
     where
-        Call: subxt::tx::TxPayload,
+        Call: subxt::tx::Payload,
     {
         let account_id = <Keypair as Signer<C>>::account_id(signer);
         let account_nonce =
@@ -418,7 +418,7 @@ where
         salt: Vec<u8>,
         signer: &Keypair,
     ) -> ExtrinsicEvents<C> {
-        let call = subxt::tx::Payload::new(
+        let call = subxt::tx::DefaultPayload::new(
             "Contracts",
             "instantiate_with_code",
             InstantiateWithCode::<E> {
@@ -471,7 +471,7 @@ where
         code: Vec<u8>,
         storage_deposit_limit: Option<E::Balance>,
     ) -> ExtrinsicEvents<C> {
-        let call = subxt::tx::Payload::new(
+        let call = subxt::tx::DefaultPayload::new(
             "Contracts",
             "upload_code",
             UploadCode::<E> {
@@ -494,7 +494,7 @@ where
         signer: &Keypair,
         code_hash: E::Hash,
     ) -> ExtrinsicEvents<C> {
-        let call = subxt::tx::Payload::new(
+        let call = subxt::tx::DefaultPayload::new(
             "Contracts",
             "remove_code",
             RemoveCode::<E> { code_hash },
@@ -547,7 +547,7 @@ where
         data: Vec<u8>,
         signer: &Keypair,
     ) -> ExtrinsicEvents<C> {
-        let call = subxt::tx::Payload::new(
+        let call = subxt::tx::DefaultPayload::new(
             "Contracts",
             "call",
             Call::<E> {
