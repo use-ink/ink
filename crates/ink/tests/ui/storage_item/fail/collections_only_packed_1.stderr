@@ -49,14 +49,14 @@ error[E0277]: the trait bound `[NonPacked]: Encode` is not satisfied
    |
 10 | struct Contract {
    |        ^^^^^^^^ the trait `Encode` is not implemented for `[NonPacked]`, which is required by `Contract: Sized`
-   |
-   = help: the following other types implement trait `Encode`:
-             [T; N]
-             [T]
-   = note: required for `Vec<NonPacked>` to implement `Encode`
-   = note: required for `Vec<NonPacked>` to implement `Packed`
-   = note: required for `Vec<NonPacked>` to implement `StorableHint<()>`
-   = note: required for `Vec<NonPacked>` to implement `AutoStorableHint<ManualKey<453539032>>`
+  |
+9 | #[ink::storage_item]
+  | ^^^^^^^^^^^^^^^^^^^^ the trait `Encode` is not implemented for `[NonPacked]`, which is required by `Vec<NonPacked>: AutoStorableHint<ManualKey<453539032>>`
+  |
+  = help: the following other types implement trait `Encode`:
+            [T; N]
+            [T]
+  = note: required for `Vec<NonPacked>` to implement `Encode`
   = note: required for `Vec<NonPacked>` to implement `Packed`
   = note: required for `Vec<NonPacked>` to implement `StorableHint<()>`
   = note: required for `Vec<NonPacked>` to implement `AutoStorableHint<ManualKey<453539032>>`
