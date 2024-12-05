@@ -620,6 +620,13 @@
 <a href="#620" id="620">620</a>
 <a href="#621" id="621">621</a>
 <a href="#622" id="622">622</a>
+<a href="#623" id="623">623</a>
+<a href="#624" id="624">624</a>
+<a href="#625" id="625">625</a>
+<a href="#626" id="626">626</a>
+<a href="#627" id="627">627</a>
+<a href="#628" id="628">628</a>
+<a href="#629" id="629">629</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) Use Ink (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -1187,6 +1194,13 @@
         </span>E: Environment,
     {
         <span class="macro">unimplemented!</span>(<span class="string">"off-chain environment does not support cross-contract calls"</span>)
+    }
+
+    <span class="kw">fn </span>caller_is_root&lt;E&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; bool
+    <span class="kw">where
+        </span>E: Environment,
+    {
+        <span class="macro">unimplemented!</span>(<span class="string">"off-chain environment does not support `caller_is_root`"</span>)
     }
 
     <span class="kw">fn </span>code_hash&lt;E&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _account: <span class="kw-2">&amp;</span>E::AccountId) -&gt; <span class="prelude-ty">Result</span>&lt;E::Hash&gt;
