@@ -15,7 +15,6 @@
 #[test]
 fn ui_tests_blake2b_pass() {
     let t = trybuild::TestCases::new();
-
     t.pass("tests/ui/blake2b/pass/*.rs");
 }
 
@@ -40,7 +39,6 @@ fn ui_tests_selector_id_fail() {
 #[test]
 fn ui_tests_selector_bytes_pass() {
     let t = trybuild::TestCases::new();
-
     t.pass("tests/ui/selector_bytes/pass/*.rs");
 }
 

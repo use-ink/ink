@@ -33,7 +33,6 @@ ink_ir = { workspace = true, default-features = true }
 ink_metadata = { workspace = true }
 trybuild = { workspace = true, features = ["diff"] }
 
-
 [features]
 default = [ "std" ]
 std = [
