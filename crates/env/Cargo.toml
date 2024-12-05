@@ -32,6 +32,9 @@ static_assertions = { workspace = true }
 const_env = { workspace = true }
 xcm = { workspace = true }
 
+# We add the `sp-io` here to disable those features
+sp-io = { version = "38.0.0", default-features = false, features = ["disable_panic_handler", "disable_oom", "disable_allocator"] }
+
 [target.'cfg(target_arch = "wasm32")'.dependencies]
 rlibc = "1"
 

@@ -2784,6 +2784,7 @@ dependencies = [
  "secp256k1 0.30.0",
  "sha2 0.10.8",
  "sha3",
+ "sp-io",
  "staging-xcm",
  "static_assertions",
 ]
