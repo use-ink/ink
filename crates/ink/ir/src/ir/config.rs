@@ -127,6 +127,10 @@ impl Config {
             .unwrap_or(Environment::default().path)
     }
 
+    pub fn abi_encoding(&self) -> &AbiEncoding {
+        &self.abi_encoding
+    }
+
     /// Return set of attributes that can be passed to call builder in the codegen.
     pub fn whitelisted_attributes(&self) -> &WhitelistedAttributes {
         &self.whitelisted_attributes
@@ -159,6 +163,16 @@ pub enum AbiEncoding {
     Rlp,
     /// Support both Scale and RLP encoding for each contract entry point.
     All,
+}
+
+impl AbiEncoding {
+    pub fn is_rlp(&self) -> bool {
+        matches!(self, Self::Rlp | Self::All)
+    }
+
+    pub fn is_scale(&self) -> bool {
+        matches!(self, Self::Scale | Self::All)
+    }
 }
 
 #[cfg(test)]

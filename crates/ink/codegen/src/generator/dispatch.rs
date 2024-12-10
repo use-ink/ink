@@ -151,21 +151,27 @@ impl Dispatch<'_> {
                     )
                 };
 
-                // todo: handle traits
-                let composed_selector =  message
-                    .composed_rlp_selector();
+                let mut message_dispatchables = Vec::new();
 
-                // println!("COMPOSED SELECTOR: {:?}", composed_selector);
+                if self.contract.config().abi_encoding().is_scale() {
+                    message_dispatchables.push(MessageDispatchable { message, id });
+                }
 
-                let rlp_selector = composed_selector
-                    .into_be_u32()
-                    .hex_padded_suffixed();
-                // todo: only enable if rlp encoding enabled
-                let rlp_id = quote_spanned!(span=>
-                    #rlp_selector
-                );
+                if self.contract.config().abi_encoding().is_rlp() {
+                    // todo: handle traits
+                    let composed_selector =  message
+                        .composed_rlp_selector();
 
-                [ MessageDispatchable { message, id }, MessageDispatchable { message, id: rlp_id } ]
+                    let rlp_selector = composed_selector
+                        .into_be_u32()
+                        .hex_padded_suffixed();
+                    let rlp_id = quote_spanned!(span=>
+                        #rlp_selector
+                    );
+                    message_dispatchables.push(MessageDispatchable { message, id: rlp_id });
+                }
+
+                message_dispatchables
             })
             .collect::<Vec<_>>()
     }
