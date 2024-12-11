@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use core::fmt::Display;
 use ink_env::DecodeDispatch;
 
 /// Stores various information of the respective dispatchable ink! message.
