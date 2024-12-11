@@ -296,7 +296,7 @@ impl EnvBackend for EnvInstance {
     where
         R: alloy_rlp::Encodable,
     {
-        let mut scope = super::EncodeScope::from(&mut self.buffer[..]);
+        let mut scope = EncodeScope::from(&mut self.buffer[..]);
         return_value.encode(&mut scope);
         let len = scope.len();
         ext::return_value(flags, &self.buffer[..][..len]);
