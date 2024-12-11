@@ -276,37 +276,10 @@ impl Dispatch<'_> {
                 let input_tuple_type = generator::input_types_tuple(message.inputs());
                 let input_tuple_bindings = generator::input_bindings_tuple(message.inputs());
 
-                // todo: refactor and figure out if there is a bug with the message.inputs() iterator
-                let input_types_len = generator::input_types(message.inputs()).len();
-                // println!("LEN {}, input_types_len {}, {}", message.inputs().len(), input_types_len, input_tuple_type.to_string());
-                let rlp_decode = if input_types_len == 0 {
-                    quote! {
-                        |_input| {
-                            ::core::result::Result::Ok(()) // todo: should we decode `RlpUnit` instead, e.g. what if some data...
-                        };
-                    }
-                } else {
-                    quote! {
-                        |input| {
-                            <Self::Input as ::ink::rlp::Decodable>::decode(input)
-                                .map_err(|_| ::ink::env::DispatchError::InvalidParameters)
-                        };
-                    }
-                };
-                let rlp_return_value = message
-                    .output()
-                    .map(|_| quote! {
-                        ::ink::env::return_value_rlp::<Self::Output>(flags, &output)
-                    })
-                    .unwrap_or_else(|| quote! {
-                        ::ink::env::return_value_rlp::<::ink::reflect::RlpUnit>(
-                            flags,
-                            &::ink::reflect::RlpUnit {}
-                        )
-                    });
+                let mut message_infos = Vec::new();
 
-                let scale_message_info =
-                    quote_spanned!(message_span=>
+                if self.contract.config().abi_encoding().is_scale() {
+                    message_infos.push(quote_spanned!(message_span=>
                         #( #cfg_attrs )*
                         impl ::ink::reflect::DispatchableMessageInfo<#selector_id> for #storage_ident {
                             type Input = #input_tuple_type;
@@ -337,9 +310,40 @@ impl Dispatch<'_> {
                             const LABEL: &'static ::core::primitive::str = ::core::stringify!(#message_ident);
                             const ENCODING: ::ink::reflect::Encoding = ::ink::reflect::Encoding::Scale;
                         }
-                    );
-                let rlp_message_info =
-                    quote_spanned!(message_span=>
+                    ))
+                }
+
+                if self.contract.config().abi_encoding().is_rlp() {
+                    // todo: refactor and figure out if there is a bug with the message.inputs() iterator
+                    let input_types_len = generator::input_types(message.inputs()).len();
+                    // println!("LEN {}, input_types_len {}, {}", message.inputs().len(), input_types_len, input_tuple_type.to_string());
+                    let rlp_decode = if input_types_len == 0 {
+                        quote! {
+                        |_input| {
+                            ::core::result::Result::Ok(()) // todo: should we decode `RlpUnit` instead, e.g. what if some data...
+                        };
+                    }
+                    } else {
+                        quote! {
+                        |input| {
+                            <Self::Input as ::ink::rlp::Decodable>::decode(input)
+                                .map_err(|_| ::ink::env::DispatchError::InvalidParameters)
+                        };
+                    }
+                    };
+                    let rlp_return_value = message
+                        .output()
+                        .map(|_| quote! {
+                        ::ink::env::return_value_rlp::<Self::Output>(flags, &output)
+                    })
+                        .unwrap_or_else(|| quote! {
+                        ::ink::env::return_value_rlp::<::ink::reflect::RlpUnit>(
+                            flags,
+                            &::ink::reflect::RlpUnit {}
+                        )
+                    });
+
+                    message_infos.push(quote_spanned!(message_span=>
                         #( #cfg_attrs )*
                         impl ::ink::reflect::DispatchableMessageInfo<#rlp_selector_id> for #storage_ident {
                             type Input = #input_tuple_type;
@@ -362,8 +366,9 @@ impl Dispatch<'_> {
                             const LABEL: &'static ::core::primitive::str = ::core::stringify!(#message_ident);
                             const ENCODING: ::ink::reflect::Encoding = ::ink::reflect::Encoding::Rlp;
                         }
-                    );
-                [scale_message_info, rlp_message_info]
+                    ))
+                }
+                message_infos
             });
         let trait_message_infos = self
             .contract
