@@ -12,9 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use proc_macro2::TokenStream as TokenStream2;
-use syn::spanned::Spanned as _;
-
 /// Computes the KECCAK 256-bit hash for the given input and stores it in output.
 pub fn keccak_256(input: &[u8], output: &mut [u8; 32]) {
     use sha3::{
