@@ -177,3 +177,12 @@ pub fn extract_cfg_attributes(
         .map(|a| quote::quote_spanned!(span=> #a ))
         .collect()
 }
+
+/// Extracts `cfg` attributes from the given set of attributes
+pub fn extract_cfg_syn_attributes(attrs: &[syn::Attribute]) -> Vec<syn::Attribute> {
+    attrs
+        .iter()
+        .filter(|a| a.path().is_ident(super::CFG_IDENT))
+        .cloned()
+        .collect()
+}

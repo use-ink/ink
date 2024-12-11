@@ -13,10 +13,12 @@
 // limitations under the License.
 
 mod call;
+#[cfg(not(feature = "revive"))]
 mod call_v1;
 mod delegate;
 
 pub use call::Call;
+#[cfg(not(feature = "revive"))]
 pub use call_v1::CallV1;
 pub use delegate::DelegateCall;
 
@@ -316,6 +318,7 @@ where
 {
     /// Prepares the `CallBuilder` for a cross-contract [`CallV1`], calling into the
     /// original `call` host function.
+    #[cfg(not(feature = "revive"))]
     pub fn call_v1(
         self,
         callee: E::AccountId,

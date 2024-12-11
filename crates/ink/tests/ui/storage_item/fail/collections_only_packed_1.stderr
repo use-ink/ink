@@ -222,6 +222,7 @@ error[E0277]: the trait bound `NonPacked: WrapperTypeDecode` is not satisfied
              Arc<T>
              Box<T>
              Rc<T>
+             sp_core::Bytes
    = note: required for `NonPacked` to implement `ink::parity_scale_codec::Decode`
    = note: required for `NonPacked` to implement `Packed`
    = note: required for `Vec<NonPacked>` to implement `StorageLayout`
@@ -241,7 +242,7 @@ error[E0277]: the trait bound `NonPacked: WrapperTypeEncode` is not satisfied
              Rc<T>
              String
              Vec<T>
-             ink::parity_scale_codec::Ref<'a, T, U>
+           and $N others
    = note: required for `NonPacked` to implement `Encode`
    = note: required for `NonPacked` to implement `Packed`
    = note: required for `Vec<NonPacked>` to implement `StorageLayout`

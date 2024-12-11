@@ -39,13 +39,17 @@ pub mod utils {
     };
 }
 
+#[cfg(not(feature = "revive"))]
+pub use self::{
+    call_builder::CallV1,
+    create_builder::LimitParamsV1
+};
 pub use self::{
     call_builder::{
         build_call,
         Call,
         CallBuilder,
         CallParams,
-        CallV1,
         DelegateCall,
     },
     create_builder::{
@@ -55,7 +59,6 @@ pub use self::{
         CreateBuilder,
         CreateParams,
         FromAccountId,
-        LimitParamsV1,
         LimitParamsV2,
     },
     execution::{

@@ -12,10 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use super::{
-    EnvInstance,
-    ScopedBuffer,
-};
 use crate::{
     call::{
         Call,
@@ -31,6 +27,13 @@ use crate::{
     dispatch::{
         DecodeDispatch,
         DispatchError,
+    },
+    engine::{
+        on_chain::{
+            EncodeScope,
+            ScopedBuffer,
+        },
+        EnvInstance,
     },
     event::{
         Event,
@@ -283,7 +286,7 @@ impl EnvBackend for EnvInstance {
     where
         R: scale::Encode,
     {
-        let mut scope = super::EncodeScope::from(&mut self.buffer[..]);
+        let mut scope = EncodeScope::from(&mut self.buffer[..]);
         return_value.encode_to(&mut scope);
         let len = scope.len();
         ext::return_value(flags, &self.buffer[..][..len]);
@@ -690,6 +693,20 @@ impl TypedEnvBackend for EnvInstance {
         E: Environment,
     {
         ext::caller_is_origin()
+    }
+
+    fn caller_is_root<E>(&mut self) -> bool
+    where
+        E: Environment,
+    {
+        // `ext::caller_is_root()` currently returns `u32`.
+        // See https://github.com/paritytech/polkadot-sdk/issues/6767 for more details.
+        let ret = ext::caller_is_root();
+        match ret {
+            0u32 => false,
+            1u32 => true,
+            _ => panic!("Invalid value for bool conversion: {}", ret),
+        }
     }
 
     fn code_hash<E>(&mut self, account_id: &E::AccountId) -> Result<E::Hash>

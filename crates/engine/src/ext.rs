@@ -31,7 +31,10 @@ use crate::{
         BlockTimestamp,
     },
 };
+#[cfg(not(feature = "revive"))]
 pub use pallet_contracts_uapi::ReturnErrorCode as Error;
+#[cfg(feature = "revive")]
+pub use pallet_revive_uapi::ReturnErrorCode as Error;
 use scale::Encode;
 use std::panic::panic_any;
 
@@ -320,6 +323,7 @@ impl Engine {
         set_output(output, &block_timestamp[..])
     }
 
+    #[cfg(not(feature = "revive"))]
     pub fn gas_left(&self, _output: &mut &mut [u8]) {
         unimplemented!("off-chain environment does not yet support `gas_left`");
     }
@@ -411,7 +415,7 @@ impl Engine {
             signature[64]
         };
 
-        let recovery_id = RecoveryId::from_i32(recovery_byte as i32)
+        let recovery_id = RecoveryId::try_from(recovery_byte as i32)
             .unwrap_or_else(|error| panic!("Unable to parse the recovery id: {error}"));
 
         let message = Message::from_digest_slice(message_hash).unwrap_or_else(|error| {

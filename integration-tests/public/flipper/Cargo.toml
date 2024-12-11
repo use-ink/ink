@@ -1,6 +1,6 @@
 [package]
 name = "flipper"
-version = "5.0.0"
+version = "5.1.0"
 authors = ["Use Ink <ink@use.ink>"]
 edition = "2021"
 publish = false
@@ -22,3 +22,4 @@ std = [
 ]
 ink-as-dependency = []
 e2e-tests = []
+revive = ["ink/revive", "ink_e2e/revive"]

@@ -47,6 +47,10 @@ pub use scale;
 pub use scale_info;
 pub use xcm;
 
+pub extern crate polkavm_derive;
+#[doc(hidden)]
+pub use polkavm_derive::*;
+
 pub mod storage {
     pub mod traits {
         pub use ink_macro::{

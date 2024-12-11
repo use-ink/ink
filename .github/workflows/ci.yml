@@ -26,7 +26,7 @@ on:
       - 'FILE_HEADER'
 
 env:
-  IMAGE:                           paritytech/ci-unified:bullseye-1.81.0
+  IMAGE:                           useink/ci
   CARGO_TARGET_DIR:                /ci-cache/${{ github.repository }}/targets/${{ github.ref_name }}/${{ github.job }}
   CARGO_INCREMENTAL:               0
   PURELY_STD_CRATES:               ink/codegen metadata engine e2e e2e/macro ink/ir
@@ -232,7 +232,7 @@ jobs:
           done
 
       - name: Check RISCV
-        if: ${{ matrix.type == 'RISCV' }}
+        if: ${{ matrix.type == 'RISCV-disabled' }}
         env:
           RUSTC_BOOTSTRAP: 1
           RUSTUP_TOOLCHAIN: rve-nightly
@@ -505,7 +505,7 @@ jobs:
         env:
           # Fix linking of `linkme`: https://github.com/dtolnay/linkme/issues/49
           RUSTFLAGS:                     -Clink-arg=-z -Clink-arg=nostart-stop-gc
-        uses: docker://paritytech/ci-unified:bullseye-1.81.0
+        uses: docker://useink/ci
         with:
           # run all tests with --all-features, which will run the e2e-tests feature if present
           args: /bin/bash -c "scripts/for_all_contracts_exec.sh --path integration-tests --ignore public/static-buffer --partition ${{ matrix.partition }}/6 -- cargo test \
@@ -611,7 +611,7 @@ jobs:
           fi
 
       - name: Build Contract RISCV Examples
-        if: ${{ matrix.type == 'RISCV' }}
+        if: ${{ matrix.type == 'RISCV-disabled' }}
         env:
           RUSTC_BOOTSTRAP: 1
           RUSTUP_TOOLCHAIN: rve-nightly

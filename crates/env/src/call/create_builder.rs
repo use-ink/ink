@@ -337,6 +337,7 @@ where
     }
 }
 
+#[cfg(not(feature = "revive"))]
 impl<E, ContractRef, Args, Salt, R>
     CreateParams<E, ContractRef, LimitParamsV1, Args, Salt, R>
 where
@@ -920,6 +921,7 @@ where
     }
 }
 
+#[cfg(not(feature = "revive"))]
 impl<E, ContractRef, Args, Salt, RetType>
     CreateBuilder<
         E,

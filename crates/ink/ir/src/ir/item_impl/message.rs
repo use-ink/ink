@@ -23,7 +23,10 @@ use crate::ir::{
     self,
     attrs::SelectorOrWildcard,
     utils,
-    utils::extract_cfg_attributes,
+    utils::{
+        extract_cfg_attributes,
+        extract_cfg_syn_attributes,
+    },
 };
 use proc_macro2::{
     Ident,
@@ -281,6 +284,11 @@ impl Message {
     /// Returns a list of `cfg` attributes if any.
     pub fn get_cfg_attrs(&self, span: Span) -> Vec<TokenStream> {
         extract_cfg_attributes(self.attrs(), span)
+    }
+
+    /// Returns a list of `cfg` attributes as `syn::Attribute` if any.
+    pub fn get_cfg_syn_attrs(&self) -> Vec<syn::Attribute> {
+        extract_cfg_syn_attributes(self.attrs())
     }
 
     /// Returns the `self` receiver of the ink! message.

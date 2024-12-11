@@ -14,6 +14,11 @@
 
 //! The public raw interface towards the host Wasm engine.
 
+#[cfg(not(feature = "revive"))]
+use crate::call::{
+    CallV1,
+    LimitParamsV1,
+};
 use crate::{
     backend::{
         EnvBackend,
@@ -22,12 +27,10 @@ use crate::{
     call::{
         Call,
         CallParams,
-        CallV1,
         ConstructorReturnType,
         CreateParams,
         DelegateCall,
         FromAccountId,
-        LimitParamsV1,
         LimitParamsV2,
     },
     dispatch::DecodeDispatch,
@@ -46,7 +49,10 @@ use crate::{
     Result,
 };
 use ink_storage_traits::Storable;
+#[cfg(not(feature = "revive"))]
 use pallet_contracts_uapi::ReturnFlags;
+#[cfg(feature = "revive")]
+use pallet_revive_uapi::ReturnFlags;
 
 /// Returns the address of the caller of the executed contract.
 ///
@@ -95,6 +101,7 @@ where
 /// # Errors
 ///
 /// If the returned value cannot be properly decoded.
+#[cfg(not(feature = "revive"))]
 pub fn gas_left<E>() -> Gas
 where
     E: Environment,
@@ -281,6 +288,7 @@ where
 /// - If the called contract execution has trapped.
 /// - If the called contract ran out of gas upon execution.
 /// - If the returned value failed to decode properly.
+#[cfg(not(feature = "revive"))]
 pub fn invoke_contract_v1<E, Args, R>(
     params: &CallParams<E, CallV1<E>, Args, R>,
 ) -> Result<ink_primitives::MessageResult<R>>
@@ -408,6 +416,7 @@ where
 /// - If the instantiation process runs out of gas.
 /// - If given insufficient endowment.
 /// - If the returned account ID failed to decode properly.
+#[cfg(not(feature = "revive"))]
 pub fn instantiate_contract_v1<E, ContractRef, Args, Salt, R>(
     params: &CreateParams<E, ContractRef, LimitParamsV1, Args, Salt, R>,
 ) -> Result<
@@ -742,6 +751,26 @@ where
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         TypedEnvBackend::caller_is_origin::<E>(instance)
+    })
+}
+
+/// Checks whether the caller of the current contract is root.
+///
+/// Note that only the origin of the call stack can be root. Hence this function returning
+/// `true` implies that the contract is being called by the origin.
+///
+/// A return value of `true` indicates that this contract is being called by a root
+/// origin, and `false` indicates that the caller is a signed origin.
+///
+/// # Errors
+///
+/// If the returned value cannot be properly decoded.
+pub fn caller_is_root<E>() -> bool
+where
+    E: Environment,
+{
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        TypedEnvBackend::caller_is_root::<E>(instance)
     })
 }
 

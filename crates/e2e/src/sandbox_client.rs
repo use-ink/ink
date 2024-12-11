@@ -67,7 +67,7 @@ use std::{
 };
 use subxt::{
     dynamic::Value,
-    tx::TxPayload,
+    tx::Payload,
 };
 use subxt_signer::sr25519::Keypair;
 
@@ -149,7 +149,7 @@ where
             .mint_into(&pair.public().0.into(), amount)
             .expect("Failed to mint tokens");
 
-        Keypair::from_seed(seed).expect("Failed to create keypair")
+        Keypair::from_secret_key(seed).expect("Failed to create keypair")
     }
 
     async fn free_balance(
@@ -551,7 +551,7 @@ pub mod preset {
 
             fn take_snapshot(&mut self) -> Snapshot {
                 EXT_PARAA.with(|v| {
-                    let v = v.borrow();
+                    let mut v = v.borrow_mut();
                     let mut backend = v.as_backend().clone();
                     let raw_key_values = backend
                         .backend_storage_mut()

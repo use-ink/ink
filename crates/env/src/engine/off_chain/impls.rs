@@ -13,16 +13,19 @@
 // limitations under the License.
 
 use super::EnvInstance;
+#[cfg(not(feature = "revive"))]
+use crate::call::{
+    CallV1,
+    LimitParamsV1,
+};
 use crate::{
     call::{
         Call,
         CallParams,
-        CallV1,
         ConstructorReturnType,
         CreateParams,
         DelegateCall,
         FromAccountId,
-        LimitParamsV1,
         LimitParamsV2,
     },
     event::{
@@ -50,7 +53,13 @@ use ink_storage_traits::{
     decode_all,
     Storable,
 };
+#[cfg(not(feature = "revive"))]
 use pallet_contracts_uapi::{
+    ReturnErrorCode,
+    ReturnFlags,
+};
+#[cfg(feature = "revive")]
+use pallet_revive_uapi::{
     ReturnErrorCode,
     ReturnFlags,
 };
@@ -293,7 +302,7 @@ impl EnvBackend for EnvInstance {
         } else {
             signature[64]
         };
-        let recovery_id = RecoveryId::from_i32(recovery_byte as i32)
+        let recovery_id = RecoveryId::try_from(recovery_byte as i32)
             .unwrap_or_else(|error| panic!("Unable to parse the recovery id: {error}"));
         let message = Message::from_digest_slice(message_hash).unwrap_or_else(|error| {
             panic!("Unable to create the message from hash: {error}")
@@ -395,6 +404,7 @@ impl TypedEnvBackend for EnvInstance {
             })
     }
 
+    #[cfg(not(feature = "revive"))]
     fn gas_left<E: Environment>(&mut self) -> u64 {
         self.get_property::<u64>(Engine::gas_left)
             .unwrap_or_else(|error| {
@@ -448,6 +458,7 @@ impl TypedEnvBackend for EnvInstance {
         self.engine.deposit_event(&enc_topics[..], enc_data);
     }
 
+    #[cfg(not(feature = "revive"))]
     fn invoke_contract_v1<E, Args, R>(
         &mut self,
         _params: &CallParams<E, CallV1<E>, Args, R>,
@@ -512,6 +523,7 @@ impl TypedEnvBackend for EnvInstance {
         unimplemented!("off-chain environment does not support contract instantiation")
     }
 
+    #[cfg(not(feature = "revive"))]
     fn instantiate_contract_v1<E, ContractRef, Args, Salt, R>(
         &mut self,
         params: &CreateParams<E, ContractRef, LimitParamsV1, Args, Salt, R>,
@@ -574,6 +586,13 @@ impl TypedEnvBackend for EnvInstance {
         E: Environment,
     {
         unimplemented!("off-chain environment does not support cross-contract calls")
+    }
+
+    fn caller_is_root<E>(&mut self) -> bool
+    where
+        E: Environment,
+    {
+        unimplemented!("off-chain environment does not support `caller_is_root`")
     }
 
     fn code_hash<E>(&mut self, _account: &E::AccountId) -> Result<E::Hash>
