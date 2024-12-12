@@ -41,6 +41,8 @@ use crate::{
         Sha2x256,
     },
     Clear,
+    DecodeDispatch,
+    DispatchError,
     EnvBackend,
     Environment,
     Result,
@@ -236,9 +238,9 @@ impl EnvBackend for EnvInstance {
         self.engine.clear_storage(&key.encode())
     }
 
-    fn decode_input<T>(&mut self) -> Result<T>
+    fn decode_input<T>(&mut self) -> core::result::Result<T, DispatchError>
     where
-        T: scale::Decode,
+        T: DecodeDispatch,
     {
         unimplemented!("the off-chain env does not implement `input`")
     }
@@ -248,6 +250,13 @@ impl EnvBackend for EnvInstance {
         R: scale::Encode,
     {
         unimplemented!("the off-chain env does not implement `return_value`")
+    }
+
+    fn return_value_rlp<R>(&mut self, _flags: ReturnFlags, _return_value: &R) -> !
+    where
+        R: alloy_rlp::Encodable,
+    {
+        unimplemented!("the off-chain env does not implement `return_value_rlp`")
     }
 
     fn debug_message(&mut self, message: &str) {

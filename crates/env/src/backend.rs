@@ -32,6 +32,8 @@ use crate::{
         CryptoHash,
         HashOutput,
     },
+    DecodeDispatch,
+    DispatchError,
     Environment,
     Result,
 };
@@ -108,9 +110,9 @@ pub trait EnvBackend {
     /// # Errors
     ///
     /// If the given `T` cannot be properly decoded from the expected input.
-    fn decode_input<T>(&mut self) -> Result<T>
+    fn decode_input<T>(&mut self) -> core::result::Result<T, DispatchError>
     where
-        T: scale::Decode;
+        T: DecodeDispatch;
 
     /// Returns the value back to the caller of the executed contract.
     ///
@@ -124,6 +126,11 @@ pub trait EnvBackend {
     fn return_value<R>(&mut self, flags: ReturnFlags, return_value: &R) -> !
     where
         R: scale::Encode;
+
+    /// todo: comment
+    fn return_value_rlp<R>(&mut self, flags: ReturnFlags, return_value: &R) -> !
+    where
+        R: alloy_rlp::Encodable;
 
     /// Emit a custom debug message.
     ///

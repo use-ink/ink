@@ -24,6 +24,7 @@ ink_prelude = { workspace = true }
 ink_macro = { workspace = true }
 pallet-contracts-uapi = { workspace = true }
 pallet-revive-uapi = { workspace = true }
+alloy-rlp = { workspace = true }
 scale = { workspace = true }
 scale-info = { workspace = true, default-features = false, features = ["derive"], optional = true }
 derive_more = { workspace = true, features = ["from"] }
@@ -42,6 +43,7 @@ trybuild = { workspace = true, features = ["diff"] }
 [features]
 default = [ "std" ]
 std = [
+	"alloy-rlp/std",
 	"ink_env/std",
 	"ink_macro/std",
 	"ink_metadata/std",
