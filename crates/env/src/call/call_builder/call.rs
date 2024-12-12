@@ -28,9 +28,9 @@ use crate::{
     Error,
     Gas,
 };
+use ink_primitives::H160;
 use num_traits::Zero;
 use pallet_revive_uapi::CallFlags;
-use ink_primitives::H160;
 
 /// The default call type for cross-contract calls, for calling into the latest `call_v2`
 /// host function. This adds the additional weight limit parameter `proof_size_limit` as

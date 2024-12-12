@@ -28,7 +28,10 @@ use crate::{
     Error,
 };
 use core::marker::PhantomData;
-use ink_primitives::{H160, H256};
+use ink_primitives::{
+    H160,
+    H256,
+};
 
 pub mod state {
     //! Type states that tell what state of a instantiation argument has not
@@ -47,8 +50,7 @@ pub mod state {
 ///
 /// But it is possible to use `From<AccountId> for T` with [`crate::AccountIdGuard`]
 /// bound.
-pub trait FromAddr
-{
+pub trait FromAddr {
     /// Creates the contract instance from the account ID of the already instantiated
     /// contract.
     fn from_addr(addr: H160) -> Self;
@@ -470,8 +472,7 @@ where
     pub fn code_hash(
         self,
         code_hash: H256,
-    ) -> CreateBuilder<E, ContractRef, Limits, Endowment, Args, Salt, RetType>
-    {
+    ) -> CreateBuilder<E, ContractRef, Limits, Endowment, Args, Salt, RetType> {
         CreateBuilder {
             code_hash,
             limits: self.limits,
@@ -485,15 +486,7 @@ where
 }
 
 impl<E, ContractRef, Endowment, Args, Salt, RetType>
-    CreateBuilder<
-        E,
-        ContractRef,
-        Set<LimitParamsV2<E>>,
-        Endowment,
-        Args,
-        Salt,
-        RetType,
-    >
+    CreateBuilder<E, ContractRef, Set<LimitParamsV2<E>>, Endowment, Args, Salt, RetType>
 where
     E: Environment,
 {
@@ -536,15 +529,7 @@ where
 }
 
 impl<E, ContractRef, Limits, Args, Salt, RetType>
-    CreateBuilder<
-        E,
-        ContractRef,
-        Limits,
-        Unset<E::Balance>,
-        Args,
-        Salt,
-        RetType,
-    >
+    CreateBuilder<E, ContractRef, Limits, Unset<E::Balance>, Args, Salt, RetType>
 where
     E: Environment,
 {
@@ -553,15 +538,7 @@ where
     pub fn endowment(
         self,
         endowment: E::Balance,
-    ) -> CreateBuilder<
-        E,
-        ContractRef,
-        Limits,
-        Set<E::Balance>,
-        Args,
-        Salt,
-        RetType,
-    > {
+    ) -> CreateBuilder<E, ContractRef, Limits, Set<E::Balance>, Args, Salt, RetType> {
         CreateBuilder {
             code_hash: self.code_hash,
             limits: self.limits,
@@ -614,15 +591,7 @@ where
 }
 
 impl<E, ContractRef, Limits, Endowment, Args, RetType>
-    CreateBuilder<
-        E,
-        ContractRef,
-        Limits,
-        Endowment,
-        Args,
-        Unset<state::Salt>,
-        RetType,
-    >
+    CreateBuilder<E, ContractRef, Limits, Endowment, Args, Unset<state::Salt>, RetType>
 where
     E: Environment,
 {
@@ -631,15 +600,7 @@ where
     pub fn salt_bytes<Salt>(
         self,
         salt: Salt,
-    ) -> CreateBuilder<
-        E,
-        ContractRef,
-        Limits,
-        Endowment,
-        Args,
-        Set<Salt>,
-        RetType,
-    >
+    ) -> CreateBuilder<E, ContractRef, Limits, Endowment, Args, Set<Salt>, RetType>
     where
         Salt: AsRef<[u8]>,
     {
@@ -656,15 +617,7 @@ where
 }
 
 impl<E, ContractRef, Limits, Endowment, Args, Salt>
-    CreateBuilder<
-        E,
-        ContractRef,
-        Limits,
-        Endowment,
-        Args,
-        Salt,
-        Unset<ReturnType<()>>,
-    >
+    CreateBuilder<E, ContractRef, Limits, Endowment, Args, Salt, Unset<ReturnType<()>>>
 where
     E: Environment,
 {
@@ -680,15 +633,7 @@ where
     #[inline]
     pub fn returns<R>(
         self,
-    ) -> CreateBuilder<
-        E,
-        ContractRef,
-        Limits,
-        Endowment,
-        Args,
-        Salt,
-        Set<ReturnType<R>>,
-    >
+    ) -> CreateBuilder<E, ContractRef, Limits, Endowment, Args, Salt, Set<ReturnType<R>>>
     where
         ContractRef: FromAddr,
         R: ConstructorReturnType<ContractRef>,

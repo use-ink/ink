@@ -12,10 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::types::{Balance, H160};
+use crate::types::{
+    Balance,
+    H160,
+};
+use ink_primitives::AccountId;
 use scale::KeyedVec;
 use std::collections::HashMap;
-use ink_primitives::AccountId;
 
 const BALANCE_OF: &[u8] = b"balance:";
 const STORAGE_OF: &[u8] = b"contract-storage:";
@@ -30,7 +33,11 @@ pub fn balance_of_key(who: &H160) -> [u8; 32] {
 
 /// Returns the database key under which to find the storage for contract `who`.
 pub fn storage_of_contract_key(who: &H160, key: &[u8]) -> [u8; 32] {
-    let keyed = who.as_bytes().to_vec().to_keyed_vec(key).to_keyed_vec(STORAGE_OF);
+    let keyed = who
+        .as_bytes()
+        .to_vec()
+        .to_keyed_vec(key)
+        .to_keyed_vec(STORAGE_OF);
     let mut hashed_key: [u8; 32] = [0; 32];
     super::hashing::blake2b_256(&keyed[..], &mut hashed_key);
     hashed_key
@@ -65,11 +72,7 @@ impl Database {
     }
 
     /// Returns a reference to the value corresponding to the key.
-    pub fn get_from_contract_storage(
-        &self,
-        addr: &H160,
-        key: &[u8],
-    ) -> Option<&Vec<u8>> {
+    pub fn get_from_contract_storage(&self, addr: &H160, key: &[u8]) -> Option<&Vec<u8>> {
         let hashed_key = storage_of_contract_key(addr, key);
         self.hmap.get(hashed_key.as_slice())
     }
@@ -142,8 +145,8 @@ impl Database {
 
 #[cfg(test)]
 mod tests {
-    use crate::types::H160;
     use super::Database;
+    use crate::types::H160;
 
     #[test]
     fn basic_operations() {
@@ -184,32 +187,20 @@ mod tests {
             storage.insert_into_contract_storage(&addr, &key1, val1.clone()),
             None
         );
-        assert_eq!(
-            storage.get_from_contract_storage(&addr, &key1),
-            Some(&val1)
-        );
+        assert_eq!(storage.get_from_contract_storage(&addr, &key1), Some(&val1));
         assert_eq!(
             storage.insert_into_contract_storage(&addr, &key1, val2.clone()),
             Some(val1)
         );
-        assert_eq!(
-            storage.get_from_contract_storage(&addr, &key1),
-            Some(&val2)
-        );
+        assert_eq!(storage.get_from_contract_storage(&addr, &key1), Some(&val2));
         assert_eq!(
             storage.insert_into_contract_storage(&addr, &key2, val3.clone()),
             None
         );
         assert_eq!(storage.len(), 2);
-        assert_eq!(
-            storage.remove_contract_storage(&addr, &key2),
-            Some(val3)
-        );
+        assert_eq!(storage.remove_contract_storage(&addr, &key2), Some(val3));
         assert_eq!(storage.len(), 1);
-        assert_eq!(
-            storage.remove_contract_storage(&addr, &key1),
-            Some(val2)
-        );
+        assert_eq!(storage.remove_contract_storage(&addr, &key1), Some(val2));
         assert_eq!(storage.len(), 0);
     }
 }

@@ -14,20 +14,28 @@
 
 use crate::ChainExtensionInstance;
 use core::marker::PhantomData;
-use ink_env::{call::{
-    Call,
-    CallParams,
-    ConstructorReturnType,
-    CreateParams,
-    DelegateCall,
-    FromAddr,
-    LimitParamsV2,
-}, hash::{
-    CryptoHash,
-    HashOutput,
-}, Environment, Result};
+use ink_env::{
+    call::{
+        Call,
+        CallParams,
+        ConstructorReturnType,
+        CreateParams,
+        DelegateCall,
+        FromAddr,
+        LimitParamsV2,
+    },
+    hash::{
+        CryptoHash,
+        HashOutput,
+    },
+    Environment,
+    Result,
+};
+use ink_primitives::{
+    H160,
+    H256,
+};
 use pallet_revive_uapi::ReturnErrorCode;
-use ink_primitives::{H160, H256};
 
 /// The API behind the `self.env()` and `Self::env()` syntax in ink!.
 ///
@@ -101,7 +109,7 @@ where
     ///
     /// For more details visit: [`ink_env::caller`]
     pub fn caller(self) -> E::AccountId {
-        //ink_env::caller::<E>()
+        // ink_env::caller::<E>()
         todo!()
     }
 
@@ -630,7 +638,7 @@ where
     /// /// Terminates with the caller as beneficiary.
     /// #[ink(message)]
     /// pub fn terminate_me(&mut self) {
-    /// // todo check this example. if caller returns origin it's no longer possible.
+    ///     // todo check this example. if caller returns origin it's no longer possible.
     ///     self.env().terminate_contract(self.env().caller());
     /// }
     /// #
@@ -645,43 +653,41 @@ where
         ink_env::terminate_contract(beneficiary)
     }
 
-    /*
-    /// Transfers value from the contract to the destination account ID.
-    ///
-    /// # Example
-    ///
-    /// ```
-    /// # #[ink::contract]
-    /// # pub mod my_contract {
-    /// #     #[ink(storage)]
-    /// #     pub struct MyContract { }
-    /// #
-    /// #     impl MyContract {
-    /// #         #[ink(constructor)]
-    /// #         pub fn new() -> Self {
-    /// #             Self {}
-    /// #         }
-    /// #
-    /// /// Transfers the token amount ten to the caller.
-    /// #[ink(message)]
-    /// pub fn give_me_ten(&mut self) {
-    ///     let value: Balance = 10;
-    ///     self.env()
-    ///         .transfer(self.env().caller(), value)
-    ///         .unwrap_or_else(|err| panic!("transfer failed: {:?}", err));
-    /// }
-    /// #
-    /// #     }
-    /// # }
-    /// ```
-    ///
-    /// # Note
-    ///
-    /// For more details visit: [`ink_env::transfer`]
-    pub fn transfer(self, destination: E::AccountId, value: E::Balance) -> Result<()> {
-        ink_env::transfer::<E>(destination, value)
-    }
-    */
+    // Transfers value from the contract to the destination account ID.
+    //
+    // # Example
+    //
+    // ```
+    // # #[ink::contract]
+    // # pub mod my_contract {
+    // #     #[ink(storage)]
+    // #     pub struct MyContract { }
+    // #
+    // #     impl MyContract {
+    // #         #[ink(constructor)]
+    // #         pub fn new() -> Self {
+    // #             Self {}
+    // #         }
+    // #
+    // /// Transfers the token amount ten to the caller.
+    // #[ink(message)]
+    // pub fn give_me_ten(&mut self) {
+    //     let value: Balance = 10;
+    //     self.env()
+    //         .transfer(self.env().caller(), value)
+    //         .unwrap_or_else(|err| panic!("transfer failed: {:?}", err));
+    // }
+    // #
+    // #     }
+    // # }
+    // ```
+    //
+    // # Note
+    //
+    // For more details visit: [`ink_env::transfer`]
+    // pub fn transfer(self, destination: E::AccountId, value: E::Balance) -> Result<()> {
+    // ink_env::transfer::<E>(destination, value)
+    // }
 
     /// Computes the hash of the given bytes using the cryptographic hash `H`.
     ///

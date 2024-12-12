@@ -12,7 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use super::types::{H160, Balance, BlockNumber, BlockTimestamp};
+use super::types::{
+    Balance,
+    BlockNumber,
+    BlockTimestamp,
+    H160,
+};
 
 /// The context of a contract execution.
 #[cfg_attr(test, derive(Debug, PartialEq, Eq))]
@@ -51,8 +56,7 @@ impl ExecContext {
 
     /// Returns the callee.
     pub fn callee(&self) -> H160 {
-        self.callee
-            .expect("no callee has been set")
+        self.callee.expect("no callee has been set")
     }
 
     /// Resets the execution context
@@ -73,10 +77,8 @@ impl ExecContext {
 
 #[cfg(test)]
 mod tests {
-    use crate::types::{H160};
-    use super::{
-        ExecContext,
-    };
+    use super::ExecContext;
+    use crate::types::H160;
 
     #[test]
     fn basic_operations() {

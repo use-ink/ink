@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use crate::H256;
 use ink_env::{
     call::{
         utils::{
@@ -26,7 +27,6 @@ use ink_env::{
     Environment,
 };
 use scale::Encode;
-use crate::H256;
 
 /// The type returned from `ContractRef` constructors, partially initialized with the
 /// execution input arguments.

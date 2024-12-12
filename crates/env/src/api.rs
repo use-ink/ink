@@ -41,20 +41,20 @@ use crate::{
     Environment,
     Result,
 };
+use ink_primitives::{
+    H160,
+    H256,
+};
 use ink_storage_traits::Storable;
 use pallet_revive_uapi::ReturnFlags;
-use ink_primitives::{H160, H256};
 
 /// Returns the address of the caller of the executed contract.
 ///
 /// # Errors
 ///
 /// If the returned caller cannot be properly decoded.
-pub fn caller() -> H160
-{
-    <EnvInstance as OnInstance>::on_instance(|instance| {
-        TypedEnvBackend::caller(instance)
-    })
+pub fn caller() -> H160 {
+    <EnvInstance as OnInstance>::on_instance(|instance| TypedEnvBackend::caller(instance))
 }
 
 /// Returns the transferred value for the contract execution.
@@ -349,8 +349,7 @@ where
 /// This function never returns. Either the termination was successful and the
 /// execution of the destroyed contract is halted. Or it failed during the termination
 /// which is considered fatal and results in a trap and rollback.
-pub fn terminate_contract(beneficiary: H160) -> !
-{
+pub fn terminate_contract(beneficiary: H160) -> ! {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         TypedEnvBackend::terminate_contract(instance, beneficiary)
     })
@@ -581,8 +580,7 @@ pub fn sr25519_verify(
 /// # Errors
 ///
 /// If the returned value cannot be properly decoded.
-pub fn is_contract(account: &H160) -> bool
-{
+pub fn is_contract(account: &H160) -> bool {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         TypedEnvBackend::is_contract(instance, account)
     })
@@ -594,8 +592,7 @@ pub fn is_contract(account: &H160) -> bool
 ///
 /// - If no code hash was found for the specified account id.
 /// - If the returned value cannot be properly decoded.
-pub fn code_hash(addr: &H160) -> Result<H256>
-{
+pub fn code_hash(addr: &H160) -> Result<H256> {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         TypedEnvBackend::code_hash(instance, addr)
     })

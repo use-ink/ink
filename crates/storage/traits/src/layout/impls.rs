@@ -36,7 +36,12 @@ use ink_prelude::{
     string::String,
     vec::Vec,
 };
-use ink_primitives::{AccountId, Hash, Key, H160};
+use ink_primitives::{
+    AccountId,
+    Hash,
+    Key,
+    H160,
+};
 use scale_info::TypeInfo;
 
 macro_rules! impl_storage_layout_for_primitives {

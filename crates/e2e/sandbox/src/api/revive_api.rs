@@ -1,17 +1,32 @@
-use crate::{AccountIdFor, ContractExecResultFor, ContractResultInstantiate, Sandbox};
+use crate::{
+    AccountIdFor,
+    ContractExecResultFor,
+    ContractResultInstantiate,
+    Sandbox,
+    H256,
+};
 use frame_support::{
-    traits::fungible::Inspect,
+    sp_runtime::traits::Bounded,
+    traits::{
+        fungible::Inspect,
+        Time,
+    },
     weights::Weight,
 };
-use pallet_revive::{Code, CodeUploadResult, CollectEvents, DebugInfo};
-use ink_primitives::DepositLimit;
-use crate::H256;
-use scale::Decode as _;
-use std::ops::Not;
-use frame_support::sp_runtime::traits::Bounded;
-use frame_support::traits::Time;
 use frame_system::pallet_prelude::OriginFor;
-use sp_core::{H160, U256};
+use ink_primitives::DepositLimit;
+use pallet_revive::{
+    Code,
+    CodeUploadResult,
+    CollectEvents,
+    DebugInfo,
+};
+use scale::Decode as _;
+use sp_core::{
+    H160,
+    U256,
+};
+use std::ops::Not;
 
 type BalanceOf<R> =
     <<R as pallet_revive::Config>::Currency as Inspect<AccountIdFor<R>>>::Balance;
@@ -41,7 +56,7 @@ pub trait ContractAPI {
         contract_bytes: Vec<u8>,
         value: BalanceOf<Self::T>,
         data: Vec<u8>,
-        salt: Option<[u8; 32]> ,
+        salt: Option<[u8; 32]>,
         origin: OriginFor<Self::T>,
         gas_limit: Weight,
         storage_deposit_limit: DepositLimit<BalanceOf<Self::T>>,
@@ -112,9 +127,10 @@ where
     T: Sandbox,
     T::Runtime: pallet_revive::Config,
 
-    BalanceOf<T::Runtime>: Into<U256> + TryFrom<U256>  + Bounded,
+    BalanceOf<T::Runtime>: Into<U256> + TryFrom<U256> + Bounded,
     MomentOf<T::Runtime>: Into<U256>,
-    <<T as Sandbox>::Runtime as frame_system::Config>::Hash: frame_support::traits::IsType<sp_core::H256>
+    <<T as Sandbox>::Runtime as frame_system::Config>::Hash:
+        frame_support::traits::IsType<sp_core::H256>,
 {
     type T = T::Runtime;
 
@@ -123,7 +139,7 @@ where
         contract_bytes: Vec<u8>,
         value: BalanceOf<Self::T>,
         data: Vec<u8>,
-        salt: Option<[u8; 32]> ,
+        salt: Option<[u8; 32]>,
         origin: OriginFor<Self::T>,
         gas_limit: Weight,
         storage_deposit_limit: DepositLimit<BalanceOf<Self::T>>,
@@ -162,10 +178,7 @@ where
                 value,
                 gas_limit,
                 storage_deposit_limit,
-                Code::Existing(
-                    H256::decode(&mut code_hash)
-                        .expect("Invalid code hash"),
-                ),
+                Code::Existing(H256::decode(&mut code_hash).expect("Invalid code hash")),
                 data,
                 salt,
                 DebugInfo::UnsafeDebug,
@@ -179,8 +192,7 @@ where
         contract_bytes: Vec<u8>,
         origin: OriginFor<Self::T>,
         storage_deposit_limit: BalanceOf<Self::T>,
-    ) -> CodeUploadResult<BalanceOf<Self::T>>
-    {
+    ) -> CodeUploadResult<BalanceOf<Self::T>> {
         self.execute_with(|| {
             pallet_revive::Pallet::<Self::T>::bare_upload_code(
                 origin,
@@ -214,7 +226,9 @@ where
         })
     }
 }
-fn storage_deposit_limit_foo<Balance>(limit: DepositLimit<Balance>) -> pallet_revive::DepositLimit<Balance>{
+fn storage_deposit_limit_foo<Balance>(
+    limit: DepositLimit<Balance>,
+) -> pallet_revive::DepositLimit<Balance> {
     match limit {
         DepositLimit::Unchecked => pallet_revive::DepositLimit::Unchecked,
         DepositLimit::Balance(v) => pallet_revive::DepositLimit::Balance(v),
@@ -264,9 +278,9 @@ mod tests {
             &wasm_binary,
         );
 
-       let origin = DefaultSandbox::convert_account_to_origin(DefaultSandbox::default_actor());
-       let result =
-            sandbox.upload_contract(wasm_binary, origin, 0);
+        let origin =
+            DefaultSandbox::convert_account_to_origin(DefaultSandbox::default_actor());
+        let result = sandbox.upload_contract(wasm_binary, origin, 0);
 
         assert!(result.is_ok());
         assert_eq!(hash, result.unwrap().code_hash);
@@ -280,7 +294,8 @@ mod tests {
         let events_before = sandbox.events();
         assert!(events_before.is_empty());
 
-        let origin = DefaultSandbox::convert_account_to_origin(DefaultSandbox::default_actor());
+        let origin =
+            DefaultSandbox::convert_account_to_origin(DefaultSandbox::default_actor());
         let result = sandbox.deploy_contract(
             wasm_binary,
             0,
@@ -317,21 +332,19 @@ mod tests {
         let _actor = DefaultSandbox::default_actor();
         let wasm_binary = compile_module("dummy");
 
-        let origin = DefaultSandbox::convert_account_to_origin(DefaultSandbox::default_actor());
+        let origin =
+            DefaultSandbox::convert_account_to_origin(DefaultSandbox::default_actor());
         let result = sandbox.deploy_contract(
             wasm_binary,
             0,
             vec![],
-           None,
+            None,
             origin.clone(),
             DefaultSandbox::default_gas_limit(),
             STORAGE_DEPOSIT_LIMIT,
         );
 
-        let contract_address = result
-            .result
-            .expect("Contract should be deployed")
-            .addr;
+        let contract_address = result.result.expect("Contract should be deployed").addr;
 
         sandbox.reset_events();
 
@@ -360,23 +373,22 @@ mod tests {
             })
         );
 
-        /*
-        TODO Wait for `pallet_revive::exec::Origin` re-export.
-        //let account_id = DefaultSandbox::default_actor();
-        let caller = origin.clone();
-        let caller = pallet_revive::exec::Origin::from_runtime_origin(caller).unwrap();
-        //let origin = DefaultSandbox::convert_account_to_origin(DefaultSandbox::default_actor());
-        //let foo = pallet_revive::Origin::<RuntimeOf<DefaultSandbox>>::from(origin);
-        assert_eq!(
-            events[1].event,
-            RuntimeEventOf::<DefaultSandbox>::Revive(pallet_revive::Event::<
-                RuntimeOf<DefaultSandbox>,
-            >::Called {
-                contract: contract_address,
-                //caller: frame_system::EnsureSigned::try_origin(actor).unwrap(),
-                caller,
-            }),
-        );
-        */
+        // TODO Wait for `pallet_revive::exec::Origin` re-export.
+        // let account_id = DefaultSandbox::default_actor();
+        // let caller = origin.clone();
+        // let caller = pallet_revive::exec::Origin::from_runtime_origin(caller).unwrap();
+        // let origin =
+        // DefaultSandbox::convert_account_to_origin(DefaultSandbox::default_actor());
+        // let foo = pallet_revive::Origin::<RuntimeOf<DefaultSandbox>>::from(origin);
+        // assert_eq!(
+        // events[1].event,
+        // RuntimeEventOf::<DefaultSandbox>::Revive(pallet_revive::Event::<
+        // RuntimeOf<DefaultSandbox>,
+        // >::Called {
+        // contract: contract_address,
+        // caller: frame_system::EnsureSigned::try_origin(actor).unwrap(),
+        // caller,
+        // }),
+        // );
     }
 }

@@ -25,7 +25,10 @@ use crate::Error;
 
 use derive_more::From;
 use ink_engine::ext::Engine;
-use ink_primitives::{AccountId, H160};
+use ink_primitives::{
+    AccountId,
+    H160,
+};
 
 /// The off-chain environment.
 pub struct EnvInstance {

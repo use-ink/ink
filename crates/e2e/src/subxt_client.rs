@@ -12,14 +12,23 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use super::{builders::{
-    constructor_exec_input,
-    CreateBuilderPartial,
-}, events::{
-    CodeStoredEvent,
-    ContractInstantiatedEvent,
-    EventWithTopics,
-}, log_error, log_info, sr25519, ContractsApi, Keypair, H256};
+use super::{
+    builders::{
+        constructor_exec_input,
+        CreateBuilderPartial,
+    },
+    events::{
+        CodeStoredEvent,
+        ContractInstantiatedEvent,
+        EventWithTopics,
+    },
+    log_error,
+    log_info,
+    sr25519,
+    ContractsApi,
+    Keypair,
+    H256,
+};
 use crate::{
     backend::BuilderClient,
     contract_results::{
@@ -40,9 +49,12 @@ use ink_env::{
     },
     Environment,
 };
-use jsonrpsee::core::async_trait;
-use pallet_revive::{ContractResult, InstantiateReturnValue};
 use ink_primitives::DepositLimit;
+use jsonrpsee::core::async_trait;
+use pallet_revive::{
+    ContractResult,
+    InstantiateReturnValue,
+};
 use scale::{
     Decode,
     Encode,
@@ -58,6 +70,7 @@ use crate::{
         salt,
         ContractsRegistry,
     },
+    contract_results::BareInstantiationDryRunResult,
     error::DryRunError,
     events,
     ContractsBackend,
@@ -78,7 +91,6 @@ use subxt::{
     },
     tx::Signer,
 };
-use crate::contract_results::BareInstantiationDryRunResult;
 
 pub type Error = crate::error::Error<DispatchError>;
 
@@ -256,8 +268,8 @@ where
                     .as_ref()
                     .unwrap_or_else(|err| panic!("must have worked: {err:?}"))
                     .code_hash
-                    //.map(sp_core::H256::from)
-                    //.unwrap();
+                //.map(sp_core::H256::from)
+                //.unwrap();
             }
         };
 
@@ -273,15 +285,9 @@ where
     #[allow(clippy::type_complexity)]
     fn contract_result_to_result<V>(
         &self,
-        contract_result: ContractResult<
-            V,
-            E::Balance,
-            E::EventRecord,
-        >,
-    ) -> Result<
-        ContractResult<V, E::Balance, E::EventRecord>,
-        DryRunError<DispatchError>,
-    > {
+        contract_result: ContractResult<V, E::Balance, E::EventRecord>,
+    ) -> Result<ContractResult<V, E::Balance, E::EventRecord>, DryRunError<DispatchError>>
+    {
         if let Err(error) = contract_result.result {
             let debug_message = String::from_utf8(contract_result.debug_message.clone())
                 .expect("invalid utf8 debug message");

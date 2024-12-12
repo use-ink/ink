@@ -13,9 +13,7 @@
 // limitations under the License.
 
 use crate::{
-    engine::off_chain::{
-        impls::TopicsBuilder,
-    },
+    engine::off_chain::impls::TopicsBuilder,
     event::TopicsBuilderBackend,
     Result,
 };
@@ -44,35 +42,33 @@ fn topics_builder() -> Result<()> {
     })
 }
 
-/*
-#[test]
-fn test_set_account_balance() -> Result<()> {
-    pub use ink_engine::ext::ChainSpec;
-
-    use crate::{DefaultEnvironment, Environment};
-    crate::test::run_test::<DefaultEnvironment, _>(|_| {
-        let minimum_balance = ChainSpec::default().minimum_balance;
-
-        let result = std::panic::catch_unwind(|| {
-            set_account_balance::<DefaultEnvironment>(
-                <DefaultEnvironment as Environment>::AccountId::from([0x1; 32]),
-                <DefaultEnvironment as Environment>::Balance::from(minimum_balance - 1),
-            )
-        });
-
-        assert!(result.is_err());
-
-        set_account_balance::<DefaultEnvironment>(
-            <DefaultEnvironment as Environment>::AccountId::from([0x1; 32]),
-            <DefaultEnvironment as Environment>::Balance::from(0u128),
-        );
-
-        set_account_balance::<DefaultEnvironment>(
-            <DefaultEnvironment as Environment>::AccountId::from([0x1; 32]),
-            <DefaultEnvironment as Environment>::Balance::from(minimum_balance + 1),
-        );
-
-        Ok(())
-    })
-}
-*/
+// #[test]
+// fn test_set_account_balance() -> Result<()> {
+// pub use ink_engine::ext::ChainSpec;
+//
+// use crate::{DefaultEnvironment, Environment};
+// crate::test::run_test::<DefaultEnvironment, _>(|_| {
+// let minimum_balance = ChainSpec::default().minimum_balance;
+//
+// let result = std::panic::catch_unwind(|| {
+// set_account_balance::<DefaultEnvironment>(
+// <DefaultEnvironment as Environment>::AccountId::from([0x1; 32]),
+// <DefaultEnvironment as Environment>::Balance::from(minimum_balance - 1),
+// )
+// });
+//
+// assert!(result.is_err());
+//
+// set_account_balance::<DefaultEnvironment>(
+// <DefaultEnvironment as Environment>::AccountId::from([0x1; 32]),
+// <DefaultEnvironment as Environment>::Balance::from(0u128),
+// );
+//
+// set_account_balance::<DefaultEnvironment>(
+// <DefaultEnvironment as Environment>::AccountId::from([0x1; 32]),
+// <DefaultEnvironment as Environment>::Balance::from(minimum_balance + 1),
+// );
+//
+// Ok(())
+// })
+// }

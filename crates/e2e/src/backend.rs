@@ -12,7 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use super::{Keypair, H256};
+use super::{
+    Keypair,
+    H256,
+};
 use crate::{
     backend_calls::{
         InstantiateBuilder,
@@ -21,6 +24,7 @@ use crate::{
     },
     builders::CreateBuilderPartial,
     contract_results::{
+        BareInstantiationDryRunResult,
         BareInstantiationResult,
     },
     CallBuilder,
@@ -32,15 +36,14 @@ use ink_env::{
     DefaultEnvironment,
     Environment,
 };
-use jsonrpsee::core::async_trait;
 use ink_primitives::DepositLimit;
+use jsonrpsee::core::async_trait;
 use scale::{
     Decode,
     Encode,
 };
 use sp_weights::Weight;
 use subxt::dynamic::Value;
-use crate::contract_results::BareInstantiationDryRunResult;
 
 /// Full E2E testing backend: combines general chain API and contract-specific operations.
 #[async_trait]

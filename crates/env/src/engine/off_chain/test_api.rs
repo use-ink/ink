@@ -71,9 +71,7 @@ where
     }
 
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        instance
-            .engine
-            .set_balance(addr, new_balance);
+        instance.engine.set_balance(addr, new_balance);
     })
 }
 
@@ -94,10 +92,7 @@ where
     T: Environment<Balance = u128>, // Just temporary for the MVP!
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        instance
-            .engine
-            .get_balance(addr)
-            .map_err(Into::into)
+        instance.engine.get_balance(addr).map_err(Into::into)
     })
 }
 
@@ -145,38 +140,30 @@ where
 }
 
 /// Sets a caller for the next call.
-pub fn set_caller(caller: H160)
-{
+pub fn set_caller(caller: H160) {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         instance.engine.set_caller(caller);
     })
 }
 
 /// Sets the callee for the next call.
-pub fn set_callee(callee: H160)
-{
+pub fn set_callee(callee: H160) {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         instance.engine.set_callee(callee);
     })
 }
 
 /// Sets an account as a contract
-pub fn set_contract(contract: H160)
-{
+pub fn set_contract(contract: H160) {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        instance
-            .engine
-            .set_contract(contract);
+        instance.engine.set_contract(contract);
     })
 }
 
 /// Returns a boolean to indicate whether an account is a contract
-pub fn is_contract(contract: H160) -> bool
-{
+pub fn is_contract(contract: H160) -> bool {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        instance
-            .engine
-            .is_contract(&contract)
+        instance.engine.is_contract(&contract)
     })
 }
 
@@ -195,12 +182,9 @@ where
 }
 
 /// Returns the total number of reads and writes of the contract's storage.
-pub fn get_contract_storage_rw(addr: H160) -> (usize, usize)
-{
+pub fn get_contract_storage_rw(addr: H160) -> (usize, usize) {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        instance
-            .engine
-            .get_contract_storage_rw(addr)
+        instance.engine.get_contract_storage_rw(addr)
     })
 }
 
@@ -226,21 +210,13 @@ where
     T: Environment<Balance = u128>, // Just temporary for the MVP!
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        let caller = instance
-            .engine
-            .exec_context
-            .caller;
+        let caller = instance.engine.exec_context.caller;
 
-        let caller_old_balance = instance
-            .engine
-            .get_balance(caller)
-            .unwrap_or_default();
+        let caller_old_balance = instance.engine.get_balance(caller).unwrap_or_default();
 
         let callee = instance.engine.get_callee();
-        let contract_old_balance = instance
-            .engine
-            .get_balance(callee)
-            .unwrap_or_default();
+        let contract_old_balance =
+            instance.engine.get_balance(callee).unwrap_or_default();
 
         instance
             .engine
@@ -299,36 +275,25 @@ where
         instance.engine.initialize_or_reset();
 
         let alice = default_accounts.alice;
-        //instance.engine.set_caller(alice.clone()); // todo
+        // instance.engine.set_caller(alice.clone()); // todo
         instance.engine.set_callee(alice);
 
         // set up the funds for the default accounts
         let substantial = 1_000_000;
         let some = 1_000;
         instance.engine.set_balance(alice, substantial);
-        instance
-            .engine
-            .set_balance(default_accounts.bob, some);
-        instance
-            .engine
-            .set_balance(default_accounts.charlie, some);
-        instance
-            .engine
-            .set_balance(default_accounts.django, 0);
-        instance
-            .engine
-            .set_balance(default_accounts.eve, 0);
-        instance
-            .engine
-            .set_balance(default_accounts.frank, 0);
+        instance.engine.set_balance(default_accounts.bob, some);
+        instance.engine.set_balance(default_accounts.charlie, some);
+        instance.engine.set_balance(default_accounts.django, 0);
+        instance.engine.set_balance(default_accounts.eve, 0);
+        instance.engine.set_balance(default_accounts.frank, 0);
     });
     f(default_accounts)
 }
 
 /// Returns the default accounts for testing purposes:
 /// Alice, Bob, Charlie, Django, Eve and Frank.
-pub fn default_accounts() -> DefaultAccounts
-{
+pub fn default_accounts() -> DefaultAccounts {
     DefaultAccounts {
         alice: H160::from([0x01; 20]),
         bob: H160::from([0x02; 20]),
@@ -340,8 +305,7 @@ pub fn default_accounts() -> DefaultAccounts
 }
 
 /// The default accounts.
-pub struct DefaultAccounts
-{
+pub struct DefaultAccounts {
     /// The predefined `ALICE` account holding substantial amounts of value.
     pub alice: H160,
     /// The predefined `BOB` account holding some amounts of value.

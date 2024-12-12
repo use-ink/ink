@@ -90,7 +90,10 @@ use ink_env::{
     ContractEnv,
     Environment,
 };
-use ink_primitives::{H256, H160};
+use ink_primitives::{
+    H160,
+    H256,
+};
 use std::{
     cell::RefCell,
     sync::Once,

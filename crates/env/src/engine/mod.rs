@@ -83,8 +83,7 @@ where
     match instantiate_result {
         Ok(()) => {
             let account_id = scale::Decode::decode(out_address)?;
-            let contract_ref =
-                <ContractRef as FromAddr>::from_addr(account_id);
+            let contract_ref = <ContractRef as FromAddr>::from_addr(account_id);
             let output = <R as ConstructorReturnType<ContractRef>>::ok(contract_ref);
             Ok(Ok(output))
         }
@@ -145,9 +144,7 @@ where
 #[cfg(test)]
 mod decode_instantiate_result_tests {
     use super::*;
-    use crate::{
-        DefaultEnvironment,
-    };
+    use crate::DefaultEnvironment;
     use ink_primitives::H160;
     use scale::Encode;
 

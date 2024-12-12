@@ -31,12 +31,16 @@
 //! there is no knowledge of the concrete types, the functionality is restricted to
 //! the trait bounds on the `Environment` trait types.
 
-use scale::{Decode, Encode, MaxEncodedLen};
 use super::arithmetic::AtLeast32BitUnsigned;
 use ink_primitives::{
     AccountId,
     Clear,
     Hash,
+};
+use scale::{
+    Decode,
+    Encode,
+    MaxEncodedLen,
 };
 #[cfg(feature = "std")]
 use scale_info::TypeInfo;
@@ -162,7 +166,7 @@ pub trait Environment: Clone {
         + Ord
         + AsRef<[u8]>
         + AsMut<[u8]>;
-        //+ frame_support::traits::IsType<sp_core::H256>;
+    //+ frame_support::traits::IsType<sp_core::H256>;
 
     /// The type of a timestamp.
     type Timestamp: 'static
@@ -237,10 +241,7 @@ pub type BlockNumber = u32;
 pub struct RuntimeEvent();
 
 /// The default event record type.
-pub type EventRecord = EventRecordFoo<
-    RuntimeEvent,
-    Hash
->;
+pub type EventRecord = EventRecordFoo<RuntimeEvent, Hash>;
 
 #[derive(Encode, Decode, Debug)]
 #[cfg_attr(feature = "std", derive(TypeInfo))]

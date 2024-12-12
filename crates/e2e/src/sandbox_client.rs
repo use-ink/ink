@@ -12,21 +12,57 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::{backend::BuilderClient, builders::{
-    constructor_exec_input,
-    CreateBuilderPartial,
-}, client_utils::{
-    salt,
-    ContractsRegistry,
-}, contract_results::BareInstantiationResult, error::SandboxErr, log_error, CallBuilderFinal, CallDryRunResult, ChainBackend, ContractsBackend, E2EBackend, UploadResult, H256};
+use crate::{
+    backend::BuilderClient,
+    builders::{
+        constructor_exec_input,
+        CreateBuilderPartial,
+    },
+    client_utils::{
+        salt,
+        ContractsRegistry,
+    },
+    contract_results::BareInstantiationResult,
+    error::SandboxErr,
+    log_error,
+    CallBuilderFinal,
+    CallDryRunResult,
+    ChainBackend,
+    ContractsBackend,
+    E2EBackend,
+    UploadResult,
+    H256,
+};
 
-use frame_support::traits::fungible::Inspect;
-use ink_sandbox::{api::prelude::*, pallet_balances, pallet_revive, AccountIdFor, RuntimeCall, Sandbox, Weight};
-use ink_sandbox::{ frame_system};
-use ink_primitives::DepositLimit;
+use crate::contract_results::BareInstantiationDryRunResult;
+use frame_support::{
+    dispatch::RawOrigin,
+    traits::{
+        fungible::Inspect,
+        IsType,
+    },
+};
 use ink_env::Environment;
+use ink_primitives::DepositLimit;
+use ink_sandbox::{
+    api::prelude::*,
+    frame_system,
+    frame_system::pallet_prelude::OriginFor,
+    pallet_balances,
+    pallet_revive,
+    AccountIdFor,
+    RuntimeCall,
+    Sandbox,
+    Weight,
+};
 use jsonrpsee::core::async_trait;
-use pallet_revive::{CodeUploadReturnValue, ContractResult, InstantiateReturnValue, MomentOf};
+use pallet_revive::{
+    evm::U256,
+    CodeUploadReturnValue,
+    ContractResult,
+    InstantiateReturnValue,
+    MomentOf,
+};
 use scale::{
     Decode,
     Encode,
@@ -35,21 +71,16 @@ use sp_core::{
     sr25519::Pair,
     Pair as _,
 };
+use sp_runtime::traits::Bounded;
 use std::{
     marker::PhantomData,
     path::PathBuf,
 };
-use frame_support::dispatch::RawOrigin;
-use frame_support::traits::IsType;
-use pallet_revive::evm::U256;
-use sp_runtime::traits::Bounded;
 use subxt::{
     dynamic::Value,
     tx::Payload,
 };
 use subxt_signer::sr25519::Keypair;
-use ink_sandbox::frame_system::pallet_prelude::OriginFor;
-use crate::contract_results::BareInstantiationDryRunResult;
 
 type BalanceOf<R> = <R as pallet_balances::Config>::Balance;
 type ContractsBalanceOf<R> =
@@ -107,8 +138,7 @@ where
 }
 
 #[async_trait]
-impl<AccountId: AsRef<[u8; 32]> + Send, S: Sandbox> ChainBackend
-    for Client<AccountId, S>
+impl<AccountId: AsRef<[u8; 32]> + Send, S: Sandbox> ChainBackend for Client<AccountId, S>
 where
     S::Runtime: pallet_balances::Config,
     AccountIdFor<S::Runtime>: From<[u8; 32]>,
@@ -189,19 +219,18 @@ where
 impl<
         AccountId: Clone + Send + Sync + From<[u8; 32]> + AsRef<[u8; 32]>,
         S: Sandbox,
-        E: Environment<
-                AccountId = AccountId,
-                Balance = ContractsBalanceOf<S::Runtime>,
-            > + 'static,
+        E: Environment<AccountId = AccountId, Balance = ContractsBalanceOf<S::Runtime>>
+            + 'static,
     > BuilderClient<E> for Client<AccountId, S>
 where
     S::Runtime: pallet_balances::Config + pallet_revive::Config,
     AccountIdFor<S::Runtime>: From<[u8; 32]> + AsRef<[u8; 32]>,
     ContractsBalanceOf<S::Runtime>: Send + Sync,
 
-    ContractsBalanceOf<S::Runtime>: Into<U256> + TryFrom<U256>  + Bounded,
+    ContractsBalanceOf<S::Runtime>: Into<U256> + TryFrom<U256> + Bounded,
     MomentOf<S::Runtime>: Into<U256>,
-    <<S as Sandbox>::Runtime as frame_system::Config>::Hash: frame_support::traits::IsType<sp_core::H256>,
+    <<S as Sandbox>::Runtime as frame_system::Config>::Hash:
+        frame_support::traits::IsType<sp_core::H256>,
 {
     async fn bare_instantiate<Contract: Clone, Args: Send + Sync + Encode + Clone, R>(
         &mut self,
@@ -238,7 +267,7 @@ where
             }
             Ok(res) => res.addr,
         };
-        //let account_id = AccountId::from(account_id_raw);
+        // let account_id = AccountId::from(account_id_raw);
 
         Ok(BareInstantiationResult {
             addr: addr_raw,
@@ -300,7 +329,7 @@ where
         &mut self,
         contract_name: &str,
         caller: &Keypair,
-        storage_deposit_limit: E::Balance
+        storage_deposit_limit: E::Balance,
     ) -> Result<UploadResult<E, Self::EventLog>, Self::Error> {
         let code = self.contracts.load_code(contract_name);
 
@@ -309,17 +338,17 @@ where
         let origin = RawOrigin::Signed(caller);
         let origin = OriginFor::<S::Runtime>::from(origin);
 
-        let result = match self.sandbox.upload_contract(
-            code,
-            origin,
-            storage_deposit_limit,
-        ) {
-            Ok(result) => result,
-            Err(err) => {
-                log_error(&format!("Upload failed: {err:?}"));
-                return Err(SandboxErr::new(format!("bare_upload: {err:?}")))
-            }
-        };
+        let result =
+            match self
+                .sandbox
+                .upload_contract(code, origin, storage_deposit_limit)
+            {
+                Ok(result) => result,
+                Err(err) => {
+                    log_error(&format!("Upload failed: {err:?}"));
+                    return Err(SandboxErr::new(format!("bare_upload: {err:?}")))
+                }
+            };
 
         Ok(UploadResult {
             code_hash: result.code_hash,
@@ -442,10 +471,8 @@ fn keypair_to_account<AccountId: From<[u8; 32]>>(keypair: &Keypair) -> AccountId
 impl<
         AccountId: Clone + Send + Sync + From<[u8; 32]> + AsRef<[u8; 32]>,
         S: Sandbox,
-        E: Environment<
-                AccountId = AccountId,
-                Balance = ContractsBalanceOf<S::Runtime>,
-            > + 'static,
+        E: Environment<AccountId = AccountId, Balance = ContractsBalanceOf<S::Runtime>>
+            + 'static,
     > ContractsBackend<E> for Client<AccountId, S>
 where
     S::Runtime: pallet_balances::Config + pallet_revive::Config,

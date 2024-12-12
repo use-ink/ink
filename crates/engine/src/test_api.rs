@@ -15,16 +15,16 @@
 use crate::{
     ext::Engine,
     types::{
-        H160,
         Balance,
         BlockNumber,
         BlockTimestamp,
+        H160,
     },
     AccountError,
     Error,
 };
-use std::collections::HashMap;
 use ink_primitives::AccountId;
+use std::collections::HashMap;
 
 /// Record for an emitted event.
 #[derive(Debug, Clone)]
@@ -151,11 +151,7 @@ impl DebugInfo {
     /// Removes the cell under `key` for the supplied account.
     ///
     /// Returns the removed cell, if there was one.
-    pub fn remove_cell_for_account(
-        &mut self,
-        addr: H160,
-        key: Vec<u8>,
-    ) -> Option<bool> {
+    pub fn remove_cell_for_account(&mut self, addr: H160, key: Vec<u8>) -> Option<bool> {
         self.cells_per_contract
             .get_mut(&addr)
             .map(|hm| hm.remove(&key))
@@ -221,9 +217,7 @@ impl Engine {
             .debug_info
             .cells_per_contract
             .get(addr)
-            .ok_or(
-                Error::Account(AccountError::NoContractForId(*addr))
-            )?;
+            .ok_or(Error::Account(AccountError::NoContractForId(*addr)))?;
         Ok(cells.len())
     }
 

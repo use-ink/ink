@@ -42,6 +42,10 @@ use crate::{
     TypedEnvBackend,
 };
 use ink_engine::ext::Engine;
+use ink_primitives::{
+    H160,
+    H256,
+};
 use ink_storage_traits::{
     decode_all,
     Storable,
@@ -50,7 +54,6 @@ use pallet_revive_uapi::{
     ReturnErrorCode,
     ReturnFlags,
 };
-use ink_primitives::{H160, H256};
 use schnorrkel::{
     PublicKey,
     Signature,
@@ -483,8 +486,7 @@ impl TypedEnvBackend for EnvInstance {
         unimplemented!("off-chain environment does not support contract instantiation")
     }
 
-    fn terminate_contract(&mut self, beneficiary: H160) -> !
-    {
+    fn terminate_contract(&mut self, beneficiary: H160) -> ! {
         self.engine.terminate(beneficiary)
     }
 
@@ -506,8 +508,7 @@ impl TypedEnvBackend for EnvInstance {
         })
     }
 
-    fn is_contract(&mut self, account: &H160) -> bool
-    {
+    fn is_contract(&mut self, account: &H160) -> bool {
         self.engine.is_contract(account)
     }
 
@@ -525,8 +526,7 @@ impl TypedEnvBackend for EnvInstance {
         unimplemented!("off-chain environment does not support `caller_is_root`")
     }
 
-    fn code_hash(&mut self, _addr: &H160) -> Result<H256>
-    {
+    fn code_hash(&mut self, _addr: &H160) -> Result<H256> {
         unimplemented!("off-chain environment does not support `code_hash`")
     }
 

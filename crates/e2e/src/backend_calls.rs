@@ -12,18 +12,28 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use std::marker::PhantomData;
 use ink_env::Environment;
+use ink_primitives::DepositLimit;
 use scale::{
     Decode,
     Encode,
 };
 use sp_weights::Weight;
-use ink_primitives::DepositLimit;
+use std::marker::PhantomData;
 
-use crate::{backend::BuilderClient, builders::CreateBuilderPartial, CallBuilderFinal, CallDryRunResult, CallResult, ContractsBackend, InstantiationResult, UploadResult, H256};
-use crate::contract_results::BareInstantiationDryRunResult;
 use super::Keypair;
+use crate::{
+    backend::BuilderClient,
+    builders::CreateBuilderPartial,
+    contract_results::BareInstantiationDryRunResult,
+    CallBuilderFinal,
+    CallDryRunResult,
+    CallResult,
+    ContractsBackend,
+    InstantiationResult,
+    UploadResult,
+    H256,
+};
 
 /// Allows to build an end-to-end call using a builder pattern.
 pub struct CallBuilder<'a, E, Args, RetType, B>
@@ -112,7 +122,7 @@ where
     /// Specify the max amount of funds that can be charged for storage.
     pub fn storage_deposit_limit(
         &mut self,
-        storage_deposit_limit: DepositLimit<E::Balance>
+        storage_deposit_limit: DepositLimit<E::Balance>,
     ) -> &mut Self {
         self.storage_deposit_limit = storage_deposit_limit;
         self
@@ -294,7 +304,7 @@ where
         let gas_limit = if let Some(limit) = self.gas_limit {
             limit
         } else {
-            //let gas_required = dry_run.contract_result.gas_required;
+            // let gas_required = dry_run.contract_result.gas_required;
             let gas_required = dry_run.gas_required;
             let proof_size = gas_required.proof_size();
             let ref_time = gas_required.ref_time();
@@ -320,7 +330,9 @@ where
     }
 
     /// Dry run the instantiate call.
-    pub async fn dry_run(&mut self) -> Result<BareInstantiationDryRunResult<E>, B::Error> {
+    pub async fn dry_run(
+        &mut self,
+    ) -> Result<BareInstantiationDryRunResult<E>, B::Error> {
         B::bare_instantiate_dry_run(
             self.client,
             self.contract_name,

@@ -32,7 +32,10 @@ use crate::{
     Environment,
 };
 use core::marker::PhantomData;
-use ink_primitives::{H160, H256};
+use ink_primitives::{
+    H160,
+    H256,
+};
 
 /// The final parameters to the cross-contract call.
 #[derive(Debug)]
@@ -319,10 +322,7 @@ where
 {
     /// Prepares the `CallBuilder` for a cross-contract [`Call`] to the latest `call_v2`
     /// host function.
-    pub fn call(
-        self,
-        callee: H160,
-    ) -> CallBuilder<E, Set<Call<E>>, Args, RetType> {
+    pub fn call(self, callee: H160) -> CallBuilder<E, Set<Call<E>>, Args, RetType> {
         CallBuilder {
             call_type: Set(Call::new(callee)),
             exec_input: self.exec_input,

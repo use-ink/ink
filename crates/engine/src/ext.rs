@@ -28,12 +28,12 @@ use crate::{
     types::{
         Balance,
         BlockTimestamp,
+        H160,
     },
 };
 pub use pallet_revive_uapi::ReturnErrorCode as Error;
 use scale::Encode;
 use std::panic::panic_any;
-use crate::types::H160;
 
 /// The off-chain engine.
 pub struct Engine {
@@ -231,9 +231,7 @@ impl Engine {
 
     /// Returns the address of the caller.
     pub fn caller(&self, output: &mut &mut [u8]) {
-        let caller = self
-            .exec_context
-            .caller;
+        let caller = self.exec_context.caller;
         let caller = scale::Encode::encode(&caller);
         set_output(output, &caller[..])
     }

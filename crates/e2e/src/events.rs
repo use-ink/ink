@@ -12,10 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use crate::H256;
 use ink_env::Environment;
+use pallet_revive::evm::H160;
 #[cfg(feature = "std")]
 use std::fmt::Debug;
-use pallet_revive::evm::H160;
 use subxt::{
     events::StaticEvent,
     ext::{
@@ -23,7 +24,6 @@ use subxt::{
         scale_encode,
     },
 };
-use crate::H256;
 
 /// A contract was successfully instantiated.
 #[derive(
@@ -65,8 +65,7 @@ pub struct CodeStoredEvent {
     pub code_hash: H256,
 }
 
-impl StaticEvent for CodeStoredEvent
-{
+impl StaticEvent for CodeStoredEvent {
     const PALLET: &'static str = "Revive";
     const EVENT: &'static str = "CodeStored";
 }
@@ -86,8 +85,7 @@ pub struct ContractEmitted {
     pub data: Vec<u8>,
 }
 
-impl StaticEvent for ContractEmitted
-{
+impl StaticEvent for ContractEmitted {
     const PALLET: &'static str = "Revive";
     const EVENT: &'static str = "ContractEmitted";
 }

@@ -27,8 +27,8 @@ use crate::{
     Environment,
     Error,
 };
-use pallet_revive_uapi::CallFlags;
 use ink_primitives::H256;
+use pallet_revive_uapi::CallFlags;
 
 /// The `delegatecall` call type. Performs a call with the given code hash.
 #[derive(Clone)]
@@ -86,12 +86,7 @@ where
 }
 
 impl<E, Args, RetType>
-    CallBuilder<
-        E,
-        Set<DelegateCall>,
-        Set<ExecutionInput<Args>>,
-        Set<ReturnType<RetType>>,
-    >
+    CallBuilder<E, Set<DelegateCall>, Set<ExecutionInput<Args>>, Set<ReturnType<RetType>>>
 where
     E: Environment,
 {

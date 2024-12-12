@@ -30,9 +30,12 @@ use crate::{
     Environment,
     Result,
 };
+use ink_primitives::{
+    H160,
+    H256,
+};
 use ink_storage_traits::Storable;
 pub use pallet_revive_uapi::ReturnFlags;
-use ink_primitives::{H160, H256};
 
 /// Environmental contract functionality that does not require `Environment`.
 pub trait EnvBackend {

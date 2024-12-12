@@ -12,33 +12,44 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use crate::H256;
 use ink::codegen::ContractCallBuilder;
-use ink_env::{
-    Environment,
-};
+use ink_env::Environment;
 use ink_primitives::{
     ConstructorResult,
     MessageResult,
 };
-use pallet_revive::{CodeUploadResult, ContractResult, ExecReturnValue, InstantiateReturnValue, StorageDeposit};
+use pallet_revive::{
+    evm::H160,
+    CodeUploadResult,
+    ContractResult,
+    ExecReturnValue,
+    InstantiateReturnValue,
+    StorageDeposit,
+};
+use sp_runtime::{
+    DispatchError,
+    Weight,
+};
 use std::{
     fmt,
     fmt::Debug,
     marker::PhantomData,
 };
-use pallet_revive::evm::H160;
-use sp_runtime::DispatchError;
-use crate::H256;
-use sp_runtime::Weight;
 
 /// Alias for the contract instantiate result.
-pub type ContractInstantiateResultFor<E> =
-    ContractResult<InstantiateReturnValue, <E as Environment>::Balance, <E as Environment>::EventRecord>;
+pub type ContractInstantiateResultFor<E> = ContractResult<
+    InstantiateReturnValue,
+    <E as Environment>::Balance,
+    <E as Environment>::EventRecord,
+>;
 
 /// Alias for the contract exec result.
-pub type ContractExecResultFor<E> =
-    ContractResult<ExecReturnValue, <E as Environment>::Balance, <E as Environment>::EventRecord>;
-
+pub type ContractExecResultFor<E> = ContractResult<
+    ExecReturnValue,
+    <E as Environment>::Balance,
+    <E as Environment>::EventRecord,
+>;
 
 /// Result of a contract instantiation using bare call.
 ///
@@ -58,12 +69,12 @@ pub struct BareInstantiationDryRunResult<E: Environment> {
     /// Additionally, any `seal_call` or `seal_instantiate` makes use of pre-charging
     /// when a non-zero `gas_limit` argument is supplied.
     pub gas_required: Weight,
-    /// How much balance was paid by the origin into the contract's deposit account in order to
-    /// pay for storage.
+    /// How much balance was paid by the origin into the contract's deposit account in
+    /// order to pay for storage.
     ///
-    /// The storage deposit is never actually charged from the origin in case of [`Self::result`]
-    /// is `Err`. This is because on error all storage changes are rolled back including the
-    /// payment of the deposit.
+    /// The storage deposit is never actually charged from the origin in case of
+    /// [`Self::result`] is `Err`. This is because on error all storage changes are
+    /// rolled back including the payment of the deposit.
     pub storage_deposit: StorageDeposit<E::Balance>,
     /// An optional debug message. This message is only filled when explicitly requested
     /// by the code that calls into the contract. Otherwise it is empty.
@@ -77,8 +88,8 @@ pub struct BareInstantiationDryRunResult<E: Environment> {
     ///
     /// # Note
     ///
-    /// The debug message is never generated during on-chain execution. It is reserved for
-    /// RPC calls.
+    /// The debug message is never generated during on-chain execution. It is reserved
+    /// for RPC calls.
     pub debug_message: Vec<u8>,
     /// The execution result of the wasm code.
     pub result: Result<InstantiateReturnValue, DispatchError>,
@@ -104,7 +115,7 @@ impl<EventLog> BareInstantiationResult<EventLog> {
 
 /// We implement a custom `Debug` here, as to avoid requiring the trait bound `Debug` for
 /// `E`.
-impl< EventLog> Debug for BareInstantiationResult<EventLog>
+impl<EventLog> Debug for BareInstantiationResult<EventLog>
 where
     EventLog: Debug,
 {
@@ -261,7 +272,6 @@ where
     }
 }
 
-
 impl<E: Environment, V: scale::Decode> CallDryRunResult<E, V> {
     /// Returns true if the dry-run execution resulted in an error.
     pub fn is_err(&self) -> bool {
@@ -327,9 +337,7 @@ pub struct InstantiateDryRunResult<E: Environment> {
 impl<E: Environment> From<ContractInstantiateResultFor<E>>
     for InstantiateDryRunResult<E>
 {
-    fn from(
-        contract_result: ContractInstantiateResultFor<E>,
-    ) -> Self {
+    fn from(contract_result: ContractInstantiateResultFor<E>) -> Self {
         Self { contract_result }
     }
 }

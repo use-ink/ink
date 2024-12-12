@@ -46,6 +46,10 @@ use crate::{
     Result,
     TypedEnvBackend,
 };
+use ink_primitives::{
+    H160,
+    H256,
+};
 use ink_storage_traits::{
     decode_all,
     Storable,
@@ -59,7 +63,6 @@ use pallet_revive_uapi::{
     StorageFlags,
 };
 use xcm::VersionedXcm;
-use ink_primitives::{H256, H160};
 
 impl CryptoHash for Blake2x128 {
     fn hash(input: &[u8], output: &mut <Self as HashOutput>::Type) {
@@ -395,18 +398,15 @@ impl TypedEnvBackend for EnvInstance {
         let mut scope = self.scoped_buffer();
 
         self.get_property::<H160>(ext::caller)
-            /*
-
-        let h160: &mut [u8; 20] = scope.take(20).try_into().unwrap();
-        ext::caller(h160);
-
-        let account_id: &mut [u8; 32] = scope.take(32).try_into().unwrap();
+        // let h160: &mut [u8; 20] = scope.take(20).try_into().unwrap();
+        // ext::caller(h160);
+        //
+        // let account_id: &mut [u8; 32] = scope.take(32).try_into().unwrap();
         // TODO
         // ext::to_account_id(h160, account_id);
-
-        scale::Decode::decode(&mut &account_id[..])
-            .expect("The executed contract must have a caller with a valid account id.")
-             */
+        //
+        // scale::Decode::decode(&mut &account_id[..])
+        // .expect("The executed contract must have a caller with a valid account id.")
     }
 
     fn transferred_value<E: Environment>(&mut self) -> E::Balance {
@@ -578,8 +578,7 @@ impl TypedEnvBackend for EnvInstance {
         )
     }
 
-    fn terminate_contract(&mut self, beneficiary: H160) -> !
-    {
+    fn terminate_contract(&mut self, beneficiary: H160) -> ! {
         let buffer: &mut [u8; 20] = self.scoped_buffer().take_encoded(&beneficiary)
             [0..20]
             .as_mut()
@@ -588,11 +587,7 @@ impl TypedEnvBackend for EnvInstance {
         ext::terminate(buffer);
     }
 
-    fn transfer<E>(
-        &mut self,
-        _destination: H160,
-        _value: E::Balance,
-    ) -> Result<()>
+    fn transfer<E>(&mut self, _destination: H160, _value: E::Balance) -> Result<()>
     where
         E: Environment,
     {
@@ -610,13 +605,10 @@ impl TypedEnvBackend for EnvInstance {
         <E::Balance as FromLittleEndian>::from_le_bytes(result)
     }
 
-    fn is_contract(&mut self, addr: &H160) -> bool
-    {
+    fn is_contract(&mut self, addr: &H160) -> bool {
         let mut scope = self.scoped_buffer();
-        let enc_addr: &mut [u8; 20] = scope.take_encoded(addr)[..20]
-            .as_mut()
-            .try_into()
-            .unwrap();
+        let enc_addr: &mut [u8; 20] =
+            scope.take_encoded(addr)[..20].as_mut().try_into().unwrap();
         ext::is_contract(enc_addr)
     }
 
@@ -641,14 +633,11 @@ impl TypedEnvBackend for EnvInstance {
         }
     }
 
-    fn code_hash(&mut self, addr: &H160) -> Result<H256>
-    {
+    fn code_hash(&mut self, addr: &H160) -> Result<H256> {
         let mut scope = self.scoped_buffer();
         // todo can be simplified
-        let enc_addr: &mut [u8; 20] = scope.take_encoded(addr)[..20]
-            .as_mut()
-            .try_into()
-            .unwrap();
+        let enc_addr: &mut [u8; 20] =
+            scope.take_encoded(addr)[..20].as_mut().try_into().unwrap();
         let output: &mut [u8; 32] =
             scope.take_max_encoded_len::<H256>().try_into().unwrap();
         ext::code_hash(enc_addr, output);

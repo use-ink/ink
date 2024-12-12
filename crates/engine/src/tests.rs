@@ -12,9 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::ext::{
-    Engine,
-    Error,
+use crate::{
+    ext::{
+        Engine,
+        Error,
+    },
+    types::H160,
 };
 use secp256k1::{
     ecdsa::RecoverableSignature,
@@ -23,7 +26,6 @@ use secp256k1::{
     SecretKey,
     SECP256K1,
 };
-use crate::types::{H160};
 
 /// The public methods of the `contracts` pallet write their result into an
 /// `output` buffer instead of returning them. Since we aim to emulate this

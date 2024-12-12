@@ -19,10 +19,16 @@ use super::{
 };
 use ink_env::Environment;
 
+use crate::contract_results::{
+    ContractExecResultFor,
+    ContractInstantiateResultFor,
+};
 use core::marker::PhantomData;
-use pallet_revive::{CodeUploadResult};
-use pallet_revive::evm::H160;
 use ink_primitives::DepositLimit;
+use pallet_revive::{
+    evm::H160,
+    CodeUploadResult,
+};
 use sp_core::H256;
 use subxt::{
     backend::{
@@ -42,7 +48,6 @@ use subxt::{
     },
     OnlineClient,
 };
-use crate::contract_results::{ContractExecResultFor, ContractInstantiateResultFor};
 
 /// Copied from `sp_weight` to additionally implement `scale_encode::EncodeAsType`.
 #[derive(

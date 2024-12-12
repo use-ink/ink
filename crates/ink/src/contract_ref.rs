@@ -213,8 +213,7 @@ macro_rules! contract_ref {
 /// Implemented by contracts that are compiled as dependencies.
 ///
 /// Allows them to return their underlying account identifier.
-pub trait ToAddr
-{
+pub trait ToAddr {
     /// Returns the underlying account identifier of the instantiated contract.
     fn to_addr(&self) -> H160;
 }

@@ -10,15 +10,21 @@ use frame_support::{
     traits::fungible::Inspect,
 };
 use frame_system::{
-    pallet_prelude::BlockNumberFor,
+    pallet_prelude::{
+        BlockNumberFor,
+        OriginFor,
+    },
     EventRecord,
 };
-use frame_system::pallet_prelude::OriginFor;
 pub use macros::{
     BlockBuilder,
     DefaultSandbox,
 };
-use pallet_revive::{ContractResult, ExecReturnValue, InstantiateReturnValue};
+use pallet_revive::{
+    ContractResult,
+    ExecReturnValue,
+    InstantiateReturnValue,
+};
 /// Export pallets that are used in [`crate::create_sandbox`]
 pub use {
     frame_support::sp_runtime::testing::H256,
