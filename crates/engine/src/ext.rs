@@ -106,11 +106,11 @@ impl Engine {
             .map_err(|_| Error::TransferFailed)?;
 
         // Note that the destination account does not have to exist
-        let dest_old_balance = self.get_balance(dest.clone()).unwrap_or_default();
+        let dest_old_balance = self.get_balance(dest).unwrap_or_default();
 
         let contract = self.get_callee();
         let contract_old_balance = self
-            .get_balance(contract.clone())
+            .get_balance(contract)
             .map_err(|_| Error::TransferFailed)?;
 
         self.database
@@ -152,7 +152,7 @@ impl Engine {
     pub fn set_storage(&mut self, key: &[u8], encoded_value: &[u8]) -> Option<u32> {
         let callee = self.get_callee();
 
-        self.debug_info.inc_writes(callee.clone());
+        self.debug_info.inc_writes(callee);
         self.debug_info
             .record_cell_for_account(callee, key.to_vec());
 
@@ -198,7 +198,7 @@ impl Engine {
     /// Returns the size of the previously stored value at the key if any.
     pub fn clear_storage(&mut self, key: &[u8]) -> Option<u32> {
         let callee = self.get_callee();
-        self.debug_info.inc_writes(callee.clone());
+        self.debug_info.inc_writes(callee);
         let _ = self
             .debug_info
             .remove_cell_for_account(callee, key.to_vec());
@@ -233,7 +233,7 @@ impl Engine {
     pub fn caller(&self, output: &mut &mut [u8]) {
         let caller = self
             .exec_context
-            .caller.clone();
+            .caller;
         let caller = scale::Encode::encode(&caller);
         set_output(output, &caller[..])
     }

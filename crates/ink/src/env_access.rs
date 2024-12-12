@@ -39,7 +39,7 @@ pub struct EnvAccess<'a, E> {
     marker: PhantomData<fn() -> &'a E>,
 }
 
-impl<'a, E> Default for EnvAccess<'a, E> {
+impl<E> Default for EnvAccess<'_, E> {
     #[inline]
     fn default() -> Self {
         Self {
@@ -48,13 +48,13 @@ impl<'a, E> Default for EnvAccess<'a, E> {
     }
 }
 
-impl<'a, E> core::fmt::Debug for EnvAccess<'a, E> {
+impl<E> core::fmt::Debug for EnvAccess<'_, E> {
     fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
         f.debug_struct("EnvAccess").finish()
     }
 }
 
-impl<'a, E> EnvAccess<'a, E>
+impl<E> EnvAccess<'_, E>
 where
     E: Environment,
     <E as Environment>::ChainExtension: ChainExtensionInstance,
@@ -67,7 +67,7 @@ where
     }
 }
 
-impl<'a, E> EnvAccess<'a, E>
+impl<E> EnvAccess<'_, E>
 where
     E: Environment,
 {

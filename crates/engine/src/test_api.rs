@@ -220,10 +220,10 @@ impl Engine {
         let cells = self
             .debug_info
             .cells_per_contract
-            .get(&addr)
-            .ok_or_else(|| {
-                Error::Account(AccountError::NoContractForId(addr.clone()))
-            })?;
+            .get(addr)
+            .ok_or(
+                Error::Account(AccountError::NoContractForId(*addr))
+            )?;
         Ok(cells.len())
     }
 

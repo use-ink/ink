@@ -229,18 +229,17 @@ where
         let caller = instance
             .engine
             .exec_context
-            .caller
-            .clone();
+            .caller;
 
         let caller_old_balance = instance
             .engine
-            .get_balance(caller.clone())
+            .get_balance(caller)
             .unwrap_or_default();
 
         let callee = instance.engine.get_callee();
         let contract_old_balance = instance
             .engine
-            .get_balance(callee.clone())
+            .get_balance(callee)
             .unwrap_or_default();
 
         instance
@@ -301,7 +300,7 @@ where
 
         let alice = default_accounts.alice;
         //instance.engine.set_caller(alice.clone()); // todo
-        instance.engine.set_callee(alice.clone());
+        instance.engine.set_callee(alice);
 
         // set up the funds for the default accounts
         let substantial = 1_000_000;

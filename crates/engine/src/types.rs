@@ -63,6 +63,7 @@ pub enum Origin {
     Signed(Vec<u8>),
 }
 
+/*
 impl Origin {
     /// Returns the AccountId of a Signed Origin or an error if the origin is Root.
     pub fn account_id(&self) -> Result<AccountId, ()> {
@@ -76,3 +77,5 @@ impl Origin {
         }
     }
 }
+
+ */

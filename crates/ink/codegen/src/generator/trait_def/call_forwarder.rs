@@ -27,7 +27,7 @@ use quote::{
     quote_spanned,
 };
 
-impl<'a> TraitDefinition<'a> {
+impl TraitDefinition<'_> {
     /// Generates code for the global trait call forwarder for an ink! trait.
     ///
     /// # Note

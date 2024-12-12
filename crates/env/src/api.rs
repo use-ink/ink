@@ -356,7 +356,6 @@ pub fn terminate_contract(beneficiary: H160) -> !
     })
 }
 
-/*
 /// Transfers value from the contract to the destination account ID.
 ///
 /// # Note
@@ -370,8 +369,7 @@ pub fn terminate_contract(beneficiary: H160) -> !
 /// - If the contract does not have sufficient free funds.
 /// - If the transfer had brought the sender's total balance below the minimum balance.
 ///   You need to use [`terminate_contract`] in case this is your intention.
-// todo remove
-pub fn transfer<E>(destination: E::AccountId, value: E::Balance) -> Result<()>
+pub fn transfer<E>(destination: H160, value: E::Balance) -> Result<()>
 where
     E: Environment,
 {
@@ -379,7 +377,6 @@ where
         TypedEnvBackend::transfer::<E>(instance, destination, value)
     })
 }
-*/
 
 /// Returns the execution input to the executed contract and decodes it as `T`.
 ///
