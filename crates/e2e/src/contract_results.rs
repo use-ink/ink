@@ -41,6 +41,8 @@ pub type ContractExecResultFor<E> =
 
 
 /// Result of a contract instantiation using bare call.
+///
+/// Copied from `pallet-revive`.
 #[derive(Debug)]
 pub struct BareInstantiationDryRunResult<E: Environment> {
     /// How much weight was consumed during execution.
@@ -84,7 +86,7 @@ pub struct BareInstantiationDryRunResult<E: Environment> {
 
 /// Result of a contract instantiation using bare call.
 pub struct BareInstantiationResult<EventLog> {
-    /// The account id at which the contract was instantiated.
+    /// The address at which the contract was instantiated.
     pub addr: H160,
     /// Events that happened with the contract instantiation.
     pub events: EventLog,
@@ -92,15 +94,11 @@ pub struct BareInstantiationResult<EventLog> {
 
 impl<EventLog> BareInstantiationResult<EventLog> {
     /// Returns the account id at which the contract was instantiated.
-    //pub fn call<Contract>(&self) -> <Contract as ContractCallBuilder>::Type
     pub fn call<Contract>(&self) -> H160
     where
         Contract: ContractCallBuilder,
-        //Contract::Type: FromAccountId<E>,
     {
-        //<<Contract as ContractCallBuilder>::Type as FromAccountId<E>>::from_account_id(
-            self.addr.clone()
-        //)
+        self.addr.clone()
     }
 }
 
@@ -114,7 +112,7 @@ where
         f.debug_struct("InstantiationResult")
             .field("account_id", &self.addr)
             .field("events", &self.events)
-            //todo
+            // todo
             .finish()
     }
 }
@@ -132,19 +130,11 @@ pub struct InstantiationResult<E: Environment, EventLog> {
 
 impl<E: Environment, EventLog> InstantiationResult<E, EventLog> {
     /// Returns the account id at which the contract was instantiated.
-    //pub fn call_builder<Contract>(&self) -> <Contract as ContractCallBuilder>::Type
     pub fn call_builder<Contract>(&self) -> H160
     where
         Contract: ContractCallBuilder,
-        //Contract::Type: FromAccountId<E>,
-        //Contract::Type: H160,
     {
         self.addr.clone()
-        /*
-        <<Contract as ContractCallBuilder>::Type as FromAccountId<E>>::from_account_id(
-            self.addr.clone(),
-        )
-         */
     }
 }
 
@@ -160,7 +150,7 @@ where
     fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
         f.debug_struct("InstantiationResult")
             .field("account_id", &self.addr)
-            //.field("dry_run", &self.dry_run) // todo
+            // .field("dry_run", &self.dry_run) // todo
             .field("events", &self.events)
             .finish()
     }
@@ -251,7 +241,6 @@ where
 }
 
 /// Result of the dry run of a contract call.
-//#[derive(Debug)]
 pub struct CallDryRunResult<E: Environment, V> {
     /// The result of the dry run, contains debug messages if there were any.
     pub exec_result: ContractExecResultFor<E>,
@@ -262,10 +251,8 @@ pub struct CallDryRunResult<E: Environment, V> {
 /// `E`.
 impl<E: Environment, V> Debug for CallDryRunResult<E, V>
 where
-    //E: Debug,
     E::Balance: Debug,
     E::EventRecord: Debug,
-    //V: Debug
 {
     fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
         f.debug_struct("CallDryRunResult")
@@ -334,7 +321,6 @@ impl<E: Environment, V: scale::Decode> CallDryRunResult<E, V> {
 /// Result of the dry run of a contract call.
 pub struct InstantiateDryRunResult<E: Environment> {
     /// The result of the dry run, contains debug messages if there were any.
-    //pub contract_result: ContractInstantiateResultFor<E>,
     pub contract_result: ContractInstantiateResultFor<E>,
 }
 

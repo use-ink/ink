@@ -60,7 +60,6 @@ pub use sandbox_client::{
     preset,
     Client as SandboxClient,
 };
-pub use sp_core::H256;
 pub use sp_keyring::AccountKeyring;
 pub use subxt::{
     self,
@@ -91,6 +90,7 @@ use ink_env::{
     ContractEnv,
     Environment,
 };
+use ink_primitives::{H256, H160};
 use std::{
     cell::RefCell,
     sync::Once,
@@ -98,7 +98,6 @@ use std::{
 use xts::ContractsApi;
 
 pub use subxt::PolkadotConfig;
-use ink_primitives::H160;
 
 /// We use this to only initialize `env_logger` once.
 pub static INIT: Once = Once::new();

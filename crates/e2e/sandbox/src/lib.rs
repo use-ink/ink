@@ -76,12 +76,9 @@ pub type ContractInstantiateResultFor<Runtime> =
 
 pub type ContractResultFor<Runtime> =
     ContractResult<Runtime, BalanceOf<Runtime>, EventRecordOf<Runtime>>;
-//pub type ContractInstantiateResultFor<Runtime> =
-//ContractResult<AccountIdFor<Runtime>, BalanceOf<Runtime>, EventRecordOf<Runtime>>;
 
 pub type ContractResultInstantiate<Runtime> =
     ContractResult<InstantiateReturnValue, BalanceOf<Runtime>, EventRecordOf<Runtime>>;
-//pub type ContractInstantiateResultFor<Runtime> =
 
 /// Alias for the contract exec result.
 pub type ContractExecResultFor<Runtime> =

@@ -22,7 +22,6 @@ use std::{
 pub fn salt() -> Option<[u8; 32]> {
     use funty::Fundamental as _;
 
-    // todo better
     let mut arr = [0u8; 32];
     let t = std::time::SystemTime::now()
         .duration_since(std::time::UNIX_EPOCH)

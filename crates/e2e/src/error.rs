@@ -12,8 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-//use pallet_revive::ContractResult;
-
 use std::fmt;
 
 /// An error occurred while interacting with the E2E backend.
@@ -96,15 +94,3 @@ impl fmt::Display for SandboxErr {
         write!(f, "SandboxErr: {}", self.msg)
     }
 }
-
-/*
-impl<Balance> From<ContractExecResult<Balance, ()>> for SandboxErr {
-    fn from(_value: ContractExecResult<Balance, ()>) -> Self {
-        Self {
-            msg: "ContractExecResult".to_string(),
-        }
-    }
-}
-
-
- */

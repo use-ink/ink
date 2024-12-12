@@ -365,13 +365,6 @@ where
         &mut self,
         storage_deposit_limit: E::Balance,
     ) -> &mut Self {
-        /*
-        if storage_deposit_limit == 0u32.into() {
-            self.storage_deposit_limit = None
-        } else {
-            self.storage_deposit_limit = Some(storage_deposit_limit)
-        }
-        */
         self.storage_deposit_limit = storage_deposit_limit;
         self
     }

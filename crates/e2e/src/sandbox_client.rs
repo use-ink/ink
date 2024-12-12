@@ -202,20 +202,7 @@ where
 
     ContractsBalanceOf<S::Runtime>: Into<U256> + TryFrom<U256>  + Bounded,
     MomentOf<S::Runtime>: Into<U256>,
-    //T::Hash: frame_support::traits::IsType<H256>,
     <<S as Sandbox>::Runtime as frame_system::Config>::Hash: frame_support::traits::IsType<sp_core::H256>,
-
-    /*
-    <E as ink_env::Environment>::EventRecord:
-        frame_system::EventRecord<
-            <
-                <S as Sandbox>::Runtime as frame_system::Config
-            >::RuntimeEvent,
-            <
-                <S as Sandbox>::Runtime as frame_system::Config>::Hash
-            >
-
-     */
 {
     async fn bare_instantiate<Contract: Clone, Args: Send + Sync + Encode + Clone, R>(
         &mut self,

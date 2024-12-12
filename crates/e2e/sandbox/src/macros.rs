@@ -266,11 +266,9 @@ mod construct_runtime {
             DEFAULT_ACCOUNT
         }
 
-        /*
         fn default_origin() -> $crate::OriginFor<Self::Runtime> {
             DEFAULT_ACCOUNT
         }
-         */
 
         fn get_metadata() -> $crate::RuntimeMetadataPrefixed {
             Self::Runtime::metadata()
