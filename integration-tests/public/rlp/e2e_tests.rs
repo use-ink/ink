@@ -1,6 +1,13 @@
 use super::rlp::*;
-use ink_e2e::ContractsRegistry;
-use ink_sandbox::api::balance_api::BalanceAPI;
+use ink_e2e::{
+    ContractsRegistry,
+    Keypair,
+};
+use ink_sandbox::{
+    api::balance_api::BalanceAPI,
+    AccountId32,
+};
+use pallet_contracts::ExecReturnValue;
 
 #[test]
 fn call_rlp_encoded_message() {
@@ -42,61 +49,83 @@ fn call_rlp_encoded_message() {
         .expect("sandbox deploy contract failed")
         .account_id;
 
-    fn keccak_selector(input: &[u8]) -> Vec<u8> {
-        let mut output = [0; 32];
-        use sha3::{
-            digest::generic_array::GenericArray,
-            Digest as _,
-        };
-        let mut hasher = sha3::Keccak256::new();
-        hasher.update(input);
-        hasher.finalize_into(<&mut GenericArray<u8, _>>::from(&mut output[..]));
-        vec![output[0], output[1], output[2], output[3]]
-    }
+    let mut contract = ContractSandbox {
+        sandbox,
+        contract_account_id,
+    };
 
     // set value
-    let mut set_value_data = keccak_selector(b"set_value");
-    let mut value_buf = Vec::new();
-    ink::rlp::Encodable::encode(&true, &mut value_buf);
-    set_value_data.append(&mut value_buf);
-
-    let result =
-        <ink_e2e::DefaultSandbox as ink_sandbox::api::contracts_api::ContractAPI>
-            ::call_contract(
-                &mut sandbox,
-                contract_account_id.clone(),
-                0,
-                set_value_data,
-                caller.public_key().0.into(),
-                <ink_e2e::DefaultSandbox as ink_sandbox::Sandbox>::default_gas_limit(),
-                None,
-                pallet_contracts::Determinism::Enforced,
-            )
-            .result
-            .expect("sandbox call contract failed");
-
-    assert!(!result.did_revert(), "set_value failed {:?}", result);
+    contract.call("set_value", true, caller.clone());
 
     // get value
-    let mut get_value_data = keccak_selector(b"get_value");
-    let result =
-        <ink_e2e::DefaultSandbox as ink_sandbox::api::contracts_api::ContractAPI>
-            ::call_contract(
-                &mut sandbox,
-                contract_account_id,
-                0,
-                get_value_data,
-                caller.public_key().0.into(),
-                <ink_e2e::DefaultSandbox as ink_sandbox::Sandbox>::default_gas_limit(),
-                None,
-                pallet_contracts::Determinism::Enforced,
-            )
-            .result
-            .expect("sandbox call contract failed");
-
-    assert!(!result.did_revert(), "get_value failed {:?}", result);
-
     let value: bool =
-        ink::rlp::Decodable::decode(&mut &result.data[..]).expect("decode failed");
+        contract.call_with_return_value("get_value", Vec::<u8>::new(), caller);
+
     assert!(value, "value should have been set to true");
+}
+
+struct ContractSandbox {
+    sandbox: ink_e2e::DefaultSandbox,
+    contract_account_id: AccountId32,
+}
+
+impl ContractSandbox {
+    fn call_with_return_value<Args, Ret>(
+        &mut self,
+        message: &str,
+        args: Args,
+        caller: Keypair,
+    ) -> Ret
+    where
+        Args: ink::rlp::Encodable,
+        Ret: ink::rlp::Decodable,
+    {
+        let result = self.call(message, args, caller);
+        ink::rlp::Decodable::decode(&mut &result[..]).expect("decode failed")
+    }
+
+    fn call<Args>(&mut self, message: &str, args: Args, caller: Keypair) -> Vec<u8>
+    where
+        Args: ink::rlp::Encodable,
+    {
+        let mut data = keccak_selector(message.as_bytes());
+        let mut args_buf = Vec::new();
+        ink::rlp::Encodable::encode(&args, &mut args_buf);
+        data.append(&mut args_buf);
+
+        let result = self.call_raw(data, caller);
+        assert!(!result.did_revert(), "'{message}' failed {:?}", result);
+        result.data
+    }
+
+    fn call_raw(&mut self, data: Vec<u8>, caller: Keypair) -> ExecReturnValue {
+        let result =
+            <ink_e2e::DefaultSandbox as ink_sandbox::api::contracts_api::ContractAPI>
+                ::call_contract(
+                    &mut self.sandbox,
+                    self.contract_account_id.clone(),
+                    0,
+                    data,
+                    caller.public_key().0.into(),
+                    <ink_e2e::DefaultSandbox as ink_sandbox::Sandbox>::default_gas_limit(),
+                    None,
+                    pallet_contracts::Determinism::Enforced,
+                )
+                .result
+                .expect("sandbox call contract failed");
+
+        result
+    }
+}
+
+fn keccak_selector(input: &[u8]) -> Vec<u8> {
+    let mut output = [0; 32];
+    use sha3::{
+        digest::generic_array::GenericArray,
+        Digest as _,
+    };
+    let mut hasher = sha3::Keccak256::new();
+    hasher.update(input);
+    hasher.finalize_into(<&mut GenericArray<u8, _>>::from(&mut output[..]));
+    vec![output[0], output[1], output[2], output[3]]
 }
