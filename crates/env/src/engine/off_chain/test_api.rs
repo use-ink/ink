@@ -217,7 +217,7 @@ where
     })
 }
 
-/// Transfers value from the caller contract to the contract.
+/// Transfers value from the caller account to the contract.
 ///
 /// Please note that the acting accounts should be set with [`set_caller()`] and
 /// [`set_callee()`] beforehand.
@@ -293,73 +293,68 @@ where
 pub fn run_test<T, F>(f: F) -> Result<()>
 where
     T: Environment,
-    F: FnOnce(DefaultAccounts<E>) -> Result<()>,
+    F: FnOnce(DefaultAccounts) -> Result<()>,
 {
-    let default_accounts = default_accounts::<T>();
+    let default_accounts = default_accounts();
     <EnvInstance as OnInstance>::on_instance(|instance| {
         instance.engine.initialize_or_reset();
 
         let alice = default_accounts.alice;
-        //instance.engine.set_caller(alice.clone());
-        //instance.engine.set_callee(alice.clone());
+        //instance.engine.set_caller(alice.clone()); // todo
+        instance.engine.set_callee(alice.clone());
 
         // set up the funds for the default accounts
         let substantial = 1_000_000;
         let some = 1_000;
-        instance.engine.set_balance(alice, substantial);
+        instance.engine.set_balance_of(alice, substantial);
         instance
             .engine
-            .set_balance(default_accounts.bob, some);
+            .set_balance_of(default_accounts.bob, some);
         instance
             .engine
-            .set_balance(default_accounts.charlie, some);
+            .set_balance_of(default_accounts.charlie, some);
         instance
             .engine
-            .set_balance(default_accounts.django, 0);
+            .set_balance_of(default_accounts.django, 0);
         instance
             .engine
-            .set_balance(default_accounts.eve, 0);
+            .set_balance_of(default_accounts.eve, 0);
         instance
             .engine
-            .set_balance(default_accounts.frank, 0);
+            .set_balance_of(default_accounts.frank, 0);
     });
     f(default_accounts)
 }
 
 /// Returns the default accounts for testing purposes:
 /// Alice, Bob, Charlie, Django, Eve and Frank.
- pub fn default_accounts<T>() -> DefaultAccounts<T>
- where
-     T: Environment,
-     <T as Environment>::AccountId: From<[u8; 32]>,
+pub fn default_accounts() -> DefaultAccounts
 {
     DefaultAccounts {
-        alice: T::AccountId::from([0x01; 32]),
-        bob: T::AccountId::from([0x02; 32]),
-        charlie: T::AccountId::from([0x03; 32]),
-        django: T::AccountId::from([0x04; 32]),
-        eve: T::AccountId::from([0x05; 32]),
-        frank: T::AccountId::from([0x06; 32]),
+        alice: H160::from([0x01; 20]),
+        bob: H160::from([0x02; 20]),
+        charlie: H160::from([0x03; 20]),
+        django: H160::from([0x04; 20]),
+        eve: H160::from([0x05; 20]),
+        frank: H160::from([0x06; 20]),
     }
 }
 
 /// The default accounts.
-pub struct DefaultAccounts<T>
-where
-    T: Environment,
+pub struct DefaultAccounts
 {
     /// The predefined `ALICE` account holding substantial amounts of value.
-    pub alice: T::AccountId,
+    pub alice: H160,
     /// The predefined `BOB` account holding some amounts of value.
-    pub bob: T::AccountId,
+    pub bob: H160,
     /// The predefined `CHARLIE` account holding some amounts of value.
-    pub charlie: T::AccountId,
+    pub charlie: H160,
     /// The predefined `DJANGO` account holding no value.
-    pub django: T::AccountId,
+    pub django: H160,
     /// The predefined `EVE` account holding no value.
-    pub eve: T::AccountId,
+    pub eve: H160,
     /// The predefined `FRANK` account holding no value.
-    pub frank: T::AccountId,
+    pub frank: H160,
 }
 
 /// Returns the recorded emitted events in order.
