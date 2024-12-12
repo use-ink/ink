@@ -457,10 +457,6 @@ where
 {
     type Error = SandboxErr;
     type EventLog = ();
-
-    fn contracts(&self) -> &ContractsRegistry {
-        &self.contracts
-    }
 }
 
 /// Exposes preset sandbox configurations to be used in tests.
