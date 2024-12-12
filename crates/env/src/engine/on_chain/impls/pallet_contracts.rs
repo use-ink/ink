@@ -24,6 +24,10 @@ use crate::{
         LimitParamsV1,
         LimitParamsV2,
     },
+    dispatch::{
+        DecodeDispatch,
+        DispatchError,
+    },
     engine::{
         on_chain::{
             EncodeScope,
@@ -269,11 +273,13 @@ impl EnvBackend for EnvInstance {
         ext::clear_storage_v1(key)
     }
 
-    fn decode_input<T>(&mut self) -> Result<T>
+    fn decode_input<T>(&mut self) -> core::result::Result<T, DispatchError>
     where
-        T: scale::Decode,
+        T: DecodeDispatch,
     {
-        self.get_property::<T>(ext::input)
+        let full_scope = &mut self.scoped_buffer().take_rest();
+        ext::input(full_scope);
+        DecodeDispatch::decode_dispatch(&mut &full_scope[..])
     }
 
     fn return_value<R>(&mut self, flags: ReturnFlags, return_value: &R) -> !
@@ -282,6 +288,16 @@ impl EnvBackend for EnvInstance {
     {
         let mut scope = EncodeScope::from(&mut self.buffer[..]);
         return_value.encode_to(&mut scope);
+        let len = scope.len();
+        ext::return_value(flags, &self.buffer[..][..len]);
+    }
+
+    fn return_value_rlp<R>(&mut self, flags: ReturnFlags, return_value: &R) -> !
+    where
+        R: alloy_rlp::Encodable,
+    {
+        let mut scope = EncodeScope::from(&mut self.buffer[..]);
+        return_value.encode(&mut scope);
         let len = scope.len();
         ext::return_value(flags, &self.buffer[..][..len]);
     }
