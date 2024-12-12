@@ -31,7 +31,7 @@
 //! there is no knowledge of the concrete types, the functionality is restricted to
 //! the trait bounds on the `Environment` trait types.
 
-use crate::arithmetic::AtLeast32BitUnsigned;
+use super::arithmetic::AtLeast32BitUnsigned;
 use ink_primitives::{
     AccountId,
     Clear,
