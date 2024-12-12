@@ -4,11 +4,6 @@
 
 #[ink::contract(abi_encoding = "rlp")]
 mod rlp {
-    use ink::prelude::{
-        format,
-        string::String,
-    };
-
     #[ink(storage)]
     #[derive(Default)]
     pub struct Rlp {
