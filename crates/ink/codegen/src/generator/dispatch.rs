@@ -356,14 +356,18 @@ impl Dispatch<'_> {
                     let rlp_return_value = message
                         .output()
                         .map(|_| quote! {
-                        ::ink::env::return_value_rlp::<Self::Output>(flags, &output)
-                    })
+                            |flags, output| {
+                                ::ink::env::return_value_rlp::<Self::Output>(flags, &output)
+                            };
+                        })
                         .unwrap_or_else(|| quote! {
-                        ::ink::env::return_value_rlp::<::ink::reflect::RlpUnit>(
-                            flags,
-                            &::ink::reflect::RlpUnit {}
-                        )
-                    });
+                            |flags, _output| {
+                                ::ink::env::return_value_rlp::<::ink::reflect::RlpUnit>(
+                                    flags,
+                                    &::ink::reflect::RlpUnit {}
+                                )
+                            };
+                        });
 
                     message_infos.push(quote_spanned!(message_span=>
                         #( #cfg_attrs )*
@@ -379,9 +383,7 @@ impl Dispatch<'_> {
                             const DECODE: fn(&mut &[::core::primitive::u8]) -> ::core::result::Result<Self::Input, ::ink::env::DispatchError> =
                                 #rlp_decode
                             const RETURN: fn(::ink::env::ReturnFlags, Self::Output) -> ! =
-                                |flags, output| {
-                                    #rlp_return_value
-                                };
+                                #rlp_return_value
                             const SELECTOR: [::core::primitive::u8; 4usize] = [ #( #rlp_selector_bytes ),* ];
                             const PAYABLE: ::core::primitive::bool = #payable;
                             const MUTATES: ::core::primitive::bool = #mutates;
