@@ -234,10 +234,6 @@ impl CallForwarder<'_> {
             impl<E> ::core::convert::From<::ink::H160> for #call_forwarder_ident<E>
             where
                 E: ::ink::env::Environment,
-            /*
-                E: ::ink::env::Environment<AccountId = AccountId>,
-                AccountId: ::ink::env::AccountIdGuard,// todo remove guard
-             */
             {
                 fn from(addr: ::ink::H160) -> Self {
                     <Self as ::ink::env::call::FromAddr>::from_addr(addr)

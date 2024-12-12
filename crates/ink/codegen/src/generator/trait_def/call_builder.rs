@@ -295,12 +295,6 @@ impl CallBuilder<'_> {
         let message_builder_ident = self.trait_def.message_builder_ident();
         quote_spanned!(span=>
             /// This trait allows to bridge from the call builder to message builder.
-            /*
-            impl ::ink::codegen::TraitMessageBuilder for #call_builder_ident
-            {
-                type MessageBuilder = #message_builder_ident;
-            }
-            */
             impl<E> ::ink::codegen::TraitMessageBuilder for #call_builder_ident<E>
             where
                 E: ::ink::env::Environment

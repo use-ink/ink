@@ -45,8 +45,8 @@ fn topics_builder() -> Result<()> {
 }
 #[test]
 fn test_set_account_balance() -> Result<()> {
-    /*
     pub use ink_engine::ext::ChainSpec;
+
     crate::test::run_test::<DefaultEnvironment, _>(|_| {
         let minimum_balance = ChainSpec::default().minimum_balance;
 
@@ -71,6 +71,4 @@ fn test_set_account_balance() -> Result<()> {
 
         Ok(())
     })
-     */
-    Ok(())
 }

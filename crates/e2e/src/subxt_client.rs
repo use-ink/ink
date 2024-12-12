@@ -279,7 +279,6 @@ where
             E::EventRecord,
         >,
     ) -> Result<
-        //ContractResult<Result<V, sp_runtime::DispatchError>, E::Balance, ()>,
         ContractResult<V, E::Balance, E::EventRecord>,
         DryRunError<DispatchError>,
     > {
@@ -505,7 +504,6 @@ where
         value: E::Balance,
         storage_deposit_limit: DepositLimit<E::Balance>,
     ) -> Result<BareInstantiationDryRunResult<E>, Self::Error> {
-    //) -> Result<InstantiateDryRunResult<E>, Self::Error> {
         let code = self.contracts.load_code(contract_name);
         let data = constructor_exec_input(constructor.clone());
 
@@ -529,7 +527,6 @@ where
             Err(err) => {
                 panic!("Instantiate dry-run failed: {err:?}!")
             }
-            //Ok(res) => *res.addr.as_ref(),
             Ok(res) => res.addr,
         };
 
@@ -546,7 +543,6 @@ where
             }),
         };
         Ok(result)
-        //Ok(result.into())
     }
 
     async fn bare_upload(
@@ -606,7 +602,6 @@ where
             .api
             .call(
                 account_id,
-                //subxt::utils::MultiAddress::Id(account_id.clone()),
                 value,
                 gas_limit.into(),
                 storage_deposit_limit,

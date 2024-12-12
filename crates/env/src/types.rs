@@ -95,6 +95,7 @@ impl FromLittleEndian for u128 {
     }
 }
 
+/// todo remove
 /// A trait to enforce that a type should be an [`Environment::AccountId`].
 ///
 /// If you have an [`Environment`] which uses an [`Environment::AccountId`] type other
@@ -194,14 +195,8 @@ pub trait Environment: Clone {
     /// [chain_extension]: https://use-ink.github.io/ink/ink/attr.chain_extension.html
     type ChainExtension;
 
-    /// The type of block number.
-    type EventRecord: 'static
-    + scale::Codec;
-    //+ CodecAsType;
-    //+ Copy
-    //+ Clone
-    //+ PartialEq
-    //+ Eq;
+    /// TODO comment
+    type EventRecord: 'static + scale::Codec;
 }
 
 /// Placeholder for chains that have no defined chain extension.
@@ -270,8 +265,6 @@ pub enum Phase {
     /// Initializing the block.
     Initialization,
 }
-//type EventRecordOf<T> =
-//  EventRecord<<T as frame_system::Config>::RuntimeEvent, <T as frame_system::Config>::Hash>;
 
 /// The type of origins supported by `pallet-revive`.
 #[derive(Clone, ::scale::Encode, ::scale::Decode, PartialEq)]

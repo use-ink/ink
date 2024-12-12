@@ -102,7 +102,6 @@ pub struct InstantiateWithCode<E: Environment> {
 #[derive(Debug, scale::Decode, scale::Encode, scale_encode::EncodeAsType)]
 #[encode_as_type(trait_bounds = "", crate_path = "subxt::ext::scale_encode")]
 pub struct Call<E: Environment> {
-    //dest: MultiAddress<E::AccountId, ()>,
     dest: H160,
     #[codec(compact)]
     value: E::Balance,
@@ -513,7 +512,6 @@ where
     /// contains all events that are associated with this transaction.
     pub async fn call(
         &self,
-        //contract: MultiAddress<E::AccountId, ()>,
         contract: H160,
         value: E::Balance,
         gas_limit: Weight,

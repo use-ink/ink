@@ -389,10 +389,13 @@ impl EnvBackend for EnvInstance {
     }
 }
 
-// TODO alles mit hash kann weg
+// TODO remove anything with hash
 impl TypedEnvBackend for EnvInstance {
     fn caller(&mut self) -> H160 {
         let mut scope = self.scoped_buffer();
+
+        self.get_property::<H160>(ext::caller)
+            /*
 
         let h160: &mut [u8; 20] = scope.take(20).try_into().unwrap();
         ext::caller(h160);
@@ -403,6 +406,7 @@ impl TypedEnvBackend for EnvInstance {
 
         scale::Decode::decode(&mut &account_id[..])
             .expect("The executed contract must have a caller with a valid account id.")
+             */
     }
 
     fn transferred_value<E: Environment>(&mut self) -> E::Balance {
@@ -641,15 +645,13 @@ impl TypedEnvBackend for EnvInstance {
     {
         let mut scope = self.scoped_buffer();
         // todo can be simplified
-        let enc_account_id: &mut [u8; 20] = scope.take_encoded(addr)[..20]
+        let enc_addr: &mut [u8; 20] = scope.take_encoded(addr)[..20]
             .as_mut()
             .try_into()
             .unwrap();
         let output: &mut [u8; 32] =
             scope.take_max_encoded_len::<H256>().try_into().unwrap();
-        // TODO
-        // ext::code_hash(enc_account_id, output)?;
-        ext::code_hash(enc_account_id, output);
+        ext::code_hash(enc_addr, output);
         let hash = scale::Decode::decode(&mut &output[..])?;
         Ok(hash)
     }

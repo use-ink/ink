@@ -188,7 +188,6 @@ where
 #[async_trait]
 impl<
         AccountId: Clone + Send + Sync + From<[u8; 32]> + AsRef<[u8; 32]>,
-        //S: Sandbox + ink_sandbox::api::revive_api::ContractAPI, // todo
         S: Sandbox,
         E: Environment<
                 AccountId = AccountId,
@@ -216,6 +215,7 @@ where
         let code = self.contracts.load_code(contract_name);
         let data = constructor_exec_input(constructor.clone());
 
+        // todo reduce code duplication
         let caller = keypair_to_account(caller);
         let origin = RawOrigin::Signed(caller);
         let origin = OriginFor::<S::Runtime>::from(origin);
@@ -226,8 +226,6 @@ where
             value,
             data,
             Some(s), // todo
-            //keypair_to_account(caller),
-            //&caller,
             origin,
             gas_limit,
             storage_deposit_limit,
@@ -259,6 +257,7 @@ where
         let code = self.contracts.load_code(contract_name);
         let data = constructor_exec_input(constructor.clone());
 
+        // todo reduce code duplication
         let caller = keypair_to_account(caller);
         let origin = RawOrigin::Signed(caller);
         let origin = OriginFor::<S::Runtime>::from(origin);
@@ -269,48 +268,19 @@ where
                 value,
                 data,
                 salt(),
-                //keypair_to_account(caller),
-                //&caller,
                 origin,
                 S::default_gas_limit(),
                 storage_deposit_limit,
             )
         });
 
-        /*
-        result.events = None;
-
-        Ok(InstantiateDryRunResult {
-            contract_result: result,
-        })
-         */
-
         let addr_id_raw = match &result.result {
             Err(err) => {
                 panic!("Instantiate dry-run failed: {err:?}!")
             }
-            //Ok(res) => *res.addr.as_ref(),
             Ok(res) => res.addr,
         };
-        //let account_id = AccountId::from(account_id_raw);
 
-        //let result = ContractInstantiateResultFor::<S::Runtime> {
-        /*
-        let result = ContractResultInstantiate::<S::Runtime> {
-            gas_consumed: result.gas_consumed,
-            gas_required: result.gas_required,
-            storage_deposit: result.storage_deposit,
-            debug_message: result.debug_message,
-            result: result.result.map(|r| {
-                InstantiateReturnValue {
-                    result: r.result,
-                    addr: addr_id_raw, // todo
-                }
-            }),
-            events: None,
-        };
-        Ok(result.into())
-        */
         let result = BareInstantiationDryRunResult::<E> {
             gas_consumed: result.gas_consumed,
             gas_required: result.gas_required,
@@ -334,13 +304,13 @@ where
     ) -> Result<UploadResult<E, Self::EventLog>, Self::Error> {
         let code = self.contracts.load_code(contract_name);
 
+        // todo reduce code duplication
         let caller = keypair_to_account(caller);
         let origin = RawOrigin::Signed(caller);
         let origin = OriginFor::<S::Runtime>::from(origin);
 
         let result = match self.sandbox.upload_contract(
             code,
-            //keypair_to_account(caller),
             origin,
             storage_deposit_limit,
         ) {
@@ -383,8 +353,8 @@ where
         // todo rename any account_id coming back from callee
         let addr = message.clone().params().callee().clone();
         let exec_input = Encode::encode(message.clone().params().exec_input());
-        //let account_id = (*account_id.as_ref()).into();
 
+        // todo reduce code duplication
         let caller = keypair_to_account(caller);
         let origin = RawOrigin::Signed(caller);
         let origin = OriginFor::<S::Runtime>::from(origin);
@@ -394,8 +364,6 @@ where
                 addr,
                 value,
                 exec_input,
-                //keypair_to_account(caller),
-                //&caller,
                 origin,
                 gas_limit,
                 storage_deposit_limit,
@@ -418,8 +386,8 @@ where
     {
         let addr = message.clone().params().callee().clone();
         let exec_input = Encode::encode(message.clone().params().exec_input());
-        //let account_id = (*account_id.as_ref()).into();
 
+        // todo reduce code duplication
         let caller = keypair_to_account(caller);
         let origin = RawOrigin::Signed(caller);
         let origin = OriginFor::<S::Runtime>::from(origin);
@@ -429,8 +397,6 @@ where
                 addr,
                 value,
                 exec_input,
-                //keypair_to_account(caller),
-                //&caller,
                 origin,
                 S::default_gas_limit(),
                 storage_deposit_limit,
@@ -462,10 +428,8 @@ where
     Config::Runtime: pallet_balances::Config + pallet_revive::Config,
     AccountIdFor<Config::Runtime>: From<[u8; 32]> + AsRef<[u8; 32]>,
     ContractsBalanceOf<Config::Runtime>: Send + Sync,
-    //ContractsBalanceOf<Config::Runtime>: IsType<sp_code::U256>,
     ContractsBalanceOf<Config::Runtime>: Into<U256> + TryFrom<U256> + Bounded,
     MomentOf<Config::Runtime>: Into<U256>,
-    //<Config::Runtime as SysConfig>::Hash: IsType<sp_core::H256>
     <Config::Runtime as frame_system::Config>::Hash: IsType<sp_core::H256>,
 {
 }
