@@ -106,17 +106,17 @@ impl Engine {
             .map_err(|_| Error::TransferFailed)?;
 
         // Note that the destination account does not have to exist
-        let dest_old_balance = self.get_balance_of(dest.clone()).unwrap_or_default();
+        let dest_old_balance = self.get_balance(dest.clone()).unwrap_or_default();
 
         let contract = self.get_callee();
         let contract_old_balance = self
-            .get_balance_of(contract.clone())
+            .get_balance(contract.clone())
             .map_err(|_| Error::TransferFailed)?;
 
         self.database
-            .set_balance_of(&contract, contract_old_balance - increment);
+            .set_balance(&contract, contract_old_balance - increment);
         self.database
-            .set_balance_of(&dest, dest_old_balance + increment);
+            .set_balance(&dest, dest_old_balance + increment);
         Ok(())
     }
 
@@ -216,7 +216,7 @@ impl Engine {
         // Send the remaining balance to the beneficiary
         let contract = self.get_callee();
         let all = self
-            .get_balance_of(contract)
+            .get_balance(contract)
             .unwrap_or_else(|err| panic!("could not get balance: {err:?}"));
         let value = &scale::Encode::encode(&all)[..];
         self.transfer(beneficiary, value)
@@ -248,7 +248,7 @@ impl Engine {
 
         let balance_in_storage = self
             .database
-            .get_balance_of(contract)
+            .get_balance(contract)
             .expect("currently executing contract must exist");
         let balance = scale::Encode::encode(&balance_in_storage);
         set_output(output, &balance[..])

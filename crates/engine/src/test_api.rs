@@ -254,27 +254,27 @@ impl Engine {
     }
 
     /// Returns the current balance of `addr`.
-    pub fn get_balance(&self, addr: AccountId) -> Result<Balance, Error> {
+    pub fn get_acc_balance(&self, addr: AccountId) -> Result<Balance, Error> {
         self.database
-            .get_balance(&addr)
+            .get_acc_balance(&addr)
             .ok_or(Error::Account(AccountError::NoAccountForId(addr)))
     }
 
     /// Sets the balance of `addr` to `new_balance`.
-    pub fn set_balance(&mut self, addr: AccountId, new_balance: Balance) {
-        self.database.set_balance(&addr, new_balance);
+    pub fn set_acc_balance(&mut self, addr: AccountId, new_balance: Balance) {
+        self.database.set_acc_balance(&addr, new_balance);
     }
 
     /// Returns the current balance of `addr`.
-    pub fn get_balance_of(&self, addr: H160) -> Result<Balance, Error> {
+    pub fn get_balance(&self, addr: H160) -> Result<Balance, Error> {
         self.database
-            .get_balance_of(&addr)
+            .get_balance(&addr)
             .ok_or(Error::Account(AccountError::NoContractForId(addr)))
     }
 
     /// Sets the balance of `addr` to `new_balance`.
-    pub fn set_balance_of(&mut self, addr: H160, new_balance: Balance) {
-        self.database.set_balance_of(&addr, new_balance);
+    pub fn set_balance(&mut self, addr: H160, new_balance: Balance) {
+        self.database.set_balance(&addr, new_balance);
     }
 
     /// Sets the value transferred from the caller to the callee as part of the call.

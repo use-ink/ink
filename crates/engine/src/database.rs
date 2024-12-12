@@ -21,7 +21,7 @@ const BALANCE_OF: &[u8] = b"balance:";
 const STORAGE_OF: &[u8] = b"contract-storage:";
 
 /// Returns the database key under which to find the balance for contract `who`.
-pub fn balance_of_key(who: &AccountId) -> [u8; 32] {
+pub fn balance_of_key(who: &H160) -> [u8; 32] {
     let keyed = who.0.to_vec().to_keyed_vec(BALANCE_OF);
     let mut hashed_key: [u8; 32] = [0; 32];
     super::hashing::blake2b_256(&keyed[..], &mut hashed_key);
@@ -112,7 +112,16 @@ impl Database {
     }
 
     /// Returns the balance of the contract at `addr`, if available.
-    pub fn get_balance(&self, addr: &AccountId) -> Option<Balance> {
+    pub fn get_acc_balance(&self, _addr: &AccountId) -> Option<Balance> {
+        todo!()
+    }
+
+    /// Sets the balance of `addr` to `new_balance`.
+    pub fn set_acc_balance(&mut self, _addr: &AccountId, _new_balance: Balance) {
+        todo!()
+    }
+
+    pub fn get_balance(&self, addr: &H160) -> Option<Balance> {
         let hashed_key = balance_of_key(addr);
         self.get(&hashed_key).map(|encoded_balance| {
             scale::Decode::decode(&mut &encoded_balance[..])
@@ -121,22 +130,13 @@ impl Database {
     }
 
     /// Sets the balance of `addr` to `new_balance`.
-    pub fn set_balance(&mut self, addr: &AccountId, new_balance: Balance) {
+    pub fn set_balance(&mut self, addr: &H160, new_balance: Balance) {
         let hashed_key = balance_of_key(addr);
         let encoded_balance = scale::Encode::encode(&new_balance);
         self.hmap
             .entry(hashed_key.to_vec())
             .and_modify(|v| *v = encoded_balance.clone())
             .or_insert(encoded_balance);
-    }
-
-    pub fn get_balance_of(&self, _addr: &H160) -> Option<Balance> {
-        todo!()
-    }
-
-    /// Sets the balance of `addr` to `new_balance`.
-    pub fn set_balance_of(&mut self, _addr: &H160, _new_balance: Balance) {
-        todo!()
     }
 }
 

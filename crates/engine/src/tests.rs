@@ -61,7 +61,7 @@ fn setting_getting_balance() {
     let addr = H160::from([1; 20]);
     let balance = 1337;
     engine.set_callee(addr.clone());
-    engine.set_balance_of(addr, balance);
+    engine.set_balance(addr, balance);
 
     // when
     let mut output = get_buffer();
@@ -111,15 +111,15 @@ fn transfer() {
     let alice = H160::from([1; 20]);
     let bob = H160::from([2; 20]);
     engine.set_callee(alice.clone());
-    engine.set_balance_of(alice.clone(), 1337);
+    engine.set_balance(alice.clone(), 1337);
 
     // when
     let val = scale::Encode::encode(&337u128);
     assert_eq!(engine.transfer(bob, &val), Ok(()));
 
     // then
-    assert_eq!(engine.get_balance_of(alice), Ok(1000));
-    assert_eq!(engine.get_balance_of(bob), Ok(337));
+    assert_eq!(engine.get_balance(alice), Ok(1000));
+    assert_eq!(engine.get_balance(bob), Ok(337));
 }
 
 #[test]

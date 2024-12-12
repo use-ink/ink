@@ -73,7 +73,7 @@ where
     <EnvInstance as OnInstance>::on_instance(|instance| {
         instance
             .engine
-            .set_balance_of(addr, new_balance);
+            .set_balance(addr, new_balance);
     })
 }
 
@@ -96,7 +96,7 @@ where
     <EnvInstance as OnInstance>::on_instance(|instance| {
         instance
             .engine
-            .get_balance_of(addr)
+            .get_balance(addr)
             .map_err(Into::into)
     })
 }
@@ -234,21 +234,21 @@ where
 
         let caller_old_balance = instance
             .engine
-            .get_balance_of(caller.clone())
+            .get_balance(caller.clone())
             .unwrap_or_default();
 
         let callee = instance.engine.get_callee();
         let contract_old_balance = instance
             .engine
-            .get_balance_of(callee.clone())
+            .get_balance(callee.clone())
             .unwrap_or_default();
 
         instance
             .engine
-            .set_balance_of(caller, caller_old_balance - value);
+            .set_balance(caller, caller_old_balance - value);
         instance
             .engine
-            .set_balance_of(callee, contract_old_balance + value);
+            .set_balance(callee, contract_old_balance + value);
         instance.engine.set_value_transferred(value);
     });
 }
@@ -306,22 +306,22 @@ where
         // set up the funds for the default accounts
         let substantial = 1_000_000;
         let some = 1_000;
-        instance.engine.set_balance_of(alice, substantial);
+        instance.engine.set_balance(alice, substantial);
         instance
             .engine
-            .set_balance_of(default_accounts.bob, some);
+            .set_balance(default_accounts.bob, some);
         instance
             .engine
-            .set_balance_of(default_accounts.charlie, some);
+            .set_balance(default_accounts.charlie, some);
         instance
             .engine
-            .set_balance_of(default_accounts.django, 0);
+            .set_balance(default_accounts.django, 0);
         instance
             .engine
-            .set_balance_of(default_accounts.eve, 0);
+            .set_balance(default_accounts.eve, 0);
         instance
             .engine
-            .set_balance_of(default_accounts.frank, 0);
+            .set_balance(default_accounts.frank, 0);
     });
     f(default_accounts)
 }
