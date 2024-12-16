@@ -72,7 +72,7 @@ subxt-metadata = { version = "0.38.0" }
 subxt-signer = { version = "0.38.0" }
 syn = { version = "2" }
 synstructure = { version = "0.13.1" }
-thiserror = { version = "2.0.4" }
+thiserror = { version = "2.0.7" }
 tokio = { version = "1.41.1" }
 tracing = { version = "0.1.41" }
 tracing-subscriber = { version = "0.3.19" }
