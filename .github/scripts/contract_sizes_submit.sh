@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Accepts a diff of contract sizes and posts the to the PR as a comment.
+# Accepts a diff of contract sizes and posts them to the PR as a comment.
 #
 # Usage:
 #   ./contract_sizes_submit.sh \

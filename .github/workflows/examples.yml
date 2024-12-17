@@ -1,4 +1,4 @@
-name: continuous-intergration/examples
+name: continuous-integration/examples
 
 on:
   push:
