@@ -53,7 +53,7 @@ concurrency:
 jobs:
   set-image:
     # GitHub Actions does not allow using 'env' in a container context.
-    # This workaround sets the container image for each job using 'set-image' job output.
+    # This workaround sets the container image for each job using the 'set-image' job output.
     runs-on: ubuntu-latest
     outputs:
       IMAGE: ${{ steps.set_image.outputs.IMAGE }}
@@ -455,7 +455,7 @@ jobs:
           # https://github.com/Kogia-sima/rust-covfix/issues/7
           unset "CARGO_TARGET_DIR"
           cargo clean
-          # make sure there's no stale coverage artifacts
+          # make sure there are no stale coverage artifacts
           find . -name "*.profraw" -type f -delete
           find . -name "*.gcda" -type f -delete
           # FIXME: Access from 2 users, should be solved once ci-image works from a non-root user
