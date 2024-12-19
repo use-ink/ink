@@ -20,7 +20,6 @@ ink_allocator = { workspace = true }
 ink_storage_traits = { workspace = true }
 ink_prelude = { workspace = true }
 ink_primitives = { workspace = true }
-pallet-contracts-uapi = { workspace = true }
 pallet-revive-uapi = { workspace = true }
 
 scale = { workspace = true, features = ["max-encoded-len"] }
@@ -33,16 +32,13 @@ const_env = { workspace = true }
 xcm = { workspace = true }
 
 # We add the `sp-io` here to disable those features
-sp-io = { version = "38.0.0", default-features = false, features = ["disable_panic_handler", "disable_oom", "disable_allocator"] }
+sp-io = { git = "https://github.com/paritytech/polkadot-sdk", rev = "cbeb66fbf4c7a950ed90a979373bbcca412dc63c", default-features = false, features = ["disable_panic_handler", "disable_oom", "disable_allocator"] }
+sp-runtime-interface = { git = "https://github.com/paritytech/polkadot-sdk", rev = "cbeb66fbf4c7a950ed90a979373bbcca412dc63c", default-features = false, features = ["disable_target_static_assertions"] }
 
-[target.'cfg(target_arch = "wasm32")'.dependencies]
-rlibc = "1"
-
-[target.'cfg(target_arch = "riscv32")'.dependencies]
+[target.'cfg(target_arch = "riscv64")'.dependencies]
 polkavm-derive = { workspace = true, default-features = false }
 
-# TODO
-[target.'cfg(all(not(target_arch = "wasm32"), not(target_arch = "riscv32")))'.dependencies]
+[target.'cfg(not(target_arch = "riscv64"))'.dependencies]
 ink_engine = { workspace = true, default-features = true, optional = true }
 
 # Hashes for the off-chain environment.
@@ -101,7 +97,3 @@ no-allocator = [ "ink_allocator/no-allocator" ]
 
 # Disable the ink! provided panic handler.
 no-panic-handler = []
-
-revive = [
-	"ink_engine/revive"
-]

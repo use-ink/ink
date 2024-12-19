@@ -17,7 +17,6 @@ include = ["Cargo.toml", "src/**/*.rs", "README.md", "LICENSE"]
 [dependencies]
 ink_primitives = { workspace = true }
 scale = { workspace = true }
-pallet-contracts-uapi = { workspace = true }
 pallet-revive-uapi = { workspace = true }
 derive_more = { workspace = true, features = ["from", "display"] }
 
@@ -36,4 +35,3 @@ std = [
 	"secp256k1",
 	"derive_more/std"
 ]
-revive = []

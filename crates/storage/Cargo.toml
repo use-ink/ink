@@ -20,7 +20,6 @@ ink_metadata = { workspace = true, optional = true }
 ink_primitives = { workspace = true }
 ink_storage_traits = { workspace = true }
 ink_prelude = { workspace = true }
-pallet-contracts-uapi = { workspace = true}
 pallet-revive-uapi = { workspace = true}
 
 scale = { workspace = true }
@@ -49,4 +48,3 @@ std = [
 	"derive_more/std"
 ]
 ink-fuzz-tests = [ "std" ]
-revive = [ "ink_env/revive", "ink/revive"]

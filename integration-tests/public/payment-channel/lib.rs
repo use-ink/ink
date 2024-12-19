@@ -293,12 +293,12 @@ mod payment_channel {
         };
 
         fn default_accounts(
-        ) -> ink::env::test::DefaultAccounts<ink::env::DefaultEnvironment> {
-            ink::env::test::default_accounts::<ink::env::DefaultEnvironment>()
+        ) -> ink::env::test::DefaultAccounts {
+            ink::env::test::default_accounts()
         }
 
         fn set_next_caller(caller: AccountId) {
-            ink::env::test::set_caller::<ink::env::DefaultEnvironment>(caller);
+            ink::env::test::set_caller(caller);
         }
 
         fn set_account_balance(account: AccountId, balance: Balance) {

@@ -49,7 +49,7 @@ pub mod wildcard_selector {
         type Environment = <WildcardSelectorRef as ink::env::ContractEnv>::Env;
 
         fn build_message(
-            account_id: AccountId,
+            addr: ink::H160,
             selector: [u8; 4],
             message: String,
         ) -> ink_e2e::CallBuilderFinal<
@@ -58,7 +58,7 @@ pub mod wildcard_selector {
             (),
         > {
             ink::env::call::build_call::<Environment>()
-                .call(account_id)
+                .call(addr)
                 .exec_input(
                     ink::env::call::ExecutionInput::new(ink::env::call::Selector::new(
                         selector,

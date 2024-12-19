@@ -52,9 +52,9 @@ mod multi_contract_caller {
         pub fn new(
             init_value: i32,
             version: u32,
-            accumulator_code_hash: Hash,
-            adder_code_hash: Hash,
-            subber_code_hash: Hash,
+            accumulator_code_hash: ink::H256,
+            adder_code_hash: ink::H256,
+            subber_code_hash: ink::H256,
         ) -> Self {
             let total_balance = Self::env().balance();
             let salt = version.to_le_bytes();

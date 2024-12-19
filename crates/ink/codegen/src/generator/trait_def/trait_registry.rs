@@ -42,7 +42,7 @@ use syn::{
     spanned::Spanned,
 };
 
-impl<'a> TraitDefinition<'a> {
+impl TraitDefinition<'_> {
     /// Generates the code for the global trait registry implementation.
     ///
     /// This also generates the code for the global trait info object which
