@@ -118,7 +118,7 @@ impl Item {
         self.map_ink_item().is_some()
     }
 
-    /// Returns `true` if `self` is an normal Rust item.
+    /// Returns `true` if `self` is a normal Rust item.
     pub fn is_rust_item(&self) -> bool {
         self.map_rust_item().is_some()
     }

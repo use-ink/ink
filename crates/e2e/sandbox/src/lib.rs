@@ -127,7 +127,7 @@ pub trait Sandbox {
     /// Metadata of the runtime.
     fn get_metadata() -> RuntimeMetadataPrefixed;
 
-    /// Convert an account to an call origin.
+    /// Convert an account to a call origin.
     fn convert_account_to_origin(
         account: AccountIdFor<Self::Runtime>,
     ) -> <<Self::Runtime as frame_system::Config>::RuntimeCall as Dispatchable>::RuntimeOrigin;
