@@ -109,7 +109,7 @@ mod call_builder {
             let mut params = ConstructorsReturnValueRef::new(init_value)
                 .code_hash(code_hash)
                 .endowment(0)
-                .salt_bytes(&[0xDE, 0xAD, 0xBE, 0xEF])
+                .salt_bytes(Some([1u8; 32]))
                 .params();
 
             params.update_selector(Selector::new(selector));
@@ -150,7 +150,7 @@ mod call_builder {
             let mut params = ConstructorsReturnValueRef::try_new(init_value)
                 .code_hash(code_hash)
                 .endowment(0)
-                .salt_bytes(&[0xDE, 0xAD, 0xBE, 0xEF])
+                .salt_bytes(Some([1u8; 32]))
                 .params();
 
             params.update_selector(Selector::new(selector));

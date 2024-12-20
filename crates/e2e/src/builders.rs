@@ -36,7 +36,6 @@ pub type CreateBuilderPartial<E, ContractRef, Args, R> = CreateBuilder<
     Set<LimitParamsV2<E>>,
     Unset<<E as Environment>::Balance>,
     Set<ExecutionInput<Args>>,
-    Unset<ink_env::call::state::Salt>,
     Set<ReturnType<R>>,
 >;
 
@@ -51,7 +50,7 @@ where
     builder
         .endowment(0u32.into())
         .code_hash(H256::zero())
-        .salt_bytes(Vec::new())
+        .salt_bytes(None)
         .params()
         .exec_input()
         .encode()

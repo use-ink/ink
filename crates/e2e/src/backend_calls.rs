@@ -169,9 +169,8 @@ where
             self.value,
             gas_limit,
 
-            // todo: use dry_run.storage_deposit_limit here, otherwise when someone
-            // doesn't run `.dry_run()` beforehand this would have `0u32`.
-            balance_to_deposit_limit::<E>(self.storage_deposit_limit),
+            // todo: the `bare_call` converts this value back, this is unnecessary work
+            DepositLimit::Balance(dry_run.exec_result.storage_deposit.charge_or_zero())
         )
         .await?;
 
@@ -382,7 +381,9 @@ where
             client,
             contract_name,
             caller,
-            storage_deposit_limit: 100_000_000u32.into(), // todo should be 0
+            storage_deposit_limit: 0u32.into(), // todo should be 0
+            //storage_deposit_limit: <E as ink_env::Environment>::Balance::MAX, // todo should be 0
+            //storage_deposit_limit: u32::MAX.into(), // todo should be 0
         }
     }
 

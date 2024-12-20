@@ -202,9 +202,11 @@ where
         &mut self,
         signer: &Keypair,
         code: Vec<u8>,
-        storage_deposit_limit: E::Balance,
+        _storage_deposit_limit: E::Balance,
     ) -> Result<UploadResult<E, ExtrinsicEvents<C>>, Error> {
-        // dry run instantiate to calculate the gas limit
+        // todo
+        let storage_deposit_limit: E::Balance = unsafe {
+            core::mem::transmute_copy::<u128, <E as Environment>::Balance>(&u128::MAX) };
         let dry_run = self
             .api
             .upload_dry_run(signer, code.clone(), storage_deposit_limit)
@@ -614,7 +616,7 @@ where
     {
         // todo beware side effect! this is wrong, we have to batch up the `map_account`
         // into the RPC dry run instead
-       let _ = self.map_account(caller).await;
+        let _ = self.map_account(caller).await;
 
         let dest = *message.clone().params().callee();
         let exec_input = Encode::encode(message.clone().params().exec_input());

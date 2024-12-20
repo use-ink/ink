@@ -46,7 +46,7 @@ fn main() {
         CalleeRef::new_self()
             .code_hash(ink::primitives::H256::zero())
             .endowment(25)
-            .salt_bytes([0xDE, 0xAD, 0xBE, 0xEF])
+            .salt_bytes(Some([1u8; 32]))
             .instantiate()
     };
 
@@ -55,7 +55,7 @@ fn main() {
         CalleeRef::new_storage_name()
             .code_hash(ink::primitives::H256::zero())
             .endowment(25)
-            .salt_bytes([0xDE, 0xAD, 0xBE, 0xEF])
+            .salt_bytes(Some([1u8; 32]))
             .instantiate()
     };
 
@@ -64,7 +64,7 @@ fn main() {
         CalleeRef::new_result_self()
             .code_hash(ink::primitives::H256::zero())
             .endowment(25)
-            .salt_bytes([0xDE, 0xAD, 0xBE, 0xEF])
+            .salt_bytes(Some([1u8; 32]))
             .instantiate()
     };
 
@@ -73,7 +73,7 @@ fn main() {
         CalleeRef::new_result_self()
             .code_hash(ink::primitives::H256::zero())
             .endowment(25)
-            .salt_bytes([0xDE, 0xAD, 0xBE, 0xEF])
+            .salt_bytes(Some([1u8; 32]))
             .instantiate()
     };
 }

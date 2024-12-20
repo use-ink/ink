@@ -24,7 +24,7 @@ mod cross_contract_calls {
             let other_contract = OtherContractRef::new(true)
                 .code_hash(other_contract_code_hash)
                 .endowment(0)
-                .salt_bytes([0xDE, 0xAD, 0xBE, 0xEF])
+                .salt_bytes(Some([1u8; 32]))
                 .ref_time_limit(ref_time_limit)
                 .proof_size_limit(proof_size_limit)
                 .storage_deposit_limit(storage_deposit_limit)
@@ -40,7 +40,7 @@ mod cross_contract_calls {
             let other_contract = OtherContractRef::new(true)
                 .code_hash(other_contract_code_hash)
                 .endowment(0)
-                .salt_bytes([0xDE, 0xAD, 0xBE, 0xEF])
+                .salt_bytes(Some([1u8; 32]))
                 .instantiate();
 
             Self { other_contract }
@@ -54,7 +54,7 @@ mod cross_contract_calls {
                 .instantiate_v1()
                 .code_hash(other_contract_code_hash)
                 .endowment(0)
-                .salt_bytes([0xDE, 0xAD, 0xBE, 0xEF])
+                .salt_bytes(Some([1u8; 32]))
                 .instantiate();
 
             Self { other_contract }

@@ -447,7 +447,7 @@ where
     ///                 .push_arg(true)
     ///                 .push_arg(&[0x10u8; 32]),
     ///         )
-    ///         .salt_bytes(&[0xCA, 0xFE, 0xBA, 0xBE])
+    ///         .salt_bytes(Some([0xCA, 0xFE, 0xBA, 0xBE]))
     ///         .returns::<OtherContractRef>()
     ///         .params();
     ///     self.env()
@@ -471,9 +471,9 @@ where
     /// # Note
     ///
     /// For more details visit: [`ink_env::instantiate_contract`]
-    pub fn instantiate_contract<ContractRef, Args, Salt, R>(
+    pub fn instantiate_contract<ContractRef, Args, R>(
         self,
-        params: &CreateParams<E, ContractRef, LimitParamsV2<E>, Args, Salt, R>,
+        params: &CreateParams<E, ContractRef, LimitParamsV2<E>, Args, R>,
     ) -> Result<
         ink_primitives::ConstructorResult<
             <R as ConstructorReturnType<ContractRef>>::Output,
@@ -482,10 +482,9 @@ where
     where
         ContractRef: FromAddr,
         Args: scale::Encode,
-        Salt: AsRef<[u8]>,
         R: ConstructorReturnType<ContractRef>,
     {
-        ink_env::instantiate_contract::<E, ContractRef, Args, Salt, R>(params)
+        ink_env::instantiate_contract::<E, ContractRef, Args, R>(params)
     }
 
     /// Invokes a contract message and returns its result.

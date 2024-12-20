@@ -521,9 +521,9 @@ impl TypedEnvBackend for EnvInstance {
         todo!("has to be implemented")
     }
 
-    fn instantiate_contract<E, ContractRef, Args, Salt, RetType>(
+    fn instantiate_contract<E, ContractRef, Args, RetType>(
         &mut self,
-        params: &CreateParams<E, ContractRef, LimitParamsV2<E>, Args, Salt, RetType>,
+        params: &CreateParams<E, ContractRef, LimitParamsV2<E>, Args, RetType>,
     ) -> Result<
         ink_primitives::ConstructorResult<
             <RetType as ConstructorReturnType<ContractRef>>::Output,
@@ -533,7 +533,6 @@ impl TypedEnvBackend for EnvInstance {
         E: Environment,
         ContractRef: FromAddr,
         Args: scale::Encode,
-        Salt: AsRef<[u8]>,
         RetType: ConstructorReturnType<ContractRef>,
     {
         let mut scoped = self.scoped_buffer();
@@ -554,7 +553,7 @@ impl TypedEnvBackend for EnvInstance {
             enc_endowment.into_buffer().try_into().unwrap();
         let enc_input = scoped.take_encoded(params.exec_input());
         let out_address: &mut [u8; 20] = scoped.take(20).try_into().unwrap();
-        let salt: &[u8; 32] = params.salt_bytes().as_ref().try_into().unwrap();
+        let salt = params.salt_bytes().as_ref();
         let out_return_value = &mut scoped.take_rest();
 
         let instantiate_result = ext::instantiate(
@@ -566,7 +565,7 @@ impl TypedEnvBackend for EnvInstance {
             enc_input,
             Some(out_address),
             Some(out_return_value),
-            Some(salt),
+            salt,
         );
 
         crate::engine::decode_instantiate_result::<_, ContractRef, RetType>(
