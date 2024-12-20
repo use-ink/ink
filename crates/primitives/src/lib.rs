@@ -28,8 +28,10 @@
 )]
 #![cfg_attr(not(feature = "std"), no_std)]
 
+mod arithmetic;
 mod key;
-mod types;
+pub mod reflect;
+pub mod types;
 
 pub use self::{
     key::{

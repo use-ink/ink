@@ -1,0 +1,35 @@
+[package]
+name = "virtual_contract_ver2"
+version = "0.1.0"
+edition = "2021"
+authors = ["Víctor M. González <victor.gonzalez@coinfabrik.com>"]
+
+[lib]
+path = "lib.rs"
+
+[features]
+default = ["std", "test_instantiate"]
+std = ["ink/std", "scale/std", "scale-info/std"]
+ink-as-dependency = []
+e2e-tests = []
+test_instantiate = [
+    "ink/test_instantiate"
+]
+
+[dependencies]
+ink = { path = "../../../crates/ink", default-features = false }
+scale = { package = "parity-scale-codec", version = "=3.6.5", default-features = false, features = [
+    "derive",
+] }
+scale-info = { version = "2.6", default-features = false, features = [
+    "derive",
+], optional = true }
+
+[dev-dependencies]
+ink_e2e = { path = "../../../crates/e2e" }
+
+[profile.dev]
+overflow-checks = false
+
+[profile.release]
+overflow-checks = false

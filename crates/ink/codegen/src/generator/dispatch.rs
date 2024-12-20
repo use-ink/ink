@@ -715,6 +715,9 @@ impl Dispatch<'_> {
                         // dispatch logic so `Ok` is always returned to the caller.
                         &::ink::ConstructorResult::Ok(output_result.map(|_| ())),
                     );
+
+                    #[cfg(feature="test_instantiate")]
+                    ::core::result::Result::Ok(())
                 }
             )
         });
@@ -754,7 +757,7 @@ impl Dispatch<'_> {
                 }
 
                 impl ::ink::reflect::ExecuteDispatchable for __ink_ConstructorDecoder {
-                    #[allow(clippy::nonminimal_bool)]
+                    #[allow(clippy::nonminimal_bool, dead_code)]
                     fn execute_dispatchable(self) -> ::core::result::Result<(), ::ink::reflect::DispatchError> {
                         match self {
                             #( #constructor_execute ),*
@@ -915,7 +918,10 @@ impl Dispatch<'_> {
                             // Currently no `LangError`s are raised at this level of the
                             // dispatch logic so `Ok` is always returned to the caller.
                             &::ink::MessageResult::Ok(result),
-                        )
+                        );
+
+                        #[cfg(feature="test_instantiate")]
+                        ::core::result::Result::Ok(())
                     }
                 )
         });
@@ -965,7 +971,7 @@ impl Dispatch<'_> {
                 }
 
                 impl ::ink::reflect::ExecuteDispatchable for __ink_MessageDecoder {
-                    #[allow(clippy::nonminimal_bool, clippy::let_unit_value)]
+                    #[allow(clippy::nonminimal_bool, clippy::let_unit_value, dead_code)]
                     fn execute_dispatchable(
                         self
                     ) -> ::core::result::Result<(), ::ink::reflect::DispatchError> {
