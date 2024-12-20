@@ -227,6 +227,16 @@ pub struct UploadResult<E: Environment, EventLog> {
     pub events: EventLog,
 }
 
+/// Result of a contract dry run upload.
+pub struct UploadDryRunResult<E: Environment, EventLog> {
+    /// The hash with which the contract can be instantiated.
+    pub code_hash: H256,
+    /// The result of the dry run, contains debug messages if there were any.
+    pub dry_run: CodeUploadResult<E::Balance>,
+    /// Events that happened with the contract instantiation.
+    pub events: EventLog,
+}
+
 /// We implement a custom `Debug` here, to avoid requiring the trait bound `Debug` for
 /// `E`.
 impl<E: Environment, EventLog> Debug for UploadResult<E, EventLog>

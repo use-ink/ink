@@ -328,6 +328,57 @@ where
         Ok(result)
     }
 
+    async fn bare_upload_dry_run<Contract: Clone, Args: Send + Encode + Clone, R>(
+        &mut self,
+        contract_name: &str,
+        caller: &Keypair,
+        storage_deposit_limit: E::Balance,
+    ) -> Result<BareUploadDryRunResult<E>, Self::Error> {
+        // todo has to be: let _ = <Client<AccountId, S> as BuilderClient<E>>::map_account_dry_run(self, &caller).await;
+        let _ = <Client<AccountId, S> as BuilderClient<E>>::map_account(self, caller).await;
+
+        // todo reduce code duplication
+        let caller = keypair_to_account(caller);
+        let origin = RawOrigin::Signed(caller);
+        let origin = OriginFor::<S::Runtime>::from(origin);
+
+        let code = self.contracts.load_code(contract_name);
+        let data = constructor_exec_input(constructor.clone());
+
+        let result = self.sandbox.dry_run(|sandbox| {
+            sandbox.upload_contract(
+                code,
+                value,
+                data,
+                salt(),
+                origin,
+                S::default_gas_limit(),
+                storage_deposit_limit,
+            )
+        });
+
+        let addr_id_raw = match &result.result {
+            Err(err) => {
+                panic!("Instantiate dry-run failed: {err:?}!")
+            }
+            Ok(res) => res.addr,
+        };
+
+        let result = BareInstantiationDryRunResult::<E> {
+            gas_consumed: result.gas_consumed,
+            gas_required: result.gas_required,
+            storage_deposit: result.storage_deposit,
+            debug_message: result.debug_message,
+            result: result.result.map(|r| {
+                InstantiateReturnValue {
+                    result: r.result,
+                    addr: addr_id_raw, // todo
+                }
+            }),
+        };
+        Ok(result)
+    }
+
     async fn bare_upload(
         &mut self,
         contract_name: &str,
