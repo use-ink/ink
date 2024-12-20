@@ -44,7 +44,6 @@ use scale::{
 };
 use sp_weights::Weight;
 use subxt::dynamic::Value;
-use crate::contract_results::UploadDryRunResult;
 
 /// Full E2E testing backend: combines general chain API and contract-specific operations.
 #[async_trait]
@@ -269,14 +268,6 @@ pub trait BuilderClient<E: Environment>: ContractsBackend<E> {
         caller: &Keypair,
         storage_deposit_limit: E::Balance,
     ) -> Result<UploadResult<E, Self::EventLog>, Self::Error>;
-
-    /// todo
-    async fn bare_upload_dry_run(
-        &mut self,
-        contract_name: &str,
-        caller: &Keypair,
-        storage_deposit_limit: E::Balance,
-    ) -> Result<UploadDryRunResult<E, Self::EventLog>, Self::Error>;
 
     /// Removes the code of the contract at `code_hash`.
     async fn bare_remove_code(

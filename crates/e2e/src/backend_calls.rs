@@ -382,7 +382,7 @@ where
             client,
             contract_name,
             caller,
-            storage_deposit_limit: 0u32.into(), // todo
+            storage_deposit_limit: 0u32.into(),
         }
     }
 
@@ -397,30 +397,14 @@ where
 
     /// Execute the upload.
     pub async fn submit(&mut self) -> Result<UploadResult<E, B::EventLog>, B::Error> {
-        // todo must be added to remove as well
-        let _map = B::map_account(
-            self.client,
-            self.caller
-        ).await; // todo will fail if instantiation happened before
-
-        let dry_run = B::bare_upload_dry_run(
-            self.client,
-            self.contract_name,
-            self.caller,
-        ).await?;
-
         B::bare_upload(
             self.client,
             self.contract_name,
             self.caller,
-            //balance_to_deposit_limit::<E>(self.storage_deposit_limit),
-            dry_run.storage_limit
+            self.storage_deposit_limit,
         )
         .await
     }
-
-    // todo add fn dry_run() that just calls B::bare_upload_dry_run
-    // (like in the instantiate submit)
 }
 
 /// Allows to build an end-to-end remove code call using a builder pattern.
