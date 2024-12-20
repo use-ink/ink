@@ -6,6 +6,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 [Unreleased]
 
+- Implement contract invokation in off-chain environment engine - [#1957](https://github.com/paritytech/ink/pull/1988)
+
 ## Changed
 - Restrict which `cfg` attributes can be used ‒ [#2313](https://github.com/use-ink/ink/pull/2313)
 

@@ -45,6 +45,7 @@ std = [
 	"ink_primitives/std",
 	"scale/std",
 	"scale-info/std"
+    "ink_codegen/std",
 ]
 revive = [
     "ink/revive",

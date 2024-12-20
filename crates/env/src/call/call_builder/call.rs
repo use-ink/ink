@@ -26,9 +26,11 @@ use crate::{
         CallParams,
         ExecutionInput,
     },
-    Environment,
+    types::{
+        Environment,
+        Gas,
+    },
     Error,
-    Gas,
 };
 use num_traits::Zero;
 #[cfg(not(feature = "revive"))]
