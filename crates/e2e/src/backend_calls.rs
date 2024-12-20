@@ -382,7 +382,7 @@ where
             client,
             contract_name,
             caller,
-            storage_deposit_limit: 0u32.into(),
+            storage_deposit_limit: 100_000_000u32.into(), // todo should be 0
         }
     }
 
