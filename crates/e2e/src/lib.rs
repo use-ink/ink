@@ -1,4 +1,4 @@
-// Copyright (C) Parity Technologies (UK) Ltd.
+// Copyright (C) Use Ink (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -25,18 +25,15 @@ mod builders;
 mod client_utils;
 mod contract_build;
 mod contract_results;
-#[cfg(feature = "drink")]
-mod drink_client;
 mod error;
 pub mod events;
 mod node_proc;
+#[cfg(feature = "sandbox")]
+mod sandbox_client;
 mod subxt_client;
 mod xts;
 
-pub use crate::contract_build::{
-    build_root_and_additional_contracts,
-    build_root_and_contract_dependencies,
-};
+pub use crate::contract_build::build_root_and_contract_dependencies;
 pub use backend::{
     ChainBackend,
     ContractsBackend,
@@ -49,6 +46,7 @@ pub use backend_calls::{
 pub use contract_results::{
     CallDryRunResult,
     CallResult,
+    InstantiateDryRunResult,
     InstantiationResult,
     UploadResult,
 };
@@ -57,28 +55,43 @@ pub use node_proc::{
     TestNodeProcess,
     TestNodeProcessBuilder,
 };
+#[cfg(feature = "sandbox")]
+pub use sandbox_client::{
+    preset,
+    Client as SandboxClient,
+};
 pub use sp_core::H256;
 pub use sp_keyring::AccountKeyring;
-pub use subxt;
+pub use subxt::{
+    self,
+    backend::rpc::RpcClient,
+};
 pub use subxt_client::{
     CallBuilderFinal,
     Client,
     Error,
 };
-pub use subxt_signer::sr25519::{
+pub use subxt_signer::{
     self,
-    dev::*,
-    Keypair,
+    sr25519::{
+        self,
+        dev::*,
+        Keypair,
+    },
 };
 pub use tokio;
 pub use tracing_subscriber;
-#[cfg(feature = "drink")]
-pub use {
-    drink::runtime::MinimalRuntime,
-    drink_client::Client as DrinkClient,
-};
 
-use pallet_contracts_primitives::{
+#[cfg(feature = "sandbox")]
+pub use ink_sandbox::DefaultSandbox;
+
+use ink::codegen::ContractCallBuilder;
+use ink_env::{
+    call::FromAccountId,
+    ContractEnv,
+    Environment,
+};
+use pallet_contracts::{
     ContractExecResult,
     ContractInstantiateResult,
 };
@@ -124,10 +137,17 @@ pub fn account_id(account: AccountKeyring) -> ink_primitives::AccountId {
         .expect("account keyring has a valid account id")
 }
 
-/// Builds a contract and imports its scaffolded structure as a module.
-#[macro_export]
-macro_rules! build {
-        ($($arg:tt)*) => (
-            ink_e2e::smart_bench_macro::contract!($($arg)*)
-        );
+/// Creates a call builder builder for `Contract`, based on an account id.
+pub fn create_call_builder<Contract>(
+    acc_id: <<Contract as ContractEnv>::Env as Environment>::AccountId,
+) -> <Contract as ContractCallBuilder>::Type
+where
+    <Contract as ContractEnv>::Env: Environment,
+    Contract: ContractCallBuilder,
+    Contract: ContractEnv,
+    Contract::Type: FromAccountId<<Contract as ContractEnv>::Env>,
+{
+    <<Contract as ContractCallBuilder>::Type as FromAccountId<
+        <Contract as ContractEnv>::Env,
+    >>::from_account_id(acc_id)
 }

@@ -1,4 +1,4 @@
-// Copyright (C) Parity Technologies (UK) Ltd.
+// Copyright (C) Use Ink (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -27,7 +27,10 @@ use ink_engine::test_api::RecordedDebugMessages;
 use std::panic::UnwindSafe;
 
 pub use super::call_data::CallData;
-pub use ink_engine::ChainExtension;
+pub use ink_engine::{
+    ext::ChainSpec,
+    ChainExtension,
+};
 
 /// Record for an emitted event.
 #[derive(Clone)]
@@ -45,15 +48,27 @@ pub struct EmittedEvent {
 /// Note that account could refer to either a user account or
 /// a smart contract account.
 ///
+/// If a 0 balance is set, this would not fail. This is useful for
+/// reaping an account.
+///
 /// # Errors
 ///
 /// - If `account` does not exist.
 /// - If the underlying `account` type does not match.
 /// - If the underlying `new_balance` type does not match.
+/// - If the `new_balance` is less than the existential minimum.
 pub fn set_account_balance<T>(account_id: T::AccountId, new_balance: T::Balance)
 where
     T: Environment<Balance = u128>, // Just temporary for the MVP!
 {
+    let min = ChainSpec::default().minimum_balance;
+    if new_balance < min && new_balance != 0u128 {
+        panic!(
+            "Balance must be at least [{}]. Use 0 as balance to reap the account.",
+            min
+        );
+    }
+
     <EnvInstance as OnInstance>::on_instance(|instance| {
         instance
             .engine
@@ -384,6 +399,7 @@ pub fn recorded_events() -> impl Iterator<Item = EmittedEvent> {
 ///   remaining value in the contract
 /// * `expected_value_transferred_to_beneficiary`: The value which should have been
 ///   transferred to the `expected_beneficiary`.
+///
 /// # Usage
 ///
 /// ```no_compile
@@ -395,7 +411,8 @@ pub fn recorded_events() -> impl Iterator<Item = EmittedEvent> {
 /// );
 /// ```
 ///
-/// See `integration-tests/contract-terminate` for a complete usage example.
+/// See our [`contract-terminate`](https://github.com/use-ink/ink-examples/tree/v5.x.x/contract-terminate)
+/// example for a complete usage exemplification.
 pub fn assert_contract_termination<T, F>(
     should_terminate: F,
     expected_beneficiary: T::AccountId,

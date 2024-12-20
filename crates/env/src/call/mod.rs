@@ -1,4 +1,4 @@
-// Copyright (C) Parity Technologies (UK) Ltd.
+// Copyright (C) Use Ink (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 mod call_builder;
 mod common;
 mod create_builder;
-mod execution_input;
+mod execution;
 mod selector;
 
 /// Utility types for the cross-contract calling API.
@@ -29,7 +29,7 @@ pub mod utils {
             Unset,
             Unwrap,
         },
-        execution_input::{
+        execution::{
             ArgsList,
             Argument,
             ArgumentList,
@@ -39,6 +39,11 @@ pub mod utils {
     };
 }
 
+#[cfg(not(feature = "revive"))]
+pub use self::{
+    call_builder::CallV1,
+    create_builder::LimitParamsV1
+};
 pub use self::{
     call_builder::{
         build_call,
@@ -54,7 +59,12 @@ pub use self::{
         CreateBuilder,
         CreateParams,
         FromAccountId,
+        LimitParamsV2,
     },
-    execution_input::ExecutionInput,
+    execution::{
+        Execution,
+        ExecutionInput,
+        Executor,
+    },
     selector::Selector,
 };

@@ -5,7 +5,7 @@ error[E0599]: no method named `env` found for reference `&Contract` in the curre
    |                          ^^^ method not found in `&Contract`
    |
    = help: items from traits can only be used if the trait is in scope
-help: the following trait is implemented but not in scope; perhaps add a `use` for it:
+help: trait `Env` which provides `env` is implemented but not in scope; perhaps you want to import it
    |
 1  + use ink::codegen::Env;
    |

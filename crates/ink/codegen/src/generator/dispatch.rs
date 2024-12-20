@@ -1,4 +1,4 @@
-// Copyright (C) Parity Technologies (UK) Ltd.
+// Copyright (C) Use Ink (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -83,6 +83,27 @@ impl GenerateCode for Dispatch<'_> {
             self.generate_constructor_decoder_type(&constructors);
         let message_decoder_type = self.generate_message_decoder_type(&messages);
         let entry_points = self.generate_entry_points(&constructors, &messages);
+
+        #[cfg(not(feature = "revive"))]
+        return quote! {
+            #contract_dispatchable_constructor_infos
+            #contract_dispatchable_messages_infos
+            #constructor_decoder_type
+            #message_decoder_type
+
+            #[cfg(not(any(test, feature = "std", feature = "ink-as-dependency")))]
+            /*
+            const _: () = {
+                #entry_points
+            }
+             */
+            mod __do_not_access__ {
+                use super::*;
+                #entry_points
+            }
+        };
+
+        #[cfg(feature = "revive")]
         quote! {
             #contract_dispatchable_constructor_infos
             #contract_dispatchable_messages_infos
@@ -90,9 +111,10 @@ impl GenerateCode for Dispatch<'_> {
             #message_decoder_type
 
             #[cfg(not(any(test, feature = "std", feature = "ink-as-dependency")))]
-            const _: () = {
+            mod __do_not_access__ {
+                use super::*;
                 #entry_points
-            };
+            }
         }
     }
 }
@@ -350,7 +372,9 @@ impl Dispatch<'_> {
         let any_constructor_accept_payment =
             self.any_constructor_accepts_payment(constructors);
         let any_message_accepts_payment = self.any_message_accepts_payment(messages);
-        quote_spanned!(span=>
+
+        #[cfg(not(feature = "revive"))]
+        return quote_spanned!(span=>
             #[allow(clippy::nonminimal_bool)]
             fn internal_deploy() {
                 if !#any_constructor_accept_payment {
@@ -374,7 +398,7 @@ impl Dispatch<'_> {
                         // This is okay since we're going to only be encoding the `Err` variant
                         // into the output buffer anyways.
                         ::ink::env::return_value::<::ink::ConstructorResult<()>>(
-                            ::ink::env::ReturnFlags::new_with_reverted(true),
+                            ::ink::env::ReturnFlags::REVERT,
                             &error,
                         );
                     }
@@ -410,7 +434,7 @@ impl Dispatch<'_> {
                         // This is okay since we're going to only be encoding the `Err` variant
                         // into the output buffer anyways.
                         ::ink::env::return_value::<::ink::MessageResult<()>>(
-                            ::ink::env::ReturnFlags::new_with_reverted(true),
+                            ::ink::env::ReturnFlags::REVERT,
                             &error,
                         );
                     }
@@ -434,17 +458,102 @@ impl Dispatch<'_> {
             pub extern "C" fn deploy() {
                 internal_deploy()
             }
-
-            #[cfg(target_arch = "riscv32")]
-            #[no_mangle]
-            pub extern "C" fn _start(call_flags: u32) {
-                let is_deploy = (call_flags & 0x0000_0001) == 1;
-                if is_deploy {
-                    internal_deploy()
-                } else {
-                    internal_call()
-                }
+        );
+        #[cfg(feature = "revive")]
+        let fn_call: syn::ItemFn = syn::parse_quote! {
+            #[cfg(any(target_arch = "wasm32", target_arch = "riscv32"))]
+            #[cfg_attr(target_arch = "wasm32", no_mangle)]
+            #[ink::polkavm_export(abi = ink::polkavm_derive::default_abi)]
+            pub extern "C" fn call() {
+                internal_call()
             }
+        };
+        #[cfg(feature = "revive")]
+        let fn_deploy: syn::ItemFn = syn::parse_quote! {
+            #[cfg(any(target_arch = "wasm32", target_arch = "riscv32"))]
+            #[cfg_attr(target_arch = "wasm32", no_mangle)]
+            #[ink::polkavm_export(abi = ink::polkavm_derive::default_abi)]
+            pub extern "C" fn deploy() {
+                internal_deploy()
+            }
+        };
+        #[cfg(feature = "revive")]
+        quote_spanned!(span=>
+            #[allow(clippy::nonminimal_bool)]
+            fn internal_deploy() {
+                if !#any_constructor_accept_payment {
+                    ::ink::codegen::deny_payment::<<#storage_ident as ::ink::env::ContractEnv>::Env>()
+                        .unwrap_or_else(|error| ::core::panic!("{}", error))
+                }
+
+                let dispatchable = match ::ink::env::decode_input::<
+                    <#storage_ident as ::ink::reflect::ContractConstructorDecoder>::Type,
+                >() {
+                    ::core::result::Result::Ok(decoded_dispatchable) => {
+                        decoded_dispatchable
+                    }
+                    ::core::result::Result::Err(_decoding_error) => {
+                        let error = ::ink::ConstructorResult::Err(::ink::LangError::CouldNotReadInput);
+
+                        // At this point we're unable to set the `Ok` variant to be the any "real"
+                        // constructor output since we were unable to figure out what the caller wanted
+                        // to dispatch in the first place, so we set it to `()`.
+                        //
+                        // This is okay since we're going to only be encoding the `Err` variant
+                        // into the output buffer anyways.
+                        ::ink::env::return_value::<::ink::ConstructorResult<()>>(
+                            ::ink::env::ReturnFlags::REVERT,
+                            &error,
+                        );
+                    }
+                };
+
+                <<#storage_ident as ::ink::reflect::ContractConstructorDecoder>::Type
+                    as ::ink::reflect::ExecuteDispatchable>::execute_dispatchable(dispatchable)
+                .unwrap_or_else(|error| {
+                    ::core::panic!("dispatching ink! message failed: {}", error)
+                })
+            }
+
+            #[allow(clippy::nonminimal_bool)]
+            fn internal_call() {
+                if !#any_message_accepts_payment {
+                    ::ink::codegen::deny_payment::<<#storage_ident as ::ink::env::ContractEnv>::Env>()
+                        .unwrap_or_else(|error| ::core::panic!("{}", error))
+                }
+
+                let dispatchable = match ::ink::env::decode_input::<
+                    <#storage_ident as ::ink::reflect::ContractMessageDecoder>::Type,
+                >() {
+                    ::core::result::Result::Ok(decoded_dispatchable) => {
+                        decoded_dispatchable
+                    }
+                    ::core::result::Result::Err(_decoding_error) => {
+                        let error = ::ink::MessageResult::Err(::ink::LangError::CouldNotReadInput);
+
+                        // At this point we're unable to set the `Ok` variant to be the any "real"
+                        // message output since we were unable to figure out what the caller wanted
+                        // to dispatch in the first place, so we set it to `()`.
+                        //
+                        // This is okay since we're going to only be encoding the `Err` variant
+                        // into the output buffer anyways.
+                        ::ink::env::return_value::<::ink::MessageResult<()>>(
+                            ::ink::env::ReturnFlags::REVERT,
+                            &error,
+                        );
+                    }
+                };
+
+                <<#storage_ident as ::ink::reflect::ContractMessageDecoder>::Type
+                    as ::ink::reflect::ExecuteDispatchable>::execute_dispatchable(dispatchable)
+                .unwrap_or_else(|error| {
+                    ::core::panic!("dispatching ink! message failed: {}", error)
+                })
+            }
+
+            #fn_call
+
+            #fn_deploy
         )
     }
 
@@ -588,12 +697,20 @@ impl Dispatch<'_> {
                         );
                     }
 
+                    // NOTE: we can't use an if/else expression here
+                    // It fails inside quote_spanned! macro.
+                    // See https://github.com/rust-lang/rust-clippy/issues/6249
+                    let mut flag = ::ink::env::ReturnFlags::empty();
+                    if output_result.is_err() {
+                        flag = ::ink::env::ReturnFlags::REVERT;
+                    }
+
                     ::ink::env::return_value::<
                         ::ink::ConstructorResult<
                             ::core::result::Result<(), &#constructor_value::Error>
                         >,
                     >(
-                        ::ink::env::ReturnFlags::new_with_reverted(output_result.is_err()),
+                        flag,
                         // Currently no `LangError`s are raised at this level of the
                         // dispatch logic so `Ok` is always returned to the caller.
                         &::ink::ConstructorResult::Ok(output_result.map(|_| ())),
@@ -776,7 +893,6 @@ impl Dispatch<'_> {
                 quote_spanned!(message_span=>
                     #( #cfg_attrs )*
                     Self::#message_ident(input) => {
-
                         if #any_message_accepts_payment && #deny_payment {
                             ::ink::codegen::deny_payment::<
                                 <#storage_ident as ::ink::env::ContractEnv>::Env>()?;
@@ -786,13 +902,19 @@ impl Dispatch<'_> {
                         let is_reverted = ::ink::is_result_type!(#message_output)
                             && ::ink::is_result_err!(result);
 
+                        // NOTE: we can't use an if/else expression here
+                        // It fails inside quote_spanned! macro.
+                        // See https://github.com/rust-lang/rust-clippy/issues/6249
+                        let mut flag = ::ink::env::ReturnFlags::REVERT;
+
                         // no need to push back results: transaction gets reverted anyways
                         if !is_reverted {
+                            flag = ::ink::env::ReturnFlags::empty();
                             push_contract(contract, #mutates_storage);
                         }
 
                         ::ink::env::return_value::<::ink::MessageResult::<#message_output>>(
-                            ::ink::env::ReturnFlags::new_with_reverted(is_reverted),
+                            flag,
                             // Currently no `LangError`s are raised at this level of the
                             // dispatch logic so `Ok` is always returned to the caller.
                             &::ink::MessageResult::Ok(result),

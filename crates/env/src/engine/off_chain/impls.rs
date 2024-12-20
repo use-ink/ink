@@ -1,4 +1,4 @@
-// Copyright (C) Parity Technologies (UK) Ltd.
+// Copyright (C) Use Ink (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -13,6 +13,11 @@
 // limitations under the License.
 
 use super::EnvInstance;
+#[cfg(not(feature = "revive"))]
+use crate::call::{
+    CallV1,
+    LimitParamsV1,
+};
 use crate::{
     call::{
         Call,
@@ -21,6 +26,7 @@ use crate::{
         CreateParams,
         DelegateCall,
         FromAccountId,
+        LimitParamsV2,
     },
     event::{
         Event,
@@ -34,21 +40,26 @@ use crate::{
         Keccak256,
         Sha2x256,
     },
-    types::Environment,
     Clear,
     EnvBackend,
-    Error,
+    types::Environment,
     Result,
-    ReturnFlags,
     TypedEnvBackend,
 };
-use ink_engine::{
-    ext,
-    ext::Engine,
-};
+use ink_engine::ext::Engine;
 use ink_storage_traits::{
     decode_all,
     Storable,
+};
+#[cfg(not(feature = "revive"))]
+use pallet_contracts_uapi::{
+    ReturnErrorCode,
+    ReturnFlags,
+};
+#[cfg(feature = "revive")]
+use pallet_revive_uapi::{
+    ReturnErrorCode,
+    ReturnFlags,
 };
 use schnorrkel::{
     PublicKey,
@@ -176,25 +187,6 @@ impl CryptoHash for Keccak256 {
     }
 }
 
-impl From<ext::Error> for crate::Error {
-    fn from(ext_error: ext::Error) -> Self {
-        match ext_error {
-            ext::Error::Unknown => Self::Unknown,
-            ext::Error::CalleeTrapped => Self::CalleeTrapped,
-            ext::Error::CalleeReverted => Self::CalleeReverted,
-            ext::Error::KeyNotFound => Self::KeyNotFound,
-            ext::Error::_BelowSubsistenceThreshold => Self::_BelowSubsistenceThreshold,
-            ext::Error::TransferFailed => Self::TransferFailed,
-            ext::Error::_EndowmentTooLow => Self::_EndowmentTooLow,
-            ext::Error::CodeNotFound => Self::CodeNotFound,
-            ext::Error::NotCallable => Self::NotCallable,
-            ext::Error::LoggingDisabled => Self::LoggingDisabled,
-            ext::Error::EcdsaRecoveryFailed => Self::EcdsaRecoveryFailed,
-            ext::Error::Sr25519VerifyFailed => Self::Sr25519VerifyFailed,
-        }
-    }
-}
-
 #[derive(Default)]
 pub struct TopicsBuilder {
     pub topics: Vec<Vec<u8>>,
@@ -295,7 +287,7 @@ impl EnvBackend for EnvInstance {
                 let decoded = decode_all(&mut &res[..])?;
                 Ok(Some(decoded))
             }
-            Err(ext::Error::KeyNotFound) => Ok(None),
+            Err(ReturnErrorCode::KeyNotFound) => Ok(None),
             Err(_) => panic!("encountered unexpected error"),
         }
     }
@@ -310,7 +302,7 @@ impl EnvBackend for EnvInstance {
                 let decoded = decode_all(&mut &output[..])?;
                 Ok(Some(decoded))
             }
-            Err(ext::Error::KeyNotFound) => Ok(None),
+            Err(ReturnErrorCode::KeyNotFound) => Ok(None),
             Err(_) => panic!("encountered unexpected error"),
         }
     }
@@ -397,7 +389,7 @@ impl EnvBackend for EnvInstance {
         } else {
             signature[64]
         };
-        let recovery_id = RecoveryId::from_i32(recovery_byte as i32)
+        let recovery_id = RecoveryId::try_from(recovery_byte as i32)
             .unwrap_or_else(|error| panic!("Unable to parse the recovery id: {error}"));
         let message = Message::from_digest_slice(message_hash).unwrap_or_else(|error| {
             panic!("Unable to create the message from hash: {error}")
@@ -412,7 +404,7 @@ impl EnvBackend for EnvInstance {
                 *output = pub_key.serialize();
                 Ok(())
             }
-            Err(_) => Err(Error::EcdsaRecoveryFailed),
+            Err(_) => Err(ReturnErrorCode::EcdsaRecoveryFailed.into()),
         }
     }
 
@@ -422,7 +414,7 @@ impl EnvBackend for EnvInstance {
         output: &mut [u8; 20],
     ) -> Result<()> {
         let pk = secp256k1::PublicKey::from_slice(pubkey)
-            .map_err(|_| Error::EcdsaRecoveryFailed)?;
+            .map_err(|_| ReturnErrorCode::EcdsaRecoveryFailed)?;
         let uncompressed = pk.serialize_uncompressed();
         let mut hash = <Keccak256 as HashOutput>::Type::default();
         <Keccak256>::hash(&uncompressed[1..], &mut hash);
@@ -441,20 +433,20 @@ impl EnvBackend for EnvInstance {
         // https://github.com/paritytech/substrate/blob/c32f5ed2ae6746d6f791f08cecbfc22fa188f5f9/primitives/core/src/sr25519.rs#L60
         let context = b"substrate";
         // attempt to parse a signature from bytes
-        let signature: Signature =
-            Signature::from_bytes(signature).map_err(|_| Error::Sr25519VerifyFailed)?;
+        let signature: Signature = Signature::from_bytes(signature)
+            .map_err(|_| ReturnErrorCode::Sr25519VerifyFailed)?;
         // attempt to parse a public key from bytes
-        let public_key: PublicKey =
-            PublicKey::from_bytes(pub_key).map_err(|_| Error::Sr25519VerifyFailed)?;
+        let public_key: PublicKey = PublicKey::from_bytes(pub_key)
+            .map_err(|_| ReturnErrorCode::Sr25519VerifyFailed)?;
         // verify the signature
         public_key
             .verify_simple(context, message, &signature)
-            .map_err(|_| Error::Sr25519VerifyFailed)
+            .map_err(|_| ReturnErrorCode::Sr25519VerifyFailed.into())
     }
 
     fn call_chain_extension<I, T, E, ErrorCode, F, D>(
         &mut self,
-        func_id: u32,
+        id: u32,
         input: &I,
         status_to_result: F,
         decode_to_result: D,
@@ -470,7 +462,7 @@ impl EnvBackend for EnvInstance {
         let mut output: [u8; BUFFER_SIZE] = [0; BUFFER_SIZE];
 
         self.engine
-            .call_chain_extension(func_id, enc_input, &mut &mut output[..]);
+            .call_chain_extension(id, enc_input, &mut &mut output[..]);
         let (status, out): (u32, Vec<u8>) = scale::Decode::decode(&mut &output[..])
             .unwrap_or_else(|error| {
                 panic!("could not decode `call_chain_extension` output: {error:?}")
@@ -502,6 +494,7 @@ impl TypedEnvBackend for EnvInstance {
             })
     }
 
+    #[cfg(not(feature = "revive"))]
     fn gas_left<E: Environment>(&mut self) -> u64 {
         self.get_property::<u64>(Engine::gas_left)
             .unwrap_or_else(|error| {
@@ -555,9 +548,22 @@ impl TypedEnvBackend for EnvInstance {
         self.engine.deposit_event(&enc_topics[..], enc_data);
     }
 
+    #[cfg(not(feature = "revive"))]
+    fn invoke_contract_v1<E, Args, R>(
+        &mut self,
+        _params: &CallParams<E, CallV1<E>, Args, R>,
+    ) -> Result<ink_primitives::MessageResult<R>>
+    where
+        E: Environment,
+        Args: scale::Encode,
+        R: scale::Decode,
+    {
+        unimplemented!("off-chain environment does not support contract invocation")
+    }
+
     fn invoke_contract<E, Args, R>(
         &mut self,
-        params: &CallParams<E, Call<E>, Args, R>,
+        _params: &CallParams<E, Call<E>, Args, R>,
     ) -> Result<ink_primitives::MessageResult<R>>
     where
         E: Environment,
@@ -609,7 +615,7 @@ impl TypedEnvBackend for EnvInstance {
 
     fn instantiate_contract<E, ContractRef, Args, Salt, R>(
         &mut self,
-        params: &CreateParams<E, ContractRef, Args, Salt, R>,
+        params: &CreateParams<E, ContractRef, LimitParamsV2<E>, Args, Salt, R>,
     ) -> Result<
         ink_primitives::ConstructorResult<
             <R as ConstructorReturnType<ContractRef>>::Output,
@@ -624,8 +630,6 @@ impl TypedEnvBackend for EnvInstance {
         Salt: AsRef<[u8]>,
         R: ConstructorReturnType<ContractRef>,
     {
-        let _gas_limit = params.gas_limit();
-
         let endowment = params.endowment();
         let endowment = scale::Encode::encode(endowment);
         let endowment: u128 = scale::Decode::decode(&mut &endowment[..])?;
@@ -686,6 +690,30 @@ impl TypedEnvBackend for EnvInstance {
         )))
     }
 
+    #[cfg(not(feature = "revive"))]
+    fn instantiate_contract_v1<E, ContractRef, Args, Salt, R>(
+        &mut self,
+        params: &CreateParams<E, ContractRef, LimitParamsV1, Args, Salt, R>,
+    ) -> Result<
+        ink_primitives::ConstructorResult<
+            <R as ConstructorReturnType<ContractRef>>::Output,
+        >,
+    >
+    where
+        E: Environment,
+        ContractRef: FromAccountId<E>,
+        Args: scale::Encode,
+        Salt: AsRef<[u8]>,
+        R: ConstructorReturnType<ContractRef>,
+    {
+        let _code_hash = params.code_hash();
+        let _ref_time_limit = params.gas_limit();
+        let _endowment = params.endowment();
+        let _input = params.exec_input();
+        let _salt_bytes = params.salt_bytes();
+        unimplemented!("off-chain environment does not support contract instantiation")
+    }
+
     fn terminate_contract<E>(&mut self, beneficiary: E::AccountId) -> !
     where
         E: Environment,
@@ -727,6 +755,13 @@ impl TypedEnvBackend for EnvInstance {
         unimplemented!("off-chain environment does not support cross-contract calls")
     }
 
+    fn caller_is_root<E>(&mut self) -> bool
+    where
+        E: Environment,
+    {
+        unimplemented!("off-chain environment does not support `caller_is_root`")
+    }
+
     fn code_hash<E>(&mut self, account: &E::AccountId) -> Result<E::Hash>
     where
         E: Environment,
@@ -764,5 +799,37 @@ impl TypedEnvBackend for EnvInstance {
         E: Environment,
     {
         unimplemented!("off-chain environment does not support `call_runtime`")
+    }
+
+    fn lock_delegate_dependency<E>(&mut self, _code_hash: &E::Hash)
+    where
+        E: Environment,
+    {
+        unimplemented!("off-chain environment does not support delegate dependencies")
+    }
+
+    fn xcm_execute<E, Call>(&mut self, _msg: &xcm::VersionedXcm<Call>) -> Result<()>
+    where
+        E: Environment,
+    {
+        unimplemented!("off-chain environment does not support `xcm_execute`")
+    }
+
+    fn xcm_send<E, Call>(
+        &mut self,
+        _dest: &xcm::VersionedLocation,
+        _msg: &xcm::VersionedXcm<Call>,
+    ) -> Result<xcm::v4::XcmHash>
+    where
+        E: Environment,
+    {
+        unimplemented!("off-chain environment does not support `xcm_send`")
+    }
+
+    fn unlock_delegate_dependency<E>(&mut self, _code_hash: &E::Hash)
+    where
+        E: Environment,
+    {
+        unimplemented!("off-chain environment does not support delegate dependencies")
     }
 }

@@ -1,7 +1,7 @@
 [package]
 name = "ink_engine"
 version.workspace = true
-authors = ["Parity Technologies <admin@parity.io>", "Michael Müller <michi@parity.io>"]
+authors = ["Use Ink <ink@use.ink>"]
 edition.workspace = true
 
 license.workspace = true
@@ -16,7 +16,9 @@ include = ["Cargo.toml", "src/**/*.rs", "README.md", "LICENSE"]
 
 [dependencies]
 ink_primitives = { workspace = true }
-scale = { package = "parity-scale-codec", workspace = true }
+scale = { workspace = true }
+pallet-contracts-uapi = { workspace = true }
+pallet-revive-uapi = { workspace = true }
 derive_more = { workspace = true, features = ["from", "display"] }
 
 sha2 = { workspace = true }
@@ -27,8 +29,11 @@ blake2 = { workspace = true }
 secp256k1 = { workspace = true, features = ["recovery", "global-context"], optional = true }
 
 [features]
-default = ["std"]
+default = [ "std" ]
 std = [
-    "scale/std",
-    "secp256k1"
+	"ink_primitives/std",
+	"scale/std",
+	"secp256k1",
+	"derive_more/std"
 ]
+revive = []

@@ -1,4 +1,4 @@
-// Copyright (C) Parity Technologies (UK) Ltd.
+// Copyright (C) Use Ink (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -30,14 +30,6 @@ pub fn balance_of_key(who: &[u8]) -> [u8; 32] {
     hashed_key
 }
 
-/// Returns the database key under which to find the balance for account `who`.
-pub fn storage_of_contract_key(who: &[u8], key: &[u8]) -> [u8; 32] {
-    let keyed = who.to_vec().to_keyed_vec(key).to_keyed_vec(STORAGE_OF);
-    let mut hashed_key: [u8; 32] = [0; 32];
-    super::hashing::blake2b_256(&keyed[..], &mut hashed_key);
-    hashed_key
-}
-
 pub type MessageHandler = fn(Vec<u8>) -> Vec<u8>;
 
 pub fn contract_key(f: MessageHandler) -> [u8; 32] {
@@ -58,6 +50,14 @@ pub fn message_handler_of_contract_key(key: &[u8]) -> [u8; 32] {
 
 pub fn code_hash_of_key(key: &Vec<u8>) -> [u8; 32] {
     let keyed = key.to_keyed_vec(CODE_HASH_OF);
+    let mut hashed_key: [u8; 32] = [0; 32];
+    super::hashing::blake2b_256(&keyed[..], &mut hashed_key);
+    hashed_key
+}
+
+/// Returns the database key under which to find the balance for account `who`.
+pub fn storage_of_contract_key(who: &[u8], key: &[u8]) -> [u8; 32] {
+    let keyed = who.to_vec().to_keyed_vec(key).to_keyed_vec(STORAGE_OF);
     let mut hashed_key: [u8; 32] = [0; 32];
     super::hashing::blake2b_256(&keyed[..], &mut hashed_key);
     hashed_key
@@ -100,7 +100,7 @@ impl Database {
         key: &[u8],
     ) -> Option<&Vec<u8>> {
         let hashed_key = storage_of_contract_key(account_id, key);
-        self.hmap.get(&hashed_key.to_vec())
+        self.hmap.get(hashed_key.as_slice())
     }
 
     /// Inserts `value` into the contract storage of `account_id` at storage key `key`.
@@ -121,7 +121,7 @@ impl Database {
         key: &[u8],
     ) -> Option<Vec<u8>> {
         let hashed_key = storage_of_contract_key(account_id, key);
-        self.hmap.remove(&hashed_key.to_vec())
+        self.hmap.remove(hashed_key.as_slice())
     }
 
     /// Removes a key from the storage, returning the value at the key if the key
@@ -158,7 +158,7 @@ impl Database {
             .and_modify(|v| *v = encoded_balance.clone())
             .or_insert(encoded_balance);
     }
-
+    
     pub fn set_contract_message_handler(&mut self, handler: MessageHandler) -> [u8; 32] {
         let key = contract_key(handler);
         let hashed_key = message_handler_of_contract_key(&key);

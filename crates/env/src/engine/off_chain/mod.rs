@@ -1,4 +1,4 @@
-// Copyright (C) Parity Technologies (UK) Ltd.
+// Copyright (C) Use Ink (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -19,8 +19,6 @@ mod types;
 
 #[cfg(test)]
 mod tests;
-
-pub use call_data::CallData;
 
 use super::OnInstance;
 use crate::Error;
@@ -46,6 +44,13 @@ impl OnInstance for EnvInstance {
                 }
             )
         );
+        /*
+         * This unsafe block is needed to be able to return a mut reference
+         * while another mut reference is still borrowed, because now that
+         * contracts can invoke other contracts some API functions are called
+         * nested. This should be safe, as the object is in a TLS, so there's no
+         * possibility of undefined behavior arising from race conditions.
+         */
         INSTANCE.with(|instance| f(unsafe { &mut *instance.as_ptr() }))
     }
 }

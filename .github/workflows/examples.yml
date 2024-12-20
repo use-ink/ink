@@ -8,7 +8,6 @@ on:
         - v*
     paths-ignore:
       - 'README.md'
-      - '.gitlab-ci.yml'
   pull_request:
     branches:
       - master
@@ -43,29 +42,32 @@ jobs:
 
       - name: Install toolchain
         id: toolchain
-        uses: actions-rs/toolchain@v1
+        uses: dtolnay/rust-toolchain@7b1c307e0dcbda6122208f10795a713336a9b35a # Master branch, Rust up to 1.74.1
         with:
-          profile: minimal
           toolchain: ${{ matrix.toolchain }}
           components: rust-src
-          override: true
 
       - name: Install cargo-dylint
-        uses: baptiste0928/cargo-install@21a18ba3bf4a184d1804e8b759930d3471b1c941 # v2.2.0
+        uses: baptiste0928/cargo-install@904927dbe77864e0f2281519fe9d5bd097a220b3 # v3.1.1
         with:
           crate: cargo-dylint
           version: 1
 
       - name: Install dylint-link
-        uses: baptiste0928/cargo-install@21a18ba3bf4a184d1804e8b759930d3471b1c941 # v2.2.0
+        uses: baptiste0928/cargo-install@904927dbe77864e0f2281519fe9d5bd097a220b3 # v3.1.1
         with:
           crate: dylint-link
           version: 1
 
       - name: Download and run latest `substrate-contracts-node` binary
         if: matrix.os == 'macOS-latest'
+        env:
+            CONTRACTS_NODE_URL: https://github.com/paritytech/substrate-contracts-node/releases/latest/download/substrate-contracts-node-
+            CONTRACTS_NODE_OS: mac-universal
         run: |
-            curl -L -o substrate-contracts-node.zip 'https://gitlab.parity.io/parity/mirrors/substrate-contracts-node/-/jobs/artifacts/main/download?job=build-mac' && \
+            curl -L -o substrate-contracts-node.tar.gz "$CONTRACTS_NODE_URL$CONTRACTS_NODE_OS.tar.gz" && \
+            tar xfzv substrate-contracts-node.tar.gz && \
+            chmod +x artifacts/substrate-contracts-node-*/substrate-contracts-node && \
             unzip substrate-contracts-node.zip && \
             chmod +x artifacts/substrate-contracts-node-mac/substrate-contracts-node &&
             ./artifacts/substrate-contracts-node-mac/substrate-contracts-node -linfo,runtime::contracts=debug  2>&1 | tee /tmp/contracts-node.log &
@@ -77,13 +79,14 @@ jobs:
             substrate-contracts-node -lruntime::contracts=debug  2>&1 | tee /tmp/contracts-node.log &
 
       - name: Rust Cache
-        uses: Swatinem/rust-cache@v2.7.1
+        uses: Swatinem/rust-cache@82a92a6e8fbeee089604da2575dc567ae9ddeaab # v2.7.5
 
       - name: Install `cargo-contract` `master`
-        uses: actions-rs/cargo@v1
+        uses: baptiste0928/cargo-install@904927dbe77864e0f2281519fe9d5bd097a220b3 # v3.1.1
         with:
-            command: install
-            args: --git https://github.com/paritytech/cargo-contract.git
+            crate: cargo-contract
+            git: https://github.com/use-ink/cargo-contract.git
+            branch: master
 
       - name: Output versions
         run: |
@@ -96,19 +99,19 @@ jobs:
            $delegator_subcontracts = "accumulator","adder","subber"
            foreach ($contract in $delegator_subcontracts) {
                echo "Processing delegator contract: $contract";
-               cargo ${{ matrix.job }} --verbose --manifest-path integration-tests/delegator/${contract}/Cargo.toml;
+               cargo ${{ matrix.job }} --manifest-path integration-tests/delegator/${contract}/Cargo.toml;
            }
            $upgradeable_contracts = "forward-calls","set-code-hash"
            foreach ($contract in $upgradeable_contracts) {
                echo "Processing upgradeable contract: $contract";
-               cargo ${{ matrix.job }} --verbose --manifest-path integration-tests/upgradeable-contracts/${contract}/Cargo.toml;
+               cargo ${{ matrix.job }} --manifest-path integration-tests/upgradeable-contracts/${contract}/Cargo.toml;
            }
-           cargo ${{ matrix.job }} --verbose --manifest-path integration-tests/upgradeable-contracts/set-code-hash/updated-incrementer/Cargo.toml;
+           cargo ${{ matrix.job }} --manifest-path integration-tests/upgradeable-contracts/set-code-hash/updated-incrementer/Cargo.toml;
            foreach ($example in Get-ChildItem  -Directory "integration-tests\*") {
                if ($example -Match 'upgradeable-contracts') { continue }
                if ($example -Match 'lang-err-integration-tests') { continue }
                echo "Processing example: $example";
-               cargo ${{ matrix.job }} --verbose --manifest-path=$example/Cargo.toml;
+               cargo ${{ matrix.job }} --manifest-path=$example/Cargo.toml;
                cargo clean --manifest-path=$example/Cargo.toml;
            }
 
@@ -117,16 +120,16 @@ jobs:
         run: |
            for contract in ${DELEGATOR_SUBCONTRACTS}; do
                echo "Processing delegator contract: $contract";
-               cargo ${{ matrix.job }} --verbose --manifest-path integration-tests/delegator/${contract}/Cargo.toml;
+               cargo ${{ matrix.job }} --manifest-path integration-tests/delegator/${contract}/Cargo.toml;
            done
            for contract in ${UPGRADEABLE_CONTRACTS}; do
                 echo "Processing upgradeable contract: $contract";
-                cargo ${{ matrix.job }} --verbose --manifest-path=integration-tests/upgradeable-contracts/$contract/Cargo.toml;
+                cargo ${{ matrix.job }} --manifest-path=integration-tests/upgradeable-contracts/$contract/Cargo.toml;
            done
-           cargo ${{ matrix.job }} --verbose --manifest-path=integration-tests/upgradeable-contracts/set-code-hash/updated-incrementer/Cargo.toml;
+           cargo ${{ matrix.job }} --manifest-path=integration-tests/upgradeable-contracts/set-code-hash/updated-incrementer/Cargo.toml;
            for example in integration-tests/*/; do
                if [ "$example" = "integration-tests/upgradeable-contracts/" ]; then continue; fi;
                if [ "$example" = "integration-tests/lang-err-integration-tests/" ]; then continue; fi;
                echo "Processing example: $example";
-               cargo ${{ matrix.job }} --verbose --manifest-path=$example/Cargo.toml;
+               cargo ${{ matrix.job }} --manifest-path=$example/Cargo.toml;
            done

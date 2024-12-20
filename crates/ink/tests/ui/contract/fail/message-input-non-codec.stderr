@@ -2,12 +2,13 @@ error[E0277]: the trait bound `NonCodecType: WrapperTypeDecode` is not satisfied
   --> tests/ui/contract/fail/message-input-non-codec.rs:16:31
    |
 16 |         pub fn message(&self, _input: NonCodecType) {}
-   |                               ^^^^^^ the trait `WrapperTypeDecode` is not implemented for `NonCodecType`
+   |                               ^^^^^^^^^^^^^^^^^^^^ the trait `WrapperTypeDecode` is not implemented for `NonCodecType`, which is required by `NonCodecType: ink::parity_scale_codec::Decode`
    |
    = help: the following other types implement trait `WrapperTypeDecode`:
+             Arc<T>
              Box<T>
              Rc<T>
-             Arc<T>
+             sp_core::Bytes
    = note: required for `NonCodecType` to implement `ink::parity_scale_codec::Decode`
 note: required by a bound in `DispatchInput`
   --> src/codegen/dispatch/type_check.rs
@@ -18,40 +19,41 @@ note: required by a bound in `DispatchInput`
    |     T: scale::Decode + 'static;
    |        ^^^^^^^^^^^^^ required by this bound in `DispatchInput`
 
-error[E0277]: the trait bound `NonCodecType: WrapperTypeDecode` is not satisfied
+error[E0277]: the trait bound `NonCodecType: ink::parity_scale_codec::Decode` is not satisfied
   --> tests/ui/contract/fail/message-input-non-codec.rs:16:9
    |
 16 |         pub fn message(&self, _input: NonCodecType) {}
-   |         ^^^ the trait `WrapperTypeDecode` is not implemented for `NonCodecType`
+   |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ the trait `WrapperTypeDecode` is not implemented for `NonCodecType`, which is required by `NonCodecType: ink::parity_scale_codec::Decode`
    |
    = help: the following other types implement trait `WrapperTypeDecode`:
+             Arc<T>
              Box<T>
              Rc<T>
-             Arc<T>
+             sp_core::Bytes
    = note: required for `NonCodecType` to implement `ink::parity_scale_codec::Decode`
 
-error[E0277]: the trait bound `NonCodecType: WrapperTypeEncode` is not satisfied
+error[E0277]: the trait bound `NonCodecType: Encode` is not satisfied
   --> tests/ui/contract/fail/message-input-non-codec.rs:1:1
    |
 1  | #[ink::contract]
-   | ^^^^^^^^^^^^^^^^ the trait `WrapperTypeEncode` is not implemented for `NonCodecType`
+   | ^^^^^^^^^^^^^^^^ the trait `WrapperTypeEncode` is not implemented for `NonCodecType`, which is required by `NonCodecType: Encode`
 ...
 16 |         pub fn message(&self, _input: NonCodecType) {}
-   |         --- required by a bound introduced by this call
+   |         ---------------------------------------------- required by a bound introduced by this call
    |
    = help: the following other types implement trait `WrapperTypeEncode`:
-             Box<T>
-             Cow<'a, T>
-             ink::parity_scale_codec::Ref<'a, T, U>
-             Rc<T>
-             Arc<T>
-             Vec<T>
-             String
              &T
              &mut T
+             Arc<T>
+             Box<T>
+             Cow<'a, T>
+             Rc<T>
+             String
+             Vec<T>
+           and $N others
    = note: required for `NonCodecType` to implement `Encode`
 note: required by a bound in `ExecutionInput::<ArgumentList<ArgumentListEnd, ArgumentListEnd>>::push_arg`
-  --> $WORKSPACE/crates/env/src/call/execution_input.rs
+  --> $WORKSPACE/crates/env/src/call/execution.rs
    |
    |     pub fn push_arg<T>(
    |            -------- required by a bound in this associated function
@@ -59,13 +61,13 @@ note: required by a bound in `ExecutionInput::<ArgumentList<ArgumentListEnd, Arg
    |         T: scale::Encode,
    |            ^^^^^^^^^^^^^ required by this bound in `ExecutionInput::<ArgumentList<ArgumentListEnd, ArgumentListEnd>>::push_arg`
 
-error[E0599]: the method `try_invoke` exists for struct `CallBuilder<DefaultEnvironment, Set<Call<DefaultEnvironment>>, Set<ExecutionInput<...>>, ...>`, but its trait bounds were not satisfied
+error[E0599]: the method `try_invoke` exists for struct `CallBuilder<DefaultEnvironment, Set<Call<DefaultEnvironment>>, Set<ExecutionInput<ArgumentList<Argument<NonCodecType>, ArgumentList<ArgumentListEnd, ArgumentListEnd>>>>, Set<ReturnType<()>>>`, but its trait bounds were not satisfied
   --> tests/ui/contract/fail/message-input-non-codec.rs:16:9
    |
 16 |         pub fn message(&self, _input: NonCodecType) {}
-   |         ^^^ method cannot be called due to unsatisfied trait bounds
+   |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    |
-  ::: $WORKSPACE/crates/env/src/call/execution_input.rs
+  ::: $WORKSPACE/crates/env/src/call/execution.rs
    |
    | pub struct ArgumentList<Head, Rest> {
    | ----------------------------------- doesn't satisfy `_: Encode`

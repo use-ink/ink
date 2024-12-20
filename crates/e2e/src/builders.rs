@@ -1,4 +1,4 @@
-// Copyright (C) Parity Technologies (UK) Ltd.
+// Copyright (C) Use Ink (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ use ink_env::{
         },
         CreateBuilder,
         ExecutionInput,
+        LimitParamsV2,
     },
     Environment,
 };
@@ -32,7 +33,7 @@ pub type CreateBuilderPartial<E, ContractRef, Args, R> = CreateBuilder<
     E,
     ContractRef,
     Unset<<E as Environment>::Hash>,
-    Unset<u64>,
+    Set<LimitParamsV2<E>>,
     Unset<<E as Environment>::Balance>,
     Set<ExecutionInput<Args>>,
     Unset<ink_env::call::state::Salt>,

@@ -1,4 +1,4 @@
-// Copyright (C) Parity Technologies (UK) Ltd.
+// Copyright (C) Use Ink (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -175,5 +175,14 @@ pub fn extract_cfg_attributes(
         .iter()
         .filter(|a| a.path().is_ident(super::CFG_IDENT))
         .map(|a| quote::quote_spanned!(span=> #a ))
+        .collect()
+}
+
+/// Extracts `cfg` attributes from the given set of attributes
+pub fn extract_cfg_syn_attributes(attrs: &[syn::Attribute]) -> Vec<syn::Attribute> {
+    attrs
+        .iter()
+        .filter(|a| a.path().is_ident(super::CFG_IDENT))
+        .cloned()
         .collect()
 }

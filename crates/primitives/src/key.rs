@@ -1,4 +1,4 @@
-// Copyright (C) Parity Technologies (UK) Ltd.
+// Copyright (C) Use Ink (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -62,9 +62,9 @@ impl KeyComposer {
     ///
     /// 1. Compute the ASCII byte representation of `struct_name` and call it `S`.
     /// 1. If `variant_name` is not empty then computes the ASCII byte representation and
-    /// call it `V`. 1. Compute the ASCII byte representation of `field_name` and call
-    /// it `F`. 1. Concatenate (`S` and `F`) or (`S`, `V` and `F`) using `::` as
-    /// separator and call it `C`. 1. The `XXH32` hash of `C` is the storage key.
+    ///    call it `V`. 1. Compute the ASCII byte representation of `field_name` and call
+    ///    it `F`. 1. Concatenate (`S` and `F`) or (`S`, `V` and `F`) using `::` as
+    ///    separator and call it `C`. 1. The `XXH32` hash of `C` is the storage key.
     ///
     /// # Note
     ///

@@ -1,4 +1,4 @@
-// Copyright (C) Parity Technologies (UK) Ltd.
+// Copyright (C) Use Ink (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -35,7 +35,6 @@
     overflowing_literals,
     path_statements,
     patterns_in_fns_without_body,
-    private_in_public,
     unconditional_recursion,
     unused_allocation,
     unused_comparisons,
@@ -56,7 +55,7 @@ pub const BUFFER_SIZE: usize = 16384;
 #[allow(unused_extern_crates)]
 extern crate rlibc;
 
-#[cfg(not(feature = "std"))]
+#[cfg(not(any(feature = "std", feature = "no-panic-handler")))]
 #[allow(unused_variables)]
 #[panic_handler]
 fn panic(info: &core::panic::PanicInfo) -> ! {
@@ -100,16 +99,27 @@ mod tests;
 #[doc(inline)]
 pub use self::engine::off_chain::test_api as test;
 
+#[cfg(not(feature = "revive"))]
+#[doc(inline)]
+pub use pallet_contracts_uapi::{
+    CallFlags,
+    ReturnErrorCode,
+    ReturnFlags,
+};
+#[cfg(feature = "revive")]
+#[doc(inline)]
+pub use pallet_revive_uapi::{
+    CallFlags,
+    ReturnErrorCode,
+    ReturnFlags,
+};
+
 use self::backend::{
     EnvBackend,
     TypedEnvBackend,
 };
 pub use self::{
     api::*,
-    backend::{
-        CallFlags,
-        ReturnFlags,
-    },
     error::{
         Error,
         Result,

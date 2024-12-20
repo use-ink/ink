@@ -1,5 +1,6 @@
 error: ink! trait definitions must not have constructors
  --> tests/ui/trait_def/fail/definition_constructor.rs:3:5
   |
-3 |     #[ink(constructor)]
-  |     ^
+3 | /     #[ink(constructor)]
+4 | |     fn constructor() -> Self;
+  | |_____________________________^

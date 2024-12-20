@@ -1,7 +1,7 @@
 [package]
 name = "ink_env"
 version.workspace = true
-authors = ["Parity Technologies <admin@parity.io>", "Robin Freyler <robin@parity.io>"]
+authors = ["Use Ink <ink@use.ink>"]
 edition.workspace = true
 rust-version = "1.68"
 
@@ -20,19 +20,29 @@ ink_allocator = { workspace = true }
 ink_storage_traits = { workspace = true }
 ink_prelude = { workspace = true }
 ink_primitives = { workspace = true }
+pallet-contracts-uapi = { workspace = true }
+pallet-revive-uapi = { workspace = true }
 
-scale = { package = "parity-scale-codec", workspace = true }
+scale = { workspace = true, features = ["max-encoded-len"] }
 derive_more = { workspace = true, features = ["from", "display"] }
 num-traits = { workspace = true, features = ["i128"] }
 cfg-if = { workspace = true }
 paste = { workspace = true }
 static_assertions = { workspace = true }
 const_env = { workspace = true }
+xcm = { workspace = true }
+
+# We add the `sp-io` here to disable those features
+sp-io = { version = "38.0.0", default-features = false, features = ["disable_panic_handler", "disable_oom", "disable_allocator"] }
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
 rlibc = "1"
 
-[target.'cfg(not(target_arch = "wasm32"))'.dependencies]
+[target.'cfg(target_arch = "riscv32")'.dependencies]
+polkavm-derive = { workspace = true, default-features = false }
+
+# TODO
+[target.'cfg(all(not(target_arch = "wasm32"), not(target_arch = "riscv32")))'.dependencies]
 ink_engine = { workspace = true, default-features = true, optional = true }
 
 # Hashes for the off-chain environment.
@@ -44,7 +54,7 @@ blake2 = { workspace = true, optional = true }
 secp256k1 = { workspace = true, features = ["recovery", "global-context"], optional = true }
 
 # schnorrkel for the off-chain environment.
-schnorrkel = { version = "0.11.2", optional = true }
+schnorrkel = { version = "0.11.4", optional = true }
 
 # Only used in the off-chain environment.
 #
@@ -58,25 +68,30 @@ scale-info = { workspace = true, features = ["derive"], optional = true }
 ink = { path = "../ink" }
 
 [features]
-default = ["std"]
+default = [ "std" ]
 std = [
+	"blake2",
     "ink/std",
-    "ink_allocator/std",
-    "ink_prelude/std",
-    "ink_primitives/std",
-    "ink_storage_traits/std",
-    "ink_engine/std",
-    "scale/std",
-    "scale-decode",
-    "scale-encode",
-    "scale-info/std",
-    "secp256k1",
-    "schnorrkel",
-    "num-traits/std",
-    # Enables hashing crates for off-chain environment.
-    "sha2",
-    "sha3",
-    "blake2",
+	"ink_allocator/std",
+	"ink_prelude/std",
+	"ink_primitives/std",
+	"ink_storage_traits/std",
+	"ink_engine/std",
+	"scale/std",
+	"scale-decode",
+	"scale-encode",
+	"scale-info/std",
+	"secp256k1",
+	"schnorrkel",
+    "sp-io/std",
+	"num-traits/std",
+	# Enables hashing crates for off-chain environment.
+	"sha2",
+	"sha3",
+	"scale-decode?/std",
+	"scale-encode?/std",
+	"xcm/std",
+	"derive_more/std"
 ]
 test_instantiate = []
 
@@ -84,4 +99,11 @@ test_instantiate = []
 ink-debug = []
 
 # Disable the ink! provided global memory allocator.
-no-allocator = ["ink_allocator/no-allocator"]
+no-allocator = [ "ink_allocator/no-allocator" ]
+
+# Disable the ink! provided panic handler.
+no-panic-handler = []
+
+revive = [
+	"ink_engine/revive"
+]

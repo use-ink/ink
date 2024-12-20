@@ -1,4 +1,4 @@
-// Copyright (C) Parity Technologies (UK) Ltd.
+// Copyright (C) Use Ink (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@ use super::{
 use ink_env::Environment;
 
 use core::marker::PhantomData;
-use pallet_contracts_primitives::CodeUploadResult;
+use pallet_contracts::CodeUploadResult;
 use sp_core::H256;
 use subxt::{
     backend::{
@@ -30,9 +30,16 @@ use subxt::{
         rpc::RpcClient,
     },
     blocks::ExtrinsicEvents,
-    config::ExtrinsicParams,
+    config::{
+        DefaultExtrinsicParams,
+        DefaultExtrinsicParamsBuilder,
+        ExtrinsicParams,
+    },
     ext::scale_encode,
-    tx::Signer,
+    tx::{
+        Signer,
+        TxStatus,
+    },
     utils::MultiAddress,
     OnlineClient,
 };
@@ -141,6 +148,13 @@ pub enum Determinism {
     Relaxed,
 }
 
+/// A raw call to `pallet-contracts`'s `remove_code`.
+#[derive(Debug, scale::Encode, scale::Decode, scale_encode::EncodeAsType)]
+#[encode_as_type(trait_bounds = "", crate_path = "subxt::ext::scale_encode")]
+pub struct RemoveCode<E: Environment> {
+    code_hash: E::Hash,
+}
+
 /// A raw call to `pallet-contracts`'s `upload`.
 #[derive(Debug, scale::Encode, scale::Decode, scale_encode::EncodeAsType)]
 #[encode_as_type(trait_bounds = "", crate_path = "subxt::ext::scale_encode")]
@@ -214,7 +228,8 @@ where
     C::AccountId: From<sr25519::PublicKey> + serde::de::DeserializeOwned + scale::Codec,
     C::Address: From<sr25519::PublicKey>,
     C::Signature: From<sr25519::Signature>,
-    <C::ExtrinsicParams as ExtrinsicParams<C>>::OtherParams: Default,
+    <C::ExtrinsicParams as ExtrinsicParams<C>>::Params:
+        From<<DefaultExtrinsicParams<C> as ExtrinsicParams<C>>::Params>,
 
     E: Environment,
     E::Balance: scale::HasCompact + serde::Serialize,
@@ -240,7 +255,7 @@ where
         dest: C::AccountId,
         value: E::Balance,
     ) -> Result<(), subxt::Error> {
-        let call = subxt::tx::Payload::new(
+        let call = subxt::tx::DefaultPayload::new(
             "Balances",
             "transfer_allow_death",
             Transfer::<E, C> {
@@ -250,30 +265,7 @@ where
         )
         .unvalidated();
 
-        let account_id = <Keypair as Signer<C>>::account_id(origin);
-        let account_nonce =
-            self.get_account_nonce(&account_id)
-                .await
-                .unwrap_or_else(|err| {
-                    panic!("error calling `get_account_nonce`: {err:?}");
-                });
-
-        self.client
-            .tx()
-            .create_signed_with_nonce(&call, origin, account_nonce, Default::default())
-            .unwrap_or_else(|err| {
-                panic!("error on call `create_signed_with_nonce`: {err:?}");
-            })
-            .submit_and_watch()
-            .await
-            .unwrap_or_else(|err| {
-                panic!("error on call `submit_and_watch`: {err:?}");
-            })
-            .wait_for_in_block()
-            .await
-            .unwrap_or_else(|err| {
-                panic!("error on call `wait_for_in_block`: {err:?}");
-            });
+        let _ = self.submit_extrinsic(&call, origin).await;
 
         Ok(())
     }
@@ -319,7 +311,7 @@ where
         signer: &Keypair,
     ) -> ExtrinsicEvents<C>
     where
-        Call: subxt::tx::TxPayload,
+        Call: subxt::tx::Payload,
     {
         let account_id = <Keypair as Signer<C>>::account_id(signer);
         let account_nonce =
@@ -329,34 +321,57 @@ where
                     panic!("error calling `get_account_nonce`: {err:?}");
                 });
 
-        self.client
+        let params = DefaultExtrinsicParamsBuilder::new()
+            .nonce(account_nonce)
+            .build();
+        let mut tx = self
+            .client
             .tx()
-            .create_signed_with_nonce(call, signer, account_nonce, Default::default())
+            .create_signed_offline(call, signer, params.into())
             .unwrap_or_else(|err| {
                 panic!("error on call `create_signed_with_nonce`: {err:?}");
             })
             .submit_and_watch()
             .await
-            .map(|tx_progress| {
+            .inspect(|tx_progress| {
                 log_info(&format!(
                     "signed and submitted tx with hash {:?}",
                     tx_progress.extrinsic_hash()
                 ));
-                tx_progress
             })
             .unwrap_or_else(|err| {
                 panic!("error on call `submit_and_watch`: {err:?}");
-            })
-            .wait_for_in_block()
-            .await
-            .unwrap_or_else(|err| {
-                panic!("error on call `wait_for_in_block`: {err:?}");
-            })
-            .fetch_events()
-            .await
-            .unwrap_or_else(|err| {
-                panic!("error on call `fetch_events`: {err:?}");
-            })
+            });
+
+        // Below we use the low level API to replicate the `wait_for_in_block` behaviour
+        // which was removed in subxt 0.33.0. See https://github.com/paritytech/subxt/pull/1237.
+        //
+        // We require this because we use `substrate-contracts-node` as our development
+        // node, which does not currently support finality, so we just want to
+        // wait until it is included in a block.
+        while let Some(status) = tx.next().await {
+            match status.unwrap_or_else(|err| {
+                panic!("error subscribing to tx status: {err:?}");
+            }) {
+                TxStatus::InBestBlock(tx_in_block)
+                | TxStatus::InFinalizedBlock(tx_in_block) => {
+                    return tx_in_block.fetch_events().await.unwrap_or_else(|err| {
+                        panic!("error on call `fetch_events`: {err:?}");
+                    })
+                }
+                TxStatus::Error { message } => {
+                    panic!("TxStatus::Error: {message:?}");
+                }
+                TxStatus::Invalid { message } => {
+                    panic!("TxStatus::Invalid: {message:?}");
+                }
+                TxStatus::Dropped { message } => {
+                    panic!("TxStatus::Dropped: {message:?}");
+                }
+                _ => continue,
+            }
+        }
+        panic!("Error waiting for tx status")
     }
 
     /// Return the hash of the *best* block
@@ -403,7 +418,7 @@ where
         salt: Vec<u8>,
         signer: &Keypair,
     ) -> ExtrinsicEvents<C> {
-        let call = subxt::tx::Payload::new(
+        let call = subxt::tx::DefaultPayload::new(
             "Contracts",
             "instantiate_with_code",
             InstantiateWithCode::<E> {
@@ -456,7 +471,7 @@ where
         code: Vec<u8>,
         storage_deposit_limit: Option<E::Balance>,
     ) -> ExtrinsicEvents<C> {
-        let call = subxt::tx::Payload::new(
+        let call = subxt::tx::DefaultPayload::new(
             "Contracts",
             "upload_code",
             UploadCode::<E> {
@@ -464,6 +479,25 @@ where
                 storage_deposit_limit,
                 determinism: Determinism::Enforced,
             },
+        )
+        .unvalidated();
+
+        self.submit_extrinsic(&call, signer).await
+    }
+
+    /// Submits an extrinsic to remove the code at the given hash.
+    ///
+    /// Returns when the transaction is included in a block. The return value
+    /// contains all events that are associated with this transaction.
+    pub async fn remove_code(
+        &self,
+        signer: &Keypair,
+        code_hash: E::Hash,
+    ) -> ExtrinsicEvents<C> {
+        let call = subxt::tx::DefaultPayload::new(
+            "Contracts",
+            "remove_code",
+            RemoveCode::<E> { code_hash },
         )
         .unvalidated();
 
@@ -513,7 +547,7 @@ where
         data: Vec<u8>,
         signer: &Keypair,
     ) -> ExtrinsicEvents<C> {
-        let call = subxt::tx::Payload::new(
+        let call = subxt::tx::DefaultPayload::new(
             "Contracts",
             "call",
             Call::<E> {

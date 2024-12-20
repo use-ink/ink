@@ -1,4 +1,4 @@
-// Copyright (C) Parity Technologies (UK) Ltd.
+// Copyright (C) Use Ink (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
 // limitations under the License.
 
 use ink_env::Environment;
-use pallet_contracts_primitives::ContractInstantiateResult;
 use scale::{
     Decode,
     Encode,
@@ -26,8 +25,8 @@ use crate::{
     CallBuilderFinal,
     CallDryRunResult,
     CallResult,
-    ContractExecResult,
     ContractsBackend,
+    InstantiateDryRunResult,
     InstantiationResult,
     UploadResult,
 };
@@ -110,7 +109,7 @@ where
     /// Overwrites any values specified for `extra_gas_portion`.
     ///  The gas estimate fro dry-run will be ignored.
     pub fn gas_limit(&mut self, limit: Weight) -> &mut Self {
-        if limit == Weight::from(0) {
+        if limit == Weight::from_parts(0, 0) {
             self.gas_limit = None
         } else {
             self.gas_limit = Some(limit)
@@ -140,7 +139,6 @@ where
     ) -> Result<CallResult<E, RetType, B::EventLog>, B::Error>
     where
         CallBuilderFinal<E, Args, RetType>: Clone,
-        B::Error: From<ContractExecResult<E::Balance, ()>>,
     {
         let dry_run = B::bare_call_dry_run(
             self.client,
@@ -149,18 +147,15 @@ where
             self.value,
             self.storage_deposit_limit,
         )
-        .await
-        .to_result()?;
+        .await?;
 
         let gas_limit = if let Some(limit) = self.gas_limit {
             limit
         } else {
             let gas_required = dry_run.exec_result.gas_required;
-            if let Some(m) = self.extra_gas_portion {
-                gas_required + (gas_required / 100 * m)
-            } else {
-                gas_required
-            }
+            let proof_size = gas_required.proof_size();
+            let ref_time = gas_required.ref_time();
+            calculate_weight(proof_size, ref_time, self.extra_gas_portion)
         };
 
         let call_result = B::bare_call(
@@ -180,7 +175,7 @@ where
     }
 
     /// Dry run the call.
-    pub async fn dry_run(&mut self) -> CallDryRunResult<E, RetType>
+    pub async fn dry_run(&mut self) -> Result<CallDryRunResult<E, RetType>, B::Error>
     where
         CallBuilderFinal<E, Args, RetType>: Clone,
     {
@@ -274,7 +269,7 @@ where
     /// Overwrites any values specified for `extra_gas_portion`.
     /// The gas estimate fro dry-run will be ignored.
     pub fn gas_limit(&mut self, limit: Weight) -> &mut Self {
-        if limit == Weight::from(0) {
+        if limit == Weight::from_parts(0, 0) {
             self.gas_limit = None
         } else {
             self.gas_limit = Some(limit)
@@ -301,10 +296,7 @@ where
     /// to add a margin to the gas limit.
     pub async fn submit(
         &mut self,
-    ) -> Result<InstantiationResult<E, B::EventLog>, B::Error>
-    where
-        B::Error: From<ContractInstantiateResult<E::AccountId, E::Balance, ()>>,
-    {
+    ) -> Result<InstantiationResult<E, B::EventLog>, B::Error> {
         let dry_run = B::bare_instantiate_dry_run(
             self.client,
             self.contract_name,
@@ -313,23 +305,15 @@ where
             self.value,
             self.storage_deposit_limit,
         )
-        .await;
-
-        let dry_run = if dry_run.result.is_err() {
-            Err(B::Error::from(dry_run))
-        } else {
-            Ok(dry_run)
-        }?;
+        .await?;
 
         let gas_limit = if let Some(limit) = self.gas_limit {
             limit
         } else {
-            let gas_required = dry_run.gas_required;
-            if let Some(m) = self.extra_gas_portion {
-                gas_required + (gas_required / 100 * m)
-            } else {
-                gas_required
-            }
+            let gas_required = dry_run.contract_result.gas_required;
+            let proof_size = gas_required.proof_size();
+            let ref_time = gas_required.ref_time();
+            calculate_weight(proof_size, ref_time, self.extra_gas_portion)
         };
 
         let instantiate_result = B::bare_instantiate(
@@ -351,9 +335,7 @@ where
     }
 
     /// Dry run the instantiate call.
-    pub async fn dry_run(
-        &mut self,
-    ) -> ContractInstantiateResult<E::AccountId, E::Balance, ()> {
+    pub async fn dry_run(&mut self) -> Result<InstantiateDryRunResult<E>, B::Error> {
         B::bare_instantiate_dry_run(
             self.client,
             self.contract_name,
@@ -416,4 +398,47 @@ where
         )
         .await
     }
+}
+
+/// Allows to build an end-to-end remove code call using a builder pattern.
+pub struct RemoveCodeBuilder<'a, E, B>
+where
+    E: Environment,
+    B: BuilderClient<E>,
+{
+    client: &'a mut B,
+    caller: &'a Keypair,
+    code_hash: E::Hash,
+}
+
+impl<'a, E, B> RemoveCodeBuilder<'a, E, B>
+where
+    E: Environment,
+    B: BuilderClient<E>,
+{
+    /// Initialize a remove code builder with essential values.
+    pub fn new(client: &'a mut B, caller: &'a Keypair, code_hash: E::Hash) -> Self {
+        Self {
+            client,
+            caller,
+            code_hash,
+        }
+    }
+
+    /// Submit the remove code extrinsic.
+    pub async fn submit(&mut self) -> Result<B::EventLog, B::Error> {
+        B::bare_remove_code(self.client, self.caller, self.code_hash).await
+    }
+}
+
+fn calculate_weight(
+    mut proof_size: u64,
+    mut ref_time: u64,
+    portion: Option<u64>,
+) -> Weight {
+    if let Some(m) = portion {
+        ref_time += ref_time / 100 * m;
+        proof_size += proof_size / 100 * m;
+    }
+    Weight::from_parts(ref_time, proof_size)
 }

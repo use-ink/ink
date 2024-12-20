@@ -1,4 +1,4 @@
-// Copyright (C) Parity Technologies (UK) Ltd.
+// Copyright (C) Use Ink (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ use ink_env::{
             Set,
         },
         CallBuilder,
+        Execution,
         ExecutionInput,
     },
     Environment,
@@ -50,3 +51,5 @@ where
     E: Environment,
 {
 }
+
+impl<Args, RetType> ImpliesReturn<RetType> for Execution<Args, RetType> {}

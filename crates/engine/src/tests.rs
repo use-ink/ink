@@ -1,4 +1,4 @@
-// Copyright (C) Parity Technologies (UK) Ltd.
+// Copyright (C) Use Ink (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -151,7 +151,7 @@ fn events() {
     let event = events.next().expect("event must exist");
     assert_eq!(event.topics.len(), 2);
     assert_eq!(
-        event.topics.get(0).expect("first topic must exist"),
+        event.topics.first().expect("first topic must exist"),
         &topic1
     );
     assert_eq!(
@@ -235,7 +235,8 @@ fn ecdsa_recovery_with_secp256k1_crate() {
     let recoverable_signature: RecoverableSignature =
         SECP256K1.sign_ecdsa_recoverable(&msg, &seckey);
 
-    let recovery_id = recoverable_signature.serialize_compact().0.to_i32() as u8;
+    let recovery_id: i32 = recoverable_signature.serialize_compact().0.into();
+    let recovery_id = recovery_id as u8;
     let mut signature = recoverable_signature.serialize_compact().1.to_vec();
     signature.push(recovery_id);
     let signature_with_recovery_id: [u8; 65] = signature

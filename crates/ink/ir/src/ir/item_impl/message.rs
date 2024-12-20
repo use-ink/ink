@@ -1,4 +1,4 @@
-// Copyright (C) Parity Technologies (UK) Ltd.
+// Copyright (C) Use Ink (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -23,7 +23,10 @@ use crate::ir::{
     self,
     attrs::SelectorOrWildcard,
     utils,
-    utils::extract_cfg_attributes,
+    utils::{
+        extract_cfg_attributes,
+        extract_cfg_syn_attributes,
+    },
 };
 use proc_macro2::{
     Ident,
@@ -283,6 +286,11 @@ impl Message {
         extract_cfg_attributes(self.attrs(), span)
     }
 
+    /// Returns a list of `cfg` attributes as `syn::Attribute` if any.
+    pub fn get_cfg_syn_attrs(&self) -> Vec<syn::Attribute> {
+        extract_cfg_syn_attributes(self.attrs())
+    }
+
     /// Returns the `self` receiver of the ink! message.
     pub fn receiver(&self) -> Receiver {
         match self.item.sig.inputs.iter().next() {
@@ -382,13 +390,23 @@ mod tests {
 
     #[test]
     fn inputs_works() {
+        macro_rules! expected_input {
+            ( mut $name:ident: $ty:ty  ) => {{
+                syn::parse_quote! {
+                    mut $name: $ty
+                }
+            }};
+            ( $name:ident: $ty:ty  ) => {{
+                syn::parse_quote! {
+                    $name: $ty
+                }
+            }};
+        }
         macro_rules! expected_inputs {
-            ( $( $name:ident: $ty:ty ),* ) => {{
+            ( $( $($ts:ident)+: $ty:ty ),* ) => {{
                 vec![
                     $(
-                        syn::parse_quote! {
-                            $name: $ty
-                        }
+                        expected_input!($($ts)+: $ty)
                     ),*
                 ]
             }};
@@ -411,11 +429,19 @@ mod tests {
                 },
             ),
             (
-                // Some inputs:
-                expected_inputs!(a: i32, b: u64, c: [u8; 32]),
+                // Single mutable input:
+                expected_inputs!(mut a: i32),
                 syn::parse_quote! {
                     #[ink(message)]
-                    fn my_message(&self, a: i32, b: u64, c: [u8; 32]) {}
+                    fn my_message(&self, mut a: i32) {}
+                },
+            ),
+            (
+                // Some inputs:
+                expected_inputs!(a: i32, b: u64, mut c: [u8; 32]),
+                syn::parse_quote! {
+                    #[ink(message)]
+                    fn my_message(&self, a: i32, b: u64, mut c: [u8; 32]) {}
                 },
             ),
         ];

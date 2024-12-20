@@ -5,4 +5,4 @@ error[E0592]: duplicate definitions with name `try_message`
    | ---------------- other definition for `try_message`
 ...
 16 |         pub fn try_message(&self) {}
-   |         ^^^ duplicate definitions for `try_message`
+   |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ duplicate definitions for `try_message`

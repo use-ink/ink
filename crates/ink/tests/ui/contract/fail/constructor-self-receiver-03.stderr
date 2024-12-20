@@ -1,14 +1,14 @@
-error[E0637]: `&` without an explicit lifetime name cannot be used here
+error: in the trait associated type is declared without lifetime parameters, so using a borrowed type for them requires that lifetime to come from the implemented type
  --> tests/ui/contract/fail/constructor-self-receiver-03.rs:8:34
   |
 8 |         pub fn constructor(this: &Self) -> Self {
-  |                                  ^ explicit lifetime name needed here
+  |                                  ^ this lifetime must come from the implemented type
 
 error[E0411]: cannot find type `Self` in this scope
  --> tests/ui/contract/fail/constructor-self-receiver-03.rs:8:35
   |
 4 |     pub struct Contract {}
-  |     --- `Self` not allowed in a constant item
+  |     ---------------------- `Self` not allowed in a constant item
 ...
 8 |         pub fn constructor(this: &Self) -> Self {
   |                                   ^^^^ `Self` is only available in impls, traits, and type definitions
@@ -22,14 +22,10 @@ error[E0411]: cannot find type `Self` in this scope
 8 |         pub fn constructor(this: &Self) -> Self {
   |                                   ^^^^ `Self` is only available in impls, traits, and type definitions
 
-error[E0277]: the trait bound `&Contract: WrapperTypeDecode` is not satisfied
- --> tests/ui/contract/fail/constructor-self-receiver-03.rs:8:9
+warning: unused variable: `this`
+ --> tests/ui/contract/fail/constructor-self-receiver-03.rs:8:28
   |
 8 |         pub fn constructor(this: &Self) -> Self {
-  |         ^^^ the trait `WrapperTypeDecode` is not implemented for `&Contract`
+  |                            ^^^^ help: if this is intentional, prefix it with an underscore: `_this`
   |
-  = help: the following other types implement trait `WrapperTypeDecode`:
-            Box<T>
-            Rc<T>
-            Arc<T>
-  = note: required for `&Contract` to implement `ink::parity_scale_codec::Decode`
+  = note: `#[warn(unused_variables)]` on by default

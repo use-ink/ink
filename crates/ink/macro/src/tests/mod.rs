@@ -1,4 +1,4 @@
-// Copyright (C) Parity Technologies (UK) Ltd.
+// Copyright (C) Use Ink (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -26,6 +26,7 @@ use crate::storage::{
     storage_layout_derive,
 };
 
+#[cfg(test)]
 #[macro_export]
 macro_rules! test_derive {
     ($name:path { $($i:tt)* } expands to { $($o:tt)* }) => {

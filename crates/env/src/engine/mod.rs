@@ -1,4 +1,4 @@
-// Copyright (C) Parity Technologies (UK) Ltd.
+// Copyright (C) Use Ink (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -21,7 +21,6 @@ use crate::{
         ConstructorReturnType,
         FromAccountId,
     },
-    Error as EnvError,
     Error,
     Result as EnvResult,
 };
@@ -30,6 +29,11 @@ use ink_primitives::{
     ConstructorResult,
     LangError,
 };
+
+#[cfg(not(feature = "revive"))]
+use pallet_contracts_uapi::ReturnErrorCode;
+#[cfg(feature = "revive")]
+use pallet_revive_uapi::ReturnErrorCode;
 
 /// Convert a slice into an array reference.
 ///
@@ -89,7 +93,7 @@ where
             let output = <R as ConstructorReturnType<ContractRef>>::ok(contract_ref);
             Ok(Ok(output))
         }
-        Err(EnvError::CalleeReverted) => {
+        Err(Error::ReturnError(ReturnErrorCode::CalleeReverted)) => {
             decode_instantiate_err::<I, E, ContractRef, R>(out_return_value)
         }
         Err(actual_error) => Err(actual_error),
@@ -150,7 +154,6 @@ mod decode_instantiate_result_tests {
     use crate::{
         DefaultEnvironment,
         Environment,
-        Error,
     };
     use scale::Encode;
 
@@ -161,6 +164,8 @@ mod decode_instantiate_result_tests {
     struct ContractError(String);
 
     type AccountId = <DefaultEnvironment as Environment>::AccountId;
+    // The `allow(dead_code)` is for the `AccountId` in the struct.
+    #[allow(dead_code)]
     struct TestContractRef(AccountId);
 
     impl crate::ContractEnv for TestContractRef {
@@ -193,7 +198,11 @@ mod decode_instantiate_result_tests {
             DefaultEnvironment,
             TestContractRef,
             Result<TestContractRef, ContractError>,
-        >(Err(Error::CalleeReverted), out_address, out_return_value)
+        >(
+            Err(ReturnErrorCode::CalleeReverted.into()),
+            out_address,
+            out_return_value,
+        )
     }
 
     #[test]

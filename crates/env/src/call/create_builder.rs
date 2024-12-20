@@ -1,4 +1,4 @@
-// Copyright (C) Parity Technologies (UK) Ltd.
+// Copyright (C) Use Ink (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -19,13 +19,12 @@ use crate::{
             ReturnType,
             Set,
             Unset,
-            Unwrap,
         },
         ExecutionInput,
         Selector,
     },
-    types::Environment,
     ContractEnv,
+    types::Environment,
     Error,
 };
 use core::marker::PhantomData;
@@ -166,16 +165,36 @@ where
     }
 }
 
+/// Defines the limit params for the legacy `ext::instantiate_v1` host function,
+/// consisting of the `gas_limit` which is equivalent to the `ref_time_limit` in the new
+/// `ext::instantiate`.
+#[derive(Clone, Debug)]
+pub struct LimitParamsV1 {
+    gas_limit: u64,
+}
+
+/// Defines the limit params for the new `ext::instantiate` host function.
+#[derive(Clone, Debug)]
+pub struct LimitParamsV2<E>
+where
+    E: Environment,
+{
+    ref_time_limit: u64,
+    proof_size_limit: u64,
+    storage_deposit_limit: Option<E::Balance>,
+}
+
 /// Builds up contract instantiations.
 #[derive(Debug)]
-pub struct CreateParams<E, ContractRef, Args, Salt, R>
+pub struct CreateParams<E, ContractRef, Limits, Args, Salt, R>
 where
     E: Environment,
 {
     /// The code hash of the created contract.
     code_hash: E::Hash,
-    /// The maximum gas costs allowed for the instantiation.
-    gas_limit: u64,
+    /// Parameters for weight and storage limits, differs for versions of the instantiate
+    /// host function.
+    limits: Limits,
     /// The endowment for the instantiated contract.
     endowment: E::Balance,
     /// The input data for the instantiation.
@@ -188,7 +207,8 @@ where
     _phantom: PhantomData<fn() -> ContractRef>,
 }
 
-impl<E, ContractRef, Args, Salt, R> CreateParams<E, ContractRef, Args, Salt, R>
+impl<E, ContractRef, Limits, Args, Salt, R>
+    CreateParams<E, ContractRef, Limits, Args, Salt, R>
 where
     E: Environment,
 {
@@ -196,12 +216,6 @@ where
     #[inline]
     pub fn code_hash(&self) -> &E::Hash {
         &self.code_hash
-    }
-
-    /// The gas limit for the contract instantiation.
-    #[inline]
-    pub fn gas_limit(&self) -> u64 {
-        self.gas_limit
     }
 
     /// The endowment for the instantiated contract.
@@ -225,7 +239,45 @@ where
     }
 }
 
-impl<E, ContractRef, Args, Salt, R> CreateParams<E, ContractRef, Args, Salt, R>
+impl<E, ContractRef, Args, Salt, R>
+    CreateParams<E, ContractRef, LimitParamsV2<E>, Args, Salt, R>
+where
+    E: Environment,
+{
+    /// Gets the `ref_time_limit` part of the weight limit for the contract instantiation.
+    #[inline]
+    pub fn ref_time_limit(&self) -> u64 {
+        self.limits.ref_time_limit
+    }
+
+    /// Gets the `proof_size_limit` part of the weight limit for the contract
+    /// instantiation.
+    #[inline]
+    pub fn proof_size_limit(&self) -> u64 {
+        self.limits.proof_size_limit
+    }
+
+    /// Gets the `storage_deposit_limit` for the contract instantiation.
+    #[inline]
+    pub fn storage_deposit_limit(&self) -> Option<&E::Balance> {
+        self.limits.storage_deposit_limit.as_ref()
+    }
+}
+
+impl<E, ContractRef, Args, Salt, R>
+    CreateParams<E, ContractRef, LimitParamsV1, Args, Salt, R>
+where
+    E: Environment,
+{
+    /// The gas limit for the contract instantiation.
+    #[inline]
+    pub fn gas_limit(&self) -> u64 {
+        self.limits.gas_limit
+    }
+}
+
+impl<E, ContractRef, Limits, Args, Salt, R>
+    CreateParams<E, ContractRef, Limits, Args, Salt, R>
 where
     E: Environment,
     Salt: AsRef<[u8]>,
@@ -237,7 +289,8 @@ where
     }
 }
 
-impl<E, ContractRef, Args, Salt, R> CreateParams<E, ContractRef, Args, Salt, R>
+impl<E, ContractRef, Args, Salt, R>
+    CreateParams<E, ContractRef, LimitParamsV2<E>, Args, Salt, R>
 where
     E: Environment,
     ContractRef: FromAccountId<E> + crate::ContractReverseReference,
@@ -282,28 +335,69 @@ where
         ink_primitives::ConstructorResult<
             <R as ConstructorReturnType<ContractRef>>::Output,
         >,
-        crate::Error,
+        Error,
     > {
         crate::instantiate_contract(self)
     }
 }
 
+#[cfg(not(feature = "revive"))]
+impl<E, ContractRef, Args, Salt, R>
+    CreateParams<E, ContractRef, LimitParamsV1, Args, Salt, R>
+where
+    E: Environment,
+    ContractRef: FromAccountId<E>,
+    Args: scale::Encode,
+    Salt: AsRef<[u8]>,
+    R: ConstructorReturnType<ContractRef>,
+{
+    /// Instantiates the contract and returns its account ID back to the caller.
+    ///
+    /// # Panics
+    ///
+    /// This method panics if it encounters an [`ink::env::Error`][`crate::Error`] or an
+    /// [`ink::primitives::LangError`][`ink_primitives::LangError`]. If you want to handle
+    /// those use the [`try_instantiate`][`CreateParams::try_instantiate`] method
+    /// instead.
+    #[inline]
+    pub fn instantiate(&self) -> <R as ConstructorReturnType<ContractRef>>::Output {
+        self.try_instantiate()
+            .unwrap_or_else(|env_error| {
+                panic!("Cross-contract instantiation failed with {env_error:?}")
+            })
+            .unwrap_or_else(|lang_error| {
+                panic!("Received a `LangError` while instantiating: {lang_error:?}")
+            })
+    }
+
+    /// Instantiates the contract and returns its account ID back to the caller.
+    ///
+    /// # Note
+    ///
+    /// On failure this returns an outer [`ink::env::Error`][`crate::Error`] or inner
+    /// [`ink::primitives::LangError`][`ink_primitives::LangError`], both of which can be
+    /// handled by the caller.
+    #[inline]
+    pub fn try_instantiate(
+        &self,
+    ) -> Result<
+        ink_primitives::ConstructorResult<
+            <R as ConstructorReturnType<ContractRef>>::Output,
+        >,
+        Error,
+    > {
+        crate::instantiate_contract_v1(self)
+    }
+}
+
 /// Builds up contract instantiations.
 #[derive(Clone)]
-pub struct CreateBuilder<
-    E,
-    ContractRef,
-    CodeHash,
-    GasLimit,
-    Endowment,
-    Args,
-    Salt,
-    RetType,
-> where
+pub struct CreateBuilder<E, ContractRef, CodeHash, Limits, Endowment, Args, Salt, RetType>
+where
     E: Environment,
 {
     code_hash: CodeHash,
-    gas_limit: GasLimit,
+    limits: Limits,
     endowment: Endowment,
     exec_input: Args,
     salt: Salt,
@@ -356,7 +450,6 @@ pub struct CreateBuilder<
 /// # use contract::MyContractRef;
 /// let my_contract: MyContractRef = build_create::<MyContractRef>()
 ///     .code_hash(Hash::from([0x42; 32]))
-///     .gas_limit(4000)
 ///     .endowment(25)
 ///     .exec_input(
 ///         ExecutionInput::new(Selector::new(ink::selector_bytes!("my_constructor")))
@@ -401,7 +494,6 @@ pub struct CreateBuilder<
 /// # use contract::{MyContractRef, ConstructorError};
 /// let my_contract: MyContractRef = build_create::<MyContractRef>()
 ///     .code_hash(Hash::from([0x42; 32]))
-///     .gas_limit(4000)
 ///     .endowment(25)
 ///     .exec_input(
 ///         ExecutionInput::new(Selector::new(ink::selector_bytes!("my_constructor")))
@@ -412,14 +504,14 @@ pub struct CreateBuilder<
 ///     .salt_bytes(&[0xDE, 0xAD, 0xBE, 0xEF])
 ///     .returns::<Result<MyContractRef, ConstructorError>>()
 ///     .instantiate()
-///     .expect("Constructor should have executed succesfully.");
+///     .expect("Constructor should have executed successfully.");
 /// ```
 #[allow(clippy::type_complexity)]
 pub fn build_create<ContractRef>() -> CreateBuilder<
     <ContractRef as ContractEnv>::Env,
     ContractRef,
     Unset<<<ContractRef as ContractEnv>::Env as Environment>::Hash>,
-    Unset<u64>,
+    Set<LimitParamsV2<<ContractRef as ContractEnv>::Env>>,
     Unset<<<ContractRef as ContractEnv>::Env as Environment>::Balance>,
     Unset<ExecutionInput<EmptyArgumentList>>,
     Unset<state::Salt>,
@@ -430,7 +522,11 @@ where
 {
     CreateBuilder {
         code_hash: Default::default(),
-        gas_limit: Default::default(),
+        limits: Set(LimitParamsV2 {
+            ref_time_limit: 0,
+            proof_size_limit: 0,
+            storage_deposit_limit: None,
+        }),
         endowment: Default::default(),
         exec_input: Default::default(),
         salt: Default::default(),
@@ -439,17 +535,8 @@ where
     }
 }
 
-impl<E, ContractRef, GasLimit, Endowment, Args, Salt, RetType>
-    CreateBuilder<
-        E,
-        ContractRef,
-        Unset<E::Hash>,
-        GasLimit,
-        Endowment,
-        Args,
-        Salt,
-        RetType,
-    >
+impl<E, ContractRef, Limits, Endowment, Args, Salt, RetType>
+    CreateBuilder<E, ContractRef, Unset<E::Hash>, Limits, Endowment, Args, Salt, RetType>
 where
     E: Environment,
 {
@@ -458,19 +545,11 @@ where
     pub fn code_hash(
         self,
         code_hash: E::Hash,
-    ) -> CreateBuilder<
-        E,
-        ContractRef,
-        Set<E::Hash>,
-        GasLimit,
-        Endowment,
-        Args,
-        Salt,
-        RetType,
-    > {
+    ) -> CreateBuilder<E, ContractRef, Set<E::Hash>, Limits, Endowment, Args, Salt, RetType>
+    {
         CreateBuilder {
             code_hash: Set(code_hash),
-            gas_limit: self.gas_limit,
+            limits: self.limits,
             endowment: self.endowment,
             exec_input: self.exec_input,
             salt: self.salt,
@@ -481,20 +560,67 @@ where
 }
 
 impl<E, ContractRef, CodeHash, Endowment, Args, Salt, RetType>
-    CreateBuilder<E, ContractRef, CodeHash, Unset<u64>, Endowment, Args, Salt, RetType>
+    CreateBuilder<
+        E,
+        ContractRef,
+        CodeHash,
+        Set<LimitParamsV1>,
+        Endowment,
+        Args,
+        Salt,
+        RetType,
+    >
 where
     E: Environment,
 {
     /// Sets the maximum allowed gas costs for the contract instantiation.
     #[inline]
-    pub fn gas_limit(
+    pub fn gas_limit(self, gas_limit: u64) -> Self {
+        CreateBuilder {
+            limits: Set(LimitParamsV1 { gas_limit }),
+            ..self
+        }
+    }
+}
+
+impl<E, ContractRef, CodeHash, Endowment, Args, Salt, RetType>
+    CreateBuilder<
+        E,
+        ContractRef,
+        CodeHash,
+        Set<LimitParamsV2<E>>,
+        Endowment,
+        Args,
+        Salt,
+        RetType,
+    >
+where
+    E: Environment,
+{
+    /// Switch to the original `instantiate` host function API, which only allows the
+    /// `gas_limit` limit parameter (equivalent to the `ref_time_limit` in the latest
+    /// `instantiate_v2`).
+    ///
+    /// This method instance is used to allow usage of the generated builder methods
+    /// for constructors which initialize the builder with the new [`LimitParamsV2`] type.
+    #[inline]
+    pub fn instantiate_v1(
         self,
-        gas_limit: u64,
-    ) -> CreateBuilder<E, ContractRef, CodeHash, Set<u64>, Endowment, Args, Salt, RetType>
-    {
+    ) -> CreateBuilder<
+        E,
+        ContractRef,
+        CodeHash,
+        Set<LimitParamsV1>,
+        Endowment,
+        Args,
+        Salt,
+        RetType,
+    > {
         CreateBuilder {
             code_hash: self.code_hash,
-            gas_limit: Set(gas_limit),
+            limits: Set(LimitParamsV1 {
+                gas_limit: self.limits.value().ref_time_limit,
+            }),
             endowment: self.endowment,
             exec_input: self.exec_input,
             salt: self.salt,
@@ -502,14 +628,51 @@ where
             _phantom: Default::default(),
         }
     }
+
+    /// Sets the `ref_time_limit` part of the weight limit for the contract instantiation.
+    #[inline]
+    pub fn ref_time_limit(self, ref_time_limit: u64) -> Self {
+        CreateBuilder {
+            limits: Set(LimitParamsV2 {
+                ref_time_limit,
+                ..self.limits.value()
+            }),
+            ..self
+        }
+    }
+
+    /// Sets the `proof_size_limit` part of the weight limit for the contract
+    /// instantiation.
+    #[inline]
+    pub fn proof_size_limit(self, proof_size_limit: u64) -> Self {
+        CreateBuilder {
+            limits: Set(LimitParamsV2 {
+                proof_size_limit,
+                ..self.limits.value()
+            }),
+            ..self
+        }
+    }
+
+    /// Sets the `storage_deposit_limit` for the contract instantiation.
+    #[inline]
+    pub fn storage_deposit_limit(self, storage_deposit_limit: E::Balance) -> Self {
+        CreateBuilder {
+            limits: Set(LimitParamsV2 {
+                storage_deposit_limit: Some(storage_deposit_limit),
+                ..self.limits.value()
+            }),
+            ..self
+        }
+    }
 }
 
-impl<E, ContractRef, CodeHash, GasLimit, Args, Salt, RetType>
+impl<E, ContractRef, CodeHash, Limits, Args, Salt, RetType>
     CreateBuilder<
         E,
         ContractRef,
         CodeHash,
-        GasLimit,
+        Limits,
         Unset<E::Balance>,
         Args,
         Salt,
@@ -527,7 +690,7 @@ where
         E,
         ContractRef,
         CodeHash,
-        GasLimit,
+        Limits,
         Set<E::Balance>,
         Args,
         Salt,
@@ -535,7 +698,7 @@ where
     > {
         CreateBuilder {
             code_hash: self.code_hash,
-            gas_limit: self.gas_limit,
+            limits: self.limits,
             endowment: Set(endowment),
             exec_input: self.exec_input,
             salt: self.salt,
@@ -545,12 +708,12 @@ where
     }
 }
 
-impl<E, ContractRef, CodeHash, GasLimit, Endowment, Salt, RetType>
+impl<E, ContractRef, CodeHash, Limits, Endowment, Salt, RetType>
     CreateBuilder<
         E,
         ContractRef,
         CodeHash,
-        GasLimit,
+        Limits,
         Endowment,
         Unset<ExecutionInput<EmptyArgumentList>>,
         Salt,
@@ -568,7 +731,7 @@ where
         E,
         ContractRef,
         CodeHash,
-        GasLimit,
+        Limits,
         Endowment,
         Set<ExecutionInput<Args>>,
         Salt,
@@ -576,7 +739,7 @@ where
     > {
         CreateBuilder {
             code_hash: self.code_hash,
-            gas_limit: self.gas_limit,
+            limits: self.limits,
             endowment: self.endowment,
             exec_input: Set(exec_input),
             salt: self.salt,
@@ -586,12 +749,12 @@ where
     }
 }
 
-impl<E, ContractRef, CodeHash, GasLimit, Endowment, Args, RetType>
+impl<E, ContractRef, CodeHash, Limits, Endowment, Args, RetType>
     CreateBuilder<
         E,
         ContractRef,
         CodeHash,
-        GasLimit,
+        Limits,
         Endowment,
         Args,
         Unset<state::Salt>,
@@ -609,7 +772,7 @@ where
         E,
         ContractRef,
         CodeHash,
-        GasLimit,
+        Limits,
         Endowment,
         Args,
         Set<Salt>,
@@ -620,7 +783,7 @@ where
     {
         CreateBuilder {
             code_hash: self.code_hash,
-            gas_limit: self.gas_limit,
+            limits: self.limits,
             endowment: self.endowment,
             exec_input: self.exec_input,
             salt: Set(salt),
@@ -630,12 +793,12 @@ where
     }
 }
 
-impl<E, ContractRef, CodeHash, GasLimit, Endowment, Args, Salt>
+impl<E, ContractRef, CodeHash, Limits, Endowment, Args, Salt>
     CreateBuilder<
         E,
         ContractRef,
         CodeHash,
-        GasLimit,
+        Limits,
         Endowment,
         Args,
         Salt,
@@ -660,7 +823,7 @@ where
         E,
         ContractRef,
         CodeHash,
-        GasLimit,
+        Limits,
         Endowment,
         Args,
         Salt,
@@ -672,7 +835,7 @@ where
     {
         CreateBuilder {
             code_hash: self.code_hash,
-            gas_limit: self.gas_limit,
+            limits: self.limits,
             endowment: self.endowment,
             exec_input: self.exec_input,
             salt: self.salt,
@@ -682,12 +845,12 @@ where
     }
 }
 
-impl<E, ContractRef, GasLimit, Args, Salt, RetType>
+impl<E, ContractRef, Limits, Args, Salt, RetType>
     CreateBuilder<
         E,
         ContractRef,
         Set<E::Hash>,
-        GasLimit,
+        Set<Limits>,
         Set<E::Balance>,
         Set<ExecutionInput<Args>>,
         Set<Salt>,
@@ -695,14 +858,13 @@ impl<E, ContractRef, GasLimit, Args, Salt, RetType>
     >
 where
     E: Environment,
-    GasLimit: Unwrap<Output = u64>,
 {
     /// Finalizes the create builder, allowing it to instantiate a contract.
     #[inline]
-    pub fn params(self) -> CreateParams<E, ContractRef, Args, Salt, RetType> {
+    pub fn params(self) -> CreateParams<E, ContractRef, Limits, Args, Salt, RetType> {
         CreateParams {
             code_hash: self.code_hash.value(),
-            gas_limit: self.gas_limit.unwrap_or_else(|| 0),
+            limits: self.limits.value(),
             endowment: self.endowment.value(),
             exec_input: self.exec_input.value(),
             salt_bytes: self.salt.value(),
@@ -712,12 +874,12 @@ where
     }
 }
 
-impl<E, ContractRef, GasLimit, Args, Salt, RetType>
+impl<E, ContractRef, Args, Salt, RetType>
     CreateBuilder<
         E,
         ContractRef,
         Set<E::Hash>,
-        GasLimit,
+        Set<LimitParamsV2<E>>,
         Set<E::Balance>,
         Set<ExecutionInput<Args>>,
         Set<Salt>,
@@ -730,7 +892,58 @@ where
         crate::reflect::ContractConstructorDecoder,
     <ContractRef as crate::ContractReverseReference>::Type:
         crate::reflect::ContractMessageDecoder,
-    GasLimit: Unwrap<Output = u64>,
+    Args: scale::Encode,
+    Salt: AsRef<[u8]>,
+    RetType: ConstructorReturnType<ContractRef>,
+{
+    /// Instantiates the contract and returns its account ID back to the caller.
+    ///
+    /// # Panics
+    ///
+    /// This method panics if it encounters an [`ink::env::Error`][`crate::Error`] or an
+    /// [`ink::primitives::LangError`][`ink_primitives::LangError`]. If you want to handle
+    /// those use the [`try_instantiate`][`CreateBuilder::try_instantiate`] method
+    /// instead.
+    #[inline]
+    pub fn instantiate(self) -> <RetType as ConstructorReturnType<ContractRef>>::Output {
+        self.params().instantiate()
+    }
+
+    /// Instantiates the contract and returns its account ID back to the caller.
+    ///
+    /// # Note
+    ///
+    /// On failure this returns an outer [`ink::env::Error`][`crate::Error`] or inner
+    /// [`ink::primitives::LangError`][`ink_primitives::LangError`], both of which can be
+    /// handled by the caller.
+    #[inline]
+    pub fn try_instantiate(
+        self,
+    ) -> Result<
+        ink_primitives::ConstructorResult<
+            <RetType as ConstructorReturnType<ContractRef>>::Output,
+        >,
+        Error,
+    > {
+        self.params().try_instantiate()
+    }
+}
+
+#[cfg(not(feature = "revive"))]
+impl<E, ContractRef, Args, Salt, RetType>
+    CreateBuilder<
+        E,
+        ContractRef,
+        Set<E::Hash>,
+        Set<LimitParamsV1>,
+        Set<E::Balance>,
+        Set<ExecutionInput<Args>>,
+        Set<Salt>,
+        Set<ReturnType<RetType>>,
+    >
+where
+    E: Environment,
+    ContractRef: FromAccountId<E>,
     Args: scale::Encode,
     Salt: AsRef<[u8]>,
     RetType: ConstructorReturnType<ContractRef>,

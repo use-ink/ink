@@ -20,6 +20,10 @@ OPTIONS
       To ignore 'integration-tests/erc20' then supply 'erc20' as the argument.
   -p, --path
       Path to recursively find contract projects for which to execute the supplied command
+
+  --partition
+      Test partition, e.g. 1/2 or 2/3
+
   -q, --quiet
       Suppress output from this script, only output from the supplied command will be printed
 
@@ -27,6 +31,7 @@ EXAMPLES
    ${script_name} --path integration-tests -- cargo check --manifest-path
    ${script_name} --path integration-tests -- cargo contract build --manifest-path {} --release
    ${script_name} --path integration-tests --ignore erc20 -- cargo contract build --manifest-path {} --release
+   ${script_name} --path integration-tests --partition 1/2 --ignore erc20 -- cargo contract build --manifest-path {} --release
 
 EOF
 }
@@ -36,7 +41,7 @@ shopt -s globstar
 
 command=( "${@:2}" )
 
-options=$(getopt -o p:i:q: --long path:,ignore:,quiet: -- "$@")
+options=$(getopt -o p:i:q: --long path:,ignore:,quiet:,partition: -- "$@")
 [ $? -eq 0 ] || {
     >&2 echo "Incorrect option provided"
     usage
@@ -59,6 +64,12 @@ while true; do
         shift; # The arg is next in position args
         quiet=true
         ;;
+    --partition)
+        shift; # The arg is next in position args
+        m=$(echo "$1" | cut -d'/' -f1)
+        n=$(echo "$1" | cut -d'/' -f2)
+        partitioning=true
+        ;;
     --)
         shift
         break
@@ -69,7 +80,9 @@ done
 
 command=("${@}")
 
-if [ -z "$path" ] || [ "${#command[@]}" -le 0 ]; then
+if [ -z "$path" ] || ([ "$partitioning" = true ] && \
+  (! [[ "$m" =~ ^[0-9]+$ ]] || ! [[ "$n" =~ ^[0-9]+$ ]] || [ "$m" -gt "$n" ] || [ "$m" -le 0 ] || [ "$n" -le 0 ])) || \
+  [ "${#command[@]}" -le 0 ]; then
   usage
   exit 1
 fi
@@ -87,26 +100,51 @@ for i in "${!command[@]}"; do
   fi
 done
 
-for manifest_path in "$path"/**/Cargo.toml;
-  do if "$scripts_path"/is_contract.sh "$manifest_path"; then
-    manifest_parent="$(dirname "$manifest_path" | cut -d'/' -f2-)"
-    if [[ "${ignore[*]}" =~ ${manifest_parent} ]]; then
-      if [ "$quiet" = false ]; then
-        >&2 echo "Ignoring $manifest_path"
-      fi
-      continue
-    fi
-    command[$arg_index]="$manifest_path"
+# filter out ignored paths and check if each manifest is a contract
+filtered_manifests=()
+for manifest_path in "$path"/**/Cargo.toml; do
+  manifest_parent="$(dirname "$manifest_path" | cut -d'/' -f2-)"
+  if [[ "${ignore[*]}" =~ ${manifest_parent} ]]; then
     if [ "$quiet" = false ]; then
-      >&2 echo Running: "${command[@]}"
+      >&2 echo "Ignoring $manifest_path"
     fi
-    "${command[@]}"
+  elif ! "$scripts_path"/is_contract.sh "$manifest_path"; then
+    if [ "$quiet" = false ]; then
+      >&2 echo "Skipping non contract: $manifest_path"
+    fi
+  else
+    filtered_manifests+=("$manifest_path")
+  fi
+done
 
-    if [ $? -eq 0 ]; then
-      successes+=("$manifest_path")
-    else
-      failures+=("$manifest_path")
+# determine the total number of filtered Cargo.toml files
+total_manifests=${#filtered_manifests[@]}
+if [ "$partitioning" = true ]; then
+    # calculate the partition start and end index
+    partition_size=$(( total_manifests / n ))
+    start=$(( (m - 1) * partition_size ))
+    end=$(( m * partition_size - 1 ))
+    if [ "$m" -eq "$n" ]; then
+    # last partition
+      end=$(( total_manifests - 1 ))
     fi
+else
+    start=0
+    end=$(( total_manifests - 1 ))
+fi
+
+for (( i = start; i <= end; i++ )); do
+  manifest_path="${filtered_manifests[$i]}"
+  command[$arg_index]="$manifest_path"
+  if [ "$quiet" = false ]; then
+    >&2 echo Running: "${command[@]}"
+  fi
+  "${command[@]}"
+
+  if [ $? -eq 0 ]; then
+    successes+=("$manifest_path")
+  else
+    failures+=("$manifest_path")
   fi
 done
 

@@ -14,23 +14,21 @@ jobs:
       matrix:
         # List of repositories to fetch the issues
         repo:
-          - ink
+          - awesome-ink
           - cargo-contract
-          - substrate-contracts-node
           - contracts-ui
+          - ink
           - ink-docs
-          - smart-bench
+          - ink-examples
           - ink-waterfall
-          - ink-playground
+          - ink-workshop
+          - link
           - nft-marketplace-demo
           - pallet-contracts-xcm
-          - link
-          - ink-examples
-          - useink
-          - awesome-ink
-          - squink-splash-beginner
+          - smart-bench
           - squink-splash-advanced
-          - ink-workshop
+          - squink-splash-beginner
+          - substrate-contracts-node
     steps:
       - name: Generate token
         id: generate_token
@@ -94,7 +92,7 @@ jobs:
         env:
           COMBINED: ${{ steps.issues.outputs.ISSUES }}
           COUNT: ${{ steps.issues.outputs.COUNT }}
-          # This is the message that will be shown when there are no 
+          # This is the message that will be shown when there are no
           EMPTY_MESSAGE: "No stale issues! Good job!"
       - name: send message
         uses: s3krit/matrix-message-action@v0.0.3
@@ -105,7 +103,7 @@ jobs:
           message: |
             ## Good morning, team 🥞!
             This weekly digest lists GitHub issues without any reply that were created by non-team members.
-            
+
             The list is an aggregation of repositories which the Smart Contracts ☂️ owns ([list](https://www.notion.so/paritytechnologies/What-belongs-to-our-umbrella-b9a80b72fedc47d6b35224a15bdec64c)).
 
             ${{ steps.message.outputs.MESSAGE }}

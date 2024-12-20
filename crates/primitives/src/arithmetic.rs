@@ -1,4 +1,4 @@
-// Copyright (C) Parity Technologies (UK) Ltd.
+// Copyright (C) Use Ink (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -136,6 +136,7 @@ impl<T> AtLeast32BitUnsigned for T where T: AtLeast32Bit + Unsigned {}
 
 /// Saturating arithmetic operations, returning maximum or minimum values instead of
 /// overflowing.
+#[allow(dead_code)]
 pub trait Saturating {
     /// Saturating addition. Compute `self + rhs`, saturating at the numeric bounds
     /// instead of overflowing.
@@ -194,53 +195,26 @@ mod tests {
 
     #[test]
     fn saturating_add() {
-        assert_eq!(
-            u64::max_value(),
-            Saturating::saturating_add(u64::max_value(), 1)
-        )
+        assert_eq!(u64::MAX, Saturating::saturating_add(u64::MAX, 1))
     }
 
     #[test]
     fn saturatiung_sub() {
-        assert_eq!(
-            u64::min_value(),
-            Saturating::saturating_sub(u64::min_value(), 1)
-        )
+        assert_eq!(u64::MIN, Saturating::saturating_sub(u64::MIN, 1))
     }
 
     #[test]
     fn saturating_mul() {
-        assert_eq!(
-            u64::max_value(),
-            Saturating::saturating_mul(u64::max_value(), 2)
-        );
-        assert_eq!(
-            i64::max_value(),
-            Saturating::saturating_mul(i64::max_value(), 2)
-        );
-        assert_eq!(
-            i64::min_value(),
-            Saturating::saturating_mul(i64::min_value(), 2)
-        );
-        assert_eq!(
-            i64::min_value(),
-            Saturating::saturating_mul(2, i64::min_value())
-        );
+        assert_eq!(u64::MAX, Saturating::saturating_mul(u64::MAX, 2));
+        assert_eq!(i64::MAX, Saturating::saturating_mul(i64::MAX, 2));
+        assert_eq!(i64::MIN, Saturating::saturating_mul(i64::MIN, 2));
+        assert_eq!(i64::MIN, Saturating::saturating_mul(2, i64::MIN));
     }
 
     #[test]
     fn saturating_pow() {
-        assert_eq!(
-            u64::max_value(),
-            Saturating::saturating_pow(u64::max_value(), 2)
-        );
-        assert_eq!(
-            i64::max_value(),
-            Saturating::saturating_pow(i64::min_value(), 2)
-        );
-        assert_eq!(
-            i64::min_value(),
-            Saturating::saturating_pow(i64::min_value(), 3)
-        );
+        assert_eq!(u64::MAX, Saturating::saturating_pow(u64::MAX, 2));
+        assert_eq!(i64::MAX, Saturating::saturating_pow(i64::MIN, 2));
+        assert_eq!(i64::MIN, Saturating::saturating_pow(i64::MIN, 3));
     }
 }

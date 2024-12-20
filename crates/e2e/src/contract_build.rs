@@ -1,4 +1,4 @@
-// Copyright (C) Parity Technologies (UK) Ltd.
+// Copyright (C) Use Ink (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@ use contract_build::{
     BuildMode,
     ExecuteArgs,
     Features,
+    ImageVariant,
     ManifestPath,
     Network,
     OptimizationPasses,
@@ -24,6 +25,7 @@ use contract_build::{
     Target,
     UnstableFlags,
     Verbosity,
+    DEFAULT_MAX_MEMORY_PAGES,
 };
 use std::{
     collections::{
@@ -39,20 +41,6 @@ use std::{
         OnceLock,
     },
 };
-
-/// Builds the "root" contract (the contract in which the E2E tests are defined) together
-/// with the additional contracts specified in the `additional_contracts` argument.
-pub fn build_root_and_additional_contracts<P>(
-    additional_contracts: impl IntoIterator<Item = P>,
-) -> Vec<PathBuf>
-where
-    PathBuf: From<P>,
-{
-    let contract_project = ContractProject::new();
-    let contract_manifests =
-        contract_project.root_with_additional_contracts(additional_contracts);
-    build_contracts(&contract_manifests)
-}
 
 /// Builds the "root" contract (the contract in which the E2E tests are defined) together
 /// with any contracts which are a dependency of the root contract.
@@ -171,14 +159,16 @@ fn build_contract(path_to_cargo_toml: &Path) -> PathBuf {
         build_mode: BuildMode::Debug,
         features: Features::default(),
         network: Network::Online,
-        build_artifact: BuildArtifacts::CodeOnly,
+        build_artifact: BuildArtifacts::All,
         unstable_flags: UnstableFlags::default(),
         optimization_passes: Some(OptimizationPasses::default()),
         keep_debug_symbols: false,
-        lint: false,
+        extra_lints: false,
         output_type: OutputType::HumanReadable,
         skip_wasm_validation: false,
         target: Target::Wasm,
+        max_memory_pages: DEFAULT_MAX_MEMORY_PAGES,
+        image: ImageVariant::Default,
     };
 
     match contract_build::execute(args) {

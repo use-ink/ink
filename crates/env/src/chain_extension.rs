@@ -1,4 +1,4 @@
-// Copyright (C) Parity Technologies (UK) Ltd.
+// Copyright (C) Use Ink (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -68,7 +68,7 @@ pub trait FromStatusCode: Sized {
 /// The type states for type parameter `O` and `ErrorCode` represent 4 different states:
 ///
 /// 1. The chain extension method makes use of the chain extension's error code:
-/// `HandleErrorCode(E)`
+///    `HandleErrorCode(E)`
 ///     - **A:** The chain extension method returns a `Result<T, E>` type, i.e.
 ///       `IS_RESULT` is set to `true`.
 ///     - **B:** The chain extension method returns a type `O` that is not a `Result`
@@ -80,7 +80,7 @@ pub trait FromStatusCode: Sized {
 ///       type. The method just returns `O`.
 #[derive(Debug)]
 pub struct ChainExtensionMethod<I, O, ErrorCode, const IS_RESULT: bool> {
-    func_id: u32,
+    id: u32,
     #[allow(clippy::type_complexity)]
     state: PhantomData<fn() -> (I, O, ErrorCode)>,
 }
@@ -88,9 +88,9 @@ pub struct ChainExtensionMethod<I, O, ErrorCode, const IS_RESULT: bool> {
 impl ChainExtensionMethod<(), (), (), false> {
     /// Creates a new chain extension method instance.
     #[inline]
-    pub fn build(func_id: u32) -> Self {
+    pub fn build(id: u32) -> Self {
         Self {
-            func_id,
+            id,
             state: Default::default(),
         }
     }
@@ -112,7 +112,7 @@ impl<O, ErrorCode, const IS_RESULT: bool>
         I: scale::Encode,
     {
         ChainExtensionMethod {
-            func_id: self.func_id,
+            id: self.id,
             state: Default::default(),
         }
     }
@@ -136,7 +136,7 @@ impl<I, ErrorCode> ChainExtensionMethod<I, (), ErrorCode, false> {
         O: scale::Decode,
     {
         ChainExtensionMethod {
-            func_id: self.func_id,
+            id: self.id,
             state: Default::default(),
         }
     }
@@ -159,7 +159,7 @@ impl<I, O, const IS_RESULT: bool> ChainExtensionMethod<I, O, (), IS_RESULT> {
         self,
     ) -> ChainExtensionMethod<I, O, state::IgnoreErrorCode, IS_RESULT> {
         ChainExtensionMethod {
-            func_id: self.func_id,
+            id: self.id,
             state: Default::default(),
         }
     }
@@ -178,7 +178,7 @@ impl<I, O, const IS_RESULT: bool> ChainExtensionMethod<I, O, (), IS_RESULT> {
         ErrorCode: FromStatusCode,
     {
         ChainExtensionMethod {
-            func_id: self.func_id,
+            id: self.id,
             state: Default::default(),
         }
     }
@@ -269,7 +269,7 @@ where
                 _,
             >(
                 instance,
-                self.func_id,
+                self.id,
                 input,
                 ErrorCode::from_status_code,
                 |mut output| scale::Decode::decode(&mut output).map_err(Into::into),
@@ -338,7 +338,7 @@ where
                 _,
             >(
                 instance,
-                self.func_id,
+                self.id,
                 input,
                 |_status_code| Ok(()),
                 |mut output| scale::Decode::decode(&mut output).map_err(Into::into),
@@ -399,7 +399,7 @@ where
         <EnvInstance as OnInstance>::on_instance(|instance| {
             EnvBackend::call_chain_extension::<I, O, ErrorCode, ErrorCode, _, _>(
                 instance,
-                self.func_id,
+                self.id,
                 input,
                 ErrorCode::from_status_code,
                 |mut output| {
@@ -449,7 +449,7 @@ where
         <EnvInstance as OnInstance>::on_instance(|instance| {
             EnvBackend::call_chain_extension::<I, O, (), (), _, _>(
                 instance,
-                self.func_id,
+                self.id,
                 input,
                 |_status_code| Ok(()),
                 |mut output| {

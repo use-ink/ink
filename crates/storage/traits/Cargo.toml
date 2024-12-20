@@ -18,18 +18,18 @@ include = ["Cargo.toml", "src/**/*.rs", "README.md", "LICENSE"]
 ink_metadata = { workspace = true, features = ["derive"], optional = true }
 ink_primitives = { workspace = true }
 ink_prelude = { workspace = true }
-scale = { package = "parity-scale-codec", workspace = true }
+scale = { workspace = true }
 scale-info = { workspace = true, features = ["derive"], optional = true }
 
 [dev-dependencies]
 paste = { workspace = true }
 
 [features]
-default = ["std"]
+default = [ "std" ]
 std = [
-    "ink_metadata/std",
-    "ink_primitives/std",
-    "ink_prelude/std",
-    "scale/std",
-    "scale-info/std",
+	"ink_metadata/std",
+	"ink_prelude/std",
+	"ink_primitives/std",
+	"scale-info/std",
+	"scale/std",
 ]

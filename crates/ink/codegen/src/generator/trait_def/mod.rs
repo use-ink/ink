@@ -1,4 +1,4 @@
-// Copyright (C) Parity Technologies (UK) Ltd.
+// Copyright (C) Use Ink (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
 mod call_builder;
 mod call_forwarder;
 mod definition;
+mod message_builder;
 mod trait_registry;
 
 use crate::GenerateCode;
@@ -55,12 +56,14 @@ impl GenerateCode for TraitDefinition<'_> {
         let span = self.trait_def.item().span();
         let trait_definition = self.generate_trait_definition();
         let trait_registry = self.generate_trait_registry_impl();
+        let trait_message_builder = self.generate_message_builder();
         let trait_call_builder = self.generate_call_builder();
         let trait_call_forwarder = self.generate_call_forwarder();
         quote_spanned!(span =>
             #trait_definition
             const _: () = {
                 #trait_registry
+                #trait_message_builder
                 #trait_call_builder
                 #trait_call_forwarder
             };
