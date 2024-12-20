@@ -47,4 +47,3 @@ std = [
 	"serde/std",
 	"derive_more/std"
 ]
-revive = [ ]

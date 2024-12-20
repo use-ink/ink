@@ -21,7 +21,7 @@ pub mod caller {
     impl Caller {
         /// Creates a new caller smart contract around the `incrementer` account id.
         #[ink(constructor)]
-        pub fn new(incrementer: AccountId) -> Self {
+        pub fn new(incrementer: ink::H160) -> Self {
             Self {
                 incrementer: incrementer.into(),
             }

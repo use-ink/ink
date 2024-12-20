@@ -16,7 +16,7 @@ mod cross_contract_calls {
         /// limits.
         #[ink(constructor)]
         pub fn new_v2_with_limits(
-            other_contract_code_hash: Hash,
+            other_contract_code_hash: ink::H256,
             ref_time_limit: u64,
             proof_size_limit: u64,
             storage_deposit_limit: Balance,
@@ -24,7 +24,7 @@ mod cross_contract_calls {
             let other_contract = OtherContractRef::new(true)
                 .code_hash(other_contract_code_hash)
                 .endowment(0)
-                .salt_bytes([0xDE, 0xAD, 0xBE, 0xEF])
+                .salt_bytes(Some([1u8; 32]))
                 .ref_time_limit(ref_time_limit)
                 .proof_size_limit(proof_size_limit)
                 .storage_deposit_limit(storage_deposit_limit)
@@ -36,11 +36,11 @@ mod cross_contract_calls {
         /// Initializes the contract by instantiating the code at the given code hash via
         /// the `instantiate_v2` host function with no weight or storage limits.
         #[ink(constructor)]
-        pub fn new_v2_no_limits(other_contract_code_hash: Hash) -> Self {
+        pub fn new_v2_no_limits(other_contract_code_hash: ink::H256) -> Self {
             let other_contract = OtherContractRef::new(true)
                 .code_hash(other_contract_code_hash)
                 .endowment(0)
-                .salt_bytes([0xDE, 0xAD, 0xBE, 0xEF])
+                .salt_bytes(Some([1u8; 32]))
                 .instantiate();
 
             Self { other_contract }
@@ -49,12 +49,12 @@ mod cross_contract_calls {
         /// Initializes the contract by instantiating the code at the given code hash via
         /// the original `instantiate` host function.
         #[ink(constructor)]
-        pub fn new_v1(other_contract_code_hash: Hash) -> Self {
+        pub fn new_v1(other_contract_code_hash: ink::H256) -> Self {
             let other_contract = OtherContractRef::new(true)
                 .instantiate_v1()
                 .code_hash(other_contract_code_hash)
                 .endowment(0)
-                .salt_bytes([0xDE, 0xAD, 0xBE, 0xEF])
+                .salt_bytes(Some([1u8; 32]))
                 .instantiate();
 
             Self { other_contract }

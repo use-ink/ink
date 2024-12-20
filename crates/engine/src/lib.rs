@@ -30,7 +30,10 @@ mod types;
 mod tests;
 
 pub use chain_extension::ChainExtension;
-pub use types::AccountError;
+pub use types::{
+    AccountError,
+    // Origin,
+};
 
 use derive_more::From;
 

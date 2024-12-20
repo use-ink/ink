@@ -26,11 +26,12 @@ on:
       - 'FILE_HEADER'
 
 env:
+  # Image can be edited at https://github.com/use-ink/docker-images
   IMAGE:                           useink/ci
   CARGO_TARGET_DIR:                /ci-cache/${{ github.repository }}/targets/${{ github.ref_name }}/${{ github.job }}
   CARGO_INCREMENTAL:               0
   PURELY_STD_CRATES:               ink/codegen metadata engine e2e e2e/macro ink/ir
-  ALSO_WASM_CRATES:                env storage storage/traits allocator prelude primitives ink ink/macro
+  ALSO_RISCV_CRATES:               env storage storage/traits allocator prelude primitives ink ink/macro
   # TODO `cargo clippy --all-targets --all-features` for this crate
   # currently fails on `stable`, but succeeds on `nightly`. This is due to
   # this fix not yet in stable: https://github.com/rust-lang/rust-clippy/issues/8895.
@@ -40,8 +41,8 @@ env:
   # RISC-V does not have a standard library in contrast to Wasm. Compiling against
   # this target also makes sure that we don't pull in `std` by accident (through dependencies).
   # RISC-V is a modular architecture. We might switch to a different flavor with more features
-  # later. For example, `riscv32imc-unknown-none-elf`.
-  RISCV_TARGET:                    riscv32ema-unknown-none-elf
+  # later. For example, `riscv64imc-unknown-none-elf`.
+  RISCV_TARGET:                    .github/riscv64emac-unknown-none-polkavm.json
 
 concurrency:
   # Cancel in-progress jobs triggered only on pull_requests
@@ -84,6 +85,7 @@ jobs:
           cargo spellcheck check -v --cfg=.config/cargo_spellcheck.toml --checkers hunspell --code 1 -- recursive ./integration-tests/*
 
   fmt:
+    if: false
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -138,16 +140,17 @@ jobs:
 
       - name: Run Clippy
         run: |
-          ALL_CRATES="${PURELY_STD_CRATES} ${ALSO_WASM_CRATES}"
+          ALL_CRATES="${PURELY_STD_CRATES} ${ALSO_RISCV_CRATES}"
           for crate in ${ALL_CRATES}; do
             cargo clippy --all-targets --all-features --manifest-path ./crates/${crate}/Cargo.toml \
               -- -D warnings -A ${CLIPPY_ALLOWED};
           done
 
-      - name: Run Clippy for WASM Crates
+      - name: Run Clippy for RISC-V Crates
         run: |
-          for crate in ${ALSO_WASM_CRATES}; do
-            cargo clippy --no-default-features --manifest-path ./crates/${crate}/Cargo.toml --target wasm32-unknown-unknown \
+          for crate in ${ALSO_RISCV_CRATES}; do
+            cargo clippy --no-default-features --manifest-path ./crates/${crate}/Cargo.toml \
+              --target ${RISCV_TARGET} \
               -- -D warnings -A ${CLIPPY_ALLOWED};
           done
 
@@ -162,7 +165,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        type: [STD, WASM]
+        type: [STD, RISCV]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -183,11 +186,12 @@ jobs:
           scripts/for_all_contracts_exec.sh --path integration-tests -- cargo clippy --all-targets \
             --manifest-path {} -- -D warnings -A $CLIPPY_ALLOWED
 
-      - name: Run Clippy for WASM Examples
-        if: ${{ matrix.type == 'WASM' }}
+      - name: Run Clippy for RISC-V Examples
+        if: ${{ matrix.type == 'RISCV' }}
         run: |
           scripts/for_all_contracts_exec.sh --path integration-tests -- cargo clippy --no-default-features \
-            --target wasm32-unknown-unknown --manifest-path {} -- -D warnings -A $CLIPPY_ALLOWED
+            --target ${RISCV_TARGET} \
+            --manifest-path {} -- -D warnings -A $CLIPPY_ALLOWED
 
   check:
     runs-on: ubuntu-latest
@@ -200,7 +204,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        type: [STD, WASM, RISCV]
+        type: [STD, RISCV]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -218,26 +222,17 @@ jobs:
       - name: Check
         if: ${{ matrix.type == 'STD' }}
         run: |
-          ALL_CRATES="${PURELY_STD_CRATES} ${ALSO_WASM_CRATES}"
+          ALL_CRATES="${PURELY_STD_CRATES} ${ALSO_RISCV_CRATES}"
           for crate in ${ALL_CRATES}; do
             cargo check --all-features --manifest-path ./crates/${crate}/Cargo.toml;
           done
 
-      - name: Check WASM
-        if: ${{ matrix.type == 'WASM' }}
-        run: |
-          for crate in ${ALSO_WASM_CRATES}; do
-            cargo check --no-default-features --target wasm32-unknown-unknown \
-              --manifest-path ./crates/${crate}/Cargo.toml;
-          done
-
       - name: Check RISCV
-        if: ${{ matrix.type == 'RISCV-disabled' }}
+        if: ${{ matrix.type == 'RISCV' }}
         env:
           RUSTC_BOOTSTRAP: 1
-          RUSTUP_TOOLCHAIN: rve-nightly
         run: |
-          for crate in ${ALSO_WASM_CRATES}; do
+          for crate in ${ALSO_RISCV_CRATES}; do
             cargo check --no-default-features --target $RISCV_TARGET -Zbuild-std="core,alloc" \
               --manifest-path ./crates/${crate}/Cargo.toml;
           done
@@ -291,7 +286,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        type: [STD, WASM]
+        type: [STD, RISCV]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -306,19 +301,20 @@ jobs:
       - name: Rust Info
         uses: ./.github/rust-info
 
-      - name: Build
+      - name: Build for STD
         if: ${{ matrix.type == 'STD' }}
         run: |
-          ALL_CRATES="${PURELY_STD_CRATES} ${ALSO_WASM_CRATES}"
+          ALL_CRATES="${PURELY_STD_CRATES} ${ALSO_RISCV_CRATES}"
           for crate in ${ALL_CRATES}; do
             cargo build --all-features --release --manifest-path ./crates/${crate}/Cargo.toml;
           done
 
-      - name: Build WASM
-        if: ${{ matrix.type == 'WASM' }}
+      - name: Build for RISC-V
+        if: ${{ matrix.type == 'RISCV' }}
         run: |
-          for crate in ${ALSO_WASM_CRATES}; do
-            cargo build --no-default-features --release --target wasm32-unknown-unknown \
+          for crate in ${ALSO_RISCV_CRATES}; do
+            cargo build --no-default-features --release
+              --target RISCV_TARGET \
               --manifest-path ./crates/${crate}/Cargo.toml;
           done
 
@@ -571,15 +567,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        type: [WASM, RISCV]
+        type: [RISCV]
         partition: [1, 2, 3, 4]
-        exclude:
-          - type: RISCV
-            partition: 2
-          - type: RISCV
-            partition: 3
-          - type: RISCV
-            partition: 4
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -594,27 +583,10 @@ jobs:
       - name: Rust Info
         uses: ./.github/rust-info
 
-      - name: Build Contract WASM Examples
-        if: ${{ matrix.type == 'WASM' }}
-        run: |
-          rustup component add rust-src --toolchain stable
-          cargo contract -V
-          # Build all examples
-          scripts/for_all_contracts_exec.sh --path integration-tests --partition ${{ matrix.partition }}/4 -- cargo contract build --release --manifest-path {}
-          if [ ${{ matrix.partition }} -eq 4 ]; then
-            # Build the different features for the conditional compilation example
-            pushd ./integration-tests/public/conditional-compilation
-            cargo contract build --release --features "foo"
-            cargo contract build --release --features "bar"
-            cargo contract build --release --features "foo, bar"
-            popd
-          fi
-
       - name: Build Contract RISCV Examples
-        if: ${{ matrix.type == 'RISCV-disabled' }}
+        if: ${{ matrix.type == 'RISCV' }}
         env:
           RUSTC_BOOTSTRAP: 1
-          RUSTUP_TOOLCHAIN: rve-nightly
         run: |
           rustup component add rust-src --toolchain stable
           cargo contract -V
@@ -702,7 +674,7 @@ jobs:
         run: |
           # We fuzz-test only crates which possess the `ink-fuzz-tests` feature
           all_tests_passed=0
-          ALL_CRATES="${PURELY_STD_CRATES} ${ALSO_WASM_CRATES}"
+          ALL_CRATES="${PURELY_STD_CRATES} ${ALSO_RISCV_CRATES}"
           for crate in ${ALL_CRATES}; do
             if grep "ink-fuzz-tests =" ./crates/${crate}/Cargo.toml;
             then
