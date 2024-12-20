@@ -12,11 +12,10 @@ mod contract_ref {
     impl ContractRef {
         #[ink(constructor)]
         pub fn new(version: u32, flipper_code_hash: ink::H256) -> Self {
-            let salt = version.to_le_bytes();
             let flipper = FlipperRef::new_default()
                 .endowment(0)
                 .code_hash(flipper_code_hash)
-                .salt_bytes(salt)
+                .salt_bytes(salt_from_version(version))
                 .instantiate();
 
             Self { flipper }
@@ -24,13 +23,14 @@ mod contract_ref {
 
         #[ink(constructor)]
         pub fn try_new(version: u32, flipper_code_hash: ink::H256, succeed: bool) -> Self {
-            let salt = version.to_le_bytes();
+            ink::env::debug_println!("_________before new_____");
             let flipper = FlipperRef::try_new(succeed)
                 .endowment(0)
                 .code_hash(flipper_code_hash)
-                .salt_bytes(salt)
+                .salt_bytes(salt_from_version(version))
                 .instantiate()
                 .unwrap_or_else(|error| {
+                    ink::env::debug_println!("XXX");
                     panic!(
                         "Received an error from the Flipper constructor while instantiating \
                          Flipper {error:?}"
@@ -63,6 +63,13 @@ mod contract_ref {
                 .try_get()
                 .expect("The ink! codegen should've produced a valid call.")
         }
+    }
+
+    fn salt_from_version(version: u32) -> Option<[u8; 32]> {
+        let version: [u8; 4] = version.to_le_bytes();
+        let mut salt: [u8; 32] = [0u8; 32];
+        salt.copy_from_slice(&version);
+        Some(salt)
     }
 
     #[cfg(all(test, feature = "e2e-tests"))]
@@ -120,7 +127,7 @@ mod contract_ref {
         async fn e2e_fallible_ref_can_be_instantiated<Client: E2EBackend>(
             mut client: Client,
         ) -> E2EResult<()> {
-            let flipper_hash = client
+            let flipper_hash: ink::H256 = client
                 .upload("integration_flipper", &ink_e2e::bob())
                 .submit()
                 .await
@@ -133,7 +140,7 @@ mod contract_ref {
                 .instantiate("contract_ref", &ink_e2e::bob(), &mut constructor)
                 .submit()
                 .await
-                .expect("instantiate failed");
+                .expect("instantiating `contract_ref failed");
             let mut call_builder = contract_ref.call_builder::<ContractRef>();
 
             let get_check = call_builder.get_check();

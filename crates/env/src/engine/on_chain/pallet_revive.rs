@@ -511,14 +511,38 @@ impl TypedEnvBackend for EnvInstance {
 
     fn invoke_contract_delegate<E, Args, R>(
         &mut self,
-        _params: &CallParams<E, DelegateCall, Args, R>,
+        params: &CallParams<E, DelegateCall, Args, R>,
     ) -> Result<ink_primitives::MessageResult<R>>
     where
         E: Environment,
         Args: scale::Encode,
         R: scale::Decode,
     {
-        todo!("has to be implemented")
+        let mut scope = self.scoped_buffer();
+        let call_flags = params.call_flags();
+        let enc_input = if !call_flags.contains(CallFlags::FORWARD_INPUT)
+            && !call_flags.contains(CallFlags::CLONE_INPUT)
+        {
+            scope.take_encoded(params.exec_input())
+        } else {
+            &mut []
+        };
+        let output = &mut scope.take_rest();
+        let flags = params.call_flags();
+        let enc_address: [u8; 20] = params.address().0;
+        let ref_time_limit = params.ref_time_limit();
+        let proof_size_limit = params.proof_size_limit();
+        let deposit_limit = params.deposit_limit().as_ref();
+        let call_result =
+            ext::delegate_call(*flags, &enc_address, ref_time_limit, proof_size_limit,
+                               deposit_limit, enc_input, Some(output));
+        match call_result {
+            Ok(()) | Err(ReturnErrorCode::CalleeReverted) => {
+                let decoded = scale::DecodeAll::decode_all(&mut &output[..])?;
+                Ok(decoded)
+            }
+            Err(actual_error) => Err(actual_error.into()),
+        }
     }
 
     fn instantiate_contract<E, ContractRef, Args, RetType>(

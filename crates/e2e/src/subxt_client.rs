@@ -525,7 +525,6 @@ where
     ) -> Result<UploadResult<E, Self::EventLog>, Self::Error> {
         let code = self.contracts.load_code(contract_name);
         eprintln!("loaded code for {:?} with {} bytes", contract_name, code.len());
-        eprintln!("caller {:?}", caller);
         eprintln!("deposit limit {:?}", storage_deposit_limit);
         let ret = self
             .exec_upload(caller, code, storage_deposit_limit)

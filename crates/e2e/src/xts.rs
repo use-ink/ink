@@ -423,7 +423,8 @@ where
         &self,
         signer: &Keypair,
         code: Vec<u8>,
-        storage_deposit_limit: E::Balance,
+        // todo
+        _storage_deposit_limit: E::Balance,
     ) -> CodeUploadResult<E::Balance> {
         let call_request = RpcCodeUploadRequest::<C, E> {
             origin: Signer::<C>::account_id(signer),
@@ -454,7 +455,6 @@ where
         code: Vec<u8>,
         storage_deposit_limit: E::Balance,
     ) -> ExtrinsicEvents<C> {
-        eprintln!("_________upload");
         let call = subxt::tx::DefaultPayload::new(
             "Revive",
             "upload_code",

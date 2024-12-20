@@ -34,7 +34,6 @@ use crate::{
 use core::marker::PhantomData;
 use ink_primitives::{
     H160,
-    H256,
 };
 
 /// The final parameters to the cross-contract call.
@@ -97,7 +96,7 @@ where
 /// build_call::<DefaultEnvironment>()
 ///     .call(H160::from([0x42; 20]))
 ///     .ref_time_limit(5000)
-///     .transferred_value(10)
+///     .transferred_value(ink::U256::from(10))
 ///     .exec_input(
 ///         ExecutionInput::new(Selector::new([0xDE, 0xAD, 0xBE, 0xEF]))
 ///             .push_arg(42u8)
@@ -127,9 +126,9 @@ where
 /// # };
 /// # type AccountId = <DefaultEnvironment as Environment>::AccountId;
 /// let my_return_value: i32 = build_call::<DefaultEnvironment>()
-///     .call_type(Call::new(AccountId::from([0x42; 32])))
+///     .call_type(Call::new(ink::H160::from([0x42; 20])))
 ///     .ref_time_limit(5000)
-///     .transferred_value(10)
+///     .transferred_value(ink::U256::from(10))
 ///     .exec_input(
 ///         ExecutionInput::new(Selector::new([0xDE, 0xAD, 0xBE, 0xEF]))
 ///             .push_arg(42u8)
@@ -152,10 +151,11 @@ where
 /// #     DefaultEnvironment,
 /// #     call::{build_call, Selector, ExecutionInput, utils::ReturnType, DelegateCall},
 /// # };
+/// use ink::H160;
 /// # use ink_primitives::Clear;
 /// # type AccountId = <DefaultEnvironment as Environment>::AccountId;
 /// let my_return_value: i32 = build_call::<DefaultEnvironment>()
-///     .delegate(<DefaultEnvironment as Environment>::Hash::CLEAR_HASH)
+///     .delegate(H160::zero())
 ///     .exec_input(
 ///         ExecutionInput::new(Selector::new([0xDE, 0xAD, 0xBE, 0xEF]))
 ///             .push_arg(42u8)
@@ -195,7 +195,7 @@ where
 /// let call_result = build_call::<DefaultEnvironment>()
 ///     .call(H160::from([0x42; 20]))
 ///     .ref_time_limit(5000)
-///     .transferred_value(10)
+///     .transferred_value(ink::U256::from(10))
 ///     .try_invoke()
 ///     .expect("Got an error from the Contract's pallet.");
 ///
@@ -334,10 +334,11 @@ where
     /// Prepares the `CallBuilder` for a cross-contract [`DelegateCall`].
     pub fn delegate(
         self,
-        code_hash: H256,
+        address: H160,
     ) -> CallBuilder<E, Set<DelegateCall>, Args, RetType> {
         CallBuilder {
-            call_type: Set(DelegateCall::new(code_hash)),
+            // todo Generic `Set` can be removed
+            call_type: Set(DelegateCall::new(address)),
             exec_input: self.exec_input,
             return_type: self.return_type,
             _phantom: Default::default(),

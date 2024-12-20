@@ -461,7 +461,7 @@ impl TypedEnvBackend for EnvInstance {
         Args: scale::Encode,
         R: scale::Decode,
     {
-        let _code_hash = params.code_hash();
+        let _addr = params.address();
         unimplemented!(
             "off-chain environment does not support delegated contract invocation"
         )

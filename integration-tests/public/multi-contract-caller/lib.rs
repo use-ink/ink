@@ -57,7 +57,8 @@ mod multi_contract_caller {
             subber_code_hash: ink::H256,
         ) -> Self {
             let total_balance = Self::env().balance();
-            let salt = version.to_le_bytes();
+
+            let salt = salt_from_version(version);
             let accumulator = AccumulatorRef::new(init_value)
                 .endowment(total_balance / 4)
                 .code_hash(accumulator_code_hash)
@@ -108,6 +109,13 @@ mod multi_contract_caller {
                 }
             }
         }
+    }
+
+    fn salt_from_version(version: u32) -> Option<[u8; 32]> {
+        let version: [u8; 4] = version.to_le_bytes();
+        let mut salt: [u8; 32] = [0u8; 32];
+        salt.copy_from_slice(&version);
+        Some(salt)
     }
 
     #[cfg(all(test, feature = "e2e-tests"))]

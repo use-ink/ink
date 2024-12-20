@@ -52,11 +52,11 @@ mod call_builder {
         #[ink(message)]
         pub fn delegate(
             &mut self,
-            code_hash: ink::H256,
+            address: ink::H160,
             selector: [u8; 4],
         ) -> Option<ink::LangError> {
             let result = build_call::<DefaultEnvironment>()
-                .delegate(code_hash)
+                .delegate(address)
                 .exec_input(ExecutionInput::new(Selector::new(selector)))
                 .returns::<bool>()
                 .try_invoke()
@@ -80,11 +80,11 @@ mod call_builder {
         /// This message does not allow the caller to handle any `LangErrors`, for that
         /// use the `call` message instead.
         #[ink(message)]
-        pub fn invoke(&mut self, code_hash: ink::H256, selector: [u8; 4]) -> i32 {
+        pub fn invoke(&mut self, address: ink::H160, selector: [u8; 4]) -> i32 {
             use ink::env::call::build_call;
 
             build_call::<DefaultEnvironment>()
-                .delegate(code_hash)
+                .delegate(address)
                 .exec_input(ExecutionInput::new(Selector::new(selector)))
                 .returns::<i32>()
                 .invoke()
@@ -117,15 +117,16 @@ mod call_builder {
                 .expect("instantiate failed");
             let mut call_builder = contract.call_builder::<CallBuilderDelegateTest>();
 
-            let code_hash = client
-                .upload("incrementer", &origin)
+            let mut incrementer_constructor = incrementer::IncrementerRef::new(42);
+            let address = client
+                .instantiate("incrementer", &origin, &mut constructor)
                 .submit()
                 .await
-                .expect("upload `incrementer` failed")
-                .code_hash;
+                .expect("instantiating `incrementer` failed")
+                .addr;
 
             let selector = ink::selector_bytes!("invalid_selector");
-            let call = call_builder.delegate(code_hash, selector);
+            let call = call_builder.delegate(address, selector);
             let call_result = client
                 .call(&origin, &call)
                 .submit()
@@ -148,25 +149,26 @@ mod call_builder {
                 .create_and_fund_account(&ink_e2e::charlie(), 10_000_000_000_000)
                 .await;
 
-            let mut constructor = CallBuilderDelegateTestRef::new(Default::default());
+            let constructor = CallBuilderDelegateTestRef::new(Default::default());
             let contract = client
                 .instantiate("call_builder_delegate", &origin, &mut constructor)
                 .submit()
                 .await
-                .expect("instantiate failed");
+                .expect("instantiating `call_builder_delegate` failed");
             let mut call_builder = contract.call_builder::<CallBuilderDelegateTest>();
 
-            let code_hash = client
-                .upload("incrementer", &origin)
+            let incrementer_constructor = incrementer::IncrementerRef::new(42);
+            let address = client
+                .instantiate("incrementer", &origin, &mut constructor)
                 .submit()
                 .await
-                .expect("upload `incrementer` failed")
-                .code_hash;
+                .expect("instantiating `incrementer` failed")
+                .addr;
 
             // Since `LangError`s can't be handled by the `CallBuilder::invoke()` method
             // we expect this to panic.
             let selector = ink::selector_bytes!("invalid_selector");
-            let call = call_builder.invoke(code_hash, selector);
+            let call = call_builder.invoke(address, selector);
             let call_result = client.call(&origin, &call).dry_run().await;
 
             if let Err(ink_e2e::Error::CallDryRun(dry_run)) = call_result {

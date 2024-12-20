@@ -46,7 +46,6 @@ use std::{
 pub fn build_root_and_contract_dependencies() -> Vec<PathBuf> {
     let contract_project = ContractProject::new();
     let contract_manifests = contract_project.root_with_contract_dependencies();
-    eprintln!("contract_manifests {:?}", contract_manifests);
     build_contracts(&contract_manifests)
 }
 
@@ -113,7 +112,6 @@ impl ContractProject {
     }
 
     fn root_with_contract_dependencies(&self) -> Vec<PathBuf> {
-        eprintln!("contract dependencies {:#?}", self.contract_dependencies);
         self.root_with_additional_contracts(&self.contract_dependencies)
     }
 }
@@ -133,7 +131,6 @@ fn build_contracts(contract_manifests: &[PathBuf]) -> Vec<PathBuf> {
     // todo rename wasm to riscv
     let mut wasm_paths = Vec::new();
     for manifest in contract_manifests {
-        eprintln!("processing {:?}", manifest);
         let wasm_path = match contract_build_jobs.entry(manifest.clone()) {
             Entry::Occupied(entry) => entry.get().clone(),
             Entry::Vacant(entry) => {
