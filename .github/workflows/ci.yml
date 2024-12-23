@@ -43,6 +43,8 @@ env:
   # RISC-V is a modular architecture. We might switch to a different flavor with more features
   # later. For example, `riscv64imc-unknown-none-elf`.
   RISCV_TARGET:                    .github/riscv64emac-unknown-none-polkavm.json
+  # todo
+  CLIPPY_TARGET:                   riscv64imac-unknown-none-elf
 
 concurrency:
   # Cancel in-progress jobs triggered only on pull_requests
@@ -150,7 +152,7 @@ jobs:
         run: |
           for crate in ${ALSO_RISCV_CRATES}; do
             cargo clippy --no-default-features --manifest-path ./crates/${crate}/Cargo.toml \
-              --target ${RISCV_TARGET} \
+              --target ${CLIPPY_TARGET} \
               -- -D warnings -A ${CLIPPY_ALLOWED};
           done
 
@@ -190,7 +192,7 @@ jobs:
         if: ${{ matrix.type == 'RISCV' }}
         run: |
           scripts/for_all_contracts_exec.sh --path integration-tests -- cargo clippy --no-default-features \
-            --target ${RISCV_TARGET} \
+            --target ${CLIPPY_TARGET} \
             --manifest-path {} -- -D warnings -A $CLIPPY_ALLOWED
 
   check:
@@ -233,7 +235,8 @@ jobs:
           RUSTC_BOOTSTRAP: 1
         run: |
           for crate in ${ALSO_RISCV_CRATES}; do
-            cargo check --no-default-features --target $RISCV_TARGET -Zbuild-std="core,alloc" \
+            # remove `nightly` once new stable is released, currently there is an ICE in stable
+            cargo +nightly check --no-default-features --target $RISCV_TARGET -Zbuild-std="core,alloc" \
               --manifest-path ./crates/${crate}/Cargo.toml;
           done
 

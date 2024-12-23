@@ -22,7 +22,6 @@ use pallet_revive::{
     CollectEvents,
     DebugInfo,
 };
-use scale::Decode as _;
 use sp_core::{
     H160,
     U256,
@@ -93,7 +92,7 @@ pub trait ContractAPI {
     #[allow(clippy::type_complexity, clippy::too_many_arguments)]
     fn instantiate_contract(
         &mut self,
-        code_hash: Vec<u8>,
+        code_hash: H256,
         value: BalanceOf<Self::T>,
         data: Vec<u8>,
         salt: Option<[u8; 32]>,
@@ -185,7 +184,7 @@ where
 
     fn instantiate_contract(
         &mut self,
-        code_hash: Vec<u8>,
+        code_hash: H256,
         value: BalanceOf<Self::T>,
         data: Vec<u8>,
         salt: Option<[u8; 32]>,
@@ -193,7 +192,6 @@ where
         gas_limit: Weight,
         storage_deposit_limit: DepositLimit<BalanceOf<Self::T>>,
     ) -> ContractResultInstantiate<Self::T> {
-        let mut code_hash = &code_hash[..];
         let storage_deposit_limit = storage_deposit_limit_fn(storage_deposit_limit);
         self.execute_with(|| {
             pallet_revive::Pallet::<Self::T>::bare_instantiate(
@@ -201,7 +199,7 @@ where
                 value,
                 gas_limit,
                 storage_deposit_limit,
-                Code::Existing(H256::decode(&mut code_hash).expect("Invalid code hash")),
+                Code::Existing(code_hash),
                 data,
                 salt,
                 DebugInfo::UnsafeDebug,

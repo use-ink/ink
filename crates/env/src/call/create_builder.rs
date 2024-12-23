@@ -600,7 +600,7 @@ where
             limits: self.limits,
             endowment: self.endowment,
             exec_input: self.exec_input,
-            salt: salt,
+            salt,
             return_type: self.return_type,
             _phantom: Default::default(),
         }
@@ -653,7 +653,7 @@ impl<E, ContractRef, Limits, Args, RetType>
 where
     E: Environment,
 {
-    /// Finalizes the create builder, allowing it to instantiate a contract.
+    /// Finalizes the `CreateBuilder`, allowing it to instantiate a contract.
     #[inline]
     pub fn params(self) -> CreateParams<E, ContractRef, Limits, Args,  RetType> {
         CreateParams {
@@ -683,6 +683,7 @@ where
     Args: scale::Encode,
     RetType: ConstructorReturnType<ContractRef>,
 {
+    /// todo check comment
     /// Instantiates the contract and returns its account ID back to the caller.
     ///
     /// # Panics
@@ -696,6 +697,7 @@ where
         self.params().instantiate()
     }
 
+    /// todo check comment
     /// Instantiates the contract and returns its account ID back to the caller.
     ///
     /// # Note
