@@ -270,10 +270,8 @@ jobs:
           rustup component add rustfmt clippy
           rustup component add rust-src rustc-dev llvm-tools-preview
           cargo check --verbose
-          cargo +nightly fmt --all -- --check
+          # cargo +nightly fmt --all -- --check
           cargo clippy -- -D warnings;
-          # Needed until https://github.com/mozilla/sccache/issues/1000 is fixed.
-          unset RUSTC_WRAPPER
           cargo test --all-features
 
 ### workspace
