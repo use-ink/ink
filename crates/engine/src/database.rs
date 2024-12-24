@@ -171,7 +171,7 @@ impl Database {
 
     pub fn get_contract_message_handler(&mut self, key: &[u8]) -> MessageHandler {
         let hashed_key = message_handler_of_contract_key(key);
-        *self.fmap.get(&hashed_key.to_vec()).unwrap()
+        *self.fmap.get(hashed_key.as_slice()).unwrap()
     }
 
     pub fn set_code_hash(&mut self, account: &Vec<u8>, code_hash: &[u8]) {
