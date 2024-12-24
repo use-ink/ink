@@ -57,9 +57,7 @@ use rustc_middle::{
     },
     ty as mir_ty,
 };
-use rustc_mir_dataflow::{
-    Analysis,
-};
+use rustc_mir_dataflow::Analysis;
 use rustc_session::{
     declare_lint,
     declare_lint_pass,
