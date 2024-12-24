@@ -27,7 +27,6 @@ mod instantiate_contract {
             let salt = salt.to_le_bytes();
             let create_params = build_create::<Contract1Ref>()
                 .code_hash(code_hash)
-                .gas_limit(0)
                 .endowment(0)
                 .exec_input(ExecutionInput::new(
                     Selector::new(ink::selector_bytes!("new")),
@@ -54,7 +53,6 @@ mod instantiate_contract {
             let salt = salt.to_le_bytes();
             let create_params = build_create::<Contract2Ref>()
                 .code_hash(code_hash)
-                .gas_limit(0)
                 .endowment(0)
                 .exec_input(ExecutionInput::new(
                     Selector::new(ink::selector_bytes!("new")),
@@ -80,7 +78,6 @@ mod instantiate_contract {
         pub fn contract1_get_x(&self, contract1_address: [u8; 32]) -> u32 {
             let call = build_call()
                 .call(AccountId::from(contract1_address))
-                .gas_limit(0)
                 .transferred_value(0)
                 .exec_input(
                     ExecutionInput::new(Selector::new(ink::selector_bytes!("get_x")))
@@ -100,7 +97,6 @@ mod instantiate_contract {
         pub fn contract2_get_x(&self, contract2_address: [u8; 32]) -> u32 {
             let call = build_call()
                 .call(AccountId::from(contract2_address))
-                .gas_limit(0)
                 .transferred_value(0)
                 .exec_input(
                     ExecutionInput::new(Selector::new(ink::selector_bytes!("get_x")))
@@ -120,7 +116,6 @@ mod instantiate_contract {
         pub fn contract1_set_x(&self, contract1_address: [u8; 32], new_x: u32) {
             let call = ink::env::call::build_call()
                 .call(AccountId::from(contract1_address))
-                .gas_limit(0)
                 .transferred_value(0)
                 .exec_input(
                     ExecutionInput::new(Selector::new(ink::selector_bytes!("set_x")))
@@ -141,7 +136,6 @@ mod instantiate_contract {
         pub fn contract2_set_x(&self, contract2_address: [u8; 32], new_x: u64) {
             let call = ink::env::call::build_call()
                 .call(AccountId::from(contract2_address))
-                .gas_limit(0)
                 .transferred_value(0)
                 .exec_input(
                     ExecutionInput::new(Selector::new(ink::selector_bytes!("set_x")))
@@ -259,7 +253,6 @@ mod instantiate_contract {
                 let salt = salt.to_le_bytes();
                 let create_params = build_create::<VirtualContractRef>()
                     .code_hash(code_hash1)
-                    .gas_limit(0)
                     .endowment(0)
                     .exec_input(
                         ExecutionInput::new(Selector::new(ink::selector_bytes!("new")))

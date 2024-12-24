@@ -426,9 +426,7 @@ pub fn instantiate_contract_v1<E, ContractRef, Args, Salt, R>(
 >
 where
     E: Environment,
-    ContractRef: FromAccountId<E> + crate::ContractReverseReference,
-    <ContractRef as crate::ContractReverseReference>::Type:
-        crate::reflect::ContractConstructorDecoder,
+    ContractRef: FromAccountId<E>,
     Args: scale::Encode,
     Salt: AsRef<[u8]>,
     R: ConstructorReturnType<ContractRef>,

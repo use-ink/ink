@@ -23,12 +23,12 @@ mod virtual_contract_ver2 {
 
         #[ink(message)]
         pub fn set_x(&mut self, x: u32) {
-            self.x = x - 1;
+            self.x = x.saturating_sub(1);
         }
 
         #[ink(message)]
         pub fn get_x(&self) -> u32 {
-            self.x * 2
+            self.x.saturating_mul(2)
         }
     }
 

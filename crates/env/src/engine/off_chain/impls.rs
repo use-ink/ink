@@ -563,15 +563,14 @@ impl TypedEnvBackend for EnvInstance {
 
     fn invoke_contract<E, Args, R>(
         &mut self,
-        _params: &CallParams<E, Call<E>, Args, R>,
+        params: &CallParams<E, Call<E>, Args, R>,
     ) -> Result<ink_primitives::MessageResult<R>>
     where
         E: Environment,
         Args: scale::Encode,
         R: scale::Decode,
     {
-        let gas_limit = params.gas_limit();
-        let call_flags = params.call_flags().into_u32();
+        let call_flags = params.call_flags().bits();
         let transferred_value = params.transferred_value();
         let input = params.exec_input();
         let callee_account = params.callee();
@@ -579,7 +578,7 @@ impl TypedEnvBackend for EnvInstance {
 
         invoke_contract_impl::<E, R>(
             self,
-            Some(gas_limit),
+            None,
             call_flags,
             Some(transferred_value),
             Some(callee_account),
@@ -597,7 +596,7 @@ impl TypedEnvBackend for EnvInstance {
         Args: scale::Encode,
         R: scale::Decode,
     {
-        let call_flags = params.call_flags().into_u32();
+        let call_flags = params.call_flags().bits();
         let input = params.exec_input();
         let code_hash = params.code_hash();
         let input = scale::Encode::encode(input);
@@ -775,7 +774,7 @@ impl TypedEnvBackend for EnvInstance {
                 <E as Environment>::Hash::decode(&mut &code_hash[..]).unwrap();
             Ok(code_hash)
         } else {
-            Err(Error::KeyNotFound)
+            Err(ReturnErrorCode::KeyNotFound.into())
         }
     }
 
@@ -790,7 +789,7 @@ impl TypedEnvBackend for EnvInstance {
                 <E as Environment>::Hash::decode(&mut &code_hash[..]).unwrap();
             Ok(code_hash)
         } else {
-            Err(Error::KeyNotFound)
+            Err(ReturnErrorCode::KeyNotFound.into())
         }
     }
 

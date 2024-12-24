@@ -28,7 +28,7 @@ mod virtual_contract_ver1 {
 
         #[ink(message)]
         pub fn get_x(&self) -> u32 {
-            self.x + 1
+            self.x.saturating_add(1)
         }
     }
 

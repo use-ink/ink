@@ -59,9 +59,6 @@ ink-debug = [ "ink_env/ink-debug" ]
 test_instantiate = [
     "ink_env/test_instantiate"
 ]
-test_instantiate = [
-    "ink_env/test_instantiate"
-]
 
 show-codegen-docs = []
 
