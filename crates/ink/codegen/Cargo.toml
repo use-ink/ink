@@ -41,7 +41,6 @@ default = [ "std" ]
 std = [
 	"either/use_std",
 	"ink_primitives/std",
-	"ir/std",
 	"itertools/use_std",
 	"scale/std",
 	"serde/std",

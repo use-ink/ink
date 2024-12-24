@@ -28,8 +28,10 @@
 )]
 #![cfg_attr(not(feature = "std"), no_std)]
 
+mod arithmetic;
 mod key;
-mod types;
+pub mod reflect;
+pub mod types;
 
 pub use self::{
     key::{
@@ -39,9 +41,11 @@ pub use self::{
     types::{
         AccountId,
         Clear,
+        Environment,
         Hash,
     },
 };
+pub mod contract;
 
 /// An error emitted by the smart contracting language.
 ///

@@ -56,6 +56,9 @@ std = [
 ]
 # Enable contract debug messages via `debug_print!` and `debug_println!`.
 ink-debug = [ "ink_env/ink-debug" ]
+test_instantiate = [
+    "ink_env/test_instantiate"
+]
 
 show-codegen-docs = []
 

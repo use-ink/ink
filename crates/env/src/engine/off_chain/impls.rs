@@ -42,7 +42,7 @@ use crate::{
     },
     Clear,
     EnvBackend,
-    Environment,
+    types::Environment,
     Result,
     TypedEnvBackend,
 };
@@ -70,6 +70,74 @@ use schnorrkel::{
 /// This is the same size as the ink! on-chain environment. We chose to use the same size
 /// to be as close to the on-chain behavior as possible.
 const BUFFER_SIZE: usize = crate::BUFFER_SIZE;
+
+/// Proxy function used to simulate code hash and to invoke contract methods.
+fn execute_contract_call<ContractRef>(input: Vec<u8>) -> Vec<u8>
+where
+    ContractRef: crate::ContractReverseReference,
+    <ContractRef as crate::ContractReverseReference>::Type:
+        crate::reflect::ContractMessageDecoder,
+{
+    let dispatch = <
+        <
+            <
+                ContractRef
+                as crate::ContractReverseReference
+            >::Type
+            as crate::reflect::ContractMessageDecoder
+        >::Type
+        as scale::Decode
+    >::decode(&mut &input[..])
+        .unwrap_or_else(|e| panic!("Failed to decode constructor call: {:?}", e));
+
+    crate::reflect::ExecuteDispatchable::execute_dispatchable(dispatch)
+        .unwrap_or_else(|e| panic!("Message call failed: {:?}", e));
+
+    crate::test::get_return_value()
+}
+
+fn invoke_contract_impl<E, R>(
+    env: &mut EnvInstance,
+    _gas_limit: Option<u64>,
+    _call_flags: u32,
+    _transferred_value: Option<&<E as Environment>::Balance>,
+    callee_account: Option<&<E as Environment>::AccountId>,
+    code_hash: Option<&<E as Environment>::Hash>,
+    input: Vec<u8>,
+) -> Result<ink_primitives::MessageResult<R>>
+where
+    E: Environment,
+    R: scale::Decode,
+{
+    let mut callee_code_hash = match callee_account {
+        Some(ca) => env.code_hash::<E>(ca)?,
+        None => *code_hash.unwrap(),
+    };
+
+    let handler = env
+        .engine
+        .database
+        .get_contract_message_handler(callee_code_hash.as_mut());
+    let old_callee = env.engine.get_callee();
+    let mut restore_callee = false;
+    if let Some(callee_account) = callee_account {
+        let encoded_callee = scale::Encode::encode(callee_account);
+        env.engine.set_callee(encoded_callee);
+        restore_callee = true;
+    }
+
+    let result = handler(input);
+
+    if restore_callee {
+        env.engine.set_callee(old_callee);
+    }
+
+    let result =
+        <ink_primitives::MessageResult<R> as scale::Decode>::decode(&mut &result[..])
+            .expect("failed to decode return value");
+
+    Ok(result)
+}
 
 impl CryptoHash for Blake2x128 {
     fn hash(input: &[u8], output: &mut <Self as HashOutput>::Type) {
@@ -179,6 +247,23 @@ impl EnvInstance {
         ext_fn(&self.engine, full_scope);
         scale::Decode::decode(&mut &full_scope[..]).map_err(Into::into)
     }
+
+    pub fn get_return_value(&mut self) -> Vec<u8> {
+        self.engine.get_storage(&[255_u8; 32]).unwrap().to_vec()
+    }
+
+    pub fn upload_code<ContractRef>(&mut self) -> ink_primitives::types::Hash
+    where
+        ContractRef: crate::ContractReverseReference,
+        <ContractRef as crate::ContractReverseReference>::Type:
+            crate::reflect::ContractMessageDecoder,
+    {
+        ink_primitives::types::Hash::from(
+            self.engine
+                .database
+                .set_contract_message_handler(execute_contract_call::<ContractRef>),
+        )
+    }
 }
 
 impl EnvBackend for EnvInstance {
@@ -243,11 +328,22 @@ impl EnvBackend for EnvInstance {
         unimplemented!("the off-chain env does not implement `input`")
     }
 
+    #[cfg(not(feature = "test_instantiate"))]
     fn return_value<R>(&mut self, _flags: ReturnFlags, _return_value: &R) -> !
     where
         R: scale::Encode,
     {
-        unimplemented!("the off-chain env does not implement `return_value`")
+        panic!("enable feature test_instantiate to use return_value()")
+    }
+
+    #[cfg(feature = "test_instantiate")]
+    fn return_value<R>(&mut self, _flags: ReturnFlags, return_value: &R)
+    where
+        R: scale::Encode,
+    {
+        let mut v = vec![];
+        return_value.encode_to(&mut v);
+        self.engine.set_storage(&[255_u8; 32], &v[..]);
     }
 
     fn debug_message(&mut self, message: &str) {
@@ -377,8 +473,11 @@ impl EnvBackend for EnvInstance {
         Ok(decoded)
     }
 
-    fn set_code_hash(&mut self, _code_hash: &[u8]) -> Result<()> {
-        unimplemented!("off-chain environment does not support `set_code_hash`")
+    fn set_code_hash(&mut self, code_hash: &[u8]) -> Result<()> {
+        self.engine
+            .database
+            .set_code_hash(&self.engine.get_callee(), code_hash);
+        Ok(())
     }
 }
 
@@ -464,14 +563,28 @@ impl TypedEnvBackend for EnvInstance {
 
     fn invoke_contract<E, Args, R>(
         &mut self,
-        _params: &CallParams<E, Call<E>, Args, R>,
+        params: &CallParams<E, Call<E>, Args, R>,
     ) -> Result<ink_primitives::MessageResult<R>>
     where
         E: Environment,
         Args: scale::Encode,
         R: scale::Decode,
     {
-        unimplemented!("off-chain environment does not support contract invocation")
+        let call_flags = params.call_flags().bits();
+        let transferred_value = params.transferred_value();
+        let input = params.exec_input();
+        let callee_account = params.callee();
+        let input = scale::Encode::encode(input);
+
+        invoke_contract_impl::<E, R>(
+            self,
+            None,
+            call_flags,
+            Some(transferred_value),
+            Some(callee_account),
+            None,
+            input,
+        )
     }
 
     fn invoke_contract_delegate<E, Args, R>(
@@ -483,9 +596,19 @@ impl TypedEnvBackend for EnvInstance {
         Args: scale::Encode,
         R: scale::Decode,
     {
-        let _code_hash = params.code_hash();
-        unimplemented!(
-            "off-chain environment does not support delegated contract invocation"
+        let call_flags = params.call_flags().bits();
+        let input = params.exec_input();
+        let code_hash = params.code_hash();
+        let input = scale::Encode::encode(input);
+
+        invoke_contract_impl::<E, R>(
+            self,
+            None,
+            call_flags,
+            None,
+            None,
+            Some(code_hash),
+            input,
         )
     }
 
@@ -499,19 +622,71 @@ impl TypedEnvBackend for EnvInstance {
     >
     where
         E: Environment,
-        ContractRef: FromAccountId<E>,
+        ContractRef: FromAccountId<E> + crate::ContractReverseReference,
+        <ContractRef as crate::ContractReverseReference>::Type:
+            crate::reflect::ContractConstructorDecoder,
         Args: scale::Encode,
         Salt: AsRef<[u8]>,
         R: ConstructorReturnType<ContractRef>,
     {
-        let _code_hash = params.code_hash();
-        let _ref_time_limit = params.ref_time_limit();
-        let _proof_size_limit = params.proof_size_limit();
-        let _storage_deposit_limit = params.storage_deposit_limit();
-        let _endowment = params.endowment();
-        let _input = params.exec_input();
-        let _salt_bytes = params.salt_bytes();
-        unimplemented!("off-chain environment does not support contract instantiation")
+        let endowment = params.endowment();
+        let endowment = scale::Encode::encode(endowment);
+        let endowment: u128 = scale::Decode::decode(&mut &endowment[..])?;
+
+        let salt_bytes = params.salt_bytes();
+
+        let code_hash = params.code_hash();
+        let code_hash = scale::Encode::encode(code_hash);
+
+        let input = params.exec_input();
+        let input = scale::Encode::encode(input);
+
+        // Compute account for instantiated contract.
+        let account_id_vec = {
+            let mut account_input = Vec::<u8>::new();
+            account_input.extend(&b"contract_addr_v1".to_vec());
+            if let Some(caller) = &self.engine.exec_context.caller {
+                scale::Encode::encode_to(&caller.as_bytes(), &mut account_input);
+            }
+            account_input.extend(&code_hash);
+            account_input.extend(&input);
+            account_input.extend(salt_bytes.as_ref());
+            let mut account_id = [0_u8; 32];
+            ink_engine::hashing::blake2b_256(&account_input[..], &mut account_id);
+            account_id.to_vec()
+        };
+
+        let mut account_id =
+            <E as Environment>::AccountId::decode(&mut &account_id_vec[..]).unwrap();
+
+        let old_callee = self.engine.get_callee();
+        self.engine.set_callee(account_id_vec.clone());
+
+        let dispatch = <
+            <
+                <
+                    ContractRef
+                    as crate::ContractReverseReference
+                >::Type
+                as crate::reflect::ContractConstructorDecoder
+            >::Type
+            as scale::Decode
+        >::decode(&mut &input[..])
+            .unwrap_or_else(|e| panic!("Failed to decode constructor call: {:?}", e));
+        crate::reflect::ExecuteDispatchable::execute_dispatchable(dispatch)
+            .unwrap_or_else(|e| panic!("Constructor call failed: {:?}", e));
+
+        self.set_code_hash(code_hash.as_slice())?;
+        self.engine.set_contract(account_id_vec.clone());
+        self.engine
+            .database
+            .set_balance(account_id.as_mut(), endowment);
+
+        self.engine.set_callee(old_callee);
+
+        Ok(Ok(R::ok(
+            <ContractRef as FromAccountId<E>>::from_account_id(account_id),
+        )))
     }
 
     #[cfg(not(feature = "revive"))]
@@ -586,18 +761,36 @@ impl TypedEnvBackend for EnvInstance {
         unimplemented!("off-chain environment does not support `caller_is_root`")
     }
 
-    fn code_hash<E>(&mut self, _account: &E::AccountId) -> Result<E::Hash>
+    fn code_hash<E>(&mut self, account: &E::AccountId) -> Result<E::Hash>
     where
         E: Environment,
     {
-        unimplemented!("off-chain environment does not support `code_hash`")
+        let code_hash = self
+            .engine
+            .database
+            .get_code_hash(&scale::Encode::encode(&account));
+        if let Some(code_hash) = code_hash {
+            let code_hash =
+                <E as Environment>::Hash::decode(&mut &code_hash[..]).unwrap();
+            Ok(code_hash)
+        } else {
+            Err(ReturnErrorCode::KeyNotFound.into())
+        }
     }
 
     fn own_code_hash<E>(&mut self) -> Result<E::Hash>
     where
         E: Environment,
     {
-        unimplemented!("off-chain environment does not support `own_code_hash`")
+        let callee = &self.engine.get_callee();
+        let code_hash = self.engine.database.get_code_hash(callee);
+        if let Some(code_hash) = code_hash {
+            let code_hash =
+                <E as Environment>::Hash::decode(&mut &code_hash[..]).unwrap();
+            Ok(code_hash)
+        } else {
+            Err(ReturnErrorCode::KeyNotFound.into())
+        }
     }
 
     fn call_runtime<E, Call>(&mut self, _call: &Call) -> Result<()>

@@ -42,7 +42,7 @@ use crate::{
     Clear,
     EnvBackend,
     Environment,
-    FromLittleEndian,
+    types::FromLittleEndian,
     Result,
     TypedEnvBackend,
 };

@@ -2851,8 +2851,12 @@ dependencies = [
 name = "ink_primitives"
 version = "5.1.0"
 dependencies = [
+ "cfg-if",
  "derive_more 1.0.0",
+ "ink",
+ "ink_env",
  "ink_prelude",
+ "num-traits",
  "parity-scale-codec",
  "scale-decode",
  "scale-encode",

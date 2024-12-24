@@ -29,7 +29,7 @@ pub mod result_info;
 #[cfg_attr(not(feature = "show-codegen-docs"), doc(hidden))]
 pub mod codegen;
 
-pub mod reflect;
+pub use ink_env::reflect;
 
 mod chain_extension;
 mod contract_ref;

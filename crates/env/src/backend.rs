@@ -32,7 +32,7 @@ use crate::{
         CryptoHash,
         HashOutput,
     },
-    Environment,
+    types::Environment,
     Result,
 };
 use ink_storage_traits::Storable;
@@ -121,7 +121,22 @@ pub trait EnvBackend {
     ///
     /// The `flags` parameter can be used to revert the state changes of the
     /// entire execution if necessary.
+    #[cfg(not(feature = "test_instantiate"))]
     fn return_value<R>(&mut self, flags: ReturnFlags, return_value: &R) -> !
+    where
+        R: scale::Encode;
+
+    /// Returns the value back to the caller of the executed contract.
+    ///
+    /// # Note
+    ///
+    /// When the test_instantiate feature is used, the contract is allowed to
+    /// return normally. This feature should only be used for integration tests.
+    ///
+    /// The `flags` parameter can be used to revert the state changes of the
+    /// entire execution if necessary.
+    #[cfg(feature = "test_instantiate")]
+    fn return_value<R>(&mut self, flags: ReturnFlags, return_value: &R)
     where
         R: scale::Encode;
 
@@ -363,7 +378,9 @@ pub trait TypedEnvBackend: EnvBackend {
     >
     where
         E: Environment,
-        ContractRef: FromAccountId<E>,
+        ContractRef: FromAccountId<E> + crate::ContractReverseReference,
+        <ContractRef as crate::ContractReverseReference>::Type:
+            crate::reflect::ContractConstructorDecoder,
         Args: scale::Encode,
         Salt: AsRef<[u8]>,
         R: ConstructorReturnType<ContractRef>;
