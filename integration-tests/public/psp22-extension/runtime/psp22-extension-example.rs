@@ -24,7 +24,7 @@ use pallet_assets::{
     self,
     WeightInfo,
 };
-use pallet_contracts::chain_extension::{
+use pallet_revive::chain_extension::{
     ChainExtension,
     Environment,
     Ext,
@@ -151,7 +151,7 @@ fn metadata<T, E>(
     env: Environment<E, InitState>,
 ) -> Result<(), DispatchError>
 where
-    T: pallet_assets::Config + pallet_contracts::Config,
+    T: pallet_assets::Config + pallet_revive::Config,
     <T as SysConfig>::AccountId: UncheckedFrom<<T as SysConfig>::Hash> + AsRef<[u8]>,
     E: Ext<T = T>,
 {
@@ -187,7 +187,7 @@ fn query<T, E>(
     env: Environment<E, InitState>,
 ) -> Result<(), DispatchError>
 where
-    T: pallet_assets::Config + pallet_contracts::Config,
+    T: pallet_assets::Config + pallet_revive::Config,
     <T as SysConfig>::AccountId: UncheckedFrom<<T as SysConfig>::Hash> + AsRef<[u8]>,
     E: Ext<T = T>,
 {
@@ -225,7 +225,7 @@ where
 
 fn transfer<T, E>(env: Environment<E, InitState>) -> Result<(), DispatchError>
 where
-    T: pallet_assets::Config + pallet_contracts::Config,
+    T: pallet_assets::Config + pallet_revive::Config,
     <T as SysConfig>::AccountId: UncheckedFrom<<T as SysConfig>::Hash> + AsRef<[u8]>,
     E: Ext<T = T>,
 {
@@ -234,7 +234,7 @@ where
     // debug_message weight is a good approximation of the additional overhead of going
     // from contract layer to substrate layer.
     let overhead = Weight::from_ref_time(
-        <T as pallet_contracts::Config>::Schedule::get()
+        <T as pallet_revive::Config>::Schedule::get()
             .host_fn_weights
             .debug_message,
     );
@@ -267,7 +267,7 @@ where
 
 fn transfer_from<T, E>(env: Environment<E, InitState>) -> Result<(), DispatchError>
 where
-    T: pallet_assets::Config + pallet_contracts::Config,
+    T: pallet_assets::Config + pallet_revive::Config,
     <T as SysConfig>::AccountId: UncheckedFrom<<T as SysConfig>::Hash> + AsRef<[u8]>,
     E: Ext<T = T>,
 {
@@ -276,7 +276,7 @@ where
     // debug_message weight is a good approximation of the additional overhead of going
     // from contract layer to substrate layer.
     let overhead = Weight::from_ref_time(
-        <T as pallet_contracts::Config>::Schedule::get()
+        <T as pallet_revive::Config>::Schedule::get()
             .host_fn_weights
             .debug_message,
     );
@@ -308,7 +308,7 @@ where
 
 fn approve<T, E>(env: Environment<E, InitState>) -> Result<(), DispatchError>
 where
-    T: pallet_assets::Config + pallet_contracts::Config,
+    T: pallet_assets::Config + pallet_revive::Config,
     <T as SysConfig>::AccountId: UncheckedFrom<<T as SysConfig>::Hash> + AsRef<[u8]>,
     E: Ext<T = T>,
 {
@@ -317,7 +317,7 @@ where
     // debug_message weight is a good approximation of the additional overhead of going
     // from contract layer to substrate layer.
     let overhead = Weight::from_ref_time(
-        <T as pallet_contracts::Config>::Schedule::get()
+        <T as pallet_revive::Config>::Schedule::get()
             .host_fn_weights
             .debug_message,
     );
@@ -346,7 +346,7 @@ where
 
 fn decrease_allowance<T, E>(env: Environment<E, InitState>) -> Result<(), DispatchError>
 where
-    T: pallet_assets::Config + pallet_contracts::Config,
+    T: pallet_assets::Config + pallet_revive::Config,
     <T as SysConfig>::AccountId: UncheckedFrom<<T as SysConfig>::Hash> + AsRef<[u8]>,
     E: Ext<T = T>,
 {
@@ -361,7 +361,7 @@ where
     // debug_message weight is a good approximation of the additional overhead of going
     // from contract layer to substrate layer.
     let overhead = Weight::from_ref_time(
-        <T as pallet_contracts::Config>::Schedule::get()
+        <T as pallet_revive::Config>::Schedule::get()
             .host_fn_weights
             .debug_message,
     );
@@ -417,7 +417,7 @@ where
 
 impl<T> ChainExtension<T> for Psp22Extension
 where
-    T: pallet_assets::Config + pallet_contracts::Config,
+    T: pallet_assets::Config + pallet_revive::Config,
     <T as SysConfig>::AccountId: UncheckedFrom<<T as SysConfig>::Hash> + AsRef<[u8]>,
 {
     fn call<E: Ext>(

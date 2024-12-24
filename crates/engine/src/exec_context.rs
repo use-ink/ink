@@ -13,10 +13,10 @@
 // limitations under the License.
 
 use super::types::{
-    AccountId,
     Balance,
     BlockNumber,
     BlockTimestamp,
+    H160,
 };
 
 /// The context of a contract execution.
@@ -25,18 +25,19 @@ use super::types::{
 pub struct ExecContext {
     /// The caller of the contract execution. Might be user or another contract.
     ///
+    /// TODO check next comment
     /// We don't know the specifics of the `AccountId` ‒ like how many bytes or what
     /// type of default `AccountId` makes sense ‒ they are left to be initialized
     /// by the crate which uses the `engine`. Methods which require a caller might
     /// panic when it has not been set.
-    pub caller: Option<AccountId>,
+    pub caller: H160,
     /// The callee of the contract execution. Might be user or another contract.
     ///
     /// We don't know the specifics of the `AccountId` ‒ like how many bytes or what
     /// type of default `AccountId` makes sense ‒ they are left to be initialized
     /// by the crate which uses the `engine`. Methods which require a callee might
     /// panic when it has not been set.
-    pub callee: Option<AccountId>,
+    pub callee: Option<H160>,
     /// The value transferred to the contract as part of the call.
     pub value_transferred: Balance,
     /// The current block number.
@@ -44,7 +45,7 @@ pub struct ExecContext {
     /// The current block timestamp.
     pub block_timestamp: BlockTimestamp,
     /// Known contract accounts
-    pub contracts: Vec<Vec<u8>>,
+    pub contracts: Vec<H160>, // todo use H160
 }
 
 impl ExecContext {
@@ -54,12 +55,8 @@ impl ExecContext {
     }
 
     /// Returns the callee.
-    pub fn callee(&self) -> Vec<u8> {
-        self.callee
-            .as_ref()
-            .expect("no callee has been set")
-            .as_bytes()
-            .into()
+    pub fn callee(&self) -> H160 {
+        self.callee.expect("no callee has been set")
     }
 
     /// Resets the execution context
@@ -80,19 +77,17 @@ impl ExecContext {
 
 #[cfg(test)]
 mod tests {
-    use super::{
-        AccountId,
-        ExecContext,
-    };
+    use super::ExecContext;
+    use crate::types::H160;
 
     #[test]
     fn basic_operations() {
         let mut exec_cont = ExecContext::new();
 
-        exec_cont.callee = Some(AccountId::from_bytes(&[13]));
-        exec_cont.caller = Some(AccountId::from_bytes(&[14]));
+        exec_cont.callee = Some(H160::from([13; 20]));
+        exec_cont.caller = H160::from([14; 20]);
         exec_cont.value_transferred = 15;
-        assert_eq!(exec_cont.callee(), vec![13]);
+        assert_eq!(exec_cont.callee(), H160::from([13; 20]));
 
         exec_cont.reset();
 

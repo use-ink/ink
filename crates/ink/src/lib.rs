@@ -74,7 +74,7 @@ pub use self::{
         Output,
         ValueReturned,
     },
-    contract_ref::ToAccountId,
+    contract_ref::ToAddr,
     env_access::EnvAccess,
     prelude::IIP2_WILDCARD_COMPLEMENT_SELECTOR,
 };
@@ -96,4 +96,7 @@ pub use ink_primitives::{
     ConstructorResult,
     LangError,
     MessageResult,
+    H160,
+    H256,
+    U256,
 };

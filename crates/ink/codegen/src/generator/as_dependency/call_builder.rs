@@ -94,7 +94,7 @@ impl CallBuilder<'_> {
             )]
             #[::ink::scale_derive(Encode, Decode, TypeInfo)]
             pub struct #cb_ident {
-                account_id: AccountId,
+                addr: ::ink::H160,
             }
 
             const _: () = {
@@ -117,29 +117,29 @@ impl CallBuilder<'_> {
         let span = self.contract.module().storage().span();
         let cb_ident = Self::call_builder_ident();
         quote_spanned!(span=>
-            impl ::ink::env::call::FromAccountId<Environment> for #cb_ident {
+            impl ::ink::env::call::FromAddr for #cb_ident {
                 #[inline]
-                fn from_account_id(account_id: AccountId) -> Self {
-                    Self { account_id }
+                fn from_addr(addr: ::ink::H160) -> Self {
+                    Self { addr }
                 }
             }
 
-            impl ::ink::ToAccountId<Environment> for #cb_ident {
+            impl ::ink::ToAddr for #cb_ident {
                 #[inline]
-                fn to_account_id(&self) -> AccountId {
-                    <AccountId as ::core::clone::Clone>::clone(&self.account_id)
+                fn to_addr(&self) -> ::ink::H160 {
+                    <::ink::H160 as ::core::clone::Clone>::clone(&self.addr)
                 }
             }
 
-            impl ::core::convert::AsRef<AccountId> for #cb_ident {
-                fn as_ref(&self) -> &AccountId {
-                    &self.account_id
+            impl ::core::convert::AsRef<::ink::H160> for #cb_ident {
+                fn as_ref(&self) -> &::ink::H160 {
+                    &self.addr
                 }
             }
 
-            impl ::core::convert::AsMut<AccountId> for #cb_ident {
-                fn as_mut(&mut self) -> &mut AccountId {
-                    &mut self.account_id
+            impl ::core::convert::AsMut<::ink::H160> for #cb_ident {
+                fn as_mut(&mut self) -> &mut ::ink::H160 {
+                    &mut self.addr
                 }
             }
         )
@@ -204,8 +204,9 @@ impl CallBuilder<'_> {
                     // only an `AccountId` to a shared reference to another type of which
                     // we know that it also thinly wraps an `AccountId`.
                     // Furthermore both types use `repr(transparent)`.
+                    // todo
                     unsafe {
-                        &*(&self.account_id as *const AccountId as *const Self::Forwarder)
+                        &*(&self.addr as *const ::ink::H160 as *const Self::Forwarder)
                     }
                 }
 
@@ -218,7 +219,7 @@ impl CallBuilder<'_> {
                     // we know that it also thinly wraps an `AccountId`.
                     // Furthermore both types use `repr(transparent)`.
                     unsafe {
-                        &mut *(&mut self.account_id as *mut AccountId as *mut Self::Forwarder)
+                        &mut *(&mut self.addr as *mut ::ink::H160 as *mut Self::Forwarder)
                     }
                 }
 
@@ -399,7 +400,7 @@ impl CallBuilder<'_> {
                 #( , #input_bindings : #input_types )*
             ) -> #output_type {
                 ::ink::env::call::build_call::<Environment>()
-                    .call(::ink::ToAccountId::to_account_id(self))
+                    .call(::ink::ToAddr::to_addr(self))
                     .exec_input(
                         ::ink::env::call::ExecutionInput::new(
                             ::ink::env::call::Selector::new([ #( #selector_bytes ),* ])

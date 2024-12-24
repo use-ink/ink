@@ -46,6 +46,7 @@
 /// use ink_primitives::{
 ///     AccountId,
 ///     MessageResult,
+///     H160,
 /// };
 /// use scale::{
 ///     Decode,
@@ -60,7 +61,7 @@
 ///
 ///     /// Transfers balance from the caller to the given address.
 ///     #[ink(message)]
-///     fn transfer(&mut self, amount: u128, to: AccountId) -> bool;
+///     fn transfer(&mut self, amount: u128, to: H160) -> bool;
 /// }
 ///
 /// #[derive(Clone)]
@@ -74,6 +75,7 @@
 ///     type Timestamp = u64;
 ///     type BlockNumber = u64;
 ///     type ChainExtension = ();
+///     type EventRecord = ();
 /// }
 ///
 /// /// To demonstrate implementing an execution environment agnostic executor
@@ -107,21 +109,21 @@
 ///     }
 /// }
 ///
-/// fn default(to: AccountId) {
+/// fn default(to: H160) {
 ///     let executor = ExampleExecutor::<DefaultEnvironment>::new();
 ///     let mut contract = message_builder!(Erc20);
 ///     let total_supply = contract.total_supply().exec(&executor).unwrap().unwrap();
 ///     contract.transfer(total_supply, to).exec(&executor).unwrap();
 /// }
 ///
-/// fn custom(to: AccountId) {
+/// fn custom(to: H160) {
 ///     let executor = ExampleExecutor::<CustomEnv>::new();
 ///     let mut contract = message_builder!(Erc20, CustomEnv);
 ///     let total_supply = contract.total_supply().exec(&executor).unwrap().unwrap();
 ///     contract.transfer(total_supply, to).exec(&executor).unwrap();
 /// }
 ///
-/// fn generic<E>(to: AccountId)
+/// fn generic<E>(to: H160)
 /// where
 ///     E: ink_env::Environment,
 /// {

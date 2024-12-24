@@ -191,12 +191,12 @@ mod dns {
         use super::*;
 
         fn default_accounts(
-        ) -> ink::env::test::DefaultAccounts<ink::env::DefaultEnvironment> {
-            ink::env::test::default_accounts::<Environment>()
+        ) -> ink::env::test::DefaultAccounts {
+            ink::env::test::default_accounts()
         }
 
         fn set_next_caller(caller: AccountId) {
-            ink::env::test::set_caller::<Environment>(caller);
+            ink::env::test::set_caller(caller);
         }
 
         #[ink::test]

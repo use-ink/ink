@@ -6,6 +6,7 @@
 
 #[ink::contract]
 pub mod give_me {
+    use ink::primitives::U256;
     /// No storage is needed for this simple contract.
     #[ink(storage)]
     pub struct GiveMe {}
@@ -51,17 +52,27 @@ pub mod give_me {
         /// allowed to receive value as part of the call.
         #[ink(message, payable, selector = 0xCAFEBABE)]
         pub fn was_it_ten(&self) {
+            let foo = ink::reflect::DispatchError::UnknownSelector;
+            ink::env::debug_println!("{:?}", foo);
+            ink::env::debug_println!("{}", foo.as_str());
             ink::env::debug_println!(
                 "received payment: {}",
                 self.env().transferred_value()
             );
-            assert!(self.env().transferred_value() == 10, "payment was not ten");
+            assert!(self.env().transferred_value() == U256::from(10), "payment was not ten");
+        }
+
+        /// Addrj
+        #[ink(message)]
+        pub fn account_id(&mut self) -> AccountId {
+            self.env().account_id()
         }
     }
 
     #[cfg(test)]
     mod tests {
         use super::*;
+        use ink::H160;
 
         #[ink::test]
         fn transfer_works() {
@@ -101,7 +112,7 @@ pub mod give_me {
             // given
             let accounts = default_accounts();
             let give_me = create_contract(100);
-            let contract_account = give_me.env().account_id();
+            let contract_account = give_me.env().address();
 
             // when
             // Push the new execution context which sets initial balances and
@@ -152,30 +163,31 @@ pub mod give_me {
             GiveMe::new()
         }
 
-        fn contract_id() -> AccountId {
+        fn contract_id() -> H160 {
             ink::env::test::callee::<ink::env::DefaultEnvironment>()
         }
 
-        fn set_sender(sender: AccountId) {
-            ink::env::test::set_caller::<ink::env::DefaultEnvironment>(sender);
+        fn set_sender(sender: H160) {
+            ink::env::test::set_caller(sender);
         }
 
         fn default_accounts(
-        ) -> ink::env::test::DefaultAccounts<ink::env::DefaultEnvironment> {
-            ink::env::test::default_accounts::<ink::env::DefaultEnvironment>()
+        ) -> ink::env::test::DefaultAccounts {
+            ink::env::test::default_accounts()
         }
 
-        fn set_balance(account_id: AccountId, balance: Balance) {
+        // todo change all to addr
+        fn set_balance(account_id: H160, balance: Balance) {
             ink::env::test::set_account_balance::<ink::env::DefaultEnvironment>(
                 account_id, balance,
             )
         }
 
-        fn get_balance(account_id: AccountId) -> Balance {
+        fn get_balance(account_id: H160) -> Balance {
             ink::env::test::get_account_balance::<ink::env::DefaultEnvironment>(
                 account_id,
             )
-            .expect("Cannot get account balance")
+            .expect("Cannot get contract balance")
         }
     }
 
@@ -197,18 +209,18 @@ pub mod give_me {
             let mut constructor = GiveMeRef::new();
             let contract = client
                 .instantiate("contract_transfer", &ink_e2e::alice(), &mut constructor)
-                .value(1000)
+                .value(1000_000_000)
                 .submit()
                 .await
                 .expect("instantiate failed");
             let mut call_builder = contract.call_builder::<GiveMe>();
 
             // when
-            let transfer = call_builder.give_me(120);
+            let transfer = call_builder.give_me(120_000_000);
 
             let call_res = client
                 .call(&ink_e2e::bob(), &transfer)
-                .value(10)
+                .value(10_000_000)
                 .submit()
                 .await;
 
@@ -228,20 +240,29 @@ pub mod give_me {
             // given
             let mut constructor = GiveMeRef::new();
             let contract = client
+                //.map_account(&ink_e2e::bob())
                 .instantiate("contract_transfer", &ink_e2e::bob(), &mut constructor)
-                .value(1337)
+                .value(1337_000_000)
                 .submit()
                 .await
                 .expect("instantiate failed");
             let mut call_builder = contract.call_builder::<GiveMe>();
 
+            let acc = call_builder.account_id();
+            let call_res = client
+                .call(&ink_e2e::eve(), &acc)
+                .submit()
+                .await
+                .expect("call failed");
+            let account_id: AccountId = call_res.return_value();
+
             let balance_before: Balance = client
-                .free_balance(contract.account_id.clone())
+                .free_balance(account_id.clone())
                 .await
                 .expect("getting balance failed");
 
             // when
-            let transfer = call_builder.give_me(120);
+            let transfer = call_builder.give_me(120_000_000);
 
             let call_res = client
                 .call(&ink_e2e::eve(), &transfer)
@@ -250,10 +271,10 @@ pub mod give_me {
                 .expect("call failed");
 
             // then
-            assert!(call_res.debug_message().contains("requested value: 120\n"));
+            assert!(call_res.debug_message().contains("requested value: 120000000\n"));
 
             let balance_after: Balance = client
-                .free_balance(contract.account_id.clone())
+                .free_balance(account_id)
                 .await
                 .expect("getting balance failed");
             assert_eq!(balance_before - balance_after, 120);

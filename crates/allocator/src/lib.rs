@@ -30,6 +30,7 @@ static mut ALLOC: bump::BumpAllocator = bump::BumpAllocator {};
 
 mod bump;
 
-#[cfg(all(test, feature = "std", feature = "ink-fuzz-tests",))]
+// todo
+#[cfg(all(test, feature = "std", feature = "ink-fuzz-tests", target_os = "dragonfly"))]
 #[macro_use(quickcheck)]
 extern crate quickcheck_macros;

@@ -30,7 +30,7 @@ pub mod static_buffer {
         /// Returns the caller of the contract.
         /// Should panic if the buffer size is less than 32 bytes.
         #[ink(message)]
-        pub fn get_caller(&self) -> AccountId {
+        pub fn get_caller(&self) -> ink::H160 {
             self.env().caller()
         }
 

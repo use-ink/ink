@@ -163,3 +163,27 @@ impl Clear for Hash {
         <[u8; 32] as Clear>::is_clear(&self.0)
     }
 }
+
+// impl Clear for H256 {
+// const CLEAR_HASH: Self = H256::CLEAR_HASH;
+//
+// fn is_clear(&self) -> bool {
+// self.as_bytes().iter().all(|&byte| byte == 0x00)
+// }
+// }
+
+#[derive(Debug, Clone, Eq, PartialEq, Encode, Decode)]
+#[cfg_attr(feature = "std", derive(scale_info::TypeInfo, EncodeAsType, serde::Serialize, serde::Deserialize))]
+pub enum DepositLimit<Balance> {
+    /// Allows bypassing all balance transfer checks.
+    Unchecked,
+
+    /// Specifies a maximum allowable balance for a deposit.
+    Balance(Balance),
+}
+
+impl<T> From<T> for DepositLimit<T> {
+    fn from(value: T) -> Self {
+        Self::Balance(value)
+    }
+}
