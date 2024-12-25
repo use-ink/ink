@@ -249,7 +249,7 @@ impl<'a, 'tcx> APIUsageChecker<'a, 'tcx> {
     }
 }
 
-impl<'a, 'tcx> Visitor<'tcx> for APIUsageChecker<'a, 'tcx> {
+impl<'tcx> Visitor<'tcx> for APIUsageChecker<'_, 'tcx> {
     type NestedFilter = nested_filter::OnlyBodies;
 
     fn visit_expr(&mut self, e: &'tcx Expr<'tcx>) {

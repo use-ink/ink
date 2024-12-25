@@ -217,7 +217,7 @@ impl<'a, 'tcx> StrictBalanceEqualityAnalysis<'a, 'tcx> {
 }
 
 /// The implementation of the transfer function for the dataflow problem
-impl<'a, 'tcx> Analysis<'tcx> for StrictBalanceEqualityAnalysis<'a, 'tcx> {
+impl<'tcx> Analysis<'tcx> for StrictBalanceEqualityAnalysis<'_, 'tcx> {
     /// A lattice that represents program's state. `BitSet` is a powerset over MIR Locals
     /// defined in the analyzed function. Inclusion to the set means that the Local is
     /// tainted with some operation with `self.env().balance()`.
@@ -345,7 +345,7 @@ impl Visitor<'_> for TransferFunction<'_, '_> {
     }
 }
 
-impl<'tcx> TransferFunction<'_, 'tcx> {
+impl TransferFunction<'_, '_> {
     fn binop_strict_eq(&self, binop: &BinOp) -> bool {
         matches!(binop, BinOp::Eq | BinOp::Ne)
     }
@@ -551,11 +551,11 @@ impl<'tcx> LateLintPass<'tcx> for StrictBalanceEquality {
     }
 }
 
-impl<'tcx> StrictBalanceEquality {
+impl StrictBalanceEquality {
     /// Checks a function from the contract implementation
     fn check_contract_fun(
         &mut self,
-        cx: &LateContext<'tcx>,
+        cx: &LateContext<'_>,
         fun_cache: &mut VisitedFunctionsCache,
         fn_span: Span,
         fn_def_id: DefId,
