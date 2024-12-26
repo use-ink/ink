@@ -12,4 +12,5 @@ runs:
         bash --version
         substrate-contracts-node --version
         cargo-contract --version
+        df -h
       shell: bash
