@@ -45,7 +45,7 @@ fn main() {
     let _: fn() -> CalleeRef = || {
         CalleeRef::new_self()
             .code_hash(ink::primitives::H256::zero())
-            .endowment(25)
+            .endowment(ink::U256::from(25))
             .salt_bytes(Some([1u8; 32]))
             .instantiate()
     };
@@ -54,7 +54,7 @@ fn main() {
     let _: fn() -> CalleeRef = || {
         CalleeRef::new_storage_name()
             .code_hash(ink::primitives::H256::zero())
-            .endowment(25)
+            .endowment(ink::U256::from(25))
             .salt_bytes(Some([1u8; 32]))
             .instantiate()
     };
@@ -63,7 +63,7 @@ fn main() {
     let _: fn() -> Result<CalleeRef, Error> = || {
         CalleeRef::new_result_self()
             .code_hash(ink::primitives::H256::zero())
-            .endowment(25)
+            .endowment(ink::U256::from(25))
             .salt_bytes(Some([1u8; 32]))
             .instantiate()
     };
@@ -72,7 +72,7 @@ fn main() {
     let _: fn() -> Result<CalleeRef, Error> = || {
         CalleeRef::new_result_self()
             .code_hash(ink::primitives::H256::zero())
-            .endowment(25)
+            .endowment(ink::U256::from(25))
             .salt_bytes(Some([1u8; 32]))
             .instantiate()
     };

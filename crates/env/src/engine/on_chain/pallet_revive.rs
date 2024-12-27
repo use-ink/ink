@@ -657,9 +657,11 @@ impl TypedEnvBackend for EnvInstance {
             Some(output),
         );
         match call_result {
-            Ok(()) | Err(ReturnErrorCode::CalleeReverted) => {
-                let decoded = scale::DecodeAll::decode_all(&mut &output[..])?;
-                Ok(decoded)
+            Ok(()) => {
+                // no need to decode, is ()
+                //let decoded = scale::DecodeAll::decode_all(&mut &output[..])?;
+                //Ok(decoded)
+                Ok(())
             }
             Err(actual_error) => Err(actual_error.into()),
         }

@@ -368,8 +368,8 @@ where
 /// # }
 /// # use contract::MyContractRef;
 /// let my_contract: MyContractRef = build_create::<MyContractRef>()
-///     .code_hash(Hash::from([0x42; 32]))
-///     .endowment(25)
+///     .code_hash(ink::H256::from([0x42; 32]))
+///     .endowment(25.into())
 ///     .exec_input(
 ///         ExecutionInput::new(Selector::new(ink::selector_bytes!("my_constructor")))
 ///             .push_arg(42)
@@ -412,8 +412,8 @@ where
 /// # }
 /// # use contract::{MyContractRef, ConstructorError};
 /// let my_contract: MyContractRef = build_create::<MyContractRef>()
-///     .code_hash(Hash::from([0x42; 32]))
-///     .endowment(25)
+///     .code_hash(ink::H256::from([0x42; 32]))
+///     .endowment(25.into())
 ///     .exec_input(
 ///         ExecutionInput::new(Selector::new(ink::selector_bytes!("my_constructor")))
 ///             .push_arg(42)
@@ -531,7 +531,7 @@ where
         CreateBuilder {
             code_hash: self.code_hash,
             limits: self.limits,
-            endowment: endowment,
+            endowment,
             exec_input: self.exec_input,
             salt: self.salt,
             return_type: self.return_type,

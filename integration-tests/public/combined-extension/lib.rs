@@ -42,6 +42,7 @@ impl Environment for CustomEnvironment {
     type Hash = <DefaultEnvironment as Environment>::Hash;
     type Timestamp = <DefaultEnvironment as Environment>::Timestamp;
     type BlockNumber = <DefaultEnvironment as Environment>::BlockNumber;
+    type EventRecord = <DefaultEnvironment as Environment>::EventRecord;
 
     /// Setting up the combined chain extension as a primary extension.
     ///

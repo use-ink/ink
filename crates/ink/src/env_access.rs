@@ -303,7 +303,7 @@ where
     /// #
     /// /// Returns the contract's balance.
     /// #[ink(message)]
-    /// pub fn my_balance(&self) -> Balance {
+    /// pub fn my_balance(&self) -> ink::U256 {
     ///     self.env().balance()
     /// }
     /// #
@@ -440,14 +440,14 @@ where
     ///         .ref_time_limit(500_000_000)
     ///         .proof_size_limit(100_000)
     ///         .storage_deposit_limit(500_000_000_000)
-    ///         .endowment(25)
+    ///         .endowment(25.into())
     ///         .exec_input(
     ///             ExecutionInput::new(Selector::new(ink::selector_bytes!("new")))
     ///                 .push_arg(42)
     ///                 .push_arg(true)
     ///                 .push_arg(&[0x10u8; 32]),
     ///         )
-    ///         .salt_bytes(Some([0xCA, 0xFE, 0xBA, 0xBE]))
+    ///         .salt_bytes(Some([0x13; 32]))
     ///         .returns::<OtherContractRef>()
     ///         .params();
     ///     self.env()
@@ -590,7 +590,7 @@ where
     /// pub fn invoke_contract_delegate(&self) -> i32 {
     ///     let call_params = build_call::<DefaultEnvironment>()
     ///         .call_type(DelegateCall::new(
-    ///             ink::H256::zero(),
+    ///             ink::H160::zero(),
     ///         ))
     ///         .exec_input(
     ///             ExecutionInput::new(Selector::new([0xCA, 0xFE, 0xBA, 0xBE]))

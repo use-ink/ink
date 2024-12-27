@@ -115,6 +115,7 @@ impl Environment for CustomEnvironment {
     type Hash = <ink::env::DefaultEnvironment as Environment>::Hash;
     type Timestamp = <ink::env::DefaultEnvironment as Environment>::Timestamp;
     type BlockNumber = <ink::env::DefaultEnvironment as Environment>::BlockNumber;
+    type EventRecord = <DefaultEnvironment as Environment>::EventRecord;
 
     type ChainExtension = crate::Psp22Extension;
 }

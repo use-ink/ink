@@ -25,7 +25,7 @@ pub mod delegator {
     pub struct Delegator {
         addresses: Mapping<H160, i32, ManualKey<0x23>>,
         counter: i32,
-        delegate_to: Lazy<H256>,
+        delegate_to: Lazy<H160>,
     }
 
     impl Delegator {

@@ -171,6 +171,7 @@ pub fn selector_bytes(input: TokenStream) -> TokenStream {
 ///         type Timestamp = u64;
 ///         type BlockNumber = u32;
 ///         type ChainExtension = ::ink::env::NoChainExtension;
+///         type EventRecord = ();
 ///     }
 ///     ```
 ///     A user might implement their ink! smart contract using the above custom
@@ -189,6 +190,7 @@ pub fn selector_bytes(input: TokenStream) -> TokenStream {
 ///         #     type Timestamp = u64;
 ///         #     type BlockNumber = u32;
 ///         #     type ChainExtension = ::ink::env::NoChainExtension;
+///         #     type EventRecord = ();
 ///         # }
 ///         #
 ///         # #[ink(storage)]
@@ -398,7 +400,7 @@ pub fn selector_bytes(input: TokenStream) -> TokenStream {
 /// For example it is possible to query the current call's caller via:
 /// ```
 /// # ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
-/// let caller = ink_env::caller::<ink_env::DefaultEnvironment>();
+/// let caller = ink_env::caller();
 /// # let _caller = caller;
 /// # Ok(())
 /// # }).unwrap();
@@ -445,23 +447,25 @@ pub fn selector_bytes(input: TokenStream) -> TokenStream {
 /// ```
 /// #[ink::contract]
 /// mod erc20 {
+///     use ink::{H160, U256};
+///
 ///     /// Defines an event that is emitted every time value is transferred.
 ///     #[ink(event)]
 ///     pub struct Transferred {
-///         from: Option<AccountId>,
-///         to: Option<AccountId>,
-///         value: Balance,
+///         from: Option<H160>,
+///         to: Option<H160>,
+///         value: U256,
 ///     }
 ///
 ///     #[ink(storage)]
 ///     pub struct Erc20 {
-///         total_supply: Balance,
+///         total_supply: U256,
 ///         // more fields...
 ///     }
 ///
 ///     impl Erc20 {
 ///         #[ink(constructor)]
-///         pub fn new(initial_supply: Balance) -> Self {
+///         pub fn new(initial_supply: U256) -> Self {
 ///             let caller = Self::env().caller();
 ///             Self::env().emit_event(Transferred {
 ///                 from: None,
@@ -474,7 +478,7 @@ pub fn selector_bytes(input: TokenStream) -> TokenStream {
 ///         }
 ///
 ///         #[ink(message)]
-///         pub fn total_supply(&self) -> Balance {
+///         pub fn total_supply(&self) -> U256 {
 ///             self.total_supply
 ///         }
 ///     }
@@ -538,18 +542,15 @@ pub fn contract(attr: TokenStream, item: TokenStream) -> TokenStream {
 /// # Trait definition:
 ///
 /// ```
-/// # type Balance = <ink_env::DefaultEnvironment as ink_env::Environment>::Balance;
-/// # type AccountId = <ink_env::DefaultEnvironment as ink_env::Environment>::AccountId;
-///
 /// #[ink::trait_definition]
 /// pub trait Erc20 {
 ///     /// Returns the total supply of the ERC-20 smart contract.
 ///     #[ink(message)]
-///     fn total_supply(&self) -> Balance;
+///     fn total_supply(&self) -> ink::U256;
 ///
 ///     /// Transfers balance from the caller to the given address.
 ///     #[ink(message)]
-///     fn transfer(&mut self, amount: Balance, to: ink::H160) -> bool;
+///     fn transfer(&mut self, amount: ink::U256, to: ink::H160) -> bool;
 ///
 ///     // etc.
 /// }
@@ -562,26 +563,27 @@ pub fn contract(attr: TokenStream, item: TokenStream) -> TokenStream {
 /// ```
 /// #[ink::contract]
 /// mod base_erc20 {
+///     use ink::{H160, U256};
 /// #    // We somehow cannot put the trait in the doc-test crate root due to bugs.
 /// #    #[ink::trait_definition]
 /// #    pub trait Erc20 {
 /// #       /// Returns the total supply of the ERC-20 smart contract.
 /// #       #[ink(message)]
-/// #       fn total_supply(&self) -> Balance;
+/// #       fn total_supply(&self) -> U256;
 /// #
 /// #       /// Transfers balance from the caller to the given address.
 /// #       #[ink(message)]
-/// #       fn transfer(&mut self, amount: Balance, to: H160) -> bool;
+/// #       fn transfer(&mut self, amount: U256, to: H160) -> bool;
 /// #    }
 /// #
 ///     #[ink(storage)]
 ///     pub struct BaseErc20 {
-///         total_supply: Balance,
+///         total_supply: U256,
 ///     }
 ///
 ///     impl BaseErc20 {
 ///         #[ink(constructor)]
-///         pub fn new(initial_supply: Balance) -> Self {
+///         pub fn new(initial_supply: U256) -> Self {
 ///             Self { total_supply: initial_supply }
 ///         }
 ///     }
@@ -589,12 +591,12 @@ pub fn contract(attr: TokenStream, item: TokenStream) -> TokenStream {
 ///     impl Erc20 for BaseErc20 {
 ///         /// Returns the total supply of the ERC-20 smart contract.
 ///         #[ink(message)]
-///         fn total_supply(&self) -> Balance {
+///         fn total_supply(&self) -> H256 {
 ///             self.total_supply
 ///         }
 ///
 ///         #[ink(message)]
-///         fn transfer(&mut self, amount: Balance, to: H160) -> bool {
+///         fn transfer(&mut self, amount: U256, to: H160) -> bool {
 ///             unimplemented!()
 ///         }
 ///     }
@@ -1180,6 +1182,7 @@ pub fn test(attr: TokenStream, item: TokenStream) -> TokenStream {
 ///     type Hash = <DefaultEnvironment as Environment>::Hash;
 ///     type BlockNumber = <DefaultEnvironment as Environment>::BlockNumber;
 ///     type Timestamp = <DefaultEnvironment as Environment>::Timestamp;
+///     type EventRecord = <DefaultEnvironment as Environment>::EventRecord;
 ///
 ///     type ChainExtension = RuntimeReadWrite;
 /// }
@@ -1321,6 +1324,7 @@ pub fn test(attr: TokenStream, item: TokenStream) -> TokenStream {
 /// #     type Hash = <ink_env::DefaultEnvironment as ink_env::Environment>::Hash;
 /// #     type BlockNumber = <ink_env::DefaultEnvironment as ink_env::Environment>::BlockNumber;
 /// #     type Timestamp = <ink_env::DefaultEnvironment as ink_env::Environment>::Timestamp;
+/// #     type EventRecord = <ink_env::DefaultEnvironment as ink_env::Environment>::EventRecord;
 /// #
 /// #     type ChainExtension = RuntimeReadWrite;
 /// # }

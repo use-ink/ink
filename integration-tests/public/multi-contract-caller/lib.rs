@@ -153,7 +153,7 @@ mod multi_contract_caller {
                 .code_hash;
 
             let mut constructor = MultiContractCallerRef::new(
-                123, // initial value
+                1234, // initial value
                 1337, // salt
                 accumulator_hash,
                 adder_hash,
