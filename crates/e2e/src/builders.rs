@@ -18,7 +18,6 @@ use ink_env::{
         utils::{
             ReturnType,
             Set,
-            Unset,
         },
         CreateBuilder,
         ExecutionInput,
@@ -34,7 +33,6 @@ pub type CreateBuilderPartial<E, ContractRef, Args, R> = CreateBuilder<
     E,
     ContractRef,
     Set<LimitParamsV2<E>>,
-    Unset<<E as Environment>::Balance>,
     Set<ExecutionInput<Args>>,
     Set<ReturnType<R>>,
 >;

@@ -427,8 +427,8 @@ impl TypedEnvBackend for EnvInstance {
             .expect("A contract being executed must have a valid address.")
     }
 
-    fn balance<E: Environment>(&mut self) -> E::Balance {
-        self.get_property_little_endian::<E::Balance>(ext::balance)
+    fn balance(&mut self) -> U256 {
+        self.get_property_little_endian(ext::balance)
     }
 
     fn block_number<E: Environment>(&mut self) -> E::BlockNumber {

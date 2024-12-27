@@ -129,12 +129,10 @@ pub fn address() -> H160
 /// # Errors
 ///
 /// If the returned value cannot be properly decoded.
-pub fn balance<E>() -> E::Balance
-where
-    E: Environment,
+pub fn balance() -> U256
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        TypedEnvBackend::balance::<E>(instance)
+        TypedEnvBackend::balance(instance)
     })
 }
 

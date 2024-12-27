@@ -408,8 +408,8 @@ impl TypedEnvBackend for EnvInstance {
             })
     }
 
-    fn balance<E: Environment>(&mut self) -> E::Balance {
-        self.get_property::<E::Balance>(Engine::balance)
+    fn balance(&mut self) -> U256 {
+        self.get_property::<U256>(Engine::balance)
             .unwrap_or_else(|error| {
                 panic!("could not read `balance` property: {error:?}")
             })

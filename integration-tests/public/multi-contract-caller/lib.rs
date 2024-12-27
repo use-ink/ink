@@ -57,20 +57,21 @@ mod multi_contract_caller {
             subber_code_hash: ink::H256,
         ) -> Self {
             let total_balance = Self::env().balance();
+            let one_fourth = total_balance.checked_div(4.into()).expect("div failed");
 
             let salt = salt_from_version(version);
             let accumulator = AccumulatorRef::new(init_value)
-                .endowment(total_balance / 4)
+                .endowment(one_fourth)
                 .code_hash(accumulator_code_hash)
                 .salt_bytes(salt)
                 .instantiate();
             let adder = AdderRef::new(accumulator.clone())
-                .endowment(total_balance / 4)
+                .endowment(one_fourth)
                 .code_hash(adder_code_hash)
                 .salt_bytes(salt)
                 .instantiate();
             let subber = SubberRef::new(accumulator.clone())
-                .endowment(total_balance / 4)
+                .endowment(one_fourth)
                 .code_hash(subber_code_hash)
                 .salt_bytes(salt)
                 .instantiate();
@@ -152,23 +153,26 @@ mod multi_contract_caller {
                 .code_hash;
 
             let mut constructor = MultiContractCallerRef::new(
-                1234, // initial value
+                123, // initial value
                 1337, // salt
                 accumulator_hash,
                 adder_hash,
                 subber_hash,
             );
 
+            eprintln!("--------BEFORE");
             let multi_contract_caller = client
                 .instantiate("multi_contract_caller", &ink_e2e::alice(), &mut constructor)
-                .value(10_000_000_000_000)
+                .value(100_000_000_000)
                 .submit()
                 .await
                 .expect("instantiate failed");
+            eprintln!("--------MID");
             let mut call_builder =
                 multi_contract_caller.call_builder::<MultiContractCaller>();
 
             // when
+            eprintln!("--------AFTER");
             let get = call_builder.get();
             let value = client
                 .call(&ink_e2e::bob(), &get)

@@ -314,8 +314,8 @@ where
     /// # Note
     ///
     /// For more details visit: [`ink_env::balance`]
-    pub fn balance(self) -> E::Balance {
-        ink_env::balance::<E>()
+    pub fn balance(self) -> U256 {
+        ink_env::balance()
     }
 
     /// Returns the current block number.

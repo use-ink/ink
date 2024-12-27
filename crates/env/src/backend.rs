@@ -265,7 +265,7 @@ pub trait TypedEnvBackend: EnvBackend {
     /// # Note
     ///
     /// For more details visit: [`balance`][`crate::balance`]
-    fn balance<E: Environment>(&mut self) -> E::Balance;
+    fn balance(&mut self) -> U256;
 
     /// Returns the current block number.
     ///

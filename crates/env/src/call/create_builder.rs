@@ -28,10 +28,7 @@ use crate::{
     Error,
 };
 use core::marker::PhantomData;
-use ink_primitives::{
-    H160,
-    H256,
-};
+use ink_primitives::{H160, H256, U256};
 
 pub mod state {
     //! Type states that tell what state of a instantiation argument has not
@@ -177,8 +174,6 @@ where
 /// Builds up contract instantiations.
 #[derive(Debug)]
 pub struct CreateParams<E, ContractRef, Limits, Args, R>
-where
-    E: Environment,
 {
     /// The code hash of the created contract.
     code_hash: H256,
@@ -187,7 +182,7 @@ where
     limits: Limits,
     /// The endowment for the instantiated contract.
     /// todo: is this correct? or is the value here `U256`?
-    endowment: E::Balance,
+    endowment: U256,
     /// The input data for the instantiation.
     exec_input: ExecutionInput<Args>,
     /// The salt for determining the hash for the contract account ID.
@@ -195,7 +190,7 @@ where
     /// The return type of the target contract's constructor method.
     _return_type: ReturnType<R>,
     /// The type of the reference to the contract returned from the constructor.
-    _phantom: PhantomData<fn() -> ContractRef>,
+    _phantom: PhantomData<fn() -> (E, ContractRef)>,
 }
 
 impl<E, ContractRef, Limits, Args, R>
@@ -211,7 +206,7 @@ where
 
     /// The endowment for the instantiated contract.
     #[inline]
-    pub fn endowment(&self) -> &E::Balance {
+    pub fn endowment(&self) -> &U256 {
         &self.endowment
     }
 
@@ -316,13 +311,13 @@ where
 
 /// Builds up contract instantiations.
 #[derive(Clone)]
-pub struct CreateBuilder<E, ContractRef, Limits, Endowment, Args,  RetType>
+pub struct CreateBuilder<E, ContractRef, Limits, Args,  RetType>
 where
     E: Environment,
 {
     code_hash: H256,
     limits: Limits,
-    endowment: Endowment,
+    endowment: U256,
     exec_input: Args,
     salt: Option<[u8; 32]>,
     return_type: RetType,
@@ -435,7 +430,6 @@ pub fn build_create<ContractRef>() -> CreateBuilder<
     <ContractRef as ContractEnv>::Env,
     ContractRef,
     Set<LimitParamsV2<<ContractRef as ContractEnv>::Env>>,
-    Unset<<<ContractRef as ContractEnv>::Env as Environment>::Balance>,
     Unset<ExecutionInput<EmptyArgumentList>>,
     Unset<ReturnType<()>>,
 >
@@ -457,8 +451,8 @@ where
     }
 }
 
-impl<E, ContractRef, Limits, Endowment, Args,  RetType>
-    CreateBuilder<E, ContractRef, Limits, Endowment, Args,  RetType>
+impl<E, ContractRef, Limits, Args,  RetType>
+    CreateBuilder<E, ContractRef, Limits, Args,  RetType>
 where
     E: Environment,
 {
@@ -467,7 +461,7 @@ where
     pub fn code_hash(
         self,
         code_hash: H256,
-    ) -> CreateBuilder<E, ContractRef, Limits, Endowment, Args,  RetType> {
+    ) -> CreateBuilder<E, ContractRef, Limits, Args,  RetType> {
         CreateBuilder {
             code_hash,
             limits: self.limits,
@@ -480,8 +474,8 @@ where
     }
 }
 
-impl<E, ContractRef, Endowment, Args,  RetType>
-    CreateBuilder<E, ContractRef, Set<LimitParamsV2<E>>, Endowment, Args,  RetType>
+impl<E, ContractRef, Args,  RetType>
+    CreateBuilder<E, ContractRef, Set<LimitParamsV2<E>>, Args,  RetType>
 where
     E: Environment,
 {
@@ -524,7 +518,7 @@ where
 }
 
 impl<E, ContractRef, Limits, Args,  RetType>
-    CreateBuilder<E, ContractRef, Limits, Unset<E::Balance>, Args,  RetType>
+    CreateBuilder<E, ContractRef, Limits, Args,  RetType>
 where
     E: Environment,
 {
@@ -532,12 +526,12 @@ where
     #[inline]
     pub fn endowment(
         self,
-        endowment: E::Balance,
-    ) -> CreateBuilder<E, ContractRef, Limits, Set<E::Balance>, Args,  RetType> {
+        endowment: U256,
+    ) -> CreateBuilder<E, ContractRef, Limits, Args,  RetType> {
         CreateBuilder {
             code_hash: self.code_hash,
             limits: self.limits,
-            endowment: Set(endowment),
+            endowment: endowment,
             exec_input: self.exec_input,
             salt: self.salt,
             return_type: self.return_type,
@@ -546,12 +540,11 @@ where
     }
 }
 
-impl<E, ContractRef, Limits, Endowment,  RetType>
+impl<E, ContractRef, Limits, RetType>
     CreateBuilder<
         E,
         ContractRef,
         Limits,
-        Endowment,
         Unset<ExecutionInput<EmptyArgumentList>>,
         RetType,
     >
@@ -567,7 +560,6 @@ where
         E,
         ContractRef,
         Limits,
-        Endowment,
         Set<ExecutionInput<Args>>,
         RetType,
     > {
@@ -583,8 +575,8 @@ where
     }
 }
 
-impl<E, ContractRef, Limits, Endowment, Args, RetType>
-    CreateBuilder<E, ContractRef, Limits, Endowment, Args, RetType>
+impl<E, ContractRef, Limits,  Args, RetType>
+    CreateBuilder<E, ContractRef, Limits,  Args, RetType>
 where
     E: Environment,
 {
@@ -593,7 +585,7 @@ where
     pub fn salt_bytes(
         self,
         salt: Option<[u8; 32]>,
-    ) -> CreateBuilder<E, ContractRef, Limits, Endowment, Args, RetType>
+    ) -> CreateBuilder<E, ContractRef, Limits,  Args, RetType>
     {
         CreateBuilder {
             code_hash: self.code_hash,
@@ -607,8 +599,8 @@ where
     }
 }
 
-impl<E, ContractRef, Limits, Endowment, Args>
-    CreateBuilder<E, ContractRef, Limits, Endowment, Args, Unset<ReturnType<()>>>
+impl<E, ContractRef, Limits,  Args>
+    CreateBuilder<E, ContractRef, Limits,  Args, Unset<ReturnType<()>>>
 where
     E: Environment,
 {
@@ -624,7 +616,7 @@ where
     #[inline]
     pub fn returns<R>(
         self,
-    ) -> CreateBuilder<E, ContractRef, Limits, Endowment, Args, Set<ReturnType<R>>>
+    ) -> CreateBuilder<E, ContractRef, Limits,  Args, Set<ReturnType<R>>>
     where
         ContractRef: FromAddr,
         R: ConstructorReturnType<ContractRef>,
@@ -646,7 +638,6 @@ impl<E, ContractRef, Limits, Args, RetType>
         E,
         ContractRef,
         Set<Limits>,
-        Set<E::Balance>,
         Set<ExecutionInput<Args>>,
         Set<ReturnType<RetType>>,
     >
@@ -659,7 +650,7 @@ where
         CreateParams {
             code_hash: self.code_hash,
             limits: self.limits.value(),
-            endowment: self.endowment.value(),
+            endowment: self.endowment,
             exec_input: self.exec_input.value(),
             salt_bytes: self.salt,
             _return_type: Default::default(),
@@ -673,7 +664,6 @@ impl<E, ContractRef, Args,  RetType>
         E,
         ContractRef,
         Set<LimitParamsV2<E>>,
-        Set<E::Balance>,
         Set<ExecutionInput<Args>>,
         Set<ReturnType<RetType>>,
     >
