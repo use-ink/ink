@@ -310,10 +310,12 @@ jobs:
 
       - name: Build for RISC-V
         if: ${{ matrix.type == 'RISCV' }}
+        env:
+            RUSTC_BOOTSTRAP: 1
         run: |
           for crate in ${ALSO_RISCV_CRATES}; do
-            echo "---------" ${crate};
             cargo build --no-default-features --release
+              -Zbuild-std="core,alloc" \
               --target RISCV_TARGET \
               --manifest-path ./crates/${crate}/Cargo.toml;
           done
@@ -536,7 +538,7 @@ jobs:
         run: |
           # run the static buffer test with a custom buffer size
           cargo clean --manifest-path integration-tests/public/static-buffer/Cargo.toml
-          INK_STATIC_BUFFER_SIZE=30 cargo test --manifest-path integration-tests/public/static-buffer/Cargo.toml --all-features
+          INK_STATIC_BUFFER_SIZE=30 cargo +nightly test --manifest-path integration-tests/public/static-buffer/Cargo.toml --all-features
 
       - name: Run E2E test with on-chain contract
         env:
@@ -545,7 +547,7 @@ jobs:
         run: |
           # run flipper E2E test with on-chain contract
           substrate-contracts-node -lruntime::contracts=debug 2>&1 &
-          cargo +nightly contract build --release --manifest-path integration-tests/public/flipper/Cargo.toml
+          cargo contract build --release --manifest-path integration-tests/public/flipper/Cargo.toml
           export CONTRACT_ADDR_HEX=$(cargo contract instantiate \
             --manifest-path integration-tests/public/flipper/Cargo.toml \
             --suri //Alice --args true -x -y --output-json | \
