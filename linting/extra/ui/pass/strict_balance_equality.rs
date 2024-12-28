@@ -23,10 +23,10 @@ pub mod strict_balance_equality {
         }
         fn get_balance_3(&self) -> U256 {
             let tmp = self.env().balance();
-            tmp + 42
+            tmp + U256::from(42)
         }
         fn get_balance_recursive(&self, acc: &U256) -> U256 {
-            if acc < U256::from(10) {
+            if acc < &U256::from(10) {
                 self.get_balance_recursive(&(acc + 1))
             } else {
                 self.env().balance()
@@ -66,25 +66,28 @@ pub mod strict_balance_equality {
             if self.get_balance_1() < 10.into() { /* ... */ }
             if self.get_balance_2() > 10.into() { /* ... */ }
             if self.get_balance_3() >= U256::from(10) { /* ... */ }
-            if self.get_balance_recursive(&10) <= U256::from(10) { /* ... */ }
+            if self.get_balance_recursive(&10.into()) <= U256::from(10) { /* ... */ }
 
             // Good: Non-strict equality in function call: return value contains the
             // result of comparison
-            if self.cmp_balance_1(&10) { /* ... */ }
+            if self.cmp_balance_1(&10.into()) { /* ... */ }
             if self.cmp_balance_2(&self.env().balance(), &threshold) { /* ... */ }
             if self.cmp_balance_3(self.env().balance(), threshold) { /* ... */ }
 
             // Good: Non-strict equality in function: tainted arguments
-            let mut res_1 = 0_u128;
+            let mut res_1 = U256::zero();
             self.get_balance_arg_1(&mut res_1);
-            if res_1 < 10 { /* ... */ }
-            let mut res_2 = 0_u128;
+            if res_1 < U256::from(10) { /* ... */ }
+            let mut res_2 = U256::from(0);
             self.get_balance_arg_indirect(&mut res_2);
-            if res_2 > 10 { /* ... */ }
+            if res_2 > 10.into() { /* ... */ }
 
             // Good: warning is suppressed
             #[cfg_attr(dylint_lib = "ink_linting", allow(strict_balance_equality))]
-            if self.env().balance() == 10 { /* ... */ }
+            if self.env().balance() == 10.into() { /* ... */ }
+
+            #[cfg_attr(dylint_lib = "ink_linting", allow(strict_balance_equality))]
+            if self.env().balance() == U256::from(10) { /* ... */ }
         }
     }
 }

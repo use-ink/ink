@@ -59,28 +59,28 @@ pub mod strict_balance_equality {
 
             // Bad: Strict equality with balance
             if self.env().balance() == U256::from(10) { /* ... */ }
-            if value == 11 { /* ... */ }
+            if value == 11.into() { /* ... */ }
             if self.env().balance() == threshold { /* ... */ }
 
             // Bad: Strict equality in function call: return value
             if self.get_balance_1() == 10.into() { /* ... */ }
-            if self.get_balance_2() == 10 { /* ... */ }
-            if self.get_balance_3() == 10 { /* ... */ }
-            if self.get_balance_recursive(&10) == 10 { /* ... */ }
+            if self.get_balance_2() == U256::from(10) { /* ... */ }
+            if self.get_balance_3() == U256::from(10) { /* ... */ }
+            if self.get_balance_recursive(&10.into()) == 10.into() { /* ... */ }
 
             // Bad: Strict equality in function call: return value contains the result of
             // comparison
-            if self.cmp_balance_1(&10) { /* ... */ }
+            if self.cmp_balance_1(&U256::from(10)) { /* ... */ }
             if self.cmp_balance_2(&self.env().balance(), &threshold) { /* ... */ }
             if self.cmp_balance_3(self.env().balance(), threshold) { /* ... */ }
 
             // Bad: Strict equality in function: tainted arguments
-            let mut res_1 = 0_u128;
+            let mut res_1 = U256::zero();
             self.get_balance_arg_1(&mut res_1);
-            if res_1 == 10 { /* ... */ }
-            let mut res_2 = 0_u128;
+            if res_1 == U256::from(10) { /* ... */ }
+            let mut res_2 = U256::from(0);
             self.get_balance_arg_indirect(&mut res_2);
-            if res_2 == 10 { /* ... */ }
+            if res_2 == 10.into() { /* ... */ }
         }
     }
 }
