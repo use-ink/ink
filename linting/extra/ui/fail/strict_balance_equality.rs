@@ -2,29 +2,31 @@
 
 #[ink::contract]
 pub mod strict_balance_equality {
-    #[ink(storage)]
-    pub struct StrictBalanceEquality {}
+    use ink::U256;
 
-    impl StrictBalanceEquality {
+    #[ink(storage)]
+    pub struct StrictU256Equality {}
+
+    impl StrictU256Equality {
         #[ink(constructor)]
         pub fn new() -> Self {
             Self {}
         }
 
         // Return value tainted with balance
-        fn get_balance_1(&self) -> Balance {
+        fn get_balance_1(&self) -> U256 {
             self.env().balance()
         }
-        fn get_balance_2(&self) -> Balance {
+        fn get_balance_2(&self) -> U256 {
             let tmp = self.env().balance();
             tmp
         }
-        fn get_balance_3(&self) -> Balance {
+        fn get_balance_3(&self) -> U256 {
             let tmp = self.env().balance();
             tmp + 42
         }
-        fn get_balance_recursive(&self, acc: &Balance) -> Balance {
-            if acc < &10_u128 {
+        fn get_balance_recursive(&self, acc: &U256) -> U256 {
+            if acc < &U256::from(10) {
                 self.get_balance_recursive(&(acc + 1))
             } else {
                 self.env().balance()
@@ -32,36 +34,36 @@ pub mod strict_balance_equality {
         }
 
         // Return the result of comparison with balance
-        fn cmp_balance_1(&self, value: &Balance) -> bool {
+        fn cmp_balance_1(&self, value: &U256) -> bool {
             *value == self.env().balance()
         }
-        fn cmp_balance_2(&self, value: &Balance, threshold: &Balance) -> bool {
+        fn cmp_balance_2(&self, value: &U256, threshold: &U256) -> bool {
             value != threshold
         }
-        fn cmp_balance_3(&self, value: Balance, threshold: Balance) -> bool {
+        fn cmp_balance_3(&self, value: U256, threshold: U256) -> bool {
             value != threshold
         }
 
         // Tainted `&mut` input argument
-        fn get_balance_arg_1(&self, value: &mut Balance) {
+        fn get_balance_arg_1(&self, value: &mut U256) {
             *value = self.env().balance();
         }
-        fn get_balance_arg_indirect(&self, value: &mut Balance) {
+        fn get_balance_arg_indirect(&self, value: &mut U256) {
             self.get_balance_arg_1(value)
         }
 
         #[ink(message)]
         pub fn do_nothing(&mut self) {
-            let threshold: Balance = 100;
-            let value: Balance = self.env().balance();
+            let threshold = U256::from(100);
+            let value: U256 = self.env().balance();
 
             // Bad: Strict equality with balance
-            if self.env().balance() == 10 { /* ... */ }
+            if self.env().balance() == U256::from(10) { /* ... */ }
             if value == 11 { /* ... */ }
             if self.env().balance() == threshold { /* ... */ }
 
             // Bad: Strict equality in function call: return value
-            if self.get_balance_1() == 10 { /* ... */ }
+            if self.get_balance_1() == 10.into() { /* ... */ }
             if self.get_balance_2() == 10 { /* ... */ }
             if self.get_balance_3() == 10 { /* ... */ }
             if self.get_balance_recursive(&10) == 10 { /* ... */ }

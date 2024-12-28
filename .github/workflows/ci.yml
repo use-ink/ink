@@ -312,6 +312,7 @@ jobs:
         if: ${{ matrix.type == 'RISCV' }}
         run: |
           for crate in ${ALSO_RISCV_CRATES}; do
+            echo "---------" ${crate};
             cargo build --no-default-features --release
               --target RISCV_TARGET \
               --manifest-path ./crates/${crate}/Cargo.toml;
@@ -544,7 +545,7 @@ jobs:
         run: |
           # run flipper E2E test with on-chain contract
           substrate-contracts-node -lruntime::contracts=debug 2>&1 &
-          cargo contract build --release --manifest-path integration-tests/public/flipper/Cargo.toml
+          cargo +nightly contract build --release --manifest-path integration-tests/public/flipper/Cargo.toml
           export CONTRACT_ADDR_HEX=$(cargo contract instantiate \
             --manifest-path integration-tests/public/flipper/Cargo.toml \
             --suri //Alice --args true -x -y --output-json | \
