@@ -7,8 +7,8 @@ publish = false
 
 [dependencies]
 ink = { path = "../../../crates/ink", default-features = false }
-frame-support = { git = "https://github.com/paritytech/polkadot-sdk", rev = "cbeb66fbf4c7a950ed90a979373bbcca412dc63c", default-features = false }
-pallet-balances = { git = "https://github.com/paritytech/polkadot-sdk", rev = "cbeb66fbf4c7a950ed90a979373bbcca412dc63c", default-features = false }
+frame-support = { git = "https://github.com/paritytech/polkadot-sdk", rev = "b7afe48ed0bfef30836e7ca6359c2d8bb594d16e", default-features = false }
+pallet-balances = { git = "https://github.com/paritytech/polkadot-sdk", rev = "b7afe48ed0bfef30836e7ca6359c2d8bb594d16e", default-features = false }
 
 [dev-dependencies]
 ink_e2e = { path = "../../../crates/e2e", features = ["sandbox"] }

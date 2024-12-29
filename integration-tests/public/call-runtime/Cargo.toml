@@ -14,8 +14,8 @@ ink = { path = "../../../crates/ink", default-features = false }
 # (especially for global allocator).
 #
 # See also: https://substrate.stackexchange.com/questions/4733/error-when-compiling-a-contract-using-the-xcm-chain-extension.
-sp-io = { git = "https://github.com/paritytech/polkadot-sdk", rev = "cbeb66fbf4c7a950ed90a979373bbcca412dc63c", default-features = false, features = ["disable_panic_handler", "disable_oom", "disable_allocator"] }
-sp-runtime = { git = "https://github.com/paritytech/polkadot-sdk", rev = "cbeb66fbf4c7a950ed90a979373bbcca412dc63c", default-features = false }
+sp-io = { git = "https://github.com/paritytech/polkadot-sdk", rev = "b7afe48ed0bfef30836e7ca6359c2d8bb594d16e", default-features = false, features = ["disable_panic_handler", "disable_oom", "disable_allocator"] }
+sp-runtime = { git = "https://github.com/paritytech/polkadot-sdk", rev = "b7afe48ed0bfef30836e7ca6359c2d8bb594d16e", default-features = false }
 
 [dev-dependencies]
 ink_e2e = { path = "../../../crates/e2e" }
