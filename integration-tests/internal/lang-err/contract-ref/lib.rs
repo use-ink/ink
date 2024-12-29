@@ -68,7 +68,7 @@ mod contract_ref {
     fn salt_from_version(version: u32) -> Option<[u8; 32]> {
         let version: [u8; 4] = version.to_le_bytes();
         let mut salt: [u8; 32] = [0u8; 32];
-        salt.copy_from_slice(&version);
+        salt[..4].copy_from_slice(&version);
         Some(salt)
     }
 
