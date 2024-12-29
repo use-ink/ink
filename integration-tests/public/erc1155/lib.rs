@@ -1,8 +1,8 @@
 #![cfg_attr(not(feature = "std"), no_std, no_main)]
 
 use ink::{
+    H160, U256,
     prelude::vec::Vec,
-    primitives::AccountId,
 };
 
 // This is the return value that we expect if a smart contract supports receiving ERC-1155
@@ -25,8 +25,6 @@ const _ON_ERC_1155_BATCH_RECEIVED_SELECTOR: [u8; 4] = [0xBC, 0x19, 0x7C, 0x81];
 /// A type representing the unique IDs of tokens managed by this contract.
 pub type TokenId = u128;
 
-type Balance = <ink::env::DefaultEnvironment as ink::env::Environment>::Balance;
-
 // The ERC-1155 error types.
 #[derive(Debug, PartialEq, Eq)]
 #[ink::scale_derive(Encode, Decode, TypeInfo)]
@@ -38,7 +36,7 @@ pub enum Error {
     /// The caller is not approved to transfer tokens on behalf of the account.
     NotApproved,
     /// The account does not have enough funds to complete the transfer.
-    InsufficientBalance,
+    InsufficientU256,
     /// An account does not need to approve themselves to transfer tokens.
     SelfApproval,
     /// The number of tokens being transferred does not match the specified number of
@@ -79,10 +77,10 @@ pub trait Erc1155 {
     #[ink(message)]
     fn safe_transfer_from(
         &mut self,
-        from: AccountId,
-        to: AccountId,
+        from: H160,
+        to: H160,
         token_id: TokenId,
-        value: Balance,
+        value: U256,
         data: Vec<u8>,
     ) -> Result<()>;
 
@@ -97,16 +95,16 @@ pub trait Erc1155 {
     #[ink(message)]
     fn safe_batch_transfer_from(
         &mut self,
-        from: AccountId,
-        to: AccountId,
+        from: H160,
+        to: H160,
         token_ids: Vec<TokenId>,
-        values: Vec<Balance>,
+        values: Vec<U256>,
         data: Vec<u8>,
     ) -> Result<()>;
 
     /// Query the balance of a specific token for the provided account.
     #[ink(message)]
-    fn balance_of(&self, owner: AccountId, token_id: TokenId) -> Balance;
+    fn balance_of(&self, owner: H160, token_id: TokenId) -> U256;
 
     /// Query the balances for a set of tokens for a set of accounts.
     ///
@@ -116,24 +114,24 @@ pub trait Erc1155 {
     /// This will return all the balances for a given owner before moving on to the next
     /// owner. In the example above this means that the return value should look like:
     ///
-    /// [Alice Balance of Token ID 1, Alice Balance of Token ID 2, Bob Balance of Token ID
-    /// 1, Bob Balance of Token ID 2]
+    /// [Alice U256 of Token ID 1, Alice U256 of Token ID 2, Bob U256 of Token ID
+    /// 1, Bob U256 of Token ID 2]
     #[ink(message)]
     fn balance_of_batch(
         &self,
-        owners: Vec<AccountId>,
+        owners: Vec<H160>,
         token_ids: Vec<TokenId>,
-    ) -> Vec<Balance>;
+    ) -> Vec<U256>;
 
     /// Enable or disable a third party, known as an `operator`, to control all tokens on
     /// behalf of the caller.
     #[ink(message)]
-    fn set_approval_for_all(&mut self, operator: AccountId, approved: bool)
+    fn set_approval_for_all(&mut self, operator: H160, approved: bool)
         -> Result<()>;
 
     /// Query if the given `operator` is allowed to control all of `owner`'s tokens.
     #[ink(message)]
-    fn is_approved_for_all(&self, owner: AccountId, operator: AccountId) -> bool;
+    fn is_approved_for_all(&self, owner: H160, operator: H160) -> bool;
 }
 
 /// The interface for an ERC-1155 Token Receiver contract.
@@ -160,10 +158,10 @@ pub trait Erc1155TokenReceiver {
     #[ink(message, selector = 0xF23A6E61)]
     fn on_received(
         &mut self,
-        operator: AccountId,
-        from: AccountId,
+        operator: H160,
+        from: H160,
         token_id: TokenId,
-        value: Balance,
+        value: U256,
         data: Vec<u8>,
     ) -> Vec<u8>;
 
@@ -181,10 +179,10 @@ pub trait Erc1155TokenReceiver {
     #[ink(message, selector = 0xBC197C81)]
     fn on_batch_received(
         &mut self,
-        operator: AccountId,
-        from: AccountId,
+        operator: H160,
+        from: H160,
         token_ids: Vec<TokenId>,
-        values: Vec<Balance>,
+        values: Vec<U256>,
         data: Vec<u8>,
     ) -> Vec<u8>;
 }
@@ -194,9 +192,10 @@ mod erc1155 {
     use super::*;
 
     use ink::storage::Mapping;
+    use ink::{H160, U256};
 
-    type Owner = AccountId;
-    type Operator = AccountId;
+    type Owner = H160;
+    type Operator = H160;
 
     /// Indicate that a token transfer has occured.
     ///
@@ -204,22 +203,22 @@ mod erc1155 {
     #[ink(event)]
     pub struct TransferSingle {
         #[ink(topic)]
-        operator: Option<AccountId>,
+        operator: Option<H160>,
         #[ink(topic)]
-        from: Option<AccountId>,
+        from: Option<H160>,
         #[ink(topic)]
-        to: Option<AccountId>,
+        to: Option<H160>,
         token_id: TokenId,
-        value: Balance,
+        value: U256,
     }
 
     /// Indicate that an approval event has happened.
     #[ink(event)]
     pub struct ApprovalForAll {
         #[ink(topic)]
-        owner: AccountId,
+        owner: H160,
         #[ink(topic)]
-        operator: AccountId,
+        operator: H160,
         approved: bool,
     }
 
@@ -237,7 +236,7 @@ mod erc1155 {
     pub struct Contract {
         /// Tracks the balances of accounts across the different tokens that they might
         /// be holding.
-        balances: Mapping<(AccountId, TokenId), Balance>,
+        balances: Mapping<(H160, TokenId), U256>,
         /// Which accounts (called operators) have been approved to spend funds on behalf
         /// of an owner.
         approvals: Mapping<(Owner, Operator), ()>,
@@ -262,7 +261,7 @@ mod erc1155 {
         /// this contract in a production environment you'd probably want to lock down
         /// the addresses that are allowed to create tokens.
         #[ink(message)]
-        pub fn create(&mut self, value: Balance) -> TokenId {
+        pub fn create(&mut self, value: U256) -> TokenId {
             let caller = self.env().caller();
 
             // Given that TokenId is a `u128` the likelihood of this overflowing is pretty
@@ -277,7 +276,7 @@ mod erc1155 {
             self.env().emit_event(TransferSingle {
                 operator: Some(caller),
                 from: None,
-                to: if value == 0 { None } else { Some(caller) },
+                to: if value == U256::zero() { None } else { Some(caller) },
                 token_id: self.token_id_nonce,
                 value,
             });
@@ -294,7 +293,7 @@ mod erc1155 {
         /// this contract in a production environment you'd probably want to lock down
         /// the addresses that are allowed to mint tokens.
         #[ink(message)]
-        pub fn mint(&mut self, token_id: TokenId, value: Balance) -> Result<()> {
+        pub fn mint(&mut self, token_id: TokenId, value: U256) -> Result<()> {
             ensure!(token_id <= self.token_id_nonce, Error::UnexistentToken);
 
             let caller = self.env().caller();
@@ -323,10 +322,10 @@ mod erc1155 {
         // If `from` does not hold any `token_id` tokens.
         fn perform_transfer(
             &mut self,
-            from: AccountId,
-            to: AccountId,
+            from: H160,
+            to: H160,
             token_id: TokenId,
-            value: Balance,
+            value: U256,
         ) {
             let mut sender_balance = self
                 .balances
@@ -339,7 +338,7 @@ mod erc1155 {
             }
             self.balances.insert((from, token_id), &sender_balance);
 
-            let mut recipient_balance = self.balances.get((to, token_id)).unwrap_or(0);
+            let mut recipient_balance = self.balances.get((to, token_id)).unwrap_or(U256::zero());
             recipient_balance = recipient_balance.checked_add(value).unwrap();
             self.balances.insert((to, token_id), &recipient_balance);
 
@@ -362,11 +361,11 @@ mod erc1155 {
         #[cfg_attr(test, allow(unused_variables))]
         fn transfer_acceptance_check(
             &mut self,
-            caller: AccountId,
-            from: AccountId,
-            to: AccountId,
+            caller: H160,
+            from: H160,
+            to: H160,
             token_id: TokenId,
-            value: Balance,
+            value: U256,
             data: Vec<u8>,
         ) {
             // This is disabled during tests due to the use of `invoke_contract()` not
@@ -417,8 +416,10 @@ mod erc1155 {
 
                         match e {
                             ink::env::Error::ReturnError(
-                                ReturnErrorCode::CodeNotFound
-                                | ReturnErrorCode::NotCallable,
+                                ReturnErrorCode::Unknown
+                                // todo: these error codes don't exist in uapi yet, fallback
+                                // is `Unknown`
+                                // ReturnErrorCode::CodeNotFound | ReturnErrorCode::NotCallable,
                             ) => {
                                 // Our recipient wasn't a smart contract, so there's
                                 // nothing more for
@@ -444,10 +445,10 @@ mod erc1155 {
         #[ink(message)]
         fn safe_transfer_from(
             &mut self,
-            from: AccountId,
-            to: AccountId,
+            from: H160,
+            to: H160,
             token_id: TokenId,
-            value: Balance,
+            value: U256,
             data: Vec<u8>,
         ) -> Result<()> {
             let caller = self.env().caller();
@@ -458,7 +459,7 @@ mod erc1155 {
             ensure!(to != zero_address(), Error::ZeroAddressTransfer);
 
             let balance = self.balance_of(from, token_id);
-            ensure!(balance >= value, Error::InsufficientBalance);
+            ensure!(balance >= value, Error::InsufficientU256);
 
             self.perform_transfer(from, to, token_id, value);
             self.transfer_acceptance_check(caller, from, to, token_id, value, data);
@@ -469,10 +470,10 @@ mod erc1155 {
         #[ink(message)]
         fn safe_batch_transfer_from(
             &mut self,
-            from: AccountId,
-            to: AccountId,
+            from: H160,
+            to: H160,
             token_ids: Vec<TokenId>,
-            values: Vec<Balance>,
+            values: Vec<U256>,
             data: Vec<u8>,
         ) -> Result<()> {
             let caller = self.env().caller();
@@ -490,14 +491,14 @@ mod erc1155 {
             let transfers = token_ids.iter().zip(values.iter());
             for (&id, &v) in transfers.clone() {
                 let balance = self.balance_of(from, id);
-                ensure!(balance >= v, Error::InsufficientBalance);
+                ensure!(balance >= v, Error::InsufficientU256);
             }
 
             for (&id, &v) in transfers {
                 self.perform_transfer(from, to, id, v);
             }
 
-            // Can use the any token ID/value here, we really just care about knowing if
+            // Can use any token ID/value here, we really just care about knowing if
             // `to` is a smart contract which accepts transfers
             self.transfer_acceptance_check(
                 caller,
@@ -512,16 +513,16 @@ mod erc1155 {
         }
 
         #[ink(message)]
-        fn balance_of(&self, owner: AccountId, token_id: TokenId) -> Balance {
-            self.balances.get((owner, token_id)).unwrap_or(0)
+        fn balance_of(&self, owner: H160, token_id: TokenId) -> U256 {
+            self.balances.get((owner, token_id)).unwrap_or(0.into())
         }
 
         #[ink(message)]
         fn balance_of_batch(
             &self,
-            owners: Vec<AccountId>,
+            owners: Vec<H160>,
             token_ids: Vec<TokenId>,
-        ) -> Vec<Balance> {
+        ) -> Vec<U256> {
             let mut output = Vec::new();
             for o in &owners {
                 for t in &token_ids {
@@ -535,7 +536,7 @@ mod erc1155 {
         #[ink(message)]
         fn set_approval_for_all(
             &mut self,
-            operator: AccountId,
+            operator: H160,
             approved: bool,
         ) -> Result<()> {
             let caller = self.env().caller();
@@ -557,7 +558,7 @@ mod erc1155 {
         }
 
         #[ink(message)]
-        fn is_approved_for_all(&self, owner: AccountId, operator: AccountId) -> bool {
+        fn is_approved_for_all(&self, owner: H160, operator: H160) -> bool {
             self.approvals.contains((&owner, &operator))
         }
     }
@@ -566,10 +567,10 @@ mod erc1155 {
         #[ink(message, selector = 0xF23A6E61)]
         fn on_received(
             &mut self,
-            _operator: AccountId,
-            _from: AccountId,
+            _operator: H160,
+            _from: H160,
             _token_id: TokenId,
-            _value: Balance,
+            _value: U256,
             _data: Vec<u8>,
         ) -> Vec<u8> {
             // The ERC-1155 standard dictates that if a contract does not accept token
@@ -589,10 +590,10 @@ mod erc1155 {
         #[ink(message, selector = 0xBC197C81)]
         fn on_batch_received(
             &mut self,
-            _operator: AccountId,
-            _from: AccountId,
+            _operator: H160,
+            _from: H160,
             _token_ids: Vec<TokenId>,
-            _values: Vec<Balance>,
+            _values: Vec<U256>,
             _data: Vec<u8>,
         ) -> Vec<u8> {
             // The ERC-1155 standard dictates that if a contract does not accept token
@@ -613,8 +614,8 @@ mod erc1155 {
     /// Helper for referencing the zero address (`0x00`). Note that in practice this
     /// address should not be treated in any special way (such as a default
     /// placeholder) since it has a known private key.
-    fn zero_address() -> AccountId {
-        [0u8; 32].into()
+    fn zero_address() -> H160 {
+        [0u8; 20].into()
     }
 
     #[cfg(test)]
@@ -623,31 +624,32 @@ mod erc1155 {
         use super::*;
         use crate::Erc1155;
 
-        fn set_sender(sender: AccountId) {
+        fn set_sender(sender: H160) {
             ink::env::test::set_caller(sender);
         }
 
-        fn default_accounts() -> ink::env::test::DefaultAccounts<Environment> {
-            ink::env::test::default_accounts::<Environment>()
+        fn default_accounts() -> ink::env::test::DefaultAccounts {
+            ink::env::test::default_accounts()
         }
 
-        fn alice() -> AccountId {
+        fn alice() -> H160 {
             default_accounts().alice
         }
 
-        fn bob() -> AccountId {
+        fn bob() -> H160 {
             default_accounts().bob
         }
 
-        fn charlie() -> AccountId {
+        fn charlie() -> H160 {
             default_accounts().charlie
         }
 
         fn init_contract() -> Contract {
+            set_sender(alice());
             let mut erc = Contract::new();
-            erc.balances.insert((alice(), 1), &10);
-            erc.balances.insert((alice(), 2), &20);
-            erc.balances.insert((bob(), 1), &10);
+            erc.balances.insert((alice(), 1), &U256::from(10));
+            erc.balances.insert((alice(), 2), &U256::from(20));
+            erc.balances.insert((bob(), 1), &U256::from(10));
 
             erc
         }
@@ -656,10 +658,10 @@ mod erc1155 {
         fn can_get_correct_balance_of() {
             let erc = init_contract();
 
-            assert_eq!(erc.balance_of(alice(), 1), 10);
-            assert_eq!(erc.balance_of(alice(), 2), 20);
-            assert_eq!(erc.balance_of(alice(), 3), 0);
-            assert_eq!(erc.balance_of(bob(), 2), 0);
+            assert_eq!(erc.balance_of(alice(), 1), U256::from(10));
+            assert_eq!(erc.balance_of(alice(), 2), U256::from(20));
+            assert_eq!(erc.balance_of(alice(), 3), U256::zero());
+            assert_eq!(erc.balance_of(bob(), 2), U256::zero());
         }
 
         #[ink::test]
@@ -668,16 +670,16 @@ mod erc1155 {
 
             assert_eq!(
                 erc.balance_of_batch(vec![alice()], vec![1, 2, 3]),
-                vec![10, 20, 0]
+                vec![U256::from(10), 20.into(), 0.into()]
             );
             assert_eq!(
                 erc.balance_of_batch(vec![alice(), bob()], vec![1]),
-                vec![10, 10]
+                vec![U256::from(10), 10.into()]
             );
 
             assert_eq!(
                 erc.balance_of_batch(vec![alice(), bob(), charlie()], vec![1, 2]),
-                vec![10, 20, 10, 0, 0, 0]
+                vec![U256::from(10), 20.into(), 10.into(), 0.into(), 0.into(), 0.into()]
             );
         }
 
@@ -685,28 +687,28 @@ mod erc1155 {
         fn can_send_tokens_between_accounts() {
             let mut erc = init_contract();
 
-            assert!(erc.safe_transfer_from(alice(), bob(), 1, 5, vec![]).is_ok());
-            assert_eq!(erc.balance_of(alice(), 1), 5);
-            assert_eq!(erc.balance_of(bob(), 1), 15);
+            assert!(erc.safe_transfer_from(alice(), bob(), 1, 5.into(), vec![]).is_ok());
+            assert_eq!(erc.balance_of(alice(), 1), U256::from(5));
+            assert_eq!(erc.balance_of(bob(), 1), U256::from(15));
 
-            assert!(erc.safe_transfer_from(alice(), bob(), 2, 5, vec![]).is_ok());
-            assert_eq!(erc.balance_of(alice(), 2), 15);
-            assert_eq!(erc.balance_of(bob(), 2), 5);
+            assert!(erc.safe_transfer_from(alice(), bob(), 2, 5.into(), vec![]).is_ok());
+            assert_eq!(erc.balance_of(alice(), 2), U256::from(15));
+            assert_eq!(erc.balance_of(bob(), 2), U256::from(5));
         }
 
         #[ink::test]
         fn sending_too_many_tokens_fails() {
             let mut erc = init_contract();
-            let res = erc.safe_transfer_from(alice(), bob(), 1, 99, vec![]);
-            assert_eq!(res.unwrap_err(), Error::InsufficientBalance);
+            let res = erc.safe_transfer_from(alice(), bob(), 1, 99.into(), vec![]);
+            assert_eq!(res.unwrap_err(), Error::InsufficientU256);
         }
 
         #[ink::test]
         fn sending_tokens_to_zero_address_fails() {
-            let burn: AccountId = [0; 32].into();
+            let burn: H160 = [0; 20].into();
 
             let mut erc = init_contract();
-            let res = erc.safe_transfer_from(alice(), burn, 1, 10, vec![]);
+            let res = erc.safe_transfer_from(alice(), burn, 1, 10.into(), vec![]);
             assert_eq!(res.unwrap_err(), Error::ZeroAddressTransfer);
         }
 
@@ -714,11 +716,11 @@ mod erc1155 {
         fn can_send_batch_tokens() {
             let mut erc = init_contract();
             assert!(erc
-                .safe_batch_transfer_from(alice(), bob(), vec![1, 2], vec![5, 10], vec![])
+                .safe_batch_transfer_from(alice(), bob(), vec![1, 2], vec![U256::from(5), U256::from(10)], vec![])
                 .is_ok());
 
             let balances = erc.balance_of_batch(vec![alice(), bob()], vec![1, 2]);
-            assert_eq!(balances, vec![5, 10, 15, 10])
+            assert_eq!(balances, vec![U256::from(5), 10.into(), 15.into(), 10.into()]);
         }
 
         #[ink::test]
@@ -728,7 +730,7 @@ mod erc1155 {
                 alice(),
                 bob(),
                 vec![1, 2, 3],
-                vec![5],
+                vec![U256::from(5)],
                 vec![],
             );
             assert_eq!(res.unwrap_err(), Error::BatchTransferMismatch);
@@ -754,10 +756,10 @@ mod erc1155 {
 
             set_sender(operator);
             assert!(erc
-                .safe_transfer_from(owner, charlie(), 1, 5, vec![])
+                .safe_transfer_from(owner, charlie(), 1, 5.into(), vec![])
                 .is_ok());
-            assert_eq!(erc.balance_of(alice(), 1), 5);
-            assert_eq!(erc.balance_of(charlie(), 1), 5);
+            assert_eq!(erc.balance_of(alice(), 1), U256::from(5));
+            assert_eq!(erc.balance_of(charlie(), 1), U256::from(5));
         }
 
         #[ink::test]
@@ -787,18 +789,18 @@ mod erc1155 {
             let mut erc = Contract::new();
 
             set_sender(alice());
-            assert_eq!(erc.create(0), 1);
-            assert_eq!(erc.balance_of(alice(), 1), 0);
+            assert_eq!(erc.create(0.into()), 1);
+            assert_eq!(erc.balance_of(alice(), 1), U256::zero());
 
-            assert!(erc.mint(1, 123).is_ok());
-            assert_eq!(erc.balance_of(alice(), 1), 123);
+            assert!(erc.mint(1, 123.into()).is_ok());
+            assert_eq!(erc.balance_of(alice(), 1), U256::from(123));
         }
 
         #[ink::test]
         fn minting_not_allowed_for_nonexistent_tokens() {
             let mut erc = Contract::new();
 
-            let res = erc.mint(1, 123);
+            let res = erc.mint(1, 123.into());
             assert_eq!(res.unwrap_err(), Error::UnexistentToken);
         }
     }

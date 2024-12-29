@@ -689,6 +689,7 @@ where
 ///
 /// # Errors
 ///
+/// todo: this enum variant no longer exists
 /// `ReturnCode::CodeNotFound` in case the supplied `code_hash` cannot be found on-chain.
 ///
 /// # Storage Compatibility
