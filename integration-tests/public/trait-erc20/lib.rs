@@ -158,7 +158,6 @@ mod erc20 {
         #[ink(message)]
         fn approve(&mut self, spender: H160, value: U256) -> Result<()> {
             let owner = self.env().caller();
-            eprintln!("owner {:?}", owner);
             self.allowances.insert((&owner, &spender), &value);
             self.env().emit_event(Approval {
                 owner,
@@ -191,7 +190,6 @@ mod erc20 {
         ) -> Result<()> {
             let caller = self.env().caller();
             let allowance = self.allowance_impl(&from, &caller);
-            eprintln!("allowance: {:?}", allowance);
             if allowance < value {
                 return Err(Error::InsufficientAllowance)
             }

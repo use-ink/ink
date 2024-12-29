@@ -41,21 +41,22 @@
 
 #[ink::contract]
 mod payment_channel {
+    use ink::{H160, U256};
 
     /// Struct for storing the payment channel details.
-    /// The creator of the contract, i.e the `sender`, can deposit funds to the payment
+    /// The creator of the contract, i.e. the `sender`, can deposit funds to the payment
     /// channel while deploying the contract.
     #[ink(storage)]
     pub struct PaymentChannel {
-        /// The `AccountId` of the sender of the payment channel.
-        sender: AccountId,
-        /// The `AccountId` of the recipient of the payment channel.
-        recipient: AccountId,
+        /// The `H160` of the sender of the payment channel.
+        sender: H160,
+        /// The `H160` of the recipient of the payment channel.
+        recipient: H160,
         /// The `Timestamp` at which the contract expires. The field is optional.
         /// The contract never expires if set to `None`.
         expiration: Option<Timestamp>,
         /// The `Amount` withdrawn by the recipient.
-        withdrawn: Balance,
+        withdrawn: U256,
         /// The `Timestamp` which will be added to the current time when the sender
         /// wishes to close the channel. This will be set at the time of contract
         /// instantiation.
@@ -104,7 +105,7 @@ mod payment_channel {
         /// this. `sender` will be able to claim the remaining balance by calling
         /// `claim_timeout` after `expiration` has passed.
         #[ink(constructor)]
-        pub fn new(recipient: AccountId, close_duration: Timestamp) -> Self {
+        pub fn new(recipient: H160, close_duration: Timestamp) -> Self {
             Self {
                 sender: Self::env().caller(),
                 recipient,
@@ -118,13 +119,13 @@ mod payment_channel {
         /// `amount` will be sent to the `recipient` and the remainder will go
         /// back to the `sender`.
         #[ink(message)]
-        pub fn close(&mut self, amount: Balance, signature: [u8; 65]) -> Result<()> {
+        pub fn close(&mut self, amount: U256, signature: [u8; 65]) -> Result<()> {
             self.close_inner(amount, signature)?;
             self.env().terminate_contract(self.sender);
         }
 
         /// We split this out in order to make testing `close` simpler.
-        fn close_inner(&mut self, amount: Balance, signature: [u8; 65]) -> Result<()> {
+        fn close_inner(&mut self, amount: U256, signature: [u8; 65]) -> Result<()> {
             if self.env().caller() != self.recipient {
                 return Err(Error::CallerIsNotRecipient)
             }
@@ -194,7 +195,7 @@ mod payment_channel {
 
         /// The `recipient` can withdraw the funds from the channel at any time.
         #[ink(message)]
-        pub fn withdraw(&mut self, amount: Balance, signature: [u8; 65]) -> Result<()> {
+        pub fn withdraw(&mut self, amount: U256, signature: [u8; 65]) -> Result<()> {
             if self.env().caller() != self.recipient {
                 return Err(Error::CallerIsNotRecipient)
             }
@@ -223,13 +224,13 @@ mod payment_channel {
 
         /// Returns the `sender` of the contract.
         #[ink(message)]
-        pub fn get_sender(&self) -> AccountId {
+        pub fn get_sender(&self) -> H160 {
             self.sender
         }
 
         /// Returns the `recipient` of the contract.
         #[ink(message)]
-        pub fn get_recipient(&self) -> AccountId {
+        pub fn get_recipient(&self) -> H160 {
             self.recipient
         }
 
@@ -241,7 +242,7 @@ mod payment_channel {
 
         /// Returns the `withdrawn` amount of the contract.
         #[ink(message)]
-        pub fn get_withdrawn(&self) -> Balance {
+        pub fn get_withdrawn(&self) -> U256 {
             self.withdrawn
         }
 
@@ -253,14 +254,14 @@ mod payment_channel {
 
         /// Returns the `balance` of the contract.
         #[ink(message)]
-        pub fn get_balance(&self) -> Balance {
+        pub fn get_balance(&self) -> U256 {
             self.env().balance()
         }
     }
 
     #[ink(impl)]
     impl PaymentChannel {
-        fn is_signature_valid(&self, amount: Balance, signature: [u8; 65]) -> bool {
+        fn is_signature_valid(&self, amount: U256, signature: [u8; 65]) -> bool {
             let encodable = (self.env().account_id(), amount);
             let mut message =
                 <ink::env::hash::Sha2x256 as ink::env::hash::HashOutput>::Type::default();
@@ -297,17 +298,17 @@ mod payment_channel {
             ink::env::test::default_accounts()
         }
 
-        fn set_next_caller(caller: AccountId) {
+        fn set_next_caller(caller: H160) {
             ink::env::test::set_caller(caller);
         }
 
-        fn set_account_balance(account: AccountId, balance: Balance) {
+        fn set_account_balance(account: H160, balance: U256) {
             ink::env::test::set_account_balance::<ink::env::DefaultEnvironment>(
                 account, balance,
             );
         }
 
-        fn get_account_balance(account: AccountId) -> Balance {
+        fn get_account_balance(account: H160) -> U256 {
             ink::env::test::get_account_balance::<ink::env::DefaultEnvironment>(account)
                 .expect("Cannot get account balance")
         }
@@ -324,7 +325,7 @@ mod payment_channel {
                 + since_the_epoch.subsec_nanos() as u64 / 1_000_000_000
         }
 
-        fn get_dan() -> AccountId {
+        fn get_dan() -> H160 {
             // Use Dan's seed
             // `subkey inspect //Dan --scheme Ecdsa --output-type json | jq .secretSeed`
             let seed = hex_literal::hex!(
@@ -343,14 +344,14 @@ mod payment_channel {
             account_id.into()
         }
 
-        fn contract_id() -> AccountId {
+        fn contract_id() -> H160 {
             let accounts = default_accounts();
             let contract_id = accounts.charlie;
             ink::env::test::set_callee(contract_id);
             contract_id
         }
 
-        fn sign(contract_id: AccountId, amount: Balance) -> [u8; 65] {
+        fn sign(contract_id: H160, amount: U256) -> [u8; 65] {
             let encodable = (contract_id, amount);
             let mut hash =
                 <ink::env::hash::Sha2x256 as ink::env::hash::HashOutput>::Type::default(); // 256-bit buffer

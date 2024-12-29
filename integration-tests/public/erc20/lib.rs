@@ -223,6 +223,11 @@ mod erc20 {
     }
 
     #[cfg(test)]
+    fn set_caller(sender: H160) {
+        ink::env::test::set_caller(sender);
+    }
+
+    #[cfg(test)]
     mod tests {
         use super::*;
 
@@ -525,11 +530,6 @@ mod erc20 {
             result.as_mut()[0..copy_len].copy_from_slice(&hash_output[0..copy_len]);
             result
         }
-    }
-
-    #[cfg(test)]
-    fn set_caller(sender: H160) {
-        ink::env::test::set_caller(sender);
     }
 
     #[cfg(all(test, feature = "e2e-tests"))]

@@ -5,6 +5,7 @@
 #[ink::contract]
 mod mapping {
     use ink::{
+        H160, U256,
         prelude::{
             string::String,
             vec::Vec,
@@ -23,9 +24,9 @@ mod mapping {
     #[derive(Default)]
     pub struct Mappings {
         /// Mapping from owner to number of owned token.
-        balances: Mapping<AccountId, Balance>,
+        balances: Mapping<H160, U256>,
         /// Mapping from owner to aliases.
-        names: Mapping<AccountId, Vec<String>>,
+        names: Mapping<H160, Vec<String>>,
     }
 
     impl Mappings {
@@ -44,7 +45,7 @@ mod mapping {
         /// Returns the balance of a account, or `None` if the account is not in the
         /// `Mapping`.
         #[ink(message)]
-        pub fn get_balance(&self) -> Option<Balance> {
+        pub fn get_balance(&self) -> Option<U256> {
             let caller = Self::env().caller();
             self.balances.get(caller)
         }
@@ -56,7 +57,7 @@ mod mapping {
         /// Returns the size of the pre-existing balance at the specified key if any.
         /// Returns `None` if the account was not previously in the `Mapping`.
         #[ink(message)]
-        pub fn insert_balance(&mut self, value: Balance) -> Option<u32> {
+        pub fn insert_balance(&mut self, value: U256) -> Option<u32> {
             let caller = Self::env().caller();
             self.balances.insert(caller, &value)
         }
@@ -95,7 +96,7 @@ mod mapping {
         ///
         /// Returns `None` if the account is not in the `Mapping`.
         #[ink(message)]
-        pub fn take_balance(&mut self) -> Option<Balance> {
+        pub fn take_balance(&mut self) -> Option<U256> {
             let caller = Self::env().caller();
             self.balances.take(caller)
         }
@@ -161,7 +162,7 @@ mod mapping {
             let mut call_builder = contract.call_builder::<Mappings>();
 
             // when
-            let insert = call_builder.insert_balance(1_000);
+            let insert = call_builder.insert_balance(1_000.into());
             let size = client
                 .call(&ink_e2e::alice(), &insert)
                 .submit()
@@ -178,7 +179,7 @@ mod mapping {
                 .return_value();
 
             assert!(size.is_none());
-            assert_eq!(balance, Some(1_000));
+            assert_eq!(balance, Some(1_000.into()));
 
             Ok(())
         }
@@ -197,7 +198,7 @@ mod mapping {
             let mut call_builder = contract.call_builder::<Mappings>();
 
             // when
-            let insert = call_builder.insert_balance(1_000);
+            let insert = call_builder.insert_balance(1_000.into());
             let _ = client
                 .call(&ink_e2e::bob(), &insert)
                 .submit()
@@ -230,7 +231,7 @@ mod mapping {
             let mut call_builder = contract.call_builder::<Mappings>();
 
             // when
-            let first_insert = call_builder.insert_balance(1_000);
+            let first_insert = call_builder.insert_balance(1_000.into());
             let _ = client
                 .call(&ink_e2e::charlie(), &first_insert)
                 .submit()
@@ -238,7 +239,7 @@ mod mapping {
                 .expect("Calling `insert_balance` failed")
                 .return_value();
 
-            let insert = call_builder.insert_balance(10_000);
+            let insert = call_builder.insert_balance(10_000.into());
             let size = client
                 .call(&ink_e2e::charlie(), &insert)
                 .submit()
@@ -256,7 +257,7 @@ mod mapping {
                 .await?
                 .return_value();
 
-            assert_eq!(balance, Some(10_000));
+            assert_eq!(balance, Some(10_000.into()));
 
             Ok(())
         }
@@ -275,7 +276,7 @@ mod mapping {
             let mut call_builder = contract.call_builder::<Mappings>();
 
             // when
-            let insert = call_builder.insert_balance(3_000);
+            let insert = call_builder.insert_balance(3_000.into());
             let _ = client
                 .call(&ink_e2e::dave(), &insert)
                 .submit()
@@ -317,7 +318,7 @@ mod mapping {
             let mut call_builder = contract.call_builder::<Mappings>();
 
             // when
-            let insert = call_builder.insert_balance(4_000);
+            let insert = call_builder.insert_balance(4_000.into());
             let _ = client
                 .call(&ink_e2e::eve(), &insert)
                 .submit()
@@ -334,7 +335,7 @@ mod mapping {
                 .return_value();
 
             // then
-            assert_eq!(balance, Some(4_000));
+            assert_eq!(balance, Some(4_000.into()));
 
             let contains = call_builder.contains_balance();
             let is_there = client
