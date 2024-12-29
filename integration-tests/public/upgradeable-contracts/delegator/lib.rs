@@ -42,7 +42,7 @@ pub mod delegator {
             // Adds a delegate dependency lock, ensuring that the delegated to code cannot
             // be removed.
             let mut delegate_to = Lazy::new();
-            delegate_to.set(&hash);
+            delegate_to.set(&address);
             Self::env().lock_delegate_dependency(&hash);
 
             Self {

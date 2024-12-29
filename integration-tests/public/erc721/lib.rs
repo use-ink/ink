@@ -408,7 +408,7 @@ mod erc721 {
         #[ink::test]
         fn mint_works() {
             let accounts =
-                ink::env::test::default_accounts::<ink::env::DefaultEnvironment>();
+                ink::env::test::default_accounts();
             // Create a new contract instance.
             let mut erc721 = Erc721::new();
             // Token 1 does not exists.
@@ -424,7 +424,7 @@ mod erc721 {
         #[ink::test]
         fn mint_existing_should_fail() {
             let accounts =
-                ink::env::test::default_accounts::<ink::env::DefaultEnvironment>();
+                ink::env::test::default_accounts();
             // Create a new contract instance.
             let mut erc721 = Erc721::new();
             // Create token Id 1.
@@ -443,7 +443,7 @@ mod erc721 {
         #[ink::test]
         fn transfer_works() {
             let accounts =
-                ink::env::test::default_accounts::<ink::env::DefaultEnvironment>();
+                ink::env::test::default_accounts();
             // Create a new contract instance.
             let mut erc721 = Erc721::new();
             // Create token Id 1 for Alice
@@ -465,7 +465,7 @@ mod erc721 {
         #[ink::test]
         fn invalid_transfer_should_fail() {
             let accounts =
-                ink::env::test::default_accounts::<ink::env::DefaultEnvironment>();
+                ink::env::test::default_accounts();
             // Create a new contract instance.
             let mut erc721 = Erc721::new();
             // Transfer token fails if it does not exists.
@@ -487,7 +487,7 @@ mod erc721 {
         #[ink::test]
         fn approved_transfer_works() {
             let accounts =
-                ink::env::test::default_accounts::<ink::env::DefaultEnvironment>();
+                ink::env::test::default_accounts();
             // Create a new contract instance.
             let mut erc721 = Erc721::new();
             // Create token Id 1.
@@ -516,7 +516,7 @@ mod erc721 {
         #[ink::test]
         fn approved_for_all_works() {
             let accounts =
-                ink::env::test::default_accounts::<ink::env::DefaultEnvironment>();
+                ink::env::test::default_accounts();
             // Create a new contract instance.
             let mut erc721 = Erc721::new();
             // Create token Id 1.
@@ -559,7 +559,7 @@ mod erc721 {
         #[ink::test]
         fn approve_nonexistent_token_should_fail() {
             let accounts =
-                ink::env::test::default_accounts::<ink::env::DefaultEnvironment>();
+                ink::env::test::default_accounts();
             // Create a new contract instance.
             let mut erc721 = Erc721::new();
             // Approve transfer of nonexistent token id 1
@@ -569,7 +569,7 @@ mod erc721 {
         #[ink::test]
         fn not_approved_transfer_should_fail() {
             let accounts =
-                ink::env::test::default_accounts::<ink::env::DefaultEnvironment>();
+                ink::env::test::default_accounts();
             // Create a new contract instance.
             let mut erc721 = Erc721::new();
             // Create token Id 1.
@@ -598,7 +598,7 @@ mod erc721 {
         #[ink::test]
         fn burn_works() {
             let accounts =
-                ink::env::test::default_accounts::<ink::env::DefaultEnvironment>();
+                ink::env::test::default_accounts();
             // Create a new contract instance.
             let mut erc721 = Erc721::new();
             // Create token Id 1 for Alice
@@ -626,7 +626,7 @@ mod erc721 {
         #[ink::test]
         fn burn_fails_not_owner() {
             let accounts =
-                ink::env::test::default_accounts::<ink::env::DefaultEnvironment>();
+                ink::env::test::default_accounts();
             // Create a new contract instance.
             let mut erc721 = Erc721::new();
             // Create token Id 1 for Alice
@@ -639,7 +639,7 @@ mod erc721 {
         #[ink::test]
         fn burn_clears_approval() {
             let accounts =
-                ink::env::test::default_accounts::<ink::env::DefaultEnvironment>();
+                ink::env::test::default_accounts();
             // Create a new contract instance.
             let mut erc721 = Erc721::new();
             // Create token Id 1 for Alice
@@ -664,7 +664,7 @@ mod erc721 {
         #[ink::test]
         fn transfer_from_fails_not_owner() {
             let accounts =
-                ink::env::test::default_accounts::<ink::env::DefaultEnvironment>();
+                ink::env::test::default_accounts();
             // Create a new contract instance.
             let mut erc721 = Erc721::new();
             // Create token Id 1 for Alice
@@ -687,7 +687,7 @@ mod erc721 {
         #[ink::test]
         fn transfer_fails_not_owner() {
             let accounts =
-                ink::env::test::default_accounts::<ink::env::DefaultEnvironment>();
+                ink::env::test::default_accounts();
             // Create a new contract instance.
             let mut erc721 = Erc721::new();
             // Create token Id 1 for Alice
@@ -701,7 +701,7 @@ mod erc721 {
         }
 
         fn set_caller(sender: AccountId) {
-            ink::env::test::set_caller::<ink::env::DefaultEnvironment>(sender);
+            ink::env::test::set_caller(sender);
         }
     }
 }

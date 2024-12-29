@@ -32,9 +32,9 @@ pub mod just_terminates {
         fn terminating_works() {
             // given
             let accounts =
-                ink::env::test::default_accounts::<ink::env::DefaultEnvironment>();
+                ink::env::test::default_accounts();
             let contract_id = ink::env::test::callee::<ink::env::DefaultEnvironment>();
-            ink::env::test::set_caller::<ink::env::DefaultEnvironment>(accounts.alice);
+            ink::env::test::set_caller(accounts.alice);
             ink::env::test::set_account_balance::<ink::env::DefaultEnvironment>(
                 contract_id,
                 100,

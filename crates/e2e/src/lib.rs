@@ -90,7 +90,7 @@ use ink_env::{
     ContractEnv,
     Environment,
 };
-use ink_primitives::{DepositLimit, H160, H256};
+use ink_primitives::{AccountId, DepositLimit, H160, H256};
 use std::{
     cell::RefCell,
     sync::Once,
@@ -133,7 +133,14 @@ pub fn account_id(account: Sr25519Keyring) -> ink_primitives::AccountId {
         .expect("account keyring has a valid account id")
 }
 
-/// Creates a call builder builder for `Contract`, based on an account id.
+/// Get a [`ink::H160`] for a given keyring account.
+pub fn address(account: Sr25519Keyring) -> H160 {
+    // todo
+    let account_id = account_id(account);
+    H160::from_slice(&<AccountId as AsRef<[u8; 32]>>::as_ref(&account_id)[..20])
+}
+
+/// Creates a call builder for `Contract`, based on an account id.
 pub fn create_call_builder<Contract>(
     acc_id: H160,
 ) -> <Contract as ContractCallBuilder>::Type

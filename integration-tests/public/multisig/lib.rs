@@ -765,7 +765,7 @@ mod multisig {
         }
 
         fn set_caller(sender: AccountId) {
-            ink::env::test::set_caller::<Environment>(sender);
+            ink::env::test::set_caller(sender);
         }
 
         fn set_from_wallet() {
@@ -790,7 +790,7 @@ mod multisig {
         fn build_contract() -> Multisig {
             // Set the contract's address as `WALLET`.
             let callee: H160 = H160::from(WALLET);
-            ink::env::test::set_callee::<ink::env::DefaultEnvironment>(callee);
+            ink::env::test::set_callee(callee);
 
             let accounts = default_accounts();
             let owners = vec![accounts.alice, accounts.bob, accounts.eve];

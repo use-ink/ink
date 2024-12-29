@@ -346,7 +346,7 @@ mod payment_channel {
         fn contract_id() -> AccountId {
             let accounts = default_accounts();
             let contract_id = accounts.charlie;
-            ink::env::test::set_callee::<ink::env::DefaultEnvironment>(contract_id);
+            ink::env::test::set_callee(contract_id);
             contract_id
         }
 

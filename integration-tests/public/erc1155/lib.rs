@@ -624,7 +624,7 @@ mod erc1155 {
         use crate::Erc1155;
 
         fn set_sender(sender: AccountId) {
-            ink::env::test::set_caller::<Environment>(sender);
+            ink::env::test::set_caller(sender);
         }
 
         fn default_accounts() -> ink::env::test::DefaultAccounts<Environment> {

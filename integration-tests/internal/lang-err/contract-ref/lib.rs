@@ -13,7 +13,7 @@ mod contract_ref {
         #[ink(constructor)]
         pub fn new(version: u32, flipper_code_hash: ink::H256) -> Self {
             let flipper = FlipperRef::new_default()
-                .endowment(0)
+                .endowment(0.into())
                 .code_hash(flipper_code_hash)
                 .salt_bytes(salt_from_version(version))
                 .instantiate();
@@ -25,7 +25,7 @@ mod contract_ref {
         pub fn try_new(version: u32, flipper_code_hash: ink::H256, succeed: bool) -> Self {
             ink::env::debug_println!("_________before new_____");
             let flipper = FlipperRef::try_new(succeed)
-                .endowment(0)
+                .endowment(0.into())
                 .code_hash(flipper_code_hash)
                 .salt_bytes(salt_from_version(version))
                 .instantiate()
