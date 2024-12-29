@@ -591,7 +591,7 @@ pub fn contract(attr: TokenStream, item: TokenStream) -> TokenStream {
 ///     impl Erc20 for BaseErc20 {
 ///         /// Returns the total supply of the ERC-20 smart contract.
 ///         #[ink(message)]
-///         fn total_supply(&self) -> H256 {
+///         fn total_supply(&self) -> U256 {
 ///             self.total_supply
 ///         }
 ///
