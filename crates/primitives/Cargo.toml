@@ -30,11 +30,13 @@ default = [ "std" ]
 std = [
 	"ink_prelude/std",
     "serde",
+    "serde/std",
 	"scale-decode/std",
 	"scale-encode",
 	"scale-info/std",
 	"scale/std",
 	"scale-encode?/std",
+    "primitive-types/std",
     "primitive-types/scale-info",
 	"derive_more/std",
 	"xxhash-rust/std"

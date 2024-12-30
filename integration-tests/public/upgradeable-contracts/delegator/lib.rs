@@ -25,7 +25,7 @@ pub mod delegator {
     pub struct Delegator {
         addresses: Mapping<H160, i32, ManualKey<0x23>>,
         counter: i32,
-        delegate_to: Lazy<H160>,
+        delegate_to: Lazy<(H256, H160)>,
     }
 
     impl Delegator {
@@ -35,15 +35,15 @@ pub mod delegator {
         /// Additionally, this code hash will be locked to prevent its deletion, since
         /// this contract depends on it.
         #[ink(constructor)]
-        pub fn new(init_value: i32, hash: H256) -> Self {
+        pub fn new(init_value: i32, hash: H256, addr: H160) -> Self {
             let v = Mapping::new();
 
             // Initialize the hash of the contract to delegate to.
             // Adds a delegate dependency lock, ensuring that the delegated to code cannot
             // be removed.
             let mut delegate_to = Lazy::new();
-            delegate_to.set(&address);
-            Self::env().lock_delegate_dependency(&hash);
+            delegate_to.set(&(hash, addr));
+            Self::env().lock_delegate_dependency(&addr);
 
             Self {
                 addresses: v,
@@ -58,12 +58,13 @@ pub mod delegator {
         /// - Adds a new delegate dependency lock, ensuring that the new delegated to code
         ///   cannot be removed.
         #[ink(message)]
-        pub fn update_delegate_to(&mut self, hash: H256) {
-            if let Some(old_hash) = self.delegate_to.get() {
+        pub fn update_delegate_to(&mut self, hash: H256, addr: H160) {
+            if let Some(delegate_to) = self.delegate_to.get() {
+                let old_hash = delegate_to.0;
                 self.env().unlock_delegate_dependency(&old_hash)
             }
             self.env().lock_delegate_dependency(&hash);
-            self.delegate_to.set(&hash);
+            self.delegate_to.set(&(hash, addr));
         }
 
         /// Increment the current value using delegate call.
@@ -71,7 +72,7 @@ pub mod delegator {
         pub fn inc_delegate(&mut self) {
             let selector = ink::selector_bytes!("inc");
             let _ = build_call::<DefaultEnvironment>()
-                .delegate(self.delegate_to())
+                .delegate(self.delegate_to().1)
                 // We specify `CallFlags::TAIL_CALL` to use the delegatee last memory frame
                 // as the end of the execution cycle.
                 // So any mutations to `Packed` types, made by delegatee,
@@ -93,7 +94,7 @@ pub mod delegator {
         pub fn add_entry_delegate(&mut self) {
             let selector = ink::selector_bytes!("append_address_value");
             let _ = build_call::<DefaultEnvironment>()
-                .delegate(self.delegate_to())
+                .delegate(self.delegate_to().1)
                 .exec_input(ExecutionInput::new(Selector::new(selector)))
                 .returns::<()>()
                 .try_invoke();
@@ -111,7 +112,7 @@ pub mod delegator {
             (self.env().caller(), self.addresses.get(address))
         }
 
-        fn delegate_to(&self) -> H256 {
+        fn delegate_to(&self) -> (H256, H160) {
             self.delegate_to
                 .get()
                 .expect("delegate_to always has a value")
@@ -142,6 +143,13 @@ pub mod delegator {
                 .submit()
                 .await
                 .expect("upload `delegatee` failed")
+                .code_hash;
+
+            let code_hash = client
+                .instantiate("delegatee", &origin, &mut constructor)
+                .submit()
+                .await
+                .expect("instantiate `delegatee` failed")
                 .code_hash;
 
             let mut constructor = DelegatorRef::new(0, code_hash);

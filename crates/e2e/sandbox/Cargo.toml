@@ -34,6 +34,8 @@ default = [
 std = [
 	"frame-support/std",
 	"frame-system/std",
+    "frame-metadata/std",
+    "ink_primitives/std",
 	"pallet-balances/std",
 	"pallet-revive/std",
 	"pallet-timestamp/std",
