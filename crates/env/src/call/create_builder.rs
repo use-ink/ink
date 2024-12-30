@@ -161,6 +161,7 @@ where
 }
 
 /// Defines the limit params for the new `ext::instantiate` host function.
+/// todo: rename
 #[derive(Clone, Debug)]
 pub struct LimitParamsV2<E>
 where

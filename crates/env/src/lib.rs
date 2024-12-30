@@ -142,7 +142,7 @@ cfg_if::cfg_if! {
         /// extrinsic). The `debug_message` buffer will be:
         ///  - Returned to the RPC caller.
         ///  - Logged as a `debug!` message on the Substrate node, which will be printed to the
-        ///    node console's `stdout` when the log level is set to `-lruntime::contracts=debug`.
+        ///    node console's `stdout` when the log level is set to `-lruntime::revive=debug`.
         ///
         /// # Note
         ///

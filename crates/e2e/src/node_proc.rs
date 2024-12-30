@@ -146,7 +146,8 @@ where
             .stdout(process::Stdio::piped())
             .stderr(process::Stdio::piped())
             .arg("--port=0")
-            .arg("--rpc-port=0");
+            .arg("--rpc-port=0")
+            .arg("-lruntime::revive=debug");
 
         if let Some(authority) = self.authority {
             let authority = format!("{authority:?}");

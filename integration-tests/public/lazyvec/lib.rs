@@ -110,7 +110,7 @@ mod lazyvec {
             let mut call_builder = contract.call_builder::<LazyVector>();
 
             // when
-            let create = call_builder.create_proposal(vec![0x41], 5, 1);
+            let create = call_builder.create_proposal(vec![0x41], 15, 1);
             let _ = client
                 .call(&ink_e2e::alice(), &create)
                 .submit()

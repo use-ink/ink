@@ -312,6 +312,7 @@ jobs:
         if: ${{ matrix.type == 'RISCV' }}
         env:
             RUSTC_BOOTSTRAP: 1
+            CARGO_ENCODED_RUSTFLAGS: "--cfg\x1fsubstrate_runtime"
         run: |
           for crate in ${ALSO_RISCV_CRATES}; do
             cargo +nightly build --no-default-features --release
@@ -548,7 +549,7 @@ jobs:
           RUSTFLAGS:                     -Clink-arg=-z -Clink-arg=nostart-stop-gc
         run: |
           # run flipper E2E test with on-chain contract
-          substrate-contracts-node -lruntime::contracts=debug 2>&1 &
+          substrate-contracts-node -lruntime::revive=debug 2>&1 &
           cargo contract build --release --manifest-path integration-tests/public/flipper/Cargo.toml
           export CONTRACT_ADDR_HEX=$(cargo contract instantiate \
             --manifest-path integration-tests/public/flipper/Cargo.toml \
