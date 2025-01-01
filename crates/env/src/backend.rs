@@ -301,7 +301,7 @@ pub trait TypedEnvBackend: EnvBackend {
     /// For more details visit: [`invoke_contract`][`crate::invoke_contract`]
     fn invoke_contract<E, Args, R>(
         &mut self,
-        call_data: &CallParams<E, Call<E>, Args, R>,
+        call_data: &CallParams<E, Call, Args, R>,
     ) -> Result<ink_primitives::MessageResult<R>>
     where
         E: Environment,
@@ -330,7 +330,7 @@ pub trait TypedEnvBackend: EnvBackend {
     /// For more details visit: [`instantiate_contract`][`crate::instantiate_contract`]
     fn instantiate_contract<E, ContractRef, Args, R>(
         &mut self,
-        params: &CreateParams<E, ContractRef, LimitParamsV2<E>, Args, R>,
+        params: &CreateParams<E, ContractRef, LimitParamsV2, Args, R>,
     ) -> Result<
         ink_primitives::ConstructorResult<
             <R as ConstructorReturnType<ContractRef>>::Output,

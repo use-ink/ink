@@ -32,7 +32,7 @@ use scale::Encode;
 pub type CreateBuilderPartial<E, ContractRef, Args, R> = CreateBuilder<
     E,
     ContractRef,
-    Set<LimitParamsV2<E>>,
+    Set<LimitParamsV2>,
     Set<ExecutionInput<Args>>,
     Set<ReturnType<R>>,
 >;

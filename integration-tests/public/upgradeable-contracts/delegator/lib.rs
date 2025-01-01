@@ -43,7 +43,7 @@ pub mod delegator {
             // be removed.
             let mut delegate_to = Lazy::new();
             delegate_to.set(&(hash, addr));
-            Self::env().lock_delegate_dependency(&addr);
+            Self::env().lock_delegate_dependency(&hash);
 
             Self {
                 addresses: v,
@@ -126,6 +126,7 @@ pub mod delegator {
             ChainBackend,
             ContractsBackend,
         };
+        use delegatee::delegatee::DelegateeRef;
 
         type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
@@ -138,19 +139,26 @@ pub mod delegator {
                 .create_and_fund_account(&ink_e2e::alice(), 10_000_000_000_000)
                 .await;
 
+            /*
             let code_hash = client
                 .upload("delegatee", &origin)
                 .submit()
                 .await
                 .expect("upload `delegatee` failed")
                 .code_hash;
+             */
 
+            let mut constructor = DelegateeRef::new();
             let code_hash = client
                 .instantiate("delegatee", &origin, &mut constructor)
                 .submit()
                 .await
                 .expect("instantiate `delegatee` failed")
-                .code_hash;
+                .addr;
+            let mut call_builder = contract.call_builder::<Delegatee>();
+            let call_delegatee = call_builder.code_hash();
+            let result = client.call(&origin, &call_delegatee).dry_run().await;
+            let code_hash = result.return_value();
 
             let mut constructor = DelegatorRef::new(0, code_hash);
             let contract = client

@@ -386,7 +386,7 @@ impl CallBuilder<'_> {
         let output_type = quote_spanned!(output_span=>
             ::ink::env::call::CallBuilder<
                 Environment,
-                ::ink::env::call::utils::Set< ::ink::env::call::Call< Environment > >,
+                ::ink::env::call::utils::Set< ::ink::env::call::Call >,
                 ::ink::env::call::utils::Set< ::ink::env::call::ExecutionInput<#arg_list> >,
                 ::ink::env::call::utils::Set< ::ink::env::call::utils::ReturnType<#return_type> >,
             >

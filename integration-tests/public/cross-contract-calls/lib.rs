@@ -19,7 +19,7 @@ mod cross_contract_calls {
             other_contract_code_hash: ink::H256,
             ref_time_limit: u64,
             proof_size_limit: u64,
-            storage_deposit_limit: Balance,
+            storage_deposit_limit: ink::U256,
         ) -> Self {
             let other_contract = OtherContractRef::new(true)
                 .code_hash(other_contract_code_hash)
@@ -57,7 +57,7 @@ mod cross_contract_calls {
             &mut self,
             ref_time_limit: u64,
             proof_size_limit: u64,
-            storage_deposit_limit: Balance,
+            storage_deposit_limit: ink::U256,
         ) -> bool {
             let call_builder = self.other_contract.call_mut();
 

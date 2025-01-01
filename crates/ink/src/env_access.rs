@@ -473,7 +473,7 @@ where
     /// For more details visit: [`ink_env::instantiate_contract`]
     pub fn instantiate_contract<ContractRef, Args, R>(
         self,
-        params: &CreateParams<E, ContractRef, LimitParamsV2<E>, Args, R>,
+        params: &CreateParams<E, ContractRef, LimitParamsV2, Args, R>,
     ) -> Result<
         ink_primitives::ConstructorResult<
             <R as ConstructorReturnType<ContractRef>>::Output,
@@ -515,7 +515,7 @@ where
     /// #
     /// /// Invokes a contract message and fetches the result.
     /// #[ink(message)]
-    /// pub fn invoke_contract_v2(&self) -> i32 {
+    /// pub fn invoke_contract(&self) -> i32 {
     ///     let call_params = build_call::<DefaultEnvironment>()
     ///         .call(ink::H160::from([0x42; 20]))
     ///         .ref_time_limit(500_000_000)
@@ -547,7 +547,7 @@ where
     /// For more details visit: [`ink_env::invoke_contract`]
     pub fn invoke_contract<Args, R>(
         self,
-        params: &CallParams<E, Call<E>, Args, R>,
+        params: &CallParams<E, Call, Args, R>,
     ) -> Result<ink_primitives::MessageResult<R>>
     where
         Args: scale::Encode,

@@ -442,7 +442,7 @@ impl TypedEnvBackend for EnvInstance {
 
     fn invoke_contract<E, Args, R>(
         &mut self,
-        _params: &CallParams<E, Call<E>, Args, R>,
+        _params: &CallParams<E, Call, Args, R>,
     ) -> Result<ink_primitives::MessageResult<R>>
     where
         E: Environment,
@@ -469,7 +469,7 @@ impl TypedEnvBackend for EnvInstance {
 
     fn instantiate_contract<E, ContractRef, Args,  R>(
         &mut self,
-        params: &CreateParams<E, ContractRef, LimitParamsV2<E>, Args,  R>,
+        params: &CreateParams<E, ContractRef, LimitParamsV2, Args,  R>,
     ) -> Result<
         ink_primitives::ConstructorResult<
             <R as ConstructorReturnType<ContractRef>>::Output,

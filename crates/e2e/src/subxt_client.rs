@@ -85,7 +85,7 @@ pub type Error = crate::error::Error<DispatchError>;
 /// Represents an initialized contract message builder.
 pub type CallBuilderFinal<E, Args, RetType> = ink_env::call::CallBuilder<
     E,
-    Set<Call<E>>,
+    Set<Call>,
     Set<ExecutionInput<Args>>,
     Set<ReturnType<RetType>>,
 >;

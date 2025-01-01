@@ -379,7 +379,7 @@ impl CallBuilder<'_> {
             #( #cfg_attrs )*
             type #output_ident = ::ink::env::call::CallBuilder<
                 Self::Env,
-                ::ink::env::call::utils::Set< ::ink::env::call::Call< Self::Env > >,
+                ::ink::env::call::utils::Set< ::ink::env::call::Call >,
                 ::ink::env::call::utils::Set< ::ink::env::call::ExecutionInput<#arg_list> >,
                 ::ink::env::call::utils::Set< ::ink::env::call::utils::ReturnType<#output_type> >,
             >;
@@ -392,7 +392,7 @@ impl CallBuilder<'_> {
             ) -> Self::#output_ident {
                 <::ink::env::call::CallBuilder<
                     Self::Env,
-                    ::ink::env::call::utils::Unset< ::ink::env::call::Call< Self::Env > >,
+                    ::ink::env::call::utils::Unset< ::ink::env::call::Call >,
                     ::ink::env::call::utils::Set< ::ink::env::call::ExecutionInput<#arg_list> >,
                     ::ink::env::call::utils::Set< ::ink::env::call::utils::ReturnType<#output_type> >,
                 > as ::core::convert::From::<_>>::from(

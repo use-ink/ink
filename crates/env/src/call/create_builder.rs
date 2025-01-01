@@ -163,13 +163,11 @@ where
 /// Defines the limit params for the new `ext::instantiate` host function.
 /// todo: rename
 #[derive(Clone, Debug)]
-pub struct LimitParamsV2<E>
-where
-    E: Environment,
+pub struct LimitParamsV2
 {
     ref_time_limit: u64,
     proof_size_limit: u64,
-    storage_deposit_limit: Option<E::Balance>,
+    storage_deposit_limit: Option<U256>,
 }
 
 /// Builds up contract instantiations.
@@ -227,7 +225,7 @@ where
 }
 
 impl<E, ContractRef, Args, R>
-    CreateParams<E, ContractRef, LimitParamsV2<E>, Args, R>
+    CreateParams<E, ContractRef, LimitParamsV2, Args, R>
 where
     E: Environment,
 {
@@ -246,7 +244,7 @@ where
 
     /// Gets the `storage_deposit_limit` for the contract instantiation.
     #[inline]
-    pub fn storage_deposit_limit(&self) -> Option<&E::Balance> {
+    pub fn storage_deposit_limit(&self) -> Option<&U256> {
         self.limits.storage_deposit_limit.as_ref()
     }
 }
@@ -264,13 +262,14 @@ where
 }
 
 impl<E, ContractRef, Args, R>
-    CreateParams<E, ContractRef, LimitParamsV2<E>, Args, R>
+    CreateParams<E, ContractRef, LimitParamsV2, Args, R>
 where
     E: Environment,
     ContractRef: FromAddr,
     Args: scale::Encode,
     R: ConstructorReturnType<ContractRef>,
 {
+    /// todo
     /// Instantiates the contract and returns its account ID back to the caller.
     ///
     /// # Panics
@@ -430,7 +429,7 @@ where
 pub fn build_create<ContractRef>() -> CreateBuilder<
     <ContractRef as ContractEnv>::Env,
     ContractRef,
-    Set<LimitParamsV2<<ContractRef as ContractEnv>::Env>>,
+    Set<LimitParamsV2>,
     Unset<ExecutionInput<EmptyArgumentList>>,
     Unset<ReturnType<()>>,
 >
@@ -476,7 +475,7 @@ where
 }
 
 impl<E, ContractRef, Args,  RetType>
-    CreateBuilder<E, ContractRef, Set<LimitParamsV2<E>>, Args,  RetType>
+    CreateBuilder<E, ContractRef, Set<LimitParamsV2>, Args,  RetType>
 where
     E: Environment,
 {
@@ -507,7 +506,7 @@ where
 
     /// Sets the `storage_deposit_limit` for the contract instantiation.
     #[inline]
-    pub fn storage_deposit_limit(self, storage_deposit_limit: E::Balance) -> Self {
+    pub fn storage_deposit_limit(self, storage_deposit_limit: U256) -> Self {
         CreateBuilder {
             limits: Set(LimitParamsV2 {
                 storage_deposit_limit: Some(storage_deposit_limit),
@@ -664,7 +663,7 @@ impl<E, ContractRef, Args,  RetType>
     CreateBuilder<
         E,
         ContractRef,
-        Set<LimitParamsV2<E>>,
+        Set<LimitParamsV2>,
         Set<ExecutionInput<Args>>,
         Set<ReturnType<RetType>>,
     >

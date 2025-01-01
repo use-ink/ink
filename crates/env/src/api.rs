@@ -269,7 +269,7 @@ where
 ///   execution.
 /// - If the returned value failed to decode properly.
 pub fn invoke_contract<E, Args, R>(
-    params: &CallParams<E, Call<E>, Args, R>,
+    params: &CallParams<E, Call, Args, R>,
 ) -> Result<ink_primitives::MessageResult<R>>
 where
     E: Environment,
@@ -311,7 +311,7 @@ where
 /// # Note
 ///
 /// This is a low level way to instantiate another smart contract, calling the latest
-/// `instantiate_v2` host function.
+/// `instantiate_v2` host function. // todo
 ///
 /// Prefer to use methods on a `ContractRef` or the
 /// [`CreateBuilder`](`crate::call::CreateBuilder`)
@@ -326,7 +326,7 @@ where
 /// - If given insufficient endowment.
 /// - If the returned account ID failed to decode properly.
 pub fn instantiate_contract<E, ContractRef, Args, R>(
-    params: &CreateParams<E, ContractRef, LimitParamsV2<E>, Args, R>,
+    params: &CreateParams<E, ContractRef, LimitParamsV2, Args, R>,
 ) -> Result<
     ink_primitives::ConstructorResult<<R as ConstructorReturnType<ContractRef>>::Output>,
 >

@@ -31,20 +31,20 @@ use crate::{
 use ink_primitives::{H160, U256};
 use pallet_revive_uapi::CallFlags;
 
-/// The default call type for cross-contract calls, for calling into the latest `call_v2`
+/// The default call type for cross-contract calls, for calling into the latest `call`
 /// host function. This adds the additional weight limit parameter `proof_size_limit` as
 /// well as `storage_deposit_limit`.
 #[derive(Clone)]
-pub struct Call<E: Environment> {
+pub struct Call {
     callee: H160,
     ref_time_limit: u64,
     proof_size_limit: u64,
-    storage_deposit_limit: Option<E::Balance>, // todo
+    storage_deposit_limit: Option<U256>,
     transferred_value: U256,
     call_flags: CallFlags,
 }
 
-impl<E: Environment> Call<E> {
+impl Call {
     /// Returns a clean builder for [`Call`].
     pub fn new(callee: H160) -> Self {
         Self {
@@ -58,7 +58,7 @@ impl<E: Environment> Call<E> {
     }
 }
 
-impl<E, Args, RetType> CallBuilder<E, Set<Call<E>>, Args, RetType>
+impl<E, Args, RetType> CallBuilder<E, Set<Call>, Args, RetType>
 where
     E: Environment,
 {
@@ -106,7 +106,7 @@ where
     /// The `storage_deposit_limit` specifies the amount of user funds that
     /// can be charged for creating storage. You can find more info
     /// [here](https://use.ink/basics/gas).
-    pub fn storage_deposit_limit(self, storage_deposit_limit: E::Balance) -> Self {
+    pub fn storage_deposit_limit(self, storage_deposit_limit: U256) -> Self {
         let call_type = self.call_type.value();
         CallBuilder {
             call_type: Set(Call {
@@ -148,12 +148,12 @@ where
 }
 
 impl<E, Args, RetType>
-    CallBuilder<E, Set<Call<E>>, Set<ExecutionInput<Args>>, Set<ReturnType<RetType>>>
+    CallBuilder<E, Set<Call>, Set<ExecutionInput<Args>>, Set<ReturnType<RetType>>>
 where
     E: Environment,
 {
     /// Finalizes the call builder to call a function.
-    pub fn params(self) -> CallParams<E, Call<E>, Args, RetType> {
+    pub fn params(self) -> CallParams<E, Call, Args, RetType> {
         CallParams {
             call_type: self.call_type.value(),
             _return_type: Default::default(),
@@ -164,12 +164,12 @@ where
 }
 
 impl<E, RetType>
-    CallBuilder<E, Set<Call<E>>, Unset<ExecutionInput<EmptyArgumentList>>, Unset<RetType>>
+    CallBuilder<E, Set<Call>, Unset<ExecutionInput<EmptyArgumentList>>, Unset<RetType>>
 where
     E: Environment,
 {
     /// Finalizes the call builder to call a function.
-    pub fn params(self) -> CallParams<E, Call<E>, EmptyArgumentList, ()> {
+    pub fn params(self) -> CallParams<E, Call, EmptyArgumentList, ()> {
         CallParams {
             call_type: self.call_type.value(),
             _return_type: Default::default(),
@@ -182,7 +182,7 @@ where
 impl<E>
     CallBuilder<
         E,
-        Set<Call<E>>,
+        Set<Call>,
         Unset<ExecutionInput<EmptyArgumentList>>,
         Unset<ReturnType<()>>,
     >
@@ -213,7 +213,7 @@ where
 }
 
 impl<E, Args, R>
-    CallBuilder<E, Set<Call<E>>, Set<ExecutionInput<Args>>, Set<ReturnType<R>>>
+    CallBuilder<E, Set<Call>, Set<ExecutionInput<Args>>, Set<ReturnType<R>>>
 where
     E: Environment,
     Args: scale::Encode,
@@ -242,7 +242,7 @@ where
     }
 }
 
-impl<E, Args, R> CallParams<E, Call<E>, Args, R>
+impl<E, Args, R> CallParams<E, Call, Args, R>
 where
     E: Environment,
 {
@@ -267,8 +267,8 @@ where
     /// Returns the chosen storage deposit limit for the called contract execution.
     /// todo
     #[inline]
-    pub fn storage_deposit_limit(&self) -> Option<&E::Balance> {
-        self.call_type.storage_deposit_limit.as_ref()
+    pub fn storage_deposit_limit(&self) -> Option<U256> {
+        self.call_type.storage_deposit_limit
     }
 
     /// Returns the transferred value for the called contract.
@@ -284,7 +284,7 @@ where
     }
 }
 
-impl<E, Args, R> CallParams<E, Call<E>, Args, R>
+impl<E, Args, R> CallParams<E, Call, Args, R>
 where
     E: Environment,
     Args: scale::Encode,

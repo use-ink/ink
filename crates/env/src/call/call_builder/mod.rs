@@ -208,7 +208,7 @@ where
 #[allow(clippy::type_complexity)]
 pub fn build_call<E>() -> CallBuilder<
     E,
-    Unset<Call<E>>,
+    Unset<Call>,
     Unset<ExecutionInput<EmptyArgumentList>>,
     Unset<ReturnType<()>>,
 >
@@ -233,13 +233,13 @@ where
     call_type: CallType,
     exec_input: Args,
     return_type: RetType,
-    _phantom: PhantomData<fn() -> E>,
+    _phantom: PhantomData<fn() -> E>, // todo possibly remove?
 }
 
 impl<E, Args, RetType> From<Execution<Args, RetType>>
     for CallBuilder<
         E,
-        Unset<Call<E>>,
+        Unset<Call>,
         Set<ExecutionInput<Args>>,
         Set<ReturnType<RetType>>,
     >
@@ -322,7 +322,7 @@ where
 {
     /// Prepares the `CallBuilder` for a cross-contract [`Call`] to the latest `call_v2`
     /// host function.
-    pub fn call(self, callee: H160) -> CallBuilder<E, Set<Call<E>>, Args, RetType> {
+    pub fn call(self, callee: H160) -> CallBuilder<E, Set<Call>, Args, RetType> {
         CallBuilder {
             call_type: Set(Call::new(callee)),
             exec_input: self.exec_input,

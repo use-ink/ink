@@ -457,7 +457,7 @@ impl TypedEnvBackend for EnvInstance {
 
     fn invoke_contract<E, Args, R>(
         &mut self,
-        params: &CallParams<E, Call<E>, Args, R>,
+        params: &CallParams<E, Call, Args, R>,
     ) -> Result<ink_primitives::MessageResult<R>>
     where
         E: Environment,
@@ -474,6 +474,13 @@ impl TypedEnvBackend for EnvInstance {
                 enc_storage_limit.into_buffer().try_into().unwrap();
             enc_storage_limit
         });
+        /*
+        let mut enc_storage_limit = EncodeScope::from(scope.take(32));
+        scale::Encode::encode_to(&params.storage_deposit_limit(), &mut enc_storage_limit);
+        let enc_storage_limit: &mut [u8; 32] =
+            enc_storage_limit.into_buffer().try_into().unwrap();
+         */
+
         let enc_callee: &[u8; 20] = params.callee().as_ref().try_into().unwrap();
         let mut enc_transferred_value = EncodeScope::from(scope.take(32));
         scale::Encode::encode_to(&params.transferred_value(), &mut enc_transferred_value);
@@ -495,6 +502,7 @@ impl TypedEnvBackend for EnvInstance {
             enc_callee,
             ref_time_limit,
             proof_size_limit,
+            //enc_storage_limit,
             storage_deposit_limit.as_deref(),
             enc_transferred_value,
             enc_input,
@@ -547,7 +555,7 @@ impl TypedEnvBackend for EnvInstance {
 
     fn instantiate_contract<E, ContractRef, Args, RetType>(
         &mut self,
-        params: &CreateParams<E, ContractRef, LimitParamsV2<E>, Args, RetType>,
+        params: &CreateParams<E, ContractRef, LimitParamsV2, Args, RetType>,
     ) -> Result<
         ink_primitives::ConstructorResult<
             <RetType as ConstructorReturnType<ContractRef>>::Output,
