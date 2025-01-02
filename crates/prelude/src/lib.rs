@@ -67,6 +67,8 @@ cfg_if! {
             string,
             vec,
         };
+        //pub use core::sync::Mutex;
+        //pub use sync::Mutex;
 
         /// Collection types.
         pub mod collections {

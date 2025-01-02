@@ -50,7 +50,7 @@
 /// Can be modified by setting `INK_STATIC_BUFFER_SIZE` environmental variable.
 /// todo
 #[const_env::from_env("INK_STATIC_BUFFER_SIZE")]
-pub const BUFFER_SIZE: usize = 16384;
+pub const BUFFER_SIZE: usize = 16384 * 4;
 
 #[cfg(not(any(feature = "std", feature = "no-panic-handler")))]
 #[allow(unused_variables)]
@@ -76,6 +76,8 @@ fn panic(info: &core::panic::PanicInfo) -> ! {
 // is not recognizing its allocator and panic handler definitions.
 #[cfg(not(any(feature = "std", feature = "no-allocator")))]
 extern crate ink_allocator;
+
+
 
 mod api;
 mod arithmetic;

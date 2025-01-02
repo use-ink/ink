@@ -31,14 +31,13 @@ const PAGE_SIZE: usize = 64 * 1024;
 static mut INNER: Option<InnerAlloc> = None;
 
 #[cfg(target_arch = "riscv64")]
-static mut RISCV_HEAP: [u8; 1024 * 10] = [1; 1024 * 10];
+pub static mut RISCV_HEAP: [u8; 1024 * 10] = [0; 1024 * 10];
 
 /// A bump allocator suitable for use in a Wasm environment.
 pub struct BumpAllocator;
 
 unsafe impl GlobalAlloc for BumpAllocator {
     #[inline]
-    #[allow(static_mut_refs)]
     unsafe fn alloc(&self, layout: Layout) -> *mut u8 {
         if INNER.is_none() {
             INNER = Some(InnerAlloc::new());
@@ -53,6 +52,7 @@ unsafe impl GlobalAlloc for BumpAllocator {
         }
     }
 
+    /*
     #[inline]
     unsafe fn alloc_zeroed(&self, layout: Layout) -> *mut u8 {
         // todo
@@ -62,6 +62,7 @@ unsafe impl GlobalAlloc for BumpAllocator {
         // See: https://webassembly.github.io/spec/core/exec/modules.html#growing-memories
         self.alloc(layout)
     }
+     */
 
     #[inline]
     unsafe fn dealloc(&self, _ptr: *mut u8, _layout: Layout) {}
@@ -122,15 +123,14 @@ impl InnerAlloc {
             }
         } else if #[cfg(target_arch = "riscv64")] {
             fn heap_start() -> usize {
-                #[allow(static_mut_refs)]
                 unsafe {
                     RISCV_HEAP.as_mut_ptr() as usize
                 }
             }
 
-            #[allow(static_mut_refs)]
             fn heap_end() -> usize {
                 Self::heap_start() + unsafe { RISCV_HEAP.len() }
+                //Self::heap_start() + RISCV_HEAP.len()
             }
 
             #[allow(dead_code)]

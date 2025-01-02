@@ -32,9 +32,124 @@
 //
 // The [`GlobalAlloc`](https://doc.rust-lang.org/std/alloc/trait.GlobalAlloc.html) trait is
 // important to understand if you're swapping our your allocator.
+//#[cfg(not(feature = "std"))]
+//#[global_allocator]
+//static ALLOC: dlmalloc::GlobalDlmalloc = dlmalloc::GlobalDlmalloc;
+
+
+#![feature(allocator_api)]
+use core::alloc::{AllocError, Allocator, GlobalAlloc, Layout};
+use core::ptr::NonNull;
+use core::cell::UnsafeCell;
+//use core::sync::Mutex;
+//use ink::prelude::Mutex;
+
+/*
 #[cfg(not(feature = "std"))]
 #[global_allocator]
-static ALLOC: dlmalloc::GlobalDlmalloc = dlmalloc::GlobalDlmalloc;
+static ALLOC: BumpAllocator = BumpAllocator::new();
+
+ */
+
+/*
+pub struct BumpAllocator {
+    memory: Mutex<BumpMemory>,
+}
+
+struct BumpMemory {
+    buffer: [u8; 1024], // Pre-allocated memory buffer
+    offset: usize,      // Current allocation offset
+}
+
+impl BumpAllocator {
+    pub fn new() -> Self {
+        Self {
+            memory: Mutex::new(BumpMemory {
+                buffer: [0; 1024],
+                offset: 0,
+            }),
+        }
+    }
+}
+
+#[allow(clippy::arithmetic_side_effects)]
+unsafe impl GlobalAlloc for BumpAllocator {
+    unsafe fn allocate(&self, layout: Layout) -> Result<NonNull<[u8]>, AllocError> {
+        let mut memory = self.memory.lock().unwrap();
+        let start = memory.offset;
+        let end = start + layout.size();
+
+        if end > memory.buffer.len() {
+            Err(AllocError)
+        } else {
+            memory.offset = end;
+            //println!("Allocated {} from {start} to {}", end-start, end-1);
+            let slice = &mut memory.buffer[start..end];
+            Ok(NonNull::from(slice))
+        }
+    }
+
+    unsafe fn deallocate(&self, _ptr: NonNull<u8>, _layout: Layout) {
+        // No-op: deallocation is unsupported in a bump allocator.
+    }
+}
+
+
+ */
+
+
+use std::sync::Mutex;
+
+pub struct BumpAllocator {
+    //memory: UnsafeCell<BumpMemory>,
+    memory: Mutex<BumpMemory>,
+}
+
+struct BumpMemory {
+    buffer: [u8; 1024 * 1024], // Pre-allocated memory buffer
+    offset: usize,      // Current allocation offset
+}
+
+impl BumpAllocator {
+    pub fn new() -> Self {
+        Self {
+            memory: Mutex::new(BumpMemory {
+                buffer: [0; 1024 * 1024],
+                offset: 0,
+            }),
+        }
+    }
+}
+
+#[allow(clippy::arithmetic_side_effects)]
+unsafe impl GlobalAlloc for BumpAllocator {
+    unsafe fn alloc(&self, layout: Layout) -> *mut u8 {
+    //unsafe fn alloc(&self, layout: Layout) -> Result<NonNull<[u8]>, AllocError> {
+        let mut memory = self.memory.lock().unwrap();
+        //let mut memory = self.memory;
+        //let mut memory = unsafe { &mut *self.memory.get() };
+        let start = memory.offset;
+        let end = start + layout.size();
+
+        if end > memory.buffer.len() {
+            panic!("too large");
+        } else {
+            memory.offset = end;
+            //println!("Allocated {} from {start} to {}", end-start, end-1);
+            //let slice = &mut memory.buffer[start..end];
+            //Ok(NonNull::from(slice))
+             &mut memory.buffer[start]
+            //slice
+        }
+    }
+
+    unsafe fn dealloc(&self, _ptr: *mut u8, _layout: Layout) {
+        // No-op: deallocation is unsupported in a bump allocator.
+    }
+}
+
+
+
 
 #[ink::contract]
 mod custom_allocator {

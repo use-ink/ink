@@ -20,10 +20,7 @@ use crate::{backend::{
     FromAddr,
 },  Error, Result as EnvResult};
 use cfg_if::cfg_if;
-use ink_primitives::{
-    ConstructorResult,
-    LangError,
-};
+use ink_primitives::{ConstructorResult, DepositLimit, LangError};
 use pallet_revive_uapi::{ReturnCode, ReturnErrorCode};
 use crate::Error::ReturnError;
 
@@ -76,6 +73,10 @@ where
     ContractRef: FromAddr,
     R: ConstructorReturnType<ContractRef>,
 {
+    panic!("------------------------------err code! {:?} {:?}",
+           pallet_revive_uapi::ReturnErrorCode::TransferFailed,
+           pallet_revive_uapi::ReturnErrorCode::Success,
+    );
     match instantiate_result {
         Ok(()) => {
             let addr = scale::Decode::decode(out_address)?;
@@ -90,9 +91,19 @@ where
             if let ReturnError(return_error_code) = actual_error {
                 //let return_error_code = ReturnCode(return_error_code);
                 //
+                /*
                 let foo = ReturnErrorCode::Success;
+                #[derive(Debug)]
+                enum Foo {
+                    Bar
+                }
+
+                 */
                 //let foo = crate::format!("{:?}", ReturnErrorCode::Success);
-                panic!("------------------------------err code! {:?} {foo:?} <", ReturnErrorCode::Success);
+                panic!("------------------------------err code! {:?} {:?}",
+                       pallet_revive_uapi::ReturnErrorCode::TransferFailed,
+                       pallet_revive_uapi::ReturnErrorCode::Success,
+                );
             };
             //panic!("------------------------------decoding! {actual_error:?}");
             Err(actual_error)
