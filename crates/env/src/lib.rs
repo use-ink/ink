@@ -48,6 +48,7 @@
 /// The capacity of the static buffer.
 /// Usually set to 16 kB.
 /// Can be modified by setting `INK_STATIC_BUFFER_SIZE` environmental variable.
+/// todo
 #[const_env::from_env("INK_STATIC_BUFFER_SIZE")]
 pub const BUFFER_SIZE: usize = 16384;
 

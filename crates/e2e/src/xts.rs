@@ -19,7 +19,7 @@ use super::{
 };
 use ink_env::Environment;
 
-use crate::contract_results::{BareInstantiationDryRunResult, ContractExecResultFor};
+use crate::contract_results::{BareInstantiationDryRunResult, ContractExecResultFor, ContractInstantiateResultFor, ContractInstantiateResultForBar};
 use core::marker::PhantomData;
 use ink_primitives::DepositLimit;
 use pallet_revive::{
@@ -261,7 +261,9 @@ where
         data: Vec<u8>,
         salt: Option<[u8; 32]>,
         signer: &Keypair,
-    ) -> BareInstantiationDryRunResult<E> {
+    //) -> BareInstantiationDryRunResult<E> {
+    //) -> ContractInstantiateResultFor<E> {
+    ) -> ContractInstantiateResultForBar<E> {
         // todo map_account beforehand?
         let code = Code::Upload(code);
         let call_request = RpcInstantiateRequest::<C, E> {

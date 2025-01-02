@@ -12,24 +12,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::{
-    backend::{
-        EnvBackend,
-        TypedEnvBackend,
-    },
-    call::{
-        ConstructorReturnType,
-        FromAddr,
-    },
-    Error,
-    Result as EnvResult,
-};
+use crate::{backend::{
+    EnvBackend,
+    TypedEnvBackend,
+}, call::{
+    ConstructorReturnType,
+    FromAddr,
+},  Error, Result as EnvResult};
 use cfg_if::cfg_if;
 use ink_primitives::{
     ConstructorResult,
     LangError,
 };
-use pallet_revive_uapi::ReturnErrorCode;
+use pallet_revive_uapi::{ReturnCode, ReturnErrorCode};
+use crate::Error::ReturnError;
 
 /// Convert a slice into an array reference.
 ///
@@ -82,15 +78,25 @@ where
 {
     match instantiate_result {
         Ok(()) => {
-            let account_id = scale::Decode::decode(out_address)?;
-            let contract_ref = <ContractRef as FromAddr>::from_addr(account_id);
+            let addr = scale::Decode::decode(out_address)?;
+            let contract_ref = <ContractRef as FromAddr>::from_addr(addr);
             let output = <R as ConstructorReturnType<ContractRef>>::ok(contract_ref);
             Ok(Ok(output))
         }
         Err(Error::ReturnError(ReturnErrorCode::CalleeReverted)) => {
             decode_instantiate_err::<I, ContractRef, R>(out_return_value)
         }
-        Err(actual_error) => Err(actual_error),
+        Err(actual_error) => {
+            if let ReturnError(return_error_code) = actual_error {
+                //let return_error_code = ReturnCode(return_error_code);
+                //
+                let foo = ReturnErrorCode::Success;
+                //let foo = crate::format!("{:?}", ReturnErrorCode::Success);
+                panic!("------------------------------err code! {:?} {foo:?} <", ReturnErrorCode::Success);
+            };
+            //panic!("------------------------------decoding! {actual_error:?}");
+            Err(actual_error)
+        },
     }
 }
 

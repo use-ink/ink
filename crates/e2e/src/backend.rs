@@ -12,10 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use super::{
-    Keypair,
-    H256,
-};
+use super::{InstantiateDryRunResult, Keypair, H256};
 use crate::{
     backend_calls::{
         InstantiateBuilder,
@@ -311,7 +308,7 @@ pub trait BuilderClient<E: Environment>: ContractsBackend<E> {
         constructor: &mut CreateBuilderPartial<E, Contract, Args, R>,
         value: E::Balance,
         storage_deposit_limit: DepositLimit<E::Balance>,
-    ) -> Result<BareInstantiationDryRunResult<E>, Self::Error>;
+    ) -> Result<InstantiateDryRunResult<E>, Self::Error>;
 
     /// todo
     async fn map_account(

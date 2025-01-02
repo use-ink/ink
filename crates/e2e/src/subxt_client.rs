@@ -19,7 +19,7 @@ use super::{builders::{
     CodeStoredEvent,
     ContractInstantiatedEvent,
     EventWithTopics,
-}, log_error, log_info, sr25519, ContractsApi, Keypair, H256};
+}, log_error, log_info, sr25519, ContractsApi, InstantiateDryRunResult, Keypair, H256};
 use crate::{
     backend::BuilderClient,
     contract_results::{
@@ -499,7 +499,7 @@ where
         constructor: &mut CreateBuilderPartial<E, Contract, Args, R>,
         value: E::Balance,
         storage_deposit_limit: DepositLimit<E::Balance>,
-    ) -> Result<BareInstantiationDryRunResult<E>, Self::Error> {
+    ) -> Result<InstantiateDryRunResult<E>, Self::Error> {
         let code = self.contracts.load_code(contract_name);
         let data = constructor_exec_input(constructor.clone());
 
@@ -514,7 +514,17 @@ where
                 caller,
             )
             .await;
-        Ok(result)
+
+        log_info(&format!("instantiate dry run: {:?}", &result.result));
+        log_info(&format!(
+            "instantiate dry run debug message: {}",
+            String::from_utf8_lossy(&result.debug_message)
+        ));
+        let result = self
+            .contract_result_to_result(result)
+            .map_err(Error::CallDryRun)?;
+
+        Ok(result.into())
     }
 
     async fn bare_upload(

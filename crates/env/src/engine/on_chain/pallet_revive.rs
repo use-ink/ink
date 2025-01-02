@@ -599,6 +599,7 @@ impl TypedEnvBackend for EnvInstance {
             Some(out_return_value),
             salt,
         );
+        //let foo: () = instantiate_result;
 
         crate::engine::decode_instantiate_result::<_, ContractRef, RetType>(
             instantiate_result.map_err(Into::into),

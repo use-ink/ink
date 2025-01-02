@@ -21,7 +21,7 @@ use scale::{
 use sp_weights::Weight;
 use std::marker::PhantomData;
 
-use super::{balance_to_deposit_limit, Keypair};
+use super::{balance_to_deposit_limit, InstantiateDryRunResult, Keypair};
 use crate::{
     backend::BuilderClient,
     builders::CreateBuilderPartial,
@@ -314,15 +314,22 @@ where
             self.storage_deposit_limit.clone(),
         )
         .await?;
+        //eprintln!("dry run message {:?}", dry_run.debug_message());
+        //eprintln!("dry run deposit limit {:?}", dry_run.storage_deposit);
+        //eprintln!("dry run result {:?}", dry_run.contract_result);
 
         let gas_limit = if let Some(limit) = self.gas_limit {
+            eprintln!("using limit");
             limit
         } else {
-            let gas_required = dry_run.gas_required;
+            eprintln!("not using limit");
+            let gas_required = dry_run.contract_result.gas_required;
             let proof_size = gas_required.proof_size();
             let ref_time = gas_required.ref_time();
             calculate_weight(proof_size, ref_time, self.extra_gas_portion)
         };
+
+        eprintln!("using gas limit {:?}", gas_limit);
 
         let instantiate_result = B::bare_instantiate(
             self.client,
@@ -331,9 +338,10 @@ where
             self.constructor,
             self.value,
             gas_limit,
-            balance_to_deposit_limit::<E>(dry_run.storage_deposit.charge_or_zero()),
+            balance_to_deposit_limit::<E>(dry_run.contract_result.storage_deposit.charge_or_zero()),
         )
         .await?;
+        eprintln!("real run success");
 
         Ok(InstantiationResult {
             addr: instantiate_result.addr,
@@ -345,7 +353,7 @@ where
     /// Dry run the instantiate call.
     pub async fn dry_run(
         &mut self,
-    ) -> Result<BareInstantiationDryRunResult<E>, B::Error> {
+    ) -> Result<InstantiateDryRunResult<E>, B::Error> {
         B::bare_instantiate_dry_run(
             self.client,
             self.contract_name,

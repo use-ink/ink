@@ -46,6 +46,12 @@ pub type ContractInstantiateResultFor<E> = ContractResult<
     <E as Environment>::EventRecord,
 >;
 
+/// Alias for the contract instantiate result.
+pub type ContractInstantiateResultForBar<E> = ContractResultBar<
+    InstantiateReturnValue,
+    <E as Environment>::Balance
+>;
+
 /// Result type of a `bare_call` or `bare_instantiate` call as well as `ContractsApi::call` and
 /// `ContractsApi::instantiate`.
 ///
@@ -103,6 +109,16 @@ pub type ContractExecResultFor<E> = ContractResultBar<
     <E as Environment>::Balance,
 >;
 
+/*
+/// Alias for the contract exec result.
+pub type ContractInstantiateResultFor<E> = ContractResultBar<
+    InstantiateReturnValue,
+    <E as Environment>::Balance,
+>;
+ */
+
+
+// todo can be removed
 /// Copied from `pallet-revive`.
 #[derive(Debug, Encode, Decode)]
 pub struct BareInstantiationDryRunResult<E: Environment> {
@@ -181,7 +197,8 @@ pub struct InstantiationResult<E: Environment, EventLog> {
     pub addr: H160,
     /// The result of the dry run, contains debug messages
     /// if there were any.
-    pub dry_run: BareInstantiationDryRunResult<E>,
+    //pub dry_run: BareInstantiationDryRunResult<E>,
+    pub dry_run: InstantiateDryRunResult<E>,
     /// Events that happened with the contract instantiation.
     pub events: EventLog,
 }
@@ -381,13 +398,13 @@ impl<E: Environment, V: scale::Decode> CallDryRunResult<E, V> {
 /// Result of the dry run of a contract call.
 pub struct InstantiateDryRunResult<E: Environment> {
     /// The result of the dry run, contains debug messages if there were any.
-    pub contract_result: ContractInstantiateResultFor<E>,
+    pub contract_result: ContractInstantiateResultForBar<E>,
 }
 
-impl<E: Environment> From<ContractInstantiateResultFor<E>>
+impl<E: Environment> From<ContractInstantiateResultForBar<E>>
     for InstantiateDryRunResult<E>
 {
-    fn from(contract_result: ContractInstantiateResultFor<E>) -> Self {
+    fn from(contract_result: ContractInstantiateResultForBar<E>) -> Self {
         Self { contract_result }
     }
 }
