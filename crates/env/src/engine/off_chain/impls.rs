@@ -495,7 +495,7 @@ impl TypedEnvBackend for EnvInstance {
         self.engine.terminate(beneficiary)
     }
 
-    fn transfer<E>(&mut self, destination: H160, value: E::Balance) -> Result<()>
+    fn transfer<E>(&mut self, destination: H160, value: U256) -> Result<()>
     where
         E: Environment,
     {

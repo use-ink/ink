@@ -692,7 +692,8 @@ where
     // # Note
     //
     // For more details visit: [`ink_env::transfer`]
-    pub fn transfer(self, destination: H160, value: E::Balance) -> Result<()> {
+    pub fn transfer(self, destination: H160, value: U256) -> Result<()> {
+        // todo remove E
         ink_env::transfer::<E>(destination, value)
     }
 

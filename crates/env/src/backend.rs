@@ -354,7 +354,7 @@ pub trait TypedEnvBackend: EnvBackend {
     /// # Note
     ///
     /// For more details visit: [`transfer`][`crate::transfer`]
-    fn transfer<E>(&mut self, destination: H160, value: E::Balance) -> Result<()>
+    fn transfer<E>(&mut self, destination: H160, value: U256) -> Result<()>
     where
         E: Environment;
 

@@ -27,7 +27,7 @@ pub mod give_me {
         ///   balance below the minimum balance (i.e. the chain's existential deposit).
         /// - Panics in case the transfer failed for another reason.
         #[ink(message)]
-        pub fn give_me(&mut self, value: Balance) {
+        pub fn give_me(&mut self, value: U256) {
             ink::env::debug_println!("requested value: {}", value);
             ink::env::debug_println!("contract balance: {}", self.env().balance());
 
@@ -84,7 +84,7 @@ pub mod give_me {
             // when
             set_sender(accounts.eve);
             set_balance(accounts.eve, 0);
-            give_me.give_me(80);
+            give_me.give_me(80.into());
 
             // then
             assert_eq!(get_balance(accounts.eve), 80);
@@ -100,7 +100,7 @@ pub mod give_me {
 
             // when
             set_sender(accounts.eve);
-            give_me.give_me(120);
+            give_me.give_me(120.into());
 
             // then
             // `give_me` must already have panicked here
@@ -216,7 +216,7 @@ pub mod give_me {
             let mut call_builder = contract.call_builder::<GiveMe>();
 
             // when
-            let transfer = call_builder.give_me(120_000_000);
+            let transfer = call_builder.give_me(120_000_000.into());
 
             let call_res = client
                 .call(&ink_e2e::bob(), &transfer)
@@ -262,7 +262,7 @@ pub mod give_me {
                 .expect("getting balance failed");
 
             // when
-            let transfer = call_builder.give_me(120_000_000);
+            let transfer = call_builder.give_me(120_000_000.into());
 
             let call_res = client
                 .call(&ink_e2e::eve(), &transfer)
