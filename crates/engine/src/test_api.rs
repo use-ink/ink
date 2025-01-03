@@ -23,7 +23,7 @@ use crate::{
     AccountError,
     Error,
 };
-use ink_primitives::AccountId;
+use ink_primitives::{AccountId, U256};
 use std::collections::HashMap;
 
 /// Record for an emitted event.
@@ -263,19 +263,19 @@ impl Engine {
     }
 
     /// Returns the current balance of `addr`.
-    pub fn get_balance(&self, addr: H160) -> Result<Balance, Error> {
+    pub fn get_balance(&self, addr: H160) -> Result<U256, Error> {
         self.database
             .get_balance(&addr)
             .ok_or(Error::Account(AccountError::NoContractForId(addr)))
     }
 
     /// Sets the balance of `addr` to `new_balance`.
-    pub fn set_balance(&mut self, addr: H160, new_balance: Balance) {
+    pub fn set_balance(&mut self, addr: H160, new_balance: U256) {
         self.database.set_balance(&addr, new_balance);
     }
 
     /// Sets the value transferred from the caller to the callee as part of the call.
-    pub fn set_value_transferred(&mut self, value: Balance) {
+    pub fn set_value_transferred(&mut self, value: U256) {
         self.exec_context.value_transferred = value;
     }
 

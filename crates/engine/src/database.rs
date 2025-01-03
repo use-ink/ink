@@ -16,7 +16,7 @@ use crate::types::{
     Balance,
     H160,
 };
-use ink_primitives::AccountId;
+use ink_primitives::{AccountId, U256};
 use scale::KeyedVec;
 use std::collections::HashMap;
 
@@ -124,7 +124,7 @@ impl Database {
         todo!()
     }
 
-    pub fn get_balance(&self, addr: &H160) -> Option<Balance> {
+    pub fn get_balance(&self, addr: &H160) -> Option<U256> {
         let hashed_key = balance_of_key(addr);
         self.get(&hashed_key).map(|encoded_balance| {
             scale::Decode::decode(&mut &encoded_balance[..])
@@ -133,7 +133,7 @@ impl Database {
     }
 
     /// Sets the balance of `addr` to `new_balance`.
-    pub fn set_balance(&mut self, addr: &H160, new_balance: Balance) {
+    pub fn set_balance(&mut self, addr: &H160, new_balance: U256) {
         let hashed_key = balance_of_key(addr);
         let encoded_balance = scale::Encode::encode(&new_balance);
         self.hmap

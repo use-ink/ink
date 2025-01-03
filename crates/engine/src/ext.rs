@@ -26,7 +26,6 @@ use crate::{
         EmittedEvent,
     },
     types::{
-        Balance,
         BlockTimestamp,
         H160,
     },
@@ -34,6 +33,7 @@ use crate::{
 pub use pallet_revive_uapi::ReturnErrorCode as Error;
 use scale::Encode;
 use std::panic::panic_any;
+use ink_primitives::U256;
 
 /// The off-chain engine.
 pub struct Engine {
@@ -54,10 +54,10 @@ pub struct Engine {
 /// The chain specification.
 pub struct ChainSpec {
     /// The current gas price.
-    pub gas_price: Balance,
+    pub gas_price: U256,
     /// The minimum value an account of the chain must have
     /// (i.e. the chain's existential deposit).
-    pub minimum_balance: Balance,
+    pub minimum_balance: U256,
     /// The targeted block time.
     pub block_time: BlockTimestamp,
 }
@@ -72,8 +72,8 @@ pub struct ChainSpec {
 impl Default for ChainSpec {
     fn default() -> Self {
         Self {
-            gas_price: 100,
-            minimum_balance: 42,
+            gas_price: 100.into(),
+            minimum_balance: 42.into(),
             block_time: 6,
         }
     }

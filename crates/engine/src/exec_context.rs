@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use ink_primitives::U256;
 use super::types::{
-    Balance,
     BlockNumber,
     BlockTimestamp,
     H160,
@@ -39,13 +39,13 @@ pub struct ExecContext {
     /// panic when it has not been set.
     pub callee: Option<H160>,
     /// The value transferred to the contract as part of the call.
-    pub value_transferred: Balance,
+    pub value_transferred: U256,
     /// The current block number.
     pub block_number: BlockNumber,
     /// The current block timestamp.
     pub block_timestamp: BlockTimestamp,
     /// Known contract accounts
-    pub contracts: Vec<H160>, // todo use H160
+    pub contracts: Vec<H160>,
 }
 
 impl ExecContext {
@@ -86,7 +86,7 @@ mod tests {
 
         exec_cont.callee = Some(H160::from([13; 20]));
         exec_cont.caller = H160::from([14; 20]);
-        exec_cont.value_transferred = 15;
+        exec_cont.value_transferred = 15.into();
         assert_eq!(exec_cont.callee(), H160::from([13; 20]));
 
         exec_cont.reset();

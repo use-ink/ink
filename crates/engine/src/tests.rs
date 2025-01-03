@@ -26,6 +26,7 @@ use secp256k1::{
     SecretKey,
     SECP256K1,
 };
+use ink_primitives::U256;
 
 /// The public methods of the `contracts` pallet write their result into an
 /// `output` buffer instead of returning them. Since we aim to emulate this
@@ -61,7 +62,7 @@ fn setting_getting_balance() {
     // given
     let mut engine = Engine::new();
     let addr = H160::from([1; 20]);
-    let balance = 1337;
+    let balance = 1337.into();
     engine.set_callee(addr);
     engine.set_balance(addr, balance);
 
@@ -70,7 +71,7 @@ fn setting_getting_balance() {
     engine.balance(&mut &mut output[..]);
 
     // then
-    let output = <u128 as scale::Decode>::decode(&mut &output[..16])
+    let output = <U256 as scale::Decode>::decode(&mut &output[..32])
         .unwrap_or_else(|err| panic!("decoding balance failed: {err}"));
     assert_eq!(output, balance);
 }
@@ -113,15 +114,15 @@ fn transfer() {
     let alice = H160::from([1; 20]);
     let bob = H160::from([2; 20]);
     engine.set_callee(alice);
-    engine.set_balance(alice, 1337);
+    engine.set_balance(alice, 1337.into());
 
     // when
     let val = scale::Encode::encode(&337u128);
     assert_eq!(engine.transfer(bob, &val), Ok(()));
 
     // then
-    assert_eq!(engine.get_balance(alice), Ok(1000));
-    assert_eq!(engine.get_balance(bob), Ok(337));
+    assert_eq!(engine.get_balance(alice), Ok(1000.into()));
+    assert_eq!(engine.get_balance(bob), Ok(337.into()));
 }
 
 #[test]
@@ -170,7 +171,7 @@ fn events() {
 fn value_transferred() {
     // given
     let mut engine = Engine::new();
-    let value = 1337;
+    let value = 1337.into();
     engine.set_value_transferred(value);
 
     // when
@@ -178,7 +179,7 @@ fn value_transferred() {
     engine.value_transferred(output);
 
     // then
-    let output = <u128 as scale::Decode>::decode(&mut &output[..16])
+    let output = <U256 as scale::Decode>::decode(&mut &output[..32])
         .expect("decoding value transferred failed");
     assert_eq!(output, value);
 }

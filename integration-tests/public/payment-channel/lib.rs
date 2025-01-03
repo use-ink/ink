@@ -279,7 +279,7 @@ mod payment_channel {
                 &mut signature_account_id,
             );
 
-            self.recipient == H160::from(signature_account_id[..20])
+            self.recipient == H160::from_slice(&signature_account_id[..20])
         }
     }
 
@@ -303,7 +303,7 @@ mod payment_channel {
         }
 
         fn set_account_balance(account: H160, balance: U256) {
-            ink::env::test::set_account_balance::<ink::env::DefaultEnvironment>(
+            ink::env::test::set_account_balance(
                 account, balance,
             );
         }
@@ -336,15 +336,11 @@ mod payment_channel {
             let compressed_pub_key: [u8; 33] = pub_key.encode()[..]
                 .try_into()
                 .expect("slice with incorrect length");
-            let mut address = [0; 32];
+            let mut account_id = [0; 32];
             <ink::env::hash::Blake2x256 as ink::env::hash::CryptoHash>::hash(
                 &compressed_pub_key,
-                &mut address,
+                &mut account_id,
             );
-            account_id_to_address(address)
-        }
-
-        fn account_id_to_address(account_id: &[u8; 32]) -> H160 {
             H160::from_slice(&account_id[..20])
         }
 

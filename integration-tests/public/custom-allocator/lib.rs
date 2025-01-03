@@ -39,8 +39,7 @@
 #![feature(sync_unsafe_cell)]
 
 #![feature(allocator_api)]
-use core::alloc::{AllocError, Allocator, GlobalAlloc, Layout};
-use core::ptr::NonNull;
+use core::alloc::{GlobalAlloc, Layout};
 use core::cell::{SyncUnsafeCell};
 
 #[cfg(not(feature = "std"))]
@@ -58,6 +57,7 @@ static mut MEMORY: Option<SyncUnsafeCell<BumpMemory>> = None;
 
 #[allow(clippy::arithmetic_side_effects)]
 unsafe impl GlobalAlloc for BumpAllocator {
+    #[allow(static_mut_refs)]
     unsafe fn alloc(&self, layout: Layout) -> *mut u8 {
         if MEMORY.is_none() {
             MEMORY = Some(SyncUnsafeCell::new(BumpMemory {
@@ -65,7 +65,7 @@ unsafe impl GlobalAlloc for BumpAllocator {
                 offset: 0,
             }));
         }
-        let mut memory = unsafe { &mut *MEMORY.as_ref().unwrap().get() };
+        let memory = unsafe { &mut *MEMORY.as_ref().unwrap().get() };
         let start = memory.offset;
         let end = start + layout.size();
 

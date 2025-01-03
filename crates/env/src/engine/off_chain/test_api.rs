@@ -31,7 +31,7 @@ pub use ink_engine::{
     ext::ChainSpec,
     ChainExtension,
 };
-use ink_primitives::H160;
+use ink_primitives::{H160, U256};
 
 /// Record for an emitted event.
 #[derive(Clone)]
@@ -58,14 +58,12 @@ pub struct EmittedEvent {
 /// - If the underlying `account` type does not match.
 /// - If the underlying `new_balance` type does not match.
 /// - If the `new_balance` is less than the existential minimum.
-pub fn set_account_balance<T>(addr: H160, new_balance: T::Balance)
-where
-    T: Environment<Balance = u128>, // Just temporary for the MVP!
+pub fn set_account_balance(addr: H160, new_balance: U256)
 {
     let min = ChainSpec::default().minimum_balance;
     eprintln!("new balance {new_balance}");
     eprintln!("min {min}");
-    if new_balance < min && new_balance != 0u128 {
+    if new_balance < min && new_balance != U256::zero() {
         panic!(
             "Balance must be at least [{}]. Use 0 as balance to reap the account.",
             min
@@ -89,9 +87,7 @@ where
 ///
 /// - If `account` does not exist.
 /// - If the underlying `account` type does not match.
-pub fn get_account_balance<T>(addr: H160) -> Result<T::Balance>
-where
-    T: Environment<Balance = u128>, // Just temporary for the MVP!
+pub fn get_account_balance<T>(addr: H160) -> Result<U256>
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         instance.engine.get_balance(addr).map_err(Into::into)
@@ -194,9 +190,7 @@ pub fn get_contract_storage_rw(addr: H160) -> (usize, usize) {
 ///
 /// Please note that the acting accounts should be set with [`set_caller()`] and
 /// [`set_callee()`] beforehand.
-pub fn set_value_transferred<T>(value: T::Balance)
-where
-    T: Environment<Balance = u128>, // Just temporary for the MVP!
+pub fn set_value_transferred(value: U256)
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         instance.engine.set_value_transferred(value);
@@ -208,9 +202,7 @@ where
 /// Please note that the acting accounts should be set with [`set_caller()`] and
 /// [`set_callee()`] beforehand.
 #[allow(clippy::arithmetic_side_effects)] // todo
-pub fn transfer_in<T>(value: T::Balance)
-where
-    T: Environment<Balance = u128>, // Just temporary for the MVP!
+pub fn transfer_in(value: U256)
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         let caller = instance.engine.exec_context.caller;
@@ -282,14 +274,14 @@ where
         instance.engine.set_callee(alice);
 
         // set up the funds for the default accounts
-        let substantial = 1_000_000;
-        let some = 1_000;
+        let substantial = 1_000_000.into();
+        let some = 1_000.into();
         instance.engine.set_balance(alice, substantial);
         instance.engine.set_balance(default_accounts.bob, some);
         instance.engine.set_balance(default_accounts.charlie, some);
-        instance.engine.set_balance(default_accounts.django, 0);
-        instance.engine.set_balance(default_accounts.eve, 0);
-        instance.engine.set_balance(default_accounts.frank, 0);
+        instance.engine.set_balance(default_accounts.django, 0.into());
+        instance.engine.set_balance(default_accounts.eve, 0.into());
+        instance.engine.set_balance(default_accounts.frank, 0.into());
     });
     f(default_accounts)
 }
@@ -359,8 +351,8 @@ pub fn recorded_events() -> impl Iterator<Item = EmittedEvent> {
 /// example for a complete usage exemplification.
 pub fn assert_contract_termination<T, F>(
     should_terminate: F,
-    expected_beneficiary: T::AccountId,
-    expected_value_transferred_to_beneficiary: T::Balance,
+    expected_beneficiary: H160,
+    expected_value_transferred_to_beneficiary: U256,
 ) where
     T: Environment,
     F: FnMut() + UnwindSafe,
@@ -372,11 +364,8 @@ pub fn assert_contract_termination<T, F>(
     let encoded_input = value_any
         .downcast_ref::<Vec<u8>>()
         .expect("panic object can not be cast");
-    let (value_transferred, encoded_beneficiary): (T::Balance, Vec<u8>) =
+    let (value_transferred, beneficiary): (U256, H160) =
         scale::Decode::decode(&mut &encoded_input[..])
-            .unwrap_or_else(|err| panic!("input can not be decoded: {err}"));
-    let beneficiary =
-        <T::AccountId as scale::Decode>::decode(&mut &encoded_beneficiary[..])
             .unwrap_or_else(|err| panic!("input can not be decoded: {err}"));
     assert_eq!(value_transferred, expected_value_transferred_to_beneficiary);
     assert_eq!(beneficiary, expected_beneficiary);
@@ -387,7 +376,7 @@ pub fn assert_contract_termination<T, F>(
 #[macro_export]
 macro_rules! pay_with_call {
     ($contract:ident . $message:ident ( $( $params:expr ),* ) , $amount:expr) => {{
-        $crate::test::transfer_in::<Environment>($amount);
+        $crate::test::transfer_in($amount);
         $contract.$message($ ($params) ,*)
     }}
 }

@@ -35,9 +35,9 @@ pub mod just_terminates {
                 ink::env::test::default_accounts();
             let contract_id = ink::env::test::callee::<ink::env::DefaultEnvironment>();
             ink::env::test::set_caller(accounts.alice);
-            ink::env::test::set_account_balance::<ink::env::DefaultEnvironment>(
+            ink::env::test::set_account_balance(
                 contract_id,
-                100,
+                100.into(),
             );
             let mut contract = JustTerminate::new();
 
@@ -48,7 +48,7 @@ pub mod just_terminates {
             ink::env::test::assert_contract_termination::<ink::env::DefaultEnvironment, _>(
                 should_terminate,
                 accounts.alice,
-                100,
+                100.into(),
             );
         }
     }
