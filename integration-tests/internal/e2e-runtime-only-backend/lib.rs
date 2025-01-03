@@ -34,8 +34,15 @@ pub mod flipper {
 
         /// Returns the current balance of the Flipper.
         #[ink(message)]
-        pub fn get_contract_balance(&self) -> Balance {
+        pub fn get_contract_balance(&self) -> ink::U256 {
             self.env().balance()
+        }
+
+        /// todo
+        /// Returns the `AccountId` of this contract.
+        #[ink(message)]
+        pub fn account_id(&mut self) -> AccountId {
+            self.env().account_id()
         }
     }
 
@@ -108,7 +115,16 @@ pub mod flipper {
                 .submit()
                 .await
                 .expect("deploy failed");
-            let call_builder = contract.call_builder::<Flipper>();
+            let mut call_builder = contract.call_builder::<Flipper>();
+
+            // todo
+            let acc = call_builder.account_id();
+            let call_res = client
+                .call(&ink_e2e::alice(), &acc)
+                .submit()
+                .await
+                .expect("call failed");
+            let account_id: AccountId = call_res.return_value();
 
             let old_balance = client
                 .call(&ink_e2e::alice(), &call_builder.get_contract_balance())
@@ -122,7 +138,7 @@ pub mod flipper {
             // when
             let call_data = vec![
                 // todo addr
-                Value::unnamed_variant("Id", [Value::from_bytes(contract.addr)]),
+                Value::unnamed_variant("Id", [Value::from_bytes(account_id)]),
                 // todo check next line
                 Value::u128(ENDOWMENT),
             ];

@@ -12,7 +12,7 @@ use frame_support::{
 };
 pub use pallet::*;
 
-type AccountIdOf<R> = <R as frame_system::Config>::AccountId;
+//type AccountIdOf<R> = <R as frame_system::Config>::AccountId;
 type BalanceOf<R> = <<R as pallet_revive::Config>::Currency as Inspect<
     <R as frame_system::Config>::AccountId,
 >>::Balance;
@@ -28,7 +28,6 @@ pub mod pallet {
     use frame_system::pallet_prelude::*;
     use pallet_revive::evm::*;
     use pallet_revive::MomentOf;
-    use pallet_revive::AddressMapper;
     use sp_runtime::traits::Bounded;
 
     #[pallet::pallet]
@@ -63,7 +62,7 @@ pub mod pallet {
             storage_deposit_limit: u128,
             //storage_deposit_limit: Option<BalanceOf<T>>,
         ) -> DispatchResult {
-            let who = ensure_signed(origin.clone())?;
+            let _who = ensure_signed(origin.clone())?;
 
             let executor =
                 executor::PalletReviveExecutor::<ink::env::DefaultEnvironment, T> {

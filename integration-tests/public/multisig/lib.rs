@@ -92,7 +92,7 @@ mod multisig {
     #[derive(Clone)]
     struct CallInput<'a>(&'a [u8]);
 
-    impl<'a> ink::scale::Encode for CallInput<'a> {
+    impl ink::scale::Encode for CallInput<'_> {
         fn encode_to<T: Output + ?Sized>(&self, dest: &mut T) {
             dest.write(self.0);
         }

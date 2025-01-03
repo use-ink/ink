@@ -79,7 +79,7 @@ pub mod wildcard_selector {
                 .submit()
                 .await
                 .expect("instantiate failed")
-                .account_id;
+                .addr;
 
             // when
             const ARBITRARY_SELECTOR: [u8; 4] = [0xF9, 0xF9, 0xF9, 0xF9];
@@ -135,7 +135,7 @@ pub mod wildcard_selector {
                 .submit()
                 .await
                 .expect("instantiate failed")
-                .account_id;
+                .addr;
 
             // when
             let wildcard_complement_message = "WILDCARD COMPLEMENT MESSAGE".to_string();

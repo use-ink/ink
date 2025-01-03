@@ -1,3 +1,4 @@
+// todo example needs to be fixed, but this requires the map AccountId -> H160 function
 #![cfg_attr(not(feature = "std"), no_std, no_main)]
 
 #[ink::contract]
@@ -5,6 +6,7 @@ mod contract_xcm {
     use ink::{
         env::Error as EnvError,
         xcm::prelude::*,
+        xcm::v4::*,
     };
 
     /// A trivial contract used to exercise XCM API.
@@ -61,7 +63,7 @@ mod contract_xcm {
                 id: *receiver.as_ref(),
             };
 
-            let message: Xcm<()> = Xcm::builder()
+            let message: ink::xcm::v4::Xcm<()> = ink::xcm::v4::Xcm::builder()
                 .withdraw_asset(asset.clone())
                 .buy_execution(asset.clone(), Unlimited)
                 .deposit_asset(asset, beneficiary)
@@ -85,14 +87,16 @@ mod contract_xcm {
             value: Balance,
             fee: Balance,
         ) -> Result<XcmHash, RuntimeError> {
-            let destination: Location = Parent.into();
+            let destination: ink::xcm::v4::Location = ink::xcm::v4::Parent.into();
             let asset: Asset = (Here, value).into();
             let beneficiary = AccountId32 {
                 network: None,
-                id: *self.env().caller().as_ref(),
+                // todo
+                id: [0u8; 32]
+                // id: *self.env().caller().as_ref(),
             };
 
-            let message: Xcm<()> = Xcm::builder()
+            let message: ink::xcm::v4::Xcm<()> = ink::xcm::v4::Xcm::builder()
                 .withdraw_asset(asset.clone())
                 .buy_execution((Here, fee), WeightLimit::Unlimited)
                 .deposit_asset(asset, beneficiary)
@@ -161,7 +165,7 @@ mod contract_xcm {
                 .expect("instantiate failed");
             let mut call_builder = contract.call_builder::<ContractXcm>();
 
-            let receiver: AccountId = default_accounts::<DefaultEnvironment>().bob;
+            let receiver: AccountId = default_accounts().bob;
 
             let contract_balance_before = client
                 .free_balance(contract.account_id)

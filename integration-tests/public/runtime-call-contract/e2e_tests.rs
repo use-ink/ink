@@ -1,4 +1,3 @@
-use ink::primitives::DepositLimit;
 use super::{
     Flipper,
     FlipperRef,

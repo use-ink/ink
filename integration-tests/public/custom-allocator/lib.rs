@@ -176,7 +176,7 @@ mod custom_allocator {
             // Then
             let get = call_builder.get();
             let get_result = client.call(&ink_e2e::alice(), &get).dry_run().await?;
-            assert!(matches!(get_result.return_value(), false));
+            assert!(!get_result.return_value());
 
             Ok(())
         }
@@ -196,7 +196,7 @@ mod custom_allocator {
 
             let get = call_builder.get();
             let get_result = client.call(&ink_e2e::bob(), &get).dry_run().await?;
-            assert!(matches!(get_result.return_value(), false));
+            assert!(!get_result.return_value());
 
             // When
             let flip = call_builder.flip();
@@ -209,7 +209,7 @@ mod custom_allocator {
             // Then
             let get = call_builder.get();
             let get_result = client.call(&ink_e2e::bob(), &get).dry_run().await?;
-            assert!(matches!(get_result.return_value(), true));
+            assert!(get_result.return_value());
 
             Ok(())
         }

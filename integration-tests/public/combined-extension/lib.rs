@@ -1,5 +1,6 @@
 #![cfg_attr(not(feature = "std"), no_std, no_main)]
 
+use ink::U256;
 use ink::env::{
     DefaultEnvironment,
     Environment,
@@ -79,7 +80,7 @@ mod combined_extension {
 
         /// Returns the total supply from PSP22 extension.
         #[ink(message)]
-        pub fn get_total_supply(&self) -> Result<Balance, Psp22Error> {
+        pub fn get_total_supply(&self) -> Result<U256, Psp22Error> {
             self.env().extension().psp22.total_supply(0)
         }
     }
@@ -127,7 +128,9 @@ mod combined_extension {
             assert_eq!(contract.get_rand(), Ok(RANDOM_VALUE));
         }
 
-        const TOTAL_SUPPLY: u128 = 1377;
+        fn total_supply() -> U256 {
+            U256::from(1337)
+        }
 
         /// Mocking the PSP22 extension to return results that we want in the tests.
         ///
@@ -144,7 +147,7 @@ mod combined_extension {
             fn call(&mut self, func_id: u16, _input: &[u8], output: &mut Vec<u8>) -> u32 {
                 match func_id {
                     0x162d /* `func_id` of the `total_supply` function */ => {
-                        ink::scale::Encode::encode_to(&TOTAL_SUPPLY, output);
+                        ink::scale::Encode::encode_to(&total_supply(), output);
                         0
                     }
                     _ => {
@@ -167,7 +170,7 @@ mod combined_extension {
             ink::env::test::register_chain_extension(MockedPSP22Extension);
 
             // then
-            assert_eq!(contract.get_total_supply(), Ok(TOTAL_SUPPLY));
+            assert_eq!(contract.get_total_supply(), Ok(total_supply()));
         }
 
         #[ink::test]
@@ -184,7 +187,7 @@ mod combined_extension {
 
             // then
             assert_eq!(contract.get_rand(), Ok(RANDOM_VALUE));
-            assert_eq!(contract.get_total_supply(), Ok(TOTAL_SUPPLY));
+            assert_eq!(contract.get_total_supply(), Ok(total_supply()));
         }
     }
 }

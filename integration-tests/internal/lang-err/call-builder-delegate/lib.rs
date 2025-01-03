@@ -119,7 +119,7 @@ mod call_builder {
 
             let mut incrementer_constructor = incrementer::IncrementerRef::new(42);
             let address = client
-                .instantiate("incrementer", &origin, &mut constructor)
+                .instantiate("incrementer", &origin, &mut incrementer_constructor)
                 .submit()
                 .await
                 .expect("instantiating `incrementer` failed")
@@ -149,7 +149,7 @@ mod call_builder {
                 .create_and_fund_account(&ink_e2e::charlie(), 10_000_000_000_000)
                 .await;
 
-            let constructor = CallBuilderDelegateTestRef::new(Default::default());
+            let mut constructor = CallBuilderDelegateTestRef::new(Default::default());
             let contract = client
                 .instantiate("call_builder_delegate", &origin, &mut constructor)
                 .submit()
@@ -157,9 +157,9 @@ mod call_builder {
                 .expect("instantiating `call_builder_delegate` failed");
             let mut call_builder = contract.call_builder::<CallBuilderDelegateTest>();
 
-            let incrementer_constructor = incrementer::IncrementerRef::new(42);
+            let mut incrementer_constructor = incrementer::IncrementerRef::new(42);
             let address = client
-                .instantiate("incrementer", &origin, &mut constructor)
+                .instantiate("incrementer", &origin, &mut incrementer_constructor)
                 .submit()
                 .await
                 .expect("instantiating `incrementer` failed")

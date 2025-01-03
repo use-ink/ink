@@ -1,12 +1,10 @@
 use crate::{
-    AccountIdOf,
     BalanceOf,
 };
 use frame_support::pallet_prelude::Weight;
 use frame_support::traits::IsType;
 use frame_system::pallet_prelude::OriginFor;
 use pallet_revive::{DepositLimit, MomentOf};
-use sp_runtime::app_crypto::sp_core;
 use sp_runtime::traits::{Bounded, Dispatchable};
 use ink::env::{
     call::{
@@ -16,8 +14,7 @@ use ink::env::{
     Environment,
 };
 use ink::H160;
-use ink::primitives::{AccountId, U256};
-use pallet_revive::AddressMapper;
+use ink::primitives::U256;
 
 pub struct PalletReviveExecutor<E: Environment, Runtime: pallet_revive::Config> {
     //pub origin: AccountIdOf<Runtime>,
@@ -26,7 +23,7 @@ pub struct PalletReviveExecutor<E: Environment, Runtime: pallet_revive::Config> 
     pub value: BalanceOf<Runtime>,
     pub gas_limit: Weight,
     //pub storage_deposit_limit: Option<BalanceOf<Runtime>>,
-    pub storage_deposit_limit: u128,
+    //pub storage_deposit_limit: u128,
     pub marker: core::marker::PhantomData<E>,
 }
 
@@ -54,7 +51,7 @@ where
         let result = pallet_revive::Pallet::<R>::bare_call(
             self.origin.clone(),
             // <R as pallet_revive::Config>::AddressMapper::to_account_id(&self.contract),
-            self.contract.clone(),
+            self.contract,
             self.value,
             self.gas_limit,
             // self.storage_deposit_limit,

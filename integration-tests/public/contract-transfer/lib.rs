@@ -52,7 +52,6 @@ pub mod give_me {
         /// allowed to receive value as part of the call.
         #[ink(message, payable, selector = 0xCAFEBABE)]
         pub fn was_it_ten(&self) {
-            let foo = ink::reflect::DispatchError::UnknownSelector;
             ink::env::debug_println!("{:?}", foo);
             ink::env::debug_println!("{}", foo.as_str());
             ink::env::debug_println!(
@@ -210,7 +209,7 @@ pub mod give_me {
             let mut constructor = GiveMeRef::new();
             let contract = client
                 .instantiate("contract_transfer", &ink_e2e::alice(), &mut constructor)
-                .value(1000_000_000)
+                .value(1_000_000_000)
                 .submit()
                 .await
                 .expect("instantiate failed");
@@ -243,7 +242,7 @@ pub mod give_me {
             let contract = client
                 //.map_account(&ink_e2e::bob())
                 .instantiate("contract_transfer", &ink_e2e::bob(), &mut constructor)
-                .value(1337_000_000)
+                .value(1_337_000_000)
                 .submit()
                 .await
                 .expect("instantiate failed");
@@ -258,7 +257,7 @@ pub mod give_me {
             let account_id: AccountId = call_res.return_value();
 
             let balance_before: Balance = client
-                .free_balance(account_id.clone())
+                .free_balance(account_id)
                 .await
                 .expect("getting balance failed");
 

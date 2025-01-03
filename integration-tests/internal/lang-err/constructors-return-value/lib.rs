@@ -195,8 +195,8 @@ pub mod constructors_return_value {
                 .await?
                 .return_value();
 
-            assert_eq!(
-                true, value,
+            assert!(
+                value,
                 "Contract success should write to contract storage"
             );
 

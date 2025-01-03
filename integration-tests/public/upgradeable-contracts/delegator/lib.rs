@@ -126,7 +126,8 @@ pub mod delegator {
             ChainBackend,
             ContractsBackend,
         };
-        use delegatee::delegatee::DelegateeRef;
+        use delegatee::delegatee::{Delegatee, DelegateeRef};
+        use delegatee2::delegatee2::{Delegatee2, Delegatee2Ref};
 
         type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
@@ -149,18 +150,18 @@ pub mod delegator {
              */
 
             let mut constructor = DelegateeRef::new();
-            let code_hash = client
+            let contract = client
                 .instantiate("delegatee", &origin, &mut constructor)
                 .submit()
                 .await
-                .expect("instantiate `delegatee` failed")
-                .addr;
-            let mut call_builder = contract.call_builder::<Delegatee>();
+                .expect("instantiate `delegatee` failed");
+            let call_builder = contract.call_builder::<Delegatee>();
             let call_delegatee = call_builder.code_hash();
-            let result = client.call(&origin, &call_delegatee).dry_run().await;
+            let result = client.call(&origin, &call_delegatee).dry_run().await
+                .expect("code_hash call failed");
             let code_hash = result.return_value();
 
-            let mut constructor = DelegatorRef::new(0, code_hash);
+            let mut constructor = DelegatorRef::new(0, code_hash, contract.addr);
             let contract = client
                 .instantiate("delegator", &origin, &mut constructor)
                 .submit()
@@ -205,15 +206,29 @@ pub mod delegator {
                 .create_and_fund_account(&ink_e2e::alice(), 10_000_000_000_000)
                 .await;
 
+            /*
             let code_hash = client
                 .upload("delegatee", &origin)
                 .submit()
                 .await
                 .expect("upload `delegatee` failed")
                 .code_hash;
+             */
+
+            let mut constructor = DelegateeRef::new();
+            let contract = client
+                .instantiate("delegatee", &origin, &mut constructor)
+                .submit()
+                .await
+                .expect("instantiate `delegatee` failed");
+            let call_builder = contract.call_builder::<Delegatee>();
+            let call_delegatee = call_builder.code_hash();
+            let result = client.call(&origin, &call_delegatee).dry_run().await
+                .expect("code_hash call failed");
+            let code_hash = result.return_value();
 
             // given
-            let mut constructor = DelegatorRef::new(10, code_hash);
+            let mut constructor = DelegatorRef::new(10, code_hash, contract.addr);
             let contract = client
                 .instantiate("delegator", &origin, &mut constructor)
                 .submit()
@@ -262,40 +277,77 @@ pub mod delegator {
                 .create_and_fund_account(&ink_e2e::alice(), 10_000_000_000_000)
                 .await;
 
+            /*
             let code_hash = client
                 .upload("delegatee", &origin)
                 .submit()
                 .await
                 .expect("upload `delegatee` failed")
                 .code_hash;
+             */
+            eprintln!("-------0");
+            let mut constructor = DelegateeRef::new();
+            let contract = client
+                .instantiate("delegatee", &origin, &mut constructor)
+                .submit()
+                .await
+                .expect("instantiate `delegatee` failed");
+            let call_builder = contract.call_builder::<Delegatee>();
+            let call_delegatee = call_builder.code_hash();
+            let result = client.call(&origin, &call_delegatee).dry_run().await
+                .expect("code_hash call to delegatee failed");
+            let code_hash = result.return_value();
+            let delegatee_addr = contract.addr;
 
+            eprintln!("-------1");
+            /*
             let code_hash2 = client
                 .upload("delegatee2", &origin)
                 .submit()
                 .await
                 .expect("upload `delegatee2` failed")
                 .code_hash;
+             */
+            let mut constructor = Delegatee2Ref::new();
+            let contract2 = client
+                .instantiate("delegatee2", &origin, &mut constructor)
+                .submit()
+                .await
+                .expect("instantiate `delegatee2` failed");
+            eprintln!("-------1.6");
+            let call_builder2 = contract.call_builder::<Delegatee2>();
+            let call_delegatee2 = call_builder2.code_hash();
+            let result2 = client.call(&origin, &call_delegatee2).dry_run().await
+                .expect("code_hash call to delegatee2 failed");
+            eprintln!("-------1.7");
+            let code_hash2 = result2.return_value();
+            let delegatee2_addr = contract2.addr;
 
-            let mut constructor = DelegatorRef::new(10, code_hash);
+            eprintln!("-------2");
+            let mut constructor = DelegatorRef::new(10, code_hash, delegatee_addr);
             let contract = client
                 .instantiate("delegator", &origin, &mut constructor)
                 .submit()
                 .await
                 .expect("instantiate failed");
             let mut call_builder = contract.call_builder::<Delegator>();
+            eprintln!("-------3");
 
             // when
-            let call_delegate = call_builder.update_delegate_to(code_hash2);
+            let call_delegate = call_builder.update_delegate_to(code_hash2, delegatee2_addr);
             let result = client.call(&origin, &call_delegate).submit().await;
             assert!(result.is_ok(), "update_delegate_to failed.");
+            eprintln!("-------4");
 
             // then
 
+            // todo
             // remove the original delegatee code.
             // should succeed because the delegate dependency has been removed.
             let original_code_removed =
                 client.remove_code(&origin, code_hash).submit().await;
             assert!(original_code_removed.is_ok());
+            eprintln!("-------5");
 
             // attempt to remove the new delegatee code.
             // should fail because of the delegate dependency.

@@ -106,7 +106,6 @@ pub mod incrementer {
                 .expect("uploading `updated_incrementer` failed")
                 .code_hash;
 
-            let new_code_hash = new_code_hash.as_ref().try_into().unwrap();
             let set_code = call_builder.set_code(new_code_hash);
 
             let _set_code_result = client

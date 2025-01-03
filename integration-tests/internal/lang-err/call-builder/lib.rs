@@ -108,7 +108,7 @@ mod call_builder {
         ) -> Option<ink::LangError> {
             let mut params = ConstructorsReturnValueRef::new(init_value)
                 .code_hash(code_hash)
-                .endowment(0)
+                .endowment(0.into())
                 .salt_bytes(Some([1u8; 32]))
                 .params();
 
@@ -149,7 +149,7 @@ mod call_builder {
         > {
             let mut params = ConstructorsReturnValueRef::try_new(init_value)
                 .code_hash(code_hash)
-                .endowment(0)
+                .endowment(0.into())
                 .salt_bytes(Some([1u8; 32]))
                 .params();
 
