@@ -346,6 +346,7 @@ pub mod delegator {
             // should succeed because the delegate dependency has been removed.
             let original_code_removed =
                 client.remove_code(&origin, code_hash).submit().await;
+            eprintln!("-------5 {original_code_removed:?}");
             assert!(original_code_removed.is_ok());
             eprintln!("-------5");
 
