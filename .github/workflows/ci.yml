@@ -315,7 +315,12 @@ jobs:
             CARGO_ENCODED_RUSTFLAGS: "--cfg\x1fsubstrate_runtime"
             RUSTFLAGS: "--cfg substrate_runtime"
         run: |
+          rustup override set nightly
+          rustup update nightly;
+          rustup component add rust-src;
+          rustup target add riscv64imac-unknown-none-elf;
           for crate in ${ALSO_RISCV_CRATES}; do
+            echo ${crate};
             cargo +nightly build --verbose --no-default-features --release
               -Zbuild-std="core,alloc" \
               --target RISCV_TARGET \
