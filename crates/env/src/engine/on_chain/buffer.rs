@@ -79,7 +79,7 @@ impl<'a> EncodeScope<'a> {
     }
 }
 
-impl<'a> scale::Output for EncodeScope<'a> {
+impl scale::Output for EncodeScope<'_> {
     fn write(&mut self, bytes: &[u8]) {
         debug_assert!(
             self.len().checked_add(bytes.len()).unwrap() <= self.capacity(),

@@ -57,10 +57,7 @@ use rustc_middle::{
     },
     ty as mir_ty,
 };
-use rustc_mir_dataflow::{
-    Analysis,
-    AnalysisDomain,
-};
+use rustc_mir_dataflow::Analysis;
 use rustc_session::{
     declare_lint,
     declare_lint_pass,
@@ -219,7 +216,8 @@ impl<'a, 'tcx> StrictBalanceEqualityAnalysis<'a, 'tcx> {
     }
 }
 
-impl<'a, 'tcx> AnalysisDomain<'tcx> for StrictBalanceEqualityAnalysis<'a, 'tcx> {
+/// The implementation of the transfer function for the dataflow problem
+impl<'tcx> Analysis<'tcx> for StrictBalanceEqualityAnalysis<'_, 'tcx> {
     /// A lattice that represents program's state. `BitSet` is a powerset over MIR Locals
     /// defined in the analyzed function. Inclusion to the set means that the Local is
     /// tainted with some operation with `self.env().balance()`.
@@ -244,10 +242,6 @@ impl<'a, 'tcx> AnalysisDomain<'tcx> for StrictBalanceEqualityAnalysis<'a, 'tcx> 
             )
         }
     }
-}
-
-/// The implementation of the transfer function for the dataflow problem
-impl<'a, 'tcx> Analysis<'tcx> for StrictBalanceEqualityAnalysis<'a, 'tcx> {
     fn apply_statement_effect(
         &mut self,
         state: &mut Self::Domain,
@@ -351,7 +345,7 @@ impl Visitor<'_> for TransferFunction<'_, '_> {
     }
 }
 
-impl<'tcx> TransferFunction<'_, 'tcx> {
+impl TransferFunction<'_, '_> {
     fn binop_strict_eq(&self, binop: &BinOp) -> bool {
         matches!(binop, BinOp::Eq | BinOp::Ne)
     }
@@ -484,8 +478,7 @@ impl<'tcx> TransferFunction<'_, 'tcx> {
                 self.fun_cache,
                 init_taints,
             )
-            .into_engine(self.cx.tcx, fn_mir)
-            .iterate_to_fixpoint()
+            .iterate_to_fixpoint(self.cx.tcx, fn_mir, None)
             .into_results_cursor(fn_mir);
             let taint_results =
                 if let Some((last, _)) = traversal::reverse_postorder(fn_mir).last() {
@@ -558,19 +551,18 @@ impl<'tcx> LateLintPass<'tcx> for StrictBalanceEquality {
     }
 }
 
-impl<'tcx> StrictBalanceEquality {
+impl StrictBalanceEquality {
     /// Checks a function from the contract implementation
     fn check_contract_fun(
         &mut self,
-        cx: &LateContext<'tcx>,
+        cx: &LateContext<'_>,
         fun_cache: &mut VisitedFunctionsCache,
         fn_span: Span,
         fn_def_id: DefId,
     ) {
         let fn_mir = cx.tcx.optimized_mir(fn_def_id);
         let mut taint_results = StrictBalanceEqualityAnalysis::new(cx, fun_cache)
-            .into_engine(cx.tcx, fn_mir)
-            .iterate_to_fixpoint()
+            .iterate_to_fixpoint(cx.tcx, fn_mir, None)
             .into_results_cursor(fn_mir);
         for (bb, bb_data) in traversal::preorder(fn_mir) {
             taint_results.seek_to_block_end(bb);

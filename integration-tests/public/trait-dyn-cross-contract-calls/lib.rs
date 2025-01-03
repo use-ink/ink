@@ -21,7 +21,7 @@ pub mod caller {
     impl Caller {
         /// Creates a new caller smart contract around the `incrementer` account id.
         #[ink(constructor)]
-        pub fn new(incrementer: AccountId) -> Self {
+        pub fn new(incrementer: ink::H160) -> Self {
             Self {
                 incrementer: incrementer.into(),
             }
@@ -89,7 +89,7 @@ mod e2e_tests {
             .expect("instantiate failed");
         let incrementer_call = incrementer.call_builder::<Incrementer>();
 
-        let mut constructor = CallerRef::new(incrementer.account_id.clone());
+        let mut constructor = CallerRef::new(incrementer.addr.clone());
 
         let caller = client
             .instantiate(

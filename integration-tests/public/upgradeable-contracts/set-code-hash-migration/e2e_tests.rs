@@ -37,7 +37,6 @@ async fn migration_works<Client: E2EBackend>(mut client: Client) -> E2EResult<()
         .await
         .expect("uploading `updated-incrementer` failed")
         .code_hash;
-    let new_code_hash = new_code_hash.as_ref().try_into().unwrap();
 
     // Upload the code for the migration contract.
     let migration_contract = client
@@ -45,7 +44,7 @@ async fn migration_works<Client: E2EBackend>(mut client: Client) -> E2EResult<()
         .submit()
         .await
         .expect("uploading `migration` failed");
-    let migration_code_hash = migration_contract.code_hash.as_ref().try_into().unwrap();
+    let migration_code_hash = migration_contract.code_hash;
 
     // When
 

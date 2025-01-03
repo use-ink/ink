@@ -268,6 +268,7 @@ where
     TypeSpec<F>: Default,
 {
     /// Finalizes construction of the contract specification.
+    #[allow(clippy::arithmetic_side_effects)] // todo
     pub fn done(self) -> ContractSpec<F> {
         assert!(
             !self.spec.constructors.is_empty(),

@@ -48,12 +48,9 @@
 /// The capacity of the static buffer.
 /// Usually set to 16 kB.
 /// Can be modified by setting `INK_STATIC_BUFFER_SIZE` environmental variable.
+/// todo
 #[const_env::from_env("INK_STATIC_BUFFER_SIZE")]
-pub const BUFFER_SIZE: usize = 16384;
-
-#[cfg(all(not(feature = "std"), target_arch = "wasm32"))]
-#[allow(unused_extern_crates)]
-extern crate rlibc;
+pub const BUFFER_SIZE: usize = 16384 * 4;
 
 #[cfg(not(any(feature = "std", feature = "no-panic-handler")))]
 #[allow(unused_variables)]
@@ -63,16 +60,14 @@ fn panic(info: &core::panic::PanicInfo) -> ! {
     debug_print!("{}\n", info);
 
     cfg_if::cfg_if! {
-        if #[cfg(target_arch = "wasm32")] {
-            core::arch::wasm32::unreachable();
-        } else if #[cfg(target_arch = "riscv32")] {
+        if #[cfg(target_arch = "riscv64")] {
             // Safety: The unimp instruction is guaranteed to trap
             unsafe {
                 core::arch::asm!("unimp");
                 core::hint::unreachable_unchecked();
             }
         } else {
-            core::compile_error!("ink! only supports wasm32 and riscv32");
+            core::compile_error!("ink! only supports riscv64");
         }
     }
 }
@@ -81,6 +76,8 @@ fn panic(info: &core::panic::PanicInfo) -> ! {
 // is not recognizing its allocator and panic handler definitions.
 #[cfg(not(any(feature = "std", feature = "no-allocator")))]
 extern crate ink_allocator;
+
+
 
 mod api;
 mod arithmetic;
@@ -102,14 +99,6 @@ mod tests;
 #[doc(inline)]
 pub use self::engine::off_chain::test_api as test;
 
-#[cfg(not(feature = "revive"))]
-#[doc(inline)]
-pub use pallet_contracts_uapi::{
-    CallFlags,
-    ReturnErrorCode,
-    ReturnFlags,
-};
-#[cfg(feature = "revive")]
 #[doc(inline)]
 pub use pallet_revive_uapi::{
     CallFlags,
@@ -156,7 +145,7 @@ cfg_if::cfg_if! {
         /// extrinsic). The `debug_message` buffer will be:
         ///  - Returned to the RPC caller.
         ///  - Logged as a `debug!` message on the Substrate node, which will be printed to the
-        ///    node console's `stdout` when the log level is set to `-lruntime::contracts=debug`.
+        ///    node console's `stdout` when the log level is set to `-lruntime::revive=debug`.
         ///
         /// # Note
         ///

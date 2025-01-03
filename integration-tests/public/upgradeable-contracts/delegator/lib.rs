@@ -17,13 +17,15 @@ pub mod delegator {
             Lazy,
             Mapping,
         },
+        H160,
+        primitives::H256,
     };
 
     #[ink(storage)]
     pub struct Delegator {
-        addresses: Mapping<AccountId, i32, ManualKey<0x23>>,
+        addresses: Mapping<H160, i32, ManualKey<0x23>>,
         counter: i32,
-        delegate_to: Lazy<Hash>,
+        delegate_to: Lazy<(H256, H160)>,
     }
 
     impl Delegator {
@@ -33,14 +35,14 @@ pub mod delegator {
         /// Additionally, this code hash will be locked to prevent its deletion, since
         /// this contract depends on it.
         #[ink(constructor)]
-        pub fn new(init_value: i32, hash: Hash) -> Self {
+        pub fn new(init_value: i32, hash: H256, addr: H160) -> Self {
             let v = Mapping::new();
 
             // Initialize the hash of the contract to delegate to.
             // Adds a delegate dependency lock, ensuring that the delegated to code cannot
             // be removed.
             let mut delegate_to = Lazy::new();
-            delegate_to.set(&hash);
+            delegate_to.set(&(hash, addr));
             Self::env().lock_delegate_dependency(&hash);
 
             Self {
@@ -56,12 +58,13 @@ pub mod delegator {
         /// - Adds a new delegate dependency lock, ensuring that the new delegated to code
         ///   cannot be removed.
         #[ink(message)]
-        pub fn update_delegate_to(&mut self, hash: Hash) {
-            if let Some(old_hash) = self.delegate_to.get() {
+        pub fn update_delegate_to(&mut self, hash: H256, addr: H160) {
+            if let Some(delegate_to) = self.delegate_to.get() {
+                let old_hash = delegate_to.0;
                 self.env().unlock_delegate_dependency(&old_hash)
             }
             self.env().lock_delegate_dependency(&hash);
-            self.delegate_to.set(&hash);
+            self.delegate_to.set(&(hash, addr));
         }
 
         /// Increment the current value using delegate call.
@@ -69,7 +72,7 @@ pub mod delegator {
         pub fn inc_delegate(&mut self) {
             let selector = ink::selector_bytes!("inc");
             let _ = build_call::<DefaultEnvironment>()
-                .delegate(self.delegate_to())
+                .delegate(self.delegate_to().1)
                 // We specify `CallFlags::TAIL_CALL` to use the delegatee last memory frame
                 // as the end of the execution cycle.
                 // So any mutations to `Packed` types, made by delegatee,
@@ -91,7 +94,7 @@ pub mod delegator {
         pub fn add_entry_delegate(&mut self) {
             let selector = ink::selector_bytes!("append_address_value");
             let _ = build_call::<DefaultEnvironment>()
-                .delegate(self.delegate_to())
+                .delegate(self.delegate_to().1)
                 .exec_input(ExecutionInput::new(Selector::new(selector)))
                 .returns::<()>()
                 .try_invoke();
@@ -105,11 +108,11 @@ pub mod delegator {
 
         /// Returns the current value of the address.
         #[ink(message)]
-        pub fn get_value(&self, address: AccountId) -> (AccountId, Option<i32>) {
+        pub fn get_value(&self, address: H160) -> (H160, Option<i32>) {
             (self.env().caller(), self.addresses.get(address))
         }
 
-        fn delegate_to(&self) -> Hash {
+        fn delegate_to(&self) -> (H256, H160) {
             self.delegate_to
                 .get()
                 .expect("delegate_to always has a value")
@@ -123,6 +126,8 @@ pub mod delegator {
             ChainBackend,
             ContractsBackend,
         };
+        use delegatee::delegatee::{Delegatee, DelegateeRef};
+        use delegatee2::delegatee2::{Delegatee2, Delegatee2Ref};
 
         type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
@@ -135,14 +140,28 @@ pub mod delegator {
                 .create_and_fund_account(&ink_e2e::alice(), 10_000_000_000_000)
                 .await;
 
+            /*
             let code_hash = client
                 .upload("delegatee", &origin)
                 .submit()
                 .await
                 .expect("upload `delegatee` failed")
                 .code_hash;
+             */
 
-            let mut constructor = DelegatorRef::new(0, code_hash);
+            let mut constructor = DelegateeRef::new();
+            let contract = client
+                .instantiate("delegatee", &origin, &mut constructor)
+                .submit()
+                .await
+                .expect("instantiate `delegatee` failed");
+            let call_builder = contract.call_builder::<Delegatee>();
+            let call_delegatee = call_builder.code_hash();
+            let result = client.call(&origin, &call_delegatee).dry_run().await
+                .expect("code_hash call failed");
+            let code_hash = result.return_value();
+
+            let mut constructor = DelegatorRef::new(0, code_hash, contract.addr);
             let contract = client
                 .instantiate("delegator", &origin, &mut constructor)
                 .submit()
@@ -187,15 +206,29 @@ pub mod delegator {
                 .create_and_fund_account(&ink_e2e::alice(), 10_000_000_000_000)
                 .await;
 
+            /*
             let code_hash = client
                 .upload("delegatee", &origin)
                 .submit()
                 .await
                 .expect("upload `delegatee` failed")
                 .code_hash;
+             */
+
+            let mut constructor = DelegateeRef::new();
+            let contract = client
+                .instantiate("delegatee", &origin, &mut constructor)
+                .submit()
+                .await
+                .expect("instantiate `delegatee` failed");
+            let call_builder = contract.call_builder::<Delegatee>();
+            let call_delegatee = call_builder.code_hash();
+            let result = client.call(&origin, &call_delegatee).dry_run().await
+                .expect("code_hash call failed");
+            let code_hash = result.return_value();
 
             // given
-            let mut constructor = DelegatorRef::new(10, code_hash);
+            let mut constructor = DelegatorRef::new(10, code_hash, contract.addr);
             let contract = client
                 .instantiate("delegator", &origin, &mut constructor)
                 .submit()
@@ -214,7 +247,9 @@ pub mod delegator {
             // assigned to Alice.
             let expected_value = 10;
             // Alice's address
-            let address = AccountId::from(origin.public_key().to_account_id().0);
+            // todo
+            let foo = origin.public_key().to_account_id().0;
+            let address = H160::from_slice(&foo[0..20]);
 
             let call_get_value = call_builder.get_value(address);
             let call_get_result = client
@@ -242,40 +277,78 @@ pub mod delegator {
                 .create_and_fund_account(&ink_e2e::alice(), 10_000_000_000_000)
                 .await;
 
+            /*
             let code_hash = client
                 .upload("delegatee", &origin)
                 .submit()
                 .await
                 .expect("upload `delegatee` failed")
                 .code_hash;
+             */
+            eprintln!("-------0");
+            let mut constructor = DelegateeRef::new();
+            let contract = client
+                .instantiate("delegatee", &origin, &mut constructor)
+                .submit()
+                .await
+                .expect("instantiate `delegatee` failed");
+            let call_builder = contract.call_builder::<Delegatee>();
+            let call_delegatee = call_builder.code_hash();
+            let result = client.call(&origin, &call_delegatee).dry_run().await
+                .expect("code_hash call to delegatee failed");
+            let code_hash = result.return_value();
+            let delegatee_addr = contract.addr;
 
+            eprintln!("-------1");
+            /*
             let code_hash2 = client
                 .upload("delegatee2", &origin)
                 .submit()
                 .await
                 .expect("upload `delegatee2` failed")
                 .code_hash;
+             */
+            let mut constructor = Delegatee2Ref::new();
+            let contract2 = client
+                .instantiate("delegatee2", &origin, &mut constructor)
+                .submit()
+                .await
+                .expect("instantiate `delegatee2` failed");
+            eprintln!("-------1.6");
+            let call_builder2 = contract.call_builder::<Delegatee2>();
+            let call_delegatee2 = call_builder2.code_hash();
+            let result2 = client.call(&origin, &call_delegatee2).dry_run().await
+                .expect("code_hash call to delegatee2 failed");
+            eprintln!("-------1.7");
+            let code_hash2 = result2.return_value();
+            let delegatee2_addr = contract2.addr;
 
-            let mut constructor = DelegatorRef::new(10, code_hash);
+            eprintln!("-------2");
+            let mut constructor = DelegatorRef::new(10, code_hash, delegatee_addr);
             let contract = client
                 .instantiate("delegator", &origin, &mut constructor)
                 .submit()
                 .await
                 .expect("instantiate failed");
             let mut call_builder = contract.call_builder::<Delegator>();
+            eprintln!("-------3");
 
             // when
-            let call_delegate = call_builder.update_delegate_to(code_hash2);
+            let call_delegate = call_builder.update_delegate_to(code_hash2, delegatee2_addr);
             let result = client.call(&origin, &call_delegate).submit().await;
             assert!(result.is_ok(), "update_delegate_to failed.");
+            eprintln!("-------4");
 
             // then
 
+            // todo
             // remove the original delegatee code.
             // should succeed because the delegate dependency has been removed.
             let original_code_removed =
                 client.remove_code(&origin, code_hash).submit().await;
+            eprintln!("-------5 {original_code_removed:?}");
             assert!(original_code_removed.is_ok());
+            eprintln!("-------5");
 
             // attempt to remove the new delegatee code.
             // should fail because of the delegate dependency.

@@ -112,6 +112,13 @@ mod runtime_call {
         pub fn call_nonexistent_extrinsic(&mut self) -> Result<(), RuntimeError> {
             self.env().call_runtime(&()).map_err(Into::into)
         }
+
+        /// todo
+        /// Returns the `AccountId` of this contract.
+        #[ink(message)]
+        pub fn account_id(&mut self) -> AccountId {
+            self.env().account_id()
+        }
     }
 
     #[cfg(all(test, feature = "e2e-tests"))]
@@ -123,10 +130,6 @@ mod runtime_call {
         };
 
         use ink::{
-            env::{
-                test::default_accounts,
-                DefaultEnvironment,
-            },
             primitives::AccountId,
         };
 
@@ -167,10 +170,20 @@ mod runtime_call {
                 .expect("instantiate failed");
             let mut call_builder = contract.call_builder::<RuntimeCaller>();
 
-            let receiver: AccountId = default_accounts::<DefaultEnvironment>().bob;
+            // todo
+            let acc = call_builder.account_id();
+            let call_res = client
+                .call(&ink_e2e::alice(), &acc)
+                .submit()
+                .await
+                .expect("call failed");
+            let account_id: AccountId = call_res.return_value();
+
+            //let receiver: AccountId = default_accounts().bob;
+            let receiver = AccountId::from([0x02; 32]);
 
             let contract_balance_before = client
-                .free_balance(contract.account_id)
+                .free_balance(account_id)
                 .await
                 .expect("Failed to get account balance");
             let receiver_balance_before = client
@@ -192,7 +205,7 @@ mod runtime_call {
 
             // then
             let contract_balance_after = client
-                .free_balance(contract.account_id)
+                .free_balance(account_id)
                 .await
                 .expect("Failed to get account balance");
             let receiver_balance_after = client
@@ -231,7 +244,8 @@ mod runtime_call {
                 .expect("instantiate failed");
             let mut call_builder = contract.call_builder::<RuntimeCaller>();
 
-            let receiver: AccountId = default_accounts::<DefaultEnvironment>().bob;
+            //let receiver: ink::H160 = default_accounts().bob;
+            let receiver = AccountId::from([0x02; 32]);
 
             // when
             let transfer_message = call_builder

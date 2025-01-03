@@ -39,7 +39,7 @@ mod lazyvec {
 
         /// Checks whether given account is allowed to vote and didn't already
         /// participate.
-        fn is_eligible(&self, _voter: AccountId) -> bool {
+        fn is_eligible(&self, _voter: ink::H160) -> bool {
             // ToDo: In production, the contract would actually verify eligible voters.
             // For example, a merkle proof could be an efficient way to do this.
             true
@@ -110,7 +110,7 @@ mod lazyvec {
             let mut call_builder = contract.call_builder::<LazyVector>();
 
             // when
-            let create = call_builder.create_proposal(vec![0x41], 5, 1);
+            let create = call_builder.create_proposal(vec![0x41], 15, 1);
             let _ = client
                 .call(&ink_e2e::alice(), &create)
                 .submit()

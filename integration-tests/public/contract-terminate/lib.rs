@@ -32,12 +32,12 @@ pub mod just_terminates {
         fn terminating_works() {
             // given
             let accounts =
-                ink::env::test::default_accounts::<ink::env::DefaultEnvironment>();
+                ink::env::test::default_accounts();
             let contract_id = ink::env::test::callee::<ink::env::DefaultEnvironment>();
-            ink::env::test::set_caller::<ink::env::DefaultEnvironment>(accounts.alice);
-            ink::env::test::set_account_balance::<ink::env::DefaultEnvironment>(
+            ink::env::test::set_caller(accounts.alice);
+            ink::env::test::set_account_balance(
                 contract_id,
-                100,
+                100.into(),
             );
             let mut contract = JustTerminate::new();
 
@@ -48,7 +48,7 @@ pub mod just_terminates {
             ink::env::test::assert_contract_termination::<ink::env::DefaultEnvironment, _>(
                 should_terminate,
                 accounts.alice,
-                100,
+                100.into(),
             );
         }
     }
@@ -89,7 +89,7 @@ pub mod just_terminates {
             // then
             assert!(call_res.contains_event("System", "KilledAccount"));
             assert!(call_res.contains_event("Balances", "Withdraw"));
-            assert!(call_res.contains_event("Contracts", "Terminated"));
+            assert!(call_res.contains_event("Revive", "Terminated"));
 
             Ok(())
         }
