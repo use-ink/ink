@@ -608,10 +608,10 @@ where
     ///
     /// # Note
     ///
-    /// Constructors are not able to return arbitrary values. Instead a successful call to
+    /// Constructors are not able to return arbitrary values. Instead, a successful call to
     /// a constructor returns the address at which the contract was instantiated.
     ///
-    /// Therefore this must always be a reference (i.e `ContractRef`) to the contract
+    /// Therefore this must always be a reference (i.e. `ContractRef`) to the contract
     /// you're trying to instantiate.
     #[inline]
     pub fn returns<R>(

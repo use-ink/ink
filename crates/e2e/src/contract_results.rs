@@ -38,15 +38,6 @@ use std::{
 use frame_support::pallet_prelude::{Decode, Encode};
 use ink_env::call::FromAddr;
 
-/*
-/// Alias for the contract instantiate result.
-pub type ContractInstantiateResultFor<E> = ContractResult<
-    InstantiateReturnValue,
-    <E as Environment>::Balance,
-    <E as Environment>::EventRecord,
->;
-*/
-
 /// Alias for the contract instantiate result.
 pub type ContractInstantiateResultForBar<E> = ContractResultBar<
     InstantiateReturnValue,
