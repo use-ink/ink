@@ -12,28 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::{
-    backend::BuilderClient,
-    builders::{
-        constructor_exec_input,
-        CreateBuilderPartial,
-    },
-    client_utils::{
-        salt,
-        ContractsRegistry,
-    },
-    contract_results::BareInstantiationResult,
-    error::SandboxErr,
-    log_error,
-    CallBuilderFinal,
-    CallDryRunResult,
-    ChainBackend,
-    ContractsBackend,
-    E2EBackend,
-    UploadResult,
-    H256,
-};
-use crate::contract_results::{BareInstantiationDryRunResult, ContractExecResultFor};
+use crate::{backend::BuilderClient, builders::{
+    constructor_exec_input,
+    CreateBuilderPartial,
+}, client_utils::{
+    salt,
+    ContractsRegistry,
+}, contract_results::BareInstantiationResult, error::SandboxErr, log_error, CallBuilderFinal, CallDryRunResult, ChainBackend, ContractsBackend, E2EBackend, InstantiateDryRunResult, UploadResult, H256};
+use crate::contract_results::{ContractResultBar, ContractExecResultFor};
 use frame_support::{
         pallet_prelude::DispatchError,
     dispatch::RawOrigin,
@@ -282,7 +268,7 @@ where
         constructor: &mut CreateBuilderPartial<E, Contract, Args, R>,
         value: E::Balance,
         storage_deposit_limit: DepositLimit<E::Balance>,
-    ) -> Result<BareInstantiationDryRunResult<E>, Self::Error> {
+    ) -> Result<InstantiateDryRunResult<E>, Self::Error> {
         // todo has to be: let _ = <Client<AccountId, S> as BuilderClient<E>>::map_account_dry_run(self, &caller).await;
         let _ = <Client<AccountId, S> as BuilderClient<E>>::map_account(self, caller).await;
 
@@ -313,7 +299,7 @@ where
             Ok(res) => res.addr,
         };
 
-        let result = BareInstantiationDryRunResult::<E> {
+        let result = ContractResultBar::<InstantiateReturnValue, E::Balance> {
             gas_consumed: result.gas_consumed,
             gas_required: result.gas_required,
             storage_deposit: result.storage_deposit,
@@ -325,7 +311,7 @@ where
                 }
             }),
         };
-        Ok(result)
+        Ok(result.into())
     }
 
     async fn bare_upload(

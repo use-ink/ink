@@ -21,7 +21,6 @@ use crate::{
     },
     builders::CreateBuilderPartial,
     contract_results::{
-        BareInstantiationDryRunResult,
         BareInstantiationResult,
     },
     CallBuilder,

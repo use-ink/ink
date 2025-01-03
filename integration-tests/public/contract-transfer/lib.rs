@@ -62,7 +62,8 @@ pub mod give_me {
             assert!(self.env().transferred_value() == U256::from(10), "payment was not ten");
         }
 
-        /// Addrj
+        /// todo
+        /// Returns the `AccountId` of this contract.
         #[ink(message)]
         pub fn account_id(&mut self) -> AccountId {
             self.env().account_id()

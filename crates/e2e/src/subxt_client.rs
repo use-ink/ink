@@ -57,7 +57,6 @@ use crate::{
         salt,
         ContractsRegistry,
     },
-    contract_results::BareInstantiationDryRunResult,
     error::DryRunError,
     events,
     ContractsBackend,

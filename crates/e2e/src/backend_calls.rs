@@ -25,7 +25,6 @@ use super::{balance_to_deposit_limit, InstantiateDryRunResult, Keypair};
 use crate::{
     backend::BuilderClient,
     builders::CreateBuilderPartial,
-    contract_results::BareInstantiationDryRunResult,
     CallBuilderFinal,
     CallDryRunResult,
     CallResult,

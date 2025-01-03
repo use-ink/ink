@@ -22,7 +22,6 @@ use ink_primitives::{
 use pallet_revive::{
     evm::H160,
     CodeUploadResult,
-    ContractResult,
     ExecReturnValue,
     InstantiateReturnValue,
     StorageDeposit,
@@ -39,12 +38,14 @@ use std::{
 use frame_support::pallet_prelude::{Decode, Encode};
 use ink_env::call::FromAddr;
 
+/*
 /// Alias for the contract instantiate result.
 pub type ContractInstantiateResultFor<E> = ContractResult<
     InstantiateReturnValue,
     <E as Environment>::Balance,
     <E as Environment>::EventRecord,
 >;
+*/
 
 /// Alias for the contract instantiate result.
 pub type ContractInstantiateResultForBar<E> = ContractResultBar<
@@ -110,14 +111,6 @@ pub type ContractExecResultFor<E> = ContractResultBar<
 >;
 
 /*
-/// Alias for the contract exec result.
-pub type ContractInstantiateResultFor<E> = ContractResultBar<
-    InstantiateReturnValue,
-    <E as Environment>::Balance,
->;
- */
-
-
 // todo can be removed
 /// Copied from `pallet-revive`.
 #[derive(Debug, Encode, Decode)]
@@ -160,6 +153,7 @@ pub struct BareInstantiationDryRunResult<E: Environment> {
     /// The execution result of the Wasm code.
     pub result: Result<InstantiateReturnValue, DispatchError>,
 }
+ */
 
 /// Result of a contract instantiation using bare call.
 pub struct BareInstantiationResult<EventLog> {
@@ -197,7 +191,6 @@ pub struct InstantiationResult<E: Environment, EventLog> {
     pub addr: H160,
     /// The result of the dry run, contains debug messages
     /// if there were any.
-    //pub dry_run: BareInstantiationDryRunResult<E>,
     pub dry_run: InstantiateDryRunResult<E>,
     /// Events that happened with the contract instantiation.
     pub events: EventLog,
