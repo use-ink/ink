@@ -73,10 +73,6 @@ where
     ContractRef: FromAddr,
     R: ConstructorReturnType<ContractRef>,
 {
-    panic!("------------------------------err code! {:?} {:?}",
-           pallet_revive_uapi::ReturnErrorCode::TransferFailed,
-           pallet_revive_uapi::ReturnErrorCode::Success,
-    );
     match instantiate_result {
         Ok(()) => {
             let addr = scale::Decode::decode(out_address)?;
@@ -87,27 +83,7 @@ where
         Err(Error::ReturnError(ReturnErrorCode::CalleeReverted)) => {
             decode_instantiate_err::<I, ContractRef, R>(out_return_value)
         }
-        Err(actual_error) => {
-            if let ReturnError(return_error_code) = actual_error {
-                //let return_error_code = ReturnCode(return_error_code);
-                //
-                /*
-                let foo = ReturnErrorCode::Success;
-                #[derive(Debug)]
-                enum Foo {
-                    Bar
-                }
-
-                 */
-                //let foo = crate::format!("{:?}", ReturnErrorCode::Success);
-                panic!("------------------------------err code! {:?} {:?}",
-                       pallet_revive_uapi::ReturnErrorCode::TransferFailed,
-                       pallet_revive_uapi::ReturnErrorCode::Success,
-                );
-            };
-            //panic!("------------------------------decoding! {actual_error:?}");
-            Err(actual_error)
-        },
+        Err(actual_error) => Err(actual_error),
     }
 }
 

@@ -364,11 +364,7 @@ impl Dispatch<'_> {
             #[cfg(target_arch = "riscv64")]
             #[::ink::polkavm_export(abi = ::ink::polkavm_derive::default_abi)]
             pub extern "C" fn deploy() {
-    //panic!("heap {:?}", ink::allocator::bump::RISCV_HEAP);
-    panic!("------------------------------err code! _{:?}_ _{:?}_",
-           pallet_revive_uapi::ReturnErrorCode::Success,
-           ink::env::Error::BufferTooSmall,
-    );
+                //panic!("---------------err code:\n1: _{:?}_", foo::BarPlain::Success );
                 internal_deploy()
             }
         };

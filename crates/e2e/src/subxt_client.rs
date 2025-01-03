@@ -522,7 +522,7 @@ where
         ));
         let result = self
             .contract_result_to_result(result)
-            .map_err(Error::CallDryRun)?;
+            .map_err(Error::InstantiateDryRun)?;
 
         Ok(result.into())
     }
