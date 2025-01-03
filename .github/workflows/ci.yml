@@ -488,14 +488,6 @@ jobs:
       matrix:
         partition: [1, 2, 3, 4, 5, 6]
     steps:
-      # We go out of storage on runners
-      - name: Clean runner
-        run: |
-          sudo rm -rf /usr/share/dotnet
-          sudo rm -rf /opt/ghc
-          sudo rm -rf "/usr/local/share/boost"
-          sudo rm -rf "$AGENT_TOOLSDIRECTORY"
-
       - name: Checkout
         uses: actions/checkout@v4
         with:
@@ -507,14 +499,11 @@ jobs:
           cache-directories: ${{ env.CARGO_TARGET_DIR }}
 
       - name: Test Examples
-        env:
-          # Fix linking of `linkme`: https://github.com/dtolnay/linkme/issues/49
-          RUSTFLAGS:                     -Clink-arg=-z -Clink-arg=nostart-stop-gc
         uses: docker://useink/ci
         with:
           # run all tests with --all-features, which will run the e2e-tests feature if present
-          args: /bin/bash -c "scripts/for_all_contracts_exec.sh --path integration-tests --ignore public/static-buffer --partition ${{ matrix.partition }}/6 -- cargo test \
-            --all-features --all --manifest-path {}"
+          args: /bin/bash -c "scripts/for_all_contracts_exec.sh --path integration-tests --ignore public/static-buffer --partition ${{ matrix.partition }}/6 -- \
+            env; cargo test --list --manifest-path {}; cargo +nightly test --all-features --all --manifest-path {}"
 
   examples-custom-test:
     # todo
