@@ -20,9 +20,8 @@ use crate::{backend::{
     FromAddr,
 },  Error, Result as EnvResult};
 use cfg_if::cfg_if;
-use ink_primitives::{ConstructorResult, DepositLimit, LangError};
-use pallet_revive_uapi::{ReturnCode, ReturnErrorCode};
-use crate::Error::ReturnError;
+use ink_primitives::{ConstructorResult, LangError};
+use pallet_revive_uapi::{ReturnErrorCode};
 
 /// Convert a slice into an array reference.
 ///

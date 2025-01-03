@@ -444,7 +444,7 @@ impl ContractRef<'_> {
         let selector_bytes = constructor.composed_selector().hex_lits();
         let input_bindings = generator::input_bindings(constructor.inputs());
         let input_types = generator::input_types(constructor.inputs());
-        let storage_ident = self.contract.module().storage().ident();
+        let _storage_ident = self.contract.module().storage().ident();
         let arg_list = generator::generate_argument_list(input_types.iter().cloned());
         let ret_type = constructor
             .output()
