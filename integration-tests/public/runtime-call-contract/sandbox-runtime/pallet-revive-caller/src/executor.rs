@@ -5,7 +5,7 @@ use frame_support::pallet_prelude::Weight;
 use frame_support::traits::IsType;
 use frame_system::pallet_prelude::OriginFor;
 use pallet_revive::{DepositLimit, MomentOf};
-use sp_runtime::traits::{Bounded, Dispatchable};
+use sp_runtime::traits::Bounded;
 use ink::env::{
     call::{
         ExecutionInput,
