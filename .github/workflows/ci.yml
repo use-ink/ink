@@ -594,7 +594,7 @@ jobs:
           # Pulls in sp-std which needlessly requires atomic pointers (TODO: Fix sp-std and enable this example)
           #   - call-runtime
           scripts/for_all_contracts_exec.sh --path integration-tests --ignore public/custom-allocator --ignore public/call-runtime --ignore public/contract-xcm \
-            -- cargo build --manifest-path {} --no-default-features --target $RISCV_TARGET -Zbuild-std="core,alloc"
+            -- cargo +nightly build --manifest-path {} --no-default-features --target $RISCV_TARGET -Zbuild-std="core,alloc"
 
   examples-docs:
     runs-on: ubuntu-latest

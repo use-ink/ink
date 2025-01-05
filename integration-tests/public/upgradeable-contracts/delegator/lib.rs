@@ -38,6 +38,8 @@ pub mod delegator {
         pub fn new(init_value: i32, hash: H256, addr: H160) -> Self {
             let v = Mapping::new();
 
+            let mut delegate_to = Lazy::new();
+            delegate_to.set(&(hash, addr));
             // todo locking is no longer necessary, as the contract needs
             // to be instantiated anyway. and the code can anyway not be removed,
             // as long as there is a contract for it.
@@ -45,8 +47,6 @@ pub mod delegator {
             // Initialize the hash of the contract to delegate to.
             // Adds a delegate dependency lock, ensuring that the delegated to code cannot
             // be removed.
-            let mut delegate_to = Lazy::new();
-            delegate_to.set(&(hash, addr));
             Self::env().lock_delegate_dependency(&hash);
              */
 
@@ -65,7 +65,7 @@ pub mod delegator {
         #[ink(message)]
         pub fn update_delegate_to(&mut self, hash: H256, addr: H160) {
             if let Some(delegate_to) = self.delegate_to.get() {
-                let old_hash = delegate_to.0;
+                let _old_hash = delegate_to.0;
                 //self.env().unlock_delegate_dependency(&old_hash)
             }
             //self.env().lock_delegate_dependency(&hash);

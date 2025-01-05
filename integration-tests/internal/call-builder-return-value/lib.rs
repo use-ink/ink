@@ -140,7 +140,7 @@ mod call_builder {
                 .expect("instantiate failed");
             let mut call_builder = contract.call_builder::<CallBuilderReturnValue>();
 
-            let incrementer_constructor = incrementer::IncrementerRef::new(42);
+            let mut incrementer_constructor = incrementer::IncrementerRef::new(42);
             let address = client
                 .instantiate("incrementer", &origin, &mut incrementer_constructor)
                 .submit()
@@ -183,7 +183,7 @@ mod call_builder {
                 .expect("instantiate failed");
             let mut call_builder = contract.call_builder::<CallBuilderReturnValue>();
 
-            let incrementer_constructor = incrementer::IncrementerRef::new(42);
+            let mut incrementer_constructor = incrementer::IncrementerRef::new(42);
             let address = client
                 .instantiate("incrementer", &origin, &mut incrementer_constructor)
                 .submit()
