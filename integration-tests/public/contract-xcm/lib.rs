@@ -296,7 +296,7 @@ mod contract_xcm {
             assert!(call_res.return_value().is_ok());
 
             Relay::execute_with(|| {
-                let alice = AccountId32::from(ink_e2e::alice().public_key().0);
+                //let alice = AccountId32::from(ink_e2e::alice().public_key().0);
                 let alice = AccountId32::from([0x01; 32]);
                 assert_eq!(relay_chain::Balances::free_balance(&alice), amount - fee);
             });

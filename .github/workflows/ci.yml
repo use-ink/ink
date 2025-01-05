@@ -319,10 +319,10 @@ jobs:
             echo ${crate};
             RUSTFLAGS="--cfg substrate_runtime" cargo +nightly build \
               --no-default-features --release
-              -Zbuild-std="core,alloc" \
               --target $CLIPPY_TARGET \
               --verbose \
-              --manifest-path ./crates/${crate}/Cargo.toml;
+              --manifest-path ./crates/${crate}/Cargo.toml \
+              -Zbuild-std="core,alloc";
           done
 
   test:
@@ -501,7 +501,7 @@ jobs:
         with:
           # run all tests with --all-features, which will run the e2e-tests feature if present
           args: /bin/bash -c "scripts/for_all_contracts_exec.sh --path integration-tests --ignore public/static-buffer --partition ${{ matrix.partition }}/6 -- \
-            cargo +nightly test --list --verbose --manifest-path {}"
+            cargo +nightly test --all-features --verbose --manifest-path {} -- --list"
 
   examples-custom-test:
     # todo
