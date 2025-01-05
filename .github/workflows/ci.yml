@@ -318,7 +318,7 @@ jobs:
           for crate in ${ALSO_RISCV_CRATES}; do
             echo ${crate};
             RUSTFLAGS="--cfg substrate_runtime" cargo +nightly build \
-              --no-default-features --release
+              --no-default-features --release \
               --target $CLIPPY_TARGET \
               --verbose \
               --manifest-path ./crates/${crate}/Cargo.toml \
@@ -501,7 +501,7 @@ jobs:
         with:
           # run all tests with --all-features, which will run the e2e-tests feature if present
           args: /bin/bash -c "scripts/for_all_contracts_exec.sh --path integration-tests --ignore public/static-buffer --partition ${{ matrix.partition }}/6 -- \
-            cargo +nightly test --all-features --verbose --manifest-path {} -- --list"
+            cargo +nightly test --all-features --all --manifest-path {}"
 
   examples-custom-test:
     # todo
