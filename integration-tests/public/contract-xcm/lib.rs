@@ -274,8 +274,11 @@ mod contract_xcm {
                     1u32,
                     //AccountId32::from(contract.account_id.0),
                     AccountId32::from(account_id.0),
+                    //account_id.into()
                 );
 
+                // The contract will be given 1000 tokens during instantiation.
+                //pub const CONTRACT_BALANCE: u128 = 1_000 * UNITS;
                 // Fund the contract's derivative account, so we can use it as a sink, to
                 // transfer funds to the caller.
                 relay_chain::Balances::make_free_balance_be(
@@ -294,6 +297,7 @@ mod contract_xcm {
 
             Relay::execute_with(|| {
                 let alice = AccountId32::from(ink_e2e::alice().public_key().0);
+                let alice = AccountId32::from([0x01; 32]);
                 assert_eq!(relay_chain::Balances::free_balance(&alice), amount - fee);
             });
 

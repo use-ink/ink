@@ -310,10 +310,19 @@ jobs:
 
       - name: Build for RISC-V
         if: ${{ matrix.type == 'RISCV' }}
+        #env:
+            #RUSTC_BOOTSTRAP: 1
+            #CARGO_ENCODED_RUSTFLAGS: "--cfg\x1fsubstrate_runtime"
+            #RUSTFLAGS: "--cfg substrate_runtime"
         run: |
           for crate in ${ALSO_RISCV_CRATES}; do
             echo ${crate};
-            cargo contract build --manifest-path ./crates/${crate}/Cargo.toml;
+            RUSTFLAGS="--cfg substrate_runtime" cargo +nightly build \
+              --no-default-features --release
+              -Zbuild-std="core,alloc" \
+              --target $CLIPPY_TARGET \
+              --verbose \
+              --manifest-path ./crates/${crate}/Cargo.toml;
           done
 
   test:

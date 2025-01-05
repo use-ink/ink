@@ -90,6 +90,7 @@ fi
 successes=()
 failures=()
 
+# todo: error when more than one "{}" placeholder is present
 # default to adding the argument as the last argument to the command
 arg_index=${#command[@]}
 # find the index of the argument placeholder "{}", if present
@@ -139,7 +140,7 @@ for (( i = start; i <= end; i++ )); do
   if [ "$quiet" = false ]; then
     >&2 echo Running: "${command[@]}"
   fi
-  "${command[@]}"
+  eval "${command[@]}";
 
   if [ $? -eq 0 ]; then
     successes+=("$manifest_path")

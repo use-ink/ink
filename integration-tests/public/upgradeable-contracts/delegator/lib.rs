@@ -62,6 +62,8 @@ pub mod delegator {
             if let Some(delegate_to) = self.delegate_to.get() {
                 let old_hash = delegate_to.0;
                 self.env().unlock_delegate_dependency(&old_hash)
+
+                // call old delegatee and tell them to sel--destruct
             }
             self.env().lock_delegate_dependency(&hash);
             self.delegate_to.set(&(hash, addr));
