@@ -320,7 +320,6 @@ jobs:
             RUSTFLAGS="--cfg substrate_runtime" cargo +nightly build \
               --no-default-features --release \
               --target $CLIPPY_TARGET \
-              --verbose \
               --manifest-path ./crates/${crate}/Cargo.toml \
               -Zbuild-std="core,alloc";
           done
