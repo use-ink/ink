@@ -48,14 +48,9 @@ use scale::{
 ///
 /// This is an example of how you can do this:
 /// ```rust
-/// # use ink::env::{
-/// #     Environment,
-/// #     DefaultEnvironment,
-/// # };
-/// # type AccountId = <DefaultEnvironment as Environment>::AccountId;
-///
 /// # #[ink::contract]
 /// # mod my_module {
+/// use ink::{H160, U256};
 /// use ink::storage::{
 ///     traits::ManualKey,
 ///     Mapping,
@@ -64,7 +59,7 @@ use scale::{
 /// #[ink(storage)]
 /// #[derive(Default)]
 /// pub struct MyContract {
-///     balances: Mapping<AccountId, Balance, ManualKey<123>>,
+///     balances: Mapping<H160, U256, ManualKey<123>>,
 /// }
 ///
 /// impl MyContract {
@@ -72,7 +67,7 @@ use scale::{
 ///     pub fn new() -> Self {
 ///         let mut instance = Self::default();
 ///         let caller = Self::env().caller();
-///         let value: Balance = Default::default();
+///         let value: U256 = Default::default();
 ///         instance.balances.insert(&caller, &value);
 ///         instance
 ///     }
