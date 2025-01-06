@@ -16,6 +16,8 @@ include = ["Cargo.toml", "src/**/*.rs", "README.md", "LICENSE"]
 
 [dependencies]
 cfg-if = { workspace = true }
+spin = "0.9.8"
+talc = {version = "4.4.2"}
 
 [dev-dependencies]
 quickcheck = { workspace = true }

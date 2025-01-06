@@ -294,6 +294,8 @@ where
 
         let addr_id_raw = match &result.result {
             Err(err) => {
+                eprintln!("\nresult {:?}\n",
+                    String::from_utf8(result.debug_message).unwrap());
                 panic!("Instantiate dry-run failed: {err:?}!")
             }
             Ok(res) => res.addr,

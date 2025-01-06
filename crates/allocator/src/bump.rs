@@ -23,6 +23,32 @@ use core::alloc::{
     Layout,
 };
 
+
+use talc::*;
+
+//static mut ARENA: [u8; 1024 * 1024] = [0; 1024 * 1024];
+static mut ARENA: [u8; 10000] = [0; 10000];
+
+#[global_allocator]
+static ALLOCATOR: Talck<spin::Mutex<()>, ClaimOnOom> = Talc::new(unsafe {
+    // if we're in a hosted environment, the Rust runtime may allocate before
+    // main() is called, so we need to initialize the arena automatically
+    //ClaimOnOom::new(Span::from_const_array(core::ptr::addr_of!(ARENA)))
+    ClaimOnOom::new(Span::from_array(core::ptr::addr_of!(ARENA).cast_mut()))
+        /*
+    //ClaimOnOom::new(Span::from_array(core::ptr::addr_of!(ARENA) as *mut [u8; 10000]))
+    static mut MEMORY: [u8; 0x1000000] = [0; 0x1000000];
+    let span = talc::Span::from_array(core::ptr::addr_of!(MEMORY).cast_mut());
+    talc::Talc::new(unsafe { talc::ClaimOnOom::new(span) }).lock()
+         */
+}).lock();
+
+
+/*
+
+
+
+
 /// A page in Wasm is `64KiB`
 /// todo: remove
 #[allow(dead_code)]
@@ -550,3 +576,5 @@ mod fuzz_tests {
         TestResult::passed()
     }
 }
+
+ */

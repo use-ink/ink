@@ -90,7 +90,27 @@ pub mod flipper {
             Ok(())
         }
 
-        #[ink_e2e::test]
+        use ink_e2e::{
+            preset::mock_network::{
+                self,
+                primitives::{
+                    CENTS,
+                    UNITS,
+                },
+                MockNetworkSandbox,
+            },
+            ChainBackend,
+        };
+        use mock_network::{
+            parachain::estimate_message_fee,
+            parachain_account_sovereign_account_id,
+            relay_chain,
+            Relay,
+            TestExt,
+        };
+
+        //#[ink_e2e::test]
+        #[ink_e2e::test(backend(runtime_only(sandbox = MockNetworkSandbox)))]
         async fn default_works<Client: E2EBackend>(mut client: Client) -> E2EResult<()> {
             // given
             let mut constructor = FlipperRef::new_default();
