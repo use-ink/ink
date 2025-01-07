@@ -439,7 +439,7 @@ where
     ///         .code_hash(ink::H256::from([0x42; 32]))
     ///         .ref_time_limit(500_000_000)
     ///         .proof_size_limit(100_000)
-    ///         .storage_deposit_limit(500_000_000_000.into())
+    ///         .storage_deposit_limit(ink::U256::from(500_000_000_000u64))
     ///         .endowment(25.into())
     ///         .exec_input(
     ///             ExecutionInput::new(Selector::new(ink::selector_bytes!("new")))

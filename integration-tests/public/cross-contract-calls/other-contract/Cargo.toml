@@ -7,7 +7,7 @@ publish = false
 
 [dependencies]
 ink = { path = "../../../../crates/ink", default-features = false }
-pallet-revive-uapi = { git = "https://github.com/paritytech/polkadot-sdk", rev = "b7afe48ed0bfef30836e7ca6359c2d8bb594d16e", default-features = false, features = ["unstable-hostfn"] }
+pallet-revive-uapi = { git = "https://github.com/paritytech/polkadot-sdk", rev = "645878a27115db52e5d63115699b4bbb89034067", default-features = false, features = ["unstable-hostfn"] }
 
 [dev-dependencies]
 ink_e2e = { path = "../../../../crates/e2e" }

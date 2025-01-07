@@ -31,8 +31,8 @@ const_env = { workspace = true }
 xcm = { workspace = true }
 
 # We add the `sp-io` here to disable those features
-sp-io = { git = "https://github.com/paritytech/polkadot-sdk", rev = "b7afe48ed0bfef30836e7ca6359c2d8bb594d16e", default-features = false, features = ["disable_panic_handler", "disable_oom", "disable_allocator"] }
-sp-runtime-interface = { git = "https://github.com/paritytech/polkadot-sdk", rev = "b7afe48ed0bfef30836e7ca6359c2d8bb594d16e", default-features = false, features = ["disable_target_static_assertions"] }
+sp-io = { git = "https://github.com/paritytech/polkadot-sdk", rev = "645878a27115db52e5d63115699b4bbb89034067", default-features = false, features = ["disable_panic_handler", "disable_oom", "disable_allocator"] }
+sp-runtime-interface = { git = "https://github.com/paritytech/polkadot-sdk", rev = "645878a27115db52e5d63115699b4bbb89034067", default-features = false, features = ["disable_target_static_assertions"] }
 
 [target.'cfg(target_arch = "riscv64")'.dependencies]
 polkavm-derive = { workspace = true, default-features = false }
