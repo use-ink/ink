@@ -50,7 +50,7 @@
 /// Can be modified by setting `INK_STATIC_BUFFER_SIZE` environmental variable.
 /// todo
 #[const_env::from_env("INK_STATIC_BUFFER_SIZE")]
-pub const BUFFER_SIZE: usize = 16384 * 4;
+pub const BUFFER_SIZE: usize = 16384;
 
 #[cfg(not(any(feature = "std", feature = "no-panic-handler")))]
 #[allow(unused_variables)]

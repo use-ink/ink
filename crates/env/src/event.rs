@@ -27,9 +27,6 @@ where
     /// The type of the serialized event topics.
     type Output;
 
-    /// Initialized the backend with the expected number of event topics.
-    fn expect(&mut self, expected_topics: usize);
-
     /// Pushes another topic for serialization to the backend.
     fn push_topic<T>(&mut self, topic_value: &T)
     where
@@ -78,15 +75,12 @@ where
     E: Environment,
     B: TopicsBuilderBackend<E>,
 {
-    /// Initializes the topics builder and informs it about how many topics it must expect
-    /// to serialize.
+    /// Initializes the topics builder.
     ///
     /// The number of expected topics is given implicitly by the `E` type parameter.
     pub fn build<Evt: Event>(
-        mut self,
+        self,
     ) -> TopicsBuilder<<Evt as Event>::RemainingTopics, E, B> {
-        self.backend
-            .expect(<<Evt as Event>::RemainingTopics as EventTopicsAmount>::AMOUNT);
         TopicsBuilder {
             backend: self.backend,
             state: Default::default(),

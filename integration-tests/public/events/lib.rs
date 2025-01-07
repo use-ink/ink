@@ -310,6 +310,7 @@ pub mod events {
                 .await
                 .expect("flip failed");
 
+
             let contract_events = flip_res.contract_emitted_events()?;
 
             // then
@@ -404,6 +405,7 @@ pub mod events {
             // then
             assert_eq!(1, contract_events.len());
 
+            // todo the emitted event is not actually checked here
             let signature_topic =
                 <InlineCustomFlipped as ink::env::Event>::SIGNATURE_TOPIC;
 

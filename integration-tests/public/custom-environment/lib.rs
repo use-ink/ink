@@ -110,7 +110,7 @@ mod runtime_call {
                 .expect("call failed");
 
             // then
-            call_res.contains_event("Revive", "ContractEmitted");
+            assert!(call_res.contains_event("Revive", "ContractEmitted"));
 
             Ok(())
         }

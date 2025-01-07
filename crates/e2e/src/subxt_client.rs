@@ -537,8 +537,6 @@ where
         storage_deposit_limit: E::Balance,
     ) -> Result<UploadResult<E, Self::EventLog>, Self::Error> {
         let code = self.contracts.load_code(contract_name);
-        eprintln!("loaded code for {:?} with {} bytes", contract_name, code.len());
-        eprintln!("deposit limit {:?}", storage_deposit_limit);
         let ret = self
             .exec_upload(caller, code, storage_deposit_limit)
             .await?;
@@ -581,14 +579,14 @@ where
     where
         CallBuilderFinal<E, Args, RetType>: Clone,
     {
-        let account_id = *message.clone().params().callee();
+        let addr = *message.clone().params().callee();
         let exec_input = Encode::encode(message.clone().params().exec_input());
         log_info(&format!("call: {:02X?}", exec_input));
 
         let tx_events = self
             .api
             .call(
-                account_id,
+                addr,
                 value,
                 gas_limit.into(),
                 deposit_limit_to_balance::<E>(storage_deposit_limit),
@@ -812,10 +810,16 @@ impl<E: Environment, V, C: subxt::Config> CallResult<E, V, ExtrinsicEvents<C>> {
         let mut events_with_topics = Vec::new();
         for event in self.events.iter() {
             let event = event?;
+            let res = event.as_event::<events::ContractEmitted>().unwrap_or_else(|err| {
+                panic!("event conversion to `ContractEmitted` failed: {err:?}");
+            });
             if let Some(decoded_event) = event.as_event::<events::ContractEmitted>()? {
+                let topics = decoded_event.topics.clone();
                 let event_with_topics = EventWithTopics {
                     event: decoded_event,
-                    topics: event.topics().iter().cloned().map(Into::into).collect(),
+                    //topics: event.topics().iter().cloned().map(Into::into).collect(),
+                    //topics: topics.iter().map(|v| H256::from_slice(&v[..])).collect(),
+                    topics,
                 };
                 events_with_topics.push(event_with_topics);
             }

@@ -80,6 +80,7 @@ impl StaticEvent for CodeStoredEvent {
 pub struct ContractEmitted {
     pub contract: H160,
     pub data: Vec<u8>,
+    pub topics: Vec<H256>,
 }
 
 impl StaticEvent for ContractEmitted {
@@ -89,6 +90,6 @@ impl StaticEvent for ContractEmitted {
 
 /// A decoded event with its associated topics.
 pub struct EventWithTopics<T> {
-    pub topics: Vec<sp_core::H256>,
+    pub topics: Vec<H256>,
     pub event: T,
 }

@@ -68,7 +68,6 @@ impl ContractsRegistry {
                     self.contracts.keys()
                 )
             );
-        eprintln!("wasm path {:?}", wasm_path);
         let code = std::fs::read(wasm_path).unwrap_or_else(|err| {
             panic!("Error loading '{}': {:?}", wasm_path.display(), err)
         });

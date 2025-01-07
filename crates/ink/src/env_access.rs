@@ -439,7 +439,7 @@ where
     ///         .code_hash(ink::H256::from([0x42; 32]))
     ///         .ref_time_limit(500_000_000)
     ///         .proof_size_limit(100_000)
-    ///         .storage_deposit_limit(500_000_000_000)
+    ///         .storage_deposit_limit(500_000_000_000.into())
     ///         .endowment(25.into())
     ///         .exec_input(
     ///             ExecutionInput::new(Selector::new(ink::selector_bytes!("new")))
@@ -520,7 +520,7 @@ where
     ///         .call(ink::H160::from([0x42; 20]))
     ///         .ref_time_limit(500_000_000)
     ///         .proof_size_limit(100_000)
-    ///         .storage_deposit_limit(1_000_000_000)
+    ///         .storage_deposit_limit(1_000_000_000.into())
     ///         .exec_input(
     ///             ExecutionInput::new(Selector::new([0xCA, 0xFE, 0xBA, 0xBE]))
     ///                 .push_arg(42u8)

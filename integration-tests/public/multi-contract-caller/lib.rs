@@ -160,19 +160,16 @@ mod multi_contract_caller {
                 subber_hash,
             );
 
-            eprintln!("--------BEFORE");
             let multi_contract_caller = client
                 .instantiate("multi_contract_caller", &ink_e2e::alice(), &mut constructor)
                 .value(100_000_000_000)
                 .submit()
                 .await
                 .expect("instantiate failed");
-            eprintln!("--------MID");
             let mut call_builder =
                 multi_contract_caller.call_builder::<MultiContractCaller>();
 
             // when
-            eprintln!("--------AFTER");
             let get = call_builder.get();
             let value = client
                 .call(&ink_e2e::bob(), &get)

@@ -328,8 +328,6 @@ where
             calculate_weight(proof_size, ref_time, self.extra_gas_portion)
         };
 
-        eprintln!("using gas limit {:?}", gas_limit);
-
         let instantiate_result = B::bare_instantiate(
             self.client,
             self.contract_name,
@@ -340,7 +338,6 @@ where
             balance_to_deposit_limit::<E>(dry_run.contract_result.storage_deposit.charge_or_zero()),
         )
         .await?;
-        eprintln!("real run success");
 
         Ok(InstantiationResult {
             addr: instantiate_result.addr,

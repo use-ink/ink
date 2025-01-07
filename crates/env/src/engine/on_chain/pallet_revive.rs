@@ -136,11 +136,6 @@ where
 {
     type Output = (ScopedBuffer<'a>, &'a mut [u8]);
 
-    fn expect(&mut self, expected_topics: usize) {
-        self.scoped_buffer
-            .append_encoded(&scale::Compact(expected_topics as u32));
-    }
-
     fn push_topic<T>(&mut self, topic_value: &T)
     where
         T: scale::Encode,
@@ -446,13 +441,34 @@ impl TypedEnvBackend for EnvInstance {
     {
         let (mut scope, enc_topics) =
             event.topics::<E, _>(TopicsBuilder::from(self.scoped_buffer()).into());
+        //let mut vec = ink_prelude::vec::Vec::new();
         // TODO: improve
-        let enc_topics = &enc_topics
+        //let enc_topics : &[[u8; 32]]= &enc_topics
+        let enc_topics = enc_topics
+            //.as_chunks::<32>()
             .chunks_exact(32)
             .map(|c| c.try_into().unwrap())
-            .collect::<ink_prelude::vec::Vec<_>>();
+            .collect::<ink_prelude::vec::Vec<[u8; 32]>>();
+        /*
+            /*
+            .for_each(|chunk| {
+                let hash = H256::from_slice(chunk);
+                vec.push(hash)
+            });
+             */
+
+         */
         let enc_data = scope.take_encoded(&event);
-        ext::deposit_event(enc_topics, enc_data);
+
+
+        /*
+        let enc_topics: &[[u8; 32]] = unsafe {
+            core::mem::transmute::<&[u8], &[[u8; 32]]>(&enc_topics) };
+         */
+
+        //ext::deposit_event(&enc_topics.as_slice(), enc_data);
+        ext::deposit_event(&enc_topics[..], enc_data);
+        //ext::deposit_event(&enc_topics[..], enc_data);
     }
 
     fn invoke_contract<E, Args, R>(

@@ -120,12 +120,11 @@ where
 {
     type Output = Vec<u8>;
 
-    fn expect(&mut self, _expected_topics: usize) {}
-
     fn push_topic<T>(&mut self, topic_value: &T)
     where
         T: scale::Encode,
     {
+        // todo
         let encoded = topic_value.encode();
         let len_encoded = encoded.len();
         let mut result = <E as Environment>::Hash::CLEAR_HASH;
