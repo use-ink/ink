@@ -810,9 +810,6 @@ impl<E: Environment, V, C: subxt::Config> CallResult<E, V, ExtrinsicEvents<C>> {
         let mut events_with_topics = Vec::new();
         for event in self.events.iter() {
             let event = event?;
-            let res = event.as_event::<events::ContractEmitted>().unwrap_or_else(|err| {
-                panic!("event conversion to `ContractEmitted` failed: {err:?}");
-            });
             if let Some(decoded_event) = event.as_event::<events::ContractEmitted>()? {
                 let topics = decoded_event.topics.clone();
                 let event_with_topics = EventWithTopics {
