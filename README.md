@@ -180,7 +180,7 @@ mod flipper {
     }
 }
 ```
-The [`flipper/lib.rs`](https://github.com/use-ink/ink-examples/blob/v5.x.x/flipper/lib.rs)
+The [`flipper/src/lib.rs`](https://github.com/use-ink/ink-examples/blob/v5.x.x/flipper/lib.rs)
 file in our examples folder contains exactly this code. Run `cargo contract build` to build your
 first ink! smart contract.
 

@@ -364,46 +364,7 @@ impl Dispatch<'_> {
             #[cfg(target_arch = "riscv64")]
             #[::ink::polkavm_export(abi = ::ink::polkavm_derive::default_abi)]
             pub extern "C" fn deploy() {
-                //let bar = ink::env::format!("{:?}", LocalBarPlain::Unknown);
-                //ink::env::debug_println!("_{}_", bar);
-                //core::alloc::()
-                /*
-                let mut vec = ink::prelude::vec::Vec::new();
-                vec.push(0xCAFE);
-                vec.push(0xBABE);
-                vec.push(0xDEAD);
-                 */
-
-                	let mut buf = [0u8; 64];
-	let _s: &str = write_to::show(
-		&mut buf,
-		format_args!("Hello: _{:?}_", LocalBarPlain::Success),
-	).unwrap();
-	ink::env::debug_println!("-{}-",ink::prelude::string::String::from_utf8(buf.to_vec()).unwrap());
-
-
-                //let bar = ink::prelude::boxed::Box::new(LocalBarPlain::Success);
-                //let foo = ink::env::format!("{:?}", bar);
-
-                //ink::env::debug_println!("len: {} {}", foo.len(), foo.starts_with("S"));
-
-                //ink::env::debug_println!("_{}_", foo);
-                //ink::env::debug_println!("_");
-
-                //ink::env::debug_println!("{}", vec.len());
-
-                //ink::env::debug_println!("\ndebug: _{:?}_\n", LocalBarPlain::Success);
-
-                /*
-                    ::core::panicking::panic_fmt(
-                        format_args!(
-                            "hiere: {:?}",LocalBarPlain::Success
-                        )
-                );
-                 */
-
-
-                panic!("code: _{:?}_", LocalBarPlain::Success);
+                //panic!("---------------err code:\n1: _{:?}_", foo::BarPlain::Success );
                 internal_deploy()
             }
         };

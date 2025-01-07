@@ -313,7 +313,7 @@ mod tests {
     #[test]
     fn can_deploy_contract() {
         let mut sandbox = DefaultSandbox::default();
-        let wasm_binary = compile_module("debug_message_works");
+        let wasm_binary = compile_module("dummy");
 
         let events_before = sandbox.events();
         assert!(events_before.is_empty());
@@ -355,7 +355,7 @@ mod tests {
     fn can_call_contract() {
         let mut sandbox = DefaultSandbox::default();
         let _actor = DefaultSandbox::default_actor();
-        let wasm_binary = compile_module("debug_message_works");
+        let wasm_binary = compile_module("dummy");
 
         let origin =
             DefaultSandbox::convert_account_to_origin(DefaultSandbox::default_actor());
@@ -383,8 +383,6 @@ mod tests {
             DefaultSandbox::default_gas_limit(),
             STORAGE_DEPOSIT_LIMIT,
         );
-        eprintln!("\nres: {:?}\n", String::from_utf8(result.debug_message.clone()).unwrap());
-        eprintln!("res: {:?}", result);
         assert!(result.result.is_ok());
         assert!(!result.result.unwrap().did_revert());
 
