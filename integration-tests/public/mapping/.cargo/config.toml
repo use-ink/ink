@@ -1,3 +1,0 @@
-[env]
-# Makes testing the fallible storage methods more efficient
-INK_STATIC_BUFFER_SIZE = "256"

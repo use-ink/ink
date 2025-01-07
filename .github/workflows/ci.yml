@@ -499,7 +499,9 @@ jobs:
         uses: docker://useink/ci
         with:
           # run all tests with --all-features, which will run the e2e-tests feature if present
-          args: /bin/bash -c "scripts/for_all_contracts_exec.sh --path integration-tests --ignore public/static-buffer --partition ${{ matrix.partition }}/6 -- \
+          args: /bin/bash -c "scripts/for_all_contracts_exec.sh --path integration-tests \
+            --ignore public/static-buffer \
+            --partition ${{ matrix.partition }}/6 -- \
             cargo +nightly test --all-features --all --manifest-path {}"
 
   examples-custom-test:

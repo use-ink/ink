@@ -353,6 +353,9 @@ mod mapping {
         async fn fallible_storage_methods_work<Client: E2EBackend>(
             mut client: Client,
         ) -> E2EResult<()> {
+            // Makes testing the fallible storage methods more efficient
+            std::env::set_var("INK_STATIC_BUFFER_SIZE", "256");
+
             // given
             eprintln!("----1");
             eprintln!("----1 {:?}", std::env::var("INK_STATIC_BUFFER_SIZE"));
