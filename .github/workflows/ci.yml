@@ -498,7 +498,7 @@ jobs:
       - name: Test Examples
         uses: docker://useink/ci
         env:
-            RUSTFLAGS: -Clinker-plugin-lto -Clink-arg=-zstack-size=409
+            RUSTFLAGS: -Clinker-plugin-lto -Clink-arg=-zstack-size=4096
         with:
           # run all tests with --all-features, which will run the e2e-tests feature if present
           args:
