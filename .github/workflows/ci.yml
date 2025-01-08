@@ -502,8 +502,32 @@ jobs:
         with:
           # run all tests with --all-features, which will run the e2e-tests feature if present
           args:
-            /bin/bash -c "scripts/for_all_contracts_exec.sh --path integration-tests --ignore public/static-buffer --partition ${{ matrix.partition }}/6 -- \
+            /bin/bash -c "scripts/for_all_contracts_exec.sh --path integration-tests --ignore public/static-buffer --ignore public/mapping --partition ${{ matrix.partition }}/6 -- \
                 cargo +nightly test --all-features --all --manifest-path {}"
+
+  examples-test-mapping:
+      runs-on: ubuntu-latest
+      needs: [clippy]
+      strategy:
+          matrix:
+              partition: [1, 2, 3, 4, 5, 6]
+      steps:
+          - name: Checkout
+            uses: actions/checkout@v4
+            with:
+                fetch-depth: 1
+
+          - name: Cache
+            uses: Swatinem/rust-cache@82a92a6e8fbeee089604da2575dc567ae9ddeaab # v2.7.5
+            with:
+                cache-directories: ${{ env.CARGO_TARGET_DIR }}
+
+          - name: Test Examples
+            env:
+                # needed for `mapping::e2e_tests::fallible_storage_methods_work`
+                INK_STATIC_BUFFER_SIZE: 256
+            run:
+                cargo +nightly test --all-features --all --manifest-path integration-tests/public/mapping/Cargo.toml
 
   examples-custom-test:
     # todo
