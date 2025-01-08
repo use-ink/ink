@@ -46,3 +46,4 @@ std = [
 	"scale/std",
 	"scale-info/std"
 ]
+unstable = ["ink_env/unstable", "ink/unstable", "ink_storage/unstable"]

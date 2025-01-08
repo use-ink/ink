@@ -31,6 +31,7 @@ pub mod codegen;
 
 pub mod reflect;
 
+#[cfg(feature = "unstable")]
 mod chain_extension;
 mod contract_ref;
 mod env_access;
@@ -60,6 +61,7 @@ pub mod storage {
         };
         pub use ink_storage::traits::*;
     }
+    #[cfg(feature = "unstable")]
     pub use ink_storage::{
         Lazy,
         Mapping,
@@ -67,6 +69,7 @@ pub mod storage {
     };
 }
 
+#[cfg(feature = "unstable")]
 pub use self::{
     chain_extension::{
         ChainExtensionInstance,
@@ -74,13 +77,14 @@ pub use self::{
         Output,
         ValueReturned,
     },
+};
+pub use self::{
     contract_ref::ToAddr,
     env_access::EnvAccess,
     prelude::IIP2_WILDCARD_COMPLEMENT_SELECTOR,
 };
 pub use ink_macro::{
     blake2x256,
-    chain_extension,
     contract,
     event,
     scale_derive,
@@ -91,6 +95,11 @@ pub use ink_macro::{
     trait_definition,
     Event,
     EventMetadata,
+};
+#[cfg(feature = "unstable")]
+#[allow(unused)]
+pub use ink_macro::{
+    chain_extension,
 };
 pub use ink_primitives::{
     ConstructorResult,

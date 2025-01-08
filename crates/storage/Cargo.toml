@@ -48,3 +48,4 @@ std = [
 	"derive_more/std"
 ]
 ink-fuzz-tests = [ "std" ]
+unstable = ["ink_env/unstable"]

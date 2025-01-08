@@ -33,13 +33,16 @@ use crate::{
         OnInstance,
     },
     event::Event,
+    types::Gas,
+    Environment,
+    Result,
+};
+#[cfg(feature = "unstable")]
+use crate::{
     hash::{
         CryptoHash,
         HashOutput,
     },
-    types::Gas,
-    Environment,
-    Result,
 };
 use ink_primitives::{H160, H256, U256};
 use ink_storage_traits::Storable;
@@ -142,6 +145,7 @@ pub fn balance() -> U256
 /// # Errors
 ///
 /// If the returned value cannot be properly decoded.
+#[unstable_hostfn]
 pub fn block_number<E>() -> E::BlockNumber
 where
     E: Environment,
@@ -157,6 +161,7 @@ where
 /// # Errors
 ///
 /// If the returned value cannot be properly decoded.
+#[unstable_hostfn]
 pub fn minimum_balance<E>() -> E::Balance
 where
     E: Environment,
@@ -214,6 +219,7 @@ where
 /// # Errors
 ///
 /// - If the decoding of the typed value failed (`KeyNotFound`)
+#[unstable_hostfn]
 pub fn take_contract_storage<K, R>(key: &K) -> Result<Option<R>>
 where
     K: scale::Encode,
@@ -228,6 +234,7 @@ where
 /// storage.
 ///
 /// If a value is stored under the specified key, the size of the value is returned.
+#[unstable_hostfn]
 pub fn contains_contract_storage<K>(key: &K) -> Option<u32>
 where
     K: scale::Encode,
@@ -241,6 +248,7 @@ where
 ///
 /// If a value was stored under the specified storage key, the size of the value is
 /// returned.
+#[unstable_hostfn]
 pub fn clear_contract_storage<K>(key: &K) -> Option<u32>
 where
     K: scale::Encode,
@@ -430,6 +438,7 @@ where
 }
 
 /// Appends the given message to the debug message buffer.
+#[unstable_hostfn]
 pub fn debug_message(message: &str) {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         EnvBackend::debug_message(instance, message)
@@ -449,6 +458,7 @@ pub fn debug_message(message: &str) {
 /// let mut output = <Sha2x256 as HashOutput>::Type::default(); // 256-bit buffer
 /// let hash = ink_env::hash_bytes::<Sha2x256>(input, &mut output);
 /// ```
+#[unstable_hostfn]
 pub fn hash_bytes<H>(input: &[u8], output: &mut <H as HashOutput>::Type)
 where
     H: CryptoHash,
@@ -473,6 +483,7 @@ where
 /// ink_env::hash_encoded::<Sha2x256, _>(&encodable, &mut output);
 /// assert_eq!(output, EXPECTED);
 /// ```
+#[unstable_hostfn]
 pub fn hash_encoded<H, T>(input: &T, output: &mut <H as HashOutput>::Type)
 where
     H: CryptoHash,
@@ -507,6 +518,7 @@ where
 /// ink_env::ecdsa_recover(&signature, &message_hash, &mut output);
 /// assert_eq!(output, EXPECTED_COMPRESSED_PUBLIC_KEY);
 /// ```
+#[unstable_hostfn]
 pub fn ecdsa_recover(
     signature: &[u8; 65],
     message_hash: &[u8; 32],
@@ -538,6 +550,7 @@ pub fn ecdsa_recover(
 /// # Errors
 ///
 /// - If the ECDSA public key cannot be recovered from the provided public key.
+#[unstable_hostfn]
 pub fn ecdsa_to_eth_address(pubkey: &[u8; 33], output: &mut [u8; 20]) -> Result<()> {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         instance.ecdsa_to_eth_address(pubkey, output)
@@ -571,6 +584,7 @@ pub fn ecdsa_to_eth_address(pubkey: &[u8; 33], output: &mut [u8; 20]) -> Result<
 ///
 /// **WARNING**: this function is from the [unstable interface](https://github.com/paritytech/substrate/tree/master/frame/contracts#unstable-interfaces),
 /// which is unsafe and normally is not available on production chains.
+#[unstable_hostfn]
 pub fn sr25519_verify(
     signature: &[u8; 64],
     message: &[u8],
@@ -586,6 +600,7 @@ pub fn sr25519_verify(
 /// # Errors
 ///
 /// If the returned value cannot be properly decoded.
+#[unstable_hostfn]
 pub fn is_contract(account: &H160) -> bool {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         TypedEnvBackend::is_contract(instance, account)
@@ -609,6 +624,7 @@ pub fn code_hash(addr: &H160) -> Result<H256> {
 /// # Errors
 ///
 /// If the returned value cannot be properly decoded.
+#[unstable_hostfn]
 pub fn own_code_hash<E>() -> Result<H256>
 where
     E: Environment,
@@ -631,6 +647,7 @@ where
 /// # Errors
 ///
 /// If the returned value cannot be properly decoded.
+#[unstable_hostfn]
 pub fn caller_is_origin<E>() -> bool
 where
     E: Environment,
@@ -651,6 +668,7 @@ where
 /// # Errors
 ///
 /// If the returned value cannot be properly decoded.
+#[unstable_hostfn]
 pub fn caller_is_root<E>() -> bool
 where
     E: Environment,
@@ -761,6 +779,7 @@ where
 /// Please refer to the
 /// [Open Zeppelin docs](https://docs.openzeppelin.com/upgrades-plugins/1.x/writing-upgradeable#modifying-your-contracts)
 /// for more details and examples.
+#[unstable_hostfn]
 pub fn set_code_hash<E>(code_hash: &H256) -> Result<()>
 where
     E: Environment,
@@ -787,6 +806,7 @@ where
 /// # Panics
 ///
 /// Panics in the off-chain environment.
+#[unstable_hostfn]
 pub fn call_runtime<E, Call>(call: &Call) -> Result<()>
 where
     E: Environment,
@@ -809,6 +829,7 @@ where
 /// - If the `code_hash` is the same as the calling contract.
 /// - If the maximum number of delegate dependencies is reached.
 /// - If the delegate dependency already exists.
+#[unstable_hostfn]
 pub fn lock_delegate_dependency<E>(code_hash: &H256)
 where
     E: Environment,
@@ -827,6 +848,7 @@ where
 /// # Errors
 ///
 /// - If the delegate dependency does not exist.
+#[unstable_hostfn]
 pub fn unlock_delegate_dependency<E>(code_hash: &H256)
 where
     E: Environment,
@@ -849,6 +871,7 @@ where
 /// # Panics
 ///
 /// Panics in the off-chain environment.
+#[unstable_hostfn]
 pub fn xcm_execute<E, Call>(msg: &xcm::VersionedXcm<Call>) -> Result<()>
 where
     E: Environment,
@@ -874,6 +897,7 @@ where
 /// # Panics
 ///
 /// Panics in the off-chain environment.
+#[unstable_hostfn]
 pub fn xcm_send<E, Call>(
     dest: &xcm::VersionedLocation,
     msg: &xcm::VersionedXcm<Call>,

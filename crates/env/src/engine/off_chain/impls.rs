@@ -52,6 +52,7 @@ use pallet_revive_uapi::{
     ReturnErrorCode,
     ReturnFlags,
 };
+#[cfg(feature = "unstable")]
 use schnorrkel::{
     PublicKey,
     Signature,
@@ -197,6 +198,7 @@ impl EnvBackend for EnvInstance {
         }
     }
 
+    #[unstable_hostfn]
     fn take_contract_storage<K, R>(&mut self, key: &K) -> Result<Option<R>>
     where
         K: scale::Encode,
@@ -212,6 +214,7 @@ impl EnvBackend for EnvInstance {
         }
     }
 
+    #[unstable_hostfn]
     fn contains_contract_storage<K>(&mut self, key: &K) -> Option<u32>
     where
         K: scale::Encode,
@@ -219,6 +222,7 @@ impl EnvBackend for EnvInstance {
         self.engine.contains_storage(&key.encode())
     }
 
+    #[unstable_hostfn]
     fn clear_contract_storage<K>(&mut self, key: &K) -> Option<u32>
     where
         K: scale::Encode,
@@ -240,10 +244,12 @@ impl EnvBackend for EnvInstance {
         unimplemented!("the off-chain env does not implement `return_value`")
     }
 
+    #[unstable_hostfn]
     fn debug_message(&mut self, message: &str) {
         self.engine.debug_message(message)
     }
 
+    #[unstable_hostfn]
     fn hash_bytes<H>(&mut self, input: &[u8], output: &mut <H as HashOutput>::Type)
     where
         H: CryptoHash,
@@ -251,6 +257,7 @@ impl EnvBackend for EnvInstance {
         <H as CryptoHash>::hash(input, output)
     }
 
+    #[unstable_hostfn]
     fn hash_encoded<H, T>(&mut self, input: &T, output: &mut <H as HashOutput>::Type)
     where
         H: CryptoHash,
@@ -260,6 +267,7 @@ impl EnvBackend for EnvInstance {
         <H as CryptoHash>::hash(enc_input, output)
     }
 
+    #[unstable_hostfn]
     #[allow(clippy::arithmetic_side_effects)] // todo
     fn ecdsa_recover(
         &mut self,
@@ -303,6 +311,7 @@ impl EnvBackend for EnvInstance {
         }
     }
 
+    #[unstable_hostfn]
     fn ecdsa_to_eth_address(
         &mut self,
         pubkey: &[u8; 33],
@@ -317,6 +326,7 @@ impl EnvBackend for EnvInstance {
         Ok(())
     }
 
+    #[unstable_hostfn]
     fn sr25519_verify(
         &mut self,
         signature: &[u8; 64],
@@ -339,6 +349,7 @@ impl EnvBackend for EnvInstance {
             .map_err(|_| ReturnErrorCode::Sr25519VerifyFailed.into())
     }
 
+    #[unstable_hostfn]
     fn call_chain_extension<I, T, E, ErrorCode, F, D>(
         &mut self,
         id: u32,
@@ -368,6 +379,7 @@ impl EnvBackend for EnvInstance {
         Ok(decoded)
     }
 
+    #[unstable_hostfn]
     fn set_code_hash(&mut self, _code_hash: &[u8]) -> Result<()> {
         unimplemented!("off-chain environment does not support `set_code_hash`")
     }
@@ -415,6 +427,7 @@ impl TypedEnvBackend for EnvInstance {
             })
     }
 
+    #[unstable_hostfn]
     fn block_number<E: Environment>(&mut self) -> E::BlockNumber {
         self.get_property::<E::BlockNumber>(Engine::block_number)
             .unwrap_or_else(|error| {
@@ -422,6 +435,7 @@ impl TypedEnvBackend for EnvInstance {
             })
     }
 
+    #[unstable_hostfn]
     fn minimum_balance<E: Environment>(&mut self) -> E::Balance {
         self.get_property::<E::Balance>(Engine::minimum_balance)
             .unwrap_or_else(|error| {
@@ -514,10 +528,12 @@ impl TypedEnvBackend for EnvInstance {
         })
     }
 
+    #[unstable_hostfn]
     fn is_contract(&mut self, account: &H160) -> bool {
         self.engine.is_contract(account)
     }
 
+    #[unstable_hostfn]
     fn caller_is_origin<E>(&mut self) -> bool
     where
         E: Environment,
@@ -525,6 +541,7 @@ impl TypedEnvBackend for EnvInstance {
         unimplemented!("off-chain environment does not support cross-contract calls")
     }
 
+    #[unstable_hostfn]
     fn caller_is_root<E>(&mut self) -> bool
     where
         E: Environment,
@@ -536,6 +553,7 @@ impl TypedEnvBackend for EnvInstance {
         unimplemented!("off-chain environment does not support `code_hash`")
     }
 
+    #[unstable_hostfn]
     fn own_code_hash<E>(&mut self) -> Result<H256>
     where
         E: Environment,
@@ -543,6 +561,7 @@ impl TypedEnvBackend for EnvInstance {
         unimplemented!("off-chain environment does not support `own_code_hash`")
     }
 
+    #[unstable_hostfn]
     fn call_runtime<E, Call>(&mut self, _call: &Call) -> Result<()>
     where
         E: Environment,
@@ -550,6 +569,7 @@ impl TypedEnvBackend for EnvInstance {
         unimplemented!("off-chain environment does not support `call_runtime`")
     }
 
+    #[unstable_hostfn]
     fn lock_delegate_dependency<E>(&mut self, _code_hash: &H256)
     where
         E: Environment,
@@ -557,6 +577,7 @@ impl TypedEnvBackend for EnvInstance {
         unimplemented!("off-chain environment does not support delegate dependencies")
     }
 
+    #[unstable_hostfn]
     fn xcm_execute<E, Call>(&mut self, _msg: &xcm::VersionedXcm<Call>) -> Result<()>
     where
         E: Environment,
@@ -564,6 +585,7 @@ impl TypedEnvBackend for EnvInstance {
         unimplemented!("off-chain environment does not support `xcm_execute`")
     }
 
+    #[unstable_hostfn]
     fn xcm_send<E, Call>(
         &mut self,
         _dest: &xcm::VersionedLocation,
@@ -575,6 +597,7 @@ impl TypedEnvBackend for EnvInstance {
         unimplemented!("off-chain environment does not support `xcm_send`")
     }
 
+    #[unstable_hostfn]
     fn unlock_delegate_dependency<E>(&mut self, _code_hash: &H256)
     where
         E: Environment,

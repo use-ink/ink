@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#[cfg(feature = "unstable")]
 use crate::ChainExtensionInstance;
 use core::marker::PhantomData;
 use ink_env::{
@@ -24,21 +25,25 @@ use ink_env::{
         FromAddr,
         LimitParamsV2,
     },
+    Environment,
+    Result,
+};
+#[cfg(feature = "unstable")]
+use ink_env::{
     hash::{
         CryptoHash,
         HashOutput,
     },
-    Environment,
-    Result,
 };
 use ink_primitives::{H160, H256, U256};
+#[cfg(feature = "unstable")]
 use pallet_revive_uapi::ReturnErrorCode;
 use ink_macro::unstable_hostfn;
 
 /// The API behind the `self.env()` and `Self::env()` syntax in ink!.
 ///
 /// This allows ink! messages to make use of the environment efficiently
-/// and user friendly while also maintaining access invariants.
+/// and user-friendly while also maintaining access invariants.
 #[derive(Copy, Clone)]
 pub struct EnvAccess<'a, E> {
     /// Tricks the Rust compiler into thinking that we use `E`.
@@ -60,6 +65,7 @@ impl<E> core::fmt::Debug for EnvAccess<'_, E> {
     }
 }
 
+#[cfg(feature = "unstable")]
 impl<E> EnvAccess<'_, E>
 where
     E: Environment,
@@ -353,6 +359,7 @@ where
     /// # Note
     ///
     /// For more details visit: [`ink_env::block_number`]
+    #[unstable_hostfn]
     pub fn block_number(self) -> E::BlockNumber {
         ink_env::block_number::<E>()
     }
@@ -386,6 +393,7 @@ where
     /// # Note
     ///
     /// For more details visit: [`ink_env::minimum_balance`]
+    #[unstable_hostfn]
     pub fn minimum_balance(self) -> E::Balance {
         ink_env::minimum_balance::<E>()
     }
@@ -717,6 +725,7 @@ where
     /// # Note
     ///
     /// For more details visit: [`ink_env::hash_bytes`]
+    #[unstable_hostfn]
     pub fn hash_bytes<H>(self, input: &[u8]) -> <H as HashOutput>::Type
     where
         H: CryptoHash,
@@ -751,6 +760,7 @@ where
     /// # Note
     ///
     /// For more details visit: [`ink_env::hash_encoded`]
+    #[unstable_hostfn]
     pub fn hash_encoded<H, V>(self, value: &V) -> <H as HashOutput>::Type
     where
         H: CryptoHash,
@@ -813,6 +823,7 @@ where
     /// #     }
     /// # }
     /// ```
+    #[unstable_hostfn]
     pub fn ecdsa_recover(
         self,
         signature: &[u8; 65],
@@ -864,6 +875,7 @@ where
     /// # Note
     ///
     /// For more details visit: [`ink_env::ecdsa_to_eth_address`]
+    #[unstable_hostfn]
     pub fn ecdsa_to_eth_address(self, pubkey: &[u8; 33]) -> Result<[u8; 20]> {
         let mut output = [0; 20];
         ink_env::ecdsa_to_eth_address(pubkey, &mut output)
@@ -919,8 +931,10 @@ where
     ///
     /// For more details visit: [`ink_env::sr25519_verify`]
     ///
+    /// todo
     /// **WARNING**: this function is from the [unstable interface](https://github.com/paritytech/substrate/tree/master/frame/contracts#unstable-interfaces),
     /// which is unsafe and normally is not available on production chains.
+    #[unstable_hostfn]
     pub fn sr25519_verify(
         self,
         signature: &[u8; 64],
@@ -959,6 +973,7 @@ where
     /// # Note
     ///
     /// For more details visit: [`ink_env::is_contract`]
+    #[unstable_hostfn]
     pub fn is_contract(self, addr: &H160) -> bool {
         ink_env::is_contract(addr)
     }
@@ -991,6 +1006,7 @@ where
     /// # Note
     ///
     /// For more details visit: [`ink_env::caller_is_origin`]
+    #[unstable_hostfn]
     pub fn caller_is_origin(self) -> bool {
         ink_env::caller_is_origin::<E>()
     }
@@ -1022,6 +1038,7 @@ where
     /// # Note
     ///
     /// For more details visit: [`ink_env::caller_is_root`]
+    #[unstable_hostfn]
     pub fn caller_is_root(self) -> bool {
         ink_env::caller_is_root::<E>()
     }
@@ -1087,6 +1104,7 @@ where
     /// # Note
     ///
     /// For more details visit: [`ink_env::own_code_hash`]
+    #[unstable_hostfn]
     pub fn own_code_hash(self) -> Result<H256> {
         ink_env::own_code_hash::<E>()
     }
@@ -1120,10 +1138,12 @@ where
     /// # Note
     ///
     /// For more details visit: [`ink_env::set_code_hash`]
+    #[unstable_hostfn]
     pub fn set_code_hash(self, code_hash: &H256) -> Result<()> {
         ink_env::set_code_hash::<E>(code_hash)
     }
 
+    #[unstable_hostfn]
     pub fn call_runtime<Call: scale::Encode>(self, call: &Call) -> Result<()> {
         ink_env::call_runtime::<E, _>(call)
     }
@@ -1156,6 +1176,7 @@ where
     /// # Note
     ///
     /// For more details visit: [`ink_env::lock_delegate_dependency`]
+    #[unstable_hostfn]
     pub fn lock_delegate_dependency(self, code_hash: &H256) {
         ink_env::lock_delegate_dependency::<E>(code_hash)
     }
@@ -1187,10 +1208,12 @@ where
     /// # Note
     ///
     /// For more details visit: [`ink_env::unlock_delegate_dependency`]
+    #[unstable_hostfn]
     pub fn unlock_delegate_dependency(self, code_hash: &H256) {
         ink_env::unlock_delegate_dependency::<E>(code_hash)
     }
 
+    #[unstable_hostfn]
     pub fn xcm_execute<Call: scale::Encode>(
         self,
         msg: &xcm::VersionedXcm<Call>,
@@ -1198,6 +1221,7 @@ where
         ink_env::xcm_execute::<E, _>(msg)
     }
 
+    #[unstable_hostfn]
     pub fn xcm_send<Call: scale::Encode>(
         self,
         dest: &xcm::VersionedLocation,

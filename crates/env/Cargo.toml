@@ -94,7 +94,7 @@ std = [
 ink-debug = []
 
 # Enable functions that have are marked unstable in `pallet-revive.
-unstable = []
+unstable = ["ink_macro/unstable"]
 
 # Disable the ink! provided global memory allocator.
 no-allocator = [ "ink_allocator/no-allocator" ]

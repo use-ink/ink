@@ -64,6 +64,7 @@ use pallet_revive_uapi::{
     ReturnFlags,
     StorageFlags,
 };
+#[cfg(feature = "unstable")]
 use xcm::VersionedXcm;
 
 impl CryptoHash for Blake2x128 {
@@ -227,6 +228,7 @@ impl EnvBackend for EnvInstance {
         Ok(Some(decoded))
     }
 
+    #[unstable_hostfn]
     fn take_contract_storage<K, R>(&mut self, key: &K) -> Result<Option<R>>
     where
         K: scale::Encode,
@@ -244,6 +246,7 @@ impl EnvBackend for EnvInstance {
         Ok(Some(decoded))
     }
 
+    #[unstable_hostfn]
     fn contains_contract_storage<K>(&mut self, key: &K) -> Option<u32>
     where
         K: scale::Encode,
@@ -253,6 +256,7 @@ impl EnvBackend for EnvInstance {
         ext::contains_storage(STORAGE_FLAGS, key)
     }
 
+    #[unstable_hostfn]
     fn clear_contract_storage<K>(&mut self, key: &K) -> Option<u32>
     where
         K: scale::Encode,
@@ -281,10 +285,12 @@ impl EnvBackend for EnvInstance {
         ext::return_value(flags, &self.buffer[..][..len]);
     }
 
+    #[unstable_hostfn]
     #[cfg(not(feature = "ink-debug"))]
     /// A no-op. Enable the `ink-debug` feature for debug messages.
     fn debug_message(&mut self, _content: &str) {}
 
+    #[unstable_hostfn]
     #[cfg(feature = "ink-debug")]
     fn debug_message(&mut self, content: &str) {
         static mut DEBUG_ENABLED: bool = false;
@@ -309,6 +315,7 @@ impl EnvBackend for EnvInstance {
         }
     }
 
+    #[unstable_hostfn]
     fn hash_bytes<H>(&mut self, input: &[u8], output: &mut <H as HashOutput>::Type)
     where
         H: CryptoHash,
@@ -316,6 +323,7 @@ impl EnvBackend for EnvInstance {
         <H as CryptoHash>::hash(input, output)
     }
 
+    #[unstable_hostfn]
     fn hash_encoded<H, T>(&mut self, input: &T, output: &mut <H as HashOutput>::Type)
     where
         H: CryptoHash,
@@ -326,6 +334,7 @@ impl EnvBackend for EnvInstance {
         <H as CryptoHash>::hash(enc_input, output)
     }
 
+    #[unstable_hostfn]
     fn ecdsa_recover(
         &mut self,
         signature: &[u8; 65],
@@ -335,6 +344,7 @@ impl EnvBackend for EnvInstance {
         ext::ecdsa_recover(signature, message_hash, output).map_err(Into::into)
     }
 
+    #[unstable_hostfn]
     fn ecdsa_to_eth_address(
         &mut self,
         pubkey: &[u8; 33],
@@ -343,6 +353,7 @@ impl EnvBackend for EnvInstance {
         ext::ecdsa_to_eth_address(pubkey, output).map_err(Into::into)
     }
 
+    #[unstable_hostfn]
     fn sr25519_verify(
         &mut self,
         signature: &[u8; 64],
@@ -352,6 +363,7 @@ impl EnvBackend for EnvInstance {
         ext::sr25519_verify(signature, message, pub_key).map_err(Into::into)
     }
 
+    #[unstable_hostfn]
     fn call_chain_extension<I, T, E, ErrorCode, F, D>(
         &mut self,
         id: u32,
@@ -374,6 +386,7 @@ impl EnvBackend for EnvInstance {
         Ok(decoded)
     }
 
+    #[unstable_hostfn]
     fn set_code_hash(&mut self, code_hash_ptr: &[u8]) -> Result<()> {
         let code_hash: &[u8; 32] = code_hash_ptr.try_into().unwrap();
         ext::set_code_hash(code_hash);
@@ -427,10 +440,12 @@ impl TypedEnvBackend for EnvInstance {
         self.get_property_little_endian(ext::balance)
     }
 
+    #[unstable_hostfn]
     fn block_number<E: Environment>(&mut self) -> E::BlockNumber {
         self.get_property_little_endian::<E::BlockNumber>(ext::block_number)
     }
 
+    #[unstable_hostfn]
     fn minimum_balance<E: Environment>(&mut self) -> E::Balance {
         self.get_property_little_endian::<E::Balance>(ext::minimum_balance)
     }
@@ -705,6 +720,7 @@ impl TypedEnvBackend for EnvInstance {
         <E::Balance as FromLittleEndian>::from_le_bytes(result)
     }
 
+    #[unstable_hostfn]
     fn is_contract(&mut self, addr: &H160) -> bool {
         let mut scope = self.scoped_buffer();
         let enc_addr: &mut [u8; 20] =
@@ -712,6 +728,7 @@ impl TypedEnvBackend for EnvInstance {
         ext::is_contract(enc_addr)
     }
 
+    #[unstable_hostfn]
     fn caller_is_origin<E>(&mut self) -> bool
     where
         E: Environment,
@@ -719,6 +736,7 @@ impl TypedEnvBackend for EnvInstance {
         ext::caller_is_origin()
     }
 
+    #[unstable_hostfn]
     fn caller_is_root<E>(&mut self) -> bool
     where
         E: Environment,
@@ -745,6 +763,7 @@ impl TypedEnvBackend for EnvInstance {
         Ok(hash)
     }
 
+    #[unstable_hostfn]
     fn own_code_hash<E>(&mut self) -> Result<H256>
     where
         E: Environment,
@@ -759,6 +778,7 @@ impl TypedEnvBackend for EnvInstance {
         Ok(hash)
     }
 
+    #[unstable_hostfn]
     fn call_runtime<E, Call>(&mut self, call: &Call) -> Result<()>
     where
         E: Environment,
@@ -769,6 +789,7 @@ impl TypedEnvBackend for EnvInstance {
         ext::call_runtime(enc_call).map_err(Into::into)
     }
 
+    #[unstable_hostfn]
     fn lock_delegate_dependency<E>(&mut self, code_hash: &H256)
     where
         E: Environment,
@@ -779,6 +800,7 @@ impl TypedEnvBackend for EnvInstance {
         ext::lock_delegate_dependency(enc_code_hash)
     }
 
+    #[unstable_hostfn]
     fn unlock_delegate_dependency<E>(&mut self, code_hash: &H256)
     where
         E: Environment,
@@ -789,6 +811,7 @@ impl TypedEnvBackend for EnvInstance {
         ext::unlock_delegate_dependency(enc_code_hash)
     }
 
+    #[unstable_hostfn]
     fn xcm_execute<E, Call>(&mut self, msg: &VersionedXcm<Call>) -> Result<()>
     where
         E: Environment,
@@ -802,6 +825,7 @@ impl TypedEnvBackend for EnvInstance {
         ext::xcm_execute(enc_msg).map_err(Into::into)
     }
 
+    #[unstable_hostfn]
     fn xcm_send<E, Call>(
         &mut self,
         dest: &xcm::VersionedLocation,

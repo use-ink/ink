@@ -23,14 +23,12 @@ mod contract_ref {
 
         #[ink(constructor)]
         pub fn try_new(version: u32, flipper_code_hash: ink::H256, succeed: bool) -> Self {
-            ink::env::debug_println!("_________before new_____");
             let flipper = FlipperRef::try_new(succeed)
                 .endowment(0.into())
                 .code_hash(flipper_code_hash)
                 .salt_bytes(salt_from_version(version))
                 .instantiate()
                 .unwrap_or_else(|error| {
-                    ink::env::debug_println!("XXX");
                     panic!(
                         "Received an error from the Flipper constructor while instantiating \
                          Flipper {error:?}"

@@ -58,6 +58,7 @@ pub const BUFFER_SIZE: usize = 16384;
 #[panic_handler]
 fn panic(info: &core::panic::PanicInfo) -> ! {
     // This code gets removed in release builds where the macro will expand into nothing.
+    #[cfg(feature = "unstable")]
     debug_print!("{}\n", info);
 
     cfg_if::cfg_if! {
@@ -84,6 +85,7 @@ mod api;
 mod arithmetic;
 mod backend;
 pub mod call;
+#[cfg(feature = "unstable")]
 pub mod chain_extension;
 mod contract;
 mod engine;
@@ -93,6 +95,7 @@ pub mod event;
 pub mod hash;
 mod types;
 
+#[cfg(feature = "unstable")]
 #[cfg(test)]
 mod tests;
 
@@ -106,7 +109,7 @@ pub use pallet_revive_uapi::{
     ReturnErrorCode,
     ReturnFlags,
 };
-
+use ink_macro::unstable_hostfn;
 use self::backend::{
     EnvBackend,
     TypedEnvBackend,
@@ -152,6 +155,7 @@ cfg_if::cfg_if! {
         ///
         /// This depends on the `debug_message` interface which requires the
         /// `"pallet-contracts/unstable-interface"` feature to be enabled in the target runtime.
+        #[unstable_hostfn]
         #[macro_export]
         macro_rules! debug_print {
             ($($arg:tt)*) => ($crate::debug_message(&$crate::format!($($arg)*)));
@@ -164,6 +168,7 @@ cfg_if::cfg_if! {
         ///
         /// This depends on the `debug_message` interface which requires the
         /// `"pallet-contracts/unstable-interface"` feature to be enabled in the target runtime.
+        #[unstable_hostfn]
         #[macro_export]
         macro_rules! debug_println {
             () => ($crate::debug_print!("\n"));
@@ -172,12 +177,14 @@ cfg_if::cfg_if! {
             )
         }
     } else {
+        #[unstable_hostfn]
         #[macro_export]
         /// Debug messages disabled. Enable the `ink-debug` feature for contract debugging.
         macro_rules! debug_print {
             ($($arg:tt)*) => ();
         }
 
+        #[unstable_hostfn]
         #[macro_export]
         /// Debug messages disabled. Enable the `ink-debug` feature for contract debugging.
         macro_rules! debug_println {

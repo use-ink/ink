@@ -30,7 +30,6 @@ where
     // todo
     let transferred = ink_env::transferred_value();
     if transferred != U256::zero() {
-        //ink_env::debug_message("XXXXXXX");
         return Err(DispatchError::PaidUnpayableMessage)
     }
     Ok(())
