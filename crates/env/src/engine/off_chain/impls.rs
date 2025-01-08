@@ -47,6 +47,7 @@ use ink_storage_traits::{
     decode_all,
     Storable,
 };
+use ink_macro::unstable_hostfn;
 use pallet_revive_uapi::{
     ReturnErrorCode,
     ReturnFlags,
@@ -490,6 +491,7 @@ impl TypedEnvBackend for EnvInstance {
         unimplemented!("off-chain environment does not support contract instantiation")
     }
 
+    #[unstable_hostfn]
     fn terminate_contract(&mut self, beneficiary: H160) -> ! {
         self.engine.terminate(beneficiary)
     }

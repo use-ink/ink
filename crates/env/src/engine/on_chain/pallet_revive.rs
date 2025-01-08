@@ -51,6 +51,7 @@ use ink_primitives::{
     H256,
     U256,
 };
+use ink_macro::unstable_hostfn;
 use ink_storage_traits::{
     decode_all,
     Storable,
@@ -624,6 +625,7 @@ impl TypedEnvBackend for EnvInstance {
         )
     }
 
+    #[unstable_hostfn]
     fn terminate_contract(&mut self, beneficiary: H160) -> ! {
         let buffer: &mut [u8; 20] = self.scoped_buffer().take_encoded(&beneficiary)
             [0..20]

@@ -19,5 +19,7 @@ default = ["std"]
 std = [
     "ink/std",
 ]
+
+ink = ["unstable"]
 ink-as-dependency = []
 e2e-tests = []

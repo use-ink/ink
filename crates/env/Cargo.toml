@@ -20,6 +20,7 @@ ink_allocator = { workspace = true }
 ink_storage_traits = { workspace = true }
 ink_prelude = { workspace = true }
 ink_primitives = { workspace = true }
+ink_macro = { workspace = true }
 pallet-revive-uapi = { workspace = true }
 
 scale = { workspace = true, features = ["max-encoded-len"] }
@@ -91,6 +92,9 @@ std = [
 
 # Enable contract debug messages via `debug_print!` and `debug_println!`.
 ink-debug = []
+
+# Enable functions that have are marked unstable in `pallet-revive.
+unstable = []
 
 # Disable the ink! provided global memory allocator.
 no-allocator = [ "ink_allocator/no-allocator" ]

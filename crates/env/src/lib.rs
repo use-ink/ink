@@ -25,6 +25,7 @@
     html_favicon_url = "https://use.ink/crate-docs/favicon.png"
 )]
 #![cfg_attr(not(feature = "std"), no_std)]
+#![cfg_attr(docsrs, feature(doc_cfg))]
 #![deny(
     missing_docs,
     bad_style,

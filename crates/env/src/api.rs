@@ -44,6 +44,7 @@ use crate::{
 use ink_primitives::{H160, H256, U256};
 use ink_storage_traits::Storable;
 use pallet_revive_uapi::ReturnFlags;
+use ink_macro::unstable_hostfn;
 
 /// Returns the address of the caller of the executed contract.
 ///
@@ -353,6 +354,7 @@ where
 /// This function never returns. Either the termination was successful and the
 /// execution of the destroyed contract is halted. Or it failed during the termination
 /// which is considered fatal and results in a trap and rollback.
+#[unstable_hostfn]
 pub fn terminate_contract(beneficiary: H160) -> ! {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         TypedEnvBackend::terminate_contract(instance, beneficiary)
@@ -371,7 +373,7 @@ pub fn terminate_contract(beneficiary: H160) -> ! {
 ///
 /// - If the contract does not have sufficient free funds.
 /// - If the transfer had brought the sender's total balance below the minimum balance.
-///   You need to use [`terminate_contract`] in case this is your intention.
+///   You need to use `terminate_contract` in case this is your intention.
 pub fn transfer<E>(destination: H160, value: U256) -> Result<()>
 where
     E: Environment,

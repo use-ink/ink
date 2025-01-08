@@ -22,4 +22,5 @@ std = [
     "sp-core/std",
 ]
 
+ink = ["unstable"]
 ink-as-dependency = []

@@ -33,6 +33,7 @@ use ink_env::{
 };
 use ink_primitives::{H160, H256, U256};
 use pallet_revive_uapi::ReturnErrorCode;
+use ink_macro::unstable_hostfn;
 
 /// The API behind the `self.env()` and `Self::env()` syntax in ink!.
 ///
@@ -656,6 +657,7 @@ where
     /// # Note
     ///
     /// For more details visit: [`ink_env::terminate_contract`]
+    #[unstable_hostfn]
     pub fn terminate_contract(self, beneficiary: H160) -> ! {
         ink_env::terminate_contract(beneficiary)
     }

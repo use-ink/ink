@@ -1635,5 +1635,16 @@ pub fn scale_derive(attr: TokenStream, item: TokenStream) -> TokenStream {
     }
 }
 
+#[proc_macro_attribute]
+pub fn unstable_hostfn(_attr: TokenStream, item: TokenStream) -> TokenStream {
+    let input = syn::parse_macro_input!(item as syn::Item);
+    let expanded = quote::quote! {
+		#[cfg(feature = "unstable")]
+		#[cfg_attr(docsrs, doc(cfg(feature = "unstable")))]
+		#input
+	};
+    expanded.into()
+}
+
 #[cfg(test)]
 pub use contract::generate_or_err;

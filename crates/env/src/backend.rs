@@ -32,6 +32,7 @@ use crate::{
 };
 use ink_primitives::{H160, H256, U256};
 use ink_storage_traits::Storable;
+use ink_macro::unstable_hostfn;
 pub use pallet_revive_uapi::ReturnFlags;
 
 /// Environmental contract functionality that does not require `Environment`.
@@ -347,6 +348,7 @@ pub trait TypedEnvBackend: EnvBackend {
     /// # Note
     ///
     /// For more details visit: [`terminate_contract`][`crate::terminate_contract`]
+    #[unstable_hostfn]
     fn terminate_contract(&mut self, beneficiary: H160) -> !;
 
     /// Transfers value from the contract to the destination account ID.
