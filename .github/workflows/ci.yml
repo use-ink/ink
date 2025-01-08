@@ -498,7 +498,9 @@ jobs:
       - name: Test Examples
         uses: docker://useink/ci
         env:
-            RUSTFLAGS: -Clinker-plugin-lto -Clink-arg=-zstack-size=4096
+            #RUSTFLAGS: -Clinker-plugin-lto -Clink-arg=-zstack-size=4096
+            # Fix for linking of `linkme` for `cargo test`: https://github.com/dtolnay/linkme/issues/49
+            RUSTFLAGS:                   -Clink-arg=-z -Clink-arg=nostart-stop-gc
         with:
           # run all tests with --all-features, which will run the e2e-tests feature if present
           args:
