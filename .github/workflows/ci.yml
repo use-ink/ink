@@ -507,10 +507,7 @@ jobs:
 
   examples-test-mapping:
       runs-on: ubuntu-latest
-      needs: [clippy]
-      strategy:
-          matrix:
-              partition: [1, 2, 3, 4, 5, 6]
+      needs: [set-image, check, fmt, clippy, clippy-examples, dylint, spellcheck]
       steps:
           - name: Checkout
             uses: actions/checkout@v4
@@ -522,7 +519,7 @@ jobs:
             with:
                 cache-directories: ${{ env.CARGO_TARGET_DIR }}
 
-          - name: Test Examples
+          - name: Test Mapping Example
             env:
                 # needed for `mapping::e2e_tests::fallible_storage_methods_work`
                 INK_STATIC_BUFFER_SIZE: 256
