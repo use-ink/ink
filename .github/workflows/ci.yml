@@ -535,8 +535,7 @@ jobs:
                 # needed for `mapping::e2e_tests::fallible_storage_methods_work`
                 INK_STATIC_BUFFER_SIZE: 256
             run:
-                cargo +stable test --all-features --all --manifest-path integration-tests/public/mapping/Cargo.toml
-                echo "---"
+                cargo +stable test --all-features --all --manifest-path integration-tests/public/mapping/Cargo.toml;
                 cargo +nightly test --all-features --all --manifest-path integration-tests/public/mapping/Cargo.toml
 
   examples-custom-test:
