@@ -33,7 +33,7 @@ workflows:
 help:
   text: |
     ink! uses the Zepter CLI to detect abnormalities in the feature configuration.
-    It looks like one more more checks failed; please check the console output. You can try to address them automatically by running `zepter`.
+    It looks like one more check failed; please check the console output. You can try to automatically address them by running `zepter`.
     Otherwise please ask directly in the Merge Request, GitHub Discussions or on Matrix Chat, thank you.
   links:
     - "https://github.com/paritytech/polkadot-sdk/issues/1831"
