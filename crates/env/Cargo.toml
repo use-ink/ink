@@ -72,6 +72,7 @@ std = [
 	"ink_primitives/std",
 	"ink_storage_traits/std",
 	"ink_engine/std",
+    "ink_macro/std",
 	"scale/std",
 	"scale-decode",
 	"scale-encode",
