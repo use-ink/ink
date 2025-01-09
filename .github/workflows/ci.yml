@@ -535,7 +535,9 @@ jobs:
                 # needed for `mapping::e2e_tests::fallible_storage_methods_work`
                 INK_STATIC_BUFFER_SIZE: 256
             run:
-                cargo +nightly test --all-features --all --manifest-path integration-tests/public/mapping/Cargo.toml
+                rustup install nightly-2024-11-28;
+                rustup component add rust-src --toolchain nightly-2024-11-28;
+                cargo +nightly-2024-11-28 test --all-features --all --manifest-path integration-tests/public/mapping/Cargo.toml
 
   examples-custom-test:
     runs-on: ubuntu-latest
