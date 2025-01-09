@@ -20,7 +20,6 @@ use scale::{
 };
 use sp_weights::Weight;
 use std::marker::PhantomData;
-
 use super::{balance_to_deposit_limit, InstantiateDryRunResult, Keypair};
 use crate::{
     backend::BuilderClient,
@@ -385,9 +384,7 @@ where
             client,
             contract_name,
             caller,
-            storage_deposit_limit: 0u32.into(), // todo should be 0
-            //storage_deposit_limit: <E as ink_env::Environment>::Balance::MAX, // todo should be 0
-            //storage_deposit_limit: u32::MAX.into(), // todo should be 0
+            storage_deposit_limit: 0u32.into(),
         }
     }
 

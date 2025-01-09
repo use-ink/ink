@@ -46,14 +46,8 @@ async fn instantiate_and_get<Client: E2EBackend>(mut client: Client) -> E2EResul
                     ),
                 )
                 .unwrap(),
-                //ink_e2e::subxt::dynamic::Value::from_bytes(contract.addr),
                 // todo
-                //ink_e2e::subxt::ext::scale_value::serde::to_value(None::<u128>).unwrap(),
                 ink_e2e::subxt::ext::scale_value::serde::to_value(0u128).unwrap(),
-                //ink_e2e::subxt::ext::scale_value::serde::to_value(DepositLimit::<u128>::Unchecked).unwrap(),
-                //ink_e2e::subxt::ext::scale_value::serde::to_value(0u128).unwrap(),
-
-                //ink_e2e::subxt::ext::scale_value::serde::to_value(DepositLimit::<u128>::Unchecked).unwrap(),
             ],
         )
         .await

@@ -224,10 +224,9 @@ impl Engine {
     }
 
     /// Advances the chain by a single block.
-    #[allow(clippy::arithmetic_side_effects)] // todo
     pub fn advance_block(&mut self) {
-        self.exec_context.block_number += 1;
-        self.exec_context.block_timestamp += self.chain_spec.block_time;
+        self.exec_context.block_number.checked_add(1).expect("failed to add");
+        self.exec_context.block_timestamp.checked_add(self.chain_spec.block_time).expect("failed to add");
     }
 
     /// Returns the callee, i.e. the currently executing contract.

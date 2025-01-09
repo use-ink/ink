@@ -128,8 +128,7 @@ fn build_contracts(contract_manifests: &[PathBuf]) -> Vec<PathBuf> {
         .lock()
         .unwrap();
 
-    // todo rename wasm to riscv
-    let mut wasm_paths = Vec::new();
+    let mut blob_paths = Vec::new();
     for manifest in contract_manifests {
         let wasm_path = match contract_build_jobs.entry(manifest.clone()) {
             Entry::Occupied(entry) => entry.get().clone(),
@@ -139,14 +138,13 @@ fn build_contracts(contract_manifests: &[PathBuf]) -> Vec<PathBuf> {
                 wasm_path
             }
         };
-        wasm_paths.push(wasm_path);
+        blob_paths.push(wasm_path);
     }
-    wasm_paths
+    blob_paths
 }
 
-// todo replace all mentions of Wasm
 /// Builds the contract at `manifest_path`, returns the path to the contract
-/// Wasm build artifact.
+/// PolkaVM build artifact.
 fn build_contract(path_to_cargo_toml: &Path) -> PathBuf {
     let manifest_path = ManifestPath::new(path_to_cargo_toml).unwrap_or_else(|err| {
         panic!(
@@ -176,8 +174,7 @@ fn build_contract(path_to_cargo_toml: &Path) -> PathBuf {
         Ok(build_result) => {
             build_result
                 .dest_wasm
-                // todo Replace Wasm with Risc-V everywhere
-                .expect("Wasm code artifact not generated")
+                .expect("PolkaVM code artifact not generated")
                 .canonicalize()
                 .expect("Invalid dest bundle path")
         }

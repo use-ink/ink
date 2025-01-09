@@ -86,7 +86,7 @@ impl From<Weight> for sp_weights::Weight {
     }
 }
 
-/// A raw call to `pallet-contracts`'s `instantiate_with_code`.
+/// A raw call to `pallet-revive`'s `instantiate_with_code`.
 #[derive(Debug, scale::Encode, scale::Decode, scale_encode::EncodeAsType)]
 #[encode_as_type(trait_bounds = "", crate_path = "subxt::ext::scale_encode")]
 pub struct InstantiateWithCode<E: Environment> {
@@ -100,7 +100,7 @@ pub struct InstantiateWithCode<E: Environment> {
     salt: Option<[u8; 32]>,
 }
 
-/// A raw call to `pallet-contracts`'s `call`.
+/// A raw call to `pallet-revive`'s `call`.
 #[derive(Debug, scale::Decode, scale::Encode, scale_encode::EncodeAsType)]
 #[encode_as_type(trait_bounds = "", crate_path = "subxt::ext::scale_encode")]
 pub struct Call<E: Environment> {
@@ -113,13 +113,13 @@ pub struct Call<E: Environment> {
     data: Vec<u8>,
 }
 
-/// A raw call to `pallet-contracts`'s `map_account`.
+/// A raw call to `pallet-revive`'s `map_account`.
 #[derive(Debug, scale::Decode, scale::Encode, scale_encode::EncodeAsType)]
 #[encode_as_type(trait_bounds = "", crate_path = "subxt::ext::scale_encode")]
 pub struct MapAccount {
 }
 
-/// A raw call to `pallet-contracts`'s `call`.
+/// A raw call to `pallet-revive`'s `call`.
 #[derive(Debug, scale::Decode, scale::Encode, scale_encode::EncodeAsType)]
 #[encode_as_type(trait_bounds = "", crate_path = "subxt::ext::scale_encode")]
 pub struct Transfer<E: Environment, C: subxt::Config> {
@@ -128,14 +128,14 @@ pub struct Transfer<E: Environment, C: subxt::Config> {
     value: E::Balance,
 }
 
-/// A raw call to `pallet-contracts`'s `remove_code`.
+/// A raw call to `pallet-revive`'s `remove_code`.
 #[derive(Debug, scale::Encode, scale::Decode, scale_encode::EncodeAsType)]
 #[encode_as_type(trait_bounds = "", crate_path = "subxt::ext::scale_encode")]
 pub struct RemoveCode {
     code_hash: H256,
 }
 
-/// A raw call to `pallet-contracts`'s `upload_code`.
+/// A raw call to `pallet-revive`'s `upload_code`.
 #[derive(Debug, scale::Encode, scale::Decode, scale_encode::EncodeAsType)]
 #[encode_as_type(trait_bounds = "", crate_path = "subxt::ext::scale_encode")]
 pub struct UploadCode<E: Environment> {
@@ -172,8 +172,6 @@ where
 }
 
 /// A struct that encodes RPC parameters required for a call to a smart contract.
-///
-/// Copied from [`pallet-contracts-rpc`].
 #[derive(scale::Encode)]
 // todo: #[derive(serde::Serialize, scale::Encode)]
 // todo: #[serde(rename_all = "camelCase")]

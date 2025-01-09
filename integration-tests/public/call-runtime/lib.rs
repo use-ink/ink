@@ -67,7 +67,7 @@ mod runtime_call {
                 EnvError::ReturnError(ReturnErrorCode::CallRuntimeFailed) => {
                     RuntimeError::CallRuntimeFailed
                 }
-                _ => panic!("Unexpected error from `pallet-contracts`."),
+                _ => panic!("Unexpected error from `pallet-revive`."),
             }
         }
     }

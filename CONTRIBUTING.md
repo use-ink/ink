@@ -1,5 +1,7 @@
 # Contributing to ink!
 
+TODO review
+
 First of all, thank you for taking your time to contribute to ink!
 
 > [I don't want to contribute, I just have some questions! :S](#I-dont-want-to-contribute-I-just-have-some-questions)
@@ -81,14 +83,14 @@ Verify the following locally, otherwise the CI will fail:
 
 ### Backwards Compatibility
 
-ink! and `pallet-contracts` are projects under active development. As the Contracts API
+ink! and `pallet-revive` are projects under active development. As the Contracts API
 functions evolve to their newer versions we need to introduce them in ink! in a way that
 keeps the current *MAJOR* ink! versions compatible with older Substrate nodes which
 may not have these new API function.
 
 In order to achieve this, please stick to the following workflow.
 
-Imagine there is a `[seal0] function()` in the Contracts pallet API and our
+Imagine there is a `[seal0] function()` in the Revive pallet API and our
 `ink_env::function()` uses its import under the hood. Then some time later we decide
 to add a new `[seal1] function()` version to the pallet. In order to introduce it into
 ink! and still be able to run contracts (which don't use this particular function) on
@@ -106,7 +108,6 @@ older nodes, please do the following:
    added functions.
 
 You can have a look at the [PR#1284](https://github.com/use-ink/ink/pull/1284/files#diff-e7cc1cdb3856da1293c785de863703d5961c324aa2018decb0166ea1eb0631e8R191) for a reference of how the described way could be implemented.
-
 
 ## Issues and Pull Requests
 

@@ -19,7 +19,7 @@ use crate::{backend::BuilderClient, builders::{
     salt,
     ContractsRegistry,
 }, contract_results::BareInstantiationResult, error::SandboxErr, log_error, CallBuilderFinal, CallDryRunResult, ChainBackend, ContractsBackend, E2EBackend, InstantiateDryRunResult, UploadResult, H256};
-use crate::contract_results::{ContractResultBar, ContractExecResultFor};
+use crate::contract_results::{ContractResult, ContractExecResultFor};
 use frame_support::{
         pallet_prelude::DispatchError,
     dispatch::RawOrigin,
@@ -236,12 +236,11 @@ where
         let code = self.contracts.load_code(contract_name);
         let data = constructor_exec_input(constructor.clone());
 
-        let s: [u8; 32] = salt().unwrap(); // todo
         let result = self.sandbox.deploy_contract(
             code,
             value,
             data,
-            Some(s), // todo
+            salt(),
             origin,
             gas_limit,
             storage_deposit_limit,
@@ -299,7 +298,7 @@ where
             Ok(res) => res.addr,
         };
 
-        let result = ContractResultBar::<InstantiateReturnValue, E::Balance> {
+        let result = ContractResult::<InstantiateReturnValue, E::Balance> {
             gas_consumed: result.gas_consumed,
             gas_required: result.gas_required,
             storage_deposit: result.storage_deposit,
@@ -342,7 +341,6 @@ where
         Ok(UploadResult {
             code_hash: result.code_hash,
             dry_run: Ok(CodeUploadReturnValue {
-                // todo
                 code_hash: result.code_hash,
                 deposit: result.deposit,
             }),
@@ -446,7 +444,6 @@ where
                 storage_deposit: result.storage_deposit,
                 debug_message: result.debug_message,
                 result: result.result,
-                //events: None,
             },
             _marker: Default::default(),
         })

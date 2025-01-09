@@ -23,7 +23,7 @@ ink! is composed of a number of crates that are all found in the
   Serves two roles:
   * Exposes environmental functions, like information about the caller
     of a contract call or e.g. self-terminating the contract.
-  * Provides the connection to the [`pallet-contracts`](https://github.com/paritytech/substrate/tree/master/frame/contracts),
+  * Provides the connection to the [`pallet-revive`](https://github.com/paritytech/polkadot-sdk/tree/master/substrate/frame/revive),
     so anything that calls into the underlying execution engine of the smart contract.
     This includes getting and setting a smart contracts storage, as well
     as the mentioned environmental functions.
@@ -45,7 +45,7 @@ ink! is composed of a number of crates that are all found in the
   mocking specified conditions.
 * [`e2e`](https://github.com/use-ink/ink/tree/master/crates/e2e):
   An end-to-end testing framework for ink! contracts. It requires a Substrate node
-  which includes `pallet-contracts` running in the background. The crate provides a
+  which includes `pallet-revive` running in the background. The crate provides a
   macro which can be used
   to write an idiomatic Rust test that will in the background create transactions,
   submit it to the Substrate chain and return the state changes, gas costs, etc.
@@ -58,7 +58,7 @@ are only relevant off-chain.
 ink! contracts are compiled for a WebAssembly (Wasm) target architecture,
 i.e. they are executed in a Wasm sandbox execution environment on the
 blockchain itself ‒ hence a `no_std` environment.
-More specifically they are executed by the [`pallet-contracts`](https://github.com/paritytech/substrate/tree/master/frame/contracts),
+More specifically they are executed by the [`pallet-revive`](https://github.com/paritytech/substrate/tree/master/frame/contracts),
 a module of the Substrate blockchain framework. This module takes ink!
 smart contracts and runs them in a sandbox environment.
 
@@ -123,20 +123,20 @@ One advantage is that users don't deal with an ever-changing nightly
 compiler. It's easier for us to support. If you build a contract without
 `cargo-contract` you will have to set this env variable too or use nightly.
 
-## Interaction with `pallet-contracts`
+## Interaction with `pallet-revive`
 
 The Wasm blob to which an ink! contract is compiled is executed in
-an execution environment named [`pallet-contracts`](https://github.com/paritytech/substrate/commits/master/frame/contracts)
+an execution environment named [`pallet-revive`](https://github.com/paritytech/polkadot-sdk/tree/master/substrate/frame/revive)
 on-chain.
-This `pallet-contracts` is the smart contracts module of
+This `pallet-revive` is the smart contracts module of
 [the Substrate blockchain framework](http://substrate.io/).
 
 The relationship is as depicted in this diagram:
 
-<img src="./.images/pallet-contracts.png" alt="pallet-contracts Interaction" width="800" />
+<img src="./.images/pallet-contracts.png" alt="pallet-revive Interaction" width="800" />
 
 ### Communication with the pallet
-ink! uses a static buffer for interacting with `pallet-contracts`, i.e.
+ink! uses a static buffer for interacting with `pallet-revive`, i.e.
 to move data between the pallet and a smart contract.
 The advantage of a static buffer is that no gas-expensive heap allocations
 are necessary, all allocations are done using simple pointer arithmetic.
@@ -147,8 +147,8 @@ The methods for communicating with the pallet are found in [`ink_env/src/engine/
 If you look at the implementations you'll see a common pattern of
 
 * SCALE-encoding values on the ink! side in order to pass them as a slice
-  of bytes to the `pallet-contracts`.
-* SCALE-decoding values that come from the `pallet-contracts` side in order
+  of bytes to the `pallet-revive`.
+* SCALE-decoding values that come from the `pallet-revive` side in order
   to convert them into the proper types on the ink! side, making them available
   for contract developers.
 
@@ -178,7 +178,7 @@ extern "C" {
 }
 ```
 
-Smart contracts are immutable, thus the `pallet-contracts` can never change or remove
+Smart contracts are immutable, thus the `pallet-revive` can never change or remove
 old API functions ‒ otherwise smart contracts that are deployed on-chain would break.
 
 Hence there is this version mechanism. Functions start out at version `seal0` and for
@@ -192,7 +192,7 @@ contract. And we found seals to be a cute animal as well ‒ like squids!
 ## `Environment` Trait
 
 You can use ink! on any blockchain that was built with the [Substrate](https://substrate.io)
-framework and includes the [`pallet-contracts`](https://github.com/paritytech/substrate/tree/master/frame/contracts)
+framework and includes the [`pallet-revive`](https://github.com/paritytech/polkadot-sdk/tree/master/substrate/frame/revive)
 module.
 Substrate does not define specific types for a blockchain, it uses
 generic types throughout.

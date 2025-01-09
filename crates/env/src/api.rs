@@ -821,7 +821,7 @@ where
 ///
 /// This guarantees that the code of the dependency cannot be removed without first
 /// calling [`unlock_delegate_dependency`]. It charges a fraction of the code
-/// deposit, see [`pallet_contracts::Config::CodeHashLockupDepositPercent`](https://docs.rs/pallet-contracts/latest/pallet_contracts/pallet/trait.Config.html#associatedtype.CodeHashLockupDepositPercent) for details.
+/// deposit, see [`pallet_contracts::Config::CodeHashLockupDepositPercent`](https://docs.rs/pallet-revive/latest/pallet_revive/pallet/trait.Config.html#associatedtype.CodeHashLockupDepositPercent) for details.
 ///
 /// # Errors
 ///
@@ -861,11 +861,11 @@ where
 /// Execute an XCM message locally, using the contract's address as the origin.
 ///
 /// For more details consult the
-/// [host function documentation](https://paritytech.github.io/substrate/master/pallet_contracts/api_doc/trait.Current.html#tymethod.xcm_execute).
+/// [host function documentation](https://paritytech.github.io/polkadot-sdk/master/pallet_contracts/api_doc/trait.Current.html#tymethod.xcm_execute).
 ///
 /// # Errors
 ///
-/// - If the message cannot be properly decoded on the `pallet-contracts` side.
+/// - If the message cannot be properly decoded on the `pallet-revive` side.
 /// - If the XCM execution fails because of the runtime's XCM configuration.
 ///
 /// # Panics
@@ -888,11 +888,11 @@ where
 /// instance of the `RuntimeCall` enum.
 ///
 /// For more details consult
-/// [host function documentation](https://paritytech.github.io/substrate/master/pallet_contracts/api_doc/trait.Current.html#tymethod.xcm_send).
+/// [host function documentation](https://paritytech.github.io/polkadot-sdk/master/pallet_contracts/api_doc/trait.Current.html#tymethod.xcm_send).
 ///
 /// # Errors
 ///
-/// - If the message cannot be properly decoded on the `pallet-contracts` side.
+/// - If the message cannot be properly decoded on the `pallet-revive` side.
 ///
 /// # Panics
 ///

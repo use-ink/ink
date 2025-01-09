@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-//! Provides the same interface as Substrate's FRAME `contract` module.
+//! Provides the same interface as Substrate's FRAME `revive` module.
 //!
-//! See [the documentation for the `contract` module](https://docs.rs/crate/pallet-contracts)
+//! See [the documentation for the `revive` module](https://docs.rs/crate/pallet-revive)
 //! for more information.
 
 use crate::{

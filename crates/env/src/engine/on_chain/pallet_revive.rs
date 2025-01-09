@@ -457,34 +457,14 @@ impl TypedEnvBackend for EnvInstance {
     {
         let (mut scope, enc_topics) =
             event.topics::<E, _>(TopicsBuilder::from(self.scoped_buffer()).into());
-        //let mut vec = ink_prelude::vec::Vec::new();
         // TODO: improve
-        //let enc_topics : &[[u8; 32]]= &enc_topics
         let enc_topics = enc_topics
-            //.as_chunks::<32>()
             .chunks_exact(32)
             .map(|c| c.try_into().unwrap())
             .collect::<ink_prelude::vec::Vec<[u8; 32]>>();
-        /*
-            /*
-            .for_each(|chunk| {
-                let hash = H256::from_slice(chunk);
-                vec.push(hash)
-            });
-             */
-
-         */
         let enc_data = scope.take_encoded(&event);
 
-
-        /*
-        let enc_topics: &[[u8; 32]] = unsafe {
-            core::mem::transmute::<&[u8], &[[u8; 32]]>(&enc_topics) };
-         */
-
-        //ext::deposit_event(&enc_topics.as_slice(), enc_data);
         ext::deposit_event(&enc_topics[..], enc_data);
-        //ext::deposit_event(&enc_topics[..], enc_data);
     }
 
     fn invoke_contract<E, Args, R>(
@@ -506,12 +486,6 @@ impl TypedEnvBackend for EnvInstance {
                 enc_storage_limit.into_buffer().try_into().unwrap();
             enc_storage_limit
         });
-        /*
-        let mut enc_storage_limit = EncodeScope::from(scope.take(32));
-        scale::Encode::encode_to(&params.storage_deposit_limit(), &mut enc_storage_limit);
-        let enc_storage_limit: &mut [u8; 32] =
-            enc_storage_limit.into_buffer().try_into().unwrap();
-         */
 
         let enc_callee: &[u8; 20] = params.callee().as_ref().try_into().unwrap();
         let mut enc_transferred_value = EncodeScope::from(scope.take(32));

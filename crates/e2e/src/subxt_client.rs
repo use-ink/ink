@@ -77,7 +77,7 @@ use subxt::{
     },
     tx::Signer,
 };
-use crate::contract_results::ContractResultBar;
+use crate::contract_results::ContractResult;
 
 pub type Error = crate::error::Error<DispatchError>;
 
@@ -246,7 +246,8 @@ where
             }
         }
 
-        // The `pallet-contracts` behavior is that if the code was already stored on the
+        // todo still up to date?
+        // The `pallet-revive` behavior is that if the code was already stored on the
         // chain we won't get an event with the hash, but the extrinsic will still
         // succeed. We then don't error (`cargo-contract` would), but instead
         // return the hash from the dry-run.
@@ -273,8 +274,8 @@ where
     #[allow(clippy::type_complexity)]
     fn contract_result_to_result<V>(
         &self,
-        contract_result: ContractResultBar<V, E::Balance>,
-    ) -> Result<ContractResultBar<V, E::Balance>, DryRunError<DispatchError>>
+        contract_result: ContractResult<V, E::Balance>,
+    ) -> Result<ContractResult<V, E::Balance>, DryRunError<DispatchError>>
     {
         if let Err(error) = contract_result.result {
             let debug_message = String::from_utf8(contract_result.debug_message.clone())

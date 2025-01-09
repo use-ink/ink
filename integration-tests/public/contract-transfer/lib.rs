@@ -242,7 +242,6 @@ pub mod give_me {
             // given
             let mut constructor = GiveMeRef::new();
             let contract = client
-                //.map_account(&ink_e2e::bob())
                 .instantiate("contract_transfer", &ink_e2e::bob(), &mut constructor)
                 .value(1_337_000_000)
                 .submit()

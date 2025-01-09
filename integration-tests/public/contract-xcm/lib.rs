@@ -31,7 +31,7 @@ mod contract_xcm {
                 EnvError::ReturnError(ReturnErrorCode::XcmSendFailed) => {
                     RuntimeError::XcmSendFailed
                 }
-                _ => panic!("Unexpected error from `pallet-contracts`."),
+                _ => panic!("Unexpected error from `pallet-revive`."),
             }
         }
     }

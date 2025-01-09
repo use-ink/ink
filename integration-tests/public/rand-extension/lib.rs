@@ -1,7 +1,5 @@
 #![cfg_attr(not(feature = "std"), no_std, no_main)]
 
-// todo are chain extensions already deprecated? has to be a precompile?
-
 use ink::env::Environment;
 
 /// This is an example of how an ink! contract may call the Substrate

@@ -53,7 +53,6 @@ unsafe impl GlobalAlloc for BumpAllocator {
         }
     }
 
-    /*
     #[inline]
     unsafe fn alloc_zeroed(&self, layout: Layout) -> *mut u8 {
         // todo
@@ -63,7 +62,6 @@ unsafe impl GlobalAlloc for BumpAllocator {
         // See: https://webassembly.github.io/spec/core/exec/modules.html#growing-memories
         self.alloc(layout)
     }
-     */
 
     #[inline]
     unsafe fn dealloc(&self, _ptr: *mut u8, _layout: Layout) {}

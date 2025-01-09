@@ -66,9 +66,7 @@ pub mod pallet {
 
             let executor =
                 executor::PalletReviveExecutor::<ink::env::DefaultEnvironment, T> {
-                    //origin: who.clone(),
                     origin: origin.clone(),
-                    //contract: <T as pallet_revive::Config>::AddressMapper::to_address(&contract),
                     contract,
                     value: 0.into(),
                     gas_limit,

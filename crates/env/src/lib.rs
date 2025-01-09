@@ -49,7 +49,6 @@
 /// The capacity of the static buffer.
 /// Usually set to 16 kB.
 /// Can be modified by setting `INK_STATIC_BUFFER_SIZE` environmental variable.
-/// todo
 #[const_env::from_env("INK_STATIC_BUFFER_SIZE")]
 pub const BUFFER_SIZE: usize = 16384;
 
@@ -78,8 +77,6 @@ fn panic(info: &core::panic::PanicInfo) -> ! {
 // is not recognizing its allocator and panic handler definitions.
 #[cfg(not(any(feature = "std", feature = "no-allocator")))]
 extern crate ink_allocator;
-
-
 
 mod api;
 mod arithmetic;
@@ -154,7 +151,7 @@ cfg_if::cfg_if! {
         /// # Note
         ///
         /// This depends on the `debug_message` interface which requires the
-        /// `"pallet-contracts/unstable-interface"` feature to be enabled in the target runtime.
+        /// `"pallet-revive/unstable-hostfn"` feature to be enabled in the target runtime.
         #[unstable_hostfn]
         #[macro_export]
         macro_rules! debug_print {
@@ -167,7 +164,7 @@ cfg_if::cfg_if! {
         /// # Note
         ///
         /// This depends on the `debug_message` interface which requires the
-        /// `"pallet-contracts/unstable-interface"` feature to be enabled in the target runtime.
+        /// `"pallet-revive/unstable-hostfn"` feature to be enabled in the target runtime.
         #[unstable_hostfn]
         #[macro_export]
         macro_rules! debug_println {
