@@ -557,9 +557,11 @@ jobs:
           # Fix linking of `linkme`: https://github.com/dtolnay/linkme/issues/49
           RUSTFLAGS:                     -Clink-arg=-z -Clink-arg=nostart-stop-gc
         run: |
-          # run the static buffer test with a custom buffer size
+          # run the static buffer test with a custom buffer size.
+          # the readme explains why `19`, in short because the tests write
+          # an H160 into the buffer and want to provoke an exhaustion of the buffer.
           cargo clean --manifest-path integration-tests/public/static-buffer/Cargo.toml
-          INK_STATIC_BUFFER_SIZE=30 cargo +nightly test --manifest-path integration-tests/public/static-buffer/Cargo.toml --all-features
+          INK_STATIC_BUFFER_SIZE=19 cargo +nightly test --manifest-path integration-tests/public/static-buffer/Cargo.toml --all-features
 
       - name: Run E2E test with on-chain contract
         env:

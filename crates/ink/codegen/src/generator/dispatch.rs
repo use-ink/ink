@@ -378,6 +378,7 @@ impl Dispatch<'_> {
                         .unwrap_or_else(|error| ::core::panic!("{}", error))
                 }
 
+
                 let dispatchable = match ::ink::env::decode_input::<
                     <#storage_ident as ::ink::reflect::ContractConstructorDecoder>::Type,
                 >() {
