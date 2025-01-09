@@ -143,7 +143,7 @@ are necessary, all allocations are done using simple pointer arithmetic.
 The implementation of this static buffer is found in
 [`ink_env/src/engine/on_chain/buffer.rs`](https://github.com/use-ink/ink/blob/master/crates/env/src/engine/on_chain/buffer.rs).
 
-The methods for communicating with the pallet are found in [`ink_env/src/engine/on_chain/impls.rs`](https://github.com/use-ink/ink/blob/master/crates/env/src/engine/on_chain/impls.rs).
+The methods for communicating with the pallet are found in [`ink_env/src/engine/on_chain/impls.rs`](https://github.com/use-ink/ink/blob/master/crates/env/src/engine/on_chain/pallet_revive.rs).
 If you look at the implementations you'll see a common pattern of
 
 * SCALE-encoding values on the ink! side in order to pass them as a slice
