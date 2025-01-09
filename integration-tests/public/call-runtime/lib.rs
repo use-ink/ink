@@ -129,9 +129,7 @@ mod runtime_call {
             ContractsBackend,
         };
 
-        use ink::{
-            primitives::AccountId,
-        };
+        use ink::primitives::AccountId;
 
         type E2EResult<T> = Result<T, Box<dyn std::error::Error>>;
 

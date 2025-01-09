@@ -28,7 +28,11 @@ use crate::{
     Error,
 };
 use core::marker::PhantomData;
-use ink_primitives::{H160, H256, U256};
+use ink_primitives::{
+    H160,
+    H256,
+    U256,
+};
 
 pub mod state {
     //! Type states that tell what state of a instantiation argument has not
@@ -163,8 +167,7 @@ where
 /// Defines the limit params for the new `ext::instantiate` host function.
 /// todo: rename
 #[derive(Clone, Debug)]
-pub struct LimitParamsV2
-{
+pub struct LimitParamsV2 {
     ref_time_limit: u64,
     proof_size_limit: u64,
     storage_deposit_limit: Option<U256>,
@@ -172,8 +175,7 @@ pub struct LimitParamsV2
 
 /// Builds up contract instantiations.
 #[derive(Debug)]
-pub struct CreateParams<E, ContractRef, Limits, Args, R>
-{
+pub struct CreateParams<E, ContractRef, Limits, Args, R> {
     /// The code hash of the created contract.
     code_hash: H256,
     /// Parameters for weight and storage limits, differs for versions of the instantiate
@@ -192,8 +194,7 @@ pub struct CreateParams<E, ContractRef, Limits, Args, R>
     _phantom: PhantomData<fn() -> (E, ContractRef)>,
 }
 
-impl<E, ContractRef, Limits, Args, R>
-    CreateParams<E, ContractRef, Limits, Args, R>
+impl<E, ContractRef, Limits, Args, R> CreateParams<E, ContractRef, Limits, Args, R>
 where
     E: Environment,
 {
@@ -224,8 +225,7 @@ where
     }
 }
 
-impl<E, ContractRef, Args, R>
-    CreateParams<E, ContractRef, LimitParamsV2, Args, R>
+impl<E, ContractRef, Args, R> CreateParams<E, ContractRef, LimitParamsV2, Args, R>
 where
     E: Environment,
 {
@@ -249,8 +249,7 @@ where
     }
 }
 
-impl<E, ContractRef, Limits, Args, R>
-    CreateParams<E, ContractRef, Limits, Args, R>
+impl<E, ContractRef, Limits, Args, R> CreateParams<E, ContractRef, Limits, Args, R>
 where
     E: Environment,
 {
@@ -261,8 +260,7 @@ where
     }
 }
 
-impl<E, ContractRef, Args, R>
-    CreateParams<E, ContractRef, LimitParamsV2, Args, R>
+impl<E, ContractRef, Args, R> CreateParams<E, ContractRef, LimitParamsV2, Args, R>
 where
     E: Environment,
     ContractRef: FromAddr,
@@ -311,7 +309,7 @@ where
 
 /// Builds up contract instantiations.
 #[derive(Clone)]
-pub struct CreateBuilder<E, ContractRef, Limits, Args,  RetType>
+pub struct CreateBuilder<E, ContractRef, Limits, Args, RetType>
 where
     E: Environment,
 {
@@ -451,8 +449,8 @@ where
     }
 }
 
-impl<E, ContractRef, Limits, Args,  RetType>
-    CreateBuilder<E, ContractRef, Limits, Args,  RetType>
+impl<E, ContractRef, Limits, Args, RetType>
+    CreateBuilder<E, ContractRef, Limits, Args, RetType>
 where
     E: Environment,
 {
@@ -461,7 +459,7 @@ where
     pub fn code_hash(
         self,
         code_hash: H256,
-    ) -> CreateBuilder<E, ContractRef, Limits, Args,  RetType> {
+    ) -> CreateBuilder<E, ContractRef, Limits, Args, RetType> {
         CreateBuilder {
             code_hash,
             limits: self.limits,
@@ -474,8 +472,8 @@ where
     }
 }
 
-impl<E, ContractRef, Args,  RetType>
-    CreateBuilder<E, ContractRef, Set<LimitParamsV2>, Args,  RetType>
+impl<E, ContractRef, Args, RetType>
+    CreateBuilder<E, ContractRef, Set<LimitParamsV2>, Args, RetType>
 where
     E: Environment,
 {
@@ -517,8 +515,8 @@ where
     }
 }
 
-impl<E, ContractRef, Limits, Args,  RetType>
-    CreateBuilder<E, ContractRef, Limits, Args,  RetType>
+impl<E, ContractRef, Limits, Args, RetType>
+    CreateBuilder<E, ContractRef, Limits, Args, RetType>
 where
     E: Environment,
 {
@@ -527,7 +525,7 @@ where
     pub fn endowment(
         self,
         endowment: U256,
-    ) -> CreateBuilder<E, ContractRef, Limits, Args,  RetType> {
+    ) -> CreateBuilder<E, ContractRef, Limits, Args, RetType> {
         CreateBuilder {
             code_hash: self.code_hash,
             limits: self.limits,
@@ -556,13 +554,7 @@ where
     pub fn exec_input<Args>(
         self,
         exec_input: ExecutionInput<Args>,
-    ) -> CreateBuilder<
-        E,
-        ContractRef,
-        Limits,
-        Set<ExecutionInput<Args>>,
-        RetType,
-    > {
+    ) -> CreateBuilder<E, ContractRef, Limits, Set<ExecutionInput<Args>>, RetType> {
         CreateBuilder {
             code_hash: self.code_hash,
             limits: self.limits,
@@ -575,8 +567,8 @@ where
     }
 }
 
-impl<E, ContractRef, Limits,  Args, RetType>
-    CreateBuilder<E, ContractRef, Limits,  Args, RetType>
+impl<E, ContractRef, Limits, Args, RetType>
+    CreateBuilder<E, ContractRef, Limits, Args, RetType>
 where
     E: Environment,
 {
@@ -585,8 +577,7 @@ where
     pub fn salt_bytes(
         self,
         salt: Option<[u8; 32]>,
-    ) -> CreateBuilder<E, ContractRef, Limits,  Args, RetType>
-    {
+    ) -> CreateBuilder<E, ContractRef, Limits, Args, RetType> {
         CreateBuilder {
             code_hash: self.code_hash,
             limits: self.limits,
@@ -599,8 +590,8 @@ where
     }
 }
 
-impl<E, ContractRef, Limits,  Args>
-    CreateBuilder<E, ContractRef, Limits,  Args, Unset<ReturnType<()>>>
+impl<E, ContractRef, Limits, Args>
+    CreateBuilder<E, ContractRef, Limits, Args, Unset<ReturnType<()>>>
 where
     E: Environment,
 {
@@ -608,15 +599,15 @@ where
     ///
     /// # Note
     ///
-    /// Constructors are not able to return arbitrary values. Instead, a successful call to
-    /// a constructor returns the address at which the contract was instantiated.
+    /// Constructors are not able to return arbitrary values. Instead, a successful call
+    /// to a constructor returns the address at which the contract was instantiated.
     ///
     /// Therefore this must always be a reference (i.e. `ContractRef`) to the contract
     /// you're trying to instantiate.
     #[inline]
     pub fn returns<R>(
         self,
-    ) -> CreateBuilder<E, ContractRef, Limits,  Args, Set<ReturnType<R>>>
+    ) -> CreateBuilder<E, ContractRef, Limits, Args, Set<ReturnType<R>>>
     where
         ContractRef: FromAddr,
         R: ConstructorReturnType<ContractRef>,
@@ -646,7 +637,7 @@ where
 {
     /// Finalizes the `CreateBuilder`, allowing it to instantiate a contract.
     #[inline]
-    pub fn params(self) -> CreateParams<E, ContractRef, Limits, Args,  RetType> {
+    pub fn params(self) -> CreateParams<E, ContractRef, Limits, Args, RetType> {
         CreateParams {
             code_hash: self.code_hash,
             limits: self.limits.value(),
@@ -659,7 +650,7 @@ where
     }
 }
 
-impl<E, ContractRef, Args,  RetType>
+impl<E, ContractRef, Args, RetType>
     CreateBuilder<
         E,
         ContractRef,

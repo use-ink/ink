@@ -70,19 +70,20 @@ pub mod storage {
 }
 
 #[cfg(feature = "unstable")]
-pub use self::{
-    chain_extension::{
-        ChainExtensionInstance,
-        IsResultType,
-        Output,
-        ValueReturned,
-    },
+pub use self::chain_extension::{
+    ChainExtensionInstance,
+    IsResultType,
+    Output,
+    ValueReturned,
 };
 pub use self::{
     contract_ref::ToAddr,
     env_access::EnvAccess,
     prelude::IIP2_WILDCARD_COMPLEMENT_SELECTOR,
 };
+#[cfg(feature = "unstable")]
+#[allow(unused)]
+pub use ink_macro::chain_extension;
 pub use ink_macro::{
     blake2x256,
     contract,
@@ -95,11 +96,6 @@ pub use ink_macro::{
     trait_definition,
     Event,
     EventMetadata,
-};
-#[cfg(feature = "unstable")]
-#[allow(unused)]
-pub use ink_macro::{
-    chain_extension,
 };
 pub use ink_primitives::{
     ConstructorResult,

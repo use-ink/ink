@@ -31,14 +31,10 @@ pub mod just_terminates {
         #[ink::test]
         fn terminating_works() {
             // given
-            let accounts =
-                ink::env::test::default_accounts();
+            let accounts = ink::env::test::default_accounts();
             let contract_id = ink::env::test::callee::<ink::env::DefaultEnvironment>();
             ink::env::test::set_caller(accounts.alice);
-            ink::env::test::set_account_balance(
-                contract_id,
-                100.into(),
-            );
+            ink::env::test::set_account_balance(contract_id, 100.into());
             let mut contract = JustTerminate::new();
 
             // when

@@ -2,10 +2,12 @@
 
 #[ink::contract]
 pub mod delegatee2 {
-    use ink::H160;
-    use ink::storage::{
-        traits::ManualKey,
-        Mapping,
+    use ink::{
+        storage::{
+            traits::ManualKey,
+            Mapping,
+        },
+        H160,
     };
     #[ink(storage)]
     pub struct Delegatee2 {
@@ -22,7 +24,10 @@ pub mod delegatee2 {
                 "Constructors are not called when upgrading using `set_code_hash`."
             )
              */
-            Self {addresses: Mapping::default(), counter: 0}
+            Self {
+                addresses: Mapping::default(),
+                counter: 0,
+            }
         }
 
         /// Increments the current value.
@@ -42,7 +47,9 @@ pub mod delegatee2 {
         /// todo
         #[ink(message)]
         pub fn code_hash(&self) -> ink::H256 {
-            self.env().code_hash(&self.env().address()).expect("no code hash could be found")
+            self.env()
+                .code_hash(&self.env().address())
+                .expect("no code hash could be found")
         }
     }
 }

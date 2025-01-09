@@ -46,12 +46,12 @@ use crate::{
     Result,
     TypedEnvBackend,
 };
+use ink_macro::unstable_hostfn;
 use ink_primitives::{
     H160,
     H256,
     U256,
 };
-use ink_macro::unstable_hostfn;
 use ink_storage_traits::{
     decode_all,
     Storable,
@@ -547,9 +547,15 @@ impl TypedEnvBackend for EnvInstance {
         let ref_time_limit = params.ref_time_limit();
         let proof_size_limit = params.proof_size_limit();
         let deposit_limit = params.deposit_limit().as_ref();
-        let call_result =
-            ext::delegate_call(*flags, &enc_address, ref_time_limit, proof_size_limit,
-                               deposit_limit, enc_input, Some(output));
+        let call_result = ext::delegate_call(
+            *flags,
+            &enc_address,
+            ref_time_limit,
+            proof_size_limit,
+            deposit_limit,
+            enc_input,
+            Some(output),
+        );
         match call_result {
             Ok(()) | Err(ReturnErrorCode::CalleeReverted) => {
                 let decoded = scale::DecodeAll::decode_all(&mut &output[..])?;
@@ -646,16 +652,15 @@ impl TypedEnvBackend for EnvInstance {
 
         //let value: &[u8] = scale::Encode::encode_to(value, &mut scope);
         //let value: u128 = scale::Decode::decode(&mut &value[..]).expect("foo");
-        //let value_u128: u128 = value.try_into().expect("oh no"); //core::mem::transmute(value);
-        // todo
+        //let value_u128: u128 = value.try_into().expect("oh no");
+        // //core::mem::transmute(value); todo
         //let value_u128: u128 = unsafe {
-            //core::mem::transmute_copy::<<E as Environment>::Balance, u128>(&value) };
+        //core::mem::transmute_copy::<<E as Environment>::Balance, u128>(&value) };
         //let value = scale::Decode::primitive_types::U256::from(value_u128);
         //let value = U256::from(value_u128);
         let mut enc_value = EncodeScope::from(scope.take(32));
         scale::Encode::encode_to(&value, &mut enc_value);
-        let enc_value: &mut [u8; 32] =
-            enc_value.into_buffer().try_into().unwrap();
+        let enc_value: &mut [u8; 32] = enc_value.into_buffer().try_into().unwrap();
 
         let output = &mut scope.take_rest();
         #[allow(deprecated)]

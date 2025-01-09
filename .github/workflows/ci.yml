@@ -87,7 +87,6 @@ jobs:
           cargo spellcheck check -v --cfg=.config/cargo_spellcheck.toml --checkers hunspell --code 1 -- recursive ./integration-tests/*
 
   fmt:
-    if: false
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -529,8 +528,6 @@ jobs:
                 cargo +nightly test --all-features --all --manifest-path integration-tests/public/mapping/Cargo.toml
 
   examples-custom-test:
-    # todo
-    if: false
     runs-on: ubuntu-latest
     needs: [set-image, clippy]
     defaults:
@@ -558,10 +555,10 @@ jobs:
           RUSTFLAGS:                     -Clink-arg=-z -Clink-arg=nostart-stop-gc
         run: |
           # run the static buffer test with a custom buffer size.
-          # the readme explains why `19`, in short because the tests write
-          # an H160 into the buffer and want to provoke an exhaustion of the buffer.
+          # the readme + test comments explain why `32`, in short because the tests write
+          # content into the buffer and want to provoke an exhaustion of the buffer.
           cargo clean --manifest-path integration-tests/public/static-buffer/Cargo.toml
-          INK_STATIC_BUFFER_SIZE=19 cargo +nightly test --manifest-path integration-tests/public/static-buffer/Cargo.toml --all-features
+          INK_STATIC_BUFFER_SIZE=32 cargo +nightly test --manifest-path integration-tests/public/static-buffer/Cargo.toml --all-features
 
       - name: Run E2E test with on-chain contract
         env:

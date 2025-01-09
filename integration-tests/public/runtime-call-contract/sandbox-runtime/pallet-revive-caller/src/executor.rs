@@ -1,20 +1,25 @@
-use crate::{
-    BalanceOf,
+use crate::BalanceOf;
+use frame_support::{
+    pallet_prelude::Weight,
+    traits::IsType,
 };
-use frame_support::pallet_prelude::Weight;
-use frame_support::traits::IsType;
 use frame_system::pallet_prelude::OriginFor;
-use pallet_revive::{DepositLimit, MomentOf};
-use sp_runtime::traits::Bounded;
-use ink::env::{
-    call::{
-        ExecutionInput,
-        Executor,
+use ink::{
+    env::{
+        call::{
+            ExecutionInput,
+            Executor,
+        },
+        Environment,
     },
-    Environment,
+    primitives::U256,
+    H160,
 };
-use ink::H160;
-use ink::primitives::U256;
+use pallet_revive::{
+    DepositLimit,
+    MomentOf,
+};
+use sp_runtime::traits::Bounded;
 
 pub struct PalletReviveExecutor<E: Environment, Runtime: pallet_revive::Config> {
     //pub origin: AccountIdOf<Runtime>,
@@ -34,7 +39,7 @@ where
 
     BalanceOf<R>: Into<U256> + TryFrom<U256> + Bounded,
     MomentOf<R>: Into<U256>,
-    <R as frame_system::Config>::Hash: IsType<sp_runtime::testing::H256>
+    <R as frame_system::Config>::Hash: IsType<sp_runtime::testing::H256>,
 {
     type Error = sp_runtime::DispatchError;
 
@@ -50,7 +55,8 @@ where
 
         let result = pallet_revive::Pallet::<R>::bare_call(
             self.origin.clone(),
-            // <R as pallet_revive::Config>::AddressMapper::to_account_id(&self.contract),
+            // <R as pallet_revive::Config>::AddressMapper::to_account_id(&self.
+            // contract),
             self.contract,
             self.value,
             self.gas_limit,

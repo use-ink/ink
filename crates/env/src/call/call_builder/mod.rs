@@ -32,9 +32,7 @@ use crate::{
     Environment,
 };
 use core::marker::PhantomData;
-use ink_primitives::{
-    H160,
-};
+use ink_primitives::H160;
 
 /// The final parameters to the cross-contract call.
 #[derive(Debug)]
@@ -237,12 +235,7 @@ where
 }
 
 impl<E, Args, RetType> From<Execution<Args, RetType>>
-    for CallBuilder<
-        E,
-        Unset<Call>,
-        Set<ExecutionInput<Args>>,
-        Set<ReturnType<RetType>>,
-    >
+    for CallBuilder<E, Unset<Call>, Set<ExecutionInput<Args>>, Set<ReturnType<RetType>>>
 where
     E: Environment,
 {

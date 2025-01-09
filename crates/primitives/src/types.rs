@@ -173,7 +173,15 @@ impl Clear for Hash {
 // }
 
 #[derive(Debug, Clone, Eq, PartialEq, Encode, Decode)]
-#[cfg_attr(feature = "std", derive(scale_info::TypeInfo, EncodeAsType, serde::Serialize, serde::Deserialize))]
+#[cfg_attr(
+    feature = "std",
+    derive(
+        scale_info::TypeInfo,
+        EncodeAsType,
+        serde::Serialize,
+        serde::Deserialize
+    )
+)]
 pub enum DepositLimit<Balance> {
     /// Allows bypassing all balance transfer checks.
     Unchecked,

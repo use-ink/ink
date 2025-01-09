@@ -12,13 +12,13 @@ pub mod delegator {
             CallFlags,
             DefaultEnvironment,
         },
+        primitives::H256,
         storage::{
             traits::ManualKey,
             Lazy,
             Mapping,
         },
         H160,
-        primitives::H256,
     };
 
     #[ink(storage)]
@@ -127,12 +127,18 @@ pub mod delegator {
     #[cfg(all(test, feature = "e2e-tests"))]
     mod e2e_tests {
         use super::*;
+        use delegatee::delegatee::{
+            Delegatee,
+            DelegateeRef,
+        };
+        use delegatee2::delegatee2::{
+            Delegatee2,
+            Delegatee2Ref,
+        };
         use ink_e2e::{
             ChainBackend,
             ContractsBackend,
         };
-        use delegatee::delegatee::{Delegatee, DelegateeRef};
-        use delegatee2::delegatee2::{Delegatee2, Delegatee2Ref};
 
         type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
@@ -162,7 +168,10 @@ pub mod delegator {
                 .expect("instantiate `delegatee` failed");
             let call_builder = contract.call_builder::<Delegatee>();
             let call_delegatee = call_builder.code_hash();
-            let result = client.call(&origin, &call_delegatee).dry_run().await
+            let result = client
+                .call(&origin, &call_delegatee)
+                .dry_run()
+                .await
                 .expect("code_hash call failed");
             let code_hash = result.return_value();
 
@@ -228,7 +237,10 @@ pub mod delegator {
                 .expect("instantiate `delegatee` failed");
             let call_builder = contract.call_builder::<Delegatee>();
             let call_delegatee = call_builder.code_hash();
-            let result = client.call(&origin, &call_delegatee).dry_run().await
+            let result = client
+                .call(&origin, &call_delegatee)
+                .dry_run()
+                .await
                 .expect("code_hash call failed");
             let code_hash = result.return_value();
 
@@ -298,7 +310,10 @@ pub mod delegator {
                 .expect("instantiate `delegatee` failed");
             let call_builder = contract.call_builder::<Delegatee>();
             let call_delegatee = call_builder.code_hash();
-            let result = client.call(&origin, &call_delegatee).dry_run().await
+            let result = client
+                .call(&origin, &call_delegatee)
+                .dry_run()
+                .await
                 .expect("code_hash call to delegatee failed");
             let code_hash = result.return_value();
             let delegatee_addr = contract.addr;
@@ -319,7 +334,10 @@ pub mod delegator {
                 .expect("instantiate `delegatee2` failed");
             let call_builder2 = contract.call_builder::<Delegatee2>();
             let call_delegatee2 = call_builder2.code_hash();
-            let result2 = client.call(&origin, &call_delegatee2).dry_run().await
+            let result2 = client
+                .call(&origin, &call_delegatee2)
+                .dry_run()
+                .await
                 .expect("code_hash call to delegatee2 failed");
             let code_hash2 = result2.return_value();
             let delegatee2_addr = contract2.addr;
@@ -333,7 +351,8 @@ pub mod delegator {
             let mut call_builder = contract.call_builder::<Delegator>();
 
             // when
-            let call_delegate = call_builder.update_delegate_to(code_hash2, delegatee2_addr);
+            let call_delegate =
+                call_builder.update_delegate_to(code_hash2, delegatee2_addr);
             let result = client.call(&origin, &call_delegate).submit().await;
             assert!(result.is_ok(), "update_delegate_to failed.");
 

@@ -23,7 +23,10 @@ use crate::{
     AccountError,
     Error,
 };
-use ink_primitives::{AccountId, U256};
+use ink_primitives::{
+    AccountId,
+    U256,
+};
 use std::collections::HashMap;
 
 /// Record for an emitted event.
@@ -225,8 +228,16 @@ impl Engine {
 
     /// Advances the chain by a single block.
     pub fn advance_block(&mut self) {
-        self.exec_context.block_number.checked_add(1).expect("failed to add");
-        self.exec_context.block_timestamp.checked_add(self.chain_spec.block_time).expect("failed to add");
+        self.exec_context.block_number = self
+            .exec_context
+            .block_number
+            .checked_add(1)
+            .expect("failed to add");
+        self.exec_context.block_timestamp = self
+            .exec_context
+            .block_timestamp
+            .checked_add(self.chain_spec.block_time)
+            .expect("failed to add");
     }
 
     /// Returns the callee, i.e. the currently executing contract.

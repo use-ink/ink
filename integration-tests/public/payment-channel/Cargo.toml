@@ -6,7 +6,7 @@ edition = "2021"
 publish = false
 
 [dependencies]
-ink = { path = "../../../crates/ink", default-features = false }
+ink = { path = "../../../crates/ink", default-features = false, features = ["unstable"] }
 
 [dev-dependencies]
 hex-literal = { version = "0.4.1" }
@@ -22,5 +22,4 @@ std = [
     "sp-core/std",
 ]
 
-ink = ["unstable"]
 ink-as-dependency = []

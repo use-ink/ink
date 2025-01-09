@@ -12,12 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use frame_support::pallet_prelude::{
+    Decode,
+    Encode,
+};
 use ink::codegen::ContractCallBuilder;
-use ink_env::Environment;
+use ink_env::{
+    call::FromAddr,
+    Environment,
+};
 use ink_primitives::{
-    H256,
     ConstructorResult,
     MessageResult,
+    H256,
 };
 use pallet_revive::{
     evm::H160,
@@ -35,14 +42,10 @@ use std::{
     fmt::Debug,
     marker::PhantomData,
 };
-use frame_support::pallet_prelude::{Decode, Encode};
-use ink_env::call::FromAddr;
 
 /// Alias for the contract instantiate result.
-pub type ContractInstantiateResultForBar<E> = ContractResult<
-    InstantiateReturnValue,
-    <E as Environment>::Balance
->;
+pub type ContractInstantiateResultForBar<E> =
+    ContractResult<InstantiateReturnValue, <E as Environment>::Balance>;
 
 /// Result type of a `bare_call`, `bare_instantiate`, `ContractsApi::call`, and
 /// `ContractsApi::instantiate`.
@@ -51,9 +54,9 @@ pub type ContractInstantiateResultForBar<E> = ContractResult<
 ///
 /// # Note
 ///
-/// It has been extended to include `events` at the end of the struct while not bumping the
-/// `ContractsApi` version. Therefore when SCALE decoding a `ContractResult` its trailing data
-/// should be ignored to avoid any potential compatibility issues.
+/// It has been extended to include `events` at the end of the struct while not bumping
+/// the `ContractsApi` version. Therefore when SCALE decoding a `ContractResult` its
+/// trailing data should be ignored to avoid any potential compatibility issues.
 #[derive(Debug, Clone, Eq, PartialEq, Encode, Decode)]
 pub struct ContractResult<R, Balance> {
     /// How much weight was consumed during execution.
@@ -69,12 +72,12 @@ pub struct ContractResult<R, Balance> {
     /// Additionally, any `seal_call` or `seal_instantiate` makes use of pre-charging
     /// when a non-zero `gas_limit` argument is supplied.
     pub gas_required: Weight,
-    /// How much balance was paid by the origin into the contract's deposit account in order to
-    /// pay for storage.
+    /// How much balance was paid by the origin into the contract's deposit account in
+    /// order to pay for storage.
     ///
-    /// The storage deposit is never actually charged from the origin in case of [`Self::result`]
-    /// is `Err`. This is because on error all storage changes are rolled back including the
-    /// payment of the deposit.
+    /// The storage deposit is never actually charged from the origin in case of
+    /// [`Self::result`] is `Err`. This is because on error all storage changes are
+    /// rolled back including the payment of the deposit.
     pub storage_deposit: StorageDeposit<Balance>,
     /// An optional debug message. This message is only filled when explicitly requested
     /// by the code that calls into the contract. Otherwise it is empty.
@@ -88,18 +91,16 @@ pub struct ContractResult<R, Balance> {
     ///
     /// # Note
     ///
-    /// The debug message is never generated during on-chain execution. It is reserved for
-    /// RPC calls.
+    /// The debug message is never generated during on-chain execution. It is reserved
+    /// for RPC calls.
     pub debug_message: Vec<u8>,
     /// The execution result of the Wasm code.
     pub result: Result<R, DispatchError>,
 }
 
 /// Alias for the contract exec result.
-pub type ContractExecResultFor<E> = ContractResult<
-    ExecReturnValue,
-    <E as Environment>::Balance,
->;
+pub type ContractExecResultFor<E> =
+    ContractResult<ExecReturnValue, <E as Environment>::Balance>;
 
 /// Result of a contract instantiation using bare call.
 pub struct BareInstantiationResult<EventLog> {
@@ -148,9 +149,7 @@ impl<E: Environment, EventLog> InstantiationResult<E, EventLog> {
         Contract: ContractCallBuilder,
         Contract::Type: FromAddr,
     {
-        <<Contract as ContractCallBuilder>::Type as FromAddr>::from_addr(
-            self.addr
-        )
+        <<Contract as ContractCallBuilder>::Type as FromAddr>::from_addr(self.addr)
     }
 }
 

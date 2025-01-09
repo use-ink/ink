@@ -2,10 +2,12 @@
 
 #[ink::contract]
 pub mod delegatee {
-    use ink::H160;
-    use ink::storage::{
-        traits::ManualKey,
-        Mapping,
+    use ink::{
+        storage::{
+            traits::ManualKey,
+            Mapping,
+        },
+        H160,
     };
     #[ink(storage)]
     pub struct Delegatee {
@@ -29,7 +31,10 @@ pub mod delegatee {
             )
 
              */
-            Self {addresses: Mapping::default(), counter: 0}
+            Self {
+                addresses: Mapping::default(),
+                counter: 0,
+            }
         }
 
         /// Increments the current value.
@@ -49,7 +54,9 @@ pub mod delegatee {
         /// todo
         #[ink(message)]
         pub fn code_hash(&self) -> ink::H256 {
-            self.env().code_hash(&self.env().address()).expect("no code hash could be found")
+            self.env()
+                .code_hash(&self.env().address())
+                .expect("no code hash could be found")
         }
     }
 }

@@ -57,7 +57,9 @@ where
         &mut self,
         account_id: &AccountIdFor<T::Runtime>,
     ) -> BalanceOf<T::Runtime> {
-        self.execute_with(|| pallet_balances::Pallet::<T::Runtime>::free_balance(account_id))
+        self.execute_with(|| {
+            pallet_balances::Pallet::<T::Runtime>::free_balance(account_id)
+        })
     }
 }
 

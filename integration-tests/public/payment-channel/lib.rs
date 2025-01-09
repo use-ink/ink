@@ -41,7 +41,10 @@
 
 #[ink::contract]
 mod payment_channel {
-    use ink::{H160, U256};
+    use ink::{
+        H160,
+        U256,
+    };
 
     /// Struct for storing the payment channel details.
     /// The creator of the contract, i.e. the `sender`, can deposit funds to the payment
@@ -293,8 +296,7 @@ mod payment_channel {
             Pair,
         };
 
-        fn default_accounts(
-        ) -> ink::env::test::DefaultAccounts {
+        fn default_accounts() -> ink::env::test::DefaultAccounts {
             ink::env::test::default_accounts()
         }
 
@@ -303,9 +305,7 @@ mod payment_channel {
         }
 
         fn set_account_balance(account: H160, balance: U256) {
-            ink::env::test::set_account_balance(
-                account, balance,
-            );
+            ink::env::test::set_account_balance(account, balance);
         }
 
         fn get_account_balance(account: H160) -> U256 {

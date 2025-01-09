@@ -42,12 +42,16 @@ use crate::{
     TypedEnvBackend,
 };
 use ink_engine::ext::Engine;
-use ink_primitives::{H160, H256, U256};
+use ink_macro::unstable_hostfn;
+use ink_primitives::{
+    H160,
+    H256,
+    U256,
+};
 use ink_storage_traits::{
     decode_all,
     Storable,
 };
-use ink_macro::unstable_hostfn;
 use pallet_revive_uapi::{
     ReturnErrorCode,
     ReturnFlags,
@@ -481,9 +485,9 @@ impl TypedEnvBackend for EnvInstance {
         )
     }
 
-    fn instantiate_contract<E, ContractRef, Args,  R>(
+    fn instantiate_contract<E, ContractRef, Args, R>(
         &mut self,
-        params: &CreateParams<E, ContractRef, LimitParamsV2, Args,  R>,
+        params: &CreateParams<E, ContractRef, LimitParamsV2, Args, R>,
     ) -> Result<
         ink_primitives::ConstructorResult<
             <R as ConstructorReturnType<ContractRef>>::Output,

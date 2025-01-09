@@ -30,8 +30,11 @@ use ink_primitives::H160;
 /// ```rust
 /// #[ink::contract]
 /// mod trait_caller {
-///     use ink::contract_ref;
-///     use ink::{H160, U256};
+///     use ink::{
+///         contract_ref,
+///         H160,
+///         U256,
+///     };
 ///
 ///     #[ink::trait_definition]
 ///     pub trait Erc20 {
@@ -96,7 +99,10 @@ use ink_primitives::H160;
 ///             use ink::codegen::TraitCallBuilder;
 ///             // Returns the `CallBuilder` that implements `Erc20` trait.
 ///             let erc20_builder = self.erc20.call();
-///             erc20_builder.total_supply().transferred_value(U256::from(0)).invoke()
+///             erc20_builder
+///                 .total_supply()
+///                 .transferred_value(U256::from(0))
+///                 .invoke()
 ///         }
 ///
 ///         /// Example of how to do common calls and convert

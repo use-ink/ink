@@ -26,8 +26,10 @@ pub mod pallet {
         traits::fungible::Inspect,
     };
     use frame_system::pallet_prelude::*;
-    use pallet_revive::evm::*;
-    use pallet_revive::MomentOf;
+    use pallet_revive::{
+        evm::*,
+        MomentOf,
+    };
     use sp_runtime::traits::Bounded;
 
     #[pallet::pallet]
@@ -49,7 +51,7 @@ pub mod pallet {
 
         BalanceOf<T>: Into<U256> + TryFrom<U256> + Bounded,
         MomentOf<T>: Into<U256>,
-        <T as frame_system::Config>::Hash: IsType<sp_runtime::testing::H256>
+        <T as frame_system::Config>::Hash: IsType<sp_runtime::testing::H256>,
     {
         /// Call the flip method on the contract at the given `contract` account.
         #[pallet::call_index(0)]

@@ -100,13 +100,6 @@ mod tests;
 #[doc(inline)]
 pub use self::engine::off_chain::test_api as test;
 
-#[doc(inline)]
-pub use pallet_revive_uapi::{
-    CallFlags,
-    ReturnErrorCode,
-    ReturnFlags,
-};
-use ink_macro::unstable_hostfn;
 use self::backend::{
     EnvBackend,
     TypedEnvBackend,
@@ -131,7 +124,14 @@ pub use self::{
         NoChainExtension,
     },
 };
+use ink_macro::unstable_hostfn;
 use ink_primitives::Clear;
+#[doc(inline)]
+pub use pallet_revive_uapi::{
+    CallFlags,
+    ReturnErrorCode,
+    ReturnFlags,
+};
 
 cfg_if::cfg_if! {
     if #[cfg(any(feature = "ink-debug", feature = "std"))] {

@@ -12,16 +12,24 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::{backend::{
-    EnvBackend,
-    TypedEnvBackend,
-}, call::{
-    ConstructorReturnType,
-    FromAddr,
-},  Error, Result as EnvResult};
+use crate::{
+    backend::{
+        EnvBackend,
+        TypedEnvBackend,
+    },
+    call::{
+        ConstructorReturnType,
+        FromAddr,
+    },
+    Error,
+    Result as EnvResult,
+};
 use cfg_if::cfg_if;
-use ink_primitives::{ConstructorResult, LangError};
-use pallet_revive_uapi::{ReturnErrorCode};
+use ink_primitives::{
+    ConstructorResult,
+    LangError,
+};
+use pallet_revive_uapi::ReturnErrorCode;
 
 /// Convert a slice into an array reference.
 ///

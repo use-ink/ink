@@ -1,9 +1,11 @@
 #![cfg_attr(not(feature = "std"), no_std, no_main)]
 
-use ink::U256;
-use ink::env::{
-    DefaultEnvironment,
-    Environment,
+use ink::{
+    env::{
+        DefaultEnvironment,
+        Environment,
+    },
+    U256,
 };
 use psp22_extension::Psp22Extension;
 use rand_extension::{

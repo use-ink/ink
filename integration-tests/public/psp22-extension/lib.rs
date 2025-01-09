@@ -1,10 +1,10 @@
 #![cfg_attr(not(feature = "std"), no_std, no_main)]
 
 use ink::{
-    H160,
-    U256,
     env::Environment,
     prelude::vec::Vec,
+    H160,
+    U256,
 };
 
 #[ink::chain_extension(extension = 13)]
@@ -31,49 +31,27 @@ pub trait Psp22Extension {
     fn balance_of(asset_id: u32, owner: H160) -> Result<U256>;
 
     #[ink(function = 0x4d47)]
-    fn allowance(
-        asset_id: u32,
-        owner: H160,
-        spender: H160,
-    ) -> Result<U256>;
+    fn allowance(asset_id: u32, owner: H160, spender: H160) -> Result<U256>;
 
     // PSP22 transfer
     #[ink(function = 0xdb20)]
-    fn transfer(asset_id: u32, to: H160, value: U256)
-        -> Result<()>;
+    fn transfer(asset_id: u32, to: H160, value: U256) -> Result<()>;
 
     // PSP22 transfer_from
     #[ink(function = 0x54b3)]
-    fn transfer_from(
-        asset_id: u32,
-        from: H160,
-        to: H160,
-        value: U256,
-    ) -> Result<()>;
+    fn transfer_from(asset_id: u32, from: H160, to: H160, value: U256) -> Result<()>;
 
     // PSP22 approve
     #[ink(function = 0xb20f)]
-    fn approve(
-        asset_id: u32,
-        spender: H160,
-        value: U256,
-    ) -> Result<()>;
+    fn approve(asset_id: u32, spender: H160, value: U256) -> Result<()>;
 
     // PSP22 increase_allowance
     #[ink(function = 0x96d6)]
-    fn increase_allowance(
-        asset_id: u32,
-        spender: H160,
-        value: U256,
-    ) -> Result<()>;
+    fn increase_allowance(asset_id: u32, spender: H160, value: U256) -> Result<()>;
 
     // PSP22 decrease_allowance
     #[ink(function = 0xfecb)]
-    fn decrease_allowance(
-        asset_id: u32,
-        spender: H160,
-        value: U256,
-    ) -> Result<()>;
+    fn decrease_allowance(asset_id: u32, spender: H160, value: U256) -> Result<()>;
 }
 
 #[derive(Debug, PartialEq, Eq)]
@@ -121,10 +99,13 @@ impl Environment for CustomEnvironment {
 
 #[ink::contract(env = crate::CustomEnvironment)]
 mod psp22_ext {
-    use ink::{U256, H160};
     use super::{
         Result,
         Vec,
+    };
+    use ink::{
+        H160,
+        U256,
     };
 
     /// A chain extension which implements the PSP-22 fungible token standard.
@@ -191,12 +172,7 @@ mod psp22_ext {
         /// Transfers `value` amount of specified asset from the caller's account to the
         /// account `to`.
         #[ink(message, selector = 0xdb20f9f5)]
-        pub fn transfer(
-            &mut self,
-            asset_id: u32,
-            to: H160,
-            value: U256,
-        ) -> Result<()> {
+        pub fn transfer(&mut self, asset_id: u32, to: H160, value: U256) -> Result<()> {
             self.env().extension().transfer(asset_id, to, value)
         }
 

@@ -126,9 +126,7 @@ mod contract_xcm {
             sp_runtime::AccountId32,
             traits::tokens::currency::Currency,
         };
-        use ink::{
-            primitives::AccountId,
-        };
+        use ink::primitives::AccountId;
         use ink_e2e::{
             preset::mock_network::{
                 self,

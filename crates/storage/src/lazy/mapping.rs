@@ -50,10 +50,13 @@ use scale::{
 /// ```rust
 /// # #[ink::contract]
 /// # mod my_module {
-/// use ink::{H160, U256};
-/// use ink::storage::{
-///     traits::ManualKey,
-///     Mapping,
+/// use ink::{
+///     storage::{
+///         traits::ManualKey,
+///         Mapping,
+///     },
+///     H160,
+///     U256,
 /// };
 ///
 /// #[ink(storage)]

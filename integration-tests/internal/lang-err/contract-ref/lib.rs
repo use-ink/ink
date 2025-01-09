@@ -22,7 +22,11 @@ mod contract_ref {
         }
 
         #[ink(constructor)]
-        pub fn try_new(version: u32, flipper_code_hash: ink::H256, succeed: bool) -> Self {
+        pub fn try_new(
+            version: u32,
+            flipper_code_hash: ink::H256,
+            succeed: bool,
+        ) -> Self {
             let flipper = FlipperRef::try_new(succeed)
                 .endowment(0.into())
                 .code_hash(flipper_code_hash)

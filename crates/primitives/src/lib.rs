@@ -44,7 +44,11 @@ pub use self::{
     },
 };
 
-pub use primitive_types::{H160, H256, U256};
+pub use primitive_types::{
+    H160,
+    H256,
+    U256,
+};
 
 /// An error emitted by the smart contracting language.
 ///

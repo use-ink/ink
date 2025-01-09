@@ -5,12 +5,13 @@
 #[ink::contract]
 mod mapping {
     use ink::{
-        H160, U256,
         prelude::{
             string::String,
             vec::Vec,
         },
         storage::Mapping,
+        H160,
+        U256,
     };
 
     #[derive(Debug, PartialEq)]
@@ -116,22 +117,20 @@ mod mapping {
                 None => {
                     ink::env::debug_println!("_____81");
                     Vec::new()
-                },
+                }
                 Some(value) => {
                     ink::env::debug_println!("_____82");
                     value.map_err(|_| ContractError::ValueTooLarge)?
-                },
+                }
             };
 
             ink::env::debug_println!("_____83");
             names.push(name);
 
-            self.names
-                .try_insert(caller, &names)
-                .map_err(|_| {
-                    ink::env::debug_println!("_____84");
-                    ContractError::ValueTooLarge
-                })?;
+            self.names.try_insert(caller, &names).map_err(|_| {
+                ink::env::debug_println!("_____84");
+                ContractError::ValueTooLarge
+            })?;
 
             ink::env::debug_println!("_____85");
 

@@ -57,7 +57,6 @@ pub mod static_buffer {
 
         type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
-
         fn assert_buffer_size() {
             // this is because we need 32 byte for the instantiation to succeed.
             // for the call we provoke an exhaustion of the static buffer.

@@ -16,7 +16,10 @@ use crate::types::{
     Balance,
     H160,
 };
-use ink_primitives::{AccountId, U256};
+use ink_primitives::{
+    AccountId,
+    U256,
+};
 use scale::KeyedVec;
 use std::collections::HashMap;
 

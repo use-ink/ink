@@ -56,7 +56,10 @@ pub mod give_me {
                 "received payment: {}",
                 self.env().transferred_value()
             );
-            assert!(self.env().transferred_value() == U256::from(10), "payment was not ten");
+            assert!(
+                self.env().transferred_value() == U256::from(10),
+                "payment was not ten"
+            );
         }
 
         /// todo
@@ -169,16 +172,13 @@ pub mod give_me {
             ink::env::test::set_caller(sender);
         }
 
-        fn default_accounts(
-        ) -> ink::env::test::DefaultAccounts {
+        fn default_accounts() -> ink::env::test::DefaultAccounts {
             ink::env::test::default_accounts()
         }
 
         // todo change all to addr
         fn set_balance(account_id: H160, balance: U256) {
-            ink::env::test::set_account_balance(
-                account_id, balance,
-            )
+            ink::env::test::set_account_balance(account_id, balance)
         }
 
         fn get_balance(account_id: H160) -> U256 {
@@ -272,7 +272,9 @@ pub mod give_me {
                 .expect("call failed");
 
             // then
-            assert!(call_res.debug_message().contains("requested value: 120000000\n"));
+            assert!(call_res
+                .debug_message()
+                .contains("requested value: 120000000\n"));
 
             let balance_after: Balance = client
                 .free_balance(account_id)

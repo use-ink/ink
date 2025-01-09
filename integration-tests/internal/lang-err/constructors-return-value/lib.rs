@@ -56,9 +56,10 @@ pub mod constructors_return_value {
                 Err(ink::LangError::CouldNotReadInput)
             };
 
-            ink::env::return_value::<
-                ink::ConstructorResult<Result<H160, ConstructorError>>,
-            >(ink::env::ReturnFlags::REVERT, &value)
+            ink::env::return_value::<ink::ConstructorResult<Result<H160, ConstructorError>>>(
+                ink::env::ReturnFlags::REVERT,
+                &value,
+            )
         }
 
         /// Returns the current value of the contract storage.
@@ -195,10 +196,7 @@ pub mod constructors_return_value {
                 .await?
                 .return_value();
 
-            assert!(
-                value,
-                "Contract success should write to contract storage"
-            );
+            assert!(value, "Contract success should write to contract storage");
 
             Ok(())
         }

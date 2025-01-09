@@ -12,12 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use ink_primitives::U256;
 use super::types::{
     BlockNumber,
     BlockTimestamp,
     H160,
 };
+use ink_primitives::U256;
 
 /// The context of a contract execution.
 #[cfg_attr(test, derive(Debug, PartialEq, Eq))]

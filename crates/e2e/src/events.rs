@@ -41,8 +41,7 @@ pub struct ContractInstantiatedEvent {
     pub contract: H160,
 }
 
-impl StaticEvent for ContractInstantiatedEvent
-{
+impl StaticEvent for ContractInstantiatedEvent {
     const PALLET: &'static str = "Revive";
     const EVENT: &'static str = "Instantiated";
 }

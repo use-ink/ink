@@ -25,9 +25,7 @@ pub mod flipper {
         /// Creates a new flipper smart contract initialized to `false`.
         #[ink(constructor)]
         pub fn new() -> Self {
-            Self {
-                value: true,
-            }
+            Self { value: true }
         }
     }
 

@@ -448,7 +448,10 @@ pub fn selector_bytes(input: TokenStream) -> TokenStream {
 /// ```
 /// #[ink::contract]
 /// mod erc20 {
-///     use ink::{H160, U256};
+///     use ink::{
+///         H160,
+///         U256,
+///     };
 ///
 ///     /// Defines an event that is emitted every time value is transferred.
 ///     #[ink(event)]
@@ -1641,10 +1644,10 @@ pub fn scale_derive(attr: TokenStream, item: TokenStream) -> TokenStream {
 pub fn unstable_hostfn(_attr: TokenStream, item: TokenStream) -> TokenStream {
     let input = syn::parse_macro_input!(item as syn::Item);
     let expanded = quote::quote! {
-		#[cfg(feature = "unstable")]
-		#[cfg_attr(docsrs, doc(cfg(feature = "unstable")))]
-		#input
-	};
+        #[cfg(feature = "unstable")]
+        #[cfg_attr(docsrs, doc(cfg(feature = "unstable")))]
+        #input
+    };
     expanded.into()
 }
 

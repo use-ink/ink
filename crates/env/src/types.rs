@@ -32,7 +32,13 @@
 //! the trait bounds on the `Environment` trait types.
 
 use super::arithmetic::AtLeast32BitUnsigned;
-use ink_primitives::{AccountId, Clear, Hash, H160, U256};
+use ink_primitives::{
+    AccountId,
+    Clear,
+    Hash,
+    H160,
+    U256,
+};
 use scale::{
     Decode,
     Encode,

@@ -27,7 +27,6 @@
 //! Providing your own allocator lets you choose the right tradeoffs for your use case.
 
 #![cfg_attr(not(feature = "std"), no_std, no_main)]
-
 // Here we set `dlmalloc` to be the global memory allocator.
 //
 // The [`GlobalAlloc`](https://doc.rust-lang.org/std/alloc/trait.GlobalAlloc.html) trait is
@@ -35,18 +34,21 @@
 //#[cfg(not(feature = "std"))]
 //#[global_allocator]
 //static ALLOC: dlmalloc::GlobalDlmalloc = dlmalloc::GlobalDlmalloc;
-
 #![feature(sync_unsafe_cell)]
-
 #![feature(allocator_api)]
-use core::alloc::{GlobalAlloc, Layout};
-use core::cell::{SyncUnsafeCell};
+use core::{
+    alloc::{
+        GlobalAlloc,
+        Layout,
+    },
+    cell::SyncUnsafeCell,
+};
 
 #[cfg(not(feature = "std"))]
 #[global_allocator]
 static ALLOC: BumpAllocator = BumpAllocator {};
 
-pub struct BumpAllocator { }
+pub struct BumpAllocator {}
 
 struct BumpMemory {
     buffer: [u8; 1024 * 1024], // Pre-allocated memory buffer
@@ -73,7 +75,8 @@ unsafe impl GlobalAlloc for BumpAllocator {
             panic!("too large");
         } else {
             memory.offset = end;
-            //ink::env::debug_println!("Allocated {} from {start} to {}", end-start, end-1);
+            //ink::env::debug_println!("Allocated {} from {start} to {}", end-start,
+            // end-1);
             &mut memory.buffer[start]
         }
     }

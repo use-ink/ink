@@ -2,7 +2,11 @@
 
 #[ink::contract]
 mod dns {
-    use ink::{H256, H160, storage::Mapping};
+    use ink::{
+        storage::Mapping,
+        H160,
+        H256,
+    };
 
     /// Emitted whenever a new name is being registered.
     #[ink(event)]
@@ -190,8 +194,7 @@ mod dns {
     mod tests {
         use super::*;
 
-        fn default_accounts(
-        ) -> ink::env::test::DefaultAccounts {
+        fn default_accounts() -> ink::env::test::DefaultAccounts {
             ink::env::test::default_accounts()
         }
 

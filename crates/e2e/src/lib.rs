@@ -90,7 +90,12 @@ use ink_env::{
     ContractEnv,
     Environment,
 };
-use ink_primitives::{AccountId, DepositLimit, H160, H256};
+use ink_primitives::{
+    AccountId,
+    DepositLimit,
+    H160,
+    H256,
+};
 use std::{
     cell::RefCell,
     sync::Once,
@@ -153,11 +158,15 @@ where
     <<Contract as ContractCallBuilder>::Type as FromAddr>::from_addr(acc_id)
 }
 
-fn balance_to_deposit_limit<E: Environment>(b: <E as Environment>::Balance) -> DepositLimit<<E as Environment>::Balance> {
+fn balance_to_deposit_limit<E: Environment>(
+    b: <E as Environment>::Balance,
+) -> DepositLimit<<E as Environment>::Balance> {
     DepositLimit::Balance(b)
 }
 
-fn deposit_limit_to_balance<E: Environment>(l: DepositLimit<<E as Environment>::Balance>) -> <E as Environment>::Balance {
+fn deposit_limit_to_balance<E: Environment>(
+    l: DepositLimit<<E as Environment>::Balance>,
+) -> <E as Environment>::Balance {
     match l {
         DepositLimit::Balance(l) => l,
         DepositLimit::Unchecked => panic!("oh no"),

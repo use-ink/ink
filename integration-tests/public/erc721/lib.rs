@@ -54,8 +54,10 @@
 
 #[ink::contract]
 mod erc721 {
-    use ink::storage::Mapping;
-    use ink::H160;
+    use ink::{
+        storage::Mapping,
+        H160,
+    };
 
     /// A token ID.
     pub type TokenId = u32;
@@ -171,11 +173,7 @@ mod erc721 {
 
         /// Transfers the token from the caller to the given destination.
         #[ink(message)]
-        pub fn transfer(
-            &mut self,
-            destination: H160,
-            id: TokenId,
-        ) -> Result<(), Error> {
+        pub fn transfer(&mut self, destination: H160, id: TokenId) -> Result<(), Error> {
             let caller = self.env().caller();
             self.transfer_token_from(&caller, &destination, id)?;
             Ok(())
@@ -265,11 +263,7 @@ mod erc721 {
         }
 
         /// Removes token `id` from the owner.
-        fn remove_token_from(
-            &mut self,
-            from: &H160,
-            id: TokenId,
-        ) -> Result<(), Error> {
+        fn remove_token_from(&mut self, from: &H160, id: TokenId) -> Result<(), Error> {
             let Self {
                 token_owner,
                 owned_tokens_count,
@@ -318,11 +312,7 @@ mod erc721 {
         }
 
         /// Approves or disapproves the operator to transfer all tokens of the caller.
-        fn approve_for_all(
-            &mut self,
-            to: H160,
-            approved: bool,
-        ) -> Result<(), Error> {
+        fn approve_for_all(&mut self, to: H160, approved: bool) -> Result<(), Error> {
             let caller = self.env().caller();
             if to == caller {
                 return Err(Error::NotAllowed);
@@ -387,12 +377,7 @@ mod erc721 {
 
         /// Returns true if the `H160` `from` is the owner of token `id`
         /// or it has been approved on behalf of the token `id` owner.
-        fn approved_or_owner(
-            &self,
-            from: H160,
-            id: TokenId,
-            owner: H160,
-        ) -> bool {
+        fn approved_or_owner(&self, from: H160, id: TokenId, owner: H160) -> bool {
             from != H160::from([0x0; 20])
                 && (from == owner
                     || self.token_approvals.get(id) == Some(from)
@@ -408,8 +393,7 @@ mod erc721 {
 
         #[ink::test]
         fn mint_works() {
-            let accounts =
-                ink::env::test::default_accounts();
+            let accounts = ink::env::test::default_accounts();
             set_caller(accounts.alice);
             // Create a new contract instance.
             let mut erc721 = Erc721::new();
@@ -425,8 +409,7 @@ mod erc721 {
 
         #[ink::test]
         fn mint_existing_should_fail() {
-            let accounts =
-                ink::env::test::default_accounts();
+            let accounts = ink::env::test::default_accounts();
             set_caller(accounts.alice);
             // Create a new contract instance.
             let mut erc721 = Erc721::new();
@@ -445,8 +428,7 @@ mod erc721 {
 
         #[ink::test]
         fn transfer_works() {
-            let accounts =
-                ink::env::test::default_accounts();
+            let accounts = ink::env::test::default_accounts();
             set_caller(accounts.alice);
             // Create a new contract instance.
             let mut erc721 = Erc721::new();
@@ -468,8 +450,7 @@ mod erc721 {
 
         #[ink::test]
         fn invalid_transfer_should_fail() {
-            let accounts =
-                ink::env::test::default_accounts();
+            let accounts = ink::env::test::default_accounts();
             set_caller(accounts.alice);
             // Create a new contract instance.
             let mut erc721 = Erc721::new();
@@ -491,8 +472,7 @@ mod erc721 {
 
         #[ink::test]
         fn approved_transfer_works() {
-            let accounts =
-                ink::env::test::default_accounts();
+            let accounts = ink::env::test::default_accounts();
             set_caller(accounts.alice);
             // Create a new contract instance.
             let mut erc721 = Erc721::new();
@@ -521,8 +501,7 @@ mod erc721 {
 
         #[ink::test]
         fn approved_for_all_works() {
-            let accounts =
-                ink::env::test::default_accounts();
+            let accounts = ink::env::test::default_accounts();
             set_caller(accounts.alice);
             // Create a new contract instance.
             let mut erc721 = Erc721::new();
@@ -565,8 +544,7 @@ mod erc721 {
 
         #[ink::test]
         fn approve_nonexistent_token_should_fail() {
-            let accounts =
-                ink::env::test::default_accounts();
+            let accounts = ink::env::test::default_accounts();
             set_caller(accounts.alice);
             // Create a new contract instance.
             let mut erc721 = Erc721::new();
@@ -576,8 +554,7 @@ mod erc721 {
 
         #[ink::test]
         fn not_approved_transfer_should_fail() {
-            let accounts =
-                ink::env::test::default_accounts();
+            let accounts = ink::env::test::default_accounts();
             set_caller(accounts.alice);
             // Create a new contract instance.
             let mut erc721 = Erc721::new();
@@ -606,8 +583,7 @@ mod erc721 {
 
         #[ink::test]
         fn burn_works() {
-            let accounts =
-                ink::env::test::default_accounts();
+            let accounts = ink::env::test::default_accounts();
             set_caller(accounts.alice);
             // Create a new contract instance.
             let mut erc721 = Erc721::new();
@@ -635,8 +611,7 @@ mod erc721 {
 
         #[ink::test]
         fn burn_fails_not_owner() {
-            let accounts =
-                ink::env::test::default_accounts();
+            let accounts = ink::env::test::default_accounts();
             set_caller(accounts.alice);
             // Create a new contract instance.
             let mut erc721 = Erc721::new();
@@ -649,8 +624,7 @@ mod erc721 {
 
         #[ink::test]
         fn burn_clears_approval() {
-            let accounts =
-                ink::env::test::default_accounts();
+            let accounts = ink::env::test::default_accounts();
             set_caller(accounts.alice);
             // Create a new contract instance.
             let mut erc721 = Erc721::new();
@@ -675,8 +649,7 @@ mod erc721 {
 
         #[ink::test]
         fn transfer_from_fails_not_owner() {
-            let accounts =
-                ink::env::test::default_accounts();
+            let accounts = ink::env::test::default_accounts();
             set_caller(accounts.alice);
             // Create a new contract instance.
             let mut erc721 = Erc721::new();
@@ -699,8 +672,7 @@ mod erc721 {
 
         #[ink::test]
         fn transfer_fails_not_owner() {
-            let accounts =
-                ink::env::test::default_accounts();
+            let accounts = ink::env::test::default_accounts();
             set_caller(accounts.alice);
             // Create a new contract instance.
             let mut erc721 = Erc721::new();

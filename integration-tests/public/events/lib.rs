@@ -239,9 +239,7 @@ pub mod events {
     mod e2e_tests {
         use super::*;
         use ink::H256;
-        use ink_e2e::{
-            ContractsBackend,
-        };
+        use ink_e2e::ContractsBackend;
 
         type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
@@ -309,7 +307,6 @@ pub mod events {
                 .submit()
                 .await
                 .expect("flip failed");
-
 
             let contract_events = flip_res.contract_emitted_events()?;
 

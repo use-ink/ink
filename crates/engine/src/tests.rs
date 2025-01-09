@@ -19,6 +19,7 @@ use crate::{
     },
     types::H160,
 };
+use ink_primitives::U256;
 use secp256k1::{
     ecdsa::RecoverableSignature,
     Message,
@@ -26,7 +27,6 @@ use secp256k1::{
     SecretKey,
     SECP256K1,
 };
-use ink_primitives::U256;
 
 /// The public methods of the `contracts` pallet write their result into an
 /// `output` buffer instead of returning them. Since we aim to emulate this

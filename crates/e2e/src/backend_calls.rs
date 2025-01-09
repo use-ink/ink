@@ -12,15 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use ink_env::Environment;
-use ink_primitives::DepositLimit;
-use scale::{
-    Decode,
-    Encode,
+use super::{
+    balance_to_deposit_limit,
+    InstantiateDryRunResult,
+    Keypair,
 };
-use sp_weights::Weight;
-use std::marker::PhantomData;
-use super::{balance_to_deposit_limit, InstantiateDryRunResult, Keypair};
 use crate::{
     backend::BuilderClient,
     builders::CreateBuilderPartial,
@@ -32,6 +28,14 @@ use crate::{
     UploadResult,
     H256,
 };
+use ink_env::Environment;
+use ink_primitives::DepositLimit;
+use scale::{
+    Decode,
+    Encode,
+};
+use sp_weights::Weight;
+use std::marker::PhantomData;
 
 /// Allows to build an end-to-end call using a builder pattern.
 pub struct CallBuilder<'a, E, Args, RetType, B>
@@ -137,10 +141,7 @@ where
         CallBuilderFinal<E, Args, RetType>: Clone,
     {
         // todo must be added to remove as well
-        let _map = B::map_account(
-            self.client,
-            self.caller
-        ).await; // todo will fail if instantiation happened before
+        let _map = B::map_account(self.client, self.caller).await; // todo will fail if instantiation happened before
 
         let dry_run = B::bare_call_dry_run(
             self.client,
@@ -166,9 +167,8 @@ where
             self.message,
             self.value,
             gas_limit,
-
             // todo: the `bare_call` converts this value back, this is unnecessary work
-            DepositLimit::Balance(dry_run.exec_result.storage_deposit.charge_or_zero())
+            DepositLimit::Balance(dry_run.exec_result.storage_deposit.charge_or_zero()),
         )
         .await?;
 
@@ -298,10 +298,7 @@ where
         &mut self,
     ) -> Result<InstantiationResult<E, B::EventLog>, B::Error> {
         // we have to make sure the account was mapped
-        let _map = B::map_account(
-            self.client,
-            self.caller
-        ).await; // todo will fail if instantiation happened before
+        let _map = B::map_account(self.client, self.caller).await; // todo will fail if instantiation happened before
 
         let dry_run = B::bare_instantiate_dry_run(
             self.client,
@@ -334,7 +331,9 @@ where
             self.constructor,
             self.value,
             gas_limit,
-            balance_to_deposit_limit::<E>(dry_run.contract_result.storage_deposit.charge_or_zero()),
+            balance_to_deposit_limit::<E>(
+                dry_run.contract_result.storage_deposit.charge_or_zero(),
+            ),
         )
         .await?;
 
@@ -346,9 +345,7 @@ where
     }
 
     /// Dry run the instantiate call.
-    pub async fn dry_run(
-        &mut self,
-    ) -> Result<InstantiateDryRunResult<E>, B::Error> {
+    pub async fn dry_run(&mut self) -> Result<InstantiateDryRunResult<E>, B::Error> {
         B::bare_instantiate_dry_run(
             self.client,
             self.contract_name,

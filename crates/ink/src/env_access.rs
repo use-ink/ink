@@ -15,6 +15,11 @@
 #[cfg(feature = "unstable")]
 use crate::ChainExtensionInstance;
 use core::marker::PhantomData;
+#[cfg(feature = "unstable")]
+use ink_env::hash::{
+    CryptoHash,
+    HashOutput,
+};
 use ink_env::{
     call::{
         Call,
@@ -28,17 +33,14 @@ use ink_env::{
     Environment,
     Result,
 };
-#[cfg(feature = "unstable")]
-use ink_env::{
-    hash::{
-        CryptoHash,
-        HashOutput,
-    },
+use ink_macro::unstable_hostfn;
+use ink_primitives::{
+    H160,
+    H256,
+    U256,
 };
-use ink_primitives::{H160, H256, U256};
 #[cfg(feature = "unstable")]
 use pallet_revive_uapi::ReturnErrorCode;
-use ink_macro::unstable_hostfn;
 
 /// The API behind the `self.env()` and `Self::env()` syntax in ink!.
 ///
@@ -172,7 +174,7 @@ where
     /// #         }
     /// #
     /// #[ink(message)]
-    /// pub fn foo(&self) { }
+    /// pub fn foo(&self) {}
     ///
     /// // /// Returns a tuple of
     /// // ///   - the result of adding the `rhs` to the `lhs`
@@ -598,9 +600,7 @@ where
     /// #[ink(message)]
     /// pub fn invoke_contract_delegate(&self) -> i32 {
     ///     let call_params = build_call::<DefaultEnvironment>()
-    ///         .call_type(DelegateCall::new(
-    ///             ink::H160::zero(),
-    ///         ))
+    ///         .call_type(DelegateCall::new(ink::H160::zero()))
     ///         .exec_input(
     ///             ExecutionInput::new(Selector::new([0xCA, 0xFE, 0xBA, 0xBE]))
     ///                 .push_arg(42u8)

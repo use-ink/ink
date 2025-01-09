@@ -12,17 +12,35 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::{backend::BuilderClient, builders::{
-    constructor_exec_input,
-    CreateBuilderPartial,
-}, client_utils::{
-    salt,
-    ContractsRegistry,
-}, contract_results::BareInstantiationResult, error::SandboxErr, log_error, CallBuilderFinal, CallDryRunResult, ChainBackend, ContractsBackend, E2EBackend, InstantiateDryRunResult, UploadResult, H256};
-use crate::contract_results::{ContractResult, ContractExecResultFor};
+use crate::{
+    backend::BuilderClient,
+    builders::{
+        constructor_exec_input,
+        CreateBuilderPartial,
+    },
+    client_utils::{
+        salt,
+        ContractsRegistry,
+    },
+    contract_results::{
+        BareInstantiationResult,
+        ContractExecResultFor,
+        ContractResult,
+    },
+    error::SandboxErr,
+    log_error,
+    CallBuilderFinal,
+    CallDryRunResult,
+    ChainBackend,
+    ContractsBackend,
+    E2EBackend,
+    InstantiateDryRunResult,
+    UploadResult,
+    H256,
+};
 use frame_support::{
-        pallet_prelude::DispatchError,
     dispatch::RawOrigin,
+    pallet_prelude::DispatchError,
     traits::{
         fungible::Inspect,
         IsType,
@@ -226,7 +244,8 @@ where
         gas_limit: Weight,
         storage_deposit_limit: DepositLimit<E::Balance>,
     ) -> Result<BareInstantiationResult<Self::EventLog>, Self::Error> {
-        let _ = <Client<AccountId, S> as BuilderClient<E>>::map_account(self, caller).await;
+        let _ =
+            <Client<AccountId, S> as BuilderClient<E>>::map_account(self, caller).await;
 
         // todo reduce code duplication
         let caller = keypair_to_account(caller);
@@ -268,8 +287,10 @@ where
         value: E::Balance,
         storage_deposit_limit: DepositLimit<E::Balance>,
     ) -> Result<InstantiateDryRunResult<E>, Self::Error> {
-        // todo has to be: let _ = <Client<AccountId, S> as BuilderClient<E>>::map_account_dry_run(self, &caller).await;
-        let _ = <Client<AccountId, S> as BuilderClient<E>>::map_account(self, caller).await;
+        // todo has to be: let _ = <Client<AccountId, S> as
+        // BuilderClient<E>>::map_account_dry_run(self, &caller).await;
+        let _ =
+            <Client<AccountId, S> as BuilderClient<E>>::map_account(self, caller).await;
 
         // todo reduce code duplication
         let caller = keypair_to_account(caller);
@@ -367,7 +388,8 @@ where
     where
         CallBuilderFinal<E, Args, RetType>: Clone,
     {
-        let _ = <Client<AccountId, S> as BuilderClient<E>>::map_account(self, caller).await;
+        let _ =
+            <Client<AccountId, S> as BuilderClient<E>>::map_account(self, caller).await;
 
         // todo reduce code duplication
         let caller = keypair_to_account(caller);
@@ -404,7 +426,8 @@ where
         CallBuilderFinal<E, Args, RetType>: Clone,
     {
         // todo there's side effects here
-        let _ = <Client<AccountId, S> as BuilderClient<E>>::map_account(self, caller).await;
+        let _ =
+            <Client<AccountId, S> as BuilderClient<E>>::map_account(self, caller).await;
 
         // todo reduce code duplication
         let caller = keypair_to_account(caller);
@@ -449,17 +472,13 @@ where
         })
     }
 
-    async fn map_account_dry_run(&mut self, caller: &Keypair) -> Result<(), Self::Error>
-    {
+    async fn map_account_dry_run(&mut self, caller: &Keypair) -> Result<(), Self::Error> {
         let caller = keypair_to_account(caller);
         let origin = RawOrigin::Signed(caller);
         let origin = OriginFor::<S::Runtime>::from(origin);
 
-        self.sandbox.dry_run(|sandbox| {
-            sandbox.map_account(
-                origin,
-            )
-        })
+        self.sandbox
+            .dry_run(|sandbox| sandbox.map_account(origin))
             .map_err(|err| {
                 SandboxErr::new(format!("map_account_dry_run: execution error {:?}", err))
             })
@@ -470,12 +489,9 @@ where
         let origin = RawOrigin::Signed(caller);
         let origin = OriginFor::<S::Runtime>::from(origin);
 
-            self.sandbox.map_account(
-                origin,
-            )
-            .map_err(|err| {
-                SandboxErr::new(format!("map_account: execution error {:?}", err))
-            })
+        self.sandbox.map_account(origin).map_err(|err| {
+            SandboxErr::new(format!("map_account: execution error {:?}", err))
+        })
     }
 }
 

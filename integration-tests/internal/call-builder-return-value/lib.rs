@@ -6,7 +6,6 @@
 #[ink::contract]
 mod call_builder {
     use ink::{
-        H160,
         env::{
             call::{
                 ExecutionInput,
@@ -21,6 +20,7 @@ mod call_builder {
                 ToString,
             },
         },
+        H160,
     };
 
     #[ink(storage)]
@@ -279,8 +279,8 @@ mod call_builder {
                 .expect("instantiate failed");
 
             let selector = ink::selector_bytes!("get");
-            let call = call_builder
-                .forward_call_short_return_type(incrementer.addr, selector);
+            let call =
+                call_builder.forward_call_short_return_type(incrementer.addr, selector);
             let call_result: Result<i8, String> =
                 client.call(&origin, &call).dry_run().await?.return_value();
 

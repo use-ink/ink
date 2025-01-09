@@ -3,9 +3,9 @@
 #[ink::contract]
 mod erc20 {
     use ink::{
+        storage::Mapping,
         H160,
         U256,
-        storage::Mapping
     };
 
     /// The ERC-20 error types.
@@ -47,12 +47,7 @@ mod erc20 {
 
         /// Transfers `value` tokens on the behalf of `from` to the account `to`.
         #[ink(message)]
-        fn transfer_from(
-            &mut self,
-            from: H160,
-            to: H160,
-            value: U256,
-        ) -> Result<()>;
+        fn transfer_from(&mut self, from: H160, to: H160, value: U256) -> Result<()>;
     }
 
     /// A simple ERC-20 contract.
@@ -182,12 +177,7 @@ mod erc20 {
         /// Returns `InsufficientBalance` error if there are not enough tokens on
         /// the account balance of `from`.
         #[ink(message)]
-        fn transfer_from(
-            &mut self,
-            from: H160,
-            to: H160,
-            value: U256,
-        ) -> Result<()> {
+        fn transfer_from(&mut self, from: H160, to: H160, value: U256) -> Result<()> {
             let caller = self.env().caller();
             let allowance = self.allowance_impl(&from, &caller);
             if allowance < value {
@@ -313,8 +303,7 @@ mod erc20 {
 
             let mut expected_topics = Vec::new();
             expected_topics.push(
-                ink::blake2x256!("Transfer(Option<H160>,Option<H160>,U256)")
-                    .into(),
+                ink::blake2x256!("Transfer(Option<H160>,Option<H160>,U256)").into(),
             );
             if let Some(from) = expected_from {
                 expected_topics.push(encoded_into_hash(from));
@@ -382,8 +371,7 @@ mod erc20 {
         /// Get the actual balance of an account.
         #[ink::test]
         fn balance_of_works() {
-            let accounts =
-                ink::env::test::default_accounts();
+            let accounts = ink::env::test::default_accounts();
             set_caller(accounts.alice);
 
             // Constructor works
@@ -405,8 +393,7 @@ mod erc20 {
 
         #[ink::test]
         fn transfer_works() {
-            let accounts =
-                ink::env::test::default_accounts();
+            let accounts = ink::env::test::default_accounts();
             set_caller(accounts.alice);
 
             // Constructor works.
@@ -440,8 +427,7 @@ mod erc20 {
         #[ink::test]
         fn invalid_transfer_should_fail() {
             // Constructor works.
-            let accounts =
-                ink::env::test::default_accounts();
+            let accounts = ink::env::test::default_accounts();
             set_caller(accounts.alice);
 
             let initial_supply = 100.into();
@@ -475,16 +461,14 @@ mod erc20 {
         #[ink::test]
         fn transfer_from_works() {
             // Constructor works.
-            let accounts =
-                ink::env::test::default_accounts();
+            let accounts = ink::env::test::default_accounts();
             set_caller(accounts.alice);
 
             let initial_supply = 100.into();
             let mut erc20 = Erc20::new(initial_supply);
 
             // Transfer event triggered during initial construction.
-            let accounts =
-                ink::env::test::default_accounts();
+            let accounts = ink::env::test::default_accounts();
 
             // Bob fails to transfer tokens owned by Alice.
             assert_eq!(
@@ -529,8 +513,7 @@ mod erc20 {
 
         #[ink::test]
         fn allowance_must_not_change_on_failed_transfer() {
-            let accounts =
-                ink::env::test::default_accounts();
+            let accounts = ink::env::test::default_accounts();
             set_caller(accounts.alice);
             let initial_supply = 100.into();
             let mut erc20 = Erc20::new(initial_supply);
@@ -546,7 +529,11 @@ mod erc20 {
             // Bob tries to transfer tokens from Alice to Eve.
             let emitted_events_before = ink::env::test::recorded_events();
             assert_eq!(
-                erc20.transfer_from(accounts.alice, accounts.eve, alice_balance + U256::from(1)),
+                erc20.transfer_from(
+                    accounts.alice,
+                    accounts.eve,
+                    alice_balance + U256::from(1)
+                ),
                 Err(Error::InsufficientBalance)
             );
             // Allowance must have stayed the same

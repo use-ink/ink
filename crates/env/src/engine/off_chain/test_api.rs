@@ -31,7 +31,10 @@ pub use ink_engine::{
     ext::ChainSpec,
     ChainExtension,
 };
-use ink_primitives::{H160, U256};
+use ink_primitives::{
+    H160,
+    U256,
+};
 
 /// Record for an emitted event.
 #[derive(Clone)]
@@ -58,8 +61,7 @@ pub struct EmittedEvent {
 /// - If the underlying `account` type does not match.
 /// - If the underlying `new_balance` type does not match.
 /// - If the `new_balance` is less than the existential minimum.
-pub fn set_account_balance(addr: H160, new_balance: U256)
-{
+pub fn set_account_balance(addr: H160, new_balance: U256) {
     let min = ChainSpec::default().minimum_balance;
     eprintln!("new balance {new_balance}");
     eprintln!("min {min}");
@@ -87,8 +89,7 @@ pub fn set_account_balance(addr: H160, new_balance: U256)
 ///
 /// - If `account` does not exist.
 /// - If the underlying `account` type does not match.
-pub fn get_account_balance<T>(addr: H160) -> Result<U256>
-{
+pub fn get_account_balance<T>(addr: H160) -> Result<U256> {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         instance.engine.get_balance(addr).map_err(Into::into)
     })
@@ -132,6 +133,7 @@ pub fn advance_block<T>()
 where
     T: Environment,
 {
+    eprintln!("advancing");
     <EnvInstance as OnInstance>::on_instance(|instance| {
         instance.engine.advance_block();
     })
@@ -190,8 +192,7 @@ pub fn get_contract_storage_rw(addr: H160) -> (usize, usize) {
 ///
 /// Please note that the acting accounts should be set with [`set_caller()`] and
 /// [`set_callee()`] beforehand.
-pub fn set_value_transferred(value: U256)
-{
+pub fn set_value_transferred(value: U256) {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         instance.engine.set_value_transferred(value);
     })
@@ -202,8 +203,7 @@ pub fn set_value_transferred(value: U256)
 /// Please note that the acting accounts should be set with [`set_caller()`] and
 /// [`set_callee()`] beforehand.
 #[allow(clippy::arithmetic_side_effects)] // todo
-pub fn transfer_in(value: U256)
-{
+pub fn transfer_in(value: U256) {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         let caller = instance.engine.exec_context.caller;
 
@@ -279,9 +279,13 @@ where
         instance.engine.set_balance(alice, substantial);
         instance.engine.set_balance(default_accounts.bob, some);
         instance.engine.set_balance(default_accounts.charlie, some);
-        instance.engine.set_balance(default_accounts.django, 0.into());
+        instance
+            .engine
+            .set_balance(default_accounts.django, 0.into());
         instance.engine.set_balance(default_accounts.eve, 0.into());
-        instance.engine.set_balance(default_accounts.frank, 0.into());
+        instance
+            .engine
+            .set_balance(default_accounts.frank, 0.into());
     });
     f(default_accounts)
 }

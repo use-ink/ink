@@ -64,8 +64,6 @@ pub use self::multisig::{
 #[ink::contract]
 mod multisig {
     use ink::{
-        H160,
-        U256,
         env::{
             call::{
                 build_call,
@@ -76,6 +74,8 @@ mod multisig {
         prelude::vec::Vec,
         scale::Output,
         storage::Mapping,
+        H160,
+        U256,
     };
 
     /// Tune this to your liking but be wary that allowing too many owners will not

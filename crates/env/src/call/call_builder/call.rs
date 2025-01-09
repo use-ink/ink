@@ -28,7 +28,10 @@ use crate::{
     Error,
     Gas,
 };
-use ink_primitives::{H160, U256};
+use ink_primitives::{
+    H160,
+    U256,
+};
 use pallet_revive_uapi::CallFlags;
 
 /// The default call type for cross-contract calls, for calling into the latest `call`
@@ -212,8 +215,7 @@ where
     }
 }
 
-impl<E, Args, R>
-    CallBuilder<E, Set<Call>, Set<ExecutionInput<Args>>, Set<ReturnType<R>>>
+impl<E, Args, R> CallBuilder<E, Set<Call>, Set<ExecutionInput<Args>>, Set<ReturnType<R>>>
 where
     E: Environment,
     Args: scale::Encode,

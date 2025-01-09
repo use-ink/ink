@@ -12,14 +12,25 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use super::{builders::{
-    constructor_exec_input,
-    CreateBuilderPartial,
-}, deposit_limit_to_balance, events::{
-    CodeStoredEvent,
-    ContractInstantiatedEvent,
-    EventWithTopics,
-}, log_error, log_info, sr25519, ContractsApi, InstantiateDryRunResult, Keypair, H256};
+use super::{
+    builders::{
+        constructor_exec_input,
+        CreateBuilderPartial,
+    },
+    deposit_limit_to_balance,
+    events::{
+        CodeStoredEvent,
+        ContractInstantiatedEvent,
+        EventWithTopics,
+    },
+    log_error,
+    log_info,
+    sr25519,
+    ContractsApi,
+    InstantiateDryRunResult,
+    Keypair,
+    H256,
+};
 use crate::{
     backend::BuilderClient,
     contract_results::{
@@ -57,6 +68,7 @@ use crate::{
         salt,
         ContractsRegistry,
     },
+    contract_results::ContractResult,
     error::DryRunError,
     events,
     ContractsBackend,
@@ -77,7 +89,6 @@ use subxt::{
     },
     tx::Signer,
 };
-use crate::contract_results::ContractResult;
 
 pub type Error = crate::error::Error<DispatchError>;
 
@@ -205,7 +216,8 @@ where
     ) -> Result<UploadResult<E, ExtrinsicEvents<C>>, Error> {
         // todo
         let storage_deposit_limit: E::Balance = unsafe {
-            core::mem::transmute_copy::<u128, <E as Environment>::Balance>(&u128::MAX) };
+            core::mem::transmute_copy::<u128, <E as Environment>::Balance>(&u128::MAX)
+        };
         let dry_run = self
             .api
             .upload_dry_run(signer, code.clone(), storage_deposit_limit)
@@ -275,8 +287,7 @@ where
     fn contract_result_to_result<V>(
         &self,
         contract_result: ContractResult<V, E::Balance>,
-    ) -> Result<ContractResult<V, E::Balance>, DryRunError<DispatchError>>
-    {
+    ) -> Result<ContractResult<V, E::Balance>, DryRunError<DispatchError>> {
         if let Err(error) = contract_result.result {
             let debug_message = String::from_utf8(contract_result.debug_message.clone())
                 .expect("invalid utf8 debug message");
@@ -659,12 +670,7 @@ where
     }
 
     async fn map_account(&mut self, caller: &Keypair) -> Result<(), Self::Error> {
-        let tx_events = self
-            .api
-            .map_account(
-                caller,
-            )
-            .await;
+        let tx_events = self.api.map_account(caller).await;
 
         for evt in tx_events.iter() {
             let evt = evt.unwrap_or_else(|err| {
@@ -686,12 +692,7 @@ where
     }
 
     async fn map_account_dry_run(&mut self, caller: &Keypair) -> Result<(), Self::Error> {
-        let tx_events = self
-            .api
-            .map_account(
-                caller,
-            )
-            .await;
+        let tx_events = self.api.map_account(caller).await;
 
         for evt in tx_events.iter() {
             let evt = evt.unwrap_or_else(|err| {

@@ -30,10 +30,10 @@ use crate::{
         H160,
     },
 };
+use ink_primitives::U256;
 pub use pallet_revive_uapi::ReturnErrorCode as Error;
 use scale::Encode;
 use std::panic::panic_any;
-use ink_primitives::U256;
 
 /// The off-chain engine.
 pub struct Engine {

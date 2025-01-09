@@ -19,7 +19,10 @@ use super::{
 };
 use ink_env::Environment;
 
-use crate::contract_results::{ContractExecResultFor, ContractInstantiateResultForBar};
+use crate::contract_results::{
+    ContractExecResultFor,
+    ContractInstantiateResultForBar,
+};
 use core::marker::PhantomData;
 use ink_primitives::DepositLimit;
 use pallet_revive::{
@@ -116,8 +119,7 @@ pub struct Call<E: Environment> {
 /// A raw call to `pallet-revive`'s `map_account`.
 #[derive(Debug, scale::Decode, scale::Encode, scale_encode::EncodeAsType)]
 #[encode_as_type(trait_bounds = "", crate_path = "subxt::ext::scale_encode")]
-pub struct MapAccount {
-}
+pub struct MapAccount {}
 
 /// A raw call to `pallet-revive`'s `call`.
 #[derive(Debug, scale::Decode, scale::Encode, scale_encode::EncodeAsType)]
@@ -428,7 +430,7 @@ where
             origin: Signer::<C>::account_id(signer),
             code,
             //storage_deposit_limit,
-            storage_deposit_limit: None
+            storage_deposit_limit: None,
         };
         let func = "ReviveApi_upload_code";
         let params = scale::Encode::encode(&call_request);
@@ -550,15 +552,8 @@ where
     ///
     /// Returns when the transaction is included in a block. The return value
     /// contains all events that are associated with this transaction.
-    pub async fn map_account(
-        &self,
-        signer: &Keypair,
-    ) -> ExtrinsicEvents<C> {
-        let call = subxt::tx::DefaultPayload::new(
-            "Revive",
-            "map_account",
-            MapAccount{}
-        )
+    pub async fn map_account(&self, signer: &Keypair) -> ExtrinsicEvents<C> {
+        let call = subxt::tx::DefaultPayload::new("Revive", "map_account", MapAccount {})
             .unvalidated();
 
         self.submit_extrinsic(&call, signer).await

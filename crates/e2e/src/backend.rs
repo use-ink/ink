@@ -12,7 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use super::{InstantiateDryRunResult, Keypair, H256};
+use super::{
+    InstantiateDryRunResult,
+    Keypair,
+    H256,
+};
 use crate::{
     backend_calls::{
         InstantiateBuilder,
@@ -20,9 +24,7 @@ use crate::{
         UploadBuilder,
     },
     builders::CreateBuilderPartial,
-    contract_results::{
-        BareInstantiationResult,
-    },
+    contract_results::BareInstantiationResult,
     CallBuilder,
     CallBuilderFinal,
     CallDryRunResult,
@@ -310,14 +312,8 @@ pub trait BuilderClient<E: Environment>: ContractsBackend<E> {
     ) -> Result<InstantiateDryRunResult<E>, Self::Error>;
 
     /// todo
-    async fn map_account(
-        &mut self,
-        caller: &Keypair,
-    ) -> Result<(), Self::Error>;
+    async fn map_account(&mut self, caller: &Keypair) -> Result<(), Self::Error>;
 
     /// todo
-    async fn map_account_dry_run(
-        &mut self,
-        caller: &Keypair,
-    ) -> Result<(), Self::Error>;
+    async fn map_account_dry_run(&mut self, caller: &Keypair) -> Result<(), Self::Error>;
 }

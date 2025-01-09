@@ -12,6 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#[cfg(feature = "unstable")]
+use crate::hash::{
+    CryptoHash,
+    HashOutput,
+};
 use crate::{
     call::{
         Call,
@@ -26,16 +31,13 @@ use crate::{
     Environment,
     Result,
 };
-#[cfg(feature = "unstable")]
-use crate::{
-    hash::{
-        CryptoHash,
-        HashOutput,
-    },
-};
-use ink_primitives::{H160, H256, U256};
-use ink_storage_traits::Storable;
 use ink_macro::unstable_hostfn;
+use ink_primitives::{
+    H160,
+    H256,
+    U256,
+};
+use ink_storage_traits::Storable;
 pub use pallet_revive_uapi::ReturnFlags;
 
 /// Environmental contract functionality that does not require `Environment`.

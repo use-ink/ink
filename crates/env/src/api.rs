@@ -14,6 +14,11 @@
 
 //! The public raw interface towards the host Wasm engine.
 
+#[cfg(feature = "unstable")]
+use crate::hash::{
+    CryptoHash,
+    HashOutput,
+};
 use crate::{
     backend::{
         EnvBackend,
@@ -37,17 +42,14 @@ use crate::{
     Environment,
     Result,
 };
-#[cfg(feature = "unstable")]
-use crate::{
-    hash::{
-        CryptoHash,
-        HashOutput,
-    },
+use ink_macro::unstable_hostfn;
+use ink_primitives::{
+    H160,
+    H256,
+    U256,
 };
-use ink_primitives::{H160, H256, U256};
 use ink_storage_traits::Storable;
 use pallet_revive_uapi::ReturnFlags;
-use ink_macro::unstable_hostfn;
 
 /// Returns the address of the caller of the executed contract.
 ///
@@ -63,8 +65,7 @@ pub fn caller() -> H160 {
 /// # Errors
 ///
 /// If the returned value cannot be properly decoded.
-pub fn transferred_value() -> U256
-{
+pub fn transferred_value() -> U256 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         TypedEnvBackend::transferred_value(instance)
     })
@@ -121,8 +122,7 @@ where
 /// # Errors
 ///
 /// If the returned value cannot be properly decoded.
-pub fn address() -> H160
-{
+pub fn address() -> H160 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         TypedEnvBackend::address(instance)
     })
@@ -133,8 +133,7 @@ pub fn address() -> H160
 /// # Errors
 ///
 /// If the returned value cannot be properly decoded.
-pub fn balance() -> U256
-{
+pub fn balance() -> U256 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         TypedEnvBackend::balance(instance)
     })
@@ -346,9 +345,7 @@ where
     R: ConstructorReturnType<ContractRef>,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        TypedEnvBackend::instantiate_contract::<E, ContractRef, Args, R>(
-            instance, params,
-        )
+        TypedEnvBackend::instantiate_contract::<E, ContractRef, Args, R>(instance, params)
     })
 }
 
