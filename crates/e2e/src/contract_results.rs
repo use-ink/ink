@@ -47,15 +47,15 @@ use std::{
 pub type ContractInstantiateResultForBar<E> =
     ContractResult<InstantiateReturnValue, <E as Environment>::Balance>;
 
-/// Result type of a `bare_call`, `bare_instantiate`, `ContractsApi::call`, and
-/// `ContractsApi::instantiate`.
+/// Result type of a `bare_call`, `bare_instantiate`, `ReviveApi::call`, and
+/// `ReviveApi::instantiate`.
 ///
 /// It contains the execution result together with some auxiliary information.
 ///
 /// # Note
 ///
 /// It has been extended to include `events` at the end of the struct while not bumping
-/// the `ContractsApi` version. Therefore when SCALE decoding a `ContractResult` its
+/// the `ReviveApi` version. Therefore when SCALE decoding a `ContractResult` its
 /// trailing data should be ignored to avoid any potential compatibility issues.
 #[derive(Debug, Clone, Eq, PartialEq, Encode, Decode)]
 pub struct ContractResult<R, Balance> {
@@ -164,7 +164,7 @@ where
 {
     fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
         f.debug_struct("InstantiationResult")
-            .field("account_id", &self.addr)
+            .field("addr", &self.addr)
             .field("dry_run", &self.dry_run)
             .field("events", &self.events)
             .finish()

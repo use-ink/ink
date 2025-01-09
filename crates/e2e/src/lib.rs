@@ -100,7 +100,7 @@ use std::{
     cell::RefCell,
     sync::Once,
 };
-use xts::ContractsApi;
+use xts::ReviveApi;
 
 pub use subxt::PolkadotConfig;
 

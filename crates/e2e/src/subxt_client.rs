@@ -26,7 +26,7 @@ use super::{
     log_error,
     log_info,
     sr25519,
-    ContractsApi,
+    ReviveApi,
     InstantiateDryRunResult,
     Keypair,
     H256,
@@ -109,7 +109,7 @@ where
     C: subxt::Config,
     E: Environment,
 {
-    api: ContractsApi<C, E>,
+    api: ReviveApi<C, E>,
     contracts: ContractsRegistry,
 }
 
@@ -135,7 +135,7 @@ where
         contracts: impl IntoIterator<Item = P>,
     ) -> Result<Self, subxt::Error> {
         Ok(Self {
-            api: ContractsApi::new(client).await?,
+            api: ReviveApi::new(client).await?,
             contracts: ContractsRegistry::new(contracts),
         })
     }

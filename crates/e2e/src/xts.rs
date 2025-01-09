@@ -198,13 +198,13 @@ enum Code {
 }
 
 /// Provides functions for interacting with the `pallet-revive` API.
-pub struct ContractsApi<C: subxt::Config, E: Environment> {
+pub struct ReviveApi<C: subxt::Config, E: Environment> {
     pub rpc: LegacyRpcMethods<C>,
     pub client: OnlineClient<C>,
     _phantom: PhantomData<fn() -> (C, E)>,
 }
 
-impl<C, E> ContractsApi<C, E>
+impl<C, E> ReviveApi<C, E>
 where
     C: subxt::Config,
     C::AccountId: From<sr25519::PublicKey> + serde::de::DeserializeOwned + scale::Codec,
@@ -216,7 +216,7 @@ where
     E: Environment,
     E::Balance: scale::HasCompact + serde::Serialize,
 {
-    /// Creates a new [`ContractsApi`] instance.
+    /// Creates a new [`ReviveApi`] instance.
     pub async fn new(rpc: RpcClient) -> Result<Self, subxt::Error> {
         let client = OnlineClient::<C>::from_rpc_client(rpc.clone()).await?;
         let rpc = LegacyRpcMethods::<C>::new(rpc);

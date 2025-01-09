@@ -525,8 +525,13 @@ jobs:
             with:
                 cache-directories: ${{ env.CARGO_TARGET_DIR }}
 
+          - name: Rust Info
+            uses: ./.github/rust-info
+
           - name: Test Mapping Example
             env:
+                # Fix for linking of `linkme` for `cargo test`: https://github.com/dtolnay/linkme/issues/49
+                RUSTFLAGS:                   -Clink-arg=-z -Clink-arg=nostart-stop-gc
                 # needed for `mapping::e2e_tests::fallible_storage_methods_work`
                 INK_STATIC_BUFFER_SIZE: 256
             run:
@@ -572,12 +577,12 @@ jobs:
         run: |
           # run flipper E2E test with on-chain contract
           substrate-contracts-node -lruntime::revive=debug 2>&1 &
-          cargo contract build --release --manifest-path integration-tests/public/flipper/Cargo.toml
-          export CONTRACT_ADDR_HEX=$(cargo contract instantiate \
+          cargo +nightly contract build --release --manifest-path integration-tests/public/flipper/Cargo.toml
+          export CONTRACT_ADDR_HEX=$(cargo +nightly contract instantiate \
             --manifest-path integration-tests/public/flipper/Cargo.toml \
             --suri //Alice --args true -x -y --output-json | \
             jq -r .contract | xargs subkey inspect | grep -o "0x.*" | head -n1)
-          CONTRACTS_NODE_URL=ws://127.0.0.1:9944 cargo test \
+          CONTRACTS_NODE_URL=ws://127.0.0.1:9944 cargo +nightly test \
             --features e2e-tests \
             --manifest-path integration-tests/public/flipper/Cargo.toml \
             e2e_test_deployed_contract \

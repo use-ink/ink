@@ -233,7 +233,6 @@ pub trait BuilderClient<E: Environment>: ContractsBackend<E> {
         value: E::Balance,
         gas_limit: Weight,
         storage_deposit_limit: DepositLimit<E::Balance>,
-        //storage_deposit_limit: E::Balance,
     ) -> Result<Self::EventLog, Self::Error>
     where
         CallBuilderFinal<E, Args, RetType>: Clone;
@@ -248,7 +247,6 @@ pub trait BuilderClient<E: Environment>: ContractsBackend<E> {
         message: &CallBuilderFinal<E, Args, RetType>,
         value: E::Balance,
         storage_deposit_limit: DepositLimit<E::Balance>,
-        //storage_deposit_limit: E::Balance,
     ) -> Result<CallDryRunResult<E, RetType>, Self::Error>
     where
         CallBuilderFinal<E, Args, RetType>: Clone;
