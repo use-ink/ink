@@ -1,7 +1,7 @@
 #[ink::contract]
 mod erc721 {
-    use ink_storage::Mapping;
     use ink::H160;
+    use ink_storage::Mapping;
 
     /// A token ID.
     pub type TokenId = u32;
@@ -117,11 +117,7 @@ mod erc721 {
 
         /// Transfers the token from the caller to the given destination.
         #[ink(message)]
-        pub fn transfer(
-            &mut self,
-            destination: H160,
-            id: TokenId,
-        ) -> Result<(), Error> {
+        pub fn transfer(&mut self, destination: H160, id: TokenId) -> Result<(), Error> {
             let caller = self.env().caller();
             self.transfer_token_from(&caller, &destination, id)?;
             Ok(())
@@ -209,11 +205,7 @@ mod erc721 {
         }
 
         /// Removes token `id` from the owner.
-        fn remove_token_from(
-            &mut self,
-            from: &H160,
-            id: TokenId,
-        ) -> Result<(), Error> {
+        fn remove_token_from(&mut self, from: &H160, id: TokenId) -> Result<(), Error> {
             let Self {
                 token_owner,
                 owned_tokens_count,
@@ -259,11 +251,7 @@ mod erc721 {
         }
 
         /// Approves or disapproves the operator to transfer all tokens of the caller.
-        fn approve_for_all(
-            &mut self,
-            to: H160,
-            approved: bool,
-        ) -> Result<(), Error> {
+        fn approve_for_all(&mut self, to: H160, approved: bool) -> Result<(), Error> {
             let caller = self.env().caller();
             if to == caller {
                 return Err(Error::NotAllowed)

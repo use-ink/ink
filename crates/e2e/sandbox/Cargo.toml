@@ -28,14 +28,14 @@ scale-info = { workspace = true }
 
 [features]
 default = [
-    # This is required for the runtime-interface to work properly in the std env.
-    "std",
+	# This is required for the runtime-interface to work properly in the std env.
+	"std",
 ]
 std = [
 	"frame-support/std",
 	"frame-system/std",
-    "frame-metadata/std",
-    "ink_primitives/std",
+	"frame-metadata/std",
+	"ink_primitives/std",
 	"pallet-balances/std",
 	"pallet-revive/std",
 	"pallet-timestamp/std",

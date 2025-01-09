@@ -70,12 +70,10 @@ impl TryFrom<syn::ImplItem> for ImplItem {
                 match attr.first().kind() {
                     ir::AttributeArg::Message => {
                         <Message as TryFrom<_>>::try_from(fn_item)
-                            .map(Into::into)
                             .map(Self::Message)
                     }
                     ir::AttributeArg::Constructor => {
                         <Constructor as TryFrom<_>>::try_from(fn_item)
-                            .map(Into::into)
                             .map(Self::Constructor)
                     }
                     _ => Err(format_err_spanned!(
