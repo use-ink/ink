@@ -52,6 +52,7 @@ options=$(getopt -o p:i:q: --long path:,ignore:,quiet:,partition: -- "$@")
 eval set -- "$options"
 ignore=()
 quiet=false
+partitioning=false
 while true; do
     case "$1" in
     -p|--path)

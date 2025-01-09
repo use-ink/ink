@@ -508,7 +508,7 @@ jobs:
 
   examples-test-mapping:
       runs-on: ubuntu-latest
-      needs: [set-image, check, fmt, clippy, clippy-examples, dylint, spellcheck]
+      needs: [set-image]
       defaults:
           run:
               shell: bash
@@ -535,11 +535,13 @@ jobs:
                 # needed for `mapping::e2e_tests::fallible_storage_methods_work`
                 INK_STATIC_BUFFER_SIZE: 256
             run:
+                cargo +stable test --all-features --all --manifest-path integration-tests/public/mapping/Cargo.toml
+                echo "---"
                 cargo +nightly test --all-features --all --manifest-path integration-tests/public/mapping/Cargo.toml
 
   examples-custom-test:
     runs-on: ubuntu-latest
-    needs: [set-image, clippy]
+    needs: [set-image, clippy, clippy-examples]
     defaults:
       run:
         shell: bash
