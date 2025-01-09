@@ -58,14 +58,14 @@ fn test_set_account_balance() -> Result<()> {
         let minimum_balance = ChainSpec::default().minimum_balance;
 
         let result = std::panic::catch_unwind(|| {
-            set_account_balance(H160::from([0x1; 20]), U256::from(minimum_balance - 1))
+            set_account_balance(H160::from([0x1; 20]), minimum_balance - 1)
         });
 
         assert!(result.is_err());
 
         set_account_balance(H160::from([0x1; 20]), U256::zero());
 
-        set_account_balance(H160::from([0x1; 20]), U256::from(minimum_balance + 1));
+        set_account_balance(H160::from([0x1; 20]), minimum_balance + 1);
 
         Ok(())
     })
