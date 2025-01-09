@@ -26,9 +26,9 @@ use super::{
     log_error,
     log_info,
     sr25519,
-    ReviveApi,
     InstantiateDryRunResult,
     Keypair,
+    ReviveApi,
     H256,
 };
 use crate::{
