@@ -309,15 +309,10 @@ where
             self.storage_deposit_limit.clone(),
         )
         .await?;
-        //eprintln!("dry run message {:?}", dry_run.debug_message());
-        //eprintln!("dry run deposit limit {:?}", dry_run.storage_deposit);
-        //eprintln!("dry run result {:?}", dry_run.contract_result);
 
         let gas_limit = if let Some(limit) = self.gas_limit {
-            eprintln!("using limit");
             limit
         } else {
-            eprintln!("not using limit");
             let gas_required = dry_run.contract_result.gas_required;
             let proof_size = gas_required.proof_size();
             let ref_time = gas_required.ref_time();

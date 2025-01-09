@@ -133,7 +133,6 @@ pub fn advance_block<T>()
 where
     T: Environment,
 {
-    eprintln!("advancing");
     <EnvInstance as OnInstance>::on_instance(|instance| {
         instance.engine.advance_block();
     })
