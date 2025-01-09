@@ -83,17 +83,14 @@ fn panic(info: &core::panic::PanicInfo) -> ! {
 extern crate ink_allocator;
 
 mod api;
-mod arithmetic;
 mod backend;
 pub mod call;
 pub mod chain_extension;
-mod contract;
 mod engine;
 mod error;
 #[doc(hidden)]
 pub mod event;
 pub mod hash;
-mod types;
 
 #[cfg(test)]
 mod tests;
@@ -123,10 +120,6 @@ use self::backend::{
 };
 pub use self::{
     api::*,
-    contract::{
-        ContractEnv,
-        ContractReference,
-    },
     error::{
         Error,
         Result,
@@ -134,14 +127,27 @@ pub use self::{
     event::Event,
     types::{
         AccountIdGuard,
+        Balance,
+        BlockNumber,
+        CodecAsType,
         DefaultEnvironment,
         Environment,
         FromLittleEndian,
         Gas,
         NoChainExtension,
+        Timestamp,
     },
 };
 use ink_primitives::Clear;
+pub use ink_primitives::{
+    contract::{
+        ContractEnv,
+        ContractReference,
+        ContractReverseReference,
+    },
+    reflect,
+    types,
+};
 
 cfg_if::cfg_if! {
     if #[cfg(any(feature = "ink-debug", feature = "std"))] {

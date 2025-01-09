@@ -35,6 +35,7 @@
     html_favicon_url = "https://use.ink/crate-docs/favicon.png"
 )]
 
+pub use ink_primitives::reflect;
 mod enforced_error;
 mod generator;
 mod traits;
