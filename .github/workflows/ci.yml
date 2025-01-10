@@ -267,7 +267,7 @@ jobs:
           # we are using a toolchain file in this directory
           # add required components for CI
           cargo check --verbose
-          # cargo +nightly fmt --all -- --check
+          cargo +nightly fmt --all -- --check
           cargo clippy -- -D warnings;
           cargo test --all-features
 
