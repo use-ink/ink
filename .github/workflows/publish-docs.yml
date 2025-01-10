@@ -16,7 +16,7 @@ jobs:
       github.event.workflow_run.event == 'push' &&
         github.event.workflow_run.head_branch == 'master' &&
         github.event.workflow_run.conclusion == 'success'
-    runs-on: self-hosted
+    runs-on: [self-hosted, Linux, X64, ink]
     steps:
       - name: Checkout
         uses: actions/checkout@v4

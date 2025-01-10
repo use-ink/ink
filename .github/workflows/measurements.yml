@@ -9,7 +9,7 @@ env:
 jobs:
   contract-sizes:
     if: ${{ github.event_name == 'pull_request' }}
-    runs-on: self-hosted
+    runs-on: [self-hosted, Linux, X64, ink]
     defaults:
       run:
         shell: bash

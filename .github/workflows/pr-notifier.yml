@@ -7,7 +7,7 @@ on:
 
 jobs:
   fetch-issues:
-    runs-on: self-hosted
+    runs-on: [self-hosted, Linux, X64, ink]
     strategy:
       max-parallel: 3
       matrix:
@@ -53,7 +53,7 @@ jobs:
           path: outputs/*.json
 
   message:
-    runs-on: self-hosted
+    runs-on: [self-hosted, Linux, X64, ink]
     needs: fetch-issues
     steps:
       - uses: actions/checkout@v4
