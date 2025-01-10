@@ -7,7 +7,7 @@ permissions:
 
 jobs:
   dependabot-approve:
-      runs-on: [self-hosted, Linux, X64, ink]
+      runs-on: self-hosted
       if: github.actor == 'dependabot[bot]'
       steps:
         - name: Dependabot metadata
