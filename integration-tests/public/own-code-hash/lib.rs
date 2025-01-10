@@ -39,9 +39,11 @@ mod own_code_hash {
 
         #[ink::test]
         fn get_own_code_hash() {
-            let code_hash = ink::env::test::upload_code::<ink::env::DefaultEnvironment, OwnCodeHashRef>();
-            let address = 
-            {
+            let code_hash = ink::env::test::upload_code::<
+                ink::env::DefaultEnvironment,
+                OwnCodeHashRef,
+            >();
+            let address = {
                 let create_params = ink::env::call::build_create::<OwnCodeHashRef>()
                     .code_hash(code_hash)
                     .endowment(0)

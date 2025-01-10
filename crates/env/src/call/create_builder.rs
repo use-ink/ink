@@ -23,8 +23,8 @@ use crate::{
         ExecutionInput,
         Selector,
     },
-    ContractEnv,
     types::Environment,
+    ContractEnv,
     Error,
 };
 use core::marker::PhantomData;
@@ -263,7 +263,7 @@ where
 impl<E, ContractRef, Args, R> CreateParams<E, ContractRef, LimitParamsV2, Args, R>
 where
     E: Environment,
-    ContractRef: FromAddr<E> + crate::ContractReverseReference,
+    ContractRef: FromAddr + crate::ContractReverseReference,
     <ContractRef as crate::ContractReverseReference>::Type:
         crate::reflect::ContractConstructorDecoder,
     <ContractRef as crate::ContractReverseReference>::Type:
@@ -664,7 +664,7 @@ impl<E, ContractRef, Args, RetType>
     >
 where
     E: Environment,
-    ContractRef: FromAddr<E> + crate::ContractReverseReference,
+    ContractRef: FromAddr + crate::ContractReverseReference,
     <ContractRef as crate::ContractReverseReference>::Type:
         crate::reflect::ContractConstructorDecoder,
     <ContractRef as crate::ContractReverseReference>::Type:

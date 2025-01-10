@@ -59,14 +59,14 @@ impl GenerateCode for CallForwarder<'_> {
         let struct_definition = self.generate_struct_definition();
         let storage_layout_impl = self.generate_storage_layout_impl();
         let auxiliary_trait_impls = self.generate_auxiliary_trait_impls();
-        let to_from_account_id_impls = self.generate_to_from_account_id_impls();
+        let to_from_addr_impls = self.generate_to_from_addr_impls();
         let call_builder_impl = self.generate_call_builder_trait_impl();
         let ink_trait_impl = self.generate_ink_trait_impl();
         quote! {
             #struct_definition
             #storage_layout_impl
             #auxiliary_trait_impls
-            #to_from_account_id_impls
+            #to_from_addr_impls
             #call_builder_impl
             #ink_trait_impl
         }
@@ -215,7 +215,7 @@ impl CallForwarder<'_> {
     ///
     /// This allows user code to conveniently transform from and to `AccountId` when
     /// interacting with typed contracts.
-    fn generate_to_from_account_id_impls(&self) -> TokenStream2 {
+    fn generate_to_from_addr_impls(&self) -> TokenStream2 {
         let span = self.span();
         let call_forwarder_ident = self.ident();
         quote_spanned!(span=>

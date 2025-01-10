@@ -71,4 +71,4 @@ no-panic-handler = ["ink_env/no-panic-handler"]
 unstable = ["ink_env/unstable", "ink_storage/unstable", "ink_macro/unstable"]
 
 # Just for the ui tests, which use this `Cargo.toml`
-# ink-as-dependency = []
+ink-as-dependency = []

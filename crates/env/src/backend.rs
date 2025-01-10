@@ -28,19 +28,11 @@ use crate::{
         LimitParamsV2,
     },
     event::Event,
-<<<<<<< HEAD
-    Environment,
-=======
-    hash::{
-        CryptoHash,
-        HashOutput,
-    },
-    types::Environment,
->>>>>>> origin/master
     Result,
 };
 use ink_macro::unstable_hostfn;
 use ink_primitives::{
+    types::Environment,
     H160,
     H256,
     U256,
@@ -253,7 +245,7 @@ pub trait EnvBackend {
     ///
     /// - If the supplied `code_hash` cannot be found on-chain.
     #[unstable_hostfn]
-    fn set_code_hash(&mut self, code_hash: &[u8]) -> Result<()>;
+    fn set_code_hash(&mut self, code_hash: &H256) -> Result<()>;
 }
 
 /// Environmental contract functionality.
@@ -380,7 +372,7 @@ pub trait TypedEnvBackend: EnvBackend {
     >
     where
         E: Environment,
-        ContractRef: FromAddr<E> + crate::ContractReverseReference,
+        ContractRef: FromAddr + crate::ContractReverseReference,
         <ContractRef as crate::ContractReverseReference>::Type:
             crate::reflect::ContractConstructorDecoder,
         Args: scale::Encode,
@@ -446,9 +438,7 @@ pub trait TypedEnvBackend: EnvBackend {
     ///
     /// For more details visit: [`own_code_hash`][`crate::own_code_hash`]
     #[unstable_hostfn]
-    fn own_code_hash<E>(&mut self) -> Result<H256>
-    where
-        E: Environment;
+    fn own_code_hash(&mut self) -> Result<H256>;
 
     #[unstable_hostfn]
     fn call_runtime<E, Call>(&mut self, call: &Call) -> Result<()>

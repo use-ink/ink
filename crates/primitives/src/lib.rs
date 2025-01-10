@@ -42,7 +42,6 @@ pub use self::{
         AccountId,
         Clear,
         DepositLimit,
-        Environment,
         Hash,
     },
 };

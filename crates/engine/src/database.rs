@@ -18,6 +18,7 @@ use crate::types::{
 };
 use ink_primitives::{
     AccountId,
+    H256,
     U256,
 };
 use scale::KeyedVec;
@@ -37,7 +38,6 @@ pub fn balance_of_key(who: &H160) -> [u8; 32] {
     hashed_key
 }
 
-<<<<<<< HEAD
 /// Returns the database key under which to find the storage for contract `who`.
 pub fn storage_of_contract_key(who: &H160, key: &[u8]) -> [u8; 32] {
     let keyed = who
@@ -45,7 +45,11 @@ pub fn storage_of_contract_key(who: &H160, key: &[u8]) -> [u8; 32] {
         .to_vec()
         .to_keyed_vec(key)
         .to_keyed_vec(STORAGE_OF);
-=======
+    let mut hashed_key: [u8; 32] = [0; 32];
+    super::hashing::blake2b_256(&keyed[..], &mut hashed_key);
+    hashed_key
+}
+
 pub type MessageHandler = fn(Vec<u8>) -> Vec<u8>;
 
 pub fn contract_key(f: MessageHandler) -> [u8; 32] {
@@ -57,24 +61,18 @@ pub fn contract_key(f: MessageHandler) -> [u8; 32] {
     ret
 }
 
+//pub fn message_handler_of_contract_key(addr: &H160) -> [u8; 32] {
 pub fn message_handler_of_contract_key(key: &[u8]) -> [u8; 32] {
+    //let key = addr.0;
     let keyed = key.to_vec().to_keyed_vec(MSG_HANDLER_OF);
     let mut hashed_key: [u8; 32] = [0; 32];
     super::hashing::blake2b_256(&keyed[..], &mut hashed_key);
     hashed_key
 }
 
-pub fn code_hash_of_key(key: &Vec<u8>) -> [u8; 32] {
+pub fn code_hash_for_addr(addr: &H160) -> [u8; 32] {
+    let key = addr.0;
     let keyed = key.to_keyed_vec(CODE_HASH_OF);
-    let mut hashed_key: [u8; 32] = [0; 32];
-    super::hashing::blake2b_256(&keyed[..], &mut hashed_key);
-    hashed_key
-}
-
-/// Returns the database key under which to find the balance for account `who`.
-pub fn storage_of_contract_key(who: &[u8], key: &[u8]) -> [u8; 32] {
-    let keyed = who.to_vec().to_keyed_vec(key).to_keyed_vec(STORAGE_OF);
->>>>>>> origin/master
     let mut hashed_key: [u8; 32] = [0; 32];
     super::hashing::blake2b_256(&keyed[..], &mut hashed_key);
     hashed_key
@@ -180,7 +178,7 @@ impl Database {
             .and_modify(|v| *v = encoded_balance.clone())
             .or_insert(encoded_balance);
     }
-    
+
     pub fn set_contract_message_handler(&mut self, handler: MessageHandler) -> [u8; 32] {
         let key = contract_key(handler);
         let hashed_key = message_handler_of_contract_key(&key);
@@ -191,22 +189,25 @@ impl Database {
         key
     }
 
-    pub fn get_contract_message_handler(&mut self, key: &[u8]) -> MessageHandler {
-        let hashed_key = message_handler_of_contract_key(key);
+    /// Returns the message handler for a code hash.
+    pub fn get_contract_message_handler(&mut self, code_hash: &H256) -> MessageHandler {
+        let hashed_key = message_handler_of_contract_key(&code_hash.0);
         *self.fmap.get(hashed_key.as_slice()).unwrap()
     }
 
-    pub fn set_code_hash(&mut self, account: &Vec<u8>, code_hash: &[u8]) {
-        let hashed_key = code_hash_of_key(account);
+    pub fn set_code_hash(&mut self, addr: &H160, code_hash: &H256) {
+        let hashed_key = code_hash_for_addr(addr);
         self.hmap
             .entry(hashed_key.to_vec())
-            .and_modify(|x| *x = code_hash.to_vec())
-            .or_insert(code_hash.to_vec());
+            .and_modify(|x| *x = code_hash.as_bytes().to_vec())
+            .or_insert(code_hash.as_bytes().to_vec());
     }
 
-    pub fn get_code_hash(&self, account: &Vec<u8>) -> Option<Vec<u8>> {
-        let hashed_key = code_hash_of_key(account);
-        self.get(&hashed_key).cloned()
+    pub fn get_code_hash(&self, addr: &H160) -> Option<H256> {
+        let hashed_key = code_hash_for_addr(addr);
+        self.get(&hashed_key)
+            .cloned()
+            .map(|v| H256::from_slice(v.as_slice()))
     }
 }
 

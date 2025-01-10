@@ -16,13 +16,13 @@ include = ["/Cargo.toml", "src/**/*.rs", "/README.md", "/LICENSE"]
 
 [dependencies]
 ink_e2e_macro = { workspace = true, default-features = true }
-ink = { workspace = true, default-features = true }
-ink_env = { workspace = true, default-features = true }
+ink = { workspace = true, default-features = true, features = ["unstable"] }
+ink_env = { workspace = true, default-features = true, features = ["unstable"] }
 ink_primitives = { workspace = true, default-features = true }
+ink_sandbox = { version = "=5.1.0", path =  "./sandbox", optional = true }
 
 cargo_metadata = { workspace = true }
 contract-build = { workspace = true }
-ink_sandbox = { version = "=5.1.0", path =  "./sandbox", optional = true }
 pallet-revive = { workspace = true }
 pallet-revive-mock-network = { workspace = true, optional = true }
 funty = { workspace = true }

@@ -47,6 +47,7 @@ use scale::{
 #[cfg(feature = "std")]
 use scale_info::TypeInfo;
 
+/*
 /// Allows to instantiate a type from its little-endian bytes representation.
 pub trait FromLittleEndian {
     /// The little-endian bytes representation.
@@ -111,6 +112,8 @@ impl FromLittleEndian for U256 {
     }
 }
 
+ */
+
 /*
 impl FromLittleEndian for H160 {
     type Bytes = [u8; 20];
@@ -132,6 +135,7 @@ impl FromLittleEndian for H256 {
 }
  */
 
+/*
 /// todo remove
 /// A trait to enforce that a type should be an [`Environment::AccountId`].
 ///
@@ -325,3 +329,6 @@ pub enum Origin<E: Environment> {
     Root,
     Signed(E::AccountId),
 }
+
+
+ */

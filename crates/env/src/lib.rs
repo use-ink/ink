@@ -123,12 +123,6 @@ pub use self::{
 };
 use ink_macro::unstable_hostfn;
 use ink_primitives::Clear;
-#[doc(inline)]
-pub use pallet_revive_uapi::{
-    CallFlags,
-    ReturnErrorCode,
-    ReturnFlags,
-}
 pub use ink_primitives::{
     contract::{
         ContractEnv,
@@ -137,6 +131,12 @@ pub use ink_primitives::{
     },
     reflect,
     types,
+};
+#[doc(inline)]
+pub use pallet_revive_uapi::{
+    CallFlags,
+    ReturnErrorCode,
+    ReturnFlags,
 };
 
 cfg_if::cfg_if! {

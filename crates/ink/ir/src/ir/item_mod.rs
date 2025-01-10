@@ -1299,7 +1299,6 @@ mod tests {
                     pub fn my_constructor() -> Self {}
 
                     #[ink(message)]
-                    #[cfg(feature = "foo")]
                     pub fn not_allowed(&self) {}
                 }
             }

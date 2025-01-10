@@ -31,7 +31,7 @@ test_instantiate = [
 ]
 
 [dependencies]
-ink = { path = "../../../crates/ink", default-features = false }
+ink = { path = "../../../crates/ink", default-features = false, features = ["unstable"] }
 scale = { package = "parity-scale-codec", version = "3.6.12", default-features = false, features = [
     "derive",
 ] }

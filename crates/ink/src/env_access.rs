@@ -491,13 +491,13 @@ where
         >,
     >
     where
-        ContractRef: FromAddr<E> + ink_env::ContractReverseReference,
+        ContractRef: FromAddr + ink_env::ContractReverseReference,
         <ContractRef as ink_env::ContractReverseReference>::Type:
             ink_env::reflect::ContractConstructorDecoder,
         Args: scale::Encode,
         R: ConstructorReturnType<ContractRef>,
     {
-        ink_env::instantiate_contract::<E, ContractRef, Args, Salt, R>(params)
+        ink_env::instantiate_contract::<E, ContractRef, Args, R>(params)
     }
 
     /// Invokes a contract message and returns its result.
@@ -1108,7 +1108,7 @@ where
     /// For more details visit: [`ink_env::own_code_hash`]
     #[unstable_hostfn]
     pub fn own_code_hash(self) -> Result<H256> {
-        ink_env::own_code_hash::<E>()
+        ink_env::own_code_hash()
     }
 
     /// Replace the contract code at the specified address with new code.

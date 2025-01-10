@@ -1,3 +1,5 @@
+use crate::types::Environment;
+
 /// Stores the used host environment type of the ink! smart contract.
 ///
 /// # Note
@@ -91,7 +93,7 @@
 /// ```
 pub trait ContractEnv {
     /// The environment type.
-    type Env: crate::Environment;
+    type Env: Environment;
 }
 
 /// Refers to the generated ink! smart contract reference type.

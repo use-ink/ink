@@ -39,10 +39,10 @@ use crate::{
         Keccak256,
         Sha2x256,
     },
+    types::FromLittleEndian,
     Clear,
     EnvBackend,
     Environment,
-    types::FromLittleEndian,
     Result,
     TypedEnvBackend,
 };
@@ -387,9 +387,9 @@ impl EnvBackend for EnvInstance {
     }
 
     #[unstable_hostfn]
-    fn set_code_hash(&mut self, code_hash_ptr: &[u8]) -> Result<()> {
-        let code_hash: &[u8; 32] = code_hash_ptr.try_into().unwrap();
-        ext::set_code_hash(code_hash);
+    fn set_code_hash(&mut self, code_hash: &H256) -> Result<()> {
+        let foo = code_hash.as_fixed_bytes();
+        ext::set_code_hash(foo);
         Ok(()) // todo
     }
 }
@@ -743,10 +743,7 @@ impl TypedEnvBackend for EnvInstance {
     }
 
     #[unstable_hostfn]
-    fn own_code_hash<E>(&mut self) -> Result<H256>
-    where
-        E: Environment,
-    {
+    fn own_code_hash(&mut self) -> Result<H256> {
         let output: &mut [u8; 32] = &mut self
             .scoped_buffer()
             .take_max_encoded_len::<H256>()

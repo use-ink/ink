@@ -38,10 +38,6 @@ use crate::{
         OnInstance,
     },
     event::Event,
-    hash::{
-        CryptoHash,
-        HashOutput,
-    },
     types::{
         Environment,
         Gas,
@@ -346,7 +342,7 @@ pub fn instantiate_contract<E, ContractRef, Args, R>(
 >
 where
     E: Environment,
-    ContractRef: FromAddr<E> + crate::ContractReverseReference,
+    ContractRef: FromAddr + crate::ContractReverseReference,
     <ContractRef as crate::ContractReverseReference>::Type:
         crate::reflect::ContractConstructorDecoder,
     Args: scale::Encode,
@@ -647,12 +643,9 @@ pub fn code_hash(addr: &H160) -> Result<H256> {
 ///
 /// If the returned value cannot be properly decoded.
 #[unstable_hostfn]
-pub fn own_code_hash<E>() -> Result<H256>
-where
-    E: Environment,
-{
+pub fn own_code_hash() -> Result<H256> {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        TypedEnvBackend::own_code_hash::<E>(instance)
+        TypedEnvBackend::own_code_hash(instance)
     })
 }
 
@@ -806,9 +799,7 @@ pub fn set_code_hash<E>(code_hash: &H256) -> Result<()>
 where
     E: Environment,
 {
-    <EnvInstance as OnInstance>::on_instance(|instance| {
-        instance.set_code_hash(code_hash.as_ref())
-    })
+    <EnvInstance as OnInstance>::on_instance(|instance| instance.set_code_hash(code_hash))
 }
 
 /// Tries to trigger a runtime dispatchable, i.e. an extrinsic from a pallet.

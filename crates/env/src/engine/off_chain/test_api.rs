@@ -33,6 +33,7 @@ pub use ink_engine::{
 };
 use ink_primitives::{
     H160,
+    H256,
     U256,
 };
 
@@ -169,10 +170,7 @@ pub fn is_contract(contract: H160) -> bool {
 /// Gets the currently set callee.
 ///
 /// This is the address of the currently executing contract.
-pub fn callee<T>() -> H160
-where
-    T: Environment,
-{
+pub fn callee() -> H160 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         let callee = instance.engine.get_callee();
         scale::Decode::decode(&mut &callee[..])
@@ -390,7 +388,7 @@ pub fn get_return_value() -> Vec<u8> {
 }
 
 /// Gets a pseudo code hash for a contract ref.
-pub fn upload_code<E, ContractRef>() -> ink_primitives::types::Hash
+pub fn upload_code<E, ContractRef>() -> H256
 where
     E: Environment,
     ContractRef: crate::ContractReverseReference,

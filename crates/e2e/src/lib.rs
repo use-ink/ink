@@ -35,6 +35,7 @@ mod xts;
 
 pub use crate::contract_build::build_root_and_contract_dependencies;
 pub use backend::{
+    BuilderClient,
     ChainBackend,
     ContractsBackend,
     E2EBackend,
