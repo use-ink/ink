@@ -214,8 +214,8 @@ impl CallBuilder<'_> {
                 fn forward_mut(&mut self) -> &mut Self::Forwarder {
                     // SAFETY:
                     //
-                    // We convert from a exclusive reference to a type that thinly wraps
-                    // only an `AccountId` to a exclusive reference to another type of which
+                    // We convert from an exclusive reference to a type that thinly wraps
+                    // only an `AccountId` to an exclusive reference to another type of which
                     // we know that it also thinly wraps an `AccountId`.
                     // Furthermore both types use `repr(transparent)`.
                     unsafe {

@@ -56,7 +56,7 @@ concurrency:
 jobs:
   set-image:
     # GitHub Actions does not allow using 'env' in a container context.
-    # This workaround sets the container image for each job using 'set-image' job output.
+    # This workaround sets the container image for each job using the 'set-image' job output.
     runs-on: self-hosted
     outputs:
       IMAGE: ${{ steps.set_image.outputs.IMAGE }}
@@ -446,7 +446,7 @@ jobs:
           # Variables partly came from https://github.com/mozilla/grcov/blob/master/README.md
           RUSTFLAGS:                     -Zprofile -Zmir-opt-level=0 -Ccodegen-units=1
                                           -Clink-dead-code -Copt-level=0 -Coverflow-checks=off
-          # The `cargo-taurpalin` coverage reporting tool seems to have better code instrumentation and thus
+          # The `cargo-tarpaulin` coverage reporting tool seems to have better code instrumentation and thus
           # produces better results for Rust codebases in general. However, unlike `grcov` it requires
           # running docker with `--security-opt seccomp=unconfined` which is why we use `grcov` instead.
           CODECOV_L_TOKEN:               ${{ secrets.CODECOV_L_TOKEN }}
@@ -456,7 +456,7 @@ jobs:
           # https://github.com/Kogia-sima/rust-covfix/issues/7
           unset "CARGO_TARGET_DIR"
           cargo clean
-          # make sure there's no stale coverage artifacts
+          # make sure there are no stale coverage artifacts
           find . -name "*.profraw" -type f -delete
           find . -name "*.gcda" -type f -delete
           # FIXME: Access from 2 users, should be solved once ci-image works from a non-root user

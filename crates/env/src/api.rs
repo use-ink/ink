@@ -38,8 +38,14 @@ use crate::{
         OnInstance,
     },
     event::Event,
-    types::Gas,
-    Environment,
+    hash::{
+        CryptoHash,
+        HashOutput,
+    },
+    types::{
+        Environment,
+        Gas,
+    },
     Result,
 };
 use ink_macro::unstable_hostfn;
@@ -340,7 +346,9 @@ pub fn instantiate_contract<E, ContractRef, Args, R>(
 >
 where
     E: Environment,
-    ContractRef: FromAddr,
+    ContractRef: FromAddr<E> + crate::ContractReverseReference,
+    <ContractRef as crate::ContractReverseReference>::Type:
+        crate::reflect::ContractConstructorDecoder,
     Args: scale::Encode,
     R: ConstructorReturnType<ContractRef>,
 {
@@ -425,7 +433,24 @@ where
 /// # Note
 ///
 /// This function  stops the execution of the contract immediately.
+#[cfg(not(feature = "test_instantiate"))]
 pub fn return_value<R>(return_flags: ReturnFlags, return_value: &R) -> !
+where
+    R: scale::Encode,
+{
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        EnvBackend::return_value::<R>(instance, return_flags, return_value)
+    })
+}
+
+/// Returns the value back to the caller of the executed contract.
+///
+/// # Note
+///
+/// When the test_instantiate feature is used, the contract is allowed to
+/// return normally. This feature should only be used for integration tests.
+#[cfg(feature = "test_instantiate")]
+pub fn return_value<R>(return_flags: ReturnFlags, return_value: &R)
 where
     R: scale::Encode,
 {

@@ -24,10 +24,18 @@ primitive-types = { version  = "0.13.1", default-features = false, features = ["
 scale-info = { workspace = true, features = ["derive"], optional = true }
 xxhash-rust = { workspace = true, features = ["const_xxh32"] }
 serde = { version = "1.0.215", features = ["derive"], default-features = false, optional = true }
+cfg-if = { workspace = true }
+num-traits = { workspace = true, features = ["i128"] }
+
+[dev-dependencies]
+ink = { workspace = true, default-features = false }
+ink_env = { workspace = true, default-features = false }
 
 [features]
 default = [ "std" ]
 std = [
+    "ink/std",
+    "ink_env/std",
 	"ink_prelude/std",
     "serde",
     "serde/std",

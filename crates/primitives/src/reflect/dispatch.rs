@@ -263,6 +263,7 @@ pub trait ConstructorOutput<C>: private::Sealed {
 pub struct ConstructorOutputValue<T>(T);
 
 impl<T> ConstructorOutputValue<T> {
+    /// Stores the actual value of the constructor return type.
     pub fn new(val: T) -> Self {
         Self(val)
     }
@@ -616,5 +617,6 @@ impl From<DispatchError> for scale::Error {
 /// }
 /// ```
 pub trait DecodeDispatch: scale::Decode {
+    /// Decodes an ink! dispatch input into a known selector and its expected parameters.
     fn decode_dispatch<I: scale::Input>(input: &mut I) -> Result<Self, DispatchError>;
 }

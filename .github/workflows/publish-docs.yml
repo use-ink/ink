@@ -1,7 +1,7 @@
 # The workflow has write access, so it needs to be isolated for security reasons from pull request-based workflows,
 # which may be triggered from forked repositories.
 
-name: continuous-intergration/publish-docs
+name: continuous-integration/publish-docs
 
 on:
   workflow_run:
@@ -30,7 +30,7 @@ jobs:
           ARTIFACT_NAME: docs-data
           DOWNLOAD_DIR: crate-docs
 
-      - name: Add key to allow access to repository
+      - name: Add key to allow access to the repository
         env:
           SSH_AUTH_SOCK: /tmp/ssh_agent.sock
         run: |

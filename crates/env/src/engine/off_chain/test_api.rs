@@ -19,7 +19,7 @@ use super::{
     OnInstance,
 };
 use crate::{
-    Environment,
+    types::Environment,
     Result,
 };
 use core::fmt::Debug;
@@ -382,4 +382,22 @@ macro_rules! pay_with_call {
         $crate::test::transfer_in($amount);
         $contract.$message($ ($params) ,*)
     }}
+}
+
+/// Retrieves the value stored by return_value().
+pub fn get_return_value() -> Vec<u8> {
+    <EnvInstance as OnInstance>::on_instance(|instance| instance.get_return_value())
+}
+
+/// Gets a pseudo code hash for a contract ref.
+pub fn upload_code<E, ContractRef>() -> ink_primitives::types::Hash
+where
+    E: Environment,
+    ContractRef: crate::ContractReverseReference,
+    <ContractRef as crate::ContractReverseReference>::Type:
+        crate::reflect::ContractMessageDecoder,
+{
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        instance.upload_code::<ContractRef>()
+    })
 }

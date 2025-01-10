@@ -491,11 +491,13 @@ where
         >,
     >
     where
-        ContractRef: FromAddr,
+        ContractRef: FromAddr<E> + ink_env::ContractReverseReference,
+        <ContractRef as ink_env::ContractReverseReference>::Type:
+            ink_env::reflect::ContractConstructorDecoder,
         Args: scale::Encode,
         R: ConstructorReturnType<ContractRef>,
     {
-        ink_env::instantiate_contract::<E, ContractRef, Args, R>(params)
+        ink_env::instantiate_contract::<E, ContractRef, Args, Salt, R>(params)
     }
 
     /// Invokes a contract message and returns its result.

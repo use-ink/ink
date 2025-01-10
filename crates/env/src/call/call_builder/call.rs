@@ -24,9 +24,11 @@ use crate::{
         CallParams,
         ExecutionInput,
     },
-    Environment,
+    types::{
+        Environment,
+        Gas,
+    },
     Error,
-    Gas,
 };
 use ink_primitives::{
     H160,

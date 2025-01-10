@@ -1,4 +1,4 @@
-name: continuous-intergration/measurements
+name: continuous-integration/measurements
 
 on:
   workflow_call:

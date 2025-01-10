@@ -43,7 +43,7 @@ mod mapping {
 
         /// Demonstrates the usage of `Mapping::get()`.
         ///
-        /// Returns the balance of a account, or `None` if the account is not in the
+        /// Returns the balance of an account, or `None` if the account is not in the
         /// `Mapping`.
         #[ink(message)]
         pub fn get_balance(&self) -> Option<U256> {

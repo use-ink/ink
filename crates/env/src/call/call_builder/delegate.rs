@@ -24,7 +24,7 @@ use crate::{
         CallParams,
         ExecutionInput,
     },
-    Environment,
+    types::Environment,
     Error,
 };
 use ink_primitives::H160;

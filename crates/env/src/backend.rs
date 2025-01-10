@@ -28,7 +28,15 @@ use crate::{
         LimitParamsV2,
     },
     event::Event,
+<<<<<<< HEAD
     Environment,
+=======
+    hash::{
+        CryptoHash,
+        HashOutput,
+    },
+    types::Environment,
+>>>>>>> origin/master
     Result,
 };
 use ink_macro::unstable_hostfn;
@@ -123,7 +131,22 @@ pub trait EnvBackend {
     ///
     /// The `flags` parameter can be used to revert the state changes of the
     /// entire execution if necessary.
+    #[cfg(not(feature = "test_instantiate"))]
     fn return_value<R>(&mut self, flags: ReturnFlags, return_value: &R) -> !
+    where
+        R: scale::Encode;
+
+    /// Returns the value back to the caller of the executed contract.
+    ///
+    /// # Note
+    ///
+    /// When the test_instantiate feature is used, the contract is allowed to
+    /// return normally. This feature should only be used for integration tests.
+    ///
+    /// The `flags` parameter can be used to revert the state changes of the
+    /// entire execution if necessary.
+    #[cfg(feature = "test_instantiate")]
+    fn return_value<R>(&mut self, flags: ReturnFlags, return_value: &R)
     where
         R: scale::Encode;
 
@@ -357,7 +380,9 @@ pub trait TypedEnvBackend: EnvBackend {
     >
     where
         E: Environment,
-        ContractRef: FromAddr,
+        ContractRef: FromAddr<E> + crate::ContractReverseReference,
+        <ContractRef as crate::ContractReverseReference>::Type:
+            crate::reflect::ContractConstructorDecoder,
         Args: scale::Encode,
         R: ConstructorReturnType<ContractRef>;
 

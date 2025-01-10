@@ -12,7 +12,7 @@ First of all, thank you for taking your time to contribute to ink!
     * [Commits](#commits)
     * [Checklist](#checklist)
     * [Backwards Compatibility](#backwards-compatibility)
-* [Continuous Integraton](#continuous-integration)
+* [Continuous Integration](#continuous-integration)
 * [Issues and Pull Requests](#issues-and-pull-requests)
     * [Issues](#issues)
     * [Pull Requests](#pull-requests)

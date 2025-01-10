@@ -79,18 +79,15 @@ fn panic(info: &core::panic::PanicInfo) -> ! {
 extern crate ink_allocator;
 
 mod api;
-mod arithmetic;
 mod backend;
 pub mod call;
 #[cfg(feature = "unstable")]
 pub mod chain_extension;
-mod contract;
 mod engine;
 mod error;
 #[doc(hidden)]
 pub mod event;
 pub mod hash;
-mod types;
 
 #[cfg(feature = "unstable")]
 #[cfg(test)]
@@ -106,10 +103,6 @@ use self::backend::{
 };
 pub use self::{
     api::*,
-    contract::{
-        ContractEnv,
-        ContractReference,
-    },
     error::{
         Error,
         Result,
@@ -117,11 +110,15 @@ pub use self::{
     event::Event,
     types::{
         AccountIdGuard,
+        Balance,
+        BlockNumber,
+        CodecAsType,
         DefaultEnvironment,
         Environment,
         FromLittleEndian,
         Gas,
         NoChainExtension,
+        Timestamp,
     },
 };
 use ink_macro::unstable_hostfn;
@@ -131,6 +128,15 @@ pub use pallet_revive_uapi::{
     CallFlags,
     ReturnErrorCode,
     ReturnFlags,
+}
+pub use ink_primitives::{
+    contract::{
+        ContractEnv,
+        ContractReference,
+        ContractReverseReference,
+    },
+    reflect,
+    types,
 };
 
 cfg_if::cfg_if! {

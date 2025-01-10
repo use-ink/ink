@@ -25,6 +25,9 @@ use std::collections::HashMap;
 
 const BALANCE_OF: &[u8] = b"balance:";
 const STORAGE_OF: &[u8] = b"contract-storage:";
+const CONTRACT_PREFIX: &[u8] = b"contract:";
+const MSG_HANDLER_OF: &[u8] = b"message-handler:";
+const CODE_HASH_OF: &[u8] = b"code-hash:";
 
 /// Returns the database key under which to find the balance for contract `who`.
 pub fn balance_of_key(who: &H160) -> [u8; 32] {
@@ -34,6 +37,7 @@ pub fn balance_of_key(who: &H160) -> [u8; 32] {
     hashed_key
 }
 
+<<<<<<< HEAD
 /// Returns the database key under which to find the storage for contract `who`.
 pub fn storage_of_contract_key(who: &H160, key: &[u8]) -> [u8; 32] {
     let keyed = who
@@ -41,6 +45,36 @@ pub fn storage_of_contract_key(who: &H160, key: &[u8]) -> [u8; 32] {
         .to_vec()
         .to_keyed_vec(key)
         .to_keyed_vec(STORAGE_OF);
+=======
+pub type MessageHandler = fn(Vec<u8>) -> Vec<u8>;
+
+pub fn contract_key(f: MessageHandler) -> [u8; 32] {
+    let f = f as usize;
+    let f = f.to_le_bytes();
+    let keyed = f.to_vec().to_keyed_vec(CONTRACT_PREFIX);
+    let mut ret: [u8; 32] = [0; 32];
+    super::hashing::blake2b_256(&keyed[..], &mut ret);
+    ret
+}
+
+pub fn message_handler_of_contract_key(key: &[u8]) -> [u8; 32] {
+    let keyed = key.to_vec().to_keyed_vec(MSG_HANDLER_OF);
+    let mut hashed_key: [u8; 32] = [0; 32];
+    super::hashing::blake2b_256(&keyed[..], &mut hashed_key);
+    hashed_key
+}
+
+pub fn code_hash_of_key(key: &Vec<u8>) -> [u8; 32] {
+    let keyed = key.to_keyed_vec(CODE_HASH_OF);
+    let mut hashed_key: [u8; 32] = [0; 32];
+    super::hashing::blake2b_256(&keyed[..], &mut hashed_key);
+    hashed_key
+}
+
+/// Returns the database key under which to find the balance for account `who`.
+pub fn storage_of_contract_key(who: &[u8], key: &[u8]) -> [u8; 32] {
+    let keyed = who.to_vec().to_keyed_vec(key).to_keyed_vec(STORAGE_OF);
+>>>>>>> origin/master
     let mut hashed_key: [u8; 32] = [0; 32];
     super::hashing::blake2b_256(&keyed[..], &mut hashed_key);
     hashed_key
@@ -53,6 +87,7 @@ pub fn storage_of_contract_key(who: &H160, key: &[u8]) -> [u8; 32] {
 #[derive(Default)]
 pub struct Database {
     hmap: HashMap<Vec<u8>, Vec<u8>>,
+    fmap: HashMap<Vec<u8>, MessageHandler>,
 }
 
 impl Database {
@@ -60,6 +95,7 @@ impl Database {
     pub fn new() -> Self {
         Database {
             hmap: HashMap::new(),
+            fmap: HashMap::new(),
         }
     }
 
@@ -143,6 +179,34 @@ impl Database {
             .entry(hashed_key.to_vec())
             .and_modify(|v| *v = encoded_balance.clone())
             .or_insert(encoded_balance);
+    }
+    
+    pub fn set_contract_message_handler(&mut self, handler: MessageHandler) -> [u8; 32] {
+        let key = contract_key(handler);
+        let hashed_key = message_handler_of_contract_key(&key);
+        self.fmap
+            .entry(hashed_key.to_vec())
+            .and_modify(|x| *x = handler)
+            .or_insert(handler);
+        key
+    }
+
+    pub fn get_contract_message_handler(&mut self, key: &[u8]) -> MessageHandler {
+        let hashed_key = message_handler_of_contract_key(key);
+        *self.fmap.get(hashed_key.as_slice()).unwrap()
+    }
+
+    pub fn set_code_hash(&mut self, account: &Vec<u8>, code_hash: &[u8]) {
+        let hashed_key = code_hash_of_key(account);
+        self.hmap
+            .entry(hashed_key.to_vec())
+            .and_modify(|x| *x = code_hash.to_vec())
+            .or_insert(code_hash.to_vec());
+    }
+
+    pub fn get_code_hash(&self, account: &Vec<u8>) -> Option<Vec<u8>> {
+        let hashed_key = code_hash_of_key(account);
+        self.get(&hashed_key).cloned()
     }
 }
 

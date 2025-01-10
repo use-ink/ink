@@ -29,7 +29,7 @@ use crate::{
         Execution,
         ExecutionInput,
     },
-    Environment,
+    types::Environment,
 };
 use core::marker::PhantomData;
 use ink_primitives::H160;
