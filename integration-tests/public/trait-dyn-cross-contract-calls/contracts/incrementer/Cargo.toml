@@ -20,3 +20,4 @@ std = [
     "dyn-traits/std",
 ]
 ink-as-dependency = []
+test_instantiate = []

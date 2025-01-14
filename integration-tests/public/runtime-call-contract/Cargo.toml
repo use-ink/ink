@@ -48,3 +48,4 @@ std = [
     "flipper-traits/std",
 ]
 ink-as-dependency = []
+test_instantiate = []

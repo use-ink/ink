@@ -371,10 +371,10 @@ mod instantiate_contract {
     mod e2e_tests {
         use super::*;
         use ink_e2e::{
-            ChainBackend,
-            ContractsBackend,
             CallBuilder,
+            ChainBackend,
             Client,
+            ContractsBackend,
             E2EBackend,
             InstantiationResult,
         };

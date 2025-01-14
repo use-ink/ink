@@ -31,4 +31,5 @@ std = [
     "sp-io/std",
 ]
 ink-as-dependency = []
+test_instantiate = []
 e2e-tests = []

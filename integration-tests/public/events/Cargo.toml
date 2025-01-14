@@ -27,6 +27,7 @@ std = [
     "event-def-unused/std",
 ]
 ink-as-dependency = []
+test_instantiate = []
 e2e-tests = []
 
 #[profile.test]
