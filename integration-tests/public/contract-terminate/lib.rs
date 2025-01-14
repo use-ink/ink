@@ -32,7 +32,7 @@ pub mod just_terminates {
         fn terminating_works() {
             // given
             let accounts = ink::env::test::default_accounts();
-            let contract_id = ink::env::test::callee::<ink::env::DefaultEnvironment>();
+            let contract_id = ink::env::test::callee();
             ink::env::test::set_caller(accounts.alice);
             ink::env::test::set_account_balance(contract_id, 100.into());
             let mut contract = JustTerminate::new();

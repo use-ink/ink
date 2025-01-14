@@ -43,7 +43,7 @@ env:
   # RISC-V is a modular architecture. We might switch to a different flavor with more features
   # later. For example, `riscv64imc-unknown-none-elf`.
   RISCV_TARGET:                    .github/riscv64emac-unknown-none-polkavm.json
-  # todo
+  # Clippy doesn't support JSON files for `--target`, hence we use another RISC-V target.
   CLIPPY_TARGET:                   riscv64imac-unknown-none-elf
 
 concurrency:
@@ -361,8 +361,8 @@ jobs:
           # at the same time, hence we use this workaround.
           QUICKCHECK_TESTS:            0
         run: |
-          cargo nextest run --all-features --no-fail-fast --workspace --locked
-          cargo test --all-features --no-fail-fast --workspace --doc --locked
+          cargo +nightly nextest run --all-features --no-fail-fast --workspace --locked
+          cargo +nightly test --all-features --no-fail-fast --workspace --doc --locked
 
       - name: Test Linting
         if: ${{ matrix.workspace == 'linting' }}

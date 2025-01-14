@@ -22,7 +22,7 @@ mod own_code_hash {
         #[ink(message)]
         pub fn get_code(&self) -> ink::H256 {
             self.env()
-                .code_hash(&self.env().account_id())
+                .code_hash(&self.env().address())
                 .expect("Failed to get code hash")
         }
     }

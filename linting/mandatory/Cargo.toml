@@ -66,4 +66,7 @@ std = [
     "scale-info/std",
 ]
 ink-as-dependency = []
-test_instantiate = []
+test_instantiate = ["ink/test_instantiate"]
+
+[lints.rust]
+unexpected_cfgs = { level = "warn", check-cfg = ['cfg(dylint_lib, values("ink_linting"))'] }
