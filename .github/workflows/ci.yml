@@ -57,7 +57,7 @@ jobs:
   set-image:
     # GitHub Actions does not allow using 'env' in a container context.
     # This workaround sets the container image for each job using the 'set-image' job output.
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     outputs:
       IMAGE: ${{ steps.set_image.outputs.IMAGE }}
     steps:
@@ -65,7 +65,7 @@ jobs:
         run: echo "IMAGE=${{ env.IMAGE }}" >> $GITHUB_OUTPUT
 
   spellcheck:
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     defaults:
       run:
         shell: bash
@@ -87,7 +87,7 @@ jobs:
           cargo spellcheck check -v --cfg=.config/cargo_spellcheck.toml --checkers hunspell --code 1 -- recursive ./integration-tests/*
 
   fmt:
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     defaults:
       run:
         shell: bash
@@ -118,7 +118,7 @@ jobs:
           rustfmt +nightly --check ./integration-tests/public/psp22-extension/runtime/psp22-extension-example.rs
 
   clippy:
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     defaults:
       run:
         shell: bash
@@ -156,7 +156,7 @@ jobs:
           done
 
   clippy-examples:
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     defaults:
       run:
         shell: bash
@@ -195,7 +195,7 @@ jobs:
             --manifest-path {} -- -D warnings -A $CLIPPY_ALLOWED
 
   check:
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     defaults:
       run:
         shell: bash
@@ -240,7 +240,7 @@ jobs:
           done
 
   dylint:
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     defaults:
       run:
         shell: bash
@@ -274,7 +274,7 @@ jobs:
 ### workspace
 
   build:
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     needs: [set-image, check]
     defaults:
       run:
@@ -324,7 +324,7 @@ jobs:
           done
 
   test:
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     needs: [set-image, check]
     defaults:
       run:
@@ -378,7 +378,7 @@ jobs:
           pushd linting && cargo nextest run --all-features --no-fail-fast --workspace && popd
 
   docs:
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     needs: [set-image, check, fmt, clippy, clippy-examples, dylint, spellcheck]
     defaults:
       run:
@@ -418,7 +418,7 @@ jobs:
           retention-days: 1
 
   codecov:
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     needs: [set-image, check, fmt, clippy, clippy-examples, dylint, spellcheck]
     defaults:
       run:
@@ -478,7 +478,7 @@ jobs:
 ### examples
 
   examples-test:
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     needs: [clippy]
     strategy:
       matrix:
@@ -507,7 +507,7 @@ jobs:
                 cargo +nightly test --all-features --all --manifest-path {}"
 
   examples-test-mapping:
-      runs-on: self-hosted
+      runs-on: ubuntu-latest
       needs: [set-image]
       defaults:
           run:
@@ -540,7 +540,7 @@ jobs:
                 cargo +nightly-2024-11-28 test --all-features --all --manifest-path integration-tests/public/mapping/Cargo.toml
 
   examples-custom-test:
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     needs: [set-image, clippy, clippy-examples]
     defaults:
       run:
@@ -593,7 +593,7 @@ jobs:
             -- --ignored --nocapture
 
   examples-contract-build:
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     needs: [set-image, build]
     defaults:
       run:
@@ -633,7 +633,7 @@ jobs:
             -- cargo +nightly build --manifest-path {} --no-default-features --target $RISCV_TARGET -Zbuild-std="core,alloc"
 
   examples-docs:
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     needs: [set-image, build]
     defaults:
       run:
@@ -674,7 +674,7 @@ jobs:
 # fuzz
 
   fuzz:
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     needs: [set-image, examples-docs, examples-contract-build, examples-test, examples-custom-test]
     if: >
       github.event_name == 'push' &&
