@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#![cfg_attr(not(feature = "std"), no_std)]
+#![cfg_attr(not(feature = "std"), no_std, no_main)]
 
 #[ink::event]
 /// EventExternal docs
@@ -23,6 +23,7 @@ pub struct EventExternal {
     f2: u32,
 }
 
+#[allow(unexpected_cfgs)]
 #[ink::contract]
 mod contract {
     #[ink(storage)]

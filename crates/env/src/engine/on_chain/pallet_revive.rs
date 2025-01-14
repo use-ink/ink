@@ -374,8 +374,7 @@ impl EnvBackend for EnvInstance {
     }
 
     fn set_code_hash(&mut self, code_hash: &H256) -> Result<()> {
-        let foo = code_hash.as_fixed_bytes();
-        ext::set_code_hash(foo);
+        ext::set_code_hash(code_hash.as_fixed_bytes());
         Ok(()) // todo
     }
 }

@@ -265,8 +265,8 @@ pub mod delegator {
             let expected_value = 10;
             // Alice's address
             // todo
-            let foo = origin.public_key().to_account_id().0;
-            let address = H160::from_slice(&foo[0..20]);
+            let acc = origin.public_key().to_account_id().0;
+            let address = H160::from_slice(&acc[0..20]);
 
             let call_get_value = call_builder.get_value(address);
             let call_get_result = client

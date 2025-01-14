@@ -165,7 +165,7 @@ pub mod give_me {
         }
 
         fn contract_id() -> H160 {
-            ink::env::test::callee::<ink::env::DefaultEnvironment>()
+            ink::env::test::callee()
         }
 
         fn set_sender(sender: H160) {
