@@ -197,13 +197,6 @@ mod instantiate_contract {
             ink::ToAddr::to_addr(&cr)
         }
 
-        /*
-        fn to_array(address: &mut AccountId) -> [u8; 32]{
-            let temp: &[u8; 32] = address.as_mut();
-            *temp
-        }
-         */
-
         #[ink::test]
         fn test_invoke() {
             let contract = ContractTester::new();
@@ -216,17 +209,10 @@ mod instantiate_contract {
                 Contract2Ref,
             >();
 
-            let mut contract1_address1 = instantiate_contract1(&contract, code_hash1, 1);
-            let mut contract1_address2 = instantiate_contract1(&contract, code_hash1, 2);
-            let mut contract2_address1 = instantiate_contract2(&contract, code_hash2, 3);
-            let mut contract2_address2 = instantiate_contract2(&contract, code_hash2, 4);
-
-            /*
-            let contract1_address1 = to_array(&mut contract1_address1_account);
-            let contract1_address2 = to_array(&mut contract1_address2_account);
-            let contract2_address1 = to_array(&mut contract2_address1_account);
-            let contract2_address2 = to_array(&mut contract2_address2_account);
-             */
+            let contract1_address1 = instantiate_contract1(&contract, code_hash1, 1);
+            let contract1_address2 = instantiate_contract1(&contract, code_hash1, 2);
+            let contract2_address1 = instantiate_contract2(&contract, code_hash2, 3);
+            let contract2_address2 = instantiate_contract2(&contract, code_hash2, 4);
 
             let check_hashes = |a, b, c| {
                 let x = ink::env::code_hash(a).expect("failed to get code hash");
@@ -279,11 +265,6 @@ mod instantiate_contract {
                 ink::env::DefaultEnvironment,
                 VirtualContractVer2Ref,
             >();
-            //let addr2 = ink::env::test::upload_code::<ink::env::DefaultEnvironment,
-            // VirtualContractVer1Ref>(); let addr3 =
-            // ink::env::test::upload_code::<ink::env::DefaultEnvironment,
-            // VirtualContractVer2Ref>(); creates `code_hash1` contract and
-            // puts `hash` + `x` as the constructor arguments
 
             let create_params = build_create::<VirtualContractVer1Ref>()
                 .code_hash(code_hash2)
@@ -305,7 +286,6 @@ mod instantiate_contract {
                     panic!("Received a `LangError` while instatiating: {:?}", error)
                 });
 
-            //let addr2: H160 = <addr2 as ink::ToAddr>::to_addr();
             use ink::ToAddr;
             let addr2: H160 = addr2.to_addr();
 
