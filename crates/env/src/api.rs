@@ -14,10 +14,6 @@
 
 //! The public raw interface towards the host Wasm engine.
 
-use crate::hash::{
-    CryptoHash,
-    HashOutput,
-};
 use crate::{
     backend::{
         EnvBackend,
@@ -37,6 +33,10 @@ use crate::{
         OnInstance,
     },
     event::Event,
+    hash::{
+        CryptoHash,
+        HashOutput,
+    },
     types::{
         Environment,
         Gas,

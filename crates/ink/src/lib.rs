@@ -67,13 +67,13 @@ pub mod storage {
     };
 }
 
-pub use self::chain_extension::{
-    ChainExtensionInstance,
-    IsResultType,
-    Output,
-    ValueReturned,
-};
 pub use self::{
+    chain_extension::{
+        ChainExtensionInstance,
+        IsResultType,
+        Output,
+        ValueReturned,
+    },
     contract_ref::ToAddr,
     env_access::EnvAccess,
     prelude::IIP2_WILDCARD_COMPLEMENT_SELECTOR,

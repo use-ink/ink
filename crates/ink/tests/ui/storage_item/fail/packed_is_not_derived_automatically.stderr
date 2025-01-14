@@ -2,7 +2,7 @@ error[E0277]: the trait bound `NonPacked: Packed` is not satisfied
   --> tests/ui/storage_item/fail/packed_is_not_derived_automatically.rs:15:30
    |
 15 |     let _ = consume_packed::<NonPacked>();
-   |                              ^^^^^^^^^ the trait `WrapperTypeDecode` is not implemented for `NonPacked`, which is required by `NonPacked: Packed`
+   |                              ^^^^^^^^^ the trait `WrapperTypeDecode` is not implemented for `NonPacked`
    |
    = help: the following other types implement trait `WrapperTypeDecode`:
              Arc<T>
@@ -21,7 +21,7 @@ error[E0277]: the trait bound `NonPacked: Packed` is not satisfied
   --> tests/ui/storage_item/fail/packed_is_not_derived_automatically.rs:15:30
    |
 15 |     let _ = consume_packed::<NonPacked>();
-   |                              ^^^^^^^^^ the trait `WrapperTypeEncode` is not implemented for `NonPacked`, which is required by `NonPacked: Packed`
+   |                              ^^^^^^^^^ the trait `WrapperTypeEncode` is not implemented for `NonPacked`
    |
    = help: the following other types implement trait `WrapperTypeEncode`:
              &T

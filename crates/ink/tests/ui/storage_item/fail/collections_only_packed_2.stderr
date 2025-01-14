@@ -2,7 +2,7 @@ error[E0277]: the trait bound `BTreeMap<u128, NonPacked>: Packed` is not satisfi
   --> tests/ui/storage_item/fail/collections_only_packed_2.rs:11:8
    |
 11 |     a: BTreeMap<u128, NonPacked>,
-   |        ^^^^^^^^^^^^^^^^^^^^^^^^^ the trait `ink::parity_scale_codec::Decode` is not implemented for `BTreeMap<u128, NonPacked>`, which is required by `BTreeMap<u128, NonPacked>: AutoStorableHint<ManualKey<453539032>>`
+   |        ^^^^^^^^^^^^^^^^^^^^^^^^^ the trait `ink::parity_scale_codec::Decode` is not implemented for `BTreeMap<u128, NonPacked>`
    |
    = help: the trait `ink::parity_scale_codec::Decode` is implemented for `BTreeMap<K, V>`
    = note: required for `BTreeMap<u128, NonPacked>` to implement `Packed`
@@ -13,7 +13,7 @@ error[E0277]: the trait bound `BTreeMap<u128, NonPacked>: Packed` is not satisfi
   --> tests/ui/storage_item/fail/collections_only_packed_2.rs:11:8
    |
 11 |     a: BTreeMap<u128, NonPacked>,
-   |        ^^^^^^^^^^^^^^^^^^^^^^^^^ the trait `Encode` is not implemented for `BTreeMap<u128, NonPacked>`, which is required by `BTreeMap<u128, NonPacked>: AutoStorableHint<ManualKey<453539032>>`
+   |        ^^^^^^^^^^^^^^^^^^^^^^^^^ the trait `Encode` is not implemented for `BTreeMap<u128, NonPacked>`
    |
    = help: the trait `Encode` is implemented for `BTreeMap<K, V>`
    = note: required for `BTreeMap<u128, NonPacked>` to implement `Packed`
@@ -24,7 +24,7 @@ error[E0277]: the trait bound `BTreeMap<u128, NonPacked>: ink::parity_scale_code
   --> tests/ui/storage_item/fail/collections_only_packed_2.rs:10:8
    |
 10 | struct Contract {
-   |        ^^^^^^^^ the trait `ink::parity_scale_codec::Decode` is not implemented for `BTreeMap<u128, NonPacked>`, which is required by `Contract: Sized`
+   |        ^^^^^^^^ the trait `ink::parity_scale_codec::Decode` is not implemented for `BTreeMap<u128, NonPacked>`
    |
    = help: the trait `ink::parity_scale_codec::Decode` is implemented for `BTreeMap<K, V>`
    = note: required for `BTreeMap<u128, NonPacked>` to implement `Packed`
@@ -45,7 +45,7 @@ error[E0277]: the trait bound `BTreeMap<u128, NonPacked>: Encode` is not satisfi
   --> tests/ui/storage_item/fail/collections_only_packed_2.rs:10:8
    |
 10 | struct Contract {
-   |        ^^^^^^^^ the trait `Encode` is not implemented for `BTreeMap<u128, NonPacked>`, which is required by `Contract: Sized`
+   |        ^^^^^^^^ the trait `Encode` is not implemented for `BTreeMap<u128, NonPacked>`
    |
    = help: the trait `Encode` is implemented for `BTreeMap<K, V>`
    = note: required for `BTreeMap<u128, NonPacked>` to implement `Packed`
@@ -66,7 +66,7 @@ error[E0277]: the trait bound `BTreeMap<u128, NonPacked>: ink::parity_scale_code
   --> tests/ui/storage_item/fail/collections_only_packed_2.rs:10:8
    |
 10 | struct Contract {
-   |        ^^^^^^^^ the trait `ink::parity_scale_codec::Decode` is not implemented for `BTreeMap<u128, NonPacked>`, which is required by `Contract: Sized`
+   |        ^^^^^^^^ the trait `ink::parity_scale_codec::Decode` is not implemented for `BTreeMap<u128, NonPacked>`
    |
    = help: the trait `ink::parity_scale_codec::Decode` is implemented for `BTreeMap<K, V>`
    = note: required for `BTreeMap<u128, NonPacked>` to implement `Packed`
@@ -87,7 +87,7 @@ error[E0277]: the trait bound `BTreeMap<u128, NonPacked>: Encode` is not satisfi
   --> tests/ui/storage_item/fail/collections_only_packed_2.rs:10:8
    |
 10 | struct Contract {
-   |        ^^^^^^^^ the trait `Encode` is not implemented for `BTreeMap<u128, NonPacked>`, which is required by `Contract: Sized`
+   |        ^^^^^^^^ the trait `Encode` is not implemented for `BTreeMap<u128, NonPacked>`
    |
    = help: the trait `Encode` is implemented for `BTreeMap<K, V>`
    = note: required for `BTreeMap<u128, NonPacked>` to implement `Packed`
@@ -108,7 +108,7 @@ error[E0277]: the trait bound `BTreeMap<u128, NonPacked>: ink::parity_scale_code
   --> tests/ui/storage_item/fail/collections_only_packed_2.rs:9:1
    |
 9  | #[ink::storage_item]
-   | ^^^^^^^^^^^^^^^^^^^^ the trait `ink::parity_scale_codec::Decode` is not implemented for `BTreeMap<u128, NonPacked>`, which is required by `Contract: Sized`
+   | ^^^^^^^^^^^^^^^^^^^^ the trait `ink::parity_scale_codec::Decode` is not implemented for `BTreeMap<u128, NonPacked>`
    |
    = help: the trait `ink::parity_scale_codec::Decode` is implemented for `BTreeMap<K, V>`
    = note: required for `BTreeMap<u128, NonPacked>` to implement `Packed`
@@ -121,16 +121,13 @@ note: required because it appears within the type `Contract`
    |        ^^^^^^^^
 note: required by an implicit `Sized` bound in `Result`
   --> $RUST/core/src/result.rs
-   |
-   | pub enum Result<T, E> {
-   |                 ^ required by the implicit `Sized` requirement on this type parameter in `Result`
    = note: this error originates in the derive macro `::ink::storage::traits::Storable` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error[E0277]: the trait bound `BTreeMap<u128, NonPacked>: Encode` is not satisfied
   --> tests/ui/storage_item/fail/collections_only_packed_2.rs:9:1
    |
 9  | #[ink::storage_item]
-   | ^^^^^^^^^^^^^^^^^^^^ the trait `Encode` is not implemented for `BTreeMap<u128, NonPacked>`, which is required by `Contract: Sized`
+   | ^^^^^^^^^^^^^^^^^^^^ the trait `Encode` is not implemented for `BTreeMap<u128, NonPacked>`
    |
    = help: the trait `Encode` is implemented for `BTreeMap<K, V>`
    = note: required for `BTreeMap<u128, NonPacked>` to implement `Packed`
@@ -143,16 +140,13 @@ note: required because it appears within the type `Contract`
    |        ^^^^^^^^
 note: required by an implicit `Sized` bound in `Result`
   --> $RUST/core/src/result.rs
-   |
-   | pub enum Result<T, E> {
-   |                 ^ required by the implicit `Sized` requirement on this type parameter in `Result`
    = note: this error originates in the derive macro `::ink::storage::traits::Storable` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error[E0277]: the trait bound `BTreeMap<u128, NonPacked>: Packed` is not satisfied
   --> tests/ui/storage_item/fail/collections_only_packed_2.rs:11:5
    |
 11 |     a: BTreeMap<u128, NonPacked>,
-   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ the trait `ink::parity_scale_codec::Decode` is not implemented for `BTreeMap<u128, NonPacked>`, which is required by `BTreeMap<u128, NonPacked>: AutoStorableHint<ManualKey<453539032>>`
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ the trait `ink::parity_scale_codec::Decode` is not implemented for `BTreeMap<u128, NonPacked>`
    |
    = help: the trait `ink::parity_scale_codec::Decode` is implemented for `BTreeMap<K, V>`
    = note: required for `BTreeMap<u128, NonPacked>` to implement `Packed`
@@ -163,7 +157,7 @@ error[E0277]: the trait bound `BTreeMap<u128, NonPacked>: Packed` is not satisfi
   --> tests/ui/storage_item/fail/collections_only_packed_2.rs:11:5
    |
 11 |     a: BTreeMap<u128, NonPacked>,
-   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ the trait `Encode` is not implemented for `BTreeMap<u128, NonPacked>`, which is required by `BTreeMap<u128, NonPacked>: AutoStorableHint<ManualKey<453539032>>`
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ the trait `Encode` is not implemented for `BTreeMap<u128, NonPacked>`
    |
    = help: the trait `Encode` is implemented for `BTreeMap<K, V>`
    = note: required for `BTreeMap<u128, NonPacked>` to implement `Packed`
@@ -174,7 +168,7 @@ error[E0277]: the trait bound `BTreeMap<u128, NonPacked>: Packed` is not satisfi
  --> tests/ui/storage_item/fail/collections_only_packed_2.rs:9:1
   |
 9 | #[ink::storage_item]
-  | ^^^^^^^^^^^^^^^^^^^^ the trait `ink::parity_scale_codec::Decode` is not implemented for `BTreeMap<u128, NonPacked>`, which is required by `BTreeMap<u128, NonPacked>: AutoStorableHint<ManualKey<453539032>>`
+  | ^^^^^^^^^^^^^^^^^^^^ the trait `ink::parity_scale_codec::Decode` is not implemented for `BTreeMap<u128, NonPacked>`
   |
   = help: the trait `ink::parity_scale_codec::Decode` is implemented for `BTreeMap<K, V>`
   = note: required for `BTreeMap<u128, NonPacked>` to implement `Packed`
@@ -186,7 +180,7 @@ error[E0277]: the trait bound `BTreeMap<u128, NonPacked>: Packed` is not satisfi
  --> tests/ui/storage_item/fail/collections_only_packed_2.rs:9:1
   |
 9 | #[ink::storage_item]
-  | ^^^^^^^^^^^^^^^^^^^^ the trait `Encode` is not implemented for `BTreeMap<u128, NonPacked>`, which is required by `BTreeMap<u128, NonPacked>: AutoStorableHint<ManualKey<453539032>>`
+  | ^^^^^^^^^^^^^^^^^^^^ the trait `Encode` is not implemented for `BTreeMap<u128, NonPacked>`
   |
   = help: the trait `Encode` is implemented for `BTreeMap<K, V>`
   = note: required for `BTreeMap<u128, NonPacked>` to implement `Packed`
@@ -198,7 +192,7 @@ error[E0277]: the trait bound `NonPacked: WrapperTypeDecode` is not satisfied
   --> tests/ui/storage_item/fail/collections_only_packed_2.rs:11:8
    |
 11 |     a: BTreeMap<u128, NonPacked>,
-   |        ^^^^^^^^^^^^^^^^^^^^^^^^^ the trait `WrapperTypeDecode` is not implemented for `NonPacked`, which is required by `BTreeMap<u128, NonPacked>: StorageLayout`
+   |        ^^^^^^^^^^^^^^^^^^^^^^^^^ the trait `WrapperTypeDecode` is not implemented for `NonPacked`
    |
    = help: the following other types implement trait `WrapperTypeDecode`:
              Arc<T>
@@ -213,7 +207,7 @@ error[E0277]: the trait bound `NonPacked: WrapperTypeEncode` is not satisfied
   --> tests/ui/storage_item/fail/collections_only_packed_2.rs:11:8
    |
 11 |     a: BTreeMap<u128, NonPacked>,
-   |        ^^^^^^^^^^^^^^^^^^^^^^^^^ the trait `WrapperTypeEncode` is not implemented for `NonPacked`, which is required by `BTreeMap<u128, NonPacked>: StorageLayout`
+   |        ^^^^^^^^^^^^^^^^^^^^^^^^^ the trait `WrapperTypeEncode` is not implemented for `NonPacked`
    |
    = help: the following other types implement trait `WrapperTypeEncode`:
              &T

@@ -2,7 +2,7 @@ error[E0277]: the trait bound `NonCodecType: WrapperTypeDecode` is not satisfied
   --> tests/ui/contract/fail/constructor-input-non-codec.rs:11:28
    |
 11 |         pub fn constructor(_input: NonCodecType) -> Self {
-   |                            ^^^^^^^^^^^^^^^^^^^^ the trait `WrapperTypeDecode` is not implemented for `NonCodecType`, which is required by `NonCodecType: ink::parity_scale_codec::Decode`
+   |                            ^^^^^^^^^^^^^^^^^^^^ the trait `WrapperTypeDecode` is not implemented for `NonCodecType`
    |
    = help: the following other types implement trait `WrapperTypeDecode`:
              Arc<T>
@@ -25,7 +25,7 @@ error[E0277]: the trait bound `NonCodecType: ink::parity_scale_codec::Decode` is
 11 | /         pub fn constructor(_input: NonCodecType) -> Self {
 12 | |             Self {}
 13 | |         }
-   | |_________^ the trait `WrapperTypeDecode` is not implemented for `NonCodecType`, which is required by `NonCodecType: ink::parity_scale_codec::Decode`
+   | |_________^ the trait `WrapperTypeDecode` is not implemented for `NonCodecType`
    |
    = help: the following other types implement trait `WrapperTypeDecode`:
              Arc<T>
@@ -38,7 +38,7 @@ error[E0277]: the trait bound `NonCodecType: Encode` is not satisfied
   --> tests/ui/contract/fail/constructor-input-non-codec.rs:1:1
    |
 1  |   #[ink::contract]
-   |   ^^^^^^^^^^^^^^^^ the trait `WrapperTypeEncode` is not implemented for `NonCodecType`, which is required by `NonCodecType: Encode`
+   |   ^^^^^^^^^^^^^^^^ the trait `WrapperTypeEncode` is not implemented for `NonCodecType`
 ...
 11 | /         pub fn constructor(_input: NonCodecType) -> Self {
 12 | |             Self {}

@@ -12,10 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::hash::{
-    CryptoHash,
-    HashOutput,
-};
 use crate::{
     call::{
         Call,
@@ -27,6 +23,10 @@ use crate::{
         LimitParamsV2,
     },
     event::Event,
+    hash::{
+        CryptoHash,
+        HashOutput,
+    },
     Result,
 };
 use ink_primitives::{

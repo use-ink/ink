@@ -13,7 +13,6 @@
 // limitations under the License.
 
 use super::EnvInstance;
-use crate::test::callee;
 use crate::{
     call::{
         Call,
@@ -36,6 +35,7 @@ use crate::{
         Keccak256,
         Sha2x256,
     },
+    test::callee,
     Clear,
     EnvBackend,
     Result,
@@ -575,14 +575,7 @@ impl TypedEnvBackend for EnvInstance {
         let input = params.exec_input();
         let input = scale::Encode::encode(input);
 
-        invoke_contract_impl::<R>(
-            self,
-            None,
-            call_flags,
-            None,
-            *params.address(),
-            input,
-        )
+        invoke_contract_impl::<R>(self, None, call_flags, None, *params.address(), input)
     }
 
     fn instantiate_contract<E, ContractRef, Args, R>(

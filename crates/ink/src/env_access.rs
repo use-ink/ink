@@ -14,10 +14,6 @@
 
 use crate::ChainExtensionInstance;
 use core::marker::PhantomData;
-use ink_env::hash::{
-    CryptoHash,
-    HashOutput,
-};
 use ink_env::{
     call::{
         Call,
@@ -27,6 +23,10 @@ use ink_env::{
         DelegateCall,
         FromAddr,
         LimitParamsV2,
+    },
+    hash::{
+        CryptoHash,
+        HashOutput,
     },
     Environment,
     Result,
