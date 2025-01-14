@@ -295,15 +295,15 @@ mod instantiate_contract {
                 .params();
 
             let addr2 = ink::env::instantiate_contract(&create_params)
-                    .unwrap_or_else(|error| {
-                        panic!(
-                            "Received an error from the Contracts pallet while instantiating: {:?}",
-                            error
-                        )
-                    })
-                    .unwrap_or_else(|error| {
-                        panic!("Received a `LangError` while instatiating: {:?}", error)
-                    });
+                .unwrap_or_else(|error| {
+                    panic!(
+                        "Received an error from the Contracts pallet while instantiating: {:?}",
+                        error
+                    )
+                })
+                .unwrap_or_else(|error| {
+                    panic!("Received a `LangError` while instatiating: {:?}", error)
+                });
 
             //let addr2: H160 = <addr2 as ink::ToAddr>::to_addr();
             use ink::ToAddr;
@@ -385,18 +385,22 @@ mod instantiate_contract {
             ref2.real_set_x(39);
             check_values(&ref1, &ref2, 15, 39, 8, 76);
         }
+    }
 
-        type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
-
+    #[cfg(all(test, feature = "e2e-tests"))]
+    mod e2e_tests {
+        use super::*;
         use ink_e2e::{
-            CallBuilder,
             ChainBackend,
-            Client,
             ContractsBackend,
+            CallBuilder,
+            Client,
             E2EBackend,
             InstantiationResult,
         };
         use virtual_contract::virtual_contract::VirtualContract;
+
+        type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
         async fn check_values<Client, E, B>(
             origin: &ink_e2e::Keypair,
