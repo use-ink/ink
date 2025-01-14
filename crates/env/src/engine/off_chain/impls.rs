@@ -315,7 +315,7 @@ impl EnvBackend for EnvInstance {
         unimplemented!("the off-chain env does not implement `input`")
     }
 
-    #[cfg(not(test))]
+    #[cfg(not(feature = "test_instantiate"))]
     fn return_value<R>(&mut self, _flags: ReturnFlags, _return_value: &R) -> !
     where
         R: scale::Encode,
@@ -323,7 +323,7 @@ impl EnvBackend for EnvInstance {
         panic!("enable feature test_instantiate to use return_value()")
     }
 
-    #[cfg(test)]
+    #[cfg(feature = "test_instantiate")]
     fn return_value<R>(&mut self, _flags: ReturnFlags, return_value: &R)
     where
         R: scale::Encode,

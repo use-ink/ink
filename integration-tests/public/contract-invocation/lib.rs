@@ -172,7 +172,7 @@ mod instantiate_contract {
         }
     }
 
-    #[cfg(test)]
+    #[cfg(all(test, feature = "test_instantiate"))]
     mod tests {
         use super::*;
         use virtual_contract::VirtualContractRef;

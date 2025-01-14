@@ -613,6 +613,9 @@ impl Dispatch<'_> {
                         // dispatch logic so `Ok` is always returned to the caller.
                         &::ink::ConstructorResult::Ok(output_result.map(|_| ())),
                     );
+
+                    #[cfg(feature="test_instantiate")]
+                    ::core::result::Result::Ok(())
                 }
             )
         });
@@ -830,6 +833,9 @@ impl Dispatch<'_> {
                             // dispatch logic so `Ok` is always returned to the caller.
                             &::ink::MessageResult::Ok(result),
                         );
+
+                        #[cfg(feature="test_instantiate")]
+                        ::core::result::Result::Ok(())
                     }
                 )
         });

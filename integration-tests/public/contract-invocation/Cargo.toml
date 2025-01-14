@@ -8,7 +8,7 @@ authors = ["Víctor M. González <victor.gonzalez@coinfabrik.com>"]
 path = "lib.rs"
 
 [features]
-default = ["std"]
+default = ["std", "test_instantiate"]
 std = [
     "ink/std",
     "scale/std",
@@ -21,6 +21,14 @@ std = [
 ]
 ink-as-dependency = []
 e2e-tests = []
+test_instantiate = [
+    "ink/test_instantiate",
+    "contract1/test_instantiate",
+    "contract2/test_instantiate",
+    "virtual_contract/test_instantiate",
+    "virtual_contract_ver1/test_instantiate",
+    "virtual_contract_ver2/test_instantiate",
+]
 
 [dependencies]
 ink = { path = "../../../crates/ink", default-features = false }
