@@ -47,11 +47,9 @@
 
 pub use ink_storage_traits as traits;
 
-#[cfg(feature = "unstable")]
 #[allow(dead_code)]
 pub(crate) mod lazy;
 
-#[cfg(feature = "unstable")]
 #[doc(inline)]
 pub use self::lazy::{
     Lazy,

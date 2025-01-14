@@ -96,9 +96,6 @@ test_instantiate = []
 # Enable contract debug messages via `debug_print!` and `debug_println!`.
 ink-debug = []
 
-# Enable functions that have are marked unstable in `pallet-revive.
-unstable = ["ink_macro/unstable"]
-
 # Disable the ink! provided global memory allocator.
 no-allocator = [ "ink_allocator/no-allocator" ]
 

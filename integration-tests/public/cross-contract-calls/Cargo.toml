@@ -6,7 +6,7 @@ edition = "2021"
 publish = false
 
 [dependencies]
-ink = { path = "../../../crates/ink", default-features = false, features = ["unstable"] }
+ink = { path = "../../../crates/ink", default-features = false }
 
 # Note: We **need** to specify the `ink-as-dependency` feature.
 #

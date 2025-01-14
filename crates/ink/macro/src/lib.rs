@@ -20,7 +20,6 @@
 extern crate proc_macro;
 
 mod blake2b;
-#[cfg(feature = "unstable")]
 mod chain_extension;
 mod contract;
 mod event;
@@ -1343,7 +1342,6 @@ pub fn test(attr: TokenStream, item: TokenStream) -> TokenStream {
 ///   type when required. This limitation might be lifted in future versions of ink!.
 /// - It is not possible to declare other chain extension traits as super traits or super
 ///   chain extensions of another.
-#[cfg(feature = "unstable")]
 #[proc_macro_attribute]
 pub fn chain_extension(attr: TokenStream, item: TokenStream) -> TokenStream {
     chain_extension::generate(attr.into(), item.into()).into()
@@ -1638,17 +1636,6 @@ pub fn scale_derive(attr: TokenStream, item: TokenStream) -> TokenStream {
         Ok(output) => output.into(),
         Err(err) => err.to_compile_error().into(),
     }
-}
-
-#[proc_macro_attribute]
-pub fn unstable_hostfn(_attr: TokenStream, item: TokenStream) -> TokenStream {
-    let input = syn::parse_macro_input!(item as syn::Item);
-    let expanded = quote::quote! {
-        #[cfg(feature = "unstable")]
-        #[cfg_attr(docsrs, doc(cfg(feature = "unstable")))]
-        #input
-    };
-    expanded.into()
 }
 
 #[cfg(test)]
