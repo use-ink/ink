@@ -372,8 +372,6 @@ mod mapping {
             assert_eq!(buffer_size, "256", "{}", ERR);
 
             // given
-            eprintln!("----1");
-            eprintln!("----1 {:?}", std::env::var("INK_STATIC_BUFFER_SIZE"));
             let mut constructor = MappingsRef::new();
             let contract = client
                 .instantiate("mapping", &ink_e2e::ferdie(), &mut constructor)
@@ -382,7 +380,6 @@ mod mapping {
                 .expect("instantiate failed");
             let mut call_builder = contract.call_builder::<Mappings>();
 
-            eprintln!("----2");
             // when the mapping value overgrows the buffer
             let name = ink_e2e::ferdie().public_key().to_account_id().to_string();
             let insert = call_builder.try_insert_name(name.clone());
@@ -392,13 +389,11 @@ mod mapping {
             }
 
             // then adding another one should fail gracefully
-            eprintln!("----3");
             let received_insert_result = client
                 .call(&ink_e2e::ferdie(), &insert)
                 .dry_run()
                 .await?
                 .return_value();
-            eprintln!("----4 {:?}", received_insert_result);
             let expected_insert_result =
                 Err(crate::mapping::ContractError::ValueTooLarge);
             assert_eq!(received_insert_result, expected_insert_result);
@@ -410,7 +405,6 @@ mod mapping {
                 .await?
                 .return_value();
             let expected_mapping_value = Some(Ok(names));
-            eprintln!("----5");
             assert_eq!(received_mapping_value, expected_mapping_value);
 
             Ok(())

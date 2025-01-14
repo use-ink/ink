@@ -139,9 +139,13 @@ pub fn account_id(account: Sr25519Keyring) -> ink_primitives::AccountId {
         .expect("account keyring has a valid account id")
 }
 
-/// Get a [`ink::H160`] for a given keyring account.
+/// Returns the [`ink::H160`] for a given keyring account.
+///
+/// # Developer Note
+///
+/// We take the `AccountId` and return only the first twenty bytes, this
+/// is what `pallet-revive` does as well.
 pub fn address(account: Sr25519Keyring) -> H160 {
-    // todo
     let account_id = account_id(account);
     H160::from_slice(&<AccountId as AsRef<[u8; 32]>>::as_ref(&account_id)[..20])
 }

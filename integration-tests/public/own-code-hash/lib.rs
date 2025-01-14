@@ -2,6 +2,7 @@
 
 #[ink::contract]
 mod own_code_hash {
+    use ink::H256;
 
     #[ink(storage)]
     pub struct OwnCodeHash {}
@@ -14,13 +15,13 @@ mod own_code_hash {
 
         /// Returns the code hash of the contract
         #[ink(message)]
-        pub fn own_code_hash(&self) -> ink::H256 {
+        pub fn own_code_hash(&self) -> H256 {
             self.env().own_code_hash().unwrap()
         }
 
         /// Returns the code hash of the contract by providing its `account_id`
         #[ink(message)]
-        pub fn get_code(&self) -> ink::H256 {
+        pub fn get_code(&self) -> H256 {
             self.env()
                 .code_hash(&self.env().address())
                 .expect("Failed to get code hash")
@@ -46,11 +47,10 @@ mod own_code_hash {
             let address = {
                 let create_params = ink::env::call::build_create::<OwnCodeHashRef>()
                     .code_hash(code_hash)
-                    .endowment(0)
+                    .endowment(0.into())
                     .exec_input(ink::env::call::ExecutionInput::new(
                         ink::env::call::Selector::new(ink::selector_bytes!("new")),
                     ))
-                    .salt_bytes(&[0_u8; 4])
                     .returns::<OwnCodeHashRef>()
                     .params();
 
@@ -64,12 +64,12 @@ mod own_code_hash {
                     .unwrap_or_else(|error| {
                         panic!("Received a `LangError` while instatiating: {:?}", error)
                     });
-                ink::ToAccountId::<ink::env::DefaultEnvironment>::to_account_id(&cr)
+                ink::ToAddr::to_addr(&cr)
             };
 
             let own_code_hash = OwnCodeHash::new();
-            ink::env::test::set_callee::<ink::env::DefaultEnvironment>(address);
-            let code_hash_via_own: Hash = own_code_hash.own_code_hash();
+            ink::env::test::set_callee(address);
+            let code_hash_via_own: H256 = own_code_hash.own_code_hash();
 
             assert_eq!(code_hash_via_own, code_hash);
         }

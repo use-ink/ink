@@ -232,6 +232,8 @@ where
 
     ContractsBalanceOf<S::Runtime>: Into<U256> + TryFrom<U256> + Bounded,
     MomentOf<S::Runtime>: Into<U256>,
+
+    // todo
     <<S as Sandbox>::Runtime as frame_system::Config>::Hash:
         frame_support::traits::IsType<sp_core::H256>,
 {
@@ -247,11 +249,6 @@ where
         let _ =
             <Client<AccountId, S> as BuilderClient<E>>::map_account(self, caller).await;
 
-        // todo reduce code duplication
-        let caller = keypair_to_account(caller);
-        let origin = RawOrigin::Signed(caller);
-        let origin = OriginFor::<S::Runtime>::from(origin);
-
         let code = self.contracts.load_code(contract_name);
         let data = constructor_exec_input(constructor.clone());
 
@@ -260,7 +257,7 @@ where
             value,
             data,
             salt(),
-            origin,
+            caller_to_origin::<S>(caller),
             gas_limit,
             storage_deposit_limit,
         );
@@ -292,21 +289,15 @@ where
         let _ =
             <Client<AccountId, S> as BuilderClient<E>>::map_account(self, caller).await;
 
-        // todo reduce code duplication
-        let caller = keypair_to_account(caller);
-        let origin = RawOrigin::Signed(caller);
-        let origin = OriginFor::<S::Runtime>::from(origin);
-
         let code = self.contracts.load_code(contract_name);
         let data = constructor_exec_input(constructor.clone());
-
         let result = self.sandbox.dry_run(|sandbox| {
             sandbox.deploy_contract(
                 code,
                 value,
                 data,
                 salt(),
-                origin,
+                caller_to_origin::<S>(caller),
                 S::default_gas_limit(),
                 storage_deposit_limit,
             )
@@ -342,22 +333,17 @@ where
     ) -> Result<UploadResult<E, Self::EventLog>, Self::Error> {
         let code = self.contracts.load_code(contract_name);
 
-        // todo reduce code duplication
-        let caller = keypair_to_account(caller);
-        let origin = RawOrigin::Signed(caller);
-        let origin = OriginFor::<S::Runtime>::from(origin);
-
-        let result =
-            match self
-                .sandbox
-                .upload_contract(code, origin, storage_deposit_limit)
-            {
-                Ok(result) => result,
-                Err(err) => {
-                    log_error(&format!("Upload failed: {err:?}"));
-                    return Err(SandboxErr::new(format!("bare_upload: {err:?}")))
-                }
-            };
+        let result = match self.sandbox.upload_contract(
+            code,
+            caller_to_origin::<S>(caller),
+            storage_deposit_limit,
+        ) {
+            Ok(result) => result,
+            Err(err) => {
+                log_error(&format!("Upload failed: {err:?}"));
+                return Err(SandboxErr::new(format!("bare_upload: {err:?}")))
+            }
+        };
 
         Ok(UploadResult {
             code_hash: result.code_hash,
@@ -391,11 +377,6 @@ where
         let _ =
             <Client<AccountId, S> as BuilderClient<E>>::map_account(self, caller).await;
 
-        // todo reduce code duplication
-        let caller = keypair_to_account(caller);
-        let origin = RawOrigin::Signed(caller);
-        let origin = OriginFor::<S::Runtime>::from(origin);
-
         // todo rename any account_id coming back from callee
         let addr = *message.clone().params().callee();
         let exec_input = Encode::encode(message.clone().params().exec_input());
@@ -405,7 +386,7 @@ where
                 addr,
                 value,
                 exec_input,
-                origin,
+                caller_to_origin::<S>(caller),
                 gas_limit,
                 storage_deposit_limit,
             )
@@ -429,11 +410,6 @@ where
         let _ =
             <Client<AccountId, S> as BuilderClient<E>>::map_account(self, caller).await;
 
-        // todo reduce code duplication
-        let caller = keypair_to_account(caller);
-        let origin = RawOrigin::Signed(caller);
-        let origin = OriginFor::<S::Runtime>::from(origin);
-
         let addr = *message.clone().params().callee();
         let exec_input = Encode::encode(message.clone().params().exec_input());
 
@@ -442,7 +418,7 @@ where
                 addr,
                 value,
                 exec_input,
-                origin,
+                caller_to_origin::<S>(caller),
                 S::default_gas_limit(),
                 storage_deposit_limit,
             )
@@ -515,6 +491,17 @@ where
 
 fn keypair_to_account<AccountId: From<[u8; 32]>>(keypair: &Keypair) -> AccountId {
     AccountId::from(keypair.public_key().0)
+}
+
+fn caller_to_origin<S>(caller: &Keypair) -> OriginFor<S::Runtime>
+where
+    S: Sandbox,
+    S::Runtime: pallet_balances::Config + pallet_revive::Config,
+    AccountIdFor<S::Runtime>: From<[u8; 32]> + AsRef<[u8; 32]>,
+{
+    let caller = keypair_to_account(caller);
+    let origin = RawOrigin::Signed(caller);
+    OriginFor::<S::Runtime>::from(origin)
 }
 
 #[async_trait]

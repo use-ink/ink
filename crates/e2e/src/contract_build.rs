@@ -65,7 +65,6 @@ impl ContractProject {
             .unwrap_or_else(|err| panic!("Error invoking `cargo metadata`: {}", err));
 
         fn maybe_contract_package(package: &cargo_metadata::Package) -> Option<PathBuf> {
-            eprintln!("package {:?}", package.name);
             package
                 .features
                 .iter()
@@ -110,9 +109,6 @@ impl ContractProject {
             .map(PathBuf::from)
             .collect();
         all_manifests.append(&mut additional_contracts);
-        // todo check if those are actually contracts!
-        // todo remove duplicates from vec!
-
         all_manifests.into_iter().unique().collect()
     }
 
@@ -132,14 +128,12 @@ fn build_contracts(contract_manifests: &[PathBuf]) -> Vec<PathBuf> {
         .get_or_init(|| Mutex::new(HashMap::new()))
         .lock()
         .unwrap();
-    eprintln!("=========manifests: {:#?}", contract_manifests);
 
     let mut blob_paths = Vec::new();
     for manifest in contract_manifests {
         let wasm_path = match contract_build_jobs.entry(manifest.clone()) {
             Entry::Occupied(entry) => entry.get().clone(),
             Entry::Vacant(entry) => {
-                eprintln!("======building: {:#?}", manifest);
                 let wasm_path = build_contract(manifest);
                 entry.insert(wasm_path.clone());
                 wasm_path
@@ -153,7 +147,6 @@ fn build_contracts(contract_manifests: &[PathBuf]) -> Vec<PathBuf> {
 /// Builds the contract at `manifest_path`, returns the path to the contract
 /// PolkaVM build artifact.
 fn build_contract(path_to_cargo_toml: &Path) -> PathBuf {
-    eprintln!("========== build {:?}", path_to_cargo_toml);
     let manifest_path = ManifestPath::new(path_to_cargo_toml).unwrap_or_else(|err| {
         panic!(
             "Invalid manifest path {}: {err}",

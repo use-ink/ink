@@ -5,9 +5,10 @@ members = ["sandbox-runtime", "traits"]
 authors = ["Use Ink <ink@use.ink>"]
 edition = "2021"
 homepage = "https://use.ink"
-keywords = ["wasm", "ink", "webassembly", "blockchain", "edsl"]
 license = "Apache-2.0"
 repository = "https://github.com/use-ink/ink"
+keywords = ["polkavm", "ink", "riscv", "blockchain", "edsl"]
+publish = false
 
 [workspace.dependencies]
 frame-support = { git = "https://github.com/paritytech/polkadot-sdk", rev = "645878a27115db52e5d63115699b4bbb89034067", default-features = false }
