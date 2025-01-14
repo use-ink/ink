@@ -102,4 +102,4 @@ no-allocator = [ "ink_allocator/no-allocator" ]
 # Disable the ink! provided panic handler.
 no-panic-handler = []
 
-#ink-as-dependency = []
+ink-as-dependency = []

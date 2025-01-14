@@ -68,4 +68,4 @@ no-allocator = [ "ink_env/no-allocator" ]
 no-panic-handler = ["ink_env/no-panic-handler"]
 
 # Just for the ui tests, which use this `Cargo.toml`
-# ink-as-dependency = []
+ink-as-dependency = []

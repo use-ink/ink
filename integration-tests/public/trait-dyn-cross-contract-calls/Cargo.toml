@@ -25,7 +25,7 @@ std = [
 ]
 e2e-tests = []
 ink-as-dependency = []
-test_instantiate = ["ink/test_instantiate"]
+test_instantiate = ["ink/test_instantiate", "trait-incrementer/test_instantiate"]
 
 # Required to be able to run e2e test with sub-contracts
 [workspace]
