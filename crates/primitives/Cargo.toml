@@ -37,6 +37,7 @@ std = [
     "ink/std",
     "ink_env/std",
 	"ink_prelude/std",
+    "num-traits/std",
     "serde",
     "serde/std",
 	"scale-decode/std",

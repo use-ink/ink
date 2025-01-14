@@ -382,7 +382,7 @@ macro_rules! pay_with_call {
     }}
 }
 
-/// Retrieves the value stored by return_value().
+/// Retrieves the value stored by `return_value()`.
 pub fn get_return_value() -> Vec<u8> {
     <EnvInstance as OnInstance>::on_instance(|instance| instance.get_return_value())
 }
