@@ -25,5 +25,5 @@ std = [
     "updated-incrementer/std",
 ]
 ink-as-dependency = []
-test_instantiate = []
+test_instantiate = ["ink/test_instantiate"]
 e2e-tests = []

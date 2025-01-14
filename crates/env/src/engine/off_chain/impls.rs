@@ -320,7 +320,7 @@ impl EnvBackend for EnvInstance {
     where
         R: scale::Encode,
     {
-        panic!("enable feature test_instantiate to use return_value()")
+        panic!("enable feature `test_instantiate` to use `return_value()`")
     }
 
     #[cfg(feature = "test_instantiate")]

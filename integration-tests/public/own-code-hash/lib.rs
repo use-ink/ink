@@ -14,13 +14,13 @@ mod own_code_hash {
 
         /// Returns the code hash of the contract
         #[ink(message)]
-        pub fn own_code_hash(&self) -> Hash {
+        pub fn own_code_hash(&self) -> ink::H256 {
             self.env().own_code_hash().unwrap()
         }
 
-        /// Returns the code hash of the contract by providing it's `account_id`
+        /// Returns the code hash of the contract by providing its `account_id`
         #[ink(message)]
-        pub fn get_code(&self) -> Hash {
+        pub fn get_code(&self) -> ink::H256 {
             self.env()
                 .code_hash(&self.env().account_id())
                 .expect("Failed to get code hash")

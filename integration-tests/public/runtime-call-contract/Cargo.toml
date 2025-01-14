@@ -48,4 +48,4 @@ std = [
     "flipper-traits/std",
 ]
 ink-as-dependency = []
-test_instantiate = []
+test_instantiate = ["ink/test_instantiate"]

@@ -1342,7 +1342,7 @@ checksum = "cd7e35aee659887cbfb97aaf227ac12cad1a9d7c71e55ff3376839ed4e282d08"
 [[package]]
 name = "contract-build"
 version = "5.0.1"
-source = "git+https://github.com/use-ink/cargo-contract?branch=cmichi-remove-wasm-default-to-revive#69c496d2a5957bb162aef064ccf9d9999970d7d5"
+source = "git+https://github.com/use-ink/cargo-contract?branch=cmichi-remove-wasm-default-to-revive#934ecf915acb87be521402cfbdb685020f9655ce"
 dependencies = [
  "anyhow",
  "blake2",
@@ -1382,7 +1382,7 @@ dependencies = [
 [[package]]
 name = "contract-metadata"
 version = "5.0.1"
-source = "git+https://github.com/use-ink/cargo-contract?branch=cmichi-remove-wasm-default-to-revive#69c496d2a5957bb162aef064ccf9d9999970d7d5"
+source = "git+https://github.com/use-ink/cargo-contract?branch=cmichi-remove-wasm-default-to-revive#934ecf915acb87be521402cfbdb685020f9655ce"
 dependencies = [
  "anyhow",
  "impl-serde",
@@ -3137,6 +3137,7 @@ dependencies = [
  "ink_env",
  "ink_primitives",
  "ink_sandbox",
+ "itertools 0.13.0",
  "jsonrpsee",
  "pallet-revive",
  "pallet-revive-mock-network",

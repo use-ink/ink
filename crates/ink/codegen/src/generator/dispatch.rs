@@ -614,7 +614,7 @@ impl Dispatch<'_> {
                         &::ink::ConstructorResult::Ok(output_result.map(|_| ())),
                     );
 
-                    #[cfg(feature="test_instantiate")]
+                    #[cfg(feature = "test_instantiate")]
                     ::core::result::Result::Ok(())
                 }
             )
@@ -834,7 +834,7 @@ impl Dispatch<'_> {
                             &::ink::MessageResult::Ok(result),
                         );
 
-                        #[cfg(feature="test_instantiate")]
+                        #[cfg(feature = "test_instantiate")]
                         ::core::result::Result::Ok(())
                     }
                 )
