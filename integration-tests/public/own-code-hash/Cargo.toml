@@ -17,7 +17,7 @@ ink_e2e = { path = "../../../crates/e2e" }
 path = "lib.rs"
 
 [features]
-default = ["std", "test_instantiate"]
+default = ["std"]
 std = [
     "ink/std",
     "scale/std",
@@ -25,6 +25,3 @@ std = [
 ]
 ink-as-dependency = []
 e2e-tests = []
-test_instantiate = [
-    "ink/test_instantiate",
-]
