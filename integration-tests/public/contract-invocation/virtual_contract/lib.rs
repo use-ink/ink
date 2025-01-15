@@ -15,7 +15,6 @@ pub mod virtual_contract {
 
     #[ink(storage)]
     pub struct VirtualContract {
-        //version: [u8; 32],
         version: ink::H160,
         x: u32,
     }
