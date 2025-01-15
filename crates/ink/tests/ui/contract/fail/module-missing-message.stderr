@@ -5,6 +5,5 @@ error: missing ink! message
 3  | |     #[ink(storage)]
 4  | |     pub struct Contract {}
 ...  |
-11 | |     }
 12 | | }
    | |_^

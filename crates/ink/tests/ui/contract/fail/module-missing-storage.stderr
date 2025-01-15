@@ -5,6 +5,5 @@ error: missing ink! storage struct
 3  | |     // #[ink(storage)]
 4  | |     pub struct Contract {}
 ...  |
-12 | |     }
 13 | | }
    | |_^
