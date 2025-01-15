@@ -44,7 +44,10 @@ pub mod constructors_return_value {
                 ink::env::ReturnFlags::REVERT,
                 &Ok(H160::from([0u8; 20])),
             );
-            unreachable!("`return_value` will end the contract execution");
+            #[allow(unreachable_code)]
+            {
+                unreachable!("`return_value` will end the contract execution");
+            }
         }
 
         /// A constructor which reverts and fills the output buffer with an erroneously
@@ -60,7 +63,10 @@ pub mod constructors_return_value {
             ink::env::return_value::<
                 ink::ConstructorResult<Result<H160, ConstructorError>>,
             >(ink::env::ReturnFlags::REVERT, &value);
-            unreachable!("`return_value` will end the contract execution");
+            #[allow(unreachable_code)]
+            {
+                unreachable!("`return_value` will end the contract execution");
+            }
         }
 
         /// Returns the current value of the contract storage.
