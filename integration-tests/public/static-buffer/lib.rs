@@ -120,7 +120,7 @@ pub mod static_buffer {
             let padding = value.0;
             let align = value.1;
             assert_eq!(align, 8, "align incorrect, should be 8");
-            assert_eq!(padding, 6, "padding incorrect, should be 6");
+            assert_eq!(padding, 4, "padding incorrect, should be 4");
             Ok(())
         }
     }

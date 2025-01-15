@@ -27,7 +27,12 @@ std = [
     "accumulator/std",
 ]
 ink-as-dependency = []
-test_instantiate = ["ink/test_instantiate"]
+test_instantiate = [
+    "ink/test_instantiate",
+    "adder/test_instantiate",
+    "subber/test_instantiate",
+    "accumulator/test_instantiate",
+]
 e2e-tests = []
 
 [workspace]

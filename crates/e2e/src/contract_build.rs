@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use crate::log_info;
 use contract_build::{
     BuildArtifacts,
     BuildMode,
@@ -68,7 +69,11 @@ impl ContractProject {
             package
                 .features
                 .iter()
-                .any(|(feat, _)| feat == "ink-as-dependency" && !package.name.eq("ink"))
+                .any(|(feat, _)| {
+                    feat == "ink-as-dependency"
+                        && !package.name.eq("ink")
+                        && !package.name.eq("ink_env")
+                })
                 .then(|| package.manifest_path.clone().into_std_path_buf())
         }
 
@@ -83,6 +88,7 @@ impl ContractProject {
                     .find(|package| &package.id == root_package_id)
             })
             .and_then(maybe_contract_package);
+        log_info(&format!("found root package: {:?}", root_package));
 
         let contract_dependencies: Vec<PathBuf> = metadata
             .packages
@@ -90,6 +96,10 @@ impl ContractProject {
             .filter_map(maybe_contract_package)
             .collect();
 
+        log_info(&format!(
+            "found those contract dependencies: {:?}",
+            contract_dependencies
+        ));
         Self {
             root_package,
             contract_dependencies,
