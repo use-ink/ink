@@ -369,16 +369,18 @@ mod instantiate_contract {
 
     #[cfg(all(test, feature = "e2e-tests"))]
     mod e2e_tests {
-        use super::*;
         use ink_e2e::{
-            CallBuilder,
             ChainBackend,
-            Client,
             ContractsBackend,
             E2EBackend,
             InstantiationResult,
         };
-        use virtual_contract::virtual_contract::VirtualContract;
+        use virtual_contract::{
+            virtual_contract::VirtualContract,
+            VirtualContractRef,
+        };
+        use virtual_contract_ver1::VirtualContractVer1Ref;
+        use virtual_contract_ver2::VirtualContractVer2Ref;
 
         type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
@@ -474,12 +476,12 @@ mod instantiate_contract {
                 .await
                 .expect("instantiate `delegatee` failed");
 
-            /// contract code_hash1 with argument code_hash2
-            check_values(&origin, &mut client, &ver1, &ver2, 42, 74, 43, 14);
+            // contract code_hash1 with argument code_hash2
+            check_values(&origin, &mut client, &ver1, &ver2, 42, 74, 43, 14).await;
 
             let mut call_builder = ver1.call_builder::<VirtualContract>();
             let call = call_builder.set_x(15);
-            let call_result = client
+            let _call_result = client
                 .call(&origin, &call)
                 .submit()
                 .await
@@ -489,33 +491,33 @@ mod instantiate_contract {
 
             let mut call_builder = ver1.call_builder::<VirtualContract>();
             let call = call_builder.real_set_x(15);
-            let call_result = client
+            let _call_result = client
                 .call(&origin, &call)
                 .submit()
                 .await
                 .expect("Calling `call_builder::call` failed");
 
-            check_values(&origin, &mut client, &ver1, &ver2, 15, 74, 8, 14);
+            check_values(&origin, &mut client, &ver1, &ver2, 15, 74, 8, 14).await;
 
             let mut call_builder = ver2.call_builder::<VirtualContract>();
             let call = call_builder.set_x(39);
-            let call_result = client
+            let _call_result = client
                 .call(&origin, &call)
                 .submit()
                 .await
                 .expect("Calling `call_builder::call` failed");
 
-            check_values(&origin, &mut client, &ver1, &ver2, 15, 74, 8, 76);
+            check_values(&origin, &mut client, &ver1, &ver2, 15, 74, 8, 76).await;
 
             let mut call_builder = ver2.call_builder::<VirtualContract>();
             let call = call_builder.real_set_x(39);
-            let call_result = client
+            let _call_result = client
                 .call(&origin, &call)
                 .submit()
                 .await
                 .expect("Calling `call_builder::call` failed");
 
-            check_values(&origin, &mut client, &ver1, &ver2, 15, 39, 8, 76);
+            check_values(&origin, &mut client, &ver1, &ver2, 15, 39, 8, 76).await;
 
             Ok(())
         }
