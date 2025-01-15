@@ -102,4 +102,14 @@ no-allocator = [ "ink_allocator/no-allocator" ]
 # Disable the ink! provided panic handler.
 no-panic-handler = []
 
-ink-as-dependency = []
+# For the ui tests, which use this `Cargo.toml`
+[lints.rust.unexpected_cfgs]
+level = "warn"
+check-cfg = [
+    #'cfg(feature, values("ink-as-dependency"))',
+    'cfg(feature, values(any()))',
+    #'cfg(ink-as-dependency)',
+]
+
+#[lints.rust]
+#unexpected_cfgs = { level = "warn", check-cfg = ['cfg(ink-as-dependency)'] }

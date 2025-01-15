@@ -47,3 +47,10 @@ std = [
 	"serde/std",
 	"derive_more/std"
 ]
+# For the ui tests, which use this `Cargo.toml`
+[lints.rust.unexpected_cfgs]
+level = "warn"
+check-cfg = [
+    #'cfg(feature, values("ink-as-dependency"))',
+    'cfg(feature, values(any()))',
+]
