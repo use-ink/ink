@@ -34,7 +34,6 @@ mod own_code_hash {
         }
     }
 
-    //#[cfg(all(test, feature = "test_instantiate"))]
     #[cfg(test)]
     mod tests {
         use super::*;

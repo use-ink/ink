@@ -25,7 +25,6 @@ warning: unexpected `cfg` condition value: `ink-as-dependency`
 9 | #[ink::contract]
   | ^^^^^^^^^^^^^^^^
   |
-  = note: expected values for `feature` are: `default`, `ink-debug`, `no-allocator`, `no-panic-handler`, `scale-info`, `show-codegen-docs`, `std`, and `test_instantiate`
   = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
   = help: try referring to `ink::contract` crate for guidance on how handle this unexpected cfg
   = help: the attribute macro `ink::contract` may come from an old version of the `ink_macro` crate, try updating your dependency with `cargo update -p ink_macro`

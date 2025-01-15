@@ -435,7 +435,7 @@ where
 ///
 /// # Note
 ///
-/// When the `test_instantiate` feature is used, the contract is allowed to
+/// When the `std` feature is used, the contract is allowed to
 /// return normally. This feature should only be used for integration tests.
 #[cfg(feature = "std")]
 pub fn return_value<R>(return_flags: ReturnFlags, return_value: &R)

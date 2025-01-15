@@ -127,7 +127,7 @@ pub trait EnvBackend {
     ///
     /// # Note
     ///
-    /// When the `test_instantiate` feature is used, the contract is allowed to
+    /// When the `std` feature is used, the contract is allowed to
     /// return normally. This feature should only be used for integration tests.
     ///
     /// The `flags` parameter can be used to revert the state changes of the

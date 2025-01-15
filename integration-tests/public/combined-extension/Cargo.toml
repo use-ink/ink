@@ -24,4 +24,3 @@ ink-as-dependency = [
     "psp22_extension/ink-as-dependency",
     "rand_extension/ink-as-dependency",
 ]
-test_instantiate = ["ink/test_instantiate"]

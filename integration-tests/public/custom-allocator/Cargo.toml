@@ -27,5 +27,4 @@ std = [
     "ink/std",
 ]
 ink-as-dependency = []
-test_instantiate = ["ink/test_instantiate"]
 e2e-tests = []
