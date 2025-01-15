@@ -625,7 +625,7 @@ where
         Ok(tx_events)
     }
 
-    // todo ist gar kein `bare_call`
+    // todo is not really a `bare_call`
     async fn bare_call_dry_run<Args: Sync + Encode + Clone, RetType: Send + Decode>(
         &mut self,
         caller: &Keypair,

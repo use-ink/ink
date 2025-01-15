@@ -394,7 +394,6 @@ impl Dispatch<'_> {
                         //
                         // This is okay since we're going to only be encoding the `Err` variant
                         // into the output buffer anyway.
-                        eprintln!("----------here");
                         ::ink::env::return_value::<::ink::ConstructorResult<()>>(
                             ::ink::env::ReturnFlags::REVERT,
                             &error,
@@ -435,7 +434,6 @@ impl Dispatch<'_> {
                         //
                         // This is okay since we're going to only be encoding the `Err` variant
                         // into the output buffer anyway.
-                        eprintln!("----------here1");
                         ::ink::env::return_value::<::ink::MessageResult<()>>(
                             ::ink::env::ReturnFlags::REVERT,
                             &error,
@@ -605,7 +603,6 @@ impl Dispatch<'_> {
                         flag = ::ink::env::ReturnFlags::REVERT;
                     }
 
-                        eprintln!("----------here2");
                     ::ink::env::return_value::<
                         ::ink::ConstructorResult<
                             ::core::result::Result<(), &#constructor_value::Error>
@@ -830,7 +827,6 @@ impl Dispatch<'_> {
                             push_contract(contract, #mutates_storage);
                         }
 
-                        eprintln!("----------here4");
                         ::ink::env::return_value::<::ink::MessageResult::<#message_output>>(
                             flag,
                             // Currently no `LangError`s are raised at this level of the
