@@ -421,7 +421,7 @@ where
 /// # Note
 ///
 /// This function  stops the execution of the contract immediately.
-#[cfg(not(feature = "test_instantiate"))]
+#[cfg(not(feature = "std"))]
 pub fn return_value<R>(return_flags: ReturnFlags, return_value: &R) -> !
 where
     R: scale::Encode,
@@ -437,7 +437,7 @@ where
 ///
 /// When the `test_instantiate` feature is used, the contract is allowed to
 /// return normally. This feature should only be used for integration tests.
-#[cfg(feature = "test_instantiate")]
+#[cfg(feature = "std")]
 pub fn return_value<R>(return_flags: ReturnFlags, return_value: &R)
 where
     R: scale::Encode,
