@@ -1,3 +1,5 @@
+#![allow(unexpected_cfgs)]
+
 #[ink::contract]
 mod erc20 {
     use ink::H160;

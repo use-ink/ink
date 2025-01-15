@@ -4,6 +4,8 @@ pub trait TraitDefinition {
     fn message(&self);
 }
 
+#![allow(unexpected_cfgs)]
+
 #[ink::contract]
 mod contract {
     use super::TraitDefinition;

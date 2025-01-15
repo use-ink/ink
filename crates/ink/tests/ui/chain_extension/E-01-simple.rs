@@ -1,3 +1,5 @@
+#![allow(unexpected_cfgs)]
+
 use ink_env::Environment;
 
 /// Custom chain extension to read to and write from the runtime.

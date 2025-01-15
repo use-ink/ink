@@ -1,8 +1,8 @@
 error[E0592]: duplicate definitions with name `try_message`
-  --> tests/ui/contract/fail/message-hygiene-try.rs:16:9
+  --> tests/ui/contract/fail/message-hygiene-try.rs:18:9
    |
-1  | #[ink::contract]
+3  | #[ink::contract]
    | ---------------- other definition for `try_message`
 ...
-16 |         pub fn try_message(&self) {}
+18 |         pub fn try_message(&self) {}
    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ duplicate definitions for `try_message`

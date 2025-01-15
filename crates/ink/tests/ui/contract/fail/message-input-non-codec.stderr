@@ -1,7 +1,7 @@
 error[E0277]: the trait bound `NonCodecType: WrapperTypeDecode` is not satisfied
-  --> tests/ui/contract/fail/message-input-non-codec.rs:16:31
+  --> tests/ui/contract/fail/message-input-non-codec.rs:18:31
    |
-16 |         pub fn message(&self, _input: NonCodecType) {}
+18 |         pub fn message(&self, _input: NonCodecType) {}
    |                               ^^^^^^^^^^^^^^^^^^^^ the trait `WrapperTypeDecode` is not implemented for `NonCodecType`
    |
    = help: the following other types implement trait `WrapperTypeDecode`:
@@ -20,9 +20,9 @@ note: required by a bound in `DispatchInput`
    |        ^^^^^^^^^^^^^ required by this bound in `DispatchInput`
 
 error[E0277]: the trait bound `NonCodecType: ink::parity_scale_codec::Decode` is not satisfied
-  --> tests/ui/contract/fail/message-input-non-codec.rs:16:9
+  --> tests/ui/contract/fail/message-input-non-codec.rs:18:9
    |
-16 |         pub fn message(&self, _input: NonCodecType) {}
+18 |         pub fn message(&self, _input: NonCodecType) {}
    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ the trait `WrapperTypeDecode` is not implemented for `NonCodecType`
    |
    = help: the following other types implement trait `WrapperTypeDecode`:
@@ -33,12 +33,12 @@ error[E0277]: the trait bound `NonCodecType: ink::parity_scale_codec::Decode` is
    = note: required for `NonCodecType` to implement `ink::parity_scale_codec::Decode`
 
 error[E0277]: the trait bound `NonCodecType: Encode` is not satisfied
-  --> tests/ui/contract/fail/message-input-non-codec.rs:1:1
+  --> tests/ui/contract/fail/message-input-non-codec.rs:3:1
    |
-1  | #[ink::contract]
+3  | #[ink::contract]
    | ^^^^^^^^^^^^^^^^ the trait `WrapperTypeEncode` is not implemented for `NonCodecType`
 ...
-16 |         pub fn message(&self, _input: NonCodecType) {}
+18 |         pub fn message(&self, _input: NonCodecType) {}
    |         ---------------------------------------------- required by a bound introduced by this call
    |
    = help: the following other types implement trait `WrapperTypeEncode`:
@@ -62,9 +62,9 @@ note: required by a bound in `ExecutionInput::<ArgumentList<ArgumentListEnd, Arg
    |            ^^^^^^^^^^^^^ required by this bound in `ExecutionInput::<ArgumentList<ArgumentListEnd, ArgumentListEnd>>::push_arg`
 
 error[E0599]: the method `try_invoke` exists for struct `CallBuilder<DefaultEnvironment, Set<Call>, Set<ExecutionInput<ArgumentList<Argument<NonCodecType>, ArgumentList<ArgumentListEnd, ArgumentListEnd>>>>, Set<ReturnType<()>>>`, but its trait bounds were not satisfied
-  --> tests/ui/contract/fail/message-input-non-codec.rs:16:9
+  --> tests/ui/contract/fail/message-input-non-codec.rs:18:9
    |
-16 |         pub fn message(&self, _input: NonCodecType) {}
+18 |         pub fn message(&self, _input: NonCodecType) {}
    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    |
   ::: $WORKSPACE/crates/env/src/call/execution.rs

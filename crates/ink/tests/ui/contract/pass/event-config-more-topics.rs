@@ -1,3 +1,5 @@
+#![allow(unexpected_cfgs)]
+
 use ink_env::{
     DefaultEnvironment,
     Environment,

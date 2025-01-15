@@ -1,31 +1,31 @@
 error[E0119]: conflicting implementations of trait `DispatchableMessageInfo<1518209067>` for type `Contract`
-  --> tests/ui/contract/fail/trait-message-selector-overlap-2.rs:41:9
+  --> tests/ui/contract/fail/trait-message-selector-overlap-2.rs:43:9
    |
-36 |         fn message(&self) {}
+38 |         fn message(&self) {}
    |         -------------------- first implementation here
 ...
-41 |         fn message(&self) {}
+43 |         fn message(&self) {}
    |         ^^^^^^^^^^^^^^^^^^^^ conflicting implementation for `Contract`
 
 error[E0119]: conflicting implementations of trait `TraitCallForwarderFor<1518209067>` for type `contract::_::CallBuilder`
-  --> tests/ui/contract/fail/trait-message-selector-overlap-2.rs:39:5
+  --> tests/ui/contract/fail/trait-message-selector-overlap-2.rs:41:5
    |
-34 | /     impl TraitDefinition1 for Contract {
-35 | |         #[ink(message)]
-36 | |         fn message(&self) {}
-37 | |     }
+36 | /     impl TraitDefinition1 for Contract {
+37 | |         #[ink(message)]
+38 | |         fn message(&self) {}
+39 | |     }
    | |_____- first implementation here
-38 |
-39 | /     impl TraitDefinition2 for Contract {
-40 | |         #[ink(message)]
-41 | |         fn message(&self) {}
-42 | |     }
+40 |
+41 | /     impl TraitDefinition2 for Contract {
+42 | |         #[ink(message)]
+43 | |         fn message(&self) {}
+44 | |     }
    | |_____^ conflicting implementation for `contract::_::CallBuilder`
 
 error[E0283]: type annotations needed
-  --> tests/ui/contract/fail/trait-message-selector-overlap-2.rs:17:1
+  --> tests/ui/contract/fail/trait-message-selector-overlap-2.rs:19:1
    |
-17 | #[ink::contract]
+19 | #[ink::contract]
    | ^^^^^^^^^^^^^^^^
    | |
    | cannot infer type
@@ -40,20 +40,20 @@ error[E0283]: type annotations needed
            - impl<T> ImpliesReturn<T> for T;
    = note: associated types cannot be accessed directly on a `trait`, they can only be accessed through a specific `impl`
 note: required by a bound in `foo1::TraitDefinition::messageOutput`
-  --> tests/ui/contract/fail/trait-message-selector-overlap-2.rs:4:9
+  --> tests/ui/contract/fail/trait-message-selector-overlap-2.rs:6:9
    |
-2  |       #[ink::trait_definition(namespace = "same")]
+4  |       #[ink::trait_definition(namespace = "same")]
    |       -------------------------------------------- required by a bound in this associated type
-3  |       pub trait TraitDefinition {
-4  | /         #[ink(message)]
-5  | |         fn message(&self);
+5  |       pub trait TraitDefinition {
+6  | /         #[ink(message)]
+7  | |         fn message(&self);
    | |__________________________^ required by this bound in `TraitDefinition::messageOutput`
    = note: this error originates in the attribute macro `ink::contract` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error[E0283]: type annotations needed
-  --> tests/ui/contract/fail/trait-message-selector-overlap-2.rs:17:1
+  --> tests/ui/contract/fail/trait-message-selector-overlap-2.rs:19:1
    |
-17 | #[ink::contract]
+19 | #[ink::contract]
    | ^^^^^^^^^^^^^^^^
    | |
    | cannot infer type
@@ -68,28 +68,28 @@ error[E0283]: type annotations needed
            - impl<T> ImpliesReturn<T> for T;
    = note: associated types cannot be accessed directly on a `trait`, they can only be accessed through a specific `impl`
 note: required by a bound in `foo2::TraitDefinition::messageOutput`
-  --> tests/ui/contract/fail/trait-message-selector-overlap-2.rs:12:9
+  --> tests/ui/contract/fail/trait-message-selector-overlap-2.rs:14:9
    |
-10 |       #[ink::trait_definition(namespace = "same")]
+12 |       #[ink::trait_definition(namespace = "same")]
    |       -------------------------------------------- required by a bound in this associated type
-11 |       pub trait TraitDefinition {
-12 | /         #[ink(message)]
-13 | |         fn message(&self);
+13 |       pub trait TraitDefinition {
+14 | /         #[ink(message)]
+15 | |         fn message(&self);
    | |__________________________^ required by this bound in `TraitDefinition::messageOutput`
    = note: this error originates in the attribute macro `ink::contract` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 warning: this function depends on never type fallback being `()`
-  --> tests/ui/contract/fail/trait-message-selector-overlap-2.rs:25:5
+  --> tests/ui/contract/fail/trait-message-selector-overlap-2.rs:27:5
    |
-25 |     pub struct Contract {}
+27 |     pub struct Contract {}
    |     ^^^^^^^^^^^^^^^^^^^^^^
    |
    = warning: this was previously accepted by the compiler but is being phased out; it will become a hard error in Rust 2024 and in a future release in all editions!
    = note: for more information, see <https://doc.rust-lang.org/nightly/edition-guide/rust-2024/never-type-fallback.html>
    = help: specify the types explicitly
 note: in edition 2024, the requirement `!: WrapperTypeDecode` will fail
-  --> tests/ui/contract/fail/trait-message-selector-overlap-2.rs:36:9
+  --> tests/ui/contract/fail/trait-message-selector-overlap-2.rs:38:9
    |
-36 |         fn message(&self) {}
+38 |         fn message(&self) {}
    |         ^^^^^^^^^^^^^^^^^^^^
    = note: `#[warn(dependency_on_unit_never_type_fallback)]` on by default

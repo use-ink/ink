@@ -1,4 +1,7 @@
+#![allow(unexpected_cfgs)]
+
 use flipper::Flipper;
+
 #[ink::contract]
 mod flipper {
     #[ink(storage)]

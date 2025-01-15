@@ -1,9 +1,30 @@
-error: namespace ink! property is not allowed on ink! trait implementation blocks
-  --> tests/ui/contract/fail/trait-impl-namespace-invalid.rs:21:5
+error: an inner attribute is not permitted in this context
+  --> tests/ui/contract/fail/trait-impl-namespace-invalid.rs:7:1
    |
-21 | /     #[ink(namespace = "namespace")]
-22 | |     impl TraitDefinition for Contract {
-23 | |         #[ink(message)]
-24 | |         fn message(&self) {}
-25 | |     }
+7  |   #![allow(unexpected_cfgs)]
+   |   ^^^^^^^^^^^^^^^^^^^^^^^^^^
+...
+10 | / mod contract {
+11 | |     use super::TraitDefinition;
+12 | |
+13 | |     #[ink(storage)]
+...  |
+28 | | }
+   | |_- the inner attribute doesn't annotate this module
+   |
+   = note: inner attributes, like `#![no_std]`, annotate the item enclosing them, and are usually found at the beginning of source files
+help: to annotate the module, change the attribute from inner to outer style
+   |
+7  - #![allow(unexpected_cfgs)]
+7  + #[allow(unexpected_cfgs)]
+   |
+
+error: namespace ink! property is not allowed on ink! trait implementation blocks
+  --> tests/ui/contract/fail/trait-impl-namespace-invalid.rs:23:5
+   |
+23 | /     #[ink(namespace = "namespace")]
+24 | |     impl TraitDefinition for Contract {
+25 | |         #[ink(message)]
+26 | |         fn message(&self) {}
+27 | |     }
    | |_____^

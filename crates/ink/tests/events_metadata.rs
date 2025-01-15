@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #![cfg_attr(not(feature = "std"), no_std, no_main)]
+#![allow(unexpected_cfgs)]
 
 #[ink::event]
 /// EventExternal docs
@@ -23,7 +24,6 @@ pub struct EventExternal {
     f2: u32,
 }
 
-#[allow(unexpected_cfgs)]
 #[ink::contract]
 mod contract {
     #[ink(storage)]

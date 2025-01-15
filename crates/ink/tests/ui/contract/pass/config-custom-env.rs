@@ -1,3 +1,5 @@
+#![allow(unexpected_cfgs)]
+
 #[derive(Clone)]
 pub struct CustomEnv;
 

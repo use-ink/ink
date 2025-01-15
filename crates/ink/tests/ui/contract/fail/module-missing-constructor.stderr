@@ -1,9 +1,9 @@
 error: missing ink! constructor
-  --> tests/ui/contract/fail/module-missing-constructor.rs:2:1
+  --> tests/ui/contract/fail/module-missing-constructor.rs:4:1
    |
-2  | / mod contract {
-3  | |     #[ink(storage)]
-4  | |     pub struct Contract {}
+4  | / mod contract {
+5  | |     #[ink(storage)]
+6  | |     pub struct Contract {}
 ...  |
-10 | | }
+12 | | }
    | |_^

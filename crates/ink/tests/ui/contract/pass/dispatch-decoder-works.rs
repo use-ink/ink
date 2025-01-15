@@ -1,3 +1,5 @@
+#![allow(unexpected_cfgs)]
+
 use ink::{
     reflect::{
         ContractConstructorDecoder,
