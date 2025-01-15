@@ -615,7 +615,10 @@ impl Dispatch<'_> {
                     );
 
                     #[cfg(feature = "std")]
-                    ::core::result::Result::Ok(())
+                    return ::core::result::Result::Ok(());
+
+                    #[cfg(not(feature = "std"))]
+                    panic!("either `return_value` or the `return` before will already have returned");
                 }
             )
         });
@@ -835,7 +838,10 @@ impl Dispatch<'_> {
                         );
 
                         #[cfg(feature = "std")]
-                        ::core::result::Result::Ok(())
+                        return ::core::result::Result::Ok(());
+
+                        #[cfg(not(feature = "std"))]
+                        panic!("either `return_value` or the `return` before will already have returned");
                     }
                 )
         });
