@@ -1,24 +1,3 @@
-error: an inner attribute is not permitted in this context
-  --> tests/ui/contract/fail/trait-impl-namespace-invalid.rs:7:1
-   |
-7  |   #![allow(unexpected_cfgs)]
-   |   ^^^^^^^^^^^^^^^^^^^^^^^^^^
-...
-10 | / mod contract {
-11 | |     use super::TraitDefinition;
-12 | |
-13 | |     #[ink(storage)]
-...  |
-28 | | }
-   | |_- the inner attribute doesn't annotate this module
-   |
-   = note: inner attributes, like `#![no_std]`, annotate the item enclosing them, and are usually found at the beginning of source files
-help: to annotate the module, change the attribute from inner to outer style
-   |
-7  - #![allow(unexpected_cfgs)]
-7  + #[allow(unexpected_cfgs)]
-   |
-
 error: namespace ink! property is not allowed on ink! trait implementation blocks
   --> tests/ui/contract/fail/trait-impl-namespace-invalid.rs:23:5
    |
