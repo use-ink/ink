@@ -77,33 +77,31 @@ mod own_code_hash {
 
     #[cfg(all(test, feature = "e2e-tests"))]
     mod e2e_tests {
-        use ink_e2e::build_message;
-
         use super::*;
+        use ink_e2e::ContractsBackend;
 
         type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
         #[ink_e2e::test]
         async fn get_own_code_hash(mut client: ink_e2e::Client<C, E>) -> E2EResult<()> {
-            let constructor = OwnCodeHashRef::new();
-            let contract_acc_id = client
-                .instantiate("own_code_hash", &ink_e2e::bob(), constructor, 0, None)
+            let mut constructor = OwnCodeHashRef::new();
+            let contract = client
+                .instantiate("own_code_hash", &ink_e2e::bob(), &mut constructor)
+                .submit()
                 .await
-                .expect("instantiate failed")
-                .account_id;
+                .expect("instantiate failed");
 
-            let own_code_hash = build_message::<OwnCodeHashRef>(contract_acc_id)
-                .call(|contract| contract.own_code_hash());
+            let call_builder = contract.call_builder::<OwnCodeHash>();
             let own_code_hash_res = client
-                .call(&ink_e2e::bob(), own_code_hash, 0, None)
+                .call(&ink_e2e::bob(), &call_builder.own_code_hash())
+                .submit()
                 .await
                 .expect("own_code_hash failed");
 
             // Compare codes obtained differently with own_code_hash and code_hash
-            let get_code = build_message::<OwnCodeHashRef>(contract_acc_id)
-                .call(|contract| contract.get_code());
             let get_code_res = client
-                .call(&ink_e2e::alice(), get_code, 0, None)
+                .call(&ink_e2e::alice(), &call_builder.get_code())
+                .submit()
                 .await
                 .expect("get_code failed");
 
