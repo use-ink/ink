@@ -127,6 +127,37 @@ where
     Ok(result)
 }
 
+fn invoke_contract_impl_delegate<R>(
+    env: &mut EnvInstance,
+    _gas_limit: Option<u64>,
+    _call_flags: u32,
+    _transferred_value: Option<&U256>,
+    callee_account: H160,
+    input: Vec<u8>,
+) -> Result<ink_primitives::MessageResult<R>>
+where
+    R: scale::Decode,
+{
+    let callee_code_hash = env.code_hash(&callee_account).unwrap_or_else(|err| {
+        panic!(
+            "failed getting code hash for {:?}: {:?}",
+            callee_account, err
+        )
+    });
+
+    let handler = env
+        .engine
+        .database
+        .get_contract_message_handler(&callee_code_hash);
+    let result = handler(input);
+
+    let result =
+        <ink_primitives::MessageResult<R> as scale::Decode>::decode(&mut &result[..])
+            .expect("failed to decode return value");
+
+    Ok(result)
+}
+
 impl CryptoHash for Blake2x128 {
     fn hash(input: &[u8], output: &mut <Self as HashOutput>::Type) {
         type OutputType = [u8; 16];
@@ -575,7 +606,14 @@ impl TypedEnvBackend for EnvInstance {
         let input = params.exec_input();
         let input = scale::Encode::encode(input);
 
-        invoke_contract_impl::<R>(self, None, call_flags, None, *params.address(), input)
+        invoke_contract_impl_delegate::<R>(
+            self,
+            None,
+            call_flags,
+            None,
+            *params.address(),
+            input,
+        )
     }
 
     fn instantiate_contract<E, ContractRef, Args, R>(
