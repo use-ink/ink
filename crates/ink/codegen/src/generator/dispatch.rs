@@ -618,7 +618,10 @@ impl Dispatch<'_> {
                     return ::core::result::Result::Ok(());
 
                     #[cfg(not(feature = "std"))]
-                    unreachable!("either `return_value` or the `return` before will already have returned");
+                    #[cfg_attr(not(feature = "std"), allow(unreachable_code))]
+                    {
+                        ::core::unreachable!("either `return_value` or the `return` before will already have returned");
+                    }
                 }
             )
         });
@@ -841,7 +844,10 @@ impl Dispatch<'_> {
                         return ::core::result::Result::Ok(());
 
                         #[cfg(not(feature = "std"))]
-                        unreachable!("either `return_value` or the `return` before will already have returned");
+                        #[cfg_attr(not(feature = "std"), allow(unreachable_code))]
+                        {
+                            ::core::unreachable!("either `return_value` or the `return` before will already have returned");
+                        }
                     }
                 )
         });
