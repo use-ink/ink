@@ -15,14 +15,17 @@ mod contract {
         pub fn message(&self) {}
     }
 
+    #[allow(dead_code)]
     pub enum RustEnum {
         A,
         B,
     }
+    #[allow(dead_code)]
     pub union RustUnion {
         pub field_a: i32,
         pub field_b: [u8; 4],
     }
+    #[allow(dead_code)]
     pub struct RustStruct {
         pub a: i32,
         pub b: i32,

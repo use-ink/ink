@@ -1,10 +1,10 @@
+#![allow(unexpected_cfgs)]
+
 #[ink::trait_definition]
 pub trait TraitDefinition {
     #[ink(message, selector = 1)]
     fn message(&self);
 }
-
-#![allow(unexpected_cfgs)]
 
 #[ink::contract]
 mod contract {
