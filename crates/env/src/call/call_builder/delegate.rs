@@ -27,17 +27,19 @@ use crate::{
     types::Environment,
     Error,
 };
-use ink_primitives::{H160, U256};
+use ink_primitives::H160;
 use pallet_revive_uapi::CallFlags;
 
-/// The `DelegateCall` call type. Performs a call with the given code hash.
+/// The `delegatecall` call type. Performs a call with the given code hash.
 #[derive(Clone)]
 pub struct DelegateCall {
+    // todo comments please
     address: H160,
     flags: CallFlags,
     ref_time_limit: u64,
     proof_size_limit: u64,
-    deposit_limit: U256,
+    // todo U256
+    deposit_limit: Option<[u8; 32]>,
 }
 
 impl DelegateCall {
@@ -48,7 +50,7 @@ impl DelegateCall {
             flags: CallFlags::empty(),
             ref_time_limit: 0,
             proof_size_limit: 0,
-            deposit_limit: U256::zero(),
+            deposit_limit: None,
         }
     }
 
@@ -59,7 +61,7 @@ impl DelegateCall {
             flags: CallFlags::empty(),
             ref_time_limit: 0,
             proof_size_limit: 0,
-            deposit_limit: U256::zero(),
+            deposit_limit: None,
         }
     }
 }
@@ -225,7 +227,7 @@ where
 
     /// Returns the `deposit_limit` which we use to perform a delegate call.
     #[inline]
-    pub fn deposit_limit(&self) -> &U256 {
+    pub fn deposit_limit(&self) -> &Option<[u8; 32]> {
         &self.call_type.deposit_limit
     }
 }
