@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/e2e/src/contract_results.rs`."><title>contract_results.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-c5d6553a23f1e5a6.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="ink_e2e" data-themes="" data-resource-suffix="" data-rustdoc-version="1.81.0 (eeb90cda1 2024-09-04)" data-channel="1.81.0" data-search-js="search-d234aafac6c221dd.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-d2fab2bf619172d3.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/e2e/src/contract_results.rs`."><title>contract_results.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-b0742ba02757f159.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="ink_e2e" data-themes="" data-resource-suffix="" data-rustdoc-version="1.83.0 (90b35a623 2024-11-26)" data-channel="1.83.0" data-search-js="search-f0d225181b97f9a4.js" data-settings-js="settings-805db61a62df4bd2.js" ><script src="../../static.files/storage-1d39b6787ed640ff.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-f070b9041d14864c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-0111fcff984fae8f.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">ink_e2e/</div>contract_results.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers">
+<a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -321,7 +322,78 @@
 <a href="#321" id="321">321</a>
 <a href="#322" id="322">322</a>
 <a href="#323" id="323">323</a>
-</pre></div><pre class="rust"><code><span class="comment">// Copyright (C) Use Ink (UK) Ltd.
+<a href="#324" id="324">324</a>
+<a href="#325" id="325">325</a>
+<a href="#326" id="326">326</a>
+<a href="#327" id="327">327</a>
+<a href="#328" id="328">328</a>
+<a href="#329" id="329">329</a>
+<a href="#330" id="330">330</a>
+<a href="#331" id="331">331</a>
+<a href="#332" id="332">332</a>
+<a href="#333" id="333">333</a>
+<a href="#334" id="334">334</a>
+<a href="#335" id="335">335</a>
+<a href="#336" id="336">336</a>
+<a href="#337" id="337">337</a>
+<a href="#338" id="338">338</a>
+<a href="#339" id="339">339</a>
+<a href="#340" id="340">340</a>
+<a href="#341" id="341">341</a>
+<a href="#342" id="342">342</a>
+<a href="#343" id="343">343</a>
+<a href="#344" id="344">344</a>
+<a href="#345" id="345">345</a>
+<a href="#346" id="346">346</a>
+<a href="#347" id="347">347</a>
+<a href="#348" id="348">348</a>
+<a href="#349" id="349">349</a>
+<a href="#350" id="350">350</a>
+<a href="#351" id="351">351</a>
+<a href="#352" id="352">352</a>
+<a href="#353" id="353">353</a>
+<a href="#354" id="354">354</a>
+<a href="#355" id="355">355</a>
+<a href="#356" id="356">356</a>
+<a href="#357" id="357">357</a>
+<a href="#358" id="358">358</a>
+<a href="#359" id="359">359</a>
+<a href="#360" id="360">360</a>
+<a href="#361" id="361">361</a>
+<a href="#362" id="362">362</a>
+<a href="#363" id="363">363</a>
+<a href="#364" id="364">364</a>
+<a href="#365" id="365">365</a>
+<a href="#366" id="366">366</a>
+<a href="#367" id="367">367</a>
+<a href="#368" id="368">368</a>
+<a href="#369" id="369">369</a>
+<a href="#370" id="370">370</a>
+<a href="#371" id="371">371</a>
+<a href="#372" id="372">372</a>
+<a href="#373" id="373">373</a>
+<a href="#374" id="374">374</a>
+<a href="#375" id="375">375</a>
+<a href="#376" id="376">376</a>
+<a href="#377" id="377">377</a>
+<a href="#378" id="378">378</a>
+<a href="#379" id="379">379</a>
+<a href="#380" id="380">380</a>
+<a href="#381" id="381">381</a>
+<a href="#382" id="382">382</a>
+<a href="#383" id="383">383</a>
+<a href="#384" id="384">384</a>
+<a href="#385" id="385">385</a>
+<a href="#386" id="386">386</a>
+<a href="#387" id="387">387</a>
+<a href="#388" id="388">388</a>
+<a href="#389" id="389">389</a>
+<a href="#390" id="390">390</a>
+<a href="#391" id="391">391</a>
+<a href="#392" id="392">392</a>
+<a href="#393" id="393">393</a>
+<a href="#394" id="394">394</a>
+<a href="#395" id="395">395</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) Use Ink (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -335,21 +407,30 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-</span><span class="kw">use </span>ink::codegen::ContractCallBuilder;
+</span><span class="kw">use </span>frame_support::pallet_prelude::{
+    Decode,
+    Encode,
+};
+<span class="kw">use </span>ink::codegen::ContractCallBuilder;
 <span class="kw">use </span>ink_env::{
-    call::FromAccountId,
+    call::FromAddr,
     Environment,
 };
 <span class="kw">use </span>ink_primitives::{
     ConstructorResult,
     MessageResult,
+    H256,
 };
-<span class="kw">use </span>pallet_contracts::{
+<span class="kw">use </span>pallet_revive::{
+    evm::H160,
     CodeUploadResult,
-    ContractExecResult,
-    ContractInstantiateResult,
     ExecReturnValue,
     InstantiateReturnValue,
+    StorageDeposit,
+};
+<span class="kw">use </span>sp_runtime::{
+    DispatchError,
+    Weight,
 };
 <span class="kw">use </span>std::{
     fmt,
@@ -357,38 +438,89 @@
     marker::PhantomData,
 };
 
+<span class="doccomment">/// Alias for the contract instantiate result.
+</span><span class="kw">pub type </span>ContractInstantiateResultForBar&lt;E&gt; =
+    ContractResult&lt;InstantiateReturnValue, &lt;E <span class="kw">as </span>Environment&gt;::Balance&gt;;
+
+<span class="doccomment">/// Result type of a `bare_call`, `bare_instantiate`, `ReviveApi::call`, and
+/// `ReviveApi::instantiate`.
+///
+/// It contains the execution result together with some auxiliary information.
+///
+/// # Note
+///
+/// It has been extended to include `events` at the end of the struct while not bumping
+/// the `ReviveApi` version. Therefore when SCALE decoding a `ContractResult` its
+/// trailing data should be ignored to avoid any potential compatibility issues.
+</span><span class="attr">#[derive(Debug, Clone, Eq, PartialEq, Encode, Decode)]
+</span><span class="kw">pub struct </span>ContractResult&lt;R, Balance&gt; {
+    <span class="doccomment">/// How much weight was consumed during execution.
+    </span><span class="kw">pub </span>gas_consumed: Weight,
+    <span class="doccomment">/// How much weight is required as gas limit in order to execute this call.
+    ///
+    /// This value should be used to determine the weight limit for on-chain execution.
+    ///
+    /// # Note
+    ///
+    /// This can only different from [`Self::gas_consumed`] when weight pre-charging
+    /// is used. Currently, only `seal_call_runtime` makes use of pre-charging.
+    /// Additionally, any `seal_call` or `seal_instantiate` makes use of pre-charging
+    /// when a non-zero `gas_limit` argument is supplied.
+    </span><span class="kw">pub </span>gas_required: Weight,
+    <span class="doccomment">/// How much balance was paid by the origin into the contract's deposit account in
+    /// order to pay for storage.
+    ///
+    /// The storage deposit is never actually charged from the origin in case of
+    /// [`Self::result`] is `Err`. This is because on error all storage changes are
+    /// rolled back including the payment of the deposit.
+    </span><span class="kw">pub </span>storage_deposit: StorageDeposit&lt;Balance&gt;,
+    <span class="doccomment">/// An optional debug message. This message is only filled when explicitly requested
+    /// by the code that calls into the contract. Otherwise it is empty.
+    ///
+    /// The contained bytes are valid UTF-8. This is not declared as `String` because
+    /// this type is not allowed within the runtime.
+    ///
+    /// Clients should not make any assumptions about the format of the buffer.
+    /// They should just display it as-is. It is **not** only a collection of log lines
+    /// provided by a contract but a formatted buffer with different sections.
+    ///
+    /// # Note
+    ///
+    /// The debug message is never generated during on-chain execution. It is reserved
+    /// for RPC calls.
+    </span><span class="kw">pub </span>debug_message: Vec&lt;u8&gt;,
+    <span class="doccomment">/// The execution result of the Wasm code.
+    </span><span class="kw">pub </span>result: <span class="prelude-ty">Result</span>&lt;R, DispatchError&gt;,
+}
+
+<span class="doccomment">/// Alias for the contract exec result.
+</span><span class="kw">pub type </span>ContractExecResultFor&lt;E&gt; =
+    ContractResult&lt;ExecReturnValue, &lt;E <span class="kw">as </span>Environment&gt;::Balance&gt;;
+
 <span class="doccomment">/// Result of a contract instantiation using bare call.
-</span><span class="kw">pub struct </span>BareInstantiationResult&lt;E: Environment, EventLog&gt; {
-    <span class="doccomment">/// The account id at which the contract was instantiated.
-    </span><span class="kw">pub </span>account_id: E::AccountId,
+</span><span class="kw">pub struct </span>BareInstantiationResult&lt;EventLog&gt; {
+    <span class="doccomment">/// The address at which the contract was instantiated.
+    </span><span class="kw">pub </span>addr: H160,
     <span class="doccomment">/// Events that happened with the contract instantiation.
     </span><span class="kw">pub </span>events: EventLog,
 }
 
-<span class="kw">impl</span>&lt;E: Environment, EventLog&gt; BareInstantiationResult&lt;E, EventLog&gt; {
+<span class="kw">impl</span>&lt;EventLog&gt; BareInstantiationResult&lt;EventLog&gt; {
     <span class="doccomment">/// Returns the account id at which the contract was instantiated.
-    </span><span class="kw">pub fn </span>call&lt;Contract&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; &lt;Contract <span class="kw">as </span>ContractCallBuilder&gt;::Type
-    <span class="kw">where
-        </span>Contract: ContractCallBuilder,
-        Contract::Type: FromAccountId&lt;E&gt;,
-    {
-        &lt;&lt;Contract <span class="kw">as </span>ContractCallBuilder&gt;::Type <span class="kw">as </span>FromAccountId&lt;E&gt;&gt;::from_account_id(
-            <span class="self">self</span>.account_id.clone(),
-        )
+    </span><span class="kw">pub fn </span>call(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; H160 {
+        <span class="self">self</span>.addr
     }
 }
 
 <span class="doccomment">/// We implement a custom `Debug` here, as to avoid requiring the trait bound `Debug` for
 /// `E`.
-</span><span class="kw">impl</span>&lt;E: Environment, EventLog&gt; Debug <span class="kw">for </span>BareInstantiationResult&lt;E, EventLog&gt;
+</span><span class="kw">impl</span>&lt;EventLog&gt; Debug <span class="kw">for </span>BareInstantiationResult&lt;EventLog&gt;
 <span class="kw">where
-    </span>E::AccountId: Debug,
-    E::Balance: Debug,
-    EventLog: Debug,
+    </span>EventLog: Debug,
 {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>core::fmt::Formatter) -&gt; core::fmt::Result {
         f.debug_struct(<span class="string">"InstantiationResult"</span>)
-            .field(<span class="string">"account_id"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.account_id)
+            .field(<span class="string">"addr"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.addr)
             .field(<span class="string">"events"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.events)
             .finish()
     }
@@ -397,7 +529,7 @@
 <span class="doccomment">/// Result of a contract instantiation.
 </span><span class="kw">pub struct </span>InstantiationResult&lt;E: Environment, EventLog&gt; {
     <span class="doccomment">/// The account id at which the contract was instantiated.
-    </span><span class="kw">pub </span>account_id: E::AccountId,
+    </span><span class="kw">pub </span>addr: H160,
     <span class="doccomment">/// The result of the dry run, contains debug messages
     /// if there were any.
     </span><span class="kw">pub </span>dry_run: InstantiateDryRunResult&lt;E&gt;,
@@ -410,11 +542,9 @@
     </span><span class="kw">pub fn </span>call_builder&lt;Contract&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; &lt;Contract <span class="kw">as </span>ContractCallBuilder&gt;::Type
     <span class="kw">where
         </span>Contract: ContractCallBuilder,
-        Contract::Type: FromAccountId&lt;E&gt;,
+        Contract::Type: FromAddr,
     {
-        &lt;&lt;Contract <span class="kw">as </span>ContractCallBuilder&gt;::Type <span class="kw">as </span>FromAccountId&lt;E&gt;&gt;::from_account_id(
-            <span class="self">self</span>.account_id.clone(),
-        )
+        &lt;&lt;Contract <span class="kw">as </span>ContractCallBuilder&gt;::Type <span class="kw">as </span>FromAddr&gt;::from_addr(<span class="self">self</span>.addr)
     }
 }
 
@@ -424,11 +554,12 @@
 <span class="kw">where
     </span>E::AccountId: Debug,
     E::Balance: Debug,
+    E::EventRecord: Debug,
     EventLog: Debug,
 {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>core::fmt::Formatter) -&gt; core::fmt::Result {
         f.debug_struct(<span class="string">"InstantiationResult"</span>)
-            .field(<span class="string">"account_id"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.account_id)
+            .field(<span class="string">"addr"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.addr)
             .field(<span class="string">"dry_run"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.dry_run)
             .field(<span class="string">"events"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.events)
             .finish()
@@ -438,9 +569,9 @@
 <span class="doccomment">/// Result of a contract upload.
 </span><span class="kw">pub struct </span>UploadResult&lt;E: Environment, EventLog&gt; {
     <span class="doccomment">/// The hash with which the contract can be instantiated.
-    </span><span class="kw">pub </span>code_hash: E::Hash,
+    </span><span class="kw">pub </span>code_hash: H256,
     <span class="doccomment">/// The result of the dry run, contains debug messages if there were any.
-    </span><span class="kw">pub </span>dry_run: CodeUploadResult&lt;E::Hash, E::Balance&gt;,
+    </span><span class="kw">pub </span>dry_run: CodeUploadResult&lt;E::Balance&gt;,
     <span class="doccomment">/// Events that happened with the contract instantiation.
     </span><span class="kw">pub </span>events: EventLog,
 }
@@ -450,7 +581,7 @@
 </span><span class="kw">impl</span>&lt;E: Environment, EventLog&gt; Debug <span class="kw">for </span>UploadResult&lt;E, EventLog&gt;
 <span class="kw">where
     </span>E::Balance: Debug,
-    E::Hash: Debug,
+    H256: Debug,
     EventLog: Debug,
 {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>core::fmt::Formatter) -&gt; core::fmt::Result {
@@ -507,6 +638,7 @@
 <span class="kw">where
     </span>E: Debug,
     E::Balance: Debug,
+    E::EventRecord: Debug,
     V: Debug,
     EventLog: Debug,
 {
@@ -519,11 +651,24 @@
 }
 
 <span class="doccomment">/// Result of the dry run of a contract call.
-</span><span class="attr">#[derive(Debug)]
 </span><span class="kw">pub struct </span>CallDryRunResult&lt;E: Environment, V&gt; {
     <span class="doccomment">/// The result of the dry run, contains debug messages if there were any.
-    </span><span class="kw">pub </span>exec_result: ContractExecResult&lt;E::Balance, ()&gt;,
+    </span><span class="kw">pub </span>exec_result: ContractExecResultFor&lt;E&gt;,
     <span class="kw">pub </span>_marker: PhantomData&lt;V&gt;,
+}
+
+<span class="doccomment">/// We implement a custom `Debug` here, as to avoid requiring the trait bound `Debug` for
+/// `E`.
+</span><span class="kw">impl</span>&lt;E: Environment, V&gt; Debug <span class="kw">for </span>CallDryRunResult&lt;E, V&gt;
+<span class="kw">where
+    </span>E::Balance: Debug,
+    E::EventRecord: Debug,
+{
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>core::fmt::Formatter) -&gt; core::fmt::Result {
+        f.debug_struct(<span class="string">"CallDryRunResult"</span>)
+            .field(<span class="string">"exec_result"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.exec_result)
+            .finish()
+    }
 }
 
 <span class="kw">impl</span>&lt;E: Environment, V: scale::Decode&gt; CallDryRunResult&lt;E, V&gt; {
@@ -585,15 +730,13 @@
 <span class="doccomment">/// Result of the dry run of a contract call.
 </span><span class="kw">pub struct </span>InstantiateDryRunResult&lt;E: Environment&gt; {
     <span class="doccomment">/// The result of the dry run, contains debug messages if there were any.
-    </span><span class="kw">pub </span>contract_result: ContractInstantiateResult&lt;E::AccountId, E::Balance, ()&gt;,
+    </span><span class="kw">pub </span>contract_result: ContractInstantiateResultForBar&lt;E&gt;,
 }
 
-<span class="kw">impl</span>&lt;E: Environment&gt; From&lt;ContractInstantiateResult&lt;E::AccountId, E::Balance, ()&gt;&gt;
+<span class="kw">impl</span>&lt;E: Environment&gt; From&lt;ContractInstantiateResultForBar&lt;E&gt;&gt;
     <span class="kw">for </span>InstantiateDryRunResult&lt;E&gt;
 {
-    <span class="kw">fn </span>from(
-        contract_result: ContractInstantiateResult&lt;E::AccountId, E::Balance, ()&gt;,
-    ) -&gt; <span class="self">Self </span>{
+    <span class="kw">fn </span>from(contract_result: ContractInstantiateResultForBar&lt;E&gt;) -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{ contract_result }
     }
 }
@@ -607,7 +750,7 @@
     <span class="doccomment">/// Returns the [`InstantiateReturnValue`] resulting from the dry-run message call.
     ///
     /// Panics if the dry-run message call failed to execute.
-    </span><span class="kw">pub fn </span>instantiate_return_value(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>InstantiateReturnValue&lt;E::AccountId&gt; {
+    </span><span class="kw">pub fn </span>instantiate_return_value(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>InstantiateReturnValue {
         <span class="self">self</span>.contract_result
             .result
             .as_ref()
@@ -637,6 +780,7 @@
     </span>E: Environment,
     E::AccountId: Debug,
     E::Balance: Debug,
+    E::EventRecord: Debug,
 {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
         f.debug_struct(<span class="string">"InstantiateDryRunResult"</span>)

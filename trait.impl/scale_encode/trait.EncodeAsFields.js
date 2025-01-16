@@ -1,4 +1,9 @@
-(function() {var implementors = {
-"ink_e2e":[["impl&lt;E&gt; EncodeAsFields for <a class=\"struct\" href=\"ink_e2e/events/struct.CodeStoredEvent.html\" title=\"struct ink_e2e::events::CodeStoredEvent\">CodeStoredEvent</a>&lt;E&gt;<div class=\"where\">where\n    E: EncodeAsType + Environment,</div>"],["impl&lt;E&gt; EncodeAsFields for <a class=\"struct\" href=\"ink_e2e/events/struct.ContractEmitted.html\" title=\"struct ink_e2e::events::ContractEmitted\">ContractEmitted</a>&lt;E&gt;<div class=\"where\">where\n    E: EncodeAsType + Environment,</div>"],["impl&lt;E&gt; EncodeAsFields for <a class=\"struct\" href=\"ink_e2e/events/struct.ContractInstantiatedEvent.html\" title=\"struct ink_e2e::events::ContractInstantiatedEvent\">ContractInstantiatedEvent</a>&lt;E&gt;<div class=\"where\">where\n    E: EncodeAsType + Environment,</div>"]],
-"ink_primitives":[["impl EncodeAsFields for <a class=\"struct\" href=\"ink_primitives/struct.AccountId.html\" title=\"struct ink_primitives::AccountId\">AccountId</a>"],["impl EncodeAsFields for <a class=\"struct\" href=\"ink_primitives/struct.Hash.html\" title=\"struct ink_primitives::Hash\">Hash</a>"]]
-};if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()
+(function() {
+    var implementors = Object.fromEntries([["ink_e2e",[["impl EncodeAsFields for <a class=\"struct\" href=\"ink_e2e/events/struct.CodeStoredEvent.html\" title=\"struct ink_e2e::events::CodeStoredEvent\">CodeStoredEvent</a>"],["impl EncodeAsFields for <a class=\"struct\" href=\"ink_e2e/events/struct.ContractEmitted.html\" title=\"struct ink_e2e::events::ContractEmitted\">ContractEmitted</a>"],["impl EncodeAsFields for <a class=\"struct\" href=\"ink_e2e/events/struct.ContractInstantiatedEvent.html\" title=\"struct ink_e2e::events::ContractInstantiatedEvent\">ContractInstantiatedEvent</a>"]]],["ink_primitives",[["impl EncodeAsFields for <a class=\"struct\" href=\"ink_primitives/types/struct.AccountId.html\" title=\"struct ink_primitives::types::AccountId\">AccountId</a>"],["impl EncodeAsFields for <a class=\"struct\" href=\"ink_primitives/types/struct.Hash.html\" title=\"struct ink_primitives::types::Hash\">Hash</a>"]]]]);
+    if (window.register_implementors) {
+        window.register_implementors(implementors);
+    } else {
+        window.pending_implementors = implementors;
+    }
+})()
+//{"start":57,"fragment_lengths":[553,334]}

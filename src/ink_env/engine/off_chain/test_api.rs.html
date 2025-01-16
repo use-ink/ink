@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/env/src/engine/off_chain/test_api.rs`."><title>test_api.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-c5d6553a23f1e5a6.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="ink_env" data-themes="" data-resource-suffix="" data-rustdoc-version="1.81.0 (eeb90cda1 2024-09-04)" data-channel="1.81.0" data-search-js="search-d234aafac6c221dd.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-d2fab2bf619172d3.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/env/src/engine/off_chain/test_api.rs`."><title>test_api.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-b0742ba02757f159.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="ink_env" data-themes="" data-resource-suffix="" data-rustdoc-version="1.83.0 (90b35a623 2024-11-26)" data-channel="1.83.0" data-search-js="search-f0d225181b97f9a4.js" data-settings-js="settings-805db61a62df4bd2.js" ><script src="../../../../static.files/storage-1d39b6787ed640ff.js"></script><script defer src="../../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-f070b9041d14864c.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-0111fcff984fae8f.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">ink_env/engine/off_chain/</div>test_api.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers">
+<a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -396,58 +397,7 @@
 <a href="#396" id="396">396</a>
 <a href="#397" id="397">397</a>
 <a href="#398" id="398">398</a>
-<a href="#399" id="399">399</a>
-<a href="#400" id="400">400</a>
-<a href="#401" id="401">401</a>
-<a href="#402" id="402">402</a>
-<a href="#403" id="403">403</a>
-<a href="#404" id="404">404</a>
-<a href="#405" id="405">405</a>
-<a href="#406" id="406">406</a>
-<a href="#407" id="407">407</a>
-<a href="#408" id="408">408</a>
-<a href="#409" id="409">409</a>
-<a href="#410" id="410">410</a>
-<a href="#411" id="411">411</a>
-<a href="#412" id="412">412</a>
-<a href="#413" id="413">413</a>
-<a href="#414" id="414">414</a>
-<a href="#415" id="415">415</a>
-<a href="#416" id="416">416</a>
-<a href="#417" id="417">417</a>
-<a href="#418" id="418">418</a>
-<a href="#419" id="419">419</a>
-<a href="#420" id="420">420</a>
-<a href="#421" id="421">421</a>
-<a href="#422" id="422">422</a>
-<a href="#423" id="423">423</a>
-<a href="#424" id="424">424</a>
-<a href="#425" id="425">425</a>
-<a href="#426" id="426">426</a>
-<a href="#427" id="427">427</a>
-<a href="#428" id="428">428</a>
-<a href="#429" id="429">429</a>
-<a href="#430" id="430">430</a>
-<a href="#431" id="431">431</a>
-<a href="#432" id="432">432</a>
-<a href="#433" id="433">433</a>
-<a href="#434" id="434">434</a>
-<a href="#435" id="435">435</a>
-<a href="#436" id="436">436</a>
-<a href="#437" id="437">437</a>
-<a href="#438" id="438">438</a>
-<a href="#439" id="439">439</a>
-<a href="#440" id="440">440</a>
-<a href="#441" id="441">441</a>
-<a href="#442" id="442">442</a>
-<a href="#443" id="443">443</a>
-<a href="#444" id="444">444</a>
-<a href="#445" id="445">445</a>
-<a href="#446" id="446">446</a>
-<a href="#447" id="447">447</a>
-<a href="#448" id="448">448</a>
-<a href="#449" id="449">449</a>
-</pre></div><pre class="rust"><code><span class="comment">// Copyright (C) Use Ink (UK) Ltd.
+<a href="#399" id="399">399</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) Use Ink (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -468,7 +418,7 @@
     OnInstance,
 };
 <span class="kw">use crate</span>::{
-    Environment,
+    types::Environment,
     <span class="prelude-ty">Result</span>,
 };
 <span class="kw">use </span>core::fmt::Debug;
@@ -479,6 +429,11 @@
 <span class="kw">pub use </span>ink_engine::{
     ext::ChainSpec,
     ChainExtension,
+};
+<span class="kw">use </span>ink_primitives::{
+    H160,
+    H256,
+    U256,
 };
 
 <span class="doccomment">/// Record for an emitted event.
@@ -506,12 +461,9 @@
 /// - If the underlying `account` type does not match.
 /// - If the underlying `new_balance` type does not match.
 /// - If the `new_balance` is less than the existential minimum.
-</span><span class="kw">pub fn </span>set_account_balance&lt;T&gt;(account_id: T::AccountId, new_balance: T::Balance)
-<span class="kw">where
-    </span>T: Environment&lt;Balance = u128&gt;, <span class="comment">// Just temporary for the MVP!
-</span>{
+</span><span class="kw">pub fn </span>set_account_balance(addr: H160, new_balance: U256) {
     <span class="kw">let </span>min = ChainSpec::default().minimum_balance;
-    <span class="kw">if </span>new_balance &lt; min &amp;&amp; new_balance != <span class="number">0u128 </span>{
+    <span class="kw">if </span>new_balance &lt; min &amp;&amp; new_balance != U256::zero() {
         <span class="macro">panic!</span>(
             <span class="string">"Balance must be at least [{}]. Use 0 as balance to reap the account."</span>,
             min
@@ -519,9 +471,7 @@
     }
 
     &lt;EnvInstance <span class="kw">as </span>OnInstance&gt;::on_instance(|instance| {
-        instance
-            .engine
-            .set_balance(scale::Encode::encode(<span class="kw-2">&amp;</span>account_id), new_balance);
+        instance.engine.set_balance(addr, new_balance);
     })
 }
 
@@ -537,15 +487,9 @@
 ///
 /// - If `account` does not exist.
 /// - If the underlying `account` type does not match.
-</span><span class="kw">pub fn </span>get_account_balance&lt;T&gt;(account_id: T::AccountId) -&gt; <span class="prelude-ty">Result</span>&lt;T::Balance&gt;
-<span class="kw">where
-    </span>T: Environment&lt;Balance = u128&gt;, <span class="comment">// Just temporary for the MVP!
-</span>{
+</span><span class="kw">pub fn </span>get_account_balance&lt;T&gt;(addr: H160) -&gt; <span class="prelude-ty">Result</span>&lt;U256&gt; {
     &lt;EnvInstance <span class="kw">as </span>OnInstance&gt;::on_instance(|instance| {
-        instance
-            .engine
-            .get_balance(scale::Encode::encode(<span class="kw-2">&amp;</span>account_id))
-            .map_err(Into::into)
+        instance.engine.get_balance(addr).map_err(Into::into)
     })
 }
 
@@ -593,60 +537,37 @@
 }
 
 <span class="doccomment">/// Sets a caller for the next call.
-</span><span class="kw">pub fn </span>set_caller&lt;T&gt;(caller: T::AccountId)
-<span class="kw">where
-    </span>T: Environment,
-    &lt;T <span class="kw">as </span>Environment&gt;::AccountId: From&lt;[u8; <span class="number">32</span>]&gt;,
-{
+</span><span class="kw">pub fn </span>set_caller(caller: H160) {
     &lt;EnvInstance <span class="kw">as </span>OnInstance&gt;::on_instance(|instance| {
-        instance.engine.set_caller(scale::Encode::encode(<span class="kw-2">&amp;</span>caller));
+        instance.engine.set_caller(caller);
     })
 }
 
 <span class="doccomment">/// Sets the callee for the next call.
-</span><span class="kw">pub fn </span>set_callee&lt;T&gt;(callee: T::AccountId)
-<span class="kw">where
-    </span>T: Environment,
-    &lt;T <span class="kw">as </span>Environment&gt;::AccountId: From&lt;[u8; <span class="number">32</span>]&gt;,
-{
+</span><span class="kw">pub fn </span>set_callee(callee: H160) {
     &lt;EnvInstance <span class="kw">as </span>OnInstance&gt;::on_instance(|instance| {
-        instance.engine.set_callee(scale::Encode::encode(<span class="kw-2">&amp;</span>callee));
+        instance.engine.set_callee(callee);
     })
 }
 
 <span class="doccomment">/// Sets an account as a contract
-</span><span class="kw">pub fn </span>set_contract&lt;T&gt;(contract: T::AccountId)
-<span class="kw">where
-    </span>T: Environment,
-    &lt;T <span class="kw">as </span>Environment&gt;::AccountId: From&lt;[u8; <span class="number">32</span>]&gt;,
-{
+</span><span class="kw">pub fn </span>set_contract(contract: H160) {
     &lt;EnvInstance <span class="kw">as </span>OnInstance&gt;::on_instance(|instance| {
-        instance
-            .engine
-            .set_contract(scale::Encode::encode(<span class="kw-2">&amp;</span>contract));
+        instance.engine.set_contract(contract);
     })
 }
 
 <span class="doccomment">/// Returns a boolean to indicate whether an account is a contract
-</span><span class="kw">pub fn </span>is_contract&lt;T&gt;(contract: T::AccountId) -&gt; bool
-<span class="kw">where
-    </span>T: Environment,
-    &lt;T <span class="kw">as </span>Environment&gt;::AccountId: From&lt;[u8; <span class="number">32</span>]&gt;,
-{
+</span><span class="kw">pub fn </span>is_contract(contract: H160) -&gt; bool {
     &lt;EnvInstance <span class="kw">as </span>OnInstance&gt;::on_instance(|instance| {
-        instance
-            .engine
-            .is_contract(scale::Encode::encode(<span class="kw-2">&amp;</span>contract))
+        instance.engine.is_contract(<span class="kw-2">&amp;</span>contract)
     })
 }
 
 <span class="doccomment">/// Gets the currently set callee.
 ///
-/// This is account id of the currently executing contract.
-</span><span class="kw">pub fn </span>callee&lt;T&gt;() -&gt; T::AccountId
-<span class="kw">where
-    </span>T: Environment,
-{
+/// This is the address of the currently executing contract.
+</span><span class="kw">pub fn </span>callee() -&gt; H160 {
     &lt;EnvInstance <span class="kw">as </span>OnInstance&gt;::on_instance(|instance| {
         <span class="kw">let </span>callee = instance.engine.get_callee();
         scale::Decode::decode(<span class="kw-2">&amp;mut &amp;</span>callee[..])
@@ -655,14 +576,9 @@
 }
 
 <span class="doccomment">/// Returns the total number of reads and writes of the contract's storage.
-</span><span class="kw">pub fn </span>get_contract_storage_rw&lt;T&gt;(account_id: <span class="kw-2">&amp;</span>T::AccountId) -&gt; (usize, usize)
-<span class="kw">where
-    </span>T: Environment,
-{
+</span><span class="kw">pub fn </span>get_contract_storage_rw(addr: H160) -&gt; (usize, usize) {
     &lt;EnvInstance <span class="kw">as </span>OnInstance&gt;::on_instance(|instance| {
-        instance
-            .engine
-            .get_contract_storage_rw(scale::Encode::encode(<span class="kw-2">&amp;</span>account_id))
+        instance.engine.get_contract_storage_rw(addr)
     })
 }
 
@@ -670,10 +586,7 @@
 ///
 /// Please note that the acting accounts should be set with [`set_caller()`] and
 /// [`set_callee()`] beforehand.
-</span><span class="kw">pub fn </span>set_value_transferred&lt;T&gt;(value: T::Balance)
-<span class="kw">where
-    </span>T: Environment&lt;Balance = u128&gt;, <span class="comment">// Just temporary for the MVP!
-</span>{
+</span><span class="kw">pub fn </span>set_value_transferred(value: U256) {
     &lt;EnvInstance <span class="kw">as </span>OnInstance&gt;::on_instance(|instance| {
         instance.engine.set_value_transferred(value);
     })
@@ -683,30 +596,16 @@
 ///
 /// Please note that the acting accounts should be set with [`set_caller()`] and
 /// [`set_callee()`] beforehand.
-</span><span class="kw">pub fn </span>transfer_in&lt;T&gt;(value: T::Balance)
-<span class="kw">where
-    </span>T: Environment&lt;Balance = u128&gt;, <span class="comment">// Just temporary for the MVP!
-</span>{
+</span><span class="attr">#[allow(clippy::arithmetic_side_effects)] </span><span class="comment">// todo
+</span><span class="kw">pub fn </span>transfer_in(value: U256) {
     &lt;EnvInstance <span class="kw">as </span>OnInstance&gt;::on_instance(|instance| {
-        <span class="kw">let </span>caller = instance
-            .engine
-            .exec_context
-            .caller
-            .as_ref()
-            .expect(<span class="string">"no caller has been set"</span>)
-            .as_bytes()
-            .to_vec();
+        <span class="kw">let </span>caller = instance.engine.exec_context.caller;
 
-        <span class="kw">let </span>caller_old_balance = instance
-            .engine
-            .get_balance(caller.clone())
-            .unwrap_or_default();
+        <span class="kw">let </span>caller_old_balance = instance.engine.get_balance(caller).unwrap_or_default();
 
         <span class="kw">let </span>callee = instance.engine.get_callee();
-        <span class="kw">let </span>contract_old_balance = instance
-            .engine
-            .get_balance(callee.clone())
-            .unwrap_or_default();
+        <span class="kw">let </span>contract_old_balance =
+            instance.engine.get_balance(callee).unwrap_or_default();
 
         instance
             .engine
@@ -718,17 +617,17 @@
     });
 }
 
-<span class="doccomment">/// Returns the amount of storage cells used by the account `account_id`.
+<span class="doccomment">/// Returns the amount of storage cells used by the contract `addr`.
 ///
-/// Returns `None` if the `account_id` is non-existent.
-</span><span class="kw">pub fn </span>count_used_storage_cells&lt;T&gt;(account_id: <span class="kw-2">&amp;</span>T::AccountId) -&gt; <span class="prelude-ty">Result</span>&lt;usize&gt;
+/// Returns `None` if the contract at `addr` is non-existent.
+</span><span class="kw">pub fn </span>count_used_storage_cells&lt;T&gt;(addr: H160) -&gt; <span class="prelude-ty">Result</span>&lt;usize&gt;
 <span class="kw">where
     </span>T: Environment,
 {
     &lt;EnvInstance <span class="kw">as </span>OnInstance&gt;::on_instance(|instance| {
         instance
             .engine
-            .count_used_storage_cells(<span class="kw-2">&amp;</span>scale::Encode::encode(<span class="kw-2">&amp;</span>account_id))
+            .count_used_storage_cells(<span class="kw-2">&amp;</span>addr)
             .map_err(Into::into)
     })
 }
@@ -758,74 +657,60 @@
 </span><span class="kw">pub fn </span>run_test&lt;T, F&gt;(f: F) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt;
 <span class="kw">where
     </span>T: Environment,
-    F: FnOnce(DefaultAccounts&lt;T&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt;,
-    &lt;T <span class="kw">as </span>Environment&gt;::AccountId: From&lt;[u8; <span class="number">32</span>]&gt;,
+    F: FnOnce(DefaultAccounts) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt;,
 {
-    <span class="kw">let </span>default_accounts = default_accounts::&lt;T&gt;();
+    <span class="kw">let </span>default_accounts = default_accounts();
     &lt;EnvInstance <span class="kw">as </span>OnInstance&gt;::on_instance(|instance| {
         instance.engine.initialize_or_reset();
 
-        <span class="kw">let </span>encoded_alice = scale::Encode::encode(<span class="kw-2">&amp;</span>default_accounts.alice);
-        instance.engine.set_caller(encoded_alice.clone());
-        instance.engine.set_callee(encoded_alice.clone());
+        <span class="kw">let </span>alice = default_accounts.alice;
+        <span class="comment">// instance.engine.set_caller(alice.clone()); // todo
+        </span>instance.engine.set_callee(alice);
 
         <span class="comment">// set up the funds for the default accounts
-        </span><span class="kw">let </span>substantial = <span class="number">1_000_000</span>;
-        <span class="kw">let </span>some = <span class="number">1_000</span>;
-        instance.engine.set_balance(encoded_alice, substantial);
+        </span><span class="kw">let </span>substantial = <span class="number">1_000_000</span>.into();
+        <span class="kw">let </span>some = <span class="number">1_000</span>.into();
+        instance.engine.set_balance(alice, substantial);
+        instance.engine.set_balance(default_accounts.bob, some);
+        instance.engine.set_balance(default_accounts.charlie, some);
         instance
             .engine
-            .set_balance(scale::Encode::encode(<span class="kw-2">&amp;</span>default_accounts.bob), some);
+            .set_balance(default_accounts.django, <span class="number">0</span>.into());
+        instance.engine.set_balance(default_accounts.eve, <span class="number">0</span>.into());
         instance
             .engine
-            .set_balance(scale::Encode::encode(<span class="kw-2">&amp;</span>default_accounts.charlie), some);
-        instance
-            .engine
-            .set_balance(scale::Encode::encode(<span class="kw-2">&amp;</span>default_accounts.django), <span class="number">0</span>);
-        instance
-            .engine
-            .set_balance(scale::Encode::encode(<span class="kw-2">&amp;</span>default_accounts.eve), <span class="number">0</span>);
-        instance
-            .engine
-            .set_balance(scale::Encode::encode(<span class="kw-2">&amp;</span>default_accounts.frank), <span class="number">0</span>);
+            .set_balance(default_accounts.frank, <span class="number">0</span>.into());
     });
     f(default_accounts)
 }
 
 <span class="doccomment">/// Returns the default accounts for testing purposes:
 /// Alice, Bob, Charlie, Django, Eve and Frank.
-</span><span class="kw">pub fn </span>default_accounts&lt;T&gt;() -&gt; DefaultAccounts&lt;T&gt;
-<span class="kw">where
-    </span>T: Environment,
-    &lt;T <span class="kw">as </span>Environment&gt;::AccountId: From&lt;[u8; <span class="number">32</span>]&gt;,
-{
+</span><span class="kw">pub fn </span>default_accounts() -&gt; DefaultAccounts {
     DefaultAccounts {
-        alice: T::AccountId::from([<span class="number">0x01</span>; <span class="number">32</span>]),
-        bob: T::AccountId::from([<span class="number">0x02</span>; <span class="number">32</span>]),
-        charlie: T::AccountId::from([<span class="number">0x03</span>; <span class="number">32</span>]),
-        django: T::AccountId::from([<span class="number">0x04</span>; <span class="number">32</span>]),
-        eve: T::AccountId::from([<span class="number">0x05</span>; <span class="number">32</span>]),
-        frank: T::AccountId::from([<span class="number">0x06</span>; <span class="number">32</span>]),
+        alice: H160::from([<span class="number">0x01</span>; <span class="number">20</span>]),
+        bob: H160::from([<span class="number">0x02</span>; <span class="number">20</span>]),
+        charlie: H160::from([<span class="number">0x03</span>; <span class="number">20</span>]),
+        django: H160::from([<span class="number">0x04</span>; <span class="number">20</span>]),
+        eve: H160::from([<span class="number">0x05</span>; <span class="number">20</span>]),
+        frank: H160::from([<span class="number">0x06</span>; <span class="number">20</span>]),
     }
 }
 
 <span class="doccomment">/// The default accounts.
-</span><span class="kw">pub struct </span>DefaultAccounts&lt;T&gt;
-<span class="kw">where
-    </span>T: Environment,
-{
+</span><span class="kw">pub struct </span>DefaultAccounts {
     <span class="doccomment">/// The predefined `ALICE` account holding substantial amounts of value.
-    </span><span class="kw">pub </span>alice: T::AccountId,
+    </span><span class="kw">pub </span>alice: H160,
     <span class="doccomment">/// The predefined `BOB` account holding some amounts of value.
-    </span><span class="kw">pub </span>bob: T::AccountId,
+    </span><span class="kw">pub </span>bob: H160,
     <span class="doccomment">/// The predefined `CHARLIE` account holding some amounts of value.
-    </span><span class="kw">pub </span>charlie: T::AccountId,
+    </span><span class="kw">pub </span>charlie: H160,
     <span class="doccomment">/// The predefined `DJANGO` account holding no value.
-    </span><span class="kw">pub </span>django: T::AccountId,
+    </span><span class="kw">pub </span>django: H160,
     <span class="doccomment">/// The predefined `EVE` account holding no value.
-    </span><span class="kw">pub </span>eve: T::AccountId,
+    </span><span class="kw">pub </span>eve: H160,
     <span class="doccomment">/// The predefined `FRANK` account holding no value.
-    </span><span class="kw">pub </span>frank: T::AccountId,
+    </span><span class="kw">pub </span>frank: H160,
 }
 
 <span class="doccomment">/// Returns the recorded emitted events in order.
@@ -864,8 +749,8 @@
 /// example for a complete usage exemplification.
 </span><span class="kw">pub fn </span>assert_contract_termination&lt;T, F&gt;(
     should_terminate: F,
-    expected_beneficiary: T::AccountId,
-    expected_value_transferred_to_beneficiary: T::Balance,
+    expected_beneficiary: H160,
+    expected_value_transferred_to_beneficiary: U256,
 ) <span class="kw">where
     </span>T: Environment,
     F: FnMut() + UnwindSafe,
@@ -877,11 +762,8 @@
     <span class="kw">let </span>encoded_input = value_any
         .downcast_ref::&lt;Vec&lt;u8&gt;&gt;()
         .expect(<span class="string">"panic object can not be cast"</span>);
-    <span class="kw">let </span>(value_transferred, encoded_beneficiary): (T::Balance, Vec&lt;u8&gt;) =
+    <span class="kw">let </span>(value_transferred, beneficiary): (U256, H160) =
         scale::Decode::decode(<span class="kw-2">&amp;mut &amp;</span>encoded_input[..])
-            .unwrap_or_else(|err| <span class="macro">panic!</span>(<span class="string">"input can not be decoded: {err}"</span>));
-    <span class="kw">let </span>beneficiary =
-        &lt;T::AccountId <span class="kw">as </span>scale::Decode&gt;::decode(<span class="kw-2">&amp;mut &amp;</span>encoded_beneficiary[..])
             .unwrap_or_else(|err| <span class="macro">panic!</span>(<span class="string">"input can not be decoded: {err}"</span>));
     <span class="macro">assert_eq!</span>(value_transferred, expected_value_transferred_to_beneficiary);
     <span class="macro">assert_eq!</span>(beneficiary, expected_beneficiary);
@@ -892,8 +774,26 @@
 </span><span class="attr">#[macro_export]
 </span><span class="macro">macro_rules!</span> pay_with_call {
     (<span class="macro-nonterminal">$contract</span>:ident . <span class="macro-nonterminal">$message</span>:ident ( $( <span class="macro-nonterminal">$params</span>:expr ),* ) , <span class="macro-nonterminal">$amount</span>:expr) =&gt; {{
-        <span class="macro-nonterminal">$crate::test::transfer_in</span>::&lt;Environment&gt;(<span class="macro-nonterminal">$amount</span>);
+        <span class="macro-nonterminal">$crate::test::transfer_in</span>(<span class="macro-nonterminal">$amount</span>);
         <span class="macro-nonterminal">$contract</span>.<span class="macro-nonterminal">$message</span>($ (<span class="macro-nonterminal">$params</span>) ,<span class="kw-2">*</span>)
     }}
+}
+
+<span class="doccomment">/// Retrieves the value stored by `return_value()`.
+</span><span class="kw">pub fn </span>get_return_value() -&gt; Vec&lt;u8&gt; {
+    &lt;EnvInstance <span class="kw">as </span>OnInstance&gt;::on_instance(|instance| instance.get_return_value())
+}
+
+<span class="doccomment">/// Gets a pseudo code hash for a contract ref.
+</span><span class="kw">pub fn </span>upload_code&lt;E, ContractRef&gt;() -&gt; H256
+<span class="kw">where
+    </span>E: Environment,
+    ContractRef: <span class="kw">crate</span>::ContractReverseReference,
+    &lt;ContractRef <span class="kw">as </span><span class="kw">crate</span>::ContractReverseReference&gt;::Type:
+        <span class="kw">crate</span>::reflect::ContractMessageDecoder,
+{
+    &lt;EnvInstance <span class="kw">as </span>OnInstance&gt;::on_instance(|instance| {
+        instance.upload_code::&lt;ContractRef&gt;()
+    })
 }
 </code></pre></div></section></main></body></html>

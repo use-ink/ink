@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/env/src/lib.rs`."><title>lib.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-c5d6553a23f1e5a6.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="ink_env" data-themes="" data-resource-suffix="" data-rustdoc-version="1.81.0 (eeb90cda1 2024-09-04)" data-channel="1.81.0" data-search-js="search-d234aafac6c221dd.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-d2fab2bf619172d3.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/env/src/lib.rs`."><title>lib.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-b0742ba02757f159.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="ink_env" data-themes="" data-resource-suffix="" data-rustdoc-version="1.83.0 (90b35a623 2024-11-26)" data-channel="1.83.0" data-search-js="search-f0d225181b97f9a4.js" data-settings-js="settings-805db61a62df4bd2.js" ><script src="../../static.files/storage-1d39b6787ed640ff.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-f070b9041d14864c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-0111fcff984fae8f.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">ink_env/</div>lib.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers">
+<a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -187,8 +188,7 @@
 <a href="#187" id="187">187</a>
 <a href="#188" id="188">188</a>
 <a href="#189" id="189">189</a>
-<a href="#190" id="190">190</a>
-</pre></div><pre class="rust"><code><span class="comment">// Copyright (C) Use Ink (UK) Ltd.
+<a href="#190" id="190">190</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) Use Ink (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -215,6 +215,7 @@
     html_favicon_url = <span class="string">"https://use.ink/crate-docs/favicon.png"
 </span>)]
 #![cfg_attr(not(feature = <span class="string">"std"</span>), no_std)]
+#![cfg_attr(docsrs, feature(doc_cfg))]
 #![deny(
     missing_docs,
     bad_style,
@@ -241,10 +242,6 @@
 </span><span class="attr">#[const_env::from_env(<span class="string">"INK_STATIC_BUFFER_SIZE"</span>)]
 </span><span class="kw">pub const </span>BUFFER_SIZE: usize = <span class="number">16384</span>;
 
-<span class="attr">#[cfg(all(not(feature = <span class="string">"std"</span>), target_arch = <span class="string">"wasm32"</span>))]
-#[allow(unused_extern_crates)]
-</span><span class="kw">extern crate </span>rlibc;
-
 <span class="attr">#[cfg(not(any(feature = <span class="string">"std"</span>, feature = <span class="string">"no-panic-handler"</span>)))]
 #[allow(unused_variables)]
 #[panic_handler]
@@ -253,16 +250,14 @@
     </span><span class="macro">debug_print!</span>(<span class="string">"{}\n"</span>, info);
 
     <span class="macro">cfg_if::cfg_if!</span> {
-        <span class="kw">if </span><span class="attr">#[cfg(target_arch = <span class="string">"wasm32"</span>)] </span>{
-            core::arch::wasm32::unreachable();
-        } <span class="kw">else if </span><span class="attr">#[cfg(target_arch = <span class="string">"riscv32"</span>)] </span>{
+        <span class="kw">if </span><span class="attr">#[cfg(target_arch = <span class="string">"riscv64"</span>)] </span>{
             <span class="comment">// Safety: The unimp instruction is guaranteed to trap
             </span><span class="kw">unsafe </span>{
                 <span class="macro">core::arch::asm!</span>(<span class="string">"unimp"</span>);
                 core::hint::unreachable_unchecked();
             }
         } <span class="kw">else </span>{
-            <span class="macro">core::compile_error!</span>(<span class="string">"ink! only supports wasm32 and riscv32"</span>);
+            <span class="macro">core::compile_error!</span>(<span class="string">"ink! only supports riscv64"</span>);
         }
     }
 }
@@ -273,17 +268,14 @@
 </span><span class="kw">extern crate </span>ink_allocator;
 
 <span class="kw">mod </span>api;
-<span class="kw">mod </span>arithmetic;
 <span class="kw">mod </span>backend;
 <span class="kw">pub mod </span>call;
 <span class="kw">pub mod </span>chain_extension;
-<span class="kw">mod </span>contract;
 <span class="kw">mod </span>engine;
 <span class="kw">mod </span>error;
 <span class="attr">#[doc(hidden)]
 </span><span class="kw">pub mod </span>event;
 <span class="kw">pub mod </span>hash;
-<span class="kw">mod </span>types;
 
 <span class="attr">#[cfg(test)]
 </span><span class="kw">mod </span>tests;
@@ -292,23 +284,12 @@
 #[doc(inline)]
 </span><span class="kw">pub use </span><span class="self">self</span>::engine::off_chain::test_api <span class="kw">as </span>test;
 
-<span class="attr">#[doc(inline)]
-</span><span class="kw">pub use </span>pallet_contracts_uapi::{
-    CallFlags,
-    ReturnErrorCode,
-    ReturnFlags,
-};
-
 <span class="kw">use </span><span class="self">self</span>::backend::{
     EnvBackend,
     TypedEnvBackend,
 };
 <span class="kw">pub use </span><span class="self">self</span>::{
     api::<span class="kw-2">*</span>,
-    contract::{
-        ContractEnv,
-        ContractReference,
-    },
     error::{
         Error,
         <span class="prelude-ty">Result</span>,
@@ -316,14 +297,33 @@
     event::Event,
     types::{
         AccountIdGuard,
+        Balance,
+        BlockNumber,
+        CodecAsType,
         DefaultEnvironment,
         Environment,
         FromLittleEndian,
         Gas,
         NoChainExtension,
+        Timestamp,
     },
 };
 <span class="kw">use </span>ink_primitives::Clear;
+<span class="kw">pub use </span>ink_primitives::{
+    contract::{
+        ContractEnv,
+        ContractReference,
+        ContractReverseReference,
+    },
+    reflect,
+    types,
+};
+<span class="attr">#[doc(inline)]
+</span><span class="kw">pub use </span>pallet_revive_uapi::{
+    CallFlags,
+    ReturnErrorCode,
+    ReturnFlags,
+};
 
 <span class="macro">cfg_if::cfg_if!</span> {
     <span class="kw">if </span><span class="attr">#[cfg(any(feature = <span class="string">"ink-debug"</span>, feature = <span class="string">"std"</span>))] </span>{
@@ -338,12 +338,12 @@
         /// extrinsic). The `debug_message` buffer will be:
         ///  - Returned to the RPC caller.
         ///  - Logged as a `debug!` message on the Substrate node, which will be printed to the
-        ///    node console's `stdout` when the log level is set to `-lruntime::contracts=debug`.
+        ///    node console's `stdout` when the log level is set to `-lruntime::revive=debug`.
         ///
         /// # Note
         ///
         /// This depends on the `debug_message` interface which requires the
-        /// `"pallet-contracts/unstable-interface"` feature to be enabled in the target runtime.
+        /// `"pallet-revive/unstable-hostfn"` feature to be enabled in the target runtime.
         </span><span class="attr">#[macro_export]
         </span><span class="macro">macro_rules!</span> debug_print {
             ($(<span class="macro-nonterminal">$arg</span>:tt)<span class="kw-2">*</span>) =&gt; (<span class="macro-nonterminal">$crate::debug_message</span>(<span class="kw-2">&amp;</span><span class="macro-nonterminal">$</span><span class="macro">crate::format!</span>($(<span class="macro-nonterminal">$arg</span>)<span class="kw-2">*</span>)));
@@ -355,7 +355,7 @@
         /// # Note
         ///
         /// This depends on the `debug_message` interface which requires the
-        /// `"pallet-contracts/unstable-interface"` feature to be enabled in the target runtime.
+        /// `"pallet-revive/unstable-hostfn"` feature to be enabled in the target runtime.
         </span><span class="attr">#[macro_export]
         </span><span class="macro">macro_rules!</span> debug_println {
             () =&gt; (<span class="macro-nonterminal">$</span><span class="macro">crate::debug_print!</span>(<span class="string">"\n"</span>));

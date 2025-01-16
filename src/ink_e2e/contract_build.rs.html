@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/e2e/src/contract_build.rs`."><title>contract_build.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-c5d6553a23f1e5a6.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="ink_e2e" data-themes="" data-resource-suffix="" data-rustdoc-version="1.81.0 (eeb90cda1 2024-09-04)" data-channel="1.81.0" data-search-js="search-d234aafac6c221dd.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-d2fab2bf619172d3.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/e2e/src/contract_build.rs`."><title>contract_build.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-b0742ba02757f159.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="ink_e2e" data-themes="" data-resource-suffix="" data-rustdoc-version="1.83.0 (90b35a623 2024-11-26)" data-channel="1.83.0" data-search-js="search-f0d225181b97f9a4.js" data-settings-js="settings-805db61a62df4bd2.js" ><script src="../../static.files/storage-1d39b6787ed640ff.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-f070b9041d14864c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-0111fcff984fae8f.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">ink_e2e/</div>contract_build.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers">
+<a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -187,7 +188,16 @@
 <a href="#187" id="187">187</a>
 <a href="#188" id="188">188</a>
 <a href="#189" id="189">189</a>
-</pre></div><pre class="rust"><code><span class="comment">// Copyright (C) Use Ink (UK) Ltd.
+<a href="#190" id="190">190</a>
+<a href="#191" id="191">191</a>
+<a href="#192" id="192">192</a>
+<a href="#193" id="193">193</a>
+<a href="#194" id="194">194</a>
+<a href="#195" id="195">195</a>
+<a href="#196" id="196">196</a>
+<a href="#197" id="197">197</a>
+<a href="#198" id="198">198</a>
+<a href="#199" id="199">199</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) Use Ink (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -201,7 +211,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-</span><span class="kw">use </span>contract_build::{
+</span><span class="kw">use </span><span class="kw">crate</span>::log_info;
+<span class="kw">use </span>contract_build::{
     BuildArtifacts,
     BuildMode,
     ExecuteArgs,
@@ -211,11 +222,11 @@
     Network,
     OptimizationPasses,
     OutputType,
-    Target,
     UnstableFlags,
     Verbosity,
     DEFAULT_MAX_MEMORY_PAGES,
 };
+<span class="kw">use </span>itertools::Itertools;
 <span class="kw">use </span>std::{
     collections::{
         hash_map::Entry,
@@ -257,7 +268,11 @@
             package
                 .features
                 .iter()
-                .any(|(feat, <span class="kw">_</span>)| feat == <span class="string">"ink-as-dependency"</span>)
+                .any(|(feat, <span class="kw">_</span>)| {
+                    feat == <span class="string">"ink-as-dependency"
+                        </span>&amp;&amp; !package.name.eq(<span class="string">"ink"</span>)
+                        &amp;&amp; !package.name.eq(<span class="string">"ink_env"</span>)
+                })
                 .then(|| package.manifest_path.clone().into_std_path_buf())
         }
 
@@ -272,6 +287,7 @@
                     .find(|package| <span class="kw-2">&amp;</span>package.id == root_package_id)
             })
             .and_then(maybe_contract_package);
+        log_info(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"found root package: {:?}"</span>, root_package));
 
         <span class="kw">let </span>contract_dependencies: Vec&lt;PathBuf&gt; = metadata
             .packages
@@ -279,6 +295,10 @@
             .filter_map(maybe_contract_package)
             .collect();
 
+        log_info(<span class="kw-2">&amp;</span><span class="macro">format!</span>(
+            <span class="string">"found those contract dependencies: {:?}"</span>,
+            contract_dependencies
+        ));
         <span class="self">Self </span>{
             root_package,
             contract_dependencies,
@@ -298,7 +318,7 @@
             .map(PathBuf::from)
             .collect();
         all_manifests.append(<span class="kw-2">&amp;mut </span>additional_contracts);
-        all_manifests
+        all_manifests.into_iter().unique().collect()
     }
 
     <span class="kw">fn </span>root_with_contract_dependencies(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Vec&lt;PathBuf&gt; {
@@ -318,7 +338,7 @@
         .lock()
         .unwrap();
 
-    <span class="kw">let </span><span class="kw-2">mut </span>wasm_paths = Vec::new();
+    <span class="kw">let </span><span class="kw-2">mut </span>blob_paths = Vec::new();
     <span class="kw">for </span>manifest <span class="kw">in </span>contract_manifests {
         <span class="kw">let </span>wasm_path = <span class="kw">match </span>contract_build_jobs.entry(manifest.clone()) {
             Entry::Occupied(entry) =&gt; entry.get().clone(),
@@ -328,13 +348,13 @@
                 wasm_path
             }
         };
-        wasm_paths.push(wasm_path);
+        blob_paths.push(wasm_path);
     }
-    wasm_paths
+    blob_paths
 }
 
 <span class="doccomment">/// Builds the contract at `manifest_path`, returns the path to the contract
-/// Wasm build artifact.
+/// PolkaVM build artifact.
 </span><span class="kw">fn </span>build_contract(path_to_cargo_toml: <span class="kw-2">&amp;</span>Path) -&gt; PathBuf {
     <span class="kw">let </span>manifest_path = ManifestPath::new(path_to_cargo_toml).unwrap_or_else(|err| {
         <span class="macro">panic!</span>(
@@ -354,8 +374,8 @@
         keep_debug_symbols: <span class="bool-val">false</span>,
         extra_lints: <span class="bool-val">false</span>,
         output_type: OutputType::HumanReadable,
-        skip_wasm_validation: <span class="bool-val">false</span>,
-        target: Target::Wasm,
+        <span class="comment">// todo remove
+        </span>skip_wasm_validation: <span class="bool-val">false</span>,
         max_memory_pages: DEFAULT_MAX_MEMORY_PAGES,
         image: ImageVariant::Default,
     };
@@ -364,7 +384,7 @@
         <span class="prelude-val">Ok</span>(build_result) =&gt; {
             build_result
                 .dest_wasm
-                .expect(<span class="string">"Wasm code artifact not generated"</span>)
+                .expect(<span class="string">"PolkaVM code artifact not generated"</span>)
                 .canonicalize()
                 .expect(<span class="string">"Invalid dest bundle path"</span>)
         }

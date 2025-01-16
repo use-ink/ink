@@ -1,4 +1,9 @@
-(function() {var implementors = {
-"ink":[],
-"ink_storage_traits":[]
-};if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()
+(function() {
+    var implementors = Object.fromEntries([["ink",[]],["ink_storage_traits",[]]]);
+    if (window.register_implementors) {
+        window.register_implementors(implementors);
+    } else {
+        window.pending_implementors = implementors;
+    }
+})()
+//{"start":57,"fragment_lengths":[10,26]}

@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/e2e/src/backend.rs`."><title>backend.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-c5d6553a23f1e5a6.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="ink_e2e" data-themes="" data-resource-suffix="" data-rustdoc-version="1.81.0 (eeb90cda1 2024-09-04)" data-channel="1.81.0" data-search-js="search-d234aafac6c221dd.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-d2fab2bf619172d3.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/e2e/src/backend.rs`."><title>backend.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-b0742ba02757f159.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="ink_e2e" data-themes="" data-resource-suffix="" data-rustdoc-version="1.83.0 (90b35a623 2024-11-26)" data-channel="1.83.0" data-search-js="search-f0d225181b97f9a4.js" data-settings-js="settings-805db61a62df4bd2.js" ><script src="../../static.files/storage-1d39b6787ed640ff.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-f070b9041d14864c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-0111fcff984fae8f.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">ink_e2e/</div>backend.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers">
+<a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -307,7 +308,14 @@
 <a href="#307" id="307">307</a>
 <a href="#308" id="308">308</a>
 <a href="#309" id="309">309</a>
-</pre></div><pre class="rust"><code><span class="comment">// Copyright (C) Use Ink (UK) Ltd.
+<a href="#310" id="310">310</a>
+<a href="#311" id="311">311</a>
+<a href="#312" id="312">312</a>
+<a href="#313" id="313">313</a>
+<a href="#314" id="314">314</a>
+<a href="#315" id="315">315</a>
+<a href="#316" id="316">316</a>
+<a href="#317" id="317">317</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) Use Ink (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -321,7 +329,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-</span><span class="kw">use </span><span class="kw">super</span>::Keypair;
+</span><span class="kw">use super</span>::{
+    InstantiateDryRunResult,
+    Keypair,
+    H256,
+};
 <span class="kw">use crate</span>::{
     backend_calls::{
         InstantiateBuilder,
@@ -329,10 +341,7 @@
         UploadBuilder,
     },
     builders::CreateBuilderPartial,
-    contract_results::{
-        BareInstantiationResult,
-        InstantiateDryRunResult,
-    },
+    contract_results::BareInstantiationResult,
     CallBuilder,
     CallBuilderFinal,
     CallDryRunResult,
@@ -342,6 +351,7 @@
     DefaultEnvironment,
     Environment,
 };
+<span class="kw">use </span>ink_primitives::DepositLimit;
 <span class="kw">use </span>jsonrpsee::core::async_trait;
 <span class="kw">use </span>scale::{
     Decode,
@@ -462,7 +472,7 @@
         <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span><span class="self">self</span>,
         contract_name: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str,
         caller: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Keypair,
-    ) -&gt; UploadBuilder&lt;E, <span class="self">Self</span>&gt;
+    ) -&gt; UploadBuilder&lt;<span class="lifetime">'a</span>, E, <span class="self">Self</span>&gt;
     <span class="kw">where
         </span><span class="self">Self</span>: Sized + BuilderClient&lt;E&gt;,
     {
@@ -484,8 +494,8 @@
     </span><span class="kw">fn </span>remove_code&lt;<span class="lifetime">'a</span>&gt;(
         <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span><span class="self">self</span>,
         caller: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Keypair,
-        code_hash: E::Hash,
-    ) -&gt; RemoveCodeBuilder&lt;E, <span class="self">Self</span>&gt;
+        code_hash: H256,
+    ) -&gt; RemoveCodeBuilder&lt;<span class="lifetime">'a</span>, E, <span class="self">Self</span>&gt;
     <span class="kw">where
         </span><span class="self">Self</span>: Sized + BuilderClient&lt;E&gt;,
     {
@@ -539,7 +549,7 @@
         message: <span class="kw-2">&amp;</span>CallBuilderFinal&lt;E, Args, RetType&gt;,
         value: E::Balance,
         gas_limit: Weight,
-        storage_deposit_limit: <span class="prelude-ty">Option</span>&lt;E::Balance&gt;,
+        storage_deposit_limit: DepositLimit&lt;E::Balance&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::EventLog, <span class="self">Self</span>::Error&gt;
     <span class="kw">where
         </span>CallBuilderFinal&lt;E, Args, RetType&gt;: Clone;
@@ -553,7 +563,7 @@
         caller: <span class="kw-2">&amp;</span>Keypair,
         message: <span class="kw-2">&amp;</span>CallBuilderFinal&lt;E, Args, RetType&gt;,
         value: E::Balance,
-        storage_deposit_limit: <span class="prelude-ty">Option</span>&lt;E::Balance&gt;,
+        storage_deposit_limit: DepositLimit&lt;E::Balance&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;CallDryRunResult&lt;E, RetType&gt;, <span class="self">Self</span>::Error&gt;
     <span class="kw">where
         </span>CallBuilderFinal&lt;E, Args, RetType&gt;: Clone;
@@ -569,14 +579,14 @@
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         contract_name: <span class="kw-2">&amp;</span>str,
         caller: <span class="kw-2">&amp;</span>Keypair,
-        storage_deposit_limit: <span class="prelude-ty">Option</span>&lt;E::Balance&gt;,
+        storage_deposit_limit: E::Balance,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;UploadResult&lt;E, <span class="self">Self</span>::EventLog&gt;, <span class="self">Self</span>::Error&gt;;
 
     <span class="doccomment">/// Removes the code of the contract at `code_hash`.
     </span><span class="kw">async fn </span>bare_remove_code(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         caller: <span class="kw-2">&amp;</span>Keypair,
-        code_hash: E::Hash,
+        code_hash: <span class="kw">crate</span>::H256,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::EventLog, <span class="self">Self</span>::Error&gt;;
 
     <span class="doccomment">/// Bare instantiate call. This function does not perform a dry-run,
@@ -599,8 +609,8 @@
         constructor: <span class="kw-2">&amp;mut </span>CreateBuilderPartial&lt;E, Contract, Args, R&gt;,
         value: E::Balance,
         gas_limit: Weight,
-        storage_deposit_limit: <span class="prelude-ty">Option</span>&lt;E::Balance&gt;,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;BareInstantiationResult&lt;E, <span class="self">Self</span>::EventLog&gt;, <span class="self">Self</span>::Error&gt;;
+        storage_deposit_limit: DepositLimit&lt;E::Balance&gt;,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;BareInstantiationResult&lt;<span class="self">Self</span>::EventLog&gt;, <span class="self">Self</span>::Error&gt;;
 
     <span class="doccomment">/// Dry run contract instantiation.
     </span><span class="kw">async fn </span>bare_instantiate_dry_run&lt;
@@ -613,7 +623,13 @@
         caller: <span class="kw-2">&amp;</span>Keypair,
         constructor: <span class="kw-2">&amp;mut </span>CreateBuilderPartial&lt;E, Contract, Args, R&gt;,
         value: E::Balance,
-        storage_deposit_limit: <span class="prelude-ty">Option</span>&lt;E::Balance&gt;,
+        storage_deposit_limit: DepositLimit&lt;E::Balance&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;InstantiateDryRunResult&lt;E&gt;, <span class="self">Self</span>::Error&gt;;
+
+    <span class="doccomment">/// todo
+    </span><span class="kw">async fn </span>map_account(<span class="kw-2">&amp;mut </span><span class="self">self</span>, caller: <span class="kw-2">&amp;</span>Keypair) -&gt; <span class="prelude-ty">Result</span>&lt;(), <span class="self">Self</span>::Error&gt;;
+
+    <span class="doccomment">/// todo
+    </span><span class="kw">async fn </span>map_account_dry_run(<span class="kw-2">&amp;mut </span><span class="self">self</span>, caller: <span class="kw-2">&amp;</span>Keypair) -&gt; <span class="prelude-ty">Result</span>&lt;(), <span class="self">Self</span>::Error&gt;;
 }
 </code></pre></div></section></main></body></html>

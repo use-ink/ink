@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/e2e/src/backend_calls.rs`."><title>backend_calls.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-c5d6553a23f1e5a6.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="ink_e2e" data-themes="" data-resource-suffix="" data-rustdoc-version="1.81.0 (eeb90cda1 2024-09-04)" data-channel="1.81.0" data-search-js="search-d234aafac6c221dd.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-d2fab2bf619172d3.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/e2e/src/backend_calls.rs`."><title>backend_calls.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-b0742ba02757f159.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="ink_e2e" data-themes="" data-resource-suffix="" data-rustdoc-version="1.83.0 (90b35a623 2024-11-26)" data-channel="1.83.0" data-search-js="search-f0d225181b97f9a4.js" data-settings-js="settings-805db61a62df4bd2.js" ><script src="../../static.files/storage-1d39b6787ed640ff.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-f070b9041d14864c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-0111fcff984fae8f.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">ink_e2e/</div>backend_calls.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers">
+<a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -442,7 +443,9 @@
 <a href="#442" id="442">442</a>
 <a href="#443" id="443">443</a>
 <a href="#444" id="444">444</a>
-</pre></div><pre class="rust"><code><span class="comment">// Copyright (C) Use Ink (UK) Ltd.
+<a href="#445" id="445">445</a>
+<a href="#446" id="446">446</a>
+<a href="#447" id="447">447</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) Use Ink (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -456,13 +459,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-</span><span class="kw">use </span>ink_env::Environment;
-<span class="kw">use </span>scale::{
-    Decode,
-    Encode,
+</span><span class="kw">use super</span>::{
+    balance_to_deposit_limit,
+    InstantiateDryRunResult,
+    Keypair,
 };
-<span class="kw">use </span>sp_weights::Weight;
-
 <span class="kw">use crate</span>::{
     backend::BuilderClient,
     builders::CreateBuilderPartial,
@@ -470,12 +471,18 @@
     CallDryRunResult,
     CallResult,
     ContractsBackend,
-    InstantiateDryRunResult,
     InstantiationResult,
     UploadResult,
+    H256,
 };
-
-<span class="kw">use </span><span class="kw">super</span>::Keypair;
+<span class="kw">use </span>ink_env::Environment;
+<span class="kw">use </span>ink_primitives::DepositLimit;
+<span class="kw">use </span>scale::{
+    Decode,
+    Encode,
+};
+<span class="kw">use </span>sp_weights::Weight;
+<span class="kw">use </span>std::marker::PhantomData;
 
 <span class="doccomment">/// Allows to build an end-to-end call using a builder pattern.
 </span><span class="kw">pub struct </span>CallBuilder&lt;<span class="lifetime">'a</span>, E, Args, RetType, B&gt;
@@ -492,7 +499,7 @@
     value: E::Balance,
     extra_gas_portion: <span class="prelude-ty">Option</span>&lt;u64&gt;,
     gas_limit: <span class="prelude-ty">Option</span>&lt;Weight&gt;,
-    storage_deposit_limit: <span class="prelude-ty">Option</span>&lt;E::Balance&gt;,
+    storage_deposit_limit: E::Balance,
 }
 
 <span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, E, Args, RetType, B&gt; CallBuilder&lt;<span class="lifetime">'a</span>, E, Args, RetType, B&gt;
@@ -519,7 +526,7 @@
             value: <span class="number">0u32</span>.into(),
             extra_gas_portion: <span class="prelude-val">None</span>,
             gas_limit: <span class="prelude-val">None</span>,
-            storage_deposit_limit: <span class="prelude-val">None</span>,
+            storage_deposit_limit: <span class="number">0u32</span>.into(),
         }
     }
 
@@ -551,7 +558,7 @@
     /// # Notes
     ///
     /// Overwrites any values specified for `extra_gas_portion`.
-    ///  The gas estimate fro dry-run will be ignored.
+    /// The gas estimate from the dry-run will be ignored.
     </span><span class="kw">pub fn </span>gas_limit(<span class="kw-2">&amp;mut </span><span class="self">self</span>, limit: Weight) -&gt; <span class="kw-2">&amp;mut </span><span class="self">Self </span>{
         <span class="kw">if </span>limit == Weight::from_parts(<span class="number">0</span>, <span class="number">0</span>) {
             <span class="self">self</span>.gas_limit = <span class="prelude-val">None
@@ -566,11 +573,7 @@
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         storage_deposit_limit: E::Balance,
     ) -&gt; <span class="kw-2">&amp;mut </span><span class="self">Self </span>{
-        <span class="kw">if </span>storage_deposit_limit == <span class="number">0u32</span>.into() {
-            <span class="self">self</span>.storage_deposit_limit = <span class="prelude-val">None
-        </span>} <span class="kw">else </span>{
-            <span class="self">self</span>.storage_deposit_limit = <span class="prelude-val">Some</span>(storage_deposit_limit)
-        }
+        <span class="self">self</span>.storage_deposit_limit = storage_deposit_limit;
         <span class="self">self
     </span>}
 
@@ -584,12 +587,15 @@
     <span class="kw">where
         </span>CallBuilderFinal&lt;E, Args, RetType&gt;: Clone,
     {
-        <span class="kw">let </span>dry_run = B::bare_call_dry_run(
+        <span class="comment">// todo must be added to remove as well
+        </span><span class="kw">let </span>_map = B::map_account(<span class="self">self</span>.client, <span class="self">self</span>.caller).<span class="kw">await</span>; <span class="comment">// todo will fail if instantiation happened before
+
+        </span><span class="kw">let </span>dry_run = B::bare_call_dry_run(
             <span class="self">self</span>.client,
             <span class="self">self</span>.caller,
             <span class="self">self</span>.message,
             <span class="self">self</span>.value,
-            <span class="self">self</span>.storage_deposit_limit,
+            balance_to_deposit_limit::&lt;E&gt;(<span class="self">self</span>.storage_deposit_limit),
         )
         .<span class="kw">await</span><span class="question-mark">?</span>;
 
@@ -608,7 +614,8 @@
             <span class="self">self</span>.message,
             <span class="self">self</span>.value,
             gas_limit,
-            <span class="self">self</span>.storage_deposit_limit,
+            <span class="comment">// todo: the `bare_call` converts this value back, this is unnecessary work
+            </span>DepositLimit::Balance(dry_run.exec_result.storage_deposit.charge_or_zero()),
         )
         .<span class="kw">await</span><span class="question-mark">?</span>;
 
@@ -628,7 +635,7 @@
             <span class="self">self</span>.caller,
             <span class="self">self</span>.message,
             <span class="self">self</span>.value,
-            <span class="self">self</span>.storage_deposit_limit,
+            balance_to_deposit_limit::&lt;E&gt;(<span class="self">self</span>.storage_deposit_limit),
         )
         .<span class="kw">await
     </span>}
@@ -650,7 +657,7 @@
     value: E::Balance,
     extra_gas_portion: <span class="prelude-ty">Option</span>&lt;u64&gt;,
     gas_limit: <span class="prelude-ty">Option</span>&lt;Weight&gt;,
-    storage_deposit_limit: <span class="prelude-ty">Option</span>&lt;E::Balance&gt;,
+    storage_deposit_limit: DepositLimit&lt;E::Balance&gt;,
 }
 
 <span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, E, Contract, Args, R, B&gt; InstantiateBuilder&lt;<span class="lifetime">'a</span>, E, Contract, Args, R, B&gt;
@@ -679,7 +686,7 @@
             value: <span class="number">0u32</span>.into(),
             extra_gas_portion: <span class="prelude-val">None</span>,
             gas_limit: <span class="prelude-val">None</span>,
-            storage_deposit_limit: <span class="prelude-val">None</span>,
+            storage_deposit_limit: DepositLimit::Unchecked,
         }
     }
 
@@ -724,13 +731,9 @@
     <span class="doccomment">/// Specify the max amount of funds that can be charged for storage.
     </span><span class="kw">pub fn </span>storage_deposit_limit(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
-        storage_deposit_limit: E::Balance,
+        storage_deposit_limit: DepositLimit&lt;E::Balance&gt;,
     ) -&gt; <span class="kw-2">&amp;mut </span><span class="self">Self </span>{
-        <span class="kw">if </span>storage_deposit_limit == <span class="number">0u32</span>.into() {
-            <span class="self">self</span>.storage_deposit_limit = <span class="prelude-val">None
-        </span>} <span class="kw">else </span>{
-            <span class="self">self</span>.storage_deposit_limit = <span class="prelude-val">Some</span>(storage_deposit_limit)
-        }
+        <span class="self">self</span>.storage_deposit_limit = storage_deposit_limit;
         <span class="self">self
     </span>}
 
@@ -741,13 +744,16 @@
     </span><span class="kw">pub async fn </span>submit(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;InstantiationResult&lt;E, B::EventLog&gt;, B::Error&gt; {
-        <span class="kw">let </span>dry_run = B::bare_instantiate_dry_run(
+        <span class="comment">// we have to make sure the account was mapped
+        </span><span class="kw">let </span>_map = B::map_account(<span class="self">self</span>.client, <span class="self">self</span>.caller).<span class="kw">await</span>; <span class="comment">// todo will fail if instantiation happened before
+
+        </span><span class="kw">let </span>dry_run = B::bare_instantiate_dry_run(
             <span class="self">self</span>.client,
             <span class="self">self</span>.contract_name,
             <span class="self">self</span>.caller,
             <span class="self">self</span>.constructor,
             <span class="self">self</span>.value,
-            <span class="self">self</span>.storage_deposit_limit,
+            <span class="self">self</span>.storage_deposit_limit.clone(),
         )
         .<span class="kw">await</span><span class="question-mark">?</span>;
 
@@ -767,12 +773,14 @@
             <span class="self">self</span>.constructor,
             <span class="self">self</span>.value,
             gas_limit,
-            <span class="self">self</span>.storage_deposit_limit,
+            balance_to_deposit_limit::&lt;E&gt;(
+                dry_run.contract_result.storage_deposit.charge_or_zero(),
+            ),
         )
         .<span class="kw">await</span><span class="question-mark">?</span>;
 
         <span class="prelude-val">Ok</span>(InstantiationResult {
-            account_id: instantiate_result.account_id,
+            addr: instantiate_result.addr,
             dry_run,
             events: instantiate_result.events,
         })
@@ -786,7 +794,7 @@
             <span class="self">self</span>.caller,
             <span class="self">self</span>.constructor,
             <span class="self">self</span>.value,
-            <span class="self">self</span>.storage_deposit_limit,
+            <span class="self">self</span>.storage_deposit_limit.clone(),
         )
         .<span class="kw">await
     </span>}
@@ -801,7 +809,7 @@
     client: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>B,
     contract_name: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str,
     caller: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Keypair,
-    storage_deposit_limit: <span class="prelude-ty">Option</span>&lt;E::Balance&gt;,
+    storage_deposit_limit: E::Balance,
 }
 
 <span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, E, B&gt; UploadBuilder&lt;<span class="lifetime">'a</span>, E, B&gt;
@@ -815,7 +823,7 @@
             client,
             contract_name,
             caller,
-            storage_deposit_limit: <span class="prelude-val">None</span>,
+            storage_deposit_limit: <span class="number">0u32</span>.into(),
         }
     }
 
@@ -824,11 +832,7 @@
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         storage_deposit_limit: E::Balance,
     ) -&gt; <span class="kw-2">&amp;mut </span><span class="self">Self </span>{
-        <span class="kw">if </span>storage_deposit_limit == <span class="number">0u32</span>.into() {
-            <span class="self">self</span>.storage_deposit_limit = <span class="prelude-val">None
-        </span>} <span class="kw">else </span>{
-            <span class="self">self</span>.storage_deposit_limit = <span class="prelude-val">Some</span>(storage_deposit_limit)
-        }
+        <span class="self">self</span>.storage_deposit_limit = storage_deposit_limit;
         <span class="self">self
     </span>}
 
@@ -852,7 +856,8 @@
 {
     client: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>B,
     caller: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Keypair,
-    code_hash: E::Hash,
+    code_hash: <span class="kw">crate</span>::H256,
+    _phantom: PhantomData&lt;<span class="kw">fn</span>() -&gt; E&gt;,
 }
 
 <span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, E, B&gt; RemoveCodeBuilder&lt;<span class="lifetime">'a</span>, E, B&gt;
@@ -861,11 +866,12 @@
     B: BuilderClient&lt;E&gt;,
 {
     <span class="doccomment">/// Initialize a remove code builder with essential values.
-    </span><span class="kw">pub fn </span>new(client: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>B, caller: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Keypair, code_hash: E::Hash) -&gt; <span class="self">Self </span>{
+    </span><span class="kw">pub fn </span>new(client: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>B, caller: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Keypair, code_hash: H256) -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{
             client,
             caller,
             code_hash,
+            _phantom: Default::default(),
         }
     }
 

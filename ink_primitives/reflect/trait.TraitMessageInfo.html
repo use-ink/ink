@@ -1,0 +1,105 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Stores information for every ink! trait message of an ink! trait definition."><title>TraitMessageInfo in ink_primitives::reflect - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-b0742ba02757f159.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="ink_primitives" data-themes="" data-resource-suffix="" data-rustdoc-version="1.83.0 (90b35a623 2024-11-26)" data-channel="1.83.0" data-search-js="search-f0d225181b97f9a4.js" data-settings-js="settings-805db61a62df4bd2.js" ><script src="../../static.files/storage-1d39b6787ed640ff.js"></script><script defer src="sidebar-items.js"></script><script defer src="../../static.files/main-f070b9041d14864c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-0111fcff984fae8f.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc trait"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle" title="show sidebar"></button><a class="logo-container" href="../../ink_primitives/index.html"><img src="https://use.ink/img/crate-docs/logo.png" alt=""></a></nav><nav class="sidebar"><div class="sidebar-crate"><a class="logo-container" href="../../ink_primitives/index.html"><img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></a><h2><a href="../../ink_primitives/index.html">ink_<wbr>primitives</a><span class="version">5.1.0</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">Trait<wbr>Message<wbr>Info</a></h2><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#note" title="Note">Note</a></li><li><a href="#usage" title="Usage">Usage</a></li></ul><h3><a href="#required-associated-consts">Required Associated Constants</a></h3><ul class="block"><li><a href="#associatedconstant.PAYABLE" title="PAYABLE">PAYABLE</a></li><li><a href="#associatedconstant.SELECTOR" title="SELECTOR">SELECTOR</a></li></ul><h3><a href="#object-safety">Object Safety</a></h3><h3><a href="#implementors">Implementors</a></h3></section><div id="rustdoc-modnav"><h2><a href="index.html">In ink_<wbr>primitives::<wbr>reflect</a></h2></div></div></nav><div class="sidebar-resizer"></div><main><div class="width-limiter"><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><span class="rustdoc-breadcrumbs"><a href="../index.html">ink_primitives</a>::<wbr><a href="index.html">reflect</a></span><h1>Trait <span class="trait">TraitMessageInfo</span><button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../../src/ink_primitives/reflect/trait_def/info.rs.html#123-132">source</a> </span></div><pre class="rust item-decl"><code>pub trait TraitMessageInfo&lt;const TRAIT_LOCAL_MESSAGE_ID: <a class="primitive" href="https://doc.rust-lang.org/1.83.0/std/primitive.u32.html">u32</a>&gt; {
+    const <a href="#associatedconstant.PAYABLE" class="constant">PAYABLE</a>: <a class="primitive" href="https://doc.rust-lang.org/1.83.0/std/primitive.bool.html">bool</a>;
+    const <a href="#associatedconstant.SELECTOR" class="constant">SELECTOR</a>: [<a class="primitive" href="https://doc.rust-lang.org/1.83.0/std/primitive.u8.html">u8</a>; <a class="primitive" href="https://doc.rust-lang.org/1.83.0/std/primitive.array.html">4</a>];
+}</code></pre><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Stores information for every ink! trait message of an ink! trait definition.</p>
+<p>This information includes if the ink! trait message is payable
+as well as its derived or manually specified selector.</p>
+<p>In the future this info trait might be extended to contain
+more information about a single ink! trait message.</p>
+<p>The information provided through this trait can be used on the
+implementer side of an ink! trait to check and guard certain
+properties on a Rust type system level. This is important since
+ink! cannot be guaranteed to have both the ink! trait definition
+and all of its implementers under its scope and radar.</p>
+<h2 id="note"><a class="doc-anchor" href="#note">§</a>Note</h2>
+<ul>
+<li>The <code>TraitMessageInfo&lt;LOCAL_ID&gt;</code> is implemented by the automatically generated ink!
+trait definition information object associated to the ink! trait definition at hand.</li>
+<li>For every ink! trait message defined by the ink! trait definition the associated
+ink! trait definition information object implements this trait given the
+<code>TRAIT_LOCAL_MESSAGE_ID</code> of each ink! trait message respectively.</li>
+<li>The local IDs uniquely identifying all the ink! trait messages of the ink! trait
+definition are computed solely using the Rust identifier of the ink! trait message
+which can be derived from ink! implementation blocks in order to query the
+information stored by this ink! trait information object trait implementation.</li>
+</ul>
+<h2 id="usage"><a class="doc-anchor" href="#usage">§</a>Usage</h2>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="attr">#[ink::trait_definition]
+</span><span class="kw">pub trait </span>InkTrait {
+    <span class="attr">#[ink(message)]
+    </span><span class="kw">fn </span>trait_message_1(<span class="kw-2">&amp;</span><span class="self">self</span>);
+
+    <span class="attr">#[ink(message, payable, selector = <span class="number">0xC0DECAFE</span>)]
+    </span><span class="kw">fn </span>trait_message_2(<span class="kw-2">&amp;mut </span><span class="self">self</span>);
+}
+
+<span class="attr">#[ink::trait_definition(namespace = <span class="string">"foo"</span>)]
+</span><span class="kw">pub trait </span>InkTrait2 {
+    <span class="attr">#[ink(message)]
+    </span><span class="kw">fn </span>trait_message(<span class="kw-2">&amp;</span><span class="self">self</span>);
+}
+
+<span class="attr">#[ink::contract]
+</span><span class="kw">pub mod </span>contract {
+    <span class="kw">use super</span>::{InkTrait, InkTrait2};
+
+    <span class="attr">#[ink(storage)]
+    </span><span class="kw">pub struct </span>Contract {}
+
+    <span class="kw">impl </span>Contract {
+        <span class="attr">#[ink(constructor)]
+        </span><span class="kw">pub fn </span>constructor() -&gt; <span class="self">Self </span>{ Contract {} }
+    }
+
+    <span class="kw">impl </span>InkTrait <span class="kw">for </span>Contract {
+        <span class="attr">#[ink(message)]
+        </span><span class="kw">fn </span>trait_message_1(<span class="kw-2">&amp;</span><span class="self">self</span>) {}
+
+        <span class="attr">#[ink(message)]
+        </span><span class="kw">fn </span>trait_message_2(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {}
+    }
+
+    <span class="kw">impl </span>InkTrait2 <span class="kw">for </span>Contract {
+        <span class="attr">#[ink(message)]
+        </span><span class="kw">fn </span>trait_message(<span class="kw-2">&amp;</span><span class="self">self</span>) {}
+    }
+}
+
+
+<span class="kw">fn </span>main() {
+    <span class="macro">assert_eq!</span>(
+        &lt;&lt;TraitDefinitionRegistry&lt;DefaultEnvironment&gt; <span class="kw">as </span>InkTrait&gt;::__ink_TraitInfo
+            <span class="kw">as </span>TraitMessageInfo&lt;{<span class="macro">selector_id!</span>(<span class="string">"trait_message_1"</span>)}&gt;&gt;::PAYABLE,
+        <span class="bool-val">false</span>,
+    );
+    <span class="macro">assert_eq!</span>(
+        &lt;&lt;TraitDefinitionRegistry&lt;DefaultEnvironment&gt; <span class="kw">as </span>InkTrait&gt;::__ink_TraitInfo
+            <span class="kw">as </span>TraitMessageInfo&lt;{<span class="macro">selector_id!</span>(<span class="string">"trait_message_2"</span>)}&gt;&gt;::PAYABLE,
+        <span class="bool-val">true</span>,
+    );
+    <span class="macro">assert_eq!</span>(
+        &lt;&lt;TraitDefinitionRegistry&lt;DefaultEnvironment&gt; <span class="kw">as </span>InkTrait2&gt;::__ink_TraitInfo
+            <span class="kw">as </span>TraitMessageInfo&lt;{<span class="macro">selector_id!</span>(<span class="string">"trait_message"</span>)}&gt;&gt;::PAYABLE,
+        <span class="bool-val">false</span>,
+    );
+    <span class="macro">assert_eq!</span>(
+        &lt;&lt;TraitDefinitionRegistry&lt;DefaultEnvironment&gt; <span class="kw">as </span>InkTrait&gt;::__ink_TraitInfo
+            <span class="kw">as </span>TraitMessageInfo&lt;{<span class="macro">selector_id!</span>(<span class="string">"trait_message_1"</span>)}&gt;&gt;::SELECTOR,
+        <span class="macro">selector_bytes!</span>(<span class="string">"InkTrait::trait_message_1"</span>)
+    );
+    <span class="macro">assert_eq!</span>(
+        &lt;&lt;TraitDefinitionRegistry&lt;DefaultEnvironment&gt; <span class="kw">as </span>InkTrait&gt;::__ink_TraitInfo
+            <span class="kw">as </span>TraitMessageInfo&lt;{<span class="macro">selector_id!</span>(<span class="string">"trait_message_2"</span>)}&gt;&gt;::SELECTOR,
+        [<span class="number">0xC0</span>, <span class="number">0xDE</span>, <span class="number">0xCA</span>, <span class="number">0xFE</span>]
+    );
+    <span class="macro">assert_eq!</span>(
+        &lt;&lt;TraitDefinitionRegistry&lt;DefaultEnvironment&gt; <span class="kw">as </span>InkTrait2&gt;::__ink_TraitInfo
+            <span class="kw">as </span>TraitMessageInfo&lt;{<span class="macro">selector_id!</span>(<span class="string">"trait_message"</span>)}&gt;&gt;::SELECTOR,
+        <span class="macro">selector_bytes!</span>(<span class="string">"foo::InkTrait2::trait_message"</span>)
+    );
+}</code></pre></div>
+</div></details><h2 id="required-associated-consts" class="section-header">Required Associated Constants<a href="#required-associated-consts" class="anchor">§</a></h2><div class="methods"><details class="toggle" open><summary><section id="associatedconstant.PAYABLE" class="method"><a class="src rightside" href="../../src/ink_primitives/reflect/trait_def/info.rs.html#125">source</a><h4 class="code-header">const <a href="#associatedconstant.PAYABLE" class="constant">PAYABLE</a>: <a class="primitive" href="https://doc.rust-lang.org/1.83.0/std/primitive.bool.html">bool</a></h4></section></summary><div class="docblock"><p>Is <code>true</code> if the ink! trait message has been annotated with <code>#[ink(payable)]</code>.</p>
+</div></details><details class="toggle" open><summary><section id="associatedconstant.SELECTOR" class="method"><a class="src rightside" href="../../src/ink_primitives/reflect/trait_def/info.rs.html#131">source</a><h4 class="code-header">const <a href="#associatedconstant.SELECTOR" class="constant">SELECTOR</a>: [<a class="primitive" href="https://doc.rust-lang.org/1.83.0/std/primitive.u8.html">u8</a>; <a class="primitive" href="https://doc.rust-lang.org/1.83.0/std/primitive.array.html">4</a>]</h4></section></summary><div class="docblock"><p>The unique selector of the ink! trait message.</p>
+<p>This might have been adjusted using <code>#[ink(selector = N:u32)]</code> at the
+ink! trait definition site.</p>
+</div></details></div><h2 id="object-safety" class="section-header">Object Safety<a href="#object-safety" class="anchor">§</a></h2><div class="object-safety-info">This trait is <b>not</b> <a href="https://doc.rust-lang.org/1.83.0/reference/items/traits.html#object-safety">object safe</a>.</div><h2 id="implementors" class="section-header">Implementors<a href="#implementors" class="anchor">§</a></h2><div id="implementors-list"></div><script src="../../trait.impl/ink_primitives/reflect/trait_def/info/trait.TraitMessageInfo.js" async></script></section></div></main></body></html>

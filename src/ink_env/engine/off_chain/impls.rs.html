@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/env/src/engine/off_chain/impls.rs`."><title>impls.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-c5d6553a23f1e5a6.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="ink_env" data-themes="" data-resource-suffix="" data-rustdoc-version="1.81.0 (eeb90cda1 2024-09-04)" data-channel="1.81.0" data-search-js="search-d234aafac6c221dd.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-d2fab2bf619172d3.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/env/src/engine/off_chain/impls.rs`."><title>impls.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-b0742ba02757f159.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="ink_env" data-themes="" data-resource-suffix="" data-rustdoc-version="1.83.0 (90b35a623 2024-11-26)" data-channel="1.83.0" data-search-js="search-f0d225181b97f9a4.js" data-settings-js="settings-805db61a62df4bd2.js" ><script src="../../../../static.files/storage-1d39b6787ed640ff.js"></script><script defer src="../../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-f070b9041d14864c.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-0111fcff984fae8f.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">ink_env/engine/off_chain/</div>impls.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers">
+<a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -627,7 +628,169 @@
 <a href="#627" id="627">627</a>
 <a href="#628" id="628">628</a>
 <a href="#629" id="629">629</a>
-</pre></div><pre class="rust"><code><span class="comment">// Copyright (C) Use Ink (UK) Ltd.
+<a href="#630" id="630">630</a>
+<a href="#631" id="631">631</a>
+<a href="#632" id="632">632</a>
+<a href="#633" id="633">633</a>
+<a href="#634" id="634">634</a>
+<a href="#635" id="635">635</a>
+<a href="#636" id="636">636</a>
+<a href="#637" id="637">637</a>
+<a href="#638" id="638">638</a>
+<a href="#639" id="639">639</a>
+<a href="#640" id="640">640</a>
+<a href="#641" id="641">641</a>
+<a href="#642" id="642">642</a>
+<a href="#643" id="643">643</a>
+<a href="#644" id="644">644</a>
+<a href="#645" id="645">645</a>
+<a href="#646" id="646">646</a>
+<a href="#647" id="647">647</a>
+<a href="#648" id="648">648</a>
+<a href="#649" id="649">649</a>
+<a href="#650" id="650">650</a>
+<a href="#651" id="651">651</a>
+<a href="#652" id="652">652</a>
+<a href="#653" id="653">653</a>
+<a href="#654" id="654">654</a>
+<a href="#655" id="655">655</a>
+<a href="#656" id="656">656</a>
+<a href="#657" id="657">657</a>
+<a href="#658" id="658">658</a>
+<a href="#659" id="659">659</a>
+<a href="#660" id="660">660</a>
+<a href="#661" id="661">661</a>
+<a href="#662" id="662">662</a>
+<a href="#663" id="663">663</a>
+<a href="#664" id="664">664</a>
+<a href="#665" id="665">665</a>
+<a href="#666" id="666">666</a>
+<a href="#667" id="667">667</a>
+<a href="#668" id="668">668</a>
+<a href="#669" id="669">669</a>
+<a href="#670" id="670">670</a>
+<a href="#671" id="671">671</a>
+<a href="#672" id="672">672</a>
+<a href="#673" id="673">673</a>
+<a href="#674" id="674">674</a>
+<a href="#675" id="675">675</a>
+<a href="#676" id="676">676</a>
+<a href="#677" id="677">677</a>
+<a href="#678" id="678">678</a>
+<a href="#679" id="679">679</a>
+<a href="#680" id="680">680</a>
+<a href="#681" id="681">681</a>
+<a href="#682" id="682">682</a>
+<a href="#683" id="683">683</a>
+<a href="#684" id="684">684</a>
+<a href="#685" id="685">685</a>
+<a href="#686" id="686">686</a>
+<a href="#687" id="687">687</a>
+<a href="#688" id="688">688</a>
+<a href="#689" id="689">689</a>
+<a href="#690" id="690">690</a>
+<a href="#691" id="691">691</a>
+<a href="#692" id="692">692</a>
+<a href="#693" id="693">693</a>
+<a href="#694" id="694">694</a>
+<a href="#695" id="695">695</a>
+<a href="#696" id="696">696</a>
+<a href="#697" id="697">697</a>
+<a href="#698" id="698">698</a>
+<a href="#699" id="699">699</a>
+<a href="#700" id="700">700</a>
+<a href="#701" id="701">701</a>
+<a href="#702" id="702">702</a>
+<a href="#703" id="703">703</a>
+<a href="#704" id="704">704</a>
+<a href="#705" id="705">705</a>
+<a href="#706" id="706">706</a>
+<a href="#707" id="707">707</a>
+<a href="#708" id="708">708</a>
+<a href="#709" id="709">709</a>
+<a href="#710" id="710">710</a>
+<a href="#711" id="711">711</a>
+<a href="#712" id="712">712</a>
+<a href="#713" id="713">713</a>
+<a href="#714" id="714">714</a>
+<a href="#715" id="715">715</a>
+<a href="#716" id="716">716</a>
+<a href="#717" id="717">717</a>
+<a href="#718" id="718">718</a>
+<a href="#719" id="719">719</a>
+<a href="#720" id="720">720</a>
+<a href="#721" id="721">721</a>
+<a href="#722" id="722">722</a>
+<a href="#723" id="723">723</a>
+<a href="#724" id="724">724</a>
+<a href="#725" id="725">725</a>
+<a href="#726" id="726">726</a>
+<a href="#727" id="727">727</a>
+<a href="#728" id="728">728</a>
+<a href="#729" id="729">729</a>
+<a href="#730" id="730">730</a>
+<a href="#731" id="731">731</a>
+<a href="#732" id="732">732</a>
+<a href="#733" id="733">733</a>
+<a href="#734" id="734">734</a>
+<a href="#735" id="735">735</a>
+<a href="#736" id="736">736</a>
+<a href="#737" id="737">737</a>
+<a href="#738" id="738">738</a>
+<a href="#739" id="739">739</a>
+<a href="#740" id="740">740</a>
+<a href="#741" id="741">741</a>
+<a href="#742" id="742">742</a>
+<a href="#743" id="743">743</a>
+<a href="#744" id="744">744</a>
+<a href="#745" id="745">745</a>
+<a href="#746" id="746">746</a>
+<a href="#747" id="747">747</a>
+<a href="#748" id="748">748</a>
+<a href="#749" id="749">749</a>
+<a href="#750" id="750">750</a>
+<a href="#751" id="751">751</a>
+<a href="#752" id="752">752</a>
+<a href="#753" id="753">753</a>
+<a href="#754" id="754">754</a>
+<a href="#755" id="755">755</a>
+<a href="#756" id="756">756</a>
+<a href="#757" id="757">757</a>
+<a href="#758" id="758">758</a>
+<a href="#759" id="759">759</a>
+<a href="#760" id="760">760</a>
+<a href="#761" id="761">761</a>
+<a href="#762" id="762">762</a>
+<a href="#763" id="763">763</a>
+<a href="#764" id="764">764</a>
+<a href="#765" id="765">765</a>
+<a href="#766" id="766">766</a>
+<a href="#767" id="767">767</a>
+<a href="#768" id="768">768</a>
+<a href="#769" id="769">769</a>
+<a href="#770" id="770">770</a>
+<a href="#771" id="771">771</a>
+<a href="#772" id="772">772</a>
+<a href="#773" id="773">773</a>
+<a href="#774" id="774">774</a>
+<a href="#775" id="775">775</a>
+<a href="#776" id="776">776</a>
+<a href="#777" id="777">777</a>
+<a href="#778" id="778">778</a>
+<a href="#779" id="779">779</a>
+<a href="#780" id="780">780</a>
+<a href="#781" id="781">781</a>
+<a href="#782" id="782">782</a>
+<a href="#783" id="783">783</a>
+<a href="#784" id="784">784</a>
+<a href="#785" id="785">785</a>
+<a href="#786" id="786">786</a>
+<a href="#787" id="787">787</a>
+<a href="#788" id="788">788</a>
+<a href="#789" id="789">789</a>
+<a href="#790" id="790">790</a>
+<a href="#791" id="791">791</a>
+<a href="#792" id="792">792</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) Use Ink (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -646,12 +809,10 @@
     call::{
         Call,
         CallParams,
-        CallV1,
         ConstructorReturnType,
         CreateParams,
         DelegateCall,
-        FromAccountId,
-        LimitParamsV1,
+        FromAddr,
         LimitParamsV2,
     },
     event::{
@@ -666,18 +827,24 @@
         Keccak256,
         Sha2x256,
     },
+    test::callee,
     Clear,
     EnvBackend,
-    Environment,
     <span class="prelude-ty">Result</span>,
     TypedEnvBackend,
 };
 <span class="kw">use </span>ink_engine::ext::Engine;
+<span class="kw">use </span>ink_primitives::{
+    types::Environment,
+    H160,
+    H256,
+    U256,
+};
 <span class="kw">use </span>ink_storage_traits::{
     decode_all,
     Storable,
 };
-<span class="kw">use </span>pallet_contracts_uapi::{
+<span class="kw">use </span>pallet_revive_uapi::{
     ReturnErrorCode,
     ReturnFlags,
 };
@@ -690,6 +857,98 @@
 /// This is the same size as the ink! on-chain environment. We chose to use the same size
 /// to be as close to the on-chain behavior as possible.
 </span><span class="kw">const </span>BUFFER_SIZE: usize = <span class="kw">crate</span>::BUFFER_SIZE;
+
+<span class="doccomment">/// Proxy function used to simulate code hash and to invoke contract methods.
+</span><span class="kw">fn </span>execute_contract_call&lt;ContractRef&gt;(input: Vec&lt;u8&gt;) -&gt; Vec&lt;u8&gt;
+<span class="kw">where
+    </span>ContractRef: <span class="kw">crate</span>::ContractReverseReference,
+    &lt;ContractRef <span class="kw">as </span><span class="kw">crate</span>::ContractReverseReference&gt;::Type:
+        <span class="kw">crate</span>::reflect::ContractMessageDecoder,
+{
+    <span class="kw">let </span>dispatch = &lt;
+        &lt;
+            &lt;
+                ContractRef
+                <span class="kw">as </span><span class="kw">crate</span>::ContractReverseReference
+            &gt;::Type
+            <span class="kw">as </span><span class="kw">crate</span>::reflect::ContractMessageDecoder
+        &gt;::Type
+        <span class="kw">as </span>scale::Decode
+    &gt;::decode(<span class="kw-2">&amp;mut &amp;</span>input[..])
+        .unwrap_or_else(|e| <span class="macro">panic!</span>(<span class="string">"Failed to decode constructor call: {:?}"</span>, e));
+
+    <span class="kw">crate</span>::reflect::ExecuteDispatchable::execute_dispatchable(dispatch)
+        .unwrap_or_else(|e| <span class="macro">panic!</span>(<span class="string">"Message call failed: {:?}"</span>, e));
+
+    <span class="kw">crate</span>::test::get_return_value()
+}
+
+<span class="kw">fn </span>invoke_contract_impl&lt;R&gt;(
+    env: <span class="kw-2">&amp;mut </span>EnvInstance,
+    _gas_limit: <span class="prelude-ty">Option</span>&lt;u64&gt;,
+    _call_flags: u32,
+    _transferred_value: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>U256&gt;,
+    callee_account: H160,
+    input: Vec&lt;u8&gt;,
+) -&gt; <span class="prelude-ty">Result</span>&lt;ink_primitives::MessageResult&lt;R&gt;&gt;
+<span class="kw">where
+    </span>R: scale::Decode,
+{
+    <span class="kw">let </span>callee_code_hash = env.code_hash(<span class="kw-2">&amp;</span>callee_account).unwrap_or_else(|err| {
+        <span class="macro">panic!</span>(
+            <span class="string">"failed getting code hash for {:?}: {:?}"</span>,
+            callee_account, err
+        )
+    });
+
+    <span class="kw">let </span>handler = env
+        .engine
+        .database
+        .get_contract_message_handler(<span class="kw-2">&amp;</span>callee_code_hash);
+    <span class="kw">let </span>old_callee = env.engine.get_callee();
+    env.engine.set_callee(callee_account);
+
+    <span class="kw">let </span>result = handler(input);
+
+    env.engine.set_callee(old_callee);
+
+    <span class="kw">let </span>result =
+        &lt;ink_primitives::MessageResult&lt;R&gt; <span class="kw">as </span>scale::Decode&gt;::decode(<span class="kw-2">&amp;mut &amp;</span>result[..])
+            .expect(<span class="string">"failed to decode return value"</span>);
+
+    <span class="prelude-val">Ok</span>(result)
+}
+
+<span class="kw">fn </span>invoke_contract_impl_delegate&lt;R&gt;(
+    env: <span class="kw-2">&amp;mut </span>EnvInstance,
+    _gas_limit: <span class="prelude-ty">Option</span>&lt;u64&gt;,
+    _call_flags: u32,
+    _transferred_value: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>U256&gt;,
+    callee_account: H160,
+    input: Vec&lt;u8&gt;,
+) -&gt; <span class="prelude-ty">Result</span>&lt;ink_primitives::MessageResult&lt;R&gt;&gt;
+<span class="kw">where
+    </span>R: scale::Decode,
+{
+    <span class="kw">let </span>callee_code_hash = env.code_hash(<span class="kw-2">&amp;</span>callee_account).unwrap_or_else(|err| {
+        <span class="macro">panic!</span>(
+            <span class="string">"failed getting code hash for {:?}: {:?}"</span>,
+            callee_account, err
+        )
+    });
+
+    <span class="kw">let </span>handler = env
+        .engine
+        .database
+        .get_contract_message_handler(<span class="kw-2">&amp;</span>callee_code_hash);
+    <span class="kw">let </span>result = handler(input);
+
+    <span class="kw">let </span>result =
+        &lt;ink_primitives::MessageResult&lt;R&gt; <span class="kw">as </span>scale::Decode&gt;::decode(<span class="kw-2">&amp;mut &amp;</span>result[..])
+            .expect(<span class="string">"failed to decode return value"</span>);
+
+    <span class="prelude-val">Ok</span>(result)
+}
 
 <span class="kw">impl </span>CryptoHash <span class="kw">for </span>Blake2x128 {
     <span class="kw">fn </span>hash(input: <span class="kw-2">&amp;</span>[u8], output: <span class="kw-2">&amp;mut </span>&lt;<span class="self">Self </span><span class="kw">as </span>HashOutput&gt;::Type) {
@@ -750,13 +1009,12 @@
 {
     <span class="kw">type </span>Output = Vec&lt;u8&gt;;
 
-    <span class="kw">fn </span>expect(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _expected_topics: usize) {}
-
     <span class="kw">fn </span>push_topic&lt;T&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, topic_value: <span class="kw-2">&amp;</span>T)
     <span class="kw">where
         </span>T: scale::Encode,
     {
-        <span class="kw">let </span>encoded = topic_value.encode();
+        <span class="comment">// todo
+        </span><span class="kw">let </span>encoded = topic_value.encode();
         <span class="kw">let </span>len_encoded = encoded.len();
         <span class="kw">let </span><span class="kw-2">mut </span>result = &lt;E <span class="kw">as </span>Environment&gt;::Hash::CLEAR_HASH;
         <span class="kw">let </span>len_result = result.as_ref().len();
@@ -798,6 +1056,23 @@
         <span class="kw">let </span>full_scope = <span class="kw-2">&amp;mut &amp;mut </span>full_scope[..];
         ext_fn(<span class="kw-2">&amp;</span><span class="self">self</span>.engine, full_scope);
         scale::Decode::decode(<span class="kw-2">&amp;mut &amp;</span>full_scope[..]).map_err(Into::into)
+    }
+
+    <span class="kw">pub fn </span>get_return_value(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; Vec&lt;u8&gt; {
+        <span class="self">self</span>.engine.get_storage(<span class="kw-2">&amp;</span>[<span class="number">255_u8</span>; <span class="number">32</span>]).unwrap().to_vec()
+    }
+
+    <span class="kw">pub fn </span>upload_code&lt;ContractRef&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; H256
+    <span class="kw">where
+        </span>ContractRef: <span class="kw">crate</span>::ContractReverseReference,
+        &lt;ContractRef <span class="kw">as </span><span class="kw">crate</span>::ContractReverseReference&gt;::Type:
+            <span class="kw">crate</span>::reflect::ContractMessageDecoder,
+    {
+        H256::from(
+            <span class="self">self</span>.engine
+                .database
+                .set_contract_message_handler(execute_contract_call::&lt;ContractRef&gt;),
+        )
     }
 }
 
@@ -863,11 +1138,22 @@
         <span class="macro">unimplemented!</span>(<span class="string">"the off-chain env does not implement `input`"</span>)
     }
 
-    <span class="kw">fn </span>return_value&lt;R&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _flags: ReturnFlags, _return_value: <span class="kw-2">&amp;</span>R) -&gt; !
+    <span class="attr">#[cfg(not(feature = <span class="string">"std"</span>))]
+    </span><span class="kw">fn </span>return_value&lt;R&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _flags: ReturnFlags, _return_value: <span class="kw-2">&amp;</span>R) -&gt; !
     <span class="kw">where
         </span>R: scale::Encode,
     {
-        <span class="macro">unimplemented!</span>(<span class="string">"the off-chain env does not implement `return_value`"</span>)
+        <span class="macro">panic!</span>(<span class="string">"enable feature `std` to use `return_value()`"</span>)
+    }
+
+    <span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
+    </span><span class="kw">fn </span>return_value&lt;R&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _flags: ReturnFlags, return_value: <span class="kw-2">&amp;</span>R)
+    <span class="kw">where
+        </span>R: scale::Encode,
+    {
+        <span class="kw">let </span><span class="kw-2">mut </span>v = <span class="macro">vec!</span>[];
+        return_value.encode_to(<span class="kw-2">&amp;mut </span>v);
+        <span class="self">self</span>.engine.set_storage(<span class="kw-2">&amp;</span>[<span class="number">255_u8</span>; <span class="number">32</span>], <span class="kw-2">&amp;</span>v[..]);
     }
 
     <span class="kw">fn </span>debug_message(<span class="kw-2">&amp;mut </span><span class="self">self</span>, message: <span class="kw-2">&amp;</span>str) {
@@ -890,7 +1176,8 @@
         &lt;H <span class="kw">as </span>CryptoHash&gt;::hash(enc_input, output)
     }
 
-    <span class="kw">fn </span>ecdsa_recover(
+    <span class="attr">#[allow(clippy::arithmetic_side_effects)] </span><span class="comment">// todo
+    </span><span class="kw">fn </span>ecdsa_recover(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         signature: <span class="kw-2">&amp;</span>[u8; <span class="number">65</span>],
         message_hash: <span class="kw-2">&amp;</span>[u8; <span class="number">32</span>],
@@ -913,7 +1200,7 @@
         </span>} <span class="kw">else </span>{
             signature[<span class="number">64</span>]
         };
-        <span class="kw">let </span>recovery_id = RecoveryId::from_i32(recovery_byte <span class="kw">as </span>i32)
+        <span class="kw">let </span>recovery_id = RecoveryId::try_from(recovery_byte <span class="kw">as </span>i32)
             .unwrap_or_else(|error| <span class="macro">panic!</span>(<span class="string">"Unable to parse the recovery id: {error}"</span>));
         <span class="kw">let </span>message = Message::from_digest_slice(message_hash).unwrap_or_else(|error| {
             <span class="macro">panic!</span>(<span class="string">"Unable to create the message from hash: {error}"</span>)
@@ -997,28 +1284,24 @@
         <span class="prelude-val">Ok</span>(decoded)
     }
 
-    <span class="kw">fn </span>set_code_hash(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _code_hash: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-        <span class="macro">unimplemented!</span>(<span class="string">"off-chain environment does not support `set_code_hash`"</span>)
+    <span class="kw">fn </span>set_code_hash(<span class="kw-2">&amp;mut </span><span class="self">self</span>, code_hash: <span class="kw-2">&amp;</span>H256) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+        <span class="self">self</span>.engine
+            .database
+            .set_code_hash(<span class="kw-2">&amp;</span><span class="self">self</span>.engine.get_callee(), code_hash);
+        <span class="prelude-val">Ok</span>(())
     }
 }
 
 <span class="kw">impl </span>TypedEnvBackend <span class="kw">for </span>EnvInstance {
-    <span class="kw">fn </span>caller&lt;E: Environment&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; E::AccountId {
-        <span class="self">self</span>.get_property::&lt;E::AccountId&gt;(Engine::caller)
+    <span class="kw">fn </span>caller(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; H160 {
+        <span class="self">self</span>.get_property::&lt;H160&gt;(Engine::caller)
             .unwrap_or_else(|error| <span class="macro">panic!</span>(<span class="string">"could not read `caller` property: {error:?}"</span>))
     }
 
-    <span class="kw">fn </span>transferred_value&lt;E: Environment&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; E::Balance {
-        <span class="self">self</span>.get_property::&lt;E::Balance&gt;(Engine::value_transferred)
+    <span class="kw">fn </span>transferred_value(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; U256 {
+        <span class="self">self</span>.get_property(Engine::value_transferred)
             .unwrap_or_else(|error| {
                 <span class="macro">panic!</span>(<span class="string">"could not read `transferred_value` property: {error:?}"</span>)
-            })
-    }
-
-    <span class="kw">fn </span>gas_left&lt;E: Environment&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; u64 {
-        <span class="self">self</span>.get_property::&lt;u64&gt;(Engine::gas_left)
-            .unwrap_or_else(|error| {
-                <span class="macro">panic!</span>(<span class="string">"could not read `gas_left` property: {error:?}"</span>)
             })
     }
 
@@ -1030,14 +1313,22 @@
     }
 
     <span class="kw">fn </span>account_id&lt;E: Environment&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; E::AccountId {
-        <span class="self">self</span>.get_property::&lt;E::AccountId&gt;(Engine::address)
+        <span class="comment">// todo should not use `Engine::account_id`
+        </span><span class="self">self</span>.get_property::&lt;E::AccountId&gt;(Engine::address)
             .unwrap_or_else(|error| {
                 <span class="macro">panic!</span>(<span class="string">"could not read `account_id` property: {error:?}"</span>)
             })
     }
 
-    <span class="kw">fn </span>balance&lt;E: Environment&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; E::Balance {
-        <span class="self">self</span>.get_property::&lt;E::Balance&gt;(Engine::balance)
+    <span class="kw">fn </span>address(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; H160 {
+        <span class="self">self</span>.get_property::&lt;H160&gt;(Engine::address)
+            .unwrap_or_else(|error| {
+                <span class="macro">panic!</span>(<span class="string">"could not read `account_id` property: {error:?}"</span>)
+            })
+    }
+
+    <span class="kw">fn </span>balance(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; U256 {
+        <span class="self">self</span>.get_property::&lt;U256&gt;(Engine::balance)
             .unwrap_or_else(|error| {
                 <span class="macro">panic!</span>(<span class="string">"could not read `balance` property: {error:?}"</span>)
             })
@@ -1068,48 +1359,58 @@
         <span class="self">self</span>.engine.deposit_event(<span class="kw-2">&amp;</span>enc_topics[..], enc_data);
     }
 
-    <span class="kw">fn </span>invoke_contract_v1&lt;E, Args, R&gt;(
-        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
-        _params: <span class="kw-2">&amp;</span>CallParams&lt;E, CallV1&lt;E&gt;, Args, R&gt;,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;ink_primitives::MessageResult&lt;R&gt;&gt;
-    <span class="kw">where
-        </span>E: Environment,
-        Args: scale::Encode,
-        R: scale::Decode,
-    {
-        <span class="macro">unimplemented!</span>(<span class="string">"off-chain environment does not support contract invocation"</span>)
-    }
-
     <span class="kw">fn </span>invoke_contract&lt;E, Args, R&gt;(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
-        _params: <span class="kw-2">&amp;</span>CallParams&lt;E, Call&lt;E&gt;, Args, R&gt;,
+        params: <span class="kw-2">&amp;</span>CallParams&lt;E, Call, Args, R&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;ink_primitives::MessageResult&lt;R&gt;&gt;
     <span class="kw">where
         </span>E: Environment,
         Args: scale::Encode,
         R: scale::Decode,
     {
-        <span class="macro">unimplemented!</span>(<span class="string">"off-chain environment does not support contract invocation"</span>)
+        <span class="kw">let </span>call_flags = params.call_flags().bits();
+        <span class="kw">let </span>transferred_value = params.transferred_value();
+        <span class="kw">let </span>input = params.exec_input();
+        <span class="kw">let </span>callee_account = params.callee();
+        <span class="kw">let </span>input = scale::Encode::encode(input);
+
+        invoke_contract_impl::&lt;R&gt;(
+            <span class="self">self</span>,
+            <span class="prelude-val">None</span>,
+            call_flags,
+            <span class="prelude-val">Some</span>(transferred_value),
+            <span class="kw-2">*</span>callee_account, <span class="comment">// todo possibly return no reference from callee()
+            </span>input,
+        )
     }
 
     <span class="kw">fn </span>invoke_contract_delegate&lt;E, Args, R&gt;(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
-        params: <span class="kw-2">&amp;</span>CallParams&lt;E, DelegateCall&lt;E&gt;, Args, R&gt;,
+        params: <span class="kw-2">&amp;</span>CallParams&lt;E, DelegateCall, Args, R&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;ink_primitives::MessageResult&lt;R&gt;&gt;
     <span class="kw">where
         </span>E: Environment,
         Args: scale::Encode,
         R: scale::Decode,
     {
-        <span class="kw">let </span>_code_hash = params.code_hash();
-        <span class="macro">unimplemented!</span>(
-            <span class="string">"off-chain environment does not support delegated contract invocation"
-        </span>)
+        <span class="kw">let </span>_addr = params.address();
+        <span class="kw">let </span>call_flags = params.call_flags().bits();
+        <span class="kw">let </span>input = params.exec_input();
+        <span class="kw">let </span>input = scale::Encode::encode(input);
+
+        invoke_contract_impl_delegate::&lt;R&gt;(
+            <span class="self">self</span>,
+            <span class="prelude-val">None</span>,
+            call_flags,
+            <span class="prelude-val">None</span>,
+            <span class="kw-2">*</span>params.address(),
+            input,
+        )
     }
 
-    <span class="kw">fn </span>instantiate_contract&lt;E, ContractRef, Args, Salt, R&gt;(
+    <span class="kw">fn </span>instantiate_contract&lt;E, ContractRef, Args, R&gt;(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
-        params: <span class="kw-2">&amp;</span>CreateParams&lt;E, ContractRef, LimitParamsV2&lt;E&gt;, Args, Salt, R&gt;,
+        params: <span class="kw-2">&amp;</span>CreateParams&lt;E, ContractRef, LimitParamsV2, Args, R&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;
         ink_primitives::ConstructorResult&lt;
             &lt;R <span class="kw">as </span>ConstructorReturnType&lt;ContractRef&gt;&gt;::Output,
@@ -1117,60 +1418,81 @@
     &gt;
     <span class="kw">where
         </span>E: Environment,
-        ContractRef: FromAccountId&lt;E&gt;,
+        ContractRef: FromAddr + <span class="kw">crate</span>::ContractReverseReference,
+        &lt;ContractRef <span class="kw">as </span><span class="kw">crate</span>::ContractReverseReference&gt;::Type:
+            <span class="kw">crate</span>::reflect::ContractConstructorDecoder,
         Args: scale::Encode,
-        Salt: AsRef&lt;[u8]&gt;,
         R: ConstructorReturnType&lt;ContractRef&gt;,
     {
-        <span class="kw">let </span>_code_hash = params.code_hash();
-        <span class="kw">let </span>_ref_time_limit = params.ref_time_limit();
-        <span class="kw">let </span>_proof_size_limit = params.proof_size_limit();
-        <span class="kw">let </span>_storage_deposit_limit = params.storage_deposit_limit();
-        <span class="kw">let </span>_endowment = params.endowment();
-        <span class="kw">let </span>_input = params.exec_input();
-        <span class="kw">let </span>_salt_bytes = params.salt_bytes();
-        <span class="macro">unimplemented!</span>(<span class="string">"off-chain environment does not support contract instantiation"</span>)
+        <span class="kw">let </span>endowment = params.endowment();
+        <span class="kw">let </span>salt_bytes = params.salt_bytes();
+        <span class="kw">let </span>code_hash = params.code_hash();
+
+        <span class="kw">let </span>input = params.exec_input();
+        <span class="kw">let </span>input = scale::Encode::encode(input);
+
+        <span class="comment">// Compute address for instantiated contract.
+        </span><span class="kw">let </span>addr_id_vec = {
+            <span class="kw">let </span><span class="kw-2">mut </span>account_input = Vec::&lt;u8&gt;::new();
+            account_input.extend(<span class="kw-2">&amp;</span><span class="string">b"contract_addr"</span>.to_vec());
+            scale::Encode::encode_to(
+                <span class="kw-2">&amp;</span><span class="self">self</span>.engine.exec_context.caller.as_bytes(),
+                <span class="kw-2">&amp;mut </span>account_input,
+            );
+            account_input.extend(<span class="kw-2">&amp;</span>code_hash.<span class="number">0</span>);
+            account_input.extend(<span class="kw-2">&amp;</span>input);
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(salt) = salt_bytes {
+                account_input.extend(salt);
+            }
+            <span class="kw">let </span><span class="kw-2">mut </span>account_id = [<span class="number">0_u8</span>; <span class="number">32</span>];
+            ink_engine::hashing::blake2b_256(<span class="kw-2">&amp;</span>account_input[..], <span class="kw-2">&amp;mut </span>account_id);
+            account_id.to_vec()
+        };
+        <span class="kw">let </span>contract_addr = H160::from_slice(<span class="kw-2">&amp;</span>addr_id_vec[..<span class="number">20</span>]);
+
+        <span class="kw">let </span>old_callee = <span class="self">self</span>.engine.get_callee();
+        <span class="self">self</span>.engine.set_callee(contract_addr);
+
+        <span class="kw">let </span>dispatch = &lt;
+            &lt;
+                &lt;
+                    ContractRef
+                    <span class="kw">as </span><span class="kw">crate</span>::ContractReverseReference
+                &gt;::Type
+                <span class="kw">as </span><span class="kw">crate</span>::reflect::ContractConstructorDecoder
+            &gt;::Type
+            <span class="kw">as </span>scale::Decode
+        &gt;::decode(<span class="kw-2">&amp;mut &amp;</span>input[..])
+            .unwrap_or_else(|e| <span class="macro">panic!</span>(<span class="string">"Failed to decode constructor call: {:?}"</span>, e));
+        <span class="kw">crate</span>::reflect::ExecuteDispatchable::execute_dispatchable(dispatch)
+            .unwrap_or_else(|e| <span class="macro">panic!</span>(<span class="string">"Constructor call failed: {:?}"</span>, e));
+
+        <span class="self">self</span>.set_code_hash(code_hash)<span class="question-mark">?</span>;
+        <span class="self">self</span>.engine.set_contract(callee());
+        <span class="self">self</span>.engine
+            .database
+            <span class="comment">// todo passing the types instead of refs would be better
+            </span>.set_balance(<span class="kw-2">&amp;</span>callee(), <span class="kw-2">*</span>endowment);
+
+        <span class="comment">// todo why?
+        </span><span class="self">self</span>.engine.set_callee(old_callee);
+
+        <span class="prelude-val">Ok</span>(<span class="prelude-val">Ok</span>(R::ok(&lt;ContractRef <span class="kw">as </span>FromAddr&gt;::from_addr(
+            contract_addr,
+        ))))
     }
 
-    <span class="kw">fn </span>instantiate_contract_v1&lt;E, ContractRef, Args, Salt, R&gt;(
-        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
-        params: <span class="kw-2">&amp;</span>CreateParams&lt;E, ContractRef, LimitParamsV1, Args, Salt, R&gt;,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;
-        ink_primitives::ConstructorResult&lt;
-            &lt;R <span class="kw">as </span>ConstructorReturnType&lt;ContractRef&gt;&gt;::Output,
-        &gt;,
-    &gt;
-    <span class="kw">where
-        </span>E: Environment,
-        ContractRef: FromAccountId&lt;E&gt;,
-        Args: scale::Encode,
-        Salt: AsRef&lt;[u8]&gt;,
-        R: ConstructorReturnType&lt;ContractRef&gt;,
-    {
-        <span class="kw">let </span>_code_hash = params.code_hash();
-        <span class="kw">let </span>_ref_time_limit = params.gas_limit();
-        <span class="kw">let </span>_endowment = params.endowment();
-        <span class="kw">let </span>_input = params.exec_input();
-        <span class="kw">let </span>_salt_bytes = params.salt_bytes();
-        <span class="macro">unimplemented!</span>(<span class="string">"off-chain environment does not support contract instantiation"</span>)
+    <span class="kw">fn </span>terminate_contract(<span class="kw-2">&amp;mut </span><span class="self">self</span>, beneficiary: H160) -&gt; ! {
+        <span class="self">self</span>.engine.terminate(beneficiary)
     }
 
-    <span class="kw">fn </span>terminate_contract&lt;E&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, beneficiary: E::AccountId) -&gt; !
+    <span class="kw">fn </span>transfer&lt;E&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, destination: H160, value: U256) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt;
     <span class="kw">where
         </span>E: Environment,
     {
-        <span class="kw">let </span>buffer = scale::Encode::encode(<span class="kw-2">&amp;</span>beneficiary);
-        <span class="self">self</span>.engine.terminate(<span class="kw-2">&amp;</span>buffer[..])
-    }
-
-    <span class="kw">fn </span>transfer&lt;E&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, destination: E::AccountId, value: E::Balance) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt;
-    <span class="kw">where
-        </span>E: Environment,
-    {
-        <span class="kw">let </span>enc_destination = <span class="kw-2">&amp;</span>scale::Encode::encode(<span class="kw-2">&amp;</span>destination)[..];
         <span class="kw">let </span>enc_value = <span class="kw-2">&amp;</span>scale::Encode::encode(<span class="kw-2">&amp;</span>value)[..];
         <span class="self">self</span>.engine
-            .transfer(enc_destination, enc_value)
+            .transfer(destination, enc_value)
             .map_err(Into::into)
     }
 
@@ -1182,11 +1504,8 @@
         })
     }
 
-    <span class="kw">fn </span>is_contract&lt;E&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, account: <span class="kw-2">&amp;</span>E::AccountId) -&gt; bool
-    <span class="kw">where
-        </span>E: Environment,
-    {
-        <span class="self">self</span>.engine.is_contract(scale::Encode::encode(<span class="kw-2">&amp;</span>account))
+    <span class="kw">fn </span>is_contract(<span class="kw-2">&amp;mut </span><span class="self">self</span>, account: <span class="kw-2">&amp;</span>H160) -&gt; bool {
+        <span class="self">self</span>.engine.is_contract(account)
     }
 
     <span class="kw">fn </span>caller_is_origin&lt;E&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; bool
@@ -1203,18 +1522,25 @@
         <span class="macro">unimplemented!</span>(<span class="string">"off-chain environment does not support `caller_is_root`"</span>)
     }
 
-    <span class="kw">fn </span>code_hash&lt;E&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _account: <span class="kw-2">&amp;</span>E::AccountId) -&gt; <span class="prelude-ty">Result</span>&lt;E::Hash&gt;
-    <span class="kw">where
-        </span>E: Environment,
-    {
-        <span class="macro">unimplemented!</span>(<span class="string">"off-chain environment does not support `code_hash`"</span>)
+    <span class="kw">fn </span>code_hash(<span class="kw-2">&amp;mut </span><span class="self">self</span>, addr: <span class="kw-2">&amp;</span>H160) -&gt; <span class="prelude-ty">Result</span>&lt;H256&gt; {
+        <span class="kw">let </span>code_hash = <span class="self">self</span>.engine.database.get_code_hash(addr);
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(code_hash) = code_hash {
+            <span class="comment">// todo
+            </span><span class="kw">let </span>code_hash = H256::decode(<span class="kw-2">&amp;mut &amp;</span>code_hash[..]).unwrap();
+            <span class="prelude-val">Ok</span>(code_hash)
+        } <span class="kw">else </span>{
+            <span class="prelude-val">Err</span>(ReturnErrorCode::KeyNotFound.into())
+        }
     }
 
-    <span class="kw">fn </span>own_code_hash&lt;E&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;E::Hash&gt;
-    <span class="kw">where
-        </span>E: Environment,
-    {
-        <span class="macro">unimplemented!</span>(<span class="string">"off-chain environment does not support `own_code_hash`"</span>)
+    <span class="kw">fn </span>own_code_hash(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;H256&gt; {
+        <span class="kw">let </span>callee = <span class="kw-2">&amp;</span><span class="self">self</span>.engine.get_callee();
+        <span class="kw">let </span>code_hash = <span class="self">self</span>.engine.database.get_code_hash(callee);
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(code_hash) = code_hash {
+            <span class="prelude-val">Ok</span>(code_hash)
+        } <span class="kw">else </span>{
+            <span class="prelude-val">Err</span>(ReturnErrorCode::KeyNotFound.into())
+        }
     }
 
     <span class="kw">fn </span>call_runtime&lt;E, Call&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _call: <span class="kw-2">&amp;</span>Call) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt;
@@ -1224,7 +1550,7 @@
         <span class="macro">unimplemented!</span>(<span class="string">"off-chain environment does not support `call_runtime`"</span>)
     }
 
-    <span class="kw">fn </span>lock_delegate_dependency&lt;E&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _code_hash: <span class="kw-2">&amp;</span>E::Hash)
+    <span class="kw">fn </span>lock_delegate_dependency&lt;E&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _code_hash: <span class="kw-2">&amp;</span>H256)
     <span class="kw">where
         </span>E: Environment,
     {
@@ -1249,7 +1575,7 @@
         <span class="macro">unimplemented!</span>(<span class="string">"off-chain environment does not support `xcm_send`"</span>)
     }
 
-    <span class="kw">fn </span>unlock_delegate_dependency&lt;E&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _code_hash: <span class="kw-2">&amp;</span>E::Hash)
+    <span class="kw">fn </span>unlock_delegate_dependency&lt;E&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _code_hash: <span class="kw-2">&amp;</span>H256)
     <span class="kw">where
         </span>E: Environment,
     {

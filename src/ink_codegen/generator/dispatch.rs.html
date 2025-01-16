@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/ink/codegen/src/generator/dispatch.rs`."><title>dispatch.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-c5d6553a23f1e5a6.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="ink_codegen" data-themes="" data-resource-suffix="" data-rustdoc-version="1.81.0 (eeb90cda1 2024-09-04)" data-channel="1.81.0" data-search-js="search-d234aafac6c221dd.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-d2fab2bf619172d3.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/ink/codegen/src/generator/dispatch.rs`."><title>dispatch.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-b0742ba02757f159.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="ink_codegen" data-themes="" data-resource-suffix="" data-rustdoc-version="1.83.0 (90b35a623 2024-11-26)" data-channel="1.83.0" data-search-js="search-f0d225181b97f9a4.js" data-settings-js="settings-805db61a62df4bd2.js" ><script src="../../../static.files/storage-1d39b6787ed640ff.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-f070b9041d14864c.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-0111fcff984fae8f.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">ink_codegen/generator/</div>dispatch.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers">
+<a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -962,7 +963,47 @@
 <a href="#962" id="962">962</a>
 <a href="#963" id="963">963</a>
 <a href="#964" id="964">964</a>
-</pre></div><pre class="rust"><code><span class="comment">// Copyright (C) Use Ink (UK) Ltd.
+<a href="#965" id="965">965</a>
+<a href="#966" id="966">966</a>
+<a href="#967" id="967">967</a>
+<a href="#968" id="968">968</a>
+<a href="#969" id="969">969</a>
+<a href="#970" id="970">970</a>
+<a href="#971" id="971">971</a>
+<a href="#972" id="972">972</a>
+<a href="#973" id="973">973</a>
+<a href="#974" id="974">974</a>
+<a href="#975" id="975">975</a>
+<a href="#976" id="976">976</a>
+<a href="#977" id="977">977</a>
+<a href="#978" id="978">978</a>
+<a href="#979" id="979">979</a>
+<a href="#980" id="980">980</a>
+<a href="#981" id="981">981</a>
+<a href="#982" id="982">982</a>
+<a href="#983" id="983">983</a>
+<a href="#984" id="984">984</a>
+<a href="#985" id="985">985</a>
+<a href="#986" id="986">986</a>
+<a href="#987" id="987">987</a>
+<a href="#988" id="988">988</a>
+<a href="#989" id="989">989</a>
+<a href="#990" id="990">990</a>
+<a href="#991" id="991">991</a>
+<a href="#992" id="992">992</a>
+<a href="#993" id="993">993</a>
+<a href="#994" id="994">994</a>
+<a href="#995" id="995">995</a>
+<a href="#996" id="996">996</a>
+<a href="#997" id="997">997</a>
+<a href="#998" id="998">998</a>
+<a href="#999" id="999">999</a>
+<a href="#1000" id="1000">1000</a>
+<a href="#1001" id="1001">1001</a>
+<a href="#1002" id="1002">1002</a>
+<a href="#1003" id="1003">1003</a>
+<a href="#1004" id="1004">1004</a>
+<a href="#1005" id="1005">1005</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) Use Ink (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -1047,6 +1088,7 @@
             <span class="self">self</span>.generate_constructor_decoder_type(<span class="kw-2">&amp;</span>constructors);
         <span class="kw">let </span>message_decoder_type = <span class="self">self</span>.generate_message_decoder_type(<span class="kw-2">&amp;</span>messages);
         <span class="kw">let </span>entry_points = <span class="self">self</span>.generate_entry_points(<span class="kw-2">&amp;</span>constructors, <span class="kw-2">&amp;</span>messages);
+
         <span class="macro">quote!</span> {
             #contract_dispatchable_constructor_infos
             #contract_dispatchable_messages_infos
@@ -1054,9 +1096,10 @@
             #message_decoder_type
 
             <span class="attr">#[cfg(not(any(test, feature = <span class="string">"std"</span>, feature = <span class="string">"ink-as-dependency"</span>)))]
-            </span><span class="kw">const _</span>: () = {
+            </span><span class="kw">mod </span>__do_not_access__ {
+                <span class="kw">use super</span>::<span class="kw-2">*</span>;
                 #entry_points
-            };
+            }
         }
     }
 }
@@ -1314,13 +1357,32 @@
         <span class="kw">let </span>any_constructor_accept_payment =
             <span class="self">self</span>.any_constructor_accepts_payment(constructors);
         <span class="kw">let </span>any_message_accepts_payment = <span class="self">self</span>.any_message_accepts_payment(messages);
+
+        <span class="kw">let </span>fn_call: syn::ItemFn = <span class="macro">syn::parse_quote!</span> {
+            <span class="attr">#[cfg(target_arch = <span class="string">"riscv64"</span>)]
+            #[::ink::polkavm_export(abi = ::ink::polkavm_derive::default_abi)]
+            </span><span class="kw">pub extern </span><span class="string">"C" </span><span class="kw">fn </span>call() {
+                internal_call()
+            }
+        };
+        <span class="kw">let </span>fn_deploy: syn::ItemFn = <span class="macro">syn::parse_quote!</span> {
+            <span class="attr">#[cfg(target_arch = <span class="string">"riscv64"</span>)]
+            #[::ink::polkavm_export(abi = ::ink::polkavm_derive::default_abi)]
+            </span><span class="kw">pub extern </span><span class="string">"C" </span><span class="kw">fn </span>deploy() {
+                <span class="comment">//panic!("---------------err code:\n1: _{:?}_", foo::BarPlain::Success );
+                </span>internal_deploy()
+            }
+        };
         <span class="macro">quote_spanned!</span>(span=&gt;
-            <span class="attr">#[allow(clippy::nonminimal_bool)]
+            <span class="attr">#[allow(dead_code)] </span><span class="comment">// clippy throws a false positive otherwise
+            </span><span class="attr">#[allow(clippy::nonminimal_bool)]
+            #[cfg(target_arch = <span class="string">"riscv64"</span>)]
             </span><span class="kw">fn </span>internal_deploy() {
                 <span class="kw">if </span>!#any_constructor_accept_payment {
                     ::ink::codegen::deny_payment::&lt;&lt;#storage_ident <span class="kw">as </span>::ink::env::ContractEnv&gt;::Env&gt;()
                         .unwrap_or_else(|error| <span class="macro">::core::panic!</span>(<span class="string">"{}"</span>, error))
                 }
+
 
                 <span class="kw">let </span>dispatchable = <span class="kw">match </span>::ink::env::decode_input::&lt;
                     &lt;#storage_ident <span class="kw">as </span>::ink::reflect::ContractConstructorDecoder&gt;::Type,
@@ -1331,12 +1393,12 @@
                     ::core::result::Result::Err(_decoding_error) =&gt; {
                         <span class="kw">let </span>error = ::ink::ConstructorResult::Err(::ink::LangError::CouldNotReadInput);
 
-                        <span class="comment">// At this point we're unable to set the `Ok` variant to be the any "real"
+                        <span class="comment">// At this point we're unable to set the `Ok` variant to be the "real"
                         // constructor output since we were unable to figure out what the caller wanted
                         // to dispatch in the first place, so we set it to `()`.
                         //
                         // This is okay since we're going to only be encoding the `Err` variant
-                        // into the output buffer anyways.
+                        // into the output buffer anyway.
                         </span>::ink::env::return_value::&lt;::ink::ConstructorResult&lt;()&gt;&gt;(
                             ::ink::env::ReturnFlags::REVERT,
                             <span class="kw-2">&amp;</span>error,
@@ -1347,32 +1409,36 @@
                 &lt;&lt;#storage_ident <span class="kw">as </span>::ink::reflect::ContractConstructorDecoder&gt;::Type
                     <span class="kw">as </span>::ink::reflect::ExecuteDispatchable&gt;::execute_dispatchable(dispatchable)
                 .unwrap_or_else(|error| {
-                    <span class="macro">::core::panic!</span>(<span class="string">"dispatching ink! message failed: {}"</span>, error)
+                    <span class="macro">::core::panic!</span>(<span class="string">"dispatching ink! constructor failed: {}"</span>, error)
                 })
             }
 
-            <span class="attr">#[allow(clippy::nonminimal_bool)]
+            <span class="attr">#[allow(dead_code)] </span><span class="comment">// clippy throws a false positive otherwise
+            </span><span class="attr">#[allow(clippy::nonminimal_bool)]
+            #[cfg(target_arch = <span class="string">"riscv64"</span>)]
             </span><span class="kw">fn </span>internal_call() {
                 <span class="kw">if </span>!#any_message_accepts_payment {
                     ::ink::codegen::deny_payment::&lt;&lt;#storage_ident <span class="kw">as </span>::ink::env::ContractEnv&gt;::Env&gt;()
                         .unwrap_or_else(|error| <span class="macro">::core::panic!</span>(<span class="string">"{}"</span>, error))
                 }
 
-                <span class="kw">let </span>dispatchable = <span class="kw">match </span>::ink::env::decode_input::&lt;
+                <span class="comment">//::ink::env::debug_println!("before decode");
+                </span><span class="kw">let </span>dispatchable = <span class="kw">match </span>::ink::env::decode_input::&lt;
                     &lt;#storage_ident <span class="kw">as </span>::ink::reflect::ContractMessageDecoder&gt;::Type,
                 &gt;() {
                     ::core::result::Result::Ok(decoded_dispatchable) =&gt; {
-                        decoded_dispatchable
+                        <span class="comment">//::ink::env::debug_println!("in ok");
+                        </span>decoded_dispatchable
                     }
                     ::core::result::Result::Err(_decoding_error) =&gt; {
                         <span class="kw">let </span>error = ::ink::MessageResult::Err(::ink::LangError::CouldNotReadInput);
 
-                        <span class="comment">// At this point we're unable to set the `Ok` variant to be the any "real"
+                        <span class="comment">// At this point we're unable to set the `Ok` variant to be the "real"
                         // message output since we were unable to figure out what the caller wanted
                         // to dispatch in the first place, so we set it to `()`.
                         //
                         // This is okay since we're going to only be encoding the `Err` variant
-                        // into the output buffer anyways.
+                        // into the output buffer anyway.
                         </span>::ink::env::return_value::&lt;::ink::MessageResult&lt;()&gt;&gt;(
                             ::ink::env::ReturnFlags::REVERT,
                             <span class="kw-2">&amp;</span>error,
@@ -1383,32 +1449,14 @@
                 &lt;&lt;#storage_ident <span class="kw">as </span>::ink::reflect::ContractMessageDecoder&gt;::Type
                     <span class="kw">as </span>::ink::reflect::ExecuteDispatchable&gt;::execute_dispatchable(dispatchable)
                 .unwrap_or_else(|error| {
-                    <span class="macro">::core::panic!</span>(<span class="string">"dispatching ink! message failed: {}"</span>, error)
+                    <span class="comment">//::ink::env::debug_println!("dispatching failed");
+                    </span><span class="macro">::core::panic!</span>(<span class="string">"dispatching ink! message failed: {}"</span>, error)
                 })
             }
 
-            <span class="attr">#[cfg(target_arch = <span class="string">"wasm32"</span>)]
-            #[no_mangle]
-            </span><span class="kw">pub extern </span><span class="string">"C" </span><span class="kw">fn </span>call() {
-                internal_call()
-            }
+            #fn_call
 
-            <span class="attr">#[cfg(target_arch = <span class="string">"wasm32"</span>)]
-            #[no_mangle]
-            </span><span class="kw">pub extern </span><span class="string">"C" </span><span class="kw">fn </span>deploy() {
-                internal_deploy()
-            }
-
-            <span class="attr">#[cfg(target_arch = <span class="string">"riscv32"</span>)]
-            #[no_mangle]
-            </span><span class="kw">pub extern </span><span class="string">"C" </span><span class="kw">fn </span>_start(call_flags: u32) {
-                <span class="kw">let </span>is_deploy = (call_flags &amp; <span class="number">0x0000_0001</span>) == <span class="number">1</span>;
-                <span class="kw">if </span>is_deploy {
-                    internal_deploy()
-                } <span class="kw">else </span>{
-                    internal_call()
-                }
-            }
+            #fn_deploy
         )
     }
 
@@ -1570,6 +1618,15 @@
                         // dispatch logic so `Ok` is always returned to the caller.
                         </span><span class="kw-2">&amp;</span>::ink::ConstructorResult::Ok(output_result.map(|<span class="kw">_</span>| ())),
                     );
+
+                    <span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
+                    </span><span class="kw">return </span>::core::result::Result::Ok(());
+
+                    <span class="attr">#[cfg(not(feature = <span class="string">"std"</span>))]
+                    #[cfg_attr(not(feature = <span class="string">"std"</span>), allow(unreachable_code))]
+                    </span>{
+                        <span class="macro">::core::unreachable!</span>(<span class="string">"either `return_value` or the `return` before will already have returned"</span>);
+                    }
                 }
             )
         });
@@ -1609,7 +1666,7 @@
                 }
 
                 <span class="kw">impl </span>::ink::reflect::ExecuteDispatchable <span class="kw">for </span>__ink_ConstructorDecoder {
-                    <span class="attr">#[allow(clippy::nonminimal_bool)]
+                    <span class="attr">#[allow(clippy::nonminimal_bool, dead_code)]
                     </span><span class="kw">fn </span>execute_dispatchable(<span class="self">self</span>) -&gt; ::core::result::Result&lt;(), ::ink::reflect::DispatchError&gt; {
                         <span class="kw">match </span><span class="self">self </span>{
                             #( #constructor_execute ),*
@@ -1746,7 +1803,23 @@
                     #( #cfg_attrs )*
                     <span class="self">Self</span>::#message_ident(input) =&gt; {
                         <span class="kw">if </span>#any_message_accepts_payment &amp;&amp; #deny_payment {
-                            ::ink::codegen::deny_payment::&lt;
+
+                            <span class="comment">/*
+                            let bar = ::ink::reflect::DispatchError::UnknownSelector;
+                            ::ink::env::debug_print!("bar: {:?}", bar);
+                            //let foo = format_args!("{}", bar);
+                            //let s = ::alloc::fmt::format(format_args!("{}", bar));
+                            let s = ::ink::env::format!("{}", ::ink::reflect::DispatchError::UnknownSelector);
+                            if s.eq("encountered unknown selector") {
+                                    ink::env::debug_print!("TRUE");
+                            } else {
+                                    ink::env::debug_print!("FALSE");
+                            }
+                             */
+
+                            //let foo = Err(::ink::reflect::DispatchError::UnknownSelector);
+                            //foo?
+                            </span>::ink::codegen::deny_payment::&lt;
                                 &lt;#storage_ident <span class="kw">as </span>::ink::env::ContractEnv&gt;::Env&gt;()<span class="question-mark">?</span>;
                         }
 
@@ -1770,7 +1843,16 @@
                             <span class="comment">// Currently no `LangError`s are raised at this level of the
                             // dispatch logic so `Ok` is always returned to the caller.
                             </span><span class="kw-2">&amp;</span>::ink::MessageResult::Ok(result),
-                        )
+                        );
+
+                        <span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
+                        </span><span class="kw">return </span>::core::result::Result::Ok(());
+
+                        <span class="attr">#[cfg(not(feature = <span class="string">"std"</span>))]
+                        #[cfg_attr(not(feature = <span class="string">"std"</span>), allow(unreachable_code))]
+                        </span>{
+                            <span class="macro">::core::unreachable!</span>(<span class="string">"either `return_value` or the `return` before will already have returned"</span>);
+                        }
                     }
                 )
         });
@@ -1820,7 +1902,7 @@
                 }
 
                 <span class="kw">impl </span>::ink::reflect::ExecuteDispatchable <span class="kw">for </span>__ink_MessageDecoder {
-                    <span class="attr">#[allow(clippy::nonminimal_bool, clippy::let_unit_value)]
+                    <span class="attr">#[allow(clippy::nonminimal_bool, clippy::let_unit_value, dead_code)]
                     </span><span class="kw">fn </span>execute_dispatchable(
                         <span class="self">self
                     </span>) -&gt; ::core::result::Result&lt;(), ::ink::reflect::DispatchError&gt; {
@@ -1840,7 +1922,7 @@
 
                         <span class="kw">match </span><span class="self">self </span>{
                             #( #message_execute ),*
-                        };
+                        }
                     }
                 }
 

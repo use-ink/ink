@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["AccountError","Error"],"mod":["ext","test_api"],"trait":["ChainExtension"]};
+window.SIDEBAR_ITEMS = {"enum":["AccountError","Error"],"mod":["ext","hashing","test_api"],"trait":["ChainExtension"]};

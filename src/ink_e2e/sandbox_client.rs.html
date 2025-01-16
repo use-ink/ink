@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/e2e/src/sandbox_client.rs`."><title>sandbox_client.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-c5d6553a23f1e5a6.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="ink_e2e" data-themes="" data-resource-suffix="" data-rustdoc-version="1.81.0 (eeb90cda1 2024-09-04)" data-channel="1.81.0" data-search-js="search-d234aafac6c221dd.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-d2fab2bf619172d3.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/e2e/src/sandbox_client.rs`."><title>sandbox_client.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-b0742ba02757f159.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="ink_e2e" data-themes="" data-resource-suffix="" data-rustdoc-version="1.83.0 (90b35a623 2024-11-26)" data-channel="1.83.0" data-search-js="search-f0d225181b97f9a4.js" data-settings-js="settings-805db61a62df4bd2.js" ><script src="../../static.files/storage-1d39b6787ed640ff.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-f070b9041d14864c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-0111fcff984fae8f.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">ink_e2e/</div>sandbox_client.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers">
+<a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -578,7 +579,68 @@
 <a href="#578" id="578">578</a>
 <a href="#579" id="579">579</a>
 <a href="#580" id="580">580</a>
-</pre></div><pre class="rust"><code><span class="comment">// Copyright (C) Use Ink (UK) Ltd.
+<a href="#581" id="581">581</a>
+<a href="#582" id="582">582</a>
+<a href="#583" id="583">583</a>
+<a href="#584" id="584">584</a>
+<a href="#585" id="585">585</a>
+<a href="#586" id="586">586</a>
+<a href="#587" id="587">587</a>
+<a href="#588" id="588">588</a>
+<a href="#589" id="589">589</a>
+<a href="#590" id="590">590</a>
+<a href="#591" id="591">591</a>
+<a href="#592" id="592">592</a>
+<a href="#593" id="593">593</a>
+<a href="#594" id="594">594</a>
+<a href="#595" id="595">595</a>
+<a href="#596" id="596">596</a>
+<a href="#597" id="597">597</a>
+<a href="#598" id="598">598</a>
+<a href="#599" id="599">599</a>
+<a href="#600" id="600">600</a>
+<a href="#601" id="601">601</a>
+<a href="#602" id="602">602</a>
+<a href="#603" id="603">603</a>
+<a href="#604" id="604">604</a>
+<a href="#605" id="605">605</a>
+<a href="#606" id="606">606</a>
+<a href="#607" id="607">607</a>
+<a href="#608" id="608">608</a>
+<a href="#609" id="609">609</a>
+<a href="#610" id="610">610</a>
+<a href="#611" id="611">611</a>
+<a href="#612" id="612">612</a>
+<a href="#613" id="613">613</a>
+<a href="#614" id="614">614</a>
+<a href="#615" id="615">615</a>
+<a href="#616" id="616">616</a>
+<a href="#617" id="617">617</a>
+<a href="#618" id="618">618</a>
+<a href="#619" id="619">619</a>
+<a href="#620" id="620">620</a>
+<a href="#621" id="621">621</a>
+<a href="#622" id="622">622</a>
+<a href="#623" id="623">623</a>
+<a href="#624" id="624">624</a>
+<a href="#625" id="625">625</a>
+<a href="#626" id="626">626</a>
+<a href="#627" id="627">627</a>
+<a href="#628" id="628">628</a>
+<a href="#629" id="629">629</a>
+<a href="#630" id="630">630</a>
+<a href="#631" id="631">631</a>
+<a href="#632" id="632">632</a>
+<a href="#633" id="633">633</a>
+<a href="#634" id="634">634</a>
+<a href="#635" id="635">635</a>
+<a href="#636" id="636">636</a>
+<a href="#637" id="637">637</a>
+<a href="#638" id="638">638</a>
+<a href="#639" id="639">639</a>
+<a href="#640" id="640">640</a>
+<a href="#641" id="641">641</a>
+<a href="#642" id="642">642</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) Use Ink (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -602,7 +664,11 @@
         salt,
         ContractsRegistry,
     },
-    contract_results::BareInstantiationResult,
+    contract_results::{
+        BareInstantiationResult,
+        ContractExecResultFor,
+        ContractResult,
+    },
     error::SandboxErr,
     log_error,
     CallBuilderFinal,
@@ -612,26 +678,35 @@
     E2EBackend,
     InstantiateDryRunResult,
     UploadResult,
+    H256,
 };
-
-<span class="kw">use </span>frame_support::traits::fungible::Inspect;
+<span class="kw">use </span>frame_support::{
+    dispatch::RawOrigin,
+    pallet_prelude::DispatchError,
+    traits::{
+        fungible::Inspect,
+        IsType,
+    },
+};
+<span class="kw">use </span>ink_env::Environment;
+<span class="kw">use </span>ink_primitives::DepositLimit;
 <span class="kw">use </span>ink_sandbox::{
     api::prelude::<span class="kw-2">*</span>,
+    frame_system,
+    frame_system::pallet_prelude::OriginFor,
     pallet_balances,
-    pallet_contracts,
+    pallet_revive,
     AccountIdFor,
     RuntimeCall,
     Sandbox,
     Weight,
 };
-<span class="kw">use </span>pallet_contracts::ContractResult;
-
-<span class="kw">use </span>ink_env::Environment;
 <span class="kw">use </span>jsonrpsee::core::async_trait;
-<span class="kw">use </span>pallet_contracts::{
+<span class="kw">use </span>pallet_revive::{
+    evm::U256,
     CodeUploadReturnValue,
-    ContractInstantiateResult,
     InstantiateReturnValue,
+    MomentOf,
 };
 <span class="kw">use </span>scale::{
     Decode,
@@ -641,34 +716,35 @@
     sr25519::Pair,
     Pair <span class="kw">as _</span>,
 };
+<span class="kw">use </span>sp_runtime::traits::Bounded;
 <span class="kw">use </span>std::{
     marker::PhantomData,
     path::PathBuf,
 };
 <span class="kw">use </span>subxt::{
     dynamic::Value,
-    tx::TxPayload,
+    tx::Payload,
 };
 <span class="kw">use </span>subxt_signer::sr25519::Keypair;
 
 <span class="kw">type </span>BalanceOf&lt;R&gt; = &lt;R <span class="kw">as </span>pallet_balances::Config&gt;::Balance;
 <span class="kw">type </span>ContractsBalanceOf&lt;R&gt; =
-    &lt;&lt;R <span class="kw">as </span>pallet_contracts::Config&gt;::Currency <span class="kw">as </span>Inspect&lt;AccountIdFor&lt;R&gt;&gt;&gt;::Balance;
+    &lt;&lt;R <span class="kw">as </span>pallet_revive::Config&gt;::Currency <span class="kw">as </span>Inspect&lt;AccountIdFor&lt;R&gt;&gt;&gt;::Balance;
 
-<span class="kw">pub struct </span>Client&lt;AccountId, Hash, S: Sandbox&gt; {
+<span class="kw">pub struct </span>Client&lt;AccountId, S: Sandbox&gt; {
     sandbox: S,
     contracts: ContractsRegistry,
-    _phantom: PhantomData&lt;(AccountId, Hash)&gt;,
+    _phantom: PhantomData&lt;AccountId&gt;,
 }
 
 <span class="comment">// While it is not necessary true that `Client` is `Send`, it will not be used in a way
 // that would violate this bound. In particular, all `Client` instances will be operating
 // synchronously.
-</span><span class="kw">unsafe impl</span>&lt;AccountId, Hash, S: Sandbox&gt; Send <span class="kw">for </span>Client&lt;AccountId, Hash, S&gt; {}
-<span class="kw">impl</span>&lt;AccountId, Hash, S: Sandbox&gt; Client&lt;AccountId, Hash, S&gt;
+</span><span class="kw">unsafe impl</span>&lt;AccountId, S: Sandbox&gt; Send <span class="kw">for </span>Client&lt;AccountId, S&gt; {}
+<span class="kw">impl</span>&lt;AccountId, S: Sandbox&gt; Client&lt;AccountId, S&gt;
 <span class="kw">where
     </span>S: Default,
-    S::Runtime: pallet_balances::Config + pallet_contracts::Config,
+    S::Runtime: pallet_balances::Config + pallet_revive::Config,
     AccountIdFor&lt;S::Runtime&gt;: From&lt;[u8; <span class="number">32</span>]&gt;,
     BalanceOf&lt;S::Runtime&gt;: From&lt;u128&gt;,
 {
@@ -707,8 +783,7 @@
 }
 
 <span class="attr">#[async_trait]
-</span><span class="kw">impl</span>&lt;AccountId: AsRef&lt;[u8; <span class="number">32</span>]&gt; + Send, Hash, S: Sandbox&gt; ChainBackend
-    <span class="kw">for </span>Client&lt;AccountId, Hash, S&gt;
+</span><span class="kw">impl</span>&lt;AccountId: AsRef&lt;[u8; <span class="number">32</span>]&gt; + Send, S: Sandbox&gt; ChainBackend <span class="kw">for </span>Client&lt;AccountId, S&gt;
 <span class="kw">where
     </span>S::Runtime: pallet_balances::Config,
     AccountIdFor&lt;S::Runtime&gt;: From&lt;[u8; <span class="number">32</span>]&gt;,
@@ -729,7 +804,7 @@
             .mint_into(<span class="kw-2">&amp;</span>pair.public().<span class="number">0</span>.into(), amount)
             .expect(<span class="string">"Failed to mint tokens"</span>);
 
-        Keypair::from_seed(seed).expect(<span class="string">"Failed to create keypair"</span>)
+        Keypair::from_secret_key(seed).expect(<span class="string">"Failed to create keypair"</span>)
     }
 
     <span class="kw">async fn </span>free_balance(
@@ -788,18 +863,21 @@
 <span class="attr">#[async_trait]
 </span><span class="kw">impl</span>&lt;
         AccountId: Clone + Send + Sync + From&lt;[u8; <span class="number">32</span>]&gt; + AsRef&lt;[u8; <span class="number">32</span>]&gt;,
-        Hash: Copy + Send + From&lt;[u8; <span class="number">32</span>]&gt;,
         S: Sandbox,
-        E: Environment&lt;
-                AccountId = AccountId,
-                Balance = ContractsBalanceOf&lt;S::Runtime&gt;,
-                Hash = Hash,
-            &gt; + <span class="lifetime">'static</span>,
-    &gt; BuilderClient&lt;E&gt; <span class="kw">for </span>Client&lt;AccountId, Hash, S&gt;
+        E: Environment&lt;AccountId = AccountId, Balance = ContractsBalanceOf&lt;S::Runtime&gt;&gt;
+            + <span class="lifetime">'static</span>,
+    &gt; BuilderClient&lt;E&gt; <span class="kw">for </span>Client&lt;AccountId, S&gt;
 <span class="kw">where
-    </span>S::Runtime: pallet_balances::Config + pallet_contracts::Config,
+    </span>S::Runtime: pallet_balances::Config + pallet_revive::Config,
     AccountIdFor&lt;S::Runtime&gt;: From&lt;[u8; <span class="number">32</span>]&gt; + AsRef&lt;[u8; <span class="number">32</span>]&gt;,
     ContractsBalanceOf&lt;S::Runtime&gt;: Send + Sync,
+
+    ContractsBalanceOf&lt;S::Runtime&gt;: Into&lt;U256&gt; + TryFrom&lt;U256&gt; + Bounded,
+    MomentOf&lt;S::Runtime&gt;: Into&lt;U256&gt;,
+
+    <span class="comment">// todo
+    </span>&lt;&lt;S <span class="kw">as </span>Sandbox&gt;::Runtime <span class="kw">as </span>frame_system::Config&gt;::Hash:
+        frame_support::traits::IsType&lt;sp_core::H256&gt;,
 {
     <span class="kw">async fn </span>bare_instantiate&lt;Contract: Clone, Args: Send + Sync + Encode + Clone, R&gt;(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
@@ -808,8 +886,11 @@
         constructor: <span class="kw-2">&amp;mut </span>CreateBuilderPartial&lt;E, Contract, Args, R&gt;,
         value: E::Balance,
         gas_limit: Weight,
-        storage_deposit_limit: <span class="prelude-ty">Option</span>&lt;E::Balance&gt;,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;BareInstantiationResult&lt;E, <span class="self">Self</span>::EventLog&gt;, <span class="self">Self</span>::Error&gt; {
+        storage_deposit_limit: DepositLimit&lt;E::Balance&gt;,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;BareInstantiationResult&lt;<span class="self">Self</span>::EventLog&gt;, <span class="self">Self</span>::Error&gt; {
+        <span class="kw">let _ </span>=
+            &lt;Client&lt;AccountId, S&gt; <span class="kw">as </span>BuilderClient&lt;E&gt;&gt;::map_account(<span class="self">self</span>, caller).<span class="kw">await</span>;
+
         <span class="kw">let </span>code = <span class="self">self</span>.contracts.load_code(contract_name);
         <span class="kw">let </span>data = constructor_exec_input(constructor.clone());
 
@@ -818,22 +899,21 @@
             value,
             data,
             salt(),
-            keypair_to_account(caller),
+            caller_to_origin::&lt;S&gt;(caller),
             gas_limit,
             storage_deposit_limit,
         );
 
-        <span class="kw">let </span>account_id_raw = <span class="kw">match </span><span class="kw-2">&amp;</span>result.result {
+        <span class="kw">let </span>addr_raw = <span class="kw">match </span><span class="kw-2">&amp;</span>result.result {
             <span class="prelude-val">Err</span>(err) =&gt; {
                 log_error(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"Instantiation failed: {err:?}"</span>));
                 <span class="kw">return </span><span class="prelude-val">Err</span>(SandboxErr::new(<span class="macro">format!</span>(<span class="string">"bare_instantiate: {err:?}"</span>)));
             }
-            <span class="prelude-val">Ok</span>(res) =&gt; <span class="kw-2">*</span>res.account_id.as_ref(),
+            <span class="prelude-val">Ok</span>(res) =&gt; res.addr,
         };
-        <span class="kw">let </span>account_id = AccountId::from(account_id_raw);
 
         <span class="prelude-val">Ok</span>(BareInstantiationResult {
-            account_id: account_id.clone(),
+            addr: addr_raw,
             events: (), <span class="comment">// todo: https://github.com/Cardinal-Cryptography/drink/issues/32
         </span>})
     }
@@ -844,8 +924,13 @@
         caller: <span class="kw-2">&amp;</span>Keypair,
         constructor: <span class="kw-2">&amp;mut </span>CreateBuilderPartial&lt;E, Contract, Args, R&gt;,
         value: E::Balance,
-        storage_deposit_limit: <span class="prelude-ty">Option</span>&lt;E::Balance&gt;,
+        storage_deposit_limit: DepositLimit&lt;E::Balance&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;InstantiateDryRunResult&lt;E&gt;, <span class="self">Self</span>::Error&gt; {
+        <span class="comment">// todo has to be: let _ = &lt;Client&lt;AccountId, S&gt; as
+        // BuilderClient&lt;E&gt;&gt;::map_account_dry_run(self, &amp;caller).await;
+        </span><span class="kw">let _ </span>=
+            &lt;Client&lt;AccountId, S&gt; <span class="kw">as </span>BuilderClient&lt;E&gt;&gt;::map_account(<span class="self">self</span>, caller).<span class="kw">await</span>;
+
         <span class="kw">let </span>code = <span class="self">self</span>.contracts.load_code(contract_name);
         <span class="kw">let </span>data = constructor_exec_input(constructor.clone());
         <span class="kw">let </span>result = <span class="self">self</span>.sandbox.dry_run(|sandbox| {
@@ -854,21 +939,20 @@
                 value,
                 data,
                 salt(),
-                keypair_to_account(caller),
+                caller_to_origin::&lt;S&gt;(caller),
                 S::default_gas_limit(),
                 storage_deposit_limit,
             )
         });
 
-        <span class="kw">let </span>account_id_raw = <span class="kw">match </span><span class="kw-2">&amp;</span>result.result {
+        <span class="kw">let </span>addr_id_raw = <span class="kw">match </span><span class="kw-2">&amp;</span>result.result {
             <span class="prelude-val">Err</span>(err) =&gt; {
                 <span class="macro">panic!</span>(<span class="string">"Instantiate dry-run failed: {err:?}!"</span>)
             }
-            <span class="prelude-val">Ok</span>(res) =&gt; <span class="kw-2">*</span>res.account_id.as_ref(),
+            <span class="prelude-val">Ok</span>(res) =&gt; res.addr,
         };
-        <span class="kw">let </span>account_id = AccountId::from(account_id_raw);
 
-        <span class="kw">let </span>result = ContractInstantiateResult {
+        <span class="kw">let </span>result = ContractResult::&lt;InstantiateReturnValue, E::Balance&gt; {
             gas_consumed: result.gas_consumed,
             gas_required: result.gas_required,
             storage_deposit: result.storage_deposit,
@@ -876,10 +960,9 @@
             result: result.result.map(|r| {
                 InstantiateReturnValue {
                     result: r.result,
-                    account_id,
-                }
+                    addr: addr_id_raw, <span class="comment">// todo
+                </span>}
             }),
-            events: <span class="prelude-val">None</span>,
         };
         <span class="prelude-val">Ok</span>(result.into())
     }
@@ -888,15 +971,14 @@
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         contract_name: <span class="kw-2">&amp;</span>str,
         caller: <span class="kw-2">&amp;</span>Keypair,
-        storage_deposit_limit: <span class="prelude-ty">Option</span>&lt;E::Balance&gt;,
+        storage_deposit_limit: E::Balance,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;UploadResult&lt;E, <span class="self">Self</span>::EventLog&gt;, <span class="self">Self</span>::Error&gt; {
         <span class="kw">let </span>code = <span class="self">self</span>.contracts.load_code(contract_name);
 
         <span class="kw">let </span>result = <span class="kw">match </span><span class="self">self</span>.sandbox.upload_contract(
             code,
-            keypair_to_account(caller),
+            caller_to_origin::&lt;S&gt;(caller),
             storage_deposit_limit,
-            pallet_contracts::Determinism::Enforced,
         ) {
             <span class="prelude-val">Ok</span>(result) =&gt; result,
             <span class="prelude-val">Err</span>(err) =&gt; {
@@ -905,16 +987,10 @@
             }
         };
 
-        <span class="kw">let </span>code_hash_raw: [u8; <span class="number">32</span>] = result
-            .code_hash
-            .as_ref()
-            .try_into()
-            .expect(<span class="string">"Invalid code hash"</span>);
-        <span class="kw">let </span>code_hash = Hash::from(code_hash_raw);
         <span class="prelude-val">Ok</span>(UploadResult {
-            code_hash,
+            code_hash: result.code_hash,
             dry_run: <span class="prelude-val">Ok</span>(CodeUploadReturnValue {
-                code_hash,
+                code_hash: result.code_hash,
                 deposit: result.deposit,
             }),
             events: (),
@@ -924,7 +1000,7 @@
     <span class="kw">async fn </span>bare_remove_code(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         _caller: <span class="kw-2">&amp;</span>Keypair,
-        _code_hash: E::Hash,
+        _code_hash: H256,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::EventLog, <span class="self">Self</span>::Error&gt; {
         <span class="macro">unimplemented!</span>(<span class="string">"sandbox does not yet support remove_code"</span>)
     }
@@ -935,24 +1011,26 @@
         message: <span class="kw-2">&amp;</span>CallBuilderFinal&lt;E, Args, RetType&gt;,
         value: E::Balance,
         gas_limit: Weight,
-        storage_deposit_limit: <span class="prelude-ty">Option</span>&lt;E::Balance&gt;,
+        storage_deposit_limit: DepositLimit&lt;E::Balance&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::EventLog, <span class="self">Self</span>::Error&gt;
     <span class="kw">where
         </span>CallBuilderFinal&lt;E, Args, RetType&gt;: Clone,
     {
-        <span class="kw">let </span>account_id = message.clone().params().callee().clone();
+        <span class="kw">let _ </span>=
+            &lt;Client&lt;AccountId, S&gt; <span class="kw">as </span>BuilderClient&lt;E&gt;&gt;::map_account(<span class="self">self</span>, caller).<span class="kw">await</span>;
+
+        <span class="comment">// todo rename any account_id coming back from callee
+        </span><span class="kw">let </span>addr = <span class="kw-2">*</span>message.clone().params().callee();
         <span class="kw">let </span>exec_input = Encode::encode(message.clone().params().exec_input());
-        <span class="kw">let </span>account_id = (<span class="kw-2">*</span>account_id.as_ref()).into();
 
         <span class="self">self</span>.sandbox
             .call_contract(
-                account_id,
+                addr,
                 value,
                 exec_input,
-                keypair_to_account(caller),
+                caller_to_origin::&lt;S&gt;(caller),
                 gas_limit,
                 storage_deposit_limit,
-                pallet_contracts::Determinism::Enforced,
             )
             .result
             .map_err(|err| SandboxErr::new(<span class="macro">format!</span>(<span class="string">"bare_call: {err:?}"</span>)))<span class="question-mark">?</span>;
@@ -965,54 +1043,93 @@
         caller: <span class="kw-2">&amp;</span>Keypair,
         message: <span class="kw-2">&amp;</span>CallBuilderFinal&lt;E, Args, RetType&gt;,
         value: E::Balance,
-        storage_deposit_limit: <span class="prelude-ty">Option</span>&lt;E::Balance&gt;,
+        storage_deposit_limit: DepositLimit&lt;E::Balance&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;CallDryRunResult&lt;E, RetType&gt;, <span class="self">Self</span>::Error&gt;
     <span class="kw">where
         </span>CallBuilderFinal&lt;E, Args, RetType&gt;: Clone,
     {
-        <span class="kw">let </span>account_id = message.clone().params().callee().clone();
+        <span class="comment">// todo there's side effects here
+        </span><span class="kw">let _ </span>=
+            &lt;Client&lt;AccountId, S&gt; <span class="kw">as </span>BuilderClient&lt;E&gt;&gt;::map_account(<span class="self">self</span>, caller).<span class="kw">await</span>;
+
+        <span class="kw">let </span>addr = <span class="kw-2">*</span>message.clone().params().callee();
         <span class="kw">let </span>exec_input = Encode::encode(message.clone().params().exec_input());
-        <span class="kw">let </span>account_id = (<span class="kw-2">*</span>account_id.as_ref()).into();
 
         <span class="kw">let </span>result = <span class="self">self</span>.sandbox.dry_run(|sandbox| {
             sandbox.call_contract(
-                account_id,
+                addr,
                 value,
                 exec_input,
-                keypair_to_account(caller),
+                caller_to_origin::&lt;S&gt;(caller),
                 S::default_gas_limit(),
                 storage_deposit_limit,
-                pallet_contracts::Determinism::Enforced,
             )
         });
-        <span class="prelude-val">Ok</span>(CallDryRunResult {
-            exec_result: ContractResult {
+        <span class="kw">if </span>result.result.is_err() {
+            <span class="kw">let </span>res = result.result.clone().unwrap_err();
+            <span class="kw">if let </span>DispatchError::Module(m) = res {
+                <span class="kw">let </span>msg = m.message;
+                <span class="kw">if </span>msg.is_some() {
+                    <span class="kw">let </span>s = msg.unwrap();
+                    <span class="kw">if </span>s.contains(<span class="string">"AccountUnmapped"</span>) {
+                        <span class="macro">panic!</span>(<span class="string">"something is wrong, we mapped the account before"</span>)
+                    }
+                }
+            }
+        }
+        <span class="comment">// todo error when `AccountUnmapped`
+        </span><span class="prelude-val">Ok</span>(CallDryRunResult {
+            exec_result: ContractExecResultFor::&lt;E&gt; {
                 gas_consumed: result.gas_consumed,
                 gas_required: result.gas_required,
                 storage_deposit: result.storage_deposit,
                 debug_message: result.debug_message,
                 result: result.result,
-                events: <span class="prelude-val">None</span>,
             },
             _marker: Default::default(),
+        })
+    }
+
+    <span class="kw">async fn </span>map_account_dry_run(<span class="kw-2">&amp;mut </span><span class="self">self</span>, caller: <span class="kw-2">&amp;</span>Keypair) -&gt; <span class="prelude-ty">Result</span>&lt;(), <span class="self">Self</span>::Error&gt; {
+        <span class="kw">let </span>caller = keypair_to_account(caller);
+        <span class="kw">let </span>origin = RawOrigin::Signed(caller);
+        <span class="kw">let </span>origin = OriginFor::&lt;S::Runtime&gt;::from(origin);
+
+        <span class="self">self</span>.sandbox
+            .dry_run(|sandbox| sandbox.map_account(origin))
+            .map_err(|err| {
+                SandboxErr::new(<span class="macro">format!</span>(<span class="string">"map_account_dry_run: execution error {:?}"</span>, err))
+            })
+    }
+
+    <span class="kw">async fn </span>map_account(<span class="kw-2">&amp;mut </span><span class="self">self</span>, caller: <span class="kw-2">&amp;</span>Keypair) -&gt; <span class="prelude-ty">Result</span>&lt;(), <span class="self">Self</span>::Error&gt; {
+        <span class="kw">let </span>caller = keypair_to_account(caller);
+        <span class="kw">let </span>origin = RawOrigin::Signed(caller);
+        <span class="kw">let </span>origin = OriginFor::&lt;S::Runtime&gt;::from(origin);
+
+        <span class="self">self</span>.sandbox.map_account(origin).map_err(|err| {
+            SandboxErr::new(<span class="macro">format!</span>(<span class="string">"map_account: execution error {:?}"</span>, err))
         })
     }
 }
 
 <span class="kw">impl</span>&lt;
         AccountId: Clone + Send + Sync + From&lt;[u8; <span class="number">32</span>]&gt; + AsRef&lt;[u8; <span class="number">32</span>]&gt;,
-        Hash: Copy + Send + From&lt;[u8; <span class="number">32</span>]&gt;,
         Config: Sandbox,
         E: Environment&lt;
                 AccountId = AccountId,
                 Balance = ContractsBalanceOf&lt;Config::Runtime&gt;,
-                Hash = Hash,
             &gt; + <span class="lifetime">'static</span>,
-    &gt; E2EBackend&lt;E&gt; <span class="kw">for </span>Client&lt;AccountId, Hash, Config&gt;
+    &gt; E2EBackend&lt;E&gt; <span class="kw">for </span>Client&lt;AccountId, Config&gt;
 <span class="kw">where
-    </span>Config::Runtime: pallet_balances::Config + pallet_contracts::Config,
+    </span>Config::Runtime: pallet_balances::Config + pallet_revive::Config,
     AccountIdFor&lt;Config::Runtime&gt;: From&lt;[u8; <span class="number">32</span>]&gt; + AsRef&lt;[u8; <span class="number">32</span>]&gt;,
     ContractsBalanceOf&lt;Config::Runtime&gt;: Send + Sync,
+    ContractsBalanceOf&lt;Config::Runtime&gt;: Into&lt;U256&gt; + TryFrom&lt;U256&gt; + Bounded,
+    MomentOf&lt;Config::Runtime&gt;: Into&lt;U256&gt;,
+
+    <span class="comment">// todo
+    </span>&lt;Config::Runtime <span class="kw">as </span>frame_system::Config&gt;::Hash: IsType&lt;sp_core::H256&gt;,
 {
 }
 
@@ -1020,19 +1137,26 @@
     AccountId::from(keypair.public_key().<span class="number">0</span>)
 }
 
+<span class="kw">fn </span>caller_to_origin&lt;S&gt;(caller: <span class="kw-2">&amp;</span>Keypair) -&gt; OriginFor&lt;S::Runtime&gt;
+<span class="kw">where
+    </span>S: Sandbox,
+    S::Runtime: pallet_balances::Config + pallet_revive::Config,
+    AccountIdFor&lt;S::Runtime&gt;: From&lt;[u8; <span class="number">32</span>]&gt; + AsRef&lt;[u8; <span class="number">32</span>]&gt;,
+{
+    <span class="kw">let </span>caller = keypair_to_account(caller);
+    <span class="kw">let </span>origin = RawOrigin::Signed(caller);
+    OriginFor::&lt;S::Runtime&gt;::from(origin)
+}
+
 <span class="attr">#[async_trait]
 </span><span class="kw">impl</span>&lt;
         AccountId: Clone + Send + Sync + From&lt;[u8; <span class="number">32</span>]&gt; + AsRef&lt;[u8; <span class="number">32</span>]&gt;,
-        Hash: Copy + From&lt;[u8; <span class="number">32</span>]&gt;,
         S: Sandbox,
-        E: Environment&lt;
-                AccountId = AccountId,
-                Balance = ContractsBalanceOf&lt;S::Runtime&gt;,
-                Hash = Hash,
-            &gt; + <span class="lifetime">'static</span>,
-    &gt; ContractsBackend&lt;E&gt; <span class="kw">for </span>Client&lt;AccountId, Hash, S&gt;
+        E: Environment&lt;AccountId = AccountId, Balance = ContractsBalanceOf&lt;S::Runtime&gt;&gt;
+            + <span class="lifetime">'static</span>,
+    &gt; ContractsBackend&lt;E&gt; <span class="kw">for </span>Client&lt;AccountId, S&gt;
 <span class="kw">where
-    </span>S::Runtime: pallet_balances::Config + pallet_contracts::Config,
+    </span>S::Runtime: pallet_balances::Config + pallet_revive::Config,
     AccountIdFor&lt;S::Runtime&gt;: From&lt;[u8; <span class="number">32</span>]&gt; + AsRef&lt;[u8; <span class="number">32</span>]&gt;,
 {
     <span class="kw">type </span>Error = SandboxErr;
@@ -1051,7 +1175,7 @@
             Sandbox,
             Snapshot,
         };
-        <span class="kw">pub use </span>pallet_contracts_mock_network::<span class="kw-2">*</span>;
+        <span class="kw">pub use </span>pallet_revive_mock_network::<span class="kw-2">*</span>;
         <span class="kw">use </span>sp_runtime::traits::Dispatchable;
 
         <span class="doccomment">/// A [`ink_sandbox::Sandbox`] that can be used to test contracts
@@ -1127,7 +1251,7 @@
 
             <span class="kw">fn </span>take_snapshot(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; Snapshot {
                 EXT_PARAA.with(|v| {
-                    <span class="kw">let </span>v = v.borrow();
+                    <span class="kw">let </span><span class="kw-2">mut </span>v = v.borrow_mut();
                     <span class="kw">let </span><span class="kw-2">mut </span>backend = v.as_backend().clone();
                     <span class="kw">let </span>raw_key_values = backend
                         .backend_storage_mut()

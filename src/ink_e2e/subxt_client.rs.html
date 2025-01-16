@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/e2e/src/subxt_client.rs`."><title>subxt_client.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-c5d6553a23f1e5a6.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="ink_e2e" data-themes="" data-resource-suffix="" data-rustdoc-version="1.81.0 (eeb90cda1 2024-09-04)" data-channel="1.81.0" data-search-js="search-d234aafac6c221dd.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-d2fab2bf619172d3.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/e2e/src/subxt_client.rs`."><title>subxt_client.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-b0742ba02757f159.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="ink_e2e" data-themes="" data-resource-suffix="" data-rustdoc-version="1.83.0 (90b35a623 2024-11-26)" data-channel="1.83.0" data-search-js="search-f0d225181b97f9a4.js" data-settings-js="settings-805db61a62df4bd2.js" ><script src="../../static.files/storage-1d39b6787ed640ff.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-f070b9041d14864c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-0111fcff984fae8f.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">ink_e2e/</div>subxt_client.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers">
+<a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -760,7 +761,72 @@
 <a href="#760" id="760">760</a>
 <a href="#761" id="761">761</a>
 <a href="#762" id="762">762</a>
-</pre></div><pre class="rust"><code><span class="comment">// Copyright (C) Use Ink (UK) Ltd.
+<a href="#763" id="763">763</a>
+<a href="#764" id="764">764</a>
+<a href="#765" id="765">765</a>
+<a href="#766" id="766">766</a>
+<a href="#767" id="767">767</a>
+<a href="#768" id="768">768</a>
+<a href="#769" id="769">769</a>
+<a href="#770" id="770">770</a>
+<a href="#771" id="771">771</a>
+<a href="#772" id="772">772</a>
+<a href="#773" id="773">773</a>
+<a href="#774" id="774">774</a>
+<a href="#775" id="775">775</a>
+<a href="#776" id="776">776</a>
+<a href="#777" id="777">777</a>
+<a href="#778" id="778">778</a>
+<a href="#779" id="779">779</a>
+<a href="#780" id="780">780</a>
+<a href="#781" id="781">781</a>
+<a href="#782" id="782">782</a>
+<a href="#783" id="783">783</a>
+<a href="#784" id="784">784</a>
+<a href="#785" id="785">785</a>
+<a href="#786" id="786">786</a>
+<a href="#787" id="787">787</a>
+<a href="#788" id="788">788</a>
+<a href="#789" id="789">789</a>
+<a href="#790" id="790">790</a>
+<a href="#791" id="791">791</a>
+<a href="#792" id="792">792</a>
+<a href="#793" id="793">793</a>
+<a href="#794" id="794">794</a>
+<a href="#795" id="795">795</a>
+<a href="#796" id="796">796</a>
+<a href="#797" id="797">797</a>
+<a href="#798" id="798">798</a>
+<a href="#799" id="799">799</a>
+<a href="#800" id="800">800</a>
+<a href="#801" id="801">801</a>
+<a href="#802" id="802">802</a>
+<a href="#803" id="803">803</a>
+<a href="#804" id="804">804</a>
+<a href="#805" id="805">805</a>
+<a href="#806" id="806">806</a>
+<a href="#807" id="807">807</a>
+<a href="#808" id="808">808</a>
+<a href="#809" id="809">809</a>
+<a href="#810" id="810">810</a>
+<a href="#811" id="811">811</a>
+<a href="#812" id="812">812</a>
+<a href="#813" id="813">813</a>
+<a href="#814" id="814">814</a>
+<a href="#815" id="815">815</a>
+<a href="#816" id="816">816</a>
+<a href="#817" id="817">817</a>
+<a href="#818" id="818">818</a>
+<a href="#819" id="819">819</a>
+<a href="#820" id="820">820</a>
+<a href="#821" id="821">821</a>
+<a href="#822" id="822">822</a>
+<a href="#823" id="823">823</a>
+<a href="#824" id="824">824</a>
+<a href="#825" id="825">825</a>
+<a href="#826" id="826">826</a>
+<a href="#827" id="827">827</a>
+<a href="#828" id="828">828</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) Use Ink (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -779,6 +845,7 @@
         constructor_exec_input,
         CreateBuilderPartial,
     },
+    deposit_limit_to_balance,
     events::{
         CodeStoredEvent,
         ContractInstantiatedEvent,
@@ -787,9 +854,10 @@
     log_error,
     log_info,
     sr25519,
-    ContractsApi,
     InstantiateDryRunResult,
     Keypair,
+    ReviveApi,
+    H256,
 };
 <span class="kw">use crate</span>::{
     backend::BuilderClient,
@@ -811,8 +879,8 @@
     },
     Environment,
 };
+<span class="kw">use </span>ink_primitives::DepositLimit;
 <span class="kw">use </span>jsonrpsee::core::async_trait;
-<span class="kw">use </span>pallet_contracts::ContractResult;
 <span class="kw">use </span>scale::{
     Decode,
     Encode,
@@ -828,6 +896,7 @@
         salt,
         ContractsRegistry,
     },
+    contract_results::ContractResult,
     error::DryRunError,
     events,
     ContractsBackend,
@@ -854,7 +923,7 @@
 <span class="doccomment">/// Represents an initialized contract message builder.
 </span><span class="kw">pub type </span>CallBuilderFinal&lt;E, Args, RetType&gt; = ink_env::call::CallBuilder&lt;
     E,
-    Set&lt;Call&lt;E&gt;&gt;,
+    Set&lt;Call&gt;,
     Set&lt;ExecutionInput&lt;Args&gt;&gt;,
     Set&lt;ReturnType&lt;RetType&gt;&gt;,
 &gt;;
@@ -868,7 +937,7 @@
     </span>C: subxt::Config,
     E: Environment,
 {
-    api: ContractsApi&lt;C, E&gt;,
+    api: ReviveApi&lt;C, E&gt;,
     contracts: ContractsRegistry,
 }
 
@@ -884,8 +953,9 @@
 
     E: Environment,
     E::AccountId: Debug,
+    E::EventRecord: Debug,
     E::Balance: Debug + scale::HasCompact + serde::Serialize,
-    E::Hash: Debug + scale::Encode,
+    H256: Debug + scale::Encode,
 {
     <span class="doccomment">/// Creates a new [`Client`] instance using a `subxt` client.
     </span><span class="kw">pub async fn </span>new&lt;P: Into&lt;PathBuf&gt;&gt;(
@@ -893,7 +963,7 @@
         contracts: <span class="kw">impl </span>IntoIterator&lt;Item = P&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, subxt::Error&gt; {
         <span class="prelude-val">Ok</span>(<span class="self">Self </span>{
-            api: ContractsApi::new(client).<span class="kw">await</span><span class="question-mark">?</span>,
+            api: ReviveApi::new(client).<span class="kw">await</span><span class="question-mark">?</span>,
             contracts: ContractsRegistry::new(contracts),
         })
     }
@@ -906,8 +976,8 @@
         data: Vec&lt;u8&gt;,
         value: E::Balance,
         gas_limit: Weight,
-        storage_deposit_limit: <span class="prelude-ty">Option</span>&lt;E::Balance&gt;,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;BareInstantiationResult&lt;E, ExtrinsicEvents&lt;C&gt;&gt;, Error&gt; {
+        storage_deposit_limit: E::Balance,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;BareInstantiationResult&lt;ExtrinsicEvents&lt;C&gt;&gt;, Error&gt; {
         <span class="kw">let </span>salt = salt();
 
         <span class="kw">let </span>tx_events = <span class="self">self
@@ -923,14 +993,14 @@
             )
             .<span class="kw">await</span>;
 
-        <span class="kw">let </span><span class="kw-2">mut </span>account_id = <span class="prelude-val">None</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>addr = <span class="prelude-val">None</span>;
         <span class="kw">for </span>evt <span class="kw">in </span>tx_events.iter() {
             <span class="kw">let </span>evt = evt.unwrap_or_else(|err| {
                 <span class="macro">panic!</span>(<span class="string">"unable to unwrap event: {err:?}"</span>);
             });
 
             <span class="kw">if let </span><span class="prelude-val">Some</span>(instantiated) = evt
-                .as_event::&lt;ContractInstantiatedEvent&lt;E&gt;&gt;()
+                .as_event::&lt;ContractInstantiatedEvent&gt;()
                 .unwrap_or_else(|err| {
                     <span class="macro">panic!</span>(<span class="string">"event conversion to `Instantiated` failed: {err:?}"</span>);
                 })
@@ -939,7 +1009,7 @@
                     <span class="string">"contract was instantiated at {:?}"</span>,
                     instantiated.contract
                 ));
-                account_id = <span class="prelude-val">Some</span>(instantiated.contract);
+                addr = <span class="prelude-val">Some</span>(instantiated.contract);
 
                 <span class="comment">// We can't `break` here, we need to assign the account id from the
                 // last `ContractInstantiatedEvent`, in case the contract instantiates
@@ -955,12 +1025,12 @@
                 <span class="kw">return </span><span class="prelude-val">Err</span>(Error::InstantiateExtrinsic(dispatch_error))
             }
         }
-        <span class="kw">let </span>account_id = account_id.expect(<span class="string">"cannot extract `account_id` from events"</span>);
+        <span class="kw">let </span>addr = addr.expect(<span class="string">"cannot extract `account_id` from events"</span>);
 
         <span class="prelude-val">Ok</span>(BareInstantiationResult {
             <span class="comment">// The `account_id` must exist at this point. If the instantiation fails
             // the dry-run must already return that.
-            </span>account_id,
+            </span>addr,
             events: tx_events,
         })
     }
@@ -970,10 +1040,13 @@
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         signer: <span class="kw-2">&amp;</span>Keypair,
         code: Vec&lt;u8&gt;,
-        storage_deposit_limit: <span class="prelude-ty">Option</span>&lt;E::Balance&gt;,
+        _storage_deposit_limit: E::Balance,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;UploadResult&lt;E, ExtrinsicEvents&lt;C&gt;&gt;, Error&gt; {
-        <span class="comment">// dry run the instantiate to calculate the gas limit
-        </span><span class="kw">let </span>dry_run = <span class="self">self
+        <span class="comment">// todo
+        </span><span class="kw">let </span>storage_deposit_limit: E::Balance = <span class="kw">unsafe </span>{
+            core::mem::transmute_copy::&lt;u128, &lt;E <span class="kw">as </span>Environment&gt;::Balance&gt;(<span class="kw-2">&amp;</span>u128::MAX)
+        };
+        <span class="kw">let </span>dry_run = <span class="self">self
             </span>.api
             .upload_dry_run(signer, code.clone(), storage_deposit_limit)
             .<span class="kw">await</span>;
@@ -992,7 +1065,7 @@
             });
 
             <span class="kw">if let </span><span class="prelude-val">Some</span>(uploaded) =
-                evt.as_event::&lt;CodeStoredEvent&lt;E&gt;&gt;().unwrap_or_else(|err| {
+                evt.as_event::&lt;CodeStoredEvent&gt;().unwrap_or_else(|err| {
                     <span class="macro">panic!</span>(<span class="string">"event conversion to `Uploaded` failed: {err:?}"</span>);
                 })
             {
@@ -1013,7 +1086,8 @@
             }
         }
 
-        <span class="comment">// The `pallet-contracts` behavior is that if the code was already stored on the
+        <span class="comment">// todo still up to date?
+        // The `pallet-revive` behavior is that if the code was already stored on the
         // chain we won't get an event with the hash, but the extrinsic will still
         // succeed. We then don't error (`cargo-contract` would), but instead
         // return the hash from the dry-run.
@@ -1034,20 +1108,14 @@
         })
     }
 
-    <span class="doccomment">/// Transforms a [`ContractResult`] from a dry run into a [`Result`] type, containing
+    <span class="doccomment">/// todo check if comment still holds
+    /// Transforms a [`ContractResult`] from a dry run into a [`Result`] type, containing
     /// details of the [`DispatchError`] if the dry run failed.
     </span><span class="attr">#[allow(clippy::type_complexity)]
     </span><span class="kw">fn </span>contract_result_to_result&lt;V&gt;(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        contract_result: ContractResult&lt;
-            <span class="prelude-ty">Result</span>&lt;V, sp_runtime::DispatchError&gt;,
-            E::Balance,
-            (),
-        &gt;,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;
-        ContractResult&lt;<span class="prelude-ty">Result</span>&lt;V, sp_runtime::DispatchError&gt;, E::Balance, ()&gt;,
-        DryRunError&lt;DispatchError&gt;,
-    &gt; {
+        contract_result: ContractResult&lt;V, E::Balance&gt;,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;ContractResult&lt;V, E::Balance&gt;, DryRunError&lt;DispatchError&gt;&gt; {
         <span class="kw">if let </span><span class="prelude-val">Err</span>(error) = contract_result.result {
             <span class="kw">let </span>debug_message = String::from_utf8(contract_result.debug_message.clone())
                 .expect(<span class="string">"invalid utf8 debug message"</span>);
@@ -1101,6 +1169,7 @@
         + TryFrom&lt;u128&gt;
         + scale::HasCompact
         + serde::Serialize,
+    E::EventRecord: Debug,
 {
     <span class="kw">type </span>AccountId = E::AccountId;
     <span class="kw">type </span>Balance = E::Balance;
@@ -1234,9 +1303,10 @@
 
     E: Environment,
     E::AccountId: Debug + Send + Sync,
+    E::EventRecord: Debug,
     E::Balance:
         Clone + Debug + Send + Sync + From&lt;u128&gt; + scale::HasCompact + serde::Serialize,
-    E::Hash: Debug + Send + Sync + scale::Encode,
+    H256: Debug + Send + Sync + scale::Encode,
 {
     <span class="kw">async fn </span>bare_instantiate&lt;Contract: Clone, Args: Send + Sync + Encode + Clone, R&gt;(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
@@ -1245,14 +1315,15 @@
         constructor: <span class="kw-2">&amp;mut </span>CreateBuilderPartial&lt;E, Contract, Args, R&gt;,
         value: E::Balance,
         gas_limit: Weight,
-        storage_deposit_limit: <span class="prelude-ty">Option</span>&lt;E::Balance&gt;,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;BareInstantiationResult&lt;E, <span class="self">Self</span>::EventLog&gt;, <span class="self">Self</span>::Error&gt; {
+        storage_deposit_limit: DepositLimit&lt;E::Balance&gt;,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;BareInstantiationResult&lt;<span class="self">Self</span>::EventLog&gt;, <span class="self">Self</span>::Error&gt; {
         <span class="kw">let </span>code = <span class="self">self</span>.contracts.load_code(contract_name);
         <span class="kw">let </span>data = constructor_exec_input(constructor.clone());
+        <span class="kw">let </span>storage_deposit_limit = deposit_limit_to_balance::&lt;E&gt;(storage_deposit_limit);
         <span class="kw">let </span>ret = <span class="self">self
             </span>.exec_instantiate(caller, code, data, value, gas_limit, storage_deposit_limit)
             .<span class="kw">await</span><span class="question-mark">?</span>;
-        log_info(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"instantiated contract at {:?}"</span>, ret.account_id));
+        log_info(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"instantiated contract at {:?}"</span>, ret.addr));
         <span class="prelude-val">Ok</span>(ret)
     }
 
@@ -1266,8 +1337,12 @@
         caller: <span class="kw-2">&amp;</span>Keypair,
         constructor: <span class="kw-2">&amp;mut </span>CreateBuilderPartial&lt;E, Contract, Args, R&gt;,
         value: E::Balance,
-        storage_deposit_limit: <span class="prelude-ty">Option</span>&lt;E::Balance&gt;,
+        storage_deposit_limit: DepositLimit&lt;E::Balance&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;InstantiateDryRunResult&lt;E&gt;, <span class="self">Self</span>::Error&gt; {
+        <span class="comment">// todo beware side effect! this is wrong, we have to batch up the `map_account`
+        // into the RPC dry run instead
+        </span><span class="kw">let _ </span>= <span class="self">self</span>.map_account(caller).<span class="kw">await</span>;
+
         <span class="kw">let </span>code = <span class="self">self</span>.contracts.load_code(contract_name);
         <span class="kw">let </span>data = constructor_exec_input(constructor.clone());
 
@@ -1283,6 +1358,11 @@
             )
             .<span class="kw">await</span>;
 
+        log_info(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"instantiate dry run: {:?}"</span>, <span class="kw-2">&amp;</span>result.result));
+        log_info(<span class="kw-2">&amp;</span><span class="macro">format!</span>(
+            <span class="string">"instantiate dry run debug message: {}"</span>,
+            String::from_utf8_lossy(<span class="kw-2">&amp;</span>result.debug_message)
+        ));
         <span class="kw">let </span>result = <span class="self">self
             </span>.contract_result_to_result(result)
             .map_err(Error::InstantiateDryRun)<span class="question-mark">?</span>;
@@ -1294,7 +1374,7 @@
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         contract_name: <span class="kw-2">&amp;</span>str,
         caller: <span class="kw-2">&amp;</span>Keypair,
-        storage_deposit_limit: <span class="prelude-ty">Option</span>&lt;E::Balance&gt;,
+        storage_deposit_limit: E::Balance,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;UploadResult&lt;E, <span class="self">Self</span>::EventLog&gt;, <span class="self">Self</span>::Error&gt; {
         <span class="kw">let </span>code = <span class="self">self</span>.contracts.load_code(contract_name);
         <span class="kw">let </span>ret = <span class="self">self
@@ -1307,7 +1387,7 @@
     <span class="kw">async fn </span>bare_remove_code(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         caller: <span class="kw-2">&amp;</span>Keypair,
-        code_hash: E::Hash,
+        code_hash: H256,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::EventLog, <span class="self">Self</span>::Error&gt; {
         <span class="kw">let </span>tx_events = <span class="self">self</span>.api.remove_code(caller, code_hash).<span class="kw">await</span>;
 
@@ -1334,22 +1414,22 @@
         message: <span class="kw-2">&amp;</span>CallBuilderFinal&lt;E, Args, RetType&gt;,
         value: E::Balance,
         gas_limit: Weight,
-        storage_deposit_limit: <span class="prelude-ty">Option</span>&lt;E::Balance&gt;,
+        storage_deposit_limit: DepositLimit&lt;E::Balance&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::EventLog, <span class="self">Self</span>::Error&gt;
     <span class="kw">where
         </span>CallBuilderFinal&lt;E, Args, RetType&gt;: Clone,
     {
-        <span class="kw">let </span>account_id = message.clone().params().callee().clone();
+        <span class="kw">let </span>addr = <span class="kw-2">*</span>message.clone().params().callee();
         <span class="kw">let </span>exec_input = Encode::encode(message.clone().params().exec_input());
         log_info(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"call: {:02X?}"</span>, exec_input));
 
         <span class="kw">let </span>tx_events = <span class="self">self
             </span>.api
             .call(
-                subxt::utils::MultiAddress::Id(account_id.clone()),
+                addr,
                 value,
                 gas_limit.into(),
-                storage_deposit_limit,
+                deposit_limit_to_balance::&lt;E&gt;(storage_deposit_limit),
                 exec_input,
                 caller,
             )
@@ -1373,17 +1453,22 @@
         <span class="prelude-val">Ok</span>(tx_events)
     }
 
-    <span class="kw">async fn </span>bare_call_dry_run&lt;Args: Sync + Encode + Clone, RetType: Send + Decode&gt;(
+    <span class="comment">// todo is not really a `bare_call`
+    </span><span class="kw">async fn </span>bare_call_dry_run&lt;Args: Sync + Encode + Clone, RetType: Send + Decode&gt;(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         caller: <span class="kw-2">&amp;</span>Keypair,
         message: <span class="kw-2">&amp;</span>CallBuilderFinal&lt;E, Args, RetType&gt;,
         value: E::Balance,
-        storage_deposit_limit: <span class="prelude-ty">Option</span>&lt;E::Balance&gt;,
+        storage_deposit_limit: DepositLimit&lt;E::Balance&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;CallDryRunResult&lt;E, RetType&gt;, <span class="self">Self</span>::Error&gt;
     <span class="kw">where
         </span>CallBuilderFinal&lt;E, Args, RetType&gt;: Clone,
     {
-        <span class="kw">let </span>dest = message.clone().params().callee().clone();
+        <span class="comment">// todo beware side effect! this is wrong, we have to batch up the `map_account`
+        // into the RPC dry run instead
+        </span><span class="kw">let _ </span>= <span class="self">self</span>.map_account(caller).<span class="kw">await</span>;
+
+        <span class="kw">let </span>dest = <span class="kw-2">*</span>message.clone().params().callee();
         <span class="kw">let </span>exec_input = Encode::encode(message.clone().params().exec_input());
 
         <span class="kw">let </span>exec_result = <span class="self">self
@@ -1393,7 +1478,7 @@
                 dest,
                 exec_input,
                 value,
-                storage_deposit_limit,
+                deposit_limit_to_balance::&lt;E&gt;(storage_deposit_limit),
             )
             .<span class="kw">await</span>;
         log_info(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"call dry run: {:?}"</span>, <span class="kw-2">&amp;</span>exec_result.result));
@@ -1410,6 +1495,49 @@
             exec_result,
             _marker: Default::default(),
         })
+    }
+
+    <span class="kw">async fn </span>map_account(<span class="kw-2">&amp;mut </span><span class="self">self</span>, caller: <span class="kw-2">&amp;</span>Keypair) -&gt; <span class="prelude-ty">Result</span>&lt;(), <span class="self">Self</span>::Error&gt; {
+        <span class="kw">let </span>tx_events = <span class="self">self</span>.api.map_account(caller).<span class="kw">await</span>;
+
+        <span class="kw">for </span>evt <span class="kw">in </span>tx_events.iter() {
+            <span class="kw">let </span>evt = evt.unwrap_or_else(|err| {
+                <span class="macro">panic!</span>(<span class="string">"unable to unwrap event: {err:?}"</span>);
+            });
+
+            <span class="kw">if </span>is_extrinsic_failed_event(<span class="kw-2">&amp;</span>evt) {
+                <span class="kw">let </span>metadata = <span class="self">self</span>.api.client.metadata();
+                <span class="kw">let </span>dispatch_error =
+                    DispatchError::decode_from(evt.field_bytes(), metadata)
+                        .map_err(|e| Error::Decoding(e.to_string()))<span class="question-mark">?</span>;
+                log_error(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"extrinsic for call failed: {dispatch_error}"</span>));
+                <span class="kw">return </span><span class="prelude-val">Err</span>(Error::CallExtrinsic(dispatch_error))
+            }
+        }
+
+        <span class="comment">// todo: Ok(tx_events)
+        </span><span class="prelude-val">Ok</span>(())
+    }
+
+    <span class="kw">async fn </span>map_account_dry_run(<span class="kw-2">&amp;mut </span><span class="self">self</span>, caller: <span class="kw-2">&amp;</span>Keypair) -&gt; <span class="prelude-ty">Result</span>&lt;(), <span class="self">Self</span>::Error&gt; {
+        <span class="kw">let </span>tx_events = <span class="self">self</span>.api.map_account(caller).<span class="kw">await</span>;
+
+        <span class="kw">for </span>evt <span class="kw">in </span>tx_events.iter() {
+            <span class="kw">let </span>evt = evt.unwrap_or_else(|err| {
+                <span class="macro">panic!</span>(<span class="string">"unable to unwrap event: {err:?}"</span>);
+            });
+
+            <span class="kw">if </span>is_extrinsic_failed_event(<span class="kw-2">&amp;</span>evt) {
+                <span class="kw">let </span>metadata = <span class="self">self</span>.api.client.metadata();
+                <span class="kw">let </span>dispatch_error =
+                    DispatchError::decode_from(evt.field_bytes(), metadata)
+                        .map_err(|e| Error::Decoding(e.to_string()))<span class="question-mark">?</span>;
+                log_error(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"extrinsic for call failed: {dispatch_error}"</span>));
+                <span class="kw">return </span><span class="prelude-val">Err</span>(Error::CallExtrinsic(dispatch_error))
+            }
+        }
+
+        <span class="prelude-val">Ok</span>(())
     }
 }
 
@@ -1432,7 +1560,7 @@
     E::AccountId: Debug + Send + Sync,
     E::Balance:
         Clone + Debug + Send + Sync + From&lt;u128&gt; + scale::HasCompact + serde::Serialize,
-    E::Hash: Debug + Send + scale::Encode,
+    H256: Debug + Send + scale::Encode,
 {
     <span class="kw">type </span>Error = Error;
     <span class="kw">type </span>EventLog = ExtrinsicEvents&lt;C&gt;;
@@ -1457,9 +1585,10 @@
 
     E: Environment,
     E::AccountId: Debug + Send + Sync,
+    E::EventRecord: Debug,
     E::Balance:
         Clone + Debug + Send + Sync + From&lt;u128&gt; + scale::HasCompact + serde::Serialize,
-    E::Hash: Debug + Send + Sync + scale::Encode,
+    H256: Debug + Send + Sync + scale::Encode,
 {
 }
 
@@ -1504,17 +1633,20 @@
     <span class="doccomment">/// Returns all the `ContractEmitted` events emitted by the contract.
     </span><span class="kw">pub fn </span>contract_emitted_events(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;EventWithTopics&lt;events::ContractEmitted&lt;E&gt;&gt;&gt;, subxt::Error&gt;
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;EventWithTopics&lt;events::ContractEmitted&gt;&gt;, subxt::Error&gt;
     <span class="kw">where
         </span>C::Hash: Into&lt;sp_core::H256&gt;,
     {
         <span class="kw">let </span><span class="kw-2">mut </span>events_with_topics = Vec::new();
         <span class="kw">for </span>event <span class="kw">in </span><span class="self">self</span>.events.iter() {
             <span class="kw">let </span>event = event<span class="question-mark">?</span>;
-            <span class="kw">if let </span><span class="prelude-val">Some</span>(decoded_event) = event.as_event::&lt;events::ContractEmitted&lt;E&gt;&gt;()<span class="question-mark">? </span>{
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(decoded_event) = event.as_event::&lt;events::ContractEmitted&gt;()<span class="question-mark">? </span>{
+                <span class="kw">let </span>topics = decoded_event.topics.clone();
                 <span class="kw">let </span>event_with_topics = EventWithTopics {
                     event: decoded_event,
-                    topics: event.topics().iter().cloned().map(Into::into).collect(),
+                    <span class="comment">//topics: event.topics().iter().cloned().map(Into::into).collect(),
+                    //topics: topics.iter().map(|v| H256::from_slice(&amp;v[..])).collect(),
+                    </span>topics,
                 };
                 events_with_topics.push(event_with_topics);
             }

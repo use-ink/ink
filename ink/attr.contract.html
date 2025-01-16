@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Entry point for writing ink! smart contracts."><title>contract in ink - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../static.files/rustdoc-c5d6553a23f1e5a6.css"><meta name="rustdoc-vars" data-root-path="../" data-static-root-path="../static.files/" data-current-crate="ink" data-themes="" data-resource-suffix="" data-rustdoc-version="1.81.0 (eeb90cda1 2024-09-04)" data-channel="1.81.0" data-search-js="search-d234aafac6c221dd.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../static.files/storage-118b08c4c78b968e.js"></script><script defer src="sidebar-items.js"></script><script defer src="../static.files/main-d2fab2bf619172d3.js"></script><noscript><link rel="stylesheet" href="../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc attr"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle" title="show sidebar"></button><a class="logo-container" href="../ink/index.html"><img src="https://use.ink/img/crate-docs/logo.png" alt=""></a></nav><nav class="sidebar"><div class="sidebar-crate"><a class="logo-container" href="../ink/index.html"><img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></a><h2><a href="../ink/index.html">ink</a><span class="version">5.1.0</span></h2></div><div class="sidebar-elems"></div></nav><div class="sidebar-resizer"></div><main><div class="width-limiter"><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1>Attribute Macro <a href="index.html">ink</a>::<wbr><a class="attr" href="#">contract</a><button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><span class="out-of-band"><button id="toggle-all-docs" title="collapse all docs">[<span>&#x2212;</span>]</button></span></div><pre class="rust item-decl"><code>#[contract]</code></pre><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Entry point for writing ink! smart contracts.</p>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Entry point for writing ink! smart contracts."><title>contract in ink - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../static.files/rustdoc-b0742ba02757f159.css"><meta name="rustdoc-vars" data-root-path="../" data-static-root-path="../static.files/" data-current-crate="ink" data-themes="" data-resource-suffix="" data-rustdoc-version="1.83.0 (90b35a623 2024-11-26)" data-channel="1.83.0" data-search-js="search-f0d225181b97f9a4.js" data-settings-js="settings-805db61a62df4bd2.js" ><script src="../static.files/storage-1d39b6787ed640ff.js"></script><script defer src="sidebar-items.js"></script><script defer src="../static.files/main-f070b9041d14864c.js"></script><noscript><link rel="stylesheet" href="../static.files/noscript-0111fcff984fae8f.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc attr"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle" title="show sidebar"></button><a class="logo-container" href="../ink/index.html"><img src="https://use.ink/img/crate-docs/logo.png" alt=""></a></nav><nav class="sidebar"><div class="sidebar-crate"><a class="logo-container" href="../ink/index.html"><img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></a><h2><a href="../ink/index.html">ink</a><span class="version">5.1.0</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">contract</a></h2><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#description" title="Description">Description</a></li><li><a href="#usage" title="Usage">Usage</a><ul><li><a href="#header-arguments" title="Header Arguments">Header Arguments</a></li><li><a href="#analysis" title="Analysis">Analysis</a></li><li><a href="#interacting-with-the-contract-executor" title="Interacting with the Contract Executor">Interacting with the Contract Executor</a></li><li><a href="#events" title="Events">Events</a></li><li><a href="#example-flipper" title="Example: Flipper">Example: Flipper</a></li></ul></li></ul></section><div id="rustdoc-modnav"><h2 class="in-crate"><a href="index.html">In crate ink</a></h2></div></div></nav><div class="sidebar-resizer"></div><main><div class="width-limiter"><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><span class="rustdoc-breadcrumbs"><a href="index.html">ink</a></span><h1>Attribute Macro <span class="attr">contract</span><button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"></span></div><pre class="rust item-decl"><code>#[contract]</code></pre><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Entry point for writing ink! smart contracts.</p>
 <p>If you are a beginner trying to learn ink! we recommend you to check out
 our extensive <a href="https://docs.substrate.io/tutorials/v3/ink-workshop/pt1">ink! workshop</a>.</p>
 <h2 id="description"><a class="doc-anchor" href="#description">§</a>Description</h2>
@@ -56,6 +56,7 @@ runtime must be aligned with respect to SCALE encoding and semantics.</p>
     <span class="kw">type </span>Timestamp = u64;
     <span class="kw">type </span>BlockNumber = u32;
     <span class="kw">type </span>ChainExtension = ::ink::env::NoChainExtension;
+    <span class="kw">type </span>EventRecord = ();
 }</code></pre></div>
 <p>A user might implement their ink! smart contract using the above custom
 <code>Environment</code> implementation as demonstrated below:</p>
@@ -189,7 +190,7 @@ constructor using the <code>selector</code> flag. An example is shown below:</p>
 connects ink! smart contracts with the outer world.</p>
 <p>For example it is possible to query the current call’s caller via:</p>
 
-<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">let </span>caller = ink_env::caller::&lt;ink_env::DefaultEnvironment&gt;();</code></pre></div>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">let </span>caller = ink_env::caller();</code></pre></div>
 <p>However, ink! provides a much simpler way to interact with the contract executor
 via its environment accessor. An example below:</p>
 
@@ -225,23 +226,28 @@ emitted in the <code>#[ink(constructor)]</code>.</p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="attr">#[ink::contract]
 </span><span class="kw">mod </span>erc20 {
+    <span class="kw">use </span>ink::{
+        H160,
+        U256,
+    };
+
     <span class="doccomment">/// Defines an event that is emitted every time value is transferred.
     </span><span class="attr">#[ink(event)]
     </span><span class="kw">pub struct </span>Transferred {
-        from: <span class="prelude-ty">Option</span>&lt;AccountId&gt;,
-        to: <span class="prelude-ty">Option</span>&lt;AccountId&gt;,
-        value: Balance,
+        from: <span class="prelude-ty">Option</span>&lt;H160&gt;,
+        to: <span class="prelude-ty">Option</span>&lt;H160&gt;,
+        value: U256,
     }
 
     <span class="attr">#[ink(storage)]
     </span><span class="kw">pub struct </span>Erc20 {
-        total_supply: Balance,
+        total_supply: U256,
         <span class="comment">// more fields...
     </span>}
 
     <span class="kw">impl </span>Erc20 {
         <span class="attr">#[ink(constructor)]
-        </span><span class="kw">pub fn </span>new(initial_supply: Balance) -&gt; <span class="self">Self </span>{
+        </span><span class="kw">pub fn </span>new(initial_supply: U256) -&gt; <span class="self">Self </span>{
             <span class="kw">let </span>caller = <span class="self">Self</span>::env().caller();
             <span class="self">Self</span>::env().emit_event(Transferred {
                 from: <span class="prelude-val">None</span>,
@@ -254,7 +260,7 @@ emitted in the <code>#[ink(constructor)]</code>.</p>
         }
 
         <span class="attr">#[ink(message)]
-        </span><span class="kw">pub fn </span>total_supply(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Balance {
+        </span><span class="kw">pub fn </span>total_supply(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; U256 {
             <span class="self">self</span>.total_supply
         }
     }

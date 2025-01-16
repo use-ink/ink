@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":["balance_api","contracts_api","prelude","system_api","timestamp_api"]};
+window.SIDEBAR_ITEMS = {"mod":["balance_api","prelude","revive_api","system_api","timestamp_api"]};

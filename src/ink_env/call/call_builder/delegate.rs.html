@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/env/src/call/call_builder/delegate.rs`."><title>delegate.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-c5d6553a23f1e5a6.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="ink_env" data-themes="" data-resource-suffix="" data-rustdoc-version="1.81.0 (eeb90cda1 2024-09-04)" data-channel="1.81.0" data-search-js="search-d234aafac6c221dd.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-d2fab2bf619172d3.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/env/src/call/call_builder/delegate.rs`."><title>delegate.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-b0742ba02757f159.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="ink_env" data-themes="" data-resource-suffix="" data-rustdoc-version="1.83.0 (90b35a623 2024-11-26)" data-channel="1.83.0" data-search-js="search-f0d225181b97f9a4.js" data-settings-js="settings-805db61a62df4bd2.js" ><script src="../../../../static.files/storage-1d39b6787ed640ff.js"></script><script defer src="../../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-f070b9041d14864c.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-0111fcff984fae8f.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">ink_env/call/call_builder/</div>delegate.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers">
+<a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -247,7 +248,31 @@
 <a href="#247" id="247">247</a>
 <a href="#248" id="248">248</a>
 <a href="#249" id="249">249</a>
-</pre></div><pre class="rust"><code><span class="comment">// Copyright (C) Use Ink (UK) Ltd.
+<a href="#250" id="250">250</a>
+<a href="#251" id="251">251</a>
+<a href="#252" id="252">252</a>
+<a href="#253" id="253">253</a>
+<a href="#254" id="254">254</a>
+<a href="#255" id="255">255</a>
+<a href="#256" id="256">256</a>
+<a href="#257" id="257">257</a>
+<a href="#258" id="258">258</a>
+<a href="#259" id="259">259</a>
+<a href="#260" id="260">260</a>
+<a href="#261" id="261">261</a>
+<a href="#262" id="262">262</a>
+<a href="#263" id="263">263</a>
+<a href="#264" id="264">264</a>
+<a href="#265" id="265">265</a>
+<a href="#266" id="266">266</a>
+<a href="#267" id="267">267</a>
+<a href="#268" id="268">268</a>
+<a href="#269" id="269">269</a>
+<a href="#270" id="270">270</a>
+<a href="#271" id="271">271</a>
+<a href="#272" id="272">272</a>
+<a href="#273" id="273">273</a>
+<a href="#274" id="274">274</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) Use Ink (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -273,57 +298,69 @@
         CallParams,
         ExecutionInput,
     },
-    Environment,
+    types::Environment,
     Error,
 };
-<span class="kw">use </span>pallet_contracts_uapi::CallFlags;
+<span class="kw">use </span>ink_primitives::H160;
+<span class="kw">use </span>pallet_revive_uapi::CallFlags;
 
 <span class="doccomment">/// The `delegatecall` call type. Performs a call with the given code hash.
 </span><span class="attr">#[derive(Clone)]
-</span><span class="kw">pub struct </span>DelegateCall&lt;E: Environment&gt; {
-    code_hash: E::Hash,
-    call_flags: CallFlags,
+</span><span class="kw">pub struct </span>DelegateCall {
+    <span class="comment">// todo comments please
+    </span>address: H160,
+    flags: CallFlags,
+    ref_time_limit: u64,
+    proof_size_limit: u64,
+    <span class="comment">// todo U256
+    </span>deposit_limit: <span class="prelude-ty">Option</span>&lt;[u8; <span class="number">32</span>]&gt;,
 }
 
-<span class="kw">impl</span>&lt;E: Environment&gt; DelegateCall&lt;E&gt; {
+<span class="kw">impl </span>DelegateCall {
     <span class="doccomment">/// Returns a clean builder for [`DelegateCall`]
-    </span><span class="kw">pub const fn </span>new(code_hash: E::Hash) -&gt; <span class="self">Self </span>{
+    </span><span class="kw">pub const fn </span>new(address: H160) -&gt; <span class="self">Self </span>{
         DelegateCall {
-            code_hash,
-            call_flags: CallFlags::empty(),
+            address,
+            flags: CallFlags::empty(),
+            ref_time_limit: <span class="number">0</span>,
+            proof_size_limit: <span class="number">0</span>,
+            deposit_limit: <span class="prelude-val">None</span>,
         }
     }
 
-    <span class="doccomment">/// Sets the `code_hash` to perform a delegate call with.
-    </span><span class="kw">pub fn </span>code_hash(<span class="self">self</span>, code_hash: E::Hash) -&gt; <span class="self">Self </span>{
+    <span class="doccomment">/// Sets the `address` to perform a delegate call with.
+    </span><span class="kw">pub fn </span>address(<span class="self">self</span>, address: H160) -&gt; <span class="self">Self </span>{
         DelegateCall {
-            code_hash,
-            call_flags: CallFlags::empty(),
+            address,
+            flags: CallFlags::empty(),
+            ref_time_limit: <span class="number">0</span>,
+            proof_size_limit: <span class="number">0</span>,
+            deposit_limit: <span class="prelude-val">None</span>,
         }
     }
 }
 
-<span class="kw">impl</span>&lt;E, Args, RetType&gt; CallBuilder&lt;E, Set&lt;DelegateCall&lt;E&gt;&gt;, Args, RetType&gt;
+<span class="kw">impl</span>&lt;E, Args, RetType&gt; CallBuilder&lt;E, Set&lt;DelegateCall&gt;, Args, RetType&gt;
 <span class="kw">where
     </span>E: Environment,
 {
-    <span class="doccomment">/// Sets the `code_hash` to perform a delegate call with.
-    </span><span class="kw">pub fn </span>code_hash(<span class="self">self</span>, code_hash: E::Hash) -&gt; <span class="self">Self </span>{
+    <span class="doccomment">/// Sets the `address` to perform a delegate call with.
+    </span><span class="kw">pub fn </span>address(<span class="self">self</span>, address: H160) -&gt; <span class="self">Self </span>{
         <span class="kw">let </span>call_type = <span class="self">self</span>.call_type.value();
         CallBuilder {
             call_type: Set(DelegateCall {
-                code_hash,
+                address,
                 ..call_type
             }),
             ..<span class="self">self
         </span>}
     }
 
-    <span class="doccomment">/// Sets the `code_hash` to perform a delegate call with.
+    <span class="doccomment">/// Sets the `CallFlags` to perform a delegate call with.
     </span><span class="kw">pub fn </span>call_flags(<span class="self">self</span>, call_flags: CallFlags) -&gt; <span class="self">Self </span>{
         CallBuilder {
             call_type: Set(DelegateCall {
-                call_flags,
+                flags: call_flags,
                 ..<span class="self">self</span>.call_type.value()
             }),
             exec_input: <span class="self">self</span>.exec_input,
@@ -334,17 +371,12 @@
 }
 
 <span class="kw">impl</span>&lt;E, Args, RetType&gt;
-    CallBuilder&lt;
-        E,
-        Set&lt;DelegateCall&lt;E&gt;&gt;,
-        Set&lt;ExecutionInput&lt;Args&gt;&gt;,
-        Set&lt;ReturnType&lt;RetType&gt;&gt;,
-    &gt;
+    CallBuilder&lt;E, Set&lt;DelegateCall&gt;, Set&lt;ExecutionInput&lt;Args&gt;&gt;, Set&lt;ReturnType&lt;RetType&gt;&gt;&gt;
 <span class="kw">where
     </span>E: Environment,
 {
     <span class="doccomment">/// Finalizes the call builder to call a function.
-    </span><span class="kw">pub fn </span>params(<span class="self">self</span>) -&gt; CallParams&lt;E, DelegateCall&lt;E&gt;, Args, RetType&gt; {
+    </span><span class="kw">pub fn </span>params(<span class="self">self</span>) -&gt; CallParams&lt;E, DelegateCall, Args, RetType&gt; {
         CallParams {
             call_type: <span class="self">self</span>.call_type.value(),
             _return_type: Default::default(),
@@ -357,7 +389,7 @@
 <span class="kw">impl</span>&lt;E, RetType&gt;
     CallBuilder&lt;
         E,
-        Set&lt;DelegateCall&lt;E&gt;&gt;,
+        Set&lt;DelegateCall&gt;,
         Unset&lt;ExecutionInput&lt;EmptyArgumentList&gt;&gt;,
         Unset&lt;RetType&gt;,
     &gt;
@@ -365,7 +397,7 @@
     </span>E: Environment,
 {
     <span class="doccomment">/// Finalizes the call builder to call a function.
-    </span><span class="kw">pub fn </span>params(<span class="self">self</span>) -&gt; CallParams&lt;E, DelegateCall&lt;E&gt;, EmptyArgumentList, ()&gt; {
+    </span><span class="kw">pub fn </span>params(<span class="self">self</span>) -&gt; CallParams&lt;E, DelegateCall, EmptyArgumentList, ()&gt; {
         CallParams {
             call_type: <span class="self">self</span>.call_type.value(),
             _return_type: Default::default(),
@@ -378,7 +410,7 @@
 <span class="kw">impl</span>&lt;E&gt;
     CallBuilder&lt;
         E,
-        Set&lt;DelegateCall&lt;E&gt;&gt;,
+        Set&lt;DelegateCall&gt;,
         Unset&lt;ExecutionInput&lt;EmptyArgumentList&gt;&gt;,
         Unset&lt;ReturnType&lt;()&gt;&gt;,
     &gt;
@@ -408,7 +440,7 @@
 }
 
 <span class="kw">impl</span>&lt;E, Args, R&gt;
-    CallBuilder&lt;E, Set&lt;DelegateCall&lt;E&gt;&gt;, Set&lt;ExecutionInput&lt;Args&gt;&gt;, Set&lt;ReturnType&lt;R&gt;&gt;&gt;
+    CallBuilder&lt;E, Set&lt;DelegateCall&gt;, Set&lt;ExecutionInput&lt;Args&gt;&gt;, Set&lt;ReturnType&lt;R&gt;&gt;&gt;
 <span class="kw">where
     </span>E: Environment,
     Args: scale::Encode,
@@ -439,24 +471,42 @@
     }
 }
 
-<span class="kw">impl</span>&lt;E, Args, R&gt; CallParams&lt;E, DelegateCall&lt;E&gt;, Args, R&gt;
+<span class="kw">impl</span>&lt;E, Args, R&gt; CallParams&lt;E, DelegateCall, Args, R&gt;
 <span class="kw">where
     </span>E: Environment,
 {
-    <span class="doccomment">/// Returns the code hash which we use to perform a delegate call.
-    </span><span class="attr">#[inline]
-    </span><span class="kw">pub fn </span>code_hash(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>E::Hash {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.call_type.code_hash
-    }
-
     <span class="doccomment">/// Returns the call flags.
     </span><span class="attr">#[inline]
     </span><span class="kw">pub fn </span>call_flags(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>CallFlags {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.call_type.call_flags
+        <span class="kw-2">&amp;</span><span class="self">self</span>.call_type.flags
+    }
+
+    <span class="doccomment">/// Returns the contract address which we use to perform a delegate call.
+    </span><span class="attr">#[inline]
+    </span><span class="kw">pub fn </span>address(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>H160 {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.call_type.address
+    }
+
+    <span class="doccomment">/// Returns the `ref_time_limit` which we use to perform a delegate call.
+    </span><span class="attr">#[inline]
+    </span><span class="kw">pub fn </span>ref_time_limit(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u64 {
+        <span class="self">self</span>.call_type.ref_time_limit
+    }
+
+    <span class="doccomment">/// Returns the `proof_size_limit` which we use to perform a delegate call.
+    </span><span class="attr">#[inline]
+    </span><span class="kw">pub fn </span>proof_size_limit(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u64 {
+        <span class="self">self</span>.call_type.proof_size_limit
+    }
+
+    <span class="doccomment">/// Returns the `deposit_limit` which we use to perform a delegate call.
+    </span><span class="attr">#[inline]
+    </span><span class="kw">pub fn </span>deposit_limit(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="prelude-ty">Option</span>&lt;[u8; <span class="number">32</span>]&gt; {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.call_type.deposit_limit
     }
 }
 
-<span class="kw">impl</span>&lt;E, Args, R&gt; CallParams&lt;E, DelegateCall&lt;E&gt;, Args, R&gt;
+<span class="kw">impl</span>&lt;E, Args, R&gt; CallParams&lt;E, DelegateCall, Args, R&gt;
 <span class="kw">where
     </span>E: Environment,
     Args: scale::Encode,

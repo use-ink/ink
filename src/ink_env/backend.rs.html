@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/env/src/backend.rs`."><title>backend.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-c5d6553a23f1e5a6.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="ink_env" data-themes="" data-resource-suffix="" data-rustdoc-version="1.81.0 (eeb90cda1 2024-09-04)" data-channel="1.81.0" data-search-js="search-d234aafac6c221dd.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-d2fab2bf619172d3.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/env/src/backend.rs`."><title>backend.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-b0742ba02757f159.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="ink_env" data-themes="" data-resource-suffix="" data-rustdoc-version="1.83.0 (90b35a623 2024-11-26)" data-channel="1.83.0" data-search-js="search-f0d225181b97f9a4.js" data-settings-js="settings-805db61a62df4bd2.js" ><script src="../../static.files/storage-1d39b6787ed640ff.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-f070b9041d14864c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-0111fcff984fae8f.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">ink_env/</div>backend.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers">
+<a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -468,28 +469,7 @@
 <a href="#468" id="468">468</a>
 <a href="#469" id="469">469</a>
 <a href="#470" id="470">470</a>
-<a href="#471" id="471">471</a>
-<a href="#472" id="472">472</a>
-<a href="#473" id="473">473</a>
-<a href="#474" id="474">474</a>
-<a href="#475" id="475">475</a>
-<a href="#476" id="476">476</a>
-<a href="#477" id="477">477</a>
-<a href="#478" id="478">478</a>
-<a href="#479" id="479">479</a>
-<a href="#480" id="480">480</a>
-<a href="#481" id="481">481</a>
-<a href="#482" id="482">482</a>
-<a href="#483" id="483">483</a>
-<a href="#484" id="484">484</a>
-<a href="#485" id="485">485</a>
-<a href="#486" id="486">486</a>
-<a href="#487" id="487">487</a>
-<a href="#488" id="488">488</a>
-<a href="#489" id="489">489</a>
-<a href="#490" id="490">490</a>
-<a href="#491" id="491">491</a>
-</pre></div><pre class="rust"><code><span class="comment">// Copyright (C) Use Ink (UK) Ltd.
+<a href="#471" id="471">471</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) Use Ink (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -507,12 +487,10 @@
     call::{
         Call,
         CallParams,
-        CallV1,
         ConstructorReturnType,
         CreateParams,
         DelegateCall,
-        FromAccountId,
-        LimitParamsV1,
+        FromAddr,
         LimitParamsV2,
     },
     event::Event,
@@ -520,11 +498,16 @@
         CryptoHash,
         HashOutput,
     },
-    Environment,
     <span class="prelude-ty">Result</span>,
 };
+<span class="kw">use </span>ink_primitives::{
+    types::Environment,
+    H160,
+    H256,
+    U256,
+};
 <span class="kw">use </span>ink_storage_traits::Storable;
-<span class="kw">pub use </span>pallet_contracts_uapi::ReturnFlags;
+<span class="kw">pub use </span>pallet_revive_uapi::ReturnFlags;
 
 <span class="doccomment">/// Environmental contract functionality that does not require `Environment`.
 </span><span class="kw">pub trait </span>EnvBackend {
@@ -606,7 +589,22 @@
     ///
     /// The `flags` parameter can be used to revert the state changes of the
     /// entire execution if necessary.
+    </span><span class="attr">#[cfg(not(feature = <span class="string">"std"</span>))]
     </span><span class="kw">fn </span>return_value&lt;R&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, flags: ReturnFlags, return_value: <span class="kw-2">&amp;</span>R) -&gt; !
+    <span class="kw">where
+        </span>R: scale::Encode;
+
+    <span class="doccomment">/// Returns the value back to the caller of the executed contract.
+    ///
+    /// # Note
+    ///
+    /// When the `std` feature is used, the contract is allowed to
+    /// return normally. This feature should only be used for integration tests.
+    ///
+    /// The `flags` parameter can be used to revert the state changes of the
+    /// entire execution if necessary.
+    </span><span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
+    </span><span class="kw">fn </span>return_value&lt;R&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, flags: ReturnFlags, return_value: <span class="kw-2">&amp;</span>R)
     <span class="kw">where
         </span>R: scale::Encode;
 
@@ -705,7 +703,7 @@
     /// # Errors
     ///
     /// - If the supplied `code_hash` cannot be found on-chain.
-    </span><span class="kw">fn </span>set_code_hash(<span class="kw-2">&amp;mut </span><span class="self">self</span>, code_hash: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt;;
+    </span><span class="kw">fn </span>set_code_hash(<span class="kw-2">&amp;mut </span><span class="self">self</span>, code_hash: <span class="kw-2">&amp;</span>H256) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt;;
 }
 
 <span class="doccomment">/// Environmental contract functionality.
@@ -715,14 +713,14 @@
     /// # Note
     ///
     /// For more details visit: [`caller`][`crate::caller`]
-    </span><span class="kw">fn </span>caller&lt;E: Environment&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; E::AccountId;
+    </span><span class="kw">fn </span>caller(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; H160;
 
     <span class="doccomment">/// Returns the transferred value for the contract execution.
     ///
     /// # Note
     ///
     /// For more details visit: [`transferred_value`][`crate::transferred_value`]
-    </span><span class="kw">fn </span>transferred_value&lt;E: Environment&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; E::Balance;
+    </span><span class="kw">fn </span>transferred_value(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; U256;
 
     <span class="doccomment">/// Returns the price for the specified amount of gas.
     ///
@@ -730,13 +728,6 @@
     ///
     /// For more details visit: [`weight_to_fee`][`crate::weight_to_fee`]
     </span><span class="kw">fn </span>weight_to_fee&lt;E: Environment&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, gas: u64) -&gt; E::Balance;
-
-    <span class="doccomment">/// Returns the amount of gas left for the contract execution.
-    ///
-    /// # Note
-    ///
-    /// For more details visit: [`gas_left`][`crate::gas_left`]
-    </span><span class="kw">fn </span>gas_left&lt;E: Environment&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; u64;
 
     <span class="doccomment">/// Returns the timestamp of the current block.
     ///
@@ -752,12 +743,19 @@
     /// For more details visit: [`account_id`][`crate::account_id`]
     </span><span class="kw">fn </span>account_id&lt;E: Environment&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; E::AccountId;
 
+    <span class="doccomment">/// Returns the address of the executed contract.
+    ///
+    /// # Note
+    ///
+    /// For more details visit: [`address`][`crate::address`]
+    </span><span class="kw">fn </span>address(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; H160;
+
     <span class="doccomment">/// Returns the balance of the executed contract.
     ///
     /// # Note
     ///
     /// For more details visit: [`balance`][`crate::balance`]
-    </span><span class="kw">fn </span>balance&lt;E: Environment&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; E::Balance;
+    </span><span class="kw">fn </span>balance(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; U256;
 
     <span class="doccomment">/// Returns the current block number.
     ///
@@ -788,28 +786,12 @@
     ///
     /// # Note
     ///
-    /// **This will call into the original `call` host function.**
-    ///
-    /// For more details visit: [`invoke_contract`][`crate::invoke_contract_v1`]
-    </span><span class="kw">fn </span>invoke_contract_v1&lt;E, Args, R&gt;(
-        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
-        call_data: <span class="kw-2">&amp;</span>CallParams&lt;E, CallV1&lt;E&gt;, Args, R&gt;,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;ink_primitives::MessageResult&lt;R&gt;&gt;
-    <span class="kw">where
-        </span>E: Environment,
-        Args: scale::Encode,
-        R: scale::Decode;
-
-    <span class="doccomment">/// Invokes a contract message and returns its result.
-    ///
-    /// # Note
-    ///
     /// **This will call into the latest `call_v2` host function.**
     ///
     /// For more details visit: [`invoke_contract`][`crate::invoke_contract`]
     </span><span class="kw">fn </span>invoke_contract&lt;E, Args, R&gt;(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
-        call_data: <span class="kw-2">&amp;</span>CallParams&lt;E, Call&lt;E&gt;, Args, R&gt;,
+        call_data: <span class="kw-2">&amp;</span>CallParams&lt;E, Call, Args, R&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;ink_primitives::MessageResult&lt;R&gt;&gt;
     <span class="kw">where
         </span>E: Environment,
@@ -824,7 +806,7 @@
     /// [`invoke_contract_delegate`][`crate::invoke_contract_delegate`]
     </span><span class="kw">fn </span>invoke_contract_delegate&lt;E, Args, R&gt;(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
-        call_data: <span class="kw-2">&amp;</span>CallParams&lt;E, DelegateCall&lt;E&gt;, Args, R&gt;,
+        call_data: <span class="kw-2">&amp;</span>CallParams&lt;E, DelegateCall, Args, R&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;ink_primitives::MessageResult&lt;R&gt;&gt;
     <span class="kw">where
         </span>E: Environment,
@@ -836,9 +818,9 @@
     /// # Note
     ///
     /// For more details visit: [`instantiate_contract`][`crate::instantiate_contract`]
-    </span><span class="kw">fn </span>instantiate_contract&lt;E, ContractRef, Args, Salt, R&gt;(
+    </span><span class="kw">fn </span>instantiate_contract&lt;E, ContractRef, Args, R&gt;(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
-        params: <span class="kw-2">&amp;</span>CreateParams&lt;E, ContractRef, LimitParamsV2&lt;E&gt;, Args, Salt, R&gt;,
+        params: <span class="kw-2">&amp;</span>CreateParams&lt;E, ContractRef, LimitParamsV2, Args, R&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;
         ink_primitives::ConstructorResult&lt;
             &lt;R <span class="kw">as </span>ConstructorReturnType&lt;ContractRef&gt;&gt;::Output,
@@ -846,24 +828,10 @@
     &gt;
     <span class="kw">where
         </span>E: Environment,
-        ContractRef: FromAccountId&lt;E&gt;,
+        ContractRef: FromAddr + <span class="kw">crate</span>::ContractReverseReference,
+        &lt;ContractRef <span class="kw">as </span><span class="kw">crate</span>::ContractReverseReference&gt;::Type:
+            <span class="kw">crate</span>::reflect::ContractConstructorDecoder,
         Args: scale::Encode,
-        Salt: AsRef&lt;[u8]&gt;,
-        R: ConstructorReturnType&lt;ContractRef&gt;;
-
-    <span class="kw">fn </span>instantiate_contract_v1&lt;E, ContractRef, Args, Salt, R&gt;(
-        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
-        params: <span class="kw-2">&amp;</span>CreateParams&lt;E, ContractRef, LimitParamsV1, Args, Salt, R&gt;,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;
-        ink_primitives::ConstructorResult&lt;
-            &lt;R <span class="kw">as </span>ConstructorReturnType&lt;ContractRef&gt;&gt;::Output,
-        &gt;,
-    &gt;
-    <span class="kw">where
-        </span>E: Environment,
-        ContractRef: FromAccountId&lt;E&gt;,
-        Args: scale::Encode,
-        Salt: AsRef&lt;[u8]&gt;,
         R: ConstructorReturnType&lt;ContractRef&gt;;
 
     <span class="doccomment">/// Terminates a smart contract.
@@ -871,28 +839,24 @@
     /// # Note
     ///
     /// For more details visit: [`terminate_contract`][`crate::terminate_contract`]
-    </span><span class="kw">fn </span>terminate_contract&lt;E&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, beneficiary: E::AccountId) -&gt; !
-    <span class="kw">where
-        </span>E: Environment;
+    </span><span class="kw">fn </span>terminate_contract(<span class="kw-2">&amp;mut </span><span class="self">self</span>, beneficiary: H160) -&gt; !;
 
     <span class="doccomment">/// Transfers value from the contract to the destination account ID.
     ///
     /// # Note
     ///
     /// For more details visit: [`transfer`][`crate::transfer`]
-    </span><span class="kw">fn </span>transfer&lt;E&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, destination: E::AccountId, value: E::Balance) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt;
+    </span><span class="kw">fn </span>transfer&lt;E&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, destination: H160, value: U256) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt;
     <span class="kw">where
         </span>E: Environment;
 
-    <span class="doccomment">/// Checks whether a specified account belongs to a contract.
+    <span class="doccomment">/// Checks whether a specified contract lives at `addr`.
     ///
     /// # Note
     ///
     /// For more details visit: [`is_contract`][`crate::is_contract`]
     </span><span class="attr">#[allow(clippy::wrong_self_convention)]
-    </span><span class="kw">fn </span>is_contract&lt;E&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, account: <span class="kw-2">&amp;</span>E::AccountId) -&gt; bool
-    <span class="kw">where
-        </span>E: Environment;
+    </span><span class="kw">fn </span>is_contract(<span class="kw-2">&amp;mut </span><span class="self">self</span>, account: <span class="kw-2">&amp;</span>H160) -&gt; bool;
 
     <span class="doccomment">/// Checks whether the caller of the current contract is the origin of the whole call
     /// stack.
@@ -918,18 +882,14 @@
     /// # Note
     ///
     /// For more details visit: [`code_hash`][`crate::code_hash`]
-    </span><span class="kw">fn </span>code_hash&lt;E&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, account: <span class="kw-2">&amp;</span>E::AccountId) -&gt; <span class="prelude-ty">Result</span>&lt;E::Hash&gt;
-    <span class="kw">where
-        </span>E: Environment;
+    </span><span class="kw">fn </span>code_hash(<span class="kw-2">&amp;mut </span><span class="self">self</span>, account: <span class="kw-2">&amp;</span>H160) -&gt; <span class="prelude-ty">Result</span>&lt;H256&gt;;
 
     <span class="doccomment">/// Retrieves the code hash of the currently executing contract.
     ///
     /// # Note
     ///
     /// For more details visit: [`own_code_hash`][`crate::own_code_hash`]
-    </span><span class="kw">fn </span>own_code_hash&lt;E&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;E::Hash&gt;
-    <span class="kw">where
-        </span>E: Environment;
+    </span><span class="kw">fn </span>own_code_hash(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;H256&gt;;
 
     <span class="kw">fn </span>call_runtime&lt;E, Call&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, call: <span class="kw-2">&amp;</span>Call) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt;
     <span class="kw">where
@@ -942,7 +902,7 @@
     ///
     /// For more details visit:
     /// [`lock_delegate_dependency`][`crate::lock_delegate_dependency`]
-    </span><span class="kw">fn </span>lock_delegate_dependency&lt;E&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, code_hash: <span class="kw-2">&amp;</span>E::Hash)
+    </span><span class="kw">fn </span>lock_delegate_dependency&lt;E&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, code_hash: <span class="kw-2">&amp;</span>H256)
     <span class="kw">where
         </span>E: Environment;
 
@@ -952,7 +912,7 @@
     ///
     /// For more details visit:
     /// [`unlock_delegate_dependency`][`crate::unlock_delegate_dependency`].
-    </span><span class="kw">fn </span>unlock_delegate_dependency&lt;E&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, code_hash: <span class="kw-2">&amp;</span>E::Hash)
+    </span><span class="kw">fn </span>unlock_delegate_dependency&lt;E&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, code_hash: <span class="kw-2">&amp;</span>H256)
     <span class="kw">where
         </span>E: Environment;
 

@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/engine/src/exec_context.rs`."><title>exec_context.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-c5d6553a23f1e5a6.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="ink_engine" data-themes="" data-resource-suffix="" data-rustdoc-version="1.81.0 (eeb90cda1 2024-09-04)" data-channel="1.81.0" data-search-js="search-d234aafac6c221dd.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-d2fab2bf619172d3.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/engine/src/exec_context.rs`."><title>exec_context.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-b0742ba02757f159.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="ink_engine" data-themes="" data-resource-suffix="" data-rustdoc-version="1.83.0 (90b35a623 2024-11-26)" data-channel="1.83.0" data-search-js="search-f0d225181b97f9a4.js" data-settings-js="settings-805db61a62df4bd2.js" ><script src="../../static.files/storage-1d39b6787ed640ff.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-f070b9041d14864c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-0111fcff984fae8f.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">ink_engine/</div>exec_context.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers">
+<a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -94,13 +95,7 @@
 <a href="#94" id="94">94</a>
 <a href="#95" id="95">95</a>
 <a href="#96" id="96">96</a>
-<a href="#97" id="97">97</a>
-<a href="#98" id="98">98</a>
-<a href="#99" id="99">99</a>
-<a href="#100" id="100">100</a>
-<a href="#101" id="101">101</a>
-<a href="#102" id="102">102</a>
-</pre></div><pre class="rust"><code><span class="comment">// Copyright (C) Use Ink (UK) Ltd.
+<a href="#97" id="97">97</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) Use Ink (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -115,11 +110,11 @@
 // limitations under the License.
 
 </span><span class="kw">use </span><span class="kw">super</span>::types::{
-    AccountId,
-    Balance,
     BlockNumber,
     BlockTimestamp,
+    H160,
 };
+<span class="kw">use </span>ink_primitives::U256;
 
 <span class="doccomment">/// The context of a contract execution.
 </span><span class="attr">#[cfg_attr(test, derive(Debug, PartialEq, Eq))]
@@ -127,26 +122,27 @@
 </span><span class="kw">pub struct </span>ExecContext {
     <span class="doccomment">/// The caller of the contract execution. Might be user or another contract.
     ///
+    /// TODO check next comment
     /// We don't know the specifics of the `AccountId` ‒ like how many bytes or what
     /// type of default `AccountId` makes sense ‒ they are left to be initialized
     /// by the crate which uses the `engine`. Methods which require a caller might
     /// panic when it has not been set.
-    </span><span class="kw">pub </span>caller: <span class="prelude-ty">Option</span>&lt;AccountId&gt;,
+    </span><span class="kw">pub </span>caller: H160,
     <span class="doccomment">/// The callee of the contract execution. Might be user or another contract.
     ///
     /// We don't know the specifics of the `AccountId` ‒ like how many bytes or what
     /// type of default `AccountId` makes sense ‒ they are left to be initialized
     /// by the crate which uses the `engine`. Methods which require a callee might
     /// panic when it has not been set.
-    </span><span class="kw">pub </span>callee: <span class="prelude-ty">Option</span>&lt;AccountId&gt;,
+    </span><span class="kw">pub </span>callee: <span class="prelude-ty">Option</span>&lt;H160&gt;,
     <span class="doccomment">/// The value transferred to the contract as part of the call.
-    </span><span class="kw">pub </span>value_transferred: Balance,
+    </span><span class="kw">pub </span>value_transferred: U256,
     <span class="doccomment">/// The current block number.
     </span><span class="kw">pub </span>block_number: BlockNumber,
     <span class="doccomment">/// The current block timestamp.
     </span><span class="kw">pub </span>block_timestamp: BlockTimestamp,
     <span class="doccomment">/// Known contract accounts
-    </span><span class="kw">pub </span>contracts: Vec&lt;Vec&lt;u8&gt;&gt;,
+    </span><span class="kw">pub </span>contracts: Vec&lt;H160&gt;,
 }
 
 <span class="kw">impl </span>ExecContext {
@@ -156,12 +152,8 @@
     }
 
     <span class="doccomment">/// Returns the callee.
-    </span><span class="kw">pub fn </span>callee(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Vec&lt;u8&gt; {
-        <span class="self">self</span>.callee
-            .as_ref()
-            .expect(<span class="string">"no callee has been set"</span>)
-            .as_bytes()
-            .into()
+    </span><span class="kw">pub fn </span>callee(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; H160 {
+        <span class="self">self</span>.callee.expect(<span class="string">"no callee has been set"</span>)
     }
 
     <span class="doccomment">/// Resets the execution context
@@ -182,19 +174,17 @@
 
 <span class="attr">#[cfg(test)]
 </span><span class="kw">mod </span>tests {
-    <span class="kw">use super</span>::{
-        AccountId,
-        ExecContext,
-    };
+    <span class="kw">use </span><span class="kw">super</span>::ExecContext;
+    <span class="kw">use </span><span class="kw">crate</span>::types::H160;
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>basic_operations() {
         <span class="kw">let </span><span class="kw-2">mut </span>exec_cont = ExecContext::new();
 
-        exec_cont.callee = <span class="prelude-val">Some</span>(AccountId::from_bytes(<span class="kw-2">&amp;</span>[<span class="number">13</span>]));
-        exec_cont.caller = <span class="prelude-val">Some</span>(AccountId::from_bytes(<span class="kw-2">&amp;</span>[<span class="number">14</span>]));
-        exec_cont.value_transferred = <span class="number">15</span>;
-        <span class="macro">assert_eq!</span>(exec_cont.callee(), <span class="macro">vec!</span>[<span class="number">13</span>]);
+        exec_cont.callee = <span class="prelude-val">Some</span>(H160::from([<span class="number">13</span>; <span class="number">20</span>]));
+        exec_cont.caller = H160::from([<span class="number">14</span>; <span class="number">20</span>]);
+        exec_cont.value_transferred = <span class="number">15</span>.into();
+        <span class="macro">assert_eq!</span>(exec_cont.callee(), H160::from([<span class="number">13</span>; <span class="number">20</span>]));
 
         exec_cont.reset();
 

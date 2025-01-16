@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["LangError"],"struct":["AccountId","Hash","KeyComposer"],"trait":["Clear"],"type":["ConstructorResult","Key","MessageResult"]};
+window.SIDEBAR_ITEMS = {"enum":["LangError"],"mod":["contract","reflect","types"],"struct":["H160","H256","KeyComposer","U256"],"type":["ConstructorResult","Key","MessageResult"]};

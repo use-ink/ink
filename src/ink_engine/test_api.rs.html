@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/engine/src/test_api.rs`."><title>test_api.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-c5d6553a23f1e5a6.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="ink_engine" data-themes="" data-resource-suffix="" data-rustdoc-version="1.81.0 (eeb90cda1 2024-09-04)" data-channel="1.81.0" data-search-js="search-d234aafac6c221dd.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-d2fab2bf619172d3.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/engine/src/test_api.rs`."><title>test_api.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-b0742ba02757f159.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="ink_engine" data-themes="" data-resource-suffix="" data-rustdoc-version="1.83.0 (90b35a623 2024-11-26)" data-channel="1.83.0" data-search-js="search-f0d225181b97f9a4.js" data-settings-js="settings-805db61a62df4bd2.js" ><script src="../../static.files/storage-1d39b6787ed640ff.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-f070b9041d14864c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-0111fcff984fae8f.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">ink_engine/</div>test_api.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers">
+<a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -350,7 +351,25 @@
 <a href="#350" id="350">350</a>
 <a href="#351" id="351">351</a>
 <a href="#352" id="352">352</a>
-</pre></div><pre class="rust"><code><span class="comment">// Copyright (C) Use Ink (UK) Ltd.
+<a href="#353" id="353">353</a>
+<a href="#354" id="354">354</a>
+<a href="#355" id="355">355</a>
+<a href="#356" id="356">356</a>
+<a href="#357" id="357">357</a>
+<a href="#358" id="358">358</a>
+<a href="#359" id="359">359</a>
+<a href="#360" id="360">360</a>
+<a href="#361" id="361">361</a>
+<a href="#362" id="362">362</a>
+<a href="#363" id="363">363</a>
+<a href="#364" id="364">364</a>
+<a href="#365" id="365">365</a>
+<a href="#366" id="366">366</a>
+<a href="#367" id="367">367</a>
+<a href="#368" id="368">368</a>
+<a href="#369" id="369">369</a>
+<a href="#370" id="370">370</a>
+<a href="#371" id="371">371</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) Use Ink (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -367,13 +386,17 @@
 </span><span class="kw">use crate</span>::{
     ext::Engine,
     types::{
-        AccountId,
         Balance,
         BlockNumber,
         BlockTimestamp,
+        H160,
     },
     AccountError,
     Error,
+};
+<span class="kw">use </span>ink_primitives::{
+    AccountId,
+    U256,
 };
 <span class="kw">use </span>std::collections::HashMap;
 
@@ -432,11 +455,11 @@
     <span class="doccomment">/// Emitted print messages recorder.
     </span>emitted_debug_messages: RecordedDebugMessages,
     <span class="doccomment">/// The total number of reads to the storage.
-    </span>count_reads: HashMap&lt;AccountId, usize&gt;,
+    </span>count_reads: HashMap&lt;H160, usize&gt;,
     <span class="doccomment">/// The total number of writes to the storage.
-    </span>count_writes: HashMap&lt;AccountId, usize&gt;,
-    <span class="doccomment">/// The number of storage cells used by each account id.
-    </span>cells_per_account: HashMap&lt;AccountId, HashMap&lt;Vec&lt;u8&gt;, bool&gt;&gt;,
+    </span>count_writes: HashMap&lt;H160, usize&gt;,
+    <span class="doccomment">/// The number of storage cells used by each contract.
+    </span>cells_per_contract: HashMap&lt;H160, HashMap&lt;Vec&lt;u8&gt;, bool&gt;&gt;,
 }
 
 <span class="kw">impl </span>Default <span class="kw">for </span>DebugInfo {
@@ -453,7 +476,7 @@
             emitted_debug_messages: RecordedDebugMessages::new(),
             count_reads: HashMap::new(),
             count_writes: HashMap::new(),
-            cells_per_account: HashMap::new(),
+            cells_per_contract: HashMap::new(),
         }
     }
 
@@ -463,21 +486,23 @@
         <span class="self">self</span>.count_writes.clear();
         <span class="self">self</span>.emitted_events.clear();
         <span class="self">self</span>.emitted_debug_messages.clear();
-        <span class="self">self</span>.cells_per_account.clear();
+        <span class="self">self</span>.cells_per_contract.clear();
     }
 
     <span class="doccomment">/// Increases the number of storage writes for the supplied account by one.
-    </span><span class="kw">pub fn </span>inc_writes(<span class="kw-2">&amp;mut </span><span class="self">self</span>, account_id: AccountId) {
+    </span><span class="attr">#[allow(clippy::arithmetic_side_effects)] </span><span class="comment">// todo
+    </span><span class="kw">pub fn </span>inc_writes(<span class="kw-2">&amp;mut </span><span class="self">self</span>, addr: H160) {
         <span class="self">self</span>.count_writes
-            .entry(account_id)
+            .entry(addr)
             .and_modify(|v| <span class="kw-2">*</span>v += <span class="number">1</span>)
             .or_insert(<span class="number">1</span>);
     }
 
     <span class="doccomment">/// Increases the number of storage reads for the supplied account by one.
-    </span><span class="kw">pub fn </span>inc_reads(<span class="kw-2">&amp;mut </span><span class="self">self</span>, account_id: AccountId) {
+    </span><span class="attr">#[allow(clippy::arithmetic_side_effects)] </span><span class="comment">// todo
+    </span><span class="kw">pub fn </span>inc_reads(<span class="kw-2">&amp;mut </span><span class="self">self</span>, addr: H160) {
         <span class="self">self</span>.count_reads
-            .entry(account_id)
+            .entry(addr)
             .and_modify(|v| <span class="kw-2">*</span>v += <span class="number">1</span>)
             .or_insert(<span class="number">1</span>);
     }
@@ -486,9 +511,9 @@
     ///
     /// Calling this function multiple times won't change the fact that only
     /// one cell is recorded.
-    </span><span class="kw">pub fn </span>record_cell_for_account(<span class="kw-2">&amp;mut </span><span class="self">self</span>, account_id: AccountId, key: Vec&lt;u8&gt;) {
-        <span class="self">self</span>.cells_per_account
-            .entry(account_id)
+    </span><span class="kw">pub fn </span>record_cell_for_account(<span class="kw-2">&amp;mut </span><span class="self">self</span>, addr: H160, key: Vec&lt;u8&gt;) {
+        <span class="self">self</span>.cells_per_contract
+            .entry(addr)
             .and_modify(|hm| {
                 <span class="kw">let _ </span>= hm.insert(key.clone(), <span class="bool-val">true</span>);
             })
@@ -502,13 +527,9 @@
     <span class="doccomment">/// Removes the cell under `key` for the supplied account.
     ///
     /// Returns the removed cell, if there was one.
-    </span><span class="kw">pub fn </span>remove_cell_for_account(
-        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
-        account_id: AccountId,
-        key: Vec&lt;u8&gt;,
-    ) -&gt; <span class="prelude-ty">Option</span>&lt;bool&gt; {
-        <span class="self">self</span>.cells_per_account
-            .get_mut(<span class="kw-2">&amp;</span>account_id)
+    </span><span class="kw">pub fn </span>remove_cell_for_account(<span class="kw-2">&amp;mut </span><span class="self">self</span>, addr: H160, key: Vec&lt;u8&gt;) -&gt; <span class="prelude-ty">Option</span>&lt;bool&gt; {
+        <span class="self">self</span>.cells_per_contract
+            .get_mut(<span class="kw-2">&amp;</span>addr)
             .map(|hm| hm.remove(<span class="kw-2">&amp;</span>key))
             .unwrap_or(<span class="prelude-val">None</span>)
     }
@@ -533,10 +554,9 @@
     }
 
     <span class="doccomment">/// Returns the total number of reads and writes of the contract's storage.
-    </span><span class="kw">pub fn </span>get_contract_storage_rw(<span class="kw-2">&amp;</span><span class="self">self</span>, account_id: Vec&lt;u8&gt;) -&gt; (usize, usize) {
-        <span class="kw">let </span>account_id = AccountId::from(account_id);
-        <span class="kw">let </span>reads = <span class="self">self</span>.debug_info.count_reads.get(<span class="kw-2">&amp;</span>account_id).unwrap_or(<span class="kw-2">&amp;</span><span class="number">0</span>);
-        <span class="kw">let </span>writes = <span class="self">self</span>.debug_info.count_writes.get(<span class="kw-2">&amp;</span>account_id).unwrap_or(<span class="kw-2">&amp;</span><span class="number">0</span>);
+    </span><span class="kw">pub fn </span>get_contract_storage_rw(<span class="kw-2">&amp;</span><span class="self">self</span>, addr: H160) -&gt; (usize, usize) {
+        <span class="kw">let </span>reads = <span class="self">self</span>.debug_info.count_reads.get(<span class="kw-2">&amp;</span>addr).unwrap_or(<span class="kw-2">&amp;</span><span class="number">0</span>);
+        <span class="kw">let </span>writes = <span class="self">self</span>.debug_info.count_writes.get(<span class="kw-2">&amp;</span>addr).unwrap_or(<span class="kw-2">&amp;</span><span class="number">0</span>);
         (<span class="kw-2">*</span>reads, <span class="kw-2">*</span>writes)
     }
 
@@ -551,48 +571,54 @@
     }
 
     <span class="doccomment">/// Sets a caller for the next call.
-    </span><span class="kw">pub fn </span>set_caller(<span class="kw-2">&amp;mut </span><span class="self">self</span>, caller: Vec&lt;u8&gt;) {
-        <span class="self">self</span>.exec_context.caller = <span class="prelude-val">Some</span>(caller.into());
+    </span><span class="kw">pub fn </span>set_caller(<span class="kw-2">&amp;mut </span><span class="self">self</span>, caller: H160) {
+        <span class="self">self</span>.exec_context.caller = caller;
     }
 
     <span class="doccomment">/// Sets a known contract by adding it to a vector of known contracts accounts
-    </span><span class="kw">pub fn </span>set_contract(<span class="kw-2">&amp;mut </span><span class="self">self</span>, caller: Vec&lt;u8&gt;) {
+    </span><span class="kw">pub fn </span>set_contract(<span class="kw-2">&amp;mut </span><span class="self">self</span>, caller: H160) {
         <span class="self">self</span>.exec_context.contracts.push(caller);
     }
 
     <span class="doccomment">/// Sets the callee for the next call.
-    </span><span class="kw">pub fn </span>set_callee(<span class="kw-2">&amp;mut </span><span class="self">self</span>, callee: Vec&lt;u8&gt;) {
-        <span class="self">self</span>.exec_context.callee = <span class="prelude-val">Some</span>(callee.into());
+    </span><span class="kw">pub fn </span>set_callee(<span class="kw-2">&amp;mut </span><span class="self">self</span>, callee: H160) {
+        <span class="self">self</span>.exec_context.callee = <span class="prelude-val">Some</span>(callee);
     }
 
-    <span class="doccomment">/// Returns the amount of storage cells used by the account `account_id`.
+    <span class="doccomment">/// Returns the amount of storage cells used by the contract `addr`.
     ///
-    /// Returns `None` if the `account_id` is non-existent.
-    </span><span class="kw">pub fn </span>count_used_storage_cells(<span class="kw-2">&amp;</span><span class="self">self</span>, account_id: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;usize, Error&gt; {
+    /// Returns `None` if the contract `addr` is non-existent.
+    </span><span class="kw">pub fn </span>count_used_storage_cells(<span class="kw-2">&amp;</span><span class="self">self</span>, addr: <span class="kw-2">&amp;</span>H160) -&gt; <span class="prelude-ty">Result</span>&lt;usize, Error&gt; {
         <span class="kw">let </span>cells = <span class="self">self
             </span>.debug_info
-            .cells_per_account
-            .get(<span class="kw-2">&amp;</span>account_id.to_owned().into())
-            .ok_or_else(|| {
-                Error::Account(AccountError::NoAccountForId(account_id.to_vec()))
-            })<span class="question-mark">?</span>;
+            .cells_per_contract
+            .get(addr)
+            .ok_or(Error::Account(AccountError::NoContractForId(<span class="kw-2">*</span>addr)))<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(cells.len())
     }
 
     <span class="doccomment">/// Advances the chain by a single block.
     </span><span class="kw">pub fn </span>advance_block(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
-        <span class="self">self</span>.exec_context.block_number += <span class="number">1</span>;
-        <span class="self">self</span>.exec_context.block_timestamp += <span class="self">self</span>.chain_spec.block_time;
+        <span class="self">self</span>.exec_context.block_number = <span class="self">self
+            </span>.exec_context
+            .block_number
+            .checked_add(<span class="number">1</span>)
+            .expect(<span class="string">"failed to add"</span>);
+        <span class="self">self</span>.exec_context.block_timestamp = <span class="self">self
+            </span>.exec_context
+            .block_timestamp
+            .checked_add(<span class="self">self</span>.chain_spec.block_time)
+            .expect(<span class="string">"failed to add"</span>);
     }
 
     <span class="doccomment">/// Returns the callee, i.e. the currently executing contract.
-    </span><span class="kw">pub fn </span>get_callee(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Vec&lt;u8&gt; {
+    </span><span class="kw">pub fn </span>get_callee(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; H160 {
         <span class="self">self</span>.exec_context.callee()
     }
 
     <span class="doccomment">/// Returns boolean value indicating whether the account is a contract
-    </span><span class="kw">pub fn </span>is_contract(<span class="kw-2">&amp;</span><span class="self">self</span>, account_id: Vec&lt;u8&gt;) -&gt; bool {
-        <span class="self">self</span>.exec_context.contracts.contains(<span class="kw-2">&amp;</span>account_id)
+    </span><span class="kw">pub fn </span>is_contract(<span class="kw-2">&amp;</span><span class="self">self</span>, addr: <span class="kw-2">&amp;</span>H160) -&gt; bool {
+        <span class="self">self</span>.exec_context.contracts.contains(addr)
     }
 
     <span class="doccomment">/// Returns the contents of the past performed environmental `debug_message` in order.
@@ -605,20 +631,32 @@
         <span class="self">self</span>.debug_info.emitted_events.clone().into_iter()
     }
 
-    <span class="doccomment">/// Returns the current balance of `account_id`.
-    </span><span class="kw">pub fn </span>get_balance(<span class="kw-2">&amp;</span><span class="self">self</span>, account_id: Vec&lt;u8&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;Balance, Error&gt; {
+    <span class="doccomment">/// Returns the current balance of `addr`.
+    </span><span class="kw">pub fn </span>get_acc_balance(<span class="kw-2">&amp;</span><span class="self">self</span>, addr: AccountId) -&gt; <span class="prelude-ty">Result</span>&lt;Balance, Error&gt; {
         <span class="self">self</span>.database
-            .get_balance(<span class="kw-2">&amp;</span>account_id)
-            .ok_or(Error::Account(AccountError::NoAccountForId(account_id)))
+            .get_acc_balance(<span class="kw-2">&amp;</span>addr)
+            .ok_or(Error::Account(AccountError::NoAccountForId(addr)))
     }
 
-    <span class="doccomment">/// Sets the balance of `account_id` to `new_balance`.
-    </span><span class="kw">pub fn </span>set_balance(<span class="kw-2">&amp;mut </span><span class="self">self</span>, account_id: Vec&lt;u8&gt;, new_balance: Balance) {
-        <span class="self">self</span>.database.set_balance(<span class="kw-2">&amp;</span>account_id, new_balance);
+    <span class="doccomment">/// Sets the balance of `addr` to `new_balance`.
+    </span><span class="kw">pub fn </span>set_acc_balance(<span class="kw-2">&amp;mut </span><span class="self">self</span>, addr: AccountId, new_balance: Balance) {
+        <span class="self">self</span>.database.set_acc_balance(<span class="kw-2">&amp;</span>addr, new_balance);
+    }
+
+    <span class="doccomment">/// Returns the current balance of `addr`.
+    </span><span class="kw">pub fn </span>get_balance(<span class="kw-2">&amp;</span><span class="self">self</span>, addr: H160) -&gt; <span class="prelude-ty">Result</span>&lt;U256, Error&gt; {
+        <span class="self">self</span>.database
+            .get_balance(<span class="kw-2">&amp;</span>addr)
+            .ok_or(Error::Account(AccountError::NoContractForId(addr)))
+    }
+
+    <span class="doccomment">/// Sets the balance of `addr` to `new_balance`.
+    </span><span class="kw">pub fn </span>set_balance(<span class="kw-2">&amp;mut </span><span class="self">self</span>, addr: H160, new_balance: U256) {
+        <span class="self">self</span>.database.set_balance(<span class="kw-2">&amp;</span>addr, new_balance);
     }
 
     <span class="doccomment">/// Sets the value transferred from the caller to the callee as part of the call.
-    </span><span class="kw">pub fn </span>set_value_transferred(<span class="kw-2">&amp;mut </span><span class="self">self</span>, value: Balance) {
+    </span><span class="kw">pub fn </span>set_value_transferred(<span class="kw-2">&amp;mut </span><span class="self">self</span>, value: U256) {
         <span class="self">self</span>.exec_context.value_transferred = value;
     }
 
@@ -640,20 +678,20 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>setting_getting_callee() {
         <span class="kw">let </span><span class="kw-2">mut </span>engine = Engine::new();
-        <span class="kw">let </span>account_id = <span class="macro">vec!</span>[<span class="number">1</span>; <span class="number">32</span>];
-        engine.set_callee(account_id.clone());
-        <span class="macro">assert_eq!</span>(engine.get_callee(), account_id);
+        <span class="kw">let </span>addr = H160::from([<span class="number">1</span>; <span class="number">20</span>]);
+        engine.set_callee(addr);
+        <span class="macro">assert_eq!</span>(engine.get_callee(), addr);
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>count_cells_per_account_must_stay_the_same() {
         <span class="comment">// given
         </span><span class="kw">let </span><span class="kw-2">mut </span>engine = Engine::new();
-        <span class="kw">let </span>account_id = <span class="macro">vec!</span>[<span class="number">1</span>; <span class="number">32</span>];
-        engine.set_callee(account_id.clone());
+        <span class="kw">let </span>addr = H160::from([<span class="number">1</span>; <span class="number">20</span>]);
+        engine.set_callee(addr);
         <span class="kw">let </span>key: <span class="kw-2">&amp;</span>[u8; <span class="number">32</span>] = <span class="kw-2">&amp;</span>[<span class="number">0x42</span>; <span class="number">32</span>];
         engine.set_storage(key, <span class="kw-2">&amp;</span>[<span class="number">0x05_u8</span>; <span class="number">5</span>]);
-        <span class="macro">assert_eq!</span>(engine.count_used_storage_cells(<span class="kw-2">&amp;</span>account_id), <span class="prelude-val">Ok</span>(<span class="number">1</span>));
+        <span class="macro">assert_eq!</span>(engine.count_used_storage_cells(<span class="kw-2">&amp;</span>addr), <span class="prelude-val">Ok</span>(<span class="number">1</span>));
 
         <span class="comment">// when
         // we set the storage a second time
@@ -661,24 +699,24 @@
 
         <span class="comment">// then
         // the amount of storage cells used must have stayed the same
-        </span><span class="macro">assert_eq!</span>(engine.count_used_storage_cells(<span class="kw-2">&amp;</span>account_id), <span class="prelude-val">Ok</span>(<span class="number">1</span>));
+        </span><span class="macro">assert_eq!</span>(engine.count_used_storage_cells(<span class="kw-2">&amp;</span>addr), <span class="prelude-val">Ok</span>(<span class="number">1</span>));
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>count_cells_per_account_must_be_reset() {
         <span class="comment">// given
         </span><span class="kw">let </span><span class="kw-2">mut </span>engine = Engine::new();
-        <span class="kw">let </span>account_id = <span class="macro">vec!</span>[<span class="number">1</span>; <span class="number">32</span>];
-        engine.set_callee(account_id.clone());
+        <span class="kw">let </span>addr = H160::from([<span class="number">1</span>; <span class="number">20</span>]);
+        engine.set_callee(addr);
         <span class="kw">let </span>key: <span class="kw-2">&amp;</span>[u8; <span class="number">32</span>] = <span class="kw-2">&amp;</span>[<span class="number">0x42</span>; <span class="number">32</span>];
         engine.set_storage(key, <span class="kw-2">&amp;</span>[<span class="number">0x05_u8</span>; <span class="number">5</span>]);
-        <span class="macro">assert_eq!</span>(engine.count_used_storage_cells(<span class="kw-2">&amp;</span>account_id), <span class="prelude-val">Ok</span>(<span class="number">1</span>));
+        <span class="macro">assert_eq!</span>(engine.count_used_storage_cells(<span class="kw-2">&amp;</span>addr), <span class="prelude-val">Ok</span>(<span class="number">1</span>));
 
         <span class="comment">// when
         </span>engine.clear_storage(key);
 
         <span class="comment">// then
-        </span><span class="macro">assert_eq!</span>(engine.count_used_storage_cells(<span class="kw-2">&amp;</span>account_id), <span class="prelude-val">Ok</span>(<span class="number">0</span>));
+        </span><span class="macro">assert_eq!</span>(engine.count_used_storage_cells(<span class="kw-2">&amp;</span>addr), <span class="prelude-val">Ok</span>(<span class="number">0</span>));
     }
 
     <span class="attr">#[test]
@@ -688,12 +726,12 @@
         <span class="kw">let </span>key: <span class="kw-2">&amp;</span>[u8; <span class="number">32</span>] = <span class="kw-2">&amp;</span>[<span class="number">0x42</span>; <span class="number">32</span>];
 
         <span class="comment">// when
-        </span>engine.set_callee(<span class="macro">vec!</span>[<span class="number">1</span>; <span class="number">32</span>]);
+        </span>engine.set_callee(H160::from([<span class="number">1</span>; <span class="number">20</span>]));
         engine.set_storage(key, <span class="kw-2">&amp;</span>[<span class="number">0x05_u8</span>; <span class="number">5</span>]);
         engine.set_storage(key, <span class="kw-2">&amp;</span>[<span class="number">0x05_u8</span>; <span class="number">6</span>]);
         engine.get_storage(key).unwrap();
 
-        engine.set_callee(<span class="macro">vec!</span>[<span class="number">2</span>; <span class="number">32</span>]);
+        engine.set_callee(H160::from([<span class="number">2</span>; <span class="number">20</span>]));
         engine.set_storage(key, <span class="kw-2">&amp;</span>[<span class="number">0x07_u8</span>; <span class="number">7</span>]);
         engine.get_storage(key).unwrap();
 

@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/ink/codegen/src/generator/as_dependency/call_builder.rs`."><title>call_builder.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-c5d6553a23f1e5a6.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="ink_codegen" data-themes="" data-resource-suffix="" data-rustdoc-version="1.81.0 (eeb90cda1 2024-09-04)" data-channel="1.81.0" data-search-js="search-d234aafac6c221dd.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-d2fab2bf619172d3.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/ink/codegen/src/generator/as_dependency/call_builder.rs`."><title>call_builder.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-b0742ba02757f159.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="ink_codegen" data-themes="" data-resource-suffix="" data-rustdoc-version="1.83.0 (90b35a623 2024-11-26)" data-channel="1.83.0" data-search-js="search-f0d225181b97f9a4.js" data-settings-js="settings-805db61a62df4bd2.js" ><script src="../../../../static.files/storage-1d39b6787ed640ff.js"></script><script defer src="../../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-f070b9041d14864c.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-0111fcff984fae8f.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">ink_codegen/generator/as_dependency/</div>call_builder.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers">
+<a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -413,7 +414,7 @@
 <a href="#413" id="413">413</a>
 <a href="#414" id="414">414</a>
 <a href="#415" id="415">415</a>
-</pre></div><pre class="rust"><code><span class="comment">// Copyright (C) Use Ink (UK) Ltd.
+<a href="#416" id="416">416</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) Use Ink (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -509,7 +510,7 @@
             )]
             #[::ink::scale_derive(Encode, Decode, TypeInfo)]
             </span><span class="kw">pub struct </span>#cb_ident {
-                account_id: AccountId,
+                addr: ::ink::H160,
             }
 
             <span class="kw">const _</span>: () = {
@@ -532,29 +533,29 @@
         <span class="kw">let </span>span = <span class="self">self</span>.contract.module().storage().span();
         <span class="kw">let </span>cb_ident = <span class="self">Self</span>::call_builder_ident();
         <span class="macro">quote_spanned!</span>(span=&gt;
-            <span class="kw">impl </span>::ink::env::call::FromAccountId&lt;Environment&gt; <span class="kw">for </span>#cb_ident {
+            <span class="kw">impl </span>::ink::env::call::FromAddr <span class="kw">for </span>#cb_ident {
                 <span class="attr">#[inline]
-                </span><span class="kw">fn </span>from_account_id(account_id: AccountId) -&gt; <span class="self">Self </span>{
-                    <span class="self">Self </span>{ account_id }
+                </span><span class="kw">fn </span>from_addr(addr: ::ink::H160) -&gt; <span class="self">Self </span>{
+                    <span class="self">Self </span>{ addr }
                 }
             }
 
-            <span class="kw">impl </span>::ink::ToAccountId&lt;Environment&gt; <span class="kw">for </span>#cb_ident {
+            <span class="kw">impl </span>::ink::ToAddr <span class="kw">for </span>#cb_ident {
                 <span class="attr">#[inline]
-                </span><span class="kw">fn </span>to_account_id(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; AccountId {
-                    &lt;AccountId <span class="kw">as </span>::core::clone::Clone&gt;::clone(<span class="kw-2">&amp;</span><span class="self">self</span>.account_id)
+                </span><span class="kw">fn </span>to_addr(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; ::ink::H160 {
+                    &lt;::ink::H160 <span class="kw">as </span>::core::clone::Clone&gt;::clone(<span class="kw-2">&amp;</span><span class="self">self</span>.addr)
                 }
             }
 
-            <span class="kw">impl </span>::core::convert::AsRef&lt;AccountId&gt; <span class="kw">for </span>#cb_ident {
-                <span class="kw">fn </span>as_ref(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>AccountId {
-                    <span class="kw-2">&amp;</span><span class="self">self</span>.account_id
+            <span class="kw">impl </span>::core::convert::AsRef&lt;::ink::H160&gt; <span class="kw">for </span>#cb_ident {
+                <span class="kw">fn </span>as_ref(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>::ink::H160 {
+                    <span class="kw-2">&amp;</span><span class="self">self</span>.addr
                 }
             }
 
-            <span class="kw">impl </span>::core::convert::AsMut&lt;AccountId&gt; <span class="kw">for </span>#cb_ident {
-                <span class="kw">fn </span>as_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>AccountId {
-                    <span class="kw-2">&amp;mut </span><span class="self">self</span>.account_id
+            <span class="kw">impl </span>::core::convert::AsMut&lt;::ink::H160&gt; <span class="kw">for </span>#cb_ident {
+                <span class="kw">fn </span>as_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>::ink::H160 {
+                    <span class="kw-2">&amp;mut </span><span class="self">self</span>.addr
                 }
             }
         )
@@ -619,8 +620,9 @@
                     // only an `AccountId` to a shared reference to another type of which
                     // we know that it also thinly wraps an `AccountId`.
                     // Furthermore both types use `repr(transparent)`.
+                    // todo
                     </span><span class="kw">unsafe </span>{
-                        <span class="kw-2">&amp;*</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.account_id <span class="kw">as </span><span class="kw-2">*const </span>AccountId <span class="kw">as </span><span class="kw-2">*const </span><span class="self">Self</span>::Forwarder)
+                        <span class="kw-2">&amp;*</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.addr <span class="kw">as </span><span class="kw-2">*const </span>::ink::H160 <span class="kw">as </span><span class="kw-2">*const </span><span class="self">Self</span>::Forwarder)
                     }
                 }
 
@@ -628,12 +630,12 @@
                 </span><span class="kw">fn </span>forward_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span><span class="self">Self</span>::Forwarder {
                     <span class="comment">// SAFETY:
                     //
-                    // We convert from a exclusive reference to a type that thinly wraps
-                    // only an `AccountId` to a exclusive reference to another type of which
+                    // We convert from an exclusive reference to a type that thinly wraps
+                    // only an `AccountId` to an exclusive reference to another type of which
                     // we know that it also thinly wraps an `AccountId`.
                     // Furthermore both types use `repr(transparent)`.
                     </span><span class="kw">unsafe </span>{
-                        <span class="kw-2">&amp;mut *</span>(<span class="kw-2">&amp;mut </span><span class="self">self</span>.account_id <span class="kw">as </span><span class="kw-2">*mut </span>AccountId <span class="kw">as </span><span class="kw-2">*mut </span><span class="self">Self</span>::Forwarder)
+                        <span class="kw-2">&amp;mut *</span>(<span class="kw-2">&amp;mut </span><span class="self">self</span>.addr <span class="kw">as </span><span class="kw-2">*mut </span>::ink::H160 <span class="kw">as </span><span class="kw-2">*mut </span><span class="self">Self</span>::Forwarder)
                     }
                 }
 
@@ -800,7 +802,7 @@
         <span class="kw">let </span>output_type = <span class="macro">quote_spanned!</span>(output_span=&gt;
             ::ink::env::call::CallBuilder&lt;
                 Environment,
-                ::ink::env::call::utils::Set&lt; ::ink::env::call::Call&lt; Environment &gt; &gt;,
+                ::ink::env::call::utils::Set&lt; ::ink::env::call::Call &gt;,
                 ::ink::env::call::utils::Set&lt; ::ink::env::call::ExecutionInput&lt;#arg_list&gt; &gt;,
                 ::ink::env::call::utils::Set&lt; ::ink::env::call::utils::ReturnType&lt;#return_type&gt; &gt;,
             &gt;
@@ -814,7 +816,7 @@
                 </span>#( , #input_bindings : #input_types )*
             ) -&gt; #output_type {
                 ::ink::env::call::build_call::&lt;Environment&gt;()
-                    .call(::ink::ToAccountId::to_account_id(<span class="self">self</span>))
+                    .call(::ink::ToAddr::to_addr(<span class="self">self</span>))
                     .exec_input(
                         ::ink::env::call::ExecutionInput::new(
                             ::ink::env::call::Selector::new([ #( #selector_bytes ),* ])

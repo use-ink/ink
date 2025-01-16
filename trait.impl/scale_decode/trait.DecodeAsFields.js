@@ -1,4 +1,9 @@
-(function() {var implementors = {
-"ink_e2e":[["impl&lt;E: Environment&gt; DecodeAsFields for <a class=\"struct\" href=\"ink_e2e/events/struct.CodeStoredEvent.html\" title=\"struct ink_e2e::events::CodeStoredEvent\">CodeStoredEvent</a>&lt;E&gt;"],["impl&lt;E: Environment&gt; DecodeAsFields for <a class=\"struct\" href=\"ink_e2e/events/struct.ContractEmitted.html\" title=\"struct ink_e2e::events::ContractEmitted\">ContractEmitted</a>&lt;E&gt;"],["impl&lt;E: Environment&gt; DecodeAsFields for <a class=\"struct\" href=\"ink_e2e/events/struct.ContractInstantiatedEvent.html\" title=\"struct ink_e2e::events::ContractInstantiatedEvent\">ContractInstantiatedEvent</a>&lt;E&gt;"]],
-"ink_primitives":[["impl DecodeAsFields for <a class=\"struct\" href=\"ink_primitives/struct.AccountId.html\" title=\"struct ink_primitives::AccountId\">AccountId</a>"],["impl DecodeAsFields for <a class=\"struct\" href=\"ink_primitives/struct.Hash.html\" title=\"struct ink_primitives::Hash\">Hash</a>"]]
-};if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()
+(function() {
+    var implementors = Object.fromEntries([["ink_e2e",[["impl DecodeAsFields for <a class=\"struct\" href=\"ink_e2e/events/struct.CodeStoredEvent.html\" title=\"struct ink_e2e::events::CodeStoredEvent\">CodeStoredEvent</a>"],["impl DecodeAsFields for <a class=\"struct\" href=\"ink_e2e/events/struct.ContractEmitted.html\" title=\"struct ink_e2e::events::ContractEmitted\">ContractEmitted</a>"],["impl DecodeAsFields for <a class=\"struct\" href=\"ink_e2e/events/struct.ContractInstantiatedEvent.html\" title=\"struct ink_e2e::events::ContractInstantiatedEvent\">ContractInstantiatedEvent</a>"]]],["ink_primitives",[["impl DecodeAsFields for <a class=\"struct\" href=\"ink_primitives/types/struct.AccountId.html\" title=\"struct ink_primitives::types::AccountId\">AccountId</a>"],["impl DecodeAsFields for <a class=\"struct\" href=\"ink_primitives/types/struct.Hash.html\" title=\"struct ink_primitives::types::Hash\">Hash</a>"]]]]);
+    if (window.register_implementors) {
+        window.register_implementors(implementors);
+    } else {
+        window.pending_implementors = implementors;
+    }
+})()
+//{"start":57,"fragment_lengths":[553,334]}

@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/ink/macro/src/lib.rs`."><title>lib.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-c5d6553a23f1e5a6.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="ink_macro" data-themes="" data-resource-suffix="" data-rustdoc-version="1.81.0 (eeb90cda1 2024-09-04)" data-channel="1.81.0" data-search-js="search-d234aafac6c221dd.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-d2fab2bf619172d3.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/ink/macro/src/lib.rs`."><title>lib.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-b0742ba02757f159.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="ink_macro" data-themes="" data-resource-suffix="" data-rustdoc-version="1.83.0 (90b35a623 2024-11-26)" data-channel="1.83.0" data-search-js="search-f0d225181b97f9a4.js" data-settings-js="settings-805db61a62df4bd2.js" ><script src="../../static.files/storage-1d39b6787ed640ff.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-f070b9041d14864c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-0111fcff984fae8f.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">ink_macro/</div>lib.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers">
+<a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1633,7 +1634,13 @@
 <a href="#1633" id="1633">1633</a>
 <a href="#1634" id="1634">1634</a>
 <a href="#1635" id="1635">1635</a>
-</pre></div><pre class="rust"><code><span class="comment">// Copyright (C) Use Ink (UK) Ltd.
+<a href="#1636" id="1636">1636</a>
+<a href="#1637" id="1637">1637</a>
+<a href="#1638" id="1638">1638</a>
+<a href="#1639" id="1639">1639</a>
+<a href="#1640" id="1640">1640</a>
+<a href="#1641" id="1641">1641</a>
+<a href="#1642" id="1642">1642</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) Use Ink (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -1806,6 +1813,7 @@
 ///         type Timestamp = u64;
 ///         type BlockNumber = u32;
 ///         type ChainExtension = ::ink::env::NoChainExtension;
+///         type EventRecord = ();
 ///     }
 ///     ```
 ///     A user might implement their ink! smart contract using the above custom
@@ -1824,6 +1832,7 @@
 ///         #     type Timestamp = u64;
 ///         #     type BlockNumber = u32;
 ///         #     type ChainExtension = ::ink::env::NoChainExtension;
+///         #     type EventRecord = ();
 ///         # }
 ///         #
 ///         # #[ink(storage)]
@@ -2033,7 +2042,7 @@
 /// For example it is possible to query the current call's caller via:
 /// ```
 /// # ink_env::test::run_test::&lt;ink_env::DefaultEnvironment, _&gt;(|_| {
-/// let caller = ink_env::caller::&lt;ink_env::DefaultEnvironment&gt;();
+/// let caller = ink_env::caller();
 /// # let _caller = caller;
 /// # Ok(())
 /// # }).unwrap();
@@ -2080,23 +2089,28 @@
 /// ```
 /// #[ink::contract]
 /// mod erc20 {
+///     use ink::{
+///         H160,
+///         U256,
+///     };
+///
 ///     /// Defines an event that is emitted every time value is transferred.
 ///     #[ink(event)]
 ///     pub struct Transferred {
-///         from: Option&lt;AccountId&gt;,
-///         to: Option&lt;AccountId&gt;,
-///         value: Balance,
+///         from: Option&lt;H160&gt;,
+///         to: Option&lt;H160&gt;,
+///         value: U256,
 ///     }
 ///
 ///     #[ink(storage)]
 ///     pub struct Erc20 {
-///         total_supply: Balance,
+///         total_supply: U256,
 ///         // more fields...
 ///     }
 ///
 ///     impl Erc20 {
 ///         #[ink(constructor)]
-///         pub fn new(initial_supply: Balance) -&gt; Self {
+///         pub fn new(initial_supply: U256) -&gt; Self {
 ///             let caller = Self::env().caller();
 ///             Self::env().emit_event(Transferred {
 ///                 from: None,
@@ -2109,7 +2123,7 @@
 ///         }
 ///
 ///         #[ink(message)]
-///         pub fn total_supply(&amp;self) -&gt; Balance {
+///         pub fn total_supply(&amp;self) -&gt; U256 {
 ///             self.total_supply
 ///         }
 ///     }
@@ -2173,18 +2187,15 @@
 /// # Trait definition:
 ///
 /// ```
-/// # type Balance = &lt;ink_env::DefaultEnvironment as ink_env::Environment&gt;::Balance;
-/// # type AccountId = &lt;ink_env::DefaultEnvironment as ink_env::Environment&gt;::AccountId;
-///
 /// #[ink::trait_definition]
 /// pub trait Erc20 {
 ///     /// Returns the total supply of the ERC-20 smart contract.
 ///     #[ink(message)]
-///     fn total_supply(&amp;self) -&gt; Balance;
+///     fn total_supply(&amp;self) -&gt; ink::U256;
 ///
 ///     /// Transfers balance from the caller to the given address.
 ///     #[ink(message)]
-///     fn transfer(&amp;mut self, amount: Balance, to: AccountId) -&gt; bool;
+///     fn transfer(&amp;mut self, amount: ink::U256, to: ink::H160) -&gt; bool;
 ///
 ///     // etc.
 /// }
@@ -2197,26 +2208,27 @@
 /// ```
 /// #[ink::contract]
 /// mod base_erc20 {
+///     use ink::{H160, U256};
 /// #    // We somehow cannot put the trait in the doc-test crate root due to bugs.
 /// #    #[ink::trait_definition]
 /// #    pub trait Erc20 {
 /// #       /// Returns the total supply of the ERC-20 smart contract.
 /// #       #[ink(message)]
-/// #       fn total_supply(&amp;self) -&gt; Balance;
+/// #       fn total_supply(&amp;self) -&gt; U256;
 /// #
 /// #       /// Transfers balance from the caller to the given address.
 /// #       #[ink(message)]
-/// #       fn transfer(&amp;mut self, amount: Balance, to: AccountId) -&gt; bool;
+/// #       fn transfer(&amp;mut self, amount: U256, to: H160) -&gt; bool;
 /// #    }
 /// #
 ///     #[ink(storage)]
 ///     pub struct BaseErc20 {
-///         total_supply: Balance,
+///         total_supply: U256,
 ///     }
 ///
 ///     impl BaseErc20 {
 ///         #[ink(constructor)]
-///         pub fn new(initial_supply: Balance) -&gt; Self {
+///         pub fn new(initial_supply: U256) -&gt; Self {
 ///             Self { total_supply: initial_supply }
 ///         }
 ///     }
@@ -2224,12 +2236,12 @@
 ///     impl Erc20 for BaseErc20 {
 ///         /// Returns the total supply of the ERC-20 smart contract.
 ///         #[ink(message)]
-///         fn total_supply(&amp;self) -&gt; Balance {
+///         fn total_supply(&amp;self) -&gt; U256 {
 ///             self.total_supply
 ///         }
 ///
 ///         #[ink(message)]
-///         fn transfer(&amp;mut self, amount: Balance, to: AccountId) -&gt; bool {
+///         fn transfer(&amp;mut self, amount: U256, to: H160) -&gt; bool {
 ///             unimplemented!()
 ///         }
 ///     }
@@ -2815,6 +2827,7 @@
 ///     type Hash = &lt;DefaultEnvironment as Environment&gt;::Hash;
 ///     type BlockNumber = &lt;DefaultEnvironment as Environment&gt;::BlockNumber;
 ///     type Timestamp = &lt;DefaultEnvironment as Environment&gt;::Timestamp;
+///     type EventRecord = &lt;DefaultEnvironment as Environment&gt;::EventRecord;
 ///
 ///     type ChainExtension = RuntimeReadWrite;
 /// }
@@ -2956,6 +2969,7 @@
 /// #     type Hash = &lt;ink_env::DefaultEnvironment as ink_env::Environment&gt;::Hash;
 /// #     type BlockNumber = &lt;ink_env::DefaultEnvironment as ink_env::Environment&gt;::BlockNumber;
 /// #     type Timestamp = &lt;ink_env::DefaultEnvironment as ink_env::Environment&gt;::Timestamp;
+/// #     type EventRecord = &lt;ink_env::DefaultEnvironment as ink_env::Environment&gt;::EventRecord;
 /// #
 /// #     type ChainExtension = RuntimeReadWrite;
 /// # }

@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/env/src/call/call_builder/mod.rs`."><title>mod.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-c5d6553a23f1e5a6.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="ink_env" data-themes="" data-resource-suffix="" data-rustdoc-version="1.81.0 (eeb90cda1 2024-09-04)" data-channel="1.81.0" data-search-js="search-d234aafac6c221dd.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-d2fab2bf619172d3.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/env/src/call/call_builder/mod.rs`."><title>mod.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-b0742ba02757f159.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="ink_env" data-themes="" data-resource-suffix="" data-rustdoc-version="1.83.0 (90b35a623 2024-11-26)" data-channel="1.83.0" data-search-js="search-f0d225181b97f9a4.js" data-settings-js="settings-805db61a62df4bd2.js" ><script src="../../../../static.files/storage-1d39b6787ed640ff.js"></script><script defer src="../../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-f070b9041d14864c.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-0111fcff984fae8f.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">ink_env/call/call_builder/</div>mod.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers">
+<a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -337,25 +338,7 @@
 <a href="#337" id="337">337</a>
 <a href="#338" id="338">338</a>
 <a href="#339" id="339">339</a>
-<a href="#340" id="340">340</a>
-<a href="#341" id="341">341</a>
-<a href="#342" id="342">342</a>
-<a href="#343" id="343">343</a>
-<a href="#344" id="344">344</a>
-<a href="#345" id="345">345</a>
-<a href="#346" id="346">346</a>
-<a href="#347" id="347">347</a>
-<a href="#348" id="348">348</a>
-<a href="#349" id="349">349</a>
-<a href="#350" id="350">350</a>
-<a href="#351" id="351">351</a>
-<a href="#352" id="352">352</a>
-<a href="#353" id="353">353</a>
-<a href="#354" id="354">354</a>
-<a href="#355" id="355">355</a>
-<a href="#356" id="356">356</a>
-<a href="#357" id="357">357</a>
-</pre></div><pre class="rust"><code><span class="comment">// Copyright (C) Use Ink (UK) Ltd.
+<a href="#340" id="340">340</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) Use Ink (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -370,11 +353,9 @@
 // limitations under the License.
 
 </span><span class="kw">mod </span>call;
-<span class="kw">mod </span>call_v1;
 <span class="kw">mod </span>delegate;
 
 <span class="kw">pub use </span>call::Call;
-<span class="kw">pub use </span>call_v1::CallV1;
 <span class="kw">pub use </span>delegate::DelegateCall;
 
 <span class="kw">use crate</span>::{
@@ -388,9 +369,10 @@
         Execution,
         ExecutionInput,
     },
-    Environment,
+    types::Environment,
 };
 <span class="kw">use </span>core::marker::PhantomData;
+<span class="kw">use </span>ink_primitives::H160;
 
 <span class="doccomment">/// The final parameters to the cross-contract call.
 </span><span class="attr">#[derive(Debug)]
@@ -444,13 +426,15 @@
 /// #     DefaultEnvironment,
 /// #     call::{build_call, Selector, ExecutionInput}
 /// # };
-/// # use ink_env::call::CallV1;
-/// # type AccountId = &lt;DefaultEnvironment as Environment&gt;::AccountId;
+/// # use ink_env::call::Call;
+/// # use ink_primitives::H160;
+///
+/// type AccountId = &lt;DefaultEnvironment as Environment&gt;::AccountId;
 /// # type Balance = &lt;DefaultEnvironment as Environment&gt;::Balance;
 /// build_call::&lt;DefaultEnvironment&gt;()
-///     .call_v1(AccountId::from([0x42; 32]))
-///     .gas_limit(5000)
-///     .transferred_value(10)
+///     .call(H160::from([0x42; 20]))
+///     .ref_time_limit(5000)
+///     .transferred_value(ink::U256::from(10))
 ///     .exec_input(
 ///         ExecutionInput::new(Selector::new([0xDE, 0xAD, 0xBE, 0xEF]))
 ///             .push_arg(42u8)
@@ -476,13 +460,13 @@
 /// # use ::ink_env::{
 /// #     Environment,
 /// #     DefaultEnvironment,
-/// #     call::{build_call, Selector, ExecutionInput, CallV1},
+/// #     call::{build_call, Selector, ExecutionInput, Call},
 /// # };
 /// # type AccountId = &lt;DefaultEnvironment as Environment&gt;::AccountId;
 /// let my_return_value: i32 = build_call::&lt;DefaultEnvironment&gt;()
-///     .call_type(CallV1::new(AccountId::from([0x42; 32])))
-///     .gas_limit(5000)
-///     .transferred_value(10)
+///     .call_type(Call::new(ink::H160::from([0x42; 20])))
+///     .ref_time_limit(5000)
+///     .transferred_value(ink::U256::from(10))
 ///     .exec_input(
 ///         ExecutionInput::new(Selector::new([0xDE, 0xAD, 0xBE, 0xEF]))
 ///             .push_arg(42u8)
@@ -505,10 +489,11 @@
 /// #     DefaultEnvironment,
 /// #     call::{build_call, Selector, ExecutionInput, utils::ReturnType, DelegateCall},
 /// # };
+/// use ink::H160;
 /// # use ink_primitives::Clear;
 /// # type AccountId = &lt;DefaultEnvironment as Environment&gt;::AccountId;
 /// let my_return_value: i32 = build_call::&lt;DefaultEnvironment&gt;()
-///     .delegate(&lt;DefaultEnvironment as Environment&gt;::Hash::CLEAR_HASH)
+///     .delegate(H160::zero())
 ///     .exec_input(
 ///         ExecutionInput::new(Selector::new([0xDE, 0xAD, 0xBE, 0xEF]))
 ///             .push_arg(42u8)
@@ -540,13 +525,15 @@
 /// #     DefaultEnvironment,
 /// #     call::{build_call, Selector, ExecutionInput}
 /// # };
-/// # use ink_env::call::CallV1;
-/// # type AccountId = &lt;DefaultEnvironment as Environment&gt;::AccountId;
+/// # use ink_env::call::Call;
+/// # use ink_primitives::H160;
+///
+/// type AccountId = &lt;DefaultEnvironment as Environment&gt;::AccountId;
 /// # type Balance = &lt;DefaultEnvironment as Environment&gt;::Balance;
 /// let call_result = build_call::&lt;DefaultEnvironment&gt;()
-///     .call_v1(AccountId::from([0x42; 32]))
-///     .gas_limit(5000)
-///     .transferred_value(10)
+///     .call(H160::from([0x42; 20]))
+///     .ref_time_limit(5000)
+///     .transferred_value(ink::U256::from(10))
 ///     .try_invoke()
 ///     .expect("Got an error from the Contract's pallet.");
 ///
@@ -559,7 +546,7 @@
 </span><span class="attr">#[allow(clippy::type_complexity)]
 </span><span class="kw">pub fn </span>build_call&lt;E&gt;() -&gt; CallBuilder&lt;
     E,
-    Unset&lt;Call&lt;E&gt;&gt;,
+    Unset&lt;Call&gt;,
     Unset&lt;ExecutionInput&lt;EmptyArgumentList&gt;&gt;,
     Unset&lt;ReturnType&lt;()&gt;&gt;,
 &gt;
@@ -584,16 +571,11 @@
     </span>call_type: CallType,
     exec_input: Args,
     return_type: RetType,
-    _phantom: PhantomData&lt;<span class="kw">fn</span>() -&gt; E&gt;,
-}
+    _phantom: PhantomData&lt;<span class="kw">fn</span>() -&gt; E&gt;, <span class="comment">// todo possibly remove?
+</span>}
 
 <span class="kw">impl</span>&lt;E, Args, RetType&gt; From&lt;Execution&lt;Args, RetType&gt;&gt;
-    <span class="kw">for </span>CallBuilder&lt;
-        E,
-        Unset&lt;Call&lt;E&gt;&gt;,
-        Set&lt;ExecutionInput&lt;Args&gt;&gt;,
-        Set&lt;ReturnType&lt;RetType&gt;&gt;,
-    &gt;
+    <span class="kw">for </span>CallBuilder&lt;E, Unset&lt;Call&gt;, Set&lt;ExecutionInput&lt;Args&gt;&gt;, Set&lt;ReturnType&lt;RetType&gt;&gt;&gt;
 <span class="kw">where
     </span>E: Environment,
 {
@@ -671,26 +653,9 @@
 <span class="kw">where
     </span>E: Environment,
 {
-    <span class="doccomment">/// Prepares the `CallBuilder` for a cross-contract [`CallV1`], calling into the
-    /// original `call` host function.
-    </span><span class="kw">pub fn </span>call_v1(
-        <span class="self">self</span>,
-        callee: E::AccountId,
-    ) -&gt; CallBuilder&lt;E, Set&lt;CallV1&lt;E&gt;&gt;, Args, RetType&gt; {
-        CallBuilder {
-            call_type: Set(CallV1::new(callee)),
-            exec_input: <span class="self">self</span>.exec_input,
-            return_type: <span class="self">self</span>.return_type,
-            _phantom: Default::default(),
-        }
-    }
-
     <span class="doccomment">/// Prepares the `CallBuilder` for a cross-contract [`Call`] to the latest `call_v2`
     /// host function.
-    </span><span class="kw">pub fn </span>call(
-        <span class="self">self</span>,
-        callee: E::AccountId,
-    ) -&gt; CallBuilder&lt;E, Set&lt;Call&lt;E&gt;&gt;, Args, RetType&gt; {
+    </span><span class="kw">pub fn </span>call(<span class="self">self</span>, callee: H160) -&gt; CallBuilder&lt;E, Set&lt;Call&gt;, Args, RetType&gt; {
         CallBuilder {
             call_type: Set(Call::new(callee)),
             exec_input: <span class="self">self</span>.exec_input,
@@ -702,10 +667,11 @@
     <span class="doccomment">/// Prepares the `CallBuilder` for a cross-contract [`DelegateCall`].
     </span><span class="kw">pub fn </span>delegate(
         <span class="self">self</span>,
-        code_hash: E::Hash,
-    ) -&gt; CallBuilder&lt;E, Set&lt;DelegateCall&lt;E&gt;&gt;, Args, RetType&gt; {
+        address: H160,
+    ) -&gt; CallBuilder&lt;E, Set&lt;DelegateCall&gt;, Args, RetType&gt; {
         CallBuilder {
-            call_type: Set(DelegateCall::new(code_hash)),
+            <span class="comment">// todo Generic `Set` can be removed
+            </span>call_type: Set(DelegateCall::new(address)),
             exec_input: <span class="self">self</span>.exec_input,
             return_type: <span class="self">self</span>.return_type,
             _phantom: Default::default(),

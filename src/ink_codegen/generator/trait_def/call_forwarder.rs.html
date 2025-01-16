@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/ink/codegen/src/generator/trait_def/call_forwarder.rs`."><title>call_forwarder.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-c5d6553a23f1e5a6.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="ink_codegen" data-themes="" data-resource-suffix="" data-rustdoc-version="1.81.0 (eeb90cda1 2024-09-04)" data-channel="1.81.0" data-search-js="search-d234aafac6c221dd.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-d2fab2bf619172d3.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/ink/codegen/src/generator/trait_def/call_forwarder.rs`."><title>call_forwarder.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-b0742ba02757f159.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="ink_codegen" data-themes="" data-resource-suffix="" data-rustdoc-version="1.83.0 (90b35a623 2024-11-26)" data-channel="1.83.0" data-search-js="search-f0d225181b97f9a4.js" data-settings-js="settings-805db61a62df4bd2.js" ><script src="../../../../static.files/storage-1d39b6787ed640ff.js"></script><script defer src="../../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-f070b9041d14864c.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-0111fcff984fae8f.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">ink_codegen/generator/trait_def/</div>call_forwarder.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers">
+<a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -410,9 +411,7 @@
 <a href="#410" id="410">410</a>
 <a href="#411" id="411">411</a>
 <a href="#412" id="412">412</a>
-<a href="#413" id="413">413</a>
-<a href="#414" id="414">414</a>
-</pre></div><pre class="rust"><code><span class="comment">// Copyright (C) Use Ink (UK) Ltd.
+<a href="#413" id="413">413</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) Use Ink (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -441,7 +440,7 @@
     quote_spanned,
 };
 
-<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; TraitDefinition&lt;<span class="lifetime">'a</span>&gt; {
+<span class="kw">impl </span>TraitDefinition&lt;<span class="lifetime">'_</span>&gt; {
     <span class="doccomment">/// Generates code for the global trait call forwarder for an ink! trait.
     ///
     /// # Note
@@ -473,14 +472,14 @@
         <span class="kw">let </span>struct_definition = <span class="self">self</span>.generate_struct_definition();
         <span class="kw">let </span>storage_layout_impl = <span class="self">self</span>.generate_storage_layout_impl();
         <span class="kw">let </span>auxiliary_trait_impls = <span class="self">self</span>.generate_auxiliary_trait_impls();
-        <span class="kw">let </span>to_from_account_id_impls = <span class="self">self</span>.generate_to_from_account_id_impls();
+        <span class="kw">let </span>to_from_addr_impls = <span class="self">self</span>.generate_to_from_addr_impls();
         <span class="kw">let </span>call_builder_impl = <span class="self">self</span>.generate_call_builder_trait_impl();
         <span class="kw">let </span>ink_trait_impl = <span class="self">self</span>.generate_ink_trait_impl();
         <span class="macro">quote!</span> {
             #struct_definition
             #storage_layout_impl
             #auxiliary_trait_impls
-            #to_from_account_id_impls
+            #to_from_addr_impls
             #call_builder_impl
             #ink_trait_impl
         }
@@ -550,7 +549,7 @@
                 <span class="kw">for </span>#call_forwarder_ident&lt;E&gt;
             <span class="kw">where
                 </span>E: ::ink::env::Environment,
-                &lt;E <span class="kw">as </span>::ink::env::Environment&gt;::AccountId: ::ink::storage::traits::StorageLayout,
+                ::ink::H160: ::ink::storage::traits::StorageLayout,
             {
                 <span class="kw">fn </span>layout(
                     __key: <span class="kw-2">&amp;</span>::ink::primitives::Key,
@@ -578,7 +577,7 @@
             </span><span class="kw">impl</span>&lt;E&gt; ::core::clone::Clone <span class="kw">for </span>#call_forwarder_ident&lt;E&gt;
             <span class="kw">where
                 </span>E: ::ink::env::Environment,
-                &lt;E <span class="kw">as </span>::ink::env::Environment&gt;::AccountId: ::core::clone::Clone,
+                ::ink::H160: ::core::clone::Clone,
             {
                 <span class="attr">#[inline]
                 </span><span class="kw">fn </span>clone(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self </span>{
@@ -593,11 +592,11 @@
             </span><span class="kw">impl</span>&lt;E&gt; ::core::fmt::Debug <span class="kw">for </span>#call_forwarder_ident&lt;E&gt;
             <span class="kw">where
                 </span>E: ::ink::env::Environment,
-                &lt;E <span class="kw">as </span>::ink::env::Environment&gt;::AccountId: ::core::fmt::Debug,
+                ::ink::H160: ::core::fmt::Debug,
             {
                 <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>::core::fmt::Formatter) -&gt; ::core::fmt::Result {
                     f.debug_struct(<span class="macro">::core::stringify!</span>(#call_forwarder_ident))
-                        .field(<span class="string">"account_id"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.builder.account_id)
+                        .field(<span class="string">"addr"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.builder.addr)
                         .finish()
                 }
             }
@@ -607,7 +606,7 @@
             </span><span class="kw">impl</span>&lt;E&gt; ::ink::scale_info::TypeInfo <span class="kw">for </span>#call_forwarder_ident&lt;E&gt;
             <span class="kw">where
                 </span>E: ::ink::env::Environment,
-                &lt;E <span class="kw">as </span>::ink::env::Environment&gt;::AccountId: ::ink::scale_info::TypeInfo + <span class="lifetime">'static</span>,
+                ::ink::H160: ::ink::scale_info::TypeInfo + <span class="lifetime">'static</span>,
             {
                 <span class="kw">type </span>Identity = &lt;
                     &lt;<span class="self">Self </span><span class="kw">as </span>::ink::codegen::TraitCallBuilder&gt;::Builder <span class="kw">as </span>::ink::scale_info::TypeInfo
@@ -629,58 +628,57 @@
     ///
     /// This allows user code to conveniently transform from and to `AccountId` when
     /// interacting with typed contracts.
-    </span><span class="kw">fn </span>generate_to_from_account_id_impls(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; TokenStream2 {
+    </span><span class="kw">fn </span>generate_to_from_addr_impls(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; TokenStream2 {
         <span class="kw">let </span>span = <span class="self">self</span>.span();
         <span class="kw">let </span>call_forwarder_ident = <span class="self">self</span>.ident();
         <span class="macro">quote_spanned!</span>(span=&gt;
-            <span class="kw">impl</span>&lt;E&gt; ::ink::env::call::FromAccountId&lt;E&gt;
+            <span class="kw">impl</span>&lt;E&gt; ::ink::env::call::FromAddr
                 <span class="kw">for </span>#call_forwarder_ident&lt;E&gt;
             <span class="kw">where
                 </span>E: ::ink::env::Environment,
             {
                 <span class="attr">#[inline]
-                </span><span class="kw">fn </span>from_account_id(account_id: &lt;E <span class="kw">as </span>::ink::env::Environment&gt;::AccountId) -&gt; <span class="self">Self </span>{
+                </span><span class="kw">fn </span>from_addr(addr: ::ink::H160) -&gt; <span class="self">Self </span>{
                     <span class="self">Self </span>{ builder: &lt;&lt;<span class="self">Self </span><span class="kw">as </span>::ink::codegen::TraitCallBuilder&gt;::Builder
-                        <span class="kw">as </span>::ink::env::call::FromAccountId&lt;E&gt;&gt;::from_account_id(account_id) }
+                        <span class="kw">as </span>::ink::env::call::FromAddr&gt;::from_addr(addr) }
                 }
             }
 
-            <span class="kw">impl</span>&lt;E, AccountId&gt; ::core::convert::From&lt;AccountId&gt; <span class="kw">for </span>#call_forwarder_ident&lt;E&gt;
+            <span class="kw">impl</span>&lt;E&gt; ::core::convert::From&lt;::ink::H160&gt; <span class="kw">for </span>#call_forwarder_ident&lt;E&gt;
             <span class="kw">where
-                </span>E: ::ink::env::Environment&lt;AccountId = AccountId&gt;,
-                AccountId: ::ink::env::AccountIdGuard,
+                </span>E: ::ink::env::Environment,
             {
-                <span class="kw">fn </span>from(value: AccountId) -&gt; <span class="self">Self </span>{
-                    &lt;<span class="self">Self </span><span class="kw">as </span>::ink::env::call::FromAccountId&lt;E&gt;&gt;::from_account_id(value)
+                <span class="kw">fn </span>from(addr: ::ink::H160) -&gt; <span class="self">Self </span>{
+                    &lt;<span class="self">Self </span><span class="kw">as </span>::ink::env::call::FromAddr&gt;::from_addr(addr)
                 }
             }
 
-            <span class="kw">impl</span>&lt;E&gt; ::ink::ToAccountId&lt;E&gt; <span class="kw">for </span>#call_forwarder_ident&lt;E&gt;
+            <span class="kw">impl</span>&lt;E&gt; ::ink::ToAddr <span class="kw">for </span>#call_forwarder_ident&lt;E&gt;
             <span class="kw">where
                 </span>E: ::ink::env::Environment,
             {
                 <span class="attr">#[inline]
-                </span><span class="kw">fn </span>to_account_id(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; &lt;E <span class="kw">as </span>::ink::env::Environment&gt;::AccountId {
+                </span><span class="kw">fn </span>to_addr(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; ::ink::H160 {
                     &lt;&lt;<span class="self">Self </span><span class="kw">as </span>::ink::codegen::TraitCallBuilder&gt;::Builder
-                        <span class="kw">as </span>::ink::ToAccountId&lt;E&gt;&gt;::to_account_id(<span class="kw-2">&amp;</span><span class="self">self</span>.builder)
+                        <span class="kw">as </span>::ink::ToAddr&gt;::to_addr(<span class="kw-2">&amp;</span><span class="self">self</span>.builder)
                 }
             }
 
-            <span class="kw">impl</span>&lt;E, AccountId&gt; ::core::convert::AsRef&lt;AccountId&gt; <span class="kw">for </span>#call_forwarder_ident&lt;E&gt;
+            <span class="kw">impl</span>&lt;E&gt; ::core::convert::AsRef&lt;::ink::H160&gt; <span class="kw">for </span>#call_forwarder_ident&lt;E&gt;
             <span class="kw">where
-                </span>E: ::ink::env::Environment&lt;AccountId = AccountId&gt;,
+                </span>E: ::ink::env::Environment,
             {
-                <span class="kw">fn </span>as_ref(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>AccountId {
-                    &lt;<span class="kw">_ as </span>::core::convert::AsRef&lt;AccountId&gt;&gt;::as_ref(<span class="kw-2">&amp;</span><span class="self">self</span>.builder)
+                <span class="kw">fn </span>as_ref(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>::ink::H160 {
+                    &lt;<span class="kw">_ as </span>::core::convert::AsRef&lt;::ink::H160&gt;&gt;::as_ref(<span class="kw-2">&amp;</span><span class="self">self</span>.builder)
                 }
             }
 
-            <span class="kw">impl</span>&lt;E, AccountId&gt; ::core::convert::AsMut&lt;AccountId&gt; <span class="kw">for </span>#call_forwarder_ident&lt;E&gt;
+            <span class="kw">impl</span>&lt;E&gt; ::core::convert::AsMut&lt;::ink::H160&gt; <span class="kw">for </span>#call_forwarder_ident&lt;E&gt;
             <span class="kw">where
-                </span>E: ::ink::env::Environment&lt;AccountId = AccountId&gt;,
+                </span>E: ::ink::env::Environment,
             {
-                <span class="kw">fn </span>as_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>AccountId {
-                    &lt;<span class="kw">_ as </span>::core::convert::AsMut&lt;AccountId&gt;&gt;::as_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>.builder)
+                <span class="kw">fn </span>as_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>::ink::H160 {
+                    &lt;<span class="kw">_ as </span>::core::convert::AsMut&lt;::ink::H160&gt;&gt;::as_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>.builder)
                 }
             }
         )

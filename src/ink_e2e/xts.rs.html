@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/e2e/src/xts.rs`."><title>xts.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-c5d6553a23f1e5a6.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="ink_e2e" data-themes="" data-resource-suffix="" data-rustdoc-version="1.81.0 (eeb90cda1 2024-09-04)" data-channel="1.81.0" data-search-js="search-d234aafac6c221dd.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-d2fab2bf619172d3.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/e2e/src/xts.rs`."><title>xts.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-b0742ba02757f159.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="ink_e2e" data-themes="" data-resource-suffix="" data-rustdoc-version="1.83.0 (90b35a623 2024-11-26)" data-channel="1.83.0" data-search-js="search-f0d225181b97f9a4.js" data-settings-js="settings-805db61a62df4bd2.js" ><script src="../../static.files/storage-1d39b6787ed640ff.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-f070b9041d14864c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-0111fcff984fae8f.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">ink_e2e/</div>xts.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers">
+<a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -576,12 +577,7 @@
 <a href="#576" id="576">576</a>
 <a href="#577" id="577">577</a>
 <a href="#578" id="578">578</a>
-<a href="#579" id="579">579</a>
-<a href="#580" id="580">580</a>
-<a href="#581" id="581">581</a>
-<a href="#582" id="582">582</a>
-<a href="#583" id="583">583</a>
-</pre></div><pre class="rust"><code><span class="comment">// Copyright (C) Use Ink (UK) Ltd.
+<a href="#579" id="579">579</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) Use Ink (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -598,14 +594,20 @@
 </span><span class="kw">use super</span>::{
     log_info,
     sr25519,
-    ContractExecResult,
-    ContractInstantiateResult,
     Keypair,
 };
 <span class="kw">use </span>ink_env::Environment;
 
+<span class="kw">use </span><span class="kw">crate</span>::contract_results::{
+    ContractExecResultFor,
+    ContractInstantiateResultForBar,
+};
 <span class="kw">use </span>core::marker::PhantomData;
-<span class="kw">use </span>pallet_contracts::CodeUploadResult;
+<span class="kw">use </span>ink_primitives::DepositLimit;
+<span class="kw">use </span>pallet_revive::{
+    evm::H160,
+    CodeUploadResult,
+};
 <span class="kw">use </span>sp_core::H256;
 <span class="kw">use </span>subxt::{
     backend::{
@@ -623,7 +625,6 @@
         Signer,
         TxStatus,
     },
-    utils::MultiAddress,
     OnlineClient,
 };
 
@@ -667,32 +668,39 @@
     }
 }
 
-<span class="doccomment">/// A raw call to `pallet-contracts`'s `instantiate_with_code`.
+<span class="doccomment">/// A raw call to `pallet-revive`'s `instantiate_with_code`.
 </span><span class="attr">#[derive(Debug, scale::Encode, scale::Decode, scale_encode::EncodeAsType)]
 #[encode_as_type(trait_bounds = <span class="string">""</span>, crate_path = <span class="string">"subxt::ext::scale_encode"</span>)]
 </span><span class="kw">pub struct </span>InstantiateWithCode&lt;E: Environment&gt; {
     <span class="attr">#[codec(compact)]
     </span>value: E::Balance,
     gas_limit: Weight,
-    storage_deposit_limit: <span class="prelude-ty">Option</span>&lt;E::Balance&gt;,
+    <span class="attr">#[codec(compact)]
+    </span>storage_deposit_limit: E::Balance,
     code: Vec&lt;u8&gt;,
     data: Vec&lt;u8&gt;,
-    salt: Vec&lt;u8&gt;,
+    salt: <span class="prelude-ty">Option</span>&lt;[u8; <span class="number">32</span>]&gt;,
 }
 
-<span class="doccomment">/// A raw call to `pallet-contracts`'s `call`.
+<span class="doccomment">/// A raw call to `pallet-revive`'s `call`.
 </span><span class="attr">#[derive(Debug, scale::Decode, scale::Encode, scale_encode::EncodeAsType)]
 #[encode_as_type(trait_bounds = <span class="string">""</span>, crate_path = <span class="string">"subxt::ext::scale_encode"</span>)]
 </span><span class="kw">pub struct </span>Call&lt;E: Environment&gt; {
-    dest: MultiAddress&lt;E::AccountId, ()&gt;,
+    dest: H160,
     <span class="attr">#[codec(compact)]
     </span>value: E::Balance,
     gas_limit: Weight,
-    storage_deposit_limit: <span class="prelude-ty">Option</span>&lt;E::Balance&gt;,
+    <span class="attr">#[codec(compact)]
+    </span>storage_deposit_limit: E::Balance,
     data: Vec&lt;u8&gt;,
 }
 
-<span class="doccomment">/// A raw call to `pallet-contracts`'s `call`.
+<span class="doccomment">/// A raw call to `pallet-revive`'s `map_account`.
+</span><span class="attr">#[derive(Debug, scale::Decode, scale::Encode, scale_encode::EncodeAsType)]
+#[encode_as_type(trait_bounds = <span class="string">""</span>, crate_path = <span class="string">"subxt::ext::scale_encode"</span>)]
+</span><span class="kw">pub struct </span>MapAccount {}
+
+<span class="doccomment">/// A raw call to `pallet-revive`'s `call`.
 </span><span class="attr">#[derive(Debug, scale::Decode, scale::Encode, scale_encode::EncodeAsType)]
 #[encode_as_type(trait_bounds = <span class="string">""</span>, crate_path = <span class="string">"subxt::ext::scale_encode"</span>)]
 </span><span class="kw">pub struct </span>Transfer&lt;E: Environment, C: subxt::Config&gt; {
@@ -701,68 +709,40 @@
     </span>value: E::Balance,
 }
 
-<span class="attr">#[derive(
-    Debug,
-    Clone,
-    Copy,
-    PartialEq,
-    Eq,
-    serde::Serialize,
-    scale::Decode,
-    scale::Encode,
-    scale_encode::EncodeAsType,
-)]
-#[encode_as_type(crate_path = <span class="string">"subxt::ext::scale_encode"</span>)]
-</span><span class="kw">pub enum </span>Determinism {
-    <span class="doccomment">/// The execution should be deterministic and hence no indeterministic instructions
-    /// are allowed.
-    ///
-    /// Dispatchables always use this mode in order to make on-chain execution
-    /// deterministic.
-    </span>Enforced,
-    <span class="doccomment">/// Allow calling or uploading an indeterministic code.
-    ///
-    /// This is only possible when calling into `pallet-contracts` directly via
-    /// [`crate::Pallet::bare_call`].
-    ///
-    /// # Note
-    ///
-    /// **Never** use this mode for on-chain execution.
-    </span>Relaxed,
-}
-
-<span class="doccomment">/// A raw call to `pallet-contracts`'s `remove_code`.
+<span class="doccomment">/// A raw call to `pallet-revive`'s `remove_code`.
 </span><span class="attr">#[derive(Debug, scale::Encode, scale::Decode, scale_encode::EncodeAsType)]
 #[encode_as_type(trait_bounds = <span class="string">""</span>, crate_path = <span class="string">"subxt::ext::scale_encode"</span>)]
-</span><span class="kw">pub struct </span>RemoveCode&lt;E: Environment&gt; {
-    code_hash: E::Hash,
+</span><span class="kw">pub struct </span>RemoveCode {
+    code_hash: H256,
 }
 
-<span class="doccomment">/// A raw call to `pallet-contracts`'s `upload`.
+<span class="doccomment">/// A raw call to `pallet-revive`'s `upload_code`.
 </span><span class="attr">#[derive(Debug, scale::Encode, scale::Decode, scale_encode::EncodeAsType)]
 #[encode_as_type(trait_bounds = <span class="string">""</span>, crate_path = <span class="string">"subxt::ext::scale_encode"</span>)]
 </span><span class="kw">pub struct </span>UploadCode&lt;E: Environment&gt; {
     code: Vec&lt;u8&gt;,
-    storage_deposit_limit: <span class="prelude-ty">Option</span>&lt;E::Balance&gt;,
-    determinism: Determinism,
+    <span class="attr">#[codec(compact)]
+    </span>storage_deposit_limit: E::Balance,
 }
 
 <span class="doccomment">/// A struct that encodes RPC parameters required to instantiate a new smart contract.
-</span><span class="attr">#[derive(serde::Serialize, scale::Encode)]
-#[serde(rename_all = <span class="string">"camelCase"</span>)]
+</span><span class="attr">#[derive(scale::Encode)]
+</span><span class="comment">// todo: #[derive(serde::Serialize, scale::Encode)]
+// todo: #[serde(rename_all = "camelCase")]
 </span><span class="kw">struct </span>RpcInstantiateRequest&lt;C: subxt::Config, E: Environment&gt; {
     origin: C::AccountId,
     value: E::Balance,
     gas_limit: <span class="prelude-ty">Option</span>&lt;Weight&gt;,
-    storage_deposit_limit: <span class="prelude-ty">Option</span>&lt;E::Balance&gt;,
+    storage_deposit_limit: DepositLimit&lt;E::Balance&gt;,
     code: Code,
     data: Vec&lt;u8&gt;,
-    salt: Vec&lt;u8&gt;,
+    salt: <span class="prelude-ty">Option</span>&lt;[u8; <span class="number">32</span>]&gt;,
 }
 
 <span class="doccomment">/// A struct that encodes RPC parameters required to upload a new smart contract.
-</span><span class="attr">#[derive(serde::Serialize, scale::Encode)]
-#[serde(rename_all = <span class="string">"camelCase"</span>)]
+</span><span class="attr">#[derive(scale::Encode)]
+</span><span class="comment">// todo: #[derive(serde::Serialize, scale::Encode)]
+// todo: #[serde(rename_all = "camelCase")]
 </span><span class="kw">struct </span>RpcCodeUploadRequest&lt;C: subxt::Config, E: Environment&gt;
 <span class="kw">where
     </span>E::Balance: serde::Serialize,
@@ -770,20 +750,18 @@
     origin: C::AccountId,
     code: Vec&lt;u8&gt;,
     storage_deposit_limit: <span class="prelude-ty">Option</span>&lt;E::Balance&gt;,
-    determinism: Determinism,
 }
 
 <span class="doccomment">/// A struct that encodes RPC parameters required for a call to a smart contract.
-///
-/// Copied from [`pallet-contracts-rpc`].
-</span><span class="attr">#[derive(serde::Serialize, scale::Encode)]
-#[serde(rename_all = <span class="string">"camelCase"</span>)]
+</span><span class="attr">#[derive(scale::Encode)]
+</span><span class="comment">// todo: #[derive(serde::Serialize, scale::Encode)]
+// todo: #[serde(rename_all = "camelCase")]
 </span><span class="kw">struct </span>RpcCallRequest&lt;C: subxt::Config, E: Environment&gt; {
     origin: C::AccountId,
-    dest: E::AccountId,
+    dest: H160,
     value: E::Balance,
     gas_limit: <span class="prelude-ty">Option</span>&lt;Weight&gt;,
-    storage_deposit_limit: <span class="prelude-ty">Option</span>&lt;E::Balance&gt;,
+    storage_deposit_limit: DepositLimit&lt;E::Balance&gt;,
     input_data: Vec&lt;u8&gt;,
 }
 
@@ -798,14 +776,14 @@
     </span>Existing(H256),
 }
 
-<span class="doccomment">/// Provides functions for interacting with the `pallet-contracts` API.
-</span><span class="kw">pub struct </span>ContractsApi&lt;C: subxt::Config, E: Environment&gt; {
+<span class="doccomment">/// Provides functions for interacting with the `pallet-revive` API.
+</span><span class="kw">pub struct </span>ReviveApi&lt;C: subxt::Config, E: Environment&gt; {
     <span class="kw">pub </span>rpc: LegacyRpcMethods&lt;C&gt;,
     <span class="kw">pub </span>client: OnlineClient&lt;C&gt;,
     _phantom: PhantomData&lt;<span class="kw">fn</span>() -&gt; (C, E)&gt;,
 }
 
-<span class="kw">impl</span>&lt;C, E&gt; ContractsApi&lt;C, E&gt;
+<span class="kw">impl</span>&lt;C, E&gt; ReviveApi&lt;C, E&gt;
 <span class="kw">where
     </span>C: subxt::Config,
     C::AccountId: From&lt;sr25519::PublicKey&gt; + serde::de::DeserializeOwned + scale::Codec,
@@ -817,7 +795,7 @@
     E: Environment,
     E::Balance: scale::HasCompact + serde::Serialize,
 {
-    <span class="doccomment">/// Creates a new [`ContractsApi`] instance.
+    <span class="doccomment">/// Creates a new [`ReviveApi`] instance.
     </span><span class="kw">pub async fn </span>new(rpc: RpcClient) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, subxt::Error&gt; {
         <span class="kw">let </span>client = OnlineClient::&lt;C&gt;::from_rpc_client(rpc.clone()).<span class="kw">await</span><span class="question-mark">?</span>;
         <span class="kw">let </span>rpc = LegacyRpcMethods::&lt;C&gt;::new(rpc);
@@ -838,7 +816,7 @@
         dest: C::AccountId,
         value: E::Balance,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;(), subxt::Error&gt; {
-        <span class="kw">let </span>call = subxt::tx::Payload::new(
+        <span class="kw">let </span>call = subxt::tx::DefaultPayload::new(
             <span class="string">"Balances"</span>,
             <span class="string">"transfer_allow_death"</span>,
             Transfer::&lt;E, C&gt; {
@@ -857,13 +835,14 @@
     </span><span class="kw">pub async fn </span>instantiate_with_code_dry_run(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         value: E::Balance,
-        storage_deposit_limit: <span class="prelude-ty">Option</span>&lt;E::Balance&gt;,
+        storage_deposit_limit: DepositLimit&lt;E::Balance&gt;,
         code: Vec&lt;u8&gt;,
         data: Vec&lt;u8&gt;,
-        salt: Vec&lt;u8&gt;,
+        salt: <span class="prelude-ty">Option</span>&lt;[u8; <span class="number">32</span>]&gt;,
         signer: <span class="kw-2">&amp;</span>Keypair,
-    ) -&gt; ContractInstantiateResult&lt;E::AccountId, E::Balance, ()&gt; {
-        <span class="kw">let </span>code = Code::Upload(code);
+    ) -&gt; ContractInstantiateResultForBar&lt;E&gt; {
+        <span class="comment">// todo map_account beforehand?
+        </span><span class="kw">let </span>code = Code::Upload(code);
         <span class="kw">let </span>call_request = RpcInstantiateRequest::&lt;C, E&gt; {
             origin: Signer::&lt;C&gt;::account_id(signer),
             value,
@@ -873,14 +852,14 @@
             data,
             salt,
         };
-        <span class="kw">let </span>func = <span class="string">"ContractsApi_instantiate"</span>;
+        <span class="kw">let </span>func = <span class="string">"ReviveApi_instantiate"</span>;
         <span class="kw">let </span>params = scale::Encode::encode(<span class="kw-2">&amp;</span>call_request);
         <span class="kw">let </span>bytes = <span class="self">self
             </span>.rpc
             .state_call(func, <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>params), <span class="prelude-val">None</span>)
             .<span class="kw">await
             </span>.unwrap_or_else(|err| {
-                <span class="macro">panic!</span>(<span class="string">"error on ws request `contracts_instantiate`: {err:?}"</span>);
+                <span class="macro">panic!</span>(<span class="string">"error on ws request `revive_instantiate`: {err:?}"</span>);
             });
         scale::Decode::decode(<span class="kw-2">&amp;mut </span>bytes.as_ref()).unwrap_or_else(|err| {
             <span class="macro">panic!</span>(<span class="string">"decoding ContractInstantiateResult failed: {err}"</span>)
@@ -894,7 +873,7 @@
         signer: <span class="kw-2">&amp;</span>Keypair,
     ) -&gt; ExtrinsicEvents&lt;C&gt;
     <span class="kw">where
-        </span>Call: subxt::tx::TxPayload,
+        </span>Call: subxt::tx::Payload,
     {
         <span class="kw">let </span>account_id = &lt;Keypair <span class="kw">as </span>Signer&lt;C&gt;&gt;::account_id(signer);
         <span class="kw">let </span>account_nonce =
@@ -995,20 +974,20 @@
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         value: E::Balance,
         gas_limit: Weight,
-        storage_deposit_limit: <span class="prelude-ty">Option</span>&lt;E::Balance&gt;,
+        storage_deposit_limit: E::Balance,
         code: Vec&lt;u8&gt;,
         data: Vec&lt;u8&gt;,
-        salt: Vec&lt;u8&gt;,
+        salt: <span class="prelude-ty">Option</span>&lt;[u8; <span class="number">32</span>]&gt;,
         signer: <span class="kw-2">&amp;</span>Keypair,
     ) -&gt; ExtrinsicEvents&lt;C&gt; {
-        <span class="kw">let </span>call = subxt::tx::Payload::new(
-            <span class="string">"Contracts"</span>,
+        <span class="kw">let </span>call = subxt::tx::DefaultPayload::new(
+            <span class="string">"Revive"</span>,
             <span class="string">"instantiate_with_code"</span>,
             InstantiateWithCode::&lt;E&gt; {
                 value,
                 gas_limit,
-                storage_deposit_limit,
-                code,
+                storage_deposit_limit, <span class="comment">// todo
+                </span>code,
                 data,
                 salt,
             },
@@ -1023,15 +1002,16 @@
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         signer: <span class="kw-2">&amp;</span>Keypair,
         code: Vec&lt;u8&gt;,
-        storage_deposit_limit: <span class="prelude-ty">Option</span>&lt;E::Balance&gt;,
-    ) -&gt; CodeUploadResult&lt;E::Hash, E::Balance&gt; {
+        <span class="comment">// todo
+        </span>_storage_deposit_limit: E::Balance,
+    ) -&gt; CodeUploadResult&lt;E::Balance&gt; {
         <span class="kw">let </span>call_request = RpcCodeUploadRequest::&lt;C, E&gt; {
             origin: Signer::&lt;C&gt;::account_id(signer),
             code,
-            storage_deposit_limit,
-            determinism: Determinism::Enforced,
+            <span class="comment">//storage_deposit_limit,
+            </span>storage_deposit_limit: <span class="prelude-val">None</span>,
         };
-        <span class="kw">let </span>func = <span class="string">"ContractsApi_upload_code"</span>;
+        <span class="kw">let </span>func = <span class="string">"ReviveApi_upload_code"</span>;
         <span class="kw">let </span>params = scale::Encode::encode(<span class="kw-2">&amp;</span>call_request);
         <span class="kw">let </span>bytes = <span class="self">self
             </span>.rpc
@@ -1052,16 +1032,16 @@
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         signer: <span class="kw-2">&amp;</span>Keypair,
         code: Vec&lt;u8&gt;,
-        storage_deposit_limit: <span class="prelude-ty">Option</span>&lt;E::Balance&gt;,
+        storage_deposit_limit: E::Balance,
     ) -&gt; ExtrinsicEvents&lt;C&gt; {
-        <span class="kw">let </span>call = subxt::tx::Payload::new(
-            <span class="string">"Contracts"</span>,
+        <span class="kw">let </span>call = subxt::tx::DefaultPayload::new(
+            <span class="string">"Revive"</span>,
             <span class="string">"upload_code"</span>,
             UploadCode::&lt;E&gt; {
                 code,
                 storage_deposit_limit,
-                determinism: Determinism::Enforced,
-            },
+                <span class="comment">//storage_deposit_limit: None
+            </span>},
         )
         .unvalidated();
 
@@ -1075,12 +1055,12 @@
     </span><span class="kw">pub async fn </span>remove_code(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         signer: <span class="kw-2">&amp;</span>Keypair,
-        code_hash: E::Hash,
+        code_hash: H256,
     ) -&gt; ExtrinsicEvents&lt;C&gt; {
-        <span class="kw">let </span>call = subxt::tx::Payload::new(
-            <span class="string">"Contracts"</span>,
+        <span class="kw">let </span>call = subxt::tx::DefaultPayload::new(
+            <span class="string">"Revive"</span>,
             <span class="string">"remove_code"</span>,
-            RemoveCode::&lt;E&gt; { code_hash },
+            RemoveCode { code_hash },
         )
         .unvalidated();
 
@@ -1091,20 +1071,20 @@
     </span><span class="kw">pub async fn </span>call_dry_run(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         origin: C::AccountId,
-        dest: E::AccountId,
+        dest: H160,
         input_data: Vec&lt;u8&gt;,
         value: E::Balance,
-        storage_deposit_limit: <span class="prelude-ty">Option</span>&lt;E::Balance&gt;,
-    ) -&gt; ContractExecResult&lt;E::Balance, ()&gt; {
+        _storage_deposit_limit: E::Balance, <span class="comment">// todo
+    </span>) -&gt; ContractExecResultFor&lt;E&gt; {
         <span class="kw">let </span>call_request = RpcCallRequest::&lt;C, E&gt; {
             origin,
             dest,
             value,
             gas_limit: <span class="prelude-val">None</span>,
-            storage_deposit_limit,
+            storage_deposit_limit: DepositLimit::Unchecked,
             input_data,
         };
-        <span class="kw">let </span>func = <span class="string">"ContractsApi_call"</span>;
+        <span class="kw">let </span>func = <span class="string">"ReviveApi_call"</span>;
         <span class="kw">let </span>params = scale::Encode::encode(<span class="kw-2">&amp;</span>call_request);
         <span class="kw">let </span>bytes = <span class="self">self
             </span>.rpc
@@ -1123,15 +1103,15 @@
     /// contains all events that are associated with this transaction.
     </span><span class="kw">pub async fn </span>call(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        contract: MultiAddress&lt;E::AccountId, ()&gt;,
+        contract: H160,
         value: E::Balance,
         gas_limit: Weight,
-        storage_deposit_limit: <span class="prelude-ty">Option</span>&lt;E::Balance&gt;,
+        storage_deposit_limit: E::Balance,
         data: Vec&lt;u8&gt;,
         signer: <span class="kw-2">&amp;</span>Keypair,
     ) -&gt; ExtrinsicEvents&lt;C&gt; {
-        <span class="kw">let </span>call = subxt::tx::Payload::new(
-            <span class="string">"Contracts"</span>,
+        <span class="kw">let </span>call = subxt::tx::DefaultPayload::new(
+            <span class="string">"Revive"</span>,
             <span class="string">"call"</span>,
             Call::&lt;E&gt; {
                 dest: contract,
@@ -1142,6 +1122,18 @@
             },
         )
         .unvalidated();
+
+        <span class="self">self</span>.submit_extrinsic(<span class="kw-2">&amp;</span>call, signer).<span class="kw">await
+    </span>}
+
+    <span class="doccomment">/// todo
+    /// Submits an extrinsic to call a contract with the given parameters.
+    ///
+    /// Returns when the transaction is included in a block. The return value
+    /// contains all events that are associated with this transaction.
+    </span><span class="kw">pub async fn </span>map_account(<span class="kw-2">&amp;</span><span class="self">self</span>, signer: <span class="kw-2">&amp;</span>Keypair) -&gt; ExtrinsicEvents&lt;C&gt; {
+        <span class="kw">let </span>call = subxt::tx::DefaultPayload::new(<span class="string">"Revive"</span>, <span class="string">"map_account"</span>, MapAccount {})
+            .unvalidated();
 
         <span class="self">self</span>.submit_extrinsic(<span class="kw-2">&amp;</span>call, signer).<span class="kw">await
     </span>}

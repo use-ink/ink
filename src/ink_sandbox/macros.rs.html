@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/e2e/sandbox/src/macros.rs`."><title>macros.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-c5d6553a23f1e5a6.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="ink_sandbox" data-themes="" data-resource-suffix="" data-rustdoc-version="1.81.0 (eeb90cda1 2024-09-04)" data-channel="1.81.0" data-search-js="search-d234aafac6c221dd.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-d2fab2bf619172d3.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/e2e/sandbox/src/macros.rs`."><title>macros.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-b0742ba02757f159.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="ink_sandbox" data-themes="" data-resource-suffix="" data-rustdoc-version="1.83.0 (90b35a623 2024-11-26)" data-channel="1.83.0" data-search-js="search-f0d225181b97f9a4.js" data-settings-js="settings-805db61a62df4bd2.js" ><script src="../../static.files/storage-1d39b6787ed640ff.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-f070b9041d14864c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-0111fcff984fae8f.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">ink_sandbox/</div>macros.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers">
+<a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -309,26 +310,7 @@
 <a href="#309" id="309">309</a>
 <a href="#310" id="310">310</a>
 <a href="#311" id="311">311</a>
-<a href="#312" id="312">312</a>
-<a href="#313" id="313">313</a>
-<a href="#314" id="314">314</a>
-<a href="#315" id="315">315</a>
-<a href="#316" id="316">316</a>
-<a href="#317" id="317">317</a>
-<a href="#318" id="318">318</a>
-<a href="#319" id="319">319</a>
-<a href="#320" id="320">320</a>
-<a href="#321" id="321">321</a>
-<a href="#322" id="322">322</a>
-<a href="#323" id="323">323</a>
-<a href="#324" id="324">324</a>
-<a href="#325" id="325">325</a>
-<a href="#326" id="326">326</a>
-<a href="#327" id="327">327</a>
-<a href="#328" id="328">328</a>
-<a href="#329" id="329">329</a>
-<a href="#330" id="330">330</a>
-</pre></div><pre class="rust"><code><span class="kw">use </span>std::time::SystemTime;
+<a href="#312" id="312">312</a></pre></div><pre class="rust"><code><span class="kw">use </span>std::time::SystemTime;
 
 <span class="kw">use </span>frame_support::{
     sp_runtime::{
@@ -349,7 +331,7 @@
 <span class="kw">impl</span>&lt;
         T: pallet_balances::Config
             + pallet_timestamp::Config&lt;Moment = u64&gt;
-            + pallet_contracts::Config,
+            + pallet_revive::Config,
     &gt; BlockBuilder&lt;T&gt;
 {
     <span class="doccomment">/// Create a new externalities with the given balances.
@@ -385,7 +367,7 @@
                 .as_secs(),
         );
         pallet_timestamp::Pallet::&lt;T&gt;::on_initialize(height);
-        pallet_contracts::Pallet::&lt;T&gt;::on_initialize(height);
+        pallet_revive::Pallet::&lt;T&gt;::on_initialize(height);
         frame_system::Pallet::&lt;T&gt;::note_finished_initialize();
     }
 
@@ -393,7 +375,7 @@
     </span><span class="kw">pub fn </span>finalize_block(
         height: frame_system::pallet_prelude::BlockNumberFor&lt;T&gt;,
     ) -&gt; &lt;T <span class="kw">as </span>frame_system::Config&gt;::Hash {
-        pallet_contracts::Pallet::&lt;T&gt;::on_finalize(height);
+        pallet_revive::Pallet::&lt;T&gt;::on_finalize(height);
         pallet_timestamp::Pallet::&lt;T&gt;::on_finalize(height);
         pallet_balances::Pallet::&lt;T&gt;::on_finalize(height);
         frame_system::Pallet::&lt;T&gt;::finalize().hash()
@@ -437,11 +419,10 @@
         derive_impl,
         parameter_types,
         sp_runtime::{
-            testing::H256,
             traits::Convert,
             AccountId32, Perbill,
         },
-        traits::{ConstBool, ConstU128, ConstU32, ConstU64, Currency, Randomness},
+        traits::{ConstBool, ConstU128, ConstU32, ConstU64, Currency},
         weights::Weight,
     };
 
@@ -453,7 +434,7 @@
             System: <span class="macro-nonterminal">$crate::frame_system</span>,
             Balances: <span class="macro-nonterminal">$crate::pallet_balances</span>,
             Timestamp: <span class="macro-nonterminal">$crate::pallet_timestamp</span>,
-            Contracts: <span class="macro-nonterminal">$crate::pallet_contracts</span>,
+            Revive: <span class="macro-nonterminal">$crate::pallet_revive</span>,
             $(
                 <span class="macro-nonterminal">$pallet_name</span>: <span class="macro-nonterminal">$pallet</span>,
             )*
@@ -484,6 +465,7 @@
         <span class="kw">type </span>MaxFreezes = ();
         <span class="kw">type </span>RuntimeHoldReason = RuntimeHoldReason;
         <span class="kw">type </span>RuntimeFreezeReason = RuntimeFreezeReason;
+        <span class="kw">type </span>DoneSlashHandler = ();
     }
 
     <span class="comment">// Configure pallet timestamp
@@ -494,15 +476,8 @@
         <span class="kw">type </span>WeightInfo = ();
     }
 
-    <span class="comment">// Configure pallet contracts
-    </span><span class="kw">pub enum </span>SandboxRandomness {}
-    <span class="kw">impl </span>Randomness&lt;H256, u32&gt; <span class="kw">for </span>SandboxRandomness {
-        <span class="kw">fn </span>random(_subject: <span class="kw-2">&amp;</span>[u8]) -&gt; (H256, u32) {
-            <span class="macro">unreachable!</span>(<span class="string">"No randomness"</span>)
-        }
-    }
-
-    <span class="kw">type </span>BalanceOf = &lt;Balances <span class="kw">as </span>Currency&lt;AccountId32&gt;&gt;::Balance;
+    <span class="comment">// Configure pallet revive
+    </span><span class="kw">type </span>BalanceOf = &lt;Balances <span class="kw">as </span>Currency&lt;AccountId32&gt;&gt;::Balance;
     <span class="kw">impl </span>Convert&lt;Weight, BalanceOf&gt; <span class="kw">for </span><span class="macro-nonterminal">$runtime </span>{
         <span class="kw">fn </span>convert(w: Weight) -&gt; BalanceOf {
             w.ref_time().into()
@@ -510,45 +485,36 @@
     }
 
     <span class="macro">parameter_types!</span> {
-        <span class="kw">pub </span>SandboxSchedule: <span class="macro-nonterminal">$crate::pallet_contracts::Schedule</span>&lt;<span class="macro-nonterminal">$runtime</span>&gt; = {
-            &lt;<span class="macro-nonterminal">$crate::pallet_contracts::Schedule</span>&lt;<span class="macro-nonterminal">$runtime</span>&gt;&gt;::default()
-        };
-        <span class="kw">pub </span>DeletionWeightLimit: Weight = Weight::zero();
+        <span class="comment">// TODO can we delete some?
+        </span><span class="kw">pub </span>DeletionWeightLimit: Weight = Weight::zero();
         <span class="kw">pub </span>DefaultDepositLimit: BalanceOf = <span class="number">10_000_000</span>;
         <span class="kw">pub </span>CodeHashLockupDepositPercent: Perbill = Perbill::from_percent(<span class="number">0</span>);
         <span class="kw">pub </span>MaxDelegateDependencies: u32 = <span class="number">32</span>;
     }
 
-    <span class="kw">impl </span><span class="macro-nonterminal">$crate::pallet_contracts::Config </span><span class="kw">for </span><span class="macro-nonterminal">$runtime </span>{
+    <span class="kw">impl </span><span class="macro-nonterminal">$crate::pallet_revive::Config </span><span class="kw">for </span><span class="macro-nonterminal">$runtime </span>{
+        <span class="kw">type </span>AddressMapper = <span class="macro-nonterminal">$crate::pallet_revive::AccountId32Mapper</span>&lt;<span class="self">Self</span>&gt;;
+        <span class="kw">type </span>ChainId = ConstU64&lt;<span class="number">0</span>&gt;; <span class="comment">// TODO
+        </span><span class="kw">type </span>NativeToEthRatio = ConstU32&lt;<span class="number">1</span>&gt;;
         <span class="kw">type </span>Time = Timestamp;
-        <span class="kw">type </span>Randomness = SandboxRandomness;
         <span class="kw">type </span>Currency = Balances;
         <span class="kw">type </span>RuntimeEvent = RuntimeEvent;
         <span class="kw">type </span>RuntimeCall = RuntimeCall;
         <span class="kw">type </span>CallFilter = ();
+        <span class="kw">type </span>DepositPerItem = ConstU128&lt;<span class="number">1</span>&gt;;
+        <span class="kw">type </span>DepositPerByte = ConstU128&lt;<span class="number">1</span>&gt;;
         <span class="kw">type </span>WeightPrice = <span class="self">Self</span>;
         <span class="kw">type </span>WeightInfo = ();
         <span class="kw">type </span>ChainExtension = <span class="macro-nonterminal">$chain_extension</span>;
-        <span class="kw">type </span>Schedule = SandboxSchedule;
-        <span class="kw">type </span>CallStack = [<span class="macro-nonterminal">$crate::pallet_contracts::Frame</span>&lt;<span class="self">Self</span>&gt;; <span class="number">5</span>];
-        <span class="kw">type </span>DepositPerByte = ConstU128&lt;<span class="number">1</span>&gt;;
-        <span class="kw">type </span>DepositPerItem = ConstU128&lt;<span class="number">1</span>&gt;;
-        <span class="kw">type </span>AddressGenerator = <span class="macro-nonterminal">$crate::pallet_contracts::DefaultAddressGenerator</span>;
-        <span class="kw">type </span>MaxCodeLen = ConstU32&lt;{ <span class="number">123 </span>* <span class="number">1024 </span>}&gt;;
-        <span class="kw">type </span>MaxStorageKeyLen = ConstU32&lt;<span class="number">128</span>&gt;;
-        <span class="kw">type </span>UnsafeUnstableInterface = ConstBool&lt;<span class="bool-val">false</span>&gt;;
+        <span class="kw">type </span>RuntimeMemory = ConstU32&lt;{ <span class="number">128 </span>* <span class="number">1024 </span>* <span class="number">1024 </span>}&gt;;
+        <span class="kw">type </span>PVFMemory = ConstU32&lt;{ <span class="number">512 </span>* <span class="number">1024 </span>* <span class="number">1024 </span>}&gt;;
+        <span class="kw">type </span>UnsafeUnstableInterface = ConstBool&lt;<span class="bool-val">true</span>&gt;;
+        <span class="kw">type </span>CodeHashLockupDepositPercent = CodeHashLockupDepositPercent;
+        <span class="kw">type </span>RuntimeHoldReason = RuntimeHoldReason;
+        <span class="kw">type </span>Debug = <span class="macro-nonterminal">$debug</span>;
+        <span class="kw">type </span>Xcm = ();
         <span class="kw">type </span>UploadOrigin = <span class="macro-nonterminal">$crate::frame_system::EnsureSigned</span>&lt;<span class="self">Self</span>::AccountId&gt;;
         <span class="kw">type </span>InstantiateOrigin = <span class="macro-nonterminal">$crate::frame_system::EnsureSigned</span>&lt;<span class="self">Self</span>::AccountId&gt;;
-        <span class="kw">type </span>MaxDebugBufferLen = ConstU32&lt;{ <span class="number">2 </span>* <span class="number">1024 </span>* <span class="number">1024 </span>}&gt;;
-        <span class="kw">type </span>Migrations = ();
-        <span class="kw">type </span>DefaultDepositLimit = DefaultDepositLimit;
-        <span class="kw">type </span>Debug = <span class="macro-nonterminal">$debug</span>;
-        <span class="kw">type </span>CodeHashLockupDepositPercent = CodeHashLockupDepositPercent;
-        <span class="kw">type </span>MaxDelegateDependencies = MaxDelegateDependencies;
-        <span class="kw">type </span>RuntimeHoldReason = RuntimeHoldReason;
-        <span class="kw">type </span>Environment = ();
-        <span class="kw">type </span>Xcm = ();
-        <span class="kw">type </span>ApiVersion = ();
     }
 
     <span class="comment">// Implement `crate::Sandbox` trait
@@ -644,14 +610,12 @@
                 Default::default(),
             );
         }
-
-
     }
 }
 
 <span class="comment">// Export runtime type itself, pallets and useful types from the auxiliary module
 </span><span class="kw">pub use </span>construct_runtime::{
-    <span class="macro-nonterminal">$sandbox</span>, <span class="macro-nonterminal">$runtime</span>, Balances, Contracts, PalletInfo, RuntimeCall, RuntimeEvent, RuntimeHoldReason,
+    <span class="macro-nonterminal">$sandbox</span>, <span class="macro-nonterminal">$runtime</span>, Balances, Revive, PalletInfo, RuntimeCall, RuntimeEvent, RuntimeHoldReason,
     RuntimeOrigin, System, Timestamp,
 };
     };

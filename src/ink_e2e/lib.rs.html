@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/e2e/src/lib.rs`."><title>lib.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-c5d6553a23f1e5a6.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="ink_e2e" data-themes="" data-resource-suffix="" data-rustdoc-version="1.81.0 (eeb90cda1 2024-09-04)" data-channel="1.81.0" data-search-js="search-d234aafac6c221dd.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-d2fab2bf619172d3.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/e2e/src/lib.rs`."><title>lib.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-b0742ba02757f159.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="ink_e2e" data-themes="" data-resource-suffix="" data-rustdoc-version="1.83.0 (90b35a623 2024-11-26)" data-channel="1.83.0" data-search-js="search-f0d225181b97f9a4.js" data-settings-js="settings-805db61a62df4bd2.js" ><script src="../../static.files/storage-1d39b6787ed640ff.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-f070b9041d14864c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-0111fcff984fae8f.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">ink_e2e/</div>lib.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers">
+<a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -151,7 +152,32 @@
 <a href="#151" id="151">151</a>
 <a href="#152" id="152">152</a>
 <a href="#153" id="153">153</a>
-</pre></div><pre class="rust"><code><span class="comment">// Copyright (C) Use Ink (UK) Ltd.
+<a href="#154" id="154">154</a>
+<a href="#155" id="155">155</a>
+<a href="#156" id="156">156</a>
+<a href="#157" id="157">157</a>
+<a href="#158" id="158">158</a>
+<a href="#159" id="159">159</a>
+<a href="#160" id="160">160</a>
+<a href="#161" id="161">161</a>
+<a href="#162" id="162">162</a>
+<a href="#163" id="163">163</a>
+<a href="#164" id="164">164</a>
+<a href="#165" id="165">165</a>
+<a href="#166" id="166">166</a>
+<a href="#167" id="167">167</a>
+<a href="#168" id="168">168</a>
+<a href="#169" id="169">169</a>
+<a href="#170" id="170">170</a>
+<a href="#171" id="171">171</a>
+<a href="#172" id="172">172</a>
+<a href="#173" id="173">173</a>
+<a href="#174" id="174">174</a>
+<a href="#175" id="175">175</a>
+<a href="#176" id="176">176</a>
+<a href="#177" id="177">177</a>
+<a href="#178" id="178">178</a>
+<a href="#179" id="179">179</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) Use Ink (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -188,6 +214,7 @@
 
 <span class="kw">pub use </span><span class="kw">crate</span>::contract_build::build_root_and_contract_dependencies;
 <span class="kw">pub use </span>backend::{
+    BuilderClient,
     ChainBackend,
     ContractsBackend,
     E2EBackend,
@@ -213,8 +240,7 @@
     preset,
     Client <span class="kw">as </span>SandboxClient,
 };
-<span class="kw">pub use </span>sp_core::H256;
-<span class="kw">pub use </span>sp_keyring::AccountKeyring;
+<span class="kw">pub use </span>sp_keyring::Sr25519Keyring;
 <span class="kw">pub use </span>subxt::{
     <span class="self">self</span>,
     backend::rpc::RpcClient,
@@ -240,19 +266,21 @@
 
 <span class="kw">use </span>ink::codegen::ContractCallBuilder;
 <span class="kw">use </span>ink_env::{
-    call::FromAccountId,
+    call::FromAddr,
     ContractEnv,
     Environment,
 };
-<span class="kw">use </span>pallet_contracts::{
-    ContractExecResult,
-    ContractInstantiateResult,
+<span class="kw">use </span>ink_primitives::{
+    AccountId,
+    DepositLimit,
+    H160,
+    H256,
 };
 <span class="kw">use </span>std::{
     cell::RefCell,
     sync::Once,
 };
-<span class="kw">use </span>xts::ContractsApi;
+<span class="kw">use </span>xts::ReviveApi;
 
 <span class="kw">pub use </span>subxt::PolkadotConfig;
 
@@ -285,23 +313,47 @@
 }
 
 <span class="doccomment">/// Get an ink! [`ink_primitives::AccountId`] for a given keyring account.
-</span><span class="kw">pub fn </span>account_id(account: AccountKeyring) -&gt; ink_primitives::AccountId {
+</span><span class="kw">pub fn </span>account_id(account: Sr25519Keyring) -&gt; ink_primitives::AccountId {
     ink_primitives::AccountId::try_from(account.to_account_id().as_ref())
         .expect(<span class="string">"account keyring has a valid account id"</span>)
 }
 
-<span class="doccomment">/// Creates a call builder builder for `Contract`, based on an account id.
+<span class="doccomment">/// Returns the [`ink::H160`] for a given keyring account.
+///
+/// # Developer Note
+///
+/// We take the `AccountId` and return only the first twenty bytes, this
+/// is what `pallet-revive` does as well.
+</span><span class="kw">pub fn </span>address(account: Sr25519Keyring) -&gt; H160 {
+    <span class="kw">let </span>account_id = account_id(account);
+    H160::from_slice(<span class="kw-2">&amp;</span>&lt;AccountId <span class="kw">as </span>AsRef&lt;[u8; <span class="number">32</span>]&gt;&gt;::as_ref(<span class="kw-2">&amp;</span>account_id)[..<span class="number">20</span>])
+}
+
+<span class="doccomment">/// Creates a call builder for `Contract`, based on an account id.
 </span><span class="kw">pub fn </span>create_call_builder&lt;Contract&gt;(
-    acc_id: &lt;&lt;Contract <span class="kw">as </span>ContractEnv&gt;::Env <span class="kw">as </span>Environment&gt;::AccountId,
+    acc_id: H160,
 ) -&gt; &lt;Contract <span class="kw">as </span>ContractCallBuilder&gt;::Type
 <span class="kw">where
     </span>&lt;Contract <span class="kw">as </span>ContractEnv&gt;::Env: Environment,
     Contract: ContractCallBuilder,
     Contract: ContractEnv,
-    Contract::Type: FromAccountId&lt;&lt;Contract <span class="kw">as </span>ContractEnv&gt;::Env&gt;,
+    Contract::Type: FromAddr,
 {
-    &lt;&lt;Contract <span class="kw">as </span>ContractCallBuilder&gt;::Type <span class="kw">as </span>FromAccountId&lt;
-        &lt;Contract <span class="kw">as </span>ContractEnv&gt;::Env,
-    &gt;&gt;::from_account_id(acc_id)
+    &lt;&lt;Contract <span class="kw">as </span>ContractCallBuilder&gt;::Type <span class="kw">as </span>FromAddr&gt;::from_addr(acc_id)
+}
+
+<span class="kw">fn </span>balance_to_deposit_limit&lt;E: Environment&gt;(
+    b: &lt;E <span class="kw">as </span>Environment&gt;::Balance,
+) -&gt; DepositLimit&lt;&lt;E <span class="kw">as </span>Environment&gt;::Balance&gt; {
+    DepositLimit::Balance(b)
+}
+
+<span class="kw">fn </span>deposit_limit_to_balance&lt;E: Environment&gt;(
+    l: DepositLimit&lt;&lt;E <span class="kw">as </span>Environment&gt;::Balance&gt;,
+) -&gt; &lt;E <span class="kw">as </span>Environment&gt;::Balance {
+    <span class="kw">match </span>l {
+        DepositLimit::Balance(l) =&gt; l,
+        DepositLimit::Unchecked =&gt; <span class="macro">panic!</span>(<span class="string">"oh no"</span>),
+    }
 }
 </code></pre></div></section></main></body></html>

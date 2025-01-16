@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/engine/src/ext.rs`."><title>ext.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-c5d6553a23f1e5a6.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="ink_engine" data-themes="" data-resource-suffix="" data-rustdoc-version="1.81.0 (eeb90cda1 2024-09-04)" data-channel="1.81.0" data-search-js="search-d234aafac6c221dd.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-d2fab2bf619172d3.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/engine/src/ext.rs`."><title>ext.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-b0742ba02757f159.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="ink_engine" data-themes="" data-resource-suffix="" data-rustdoc-version="1.83.0 (90b35a623 2024-11-26)" data-channel="1.83.0" data-search-js="search-f0d225181b97f9a4.js" data-settings-js="settings-805db61a62df4bd2.js" ><script src="../../static.files/storage-1d39b6787ed640ff.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-f070b9041d14864c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-0111fcff984fae8f.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">ink_engine/</div>ext.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers">
+<a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -434,18 +435,7 @@
 <a href="#434" id="434">434</a>
 <a href="#435" id="435">435</a>
 <a href="#436" id="436">436</a>
-<a href="#437" id="437">437</a>
-<a href="#438" id="438">438</a>
-<a href="#439" id="439">439</a>
-<a href="#440" id="440">440</a>
-<a href="#441" id="441">441</a>
-<a href="#442" id="442">442</a>
-<a href="#443" id="443">443</a>
-<a href="#444" id="444">444</a>
-<a href="#445" id="445">445</a>
-<a href="#446" id="446">446</a>
-<a href="#447" id="447">447</a>
-</pre></div><pre class="rust"><code><span class="comment">// Copyright (C) Use Ink (UK) Ltd.
+<a href="#437" id="437">437</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) Use Ink (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -459,9 +449,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-</span><span class="doccomment">//! Provides the same interface as Substrate's FRAME `contract` module.
+</span><span class="doccomment">//! Provides the same interface as Substrate's FRAME `revive` module.
 //!
-//! See [the documentation for the `contract` module](https://docs.rs/crate/pallet-contracts)
+//! See [the documentation for the `revive` module](https://docs.rs/crate/pallet-revive)
 //! for more information.
 
 </span><span class="kw">use crate</span>::{
@@ -473,12 +463,12 @@
         EmittedEvent,
     },
     types::{
-        AccountId,
-        Balance,
         BlockTimestamp,
+        H160,
     },
 };
-<span class="kw">pub use </span>pallet_contracts_uapi::ReturnErrorCode <span class="kw">as </span>Error;
+<span class="kw">use </span>ink_primitives::U256;
+<span class="kw">pub use </span>pallet_revive_uapi::ReturnErrorCode <span class="kw">as </span>Error;
 <span class="kw">use </span>scale::Encode;
 <span class="kw">use </span>std::panic::panic_any;
 
@@ -501,10 +491,10 @@
 <span class="doccomment">/// The chain specification.
 </span><span class="kw">pub struct </span>ChainSpec {
     <span class="doccomment">/// The current gas price.
-    </span><span class="kw">pub </span>gas_price: Balance,
+    </span><span class="kw">pub </span>gas_price: U256,
     <span class="doccomment">/// The minimum value an account of the chain must have
     /// (i.e. the chain's existential deposit).
-    </span><span class="kw">pub </span>minimum_balance: Balance,
+    </span><span class="kw">pub </span>minimum_balance: U256,
     <span class="doccomment">/// The targeted block time.
     </span><span class="kw">pub </span>block_time: BlockTimestamp,
 }
@@ -519,8 +509,8 @@
 </span><span class="kw">impl </span>Default <span class="kw">for </span>ChainSpec {
     <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{
-            gas_price: <span class="number">100</span>,
-            minimum_balance: <span class="number">1000000</span>,
+            gas_price: <span class="number">100</span>.into(),
+            minimum_balance: <span class="number">42</span>.into(),
             block_time: <span class="number">6</span>,
         }
     }
@@ -547,18 +537,18 @@
 
 <span class="kw">impl </span>Engine {
     <span class="doccomment">/// Transfers value from the contract to the destination account.
-    </span><span class="kw">pub fn </span>transfer(<span class="kw-2">&amp;mut </span><span class="self">self</span>, account_id: <span class="kw-2">&amp;</span>[u8], <span class="kw-2">mut </span>value: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
+    </span><span class="attr">#[allow(clippy::arithmetic_side_effects)] </span><span class="comment">// todo
+    </span><span class="kw">pub fn </span>transfer(<span class="kw-2">&amp;mut </span><span class="self">self</span>, dest: H160, <span class="kw-2">mut </span>value: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
         <span class="comment">// Note that a transfer of `0` is allowed here
         </span><span class="kw">let </span>increment = &lt;u128 <span class="kw">as </span>scale::Decode&gt;::decode(<span class="kw-2">&amp;mut </span>value)
             .map_err(|<span class="kw">_</span>| Error::TransferFailed)<span class="question-mark">?</span>;
 
-        <span class="kw">let </span>dest = account_id.to_vec();
         <span class="comment">// Note that the destination account does not have to exist
-        </span><span class="kw">let </span>dest_old_balance = <span class="self">self</span>.get_balance(dest.clone()).unwrap_or_default();
+        </span><span class="kw">let </span>dest_old_balance = <span class="self">self</span>.get_balance(dest).unwrap_or_default();
 
         <span class="kw">let </span>contract = <span class="self">self</span>.get_callee();
         <span class="kw">let </span>contract_old_balance = <span class="self">self
-            </span>.get_balance(contract.clone())
+            </span>.get_balance(contract)
             .map_err(|<span class="kw">_</span>| Error::TransferFailed)<span class="question-mark">?</span>;
 
         <span class="self">self</span>.database
@@ -569,6 +559,7 @@
     }
 
     <span class="doccomment">/// Deposits an event identified by the supplied topics and data.
+    </span><span class="attr">#[allow(clippy::arithmetic_side_effects)] </span><span class="comment">// todo
     </span><span class="kw">pub fn </span>deposit_event(<span class="kw-2">&amp;mut </span><span class="self">self</span>, topics: <span class="kw-2">&amp;</span>[u8], data: <span class="kw-2">&amp;</span>[u8]) {
         <span class="comment">// The first byte contains the number of topics in the slice
         </span><span class="kw">let </span>topics_count: scale::Compact&lt;u32&gt; = scale::Decode::decode(<span class="kw-2">&amp;mut &amp;</span>topics[<span class="number">0</span>..<span class="number">1</span>])
@@ -599,11 +590,10 @@
     /// Returns the size of the previously stored value at the key if any.
     </span><span class="kw">pub fn </span>set_storage(<span class="kw-2">&amp;mut </span><span class="self">self</span>, key: <span class="kw-2">&amp;</span>[u8], encoded_value: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Option</span>&lt;u32&gt; {
         <span class="kw">let </span>callee = <span class="self">self</span>.get_callee();
-        <span class="kw">let </span>account_id = AccountId::from_bytes(<span class="kw-2">&amp;</span>callee[..]);
 
-        <span class="self">self</span>.debug_info.inc_writes(account_id.clone());
+        <span class="self">self</span>.debug_info.inc_writes(callee);
         <span class="self">self</span>.debug_info
-            .record_cell_for_account(account_id, key.to_vec());
+            .record_cell_for_account(callee, key.to_vec());
 
         <span class="self">self</span>.database
             .insert_into_contract_storage(<span class="kw-2">&amp;</span>callee, key, encoded_value.to_vec())
@@ -613,9 +603,8 @@
     <span class="doccomment">/// Returns the contract storage bytes at the key if any.
     </span><span class="kw">pub fn </span>get_storage(<span class="kw-2">&amp;mut </span><span class="self">self</span>, key: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span>[u8], Error&gt; {
         <span class="kw">let </span>callee = <span class="self">self</span>.get_callee();
-        <span class="kw">let </span>account_id = AccountId::from_bytes(<span class="kw-2">&amp;</span>callee[..]);
 
-        <span class="self">self</span>.debug_info.inc_reads(account_id);
+        <span class="self">self</span>.debug_info.inc_reads(callee);
         <span class="kw">match </span><span class="self">self</span>.database.get_from_contract_storage(<span class="kw-2">&amp;</span>callee, key) {
             <span class="prelude-val">Some</span>(val) =&gt; <span class="prelude-val">Ok</span>(val),
             <span class="prelude-val">None </span>=&gt; <span class="prelude-val">Err</span>(Error::KeyNotFound),
@@ -626,9 +615,8 @@
     /// returning previously stored value at the key if any.
     </span><span class="kw">pub fn </span>take_storage(<span class="kw-2">&amp;mut </span><span class="self">self</span>, key: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;u8&gt;, Error&gt; {
         <span class="kw">let </span>callee = <span class="self">self</span>.get_callee();
-        <span class="kw">let </span>account_id = AccountId::from_bytes(<span class="kw-2">&amp;</span>callee[..]);
 
-        <span class="self">self</span>.debug_info.inc_writes(account_id);
+        <span class="self">self</span>.debug_info.inc_writes(callee);
         <span class="kw">match </span><span class="self">self</span>.database.remove_contract_storage(<span class="kw-2">&amp;</span>callee, key) {
             <span class="prelude-val">Some</span>(val) =&gt; <span class="prelude-val">Ok</span>(val),
             <span class="prelude-val">None </span>=&gt; <span class="prelude-val">Err</span>(Error::KeyNotFound),
@@ -638,9 +626,8 @@
     <span class="doccomment">/// Returns the size of the value stored in the contract storage at the key if any.
     </span><span class="kw">pub fn </span>contains_storage(<span class="kw-2">&amp;mut </span><span class="self">self</span>, key: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Option</span>&lt;u32&gt; {
         <span class="kw">let </span>callee = <span class="self">self</span>.get_callee();
-        <span class="kw">let </span>account_id = AccountId::from_bytes(<span class="kw-2">&amp;</span>callee[..]);
 
-        <span class="self">self</span>.debug_info.inc_reads(account_id);
+        <span class="self">self</span>.debug_info.inc_reads(callee);
         <span class="self">self</span>.database
             .get_from_contract_storage(<span class="kw-2">&amp;</span>callee, key)
             .map(|val| val.len() <span class="kw">as </span>u32)
@@ -650,11 +637,10 @@
     /// Returns the size of the previously stored value at the key if any.
     </span><span class="kw">pub fn </span>clear_storage(<span class="kw-2">&amp;mut </span><span class="self">self</span>, key: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Option</span>&lt;u32&gt; {
         <span class="kw">let </span>callee = <span class="self">self</span>.get_callee();
-        <span class="kw">let </span>account_id = AccountId::from_bytes(<span class="kw-2">&amp;</span>callee[..]);
-        <span class="self">self</span>.debug_info.inc_writes(account_id.clone());
+        <span class="self">self</span>.debug_info.inc_writes(callee);
         <span class="kw">let _ </span>= <span class="self">self
             </span>.debug_info
-            .remove_cell_for_account(account_id, key.to_vec());
+            .remove_cell_for_account(callee, key.to_vec());
         <span class="self">self</span>.database
             .remove_contract_storage(<span class="kw-2">&amp;</span>callee, key)
             .map(|val| val.len() <span class="kw">as </span>u32)
@@ -662,10 +648,11 @@
 
     <span class="doccomment">/// Remove the calling account and transfer remaining balance.
     ///
+    /// todo is the following comment still correct?
     /// This function never returns. Either the termination was successful and the
     /// execution of the destroyed contract is halted. Or it failed during the
     /// termination which is considered fatal.
-    </span><span class="kw">pub fn </span>terminate(<span class="kw-2">&amp;mut </span><span class="self">self</span>, beneficiary: <span class="kw-2">&amp;</span>[u8]) -&gt; ! {
+    </span><span class="kw">pub fn </span>terminate(<span class="kw-2">&amp;mut </span><span class="self">self</span>, beneficiary: H160) -&gt; ! {
         <span class="comment">// Send the remaining balance to the beneficiary
         </span><span class="kw">let </span>contract = <span class="self">self</span>.get_callee();
         <span class="kw">let </span>all = <span class="self">self
@@ -678,19 +665,15 @@
         <span class="comment">// Encode the result of the termination and panic with it.
         // This enables testing for the proper result and makes sure this
         // method returns `Never`.
-        </span><span class="kw">let </span>res = (all, beneficiary.to_vec());
+        </span><span class="kw">let </span>res = (all, beneficiary);
         panic_any(scale::Encode::encode(<span class="kw-2">&amp;</span>res));
     }
 
     <span class="doccomment">/// Returns the address of the caller.
     </span><span class="kw">pub fn </span>caller(<span class="kw-2">&amp;</span><span class="self">self</span>, output: <span class="kw-2">&amp;mut &amp;mut </span>[u8]) {
-        <span class="kw">let </span>caller = <span class="self">self
-            </span>.exec_context
-            .caller
-            .as_ref()
-            .expect(<span class="string">"no caller has been set"</span>)
-            .as_bytes();
-        set_output(output, caller);
+        <span class="kw">let </span>caller = <span class="self">self</span>.exec_context.caller;
+        <span class="kw">let </span>caller = scale::Encode::encode(<span class="kw-2">&amp;</span>caller);
+        set_output(output, <span class="kw-2">&amp;</span>caller[..])
     }
 
     <span class="doccomment">/// Returns the balance of the executed contract.
@@ -703,7 +686,7 @@
 
         <span class="kw">let </span>balance_in_storage = <span class="self">self
             </span>.database
-            .get_balance(contract.as_bytes())
+            .get_balance(contract)
             .expect(<span class="string">"currently executing contract must exist"</span>);
         <span class="kw">let </span>balance = scale::Encode::encode(<span class="kw-2">&amp;</span>balance_in_storage);
         set_output(output, <span class="kw-2">&amp;</span>balance[..])
@@ -765,10 +748,6 @@
         <span class="kw">let </span>block_timestamp: Vec&lt;u8&gt; =
             scale::Encode::encode(<span class="kw-2">&amp;</span><span class="self">self</span>.exec_context.block_timestamp);
         set_output(output, <span class="kw-2">&amp;</span>block_timestamp[..])
-    }
-
-    <span class="kw">pub fn </span>gas_left(<span class="kw-2">&amp;</span><span class="self">self</span>, _output: <span class="kw-2">&amp;mut &amp;mut </span>[u8]) {
-        <span class="macro">unimplemented!</span>(<span class="string">"off-chain environment does not yet support `gas_left`"</span>);
     }
 
     <span class="doccomment">/// Returns the minimum balance that is required for creating an account
@@ -834,6 +813,7 @@
 
     <span class="doccomment">/// Recovers the compressed ECDSA public key for given `signature` and `message_hash`,
     /// and stores the result in `output`.
+    </span><span class="attr">#[allow(clippy::arithmetic_side_effects)] </span><span class="comment">// todo
     </span><span class="kw">pub fn </span>ecdsa_recover(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         signature: <span class="kw-2">&amp;</span>[u8; <span class="number">65</span>],
@@ -858,7 +838,7 @@
             signature[<span class="number">64</span>]
         };
 
-        <span class="kw">let </span>recovery_id = RecoveryId::from_i32(recovery_byte <span class="kw">as </span>i32)
+        <span class="kw">let </span>recovery_id = RecoveryId::try_from(recovery_byte <span class="kw">as </span>i32)
             .unwrap_or_else(|error| <span class="macro">panic!</span>(<span class="string">"Unable to parse the recovery id: {error}"</span>));
 
         <span class="kw">let </span>message = Message::from_digest_slice(message_hash).unwrap_or_else(|error| {

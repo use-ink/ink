@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/ink/src/contract_ref.rs`."><title>contract_ref.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-c5d6553a23f1e5a6.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="ink" data-themes="" data-resource-suffix="" data-rustdoc-version="1.81.0 (eeb90cda1 2024-09-04)" data-channel="1.81.0" data-search-js="search-d234aafac6c221dd.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-d2fab2bf619172d3.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/ink/src/contract_ref.rs`."><title>contract_ref.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-b0742ba02757f159.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="ink" data-themes="" data-resource-suffix="" data-rustdoc-version="1.83.0 (90b35a623 2024-11-26)" data-channel="1.83.0" data-search-js="search-f0d225181b97f9a4.js" data-settings-js="settings-805db61a62df4bd2.js" ><script src="../../static.files/storage-1d39b6787ed640ff.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-f070b9041d14864c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-0111fcff984fae8f.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">ink/</div>contract_ref.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers">
+<a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -219,7 +220,11 @@
 <a href="#219" id="219">219</a>
 <a href="#220" id="220">220</a>
 <a href="#221" id="221">221</a>
-</pre></div><pre class="rust"><code><span class="comment">// Copyright (C) Use Ink (UK) Ltd.
+<a href="#222" id="222">222</a>
+<a href="#223" id="223">223</a>
+<a href="#224" id="224">224</a>
+<a href="#225" id="225">225</a>
+<a href="#226" id="226">226</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) Use Ink (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -233,7 +238,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-</span><span class="kw">use </span>ink_env::Environment;
+</span><span class="kw">use </span>ink_primitives::H160;
 
 <span class="doccomment">/// Generates a wrapper which can be used for interacting with the contract.
 ///
@@ -251,17 +256,21 @@
 /// ```rust
 /// #[ink::contract]
 /// mod trait_caller {
-///     use ink::contract_ref;
+///     use ink::{
+///         contract_ref,
+///         H160,
+///         U256,
+///     };
 ///
 ///     #[ink::trait_definition]
 ///     pub trait Erc20 {
 ///         /// Returns the total supply of the ERC-20 smart contract.
 ///         #[ink(message)]
-///         fn total_supply(&amp;self) -&gt; Balance;
+///         fn total_supply(&amp;self) -&gt; U256;
 ///
 ///         /// Transfers balance from the caller to the given address.
 ///         #[ink(message)]
-///         fn transfer(&amp;mut self, amount: Balance, to: AccountId) -&gt; bool;
+///         fn transfer(&amp;mut self, amount: U256, to: H160) -&gt; bool;
 ///     }
 ///
 ///     #[ink(storage)]
@@ -279,20 +288,20 @@
 ///
 ///         /// Example of converting `AccountId` into `contract_ref!` implicitly.
 ///         #[ink(message)]
-///         pub fn change_account_id_1(&amp;mut self, new_erc20: AccountId) {
+///         pub fn change_account_id_1(&amp;mut self, new_erc20: H160) {
 ///             self.erc20 = new_erc20.into();
 ///         }
 ///
 ///         /// Example of converting `AccountId` into `contract_ref!` explicitly.
 ///         #[ink(message)]
-///         pub fn change_account_id_2(&amp;mut self, new_erc20: AccountId) {
+///         pub fn change_account_id_2(&amp;mut self, new_erc20: H160) {
 ///             let erc20: contract_ref!(Erc20) = new_erc20.into();
 ///             self.erc20 = erc20;
 ///         }
 ///
 ///         /// Example of converting `AccountId` into an alias from `contract_ref!`.
 ///         #[ink(message)]
-///         pub fn change_account_id_3(&amp;mut self, new_erc20: AccountId) {
+///         pub fn change_account_id_3(&amp;mut self, new_erc20: H160) {
 ///             type Erc20Wrapper = contract_ref!(Erc20);
 ///             let erc20: Erc20Wrapper = new_erc20.into();
 ///             self.erc20 = erc20;
@@ -300,29 +309,32 @@
 ///
 ///         /// Example of how to do common calls via fully qualified syntax.
 ///         #[ink(message)]
-///         pub fn total_supply_1(&amp;self) -&gt; Balance {
+///         pub fn total_supply_1(&amp;self) -&gt; U256 {
 ///             Erc20::total_supply(&amp;self.erc20)
 ///         }
 ///
 ///         /// Example of how to do common calls without fully qualified syntax.
 ///         #[ink(message)]
-///         pub fn total_supply_2(&amp;self) -&gt; Balance {
+///         pub fn total_supply_2(&amp;self) -&gt; U256 {
 ///             self.erc20.total_supply()
 ///         }
 ///
 ///         /// Example of how to use the call builder with `contract_ref!`.
 ///         #[ink(message)]
-///         pub fn total_supply_3(&amp;self) -&gt; Balance {
+///         pub fn total_supply_3(&amp;self) -&gt; U256 {
 ///             use ink::codegen::TraitCallBuilder;
 ///             // Returns the `CallBuilder` that implements `Erc20` trait.
 ///             let erc20_builder = self.erc20.call();
-///             erc20_builder.total_supply().transferred_value(0).invoke()
+///             erc20_builder
+///                 .total_supply()
+///                 .transferred_value(U256::from(0))
+///                 .invoke()
 ///         }
 ///
 ///         /// Example of how to do common calls and convert
 ///         /// the `contract_ref!` into `AccountId`.
 ///         #[ink(message)]
-///         pub fn transfer_to_erc20(&amp;mut self, amount: Balance) -&gt; bool {
+///         pub fn transfer_to_erc20(&amp;mut self, amount: U256) -&gt; bool {
 ///             let erc20_as_account_id = self.erc20.as_ref().clone();
 ///             self.erc20.transfer(amount, erc20_as_account_id)
 ///         }
@@ -341,7 +353,7 @@
 /// ```rust
 /// use ink::contract_ref;
 /// use ink_env::DefaultEnvironment;
-/// use ink_primitives::AccountId;
+/// use ink_primitives::H160;
 ///
 /// #[ink::trait_definition]
 /// pub trait Erc20 {
@@ -351,7 +363,7 @@
 ///
 ///     /// Transfers balance from the caller to the given address.
 ///     #[ink(message)]
-///     fn transfer(&amp;mut self, amount: u128, to: AccountId) -&gt; bool;
+///     fn transfer(&amp;mut self, amount: u128, to: H160) -&gt; bool;
 /// }
 ///
 /// #[derive(Clone)]
@@ -365,6 +377,7 @@
 ///     type Timestamp = u64;
 ///     type BlockNumber = u64;
 ///     type ChainExtension = ();
+///     type EventRecord = ();
 /// }
 ///
 /// type AliasWithDefaultEnv = contract_ref!(Erc20, DefaultEnvironment);
@@ -373,7 +386,7 @@
 ///
 /// fn default(mut contract: contract_ref!(Erc20, DefaultEnvironment)) {
 ///     let total_supply = contract.total_supply();
-///     let to: AccountId = contract.as_ref().clone();
+///     let to: H160 = contract.as_ref().clone();
 ///     contract.transfer(total_supply, to);
 /// }
 ///
@@ -383,8 +396,7 @@
 ///
 /// fn custom(mut contract: contract_ref!(Erc20, CustomEnv)) {
 ///     let total_supply = contract.total_supply();
-///     let to: [u8; 32] = contract.as_ref().clone();
-///     contract.transfer(total_supply, to.into());
+///     contract.transfer(total_supply, contract.as_ref().clone());
 /// }
 ///
 /// fn custom_alias(mut contract: AliasWithCustomEnv) {
@@ -394,7 +406,7 @@
 /// fn generic&lt;E, A&gt;(mut contract: contract_ref!(Erc20, E))
 /// where
 ///     E: ink_env::Environment&lt;AccountId = A&gt;,
-///     A: Into&lt;AccountId&gt; + Clone,
+///     A: Into&lt;H160&gt; + Clone,
 /// {
 ///     let total_supply = contract.total_supply();
 ///     let to = contract.as_ref().clone();
@@ -404,7 +416,7 @@
 /// fn generic_alias&lt;E, A&gt;(mut contract: AliasWithGenericEnv&lt;E&gt;)
 /// where
 ///     E: ink_env::Environment&lt;AccountId = A&gt;,
-///     A: Into&lt;AccountId&gt; + Clone,
+///     A: Into&lt;H160&gt; + Clone,
 /// {
 ///     generic(contract)
 /// }
@@ -413,7 +425,7 @@
 ///
 /// fn contract_ref_default_behaviour(mut contract: contract_ref!(Erc20)) {
 ///     let total_supply = contract.total_supply();
-///     let to: AccountId = contract.as_ref().clone();
+///     let to: H160 = contract.as_ref().clone();
 ///     contract.transfer(total_supply, to);
 /// }
 /// ```
@@ -430,14 +442,12 @@
     };
 }
 
-<span class="doccomment">/// Implemented by contracts that are compiled as dependencies.
+<span class="comment">// todo remove FromAccountId + ToAccountId
+</span><span class="doccomment">/// Implemented by contracts that are compiled as dependencies.
 ///
 /// Allows them to return their underlying account identifier.
-</span><span class="kw">pub trait </span>ToAccountId&lt;T&gt;
-<span class="kw">where
-    </span>T: Environment,
-{
+</span><span class="kw">pub trait </span>ToAddr {
     <span class="doccomment">/// Returns the underlying account identifier of the instantiated contract.
-    </span><span class="kw">fn </span>to_account_id(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; &lt;T <span class="kw">as </span>Environment&gt;::AccountId;
+    </span><span class="kw">fn </span>to_addr(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; H160;
 }
 </code></pre></div></section></main></body></html>
