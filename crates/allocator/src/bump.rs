@@ -31,7 +31,11 @@ const PAGE_SIZE: usize = 64 * 1024;
 static mut INNER: Option<InnerAlloc> = None;
 
 #[cfg(target_arch = "riscv64")]
+<<<<<<< Updated upstream
 static mut RISCV_HEAP: [u8; 1024 * 10] = [0; 1024 * 10];
+=======
+static mut RISCV_HEAP: [u8; 1024 * 1024] = [0; 1024 * 1024];
+>>>>>>> Stashed changes
 
 /// A bump allocator suitable for use in a Wasm environment.
 pub struct BumpAllocator;
