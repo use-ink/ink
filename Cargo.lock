@@ -3113,7 +3113,7 @@ dependencies = [
  "impl-serde",
  "ink_ir",
  "ink_primitives",
- "itertools 0.13.0",
+ "itertools 0.14.0",
  "parity-scale-codec",
  "polkavm-derive",
  "proc-macro2",
@@ -3137,7 +3137,7 @@ dependencies = [
  "ink_env",
  "ink_primitives",
  "ink_sandbox",
- "itertools 0.13.0",
+ "itertools 0.14.0",
  "jsonrpsee",
  "pallet-revive",
  "pallet-revive-mock-network",
@@ -3231,7 +3231,7 @@ dependencies = [
  "either",
  "impl-serde",
  "ink_prelude",
- "itertools 0.13.0",
+ "itertools 0.14.0",
  "proc-macro2",
  "quote",
  "syn 2.0.93",
@@ -3333,7 +3333,7 @@ dependencies = [
  "ink_prelude",
  "ink_primitives",
  "ink_storage_traits",
- "itertools 0.13.0",
+ "itertools 0.14.0",
  "pallet-revive-uapi",
  "parity-scale-codec",
  "quickcheck",
@@ -3400,6 +3400,15 @@ name = "itertools"
 version = "0.13.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "413ee7dfc52ee1a4949ceeb7dbc8a33f2d6c088194d9f922fb8318faf1f01186"
+dependencies = [
+ "either",
+]
+
+[[package]]
+name = "itertools"
+version = "0.14.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2b192c782037fadd9cfa75548310488aabdbf3d2da73885b31bd0abd03351285"
 dependencies = [
  "either",
 ]
@@ -4903,9 +4912,9 @@ dependencies = [
 
 [[package]]
 name = "proc-macro2"
-version = "1.0.92"
+version = "1.0.93"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "37d3544b3f2748c54e147655edb5025752e2303145b5aefb3c3ea2c78b973bb0"
+checksum = "60946a68e5f9d28b0dc1c21bb8a97ee7d018a8b322fa57838ba31cc878e22d99"
 dependencies = [
  "unicode-ident",
 ]
@@ -7284,9 +7293,9 @@ checksum = "1f3ccbac311fea05f86f61904b462b55fb3df8837a366dfc601a0161d0532f20"
 
 [[package]]
 name = "tokio"
-version = "1.42.0"
+version = "1.43.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5cec9b21b0450273377fc97bd4c33a8acffc8c996c987a7c5b319a0083707551"
+checksum = "3d61fa4ffa3de412bfea335c6ecff681de2b609ba3c77ef3e00e521813a9ed9e"
 dependencies = [
  "backtrace",
  "bytes",
@@ -7300,9 +7309,9 @@ dependencies = [
 
 [[package]]
 name = "tokio-macros"
-version = "2.4.0"
+version = "2.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "693d596312e88961bc67d7f1f97af8a70227d9f90c31bba5806eec004978d752"
+checksum = "6e06d43f1345a3bcd39f6a56dbb7dcab2ba47e68e8ac134855e7e2bdbaf8cab8"
 dependencies = [
  "proc-macro2",
  "quote",
