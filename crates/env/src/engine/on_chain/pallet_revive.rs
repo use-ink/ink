@@ -529,7 +529,7 @@ impl TypedEnvBackend for EnvInstance {
         let enc_address: [u8; 20] = params.address().0;
         let ref_time_limit = params.ref_time_limit();
         let proof_size_limit = params.proof_size_limit();
-        let deposit_limit = params.deposit_limit().as_ref();
+        let deposit_limit = params.deposit_limit().to_little_endian().as_ref();
         let call_result = ext::delegate_call(
             *flags,
             &enc_address,
