@@ -93,7 +93,7 @@ mod contract_xcm {
             let beneficiary = AccountId32 {
                 network: None,
                 // todo
-                id: [0x01; 32]
+                id: [0x01; 32],
             };
 
             let message: Xcm<()> = Xcm::builder()
