@@ -64,8 +64,6 @@ pub struct EmittedEvent {
 /// - If the `new_balance` is less than the existential minimum.
 pub fn set_account_balance(addr: H160, new_balance: U256) {
     let min = ChainSpec::default().minimum_balance;
-    eprintln!("new balance {new_balance}");
-    eprintln!("min {min}");
     if new_balance < min && new_balance != U256::zero() {
         panic!(
             "Balance must be at least [{}]. Use 0 as balance to reap the account.",

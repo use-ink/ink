@@ -485,6 +485,8 @@ where
     ContractsBalanceOf<Config::Runtime>: Send + Sync,
     ContractsBalanceOf<Config::Runtime>: Into<U256> + TryFrom<U256> + Bounded,
     MomentOf<Config::Runtime>: Into<U256>,
+
+    // todo
     <Config::Runtime as frame_system::Config>::Hash: IsType<sp_core::H256>,
 {
 }

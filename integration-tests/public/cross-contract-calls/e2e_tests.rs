@@ -15,9 +15,7 @@ async fn instantiate_with_insufficient_storage_deposit_limit<Client: E2EBackend>
         .expect("other_contract upload failed");
 
     const REF_TIME_LIMIT: u64 = 500;
-    //const REF_TIME_LIMIT: u64 = 500_000_000_000_000;
     const PROOF_SIZE_LIMIT: u64 = 100_000_000_000;
-    //let storage_deposit_limit = ink::U256::from(100);
     let storage_deposit_limit = ink::U256::from(100_000_000_000_000u64);
 
     let mut constructor = CrossContractCallsRef::new_with_limits(

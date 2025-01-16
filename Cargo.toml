@@ -39,7 +39,6 @@ blake2 = { version = "0.10" }
 cargo_metadata = { version = "0.19.0" }
 cfg-if = { version = "1.0" }
 contract-build = { git = "https://github.com/use-ink/cargo-contract", branch = "cmichi-remove-wasm-default-to-revive" }
-#contract-build = { path = "../cargo-contract/crates/build" }
 darling = { version = "0.20.10" }
 derive_more = { version = "1.0.0", default-features = false }
 either = { version = "1.13", default-features = false }

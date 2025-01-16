@@ -61,9 +61,7 @@ pub fn contract_key(f: MessageHandler) -> [u8; 32] {
     ret
 }
 
-//pub fn message_handler_of_contract_key(addr: &H160) -> [u8; 32] {
 pub fn message_handler_of_contract_key(key: &[u8]) -> [u8; 32] {
-    //let key = addr.0;
     let keyed = key.to_vec().to_keyed_vec(MSG_HANDLER_OF);
     let mut hashed_key: [u8; 32] = [0; 32];
     super::hashing::blake2b_256(&keyed[..], &mut hashed_key);

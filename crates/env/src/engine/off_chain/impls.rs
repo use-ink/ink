@@ -633,13 +633,8 @@ impl TypedEnvBackend for EnvInstance {
         R: ConstructorReturnType<ContractRef>,
     {
         let endowment = params.endowment();
-        //let endowment = scale::Encode::encode(endowment);
-        //let endowment: u128 = scale::Decode::decode(&mut &endowment[..])?;
-
         let salt_bytes = params.salt_bytes();
-
         let code_hash = params.code_hash();
-        //let code_hash = scale::Encode::encode(code_hash);
 
         let input = params.exec_input();
         let input = scale::Encode::encode(input);
@@ -648,12 +643,10 @@ impl TypedEnvBackend for EnvInstance {
         let addr_id_vec = {
             let mut account_input = Vec::<u8>::new();
             account_input.extend(&b"contract_addr".to_vec());
-            //if let caller = &self.engine.exec_context.caller {
             scale::Encode::encode_to(
                 &self.engine.exec_context.caller.as_bytes(),
                 &mut account_input,
             );
-            //}
             account_input.extend(&code_hash.0);
             account_input.extend(&input);
             if let Some(salt) = salt_bytes {
@@ -664,9 +657,6 @@ impl TypedEnvBackend for EnvInstance {
             account_id.to_vec()
         };
         let contract_addr = H160::from_slice(&addr_id_vec[..20]);
-
-        //let mut account_id =
-        //<E as Environment>::AccountId::decode(&mut &account_id_vec[..]).unwrap();
 
         let old_callee = self.engine.get_callee();
         self.engine.set_callee(contract_addr);
@@ -755,8 +745,6 @@ impl TypedEnvBackend for EnvInstance {
         let callee = &self.engine.get_callee();
         let code_hash = self.engine.database.get_code_hash(callee);
         if let Some(code_hash) = code_hash {
-            //let code_hash =
-            //<E as Environment>::Hash::decode(&mut &code_hash[..]).unwrap();
             Ok(code_hash)
         } else {
             Err(ReturnErrorCode::KeyNotFound.into())

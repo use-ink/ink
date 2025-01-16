@@ -94,8 +94,6 @@ mod contract_xcm {
                 network: None,
                 // todo
                 id: [0x01; 32]
-                //id: [0x01; 32]
-                // id: *self.env().caller().as_ref(),
             };
 
             let message: Xcm<()> = Xcm::builder()

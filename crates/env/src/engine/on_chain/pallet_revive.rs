@@ -627,8 +627,7 @@ impl TypedEnvBackend for EnvInstance {
                 enc_storage_limit.into_buffer().try_into().unwrap();
             enc_storage_limit
         });
-
-         */
+        */
 
         let enc_callee: &[u8; 20] = destination.as_ref().try_into().unwrap();
 
