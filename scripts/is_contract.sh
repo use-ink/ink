@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -eu
+
 SCRIPT_NAME="${BASH_SOURCE[0]}"
 MANIFEST_PATH=$1
 

@@ -27,9 +27,9 @@ To integrate this example into Substrate you need to do two things:
   You can just copy/paste that file as a new module, e.g. `runtime/src/chain_extension.rs`.
 
 * In your runtime, use the implementation as the associated type `ChainExtension` of the
-  trait `pallet_contracts::Config`:
+  trait `pallet_revive::Config`:
   ```rust
-  impl pallet_contracts::Config for Runtime {
+  impl pallet_revive::Config for Runtime {
     …
     type ChainExtension = Psp22Extension;
     …

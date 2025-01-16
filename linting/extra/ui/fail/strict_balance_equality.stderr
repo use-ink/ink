@@ -1,22 +1,22 @@
 warning: dangerous strict balance equality
-  --> $DIR/strict_balance_equality.rs:59:16
+  --> $DIR/strict_balance_equality.rs:61:16
    |
-LL |             if self.env().balance() == 10 { /* ... */ }
-   |                ^^^^^^^^^^^^^^^^^^^^^^^^^^ help: consider using non-strict equality operators instead: `<`, `>`
+LL |             if self.env().balance() == U256::from(10) { /* ... */ }
+   |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: consider using non-strict equality operators instead: `<`, `>`
    |
    = help: for further information visit https://use.ink/linter/rules/strict_balance_equality
    = note: `#[warn(strict_balance_equality)]` on by default
 
 warning: dangerous strict balance equality
-  --> $DIR/strict_balance_equality.rs:60:16
+  --> $DIR/strict_balance_equality.rs:62:16
    |
-LL |             if value == 11 { /* ... */ }
-   |                ^^^^^^^^^^^ help: consider using non-strict equality operators instead: `<`, `>`
+LL |             if value == 11.into() { /* ... */ }
+   |                ^^^^^^^^^^^^^^^^^^ help: consider using non-strict equality operators instead: `<`, `>`
    |
    = help: for further information visit https://use.ink/linter/rules/strict_balance_equality
 
 warning: dangerous strict balance equality
-  --> $DIR/strict_balance_equality.rs:61:16
+  --> $DIR/strict_balance_equality.rs:63:16
    |
 LL |             if self.env().balance() == threshold { /* ... */ }
    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: consider using non-strict equality operators instead: `<`, `>`
@@ -24,39 +24,39 @@ LL |             if self.env().balance() == threshold { /* ... */ }
    = help: for further information visit https://use.ink/linter/rules/strict_balance_equality
 
 warning: dangerous strict balance equality
-  --> $DIR/strict_balance_equality.rs:64:16
+  --> $DIR/strict_balance_equality.rs:66:16
    |
-LL |             if self.get_balance_1() == 10 { /* ... */ }
-   |                ^^^^^^^^^^^^^^^^^^^^^^^^^^ help: consider using non-strict equality operators instead: `<`, `>`
-   |
-   = help: for further information visit https://use.ink/linter/rules/strict_balance_equality
-
-warning: dangerous strict balance equality
-  --> $DIR/strict_balance_equality.rs:65:16
-   |
-LL |             if self.get_balance_2() == 10 { /* ... */ }
-   |                ^^^^^^^^^^^^^^^^^^^^^^^^^^ help: consider using non-strict equality operators instead: `<`, `>`
+LL |             if self.get_balance_1() == 10.into() { /* ... */ }
+   |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: consider using non-strict equality operators instead: `<`, `>`
    |
    = help: for further information visit https://use.ink/linter/rules/strict_balance_equality
 
 warning: dangerous strict balance equality
   --> $DIR/strict_balance_equality.rs:67:16
    |
-LL |             if self.get_balance_recursive(&10) == 10 { /* ... */ }
-   |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: consider using non-strict equality operators instead: `<`, `>`
+LL |             if self.get_balance_2() == U256::from(10) { /* ... */ }
+   |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: consider using non-strict equality operators instead: `<`, `>`
    |
    = help: for further information visit https://use.ink/linter/rules/strict_balance_equality
 
 warning: dangerous strict balance equality
-  --> $DIR/strict_balance_equality.rs:71:16
+  --> $DIR/strict_balance_equality.rs:69:16
    |
-LL |             if self.cmp_balance_1(&10) { /* ... */ }
-   |                ^^^^^^^^^^^^^^^^^^^^^^^ help: consider using non-strict equality operators instead: `<`, `>`
+LL |             if self.get_balance_recursive(&10.into()) == 10.into() { /* ... */ }
+   |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: consider using non-strict equality operators instead: `<`, `>`
    |
    = help: for further information visit https://use.ink/linter/rules/strict_balance_equality
 
 warning: dangerous strict balance equality
-  --> $DIR/strict_balance_equality.rs:72:16
+  --> $DIR/strict_balance_equality.rs:73:16
+   |
+LL |             if self.cmp_balance_1(&U256::from(10)) { /* ... */ }
+   |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: consider using non-strict equality operators instead: `<`, `>`
+   |
+   = help: for further information visit https://use.ink/linter/rules/strict_balance_equality
+
+warning: dangerous strict balance equality
+  --> $DIR/strict_balance_equality.rs:74:16
    |
 LL |             if self.cmp_balance_2(&self.env().balance(), &threshold) { /* ... */ }
    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: consider using non-strict equality operators instead: `<`, `>`
@@ -64,7 +64,7 @@ LL |             if self.cmp_balance_2(&self.env().balance(), &threshold) { /* .
    = help: for further information visit https://use.ink/linter/rules/strict_balance_equality
 
 warning: dangerous strict balance equality
-  --> $DIR/strict_balance_equality.rs:73:16
+  --> $DIR/strict_balance_equality.rs:75:16
    |
 LL |             if self.cmp_balance_3(self.env().balance(), threshold) { /* ... */ }
    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: consider using non-strict equality operators instead: `<`, `>`
@@ -72,18 +72,18 @@ LL |             if self.cmp_balance_3(self.env().balance(), threshold) { /* ...
    = help: for further information visit https://use.ink/linter/rules/strict_balance_equality
 
 warning: dangerous strict balance equality
-  --> $DIR/strict_balance_equality.rs:78:16
+  --> $DIR/strict_balance_equality.rs:80:16
    |
-LL |             if res_1 == 10 { /* ... */ }
-   |                ^^^^^^^^^^^ help: consider using non-strict equality operators instead: `<`, `>`
+LL |             if res_1 == U256::from(10) { /* ... */ }
+   |                ^^^^^^^^^^^^^^^^^^^^^^^ help: consider using non-strict equality operators instead: `<`, `>`
    |
    = help: for further information visit https://use.ink/linter/rules/strict_balance_equality
 
 warning: dangerous strict balance equality
-  --> $DIR/strict_balance_equality.rs:81:16
+  --> $DIR/strict_balance_equality.rs:83:16
    |
-LL |             if res_2 == 10 { /* ... */ }
-   |                ^^^^^^^^^^^ help: consider using non-strict equality operators instead: `<`, `>`
+LL |             if res_2 == 10.into() { /* ... */ }
+   |                ^^^^^^^^^^^^^^^^^^ help: consider using non-strict equality operators instead: `<`, `>`
    |
    = help: for further information visit https://use.ink/linter/rules/strict_balance_equality
 

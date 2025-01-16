@@ -1,3 +1,5 @@
+#![allow(unexpected_cfgs)]
+
 use incrementer::Incrementer;
 
 #[ink::trait_definition]

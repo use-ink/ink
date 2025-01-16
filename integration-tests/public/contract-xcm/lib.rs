@@ -1,3 +1,4 @@
+// todo example needs to be fixed, but this requires the map AccountId -> H160 function
 #![cfg_attr(not(feature = "std"), no_std, no_main)]
 
 #[ink::contract]
@@ -5,6 +6,7 @@ mod contract_xcm {
     use ink::{
         env::Error as EnvError,
         xcm::prelude::*,
+        //xcm::v4::*,
     };
 
     /// A trivial contract used to exercise XCM API.
@@ -29,7 +31,7 @@ mod contract_xcm {
                 EnvError::ReturnError(ReturnErrorCode::XcmSendFailed) => {
                     RuntimeError::XcmSendFailed
                 }
-                _ => panic!("Unexpected error from `pallet-contracts`."),
+                _ => panic!("Unexpected error from `pallet-revive`."),
             }
         }
     }
@@ -61,14 +63,14 @@ mod contract_xcm {
                 id: *receiver.as_ref(),
             };
 
-            let message: Xcm<()> = Xcm::builder()
+            let message: ink::xcm::v5::Xcm<()> = Xcm::builder()
                 .withdraw_asset(asset.clone())
                 .buy_execution(asset.clone(), Unlimited)
                 .deposit_asset(asset, beneficiary)
                 .build();
 
             self.env()
-                .xcm_execute(&VersionedXcm::V4(message))
+                .xcm_execute(&VersionedXcm::V5(message))
                 .map_err(Into::into)
         }
 
@@ -85,11 +87,13 @@ mod contract_xcm {
             value: Balance,
             fee: Balance,
         ) -> Result<XcmHash, RuntimeError> {
-            let destination: Location = Parent.into();
+            let destination: ink::xcm::v5::Location = ink::xcm::v5::Parent.into();
             let asset: Asset = (Here, value).into();
+            //let alice = AccountId32::from(ink_e2e::alice().public_key().0);
             let beneficiary = AccountId32 {
                 network: None,
-                id: *self.env().caller().as_ref(),
+                // todo
+                id: [0x01; 32],
             };
 
             let message: Xcm<()> = Xcm::builder()
@@ -99,11 +103,18 @@ mod contract_xcm {
                 .build();
 
             let hash = self.env().xcm_send(
-                &VersionedLocation::V4(destination),
-                &VersionedXcm::V4(message),
+                &VersionedLocation::V5(destination),
+                &VersionedXcm::V5(message),
             )?;
 
             Ok(hash)
+        }
+
+        /// todo
+        /// Returns the `AccountId` of this contract.
+        #[ink(message)]
+        pub fn account_id(&mut self) -> AccountId {
+            self.env().account_id()
         }
     }
 
@@ -113,13 +124,7 @@ mod contract_xcm {
             sp_runtime::AccountId32,
             traits::tokens::currency::Currency,
         };
-        use ink::{
-            env::{
-                test::default_accounts,
-                DefaultEnvironment,
-            },
-            primitives::AccountId,
-        };
+        use ink::primitives::AccountId;
         use ink_e2e::{
             preset::mock_network::{
                 self,
@@ -161,10 +166,20 @@ mod contract_xcm {
                 .expect("instantiate failed");
             let mut call_builder = contract.call_builder::<ContractXcm>();
 
-            let receiver: AccountId = default_accounts::<DefaultEnvironment>().bob;
+            //let receiver: AccountId = default_accounts().bob;
+            let receiver = AccountId::from([0x02; 32]);
+
+            // todo
+            let acc = call_builder.account_id();
+            let call_res = client
+                .call(&ink_e2e::alice(), &acc)
+                .submit()
+                .await
+                .expect("call failed");
+            let account_id: AccountId = call_res.return_value();
 
             let contract_balance_before = client
-                .free_balance(contract.account_id)
+                .free_balance(account_id)
                 .await
                 .expect("Failed to get account balance");
             let receiver_balance_before = client
@@ -186,7 +201,7 @@ mod contract_xcm {
 
             // then
             let contract_balance_after = client
-                .free_balance(contract.account_id)
+                .free_balance(account_id)
                 .await
                 .expect("Failed to get account balance");
             let receiver_balance_after = client
@@ -215,7 +230,8 @@ mod contract_xcm {
 
             // This will fail since we have insufficient balance
             let transfer_message = call_builder.transfer_through_xcm(
-                default_accounts::<DefaultEnvironment>().bob,
+                //default_accounts().bob,
+                AccountId::from([0x02; 32]),
                 CONTRACT_BALANCE + 1,
             );
 
@@ -238,13 +254,27 @@ mod contract_xcm {
                 .submit()
                 .await
                 .expect("instantiate failed");
+            let mut call_builder = contract.call_builder::<ContractXcm>();
+
+            // todo
+            let acc = call_builder.account_id();
+            let call_res = client
+                .call(&ink_e2e::alice(), &acc)
+                .submit()
+                .await
+                .expect("call failed");
+            let account_id: AccountId = call_res.return_value();
 
             Relay::execute_with(|| {
                 let sovereign_account = parachain_account_sovereign_account_id(
                     1u32,
-                    AccountId32::from(contract.account_id.0),
+                    //AccountId32::from(contract.account_id.0),
+                    AccountId32::from(account_id.0),
+                    //account_id.into()
                 );
 
+                // The contract will be given 1000 tokens during instantiation.
+                //pub const CONTRACT_BALANCE: u128 = 1_000 * UNITS;
                 // Fund the contract's derivative account, so we can use it as a sink, to
                 // transfer funds to the caller.
                 relay_chain::Balances::make_free_balance_be(
@@ -262,7 +292,8 @@ mod contract_xcm {
             assert!(call_res.return_value().is_ok());
 
             Relay::execute_with(|| {
-                let alice = AccountId32::from(ink_e2e::alice().public_key().0);
+                //let alice = AccountId32::from(ink_e2e::alice().public_key().0);
+                let alice = AccountId32::from([0x01; 32]);
                 assert_eq!(relay_chain::Balances::free_balance(&alice), amount - fee);
             });
 

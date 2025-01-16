@@ -14,6 +14,7 @@
 
 use crate::reflect::DispatchError;
 use ink_env::Environment;
+use ink_primitives::U256;
 
 /// Returns `Ok` if the caller did not transfer additional value to the callee.
 ///
@@ -21,12 +22,14 @@ use ink_env::Environment;
 ///
 /// If the caller did send some amount of transferred value to the callee.
 #[inline]
+// todo remove E
 pub fn deny_payment<E>() -> Result<(), DispatchError>
 where
     E: Environment,
 {
-    let transferred = ink_env::transferred_value::<E>();
-    if transferred != <E as Environment>::Balance::from(0_u32) {
+    // todo
+    let transferred = ink_env::transferred_value();
+    if transferred != U256::zero() {
         return Err(DispatchError::PaidUnpayableMessage)
     }
     Ok(())

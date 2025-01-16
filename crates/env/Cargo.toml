@@ -20,29 +20,25 @@ ink_allocator = { workspace = true }
 ink_storage_traits = { workspace = true }
 ink_prelude = { workspace = true }
 ink_primitives = { workspace = true }
-pallet-contracts-uapi = { workspace = true }
+ink_macro = { workspace = true }
 pallet-revive-uapi = { workspace = true }
 
 scale = { workspace = true, features = ["max-encoded-len"] }
 derive_more = { workspace = true, features = ["from", "display"] }
 num-traits = { workspace = true, features = ["i128"] }
 cfg-if = { workspace = true }
-paste = { workspace = true }
 static_assertions = { workspace = true }
 const_env = { workspace = true }
 xcm = { workspace = true }
 
 # We add the `sp-io` here to disable those features
-sp-io = { version = "38.0.0", default-features = false, features = ["disable_panic_handler", "disable_oom", "disable_allocator"] }
+sp-io = { git = "https://github.com/paritytech/polkadot-sdk", rev = "645878a27115db52e5d63115699b4bbb89034067", default-features = false, features = ["disable_panic_handler", "disable_oom", "disable_allocator"] }
+sp-runtime-interface = { git = "https://github.com/paritytech/polkadot-sdk", rev = "645878a27115db52e5d63115699b4bbb89034067", default-features = false, features = ["disable_target_static_assertions"] }
 
-[target.'cfg(target_arch = "wasm32")'.dependencies]
-rlibc = "1"
-
-[target.'cfg(target_arch = "riscv32")'.dependencies]
+[target.'cfg(target_arch = "riscv64")'.dependencies]
 polkavm-derive = { workspace = true, default-features = false }
 
-# TODO
-[target.'cfg(all(not(target_arch = "wasm32"), not(target_arch = "riscv32")))'.dependencies]
+[target.'cfg(not(target_arch = "riscv64"))'.dependencies]
 ink_engine = { workspace = true, default-features = true, optional = true }
 
 # Hashes for the off-chain environment.
@@ -77,6 +73,7 @@ std = [
 	"ink_primitives/std",
 	"ink_storage_traits/std",
 	"ink_engine/std",
+    "ink_macro/std",
 	"scale/std",
 	"scale-decode",
 	"scale-encode",
@@ -84,6 +81,7 @@ std = [
 	"secp256k1",
 	"schnorrkel",
     "sp-io/std",
+    "sp-runtime-interface/std",
 	"num-traits/std",
 	# Enables hashing crates for off-chain environment.
 	"sha2",
@@ -93,7 +91,6 @@ std = [
 	"xcm/std",
 	"derive_more/std"
 ]
-test_instantiate = []
 
 # Enable contract debug messages via `debug_print!` and `debug_println!`.
 ink-debug = []
@@ -104,6 +101,9 @@ no-allocator = [ "ink_allocator/no-allocator" ]
 # Disable the ink! provided panic handler.
 no-panic-handler = []
 
-revive = [
-	"ink_engine/revive"
+# For the ui tests, which use this `Cargo.toml`
+[lints.rust.unexpected_cfgs]
+level = "warn"
+check-cfg = [
+    'cfg(feature, values(any()))',
 ]

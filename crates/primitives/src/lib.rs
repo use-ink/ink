@@ -41,17 +41,23 @@ pub use self::{
     types::{
         AccountId,
         Clear,
-        Environment,
+        DepositLimit,
         Hash,
     },
 };
 pub mod contract;
 
+pub use primitive_types::{
+    H160,
+    H256,
+    U256,
+};
+
 /// An error emitted by the smart contracting language.
 ///
 /// This is different than errors from:
 /// - Errors from the contract, which are programmer defined
-/// - Errors from the underlying execution environment (e.g `pallet-contracts`)
+/// - Errors from the underlying execution environment (e.g `pallet-revive`)
 #[non_exhaustive]
 #[repr(u32)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq, ::scale::Encode, ::scale::Decode)]

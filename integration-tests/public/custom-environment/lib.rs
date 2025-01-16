@@ -23,6 +23,7 @@ impl Environment for EnvironmentWithManyTopics {
     type Hash = <DefaultEnvironment as Environment>::Hash;
     type BlockNumber = <DefaultEnvironment as Environment>::BlockNumber;
     type Timestamp = <DefaultEnvironment as Environment>::Timestamp;
+    type EventRecord = <DefaultEnvironment as Environment>::EventRecord;
 
     type ChainExtension = <DefaultEnvironment as Environment>::ChainExtension;
 }
@@ -109,7 +110,7 @@ mod runtime_call {
                 .expect("call failed");
 
             // then
-            call_res.contains_event("Contracts", "ContractEmitted");
+            assert!(call_res.contains_event("Revive", "ContractEmitted"));
 
             Ok(())
         }

@@ -13,13 +13,9 @@
 // limitations under the License.
 
 mod call;
-#[cfg(not(feature = "revive"))]
-mod call_v1;
 mod delegate;
 
 pub use call::Call;
-#[cfg(not(feature = "revive"))]
-pub use call_v1::CallV1;
 pub use delegate::DelegateCall;
 
 use crate::{
@@ -36,6 +32,7 @@ use crate::{
     types::Environment,
 };
 use core::marker::PhantomData;
+use ink_primitives::H160;
 
 /// The final parameters to the cross-contract call.
 #[derive(Debug)]
@@ -89,13 +86,15 @@ where
 /// #     DefaultEnvironment,
 /// #     call::{build_call, Selector, ExecutionInput}
 /// # };
-/// # use ink_env::call::CallV1;
-/// # type AccountId = <DefaultEnvironment as Environment>::AccountId;
+/// # use ink_env::call::Call;
+/// # use ink_primitives::H160;
+///
+/// type AccountId = <DefaultEnvironment as Environment>::AccountId;
 /// # type Balance = <DefaultEnvironment as Environment>::Balance;
 /// build_call::<DefaultEnvironment>()
-///     .call_v1(AccountId::from([0x42; 32]))
-///     .gas_limit(5000)
-///     .transferred_value(10)
+///     .call(H160::from([0x42; 20]))
+///     .ref_time_limit(5000)
+///     .transferred_value(ink::U256::from(10))
 ///     .exec_input(
 ///         ExecutionInput::new(Selector::new([0xDE, 0xAD, 0xBE, 0xEF]))
 ///             .push_arg(42u8)
@@ -121,13 +120,13 @@ where
 /// # use ::ink_env::{
 /// #     Environment,
 /// #     DefaultEnvironment,
-/// #     call::{build_call, Selector, ExecutionInput, CallV1},
+/// #     call::{build_call, Selector, ExecutionInput, Call},
 /// # };
 /// # type AccountId = <DefaultEnvironment as Environment>::AccountId;
 /// let my_return_value: i32 = build_call::<DefaultEnvironment>()
-///     .call_type(CallV1::new(AccountId::from([0x42; 32])))
-///     .gas_limit(5000)
-///     .transferred_value(10)
+///     .call_type(Call::new(ink::H160::from([0x42; 20])))
+///     .ref_time_limit(5000)
+///     .transferred_value(ink::U256::from(10))
 ///     .exec_input(
 ///         ExecutionInput::new(Selector::new([0xDE, 0xAD, 0xBE, 0xEF]))
 ///             .push_arg(42u8)
@@ -150,10 +149,11 @@ where
 /// #     DefaultEnvironment,
 /// #     call::{build_call, Selector, ExecutionInput, utils::ReturnType, DelegateCall},
 /// # };
+/// use ink::H160;
 /// # use ink_primitives::Clear;
 /// # type AccountId = <DefaultEnvironment as Environment>::AccountId;
 /// let my_return_value: i32 = build_call::<DefaultEnvironment>()
-///     .delegate(<DefaultEnvironment as Environment>::Hash::CLEAR_HASH)
+///     .delegate(H160::zero())
 ///     .exec_input(
 ///         ExecutionInput::new(Selector::new([0xDE, 0xAD, 0xBE, 0xEF]))
 ///             .push_arg(42u8)
@@ -185,13 +185,15 @@ where
 /// #     DefaultEnvironment,
 /// #     call::{build_call, Selector, ExecutionInput}
 /// # };
-/// # use ink_env::call::CallV1;
-/// # type AccountId = <DefaultEnvironment as Environment>::AccountId;
+/// # use ink_env::call::Call;
+/// # use ink_primitives::H160;
+///
+/// type AccountId = <DefaultEnvironment as Environment>::AccountId;
 /// # type Balance = <DefaultEnvironment as Environment>::Balance;
 /// let call_result = build_call::<DefaultEnvironment>()
-///     .call_v1(AccountId::from([0x42; 32]))
-///     .gas_limit(5000)
-///     .transferred_value(10)
+///     .call(H160::from([0x42; 20]))
+///     .ref_time_limit(5000)
+///     .transferred_value(ink::U256::from(10))
 ///     .try_invoke()
 ///     .expect("Got an error from the Contract's pallet.");
 ///
@@ -204,7 +206,7 @@ where
 #[allow(clippy::type_complexity)]
 pub fn build_call<E>() -> CallBuilder<
     E,
-    Unset<Call<E>>,
+    Unset<Call>,
     Unset<ExecutionInput<EmptyArgumentList>>,
     Unset<ReturnType<()>>,
 >
@@ -229,16 +231,11 @@ where
     call_type: CallType,
     exec_input: Args,
     return_type: RetType,
-    _phantom: PhantomData<fn() -> E>,
+    _phantom: PhantomData<fn() -> E>, // todo possibly remove?
 }
 
 impl<E, Args, RetType> From<Execution<Args, RetType>>
-    for CallBuilder<
-        E,
-        Unset<Call<E>>,
-        Set<ExecutionInput<Args>>,
-        Set<ReturnType<RetType>>,
-    >
+    for CallBuilder<E, Unset<Call>, Set<ExecutionInput<Args>>, Set<ReturnType<RetType>>>
 where
     E: Environment,
 {
@@ -316,27 +313,9 @@ impl<E, CallType, Args, RetType> CallBuilder<E, Unset<CallType>, Args, RetType>
 where
     E: Environment,
 {
-    /// Prepares the `CallBuilder` for a cross-contract [`CallV1`], calling into the
-    /// original `call` host function.
-    #[cfg(not(feature = "revive"))]
-    pub fn call_v1(
-        self,
-        callee: E::AccountId,
-    ) -> CallBuilder<E, Set<CallV1<E>>, Args, RetType> {
-        CallBuilder {
-            call_type: Set(CallV1::new(callee)),
-            exec_input: self.exec_input,
-            return_type: self.return_type,
-            _phantom: Default::default(),
-        }
-    }
-
     /// Prepares the `CallBuilder` for a cross-contract [`Call`] to the latest `call_v2`
     /// host function.
-    pub fn call(
-        self,
-        callee: E::AccountId,
-    ) -> CallBuilder<E, Set<Call<E>>, Args, RetType> {
+    pub fn call(self, callee: H160) -> CallBuilder<E, Set<Call>, Args, RetType> {
         CallBuilder {
             call_type: Set(Call::new(callee)),
             exec_input: self.exec_input,
@@ -348,10 +327,11 @@ where
     /// Prepares the `CallBuilder` for a cross-contract [`DelegateCall`].
     pub fn delegate(
         self,
-        code_hash: E::Hash,
-    ) -> CallBuilder<E, Set<DelegateCall<E>>, Args, RetType> {
+        address: H160,
+    ) -> CallBuilder<E, Set<DelegateCall>, Args, RetType> {
         CallBuilder {
-            call_type: Set(DelegateCall::new(code_hash)),
+            // todo Generic `Set` can be removed
+            call_type: Set(DelegateCall::new(address)),
             exec_input: self.exec_input,
             return_type: self.return_type,
             _phantom: Default::default(),

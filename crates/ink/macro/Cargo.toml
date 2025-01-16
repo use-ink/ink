@@ -47,9 +47,10 @@ std = [
 	"scale-info/std",
     "ink_codegen/std",
 ]
-revive = [
-    "ink/revive",
-    "ink_env/revive",
-    "ink_codegen/revive",
-    "ink_storage/revive"
+
+# For the ui tests, which use this `Cargo.toml`
+[lints.rust.unexpected_cfgs]
+level = "warn"
+check-cfg = [
+    'cfg(feature, values(any()))',
 ]

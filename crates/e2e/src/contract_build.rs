@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use crate::log_info;
 use contract_build::{
     BuildArtifacts,
     BuildMode,
@@ -22,11 +23,11 @@ use contract_build::{
     Network,
     OptimizationPasses,
     OutputType,
-    Target,
     UnstableFlags,
     Verbosity,
     DEFAULT_MAX_MEMORY_PAGES,
 };
+use itertools::Itertools;
 use std::{
     collections::{
         hash_map::Entry,
@@ -68,7 +69,11 @@ impl ContractProject {
             package
                 .features
                 .iter()
-                .any(|(feat, _)| feat == "ink-as-dependency")
+                .any(|(feat, _)| {
+                    feat == "ink-as-dependency"
+                        && !package.name.eq("ink")
+                        && !package.name.eq("ink_env")
+                })
                 .then(|| package.manifest_path.clone().into_std_path_buf())
         }
 
@@ -83,6 +88,7 @@ impl ContractProject {
                     .find(|package| &package.id == root_package_id)
             })
             .and_then(maybe_contract_package);
+        log_info(&format!("found root package: {:?}", root_package));
 
         let contract_dependencies: Vec<PathBuf> = metadata
             .packages
@@ -90,6 +96,10 @@ impl ContractProject {
             .filter_map(maybe_contract_package)
             .collect();
 
+        log_info(&format!(
+            "found those contract dependencies: {:?}",
+            contract_dependencies
+        ));
         Self {
             root_package,
             contract_dependencies,
@@ -109,7 +119,7 @@ impl ContractProject {
             .map(PathBuf::from)
             .collect();
         all_manifests.append(&mut additional_contracts);
-        all_manifests
+        all_manifests.into_iter().unique().collect()
     }
 
     fn root_with_contract_dependencies(&self) -> Vec<PathBuf> {
@@ -129,7 +139,7 @@ fn build_contracts(contract_manifests: &[PathBuf]) -> Vec<PathBuf> {
         .lock()
         .unwrap();
 
-    let mut wasm_paths = Vec::new();
+    let mut blob_paths = Vec::new();
     for manifest in contract_manifests {
         let wasm_path = match contract_build_jobs.entry(manifest.clone()) {
             Entry::Occupied(entry) => entry.get().clone(),
@@ -139,13 +149,13 @@ fn build_contracts(contract_manifests: &[PathBuf]) -> Vec<PathBuf> {
                 wasm_path
             }
         };
-        wasm_paths.push(wasm_path);
+        blob_paths.push(wasm_path);
     }
-    wasm_paths
+    blob_paths
 }
 
 /// Builds the contract at `manifest_path`, returns the path to the contract
-/// Wasm build artifact.
+/// PolkaVM build artifact.
 fn build_contract(path_to_cargo_toml: &Path) -> PathBuf {
     let manifest_path = ManifestPath::new(path_to_cargo_toml).unwrap_or_else(|err| {
         panic!(
@@ -165,8 +175,8 @@ fn build_contract(path_to_cargo_toml: &Path) -> PathBuf {
         keep_debug_symbols: false,
         extra_lints: false,
         output_type: OutputType::HumanReadable,
+        // todo remove
         skip_wasm_validation: false,
-        target: Target::Wasm,
         max_memory_pages: DEFAULT_MAX_MEMORY_PAGES,
         image: ImageVariant::Default,
     };
@@ -175,7 +185,7 @@ fn build_contract(path_to_cargo_toml: &Path) -> PathBuf {
         Ok(build_result) => {
             build_result
                 .dest_wasm
-                .expect("Wasm code artifact not generated")
+                .expect("PolkaVM code artifact not generated")
                 .canonicalize()
                 .expect("Invalid dest bundle path")
         }

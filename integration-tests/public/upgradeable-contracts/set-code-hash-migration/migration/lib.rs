@@ -49,7 +49,7 @@ pub mod incrementer {
         /// would be implicitly written to storage following the function execution,
         /// overwriting the migrated storage.
         #[ink(message)]
-        pub fn migrate(&self, inc_by: u8, code_hash: Hash) {
+        pub fn migrate(&self, inc_by: u8, code_hash: ink::H256) {
             let incrementer_new = IncrementerNew {
                 count: self.count as u64,
                 inc_by,

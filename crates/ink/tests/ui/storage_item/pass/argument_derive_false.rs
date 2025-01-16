@@ -4,6 +4,7 @@ use ink::storage::traits::{
     StorageKey,
 };
 
+#[allow(dead_code)]
 #[ink::storage_item(derive = false)]
 #[derive(Default)]
 struct Contract<KEY: StorageKey = ManualKey<123>> {
@@ -12,7 +13,7 @@ struct Contract<KEY: StorageKey = ManualKey<123>> {
     c: u128,
 }
 
-// Disabling of deriving allow to implement the trait manually
+// Disabling of deriving allows to implement the trait manually
 impl<KEY: StorageKey> Storable for Contract<KEY> {
     fn encode<T: scale::Output + ?Sized>(&self, _dest: &mut T) {}
 

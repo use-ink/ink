@@ -10,8 +10,10 @@ publish = false
 # first need to disable the included memory allocator.
 ink = { path = "../../../crates/ink", default-features = false, features = ["no-allocator"]  }
 
+#foo = { path = "../../../foo", default-features = false }
 # This is going to be our new global memory allocator.
-dlmalloc = {version = "0.2", default-features = false, features = ["global"] }
+#dlmalloc = {version = "0.2", default-features = false, features = ["global"] }
+#bumpalo = "3.16.0"
 
 [dev-dependencies]
 ink_e2e = { path = "../../../crates/e2e" }

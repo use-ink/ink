@@ -35,6 +35,7 @@ mod xts;
 
 pub use crate::contract_build::build_root_and_contract_dependencies;
 pub use backend::{
+    BuilderClient,
     ChainBackend,
     ContractsBackend,
     E2EBackend,
@@ -60,8 +61,7 @@ pub use sandbox_client::{
     preset,
     Client as SandboxClient,
 };
-pub use sp_core::H256;
-pub use sp_keyring::AccountKeyring;
+pub use sp_keyring::Sr25519Keyring;
 pub use subxt::{
     self,
     backend::rpc::RpcClient,
@@ -87,19 +87,21 @@ pub use ink_sandbox::DefaultSandbox;
 
 use ink::codegen::ContractCallBuilder;
 use ink_env::{
-    call::FromAccountId,
+    call::FromAddr,
     ContractEnv,
     Environment,
 };
-use pallet_contracts::{
-    ContractExecResult,
-    ContractInstantiateResult,
+use ink_primitives::{
+    AccountId,
+    DepositLimit,
+    H160,
+    H256,
 };
 use std::{
     cell::RefCell,
     sync::Once,
 };
-use xts::ContractsApi;
+use xts::ReviveApi;
 
 pub use subxt::PolkadotConfig;
 
@@ -132,22 +134,46 @@ pub fn log_error(msg: &str) {
 }
 
 /// Get an ink! [`ink_primitives::AccountId`] for a given keyring account.
-pub fn account_id(account: AccountKeyring) -> ink_primitives::AccountId {
+pub fn account_id(account: Sr25519Keyring) -> ink_primitives::AccountId {
     ink_primitives::AccountId::try_from(account.to_account_id().as_ref())
         .expect("account keyring has a valid account id")
 }
 
-/// Creates a call builder builder for `Contract`, based on an account id.
+/// Returns the [`ink::H160`] for a given keyring account.
+///
+/// # Developer Note
+///
+/// We take the `AccountId` and return only the first twenty bytes, this
+/// is what `pallet-revive` does as well.
+pub fn address(account: Sr25519Keyring) -> H160 {
+    let account_id = account_id(account);
+    H160::from_slice(&<AccountId as AsRef<[u8; 32]>>::as_ref(&account_id)[..20])
+}
+
+/// Creates a call builder for `Contract`, based on an account id.
 pub fn create_call_builder<Contract>(
-    acc_id: <<Contract as ContractEnv>::Env as Environment>::AccountId,
+    acc_id: H160,
 ) -> <Contract as ContractCallBuilder>::Type
 where
     <Contract as ContractEnv>::Env: Environment,
     Contract: ContractCallBuilder,
     Contract: ContractEnv,
-    Contract::Type: FromAccountId<<Contract as ContractEnv>::Env>,
+    Contract::Type: FromAddr,
 {
-    <<Contract as ContractCallBuilder>::Type as FromAccountId<
-        <Contract as ContractEnv>::Env,
-    >>::from_account_id(acc_id)
+    <<Contract as ContractCallBuilder>::Type as FromAddr>::from_addr(acc_id)
+}
+
+fn balance_to_deposit_limit<E: Environment>(
+    b: <E as Environment>::Balance,
+) -> DepositLimit<<E as Environment>::Balance> {
+    DepositLimit::Balance(b)
+}
+
+fn deposit_limit_to_balance<E: Environment>(
+    l: DepositLimit<<E as Environment>::Balance>,
+) -> <E as Environment>::Balance {
+    match l {
+        DepositLimit::Balance(l) => l,
+        DepositLimit::Unchecked => panic!("oh no"),
+    }
 }

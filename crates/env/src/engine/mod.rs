@@ -19,7 +19,7 @@ use crate::{
     },
     call::{
         ConstructorReturnType,
-        FromAccountId,
+        FromAddr,
     },
     Error,
     Result as EnvResult,
@@ -29,10 +29,6 @@ use ink_primitives::{
     ConstructorResult,
     LangError,
 };
-
-#[cfg(not(feature = "revive"))]
-use pallet_contracts_uapi::ReturnErrorCode;
-#[cfg(feature = "revive")]
 use pallet_revive_uapi::ReturnErrorCode;
 
 /// Convert a slice into an array reference.
@@ -74,40 +70,37 @@ cfg_if! {
 
 // We only use this function when 1) compiling to Wasm 2) compiling for tests.
 #[cfg_attr(all(feature = "std", not(test)), allow(dead_code))]
-pub(crate) fn decode_instantiate_result<I, E, ContractRef, R>(
+pub(crate) fn decode_instantiate_result<I, ContractRef, R>(
     instantiate_result: EnvResult<()>,
     out_address: &mut I,
     out_return_value: &mut I,
 ) -> EnvResult<ConstructorResult<<R as ConstructorReturnType<ContractRef>>::Output>>
 where
     I: scale::Input,
-    E: crate::types::Environment,
-    ContractRef: FromAccountId<E>,
+    ContractRef: FromAddr,
     R: ConstructorReturnType<ContractRef>,
 {
     match instantiate_result {
         Ok(()) => {
-            let account_id = scale::Decode::decode(out_address)?;
-            let contract_ref =
-                <ContractRef as FromAccountId<E>>::from_account_id(account_id);
+            let addr = scale::Decode::decode(out_address)?;
+            let contract_ref = <ContractRef as FromAddr>::from_addr(addr);
             let output = <R as ConstructorReturnType<ContractRef>>::ok(contract_ref);
             Ok(Ok(output))
         }
         Err(Error::ReturnError(ReturnErrorCode::CalleeReverted)) => {
-            decode_instantiate_err::<I, E, ContractRef, R>(out_return_value)
+            decode_instantiate_err::<I, ContractRef, R>(out_return_value)
         }
         Err(actual_error) => Err(actual_error),
     }
 }
 
 #[cfg_attr(all(feature = "std", not(test)), allow(dead_code))]
-fn decode_instantiate_err<I, E, ContractRef, R>(
+fn decode_instantiate_err<I, ContractRef, R>(
     out_return_value: &mut I,
 ) -> EnvResult<ConstructorResult<<R as ConstructorReturnType<ContractRef>>::Output>>
 where
     I: scale::Input,
-    E: crate::types::Environment,
-    ContractRef: FromAccountId<E>,
+    ContractRef: FromAddr,
     R: ConstructorReturnType<ContractRef>,
 {
     let constructor_result_variant = out_return_value.read_byte()?;
@@ -151,10 +144,8 @@ where
 #[cfg(test)]
 mod decode_instantiate_result_tests {
     use super::*;
-    use crate::{
-        DefaultEnvironment,
-        Environment,
-    };
+    use crate::DefaultEnvironment;
+    use ink_primitives::H160;
     use scale::Encode;
 
     // The `Result` type used to represent the programmer defined contract output.
@@ -163,18 +154,17 @@ mod decode_instantiate_result_tests {
     #[derive(scale::Encode, scale::Decode)]
     struct ContractError(String);
 
-    type AccountId = <DefaultEnvironment as Environment>::AccountId;
     // The `allow(dead_code)` is for the `AccountId` in the struct.
     #[allow(dead_code)]
-    struct TestContractRef(AccountId);
+    struct TestContractRef(H160);
 
     impl crate::ContractEnv for TestContractRef {
         type Env = DefaultEnvironment;
     }
 
-    impl FromAccountId<DefaultEnvironment> for TestContractRef {
-        fn from_account_id(account_id: AccountId) -> Self {
-            Self(account_id)
+    impl FromAddr for TestContractRef {
+        fn from_addr(addr: H160) -> Self {
+            Self(addr)
         }
     }
 
@@ -195,7 +185,6 @@ mod decode_instantiate_result_tests {
     ) -> EnvResult<ConstructorResult<Result<TestContractRef, ContractError>>> {
         decode_instantiate_result::<
             I,
-            DefaultEnvironment,
             TestContractRef,
             Result<TestContractRef, ContractError>,
         >(

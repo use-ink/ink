@@ -74,13 +74,14 @@ pub use self::{
         Output,
         ValueReturned,
     },
-    contract_ref::ToAccountId,
+    contract_ref::ToAddr,
     env_access::EnvAccess,
     prelude::IIP2_WILDCARD_COMPLEMENT_SELECTOR,
 };
+#[allow(unused)]
+pub use ink_macro::chain_extension;
 pub use ink_macro::{
     blake2x256,
-    chain_extension,
     contract,
     event,
     scale_derive,
@@ -96,4 +97,7 @@ pub use ink_primitives::{
     ConstructorResult,
     LangError,
     MessageResult,
+    H160,
+    H256,
+    U256,
 };

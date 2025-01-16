@@ -14,11 +14,6 @@
 
 //! The public raw interface towards the host Wasm engine.
 
-#[cfg(not(feature = "revive"))]
-use crate::call::{
-    CallV1,
-    LimitParamsV1,
-};
 use crate::{
     backend::{
         EnvBackend,
@@ -30,7 +25,7 @@ use crate::{
         ConstructorReturnType,
         CreateParams,
         DelegateCall,
-        FromAccountId,
+        FromAddr,
         LimitParamsV2,
     },
     engine::{
@@ -48,10 +43,12 @@ use crate::{
     },
     Result,
 };
+use ink_primitives::{
+    H160,
+    H256,
+    U256,
+};
 use ink_storage_traits::Storable;
-#[cfg(not(feature = "revive"))]
-use pallet_contracts_uapi::ReturnFlags;
-#[cfg(feature = "revive")]
 use pallet_revive_uapi::ReturnFlags;
 
 /// Returns the address of the caller of the executed contract.
@@ -59,13 +56,8 @@ use pallet_revive_uapi::ReturnFlags;
 /// # Errors
 ///
 /// If the returned caller cannot be properly decoded.
-pub fn caller<E>() -> E::AccountId
-where
-    E: Environment,
-{
-    <EnvInstance as OnInstance>::on_instance(|instance| {
-        TypedEnvBackend::caller::<E>(instance)
-    })
+pub fn caller() -> H160 {
+    <EnvInstance as OnInstance>::on_instance(TypedEnvBackend::caller)
 }
 
 /// Returns the transferred value for the contract execution.
@@ -73,12 +65,9 @@ where
 /// # Errors
 ///
 /// If the returned value cannot be properly decoded.
-pub fn transferred_value<E>() -> E::Balance
-where
-    E: Environment,
-{
+pub fn transferred_value() -> U256 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        TypedEnvBackend::transferred_value::<E>(instance)
+        TypedEnvBackend::transferred_value(instance)
     })
 }
 
@@ -93,21 +82,6 @@ where
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         TypedEnvBackend::weight_to_fee::<E>(instance, gas)
-    })
-}
-
-/// Returns the amount of gas left for the contract execution.
-///
-/// # Errors
-///
-/// If the returned value cannot be properly decoded.
-#[cfg(not(feature = "revive"))]
-pub fn gas_left<E>() -> Gas
-where
-    E: Environment,
-{
-    <EnvInstance as OnInstance>::on_instance(|instance| {
-        TypedEnvBackend::gas_left::<E>(instance)
     })
 }
 
@@ -143,17 +117,25 @@ where
     })
 }
 
+/// Returns the address of the executed contract.
+///
+/// # Errors
+///
+/// If the returned value cannot be properly decoded.
+pub fn address() -> H160 {
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        TypedEnvBackend::address(instance)
+    })
+}
+
 /// Returns the balance of the executed contract.
 ///
 /// # Errors
 ///
 /// If the returned value cannot be properly decoded.
-pub fn balance<E>() -> E::Balance
-where
-    E: Environment,
-{
+pub fn balance() -> U256 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        TypedEnvBackend::balance::<E>(instance)
+        TypedEnvBackend::balance(instance)
     })
 }
 
@@ -274,38 +256,6 @@ where
 ///
 /// # Note
 ///
-/// This is a low level way to evaluate another smart contract.
-/// Prefer to use the ink! guided and type safe approach to using this.
-///
-/// **This will call into the original version of the host function. It is recommended to
-/// use [`invoke_contract`] to use the latest version if the target runtime supports it.**
-///
-/// # Errors
-///
-/// - If the called account does not exist.
-/// - If the called account is not a contract.
-/// - If arguments passed to the called contract message are invalid.
-/// - If the called contract execution has trapped.
-/// - If the called contract ran out of gas upon execution.
-/// - If the returned value failed to decode properly.
-#[cfg(not(feature = "revive"))]
-pub fn invoke_contract_v1<E, Args, R>(
-    params: &CallParams<E, CallV1<E>, Args, R>,
-) -> Result<ink_primitives::MessageResult<R>>
-where
-    E: Environment,
-    Args: scale::Encode,
-    R: scale::Decode,
-{
-    <EnvInstance as OnInstance>::on_instance(|instance| {
-        TypedEnvBackend::invoke_contract_v1::<E, Args, R>(instance, params)
-    })
-}
-
-/// Invokes a contract message and returns its result.
-///
-/// # Note
-///
 /// **This will call into the latest version of the host function which allows setting new
 /// weight and storage limit parameters.**
 ///
@@ -322,7 +272,7 @@ where
 ///   execution.
 /// - If the returned value failed to decode properly.
 pub fn invoke_contract<E, Args, R>(
-    params: &CallParams<E, Call<E>, Args, R>,
+    params: &CallParams<E, Call, Args, R>,
 ) -> Result<ink_primitives::MessageResult<R>>
 where
     E: Environment,
@@ -347,7 +297,7 @@ where
 /// - If arguments passed to the called code message are invalid.
 /// - If the called code execution has trapped.
 pub fn invoke_contract_delegate<E, Args, R>(
-    params: &CallParams<E, DelegateCall<E>, Args, R>,
+    params: &CallParams<E, DelegateCall, Args, R>,
 ) -> Result<ink_primitives::MessageResult<R>>
 where
     E: Environment,
@@ -364,7 +314,7 @@ where
 /// # Note
 ///
 /// This is a low level way to instantiate another smart contract, calling the latest
-/// `instantiate_v2` host function.
+/// `instantiate_v2` host function. // todo
 ///
 /// Prefer to use methods on a `ContractRef` or the
 /// [`CreateBuilder`](`crate::call::CreateBuilder`)
@@ -378,63 +328,21 @@ where
 /// - If the instantiation process runs out of gas.
 /// - If given insufficient endowment.
 /// - If the returned account ID failed to decode properly.
-pub fn instantiate_contract<E, ContractRef, Args, Salt, R>(
-    params: &CreateParams<E, ContractRef, LimitParamsV2<E>, Args, Salt, R>,
+pub fn instantiate_contract<E, ContractRef, Args, R>(
+    params: &CreateParams<E, ContractRef, LimitParamsV2, Args, R>,
 ) -> Result<
     ink_primitives::ConstructorResult<<R as ConstructorReturnType<ContractRef>>::Output>,
 >
 where
     E: Environment,
-    ContractRef: FromAccountId<E> + crate::ContractReverseReference,
+    ContractRef: FromAddr + crate::ContractReverseReference,
     <ContractRef as crate::ContractReverseReference>::Type:
         crate::reflect::ContractConstructorDecoder,
     Args: scale::Encode,
-    Salt: AsRef<[u8]>,
     R: ConstructorReturnType<ContractRef>,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        TypedEnvBackend::instantiate_contract::<E, ContractRef, Args, Salt, R>(
-            instance, params,
-        )
-    })
-}
-
-/// Instantiates another contract.
-///
-/// # Note
-///
-/// This is a low level way to instantiate another smart contract, calling the legacy
-/// `instantiate_v1` host function.
-///
-/// Prefer to use methods on a `ContractRef` or the
-/// [`CreateBuilder`](`crate::call::CreateBuilder`)
-/// through [`build_create`](`crate::call::build_create`) instead.
-///
-/// # Errors
-///
-/// - If the code hash is invalid.
-/// - If the arguments passed to the instantiation process are invalid.
-/// - If the instantiation process traps.
-/// - If the instantiation process runs out of gas.
-/// - If given insufficient endowment.
-/// - If the returned account ID failed to decode properly.
-#[cfg(not(feature = "revive"))]
-pub fn instantiate_contract_v1<E, ContractRef, Args, Salt, R>(
-    params: &CreateParams<E, ContractRef, LimitParamsV1, Args, Salt, R>,
-) -> Result<
-    ink_primitives::ConstructorResult<<R as ConstructorReturnType<ContractRef>>::Output>,
->
-where
-    E: Environment,
-    ContractRef: FromAccountId<E>,
-    Args: scale::Encode,
-    Salt: AsRef<[u8]>,
-    R: ConstructorReturnType<ContractRef>,
-{
-    <EnvInstance as OnInstance>::on_instance(|instance| {
-        TypedEnvBackend::instantiate_contract_v1::<E, ContractRef, Args, Salt, R>(
-            instance, params,
-        )
+        TypedEnvBackend::instantiate_contract::<E, ContractRef, Args, R>(instance, params)
     })
 }
 
@@ -448,12 +356,9 @@ where
 /// This function never returns. Either the termination was successful and the
 /// execution of the destroyed contract is halted. Or it failed during the termination
 /// which is considered fatal and results in a trap and rollback.
-pub fn terminate_contract<E>(beneficiary: E::AccountId) -> !
-where
-    E: Environment,
-{
+pub fn terminate_contract(beneficiary: H160) -> ! {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        TypedEnvBackend::terminate_contract::<E>(instance, beneficiary)
+        TypedEnvBackend::terminate_contract(instance, beneficiary)
     })
 }
 
@@ -469,8 +374,8 @@ where
 ///
 /// - If the contract does not have sufficient free funds.
 /// - If the transfer had brought the sender's total balance below the minimum balance.
-///   You need to use [`terminate_contract`] in case this is your intention.
-pub fn transfer<E>(destination: E::AccountId, value: E::Balance) -> Result<()>
+///   You need to use `terminate_contract` in case this is your intention.
+pub fn transfer<E>(destination: H160, value: U256) -> Result<()>
 where
     E: Environment,
 {
@@ -516,7 +421,7 @@ where
 /// # Note
 ///
 /// This function  stops the execution of the contract immediately.
-#[cfg(not(feature = "test_instantiate"))]
+#[cfg(not(feature = "std"))]
 pub fn return_value<R>(return_flags: ReturnFlags, return_value: &R) -> !
 where
     R: scale::Encode,
@@ -530,9 +435,9 @@ where
 ///
 /// # Note
 ///
-/// When the test_instantiate feature is used, the contract is allowed to
+/// When the `std` feature is used, the contract is allowed to
 /// return normally. This feature should only be used for integration tests.
-#[cfg(feature = "test_instantiate")]
+#[cfg(feature = "std")]
 pub fn return_value<R>(return_flags: ReturnFlags, return_value: &R)
 where
     R: scale::Encode,
@@ -699,12 +604,9 @@ pub fn sr25519_verify(
 /// # Errors
 ///
 /// If the returned value cannot be properly decoded.
-pub fn is_contract<E>(account: &E::AccountId) -> bool
-where
-    E: Environment,
-{
+pub fn is_contract(account: &H160) -> bool {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        TypedEnvBackend::is_contract::<E>(instance, account)
+        TypedEnvBackend::is_contract(instance, account)
     })
 }
 
@@ -714,12 +616,9 @@ where
 ///
 /// - If no code hash was found for the specified account id.
 /// - If the returned value cannot be properly decoded.
-pub fn code_hash<E>(account: &E::AccountId) -> Result<E::Hash>
-where
-    E: Environment,
-{
+pub fn code_hash(addr: &H160) -> Result<H256> {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        TypedEnvBackend::code_hash::<E>(instance, account)
+        TypedEnvBackend::code_hash(instance, addr)
     })
 }
 
@@ -728,12 +627,9 @@ where
 /// # Errors
 ///
 /// If the returned value cannot be properly decoded.
-pub fn own_code_hash<E>() -> Result<E::Hash>
-where
-    E: Environment,
-{
+pub fn own_code_hash() -> Result<H256> {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        TypedEnvBackend::own_code_hash::<E>(instance)
+        TypedEnvBackend::own_code_hash(instance)
     })
 }
 
@@ -810,6 +706,7 @@ where
 ///
 /// # Errors
 ///
+/// todo: this enum variant no longer exists
 /// `ReturnCode::CodeNotFound` in case the supplied `code_hash` cannot be found on-chain.
 ///
 /// # Storage Compatibility
@@ -879,13 +776,11 @@ where
 /// Please refer to the
 /// [Open Zeppelin docs](https://docs.openzeppelin.com/upgrades-plugins/1.x/writing-upgradeable#modifying-your-contracts)
 /// for more details and examples.
-pub fn set_code_hash<E>(code_hash: &E::Hash) -> Result<()>
+pub fn set_code_hash<E>(code_hash: &H256) -> Result<()>
 where
     E: Environment,
 {
-    <EnvInstance as OnInstance>::on_instance(|instance| {
-        instance.set_code_hash(code_hash.as_ref())
-    })
+    <EnvInstance as OnInstance>::on_instance(|instance| instance.set_code_hash(code_hash))
 }
 
 /// Tries to trigger a runtime dispatchable, i.e. an extrinsic from a pallet.
@@ -919,7 +814,7 @@ where
 ///
 /// This guarantees that the code of the dependency cannot be removed without first
 /// calling [`unlock_delegate_dependency`]. It charges a fraction of the code
-/// deposit, see [`pallet_contracts::Config::CodeHashLockupDepositPercent`](https://docs.rs/pallet-contracts/latest/pallet_contracts/pallet/trait.Config.html#associatedtype.CodeHashLockupDepositPercent) for details.
+/// deposit, see [`pallet_contracts::Config::CodeHashLockupDepositPercent`](https://docs.rs/pallet-revive/latest/pallet_revive/pallet/trait.Config.html#associatedtype.CodeHashLockupDepositPercent) for details.
 ///
 /// # Errors
 ///
@@ -927,7 +822,7 @@ where
 /// - If the `code_hash` is the same as the calling contract.
 /// - If the maximum number of delegate dependencies is reached.
 /// - If the delegate dependency already exists.
-pub fn lock_delegate_dependency<E>(code_hash: &E::Hash)
+pub fn lock_delegate_dependency<E>(code_hash: &H256)
 where
     E: Environment,
 {
@@ -945,7 +840,7 @@ where
 /// # Errors
 ///
 /// - If the delegate dependency does not exist.
-pub fn unlock_delegate_dependency<E>(code_hash: &E::Hash)
+pub fn unlock_delegate_dependency<E>(code_hash: &H256)
 where
     E: Environment,
 {
@@ -957,11 +852,11 @@ where
 /// Execute an XCM message locally, using the contract's address as the origin.
 ///
 /// For more details consult the
-/// [host function documentation](https://paritytech.github.io/substrate/master/pallet_contracts/api_doc/trait.Current.html#tymethod.xcm_execute).
+/// [host function documentation](https://paritytech.github.io/polkadot-sdk/master/pallet_contracts/api_doc/trait.Current.html#tymethod.xcm_execute).
 ///
 /// # Errors
 ///
-/// - If the message cannot be properly decoded on the `pallet-contracts` side.
+/// - If the message cannot be properly decoded on the `pallet-revive` side.
 /// - If the XCM execution fails because of the runtime's XCM configuration.
 ///
 /// # Panics
@@ -983,11 +878,11 @@ where
 /// instance of the `RuntimeCall` enum.
 ///
 /// For more details consult
-/// [host function documentation](https://paritytech.github.io/substrate/master/pallet_contracts/api_doc/trait.Current.html#tymethod.xcm_send).
+/// [host function documentation](https://paritytech.github.io/polkadot-sdk/master/pallet_contracts/api_doc/trait.Current.html#tymethod.xcm_send).
 ///
 /// # Errors
 ///
-/// - If the message cannot be properly decoded on the `pallet-contracts` side.
+/// - If the message cannot be properly decoded on the `pallet-revive` side.
 ///
 /// # Panics
 ///

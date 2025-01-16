@@ -1,3 +1,5 @@
+#![allow(unexpected_cfgs)]
+
 #[ink::contract]
 mod __ink_contract {
     #[ink(storage)]

@@ -3,9 +3,9 @@
 
 name: continuous-integration/publish-docs
 
-on: 
+on:
   workflow_run:
-    workflows: 
+    workflows:
       - continuous-integration
     types:
       - completed

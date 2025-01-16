@@ -25,6 +25,10 @@ use crate::Error;
 
 use derive_more::From;
 use ink_engine::ext::Engine;
+use ink_primitives::{
+    AccountId,
+    H160,
+};
 
 /// The off-chain environment.
 pub struct EnvInstance {
@@ -66,6 +70,7 @@ pub enum OffChainError {
     UnregisteredChainExtension,
 }
 
+// todo rename
 /// Errors encountered upon interacting with the accounts database.
 #[derive(Debug, From, PartialEq, Eq)]
 pub enum AccountError {
@@ -73,5 +78,6 @@ pub enum AccountError {
     #[from(ignore)]
     UnexpectedUserAccount,
     #[from(ignore)]
-    NoAccountForId(Vec<u8>),
+    NoAccountForId(AccountId),
+    NoContractForId(H160),
 }

@@ -22,15 +22,14 @@ ink_primitives = { workspace = true }
 ink_metadata = { workspace = true, optional = true }
 ink_prelude = { workspace = true }
 ink_macro = { workspace = true }
-pallet-contracts-uapi = { workspace = true }
 pallet-revive-uapi = { workspace = true }
 scale = { workspace = true }
 scale-info = { workspace = true, default-features = false, features = ["derive"], optional = true }
 derive_more = { workspace = true, features = ["from"] }
 
 # TODO add explainer
-xcm = { workspace = true, default-features = false }
-sp-io = { version = "38.0.0", default-features = false, features = ["disable_panic_handler", "disable_oom", "disable_allocator"] }
+xcm = { package = "staging-xcm", git = "https://github.com/paritytech/polkadot-sdk", rev = "645878a27115db52e5d63115699b4bbb89034067", default-features = false }
+sp-io = { git = "https://github.com/paritytech/polkadot-sdk", rev = "645878a27115db52e5d63115699b4bbb89034067", default-features = false, features = ["disable_panic_handler", "disable_oom", "disable_allocator"] }
 
 polkavm-derive = { workspace = true }
 
@@ -56,9 +55,6 @@ std = [
 ]
 # Enable contract debug messages via `debug_print!` and `debug_println!`.
 ink-debug = [ "ink_env/ink-debug" ]
-test_instantiate = [
-    "ink_env/test_instantiate"
-]
 
 show-codegen-docs = []
 
@@ -68,8 +64,9 @@ no-allocator = [ "ink_env/no-allocator" ]
 # Disable the ink! provided panic handler.
 no-panic-handler = ["ink_env/no-panic-handler"]
 
-revive = [
-	"ink_env/revive",
-	"ink_storage/revive",
-	"ink_macro/revive"
+# For the ui tests, which use this `Cargo.toml`
+[lints.rust.unexpected_cfgs]
+level = "warn"
+check-cfg = [
+    'cfg(feature, values(any()))',
 ]

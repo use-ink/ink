@@ -1,3 +1,5 @@
+#![allow(unexpected_cfgs)]
+
 use flipper::Flipper;
 
 #[ink::trait_definition]

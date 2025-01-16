@@ -1,3 +1,5 @@
+#![allow(unexpected_cfgs)]
+
 use contract::Contract;
 use ink::selector_bytes;
 

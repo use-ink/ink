@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -eu
+
 script_name="${BASH_SOURCE[0]}"
 scripts_path=$( cd "$(dirname "$script_name")" || exit; pwd -P )
 
@@ -50,6 +52,7 @@ options=$(getopt -o p:i:q: --long path:,ignore:,quiet:,partition: -- "$@")
 eval set -- "$options"
 ignore=()
 quiet=false
+partitioning=false
 while true; do
     case "$1" in
     -p|--path)
@@ -90,6 +93,7 @@ fi
 successes=()
 failures=()
 
+# todo: error when more than one "{}" placeholder is present
 # default to adding the argument as the last argument to the command
 arg_index=${#command[@]}
 # find the index of the argument placeholder "{}", if present
@@ -139,7 +143,7 @@ for (( i = start; i <= end; i++ )); do
   if [ "$quiet" = false ]; then
     >&2 echo Running: "${command[@]}"
   fi
-  "${command[@]}"
+  eval "${command[@]}";
 
   if [ $? -eq 0 ]; then
     successes+=("$manifest_path")

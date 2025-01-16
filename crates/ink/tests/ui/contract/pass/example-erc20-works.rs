@@ -1,5 +1,8 @@
+#![allow(unexpected_cfgs)]
+
 #[ink::contract]
 mod erc20 {
+    use ink::H160;
     use ink_storage::Mapping;
 
     /// A simple ERC-20 contract.
@@ -9,19 +12,19 @@ mod erc20 {
         /// Total token supply.
         total_supply: Balance,
         /// Mapping from owner to number of owned token.
-        balances: Mapping<AccountId, Balance>,
+        balances: Mapping<H160, Balance>,
         /// Mapping of the token amount which an account is allowed to withdraw
         /// from another account.
-        allowances: Mapping<(AccountId, AccountId), Balance>,
+        allowances: Mapping<(H160, H160), Balance>,
     }
 
     /// Event emitted when a token transfer occurs.
     #[ink(event)]
     pub struct Transfer {
         #[ink(topic)]
-        from: Option<AccountId>,
+        from: Option<H160>,
         #[ink(topic)]
-        to: Option<AccountId>,
+        to: Option<H160>,
         value: Balance,
     }
 
@@ -30,9 +33,9 @@ mod erc20 {
     #[ink(event)]
     pub struct Approval {
         #[ink(topic)]
-        owner: AccountId,
+        owner: H160,
         #[ink(topic)]
-        spender: AccountId,
+        spender: H160,
         value: Balance,
     }
 
@@ -78,7 +81,7 @@ mod erc20 {
         ///
         /// Returns `0` if the account is non-existent.
         #[ink(message)]
-        pub fn balance_of(&self, owner: AccountId) -> Balance {
+        pub fn balance_of(&self, owner: H160) -> Balance {
             self.balance_of_impl(&owner)
         }
 
@@ -91,7 +94,7 @@ mod erc20 {
         /// Prefer to call this method over `balance_of` since this
         /// works using references which are more efficient in Wasm.
         #[inline]
-        fn balance_of_impl(&self, owner: &AccountId) -> Balance {
+        fn balance_of_impl(&self, owner: &H160) -> Balance {
             self.balances.get(owner).unwrap_or_default()
         }
 
@@ -99,7 +102,7 @@ mod erc20 {
         ///
         /// Returns `0` if no allowance has been set.
         #[ink(message)]
-        pub fn allowance(&self, owner: AccountId, spender: AccountId) -> Balance {
+        pub fn allowance(&self, owner: H160, spender: H160) -> Balance {
             self.allowance_impl(&owner, &spender)
         }
 
@@ -112,7 +115,7 @@ mod erc20 {
         /// Prefer to call this method over `allowance` since this
         /// works using references which are more efficient in Wasm.
         #[inline]
-        fn allowance_impl(&self, owner: &AccountId, spender: &AccountId) -> Balance {
+        fn allowance_impl(&self, owner: &H160, spender: &H160) -> Balance {
             self.allowances.get((owner, spender)).unwrap_or_default()
         }
 
@@ -125,7 +128,7 @@ mod erc20 {
         /// Returns `InsufficientBalance` error if there are not enough tokens on
         /// the caller's account balance.
         #[ink(message)]
-        pub fn transfer(&mut self, to: AccountId, value: Balance) -> Result<()> {
+        pub fn transfer(&mut self, to: H160, value: Balance) -> Result<()> {
             let from = self.env().caller();
             self.transfer_from_to(&from, &to, value)
         }
@@ -138,7 +141,7 @@ mod erc20 {
         ///
         /// An `Approval` event is emitted.
         #[ink(message)]
-        pub fn approve(&mut self, spender: AccountId, value: Balance) -> Result<()> {
+        pub fn approve(&mut self, spender: H160, value: Balance) -> Result<()> {
             let owner = self.env().caller();
             self.allowances.insert((&owner, &spender), &value);
             self.env().emit_event(Approval {
@@ -166,8 +169,8 @@ mod erc20 {
         #[ink(message)]
         pub fn transfer_from(
             &mut self,
-            from: AccountId,
-            to: AccountId,
+            from: H160,
+            to: H160,
             value: Balance,
         ) -> Result<()> {
             let caller = self.env().caller();
@@ -191,8 +194,8 @@ mod erc20 {
         /// the caller's account balance.
         fn transfer_from_to(
             &mut self,
-            from: &AccountId,
-            to: &AccountId,
+            from: &H160,
+            to: &H160,
             value: Balance,
         ) -> Result<()> {
             let from_balance = self.balance_of_impl(from);

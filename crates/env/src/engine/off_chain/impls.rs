@@ -13,11 +13,6 @@
 // limitations under the License.
 
 use super::EnvInstance;
-#[cfg(not(feature = "revive"))]
-use crate::call::{
-    CallV1,
-    LimitParamsV1,
-};
 use crate::{
     call::{
         Call,
@@ -25,7 +20,7 @@ use crate::{
         ConstructorReturnType,
         CreateParams,
         DelegateCall,
-        FromAccountId,
+        FromAddr,
         LimitParamsV2,
     },
     event::{
@@ -40,23 +35,23 @@ use crate::{
         Keccak256,
         Sha2x256,
     },
+    test::callee,
     Clear,
     EnvBackend,
-    types::Environment,
     Result,
     TypedEnvBackend,
 };
 use ink_engine::ext::Engine;
+use ink_primitives::{
+    types::Environment,
+    H160,
+    H256,
+    U256,
+};
 use ink_storage_traits::{
     decode_all,
     Storable,
 };
-#[cfg(not(feature = "revive"))]
-use pallet_contracts_uapi::{
-    ReturnErrorCode,
-    ReturnFlags,
-};
-#[cfg(feature = "revive")]
 use pallet_revive_uapi::{
     ReturnErrorCode,
     ReturnFlags,
@@ -96,41 +91,65 @@ where
     crate::test::get_return_value()
 }
 
-fn invoke_contract_impl<E, R>(
+fn invoke_contract_impl<R>(
     env: &mut EnvInstance,
     _gas_limit: Option<u64>,
     _call_flags: u32,
-    _transferred_value: Option<&<E as Environment>::Balance>,
-    callee_account: Option<&<E as Environment>::AccountId>,
-    code_hash: Option<&<E as Environment>::Hash>,
+    _transferred_value: Option<&U256>,
+    callee_account: H160,
     input: Vec<u8>,
 ) -> Result<ink_primitives::MessageResult<R>>
 where
-    E: Environment,
     R: scale::Decode,
 {
-    let mut callee_code_hash = match callee_account {
-        Some(ca) => env.code_hash::<E>(ca)?,
-        None => *code_hash.unwrap(),
-    };
+    let callee_code_hash = env.code_hash(&callee_account).unwrap_or_else(|err| {
+        panic!(
+            "failed getting code hash for {:?}: {:?}",
+            callee_account, err
+        )
+    });
 
     let handler = env
         .engine
         .database
-        .get_contract_message_handler(callee_code_hash.as_mut());
+        .get_contract_message_handler(&callee_code_hash);
     let old_callee = env.engine.get_callee();
-    let mut restore_callee = false;
-    if let Some(callee_account) = callee_account {
-        let encoded_callee = scale::Encode::encode(callee_account);
-        env.engine.set_callee(encoded_callee);
-        restore_callee = true;
-    }
+    env.engine.set_callee(callee_account);
 
     let result = handler(input);
 
-    if restore_callee {
-        env.engine.set_callee(old_callee);
-    }
+    env.engine.set_callee(old_callee);
+
+    let result =
+        <ink_primitives::MessageResult<R> as scale::Decode>::decode(&mut &result[..])
+            .expect("failed to decode return value");
+
+    Ok(result)
+}
+
+fn invoke_contract_impl_delegate<R>(
+    env: &mut EnvInstance,
+    _gas_limit: Option<u64>,
+    _call_flags: u32,
+    _transferred_value: Option<&U256>,
+    callee_account: H160,
+    input: Vec<u8>,
+) -> Result<ink_primitives::MessageResult<R>>
+where
+    R: scale::Decode,
+{
+    let callee_code_hash = env.code_hash(&callee_account).unwrap_or_else(|err| {
+        panic!(
+            "failed getting code hash for {:?}: {:?}",
+            callee_account, err
+        )
+    });
+
+    let handler = env
+        .engine
+        .database
+        .get_contract_message_handler(&callee_code_hash);
+    let result = handler(input);
 
     let result =
         <ink_primitives::MessageResult<R> as scale::Decode>::decode(&mut &result[..])
@@ -198,12 +217,11 @@ where
 {
     type Output = Vec<u8>;
 
-    fn expect(&mut self, _expected_topics: usize) {}
-
     fn push_topic<T>(&mut self, topic_value: &T)
     where
         T: scale::Encode,
     {
+        // todo
         let encoded = topic_value.encode();
         let len_encoded = encoded.len();
         let mut result = <E as Environment>::Hash::CLEAR_HASH;
@@ -252,13 +270,13 @@ impl EnvInstance {
         self.engine.get_storage(&[255_u8; 32]).unwrap().to_vec()
     }
 
-    pub fn upload_code<ContractRef>(&mut self) -> ink_primitives::types::Hash
+    pub fn upload_code<ContractRef>(&mut self) -> H256
     where
         ContractRef: crate::ContractReverseReference,
         <ContractRef as crate::ContractReverseReference>::Type:
             crate::reflect::ContractMessageDecoder,
     {
-        ink_primitives::types::Hash::from(
+        H256::from(
             self.engine
                 .database
                 .set_contract_message_handler(execute_contract_call::<ContractRef>),
@@ -328,15 +346,15 @@ impl EnvBackend for EnvInstance {
         unimplemented!("the off-chain env does not implement `input`")
     }
 
-    #[cfg(not(feature = "test_instantiate"))]
+    #[cfg(not(feature = "std"))]
     fn return_value<R>(&mut self, _flags: ReturnFlags, _return_value: &R) -> !
     where
         R: scale::Encode,
     {
-        panic!("enable feature test_instantiate to use return_value()")
+        panic!("enable feature `std` to use `return_value()`")
     }
 
-    #[cfg(feature = "test_instantiate")]
+    #[cfg(feature = "std")]
     fn return_value<R>(&mut self, _flags: ReturnFlags, return_value: &R)
     where
         R: scale::Encode,
@@ -366,6 +384,7 @@ impl EnvBackend for EnvInstance {
         <H as CryptoHash>::hash(enc_input, output)
     }
 
+    #[allow(clippy::arithmetic_side_effects)] // todo
     fn ecdsa_recover(
         &mut self,
         signature: &[u8; 65],
@@ -473,7 +492,7 @@ impl EnvBackend for EnvInstance {
         Ok(decoded)
     }
 
-    fn set_code_hash(&mut self, code_hash: &[u8]) -> Result<()> {
+    fn set_code_hash(&mut self, code_hash: &H256) -> Result<()> {
         self.engine
             .database
             .set_code_hash(&self.engine.get_callee(), code_hash);
@@ -482,23 +501,15 @@ impl EnvBackend for EnvInstance {
 }
 
 impl TypedEnvBackend for EnvInstance {
-    fn caller<E: Environment>(&mut self) -> E::AccountId {
-        self.get_property::<E::AccountId>(Engine::caller)
+    fn caller(&mut self) -> H160 {
+        self.get_property::<H160>(Engine::caller)
             .unwrap_or_else(|error| panic!("could not read `caller` property: {error:?}"))
     }
 
-    fn transferred_value<E: Environment>(&mut self) -> E::Balance {
-        self.get_property::<E::Balance>(Engine::value_transferred)
+    fn transferred_value(&mut self) -> U256 {
+        self.get_property(Engine::value_transferred)
             .unwrap_or_else(|error| {
                 panic!("could not read `transferred_value` property: {error:?}")
-            })
-    }
-
-    #[cfg(not(feature = "revive"))]
-    fn gas_left<E: Environment>(&mut self) -> u64 {
-        self.get_property::<u64>(Engine::gas_left)
-            .unwrap_or_else(|error| {
-                panic!("could not read `gas_left` property: {error:?}")
             })
     }
 
@@ -510,14 +521,22 @@ impl TypedEnvBackend for EnvInstance {
     }
 
     fn account_id<E: Environment>(&mut self) -> E::AccountId {
+        // todo should not use `Engine::account_id`
         self.get_property::<E::AccountId>(Engine::address)
             .unwrap_or_else(|error| {
                 panic!("could not read `account_id` property: {error:?}")
             })
     }
 
-    fn balance<E: Environment>(&mut self) -> E::Balance {
-        self.get_property::<E::Balance>(Engine::balance)
+    fn address(&mut self) -> H160 {
+        self.get_property::<H160>(Engine::address)
+            .unwrap_or_else(|error| {
+                panic!("could not read `account_id` property: {error:?}")
+            })
+    }
+
+    fn balance(&mut self) -> U256 {
+        self.get_property::<U256>(Engine::balance)
             .unwrap_or_else(|error| {
                 panic!("could not read `balance` property: {error:?}")
             })
@@ -548,22 +567,9 @@ impl TypedEnvBackend for EnvInstance {
         self.engine.deposit_event(&enc_topics[..], enc_data);
     }
 
-    #[cfg(not(feature = "revive"))]
-    fn invoke_contract_v1<E, Args, R>(
-        &mut self,
-        _params: &CallParams<E, CallV1<E>, Args, R>,
-    ) -> Result<ink_primitives::MessageResult<R>>
-    where
-        E: Environment,
-        Args: scale::Encode,
-        R: scale::Decode,
-    {
-        unimplemented!("off-chain environment does not support contract invocation")
-    }
-
     fn invoke_contract<E, Args, R>(
         &mut self,
-        params: &CallParams<E, Call<E>, Args, R>,
+        params: &CallParams<E, Call, Args, R>,
     ) -> Result<ink_primitives::MessageResult<R>>
     where
         E: Environment,
@@ -576,45 +582,43 @@ impl TypedEnvBackend for EnvInstance {
         let callee_account = params.callee();
         let input = scale::Encode::encode(input);
 
-        invoke_contract_impl::<E, R>(
+        invoke_contract_impl::<R>(
             self,
             None,
             call_flags,
             Some(transferred_value),
-            Some(callee_account),
-            None,
+            *callee_account, // todo possibly return no reference from callee()
             input,
         )
     }
 
     fn invoke_contract_delegate<E, Args, R>(
         &mut self,
-        params: &CallParams<E, DelegateCall<E>, Args, R>,
+        params: &CallParams<E, DelegateCall, Args, R>,
     ) -> Result<ink_primitives::MessageResult<R>>
     where
         E: Environment,
         Args: scale::Encode,
         R: scale::Decode,
     {
+        let _addr = params.address();
         let call_flags = params.call_flags().bits();
         let input = params.exec_input();
-        let code_hash = params.code_hash();
         let input = scale::Encode::encode(input);
 
-        invoke_contract_impl::<E, R>(
+        invoke_contract_impl_delegate::<R>(
             self,
             None,
             call_flags,
             None,
-            None,
-            Some(code_hash),
+            *params.address(),
             input,
         )
     }
 
-    fn instantiate_contract<E, ContractRef, Args, Salt, R>(
+    fn instantiate_contract<E, ContractRef, Args, R>(
         &mut self,
-        params: &CreateParams<E, ContractRef, LimitParamsV2<E>, Args, Salt, R>,
+        params: &CreateParams<E, ContractRef, LimitParamsV2, Args, R>,
     ) -> Result<
         ink_primitives::ConstructorResult<
             <R as ConstructorReturnType<ContractRef>>::Output,
@@ -622,45 +626,40 @@ impl TypedEnvBackend for EnvInstance {
     >
     where
         E: Environment,
-        ContractRef: FromAccountId<E> + crate::ContractReverseReference,
+        ContractRef: FromAddr + crate::ContractReverseReference,
         <ContractRef as crate::ContractReverseReference>::Type:
             crate::reflect::ContractConstructorDecoder,
         Args: scale::Encode,
-        Salt: AsRef<[u8]>,
         R: ConstructorReturnType<ContractRef>,
     {
         let endowment = params.endowment();
-        let endowment = scale::Encode::encode(endowment);
-        let endowment: u128 = scale::Decode::decode(&mut &endowment[..])?;
-
         let salt_bytes = params.salt_bytes();
-
         let code_hash = params.code_hash();
-        let code_hash = scale::Encode::encode(code_hash);
 
         let input = params.exec_input();
         let input = scale::Encode::encode(input);
 
-        // Compute account for instantiated contract.
-        let account_id_vec = {
+        // Compute address for instantiated contract.
+        let addr_id_vec = {
             let mut account_input = Vec::<u8>::new();
-            account_input.extend(&b"contract_addr_v1".to_vec());
-            if let Some(caller) = &self.engine.exec_context.caller {
-                scale::Encode::encode_to(&caller.as_bytes(), &mut account_input);
-            }
-            account_input.extend(&code_hash);
+            account_input.extend(&b"contract_addr".to_vec());
+            scale::Encode::encode_to(
+                &self.engine.exec_context.caller.as_bytes(),
+                &mut account_input,
+            );
+            account_input.extend(&code_hash.0);
             account_input.extend(&input);
-            account_input.extend(salt_bytes.as_ref());
+            if let Some(salt) = salt_bytes {
+                account_input.extend(salt);
+            }
             let mut account_id = [0_u8; 32];
             ink_engine::hashing::blake2b_256(&account_input[..], &mut account_id);
             account_id.to_vec()
         };
-
-        let mut account_id =
-            <E as Environment>::AccountId::decode(&mut &account_id_vec[..]).unwrap();
+        let contract_addr = H160::from_slice(&addr_id_vec[..20]);
 
         let old_callee = self.engine.get_callee();
-        self.engine.set_callee(account_id_vec.clone());
+        self.engine.set_callee(contract_addr);
 
         let dispatch = <
             <
@@ -676,59 +675,32 @@ impl TypedEnvBackend for EnvInstance {
         crate::reflect::ExecuteDispatchable::execute_dispatchable(dispatch)
             .unwrap_or_else(|e| panic!("Constructor call failed: {:?}", e));
 
-        self.set_code_hash(code_hash.as_slice())?;
-        self.engine.set_contract(account_id_vec.clone());
+        self.set_code_hash(code_hash)?;
+        self.engine.set_contract(callee());
         self.engine
             .database
-            .set_balance(account_id.as_mut(), endowment);
+            // todo passing the types instead of refs would be better
+            .set_balance(&callee(), *endowment);
 
+        // todo why?
         self.engine.set_callee(old_callee);
 
-        Ok(Ok(R::ok(
-            <ContractRef as FromAccountId<E>>::from_account_id(account_id),
-        )))
+        Ok(Ok(R::ok(<ContractRef as FromAddr>::from_addr(
+            contract_addr,
+        ))))
     }
 
-    #[cfg(not(feature = "revive"))]
-    fn instantiate_contract_v1<E, ContractRef, Args, Salt, R>(
-        &mut self,
-        params: &CreateParams<E, ContractRef, LimitParamsV1, Args, Salt, R>,
-    ) -> Result<
-        ink_primitives::ConstructorResult<
-            <R as ConstructorReturnType<ContractRef>>::Output,
-        >,
-    >
-    where
-        E: Environment,
-        ContractRef: FromAccountId<E>,
-        Args: scale::Encode,
-        Salt: AsRef<[u8]>,
-        R: ConstructorReturnType<ContractRef>,
-    {
-        let _code_hash = params.code_hash();
-        let _ref_time_limit = params.gas_limit();
-        let _endowment = params.endowment();
-        let _input = params.exec_input();
-        let _salt_bytes = params.salt_bytes();
-        unimplemented!("off-chain environment does not support contract instantiation")
+    fn terminate_contract(&mut self, beneficiary: H160) -> ! {
+        self.engine.terminate(beneficiary)
     }
 
-    fn terminate_contract<E>(&mut self, beneficiary: E::AccountId) -> !
+    fn transfer<E>(&mut self, destination: H160, value: U256) -> Result<()>
     where
         E: Environment,
     {
-        let buffer = scale::Encode::encode(&beneficiary);
-        self.engine.terminate(&buffer[..])
-    }
-
-    fn transfer<E>(&mut self, destination: E::AccountId, value: E::Balance) -> Result<()>
-    where
-        E: Environment,
-    {
-        let enc_destination = &scale::Encode::encode(&destination)[..];
         let enc_value = &scale::Encode::encode(&value)[..];
         self.engine
-            .transfer(enc_destination, enc_value)
+            .transfer(destination, enc_value)
             .map_err(Into::into)
     }
 
@@ -740,11 +712,8 @@ impl TypedEnvBackend for EnvInstance {
         })
     }
 
-    fn is_contract<E>(&mut self, account: &E::AccountId) -> bool
-    where
-        E: Environment,
-    {
-        self.engine.is_contract(scale::Encode::encode(&account))
+    fn is_contract(&mut self, account: &H160) -> bool {
+        self.engine.is_contract(account)
     }
 
     fn caller_is_origin<E>(&mut self) -> bool
@@ -761,32 +730,21 @@ impl TypedEnvBackend for EnvInstance {
         unimplemented!("off-chain environment does not support `caller_is_root`")
     }
 
-    fn code_hash<E>(&mut self, account: &E::AccountId) -> Result<E::Hash>
-    where
-        E: Environment,
-    {
-        let code_hash = self
-            .engine
-            .database
-            .get_code_hash(&scale::Encode::encode(&account));
+    fn code_hash(&mut self, addr: &H160) -> Result<H256> {
+        let code_hash = self.engine.database.get_code_hash(addr);
         if let Some(code_hash) = code_hash {
-            let code_hash =
-                <E as Environment>::Hash::decode(&mut &code_hash[..]).unwrap();
+            // todo
+            let code_hash = H256::decode(&mut &code_hash[..]).unwrap();
             Ok(code_hash)
         } else {
             Err(ReturnErrorCode::KeyNotFound.into())
         }
     }
 
-    fn own_code_hash<E>(&mut self) -> Result<E::Hash>
-    where
-        E: Environment,
-    {
+    fn own_code_hash(&mut self) -> Result<H256> {
         let callee = &self.engine.get_callee();
         let code_hash = self.engine.database.get_code_hash(callee);
         if let Some(code_hash) = code_hash {
-            let code_hash =
-                <E as Environment>::Hash::decode(&mut &code_hash[..]).unwrap();
             Ok(code_hash)
         } else {
             Err(ReturnErrorCode::KeyNotFound.into())
@@ -800,7 +758,7 @@ impl TypedEnvBackend for EnvInstance {
         unimplemented!("off-chain environment does not support `call_runtime`")
     }
 
-    fn lock_delegate_dependency<E>(&mut self, _code_hash: &E::Hash)
+    fn lock_delegate_dependency<E>(&mut self, _code_hash: &H256)
     where
         E: Environment,
     {
@@ -825,7 +783,7 @@ impl TypedEnvBackend for EnvInstance {
         unimplemented!("off-chain environment does not support `xcm_send`")
     }
 
-    fn unlock_delegate_dependency<E>(&mut self, _code_hash: &E::Hash)
+    fn unlock_delegate_dependency<E>(&mut self, _code_hash: &H256)
     where
         E: Environment,
     {

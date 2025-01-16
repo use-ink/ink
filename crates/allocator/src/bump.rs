@@ -24,12 +24,14 @@ use core::alloc::{
 };
 
 /// A page in Wasm is `64KiB`
+/// todo: remove
+#[allow(dead_code)]
 const PAGE_SIZE: usize = 64 * 1024;
 
 static mut INNER: Option<InnerAlloc> = None;
 
-#[cfg(target_arch = "riscv32")]
-static mut RISCV_HEAP: [u8; 1024 * 1024] = [0; 1024 * 1024];
+#[cfg(target_arch = "riscv64")]
+static mut RISCV_HEAP: [u8; 1024 * 10] = [0; 1024 * 10];
 
 /// A bump allocator suitable for use in a Wasm environment.
 pub struct BumpAllocator;
@@ -53,6 +55,7 @@ unsafe impl GlobalAlloc for BumpAllocator {
 
     #[inline]
     unsafe fn alloc_zeroed(&self, layout: Layout) -> *mut u8 {
+        // todo
         // A new page in Wasm is guaranteed to already be zero initialized, so we can just
         // use our regular `alloc` call here and save a bit of work.
         //
@@ -97,6 +100,7 @@ impl InnerAlloc {
             ///
             /// This implementation is only meant to be used for testing, since we cannot (easily)
             /// test the `wasm32` implementation.
+            #[allow(dead_code)]
             fn request_pages(&mut self, _pages: usize) -> Option<usize> {
                 Some(self.upper_limit)
             }
@@ -109,62 +113,33 @@ impl InnerAlloc {
                 0
             }
 
+            #[allow(dead_code)]
             fn request_pages(&mut self, _pages: usize) -> Option<usize> {
                 unreachable!(
                     "This branch is only used to keep the compiler happy when building tests, and
                      should never actually be called outside of a test run."
                 )
             }
-        } else if #[cfg(target_arch = "wasm32")] {
+        } else if #[cfg(target_arch = "riscv64")] {
             fn heap_start() -> usize {
-                extern "C" {
-                    static __heap_base: usize;
-                }
-                // # SAFETY
-                //
-                // The `__heap_base` symbol is defined by the wasm linker and is guaranteed
-                // to point to the start of the heap.
-                let heap_start =  unsafe { &__heap_base as *const usize as usize };
-                // if the symbol isn't found it will resolve to 0
-                // for that to happen the rust compiler or linker need to break or change
-                assert_ne!(heap_start, 0, "Can't find `__heap_base` symbol.");
-                heap_start
-            }
-
-            fn heap_end() -> usize {
-                // Cannot overflow on this architecture
-                core::arch::wasm32::memory_size(0) * PAGE_SIZE
-            }
-
-            /// Request a `pages` number of pages of Wasm memory. Each page is `64KiB` in size.
-            ///
-            /// Returns `None` if a page is not available.
-            fn request_pages(&mut self, pages: usize) -> Option<usize> {
-                let prev_page = core::arch::wasm32::memory_grow(0, pages);
-                if prev_page == usize::MAX {
-                    return None;
-                }
-
-                // Cannot overflow on this architecture
-                Some(prev_page * PAGE_SIZE)
-            }
-        } else if #[cfg(target_arch = "riscv32")] {
-            fn heap_start() -> usize {
+                #[allow(static_mut_refs)]
                 unsafe {
                     RISCV_HEAP.as_mut_ptr() as usize
                 }
             }
 
+            #[allow(static_mut_refs)]
             fn heap_end() -> usize {
                 Self::heap_start() + unsafe { RISCV_HEAP.len() }
             }
 
+            #[allow(dead_code)]
             fn request_pages(&mut self, _pages: usize) -> Option<usize> {
                 // On riscv the memory can't be grown
-                None
+                core::panic!("no request possible");
             }
         } else {
-            core::compile_error!("ink! only supports wasm32 and riscv32");
+            core::compile_error!("ink! only supports riscv64");
         }
     }
 
@@ -181,15 +156,7 @@ impl InnerAlloc {
         let alloc_end = alloc_start.checked_add(aligned_size)?;
 
         if alloc_end > self.upper_limit {
-            let required_pages = required_pages(aligned_size)?;
-            let page_start = self.request_pages(required_pages)?;
-
-            self.upper_limit = required_pages
-                .checked_mul(PAGE_SIZE)
-                .and_then(|pages| page_start.checked_add(pages))?;
-            self.next = page_start.checked_add(aligned_size)?;
-
-            Some(page_start)
+            panic!("exhausted heap limit");
         } else {
             self.next = alloc_end;
             Some(alloc_start)
@@ -205,6 +172,7 @@ impl InnerAlloc {
     /// - the binary with the inverse of the align creates a bitmask that is used to zero
     ///   out bits, ensuring alignment according to type requirements and ensures that the
     ///   next allocated pointer address is of the power of 2.
+    #[allow(clippy::arithmetic_side_effects)] // todo
     fn align_ptr(&self, layout: &Layout) -> usize {
         (self.next + layout.align() - 1) & !(layout.align() - 1)
     }
@@ -216,12 +184,13 @@ impl InnerAlloc {
 /// `size = PAGE_SIZE / 2` this function will indicate that one page is required to
 /// satisfy the allocation.
 #[inline]
-fn required_pages(size: usize) -> Option<usize> {
-    size.checked_add(PAGE_SIZE - 1)
-        .and_then(|num| num.checked_div(PAGE_SIZE))
+#[allow(dead_code)]
+fn required_pages(_size: usize) -> Option<usize> {
+    core::panic!("required_pages");
 }
 
-#[cfg(test)]
+// todo
+#[cfg(all(test, target_os = "dragonfly"))]
 mod tests {
     use super::*;
     use std::mem::size_of;
@@ -357,7 +326,8 @@ mod tests {
     }
 }
 
-#[cfg(all(test, feature = "ink-fuzz-tests"))]
+// todo
+#[cfg(all(test, feature = "ink-fuzz-tests", target_os = "dragonfly"))]
 mod fuzz_tests {
     use super::*;
     use quickcheck::{

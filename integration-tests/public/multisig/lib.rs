@@ -74,6 +74,8 @@ mod multisig {
         prelude::vec::Vec,
         scale::Output,
         storage::Mapping,
+        H160,
+        U256,
     };
 
     /// Tune this to your liking but be wary that allowing too many owners will not
@@ -90,7 +92,7 @@ mod multisig {
     #[derive(Clone)]
     struct CallInput<'a>(&'a [u8]);
 
-    impl<'a> ink::scale::Encode for CallInput<'a> {
+    impl ink::scale::Encode for CallInput<'_> {
         fn encode_to<T: Output + ?Sized>(&self, dest: &mut T) {
             dest.write(self.0);
         }
@@ -117,15 +119,15 @@ mod multisig {
     )]
     #[ink::scale_derive(Encode, Decode, TypeInfo)]
     pub struct Transaction {
-        /// The `AccountId` of the contract that is called in this transaction.
-        pub callee: AccountId,
+        /// The address of the contract that is called in this transaction.
+        pub callee: H160,
         /// The selector bytes that identifies the function of the callee that should be
         /// called.
         pub selector: [u8; 4],
         /// The SCALE encoded parameters that are passed to the called function.
         pub input: Vec<u8>,
         /// The amount of chain balance that is transferred to the callee.
-        pub transferred_value: Balance,
+        pub transferred_value: U256,
         /// Gas limit for the execution of the call.
         pub ref_time_limit: u64,
         /// If set to true the transaction will be allowed to re-enter the multisig
@@ -167,7 +169,7 @@ mod multisig {
         transaction: TransactionId,
         /// The owner that sent the confirmation.
         #[ink(topic)]
-        from: AccountId,
+        from: H160,
         /// The confirmation status after this confirmation was applied.
         #[ink(topic)]
         status: ConfirmationStatus,
@@ -181,7 +183,7 @@ mod multisig {
         transaction: TransactionId,
         /// The owner that sent the revocation.
         #[ink(topic)]
-        from: AccountId,
+        from: H160,
     }
 
     /// Emitted when an owner submits a transaction.
@@ -219,7 +221,7 @@ mod multisig {
     pub struct OwnerAddition {
         /// The owner that was added.
         #[ink(topic)]
-        owner: AccountId,
+        owner: H160,
     }
 
     /// Emitted when an owner is removed from the wallet.
@@ -227,7 +229,7 @@ mod multisig {
     pub struct OwnerRemoval {
         /// The owner that was removed.
         #[ink(topic)]
-        owner: AccountId,
+        owner: H160,
     }
 
     /// Emitted when the requirement changed.
@@ -242,7 +244,7 @@ mod multisig {
     pub struct Multisig {
         /// Every entry in this map represents the confirmation of an owner for a
         /// transaction. This is effectively a set rather than a map.
-        confirmations: Mapping<(TransactionId, AccountId), ()>,
+        confirmations: Mapping<(TransactionId, H160), ()>,
         /// The amount of confirmations for every transaction. This is a redundant
         /// information and is kept in order to prevent iterating through the
         /// confirmation set to check if a transaction is confirmed.
@@ -254,9 +256,9 @@ mod multisig {
         transaction_list: Transactions,
         /// The list is a vector because iterating over it is necessary when cleaning
         /// up the confirmation set.
-        owners: Vec<AccountId>,
+        owners: Vec<H160>,
         /// Redundant information to speed up the check whether a caller is an owner.
-        is_owner: Mapping<AccountId, ()>,
+        is_owner: Mapping<H160, ()>,
         /// Minimum number of owners that have to confirm a transaction to be executed.
         requirement: u32,
     }
@@ -271,7 +273,7 @@ mod multisig {
         ///
         /// If `requirement` violates our invariant.
         #[ink(constructor)]
-        pub fn new(requirement: u32, mut owners: Vec<AccountId>) -> Self {
+        pub fn new(requirement: u32, mut owners: Vec<H160>) -> Self {
             let mut contract = Multisig::default();
             owners.sort_unstable();
             owners.dedup();
@@ -321,20 +323,18 @@ mod multisig {
         ///     Transaction,
         /// };
         ///
-        /// type AccountId = <Env as Environment>::AccountId;
-        ///
         /// // address of an existing `Multisig` contract
-        /// let wallet_id: AccountId = [7u8; 32].into();
+        /// let wallet_id: ink::H160 = [7u8; 20].into();
         ///
         /// // first create the transaction that adds `alice` through `add_owner`
-        /// let alice: AccountId = [1u8; 32].into();
+        /// let alice: ink::H160 = [1u8; 20].into();
         /// let add_owner_args = ArgumentList::empty().push_arg(&alice);
         ///
         /// let transaction_candidate = Transaction {
         ///     callee: wallet_id,
         ///     selector: selector_bytes!("add_owner"),
         ///     input: add_owner_args.encode(),
-        ///     transferred_value: 0,
+        ///     transferred_value: ink::U256::zero(),
         ///     ref_time_limit: 0,
         ///     allow_reentry: true,
         /// };
@@ -365,7 +365,7 @@ mod multisig {
         ///     .invoke();
         /// ```
         #[ink(message)]
-        pub fn add_owner(&mut self, new_owner: AccountId) {
+        pub fn add_owner(&mut self, new_owner: H160) {
             self.ensure_from_wallet();
             self.ensure_no_owner(&new_owner);
             ensure_requirement_is_valid(
@@ -387,7 +387,7 @@ mod multisig {
         ///
         /// If `owner` is no owner of the wallet.
         #[ink(message)]
-        pub fn remove_owner(&mut self, owner: AccountId) {
+        pub fn remove_owner(&mut self, owner: H160) {
             self.ensure_from_wallet();
             self.ensure_owner(&owner);
             // If caller is an owner the len has to be > 0
@@ -411,7 +411,7 @@ mod multisig {
         ///
         /// If `old_owner` is no owner or if `new_owner` already is one.
         #[ink(message)]
-        pub fn replace_owner(&mut self, old_owner: AccountId, new_owner: AccountId) {
+        pub fn replace_owner(&mut self, old_owner: H160, new_owner: H160) {
             self.ensure_from_wallet();
             self.ensure_owner(&old_owner);
             self.ensure_no_owner(&new_owner);
@@ -620,7 +620,7 @@ mod multisig {
         /// by `confirmer`.
         fn confirm_by_caller(
             &mut self,
-            confirmer: AccountId,
+            confirmer: H160,
             transaction: TransactionId,
         ) -> ConfirmationStatus {
             let mut count = self.confirmation_count.get(transaction).unwrap_or(0);
@@ -652,7 +652,7 @@ mod multisig {
 
         /// Get the index of `owner` in `self.owners`.
         /// Panics if `owner` is not found in `self.owners`.
-        fn owner_index(&self, owner: &AccountId) -> u32 {
+        fn owner_index(&self, owner: &H160) -> u32 {
             self.owners.iter().position(|x| *x == *owner).expect(
                 "This is only called after it was already verified that the id is
                  actually an owner.",
@@ -682,7 +682,7 @@ mod multisig {
 
         /// Remove all confirmation state associated with `owner`.
         /// Also adjusts the `self.confirmation_count` variable.
-        fn clean_owner_confirmations(&mut self, owner: &AccountId) {
+        fn clean_owner_confirmations(&mut self, owner: &H160) {
             for trans_id in &self.transaction_list.transactions {
                 let key = (*trans_id, *owner);
                 if self.confirmations.contains(key) {
@@ -717,16 +717,16 @@ mod multisig {
 
         /// Panic if the sender is not this wallet.
         fn ensure_from_wallet(&self) {
-            assert_eq!(self.env().caller(), self.env().account_id());
+            assert_eq!(self.env().caller(), self.env().address());
         }
 
         /// Panic if `owner` is not an owner,
-        fn ensure_owner(&self, owner: &AccountId) {
+        fn ensure_owner(&self, owner: &H160) {
             assert!(self.is_owner.contains(owner));
         }
 
         /// Panic if `owner` is an owner.
-        fn ensure_no_owner(&self, owner: &AccountId) {
+        fn ensure_no_owner(&self, owner: &H160) {
             assert!(!self.is_owner.contains(owner));
         }
     }
@@ -745,7 +745,7 @@ mod multisig {
             test,
         };
 
-        const WALLET: [u8; 32] = [7; 32];
+        const WALLET: [u8; 20] = [7; 20];
 
         impl Transaction {
             fn change_requirement(requirement: u32) -> Self {
@@ -754,22 +754,22 @@ mod multisig {
 
                 // Multisig::change_requirement()
                 Self {
-                    callee: AccountId::from(WALLET),
+                    callee: H160::from(WALLET),
                     selector: ink::selector_bytes!("change_requirement"),
                     input: call_args.encode(),
-                    transferred_value: 0,
+                    transferred_value: U256::zero(),
                     ref_time_limit: 1000000,
                     allow_reentry: false,
                 }
             }
         }
 
-        fn set_caller(sender: AccountId) {
-            ink::env::test::set_caller::<Environment>(sender);
+        fn set_caller(sender: H160) {
+            ink::env::test::set_caller(sender);
         }
 
         fn set_from_wallet() {
-            let callee = AccountId::from(WALLET);
+            let callee = H160::from(WALLET);
             set_caller(callee);
         }
 
@@ -783,14 +783,14 @@ mod multisig {
             set_caller(accounts.django);
         }
 
-        fn default_accounts() -> test::DefaultAccounts<Environment> {
-            ink::env::test::default_accounts::<Environment>()
+        fn default_accounts() -> test::DefaultAccounts {
+            ink::env::test::default_accounts()
         }
 
         fn build_contract() -> Multisig {
             // Set the contract's address as `WALLET`.
-            let callee: AccountId = AccountId::from(WALLET);
-            ink::env::test::set_callee::<ink::env::DefaultEnvironment>(callee);
+            let callee: H160 = H160::from(WALLET);
+            ink::env::test::set_callee(callee);
 
             let accounts = default_accounts();
             let owners = vec![accounts.alice, accounts.bob, accounts.eve];

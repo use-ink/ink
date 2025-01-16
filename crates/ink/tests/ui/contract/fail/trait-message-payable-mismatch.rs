@@ -1,3 +1,5 @@
+#![allow(unexpected_cfgs)]
+
 #[ink::trait_definition]
 pub trait TraitDefinition {
     #[ink(message)]

@@ -47,6 +47,7 @@ impl Environment for CustomEnvironment {
     type Hash = <ink::env::DefaultEnvironment as Environment>::Hash;
     type BlockNumber = <ink::env::DefaultEnvironment as Environment>::BlockNumber;
     type Timestamp = <ink::env::DefaultEnvironment as Environment>::Timestamp;
+    type EventRecord = <ink::env::DefaultEnvironment as Environment>::EventRecord;
 
     type ChainExtension = FetchRandom;
 }

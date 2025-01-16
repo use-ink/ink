@@ -29,7 +29,7 @@ use syn::Result;
 ///
 /// The system requirements are:
 ///
-/// - A Substrate node with `pallet-contracts` installed on the local system. You can e.g.
+/// - A Substrate node with `pallet-revive` installed on the local system. You can e.g.
 ///   use [`substrate-contracts-node`](https://github.com/paritytech/substrate-contracts-node)
 ///   and install it on your PATH, or provide a path to an executable using the
 ///   `CONTRACTS_NODE` environment variable.
@@ -67,7 +67,7 @@ use syn::Result;
 /// ```
 ///
 /// In this configuration the test will not run against a node that is running in the
-/// background, but against an in-process slimmed down `pallet-contracts` execution
+/// background, but against an in-process slimmed down `pallet-revive` execution
 /// environment.
 ///
 /// Please see [the page on testing with DRink!](https://use.ink/basics/contract-testing/drink)

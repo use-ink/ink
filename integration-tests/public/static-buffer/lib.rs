@@ -9,6 +9,7 @@ pub mod static_buffer {
 
     #[allow(unused_imports)]
     use ink::env::BUFFER_SIZE;
+
     #[ink(storage)]
     pub struct StaticBuffer {
         value: bool,
@@ -28,10 +29,11 @@ pub mod static_buffer {
         }
 
         /// Returns the caller of the contract.
-        /// Should panic if the buffer size is less than 32 bytes.
+        /// Should panic if the buffer size is less than 40 bytes (2 * 20 bytes
+        /// for each `H160`).
         #[ink(message)]
-        pub fn get_caller(&self) -> AccountId {
-            self.env().caller()
+        pub fn get_caller(&self) -> (ink::H160, ink::H160) {
+            (self.env().caller(), self.env().caller())
         }
 
         #[ink(message)]
@@ -48,18 +50,6 @@ pub mod static_buffer {
         }
     }
 
-    #[cfg(test)]
-    mod tests {
-        use super::*;
-
-        #[ink::test]
-        #[should_panic(expected = "the output buffer is too small!")]
-        fn run_out_buffer_memory() {
-            let flipper = StaticBuffer::new(false);
-            flipper.get_caller()
-        }
-    }
-
     #[cfg(all(test, feature = "e2e-tests"))]
     mod e2e_tests {
         use super::*;
@@ -67,12 +57,22 @@ pub mod static_buffer {
 
         type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
+        fn assert_buffer_size() {
+            // this is because we need 32 byte for the instantiation to succeed.
+            // for the call we provoke an exhaustion of the static buffer.
+            const ERR: &str = "For this test the env variable `INK_STATIC_BUFFER_SIZE` needs to be set to `32`";
+            let buffer_size = std::env::var("INK_STATIC_BUFFER_SIZE")
+                .unwrap_or_else(|err| panic!("{} {}", ERR, err));
+            assert_eq!(buffer_size, "32", "{}", ERR);
+        }
+
         #[ink_e2e::test]
         async fn e2e_run_out_of_buffer_memory<Client: E2EBackend>(
             mut client: Client,
         ) -> E2EResult<()> {
             // given
-            let mut constructor = StaticBufferRef::new(false);
+            assert_buffer_size();
+            let mut constructor = StaticBufferRef::new(true);
             let contract = client
                 .instantiate("static_buffer", &ink_e2e::alice(), &mut constructor)
                 .submit()
@@ -82,13 +82,15 @@ pub mod static_buffer {
 
             // when
             let get = call_builder.get_caller();
-            // then panics if `INK_STATIC_BUFFER_SIZE` is less than 32 bytes.
+
+            // then panics if `INK_STATIC_BUFFER_SIZE` is less than 20 bytes.
             let res = client.call(&ink_e2e::bob(), &get).dry_run().await;
-            println!("{}", super::BUFFER_SIZE);
             assert!(
                 res.is_err(),
-                "Buffer size was larger than expected: {}",
-                super::BUFFER_SIZE.to_string()
+                "Call should have failed, but succeeded. Likely because the \
+                used buffer size was too large: {} {:?}",
+                super::BUFFER_SIZE.to_string(),
+                std::env::var("INK_STATIC_BUFFER_SIZE")
             );
 
             Ok(())
@@ -97,6 +99,7 @@ pub mod static_buffer {
         #[ink_e2e::test]
         async fn buffer<Client: E2EBackend>(mut client: Client) -> E2EResult<()> {
             // given
+            assert_buffer_size();
             let mut constructor = StaticBufferRef::new_default();
 
             // when
@@ -116,8 +119,8 @@ pub mod static_buffer {
             let value = value.unwrap();
             let padding = value.0;
             let align = value.1;
-            assert_eq!(padding, 8);
-            assert_eq!(align, 4);
+            assert_eq!(align, 8, "align incorrect, should be 8");
+            assert_eq!(padding, 4, "padding incorrect, should be 4");
             Ok(())
         }
     }

@@ -17,7 +17,7 @@ include = ["Cargo.toml", "*.rs", "LICENSE"]
 crate-type = ["cdylib"]
 
 [dependencies]
-dylint_linting = "3.2.0"
+dylint_linting = "3.3.0"
 if_chain = "1.0.2"
 log = "0.4.14"
 regex = "1.5.4"
@@ -27,7 +27,7 @@ ink_env = { version = "=5.1.0", path = "../../crates/env", default-features = fa
 #rustc_middle = {path = "/Users/michi/.rustup/toolchains/nightly-2024-09-05-aarch64-apple-darwin/lib/rustlib/rustc-src/rust/compiler/rustc_middle", optional = true}
 
 [dev-dependencies]
-dylint_testing = "3.2.0"
+dylint_testing = "3.3.0"
 
 # The ink! dependencies used to build the `ui` tests and to compile the linting
 # library with `--default-features=std` (see the `features` section bellow).
@@ -89,8 +89,6 @@ std = [
     "scale-info/std",
 ]
 ink-as-dependency = []
-revive = [
-    "ink/revive",
-    "ink_env/revive",
-    "ink_storage/revive"
-]
+
+[lints.rust]
+unexpected_cfgs = { level = "warn", check-cfg = ['cfg(dylint_lib, values("ink_linting"))'] }

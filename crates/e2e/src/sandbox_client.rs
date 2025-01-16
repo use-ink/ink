@@ -22,7 +22,11 @@ use crate::{
         salt,
         ContractsRegistry,
     },
-    contract_results::BareInstantiationResult,
+    contract_results::{
+        BareInstantiationResult,
+        ContractExecResultFor,
+        ContractResult,
+    },
     error::SandboxErr,
     log_error,
     CallBuilderFinal,
@@ -32,26 +36,35 @@ use crate::{
     E2EBackend,
     InstantiateDryRunResult,
     UploadResult,
+    H256,
 };
-
-use frame_support::traits::fungible::Inspect;
+use frame_support::{
+    dispatch::RawOrigin,
+    pallet_prelude::DispatchError,
+    traits::{
+        fungible::Inspect,
+        IsType,
+    },
+};
+use ink_env::Environment;
+use ink_primitives::DepositLimit;
 use ink_sandbox::{
     api::prelude::*,
+    frame_system,
+    frame_system::pallet_prelude::OriginFor,
     pallet_balances,
-    pallet_contracts,
+    pallet_revive,
     AccountIdFor,
     RuntimeCall,
     Sandbox,
     Weight,
 };
-use pallet_contracts::ContractResult;
-
-use ink_env::Environment;
 use jsonrpsee::core::async_trait;
-use pallet_contracts::{
+use pallet_revive::{
+    evm::U256,
     CodeUploadReturnValue,
-    ContractInstantiateResult,
     InstantiateReturnValue,
+    MomentOf,
 };
 use scale::{
     Decode,
@@ -61,6 +74,7 @@ use sp_core::{
     sr25519::Pair,
     Pair as _,
 };
+use sp_runtime::traits::Bounded;
 use std::{
     marker::PhantomData,
     path::PathBuf,
@@ -73,22 +87,22 @@ use subxt_signer::sr25519::Keypair;
 
 type BalanceOf<R> = <R as pallet_balances::Config>::Balance;
 type ContractsBalanceOf<R> =
-    <<R as pallet_contracts::Config>::Currency as Inspect<AccountIdFor<R>>>::Balance;
+    <<R as pallet_revive::Config>::Currency as Inspect<AccountIdFor<R>>>::Balance;
 
-pub struct Client<AccountId, Hash, S: Sandbox> {
+pub struct Client<AccountId, S: Sandbox> {
     sandbox: S,
     contracts: ContractsRegistry,
-    _phantom: PhantomData<(AccountId, Hash)>,
+    _phantom: PhantomData<AccountId>,
 }
 
 // While it is not necessary true that `Client` is `Send`, it will not be used in a way
 // that would violate this bound. In particular, all `Client` instances will be operating
 // synchronously.
-unsafe impl<AccountId, Hash, S: Sandbox> Send for Client<AccountId, Hash, S> {}
-impl<AccountId, Hash, S: Sandbox> Client<AccountId, Hash, S>
+unsafe impl<AccountId, S: Sandbox> Send for Client<AccountId, S> {}
+impl<AccountId, S: Sandbox> Client<AccountId, S>
 where
     S: Default,
-    S::Runtime: pallet_balances::Config + pallet_contracts::Config,
+    S::Runtime: pallet_balances::Config + pallet_revive::Config,
     AccountIdFor<S::Runtime>: From<[u8; 32]>,
     BalanceOf<S::Runtime>: From<u128>,
 {
@@ -127,8 +141,7 @@ where
 }
 
 #[async_trait]
-impl<AccountId: AsRef<[u8; 32]> + Send, Hash, S: Sandbox> ChainBackend
-    for Client<AccountId, Hash, S>
+impl<AccountId: AsRef<[u8; 32]> + Send, S: Sandbox> ChainBackend for Client<AccountId, S>
 where
     S::Runtime: pallet_balances::Config,
     AccountIdFor<S::Runtime>: From<[u8; 32]>,
@@ -208,18 +221,21 @@ where
 #[async_trait]
 impl<
         AccountId: Clone + Send + Sync + From<[u8; 32]> + AsRef<[u8; 32]>,
-        Hash: Copy + Send + From<[u8; 32]>,
         S: Sandbox,
-        E: Environment<
-                AccountId = AccountId,
-                Balance = ContractsBalanceOf<S::Runtime>,
-                Hash = Hash,
-            > + 'static,
-    > BuilderClient<E> for Client<AccountId, Hash, S>
+        E: Environment<AccountId = AccountId, Balance = ContractsBalanceOf<S::Runtime>>
+            + 'static,
+    > BuilderClient<E> for Client<AccountId, S>
 where
-    S::Runtime: pallet_balances::Config + pallet_contracts::Config,
+    S::Runtime: pallet_balances::Config + pallet_revive::Config,
     AccountIdFor<S::Runtime>: From<[u8; 32]> + AsRef<[u8; 32]>,
     ContractsBalanceOf<S::Runtime>: Send + Sync,
+
+    ContractsBalanceOf<S::Runtime>: Into<U256> + TryFrom<U256> + Bounded,
+    MomentOf<S::Runtime>: Into<U256>,
+
+    // todo
+    <<S as Sandbox>::Runtime as frame_system::Config>::Hash:
+        frame_support::traits::IsType<sp_core::H256>,
 {
     async fn bare_instantiate<Contract: Clone, Args: Send + Sync + Encode + Clone, R>(
         &mut self,
@@ -228,8 +244,11 @@ where
         constructor: &mut CreateBuilderPartial<E, Contract, Args, R>,
         value: E::Balance,
         gas_limit: Weight,
-        storage_deposit_limit: Option<E::Balance>,
-    ) -> Result<BareInstantiationResult<E, Self::EventLog>, Self::Error> {
+        storage_deposit_limit: DepositLimit<E::Balance>,
+    ) -> Result<BareInstantiationResult<Self::EventLog>, Self::Error> {
+        let _ =
+            <Client<AccountId, S> as BuilderClient<E>>::map_account(self, caller).await;
+
         let code = self.contracts.load_code(contract_name);
         let data = constructor_exec_input(constructor.clone());
 
@@ -238,22 +257,21 @@ where
             value,
             data,
             salt(),
-            keypair_to_account(caller),
+            caller_to_origin::<S>(caller),
             gas_limit,
             storage_deposit_limit,
         );
 
-        let account_id_raw = match &result.result {
+        let addr_raw = match &result.result {
             Err(err) => {
                 log_error(&format!("Instantiation failed: {err:?}"));
                 return Err(SandboxErr::new(format!("bare_instantiate: {err:?}")));
             }
-            Ok(res) => *res.account_id.as_ref(),
+            Ok(res) => res.addr,
         };
-        let account_id = AccountId::from(account_id_raw);
 
         Ok(BareInstantiationResult {
-            account_id: account_id.clone(),
+            addr: addr_raw,
             events: (), // todo: https://github.com/Cardinal-Cryptography/drink/issues/32
         })
     }
@@ -264,8 +282,13 @@ where
         caller: &Keypair,
         constructor: &mut CreateBuilderPartial<E, Contract, Args, R>,
         value: E::Balance,
-        storage_deposit_limit: Option<E::Balance>,
+        storage_deposit_limit: DepositLimit<E::Balance>,
     ) -> Result<InstantiateDryRunResult<E>, Self::Error> {
+        // todo has to be: let _ = <Client<AccountId, S> as
+        // BuilderClient<E>>::map_account_dry_run(self, &caller).await;
+        let _ =
+            <Client<AccountId, S> as BuilderClient<E>>::map_account(self, caller).await;
+
         let code = self.contracts.load_code(contract_name);
         let data = constructor_exec_input(constructor.clone());
         let result = self.sandbox.dry_run(|sandbox| {
@@ -274,21 +297,20 @@ where
                 value,
                 data,
                 salt(),
-                keypair_to_account(caller),
+                caller_to_origin::<S>(caller),
                 S::default_gas_limit(),
                 storage_deposit_limit,
             )
         });
 
-        let account_id_raw = match &result.result {
+        let addr_id_raw = match &result.result {
             Err(err) => {
                 panic!("Instantiate dry-run failed: {err:?}!")
             }
-            Ok(res) => *res.account_id.as_ref(),
+            Ok(res) => res.addr,
         };
-        let account_id = AccountId::from(account_id_raw);
 
-        let result = ContractInstantiateResult {
+        let result = ContractResult::<InstantiateReturnValue, E::Balance> {
             gas_consumed: result.gas_consumed,
             gas_required: result.gas_required,
             storage_deposit: result.storage_deposit,
@@ -296,10 +318,9 @@ where
             result: result.result.map(|r| {
                 InstantiateReturnValue {
                     result: r.result,
-                    account_id,
+                    addr: addr_id_raw, // todo
                 }
             }),
-            events: None,
         };
         Ok(result.into())
     }
@@ -308,15 +329,14 @@ where
         &mut self,
         contract_name: &str,
         caller: &Keypair,
-        storage_deposit_limit: Option<E::Balance>,
+        storage_deposit_limit: E::Balance,
     ) -> Result<UploadResult<E, Self::EventLog>, Self::Error> {
         let code = self.contracts.load_code(contract_name);
 
         let result = match self.sandbox.upload_contract(
             code,
-            keypair_to_account(caller),
+            caller_to_origin::<S>(caller),
             storage_deposit_limit,
-            pallet_contracts::Determinism::Enforced,
         ) {
             Ok(result) => result,
             Err(err) => {
@@ -325,16 +345,10 @@ where
             }
         };
 
-        let code_hash_raw: [u8; 32] = result
-            .code_hash
-            .as_ref()
-            .try_into()
-            .expect("Invalid code hash");
-        let code_hash = Hash::from(code_hash_raw);
         Ok(UploadResult {
-            code_hash,
+            code_hash: result.code_hash,
             dry_run: Ok(CodeUploadReturnValue {
-                code_hash,
+                code_hash: result.code_hash,
                 deposit: result.deposit,
             }),
             events: (),
@@ -344,7 +358,7 @@ where
     async fn bare_remove_code(
         &mut self,
         _caller: &Keypair,
-        _code_hash: E::Hash,
+        _code_hash: H256,
     ) -> Result<Self::EventLog, Self::Error> {
         unimplemented!("sandbox does not yet support remove_code")
     }
@@ -355,24 +369,26 @@ where
         message: &CallBuilderFinal<E, Args, RetType>,
         value: E::Balance,
         gas_limit: Weight,
-        storage_deposit_limit: Option<E::Balance>,
+        storage_deposit_limit: DepositLimit<E::Balance>,
     ) -> Result<Self::EventLog, Self::Error>
     where
         CallBuilderFinal<E, Args, RetType>: Clone,
     {
-        let account_id = message.clone().params().callee().clone();
+        let _ =
+            <Client<AccountId, S> as BuilderClient<E>>::map_account(self, caller).await;
+
+        // todo rename any account_id coming back from callee
+        let addr = *message.clone().params().callee();
         let exec_input = Encode::encode(message.clone().params().exec_input());
-        let account_id = (*account_id.as_ref()).into();
 
         self.sandbox
             .call_contract(
-                account_id,
+                addr,
                 value,
                 exec_input,
-                keypair_to_account(caller),
+                caller_to_origin::<S>(caller),
                 gas_limit,
                 storage_deposit_limit,
-                pallet_contracts::Determinism::Enforced,
             )
             .result
             .map_err(|err| SandboxErr::new(format!("bare_call: {err:?}")))?;
@@ -385,54 +401,93 @@ where
         caller: &Keypair,
         message: &CallBuilderFinal<E, Args, RetType>,
         value: E::Balance,
-        storage_deposit_limit: Option<E::Balance>,
+        storage_deposit_limit: DepositLimit<E::Balance>,
     ) -> Result<CallDryRunResult<E, RetType>, Self::Error>
     where
         CallBuilderFinal<E, Args, RetType>: Clone,
     {
-        let account_id = message.clone().params().callee().clone();
+        // todo there's side effects here
+        let _ =
+            <Client<AccountId, S> as BuilderClient<E>>::map_account(self, caller).await;
+
+        let addr = *message.clone().params().callee();
         let exec_input = Encode::encode(message.clone().params().exec_input());
-        let account_id = (*account_id.as_ref()).into();
 
         let result = self.sandbox.dry_run(|sandbox| {
             sandbox.call_contract(
-                account_id,
+                addr,
                 value,
                 exec_input,
-                keypair_to_account(caller),
+                caller_to_origin::<S>(caller),
                 S::default_gas_limit(),
                 storage_deposit_limit,
-                pallet_contracts::Determinism::Enforced,
             )
         });
+        if result.result.is_err() {
+            let res = result.result.clone().unwrap_err();
+            if let DispatchError::Module(m) = res {
+                let msg = m.message;
+                if msg.is_some() {
+                    let s = msg.unwrap();
+                    if s.contains("AccountUnmapped") {
+                        panic!("something is wrong, we mapped the account before")
+                    }
+                }
+            }
+        }
+        // todo error when `AccountUnmapped`
         Ok(CallDryRunResult {
-            exec_result: ContractResult {
+            exec_result: ContractExecResultFor::<E> {
                 gas_consumed: result.gas_consumed,
                 gas_required: result.gas_required,
                 storage_deposit: result.storage_deposit,
                 debug_message: result.debug_message,
                 result: result.result,
-                events: None,
             },
             _marker: Default::default(),
+        })
+    }
+
+    async fn map_account_dry_run(&mut self, caller: &Keypair) -> Result<(), Self::Error> {
+        let caller = keypair_to_account(caller);
+        let origin = RawOrigin::Signed(caller);
+        let origin = OriginFor::<S::Runtime>::from(origin);
+
+        self.sandbox
+            .dry_run(|sandbox| sandbox.map_account(origin))
+            .map_err(|err| {
+                SandboxErr::new(format!("map_account_dry_run: execution error {:?}", err))
+            })
+    }
+
+    async fn map_account(&mut self, caller: &Keypair) -> Result<(), Self::Error> {
+        let caller = keypair_to_account(caller);
+        let origin = RawOrigin::Signed(caller);
+        let origin = OriginFor::<S::Runtime>::from(origin);
+
+        self.sandbox.map_account(origin).map_err(|err| {
+            SandboxErr::new(format!("map_account: execution error {:?}", err))
         })
     }
 }
 
 impl<
         AccountId: Clone + Send + Sync + From<[u8; 32]> + AsRef<[u8; 32]>,
-        Hash: Copy + Send + From<[u8; 32]>,
         Config: Sandbox,
         E: Environment<
                 AccountId = AccountId,
                 Balance = ContractsBalanceOf<Config::Runtime>,
-                Hash = Hash,
             > + 'static,
-    > E2EBackend<E> for Client<AccountId, Hash, Config>
+    > E2EBackend<E> for Client<AccountId, Config>
 where
-    Config::Runtime: pallet_balances::Config + pallet_contracts::Config,
+    Config::Runtime: pallet_balances::Config + pallet_revive::Config,
     AccountIdFor<Config::Runtime>: From<[u8; 32]> + AsRef<[u8; 32]>,
     ContractsBalanceOf<Config::Runtime>: Send + Sync,
+    ContractsBalanceOf<Config::Runtime>: Into<U256> + TryFrom<U256> + Bounded,
+    MomentOf<Config::Runtime>: Into<U256>,
+
+    // todo
+    <Config::Runtime as frame_system::Config>::Hash: IsType<sp_core::H256>,
 {
 }
 
@@ -440,19 +495,26 @@ fn keypair_to_account<AccountId: From<[u8; 32]>>(keypair: &Keypair) -> AccountId
     AccountId::from(keypair.public_key().0)
 }
 
+fn caller_to_origin<S>(caller: &Keypair) -> OriginFor<S::Runtime>
+where
+    S: Sandbox,
+    S::Runtime: pallet_balances::Config + pallet_revive::Config,
+    AccountIdFor<S::Runtime>: From<[u8; 32]> + AsRef<[u8; 32]>,
+{
+    let caller = keypair_to_account(caller);
+    let origin = RawOrigin::Signed(caller);
+    OriginFor::<S::Runtime>::from(origin)
+}
+
 #[async_trait]
 impl<
         AccountId: Clone + Send + Sync + From<[u8; 32]> + AsRef<[u8; 32]>,
-        Hash: Copy + From<[u8; 32]>,
         S: Sandbox,
-        E: Environment<
-                AccountId = AccountId,
-                Balance = ContractsBalanceOf<S::Runtime>,
-                Hash = Hash,
-            > + 'static,
-    > ContractsBackend<E> for Client<AccountId, Hash, S>
+        E: Environment<AccountId = AccountId, Balance = ContractsBalanceOf<S::Runtime>>
+            + 'static,
+    > ContractsBackend<E> for Client<AccountId, S>
 where
-    S::Runtime: pallet_balances::Config + pallet_contracts::Config,
+    S::Runtime: pallet_balances::Config + pallet_revive::Config,
     AccountIdFor<S::Runtime>: From<[u8; 32]> + AsRef<[u8; 32]>,
 {
     type Error = SandboxErr;
@@ -471,7 +533,7 @@ pub mod preset {
             Sandbox,
             Snapshot,
         };
-        pub use pallet_contracts_mock_network::*;
+        pub use pallet_revive_mock_network::*;
         use sp_runtime::traits::Dispatchable;
 
         /// A [`ink_sandbox::Sandbox`] that can be used to test contracts

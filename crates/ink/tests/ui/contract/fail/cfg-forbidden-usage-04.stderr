@@ -6,7 +6,7 @@ error: This `cfg` attribute is not allowed.
        - `any`
        - `not`
        - `all`
- --> tests/ui/contract/fail/cfg-forbidden-usage-04.rs:7:25
+ --> tests/ui/contract/fail/cfg-forbidden-usage-04.rs:9:25
   |
-7 |         #[cfg(any(test, target_family = "wasm", feature = "std"))]
+9 |         #[cfg(any(test, target_family = "wasm", feature = "std"))]
   |                         ^^^^^^^^^^^^^

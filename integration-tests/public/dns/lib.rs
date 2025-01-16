@@ -2,39 +2,43 @@
 
 #[ink::contract]
 mod dns {
-    use ink::storage::Mapping;
+    use ink::{
+        storage::Mapping,
+        H160,
+        H256,
+    };
 
     /// Emitted whenever a new name is being registered.
     #[ink(event)]
     pub struct Register {
         #[ink(topic)]
-        name: Hash,
+        name: H256,
         #[ink(topic)]
-        from: AccountId,
+        from: H160,
     }
 
     /// Emitted whenever an address changes.
     #[ink(event)]
     pub struct SetAddress {
         #[ink(topic)]
-        name: Hash,
-        from: AccountId,
+        name: H256,
+        from: H160,
         #[ink(topic)]
-        old_address: Option<AccountId>,
+        old_address: Option<H160>,
         #[ink(topic)]
-        new_address: AccountId,
+        new_address: H160,
     }
 
     /// Emitted whenever a name is being transferred.
     #[ink(event)]
     pub struct Transfer {
         #[ink(topic)]
-        name: Hash,
-        from: AccountId,
+        name: H256,
+        from: H160,
         #[ink(topic)]
-        old_owner: Option<AccountId>,
+        old_owner: Option<H160>,
         #[ink(topic)]
-        new_owner: AccountId,
+        new_owner: H160,
     }
 
     /// Domain name service contract inspired by
@@ -55,19 +59,19 @@ mod dns {
     #[ink(storage)]
     pub struct DomainNameService {
         /// A hashmap to store all name to addresses mapping.
-        name_to_address: Mapping<Hash, AccountId>,
+        name_to_address: Mapping<H256, H160>,
         /// A hashmap to store all name to owners mapping.
-        name_to_owner: Mapping<Hash, AccountId>,
+        name_to_owner: Mapping<H256, H160>,
         /// The default address.
-        default_address: AccountId,
+        default_address: H160,
     }
 
     impl Default for DomainNameService {
         fn default() -> Self {
             let mut name_to_address = Mapping::new();
-            name_to_address.insert(Hash::default(), &zero_address());
+            name_to_address.insert(H256::default(), &zero_address());
             let mut name_to_owner = Mapping::new();
-            name_to_owner.insert(Hash::default(), &zero_address());
+            name_to_owner.insert(H256::default(), &zero_address());
 
             Self {
                 name_to_address,
@@ -99,7 +103,7 @@ mod dns {
 
         /// Register specific name with caller as owner.
         #[ink(message)]
-        pub fn register(&mut self, name: Hash) -> Result<()> {
+        pub fn register(&mut self, name: H256) -> Result<()> {
             let caller = self.env().caller();
             if self.name_to_owner.contains(name) {
                 return Err(Error::NameAlreadyExists)
@@ -113,7 +117,7 @@ mod dns {
 
         /// Set address for specific name.
         #[ink(message)]
-        pub fn set_address(&mut self, name: Hash, new_address: AccountId) -> Result<()> {
+        pub fn set_address(&mut self, name: H256, new_address: H160) -> Result<()> {
             let caller = self.env().caller();
             let owner = self.get_owner_or_default(name);
             if caller != owner {
@@ -134,7 +138,7 @@ mod dns {
 
         /// Transfer owner to another address.
         #[ink(message)]
-        pub fn transfer(&mut self, name: Hash, to: AccountId) -> Result<()> {
+        pub fn transfer(&mut self, name: H256, to: H160) -> Result<()> {
             let caller = self.env().caller();
             let owner = self.get_owner_or_default(name);
             if caller != owner {
@@ -156,23 +160,23 @@ mod dns {
 
         /// Get address for specific name.
         #[ink(message)]
-        pub fn get_address(&self, name: Hash) -> AccountId {
+        pub fn get_address(&self, name: H256) -> H160 {
             self.get_address_or_default(name)
         }
 
         /// Get owner of specific name.
         #[ink(message)]
-        pub fn get_owner(&self, name: Hash) -> AccountId {
+        pub fn get_owner(&self, name: H256) -> H160 {
             self.get_owner_or_default(name)
         }
 
         /// Returns the owner given the hash or the default address.
-        fn get_owner_or_default(&self, name: Hash) -> AccountId {
+        fn get_owner_or_default(&self, name: H256) -> H160 {
             self.name_to_owner.get(name).unwrap_or(self.default_address)
         }
 
         /// Returns the address given the hash or the default address.
-        fn get_address_or_default(&self, name: Hash) -> AccountId {
+        fn get_address_or_default(&self, name: H256) -> H160 {
             self.name_to_address
                 .get(name)
                 .unwrap_or(self.default_address)
@@ -182,27 +186,26 @@ mod dns {
     /// Helper for referencing the zero address (`0x00`). Note that in practice this
     /// address should not be treated in any special way (such as a default
     /// placeholder) since it has a known private key.
-    fn zero_address() -> AccountId {
-        [0u8; 32].into()
+    fn zero_address() -> H160 {
+        [0u8; 20].into()
     }
 
     #[cfg(test)]
     mod tests {
         use super::*;
 
-        fn default_accounts(
-        ) -> ink::env::test::DefaultAccounts<ink::env::DefaultEnvironment> {
-            ink::env::test::default_accounts::<Environment>()
+        fn default_accounts() -> ink::env::test::DefaultAccounts {
+            ink::env::test::default_accounts()
         }
 
-        fn set_next_caller(caller: AccountId) {
-            ink::env::test::set_caller::<Environment>(caller);
+        fn set_next_caller(caller: H160) {
+            ink::env::test::set_caller(caller);
         }
 
         #[ink::test]
         fn register_works() {
             let default_accounts = default_accounts();
-            let name = Hash::from([0x99; 32]);
+            let name = H256::from([0x99; 32]);
 
             set_next_caller(default_accounts.alice);
             let mut contract = DomainNameService::new();
@@ -214,7 +217,7 @@ mod dns {
         #[ink::test]
         fn set_address_works() {
             let accounts = default_accounts();
-            let name = Hash::from([0x99; 32]);
+            let name = H256::from([0x99; 32]);
 
             set_next_caller(accounts.alice);
 
@@ -237,7 +240,7 @@ mod dns {
         #[ink::test]
         fn transfer_works() {
             let accounts = default_accounts();
-            let name = Hash::from([0x99; 32]);
+            let name = H256::from([0x99; 32]);
 
             set_next_caller(accounts.alice);
 

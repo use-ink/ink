@@ -27,57 +27,66 @@ use crate::{
     types::Environment,
     Error,
 };
-#[cfg(not(feature = "revive"))]
-use pallet_contracts_uapi::CallFlags;
-#[cfg(feature = "revive")]
+use ink_primitives::H160;
 use pallet_revive_uapi::CallFlags;
 
 /// The `delegatecall` call type. Performs a call with the given code hash.
 #[derive(Clone)]
-pub struct DelegateCall<E: Environment> {
-    code_hash: E::Hash,
-    call_flags: CallFlags,
+pub struct DelegateCall {
+    // todo comments please
+    address: H160,
+    flags: CallFlags,
+    ref_time_limit: u64,
+    proof_size_limit: u64,
+    // todo U256
+    deposit_limit: Option<[u8; 32]>,
 }
 
-impl<E: Environment> DelegateCall<E> {
+impl DelegateCall {
     /// Returns a clean builder for [`DelegateCall`]
-    pub const fn new(code_hash: E::Hash) -> Self {
+    pub const fn new(address: H160) -> Self {
         DelegateCall {
-            code_hash,
-            call_flags: CallFlags::empty(),
+            address,
+            flags: CallFlags::empty(),
+            ref_time_limit: 0,
+            proof_size_limit: 0,
+            deposit_limit: None,
         }
     }
 
-    /// Sets the `code_hash` to perform a delegate call with.
-    pub fn code_hash(self, code_hash: E::Hash) -> Self {
+    /// Sets the `address` to perform a delegate call with.
+    pub fn address(self, address: H160) -> Self {
         DelegateCall {
-            code_hash,
-            call_flags: CallFlags::empty(),
+            address,
+            flags: CallFlags::empty(),
+            ref_time_limit: 0,
+            proof_size_limit: 0,
+            deposit_limit: None,
         }
     }
 }
 
-impl<E, Args, RetType> CallBuilder<E, Set<DelegateCall<E>>, Args, RetType>
+impl<E, Args, RetType> CallBuilder<E, Set<DelegateCall>, Args, RetType>
 where
     E: Environment,
 {
-    /// Sets the `code_hash` to perform a delegate call with.
-    pub fn code_hash(self, code_hash: E::Hash) -> Self {
+    /// Sets the `address` to perform a delegate call with.
+    pub fn address(self, address: H160) -> Self {
         let call_type = self.call_type.value();
         CallBuilder {
             call_type: Set(DelegateCall {
-                code_hash,
+                address,
                 ..call_type
             }),
             ..self
         }
     }
 
-    /// Sets the `code_hash` to perform a delegate call with.
+    /// Sets the `CallFlags` to perform a delegate call with.
     pub fn call_flags(self, call_flags: CallFlags) -> Self {
         CallBuilder {
             call_type: Set(DelegateCall {
-                call_flags,
+                flags: call_flags,
                 ..self.call_type.value()
             }),
             exec_input: self.exec_input,
@@ -88,17 +97,12 @@ where
 }
 
 impl<E, Args, RetType>
-    CallBuilder<
-        E,
-        Set<DelegateCall<E>>,
-        Set<ExecutionInput<Args>>,
-        Set<ReturnType<RetType>>,
-    >
+    CallBuilder<E, Set<DelegateCall>, Set<ExecutionInput<Args>>, Set<ReturnType<RetType>>>
 where
     E: Environment,
 {
     /// Finalizes the call builder to call a function.
-    pub fn params(self) -> CallParams<E, DelegateCall<E>, Args, RetType> {
+    pub fn params(self) -> CallParams<E, DelegateCall, Args, RetType> {
         CallParams {
             call_type: self.call_type.value(),
             _return_type: Default::default(),
@@ -111,7 +115,7 @@ where
 impl<E, RetType>
     CallBuilder<
         E,
-        Set<DelegateCall<E>>,
+        Set<DelegateCall>,
         Unset<ExecutionInput<EmptyArgumentList>>,
         Unset<RetType>,
     >
@@ -119,7 +123,7 @@ where
     E: Environment,
 {
     /// Finalizes the call builder to call a function.
-    pub fn params(self) -> CallParams<E, DelegateCall<E>, EmptyArgumentList, ()> {
+    pub fn params(self) -> CallParams<E, DelegateCall, EmptyArgumentList, ()> {
         CallParams {
             call_type: self.call_type.value(),
             _return_type: Default::default(),
@@ -132,7 +136,7 @@ where
 impl<E>
     CallBuilder<
         E,
-        Set<DelegateCall<E>>,
+        Set<DelegateCall>,
         Unset<ExecutionInput<EmptyArgumentList>>,
         Unset<ReturnType<()>>,
     >
@@ -162,7 +166,7 @@ where
 }
 
 impl<E, Args, R>
-    CallBuilder<E, Set<DelegateCall<E>>, Set<ExecutionInput<Args>>, Set<ReturnType<R>>>
+    CallBuilder<E, Set<DelegateCall>, Set<ExecutionInput<Args>>, Set<ReturnType<R>>>
 where
     E: Environment,
     Args: scale::Encode,
@@ -193,24 +197,42 @@ where
     }
 }
 
-impl<E, Args, R> CallParams<E, DelegateCall<E>, Args, R>
+impl<E, Args, R> CallParams<E, DelegateCall, Args, R>
 where
     E: Environment,
 {
-    /// Returns the code hash which we use to perform a delegate call.
-    #[inline]
-    pub fn code_hash(&self) -> &E::Hash {
-        &self.call_type.code_hash
-    }
-
     /// Returns the call flags.
     #[inline]
     pub fn call_flags(&self) -> &CallFlags {
-        &self.call_type.call_flags
+        &self.call_type.flags
+    }
+
+    /// Returns the contract address which we use to perform a delegate call.
+    #[inline]
+    pub fn address(&self) -> &H160 {
+        &self.call_type.address
+    }
+
+    /// Returns the `ref_time_limit` which we use to perform a delegate call.
+    #[inline]
+    pub fn ref_time_limit(&self) -> u64 {
+        self.call_type.ref_time_limit
+    }
+
+    /// Returns the `proof_size_limit` which we use to perform a delegate call.
+    #[inline]
+    pub fn proof_size_limit(&self) -> u64 {
+        self.call_type.proof_size_limit
+    }
+
+    /// Returns the `deposit_limit` which we use to perform a delegate call.
+    #[inline]
+    pub fn deposit_limit(&self) -> &Option<[u8; 32]> {
+        &self.call_type.deposit_limit
     }
 }
 
-impl<E, Args, R> CallParams<E, DelegateCall<E>, Args, R>
+impl<E, Args, R> CallParams<E, DelegateCall, Args, R>
 where
     E: Environment,
     Args: scale::Encode,

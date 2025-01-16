@@ -34,7 +34,7 @@ where
 {
     struct Visitor;
 
-    impl<'b> serde::de::Visitor<'b> for Visitor {
+    impl serde::de::Visitor<'_> for Visitor {
         type Value = Vec<u8>;
 
         fn expecting(&self, formatter: &mut std::fmt::Formatter) -> std::fmt::Result {

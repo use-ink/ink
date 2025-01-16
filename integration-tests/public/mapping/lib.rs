@@ -10,6 +10,8 @@ mod mapping {
             vec::Vec,
         },
         storage::Mapping,
+        H160,
+        U256,
     };
 
     #[derive(Debug, PartialEq)]
@@ -23,9 +25,9 @@ mod mapping {
     #[derive(Default)]
     pub struct Mappings {
         /// Mapping from owner to number of owned token.
-        balances: Mapping<AccountId, Balance>,
+        balances: Mapping<H160, U256>,
         /// Mapping from owner to aliases.
-        names: Mapping<AccountId, Vec<String>>,
+        names: Mapping<H160, Vec<String>>,
     }
 
     impl Mappings {
@@ -44,7 +46,7 @@ mod mapping {
         /// Returns the balance of an account, or `None` if the account is not in the
         /// `Mapping`.
         #[ink(message)]
-        pub fn get_balance(&self) -> Option<Balance> {
+        pub fn get_balance(&self) -> Option<U256> {
             let caller = Self::env().caller();
             self.balances.get(caller)
         }
@@ -56,7 +58,7 @@ mod mapping {
         /// Returns the size of the pre-existing balance at the specified key if any.
         /// Returns `None` if the account was not previously in the `Mapping`.
         #[ink(message)]
-        pub fn insert_balance(&mut self, value: Balance) -> Option<u32> {
+        pub fn insert_balance(&mut self, value: U256) -> Option<u32> {
             let caller = Self::env().caller();
             self.balances.insert(caller, &value)
         }
@@ -95,7 +97,7 @@ mod mapping {
         ///
         /// Returns `None` if the account is not in the `Mapping`.
         #[ink(message)]
-        pub fn take_balance(&mut self) -> Option<Balance> {
+        pub fn take_balance(&mut self) -> Option<U256> {
             let caller = Self::env().caller();
             self.balances.take(caller)
         }
@@ -109,17 +111,28 @@ mod mapping {
         /// Returns `Err(_)` if the mapping value couldn't be encoded.
         #[ink(message)]
         pub fn try_insert_name(&mut self, name: String) -> Result<(), ContractError> {
+            ink::env::debug_println!("_____80");
             let caller = Self::env().caller();
             let mut names = match self.names.try_take(caller) {
-                None => Vec::new(),
-                Some(value) => value.map_err(|_| ContractError::ValueTooLarge)?,
+                None => {
+                    ink::env::debug_println!("_____81");
+                    Vec::new()
+                }
+                Some(value) => {
+                    ink::env::debug_println!("_____82");
+                    value.map_err(|_| ContractError::ValueTooLarge)?
+                }
             };
 
+            ink::env::debug_println!("_____83");
             names.push(name);
 
-            self.names
-                .try_insert(caller, &names)
-                .map_err(|_| ContractError::ValueTooLarge)?;
+            self.names.try_insert(caller, &names).map_err(|_| {
+                ink::env::debug_println!("_____84");
+                ContractError::ValueTooLarge
+            })?;
+
+            ink::env::debug_println!("_____85");
 
             Ok(())
         }
@@ -161,7 +174,7 @@ mod mapping {
             let mut call_builder = contract.call_builder::<Mappings>();
 
             // when
-            let insert = call_builder.insert_balance(1_000);
+            let insert = call_builder.insert_balance(1_000.into());
             let size = client
                 .call(&ink_e2e::alice(), &insert)
                 .submit()
@@ -178,7 +191,7 @@ mod mapping {
                 .return_value();
 
             assert!(size.is_none());
-            assert_eq!(balance, Some(1_000));
+            assert_eq!(balance, Some(1_000.into()));
 
             Ok(())
         }
@@ -197,7 +210,7 @@ mod mapping {
             let mut call_builder = contract.call_builder::<Mappings>();
 
             // when
-            let insert = call_builder.insert_balance(1_000);
+            let insert = call_builder.insert_balance(1_000.into());
             let _ = client
                 .call(&ink_e2e::bob(), &insert)
                 .submit()
@@ -230,7 +243,7 @@ mod mapping {
             let mut call_builder = contract.call_builder::<Mappings>();
 
             // when
-            let first_insert = call_builder.insert_balance(1_000);
+            let first_insert = call_builder.insert_balance(1_000.into());
             let _ = client
                 .call(&ink_e2e::charlie(), &first_insert)
                 .submit()
@@ -238,7 +251,7 @@ mod mapping {
                 .expect("Calling `insert_balance` failed")
                 .return_value();
 
-            let insert = call_builder.insert_balance(10_000);
+            let insert = call_builder.insert_balance(10_000.into());
             let size = client
                 .call(&ink_e2e::charlie(), &insert)
                 .submit()
@@ -256,7 +269,7 @@ mod mapping {
                 .await?
                 .return_value();
 
-            assert_eq!(balance, Some(10_000));
+            assert_eq!(balance, Some(10_000.into()));
 
             Ok(())
         }
@@ -275,7 +288,7 @@ mod mapping {
             let mut call_builder = contract.call_builder::<Mappings>();
 
             // when
-            let insert = call_builder.insert_balance(3_000);
+            let insert = call_builder.insert_balance(3_000.into());
             let _ = client
                 .call(&ink_e2e::dave(), &insert)
                 .submit()
@@ -317,7 +330,7 @@ mod mapping {
             let mut call_builder = contract.call_builder::<Mappings>();
 
             // when
-            let insert = call_builder.insert_balance(4_000);
+            let insert = call_builder.insert_balance(4_000.into());
             let _ = client
                 .call(&ink_e2e::eve(), &insert)
                 .submit()
@@ -334,7 +347,7 @@ mod mapping {
                 .return_value();
 
             // then
-            assert_eq!(balance, Some(4_000));
+            assert_eq!(balance, Some(4_000.into()));
 
             let contains = call_builder.contains_balance();
             let is_there = client
@@ -352,6 +365,12 @@ mod mapping {
         async fn fallible_storage_methods_work<Client: E2EBackend>(
             mut client: Client,
         ) -> E2EResult<()> {
+            // Makes testing the fallible storage methods more efficient
+            const ERR: &str = "For this test the env variable `INK_STATIC_BUFFER_SIZE` needs to be set to `256`";
+            let buffer_size = std::env::var("INK_STATIC_BUFFER_SIZE")
+                .unwrap_or_else(|err| panic!("{} {}", ERR, err));
+            assert_eq!(buffer_size, "256", "{}", ERR);
+
             // given
             let mut constructor = MappingsRef::new();
             let contract = client
@@ -370,12 +389,12 @@ mod mapping {
             }
 
             // then adding another one should fail gracefully
-            let expected_insert_result = client
+            let received_insert_result = client
                 .call(&ink_e2e::ferdie(), &insert)
                 .dry_run()
                 .await?
                 .return_value();
-            let received_insert_result =
+            let expected_insert_result =
                 Err(crate::mapping::ContractError::ValueTooLarge);
             assert_eq!(received_insert_result, expected_insert_result);
 

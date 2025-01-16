@@ -27,14 +27,64 @@
 //! Providing your own allocator lets you choose the right tradeoffs for your use case.
 
 #![cfg_attr(not(feature = "std"), no_std, no_main)]
-
 // Here we set `dlmalloc` to be the global memory allocator.
 //
 // The [`GlobalAlloc`](https://doc.rust-lang.org/std/alloc/trait.GlobalAlloc.html) trait is
 // important to understand if you're swapping our your allocator.
+//#[cfg(not(feature = "std"))]
+//#[global_allocator]
+//static ALLOC: dlmalloc::GlobalDlmalloc = dlmalloc::GlobalDlmalloc;
+#![feature(sync_unsafe_cell)]
+#![feature(allocator_api)]
+use core::{
+    alloc::{
+        GlobalAlloc,
+        Layout,
+    },
+    cell::SyncUnsafeCell,
+};
+
 #[cfg(not(feature = "std"))]
 #[global_allocator]
-static ALLOC: dlmalloc::GlobalDlmalloc = dlmalloc::GlobalDlmalloc;
+static ALLOC: BumpAllocator = BumpAllocator {};
+
+pub struct BumpAllocator {}
+
+struct BumpMemory {
+    buffer: [u8; 1024 * 1024], // Pre-allocated memory buffer
+    offset: usize,             // Current allocation offset
+}
+
+static mut MEMORY: Option<SyncUnsafeCell<BumpMemory>> = None;
+
+#[allow(clippy::arithmetic_side_effects)]
+unsafe impl GlobalAlloc for BumpAllocator {
+    #[allow(static_mut_refs)]
+    unsafe fn alloc(&self, layout: Layout) -> *mut u8 {
+        if MEMORY.is_none() {
+            MEMORY = Some(SyncUnsafeCell::new(BumpMemory {
+                buffer: [0; 1024 * 1024],
+                offset: 0,
+            }));
+        }
+        let memory = unsafe { &mut *MEMORY.as_ref().unwrap().get() };
+        let start = memory.offset;
+        let end = start + layout.size();
+
+        if end > memory.buffer.len() {
+            panic!("too large");
+        } else {
+            memory.offset = end;
+            //ink::env::debug_println!("Allocated {} from {start} to {}", end-start,
+            // end-1);
+            &mut memory.buffer[start]
+        }
+    }
+
+    unsafe fn dealloc(&self, _ptr: *mut u8, _layout: Layout) {
+        // No-op: deallocation is unsupported in a bump allocator.
+    }
+}
 
 #[ink::contract]
 mod custom_allocator {
@@ -129,7 +179,7 @@ mod custom_allocator {
             // Then
             let get = call_builder.get();
             let get_result = client.call(&ink_e2e::alice(), &get).dry_run().await?;
-            assert!(matches!(get_result.return_value(), false));
+            assert!(!get_result.return_value());
 
             Ok(())
         }
@@ -149,7 +199,7 @@ mod custom_allocator {
 
             let get = call_builder.get();
             let get_result = client.call(&ink_e2e::bob(), &get).dry_run().await?;
-            assert!(matches!(get_result.return_value(), false));
+            assert!(!get_result.return_value());
 
             // When
             let flip = call_builder.flip();
@@ -162,7 +212,7 @@ mod custom_allocator {
             // Then
             let get = call_builder.get();
             let get_result = client.call(&ink_e2e::bob(), &get).dry_run().await?;
-            assert!(matches!(get_result.return_value(), true));
+            assert!(get_result.return_value());
 
             Ok(())
         }

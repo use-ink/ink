@@ -7,7 +7,7 @@ mod virtual_contract_ver2 {
 
     #[ink(storage)]
     pub struct VirtualContractVer2 {
-        version: [u8; 32],
+        version: ink::H160,
         x: u32,
     }
 
@@ -16,8 +16,8 @@ mod virtual_contract_ver2 {
         #[ink(constructor)]
         pub fn new() -> Self {
             Self {
-                version: [0; 32],
-                x: 42
+                version: ink::H160::zero(),
+                x: 7,
             }
         }
 

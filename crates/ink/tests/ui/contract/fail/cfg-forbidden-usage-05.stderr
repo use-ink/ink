@@ -6,7 +6,7 @@ error: This `cfg` attribute is not allowed.
        - `any`
        - `not`
        - `all`
-  --> tests/ui/contract/fail/cfg-forbidden-usage-05.rs:16:15
+  --> tests/ui/contract/fail/cfg-forbidden-usage-05.rs:18:15
    |
-16 |         #[cfg(target_pointer_width = "32")]
+18 |         #[cfg(target_pointer_width = "32")]
    |               ^^^^^^^^^^^^^^^^^^^^

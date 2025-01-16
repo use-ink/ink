@@ -1,4 +1,7 @@
+#![allow(unexpected_cfgs)]
+
 use contract::Contract;
+
 #[ink::contract]
 mod contract {
     #[ink(storage)]

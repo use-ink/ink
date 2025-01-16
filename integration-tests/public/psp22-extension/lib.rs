@@ -3,10 +3,9 @@
 use ink::{
     env::Environment,
     prelude::vec::Vec,
+    H160,
+    U256,
 };
-
-type DefaultAccountId = <ink::env::DefaultEnvironment as Environment>::AccountId;
-type DefaultBalance = <ink::env::DefaultEnvironment as Environment>::Balance;
 
 #[ink::chain_extension(extension = 13)]
 pub trait Psp22Extension {
@@ -26,55 +25,33 @@ pub trait Psp22Extension {
     // PSP22 interface queries
 
     #[ink(function = 0x162d)]
-    fn total_supply(asset_id: u32) -> Result<DefaultBalance>;
+    fn total_supply(asset_id: u32) -> Result<U256>;
 
     #[ink(function = 0x6568)]
-    fn balance_of(asset_id: u32, owner: DefaultAccountId) -> Result<DefaultBalance>;
+    fn balance_of(asset_id: u32, owner: H160) -> Result<U256>;
 
     #[ink(function = 0x4d47)]
-    fn allowance(
-        asset_id: u32,
-        owner: DefaultAccountId,
-        spender: DefaultAccountId,
-    ) -> Result<DefaultBalance>;
+    fn allowance(asset_id: u32, owner: H160, spender: H160) -> Result<U256>;
 
     // PSP22 transfer
     #[ink(function = 0xdb20)]
-    fn transfer(asset_id: u32, to: DefaultAccountId, value: DefaultBalance)
-        -> Result<()>;
+    fn transfer(asset_id: u32, to: H160, value: U256) -> Result<()>;
 
     // PSP22 transfer_from
     #[ink(function = 0x54b3)]
-    fn transfer_from(
-        asset_id: u32,
-        from: DefaultAccountId,
-        to: DefaultAccountId,
-        value: DefaultBalance,
-    ) -> Result<()>;
+    fn transfer_from(asset_id: u32, from: H160, to: H160, value: U256) -> Result<()>;
 
     // PSP22 approve
     #[ink(function = 0xb20f)]
-    fn approve(
-        asset_id: u32,
-        spender: DefaultAccountId,
-        value: DefaultBalance,
-    ) -> Result<()>;
+    fn approve(asset_id: u32, spender: H160, value: U256) -> Result<()>;
 
     // PSP22 increase_allowance
     #[ink(function = 0x96d6)]
-    fn increase_allowance(
-        asset_id: u32,
-        spender: DefaultAccountId,
-        value: DefaultBalance,
-    ) -> Result<()>;
+    fn increase_allowance(asset_id: u32, spender: H160, value: U256) -> Result<()>;
 
     // PSP22 decrease_allowance
     #[ink(function = 0xfecb)]
-    fn decrease_allowance(
-        asset_id: u32,
-        spender: DefaultAccountId,
-        value: DefaultBalance,
-    ) -> Result<()>;
+    fn decrease_allowance(asset_id: u32, spender: H160, value: U256) -> Result<()>;
 }
 
 #[derive(Debug, PartialEq, Eq)]
@@ -110,11 +87,12 @@ impl Environment for CustomEnvironment {
     const MAX_EVENT_TOPICS: usize =
         <ink::env::DefaultEnvironment as Environment>::MAX_EVENT_TOPICS;
 
-    type AccountId = DefaultAccountId;
-    type Balance = DefaultBalance;
+    type AccountId = <ink::env::DefaultEnvironment as Environment>::AccountId;
+    type Balance = <ink::env::DefaultEnvironment as Environment>::Balance;
     type Hash = <ink::env::DefaultEnvironment as Environment>::Hash;
     type Timestamp = <ink::env::DefaultEnvironment as Environment>::Timestamp;
     type BlockNumber = <ink::env::DefaultEnvironment as Environment>::BlockNumber;
+    type EventRecord = <ink::env::DefaultEnvironment as Environment>::EventRecord;
 
     type ChainExtension = crate::Psp22Extension;
 }
@@ -124,6 +102,10 @@ mod psp22_ext {
     use super::{
         Result,
         Vec,
+    };
+    use ink::{
+        H160,
+        U256,
     };
 
     /// A chain extension which implements the PSP-22 fungible token standard.
@@ -163,13 +145,13 @@ mod psp22_ext {
 
         /// Returns the total token supply of the specified asset.
         #[ink(message, selector = 0x162df8c2)]
-        pub fn total_supply(&self, asset_id: u32) -> Result<Balance> {
+        pub fn total_supply(&self, asset_id: u32) -> Result<U256> {
             self.env().extension().total_supply(asset_id)
         }
 
         /// Returns the account balance for the specified asset & owner.
         #[ink(message, selector = 0x6568382f)]
-        pub fn balance_of(&self, asset_id: u32, owner: AccountId) -> Result<Balance> {
+        pub fn balance_of(&self, asset_id: u32, owner: H160) -> Result<U256> {
             self.env().extension().balance_of(asset_id, owner)
         }
 
@@ -179,9 +161,9 @@ mod psp22_ext {
         pub fn allowance(
             &self,
             asset_id: u32,
-            owner: AccountId,
-            spender: AccountId,
-        ) -> Result<Balance> {
+            owner: H160,
+            spender: H160,
+        ) -> Result<U256> {
             self.env().extension().allowance(asset_id, owner, spender)
         }
 
@@ -190,12 +172,7 @@ mod psp22_ext {
         /// Transfers `value` amount of specified asset from the caller's account to the
         /// account `to`.
         #[ink(message, selector = 0xdb20f9f5)]
-        pub fn transfer(
-            &mut self,
-            asset_id: u32,
-            to: AccountId,
-            value: Balance,
-        ) -> Result<()> {
+        pub fn transfer(&mut self, asset_id: u32, to: H160, value: U256) -> Result<()> {
             self.env().extension().transfer(asset_id, to, value)
         }
 
@@ -207,9 +184,9 @@ mod psp22_ext {
         pub fn transfer_from(
             &mut self,
             asset_id: u32,
-            from: AccountId,
-            to: AccountId,
-            value: Balance,
+            from: H160,
+            to: H160,
+            value: U256,
         ) -> Result<()> {
             self.env()
                 .extension()
@@ -224,8 +201,8 @@ mod psp22_ext {
         pub fn approve(
             &mut self,
             asset_id: u32,
-            spender: AccountId,
-            value: Balance,
+            spender: H160,
+            value: U256,
         ) -> Result<()> {
             self.env().extension().approve(asset_id, spender, value)
         }
@@ -238,8 +215,8 @@ mod psp22_ext {
         pub fn increase_allowance(
             &mut self,
             asset_id: u32,
-            spender: AccountId,
-            value: Balance,
+            spender: H160,
+            value: U256,
         ) -> Result<()> {
             self.env()
                 .extension()
@@ -254,8 +231,8 @@ mod psp22_ext {
         pub fn decrease_allowance(
             &mut self,
             asset_id: u32,
-            spender: AccountId,
-            value: Balance,
+            spender: H160,
+            value: U256,
         ) -> Result<()> {
             self.env()
                 .extension()

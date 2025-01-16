@@ -27,11 +27,18 @@ mod contract2 {
             self.x = x;
         }
 
+        /// Returns the address of the contract through the function 'own_address'.
+        #[ink(message)]
+        pub fn own_address(&self) -> ink::H160 {
+            self.env().address()
+        }
+        /*
         /// Returns the hash code of the contract through the function 'own_code_hash'.
         #[ink(message)]
         pub fn own_code_hash(&self) -> Hash {
-            self.env().own_code_hash().unwrap()
+            self.env().address()
         }
+         */
     }
 
     impl Default for Contract2 {

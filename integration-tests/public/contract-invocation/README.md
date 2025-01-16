@@ -6,7 +6,7 @@ pub fn instantiate_contract<E, ContractRef, Args, Salt, R>(
 ) -> Result<ConstructorResult<<R as ConstructorReturnType<ContractRef>>::Output>>
 where
     E: Environment,
-    ContractRef: FromAccountId<E>,
+    ContractRef: FromAddr,
     Args: Encode,
     Salt: AsRef<[u8]>,
     R: ConstructorReturnType<ContractRef>,

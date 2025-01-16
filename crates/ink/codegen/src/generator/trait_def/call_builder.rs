@@ -27,7 +27,7 @@ use quote::{
     quote_spanned,
 };
 
-impl<'a> TraitDefinition<'a> {
+impl TraitDefinition<'_> {
     /// Generates code for the global trait call builder for an ink! trait.
     ///
     /// # Note
@@ -58,14 +58,14 @@ impl GenerateCode for CallBuilder<'_> {
         let struct_definition = self.generate_struct_definition();
         let storage_layout_impl = self.generate_storage_layout_impl();
         let auxiliary_trait_impls = self.generate_auxiliary_trait_impls();
-        let to_from_account_id_impls = self.generate_to_from_account_id_impls();
+        let to_from_addr_impls = self.generate_to_from_addr_impls();
         let message_builder_trait_impl = self.generate_message_builder_trait_impl();
         let ink_trait_impl = self.generate_ink_trait_impl();
         quote! {
             #struct_definition
             #storage_layout_impl
             #auxiliary_trait_impls
-            #to_from_account_id_impls
+            #to_from_addr_impls
             #message_builder_trait_impl
             #ink_trait_impl
         }
@@ -113,7 +113,8 @@ impl CallBuilder<'_> {
             where
                 E: ::ink::env::Environment,
             {
-                account_id: <E as ::ink::env::Environment>::AccountId,
+                addr: ::ink::H160,
+                marker: ::core::marker::PhantomData<fn() -> E>,
             }
         )
     }
@@ -134,7 +135,7 @@ impl CallBuilder<'_> {
                 for #call_builder_ident<E>
             where
                 E: ::ink::env::Environment,
-                <E as ::ink::env::Environment>::AccountId: ::ink::storage::traits::StorageLayout,
+                ::ink::H160: ::ink::storage::traits::StorageLayout,
             {
                 fn layout(
                     __key: &::ink::primitives::Key,
@@ -144,8 +145,8 @@ impl CallBuilder<'_> {
                             ::core::stringify!(#call_builder_ident),
                             [
                                 ::ink::metadata::layout::FieldLayout::new(
-                                    "account_id",
-                                    <<E as ::ink::env::Environment>::AccountId
+                                    "addr",
+                                    <::ink::H160
                                         as ::ink::storage::traits::StorageLayout>::layout(__key)
                                 )
                             ]
@@ -172,12 +173,13 @@ impl CallBuilder<'_> {
             impl<E> ::core::clone::Clone for #call_builder_ident<E>
             where
                 E: ::ink::env::Environment,
-                <E as ::ink::env::Environment>::AccountId: ::core::clone::Clone,
+                ::ink::H160: ::core::clone::Clone,
             {
                 #[inline]
                 fn clone(&self) -> Self {
                     Self {
-                        account_id: ::core::clone::Clone::clone(&self.account_id),
+                        addr: ::core::clone::Clone::clone(&self.addr),
+                        marker: self.marker,
                     }
                 }
             }
@@ -186,26 +188,27 @@ impl CallBuilder<'_> {
             impl<E> ::core::fmt::Debug for #call_builder_ident<E>
             where
                 E: ::ink::env::Environment,
-                <E as ::ink::env::Environment>::AccountId: ::core::fmt::Debug,
+                ::ink::H160: ::core::fmt::Debug,
             {
                 fn fmt(&self, f: &mut ::core::fmt::Formatter) -> ::core::fmt::Result {
                     f.debug_struct(::core::stringify!(#call_builder_ident))
-                        .field("account_id", &self.account_id)
+                        .field("addr", &self.addr)
                         .finish()
                 }
             }
 
             #[cfg(feature = "std")]
+            // todo
             /// We require this manual implementation since the derive produces incorrect trait bounds.
             impl<E> ::ink::scale_info::TypeInfo for #call_builder_ident<E>
             where
                 E: ::ink::env::Environment,
-                <E as ::ink::env::Environment>::AccountId: ::ink::scale_info::TypeInfo + 'static,
+                ::ink::H160: ::ink::scale_info::TypeInfo + 'static,
             {
-                type Identity = <E as ::ink::env::Environment>::AccountId;
+                type Identity = ::ink::H160;
 
                 fn type_info() -> ::ink::scale_info::Type {
-                    <<E as ::ink::env::Environment>::AccountId as ::ink::scale_info::TypeInfo>::type_info()
+                    <::ink::H160 as ::ink::scale_info::TypeInfo>::type_info()
                 }
             }
         )
@@ -218,56 +221,59 @@ impl CallBuilder<'_> {
     ///
     /// This allows user code to conveniently transform from and to `AccountId` when
     /// interacting with typed contracts.
-    fn generate_to_from_account_id_impls(&self) -> TokenStream2 {
+    fn generate_to_from_addr_impls(&self) -> TokenStream2 {
         let span = self.span();
         let call_builder_ident = self.ident();
         quote_spanned!(span=>
-            impl<E> ::ink::env::call::FromAccountId<E>
+            impl<E> ::ink::env::call::FromAddr
                 for #call_builder_ident<E>
             where
                 E: ::ink::env::Environment,
             {
                 #[inline]
-                fn from_account_id(account_id: <E as ::ink::env::Environment>::AccountId) -> Self {
-                    Self { account_id }
+                fn from_addr(addr: ::ink::H160) -> Self {
+                    Self {
+                        addr,
+                        marker: ::core::default::Default::default(),
+                    }
                 }
             }
 
-            impl<E, AccountId> ::core::convert::From<AccountId> for #call_builder_ident<E>
+            impl<E> ::core::convert::From<::ink::H160> for #call_builder_ident<E>
             where
-                E: ::ink::env::Environment<AccountId = AccountId>,
-                AccountId: ::ink::env::AccountIdGuard,
+                E: ::ink::env::Environment,
+                ::ink::H160: ::ink::env::AccountIdGuard,
             {
-                fn from(value: AccountId) -> Self {
-                    <Self as ::ink::env::call::FromAccountId<E>>::from_account_id(value)
+                fn from(value: ::ink::H160) -> Self {
+                    <Self as ::ink::env::call::FromAddr>::from_addr(value)
                 }
             }
 
-            impl<E> ::ink::ToAccountId<E> for #call_builder_ident<E>
+            impl<E> ::ink::ToAddr for #call_builder_ident<E>
             where
                 E: ::ink::env::Environment,
             {
                 #[inline]
-                fn to_account_id(&self) -> <E as ::ink::env::Environment>::AccountId {
-                    <<E as ::ink::env::Environment>::AccountId as ::core::clone::Clone>::clone(&self.account_id)
+                fn to_addr(&self) -> ::ink::H160 {
+                    <::ink::H160 as ::core::clone::Clone>::clone(&self.addr)
                 }
             }
 
-            impl<E, AccountId> ::core::convert::AsRef<AccountId> for #call_builder_ident<E>
+            impl<E> ::core::convert::AsRef<::ink::H160> for #call_builder_ident<E>
             where
-                E: ::ink::env::Environment<AccountId = AccountId>,
+                E: ::ink::env::Environment,
             {
-                fn as_ref(&self) -> &AccountId {
-                    &self.account_id
+                fn as_ref(&self) -> &::ink::H160 {
+                    &self.addr
                 }
             }
 
-            impl<E, AccountId> ::core::convert::AsMut<AccountId> for #call_builder_ident<E>
+            impl<E> ::core::convert::AsMut<::ink::H160> for #call_builder_ident<E>
             where
-                E: ::ink::env::Environment<AccountId = AccountId>,
+                E: ::ink::env::Environment,
             {
-                fn as_mut(&mut self) -> &mut AccountId {
-                    &mut self.account_id
+                fn as_mut(&mut self) -> &mut ::ink::H160 {
+                    &mut self.addr
                 }
             }
         )
@@ -279,7 +285,7 @@ impl CallBuilder<'_> {
     /// # Note
     ///
     /// Through the implementation of this trait it is possible to refer to the
-    /// ink! trait messsage builder that is associated to this ink! trait call builder.
+    /// ink! trait message builder that is associated to this ink! trait call builder.
     fn generate_message_builder_trait_impl(&self) -> TokenStream2 {
         let span = self.trait_def.span();
         let call_builder_ident = self.ident();
@@ -373,7 +379,7 @@ impl CallBuilder<'_> {
             #( #cfg_attrs )*
             type #output_ident = ::ink::env::call::CallBuilder<
                 Self::Env,
-                ::ink::env::call::utils::Set< ::ink::env::call::Call< Self::Env > >,
+                ::ink::env::call::utils::Set< ::ink::env::call::Call >,
                 ::ink::env::call::utils::Set< ::ink::env::call::ExecutionInput<#arg_list> >,
                 ::ink::env::call::utils::Set< ::ink::env::call::utils::ReturnType<#output_type> >,
             >;
@@ -386,7 +392,7 @@ impl CallBuilder<'_> {
             ) -> Self::#output_ident {
                 <::ink::env::call::CallBuilder<
                     Self::Env,
-                    ::ink::env::call::utils::Unset< ::ink::env::call::Call< Self::Env > >,
+                    ::ink::env::call::utils::Unset< ::ink::env::call::Call >,
                     ::ink::env::call::utils::Set< ::ink::env::call::ExecutionInput<#arg_list> >,
                     ::ink::env::call::utils::Set< ::ink::env::call::utils::ReturnType<#output_type> >,
                 > as ::core::convert::From::<_>>::from(
@@ -400,7 +406,7 @@ impl CallBuilder<'_> {
                             )*
                         )
                 )
-                    .call(::ink::ToAccountId::to_account_id(self))
+                    .call(::ink::ToAddr::to_addr(self))
             }
         )
     }

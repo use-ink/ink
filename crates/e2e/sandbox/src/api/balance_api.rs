@@ -31,10 +31,10 @@ where
     ///
     /// # Arguments
     ///
-    /// * `address` - The address of the account to query.
+    /// * `account` - The account id of the account to query.
     fn free_balance(
         &mut self,
-        address: &AccountIdFor<T::Runtime>,
+        account_id: &AccountIdFor<T::Runtime>,
     ) -> BalanceOf<T::Runtime>;
 }
 
@@ -55,9 +55,11 @@ where
 
     fn free_balance(
         &mut self,
-        address: &AccountIdFor<T::Runtime>,
+        account_id: &AccountIdFor<T::Runtime>,
     ) -> BalanceOf<T::Runtime> {
-        self.execute_with(|| pallet_balances::Pallet::<T::Runtime>::free_balance(address))
+        self.execute_with(|| {
+            pallet_balances::Pallet::<T::Runtime>::free_balance(account_id)
+        })
     }
 }
 
