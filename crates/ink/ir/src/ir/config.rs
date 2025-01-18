@@ -173,6 +173,10 @@ impl AbiEncoding {
     pub fn is_scale(&self) -> bool {
         matches!(self, Self::Scale | Self::All)
     }
+
+    pub fn is_all(&self) -> bool {
+        matches!(self, Self::All)
+    }
 }
 
 #[cfg(test)]

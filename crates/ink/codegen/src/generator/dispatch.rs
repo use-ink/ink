@@ -254,6 +254,8 @@ impl Dispatch<'_> {
     fn generate_dispatchable_message_infos(&self) -> TokenStream2 {
         let span = self.contract.module().storage().span();
         let storage_ident = self.contract.module().storage().ident();
+        let encoding = self.contract.config().abi_encoding();
+
         let inherent_message_infos = self
             .contract
             .module()
@@ -280,7 +282,7 @@ impl Dispatch<'_> {
 
                 let mut message_infos = Vec::new();
 
-                if self.contract.config().abi_encoding().is_scale() {
+                if encoding.is_scale() {
                     message_infos.push(quote_spanned!(message_span=>
                         #( #cfg_attrs )*
                         impl ::ink::reflect::DispatchableMessageInfo<#selector_id> for #storage_ident {
@@ -315,7 +317,8 @@ impl Dispatch<'_> {
                     ))
                 }
 
-                if self.contract.config().abi_encoding().is_rlp() {
+                // if encoding is `all` and the selector is user provided, we do not generate another message info
+                if encoding.is_rlp() && !(encoding.is_all() && message.user_provided_selector().is_some()) {
                     // todo: refactor and figure out if there is a bug with the message.inputs() iterator
                     let input_types_len = generator::input_types(message.inputs()).len();
                     // println!("LEN {}, input_types_len {}, {}", message.inputs().len(), input_types_len, input_tuple_type.to_string());
@@ -455,7 +458,7 @@ impl Dispatch<'_> {
                     ))
                 }
 
-                if self.contract.config().abi_encoding().is_rlp() {
+                if encoding.is_rlp() && !(encoding.is_all() && message.user_provided_selector().is_some()) {
                     // todo: refactor and figure out if there is a bug with the message.inputs() iterator
                     let input_types_len = generator::input_types(message.inputs()).len();
                     // println!("LEN {}, input_types_len {}, {}", message.inputs().len(), input_types_len, input_tuple_type.to_string());

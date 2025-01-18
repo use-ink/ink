@@ -341,7 +341,6 @@ fn compose_selector_rlp<C>(item_impl: &ir::ItemImpl, callable: &C) -> ir::Select
 where
     C: Callable,
 {
-    // todo: handle user provided RLP selector...
     if let Some(selector) = callable.user_provided_selector() {
         return *selector
     }
