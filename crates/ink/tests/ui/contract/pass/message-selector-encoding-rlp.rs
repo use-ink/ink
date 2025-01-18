@@ -1,28 +1,13 @@
-#![allow(unexpected_cfgs)]
-
 use contract::Contract;
-// #[ink::contract]
-#[ink::contract]
-
+#[ink::contract(abi_encoding = "rlp")]
 mod contract {
     #[ink(storage)]
     pub struct Contract {}
 
     #[ink::trait_definition]
     pub trait Messages {
-        #[ink(message)]
-        fn message_0(&self);
-
         #[ink(message, selector = 1)]
         fn message_1(&self);
-    }
-
-    impl Messages for Contract {
-        #[ink(message)]
-        fn message_0(&self) {}
-
-        #[ink(message, selector = 1)]
-        fn message_1(&self) {}
     }
 
     impl Contract {
@@ -38,6 +23,11 @@ mod contract {
         pub fn message_3(&self) {}
     }
 
+    impl Messages for Contract {
+        #[ink(message, selector = 1)]
+        fn message_1(&self) {}
+    }
+
     #[ink::trait_definition]
     pub trait Messages2 {
         #[ink(message, selector = 0x12345678)]
@@ -51,11 +41,6 @@ mod contract {
 }
 
 fn main() {
-    const TRAIT_ID: u32 = ::ink::selector_id!("Messages::message_0");
-    assert_eq!(
-        <Contract as ::ink::reflect::DispatchableMessageInfo<TRAIT_ID>>::SELECTOR,
-        [0xFB, 0xAB, 0x03, 0xCE],
-    );
     assert_eq!(
         <Contract as ::ink::reflect::DispatchableMessageInfo<1_u32>>::SELECTOR,
         1_u32.to_be_bytes(),
@@ -64,11 +49,14 @@ fn main() {
         <Contract as ::ink::reflect::DispatchableMessageInfo<0xC0DE_CAFE_u32>>::SELECTOR,
         0xC0DE_CAFE_u32.to_be_bytes(),
     );
-    const INHERENT_ID: u32 = ::ink::selector_id!("message_3");
+
+    // manually calculated "message_3"
+    const INHERENT_ID_RLP: u32 = 0x0cd0f0f1;
     assert_eq!(
-        <Contract as ::ink::reflect::DispatchableMessageInfo<INHERENT_ID>>::SELECTOR,
-        [0xB6, 0xC3, 0x27, 0x49],
+        <Contract as ::ink::reflect::DispatchableMessageInfo<INHERENT_ID_RLP>>::SELECTOR,
+        [0x0C, 0xD0, 0xF0, 0xF1],
     );
+
     assert_eq!(
         <Contract as ::ink::reflect::DispatchableMessageInfo<0x12345678_u32>>::SELECTOR,
         0x12345678_u32.to_be_bytes(),

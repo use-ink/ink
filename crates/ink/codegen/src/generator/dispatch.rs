@@ -79,7 +79,6 @@ impl GenerateCode for Dispatch<'_> {
             self.generate_dispatchable_constructor_infos();
         let contract_dispatchable_messages_infos =
             self.generate_dispatchable_message_infos();
-        println!("****Afeter");
         let constructor_decoder_type =
             self.generate_constructor_decoder_type(&constructors);
         let message_decoder_type = self.generate_message_decoder_type(&messages);
