@@ -75,7 +75,7 @@ thiserror = { version = "2.0.11" }
 tokio = { version = "1.43.0" }
 tracing = { version = "0.1.41" }
 tracing-subscriber = { version = "0.3.19" }
-trybuild = { version = "1.0.101" }
+trybuild = { version = "1.0.102" }
 which = { version = "7.0.0" }
 xxhash-rust = { version = "0.8" }
 const_env = { version = "0.1"}
