@@ -37,6 +37,12 @@ pub mod flipper {
 
         #[ink(message)]
         fn get(&self) -> bool {
+            /*
+            let registry = ::ink::reflect::TraitDefinitionRegistry::<Environment>{
+                marker: Default::default()
+            };
+            registry.get();
+            */
             self.value
         }
     }

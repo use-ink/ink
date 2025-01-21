@@ -116,7 +116,7 @@ use ink_primitives::H160;
 /// }
 /// ```
 ///
-/// # Usage outside of the `#[ink::contract]` context
+/// # Usage outside the `#[ink::contract]` context
 ///
 /// The macro expects two arguments:
 /// - The first argument is the path to the trait, e.g. `Erc20` or `erc20::Erc20`.
