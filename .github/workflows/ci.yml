@@ -536,7 +536,6 @@ jobs:
             run:
                 rustup install nightly-2025-01-07;
                 rustup component add rust-src --toolchain nightly-2025-01-07;
-                cargo install --force --git git@github.com:use-ink/cargo-contract.git --branch cmichi-remove-wasm-default-to-revive;
                 cargo +nightly-2024-11-28 test --all-features --all --manifest-path integration-tests/internal/mapping/Cargo.toml
 
   examples-custom-test:
