@@ -29,7 +29,6 @@ env:
   # Image can be edited at https://github.com/use-ink/docker-images
   IMAGE:                           useink/ci
   CARGO_TARGET_DIR:                /ci-cache/${{ github.repository }}/targets/${{ github.ref_name }}/${{ github.job }}
-  CARGO_INCREMENTAL:               0
   PURELY_STD_CRATES:               ink/codegen metadata engine e2e e2e/macro ink/ir
   ALSO_RISCV_CRATES:               env storage storage/traits allocator prelude primitives ink ink/macro
   # TODO `cargo clippy --all-targets --all-features` for this crate
@@ -405,7 +404,7 @@ jobs:
         run: |
           for package in $(cargo metadata --format-version 1 | jq -r '.workspace_members[]' | awk '{print $1}'); do
             # Run cargo doc for each workspace member
-            cargo doc --no-deps --all-features -p ${package}
+            cargo +nightly doc --no-deps --all-features -p ${package}
           done
           mv ${CARGO_TARGET_DIR}/doc ./crate-docs
           # FIXME: remove me after CI image gets nonroot
@@ -444,8 +443,8 @@ jobs:
           # (see `-Z` in the `RUSTFLAGS` below).
           RUSTC_BOOTSTRAP:               1
           # Variables partly came from https://github.com/mozilla/grcov/blob/master/README.md
-          RUSTFLAGS:                     -Zprofile -Zmir-opt-level=0 -Ccodegen-units=1
-                                          -Clink-dead-code -Copt-level=0 -Coverflow-checks=off
+          RUSTFLAGS:                     -Zmir-opt-level=0 -Ccodegen-units=1
+                                         -Clink-dead-code -Copt-level=0 -Coverflow-checks=off
           # The `cargo-tarpaulin` coverage reporting tool seems to have better code instrumentation and thus
           # produces better results for Rust codebases in general. However, unlike `grcov` it requires
           # running docker with `--security-opt seccomp=unconfined` which is why we use `grcov` instead.
@@ -537,6 +536,7 @@ jobs:
             run:
                 rustup install nightly-2025-01-07;
                 rustup component add rust-src --toolchain nightly-2025-01-07;
+                cargo install --force --git git@github.com:use-ink/cargo-contract.git --branch cmichi-remove-wasm-default-to-revive;
                 cargo +nightly-2024-11-28 test --all-features --all --manifest-path integration-tests/internal/mapping/Cargo.toml
 
   examples-custom-test:

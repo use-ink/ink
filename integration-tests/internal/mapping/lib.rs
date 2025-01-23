@@ -111,28 +111,17 @@ mod mapping {
         /// Returns `Err(_)` if the mapping value couldn't be encoded.
         #[ink(message)]
         pub fn try_insert_name(&mut self, name: String) -> Result<(), ContractError> {
-            ink::env::debug_println!("_____80");
             let caller = Self::env().caller();
             let mut names = match self.names.try_take(caller) {
-                None => {
-                    ink::env::debug_println!("_____81");
-                    Vec::new()
-                }
-                Some(value) => {
-                    ink::env::debug_println!("_____82");
-                    value.map_err(|_| ContractError::ValueTooLarge)?
-                }
+                None => Vec::new(),
+                Some(value) => value.map_err(|_| ContractError::ValueTooLarge)?,
             };
 
-            ink::env::debug_println!("_____83");
             names.push(name);
 
-            self.names.try_insert(caller, &names).map_err(|_| {
-                ink::env::debug_println!("_____84");
-                ContractError::ValueTooLarge
-            })?;
-
-            ink::env::debug_println!("_____85");
+            self.names
+                .try_insert(caller, &names)
+                .map_err(|_| ContractError::ValueTooLarge)?;
 
             Ok(())
         }
