@@ -1,4 +1,4 @@
-#![cfg_attr(not(feature = "std"), no_std)]
+#![cfg_attr(not(feature = "std"), no_std, no_main)]
 
 #[ink::contract]
 pub mod complex_structures {
@@ -18,7 +18,7 @@ pub mod complex_structures {
     #[derive(Storable, StorableHint, StorageKey, Default, Debug)]
     #[cfg_attr(
         feature = "std",
-        derive(scale_info::TypeInfo, ink::storage::traits::StorageLayout)
+        derive(ink::scale_info::TypeInfo, ink::storage::traits::StorageLayout)
     )]
     pub struct TokenManagement {
         balances: Balances,
@@ -31,10 +31,10 @@ pub mod complex_structures {
         allowances: Mapping<(AccountId, AccountId), Balance, AutoKey>,
     }
 
-    #[derive(scale::Encode, scale::Decode, Default, Debug)]
+    #[derive(ink::scale::Encode, ink::scale::Decode, Default, Debug)]
     #[cfg_attr(
         feature = "std",
-        derive(scale_info::TypeInfo, ink::storage::traits::StorageLayout)
+        derive(ink::scale_info::TypeInfo, ink::storage::traits::StorageLayout)
     )]
     pub struct Balances {
         pub balance_state: u128,
@@ -42,7 +42,7 @@ pub mod complex_structures {
 
     impl<KEY: StorageKey> Allowances<KEY> {
         fn get_allowance(&self, owner: AccountId, spender: AccountId) -> Balance {
-            self.allowances.get(&(owner, spender)).unwrap_or(0)
+            self.allowances.get((owner, spender)).unwrap_or(0)
         }
 
         fn set_allowance(
@@ -51,7 +51,7 @@ pub mod complex_structures {
             spender: AccountId,
             value: Balance,
         ) {
-            self.allowances.insert(&(owner, spender), &value);
+            self.allowances.insert((owner, spender), &value);
         }
     }
 
@@ -69,12 +69,20 @@ pub mod complex_structures {
 
         #[ink(message)]
         pub fn increase_balances_state(&mut self, amount: u128) {
-            self.token_management.balances.balance_state += amount;
+            self.token_management
+                .balances
+                .balance_state
+                .checked_add(amount)
+                .expect("addition failed");
         }
 
         #[ink(message)]
         pub fn decrease_balances_state(&mut self, amount: u128) {
-            self.token_management.balances.balance_state -= amount;
+            self.token_management
+                .balances
+                .balance_state
+                .checked_sub(amount)
+                .expect("subtraction failed");
         }
 
         #[ink(message)]
