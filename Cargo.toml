@@ -39,7 +39,6 @@ blake2 = { version = "0.10" }
 cargo_metadata = { version = "0.19.0" }
 cfg-if = { version = "1.0" }
 contract-build = { git = "https://github.com/use-ink/cargo-contract", branch = "cmichi-remove-wasm-default-to-revive" }
-#contract-build = { path = "../cargo-contract/crates/build" }
 darling = { version = "0.20.10" }
 derive_more = { version = "1.0.0", default-features = false }
 either = { version = "1.13", default-features = false }
@@ -83,22 +82,6 @@ const_env = { version = "0.1"}
 
 # Substrate dependencies
 frame-metadata = { version = "18.0.0", default-features = false }
-#frame-system = { path = "../polkadot-sdk/substrate/frame/system", default-features = false }
-#frame-support = { path = "../polkadot-sdk/substrate/frame/support", default-features = false }
-#pallet-timestamp = { path = "../polkadot-sdk/substrate/frame/timestamp", default-features = false }
-#pallet-balances = { path = "../polkadot-sdk/substrate/frame/balances", default-features = false }
-#pallet-revive = { path = "../polkadot-sdk/substrate/frame/revive", default-features = false }
-#pallet-revive-uapi = { path = "../polkadot-sdk/substrate/frame/revive/uapi", default-features = false, features = ["unstable-hostfn"]  }
-#pallet-revive-mock-network = { git = "https://github.com/paritytech/polkadot-sdk", rev = "645878a27115db52e5d63115699b4bbb89034067", default-features = false }
-#sp-externalities = { path = "../polkadot-sdk/substrate/primitives/externalities", default-features = false }
-#sp-io = { path = "../polkadot-sdk/substrate/primitives/io", default-features = false }
-#sp-runtime-interface = { path = "../polkadot-sdk/substrate/primitives/runtime-interface", default-features = false }
-#sp-core = { path = "../polkadot-sdk/substrate/primitives/core", default-features = false }
-#sp-keyring = { path = "../polkadot-sdk/substrate/primitives/keyring", default-features = false }
-#sp-runtime = { path = "../polkadot-sdk/substrate/primitives/runtime", default-features = false }
-#sp-weights = { path = "../polkadot-sdk/substrate/primitives/weights", default-features = false }
-#xcm = { package = "staging-xcm", path = "../polkadot-sdk/polkadot/xcm", default-features = false }
-
 frame-system = { git = "https://github.com/paritytech/polkadot-sdk", rev = "645878a27115db52e5d63115699b4bbb89034067", default-features = false }
 frame-support = { git = "https://github.com/paritytech/polkadot-sdk", rev = "645878a27115db52e5d63115699b4bbb89034067", default-features = false }
 pallet-balances = { git = "https://github.com/paritytech/polkadot-sdk", rev = "645878a27115db52e5d63115699b4bbb89034067", default-features = false }
