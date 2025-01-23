@@ -1,0 +1,29 @@
+[package]
+name = "rlp-cross-contract"
+version = "5.0.0"
+authors = ["Use Ink <ink@use.ink>"]
+edition = "2021"
+publish = false
+
+[dependencies]
+ink = { path = "../../../crates/ink", default-features = false }
+sha3 = { version = "0.10", default-features = false}
+
+[dev-dependencies]
+ink_e2e = { path = "../../../crates/e2e", features = ["sandbox"] }
+ink_sandbox = { path =  "../../../crates/e2e/sandbox" }
+pallet-contracts = { version = "38.0.0", default-features = false }
+sha3 = { version = "0.10" }
+other-contract-rlp = { path = "./other-contract-rlp" }
+
+[lib]
+path = "lib.rs"
+
+[features]
+default = ["std"]
+std = [
+    "ink/std",
+    "sha3/std"
+]
+ink-as-dependency = []
+e2e-tests = []
