@@ -3,7 +3,13 @@
 #[ink::contract]
 pub mod complex_structures {
     use ink::storage::{
-        traits::{AutoKey, ManualKey, Storable, StorableHint, StorageKey},
+        traits::{
+            AutoKey,
+            ManualKey,
+            Storable,
+            StorableHint,
+            StorageKey,
+        },
         Mapping,
     };
 
