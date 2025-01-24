@@ -442,9 +442,11 @@ jobs:
           # Needed because `codecov` requires nightly features to work
           # (see `-Z` in the `RUSTFLAGS` below).
           RUSTC_BOOTSTRAP:               1
+          RUSTDOCFLAGS:                  -Cpanic=abort
           # Variables partly came from https://github.com/mozilla/grcov/blob/master/README.md
           RUSTFLAGS:                     -Zmir-opt-level=0 -Ccodegen-units=1
                                          -Clink-dead-code -Copt-level=0 -Coverflow-checks=off
+                                         -Cinstrument-coverage -Zpanic_abort_tests
           # The `cargo-tarpaulin` coverage reporting tool seems to have better code instrumentation and thus
           # produces better results for Rust codebases in general. However, unlike `grcov` it requires
           # running docker with `--security-opt seccomp=unconfined` which is why we use `grcov` instead.
@@ -461,15 +463,11 @@ jobs:
           # FIXME: Access from 2 users, should be solved once ci-image works from a non-root user
           git config --global --add safe.directory '*'
           # RUSTFLAGS are the cause target cache can't be used here
-          cargo build --all-features --workspace
-          cargo test --all-features --no-fail-fast --workspace --locked -- --skip ui_tests
-          echo "1"
-          ls .
-          echo "1.5"
-          ls target/debug/
-          echo "1.6"
-          find .
+          rustup component add llvm-tools-preview
+          cargo +nightly build --all-features --workspace
+          cargo +nightly test --all-features --no-fail-fast --workspace --locked -- --skip ui_tests
           # coverage with branches
+          echo "1"
           grcov . --binary-path ./target/debug/ --source-dir . --output-type lcov --llvm --branch \
             --ignore-not-existing --ignore "/*" --ignore "tests/*" --output-path lcov-w-branch.info
           rust-covfix lcov-w-branch.info --output lcov-w-branch-fixed.info
