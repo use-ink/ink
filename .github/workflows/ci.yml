@@ -467,14 +467,11 @@ jobs:
           cargo +nightly build --all-features --workspace
           cargo +nightly test --all-features --no-fail-fast --workspace --locked -- --skip ui_tests
           # coverage with branches
-          echo "1"
           grcov . --binary-path ./target/debug/ --source-dir . --output-type lcov --llvm --branch \
             --ignore-not-existing --ignore "/*" --ignore "tests/*" --output-path lcov-w-branch.info
           rust-covfix lcov-w-branch.info --output lcov-w-branch-fixed.info
-          echo "2"
           codecov --token "$CODECOV_L_TOKEN" --file lcov-w-branch-fixed.info --nonZero
           # lines coverage
-          echo "3"
           grcov . --binary-path ./target/debug/ --source-dir . --output-type lcov --llvm \
             --ignore-not-existing --ignore "/*" --ignore "tests/*" --output-path lcov-lines.info
           rust-covfix lcov-lines.info --output lcov-lines-fixed.info
