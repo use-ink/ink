@@ -140,7 +140,6 @@ where
     where
         CallBuilderFinal<E, Args, RetType>: Clone,
     {
-        // todo must be added to remove as well
         let _map = B::map_account(self.client, self.caller).await; // todo will fail if instantiation happened before
 
         let dry_run = B::bare_call_dry_run(

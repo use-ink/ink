@@ -1174,9 +1174,9 @@ dependencies = [
 
 [[package]]
 name = "clap"
-version = "4.5.23"
+version = "4.5.27"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3135e7ec2ef7b10c6ed8950f0f792ed96ee093fa088608f1c76e569722700c84"
+checksum = "769b0145982b4b48713e01ec42d61614425f27b7058bda7180a3a41f30104796"
 dependencies = [
  "clap_builder",
  "clap_derive",
@@ -1184,9 +1184,9 @@ dependencies = [
 
 [[package]]
 name = "clap_builder"
-version = "4.5.23"
+version = "4.5.27"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "30582fc632330df2bd26877bde0c1f4470d57c582bbc070376afcd04d8cb4838"
+checksum = "1b26884eb4b57140e4d2d93652abfa49498b938b3c9179f9fc487b0acc3edad7"
 dependencies = [
  "anstream",
  "anstyle",
@@ -1196,9 +1196,9 @@ dependencies = [
 
 [[package]]
 name = "clap_derive"
-version = "4.5.18"
+version = "4.5.24"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4ac6a0c7b1a9e9a5186361f67dfa1b88213572f427fb9ab038efb2bd8c582dab"
+checksum = "54b755194d6389280185988721fffba69495eed5ee9feeee9a599b53db80318c"
 dependencies = [
  "heck",
  "proc-macro2",
@@ -1220,11 +1220,10 @@ checksum = "5b63caa9aa9397e2d9480a9b13673856c78d8ac123288526c37d7839f2a86990"
 
 [[package]]
 name = "colored"
-version = "2.2.0"
+version = "3.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "117725a109d387c937a1533ce01b450cbde6b88abceea8473c4d7a85853cda3c"
+checksum = "fde0e0ec90c9dfb3b4b1a0891a7dcd0e2bffde2f7efed5fe7c9bb00e5bfb915e"
 dependencies = [
- "lazy_static",
  "windows-sys 0.59.0",
 ]
 
@@ -1341,8 +1340,8 @@ checksum = "cd7e35aee659887cbfb97aaf227ac12cad1a9d7c71e55ff3376839ed4e282d08"
 
 [[package]]
 name = "contract-build"
-version = "5.0.1"
-source = "git+https://github.com/use-ink/cargo-contract?branch=cmichi-remove-wasm-default-to-revive#934ecf915acb87be521402cfbdb685020f9655ce"
+version = "6.0.0-alpha"
+source = "git+https://github.com/use-ink/cargo-contract?branch=cmichi-remove-wasm-default-to-revive#14b43af7c8f1f62005b5607ec22df2ae108c9c44"
 dependencies = [
  "anyhow",
  "blake2",
@@ -1364,7 +1363,6 @@ dependencies = [
  "serde",
  "serde_json",
  "sha3 0.11.0-pre.4",
- "strum",
  "tempfile",
  "term_size",
  "tokio",
@@ -1374,15 +1372,14 @@ dependencies = [
  "url",
  "uzers",
  "walkdir",
- "wasmparser",
  "which",
  "zip",
 ]
 
 [[package]]
 name = "contract-metadata"
-version = "5.0.1"
-source = "git+https://github.com/use-ink/cargo-contract?branch=cmichi-remove-wasm-default-to-revive#934ecf915acb87be521402cfbdb685020f9655ce"
+version = "6.0.0-alpha"
+source = "git+https://github.com/use-ink/cargo-contract?branch=cmichi-remove-wasm-default-to-revive#14b43af7c8f1f62005b5607ec22df2ae108c9c44"
 dependencies = [
  "anyhow",
  "impl-serde",
@@ -3074,7 +3071,7 @@ checksum = "8e04e2fd2b8188ea827b32ef11de88377086d690286ab35747ef7f9bf3ccb590"
 
 [[package]]
 name = "ink"
-version = "5.1.0"
+version = "6.0.0-alpha"
 dependencies = [
  "derive_more 1.0.0",
  "ink_env",
@@ -3095,7 +3092,7 @@ dependencies = [
 
 [[package]]
 name = "ink_allocator"
-version = "5.1.0"
+version = "6.0.0-alpha"
 dependencies = [
  "cfg-if",
  "quickcheck",
@@ -3104,7 +3101,7 @@ dependencies = [
 
 [[package]]
 name = "ink_codegen"
-version = "5.1.0"
+version = "6.0.0-alpha"
 dependencies = [
  "blake2",
  "derive_more 1.0.0",
@@ -3125,7 +3122,7 @@ dependencies = [
 
 [[package]]
 name = "ink_e2e"
-version = "5.1.0"
+version = "6.0.0-alpha"
 dependencies = [
  "cargo_metadata",
  "contract-build",
@@ -3162,7 +3159,7 @@ dependencies = [
 
 [[package]]
 name = "ink_e2e_macro"
-version = "5.1.0"
+version = "6.0.0-alpha"
 dependencies = [
  "darling",
  "derive_more 1.0.0",
@@ -3179,7 +3176,7 @@ dependencies = [
 
 [[package]]
 name = "ink_engine"
-version = "5.1.0"
+version = "6.0.0-alpha"
 dependencies = [
  "blake2",
  "derive_more 1.0.0",
@@ -3193,7 +3190,7 @@ dependencies = [
 
 [[package]]
 name = "ink_env"
-version = "5.1.0"
+version = "6.0.0-alpha"
 dependencies = [
  "blake2",
  "cfg-if",
@@ -3225,7 +3222,7 @@ dependencies = [
 
 [[package]]
 name = "ink_ir"
-version = "5.1.0"
+version = "6.0.0-alpha"
 dependencies = [
  "blake2",
  "either",
@@ -3239,7 +3236,7 @@ dependencies = [
 
 [[package]]
 name = "ink_macro"
-version = "5.1.0"
+version = "6.0.0-alpha"
 dependencies = [
  "ink",
  "ink_codegen",
@@ -3259,7 +3256,7 @@ dependencies = [
 
 [[package]]
 name = "ink_metadata"
-version = "5.1.0"
+version = "6.0.0-alpha"
 dependencies = [
  "derive_more 1.0.0",
  "impl-serde",
@@ -3276,14 +3273,14 @@ dependencies = [
 
 [[package]]
 name = "ink_prelude"
-version = "5.1.0"
+version = "6.0.0-alpha"
 dependencies = [
  "cfg-if",
 ]
 
 [[package]]
 name = "ink_primitives"
-version = "5.1.0"
+version = "6.0.0-alpha"
 dependencies = [
  "cfg-if",
  "derive_more 1.0.0",
@@ -3302,7 +3299,7 @@ dependencies = [
 
 [[package]]
 name = "ink_sandbox"
-version = "5.1.0"
+version = "6.0.0-alpha"
 dependencies = [
  "frame-metadata 18.0.0",
  "frame-support",
@@ -3322,7 +3319,7 @@ dependencies = [
 
 [[package]]
 name = "ink_storage"
-version = "5.1.0"
+version = "6.0.0-alpha"
 dependencies = [
  "array-init",
  "cfg-if",
@@ -3343,7 +3340,7 @@ dependencies = [
 
 [[package]]
 name = "ink_storage_traits"
-version = "5.1.0"
+version = "6.0.0-alpha"
 dependencies = [
  "ink_metadata",
  "ink_prelude",
@@ -5661,9 +5658,9 @@ dependencies = [
 
 [[package]]
 name = "semver"
-version = "1.0.24"
+version = "1.0.25"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3cb6eb87a131f756572d7fb904f6e7b68633f09cca868c5df1c4b8d1a694bbba"
+checksum = "f79dfe2d285b0488816f30e700a7438c5a73d816b5b7d3ac72fbc48b0d185e03"
 dependencies = [
  "serde",
 ]
@@ -5710,9 +5707,9 @@ dependencies = [
 
 [[package]]
 name = "serde_json"
-version = "1.0.134"
+version = "1.0.137"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d00f4175c42ee48b15416f6193a959ba3a0d67fc699a0db9ad12df9f83991c7d"
+checksum = "930cfb6e6abf99298aaad7d29abbef7a9999a9a8806a40088f55f0dcec03146b"
 dependencies = [
  "itoa",
  "memchr",
@@ -7146,12 +7143,13 @@ dependencies = [
 
 [[package]]
 name = "tempfile"
-version = "3.14.0"
+version = "3.15.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "28cce251fcbc87fac86a866eeb0d6c2d536fc16d06f184bb61aeae11aa4cee0c"
+checksum = "9a8a559c81686f576e8cd0290cd2a24a2a9ad80c98b3478856500fcbd7acd704"
 dependencies = [
  "cfg-if",
  "fastrand",
+ "getrandom",
  "once_cell",
  "rustix",
  "windows-sys 0.59.0",
@@ -7485,9 +7483,9 @@ checksum = "e421abadd41a4225275504ea4d6566923418b7f05506fbc9c0fe86ba7396114b"
 
 [[package]]
 name = "trybuild"
-version = "1.0.101"
+version = "1.0.103"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8dcd332a5496c026f1e14b7f3d2b7bd98e509660c04239c58b0ba38a12daded4"
+checksum = "b812699e0c4f813b872b373a4471717d9eb550da14b311058a4d9cf4173cbca6"
 dependencies = [
  "dissimilar",
  "glob",
@@ -7784,20 +7782,6 @@ dependencies = [
  "libm",
  "num-traits",
  "paste",
-]
-
-[[package]]
-name = "wasmparser"
-version = "0.220.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e246c2772ce3ebc83f89a2d4487ac5794cad6c309b2071818a88c7db7c36d87b"
-dependencies = [
- "ahash",
- "bitflags 2.6.0",
- "hashbrown 0.14.5",
- "indexmap 2.7.0",
- "semver",
- "serde",
 ]
 
 [[package]]

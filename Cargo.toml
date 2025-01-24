@@ -30,7 +30,7 @@ homepage = "https://use.ink"
 keywords = ["polkavm", "ink", "riscv", "blockchain", "edsl"]
 license = "Apache-2.0"
 repository = "https://github.com/use-ink/ink"
-version = "5.1.0"
+version = "6.0.0-alpha"
 
 [workspace.dependencies]
 arrayref = { version = "0.3" }
@@ -62,7 +62,7 @@ scale-info = { version = "2.11", default-features = false }
 schemars = { version = "0.8" }
 secp256k1 = { version = "0.30.0" }
 serde = { version = "1.0.215", default-features = false }
-serde_json = { version = "1.0.133" }
+serde_json = { version = "1.0.137" }
 sha2 = { version = "0.10" }
 sha3 = { version = "0.10" }
 static_assertions = { version = "1.1" }
@@ -75,7 +75,7 @@ thiserror = { version = "2.0.11" }
 tokio = { version = "1.43.0" }
 tracing = { version = "0.1.41" }
 tracing-subscriber = { version = "0.3.19" }
-trybuild = { version = "1.0.101" }
+trybuild = { version = "1.0.102" }
 which = { version = "7.0.0" }
 xxhash-rust = { version = "0.8" }
 const_env = { version = "0.1"}
@@ -102,19 +102,19 @@ xcm = { package = "staging-xcm", git = "https://github.com/paritytech/polkadot-s
 polkavm-derive = {  version = "0.18.0", default-features = false }
 
 # Local dependencies
-ink = { version = "=5.1.0", path = "crates/ink", default-features = false }
-ink_allocator = { version = "=5.1.0", path = "crates/allocator", default-features = false }
-ink_codegen = { version = "=5.1.0", path = "crates/ink/codegen", default-features = false }
-ink_e2e_macro = { version = "=5.1.0", path = "crates/e2e/macro", default-features = false }
-ink_engine = { version = "=5.1.0", path = "crates/engine", default-features = false }
-ink_env = { version = "=5.1.0", path = "crates/env", default-features = false }
-ink_ir = { version = "=5.1.0", path = "crates/ink/ir", default-features = false }
-ink_macro = { version = "=5.1.0", path = "crates/ink/macro", default-features = false }
-ink_metadata = { version = "=5.1.0", path = "crates/metadata", default-features = false }
-ink_prelude = { version = "=5.1.0", path = "crates/prelude", default-features = false }
-ink_primitives = { version = "=5.1.0", path = "crates/primitives", default-features = false }
-ink_storage = { version = "=5.1.0", path = "crates/storage", default-features = false }
-ink_storage_traits = { version = "=5.1.0", path = "crates/storage/traits", default-features = false }
+ink = { version = "=6.0.0-alpha", path = "crates/ink", default-features = false }
+ink_allocator = { version = "=6.0.0-alpha", path = "crates/allocator", default-features = false }
+ink_codegen = { version = "=6.0.0-alpha", path = "crates/ink/codegen", default-features = false }
+ink_e2e_macro = { version = "=6.0.0-alpha", path = "crates/e2e/macro", default-features = false }
+ink_engine = { version = "=6.0.0-alpha", path = "crates/engine", default-features = false }
+ink_env = { version = "=6.0.0-alpha", path = "crates/env", default-features = false }
+ink_ir = { version = "=6.0.0-alpha", path = "crates/ink/ir", default-features = false }
+ink_macro = { version = "=6.0.0-alpha", path = "crates/ink/macro", default-features = false }
+ink_metadata = { version = "=6.0.0-alpha", path = "crates/metadata", default-features = false }
+ink_prelude = { version = "=6.0.0-alpha", path = "crates/prelude", default-features = false }
+ink_primitives = { version = "=6.0.0-alpha", path = "crates/primitives", default-features = false }
+ink_storage = { version = "=6.0.0-alpha", path = "crates/storage", default-features = false }
+ink_storage_traits = { version = "=6.0.0-alpha", path = "crates/storage/traits", default-features = false }
 
 [profile.release]
 panic = "abort"

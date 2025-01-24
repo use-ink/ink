@@ -691,6 +691,8 @@ where
         Ok(())
     }
 
+    // todo not used anywhere
+    // code is also not dry
     async fn map_account_dry_run(&mut self, caller: &Keypair) -> Result<(), Self::Error> {
         let tx_events = self.api.map_account(caller).await;
 

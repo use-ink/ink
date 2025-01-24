@@ -29,7 +29,6 @@ env:
   # Image can be edited at https://github.com/use-ink/docker-images
   IMAGE:                           useink/ci
   CARGO_TARGET_DIR:                /ci-cache/${{ github.repository }}/targets/${{ github.ref_name }}/${{ github.job }}
-  CARGO_INCREMENTAL:               0
   PURELY_STD_CRATES:               ink/codegen metadata engine e2e e2e/macro ink/ir
   ALSO_RISCV_CRATES:               env storage storage/traits allocator prelude primitives ink ink/macro
   # TODO `cargo clippy --all-targets --all-features` for this crate
@@ -405,7 +404,7 @@ jobs:
         run: |
           for package in $(cargo metadata --format-version 1 | jq -r '.workspace_members[]' | awk '{print $1}'); do
             # Run cargo doc for each workspace member
-            cargo doc --no-deps --all-features -p ${package}
+            cargo +nightly doc --no-deps --all-features -p ${package}
           done
           mv ${CARGO_TARGET_DIR}/doc ./crate-docs
           # FIXME: remove me after CI image gets nonroot
@@ -443,9 +442,11 @@ jobs:
           # Needed because `codecov` requires nightly features to work
           # (see `-Z` in the `RUSTFLAGS` below).
           RUSTC_BOOTSTRAP:               1
+          RUSTDOCFLAGS:                  -Cpanic=abort
           # Variables partly came from https://github.com/mozilla/grcov/blob/master/README.md
-          RUSTFLAGS:                     -Zprofile -Zmir-opt-level=0 -Ccodegen-units=1
-                                          -Clink-dead-code -Copt-level=0 -Coverflow-checks=off
+          RUSTFLAGS:                     -Zmir-opt-level=0 -Ccodegen-units=1
+                                         -Clink-dead-code -Copt-level=0 -Coverflow-checks=off
+                                         -Cinstrument-coverage -Zpanic_abort_tests
           # The `cargo-tarpaulin` coverage reporting tool seems to have better code instrumentation and thus
           # produces better results for Rust codebases in general. However, unlike `grcov` it requires
           # running docker with `--security-opt seccomp=unconfined` which is why we use `grcov` instead.
@@ -462,8 +463,9 @@ jobs:
           # FIXME: Access from 2 users, should be solved once ci-image works from a non-root user
           git config --global --add safe.directory '*'
           # RUSTFLAGS are the cause target cache can't be used here
-          cargo build --all-features --workspace
-          cargo test --all-features --no-fail-fast --workspace --locked -- --skip ui_tests
+          rustup component add llvm-tools-preview
+          cargo +nightly build --all-features --workspace
+          cargo +nightly test --all-features --no-fail-fast --workspace --locked -- --skip ui_tests
           # coverage with branches
           grcov . --binary-path ./target/debug/ --source-dir . --output-type lcov --llvm --branch \
             --ignore-not-existing --ignore "/*" --ignore "tests/*" --output-path lcov-w-branch.info
@@ -503,7 +505,7 @@ jobs:
         with:
           # run all tests with --all-features, which will run the e2e-tests feature if present
           args:
-            /bin/bash -c "scripts/for_all_contracts_exec.sh --path integration-tests --ignore public/static-buffer --ignore public/mapping --partition ${{ matrix.partition }}/6 -- \
+            /bin/bash -c "scripts/for_all_contracts_exec.sh --path integration-tests --ignore internal/static-buffer --ignore internal/mapping --partition ${{ matrix.partition }}/6 -- \
                 cargo +nightly test --all-features --all --manifest-path {}"
 
   examples-test-mapping:
@@ -537,7 +539,7 @@ jobs:
             run:
                 rustup install nightly-2025-01-07;
                 rustup component add rust-src --toolchain nightly-2025-01-07;
-                cargo +nightly-2024-11-28 test --all-features --all --manifest-path integration-tests/public/mapping/Cargo.toml
+                cargo +nightly-2024-11-28 test --all-features --all --manifest-path integration-tests/internal/mapping/Cargo.toml
 
   examples-custom-test:
     runs-on: ubuntu-latest
@@ -569,8 +571,8 @@ jobs:
           # run the static buffer test with a custom buffer size.
           # the readme + test comments explain why `32`, in short because the tests write
           # content into the buffer and want to provoke an exhaustion of the buffer.
-          cargo clean --manifest-path integration-tests/public/static-buffer/Cargo.toml
-          INK_STATIC_BUFFER_SIZE=32 cargo +nightly test --manifest-path integration-tests/public/static-buffer/Cargo.toml --all-features
+          cargo clean --manifest-path integration-tests/internal/static-buffer/Cargo.toml
+          INK_STATIC_BUFFER_SIZE=32 cargo +nightly test --manifest-path integration-tests/internal/static-buffer/Cargo.toml --all-features
 
       - name: Run E2E test with on-chain contract
         # todo disabled until `cargo-contract` supports mapping the account

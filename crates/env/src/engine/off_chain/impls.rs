@@ -601,7 +601,7 @@ impl TypedEnvBackend for EnvInstance {
         Args: scale::Encode,
         R: scale::Decode,
     {
-        let _addr = params.address();
+        let _addr = params.address(); // todo remove
         let call_flags = params.call_flags().bits();
         let input = params.exec_input();
         let input = scale::Encode::encode(input);

@@ -1,19 +1,20 @@
 [package]
-name = "mapping"
-version = "5.1.0"
+name = "complex_storage_structures"
+version = "6.0.0-alpha"
 authors = ["Use Ink <ink@use.ink>"]
 edition = "2021"
 publish = false
 
 [dependencies]
 ink = { path = "../../../crates/ink", default-features = false }
+scale = { package = "parity-scale-codec", version = "3.6.12", default-features = false, features = ["derive"] }
+scale-info = { version = "2.11", default-features = false }
 
 [dev-dependencies]
 ink_e2e = { path = "../../../crates/e2e" }
 
 [lib]
 path = "lib.rs"
-doctest = false
 
 [features]
 default = ["std"]
