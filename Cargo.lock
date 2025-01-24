@@ -1341,7 +1341,7 @@ checksum = "cd7e35aee659887cbfb97aaf227ac12cad1a9d7c71e55ff3376839ed4e282d08"
 [[package]]
 name = "contract-build"
 version = "6.0.0-alpha"
-source = "git+https://github.com/use-ink/cargo-contract?branch=cmichi-remove-wasm-default-to-revive#14b43af7c8f1f62005b5607ec22df2ae108c9c44"
+source = "git+https://github.com/use-ink/cargo-contract?branch=cmichi-remove-wasm-default-to-revive#ee2fd4f6a4bce496d73953bd1feef370d836b03a"
 dependencies = [
  "anyhow",
  "blake2",
@@ -1379,7 +1379,7 @@ dependencies = [
 [[package]]
 name = "contract-metadata"
 version = "6.0.0-alpha"
-source = "git+https://github.com/use-ink/cargo-contract?branch=cmichi-remove-wasm-default-to-revive#14b43af7c8f1f62005b5607ec22df2ae108c9c44"
+source = "git+https://github.com/use-ink/cargo-contract?branch=cmichi-remove-wasm-default-to-revive#ee2fd4f6a4bce496d73953bd1feef370d836b03a"
 dependencies = [
  "anyhow",
  "impl-serde",
