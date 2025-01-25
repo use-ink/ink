@@ -100,10 +100,6 @@ use self::backend::{
 };
 pub use self::{
     api::*,
-    contract::{
-        ContractEnv,
-        ContractReference,
-    },
     error::{
         Error,
         Result,

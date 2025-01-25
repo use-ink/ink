@@ -83,8 +83,8 @@ where
             >::Type
             as crate::reflect::ContractMessageDecoder
         >::Type
-        as scale::Decode
-    >::decode(&mut &input[..])
+        as DecodeDispatch
+    >::decode_dispatch(&mut &input[..])
         .unwrap_or_else(|e| panic!("Failed to decode constructor call: {:?}", e));
 
     crate::reflect::ExecuteDispatchable::execute_dispatchable(dispatch)
@@ -678,8 +678,8 @@ impl TypedEnvBackend for EnvInstance {
                 >::Type
                 as crate::reflect::ContractConstructorDecoder
             >::Type
-            as scale::Decode
-        >::decode(&mut &input[..])
+            as DecodeDispatch
+        >::decode_dispatch(&mut &input[..])
             .unwrap_or_else(|e| panic!("Failed to decode constructor call: {:?}", e));
         crate::reflect::ExecuteDispatchable::execute_dispatchable(dispatch)
             .unwrap_or_else(|e| panic!("Constructor call failed: {:?}", e));
