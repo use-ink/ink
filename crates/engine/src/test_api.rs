@@ -15,13 +15,17 @@
 use crate::{
     ext::Engine,
     types::{
-        AccountId,
         Balance,
         BlockNumber,
         BlockTimestamp,
+        H160,
     },
     AccountError,
     Error,
+};
+use ink_primitives::{
+    AccountId,
+    U256,
 };
 use std::collections::HashMap;
 
@@ -80,11 +84,11 @@ pub struct DebugInfo {
     /// Emitted print messages recorder.
     emitted_debug_messages: RecordedDebugMessages,
     /// The total number of reads to the storage.
-    count_reads: HashMap<AccountId, usize>,
+    count_reads: HashMap<H160, usize>,
     /// The total number of writes to the storage.
-    count_writes: HashMap<AccountId, usize>,
-    /// The number of storage cells used by each account id.
-    cells_per_account: HashMap<AccountId, HashMap<Vec<u8>, bool>>,
+    count_writes: HashMap<H160, usize>,
+    /// The number of storage cells used by each contract.
+    cells_per_contract: HashMap<H160, HashMap<Vec<u8>, bool>>,
 }
 
 impl Default for DebugInfo {
@@ -101,7 +105,7 @@ impl DebugInfo {
             emitted_debug_messages: RecordedDebugMessages::new(),
             count_reads: HashMap::new(),
             count_writes: HashMap::new(),
-            cells_per_account: HashMap::new(),
+            cells_per_contract: HashMap::new(),
         }
     }
 
@@ -111,21 +115,23 @@ impl DebugInfo {
         self.count_writes.clear();
         self.emitted_events.clear();
         self.emitted_debug_messages.clear();
-        self.cells_per_account.clear();
+        self.cells_per_contract.clear();
     }
 
     /// Increases the number of storage writes for the supplied account by one.
-    pub fn inc_writes(&mut self, account_id: AccountId) {
+    #[allow(clippy::arithmetic_side_effects)] // todo
+    pub fn inc_writes(&mut self, addr: H160) {
         self.count_writes
-            .entry(account_id)
+            .entry(addr)
             .and_modify(|v| *v += 1)
             .or_insert(1);
     }
 
     /// Increases the number of storage reads for the supplied account by one.
-    pub fn inc_reads(&mut self, account_id: AccountId) {
+    #[allow(clippy::arithmetic_side_effects)] // todo
+    pub fn inc_reads(&mut self, addr: H160) {
         self.count_reads
-            .entry(account_id)
+            .entry(addr)
             .and_modify(|v| *v += 1)
             .or_insert(1);
     }
@@ -134,9 +140,9 @@ impl DebugInfo {
     ///
     /// Calling this function multiple times won't change the fact that only
     /// one cell is recorded.
-    pub fn record_cell_for_account(&mut self, account_id: AccountId, key: Vec<u8>) {
-        self.cells_per_account
-            .entry(account_id)
+    pub fn record_cell_for_account(&mut self, addr: H160, key: Vec<u8>) {
+        self.cells_per_contract
+            .entry(addr)
             .and_modify(|hm| {
                 let _ = hm.insert(key.clone(), true);
             })
@@ -150,13 +156,9 @@ impl DebugInfo {
     /// Removes the cell under `key` for the supplied account.
     ///
     /// Returns the removed cell, if there was one.
-    pub fn remove_cell_for_account(
-        &mut self,
-        account_id: AccountId,
-        key: Vec<u8>,
-    ) -> Option<bool> {
-        self.cells_per_account
-            .get_mut(&account_id)
+    pub fn remove_cell_for_account(&mut self, addr: H160, key: Vec<u8>) -> Option<bool> {
+        self.cells_per_contract
+            .get_mut(&addr)
             .map(|hm| hm.remove(&key))
             .unwrap_or(None)
     }
@@ -181,10 +183,9 @@ impl Engine {
     }
 
     /// Returns the total number of reads and writes of the contract's storage.
-    pub fn get_contract_storage_rw(&self, account_id: Vec<u8>) -> (usize, usize) {
-        let account_id = AccountId::from(account_id);
-        let reads = self.debug_info.count_reads.get(&account_id).unwrap_or(&0);
-        let writes = self.debug_info.count_writes.get(&account_id).unwrap_or(&0);
+    pub fn get_contract_storage_rw(&self, addr: H160) -> (usize, usize) {
+        let reads = self.debug_info.count_reads.get(&addr).unwrap_or(&0);
+        let writes = self.debug_info.count_writes.get(&addr).unwrap_or(&0);
         (*reads, *writes)
     }
 
@@ -199,48 +200,54 @@ impl Engine {
     }
 
     /// Sets a caller for the next call.
-    pub fn set_caller(&mut self, caller: Vec<u8>) {
-        self.exec_context.caller = Some(caller.into());
+    pub fn set_caller(&mut self, caller: H160) {
+        self.exec_context.caller = caller;
     }
 
     /// Sets a known contract by adding it to a vector of known contracts accounts
-    pub fn set_contract(&mut self, caller: Vec<u8>) {
+    pub fn set_contract(&mut self, caller: H160) {
         self.exec_context.contracts.push(caller);
     }
 
     /// Sets the callee for the next call.
-    pub fn set_callee(&mut self, callee: Vec<u8>) {
-        self.exec_context.callee = Some(callee.into());
+    pub fn set_callee(&mut self, callee: H160) {
+        self.exec_context.callee = Some(callee);
     }
 
-    /// Returns the amount of storage cells used by the account `account_id`.
+    /// Returns the amount of storage cells used by the contract `addr`.
     ///
-    /// Returns `None` if the `account_id` is non-existent.
-    pub fn count_used_storage_cells(&self, account_id: &[u8]) -> Result<usize, Error> {
+    /// Returns `None` if the contract `addr` is non-existent.
+    pub fn count_used_storage_cells(&self, addr: &H160) -> Result<usize, Error> {
         let cells = self
             .debug_info
-            .cells_per_account
-            .get(&account_id.to_owned().into())
-            .ok_or_else(|| {
-                Error::Account(AccountError::NoAccountForId(account_id.to_vec()))
-            })?;
+            .cells_per_contract
+            .get(addr)
+            .ok_or(Error::Account(AccountError::NoContractForId(*addr)))?;
         Ok(cells.len())
     }
 
     /// Advances the chain by a single block.
     pub fn advance_block(&mut self) {
-        self.exec_context.block_number += 1;
-        self.exec_context.block_timestamp += self.chain_spec.block_time;
+        self.exec_context.block_number = self
+            .exec_context
+            .block_number
+            .checked_add(1)
+            .expect("failed to add");
+        self.exec_context.block_timestamp = self
+            .exec_context
+            .block_timestamp
+            .checked_add(self.chain_spec.block_time)
+            .expect("failed to add");
     }
 
     /// Returns the callee, i.e. the currently executing contract.
-    pub fn get_callee(&self) -> Vec<u8> {
+    pub fn get_callee(&self) -> H160 {
         self.exec_context.callee()
     }
 
     /// Returns boolean value indicating whether the account is a contract
-    pub fn is_contract(&self, account_id: Vec<u8>) -> bool {
-        self.exec_context.contracts.contains(&account_id)
+    pub fn is_contract(&self, addr: &H160) -> bool {
+        self.exec_context.contracts.contains(addr)
     }
 
     /// Returns the contents of the past performed environmental `debug_message` in order.
@@ -253,20 +260,32 @@ impl Engine {
         self.debug_info.emitted_events.clone().into_iter()
     }
 
-    /// Returns the current balance of `account_id`.
-    pub fn get_balance(&self, account_id: Vec<u8>) -> Result<Balance, Error> {
+    /// Returns the current balance of `addr`.
+    pub fn get_acc_balance(&self, addr: AccountId) -> Result<Balance, Error> {
         self.database
-            .get_balance(&account_id)
-            .ok_or(Error::Account(AccountError::NoAccountForId(account_id)))
+            .get_acc_balance(&addr)
+            .ok_or(Error::Account(AccountError::NoAccountForId(addr)))
     }
 
-    /// Sets the balance of `account_id` to `new_balance`.
-    pub fn set_balance(&mut self, account_id: Vec<u8>, new_balance: Balance) {
-        self.database.set_balance(&account_id, new_balance);
+    /// Sets the balance of `addr` to `new_balance`.
+    pub fn set_acc_balance(&mut self, addr: AccountId, new_balance: Balance) {
+        self.database.set_acc_balance(&addr, new_balance);
+    }
+
+    /// Returns the current balance of `addr`.
+    pub fn get_balance(&self, addr: H160) -> Result<U256, Error> {
+        self.database
+            .get_balance(&addr)
+            .ok_or(Error::Account(AccountError::NoContractForId(addr)))
+    }
+
+    /// Sets the balance of `addr` to `new_balance`.
+    pub fn set_balance(&mut self, addr: H160, new_balance: U256) {
+        self.database.set_balance(&addr, new_balance);
     }
 
     /// Sets the value transferred from the caller to the callee as part of the call.
-    pub fn set_value_transferred(&mut self, value: Balance) {
+    pub fn set_value_transferred(&mut self, value: U256) {
         self.exec_context.value_transferred = value;
     }
 
@@ -288,20 +307,20 @@ mod tests {
     #[test]
     fn setting_getting_callee() {
         let mut engine = Engine::new();
-        let account_id = vec![1; 32];
-        engine.set_callee(account_id.clone());
-        assert_eq!(engine.get_callee(), account_id);
+        let addr = H160::from([1; 20]);
+        engine.set_callee(addr);
+        assert_eq!(engine.get_callee(), addr);
     }
 
     #[test]
     fn count_cells_per_account_must_stay_the_same() {
         // given
         let mut engine = Engine::new();
-        let account_id = vec![1; 32];
-        engine.set_callee(account_id.clone());
+        let addr = H160::from([1; 20]);
+        engine.set_callee(addr);
         let key: &[u8; 32] = &[0x42; 32];
         engine.set_storage(key, &[0x05_u8; 5]);
-        assert_eq!(engine.count_used_storage_cells(&account_id), Ok(1));
+        assert_eq!(engine.count_used_storage_cells(&addr), Ok(1));
 
         // when
         // we set the storage a second time
@@ -309,24 +328,24 @@ mod tests {
 
         // then
         // the amount of storage cells used must have stayed the same
-        assert_eq!(engine.count_used_storage_cells(&account_id), Ok(1));
+        assert_eq!(engine.count_used_storage_cells(&addr), Ok(1));
     }
 
     #[test]
     fn count_cells_per_account_must_be_reset() {
         // given
         let mut engine = Engine::new();
-        let account_id = vec![1; 32];
-        engine.set_callee(account_id.clone());
+        let addr = H160::from([1; 20]);
+        engine.set_callee(addr);
         let key: &[u8; 32] = &[0x42; 32];
         engine.set_storage(key, &[0x05_u8; 5]);
-        assert_eq!(engine.count_used_storage_cells(&account_id), Ok(1));
+        assert_eq!(engine.count_used_storage_cells(&addr), Ok(1));
 
         // when
         engine.clear_storage(key);
 
         // then
-        assert_eq!(engine.count_used_storage_cells(&account_id), Ok(0));
+        assert_eq!(engine.count_used_storage_cells(&addr), Ok(0));
     }
 
     #[test]
@@ -336,12 +355,12 @@ mod tests {
         let key: &[u8; 32] = &[0x42; 32];
 
         // when
-        engine.set_callee(vec![1; 32]);
+        engine.set_callee(H160::from([1; 20]));
         engine.set_storage(key, &[0x05_u8; 5]);
         engine.set_storage(key, &[0x05_u8; 6]);
         engine.get_storage(key).unwrap();
 
-        engine.set_callee(vec![2; 32]);
+        engine.set_callee(H160::from([2; 20]));
         engine.set_storage(key, &[0x07_u8; 7]);
         engine.get_storage(key).unwrap();
 

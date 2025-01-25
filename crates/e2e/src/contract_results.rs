@@ -12,21 +12,30 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use frame_support::pallet_prelude::{
+    Decode,
+    Encode,
+};
 use ink::codegen::ContractCallBuilder;
 use ink_env::{
-    call::FromAccountId,
+    call::FromAddr,
     Environment,
 };
 use ink_primitives::{
     ConstructorResult,
     MessageResult,
+    H256,
 };
-use pallet_contracts::{
+use pallet_revive::{
+    evm::H160,
     CodeUploadResult,
-    ContractExecResult,
-    ContractInstantiateResult,
     ExecReturnValue,
     InstantiateReturnValue,
+    StorageDeposit,
+};
+use sp_runtime::{
+    DispatchError,
+    Weight,
 };
 use std::{
     fmt,
@@ -34,38 +43,89 @@ use std::{
     marker::PhantomData,
 };
 
+/// Alias for the contract instantiate result.
+pub type ContractInstantiateResultForBar<E> =
+    ContractResult<InstantiateReturnValue, <E as Environment>::Balance>;
+
+/// Result type of a `bare_call`, `bare_instantiate`, `ReviveApi::call`, and
+/// `ReviveApi::instantiate`.
+///
+/// It contains the execution result together with some auxiliary information.
+///
+/// # Note
+///
+/// It has been extended to include `events` at the end of the struct while not bumping
+/// the `ReviveApi` version. Therefore when SCALE decoding a `ContractResult` its
+/// trailing data should be ignored to avoid any potential compatibility issues.
+#[derive(Debug, Clone, Eq, PartialEq, Encode, Decode)]
+pub struct ContractResult<R, Balance> {
+    /// How much weight was consumed during execution.
+    pub gas_consumed: Weight,
+    /// How much weight is required as gas limit in order to execute this call.
+    ///
+    /// This value should be used to determine the weight limit for on-chain execution.
+    ///
+    /// # Note
+    ///
+    /// This can only different from [`Self::gas_consumed`] when weight pre-charging
+    /// is used. Currently, only `seal_call_runtime` makes use of pre-charging.
+    /// Additionally, any `seal_call` or `seal_instantiate` makes use of pre-charging
+    /// when a non-zero `gas_limit` argument is supplied.
+    pub gas_required: Weight,
+    /// How much balance was paid by the origin into the contract's deposit account in
+    /// order to pay for storage.
+    ///
+    /// The storage deposit is never actually charged from the origin in case of
+    /// [`Self::result`] is `Err`. This is because on error all storage changes are
+    /// rolled back including the payment of the deposit.
+    pub storage_deposit: StorageDeposit<Balance>,
+    /// An optional debug message. This message is only filled when explicitly requested
+    /// by the code that calls into the contract. Otherwise it is empty.
+    ///
+    /// The contained bytes are valid UTF-8. This is not declared as `String` because
+    /// this type is not allowed within the runtime.
+    ///
+    /// Clients should not make any assumptions about the format of the buffer.
+    /// They should just display it as-is. It is **not** only a collection of log lines
+    /// provided by a contract but a formatted buffer with different sections.
+    ///
+    /// # Note
+    ///
+    /// The debug message is never generated during on-chain execution. It is reserved
+    /// for RPC calls.
+    pub debug_message: Vec<u8>,
+    /// The execution result of the Wasm code.
+    pub result: Result<R, DispatchError>,
+}
+
+/// Alias for the contract exec result.
+pub type ContractExecResultFor<E> =
+    ContractResult<ExecReturnValue, <E as Environment>::Balance>;
+
 /// Result of a contract instantiation using bare call.
-pub struct BareInstantiationResult<E: Environment, EventLog> {
-    /// The account id at which the contract was instantiated.
-    pub account_id: E::AccountId,
+pub struct BareInstantiationResult<EventLog> {
+    /// The address at which the contract was instantiated.
+    pub addr: H160,
     /// Events that happened with the contract instantiation.
     pub events: EventLog,
 }
 
-impl<E: Environment, EventLog> BareInstantiationResult<E, EventLog> {
+impl<EventLog> BareInstantiationResult<EventLog> {
     /// Returns the account id at which the contract was instantiated.
-    pub fn call<Contract>(&self) -> <Contract as ContractCallBuilder>::Type
-    where
-        Contract: ContractCallBuilder,
-        Contract::Type: FromAccountId<E>,
-    {
-        <<Contract as ContractCallBuilder>::Type as FromAccountId<E>>::from_account_id(
-            self.account_id.clone(),
-        )
+    pub fn call(&self) -> H160 {
+        self.addr
     }
 }
 
 /// We implement a custom `Debug` here, as to avoid requiring the trait bound `Debug` for
 /// `E`.
-impl<E: Environment, EventLog> Debug for BareInstantiationResult<E, EventLog>
+impl<EventLog> Debug for BareInstantiationResult<EventLog>
 where
-    E::AccountId: Debug,
-    E::Balance: Debug,
     EventLog: Debug,
 {
     fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
         f.debug_struct("InstantiationResult")
-            .field("account_id", &self.account_id)
+            .field("addr", &self.addr)
             .field("events", &self.events)
             .finish()
     }
@@ -74,7 +134,7 @@ where
 /// Result of a contract instantiation.
 pub struct InstantiationResult<E: Environment, EventLog> {
     /// The account id at which the contract was instantiated.
-    pub account_id: E::AccountId,
+    pub addr: H160,
     /// The result of the dry run, contains debug messages
     /// if there were any.
     pub dry_run: InstantiateDryRunResult<E>,
@@ -87,11 +147,9 @@ impl<E: Environment, EventLog> InstantiationResult<E, EventLog> {
     pub fn call_builder<Contract>(&self) -> <Contract as ContractCallBuilder>::Type
     where
         Contract: ContractCallBuilder,
-        Contract::Type: FromAccountId<E>,
+        Contract::Type: FromAddr,
     {
-        <<Contract as ContractCallBuilder>::Type as FromAccountId<E>>::from_account_id(
-            self.account_id.clone(),
-        )
+        <<Contract as ContractCallBuilder>::Type as FromAddr>::from_addr(self.addr)
     }
 }
 
@@ -101,11 +159,12 @@ impl<E: Environment, EventLog> Debug for InstantiationResult<E, EventLog>
 where
     E::AccountId: Debug,
     E::Balance: Debug,
+    E::EventRecord: Debug,
     EventLog: Debug,
 {
     fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
         f.debug_struct("InstantiationResult")
-            .field("account_id", &self.account_id)
+            .field("addr", &self.addr)
             .field("dry_run", &self.dry_run)
             .field("events", &self.events)
             .finish()
@@ -115,9 +174,9 @@ where
 /// Result of a contract upload.
 pub struct UploadResult<E: Environment, EventLog> {
     /// The hash with which the contract can be instantiated.
-    pub code_hash: E::Hash,
+    pub code_hash: H256,
     /// The result of the dry run, contains debug messages if there were any.
-    pub dry_run: CodeUploadResult<E::Hash, E::Balance>,
+    pub dry_run: CodeUploadResult<E::Balance>,
     /// Events that happened with the contract instantiation.
     pub events: EventLog,
 }
@@ -127,7 +186,7 @@ pub struct UploadResult<E: Environment, EventLog> {
 impl<E: Environment, EventLog> Debug for UploadResult<E, EventLog>
 where
     E::Balance: Debug,
-    E::Hash: Debug,
+    H256: Debug,
     EventLog: Debug,
 {
     fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
@@ -184,6 +243,7 @@ impl<E: Environment, V, EventLog> Debug for CallResult<E, V, EventLog>
 where
     E: Debug,
     E::Balance: Debug,
+    E::EventRecord: Debug,
     V: Debug,
     EventLog: Debug,
 {
@@ -196,11 +256,24 @@ where
 }
 
 /// Result of the dry run of a contract call.
-#[derive(Debug)]
 pub struct CallDryRunResult<E: Environment, V> {
     /// The result of the dry run, contains debug messages if there were any.
-    pub exec_result: ContractExecResult<E::Balance, ()>,
+    pub exec_result: ContractExecResultFor<E>,
     pub _marker: PhantomData<V>,
+}
+
+/// We implement a custom `Debug` here, as to avoid requiring the trait bound `Debug` for
+/// `E`.
+impl<E: Environment, V> Debug for CallDryRunResult<E, V>
+where
+    E::Balance: Debug,
+    E::EventRecord: Debug,
+{
+    fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
+        f.debug_struct("CallDryRunResult")
+            .field("exec_result", &self.exec_result)
+            .finish()
+    }
 }
 
 impl<E: Environment, V: scale::Decode> CallDryRunResult<E, V> {
@@ -262,15 +335,13 @@ impl<E: Environment, V: scale::Decode> CallDryRunResult<E, V> {
 /// Result of the dry run of a contract call.
 pub struct InstantiateDryRunResult<E: Environment> {
     /// The result of the dry run, contains debug messages if there were any.
-    pub contract_result: ContractInstantiateResult<E::AccountId, E::Balance, ()>,
+    pub contract_result: ContractInstantiateResultForBar<E>,
 }
 
-impl<E: Environment> From<ContractInstantiateResult<E::AccountId, E::Balance, ()>>
+impl<E: Environment> From<ContractInstantiateResultForBar<E>>
     for InstantiateDryRunResult<E>
 {
-    fn from(
-        contract_result: ContractInstantiateResult<E::AccountId, E::Balance, ()>,
-    ) -> Self {
+    fn from(contract_result: ContractInstantiateResultForBar<E>) -> Self {
         Self { contract_result }
     }
 }
@@ -284,7 +355,7 @@ impl<E: Environment> InstantiateDryRunResult<E> {
     /// Returns the [`InstantiateReturnValue`] resulting from the dry-run message call.
     ///
     /// Panics if the dry-run message call failed to execute.
-    pub fn instantiate_return_value(&self) -> &InstantiateReturnValue<E::AccountId> {
+    pub fn instantiate_return_value(&self) -> &InstantiateReturnValue {
         self.contract_result
             .result
             .as_ref()
@@ -314,6 +385,7 @@ where
     E: Environment,
     E::AccountId: Debug,
     E::Balance: Debug,
+    E::EventRecord: Debug,
 {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         f.debug_struct("InstantiateDryRunResult")

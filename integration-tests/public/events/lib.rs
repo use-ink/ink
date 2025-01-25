@@ -238,10 +238,8 @@ pub mod events {
     #[cfg(all(test, feature = "e2e-tests"))]
     mod e2e_tests {
         use super::*;
-        use ink_e2e::{
-            ContractsBackend,
-            H256,
-        };
+        use ink::H256;
+        use ink_e2e::ContractsBackend;
 
         type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
@@ -404,6 +402,7 @@ pub mod events {
             // then
             assert_eq!(1, contract_events.len());
 
+            // todo the emitted event is not actually checked here
             let signature_topic =
                 <InlineCustomFlipped as ink::env::Event>::SIGNATURE_TOPIC;
 

@@ -25,6 +25,7 @@
     html_favicon_url = "https://use.ink/crate-docs/favicon.png"
 )]
 #![cfg_attr(not(feature = "std"), no_std)]
+#![cfg_attr(docsrs, feature(doc_cfg))]
 #![deny(
     missing_docs,
     bad_style,
@@ -51,10 +52,6 @@
 #[const_env::from_env("INK_STATIC_BUFFER_SIZE")]
 pub const BUFFER_SIZE: usize = 16384;
 
-#[cfg(all(not(feature = "std"), target_arch = "wasm32"))]
-#[allow(unused_extern_crates)]
-extern crate rlibc;
-
 #[cfg(not(any(feature = "std", feature = "no-panic-handler")))]
 #[allow(unused_variables)]
 #[panic_handler]
@@ -63,16 +60,14 @@ fn panic(info: &core::panic::PanicInfo) -> ! {
     debug_print!("{}\n", info);
 
     cfg_if::cfg_if! {
-        if #[cfg(target_arch = "wasm32")] {
-            core::arch::wasm32::unreachable();
-        } else if #[cfg(target_arch = "riscv32")] {
+        if #[cfg(target_arch = "riscv64")] {
             // Safety: The unimp instruction is guaranteed to trap
             unsafe {
                 core::arch::asm!("unimp");
                 core::hint::unreachable_unchecked();
             }
         } else {
-            core::compile_error!("ink! only supports wasm32 and riscv32");
+            core::compile_error!("ink! only supports riscv64");
         }
     }
 }
@@ -83,17 +78,14 @@ fn panic(info: &core::panic::PanicInfo) -> ! {
 extern crate ink_allocator;
 
 mod api;
-mod arithmetic;
 mod backend;
 pub mod call;
 pub mod chain_extension;
-mod contract;
 mod engine;
 mod error;
 #[doc(hidden)]
 pub mod event;
 pub mod hash;
-mod types;
 
 mod dispatch;
 #[cfg(test)]
@@ -102,21 +94,6 @@ mod tests;
 #[cfg(any(feature = "std", test, doc))]
 #[doc(inline)]
 pub use self::engine::off_chain::test_api as test;
-
-#[cfg(not(feature = "revive"))]
-#[doc(inline)]
-pub use pallet_contracts_uapi::{
-    CallFlags,
-    ReturnErrorCode,
-    ReturnFlags,
-};
-#[cfg(feature = "revive")]
-#[doc(inline)]
-pub use pallet_revive_uapi::{
-    CallFlags,
-    ReturnErrorCode,
-    ReturnFlags,
-};
 
 use self::backend::{
     EnvBackend,
@@ -139,14 +116,33 @@ pub use self::{
     event::Event,
     types::{
         AccountIdGuard,
+        Balance,
+        BlockNumber,
+        CodecAsType,
         DefaultEnvironment,
         Environment,
         FromLittleEndian,
         Gas,
         NoChainExtension,
+        Timestamp,
     },
 };
 use ink_primitives::Clear;
+pub use ink_primitives::{
+    contract::{
+        ContractEnv,
+        ContractReference,
+        ContractReverseReference,
+    },
+    reflect,
+    types,
+};
+#[doc(inline)]
+pub use pallet_revive_uapi::{
+    CallFlags,
+    ReturnErrorCode,
+    ReturnFlags,
+};
 
 cfg_if::cfg_if! {
     if #[cfg(any(feature = "ink-debug", feature = "std"))] {
@@ -161,12 +157,12 @@ cfg_if::cfg_if! {
         /// extrinsic). The `debug_message` buffer will be:
         ///  - Returned to the RPC caller.
         ///  - Logged as a `debug!` message on the Substrate node, which will be printed to the
-        ///    node console's `stdout` when the log level is set to `-lruntime::contracts=debug`.
+        ///    node console's `stdout` when the log level is set to `-lruntime::revive=debug`.
         ///
         /// # Note
         ///
         /// This depends on the `debug_message` interface which requires the
-        /// `"pallet-contracts/unstable-interface"` feature to be enabled in the target runtime.
+        /// `"pallet-revive/unstable-hostfn"` feature to be enabled in the target runtime.
         #[macro_export]
         macro_rules! debug_print {
             ($($arg:tt)*) => ($crate::debug_message(&$crate::format!($($arg)*)));
@@ -178,7 +174,7 @@ cfg_if::cfg_if! {
         /// # Note
         ///
         /// This depends on the `debug_message` interface which requires the
-        /// `"pallet-contracts/unstable-interface"` feature to be enabled in the target runtime.
+        /// `"pallet-revive/unstable-hostfn"` feature to be enabled in the target runtime.
         #[macro_export]
         macro_rules! debug_println {
             () => ($crate::debug_print!("\n"));

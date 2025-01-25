@@ -17,6 +17,7 @@ use super::{
         constructor_exec_input,
         CreateBuilderPartial,
     },
+    deposit_limit_to_balance,
     events::{
         CodeStoredEvent,
         ContractInstantiatedEvent,
@@ -25,9 +26,10 @@ use super::{
     log_error,
     log_info,
     sr25519,
-    ContractsApi,
     InstantiateDryRunResult,
     Keypair,
+    ReviveApi,
+    H256,
 };
 use crate::{
     backend::BuilderClient,
@@ -49,8 +51,8 @@ use ink_env::{
     },
     Environment,
 };
+use ink_primitives::DepositLimit;
 use jsonrpsee::core::async_trait;
-use pallet_contracts::ContractResult;
 use scale::{
     Decode,
     Encode,
@@ -66,6 +68,7 @@ use crate::{
         salt,
         ContractsRegistry,
     },
+    contract_results::ContractResult,
     error::DryRunError,
     events,
     ContractsBackend,
@@ -92,7 +95,7 @@ pub type Error = crate::error::Error<DispatchError>;
 /// Represents an initialized contract message builder.
 pub type CallBuilderFinal<E, Args, RetType> = ink_env::call::CallBuilder<
     E,
-    Set<Call<E>>,
+    Set<Call>,
     Set<ExecutionInput<Args>>,
     Set<ReturnType<RetType>>,
 >;
@@ -106,7 +109,7 @@ where
     C: subxt::Config,
     E: Environment,
 {
-    api: ContractsApi<C, E>,
+    api: ReviveApi<C, E>,
     contracts: ContractsRegistry,
 }
 
@@ -122,8 +125,9 @@ where
 
     E: Environment,
     E::AccountId: Debug,
+    E::EventRecord: Debug,
     E::Balance: Debug + scale::HasCompact + serde::Serialize,
-    E::Hash: Debug + scale::Encode,
+    H256: Debug + scale::Encode,
 {
     /// Creates a new [`Client`] instance using a `subxt` client.
     pub async fn new<P: Into<PathBuf>>(
@@ -131,7 +135,7 @@ where
         contracts: impl IntoIterator<Item = P>,
     ) -> Result<Self, subxt::Error> {
         Ok(Self {
-            api: ContractsApi::new(client).await?,
+            api: ReviveApi::new(client).await?,
             contracts: ContractsRegistry::new(contracts),
         })
     }
@@ -144,8 +148,8 @@ where
         data: Vec<u8>,
         value: E::Balance,
         gas_limit: Weight,
-        storage_deposit_limit: Option<E::Balance>,
-    ) -> Result<BareInstantiationResult<E, ExtrinsicEvents<C>>, Error> {
+        storage_deposit_limit: E::Balance,
+    ) -> Result<BareInstantiationResult<ExtrinsicEvents<C>>, Error> {
         let salt = salt();
 
         let tx_events = self
@@ -161,14 +165,14 @@ where
             )
             .await;
 
-        let mut account_id = None;
+        let mut addr = None;
         for evt in tx_events.iter() {
             let evt = evt.unwrap_or_else(|err| {
                 panic!("unable to unwrap event: {err:?}");
             });
 
             if let Some(instantiated) = evt
-                .as_event::<ContractInstantiatedEvent<E>>()
+                .as_event::<ContractInstantiatedEvent>()
                 .unwrap_or_else(|err| {
                     panic!("event conversion to `Instantiated` failed: {err:?}");
                 })
@@ -177,7 +181,7 @@ where
                     "contract was instantiated at {:?}",
                     instantiated.contract
                 ));
-                account_id = Some(instantiated.contract);
+                addr = Some(instantiated.contract);
 
                 // We can't `break` here, we need to assign the account id from the
                 // last `ContractInstantiatedEvent`, in case the contract instantiates
@@ -193,12 +197,12 @@ where
                 return Err(Error::InstantiateExtrinsic(dispatch_error))
             }
         }
-        let account_id = account_id.expect("cannot extract `account_id` from events");
+        let addr = addr.expect("cannot extract `account_id` from events");
 
         Ok(BareInstantiationResult {
             // The `account_id` must exist at this point. If the instantiation fails
             // the dry-run must already return that.
-            account_id,
+            addr,
             events: tx_events,
         })
     }
@@ -208,9 +212,12 @@ where
         &mut self,
         signer: &Keypair,
         code: Vec<u8>,
-        storage_deposit_limit: Option<E::Balance>,
+        _storage_deposit_limit: E::Balance,
     ) -> Result<UploadResult<E, ExtrinsicEvents<C>>, Error> {
-        // dry run the instantiate to calculate the gas limit
+        // todo
+        let storage_deposit_limit: E::Balance = unsafe {
+            core::mem::transmute_copy::<u128, <E as Environment>::Balance>(&u128::MAX)
+        };
         let dry_run = self
             .api
             .upload_dry_run(signer, code.clone(), storage_deposit_limit)
@@ -230,7 +237,7 @@ where
             });
 
             if let Some(uploaded) =
-                evt.as_event::<CodeStoredEvent<E>>().unwrap_or_else(|err| {
+                evt.as_event::<CodeStoredEvent>().unwrap_or_else(|err| {
                     panic!("event conversion to `Uploaded` failed: {err:?}");
                 })
             {
@@ -251,7 +258,8 @@ where
             }
         }
 
-        // The `pallet-contracts` behavior is that if the code was already stored on the
+        // todo still up to date?
+        // The `pallet-revive` behavior is that if the code was already stored on the
         // chain we won't get an event with the hash, but the extrinsic will still
         // succeed. We then don't error (`cargo-contract` would), but instead
         // return the hash from the dry-run.
@@ -272,20 +280,14 @@ where
         })
     }
 
+    /// todo check if comment still holds
     /// Transforms a [`ContractResult`] from a dry run into a [`Result`] type, containing
     /// details of the [`DispatchError`] if the dry run failed.
     #[allow(clippy::type_complexity)]
     fn contract_result_to_result<V>(
         &self,
-        contract_result: ContractResult<
-            Result<V, sp_runtime::DispatchError>,
-            E::Balance,
-            (),
-        >,
-    ) -> Result<
-        ContractResult<Result<V, sp_runtime::DispatchError>, E::Balance, ()>,
-        DryRunError<DispatchError>,
-    > {
+        contract_result: ContractResult<V, E::Balance>,
+    ) -> Result<ContractResult<V, E::Balance>, DryRunError<DispatchError>> {
         if let Err(error) = contract_result.result {
             let debug_message = String::from_utf8(contract_result.debug_message.clone())
                 .expect("invalid utf8 debug message");
@@ -339,6 +341,7 @@ where
         + TryFrom<u128>
         + scale::HasCompact
         + serde::Serialize,
+    E::EventRecord: Debug,
 {
     type AccountId = E::AccountId;
     type Balance = E::Balance;
@@ -472,9 +475,10 @@ where
 
     E: Environment,
     E::AccountId: Debug + Send + Sync,
+    E::EventRecord: Debug,
     E::Balance:
         Clone + Debug + Send + Sync + From<u128> + scale::HasCompact + serde::Serialize,
-    E::Hash: Debug + Send + Sync + scale::Encode,
+    H256: Debug + Send + Sync + scale::Encode,
 {
     async fn bare_instantiate<Contract: Clone, Args: Send + Sync + Encode + Clone, R>(
         &mut self,
@@ -483,14 +487,15 @@ where
         constructor: &mut CreateBuilderPartial<E, Contract, Args, R>,
         value: E::Balance,
         gas_limit: Weight,
-        storage_deposit_limit: Option<E::Balance>,
-    ) -> Result<BareInstantiationResult<E, Self::EventLog>, Self::Error> {
+        storage_deposit_limit: DepositLimit<E::Balance>,
+    ) -> Result<BareInstantiationResult<Self::EventLog>, Self::Error> {
         let code = self.contracts.load_code(contract_name);
         let data = constructor_exec_input(constructor.clone());
+        let storage_deposit_limit = deposit_limit_to_balance::<E>(storage_deposit_limit);
         let ret = self
             .exec_instantiate(caller, code, data, value, gas_limit, storage_deposit_limit)
             .await?;
-        log_info(&format!("instantiated contract at {:?}", ret.account_id));
+        log_info(&format!("instantiated contract at {:?}", ret.addr));
         Ok(ret)
     }
 
@@ -504,8 +509,12 @@ where
         caller: &Keypair,
         constructor: &mut CreateBuilderPartial<E, Contract, Args, R>,
         value: E::Balance,
-        storage_deposit_limit: Option<E::Balance>,
+        storage_deposit_limit: DepositLimit<E::Balance>,
     ) -> Result<InstantiateDryRunResult<E>, Self::Error> {
+        // todo beware side effect! this is wrong, we have to batch up the `map_account`
+        // into the RPC dry run instead
+        let _ = self.map_account(caller).await;
+
         let code = self.contracts.load_code(contract_name);
         let data = constructor_exec_input(constructor.clone());
 
@@ -521,6 +530,11 @@ where
             )
             .await;
 
+        log_info(&format!("instantiate dry run: {:?}", &result.result));
+        log_info(&format!(
+            "instantiate dry run debug message: {}",
+            String::from_utf8_lossy(&result.debug_message)
+        ));
         let result = self
             .contract_result_to_result(result)
             .map_err(Error::InstantiateDryRun)?;
@@ -532,7 +546,7 @@ where
         &mut self,
         contract_name: &str,
         caller: &Keypair,
-        storage_deposit_limit: Option<E::Balance>,
+        storage_deposit_limit: E::Balance,
     ) -> Result<UploadResult<E, Self::EventLog>, Self::Error> {
         let code = self.contracts.load_code(contract_name);
         let ret = self
@@ -545,7 +559,7 @@ where
     async fn bare_remove_code(
         &mut self,
         caller: &Keypair,
-        code_hash: E::Hash,
+        code_hash: H256,
     ) -> Result<Self::EventLog, Self::Error> {
         let tx_events = self.api.remove_code(caller, code_hash).await;
 
@@ -572,22 +586,22 @@ where
         message: &CallBuilderFinal<E, Args, RetType>,
         value: E::Balance,
         gas_limit: Weight,
-        storage_deposit_limit: Option<E::Balance>,
+        storage_deposit_limit: DepositLimit<E::Balance>,
     ) -> Result<Self::EventLog, Self::Error>
     where
         CallBuilderFinal<E, Args, RetType>: Clone,
     {
-        let account_id = message.clone().params().callee().clone();
+        let addr = *message.clone().params().callee();
         let exec_input = Encode::encode(message.clone().params().exec_input());
         log_info(&format!("call: {:02X?}", exec_input));
 
         let tx_events = self
             .api
             .call(
-                subxt::utils::MultiAddress::Id(account_id.clone()),
+                addr,
                 value,
                 gas_limit.into(),
-                storage_deposit_limit,
+                deposit_limit_to_balance::<E>(storage_deposit_limit),
                 exec_input,
                 caller,
             )
@@ -611,17 +625,22 @@ where
         Ok(tx_events)
     }
 
+    // todo is not really a `bare_call`
     async fn bare_call_dry_run<Args: Sync + Encode + Clone, RetType: Send + Decode>(
         &mut self,
         caller: &Keypair,
         message: &CallBuilderFinal<E, Args, RetType>,
         value: E::Balance,
-        storage_deposit_limit: Option<E::Balance>,
+        storage_deposit_limit: DepositLimit<E::Balance>,
     ) -> Result<CallDryRunResult<E, RetType>, Self::Error>
     where
         CallBuilderFinal<E, Args, RetType>: Clone,
     {
-        let dest = message.clone().params().callee().clone();
+        // todo beware side effect! this is wrong, we have to batch up the `map_account`
+        // into the RPC dry run instead
+        let _ = self.map_account(caller).await;
+
+        let dest = *message.clone().params().callee();
         let exec_input = Encode::encode(message.clone().params().exec_input());
 
         let exec_result = self
@@ -631,7 +650,7 @@ where
                 dest,
                 exec_input,
                 value,
-                storage_deposit_limit,
+                deposit_limit_to_balance::<E>(storage_deposit_limit),
             )
             .await;
         log_info(&format!("call dry run: {:?}", &exec_result.result));
@@ -648,6 +667,51 @@ where
             exec_result,
             _marker: Default::default(),
         })
+    }
+
+    async fn map_account(&mut self, caller: &Keypair) -> Result<(), Self::Error> {
+        let tx_events = self.api.map_account(caller).await;
+
+        for evt in tx_events.iter() {
+            let evt = evt.unwrap_or_else(|err| {
+                panic!("unable to unwrap event: {err:?}");
+            });
+
+            if is_extrinsic_failed_event(&evt) {
+                let metadata = self.api.client.metadata();
+                let dispatch_error =
+                    DispatchError::decode_from(evt.field_bytes(), metadata)
+                        .map_err(|e| Error::Decoding(e.to_string()))?;
+                log_error(&format!("extrinsic for call failed: {dispatch_error}"));
+                return Err(Error::CallExtrinsic(dispatch_error))
+            }
+        }
+
+        // todo: Ok(tx_events)
+        Ok(())
+    }
+
+    // todo not used anywhere
+    // code is also not dry
+    async fn map_account_dry_run(&mut self, caller: &Keypair) -> Result<(), Self::Error> {
+        let tx_events = self.api.map_account(caller).await;
+
+        for evt in tx_events.iter() {
+            let evt = evt.unwrap_or_else(|err| {
+                panic!("unable to unwrap event: {err:?}");
+            });
+
+            if is_extrinsic_failed_event(&evt) {
+                let metadata = self.api.client.metadata();
+                let dispatch_error =
+                    DispatchError::decode_from(evt.field_bytes(), metadata)
+                        .map_err(|e| Error::Decoding(e.to_string()))?;
+                log_error(&format!("extrinsic for call failed: {dispatch_error}"));
+                return Err(Error::CallExtrinsic(dispatch_error))
+            }
+        }
+
+        Ok(())
     }
 }
 
@@ -670,7 +734,7 @@ where
     E::AccountId: Debug + Send + Sync,
     E::Balance:
         Clone + Debug + Send + Sync + From<u128> + scale::HasCompact + serde::Serialize,
-    E::Hash: Debug + Send + scale::Encode,
+    H256: Debug + Send + scale::Encode,
 {
     type Error = Error;
     type EventLog = ExtrinsicEvents<C>;
@@ -695,9 +759,10 @@ where
 
     E: Environment,
     E::AccountId: Debug + Send + Sync,
+    E::EventRecord: Debug,
     E::Balance:
         Clone + Debug + Send + Sync + From<u128> + scale::HasCompact + serde::Serialize,
-    E::Hash: Debug + Send + Sync + scale::Encode,
+    H256: Debug + Send + Sync + scale::Encode,
 {
 }
 
@@ -742,17 +807,20 @@ impl<E: Environment, V, C: subxt::Config> CallResult<E, V, ExtrinsicEvents<C>> {
     /// Returns all the `ContractEmitted` events emitted by the contract.
     pub fn contract_emitted_events(
         &self,
-    ) -> Result<Vec<EventWithTopics<events::ContractEmitted<E>>>, subxt::Error>
+    ) -> Result<Vec<EventWithTopics<events::ContractEmitted>>, subxt::Error>
     where
         C::Hash: Into<sp_core::H256>,
     {
         let mut events_with_topics = Vec::new();
         for event in self.events.iter() {
             let event = event?;
-            if let Some(decoded_event) = event.as_event::<events::ContractEmitted<E>>()? {
+            if let Some(decoded_event) = event.as_event::<events::ContractEmitted>()? {
+                let topics = decoded_event.topics.clone();
                 let event_with_topics = EventWithTopics {
                     event: decoded_event,
-                    topics: event.topics().iter().cloned().map(Into::into).collect(),
+                    //topics: event.topics().iter().cloned().map(Into::into).collect(),
+                    //topics: topics.iter().map(|v| H256::from_slice(&v[..])).collect(),
+                    topics,
                 };
                 events_with_topics.push(event_with_topics);
             }

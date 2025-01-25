@@ -100,7 +100,7 @@ impl<'a, C> CallableWithSelector<'a, C> {
     }
 }
 
-impl<'a, C> Callable for CallableWithSelector<'a, C>
+impl<C> Callable for CallableWithSelector<'_, C>
 where
     C: Callable,
 {
@@ -149,7 +149,7 @@ where
     }
 }
 
-impl<'a, C> ::core::ops::Deref for CallableWithSelector<'a, C> {
+impl<C> ::core::ops::Deref for CallableWithSelector<'_, C> {
     type Target = C;
 
     fn deref(&self) -> &Self::Target {
@@ -567,7 +567,7 @@ impl<'a> Iterator for InputsIter<'a> {
     }
 }
 
-impl<'a> ExactSizeIterator for InputsIter<'a> {
+impl ExactSizeIterator for InputsIter<'_> {
     fn len(&self) -> usize {
         self.iter.len()
     }

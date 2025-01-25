@@ -18,13 +18,16 @@
 
 #[ink::contract]
 mod mother {
-    use ink::prelude::{
-        format,
-        string::{
-            String,
-            ToString,
+    use ink::{
+        prelude::{
+            format,
+            string::{
+                String,
+                ToString,
+            },
+            vec::Vec,
         },
-        vec::Vec,
+        H160,
     };
 
     use ink::storage::{
@@ -38,7 +41,7 @@ mod mother {
     #[derive(Default, PartialEq, Eq, Debug, Clone)]
     #[cfg_attr(feature = "std", derive(ink::storage::traits::StorageLayout))]
     #[ink::scale_derive(Encode, Decode, TypeInfo)]
-    pub struct Bids(Vec<Vec<Option<(AccountId, Balance)>>>);
+    pub struct Bids(Vec<Vec<Option<(H160, Balance)>>>);
 
     /// Auction outline.
     #[derive(PartialEq, Eq, Debug, Clone)]
@@ -130,7 +133,7 @@ mod mother {
     #[derive(Default)]
     pub struct Mother {
         auction: Auction,
-        balances: Mapping<AccountId, Balance>,
+        balances: Mapping<H160, Balance>,
         log: StorageVec<String>,
     }
 

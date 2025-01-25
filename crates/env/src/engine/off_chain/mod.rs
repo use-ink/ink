@@ -25,6 +25,10 @@ use crate::Error;
 
 use derive_more::From;
 use ink_engine::ext::Engine;
+use ink_primitives::{
+    AccountId,
+    H160,
+};
 
 /// The off-chain environment.
 pub struct EnvInstance {
@@ -44,7 +48,14 @@ impl OnInstance for EnvInstance {
                 }
             )
         );
-        INSTANCE.with(|instance| f(&mut instance.borrow_mut()))
+        /*
+         * This unsafe block is needed to be able to return a mut reference
+         * while another mut reference is still borrowed, because now that
+         * contracts can invoke other contracts some API functions are called
+         * nested. This should be safe, as the object is in a TLS, so there's no
+         * possibility of undefined behavior arising from race conditions.
+         */
+        INSTANCE.with(|instance| f(unsafe { &mut *instance.as_ptr() }))
     }
 }
 
@@ -59,6 +70,7 @@ pub enum OffChainError {
     UnregisteredChainExtension,
 }
 
+// todo rename
 /// Errors encountered upon interacting with the accounts database.
 #[derive(Debug, From, PartialEq, Eq)]
 pub enum AccountError {
@@ -66,5 +78,6 @@ pub enum AccountError {
     #[from(ignore)]
     UnexpectedUserAccount,
     #[from(ignore)]
-    NoAccountForId(Vec<u8>),
+    NoAccountForId(AccountId),
+    NoContractForId(H160),
 }

@@ -23,8 +23,8 @@ use quote::{
     quote_spanned,
 };
 
-impl<'a> TraitDefinition<'a> {
-    fn generate_for_message(message: ir::InkTraitMessage<'a>) -> TokenStream2 {
+impl TraitDefinition<'_> {
+    fn generate_for_message(message: ir::InkTraitMessage<'_>) -> TokenStream2 {
         let span = message.span();
         let attrs = message.attrs();
         let sig = message.sig();

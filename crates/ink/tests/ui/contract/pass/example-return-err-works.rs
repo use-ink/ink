@@ -1,3 +1,5 @@
+#![allow(unexpected_cfgs)]
+
 use return_err::{
     Error,
     ReturnErr,

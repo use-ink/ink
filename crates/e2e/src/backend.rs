@@ -12,7 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use super::Keypair;
+use super::{
+    InstantiateDryRunResult,
+    Keypair,
+    H256,
+};
 use crate::{
     backend_calls::{
         InstantiateBuilder,
@@ -20,10 +24,7 @@ use crate::{
         UploadBuilder,
     },
     builders::CreateBuilderPartial,
-    contract_results::{
-        BareInstantiationResult,
-        InstantiateDryRunResult,
-    },
+    contract_results::BareInstantiationResult,
     CallBuilder,
     CallBuilderFinal,
     CallDryRunResult,
@@ -33,6 +34,7 @@ use ink_env::{
     DefaultEnvironment,
     Environment,
 };
+use ink_primitives::DepositLimit;
 use jsonrpsee::core::async_trait;
 use scale::{
     Decode,
@@ -175,7 +177,7 @@ pub trait ContractsBackend<E: Environment> {
     fn remove_code<'a>(
         &'a mut self,
         caller: &'a Keypair,
-        code_hash: E::Hash,
+        code_hash: H256,
     ) -> RemoveCodeBuilder<'a, E, Self>
     where
         Self: Sized + BuilderClient<E>,
@@ -230,7 +232,7 @@ pub trait BuilderClient<E: Environment>: ContractsBackend<E> {
         message: &CallBuilderFinal<E, Args, RetType>,
         value: E::Balance,
         gas_limit: Weight,
-        storage_deposit_limit: Option<E::Balance>,
+        storage_deposit_limit: DepositLimit<E::Balance>,
     ) -> Result<Self::EventLog, Self::Error>
     where
         CallBuilderFinal<E, Args, RetType>: Clone;
@@ -244,7 +246,7 @@ pub trait BuilderClient<E: Environment>: ContractsBackend<E> {
         caller: &Keypair,
         message: &CallBuilderFinal<E, Args, RetType>,
         value: E::Balance,
-        storage_deposit_limit: Option<E::Balance>,
+        storage_deposit_limit: DepositLimit<E::Balance>,
     ) -> Result<CallDryRunResult<E, RetType>, Self::Error>
     where
         CallBuilderFinal<E, Args, RetType>: Clone;
@@ -260,14 +262,14 @@ pub trait BuilderClient<E: Environment>: ContractsBackend<E> {
         &mut self,
         contract_name: &str,
         caller: &Keypair,
-        storage_deposit_limit: Option<E::Balance>,
+        storage_deposit_limit: E::Balance,
     ) -> Result<UploadResult<E, Self::EventLog>, Self::Error>;
 
     /// Removes the code of the contract at `code_hash`.
     async fn bare_remove_code(
         &mut self,
         caller: &Keypair,
-        code_hash: E::Hash,
+        code_hash: crate::H256,
     ) -> Result<Self::EventLog, Self::Error>;
 
     /// Bare instantiate call. This function does not perform a dry-run,
@@ -290,8 +292,8 @@ pub trait BuilderClient<E: Environment>: ContractsBackend<E> {
         constructor: &mut CreateBuilderPartial<E, Contract, Args, R>,
         value: E::Balance,
         gas_limit: Weight,
-        storage_deposit_limit: Option<E::Balance>,
-    ) -> Result<BareInstantiationResult<E, Self::EventLog>, Self::Error>;
+        storage_deposit_limit: DepositLimit<E::Balance>,
+    ) -> Result<BareInstantiationResult<Self::EventLog>, Self::Error>;
 
     /// Dry run contract instantiation.
     async fn bare_instantiate_dry_run<
@@ -304,6 +306,12 @@ pub trait BuilderClient<E: Environment>: ContractsBackend<E> {
         caller: &Keypair,
         constructor: &mut CreateBuilderPartial<E, Contract, Args, R>,
         value: E::Balance,
-        storage_deposit_limit: Option<E::Balance>,
+        storage_deposit_limit: DepositLimit<E::Balance>,
     ) -> Result<InstantiateDryRunResult<E>, Self::Error>;
+
+    /// todo
+    async fn map_account(&mut self, caller: &Keypair) -> Result<(), Self::Error>;
+
+    /// todo
+    async fn map_account_dry_run(&mut self, caller: &Keypair) -> Result<(), Self::Error>;
 }

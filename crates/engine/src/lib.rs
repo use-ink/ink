@@ -23,14 +23,17 @@ pub mod test_api;
 mod chain_extension;
 mod database;
 mod exec_context;
-mod hashing;
+pub mod hashing;
 mod types;
 
 #[cfg(test)]
 mod tests;
 
 pub use chain_extension::ChainExtension;
-pub use types::AccountError;
+pub use types::{
+    AccountError,
+    // Origin,
+};
 
 use derive_more::From;
 

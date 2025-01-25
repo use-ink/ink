@@ -21,9 +21,9 @@ To integrate this example into Substrate you need to do two things:
   You can just copy/paste the content of that file into e.g. your `runtime/src/lib.rs`.
 
 * Use the implementation as the associated type `ChainExtension` of the trait
-  `pallet_contracts::Config`:
+  `pallet_revive::Config`:
   ```rust
-  impl pallet_contracts::Config for Runtime {
+  impl pallet_revive::Config for Runtime {
     …
     type ChainExtension = FetchRandomExtension;
     …

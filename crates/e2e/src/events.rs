@@ -12,10 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use ink_env::Environment;
+use crate::H256;
+use pallet_revive::evm::H160;
 #[cfg(feature = "std")]
 use std::fmt::Debug;
-
 use subxt::{
     events::StaticEvent,
     ext::{
@@ -34,18 +34,15 @@ use subxt::{
 )]
 #[decode_as_type(trait_bounds = "", crate_path = "subxt::ext::scale_decode")]
 #[encode_as_type(crate_path = "subxt::ext::scale_encode")]
-pub struct ContractInstantiatedEvent<E: Environment> {
-    /// Account id of the deployer.
-    pub deployer: E::AccountId,
-    /// Account id where the contract was instantiated to.
-    pub contract: E::AccountId,
+pub struct ContractInstantiatedEvent {
+    /// Address of the deployer.
+    pub deployer: H160,
+    /// Address where the contract was instantiated to.
+    pub contract: H160,
 }
 
-impl<E> StaticEvent for ContractInstantiatedEvent<E>
-where
-    E: Environment,
-{
-    const PALLET: &'static str = "Contracts";
+impl StaticEvent for ContractInstantiatedEvent {
+    const PALLET: &'static str = "Revive";
     const EVENT: &'static str = "Instantiated";
 }
 
@@ -59,16 +56,13 @@ where
 )]
 #[decode_as_type(trait_bounds = "", crate_path = "subxt::ext::scale_decode")]
 #[encode_as_type(crate_path = "subxt::ext::scale_encode")]
-pub struct CodeStoredEvent<E: Environment> {
+pub struct CodeStoredEvent {
     /// Hash under which the contract code was stored.
-    pub code_hash: E::Hash,
+    pub code_hash: H256,
 }
 
-impl<E> StaticEvent for CodeStoredEvent<E>
-where
-    E: Environment,
-{
-    const PALLET: &'static str = "Contracts";
+impl StaticEvent for CodeStoredEvent {
+    const PALLET: &'static str = "Revive";
     const EVENT: &'static str = "CodeStored";
 }
 
@@ -82,21 +76,19 @@ where
 #[decode_as_type(trait_bounds = "", crate_path = "subxt::ext::scale_decode")]
 #[encode_as_type(crate_path = "subxt::ext::scale_encode")]
 /// A custom event emitted by the contract.
-pub struct ContractEmitted<E: Environment> {
-    pub contract: E::AccountId,
+pub struct ContractEmitted {
+    pub contract: H160,
     pub data: Vec<u8>,
+    pub topics: Vec<H256>,
 }
 
-impl<E> StaticEvent for ContractEmitted<E>
-where
-    E: Environment,
-{
-    const PALLET: &'static str = "Contracts";
+impl StaticEvent for ContractEmitted {
+    const PALLET: &'static str = "Revive";
     const EVENT: &'static str = "ContractEmitted";
 }
 
 /// A decoded event with its associated topics.
 pub struct EventWithTopics<T> {
-    pub topics: Vec<sp_core::H256>,
+    pub topics: Vec<H256>,
     pub event: T,
 }

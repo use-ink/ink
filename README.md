@@ -23,9 +23,9 @@
 [j1]: https://img.shields.io/badge/click-blue.svg
 [j2]: https://use-ink.github.io/ink/ink
 [k1]: https://img.shields.io/badge/matrix-chat-brightgreen.svg?style=flat
-[k2]: https://app.element.io/#/room/#ink:matrix.parity.io
+[k2]: https://t.me/inkathon/1
 [l1]: https://img.shields.io/discord/722223075629727774?style=flat-square&label=discord
-[l2]: https://discord.com/invite/wGUDt2p
+[l2]: https://x.com/ink_lang
 [s1]: https://img.shields.io/badge/click-white.svg?logo=StackExchange&label=ink!%20Support%20on%20StackExchange&labelColor=white&color=blue
 [s2]: https://substrate.stackexchange.com/questions/tagged/ink?tab=Votes
 
@@ -47,8 +47,7 @@ More relevant links:
 * [Contracts UI](https://contracts-ui.substrate.io/) ‒ Frontend for contract instantiation and interaction
 * [Substrate Contracts Node](https://github.com/paritytech/substrate-contracts-node) ‒ Simple Substrate blockchain which includes smart contract functionality
 * [Awesome ink!](https://github.com/use-ink/awesome-ink) - A curated list of awesome projects for Polkadot's ink!
-* We post announcements on [Matrix][k2] and [Discord][l2] (in the
-  [`ink_smart-contracts`](https://discord.com/channels/722223075629727774/765280480609828864) channel).
+* We post announcements on [Telegram][k2] and [Twitter][l2].
 
 
 ## Table of Contents

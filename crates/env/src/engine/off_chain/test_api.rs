@@ -19,7 +19,7 @@ use super::{
     OnInstance,
 };
 use crate::{
-    Environment,
+    types::Environment,
     Result,
 };
 use core::fmt::Debug;
@@ -30,6 +30,11 @@ pub use super::call_data::CallData;
 pub use ink_engine::{
     ext::ChainSpec,
     ChainExtension,
+};
+use ink_primitives::{
+    H160,
+    H256,
+    U256,
 };
 
 /// Record for an emitted event.
@@ -57,12 +62,9 @@ pub struct EmittedEvent {
 /// - If the underlying `account` type does not match.
 /// - If the underlying `new_balance` type does not match.
 /// - If the `new_balance` is less than the existential minimum.
-pub fn set_account_balance<T>(account_id: T::AccountId, new_balance: T::Balance)
-where
-    T: Environment<Balance = u128>, // Just temporary for the MVP!
-{
+pub fn set_account_balance(addr: H160, new_balance: U256) {
     let min = ChainSpec::default().minimum_balance;
-    if new_balance < min && new_balance != 0u128 {
+    if new_balance < min && new_balance != U256::zero() {
         panic!(
             "Balance must be at least [{}]. Use 0 as balance to reap the account.",
             min
@@ -70,9 +72,7 @@ where
     }
 
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        instance
-            .engine
-            .set_balance(scale::Encode::encode(&account_id), new_balance);
+        instance.engine.set_balance(addr, new_balance);
     })
 }
 
@@ -88,15 +88,9 @@ where
 ///
 /// - If `account` does not exist.
 /// - If the underlying `account` type does not match.
-pub fn get_account_balance<T>(account_id: T::AccountId) -> Result<T::Balance>
-where
-    T: Environment<Balance = u128>, // Just temporary for the MVP!
-{
+pub fn get_account_balance<T>(addr: H160) -> Result<U256> {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        instance
-            .engine
-            .get_balance(scale::Encode::encode(&account_id))
-            .map_err(Into::into)
+        instance.engine.get_balance(addr).map_err(Into::into)
     })
 }
 
@@ -144,60 +138,37 @@ where
 }
 
 /// Sets a caller for the next call.
-pub fn set_caller<T>(caller: T::AccountId)
-where
-    T: Environment,
-    <T as Environment>::AccountId: From<[u8; 32]>,
-{
+pub fn set_caller(caller: H160) {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        instance.engine.set_caller(scale::Encode::encode(&caller));
+        instance.engine.set_caller(caller);
     })
 }
 
 /// Sets the callee for the next call.
-pub fn set_callee<T>(callee: T::AccountId)
-where
-    T: Environment,
-    <T as Environment>::AccountId: From<[u8; 32]>,
-{
+pub fn set_callee(callee: H160) {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        instance.engine.set_callee(scale::Encode::encode(&callee));
+        instance.engine.set_callee(callee);
     })
 }
 
 /// Sets an account as a contract
-pub fn set_contract<T>(contract: T::AccountId)
-where
-    T: Environment,
-    <T as Environment>::AccountId: From<[u8; 32]>,
-{
+pub fn set_contract(contract: H160) {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        instance
-            .engine
-            .set_contract(scale::Encode::encode(&contract));
+        instance.engine.set_contract(contract);
     })
 }
 
 /// Returns a boolean to indicate whether an account is a contract
-pub fn is_contract<T>(contract: T::AccountId) -> bool
-where
-    T: Environment,
-    <T as Environment>::AccountId: From<[u8; 32]>,
-{
+pub fn is_contract(contract: H160) -> bool {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        instance
-            .engine
-            .is_contract(scale::Encode::encode(&contract))
+        instance.engine.is_contract(&contract)
     })
 }
 
 /// Gets the currently set callee.
 ///
-/// This is account id of the currently executing contract.
-pub fn callee<T>() -> T::AccountId
-where
-    T: Environment,
-{
+/// This is the address of the currently executing contract.
+pub fn callee() -> H160 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         let callee = instance.engine.get_callee();
         scale::Decode::decode(&mut &callee[..])
@@ -206,14 +177,9 @@ where
 }
 
 /// Returns the total number of reads and writes of the contract's storage.
-pub fn get_contract_storage_rw<T>(account_id: &T::AccountId) -> (usize, usize)
-where
-    T: Environment,
-{
+pub fn get_contract_storage_rw(addr: H160) -> (usize, usize) {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        instance
-            .engine
-            .get_contract_storage_rw(scale::Encode::encode(&account_id))
+        instance.engine.get_contract_storage_rw(addr)
     })
 }
 
@@ -221,10 +187,7 @@ where
 ///
 /// Please note that the acting accounts should be set with [`set_caller()`] and
 /// [`set_callee()`] beforehand.
-pub fn set_value_transferred<T>(value: T::Balance)
-where
-    T: Environment<Balance = u128>, // Just temporary for the MVP!
-{
+pub fn set_value_transferred(value: U256) {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         instance.engine.set_value_transferred(value);
     })
@@ -234,30 +197,16 @@ where
 ///
 /// Please note that the acting accounts should be set with [`set_caller()`] and
 /// [`set_callee()`] beforehand.
-pub fn transfer_in<T>(value: T::Balance)
-where
-    T: Environment<Balance = u128>, // Just temporary for the MVP!
-{
+#[allow(clippy::arithmetic_side_effects)] // todo
+pub fn transfer_in(value: U256) {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        let caller = instance
-            .engine
-            .exec_context
-            .caller
-            .as_ref()
-            .expect("no caller has been set")
-            .as_bytes()
-            .to_vec();
+        let caller = instance.engine.exec_context.caller;
 
-        let caller_old_balance = instance
-            .engine
-            .get_balance(caller.clone())
-            .unwrap_or_default();
+        let caller_old_balance = instance.engine.get_balance(caller).unwrap_or_default();
 
         let callee = instance.engine.get_callee();
-        let contract_old_balance = instance
-            .engine
-            .get_balance(callee.clone())
-            .unwrap_or_default();
+        let contract_old_balance =
+            instance.engine.get_balance(callee).unwrap_or_default();
 
         instance
             .engine
@@ -269,17 +218,17 @@ where
     });
 }
 
-/// Returns the amount of storage cells used by the account `account_id`.
+/// Returns the amount of storage cells used by the contract `addr`.
 ///
-/// Returns `None` if the `account_id` is non-existent.
-pub fn count_used_storage_cells<T>(account_id: &T::AccountId) -> Result<usize>
+/// Returns `None` if the contract at `addr` is non-existent.
+pub fn count_used_storage_cells<T>(addr: H160) -> Result<usize>
 where
     T: Environment,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         instance
             .engine
-            .count_used_storage_cells(&scale::Encode::encode(&account_id))
+            .count_used_storage_cells(&addr)
             .map_err(Into::into)
     })
 }
@@ -309,74 +258,60 @@ where
 pub fn run_test<T, F>(f: F) -> Result<()>
 where
     T: Environment,
-    F: FnOnce(DefaultAccounts<T>) -> Result<()>,
-    <T as Environment>::AccountId: From<[u8; 32]>,
+    F: FnOnce(DefaultAccounts) -> Result<()>,
 {
-    let default_accounts = default_accounts::<T>();
+    let default_accounts = default_accounts();
     <EnvInstance as OnInstance>::on_instance(|instance| {
         instance.engine.initialize_or_reset();
 
-        let encoded_alice = scale::Encode::encode(&default_accounts.alice);
-        instance.engine.set_caller(encoded_alice.clone());
-        instance.engine.set_callee(encoded_alice.clone());
+        let alice = default_accounts.alice;
+        // instance.engine.set_caller(alice.clone()); // todo
+        instance.engine.set_callee(alice);
 
         // set up the funds for the default accounts
-        let substantial = 1_000_000;
-        let some = 1_000;
-        instance.engine.set_balance(encoded_alice, substantial);
+        let substantial = 1_000_000.into();
+        let some = 1_000.into();
+        instance.engine.set_balance(alice, substantial);
+        instance.engine.set_balance(default_accounts.bob, some);
+        instance.engine.set_balance(default_accounts.charlie, some);
         instance
             .engine
-            .set_balance(scale::Encode::encode(&default_accounts.bob), some);
+            .set_balance(default_accounts.django, 0.into());
+        instance.engine.set_balance(default_accounts.eve, 0.into());
         instance
             .engine
-            .set_balance(scale::Encode::encode(&default_accounts.charlie), some);
-        instance
-            .engine
-            .set_balance(scale::Encode::encode(&default_accounts.django), 0);
-        instance
-            .engine
-            .set_balance(scale::Encode::encode(&default_accounts.eve), 0);
-        instance
-            .engine
-            .set_balance(scale::Encode::encode(&default_accounts.frank), 0);
+            .set_balance(default_accounts.frank, 0.into());
     });
     f(default_accounts)
 }
 
 /// Returns the default accounts for testing purposes:
 /// Alice, Bob, Charlie, Django, Eve and Frank.
-pub fn default_accounts<T>() -> DefaultAccounts<T>
-where
-    T: Environment,
-    <T as Environment>::AccountId: From<[u8; 32]>,
-{
+pub fn default_accounts() -> DefaultAccounts {
     DefaultAccounts {
-        alice: T::AccountId::from([0x01; 32]),
-        bob: T::AccountId::from([0x02; 32]),
-        charlie: T::AccountId::from([0x03; 32]),
-        django: T::AccountId::from([0x04; 32]),
-        eve: T::AccountId::from([0x05; 32]),
-        frank: T::AccountId::from([0x06; 32]),
+        alice: H160::from([0x01; 20]),
+        bob: H160::from([0x02; 20]),
+        charlie: H160::from([0x03; 20]),
+        django: H160::from([0x04; 20]),
+        eve: H160::from([0x05; 20]),
+        frank: H160::from([0x06; 20]),
     }
 }
 
 /// The default accounts.
-pub struct DefaultAccounts<T>
-where
-    T: Environment,
-{
+pub struct DefaultAccounts {
     /// The predefined `ALICE` account holding substantial amounts of value.
-    pub alice: T::AccountId,
+    pub alice: H160,
     /// The predefined `BOB` account holding some amounts of value.
-    pub bob: T::AccountId,
+    pub bob: H160,
     /// The predefined `CHARLIE` account holding some amounts of value.
-    pub charlie: T::AccountId,
+    pub charlie: H160,
     /// The predefined `DJANGO` account holding no value.
-    pub django: T::AccountId,
+    pub django: H160,
     /// The predefined `EVE` account holding no value.
-    pub eve: T::AccountId,
+    pub eve: H160,
     /// The predefined `FRANK` account holding no value.
-    pub frank: T::AccountId,
+    pub frank: H160,
 }
 
 /// Returns the recorded emitted events in order.
@@ -415,8 +350,8 @@ pub fn recorded_events() -> impl Iterator<Item = EmittedEvent> {
 /// example for a complete usage exemplification.
 pub fn assert_contract_termination<T, F>(
     should_terminate: F,
-    expected_beneficiary: T::AccountId,
-    expected_value_transferred_to_beneficiary: T::Balance,
+    expected_beneficiary: H160,
+    expected_value_transferred_to_beneficiary: U256,
 ) where
     T: Environment,
     F: FnMut() + UnwindSafe,
@@ -428,11 +363,8 @@ pub fn assert_contract_termination<T, F>(
     let encoded_input = value_any
         .downcast_ref::<Vec<u8>>()
         .expect("panic object can not be cast");
-    let (value_transferred, encoded_beneficiary): (T::Balance, Vec<u8>) =
+    let (value_transferred, beneficiary): (U256, H160) =
         scale::Decode::decode(&mut &encoded_input[..])
-            .unwrap_or_else(|err| panic!("input can not be decoded: {err}"));
-    let beneficiary =
-        <T::AccountId as scale::Decode>::decode(&mut &encoded_beneficiary[..])
             .unwrap_or_else(|err| panic!("input can not be decoded: {err}"));
     assert_eq!(value_transferred, expected_value_transferred_to_beneficiary);
     assert_eq!(beneficiary, expected_beneficiary);
@@ -443,7 +375,25 @@ pub fn assert_contract_termination<T, F>(
 #[macro_export]
 macro_rules! pay_with_call {
     ($contract:ident . $message:ident ( $( $params:expr ),* ) , $amount:expr) => {{
-        $crate::test::transfer_in::<Environment>($amount);
+        $crate::test::transfer_in($amount);
         $contract.$message($ ($params) ,*)
     }}
+}
+
+/// Retrieves the value stored by `return_value()`.
+pub fn get_return_value() -> Vec<u8> {
+    <EnvInstance as OnInstance>::on_instance(|instance| instance.get_return_value())
+}
+
+/// Gets a pseudo code hash for a contract ref.
+pub fn upload_code<E, ContractRef>() -> H256
+where
+    E: Environment,
+    ContractRef: crate::ContractReverseReference,
+    <ContractRef as crate::ContractReverseReference>::Type:
+        crate::reflect::ContractMessageDecoder,
+{
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        instance.upload_code::<ContractRef>()
+    })
 }

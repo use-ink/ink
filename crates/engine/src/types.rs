@@ -16,6 +16,8 @@
 //! This is a known limitation that we want to address in the future.
 
 use derive_more::From;
+use ink_primitives::AccountId;
+pub use ink_primitives::H160;
 
 /// Same type as the `DefaultEnvironment::BlockNumber` type.
 pub type BlockNumber = u32;
@@ -25,23 +27,6 @@ pub type BlockTimestamp = u64;
 
 /// Same type as the `DefaultEnvironment::Balance` type.
 pub type Balance = u128;
-
-/// The Account Id type used by this crate.
-#[derive(Debug, From, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
-#[repr(transparent)]
-pub struct AccountId(Vec<u8>);
-
-impl AccountId {
-    /// Creates a new `AccountId` from the given raw bytes.
-    pub fn from_bytes(bytes: &[u8]) -> Self {
-        Self(bytes.to_vec())
-    }
-
-    /// Returns the `AccountId` as bytes.
-    pub fn as_bytes(&self) -> &[u8] {
-        &self.0[..]
-    }
-}
 
 /// Key into the database.
 ///
@@ -58,6 +43,7 @@ impl Key {
     }
 }
 
+// todo rename the whole thing
 /// Errors encountered upon interacting with accounts.
 #[derive(Clone, Debug, From, PartialEq, Eq)]
 pub enum AccountError {
@@ -65,5 +51,30 @@ pub enum AccountError {
     #[from(ignore)]
     UnexpectedUserAccount,
     #[from(ignore)]
-    NoAccountForId(Vec<u8>),
+    NoAccountForId(AccountId),
+    NoContractForId(H160),
 }
+
+/// The type of origins supported by `pallet-revive`.
+#[derive(Debug, Eq, Default, Clone, scale::Encode, scale::Decode, PartialEq)]
+//#[cfg_attr(feature = "std", derive(::scale_info::TypeInfo))]
+pub enum Origin {
+    #[default]
+    Root,
+    Signed(Vec<u8>),
+}
+
+// impl Origin {
+// Returns the AccountId of a Signed Origin or an error if the origin is Root.
+// pub fn account_id(&self) -> Result<AccountId, ()> {
+// match self {
+// Origin::Signed(id) => {
+// let mut arr = [0u8; 32];
+// arr.copy_from_slice(id.as_slice());
+// Ok(AccountId::from(arr))
+// },
+// Origin::Root => Err(()),
+// }
+// }
+// }
+//

@@ -19,22 +19,36 @@ derive_more = { workspace = true, features = ["from", "display"] }
 ink_prelude = { workspace = true }
 alloy-rlp = { workspace = true, features = ["derive"] }
 scale = { workspace = true, features = ["max-encoded-len"] }
-scale-decode = { workspace = true, features = ["derive"], optional = true }
+scale-decode = { workspace = true, features = ["derive"] }
 scale-encode = { workspace = true, features = ["derive"], optional = true }
+primitive-types = { version  = "0.13.1", default-features = false, features = ["codec"]}
 scale-info = { workspace = true, features = ["derive"], optional = true }
 xxhash-rust = { workspace = true, features = ["const_xxh32"] }
+serde = { version = "1.0.215", features = ["derive"], default-features = false, optional = true }
+cfg-if = { workspace = true }
+num-traits = { workspace = true, features = ["i128"] }
+
+[dev-dependencies]
+ink = { workspace = true, default-features = false }
+ink_env = { workspace = true, default-features = false }
 
 [features]
 default = [ "std" ]
 std = [
 	"alloy-rlp/std",
+    "ink/std",
+    "ink_env/std",
 	"ink_prelude/std",
-	"scale-decode",
+    "num-traits/std",
+    "serde",
+    "serde/std",
+	"scale-decode/std",
 	"scale-encode",
 	"scale-info/std",
 	"scale/std",
-	"scale-decode?/std",
 	"scale-encode?/std",
+    "primitive-types/std",
+    "primitive-types/scale-info",
 	"derive_more/std",
 	"xxhash-rust/std"
 ]

@@ -1,3 +1,5 @@
+#![allow(unexpected_cfgs)]
+
 #[ink::contract(keep_attr = "foo, bar")]
 mod contract {
     #[ink(storage)]

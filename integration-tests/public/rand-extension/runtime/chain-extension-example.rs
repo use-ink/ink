@@ -3,7 +3,7 @@ use frame_support::log::{
     error,
     trace,
 };
-use pallet_contracts::chain_extension::{
+use pallet_revive::chain_extension::{
     ChainExtension,
     Environment,
     Ext,

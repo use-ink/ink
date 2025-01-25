@@ -26,11 +26,11 @@ on:
       - 'FILE_HEADER'
 
 env:
+  # Image can be edited at https://github.com/use-ink/docker-images
   IMAGE:                           useink/ci
   CARGO_TARGET_DIR:                /ci-cache/${{ github.repository }}/targets/${{ github.ref_name }}/${{ github.job }}
-  CARGO_INCREMENTAL:               0
   PURELY_STD_CRATES:               ink/codegen metadata engine e2e e2e/macro ink/ir
-  ALSO_WASM_CRATES:                env storage storage/traits allocator prelude primitives ink ink/macro
+  ALSO_RISCV_CRATES:               env storage storage/traits allocator prelude primitives ink ink/macro
   # TODO `cargo clippy --all-targets --all-features` for this crate
   # currently fails on `stable`, but succeeds on `nightly`. This is due to
   # this fix not yet in stable: https://github.com/rust-lang/rust-clippy/issues/8895.
@@ -40,8 +40,10 @@ env:
   # RISC-V does not have a standard library in contrast to Wasm. Compiling against
   # this target also makes sure that we don't pull in `std` by accident (through dependencies).
   # RISC-V is a modular architecture. We might switch to a different flavor with more features
-  # later. For example, `riscv32imc-unknown-none-elf`.
-  RISCV_TARGET:                    riscv32ema-unknown-none-elf
+  # later. For example, `riscv64imc-unknown-none-elf`.
+  RISCV_TARGET:                    .github/riscv64emac-unknown-none-polkavm.json
+  # Clippy doesn't support JSON files for `--target`, hence we use another RISC-V target.
+  CLIPPY_TARGET:                   riscv64imac-unknown-none-elf
 
 concurrency:
   # Cancel in-progress jobs triggered only on pull_requests
@@ -53,7 +55,7 @@ concurrency:
 jobs:
   set-image:
     # GitHub Actions does not allow using 'env' in a container context.
-    # This workaround sets the container image for each job using 'set-image' job output.
+    # This workaround sets the container image for each job using the 'set-image' job output.
     runs-on: ubuntu-latest
     outputs:
       IMAGE: ${{ steps.set_image.outputs.IMAGE }}
@@ -73,7 +75,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          fetch-depth: 100
+          fetch-depth: 1
 
       - name: Rust Info
         uses: ./.github/rust-info
@@ -95,7 +97,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          fetch-depth: 100
+          fetch-depth: 1
 
       - name: Rust Info
         uses: ./.github/rust-info
@@ -126,10 +128,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          fetch-depth: 100
+          fetch-depth: 1
 
       - name: Cache
-        uses: Swatinem/rust-cache@82a92a6e8fbeee089604da2575dc567ae9ddeaab # v2.7.5
+        uses: Swatinem/rust-cache@f0deed1e0edfc6a9be95417288c0e1099b1eeec3 # v2.7.7
         with:
           cache-directories: ${{ env.CARGO_TARGET_DIR }}
 
@@ -138,16 +140,17 @@ jobs:
 
       - name: Run Clippy
         run: |
-          ALL_CRATES="${PURELY_STD_CRATES} ${ALSO_WASM_CRATES}"
+          ALL_CRATES="${PURELY_STD_CRATES} ${ALSO_RISCV_CRATES}"
           for crate in ${ALL_CRATES}; do
             cargo clippy --all-targets --all-features --manifest-path ./crates/${crate}/Cargo.toml \
               -- -D warnings -A ${CLIPPY_ALLOWED};
           done
 
-      - name: Run Clippy for WASM Crates
+      - name: Run Clippy for RISC-V Crates
         run: |
-          for crate in ${ALSO_WASM_CRATES}; do
-            cargo clippy --no-default-features --manifest-path ./crates/${crate}/Cargo.toml --target wasm32-unknown-unknown \
+          for crate in ${ALSO_RISCV_CRATES}; do
+            cargo clippy --no-default-features --manifest-path ./crates/${crate}/Cargo.toml \
+              --target ${CLIPPY_TARGET} \
               -- -D warnings -A ${CLIPPY_ALLOWED};
           done
 
@@ -162,15 +165,15 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        type: [STD, WASM]
+        type: [STD, RISCV]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          fetch-depth: 100
+          fetch-depth: 1
 
       - name: Cache
-        uses: Swatinem/rust-cache@82a92a6e8fbeee089604da2575dc567ae9ddeaab # v2.7.5
+        uses: Swatinem/rust-cache@f0deed1e0edfc6a9be95417288c0e1099b1eeec3 # v2.7.7
         with:
           cache-directories: ${{ env.CARGO_TARGET_DIR }}
 
@@ -183,11 +186,12 @@ jobs:
           scripts/for_all_contracts_exec.sh --path integration-tests -- cargo clippy --all-targets \
             --manifest-path {} -- -D warnings -A $CLIPPY_ALLOWED
 
-      - name: Run Clippy for WASM Examples
-        if: ${{ matrix.type == 'WASM' }}
+      - name: Run Clippy for RISC-V Examples
+        if: ${{ matrix.type == 'RISCV' }}
         run: |
           scripts/for_all_contracts_exec.sh --path integration-tests -- cargo clippy --no-default-features \
-            --target wasm32-unknown-unknown --manifest-path {} -- -D warnings -A $CLIPPY_ALLOWED
+            --target ${CLIPPY_TARGET} \
+            --manifest-path {} -- -D warnings -A $CLIPPY_ALLOWED
 
   check:
     runs-on: ubuntu-latest
@@ -200,15 +204,15 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        type: [STD, WASM, RISCV]
+        type: [STD, RISCV]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          fetch-depth: 100
+          fetch-depth: 1
 
       - name: Cache
-        uses: Swatinem/rust-cache@82a92a6e8fbeee089604da2575dc567ae9ddeaab # v2.7.5
+        uses: Swatinem/rust-cache@f0deed1e0edfc6a9be95417288c0e1099b1eeec3 # v2.7.7
         with:
           cache-directories: ${{ env.CARGO_TARGET_DIR }}
 
@@ -218,27 +222,19 @@ jobs:
       - name: Check
         if: ${{ matrix.type == 'STD' }}
         run: |
-          ALL_CRATES="${PURELY_STD_CRATES} ${ALSO_WASM_CRATES}"
+          ALL_CRATES="${PURELY_STD_CRATES} ${ALSO_RISCV_CRATES}"
           for crate in ${ALL_CRATES}; do
             cargo check --all-features --manifest-path ./crates/${crate}/Cargo.toml;
           done
 
-      - name: Check WASM
-        if: ${{ matrix.type == 'WASM' }}
-        run: |
-          for crate in ${ALSO_WASM_CRATES}; do
-            cargo check --no-default-features --target wasm32-unknown-unknown \
-              --manifest-path ./crates/${crate}/Cargo.toml;
-          done
-
       - name: Check RISCV
-        if: ${{ matrix.type == 'RISCV-disabled' }}
+        if: ${{ matrix.type == 'RISCV' }}
         env:
           RUSTC_BOOTSTRAP: 1
-          RUSTUP_TOOLCHAIN: rve-nightly
         run: |
-          for crate in ${ALSO_WASM_CRATES}; do
-            cargo check --no-default-features --target $RISCV_TARGET -Zbuild-std="core,alloc" \
+          for crate in ${ALSO_RISCV_CRATES}; do
+            # remove `nightly` once new stable is released, currently there is an ICE in stable
+            cargo +nightly check --no-default-features --target $RISCV_TARGET -Zbuild-std="core,alloc" \
               --manifest-path ./crates/${crate}/Cargo.toml;
           done
 
@@ -254,10 +250,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          fetch-depth: 100
+          fetch-depth: 1
 
       - name: Cache
-        uses: Swatinem/rust-cache@82a92a6e8fbeee089604da2575dc567ae9ddeaab # v2.7.5
+        uses: Swatinem/rust-cache@f0deed1e0edfc6a9be95417288c0e1099b1eeec3 # v2.7.7
         with:
           cache-directories: ${{ env.CARGO_TARGET_DIR }}
 
@@ -269,13 +265,9 @@ jobs:
           cd linting/
           # we are using a toolchain file in this directory
           # add required components for CI
-          rustup component add rustfmt clippy
-          rustup component add rust-src rustc-dev llvm-tools-preview
           cargo check --verbose
           cargo +nightly fmt --all -- --check
           cargo clippy -- -D warnings;
-          # Needed until https://github.com/mozilla/sccache/issues/1000 is fixed.
-          unset RUSTC_WRAPPER
           cargo test --all-features
 
 ### workspace
@@ -291,35 +283,43 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        type: [STD, WASM]
+        type: [STD, RISCV]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          fetch-depth: 100
+          fetch-depth: 1
 
       - name: Cache
-        uses: Swatinem/rust-cache@82a92a6e8fbeee089604da2575dc567ae9ddeaab # v2.7.5
+        uses: Swatinem/rust-cache@f0deed1e0edfc6a9be95417288c0e1099b1eeec3 # v2.7.7
         with:
           cache-directories: ${{ env.CARGO_TARGET_DIR }}
 
       - name: Rust Info
         uses: ./.github/rust-info
 
-      - name: Build
+      - name: Build for STD
         if: ${{ matrix.type == 'STD' }}
         run: |
-          ALL_CRATES="${PURELY_STD_CRATES} ${ALSO_WASM_CRATES}"
+          ALL_CRATES="${PURELY_STD_CRATES} ${ALSO_RISCV_CRATES}"
           for crate in ${ALL_CRATES}; do
             cargo build --all-features --release --manifest-path ./crates/${crate}/Cargo.toml;
           done
 
-      - name: Build WASM
-        if: ${{ matrix.type == 'WASM' }}
+      - name: Build for RISC-V
+        if: ${{ matrix.type == 'RISCV' }}
+        #env:
+            #RUSTC_BOOTSTRAP: 1
+            #CARGO_ENCODED_RUSTFLAGS: "--cfg\x1fsubstrate_runtime"
+            #RUSTFLAGS: "--cfg substrate_runtime"
         run: |
-          for crate in ${ALSO_WASM_CRATES}; do
-            cargo build --no-default-features --release --target wasm32-unknown-unknown \
-              --manifest-path ./crates/${crate}/Cargo.toml;
+          for crate in ${ALSO_RISCV_CRATES}; do
+            echo ${crate};
+            RUSTFLAGS="--cfg substrate_runtime" cargo +nightly build \
+              --no-default-features --release \
+              --target $CLIPPY_TARGET \
+              --manifest-path ./crates/${crate}/Cargo.toml \
+              -Zbuild-std="core,alloc";
           done
 
   test:
@@ -338,10 +338,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          fetch-depth: 100
+          fetch-depth: 1
 
       - name: Cache
-        uses: Swatinem/rust-cache@82a92a6e8fbeee089604da2575dc567ae9ddeaab # v2.7.5
+        uses: Swatinem/rust-cache@f0deed1e0edfc6a9be95417288c0e1099b1eeec3 # v2.7.7
         with:
           cache-directories: |
             ${{ env.CARGO_TARGET_DIR }}
@@ -360,8 +360,8 @@ jobs:
           # at the same time, hence we use this workaround.
           QUICKCHECK_TESTS:            0
         run: |
-          cargo nextest run --all-features --no-fail-fast --workspace --locked
-          cargo test --all-features --no-fail-fast --workspace --doc --locked
+          cargo +nightly nextest run --all-features --no-fail-fast --workspace --locked
+          cargo +nightly test --all-features --no-fail-fast --workspace --doc --locked
 
       - name: Test Linting
         if: ${{ matrix.workspace == 'linting' }}
@@ -388,10 +388,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          fetch-depth: 100
+          fetch-depth: 1
 
       - name: Cache
-        uses: Swatinem/rust-cache@82a92a6e8fbeee089604da2575dc567ae9ddeaab # v2.7.5
+        uses: Swatinem/rust-cache@f0deed1e0edfc6a9be95417288c0e1099b1eeec3 # v2.7.7
         with:
           cache-directories: ${{ env.CARGO_TARGET_DIR }}
 
@@ -404,7 +404,7 @@ jobs:
         run: |
           for package in $(cargo metadata --format-version 1 | jq -r '.workspace_members[]' | awk '{print $1}'); do
             # Run cargo doc for each workspace member
-            cargo doc --no-deps --all-features -p ${package}
+            cargo +nightly doc --no-deps --all-features -p ${package}
           done
           mv ${CARGO_TARGET_DIR}/doc ./crate-docs
           # FIXME: remove me after CI image gets nonroot
@@ -442,10 +442,12 @@ jobs:
           # Needed because `codecov` requires nightly features to work
           # (see `-Z` in the `RUSTFLAGS` below).
           RUSTC_BOOTSTRAP:               1
+          RUSTDOCFLAGS:                  -Cpanic=abort
           # Variables partly came from https://github.com/mozilla/grcov/blob/master/README.md
-          RUSTFLAGS:                     -Zprofile -Zmir-opt-level=0 -Ccodegen-units=1
-                                          -Clink-dead-code -Copt-level=0 -Coverflow-checks=off
-          # The `cargo-taurpalin` coverage reporting tool seems to have better code instrumentation and thus
+          RUSTFLAGS:                     -Zmir-opt-level=0 -Ccodegen-units=1
+                                         -Clink-dead-code -Copt-level=0 -Coverflow-checks=off
+                                         -Cinstrument-coverage -Zpanic_abort_tests
+          # The `cargo-tarpaulin` coverage reporting tool seems to have better code instrumentation and thus
           # produces better results for Rust codebases in general. However, unlike `grcov` it requires
           # running docker with `--security-opt seccomp=unconfined` which is why we use `grcov` instead.
           CODECOV_L_TOKEN:               ${{ secrets.CODECOV_L_TOKEN }}
@@ -455,14 +457,15 @@ jobs:
           # https://github.com/Kogia-sima/rust-covfix/issues/7
           unset "CARGO_TARGET_DIR"
           cargo clean
-          # make sure there's no stale coverage artifacts
+          # make sure there are no stale coverage artifacts
           find . -name "*.profraw" -type f -delete
           find . -name "*.gcda" -type f -delete
           # FIXME: Access from 2 users, should be solved once ci-image works from a non-root user
           git config --global --add safe.directory '*'
           # RUSTFLAGS are the cause target cache can't be used here
-          cargo build --all-features --workspace
-          cargo test --all-features --no-fail-fast --workspace --locked -- --skip ui_tests
+          rustup component add llvm-tools-preview
+          cargo +nightly build --all-features --workspace
+          cargo +nightly test --all-features --no-fail-fast --workspace --locked -- --skip ui_tests
           # coverage with branches
           grcov . --binary-path ./target/debug/ --source-dir . --output-type lcov --llvm --branch \
             --ignore-not-existing --ignore "/*" --ignore "tests/*" --output-path lcov-w-branch.info
@@ -483,37 +486,64 @@ jobs:
       matrix:
         partition: [1, 2, 3, 4, 5, 6]
     steps:
-      # We go out of storage on runners
-      - name: Clean runner
-        run: |
-          sudo rm -rf /usr/share/dotnet
-          sudo rm -rf /opt/ghc
-          sudo rm -rf "/usr/local/share/boost"
-          sudo rm -rf "$AGENT_TOOLSDIRECTORY"
-
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          fetch-depth: 100
+          fetch-depth: 1
 
       - name: Cache
-        uses: Swatinem/rust-cache@82a92a6e8fbeee089604da2575dc567ae9ddeaab # v2.7.5
+        uses: Swatinem/rust-cache@f0deed1e0edfc6a9be95417288c0e1099b1eeec3 # v2.7.7
         with:
           cache-directories: ${{ env.CARGO_TARGET_DIR }}
 
       - name: Test Examples
-        env:
-          # Fix linking of `linkme`: https://github.com/dtolnay/linkme/issues/49
-          RUSTFLAGS:                     -Clink-arg=-z -Clink-arg=nostart-stop-gc
         uses: docker://useink/ci
+        env:
+            #RUSTFLAGS: -Clinker-plugin-lto -Clink-arg=-zstack-size=4096
+            # Fix for linking of `linkme` for `cargo test`: https://github.com/dtolnay/linkme/issues/49
+            RUSTFLAGS:                   -Clink-arg=-z -Clink-arg=nostart-stop-gc
         with:
           # run all tests with --all-features, which will run the e2e-tests feature if present
-          args: /bin/bash -c "scripts/for_all_contracts_exec.sh --path integration-tests --ignore public/static-buffer --partition ${{ matrix.partition }}/6 -- cargo test \
-            --all-features --manifest-path {}"
+          args:
+            /bin/bash -c "scripts/for_all_contracts_exec.sh --path integration-tests --ignore internal/static-buffer --ignore internal/mapping --partition ${{ matrix.partition }}/6 -- \
+                cargo +nightly test --all-features --all --manifest-path {}"
+
+  examples-test-mapping:
+      runs-on: ubuntu-latest
+      needs: [set-image]
+      defaults:
+          run:
+              shell: bash
+      container:
+          image: ${{ needs.set-image.outputs.IMAGE }}
+      steps:
+          - name: Checkout
+            uses: actions/checkout@v4
+            with:
+                fetch-depth: 1
+
+          - name: Cache
+            uses: Swatinem/rust-cache@f0deed1e0edfc6a9be95417288c0e1099b1eeec3 # v2.7.7
+            with:
+                cache-directories: ${{ env.CARGO_TARGET_DIR }}
+
+          - name: Rust Info
+            uses: ./.github/rust-info
+
+          - name: Test Mapping Example
+            env:
+                # Fix for linking of `linkme` for `cargo test`: https://github.com/dtolnay/linkme/issues/49
+                RUSTFLAGS:                   -Clink-arg=-z -Clink-arg=nostart-stop-gc
+                # needed for `mapping::e2e_tests::fallible_storage_methods_work`
+                INK_STATIC_BUFFER_SIZE: 256
+            run:
+                rustup install nightly-2025-01-07;
+                rustup component add rust-src --toolchain nightly-2025-01-07;
+                cargo +nightly-2024-11-28 test --all-features --all --manifest-path integration-tests/internal/mapping/Cargo.toml
 
   examples-custom-test:
     runs-on: ubuntu-latest
-    needs: [set-image, clippy]
+    needs: [set-image, clippy, clippy-examples]
     defaults:
       run:
         shell: bash
@@ -523,10 +553,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          fetch-depth: 100
+          fetch-depth: 1
 
       - name: Cache
-        uses: Swatinem/rust-cache@82a92a6e8fbeee089604da2575dc567ae9ddeaab # v2.7.5
+        uses: Swatinem/rust-cache@f0deed1e0edfc6a9be95417288c0e1099b1eeec3 # v2.7.7
         with:
           cache-directories: ${{ env.CARGO_TARGET_DIR }}
 
@@ -538,23 +568,27 @@ jobs:
           # Fix linking of `linkme`: https://github.com/dtolnay/linkme/issues/49
           RUSTFLAGS:                     -Clink-arg=-z -Clink-arg=nostart-stop-gc
         run: |
-          # run the static buffer test with a custom buffer size
-          cargo clean --manifest-path integration-tests/public/static-buffer/Cargo.toml
-          INK_STATIC_BUFFER_SIZE=30 cargo test --manifest-path integration-tests/public/static-buffer/Cargo.toml --all-features
+          # run the static buffer test with a custom buffer size.
+          # the readme + test comments explain why `32`, in short because the tests write
+          # content into the buffer and want to provoke an exhaustion of the buffer.
+          cargo clean --manifest-path integration-tests/internal/static-buffer/Cargo.toml
+          INK_STATIC_BUFFER_SIZE=32 cargo +nightly test --manifest-path integration-tests/internal/static-buffer/Cargo.toml --all-features
 
       - name: Run E2E test with on-chain contract
+        # todo disabled until `cargo-contract` supports mapping the account
+        if: false
         env:
           # Fix linking of `linkme`: https://github.com/dtolnay/linkme/issues/49
           RUSTFLAGS:                     -Clink-arg=-z -Clink-arg=nostart-stop-gc
         run: |
           # run flipper E2E test with on-chain contract
-          substrate-contracts-node -lruntime::contracts=debug 2>&1 &
-          cargo contract build --release --manifest-path integration-tests/public/flipper/Cargo.toml
-          export CONTRACT_ADDR_HEX=$(cargo contract instantiate \
+          substrate-contracts-node -lruntime::revive=debug 2>&1 &
+          cargo +nightly contract build --release --manifest-path integration-tests/public/flipper/Cargo.toml
+          export CONTRACT_ADDR_HEX=$(cargo +nightly contract instantiate \
             --manifest-path integration-tests/public/flipper/Cargo.toml \
             --suri //Alice --args true -x -y --output-json | \
             jq -r .contract | xargs subkey inspect | grep -o "0x.*" | head -n1)
-          CONTRACTS_NODE_URL=ws://127.0.0.1:9944 cargo test \
+          CONTRACTS_NODE_URL=ws://127.0.0.1:9944 cargo +nightly test \
             --features e2e-tests \
             --manifest-path integration-tests/public/flipper/Cargo.toml \
             e2e_test_deployed_contract \
@@ -571,60 +605,34 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        type: [WASM, RISCV]
+        type: [RISCV]
         partition: [1, 2, 3, 4]
-        exclude:
-          - type: RISCV
-            partition: 2
-          - type: RISCV
-            partition: 3
-          - type: RISCV
-            partition: 4
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          fetch-depth: 100
+          fetch-depth: 1
 
       - name: Cache
-        uses: Swatinem/rust-cache@82a92a6e8fbeee089604da2575dc567ae9ddeaab # v2.7.5
+        uses: Swatinem/rust-cache@f0deed1e0edfc6a9be95417288c0e1099b1eeec3 # v2.7.7
         with:
           cache-directories: ${{ env.CARGO_TARGET_DIR }}
 
       - name: Rust Info
         uses: ./.github/rust-info
 
-      - name: Build Contract WASM Examples
-        if: ${{ matrix.type == 'WASM' }}
-        run: |
-          rustup component add rust-src --toolchain stable
-          cargo contract -V
-          # Build all examples
-          scripts/for_all_contracts_exec.sh --path integration-tests --partition ${{ matrix.partition }}/4 -- cargo contract build --release --manifest-path {}
-          if [ ${{ matrix.partition }} -eq 4 ]; then
-            # Build the different features for the conditional compilation example
-            pushd ./integration-tests/public/conditional-compilation
-            cargo contract build --release --features "foo"
-            cargo contract build --release --features "bar"
-            cargo contract build --release --features "foo, bar"
-            popd
-          fi
-
       - name: Build Contract RISCV Examples
-        if: ${{ matrix.type == 'RISCV-disabled' }}
+        if: ${{ matrix.type == 'RISCV' }}
         env:
           RUSTC_BOOTSTRAP: 1
-          RUSTUP_TOOLCHAIN: rve-nightly
         run: |
-          rustup component add rust-src --toolchain stable
-          cargo contract -V
           # We skip some examples for those reasons:
           # This uses dlmalloc which is only supported on select targets.
           #   - custom_allocator
           # Pulls in sp-std which needlessly requires atomic pointers (TODO: Fix sp-std and enable this example)
           #   - call-runtime
           scripts/for_all_contracts_exec.sh --path integration-tests --ignore public/custom-allocator --ignore public/call-runtime --ignore public/contract-xcm \
-            -- cargo build --manifest-path {} --no-default-features --target $RISCV_TARGET -Zbuild-std="core,alloc"
+            -- cargo +nightly build --manifest-path {} --no-default-features --target $RISCV_TARGET -Zbuild-std="core,alloc"
 
   examples-docs:
     runs-on: ubuntu-latest
@@ -638,10 +646,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          fetch-depth: 100
+          fetch-depth: 1
 
       - name: Cache
-        uses: Swatinem/rust-cache@82a92a6e8fbeee089604da2575dc567ae9ddeaab # v2.7.5
+        uses: Swatinem/rust-cache@f0deed1e0edfc6a9be95417288c0e1099b1eeec3 # v2.7.7
         with:
           cache-directories: ${{ env.CARGO_TARGET_DIR }}
 
@@ -662,7 +670,7 @@ jobs:
 # measurements
 
   measurements:
-    needs: [examples-docs, examples-contract-build, examples-test, examples-custom-test]
+    needs: [examples-docs, examples-contract-build, examples-test, examples-custom-test, examples-test-mapping]
     uses: ./.github/workflows/measurements.yml
 
 # fuzz
@@ -685,10 +693,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          fetch-depth: 100
+          fetch-depth: 1
 
       - name: Cache
-        uses: Swatinem/rust-cache@82a92a6e8fbeee089604da2575dc567ae9ddeaab # v2.7.5
+        uses: Swatinem/rust-cache@f0deed1e0edfc6a9be95417288c0e1099b1eeec3 # v2.7.7
         with:
           cache-directories: ${{ env.CARGO_TARGET_DIR }}
 
@@ -702,7 +710,7 @@ jobs:
         run: |
           # We fuzz-test only crates which possess the `ink-fuzz-tests` feature
           all_tests_passed=0
-          ALL_CRATES="${PURELY_STD_CRATES} ${ALSO_WASM_CRATES}"
+          ALL_CRATES="${PURELY_STD_CRATES} ${ALSO_RISCV_CRATES}"
           for crate in ${ALL_CRATES}; do
             if grep "ink-fuzz-tests =" ./crates/${crate}/Cargo.toml;
             then

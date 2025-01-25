@@ -6,6 +6,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 [Unreleased]
 
+- Implement contract invokation in off-chain environment engine - [#1957](https://github.com/paritytech/ink/pull/1988)
+
 ## Changed
 - Restrict which `cfg` attributes can be used ‒ [#2313](https://github.com/use-ink/ink/pull/2313)
 
@@ -725,7 +727,7 @@ The compatibility issues will be with `ChainExtension`'s and the functions menti
 
 ### Breaking Changes
 This release contains a few breaking changes. These are indicated with the :x: emoji.
-Most of these were intitially introduced in `v3.1.0` and `v3.2.0` releases but
+Most of these were initially introduced in `v3.1.0` and `v3.2.0` releases but
 compatibility was restored in `v3.3.0`.
 
 - As part of [#1224](https://github.com/use-ink/ink/pull/1224) the return type of `ink_env::set_contract_storage()` was changed to

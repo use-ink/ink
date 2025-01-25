@@ -1,4 +1,7 @@
+#![allow(unexpected_cfgs)]
+
 use incrementer::Incrementer;
+
 #[ink::contract]
 mod incrementer {
     #[ink(storage)]

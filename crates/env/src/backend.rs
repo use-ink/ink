@@ -12,11 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#[cfg(not(feature = "revive"))]
-use crate::call::{
-    CallV1,
-    LimitParamsV1,
-};
 use crate::{
     call::{
         Call,
@@ -24,7 +19,7 @@ use crate::{
         ConstructorReturnType,
         CreateParams,
         DelegateCall,
-        FromAccountId,
+        FromAddr,
         LimitParamsV2,
     },
     event::Event,
@@ -34,13 +29,15 @@ use crate::{
     },
     DecodeDispatch,
     DispatchError,
-    Environment,
     Result,
 };
+use ink_primitives::{
+    types::Environment,
+    H160,
+    H256,
+    U256,
+};
 use ink_storage_traits::Storable;
-#[cfg(not(feature = "revive"))]
-pub use pallet_contracts_uapi::ReturnFlags;
-#[cfg(feature = "revive")]
 pub use pallet_revive_uapi::ReturnFlags;
 
 /// Environmental contract functionality that does not require `Environment`.
@@ -123,7 +120,22 @@ pub trait EnvBackend {
     ///
     /// The `flags` parameter can be used to revert the state changes of the
     /// entire execution if necessary.
+    #[cfg(not(feature = "std"))]
     fn return_value<R>(&mut self, flags: ReturnFlags, return_value: &R) -> !
+    where
+        R: scale::Encode;
+
+    /// Returns the value back to the caller of the executed contract.
+    ///
+    /// # Note
+    ///
+    /// When the `std` feature is used, the contract is allowed to
+    /// return normally. This feature should only be used for integration tests.
+    ///
+    /// The `flags` parameter can be used to revert the state changes of the
+    /// entire execution if necessary.
+    #[cfg(feature = "std")]
+    fn return_value<R>(&mut self, flags: ReturnFlags, return_value: &R)
     where
         R: scale::Encode;
 
@@ -227,7 +239,7 @@ pub trait EnvBackend {
     /// # Errors
     ///
     /// - If the supplied `code_hash` cannot be found on-chain.
-    fn set_code_hash(&mut self, code_hash: &[u8]) -> Result<()>;
+    fn set_code_hash(&mut self, code_hash: &H256) -> Result<()>;
 }
 
 /// Environmental contract functionality.
@@ -237,14 +249,14 @@ pub trait TypedEnvBackend: EnvBackend {
     /// # Note
     ///
     /// For more details visit: [`caller`][`crate::caller`]
-    fn caller<E: Environment>(&mut self) -> E::AccountId;
+    fn caller(&mut self) -> H160;
 
     /// Returns the transferred value for the contract execution.
     ///
     /// # Note
     ///
     /// For more details visit: [`transferred_value`][`crate::transferred_value`]
-    fn transferred_value<E: Environment>(&mut self) -> E::Balance;
+    fn transferred_value(&mut self) -> U256;
 
     /// Returns the price for the specified amount of gas.
     ///
@@ -252,14 +264,6 @@ pub trait TypedEnvBackend: EnvBackend {
     ///
     /// For more details visit: [`weight_to_fee`][`crate::weight_to_fee`]
     fn weight_to_fee<E: Environment>(&mut self, gas: u64) -> E::Balance;
-
-    /// Returns the amount of gas left for the contract execution.
-    ///
-    /// # Note
-    ///
-    /// For more details visit: [`gas_left`][`crate::gas_left`]
-    #[cfg(not(feature = "revive"))]
-    fn gas_left<E: Environment>(&mut self) -> u64;
 
     /// Returns the timestamp of the current block.
     ///
@@ -275,12 +279,19 @@ pub trait TypedEnvBackend: EnvBackend {
     /// For more details visit: [`account_id`][`crate::account_id`]
     fn account_id<E: Environment>(&mut self) -> E::AccountId;
 
+    /// Returns the address of the executed contract.
+    ///
+    /// # Note
+    ///
+    /// For more details visit: [`address`][`crate::address`]
+    fn address(&mut self) -> H160;
+
     /// Returns the balance of the executed contract.
     ///
     /// # Note
     ///
     /// For more details visit: [`balance`][`crate::balance`]
-    fn balance<E: Environment>(&mut self) -> E::Balance;
+    fn balance(&mut self) -> U256;
 
     /// Returns the current block number.
     ///
@@ -311,29 +322,12 @@ pub trait TypedEnvBackend: EnvBackend {
     ///
     /// # Note
     ///
-    /// **This will call into the original `call` host function.**
-    ///
-    /// For more details visit: [`invoke_contract`][`crate::invoke_contract_v1`]
-    #[cfg(not(feature = "revive"))]
-    fn invoke_contract_v1<E, Args, R>(
-        &mut self,
-        call_data: &CallParams<E, CallV1<E>, Args, R>,
-    ) -> Result<ink_primitives::MessageResult<R>>
-    where
-        E: Environment,
-        Args: scale::Encode,
-        R: scale::Decode;
-
-    /// Invokes a contract message and returns its result.
-    ///
-    /// # Note
-    ///
     /// **This will call into the latest `call_v2` host function.**
     ///
     /// For more details visit: [`invoke_contract`][`crate::invoke_contract`]
     fn invoke_contract<E, Args, R>(
         &mut self,
-        call_data: &CallParams<E, Call<E>, Args, R>,
+        call_data: &CallParams<E, Call, Args, R>,
     ) -> Result<ink_primitives::MessageResult<R>>
     where
         E: Environment,
@@ -348,7 +342,7 @@ pub trait TypedEnvBackend: EnvBackend {
     /// [`invoke_contract_delegate`][`crate::invoke_contract_delegate`]
     fn invoke_contract_delegate<E, Args, R>(
         &mut self,
-        call_data: &CallParams<E, DelegateCall<E>, Args, R>,
+        call_data: &CallParams<E, DelegateCall, Args, R>,
     ) -> Result<ink_primitives::MessageResult<R>>
     where
         E: Environment,
@@ -360,9 +354,9 @@ pub trait TypedEnvBackend: EnvBackend {
     /// # Note
     ///
     /// For more details visit: [`instantiate_contract`][`crate::instantiate_contract`]
-    fn instantiate_contract<E, ContractRef, Args, Salt, R>(
+    fn instantiate_contract<E, ContractRef, Args, R>(
         &mut self,
-        params: &CreateParams<E, ContractRef, LimitParamsV2<E>, Args, Salt, R>,
+        params: &CreateParams<E, ContractRef, LimitParamsV2, Args, R>,
     ) -> Result<
         ink_primitives::ConstructorResult<
             <R as ConstructorReturnType<ContractRef>>::Output,
@@ -370,25 +364,10 @@ pub trait TypedEnvBackend: EnvBackend {
     >
     where
         E: Environment,
-        ContractRef: FromAccountId<E>,
+        ContractRef: FromAddr + crate::ContractReverseReference,
+        <ContractRef as crate::ContractReverseReference>::Type:
+            crate::reflect::ContractConstructorDecoder,
         Args: scale::Encode,
-        Salt: AsRef<[u8]>,
-        R: ConstructorReturnType<ContractRef>;
-
-    #[cfg(not(feature = "revive"))]
-    fn instantiate_contract_v1<E, ContractRef, Args, Salt, R>(
-        &mut self,
-        params: &CreateParams<E, ContractRef, LimitParamsV1, Args, Salt, R>,
-    ) -> Result<
-        ink_primitives::ConstructorResult<
-            <R as ConstructorReturnType<ContractRef>>::Output,
-        >,
-    >
-    where
-        E: Environment,
-        ContractRef: FromAccountId<E>,
-        Args: scale::Encode,
-        Salt: AsRef<[u8]>,
         R: ConstructorReturnType<ContractRef>;
 
     /// Terminates a smart contract.
@@ -396,28 +375,24 @@ pub trait TypedEnvBackend: EnvBackend {
     /// # Note
     ///
     /// For more details visit: [`terminate_contract`][`crate::terminate_contract`]
-    fn terminate_contract<E>(&mut self, beneficiary: E::AccountId) -> !
-    where
-        E: Environment;
+    fn terminate_contract(&mut self, beneficiary: H160) -> !;
 
     /// Transfers value from the contract to the destination account ID.
     ///
     /// # Note
     ///
     /// For more details visit: [`transfer`][`crate::transfer`]
-    fn transfer<E>(&mut self, destination: E::AccountId, value: E::Balance) -> Result<()>
+    fn transfer<E>(&mut self, destination: H160, value: U256) -> Result<()>
     where
         E: Environment;
 
-    /// Checks whether a specified account belongs to a contract.
+    /// Checks whether a specified contract lives at `addr`.
     ///
     /// # Note
     ///
     /// For more details visit: [`is_contract`][`crate::is_contract`]
     #[allow(clippy::wrong_self_convention)]
-    fn is_contract<E>(&mut self, account: &E::AccountId) -> bool
-    where
-        E: Environment;
+    fn is_contract(&mut self, account: &H160) -> bool;
 
     /// Checks whether the caller of the current contract is the origin of the whole call
     /// stack.
@@ -443,18 +418,14 @@ pub trait TypedEnvBackend: EnvBackend {
     /// # Note
     ///
     /// For more details visit: [`code_hash`][`crate::code_hash`]
-    fn code_hash<E>(&mut self, account: &E::AccountId) -> Result<E::Hash>
-    where
-        E: Environment;
+    fn code_hash(&mut self, account: &H160) -> Result<H256>;
 
     /// Retrieves the code hash of the currently executing contract.
     ///
     /// # Note
     ///
     /// For more details visit: [`own_code_hash`][`crate::own_code_hash`]
-    fn own_code_hash<E>(&mut self) -> Result<E::Hash>
-    where
-        E: Environment;
+    fn own_code_hash(&mut self) -> Result<H256>;
 
     fn call_runtime<E, Call>(&mut self, call: &Call) -> Result<()>
     where
@@ -467,7 +438,7 @@ pub trait TypedEnvBackend: EnvBackend {
     ///
     /// For more details visit:
     /// [`lock_delegate_dependency`][`crate::lock_delegate_dependency`]
-    fn lock_delegate_dependency<E>(&mut self, code_hash: &E::Hash)
+    fn lock_delegate_dependency<E>(&mut self, code_hash: &H256)
     where
         E: Environment;
 
@@ -477,7 +448,7 @@ pub trait TypedEnvBackend: EnvBackend {
     ///
     /// For more details visit:
     /// [`unlock_delegate_dependency`][`crate::unlock_delegate_dependency`].
-    fn unlock_delegate_dependency<E>(&mut self, code_hash: &E::Hash)
+    fn unlock_delegate_dependency<E>(&mut self, code_hash: &H256)
     where
         E: Environment;
 

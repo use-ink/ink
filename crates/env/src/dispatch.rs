@@ -13,6 +13,7 @@
 // limitations under the License.
 
 /// An error that can occur during dispatch of ink! dispatchables.
+/// todo: add tests for other errors beside `PaidUnpayableMessage`
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub enum DispatchError {
     /// Failed to decode into a valid dispatch selector.

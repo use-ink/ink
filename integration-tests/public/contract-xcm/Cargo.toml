@@ -1,14 +1,14 @@
 [package]
 name = "contract-xcm"
-version = "5.1.0"
+version = "6.0.0-alpha"
 authors = ["Use Ink <ink@use.ink>"]
 edition = "2021"
 publish = false
 
 [dependencies]
 ink = { path = "../../../crates/ink", default-features = false }
-frame-support = { version = "38.0.0", default-features = false }
-pallet-balances = { version = "39.0.0", default-features = false }
+frame-support = { git = "https://github.com/paritytech/polkadot-sdk", rev = "645878a27115db52e5d63115699b4bbb89034067", default-features = false }
+pallet-balances = { git = "https://github.com/paritytech/polkadot-sdk", rev = "645878a27115db52e5d63115699b4bbb89034067", default-features = false }
 
 [dev-dependencies]
 ink_e2e = { path = "../../../crates/e2e", features = ["sandbox"] }

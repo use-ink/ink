@@ -136,6 +136,7 @@ pub fn event_derive(mut s: synstructure::Structure) -> TokenStream2 {
 }
 
 /// `Event` derive implementation for `struct` types.
+#[allow(clippy::arithmetic_side_effects)] // todo
 fn event_derive_struct(mut s: synstructure::Structure) -> syn::Result<TokenStream2> {
     assert_eq!(s.variants().len(), 1, "can only operate on structs");
 

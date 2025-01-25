@@ -15,6 +15,7 @@ KECCAK
 L1
 L2
 Polkadot
+PolkaVM
 PSP22
 RPC
 SHA
@@ -42,6 +43,7 @@ defragmentation
 delegatee
 delegator
 deploy
+deployer
 dereferencing
 deserialize/S
 deserialization
@@ -77,6 +79,7 @@ tuple
 type_info
 unordered
 untyped
+upgradeable
 v1
 v2
 v3

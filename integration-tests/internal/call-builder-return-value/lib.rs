@@ -20,6 +20,7 @@ mod call_builder {
                 ToString,
             },
         },
+        H160,
     };
 
     #[ink(storage)]
@@ -38,11 +39,11 @@ mod call_builder {
 
         /// Delegate a call to the given contract/selector and return the result.
         #[ink(message)]
-        pub fn delegate_call(&mut self, code_hash: Hash, selector: [u8; 4]) -> i32 {
+        pub fn delegate_call(&mut self, address: ink::H160, selector: [u8; 4]) -> i32 {
             use ink::env::call::build_call;
 
             build_call::<DefaultEnvironment>()
-                .delegate(code_hash)
+                .delegate(address)
                 .exec_input(ExecutionInput::new(Selector::new(selector)))
                 .returns::<i32>()
                 .invoke()
@@ -53,13 +54,13 @@ mod call_builder {
         #[ink(message)]
         pub fn delegate_call_short_return_type(
             &mut self,
-            code_hash: Hash,
+            address: ink::H160,
             selector: [u8; 4],
         ) -> Result<i8, String> {
             use ink::env::call::build_call;
 
             let result = build_call::<DefaultEnvironment>()
-                .delegate(code_hash)
+                .delegate(address)
                 .exec_input(ExecutionInput::new(Selector::new(selector)))
                 .returns::<i8>()
                 .try_invoke();
@@ -74,7 +75,7 @@ mod call_builder {
 
         /// Forward a call to the given contract/selector and return the result.
         #[ink(message)]
-        pub fn forward_call(&mut self, address: AccountId, selector: [u8; 4]) -> i32 {
+        pub fn forward_call(&mut self, address: H160, selector: [u8; 4]) -> i32 {
             use ink::env::call::build_call;
 
             build_call::<DefaultEnvironment>()
@@ -89,7 +90,7 @@ mod call_builder {
         #[ink(message)]
         pub fn forward_call_short_return_type(
             &mut self,
-            address: AccountId,
+            address: H160,
             selector: [u8; 4],
         ) -> Result<i8, String> {
             use ink::env::call::build_call;
@@ -139,15 +140,16 @@ mod call_builder {
                 .expect("instantiate failed");
             let mut call_builder = contract.call_builder::<CallBuilderReturnValue>();
 
-            let code_hash = client
-                .upload("incrementer", &origin)
+            let mut incrementer_constructor = incrementer::IncrementerRef::new(42);
+            let address = client
+                .instantiate("incrementer", &origin, &mut incrementer_constructor)
                 .submit()
                 .await
-                .expect("upload `incrementer` failed")
-                .code_hash;
+                .expect("instantiating `incrementer` failed")
+                .addr;
 
             let selector = ink::selector_bytes!("get");
-            let call = call_builder.delegate_call(code_hash, selector);
+            let call = call_builder.delegate_call(address, selector);
             let call_result = client
                 .call(&origin, &call)
                 .submit()
@@ -181,15 +183,16 @@ mod call_builder {
                 .expect("instantiate failed");
             let mut call_builder = contract.call_builder::<CallBuilderReturnValue>();
 
-            let code_hash = client
-                .upload("incrementer", &origin)
+            let mut incrementer_constructor = incrementer::IncrementerRef::new(42);
+            let address = client
+                .instantiate("incrementer", &origin, &mut incrementer_constructor)
                 .submit()
                 .await
-                .expect("upload `incrementer` failed")
-                .code_hash;
+                .expect("instantiating `incrementer` failed")
+                .addr;
 
             let selector = ink::selector_bytes!("get");
-            let call = call_builder.delegate_call_short_return_type(code_hash, selector);
+            let call = call_builder.delegate_call_short_return_type(address, selector);
             let call_result: Result<i8, String> =
                 client.call(&origin, &call).dry_run().await?.return_value();
 
@@ -233,7 +236,7 @@ mod call_builder {
                 .expect("instantiate failed");
 
             let selector = ink::selector_bytes!("get");
-            let call = call_builder.forward_call(incrementer.account_id, selector);
+            let call = call_builder.forward_call(incrementer.addr, selector);
             let call_result = client
                 .call(&origin, &call)
                 .submit()
@@ -276,8 +279,8 @@ mod call_builder {
                 .expect("instantiate failed");
 
             let selector = ink::selector_bytes!("get");
-            let call = call_builder
-                .forward_call_short_return_type(incrementer.account_id, selector);
+            let call =
+                call_builder.forward_call_short_return_type(incrementer.addr, selector);
             let call_result: Result<i8, String> =
                 client.call(&origin, &call).dry_run().await?.return_value();
 

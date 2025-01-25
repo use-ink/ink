@@ -19,7 +19,7 @@ name = "ink_codegen"
 
 [dependencies]
 ink_primitives = { workspace = true }
-ir = { version = "=5.1.0", package = "ink_ir", path = "../ir", default-features = false }
+ir = { version = "=6.0.0-alpha", package = "ink_ir", path = "../ir", default-features = false }
 quote = { workspace = true }
 syn = { workspace = true, features = ["parsing", "full", "extra-traits"] }
 proc-macro2 = { workspace = true }
@@ -41,10 +41,16 @@ default = [ "std" ]
 std = [
 	"either/use_std",
 	"ink_primitives/std",
-	"ir/std",
+    "ir/std",
 	"itertools/use_std",
 	"scale/std",
 	"serde/std",
 	"derive_more/std"
 ]
-revive = [ ]
+
+# For the ui tests, which use this `Cargo.toml`
+[lints.rust.unexpected_cfgs]
+level = "warn"
+check-cfg = [
+    'cfg(feature, values(any()))',
+]

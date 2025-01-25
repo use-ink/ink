@@ -1,3 +1,5 @@
+#![allow(unexpected_cfgs)]
+
 #[ink::contract]
 mod contract {
     #[ink(storage)]
@@ -18,10 +20,11 @@ mod contract {
         #[ink(message)]
         pub fn message2(&self, _arg1: u8, _arg2: (u8, AccountId)) {}
 
+        #[allow(dead_code)]
         fn check_compiles(&self) {
-            ink::env::pay_with_call!(self.message0(), 0);
-            ink::env::pay_with_call!(self.message1(0), 0);
-            ink::env::pay_with_call!(self.message2(0, (0, Self::env().account_id())), 0);
+            ink::env::pay_with_call!(self.message0(), 0.into());
+            ink::env::pay_with_call!(self.message1(0), 0.into());
+            ink::env::pay_with_call!(self.message2(0, (0, Self::env().account_id())), 0.into());
         }
     }
 }

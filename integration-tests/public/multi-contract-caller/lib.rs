@@ -52,24 +52,26 @@ mod multi_contract_caller {
         pub fn new(
             init_value: i32,
             version: u32,
-            accumulator_code_hash: Hash,
-            adder_code_hash: Hash,
-            subber_code_hash: Hash,
+            accumulator_code_hash: ink::H256,
+            adder_code_hash: ink::H256,
+            subber_code_hash: ink::H256,
         ) -> Self {
             let total_balance = Self::env().balance();
-            let salt = version.to_le_bytes();
+            let one_fourth = total_balance.checked_div(4.into()).expect("div failed");
+
+            let salt = salt_from_version(version);
             let accumulator = AccumulatorRef::new(init_value)
-                .endowment(total_balance / 4)
+                .endowment(one_fourth)
                 .code_hash(accumulator_code_hash)
                 .salt_bytes(salt)
                 .instantiate();
             let adder = AdderRef::new(accumulator.clone())
-                .endowment(total_balance / 4)
+                .endowment(one_fourth)
                 .code_hash(adder_code_hash)
                 .salt_bytes(salt)
                 .instantiate();
             let subber = SubberRef::new(accumulator.clone())
-                .endowment(total_balance / 4)
+                .endowment(one_fourth)
                 .code_hash(subber_code_hash)
                 .salt_bytes(salt)
                 .instantiate();
@@ -108,6 +110,13 @@ mod multi_contract_caller {
                 }
             }
         }
+    }
+
+    fn salt_from_version(version: u32) -> Option<[u8; 32]> {
+        let version: [u8; 4] = version.to_le_bytes();
+        let mut salt: [u8; 32] = [0u8; 32];
+        salt[..4].copy_from_slice(&version);
+        Some(salt)
     }
 
     #[cfg(all(test, feature = "e2e-tests"))]
@@ -153,7 +162,7 @@ mod multi_contract_caller {
 
             let multi_contract_caller = client
                 .instantiate("multi_contract_caller", &ink_e2e::alice(), &mut constructor)
-                .value(10_000_000_000_000)
+                .value(100_000_000_000)
                 .submit()
                 .await
                 .expect("instantiate failed");

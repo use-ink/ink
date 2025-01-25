@@ -64,19 +64,22 @@ use scale::{
 /// #     Environment,
 /// #     DefaultEnvironment,
 /// # };
-/// # type AccountId = <DefaultEnvironment as Environment>::AccountId;
 ///
 /// # #[ink::contract]
 /// # mod my_module {
-/// use ink::storage::{
-///     traits::ManualKey,
-///     Lazy,
+/// use ink::{
+///     storage::{
+///         traits::ManualKey,
+///         Lazy,
+///     },
+///     H160,
 /// };
 ///
 /// #[ink(storage)]
 /// #[derive(Default)]
 /// pub struct MyContract {
-///     owner: Lazy<AccountId>,
+///     owner: Lazy<H160>,
+///     // todo maybe use something else than `Balance`?
 ///     balance: Lazy<Balance, ManualKey<123>>,
 /// }
 ///

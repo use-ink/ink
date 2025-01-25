@@ -1,0 +1,37 @@
+[package]
+name = "pallet-revive-caller"
+version = "0.1.0"
+description = "Demonstrate calling an ink! contract from a pallet"
+authors = ["Use Ink <ink@use.ink>"]
+homepage = "https://substrate.io"
+edition.workspace = true
+license = "MIT-0"
+publish = false
+repository = "https://github.com/use-ink/ink"
+
+[package.metadata.docs.rs]
+targets = ["x86_64-unknown-linux-gnu"]
+
+[dependencies]
+codec = { workspace = true, default-features = false, features = ["derive"] }
+scale-info = { workspace = true, default-features = false, features = ["derive"] }
+frame-support = { workspace = true, default-features = false, features = ["try-runtime"] }
+frame-system = { workspace = true, default-features = false }
+sp-runtime = { workspace = true, default-features = false }
+
+pallet-revive = { workspace = true, default-features = false, features = ["try-runtime"] }
+flipper-traits = { path = "../../traits", default-features = false }
+ink = { path = "../../../../../crates/ink", features = ["no-panic-handler", "no-allocator"] }
+
+[features]
+default = ["std"]
+std = [
+    "codec/std",
+    "frame-support/std",
+    "frame-system/std",
+    "sp-runtime/std",
+    "scale-info/std",
+    "pallet-revive/std",
+    "ink/std"
+]
+try-runtime = []

@@ -1,5 +1,8 @@
+#![allow(unexpected_cfgs)]
+
 use contract::Contract;
 #[ink::contract]
+
 mod contract {
     #[ink(storage)]
     pub struct Contract {}

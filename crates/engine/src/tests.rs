@@ -12,10 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::ext::{
-    Engine,
-    Error,
+use crate::{
+    ext::{
+        Engine,
+        Error,
+    },
+    types::H160,
 };
+use ink_primitives::U256;
 use secp256k1::{
     ecdsa::RecoverableSignature,
     Message,
@@ -38,7 +42,7 @@ fn get_buffer() -> [u8; 1024] {
 #[test]
 fn store_load_clear() {
     let mut engine = Engine::new();
-    engine.set_callee(vec![1; 32]);
+    engine.set_callee(H160::from([1; 20]));
     let key: &[u8; 32] = &[0x42; 32];
     let res = engine.get_storage(key);
     assert_eq!(res, Err(Error::KeyNotFound));
@@ -57,17 +61,17 @@ fn store_load_clear() {
 fn setting_getting_balance() {
     // given
     let mut engine = Engine::new();
-    let account_id = vec![1; 32];
-    let balance = 1337;
-    engine.set_callee(account_id.clone());
-    engine.set_balance(account_id, balance);
+    let addr = H160::from([1; 20]);
+    let balance = 1337.into();
+    engine.set_callee(addr);
+    engine.set_balance(addr, balance);
 
     // when
     let mut output = get_buffer();
     engine.balance(&mut &mut output[..]);
 
     // then
-    let output = <u128 as scale::Decode>::decode(&mut &output[..16])
+    let output = <U256 as scale::Decode>::decode(&mut &output[..32])
         .unwrap_or_else(|err| panic!("decoding balance failed: {err}"));
     assert_eq!(output, balance);
 }
@@ -76,48 +80,49 @@ fn setting_getting_balance() {
 fn setting_getting_caller() {
     // given
     let mut engine = Engine::new();
-    let account_id = vec![1; 32];
+    let caller = H160::from([1u8; 20]);
 
     // when
-    engine.set_caller(account_id.clone());
+    engine.set_caller(caller);
 
     // then
     let mut output = get_buffer();
     engine.caller(&mut &mut output[..]);
-    assert_eq!(&output[..account_id.len()], &account_id);
+    let val = scale::Encode::encode(&caller);
+    assert!(&output[..val.len()].eq(val.as_slice()));
 }
 
 #[test]
 fn address() {
     // given
     let mut engine = Engine::new();
-    let account_id = vec![1; 32];
-    engine.set_callee(account_id.clone());
+    let addr = H160::from([1; 20]);
+    engine.set_callee(addr);
 
     // when
     let mut output = get_buffer();
     engine.address(&mut &mut output[..]);
 
     // then
-    assert_eq!(&output[..account_id.len()], &account_id);
+    assert!(&output[..20].eq(addr.as_bytes()));
 }
 
 #[test]
 fn transfer() {
     // given
     let mut engine = Engine::new();
-    let alice = vec![1; 32];
-    let bob = vec![2; 32];
-    engine.set_callee(alice.clone());
-    engine.set_balance(alice.clone(), 1337);
+    let alice = H160::from([1; 20]);
+    let bob = H160::from([2; 20]);
+    engine.set_callee(alice);
+    engine.set_balance(alice, 1337.into());
 
     // when
     let val = scale::Encode::encode(&337u128);
-    assert_eq!(engine.transfer(&bob, &val), Ok(()));
+    assert_eq!(engine.transfer(bob, &val), Ok(()));
 
     // then
-    assert_eq!(engine.get_balance(alice), Ok(1000));
-    assert_eq!(engine.get_balance(bob), Ok(337));
+    assert_eq!(engine.get_balance(alice), Ok(1000.into()));
+    assert_eq!(engine.get_balance(bob), Ok(337.into()));
 }
 
 #[test]
@@ -166,7 +171,7 @@ fn events() {
 fn value_transferred() {
     // given
     let mut engine = Engine::new();
-    let value = 1337;
+    let value = 1337.into();
     engine.set_value_transferred(value);
 
     // when
@@ -174,7 +179,7 @@ fn value_transferred() {
     engine.value_transferred(output);
 
     // then
-    let output = <u128 as scale::Decode>::decode(&mut &output[..16])
+    let output = <U256 as scale::Decode>::decode(&mut &output[..32])
         .expect("decoding value transferred failed");
     assert_eq!(output, value);
 }

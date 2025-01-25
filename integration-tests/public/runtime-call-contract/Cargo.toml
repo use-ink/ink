@@ -5,21 +5,23 @@ members = ["sandbox-runtime", "traits"]
 authors = ["Use Ink <ink@use.ink>"]
 edition = "2021"
 homepage = "https://use.ink"
-keywords = ["wasm", "ink", "webassembly", "blockchain", "edsl"]
 license = "Apache-2.0"
 repository = "https://github.com/use-ink/ink"
+keywords = ["polkavm", "ink", "riscv", "blockchain", "edsl"]
+publish = false
 
 [workspace.dependencies]
-frame-support = { version = "38.0.0", default-features = false }
-frame-system = { version = "38.0.0", default-features = false }
-pallet-contracts = { version = "38.0.0", default-features = false }
-sp-runtime = { version = "39.0.2", default-features = false }
+frame-support = { git = "https://github.com/paritytech/polkadot-sdk", rev = "645878a27115db52e5d63115699b4bbb89034067", default-features = false }
+frame-system = { git = "https://github.com/paritytech/polkadot-sdk", rev = "645878a27115db52e5d63115699b4bbb89034067", default-features = false }
+pallet-balances = { git = "https://github.com/paritytech/polkadot-sdk", rev = "645878a27115db52e5d63115699b4bbb89034067", default-features = false }
+pallet-revive = { git = "https://github.com/paritytech/polkadot-sdk", rev = "645878a27115db52e5d63115699b4bbb89034067", default-features = false }
+sp-runtime = { git = "https://github.com/paritytech/polkadot-sdk", rev = "645878a27115db52e5d63115699b4bbb89034067", default-features = false }
 codec = { package = "parity-scale-codec", version =  "3.6.12", default-features = false }
 scale-info = { version = "2.11.1", default-features = false }
 
 [package]
 name = "runtime-call-contract"
-version = "5.1.0"
+version = "6.0.0-alpha"
 authors = ["Use Ink <ink@use.ink>"]
 edition = "2021"
 publish = false
@@ -34,7 +36,7 @@ sandbox-runtime = { path = "sandbox-runtime", default-features = false }
 scale-value = "0.18.0"
 # can't use workspace dependency because of `cargo-contract` build not
 # working with workspace dependencies
-frame-support = { version = "38.0.0", default-features = false }
+frame-support = { git = "https://github.com/paritytech/polkadot-sdk", rev = "645878a27115db52e5d63115699b4bbb89034067", default-features = false }
 
 [lib]
 path = "lib.rs"

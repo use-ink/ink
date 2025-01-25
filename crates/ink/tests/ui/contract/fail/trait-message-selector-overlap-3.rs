@@ -1,3 +1,5 @@
+#![allow(unexpected_cfgs)]
+
 mod foo1 {
     #[ink::trait_definition]
     pub trait TraitDefinition1 {

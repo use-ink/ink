@@ -1,22 +1,22 @@
 error: encountered multiple ink! storage structs, expected exactly one
-  --> tests/ui/contract/fail/module-multiple-storages.rs:2:1
+  --> tests/ui/contract/fail/module-multiple-storages.rs:4:1
    |
-2  | / mod contract {
-3  | |     #[ink(storage)]
-4  | |     pub struct Contract {}
+4  | / mod contract {
+5  | |     #[ink(storage)]
+6  | |     pub struct Contract {}
 ...  |
-27 | |     }
-28 | | }
+29 | |     }
+30 | | }
    | |_^
 
 error: ink! storage struct here
- --> tests/ui/contract/fail/module-multiple-storages.rs:4:5
+ --> tests/ui/contract/fail/module-multiple-storages.rs:6:5
   |
-4 |     pub struct Contract {}
+6 |     pub struct Contract {}
   |     ^^^^^^^^^^^^^^^^^^^^^^
 
 error: ink! storage struct here
-  --> tests/ui/contract/fail/module-multiple-storages.rs:17:5
+  --> tests/ui/contract/fail/module-multiple-storages.rs:19:5
    |
-17 |     pub struct Contract2 {}
+19 |     pub struct Contract2 {}
    |     ^^^^^^^^^^^^^^^^^^^^^^^

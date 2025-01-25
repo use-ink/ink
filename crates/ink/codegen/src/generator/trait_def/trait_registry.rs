@@ -21,9 +21,7 @@
 
 use super::TraitDefinition;
 use crate::{
-    generator::{
-        self,
-    },
+    generator,
     traits::GenerateCode,
     EnforcedErrors,
 };
@@ -42,7 +40,7 @@ use syn::{
     spanned::Spanned,
 };
 
-impl<'a> TraitDefinition<'a> {
+impl TraitDefinition<'_> {
     /// Generates the code for the global trait registry implementation.
     ///
     /// This also generates the code for the global trait info object which
@@ -123,8 +121,10 @@ impl TraitRegistry<'_> {
     fn generate_registry_messages(&self) -> TokenStream2 {
         let messages = self.trait_def.trait_def.item().iter_items().filter_map(
             |(item, selector)| {
-                item.filter_map_message()
-                    .map(|message| self.generate_registry_for_message(&message, selector))
+                let ret = item.filter_map_message().map(|message| {
+                    self.generate_registry_for_message(&message, selector)
+                });
+                ret
             },
         );
         quote! {
@@ -161,7 +161,7 @@ impl TraitRegistry<'_> {
     /// Generate the code for a single ink! trait message implemented by the trait
     /// registry.
     ///
-    /// Generally the implementation of any ink! trait of the ink! trait registry
+    /// Generally the implementation of any ink! trait of the ink! trait registry.
     fn generate_registry_for_message(
         &self,
         message: &ir::InkTraitMessage,

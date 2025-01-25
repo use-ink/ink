@@ -10,7 +10,7 @@ repository.workspace = true
 
 [dependencies]
 ink_sandbox = { path = "../../../../crates/e2e/sandbox" }
-pallet-contract-caller = { path = "pallet-contract-caller", default-features = false }
+pallet-revive-caller = { path = "pallet-revive-caller", default-features = false }
 frame-support = { workspace = true }
 frame-system = { workspace = true }
 codec = { workspace = true }
@@ -19,5 +19,5 @@ scale-info = { workspace = true }
 [features]
 default = ["std"]
 std = [
-    "pallet-contract-caller/std",
+    "pallet-revive-caller/std",
 ]

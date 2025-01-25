@@ -139,7 +139,7 @@ fn find_contract_ty_hir<'tcx>(
                 if match_def_path(
                     cx,
                     trait_ref.skip_binder().def_id,
-                    &["ink_env", "contract", "ContractEnv"],
+                    &["ink_primitives", "contract", "ContractEnv"],
                 );
                 then { Some(&item_impl.self_ty) } else { None }
             }
