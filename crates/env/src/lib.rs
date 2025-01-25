@@ -87,7 +87,6 @@ mod error;
 pub mod event;
 pub mod hash;
 
-mod dispatch;
 #[cfg(test)]
 mod tests;
 
@@ -104,10 +103,6 @@ pub use self::{
     contract::{
         ContractEnv,
         ContractReference,
-    },
-    dispatch::{
-        DecodeDispatch,
-        DispatchError,
     },
     error::{
         Error,
@@ -135,6 +130,7 @@ pub use ink_primitives::{
         ContractReverseReference,
     },
     reflect,
+    reflect::{DecodeDispatch, DispatchError},
     types,
 };
 #[doc(inline)]

@@ -3314,6 +3314,7 @@ dependencies = [
  "ink_env",
  "ink_prelude",
  "num-traits",
+ "pallet-revive-uapi",
  "parity-scale-codec",
  "primitive-types",
  "scale-decode",

@@ -28,7 +28,6 @@ use crate::{
         FromAddr,
         LimitParamsV2,
     },
-    dispatch::DecodeDispatch,
     engine::{
         EnvInstance,
         OnInstance,
@@ -42,6 +41,7 @@ use crate::{
         Environment,
         Gas,
     },
+    DecodeDispatch,
     DispatchError,
     Result,
 };

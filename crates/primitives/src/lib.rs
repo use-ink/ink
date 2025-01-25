@@ -44,6 +44,7 @@ pub use self::{
         DepositLimit,
         Hash,
     },
+    reflect::{DispatchError, DecodeDispatch}
 };
 pub mod contract;
 

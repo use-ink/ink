@@ -34,6 +34,8 @@ pub use self::{
         ConstructorOutputValue,
         ContractConstructorDecoder,
         ContractMessageDecoder,
+        DecodeDispatch,
+        DispatchError,
         DispatchableConstructorInfo,
         DispatchableMessageInfo,
         Encoding,
