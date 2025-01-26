@@ -46,9 +46,9 @@ ink! is composed of a number of crates that are all found in the
 * [`e2e`](https://github.com/use-ink/ink/tree/master/crates/e2e):
   An end-to-end testing framework for ink! contracts. It requires a Substrate node
   which includes `pallet-revive` running in the background. The crate provides a
-  macro which can be used
+  macro that can be used
   to write an idiomatic Rust test that will in the background create transactions,
-  submit it to the Substrate chain and return the state changes, gas costs, etc.
+  submit them to the Substrate chain and return the state changes, gas costs, etc.
 
 An important thing to note is that the crates are primarily run in
 a `no_std` environment.
@@ -186,7 +186,7 @@ each new released iteration of the function there is a new version of it introdu
 In the example above you can see that we changed the function `set_storage` at
 one point.
 
-The prefix `seal` here is for historic reasons. There is some analogy to sealing a
+The prefix `seal` here is for historical reasons. There is some analogy to sealing a
 contract. And we found seals to be a cute animal as well ‒ like squids!
 
 ## `Environment` Trait
