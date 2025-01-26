@@ -81,7 +81,7 @@ in the future.
        branch.
      - Notify core team members in the Element channel that no PRs should be merged to
        `master` during the release.
-     - The above are to ensure that the bundled code pushed to crates.io is the same as
+     - The above is to ensure that the bundled code pushed to crates.io is the same as
        the tagged release on GitHub.
 5. Publish with `cargo release [new_version] -v --no-tag --no-push --execute`
     - Ensure the same `[new_version]` as the dry run, which should be the **exact** SemVer
