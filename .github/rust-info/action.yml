@@ -11,5 +11,5 @@ runs:
         cargo spellcheck --version
         bash --version
         substrate-contracts-node --version
-        cargo-contract --version
+        cargo contract --version
       shell: bash
