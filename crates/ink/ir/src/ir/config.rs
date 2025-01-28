@@ -156,7 +156,7 @@ impl Default for Environment {
 #[derive(Debug, Clone, PartialEq, Eq, Default)]
 
 pub enum AbiEncoding {
-    /// Scale codec, the default.
+    /// SCALE codec, the default.
     #[default]
     Scale,
     /// RLP codec, useful for compatibility with Solidity contracts.

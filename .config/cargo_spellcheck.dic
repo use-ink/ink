@@ -12,12 +12,14 @@ FFI
 Gnosis
 GPL
 KECCAK
+Keccak
 L1
 L2
 Polkadot
 PolkaVM
 PSP22
 RPC
+RLP
 SHA
 UI/S
 URI
@@ -29,6 +31,7 @@ bitvector
 bitmask
 bitwise
 callee
+codec
 codegen
 comparator
 const

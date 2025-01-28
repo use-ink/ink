@@ -232,7 +232,7 @@ pub enum Encoding {
 }
 
 /// Custom unit type for RLP encodable messages which return `()`.
-/// This is because ['alloy_rlp::Encodable`] is not implemented for the build-in `()` type
+/// This is because [`alloy_rlp::Encodable`] is not implemented for the build-in `()` type
 #[derive(alloy_rlp::RlpEncodable)]
 pub struct RlpUnit {}
 
@@ -567,7 +567,7 @@ impl From<DispatchError> for scale::Error {
 ///
 /// # Usage
 ///
-/// todo: prev doc test used a contract instance, it was in the `ink!` crate.
+/// todo: previous doc test used a contract instance, it was in the `ink!` crate.
 pub trait DecodeDispatch: Sized {
     /// todo: docs
     fn decode_dispatch(input: &mut &[u8]) -> Result<Self, DispatchError>;
