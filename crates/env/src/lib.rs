@@ -126,7 +126,10 @@ pub use ink_primitives::{
         ContractReverseReference,
     },
     reflect,
-    reflect::{DecodeDispatch, DispatchError},
+    reflect::{
+        DecodeDispatch,
+        DispatchError,
+    },
     types,
 };
 #[doc(inline)]

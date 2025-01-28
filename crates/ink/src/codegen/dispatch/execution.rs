@@ -18,7 +18,6 @@ use ink_env::{
 };
 use ink_primitives::U256;
 
-
 /// Returns `Ok` if the caller did not transfer additional value to the callee.
 ///
 /// # Errors

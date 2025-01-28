@@ -38,13 +38,16 @@ pub use self::{
         Key,
         KeyComposer,
     },
+    reflect::{
+        DecodeDispatch,
+        DispatchError,
+    },
     types::{
         AccountId,
         Clear,
         DepositLimit,
         Hash,
     },
-    reflect::{DispatchError, DecodeDispatch}
 };
 pub mod contract;
 
