@@ -22,6 +22,10 @@ use crate::{
         FromAddr,
         LimitParamsV2,
     },
+    dispatch::{
+        DecodeDispatch,
+        DispatchError,
+    },
     engine::on_chain::{
         EncodeScope,
         EnvInstance,
@@ -186,6 +190,7 @@ impl EnvInstance {
         T: FromLittleEndian,
     {
         let mut scope = self.scoped_buffer();
+        // TODO: check unwrap
         let u256: &mut [u8; 32] = scope.take(32).try_into().unwrap();
         ext_fn(u256);
         let mut result = <T as FromLittleEndian>::Bytes::default();
@@ -261,13 +266,13 @@ impl EnvBackend for EnvInstance {
         ext::clear_storage(STORAGE_FLAGS, key)
     }
 
-    fn decode_input<T>(&mut self) -> Result<T>
+    fn decode_input<T>(&mut self) -> core::result::Result<T, DispatchError>
     where
-        T: scale::Decode,
+        T: DecodeDispatch,
     {
         let full_scope = &mut self.scoped_buffer().take_rest();
         ext::call_data_copy(full_scope, 0);
-        scale::Decode::decode(&mut &full_scope[..]).map_err(Into::into)
+        DecodeDispatch::decode_dispatch(&mut &full_scope[..])
     }
 
     fn return_value<R>(&mut self, flags: ReturnFlags, return_value: &R) -> !
@@ -276,6 +281,16 @@ impl EnvBackend for EnvInstance {
     {
         let mut scope = EncodeScope::from(&mut self.buffer[..]);
         return_value.encode_to(&mut scope);
+        let len = scope.len();
+        ext::return_value(flags, &self.buffer[..][..len]);
+    }
+
+    fn return_value_rlp<R>(&mut self, flags: ReturnFlags, return_value: &R) -> !
+    where
+        R: alloy_rlp::Encodable,
+    {
+        let mut scope = EncodeScope::from(&mut self.buffer[..]);
+        return_value.encode(&mut scope);
         let len = scope.len();
         ext::return_value(flags, &self.buffer[..][..len]);
     }
@@ -386,6 +401,7 @@ impl TypedEnvBackend for EnvInstance {
 
         let h160: &mut [u8; 20] = scope.take(20).try_into().unwrap();
         ext::caller(h160);
+        // TODO: check decode
         scale::Decode::decode(&mut &h160[..])
             .expect("The executed contract must have a caller with a valid account id.")
     }
@@ -491,6 +507,7 @@ impl TypedEnvBackend for EnvInstance {
             enc_callee,
             ref_time_limit,
             proof_size_limit,
+            // TODO: cleanup comment?
             //enc_storage_limit,
             storage_deposit_limit.as_deref(),
             enc_transferred_value,
@@ -594,6 +611,7 @@ impl TypedEnvBackend for EnvInstance {
             Some(out_return_value),
             salt,
         );
+        // TODO: clean comment?
         //let foo: () = instantiate_result;
 
         crate::engine::decode_instantiate_result::<_, ContractRef, RetType>(
@@ -617,7 +635,7 @@ impl TypedEnvBackend for EnvInstance {
         E: Environment,
     {
         let mut scope = self.scoped_buffer();
-        /*
+        /* TODO: remove comment?
         let ref_time_limit = params.ref_time_limit();
         let proof_size_limit = params.proof_size_limit();
         let storage_deposit_limit = params.storage_deposit_limit().map(|limit| {
@@ -660,6 +678,7 @@ impl TypedEnvBackend for EnvInstance {
         );
         match call_result {
             Ok(()) => {
+                // TODO: clean comments?
                 // no need to decode, is ()
                 //let decoded = scale::DecodeAll::decode_all(&mut &output[..])?;
                 //Ok(decoded)

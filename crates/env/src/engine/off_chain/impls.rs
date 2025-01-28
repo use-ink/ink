@@ -37,6 +37,8 @@ use crate::{
     },
     test::callee,
     Clear,
+    DecodeDispatch,
+    DispatchError,
     EnvBackend,
     Result,
     TypedEnvBackend,
@@ -81,8 +83,8 @@ where
             >::Type
             as crate::reflect::ContractMessageDecoder
         >::Type
-        as scale::Decode
-    >::decode(&mut &input[..])
+        as DecodeDispatch
+    >::decode_dispatch(&mut &input[..])
         .unwrap_or_else(|e| panic!("Failed to decode constructor call: {:?}", e));
 
     crate::reflect::ExecuteDispatchable::execute_dispatchable(dispatch)
@@ -339,9 +341,9 @@ impl EnvBackend for EnvInstance {
         self.engine.clear_storage(&key.encode())
     }
 
-    fn decode_input<T>(&mut self) -> Result<T>
+    fn decode_input<T>(&mut self) -> core::result::Result<T, DispatchError>
     where
-        T: scale::Decode,
+        T: DecodeDispatch,
     {
         unimplemented!("the off-chain env does not implement `input`")
     }
@@ -362,6 +364,13 @@ impl EnvBackend for EnvInstance {
         let mut v = vec![];
         return_value.encode_to(&mut v);
         self.engine.set_storage(&[255_u8; 32], &v[..]);
+    }
+
+    fn return_value_rlp<R>(&mut self, _flags: ReturnFlags, _return_value: &R) -> !
+    where
+        R: alloy_rlp::Encodable,
+    {
+        unimplemented!("the off-chain env does not implement `return_value_rlp`")
     }
 
     fn debug_message(&mut self, message: &str) {
@@ -669,8 +678,8 @@ impl TypedEnvBackend for EnvInstance {
                 >::Type
                 as crate::reflect::ContractConstructorDecoder
             >::Type
-            as scale::Decode
-        >::decode(&mut &input[..])
+            as DecodeDispatch
+        >::decode_dispatch(&mut &input[..])
             .unwrap_or_else(|e| panic!("Failed to decode constructor call: {:?}", e));
         crate::reflect::ExecuteDispatchable::execute_dispatchable(dispatch)
             .unwrap_or_else(|e| panic!("Constructor call failed: {:?}", e));

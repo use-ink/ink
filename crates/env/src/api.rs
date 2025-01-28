@@ -41,6 +41,8 @@ use crate::{
         Environment,
         Gas,
     },
+    DecodeDispatch,
+    DispatchError,
     Result,
 };
 use ink_primitives::{
@@ -407,9 +409,9 @@ where
 /// # Errors
 ///
 /// If the given `T` cannot be properly decoded from the expected input.
-pub fn decode_input<T>() -> Result<T>
+pub fn decode_input<T>() -> core::result::Result<T, DispatchError>
 where
-    T: scale::Decode,
+    T: DecodeDispatch,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         EnvBackend::decode_input::<T>(instance)
@@ -444,6 +446,20 @@ where
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         EnvBackend::return_value::<R>(instance, return_flags, return_value)
+    })
+}
+
+/// Returns the *RLP encoded* value back to the caller of the executed contract.
+///
+/// # Note
+///
+/// This function  stops the execution of the contract immediately.
+pub fn return_value_rlp<R>(return_flags: ReturnFlags, return_value: &R) -> !
+where
+    R: alloy_rlp::Encodable,
+{
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        EnvBackend::return_value_rlp::<R>(instance, return_flags, return_value)
     })
 }
 

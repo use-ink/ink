@@ -26,6 +26,7 @@ either = { workspace = true }
 blake2 = { workspace = true }
 impl-serde = { workspace = true }
 ink_prelude = { workspace = true }
+sha3 = { workspace = true }
 
 [features]
 default = [ "std" ]

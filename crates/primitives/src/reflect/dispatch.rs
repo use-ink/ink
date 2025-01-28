@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use core::fmt::Display;
+use pallet_revive_uapi::ReturnFlags;
 
 /// Stores various information of the respective dispatchable ink! message.
 ///
@@ -111,6 +111,14 @@ pub trait DispatchableMessageInfo<const ID: u32> {
     /// `&mut self` to `&self` with our current dispatch codegen architecture.
     const CALLABLE: fn(&mut Self::Storage, Self::Input) -> Self::Output;
 
+    /// closure for decoding
+    const DECODE: fn(
+        &mut &[::core::primitive::u8],
+    ) -> Result<Self::Input, DispatchError>;
+
+    /// closure for returning per encoding todo: docs
+    const RETURN: fn(ReturnFlags, Self::Output) -> !;
+
     /// Yields `true` if the dispatchable ink! message mutates the ink! storage.
     const MUTATES: bool;
     /// Yields `true` if the dispatchable ink! message is payable.
@@ -119,6 +127,8 @@ pub trait DispatchableMessageInfo<const ID: u32> {
     const SELECTOR: [u8; 4];
     /// The label of the dispatchable ink! message.
     const LABEL: &'static str;
+    /// The encoding of input and output data for the message
+    const ENCODING: Encoding;
 }
 
 /// Stores various information of the respective dispatchable ink! constructor.
@@ -214,6 +224,17 @@ pub trait DispatchableConstructorInfo<const ID: u32> {
     /// The label of the dispatchable ink! constructor.
     const LABEL: &'static str;
 }
+
+/// todo: comment
+pub enum Encoding {
+    Scale,
+    Rlp,
+}
+
+/// Custom unit type for RLP encodable messages which return `()`.
+/// This is because ['alloy_rlp::Encodable`] is not implemented for the build-in `()` type
+#[derive(alloy_rlp::RlpEncodable)]
+pub struct RlpUnit {}
 
 mod private {
     /// Seals the implementation of `ConstructorReturnType`.
@@ -378,7 +399,7 @@ impl<C, E> ConstructorOutput<C> for ConstructorOutputValue<Result<C, E>> {
 /// ```
 pub trait ContractMessageDecoder {
     /// The ink! smart contract message decoder type.
-    type Type: scale::Decode + ExecuteDispatchable;
+    type Type: DecodeDispatch + ExecuteDispatchable;
 }
 
 /// Generated type used to decode all dispatchable ink! constructors of the ink! smart
@@ -500,7 +521,7 @@ pub enum DispatchError {
     PaidUnpayableMessage,
 }
 
-impl Display for DispatchError {
+impl core::fmt::Display for DispatchError {
     fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
         write!(f, "{}", self.as_str())
     }
@@ -509,7 +530,7 @@ impl Display for DispatchError {
 impl DispatchError {
     /// Returns a string representation of the error.
     #[inline]
-    pub fn as_str(&self) -> &'static str {
+    fn as_str(&self) -> &'static str {
         match self {
             Self::InvalidSelector => "unable to decode selector",
             Self::UnknownSelector => "encountered unknown selector",
@@ -546,77 +567,8 @@ impl From<DispatchError> for scale::Error {
 ///
 /// # Usage
 ///
-/// ```
-/// # use ink::reflect::{ContractMessageDecoder, DecodeDispatch, DispatchError};
-/// # use ink::selector_bytes;
-/// # use scale::Encode;
-///
-/// #[ink::contract]
-/// pub mod contract {
-///     #[ink(storage)]
-///     pub struct Contract {}
-///
-///     impl Contract {
-///         #[ink(constructor)]
-///         pub fn constructor() -> Self { Self {} }
-///
-///         #[ink(message)]
-///         pub fn message(&self, input_1: bool, input_2: i32) {}
-///     }
-/// }
-///
-/// use contract::Contract;
-///
-/// fn main() {
-///     // Valid call to `message`:
-///     {
-///         let mut input_bytes = Vec::new();
-///         input_bytes.extend(selector_bytes!("message"));
-///         input_bytes.extend(true.encode());
-///         input_bytes.extend(42i32.encode());
-///         assert!(
-///             <<Contract as ContractMessageDecoder>::Type as DecodeDispatch>::decode_dispatch(
-///                 &mut &input_bytes[..]).is_ok()
-///         );
-///     }
-///     // Invalid call with invalid selector (or empty input).
-///     {
-///         let mut input_bytes = Vec::new();
-///         assert_eq!(
-///             <<Contract as ContractMessageDecoder>::Type
-///                 as DecodeDispatch>::decode_dispatch(&mut &input_bytes[..])
-///                 # .map(|_| ())
-///                 .unwrap_err(),
-///             DispatchError::InvalidSelector,
-///         );
-///     }
-///     // Invalid call to `message` with unknown selector.
-///     {
-///         let mut input_bytes = Vec::new();
-///         input_bytes.extend(selector_bytes!("unknown_selector"));
-///         assert_eq!(
-///             <<Contract as ContractMessageDecoder>::Type
-///                 as DecodeDispatch>::decode_dispatch(&mut &input_bytes[..])
-///                 # .map(|_| ())
-///                 .unwrap_err(),
-///             DispatchError::UnknownSelector,
-///         );
-///     }
-///     // Invalid call to `message` with invalid (or missing) parameters.
-///     {
-///         let mut input_bytes = Vec::new();
-///         input_bytes.extend(selector_bytes!("message"));
-///         assert_eq!(
-///             <<Contract as ContractMessageDecoder>::Type
-///                 as DecodeDispatch>::decode_dispatch(&mut &input_bytes[..])
-///                 # .map(|_| ())
-///                 .unwrap_err(),
-///             DispatchError::InvalidParameters,
-///         );
-///     }
-/// }
-/// ```
-pub trait DecodeDispatch: scale::Decode {
-    /// Decodes an ink! dispatch input into a known selector and its expected parameters.
-    fn decode_dispatch<I: scale::Input>(input: &mut I) -> Result<Self, DispatchError>;
+/// todo: prev doc test used a contract instance, it was in the `ink!` crate.
+pub trait DecodeDispatch: Sized {
+    /// todo: docs
+    fn decode_dispatch(input: &mut &[u8]) -> Result<Self, DispatchError>;
 }

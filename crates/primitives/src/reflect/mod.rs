@@ -38,7 +38,9 @@ pub use self::{
         DispatchError,
         DispatchableConstructorInfo,
         DispatchableMessageInfo,
+        Encoding,
         ExecuteDispatchable,
+        RlpUnit,
     },
     trait_def::{
         TraitDefinitionRegistry,

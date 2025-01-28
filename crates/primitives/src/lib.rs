@@ -38,6 +38,10 @@ pub use self::{
         Key,
         KeyComposer,
     },
+    reflect::{
+        DecodeDispatch,
+        DispatchError,
+    },
     types::{
         AccountId,
         Clear,
