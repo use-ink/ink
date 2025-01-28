@@ -22,10 +22,6 @@ use crate::{
         FromAddr,
         LimitParamsV2,
     },
-    dispatch::{
-        DecodeDispatch,
-        DispatchError,
-    },
     engine::on_chain::{
         EncodeScope,
         EnvInstance,
@@ -45,6 +41,8 @@ use crate::{
     },
     types::FromLittleEndian,
     Clear,
+    DecodeDispatch,
+    DispatchError,
     EnvBackend,
     Environment,
     Result,
