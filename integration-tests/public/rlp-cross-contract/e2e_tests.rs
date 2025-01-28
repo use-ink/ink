@@ -1,14 +1,19 @@
 use super::rlp_cross_contract::*;
-use ink_e2e::{
-    ContractsRegistry,
-    Keypair,
-};
+use ink_e2e::ContractsRegistry;
 use ink_sandbox::{
-    api::balance_api::BalanceAPI,
-    AccountId32,
+    api::prelude::*,
+    DefaultSandbox,
+    Sandbox,
 };
 
-use pallet_contracts::ExecReturnValue;
+use ink::{
+    primitives::DepositLimit,
+    H160,
+};
+use ink_sandbox::frame_system::pallet_prelude::OriginFor;
+use pallet_revive::ExecReturnValue;
+
+const STORAGE_DEPOSIT_LIMIT: DepositLimit<u128> = DepositLimit::Unchecked;
 
 #[test]
 fn call_rlp_encoded_message() {
@@ -17,6 +22,8 @@ fn call_rlp_encoded_message() {
 
     let mut sandbox = ink_e2e::DefaultSandbox::default();
     let caller = ink_e2e::alice();
+    let origin =
+        DefaultSandbox::convert_account_to_origin(DefaultSandbox::default_actor());
 
     sandbox
         .mint_into(
@@ -25,72 +32,83 @@ fn call_rlp_encoded_message() {
         )
         .unwrap_or_else(|_| panic!("Failed to mint tokens"));
 
+    sandbox.map_account(origin.clone()).expect("unable to map");
+
+    // upload other contract (callee)
     let constructor = other_contract_rlp::OtherContractRef::new(false);
     let params = constructor
         .endowment(0u32.into())
-        .code_hash(ink::primitives::Clear::CLEAR_HASH)
-        .salt_bytes(Vec::new())
+        .code_hash(ink::primitives::H256::zero())
+        .salt_bytes(None)
         .params();
     let exec_input = params.exec_input();
 
     let code = contracts.load_code("other-contract-rlp");
-    let other_contract_account_id = <ink_e2e::DefaultSandbox as ink_sandbox::api::contracts_api::ContractAPI>
-    ::deploy_contract(
+    let other_contract_addr = <DefaultSandbox as ContractAPI>::deploy_contract(
         &mut sandbox,
         code,
         0,
         ink::scale::Encode::encode(&exec_input),
-        vec![0u8],
-        caller.clone().public_key().0.into(),
-        <ink_e2e::DefaultSandbox as ink_sandbox::Sandbox>::default_gas_limit(),
+        // salt
         None,
+        origin.clone(),
+        <DefaultSandbox as Sandbox>::default_gas_limit(),
+        STORAGE_DEPOSIT_LIMIT,
     )
-        .result
-        .expect("sandbox deploy contract failed")
-        .account_id;
-    println!("other_contract_account_id: {:?}", other_contract_account_id);
+    .result
+    .expect("sandbox deploy contract failed")
+    .addr;
 
+    // upload main contract (caller)
     let constructor = RlpCrossContractRef::new();
     let params = constructor
         .endowment(0u32.into())
-        .code_hash(ink::primitives::Clear::CLEAR_HASH)
-        .salt_bytes(Vec::new())
+        .code_hash(ink::primitives::H256::zero())
+        .salt_bytes(None)
         .params();
     let exec_input = params.exec_input();
-    let code = contracts.load_code("rlp-cross-contract");
-    let contract_account_id = <ink_e2e::DefaultSandbox as ink_sandbox::api::contracts_api::ContractAPI>
-        ::deploy_contract(
-            &mut sandbox,
-            code,
-            0,
-            ink::scale::Encode::encode(&exec_input),
-            vec![0u8],
-            caller.clone().public_key().0.into(),
-            <ink_e2e::DefaultSandbox as ink_sandbox::Sandbox>::default_gas_limit(),
-            None,
-        )
-        .result
-        .expect("sandbox deploy contract failed")
-        .account_id;
 
-    let mut contracts = ContractSandbox {
-        sandbox,
-    };
+    let code = contracts.load_code("rlp-cross-contract");
+    let contract_addr = <DefaultSandbox as ContractAPI>::deploy_contract(
+        &mut sandbox,
+        code,
+        0,
+        ink::scale::Encode::encode(&exec_input),
+        // salt
+        // TODO: figure out why no salt is causing `DuplicateContract`
+        Some([1u8; 32]),
+        origin.clone(),
+        <DefaultSandbox as Sandbox>::default_gas_limit(),
+        STORAGE_DEPOSIT_LIMIT,
+    )
+    .result
+    .expect("sandbox deploy contract failed")
+    .addr;
+
+    let mut contracts = ContractSandbox { sandbox };
 
     // get value
-    let value: bool =
-        contracts.call_with_return_value(other_contract_account_id.clone(), "get", Vec::<u8>::new(), caller.clone());
+    let value: bool = contracts.call_with_return_value(
+        other_contract_addr.clone(),
+        "get",
+        Vec::<u8>::new(),
+        origin.clone(),
+    );
 
     assert!(!value, "flip value should have been set to false");
 
-    let input: [u8;32] = other_contract_account_id.clone().into();
+    let input: [u8; 20] = other_contract_addr.clone().into();
 
     // set value via cross contract call
-    contracts.call(contract_account_id, "call_contract_rlp", input, caller.clone());
+    contracts.call(contract_addr, "call_contract_rlp", input, origin.clone());
 
     // get value
-    let value: bool =
-        contracts.call_with_return_value(other_contract_account_id, "get", Vec::<u8>::new(), caller);
+    let value: bool = contracts.call_with_return_value(
+        other_contract_addr,
+        "get",
+        Vec::<u8>::new(),
+        origin,
+    );
 
     assert!(value, "value should have been set to true");
 }
@@ -102,20 +120,26 @@ struct ContractSandbox {
 impl ContractSandbox {
     fn call_with_return_value<Args, Ret>(
         &mut self,
-        contract_account_id: AccountId32,
+        contract_addr: H160,
         message: &str,
         args: Args,
-        caller: Keypair,
+        origin: OriginFor<<DefaultSandbox as Sandbox>::Runtime>,
     ) -> Ret
     where
         Args: ink::rlp::Encodable,
         Ret: ink::rlp::Decodable,
     {
-        let result = self.call(contract_account_id, message, args, caller);
+        let result = self.call(contract_addr, message, args, origin);
         ink::rlp::Decodable::decode(&mut &result[..]).expect("decode failed")
     }
 
-    fn call<Args>(&mut self, contract_account_id: AccountId32, message: &str, args: Args, caller: Keypair) -> Vec<u8>
+    fn call<Args>(
+        &mut self,
+        contract_addr: H160,
+        message: &str,
+        args: Args,
+        origin: OriginFor<<DefaultSandbox as Sandbox>::Runtime>,
+    ) -> Vec<u8>
     where
         Args: ink::rlp::Encodable,
     {
@@ -124,25 +148,30 @@ impl ContractSandbox {
         ink::rlp::Encodable::encode(&args, &mut args_buf);
         data.append(&mut args_buf);
 
-        let result = self.call_raw(contract_account_id, data, caller);
+        let result = self.call_raw(contract_addr, data, origin);
         assert!(!result.did_revert(), "'{message}' failed {:?}", result);
         result.data
     }
 
-    fn call_raw(&mut self, contract_account_id: AccountId32, data: Vec<u8>, caller: Keypair) -> ExecReturnValue {
-            let result = <ink_e2e::DefaultSandbox as ink_sandbox::api::contracts_api::ContractAPI>
-                ::call_contract(
-                    &mut self.sandbox,
-                    contract_account_id.clone(),
-                    0,
-                    data,
-                    caller.public_key().0.into(),
-                    <ink_e2e::DefaultSandbox as ink_sandbox::Sandbox>::default_gas_limit(),
-                    None,
-                    pallet_contracts::Determinism::Enforced,
-                );
-            println!("debug_message: {:?}", String::from_utf8(result.debug_message));
-            result.result.expect("sandbox call contract failed")
+    fn call_raw(
+        &mut self,
+        contract_addr: H160,
+        data: Vec<u8>,
+        origin: OriginFor<<DefaultSandbox as Sandbox>::Runtime>,
+    ) -> ExecReturnValue {
+        let result = <DefaultSandbox as ContractAPI>::call_contract(
+            &mut self.sandbox,
+            contract_addr.clone(),
+            0,
+            data,
+            origin,
+            <DefaultSandbox as Sandbox>::default_gas_limit(),
+            STORAGE_DEPOSIT_LIMIT,
+        );
+        let debug = result.debug_message;
+        println!("{:?}", String::from_utf8(debug).unwrap());
+
+        result.result.expect("sandbox call contract failed")
     }
 }
 
@@ -155,5 +184,6 @@ fn keccak_selector(input: &[u8]) -> Vec<u8> {
     let mut hasher = sha3::Keccak256::new();
     hasher.update(input);
     hasher.finalize_into(<&mut GenericArray<u8, _>>::from(&mut output[..]));
+
     vec![output[0], output[1], output[2], output[3]]
 }

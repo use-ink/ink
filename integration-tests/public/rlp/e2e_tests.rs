@@ -1,12 +1,16 @@
 use super::rlp::*;
-use ink_e2e::{
-    ContractsRegistry,
+use ink::{
+    primitives::DepositLimit,
+    H160,
 };
-use ink_sandbox::{api::prelude::*, DefaultSandbox, Sandbox};
+use ink_e2e::ContractsRegistry;
+use ink_sandbox::{
+    api::prelude::*,
+    frame_system::pallet_prelude::OriginFor,
+    DefaultSandbox,
+    Sandbox,
+};
 use pallet_revive::ExecReturnValue;
-use ink::H160;
-use ink::primitives::{DepositLimit};
-use ink_sandbox::frame_system::pallet_prelude::OriginFor;
 
 const STORAGE_DEPOSIT_LIMIT: DepositLimit<u128> = DepositLimit::Unchecked;
 
@@ -17,7 +21,8 @@ fn call_rlp_encoded_message() {
 
     let mut sandbox = DefaultSandbox::default();
     let caller = ink_e2e::alice();
-    let origin = DefaultSandbox::convert_account_to_origin(DefaultSandbox::default_actor());
+    let origin =
+        DefaultSandbox::convert_account_to_origin(DefaultSandbox::default_actor());
 
     sandbox
         .mint_into(
@@ -37,20 +42,20 @@ fn call_rlp_encoded_message() {
     let exec_input = params.exec_input();
 
     let code = contracts.load_code("rlp");
-    let contract_addr = <DefaultSandbox as ContractAPI>
-        ::deploy_contract(
-            &mut sandbox,
-            code,
-            0,
-            ink::scale::Encode::encode(&exec_input),
-            // salt
-            None,
-            origin.clone(),
-            <DefaultSandbox as Sandbox>::default_gas_limit(),
-            STORAGE_DEPOSIT_LIMIT
-        )
-        .result
-        .expect("sandbox deploy contract failed").addr;
+    let contract_addr = <DefaultSandbox as ContractAPI>::deploy_contract(
+        &mut sandbox,
+        code,
+        0,
+        ink::scale::Encode::encode(&exec_input),
+        // salt
+        None,
+        origin.clone(),
+        <DefaultSandbox as Sandbox>::default_gas_limit(),
+        STORAGE_DEPOSIT_LIMIT,
+    )
+    .result
+    .expect("sandbox deploy contract failed")
+    .addr;
 
     let mut contract = ContractSandbox {
         sandbox,
@@ -87,7 +92,12 @@ impl ContractSandbox {
         ink::rlp::Decodable::decode(&mut &result[..]).expect("decode failed")
     }
 
-    fn call<Args>(&mut self, message: &str, args: Args, origin: OriginFor<<DefaultSandbox as Sandbox>::Runtime>) -> Vec<u8>
+    fn call<Args>(
+        &mut self,
+        message: &str,
+        args: Args,
+        origin: OriginFor<<DefaultSandbox as Sandbox>::Runtime>,
+    ) -> Vec<u8>
     where
         Args: ink::rlp::Encodable,
     {
@@ -101,22 +111,22 @@ impl ContractSandbox {
         result.data
     }
 
-
-    fn call_raw(&mut self, data: Vec<u8>, origin: OriginFor<<DefaultSandbox as Sandbox>::Runtime>) -> ExecReturnValue {
-        let result =
-            <DefaultSandbox as ContractAPI>
-                ::call_contract(
-                &mut self.sandbox,
-                self.contract_addr.clone(),
-                0,
-                data,
-                origin,
-                <DefaultSandbox as Sandbox>::default_gas_limit(),
-                STORAGE_DEPOSIT_LIMIT,
-                )
-                .result
-                .expect("sandbox call contract failed");
-
+    fn call_raw(
+        &mut self,
+        data: Vec<u8>,
+        origin: OriginFor<<DefaultSandbox as Sandbox>::Runtime>,
+    ) -> ExecReturnValue {
+        let result = <DefaultSandbox as ContractAPI>::call_contract(
+            &mut self.sandbox,
+            self.contract_addr.clone(),
+            0,
+            data,
+            origin,
+            <DefaultSandbox as Sandbox>::default_gas_limit(),
+            STORAGE_DEPOSIT_LIMIT,
+        )
+        .result
+        .expect("sandbox call contract failed");
         result
     }
 }

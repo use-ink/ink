@@ -4,9 +4,19 @@
 
 #[ink::contract(abi_encoding = "rlp")]
 mod rlp_cross_contract {
-    use ink::env::call::{build_call, ExecutionInput};
-    use ink::env::{debug_println, CallFlags};
     use crate::keccak_selector;
+    use ink::{
+        env::{
+            call::{
+                build_call,
+                ExecutionInput,
+            },
+            debug_println,
+            CallFlags,
+        },
+        H160,
+        U256,
+    };
 
     #[ink(storage)]
     #[derive(Default)]
@@ -15,23 +25,22 @@ mod rlp_cross_contract {
     impl RlpCrossContract {
         #[ink(constructor)]
         pub fn new() -> Self {
-            Self { }
+            Self {}
         }
 
+        // TODO: H160 does not implement RlpDecodable
         #[ink(message)]
-        pub fn call_contract_rlp(&mut self, callee: [u8;32]) {
+        pub fn call_contract_rlp(&mut self, callee: [u8; 20]) {
             let selector = keccak_selector(b"flip");
-            let callee: AccountId = callee.into();
+            let callee: H160 = callee.into();
 
             // TODO: fails due to call builder encoding with scale
             let result = build_call::<<Self as ::ink::env::ContractEnv>::Env>()
                 .call(callee)
                 .ref_time_limit(1000000000)
-                .transferred_value(0)
+                .transferred_value(U256::zero())
                 .call_flags(CallFlags::empty())
-                .exec_input(
-                    ExecutionInput::new(selector.into())
-                )
+                .exec_input(ExecutionInput::new(selector.into()))
                 .returns::<()>()
                 .try_invoke();
 
