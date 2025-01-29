@@ -297,7 +297,18 @@ impl Dispatch<'_> {
                                     <Self::Input as ::ink::scale::Decode>::decode(input)
                                         .map_err(|_| ::ink::env::DispatchError::InvalidParameters)
                                 };
+                            #[cfg(not(feature = "std"))]
                             const RETURN: fn(::ink::env::ReturnFlags, Self::Output) -> ! =
+                                |flags, output| {
+                                    ::ink::env::return_value::<::ink::MessageResult::<Self::Output>>(
+                                        flags,
+                                        // Currently no `LangError`s are raised at this level of the
+                                        // dispatch logic so `Ok` is always returned to the caller.
+                                        &::ink::MessageResult::Ok(output),
+                                    )
+                                };
+                            #[cfg(feature = "std")]
+                            const RETURN: fn(::ink::env::ReturnFlags, Self::Output) -> () =
                                 |flags, output| {
                                     ::ink::env::return_value::<::ink::MessageResult::<Self::Output>>(
                                         flags,
