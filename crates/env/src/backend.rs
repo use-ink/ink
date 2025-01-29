@@ -332,7 +332,7 @@ pub trait TypedEnvBackend: EnvBackend {
     where
         E: Environment,
         Args: scale::Encode,
-        R: scale::Decode;
+        R: DecodeDispatch;
 
     /// Invokes a contract message via delegate call and returns its result.
     ///

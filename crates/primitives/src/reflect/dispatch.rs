@@ -572,3 +572,24 @@ pub trait DecodeDispatch: Sized {
     /// todo: docs
     fn decode_dispatch(input: &mut &[u8]) -> Result<Self, DispatchError>;
 }
+
+// TODO: the impls below here are not correct, they are just placeholders for compiling.
+
+impl<R> DecodeDispatch for Result<R, crate::LangError> {
+    fn decode_dispatch(input: &mut &[u8]) -> Result<Self, DispatchError> {
+        // Always return error as a dummy value for testing
+        Ok(Err(crate::LangError::CouldNotReadInput))
+    }
+}
+
+impl DecodeDispatch for () {
+    fn decode_dispatch(input: &mut &[u8]) -> Result<Self, DispatchError> {
+        Ok(())
+    }
+}
+
+impl DecodeDispatch for bool {
+    fn decode_dispatch(input: &mut &[u8]) -> Result<Self, DispatchError> {
+        todo!("decode bool")
+    }
+}
