@@ -16,7 +16,7 @@ frame-system = { git = "https://github.com/paritytech/polkadot-sdk", rev = "6458
 pallet-balances = { git = "https://github.com/paritytech/polkadot-sdk", rev = "645878a27115db52e5d63115699b4bbb89034067", default-features = false }
 pallet-revive = { git = "https://github.com/paritytech/polkadot-sdk", rev = "645878a27115db52e5d63115699b4bbb89034067", default-features = false }
 sp-runtime = { git = "https://github.com/paritytech/polkadot-sdk", rev = "645878a27115db52e5d63115699b4bbb89034067", default-features = false }
-codec = { package = "parity-scale-codec", version =  "3.6.12", default-features = false }
+codec = { package = "parity-scale-codec", version = "3.6.12", default-features = false }
 scale-info = { version = "2.11.1", default-features = false }
 
 [package]
