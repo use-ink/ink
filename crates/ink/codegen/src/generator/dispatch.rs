@@ -468,7 +468,6 @@ impl Dispatch<'_> {
             #[cfg(target_arch = "riscv64")]
             #[::ink::polkavm_export(abi = ::ink::polkavm_derive::default_abi)]
             pub extern "C" fn deploy() {
-                //panic!("---------------err code:\n1: _{:?}_", foo::BarPlain::Success );
                 internal_deploy()
             }
         };
@@ -546,7 +545,6 @@ impl Dispatch<'_> {
                 <<#storage_ident as ::ink::reflect::ContractMessageDecoder>::Type
                     as ::ink::reflect::ExecuteDispatchable>::execute_dispatchable(dispatchable)
                 .unwrap_or_else(|error| {
-                    //::ink::env::debug_println!("dispatching failed");
                     ::core::panic!("dispatching ink! message failed: {}", error)
                 })
             }
