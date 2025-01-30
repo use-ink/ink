@@ -299,7 +299,18 @@ impl Dispatch<'_> {
                                     <Self::Input as ::ink::scale::Decode>::decode(input)
                                         .map_err(|_| ::ink::env::DispatchError::InvalidParameters)
                                 };
+                            #[cfg(not(feature = "std"))]
                             const RETURN: fn(::ink::env::ReturnFlags, Self::Output) -> ! =
+                                |flags, output| {
+                                    ::ink::env::return_value::<::ink::MessageResult::<Self::Output>>(
+                                        flags,
+                                        // Currently no `LangError`s are raised at this level of the
+                                        // dispatch logic so `Ok` is always returned to the caller.
+                                        &::ink::MessageResult::Ok(output),
+                                    )
+                                };
+                            #[cfg(feature = "std")]
+                            const RETURN: fn(::ink::env::ReturnFlags, Self::Output) -> () =
                                 |flags, output| {
                                     ::ink::env::return_value::<::ink::MessageResult::<Self::Output>>(
                                         flags,
@@ -549,7 +560,6 @@ impl Dispatch<'_> {
             #[cfg(target_arch = "riscv64")]
             #[::ink::polkavm_export(abi = ::ink::polkavm_derive::default_abi)]
             pub extern "C" fn deploy() {
-                //panic!("---------------err code:\n1: _{:?}_", foo::BarPlain::Success );
                 internal_deploy()
             }
         };
@@ -627,7 +637,6 @@ impl Dispatch<'_> {
                 <<#storage_ident as ::ink::reflect::ContractMessageDecoder>::Type
                     as ::ink::reflect::ExecuteDispatchable>::execute_dispatchable(dispatchable)
                 .unwrap_or_else(|error| {
-                    //::ink::env::debug_println!("dispatching failed");
                     ::core::panic!("dispatching ink! message failed: {}", error)
                 })
             }
