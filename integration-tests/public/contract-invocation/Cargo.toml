@@ -7,21 +7,6 @@ authors = ["Víctor M. González <victor.gonzalez@coinfabrik.com>"]
 [lib]
 path = "lib.rs"
 
-[features]
-default = ["std"]
-std = [
-    "ink/std",
-    "scale/std",
-    "scale-info/std",
-    "contract1/std",
-    "contract2/std",
-    "virtual_contract/std",
-    "virtual_contract_ver1/std",
-    "virtual_contract_ver2/std",
-]
-ink-as-dependency = []
-e2e-tests = []
-
 [dependencies]
 ink = { path = "../../../crates/ink", default-features = false }
 contract1 = { path = "./contract1", default-features = false, features = [
@@ -42,6 +27,21 @@ virtual_contract_ver2 = { path = "./virtual_contract_ver2", default-features = f
 
 [dev-dependencies]
 ink_e2e = { path = "../../../crates/e2e" }
+
+[features]
+default = ["std"]
+std = [
+    "ink/std",
+    "scale/std",
+    "scale-info/std",
+    "contract1/std",
+    "contract2/std",
+    "virtual_contract/std",
+    "virtual_contract_ver1/std",
+    "virtual_contract_ver2/std",
+]
+ink-as-dependency = []
+e2e-tests = []
 
 [profile.dev]
 overflow-checks = false

@@ -7,17 +7,17 @@ authors = ["Víctor M. González <victor.gonzalez@coinfabrik.com>"]
 [lib]
 path = "lib.rs"
 
-[features]
-default = ["std"]
-std = ["ink/std"]
-ink-as-dependency = []
-e2e-tests = []
-
 [dependencies]
 ink = { path = "../../../../crates/ink", default-features = false }
 
 [dev-dependencies]
 ink_e2e = { path = "../../../../crates/e2e" }
+
+[features]
+default = ["std"]
+std = ["ink/std"]
+ink-as-dependency = []
+e2e-tests = []
 
 [profile.dev]
 overflow-checks = false
