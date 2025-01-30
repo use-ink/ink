@@ -16,7 +16,6 @@ use derive_more::From;
 
 #[cfg(any(feature = "std", test, doc))]
 use crate::engine::off_chain::OffChainError;
-use ink_primitives::DispatchError;
 use pallet_revive_uapi::ReturnErrorCode;
 
 /// Errors that can be encountered upon environmental interaction.
@@ -31,12 +30,6 @@ pub enum Error {
     OffChain(OffChainError),
     /// The error returned by the contract.
     ReturnError(ReturnErrorCode),
-}
-
-impl From<DispatchError> for Error {
-    fn from(value: DispatchError) -> Self {
-        todo!("dispatch error")
-    }
 }
 
 /// A result of environmental operations.

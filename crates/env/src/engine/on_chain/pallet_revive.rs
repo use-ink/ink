@@ -471,7 +471,7 @@ impl TypedEnvBackend for EnvInstance {
     where
         E: Environment,
         Args: scale::Encode,
-        R: DecodeDispatch,
+        R: scale::Decode,
     {
         let mut scope = self.scoped_buffer();
         let ref_time_limit = params.ref_time_limit();
@@ -514,7 +514,7 @@ impl TypedEnvBackend for EnvInstance {
         );
         match call_result {
             Ok(()) | Err(ReturnErrorCode::CalleeReverted) => {
-                let decoded = DecodeDispatch::decode_dispatch(&mut &output[..])?;
+                let decoded = scale::DecodeAll::decode_all(&mut &output[..])?;
                 Ok(decoded)
             }
             Err(actual_error) => Err(actual_error.into()),

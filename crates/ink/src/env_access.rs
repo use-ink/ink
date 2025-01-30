@@ -32,7 +32,6 @@ use ink_env::{
     Result,
 };
 use ink_primitives::{
-    DecodeDispatch,
     H160,
     H256,
     U256,
@@ -558,7 +557,7 @@ where
     ) -> Result<ink_primitives::MessageResult<R>>
     where
         Args: scale::Encode,
-        R: DecodeDispatch,
+        R: scale::Decode,
     {
         ink_env::invoke_contract::<E, Args, R>(params)
     }

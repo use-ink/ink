@@ -279,7 +279,7 @@ pub fn invoke_contract<E, Args, R>(
 where
     E: Environment,
     Args: scale::Encode,
-    R: DecodeDispatch,
+    R: scale::Decode,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         TypedEnvBackend::invoke_contract::<E, Args, R>(instance, params)
