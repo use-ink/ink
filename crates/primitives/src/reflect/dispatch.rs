@@ -117,7 +117,12 @@ pub trait DispatchableMessageInfo<const ID: u32> {
     ) -> Result<Self::Input, DispatchError>;
 
     /// closure for returning per encoding todo: docs
+    #[cfg(not(feature = "std"))]
     const RETURN: fn(ReturnFlags, Self::Output) -> !;
+
+    /// closure for returning per encoding todo: docs
+    #[cfg(feature = "std")]
+    const RETURN: fn(ReturnFlags, Self::Output) -> ();
 
     /// Yields `true` if the dispatchable ink! message mutates the ink! storage.
     const MUTATES: bool;
