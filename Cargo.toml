@@ -57,8 +57,8 @@ quickcheck_macros = { version = "1" }
 quote = { version = "1" }
 alloy-rlp = { version = "0.3.9", default-features = false }
 scale = { package = "parity-scale-codec", version = "3.6.12", default-features = false, features = ["derive"] }
-scale-decode = { version = "0.16.0", default-features = false }
-scale-encode = { version = "0.10.0", default-features = false }
+scale-decode = { version = "0.14.0", default-features = false }
+scale-encode = { version = "0.8.0", default-features = false }
 scale-info = { version = "2.11", default-features = false }
 schemars = { version = "0.8" }
 secp256k1 = { version = "0.30.0" }
