@@ -24,12 +24,6 @@ e2e-tests = []
 
 [dependencies]
 ink = { path = "../../../crates/ink", default-features = false }
-scale = { package = "parity-scale-codec", version = "3.6.12", default-features = false, features = [
-    "derive",
-] }
-scale-info = { version = "2.11.1", default-features = false, features = [
-    "derive",
-], optional = true }
 contract1 = { path = "./contract1", default-features = false, features = [
     "ink-as-dependency",
 ] }
