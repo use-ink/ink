@@ -67,7 +67,7 @@ serde_json = { version = "1.0.137" }
 sha2 = { version = "0.10" }
 sha3 = { version = "0.10" }
 static_assertions = { version = "1.1" }
-subxt = { version = "0.38.0" }
+subxt = { version = "0.38.1" }
 subxt-metadata = { version = "0.38.0" }
 subxt-signer = { version = "0.38.0" }
 syn = { version = "2" }
