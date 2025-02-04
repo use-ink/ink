@@ -245,10 +245,10 @@ impl ItemMod {
     ///
     /// This restriction was added to prevent contract developers from
     /// adding public constructors/messages that don't show up in the
-    /// ink! metadata, but are compiled into the Wasm.
+    /// ink! metadata, but are compiled into the contract binary.
     ///
     /// Or formulated differently: we allow only `#[cfg(…)]`'s that don't
-    /// allow differentiating between compiling for Wasm vs. native.
+    /// allow differentiating between compiling for PolkaVM vs. native.
     ///
     /// Without this restriction users that view the metadata can be
     /// deceived as to what functions the contract provides to the public.

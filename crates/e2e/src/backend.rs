@@ -253,7 +253,7 @@ pub trait BuilderClient<E: Environment>: ContractsBackend<E> {
 
     /// Uploads the contract call.
     ///
-    /// This function extracts the Wasm of the contract for the specified contract.
+    /// This function extracts the binary of the contract for the specified contract.
     ///
     /// Calling this function multiple times should be idempotent, the contract is
     /// newly instantiated each time using a unique salt. No existing contract

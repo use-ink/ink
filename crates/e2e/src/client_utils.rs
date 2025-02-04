@@ -45,20 +45,27 @@ impl ContractsRegistry {
         let contracts = contracts
             .into_iter()
             .map(|path| {
-                let wasm_path: PathBuf = path.into();
-                let contract_name = wasm_path.file_stem().unwrap_or_else(|| {
-                    panic!("Invalid contract wasm path '{}'", wasm_path.display(),)
-                });
-                (contract_name.to_string_lossy().to_string(), wasm_path)
+                let contract_binary_path: PathBuf = path.into();
+                let contract_name =
+                    contract_binary_path.file_stem().unwrap_or_else(|| {
+                        panic!(
+                            "Invalid contract binary path `{}`",
+                            contract_binary_path.display(),
+                        )
+                    });
+                (
+                    contract_name.to_string_lossy().to_string(),
+                    contract_binary_path,
+                )
             })
             .collect();
 
         Self { contracts }
     }
 
-    /// Load the Wasm code for the given contract.
+    /// Load the binary code for the given contract.
     pub fn load_code(&self, contract: &str) -> Vec<u8> {
-        let wasm_path = self
+        let contract_binary_path = self
             .contracts
             .get(&contract.replace('-', "_"))
             .unwrap_or_else(||
@@ -68,8 +75,12 @@ impl ContractsRegistry {
                     self.contracts.keys()
                 )
             );
-        let code = std::fs::read(wasm_path).unwrap_or_else(|err| {
-            panic!("Error loading '{}': {:?}", wasm_path.display(), err)
+        let code = std::fs::read(contract_binary_path).unwrap_or_else(|err| {
+            panic!(
+                "Error loading '{}': {:?}",
+                contract_binary_path.display(),
+                err
+            )
         });
         log_info(&format!("{:?} has {} KiB", contract, code.len() / 1024));
         code

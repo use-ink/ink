@@ -17,7 +17,7 @@
       ]
     },
     "source": {
-      "description": "Information about the contract's Wasm code.",
+      "description": "Information about the contract's binary.",
       "allOf": [
         {
           "$ref": "#/definitions/Source"
@@ -103,7 +103,7 @@
       }
     },
     "Source": {
-      "description": "Information about the contract's Wasm code.",
+      "description": "Information about the contract's binary.",
       "type": "object",
       "required": [
         "compiler",
@@ -124,18 +124,18 @@
           "type": "string"
         },
         "hash": {
-          "description": "The hash of the contract's Wasm code.",
+          "description": "The hash of the contract's binary.",
           "type": "string"
         },
         "language": {
           "description": "The language used to write the contract.",
           "type": "string"
         },
-        "wasm": {
-          "description": "The actual Wasm code of the contract, for optionally bundling the code with the metadata.",
+        "contract_bytecode": {
+          "description": "The bytecode of the contract compiled for PolkaVM, for optionally bundling the code with the metadata.",
           "anyOf": [
             {
-              "$ref": "#/definitions/SourceWasm"
+              "$ref": "#/definitions/SourcePolkavm"
             },
             {
               "type": "null"
@@ -144,8 +144,8 @@
         }
       }
     },
-    "SourceWasm": {
-      "description": "The bytes of the compiled Wasm smart contract.",
+    "SourcePolkavm": {
+      "description": "The PolkaVM bytecode of the compiled smart contract.",
       "type": "array",
       "items": {
         "type": "integer",

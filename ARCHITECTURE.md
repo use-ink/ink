@@ -1,5 +1,7 @@
 # ink!ternals
 
+todo: rework this doc
+
 This document describes the architecture of ink!. The information
 here targets those who want to understand or modify the inner
 workings of this project.

@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-//! The public raw interface towards the host Wasm engine.
+//! The public raw interface towards the host engine.
 
 use crate::{
     backend::{
