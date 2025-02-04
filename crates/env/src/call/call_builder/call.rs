@@ -31,6 +31,7 @@ use crate::{
     Error,
 };
 use ink_primitives::{
+    DecodeDispatch,
     H160,
     U256,
 };
@@ -221,7 +222,7 @@ impl<E, Args, R> CallBuilder<E, Set<Call>, Set<ExecutionInput<Args>>, Set<Return
 where
     E: Environment,
     Args: scale::Encode,
-    R: scale::Decode,
+    R: DecodeDispatch,
 {
     /// Invokes the cross-chain function call and returns the result.
     ///
@@ -292,7 +293,7 @@ impl<E, Args, R> CallParams<E, Call, Args, R>
 where
     E: Environment,
     Args: scale::Encode,
-    R: scale::Decode,
+    R: DecodeDispatch,
 {
     /// Invokes the contract with the given built-up call parameters.
     ///

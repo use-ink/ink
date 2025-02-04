@@ -102,7 +102,7 @@ fn invoke_contract_impl<R>(
     input: Vec<u8>,
 ) -> Result<ink_primitives::MessageResult<R>>
 where
-    R: scale::Decode,
+    R: DecodeDispatch,
 {
     let callee_code_hash = env.code_hash(&callee_account).unwrap_or_else(|err| {
         panic!(
@@ -122,9 +122,10 @@ where
 
     env.engine.set_callee(old_callee);
 
-    let result =
-        <ink_primitives::MessageResult<R> as scale::Decode>::decode(&mut &result[..])
-            .expect("failed to decode return value");
+    let result = <ink_primitives::MessageResult<R> as DecodeDispatch>::decode_dispatch(
+        &mut &result[..],
+    )
+    .expect("failed to decode return value");
 
     Ok(result)
 }
@@ -583,7 +584,7 @@ impl TypedEnvBackend for EnvInstance {
     where
         E: Environment,
         Args: scale::Encode,
-        R: scale::Decode,
+        R: DecodeDispatch,
     {
         let call_flags = params.call_flags().bits();
         let transferred_value = params.transferred_value();
