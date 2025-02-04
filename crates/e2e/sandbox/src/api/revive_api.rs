@@ -295,18 +295,18 @@ mod tests {
     #[test]
     fn can_upload_code() {
         let mut sandbox = DefaultSandbox::default();
-        let wasm_binary = compile_module("dummy");
+        let contract_binary = compile_module("dummy");
 
         use sha3::{
             Digest,
             Keccak256,
         };
-        let hash = Keccak256::digest(wasm_binary.as_slice());
+        let hash = Keccak256::digest(contract_binary.as_slice());
         let hash = H256::from_slice(hash.as_slice());
 
         let origin =
             DefaultSandbox::convert_account_to_origin(DefaultSandbox::default_actor());
-        let result = sandbox.upload_contract(wasm_binary, origin, 100000000000000);
+        let result = sandbox.upload_contract(contract_binary, origin, 100000000000000);
 
         assert!(result.is_ok());
         assert_eq!(hash, result.unwrap().code_hash);
@@ -315,7 +315,7 @@ mod tests {
     #[test]
     fn can_deploy_contract() {
         let mut sandbox = DefaultSandbox::default();
-        let wasm_binary = compile_module("dummy");
+        let contract_binary = compile_module("dummy");
 
         let events_before = sandbox.events();
         assert!(events_before.is_empty());
@@ -324,7 +324,7 @@ mod tests {
             DefaultSandbox::convert_account_to_origin(DefaultSandbox::default_actor());
         sandbox.map_account(origin.clone()).expect("cannot map");
         let result = sandbox.deploy_contract(
-            wasm_binary,
+            contract_binary,
             0,
             vec![],
             None,
@@ -357,13 +357,13 @@ mod tests {
     fn can_call_contract() {
         let mut sandbox = DefaultSandbox::default();
         let _actor = DefaultSandbox::default_actor();
-        let wasm_binary = compile_module("dummy");
+        let contract_binary = compile_module("dummy");
 
         let origin =
             DefaultSandbox::convert_account_to_origin(DefaultSandbox::default_actor());
         sandbox.map_account(origin.clone()).expect("unable to map");
         let result = sandbox.deploy_contract(
-            wasm_binary,
+            contract_binary,
             0,
             vec![],
             None,

@@ -31,9 +31,9 @@ build_result=$(cargo +nightly contract build --manifest-path "$manifest_path" --
 
 if [ $? -eq 0 ]; then
   # only print the contract name and size if the build was successful
-  dest_wasm=$(echo "$build_result" | jq -r .dest_wasm)
+  dest_binary=$(echo "$build_result" | jq -r .dest_binary)
   contract_dir=$(dirname "$manifest_path")
-  contract_size=$(stat -c %s "$dest_wasm")
+  contract_size=$(stat -c %s "$dest_binary")
 
   echo "$contract_dir" "$contract_size"
   exit 0

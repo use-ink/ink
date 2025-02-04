@@ -139,15 +139,15 @@ fn build_contracts(contract_manifests: &[PathBuf]) -> Vec<PathBuf> {
 
     let mut blob_paths = Vec::new();
     for manifest in contract_manifests {
-        let wasm_path = match contract_build_jobs.entry(manifest.clone()) {
+        let contract_binary_path = match contract_build_jobs.entry(manifest.clone()) {
             Entry::Occupied(entry) => entry.get().clone(),
             Entry::Vacant(entry) => {
-                let wasm_path = build_contract(manifest);
-                entry.insert(wasm_path.clone());
-                wasm_path
+                let contract_binary_path = build_contract(manifest);
+                entry.insert(contract_binary_path.clone());
+                contract_binary_path
             }
         };
-        blob_paths.push(wasm_path);
+        blob_paths.push(contract_binary_path);
     }
     blob_paths
 }
@@ -179,7 +179,7 @@ fn build_contract(path_to_cargo_toml: &Path) -> PathBuf {
     match contract_build::execute(args) {
         Ok(build_result) => {
             build_result
-                .dest_wasm
+                .dest_binary
                 .expect("PolkaVM code artifact not generated")
                 .canonicalize()
                 .expect("Invalid dest bundle path")

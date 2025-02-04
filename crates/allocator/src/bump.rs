@@ -98,8 +98,7 @@ impl InnerAlloc {
             ///
             /// Returns `None` if a page is not available.
             ///
-            /// This implementation is only meant to be used for testing, since we cannot (easily)
-            /// test the `wasm32` implementation.
+            /// This implementation is only meant to be used for testing.
             #[allow(dead_code)]
             fn request_pages(&mut self, _pages: usize) -> Option<usize> {
                 Some(self.upper_limit)
