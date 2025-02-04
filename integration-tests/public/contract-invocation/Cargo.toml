@@ -47,7 +47,8 @@ virtual_contract_ver2 = { path = "./virtual_contract_ver2", default-features = f
 ] }
 
 [dev-dependencies]
-ink_e2e = { path = "../../../crates/e2e" }
+ink_e2e = { path = "../../../crates/e2e", features = ["sandbox"] }
+#drink = { git = "https://github.com/chungquantin/drink", branch = "chungquantin:revive" }
 
 [profile.dev]
 overflow-checks = false
