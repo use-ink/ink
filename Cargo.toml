@@ -46,7 +46,7 @@ funty = { version = "2.0.0" }
 heck = { version = "0.5.0" }
 impl-serde = { version = "0.5.0", default-features = false }
 itertools = { version = "0.14.0", default-features = false }
-jsonrpsee = { version = "0.24.7" }
+jsonrpsee = { version = "0.24" }
 linkme = { version = "0.3.30" }
 num-traits = { version = "0.2", default-features = false }
 paste = { version = "1.0" }
@@ -67,9 +67,9 @@ serde_json = { version = "1.0.137" }
 sha2 = { version = "0.10" }
 sha3 = { version = "0.10" }
 static_assertions = { version = "1.1" }
-subxt = { version = "0.38.0" }
-subxt-metadata = { version = "0.38.0" }
-subxt-signer = { version = "0.38.0" }
+subxt = { version = "0.38" }
+subxt-metadata = { version = "0.38" }
+subxt-signer = { version = "0.38" }
 syn = { version = "2" }
 synstructure = { version = "0.13.1" }
 thiserror = { version = "2.0.11" }
