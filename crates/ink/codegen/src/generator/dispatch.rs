@@ -439,6 +439,31 @@ impl Dispatch<'_> {
                             |storage, #input_tuple_bindings| {
                                 <#storage_ident as #trait_path>::#message_ident( storage #( , #input_bindings )* )
                             };
+                        const DECODE: fn(&mut &[::core::primitive::u8]) -> ::core::result::Result<Self::Input, ::ink::env::DispatchError> =
+                            |input| {
+                                <Self::Input as ::ink::scale::Decode>::decode(input)
+                                    .map_err(|_| ::ink::env::DispatchError::InvalidParameters)
+                            };
+                        #[cfg(not(feature = "std"))]
+                        const RETURN: fn(::ink::env::ReturnFlags, Self::Output) -> ! =
+                            |flags, output| {
+                                ::ink::env::return_value::<::ink::MessageResult::<Self::Output>>(
+                                    flags,
+                                    // Currently no `LangError`s are raised at this level of the
+                                    // dispatch logic so `Ok` is always returned to the caller.
+                                    &::ink::MessageResult::Ok(output),
+                                )
+                            };
+                        #[cfg(feature = "std")]
+                        const RETURN: fn(::ink::env::ReturnFlags, Self::Output) -> () =
+                            |flags, output| {
+                                ::ink::env::return_value::<::ink::MessageResult::<Self::Output>>(
+                                    flags,
+                                    // Currently no `LangError`s are raised at this level of the
+                                    // dispatch logic so `Ok` is always returned to the caller.
+                                    &::ink::MessageResult::Ok(output),
+                                )
+                            };
                         const SELECTOR: [::core::primitive::u8; 4usize] = #selector;
                         const PAYABLE: ::core::primitive::bool = #payable;
                         const MUTATES: ::core::primitive::bool = #mutates;
