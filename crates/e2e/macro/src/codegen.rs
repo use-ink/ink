@@ -65,6 +65,7 @@ impl InkE2ETest {
             }
             #[cfg(any(test, feature = "sandbox"))]
             Backend::RuntimeOnly(runtime) => {
+                eprintln!("runtime only {:?}", runtime);
                 build_runtime_client(exec_build_contracts, runtime.into())
             }
         };

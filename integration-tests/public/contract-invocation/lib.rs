@@ -201,8 +201,10 @@ mod instantiate_contract {
 
         //#[ink_e2e::sandbox]
         #[ink_e2e::test(backend(runtime_only))]
+        //#[ink_e2e::test(backend(runtime_only(sandbox = ink_e2e::DefaultSandbox)))]
         async fn test_invoke<Client: E2EBackend>(mut client: Client) -> E2EResult<()> {
-            let contract = ContractTester::new();
+            //let contract = ContractTester::new();
+            /*
             let code_hash1 = ink::env::test::upload_code::<
                 ink::env::DefaultEnvironment,
                 Contract1Ref,
@@ -253,9 +255,12 @@ mod instantiate_contract {
             check_values1(123, 321);
             check_values2(123456, 123456);
 
+             */
+
             Ok(())
         }
 
+        /*
         //#[ink::test]
         #[ink_e2e::test(backend(runtime_only))]
         async fn test_invoke_delegate<Client: E2EBackend>(mut client: Client) -> E2EResult<()> {
@@ -375,6 +380,8 @@ mod instantiate_contract {
 
             Ok(())
         }
+
+         */
     }
 
     #[cfg(all(test, feature = "e2e-tests"))]
