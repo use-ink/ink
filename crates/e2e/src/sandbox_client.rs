@@ -145,6 +145,7 @@ impl<AccountId: AsRef<[u8; 32]> + Send, S: Sandbox> ChainBackend for Client<Acco
 where
     S::Runtime: pallet_balances::Config,
     AccountIdFor<S::Runtime>: From<[u8; 32]>,
+    BalanceOf<S::Runtime>: From<u128> + From<u32>,
 {
     type AccountId = AccountId;
     type Balance = BalanceOf<S::Runtime>;
@@ -485,6 +486,7 @@ where
     ContractsBalanceOf<Config::Runtime>: Send + Sync,
     ContractsBalanceOf<Config::Runtime>: Into<U256> + TryFrom<U256> + Bounded,
     MomentOf<Config::Runtime>: Into<U256>,
+    BalanceOf<Config::Runtime>: From<u128> + From<u32>,
 
     // todo
     <Config::Runtime as frame_system::Config>::Hash: IsType<sp_core::H256>,

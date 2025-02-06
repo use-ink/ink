@@ -114,6 +114,8 @@ pub use self::{
         Timestamp,
     },
 };
+#[allow(unused)] // used in `no_std`
+use ink_primitives::Clear;
 pub use ink_primitives::{
     contract::{
         ContractEnv,

@@ -56,7 +56,7 @@ pub trait ChainBackend {
     /// Account type.
     type AccountId;
     /// Balance type.
-    type Balance: Send + From<u32>;
+    type Balance: Send + From<u32> + From<u128>;
     /// Error type.
     type Error;
     /// Event log type.

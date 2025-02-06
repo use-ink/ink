@@ -142,6 +142,9 @@ impl From<Hash> for [u8; 32] {
     }
 }
 
+/// The equivalent of `Zero` for hashes.
+///
+/// A hash that consists only of 0 bits is clear.
 pub trait Clear {
     /// The clear hash.
     const CLEAR_HASH: Self;
@@ -316,7 +319,9 @@ pub trait Environment: Clone {
         + PartialEq
         + Eq
         + AtLeast32BitUnsigned
-        + FromLittleEndian;
+        + FromLittleEndian
+        + From<u128>
+        + From<u32>;
 
     /// The type of hash.
     type Hash: 'static

@@ -338,7 +338,8 @@ where
         + Debug
         + Send
         + Sync
-        + TryFrom<u128>
+        + From<u128>
+        + From<u32>
         + scale::HasCompact
         + serde::Serialize,
     E::EventRecord: Debug,

@@ -17,8 +17,7 @@ mod impls;
 use super::OnInstance;
 
 /// The off-chain environment.
-pub struct EnvInstance {
-}
+pub struct EnvInstance {}
 
 impl OnInstance for EnvInstance {
     fn on_instance<F, R>(f: F) -> R

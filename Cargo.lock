@@ -3212,20 +3212,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "ink_engine"
-version = "6.0.0-alpha"
-dependencies = [
- "blake2",
- "derive_more 1.0.0",
- "ink_primitives",
- "pallet-revive-uapi",
- "parity-scale-codec",
- "secp256k1 0.30.0",
- "sha2 0.10.8",
- "sha3 0.10.8",
-]
-
-[[package]]
 name = "ink_env"
 version = "6.0.0-alpha"
 dependencies = [
@@ -3236,7 +3222,6 @@ dependencies = [
  "derive_more 1.0.0",
  "ink",
  "ink_allocator",
- "ink_engine",
  "ink_macro",
  "ink_prelude",
  "ink_primitives",

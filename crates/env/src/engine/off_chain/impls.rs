@@ -23,9 +23,7 @@ use crate::{
         FromAddr,
         LimitParamsV2,
     },
-    event::{
-        Event,
-    },
+    event::Event,
     hash::{
         CryptoHash,
         HashOutput,
@@ -42,12 +40,8 @@ use ink_primitives::{
     H256,
     U256,
 };
-use ink_storage_traits::{
-    Storable,
-};
-use pallet_revive_uapi::{
-    ReturnFlags,
-};
+use ink_storage_traits::Storable;
+use pallet_revive_uapi::ReturnFlags;
 
 impl EnvBackend for EnvInstance {
     fn set_contract_storage<K, V>(&mut self, _key: &K, _value: &V) -> Option<u32>
@@ -81,7 +75,7 @@ impl EnvBackend for EnvInstance {
         unimplemented!("the off-chain env does not implement `input`")
     }
 
-    fn clear_contract_storage<K>(&mut self,_key: &K) -> Option<u32>
+    fn clear_contract_storage<K>(&mut self, _key: &K) -> Option<u32>
     where
         K: scale::Encode,
     {

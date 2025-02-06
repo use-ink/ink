@@ -70,7 +70,7 @@ where
         message: &'a CallBuilderFinal<E, Args, RetType>,
     ) -> CallBuilder<'a, E, Args, RetType, B>
     where
-        E::Balance: From<u32>,
+        E::Balance: From<u32> + From<u128>,
     {
         Self {
             client,
@@ -228,7 +228,7 @@ where
         constructor: &'a mut CreateBuilderPartial<E, Contract, Args, R>,
     ) -> InstantiateBuilder<'a, E, Contract, Args, R, B>
     where
-        E::Balance: From<u32>,
+        E::Balance: From<u32> + From<u128>,
     {
         Self {
             client,
