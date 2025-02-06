@@ -200,11 +200,10 @@ mod instantiate_contract {
         type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
         //#[ink_e2e::sandbox]
-        #[ink_e2e::test(backend(runtime_only))]
-        //#[ink_e2e::test(backend(runtime_only(sandbox = ink_e2e::DefaultSandbox)))]
+        //#[ink_e2e::test(backend(runtime_only))]
+        #[ink_e2e::test(backend(runtime_only(sandbox = ink_e2e::DefaultSandbox)))]
         async fn test_invoke<Client: E2EBackend>(mut client: Client) -> E2EResult<()> {
-            //let contract = ContractTester::new();
-            /*
+            let contract = ContractTester::new();
             let code_hash1 = ink::env::test::upload_code::<
                 ink::env::DefaultEnvironment,
                 Contract1Ref,
@@ -215,6 +214,7 @@ mod instantiate_contract {
             >();
 
             let contract1_address1 = instantiate_contract1(&contract, code_hash1, 1);
+            /*
             let contract1_address2 = instantiate_contract1(&contract, code_hash1, 2);
             let contract2_address1 = instantiate_contract2(&contract, code_hash2, 3);
             let contract2_address2 = instantiate_contract2(&contract, code_hash2, 4);
