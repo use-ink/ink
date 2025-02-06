@@ -152,6 +152,6 @@ fn build_runtime_client(contracts: TokenStream2, runtime: syn::Path) -> TokenStr
     eprintln!("contracts {}", contracts);
     quote! {
         let contracts = #contracts;
-        let mut client = ::ink_e2e::SandboxClient::<AccountId, #runtime>::new(contracts);
+        let mut client = ::ink_e2e::SandboxClient::<_, #runtime>::new(contracts);
     }
 }

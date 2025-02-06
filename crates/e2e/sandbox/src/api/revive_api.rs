@@ -33,11 +33,12 @@ type BalanceOf<R> =
 
 type MomentOf<T> = <<T as pallet_revive::Config>::Time as Time>::Moment;
 
-/// Contract API used to interact with the contracts pallet.
+/// Contract API used to interact with `pallet-revive`.
 pub trait ContractAPI {
     /// The runtime contract config.
     type T: pallet_revive::Config;
 
+    /// todo
     /// Interface for `bare_instantiate` contract call with a simultaneous upload.
     ///
     /// # Arguments

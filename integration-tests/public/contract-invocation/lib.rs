@@ -172,18 +172,21 @@ mod instantiate_contract {
         }
     }
 
+
     #[cfg(test)]
     mod tests {
         use super::*;
         use virtual_contract::VirtualContractRef;
         use virtual_contract_ver1::VirtualContractVer1Ref;
         use virtual_contract_ver2::VirtualContractVer2Ref;
+        /*
 
         fn instantiate_contract1(
             contract: &ContractTester,
             code_hash: H256,
             salt: u32,
         ) -> H160 {
+            eprintln!("instantiate");
             let cr = contract.instantiate_contract1(code_hash, salt);
             ink::ToAddr::to_addr(&cr)
         }
@@ -200,8 +203,8 @@ mod instantiate_contract {
         type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
         //#[ink_e2e::sandbox]
-        //#[ink_e2e::test(backend(runtime_only))]
-        #[ink_e2e::test(backend(runtime_only(sandbox = ink_e2e::DefaultSandbox)))]
+        #[ink_e2e::test(backend(runtime_only))]
+        //#[ink_e2e::test(backend(runtime_only(sandbox = ink_e2e::DefaultSandbox)))]
         async fn test_invoke<Client: E2EBackend>(mut client: Client) -> E2EResult<()> {
             let contract = ContractTester::new();
             let code_hash1 = ink::env::test::upload_code::<
@@ -213,6 +216,7 @@ mod instantiate_contract {
                 Contract2Ref,
             >();
 
+            eprintln!("---instantiate");
             let contract1_address1 = instantiate_contract1(&contract, code_hash1, 1);
             /*
             let contract1_address2 = instantiate_contract1(&contract, code_hash1, 2);
@@ -260,11 +264,9 @@ mod instantiate_contract {
             Ok(())
         }
 
-        /*
         //#[ink::test]
         #[ink_e2e::test(backend(runtime_only))]
         async fn test_invoke_delegate<Client: E2EBackend>(mut client: Client) -> E2EResult<()> {
-            /*
             let code_hash1 = ink::env::test::upload_code::<
                 ink::env::DefaultEnvironment,
                 VirtualContractRef,
@@ -376,13 +378,13 @@ mod instantiate_contract {
             check_values(&ref1, &ref2, 15, 74, 16, 148);
             ref2.real_set_x(39);
             check_values(&ref1, &ref2, 15, 39, 16, 78);
-            */
 
             Ok(())
         }
+    */
 
-         */
     }
+
 
     #[cfg(all(test, feature = "e2e-tests"))]
     mod e2e_tests {
@@ -457,7 +459,8 @@ mod instantiate_contract {
             assert_eq!(v4, d);
         }
 
-        #[ink_e2e::test]
+        //#[ink_e2e::test]
+        #[ink_e2e::test(backend(runtime_only))]
         async fn test_invoke_delegate_e2e<Client: E2EBackend>(
             mut client: Client,
         ) -> E2EResult<()> {

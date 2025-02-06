@@ -61,6 +61,7 @@ impl Node {
     }
 }
 
+// Rename to Sandbox
 /// The runtime emulator that should be used within `TestExternalities`
 #[cfg(any(test, feature = "sandbox"))]
 #[derive(Clone, Eq, PartialEq, Debug, darling::FromMeta)]
@@ -68,7 +69,7 @@ pub enum RuntimeOnly {
     #[darling(word)]
     #[darling(skip)]
     Default,
-    Sandbox(syn::Path),
+    Sandbox(syn::Path), // rename to `CustomSandbox`
 }
 
 #[cfg(any(test, feature = "sandbox"))]
