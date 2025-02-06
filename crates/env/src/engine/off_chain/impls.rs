@@ -25,17 +25,11 @@ use crate::{
     },
     event::{
         Event,
-        TopicsBuilderBackend,
     },
     hash::{
-        Blake2x128,
-        Blake2x256,
         CryptoHash,
         HashOutput,
-        Keccak256,
-        Sha2x256,
     },
-    Clear,
     DecodeDispatch,
     DispatchError,
     EnvBackend,
@@ -49,21 +43,14 @@ use ink_primitives::{
     U256,
 };
 use ink_storage_traits::{
-    decode_all,
     Storable,
 };
 use pallet_revive_uapi::{
-    ReturnErrorCode,
     ReturnFlags,
 };
 
-/// The capacity of the static buffer.
-/// This is the same size as the ink! on-chain environment. We chose to use the same size
-/// to be as close to the on-chain behavior as possible.
-const BUFFER_SIZE: usize = crate::BUFFER_SIZE;
-
 impl EnvBackend for EnvInstance {
-    fn set_contract_storage<K, V>(&mut self, key: &K, value: &V) -> Option<u32>
+    fn set_contract_storage<K, V>(&mut self, _key: &K, _value: &V) -> Option<u32>
     where
         K: scale::Encode,
         V: Storable,
@@ -71,7 +58,7 @@ impl EnvBackend for EnvInstance {
         unimplemented!("the off-chain env does not implement `input`")
     }
 
-    fn get_contract_storage<K, R>(&mut self, key: &K) -> Result<Option<R>>
+    fn get_contract_storage<K, R>(&mut self, _key: &K) -> Result<Option<R>>
     where
         K: scale::Encode,
         R: Storable,
@@ -79,7 +66,7 @@ impl EnvBackend for EnvInstance {
         unimplemented!("the off-chain env does not implement `input`")
     }
 
-    fn take_contract_storage<K, R>(&mut self, key: &K) -> Result<Option<R>>
+    fn take_contract_storage<K, R>(&mut self, _key: &K) -> Result<Option<R>>
     where
         K: scale::Encode,
         R: Storable,
@@ -87,14 +74,14 @@ impl EnvBackend for EnvInstance {
         unimplemented!("the off-chain env does not implement `input`")
     }
 
-    fn contains_contract_storage<K>(&mut self, key: &K) -> Option<u32>
+    fn contains_contract_storage<K>(&mut self, _key: &K) -> Option<u32>
     where
         K: scale::Encode,
     {
         unimplemented!("the off-chain env does not implement `input`")
     }
 
-    fn clear_contract_storage<K>(&mut self, key: &K) -> Option<u32>
+    fn clear_contract_storage<K>(&mut self,_key: &K) -> Option<u32>
     where
         K: scale::Encode,
     {
@@ -122,18 +109,18 @@ impl EnvBackend for EnvInstance {
         unimplemented!("the off-chain env does not implement `return_value_rlp`")
     }
 
-    fn debug_message(&mut self, message: &str) {
+    fn debug_message(&mut self, _message: &str) {
         unimplemented!("the off-chain env does not implement `input`")
     }
 
-    fn hash_bytes<H>(&mut self, input: &[u8], output: &mut <H as HashOutput>::Type)
+    fn hash_bytes<H>(&mut self, _input: &[u8], _output: &mut <H as HashOutput>::Type)
     where
         H: CryptoHash,
     {
         unimplemented!("the off-chain env does not implement `input`")
     }
 
-    fn hash_encoded<H, T>(&mut self, input: &T, output: &mut <H as HashOutput>::Type)
+    fn hash_encoded<H, T>(&mut self, _input: &T, _output: &mut <H as HashOutput>::Type)
     where
         H: CryptoHash,
         T: scale::Encode,
@@ -143,36 +130,36 @@ impl EnvBackend for EnvInstance {
 
     fn ecdsa_recover(
         &mut self,
-        signature: &[u8; 65],
-        message_hash: &[u8; 32],
-        output: &mut [u8; 33],
+        _signature: &[u8; 65],
+        _message_hash: &[u8; 32],
+        _output: &mut [u8; 33],
     ) -> Result<()> {
         unimplemented!("the off-chain env does not implement `input`")
     }
 
     fn ecdsa_to_eth_address(
         &mut self,
-        pubkey: &[u8; 33],
-        output: &mut [u8; 20],
+        _pubkey: &[u8; 33],
+        _output: &mut [u8; 20],
     ) -> Result<()> {
         unimplemented!("the off-chain env does not implement `input`")
     }
 
     fn sr25519_verify(
         &mut self,
-        signature: &[u8; 64],
-        message: &[u8],
-        pub_key: &[u8; 32],
+        _signature: &[u8; 64],
+        _message: &[u8],
+        _pub_key: &[u8; 32],
     ) -> Result<()> {
         unimplemented!("the off-chain env does not implement `input`")
     }
 
     fn call_chain_extension<I, T, E, ErrorCode, F, D>(
         &mut self,
-        id: u32,
-        input: &I,
-        status_to_result: F,
-        decode_to_result: D,
+        _id: u32,
+        _input: &I,
+        _status_to_result: F,
+        _decode_to_result: D,
     ) -> ::core::result::Result<T, E>
     where
         I: scale::Encode,
@@ -184,7 +171,7 @@ impl EnvBackend for EnvInstance {
         unimplemented!("foo");
     }
 
-    fn set_code_hash(&mut self, code_hash: &H256) -> Result<()> {
+    fn set_code_hash(&mut self, _code_hash: &H256) -> Result<()> {
         unimplemented!("foo");
     }
 }
@@ -222,7 +209,7 @@ impl TypedEnvBackend for EnvInstance {
         unimplemented!("foo");
     }
 
-    fn emit_event<E, Evt>(&mut self, event: Evt)
+    fn emit_event<E, Evt>(&mut self, _event: Evt)
     where
         E: Environment,
         Evt: Event,
@@ -232,7 +219,7 @@ impl TypedEnvBackend for EnvInstance {
 
     fn invoke_contract<E, Args, R>(
         &mut self,
-        params: &CallParams<E, Call, Args, R>,
+        _params: &CallParams<E, Call, Args, R>,
     ) -> Result<ink_primitives::MessageResult<R>>
     where
         E: Environment,
@@ -244,7 +231,7 @@ impl TypedEnvBackend for EnvInstance {
 
     fn invoke_contract_delegate<E, Args, R>(
         &mut self,
-        params: &CallParams<E, DelegateCall, Args, R>,
+        _params: &CallParams<E, DelegateCall, Args, R>,
     ) -> Result<ink_primitives::MessageResult<R>>
     where
         E: Environment,
@@ -256,7 +243,7 @@ impl TypedEnvBackend for EnvInstance {
 
     fn instantiate_contract<E, ContractRef, Args, R>(
         &mut self,
-        params: &CreateParams<E, ContractRef, LimitParamsV2, Args, R>,
+        _params: &CreateParams<E, ContractRef, LimitParamsV2, Args, R>,
     ) -> Result<
         ink_primitives::ConstructorResult<
             <R as ConstructorReturnType<ContractRef>>::Output,
@@ -273,22 +260,22 @@ impl TypedEnvBackend for EnvInstance {
         unimplemented!("foo");
     }
 
-    fn terminate_contract(&mut self, beneficiary: H160) -> ! {
+    fn terminate_contract(&mut self, _beneficiary: H160) -> ! {
         unimplemented!("foo");
     }
 
-    fn transfer<E>(&mut self, destination: H160, value: U256) -> Result<()>
+    fn transfer<E>(&mut self, _destination: H160, _value: U256) -> Result<()>
     where
         E: Environment,
     {
         unimplemented!("foo");
     }
 
-    fn weight_to_fee<E: Environment>(&mut self, gas: u64) -> E::Balance {
+    fn weight_to_fee<E: Environment>(&mut self, _gas: u64) -> E::Balance {
         unimplemented!("foo");
     }
 
-    fn is_contract(&mut self, account: &H160) -> bool {
+    fn is_contract(&mut self, _account: &H160) -> bool {
         unimplemented!("foo");
     }
 
@@ -306,7 +293,7 @@ impl TypedEnvBackend for EnvInstance {
         unimplemented!("off-chain environment does not support `caller_is_root`")
     }
 
-    fn code_hash(&mut self, addr: &H160) -> Result<H256> {
+    fn code_hash(&mut self, _addr: &H160) -> Result<H256> {
         unimplemented!("foo");
     }
 

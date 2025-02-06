@@ -15,8 +15,6 @@
 mod impls;
 
 use super::OnInstance;
-use crate::Error;
-use derive_more::From;
 
 /// The off-chain environment.
 pub struct EnvInstance {
