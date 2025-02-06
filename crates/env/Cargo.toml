@@ -24,7 +24,7 @@ ink_macro = { workspace = true }
 pallet-revive-uapi = { workspace = true }
 
 alloy-rlp = { workspace = true }
-scale = { workspace = true, features = ["max-encoded-len"] }
+scale = { workspace = true, package = "parity-scale-codec", features = ["max-encoded-len"] }
 derive_more = { workspace = true, features = ["from", "display"] }
 num-traits = { workspace = true, features = ["i128"] }
 cfg-if = { workspace = true }
@@ -71,7 +71,6 @@ std = [
 	"ink_prelude/std",
 	"ink_primitives/std",
 	"ink_storage_traits/std",
-	"ink_engine/std",
     "ink_macro/std",
 	"scale/std",
 	"scale-decode",

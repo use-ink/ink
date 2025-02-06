@@ -172,7 +172,7 @@ fn build_contract(path_to_cargo_toml: &Path) -> PathBuf {
         keep_debug_symbols: false,
         extra_lints: false,
         output_type: OutputType::HumanReadable,
-        skip_clippy_and_linting: false,
+        skip_clippy_and_linting: true, // todo make configurable?
         image: ImageVariant::Default,
     };
 

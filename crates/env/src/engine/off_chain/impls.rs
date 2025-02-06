@@ -35,7 +35,6 @@ use crate::{
         Keccak256,
         Sha2x256,
     },
-    test::callee,
     Clear,
     DecodeDispatch,
     DispatchError,
@@ -43,7 +42,6 @@ use crate::{
     Result,
     TypedEnvBackend,
 };
-use ink_engine::ext::Engine;
 use ink_primitives::{
     types::Environment,
     H160,
@@ -57,10 +55,6 @@ use ink_storage_traits::{
 use pallet_revive_uapi::{
     ReturnErrorCode,
     ReturnFlags,
-};
-use schnorrkel::{
-    PublicKey,
-    Signature,
 };
 
 /// The capacity of the static buffer.
@@ -129,7 +123,7 @@ impl EnvBackend for EnvInstance {
     }
 
     fn debug_message(&mut self, message: &str) {
-        self.engine.debug_message(message)
+        unimplemented!("the off-chain env does not implement `input`")
     }
 
     fn hash_bytes<H>(&mut self, input: &[u8], output: &mut <H as HashOutput>::Type)

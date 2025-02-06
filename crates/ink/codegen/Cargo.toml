@@ -28,7 +28,7 @@ itertools = { workspace = true }
 either = { workspace = true }
 blake2 = { workspace = true }
 heck = { workspace = true }
-scale = { workspace = true }
+scale = { workspace = true, package = "parity-scale-codec" }
 impl-serde = { workspace = true, default-features = true }
 
 serde = { workspace = true, features = ["derive"] }
