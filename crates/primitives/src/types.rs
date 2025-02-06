@@ -142,9 +142,6 @@ impl From<Hash> for [u8; 32] {
     }
 }
 
-/// The equivalent of `Zero` for hashes.
-///
-/// A hash that consists only of 0 bits is clear.
 pub trait Clear {
     /// The clear hash.
     const CLEAR_HASH: Self;

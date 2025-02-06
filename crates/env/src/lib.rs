@@ -114,7 +114,6 @@ pub use self::{
         Timestamp,
     },
 };
-use ink_primitives::Clear;
 pub use ink_primitives::{
     contract::{
         ContractEnv,
