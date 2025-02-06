@@ -15,24 +15,13 @@
 mod call_data;
 mod impls;
 pub mod test_api;
-mod types;
-
-#[cfg(test)]
-mod tests;
 
 use super::OnInstance;
 use crate::Error;
-
 use derive_more::From;
-use ink_engine::ext::Engine;
-use ink_primitives::{
-    AccountId,
-    H160,
-};
 
 /// The off-chain environment.
 pub struct EnvInstance {
-    engine: Engine,
 }
 
 impl OnInstance for EnvInstance {
@@ -44,7 +33,6 @@ impl OnInstance for EnvInstance {
         thread_local!(
             static INSTANCE: RefCell<EnvInstance> = RefCell::new(
                 EnvInstance {
-                    engine: Engine::new()
                 }
             )
         );
@@ -57,27 +45,4 @@ impl OnInstance for EnvInstance {
          */
         INSTANCE.with(|instance| f(unsafe { &mut *instance.as_ptr() }))
     }
-}
-
-#[derive(Debug, From, PartialEq, Eq)]
-pub enum OffChainError {
-    Account(AccountError),
-    #[from(ignore)]
-    UninitializedBlocks,
-    #[from(ignore)]
-    UninitializedExecutionContext,
-    #[from(ignore)]
-    UnregisteredChainExtension,
-}
-
-// todo rename
-/// Errors encountered upon interacting with the accounts database.
-#[derive(Debug, From, PartialEq, Eq)]
-pub enum AccountError {
-    Decoding(scale::Error),
-    #[from(ignore)]
-    UnexpectedUserAccount,
-    #[from(ignore)]
-    NoAccountForId(AccountId),
-    NoContractForId(H160),
 }

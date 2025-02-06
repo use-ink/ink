@@ -39,9 +39,6 @@ sp-runtime-interface = { git = "https://github.com/paritytech/polkadot-sdk", rev
 [target.'cfg(target_arch = "riscv64")'.dependencies]
 polkavm-derive = { workspace = true, default-features = false }
 
-[target.'cfg(not(target_arch = "riscv64"))'.dependencies]
-ink_engine = { workspace = true, default-features = true, optional = true }
-
 # Hashes for the off-chain environment.
 sha2 = { workspace = true, optional = true }
 sha3 = { workspace = true, optional = true }
