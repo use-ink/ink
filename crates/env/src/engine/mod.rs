@@ -58,12 +58,16 @@ pub trait OnInstance: EnvBackend + TypedEnvBackend {
         F: FnOnce(&mut Self) -> R;
 }
 
-#[cfg(not(feature = "std"))]
-mod on_chain;
-#[cfg(not(feature = "std"))]
-pub use self::on_chain::EnvInstance;
+cfg_if! {
+    if #[cfg(not(feature = "std"))] {
+        mod on_chain;
+        pub use self::on_chain::EnvInstance;
+    } else {
+        pub mod off_chain;
+        pub use self::off_chain::EnvInstance;
+    }
+}
 
-// todo
 // We only use this function when 1) compiling for PolkaVM 2) compiling for tests.
 #[cfg_attr(all(feature = "std", not(test)), allow(dead_code))]
 pub(crate) fn decode_instantiate_result<I, ContractRef, R>(

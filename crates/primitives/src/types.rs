@@ -410,7 +410,6 @@ pub struct RuntimeEvent();
 /// The default event record type.
 pub type EventRecord = EventRecordFoo<RuntimeEvent, Hash>;
 
-// todo
 #[derive(Encode, Decode, Debug)]
 #[cfg_attr(feature = "std", derive(TypeInfo))]
 pub struct EventRecordFoo<E, H> {

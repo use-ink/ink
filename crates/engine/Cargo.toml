@@ -1,0 +1,37 @@
+[package]
+name = "ink_engine"
+version.workspace = true
+authors = ["Use Ink <ink@use.ink>"]
+edition.workspace = true
+
+license.workspace = true
+readme = "README.md"
+repository.workspace = true
+documentation = "https://docs.rs/ink_engine/"
+homepage.workspace = true
+description = "[ink!] Off-chain environment for testing."
+keywords.workspace = true
+categories.workspace = true
+include = ["Cargo.toml", "src/**/*.rs", "README.md", "LICENSE"]
+
+[dependencies]
+ink_primitives = { workspace = true }
+scale = { workspace = true }
+pallet-revive-uapi = { workspace = true }
+derive_more = { workspace = true, features = ["from", "display"] }
+
+sha2 = { workspace = true }
+sha3 = { workspace = true }
+blake2 = { workspace = true }
+
+# ECDSA for the off-chain environment.
+secp256k1 = { workspace = true, features = ["recovery", "global-context"], optional = true }
+
+[features]
+default = [ "std" ]
+std = [
+	"ink_primitives/std",
+	"scale/std",
+	"secp256k1",
+	"derive_more/std"
+]

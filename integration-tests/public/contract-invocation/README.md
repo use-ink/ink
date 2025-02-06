@@ -23,7 +23,6 @@ where
 ## Test case (original status)
 
 ### Comparison Integration vs E2E
-todo
 
 The End-to-End test works correctly since it invokes successfully the call to the second contract. In Integration did not work since it's [unimplemented](https://github.com/paritytech/ink/blob/c2af39883aab48c71dc09dac5d06583f2e84dc54/crates/env/src/engine/off_chain/impls.rs#L464).
 

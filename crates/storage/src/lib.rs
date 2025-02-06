@@ -47,11 +47,9 @@
 
 pub use ink_storage_traits as traits;
 
-#[cfg(not(feature = "std"))]
 #[allow(dead_code)]
 pub(crate) mod lazy;
 
-#[cfg(not(feature = "std"))]
 #[doc(inline)]
 pub use self::lazy::{
     Lazy,

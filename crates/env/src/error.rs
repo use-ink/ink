@@ -14,6 +14,8 @@
 
 use derive_more::From;
 
+#[cfg(any(feature = "std", test, doc))]
+use crate::engine::off_chain::OffChainError;
 use pallet_revive_uapi::ReturnErrorCode;
 
 /// Errors that can be encountered upon environmental interaction.
@@ -23,6 +25,9 @@ pub enum Error {
     Decode(scale::Error),
     /// The static buffer used during ABI encoding or ABI decoding is too small.
     BufferTooSmall,
+    /// An error that can only occur in the off-chain environment.
+    #[cfg(any(feature = "std", test, doc))]
+    OffChain(OffChainError),
     /// The error returned by the contract.
     ReturnError(ReturnErrorCode),
 }

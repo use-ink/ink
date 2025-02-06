@@ -297,7 +297,18 @@ impl Dispatch<'_> {
                                     <Self::Input as ::ink::scale::Decode>::decode(input)
                                         .map_err(|_| ::ink::env::DispatchError::InvalidParameters)
                                 };
+                            #[cfg(not(feature = "std"))]
                             const RETURN: fn(::ink::env::ReturnFlags, Self::Output) -> ! =
+                                |flags, output| {
+                                    ::ink::env::return_value::<::ink::MessageResult::<Self::Output>>(
+                                        flags,
+                                        // Currently no `LangError`s are raised at this level of the
+                                        // dispatch logic so `Ok` is always returned to the caller.
+                                        &::ink::MessageResult::Ok(output),
+                                    )
+                                };
+                            #[cfg(feature = "std")]
+                            const RETURN: fn(::ink::env::ReturnFlags, Self::Output) -> () =
                                 |flags, output| {
                                     ::ink::env::return_value::<::ink::MessageResult::<Self::Output>>(
                                         flags,
@@ -433,7 +444,18 @@ impl Dispatch<'_> {
                                 <Self::Input as ::ink::scale::Decode>::decode(input)
                                     .map_err(|_| ::ink::env::DispatchError::InvalidParameters)
                             };
+                        #[cfg(not(feature = "std"))]
                         const RETURN: fn(::ink::env::ReturnFlags, Self::Output) -> ! =
+                            |flags, output| {
+                                ::ink::env::return_value::<::ink::MessageResult::<Self::Output>>(
+                                    flags,
+                                    // Currently no `LangError`s are raised at this level of the
+                                    // dispatch logic so `Ok` is always returned to the caller.
+                                    &::ink::MessageResult::Ok(output),
+                                )
+                            };
+                        #[cfg(feature = "std")]
+                        const RETURN: fn(::ink::env::ReturnFlags, Self::Output) -> () =
                             |flags, output| {
                                 ::ink::env::return_value::<::ink::MessageResult::<Self::Output>>(
                                     flags,
@@ -514,7 +536,7 @@ impl Dispatch<'_> {
                         ::ink::env::return_value::<::ink::ConstructorResult<()>>(
                             ::ink::env::ReturnFlags::REVERT,
                             &error,
-                        )
+                        );
                     }
                 };
 
@@ -552,7 +574,7 @@ impl Dispatch<'_> {
                         ::ink::env::return_value::<::ink::MessageResult<()>>(
                             ::ink::env::ReturnFlags::REVERT,
                             &error,
-                        )
+                        );
                     }
                 };
 
@@ -730,7 +752,16 @@ impl Dispatch<'_> {
                         // Currently no `LangError`s are raised at this level of the
                         // dispatch logic so `Ok` is always returned to the caller.
                         &::ink::ConstructorResult::Ok(output_result.map(|_| ())),
-                    )
+                    );
+
+                    #[cfg(feature = "std")]
+                    return ::core::result::Result::Ok(());
+
+                    #[cfg(not(feature = "std"))]
+                    #[cfg_attr(not(feature = "std"), allow(unreachable_code))]
+                    {
+                        ::core::unreachable!("either `return_value` or the `return` before will already have returned");
+                    }
                 }
             )
         });
@@ -915,7 +946,16 @@ impl Dispatch<'_> {
                             push_contract(contract, #mutates_storage);
                         }
 
-                        #message_return(flag, result)
+                        #message_return(flag, result);
+
+                        #[cfg(feature = "std")]
+                        return ::core::result::Result::Ok(());
+
+                        #[cfg(not(feature = "std"))]
+                        #[cfg_attr(not(feature = "std"), allow(unreachable_code))]
+                        {
+                            ::core::unreachable!("either `return_value` or the `return` before will already have returned");
+                        }
                     }
                 )
         });
