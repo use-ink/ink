@@ -107,7 +107,6 @@ ink = { version = "=6.0.0-alpha", path = "crates/ink", default-features = false 
 ink_allocator = { version = "=6.0.0-alpha", path = "crates/allocator", default-features = false }
 ink_codegen = { version = "=6.0.0-alpha", path = "crates/ink/codegen", default-features = false }
 ink_e2e_macro = { version = "=6.0.0-alpha", path = "crates/e2e/macro", default-features = false }
-ink_engine = { version = "=6.0.0-alpha", path = "crates/engine", default-features = false }
 ink_env = { version = "=6.0.0-alpha", path = "crates/env", default-features = false }
 ink_ir = { version = "=6.0.0-alpha", path = "crates/ink/ir", default-features = false }
 ink_macro = { version = "=6.0.0-alpha", path = "crates/ink/macro", default-features = false }

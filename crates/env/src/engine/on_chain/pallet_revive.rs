@@ -280,7 +280,7 @@ impl EnvBackend for EnvInstance {
         let mut scope = EncodeScope::from(&mut self.buffer[..]);
         return_value.encode_to(&mut scope);
         let len = scope.len();
-        ext::return_value(flags, &self.buffer[..][..len]);
+        ext::return_value(flags, &self.buffer[..][..len])
     }
 
     fn return_value_rlp<R>(&mut self, flags: ReturnFlags, return_value: &R) -> !
@@ -290,7 +290,7 @@ impl EnvBackend for EnvInstance {
         let mut scope = EncodeScope::from(&mut self.buffer[..]);
         return_value.encode(&mut scope);
         let len = scope.len();
-        ext::return_value(flags, &self.buffer[..][..len]);
+        ext::return_value(flags, &self.buffer[..][..len])
     }
 
     #[cfg(not(feature = "ink-debug"))]
