@@ -109,8 +109,9 @@ where
     C: subxt::Config,
     E: Environment,
 {
-    api: ReviveApi<C, E>,
-    contracts: ContractsRegistry,
+    // TODO: make private once call builder supports RLP
+    pub api: ReviveApi<C, E>,
+    pub contracts: ContractsRegistry,
 }
 
 impl<C, E> Client<C, E>
@@ -140,8 +141,9 @@ where
         })
     }
 
+    // TODO: private after call builder supports RLP
     /// Executes an `instantiate_with_code` call and captures the resulting events.
-    async fn exec_instantiate(
+    pub async fn exec_instantiate(
         &mut self,
         signer: &Keypair,
         code: Vec<u8>,

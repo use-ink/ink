@@ -167,6 +167,8 @@ where
         let stderr = proc.stderr.take().unwrap();
         let port = find_substrate_port_from_output(stderr);
         let url = format!("ws://127.0.0.1:{port}");
+        // TODO: need access to the use port for hardhat
+        println!("Connecting to node at {}", url);
 
         // Connect to the node with a `subxt` client:
         let rpc = RpcClient::from_url(url.clone())

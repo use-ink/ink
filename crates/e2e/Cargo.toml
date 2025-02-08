@@ -19,7 +19,7 @@ ink_e2e_macro = { workspace = true, default-features = true }
 ink = { workspace = true, default-features = true }
 ink_env = { workspace = true, default-features = true }
 ink_primitives = { workspace = true, default-features = true }
-ink_sandbox = { version = "=6.0.0-alpha", path =  "./sandbox", optional = true }
+ink_sandbox = { version = "=6.0.0-alpha", path = "./sandbox", optional = true }
 
 cargo_metadata = { workspace = true }
 contract-build = { workspace = true }
@@ -36,7 +36,7 @@ tracing-subscriber = { workspace = true, features = ["env-filter"] }
 scale = { workspace = true }
 subxt = { workspace = true }
 subxt-metadata = { workspace = true, optional = true }
-subxt-signer = { workspace = true, features = ["subxt", "sr25519"] }
+subxt-signer = { workspace = true, features = ["subxt", "sr25519", "unstable-eth"] }
 thiserror = { workspace = true }
 which = { workspace = true }
 
@@ -54,22 +54,22 @@ itertools = "0.14.0"
 scale-info = { workspace = true, features = ["derive"] }
 
 [features]
-default = [ "std" ]
+default = ["std"]
 std = [
-	"impl-serde/std",
-	"ink_e2e_macro/std",
-	"pallet-revive/std",
-	"scale-info/std",
-	"scale/std",
-	"serde/std",
-	"sp-core/std",
-	"sp-keyring/std",
-	"sp-runtime/std",
-	"sp-weights/std",
-	"ink_e2e_macro/std",
-	"ink_sandbox/std",
-	"frame-support/std",
-	"pallet-revive-mock-network?/std",
+    "impl-serde/std",
+    "ink_e2e_macro/std",
+    "pallet-revive/std",
+    "scale-info/std",
+    "scale/std",
+    "serde/std",
+    "sp-core/std",
+    "sp-keyring/std",
+    "sp-runtime/std",
+    "sp-weights/std",
+    "ink_e2e_macro/std",
+    "ink_sandbox/std",
+    "frame-support/std",
+    "pallet-revive-mock-network?/std",
 ]
 
 sandbox = [
