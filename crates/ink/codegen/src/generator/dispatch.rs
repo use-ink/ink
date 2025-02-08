@@ -376,7 +376,11 @@ impl Dispatch<'_> {
                                 };
                             const DECODE: fn(&mut &[::core::primitive::u8]) -> ::core::result::Result<Self::Input, ::ink::env::DispatchError> =
                                 #rlp_decode
+                            #[cfg(not(feature = "std"))]
                             const RETURN: fn(::ink::env::ReturnFlags, Self::Output) -> ! =
+                                #rlp_return_value
+                            #[cfg(feature = "std")]
+                            const RETURN: fn(::ink::env::ReturnFlags, Self::Output) -> () =
                                 #rlp_return_value
                             const SELECTOR: [::core::primitive::u8; 4usize] = [ #( #rlp_selector_bytes ),* ];
                             const PAYABLE: ::core::primitive::bool = #payable;
