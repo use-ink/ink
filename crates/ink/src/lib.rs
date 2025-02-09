@@ -95,6 +95,7 @@ pub use ink_macro::{
     EventMetadata,
 };
 pub use ink_primitives::{
+    Address,
     ConstructorResult,
     LangError,
     MessageResult,
