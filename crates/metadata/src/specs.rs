@@ -431,8 +431,8 @@ where
     }
 
     /// Returns if the constructor is payable by the caller.
-    pub fn payable(&self) -> &bool {
-        &self.payable
+    pub fn payable(&self) -> bool {
+        self.payable
     }
 
     /// Returns the parameters of the deployment handler.
@@ -450,8 +450,8 @@ where
         &self.docs
     }
 
-    pub fn default(&self) -> &bool {
-        &self.default
+    pub fn default(&self) -> bool {
+        self.default
     }
 }
 
@@ -743,8 +743,8 @@ where
         &self.docs
     }
 
-    pub fn default(&self) -> &bool {
-        &self.default
+    pub fn default(&self) -> bool {
+        self.default
     }
 }
 
