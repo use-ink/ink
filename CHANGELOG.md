@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Changed
 - Restrict which `cfg` attributes can be used ‒ [#2313](https://github.com/use-ink/ink/pull/2313)
+- More idiomatic return types for metadata getters - [#2398](https://github.com/use-ink/ink/pull/2398)
 
 ## Added
 - Add feature flag to compile contracts for `pallet-revive` ‒ [#2318](https://github.com/use-ink/ink/pull/2318)
