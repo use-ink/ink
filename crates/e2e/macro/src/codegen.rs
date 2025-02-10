@@ -140,7 +140,7 @@ fn build_full_client(
                 let mut client = ::ink_e2e::Client::<
                     ::ink_e2e::PolkadotConfig,
                     #environment
-                >::new(node_rpc.rpc(), contracts).await?;
+                >::new(node_rpc.rpc(), contracts, node_rpc.url().to_string()).await?;
             }
         }
     }
