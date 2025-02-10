@@ -68,7 +68,7 @@ cfg_if! {
     }
 }
 
-// We only use this function when 1) compiling to Wasm 2) compiling for tests.
+// We only use this function when 1) compiling for PolkaVM 2) compiling for tests.
 #[cfg_attr(all(feature = "std", not(test)), allow(dead_code))]
 pub(crate) fn decode_instantiate_result<I, ContractRef, R>(
     instantiate_result: EnvResult<()>,

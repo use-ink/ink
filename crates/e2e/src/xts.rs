@@ -186,14 +186,14 @@ struct RpcCallRequest<C: subxt::Config, E: Environment> {
     input_data: Vec<u8>,
 }
 
-/// Reference to an existing code hash or a new Wasm module.
+/// Reference to an existing code hash or a new contract binary.
 #[derive(serde::Serialize, scale::Encode)]
 #[serde(rename_all = "camelCase")]
 enum Code {
-    /// A Wasm module as raw bytes.
+    /// A contract binary as raw bytes.
     Upload(Vec<u8>),
     #[allow(unused)]
-    /// The code hash of an on-chain Wasm blob.
+    /// The code hash of an on-chain contract blob.
     Existing(H256),
 }
 

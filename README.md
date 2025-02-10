@@ -115,8 +115,8 @@ In order to build the contract just execute this command in the `flipper` folder
 cargo contract build
 ```
 
-As a result you'll get a `target/flipper.wasm` file, a `flipper.json` file and a `<contract-name>.contract` file in the `target` folder of your contract.
-The `.contract` file combines the Wasm and metadata into one file and needs to be used when instantiating the contract.
+As a result you'll get a `target/flipper.polkavm` file, a `flipper.json` file and a `<contract-name>.contract` file in the `target` folder of your contract.
+The `.contract` file combines the contract's binary and metadata into one file and needs to be used when instantiating the contract.
 
 
 ## Hello, World! ‒ The Flipper
@@ -210,9 +210,9 @@ For information on how to upload this file to a chain, please have a look at the
 * Substrate's [Framework for Runtime Aggregation of Modularized Entities (FRAME)](https://docs.substrate.io/v3/runtime/frame)
 contains a module  which implements an API for typical functions smart contracts need (storage,querying information about accounts, …).
 This module is called the `contracts` pallet,
-* The `contracts` pallet requires smart contracts to be uploaded to the blockchain as a Wasm blob.
-* ink! is a smart contract language which targets the API exposed by `contracts`.
-Hence ink! contracts are compiled to Wasm.
+* The `contracts` pallet requires smart contracts to be uploaded to the blockchain as a binary blob.
+* ink! is a smart contract language which targets the API exposed by [`pallet-revive`](https://github.com/paritytech/polkadot-sdk/tree/master/substrate/frame/revive/src).
+Hence ink! contracts are compiled to [PolkaVM](https://github.com/paritytech/polkavm) bytecode.
 * When executing `cargo contract build` an additional file `<contract-name>.json` is created.
 It contains information about e.g. what methods the contract provides for others to call.
 
@@ -258,7 +258,7 @@ the relevant links:
 |:--|:--|:--|
 `ink` | [![][j1]][j2] | Language features exposed by ink!. See [here](https://use-ink.github.io/ink/ink/attr.contract.html) for a detailed description of attributes which you can use in an `#[ink::contract]`. |
 `ink_storage` | [![][f1]][f2] | Data structures available in ink!. |
-`ink_env` | [![][g1]][g2] | Low-level interface for interacting with the smart contract Wasm executor. Contains [the off-chain testing API](https://use-ink.github.io/ink/ink_env/test/index.html) as well. |
+`ink_env` | [![][g1]][g2] | Low-level interface for interacting with the smart contract executor. Contains [the off-chain testing API](https://use-ink.github.io/ink/ink_env/test/index.html) as well. |
 `ink_prelude` | [![][i1]][i2] | Common API for no_std and std to access alloc crate types. |
 
 ## Community Badges
