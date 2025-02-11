@@ -10,14 +10,17 @@ use ink_e2e::{
     PolkadotConfig,
     Weight,
 };
-use std::process::{
-    Command,
-    Stdio,
+use std::{
+    error::Error,
+    process::{
+        Command,
+        Stdio,
+    },
 };
 
 const DEFAULT_GAS: Weight = Weight::from_parts(100_000_000_000, 1024 * 1024);
 const DEFAULT_STORAGE_DEPOSIT_LIMIT: u128 = 10_000_000_000_000;
-type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
+type E2EResult<T> = Result<T, Box<dyn Error>>;
 
 #[ink_e2e::test]
 async fn solidity_calls_ink_works<Client: E2EBackend>(
@@ -42,7 +45,7 @@ async fn solidity_calls_ink_works<Client: E2EBackend>(
 
     // deploy ink! flipper (RLP encoded)
     client.api.map_account(&signer).await;
-    let res = client
+    let ink_addr = client
         .exec_instantiate(
             &signer,
             client.contracts.load_code("flipper"),
@@ -51,28 +54,23 @@ async fn solidity_calls_ink_works<Client: E2EBackend>(
             DEFAULT_GAS.into(),
             DEFAULT_STORAGE_DEPOSIT_LIMIT,
         )
-        .await?;
-
-    let ink_addr = res.addr;
+        .await?
+        .addr;
 
     let get_selector = keccak_selector(b"get");
     let value: bool = call_ink(&mut client, ink_addr, get_selector.clone()).await;
     assert_eq!(value, false);
 
-    let sol_dir = "./sol".to_string();
-
-    let mut sol_handler = SolidityHandler::new(sol_dir, client.url().to_string());
+    let mut sol_handler = SolidityHandler::new("./sol".into(), client.url().to_string());
     sol_handler.start_eth_rpc()?;
     sol_handler.setup()?;
     let sol_addr = sol_handler.deploy(ink_addr)?;
-    let _ = sol_handler.call(sol_addr.clone(), "callFlip")?;
 
-    // check if flip worked
+    let _ = sol_handler.call(sol_addr.clone(), "callFlip")?;
     let value: bool = call_ink(&mut client, ink_addr, get_selector.clone()).await;
     assert_eq!(value, true);
 
     let _ = sol_handler.call(sol_addr.clone(), "callFlip2")?;
-
     let value: bool = call_ink(&mut client, ink_addr, get_selector).await;
     assert_eq!(value, false);
 
@@ -122,7 +120,7 @@ impl SolidityHandler {
         }
     }
 
-    fn start_eth_rpc(&mut self) -> Result<(), Box<dyn std::error::Error>> {
+    fn start_eth_rpc(&mut self) -> Result<(), Box<dyn Error>> {
         let eth_rpc = Command::new("eth-rpc")
             .arg("--dev")
             .arg("--node-rpc-url")
@@ -132,7 +130,7 @@ impl SolidityHandler {
         Ok(())
     }
 
-    fn stop_eth_rpc(&mut self) -> Result<(), Box<dyn std::error::Error>> {
+    fn stop_eth_rpc(&mut self) -> Result<(), Box<dyn Error>> {
         if self.eth_rpc_process_id.is_none() {
             return Ok(());
         }
@@ -143,7 +141,7 @@ impl SolidityHandler {
         Ok(())
     }
 
-    fn setup(&mut self) -> Result<(), Box<dyn std::error::Error>> {
+    fn setup(&mut self) -> Result<(), Box<dyn Error>> {
         let install_status = Command::new("npm")
             .current_dir(&self.sol_dir)
             .arg("install")
@@ -165,25 +163,47 @@ impl SolidityHandler {
         Ok(())
     }
 
-    fn deploy(&self, ink_addr: H160) -> Result<String, Box<dyn std::error::Error>> {
-        let deploy_process = Command::new("npx")
-                .current_dir(&self.sol_dir)
-                .arg("hardhat")
-                .arg("run")
-                .arg("01-deploy.js")
-                .arg("--network")
-                .arg("localhost")
-                .arg("--no-compile")
-                .arg("--config")
-                .arg("hardhat.config.js")
-                .env("INK_ADDRESS", format!("{:?}", ink_addr))
-                .stdout(Stdio::piped()) // capture stdout
-                .stderr(Stdio::inherit()) // print stderr
-                .spawn()?;
-        let output = deploy_process.wait_with_output()?;
-        assert!(output.status.success(), "solidity deployment failed");
+    fn run_hardhat_script(
+        &self,
+        script: &str,
+        env_vars: &[(&str, String)],
+    ) -> Result<Vec<u8>, Box<dyn Error>> {
+        let mut command = Command::new("npx");
+        command
+            .current_dir(&self.sol_dir)
+            .arg("hardhat")
+            .arg("run")
+            .arg(script)
+            .arg("--network")
+            .arg("localhost")
+            .arg("--no-compile")
+            .arg("--config")
+            .arg("hardhat.config.js")
+            .stdout(Stdio::piped()) // Capture stdout
+            .stderr(Stdio::inherit()); // Print stderr
 
-        Ok(String::from_utf8(output.stdout)?
+        // Add environment variables
+        for (key, value) in env_vars {
+            command.env(key, value);
+        }
+
+        let output = command.spawn()?.wait_with_output()?;
+        assert!(
+            output.status.success(),
+            "{} execution failed with env: {:?}",
+            script,
+            env_vars
+        );
+
+        Ok(output.stdout)
+    }
+
+    fn deploy(&self, ink_addr: H160) -> Result<String, Box<dyn Error>> {
+        let output = self.run_hardhat_script(
+            "01-deploy.js",
+            &[("INK_ADDRESS", format!("{:?}", ink_addr))],
+        )?;
+        Ok(String::from_utf8(output)?
             .lines()
             .last()
             .ok_or("Failed to retrieve contract address")?
@@ -195,29 +215,12 @@ impl SolidityHandler {
         &self,
         sol_addr: String,
         message: &str,
-    ) -> Result<Option<String>, Box<dyn std::error::Error>> {
-        let call_process = Command::new("npx")
-            .current_dir(&self.sol_dir)
-            .arg("hardhat")
-            .arg("run")
-            .arg("02-call-flip.js")
-            .arg("--network")
-            .arg("localhost")
-            .arg("--no-compile")
-            .arg("--config")
-            .arg("hardhat.config.js")
-            .env("SOL_ADDRESS", sol_addr)
-            .env("MESSAGE", message)
-            .stdout(Stdio::piped())
-            .stderr(Stdio::inherit())
-            .spawn()?;
-        let output = call_process.wait_with_output()?;
-        assert!(
-            output.status.success(),
-            "solidity call failed on {}",
-            message
-        );
-        Ok(String::from_utf8(output.stdout)
+    ) -> Result<Option<String>, Box<dyn Error>> {
+        let output = self.run_hardhat_script(
+            "02-call-flip.js",
+            &[("SOL_ADDRESS", sol_addr), ("MESSAGE", message.to_string())],
+        )?;
+        Ok(String::from_utf8(output)
             .ok()
             .and_then(|s| Some(s.lines().last()?.to_string()))
             .map(|s| s.trim().to_string()))
