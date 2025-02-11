@@ -13,26 +13,13 @@ const config = {
         },
         hardhat: {
             polkavm: true,
-            nodeConfig: {
-                rpcPort: 55615,
-                nodeBinaryPath: "/Users/peter/dev/dot-repos/polkadot-sdk/target/release/substrate-node",
-                dev: true,
-            },
-            adapterConfig: {
-                adapterBinaryPath: '/Users/peter/dev/dot-repos/polkadot-sdk/target/release/eth-rpc',
-                dev: true,
-            },
-
         },
     },
     resolc: {
         compilerSource: 'binary',
         settings: {
-            // optimizer: {
-            //     enabled: true,
-            // },
             evmVersion: "cancun",
-            compilerPath: "/Users/peter/.cargo/bin/resolc-v.7",
+            compilerPath: "resolc",
             standardJson: true,
         },
     },
