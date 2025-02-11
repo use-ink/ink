@@ -123,8 +123,8 @@ impl InkProject {
     }
 
     /// Returns the metadata version used by the contract.
-    pub fn version(&self) -> &u64 {
-        &self.version
+    pub fn version(&self) -> u64 {
+        self.version
     }
 
     /// Returns a read-only registry of types in the contract.
