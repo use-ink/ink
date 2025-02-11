@@ -14,7 +14,11 @@
 
 use crate::arithmetic::AtLeast32BitUnsigned;
 use core::array::TryFromSliceError;
-use derive_more::From;
+use derive_more::{
+    Deref,
+    DerefMut,
+    From,
+};
 use primitive_types::{
     H160,
     U256,
@@ -440,3 +444,74 @@ pub enum Origin<E: Environment> {
     Root,
     Signed(E::AccountId),
 }
+
+/// A Solidity compatible `address` type.
+#[derive(
+    Debug,
+    Copy,
+    Clone,
+    PartialEq,
+    Eq,
+    Ord,
+    PartialOrd,
+    Hash,
+    Decode,
+    Encode,
+    MaxEncodedLen,
+    From,
+)]
+#[cfg_attr(feature = "std", derive(TypeInfo, DecodeAsType, EncodeAsType))]
+pub struct Address(pub [u8; 20]);
+
+impl AsRef<[u8; 20]> for Address {
+    fn as_ref(&self) -> &[u8; 20] {
+        &self.0
+    }
+}
+
+impl AsMut<[u8; 20]> for Address {
+    fn as_mut(&mut self) -> &mut [u8; 20] {
+        &mut self.0
+    }
+}
+
+impl AsRef<[u8]> for Address {
+    fn as_ref(&self) -> &[u8] {
+        &self.0[..]
+    }
+}
+
+impl AsMut<[u8]> for Address {
+    fn as_mut(&mut self) -> &mut [u8] {
+        &mut self.0[..]
+    }
+}
+
+impl<'a> TryFrom<&'a [u8]> for Address {
+    type Error = TryFromSliceError;
+
+    fn try_from(bytes: &'a [u8]) -> Result<Self, TryFromSliceError> {
+        let address = <[u8; 20]>::try_from(bytes)?;
+        Ok(Self(address))
+    }
+}
+
+/// A Solidity compatible `byte` type.
+#[derive(
+    Debug,
+    Copy,
+    Clone,
+    PartialEq,
+    Eq,
+    Ord,
+    PartialOrd,
+    Hash,
+    Decode,
+    Encode,
+    MaxEncodedLen,
+    From,
+    Deref,
+    DerefMut,
+)]
+#[cfg_attr(feature = "std", derive(TypeInfo, DecodeAsType, EncodeAsType))]
+pub struct Byte(pub u8);
