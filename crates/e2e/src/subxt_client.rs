@@ -111,6 +111,7 @@ where
 {
     api: ReviveApi<C, E>,
     contracts: ContractsRegistry,
+    url: String,
 }
 
 impl<C, E> Client<C, E>
@@ -133,10 +134,12 @@ where
     pub async fn new<P: Into<PathBuf>>(
         client: subxt::backend::rpc::RpcClient,
         contracts: impl IntoIterator<Item = P>,
+        url: String,
     ) -> Result<Self, subxt::Error> {
         Ok(Self {
             api: ReviveApi::new(client).await?,
             contracts: ContractsRegistry::new(contracts),
+            url,
         })
     }
 
@@ -311,6 +314,11 @@ where
         let dispatch_err_encoded = Encode::encode(&dispatch_error);
         DispatchError::decode_from(dispatch_err_encoded, self.api.client.metadata())
             .expect("failed to decode valid dispatch error")
+    }
+
+    /// Returns the URL of the running node.
+    pub fn url(&self) -> &str {
+        &self.url
     }
 }
 
