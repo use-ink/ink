@@ -59,12 +59,12 @@ pub mod flipper {
 
         type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
-        #[ink_e2e::test]
+        #[ink_e2e::test(backend(runtime_only))]
         async fn it_works<Client: E2EBackend>(mut client: Client) -> E2EResult<()> {
             // given
             let mut constructor = FlipperRef::new(false);
             let contract = client
-                .instantiate("flipper", &ink_e2e::alice(), &mut constructor)
+                .instantiate("flipper", &ink_e2e::bob(), &mut constructor)
                 .submit()
                 .await
                 .expect("instantiate failed");

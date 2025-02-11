@@ -19,8 +19,6 @@ use ink_primitives::DepositLimit;
 use pallet_revive::{
     Code,
     CodeUploadResult,
-    CollectEvents,
-    DebugInfo,
 };
 use sp_core::{
     H160,
@@ -178,8 +176,6 @@ where
                 Code::Upload(contract_bytes),
                 data,
                 salt,
-                DebugInfo::UnsafeDebug,
-                CollectEvents::UnsafeCollect,
             )
         })
     }
@@ -204,8 +200,6 @@ where
                 Code::Existing(code_hash),
                 data,
                 salt,
-                DebugInfo::UnsafeDebug,
-                CollectEvents::Skip,
             )
         })
     }
@@ -235,6 +229,7 @@ where
         storage_deposit_limit: DepositLimit<BalanceOf<Self::T>>,
     ) -> ContractExecResultFor<Self::T> {
         let storage_deposit_limit = storage_deposit_limit_fn(storage_deposit_limit);
+        //self.events();
         self.execute_with(|| {
             pallet_revive::Pallet::<Self::T>::bare_call(
                 origin,
@@ -243,8 +238,6 @@ where
                 gas_limit,
                 storage_deposit_limit,
                 data,
-                DebugInfo::UnsafeDebug,
-                CollectEvents::UnsafeCollect,
             )
         })
     }
@@ -260,6 +253,7 @@ fn storage_deposit_limit_fn<Balance>(
     }
 }
 
+/// todo
 /// Converts bytes to a '\n'-split string, ignoring empty lines.
 pub fn decode_debug_buffer(buffer: &[u8]) -> Vec<String> {
     let decoded = buffer.iter().map(|b| *b as char).collect::<String>();
@@ -276,7 +270,6 @@ mod tests {
         api::prelude::*,
         DefaultSandbox,
         RuntimeEventOf,
-        RuntimeOf,
     };
 
     const STORAGE_DEPOSIT_LIMIT: DepositLimit<u128> = DepositLimit::Unchecked;
@@ -324,6 +317,19 @@ mod tests {
             DefaultSandbox::convert_account_to_origin(DefaultSandbox::default_actor());
         sandbox.map_account(origin.clone()).expect("cannot map");
         let result = sandbox.deploy_contract(
+            contract_binary.clone(),
+            0,
+            vec![],
+            None,
+            origin.clone(),
+            DefaultSandbox::default_gas_limit(),
+            DepositLimit::Balance(100000000000000),
+        );
+        assert!(result.result.is_ok());
+        assert!(!result.result.unwrap().result.did_revert());
+
+        // deploying again must fail due to `DuplicateContract`
+        let result = sandbox.deploy_contract(
             contract_binary,
             0,
             vec![],
@@ -332,25 +338,9 @@ mod tests {
             DefaultSandbox::default_gas_limit(),
             DepositLimit::Balance(100000000000000),
         );
-        assert!(result.result.is_ok());
-        assert!(!result.result.unwrap().result.did_revert());
-
-        let events = result.events.expect("Sandbox should collect events");
-        let event_count = events.len();
-        let instantiation_event = events[event_count - 2].clone();
-        assert!(matches!(
-            instantiation_event.event,
-            RuntimeEventOf::<DefaultSandbox>::Revive(pallet_revive::Event::<
-                RuntimeOf<DefaultSandbox>,
-            >::Instantiated { .. })
-        ));
-        let deposit_event = events[event_count - 1].clone();
-        assert!(matches!(
-            deposit_event.event,
-            RuntimeEventOf::<DefaultSandbox>::Revive(pallet_revive::Event::<
-                RuntimeOf<DefaultSandbox>,
-            >::StorageDepositTransferredAndHeld { .. })
-        ));
+        assert!(!result.result.is_ok());
+        let dispatch_err = result.result.unwrap_err();
+        assert!(format!("{dispatch_err:?}").contains("DuplicateContract"));
     }
 
     #[test]
@@ -388,36 +378,17 @@ mod tests {
         assert!(result.result.is_ok());
         assert!(!result.result.unwrap().did_revert());
 
-        let events = result.events.expect("Sandbox should collect events");
-        assert_eq!(events.len(), 2);
-
+        let events = sandbox.events();
+        assert_eq!(events.len(), 1);
         assert_eq!(
             events[0].event,
-            RuntimeEventOf::<DefaultSandbox>::Revive(pallet_revive::Event::<
-                RuntimeOf<DefaultSandbox>,
-            >::ContractEmitted {
-                contract: contract_address,
-                topics: vec![H256::from([42u8; 32])],
-                data: vec![1, 2, 3, 4],
-            })
+            RuntimeEventOf::<DefaultSandbox>::Revive(
+                pallet_revive::Event::ContractEmitted {
+                    contract: contract_address,
+                    topics: vec![H256::from([42u8; 32])],
+                    data: vec![1, 2, 3, 4],
+                }
+            )
         );
-
-        // TODO Wait for `pallet_revive::exec::Origin` re-export.
-        // let account_id = DefaultSandbox::default_actor();
-        // let caller = origin.clone();
-        // let caller = pallet_revive::exec::Origin::from_runtime_origin(caller).unwrap();
-        // let origin =
-        // DefaultSandbox::convert_account_to_origin(DefaultSandbox::default_actor());
-        // let foo = pallet_revive::Origin::<RuntimeOf<DefaultSandbox>>::from(origin);
-        // assert_eq!(
-        // events[1].event,
-        // RuntimeEventOf::<DefaultSandbox>::Revive(pallet_revive::Event::<
-        // RuntimeOf<DefaultSandbox>,
-        // >::Called {
-        // contract: contract_address,
-        // caller: frame_system::EnsureSigned::try_origin(actor).unwrap(),
-        // caller,
-        // }),
-        // );
     }
 }

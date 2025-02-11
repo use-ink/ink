@@ -314,7 +314,6 @@ where
             gas_consumed: result.gas_consumed,
             gas_required: result.gas_required,
             storage_deposit: result.storage_deposit,
-            debug_message: result.debug_message,
             result: result.result.map(|r| {
                 InstantiateReturnValue {
                     result: r.result,
@@ -441,7 +440,6 @@ where
                 gas_consumed: result.gas_consumed,
                 gas_required: result.gas_required,
                 storage_deposit: result.storage_deposit,
-                debug_message: result.debug_message,
                 result: result.result,
             },
             _marker: Default::default(),

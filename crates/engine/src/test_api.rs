@@ -38,51 +38,10 @@ pub struct EmittedEvent {
     pub data: Vec<u8>,
 }
 
-#[derive(Clone)]
-pub struct RecordedDebugMessages {
-    debug_messages: Vec<String>,
-}
-
-impl RecordedDebugMessages {
-    // Creates a new `Engine instance.
-    pub fn new() -> Self {
-        Self {
-            debug_messages: Vec::new(),
-        }
-    }
-
-    // Records a new debug message.
-    pub fn record(&mut self, message: String) {
-        self.debug_messages.push(message);
-    }
-
-    // Clears all recorded debug messages.
-    pub fn clear(&mut self) {
-        self.debug_messages.clear();
-    }
-}
-
-impl Default for RecordedDebugMessages {
-    fn default() -> Self {
-        Self::new()
-    }
-}
-
-impl IntoIterator for RecordedDebugMessages {
-    type Item = String;
-    type IntoIter = std::vec::IntoIter<Self::Item>;
-
-    fn into_iter(self) -> Self::IntoIter {
-        self.debug_messages.into_iter()
-    }
-}
-
 /// Recorder for relevant interactions with this crate.
 pub struct DebugInfo {
     /// Emitted events recorder.
     emitted_events: Vec<EmittedEvent>,
-    /// Emitted print messages recorder.
-    emitted_debug_messages: RecordedDebugMessages,
     /// The total number of reads to the storage.
     count_reads: HashMap<H160, usize>,
     /// The total number of writes to the storage.
@@ -102,7 +61,6 @@ impl DebugInfo {
     pub fn new() -> Self {
         Self {
             emitted_events: Vec::new(),
-            emitted_debug_messages: RecordedDebugMessages::new(),
             count_reads: HashMap::new(),
             count_writes: HashMap::new(),
             cells_per_contract: HashMap::new(),
@@ -114,7 +72,6 @@ impl DebugInfo {
         self.count_reads.clear();
         self.count_writes.clear();
         self.emitted_events.clear();
-        self.emitted_debug_messages.clear();
         self.cells_per_contract.clear();
     }
 
@@ -161,11 +118,6 @@ impl DebugInfo {
             .get_mut(&addr)
             .map(|hm| hm.remove(&key))
             .unwrap_or(None)
-    }
-
-    /// Records a debug message.
-    pub fn record_debug_message(&mut self, message: String) {
-        self.emitted_debug_messages.record(message);
     }
 
     /// Records an event.
@@ -248,11 +200,6 @@ impl Engine {
     /// Returns boolean value indicating whether the account is a contract
     pub fn is_contract(&self, addr: &H160) -> bool {
         self.exec_context.contracts.contains(addr)
-    }
-
-    /// Returns the contents of the past performed environmental `debug_message` in order.
-    pub fn get_emitted_debug_messages(&self) -> RecordedDebugMessages {
-        self.debug_info.emitted_debug_messages.clone()
     }
 
     /// Returns the recorded emitted events in order.

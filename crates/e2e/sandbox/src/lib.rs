@@ -70,6 +70,7 @@ pub type AccountIdFor<R> = <R as frame_system::Config>::AccountId;
 /// Alias for the runtime call type.
 pub type RuntimeCall<R> = <R as frame_system::Config>::RuntimeCall;
 
+/// todo
 /// Alias for the event record type.
 pub type EventRecordOf<Runtime> = EventRecord<
     <Runtime as frame_system::Config>::RuntimeEvent,
@@ -78,17 +79,16 @@ pub type EventRecordOf<Runtime> = EventRecord<
 
 /// Alias for the contract instantiate result.
 pub type ContractInstantiateResultFor<Runtime> =
-    ContractResult<OriginFor<Runtime>, BalanceOf<Runtime>, EventRecordOf<Runtime>>;
+    ContractResult<OriginFor<Runtime>, BalanceOf<Runtime>>;
 
-pub type ContractResultFor<Runtime> =
-    ContractResult<Runtime, BalanceOf<Runtime>, EventRecordOf<Runtime>>;
+pub type ContractResultFor<Runtime> = ContractResult<Runtime, BalanceOf<Runtime>>;
 
 pub type ContractResultInstantiate<Runtime> =
-    ContractResult<InstantiateReturnValue, BalanceOf<Runtime>, EventRecordOf<Runtime>>;
+    ContractResult<InstantiateReturnValue, BalanceOf<Runtime>>;
 
 /// Alias for the contract exec result.
 pub type ContractExecResultFor<Runtime> =
-    ContractResult<ExecReturnValue, BalanceOf<Runtime>, EventRecordOf<Runtime>>;
+    ContractResult<ExecReturnValue, BalanceOf<Runtime>>;
 
 /// Alias for the `map_acocunt` result.
 pub type MapAccountResultFor = Result<(), DispatchError>;
@@ -96,6 +96,7 @@ pub type MapAccountResultFor = Result<(), DispatchError>;
 /// Alias for the runtime of a sandbox.
 pub type RuntimeOf<S> = <S as Sandbox>::Runtime;
 
+/// todo
 /// Alias for the runtime event of a sandbox.
 pub type RuntimeEventOf<S> = <RuntimeOf<S> as frame_system::Config>::RuntimeEvent;
 

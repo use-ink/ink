@@ -28,8 +28,8 @@ pub mod give_me {
         /// - Panics in case the transfer failed for another reason.
         #[ink(message)]
         pub fn give_me(&mut self, value: U256) {
-            ink::env::debug_println!("requested value: {}", value);
-            ink::env::debug_println!("contract balance: {}", self.env().balance());
+            //ink::env::debug_println!("requested value: {}", value);
+            //ink::env::debug_println!("contract balance: {}", self.env().balance());
 
             assert!(value <= self.env().balance(), "insufficient funds!");
 
@@ -52,10 +52,12 @@ pub mod give_me {
         /// allowed to receive value as part of the call.
         #[ink(message, payable, selector = 0xCAFEBABE)]
         pub fn was_it_ten(&self) {
+            /*
             ink::env::debug_println!(
                 "received payment: {}",
                 self.env().transferred_value()
             );
+            */
             assert!(
                 self.env().transferred_value() == U256::from(10),
                 "payment was not ten"
@@ -272,9 +274,12 @@ pub mod give_me {
                 .expect("call failed");
 
             // then
+            /*
+            // todo
             assert!(call_res
                 .debug_message()
                 .contains("requested value: 120000000\n"));
+             */
 
             let balance_after: Balance = client
                 .free_balance(account_id)

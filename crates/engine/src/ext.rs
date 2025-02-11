@@ -273,12 +273,6 @@ impl Engine {
         set_output(output, callee)
     }
 
-    /// Records the given debug message and appends to stdout.
-    pub fn debug_message(&mut self, message: &str) {
-        self.debug_info.record_debug_message(String::from(message));
-        print!("{message}");
-    }
-
     /// Conduct the BLAKE-2 256-bit hash and place the result into `output`.
     pub fn hash_blake2_256(input: &[u8], output: &mut [u8; 32]) {
         super::hashing::blake2b_256(input, output);

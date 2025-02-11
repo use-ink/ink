@@ -79,21 +79,6 @@ pub struct ContractResult<R, Balance> {
     /// [`Self::result`] is `Err`. This is because on error all storage changes are
     /// rolled back including the payment of the deposit.
     pub storage_deposit: StorageDeposit<Balance>,
-    /// An optional debug message. This message is only filled when explicitly requested
-    /// by the code that calls into the contract. Otherwise it is empty.
-    ///
-    /// The contained bytes are valid UTF-8. This is not declared as `String` because
-    /// this type is not allowed within the runtime.
-    ///
-    /// Clients should not make any assumptions about the format of the buffer.
-    /// They should just display it as-is. It is **not** only a collection of log lines
-    /// provided by a contract but a formatted buffer with different sections.
-    ///
-    /// # Note
-    ///
-    /// The debug message is never generated during on-chain execution. It is reserved
-    /// for RPC calls.
-    pub debug_message: Vec<u8>,
     /// The execution result of the code.
     pub result: Result<R, DispatchError>,
 }
@@ -231,11 +216,6 @@ impl<E: Environment, V: scale::Decode, EventLog> CallResult<E, V, EventLog> {
     pub fn return_data(&self) -> &[u8] {
         &self.dry_run.exec_return_value().data
     }
-
-    /// Returns any debug message output by the contract decoded as UTF-8.
-    pub fn debug_message(&self) -> String {
-        self.dry_run.debug_message()
-    }
 }
 
 // TODO(#xxx) Improve the `Debug` implementation.
@@ -311,6 +291,9 @@ impl<E: Environment, V: scale::Decode> CallDryRunResult<E, V> {
     /// Panics if the value could not be decoded. The raw bytes can be accessed via
     /// [`CallResult::return_data`].
     pub fn return_value(self) -> V {
+        // todo
+        // on revert:
+        //String::from_utf8_lossy(&self.exec_result.debug_message).into()
         self.message_result()
             .unwrap_or_else(|lang_err| {
                 panic!(
@@ -324,11 +307,6 @@ impl<E: Environment, V: scale::Decode> CallDryRunResult<E, V> {
     /// Panics if the dry-run message call failed to execute.
     pub fn return_data(&self) -> &[u8] {
         &self.exec_return_value().data
-    }
-
-    /// Returns any debug message output by the contract decoded as UTF-8.
-    pub fn debug_message(&self) -> String {
-        String::from_utf8_lossy(&self.exec_result.debug_message).into()
     }
 }
 
@@ -372,11 +350,6 @@ impl<E: Environment> InstantiateDryRunResult<E> {
         scale::Decode::decode(&mut data.as_ref()).unwrap_or_else(|env_err| {
             panic!("Decoding dry run result to constructor return type failed: {env_err}")
         })
-    }
-
-    /// Returns any debug message output by the contract decoded as UTF-8.
-    pub fn debug_message(&self) -> String {
-        String::from_utf8_lossy(&self.contract_result.debug_message).into()
     }
 }
 

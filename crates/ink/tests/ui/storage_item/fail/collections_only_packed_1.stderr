@@ -238,10 +238,10 @@ error[E0277]: the trait bound `NonPacked: WrapperTypeEncode` is not satisfied
              &mut T
              Arc<T>
              Box<T>
-             Cow<'a, T>
+             Cow<'_, T>
              Rc<T>
-             String
              Vec<T>
+             ink::alloy_rlp::Bytes
            and $N others
    = note: required for `NonPacked` to implement `Encode`
    = note: required for `NonPacked` to implement `Packed`

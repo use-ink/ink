@@ -294,12 +294,9 @@ where
         contract_result: ContractResult<V, E::Balance>,
     ) -> Result<ContractResult<V, E::Balance>, DryRunError<DispatchError>> {
         if let Err(error) = contract_result.result {
-            let debug_message = String::from_utf8(contract_result.debug_message.clone())
-                .expect("invalid utf8 debug message");
             let subxt_dispatch_err =
                 self.runtime_dispatch_error_to_subxt_dispatch_error(&error);
             Err(DryRunError::<DispatchError> {
-                debug_message,
                 error: subxt_dispatch_err,
             })
         } else {
@@ -541,10 +538,6 @@ where
             .await;
 
         log_info(&format!("instantiate dry run: {:?}", &result.result));
-        log_info(&format!(
-            "instantiate dry run debug message: {}",
-            String::from_utf8_lossy(&result.debug_message)
-        ));
         let result = self
             .contract_result_to_result(result)
             .map_err(Error::InstantiateDryRun)?;
@@ -664,10 +657,6 @@ where
             )
             .await;
         log_info(&format!("call dry run: {:?}", &exec_result.result));
-        log_info(&format!(
-            "call dry run debug message: {}",
-            String::from_utf8_lossy(&exec_result.debug_message)
-        ));
 
         let exec_result = self
             .contract_result_to_result(exec_result)

@@ -23,7 +23,6 @@ use crate::{
     Result,
 };
 use core::fmt::Debug;
-use ink_engine::test_api::RecordedDebugMessages;
 use std::panic::UnwindSafe;
 
 pub use super::call_data::CallData;
@@ -104,13 +103,6 @@ where
             .engine
             .chain_extension_handler
             .register(Box::new(extension));
-    })
-}
-
-/// Returns the contents of the past performed environmental debug messages in order.
-pub fn recorded_debug_messages() -> RecordedDebugMessages {
-    <EnvInstance as OnInstance>::on_instance(|instance| {
-        instance.engine.get_emitted_debug_messages()
     })
 }
 

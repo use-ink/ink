@@ -77,19 +77,3 @@ note: required by a bound in `foo2::TraitDefinition::messageOutput`
 15 | |         fn message(&self);
    | |__________________________^ required by this bound in `TraitDefinition::messageOutput`
    = note: this error originates in the attribute macro `ink::contract` (in Nightly builds, run with -Z macro-backtrace for more info)
-
-warning: this function depends on never type fallback being `()`
-  --> tests/ui/contract/fail/trait-message-selector-overlap-2.rs:27:5
-   |
-27 |     pub struct Contract {}
-   |     ^^^^^^^^^^^^^^^^^^^^^^
-   |
-   = warning: this was previously accepted by the compiler but is being phased out; it will become a hard error in Rust 2024 and in a future release in all editions!
-   = note: for more information, see issue #123748 <https://github.com/rust-lang/rust/issues/123748>
-   = help: specify the types explicitly
-note: in edition 2024, the requirement `!: WrapperTypeDecode` will fail
-  --> tests/ui/contract/fail/trait-message-selector-overlap-2.rs:38:9
-   |
-38 |         fn message(&self) {}
-   |         ^^^^^^^^^^^^^^^^^^^^
-   = note: `#[warn(dependency_on_unit_never_type_fallback)]` on by default
