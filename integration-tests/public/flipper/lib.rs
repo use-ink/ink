@@ -1,6 +1,7 @@
 #![cfg_attr(not(feature = "std"), no_std, no_main)]
 
-#[ink::contract]
+//#[ink::contract]
+#[ink::contract(abi_encoding = "scale")]
 pub mod flipper {
     #[ink(storage)]
     pub struct Flipper {
@@ -59,32 +60,40 @@ pub mod flipper {
 
         type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
+        //#[ink_e2e::test(backend(runtime_only))]
         #[ink_e2e::test]
         async fn it_works<Client: E2EBackend>(mut client: Client) -> E2EResult<()> {
             // given
             let mut constructor = FlipperRef::new(false);
             let contract = client
-                .instantiate("flipper", &ink_e2e::alice(), &mut constructor)
+                .instantiate("flipper", &ink_e2e::bob(), &mut constructor)
                 .submit()
                 .await
                 .expect("instantiate failed");
             let mut call_builder = contract.call_builder::<Flipper>();
+            eprintln!("---------instantiated");
 
             let get = call_builder.get();
-            let get_res = client.call(&ink_e2e::bob(), &get).dry_run().await?;
+            let get_res = client.call(&ink_e2e::bob(), &get).submit().await?;
+            //let get_res = client.call(&ink_e2e::bob(), &get).dry_run().await?;
+            eprintln!("---------called");
             assert!(!get_res.return_value());
+            eprintln!("---------return value");
 
             // when
             let flip = call_builder.flip();
+            eprintln!("---------before call2");
             let _flip_res = client
                 .call(&ink_e2e::bob(), &flip)
                 .submit()
                 .await
                 .expect("flip failed");
+            eprintln!("---------after call2");
 
             // then
             let get = call_builder.get();
             let get_res = client.call(&ink_e2e::bob(), &get).dry_run().await?;
+            eprintln!("---------called second");
             assert!(get_res.return_value());
 
             Ok(())
@@ -101,6 +110,7 @@ pub mod flipper {
                 .submit()
                 .await
                 .expect("instantiate failed");
+            eprintln!("-----instantiate succeeded \n");
             let call_builder = contract.call_builder::<Flipper>();
 
             // then

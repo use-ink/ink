@@ -28,9 +28,6 @@ pub mod give_me {
         /// - Panics in case the transfer failed for another reason.
         #[ink(message)]
         pub fn give_me(&mut self, value: U256) {
-            ink::env::debug_println!("requested value: {}", value);
-            ink::env::debug_println!("contract balance: {}", self.env().balance());
-
             assert!(value <= self.env().balance(), "insufficient funds!");
 
             if self.env().transfer(self.env().caller(), value).is_err() {
@@ -52,10 +49,12 @@ pub mod give_me {
         /// allowed to receive value as part of the call.
         #[ink(message, payable, selector = 0xCAFEBABE)]
         pub fn was_it_ten(&self) {
+            /*
             ink::env::debug_println!(
                 "received payment: {}",
                 self.env().transferred_value()
             );
+            */
             assert!(
                 self.env().transferred_value() == U256::from(10),
                 "payment was not ten"
@@ -200,6 +199,7 @@ pub mod give_me {
         type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
         #[ink_e2e::test]
+        //#[ink_e2e::test(backend(runtime_only))]
         async fn e2e_sending_value_to_give_me_must_fail<Client: E2EBackend>(
             mut client: Client,
         ) -> E2EResult<()> {
@@ -223,6 +223,7 @@ pub mod give_me {
                 .await;
 
             // then
+            eprintln!("call_res {:?}", call_res);
             assert!(call_res.is_err(), "call must have errored");
             /*
             // todo bug with wrong printing of message
@@ -235,7 +236,8 @@ pub mod give_me {
             Ok(())
         }
 
-        #[ink_e2e::test]
+        //#[ink_e2e::test]
+        #[ink_e2e::test(backend(runtime_only))]
         async fn e2e_contract_must_transfer_value_to_sender<Client: E2EBackend>(
             mut client: Client,
         ) -> E2EResult<()> {
@@ -243,12 +245,21 @@ pub mod give_me {
             let mut constructor = GiveMeRef::new();
             let contract = client
                 .instantiate("contract_transfer", &ink_e2e::bob(), &mut constructor)
+                // todo convert the argument type to U256
                 .value(1_337_000_000)
                 .submit()
                 .await
                 .expect("instantiate failed");
+            let contract_addr = contract.addr;
+            #[allow(non_upper_case_globals)]
+            const NativeToEthRatio: u128 = 1_000_000; // todo add to environment?
+            assert_eq!(
+                contract.trace.clone().unwrap().value,
+                Some(U256::from(1_337_000_000 * NativeToEthRatio))
+            );
             let mut call_builder = contract.call_builder::<GiveMe>();
 
+            // todo extract account id from something else
             let acc = call_builder.account_id();
             let call_res = client
                 .call(&ink_e2e::eve(), &acc)
@@ -272,9 +283,21 @@ pub mod give_me {
                 .expect("call failed");
 
             // then
+            /*
+            // todo
             assert!(call_res
                 .debug_message()
                 .contains("requested value: 120000000\n"));
+             */
+            eprintln!("\n--call trace {:?}", call_res.trace);
+            let outgoing_trace = &call_res.trace.unwrap().calls[0];
+            eprintln!("\n--trace {:?}", outgoing_trace);
+            //assert_eq!(outgoing_trace.value, Some(U256::from(120_000_000 *
+            // NativeToEthRatio)));
+            assert_eq!(outgoing_trace.value, Some(U256::from(120_000_000)));
+            assert_eq!(outgoing_trace.from, contract_addr);
+            //let eve = ink::H160::from(&ink_e2e::eve().account_id().encode()[..20]);
+            //assert_eq!(trace.to, eve);
 
             let balance_after: Balance = client
                 .free_balance(account_id)

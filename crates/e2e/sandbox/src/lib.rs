@@ -78,17 +78,16 @@ pub type EventRecordOf<Runtime> = EventRecord<
 
 /// Alias for the contract instantiate result.
 pub type ContractInstantiateResultFor<Runtime> =
-    ContractResult<OriginFor<Runtime>, BalanceOf<Runtime>, EventRecordOf<Runtime>>;
+    ContractResult<OriginFor<Runtime>, BalanceOf<Runtime>>;
 
-pub type ContractResultFor<Runtime> =
-    ContractResult<Runtime, BalanceOf<Runtime>, EventRecordOf<Runtime>>;
+pub type ContractResultFor<Runtime> = ContractResult<Runtime, BalanceOf<Runtime>>;
 
 pub type ContractResultInstantiate<Runtime> =
-    ContractResult<InstantiateReturnValue, BalanceOf<Runtime>, EventRecordOf<Runtime>>;
+    ContractResult<InstantiateReturnValue, BalanceOf<Runtime>>;
 
 /// Alias for the contract exec result.
 pub type ContractExecResultFor<Runtime> =
-    ContractResult<ExecReturnValue, BalanceOf<Runtime>, EventRecordOf<Runtime>>;
+    ContractResult<ExecReturnValue, BalanceOf<Runtime>>;
 
 /// Alias for the `map_acocunt` result.
 pub type MapAccountResultFor = Result<(), DispatchError>;

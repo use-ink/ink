@@ -27,7 +27,10 @@ use ink_primitives::{
     H256,
 };
 use pallet_revive::{
-    evm::H160,
+    evm::{
+        CallTrace,
+        H160,
+    },
     CodeUploadResult,
     ExecReturnValue,
     InstantiateReturnValue,
@@ -44,9 +47,10 @@ use std::{
 };
 
 /// Alias for the contract instantiate result.
-pub type ContractInstantiateResultForBar<E> =
+pub type ContractInstantiateResultFor<E> =
     ContractResult<InstantiateReturnValue, <E as Environment>::Balance>;
 
+// todo use the obj one from `pallet-revive` instead
 /// Result type of a `bare_call`, `bare_instantiate`, `ReviveApi::call`, and
 /// `ReviveApi::instantiate`.
 ///
@@ -79,21 +83,6 @@ pub struct ContractResult<R, Balance> {
     /// [`Self::result`] is `Err`. This is because on error all storage changes are
     /// rolled back including the payment of the deposit.
     pub storage_deposit: StorageDeposit<Balance>,
-    /// An optional debug message. This message is only filled when explicitly requested
-    /// by the code that calls into the contract. Otherwise it is empty.
-    ///
-    /// The contained bytes are valid UTF-8. This is not declared as `String` because
-    /// this type is not allowed within the runtime.
-    ///
-    /// Clients should not make any assumptions about the format of the buffer.
-    /// They should just display it as-is. It is **not** only a collection of log lines
-    /// provided by a contract but a formatted buffer with different sections.
-    ///
-    /// # Note
-    ///
-    /// The debug message is never generated during on-chain execution. It is reserved
-    /// for RPC calls.
-    pub debug_message: Vec<u8>,
     /// The execution result of the code.
     pub result: Result<R, DispatchError>,
 }
@@ -108,6 +97,8 @@ pub struct BareInstantiationResult<EventLog> {
     pub addr: H160,
     /// Events that happened with the contract instantiation.
     pub events: EventLog,
+    /// todo
+    pub trace: Option<CallTrace>,
 }
 
 impl<EventLog> BareInstantiationResult<EventLog> {
@@ -127,6 +118,7 @@ where
         f.debug_struct("InstantiationResult")
             .field("addr", &self.addr)
             .field("events", &self.events)
+            .field("trace", &self.trace)
             .finish()
     }
 }
@@ -140,6 +132,8 @@ pub struct InstantiationResult<E: Environment, EventLog> {
     pub dry_run: InstantiateDryRunResult<E>,
     /// Events that happened with the contract instantiation.
     pub events: EventLog,
+    /// todo
+    pub trace: Option<CallTrace>,
 }
 
 impl<E: Environment, EventLog> InstantiationResult<E, EventLog> {
@@ -204,6 +198,8 @@ pub struct CallResult<E: Environment, V, EventLog> {
     pub dry_run: CallDryRunResult<E, V>,
     /// Events that happened with the contract instantiation.
     pub events: EventLog,
+    /// todo
+    pub trace: Option<CallTrace>,
 }
 
 impl<E: Environment, V: scale::Decode, EventLog> CallResult<E, V, EventLog> {
@@ -231,11 +227,6 @@ impl<E: Environment, V: scale::Decode, EventLog> CallResult<E, V, EventLog> {
     pub fn return_data(&self) -> &[u8] {
         &self.dry_run.exec_return_value().data
     }
-
-    /// Returns any debug message output by the contract decoded as UTF-8.
-    pub fn debug_message(&self) -> String {
-        self.dry_run.debug_message()
-    }
 }
 
 // TODO(#xxx) Improve the `Debug` implementation.
@@ -251,6 +242,7 @@ where
         f.debug_struct("CallResult")
             .field("dry_run", &self.dry_run)
             .field("events", &self.events)
+            .field("trace", &self.trace)
             .finish()
     }
 }
@@ -260,6 +252,8 @@ pub struct CallDryRunResult<E: Environment, V> {
     /// The result of the dry run, contains debug messages if there were any.
     pub exec_result: ContractExecResultFor<E>,
     pub _marker: PhantomData<V>,
+    /// todo
+    pub trace: Option<CallTrace>,
 }
 
 /// We implement a custom `Debug` here, as to avoid requiring the trait bound `Debug` for
@@ -286,6 +280,7 @@ impl<E: Environment, V: scale::Decode> CallDryRunResult<E, V> {
     ///
     /// Panics if the dry-run message call failed to execute.
     pub fn exec_return_value(&self) -> &ExecReturnValue {
+        eprintln!("-------------exec return value------");
         self.exec_result
             .result
             .as_ref()
@@ -298,6 +293,7 @@ impl<E: Environment, V: scale::Decode> CallDryRunResult<E, V> {
     /// - if the dry-run message call failed to execute.
     /// - if message result cannot be decoded into the expected return value type.
     pub fn message_result(&self) -> MessageResult<V> {
+        eprintln!("-------------message result------");
         let data = &self.exec_return_value().data;
         scale::Decode::decode(&mut data.as_ref()).unwrap_or_else(|env_err| {
             panic!(
@@ -311,6 +307,14 @@ impl<E: Environment, V: scale::Decode> CallDryRunResult<E, V> {
     /// Panics if the value could not be decoded. The raw bytes can be accessed via
     /// [`CallResult::return_data`].
     pub fn return_value(self) -> V {
+        // todo
+        // on revert:
+        eprintln!("-------------return value------");
+        if self.exec_result.result.clone().unwrap().did_revert() {
+            let res = self.exec_result.result.unwrap();
+            let msg = String::from_utf8_lossy(&res.data);
+            panic!("msg {}", msg);
+        }
         self.message_result()
             .unwrap_or_else(|lang_err| {
                 panic!(
@@ -325,23 +329,18 @@ impl<E: Environment, V: scale::Decode> CallDryRunResult<E, V> {
     pub fn return_data(&self) -> &[u8] {
         &self.exec_return_value().data
     }
-
-    /// Returns any debug message output by the contract decoded as UTF-8.
-    pub fn debug_message(&self) -> String {
-        String::from_utf8_lossy(&self.exec_result.debug_message).into()
-    }
 }
 
 /// Result of the dry run of a contract call.
 pub struct InstantiateDryRunResult<E: Environment> {
     /// The result of the dry run, contains debug messages if there were any.
-    pub contract_result: ContractInstantiateResultForBar<E>,
+    pub contract_result: ContractInstantiateResultFor<E>,
 }
 
-impl<E: Environment> From<ContractInstantiateResultForBar<E>>
+impl<E: Environment> From<ContractInstantiateResultFor<E>>
     for InstantiateDryRunResult<E>
 {
-    fn from(contract_result: ContractInstantiateResultForBar<E>) -> Self {
+    fn from(contract_result: ContractInstantiateResultFor<E>) -> Self {
         Self { contract_result }
     }
 }
@@ -372,11 +371,6 @@ impl<E: Environment> InstantiateDryRunResult<E> {
         scale::Decode::decode(&mut data.as_ref()).unwrap_or_else(|env_err| {
             panic!("Decoding dry run result to constructor return type failed: {env_err}")
         })
-    }
-
-    /// Returns any debug message output by the contract decoded as UTF-8.
-    pub fn debug_message(&self) -> String {
-        String::from_utf8_lossy(&self.contract_result.debug_message).into()
     }
 }
 
