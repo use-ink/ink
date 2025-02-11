@@ -98,6 +98,7 @@ use ink_primitives::{
     H160,
     H256,
 };
+pub use sp_weights::Weight;
 use std::{
     cell::RefCell,
     sync::Once,
