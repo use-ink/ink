@@ -470,6 +470,8 @@ mod instantiate_contract {
             test_it(client).await
         }
 
+        /// Executes the test itself. The test is executed with both a
+        /// node as the backend and the sandbox as the backend.
         async fn test_it<Client: E2EBackend>(mut client: Client) -> E2EResult<()>
         where
             <Client as ContractsBackend<ink::env::DefaultEnvironment>>::Error:
