@@ -38,6 +38,8 @@ use ink_prelude::{
 };
 use ink_primitives::{
     AccountId,
+    Address,
+    Byte,
     Hash,
     Key,
     H160,
@@ -64,6 +66,7 @@ impl_storage_layout_for_primitives!(
     bool, char, (),
     u8, u16, u32, u64, u128,
     i8, i16, i32, i64, i128,
+    Address, Byte
 );
 
 macro_rules! impl_layout_for_tuple {
