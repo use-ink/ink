@@ -1,7 +1,6 @@
 #![allow(unexpected_cfgs)]
 
 use contract::Contract;
-// #[ink::contract]
 #[ink::contract]
 
 mod contract {
