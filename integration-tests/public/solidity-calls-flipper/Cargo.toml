@@ -7,11 +7,11 @@ publish = false
 
 [dependencies]
 ink = { path = "../../../crates/ink", default-features = false }
-#foo = { path = "../../../foo", default-features = false }
 
 [dev-dependencies]
 ink_e2e = { path = "../../../crates/e2e" }
 hex = { version = "0.4.3" }
+sha3 = { version = "0.10" }
 
 [lib]
 path = "lib.rs"

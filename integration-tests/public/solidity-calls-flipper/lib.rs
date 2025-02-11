@@ -48,19 +48,23 @@ pub mod flipper {
     #[cfg(all(test, feature = "e2e-tests"))]
     mod e2e_tests {
         use super::*;
-        use ink::H160;
+        use ink::{
+            env::DefaultEnvironment,
+            H160,
+        };
         use ink_e2e::{
+            subxt::tx::Signer,
             subxt_signer,
+            PolkadotConfig,
             Weight,
         };
-        use std::{
-            env,
-            process::{
-                Command,
-                Stdio,
-            },
+        use std::process::{
+            Command,
+            Stdio,
         };
 
+        const DEFAULT_GAS: Weight = Weight::from_parts(100_000_000_000, 1024 * 1024);
+        const DEFAULT_STORAGE_DEPOSIT_LIMIT: u128 = 10_000_000_000_000;
         type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
         #[ink_e2e::test]
@@ -96,19 +100,34 @@ pub mod flipper {
                     client.contracts.load_code("flipper"),
                     ink::scale::Encode::encode(&exec_input),
                     0,
-                    Weight::from_parts(100_000_000_000, 1024 * 1024).into(),
-                    10_000_000_000_000,
+                    DEFAULT_GAS.into(),
+                    DEFAULT_STORAGE_DEPOSIT_LIMIT,
                 )
                 .await?;
+
+            let ink_addr = res.addr;
+
+            let get_selector = keccak_selector(b"get");
+            let value: bool = call_ink(&mut client, ink_addr, get_selector.clone()).await;
+            assert_eq!(value, false);
 
             let sol_dir = "./sol".to_string();
 
             let mut sol_handler = SolidityHandler::new(sol_dir, client.url().to_string());
             sol_handler.start_eth_rpc()?;
             sol_handler.setup()?;
-            let sol_addr = sol_handler.deploy(res.addr)?;
+            let sol_addr = sol_handler.deploy(ink_addr)?;
             let _ = sol_handler.call(sol_addr.clone(), "callFlip")?;
+
+            // check if flip worked
+            let value: bool = call_ink(&mut client, ink_addr, get_selector.clone()).await;
+            assert_eq!(value, true);
+
             let _ = sol_handler.call(sol_addr.clone(), "callFlip2")?;
+
+            let value: bool = call_ink(&mut client, ink_addr, get_selector).await;
+            assert_eq!(value, false);
+
             // TODO: will not succeed until ink! can return RLP encoded data.
             let output = sol_handler.call(sol_addr, "callGet")?;
             assert_eq!(output, Some("true".to_string()));
@@ -122,6 +141,43 @@ pub mod flipper {
             <AccountId as AsMut<[u8; 32]>>::as_mut(&mut account_id)[..20]
                 .copy_from_slice(&from.public_key().to_account_id().as_ref());
             account_id
+        }
+
+        async fn call_ink<Ret>(
+            client: &mut ink_e2e::Client<PolkadotConfig, DefaultEnvironment>,
+            ink_addr: H160,
+            data_rlp: Vec<u8>,
+        ) -> Ret
+        where
+            Ret: ink::rlp::Decodable,
+        {
+            let signer = ink_e2e::alice();
+            let exec_result = client
+                .api
+                .call_dry_run(
+                    <ink_e2e::Keypair as Signer<PolkadotConfig>>::account_id(&signer),
+                    ink_addr,
+                    data_rlp,
+                    0,
+                    0,
+                )
+                .await;
+
+            ink::rlp::Decodable::decode(&mut &exec_result.result.unwrap().data[..])
+                .expect("decode failed")
+        }
+
+        fn keccak_selector(input: &[u8]) -> Vec<u8> {
+            let mut output = [0; 32];
+            use sha3::{
+                digest::generic_array::GenericArray,
+                Digest as _,
+            };
+            let mut hasher = sha3::Keccak256::new();
+            hasher.update(input);
+            hasher.finalize_into(<&mut GenericArray<u8, _>>::from(&mut output[..]));
+
+            vec![output[0], output[1], output[2], output[3]]
         }
 
         struct SolidityHandler {
@@ -232,7 +288,11 @@ pub mod flipper {
                     .stderr(Stdio::inherit())
                     .spawn()?;
                 let output = call_process.wait_with_output()?;
-                assert!(output.status.success(), "solidity call failed");
+                assert!(
+                    output.status.success(),
+                    "solidity call failed on {}",
+                    message
+                );
                 Ok(String::from_utf8(output.stdout)
                     .ok()
                     .and_then(|s| Some(s.lines().last()?.to_string()))
