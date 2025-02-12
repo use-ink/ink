@@ -28,7 +28,7 @@ impl<
             .build_storage()
             .unwrap();
 
-        pallet_balances::GenesisConfig::<T> { balances }
+        pallet_balances::GenesisConfig::<T> { balances, dev_accountstpu: None }
             .assimilate_storage(&mut storage)
             .unwrap();
 
@@ -183,7 +183,7 @@ mod construct_runtime {
     impl $crate::pallet_revive::Config for $runtime {
         type AddressMapper = $crate::pallet_revive::AccountId32Mapper<Self>;
         type ChainId = ConstU64<0>; // TODO
-        type NativeToEthRatio = ConstU32<1>;
+        type NativeToEthRatio = ConstU32<1>; // todo adapt to `substrate-contracts-node` value
         type Time = Timestamp;
         type Currency = Balances;
         type RuntimeEvent = RuntimeEvent;
@@ -199,10 +199,11 @@ mod construct_runtime {
         type UnsafeUnstableInterface = ConstBool<true>;
         type CodeHashLockupDepositPercent = CodeHashLockupDepositPercent;
         type RuntimeHoldReason = RuntimeHoldReason;
-        type Debug = $debug;
         type Xcm = ();
         type UploadOrigin = $crate::frame_system::EnsureSigned<Self::AccountId>;
         type InstantiateOrigin = $crate::frame_system::EnsureSigned<Self::AccountId>;
+        type EthGasEncoder = ();
+        type FindAuthor = ();
     }
 
     // Implement `crate::Sandbox` trait

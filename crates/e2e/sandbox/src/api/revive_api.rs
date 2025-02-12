@@ -19,8 +19,6 @@ use ink_primitives::DepositLimit;
 use pallet_revive::{
     Code,
     CodeUploadResult,
-    CollectEvents,
-    DebugInfo,
 };
 use sp_core::{
     H160,
@@ -178,8 +176,6 @@ where
                 Code::Upload(contract_bytes),
                 data,
                 salt,
-                DebugInfo::UnsafeDebug,
-                CollectEvents::UnsafeCollect,
             )
         })
     }
@@ -204,8 +200,6 @@ where
                 Code::Existing(code_hash),
                 data,
                 salt,
-                DebugInfo::UnsafeDebug,
-                CollectEvents::Skip,
             )
         })
     }
@@ -243,8 +237,6 @@ where
                 gas_limit,
                 storage_deposit_limit,
                 data,
-                DebugInfo::UnsafeDebug,
-                CollectEvents::UnsafeCollect,
             )
         })
     }
