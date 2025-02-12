@@ -28,7 +28,7 @@ impl<
             .build_storage()
             .unwrap();
 
-        pallet_balances::GenesisConfig::<T> { balances, dev_accountstpu: None }
+        pallet_balances::GenesisConfig::<T> { balances, dev_accounts: None }
             .assimilate_storage(&mut storage)
             .unwrap();
 
