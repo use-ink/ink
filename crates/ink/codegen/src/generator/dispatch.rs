@@ -484,6 +484,7 @@ impl Dispatch<'_> {
                     ))
                 }
 
+                // TODO pw: need to handle user provided selector currently causing conflicts
                 if encoding.is_rlp() && !(encoding.is_all() && message.user_provided_selector().is_some()) {
                     // todo: refactor and figure out if there is a bug with the message.inputs() iterator
                     let input_types_len = generator::input_types(message.inputs()).len();

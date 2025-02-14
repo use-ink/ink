@@ -32,6 +32,12 @@ contract FlipperCaller {
         require(ok, "call failed");
     }
 
+    function callSet(bool value) external {
+        bytes4 selector = bytes4(keccak256("set"));
+        (bool ok,) = flipperContract.call(abi.encodePacked(selector, value));
+        require(ok, "call failed");
+    }
+
     function callGet() external {
         IFlipper(flipperContract).get();
         bytes4 selector = bytes4(keccak256("get"));

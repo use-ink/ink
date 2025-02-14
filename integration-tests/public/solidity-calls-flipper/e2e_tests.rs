@@ -81,8 +81,15 @@ async fn solidity_calls_ink_works<Client: E2EBackend>(
     let value: bool = call_ink(&mut client, ink_addr, get_selector).await;
     assert_eq!(value, false);
 
+    let _ = sol_handler.call_with_value(sol_addr.clone(), "callSet", true)?;
+
     let output = sol_handler.call(sol_addr.clone(), "callGet")?;
-    assert_eq!(output, Some("false".to_string()));
+    assert_eq!(output, Some("true".to_string()));
+
+    let output = sol_handler.call(sol_addr.clone(), "callGet2")?;
+    assert_eq!(output, Some("true".to_string()));
+
+    let _ = sol_handler.call_with_value(sol_addr.clone(), "callSet", false)?;
 
     let output = sol_handler.call(sol_addr, "callGet2")?;
     assert_eq!(output, Some("false".to_string()));
@@ -230,6 +237,27 @@ impl SolidityHandler {
         let output = self.run_hardhat_script(
             "02-call-flip.js",
             &[("SOL_ADDRESS", sol_addr), ("MESSAGE", message.to_string())],
+            Stdio::piped(),
+        )?;
+        Ok(String::from_utf8(output)
+            .ok()
+            .and_then(|s| Some(s.lines().last()?.to_string()))
+            .map(|s| s.trim().to_string()))
+    }
+
+    fn call_with_value(
+        &self,
+        sol_addr: String,
+        message: &str,
+        value: bool,
+    ) -> Result<Option<String>, Box<dyn Error>> {
+        let output = self.run_hardhat_script(
+            "02-call-flip.js",
+            &[
+                ("SOL_ADDRESS", sol_addr),
+                ("MESSAGE", message.to_string()),
+                ("VALUE", value.to_string()),
+            ],
             Stdio::piped(),
         )?;
         Ok(String::from_utf8(output)
