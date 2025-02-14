@@ -3,11 +3,15 @@ pragma solidity ^0.8.0;
 
 interface IFlipper {
     function flip() external;
+
+    function get() external view returns (bool);
 }
 
 contract FlipperCaller {
     // Address of the contract we want to call
     address private flipperContract;
+
+    event ReturnValue(bool value);
 
     // Constructor to set the flipper contract address
     constructor(address _flipperContract) {
@@ -28,16 +32,17 @@ contract FlipperCaller {
         require(ok, "call failed");
     }
 
-    // TODO: currently fails as ink! returns data with SCALE
-    function callGet() external returns (bool) {
+    function callGet() external {
+        IFlipper(flipperContract).get();
         bytes4 selector = bytes4(keccak256("get"));
         (bool ok, bytes memory data) = flipperContract.call(abi.encodePacked(selector));
         require(ok, "call failed");
-        return abi.decode(data, (bool));
+        bool value = abi.decode(data, (bool));
+        emit ReturnValue(value);
     }
 
-    // Function to update flipper contract address if needed
-    function setFlipperContract(address _newFlipper) external {
-        flipperContract = _newFlipper;
+    function callGet2() external {
+        bool value = IFlipper(flipperContract).get();
+        emit ReturnValue(value);
     }
 }

@@ -24,6 +24,7 @@ ink_macro = { workspace = true }
 pallet-revive-uapi = { workspace = true }
 
 alloy-rlp = { workspace = true }
+alloy-sol-types = { workspace = true }
 scale = { workspace = true, features = ["max-encoded-len"] }
 derive_more = { workspace = true, features = ["from", "display"] }
 num-traits = { workspace = true, features = ["i128"] }
@@ -65,40 +66,41 @@ scale-info = { workspace = true, features = ["derive"], optional = true }
 ink = { path = "../ink" }
 
 [features]
-default = [ "std" ]
+default = ["std"]
 std = [
-	"alloy-rlp/std",
-	"blake2",
+    "alloy-rlp/std",
+    "alloy-sol-types/std",
+    "blake2",
     "ink/std",
-	"ink_allocator/std",
-	"ink_prelude/std",
-	"ink_primitives/std",
-	"ink_storage_traits/std",
-	"ink_engine/std",
+    "ink_allocator/std",
+    "ink_prelude/std",
+    "ink_primitives/std",
+    "ink_storage_traits/std",
+    "ink_engine/std",
     "ink_macro/std",
-	"scale/std",
-	"scale-decode",
-	"scale-encode",
-	"scale-info/std",
-	"secp256k1",
-	"schnorrkel",
+    "scale/std",
+    "scale-decode",
+    "scale-encode",
+    "scale-info/std",
+    "secp256k1",
+    "schnorrkel",
     "sp-io/std",
     "sp-runtime-interface/std",
-	"num-traits/std",
-	# Enables hashing crates for off-chain environment.
-	"sha2",
-	"sha3",
-	"scale-decode?/std",
-	"scale-encode?/std",
-	"xcm/std",
-	"derive_more/std"
+    "num-traits/std",
+    # Enables hashing crates for off-chain environment.
+    "sha2",
+    "sha3",
+    "scale-decode?/std",
+    "scale-encode?/std",
+    "xcm/std",
+    "derive_more/std"
 ]
 
 # Enable contract debug messages via `debug_print!` and `debug_println!`.
 ink-debug = []
 
 # Disable the ink! provided global memory allocator.
-no-allocator = [ "ink_allocator/no-allocator" ]
+no-allocator = ["ink_allocator/no-allocator"]
 
 # Disable the ink! provided panic handler.
 no-panic-handler = []
