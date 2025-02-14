@@ -342,7 +342,7 @@ impl Dispatch<'_> {
                     } else {
                         quote! {
                         |input| {
-                            <Self::Input as ::ink::rlp::Decodable>::decode(input)
+                            <Self::Input as ::ink::alloy_sol_types::SolValue>::abi_decode(input, true)
                                 .map_err(|_| ::ink::env::DispatchError::InvalidParameters)
                         };
                     }
@@ -356,9 +356,9 @@ impl Dispatch<'_> {
                         })
                         .unwrap_or_else(|| quote! {
                             |flags, _output| {
-                                ::ink::env::return_value_rlp::<::ink::reflect::RlpUnit>(
+                                ::ink::env::return_value_rlp::<()>(
                                     flags,
-                                    &::ink::reflect::RlpUnit {}
+                                    &()
                                 )
                             };
                         });
@@ -497,7 +497,7 @@ impl Dispatch<'_> {
                     } else {
                         quote! {
                         |input| {
-                            <Self::Input as ::ink::rlp::Decodable>::decode(input)
+                            <Self::Input as ::ink::alloy_sol_types::SolValue>::decode(input)
                                 .map_err(|_| ::ink::env::DispatchError::InvalidParameters)
                         };
                     }
@@ -511,9 +511,9 @@ impl Dispatch<'_> {
                         })
                         .unwrap_or_else(|| quote! {
                             |flags, _output| {
-                                ::ink::env::return_value_rlp::<::ink::reflect::RlpUnit>(
+                                ::ink::env::return_value_rlp::<()>(
                                     flags,
-                                    &::ink::reflect::RlpUnit {}
+                                    &()
                                 )
                             };
                         });

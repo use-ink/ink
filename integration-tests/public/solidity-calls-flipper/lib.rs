@@ -27,6 +27,11 @@ pub mod flipper {
         }
 
         #[ink(message)]
+        pub fn set_value(&mut self, value: bool) {
+            self.value = value;
+        }
+
+        #[ink(message)]
         pub fn flip_2(&mut self) {
             self.value = !self.value;
         }
@@ -34,6 +39,12 @@ pub mod flipper {
         /// Returns the current value of the Flipper's boolean.
         #[ink(message)]
         pub fn get(&self) -> bool {
+            self.value
+        }
+
+        // solidity compatible selector (`keccack256("get_2()")`)
+        #[ink(message, selector = 0x6d4ce63c)]
+        pub fn get_2(&self) -> bool {
             self.value
         }
     }

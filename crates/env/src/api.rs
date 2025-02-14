@@ -456,7 +456,7 @@ where
 /// This function  stops the execution of the contract immediately.
 pub fn return_value_rlp<R>(return_flags: ReturnFlags, return_value: &R) -> !
 where
-    R: alloy_rlp::Encodable,
+    R: alloy_sol_types::SolValue,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         EnvBackend::return_value_rlp::<R>(instance, return_flags, return_value)
