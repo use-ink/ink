@@ -27,7 +27,7 @@ pub mod flipper {
         }
 
         #[ink(message)]
-        pub fn set_value(&mut self, value: bool) {
+        pub fn set(&mut self, value: bool) {
             self.value = value;
         }
 
