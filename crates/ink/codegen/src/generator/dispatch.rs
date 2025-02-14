@@ -342,7 +342,7 @@ impl Dispatch<'_> {
                     } else {
                         quote! {
                         |input| {
-                            <Self::Input as ::ink::rlp::Decodable>::decode(input)
+                            <Self::Input as ::ink::alloy_sol_types::SolValue>::abi_decode(input, true)
                                 .map_err(|_| ::ink::env::DispatchError::InvalidParameters)
                         };
                     }
@@ -356,9 +356,9 @@ impl Dispatch<'_> {
                         })
                         .unwrap_or_else(|| quote! {
                             |flags, _output| {
-                                ::ink::env::return_value_rlp::<::ink::reflect::RlpUnit>(
+                                ::ink::env::return_value_rlp::<()>(
                                     flags,
-                                    &::ink::reflect::RlpUnit {}
+                                    &()
                                 )
                             };
                         });
@@ -484,6 +484,7 @@ impl Dispatch<'_> {
                     ))
                 }
 
+                // TODO pw: need to handle user provided selector currently causing conflicts
                 if encoding.is_rlp() && !(encoding.is_all() && message.user_provided_selector().is_some()) {
                     // todo: refactor and figure out if there is a bug with the message.inputs() iterator
                     let input_types_len = generator::input_types(message.inputs()).len();
@@ -497,7 +498,7 @@ impl Dispatch<'_> {
                     } else {
                         quote! {
                         |input| {
-                            <Self::Input as ::ink::rlp::Decodable>::decode(input)
+                            <Self::Input as ::ink::alloy_sol_types::SolValue>::decode(input)
                                 .map_err(|_| ::ink::env::DispatchError::InvalidParameters)
                         };
                     }
@@ -511,9 +512,9 @@ impl Dispatch<'_> {
                         })
                         .unwrap_or_else(|| quote! {
                             |flags, _output| {
-                                ::ink::env::return_value_rlp::<::ink::reflect::RlpUnit>(
+                                ::ink::env::return_value_rlp::<()>(
                                     flags,
-                                    &::ink::reflect::RlpUnit {}
+                                    &()
                                 )
                             };
                         });

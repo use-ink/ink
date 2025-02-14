@@ -142,7 +142,7 @@ pub trait EnvBackend {
     /// todo: comment
     fn return_value_rlp<R>(&mut self, flags: ReturnFlags, return_value: &R) -> !
     where
-        R: alloy_rlp::Encodable;
+        R: alloy_sol_types::SolValue;
 
     /// Emit a custom debug message.
     ///

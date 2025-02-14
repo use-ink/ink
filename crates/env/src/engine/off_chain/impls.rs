@@ -368,7 +368,7 @@ impl EnvBackend for EnvInstance {
 
     fn return_value_rlp<R>(&mut self, _flags: ReturnFlags, _return_value: &R) -> !
     where
-        R: alloy_rlp::Encodable,
+        R: alloy_sol_types::SolValue,
     {
         unimplemented!("the off-chain env does not implement `return_value_rlp`")
     }
