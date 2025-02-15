@@ -78,7 +78,7 @@ async fn solidity_calls_ink_works<Client: E2EBackend>(
     assert_eq!(output, Some("true".to_string()));
 
     let _ = sol_handler.call(sol_addr.clone(), "callFlip2")?;
-    let value: bool = call_ink(&mut client, ink_addr, get_selector).await;
+    let value: bool = call_ink(&mut client, ink_addr, get_selector.clone()).await;
     assert_eq!(value, false);
 
     let _ = sol_handler.call_with_value(sol_addr.clone(), "callSet", true)?;
@@ -91,7 +91,7 @@ async fn solidity_calls_ink_works<Client: E2EBackend>(
 
     let _ = sol_handler.call_with_value(sol_addr.clone(), "callSet", false)?;
 
-    let output = sol_handler.call(sol_addr, "callGet2")?;
+    let output = sol_handler.call(sol_addr, "callGet")?;
     assert_eq!(output, Some("false".to_string()));
 
     Ok(())

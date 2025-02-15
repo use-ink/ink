@@ -1,5 +1,10 @@
 use super::rlp::*;
 use ink::{
+    alloy_sol_types::{
+        private::primitives::hex,
+        SolType,
+        SolValue,
+    },
     primitives::DepositLimit,
     H160,
 };
@@ -85,11 +90,11 @@ impl ContractSandbox {
         origin: OriginFor<<DefaultSandbox as Sandbox>::Runtime>,
     ) -> Ret
     where
-        Args: ink::rlp::Encodable,
-        Ret: ink::rlp::Decodable,
+        Args: SolValue,
+        Ret: SolValue + From<<<Ret as SolValue>::SolType as SolType>::RustType>,
     {
         let result = self.call(message, args, origin);
-        ink::rlp::Decodable::decode(&mut &result[..]).expect("decode failed")
+        Ret::abi_decode(&mut &result[..], true).expect("decode failed")
     }
 
     fn call<Args>(
@@ -99,12 +104,12 @@ impl ContractSandbox {
         origin: OriginFor<<DefaultSandbox as Sandbox>::Runtime>,
     ) -> Vec<u8>
     where
-        Args: ink::rlp::Encodable,
+        Args: SolValue,
     {
         let mut data = keccak_selector(message.as_bytes());
-        let mut args_buf = Vec::new();
-        ink::rlp::Encodable::encode(&args, &mut args_buf);
-        data.append(&mut args_buf);
+        let mut encoded = args.abi_encode();
+        data.append(&mut encoded);
+        println!("data: {:?}", hex::encode(&data));
 
         let result = self.call_raw(data, origin);
         assert!(!result.did_revert(), "'{message}' failed {:?}", result);

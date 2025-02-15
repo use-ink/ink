@@ -14,7 +14,7 @@ async function main() {
             process.exit(1);
         }
 
-        const value = process.env.VALUE || true;
+        const value = process.env.VALUE === "true";
 
         const Contract = await ethers.getContractFactory("FlipperCaller");
         let flipper = Contract.attach(solAddress);

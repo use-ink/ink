@@ -342,7 +342,7 @@ impl Dispatch<'_> {
                     } else {
                         quote! {
                         |input| {
-                            <Self::Input as ::ink::alloy_sol_types::SolValue>::abi_decode(input, true)
+                            <Self::Input as ::ink::alloy_sol_types::SolValue>::abi_decode(input, false)
                                 .map_err(|_| ::ink::env::DispatchError::InvalidParameters)
                         };
                     }
@@ -498,7 +498,7 @@ impl Dispatch<'_> {
                     } else {
                         quote! {
                         |input| {
-                            <Self::Input as ::ink::alloy_sol_types::SolValue>::decode(input)
+                            <Self::Input as ::ink::alloy_sol_types::SolValue>::abi_decode(input, false)
                                 .map_err(|_| ::ink::env::DispatchError::InvalidParameters)
                         };
                     }
