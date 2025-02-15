@@ -28,13 +28,13 @@ mod rlp_cross_contract {
             Self {}
         }
 
-        // TODO: H160 does not implement RlpDecodable
+        // TODO (@peterwht): H160 does not implement RlpDecodable
         #[ink(message)]
         pub fn call_contract_rlp(&mut self, callee: [u8; 20]) {
             let selector = keccak_selector(b"flip");
             let callee: H160 = callee.into();
 
-            // TODO: fails due to call builder encoding with scale
+            // TODO (@peterwht): fails due to call builder encoding with scale
             let result = build_call::<<Self as ::ink::env::ContractEnv>::Env>()
                 .call(callee)
                 .ref_time_limit(1000000000)

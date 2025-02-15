@@ -1,8 +1,5 @@
 #![cfg_attr(not(feature = "std"), no_std, no_main)]
 
-// TODO:
-// - returning data to solidity contract currently does not work
-
 #[ink::contract(abi_encoding = "rlp")]
 pub mod flipper {
     #[ink(storage)]

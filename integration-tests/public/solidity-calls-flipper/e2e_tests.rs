@@ -74,7 +74,6 @@ async fn solidity_calls_ink_works<Client: E2EBackend>(
     let value: bool = call_ink(&mut client, ink_addr, get_selector).await;
     assert_eq!(value, false);
 
-    // TODO: will not succeed until ink! can return RLP encoded data.
     let output = sol_handler.call(sol_addr, "callGet")?;
     assert_eq!(output, Some("true".to_string()));
 

@@ -75,7 +75,7 @@ fn call_rlp_encoded_message() {
         0,
         ink::scale::Encode::encode(&exec_input),
         // salt
-        // TODO: figure out why no salt is causing `DuplicateContract`
+        // TODO (@peterwht): figure out why no salt is causing `DuplicateContract`
         Some([1u8; 32]),
         origin.clone(),
         <DefaultSandbox as Sandbox>::default_gas_limit(),

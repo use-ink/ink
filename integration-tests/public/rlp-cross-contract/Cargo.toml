@@ -1,6 +1,6 @@
 [package]
 name = "rlp-cross-contract"
-version = "5.0.0"
+version = "6.0.0-alpha"
 authors = ["Use Ink <ink@use.ink>"]
 edition = "2021"
 publish = false

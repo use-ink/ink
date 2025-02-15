@@ -28,7 +28,6 @@ contract FlipperCaller {
         require(ok, "call failed");
     }
 
-    // TODO: currently fails as ink! returns data with SCALE
     function callGet() external returns (bool) {
         bytes4 selector = bytes4(keccak256("get"));
         (bool ok, bytes memory data) = flipperContract.call(abi.encodePacked(selector));

@@ -1,4 +1,5 @@
 use contract::Contract;
+
 #[ink::contract(abi_encoding = "all")]
 mod contract {
     #[ink(storage)]
