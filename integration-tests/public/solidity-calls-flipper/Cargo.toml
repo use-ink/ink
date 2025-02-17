@@ -1,5 +1,5 @@
 [package]
-name = "rlp"
+name = "flipper"
 version = "6.0.0-alpha"
 authors = ["Use Ink <ink@use.ink>"]
 edition = "2021"
@@ -9,9 +9,8 @@ publish = false
 ink = { path = "../../../crates/ink", default-features = false }
 
 [dev-dependencies]
-ink_e2e = { path = "../../../crates/e2e", features = ["sandbox"] }
-ink_sandbox = { path = "../../../crates/e2e/sandbox" }
-pallet-revive = { git = "https://github.com/paritytech/polkadot-sdk", rev = "645878a27115db52e5d63115699b4bbb89034067", default-features = false }
+ink_e2e = { path = "../../../crates/e2e" }
+hex = { version = "0.4.3" }
 sha3 = { version = "0.10" }
 
 [lib]
