@@ -270,7 +270,7 @@ where
     /// # Notes
     ///
     /// Overwrites any values specified for `extra_gas_portion`.
-    /// The gas estimate fro dry-run will be ignored.
+    /// The gas estimate from dry-run will be ignored.
     pub fn gas_limit(&mut self, limit: Weight) -> &mut Self {
         if limit == Weight::from_parts(0, 0) {
             self.gas_limit = None
