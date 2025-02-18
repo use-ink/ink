@@ -23,7 +23,6 @@ ink_metadata = { workspace = true, optional = true }
 ink_prelude = { workspace = true }
 ink_macro = { workspace = true }
 pallet-revive-uapi = { workspace = true }
-alloy-rlp = { workspace = true }
 alloy-sol-types = { workspace = true }
 scale = { workspace = true }
 scale-info = { workspace = true, default-features = false, features = ["derive"], optional = true }
@@ -43,7 +42,6 @@ trybuild = { workspace = true, features = ["diff"] }
 [features]
 default = ["std"]
 std = [
-    "alloy-rlp/std",
     "alloy-sol-types/std",
     "ink_env/std",
     "ink_macro/std",

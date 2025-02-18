@@ -140,7 +140,7 @@ pub trait EnvBackend {
         R: scale::Encode;
 
     /// todo: comment
-    fn return_value_rlp<R>(&mut self, flags: ReturnFlags, return_value: &R) -> !
+    fn return_value_solidity<R>(&mut self, flags: ReturnFlags, return_value: &R) -> !
     where
         R: alloy_sol_types::SolValue;
 

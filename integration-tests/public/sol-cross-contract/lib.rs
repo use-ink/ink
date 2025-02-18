@@ -1,9 +1,10 @@
-//! A smart contract to test using RLP encoding for EVM compatibility.
+//! A smart contract that uses Solidity ABI encoding to call another ink!
+//! contracts that uses Solidity encoding.
 
 #![cfg_attr(not(feature = "std"), no_std, no_main)]
 
-#[ink::contract(abi_encoding = "rlp")]
-mod rlp_cross_contract {
+#[ink::contract(abi = "sol")]
+mod sol_cross_contract {
     use crate::keccak_selector;
     use ink::{
         env::{
@@ -20,9 +21,9 @@ mod rlp_cross_contract {
 
     #[ink(storage)]
     #[derive(Default)]
-    pub struct RlpCrossContract {}
+    pub struct SolCrossContract {}
 
-    impl RlpCrossContract {
+    impl SolCrossContract {
         #[ink(constructor)]
         pub fn new() -> Self {
             Self {}
@@ -30,7 +31,7 @@ mod rlp_cross_contract {
 
         // TODO (@peterwht): H160 does not implement RlpDecodable
         #[ink(message)]
-        pub fn call_contract_rlp(&mut self, callee: [u8; 20]) {
+        pub fn call_contract_sol_encoding(&mut self, callee: [u8; 20]) {
             let selector = keccak_selector(b"flip");
             let callee: H160 = callee.into();
 
@@ -44,7 +45,7 @@ mod rlp_cross_contract {
                 .returns::<()>()
                 .try_invoke();
 
-            debug_println!("call_contract_rlp: {:?}", result);
+            debug_println!("call_contract_sol: {:?}", result);
 
             assert!(result.is_ok(), "call failed");
         }

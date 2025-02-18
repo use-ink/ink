@@ -5,7 +5,7 @@ pub use self::other_contract::{
     OtherContractRef,
 };
 
-#[ink::contract(abi_encoding = "rlp")]
+#[ink::contract(abi = "sol")]
 mod other_contract {
 
     #[ink(storage)]

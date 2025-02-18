@@ -47,7 +47,7 @@ async fn solidity_calls_ink_works<Client: E2EBackend>(
 
     let signer = ink_e2e::alice();
 
-    // deploy ink! flipper (RLP encoded)
+    // deploy ink! flipper (Sol encoded)
     client.api.map_account(&signer).await;
     let ink_addr = client
         .exec_instantiate(
@@ -100,7 +100,7 @@ async fn solidity_calls_ink_works<Client: E2EBackend>(
 async fn call_ink<Ret>(
     client: &mut ink_e2e::Client<PolkadotConfig, DefaultEnvironment>,
     ink_addr: H160,
-    data_rlp: Vec<u8>,
+    data_sol: Vec<u8>,
 ) -> Ret
 where
     Ret: SolValue + From<<<Ret as SolValue>::SolType as SolType>::RustType>,
@@ -111,7 +111,7 @@ where
         .call_dry_run(
             <ink_e2e::Keypair as Signer<PolkadotConfig>>::account_id(&signer),
             ink_addr,
-            data_rlp,
+            data_sol,
             0,
             0,
         )

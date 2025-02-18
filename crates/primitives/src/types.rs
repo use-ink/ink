@@ -31,7 +31,6 @@ use {
     scale_info::TypeInfo,
 };
 
-use alloy_rlp::RlpDecodable;
 /// The default environment `AccountId` type.
 ///
 /// # Note
@@ -48,7 +47,6 @@ use alloy_rlp::RlpDecodable;
     PartialOrd,
     Hash,
     Decode,
-    RlpDecodable,
     Encode,
     MaxEncodedLen,
     From,

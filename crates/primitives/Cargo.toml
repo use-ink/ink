@@ -17,7 +17,6 @@ include = ["/Cargo.toml", "src/**/*.rs", "/README.md", "/LICENSE"]
 [dependencies]
 derive_more = { workspace = true, features = ["from", "display"] }
 ink_prelude = { workspace = true }
-alloy-rlp = { workspace = true, features = ["derive"] }
 scale = { workspace = true, features = ["max-encoded-len"] }
 scale-decode = { workspace = true, features = ["derive"] }
 scale-encode = { workspace = true, features = ["derive"], optional = true }
@@ -36,7 +35,6 @@ ink_env = { workspace = true, default-features = false }
 [features]
 default = [ "std" ]
 std = [
-	"alloy-rlp/std",
     "ink/std",
     "ink_env/std",
 	"ink_prelude/std",

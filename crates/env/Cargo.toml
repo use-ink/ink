@@ -23,7 +23,6 @@ ink_primitives = { workspace = true }
 ink_macro = { workspace = true }
 pallet-revive-uapi = { workspace = true }
 
-alloy-rlp = { workspace = true }
 alloy-sol-types = { workspace = true }
 scale = { workspace = true, features = ["max-encoded-len"] }
 derive_more = { workspace = true, features = ["from", "display"] }
@@ -68,7 +67,6 @@ ink = { path = "../ink" }
 [features]
 default = ["std"]
 std = [
-    "alloy-rlp/std",
     "alloy-sol-types/std",
     "blake2",
     "ink/std",

@@ -366,11 +366,11 @@ impl EnvBackend for EnvInstance {
         self.engine.set_storage(&[255_u8; 32], &v[..]);
     }
 
-    fn return_value_rlp<R>(&mut self, _flags: ReturnFlags, _return_value: &R) -> !
+    fn return_value_solidity<R>(&mut self, _flags: ReturnFlags, _return_value: &R) -> !
     where
         R: alloy_sol_types::SolValue,
     {
-        unimplemented!("the off-chain env does not implement `return_value_rlp`")
+        unimplemented!("the off-chain env does not implement `return_value_solidity`")
     }
 
     fn debug_message(&mut self, message: &str) {

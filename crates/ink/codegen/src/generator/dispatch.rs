@@ -155,22 +155,22 @@ impl Dispatch<'_> {
 
                 let mut message_dispatchables = Vec::new();
 
-                if self.contract.config().abi_encoding().is_scale() {
+                if self.contract.config().abi().is_scale() {
                     message_dispatchables.push(MessageDispatchable { message, id });
                 }
 
-                if self.contract.config().abi_encoding().is_rlp() {
+                if self.contract.config().abi().is_solidity() {
                     // todo: handle traits
                     let composed_selector =  message
-                        .composed_rlp_selector();
+                        .composed_solidity_selector();
 
-                    let rlp_selector = composed_selector
+                    let sol_selector = composed_selector
                         .into_be_u32()
                         .hex_padded_suffixed();
-                    let rlp_id = quote_spanned!(span=>
-                        #rlp_selector
+                    let sol_id = quote_spanned!(span=>
+                        #sol_selector
                     );
-                    message_dispatchables.push(MessageDispatchable { message, id: rlp_id });
+                    message_dispatchables.push(MessageDispatchable { message, id: sol_id });
                 }
 
                 message_dispatchables
@@ -254,7 +254,7 @@ impl Dispatch<'_> {
     fn generate_dispatchable_message_infos(&self) -> TokenStream2 {
         let span = self.contract.module().storage().span();
         let storage_ident = self.contract.module().storage().ident();
-        let encoding = self.contract.config().abi_encoding();
+        let encoding = self.contract.config().abi();
 
         let inherent_message_infos = self
             .contract
@@ -269,8 +269,8 @@ impl Dispatch<'_> {
                 let mutates = message.receiver().is_ref_mut();
                 let selector_id = message.composed_selector().into_be_u32().hex_padded_suffixed();
                 let selector_bytes = message.composed_selector().hex_lits();
-                let rlp_selector_id = message.composed_rlp_selector().into_be_u32().hex_padded_suffixed();
-                let rlp_selector_bytes = message.composed_rlp_selector().hex_lits();
+                let sol_selector_id = message.composed_solidity_selector().into_be_u32().hex_padded_suffixed();
+                let sol_selector_bytes = message.composed_solidity_selector().hex_lits();
                 let cfg_attrs = message.get_cfg_attrs(message_span);
                 let output_tuple_type = message
                     .output()
@@ -329,11 +329,11 @@ impl Dispatch<'_> {
                 }
 
                 // if encoding is `all` and the selector is user provided, we do not generate another message info
-                if encoding.is_rlp() && !(encoding.is_all() && message.user_provided_selector().is_some()) {
+                if encoding.is_solidity() && !(encoding.is_all() && message.user_provided_selector().is_some()) {
                     // todo: refactor and figure out if there is a bug with the message.inputs() iterator
                     let input_types_len = generator::input_types(message.inputs()).len();
                     // println!("LEN {}, input_types_len {}, {}", message.inputs().len(), input_types_len, input_tuple_type.to_string());
-                    let rlp_decode = if input_types_len == 0 {
+                    let sol_decode = if input_types_len == 0 {
                         quote! {
                         |_input| {
                             ::core::result::Result::Ok(()) // todo: should we decode `RlpUnit` instead, e.g. what if some data...
@@ -347,16 +347,16 @@ impl Dispatch<'_> {
                         };
                     }
                     };
-                    let rlp_return_value = message
+                    let sol_return_value = message
                         .output()
                         .map(|_| quote! {
                             |flags, output| {
-                                ::ink::env::return_value_rlp::<Self::Output>(flags, &output)
+                                ::ink::env::return_value_solidity::<Self::Output>(flags, &output)
                             };
                         })
                         .unwrap_or_else(|| quote! {
                             |flags, _output| {
-                                ::ink::env::return_value_rlp::<()>(
+                                ::ink::env::return_value_solidity::<()>(
                                     flags,
                                     &()
                                 )
@@ -365,7 +365,7 @@ impl Dispatch<'_> {
 
                     message_infos.push(quote_spanned!(message_span=>
                         #( #cfg_attrs )*
-                        impl ::ink::reflect::DispatchableMessageInfo<#rlp_selector_id> for #storage_ident {
+                        impl ::ink::reflect::DispatchableMessageInfo<#sol_selector_id> for #storage_ident {
                             type Input = #input_tuple_type;
                             type Output = #output_tuple_type;
                             type Storage = #storage_ident;
@@ -375,18 +375,18 @@ impl Dispatch<'_> {
                                     #storage_ident::#message_ident( storage #( , #input_bindings )* )
                                 };
                             const DECODE: fn(&mut &[::core::primitive::u8]) -> ::core::result::Result<Self::Input, ::ink::env::DispatchError> =
-                                #rlp_decode
+                                #sol_decode
                             #[cfg(not(feature = "std"))]
                             const RETURN: fn(::ink::env::ReturnFlags, Self::Output) -> ! =
-                                #rlp_return_value
+                                #sol_return_value
                             #[cfg(feature = "std")]
                             const RETURN: fn(::ink::env::ReturnFlags, Self::Output) -> () =
-                                #rlp_return_value
-                            const SELECTOR: [::core::primitive::u8; 4usize] = [ #( #rlp_selector_bytes ),* ];
+                                #sol_return_value
+                            const SELECTOR: [::core::primitive::u8; 4usize] = [ #( #sol_selector_bytes ),* ];
                             const PAYABLE: ::core::primitive::bool = #payable;
                             const MUTATES: ::core::primitive::bool = #mutates;
                             const LABEL: &'static ::core::primitive::str = ::core::stringify!(#message_ident);
-                            const ENCODING: ::ink::reflect::Encoding = ::ink::reflect::Encoding::Rlp;
+                            const ENCODING: ::ink::reflect::Encoding = ::ink::reflect::Encoding::Solidity;
                         }
                     ))
                 }
@@ -438,7 +438,7 @@ impl Dispatch<'_> {
 
                 let mut message_infos = Vec::new();
 
-                if self.contract.config().abi_encoding().is_scale() {
+                if self.contract.config().abi().is_scale() {
                    message_infos.push(quote_spanned!(message_span=>
                         #( #cfg_attrs )*
                         impl ::ink::reflect::DispatchableMessageInfo<#selector_id> for #storage_ident {
@@ -485,11 +485,11 @@ impl Dispatch<'_> {
                 }
 
                 // TODO pw: need to handle user provided selector currently causing conflicts
-                if encoding.is_rlp() && !(encoding.is_all() && message.user_provided_selector().is_some()) {
+                if encoding.is_solidity() && !(encoding.is_all() && message.user_provided_selector().is_some()) {
                     // todo: refactor and figure out if there is a bug with the message.inputs() iterator
                     let input_types_len = generator::input_types(message.inputs()).len();
                     // println!("LEN {}, input_types_len {}, {}", message.inputs().len(), input_types_len, input_tuple_type.to_string());
-                    let rlp_decode = if input_types_len == 0 {
+                    let sol_decode = if input_types_len == 0 {
                         quote! {
                         |_input| {
                             ::core::result::Result::Ok(()) // todo: should we decode `RlpUnit` instead, e.g. what if some data...
@@ -503,16 +503,16 @@ impl Dispatch<'_> {
                         };
                     }
                     };
-                    let rlp_return_value = message
+                    let sol_return_value = message
                         .output()
                         .map(|_| quote! {
                             |flags, output| {
-                                ::ink::env::return_value_rlp::<Self::Output>(flags, &output)
+                                ::ink::env::return_value_solidity::<Self::Output>(flags, &output)
                             };
                         })
                         .unwrap_or_else(|| quote! {
                             |flags, _output| {
-                                ::ink::env::return_value_rlp::<()>(
+                                ::ink::env::return_value_solidity::<()>(
                                     flags,
                                     &()
                                 )
@@ -531,14 +531,14 @@ impl Dispatch<'_> {
                                     <#storage_ident as #trait_path>::#message_ident( storage #( , #input_bindings )* )
                                 };
                             const DECODE: fn(&mut &[::core::primitive::u8]) -> ::core::result::Result<Self::Input, ::ink::env::DispatchError> =
-                                #rlp_decode
+                                #sol_decode
                             const RETURN: fn(::ink::env::ReturnFlags, Self::Output) -> ! =
-                                #rlp_return_value
+                                #sol_return_value
                             const SELECTOR: [::core::primitive::u8; 4usize] = #selector;
                             const PAYABLE: ::core::primitive::bool = #payable;
                             const MUTATES: ::core::primitive::bool = #mutates;
                             const LABEL: &'static ::core::primitive::str = #label;
-                            const ENCODING: ::ink::reflect::Encoding = ::ink::reflect::Encoding::Rlp;
+                            const ENCODING: ::ink::reflect::Encoding = ::ink::reflect::Encoding::Solidity;
                         }
                     ))
                 }

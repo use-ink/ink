@@ -1,6 +1,6 @@
 [package]
-name = "other-contract-rlp"
-version = "5.1.0"
+name = "other-contract-sol"
+version = "6.0.0-alpha"
 authors = ["Use Ink <ink@use.ink>"]
 edition = "2021"
 publish = false

@@ -1,6 +1,6 @@
 #![cfg_attr(not(feature = "std"), no_std, no_main)]
 
-#[ink::contract(abi_encoding = "rlp")]
+#[ink::contract(abi = "sol")]
 pub mod flipper {
     #[ink(storage)]
     pub struct Flipper {

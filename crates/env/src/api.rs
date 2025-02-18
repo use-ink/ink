@@ -449,17 +449,17 @@ where
     })
 }
 
-/// Returns the *RLP encoded* value back to the caller of the executed contract.
+/// Returns the *Solidity ABI encoded* value back to the caller of the executed contract.
 ///
 /// # Note
 ///
 /// This function  stops the execution of the contract immediately.
-pub fn return_value_rlp<R>(return_flags: ReturnFlags, return_value: &R) -> !
+pub fn return_value_solidity<R>(return_flags: ReturnFlags, return_value: &R) -> !
 where
     R: alloy_sol_types::SolValue,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        EnvBackend::return_value_rlp::<R>(instance, return_flags, return_value)
+        EnvBackend::return_value_solidity::<R>(instance, return_flags, return_value)
     })
 }
 
