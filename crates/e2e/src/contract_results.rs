@@ -44,7 +44,7 @@ use std::{
 };
 
 /// Alias for the contract instantiate result.
-pub type ContractInstantiateResultForBar<E> =
+pub type ContractInstantiateResultFor<E> =
     ContractResult<InstantiateReturnValue, <E as Environment>::Balance>;
 
 /// Result type of a `bare_call`, `bare_instantiate`, `ReviveApi::call`, and
@@ -313,13 +313,13 @@ impl<E: Environment, V: scale::Decode> CallDryRunResult<E, V> {
 /// Result of the dry run of a contract call.
 pub struct InstantiateDryRunResult<E: Environment> {
     /// The result of the dry run, contains debug messages if there were any.
-    pub contract_result: ContractInstantiateResultForBar<E>,
+    pub contract_result: ContractInstantiateResultFor<E>,
 }
 
-impl<E: Environment> From<ContractInstantiateResultForBar<E>>
+impl<E: Environment> From<ContractInstantiateResultFor<E>>
     for InstantiateDryRunResult<E>
 {
-    fn from(contract_result: ContractInstantiateResultForBar<E>) -> Self {
+    fn from(contract_result: ContractInstantiateResultFor<E>) -> Self {
         Self { contract_result }
     }
 }

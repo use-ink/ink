@@ -21,7 +21,7 @@ use ink_env::Environment;
 
 use crate::contract_results::{
     ContractExecResultFor,
-    ContractInstantiateResultForBar,
+    ContractInstantiateResultFor,
 };
 use core::marker::PhantomData;
 use ink_primitives::DepositLimit;
@@ -29,6 +29,7 @@ use pallet_revive::{
     evm::H160,
     CodeUploadResult,
 };
+use pallet_revive::evm::{CallTrace, TracerConfig};
 use sp_core::H256;
 use subxt::{
     backend::{
@@ -48,6 +49,7 @@ use subxt::{
     },
     OnlineClient,
 };
+use subxt::backend::legacy::rpc_methods::Block;
 use subxt::ext::subxt_core::tx::Transaction;
 
 /// Copied from `sp_weight` to additionally implement `scale_encode::EncodeAsType`.
@@ -187,6 +189,17 @@ struct RpcCallRequest<C: subxt::Config, E: Environment> {
     input_data: Vec<u8>,
 }
 
+/// todo
+/// A struct that encodes RPC parameters required to instantiate a new smart contract.
+#[derive(scale::Encode)]
+// todo: #[derive(serde::Serialize, scale::Encode)]
+// todo: #[serde(rename_all = "camelCase")]
+struct RpcTraceTxRequest<C: subxt::Config> {
+    block: Block<C>,
+    tx_index:u32,
+    config: TracerConfig,
+}
+
 /// Reference to an existing code hash or a new contract binary.
 #[derive(serde::Serialize, scale::Encode)]
 #[serde(rename_all = "camelCase")]
@@ -262,7 +275,7 @@ where
         data: Vec<u8>,
         salt: Option<[u8; 32]>,
         signer: &Keypair,
-    ) -> ContractInstantiateResultForBar<E> {
+    ) -> ContractInstantiateResultFor<E> {
         // todo map_account beforehand?
         let code = Code::Upload(code);
         let call_request = RpcInstantiateRequest::<C, E> {
@@ -293,7 +306,7 @@ where
         &self,
         call: &Call,
         signer: &Keypair,
-    ) -> ExtrinsicEvents<C>
+    ) -> (ExtrinsicEvents<C>, Option<CallTrace>)
     where
         Call: subxt::tx::Payload,
     {
@@ -339,23 +352,42 @@ where
             }) {
                 TxStatus::InBestBlock(tx_in_block)
                 | TxStatus::InFinalizedBlock(tx_in_block) => {
-                    //
+                    let events = tx_in_block.fetch_events().await.unwrap_or_else(|err| {
+                        panic!("error on call `fetch_events`: {err:?}");
+                    });
+
                     let block_details = self.rpc.chain_get_block(
                         Some(tx_in_block.block_hash())
                     ).await.expect("no block found").expect("no block details found");
 
-                    let xt_index: usize = block_details.block.extrinsics.into_iter().enumerate().find_map(|(index, ext)| {
+                    let tx_index: usize = block_details.block.extrinsics.iter().cloned().enumerate().find_map(|(index, ext)| {
                         let hash_ext = Transaction::<C>::from_bytes(ext.0).hash();
                         if hash_ext == tx_in_block.extrinsic_hash() {
                             return Some(index);
                         }
                         None
-                    }).expect("no xt index found");
-                    panic!("xt_index {xt_index:?}");
+                    }).expect("the extrinsic hash was not found in the block");
+                    eprintln!("xt_index {tx_index:?}");
 
-                    return tx_in_block.fetch_events().await.unwrap_or_else(|err| {
-                        panic!("error on call `fetch_events`: {err:?}");
-                    })
+                    let trace_request = RpcTraceTxRequest::<C> {
+                        block: block_details.block,
+                        tx_index: tx_index as u32,
+                        config: TracerConfig::default(),
+                    };
+                    let func = "ReviveApi_trace_tx";
+                    let params = scale::Encode::encode(&trace_request);
+                    let parent_hash = tx_in_block.block_hash();
+                    let bytes = self
+                        .rpc
+                        .state_call(func, Some(&params), Some(parent_hash))
+                        .await
+                        .unwrap_or_else(|err| {
+                            panic!("error on ws request `trace_tx`: {err:?}");
+                        });
+                    let trace = scale::Decode::decode(&mut bytes.as_ref())
+                        .unwrap_or_else(|err| panic!("decoding `trace_tx` result failed: {err}"));
+
+                    return Ok((events, trace));
                 }
                 TxStatus::Error { message } => {
                     panic!("TxStatus::Error: {message:?}");
