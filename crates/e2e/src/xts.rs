@@ -344,13 +344,14 @@ where
                         Some(tx_in_block.block_hash())
                     ).await.expect("no block found").expect("no block details found");
 
-                    for ext in block_details.block.extrinsics {
+                    let xt_index: usize = block_details.block.extrinsics.into_iter().enumerate().find_map(|(index, ext)| {
                         let hash_ext = Transaction::<C>::from_bytes(ext.0).hash();
                         if hash_ext == tx_in_block.extrinsic_hash() {
-                            panic!("found the hash");
+                            return Some(index);
                         }
-                    }
-                    panic!("hash not found");
+                        None
+                    }).expect("no xt index found");
+                    panic!("xt_index {xt_index:?}");
 
                     return tx_in_block.fetch_events().await.unwrap_or_else(|err| {
                         panic!("error on call `fetch_events`: {err:?}");
