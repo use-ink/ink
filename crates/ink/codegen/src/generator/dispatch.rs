@@ -532,7 +532,11 @@ impl Dispatch<'_> {
                                 };
                             const DECODE: fn(&mut &[::core::primitive::u8]) -> ::core::result::Result<Self::Input, ::ink::env::DispatchError> =
                                 #sol_decode
+                            #[cfg(not(feature = "std"))]
                             const RETURN: fn(::ink::env::ReturnFlags, Self::Output) -> ! =
+                                #sol_return_value
+                            #[cfg(feature = "std")]
+                            const RETURN: fn(::ink::env::ReturnFlags, Self::Output) -> () =
                                 #sol_return_value
                             const SELECTOR: [::core::primitive::u8; 4usize] = #selector;
                             const PAYABLE: ::core::primitive::bool = #payable;
