@@ -48,6 +48,7 @@ use subxt::{
     },
     OnlineClient,
 };
+use subxt::ext::subxt_core::tx::Transaction;
 
 /// Copied from `sp_weight` to additionally implement `scale_encode::EncodeAsType`.
 #[derive(
@@ -283,7 +284,7 @@ where
                 panic!("error on ws request `revive_instantiate`: {err:?}");
             });
         scale::Decode::decode(&mut bytes.as_ref()).unwrap_or_else(|err| {
-            panic!("decoding ContractInstantiateResult failed: {err}")
+            panic!("decoding `ContractInstantiateResult` failed: {err}")
         })
     }
 
@@ -338,6 +339,19 @@ where
             }) {
                 TxStatus::InBestBlock(tx_in_block)
                 | TxStatus::InFinalizedBlock(tx_in_block) => {
+                    //
+                    let block_details = self.rpc.chain_get_block(
+                        Some(tx_in_block.block_hash())
+                    ).await.expect("no block found").expect("no block details found");
+
+                    for ext in block_details.block.extrinsics {
+                        let hash_ext = Transaction::<C>::from_bytes(ext.0).hash();
+                        if hash_ext == tx_in_block.extrinsic_hash() {
+                            panic!("found the hash");
+                        }
+                    }
+                    panic!("hash not found");
+
                     return tx_in_block.fetch_events().await.unwrap_or_else(|err| {
                         panic!("error on call `fetch_events`: {err:?}");
                     })

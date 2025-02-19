@@ -31,7 +31,7 @@ type BalanceOf<R> =
 
 type MomentOf<T> = <<T as pallet_revive::Config>::Time as Time>::Moment;
 
-/// Contract API used to interact with the contracts pallet.
+/// Contract API used to interact with `pallet-revive`.
 pub trait ContractAPI {
     /// The runtime contract config.
     type T: pallet_revive::Config;
@@ -229,7 +229,6 @@ where
         storage_deposit_limit: DepositLimit<BalanceOf<Self::T>>,
     ) -> ContractExecResultFor<Self::T> {
         let storage_deposit_limit = storage_deposit_limit_fn(storage_deposit_limit);
-        //self.events();
         self.execute_with(|| {
             pallet_revive::Pallet::<Self::T>::bare_call(
                 origin,
@@ -275,6 +274,7 @@ mod tests {
     const STORAGE_DEPOSIT_LIMIT: DepositLimit<u128> = DepositLimit::Unchecked;
 
     fn compile_module(contract_name: &str) -> Vec<u8> {
+        // todo compile the contract, instead of reading the binary
         let path = [
             std::env::var("CARGO_MANIFEST_DIR").as_deref().unwrap(),
             "/test-resources/",
