@@ -428,7 +428,7 @@ where
                         //.state_call(func, Some(&params), None)
                         .await
                         .unwrap_or_else(|err| {
-                            panic!("error on ws request `trace_tx`: {err:?}");
+                            panic!("error on ws request `trace_tx`: {err:?}\n\n{:#}", format!("{}", err).trim_start_matches("RPC error: "));
                         });
                     let trace = scale::Decode::decode(&mut bytes.as_ref())
                         .unwrap_or_else(|err| panic!("decoding `trace_tx` result failed: {err}"));
