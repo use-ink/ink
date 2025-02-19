@@ -1,16 +1,16 @@
-//! A smart contract to test using RLP encoding for EVM compatibility.
+//! A smart contract to test using Solidity ABI encoding.
 
 #![cfg_attr(not(feature = "std"), no_std, no_main)]
 
-#[ink::contract(abi_encoding = "rlp")]
-mod rlp {
+#[ink::contract(abi = "sol")]
+mod sol_encoding {
     #[ink(storage)]
     #[derive(Default)]
-    pub struct Rlp {
+    pub struct SolEncoding {
         value: bool,
     }
 
-    impl Rlp {
+    impl SolEncoding {
         #[ink(constructor)]
         pub fn new(value: bool) -> Self {
             Self { value }

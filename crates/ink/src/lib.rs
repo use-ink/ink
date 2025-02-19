@@ -36,7 +36,7 @@ mod contract_ref;
 mod env_access;
 mod message_builder;
 
-pub use alloy_rlp as rlp;
+pub use alloy_sol_types;
 pub use ink_env as env;
 #[cfg(feature = "std")]
 pub use ink_metadata as metadata;

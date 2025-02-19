@@ -1,5 +1,9 @@
-use super::rlp::*;
+use crate::sol_encoding::SolEncodingRef;
 use ink::{
+    alloy_sol_types::{
+        SolType,
+        SolValue,
+    },
     primitives::DepositLimit,
     H160,
 };
@@ -15,7 +19,7 @@ use pallet_revive::ExecReturnValue;
 const STORAGE_DEPOSIT_LIMIT: DepositLimit<u128> = DepositLimit::Unchecked;
 
 #[test]
-fn call_rlp_encoded_message() {
+fn call_solidity_encoded_message() {
     let built_contracts = ::ink_e2e::build_root_and_contract_dependencies();
     let contracts = ContractsRegistry::new(built_contracts);
 
@@ -33,7 +37,7 @@ fn call_rlp_encoded_message() {
 
     sandbox.map_account(origin.clone()).expect("unable to map");
 
-    let constructor = RlpRef::new(false);
+    let constructor = SolEncodingRef::new(false);
     let params = constructor
         .endowment(0u32.into())
         .code_hash(ink::primitives::H256::zero())
@@ -41,7 +45,7 @@ fn call_rlp_encoded_message() {
         .params();
     let exec_input = params.exec_input();
 
-    let code = contracts.load_code("rlp");
+    let code = contracts.load_code("sol_encoding");
     let contract_addr = <DefaultSandbox as ContractAPI>::deploy_contract(
         &mut sandbox,
         code,
@@ -85,11 +89,11 @@ impl ContractSandbox {
         origin: OriginFor<<DefaultSandbox as Sandbox>::Runtime>,
     ) -> Ret
     where
-        Args: ink::rlp::Encodable,
-        Ret: ink::rlp::Decodable,
+        Args: SolValue,
+        Ret: SolValue + From<<<Ret as SolValue>::SolType as SolType>::RustType>,
     {
         let result = self.call(message, args, origin);
-        ink::rlp::Decodable::decode(&mut &result[..]).expect("decode failed")
+        Ret::abi_decode(&mut &result[..], true).expect("decode failed")
     }
 
     fn call<Args>(
@@ -99,12 +103,11 @@ impl ContractSandbox {
         origin: OriginFor<<DefaultSandbox as Sandbox>::Runtime>,
     ) -> Vec<u8>
     where
-        Args: ink::rlp::Encodable,
+        Args: SolValue,
     {
         let mut data = keccak_selector(message.as_bytes());
-        let mut args_buf = Vec::new();
-        ink::rlp::Encodable::encode(&args, &mut args_buf);
-        data.append(&mut args_buf);
+        let mut encoded = args.abi_encode();
+        data.append(&mut encoded);
 
         let result = self.call_raw(data, origin);
         assert!(!result.did_revert(), "'{message}' failed {:?}", result);

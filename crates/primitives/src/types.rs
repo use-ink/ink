@@ -13,7 +13,15 @@
 // limitations under the License.
 
 use crate::arithmetic::AtLeast32BitUnsigned;
-use core::array::TryFromSliceError;
+use alloy_sol_types::{
+    private::primitives::FixedBytes,
+    sol_data,
+    SolValue,
+};
+use core::{
+    array::TryFromSliceError,
+    borrow::Borrow,
+};
 use derive_more::From;
 use primitive_types::{
     H160,
@@ -31,7 +39,6 @@ use {
     scale_info::TypeInfo,
 };
 
-use alloy_rlp::RlpDecodable;
 /// The default environment `AccountId` type.
 ///
 /// # Note
@@ -48,7 +55,6 @@ use alloy_rlp::RlpDecodable;
     PartialOrd,
     Hash,
     Decode,
-    RlpDecodable,
     Encode,
     MaxEncodedLen,
     From,
@@ -90,6 +96,27 @@ impl<'a> TryFrom<&'a [u8]> for AccountId {
     fn try_from(bytes: &'a [u8]) -> Result<Self, TryFromSliceError> {
         let address = <[u8; 32]>::try_from(bytes)?;
         Ok(Self(address))
+    }
+}
+
+impl Borrow<[u8; 32]> for AccountId {
+    fn borrow(&self) -> &[u8; 32] {
+        &self.0
+    }
+}
+
+impl SolValue for AccountId {
+    type SolType = sol_data::FixedBytes<32>;
+
+    #[inline]
+    fn abi_encode(&self) -> ink_prelude::vec::Vec<u8> {
+        self.0.as_slice().abi_encode()
+    }
+}
+
+impl From<FixedBytes<32>> for AccountId {
+    fn from(value: FixedBytes<32>) -> Self {
+        AccountId(value.0)
     }
 }
 
@@ -141,6 +168,27 @@ impl AsMut<[u8]> for Hash {
 impl From<Hash> for [u8; 32] {
     fn from(hash: Hash) -> Self {
         hash.0
+    }
+}
+
+impl Borrow<[u8; 32]> for Hash {
+    fn borrow(&self) -> &[u8; 32] {
+        &self.0
+    }
+}
+
+impl SolValue for Hash {
+    type SolType = sol_data::FixedBytes<32>;
+
+    #[inline]
+    fn abi_encode(&self) -> ink_prelude::vec::Vec<u8> {
+        self.0.abi_encode()
+    }
+}
+
+impl From<FixedBytes<32>> for Hash {
+    fn from(value: FixedBytes<32>) -> Self {
+        Hash(value.0)
     }
 }
 

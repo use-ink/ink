@@ -1,4 +1,4 @@
-use super::rlp_cross_contract::*;
+use super::sol_cross_contract::*;
 use ink_e2e::ContractsRegistry;
 use ink_sandbox::{
     api::prelude::*,
@@ -7,6 +7,10 @@ use ink_sandbox::{
 };
 
 use ink::{
+    alloy_sol_types::{
+        SolType,
+        SolValue,
+    },
     primitives::DepositLimit,
     H160,
 };
@@ -16,7 +20,7 @@ use pallet_revive::ExecReturnValue;
 const STORAGE_DEPOSIT_LIMIT: DepositLimit<u128> = DepositLimit::Unchecked;
 
 #[test]
-fn call_rlp_encoded_message() {
+fn call_sol_encoded_message() {
     let built_contracts = ::ink_e2e::build_root_and_contract_dependencies();
     let contracts = ContractsRegistry::new(built_contracts);
 
@@ -35,7 +39,7 @@ fn call_rlp_encoded_message() {
     sandbox.map_account(origin.clone()).expect("unable to map");
 
     // upload other contract (callee)
-    let constructor = other_contract_rlp::OtherContractRef::new(false);
+    let constructor = other_contract_sol::OtherContractRef::new(false);
     let params = constructor
         .endowment(0u32.into())
         .code_hash(ink::primitives::H256::zero())
@@ -43,7 +47,7 @@ fn call_rlp_encoded_message() {
         .params();
     let exec_input = params.exec_input();
 
-    let code = contracts.load_code("other-contract-rlp");
+    let code = contracts.load_code("other-contract-sol");
     let other_contract_addr = <DefaultSandbox as ContractAPI>::deploy_contract(
         &mut sandbox,
         code,
@@ -60,7 +64,7 @@ fn call_rlp_encoded_message() {
     .addr;
 
     // upload main contract (caller)
-    let constructor = RlpCrossContractRef::new();
+    let constructor = SolCrossContractRef::new();
     let params = constructor
         .endowment(0u32.into())
         .code_hash(ink::primitives::H256::zero())
@@ -68,7 +72,7 @@ fn call_rlp_encoded_message() {
         .params();
     let exec_input = params.exec_input();
 
-    let code = contracts.load_code("rlp-cross-contract");
+    let code = contracts.load_code("sol-cross-contract");
     let contract_addr = <DefaultSandbox as ContractAPI>::deploy_contract(
         &mut sandbox,
         code,
@@ -100,7 +104,12 @@ fn call_rlp_encoded_message() {
     let input: [u8; 20] = other_contract_addr.clone().into();
 
     // set value via cross contract call
-    contracts.call(contract_addr, "call_contract_rlp", input, origin.clone());
+    contracts.call(
+        contract_addr,
+        "call_contract_sol_encoding",
+        input,
+        origin.clone(),
+    );
 
     // get value
     let value: bool = contracts.call_with_return_value(
@@ -126,11 +135,11 @@ impl ContractSandbox {
         origin: OriginFor<<DefaultSandbox as Sandbox>::Runtime>,
     ) -> Ret
     where
-        Args: ink::rlp::Encodable,
-        Ret: ink::rlp::Decodable,
+        Args: SolValue,
+        Ret: SolValue + From<<<Ret as SolValue>::SolType as SolType>::RustType>,
     {
         let result = self.call(contract_addr, message, args, origin);
-        ink::rlp::Decodable::decode(&mut &result[..]).expect("decode failed")
+        Ret::abi_decode(&mut &result[..], true).expect("decode failed")
     }
 
     fn call<Args>(
@@ -141,12 +150,11 @@ impl ContractSandbox {
         origin: OriginFor<<DefaultSandbox as Sandbox>::Runtime>,
     ) -> Vec<u8>
     where
-        Args: ink::rlp::Encodable,
+        Args: SolValue,
     {
         let mut data = keccak_selector(message.as_bytes());
-        let mut args_buf = Vec::new();
-        ink::rlp::Encodable::encode(&args, &mut args_buf);
-        data.append(&mut args_buf);
+        let mut encoded = args.abi_encode();
+        data.append(&mut encoded);
 
         let result = self.call_raw(contract_addr, data, origin);
         assert!(!result.did_revert(), "'{message}' failed {:?}", result);

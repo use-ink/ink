@@ -233,13 +233,8 @@ pub trait DispatchableConstructorInfo<const ID: u32> {
 /// todo: comment
 pub enum Encoding {
     Scale,
-    Rlp,
+    Solidity,
 }
-
-/// Custom unit type for RLP encodable messages which return `()`.
-/// This is because [`alloy_rlp::Encodable`] is not implemented for the build-in `()` type
-#[derive(alloy_rlp::RlpEncodable)]
-pub struct RlpUnit {}
 
 mod private {
     /// Seals the implementation of `ConstructorReturnType`.
