@@ -15,6 +15,7 @@ categories.workspace = true
 include = ["/Cargo.toml", "src/**/*.rs", "/README.md", "/LICENSE"]
 
 [dependencies]
+alloy-sol-types = { workspace = true }
 derive_more = { workspace = true, features = ["from", "display"] }
 ink_prelude = { workspace = true }
 scale = { workspace = true, features = ["max-encoded-len"] }
@@ -35,6 +36,7 @@ ink_env = { workspace = true, default-features = false }
 [features]
 default = [ "std" ]
 std = [
+    "alloy-sol-types/std",
     "ink/std",
     "ink_env/std",
 	"ink_prelude/std",

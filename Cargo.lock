@@ -3561,6 +3561,7 @@ dependencies = [
 name = "ink_primitives"
 version = "6.0.0-alpha"
 dependencies = [
+ "alloy-sol-types",
  "cfg-if",
  "derive_more 1.0.0",
  "ink",
