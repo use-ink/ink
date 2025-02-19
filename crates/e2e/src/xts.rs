@@ -24,32 +24,29 @@ use crate::contract_results::{
     ContractInstantiateResultFor,
 };
 use core::marker::PhantomData;
+use frame_support::Deserialize;
+use funty::Fundamental;
 use ink_primitives::DepositLimit;
 use pallet_revive::{
     evm::H160,
     CodeUploadResult,
 };
-use pallet_revive::evm::{CallTrace, TracerConfig};
+use pallet_revive::evm::{Bytes, CallTrace, TracerConfig};
+use pallet_revive::evm::runtime::UncheckedExtrinsic;
 use sp_core::H256;
-use subxt::{
-    backend::{
-        legacy::LegacyRpcMethods,
-        rpc::RpcClient,
-    },
-    blocks::ExtrinsicEvents,
-    config::{
-        DefaultExtrinsicParams,
-        DefaultExtrinsicParamsBuilder,
-        ExtrinsicParams,
-    },
-    ext::scale_encode,
-    tx::{
-        Signer,
-        TxStatus,
-    },
-    OnlineClient,
-};
-use subxt::backend::legacy::rpc_methods::Block;
+use sp_runtime::generic::Block;
+use sp_runtime::{MultiAddress, MultiSignature, OpaqueExtrinsic};
+use subxt::{backend::{
+    legacy::LegacyRpcMethods,
+    rpc::RpcClient,
+}, blocks::ExtrinsicEvents, config::{
+    DefaultExtrinsicParams,
+    DefaultExtrinsicParamsBuilder,
+    ExtrinsicParams,
+}, ext::scale_encode, tx::{
+    Signer,
+    TxStatus,
+}, Config, OnlineClient};
 use subxt::ext::subxt_core::tx::Transaction;
 
 /// Copied from `sp_weight` to additionally implement `scale_encode::EncodeAsType`.
@@ -189,16 +186,33 @@ struct RpcCallRequest<C: subxt::Config, E: Environment> {
     input_data: Vec<u8>,
 }
 
+/*
+/// Alias to 512-bit hash when used in the context of a transaction signature on the chain.
+pub type Signature = MultiSignature;
+
+type BlockBar<C: subxt::Config> = Block<C::Header, pallet_revive::evm::runtime::UncheckedExtrinsic<MultiAddress<C::AccountId, ()>, Signature, ()> >;
+
 /// todo
 /// A struct that encodes RPC parameters required to instantiate a new smart contract.
-#[derive(scale::Encode)]
 // todo: #[derive(serde::Serialize, scale::Encode)]
 // todo: #[serde(rename_all = "camelCase")]
+#[derive(scale::Encode)]
 struct RpcTraceTxRequest<C: subxt::Config> {
-    block: Block<C>,
+    // todo this should not be fixed, it should be a generic `Block` (e.g. on `C`)
+    block: BlockBar<C>,
     tx_index:u32,
     config: TracerConfig,
 }
+
+#[derive(scale::Encode)]
+pub struct BlockFoo<T: Config> {
+    /// The block header.
+    pub header: T::Header,
+    /// The accompanying extrinsics.
+    pub extrinsics: Vec<Bytes>,
+}
+
+ */
 
 /// Reference to an existing code hash or a new contract binary.
 #[derive(serde::Serialize, scale::Encode)]
@@ -369,17 +383,49 @@ where
                     }).expect("the extrinsic hash was not found in the block");
                     eprintln!("xt_index {tx_index:?}");
 
+                    //let foo = scale::Encode::encode(&block_details.block);
+
+                    /*
                     let trace_request = RpcTraceTxRequest::<C> {
-                        block: block_details.block,
+                        /*
+                        block: BlockFoo {
+                        },
+                        */
+                        block: BlockBar::<C> {
+                            //extrinsics: block_details.block.extrinsics.iter().map(|v| Bytes(v.0.clone())).collect(),
+                            extrinsics: block_details.block.extrinsics.into(),
+                            header: block_details.block.header
+                        },
                         tx_index: tx_index as u32,
-                        config: TracerConfig::default(),
+                        config: TracerConfig::CallTracer {
+                            with_logs: true,
+                        }
+                    };
+
+                     */
+                    let tracer_config = TracerConfig::CallTracer {
+                        with_logs: true,
                     };
                     let func = "ReviveApi_trace_tx";
-                    let params = scale::Encode::encode(&trace_request);
+                    //let params = scale::Encode::encode(&trace_request);
+
+                    let header = block_details.block.header;
+                    let exts: Vec<OpaqueExtrinsic> = block_details
+                        .block
+                        .extrinsics
+                        .into_iter()
+                        //.filter_map(|e| OpaqueExtrinsic::decode(&mut &e[..]).ok())
+                        .filter_map(|e| scale::Decode::decode(&mut &e[..]).ok())
+                        .collect::<Vec<_>>();
+
+                    //let params = ((header, exts), tracer_config).encode();
+                    let params = scale::Encode::encode(&((header, exts), tx_index.as_u32(), tracer_config));
+
                     let parent_hash = tx_in_block.block_hash();
                     let bytes = self
                         .rpc
                         .state_call(func, Some(&params), Some(parent_hash))
+                        //.state_call(func, Some(&params), None)
                         .await
                         .unwrap_or_else(|err| {
                             panic!("error on ws request `trace_tx`: {err:?}");
@@ -387,7 +433,9 @@ where
                     let trace = scale::Decode::decode(&mut bytes.as_ref())
                         .unwrap_or_else(|err| panic!("decoding `trace_tx` result failed: {err}"));
 
-                    return Ok((events, trace));
+                    eprintln!("trace {trace:?}");
+
+                    return (events, trace)
                 }
                 TxStatus::Error { message } => {
                     panic!("TxStatus::Error: {message:?}");
@@ -462,7 +510,7 @@ where
         )
         .unvalidated();
 
-        self.submit_extrinsic(&call, signer).await
+        self.submit_extrinsic(&call, signer).await.0
     }
 
     /// Dry runs the upload of the given `code`.
@@ -513,7 +561,7 @@ where
         )
         .unvalidated();
 
-        self.submit_extrinsic(&call, signer).await
+        self.submit_extrinsic(&call, signer).await.0
     }
 
     /// Submits an extrinsic to remove the code at the given hash.
@@ -532,7 +580,7 @@ where
         )
         .unvalidated();
 
-        self.submit_extrinsic(&call, signer).await
+        self.submit_extrinsic(&call, signer).await.0
     }
 
     /// Dry runs a call of the contract at `contract` with the given parameters.
@@ -591,7 +639,7 @@ where
         )
         .unvalidated();
 
-        self.submit_extrinsic(&call, signer).await
+        self.submit_extrinsic(&call, signer).await.0
     }
 
     /// todo
@@ -603,7 +651,7 @@ where
         let call = subxt::tx::DefaultPayload::new("Revive", "map_account", MapAccount {})
             .unvalidated();
 
-        self.submit_extrinsic(&call, signer).await
+        self.submit_extrinsic(&call, signer).await.0
     }
 
     /// Submit an extrinsic `call_name` for the `pallet_name`.
@@ -621,6 +669,6 @@ where
     ) -> ExtrinsicEvents<C> {
         let call = subxt::dynamic::tx(pallet_name, call_name, call_data);
 
-        self.submit_extrinsic(&call, signer).await
+        self.submit_extrinsic(&call, signer).await.0
     }
 }
