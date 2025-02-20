@@ -82,7 +82,7 @@ impl TryFrom<ast::AttributeArgs> for Config {
                 } else {
                     return Err(format_err_spanned!(
                         arg,
-                        "expected a string value for `abi` ink! configuration argument",
+                        "expected a string literal value for `abi` ink! configuration argument",
                     ));
                 }
             } else if arg.name().is_ident("keep_attr") {
@@ -275,6 +275,60 @@ mod tests {
         assert_try_from(
             syn::parse_quote! { keep_attr },
             Err("expected a string literal value for `keep_attr` ink! configuration argument"),
+        );
+    }
+
+    #[test]
+    fn abi_works() {
+        assert_try_from(
+            syn::parse_quote! {
+                abi = "ink"
+            },
+            Ok(Config {
+                env: None,
+                abi: Abi::Ink,
+                whitelisted_attributes: Default::default(),
+            }),
+        );
+        assert_try_from(
+            syn::parse_quote! {
+                abi = "sol"
+            },
+            Ok(Config {
+                env: None,
+                abi: Abi::Solidity,
+                whitelisted_attributes: Default::default(),
+            }),
+        );
+        assert_try_from(
+            syn::parse_quote! {
+                abi = "all"
+            },
+            Ok(Config {
+                env: None,
+                abi: Abi::All,
+                whitelisted_attributes: Default::default(),
+            }),
+        );
+    }
+
+    #[test]
+    fn abi_invalid_value_fails() {
+        assert_try_from(
+            syn::parse_quote! { abi = "move" },
+            Err("expected one of `ink`, `sol` or `all` for `abi` ink! configuration argument"),
+        );
+        assert_try_from(
+            syn::parse_quote! { abi = 1u8 },
+            Err("expected a string literal value for `abi` ink! configuration argument"),
+        );
+    }
+
+    #[test]
+    fn abi_missing_value_fails() {
+        assert_try_from(
+            syn::parse_quote! { abi },
+            Err("expected a string literal value for `abi` ink! configuration argument"),
         );
     }
 }
