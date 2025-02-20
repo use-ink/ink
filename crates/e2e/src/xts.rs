@@ -332,6 +332,12 @@ where
                     panic!("error calling `get_account_nonce`: {err:?}");
                 });
 
+        // we have to retrieve the current block hash here. we use it later in this function
+        // when retrieving the log. the extrinsic is dry-run for tracing the log. if we were
+        // to use the latest block the extrinsic would already have been executed and we would
+        // get an error.
+        let parent_hash = self.best_block().await;
+
         let params = DefaultExtrinsicParamsBuilder::new()
             .nonce(account_nonce)
             .build();
@@ -403,6 +409,7 @@ where
                     };
 
                      */
+                    eprintln!("getting trace");
                     let tracer_config = TracerConfig::CallTracer {
                         with_logs: true,
                     };
@@ -417,11 +424,12 @@ where
                         //.filter_map(|e| OpaqueExtrinsic::decode(&mut &e[..]).ok())
                         .filter_map(|e| scale::Decode::decode(&mut &e[..]).ok())
                         .collect::<Vec<_>>();
+                    eprintln!("length xts {:?}", exts.len());
 
                     //let params = ((header, exts), tracer_config).encode();
                     let params = scale::Encode::encode(&((header, exts), tx_index.as_u32(), tracer_config));
 
-                    let parent_hash = tx_in_block.block_hash();
+                    //let parent_hash = tx_in_block.block_hash();
                     let bytes = self
                         .rpc
                         .state_call(func, Some(&params), Some(parent_hash))
