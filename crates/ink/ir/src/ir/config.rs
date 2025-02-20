@@ -68,13 +68,13 @@ impl TryFrom<ast::AttributeArgs> for Config {
                     .zip(arg.value().and_then(ast::MetaValue::as_string));
                 if let Some((name_value, path)) = encoding {
                     let encoding = match path.as_str() {
-                        "scale" => Abi::Scale,
+                        "ink" => Abi::Ink,
                         "solidity" | "sol" => Abi::Solidity,
                         "all" => Abi::All,
                         _ => {
                             return Err(format_err_spanned!(
                                 arg,
-                                "expected one of `scale`, `sol` or `all` for `abi` ink! configuration argument",
+                                "expected one of `ink`, `sol` or `all` for `abi` ink! configuration argument",
                             ));
                         }
                     };
@@ -146,26 +146,25 @@ impl Default for Environment {
     }
 }
 
-/// Which format is used for ABI encoding.
+/// ABI spec for encoding/decoding contract calls.
 #[derive(Debug, Clone, PartialEq, Eq, Default)]
-
 pub enum Abi {
-    /// SCALE codec, the default.
+    /// ink! ABI spec (the default, uses the SCALE codec for input/output encode/decode).
     #[default]
-    Scale,
-    /// Solidity ABI Encoding.
+    Ink,
+    /// Solidity ABI spec.
     Solidity,
-    /// Support both SCALE and Solidity ABI encoding for each contract entry point.
+    /// Support both ink! and Solidity ABI specs for each contract entry point.
     All,
 }
 
 impl Abi {
-    pub fn is_solidity(&self) -> bool {
-        matches!(self, Self::Solidity | Self::All)
+    pub fn is_ink(&self) -> bool {
+        matches!(self, Self::Ink | Self::All)
     }
 
-    pub fn is_scale(&self) -> bool {
-        matches!(self, Self::Scale | Self::All)
+    pub fn is_solidity(&self) -> bool {
+        matches!(self, Self::Solidity | Self::All)
     }
 
     pub fn is_all(&self) -> bool {

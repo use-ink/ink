@@ -155,7 +155,7 @@ impl Dispatch<'_> {
 
                 let mut message_dispatchables = Vec::new();
 
-                if self.contract.config().abi().is_scale() {
+                if self.contract.config().abi().is_ink() {
                     message_dispatchables.push(MessageDispatchable { message, id });
                 }
 
@@ -282,7 +282,7 @@ impl Dispatch<'_> {
 
                 let mut message_infos = Vec::new();
 
-                if encoding.is_scale() {
+                if encoding.is_ink() {
                     message_infos.push(quote_spanned!(message_span=>
                         #( #cfg_attrs )*
                         impl ::ink::reflect::DispatchableMessageInfo<#selector_id> for #storage_ident {
@@ -438,7 +438,7 @@ impl Dispatch<'_> {
 
                 let mut message_infos = Vec::new();
 
-                if self.contract.config().abi().is_scale() {
+                if self.contract.config().abi().is_ink() {
                    message_infos.push(quote_spanned!(message_span=>
                         #( #cfg_attrs )*
                         impl ::ink::reflect::DispatchableMessageInfo<#selector_id> for #storage_ident {
