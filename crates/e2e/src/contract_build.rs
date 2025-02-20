@@ -13,18 +13,7 @@
 // limitations under the License.
 
 use crate::log_info;
-use contract_build::{
-    BuildArtifacts,
-    BuildMode,
-    ExecuteArgs,
-    Features,
-    ImageVariant,
-    ManifestPath,
-    Network,
-    OutputType,
-    UnstableFlags,
-    Verbosity,
-};
+use contract_build::{BuildArtifacts, BuildMode, ExecuteArgs, Features, ImageVariant, ManifestPath, MetadataSpec, Network, OutputType, UnstableFlags, Verbosity};
 use itertools::Itertools;
 use std::{
     collections::{
@@ -174,6 +163,7 @@ fn build_contract(path_to_cargo_toml: &Path) -> PathBuf {
         output_type: OutputType::HumanReadable,
         skip_clippy_and_linting: false,
         image: ImageVariant::Default,
+        metadata_spec: MetadataSpec::Ink,
     };
 
     match contract_build::execute(args) {
