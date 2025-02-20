@@ -249,8 +249,13 @@ pub mod give_me {
                 .submit()
                 .await
                 .expect("instantiate failed");
+            let contract_addr = contract.addr;
+            eprintln!("trace {:?}", contract.trace);
+            const NativeToEthRatio: u128 = 1_000_000;
+            assert_eq!(contract.trace.clone().unwrap().value, U256::from(1_337_000_000 * NativeToEthRatio));
             let mut call_builder = contract.call_builder::<GiveMe>();
 
+            // todo extract account id from something else
             let acc = call_builder.account_id();
             let call_res = client
                 .call(&ink_e2e::eve(), &acc)
@@ -280,6 +285,13 @@ pub mod give_me {
                 .debug_message()
                 .contains("requested value: 120000000\n"));
              */
+            eprintln!("\n--call trace {:?}", call_res.trace);
+            let outgoing_trace = &call_res.trace.unwrap().calls[0];
+            eprintln!("\n--trace {:?}", outgoing_trace);
+            assert_eq!(outgoing_trace.value, U256::from(120_000_000));
+            assert_eq!(outgoing_trace.from, contract_addr);
+            //let eve = ink::H160::from(&ink_e2e::eve().account_id().encode()[..20]);
+            //assert_eq!(trace.to, eve);
 
             let balance_after: Balance = client
                 .free_balance(account_id)
