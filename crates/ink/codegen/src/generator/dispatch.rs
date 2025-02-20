@@ -785,15 +785,14 @@ impl Dispatch<'_> {
             );
 
             // todo how do we know that value was transferred?
-            //let constructor_accept_payment_assignment =
-                //self.any_constructor_accepts_payment(constructors);
+            let constructor_accept_payment_assignment =
+                self.any_constructor_accepts_payment(constructors);
 
             quote_spanned!(constructor_span=>
                 #( #cfg_attrs )*
                 Self::#constructor_ident(input) => {
 
-                    //if #constructor_accept_payment_assignment && #deny_payment {
-                    if #deny_payment {
+                    if #constructor_accept_payment_assignment && #deny_payment {
                         ::ink::codegen::deny_payment::<
                             <#storage_ident as ::ink::env::ContractEnv>::Env>()?;
                     }

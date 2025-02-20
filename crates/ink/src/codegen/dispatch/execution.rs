@@ -31,8 +31,7 @@ where
 {
     // todo
     let transferred = ink_env::transferred_value();
-    if transferred > U256::zero() {
-        // todo can we make it visible to users that this was the error?
+    if transferred != U256::zero() {
         return Err(DispatchError::PaidUnpayableMessage)
     }
     Ok(())
