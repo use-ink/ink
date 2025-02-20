@@ -622,12 +622,10 @@ impl Dispatch<'_> {
             #[allow(clippy::nonminimal_bool)]
             #[cfg(target_arch = "riscv64")]
             fn internal_call() {
-                /*
                 if !#any_message_accepts_payment {
                     ::ink::codegen::deny_payment::<<#storage_ident as ::ink::env::ContractEnv>::Env>()
                         .unwrap_or_else(|error| ::core::panic!("{}", error))
                 }
-                 */
 
                 let dispatchable = match ::ink::env::decode_input::<
                     <#storage_ident as ::ink::reflect::ContractMessageDecoder>::Type,
