@@ -91,6 +91,7 @@ pub mod flipper {
             Ok(())
         }
 
+        //#[ink_e2e::test]
         #[ink_e2e::test]
         async fn default_works<Client: E2EBackend>(mut client: Client) -> E2EResult<()> {
             // given

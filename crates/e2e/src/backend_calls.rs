@@ -36,6 +36,7 @@ use scale::{
 };
 use sp_weights::Weight;
 use std::marker::PhantomData;
+use sp_runtime::traits::Zero;
 
 /// Allows to build an end-to-end call using a builder pattern.
 pub struct CallBuilder<'a, E, Args, RetType, B>
@@ -216,6 +217,7 @@ where
 impl<'a, E, Contract, Args, R, B> InstantiateBuilder<'a, E, Contract, Args, R, B>
 where
     E: Environment,
+    E::Balance: Zero,
     Args: Encode + Clone + Send + Sync,
     Contract: Clone,
 
@@ -228,15 +230,13 @@ where
         contract_name: &'a str,
         constructor: &'a mut CreateBuilderPartial<E, Contract, Args, R>,
     ) -> InstantiateBuilder<'a, E, Contract, Args, R, B>
-    where
-        E::Balance: From<u32>,
     {
         Self {
             client,
             caller,
             contract_name,
             constructor,
-            value: 0u32.into(),
+            value: E::Balance::zero(),
             extra_gas_portion: None,
             gas_limit: None,
             storage_deposit_limit: DepositLimit::Unchecked,
@@ -245,6 +245,7 @@ where
 
     /// Provide value with a call
     pub fn value(&mut self, value: E::Balance) -> &mut Self {
+        panic!("setting value");
         self.value = value;
         self
     }

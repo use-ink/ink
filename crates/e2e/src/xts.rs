@@ -36,6 +36,7 @@ use pallet_revive::evm::runtime::UncheckedExtrinsic;
 use sp_core::H256;
 use sp_runtime::generic::Block;
 use sp_runtime::{MultiAddress, MultiSignature, OpaqueExtrinsic};
+use sp_runtime::traits::Zero;
 use subxt::{backend::{
     legacy::LegacyRpcMethods,
     rpc::RpcClient,
@@ -147,14 +148,17 @@ pub struct UploadCode<E: Environment> {
 }
 
 /// A struct that encodes RPC parameters required to instantiate a new smart contract.
-#[derive(scale::Encode)]
+#[derive(scale::Encode, scale::Decode)]
 // todo: #[derive(serde::Serialize, scale::Encode)]
 // todo: #[serde(rename_all = "camelCase")]
 struct RpcInstantiateRequest<C: subxt::Config, E: Environment> {
     origin: C::AccountId,
+    #[codec(compact)]
     value: E::Balance,
     gas_limit: Option<Weight>,
-    storage_deposit_limit: DepositLimit<E::Balance>,
+    //storage_deposit_limit: DepositLimit<E::Balance>,
+    #[codec(compact)]
+    storage_deposit_limit: E::Balance,
     code: Code,
     data: Vec<u8>,
     salt: Option<[u8; 32]>,
@@ -180,9 +184,12 @@ where
 struct RpcCallRequest<C: subxt::Config, E: Environment> {
     origin: C::AccountId,
     dest: H160,
+    #[codec(compact)]
     value: E::Balance,
     gas_limit: Option<Weight>,
-    storage_deposit_limit: DepositLimit<E::Balance>,
+    #[codec(compact)]
+    //storage_deposit_limit: DepositLimit<E::Balance>,
+    storage_deposit_limit: E::Balance,
     input_data: Vec<u8>,
 }
 
@@ -215,7 +222,7 @@ pub struct BlockFoo<T: Config> {
  */
 
 /// Reference to an existing code hash or a new contract binary.
-#[derive(serde::Serialize, scale::Encode)]
+#[derive(serde::Serialize, scale::Encode, scale::Decode)]
 #[serde(rename_all = "camelCase")]
 enum Code {
     /// A contract binary as raw bytes.
@@ -242,7 +249,7 @@ where
         From<<DefaultExtrinsicParams<C> as ExtrinsicParams<C>>::Params>,
 
     E: Environment,
-    E::Balance: scale::HasCompact + serde::Serialize,
+    E::Balance: scale::HasCompact + serde::Serialize + std::fmt::Debug,
 {
     /// Creates a new [`ReviveApi`] instance.
     pub async fn new(rpc: RpcClient) -> Result<Self, subxt::Error> {
@@ -291,12 +298,13 @@ where
         signer: &Keypair,
     ) -> ContractInstantiateResultFor<E> {
         eprintln!("instantiate dry run using salt: {:?}", salt);
+        eprintln!("instantiate dry run using value: {:?}", value);
         let code = Code::Upload(code);
         let call_request = RpcInstantiateRequest::<C, E> {
             origin: Signer::<C>::account_id(signer),
             value,
             gas_limit: None,
-            storage_deposit_limit,
+            storage_deposit_limit: storage_deposit_limit_fn(storage_deposit_limit),
             code,
             data,
             salt,
@@ -605,7 +613,8 @@ where
             dest,
             value,
             gas_limit: None,
-            storage_deposit_limit: DepositLimit::Unchecked,
+            //storage_deposit_limit: DepositLimit::Unchecked,
+            storage_deposit_limit: storage_deposit_limit_fn(DepositLimit::Unchecked),
             input_data,
         };
         let func = "ReviveApi_call";
@@ -680,3 +689,14 @@ where
         self.submit_extrinsic(&call, signer).await.0
     }
 }
+
+/// todo
+fn storage_deposit_limit_fn<Balance: Zero>(
+    limit: DepositLimit<Balance>,
+) -> Balance {
+    match limit {
+        DepositLimit::Unchecked => Balance::zero(),
+        DepositLimit::Balance(v) => v,
+    }
+}
+
