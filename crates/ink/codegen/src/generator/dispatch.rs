@@ -224,7 +224,7 @@ impl Dispatch<'_> {
                     <::ink::reflect::ConstructorOutputValue<#output_type>
                         as ::ink::reflect::ConstructorOutput<#storage_ident>>
                 );
-                quote_spanned!(constructor_span=>
+                quote_spanned!(constructor_span =>
                     #( #cfg_attrs )*
                     impl ::ink::reflect::DispatchableConstructorInfo<#selector_id> for #storage_ident {
                         type Input = #input_tuple_type;
@@ -784,6 +784,7 @@ impl Dispatch<'_> {
                     as ::ink::reflect::ConstructorOutput::<#storage_ident>>
             );
 
+            // todo how do we know that value was transferred?
             let constructor_accept_payment_assignment =
                 self.any_constructor_accepts_payment(constructors);
 

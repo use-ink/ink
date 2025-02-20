@@ -10,7 +10,7 @@ pub mod flipper {
 
     impl Flipper {
         /// Creates a new flipper smart contract initialized with the given value.
-        #[ink(constructor)]
+        #[ink(constructor, payable)]
         pub fn new(init_value: bool) -> Self {
             Self { value: init_value }
         }
