@@ -387,7 +387,7 @@ where
                         }
                         None
                     }).expect("the extrinsic hash was not found in the block");
-                    eprintln!("xt_index {tx_index:?}");
+                    eprintln!("tx_index {tx_index:?}");
 
                     //let foo = scale::Encode::encode(&block_details.block);
 
@@ -503,7 +503,7 @@ where
         data: Vec<u8>,
         salt: Option<[u8; 32]>,
         signer: &Keypair,
-    ) -> ExtrinsicEvents<C> {
+    ) -> (ExtrinsicEvents<C>, Option<CallTrace>) {
         let call = subxt::tx::DefaultPayload::new(
             "Revive",
             "instantiate_with_code",
@@ -518,7 +518,7 @@ where
         )
         .unvalidated();
 
-        self.submit_extrinsic(&call, signer).await.0
+        self.submit_extrinsic(&call, signer).await
     }
 
     /// Dry runs the upload of the given `code`.
@@ -633,7 +633,7 @@ where
         storage_deposit_limit: E::Balance,
         data: Vec<u8>,
         signer: &Keypair,
-    ) -> ExtrinsicEvents<C> {
+    ) -> (ExtrinsicEvents<C>, Option<CallTrace>) {
         let call = subxt::tx::DefaultPayload::new(
             "Revive",
             "call",
@@ -647,7 +647,7 @@ where
         )
         .unvalidated();
 
-        self.submit_extrinsic(&call, signer).await.0
+        self.submit_extrinsic(&call, signer).await
     }
 
     /// todo

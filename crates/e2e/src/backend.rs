@@ -36,6 +36,7 @@ use ink_env::{
 };
 use ink_primitives::DepositLimit;
 use jsonrpsee::core::async_trait;
+use pallet_revive::evm::CallTrace;
 use scale::{
     Decode,
     Encode,
@@ -235,7 +236,7 @@ pub trait BuilderClient<E: Environment>: ContractsBackend<E> {
         value: E::Balance,
         gas_limit: Weight,
         storage_deposit_limit: DepositLimit<E::Balance>,
-    ) -> Result<Self::EventLog, Self::Error>
+    ) -> Result<(Self::EventLog, Option<CallTrace>), Self::Error>
     where
         CallBuilderFinal<E, Args, RetType>: Clone;
 

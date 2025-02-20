@@ -50,7 +50,7 @@ use sp_weights::Weight;
 #[cfg(feature = "std")]
 use std::fmt::Debug;
 use std::path::PathBuf;
-
+use pallet_revive::evm::CallTrace;
 use crate::{
     backend::ChainBackend,
     client_utils::{
@@ -147,7 +147,7 @@ where
     ) -> Result<BareInstantiationResult<ExtrinsicEvents<C>>, Error> {
         eprintln!("exec_instantiate");
         let salt = salt();
-        let tx_events = self
+        let (events, trace) = self
             .api
             .instantiate_with_code(
                 value,
@@ -159,6 +159,22 @@ where
                 signer,
             )
             .await;
+
+        for evt in events.iter() {
+            let evt = evt.unwrap_or_else(|err| {
+                panic!("unable to unwrap event: {err:?}");
+            });
+            if is_extrinsic_failed_event(&evt) {
+                let metadata = self.api.client.metadata();
+                let dispatch_error =
+                    subxt::error::DispatchError::decode_from(evt.field_bytes(), metadata)
+                        .map_err(|e| Error::Decoding(e.to_string()))?;
+                log_error(&format!(
+                    "extrinsic for instantiate failed: {dispatch_error}"
+                ));
+                return Err(Error::InstantiateExtrinsic(dispatch_error))
+            }
+        }
 
         /*
         let mut addr = None;
@@ -210,7 +226,8 @@ where
             // The `account_id` must exist at this point. If the instantiation fails
             // the dry-run must already return that.
             addr,
-            events: tx_events,
+            events,
+            trace,
         })
     }
 
@@ -594,7 +611,7 @@ where
         value: E::Balance,
         gas_limit: Weight,
         storage_deposit_limit: DepositLimit<E::Balance>,
-    ) -> Result<Self::EventLog, Self::Error>
+    ) -> Result<(Self::EventLog, Option<CallTrace>), Self::Error>
     where
         CallBuilderFinal<E, Args, RetType>: Clone,
     {
@@ -602,7 +619,7 @@ where
         let exec_input = Encode::encode(message.clone().params().exec_input());
         log_info(&format!("call: {:02X?}", exec_input));
 
-        let tx_events = self
+        let (tx_events, trace) = self
             .api
             .call(
                 addr,
@@ -629,7 +646,7 @@ where
             }
         }
 
-        Ok(tx_events)
+        Ok((tx_events, trace))
     }
 
     // todo is not really a `bare_call`

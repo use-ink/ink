@@ -42,6 +42,7 @@ use std::{
     fmt::Debug,
     marker::PhantomData,
 };
+use pallet_revive::evm::CallTrace;
 
 /// Alias for the contract instantiate result.
 pub type ContractInstantiateResultFor<E> =
@@ -93,6 +94,8 @@ pub struct BareInstantiationResult<EventLog> {
     pub addr: H160,
     /// Events that happened with the contract instantiation.
     pub events: EventLog,
+    /// todo
+    pub trace: Option<CallTrace>,
 }
 
 impl<EventLog> BareInstantiationResult<EventLog> {
@@ -112,6 +115,7 @@ where
         f.debug_struct("InstantiationResult")
             .field("addr", &self.addr)
             .field("events", &self.events)
+            .field("trace", &self.trace)
             .finish()
     }
 }
@@ -125,6 +129,8 @@ pub struct InstantiationResult<E: Environment, EventLog> {
     pub dry_run: InstantiateDryRunResult<E>,
     /// Events that happened with the contract instantiation.
     pub events: EventLog,
+    /// todo
+    pub trace: Option<CallTrace>,
 }
 
 impl<E: Environment, EventLog> InstantiationResult<E, EventLog> {
@@ -189,6 +195,8 @@ pub struct CallResult<E: Environment, V, EventLog> {
     pub dry_run: CallDryRunResult<E, V>,
     /// Events that happened with the contract instantiation.
     pub events: EventLog,
+    /// todo
+    pub trace: Option<CallTrace>,
 }
 
 impl<E: Environment, V: scale::Decode, EventLog> CallResult<E, V, EventLog> {
@@ -231,6 +239,7 @@ where
         f.debug_struct("CallResult")
             .field("dry_run", &self.dry_run)
             .field("events", &self.events)
+            .field("trace", &self.trace)
             .finish()
     }
 }

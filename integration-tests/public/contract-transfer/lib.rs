@@ -274,25 +274,6 @@ pub mod give_me {
                 .expect("call failed");
 
             // then
-            let call_data = vec![
-                // todo addr
-                block,
-                tx_index,
-                tracer_config,
-
-                //Value::unnamed_variant("Id", [Value::from_bytes(account_id)]),
-                //// todo check next line
-                //Value::u128(ENDOWMENT),
-            ];
-            client
-                .runtime_call(
-                    &ink_e2e::alice(),
-                    "ReviveApi",
-                    "trace_tx",
-                    call_data,
-                )
-                .await
-                .expect("runtime call failed");
             /*
             // todo
             assert!(call_res

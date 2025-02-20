@@ -160,7 +160,7 @@ where
             calculate_weight(proof_size, ref_time, self.extra_gas_portion)
         };
 
-        let call_result = B::bare_call(
+        let (events, trace) = B::bare_call(
             self.client,
             self.caller,
             self.message,
@@ -173,7 +173,8 @@ where
 
         Ok(CallResult {
             dry_run,
-            events: call_result,
+            events,
+            trace,
         })
     }
 
@@ -335,6 +336,7 @@ where
             addr: instantiate_result.addr,
             dry_run,
             events: instantiate_result.events,
+            trace: instantiate_result.trace,
         })
     }
 

@@ -79,6 +79,7 @@ use std::{
     marker::PhantomData,
     path::PathBuf,
 };
+use pallet_revive::evm::CallTrace;
 use subxt::{
     dynamic::Value,
     tx::Payload,
@@ -246,6 +247,7 @@ where
         gas_limit: Weight,
         storage_deposit_limit: DepositLimit<E::Balance>,
     ) -> Result<BareInstantiationResult<Self::EventLog>, Self::Error> {
+        eprintln!("bare instantiate");
         let _ =
             <Client<AccountId, S> as BuilderClient<E>>::map_account(self, caller).await;
 
@@ -270,9 +272,12 @@ where
             Ok(res) => res.addr,
         };
 
+        // get the trace
+
         Ok(BareInstantiationResult {
             addr: addr_raw,
             events: (), // todo: https://github.com/Cardinal-Cryptography/drink/issues/32
+            trace: None,
         })
     }
 
@@ -369,7 +374,7 @@ where
         value: E::Balance,
         gas_limit: Weight,
         storage_deposit_limit: DepositLimit<E::Balance>,
-    ) -> Result<Self::EventLog, Self::Error>
+    ) -> Result<(Self::EventLog, Option<CallTrace>), Self::Error>
     where
         CallBuilderFinal<E, Args, RetType>: Clone,
     {
@@ -392,7 +397,7 @@ where
             .result
             .map_err(|err| SandboxErr::new(format!("bare_call: {err:?}")))?;
 
-        Ok(())
+        Ok(((), None))
     }
 
     async fn bare_call_dry_run<Args: Sync + Encode + Clone, RetType: Send + Decode>(
