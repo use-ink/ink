@@ -31,11 +31,7 @@ pub fn salt() -> Option<[u8; 32]> {
         .to_le_bytes();
     arr[..16].copy_from_slice(t.as_slice());
     arr[16..].copy_from_slice(t.as_slice());
-    //Some(arr)
-
-    let mut foo = [0u8; 32];
-    foo[0] = 64;
-    Some(foo)
+    Some(arr)
 }
 
 /// A registry of contracts that can be loaded.

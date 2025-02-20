@@ -12,25 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use super::{
-    builders::{
-        constructor_exec_input,
-        CreateBuilderPartial,
-    },
-    deposit_limit_to_balance,
-    events::{
-        CodeStoredEvent,
-        ContractInstantiatedEvent,
-        EventWithTopics,
-    },
-    log_error,
-    log_info,
-    sr25519,
-    InstantiateDryRunResult,
-    Keypair,
-    ReviveApi,
-    H256,
-};
+use super::{account_id, builders::{
+    constructor_exec_input,
+    CreateBuilderPartial,
+}, deposit_limit_to_balance, events::{
+    CodeStoredEvent,
+    ContractInstantiatedEvent,
+    EventWithTopics,
+}, log_error, log_info, sr25519, InstantiateDryRunResult, Keypair, ReviveApi, H256};
 use crate::{
     backend::BuilderClient,
     contract_results::{
@@ -89,6 +78,7 @@ use subxt::{
     },
     tx::Signer,
 };
+use ink::H160;
 
 pub type Error = crate::error::Error<DispatchError>;
 
@@ -155,21 +145,22 @@ where
         gas_limit: Weight,
         storage_deposit_limit: E::Balance,
     ) -> Result<BareInstantiationResult<ExtrinsicEvents<C>>, Error> {
+        eprintln!("exec_instantiate");
         let salt = salt();
-
         let tx_events = self
             .api
             .instantiate_with_code(
                 value,
                 gas_limit.into(),
                 storage_deposit_limit,
-                code,
+                code.clone(),
                 data.clone(),
                 salt,
                 signer,
             )
             .await;
 
+        /*
         let mut addr = None;
         for evt in tx_events.iter() {
             let evt = evt.unwrap_or_else(|err| {
@@ -203,6 +194,17 @@ where
             }
         }
         let addr = addr.expect("cannot extract `account_id` from events");
+        */
+        // todo generate addr
+        //let addr = H160::zero();
+
+        // copied from `pallet-revive`
+        let account_id = <subxt_signer::sr25519::Keypair as subxt::tx::Signer<C>>::account_id(signer);
+        //signer.account_id();
+        let deployer = H160::from_slice(&account_id.encode()[..20]);
+        let addr =
+            pallet_revive::create2(&deployer, &code[..],
+                                   &data[..], &salt.expect("todo make salt() return no option, but value"));
 
         Ok(BareInstantiationResult {
             // The `account_id` must exist at this point. If the instantiation fails
@@ -518,6 +520,7 @@ where
         value: E::Balance,
         storage_deposit_limit: DepositLimit<E::Balance>,
     ) -> Result<InstantiateDryRunResult<E>, Self::Error> {
+        eprintln!("dry run instantiate");
         // todo beware side effect! this is wrong, we have to batch up the `map_account`
         // into the RPC dry run instead
         let _ = self.map_account(caller).await;
@@ -538,6 +541,7 @@ where
             .await;
 
         log_info(&format!("instantiate dry run: {:?}", &result.result));
+        eprintln!("instantiate dry run: {:?}", &result.result);
         let result = self
             .contract_result_to_result(result)
             .map_err(Error::InstantiateDryRun)?;

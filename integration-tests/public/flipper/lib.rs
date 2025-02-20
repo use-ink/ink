@@ -1,6 +1,7 @@
 #![cfg_attr(not(feature = "std"), no_std, no_main)]
 
-#[ink::contract]
+//#[ink::contract]
+#[ink::contract(abi_encoding = "scale")]
 pub mod flipper {
     #[ink(storage)]
     pub struct Flipper {
@@ -101,6 +102,7 @@ pub mod flipper {
                 .submit()
                 .await
                 .expect("instantiate failed");
+            eprintln!("-----instantiate succeeded \n");
             let call_builder = contract.call_builder::<Flipper>();
 
             // then

@@ -290,7 +290,7 @@ where
         salt: Option<[u8; 32]>,
         signer: &Keypair,
     ) -> ContractInstantiateResultFor<E> {
-        // todo map_account beforehand?
+        eprintln!("instantiate dry run using salt: {:?}", salt);
         let code = Code::Upload(code);
         let call_request = RpcInstantiateRequest::<C, E> {
             origin: Signer::<C>::account_id(signer),
