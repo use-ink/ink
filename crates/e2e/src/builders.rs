@@ -13,6 +13,7 @@
 // limitations under the License.
 
 use crate::H256;
+use ink::alloy_sol_types::SolValue;
 use ink_env::{
     call::{
         utils::{
@@ -38,7 +39,7 @@ pub type CreateBuilderPartial<E, ContractRef, Args, R> = CreateBuilder<
 >;
 
 /// Get the encoded constructor arguments from the partially initialized `CreateBuilder`
-pub fn constructor_exec_input<E, ContractRef, Args: Encode, R>(
+pub fn constructor_exec_input<E, ContractRef, Args: SolValue, R>(
     builder: CreateBuilderPartial<E, ContractRef, Args, R>,
 ) -> Vec<u8>
 where
@@ -51,5 +52,6 @@ where
         .salt_bytes(None)
         .params()
         .exec_input()
-        .encode()
+        .call_data()
+    // .encode()
 }

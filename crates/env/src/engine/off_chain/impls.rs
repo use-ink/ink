@@ -43,6 +43,7 @@ use crate::{
     Result,
     TypedEnvBackend,
 };
+use alloy_sol_types::SolValue;
 use ink_engine::ext::Engine;
 use ink_primitives::{
     types::Environment,
@@ -582,14 +583,16 @@ impl TypedEnvBackend for EnvInstance {
     ) -> Result<ink_primitives::MessageResult<R>>
     where
         E: Environment,
-        Args: scale::Encode,
+        // Args: scale::Encode,
+        Args: SolValue,
         R: scale::Decode,
     {
         let call_flags = params.call_flags().bits();
         let transferred_value = params.transferred_value();
         let input = params.exec_input();
         let callee_account = params.callee();
-        let input = scale::Encode::encode(input);
+        // let input = scale::Encode::encode(input);
+        let input = input.call_data();
 
         invoke_contract_impl::<R>(
             self,
@@ -607,13 +610,16 @@ impl TypedEnvBackend for EnvInstance {
     ) -> Result<ink_primitives::MessageResult<R>>
     where
         E: Environment,
-        Args: scale::Encode,
+        // Args: scale::Encode,
+        Args: SolValue,
         R: scale::Decode,
     {
         let _addr = params.address(); // todo remove
         let call_flags = params.call_flags().bits();
         let input = params.exec_input();
-        let input = scale::Encode::encode(input);
+        // let input = scale::Encode::encode(input);
+        // let input = input.abi_encode();
+        let input = input.call_data();
 
         invoke_contract_impl_delegate::<R>(
             self,
@@ -638,7 +644,8 @@ impl TypedEnvBackend for EnvInstance {
         ContractRef: FromAddr + crate::ContractReverseReference,
         <ContractRef as crate::ContractReverseReference>::Type:
             crate::reflect::ContractConstructorDecoder,
-        Args: scale::Encode,
+        // Args: scale::Encode,
+        Args: SolValue,
         R: ConstructorReturnType<ContractRef>,
     {
         let endowment = params.endowment();
@@ -646,7 +653,8 @@ impl TypedEnvBackend for EnvInstance {
         let code_hash = params.code_hash();
 
         let input = params.exec_input();
-        let input = scale::Encode::encode(input);
+        // let input = scale::Encode::encode(input);
+        let input = input.call_data();
 
         // Compute address for instantiated contract.
         let addr_id_vec = {

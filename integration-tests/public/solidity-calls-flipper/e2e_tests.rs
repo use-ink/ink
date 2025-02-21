@@ -53,7 +53,8 @@ async fn solidity_calls_ink_works<Client: E2EBackend>(
         .exec_instantiate(
             &signer,
             client.contracts.load_code("flipper"),
-            ink::scale::Encode::encode(&exec_input),
+            // ink::scale::Encode::encode(&exec_input),
+            exec_input.call_data(),
             0,
             DEFAULT_GAS.into(),
             DEFAULT_STORAGE_DEPOSIT_LIMIT,

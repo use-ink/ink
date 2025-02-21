@@ -31,6 +31,7 @@ use crate::{
     DispatchError,
     Result,
 };
+use alloy_sol_types::SolValue;
 use ink_primitives::{
     types::Environment,
     H160,
@@ -331,7 +332,8 @@ pub trait TypedEnvBackend: EnvBackend {
     ) -> Result<ink_primitives::MessageResult<R>>
     where
         E: Environment,
-        Args: scale::Encode,
+        // Args: scale::Encode,
+        Args: SolValue,
         R: scale::Decode;
 
     /// Invokes a contract message via delegate call and returns its result.
@@ -346,7 +348,8 @@ pub trait TypedEnvBackend: EnvBackend {
     ) -> Result<ink_primitives::MessageResult<R>>
     where
         E: Environment,
-        Args: scale::Encode,
+        // Args: scale::Encode,
+        Args: SolValue,
         R: scale::Decode;
 
     /// Instantiates another contract.
@@ -367,7 +370,8 @@ pub trait TypedEnvBackend: EnvBackend {
         ContractRef: FromAddr + crate::ContractReverseReference,
         <ContractRef as crate::ContractReverseReference>::Type:
             crate::reflect::ContractConstructorDecoder,
-        Args: scale::Encode,
+        // Args: scale::Encode,
+        Args: SolValue,
         R: ConstructorReturnType<ContractRef>;
 
     /// Terminates a smart contract.

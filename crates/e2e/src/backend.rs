@@ -30,6 +30,7 @@ use crate::{
     CallDryRunResult,
     UploadResult,
 };
+use ink::alloy_sol_types::SolValue;
 use ink_env::{
     DefaultEnvironment,
     Environment,
@@ -126,7 +127,7 @@ pub trait ContractsBackend<E: Environment> {
     ///     .await
     ///     .expect("instantiate failed");
     /// ```
-    fn instantiate<'a, Contract: Clone, Args: Send + Clone + Encode + Sync, R>(
+    fn instantiate<'a, Contract: Clone, Args: Send + Clone + SolValue + Sync, R>(
         &'a mut self,
         contract_name: &'a str,
         caller: &'a Keypair,
@@ -205,7 +206,7 @@ pub trait ContractsBackend<E: Environment> {
     ///     .await
     ///     .expect("instantiate failed");
     /// ```
-    fn call<'a, Args: Sync + Encode + Clone, RetType: Send + Decode>(
+    fn call<'a, Args: Sync + SolValue + Clone, RetType: Send + Decode>(
         &'a mut self,
         caller: &'a Keypair,
         message: &'a CallBuilderFinal<E, Args, RetType>,
@@ -226,7 +227,7 @@ pub trait BuilderClient<E: Environment>: ContractsBackend<E> {
     ///
     /// Returns when the transaction is included in a block. The return value
     /// contains all events that are associated with this transaction.
-    async fn bare_call<Args: Sync + Encode + Clone, RetType: Send + Decode>(
+    async fn bare_call<Args: Sync + SolValue + Clone, RetType: Send + Decode>(
         &mut self,
         caller: &Keypair,
         message: &CallBuilderFinal<E, Args, RetType>,
@@ -241,7 +242,7 @@ pub trait BuilderClient<E: Environment>: ContractsBackend<E> {
     ///
     /// Returns the result of the dry run, together with the decoded return value of the
     /// invoked message.
-    async fn bare_call_dry_run<Args: Sync + Encode + Clone, RetType: Send + Decode>(
+    async fn bare_call_dry_run<Args: Sync + SolValue + Clone, RetType: Send + Decode>(
         &mut self,
         caller: &Keypair,
         message: &CallBuilderFinal<E, Args, RetType>,
@@ -285,7 +286,7 @@ pub trait BuilderClient<E: Environment>: ContractsBackend<E> {
     /// Calling this function multiple times should be idempotent, the contract is
     /// newly instantiated each time using a unique salt. No existing contract
     /// instance is reused!
-    async fn bare_instantiate<Contract: Clone, Args: Send + Sync + Encode + Clone, R>(
+    async fn bare_instantiate<Contract: Clone, Args: Send + Sync + SolValue + Clone, R>(
         &mut self,
         contract_name: &str,
         caller: &Keypair,
@@ -298,7 +299,7 @@ pub trait BuilderClient<E: Environment>: ContractsBackend<E> {
     /// Dry run contract instantiation.
     async fn bare_instantiate_dry_run<
         Contract: Clone,
-        Args: Send + Sync + Encode + Clone,
+        Args: Send + Sync + SolValue + Clone,
         R,
     >(
         &mut self,

@@ -28,6 +28,7 @@ use crate::{
     UploadResult,
     H256,
 };
+use ink::alloy_sol_types::SolValue;
 use ink_env::Environment;
 use ink_primitives::DepositLimit;
 use scale::{
@@ -41,7 +42,7 @@ use std::marker::PhantomData;
 pub struct CallBuilder<'a, E, Args, RetType, B>
 where
     E: Environment,
-    Args: Encode + Clone,
+    Args: SolValue + Clone,
     RetType: Send + Decode,
 
     B: BuilderClient<E>,
@@ -58,7 +59,7 @@ where
 impl<'a, E, Args, RetType, B> CallBuilder<'a, E, Args, RetType, B>
 where
     E: Environment,
-    Args: Sync + Encode + Clone,
+    Args: Sync + SolValue + Clone,
     RetType: Send + Decode,
 
     B: BuilderClient<E>,
@@ -197,7 +198,7 @@ where
 pub struct InstantiateBuilder<'a, E, Contract, Args, R, B>
 where
     E: Environment,
-    Args: Encode + Clone,
+    Args: SolValue + Clone,
     Contract: Clone,
 
     B: ContractsBackend<E>,
@@ -215,7 +216,7 @@ where
 impl<'a, E, Contract, Args, R, B> InstantiateBuilder<'a, E, Contract, Args, R, B>
 where
     E: Environment,
-    Args: Encode + Clone + Send + Sync,
+    Args: SolValue + Clone + Send + Sync,
     Contract: Clone,
 
     B: BuilderClient<E>,

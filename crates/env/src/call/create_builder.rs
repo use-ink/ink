@@ -27,6 +27,7 @@ use crate::{
     ContractEnv,
     Error,
 };
+use alloy_sol_types::SolValue;
 use core::marker::PhantomData;
 use ink_primitives::{
     H160,
@@ -268,7 +269,8 @@ where
         crate::reflect::ContractConstructorDecoder,
     <ContractRef as crate::ContractReverseReference>::Type:
         crate::reflect::ContractMessageDecoder,
-    Args: scale::Encode,
+    // Args: scale::Encode,
+    Args: SolValue,
     R: ConstructorReturnType<ContractRef>,
 {
     /// todo
@@ -669,7 +671,8 @@ where
         crate::reflect::ContractConstructorDecoder,
     <ContractRef as crate::ContractReverseReference>::Type:
         crate::reflect::ContractMessageDecoder,
-    Args: scale::Encode,
+    // Args: scale::Encode,
+    Args: SolValue,
     RetType: ConstructorReturnType<ContractRef>,
 {
     /// todo check comment

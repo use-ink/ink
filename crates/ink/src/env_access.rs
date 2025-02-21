@@ -13,6 +13,7 @@
 // limitations under the License.
 
 use crate::ChainExtensionInstance;
+use alloy_sol_types::SolValue;
 use core::marker::PhantomData;
 use ink_env::{
     call::{
@@ -487,7 +488,8 @@ where
         ContractRef: FromAddr + ink_env::ContractReverseReference,
         <ContractRef as ink_env::ContractReverseReference>::Type:
             ink_env::reflect::ContractConstructorDecoder,
-        Args: scale::Encode,
+        // Args: scale::Encode,
+        Args: SolValue,
         R: ConstructorReturnType<ContractRef>,
     {
         ink_env::instantiate_contract::<E, ContractRef, Args, R>(params)
@@ -556,7 +558,8 @@ where
         params: &CallParams<E, Call, Args, R>,
     ) -> Result<ink_primitives::MessageResult<R>>
     where
-        Args: scale::Encode,
+        // Args: scale::Encode,
+        Args: SolValue,
         R: scale::Decode,
     {
         ink_env::invoke_contract::<E, Args, R>(params)
@@ -624,7 +627,8 @@ where
         params: &CallParams<E, DelegateCall, Args, R>,
     ) -> Result<ink_primitives::MessageResult<R>>
     where
-        Args: scale::Encode,
+        // Args: scale::Encode,
+        Args: SolValue,
         R: scale::Decode,
     {
         ink_env::invoke_contract_delegate::<E, Args, R>(params)

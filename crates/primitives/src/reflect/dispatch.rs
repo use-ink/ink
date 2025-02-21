@@ -230,11 +230,35 @@ pub trait DispatchableConstructorInfo<const ID: u32> {
     const LABEL: &'static str;
 }
 
+use alloy_sol_types::SolValue;
+use scale::Encode;
+
 /// todo: comment
 pub enum Encoding {
     Scale,
     Solidity,
 }
+
+// pub trait EncodeOrSolValue {
+//     fn encode(&self) -> Vec<u8>;
+// }
+// pub struct ScaleEncodeWrapper<T: Encode>(pub T);
+//
+// // Implement for all Encode types
+// impl<T: Encode> EncodeOrSolValue for T {
+//     fn encode(&self) -> Vec<u8> {
+//         <T as Encode>::encode(self)
+//     }
+// }
+//
+// // Then provide a separate SolValueWrapper for non-Encode types
+// pub struct SolValueWrapper<T: SolValue>(pub T);
+//
+// impl<T: SolValue> EncodeOrSolValue for SolValueWrapper<T> {
+//     fn encode(&self) -> Vec<u8> {
+//         self.0.abi_encode()
+//     }
+// }
 
 mod private {
     /// Seals the implementation of `ConstructorReturnType`.

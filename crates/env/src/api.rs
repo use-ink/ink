@@ -45,6 +45,7 @@ use crate::{
     DispatchError,
     Result,
 };
+use alloy_sol_types::SolValue;
 use ink_primitives::{
     H160,
     H256,
@@ -278,7 +279,8 @@ pub fn invoke_contract<E, Args, R>(
 ) -> Result<ink_primitives::MessageResult<R>>
 where
     E: Environment,
-    Args: scale::Encode,
+    // Args: scale::Encode,
+    Args: SolValue,
     R: scale::Decode,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
@@ -303,7 +305,8 @@ pub fn invoke_contract_delegate<E, Args, R>(
 ) -> Result<ink_primitives::MessageResult<R>>
 where
     E: Environment,
-    Args: scale::Encode,
+    // Args: scale::Encode,
+    Args: SolValue,
     R: scale::Decode,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
@@ -340,7 +343,8 @@ where
     ContractRef: FromAddr + crate::ContractReverseReference,
     <ContractRef as crate::ContractReverseReference>::Type:
         crate::reflect::ContractConstructorDecoder,
-    Args: scale::Encode,
+    // Args: scale::Encode,
+    Args: SolValue,
     R: ConstructorReturnType<ContractRef>,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {

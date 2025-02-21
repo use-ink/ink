@@ -207,7 +207,8 @@ impl<E, Args, R>
     CallBuilder<E, Set<CallV1<E>>, Set<ExecutionInput<Args>>, Set<ReturnType<R>>>
 where
     E: Environment,
-    Args: scale::Encode,
+    // Args: scale::Encode,
+    Args: SolValue,
     R: scale::Decode,
 {
     /// Invokes the cross-chain function call and returns the result.
@@ -265,7 +266,8 @@ where
 impl<E, Args, R> CallParams<E, CallV1<E>, Args, R>
 where
     E: Environment,
-    Args: scale::Encode,
+    // Args: scale::Encode,
+    Args: SolValue,
     R: scale::Decode,
 {
     /// Invokes the contract with the given built-up call parameters.

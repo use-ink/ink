@@ -46,6 +46,7 @@ use frame_support::{
         IsType,
     },
 };
+use ink::alloy_sol_types::SolValue;
 use ink_env::Environment;
 use ink_primitives::DepositLimit;
 use ink_sandbox::{
@@ -237,7 +238,11 @@ where
     <<S as Sandbox>::Runtime as frame_system::Config>::Hash:
         frame_support::traits::IsType<sp_core::H256>,
 {
-    async fn bare_instantiate<Contract: Clone, Args: Send + Sync + Encode + Clone, R>(
+    async fn bare_instantiate<
+        Contract: Clone,
+        Args: Send + Sync + SolValue + Clone,
+        R,
+    >(
         &mut self,
         contract_name: &str,
         caller: &Keypair,
@@ -276,7 +281,11 @@ where
         })
     }
 
-    async fn bare_instantiate_dry_run<Contract: Clone, Args: Send + Encode + Clone, R>(
+    async fn bare_instantiate_dry_run<
+        Contract: Clone,
+        Args: Send + SolValue + Clone,
+        R,
+    >(
         &mut self,
         contract_name: &str,
         caller: &Keypair,
@@ -363,7 +372,7 @@ where
         unimplemented!("sandbox does not yet support remove_code")
     }
 
-    async fn bare_call<Args: Sync + Encode + Clone, RetType: Send + Decode>(
+    async fn bare_call<Args: Sync + SolValue + Clone, RetType: Send + Decode>(
         &mut self,
         caller: &Keypair,
         message: &CallBuilderFinal<E, Args, RetType>,
@@ -379,7 +388,8 @@ where
 
         // todo rename any account_id coming back from callee
         let addr = *message.clone().params().callee();
-        let exec_input = Encode::encode(message.clone().params().exec_input());
+        // let exec_input = Encode::encode(message.clone().params().exec_input());
+        let exec_input = message.clone().params().exec_input().call_data();
 
         self.sandbox
             .call_contract(
@@ -396,7 +406,7 @@ where
         Ok(())
     }
 
-    async fn bare_call_dry_run<Args: Sync + Encode + Clone, RetType: Send + Decode>(
+    async fn bare_call_dry_run<Args: Sync + SolValue + Clone, RetType: Send + Decode>(
         &mut self,
         caller: &Keypair,
         message: &CallBuilderFinal<E, Args, RetType>,
@@ -411,7 +421,8 @@ where
             <Client<AccountId, S> as BuilderClient<E>>::map_account(self, caller).await;
 
         let addr = *message.clone().params().callee();
-        let exec_input = Encode::encode(message.clone().params().exec_input());
+        // let exec_input = Encode::encode(message.clone().params().exec_input());
+        let exec_input = message.clone().params().exec_input().call_data();
 
         let result = self.sandbox.dry_run(|sandbox| {
             sandbox.call_contract(

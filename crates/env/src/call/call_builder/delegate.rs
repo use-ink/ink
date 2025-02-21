@@ -27,6 +27,7 @@ use crate::{
     types::Environment,
     Error,
 };
+use alloy_sol_types::SolValue;
 use ink_primitives::H160;
 use pallet_revive_uapi::CallFlags;
 
@@ -169,7 +170,8 @@ impl<E, Args, R>
     CallBuilder<E, Set<DelegateCall>, Set<ExecutionInput<Args>>, Set<ReturnType<R>>>
 where
     E: Environment,
-    Args: scale::Encode,
+    // Args: scale::Encode,
+    Args: SolValue,
     R: scale::Decode,
 {
     /// Invokes the cross-chain function call using Delegate Call semantics and returns
@@ -235,7 +237,8 @@ where
 impl<E, Args, R> CallParams<E, DelegateCall, Args, R>
 where
     E: Environment,
-    Args: scale::Encode,
+    // Args: scale::Encode,
+    Args: SolValue,
     R: scale::Decode,
 {
     /// Invoke the contract using Delegate Call semantics with the given built-up call

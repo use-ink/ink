@@ -74,6 +74,7 @@ use crate::{
     ContractsBackend,
     E2EBackend,
 };
+use ink::alloy_sol_types::SolValue;
 use subxt::{
     blocks::ExtrinsicEvents,
     config::{
@@ -490,7 +491,11 @@ where
         Clone + Debug + Send + Sync + From<u128> + scale::HasCompact + serde::Serialize,
     H256: Debug + Send + Sync + scale::Encode,
 {
-    async fn bare_instantiate<Contract: Clone, Args: Send + Sync + Encode + Clone, R>(
+    async fn bare_instantiate<
+        Contract: Clone,
+        Args: Send + Sync + SolValue + Clone,
+        R,
+    >(
         &mut self,
         contract_name: &str,
         caller: &Keypair,
@@ -511,7 +516,7 @@ where
 
     async fn bare_instantiate_dry_run<
         Contract: Clone,
-        Args: Send + Sync + Encode + Clone,
+        Args: Send + Sync + SolValue + Clone,
         R,
     >(
         &mut self,
@@ -590,7 +595,7 @@ where
         Ok(tx_events)
     }
 
-    async fn bare_call<Args: Sync + Encode + Clone, RetType: Send + Decode>(
+    async fn bare_call<Args: Sync + SolValue + Clone, RetType: Send + Decode>(
         &mut self,
         caller: &Keypair,
         message: &CallBuilderFinal<E, Args, RetType>,
@@ -602,7 +607,8 @@ where
         CallBuilderFinal<E, Args, RetType>: Clone,
     {
         let addr = *message.clone().params().callee();
-        let exec_input = Encode::encode(message.clone().params().exec_input());
+        // let exec_input = Encode::encode(message.clone().params().exec_input());
+        let exec_input = message.clone().params().exec_input().call_data();
         log_info(&format!("call: {:02X?}", exec_input));
 
         let tx_events = self
@@ -636,7 +642,7 @@ where
     }
 
     // todo is not really a `bare_call`
-    async fn bare_call_dry_run<Args: Sync + Encode + Clone, RetType: Send + Decode>(
+    async fn bare_call_dry_run<Args: Sync + SolValue + Clone, RetType: Send + Decode>(
         &mut self,
         caller: &Keypair,
         message: &CallBuilderFinal<E, Args, RetType>,
@@ -651,7 +657,8 @@ where
         let _ = self.map_account(caller).await;
 
         let dest = *message.clone().params().callee();
-        let exec_input = Encode::encode(message.clone().params().exec_input());
+        // let exec_input = Encode::encode(message.clone().params().exec_input());
+        let exec_input = message.clone().params().exec_input().call_data();
 
         let exec_result = self
             .api

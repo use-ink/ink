@@ -17,6 +17,12 @@ use super::{
     Selector,
 };
 use crate::Environment;
+use alloy_sol_types::{
+    private::SolTypeValue,
+    SolType,
+    SolValue,
+    Word,
+};
 
 /// The input data and the expected return type of a contract execution.
 pub struct Execution<Args, Output> {
@@ -28,7 +34,8 @@ pub struct Execution<Args, Output> {
 
 impl<Args, Output> Execution<Args, Output>
 where
-    Args: scale::Encode,
+    // Args: scale::Encode,
+    Args: SolValue,
     Output: scale::Decode,
 {
     /// Construct a new contract execution with the given input data.
@@ -62,7 +69,8 @@ pub trait Executor<E: Environment> {
         input: &ExecutionInput<Args>,
     ) -> Result<ink_primitives::MessageResult<Output>, Self::Error>
     where
-        Args: scale::Encode,
+        // Args: scale::Encode,
+        Args: SolValue,
         Output: scale::Decode;
 }
 
@@ -92,7 +100,7 @@ impl ExecutionInput<EmptyArgumentList> {
         arg: T,
     ) -> ExecutionInput<ArgumentList<Argument<T>, EmptyArgumentList>>
     where
-        T: scale::Encode,
+        T: SolValue,
     {
         ExecutionInput {
             selector: self.selector,
@@ -106,7 +114,7 @@ impl<Head, Rest> ExecutionInput<ArgumentList<Argument<Head>, Rest>> {
     #[inline]
     pub fn push_arg<T>(self, arg: T) -> ExecutionInput<ArgsList<T, ArgsList<Head, Rest>>>
     where
-        T: scale::Encode,
+        T: SolValue,
     {
         ExecutionInput {
             selector: self.selector,
@@ -181,7 +189,7 @@ impl EmptyArgumentList {
     #[inline]
     pub fn push_arg<T>(self, arg: T) -> ArgumentList<Argument<T>, Self>
     where
-        T: scale::Encode,
+        T: SolValue,
     {
         ArgumentList {
             head: Argument::new(arg),
@@ -195,7 +203,7 @@ impl<Head, Rest> ArgumentList<Argument<Head>, Rest> {
     #[inline]
     pub fn push_arg<T>(self, arg: T) -> ArgumentList<Argument<T>, Self>
     where
-        T: scale::Encode,
+        T: SolValue,
     {
         ArgumentList {
             head: Argument::new(arg),
@@ -204,71 +212,188 @@ impl<Head, Rest> ArgumentList<Argument<Head>, Rest> {
     }
 }
 
-impl<T> scale::Encode for Argument<T>
+impl<T> SolValue for Argument<T>
 where
-    T: scale::Encode,
+    T: SolValue,
+    Argument<T>: SolTypeValue<<T as SolValue>::SolType>,
 {
-    #[inline]
-    fn size_hint(&self) -> usize {
-        <T as scale::Encode>::size_hint(&self.arg)
-    }
+    type SolType = <T as SolValue>::SolType;
 
-    #[inline]
-    fn encode_to<O: scale::Output + ?Sized>(&self, output: &mut O) {
-        <T as scale::Encode>::encode_to(&self.arg, output)
+    fn abi_encode(&self) -> Vec<u8> {
+        <T as SolValue>::abi_encode(&self.arg)
     }
 }
 
-impl scale::Encode for EmptyArgumentList {
-    #[inline]
-    fn size_hint(&self) -> usize {
-        0
+impl SolTypeValue<()> for EmptyArgumentList {
+    fn stv_to_tokens(&self) -> <() as SolType>::Token<'_> {
+        ()
     }
 
-    #[inline]
-    fn encode_to<O: scale::Output + ?Sized>(&self, _output: &mut O) {}
+    fn stv_abi_encode_packed_to(&self, out: &mut Vec<u8>) {}
+
+    fn stv_eip712_data_word(&self) -> Word {
+        Word::from_slice(&[])
+    }
 }
 
-impl<Head, Rest> scale::Encode for ArgumentList<Argument<Head>, Rest>
+impl SolValue for EmptyArgumentList {
+    type SolType = ();
+
+    fn abi_encode(&self) -> Vec<u8> {
+        Vec::new()
+    }
+}
+
+// impl<T> scale::Encode for Argument<T>
+// where
+//     T: scale::Encode,
+// {
+//     #[inline]
+//     fn size_hint(&self) -> usize {
+//         <T as scale::Encode>::size_hint(&self.arg)
+//     }
+//
+//     #[inline]
+//     fn encode_to<O: scale::Output + ?Sized>(&self, output: &mut O) {
+//         <T as scale::Encode>::encode_to(&self.arg, output)
+//     }
+// }
+//
+// impl scale::Encode for EmptyArgumentList {
+//     #[inline]
+//     fn size_hint(&self) -> usize {
+//         0
+//     }
+//
+//     #[inline]
+//     fn encode_to<O: scale::Output + ?Sized>(&self, _output: &mut O) {}
+// }
+
+// impl<Head, Rest> scale::Encode for ArgumentList<Argument<Head>, Rest>
+// where
+//     Head: scale::Encode,
+//     Rest: scale::Encode,
+// {
+//     #[inline]
+//     fn size_hint(&self) -> usize {
+//         scale::Encode::size_hint(&self.head)
+//             .checked_add(scale::Encode::size_hint(&self.rest))
+//             .unwrap()
+//     }
+//
+//     #[inline]
+//     fn encode_to<O: scale::Output + ?Sized>(&self, output: &mut O) {
+//         // We reverse the order of encoding because we build up the list of
+//         // arguments in reverse order, too. This way we encode the arguments
+//         // in the same order in which they have been pushed to the argument list
+//         // while the argument list itself organizes them in reverse order.
+//         scale::Encode::encode_to(&self.rest, output);
+//         scale::Encode::encode_to(&self.head, output);
+//     }
+// }
+//
+// impl<Args> scale::Encode for ExecutionInput<Args>
+// where
+//     Args: scale::Encode,
+// {
+//     #[inline]
+//     fn size_hint(&self) -> usize {
+//         scale::Encode::size_hint(&self.selector)
+//             .checked_add(scale::Encode::size_hint(&self.args))
+//             .unwrap()
+//     }
+//
+//     #[inline]
+//     fn encode_to<O: scale::Output + ?Sized>(&self, output: &mut O) {
+//         scale::Encode::encode_to(&self.selector, output);
+//         scale::Encode::encode_to(&self.args, output);
+//     }
+// }
+
+impl<Head, Rest> SolTypeValue<(Rest::SolType, Head::SolType)>
+    for ArgumentList<Argument<Head>, Rest>
 where
-    Head: scale::Encode,
-    Rest: scale::Encode,
+    Head: SolValue,
+    Rest: SolValue,
 {
-    #[inline]
-    fn size_hint(&self) -> usize {
-        scale::Encode::size_hint(&self.head)
-            .checked_add(scale::Encode::size_hint(&self.rest))
-            .unwrap()
+    fn stv_to_tokens(
+        &self,
+    ) -> (
+        <Rest::SolType as SolType>::Token<'_>,
+        <Head::SolType as SolType>::Token<'_>,
+    ) {
+        (self.rest.stv_to_tokens(), self.head.arg.stv_to_tokens())
     }
 
-    #[inline]
-    fn encode_to<O: scale::Output + ?Sized>(&self, output: &mut O) {
-        // We reverse the order of encoding because we build up the list of
-        // arguments in reverse order, too. This way we encode the arguments
-        // in the same order in which they have been pushed to the argument list
-        // while the argument list itself organizes them in reverse order.
-        scale::Encode::encode_to(&self.rest, output);
-        scale::Encode::encode_to(&self.head, output);
+    fn stv_abi_encode_packed_to(&self, out: &mut Vec<u8>) {
+        self.rest.stv_abi_encode_packed_to(out);
+        self.head.arg.stv_abi_encode_packed_to(out);
+    }
+
+    fn stv_eip712_data_word(&self) -> Word {
+        todo!("Implement EIP-712 encoding for ArgumentList")
     }
 }
 
-impl<Args> scale::Encode for ExecutionInput<Args>
+impl<Head, Rest> SolValue for ArgumentList<Argument<Head>, Rest>
 where
-    Args: scale::Encode,
+    Head: SolValue,
+    Rest: SolValue,
 {
-    #[inline]
-    fn size_hint(&self) -> usize {
-        scale::Encode::size_hint(&self.selector)
-            .checked_add(scale::Encode::size_hint(&self.args))
-            .unwrap()
-    }
+    type SolType = (Rest::SolType, Head::SolType);
 
-    #[inline]
-    fn encode_to<O: scale::Output + ?Sized>(&self, output: &mut O) {
-        scale::Encode::encode_to(&self.selector, output);
-        scale::Encode::encode_to(&self.args, output);
+    fn abi_encode(&self) -> Vec<u8> {
+        let mut encoded = Vec::new();
+        encoded.extend(Rest::abi_encode(&self.rest));
+        encoded.extend(Head::abi_encode(&self.head.arg));
+        encoded
     }
 }
+
+// impl<Args> SolTypeValue<Args::SolType> for ExecutionInput<Args>
+// where
+//     Args: SolValue,
+// {
+//     fn stv_to_tokens(&self) -> <Args::SolType as SolType>::Token<'_> {
+//         self.args.stv_to_tokens()
+//     }
+//
+//     fn stv_abi_encode_packed_to(&self, out: &mut Vec<u8>) {
+//         self.args.stv_abi_encode_packed_to(out)
+//     }
+//
+//     fn stv_eip712_data_word(&self) -> Word {
+//         self.args.stv_eip712_data_word()
+//     }
+// }
+
+use ink_prelude::vec::Vec;
+impl<Args> ExecutionInput<Args>
+where
+    Args: SolValue,
+{
+    /// TODO (@peterwht): docs
+    pub fn call_data(&self) -> Vec<u8> {
+        let mut encoded = Vec::new();
+        encoded.extend(self.selector.to_bytes()); // Add the 4-byte selector
+        encoded.extend(Args::abi_encode(&self.args)); // Append ABI-encoded arguments
+        encoded
+    }
+}
+
+// impl<Args> SolValue for ExecutionInput<Args>
+// where
+//     Args: SolValue,
+// {
+//     type SolType = Args::SolType;
+//
+//     fn abi_encode(&self) -> Vec<u8> {
+//         let mut encoded = Vec::new();
+//         encoded.extend(self.selector.to_bytes());
+//         encoded.extend(Args::abi_encode(&self.args));
+//         encoded
+//     }
+// }
 
 #[cfg(test)]
 mod tests {
