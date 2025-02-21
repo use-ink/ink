@@ -45,7 +45,10 @@ use crate::{
     DispatchError,
     Result,
 };
-use alloy_sol_types::SolValue;
+use alloy_sol_types::{
+    SolType,
+    SolValue,
+};
 use ink_primitives::{
     H160,
     H256,
@@ -281,7 +284,8 @@ where
     E: Environment,
     // Args: scale::Encode,
     Args: SolValue,
-    R: scale::Decode,
+    // R: scale::Decode,
+    R: SolValue + From<<<R as SolValue>::SolType as SolType>::RustType>,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         TypedEnvBackend::invoke_contract::<E, Args, R>(instance, params)
@@ -307,7 +311,8 @@ where
     E: Environment,
     // Args: scale::Encode,
     Args: SolValue,
-    R: scale::Decode,
+    // R: scale::Decode,
+    R: SolValue + From<<<R as SolValue>::SolType as SolType>::RustType>,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         TypedEnvBackend::invoke_contract_delegate::<E, Args, R>(instance, params)

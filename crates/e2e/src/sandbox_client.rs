@@ -46,7 +46,10 @@ use frame_support::{
         IsType,
     },
 };
-use ink::alloy_sol_types::SolValue;
+use ink::alloy_sol_types::{
+    SolType,
+    SolValue,
+};
 use ink_env::Environment;
 use ink_primitives::DepositLimit;
 use ink_sandbox::{
@@ -372,7 +375,10 @@ where
         unimplemented!("sandbox does not yet support remove_code")
     }
 
-    async fn bare_call<Args: Sync + SolValue + Clone, RetType: Send + Decode>(
+    async fn bare_call<
+        Args: Sync + SolValue + Clone,
+        RetType: Send + SolValue + From<<<RetType as SolValue>::SolType as SolType>::RustType>,
+    >(
         &mut self,
         caller: &Keypair,
         message: &CallBuilderFinal<E, Args, RetType>,
@@ -406,7 +412,10 @@ where
         Ok(())
     }
 
-    async fn bare_call_dry_run<Args: Sync + SolValue + Clone, RetType: Send + Decode>(
+    async fn bare_call_dry_run<
+        Args: Sync + SolValue + Clone,
+        RetType: Send + SolValue + From<<<RetType as SolValue>::SolType as SolType>::RustType>,
+    >(
         &mut self,
         caller: &Keypair,
         message: &CallBuilderFinal<E, Args, RetType>,

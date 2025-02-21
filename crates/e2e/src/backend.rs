@@ -30,7 +30,10 @@ use crate::{
     CallDryRunResult,
     UploadResult,
 };
-use ink::alloy_sol_types::SolValue;
+use ink::alloy_sol_types::{
+    SolType,
+    SolValue,
+};
 use ink_env::{
     DefaultEnvironment,
     Environment,
@@ -206,7 +209,11 @@ pub trait ContractsBackend<E: Environment> {
     ///     .await
     ///     .expect("instantiate failed");
     /// ```
-    fn call<'a, Args: Sync + SolValue + Clone, RetType: Send + Decode>(
+    fn call<
+        'a,
+        Args: Sync + SolValue + Clone,
+        RetType: Send + SolValue + From<<<RetType as SolValue>::SolType as SolType>::RustType>,
+    >(
         &'a mut self,
         caller: &'a Keypair,
         message: &'a CallBuilderFinal<E, Args, RetType>,
@@ -227,7 +234,10 @@ pub trait BuilderClient<E: Environment>: ContractsBackend<E> {
     ///
     /// Returns when the transaction is included in a block. The return value
     /// contains all events that are associated with this transaction.
-    async fn bare_call<Args: Sync + SolValue + Clone, RetType: Send + Decode>(
+    async fn bare_call<
+        Args: Sync + SolValue + Clone,
+        RetType: Send + SolValue + From<<<RetType as SolValue>::SolType as SolType>::RustType>,
+    >(
         &mut self,
         caller: &Keypair,
         message: &CallBuilderFinal<E, Args, RetType>,
@@ -242,7 +252,10 @@ pub trait BuilderClient<E: Environment>: ContractsBackend<E> {
     ///
     /// Returns the result of the dry run, together with the decoded return value of the
     /// invoked message.
-    async fn bare_call_dry_run<Args: Sync + SolValue + Clone, RetType: Send + Decode>(
+    async fn bare_call_dry_run<
+        Args: Sync + SolValue + Clone,
+        RetType: Send + SolValue + From<<<RetType as SolValue>::SolType as SolType>::RustType>,
+    >(
         &mut self,
         caller: &Keypair,
         message: &CallBuilderFinal<E, Args, RetType>,

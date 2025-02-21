@@ -13,7 +13,10 @@
 // limitations under the License.
 
 use crate::ChainExtensionInstance;
-use alloy_sol_types::SolValue;
+use alloy_sol_types::{
+    SolType,
+    SolValue,
+};
 use core::marker::PhantomData;
 use ink_env::{
     call::{
@@ -560,7 +563,7 @@ where
     where
         // Args: scale::Encode,
         Args: SolValue,
-        R: scale::Decode,
+        R: SolValue + From<<<R as SolValue>::SolType as SolType>::RustType>,
     {
         ink_env::invoke_contract::<E, Args, R>(params)
     }
@@ -629,7 +632,7 @@ where
     where
         // Args: scale::Encode,
         Args: SolValue,
-        R: scale::Decode,
+        R: SolValue + From<<<R as SolValue>::SolType as SolType>::RustType>,
     {
         ink_env::invoke_contract_delegate::<E, Args, R>(params)
     }

@@ -43,7 +43,10 @@ use crate::{
     Result,
     TypedEnvBackend,
 };
-use alloy_sol_types::SolValue;
+use alloy_sol_types::{
+    SolType,
+    SolValue,
+};
 use ink_engine::ext::Engine;
 use ink_primitives::{
     types::Environment,
@@ -103,7 +106,7 @@ fn invoke_contract_impl<R>(
     input: Vec<u8>,
 ) -> Result<ink_primitives::MessageResult<R>>
 where
-    R: scale::Decode,
+    R: SolValue + From<<<R as SolValue>::SolType as SolType>::RustType>,
 {
     let callee_code_hash = env.code_hash(&callee_account).unwrap_or_else(|err| {
         panic!(
@@ -123,11 +126,13 @@ where
 
     env.engine.set_callee(old_callee);
 
-    let result =
-        <ink_primitives::MessageResult<R> as scale::Decode>::decode(&mut &result[..])
-            .expect("failed to decode return value");
+    // let result =
+    // <ink_primitives::MessageResult<R> as scale::Decode>::decode(&mut &result[..])
+    //     .expect("failed to decode return value");
+    let result = R::abi_decode(&mut &result[..], false).expect("decode failed");
 
-    Ok(result)
+    // Ok(result)
+    Ok(ink_primitives::MessageResult::Ok(result))
 }
 
 fn invoke_contract_impl_delegate<R>(
@@ -139,7 +144,7 @@ fn invoke_contract_impl_delegate<R>(
     input: Vec<u8>,
 ) -> Result<ink_primitives::MessageResult<R>>
 where
-    R: scale::Decode,
+    R: SolValue + From<<<R as SolValue>::SolType as SolType>::RustType>,
 {
     let callee_code_hash = env.code_hash(&callee_account).unwrap_or_else(|err| {
         panic!(
@@ -154,11 +159,12 @@ where
         .get_contract_message_handler(&callee_code_hash);
     let result = handler(input);
 
-    let result =
-        <ink_primitives::MessageResult<R> as scale::Decode>::decode(&mut &result[..])
-            .expect("failed to decode return value");
+    // let result =
+    //     <ink_primitives::MessageResult<R> as scale::Decode>::decode(&mut &result[..])
+    //         .expect("failed to decode return value");
+    let result = R::abi_decode(&mut &result[..], false).expect("decode failed");
 
-    Ok(result)
+    Ok(ink_primitives::MessageResult::Ok(result))
 }
 
 impl CryptoHash for Blake2x128 {
@@ -585,7 +591,7 @@ impl TypedEnvBackend for EnvInstance {
         E: Environment,
         // Args: scale::Encode,
         Args: SolValue,
-        R: scale::Decode,
+        R: SolValue + From<<<R as SolValue>::SolType as SolType>::RustType>,
     {
         let call_flags = params.call_flags().bits();
         let transferred_value = params.transferred_value();
@@ -612,7 +618,7 @@ impl TypedEnvBackend for EnvInstance {
         E: Environment,
         // Args: scale::Encode,
         Args: SolValue,
-        R: scale::Decode,
+        R: SolValue + From<<<R as SolValue>::SolType as SolType>::RustType>,
     {
         let _addr = params.address(); // todo remove
         let call_flags = params.call_flags().bits();

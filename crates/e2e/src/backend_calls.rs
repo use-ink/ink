@@ -28,7 +28,10 @@ use crate::{
     UploadResult,
     H256,
 };
-use ink::alloy_sol_types::SolValue;
+use ink::alloy_sol_types::{
+    SolType,
+    SolValue,
+};
 use ink_env::Environment;
 use ink_primitives::DepositLimit;
 use scale::{
@@ -43,7 +46,8 @@ pub struct CallBuilder<'a, E, Args, RetType, B>
 where
     E: Environment,
     Args: SolValue + Clone,
-    RetType: Send + Decode,
+    RetType:
+        Send + SolValue + From<<<RetType as SolValue>::SolType as SolType>::RustType>,
 
     B: BuilderClient<E>,
 {
@@ -60,7 +64,8 @@ impl<'a, E, Args, RetType, B> CallBuilder<'a, E, Args, RetType, B>
 where
     E: Environment,
     Args: Sync + SolValue + Clone,
-    RetType: Send + Decode,
+    RetType:
+        Send + SolValue + From<<<RetType as SolValue>::SolType as SolType>::RustType>,
 
     B: BuilderClient<E>,
 {

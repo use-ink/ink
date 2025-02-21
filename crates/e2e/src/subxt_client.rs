@@ -74,7 +74,10 @@ use crate::{
     ContractsBackend,
     E2EBackend,
 };
-use ink::alloy_sol_types::SolValue;
+use ink::alloy_sol_types::{
+    SolType,
+    SolValue,
+};
 use subxt::{
     blocks::ExtrinsicEvents,
     config::{
@@ -595,7 +598,10 @@ where
         Ok(tx_events)
     }
 
-    async fn bare_call<Args: Sync + SolValue + Clone, RetType: Send + Decode>(
+    async fn bare_call<
+        Args: Sync + SolValue + Clone,
+        RetType: Send + SolValue + From<<<RetType as SolValue>::SolType as SolType>::RustType>,
+    >(
         &mut self,
         caller: &Keypair,
         message: &CallBuilderFinal<E, Args, RetType>,
@@ -642,7 +648,10 @@ where
     }
 
     // todo is not really a `bare_call`
-    async fn bare_call_dry_run<Args: Sync + SolValue + Clone, RetType: Send + Decode>(
+    async fn bare_call_dry_run<
+        Args: Sync + SolValue + Clone,
+        RetType: Send + SolValue + From<<<RetType as SolValue>::SolType as SolType>::RustType>,
+    >(
         &mut self,
         caller: &Keypair,
         message: &CallBuilderFinal<E, Args, RetType>,

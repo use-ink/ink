@@ -468,9 +468,10 @@ impl TypedEnvBackend for EnvInstance {
     ) -> Result<ink_primitives::MessageResult<R>>
     where
         E: Environment,
-        // Args: scale::Encode,
+    // Args: scale::Encode,
         Args: alloy_sol_types::SolValue,
-        R: scale::Decode,
+        R: alloy_sol_types::SolValue
+            + From<<<R as alloy_sol_types::SolValue>::SolType as alloy_sol_types::SolType>::RustType>,
     {
         let mut scope = self.scoped_buffer();
         let ref_time_limit = params.ref_time_limit();
@@ -514,8 +515,10 @@ impl TypedEnvBackend for EnvInstance {
         );
         match call_result {
             Ok(()) | Err(ReturnErrorCode::CalleeReverted) => {
-                let decoded = scale::DecodeAll::decode_all(&mut &output[..])?;
-                Ok(decoded)
+                // let decoded = scale::DecodeAll::decode_all(&mut &output[..])?;
+                let decoded =
+                    R::abi_decode(&mut &output[..], false).expect("decode failed");
+                Ok(core::prelude::v1::Ok(decoded))
             }
             Err(actual_error) => Err(actual_error.into()),
         }
@@ -527,9 +530,10 @@ impl TypedEnvBackend for EnvInstance {
     ) -> Result<ink_primitives::MessageResult<R>>
     where
         E: Environment,
-        // Args: scale::Encode,
+    // Args: scale::Encode,
         Args: alloy_sol_types::SolValue,
-        R: scale::Decode,
+        R: alloy_sol_types::SolValue
+            + From<<<R as alloy_sol_types::SolValue>::SolType as alloy_sol_types::SolType>::RustType>,
     {
         let mut scope = self.scoped_buffer();
         let call_flags = params.call_flags();
@@ -558,8 +562,10 @@ impl TypedEnvBackend for EnvInstance {
         );
         match call_result {
             Ok(()) | Err(ReturnErrorCode::CalleeReverted) => {
-                let decoded = scale::DecodeAll::decode_all(&mut &output[..])?;
-                Ok(decoded)
+                // let decoded = scale::DecodeAll::decode_all(&mut &output[..])?;
+                let decoded =
+                    R::abi_decode(&mut &output[..], false).expect("decode failed");
+                Ok(core::prelude::v1::Ok(decoded))
             }
             Err(actual_error) => Err(actual_error.into()),
         }

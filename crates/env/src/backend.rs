@@ -31,7 +31,10 @@ use crate::{
     DispatchError,
     Result,
 };
-use alloy_sol_types::SolValue;
+use alloy_sol_types::{
+    SolType,
+    SolValue,
+};
 use ink_primitives::{
     types::Environment,
     H160,
@@ -334,7 +337,8 @@ pub trait TypedEnvBackend: EnvBackend {
         E: Environment,
         // Args: scale::Encode,
         Args: SolValue,
-        R: scale::Decode;
+        // R: scale::Decode;
+        R: SolValue + From<<<R as SolValue>::SolType as SolType>::RustType>;
 
     /// Invokes a contract message via delegate call and returns its result.
     ///
@@ -350,7 +354,8 @@ pub trait TypedEnvBackend: EnvBackend {
         E: Environment,
         // Args: scale::Encode,
         Args: SolValue,
-        R: scale::Decode;
+        // R: scale::Decode;
+        R: SolValue + From<<<R as SolValue>::SolType as SolType>::RustType>;
 
     /// Instantiates another contract.
     ///

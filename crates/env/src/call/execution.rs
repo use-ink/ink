@@ -36,7 +36,7 @@ impl<Args, Output> Execution<Args, Output>
 where
     // Args: scale::Encode,
     Args: SolValue,
-    Output: scale::Decode,
+    Output: SolValue + From<<<Output as SolValue>::SolType as SolType>::RustType>,
 {
     /// Construct a new contract execution with the given input data.
     pub fn new(input: ExecutionInput<Args>) -> Self {
@@ -71,7 +71,7 @@ pub trait Executor<E: Environment> {
     where
         // Args: scale::Encode,
         Args: SolValue,
-        Output: scale::Decode;
+        Output: SolValue + From<<<Output as SolValue>::SolType as SolType>::RustType>;
 }
 
 /// The input data for a smart contract execution.
