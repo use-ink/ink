@@ -1488,6 +1488,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "126f97965c8ad46d6d9163268ff28432e8f6a1196a55578867832e3049df63dd"
 dependencies = [
  "const_format_proc_macros",
+ "konst",
 ]
 
 [[package]]
@@ -3350,6 +3351,7 @@ name = "ink"
 version = "6.0.0-alpha"
 dependencies = [
  "alloy-sol-types",
+ "const_format",
  "derive_more 1.0.0",
  "ink_env",
  "ink_ir",
@@ -3358,6 +3360,7 @@ dependencies = [
  "ink_prelude 6.0.0-alpha",
  "ink_primitives 6.0.0-alpha",
  "ink_storage",
+ "keccak-const",
  "pallet-revive-uapi",
  "parity-scale-codec",
  "polkavm-derive 0.19.0",
@@ -3885,6 +3888,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "keccak-const"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "57d8d8ce877200136358e0bbff3a77965875db3af755a11e1fa6b1b3e2df13ea"
+
+[[package]]
 name = "keccak-hash"
 version = "0.11.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3893,6 +3902,21 @@ dependencies = [
  "primitive-types 0.13.1",
  "tiny-keccak",
 ]
+
+[[package]]
+name = "konst"
+version = "0.2.19"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "330f0e13e6483b8c34885f7e6c9f19b1a7bd449c673fbb948a51c99d66ef74f4"
+dependencies = [
+ "konst_macro_rules",
+]
+
+[[package]]
+name = "konst_macro_rules"
+version = "0.2.19"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a4933f3f57a8e9d9da04db23fb153356ecaf00cbd14aee46279c33dc80925c37"
 
 [[package]]
 name = "lazy_static"

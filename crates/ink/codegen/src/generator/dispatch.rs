@@ -26,7 +26,10 @@ use ir::{
     HexLiteral as _,
     Message,
 };
-use proc_macro2::TokenStream as TokenStream2;
+use proc_macro2::{
+    Ident,
+    TokenStream as TokenStream2,
+};
 use quote::{
     format_ident,
     quote,
@@ -84,11 +87,15 @@ impl GenerateCode for Dispatch<'_> {
         let message_decoder_type = self.generate_message_decoder_type(&messages);
         let entry_points = self.generate_entry_points(&constructors, &messages);
 
+        let solidity_call_info = self.generate_solidity_call_info();
+
         quote! {
             #contract_dispatchable_constructor_infos
             #contract_dispatchable_messages_infos
             #constructor_decoder_type
             #message_decoder_type
+
+            #solidity_call_info
 
             #[cfg(not(any(test, feature = "std", feature = "ink-as-dependency")))]
             mod __do_not_access__ {
@@ -131,46 +138,36 @@ impl Dispatch<'_> {
                 iter::repeat(item_impl.trait_path()).zip(item_impl.iter_messages())
             })
             .flat_map(|(trait_path, message)| {
-                let span = message.span();
-                let id = if let Some(trait_path) = trait_path {
-                    let local_id = message.local_id().hex_padded_suffixed();
-                    quote_spanned!(span=>
-                        {
-                            ::core::primitive::u32::from_be_bytes(
-                                <<::ink::reflect::TraitDefinitionRegistry<<#storage_ident as ::ink::env::ContractEnv>::Env>
-                                    as #trait_path>::__ink_TraitInfo
-                                    as ::ink::reflect::TraitMessageInfo<#local_id>>::SELECTOR
-                            )
-                        }
-                    )
-                } else {
-                    let id = message
-                        .composed_selector()
-                        .into_be_u32()
-                        .hex_padded_suffixed();
-                    quote_spanned!(span=>
-                        #id
-                    )
-                };
-
                 let mut message_dispatchables = Vec::new();
 
                 if self.contract.config().abi().is_ink() {
+                    let span = message.span();
+                    let id = if let Some(trait_path) = trait_path {
+                        let local_id = message.local_id().hex_padded_suffixed();
+                        quote_spanned!(span=>
+                            {
+                                ::core::primitive::u32::from_be_bytes(
+                                    <<::ink::reflect::TraitDefinitionRegistry<<#storage_ident as ::ink::env::ContractEnv>::Env>
+                                        as #trait_path>::__ink_TraitInfo
+                                        as ::ink::reflect::TraitMessageInfo<#local_id>>::SELECTOR
+                                )
+                            }
+                        )
+                    } else {
+                        let id = message
+                            .composed_selector()
+                            .into_be_u32()
+                            .hex_padded_suffixed();
+                        quote_spanned!(span=>
+                            #id
+                        )
+                    };
                     message_dispatchables.push(MessageDispatchable { message, id });
                 }
 
                 if self.contract.config().abi().is_solidity() {
-                    // todo: handle traits
-                    let composed_selector =  message
-                        .composed_solidity_selector();
-
-                    let sol_selector = composed_selector
-                        .into_be_u32()
-                        .hex_padded_suffixed();
-                    let sol_id = quote_spanned!(span=>
-                        #sol_selector
-                    );
-                    message_dispatchables.push(MessageDispatchable { message, id: sol_id });
+                    let id = solidity_selector_id(message.callable());
+                    message_dispatchables.push(MessageDispatchable { message, id });
                 }
 
                 message_dispatchables
@@ -250,7 +247,7 @@ impl Dispatch<'_> {
     /// Generate code for the [`ink::DispatchableMessageInfo`] trait implementations.
     ///
     /// These trait implementations store relevant dispatch information for every
-    /// dispatchable ink! constructor of the ink! smart contract.
+    /// dispatchable ink! message of the ink! smart contract.
     fn generate_dispatchable_message_infos(&self) -> TokenStream2 {
         let span = self.contract.module().storage().span();
         let storage_ident = self.contract.module().storage().ident();
@@ -267,10 +264,7 @@ impl Dispatch<'_> {
                 let message_ident = message.ident();
                 let payable = message.is_payable();
                 let mutates = message.receiver().is_ref_mut();
-                let selector_id = message.composed_selector().into_be_u32().hex_padded_suffixed();
-                let selector_bytes = message.composed_selector().hex_lits();
-                let sol_selector_id = message.composed_solidity_selector().into_be_u32().hex_padded_suffixed();
-                let sol_selector_bytes = message.composed_solidity_selector().hex_lits();
+
                 let cfg_attrs = message.get_cfg_attrs(message_span);
                 let output_tuple_type = message
                     .output()
@@ -283,6 +277,9 @@ impl Dispatch<'_> {
                 let mut message_infos = Vec::new();
 
                 if encoding.is_ink() {
+                    let selector_id = message.composed_selector().into_be_u32().hex_padded_suffixed();
+                    let selector_bytes = message.composed_selector().hex_lits();
+
                     message_infos.push(quote_spanned!(message_span=>
                         #( #cfg_attrs )*
                         impl ::ink::reflect::DispatchableMessageInfo<#selector_id> for #storage_ident {
@@ -328,67 +325,8 @@ impl Dispatch<'_> {
                     ))
                 }
 
-                // if encoding is `all` and the selector is user provided, we do not generate another message info
-                if encoding.is_solidity() && !(encoding.is_all() && message.user_provided_selector().is_some()) {
-                    // todo: refactor and figure out if there is a bug with the message.inputs() iterator
-                    let input_types_len = generator::input_types(message.inputs()).len();
-                    // println!("LEN {}, input_types_len {}, {}", message.inputs().len(), input_types_len, input_tuple_type.to_string());
-                    let sol_decode = if input_types_len == 0 {
-                        quote! {
-                        |_input| {
-                            ::core::result::Result::Ok(()) // todo: should we decode `RlpUnit` instead, e.g. what if some data...
-                        };
-                    }
-                    } else {
-                        quote! {
-                        |input| {
-                            <Self::Input as ::ink::alloy_sol_types::SolValue>::abi_decode(input, false)
-                                .map_err(|_| ::ink::env::DispatchError::InvalidParameters)
-                        };
-                    }
-                    };
-                    let sol_return_value = message
-                        .output()
-                        .map(|_| quote! {
-                            |flags, output| {
-                                ::ink::env::return_value_solidity::<Self::Output>(flags, &output)
-                            };
-                        })
-                        .unwrap_or_else(|| quote! {
-                            |flags, _output| {
-                                ::ink::env::return_value_solidity::<()>(
-                                    flags,
-                                    &()
-                                )
-                            };
-                        });
-
-                    message_infos.push(quote_spanned!(message_span=>
-                        #( #cfg_attrs )*
-                        impl ::ink::reflect::DispatchableMessageInfo<#sol_selector_id> for #storage_ident {
-                            type Input = #input_tuple_type;
-                            type Output = #output_tuple_type;
-                            type Storage = #storage_ident;
-
-                            const CALLABLE: fn(&mut Self::Storage, Self::Input) -> Self::Output =
-                                |storage, #input_tuple_bindings| {
-                                    #storage_ident::#message_ident( storage #( , #input_bindings )* )
-                                };
-                            const DECODE: fn(&mut &[::core::primitive::u8]) -> ::core::result::Result<Self::Input, ::ink::env::DispatchError> =
-                                #sol_decode
-                            #[cfg(not(feature = "std"))]
-                            const RETURN: fn(::ink::env::ReturnFlags, Self::Output) -> ! =
-                                #sol_return_value
-                            #[cfg(feature = "std")]
-                            const RETURN: fn(::ink::env::ReturnFlags, Self::Output) -> () =
-                                #sol_return_value
-                            const SELECTOR: [::core::primitive::u8; 4usize] = [ #( #sol_selector_bytes ),* ];
-                            const PAYABLE: ::core::primitive::bool = #payable;
-                            const MUTATES: ::core::primitive::bool = #mutates;
-                            const LABEL: &'static ::core::primitive::str = ::core::stringify!(#message_ident);
-                            const ENCODING: ::ink::reflect::Encoding = ::ink::reflect::Encoding::Solidity;
-                        }
-                    ))
+                if encoding.is_solidity() {
+                    message_infos.push(solidity_message_info(message, storage_ident));
                 }
                 message_infos
             });
@@ -484,74 +422,102 @@ impl Dispatch<'_> {
                     ))
                 }
 
-                // TODO pw: need to handle user provided selector currently causing conflicts
-                if encoding.is_solidity() && !(encoding.is_all() && message.user_provided_selector().is_some()) {
-                    // todo: refactor and figure out if there is a bug with the message.inputs() iterator
-                    let input_types_len = generator::input_types(message.inputs()).len();
-                    // println!("LEN {}, input_types_len {}, {}", message.inputs().len(), input_types_len, input_tuple_type.to_string());
-                    let sol_decode = if input_types_len == 0 {
-                        quote! {
-                        |_input| {
-                            ::core::result::Result::Ok(()) // todo: should we decode `RlpUnit` instead, e.g. what if some data...
-                        };
-                    }
-                    } else {
-                        quote! {
-                        |input| {
-                            <Self::Input as ::ink::alloy_sol_types::SolValue>::abi_decode(input, false)
-                                .map_err(|_| ::ink::env::DispatchError::InvalidParameters)
-                        };
-                    }
-                    };
-                    let sol_return_value = message
-                        .output()
-                        .map(|_| quote! {
-                            |flags, output| {
-                                ::ink::env::return_value_solidity::<Self::Output>(flags, &output)
-                            };
-                        })
-                        .unwrap_or_else(|| quote! {
-                            |flags, _output| {
-                                ::ink::env::return_value_solidity::<()>(
-                                    flags,
-                                    &()
-                                )
-                            };
-                        });
-
-                    message_infos.push(quote_spanned!(message_span=>
-                        #( #cfg_attrs )*
-                        impl ::ink::reflect::DispatchableMessageInfo<#selector_id> for #storage_ident {
-                            type Input = #input_tuple_type;
-                            type Output = #output_tuple_type;
-                            type Storage = #storage_ident;
-
-                            const CALLABLE: fn(&mut Self::Storage, Self::Input) -> Self::Output =
-                                |storage, #input_tuple_bindings| {
-                                    <#storage_ident as #trait_path>::#message_ident( storage #( , #input_bindings )* )
-                                };
-                            const DECODE: fn(&mut &[::core::primitive::u8]) -> ::core::result::Result<Self::Input, ::ink::env::DispatchError> =
-                                #sol_decode
-                            #[cfg(not(feature = "std"))]
-                            const RETURN: fn(::ink::env::ReturnFlags, Self::Output) -> ! =
-                                #sol_return_value
-                            #[cfg(feature = "std")]
-                            const RETURN: fn(::ink::env::ReturnFlags, Self::Output) -> () =
-                                #sol_return_value
-                            const SELECTOR: [::core::primitive::u8; 4usize] = #selector;
-                            const PAYABLE: ::core::primitive::bool = #payable;
-                            const MUTATES: ::core::primitive::bool = #mutates;
-                            const LABEL: &'static ::core::primitive::str = #label;
-                            const ENCODING: ::ink::reflect::Encoding = ::ink::reflect::Encoding::Solidity;
-                        }
-                    ))
+                // NOTE: Solidity selectors are always computed from the call signature and input types.
+                if encoding.is_solidity() {
+                    message_infos.push(solidity_message_info(message, storage_ident));
                 }
                 message_infos
             });
-        quote_spanned!(span=>
+        return quote_spanned!(span=>
             #( #inherent_message_infos )*
             #( #trait_message_infos )*
-        )
+        );
+
+        /// Generate code for [`ink::DispatchableMessageInfo`] trait implementations for
+        /// Solidity ABI compatible calls.
+        fn solidity_message_info(
+            message: CallableWithSelector<Message>,
+            storage_ident: &Ident,
+        ) -> TokenStream2 {
+            let message_span = message.span();
+            let message_ident = message.ident();
+            let payable = message.is_payable();
+            let mutates = message.receiver().is_ref_mut();
+
+            let cfg_attrs = message.get_cfg_attrs(message_span);
+            let output_tuple_type = message
+                .output()
+                .map(quote::ToTokens::to_token_stream)
+                .unwrap_or_else(|| quote! { () });
+            let input_bindings = generator::input_bindings(message.inputs());
+            let input_tuple_type = generator::input_types_tuple(message.inputs());
+            let input_tuple_bindings = generator::input_bindings_tuple(message.inputs());
+
+            let selector_id = solidity_selector_id(message.callable());
+            let selector_bytes = solidity_selector(message.callable());
+
+            // todo: refactor and figure out if there is a bug with the message.inputs()
+            // iterator
+            let input_types_len = generator::input_types(message.inputs()).len();
+            // println!("LEN {}, input_types_len {}, {}", message.inputs().len(),
+            // input_types_len, input_tuple_type.to_string());
+            let sol_decode = if input_types_len == 0 {
+                quote! {
+                    |_input| {
+                        ::core::result::Result::Ok(()) // todo: should we decode `RlpUnit` instead, e.g. what if some data...
+                    };
+                }
+            } else {
+                quote! {
+                    |input| {
+                        <Self::Input as ::ink::alloy_sol_types::SolValue>::abi_decode(input, true)
+                            .map_err(|_| ::ink::env::DispatchError::InvalidParameters)
+                    };
+                }
+            };
+            let sol_return_value = message
+                .output()
+                .map(|_| quote! {
+                    |flags, output| {
+                        ::ink::env::return_value_solidity::<Self::Output>(flags, &output)
+                    };
+                })
+                .unwrap_or_else(|| quote! {
+                    |flags, _output| {
+                        ::ink::env::return_value_solidity::<()>(
+                            flags,
+                            &()
+                        )
+                    };
+                });
+
+            quote_spanned!(message_span=>
+                #( #cfg_attrs )*
+                impl ::ink::reflect::DispatchableMessageInfo<#selector_id> for #storage_ident {
+                    type Input = #input_tuple_type;
+                    type Output = #output_tuple_type;
+                    type Storage = #storage_ident;
+
+                    const CALLABLE: fn(&mut Self::Storage, Self::Input) -> Self::Output =
+                        |storage, #input_tuple_bindings| {
+                            #storage_ident::#message_ident( storage #( , #input_bindings )* )
+                        };
+                    const DECODE: fn(&mut &[::core::primitive::u8]) -> ::core::result::Result<Self::Input, ::ink::env::DispatchError> =
+                        #sol_decode
+                    #[cfg(not(feature = "std"))]
+                    const RETURN: fn(::ink::env::ReturnFlags, Self::Output) -> ! =
+                        #sol_return_value
+                    #[cfg(feature = "std")]
+                    const RETURN: fn(::ink::env::ReturnFlags, Self::Output) -> () =
+                        #sol_return_value
+                    const SELECTOR: [::core::primitive::u8; 4usize] = #selector_bytes;
+                    const PAYABLE: ::core::primitive::bool = #payable;
+                    const MUTATES: ::core::primitive::bool = #mutates;
+                    const LABEL: &'static ::core::primitive::str = ::core::stringify!(#message_ident);
+                    const ENCODING: ::ink::reflect::Encoding = ::ink::reflect::Encoding::Solidity;
+                }
+            )
+        }
     }
 
     /// Generates code for the entry points of the root ink! smart contract.
@@ -1169,4 +1135,85 @@ impl Dispatch<'_> {
             }
         )
     }
+
+    /// Generates code for Solidity call info types for dispatchable ink! messages.
+    ///
+    /// See [`ink::alloy_sol_types::SolCall`]
+    fn generate_solidity_call_info(&self) -> TokenStream2 {
+        if self.contract.config().abi().is_solidity() {
+            let span = self.contract.module().span();
+            let call_tys = self
+                .contract
+                .module()
+                .impls()
+                .flat_map(|item_impl| item_impl.iter_messages())
+                .map(|message| {
+                    let span = message.span();
+                    let ident = message.ident();
+                    let ident_str = ident.to_string();
+                    let call_type_ident = solidity_call_type_ident(message.callable());
+
+                    // Call signature parts.
+                    let sig_param_tys = message.inputs().map(|input| {
+                        let ty = &*input.ty;
+                        let span = input.span();
+                        quote_spanned!(span=>
+                            <<#ty as ::ink::alloy_sol_types::SolValue>::SolType as ::ink::alloy_sol_types::SolType>::SOL_NAME
+                        )
+                    });
+                    let input_types_len = generator::input_types(message.inputs()).len();
+                    let sig_arg_fmt_params = (0..input_types_len).map(|_| "{}").collect::<Vec<_>>().join(",");
+                    let sig_fmt_lit = format!("{{}}({})", sig_arg_fmt_params);
+
+                    quote_spanned!(span=>
+                        pub struct #call_type_ident;
+
+                        const _: () = {
+                            impl #call_type_ident {
+                                pub const SIGNATURE: &str = ::ink::codegen::const_format!(#sig_fmt_lit, #ident_str #(,#sig_param_tys)*);
+                                pub const SELECTOR: [u8; 4] = ::ink::codegen::sol_selector_bytes(Self::SIGNATURE);
+                                pub const SELECTOR_ID: u32 = u32::from_be_bytes(Self::SELECTOR);
+                            }
+                        };
+                    )
+                });
+            quote_spanned!(span=>
+                #[allow(non_camel_case_types)]
+                mod __ink_sol_interop__ {
+                    #(#call_tys)*
+                }
+            )
+        } else {
+            quote!()
+        }
+    }
+}
+
+/// Returns Solidity ABI compatible selector of an ink! message.
+fn solidity_selector(message: &Message) -> TokenStream2 {
+    let call_type_ident = solidity_call_type_ident(message);
+    quote!(
+        {
+            <__ink_sol_interop__::#call_type_ident>::SELECTOR
+        }
+    )
+}
+
+/// Returns a `u32` representation of the Solidity ABI compatible selector of an ink!
+/// message.
+fn solidity_selector_id(message: &Message) -> TokenStream2 {
+    let call_type_ident = solidity_call_type_ident(message);
+    quote!(
+        {
+            <__ink_sol_interop__::#call_type_ident>::SELECTOR_ID
+        }
+    )
+}
+
+/// Returns the Solidity call info type identifier for an ink! message.
+///
+/// See [`ink::alloy_sol_types::sol`]
+fn solidity_call_type_ident(message: &Message) -> Ident {
+    let ident = message.ident();
+    format_ident!("{}Call", ident)
 }
