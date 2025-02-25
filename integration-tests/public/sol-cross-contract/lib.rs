@@ -32,7 +32,7 @@ mod sol_cross_contract {
         // TODO (@peterwht): H160 does not implement RlpDecodable
         #[ink(message)]
         pub fn call_contract_sol_encoding(&mut self, callee: [u8; 20]) {
-            let selector = keccak_selector(b"flip");
+            let selector = keccak_selector(b"set_value");
             let callee: H160 = callee.into();
 
             // TODO (@peterwht): fails due to call builder encoding with scale
@@ -41,7 +41,7 @@ mod sol_cross_contract {
                 .ref_time_limit(1000000000)
                 .transferred_value(U256::zero())
                 .call_flags(CallFlags::empty())
-                .exec_input(ExecutionInput::new(selector.into()))
+                .exec_input(ExecutionInput::new(selector.into()).push_arg(true))
                 .returns::<()>()
                 .try_invoke();
 

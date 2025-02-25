@@ -515,10 +515,9 @@ impl TypedEnvBackend for EnvInstance {
         );
         match call_result {
             Ok(()) | Err(ReturnErrorCode::CalleeReverted) => {
-                // let decoded = scale::DecodeAll::decode_all(&mut &output[..])?;
                 let decoded =
                     R::abi_decode(&mut &output[..], false).expect("decode failed");
-                Ok(core::prelude::v1::Ok(decoded))
+                Ok(ink_primitives::MessageResult::Ok(decoded))
             }
             Err(actual_error) => Err(actual_error.into()),
         }
