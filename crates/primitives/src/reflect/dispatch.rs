@@ -252,17 +252,41 @@ pub trait AbiEncodeWith<Abi> {
     fn encode_with(&self, buffer: &mut Vec<u8>);
 }
 
-// Implement for Scale encoding
+pub trait AbiDecodeWith<Abi>: Sized {
+    type Error;
+    fn decode_with(buffer: &[u8]) -> Result<Self, Self::Error>;
+}
+
 impl<T: scale::Encode> AbiEncodeWith<ScaleEncoding> for T {
     fn encode_with(&self, buffer: &mut Vec<u8>) {
         scale::Encode::encode_to(self, buffer);
     }
 }
 
-// Implement for SolValue encoding
+impl<T: scale::Decode> AbiDecodeWith<ScaleEncoding> for T {
+    type Error = scale::Error;
+    fn decode_with(buffer: &[u8]) -> Result<Self, Self::Error> {
+        scale::Decode::decode(&mut &buffer[..]).map_err(|e| e.into())
+    }
+}
+
 impl<T: SolValue> AbiEncodeWith<SolEncoding> for T {
     fn encode_with(&self, buffer: &mut Vec<u8>) {
         buffer.extend_from_slice(&T::abi_encode(self));
+    }
+}
+
+impl<T: alloy_sol_types::SolValue> AbiDecodeWith<SolEncoding> for T
+where
+    T: From<
+        <<T as alloy_sol_types::SolValue>::SolType as alloy_sol_types::SolType>::RustType,
+    >,
+{
+    type Error = alloy_sol_types::Error;
+    fn decode_with(buffer: &[u8]) -> Result<Self, Self::Error> {
+        // Don't validate decoding. Validating results in encoding and decoding the value
+        // twice.
+        T::abi_decode(buffer, false).map_err(|e| e.into())
     }
 }
 
