@@ -51,7 +51,13 @@ use ink::alloy_sol_types::{
     SolValue,
 };
 use ink_env::Environment;
-use ink_primitives::DepositLimit;
+use ink_primitives::{
+    reflect::{
+        AbiDecodeWith,
+        AbiEncodeWith,
+    },
+    DepositLimit,
+};
 use ink_sandbox::{
     api::prelude::*,
     frame_system,
@@ -243,13 +249,14 @@ where
 {
     async fn bare_instantiate<
         Contract: Clone,
-        Args: Send + Sync + SolValue + Clone,
+        Args: Send + Sync + AbiEncodeWith<Abi> + Clone,
         R,
+        Abi: Send + Sync + Clone,
     >(
         &mut self,
         contract_name: &str,
         caller: &Keypair,
-        constructor: &mut CreateBuilderPartial<E, Contract, Args, R>,
+        constructor: &mut CreateBuilderPartial<E, Contract, Args, R, Abi>,
         value: E::Balance,
         gas_limit: Weight,
         storage_deposit_limit: DepositLimit<E::Balance>,
@@ -286,13 +293,14 @@ where
 
     async fn bare_instantiate_dry_run<
         Contract: Clone,
-        Args: Send + SolValue + Clone,
+        Args: Send + Sync + AbiEncodeWith<Abi> + Clone,
         R,
+        Abi: Send + Sync + Clone,
     >(
         &mut self,
         contract_name: &str,
         caller: &Keypair,
-        constructor: &mut CreateBuilderPartial<E, Contract, Args, R>,
+        constructor: &mut CreateBuilderPartial<E, Contract, Args, R, Abi>,
         value: E::Balance,
         storage_deposit_limit: DepositLimit<E::Balance>,
     ) -> Result<InstantiateDryRunResult<E>, Self::Error> {
@@ -376,18 +384,19 @@ where
     }
 
     async fn bare_call<
-        Args: Sync + SolValue + Clone,
+        Args: Sync + AbiEncodeWith<Abi> + Clone,
         RetType: Send + AbiDecodeWith<Abi>,
+        Abi: Sync + Clone,
     >(
         &mut self,
         caller: &Keypair,
-        message: &CallBuilderFinal<E, Args, RetType>,
+        message: &CallBuilderFinal<E, Args, RetType, Abi>,
         value: E::Balance,
         gas_limit: Weight,
         storage_deposit_limit: DepositLimit<E::Balance>,
     ) -> Result<Self::EventLog, Self::Error>
     where
-        CallBuilderFinal<E, Args, RetType>: Clone,
+        CallBuilderFinal<E, Args, RetType, Abi>: Clone,
     {
         let _ =
             <Client<AccountId, S> as BuilderClient<E>>::map_account(self, caller).await;
@@ -413,17 +422,18 @@ where
     }
 
     async fn bare_call_dry_run<
-        Args: Sync + SolValue + Clone,
+        Args: Sync + AbiEncodeWith<Abi> + Clone,
         RetType: Send + AbiDecodeWith<Abi>,
+        Abi: Sync + Clone,
     >(
         &mut self,
         caller: &Keypair,
-        message: &CallBuilderFinal<E, Args, RetType>,
+        message: &CallBuilderFinal<E, Args, RetType, Abi>,
         value: E::Balance,
         storage_deposit_limit: DepositLimit<E::Balance>,
     ) -> Result<CallDryRunResult<E, RetType>, Self::Error>
     where
-        CallBuilderFinal<E, Args, RetType>: Clone,
+        CallBuilderFinal<E, Args, RetType, Abi>: Clone,
     {
         // todo there's side effects here
         let _ =
