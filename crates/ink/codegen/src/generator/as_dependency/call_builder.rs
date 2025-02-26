@@ -323,11 +323,12 @@ impl CallBuilder<'_> {
     /// This does not provide implementations for ink! constructors as they
     /// do not have a short-hand notations as their messages counterparts.
     fn generate_call_builder_inherent_impls(&self) -> TokenStream2 {
+        let abi = self.contract.config().abi();
         self.contract
             .module()
             .impls()
             .filter(|impl_block| impl_block.trait_path().is_none())
-            .map(|impl_block| self.generate_call_builder_inherent_impl(impl_block))
+            .map(|impl_block| self.generate_call_builder_inherent_impl(impl_block, abi))
             .collect()
     }
 
@@ -341,12 +342,13 @@ impl CallBuilder<'_> {
     fn generate_call_builder_inherent_impl(
         &self,
         impl_block: &ir::ItemImpl,
+        abi: &ir::Abi,
     ) -> TokenStream2 {
         let span = impl_block.span();
         let cb_ident = Self::call_builder_ident();
-        let messages = impl_block
-            .iter_messages()
-            .map(|message| self.generate_call_builder_inherent_impl_for_message(message));
+        let messages = impl_block.iter_messages().map(|message| {
+            self.generate_call_builder_inherent_impl_for_message(message, abi)
+        });
         quote_spanned!(span=>
             impl #cb_ident {
                 #( #messages )*
@@ -363,6 +365,7 @@ impl CallBuilder<'_> {
     fn generate_call_builder_inherent_impl_for_message(
         &self,
         message: ir::CallableWithSelector<ir::Message>,
+        abi: &ir::Abi,
     ) -> TokenStream2 {
         let span = message.span();
         let callable = message.callable();
@@ -383,11 +386,17 @@ impl CallBuilder<'_> {
             .map(quote::ToTokens::to_token_stream)
             .unwrap_or_else(|| quote::quote! { () });
         let output_span = return_type.span();
+        let encoding_strategy = match abi {
+            ir::Abi::Scale => quote!(::ink::reflect::ScaleEncoding),
+            ir::Abi::Solidity => quote!(::ink::reflect::SolEncoding),
+            ir::Abi::All => todo!("support for `Abi::All`"),
+        };
+        // TODO (@peterwht): generate multiple output types when ABI is `All`.
         let output_type = quote_spanned!(output_span=>
             ::ink::env::call::CallBuilder<
                 Environment,
                 ::ink::env::call::utils::Set< ::ink::env::call::Call >,
-                ::ink::env::call::utils::Set< ::ink::env::call::ExecutionInput<#arg_list, ::ink::reflect::SolEncoding> >,
+                ::ink::env::call::utils::Set< ::ink::env::call::ExecutionInput<#arg_list, #encoding_strategy> >,
                 ::ink::env::call::utils::Set< ::ink::env::call::utils::ReturnType<#return_type> >,
             >
         );
