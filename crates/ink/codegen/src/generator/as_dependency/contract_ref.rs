@@ -456,9 +456,16 @@ impl ContractRef<'_> {
         let input_bindings = generator::input_bindings(constructor.inputs());
         let input_types = generator::input_types(constructor.inputs());
         let _storage_ident = self.contract.module().storage().ident();
-        let encoding_strategy = match abi {
-            ir::Abi::Scale => quote!(::ink::reflect::ScaleEncoding),
-            ir::Abi::Solidity => quote!(::ink::reflect::SolEncoding),
+        let (encoding_strategy, build_create) = match abi {
+            ir::Abi::Scale => {
+                (quote!(::ink::reflect::ScaleEncoding), quote!(build_create))
+            }
+            ir::Abi::Solidity => {
+                (
+                    quote!(::ink::reflect::SolEncoding),
+                    quote!(build_create_solidity),
+                )
+            }
             ir::Abi::All => todo!("support for `Abi::All`"),
         };
         let arg_list = generator::generate_argument_list(
@@ -483,7 +490,7 @@ impl ContractRef<'_> {
                 ::ink::env::call::utils::Set<::ink::env::call::ExecutionInput<#arg_list, #encoding_strategy>>,
                 ::ink::env::call::utils::Set<::ink::env::call::utils::ReturnType<#ret_type>>,
             > {
-                ::ink::env::call::build_create::<Self>()
+                ::ink::env::call::#build_create::<Self>()
                     .exec_input(
                         ::ink::env::call::ExecutionInput::new(
                             ::ink::env::call::Selector::new([ #( #selector_bytes ),* ])

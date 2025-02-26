@@ -33,7 +33,10 @@ use crate::{
 };
 use core::marker::PhantomData;
 use ink_primitives::{
-    reflect::SolEncoding,
+    reflect::{
+        ScaleEncoding,
+        SolEncoding,
+    },
     H160,
 };
 
@@ -210,8 +213,26 @@ where
 pub fn build_call<E>() -> CallBuilder<
     E,
     Unset<Call>,
-    Unset<ExecutionInput<EmptyArgumentList<SolEncoding>, SolEncoding>>, /* TODO(@peterwht), should
-                                                                         * become build_call_sol */
+    Unset<ExecutionInput<EmptyArgumentList<ScaleEncoding>, ScaleEncoding>>,
+    Unset<ReturnType<()>>,
+>
+where
+    E: Environment,
+{
+    CallBuilder {
+        call_type: Default::default(),
+        exec_input: Default::default(),
+        return_type: Default::default(),
+        _phantom: Default::default(),
+    }
+}
+
+///TODO (@peterwht): docs
+#[allow(clippy::type_complexity)]
+pub fn build_call_solidity<E>() -> CallBuilder<
+    E,
+    Unset<Call>,
+    Unset<ExecutionInput<EmptyArgumentList<SolEncoding>, SolEncoding>>,
     Unset<ReturnType<()>>,
 >
 where

@@ -32,6 +32,7 @@ use core::marker::PhantomData;
 use ink_primitives::{
     reflect::{
         AbiEncodeWith,
+        ScaleEncoding,
         SolEncoding,
     },
     H160,
@@ -442,6 +443,33 @@ pub fn build_create<ContractRef>() -> CreateBuilder<
     <ContractRef as ContractEnv>::Env,
     ContractRef,
     Set<LimitParamsV2>,
+    Unset<ExecutionInput<EmptyArgumentList<ScaleEncoding>, ScaleEncoding>>,
+    Unset<ReturnType<()>>,
+>
+where
+    ContractRef: ContractEnv,
+{
+    CreateBuilder {
+        code_hash: Default::default(),
+        limits: Set(LimitParamsV2 {
+            ref_time_limit: 0,
+            proof_size_limit: 0,
+            storage_deposit_limit: None,
+        }),
+        endowment: Default::default(),
+        exec_input: Default::default(),
+        salt: Default::default(),
+        return_type: Default::default(),
+        _phantom: Default::default(),
+    }
+}
+
+/// TODO (@peterwht): docs
+#[allow(clippy::type_complexity)]
+pub fn build_create_solidity<ContractRef>() -> CreateBuilder<
+    <ContractRef as ContractEnv>::Env,
+    ContractRef,
+    Set<LimitParamsV2>,
     Unset<ExecutionInput<EmptyArgumentList<SolEncoding>, SolEncoding>>,
     Unset<ReturnType<()>>,
 >
@@ -552,12 +580,12 @@ where
     }
 }
 
-impl<E, ContractRef, Limits, RetType>
+impl<E, ContractRef, Limits, RetType, Abi>
     CreateBuilder<
         E,
         ContractRef,
         Limits,
-        Unset<ExecutionInput<EmptyArgumentList<SolEncoding>, SolEncoding>>,
+        Unset<ExecutionInput<EmptyArgumentList<Abi>, Abi>>,
         RetType,
     >
 where
@@ -567,14 +595,9 @@ where
     #[inline]
     pub fn exec_input<Args>(
         self,
-        exec_input: ExecutionInput<Args, SolEncoding>,
-    ) -> CreateBuilder<
-        E,
-        ContractRef,
-        Limits,
-        Set<ExecutionInput<Args, SolEncoding>>,
-        RetType,
-    > {
+        exec_input: ExecutionInput<Args, Abi>,
+    ) -> CreateBuilder<E, ContractRef, Limits, Set<ExecutionInput<Args, Abi>>, RetType>
+    {
         CreateBuilder {
             code_hash: self.code_hash,
             limits: self.limits,

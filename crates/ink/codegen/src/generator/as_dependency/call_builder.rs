@@ -379,9 +379,14 @@ impl CallBuilder<'_> {
         let selector_bytes = selector.hex_lits();
         let input_bindings = generator::input_bindings(callable.inputs());
         let input_types = generator::input_types(message.inputs());
-        let encoding_strategy = match abi {
-            ir::Abi::Scale => quote!(::ink::reflect::ScaleEncoding),
-            ir::Abi::Solidity => quote!(::ink::reflect::SolEncoding),
+        let (encoding_strategy, build_call) = match abi {
+            ir::Abi::Scale => (quote!(::ink::reflect::ScaleEncoding), quote!(build_call)),
+            ir::Abi::Solidity => {
+                (
+                    quote!(::ink::reflect::SolEncoding),
+                    quote!(build_call_solidity),
+                )
+            }
             ir::Abi::All => todo!("support for `Abi::All`"),
         };
         let arg_list = generator::generate_argument_list(
@@ -411,7 +416,7 @@ impl CallBuilder<'_> {
                 & #mut_tok self
                 #( , #input_bindings : #input_types )*
             ) -> #output_type {
-                ::ink::env::call::build_call::<Environment>()
+                ::ink::env::call::#build_call::<Environment>()
                     .call(::ink::ToAddr::to_addr(self))
                     .exec_input(
                         ::ink::env::call::ExecutionInput::new(

@@ -191,7 +191,7 @@ impl MessageBuilder<'_> {
         let encoding_strategy = quote!(::ink::reflect::ScaleEncoding);
         let arg_list = generator::generate_argument_list(
             input_types.iter().cloned(),
-            encoding_strategy,
+            encoding_strategy.clone(),
         );
         let mut_tok = message.mutates().then(|| quote! { mut });
         let cfg_attrs = message.get_cfg_attrs(span);
@@ -200,6 +200,7 @@ impl MessageBuilder<'_> {
             type #output_ident = ::ink::env::call::Execution<
                 #arg_list,
                 #output_type,
+                #encoding_strategy
             >;
 
             #( #attrs )*

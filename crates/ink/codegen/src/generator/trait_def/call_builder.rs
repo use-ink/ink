@@ -376,7 +376,7 @@ impl CallBuilder<'_> {
         let encoding_strategy = quote!(::ink::reflect::ScaleEncoding);
         let arg_list = generator::generate_argument_list(
             input_types.iter().cloned(),
-            encoding_strategy,
+            encoding_strategy.clone(),
         );
         let mut_tok = message.mutates().then(|| quote! { mut });
         let cfg_attrs = message.get_cfg_attrs(span);
@@ -386,7 +386,7 @@ impl CallBuilder<'_> {
             type #output_ident = ::ink::env::call::CallBuilder<
                 Self::Env,
                 ::ink::env::call::utils::Set< ::ink::env::call::Call >,
-                ::ink::env::call::utils::Set< ::ink::env::call::ExecutionInput<#arg_list> >,
+                ::ink::env::call::utils::Set< ::ink::env::call::ExecutionInput<#arg_list, #encoding_strategy> >,
                 ::ink::env::call::utils::Set< ::ink::env::call::utils::ReturnType<#output_type> >,
             >;
 
@@ -399,7 +399,7 @@ impl CallBuilder<'_> {
                 <::ink::env::call::CallBuilder<
                     Self::Env,
                     ::ink::env::call::utils::Unset< ::ink::env::call::Call >,
-                    ::ink::env::call::utils::Set< ::ink::env::call::ExecutionInput<#arg_list> >,
+                    ::ink::env::call::utils::Set< ::ink::env::call::ExecutionInput<#arg_list, #encoding_strategy> >,
                     ::ink::env::call::utils::Set< ::ink::env::call::utils::ReturnType<#output_type> >,
                 > as ::core::convert::From::<_>>::from(
                     <<Self as ::ink::codegen::TraitMessageBuilder>::MessageBuilder as #trait_ident>

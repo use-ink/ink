@@ -10,6 +10,7 @@ mod sol_cross_contract {
         env::{
             call::{
                 build_call,
+                build_call_solidity,
                 ExecutionInput,
             },
             debug_println,
@@ -35,8 +36,7 @@ mod sol_cross_contract {
             let selector = keccak_selector(b"set_value");
             let callee: H160 = callee.into();
 
-            // TODO (@peterwht): fails due to call builder encoding with scale
-            let result = build_call::<<Self as ::ink::env::ContractEnv>::Env>()
+            let result = build_call_solidity::<<Self as ::ink::env::ContractEnv>::Env>()
                 .call(callee)
                 .ref_time_limit(1000000000)
                 .transferred_value(U256::zero())

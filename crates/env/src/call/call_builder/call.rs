@@ -38,7 +38,6 @@ use ink_primitives::{
     reflect::{
         AbiDecodeWith,
         AbiEncodeWith,
-        SolEncoding,
     },
     H160,
     U256,
@@ -177,21 +176,19 @@ where
     }
 }
 
-impl<E, RetType>
+impl<E, RetType, Abi>
     CallBuilder<
         E,
         Set<Call>,
-        // TODO: (@peterwht): non-generic
-        Unset<ExecutionInput<EmptyArgumentList<SolEncoding>, SolEncoding>>,
+        Unset<ExecutionInput<EmptyArgumentList<Abi>, Abi>>,
         Unset<RetType>,
     >
 where
     E: Environment,
+    Abi: Default,
 {
     /// Finalizes the call builder to call a function.
-    pub fn params(
-        self,
-    ) -> CallParams<E, Call, EmptyArgumentList<SolEncoding>, (), SolEncoding> {
+    pub fn params(self) -> CallParams<E, Call, EmptyArgumentList<Abi>, (), Abi> {
         // todo
         CallParams {
             call_type: self.call_type.value(),
@@ -202,15 +199,18 @@ where
     }
 }
 
-impl<E>
+impl<E, Abi>
     CallBuilder<
         E,
         Set<Call>,
-        Unset<ExecutionInput<EmptyArgumentList<SolEncoding>, SolEncoding>>,
+        Unset<ExecutionInput<EmptyArgumentList<Abi>, Abi>>,
         Unset<ReturnType<()>>,
     >
 where
     E: Environment,
+    EmptyArgumentList<Abi>: AbiEncodeWith<Abi>,
+    (): AbiDecodeWith<Abi>,
+    Abi: Default,
 {
     /// Invokes the cross-chain function call.
     ///
@@ -242,6 +242,7 @@ where
     // Args: scale::Encode,
     Args: AbiEncodeWith<Abi>,
     R: AbiDecodeWith<Abi>,
+    Abi: Default,
 {
     /// Invokes the cross-chain function call and returns the result.
     ///

@@ -262,71 +262,71 @@ impl SolValue for EmptyArgumentList<SolEncoding> {
     }
 }
 
-// impl<T> scale::Encode for Argument<T>
-// where
-//     T: scale::Encode,
-// {
-//     #[inline]
-//     fn size_hint(&self) -> usize {
-//         <T as scale::Encode>::size_hint(&self.arg)
-//     }
-//
-//     #[inline]
-//     fn encode_to<O: scale::Output + ?Sized>(&self, output: &mut O) {
-//         <T as scale::Encode>::encode_to(&self.arg, output)
-//     }
-// }
-//
-// impl scale::Encode for EmptyArgumentList {
-//     #[inline]
-//     fn size_hint(&self) -> usize {
-//         0
-//     }
-//
-//     #[inline]
-//     fn encode_to<O: scale::Output + ?Sized>(&self, _output: &mut O) {}
-// }
+impl<T> scale::Encode for Argument<T>
+where
+    T: scale::Encode,
+{
+    #[inline]
+    fn size_hint(&self) -> usize {
+        <T as scale::Encode>::size_hint(&self.arg)
+    }
 
-// impl<Head, Rest> scale::Encode for ArgumentList<Argument<Head>, Rest>
-// where
-//     Head: scale::Encode,
-//     Rest: scale::Encode,
-// {
-//     #[inline]
-//     fn size_hint(&self) -> usize {
-//         scale::Encode::size_hint(&self.head)
-//             .checked_add(scale::Encode::size_hint(&self.rest))
-//             .unwrap()
-//     }
-//
-//     #[inline]
-//     fn encode_to<O: scale::Output + ?Sized>(&self, output: &mut O) {
-//         // We reverse the order of encoding because we build up the list of
-//         // arguments in reverse order, too. This way we encode the arguments
-//         // in the same order in which they have been pushed to the argument list
-//         // while the argument list itself organizes them in reverse order.
-//         scale::Encode::encode_to(&self.rest, output);
-//         scale::Encode::encode_to(&self.head, output);
-//     }
-// }
-//
-// impl<Args> scale::Encode for ExecutionInput<Args>
-// where
-//     Args: scale::Encode,
-// {
-//     #[inline]
-//     fn size_hint(&self) -> usize {
-//         scale::Encode::size_hint(&self.selector)
-//             .checked_add(scale::Encode::size_hint(&self.args))
-//             .unwrap()
-//     }
-//
-//     #[inline]
-//     fn encode_to<O: scale::Output + ?Sized>(&self, output: &mut O) {
-//         scale::Encode::encode_to(&self.selector, output);
-//         scale::Encode::encode_to(&self.args, output);
-//     }
-// }
+    #[inline]
+    fn encode_to<O: scale::Output + ?Sized>(&self, output: &mut O) {
+        <T as scale::Encode>::encode_to(&self.arg, output)
+    }
+}
+
+impl scale::Encode for EmptyArgumentList<ScaleEncoding> {
+    #[inline]
+    fn size_hint(&self) -> usize {
+        0
+    }
+
+    #[inline]
+    fn encode_to<O: scale::Output + ?Sized>(&self, _output: &mut O) {}
+}
+
+impl<Head, Rest> scale::Encode for ArgumentList<Argument<Head>, Rest, ScaleEncoding>
+where
+    Head: scale::Encode,
+    Rest: scale::Encode,
+{
+    #[inline]
+    fn size_hint(&self) -> usize {
+        scale::Encode::size_hint(&self.head)
+            .checked_add(scale::Encode::size_hint(&self.rest))
+            .unwrap()
+    }
+
+    #[inline]
+    fn encode_to<O: scale::Output + ?Sized>(&self, output: &mut O) {
+        // We reverse the order of encoding because we build up the list of
+        // arguments in reverse order, too. This way we encode the arguments
+        // in the same order in which they have been pushed to the argument list
+        // while the argument list itself organizes them in reverse order.
+        scale::Encode::encode_to(&self.rest, output);
+        scale::Encode::encode_to(&self.head, output);
+    }
+}
+
+impl<Args> scale::Encode for ExecutionInput<Args, ScaleEncoding>
+where
+    Args: scale::Encode,
+{
+    #[inline]
+    fn size_hint(&self) -> usize {
+        scale::Encode::size_hint(&self.selector)
+            .checked_add(scale::Encode::size_hint(&self.args))
+            .unwrap()
+    }
+
+    #[inline]
+    fn encode_to<O: scale::Output + ?Sized>(&self, output: &mut O) {
+        scale::Encode::encode_to(&self.selector, output);
+        scale::Encode::encode_to(&self.args, output);
+    }
+}
 
 impl<Head, Rest> SolTypeValue<(Rest::SolType, Head::SolType)>
     for ArgumentList<Argument<Head>, Rest, SolEncoding>

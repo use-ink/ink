@@ -42,6 +42,7 @@ pub mod utils {
 pub use self::{
     call_builder::{
         build_call,
+        build_call_solidity,
         Call,
         CallBuilder,
         CallParams,
@@ -49,6 +50,7 @@ pub use self::{
     },
     create_builder::{
         build_create,
+        build_create_solidity,
         state,
         ConstructorReturnType,
         CreateBuilder,
