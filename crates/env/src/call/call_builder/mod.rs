@@ -39,7 +39,7 @@ use ink_primitives::{
 
 /// The final parameters to the cross-contract call.
 #[derive(Debug)]
-pub struct CallParams<E, CallType, Args, R, Strategy>
+pub struct CallParams<E, CallType, Args, R, Abi>
 where
     E: Environment,
 {
@@ -48,18 +48,18 @@ where
     /// The expected return type.
     _return_type: ReturnType<R>,
     /// The inputs to the execution which is a selector and encoded arguments.
-    exec_input: ExecutionInput<Args, Strategy>,
+    exec_input: ExecutionInput<Args, Abi>,
     /// `Environment` is used by `CallType` for correct types
     _phantom: PhantomData<fn() -> E>,
 }
 
-impl<E, CallType, Args, R, Strategy> CallParams<E, CallType, Args, R, Strategy>
+impl<E, CallType, Args, R, Abi> CallParams<E, CallType, Args, R, Abi>
 where
     E: Environment,
 {
     /// Returns the execution input.
     #[inline]
-    pub fn exec_input(&self) -> &ExecutionInput<Args, Strategy> {
+    pub fn exec_input(&self) -> &ExecutionInput<Args, Abi> {
         &self.exec_input
     }
 }
@@ -238,17 +238,17 @@ where
     _phantom: PhantomData<fn() -> E>, // todo possibly remove?
 }
 
-impl<E, Args, RetType, Strategy> From<Execution<Args, RetType, Strategy>>
+impl<E, Args, RetType, Abi> From<Execution<Args, RetType, Abi>>
     for CallBuilder<
         E,
         Unset<Call>,
-        Set<ExecutionInput<Args, Strategy>>,
+        Set<ExecutionInput<Args, Abi>>,
         Set<ReturnType<RetType>>,
     >
 where
     E: Environment,
 {
-    fn from(invoke: Execution<Args, RetType, Strategy>) -> Self {
+    fn from(invoke: Execution<Args, RetType, Abi>) -> Self {
         CallBuilder {
             call_type: Default::default(),
             exec_input: Set(invoke.input),
@@ -299,16 +299,16 @@ where
     }
 }
 
-impl<E, CallType, RetType, Strategy>
-    CallBuilder<E, CallType, Unset<ExecutionInput<EmptyArgumentList, Strategy>>, RetType>
+impl<E, CallType, RetType, Abi>
+    CallBuilder<E, CallType, Unset<ExecutionInput<EmptyArgumentList, Abi>>, RetType>
 where
     E: Environment,
 {
     /// Sets the execution input to the given value.
     pub fn exec_input<Args>(
         self,
-        exec_input: ExecutionInput<Args, Strategy>,
-    ) -> CallBuilder<E, CallType, Set<ExecutionInput<Args, Strategy>>, RetType> {
+        exec_input: ExecutionInput<Args, Abi>,
+    ) -> CallBuilder<E, CallType, Set<ExecutionInput<Args, Abi>>, RetType> {
         CallBuilder {
             call_type: self.call_type,
             exec_input: Set(exec_input),

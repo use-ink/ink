@@ -36,7 +36,7 @@ use alloy_sol_types::{
 };
 use ink_primitives::{
     reflect::{
-        EncodeWith,
+        AbiEncodeWith,
         SolEncoding,
     },
     H160,
@@ -160,18 +160,13 @@ where
     }
 }
 
-impl<E, Args, RetType, Strategy>
-    CallBuilder<
-        E,
-        Set<Call>,
-        Set<ExecutionInput<Args, Strategy>>,
-        Set<ReturnType<RetType>>,
-    >
+impl<E, Args, RetType, Abi>
+    CallBuilder<E, Set<Call>, Set<ExecutionInput<Args, Abi>>, Set<ReturnType<RetType>>>
 where
     E: Environment,
 {
     /// Finalizes the call builder to call a function.
-    pub fn params(self) -> CallParams<E, Call, Args, RetType, Strategy> {
+    pub fn params(self) -> CallParams<E, Call, Args, RetType, Abi> {
         CallParams {
             call_type: self.call_type.value(),
             _return_type: Default::default(),
@@ -235,12 +230,12 @@ where
     }
 }
 
-impl<E, Args, R, Strategy>
-    CallBuilder<E, Set<Call>, Set<ExecutionInput<Args, Strategy>>, Set<ReturnType<R>>>
+impl<E, Args, R, Abi>
+    CallBuilder<E, Set<Call>, Set<ExecutionInput<Args, Abi>>, Set<ReturnType<R>>>
 where
     E: Environment,
     // Args: scale::Encode,
-    Args: EncodeWith<Strategy>,
+    Args: AbiEncodeWith<Abi>,
     R: SolValue + From<<<R as SolValue>::SolType as SolType>::RustType>,
 {
     /// Invokes the cross-chain function call and returns the result.
@@ -266,7 +261,7 @@ where
     }
 }
 
-impl<E, Args, R, Strategy> CallParams<E, Call, Args, R, Strategy>
+impl<E, Args, R, Abi> CallParams<E, Call, Args, R, Abi>
 where
     E: Environment,
 {
@@ -308,11 +303,11 @@ where
     }
 }
 
-impl<E, Args, R, Strategy> CallParams<E, Call, Args, R, Strategy>
+impl<E, Args, R, Abi> CallParams<E, Call, Args, R, Abi>
 where
     E: Environment,
     // Args: scale::Encode,
-    Args: EncodeWith<Strategy>,
+    Args: AbiEncodeWith<Abi>,
     R: SolValue + From<<<R as SolValue>::SolType as SolType>::RustType>,
 {
     /// Invokes the contract with the given built-up call parameters.

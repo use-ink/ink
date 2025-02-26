@@ -248,19 +248,19 @@ pub struct ScaleEncoding;
 pub struct SolEncoding;
 
 // Trait for encoding with a specific strategy
-pub trait EncodeWith<Strategy> {
+pub trait AbiEncodeWith<Abi> {
     fn encode_with(&self, buffer: &mut Vec<u8>);
 }
 
 // Implement for Scale encoding
-impl<T: scale::Encode> EncodeWith<ScaleEncoding> for T {
+impl<T: scale::Encode> AbiEncodeWith<ScaleEncoding> for T {
     fn encode_with(&self, buffer: &mut Vec<u8>) {
         scale::Encode::encode_to(self, buffer);
     }
 }
 
 // Implement for SolValue encoding
-impl<T: SolValue> EncodeWith<SolEncoding> for T {
+impl<T: SolValue> AbiEncodeWith<SolEncoding> for T {
     fn encode_with(&self, buffer: &mut Vec<u8>) {
         buffer.extend_from_slice(&T::abi_encode(self));
     }

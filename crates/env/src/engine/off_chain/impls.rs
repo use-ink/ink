@@ -49,7 +49,7 @@ use alloy_sol_types::{
 };
 use ink_engine::ext::Engine;
 use ink_primitives::{
-    reflect::EncodeWith,
+    reflect::AbiEncodeWith,
     types::Environment,
     H160,
     H256,
@@ -584,14 +584,14 @@ impl TypedEnvBackend for EnvInstance {
         self.engine.deposit_event(&enc_topics[..], enc_data);
     }
 
-    fn invoke_contract<E, Args, R, Strategy>(
+    fn invoke_contract<E, Args, R, Abi>(
         &mut self,
-        params: &CallParams<E, Call, Args, R, Strategy>,
+        params: &CallParams<E, Call, Args, R, Abi>,
     ) -> Result<ink_primitives::MessageResult<R>>
     where
         E: Environment,
         // Args: scale::Encode,
-        Args: EncodeWith<Strategy>,
+        Args: AbiEncodeWith<Abi>,
         R: SolValue + From<<<R as SolValue>::SolType as SolType>::RustType>,
     {
         let call_flags = params.call_flags().bits();
@@ -611,14 +611,14 @@ impl TypedEnvBackend for EnvInstance {
         )
     }
 
-    fn invoke_contract_delegate<E, Args, R, Strategy>(
+    fn invoke_contract_delegate<E, Args, R, Abi>(
         &mut self,
-        params: &CallParams<E, DelegateCall, Args, R, Strategy>,
+        params: &CallParams<E, DelegateCall, Args, R, Abi>,
     ) -> Result<ink_primitives::MessageResult<R>>
     where
         E: Environment,
         // Args: scale::Encode,
-        Args: EncodeWith<Strategy>,
+        Args: AbiEncodeWith<Abi>,
         R: SolValue + From<<<R as SolValue>::SolType as SolType>::RustType>,
     {
         let _addr = params.address(); // todo remove
@@ -638,9 +638,9 @@ impl TypedEnvBackend for EnvInstance {
         )
     }
 
-    fn instantiate_contract<E, ContractRef, Args, R, Strategy>(
+    fn instantiate_contract<E, ContractRef, Args, R, Abi>(
         &mut self,
-        params: &CreateParams<E, ContractRef, LimitParamsV2, Args, R, Strategy>,
+        params: &CreateParams<E, ContractRef, LimitParamsV2, Args, R, Abi>,
     ) -> Result<
         ink_primitives::ConstructorResult<
             <R as ConstructorReturnType<ContractRef>>::Output,
@@ -652,7 +652,7 @@ impl TypedEnvBackend for EnvInstance {
         <ContractRef as crate::ContractReverseReference>::Type:
             crate::reflect::ContractConstructorDecoder,
         // Args: scale::Encode,
-        Args: EncodeWith<Strategy>,
+        Args: AbiEncodeWith<Abi>,
         R: ConstructorReturnType<ContractRef>,
     {
         let endowment = params.endowment();

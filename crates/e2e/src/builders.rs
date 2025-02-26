@@ -26,22 +26,22 @@ use ink_env::{
     },
     Environment,
 };
-use ink_primitives::reflect::EncodeWith;
+use ink_primitives::reflect::AbiEncodeWith;
 use scale::Encode;
 
 /// The type returned from `ContractRef` constructors, partially initialized with the
 /// execution input arguments.
-pub type CreateBuilderPartial<E, ContractRef, Args, R, Strategy> = CreateBuilder<
+pub type CreateBuilderPartial<E, ContractRef, Args, R, Abi> = CreateBuilder<
     E,
     ContractRef,
     Set<LimitParamsV2>,
-    Set<ExecutionInput<Args, Strategy>>,
+    Set<ExecutionInput<Args, Abi>>,
     Set<ReturnType<R>>,
 >;
 
 /// Get the encoded constructor arguments from the partially initialized `CreateBuilder`
-pub fn constructor_exec_input<E, ContractRef, Args: EncodeWith<Strategy>, R, Strategy>(
-    builder: CreateBuilderPartial<E, ContractRef, Args, R, Strategy>,
+pub fn constructor_exec_input<E, ContractRef, Args: AbiEncodeWith<Abi>, R, Abi>(
+    builder: CreateBuilderPartial<E, ContractRef, Args, R, Abi>,
 ) -> Vec<u8>
 where
     E: Environment,

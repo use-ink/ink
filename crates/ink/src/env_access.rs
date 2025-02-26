@@ -36,7 +36,7 @@ use ink_env::{
     Result,
 };
 use ink_primitives::{
-    reflect::EncodeWith,
+    reflect::AbiEncodeWith,
     H160,
     H256,
     U256,
@@ -480,9 +480,9 @@ where
     /// # Note
     ///
     /// For more details visit: [`ink_env::instantiate_contract`]
-    pub fn instantiate_contract<ContractRef, Args, R, Strategy>(
+    pub fn instantiate_contract<ContractRef, Args, R, Abi>(
         self,
-        params: &CreateParams<E, ContractRef, LimitParamsV2, Args, R, Strategy>,
+        params: &CreateParams<E, ContractRef, LimitParamsV2, Args, R, Abi>,
     ) -> Result<
         ink_primitives::ConstructorResult<
             <R as ConstructorReturnType<ContractRef>>::Output,
@@ -493,10 +493,10 @@ where
         <ContractRef as ink_env::ContractReverseReference>::Type:
             ink_env::reflect::ContractConstructorDecoder,
         // Args: scale::Encode,
-        Args: EncodeWith<Strategy>,
+        Args: AbiEncodeWith<Abi>,
         R: ConstructorReturnType<ContractRef>,
     {
-        ink_env::instantiate_contract::<E, ContractRef, Args, R, Strategy>(params)
+        ink_env::instantiate_contract::<E, ContractRef, Args, R, Abi>(params)
     }
 
     /// Invokes a contract message and returns its result.
@@ -557,16 +557,16 @@ where
     /// # Note
     ///
     /// For more details visit: [`ink_env::invoke_contract`]
-    pub fn invoke_contract<Args, R, Strategy>(
+    pub fn invoke_contract<Args, R, Abi>(
         self,
-        params: &CallParams<E, Call, Args, R, Strategy>,
+        params: &CallParams<E, Call, Args, R, Abi>,
     ) -> Result<ink_primitives::MessageResult<R>>
     where
         // Args: scale::Encode,
-        Args: EncodeWith<Strategy>,
+        Args: AbiEncodeWith<Abi>,
         R: SolValue + From<<<R as SolValue>::SolType as SolType>::RustType>,
     {
-        ink_env::invoke_contract::<E, Args, R, Strategy>(params)
+        ink_env::invoke_contract::<E, Args, R, Abi>(params)
     }
 
     /// Invokes in delegate manner a code message and returns its result.
@@ -626,16 +626,16 @@ where
     /// # Note
     ///
     /// For more details visit: [`ink_env::invoke_contract_delegate`]
-    pub fn invoke_contract_delegate<Args, R, Strategy>(
+    pub fn invoke_contract_delegate<Args, R, Abi>(
         self,
-        params: &CallParams<E, DelegateCall, Args, R, Strategy>,
+        params: &CallParams<E, DelegateCall, Args, R, Abi>,
     ) -> Result<ink_primitives::MessageResult<R>>
     where
         // Args: scale::Encode,
-        Args: EncodeWith<Strategy>,
+        Args: AbiEncodeWith<Abi>,
         R: SolValue + From<<<R as SolValue>::SolType as SolType>::RustType>,
     {
-        ink_env::invoke_contract_delegate::<E, Args, R, Strategy>(params)
+        ink_env::invoke_contract_delegate::<E, Args, R, Abi>(params)
     }
 
     /// Terminates the existence of a contract.

@@ -26,9 +26,9 @@ use alloy_sol_types::{
 use core::marker::PhantomData;
 
 /// The input data and the expected return type of a contract execution.
-pub struct Execution<Args, Output, Strategy> {
+pub struct Execution<Args, Output, Abi> {
     /// The input data for initiating a contract execution.
-    pub input: ExecutionInput<Args, Strategy>,
+    pub input: ExecutionInput<Args, Abi>,
     /// The type of the expected return value of the contract execution.
     pub output: ReturnType<Output>,
 }
@@ -65,28 +65,28 @@ pub trait Executor<E: Environment> {
     /// The type of the error that can be returned during execution.
     type Error;
     /// Perform the contract execution with the given input data, and return the result.
-    fn exec<Args, Output, Strategy>(
+    fn exec<Args, Output, Abi>(
         &self,
-        input: &ExecutionInput<Args, Strategy>,
+        input: &ExecutionInput<Args, Abi>,
     ) -> Result<ink_primitives::MessageResult<Output>, Self::Error>
     where
         // Args: scale::Encode,
-        Args: EncodeWith<Strategy>,
+        Args: AbiEncodeWith<Abi>,
         Output: SolValue + From<<<Output as SolValue>::SolType as SolType>::RustType>;
 }
 
 /// The input data for a smart contract execution.
 #[derive(Clone, Default, Debug)]
-pub struct ExecutionInput<Args, Strategy> {
+pub struct ExecutionInput<Args, Abi> {
     /// The selector for the smart contract execution.
     selector: Selector,
     /// The arguments of the smart contract execution.
     args: Args,
-    _marker: PhantomData<Strategy>,
+    _marker: PhantomData<Abi>,
 }
 
 use ink_primitives::reflect::{
-    EncodeWith,
+    AbiEncodeWith,
     ScaleEncoding,
     SolEncoding,
 };
@@ -137,7 +137,7 @@ impl<Head, Rest> ExecutionInput<ArgumentList<Argument<Head>, Rest>, SolEncoding>
     }
 }
 
-impl<Args, Strategy> ExecutionInput<Args, Strategy> {
+impl<Args, Abi> ExecutionInput<Args, Abi> {
     /// Modify the selector.
     ///
     /// Useful when using the [`ExecutionInput`] generated as part of the
@@ -368,7 +368,7 @@ use ink_prelude::vec::Vec;
 
 impl<Args, S> ExecutionInput<Args, S>
 where
-    Args: EncodeWith<S>,
+    Args: AbiEncodeWith<S>,
 {
     /// TODO (@peterwht): docs
     pub fn call_data(&self) -> Vec<u8> {

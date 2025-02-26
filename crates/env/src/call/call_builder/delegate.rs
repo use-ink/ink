@@ -33,7 +33,7 @@ use alloy_sol_types::{
 };
 use ink_primitives::{
     reflect::{
-        EncodeWith,
+        AbiEncodeWith,
         SolEncoding,
     },
     H160,
@@ -106,18 +106,18 @@ where
     }
 }
 
-impl<E, Args, RetType, Strategy>
+impl<E, Args, RetType, Abi>
     CallBuilder<
         E,
         Set<DelegateCall>,
-        Set<ExecutionInput<Args, Strategy>>,
+        Set<ExecutionInput<Args, Abi>>,
         Set<ReturnType<RetType>>,
     >
 where
     E: Environment,
 {
     /// Finalizes the call builder to call a function.
-    pub fn params(self) -> CallParams<E, DelegateCall, Args, RetType, Strategy> {
+    pub fn params(self) -> CallParams<E, DelegateCall, Args, RetType, Abi> {
         CallParams {
             call_type: self.call_type.value(),
             _return_type: Default::default(),
@@ -182,17 +182,12 @@ where
     }
 }
 
-impl<E, Args, R, Strategy>
-    CallBuilder<
-        E,
-        Set<DelegateCall>,
-        Set<ExecutionInput<Args, Strategy>>,
-        Set<ReturnType<R>>,
-    >
+impl<E, Args, R, Abi>
+    CallBuilder<E, Set<DelegateCall>, Set<ExecutionInput<Args, Abi>>, Set<ReturnType<R>>>
 where
     E: Environment,
     // Args: scale::Encode,
-    Args: EncodeWith<Strategy>,
+    Args: AbiEncodeWith<Abi>,
     R: SolValue + From<<<R as SolValue>::SolType as SolType>::RustType>,
 {
     /// Invokes the cross-chain function call using Delegate Call semantics and returns
@@ -220,7 +215,7 @@ where
     }
 }
 
-impl<E, Args, R, Strategy> CallParams<E, DelegateCall, Args, R, Strategy>
+impl<E, Args, R, Abi> CallParams<E, DelegateCall, Args, R, Abi>
 where
     E: Environment,
 {
@@ -255,11 +250,11 @@ where
     }
 }
 
-impl<E, Args, R, Strategy> CallParams<E, DelegateCall, Args, R, Strategy>
+impl<E, Args, R, Abi> CallParams<E, DelegateCall, Args, R, Abi>
 where
     E: Environment,
     // Args: scale::Encode,
-    Args: EncodeWith<Strategy>,
+    Args: AbiEncodeWith<Abi>,
     R: SolValue + From<<<R as SolValue>::SolType as SolType>::RustType>,
 {
     /// Invoke the contract using Delegate Call semantics with the given built-up call

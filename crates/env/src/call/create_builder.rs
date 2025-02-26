@@ -31,7 +31,7 @@ use alloy_sol_types::SolValue;
 use core::marker::PhantomData;
 use ink_primitives::{
     reflect::{
-        EncodeWith,
+        AbiEncodeWith,
         SolEncoding,
     },
     H160,
@@ -180,7 +180,7 @@ pub struct LimitParamsV2 {
 
 /// Builds up contract instantiations.
 #[derive(Debug)]
-pub struct CreateParams<E, ContractRef, Limits, Args, R, Strategy> {
+pub struct CreateParams<E, ContractRef, Limits, Args, R, Abi> {
     /// The code hash of the created contract.
     code_hash: H256,
     /// Parameters for weight and storage limits, differs for versions of the instantiate
@@ -190,7 +190,7 @@ pub struct CreateParams<E, ContractRef, Limits, Args, R, Strategy> {
     /// todo: is this correct? or is the value here `U256`?
     endowment: U256,
     /// The input data for the instantiation.
-    exec_input: ExecutionInput<Args, Strategy>,
+    exec_input: ExecutionInput<Args, Abi>,
     /// The salt for determining the hash for the contract account ID.
     salt_bytes: Option<[u8; 32]>,
     /// The return type of the target contract's constructor method.
@@ -199,8 +199,8 @@ pub struct CreateParams<E, ContractRef, Limits, Args, R, Strategy> {
     _phantom: PhantomData<fn() -> (E, ContractRef)>,
 }
 
-impl<E, ContractRef, Limits, Args, R, Strategy>
-    CreateParams<E, ContractRef, Limits, Args, R, Strategy>
+impl<E, ContractRef, Limits, Args, R, Abi>
+    CreateParams<E, ContractRef, Limits, Args, R, Abi>
 where
     E: Environment,
 {
@@ -218,7 +218,7 @@ where
 
     /// The raw encoded input data.
     #[inline]
-    pub fn exec_input(&self) -> &ExecutionInput<Args, Strategy> {
+    pub fn exec_input(&self) -> &ExecutionInput<Args, Abi> {
         &self.exec_input
     }
 
@@ -231,8 +231,8 @@ where
     }
 }
 
-impl<E, ContractRef, Args, R, Strategy>
-    CreateParams<E, ContractRef, LimitParamsV2, Args, R, Strategy>
+impl<E, ContractRef, Args, R, Abi>
+    CreateParams<E, ContractRef, LimitParamsV2, Args, R, Abi>
 where
     E: Environment,
 {
@@ -256,8 +256,8 @@ where
     }
 }
 
-impl<E, ContractRef, Limits, Args, R, Strategy>
-    CreateParams<E, ContractRef, Limits, Args, R, Strategy>
+impl<E, ContractRef, Limits, Args, R, Abi>
+    CreateParams<E, ContractRef, Limits, Args, R, Abi>
 where
     E: Environment,
 {
@@ -268,8 +268,8 @@ where
     }
 }
 
-impl<E, ContractRef, Args, R, Strategy>
-    CreateParams<E, ContractRef, LimitParamsV2, Args, R, Strategy>
+impl<E, ContractRef, Args, R, Abi>
+    CreateParams<E, ContractRef, LimitParamsV2, Args, R, Abi>
 where
     E: Environment,
     ContractRef: FromAddr + crate::ContractReverseReference,
@@ -278,7 +278,7 @@ where
     <ContractRef as crate::ContractReverseReference>::Type:
         crate::reflect::ContractMessageDecoder,
     // Args: scale::Encode,
-    Args: EncodeWith<Strategy>,
+    Args: AbiEncodeWith<Abi>,
     R: ConstructorReturnType<ContractRef>,
 {
     /// todo
@@ -644,12 +644,12 @@ where
     }
 }
 
-impl<E, ContractRef, Limits, Args, RetType, Strategy>
+impl<E, ContractRef, Limits, Args, RetType, Abi>
     CreateBuilder<
         E,
         ContractRef,
         Set<Limits>,
-        Set<ExecutionInput<Args, Strategy>>,
+        Set<ExecutionInput<Args, Abi>>,
         Set<ReturnType<RetType>>,
     >
 where
@@ -657,7 +657,7 @@ where
 {
     /// Finalizes the `CreateBuilder`, allowing it to instantiate a contract.
     #[inline]
-    pub fn params(self) -> CreateParams<E, ContractRef, Limits, Args, RetType, Strategy> {
+    pub fn params(self) -> CreateParams<E, ContractRef, Limits, Args, RetType, Abi> {
         CreateParams {
             code_hash: self.code_hash,
             limits: self.limits.value(),
@@ -670,12 +670,12 @@ where
     }
 }
 
-impl<E, ContractRef, Args, RetType, Strategy>
+impl<E, ContractRef, Args, RetType, Abi>
     CreateBuilder<
         E,
         ContractRef,
         Set<LimitParamsV2>,
-        Set<ExecutionInput<Args, Strategy>>,
+        Set<ExecutionInput<Args, Abi>>,
         Set<ReturnType<RetType>>,
     >
 where
@@ -686,7 +686,7 @@ where
     <ContractRef as crate::ContractReverseReference>::Type:
         crate::reflect::ContractMessageDecoder,
     // Args: scale::Encode,
-    Args: EncodeWith<Strategy>,
+    Args: AbiEncodeWith<Abi>,
     RetType: ConstructorReturnType<ContractRef>,
 {
     /// todo check comment

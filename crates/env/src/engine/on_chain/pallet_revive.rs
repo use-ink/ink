@@ -49,7 +49,7 @@ use crate::{
     TypedEnvBackend,
 };
 use ink_primitives::{
-    reflect::EncodeWith,
+    reflect::AbiEncodeWith,
     H160,
     H256,
     U256,
@@ -463,14 +463,14 @@ impl TypedEnvBackend for EnvInstance {
         ext::deposit_event(&enc_topics[..], enc_data);
     }
 
-    fn invoke_contract<E, Args, R, Strategy>(
+    fn invoke_contract<E, Args, R, Abi>(
         &mut self,
-        params: &CallParams<E, Call, Args, R, Strategy>,
+        params: &CallParams<E, Call, Args, R, Abi>,
     ) -> Result<ink_primitives::MessageResult<R>>
     where
         E: Environment,
     // Args: scale::Encode,
-        Args: EncodeWith<Strategy>,
+        Args: AbiEncodeWith<Abi>,
         R: alloy_sol_types::SolValue
             + From<<<R as alloy_sol_types::SolValue>::SolType as alloy_sol_types::SolType>::RustType>,
     {
@@ -524,14 +524,14 @@ impl TypedEnvBackend for EnvInstance {
         }
     }
 
-    fn invoke_contract_delegate<E, Args, R, Strategy>(
+    fn invoke_contract_delegate<E, Args, R, Abi>(
         &mut self,
-        params: &CallParams<E, DelegateCall, Args, R, Strategy>,
+        params: &CallParams<E, DelegateCall, Args, R, Abi>,
     ) -> Result<ink_primitives::MessageResult<R>>
     where
         E: Environment,
     // Args: scale::Encode,
-        Args: EncodeWith<Strategy>,
+        Args: AbiEncodeWith<Abi>,
         R: alloy_sol_types::SolValue
             + From<<<R as alloy_sol_types::SolValue>::SolType as alloy_sol_types::SolType>::RustType>,
     {
@@ -571,9 +571,9 @@ impl TypedEnvBackend for EnvInstance {
         }
     }
 
-    fn instantiate_contract<E, ContractRef, Args, RetType, Strategy>(
+    fn instantiate_contract<E, ContractRef, Args, RetType, Abi>(
         &mut self,
-        params: &CreateParams<E, ContractRef, LimitParamsV2, Args, RetType, Strategy>,
+        params: &CreateParams<E, ContractRef, LimitParamsV2, Args, RetType, Abi>,
     ) -> Result<
         ink_primitives::ConstructorResult<
             <RetType as ConstructorReturnType<ContractRef>>::Output,
@@ -583,7 +583,7 @@ impl TypedEnvBackend for EnvInstance {
         E: Environment,
         ContractRef: FromAddr,
         // Args: scale::Encode,
-        Args: EncodeWith<Strategy>,
+        Args: AbiEncodeWith<Abi>,
         RetType: ConstructorReturnType<ContractRef>,
     {
         let mut scoped = self.scoped_buffer();

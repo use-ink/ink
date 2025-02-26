@@ -39,7 +39,7 @@ use ink_env::{
     Environment,
 };
 use ink_primitives::{
-    reflect::EncodeWith,
+    reflect::AbiEncodeWith,
     DepositLimit,
 };
 use jsonrpsee::core::async_trait;
@@ -136,15 +136,15 @@ pub trait ContractsBackend<E: Environment> {
     fn instantiate<
         'a,
         Contract: Clone,
-        Args: Send + Clone + EncodeWith<Strategy> + Sync,
+        Args: Send + Clone + AbiEncodeWith<Abi> + Sync,
         R,
-        Strategy: Send + Sync + Clone,
+        Abi: Send + Sync + Clone,
     >(
         &'a mut self,
         contract_name: &'a str,
         caller: &'a Keypair,
-        constructor: &'a mut CreateBuilderPartial<E, Contract, Args, R, Strategy>,
-    ) -> InstantiateBuilder<'a, E, Contract, Args, R, Self, Strategy>
+        constructor: &'a mut CreateBuilderPartial<E, Contract, Args, R, Abi>,
+    ) -> InstantiateBuilder<'a, E, Contract, Args, R, Self, Abi>
     where
         Self: Sized + BuilderClient<E>,
     {
@@ -220,14 +220,14 @@ pub trait ContractsBackend<E: Environment> {
     /// ```
     fn call<
         'a,
-        Args: Sync + EncodeWith<Strategy> + Clone,
+        Args: Sync + AbiEncodeWith<Abi> + Clone,
         RetType: Send + SolValue + From<<<RetType as SolValue>::SolType as SolType>::RustType>,
-        Strategy: Sync + Clone,
+        Abi: Sync + Clone,
     >(
         &'a mut self,
         caller: &'a Keypair,
-        message: &'a CallBuilderFinal<E, Args, RetType, Strategy>,
-    ) -> CallBuilder<'a, E, Args, RetType, Self, Strategy>
+        message: &'a CallBuilderFinal<E, Args, RetType, Abi>,
+    ) -> CallBuilder<'a, E, Args, RetType, Self, Abi>
     where
         Self: Sized + BuilderClient<E>,
     {
@@ -245,37 +245,37 @@ pub trait BuilderClient<E: Environment>: ContractsBackend<E> {
     /// Returns when the transaction is included in a block. The return value
     /// contains all events that are associated with this transaction.
     async fn bare_call<
-        Args: Sync + EncodeWith<Strategy> + Clone,
+        Args: Sync + AbiEncodeWith<Abi> + Clone,
         RetType: Send + SolValue + From<<<RetType as SolValue>::SolType as SolType>::RustType>,
-        Strategy: Sync + Clone,
+        Abi: Sync + Clone,
     >(
         &mut self,
         caller: &Keypair,
-        message: &CallBuilderFinal<E, Args, RetType, Strategy>,
+        message: &CallBuilderFinal<E, Args, RetType, Abi>,
         value: E::Balance,
         gas_limit: Weight,
         storage_deposit_limit: DepositLimit<E::Balance>,
     ) -> Result<Self::EventLog, Self::Error>
     where
-        CallBuilderFinal<E, Args, RetType, Strategy>: Clone;
+        CallBuilderFinal<E, Args, RetType, Abi>: Clone;
 
     /// Executes a dry-run `call`.
     ///
     /// Returns the result of the dry run, together with the decoded return value of the
     /// invoked message.
     async fn bare_call_dry_run<
-        Args: Sync + EncodeWith<Strategy> + Clone,
+        Args: Sync + AbiEncodeWith<Abi> + Clone,
         RetType: Send + SolValue + From<<<RetType as SolValue>::SolType as SolType>::RustType>,
-        Strategy: Sync + Clone,
+        Abi: Sync + Clone,
     >(
         &mut self,
         caller: &Keypair,
-        message: &CallBuilderFinal<E, Args, RetType, Strategy>,
+        message: &CallBuilderFinal<E, Args, RetType, Abi>,
         value: E::Balance,
         storage_deposit_limit: DepositLimit<E::Balance>,
     ) -> Result<CallDryRunResult<E, RetType>, Self::Error>
     where
-        CallBuilderFinal<E, Args, RetType, Strategy>: Clone;
+        CallBuilderFinal<E, Args, RetType, Abi>: Clone;
 
     /// Uploads the contract call.
     ///
@@ -313,14 +313,14 @@ pub trait BuilderClient<E: Environment>: ContractsBackend<E> {
     /// instance is reused!
     async fn bare_instantiate<
         Contract: Clone,
-        Args: Send + Sync + EncodeWith<Strategy> + Clone,
+        Args: Send + Sync + AbiEncodeWith<Abi> + Clone,
         R,
-        Strategy: Send + Sync + Clone,
+        Abi: Send + Sync + Clone,
     >(
         &mut self,
         contract_name: &str,
         caller: &Keypair,
-        constructor: &mut CreateBuilderPartial<E, Contract, Args, R, Strategy>,
+        constructor: &mut CreateBuilderPartial<E, Contract, Args, R, Abi>,
         value: E::Balance,
         gas_limit: Weight,
         storage_deposit_limit: DepositLimit<E::Balance>,
@@ -329,14 +329,14 @@ pub trait BuilderClient<E: Environment>: ContractsBackend<E> {
     /// Dry run contract instantiation.
     async fn bare_instantiate_dry_run<
         Contract: Clone,
-        Args: Send + Sync + EncodeWith<Strategy> + Clone,
+        Args: Send + Sync + AbiEncodeWith<Abi> + Clone,
         R,
-        Strategy: Send + Sync + Clone,
+        Abi: Send + Sync + Clone,
     >(
         &mut self,
         contract_name: &str,
         caller: &Keypair,
-        constructor: &mut CreateBuilderPartial<E, Contract, Args, R, Strategy>,
+        constructor: &mut CreateBuilderPartial<E, Contract, Args, R, Abi>,
         value: E::Balance,
         storage_deposit_limit: DepositLimit<E::Balance>,
     ) -> Result<InstantiateDryRunResult<E>, Self::Error>;
