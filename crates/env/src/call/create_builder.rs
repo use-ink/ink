@@ -442,7 +442,7 @@ pub fn build_create<ContractRef>() -> CreateBuilder<
     <ContractRef as ContractEnv>::Env,
     ContractRef,
     Set<LimitParamsV2>,
-    Unset<ExecutionInput<EmptyArgumentList, SolEncoding>>,
+    Unset<ExecutionInput<EmptyArgumentList<SolEncoding>, SolEncoding>>,
     Unset<ReturnType<()>>,
 >
 where
@@ -557,7 +557,7 @@ impl<E, ContractRef, Limits, RetType>
         E,
         ContractRef,
         Limits,
-        Unset<ExecutionInput<EmptyArgumentList, SolEncoding>>,
+        Unset<ExecutionInput<EmptyArgumentList<SolEncoding>, SolEncoding>>,
         RetType,
     >
 where

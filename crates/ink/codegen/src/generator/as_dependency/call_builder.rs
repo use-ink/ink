@@ -379,18 +379,21 @@ impl CallBuilder<'_> {
         let selector_bytes = selector.hex_lits();
         let input_bindings = generator::input_bindings(callable.inputs());
         let input_types = generator::input_types(message.inputs());
-        let arg_list = generator::generate_argument_list(input_types.iter().cloned());
+        let encoding_strategy = match abi {
+            ir::Abi::Scale => quote!(::ink::reflect::ScaleEncoding),
+            ir::Abi::Solidity => quote!(::ink::reflect::SolEncoding),
+            ir::Abi::All => todo!("support for `Abi::All`"),
+        };
+        let arg_list = generator::generate_argument_list(
+            input_types.iter().cloned(),
+            encoding_strategy.clone(),
+        );
         let mut_tok = callable.receiver().is_ref_mut().then(|| quote! { mut });
         let return_type = message
             .output()
             .map(quote::ToTokens::to_token_stream)
             .unwrap_or_else(|| quote::quote! { () });
         let output_span = return_type.span();
-        let encoding_strategy = match abi {
-            ir::Abi::Scale => quote!(::ink::reflect::ScaleEncoding),
-            ir::Abi::Solidity => quote!(::ink::reflect::SolEncoding),
-            ir::Abi::All => todo!("support for `Abi::All`"),
-        };
         // TODO (@peterwht): generate multiple output types when ABI is `All`.
         let output_type = quote_spanned!(output_span=>
             ::ink::env::call::CallBuilder<

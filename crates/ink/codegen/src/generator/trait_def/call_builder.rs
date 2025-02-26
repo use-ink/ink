@@ -371,7 +371,13 @@ impl CallBuilder<'_> {
             output.map_or_else(|| quote! { () }, |output| quote! { #output });
         let input_bindings = generator::input_bindings(message.inputs());
         let input_types = generator::input_types(message.inputs());
-        let arg_list = generator::generate_argument_list(input_types.iter().cloned());
+        // TODO (@peterwht): handle traits with Solidity encoding (see message_builder as
+        // well)
+        let encoding_strategy = quote!(::ink::reflect::ScaleEncoding);
+        let arg_list = generator::generate_argument_list(
+            input_types.iter().cloned(),
+            encoding_strategy,
+        );
         let mut_tok = message.mutates().then(|| quote! { mut });
         let cfg_attrs = message.get_cfg_attrs(span);
         quote_spanned!(span =>

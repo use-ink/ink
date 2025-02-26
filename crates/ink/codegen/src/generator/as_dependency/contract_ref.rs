@@ -456,16 +456,20 @@ impl ContractRef<'_> {
         let input_bindings = generator::input_bindings(constructor.inputs());
         let input_types = generator::input_types(constructor.inputs());
         let _storage_ident = self.contract.module().storage().ident();
-        let arg_list = generator::generate_argument_list(input_types.iter().cloned());
-        let ret_type = constructor
-            .output()
-            .map(quote::ToTokens::to_token_stream)
-            .unwrap_or_else(|| quote::quote! { Self });
         let encoding_strategy = match abi {
             ir::Abi::Scale => quote!(::ink::reflect::ScaleEncoding),
             ir::Abi::Solidity => quote!(::ink::reflect::SolEncoding),
             ir::Abi::All => todo!("support for `Abi::All`"),
         };
+        let arg_list = generator::generate_argument_list(
+            input_types.iter().cloned(),
+            encoding_strategy.clone(),
+        );
+        let ret_type = constructor
+            .output()
+            .map(quote::ToTokens::to_token_stream)
+            .unwrap_or_else(|| quote::quote! { Self });
+
         quote_spanned!(span =>
             #( #attrs )*
             #[inline]

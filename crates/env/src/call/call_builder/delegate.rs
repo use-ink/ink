@@ -132,7 +132,7 @@ impl<E, RetType>
     CallBuilder<
         E,
         Set<DelegateCall>,
-        Unset<ExecutionInput<EmptyArgumentList, SolEncoding>>,
+        Unset<ExecutionInput<EmptyArgumentList<SolEncoding>, SolEncoding>>,
         Unset<RetType>,
     >
 where
@@ -141,7 +141,8 @@ where
     /// Finalizes the call builder to call a function.
     pub fn params(
         self,
-    ) -> CallParams<E, DelegateCall, EmptyArgumentList, (), SolEncoding> {
+    ) -> CallParams<E, DelegateCall, EmptyArgumentList<SolEncoding>, (), SolEncoding>
+    {
         CallParams {
             call_type: self.call_type.value(),
             _return_type: Default::default(),
@@ -155,7 +156,7 @@ impl<E>
     CallBuilder<
         E,
         Set<DelegateCall>,
-        Unset<ExecutionInput<EmptyArgumentList, SolEncoding>>,
+        Unset<ExecutionInput<EmptyArgumentList<SolEncoding>, SolEncoding>>,
         Unset<ReturnType<()>>,
     >
 where

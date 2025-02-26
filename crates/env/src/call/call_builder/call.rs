@@ -181,14 +181,18 @@ impl<E, RetType>
     CallBuilder<
         E,
         Set<Call>,
-        Unset<ExecutionInput<EmptyArgumentList, SolEncoding>>,
+        // TODO: (@peterwht): non-generic
+        Unset<ExecutionInput<EmptyArgumentList<SolEncoding>, SolEncoding>>,
         Unset<RetType>,
     >
 where
     E: Environment,
 {
     /// Finalizes the call builder to call a function.
-    pub fn params(self) -> CallParams<E, Call, EmptyArgumentList, (), SolEncoding> {
+    pub fn params(
+        self,
+    ) -> CallParams<E, Call, EmptyArgumentList<SolEncoding>, (), SolEncoding> {
+        // todo
         CallParams {
             call_type: self.call_type.value(),
             _return_type: Default::default(),
@@ -202,7 +206,7 @@ impl<E>
     CallBuilder<
         E,
         Set<Call>,
-        Unset<ExecutionInput<EmptyArgumentList, SolEncoding>>,
+        Unset<ExecutionInput<EmptyArgumentList<SolEncoding>, SolEncoding>>,
         Unset<ReturnType<()>>,
     >
 where

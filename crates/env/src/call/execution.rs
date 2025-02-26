@@ -39,14 +39,14 @@ pub struct Execution<Args, Output, Abi> {
     pub output: ReturnType<Output>,
 }
 
-impl<Args, Output> Execution<Args, Output, SolEncoding>
+impl<Args, Output, Abi> Execution<Args, Output, Abi>
 where
     // Args: scale::Encode,
-    Args: SolValue,
-    Output: SolValue + From<<<Output as SolValue>::SolType as SolType>::RustType>,
+    Args: AbiEncodeWith<Abi>,
+    Output: AbiDecodeWith<Abi>,
 {
     /// Construct a new contract execution with the given input data.
-    pub fn new(input: ExecutionInput<Args, SolEncoding>) -> Self {
+    pub fn new(input: ExecutionInput<Args, Abi>) -> Self {
         Self {
             input,
             output: ReturnType::default(),
@@ -91,7 +91,7 @@ pub struct ExecutionInput<Args, Abi> {
     _marker: PhantomData<Abi>,
 }
 
-impl ExecutionInput<EmptyArgumentList, SolEncoding> {
+impl<Abi> ExecutionInput<EmptyArgumentList<Abi>, Abi> {
     /// Creates a new execution input with the given selector.
     #[inline]
     pub fn new(selector: Selector) -> Self {
@@ -107,9 +107,9 @@ impl ExecutionInput<EmptyArgumentList, SolEncoding> {
     pub fn push_arg<T>(
         self,
         arg: T,
-    ) -> ExecutionInput<ArgumentList<Argument<T>, EmptyArgumentList>, SolEncoding>
+    ) -> ExecutionInput<ArgumentList<Argument<T>, EmptyArgumentList<Abi>, Abi>, Abi>
     where
-        T: SolValue,
+        T: AbiEncodeWith<Abi>,
     {
         ExecutionInput {
             selector: self.selector,
@@ -119,15 +119,15 @@ impl ExecutionInput<EmptyArgumentList, SolEncoding> {
     }
 }
 
-impl<Head, Rest> ExecutionInput<ArgumentList<Argument<Head>, Rest>, SolEncoding> {
+impl<Head, Rest, Abi> ExecutionInput<ArgumentList<Argument<Head>, Rest, Abi>, Abi> {
     /// Pushes an argument to the execution input.
     #[inline]
     pub fn push_arg<T>(
         self,
         arg: T,
-    ) -> ExecutionInput<ArgsList<T, ArgsList<Head, Rest>>, SolEncoding>
+    ) -> ExecutionInput<ArgsList<T, ArgsList<Head, Rest, Abi>, Abi>, Abi>
     where
-        T: SolValue,
+        T: AbiEncodeWith<Abi>,
     {
         ExecutionInput {
             selector: self.selector,
@@ -155,15 +155,16 @@ impl<Args, Abi> ExecutionInput<Args, Abi> {
 /// where we can leverage the static environmental buffer instead of allocating
 /// heap memory.
 #[derive(Clone, Default, Debug)]
-pub struct ArgumentList<Head, Rest> {
+pub struct ArgumentList<Head, Rest, Abi> {
     /// The first argument of the argument list.
     head: Head,
     /// All the rest arguments.
     rest: Rest,
+    _marker: PhantomData<Abi>,
 }
 
 /// Minor simplification of an argument list with a head and rest.
-pub type ArgsList<Head, Rest> = ArgumentList<Argument<Head>, Rest>;
+pub type ArgsList<Head, Rest, Abi> = ArgumentList<Argument<Head>, Rest, Abi>;
 
 /// A single argument and its reference to a known value.
 #[derive(Clone, Debug)]
@@ -187,41 +188,44 @@ impl<T> Argument<T> {
 pub struct ArgumentListEnd;
 
 /// An empty argument list.
-pub type EmptyArgumentList = ArgumentList<ArgumentListEnd, ArgumentListEnd>;
+pub type EmptyArgumentList<Abi> = ArgumentList<ArgumentListEnd, ArgumentListEnd, Abi>;
 
-impl EmptyArgumentList {
+impl<Abi> EmptyArgumentList<Abi> {
     /// Creates a new empty argument list.
     #[inline]
-    pub fn empty() -> EmptyArgumentList {
+    pub fn empty() -> EmptyArgumentList<Abi> {
         ArgumentList {
             head: ArgumentListEnd,
             rest: ArgumentListEnd,
+            _marker: Default::default(),
         }
     }
 
     /// Pushes the first argument to the empty argument list.
     #[inline]
-    pub fn push_arg<T>(self, arg: T) -> ArgumentList<Argument<T>, Self>
+    pub fn push_arg<T>(self, arg: T) -> ArgumentList<Argument<T>, Self, Abi>
     where
-        T: SolValue,
+        T: AbiEncodeWith<Abi>,
     {
         ArgumentList {
             head: Argument::new(arg),
             rest: self,
+            _marker: Default::default(),
         }
     }
 }
 
-impl<Head, Rest> ArgumentList<Argument<Head>, Rest> {
+impl<Head, Rest, Abi> ArgumentList<Argument<Head>, Rest, Abi> {
     /// Pushes another argument to the argument list.
     #[inline]
-    pub fn push_arg<T>(self, arg: T) -> ArgumentList<Argument<T>, Self>
+    pub fn push_arg<T>(self, arg: T) -> ArgumentList<Argument<T>, Self, Abi>
     where
-        T: SolValue,
+        T: AbiEncodeWith<Abi>,
     {
         ArgumentList {
             head: Argument::new(arg),
             rest: self,
+            _marker: Default::default(),
         }
     }
 }
@@ -238,7 +242,7 @@ where
     }
 }
 
-impl SolTypeValue<()> for EmptyArgumentList {
+impl SolTypeValue<()> for EmptyArgumentList<SolEncoding> {
     fn stv_to_tokens(&self) -> <() as SolType>::Token<'_> {
         ()
     }
@@ -250,7 +254,7 @@ impl SolTypeValue<()> for EmptyArgumentList {
     }
 }
 
-impl SolValue for EmptyArgumentList {
+impl SolValue for EmptyArgumentList<SolEncoding> {
     type SolType = ();
 
     fn abi_encode(&self) -> Vec<u8> {
@@ -325,7 +329,7 @@ impl SolValue for EmptyArgumentList {
 // }
 
 impl<Head, Rest> SolTypeValue<(Rest::SolType, Head::SolType)>
-    for ArgumentList<Argument<Head>, Rest>
+    for ArgumentList<Argument<Head>, Rest, SolEncoding>
 where
     Head: SolValue,
     Rest: SolValue,
@@ -349,7 +353,7 @@ where
     }
 }
 
-impl<Head, Rest> SolValue for ArgumentList<Argument<Head>, Rest>
+impl<Head, Rest> SolValue for ArgumentList<Argument<Head>, Rest, SolEncoding>
 where
     Head: SolValue,
     Rest: SolValue,

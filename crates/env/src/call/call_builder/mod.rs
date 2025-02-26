@@ -210,8 +210,8 @@ where
 pub fn build_call<E>() -> CallBuilder<
     E,
     Unset<Call>,
-    Unset<ExecutionInput<EmptyArgumentList, SolEncoding>>, /* TODO(@peterwht), should
-                                                            * become build_call_sol */
+    Unset<ExecutionInput<EmptyArgumentList<SolEncoding>, SolEncoding>>, /* TODO(@peterwht), should
+                                                                         * become build_call_sol */
     Unset<ReturnType<()>>,
 >
 where
@@ -300,7 +300,7 @@ where
 }
 
 impl<E, CallType, RetType, Abi>
-    CallBuilder<E, CallType, Unset<ExecutionInput<EmptyArgumentList, Abi>>, RetType>
+    CallBuilder<E, CallType, Unset<ExecutionInput<EmptyArgumentList<Abi>, Abi>>, RetType>
 where
     E: Environment,
 {
