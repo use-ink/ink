@@ -36,7 +36,10 @@ use ink_env::{
     Result,
 };
 use ink_primitives::{
-    reflect::AbiEncodeWith,
+    reflect::{
+        AbiDecodeWith,
+        AbiEncodeWith,
+    },
     H160,
     H256,
     U256,
@@ -564,7 +567,7 @@ where
     where
         // Args: scale::Encode,
         Args: AbiEncodeWith<Abi>,
-        R: SolValue + From<<<R as SolValue>::SolType as SolType>::RustType>,
+        R: AbiDecodeWith<Abi>,
     {
         ink_env::invoke_contract::<E, Args, R, Abi>(params)
     }
@@ -633,7 +636,7 @@ where
     where
         // Args: scale::Encode,
         Args: AbiEncodeWith<Abi>,
-        R: SolValue + From<<<R as SolValue>::SolType as SolType>::RustType>,
+        R: AbiDecodeWith<Abi>,
     {
         ink_env::invoke_contract_delegate::<E, Args, R, Abi>(params)
     }

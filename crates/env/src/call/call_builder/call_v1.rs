@@ -209,7 +209,7 @@ where
     E: Environment,
     // Args: scale::Encode,
     Args: SolValue,
-    R: SolValue + From<<<R as SolValue>::SolType as SolType>::RustType>,
+    R: AbiDecodeWith<Abi>,
 {
     /// Invokes the cross-chain function call and returns the result.
     ///
@@ -268,7 +268,7 @@ where
     E: Environment,
     // Args: scale::Encode,
     Args: SolValue,
-    R: SolValue + From<<<R as SolValue>::SolType as SolType>::RustType>,
+    R: AbiDecodeWith<Abi>,
 {
     /// Invokes the contract with the given built-up call parameters.
     ///

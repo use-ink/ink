@@ -34,7 +34,10 @@ use ink::alloy_sol_types::{
 };
 use ink_env::Environment;
 use ink_primitives::{
-    reflect::AbiEncodeWith,
+    reflect::{
+        AbiDecodeWith,
+        AbiEncodeWith,
+    },
     DepositLimit,
 };
 use scale::{
@@ -49,8 +52,7 @@ pub struct CallBuilder<'a, E, Args, RetType, B, Abi>
 where
     E: Environment,
     Args: AbiEncodeWith<Abi> + Clone,
-    RetType:
-        Send + SolValue + From<<<RetType as SolValue>::SolType as SolType>::RustType>,
+    RetType: Send + AbiDecodeWith<Abi>,
 
     B: BuilderClient<E>,
     Abi: Clone,
@@ -68,8 +70,7 @@ impl<'a, E, Args, RetType, B, Abi> CallBuilder<'a, E, Args, RetType, B, Abi>
 where
     E: Environment,
     Args: Sync + AbiEncodeWith<Abi> + Clone,
-    RetType:
-        Send + SolValue + From<<<RetType as SolValue>::SolType as SolType>::RustType>,
+    RetType: Send + AbiDecodeWith<Abi>,
 
     B: BuilderClient<E>,
     Abi: Sync + Clone,

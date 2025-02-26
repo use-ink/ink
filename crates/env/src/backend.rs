@@ -36,7 +36,10 @@ use alloy_sol_types::{
     SolValue,
 };
 use ink_primitives::{
-    reflect::AbiEncodeWith,
+    reflect::{
+        AbiDecodeWith,
+        AbiEncodeWith,
+    },
     types::Environment,
     H160,
     H256,
@@ -339,7 +342,7 @@ pub trait TypedEnvBackend: EnvBackend {
         // Args: scale::Encode,
         Args: AbiEncodeWith<Abi>,
         // R: scale::Decode;
-        R: SolValue + From<<<R as SolValue>::SolType as SolType>::RustType>;
+        R: AbiDecodeWith<Abi>;
 
     /// Invokes a contract message via delegate call and returns its result.
     ///
@@ -356,7 +359,7 @@ pub trait TypedEnvBackend: EnvBackend {
         // Args: scale::Encode,
         Args: AbiEncodeWith<Abi>,
         // R: scale::Decode;
-        R: SolValue + From<<<R as SolValue>::SolType as SolType>::RustType>;
+        R: AbiDecodeWith<Abi>;
 
     /// Instantiates another contract.
     ///

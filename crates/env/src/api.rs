@@ -50,7 +50,10 @@ use alloy_sol_types::{
     SolValue,
 };
 use ink_primitives::{
-    reflect::AbiEncodeWith,
+    reflect::{
+        AbiDecodeWith,
+        AbiEncodeWith,
+    },
     H160,
     H256,
     U256,
@@ -286,7 +289,7 @@ where
     // Args: scale::Encode,
     Args: AbiEncodeWith<Abi>,
     // R: scale::Decode,
-    R: SolValue + From<<<R as SolValue>::SolType as SolType>::RustType>,
+    R: AbiDecodeWith<Abi>,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         TypedEnvBackend::invoke_contract::<E, Args, R, Abi>(instance, params)
@@ -313,7 +316,7 @@ where
     // Args: scale::Encode,
     Args: AbiEncodeWith<Abi>,
     // R: scale::Decode,
-    R: SolValue + From<<<R as SolValue>::SolType as SolType>::RustType>,
+    R: AbiDecodeWith<Abi>,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         TypedEnvBackend::invoke_contract_delegate::<E, Args, R, Abi>(instance, params)

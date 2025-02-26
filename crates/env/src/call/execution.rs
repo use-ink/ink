@@ -24,6 +24,12 @@ use alloy_sol_types::{
     Word,
 };
 use core::marker::PhantomData;
+use ink_primitives::reflect::{
+    AbiDecodeWith,
+    AbiEncodeWith,
+    ScaleEncoding,
+    SolEncoding,
+};
 
 /// The input data and the expected return type of a contract execution.
 pub struct Execution<Args, Output, Abi> {
@@ -72,7 +78,7 @@ pub trait Executor<E: Environment> {
     where
         // Args: scale::Encode,
         Args: AbiEncodeWith<Abi>,
-        Output: SolValue + From<<<Output as SolValue>::SolType as SolType>::RustType>;
+        Output: AbiDecodeWith<Abi>;
 }
 
 /// The input data for a smart contract execution.
@@ -84,12 +90,6 @@ pub struct ExecutionInput<Args, Abi> {
     args: Args,
     _marker: PhantomData<Abi>,
 }
-
-use ink_primitives::reflect::{
-    AbiEncodeWith,
-    ScaleEncoding,
-    SolEncoding,
-};
 
 impl ExecutionInput<EmptyArgumentList, SolEncoding> {
     /// Creates a new execution input with the given selector.

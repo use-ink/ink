@@ -253,7 +253,7 @@ pub trait AbiEncodeWith<Abi> {
 }
 
 pub trait AbiDecodeWith<Abi>: Sized {
-    type Error;
+    type Error: core::fmt::Debug;
     fn decode_with(buffer: &[u8]) -> Result<Self, Self::Error>;
 }
 

@@ -377,7 +377,7 @@ where
 
     async fn bare_call<
         Args: Sync + SolValue + Clone,
-        RetType: Send + SolValue + From<<<RetType as SolValue>::SolType as SolType>::RustType>,
+        RetType: Send + AbiDecodeWith<Abi>,
     >(
         &mut self,
         caller: &Keypair,
@@ -414,7 +414,7 @@ where
 
     async fn bare_call_dry_run<
         Args: Sync + SolValue + Clone,
-        RetType: Send + SolValue + From<<<RetType as SolValue>::SolType as SolType>::RustType>,
+        RetType: Send + AbiDecodeWith<Abi>,
     >(
         &mut self,
         caller: &Keypair,

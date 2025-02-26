@@ -49,7 +49,10 @@ use alloy_sol_types::{
 };
 use ink_engine::ext::Engine;
 use ink_primitives::{
-    reflect::AbiEncodeWith,
+    reflect::{
+        AbiDecodeWith,
+        AbiEncodeWith,
+    },
     types::Environment,
     H160,
     H256,
@@ -98,7 +101,7 @@ where
     crate::test::get_return_value()
 }
 
-fn invoke_contract_impl<R>(
+fn invoke_contract_impl<R, Abi>(
     env: &mut EnvInstance,
     _gas_limit: Option<u64>,
     _call_flags: u32,
@@ -107,7 +110,7 @@ fn invoke_contract_impl<R>(
     input: Vec<u8>,
 ) -> Result<ink_primitives::MessageResult<R>>
 where
-    R: SolValue + From<<<R as SolValue>::SolType as SolType>::RustType>,
+    R: AbiDecodeWith<Abi>,
 {
     let callee_code_hash = env.code_hash(&callee_account).unwrap_or_else(|err| {
         panic!(
@@ -130,13 +133,13 @@ where
     // let result =
     // <ink_primitives::MessageResult<R> as scale::Decode>::decode(&mut &result[..])
     //     .expect("failed to decode return value");
-    let result = R::abi_decode(&mut &result[..], false).expect("decode failed");
+    let result = R::decode_with(&mut &result[..]).expect("decode failed");
 
     // Ok(result)
     Ok(ink_primitives::MessageResult::Ok(result))
 }
 
-fn invoke_contract_impl_delegate<R>(
+fn invoke_contract_impl_delegate<R, Abi>(
     env: &mut EnvInstance,
     _gas_limit: Option<u64>,
     _call_flags: u32,
@@ -145,7 +148,7 @@ fn invoke_contract_impl_delegate<R>(
     input: Vec<u8>,
 ) -> Result<ink_primitives::MessageResult<R>>
 where
-    R: SolValue + From<<<R as SolValue>::SolType as SolType>::RustType>,
+    R: AbiDecodeWith<Abi>,
 {
     let callee_code_hash = env.code_hash(&callee_account).unwrap_or_else(|err| {
         panic!(
@@ -163,7 +166,7 @@ where
     // let result =
     //     <ink_primitives::MessageResult<R> as scale::Decode>::decode(&mut &result[..])
     //         .expect("failed to decode return value");
-    let result = R::abi_decode(&mut &result[..], false).expect("decode failed");
+    let result = R::decode_with(&mut &result[..]).expect("decode failed");
 
     Ok(ink_primitives::MessageResult::Ok(result))
 }
@@ -592,7 +595,7 @@ impl TypedEnvBackend for EnvInstance {
         E: Environment,
         // Args: scale::Encode,
         Args: AbiEncodeWith<Abi>,
-        R: SolValue + From<<<R as SolValue>::SolType as SolType>::RustType>,
+        R: AbiDecodeWith<Abi>,
     {
         let call_flags = params.call_flags().bits();
         let transferred_value = params.transferred_value();
@@ -601,7 +604,7 @@ impl TypedEnvBackend for EnvInstance {
         // let input = scale::Encode::encode(input);
         let input = input.call_data();
 
-        invoke_contract_impl::<R>(
+        invoke_contract_impl::<R, Abi>(
             self,
             None,
             call_flags,
@@ -619,7 +622,7 @@ impl TypedEnvBackend for EnvInstance {
         E: Environment,
         // Args: scale::Encode,
         Args: AbiEncodeWith<Abi>,
-        R: SolValue + From<<<R as SolValue>::SolType as SolType>::RustType>,
+        R: AbiDecodeWith<Abi>,
     {
         let _addr = params.address(); // todo remove
         let call_flags = params.call_flags().bits();
@@ -628,7 +631,7 @@ impl TypedEnvBackend for EnvInstance {
         // let input = input.abi_encode();
         let input = input.call_data();
 
-        invoke_contract_impl_delegate::<R>(
+        invoke_contract_impl_delegate::<R, Abi>(
             self,
             None,
             call_flags,

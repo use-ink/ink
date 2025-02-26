@@ -78,7 +78,10 @@ use ink::alloy_sol_types::{
     SolType,
     SolValue,
 };
-use ink_primitives::reflect::AbiEncodeWith;
+use ink_primitives::reflect::{
+    AbiDecodeWith,
+    AbiEncodeWith,
+};
 use subxt::{
     blocks::ExtrinsicEvents,
     config::{
@@ -603,7 +606,7 @@ where
 
     async fn bare_call<
         Args: Sync + AbiEncodeWith<Abi> + Clone,
-        RetType: Send + SolValue + From<<<RetType as SolValue>::SolType as SolType>::RustType>,
+        RetType: Send + AbiDecodeWith<Abi>,
         Abi: Sync + Clone,
     >(
         &mut self,
@@ -654,7 +657,7 @@ where
     // todo is not really a `bare_call`
     async fn bare_call_dry_run<
         Args: Sync + AbiEncodeWith<Abi> + Clone,
-        RetType: Send + SolValue + From<<<RetType as SolValue>::SolType as SolType>::RustType>,
+        RetType: Send + AbiDecodeWith<Abi>,
         Abi: Sync + Clone,
     >(
         &mut self,

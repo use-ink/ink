@@ -26,7 +26,10 @@ use ink_env::{
     },
     Environment,
 };
-use ink_primitives::reflect::AbiEncodeWith;
+use ink_primitives::reflect::{
+    AbiDecodeWith,
+    AbiEncodeWith,
+};
 use scale::Encode;
 
 /// The type returned from `ContractRef` constructors, partially initialized with the

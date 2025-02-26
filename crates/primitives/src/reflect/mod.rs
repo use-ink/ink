@@ -30,6 +30,7 @@ mod trait_def;
 pub use self::{
     contract::ContractName,
     dispatch::{
+        AbiDecodeWith,
         AbiEncodeWith,
         ConstructorOutput,
         ConstructorOutputValue,
