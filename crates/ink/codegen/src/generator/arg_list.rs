@@ -95,7 +95,7 @@ where
 {
     use syn::spanned::Spanned as _;
     args.into_iter().fold(
-        quote! { ::ink::env::call::utils::EmptyArgumentList },
+        quote! { ::ink::env::call::utils::EmptyArgumentList},
         |rest, arg| {
             let span = arg.span();
             quote_spanned!(span=>

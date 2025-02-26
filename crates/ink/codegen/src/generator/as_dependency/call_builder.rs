@@ -387,7 +387,7 @@ impl CallBuilder<'_> {
             ::ink::env::call::CallBuilder<
                 Environment,
                 ::ink::env::call::utils::Set< ::ink::env::call::Call >,
-                ::ink::env::call::utils::Set< ::ink::env::call::ExecutionInput<#arg_list> >,
+                ::ink::env::call::utils::Set< ::ink::env::call::ExecutionInput<#arg_list, ::ink::reflect::SolEncoding> >,
                 ::ink::env::call::utils::Set< ::ink::env::call::utils::ReturnType<#return_type> >,
             >
         );

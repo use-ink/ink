@@ -49,6 +49,7 @@ use alloy_sol_types::{
 };
 use ink_engine::ext::Engine;
 use ink_primitives::{
+    reflect::EncodeWith,
     types::Environment,
     H160,
     H256,
@@ -583,14 +584,14 @@ impl TypedEnvBackend for EnvInstance {
         self.engine.deposit_event(&enc_topics[..], enc_data);
     }
 
-    fn invoke_contract<E, Args, R>(
+    fn invoke_contract<E, Args, R, Strategy>(
         &mut self,
-        params: &CallParams<E, Call, Args, R>,
+        params: &CallParams<E, Call, Args, R, Strategy>,
     ) -> Result<ink_primitives::MessageResult<R>>
     where
         E: Environment,
         // Args: scale::Encode,
-        Args: SolValue,
+        Args: EncodeWith<Strategy>,
         R: SolValue + From<<<R as SolValue>::SolType as SolType>::RustType>,
     {
         let call_flags = params.call_flags().bits();
@@ -610,14 +611,14 @@ impl TypedEnvBackend for EnvInstance {
         )
     }
 
-    fn invoke_contract_delegate<E, Args, R>(
+    fn invoke_contract_delegate<E, Args, R, Strategy>(
         &mut self,
-        params: &CallParams<E, DelegateCall, Args, R>,
+        params: &CallParams<E, DelegateCall, Args, R, Strategy>,
     ) -> Result<ink_primitives::MessageResult<R>>
     where
         E: Environment,
         // Args: scale::Encode,
-        Args: SolValue,
+        Args: EncodeWith<Strategy>,
         R: SolValue + From<<<R as SolValue>::SolType as SolType>::RustType>,
     {
         let _addr = params.address(); // todo remove
@@ -637,9 +638,9 @@ impl TypedEnvBackend for EnvInstance {
         )
     }
 
-    fn instantiate_contract<E, ContractRef, Args, R>(
+    fn instantiate_contract<E, ContractRef, Args, R, Strategy>(
         &mut self,
-        params: &CreateParams<E, ContractRef, LimitParamsV2, Args, R>,
+        params: &CreateParams<E, ContractRef, LimitParamsV2, Args, R, Strategy>,
     ) -> Result<
         ink_primitives::ConstructorResult<
             <R as ConstructorReturnType<ContractRef>>::Output,
@@ -651,7 +652,7 @@ impl TypedEnvBackend for EnvInstance {
         <ContractRef as crate::ContractReverseReference>::Type:
             crate::reflect::ContractConstructorDecoder,
         // Args: scale::Encode,
-        Args: SolValue,
+        Args: EncodeWith<Strategy>,
         R: ConstructorReturnType<ContractRef>,
     {
         let endowment = params.endowment();

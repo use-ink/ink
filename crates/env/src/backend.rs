@@ -36,6 +36,7 @@ use alloy_sol_types::{
     SolValue,
 };
 use ink_primitives::{
+    reflect::EncodeWith,
     types::Environment,
     H160,
     H256,
@@ -329,14 +330,14 @@ pub trait TypedEnvBackend: EnvBackend {
     /// **This will call into the latest `call_v2` host function.**
     ///
     /// For more details visit: [`invoke_contract`][`crate::invoke_contract`]
-    fn invoke_contract<E, Args, R>(
+    fn invoke_contract<E, Args, R, Strategy>(
         &mut self,
-        call_data: &CallParams<E, Call, Args, R>,
+        call_data: &CallParams<E, Call, Args, R, Strategy>,
     ) -> Result<ink_primitives::MessageResult<R>>
     where
         E: Environment,
         // Args: scale::Encode,
-        Args: SolValue,
+        Args: EncodeWith<Strategy>,
         // R: scale::Decode;
         R: SolValue + From<<<R as SolValue>::SolType as SolType>::RustType>;
 
@@ -346,14 +347,14 @@ pub trait TypedEnvBackend: EnvBackend {
     ///
     /// For more details visit:
     /// [`invoke_contract_delegate`][`crate::invoke_contract_delegate`]
-    fn invoke_contract_delegate<E, Args, R>(
+    fn invoke_contract_delegate<E, Args, R, Strategy>(
         &mut self,
-        call_data: &CallParams<E, DelegateCall, Args, R>,
+        call_data: &CallParams<E, DelegateCall, Args, R, Strategy>,
     ) -> Result<ink_primitives::MessageResult<R>>
     where
         E: Environment,
         // Args: scale::Encode,
-        Args: SolValue,
+        Args: EncodeWith<Strategy>,
         // R: scale::Decode;
         R: SolValue + From<<<R as SolValue>::SolType as SolType>::RustType>;
 
@@ -362,9 +363,9 @@ pub trait TypedEnvBackend: EnvBackend {
     /// # Note
     ///
     /// For more details visit: [`instantiate_contract`][`crate::instantiate_contract`]
-    fn instantiate_contract<E, ContractRef, Args, R>(
+    fn instantiate_contract<E, ContractRef, Args, R, Strategy>(
         &mut self,
-        params: &CreateParams<E, ContractRef, LimitParamsV2, Args, R>,
+        params: &CreateParams<E, ContractRef, LimitParamsV2, Args, R, Strategy>,
     ) -> Result<
         ink_primitives::ConstructorResult<
             <R as ConstructorReturnType<ContractRef>>::Output,
@@ -376,7 +377,7 @@ pub trait TypedEnvBackend: EnvBackend {
         <ContractRef as crate::ContractReverseReference>::Type:
             crate::reflect::ContractConstructorDecoder,
         // Args: scale::Encode,
-        Args: SolValue,
+        Args: EncodeWith<Strategy>,
         R: ConstructorReturnType<ContractRef>;
 
     /// Terminates a smart contract.

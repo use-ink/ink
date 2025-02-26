@@ -38,9 +38,11 @@ pub use self::{
         DispatchError,
         DispatchableConstructorInfo,
         DispatchableMessageInfo,
-        // EncodeOrSolValue,
+        EncodeWith,
         Encoding,
         ExecuteDispatchable,
+        ScaleEncoding,
+        SolEncoding,
     },
     trait_def::{
         TraitDefinitionRegistry,

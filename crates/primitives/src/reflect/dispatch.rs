@@ -239,26 +239,32 @@ pub enum Encoding {
     Solidity,
 }
 
-// pub trait EncodeOrSolValue {
-//     fn encode(&self) -> Vec<u8>;
-// }
-// pub struct ScaleEncodeWrapper<T: Encode>(pub T);
-//
-// // Implement for all Encode types
-// impl<T: Encode> EncodeOrSolValue for T {
-//     fn encode(&self) -> Vec<u8> {
-//         <T as Encode>::encode(self)
-//     }
-// }
-//
-// // Then provide a separate SolValueWrapper for non-Encode types
-// pub struct SolValueWrapper<T: SolValue>(pub T);
-//
-// impl<T: SolValue> EncodeOrSolValue for SolValueWrapper<T> {
-//     fn encode(&self) -> Vec<u8> {
-//         self.0.abi_encode()
-//     }
-// }
+use ink_prelude::vec::Vec;
+
+// Marker types for encoding strategies
+#[derive(Default, Clone)]
+pub struct ScaleEncoding;
+#[derive(Default, Clone)]
+pub struct SolEncoding;
+
+// Trait for encoding with a specific strategy
+pub trait EncodeWith<Strategy> {
+    fn encode_with(&self, buffer: &mut Vec<u8>);
+}
+
+// Implement for Scale encoding
+impl<T: scale::Encode> EncodeWith<ScaleEncoding> for T {
+    fn encode_with(&self, buffer: &mut Vec<u8>) {
+        scale::Encode::encode_to(self, buffer);
+    }
+}
+
+// Implement for SolValue encoding
+impl<T: SolValue> EncodeWith<SolEncoding> for T {
+    fn encode_with(&self, buffer: &mut Vec<u8>) {
+        buffer.extend_from_slice(&T::abi_encode(self));
+    }
+}
 
 mod private {
     /// Seals the implementation of `ConstructorReturnType`.

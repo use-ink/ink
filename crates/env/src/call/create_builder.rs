@@ -30,6 +30,10 @@ use crate::{
 use alloy_sol_types::SolValue;
 use core::marker::PhantomData;
 use ink_primitives::{
+    reflect::{
+        EncodeWith,
+        SolEncoding,
+    },
     H160,
     H256,
     U256,
@@ -176,7 +180,7 @@ pub struct LimitParamsV2 {
 
 /// Builds up contract instantiations.
 #[derive(Debug)]
-pub struct CreateParams<E, ContractRef, Limits, Args, R> {
+pub struct CreateParams<E, ContractRef, Limits, Args, R, Strategy> {
     /// The code hash of the created contract.
     code_hash: H256,
     /// Parameters for weight and storage limits, differs for versions of the instantiate
@@ -186,7 +190,7 @@ pub struct CreateParams<E, ContractRef, Limits, Args, R> {
     /// todo: is this correct? or is the value here `U256`?
     endowment: U256,
     /// The input data for the instantiation.
-    exec_input: ExecutionInput<Args>,
+    exec_input: ExecutionInput<Args, Strategy>,
     /// The salt for determining the hash for the contract account ID.
     salt_bytes: Option<[u8; 32]>,
     /// The return type of the target contract's constructor method.
@@ -195,7 +199,8 @@ pub struct CreateParams<E, ContractRef, Limits, Args, R> {
     _phantom: PhantomData<fn() -> (E, ContractRef)>,
 }
 
-impl<E, ContractRef, Limits, Args, R> CreateParams<E, ContractRef, Limits, Args, R>
+impl<E, ContractRef, Limits, Args, R, Strategy>
+    CreateParams<E, ContractRef, Limits, Args, R, Strategy>
 where
     E: Environment,
 {
@@ -213,7 +218,7 @@ where
 
     /// The raw encoded input data.
     #[inline]
-    pub fn exec_input(&self) -> &ExecutionInput<Args> {
+    pub fn exec_input(&self) -> &ExecutionInput<Args, Strategy> {
         &self.exec_input
     }
 
@@ -226,7 +231,8 @@ where
     }
 }
 
-impl<E, ContractRef, Args, R> CreateParams<E, ContractRef, LimitParamsV2, Args, R>
+impl<E, ContractRef, Args, R, Strategy>
+    CreateParams<E, ContractRef, LimitParamsV2, Args, R, Strategy>
 where
     E: Environment,
 {
@@ -250,7 +256,8 @@ where
     }
 }
 
-impl<E, ContractRef, Limits, Args, R> CreateParams<E, ContractRef, Limits, Args, R>
+impl<E, ContractRef, Limits, Args, R, Strategy>
+    CreateParams<E, ContractRef, Limits, Args, R, Strategy>
 where
     E: Environment,
 {
@@ -261,7 +268,8 @@ where
     }
 }
 
-impl<E, ContractRef, Args, R> CreateParams<E, ContractRef, LimitParamsV2, Args, R>
+impl<E, ContractRef, Args, R, Strategy>
+    CreateParams<E, ContractRef, LimitParamsV2, Args, R, Strategy>
 where
     E: Environment,
     ContractRef: FromAddr + crate::ContractReverseReference,
@@ -270,7 +278,7 @@ where
     <ContractRef as crate::ContractReverseReference>::Type:
         crate::reflect::ContractMessageDecoder,
     // Args: scale::Encode,
-    Args: SolValue,
+    Args: EncodeWith<Strategy>,
     R: ConstructorReturnType<ContractRef>,
 {
     /// todo
@@ -434,7 +442,7 @@ pub fn build_create<ContractRef>() -> CreateBuilder<
     <ContractRef as ContractEnv>::Env,
     ContractRef,
     Set<LimitParamsV2>,
-    Unset<ExecutionInput<EmptyArgumentList>>,
+    Unset<ExecutionInput<EmptyArgumentList, SolEncoding>>,
     Unset<ReturnType<()>>,
 >
 where
@@ -549,7 +557,7 @@ impl<E, ContractRef, Limits, RetType>
         E,
         ContractRef,
         Limits,
-        Unset<ExecutionInput<EmptyArgumentList>>,
+        Unset<ExecutionInput<EmptyArgumentList, SolEncoding>>,
         RetType,
     >
 where
@@ -559,8 +567,14 @@ where
     #[inline]
     pub fn exec_input<Args>(
         self,
-        exec_input: ExecutionInput<Args>,
-    ) -> CreateBuilder<E, ContractRef, Limits, Set<ExecutionInput<Args>>, RetType> {
+        exec_input: ExecutionInput<Args, SolEncoding>,
+    ) -> CreateBuilder<
+        E,
+        ContractRef,
+        Limits,
+        Set<ExecutionInput<Args, SolEncoding>>,
+        RetType,
+    > {
         CreateBuilder {
             code_hash: self.code_hash,
             limits: self.limits,
@@ -630,12 +644,12 @@ where
     }
 }
 
-impl<E, ContractRef, Limits, Args, RetType>
+impl<E, ContractRef, Limits, Args, RetType, Strategy>
     CreateBuilder<
         E,
         ContractRef,
         Set<Limits>,
-        Set<ExecutionInput<Args>>,
+        Set<ExecutionInput<Args, Strategy>>,
         Set<ReturnType<RetType>>,
     >
 where
@@ -643,7 +657,7 @@ where
 {
     /// Finalizes the `CreateBuilder`, allowing it to instantiate a contract.
     #[inline]
-    pub fn params(self) -> CreateParams<E, ContractRef, Limits, Args, RetType> {
+    pub fn params(self) -> CreateParams<E, ContractRef, Limits, Args, RetType, Strategy> {
         CreateParams {
             code_hash: self.code_hash,
             limits: self.limits.value(),
@@ -656,12 +670,12 @@ where
     }
 }
 
-impl<E, ContractRef, Args, RetType>
+impl<E, ContractRef, Args, RetType, Strategy>
     CreateBuilder<
         E,
         ContractRef,
         Set<LimitParamsV2>,
-        Set<ExecutionInput<Args>>,
+        Set<ExecutionInput<Args, Strategy>>,
         Set<ReturnType<RetType>>,
     >
 where
@@ -672,7 +686,7 @@ where
     <ContractRef as crate::ContractReverseReference>::Type:
         crate::reflect::ContractMessageDecoder,
     // Args: scale::Encode,
-    Args: SolValue,
+    Args: EncodeWith<Strategy>,
     RetType: ConstructorReturnType<ContractRef>,
 {
     /// todo check comment

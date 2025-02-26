@@ -49,6 +49,7 @@ use crate::{
     TypedEnvBackend,
 };
 use ink_primitives::{
+    reflect::EncodeWith,
     H160,
     H256,
     U256,
@@ -462,14 +463,14 @@ impl TypedEnvBackend for EnvInstance {
         ext::deposit_event(&enc_topics[..], enc_data);
     }
 
-    fn invoke_contract<E, Args, R>(
+    fn invoke_contract<E, Args, R, Strategy>(
         &mut self,
-        params: &CallParams<E, Call, Args, R>,
+        params: &CallParams<E, Call, Args, R, Strategy>,
     ) -> Result<ink_primitives::MessageResult<R>>
     where
         E: Environment,
     // Args: scale::Encode,
-        Args: alloy_sol_types::SolValue,
+        Args: EncodeWith<Strategy>,
         R: alloy_sol_types::SolValue
             + From<<<R as alloy_sol_types::SolValue>::SolType as alloy_sol_types::SolType>::RustType>,
     {
@@ -523,14 +524,14 @@ impl TypedEnvBackend for EnvInstance {
         }
     }
 
-    fn invoke_contract_delegate<E, Args, R>(
+    fn invoke_contract_delegate<E, Args, R, Strategy>(
         &mut self,
-        params: &CallParams<E, DelegateCall, Args, R>,
+        params: &CallParams<E, DelegateCall, Args, R, Strategy>,
     ) -> Result<ink_primitives::MessageResult<R>>
     where
         E: Environment,
     // Args: scale::Encode,
-        Args: alloy_sol_types::SolValue,
+        Args: EncodeWith<Strategy>,
         R: alloy_sol_types::SolValue
             + From<<<R as alloy_sol_types::SolValue>::SolType as alloy_sol_types::SolType>::RustType>,
     {
@@ -570,9 +571,9 @@ impl TypedEnvBackend for EnvInstance {
         }
     }
 
-    fn instantiate_contract<E, ContractRef, Args, RetType>(
+    fn instantiate_contract<E, ContractRef, Args, RetType, Strategy>(
         &mut self,
-        params: &CreateParams<E, ContractRef, LimitParamsV2, Args, RetType>,
+        params: &CreateParams<E, ContractRef, LimitParamsV2, Args, RetType, Strategy>,
     ) -> Result<
         ink_primitives::ConstructorResult<
             <RetType as ConstructorReturnType<ContractRef>>::Output,
@@ -582,7 +583,7 @@ impl TypedEnvBackend for EnvInstance {
         E: Environment,
         ContractRef: FromAddr,
         // Args: scale::Encode,
-        Args: alloy_sol_types::SolValue,
+        Args: EncodeWith<Strategy>,
         RetType: ConstructorReturnType<ContractRef>,
     {
         let mut scoped = self.scoped_buffer();

@@ -38,18 +38,26 @@ use ink_env::{
 pub trait ImpliesReturn<T> {}
 
 impl<T> ImpliesReturn<T> for T {}
-impl<T, E, CallType, Args> ImpliesReturn<T>
-    for CallBuilder<E, Set<CallType>, Set<ExecutionInput<Args>>, Set<ReturnType<T>>>
+impl<T, E, CallType, Args, Strategy> ImpliesReturn<T>
+    for CallBuilder<
+        E,
+        Set<CallType>,
+        Set<ExecutionInput<Args, Strategy>>,
+        Set<ReturnType<T>>,
+    >
 where
     E: Environment,
 {
 }
 
-impl<E, CallType, Args> ImpliesReturn<()>
-    for CallBuilder<E, Set<CallType>, Set<ExecutionInput<Args>>, Set<()>>
+impl<E, CallType, Args, Strategy> ImpliesReturn<()>
+    for CallBuilder<E, Set<CallType>, Set<ExecutionInput<Args, Strategy>>, Set<()>>
 where
     E: Environment,
 {
 }
 
-impl<Args, RetType> ImpliesReturn<RetType> for Execution<Args, RetType> {}
+impl<Args, RetType, Strategy> ImpliesReturn<RetType>
+    for Execution<Args, RetType, Strategy>
+{
+}

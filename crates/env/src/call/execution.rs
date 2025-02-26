@@ -23,23 +23,24 @@ use alloy_sol_types::{
     SolValue,
     Word,
 };
+use core::marker::PhantomData;
 
 /// The input data and the expected return type of a contract execution.
-pub struct Execution<Args, Output> {
+pub struct Execution<Args, Output, Strategy> {
     /// The input data for initiating a contract execution.
-    pub input: ExecutionInput<Args>,
+    pub input: ExecutionInput<Args, Strategy>,
     /// The type of the expected return value of the contract execution.
     pub output: ReturnType<Output>,
 }
 
-impl<Args, Output> Execution<Args, Output>
+impl<Args, Output> Execution<Args, Output, SolEncoding>
 where
     // Args: scale::Encode,
     Args: SolValue,
     Output: SolValue + From<<<Output as SolValue>::SolType as SolType>::RustType>,
 {
     /// Construct a new contract execution with the given input data.
-    pub fn new(input: ExecutionInput<Args>) -> Self {
+    pub fn new(input: ExecutionInput<Args, SolEncoding>) -> Self {
         Self {
             input,
             output: ReturnType::default(),
@@ -64,32 +65,40 @@ pub trait Executor<E: Environment> {
     /// The type of the error that can be returned during execution.
     type Error;
     /// Perform the contract execution with the given input data, and return the result.
-    fn exec<Args, Output>(
+    fn exec<Args, Output, Strategy>(
         &self,
-        input: &ExecutionInput<Args>,
+        input: &ExecutionInput<Args, Strategy>,
     ) -> Result<ink_primitives::MessageResult<Output>, Self::Error>
     where
         // Args: scale::Encode,
-        Args: SolValue,
+        Args: EncodeWith<Strategy>,
         Output: SolValue + From<<<Output as SolValue>::SolType as SolType>::RustType>;
 }
 
 /// The input data for a smart contract execution.
 #[derive(Clone, Default, Debug)]
-pub struct ExecutionInput<Args> {
+pub struct ExecutionInput<Args, Strategy> {
     /// The selector for the smart contract execution.
     selector: Selector,
     /// The arguments of the smart contract execution.
     args: Args,
+    _marker: PhantomData<Strategy>,
 }
 
-impl ExecutionInput<EmptyArgumentList> {
+use ink_primitives::reflect::{
+    EncodeWith,
+    ScaleEncoding,
+    SolEncoding,
+};
+
+impl ExecutionInput<EmptyArgumentList, SolEncoding> {
     /// Creates a new execution input with the given selector.
     #[inline]
     pub fn new(selector: Selector) -> Self {
         Self {
             selector,
             args: ArgumentList::empty(),
+            _marker: Default::default(),
         }
     }
 
@@ -98,32 +107,37 @@ impl ExecutionInput<EmptyArgumentList> {
     pub fn push_arg<T>(
         self,
         arg: T,
-    ) -> ExecutionInput<ArgumentList<Argument<T>, EmptyArgumentList>>
+    ) -> ExecutionInput<ArgumentList<Argument<T>, EmptyArgumentList>, SolEncoding>
     where
         T: SolValue,
     {
         ExecutionInput {
             selector: self.selector,
             args: self.args.push_arg(arg),
+            _marker: Default::default(),
         }
     }
 }
 
-impl<Head, Rest> ExecutionInput<ArgumentList<Argument<Head>, Rest>> {
+impl<Head, Rest> ExecutionInput<ArgumentList<Argument<Head>, Rest>, SolEncoding> {
     /// Pushes an argument to the execution input.
     #[inline]
-    pub fn push_arg<T>(self, arg: T) -> ExecutionInput<ArgsList<T, ArgsList<Head, Rest>>>
+    pub fn push_arg<T>(
+        self,
+        arg: T,
+    ) -> ExecutionInput<ArgsList<T, ArgsList<Head, Rest>>, SolEncoding>
     where
         T: SolValue,
     {
         ExecutionInput {
             selector: self.selector,
             args: self.args.push_arg(arg),
+            _marker: Default::default(),
         }
     }
 }
 
-impl<Args> ExecutionInput<Args> {
+impl<Args, Strategy> ExecutionInput<Args, Strategy> {
     /// Modify the selector.
     ///
     /// Useful when using the [`ExecutionInput`] generated as part of the
@@ -350,50 +364,20 @@ where
     }
 }
 
-// impl<Args> SolTypeValue<Args::SolType> for ExecutionInput<Args>
-// where
-//     Args: SolValue,
-// {
-//     fn stv_to_tokens(&self) -> <Args::SolType as SolType>::Token<'_> {
-//         self.args.stv_to_tokens()
-//     }
-//
-//     fn stv_abi_encode_packed_to(&self, out: &mut Vec<u8>) {
-//         self.args.stv_abi_encode_packed_to(out)
-//     }
-//
-//     fn stv_eip712_data_word(&self) -> Word {
-//         self.args.stv_eip712_data_word()
-//     }
-// }
-
 use ink_prelude::vec::Vec;
-impl<Args> ExecutionInput<Args>
+
+impl<Args, S> ExecutionInput<Args, S>
 where
-    Args: SolValue,
+    Args: EncodeWith<S>,
 {
     /// TODO (@peterwht): docs
     pub fn call_data(&self) -> Vec<u8> {
         let mut encoded = Vec::new();
-        encoded.extend(self.selector.to_bytes()); // Add the 4-byte selector
-        encoded.extend(Args::abi_encode(&self.args)); // Append ABI-encoded arguments
+        encoded.extend(self.selector.to_bytes());
+        self.args.encode_with(&mut encoded);
         encoded
     }
 }
-
-// impl<Args> SolValue for ExecutionInput<Args>
-// where
-//     Args: SolValue,
-// {
-//     type SolType = Args::SolType;
-//
-//     fn abi_encode(&self) -> Vec<u8> {
-//         let mut encoded = Vec::new();
-//         encoded.extend(self.selector.to_bytes());
-//         encoded.extend(Args::abi_encode(&self.args));
-//         encoded
-//     }
-// }
 
 #[cfg(test)]
 mod tests {

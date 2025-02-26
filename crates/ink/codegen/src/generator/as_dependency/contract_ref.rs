@@ -17,6 +17,7 @@ use crate::{
     GenerateCode,
 };
 use derive_more::From;
+use ink_primitives::reflect::Encoding;
 use ir::{
     Callable,
     IsDocAttribute as _,
@@ -464,7 +465,7 @@ impl ContractRef<'_> {
                 Environment,
                 Self,
                 ::ink::env::call::utils::Set<::ink::env::call::LimitParamsV2 >,
-                ::ink::env::call::utils::Set<::ink::env::call::ExecutionInput<#arg_list>>,
+                ::ink::env::call::utils::Set<::ink::env::call::ExecutionInput<#arg_list, ::ink::reflect::SolEncoding>>,
                 ::ink::env::call::utils::Set<::ink::env::call::utils::ReturnType<#ret_type>>,
             > {
                 ::ink::env::call::build_create::<Self>()

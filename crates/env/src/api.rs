@@ -50,6 +50,7 @@ use alloy_sol_types::{
     SolValue,
 };
 use ink_primitives::{
+    reflect::EncodeWith,
     H160,
     H256,
     U256,
@@ -277,18 +278,18 @@ where
 /// - If the called contract ran out of gas, proof size, or storage deposit upon
 ///   execution.
 /// - If the returned value failed to decode properly.
-pub fn invoke_contract<E, Args, R>(
-    params: &CallParams<E, Call, Args, R>,
+pub fn invoke_contract<E, Args, R, Strategy>(
+    params: &CallParams<E, Call, Args, R, Strategy>,
 ) -> Result<ink_primitives::MessageResult<R>>
 where
     E: Environment,
     // Args: scale::Encode,
-    Args: SolValue,
+    Args: EncodeWith<Strategy>,
     // R: scale::Decode,
     R: SolValue + From<<<R as SolValue>::SolType as SolType>::RustType>,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        TypedEnvBackend::invoke_contract::<E, Args, R>(instance, params)
+        TypedEnvBackend::invoke_contract::<E, Args, R, Strategy>(instance, params)
     })
 }
 
@@ -304,18 +305,20 @@ where
 /// - If the specified code hash does not exist.
 /// - If arguments passed to the called code message are invalid.
 /// - If the called code execution has trapped.
-pub fn invoke_contract_delegate<E, Args, R>(
-    params: &CallParams<E, DelegateCall, Args, R>,
+pub fn invoke_contract_delegate<E, Args, R, Strategy>(
+    params: &CallParams<E, DelegateCall, Args, R, Strategy>,
 ) -> Result<ink_primitives::MessageResult<R>>
 where
     E: Environment,
     // Args: scale::Encode,
-    Args: SolValue,
+    Args: EncodeWith<Strategy>,
     // R: scale::Decode,
     R: SolValue + From<<<R as SolValue>::SolType as SolType>::RustType>,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        TypedEnvBackend::invoke_contract_delegate::<E, Args, R>(instance, params)
+        TypedEnvBackend::invoke_contract_delegate::<E, Args, R, Strategy>(
+            instance, params,
+        )
     })
 }
 
@@ -338,8 +341,8 @@ where
 /// - If the instantiation process runs out of gas.
 /// - If given insufficient endowment.
 /// - If the returned account ID failed to decode properly.
-pub fn instantiate_contract<E, ContractRef, Args, R>(
-    params: &CreateParams<E, ContractRef, LimitParamsV2, Args, R>,
+pub fn instantiate_contract<E, ContractRef, Args, R, Strategy>(
+    params: &CreateParams<E, ContractRef, LimitParamsV2, Args, R, Strategy>,
 ) -> Result<
     ink_primitives::ConstructorResult<<R as ConstructorReturnType<ContractRef>>::Output>,
 >
@@ -349,11 +352,13 @@ where
     <ContractRef as crate::ContractReverseReference>::Type:
         crate::reflect::ContractConstructorDecoder,
     // Args: scale::Encode,
-    Args: SolValue,
+    Args: EncodeWith<Strategy>,
     R: ConstructorReturnType<ContractRef>,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        TypedEnvBackend::instantiate_contract::<E, ContractRef, Args, R>(instance, params)
+        TypedEnvBackend::instantiate_contract::<E, ContractRef, Args, R, Strategy>(
+            instance, params,
+        )
     })
 }
 

@@ -32,11 +32,14 @@ use crate::{
     types::Environment,
 };
 use core::marker::PhantomData;
-use ink_primitives::H160;
+use ink_primitives::{
+    reflect::SolEncoding,
+    H160,
+};
 
 /// The final parameters to the cross-contract call.
 #[derive(Debug)]
-pub struct CallParams<E, CallType, Args, R>
+pub struct CallParams<E, CallType, Args, R, Strategy>
 where
     E: Environment,
 {
@@ -45,18 +48,18 @@ where
     /// The expected return type.
     _return_type: ReturnType<R>,
     /// The inputs to the execution which is a selector and encoded arguments.
-    exec_input: ExecutionInput<Args>,
+    exec_input: ExecutionInput<Args, Strategy>,
     /// `Environment` is used by `CallType` for correct types
     _phantom: PhantomData<fn() -> E>,
 }
 
-impl<E, CallType, Args, R> CallParams<E, CallType, Args, R>
+impl<E, CallType, Args, R, Strategy> CallParams<E, CallType, Args, R, Strategy>
 where
     E: Environment,
 {
     /// Returns the execution input.
     #[inline]
-    pub fn exec_input(&self) -> &ExecutionInput<Args> {
+    pub fn exec_input(&self) -> &ExecutionInput<Args, Strategy> {
         &self.exec_input
     }
 }
@@ -207,7 +210,8 @@ where
 pub fn build_call<E>() -> CallBuilder<
     E,
     Unset<Call>,
-    Unset<ExecutionInput<EmptyArgumentList>>,
+    Unset<ExecutionInput<EmptyArgumentList, SolEncoding>>, /* TODO(@peterwht), should
+                                                            * become build_call_sol */
     Unset<ReturnType<()>>,
 >
 where
@@ -234,12 +238,17 @@ where
     _phantom: PhantomData<fn() -> E>, // todo possibly remove?
 }
 
-impl<E, Args, RetType> From<Execution<Args, RetType>>
-    for CallBuilder<E, Unset<Call>, Set<ExecutionInput<Args>>, Set<ReturnType<RetType>>>
+impl<E, Args, RetType, Strategy> From<Execution<Args, RetType, Strategy>>
+    for CallBuilder<
+        E,
+        Unset<Call>,
+        Set<ExecutionInput<Args, Strategy>>,
+        Set<ReturnType<RetType>>,
+    >
 where
     E: Environment,
 {
-    fn from(invoke: Execution<Args, RetType>) -> Self {
+    fn from(invoke: Execution<Args, RetType, Strategy>) -> Self {
         CallBuilder {
             call_type: Default::default(),
             exec_input: Set(invoke.input),
@@ -290,16 +299,16 @@ where
     }
 }
 
-impl<E, CallType, RetType>
-    CallBuilder<E, CallType, Unset<ExecutionInput<EmptyArgumentList>>, RetType>
+impl<E, CallType, RetType, Strategy>
+    CallBuilder<E, CallType, Unset<ExecutionInput<EmptyArgumentList, Strategy>>, RetType>
 where
     E: Environment,
 {
     /// Sets the execution input to the given value.
     pub fn exec_input<Args>(
         self,
-        exec_input: ExecutionInput<Args>,
-    ) -> CallBuilder<E, CallType, Set<ExecutionInput<Args>>, RetType> {
+        exec_input: ExecutionInput<Args, Strategy>,
+    ) -> CallBuilder<E, CallType, Set<ExecutionInput<Args, Strategy>>, RetType> {
         CallBuilder {
             call_type: self.call_type,
             exec_input: Set(exec_input),

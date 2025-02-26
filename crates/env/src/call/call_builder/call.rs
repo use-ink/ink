@@ -35,6 +35,10 @@ use alloy_sol_types::{
     SolValue,
 };
 use ink_primitives::{
+    reflect::{
+        EncodeWith,
+        SolEncoding,
+    },
     H160,
     U256,
 };
@@ -156,13 +160,18 @@ where
     }
 }
 
-impl<E, Args, RetType>
-    CallBuilder<E, Set<Call>, Set<ExecutionInput<Args>>, Set<ReturnType<RetType>>>
+impl<E, Args, RetType, Strategy>
+    CallBuilder<
+        E,
+        Set<Call>,
+        Set<ExecutionInput<Args, Strategy>>,
+        Set<ReturnType<RetType>>,
+    >
 where
     E: Environment,
 {
     /// Finalizes the call builder to call a function.
-    pub fn params(self) -> CallParams<E, Call, Args, RetType> {
+    pub fn params(self) -> CallParams<E, Call, Args, RetType, Strategy> {
         CallParams {
             call_type: self.call_type.value(),
             _return_type: Default::default(),
@@ -173,12 +182,17 @@ where
 }
 
 impl<E, RetType>
-    CallBuilder<E, Set<Call>, Unset<ExecutionInput<EmptyArgumentList>>, Unset<RetType>>
+    CallBuilder<
+        E,
+        Set<Call>,
+        Unset<ExecutionInput<EmptyArgumentList, SolEncoding>>,
+        Unset<RetType>,
+    >
 where
     E: Environment,
 {
     /// Finalizes the call builder to call a function.
-    pub fn params(self) -> CallParams<E, Call, EmptyArgumentList, ()> {
+    pub fn params(self) -> CallParams<E, Call, EmptyArgumentList, (), SolEncoding> {
         CallParams {
             call_type: self.call_type.value(),
             _return_type: Default::default(),
@@ -192,7 +206,7 @@ impl<E>
     CallBuilder<
         E,
         Set<Call>,
-        Unset<ExecutionInput<EmptyArgumentList>>,
+        Unset<ExecutionInput<EmptyArgumentList, SolEncoding>>,
         Unset<ReturnType<()>>,
     >
 where
@@ -221,11 +235,12 @@ where
     }
 }
 
-impl<E, Args, R> CallBuilder<E, Set<Call>, Set<ExecutionInput<Args>>, Set<ReturnType<R>>>
+impl<E, Args, R, Strategy>
+    CallBuilder<E, Set<Call>, Set<ExecutionInput<Args, Strategy>>, Set<ReturnType<R>>>
 where
     E: Environment,
     // Args: scale::Encode,
-    Args: SolValue,
+    Args: EncodeWith<Strategy>,
     R: SolValue + From<<<R as SolValue>::SolType as SolType>::RustType>,
 {
     /// Invokes the cross-chain function call and returns the result.
@@ -251,7 +266,7 @@ where
     }
 }
 
-impl<E, Args, R> CallParams<E, Call, Args, R>
+impl<E, Args, R, Strategy> CallParams<E, Call, Args, R, Strategy>
 where
     E: Environment,
 {
@@ -293,11 +308,11 @@ where
     }
 }
 
-impl<E, Args, R> CallParams<E, Call, Args, R>
+impl<E, Args, R, Strategy> CallParams<E, Call, Args, R, Strategy>
 where
     E: Environment,
     // Args: scale::Encode,
-    Args: SolValue,
+    Args: EncodeWith<Strategy>,
     R: SolValue + From<<<R as SolValue>::SolType as SolType>::RustType>,
 {
     /// Invokes the contract with the given built-up call parameters.

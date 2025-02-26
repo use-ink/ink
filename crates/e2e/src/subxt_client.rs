@@ -78,6 +78,7 @@ use ink::alloy_sol_types::{
     SolType,
     SolValue,
 };
+use ink_primitives::reflect::EncodeWith;
 use subxt::{
     blocks::ExtrinsicEvents,
     config::{
@@ -97,10 +98,10 @@ use subxt::{
 pub type Error = crate::error::Error<DispatchError>;
 
 /// Represents an initialized contract message builder.
-pub type CallBuilderFinal<E, Args, RetType> = ink_env::call::CallBuilder<
+pub type CallBuilderFinal<E, Args, RetType, Strategy> = ink_env::call::CallBuilder<
     E,
     Set<Call>,
-    Set<ExecutionInput<Args>>,
+    Set<ExecutionInput<Args, Strategy>>,
     Set<ReturnType<RetType>>,
 >;
 
@@ -496,13 +497,14 @@ where
 {
     async fn bare_instantiate<
         Contract: Clone,
-        Args: Send + Sync + SolValue + Clone,
+        Args: Send + Sync + EncodeWith<Strategy> + Clone,
         R,
+        Strategy: Send + Sync + Clone,
     >(
         &mut self,
         contract_name: &str,
         caller: &Keypair,
-        constructor: &mut CreateBuilderPartial<E, Contract, Args, R>,
+        constructor: &mut CreateBuilderPartial<E, Contract, Args, R, Strategy>,
         value: E::Balance,
         gas_limit: Weight,
         storage_deposit_limit: DepositLimit<E::Balance>,
@@ -519,13 +521,14 @@ where
 
     async fn bare_instantiate_dry_run<
         Contract: Clone,
-        Args: Send + Sync + SolValue + Clone,
+        Args: Send + Sync + EncodeWith<Strategy> + Clone,
         R,
+        Strategy: Send + Sync + Clone,
     >(
         &mut self,
         contract_name: &str,
         caller: &Keypair,
-        constructor: &mut CreateBuilderPartial<E, Contract, Args, R>,
+        constructor: &mut CreateBuilderPartial<E, Contract, Args, R, Strategy>,
         value: E::Balance,
         storage_deposit_limit: DepositLimit<E::Balance>,
     ) -> Result<InstantiateDryRunResult<E>, Self::Error> {
@@ -599,18 +602,19 @@ where
     }
 
     async fn bare_call<
-        Args: Sync + SolValue + Clone,
+        Args: Sync + EncodeWith<Strategy> + Clone,
         RetType: Send + SolValue + From<<<RetType as SolValue>::SolType as SolType>::RustType>,
+        Strategy: Sync + Clone,
     >(
         &mut self,
         caller: &Keypair,
-        message: &CallBuilderFinal<E, Args, RetType>,
+        message: &CallBuilderFinal<E, Args, RetType, Strategy>,
         value: E::Balance,
         gas_limit: Weight,
         storage_deposit_limit: DepositLimit<E::Balance>,
     ) -> Result<Self::EventLog, Self::Error>
     where
-        CallBuilderFinal<E, Args, RetType>: Clone,
+        CallBuilderFinal<E, Args, RetType, Strategy>: Clone,
     {
         let addr = *message.clone().params().callee();
         // let exec_input = Encode::encode(message.clone().params().exec_input());
@@ -649,17 +653,18 @@ where
 
     // todo is not really a `bare_call`
     async fn bare_call_dry_run<
-        Args: Sync + SolValue + Clone,
+        Args: Sync + EncodeWith<Strategy> + Clone,
         RetType: Send + SolValue + From<<<RetType as SolValue>::SolType as SolType>::RustType>,
+        Strategy: Sync + Clone,
     >(
         &mut self,
         caller: &Keypair,
-        message: &CallBuilderFinal<E, Args, RetType>,
+        message: &CallBuilderFinal<E, Args, RetType, Strategy>,
         value: E::Balance,
         storage_deposit_limit: DepositLimit<E::Balance>,
     ) -> Result<CallDryRunResult<E, RetType>, Self::Error>
     where
-        CallBuilderFinal<E, Args, RetType>: Clone,
+        CallBuilderFinal<E, Args, RetType, Strategy>: Clone,
     {
         // todo beware side effect! this is wrong, we have to batch up the `map_account`
         // into the RPC dry run instead
