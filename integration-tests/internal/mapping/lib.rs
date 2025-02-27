@@ -14,6 +14,8 @@ mod mapping {
         U256,
     };
 
+    // todo remove clippy allow
+    #[allow(clippy::cast_possible_truncation)]
     #[derive(Debug, PartialEq)]
     #[ink::scale_derive(Encode, Decode, TypeInfo)]
     pub enum ContractError {

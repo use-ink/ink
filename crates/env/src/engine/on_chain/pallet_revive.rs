@@ -194,8 +194,7 @@ impl EnvInstance {
         let mut result = <T as FromLittleEndian>::Bytes::default();
         let len = result.as_ref().len();
         result.as_mut()[..].copy_from_slice(&u256[..len]);
-        let foo = <T as FromLittleEndian>::from_le_bytes(result);
-        foo
+        <T as FromLittleEndian>::from_le_bytes(result)
     }
 }
 
@@ -271,8 +270,7 @@ impl EnvBackend for EnvInstance {
     {
         let full_scope = &mut self.scoped_buffer().take_rest();
         ext::call_data_copy(full_scope, 0);
-        let res = DecodeDispatch::decode_dispatch(&mut &full_scope[..]);
-        res
+        DecodeDispatch::decode_dispatch(&mut &full_scope[..])
     }
 
     fn return_value<R>(&mut self, flags: ReturnFlags, return_value: &R) -> !
@@ -585,10 +583,10 @@ impl TypedEnvBackend for EnvInstance {
 
         let input_and_code_hash = scoped.take(32 + enc_input.len());
         input_and_code_hash[..32].copy_from_slice(enc_code_hash);
-        input_and_code_hash[32..].copy_from_slice(&enc_input);
+        input_and_code_hash[32..].copy_from_slice(enc_input);
 
         let out_return_value: [u8; 32] = scoped.take(32).try_into().unwrap();
-        let output_data = &mut scoped.take_rest();
+        let mut output_data = &mut scoped.take_rest();
 
         let instantiate_result = ext::instantiate(
             ref_time_limit,
@@ -597,7 +595,7 @@ impl TypedEnvBackend for EnvInstance {
             enc_endowment,
             input_and_code_hash,
             Some(&mut out_address),
-            Some(&mut output_data.as_mut()),
+            Some(&mut output_data),
             salt,
         );
 

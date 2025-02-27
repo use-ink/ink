@@ -412,8 +412,6 @@ pub fn selector_bytes(input: TokenStream) -> TokenStream {
 /// ```
 /// #[ink::contract]
 /// mod greeter {
-///     use ink_env::debug_println;
-///
 ///     #[ink(storage)]
 ///     pub struct Greeter;
 ///
@@ -421,7 +419,6 @@ pub fn selector_bytes(input: TokenStream) -> TokenStream {
 ///         #[ink(constructor)]
 ///         pub fn new() -> Self {
 ///             let caller = Self::env().caller();
-///             debug_println!("thanks for instantiation {:?}", caller);
 ///             Greeter {}
 ///         }
 ///
@@ -429,7 +426,6 @@ pub fn selector_bytes(input: TokenStream) -> TokenStream {
 ///         pub fn fund(&self) {
 ///             let caller = self.env().caller();
 ///             let value = self.env().transferred_value();
-///             debug_println!("thanks for the funding of {:?} from {:?}", value, caller);
 ///         }
 ///     }
 /// }

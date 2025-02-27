@@ -232,12 +232,12 @@ where
 {
     let mut env = env.buf_in_buf_out();
     let base_weight = <T as pallet_assets::Config>::WeightInfo::transfer();
-    // debug_message weight is a good approximation of the additional overhead of going
+    // `transferred_value` weight is a good approximation of the additional overhead of going
     // from contract layer to substrate layer.
     let overhead = Weight::from_ref_time(
         <T as pallet_revive::Config>::Schedule::get()
             .host_fn_weights
-            .debug_message,
+            .transferred_value,
     );
     let charged_weight = env.charge_weight(base_weight.saturating_add(overhead))?;
     trace!(
@@ -274,12 +274,12 @@ where
 {
     let mut env = env.buf_in_buf_out();
     let base_weight = <T as pallet_assets::Config>::WeightInfo::transfer();
-    // debug_message weight is a good approximation of the additional overhead of going
+    // `transferred_value` weight is a good approximation of the additional overhead of going
     // from contract layer to substrate layer.
     let overhead = Weight::from_ref_time(
         <T as pallet_revive::Config>::Schedule::get()
             .host_fn_weights
-            .debug_message,
+            .transferred_value,
     );
     let charged_amount = env.charge_weight(base_weight.saturating_add(overhead))?;
     trace!(
@@ -315,12 +315,12 @@ where
 {
     let mut env = env.buf_in_buf_out();
     let base_weight = <T as pallet_assets::Config>::WeightInfo::approve_transfer();
-    // debug_message weight is a good approximation of the additional overhead of going
+    // `transferred_value` weight is a good approximation of the additional overhead of going
     // from contract layer to substrate layer.
     let overhead = Weight::from_ref_time(
         <T as pallet_revive::Config>::Schedule::get()
             .host_fn_weights
-            .debug_message,
+            .transferred_value,
     );
     let charged_weight = env.charge_weight(base_weight.saturating_add(overhead))?;
     trace!(
@@ -359,12 +359,12 @@ where
 
     let base_weight = <T as pallet_assets::Config>::WeightInfo::cancel_approval()
         .saturating_add(<T as pallet_assets::Config>::WeightInfo::approve_transfer());
-    // debug_message weight is a good approximation of the additional overhead of going
+    // `transferred_value` weight is a good approximation of the additional overhead of going
     // from contract layer to substrate layer.
     let overhead = Weight::from_ref_time(
         <T as pallet_revive::Config>::Schedule::get()
             .host_fn_weights
-            .debug_message,
+            .transferred_value,
     );
     let charged_weight = env.charge_weight(base_weight.saturating_add(overhead))?;
     trace!(

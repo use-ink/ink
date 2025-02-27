@@ -20,17 +20,21 @@ pub mod wildcard_selector {
         pub fn wildcard(&mut self) {
             let (_selector, _message) =
                 ink::env::decode_input::<([u8; 4], String)>().unwrap();
+            /*
+            // todo
             ink::env::debug_println!(
                 "Wildcard selector: {:?}, message: {}",
                 _selector,
                 _message
             );
+            */
         }
 
         /// Wildcard complement handles messages with a well-known reserved selector.
         #[ink(message, selector = @)]
         pub fn wildcard_complement(&mut self, _message: String) {
-            ink::env::debug_println!("Wildcard complement message: {}", _message);
+            // todo
+            // ink::env::debug_println!("Wildcard complement message: {}", _message);
         }
     }
 
@@ -111,6 +115,8 @@ pub mod wildcard_selector {
                 .expect("wildcard failed");
 
             // then
+            /*
+            // todo
             assert!(result.debug_message().contains(&format!(
                 "Wildcard selector: {:?}, message: {}",
                 ARBITRARY_SELECTOR, wildcard_message
@@ -120,6 +126,7 @@ pub mod wildcard_selector {
                 "Wildcard selector: {:?}, message: {}",
                 ARBITRARY_SELECTOR_2, wildcard_message2
             )));
+            */
 
             Ok(())
         }
@@ -152,10 +159,13 @@ pub mod wildcard_selector {
                 .expect("wildcard failed");
 
             // then
+            /*
+            // todo
             assert!(result.debug_message().contains(&format!(
                 "Wildcard complement message: {}",
                 wildcard_complement_message
             )));
+            */
 
             Ok(())
         }

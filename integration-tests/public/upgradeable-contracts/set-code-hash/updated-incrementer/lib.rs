@@ -42,7 +42,9 @@ pub mod incrementer {
         #[ink(message)]
         pub fn inc(&mut self) {
             self.count = self.count.checked_add(4).unwrap();
-            ink::env::debug_println!("The new count is {}, it was modified using the updated `new_incrementer` code.", self.count);
+            // todo
+            // ink::env::debug_println!("The new count is {}, it was modified using the
+            // updated `new_incrementer` code.", self.count);
         }
 
         /// Returns the counter value which is stored in this contract's storage.
@@ -63,7 +65,8 @@ pub mod incrementer {
             self.env().set_code_hash(&code_hash).unwrap_or_else(|err| {
                 panic!("Failed to `set_code_hash` to {code_hash:?} due to {err:?}")
             });
-            ink::env::debug_println!("Switched code hash to {:?}.", code_hash);
+            // todo
+            // ink::env::debug_println!("Switched code hash to {:?}.", code_hash);
         }
     }
 }

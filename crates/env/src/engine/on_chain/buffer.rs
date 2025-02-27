@@ -106,7 +106,7 @@ impl scale::Output for EncodeScope<'_> {
     }
 }
 
-unsafe impl<'a> alloy_rlp::bytes::BufMut for EncodeScope<'a> {
+unsafe impl alloy_rlp::bytes::BufMut for EncodeScope<'_> {
     fn remaining_mut(&self) -> usize {
         self.capacity() - self.len()
     }
