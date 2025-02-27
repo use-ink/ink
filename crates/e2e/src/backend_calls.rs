@@ -183,7 +183,6 @@ where
     where
         CallBuilderFinal<E, Args, RetType>: Clone,
     {
-        eprintln!("dry run the call");
         B::bare_call_dry_run(
             self.client,
             self.caller,

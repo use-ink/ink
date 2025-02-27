@@ -223,7 +223,6 @@ pub mod give_me {
                 .await;
 
             // then
-            eprintln!("call_res {:?}", call_res);
             assert!(call_res.is_err(), "call must have errored");
             /*
             // todo bug with wrong printing of message
@@ -232,7 +231,7 @@ pub mod give_me {
             } else {
                 panic!("Paying an unpayable message should fail")
             }
-             */
+            */
             Ok(())
         }
 
@@ -289,9 +288,7 @@ pub mod give_me {
                 .debug_message()
                 .contains("requested value: 120000000\n"));
              */
-            eprintln!("\n--call trace {:?}", call_res.trace);
             let outgoing_trace = &call_res.trace.unwrap().calls[0];
-            eprintln!("\n--trace {:?}", outgoing_trace);
             //assert_eq!(outgoing_trace.value, Some(U256::from(120_000_000 *
             // NativeToEthRatio)));
             assert_eq!(outgoing_trace.value, Some(U256::from(120_000_000)));

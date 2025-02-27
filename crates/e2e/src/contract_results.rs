@@ -280,7 +280,6 @@ impl<E: Environment, V: scale::Decode> CallDryRunResult<E, V> {
     ///
     /// Panics if the dry-run message call failed to execute.
     pub fn exec_return_value(&self) -> &ExecReturnValue {
-        eprintln!("-------------exec return value------");
         self.exec_result
             .result
             .as_ref()
@@ -293,7 +292,6 @@ impl<E: Environment, V: scale::Decode> CallDryRunResult<E, V> {
     /// - if the dry-run message call failed to execute.
     /// - if message result cannot be decoded into the expected return value type.
     pub fn message_result(&self) -> MessageResult<V> {
-        eprintln!("-------------message result------");
         let data = &self.exec_return_value().data;
         scale::Decode::decode(&mut data.as_ref()).unwrap_or_else(|env_err| {
             panic!(
@@ -309,7 +307,6 @@ impl<E: Environment, V: scale::Decode> CallDryRunResult<E, V> {
     pub fn return_value(self) -> V {
         // todo
         // on revert:
-        eprintln!("-------------return value------");
         if self.exec_result.result.clone().unwrap().did_revert() {
             let res = self.exec_result.result.unwrap();
             let msg = String::from_utf8_lossy(&res.data);

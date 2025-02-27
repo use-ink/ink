@@ -287,25 +287,22 @@ where
         contract_result: ContractResult<V, E::Balance>,
     ) -> Result<ContractResult<V, E::Balance>, DryRunError<DispatchError>> {
         if let Err(error) = contract_result.result {
-            eprintln!("________in error");
             let subxt_dispatch_err =
                 self.runtime_dispatch_error_to_subxt_dispatch_error(&error);
             Err(DryRunError::<DispatchError> {
                 error: subxt_dispatch_err,
             })
         } else {
-            eprintln!("________ok");
             /*
+            // todo
             if contract_result.result.unwrap().did_revert() {
-                eprintln!("________ok revert");
                 Err(DryRunError::<String> {
                     error:  String::from_utf8(contract_result.result.unwrap().data).unwrap()
                 })
             } else {
-                eprintln!("________ok not revert");
                 Ok(contract_result)
             }
-             */
+            */
             Ok(contract_result)
         }
     }
@@ -660,7 +657,6 @@ where
     where
         CallBuilderFinal<E, Args, RetType>: Clone,
     {
-        eprintln!("bare_call dry run");
         // todo beware side effect! this is wrong, we have to batch up the `map_account`
         // into the RPC dry run instead
         let _ = self.map_account(caller).await;
@@ -687,25 +683,6 @@ where
         let exec_result = self
             .contract_result_to_result(exec_result)
             .map_err(Error::CallDryRun)?;
-
-        /*
-        // and now collect the trace and put it in there as well.
-        let call = subxt::tx::DefaultPayload::new(
-            "Revive",
-            "call",
-            crate::xts::Call::<E> {
-                dest,
-                value,
-                gas_limit,
-                storage_deposit_limit,
-                data,
-            },
-        )
-            .unvalidated();
-        let trace = self.api.trace(Some(data));
-         */
-
-        eprintln!("---trace {:?}", trace);
 
         Ok(CallDryRunResult {
             exec_result,

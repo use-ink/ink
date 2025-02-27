@@ -370,7 +370,6 @@ where
                     let events = tx_in_block.fetch_events().await.unwrap_or_else(|err| {
                         panic!("error on call `fetch_events`: {err:?}");
                     });
-                    eprintln!("---------------issuing trace now--------");
                     let trace = self
                         .trace(
                             tx_in_block.block_hash(),
@@ -440,7 +439,6 @@ where
                 index
             }
             (None, Some(extrinsic)) => {
-                eprintln!("pushed extrinsic");
                 exts.push(
                     OpaqueExtrinsic::from_bytes(&extrinsic[..])
                         .expect("OpaqueExtrinsic cannot be created"),
@@ -466,7 +464,6 @@ where
                     format!("{}", err).trim_start_matches("RPC error: ")
                 );
             });
-        eprintln!("-----did issue state call");
         scale::Decode::decode(&mut bytes.as_ref())
             .unwrap_or_else(|err| panic!("decoding `trace_tx` result failed: {err}"))
     }
@@ -612,7 +609,6 @@ where
         _storage_deposit_limit: E::Balance, // todo
         signer: &Keypair,
     ) -> (ContractExecResultFor<E>, Option<CallTrace>) {
-        eprintln!("call dry run");
         let call_request = RpcCallRequest::<C, E> {
             origin,
             dest,
@@ -632,7 +628,6 @@ where
             });
         let res = scale::Decode::decode(&mut bytes.as_ref())
             .unwrap_or_else(|err| panic!("decoding ContractExecResult failed: {err}"));
-        //eprintln!("call dry run res {:?}", res.unwrap_err());
 
         // todo for gas_limit and storage_deposit_limit we should use the values returned
         // by a successful call above, otherwise the max
@@ -675,7 +670,6 @@ where
         let trace = self
             .trace(block_hash, None, parent_hash, Some(xt.into_encoded()))
             .await;
-        eprintln!("=====trace {:?}", trace);
 
         (res, trace)
     }
