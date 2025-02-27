@@ -56,7 +56,6 @@ pub enum Error<DispatchError: fmt::Debug + fmt::Display> {
 /// Error during a dry run RPC invocation.
 #[derive(Debug)]
 pub struct DryRunError<DispatchError: fmt::Display + fmt::Debug> {
-    pub debug_message: String,
     pub error: DispatchError,
 }
 

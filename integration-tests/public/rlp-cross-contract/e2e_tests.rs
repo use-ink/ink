@@ -168,8 +168,6 @@ impl ContractSandbox {
             <DefaultSandbox as Sandbox>::default_gas_limit(),
             STORAGE_DEPOSIT_LIMIT,
         );
-        let debug = result.debug_message;
-        println!("{:?}", String::from_utf8(debug).unwrap());
 
         result.result.expect("sandbox call contract failed")
     }

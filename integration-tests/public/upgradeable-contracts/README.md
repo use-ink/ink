@@ -14,7 +14,7 @@ You can read more about storage compatibility on [use.ink](https://use.ink/basic
 
 ## [`set-code-hash`](set-code-hash-migration/)
 
-When upgrading a contract, the new code may have a different storage layout. This example illustrates a method to 
+When upgrading a contract, the new code may have a different storage layout. This example illustrates a method to
 migrate the storage from the old layout to the new layout. It does so by using an intermediate `migration` contract
 which performs the storage upgrade. The workflow is as follows:
 
@@ -22,8 +22,8 @@ which performs the storage upgrade. The workflow is as follows:
 1. Upload a `migration` contract with a message `migrate` which performs the storage migration.
 2. Set code hash to the `migration` contract.
 3. Upload the upgraded version of the original contract.
-4. Call `migrate` on the `migration` contract, passing the code hash of the new updated incrementer contract from `3.` 
-This must happen as a single message, because following the storage migration, the contract will not be able to be 
+4. Call `migrate` on the `migration` contract, passing the code hash of the new updated incrementer contract from `3.`
+This must happen as a single message, because following the storage migration, the contract will not be able to be
 called again, since it will fail to load the migrated storage.
 
 
@@ -48,15 +48,3 @@ If the delegated code only modifies `Lazy` or `Mapping` field, the keys must be 
 This is because `Lazy` and `Mapping` interact with the storage directly instead of loading and flushing storage states.
 
 If your storage is completely layoutless (it only contains `Lazy` and `Mapping` fields), the order of fields and layout do not need to match for the same reason as mentioned above.
-
-### Delegate dependency locks
-
-The `delegator` contract depends upon the contract code to which it delegates. Since code
-can be deleted by anybody if there are no instances of the contract on the chain, this 
-would break the `delegator` contract. To prevent this, the `delegator` contract utilizes
-the `lock_delegate_dependency` and `unlock_delegate_dependency` host functions. Calling
-`lock_delegate_dependency` will prevent the code at the given hash from being deleted, 
-until `unlock_delegate_dependency` is called from within the `delegator` contract instance.
-Note that these two methods can be called by anybody executing the contract, so it is the
-responsibility of the contract developer to ensure correct access control.
-

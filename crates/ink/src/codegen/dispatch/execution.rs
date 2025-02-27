@@ -12,10 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use ink_env::{
-    DispatchError,
-    Environment,
-};
+use ink_env::DispatchError;
 use ink_primitives::U256;
 
 /// Returns `Ok` if the caller did not transfer additional value to the callee.
@@ -24,14 +21,10 @@ use ink_primitives::U256;
 ///
 /// If the caller did send some amount of transferred value to the callee.
 #[inline]
-// todo remove E
-pub fn deny_payment<E>() -> Result<(), DispatchError>
-where
-    E: Environment,
-{
-    // todo
+pub fn deny_payment() -> Result<(), DispatchError> {
     let transferred = ink_env::transferred_value();
     if transferred != U256::zero() {
+        // todo can we make the error visible to users?
         return Err(DispatchError::PaidUnpayableMessage)
     }
     Ok(())

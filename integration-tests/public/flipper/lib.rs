@@ -64,14 +64,14 @@ pub mod flipper {
             // given
             let mut constructor = FlipperRef::new(false);
             let contract = client
-                .instantiate("flipper", &ink_e2e::alice(), &mut constructor)
+                .instantiate("flipper", &ink_e2e::bob(), &mut constructor)
                 .submit()
                 .await
                 .expect("instantiate failed");
             let mut call_builder = contract.call_builder::<Flipper>();
 
             let get = call_builder.get();
-            let get_res = client.call(&ink_e2e::bob(), &get).dry_run().await?;
+            let get_res = client.call(&ink_e2e::bob(), &get).submit().await?;
             assert!(!get_res.return_value());
 
             // when

@@ -126,15 +126,6 @@ fn transfer() {
 }
 
 #[test]
-fn debug_messages() {
-    let mut engine = Engine::new();
-    engine.debug_message("foobar");
-    let mut recorded = engine.get_emitted_debug_messages().into_iter();
-    assert_eq!(recorded.next(), Some("foobar".into()));
-    assert_eq!(recorded.next(), None);
-}
-
-#[test]
 fn events() {
     // given
     let mut engine = Engine::new();

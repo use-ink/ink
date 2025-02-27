@@ -36,6 +36,7 @@ use ink_env::{
 };
 use ink_primitives::DepositLimit;
 use jsonrpsee::core::async_trait;
+use pallet_revive::evm::CallTrace;
 use scale::{
     Decode,
     Encode,
@@ -106,6 +107,7 @@ pub trait ContractsBackend<E: Environment> {
     type Error;
     /// Event log type.
     type EventLog;
+
     /// Start building an instantiate call using a builder pattern.
     ///
     /// # Example
@@ -139,6 +141,7 @@ pub trait ContractsBackend<E: Environment> {
     }
 
     /// Start building an upload call.
+    ///
     /// # Example
     ///
     /// ```ignore
@@ -233,7 +236,7 @@ pub trait BuilderClient<E: Environment>: ContractsBackend<E> {
         value: E::Balance,
         gas_limit: Weight,
         storage_deposit_limit: DepositLimit<E::Balance>,
-    ) -> Result<Self::EventLog, Self::Error>
+    ) -> Result<(Self::EventLog, Option<CallTrace>), Self::Error>
     where
         CallBuilderFinal<E, Args, RetType>: Clone;
 
