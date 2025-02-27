@@ -12,6 +12,4 @@ runs:
         bash --version
         substrate-contracts-node --version
         cargo contract --version
-        # todo revert once Docker image contains latest `cargo-contract`
-        cargo install --git https://github.com/paritytech/cargo-contract --force --locked --branch master
       shell: bash
