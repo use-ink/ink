@@ -27,12 +27,20 @@ mod contract {
     #[ink::trait_definition]
     pub trait Messages {
         #[ink(message, selector = 0x12345678)]
-        fn message_4(&self, _input: Vec<u8>);
+        fn message_4(&self, _input_1: Vec<u8>);
     }
 
     impl Messages for Contract {
         #[ink(message, selector = 0x12345678)]
-        fn message_4(&self, _input: Vec<u8>) {}
+        fn message_4(&self, _input_1: Vec<u8>) {}
+    }
+
+    impl Contract {
+        #[ink(message)]
+        pub fn message_5(&self, _input_1: String) {}
+
+        #[ink(message)]
+        pub fn message_6(&self, _input_1: bool, _input_2: String, _input_3: [u8; 32], _input_4: Vec<u8>, _input_5: [u16; 4], _input_6: Vec<u16>) {}
     }
 }
 
@@ -65,5 +73,17 @@ fn main() {
     assert_eq!(
         <Contract as ::ink::reflect::DispatchableMessageInfo<0x0e59eb1b_u32>>::SELECTOR,
         [0x0e, 0x59, 0xeb, 0x1b],
+    );
+
+    // `keccak256("message_5(string)")` == `0x596379bc`
+    assert_eq!(
+        <Contract as ::ink::reflect::DispatchableMessageInfo<0x596379bc_u32>>::SELECTOR,
+        [0x59, 0x63, 0x79, 0xbc],
+    );
+
+    // `keccak256("message_6(bool,string,bytes32,bytes,uint16[4],uint16[])")` == `0x270af153`
+    assert_eq!(
+        <Contract as ::ink::reflect::DispatchableMessageInfo<0x270af153_u32>>::SELECTOR,
+        [0x27, 0x0a, 0xf1, 0x53],
     );
 }
