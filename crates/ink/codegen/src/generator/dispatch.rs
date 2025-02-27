@@ -38,6 +38,7 @@ use quote::{
 use syn::{
     spanned::Spanned as _,
     LitInt,
+    Type,
 };
 
 /// A message to be dispatched.
@@ -480,8 +481,9 @@ impl Dispatch<'_> {
             let input_sol_tys = message.inputs().map(|input| {
                 let ty = &*input.ty;
                 let span = input.span();
+                let sol_ty = sol_type(ty);
                 quote_spanned!(span=>
-                    <#ty as ::ink::alloy_sol_types::SolValue>::SolType
+                    #sol_ty
                 )
             });
             let input_sol_tuple = if input_types_len == 1 {
@@ -1216,8 +1218,9 @@ impl Dispatch<'_> {
                     let sig_param_tys = message.inputs().map(|input| {
                         let ty = &*input.ty;
                         let span = input.span();
+                        let sol_ty = sol_type(ty);
                         quote_spanned!(span=>
-                            <<#ty as ::ink::alloy_sol_types::SolValue>::SolType as ::ink::alloy_sol_types::SolType>::SOL_NAME
+                            <#sol_ty as ::ink::alloy_sol_types::SolType>::SOL_NAME
                         )
                     });
                     let input_types_len = generator::input_types(message.inputs()).len();
@@ -1279,4 +1282,30 @@ fn solidity_call_type_ident(message: &CallableWithSelector<Message>) -> Ident {
     let ident = message.ident();
     let id = message.composed_selector().into_be_u32();
     format_ident!("{ident}{id}Call")
+}
+
+/// Returns [`ink::alloy_sol_types::SolType`] representation for the given type.
+fn sol_type(ty: &Type) -> TokenStream2 {
+    match ty {
+        // TODO: (@davidsemakula) replace with more robust solution before release v6
+        // release. Necessary because `alloy_sol_types::SolValue` is not
+        // implemented for u8.
+        Type::Path(ty) if ty.path.is_ident("u8") => {
+            quote! {
+                ::ink::alloy_sol_types::sol_data::Uint<8>
+            }
+        }
+        Type::Reference(ty) => sol_type(&ty.elem),
+        Type::Tuple(tys) => {
+            let tuple_tys = tys.elems.iter().map(sol_type);
+            quote! {
+                (#(#tuple_tys,)*)
+            }
+        }
+        _ => {
+            quote! {
+                <#ty as ::ink::alloy_sol_types::SolValue>::SolType
+            }
+        }
+    }
 }
