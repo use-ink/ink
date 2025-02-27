@@ -1,7 +1,6 @@
 #![cfg_attr(not(feature = "std"), no_std, no_main)]
 
-//#[ink::contract]
-#[ink::contract(abi_encoding = "scale")]
+#[ink::contract]
 pub mod flipper {
     #[ink(storage)]
     pub struct Flipper {
@@ -60,7 +59,6 @@ pub mod flipper {
 
         type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
-        //#[ink_e2e::test(backend(runtime_only))]
         #[ink_e2e::test]
         async fn it_works<Client: E2EBackend>(mut client: Client) -> E2EResult<()> {
             // given

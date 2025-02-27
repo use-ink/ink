@@ -141,18 +141,6 @@ where
         CallBuilderFinal<E, Args, RetType>: Clone,
     {
         let _map = B::map_account(self.client, self.caller).await; // todo will fail if instantiation happened before
-                                                                   /*
-                                                                   let dry_run = CallDryRunResult {
-                                                                       exec_result: ContractResult {
-                                                                           gas_consumed: Default::default(),
-                                                                           gas_required: Default::default(),
-                                                                           storage_deposit: StorageDeposit::Refund(0u32.into()),
-                                                                           result: Ok(ExecReturnValue::default()),
-                                                                       },
-                                                                       _marker: Default::default(),
-                                                                       trace: None,
-                                                                   };
-                                                                   */
 
         let dry_run = B::bare_call_dry_run(
             self.client,
@@ -171,14 +159,6 @@ where
             let ref_time = gas_required.ref_time();
             calculate_weight(proof_size, ref_time, self.extra_gas_portion)
         };
-        /*
-        let gas_limit = Weight {
-            proof_size: u64::MAX,
-            ref_time: u64::MAX,
-        };
-
-         */
-        //let gas_limit = Weight::from((u64::MAX, u64::MAX));
 
         let (events, trace) = B::bare_call(
             self.client,
@@ -188,7 +168,6 @@ where
             gas_limit,
             // todo: the `bare_call` converts this value back, this is unnecessary work
             DepositLimit::Balance(dry_run.exec_result.storage_deposit.charge_or_zero()),
-            //DepositLimit::Balance(u32::MAX.into()),
         )
         .await?;
 
@@ -353,9 +332,6 @@ where
             ),
         )
         .await?;
-
-        // todo
-        //self.client.runtim
 
         Ok(InstantiationResult {
             addr: instantiate_result.addr,
