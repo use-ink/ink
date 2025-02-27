@@ -401,6 +401,8 @@ mod erc1155 {
 
                 match result {
                     Ok(v) => {
+                        /*
+                        // todo
                         ink::env::debug_println!(
                             "Received return value \"{:?}\" from contract {:?}",
                             v.clone().expect(
@@ -408,6 +410,7 @@ mod erc1155 {
                             ),
                             from
                         );
+                        */
                         assert_eq!(
                             v.clone().expect("Call should be valid, don't expect a `LangError`."),
                             &ON_ERC_1155_RECEIVED_SELECTOR[..],
@@ -429,7 +432,9 @@ mod erc1155 {
                                 // Our recipient wasn't a smart contract, so there's
                                 // nothing more for
                                 // us to do
-                                ink::env::debug_println!("Recipient at {:?} from is not a smart contract ({:?})", from, e);
+                                // todo
+                                // ink::env::debug_println!("Recipient at {:?} from is not
+                                // a smart contract ({:?})", from, e);
                             }
                             _ => {
                                 // We got some sort of error from the call to our

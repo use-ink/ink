@@ -12,7 +12,6 @@ mod sol_cross_contract {
                 build_call,
                 ExecutionInput,
             },
-            debug_println,
             CallFlags,
         },
         H160,
@@ -44,8 +43,6 @@ mod sol_cross_contract {
                 .exec_input(ExecutionInput::new(selector.into()))
                 .returns::<()>()
                 .try_invoke();
-
-            debug_println!("call_contract_sol: {:?}", result);
 
             assert!(result.is_ok(), "call failed");
         }

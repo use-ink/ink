@@ -63,8 +63,6 @@ where
             // self.storage_deposit_limit,
             DepositLimit::Unchecked, // todo
             data,
-            pallet_revive::DebugInfo::UnsafeDebug,
-            pallet_revive::CollectEvents::Skip,
         );
 
         let output = result.result?.data;

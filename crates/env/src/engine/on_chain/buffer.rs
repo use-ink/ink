@@ -106,6 +106,25 @@ impl scale::Output for EncodeScope<'_> {
     }
 }
 
+unsafe impl alloy_rlp::bytes::BufMut for EncodeScope<'_> {
+    fn remaining_mut(&self) -> usize {
+        self.capacity() - self.len()
+    }
+    unsafe fn advance_mut(&mut self, cnt: usize) {
+        debug_assert!(
+            self.len().checked_add(cnt).unwrap() <= self.capacity(),
+            "encode scope buffer overflowed. capacity is {} but last write index is {}",
+            self.capacity(),
+            self.len().checked_add(cnt).unwrap(),
+        );
+        self.len = self.len.checked_add(cnt).unwrap()
+    }
+
+    fn chunk_mut(&mut self) -> &mut alloy_rlp::bytes::buf::UninitSlice {
+        alloy_rlp::bytes::buf::UninitSlice::new(&mut self.buffer[self.len..])
+    }
+}
+
 /// Scoped access to an underlying bytes buffer.
 ///
 /// # Note

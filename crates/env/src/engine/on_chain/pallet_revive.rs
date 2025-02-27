@@ -291,34 +291,6 @@ impl EnvBackend for EnvInstance {
         ext::return_value(flags, &encoded[..]);
     }
 
-    #[cfg(not(feature = "ink-debug"))]
-    /// A no-op. Enable the `ink-debug` feature for debug messages.
-    fn debug_message(&mut self, _content: &str) {}
-
-    #[cfg(feature = "ink-debug")]
-    fn debug_message(&mut self, content: &str) {
-        static mut DEBUG_ENABLED: bool = false;
-        static mut FIRST_RUN: bool = true;
-
-        // SAFETY: safe because executing in a single threaded context
-        // We need those two variables in order to make sure that the assignment is
-        // performed in the "logging enabled" case. This is because during RPC
-        // execution logging might be enabled while it is disabled during the
-        // actual execution as part of a transaction. The gas estimation takes
-        // place during RPC execution. We want to overestimate instead
-        // of underestimate gas usage. Otherwise using this estimate could lead to a out
-        // of gas error.
-        if unsafe { DEBUG_ENABLED || FIRST_RUN } {
-            let ret_code = ext::debug_message(content.as_bytes());
-            if !matches!(ret_code, Err(ReturnErrorCode::LoggingDisabled)) {
-                // SAFETY: safe because executing in a single threaded context
-                unsafe { DEBUG_ENABLED = true }
-            }
-            // SAFETY: safe because executing in a single threaded context
-            unsafe { FIRST_RUN = false }
-        }
-    }
-
     fn hash_bytes<H>(&mut self, input: &[u8], output: &mut <H as HashOutput>::Type)
     where
         H: CryptoHash,
@@ -397,13 +369,17 @@ impl TypedEnvBackend for EnvInstance {
 
         let h160: &mut [u8; 20] = scope.take(20).try_into().unwrap();
         ext::caller(h160);
-        // TODO: check decode
+        // TODO: check decode, I think this could just be from_le_bytes
         scale::Decode::decode(&mut &h160[..])
             .expect("The executed contract must have a caller with a valid account id.")
     }
 
     fn transferred_value(&mut self) -> U256 {
-        self.get_property_little_endian::<U256>(ext::value_transferred)
+        let mut scope = self.scoped_buffer();
+        let u256: &mut [u8; 32] = scope.take(32).try_into().unwrap();
+
+        ext::value_transferred(u256);
+        U256::from_le_bytes(*u256)
     }
 
     fn block_timestamp<E: Environment>(&mut self) -> E::Timestamp {
@@ -474,13 +450,17 @@ impl TypedEnvBackend for EnvInstance {
         let mut scope = self.scoped_buffer();
         let ref_time_limit = params.ref_time_limit();
         let proof_size_limit = params.proof_size_limit();
-        let storage_deposit_limit = params.storage_deposit_limit().map(|limit| {
+        let storage_deposit_limit = params.storage_deposit_limit();
+        /*
+        .map(|limit| {
             let mut enc_storage_limit = EncodeScope::from(scope.take(32));
             scale::Encode::encode_to(&limit, &mut enc_storage_limit);
             let enc_storage_limit: &mut [u8; 32] =
                 enc_storage_limit.into_buffer().try_into().unwrap();
             enc_storage_limit
         });
+         */
+        let enc_storage_limit = to_u256(&mut scope, storage_deposit_limit);
 
         let enc_callee: &[u8; 20] = params.callee().as_ref().try_into().unwrap();
         let mut enc_transferred_value = EncodeScope::from(scope.take(32));
@@ -504,8 +484,7 @@ impl TypedEnvBackend for EnvInstance {
             ref_time_limit,
             proof_size_limit,
             // TODO: cleanup comment?
-            //enc_storage_limit,
-            storage_deposit_limit.as_deref(),
+            &enc_storage_limit,
             enc_transferred_value,
             enc_input,
             Some(output),
@@ -537,18 +516,20 @@ impl TypedEnvBackend for EnvInstance {
         } else {
             &mut []
         };
+        let deposit_limit = params.deposit_limit();
+        let deposit_limit = remove_option(&mut scope, *deposit_limit);
+
         let output = &mut scope.take_rest();
         let flags = params.call_flags();
         let enc_address: [u8; 20] = params.address().0;
         let ref_time_limit = params.ref_time_limit();
         let proof_size_limit = params.proof_size_limit();
-        let deposit_limit = params.deposit_limit().as_ref();
         let call_result = ext::delegate_call(
             *flags,
             &enc_address,
             ref_time_limit,
             proof_size_limit,
-            deposit_limit,
+            &deposit_limit,
             enc_input,
             Some(output),
         );
@@ -581,10 +562,13 @@ impl TypedEnvBackend for EnvInstance {
         let storage_deposit_limit = params.storage_deposit_limit().map(|limit| {
             let mut enc_storage_limit = EncodeScope::from(scoped.take(32));
             scale::Encode::encode_to(&limit, &mut enc_storage_limit);
-            let enc_storage_limit: &mut [u8; 32] =
+            let enc_storage_limit: [u8; 32] =
                 enc_storage_limit.into_buffer().try_into().unwrap();
             enc_storage_limit
         });
+        let enc_storage_limit = remove_option(&mut scoped, storage_deposit_limit);
+
+        // todo encodings here are mostly unnecessary, as the type is already 32 bytes
         let enc_code_hash: &mut [u8; 32] =
             scoped.take_encoded(params.code_hash()).try_into().unwrap();
         let mut enc_endowment = EncodeScope::from(scoped.take(32));
@@ -592,23 +576,26 @@ impl TypedEnvBackend for EnvInstance {
         let enc_endowment: &mut [u8; 32] =
             enc_endowment.into_buffer().try_into().unwrap();
         let enc_input = scoped.take_encoded(params.exec_input());
-        let out_address: &mut [u8; 20] = scoped.take(20).try_into().unwrap();
+        let mut out_address: [u8; 20] = scoped.take(20).try_into().unwrap();
         let salt = params.salt_bytes().as_ref();
-        let out_return_value = &mut scoped.take_rest();
+
+        let input_and_code_hash = scoped.take(32 + enc_input.len());
+        input_and_code_hash[..32].copy_from_slice(enc_code_hash);
+        input_and_code_hash[32..].copy_from_slice(enc_input);
+
+        let out_return_value: [u8; 32] = scoped.take(32).try_into().unwrap();
+        let mut output_data = &mut scoped.take_rest();
 
         let instantiate_result = ext::instantiate(
-            enc_code_hash,
             ref_time_limit,
             proof_size_limit,
-            storage_deposit_limit.as_deref(),
+            &enc_storage_limit,
             enc_endowment,
-            enc_input,
-            Some(out_address),
-            Some(out_return_value),
+            input_and_code_hash,
+            Some(&mut out_address),
+            Some(&mut output_data),
             salt,
         );
-        // TODO: clean comment?
-        //let foo: () = instantiate_result;
 
         crate::engine::decode_instantiate_result::<_, ContractRef, RetType>(
             instantiate_result.map_err(Into::into),
@@ -631,43 +618,23 @@ impl TypedEnvBackend for EnvInstance {
         E: Environment,
     {
         let mut scope = self.scoped_buffer();
-        /* TODO: remove comment?
-        let ref_time_limit = params.ref_time_limit();
-        let proof_size_limit = params.proof_size_limit();
-        let storage_deposit_limit = params.storage_deposit_limit().map(|limit| {
-            let mut enc_storage_limit = EncodeScope::from(scope.take(32));
-            scale::Encode::encode_to(&limit, &mut enc_storage_limit);
-            let enc_storage_limit: &mut [u8; 32] =
-                enc_storage_limit.into_buffer().try_into().unwrap();
-            enc_storage_limit
-        });
-        */
-
         let enc_callee: &[u8; 20] = destination.as_ref().try_into().unwrap();
-
-        //let value: &[u8] = scale::Encode::encode_to(value, &mut scope);
-        //let value: u128 = scale::Decode::decode(&mut &value[..]).expect("foo");
-        //let value_u128: u128 = value.try_into().expect("oh no");
-        // //core::mem::transmute(value); todo
-        //let value_u128: u128 = unsafe {
-        //core::mem::transmute_copy::<<E as Environment>::Balance, u128>(&value) };
-        //let value = scale::Decode::primitive_types::U256::from(value_u128);
-        //let value = U256::from(value_u128);
         let mut enc_value = EncodeScope::from(scope.take(32));
         scale::Encode::encode_to(&value, &mut enc_value);
         let enc_value: &mut [u8; 32] = enc_value.into_buffer().try_into().unwrap();
+
+        let mut enc_limit = EncodeScope::from(scope.take(32));
+        scale::Encode::encode_to(&U256::MAX, &mut enc_limit);
+        let enc_limit: &mut [u8; 32] = enc_limit.into_buffer().try_into().unwrap();
 
         let output = &mut scope.take_rest();
         #[allow(deprecated)]
         let call_result = ext::call(
             CallFlags::empty(),
             enc_callee,
-            0u64,
-            0u64,
-            None,
-            //ref_time_limit,
-            //proof_size_limit,
-            //storage_deposit_limit.as_deref(),
+            u64::MAX,
+            u64::MAX,
+            enc_limit,
             enc_value,
             &[],
             Some(output),
@@ -676,8 +643,6 @@ impl TypedEnvBackend for EnvInstance {
             Ok(()) => {
                 // TODO: clean comments?
                 // no need to decode, is ()
-                //let decoded = scale::DecodeAll::decode_all(&mut &output[..])?;
-                //Ok(decoded)
                 Ok(())
             }
             Err(actual_error) => Err(actual_error.into()),
@@ -713,14 +678,7 @@ impl TypedEnvBackend for EnvInstance {
     where
         E: Environment,
     {
-        // `ext::caller_is_root()` currently returns `u32`.
-        // See https://github.com/paritytech/polkadot-sdk/issues/6767 for more details.
-        let ret = ext::caller_is_root();
-        match ret {
-            0u32 => false,
-            1u32 => true,
-            _ => panic!("Invalid value for bool conversion: {}", ret),
-        }
+        ext::caller_is_root()
     }
 
     fn code_hash(&mut self, addr: &H160) -> Result<H256> {
@@ -756,26 +714,6 @@ impl TypedEnvBackend for EnvInstance {
         ext::call_runtime(enc_call).map_err(Into::into)
     }
 
-    fn lock_delegate_dependency<E>(&mut self, code_hash: &H256)
-    where
-        E: Environment,
-    {
-        let mut scope = self.scoped_buffer();
-        let enc_code_hash: &mut [u8; 32] =
-            scope.take_encoded(code_hash).try_into().unwrap();
-        ext::lock_delegate_dependency(enc_code_hash)
-    }
-
-    fn unlock_delegate_dependency<E>(&mut self, code_hash: &H256)
-    where
-        E: Environment,
-    {
-        let mut scope = self.scoped_buffer();
-        let enc_code_hash: &mut [u8; 32] =
-            scope.take_encoded(code_hash).try_into().unwrap();
-        ext::unlock_delegate_dependency(enc_code_hash)
-    }
-
     fn xcm_execute<E, Call>(&mut self, msg: &VersionedXcm<Call>) -> Result<()>
     where
         E: Environment,
@@ -809,5 +747,31 @@ impl TypedEnvBackend for EnvInstance {
         ext::xcm_send(enc_dest, enc_msg, output.try_into().unwrap())?;
         let hash: xcm::v4::XcmHash = scale::Decode::decode(&mut &output[..])?;
         Ok(hash)
+    }
+}
+
+// todo make this const
+fn to_u256(scope: &mut ScopedBuffer, value: Option<U256>) -> [u8; 32] {
+    let limit = match value {
+        None => U256::MAX,
+        Some(u256) => u256,
+    };
+    let mut enc_storage_limit = EncodeScope::from(scope.take(32));
+    scale::Encode::encode_to(&limit, &mut enc_storage_limit);
+    let enc_storage_limit: [u8; 32] = enc_storage_limit.into_buffer().try_into().unwrap();
+    enc_storage_limit
+}
+
+fn remove_option(scope: &mut ScopedBuffer, opt: Option<[u8; 32]>) -> [u8; 32] {
+    match opt {
+        None => {
+            let limit = U256::MAX; // corresponds to no deposit limit, defined in `pallet-revive`
+            let mut enc_storage_limit = EncodeScope::from(scope.take(32));
+            scale::Encode::encode_to(&limit, &mut enc_storage_limit);
+            let enc_storage_limit: [u8; 32] =
+                enc_storage_limit.into_buffer().try_into().unwrap();
+            enc_storage_limit
+        }
+        Some(bytes) => bytes,
     }
 }

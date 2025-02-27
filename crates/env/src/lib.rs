@@ -52,13 +52,17 @@
 #[const_env::from_env("INK_STATIC_BUFFER_SIZE")]
 pub const BUFFER_SIZE: usize = 16384;
 
-#[cfg(not(any(feature = "std", feature = "no-panic-handler")))]
-#[allow(unused_variables)]
+#[cfg(target_arch = "riscv64")]
 #[panic_handler]
 fn panic(info: &core::panic::PanicInfo) -> ! {
-    // This code gets removed in release builds where the macro will expand into nothing.
-    debug_print!("{}\n", info);
+    //#[cfg(any(feature = "ink-debug", feature = "std"))]
+    self::return_value(
+        ReturnFlags::REVERT,
+        &ink_prelude::format!("{}", info.message()).as_bytes(),
+    );
 
+    /*
+    #[cfg(not(any(feature = "ink-debug", feature = "std")))]
     cfg_if::cfg_if! {
         if #[cfg(target_arch = "riscv64")] {
             // Safety: The unimp instruction is guaranteed to trap
@@ -70,6 +74,7 @@ fn panic(info: &core::panic::PanicInfo) -> ! {
             core::compile_error!("ink! only supports riscv64");
         }
     }
+    */
 }
 
 // This extern crate definition is required since otherwise rustc
@@ -138,57 +143,3 @@ pub use pallet_revive_uapi::{
     ReturnErrorCode,
     ReturnFlags,
 };
-
-cfg_if::cfg_if! {
-    if #[cfg(any(feature = "ink-debug", feature = "std"))] {
-        /// Required by the `debug_print*` macros below, because there is no guarantee that
-        /// contracts will have a direct `ink_prelude` dependency. In the future we could introduce
-        /// an "umbrella" crate containing all the `ink!` crates which could also host these macros.
-        #[doc(hidden)]
-        pub use ink_prelude::format;
-
-        /// Appends a formatted string to the `debug_message` buffer if message recording is
-        /// enabled in the contracts pallet and if the call is performed via RPC (**not** via an
-        /// extrinsic). The `debug_message` buffer will be:
-        ///  - Returned to the RPC caller.
-        ///  - Logged as a `debug!` message on the Substrate node, which will be printed to the
-        ///    node console's `stdout` when the log level is set to `-lruntime::revive=debug`.
-        ///
-        /// # Note
-        ///
-        /// This depends on the `debug_message` interface which requires the
-        /// `"pallet-revive/unstable-hostfn"` feature to be enabled in the target runtime.
-        #[macro_export]
-        macro_rules! debug_print {
-            ($($arg:tt)*) => ($crate::debug_message(&$crate::format!($($arg)*)));
-        }
-
-        /// Appends a formatted string to the `debug_message` buffer, as per [`debug_print`] but
-        /// with a newline appended.
-        ///
-        /// # Note
-        ///
-        /// This depends on the `debug_message` interface which requires the
-        /// `"pallet-revive/unstable-hostfn"` feature to be enabled in the target runtime.
-        #[macro_export]
-        macro_rules! debug_println {
-            () => ($crate::debug_print!("\n"));
-            ($($arg:tt)*) => (
-                $crate::debug_print!("{}\n", $crate::format!($($arg)*));
-            )
-        }
-    } else {
-        #[macro_export]
-        /// Debug messages disabled. Enable the `ink-debug` feature for contract debugging.
-        macro_rules! debug_print {
-            ($($arg:tt)*) => ();
-        }
-
-        #[macro_export]
-        /// Debug messages disabled. Enable the `ink-debug` feature for contract debugging.
-        macro_rules! debug_println {
-            () => ();
-            ($($arg:tt)*) => ();
-        }
-    }
-}

@@ -61,7 +61,11 @@ use ink_sandbox::{
 };
 use jsonrpsee::core::async_trait;
 use pallet_revive::{
-    evm::U256,
+    evm::{
+        CallTrace,
+        TracerConfig,
+        U256,
+    },
     CodeUploadReturnValue,
     InstantiateReturnValue,
     MomentOf,
@@ -249,18 +253,26 @@ where
         let _ =
             <Client<AccountId, S> as BuilderClient<E>>::map_account(self, caller).await;
 
-        let code = self.contracts.load_code(contract_name);
-        let data = constructor_exec_input(constructor.clone());
+        // get the trace
+        let _ = self.sandbox.build_block();
 
-        let result = self.sandbox.deploy_contract(
-            code,
-            value,
-            data,
-            salt(),
-            caller_to_origin::<S>(caller),
-            gas_limit,
-            storage_deposit_limit,
-        );
+        let tracer_config = TracerConfig::CallTracer { with_logs: true };
+
+        let mut tracer =
+            tracer_config.build(pallet_revive::Pallet::<S::Runtime>::evm_gas_from_weight);
+        let result = pallet_revive::tracing::trace(&mut tracer, || {
+            let code = self.contracts.load_code(contract_name);
+            let data = constructor_exec_input(constructor.clone());
+            self.sandbox.deploy_contract(
+                code,
+                value,
+                data,
+                salt(),
+                caller_to_origin::<S>(caller),
+                gas_limit,
+                storage_deposit_limit,
+            )
+        });
 
         let addr_raw = match &result.result {
             Err(err) => {
@@ -270,9 +282,14 @@ where
             Ok(res) => res.addr,
         };
 
+        let mut traces = tracer.collect_traces();
+        assert_eq!(traces.len(), 1);
+        let trace = traces.pop();
+
         Ok(BareInstantiationResult {
             addr: addr_raw,
             events: (), // todo: https://github.com/Cardinal-Cryptography/drink/issues/32
+            trace,
         })
     }
 
@@ -314,7 +331,6 @@ where
             gas_consumed: result.gas_consumed,
             gas_required: result.gas_required,
             storage_deposit: result.storage_deposit,
-            debug_message: result.debug_message,
             result: result.result.map(|r| {
                 InstantiateReturnValue {
                     result: r.result,
@@ -370,7 +386,7 @@ where
         value: E::Balance,
         gas_limit: Weight,
         storage_deposit_limit: DepositLimit<E::Balance>,
-    ) -> Result<Self::EventLog, Self::Error>
+    ) -> Result<(Self::EventLog, Option<CallTrace>), Self::Error>
     where
         CallBuilderFinal<E, Args, RetType>: Clone,
     {
@@ -381,19 +397,28 @@ where
         let addr = *message.clone().params().callee();
         let exec_input = Encode::encode(message.clone().params().exec_input());
 
-        self.sandbox
-            .call_contract(
-                addr,
-                value,
-                exec_input,
-                caller_to_origin::<S>(caller),
-                gas_limit,
-                storage_deposit_limit,
-            )
-            .result
-            .map_err(|err| SandboxErr::new(format!("bare_call: {err:?}")))?;
+        // todo
+        let tracer_config = TracerConfig::CallTracer { with_logs: true };
+        let mut tracer =
+            tracer_config.build(pallet_revive::Pallet::<S::Runtime>::evm_gas_from_weight);
+        let _result = pallet_revive::tracing::trace(&mut tracer, || {
+            self.sandbox
+                .call_contract(
+                    addr,
+                    value,
+                    exec_input,
+                    caller_to_origin::<S>(caller),
+                    gas_limit,
+                    storage_deposit_limit,
+                )
+                .result
+                .map_err(|err| SandboxErr::new(format!("bare_call: {err:?}")))
+        })?;
+        let mut traces = tracer.collect_traces();
+        assert_eq!(traces.len(), 1);
+        let trace = traces.pop();
 
-        Ok(())
+        Ok(((), trace))
     }
 
     async fn bare_call_dry_run<Args: Sync + Encode + Clone, RetType: Send + Decode>(
@@ -441,10 +466,10 @@ where
                 gas_consumed: result.gas_consumed,
                 gas_required: result.gas_required,
                 storage_deposit: result.storage_deposit,
-                debug_message: result.debug_message,
                 result: result.result,
             },
             _marker: Default::default(),
+            trace: None, // todo
         })
     }
 
