@@ -283,14 +283,12 @@ impl EnvBackend for EnvInstance {
         ext::return_value(flags, &self.buffer[..][..len]);
     }
 
-    fn return_value_rlp<R>(&mut self, flags: ReturnFlags, return_value: &R) -> !
+    fn return_value_solidity<R>(&mut self, flags: ReturnFlags, return_value: &R) -> !
     where
-        R: alloy_rlp::Encodable,
+        R: alloy_sol_types::SolValue,
     {
-        let mut scope = EncodeScope::from(&mut self.buffer[..]);
-        return_value.encode(&mut scope);
-        let len = scope.len();
-        ext::return_value(flags, &self.buffer[..][..len]);
+        let encoded = return_value.abi_encode();
+        ext::return_value(flags, &encoded[..]);
     }
 
     fn hash_bytes<H>(&mut self, input: &[u8], output: &mut <H as HashOutput>::Type)

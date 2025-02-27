@@ -1,6 +1,6 @@
 #![cfg_attr(not(feature = "std"), no_std, no_main)]
 
-#[ink::contract(abi_encoding = "rlp")]
+#[ink::contract(abi = "sol")]
 pub mod flipper {
     #[ink(storage)]
     pub struct Flipper {
@@ -27,6 +27,11 @@ pub mod flipper {
         }
 
         #[ink(message)]
+        pub fn set(&mut self, value: bool) {
+            self.value = value;
+        }
+
+        #[ink(message)]
         pub fn flip_2(&mut self) {
             self.value = !self.value;
         }
@@ -34,6 +39,12 @@ pub mod flipper {
         /// Returns the current value of the Flipper's boolean.
         #[ink(message)]
         pub fn get(&self) -> bool {
+            self.value
+        }
+
+        // solidity compatible selector (`keccack256("get_2()")`)
+        #[ink(message, selector = 0x6d4ce63c)]
+        pub fn get_2(&self) -> bool {
             self.value
         }
     }

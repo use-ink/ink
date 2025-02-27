@@ -140,9 +140,9 @@ pub trait EnvBackend {
         R: scale::Encode;
 
     /// todo: comment
-    fn return_value_rlp<R>(&mut self, flags: ReturnFlags, return_value: &R) -> !
+    fn return_value_solidity<R>(&mut self, flags: ReturnFlags, return_value: &R) -> !
     where
-        R: alloy_rlp::Encodable;
+        R: alloy_sol_types::SolValue;
 
     /// Conducts the crypto hash of the given input and stores the result in `output`.
     fn hash_bytes<H>(&mut self, input: &[u8], output: &mut <H as HashOutput>::Type)

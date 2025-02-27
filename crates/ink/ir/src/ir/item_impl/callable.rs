@@ -48,8 +48,8 @@ pub struct CallableWithSelector<'a, C> {
     /// The composed selector computed by the associated implementation block
     /// and the given callable.
     composed_selector: ir::Selector,
-    /// The composed selector for the callable with RLP encoding.
-    composed_rlp_selector: ir::Selector,
+    /// The composed selector for the callable with Solidity encoding.
+    composed_solidity_selector: ir::Selector,
     /// The parent implementation block.
     item_impl: &'a ir::ItemImpl,
     /// The actual callable.
@@ -71,7 +71,7 @@ where
     pub(super) fn new(item_impl: &'a ir::ItemImpl, callable: &'a C) -> Self {
         Self {
             composed_selector: compose_selector(item_impl, callable),
-            composed_rlp_selector: compose_selector_rlp(item_impl, callable),
+            composed_solidity_selector: compose_selector_solidity(item_impl, callable),
             item_impl,
             callable,
         }
@@ -84,9 +84,9 @@ impl<'a, C> CallableWithSelector<'a, C> {
         self.composed_selector
     }
 
-    /// Returns the composed selector of the ink! callable with RLP encoding.
-    pub fn composed_rlp_selector(&self) -> ir::Selector {
-        self.composed_rlp_selector
+    /// Returns the composed selector of the ink! callable with Solidity encoding.
+    pub fn composed_solidity_selector(&self) -> ir::Selector {
+        self.composed_solidity_selector
     }
 
     /// Returns a shared reference to the underlying callable.
@@ -337,7 +337,7 @@ where
 }
 
 /// Returns the composed selector of the ink! callable.
-fn compose_selector_rlp<C>(item_impl: &ir::ItemImpl, callable: &C) -> ir::Selector
+fn compose_selector_solidity<C>(item_impl: &ir::ItemImpl, callable: &C) -> ir::Selector
 where
     C: Callable,
 {

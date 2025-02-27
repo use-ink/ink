@@ -1,5 +1,5 @@
 [package]
-name = "rlp-cross-contract"
+name = "sol_encoding"
 version = "6.0.0-alpha"
 authors = ["Use Ink <ink@use.ink>"]
 edition = "2021"
@@ -7,14 +7,12 @@ publish = false
 
 [dependencies]
 ink = { path = "../../../crates/ink", default-features = false }
-sha3 = { version = "0.10", default-features = false}
 
 [dev-dependencies]
 ink_e2e = { path = "../../../crates/e2e", features = ["sandbox"] }
-ink_sandbox = { path =  "../../../crates/e2e/sandbox" }
+ink_sandbox = { path = "../../../crates/e2e/sandbox" }
 pallet-revive = { git = "https://github.com/paritytech/polkadot-sdk", rev = "645878a27115db52e5d63115699b4bbb89034067", default-features = false }
 sha3 = { version = "0.10" }
-other-contract-rlp = { path = "./other-contract-rlp" }
 
 [lib]
 path = "lib.rs"
@@ -23,7 +21,6 @@ path = "lib.rs"
 default = ["std"]
 std = [
     "ink/std",
-    "sha3/std"
 ]
 ink-as-dependency = []
 e2e-tests = []

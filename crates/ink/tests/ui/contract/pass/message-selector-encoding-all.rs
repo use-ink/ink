@@ -1,6 +1,6 @@
 use contract::Contract;
 
-#[ink::contract(abi_encoding = "all")]
+#[ink::contract(abi = "all")]
 mod contract {
     #[ink(storage)]
     pub struct Contract {}

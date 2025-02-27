@@ -55,7 +55,7 @@ proc-macro2 = { version = "1" }
 quickcheck = { version = "1" }
 quickcheck_macros = { version = "1" }
 quote = { version = "1" }
-alloy-rlp = { version = "0.3.9", default-features = false }
+alloy-sol-types = { version = "0.8.21", default-features = false }
 scale = { package = "parity-scale-codec", version = "3.6.12", default-features = false, features = ["derive"] }
 scale-decode = { version = "0.14.0", default-features = false }
 scale-encode = { version = "0.8.0", default-features = false }
@@ -79,7 +79,7 @@ tracing-subscriber = { version = "0.3.19" }
 trybuild = { version = "1.0.102" }
 which = { version = "7.0.0" }
 xxhash-rust = { version = "0.8" }
-const_env = { version = "0.1"}
+const_env = { version = "0.1" }
 
 # Substrate dependencies
 frame-metadata = { version = "19.0.0", default-features = false }

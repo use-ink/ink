@@ -1,5 +1,9 @@
 use crate::flipper::FlipperRef;
 use ink::{
+    alloy_sol_types::{
+        SolType,
+        SolValue,
+    },
     env::DefaultEnvironment,
     primitives::AccountId,
     H160,
@@ -43,7 +47,7 @@ async fn solidity_calls_ink_works<Client: E2EBackend>(
 
     let signer = ink_e2e::alice();
 
-    // deploy ink! flipper (RLP encoded)
+    // deploy ink! flipper (Sol encoded)
     client.api.map_account(&signer).await;
     let ink_addr = client
         .exec_instantiate(
@@ -70,12 +74,25 @@ async fn solidity_calls_ink_works<Client: E2EBackend>(
     let value: bool = call_ink(&mut client, ink_addr, get_selector.clone()).await;
     assert_eq!(value, true);
 
+    let output = sol_handler.call(sol_addr.clone(), "callGet")?;
+    assert_eq!(output, Some("true".to_string()));
+
     let _ = sol_handler.call(sol_addr.clone(), "callFlip2")?;
-    let value: bool = call_ink(&mut client, ink_addr, get_selector).await;
+    let value: bool = call_ink(&mut client, ink_addr, get_selector.clone()).await;
     assert_eq!(value, false);
 
-    let output = sol_handler.call(sol_addr, "callGet")?;
+    let _ = sol_handler.call_with_value(sol_addr.clone(), "callSet", true)?;
+
+    let output = sol_handler.call(sol_addr.clone(), "callGet")?;
     assert_eq!(output, Some("true".to_string()));
+
+    let output = sol_handler.call(sol_addr.clone(), "callGet2")?;
+    assert_eq!(output, Some("true".to_string()));
+
+    let _ = sol_handler.call_with_value(sol_addr.clone(), "callSet", false)?;
+
+    let output = sol_handler.call(sol_addr, "callGet")?;
+    assert_eq!(output, Some("false".to_string()));
 
     Ok(())
 }
@@ -83,10 +100,10 @@ async fn solidity_calls_ink_works<Client: E2EBackend>(
 async fn call_ink<Ret>(
     client: &mut ink_e2e::Client<PolkadotConfig, DefaultEnvironment>,
     ink_addr: H160,
-    data_rlp: Vec<u8>,
+    data_sol: Vec<u8>,
 ) -> Ret
 where
-    Ret: ink::rlp::Decodable,
+    Ret: SolValue + From<<<Ret as SolValue>::SolType as SolType>::RustType>,
 {
     let signer = ink_e2e::alice();
     let exec_result = client
@@ -94,13 +111,13 @@ where
         .call_dry_run(
             <ink_e2e::Keypair as Signer<PolkadotConfig>>::account_id(&signer),
             ink_addr,
-            data_rlp,
+            data_sol,
             0,
             0,
         )
         .await;
 
-    ink::rlp::Decodable::decode(&mut &exec_result.result.unwrap().data[..])
+    <Ret>::abi_decode(&mut &exec_result.result.unwrap().data[..], true)
         .expect("decode failed")
 }
 
@@ -166,6 +183,7 @@ impl SolidityHandler {
         &self,
         script: &str,
         env_vars: &[(&str, String)],
+        is_piped: Stdio,
     ) -> Result<Vec<u8>, Box<dyn Error>> {
         let mut command = Command::new("npx");
         command
@@ -178,7 +196,7 @@ impl SolidityHandler {
             .arg("--no-compile")
             .arg("--config")
             .arg("hardhat.config.js")
-            .stdout(Stdio::piped()) // Capture stdout
+            .stdout(is_piped) // Capture stdout
             .stderr(Stdio::inherit()); // Print stderr
 
         // Add environment variables
@@ -201,6 +219,7 @@ impl SolidityHandler {
         let output = self.run_hardhat_script(
             "01-deploy.js",
             &[("INK_ADDRESS", format!("{:?}", ink_addr))],
+            Stdio::piped(),
         )?;
         Ok(String::from_utf8(output)?
             .lines()
@@ -218,6 +237,28 @@ impl SolidityHandler {
         let output = self.run_hardhat_script(
             "02-call-flip.js",
             &[("SOL_ADDRESS", sol_addr), ("MESSAGE", message.to_string())],
+            Stdio::piped(),
+        )?;
+        Ok(String::from_utf8(output)
+            .ok()
+            .and_then(|s| Some(s.lines().last()?.to_string()))
+            .map(|s| s.trim().to_string()))
+    }
+
+    fn call_with_value(
+        &self,
+        sol_addr: String,
+        message: &str,
+        value: bool,
+    ) -> Result<Option<String>, Box<dyn Error>> {
+        let output = self.run_hardhat_script(
+            "02-call-flip.js",
+            &[
+                ("SOL_ADDRESS", sol_addr),
+                ("MESSAGE", message.to_string()),
+                ("VALUE", value.to_string()),
+            ],
+            Stdio::piped(),
         )?;
         Ok(String::from_utf8(output)
             .ok()
