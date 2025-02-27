@@ -288,7 +288,6 @@ where
     E: Environment,
 
     Args: AbiEncodeWith<Abi>,
-    // ,
     R: AbiDecodeWith<Abi>,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
@@ -315,7 +314,6 @@ where
     E: Environment,
 
     Args: AbiEncodeWith<Abi>,
-    // ,
     R: AbiDecodeWith<Abi>,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {

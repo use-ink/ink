@@ -35,7 +35,6 @@ use ink_primitives::{
     reflect::{
         AbiDecodeWith,
         AbiEncodeWith,
-        SolEncoding,
     },
     H160,
 };
@@ -128,21 +127,21 @@ where
     }
 }
 
-impl<E, RetType>
+impl<E, RetType, Abi>
     CallBuilder<
         E,
         Set<DelegateCall>,
-        Unset<ExecutionInput<EmptyArgumentList<SolEncoding>, SolEncoding>>,
+        Unset<ExecutionInput<EmptyArgumentList<Abi>, Abi>>,
         Unset<RetType>,
     >
 where
     E: Environment,
+    EmptyArgumentList<Abi>: AbiEncodeWith<Abi>,
+    (): AbiDecodeWith<Abi>,
+    Abi: Default,
 {
     /// Finalizes the call builder to call a function.
-    pub fn params(
-        self,
-    ) -> CallParams<E, DelegateCall, EmptyArgumentList<SolEncoding>, (), SolEncoding>
-    {
+    pub fn params(self) -> CallParams<E, DelegateCall, EmptyArgumentList<Abi>, (), Abi> {
         CallParams {
             call_type: self.call_type.value(),
             _return_type: Default::default(),
@@ -152,15 +151,18 @@ where
     }
 }
 
-impl<E>
+impl<E, Abi>
     CallBuilder<
         E,
         Set<DelegateCall>,
-        Unset<ExecutionInput<EmptyArgumentList<SolEncoding>, SolEncoding>>,
+        Unset<ExecutionInput<EmptyArgumentList<Abi>, Abi>>,
         Unset<ReturnType<()>>,
     >
 where
     E: Environment,
+    EmptyArgumentList<Abi>: AbiEncodeWith<Abi>,
+    (): AbiDecodeWith<Abi>,
+    Abi: Default,
 {
     /// Invokes the cross-chain function call using Delegate Call semantics.
     ///
@@ -188,7 +190,6 @@ impl<E, Args, R, Abi>
     CallBuilder<E, Set<DelegateCall>, Set<ExecutionInput<Args, Abi>>, Set<ReturnType<R>>>
 where
     E: Environment,
-
     Args: AbiEncodeWith<Abi>,
     R: AbiDecodeWith<Abi>,
 {
@@ -255,7 +256,6 @@ where
 impl<E, Args, R, Abi> CallParams<E, DelegateCall, Args, R, Abi>
 where
     E: Environment,
-
     Args: AbiEncodeWith<Abi>,
     R: AbiDecodeWith<Abi>,
 {

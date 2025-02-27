@@ -189,7 +189,6 @@ where
 {
     /// Finalizes the call builder to call a function.
     pub fn params(self) -> CallParams<E, Call, EmptyArgumentList<Abi>, (), Abi> {
-        // todo
         CallParams {
             call_type: self.call_type.value(),
             _return_type: Default::default(),

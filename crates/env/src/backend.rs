@@ -341,7 +341,6 @@ pub trait TypedEnvBackend: EnvBackend {
         E: Environment,
 
         Args: AbiEncodeWith<Abi>,
-        // ;
         R: AbiDecodeWith<Abi>;
 
     /// Invokes a contract message via delegate call and returns its result.
@@ -358,7 +357,6 @@ pub trait TypedEnvBackend: EnvBackend {
         E: Environment,
 
         Args: AbiEncodeWith<Abi>,
-        // ;
         R: AbiDecodeWith<Abi>;
 
     /// Instantiates another contract.
