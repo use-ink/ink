@@ -232,8 +232,8 @@ where
 {
     let mut env = env.buf_in_buf_out();
     let base_weight = <T as pallet_assets::Config>::WeightInfo::transfer();
-    // `transferred_value` weight is a good approximation of the additional overhead of going
-    // from contract layer to substrate layer.
+    // `transferred_value` weight is a good approximation of the additional overhead of
+    // going from contract layer to substrate layer.
     let overhead = Weight::from_ref_time(
         <T as pallet_revive::Config>::Schedule::get()
             .host_fn_weights
@@ -274,8 +274,8 @@ where
 {
     let mut env = env.buf_in_buf_out();
     let base_weight = <T as pallet_assets::Config>::WeightInfo::transfer();
-    // `transferred_value` weight is a good approximation of the additional overhead of going
-    // from contract layer to substrate layer.
+    // `transferred_value` weight is a good approximation of the additional overhead of
+    // going from contract layer to substrate layer.
     let overhead = Weight::from_ref_time(
         <T as pallet_revive::Config>::Schedule::get()
             .host_fn_weights
@@ -315,8 +315,8 @@ where
 {
     let mut env = env.buf_in_buf_out();
     let base_weight = <T as pallet_assets::Config>::WeightInfo::approve_transfer();
-    // `transferred_value` weight is a good approximation of the additional overhead of going
-    // from contract layer to substrate layer.
+    // `transferred_value` weight is a good approximation of the additional overhead of
+    // going from contract layer to substrate layer.
     let overhead = Weight::from_ref_time(
         <T as pallet_revive::Config>::Schedule::get()
             .host_fn_weights
@@ -359,8 +359,8 @@ where
 
     let base_weight = <T as pallet_assets::Config>::WeightInfo::cancel_approval()
         .saturating_add(<T as pallet_assets::Config>::WeightInfo::approve_transfer());
-    // `transferred_value` weight is a good approximation of the additional overhead of going
-    // from contract layer to substrate layer.
+    // `transferred_value` weight is a good approximation of the additional overhead of
+    // going from contract layer to substrate layer.
     let overhead = Weight::from_ref_time(
         <T as pallet_revive::Config>::Schedule::get()
             .host_fn_weights
