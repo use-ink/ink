@@ -99,22 +99,6 @@ sp-runtime = { git = "https://github.com/paritytech/polkadot-sdk", rev = "4a400d
 sp-weights = { git = "https://github.com/paritytech/polkadot-sdk", rev = "4a400dc1866f11707331fb6408df1055d0f42a70", default-features = false }
 xcm = { package = "staging-xcm", git = "https://github.com/paritytech/polkadot-sdk", rev = "4a400dc1866f11707331fb6408df1055d0f42a70", default-features = false }
 
-#frame-system = { path = "/Users/michi/projects/polkadot-sdk/substrate/frame/system", default-features = false }
-#frame-support = { path = "/Users/michi/projects/polkadot-sdk/substrate/frame/support", default-features = false }
-#pallet-balances = { path = "/Users/michi/projects/polkadot-sdk/substrate/frame/balances", default-features = false }
-#pallet-timestamp = { path = "/Users/michi/projects/polkadot-sdk/substrate/frame/timestamp", default-features = false }
-#pallet-revive = { path = "/Users/michi/projects/polkadot-sdk/substrate/frame/revive", default-features = false }
-#pallet-revive-uapi = { path = "/Users/michi/projects/polkadot-sdk/substrate/frame/revive/uapi", default-features = false, features = ["unstable-hostfn"] }
-#pallet-revive-mock-network = { path = "/Users/michi/projects/polkadot-sdk/substrate/frame/revive/mock-network", default-features = false }
-#sp-externalities = { path = "/Users/michi/projects/polkadot-sdk/substrate/primitives/externalities", default-features = false }
-#sp-io = { path = "/Users/michi/projects/polkadot-sdk/substrate/primitives/io", default-features = false }
-#sp-runtime-interface = { path = "/Users/michi/projects/polkadot-sdk/substrate/primitives/runtime-interface", default-features = false, features = ["disable_target_static_assertions"] }
-#sp-core = { path = "/Users/michi/projects/polkadot-sdk/substrate/primitives/core", default-features = false }
-#sp-keyring = { path = "/Users/michi/projects/polkadot-sdk/substrate/primitives/keyring", default-features = false }
-#sp-runtime = { path = "/Users/michi/projects/polkadot-sdk/substrate/primitives/runtime", default-features = false }
-#sp-weights = { path = "/Users/michi/projects/polkadot-sdk/substrate/primitives/weights", default-features = false }
-#xcm = { package = "staging-xcm", git = "https://github.com/paritytech/polkadot-sdk", rev = "4a400dc1866f11707331fb6408df1055d0f42a70", default-features = false }
-
 # PolkaVM dependencies
 polkavm-derive = { version = "0.19.0", default-features = false }
 
