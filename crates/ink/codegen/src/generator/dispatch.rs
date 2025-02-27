@@ -166,7 +166,7 @@ impl Dispatch<'_> {
                 }
 
                 if self.contract.config().abi().is_solidity() {
-                    let id = solidity_selector_id(message.callable());
+                    let id = solidity_selector_id(&message);
                     message_dispatchables.push(MessageDispatchable { message, id });
                 }
 
@@ -326,7 +326,7 @@ impl Dispatch<'_> {
                 }
 
                 if encoding.is_solidity() {
-                    message_infos.push(solidity_message_info(message, storage_ident));
+                    message_infos.push(solidity_message_info(&message, storage_ident));
                 }
                 message_infos
             });
@@ -346,7 +346,6 @@ impl Dispatch<'_> {
             })
             .flatten()
             .flat_map(|((trait_ident, trait_path), message)| {
-                // todo: trait message RLP encoding
                 let message_span = message.span();
                 let message_ident = message.ident();
                 let mutates = message.receiver().is_ref_mut();
@@ -424,7 +423,7 @@ impl Dispatch<'_> {
 
                 // NOTE: Solidity selectors are always computed from the call signature and input types.
                 if encoding.is_solidity() {
-                    message_infos.push(solidity_message_info(message, storage_ident));
+                    message_infos.push(solidity_message_info(&message, storage_ident));
                 }
                 message_infos
             });
@@ -436,7 +435,7 @@ impl Dispatch<'_> {
         /// Generate code for [`ink::DispatchableMessageInfo`] trait implementations for
         /// Solidity ABI compatible calls.
         fn solidity_message_info(
-            message: CallableWithSelector<Message>,
+            message: &CallableWithSelector<Message>,
             storage_ident: &Ident,
         ) -> TokenStream2 {
             let message_span = message.span();
@@ -453,28 +452,64 @@ impl Dispatch<'_> {
             let input_tuple_type = generator::input_types_tuple(message.inputs());
             let input_tuple_bindings = generator::input_bindings_tuple(message.inputs());
 
-            let selector_id = solidity_selector_id(message.callable());
-            let selector_bytes = solidity_selector(message.callable());
+            let selector_id = solidity_selector_id(message);
+            let selector_bytes = solidity_selector(message);
 
-            // todo: refactor and figure out if there is a bug with the message.inputs()
-            // iterator
+            // `alloy_sol_types::SolType` representation of input type(s).
             let input_types_len = generator::input_types(message.inputs()).len();
-            // println!("LEN {}, input_types_len {}, {}", message.inputs().len(),
-            // input_types_len, input_tuple_type.to_string());
-            let sol_decode = if input_types_len == 0 {
+            let input_sol_tys = message.inputs().map(|input| {
+                let ty = &*input.ty;
+                let span = input.span();
+                quote_spanned!(span=>
+                    <#ty as ::ink::alloy_sol_types::SolValue>::SolType
+                )
+            });
+            let input_sol_tuple = if input_types_len == 1 {
                 quote! {
-                    |_input| {
-                        ::core::result::Result::Ok(()) // todo: should we decode `RlpUnit` instead, e.g. what if some data...
-                    };
+                    #(#input_sol_tys)*
                 }
             } else {
                 quote! {
-                    |input| {
-                        <Self::Input as ::ink::alloy_sol_types::SolValue>::abi_decode(input, true)
-                            .map_err(|_| ::ink::env::DispatchError::InvalidParameters)
-                    };
+                    (#(#input_sol_tys,)*)
                 }
             };
+
+            // Convert from `alloy_sol_types::private::SolTypeValue` to input type(s).
+            let sol_to_input_arg_name = quote!(sol_input_value);
+            let sol_value_tuple_elems =
+                message.inputs().enumerate().map(|(idx, input)| {
+                    let ty = &*input.ty;
+                    let span = input.span();
+                    let value = if input_types_len == 1 {
+                        sol_to_input_arg_name.clone()
+                    } else {
+                        let field_idx = syn::Index::from(idx);
+                        quote! {
+                            #sol_to_input_arg_name.#field_idx
+                        }
+                    };
+                    quote_spanned!(span=>
+                        <#ty as ::core::convert::From<_>>::from(#value)
+                    )
+                });
+            let sol_to_input_tuple_converter = match input_types_len {
+                0 => {
+                    quote! {
+                        |_| ()
+                    }
+                }
+                1 => {
+                    quote! {
+                        |#sol_to_input_arg_name| #(#sol_value_tuple_elems)*
+                    }
+                }
+                _ => {
+                    quote! {
+                        |#sol_to_input_arg_name| (#(#sol_value_tuple_elems,)*)
+                    }
+                }
+            };
+
             let sol_return_value = message
                 .output()
                 .map(|_| quote! {
@@ -490,7 +525,6 @@ impl Dispatch<'_> {
                         )
                     };
                 });
-
             quote_spanned!(message_span=>
                 #( #cfg_attrs )*
                 impl ::ink::reflect::DispatchableMessageInfo<#selector_id> for #storage_ident {
@@ -503,7 +537,12 @@ impl Dispatch<'_> {
                             #storage_ident::#message_ident( storage #( , #input_bindings )* )
                         };
                     const DECODE: fn(&mut &[::core::primitive::u8]) -> ::core::result::Result<Self::Input, ::ink::env::DispatchError> =
-                        #sol_decode
+                        |input| {
+                            #[allow(clippy::useless_conversion)]
+                            <#input_sol_tuple as ::ink::alloy_sol_types::SolType>
+                                ::abi_decode(input, true)
+                                .map(#sol_to_input_tuple_converter).map_err(|_| ::ink::env::DispatchError::InvalidParameters)
+                        };
                     #[cfg(not(feature = "std"))]
                     const RETURN: fn(::ink::env::ReturnFlags, Self::Output) -> ! =
                         #sol_return_value
@@ -1151,9 +1190,9 @@ impl Dispatch<'_> {
                     let span = message.span();
                     let ident = message.ident();
                     let ident_str = ident.to_string();
-                    let call_type_ident = solidity_call_type_ident(message.callable());
+                    let call_type_ident = solidity_call_type_ident(&message);
 
-                    // Call signature parts.
+                    // Solidity call signature parts.
                     let sig_param_tys = message.inputs().map(|input| {
                         let ty = &*input.ty;
                         let span = input.span();
@@ -1180,6 +1219,9 @@ impl Dispatch<'_> {
             quote_spanned!(span=>
                 #[allow(non_camel_case_types)]
                 mod __ink_sol_interop__ {
+                    #[allow(unused)]
+                    use super::*;
+
                     #(#call_tys)*
                 }
             )
@@ -1190,7 +1232,7 @@ impl Dispatch<'_> {
 }
 
 /// Returns Solidity ABI compatible selector of an ink! message.
-fn solidity_selector(message: &Message) -> TokenStream2 {
+fn solidity_selector(message: &CallableWithSelector<Message>) -> TokenStream2 {
     let call_type_ident = solidity_call_type_ident(message);
     quote!(
         {
@@ -1201,7 +1243,7 @@ fn solidity_selector(message: &Message) -> TokenStream2 {
 
 /// Returns a `u32` representation of the Solidity ABI compatible selector of an ink!
 /// message.
-fn solidity_selector_id(message: &Message) -> TokenStream2 {
+fn solidity_selector_id(message: &CallableWithSelector<Message>) -> TokenStream2 {
     let call_type_ident = solidity_call_type_ident(message);
     quote!(
         {
@@ -1213,7 +1255,8 @@ fn solidity_selector_id(message: &Message) -> TokenStream2 {
 /// Returns the Solidity call info type identifier for an ink! message.
 ///
 /// See [`ink::alloy_sol_types::sol`]
-fn solidity_call_type_ident(message: &Message) -> Ident {
+fn solidity_call_type_ident(message: &CallableWithSelector<Message>) -> Ident {
     let ident = message.ident();
-    format_ident!("{}Call", ident)
+    let id = message.composed_selector().into_be_u32();
+    format_ident!("{ident}{id}Call")
 }
