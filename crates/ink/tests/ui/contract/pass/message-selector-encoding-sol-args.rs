@@ -40,7 +40,19 @@ mod contract {
         pub fn message_5(&self, _input_1: String) {}
 
         #[ink(message)]
-        pub fn message_6(&self, _input_1: bool, _input_2: String, _input_3: [u8; 32], _input_4: Vec<u8>, _input_5: [u16; 4], _input_6: Vec<u16>) {}
+        pub fn message_6(
+            &self,
+            _input_1: bool,
+            _input_2: String,
+            _input_3: [u8; 32],
+            _input_4: Vec<u8>,
+            _input_5: [u16; 4],
+            _input_6: Vec<u16>,
+        ) {
+        }
+
+        #[ink(message)]
+        pub fn message_7(&self, _input_1: AccountId, _input_2: Hash, _input_3: Address) {}
     }
 }
 
@@ -81,9 +93,16 @@ fn main() {
         [0x59, 0x63, 0x79, 0xbc],
     );
 
-    // `keccak256("message_6(bool,string,bytes32,bytes,uint16[4],uint16[])")` == `0x270af153`
+    // `keccak256("message_6(bool,string,bytes32,bytes,uint16[4],uint16[])")` ==
+    // `0x270af153`
     assert_eq!(
         <Contract as ::ink::reflect::DispatchableMessageInfo<0x270af153_u32>>::SELECTOR,
         [0x27, 0x0a, 0xf1, 0x53],
+    );
+
+    // `keccak256("message_7(bytes32,bytes32,address)")` == `0xee34840f`
+    assert_eq!(
+        <Contract as ::ink::reflect::DispatchableMessageInfo<0xee34840f_u32>>::SELECTOR,
+        [0xee, 0x34, 0x84, 0x0f],
     );
 }
