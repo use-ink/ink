@@ -339,9 +339,9 @@ pub trait TypedEnvBackend: EnvBackend {
     ) -> Result<ink_primitives::MessageResult<R>>
     where
         E: Environment,
-        // Args: scale::Encode,
+
         Args: AbiEncodeWith<Abi>,
-        // R: scale::Decode;
+        // ;
         R: AbiDecodeWith<Abi>;
 
     /// Invokes a contract message via delegate call and returns its result.
@@ -356,9 +356,9 @@ pub trait TypedEnvBackend: EnvBackend {
     ) -> Result<ink_primitives::MessageResult<R>>
     where
         E: Environment,
-        // Args: scale::Encode,
+
         Args: AbiEncodeWith<Abi>,
-        // R: scale::Decode;
+        // ;
         R: AbiDecodeWith<Abi>;
 
     /// Instantiates another contract.
@@ -379,7 +379,7 @@ pub trait TypedEnvBackend: EnvBackend {
         ContractRef: FromAddr + crate::ContractReverseReference,
         <ContractRef as crate::ContractReverseReference>::Type:
             crate::reflect::ContractConstructorDecoder,
-        // Args: scale::Encode,
+
         Args: AbiEncodeWith<Abi>,
         R: ConstructorReturnType<ContractRef>;
 

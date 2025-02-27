@@ -188,7 +188,7 @@ impl<E, Args, R, Abi>
     CallBuilder<E, Set<DelegateCall>, Set<ExecutionInput<Args, Abi>>, Set<ReturnType<R>>>
 where
     E: Environment,
-    // Args: scale::Encode,
+
     Args: AbiEncodeWith<Abi>,
     R: AbiDecodeWith<Abi>,
 {
@@ -255,7 +255,7 @@ where
 impl<E, Args, R, Abi> CallParams<E, DelegateCall, Args, R, Abi>
 where
     E: Environment,
-    // Args: scale::Encode,
+
     Args: AbiEncodeWith<Abi>,
     R: AbiDecodeWith<Abi>,
 {

@@ -593,7 +593,7 @@ impl TypedEnvBackend for EnvInstance {
     ) -> Result<ink_primitives::MessageResult<R>>
     where
         E: Environment,
-        // Args: scale::Encode,
+
         Args: AbiEncodeWith<Abi>,
         R: AbiDecodeWith<Abi>,
     {
@@ -602,7 +602,7 @@ impl TypedEnvBackend for EnvInstance {
         let input = params.exec_input();
         let callee_account = params.callee();
         // let input = scale::Encode::encode(input);
-        let input = input.call_data();
+        let input = input.encode();
 
         invoke_contract_impl::<R, Abi>(
             self,
@@ -620,7 +620,7 @@ impl TypedEnvBackend for EnvInstance {
     ) -> Result<ink_primitives::MessageResult<R>>
     where
         E: Environment,
-        // Args: scale::Encode,
+
         Args: AbiEncodeWith<Abi>,
         R: AbiDecodeWith<Abi>,
     {
@@ -629,7 +629,7 @@ impl TypedEnvBackend for EnvInstance {
         let input = params.exec_input();
         // let input = scale::Encode::encode(input);
         // let input = input.abi_encode();
-        let input = input.call_data();
+        let input = input.encode();
 
         invoke_contract_impl_delegate::<R, Abi>(
             self,
@@ -654,7 +654,7 @@ impl TypedEnvBackend for EnvInstance {
         ContractRef: FromAddr + crate::ContractReverseReference,
         <ContractRef as crate::ContractReverseReference>::Type:
             crate::reflect::ContractConstructorDecoder,
-        // Args: scale::Encode,
+
         Args: AbiEncodeWith<Abi>,
         R: ConstructorReturnType<ContractRef>,
     {
@@ -664,7 +664,7 @@ impl TypedEnvBackend for EnvInstance {
 
         let input = params.exec_input();
         // let input = scale::Encode::encode(input);
-        let input = input.call_data();
+        let input = input.encode();
 
         // Compute address for instantiated contract.
         let addr_id_vec = {

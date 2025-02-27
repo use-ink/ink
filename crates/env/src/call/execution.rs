@@ -24,6 +24,7 @@ use alloy_sol_types::{
     Word,
 };
 use core::marker::PhantomData;
+use ink_prelude::vec::Vec;
 use ink_primitives::reflect::{
     AbiDecodeWith,
     AbiEncodeWith,
@@ -41,7 +42,6 @@ pub struct Execution<Args, Output, Abi> {
 
 impl<Args, Output, Abi> Execution<Args, Output, Abi>
 where
-    // Args: scale::Encode,
     Args: AbiEncodeWith<Abi>,
     Output: AbiDecodeWith<Abi>,
 {
@@ -76,7 +76,6 @@ pub trait Executor<E: Environment> {
         input: &ExecutionInput<Args, Abi>,
     ) -> Result<ink_primitives::MessageResult<Output>, Self::Error>
     where
-        // Args: scale::Encode,
         Args: AbiEncodeWith<Abi>,
         Output: AbiDecodeWith<Abi>;
 }
@@ -144,6 +143,19 @@ impl<Args, Abi> ExecutionInput<Args, Abi> {
     /// `ContractRef`, but using a custom selector.
     pub fn update_selector(&mut self, selector: Selector) {
         self.selector = selector;
+    }
+}
+
+impl<Args, S> ExecutionInput<Args, S>
+where
+    Args: AbiEncodeWith<S>,
+{
+    /// TODO (@peterwht): docs
+    pub fn encode(&self) -> Vec<u8> {
+        let mut encoded = Vec::new();
+        encoded.extend(self.selector.to_bytes());
+        self.args.encode_with(&mut encoded);
+        encoded
     }
 }
 
@@ -230,38 +242,6 @@ impl<Head, Rest, Abi> ArgumentList<Argument<Head>, Rest, Abi> {
     }
 }
 
-impl<T> SolValue for Argument<T>
-where
-    T: SolValue,
-    Argument<T>: SolTypeValue<<T as SolValue>::SolType>,
-{
-    type SolType = <T as SolValue>::SolType;
-
-    fn abi_encode(&self) -> Vec<u8> {
-        <T as SolValue>::abi_encode(&self.arg)
-    }
-}
-
-impl SolTypeValue<()> for EmptyArgumentList<SolEncoding> {
-    fn stv_to_tokens(&self) -> <() as SolType>::Token<'_> {
-        ()
-    }
-
-    fn stv_abi_encode_packed_to(&self, out: &mut Vec<u8>) {}
-
-    fn stv_eip712_data_word(&self) -> Word {
-        Word::from_slice(&[])
-    }
-}
-
-impl SolValue for EmptyArgumentList<SolEncoding> {
-    type SolType = ();
-
-    fn abi_encode(&self) -> Vec<u8> {
-        Vec::new()
-    }
-}
-
 impl<T> scale::Encode for Argument<T>
 where
     T: scale::Encode,
@@ -328,6 +308,38 @@ where
     }
 }
 
+impl<T> SolValue for Argument<T>
+where
+    T: SolValue,
+    Argument<T>: SolTypeValue<<T as SolValue>::SolType>,
+{
+    type SolType = <T as SolValue>::SolType;
+
+    fn abi_encode(&self) -> Vec<u8> {
+        <T as SolValue>::abi_encode(&self.arg)
+    }
+}
+
+impl SolTypeValue<()> for EmptyArgumentList<SolEncoding> {
+    fn stv_to_tokens(&self) -> <() as SolType>::Token<'_> {
+        ()
+    }
+
+    fn stv_abi_encode_packed_to(&self, out: &mut Vec<u8>) {}
+
+    fn stv_eip712_data_word(&self) -> Word {
+        Word::from_slice(&[])
+    }
+}
+
+impl SolValue for EmptyArgumentList<SolEncoding> {
+    type SolType = ();
+
+    fn abi_encode(&self) -> Vec<u8> {
+        Vec::new()
+    }
+}
+
 impl<Head, Rest> SolTypeValue<(Rest::SolType, Head::SolType)>
     for ArgumentList<Argument<Head>, Rest, SolEncoding>
 where
@@ -364,21 +376,6 @@ where
         let mut encoded = Vec::new();
         encoded.extend(Rest::abi_encode(&self.rest));
         encoded.extend(Head::abi_encode(&self.head.arg));
-        encoded
-    }
-}
-
-use ink_prelude::vec::Vec;
-
-impl<Args, S> ExecutionInput<Args, S>
-where
-    Args: AbiEncodeWith<S>,
-{
-    /// TODO (@peterwht): docs
-    pub fn call_data(&self) -> Vec<u8> {
-        let mut encoded = Vec::new();
-        encoded.extend(self.selector.to_bytes());
-        self.args.encode_with(&mut encoded);
         encoded
     }
 }

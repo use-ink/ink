@@ -472,7 +472,7 @@ impl TypedEnvBackend for EnvInstance {
     ) -> Result<ink_primitives::MessageResult<R>>
     where
         E: Environment,
-        // Args: scale::Encode,
+
         Args: AbiEncodeWith<Abi>,
         R: AbiDecodeWith<Abi>,
     {
@@ -496,8 +496,7 @@ impl TypedEnvBackend for EnvInstance {
         let enc_input = if !call_flags.contains(CallFlags::FORWARD_INPUT)
             && !call_flags.contains(CallFlags::CLONE_INPUT)
         {
-            // scope.take_encoded(params.exec_input())
-            &(params.exec_input().call_data())[..]
+            &(params.exec_input().encode())[..]
         } else {
             &mut []
         };
@@ -531,7 +530,7 @@ impl TypedEnvBackend for EnvInstance {
     ) -> Result<ink_primitives::MessageResult<R>>
     where
         E: Environment,
-        // Args: scale::Encode,
+
         Args: AbiEncodeWith<Abi>,
         R: AbiDecodeWith<Abi>,
     {
@@ -540,8 +539,7 @@ impl TypedEnvBackend for EnvInstance {
         let enc_input = if !call_flags.contains(CallFlags::FORWARD_INPUT)
             && !call_flags.contains(CallFlags::CLONE_INPUT)
         {
-            // scope.take_encoded(params.exec_input())
-            &(params.exec_input().call_data())[..]
+            &(params.exec_input().encode())[..]
         } else {
             &mut []
         };
@@ -581,7 +579,7 @@ impl TypedEnvBackend for EnvInstance {
     where
         E: Environment,
         ContractRef: FromAddr,
-        // Args: scale::Encode,
+
         Args: AbiEncodeWith<Abi>,
         RetType: ConstructorReturnType<ContractRef>,
     {
@@ -601,8 +599,7 @@ impl TypedEnvBackend for EnvInstance {
         scale::Encode::encode_to(&params.endowment(), &mut enc_endowment);
         let enc_endowment: &mut [u8; 32] =
             enc_endowment.into_buffer().try_into().unwrap();
-        // let enc_input = scoped.take_encoded(params.exec_input());
-        let enc_input = &(params.exec_input().call_data())[..];
+        let enc_input = &(params.exec_input().encode())[..];
 
         let out_address: &mut [u8; 20] = scoped.take(20).try_into().unwrap();
         let salt = params.salt_bytes().as_ref();

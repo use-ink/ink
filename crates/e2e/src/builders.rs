@@ -56,6 +56,5 @@ where
         .salt_bytes(None)
         .params()
         .exec_input()
-        .call_data()
-    // .encode()
+        .encode()
 }

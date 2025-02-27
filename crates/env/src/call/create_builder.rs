@@ -278,7 +278,7 @@ where
         crate::reflect::ContractConstructorDecoder,
     <ContractRef as crate::ContractReverseReference>::Type:
         crate::reflect::ContractMessageDecoder,
-    // Args: scale::Encode,
+
     Args: AbiEncodeWith<Abi>,
     R: ConstructorReturnType<ContractRef>,
 {
@@ -708,7 +708,7 @@ where
         crate::reflect::ContractConstructorDecoder,
     <ContractRef as crate::ContractReverseReference>::Type:
         crate::reflect::ContractMessageDecoder,
-    // Args: scale::Encode,
+
     Args: AbiEncodeWith<Abi>,
     RetType: ConstructorReturnType<ContractRef>,
 {

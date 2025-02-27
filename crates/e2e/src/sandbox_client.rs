@@ -404,7 +404,7 @@ where
         // todo rename any account_id coming back from callee
         let addr = *message.clone().params().callee();
         // let exec_input = Encode::encode(message.clone().params().exec_input());
-        let exec_input = message.clone().params().exec_input().call_data();
+        let exec_input = message.clone().params().exec_input().encode();
 
         self.sandbox
             .call_contract(
@@ -441,7 +441,7 @@ where
 
         let addr = *message.clone().params().callee();
         // let exec_input = Encode::encode(message.clone().params().exec_input());
-        let exec_input = message.clone().params().exec_input().call_data();
+        let exec_input = message.clone().params().exec_input().encode();
 
         let result = self.sandbox.dry_run(|sandbox| {
             sandbox.call_contract(

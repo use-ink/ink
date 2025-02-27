@@ -286,9 +286,9 @@ pub fn invoke_contract<E, Args, R, Abi>(
 ) -> Result<ink_primitives::MessageResult<R>>
 where
     E: Environment,
-    // Args: scale::Encode,
+
     Args: AbiEncodeWith<Abi>,
-    // R: scale::Decode,
+    // ,
     R: AbiDecodeWith<Abi>,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
@@ -313,9 +313,9 @@ pub fn invoke_contract_delegate<E, Args, R, Abi>(
 ) -> Result<ink_primitives::MessageResult<R>>
 where
     E: Environment,
-    // Args: scale::Encode,
+
     Args: AbiEncodeWith<Abi>,
-    // R: scale::Decode,
+    // ,
     R: AbiDecodeWith<Abi>,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
@@ -352,7 +352,7 @@ where
     ContractRef: FromAddr + crate::ContractReverseReference,
     <ContractRef as crate::ContractReverseReference>::Type:
         crate::reflect::ContractConstructorDecoder,
-    // Args: scale::Encode,
+
     Args: AbiEncodeWith<Abi>,
     R: ConstructorReturnType<ContractRef>,
 {

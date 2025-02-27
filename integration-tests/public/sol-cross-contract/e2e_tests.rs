@@ -52,8 +52,7 @@ fn call_sol_encoded_message() {
         &mut sandbox,
         code,
         0,
-        // ink::scale::Encode::encode(&exec_input),
-        exec_input.call_data(),
+        exec_input.encode(),
         // salt
         None,
         origin.clone(),
@@ -78,8 +77,7 @@ fn call_sol_encoded_message() {
         &mut sandbox,
         code,
         0,
-        // ink::scale::Encode::encode(&exec_input),
-        exec_input.call_data(),
+        exec_input.encode(),
         // salt
         // TODO (@peterwht): figure out why no salt is causing `DuplicateContract`
         Some([1u8; 32]),

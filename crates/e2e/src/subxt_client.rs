@@ -621,7 +621,7 @@ where
     {
         let addr = *message.clone().params().callee();
         // let exec_input = Encode::encode(message.clone().params().exec_input());
-        let exec_input = message.clone().params().exec_input().call_data();
+        let exec_input = message.clone().params().exec_input().encode();
         log_info(&format!("call: {:02X?}", exec_input));
 
         let tx_events = self
@@ -675,7 +675,7 @@ where
 
         let dest = *message.clone().params().callee();
         // let exec_input = Encode::encode(message.clone().params().exec_input());
-        let exec_input = message.clone().params().exec_input().call_data();
+        let exec_input = message.clone().params().exec_input().encode();
 
         let exec_result = self
             .api

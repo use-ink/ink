@@ -495,7 +495,7 @@ where
         ContractRef: FromAddr + ink_env::ContractReverseReference,
         <ContractRef as ink_env::ContractReverseReference>::Type:
             ink_env::reflect::ContractConstructorDecoder,
-        // Args: scale::Encode,
+
         Args: AbiEncodeWith<Abi>,
         R: ConstructorReturnType<ContractRef>,
     {
@@ -565,7 +565,6 @@ where
         params: &CallParams<E, Call, Args, R, Abi>,
     ) -> Result<ink_primitives::MessageResult<R>>
     where
-        // Args: scale::Encode,
         Args: AbiEncodeWith<Abi>,
         R: AbiDecodeWith<Abi>,
     {
@@ -634,7 +633,6 @@ where
         params: &CallParams<E, DelegateCall, Args, R, Abi>,
     ) -> Result<ink_primitives::MessageResult<R>>
     where
-        // Args: scale::Encode,
         Args: AbiEncodeWith<Abi>,
         R: AbiDecodeWith<Abi>,
     {
