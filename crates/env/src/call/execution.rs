@@ -146,9 +146,9 @@ impl<Args, Abi> ExecutionInput<Args, Abi> {
     }
 }
 
-impl<Args, S> ExecutionInput<Args, S>
+impl<Args, Abi> ExecutionInput<Args, Abi>
 where
-    Args: AbiEncodeWith<S>,
+    Args: AbiEncodeWith<Abi>,
 {
     /// TODO (@peterwht): docs
     pub fn encode(&self) -> Vec<u8> {
@@ -325,7 +325,7 @@ impl SolTypeValue<()> for EmptyArgumentList<SolEncoding> {
         ()
     }
 
-    fn stv_abi_encode_packed_to(&self, out: &mut Vec<u8>) {}
+    fn stv_abi_encode_packed_to(&self, _out: &mut Vec<u8>) {}
 
     fn stv_eip712_data_word(&self) -> Word {
         Word::from_slice(&[])

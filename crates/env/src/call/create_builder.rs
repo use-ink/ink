@@ -27,7 +27,6 @@ use crate::{
     ContractEnv,
     Error,
 };
-use alloy_sol_types::SolValue;
 use core::marker::PhantomData;
 use ink_primitives::{
     reflect::{
@@ -278,7 +277,6 @@ where
         crate::reflect::ContractConstructorDecoder,
     <ContractRef as crate::ContractReverseReference>::Type:
         crate::reflect::ContractMessageDecoder,
-
     Args: AbiEncodeWith<Abi>,
     R: ConstructorReturnType<ContractRef>,
 {
@@ -708,7 +706,6 @@ where
         crate::reflect::ContractConstructorDecoder,
     <ContractRef as crate::ContractReverseReference>::Type:
         crate::reflect::ContractMessageDecoder,
-
     Args: AbiEncodeWith<Abi>,
     RetType: ConstructorReturnType<ContractRef>,
 {

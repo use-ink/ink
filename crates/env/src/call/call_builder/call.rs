@@ -30,10 +30,6 @@ use crate::{
     },
     Error,
 };
-use alloy_sol_types::{
-    SolType,
-    SolValue,
-};
 use ink_primitives::{
     reflect::{
         AbiDecodeWith,
@@ -238,7 +234,6 @@ impl<E, Args, R, Abi>
     CallBuilder<E, Set<Call>, Set<ExecutionInput<Args, Abi>>, Set<ReturnType<R>>>
 where
     E: Environment,
-
     Args: AbiEncodeWith<Abi>,
     R: AbiDecodeWith<Abi>,
     Abi: Default,
@@ -311,7 +306,6 @@ where
 impl<E, Args, R, Abi> CallParams<E, Call, Args, R, Abi>
 where
     E: Environment,
-
     Args: AbiEncodeWith<Abi>,
     R: AbiDecodeWith<Abi>,
 {

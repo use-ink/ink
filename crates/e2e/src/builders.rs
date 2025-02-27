@@ -13,7 +13,6 @@
 // limitations under the License.
 
 use crate::H256;
-use ink::alloy_sol_types::SolValue;
 use ink_env::{
     call::{
         utils::{
@@ -26,11 +25,7 @@ use ink_env::{
     },
     Environment,
 };
-use ink_primitives::reflect::{
-    AbiDecodeWith,
-    AbiEncodeWith,
-};
-use scale::Encode;
+use ink_primitives::reflect::AbiEncodeWith;
 
 /// The type returned from `ContractRef` constructors, partially initialized with the
 /// execution input arguments.

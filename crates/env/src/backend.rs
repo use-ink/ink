@@ -31,10 +31,6 @@ use crate::{
     DispatchError,
     Result,
 };
-use alloy_sol_types::{
-    SolType,
-    SolValue,
-};
 use ink_primitives::{
     reflect::{
         AbiDecodeWith,
@@ -377,7 +373,6 @@ pub trait TypedEnvBackend: EnvBackend {
         ContractRef: FromAddr + crate::ContractReverseReference,
         <ContractRef as crate::ContractReverseReference>::Type:
             crate::reflect::ContractConstructorDecoder,
-
         Args: AbiEncodeWith<Abi>,
         R: ConstructorReturnType<ContractRef>;
 

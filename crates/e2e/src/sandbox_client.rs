@@ -403,7 +403,6 @@ where
 
         // todo rename any account_id coming back from callee
         let addr = *message.clone().params().callee();
-        // let exec_input = Encode::encode(message.clone().params().exec_input());
         let exec_input = message.clone().params().exec_input().encode();
 
         self.sandbox
@@ -440,7 +439,6 @@ where
             <Client<AccountId, S> as BuilderClient<E>>::map_account(self, caller).await;
 
         let addr = *message.clone().params().callee();
-        // let exec_input = Encode::encode(message.clone().params().exec_input());
         let exec_input = message.clone().params().exec_input().encode();
 
         let result = self.sandbox.dry_run(|sandbox| {

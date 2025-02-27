@@ -45,10 +45,6 @@ use crate::{
     DispatchError,
     Result,
 };
-use alloy_sol_types::{
-    SolType,
-    SolValue,
-};
 use ink_primitives::{
     reflect::{
         AbiDecodeWith,

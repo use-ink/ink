@@ -17,7 +17,6 @@ use crate::{
     GenerateCode,
 };
 use derive_more::From;
-use ink_primitives::reflect::Encoding;
 use ir::{
     Callable,
     IsDocAttribute as _,

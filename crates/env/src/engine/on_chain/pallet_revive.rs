@@ -539,6 +539,7 @@ impl TypedEnvBackend for EnvInstance {
         let enc_input = if !call_flags.contains(CallFlags::FORWARD_INPUT)
             && !call_flags.contains(CallFlags::CLONE_INPUT)
         {
+            // TODO (@peterwht): needs variation of take_encoded
             &(params.exec_input().encode())[..]
         } else {
             &mut []

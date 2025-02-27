@@ -30,10 +30,6 @@ use crate::{
     CallDryRunResult,
     UploadResult,
 };
-use ink::alloy_sol_types::{
-    SolType,
-    SolValue,
-};
 use ink_env::{
     DefaultEnvironment,
     Environment,
@@ -46,10 +42,6 @@ use ink_primitives::{
     DepositLimit,
 };
 use jsonrpsee::core::async_trait;
-use scale::{
-    Decode,
-    Encode,
-};
 use sp_weights::Weight;
 use subxt::dynamic::Value;
 

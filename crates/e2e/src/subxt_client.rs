@@ -53,10 +53,7 @@ use ink_env::{
 };
 use ink_primitives::DepositLimit;
 use jsonrpsee::core::async_trait;
-use scale::{
-    Decode,
-    Encode,
-};
+use scale::Encode;
 use sp_weights::Weight;
 #[cfg(feature = "std")]
 use std::fmt::Debug;
@@ -73,10 +70,6 @@ use crate::{
     events,
     ContractsBackend,
     E2EBackend,
-};
-use ink::alloy_sol_types::{
-    SolType,
-    SolValue,
 };
 use ink_primitives::reflect::{
     AbiDecodeWith,
@@ -620,7 +613,6 @@ where
         CallBuilderFinal<E, Args, RetType, Abi>: Clone,
     {
         let addr = *message.clone().params().callee();
-        // let exec_input = Encode::encode(message.clone().params().exec_input());
         let exec_input = message.clone().params().exec_input().encode();
         log_info(&format!("call: {:02X?}", exec_input));
 
@@ -674,7 +666,6 @@ where
         let _ = self.map_account(caller).await;
 
         let dest = *message.clone().params().callee();
-        // let exec_input = Encode::encode(message.clone().params().exec_input());
         let exec_input = message.clone().params().exec_input().encode();
 
         let exec_result = self

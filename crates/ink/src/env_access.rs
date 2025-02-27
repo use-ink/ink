@@ -13,10 +13,6 @@
 // limitations under the License.
 
 use crate::ChainExtensionInstance;
-use alloy_sol_types::{
-    SolType,
-    SolValue,
-};
 use core::marker::PhantomData;
 use ink_env::{
     call::{

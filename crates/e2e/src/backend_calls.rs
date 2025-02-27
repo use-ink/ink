@@ -28,10 +28,6 @@ use crate::{
     UploadResult,
     H256,
 };
-use ink::alloy_sol_types::{
-    SolType,
-    SolValue,
-};
 use ink_env::Environment;
 use ink_primitives::{
     reflect::{
@@ -39,10 +35,6 @@ use ink_primitives::{
         AbiEncodeWith,
     },
     DepositLimit,
-};
-use scale::{
-    Decode,
-    Encode,
 };
 use sp_weights::Weight;
 use std::marker::PhantomData;

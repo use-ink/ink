@@ -27,10 +27,6 @@ use crate::{
     types::Environment,
     Error,
 };
-use alloy_sol_types::{
-    SolType,
-    SolValue,
-};
 use ink_primitives::{
     reflect::{
         AbiDecodeWith,

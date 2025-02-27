@@ -231,7 +231,6 @@ pub trait DispatchableConstructorInfo<const ID: u32> {
 }
 
 use alloy_sol_types::SolValue;
-use scale::Encode;
 
 /// todo: comment
 pub enum Encoding {

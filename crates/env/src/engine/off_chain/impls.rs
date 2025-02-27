@@ -43,10 +43,6 @@ use crate::{
     Result,
     TypedEnvBackend,
 };
-use alloy_sol_types::{
-    SolType,
-    SolValue,
-};
 use ink_engine::ext::Engine;
 use ink_primitives::{
     reflect::{
@@ -593,16 +589,13 @@ impl TypedEnvBackend for EnvInstance {
     ) -> Result<ink_primitives::MessageResult<R>>
     where
         E: Environment,
-
         Args: AbiEncodeWith<Abi>,
         R: AbiDecodeWith<Abi>,
     {
         let call_flags = params.call_flags().bits();
         let transferred_value = params.transferred_value();
-        let input = params.exec_input();
+        let input = params.exec_input().encode();
         let callee_account = params.callee();
-        // let input = scale::Encode::encode(input);
-        let input = input.encode();
 
         invoke_contract_impl::<R, Abi>(
             self,
@@ -620,16 +613,12 @@ impl TypedEnvBackend for EnvInstance {
     ) -> Result<ink_primitives::MessageResult<R>>
     where
         E: Environment,
-
         Args: AbiEncodeWith<Abi>,
         R: AbiDecodeWith<Abi>,
     {
         let _addr = params.address(); // todo remove
         let call_flags = params.call_flags().bits();
-        let input = params.exec_input();
-        // let input = scale::Encode::encode(input);
-        // let input = input.abi_encode();
-        let input = input.encode();
+        let input = params.exec_input().encode();
 
         invoke_contract_impl_delegate::<R, Abi>(
             self,
@@ -654,7 +643,6 @@ impl TypedEnvBackend for EnvInstance {
         ContractRef: FromAddr + crate::ContractReverseReference,
         <ContractRef as crate::ContractReverseReference>::Type:
             crate::reflect::ContractConstructorDecoder,
-
         Args: AbiEncodeWith<Abi>,
         R: ConstructorReturnType<ContractRef>,
     {
@@ -662,9 +650,7 @@ impl TypedEnvBackend for EnvInstance {
         let salt_bytes = params.salt_bytes();
         let code_hash = params.code_hash();
 
-        let input = params.exec_input();
-        // let input = scale::Encode::encode(input);
-        let input = input.encode();
+        let input = params.exec_input().encode();
 
         // Compute address for instantiated contract.
         let addr_id_vec = {
