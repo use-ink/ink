@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Added
 - Add feature flag to compile contracts for `pallet-revive` ‒ [#2318](https://github.com/use-ink/ink/pull/2318)
 - Support for `caller_is_root` - [#2332] (https://github.com/use-ink/ink/pull/2332)
+- Improve support for Solidity ABI calling conventions - [#2411](https://github.com/use-ink/ink/pull/2411)
 
 ## Fixed
 - [E2E] Have port parsing handle comma-separated list ‒ [#2336](https://github.com/use-ink/ink/pull/2336)
