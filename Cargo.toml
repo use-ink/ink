@@ -100,7 +100,7 @@ sp-weights = { git = "https://github.com/paritytech/polkadot-sdk", rev = "4a400d
 xcm = { package = "staging-xcm", git = "https://github.com/paritytech/polkadot-sdk", rev = "4a400dc1866f11707331fb6408df1055d0f42a70", default-features = false }
 
 # PolkaVM dependencies
-polkavm-derive = { version = "0.19.0", default-features = false }
+polkavm-derive = { git = "https://github.com/use-ink/polkavm", branch = "cmichi-unsupported-instruction-compilation-bug", default-features = false }
 
 # Local dependencies
 ink = { version = "=6.0.0-alpha", path = "crates/ink", default-features = false }

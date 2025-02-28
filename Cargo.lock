@@ -3348,7 +3348,7 @@ dependencies = [
  "ink_storage",
  "pallet-revive-uapi",
  "parity-scale-codec",
- "polkavm-derive 0.19.0",
+ "polkavm-derive 0.21.0 (git+https://github.com/use-ink/polkavm?branch=cmichi-unsupported-instruction-compilation-bug)",
  "scale-info",
  "sp-io",
  "staging-xcm",
@@ -3377,7 +3377,7 @@ dependencies = [
  "ink_primitives 6.0.0-alpha",
  "itertools 0.14.0",
  "parity-scale-codec",
- "polkavm-derive 0.19.0",
+ "polkavm-derive 0.21.0 (git+https://github.com/use-ink/polkavm?branch=cmichi-unsupported-instruction-compilation-bug)",
  "proc-macro2",
  "quote",
  "serde",
@@ -3472,7 +3472,7 @@ dependencies = [
  "num-traits",
  "pallet-revive-uapi",
  "parity-scale-codec",
- "polkavm-derive 0.19.0",
+ "polkavm-derive 0.21.0 (git+https://github.com/use-ink/polkavm?branch=cmichi-unsupported-instruction-compilation-bug)",
  "scale-decode",
  "scale-encode",
  "scale-info",
@@ -3541,7 +3541,7 @@ dependencies = [
 [[package]]
 name = "ink_metadata"
 version = "6.0.0-alpha"
-source = "git+https://github.com/use-ink/ink?branch=master#b4563e08e75b7257b6d998aabafa261332a8df64"
+source = "git+https://github.com/use-ink/ink?branch=master#f2d33210f001d0c06664ef1e56ffca0393def0b3"
 dependencies = [
  "derive_more 1.0.0",
  "impl-serde",
@@ -3564,7 +3564,7 @@ dependencies = [
 [[package]]
 name = "ink_prelude"
 version = "6.0.0-alpha"
-source = "git+https://github.com/use-ink/ink?branch=master#b4563e08e75b7257b6d998aabafa261332a8df64"
+source = "git+https://github.com/use-ink/ink?branch=master#f2d33210f001d0c06664ef1e56ffca0393def0b3"
 dependencies = [
  "cfg-if",
 ]
@@ -3593,7 +3593,7 @@ dependencies = [
 [[package]]
 name = "ink_primitives"
 version = "6.0.0-alpha"
-source = "git+https://github.com/use-ink/ink?branch=master#b4563e08e75b7257b6d998aabafa261332a8df64"
+source = "git+https://github.com/use-ink/ink?branch=master#f2d33210f001d0c06664ef1e56ffca0393def0b3"
 dependencies = [
  "alloy-sol-types",
  "cfg-if",
@@ -4583,7 +4583,7 @@ dependencies = [
  "pallet-revive-proc-macro",
  "parity-scale-codec",
  "paste",
- "polkavm-derive 0.21.0",
+ "polkavm-derive 0.21.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "scale-info",
 ]
 
@@ -5062,12 +5062,6 @@ checksum = "31ff33982a807d8567645d4784b9b5d7ab87bcb494f534a57cadd9012688e102"
 
 [[package]]
 name = "polkavm-common"
-version = "0.19.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a972bd305ba8cbf0de79951d6d49d2abfad47c277596be5a2c6a0924a163abbd"
-
-[[package]]
-name = "polkavm-common"
 version = "0.21.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "5c16b809cfd398f861261c045a8745e6c78b71ea7e0d3ef6f7cc553eb27bc17e"
@@ -5093,20 +5087,19 @@ dependencies = [
 
 [[package]]
 name = "polkavm-derive"
-version = "0.19.0"
+version = "0.21.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d8d866972a7532d82d05c26b4516563660dd6676d7ab9e64e681d8ef0e29255c"
+checksum = "47239245f87329541932c0d7fec750a66a75b13aa87dfe4fbfd637bab86ad387"
 dependencies = [
- "polkavm-derive-impl-macro 0.19.0",
+ "polkavm-derive-impl-macro 0.21.0 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
 name = "polkavm-derive"
 version = "0.21.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "47239245f87329541932c0d7fec750a66a75b13aa87dfe4fbfd637bab86ad387"
+source = "git+https://github.com/use-ink/polkavm?branch=cmichi-unsupported-instruction-compilation-bug#c64d0224b4b4724f916dd57a7ea81b7448436c63"
 dependencies = [
- "polkavm-derive-impl-macro 0.21.0",
+ "polkavm-derive-impl-macro 0.21.0 (git+https://github.com/use-ink/polkavm?branch=cmichi-unsupported-instruction-compilation-bug)",
 ]
 
 [[package]]
@@ -5116,18 +5109,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2f2116a92e6e96220a398930f4c8a6cda1264206f3e2034fc9982bfd93f261f7"
 dependencies = [
  "polkavm-common 0.18.0",
- "proc-macro2",
- "quote",
- "syn 2.0.98",
-]
-
-[[package]]
-name = "polkavm-derive-impl"
-version = "0.19.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5cffca9d51b21153395a192b65698457687bc51daa41026629895542ccaa65c2"
-dependencies = [
- "polkavm-common 0.19.0",
  "proc-macro2",
  "quote",
  "syn 2.0.98",
@@ -5146,6 +5127,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "polkavm-derive-impl"
+version = "0.21.0"
+source = "git+https://github.com/use-ink/polkavm?branch=cmichi-unsupported-instruction-compilation-bug#c64d0224b4b4724f916dd57a7ea81b7448436c63"
+dependencies = [
+ "polkavm-common 0.21.0 (git+https://github.com/use-ink/polkavm?branch=cmichi-unsupported-instruction-compilation-bug)",
+ "proc-macro2",
+ "quote",
+ "syn 2.0.98",
+]
+
+[[package]]
 name = "polkavm-derive-impl-macro"
 version = "0.18.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -5157,21 +5149,20 @@ dependencies = [
 
 [[package]]
 name = "polkavm-derive-impl-macro"
-version = "0.19.0"
+version = "0.21.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "cc0dc0cf2e8f4d30874131eccfa36bdabd4a52cfb79c15f8630508abaf06a2a6"
+checksum = "36837f6b7edfd6f4498f8d25d81da16cf03bd6992c3e56f3d477dfc90f4fefca"
 dependencies = [
- "polkavm-derive-impl 0.19.0",
+ "polkavm-derive-impl 0.21.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "syn 2.0.98",
 ]
 
 [[package]]
 name = "polkavm-derive-impl-macro"
 version = "0.21.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "36837f6b7edfd6f4498f8d25d81da16cf03bd6992c3e56f3d477dfc90f4fefca"
+source = "git+https://github.com/use-ink/polkavm?branch=cmichi-unsupported-instruction-compilation-bug#c64d0224b4b4724f916dd57a7ea81b7448436c63"
 dependencies = [
- "polkavm-derive-impl 0.21.0",
+ "polkavm-derive-impl 0.21.0 (git+https://github.com/use-ink/polkavm?branch=cmichi-unsupported-instruction-compilation-bug)",
  "syn 2.0.98",
 ]
 
@@ -6880,7 +6871,7 @@ dependencies = [
 [[package]]
 name = "sp-crypto-ec-utils"
 version = "0.10.0"
-source = "git+https://github.com/paritytech/polkadot-sdk#4087e2d96313539db8721aa5946f6ca0bc7a67b2"
+source = "git+https://github.com/paritytech/polkadot-sdk#9adb8d28ab1f6744f1fb26db41f42361ac1254a0"
 dependencies = [
  "ark-bls12-377",
  "ark-bls12-377-ext",
@@ -6947,7 +6938,7 @@ dependencies = [
 [[package]]
 name = "sp-debug-derive"
 version = "14.0.0"
-source = "git+https://github.com/paritytech/polkadot-sdk#4087e2d96313539db8721aa5946f6ca0bc7a67b2"
+source = "git+https://github.com/paritytech/polkadot-sdk#9adb8d28ab1f6744f1fb26db41f42361ac1254a0"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -6967,7 +6958,7 @@ dependencies = [
 [[package]]
 name = "sp-externalities"
 version = "0.25.0"
-source = "git+https://github.com/paritytech/polkadot-sdk#4087e2d96313539db8721aa5946f6ca0bc7a67b2"
+source = "git+https://github.com/paritytech/polkadot-sdk#9adb8d28ab1f6744f1fb26db41f42361ac1254a0"
 dependencies = [
  "environmental",
  "parity-scale-codec",
@@ -7156,7 +7147,7 @@ dependencies = [
 [[package]]
 name = "sp-runtime-interface"
 version = "24.0.0"
-source = "git+https://github.com/paritytech/polkadot-sdk#4087e2d96313539db8721aa5946f6ca0bc7a67b2"
+source = "git+https://github.com/paritytech/polkadot-sdk#9adb8d28ab1f6744f1fb26db41f42361ac1254a0"
 dependencies = [
  "bytes",
  "impl-trait-for-tuples",
@@ -7188,7 +7179,7 @@ dependencies = [
 [[package]]
 name = "sp-runtime-interface-proc-macro"
 version = "17.0.0"
-source = "git+https://github.com/paritytech/polkadot-sdk#4087e2d96313539db8721aa5946f6ca0bc7a67b2"
+source = "git+https://github.com/paritytech/polkadot-sdk#9adb8d28ab1f6744f1fb26db41f42361ac1254a0"
 dependencies = [
  "Inflector",
  "expander",
@@ -7253,7 +7244,7 @@ source = "git+https://github.com/paritytech/polkadot-sdk?rev=4a400dc1866f1170733
 [[package]]
 name = "sp-std"
 version = "14.0.0"
-source = "git+https://github.com/paritytech/polkadot-sdk#4087e2d96313539db8721aa5946f6ca0bc7a67b2"
+source = "git+https://github.com/paritytech/polkadot-sdk#9adb8d28ab1f6744f1fb26db41f42361ac1254a0"
 
 [[package]]
 name = "sp-storage"
@@ -7270,7 +7261,7 @@ dependencies = [
 [[package]]
 name = "sp-storage"
 version = "19.0.0"
-source = "git+https://github.com/paritytech/polkadot-sdk#4087e2d96313539db8721aa5946f6ca0bc7a67b2"
+source = "git+https://github.com/paritytech/polkadot-sdk#9adb8d28ab1f6744f1fb26db41f42361ac1254a0"
 dependencies = [
  "impl-serde",
  "parity-scale-codec",
@@ -7305,7 +7296,7 @@ dependencies = [
 [[package]]
 name = "sp-tracing"
 version = "16.0.0"
-source = "git+https://github.com/paritytech/polkadot-sdk#4087e2d96313539db8721aa5946f6ca0bc7a67b2"
+source = "git+https://github.com/paritytech/polkadot-sdk#9adb8d28ab1f6744f1fb26db41f42361ac1254a0"
 dependencies = [
  "parity-scale-codec",
  "tracing",
@@ -7387,7 +7378,7 @@ dependencies = [
 [[package]]
 name = "sp-wasm-interface"
 version = "20.0.0"
-source = "git+https://github.com/paritytech/polkadot-sdk#4087e2d96313539db8721aa5946f6ca0bc7a67b2"
+source = "git+https://github.com/paritytech/polkadot-sdk#9adb8d28ab1f6744f1fb26db41f42361ac1254a0"
 dependencies = [
  "anyhow",
  "impl-trait-for-tuples",
