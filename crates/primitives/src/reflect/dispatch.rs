@@ -246,9 +246,13 @@ pub struct ScaleEncoding;
 #[derive(Default, Clone)]
 pub struct SolEncoding;
 
-// Trait for encoding with a specific strategy
+/// Trait for ABI-specific encoding with support for both slice and vector buffers.
 pub trait AbiEncodeWith<Abi> {
-    fn encode_with(&self, buffer: &mut Vec<u8>);
+    /// Encodes the data into a fixed-size buffer, returning the number of bytes written.
+    fn encode_to_slice(&self, buffer: &mut [u8]) -> usize;
+
+    /// Encodes the data into a dynamically resizing vector.
+    fn encode_to_vec(&self, buffer: &mut Vec<u8>);
 }
 
 pub trait AbiDecodeWith<Abi>: Sized {
@@ -257,7 +261,20 @@ pub trait AbiDecodeWith<Abi>: Sized {
 }
 
 impl<T: scale::Encode> AbiEncodeWith<ScaleEncoding> for T {
-    fn encode_with(&self, buffer: &mut Vec<u8>) {
+    fn encode_to_slice(&self, buffer: &mut [u8]) -> usize {
+        let encoded = scale::Encode::encode(self);
+        let len = encoded.len();
+        debug_assert!(
+            len <= buffer.len(),
+            "encode scope buffer overflowed, encoded len is {} but buffer len is {}",
+            len,
+            buffer.len()
+        );
+        buffer[..len].copy_from_slice(&encoded);
+        len
+    }
+
+    fn encode_to_vec(&self, buffer: &mut Vec<u8>) {
         scale::Encode::encode_to(self, buffer);
     }
 }
@@ -270,7 +287,20 @@ impl<T: scale::Decode> AbiDecodeWith<ScaleEncoding> for T {
 }
 
 impl<T: SolValue> AbiEncodeWith<SolEncoding> for T {
-    fn encode_with(&self, buffer: &mut Vec<u8>) {
+    fn encode_to_slice(&self, buffer: &mut [u8]) -> usize {
+        let encoded = T::abi_encode(self);
+        let len = encoded.len();
+        debug_assert!(
+            len <= buffer.len(),
+            "encode scope buffer overflowed, encoded len is {} but buffer len is {}",
+            len,
+            buffer.len()
+        );
+        buffer[..len].copy_from_slice(&encoded);
+        len
+    }
+
+    fn encode_to_vec(&self, buffer: &mut Vec<u8>) {
         buffer.extend_from_slice(&T::abi_encode(self));
     }
 }
@@ -283,8 +313,7 @@ where
 {
     type Error = alloy_sol_types::Error;
     fn decode_with(buffer: &[u8]) -> Result<Self, Self::Error> {
-        // Don't validate decoding. Validating results in encoding and decoding the value
-        // twice.
+        // Don't validate decoding. Validating results in encoding and decoding again.
         T::abi_decode(buffer, false).map_err(|e| e.into())
     }
 }

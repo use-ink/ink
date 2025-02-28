@@ -150,12 +150,24 @@ impl<Args, Abi> ExecutionInput<Args, Abi>
 where
     Args: AbiEncodeWith<Abi>,
 {
-    /// TODO (@peterwht): docs
+    /// Encodes the execution input into a dynamic vector by combining the selector and
+    /// encoded arguments.
     pub fn encode(&self) -> Vec<u8> {
         let mut encoded = Vec::new();
         encoded.extend(self.selector.to_bytes());
-        self.args.encode_with(&mut encoded);
+        self.args.encode_to_vec(&mut encoded);
         encoded
+    }
+
+    /// Encodes the execution input into a static buffer by combining the selector and
+    /// encoded arguments.
+    pub fn encode_to_slice(&self, buffer: &mut [u8]) -> usize {
+        let selector_bytes = self.selector.to_bytes();
+        let selector_len = selector_bytes.len();
+
+        buffer[..selector_len].copy_from_slice(&selector_bytes);
+        let args_len = self.args.encode_to_slice(&mut buffer[selector_len..]);
+        selector_len + args_len
     }
 }
 

@@ -496,7 +496,7 @@ impl TypedEnvBackend for EnvInstance {
         let enc_input = if !call_flags.contains(CallFlags::FORWARD_INPUT)
             && !call_flags.contains(CallFlags::CLONE_INPUT)
         {
-            &(params.exec_input().encode())[..]
+            scope.take_encoded_with(|buffer| params.exec_input().encode_to_slice(buffer))
         } else {
             &mut []
         };
@@ -539,8 +539,7 @@ impl TypedEnvBackend for EnvInstance {
         let enc_input = if !call_flags.contains(CallFlags::FORWARD_INPUT)
             && !call_flags.contains(CallFlags::CLONE_INPUT)
         {
-            // TODO (@peterwht): needs variation of take_encoded
-            &(params.exec_input().encode())[..]
+            scope.take_encoded_with(|buffer| params.exec_input().encode_to_slice(buffer))
         } else {
             &mut []
         };
@@ -600,7 +599,8 @@ impl TypedEnvBackend for EnvInstance {
         scale::Encode::encode_to(&params.endowment(), &mut enc_endowment);
         let enc_endowment: &mut [u8; 32] =
             enc_endowment.into_buffer().try_into().unwrap();
-        let enc_input = &(params.exec_input().encode())[..];
+        let enc_input = scoped
+            .take_encoded_with(|buffer| params.exec_input().encode_to_slice(buffer));
 
         let out_address: &mut [u8; 20] = scoped.take(20).try_into().unwrap();
         let salt = params.salt_bytes().as_ref();
