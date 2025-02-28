@@ -132,6 +132,8 @@ where
     let result = R::decode_with(&mut &result[..]).expect("decode failed");
 
     // Ok(result)
+    // TODO (@peterwht): this is incorrect. MessageResult isn't compatible with Sol ABI
+    // encoding by default.
     Ok(ink_primitives::MessageResult::Ok(result))
 }
 
