@@ -148,16 +148,6 @@ pub trait EnvBackend {
     where
         R: alloy_sol_types::SolValue;
 
-    /// Emit a custom debug message.
-    ///
-    /// The message is appended to the debug buffer which is then supplied to the calling
-    /// RPC client. This buffer is also printed as a debug message to the node console
-    /// if the `debug` log level is enabled for the `runtime::contracts` target.
-    ///
-    /// If debug message recording is disabled in the contracts pallet, which is always
-    /// the case when the code is executing on-chain, then this will have no effect.
-    fn debug_message(&mut self, content: &str);
-
     /// Conducts the crypto hash of the given input and stores the result in `output`.
     fn hash_bytes<H>(&mut self, input: &[u8], output: &mut <H as HashOutput>::Type)
     where
@@ -437,26 +427,6 @@ pub trait TypedEnvBackend: EnvBackend {
     where
         E: Environment,
         Call: scale::Encode;
-
-    /// Adds a new delegate dependency lock to the contract.
-    ///
-    /// # Note
-    ///
-    /// For more details visit:
-    /// [`lock_delegate_dependency`][`crate::lock_delegate_dependency`]
-    fn lock_delegate_dependency<E>(&mut self, code_hash: &H256)
-    where
-        E: Environment;
-
-    /// Unlocks the delegate dependency from the contract.
-    ///
-    /// # Note
-    ///
-    /// For more details visit:
-    /// [`unlock_delegate_dependency`][`crate::unlock_delegate_dependency`].
-    fn unlock_delegate_dependency<E>(&mut self, code_hash: &H256)
-    where
-        E: Environment;
 
     /// Execute an XCM message locally, using the contract's address as the origin.
     ///

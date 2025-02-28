@@ -24,7 +24,3 @@ std = [
 ]
 ink-as-dependency = []
 e2e-tests = []
-
-# TODO: remove this
-[patch.'https://github.com/w3f/fflonk']
-fflonk = { git = "https://www.github.com/w3f/fflonk", rev = "be95d4c971b1d15b5badfc06ff13f5c07987d484" }

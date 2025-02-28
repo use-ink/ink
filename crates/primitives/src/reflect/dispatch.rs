@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use alloy_sol_types::SolValue;
+use ink_prelude::vec::Vec;
 use pallet_revive_uapi::ReturnFlags;
 
 /// Stores various information of the respective dispatchable ink! message.
@@ -230,15 +232,11 @@ pub trait DispatchableConstructorInfo<const ID: u32> {
     const LABEL: &'static str;
 }
 
-use alloy_sol_types::SolValue;
-
 /// todo: comment
 pub enum Encoding {
     Scale,
     Solidity,
 }
-
-use ink_prelude::vec::Vec;
 
 // Marker types for encoding strategies
 #[derive(Default, Clone)]
@@ -305,11 +303,9 @@ impl<T: SolValue> AbiEncodeWith<SolEncoding> for T {
     }
 }
 
-impl<T: alloy_sol_types::SolValue> AbiDecodeWith<SolEncoding> for T
+impl<T: SolValue> AbiDecodeWith<SolEncoding> for T
 where
-    T: From<
-        <<T as alloy_sol_types::SolValue>::SolType as alloy_sol_types::SolType>::RustType,
-    >,
+    T: From<<<T as SolValue>::SolType as alloy_sol_types::SolType>::RustType>,
 {
     type Error = alloy_sol_types::Error;
     fn decode_with(buffer: &[u8]) -> Result<Self, Self::Error> {

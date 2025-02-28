@@ -382,10 +382,6 @@ impl EnvBackend for EnvInstance {
         unimplemented!("the off-chain env does not implement `return_value_solidity`")
     }
 
-    fn debug_message(&mut self, message: &str) {
-        self.engine.debug_message(message)
-    }
-
     fn hash_bytes<H>(&mut self, input: &[u8], output: &mut <H as HashOutput>::Type)
     where
         H: CryptoHash,
@@ -773,13 +769,6 @@ impl TypedEnvBackend for EnvInstance {
         unimplemented!("off-chain environment does not support `call_runtime`")
     }
 
-    fn lock_delegate_dependency<E>(&mut self, _code_hash: &H256)
-    where
-        E: Environment,
-    {
-        unimplemented!("off-chain environment does not support delegate dependencies")
-    }
-
     fn xcm_execute<E, Call>(&mut self, _msg: &xcm::VersionedXcm<Call>) -> Result<()>
     where
         E: Environment,
@@ -796,12 +785,5 @@ impl TypedEnvBackend for EnvInstance {
         E: Environment,
     {
         unimplemented!("off-chain environment does not support `xcm_send`")
-    }
-
-    fn unlock_delegate_dependency<E>(&mut self, _code_hash: &H256)
-    where
-        E: Environment,
-    {
-        unimplemented!("off-chain environment does not support delegate dependencies")
     }
 }

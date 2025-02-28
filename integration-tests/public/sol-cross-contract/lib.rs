@@ -45,8 +45,6 @@ mod sol_cross_contract {
                 .returns::<()>()
                 .try_invoke();
 
-            debug_println!("call_contract_sol: {:?}", result);
-
             assert!(result.is_ok(), "call failed");
         }
     }

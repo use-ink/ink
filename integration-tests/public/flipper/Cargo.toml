@@ -10,7 +10,7 @@ ink = { path = "../../../crates/ink", default-features = false }
 #foo = { path = "../../../foo", default-features = false }
 
 [dev-dependencies]
-ink_e2e = { path = "../../../crates/e2e" }
+ink_e2e = { path = "../../../crates/e2e", features = ["sandbox"] }
 hex = { version = "0.4.3" }
 
 [lib]

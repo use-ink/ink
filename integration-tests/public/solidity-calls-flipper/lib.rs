@@ -9,7 +9,6 @@ pub mod flipper {
                 build_call_solidity,
                 ExecutionInput,
             },
-            debug_println,
             CallFlags,
         },
         H160,
@@ -62,7 +61,6 @@ pub mod flipper {
 
         #[ink(message)]
         pub fn call_solidity_set(&mut self, callee: [u8; 20]) {
-            ink::env::debug_println!("callee: {:?}", callee);
             let selector = keccak_selector(b"set_value(uint16)");
             let callee: H160 = callee.into();
 
@@ -75,14 +73,11 @@ pub mod flipper {
                 .returns::<()>()
                 .try_invoke();
 
-            debug_println!("call_contract_sol: {:?}", result);
-
             assert!(result.is_ok(), "call failed");
         }
 
         #[ink(message)]
         pub fn call_solidity_get(&mut self, callee: [u8; 20]) -> u16 {
-            ink::env::debug_println!("callee: {:?}", callee);
             let selector = crate::keccak_selector(b"get_value()");
             let callee: H160 = callee.into();
 
@@ -95,7 +90,6 @@ pub mod flipper {
                 .returns::<u16>()
                 .invoke();
 
-            debug_println!("call get**: {:?}", result);
             result
         }
     }

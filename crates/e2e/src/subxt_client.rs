@@ -20,7 +20,6 @@ use super::{
     deposit_limit_to_balance,
     events::{
         CodeStoredEvent,
-        ContractInstantiatedEvent,
         EventWithTopics,
     },
     log_error,
@@ -32,14 +31,27 @@ use super::{
     H256,
 };
 use crate::{
-    backend::BuilderClient,
+    backend::{
+        BuilderClient,
+        ChainBackend,
+    },
+    client_utils::{
+        salt,
+        ContractsRegistry,
+    },
     contract_results::{
         BareInstantiationResult,
         CallDryRunResult,
         CallResult,
+        ContractResult,
         UploadResult,
     },
+    error::DryRunError,
+    events,
+    ContractsBackend,
+    E2EBackend,
 };
+use ink::H160;
 use ink_env::{
     call::{
         utils::{
@@ -51,30 +63,20 @@ use ink_env::{
     },
     Environment,
 };
-use ink_primitives::DepositLimit;
+use ink_primitives::{
+    reflect::{
+        AbiDecodeWith,
+        AbiEncodeWith,
+    },
+    DepositLimit,
+};
 use jsonrpsee::core::async_trait;
+use pallet_revive::evm::CallTrace;
 use scale::Encode;
 use sp_weights::Weight;
 #[cfg(feature = "std")]
 use std::fmt::Debug;
 use std::path::PathBuf;
-
-use crate::{
-    backend::ChainBackend,
-    client_utils::{
-        salt,
-        ContractsRegistry,
-    },
-    contract_results::ContractResult,
-    error::DryRunError,
-    events,
-    ContractsBackend,
-    E2EBackend,
-};
-use ink_primitives::reflect::{
-    AbiDecodeWith,
-    AbiEncodeWith,
-};
 use subxt::{
     blocks::ExtrinsicEvents,
     config::{
@@ -157,42 +159,24 @@ where
         storage_deposit_limit: E::Balance,
     ) -> Result<BareInstantiationResult<ExtrinsicEvents<C>>, Error> {
         let salt = salt();
-
-        let tx_events = self
+        let (events, trace) = self
             .api
             .instantiate_with_code(
                 value,
                 gas_limit.into(),
                 storage_deposit_limit,
-                code,
+                code.clone(),
                 data.clone(),
                 salt,
                 signer,
             )
             .await;
 
-        let mut addr = None;
-        for evt in tx_events.iter() {
+        for evt in events.iter() {
             let evt = evt.unwrap_or_else(|err| {
                 panic!("unable to unwrap event: {err:?}");
             });
-
-            if let Some(instantiated) = evt
-                .as_event::<ContractInstantiatedEvent>()
-                .unwrap_or_else(|err| {
-                    panic!("event conversion to `Instantiated` failed: {err:?}");
-                })
-            {
-                log_info(&format!(
-                    "contract was instantiated at {:?}",
-                    instantiated.contract
-                ));
-                addr = Some(instantiated.contract);
-
-                // We can't `break` here, we need to assign the account id from the
-                // last `ContractInstantiatedEvent`, in case the contract instantiates
-                // multiple accounts as part of its constructor!
-            } else if is_extrinsic_failed_event(&evt) {
+            if is_extrinsic_failed_event(&evt) {
                 let metadata = self.api.client.metadata();
                 let dispatch_error =
                     subxt::error::DispatchError::decode_from(evt.field_bytes(), metadata)
@@ -203,13 +187,24 @@ where
                 return Err(Error::InstantiateExtrinsic(dispatch_error))
             }
         }
-        let addr = addr.expect("cannot extract `account_id` from events");
+
+        // copied from `pallet-revive`
+        let account_id =
+            <subxt_signer::sr25519::Keypair as subxt::tx::Signer<C>>::account_id(signer);
+        let deployer = H160::from_slice(&account_id.encode()[..20]);
+        let addr = pallet_revive::create2(
+            &deployer,
+            &code[..],
+            &data[..],
+            &salt.expect("todo make salt() return no option, but value"),
+        );
 
         Ok(BareInstantiationResult {
             // The `account_id` must exist at this point. If the instantiation fails
             // the dry-run must already return that.
             addr,
-            events: tx_events,
+            events,
+            trace,
         })
     }
 
@@ -295,15 +290,22 @@ where
         contract_result: ContractResult<V, E::Balance>,
     ) -> Result<ContractResult<V, E::Balance>, DryRunError<DispatchError>> {
         if let Err(error) = contract_result.result {
-            let debug_message = String::from_utf8(contract_result.debug_message.clone())
-                .expect("invalid utf8 debug message");
             let subxt_dispatch_err =
                 self.runtime_dispatch_error_to_subxt_dispatch_error(&error);
             Err(DryRunError::<DispatchError> {
-                debug_message,
                 error: subxt_dispatch_err,
             })
         } else {
+            /*
+            // todo
+            if contract_result.result.unwrap().did_revert() {
+                Err(DryRunError::<String> {
+                    error:  String::from_utf8(contract_result.result.unwrap().data).unwrap()
+                })
+            } else {
+                Ok(contract_result)
+            }
+            */
             Ok(contract_result)
         }
     }
@@ -548,13 +550,24 @@ where
             .await;
 
         log_info(&format!("instantiate dry run: {:?}", &result.result));
-        log_info(&format!(
-            "instantiate dry run debug message: {}",
-            String::from_utf8_lossy(&result.debug_message)
-        ));
         let result = self
             .contract_result_to_result(result)
             .map_err(Error::InstantiateDryRun)?;
+
+        if let Ok(res) = result.result.clone() {
+            if res.result.did_revert() {
+                let msg = String::from_utf8(res.result.data).unwrap();
+                panic!("Contract reverted with {:?}", msg);
+                /*
+                // todo
+                return Err(Self::Error::InstantiateDryRun(DryRunError::<DispatchError> {
+                    error: DispatchError::Module(
+                     //String::from_utf8(res.result.data).unwrap(),
+                    )
+                }))
+                */
+            }
+        }
 
         Ok(result.into())
     }
@@ -608,7 +621,7 @@ where
         value: E::Balance,
         gas_limit: Weight,
         storage_deposit_limit: DepositLimit<E::Balance>,
-    ) -> Result<Self::EventLog, Self::Error>
+    ) -> Result<(Self::EventLog, Option<CallTrace>), Self::Error>
     where
         CallBuilderFinal<E, Args, RetType, Abi>: Clone,
     {
@@ -616,7 +629,7 @@ where
         let exec_input = message.clone().params().exec_input().encode();
         log_info(&format!("call: {:02X?}", exec_input));
 
-        let tx_events = self
+        let (tx_events, trace) = self
             .api
             .call(
                 addr,
@@ -643,7 +656,7 @@ where
             }
         }
 
-        Ok(tx_events)
+        Ok((tx_events, trace))
     }
 
     // todo is not really a `bare_call`
@@ -668,21 +681,21 @@ where
         let dest = *message.clone().params().callee();
         let exec_input = message.clone().params().exec_input().encode();
 
-        let exec_result = self
+        let (exec_result, trace) = self
             .api
             .call_dry_run(
-                Signer::<C>::account_id(caller),
+                Signer::<C>::account_id(caller), /* todo this param is not necessary,
+                                                  * because the last argument is the
+                                                  * caller and this value can be
+                                                  * created in the function */
                 dest,
                 exec_input,
                 value,
                 deposit_limit_to_balance::<E>(storage_deposit_limit),
+                caller,
             )
             .await;
-        log_info(&format!("call dry run: {:?}", &exec_result.result));
-        log_info(&format!(
-            "call dry run debug message: {}",
-            String::from_utf8_lossy(&exec_result.debug_message)
-        ));
+        log_info(&format!("call dry run result: {:?}", &exec_result.result));
 
         let exec_result = self
             .contract_result_to_result(exec_result)
@@ -690,6 +703,7 @@ where
 
         Ok(CallDryRunResult {
             exec_result,
+            trace,
             _marker: Default::default(),
         })
     }

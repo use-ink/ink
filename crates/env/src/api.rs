@@ -472,13 +472,6 @@ where
     })
 }
 
-/// Appends the given message to the debug message buffer.
-pub fn debug_message(message: &str) {
-    <EnvInstance as OnInstance>::on_instance(|instance| {
-        EnvBackend::debug_message(instance, message)
-    })
-}
-
 /// Conducts the crypto hash of the given input and stores the result in `output`.
 ///
 /// # Example
@@ -832,45 +825,6 @@ where
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         TypedEnvBackend::call_runtime::<E, _>(instance, call)
-    })
-}
-
-/// Adds a new delegate dependency lock to the contract.
-///
-/// This guarantees that the code of the dependency cannot be removed without first
-/// calling [`unlock_delegate_dependency`]. It charges a fraction of the code
-/// deposit, see [`pallet_contracts::Config::CodeHashLockupDepositPercent`](https://docs.rs/pallet-revive/latest/pallet_revive/pallet/trait.Config.html#associatedtype.CodeHashLockupDepositPercent) for details.
-///
-/// # Errors
-///
-/// - If the supplied `code_hash` cannot be found on-chain.
-/// - If the `code_hash` is the same as the calling contract.
-/// - If the maximum number of delegate dependencies is reached.
-/// - If the delegate dependency already exists.
-pub fn lock_delegate_dependency<E>(code_hash: &H256)
-where
-    E: Environment,
-{
-    <EnvInstance as OnInstance>::on_instance(|instance| {
-        instance.lock_delegate_dependency::<E>(code_hash)
-    })
-}
-
-/// Unlocks the delegate dependency from the contract.
-///
-/// This removes the lock and refunds the deposit from the call to
-/// [`lock_delegate_dependency`]. The code of the dependency can be removed if the
-/// reference count for the code hash is now zero.
-///
-/// # Errors
-///
-/// - If the delegate dependency does not exist.
-pub fn unlock_delegate_dependency<E>(code_hash: &H256)
-where
-    E: Environment,
-{
-    <EnvInstance as OnInstance>::on_instance(|instance| {
-        instance.unlock_delegate_dependency::<E>(code_hash)
     })
 }
 

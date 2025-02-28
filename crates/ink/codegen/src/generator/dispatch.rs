@@ -224,7 +224,7 @@ impl Dispatch<'_> {
                     <::ink::reflect::ConstructorOutputValue<#output_type>
                         as ::ink::reflect::ConstructorOutput<#storage_ident>>
                 );
-                quote_spanned!(constructor_span=>
+                quote_spanned!(constructor_span =>
                     #( #cfg_attrs )*
                     impl ::ink::reflect::DispatchableConstructorInfo<#selector_id> for #storage_ident {
                         type Input = #input_tuple_type;
@@ -589,10 +589,9 @@ impl Dispatch<'_> {
             #[cfg(target_arch = "riscv64")]
             fn internal_deploy() {
                 if !#any_constructor_accept_payment {
-                    ::ink::codegen::deny_payment::<<#storage_ident as ::ink::env::ContractEnv>::Env>()
+                    ::ink::codegen::deny_payment()
                         .unwrap_or_else(|error| ::core::panic!("{}", error))
                 }
-
 
                 let dispatchable = match ::ink::env::decode_input::<
                     <#storage_ident as ::ink::reflect::ContractConstructorDecoder>::Type,
@@ -628,7 +627,7 @@ impl Dispatch<'_> {
             #[cfg(target_arch = "riscv64")]
             fn internal_call() {
                 if !#any_message_accepts_payment {
-                    ::ink::codegen::deny_payment::<<#storage_ident as ::ink::env::ContractEnv>::Env>()
+                    ::ink::codegen::deny_payment()
                         .unwrap_or_else(|error| ::core::panic!("{}", error))
                 }
 
@@ -794,10 +793,8 @@ impl Dispatch<'_> {
             quote_spanned!(constructor_span=>
                 #( #cfg_attrs )*
                 Self::#constructor_ident(input) => {
-
                     if #constructor_accept_payment_assignment && #deny_payment {
-                        ::ink::codegen::deny_payment::<
-                            <#storage_ident as ::ink::env::ContractEnv>::Env>()?;
+                        ::ink::codegen::deny_payment()?;
                     }
 
                     let result: #constructor_output = #constructor_callable(input);
@@ -1003,8 +1000,7 @@ impl Dispatch<'_> {
                     #( #cfg_attrs )*
                     Self::#message_ident(input) => {
                         if #any_message_accepts_payment && #deny_payment {
-                            ::ink::codegen::deny_payment::<
-                                <#storage_ident as ::ink::env::ContractEnv>::Env>()?;
+                            ::ink::codegen::deny_payment()?;
                         }
 
                         let result: #message_output = #message_callable(&mut contract, input);
