@@ -455,51 +455,82 @@ impl ContractRef<'_> {
         let input_bindings = generator::input_bindings(constructor.inputs());
         let input_types = generator::input_types(constructor.inputs());
         let _storage_ident = self.contract.module().storage().ident();
-        let (encoding_strategy, build_create) = match abi {
-            ir::Abi::Scale => {
-                (quote!(::ink::reflect::ScaleEncoding), quote!(build_create))
-            }
-            ir::Abi::Solidity => {
-                (
-                    quote!(::ink::reflect::SolEncoding),
-                    quote!(build_create_solidity),
-                )
-            }
-            ir::Abi::All => todo!("support for `Abi::All`"),
-        };
-        let arg_list = generator::generate_argument_list(
-            input_types.iter().cloned(),
-            encoding_strategy.clone(),
-        );
         let ret_type = constructor
             .output()
             .map(quote::ToTokens::to_token_stream)
             .unwrap_or_else(|| quote::quote! { Self });
 
-        quote_spanned!(span =>
-            #( #attrs )*
-            #[inline]
-            #[allow(clippy::type_complexity)]
-            pub fn #constructor_ident(
-                #( #input_bindings : #input_types ),*
-            ) -> ::ink::env::call::CreateBuilder<
-                Environment,
-                Self,
-                ::ink::env::call::utils::Set<::ink::env::call::LimitParamsV2 >,
-                ::ink::env::call::utils::Set<::ink::env::call::ExecutionInput<#arg_list, #encoding_strategy>>,
-                ::ink::env::call::utils::Set<::ink::env::call::utils::ReturnType<#ret_type>>,
-            > {
-                ::ink::env::call::#build_create::<Self>()
-                    .exec_input(
-                        ::ink::env::call::ExecutionInput::new(
-                            ::ink::env::call::Selector::new([ #( #selector_bytes ),* ])
+        let mut create_builders = Vec::new();
+        if abi.is_scale() {
+            let arg_list = generator::generate_argument_list(
+                input_types.iter().cloned(),
+                quote!(::ink::reflect::ScaleEncoding),
+            );
+
+            let create_builder = quote_spanned!(span =>
+                #( #attrs )*
+                #[inline]
+                #[allow(clippy::type_complexity)]
+                pub fn #constructor_ident(
+                    #( #input_bindings : #input_types ),*
+                ) -> ::ink::env::call::CreateBuilder<
+                    Environment,
+                    Self,
+                    ::ink::env::call::utils::Set<::ink::env::call::LimitParamsV2 >,
+                    ::ink::env::call::utils::Set<::ink::env::call::ExecutionInput<#arg_list, ::ink::reflect::ScaleEncoding>>,
+                    ::ink::env::call::utils::Set<::ink::env::call::utils::ReturnType<#ret_type>>,
+                > {
+                    ::ink::env::call::build_create::<Self>()
+                        .exec_input(
+                            ::ink::env::call::ExecutionInput::new(
+                                ::ink::env::call::Selector::new([ #( #selector_bytes ),* ])
+                            )
+                            #(
+                                .push_arg(#input_bindings)
+                            )*
                         )
-                        #(
-                            .push_arg(#input_bindings)
-                        )*
-                    )
-                    .returns::<#ret_type>()
-            }
+                        .returns::<#ret_type>()
+                }
+            );
+            create_builders.push(create_builder);
+        }
+
+        if abi.is_solidity() {
+            let arg_list = generator::generate_argument_list(
+                input_types.iter().cloned(),
+                quote!(::ink::reflect::SolEncoding),
+            );
+
+            let create_builder = quote_spanned!(span =>
+                #( #attrs )*
+                #[inline]
+                #[allow(clippy::type_complexity)]
+                pub fn #constructor_ident(
+                    #( #input_bindings : #input_types ),*
+                ) -> ::ink::env::call::CreateBuilder<
+                    Environment,
+                    Self,
+                    ::ink::env::call::utils::Set<::ink::env::call::LimitParamsV2 >,
+                    ::ink::env::call::utils::Set<::ink::env::call::ExecutionInput<#arg_list, ::ink::reflect::SolEncoding>>,
+                    ::ink::env::call::utils::Set<::ink::env::call::utils::ReturnType<#ret_type>>,
+                > {
+                    ::ink::env::call::build_create_solidity::<Self>()
+                        .exec_input(
+                            ::ink::env::call::ExecutionInput::new(
+                                ::ink::env::call::Selector::new([ #( #selector_bytes ),* ])
+                            )
+                            #(
+                                .push_arg(#input_bindings)
+                            )*
+                        )
+                        .returns::<#ret_type>()
+                }
+            );
+            create_builders.push(create_builder);
+        }
+
+        quote_spanned!(span=>
+            #( #create_builders )*
         )
     }
 }
