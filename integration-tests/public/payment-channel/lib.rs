@@ -282,7 +282,7 @@ mod payment_channel {
                 &mut signature_account_id,
             );
 
-            self.recipient == H160::from_slice(&signature_account_id[..20])
+            self.recipient == AccountId32Mapper::to_address(&signature_account_id)
         }
     }
 

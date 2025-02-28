@@ -268,7 +268,7 @@ pub mod give_me {
             let account_id: AccountId = call_res.return_value();
 
             let balance_before: Balance = client
-                .free_balance(account_id)
+                .free_balance(account_id.clone()) // todo can't we take a ref here?
                 .await
                 .expect("getting balance failed");
 
@@ -293,7 +293,7 @@ pub mod give_me {
             // NativeToEthRatio)));
             assert_eq!(outgoing_trace.value, Some(U256::from(120_000_000)));
             assert_eq!(outgoing_trace.from, contract_addr);
-            //let eve = ink::H160::from(&ink_e2e::eve().account_id().encode()[..20]);
+            //let eve = AccountId32Mapper::to_address(&ink_e2e::eve().account_id().encode()[..20]);
             //assert_eq!(trace.to, eve);
 
             let balance_after: Balance = client

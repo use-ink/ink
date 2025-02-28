@@ -103,9 +103,11 @@ use std::{
     cell::RefCell,
     sync::Once,
 };
+use pallet_revive::{AccountId32Mapper, AddressMapper};
 use xts::ReviveApi;
 
 pub use subxt::PolkadotConfig;
+use ink_primitives::types::AccountIdMapper;
 
 /// We use this to only initialize `env_logger` once.
 pub static INIT: Once = Once::new();
@@ -147,9 +149,11 @@ pub fn account_id(account: Sr25519Keyring) -> ink_primitives::AccountId {
 ///
 /// We take the `AccountId` and return only the first twenty bytes, this
 /// is what `pallet-revive` does as well.
-pub fn address(account: Sr25519Keyring) -> H160 {
-    let account_id = account_id(account);
-    H160::from_slice(&<AccountId as AsRef<[u8; 32]>>::as_ref(&account_id)[..20])
+pub fn address<E: Environment>(account: Sr25519Keyring) -> H160 {
+    //AccountId32Mapper::<E>::to_address(&account.to_account_id())
+    //E::AddressMapper::to_address(&account.to_account_id())
+    //AccountIdMapper::<E>::to_address(&account.to_account_id())
+    AccountIdMapper::to_address(&account.to_account_id().as_ref())
 }
 
 /// Creates a call builder for `Contract`, based on an account id.

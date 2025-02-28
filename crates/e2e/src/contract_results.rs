@@ -273,13 +273,14 @@ where
 impl<E: Environment, V: scale::Decode> CallDryRunResult<E, V> {
     /// Returns true if the dry-run execution resulted in an error.
     pub fn is_err(&self) -> bool {
-        self.exec_result.result.is_err()
+        self.exec_result.result.is_err() || self.did_revert_bool()
     }
 
     /// Returns the [`ExecReturnValue`] resulting from the dry-run message call.
     ///
     /// Panics if the dry-run message call failed to execute.
     pub fn exec_return_value(&self) -> &ExecReturnValue {
+        self.did_revert();
         self.exec_result
             .result
             .as_ref()
@@ -292,10 +293,12 @@ impl<E: Environment, V: scale::Decode> CallDryRunResult<E, V> {
     /// - if the dry-run message call failed to execute.
     /// - if message result cannot be decoded into the expected return value type.
     pub fn message_result(&self) -> MessageResult<V> {
+        self.did_revert();
         let data = &self.exec_return_value().data;
         scale::Decode::decode(&mut data.as_ref()).unwrap_or_else(|env_err| {
             panic!(
-                "Decoding dry run result to ink! message return type failed: {env_err}"
+                "Decoding dry run result to ink! message return type failed: {env_err} {:?}",
+                self.exec_return_value()
             )
         })
     }
@@ -307,17 +310,37 @@ impl<E: Environment, V: scale::Decode> CallDryRunResult<E, V> {
     pub fn return_value(self) -> V {
         // todo
         // on revert:
+        /*
         if self.exec_result.result.clone().unwrap().did_revert() {
             let res = self.exec_result.result.unwrap();
             let msg = String::from_utf8_lossy(&res.data);
             panic!("msg {}", msg);
         }
+        */
+        self.did_revert();
         self.message_result()
             .unwrap_or_else(|lang_err| {
                 panic!(
                     "Encountered a `LangError` while decoding dry run result to ink! message: {lang_err:?}"
                 )
             })
+    }
+
+    fn did_revert(&self) {
+        // todo
+        // on revert:
+        let res = self.exec_result.result.clone().unwrap();
+        if res.did_revert() {
+            let msg = String::from_utf8_lossy(&res.data);
+            panic!("msg {}", msg);
+        }
+    }
+
+    fn did_revert_bool(&self) -> bool {
+        // todo
+        // on revert:
+        let res = self.exec_result.result.clone().unwrap();
+        res.did_revert()
     }
 
     /// Returns the return value as raw bytes of the message from the dry-run.

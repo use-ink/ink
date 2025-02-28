@@ -255,7 +255,7 @@ pub mod delegator {
             // Alice's address
             // todo
             let acc = origin.public_key().to_account_id().0;
-            let address = H160::from_slice(&acc[0..20]);
+            let address = AccountId32Mapper::to_address(&acc);
 
             let call_get_value = call_builder.get_value(address);
             let call_get_result = client

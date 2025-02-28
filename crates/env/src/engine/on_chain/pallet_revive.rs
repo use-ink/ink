@@ -409,14 +409,15 @@ impl TypedEnvBackend for EnvInstance {
     fn account_id<E: Environment>(&mut self) -> E::AccountId {
         let mut scope = self.scoped_buffer();
 
-        // todo this is wrong
-        let account_id: &mut [u8; 32] = scope.take(32).try_into().unwrap();
-        account_id[20..].fill(0xEE);
-        let h160: &mut [u8; 20] = account_id[..20].as_mut().try_into().unwrap();
-        ext::address(h160);
+        // todo
+        /*
+        let addr = ext::address(h160);
+        let account_id = ext::to_account_id();
 
         scale::Decode::decode(&mut &account_id[..])
             .expect("A contract being executed must have a valid account id.")
+         */
+        unreachable!("todo");
     }
 
     fn address(&mut self) -> H160 {

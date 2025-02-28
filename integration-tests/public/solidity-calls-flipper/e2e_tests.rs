@@ -39,7 +39,9 @@ async fn solidity_calls_ink_works<Client: E2EBackend>(
     let exec_input = params.exec_input();
 
     // fund alith
-    let alith = eth_account(subxt_signer::eth::dev::alith());
+    // let alith = eth_account(subxt_signer::eth::dev::alith());
+    let acc = subxt_signer::eth::dev::alith();
+    let alith = ink_e2e::address(acc);
     client
         .api
         .try_transfer_balance(&ink_e2e::alice(), alith.0.into(), 1_000_000_000_000_000)

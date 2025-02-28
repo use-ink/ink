@@ -74,6 +74,7 @@ use sp_weights::Weight;
 #[cfg(feature = "std")]
 use std::fmt::Debug;
 use std::path::PathBuf;
+use pallet_revive::{AccountId32Mapper, AddressMapper};
 use subxt::{
     blocks::ExtrinsicEvents,
     config::{
@@ -89,6 +90,7 @@ use subxt::{
     },
     tx::Signer,
 };
+use ink_primitives::types::AccountIdMapper;
 
 pub type Error = crate::error::Error<DispatchError>;
 
@@ -156,6 +158,9 @@ where
         storage_deposit_limit: E::Balance,
     ) -> Result<BareInstantiationResult<ExtrinsicEvents<C>>, Error> {
         let salt = salt();
+        if salt.is_none() {
+            panic!("foo");
+        }
         let (events, trace) = self
             .api
             .instantiate_with_code(
@@ -173,6 +178,7 @@ where
             let evt = evt.unwrap_or_else(|err| {
                 panic!("unable to unwrap event: {err:?}");
             });
+            //eprintln!("evt: {:?}", evt.);
             if is_extrinsic_failed_event(&evt) {
                 let metadata = self.api.client.metadata();
                 let dispatch_error =
@@ -188,7 +194,13 @@ where
         // copied from `pallet-revive`
         let account_id =
             <subxt_signer::sr25519::Keypair as subxt::tx::Signer<C>>::account_id(signer);
-        let deployer = H160::from_slice(&account_id.encode()[..20]);
+        //let deployer: H160 = C::AddressMapper::to_address(&account_id);
+        //let deployer = AccountId32Mapper::<C>::to_address(&account_id);
+        //let deployer = H160::zero();
+        let account_bytes = account_id.encode();
+        eprintln!("account bytes {:?}", account_bytes);
+        let deployer = AccountIdMapper::to_address(account_bytes.as_ref());
+        eprintln!("deployer {:?}", deployer);
         let addr = pallet_revive::create2(
             &deployer,
             &code[..],
@@ -664,6 +676,8 @@ where
         let dest = *message.clone().params().callee();
         let exec_input = Encode::encode(message.clone().params().exec_input());
 
+        eprintln!("---before");
+        eprintln!("---exec_input {:?}", exec_input);
         let (exec_result, trace) = self
             .api
             .call_dry_run(
@@ -679,10 +693,12 @@ where
             )
             .await;
         log_info(&format!("call dry run result: {:?}", &exec_result.result));
+        eprintln!("call dry run result: {:?}", &exec_result.result);
 
         let exec_result = self
             .contract_result_to_result(exec_result)
             .map_err(Error::CallDryRun)?;
+        eprintln!("--- trace {:?}", trace);
 
         Ok(CallDryRunResult {
             exec_result,

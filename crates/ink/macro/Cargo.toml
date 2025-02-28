@@ -25,6 +25,15 @@ synstructure = { workspace = true }
 proc-macro2 = { workspace = true }
 quote = { workspace = true }
 
+#xcm = { package = "staging-xcm", git = "https://github.com/paritytech/polkadot-sdk", rev = "9adb8d28ab1f6744f1fb26db41f42361ac1254a0", default-features = false }
+#sp-io = { git = "https://github.com/paritytech/polkadot-sdk", rev = "9adb8d28ab1f6744f1fb26db41f42361ac1254a0", default-features = false, features = ["disable_panic_handler", "disable_oom", "disable_allocator"] }
+##sp-runtime-interface = { git = "https://github.com/paritytech/polkadot-sdk", rev = "9adb8d28ab1f6744f1fb26db41f42361ac1254a0", default-features = false, features = ["disable_target_static_assertions"]  }
+
+##sp-runtime-interface = { git = "https://github.com/paritytech/polkadot-sdk", rev = "9adb8d28ab1f6744f1fb26db41f42361ac1254a0", default-features = false, features = ["disable_target_static_assertions"]  }
+
+#[patch.'https://github.com/paritytech/polkadot-sdk']
+##sp-runtime-interface = { git = "https://www.github.com/paritytech/polkadot-sdk", rev = "9adb8d28ab1f6744f1fb26db41f42361ac1254a0" }
+
 [dev-dependencies]
 ink_env = { workspace = true, default-features = true }
 ink = { path = "..", default-features = true }
