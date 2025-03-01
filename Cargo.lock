@@ -1510,7 +1510,7 @@ checksum = "cd7e35aee659887cbfb97aaf227ac12cad1a9d7c71e55ff3376839ed4e282d08"
 [[package]]
 name = "contract-build"
 version = "6.0.0-alpha"
-source = "git+https://github.com/use-ink/cargo-contract?branch=master#7a6c2a246a6c445ca7167cb8a60108b4550a515f"
+source = "git+https://github.com/use-ink/cargo-contract?branch=master#154e0deb647ef8f4d2b3886822b43585ee628ab0"
 dependencies = [
  "alloy-json-abi",
  "anyhow",
@@ -1552,7 +1552,7 @@ dependencies = [
 [[package]]
 name = "contract-metadata"
 version = "6.0.0-alpha"
-source = "git+https://github.com/use-ink/cargo-contract?branch=master#7a6c2a246a6c445ca7167cb8a60108b4550a515f"
+source = "git+https://github.com/use-ink/cargo-contract?branch=master#154e0deb647ef8f4d2b3886822b43585ee628ab0"
 dependencies = [
  "anyhow",
  "impl-serde",
@@ -7977,9 +7977,9 @@ dependencies = [
 
 [[package]]
 name = "tokio-rustls"
-version = "0.26.1"
+version = "0.26.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5f6d0975eaace0cf0fcadee4e4aaa5da15b5c079146f2cffb67c113be122bf37"
+checksum = "8e727b36a1a0e8b74c376ac2211e40c2c8af09fb4013c60d910495810f008e9b"
 dependencies = [
  "rustls",
  "tokio",
