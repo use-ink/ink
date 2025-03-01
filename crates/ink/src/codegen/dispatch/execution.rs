@@ -23,8 +23,7 @@ use ink_primitives::U256;
 #[inline]
 pub fn deny_payment() -> Result<(), DispatchError> {
     let transferred = ink_env::transferred_value();
-    if transferred != U256::zero() {
-        // todo can we make the error visible to users?
+    if !transferred.is_zero() {
         return Err(DispatchError::PaidUnpayableMessage)
     }
     Ok(())
