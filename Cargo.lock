@@ -2916,6 +2916,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "6fe2267d4ed49bc07b63801559be28c718ea06c4738b7a03c94df7386d2cde46"
 
 [[package]]
+name = "hex-literal"
+version = "1.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "bcaaec4551594c969335c98c903c1397853d4198408ea609190f420500f6be71"
+
+[[package]]
 name = "hmac"
 version = "0.8.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3445,7 +3451,9 @@ version = "6.0.0-alpha"
 dependencies = [
  "blake2",
  "derive_more 1.0.0",
+ "hex-literal 1.0.0",
  "ink_primitives 6.0.0-alpha",
+ "pallet-revive",
  "pallet-revive-uapi 0.1.0 (git+https://github.com/paritytech/polkadot-sdk?rev=9adb8d28ab1f6744f1fb26db41f42361ac1254a0)",
  "parity-scale-codec",
  "secp256k1 0.30.0",
@@ -3462,6 +3470,7 @@ dependencies = [
  "cfg-if",
  "const_env",
  "derive_more 1.0.0",
+ "hex-literal 1.0.0",
  "ink",
  "ink_allocator",
  "ink_engine",
@@ -4496,7 +4505,7 @@ dependencies = [
  "frame-benchmarking",
  "frame-support",
  "frame-system",
- "hex-literal",
+ "hex-literal 0.4.1",
  "impl-trait-for-tuples",
  "log",
  "pallet-revive-fixtures",
@@ -4929,7 +4938,7 @@ version = "7.0.0"
 source = "git+https://github.com/paritytech/polkadot-sdk?rev=9adb8d28ab1f6744f1fb26db41f42361ac1254a0#9adb8d28ab1f6744f1fb26db41f42361ac1254a0"
 dependencies = [
  "bitvec",
- "hex-literal",
+ "hex-literal 0.4.1",
  "log",
  "parity-scale-codec",
  "polkadot-core-primitives",
@@ -7468,7 +7477,7 @@ dependencies = [
  "derive-where",
  "environmental",
  "frame-support",
- "hex-literal",
+ "hex-literal 0.4.1",
  "impl-trait-for-tuples",
  "log",
  "parity-scale-codec",

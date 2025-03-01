@@ -10,7 +10,8 @@ ink = { path = "../../../crates/ink", default-features = false }
 
 [dev-dependencies]
 hex-literal = { version = "0.4.1" }
-sp-core = { version = "35.0.0", default-features = false }
+sp-core = { git = "https://github.com/paritytech/polkadot-sdk", rev = "9adb8d28ab1f6744f1fb26db41f42361ac1254a0", default-features = false }
+
 
 [lib]
 path = "lib.rs"
@@ -19,7 +20,7 @@ path = "lib.rs"
 default = ["std"]
 std = [
     "ink/std",
-    "sp-core/std",
+#    "sp-core/std",
 ]
 
 ink-as-dependency = []

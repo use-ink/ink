@@ -53,7 +53,7 @@ std = [
     "scale/std",
     "xcm/std",
     "derive_more/std",
-    "sp-io/std"
+    "sp-io/std",
 ]
 
 # Enable contract debug messages via `debug_print!` and `debug_println!`.
