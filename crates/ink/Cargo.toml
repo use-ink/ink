@@ -29,8 +29,8 @@ scale-info = { workspace = true, default-features = false, features = ["derive"]
 derive_more = { workspace = true, features = ["from"] }
 
 # TODO add explainer
-xcm = { package = "staging-xcm", git = "https://github.com/paritytech/polkadot-sdk", rev = "4a400dc1866f11707331fb6408df1055d0f42a70", default-features = false }
-sp-io = { git = "https://github.com/paritytech/polkadot-sdk", rev = "4a400dc1866f11707331fb6408df1055d0f42a70", default-features = false, features = ["disable_panic_handler", "disable_oom", "disable_allocator"] }
+xcm = { package = "staging-xcm", git = "https://github.com/paritytech/polkadot-sdk", rev = "9adb8d28ab1f6744f1fb26db41f42361ac1254a0", default-features = false }
+sp-io = { git = "https://github.com/paritytech/polkadot-sdk", rev = "9adb8d28ab1f6744f1fb26db41f42361ac1254a0", default-features = false, features = ["disable_panic_handler", "disable_oom", "disable_allocator"] }
 
 polkavm-derive = { workspace = true }
 
