@@ -82,7 +82,7 @@ xxhash-rust = { version = "0.8" }
 const_env = { version = "0.1" }
 
 # Substrate dependencies
-frame-metadata = { version = "19.0.0", default-features = false }
+frame-metadata = { version = "20.0.0", default-features = false }
 frame-system = { git = "https://github.com/paritytech/polkadot-sdk", rev = "9adb8d28ab1f6744f1fb26db41f42361ac1254a0", default-features = false }
 frame-support = { git = "https://github.com/paritytech/polkadot-sdk", rev = "9adb8d28ab1f6744f1fb26db41f42361ac1254a0", default-features = false }
 pallet-balances = { git = "https://github.com/paritytech/polkadot-sdk", rev = "9adb8d28ab1f6744f1fb26db41f42361ac1254a0", default-features = false }

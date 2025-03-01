@@ -2470,18 +2470,6 @@ dependencies = [
 
 [[package]]
 name = "frame-metadata"
-version = "19.0.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "835a2e736d544b98dab966b4b9541f15af416288a86c3738fdd67bd9fbc4696e"
-dependencies = [
- "cfg-if",
- "parity-scale-codec",
- "scale-info",
- "serde",
-]
-
-[[package]]
-name = "frame-metadata"
 version = "20.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "26de808fa6461f2485dc51811aefed108850064994fb4a62b3ac21ffa62ac8df"
@@ -3626,7 +3614,7 @@ dependencies = [
 name = "ink_sandbox"
 version = "6.0.0-alpha"
 dependencies = [
- "frame-metadata 19.0.0",
+ "frame-metadata 20.0.0",
  "frame-support",
  "frame-system",
  "ink_primitives 6.0.0-alpha",
