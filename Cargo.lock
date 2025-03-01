@@ -1510,7 +1510,7 @@ checksum = "cd7e35aee659887cbfb97aaf227ac12cad1a9d7c71e55ff3376839ed4e282d08"
 [[package]]
 name = "contract-build"
 version = "6.0.0-alpha"
-source = "git+https://github.com/use-ink/cargo-contract?branch=master#d2b783bafa320b60851ae55e6cfd862b7eb2ac18"
+source = "git+https://github.com/use-ink/cargo-contract?branch=master#154e0deb647ef8f4d2b3886822b43585ee628ab0"
 dependencies = [
  "alloy-json-abi",
  "anyhow",
@@ -1552,7 +1552,7 @@ dependencies = [
 [[package]]
 name = "contract-metadata"
 version = "6.0.0-alpha"
-source = "git+https://github.com/use-ink/cargo-contract?branch=master#d2b783bafa320b60851ae55e6cfd862b7eb2ac18"
+source = "git+https://github.com/use-ink/cargo-contract?branch=master#154e0deb647ef8f4d2b3886822b43585ee628ab0"
 dependencies = [
  "anyhow",
  "impl-serde",
@@ -3541,7 +3541,7 @@ dependencies = [
 [[package]]
 name = "ink_metadata"
 version = "6.0.0-alpha"
-source = "git+https://github.com/use-ink/ink?branch=master#f2d33210f001d0c06664ef1e56ffca0393def0b3"
+source = "git+https://github.com/use-ink/ink?branch=master#58678b1cbdc4639ff8c45de5d84fd8caf3cd6a64"
 dependencies = [
  "derive_more 1.0.0",
  "impl-serde",
@@ -3564,7 +3564,7 @@ dependencies = [
 [[package]]
 name = "ink_prelude"
 version = "6.0.0-alpha"
-source = "git+https://github.com/use-ink/ink?branch=master#f2d33210f001d0c06664ef1e56ffca0393def0b3"
+source = "git+https://github.com/use-ink/ink?branch=master#58678b1cbdc4639ff8c45de5d84fd8caf3cd6a64"
 dependencies = [
  "cfg-if",
 ]
@@ -3593,7 +3593,7 @@ dependencies = [
 [[package]]
 name = "ink_primitives"
 version = "6.0.0-alpha"
-source = "git+https://github.com/use-ink/ink?branch=master#f2d33210f001d0c06664ef1e56ffca0393def0b3"
+source = "git+https://github.com/use-ink/ink?branch=master#58678b1cbdc4639ff8c45de5d84fd8caf3cd6a64"
 dependencies = [
  "alloy-sol-types",
  "cfg-if",
