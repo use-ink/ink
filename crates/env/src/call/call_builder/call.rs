@@ -20,6 +20,7 @@ use crate::{
             Unset,
         },
         execution::EmptyArgumentList,
+        utils::DecodeMessageResult,
         CallBuilder,
         CallParams,
         ExecutionInput,
@@ -204,7 +205,7 @@ impl<E, Abi>
 where
     E: Environment,
     EmptyArgumentList<Abi>: AbiEncodeWith<Abi>,
-    (): AbiDecodeWith<Abi>,
+    (): AbiDecodeWith<Abi> + DecodeMessageResult<Abi>,
     Abi: Default,
 {
     /// Invokes the cross-chain function call.
@@ -235,7 +236,7 @@ impl<E, Args, R, Abi>
 where
     E: Environment,
     Args: AbiEncodeWith<Abi>,
-    R: AbiDecodeWith<Abi>,
+    R: AbiDecodeWith<Abi> + DecodeMessageResult<Abi>,
     Abi: Default,
 {
     /// Invokes the cross-chain function call and returns the result.
@@ -307,7 +308,7 @@ impl<E, Args, R, Abi> CallParams<E, Call, Args, R, Abi>
 where
     E: Environment,
     Args: AbiEncodeWith<Abi>,
-    R: AbiDecodeWith<Abi>,
+    R: AbiDecodeWith<Abi> + DecodeMessageResult<Abi>,
 {
     /// Invokes the contract with the given built-up call parameters.
     ///

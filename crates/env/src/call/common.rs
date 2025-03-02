@@ -14,7 +14,20 @@
 
 //! Utilities, types and abstractions common to call and instantiation routines.
 
+use alloy_sol_types::SolValue;
 use core::marker::PhantomData;
+use ink_primitives::{
+    reflect::{
+        AbiDecodeWith,
+        ScaleEncoding,
+        SolEncoding,
+    },
+    MessageResult,
+};
+use scale::{
+    Decode,
+    DecodeAll,
+};
 
 /// Represents a return type.
 ///
@@ -105,5 +118,36 @@ impl<T> Unwrap for Set<T> {
         F: FnOnce() -> Self::Output,
     {
         self.value()
+    }
+}
+
+/// A trait for decoding the output of a message.
+/// This trait is implemented for different ABIs.
+pub trait DecodeMessageResult<Abi>: Sized {
+    /// Decodes the output of a message call wrapped in `MessageResult`.
+    fn decode_output(buffer: &[u8]) -> crate::Result<MessageResult<Self>>;
+}
+
+impl<R> DecodeMessageResult<ScaleEncoding> for R
+where
+    R: Decode,
+    MessageResult<R>: Decode,
+{
+    fn decode_output(buffer: &[u8]) -> crate::Result<MessageResult<Self>> {
+        let mut input = &buffer[..];
+        let decoded = MessageResult::<R>::decode_all(&mut input)?;
+        Ok(decoded)
+    }
+}
+
+impl<R> DecodeMessageResult<SolEncoding> for R
+where
+    R: SolValue + From<<<R as SolValue>::SolType as alloy_sol_types::SolType>::RustType>,
+{
+    fn decode_output(buffer: &[u8]) -> crate::Result<MessageResult<Self>> {
+        // Solidity ABI Encoded contracts return the data without
+        // `MessageResult`.
+        let decoded = R::decode_with(buffer)?;
+        Ok(Ok(decoded))
     }
 }

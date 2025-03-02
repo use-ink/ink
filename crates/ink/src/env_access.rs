@@ -16,6 +16,7 @@ use crate::ChainExtensionInstance;
 use core::marker::PhantomData;
 use ink_env::{
     call::{
+        utils::DecodeMessageResult,
         Call,
         CallParams,
         ConstructorReturnType,
@@ -556,7 +557,7 @@ where
     ) -> Result<ink_primitives::MessageResult<R>>
     where
         Args: AbiEncodeWith<Abi>,
-        R: AbiDecodeWith<Abi>,
+        R: AbiDecodeWith<Abi> + DecodeMessageResult<Abi>,
     {
         ink_env::invoke_contract::<E, Args, R, Abi>(params)
     }
@@ -624,7 +625,7 @@ where
     ) -> Result<ink_primitives::MessageResult<R>>
     where
         Args: AbiEncodeWith<Abi>,
-        R: AbiDecodeWith<Abi>,
+        R: AbiDecodeWith<Abi> + DecodeMessageResult<Abi>,
     {
         ink_env::invoke_contract_delegate::<E, Args, R, Abi>(params)
     }

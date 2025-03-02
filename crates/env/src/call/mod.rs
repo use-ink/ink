@@ -24,6 +24,7 @@ mod selector;
 pub mod utils {
     pub use super::{
         common::{
+            DecodeMessageResult,
             ReturnType,
             Set,
             Unset,

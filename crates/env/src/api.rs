@@ -20,6 +20,7 @@ use crate::{
         TypedEnvBackend,
     },
     call::{
+        utils::DecodeMessageResult,
         Call,
         CallParams,
         ConstructorReturnType,
@@ -284,7 +285,7 @@ where
     E: Environment,
 
     Args: AbiEncodeWith<Abi>,
-    R: AbiDecodeWith<Abi>,
+    R: AbiDecodeWith<Abi> + DecodeMessageResult<Abi>,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         TypedEnvBackend::invoke_contract::<E, Args, R, Abi>(instance, params)
@@ -310,7 +311,7 @@ where
     E: Environment,
 
     Args: AbiEncodeWith<Abi>,
-    R: AbiDecodeWith<Abi>,
+    R: AbiDecodeWith<Abi> + DecodeMessageResult<Abi>,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         TypedEnvBackend::invoke_contract_delegate::<E, Args, R, Abi>(instance, params)

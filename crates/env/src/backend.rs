@@ -14,6 +14,7 @@
 
 use crate::{
     call::{
+        utils::DecodeMessageResult,
         Call,
         CallParams,
         ConstructorReturnType,
@@ -327,7 +328,7 @@ pub trait TypedEnvBackend: EnvBackend {
         E: Environment,
 
         Args: AbiEncodeWith<Abi>,
-        R: AbiDecodeWith<Abi>;
+        R: AbiDecodeWith<Abi> + DecodeMessageResult<Abi>;
 
     /// Invokes a contract message via delegate call and returns its result.
     ///
@@ -343,7 +344,7 @@ pub trait TypedEnvBackend: EnvBackend {
         E: Environment,
 
         Args: AbiEncodeWith<Abi>,
-        R: AbiDecodeWith<Abi>;
+        R: AbiDecodeWith<Abi> + DecodeMessageResult<Abi>;
 
     /// Instantiates another contract.
     ///

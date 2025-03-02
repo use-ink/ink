@@ -14,6 +14,7 @@
 
 use crate::{
     call::{
+        utils::DecodeMessageResult,
         Call,
         CallParams,
         ConstructorReturnType,
@@ -448,9 +449,8 @@ impl TypedEnvBackend for EnvInstance {
     ) -> Result<ink_primitives::MessageResult<R>>
     where
         E: Environment,
-
         Args: AbiEncodeWith<Abi>,
-        R: AbiDecodeWith<Abi>,
+        R: AbiDecodeWith<Abi> + DecodeMessageResult<Abi>,
     {
         let mut scope = self.scoped_buffer();
         let ref_time_limit = params.ref_time_limit();
@@ -495,11 +495,7 @@ impl TypedEnvBackend for EnvInstance {
             Some(output),
         );
         match call_result {
-            Ok(()) | Err(ReturnErrorCode::CalleeReverted) => {
-                let decoded = R::decode_with(&mut &output[..]).expect("decode failed");
-                // TODO (@peterwht): this isn't correct.
-                Ok(ink_primitives::MessageResult::Ok(decoded))
-            }
+            Ok(()) | Err(ReturnErrorCode::CalleeReverted) => R::decode_output(&output),
             Err(actual_error) => Err(actual_error.into()),
         }
     }
@@ -510,9 +506,8 @@ impl TypedEnvBackend for EnvInstance {
     ) -> Result<ink_primitives::MessageResult<R>>
     where
         E: Environment,
-
         Args: AbiEncodeWith<Abi>,
-        R: AbiDecodeWith<Abi>,
+        R: AbiDecodeWith<Abi> + DecodeMessageResult<Abi>,
     {
         let mut scope = self.scoped_buffer();
         let call_flags = params.call_flags();
@@ -541,11 +536,7 @@ impl TypedEnvBackend for EnvInstance {
             Some(output),
         );
         match call_result {
-            Ok(()) | Err(ReturnErrorCode::CalleeReverted) => {
-                // let decoded = scale::DecodeAll::decode_all(&mut &output[..])?;
-                let decoded = R::decode_with(&mut &output[..]).expect("decode failed");
-                Ok(core::prelude::v1::Ok(decoded))
-            }
+            Ok(()) | Err(ReturnErrorCode::CalleeReverted) => R::decode_output(&output),
             Err(actual_error) => Err(actual_error.into()),
         }
     }

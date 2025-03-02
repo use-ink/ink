@@ -207,9 +207,8 @@ impl<E, Args, R>
     CallBuilder<E, Set<CallV1<E>>, Set<ExecutionInput<Args>>, Set<ReturnType<R>>>
 where
     E: Environment,
-    
     Args: SolValue,
-    R: AbiDecodeWith<Abi>,
+    R: AbiDecodeWith<Abi> + DecodeMessageResult<Abi>,
 {
     /// Invokes the cross-chain function call and returns the result.
     ///
@@ -268,7 +267,7 @@ where
     E: Environment,
     
     Args: SolValue,
-    R: AbiDecodeWith<Abi>,
+    R: AbiDecodeWith<Abi> + DecodeMessageResult<Abi>,
 {
     /// Invokes the contract with the given built-up call parameters.
     ///
