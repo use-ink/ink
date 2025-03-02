@@ -67,7 +67,8 @@ where
     }
 }
 
-/// Returns a new [`CallBuilder`] to build up the parameters to a cross-contract call.
+/// Returns a new [`CallBuilder`] to build up the parameters to a cross-contract call
+/// that uses the ink! ABI (SCALE Encoding).
 ///
 /// # Example
 ///
@@ -227,7 +228,9 @@ where
     }
 }
 
-///TODO (@peterwht): docs
+/// Returns a new [`CallBuilder`] to build up the parameters to a cross-contract call
+/// that uses Solidity ABI Encoding.
+/// See [`build_call`] for more details on usage.
 #[allow(clippy::type_complexity)]
 pub fn build_call_solidity<E>() -> CallBuilder<
     E,

@@ -238,9 +238,12 @@ pub enum Encoding {
     Solidity,
 }
 
-// Marker types for encoding strategies
+/// Marker type for SCALE encoding. Used with [`AbiEncodeWith`], [`AbiDecodeWith`] and
+/// [`DecodeMessageResult`].
 #[derive(Default, Clone)]
 pub struct ScaleEncoding;
+/// Marker type for Solidity ABI encoding. Used with [`AbiEncodeWith`],
+/// [`AbiDecodeWith`] and [`DecodeMessageResult`].
 #[derive(Default, Clone)]
 pub struct SolEncoding;
 
@@ -253,8 +256,11 @@ pub trait AbiEncodeWith<Abi> {
     fn encode_to_vec(&self, buffer: &mut Vec<u8>);
 }
 
+/// Trait for ABI-specific decoding.
 pub trait AbiDecodeWith<Abi>: Sized {
+    /// The error type that can occur during decoding.
     type Error: core::fmt::Debug;
+    /// Decodes the data from a buffer using the provided ABI.
     fn decode_with(buffer: &[u8]) -> Result<Self, Self::Error>;
 }
 

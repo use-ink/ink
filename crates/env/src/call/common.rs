@@ -121,10 +121,12 @@ impl<T> Unwrap for Set<T> {
     }
 }
 
-/// A trait for decoding the output of a message.
-/// This trait is implemented for different ABIs.
+/// A trait for decoding the output of a message based on different ABIs.
+/// This is necessary as contracts with different ABIs have different return types.
+/// For example, Solidity contracts return the output directly without `MessageResult`.
 pub trait DecodeMessageResult<Abi>: Sized {
-    /// Decodes the output of a message call wrapped in `MessageResult`.
+    /// Decodes the output of a message call, requiring the output
+    /// to be wrapped with `MessageResult` (if not included in the output).
     fn decode_output(buffer: &[u8]) -> crate::Result<MessageResult<Self>>;
 }
 

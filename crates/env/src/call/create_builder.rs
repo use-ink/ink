@@ -20,6 +20,7 @@ use crate::{
             Set,
             Unset,
         },
+        CallBuilder,
         ExecutionInput,
         Selector,
     },
@@ -336,7 +337,7 @@ where
 }
 
 /// Returns a new [`CreateBuilder`] to build up the parameters to a cross-contract
-/// instantiation.
+/// instantiation for a contract that uses the ink! ABI (SCALE Encoding).
 ///
 /// # Example
 ///
@@ -462,7 +463,9 @@ where
     }
 }
 
-/// TODO (@peterwht): docs
+/// Returns a new [`CreateBuilder`] to build up the parameters to a cross-contract
+/// instantiation for an ink! contract that uses Solidity ABI Encoding.
+/// See [`build_create`] for more details on usage.
 #[allow(clippy::type_complexity)]
 pub fn build_create_solidity<ContractRef>() -> CreateBuilder<
     <ContractRef as ContractEnv>::Env,
