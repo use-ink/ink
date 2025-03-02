@@ -456,7 +456,7 @@ where
     ///                 error
     ///             )
     ///         })
-    ///         .unwrap_or_else(|error| panic!("Received a `LangError` while instatiating: {:?}", error))
+    ///         .unwrap_or_else(|error| panic!("Received a `LangError` while instantiating: {:?}", error))
     /// }
     /// #
     /// #     }
