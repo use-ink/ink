@@ -20,7 +20,6 @@ use crate::{
             Set,
             Unset,
         },
-        CallBuilder,
         ExecutionInput,
         Selector,
     },
