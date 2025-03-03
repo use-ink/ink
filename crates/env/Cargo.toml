@@ -104,8 +104,9 @@ std = [
     "scale-info/std",
     "secp256k1",
     "schnorrkel",
-    #"sp-io/std",
-    #"sp-runtime-interface/std",
+    "sp-core/std",
+    "sp-io/std",
+    "sp-runtime-interface/std",
     "num-traits/std",
     # Enables hashing crates for off-chain environment.
     "sha2",
