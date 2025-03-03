@@ -8,6 +8,17 @@ publish = false
 [dependencies]
 ink = { path = "../../../crates/ink", default-features = false }
 
+# todo https://github.com/paritytech/polkadot-sdk/issues/7789
+sp-io = { git = "https://github.com/paritytech/polkadot-sdk", rev = "9adb8d28ab1f6744f1fb26db41f42361ac1254a0", default-features = false, features = ["disable_panic_handler", "disable_oom", "disable_allocator"] }
+sp-core = { git = "https://github.com/paritytech/polkadot-sdk", rev = "9adb8d28ab1f6744f1fb26db41f42361ac1254a0", default-features = false }
+sp-runtime-interface = { git = "https://github.com/paritytech/polkadot-sdk", default-features = false, features = ["disable_target_static_assertions"]  }
+[patch.'https://github.com/paritytech/polkadot-sdk']
+sp-io = { git = "https://www.github.com/paritytech/polkadot-sdk", rev = "9adb8d28ab1f6744f1fb26db41f42361ac1254a0" }
+sp-runtime-interface = { git = "https://www.github.com/paritytech/polkadot-sdk", rev = "9adb8d28ab1f6744f1fb26db41f42361ac1254a0" }
+sp-core = { git = "https://www.github.com/paritytech/polkadot-sdk", rev = "9adb8d28ab1f6744f1fb26db41f42361ac1254a0" }
+sp-externalities = { git = "https://www.github.com/paritytech/polkadot-sdk", rev = "9adb8d28ab1f6744f1fb26db41f42361ac1254a0" }
+sp-storage = { git = "https://www.github.com/paritytech/polkadot-sdk", rev = "9adb8d28ab1f6744f1fb26db41f42361ac1254a0" }
+
 [dev-dependencies]
 ink_e2e = { path = "../../../crates/e2e" }
 
