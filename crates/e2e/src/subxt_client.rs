@@ -51,7 +51,6 @@ use crate::{
     ContractsBackend,
     E2EBackend,
 };
-use ink::H160;
 use ink_env::{
     call::{
         utils::{
@@ -63,7 +62,10 @@ use ink_env::{
     },
     Environment,
 };
-use ink_primitives::DepositLimit;
+use ink_primitives::{
+    types::AccountIdMapper,
+    DepositLimit,
+};
 use jsonrpsee::core::async_trait;
 use pallet_revive::evm::CallTrace;
 use scale::{
@@ -74,7 +76,6 @@ use sp_weights::Weight;
 #[cfg(feature = "std")]
 use std::fmt::Debug;
 use std::path::PathBuf;
-use pallet_revive::{AccountId32Mapper, AddressMapper};
 use subxt::{
     blocks::ExtrinsicEvents,
     config::{
@@ -90,7 +91,6 @@ use subxt::{
     },
     tx::Signer,
 };
-use ink_primitives::types::AccountIdMapper;
 
 pub type Error = crate::error::Error<DispatchError>;
 
@@ -178,7 +178,6 @@ where
             let evt = evt.unwrap_or_else(|err| {
                 panic!("unable to unwrap event: {err:?}");
             });
-            //eprintln!("evt: {:?}", evt.);
             if is_extrinsic_failed_event(&evt) {
                 let metadata = self.api.client.metadata();
                 let dispatch_error =
@@ -194,13 +193,8 @@ where
         // copied from `pallet-revive`
         let account_id =
             <subxt_signer::sr25519::Keypair as subxt::tx::Signer<C>>::account_id(signer);
-        //let deployer: H160 = C::AddressMapper::to_address(&account_id);
-        //let deployer = AccountId32Mapper::<C>::to_address(&account_id);
-        //let deployer = H160::zero();
         let account_bytes = account_id.encode();
-        eprintln!("account bytes {:?}", account_bytes);
         let deployer = AccountIdMapper::to_address(account_bytes.as_ref());
-        eprintln!("deployer {:?}", deployer);
         let addr = pallet_revive::create2(
             &deployer,
             &code[..],
@@ -676,8 +670,6 @@ where
         let dest = *message.clone().params().callee();
         let exec_input = Encode::encode(message.clone().params().exec_input());
 
-        eprintln!("---before");
-        eprintln!("---exec_input {:?}", exec_input);
         let (exec_result, trace) = self
             .api
             .call_dry_run(
@@ -693,12 +685,10 @@ where
             )
             .await;
         log_info(&format!("call dry run result: {:?}", &exec_result.result));
-        eprintln!("call dry run result: {:?}", &exec_result.result);
 
         let exec_result = self
             .contract_result_to_result(exec_result)
             .map_err(Error::CallDryRun)?;
-        eprintln!("--- trace {:?}", trace);
 
         Ok(CallDryRunResult {
             exec_result,
@@ -843,6 +833,7 @@ impl<E: Environment, V, C: subxt::Config> CallResult<E, V, ExtrinsicEvents<C>> {
     }
 
     /// Returns all the `ContractEmitted` events emitted by the contract.
+    #[allow(clippy::result_large_err)] // todo
     pub fn contract_emitted_events(
         &self,
     ) -> Result<Vec<EventWithTopics<events::ContractEmitted>>, subxt::Error>

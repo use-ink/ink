@@ -73,6 +73,7 @@ impl IsDocAttribute for syn::Attribute {
     }
 }
 
+#[allow(clippy::large_enum_variant)] // todo
 /// Either an ink! specific attribute, or another uninterpreted attribute.
 #[derive(Debug, PartialEq, Eq)]
 pub enum Attribute {
@@ -1102,6 +1103,7 @@ mod tests {
 
         /// Mock for `ir::Attribute` to improve the ability to test.
         #[derive(Debug, PartialEq, Eq)]
+        #[allow(clippy::large_enum_variant)] // todo
         pub enum Attribute {
             Ink(Vec<ir::AttributeArg>),
             Other(syn::Attribute),

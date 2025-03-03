@@ -45,7 +45,10 @@ use crate::{
 };
 use ink_engine::ext::Engine;
 use ink_primitives::{
-    types::Environment,
+    types::{
+        AccountIdMapper,
+        Environment,
+    },
     H160,
     H256,
     U256,
@@ -62,7 +65,6 @@ use schnorrkel::{
     PublicKey,
     Signature,
 };
-use pallet_revive::{AccountId32Mapper, AddressMapper};
 
 /// The capacity of the static buffer.
 /// This is the same size as the ink! on-chain environment. We chose to use the same size
@@ -662,9 +664,8 @@ impl TypedEnvBackend for EnvInstance {
             ink_engine::hashing::blake2b_256(&account_input[..], &mut account_id);
             account_id.to_vec()
         };
-        //let contract_addr = AccountId32Mapper::<E>::to_address(&account_id_vec.into());
-        // todo
-        let contract_addr = H160::zero();
+        // todo don't convert to vec and back, simplify type
+        let contract_addr = AccountIdMapper::to_address(&account_id_vec[..]);
 
         let old_callee = self.engine.get_callee();
         self.engine.set_callee(contract_addr);
