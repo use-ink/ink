@@ -44,6 +44,7 @@ pub use self::{
     },
     types::{
         AccountId,
+        AccountIdMapper,
         Clear,
         DepositLimit,
         Hash,

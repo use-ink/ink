@@ -283,7 +283,7 @@ mod payment_channel {
             );
 
             self.recipient
-                == ink::primtives::AccountIdMapper::to_address(&signature_account_id)
+                == ink::primitives::AccountIdMapper::to_address(&signature_account_id)
         }
     }
 
