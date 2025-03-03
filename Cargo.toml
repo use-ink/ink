@@ -121,3 +121,10 @@ ink_storage_traits = { version = "=6.0.0-alpha", path = "crates/storage/traits",
 panic = "abort"
 lto = true
 
+[patch.'https://github.com/paritytech/polkadot-sdk']
+sp-io = { git = "https://www.github.com/paritytech/polkadot-sdk", rev = "9adb8d28ab1f6744f1fb26db41f42361ac1254a0" }
+sp-runtime-interface = { git = "https://www.github.com/paritytech/polkadot-sdk", rev = "9adb8d28ab1f6744f1fb26db41f42361ac1254a0" }
+sp-core = { git = "https://www.github.com/paritytech/polkadot-sdk", rev = "9adb8d28ab1f6744f1fb26db41f42361ac1254a0" }
+sp-externalities = { git = "https://www.github.com/paritytech/polkadot-sdk", rev = "9adb8d28ab1f6744f1fb26db41f42361ac1254a0" }
+sp-storage = { git = "https://www.github.com/paritytech/polkadot-sdk", rev = "9adb8d28ab1f6744f1fb26db41f42361ac1254a0" }
+

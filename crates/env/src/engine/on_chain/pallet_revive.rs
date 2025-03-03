@@ -407,10 +407,10 @@ impl TypedEnvBackend for EnvInstance {
     }
 
     fn account_id<E: Environment>(&mut self) -> E::AccountId {
-        let mut scope = self.scoped_buffer();
 
         // todo
         /*
+        let mut scope = self.scoped_buffer();
         let addr = ext::address(h160);
         let account_id = ext::to_account_id();
 
