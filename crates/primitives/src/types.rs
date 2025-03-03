@@ -514,7 +514,7 @@ impl AccountIdMapper {
         }
     }
 
-    /// Returns true if the passed account id is controlled by an eth key.
+    /// Returns true if the passed account id is controlled by an Ethereum key.
     ///
     /// This is a stateless check that just compares the last 12 bytes. Please note that
     /// it is theoretically possible to create an ed25519 keypair that passed this
