@@ -326,7 +326,7 @@ impl Dispatch<'_> {
                 }
 
                 if encoding.is_solidity() {
-                    message_infos.push(solidity_message_info(&message, storage_ident));
+                    message_infos.push(solidity_message_info(&message, storage_ident, None));
                 }
                 message_infos
             });
@@ -423,7 +423,7 @@ impl Dispatch<'_> {
 
                 // NOTE: Solidity selectors are always computed from the call signature and input types.
                 if encoding.is_solidity() {
-                    message_infos.push(solidity_message_info(&message, storage_ident));
+                    message_infos.push(solidity_message_info(&message, storage_ident, Some((trait_ident, trait_path))));
                 }
                 message_infos
             });
@@ -437,6 +437,7 @@ impl Dispatch<'_> {
         fn solidity_message_info(
             message: &CallableWithSelector<Message>,
             storage_ident: &Ident,
+            trait_info: Option<(&Ident, &syn::Path)>,
         ) -> TokenStream2 {
             let message_span = message.span();
             let message_ident = message.ident();
@@ -454,6 +455,25 @@ impl Dispatch<'_> {
 
             let selector_id = solidity_selector_id(message);
             let selector_bytes = solidity_selector(message);
+
+            let (call_prefix, label) = match trait_info {
+                None => {
+                    (
+                        quote! {
+                            #storage_ident
+                        },
+                        message_ident.to_string(),
+                    )
+                }
+                Some((trait_ident, trait_path)) => {
+                    (
+                        quote! {
+                            <#storage_ident as #trait_path>
+                        },
+                        format!("{trait_ident}::{message_ident}"),
+                    )
+                }
+            };
 
             // `alloy_sol_types::SolType` representation of input type(s).
             let input_types_len = generator::input_types(message.inputs()).len();
@@ -534,7 +554,7 @@ impl Dispatch<'_> {
 
                     const CALLABLE: fn(&mut Self::Storage, Self::Input) -> Self::Output =
                         |storage, #input_tuple_bindings| {
-                            #storage_ident::#message_ident( storage #( , #input_bindings )* )
+                            #call_prefix::#message_ident( storage #( , #input_bindings )* )
                         };
                     const DECODE: fn(&mut &[::core::primitive::u8]) -> ::core::result::Result<Self::Input, ::ink::env::DispatchError> =
                         |input| {
@@ -552,7 +572,7 @@ impl Dispatch<'_> {
                     const SELECTOR: [::core::primitive::u8; 4usize] = #selector_bytes;
                     const PAYABLE: ::core::primitive::bool = #payable;
                     const MUTATES: ::core::primitive::bool = #mutates;
-                    const LABEL: &'static ::core::primitive::str = ::core::stringify!(#message_ident);
+                    const LABEL: &'static ::core::primitive::str = #label;
                     const ENCODING: ::ink::reflect::Encoding = ::ink::reflect::Encoding::Solidity;
                 }
             )
