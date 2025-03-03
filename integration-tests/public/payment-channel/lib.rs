@@ -282,7 +282,8 @@ mod payment_channel {
                 &mut signature_account_id,
             );
 
-            self.recipient == ink::primtives::AccountIdMapper::to_address(&signature_account_id)
+            self.recipient
+                == ink::primtives::AccountIdMapper::to_address(&signature_account_id)
         }
     }
 
