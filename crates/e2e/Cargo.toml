@@ -42,29 +42,12 @@ which = { workspace = true }
 
 # Substrate
 frame-support = { workspace = true }
-#sp-core = { workspace = true }
+sp-core = { workspace = true }
 sp-keyring = { workspace = true }
 sp-runtime = { workspace = true }
 sp-weights = { workspace = true }
 regex = "1.11.1"
 itertools = "0.14.0"
-
-#sp-runtime-interface = { git = "https://github.com/paritytech/polkadot-sdk", rev = "9adb8d28ab1f6744f1fb26db41f42361ac1254a0", default-features = false, features = ["disable_target_static_assertions"]  }
-
-#[patch.'https://github.com/paritytech/polkadot-sdk']
-#sp-runtime-interface = { git = "https://www.github.com/paritytech/polkadot-sdk", rev = "9adb8d28ab1f6744f1fb26db41f42361ac1254a0" }
-
-sp-io = { git = "https://github.com/paritytech/polkadot-sdk", rev = "9adb8d28ab1f6744f1fb26db41f42361ac1254a0", default-features = false, features = ["disable_panic_handler", "disable_oom", "disable_allocator"] }
-sp-core = { git = "https://github.com/paritytech/polkadot-sdk", rev = "9adb8d28ab1f6744f1fb26db41f42361ac1254a0", default-features = false }
-sp-runtime-interface = { git = "https://github.com/paritytech/polkadot-sdk", default-features = false, features = ["disable_target_static_assertions"]  }
-
-[patch.'https://github.com/paritytech/polkadot-sdk']
-sp-io = { git = "https://www.github.com/paritytech/polkadot-sdk", rev = "9adb8d28ab1f6744f1fb26db41f42361ac1254a0" }
-sp-runtime-interface = { git = "https://www.github.com/paritytech/polkadot-sdk", rev = "9adb8d28ab1f6744f1fb26db41f42361ac1254a0" }
-sp-core = { git = "https://www.github.com/paritytech/polkadot-sdk", rev = "9adb8d28ab1f6744f1fb26db41f42361ac1254a0" }
-sp-externalities = { git = "https://www.github.com/paritytech/polkadot-sdk", rev = "9adb8d28ab1f6744f1fb26db41f42361ac1254a0" }
-sp-storage = { git = "https://www.github.com/paritytech/polkadot-sdk", rev = "9adb8d28ab1f6744f1fb26db41f42361ac1254a0" }
-
 
 [dev-dependencies]
 # Required for the doctest of `MessageBuilder::call`
@@ -80,10 +63,8 @@ std = [
 	"scale/std",
 	"serde/std",
 	"sp-core/std",
-    "sp-io/std",
 	"sp-keyring/std",
 	"sp-runtime/std",
-    "sp-runtime-interface/std",
 	"sp-weights/std",
 	"ink_e2e_macro/std",
 	"ink_sandbox/std",
