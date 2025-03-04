@@ -26,6 +26,7 @@ pub mod option_info;
 #[doc(hidden)]
 pub mod result_info;
 
+#[cfg(feature = "std")]
 #[cfg_attr(not(feature = "show-codegen-docs"), doc(hidden))]
 pub mod codegen;
 

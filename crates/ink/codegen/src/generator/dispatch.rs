@@ -280,7 +280,7 @@ impl Dispatch<'_> {
                 let input_tuple_type = generator::input_types_tuple(message.inputs());
                 let input_tuple_bindings = generator::input_bindings_tuple(message.inputs());
 
-                let mut message_infos = Vec::new();
+                let mut message_infos: Vec<proc_macro2::TokenStream> = Vec::new();
 
                 if encoding.is_scale() {
                     message_infos.push(quote_spanned!(message_span=>

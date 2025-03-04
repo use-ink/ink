@@ -33,8 +33,9 @@ dylint_testing = "3.3.0"
 # These cannot be moved to the workspace level because `cargo` does not provide
 # the `[[workspace.dev-dependencies]]` directive.
 ink = { version = "=6.0.0-alpha", path = "../../crates/ink", default-features = false, features = ["std"] }
+#ink = { version = "=6.0.0-alpha", path = "../../crates/ink", default-features = false }
 ink_metadata = { version = "=6.0.0-alpha", path = "../../crates/metadata", default-features = false }
-ink_primitives = { version = "=6.0.0-alpha", path = "../../crates/primitives", default-features = false }
+ink_primitives = { version = "=6.0.0-alpha", path = "../../crates/primitives", default-features = false, features = ["std"] }
 ink_storage = { version = "=6.0.0-alpha", path = "../../crates/storage", default-features = false }
 scale = { package = "parity-scale-codec", version = "3.6.12", default-features = false, features = ["derive"] }
 scale-info = { version = "2.6", default-features = false, features = ["derive"] }
