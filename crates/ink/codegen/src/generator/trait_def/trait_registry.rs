@@ -335,6 +335,10 @@ impl TraitRegistry<'_> {
         let local_id = message.local_id();
         let selector_bytes = selector.hex_lits();
         let is_payable = message.ink_attrs().is_payable();
+        // TODO: (@davidsemakula) generate Solidity selectors when spec for determining
+        // trait definition ABI is finalized.
+        // NOTE: This doesn't affect call decoding because the selector is computed
+        // directly from the implementation signature.
         quote_spanned!(span=>
             impl<E> ::ink::reflect::TraitMessageInfo<#local_id> for #trait_info_ident<E> {
                 const PAYABLE: ::core::primitive::bool = #is_payable;
