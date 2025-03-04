@@ -1012,7 +1012,7 @@ impl Dispatch<'_> {
                         // See https://github.com/rust-lang/rust-clippy/issues/6249
                         let mut flag = ::ink::env::ReturnFlags::REVERT;
 
-                        // no need to push back results: transaction gets reverted anyways
+                        // no need to push back results: transaction gets reverted anyway
                         if !is_reverted {
                             flag = ::ink::env::ReturnFlags::empty();
                             push_contract(contract, #mutates_storage);

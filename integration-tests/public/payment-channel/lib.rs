@@ -281,7 +281,6 @@ mod payment_channel {
                 &pub_key,
                 &mut signature_account_id,
             );
-            let foo = ink::primitives::AccountIdMapper::to_address(&signature_account_id);
 
             self.recipient
                 == ink::primitives::AccountIdMapper::to_address(&signature_account_id)

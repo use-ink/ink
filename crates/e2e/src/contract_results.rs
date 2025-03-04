@@ -317,6 +317,7 @@ impl<E: Environment, V: scale::Decode> CallDryRunResult<E, V> {
             panic!("msg {}", msg);
         }
         */
+        eprintln!("return_value");
         self.did_revert();
         self.message_result()
             .unwrap_or_else(|lang_err| {
