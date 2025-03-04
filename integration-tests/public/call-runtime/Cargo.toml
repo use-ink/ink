@@ -27,8 +27,8 @@ path = "lib.rs"
 default = ["std"]
 std = [
     "ink/std",
-    #"sp-runtime/std",
-    #"sp-io/std",
+    "sp-runtime/std",
+    "sp-io/std",
 ]
 ink-as-dependency = []
 e2e-tests = []

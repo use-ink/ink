@@ -46,7 +46,10 @@ use crate::{
         ContractResult,
         UploadResult,
     },
-    error::DryRunError,
+    error::{
+        DryRunError,
+        DryRunRevert,
+    },
     events,
     ContractsBackend,
     E2EBackend,
@@ -292,13 +295,23 @@ where
         &self,
         contract_result: ContractResult<V, E::Balance>,
     ) -> Result<ContractResult<V, E::Balance>, DryRunError<DispatchError>> {
+        //) -> Result<ContractResult<V, E::Balance>, Error::CallDryRun<DispatchError>> {
+        //) -> Result<ContractResult<V, E::Balance>, Error> {
         if let Err(error) = contract_result.result {
             let subxt_dispatch_err =
                 self.runtime_dispatch_error_to_subxt_dispatch_error(&error);
+            /*
+            Err(Error::CallDryRun(
+                DryRunError {
+                    error: subxt_dispatch_err,
+                }
+            ))
+                */
             Err(DryRunError::<DispatchError> {
                 error: subxt_dispatch_err,
             })
         } else {
+            Ok(contract_result)
             /*
             // todo
             if contract_result.result.unwrap().did_revert() {
@@ -308,8 +321,7 @@ where
             } else {
                 Ok(contract_result)
             }
-            */
-            Ok(contract_result)
+             */
         }
     }
 
@@ -553,16 +565,9 @@ where
 
         if let Ok(res) = result.result.clone() {
             if res.result.did_revert() {
-                let msg = String::from_utf8(res.result.data).unwrap();
-                panic!("Contract reverted with {:?}", msg);
-                /*
-                // todo
-                return Err(Self::Error::InstantiateDryRun(DryRunError::<DispatchError> {
-                    error: DispatchError::Module(
-                     //String::from_utf8(res.result.data).unwrap(),
-                    )
-                }))
-                */
+                return Err(Self::Error::InstantiateDryRunReverted(DryRunRevert {
+                    error: res.result.data,
+                }));
             }
         }
 
@@ -685,10 +690,19 @@ where
             )
             .await;
         log_info(&format!("call dry run result: {:?}", &exec_result.result));
+        eprintln!("call dry run result: {:?}", &exec_result.result);
 
         let exec_result = self
             .contract_result_to_result(exec_result)
             .map_err(Error::CallDryRun)?;
+
+        if let Ok(res) = exec_result.result.clone() {
+            if res.did_revert() {
+                return Err(Self::Error::CallDryRunReverted(DryRunRevert {
+                    error: res.data,
+                }));
+            }
+        }
 
         Ok(CallDryRunResult {
             exec_result,
