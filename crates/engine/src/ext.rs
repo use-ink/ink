@@ -344,8 +344,7 @@ impl Engine {
             signature.copy_from_slice(&input[..65]);
             let mut message_hash = [0u8; 32];
             message_hash.copy_from_slice(&input[65..65 + 32]);
-            //let mut out = [0u8; 33];
-            //output.copy_from_slice(mut output[..33];
+
             let out: &mut [u8; 33] = output
                 .as_mut()
                 .try_into()

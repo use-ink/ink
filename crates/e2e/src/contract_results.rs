@@ -330,7 +330,6 @@ impl<E: Environment, V: scale::Decode> CallDryRunResult<E, V> {
         // todo
         // on revert:
         let res = self.exec_result.result.clone().unwrap();
-        eprintln!("res {:?}", res);
         if res.did_revert() {
             let msg = String::from_utf8_lossy(&res.data);
             eprintln!("found revert with {}", msg);

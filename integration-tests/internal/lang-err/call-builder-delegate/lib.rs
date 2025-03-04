@@ -171,12 +171,7 @@ mod call_builder {
             let call = call_builder.invoke(address, selector);
             let call_result = client.call(&origin, &call).dry_run().await;
 
-            eprintln!("call_result {:?}", call_result);
-
-            //if let Err(ink_e2e::Error::CallDryRun(dry_run)) = call_result {
             if let Err(ink_e2e::Error::CallDryRunReverted(dry_run)) = call_result {
-                eprintln!("dry_run {}", dry_run);
-                // todo
                 assert!(format!("{dry_run}")
                     .contains("Cross-contract call failed with CouldNotReadInput"));
             } else {
