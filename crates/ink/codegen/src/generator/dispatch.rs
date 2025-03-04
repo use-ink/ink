@@ -1232,9 +1232,9 @@ impl Dispatch<'_> {
 
                         const _: () = {
                             impl #call_type_ident {
-                                pub const SIGNATURE: &str = ::ink::codegen::const_format!(#sig_fmt_lit, #ident_str #(,#sig_param_tys)*);
-                                pub const SELECTOR: [u8; 4] = ::ink::codegen::sol_selector_bytes(Self::SIGNATURE);
-                                pub const SELECTOR_ID: u32 = u32::from_be_bytes(Self::SELECTOR);
+                                pub const SIGNATURE: &'static ::core::primitive::str = ::ink::codegen::const_format!(#sig_fmt_lit, #ident_str #(,#sig_param_tys)*);
+                                pub const SELECTOR: [::core::primitive::u8; 4usize] = ::ink::codegen::sol_selector_bytes(Self::SIGNATURE);
+                                pub const SELECTOR_ID: ::core::primitive::u32 = ::core::primitive::u32::from_be_bytes(Self::SELECTOR);
                             }
                         };
                     )
