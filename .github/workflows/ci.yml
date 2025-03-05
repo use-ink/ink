@@ -362,8 +362,8 @@ jobs:
           # at the same time, hence we use this workaround.
           QUICKCHECK_TESTS:            0
         run: |
-          cargo +nightly nextest run --all-features --no-fail-fast --workspace --locked
-          cargo +nightly test --all-features --no-fail-fast --workspace --doc --locked
+          cargo nextest run --all-features --no-fail-fast --workspace --locked
+          cargo test --all-features --no-fail-fast --workspace --doc --locked
 
       - name: Test Linting
         if: ${{ matrix.workspace == 'linting' }}
