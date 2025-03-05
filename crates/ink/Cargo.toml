@@ -50,6 +50,7 @@ std = [
     "ink_storage/std",
     "scale-info/std",
     "scale/std",
+    "sp-io/std",
     "xcm/std",
     "derive_more/std",
 ]

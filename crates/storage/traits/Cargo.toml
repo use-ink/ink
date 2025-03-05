@@ -32,6 +32,7 @@ std = [
 	"ink_metadata/std",
 	"ink_prelude/std",
 	"ink_primitives/std",
+    "sp-io/std",
 	"scale-info/std",
 	"scale/std",
 ]
