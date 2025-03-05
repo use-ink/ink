@@ -161,9 +161,7 @@ where
         storage_deposit_limit: E::Balance,
     ) -> Result<BareInstantiationResult<ExtrinsicEvents<C>>, Error> {
         let salt = salt();
-        if salt.is_none() {
-            panic!("foo");
-        }
+        assert!(salt.is_some());
         let (events, trace) = self
             .api
             .instantiate_with_code(
@@ -295,33 +293,14 @@ where
         &self,
         contract_result: ContractResult<V, E::Balance>,
     ) -> Result<ContractResult<V, E::Balance>, DryRunError<DispatchError>> {
-        //) -> Result<ContractResult<V, E::Balance>, Error::CallDryRun<DispatchError>> {
-        //) -> Result<ContractResult<V, E::Balance>, Error> {
         if let Err(error) = contract_result.result {
             let subxt_dispatch_err =
                 self.runtime_dispatch_error_to_subxt_dispatch_error(&error);
-            /*
-            Err(Error::CallDryRun(
-                DryRunError {
-                    error: subxt_dispatch_err,
-                }
-            ))
-                */
             Err(DryRunError::<DispatchError> {
                 error: subxt_dispatch_err,
             })
         } else {
             Ok(contract_result)
-            /*
-            // todo
-            if contract_result.result.unwrap().did_revert() {
-                Err(DryRunError::<String> {
-                    error:  String::from_utf8(contract_result.result.unwrap().data).unwrap()
-                })
-            } else {
-                Ok(contract_result)
-            }
-             */
         }
     }
 
