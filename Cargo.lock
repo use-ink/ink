@@ -3672,6 +3672,7 @@ dependencies = [
  "parity-scale-codec",
  "paste",
  "scale-info",
+ "sp-io",
 ]
 
 [[package]]
