@@ -52,6 +52,7 @@ use rustc_middle::{
         Rvalue,
         Statement,
         Terminator,
+        TerminatorEdges,
         TerminatorKind,
     },
     ty as mir_ty,
@@ -255,6 +256,22 @@ impl<'tcx> Analysis<'tcx> for StrictBalanceEqualityAnalysis<'_, 'tcx> {
             &mut self.mutable_references,
         )
         .visit_statement(statement, location);
+    }
+
+    fn apply_primary_terminator_effect<'mir>(
+        &mut self,
+        state: &mut Self::Domain,
+        terminator: &'mir Terminator<'tcx>,
+        location: Location,
+    ) -> TerminatorEdges<'mir, 'tcx> {
+        TransferFunction::new(
+            self.cx,
+            self.fun_cache,
+            state,
+            &mut self.mutable_references,
+        )
+        .visit_terminator(terminator, location);
+        terminator.edges()
     }
 
     fn apply_call_return_effect(

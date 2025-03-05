@@ -257,6 +257,10 @@ impl<'a, 'tcx> APIUsageChecker<'a, 'tcx> {
 impl<'tcx> Visitor<'tcx> for APIUsageChecker<'_, 'tcx> {
     type NestedFilter = nested_filter::OnlyBodies;
 
+    fn maybe_tcx(&mut self) -> Self::MaybeTyCtxt {
+        self.cx.tcx
+    }
+
     fn visit_expr(&mut self, e: &'tcx Expr<'tcx>) {
         if_chain! {
             if !is_lint_allowed(self.cx, NON_FALLIBLE_API, e.hir_id);
