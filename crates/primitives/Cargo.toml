@@ -31,6 +31,8 @@ num-traits = { workspace = true, features = ["i128"] }
 pallet-revive = { git = "https://github.com/use-ink/polkadot-sdk", branch = "cmichi-disable-asserts", default-features = false }
 sp-core = { workspace = true }
 
+sp-io = { git = "https://github.com/use-ink/polkadot-sdk", branch = "cmichi-disable-asserts", default-features = false, features = ["disable_panic_handler", "disable_oom", "disable_allocator"] }
+
 [dev-dependencies]
 ink = { workspace = true, default-features = false }
 ink_env = { workspace = true, default-features = false }
@@ -51,6 +53,7 @@ std = [
 	"scale/std",
 	"scale-encode?/std",
     "sp-core/std",
+    "sp-io/std",
     "primitive-types/std",
     "primitive-types/scale-info",
 	"derive_more/std",

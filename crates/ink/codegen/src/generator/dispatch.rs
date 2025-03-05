@@ -282,6 +282,11 @@ impl Dispatch<'_> {
 
                 let mut message_infos: Vec<proc_macro2::TokenStream> = Vec::new();
 
+                #[cfg(feature = "std")]
+                let return_type = quote! { () };
+                #[cfg(not(feature = "std"))]
+                let return_type = quote! { ! };
+
                 if encoding.is_scale() {
                     message_infos.push(quote_spanned!(message_span=>
                         #( #cfg_attrs )*
@@ -299,18 +304,7 @@ impl Dispatch<'_> {
                                     <Self::Input as ::ink::scale::Decode>::decode(input)
                                         .map_err(|_| ::ink::env::DispatchError::InvalidParameters)
                                 };
-                            #[cfg(not(feature = "std"))]
-                            const RETURN: fn(::ink::env::ReturnFlags, Self::Output) -> ! =
-                                |flags, output| {
-                                    ::ink::env::return_value::<::ink::MessageResult::<Self::Output>>(
-                                        flags,
-                                        // Currently no `LangError`s are raised at this level of the
-                                        // dispatch logic so `Ok` is always returned to the caller.
-                                        &::ink::MessageResult::Ok(output),
-                                    )
-                                };
-                            #[cfg(feature = "std")]
-                            const RETURN: fn(::ink::env::ReturnFlags, Self::Output) -> () =
+                            const RETURN: fn(::ink::env::ReturnFlags, Self::Output) -> #return_type =
                                 |flags, output| {
                                     ::ink::env::return_value::<::ink::MessageResult::<Self::Output>>(
                                         flags,
@@ -363,6 +357,11 @@ impl Dispatch<'_> {
                             };
                         });
 
+                    #[cfg(feature = "std")]
+                    let return_type = quote! { () };
+                    #[cfg(not(feature = "std"))]
+                    let return_type = quote! { ! };
+
                     message_infos.push(quote_spanned!(message_span=>
                         #( #cfg_attrs )*
                         impl ::ink::reflect::DispatchableMessageInfo<#sol_selector_id> for #storage_ident {
@@ -376,11 +375,7 @@ impl Dispatch<'_> {
                                 };
                             const DECODE: fn(&mut &[::core::primitive::u8]) -> ::core::result::Result<Self::Input, ::ink::env::DispatchError> =
                                 #sol_decode
-                            #[cfg(not(feature = "std"))]
-                            const RETURN: fn(::ink::env::ReturnFlags, Self::Output) -> ! =
-                                #sol_return_value
-                            #[cfg(feature = "std")]
-                            const RETURN: fn(::ink::env::ReturnFlags, Self::Output) -> () =
+                            const RETURN: fn(::ink::env::ReturnFlags, Self::Output) -> #return_type =
                                 #sol_return_value
                             const SELECTOR: [::core::primitive::u8; 4usize] = [ #( #sol_selector_bytes ),* ];
                             const PAYABLE: ::core::primitive::bool = #payable;
@@ -438,6 +433,11 @@ impl Dispatch<'_> {
 
                 let mut message_infos = Vec::new();
 
+                #[cfg(feature = "std")]
+                let return_type = quote! { () };
+                #[cfg(not(feature = "std"))]
+                let return_type = quote! { ! };
+
                 if self.contract.config().abi().is_scale() {
                    message_infos.push(quote_spanned!(message_span=>
                         #( #cfg_attrs )*
@@ -455,18 +455,7 @@ impl Dispatch<'_> {
                                 <Self::Input as ::ink::scale::Decode>::decode(input)
                                     .map_err(|_| ::ink::env::DispatchError::InvalidParameters)
                             };
-                        #[cfg(not(feature = "std"))]
-                        const RETURN: fn(::ink::env::ReturnFlags, Self::Output) -> ! =
-                            |flags, output| {
-                                ::ink::env::return_value::<::ink::MessageResult::<Self::Output>>(
-                                    flags,
-                                    // Currently no `LangError`s are raised at this level of the
-                                    // dispatch logic so `Ok` is always returned to the caller.
-                                    &::ink::MessageResult::Ok(output),
-                                )
-                            };
-                        #[cfg(feature = "std")]
-                        const RETURN: fn(::ink::env::ReturnFlags, Self::Output) -> () =
+                        const RETURN: fn(::ink::env::ReturnFlags, Self::Output) -> #return_type =
                             |flags, output| {
                                 ::ink::env::return_value::<::ink::MessageResult::<Self::Output>>(
                                     flags,
@@ -519,6 +508,11 @@ impl Dispatch<'_> {
                             };
                         });
 
+                    #[cfg(feature = "std")]
+                    let return_type = quote! { () };
+                    #[cfg(not(feature = "std"))]
+                    let return_type = quote! { ! };
+
                     message_infos.push(quote_spanned!(message_span=>
                         #( #cfg_attrs )*
                         impl ::ink::reflect::DispatchableMessageInfo<#selector_id> for #storage_ident {
@@ -532,11 +526,7 @@ impl Dispatch<'_> {
                                 };
                             const DECODE: fn(&mut &[::core::primitive::u8]) -> ::core::result::Result<Self::Input, ::ink::env::DispatchError> =
                                 #sol_decode
-                            #[cfg(not(feature = "std"))]
-                            const RETURN: fn(::ink::env::ReturnFlags, Self::Output) -> ! =
-                                #sol_return_value
-                            #[cfg(feature = "std")]
-                            const RETURN: fn(::ink::env::ReturnFlags, Self::Output) -> () =
+                            const RETURN: fn(::ink::env::ReturnFlags, Self::Output) -> #return_type =
                                 #sol_return_value
                             const SELECTOR: [::core::primitive::u8; 4usize] = #selector;
                             const PAYABLE: ::core::primitive::bool = #payable;

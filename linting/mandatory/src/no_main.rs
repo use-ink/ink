@@ -64,17 +64,14 @@ declare_lint_pass!(NoMain => [NO_MAIN]);
 
 impl EarlyLintPass for NoMain {
     fn check_crate(&mut self, cx: &EarlyContext<'_>, krate: &Crate) {
-        eprintln!("----check_crate");
         // `no_main` is an `Inner` attribute of `#![cfg_attr(...)]`
         if krate.attrs.iter().all(|attr| {
-            eprintln!("----check_crate 0");
             if_chain! {
             if !attr.span.in_external_macro(cx.sess().source_map());
             if let AttrStyle::Inner = attr.style;
             if attr.has_name(sym::no_main);
             then { false } else { true }}
         }) {
-            eprintln!("----check_crate 1");
             span_lint_and_help(
                 cx,
                 NO_MAIN,
@@ -85,6 +82,5 @@ impl EarlyLintPass for NoMain {
                 for further information visit https://use.ink/linter/rules/no_main"
             )
         }
-        eprintln!("---check_crate 9");
     }
 }
