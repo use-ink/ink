@@ -3356,6 +3356,7 @@ dependencies = [
  "parity-scale-codec",
  "polkavm-derive 0.21.0 (git+https://github.com/paritytech/polkavm)",
  "scale-info",
+ "sp-io",
  "staging-xcm",
  "trybuild",
 ]
@@ -3513,9 +3514,14 @@ dependencies = [
 name = "ink_macro"
 version = "6.0.0-alpha"
 dependencies = [
+ "ink",
  "ink_codegen",
+ "ink_env",
  "ink_ir",
+ "ink_metadata 6.0.0-alpha",
+ "ink_prelude 6.0.0-alpha",
  "ink_primitives 6.0.0-alpha",
+ "ink_storage",
  "parity-scale-codec",
  "proc-macro2",
  "quote",

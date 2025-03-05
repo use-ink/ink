@@ -79,7 +79,7 @@ pub fn find_storage_struct(cx: &LateContext, item_ids: &[ItemId]) -> Option<Item
     item_ids
         .iter()
         .find(|&item_id| {
-            let item = cx.tcx.hir().item(*item_id);
+            let item = cx.tcx.hir_item(*item_id);
             if_chain! {
                 if has_storage_attr(cx, item.hir_id());
                 if let ItemKind::Struct(..) = item.kind;
@@ -96,9 +96,9 @@ pub fn find_storage_struct(cx: &LateContext, item_ids: &[ItemId]) -> Option<Item
 /// implementations of a contract.
 fn items_in_unnamed_const(cx: &LateContext<'_>, id: &ItemId) -> Vec<ItemId> {
     if_chain! {
-        if let ItemKind::Const(ty, _, body_id) = cx.tcx.hir().item(*id).kind;
+        if let ItemKind::Const(ty, _, body_id) = cx.tcx.hir_item(*id).kind;
         if let TyKind::Tup([]) = ty.kind;
-        let body = cx.tcx.hir().body(body_id);
+        let body = cx.tcx.hir_body(body_id);
         if let ExprKind::Block(block, _) = body.value.kind;
         then {
             block.stmts.iter().fold(Vec::new(), |mut acc, stmt| {
@@ -133,7 +133,7 @@ fn find_contract_ty_hir<'tcx>(
         .iter()
         .find_map(|item_id| {
             if_chain! {
-                let item = cx.tcx.hir().item(*item_id);
+                let item = cx.tcx.hir_item(*item_id);
                 if let ItemKind::Impl(item_impl) = &item.kind;
                 if let Some(trait_ref) = cx.tcx.impl_trait_ref(item.owner_id);
                 if match_def_path(
@@ -168,7 +168,7 @@ pub fn find_contract_impl_id(
         .iter()
         .find(|item_id| {
             if_chain! {
-                let item = cx.tcx.hir().item(**item_id);
+                let item = cx.tcx.hir_item(**item_id);
                 if let ItemKind::Impl(item_impl) = &item.kind;
                 if item_impl.of_trait.is_none();
                 if eq_hir_struct_tys(contract_struct_ty, item_impl.self_ty);

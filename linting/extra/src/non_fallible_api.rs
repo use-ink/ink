@@ -49,6 +49,7 @@ use rustc_middle::{
         ConstKind,
         Ty,
         TypeckResults,
+        Value,
     },
 };
 use rustc_session::{
@@ -200,8 +201,12 @@ impl<'a, 'tcx> APIUsageChecker<'a, 'tcx> {
             ty::Array(inner_ty, len_const) => {
                 if_chain! {
                     if self.is_statically_known(inner_ty);
-                    if let ConstKind::Value(_, ty::ValTree::Leaf(elements_count)) = len_const.kind();
-                    let elements_size = elements_count.to_target_usize(self.cx.tcx);
+                    //if let ConstKind::Value{ ty: _, valtree: ty::ValTree(Interned<_, ValTreeKind::Leaf(elements_count)> } = len_const.kind();
+                    //if let ConstKind::Value{ ty: _, valtree: ty::ValTree(Interned::<_, ValTreeKind::Leaf(elements_count)>) } = len_const.kind();
+                    if let ConstKind::Value(value) = len_const.kind();
+                    if let Value { ty: _, valtree } = value;
+                    //if let { ty: _, valtree: ty::ValTree(Interned::<_, ValTreeKind::Leaf(elements_count)>) } = value;
+                    let elements_size = valtree.unwrap_leaf().to_target_usize(self.cx.tcx);
                     if elements_size < (ink_env::BUFFER_SIZE as u64);
                     then { true } else { false }
                 }
@@ -284,10 +289,6 @@ impl<'tcx> Visitor<'tcx> for APIUsageChecker<'_, 'tcx> {
         walk_body(self, body);
         self.maybe_typeck_results = old_maybe_typeck_results;
     }
-
-    fn nested_visit_map(&mut self) -> Self::Map {
-        self.cx.tcx.hir()
-    }
 }
 
 impl<'tcx> LateLintPass<'tcx> for NonFallibleAPI {
@@ -300,11 +301,11 @@ impl<'tcx> LateLintPass<'tcx> for NonFallibleAPI {
         if_chain! {
             let all_item_ids = expand_unnamed_consts(cx, m.item_ids);
             if let Some(contract_impl_id) = find_contract_impl_id(cx, all_item_ids);
-            let contract_impl = cx.tcx.hir().item(contract_impl_id);
+            let contract_impl = cx.tcx.hir_item(contract_impl_id);
             if let ItemKind::Impl(contract_impl) = contract_impl.kind;
             then {
                 contract_impl.items.iter().for_each(|impl_item| {
-                    let impl_item = cx.tcx.hir().impl_item(impl_item.id);
+                    let impl_item = cx.tcx.hir_impl_item(impl_item.id);
                     if let ImplItemKind::Fn(..) = impl_item.kind {
                         let mut visitor = APIUsageChecker::new(cx);
                         visitor.visit_impl_item(impl_item);

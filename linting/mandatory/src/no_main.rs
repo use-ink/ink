@@ -24,7 +24,6 @@ use rustc_lint::{
     EarlyLintPass,
     LintContext,
 };
-use rustc_middle::lint::in_external_macro;
 use rustc_session::{
     declare_lint,
     declare_lint_pass,
@@ -70,7 +69,7 @@ impl EarlyLintPass for NoMain {
         if krate.attrs.iter().all(|attr| {
             eprintln!("----check_crate 0");
             if_chain! {
-            if !in_external_macro(cx.sess(), attr.span);
+            if !attr.span.in_external_macro(cx.sess().source_map());
             if let AttrStyle::Inner = attr.style;
             if attr.has_name(sym::no_main);
             then { false } else { true }}
@@ -86,5 +85,6 @@ impl EarlyLintPass for NoMain {
                 for further information visit https://use.ink/linter/rules/no_main"
             )
         }
+        eprintln!("---check_crate 9");
     }
 }
