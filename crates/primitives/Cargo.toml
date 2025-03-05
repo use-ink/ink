@@ -54,9 +54,9 @@ std = [
 	"scale-encode?/std",
     "sp-core/std",
     "sp-io/std",
+    "pallet-revive/std",
     "primitive-types/std",
     "primitive-types/scale-info",
 	"derive_more/std",
-	"xxhash-rust/std",
-    "pallet-revive/std"
+	"xxhash-rust/std"
 ]

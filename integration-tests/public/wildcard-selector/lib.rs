@@ -30,7 +30,6 @@ pub mod wildcard_selector {
         #[ink(message, selector = _)]
         pub fn wildcard(&mut self) {
             let MessageInput(_selector, _message) =
-                //ink::env::decode_input::<([u8; 4], String)>().unwrap();
                 ink::env::decode_input::<MessageInput>().unwrap();
             /*
             // todo

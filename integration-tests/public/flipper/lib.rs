@@ -1,8 +1,5 @@
 #![cfg_attr(not(feature = "std"), no_std, no_main)]
 
-//#[allow(unused_imports)]
-//use sp_runtime_interface as _;
-
 #[ink::contract]
 pub mod flipper {
     #[ink(storage)]

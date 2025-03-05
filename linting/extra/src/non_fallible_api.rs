@@ -201,11 +201,8 @@ impl<'a, 'tcx> APIUsageChecker<'a, 'tcx> {
             ty::Array(inner_ty, len_const) => {
                 if_chain! {
                     if self.is_statically_known(inner_ty);
-                    //if let ConstKind::Value{ ty: _, valtree: ty::ValTree(Interned<_, ValTreeKind::Leaf(elements_count)> } = len_const.kind();
-                    //if let ConstKind::Value{ ty: _, valtree: ty::ValTree(Interned::<_, ValTreeKind::Leaf(elements_count)>) } = len_const.kind();
                     if let ConstKind::Value(value) = len_const.kind();
                     if let Value { ty: _, valtree } = value;
-                    //if let { ty: _, valtree: ty::ValTree(Interned::<_, ValTreeKind::Leaf(elements_count)>) } = value;
                     let elements_size = valtree.unwrap_leaf().to_target_usize(self.cx.tcx);
                     if elements_size < (ink_env::BUFFER_SIZE as u64);
                     then { true } else { false }

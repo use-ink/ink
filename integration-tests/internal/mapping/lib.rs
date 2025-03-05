@@ -361,7 +361,6 @@ mod mapping {
             let buffer_size = std::env::var("INK_STATIC_BUFFER_SIZE")
                 .unwrap_or_else(|err| panic!("{} {}", ERR, err));
             assert_eq!(buffer_size, "256", "{}", ERR);
-            eprintln!("---1");
 
             // given
             let mut constructor = MappingsRef::new();
@@ -371,7 +370,6 @@ mod mapping {
                 .await
                 .expect("instantiate failed");
             let mut call_builder = contract.call_builder::<Mappings>();
-            eprintln!("---2");
 
             // when the mapping value overgrows the buffer
             let name = ink_e2e::ferdie().public_key().to_account_id().to_string();
@@ -381,18 +379,15 @@ mod mapping {
                 names.push(name.clone())
             }
 
-            eprintln!("---3");
             // then adding another one should fail gracefully
             let received_insert_result = client
                 .call(&ink_e2e::ferdie(), &insert)
                 .dry_run()
                 .await?
                 .return_value();
-            eprintln!("received: {:?}", received_insert_result);
             let expected_insert_result =
                 Err(crate::mapping::ContractError::ValueTooLarge);
             assert_eq!(received_insert_result, expected_insert_result);
-            eprintln!("---4");
 
             // then there should be 4 entries (that's what fits into the 256kb buffer)
             let received_mapping_value = client
@@ -400,7 +395,6 @@ mod mapping {
                 .dry_run()
                 .await?
                 .return_value();
-            eprintln!("---5");
             let expected_mapping_value = Some(Ok(names));
             assert_eq!(received_mapping_value, expected_mapping_value);
 
