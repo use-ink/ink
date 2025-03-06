@@ -3340,7 +3340,7 @@ version = "6.0.0-alpha"
 dependencies = [
  "alloy-sol-types",
  "const_format",
- "derive_more 1.0.0",
+ "derive_more 2.0.1",
  "ink_env",
  "ink_ir",
  "ink_macro",
@@ -3372,7 +3372,7 @@ name = "ink_codegen"
 version = "6.0.0-alpha"
 dependencies = [
  "blake2",
- "derive_more 1.0.0",
+ "derive_more 2.0.1",
  "either",
  "heck",
  "impl-serde",
@@ -3430,7 +3430,7 @@ name = "ink_e2e_macro"
 version = "6.0.0-alpha"
 dependencies = [
  "darling",
- "derive_more 1.0.0",
+ "derive_more 2.0.1",
  "ink",
  "ink_e2e",
  "ink_ir",
@@ -3447,7 +3447,7 @@ name = "ink_engine"
 version = "6.0.0-alpha"
 dependencies = [
  "blake2",
- "derive_more 1.0.0",
+ "derive_more 2.0.1",
  "ink_primitives 6.0.0-alpha",
  "pallet-revive-uapi",
  "parity-scale-codec",
@@ -3464,7 +3464,7 @@ dependencies = [
  "blake2",
  "cfg-if",
  "const_env",
- "derive_more 1.0.0",
+ "derive_more 2.0.1",
  "ink",
  "ink_allocator",
  "ink_engine",
@@ -3528,7 +3528,7 @@ dependencies = [
 name = "ink_metadata"
 version = "6.0.0-alpha"
 dependencies = [
- "derive_more 1.0.0",
+ "derive_more 2.0.1",
  "impl-serde",
  "ink_prelude 6.0.0-alpha",
  "ink_primitives 6.0.0-alpha",
@@ -3578,7 +3578,7 @@ version = "6.0.0-alpha"
 dependencies = [
  "alloy-sol-types",
  "cfg-if",
- "derive_more 1.0.0",
+ "derive_more 2.0.1",
  "ink",
  "ink_env",
  "ink_prelude 6.0.0-alpha",
@@ -3639,7 +3639,7 @@ version = "6.0.0-alpha"
 dependencies = [
  "array-init",
  "cfg-if",
- "derive_more 1.0.0",
+ "derive_more 2.0.1",
  "ink",
  "ink_env",
  "ink_metadata 6.0.0-alpha",
