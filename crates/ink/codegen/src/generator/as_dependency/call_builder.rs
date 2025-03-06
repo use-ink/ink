@@ -387,7 +387,7 @@ impl CallBuilder<'_> {
         let output_span = return_type.span();
 
         let mut call_builders = Vec::new();
-        if abi.is_scale() {
+        if abi.is_ink() {
             let arg_list = generator::generate_argument_list(
                 input_types.iter().cloned(),
                 quote!(::ink::reflect::ScaleEncoding),

@@ -55,7 +55,6 @@ proc-macro2 = { version = "1" }
 quickcheck = { version = "1" }
 quickcheck_macros = { version = "1" }
 quote = { version = "1" }
-alloy-sol-types = { version = "0.8.21", default-features = false }
 scale = { package = "parity-scale-codec", version = "3.6.12", default-features = false, features = ["derive"] }
 scale-decode = { version = "0.14.0", default-features = false }
 scale-encode = { version = "0.8.0", default-features = false }
@@ -101,6 +100,11 @@ xcm = { package = "staging-xcm", git = "https://github.com/paritytech/polkadot-s
 
 # PolkaVM dependencies
 polkavm-derive = { git = "https://github.com/use-ink/polkavm", branch = "cmichi-unsupported-instruction-compilation-bug", default-features = false }
+
+# Solidity dependencies
+alloy-sol-types = { version = "0.8.21", default-features = false }
+const_format = { version = "0.2.34", features = ["fmt"] }
+keccak-const = "0.2.0"
 
 # Local dependencies
 ink = { version = "=6.0.0-alpha", path = "crates/ink", default-features = false }

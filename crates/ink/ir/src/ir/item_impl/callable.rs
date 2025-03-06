@@ -48,8 +48,6 @@ pub struct CallableWithSelector<'a, C> {
     /// The composed selector computed by the associated implementation block
     /// and the given callable.
     composed_selector: ir::Selector,
-    /// The composed selector for the callable with Solidity encoding.
-    composed_solidity_selector: ir::Selector,
     /// The parent implementation block.
     item_impl: &'a ir::ItemImpl,
     /// The actual callable.
@@ -71,7 +69,6 @@ where
     pub(super) fn new(item_impl: &'a ir::ItemImpl, callable: &'a C) -> Self {
         Self {
             composed_selector: compose_selector(item_impl, callable),
-            composed_solidity_selector: compose_selector_solidity(item_impl, callable),
             item_impl,
             callable,
         }
@@ -82,11 +79,6 @@ impl<'a, C> CallableWithSelector<'a, C> {
     /// Returns the composed selector of the ink! callable the `impl` block.
     pub fn composed_selector(&self) -> ir::Selector {
         self.composed_selector
-    }
-
-    /// Returns the composed selector of the ink! callable with Solidity encoding.
-    pub fn composed_solidity_selector(&self) -> ir::Selector {
-        self.composed_solidity_selector
     }
 
     /// Returns a shared reference to the underlying callable.
@@ -334,18 +326,6 @@ where
     }
     let preimage = compose_selector_preimage(item_impl, callable);
     ir::Selector::compute(&preimage)
-}
-
-/// Returns the composed selector of the ink! callable.
-fn compose_selector_solidity<C>(item_impl: &ir::ItemImpl, callable: &C) -> ir::Selector
-where
-    C: Callable,
-{
-    if let Some(selector) = callable.user_provided_selector() {
-        return *selector
-    }
-    let preimage = compose_selector_preimage(item_impl, callable);
-    ir::Selector::compute_keccak(&preimage)
 }
 
 fn compose_selector_preimage<C>(item_impl: &ir::ItemImpl, callable: &C) -> Vec<u8>

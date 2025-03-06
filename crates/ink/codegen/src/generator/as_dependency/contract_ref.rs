@@ -461,7 +461,7 @@ impl ContractRef<'_> {
             .unwrap_or_else(|| quote::quote! { Self });
 
         let mut create_builders = Vec::new();
-        if abi.is_scale() {
+        if abi.is_ink() {
             let arg_list = generator::generate_argument_list(
                 input_types.iter().cloned(),
                 quote!(::ink::reflect::ScaleEncoding),

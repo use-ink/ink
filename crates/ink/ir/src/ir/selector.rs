@@ -12,10 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use super::{
-    blake2::blake2b_256,
-    sha3::keccak_256,
-};
+use super::blake2::blake2b_256;
 use crate::literal::HexLiteral;
 use proc_macro2::TokenStream as TokenStream2;
 use std::marker::PhantomData;
@@ -25,7 +22,7 @@ use syn::spanned::Spanned as _;
 ///
 /// # Note
 ///
-/// This is equal to the first four bytes of the SHA-3 hash of a function's name.
+/// This is equal to the first four bytes of the BLAKE-2 256 hash of a function's name.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct Selector {
     bytes: [u8; 4],
@@ -71,13 +68,6 @@ impl Selector {
     pub fn compute(input: &[u8]) -> Self {
         let mut output = [0; 32];
         blake2b_256(input, &mut output);
-        Self::from([output[0], output[1], output[2], output[3]])
-    }
-
-    /// Computes the Keccak 256-bit based selector from the given input bytes.
-    pub fn compute_keccak(input: &[u8]) -> Self {
-        let mut output = [0; 32];
-        keccak_256(input, &mut output);
         Self::from([output[0], output[1], output[2], output[3]])
     }
 
