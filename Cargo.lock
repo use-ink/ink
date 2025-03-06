@@ -5211,9 +5211,9 @@ dependencies = [
 
 [[package]]
 name = "ring"
-version = "0.17.11"
+version = "0.17.12"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "da5349ae27d3887ca812fb375b45a4fbb36d8d12d2df394968cd86e35683fe73"
+checksum = "ed9b823fa29b721a59671b41d6b06e66b29e0628e207e8b1c3ceeda701ec928d"
 dependencies = [
  "cc",
  "cfg-if",
@@ -5347,7 +5347,7 @@ checksum = "47796c98c480fce5406ef69d1c76378375492c3b0a0de587be0c1d9feb12f395"
 dependencies = [
  "log",
  "once_cell",
- "ring 0.17.11",
+ "ring 0.17.12",
  "rustls-pki-types",
  "rustls-webpki",
  "subtle",
@@ -5415,7 +5415,7 @@ version = "0.102.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "64ca1bc8749bd4cf37b5ce386cc146580777b4e8572c7b97baf22c83f444bee9"
 dependencies = [
- "ring 0.17.11",
+ "ring 0.17.12",
  "rustls-pki-types",
  "untrusted",
 ]
@@ -6423,7 +6423,7 @@ dependencies = [
 [[package]]
 name = "sp-crypto-ec-utils"
 version = "0.10.0"
-source = "git+https://github.com/paritytech/polkadot-sdk#945e5fe8874eb8b9abdbd54de7441d75bb1ad4b5"
+source = "git+https://github.com/paritytech/polkadot-sdk#00d8eea8d2f6fccbc709ae759192684472cf92e5"
 dependencies = [
  "ark-bls12-377",
  "ark-bls12-377-ext",
@@ -6490,7 +6490,7 @@ dependencies = [
 [[package]]
 name = "sp-debug-derive"
 version = "14.0.0"
-source = "git+https://github.com/paritytech/polkadot-sdk#945e5fe8874eb8b9abdbd54de7441d75bb1ad4b5"
+source = "git+https://github.com/paritytech/polkadot-sdk#00d8eea8d2f6fccbc709ae759192684472cf92e5"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -6510,7 +6510,7 @@ dependencies = [
 [[package]]
 name = "sp-externalities"
 version = "0.25.0"
-source = "git+https://github.com/paritytech/polkadot-sdk#945e5fe8874eb8b9abdbd54de7441d75bb1ad4b5"
+source = "git+https://github.com/paritytech/polkadot-sdk#00d8eea8d2f6fccbc709ae759192684472cf92e5"
 dependencies = [
  "environmental",
  "parity-scale-codec",
@@ -6659,7 +6659,7 @@ dependencies = [
 [[package]]
 name = "sp-runtime-interface"
 version = "24.0.0"
-source = "git+https://github.com/paritytech/polkadot-sdk#945e5fe8874eb8b9abdbd54de7441d75bb1ad4b5"
+source = "git+https://github.com/paritytech/polkadot-sdk#00d8eea8d2f6fccbc709ae759192684472cf92e5"
 dependencies = [
  "bytes",
  "impl-trait-for-tuples",
@@ -6691,7 +6691,7 @@ dependencies = [
 [[package]]
 name = "sp-runtime-interface-proc-macro"
 version = "17.0.0"
-source = "git+https://github.com/paritytech/polkadot-sdk#945e5fe8874eb8b9abdbd54de7441d75bb1ad4b5"
+source = "git+https://github.com/paritytech/polkadot-sdk#00d8eea8d2f6fccbc709ae759192684472cf92e5"
 dependencies = [
  "Inflector",
  "expander",
@@ -6742,7 +6742,7 @@ source = "git+https://github.com/use-ink/polkadot-sdk?branch=cmichi-disable-asse
 [[package]]
 name = "sp-std"
 version = "14.0.0"
-source = "git+https://github.com/paritytech/polkadot-sdk#945e5fe8874eb8b9abdbd54de7441d75bb1ad4b5"
+source = "git+https://github.com/paritytech/polkadot-sdk#00d8eea8d2f6fccbc709ae759192684472cf92e5"
 
 [[package]]
 name = "sp-storage"
@@ -6759,7 +6759,7 @@ dependencies = [
 [[package]]
 name = "sp-storage"
 version = "19.0.0"
-source = "git+https://github.com/paritytech/polkadot-sdk#945e5fe8874eb8b9abdbd54de7441d75bb1ad4b5"
+source = "git+https://github.com/paritytech/polkadot-sdk#00d8eea8d2f6fccbc709ae759192684472cf92e5"
 dependencies = [
  "impl-serde",
  "parity-scale-codec",
@@ -6794,7 +6794,7 @@ dependencies = [
 [[package]]
 name = "sp-tracing"
 version = "16.0.0"
-source = "git+https://github.com/paritytech/polkadot-sdk#945e5fe8874eb8b9abdbd54de7441d75bb1ad4b5"
+source = "git+https://github.com/paritytech/polkadot-sdk#00d8eea8d2f6fccbc709ae759192684472cf92e5"
 dependencies = [
  "parity-scale-codec",
  "tracing",
@@ -6867,7 +6867,7 @@ dependencies = [
 [[package]]
 name = "sp-wasm-interface"
 version = "20.0.0"
-source = "git+https://github.com/paritytech/polkadot-sdk#945e5fe8874eb8b9abdbd54de7441d75bb1ad4b5"
+source = "git+https://github.com/paritytech/polkadot-sdk#00d8eea8d2f6fccbc709ae759192684472cf92e5"
 dependencies = [
  "anyhow",
  "impl-trait-for-tuples",
@@ -7374,9 +7374,9 @@ dependencies = [
 
 [[package]]
 name = "time"
-version = "0.3.38"
+version = "0.3.39"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bb041120f25f8fbe8fd2dbe4671c7c2ed74d83be2e7a77529bf7e0790ae3f472"
+checksum = "dad298b01a40a23aac4580b67e3dbedb7cc8402f3592d7f49469de2ea4aecdd8"
 dependencies = [
  "deranged",
  "itoa",
