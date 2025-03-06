@@ -17,6 +17,7 @@
 mod dispatch;
 mod env;
 mod implies_return;
+mod solidity_compat;
 mod trait_def;
 pub mod utils;
 
@@ -32,6 +33,10 @@ pub use self::{
         StaticEnv,
     },
     implies_return::ImpliesReturn,
+    solidity_compat::{
+        const_format,
+        sol_selector_bytes,
+    },
     trait_def::{
         TraitCallBuilder,
         TraitCallForwarder,

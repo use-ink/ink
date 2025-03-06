@@ -42,7 +42,7 @@ mod contract {
             &mut self,
             _input_0: AccountId,
             _input_1: Hash,
-            _input_2: ink::H160,
+            _input_2: Address,
         ) {
         }
     }
