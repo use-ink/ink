@@ -1041,7 +1041,6 @@ checksum = "1bc2832c24239b0141d5674bb9174f9d68a8b5b3f2753311927c172ca46f7e9c"
 dependencies = [
  "funty",
  "radium",
- "serde",
  "tap",
  "wyz",
 ]
@@ -2324,22 +2323,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "finality-grandpa"
-version = "0.16.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b4f8f43dc520133541781ec03a8cab158ae8b7f7169cdf22e9050aa6cf0fbdfc"
-dependencies = [
- "either",
- "futures",
- "futures-timer",
- "log",
- "num-traits",
- "parity-scale-codec",
- "parking_lot",
- "scale-info",
-]
-
-[[package]]
 name = "fixed-hash"
 version = "0.8.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2408,52 +2391,6 @@ dependencies = [
  "scale-info",
  "scale-type-resolver",
  "sp-crypto-hashing 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
-]
-
-[[package]]
-name = "frame-election-provider-solution-type"
-version = "13.0.0"
-source = "git+https://github.com/use-ink/polkadot-sdk?branch=cmichi-disable-asserts#393682c45660b90944b563bbd38adf6506fab1c2"
-dependencies = [
- "proc-macro-crate",
- "proc-macro2",
- "quote",
- "syn 2.0.99",
-]
-
-[[package]]
-name = "frame-election-provider-support"
-version = "28.0.0"
-source = "git+https://github.com/use-ink/polkadot-sdk?branch=cmichi-disable-asserts#393682c45660b90944b563bbd38adf6506fab1c2"
-dependencies = [
- "frame-election-provider-solution-type",
- "frame-support",
- "frame-system",
- "parity-scale-codec",
- "scale-info",
- "sp-arithmetic",
- "sp-core",
- "sp-npos-elections",
- "sp-runtime",
- "sp-std 14.0.0 (git+https://github.com/use-ink/polkadot-sdk?branch=cmichi-disable-asserts)",
-]
-
-[[package]]
-name = "frame-executive"
-version = "28.0.0"
-source = "git+https://github.com/use-ink/polkadot-sdk?branch=cmichi-disable-asserts#393682c45660b90944b563bbd38adf6506fab1c2"
-dependencies = [
- "aquamarine",
- "frame-support",
- "frame-system",
- "frame-try-runtime",
- "log",
- "parity-scale-codec",
- "scale-info",
- "sp-core",
- "sp-io",
- "sp-runtime",
- "sp-tracing 16.0.0 (git+https://github.com/use-ink/polkadot-sdk?branch=cmichi-disable-asserts)",
 ]
 
 [[package]]
@@ -2582,41 +2519,6 @@ dependencies = [
  "sp-runtime",
  "sp-version",
  "sp-weights",
-]
-
-[[package]]
-name = "frame-system-benchmarking"
-version = "28.0.0"
-source = "git+https://github.com/use-ink/polkadot-sdk?branch=cmichi-disable-asserts#393682c45660b90944b563bbd38adf6506fab1c2"
-dependencies = [
- "frame-benchmarking",
- "frame-support",
- "frame-system",
- "parity-scale-codec",
- "scale-info",
- "sp-core",
- "sp-runtime",
-]
-
-[[package]]
-name = "frame-system-rpc-runtime-api"
-version = "26.0.0"
-source = "git+https://github.com/use-ink/polkadot-sdk?branch=cmichi-disable-asserts#393682c45660b90944b563bbd38adf6506fab1c2"
-dependencies = [
- "docify",
- "parity-scale-codec",
- "sp-api",
-]
-
-[[package]]
-name = "frame-try-runtime"
-version = "0.34.0"
-source = "git+https://github.com/use-ink/polkadot-sdk?branch=cmichi-disable-asserts#393682c45660b90944b563bbd38adf6506fab1c2"
-dependencies = [
- "frame-support",
- "parity-scale-codec",
- "sp-api",
- "sp-runtime",
 ]
 
 [[package]]
@@ -3408,7 +3310,6 @@ dependencies = [
  "itertools 0.14.0",
  "jsonrpsee",
  "pallet-revive",
- "pallet-revive-mock-network",
  "parity-scale-codec",
  "regex",
  "scale-info",
@@ -4365,73 +4266,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "pallet-assets"
-version = "29.1.0"
-source = "git+https://github.com/use-ink/polkadot-sdk?branch=cmichi-disable-asserts#393682c45660b90944b563bbd38adf6506fab1c2"
-dependencies = [
- "frame-benchmarking",
- "frame-support",
- "frame-system",
- "impl-trait-for-tuples",
- "log",
- "parity-scale-codec",
- "scale-info",
- "sp-core",
- "sp-runtime",
-]
-
-[[package]]
-name = "pallet-authority-discovery"
-version = "28.0.0"
-source = "git+https://github.com/use-ink/polkadot-sdk?branch=cmichi-disable-asserts#393682c45660b90944b563bbd38adf6506fab1c2"
-dependencies = [
- "frame-support",
- "frame-system",
- "pallet-session",
- "parity-scale-codec",
- "scale-info",
- "sp-application-crypto",
- "sp-authority-discovery",
- "sp-runtime",
-]
-
-[[package]]
-name = "pallet-authorship"
-version = "28.0.0"
-source = "git+https://github.com/use-ink/polkadot-sdk?branch=cmichi-disable-asserts#393682c45660b90944b563bbd38adf6506fab1c2"
-dependencies = [
- "frame-support",
- "frame-system",
- "impl-trait-for-tuples",
- "parity-scale-codec",
- "scale-info",
- "sp-runtime",
-]
-
-[[package]]
-name = "pallet-babe"
-version = "28.0.0"
-source = "git+https://github.com/use-ink/polkadot-sdk?branch=cmichi-disable-asserts#393682c45660b90944b563bbd38adf6506fab1c2"
-dependencies = [
- "frame-benchmarking",
- "frame-support",
- "frame-system",
- "log",
- "pallet-authorship",
- "pallet-session",
- "pallet-timestamp",
- "parity-scale-codec",
- "scale-info",
- "sp-application-crypto",
- "sp-consensus-babe",
- "sp-core",
- "sp-io",
- "sp-runtime",
- "sp-session",
- "sp-staking",
-]
-
-[[package]]
 name = "pallet-balances"
 version = "28.0.0"
 source = "git+https://github.com/use-ink/polkadot-sdk?branch=cmichi-disable-asserts#393682c45660b90944b563bbd38adf6506fab1c2"
@@ -4445,55 +4279,6 @@ dependencies = [
  "scale-info",
  "sp-core",
  "sp-runtime",
-]
-
-[[package]]
-name = "pallet-broker"
-version = "0.6.0"
-source = "git+https://github.com/use-ink/polkadot-sdk?branch=cmichi-disable-asserts#393682c45660b90944b563bbd38adf6506fab1c2"
-dependencies = [
- "bitvec",
- "frame-benchmarking",
- "frame-support",
- "frame-system",
- "log",
- "parity-scale-codec",
- "scale-info",
- "sp-api",
- "sp-arithmetic",
- "sp-core",
- "sp-runtime",
-]
-
-[[package]]
-name = "pallet-message-queue"
-version = "31.0.0"
-source = "git+https://github.com/use-ink/polkadot-sdk?branch=cmichi-disable-asserts#393682c45660b90944b563bbd38adf6506fab1c2"
-dependencies = [
- "environmental",
- "frame-benchmarking",
- "frame-support",
- "frame-system",
- "log",
- "parity-scale-codec",
- "scale-info",
- "sp-arithmetic",
- "sp-core",
- "sp-io",
- "sp-runtime",
- "sp-weights",
-]
-
-[[package]]
-name = "pallet-mmr"
-version = "27.0.0"
-source = "git+https://github.com/use-ink/polkadot-sdk?branch=cmichi-disable-asserts#393682c45660b90944b563bbd38adf6506fab1c2"
-dependencies = [
- "log",
- "parity-scale-codec",
- "polkadot-sdk-frame",
- "scale-info",
- "sp-mmr-primitives",
 ]
 
 [[package]]
@@ -4549,35 +4334,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "pallet-revive-mock-network"
-version = "0.1.0"
-source = "git+https://github.com/use-ink/polkadot-sdk?branch=cmichi-disable-asserts#393682c45660b90944b563bbd38adf6506fab1c2"
-dependencies = [
- "frame-support",
- "frame-system",
- "pallet-assets",
- "pallet-balances",
- "pallet-message-queue",
- "pallet-revive",
- "pallet-revive-uapi 0.1.0 (git+https://github.com/use-ink/polkadot-sdk?branch=cmichi-disable-asserts)",
- "pallet-timestamp",
- "pallet-xcm",
- "parity-scale-codec",
- "polkadot-parachain-primitives",
- "polkadot-primitives",
- "polkadot-runtime-parachains",
- "scale-info",
- "sp-core",
- "sp-io",
- "sp-runtime",
- "sp-tracing 16.0.0 (git+https://github.com/use-ink/polkadot-sdk?branch=cmichi-disable-asserts)",
- "staging-xcm",
- "staging-xcm-builder",
- "staging-xcm-executor",
- "xcm-simulator",
-]
-
-[[package]]
 name = "pallet-revive-proc-macro"
 version = "0.1.0"
 source = "git+https://github.com/use-ink/polkadot-sdk?branch=cmichi-disable-asserts#393682c45660b90944b563bbd38adf6506fab1c2"
@@ -4622,51 +4378,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "pallet-session"
-version = "28.0.0"
-source = "git+https://github.com/use-ink/polkadot-sdk?branch=cmichi-disable-asserts#393682c45660b90944b563bbd38adf6506fab1c2"
-dependencies = [
- "frame-support",
- "frame-system",
- "impl-trait-for-tuples",
- "log",
- "pallet-timestamp",
- "parity-scale-codec",
- "scale-info",
- "sp-core",
- "sp-io",
- "sp-runtime",
- "sp-session",
- "sp-staking",
- "sp-state-machine",
- "sp-trie",
-]
-
-[[package]]
-name = "pallet-staking"
-version = "28.0.0"
-source = "git+https://github.com/use-ink/polkadot-sdk?branch=cmichi-disable-asserts#393682c45660b90944b563bbd38adf6506fab1c2"
-dependencies = [
- "frame-benchmarking",
- "frame-election-provider-support",
- "frame-support",
- "frame-system",
- "log",
- "pallet-authorship",
- "pallet-session",
- "parity-scale-codec",
- "rand",
- "rand_chacha",
- "scale-info",
- "serde",
- "sp-application-crypto",
- "sp-core",
- "sp-io",
- "sp-runtime",
- "sp-staking",
-]
-
-[[package]]
 name = "pallet-timestamp"
 version = "27.0.0"
 source = "git+https://github.com/use-ink/polkadot-sdk?branch=cmichi-disable-asserts#393682c45660b90944b563bbd38adf6506fab1c2"
@@ -4699,29 +4410,6 @@ dependencies = [
  "sp-core",
  "sp-io",
  "sp-runtime",
-]
-
-[[package]]
-name = "pallet-xcm"
-version = "7.0.0"
-source = "git+https://github.com/use-ink/polkadot-sdk?branch=cmichi-disable-asserts#393682c45660b90944b563bbd38adf6506fab1c2"
-dependencies = [
- "bounded-collections",
- "frame-benchmarking",
- "frame-support",
- "frame-system",
- "pallet-balances",
- "parity-scale-codec",
- "scale-info",
- "serde",
- "sp-core",
- "sp-io",
- "sp-runtime",
- "staging-xcm",
- "staging-xcm-builder",
- "staging-xcm-executor",
- "tracing",
- "xcm-runtime-apis",
 ]
 
 [[package]]
@@ -4900,16 +4588,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "polkadot-ckb-merkle-mountain-range"
-version = "0.8.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "221c71b432b38e494a0fdedb5f720e4cb974edf03a0af09e5b2238dbac7e6947"
-dependencies = [
- "cfg-if",
- "itertools 0.10.5",
-]
-
-[[package]]
 name = "polkadot-core-primitives"
 version = "7.0.0"
 source = "git+https://github.com/use-ink/polkadot-sdk?branch=cmichi-disable-asserts#393682c45660b90944b563bbd38adf6506fab1c2"
@@ -4937,133 +4615,12 @@ dependencies = [
 ]
 
 [[package]]
-name = "polkadot-primitives"
-version = "7.0.0"
-source = "git+https://github.com/use-ink/polkadot-sdk?branch=cmichi-disable-asserts#393682c45660b90944b563bbd38adf6506fab1c2"
-dependencies = [
- "bitvec",
- "hex-literal 0.4.1",
- "log",
- "parity-scale-codec",
- "polkadot-core-primitives",
- "polkadot-parachain-primitives",
- "scale-info",
- "serde",
- "sp-api",
- "sp-application-crypto",
- "sp-arithmetic",
- "sp-authority-discovery",
- "sp-consensus-slots",
- "sp-core",
- "sp-inherents",
- "sp-io",
- "sp-keystore",
- "sp-runtime",
- "sp-staking",
- "sp-std 14.0.0 (git+https://github.com/use-ink/polkadot-sdk?branch=cmichi-disable-asserts)",
- "thiserror 1.0.69",
-]
-
-[[package]]
-name = "polkadot-runtime-metrics"
-version = "7.0.0"
-source = "git+https://github.com/use-ink/polkadot-sdk?branch=cmichi-disable-asserts#393682c45660b90944b563bbd38adf6506fab1c2"
-dependencies = [
- "bs58",
- "frame-benchmarking",
- "parity-scale-codec",
- "polkadot-primitives",
- "sp-tracing 16.0.0 (git+https://github.com/use-ink/polkadot-sdk?branch=cmichi-disable-asserts)",
-]
-
-[[package]]
-name = "polkadot-runtime-parachains"
-version = "7.0.0"
-source = "git+https://github.com/use-ink/polkadot-sdk?branch=cmichi-disable-asserts#393682c45660b90944b563bbd38adf6506fab1c2"
-dependencies = [
- "bitflags 1.3.2",
- "bitvec",
- "derive_more 0.99.19",
- "frame-benchmarking",
- "frame-support",
- "frame-system",
- "impl-trait-for-tuples",
- "log",
- "pallet-authority-discovery",
- "pallet-authorship",
- "pallet-babe",
- "pallet-balances",
- "pallet-broker",
- "pallet-message-queue",
- "pallet-mmr",
- "pallet-session",
- "pallet-staking",
- "pallet-timestamp",
- "parity-scale-codec",
- "polkadot-core-primitives",
- "polkadot-parachain-primitives",
- "polkadot-primitives",
- "polkadot-runtime-metrics",
- "rand",
- "rand_chacha",
- "scale-info",
- "serde",
- "sp-api",
- "sp-application-crypto",
- "sp-arithmetic",
- "sp-core",
- "sp-inherents",
- "sp-io",
- "sp-keystore",
- "sp-runtime",
- "sp-session",
- "sp-staking",
- "sp-std 14.0.0 (git+https://github.com/use-ink/polkadot-sdk?branch=cmichi-disable-asserts)",
- "staging-xcm",
- "staging-xcm-executor",
-]
-
-[[package]]
 name = "polkadot-sdk"
 version = "0.7.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "eb819108697967452fa6d8d96ab4c0d48cbaa423b3156499dcb24f1cf95d6775"
 dependencies = [
  "sp-crypto-hashing 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
-]
-
-[[package]]
-name = "polkadot-sdk-frame"
-version = "0.1.0"
-source = "git+https://github.com/use-ink/polkadot-sdk?branch=cmichi-disable-asserts#393682c45660b90944b563bbd38adf6506fab1c2"
-dependencies = [
- "docify",
- "frame-benchmarking",
- "frame-executive",
- "frame-support",
- "frame-system",
- "frame-system-benchmarking",
- "frame-system-rpc-runtime-api",
- "frame-try-runtime",
- "log",
- "parity-scale-codec",
- "scale-info",
- "sp-api",
- "sp-arithmetic",
- "sp-block-builder",
- "sp-consensus-aura",
- "sp-consensus-grandpa",
- "sp-core",
- "sp-genesis-builder",
- "sp-inherents",
- "sp-io",
- "sp-keyring",
- "sp-offchain",
- "sp-runtime",
- "sp-session",
- "sp-storage 19.0.0 (git+https://github.com/use-ink/polkadot-sdk?branch=cmichi-disable-asserts)",
- "sp-transaction-pool",
- "sp-version",
 ]
 
 [[package]]
@@ -6772,28 +6329,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "sp-authority-discovery"
-version = "26.0.0"
-source = "git+https://github.com/use-ink/polkadot-sdk?branch=cmichi-disable-asserts#393682c45660b90944b563bbd38adf6506fab1c2"
-dependencies = [
- "parity-scale-codec",
- "scale-info",
- "sp-api",
- "sp-application-crypto",
- "sp-runtime",
-]
-
-[[package]]
-name = "sp-block-builder"
-version = "26.0.0"
-source = "git+https://github.com/use-ink/polkadot-sdk?branch=cmichi-disable-asserts#393682c45660b90944b563bbd38adf6506fab1c2"
-dependencies = [
- "sp-api",
- "sp-inherents",
- "sp-runtime",
-]
-
-[[package]]
 name = "sp-consensus-aura"
 version = "0.32.0"
 source = "git+https://github.com/use-ink/polkadot-sdk?branch=cmichi-disable-asserts#393682c45660b90944b563bbd38adf6506fab1c2"
@@ -6825,23 +6360,6 @@ dependencies = [
  "sp-inherents",
  "sp-runtime",
  "sp-timestamp",
-]
-
-[[package]]
-name = "sp-consensus-grandpa"
-version = "13.0.0"
-source = "git+https://github.com/use-ink/polkadot-sdk?branch=cmichi-disable-asserts#393682c45660b90944b563bbd38adf6506fab1c2"
-dependencies = [
- "finality-grandpa",
- "log",
- "parity-scale-codec",
- "scale-info",
- "serde",
- "sp-api",
- "sp-application-crypto",
- "sp-core",
- "sp-keystore",
- "sp-runtime",
 ]
 
 [[package]]
@@ -7082,46 +6600,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "sp-mmr-primitives"
-version = "26.0.0"
-source = "git+https://github.com/use-ink/polkadot-sdk?branch=cmichi-disable-asserts#393682c45660b90944b563bbd38adf6506fab1c2"
-dependencies = [
- "log",
- "parity-scale-codec",
- "polkadot-ckb-merkle-mountain-range",
- "scale-info",
- "serde",
- "sp-api",
- "sp-core",
- "sp-debug-derive 14.0.0 (git+https://github.com/use-ink/polkadot-sdk?branch=cmichi-disable-asserts)",
- "sp-runtime",
- "thiserror 1.0.69",
-]
-
-[[package]]
-name = "sp-npos-elections"
-version = "26.0.0"
-source = "git+https://github.com/use-ink/polkadot-sdk?branch=cmichi-disable-asserts#393682c45660b90944b563bbd38adf6506fab1c2"
-dependencies = [
- "parity-scale-codec",
- "scale-info",
- "serde",
- "sp-arithmetic",
- "sp-core",
- "sp-runtime",
-]
-
-[[package]]
-name = "sp-offchain"
-version = "26.0.0"
-source = "git+https://github.com/use-ink/polkadot-sdk?branch=cmichi-disable-asserts#393682c45660b90944b563bbd38adf6506fab1c2"
-dependencies = [
- "sp-api",
- "sp-core",
- "sp-runtime",
-]
-
-[[package]]
 name = "sp-panic-handler"
 version = "13.0.0"
 source = "git+https://github.com/use-ink/polkadot-sdk?branch=cmichi-disable-asserts#393682c45660b90944b563bbd38adf6506fab1c2"
@@ -7224,20 +6702,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "sp-session"
-version = "27.0.0"
-source = "git+https://github.com/use-ink/polkadot-sdk?branch=cmichi-disable-asserts#393682c45660b90944b563bbd38adf6506fab1c2"
-dependencies = [
- "parity-scale-codec",
- "scale-info",
- "sp-api",
- "sp-core",
- "sp-keystore",
- "sp-runtime",
- "sp-staking",
-]
-
-[[package]]
 name = "sp-staking"
 version = "26.0.0"
 source = "git+https://github.com/use-ink/polkadot-sdk?branch=cmichi-disable-asserts#393682c45660b90944b563bbd38adf6506fab1c2"
@@ -7336,15 +6800,6 @@ dependencies = [
  "tracing",
  "tracing-core",
  "tracing-subscriber",
-]
-
-[[package]]
-name = "sp-transaction-pool"
-version = "26.0.0"
-source = "git+https://github.com/use-ink/polkadot-sdk?branch=cmichi-disable-asserts#393682c45660b90944b563bbd38adf6506fab1c2"
-dependencies = [
- "sp-api",
- "sp-runtime",
 ]
 
 [[package]]
@@ -8843,42 +8298,6 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn 2.0.99",
-]
-
-[[package]]
-name = "xcm-runtime-apis"
-version = "0.1.1"
-source = "git+https://github.com/use-ink/polkadot-sdk?branch=cmichi-disable-asserts#393682c45660b90944b563bbd38adf6506fab1c2"
-dependencies = [
- "frame-support",
- "parity-scale-codec",
- "scale-info",
- "sp-api",
- "sp-weights",
- "staging-xcm",
- "staging-xcm-executor",
-]
-
-[[package]]
-name = "xcm-simulator"
-version = "7.0.0"
-source = "git+https://github.com/use-ink/polkadot-sdk?branch=cmichi-disable-asserts#393682c45660b90944b563bbd38adf6506fab1c2"
-dependencies = [
- "frame-support",
- "frame-system",
- "parity-scale-codec",
- "paste",
- "polkadot-core-primitives",
- "polkadot-parachain-primitives",
- "polkadot-primitives",
- "polkadot-runtime-parachains",
- "scale-info",
- "sp-io",
- "sp-runtime",
- "sp-std 14.0.0 (git+https://github.com/use-ink/polkadot-sdk?branch=cmichi-disable-asserts)",
- "staging-xcm",
- "staging-xcm-builder",
- "staging-xcm-executor",
 ]
 
 [[package]]
