@@ -39,6 +39,7 @@ polkavm-derive = { workspace = true }
 [features]
 default = [ "std" ]
 std = [
+    "either/std",
 	"either/use_std",
 	"ink_primitives/std",
     "ir/std",
