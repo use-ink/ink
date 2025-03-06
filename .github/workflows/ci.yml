@@ -368,7 +368,7 @@ jobs:
         if: ${{ matrix.workspace == 'linting' }}
         env:
           # Fix for linking of `linkme` for `cargo test`: https://github.com/dtolnay/linkme/issues/49
-          RUSTFLAGS:                   -Clink-arg=-z -Clink-arg=nostart-stop-gc
+          RUSTFLAGS:                   -Clink-arg=-z -Clink-arg=nostart-stop-gc -Clink-dead-code
           # Since we run the tests with `--all-features` this implies the feature
           # `ink-fuzz-tests` as well -- i.e. the fuzz tests are run.
           # There's no way to disable a single feature while enabling all features
@@ -502,7 +502,7 @@ jobs:
         env:
             #RUSTFLAGS: -Clinker-plugin-lto -Clink-arg=-zstack-size=4096
             # Fix for linking of `linkme` for `cargo test`: https://github.com/dtolnay/linkme/issues/49
-            RUSTFLAGS:                   -Clink-arg=-z -Clink-arg=nostart-stop-gc
+            RUSTFLAGS:                   -Clink-arg=-z -Clink-arg=nostart-stop-gc -Clink-dead-code
         with:
           # run all tests with --all-features, which will run the e2e-tests feature if present
           args:
@@ -534,7 +534,7 @@ jobs:
           - name: Test Mapping Example
             env:
                 # Fix for linking of `linkme` for `cargo test`: https://github.com/dtolnay/linkme/issues/49
-                RUSTFLAGS:                   -Clink-arg=-z -Clink-arg=nostart-stop-gc
+                RUSTFLAGS:                   -Clink-arg=-z -Clink-arg=nostart-stop-gc -Clink-dead-code
                 # needed for `mapping::e2e_tests::fallible_storage_methods_work`
                 INK_STATIC_BUFFER_SIZE: 256
             run:
@@ -565,7 +565,7 @@ jobs:
       - name: Test static-buffer example
         env:
           # Fix linking of `linkme`: https://github.com/dtolnay/linkme/issues/49
-          RUSTFLAGS:                     -Clink-arg=-z -Clink-arg=nostart-stop-gc
+          RUSTFLAGS:                     -Clink-arg=-z -Clink-arg=nostart-stop-gc -Clink-dead-code
         run: |
           # run the static buffer test with a custom buffer size.
           # the readme + test comments explain why `32`, in short because the tests write
@@ -578,7 +578,7 @@ jobs:
         if: false
         env:
           # Fix linking of `linkme`: https://github.com/dtolnay/linkme/issues/49
-          RUSTFLAGS:                     -Clink-arg=-z -Clink-arg=nostart-stop-gc
+          RUSTFLAGS:                     -Clink-arg=-z -Clink-arg=nostart-stop-gc -Clink-dead-code
         run: |
           # run flipper E2E test with on-chain contract
           substrate-contracts-node -lruntime::revive=debug 2>&1 &

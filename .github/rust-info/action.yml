@@ -12,5 +12,5 @@ runs:
         bash --version
         substrate-contracts-node --version
         cargo contract --version
-        apt-get remove -y perl perl-modules-5.36 unzip
+        git --version
       shell: bash
