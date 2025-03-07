@@ -323,11 +323,12 @@ impl CallBuilder<'_> {
     /// This does not provide implementations for ink! constructors as they
     /// do not have a short-hand notations as their messages counterparts.
     fn generate_call_builder_inherent_impls(&self) -> TokenStream2 {
+        let abi = self.contract.config().abi();
         self.contract
             .module()
             .impls()
             .filter(|impl_block| impl_block.trait_path().is_none())
-            .map(|impl_block| self.generate_call_builder_inherent_impl(impl_block))
+            .map(|impl_block| self.generate_call_builder_inherent_impl(impl_block, abi))
             .collect()
     }
 
@@ -341,12 +342,13 @@ impl CallBuilder<'_> {
     fn generate_call_builder_inherent_impl(
         &self,
         impl_block: &ir::ItemImpl,
+        abi: &ir::Abi,
     ) -> TokenStream2 {
         let span = impl_block.span();
         let cb_ident = Self::call_builder_ident();
-        let messages = impl_block
-            .iter_messages()
-            .map(|message| self.generate_call_builder_inherent_impl_for_message(message));
+        let messages = impl_block.iter_messages().map(|message| {
+            self.generate_call_builder_inherent_impl_for_message(message, abi)
+        });
         quote_spanned!(span=>
             impl #cb_ident {
                 #( #messages )*
@@ -363,6 +365,7 @@ impl CallBuilder<'_> {
     fn generate_call_builder_inherent_impl_for_message(
         &self,
         message: ir::CallableWithSelector<ir::Message>,
+        abi: &ir::Abi,
     ) -> TokenStream2 {
         let span = message.span();
         let callable = message.callable();
@@ -376,41 +379,92 @@ impl CallBuilder<'_> {
         let selector_bytes = selector.hex_lits();
         let input_bindings = generator::input_bindings(callable.inputs());
         let input_types = generator::input_types(message.inputs());
-        let arg_list = generator::generate_argument_list(input_types.iter().cloned());
         let mut_tok = callable.receiver().is_ref_mut().then(|| quote! { mut });
         let return_type = message
             .output()
             .map(quote::ToTokens::to_token_stream)
             .unwrap_or_else(|| quote::quote! { () });
         let output_span = return_type.span();
-        let output_type = quote_spanned!(output_span=>
-            ::ink::env::call::CallBuilder<
-                Environment,
-                ::ink::env::call::utils::Set< ::ink::env::call::Call >,
-                ::ink::env::call::utils::Set< ::ink::env::call::ExecutionInput<#arg_list> >,
-                ::ink::env::call::utils::Set< ::ink::env::call::utils::ReturnType<#return_type> >,
-            >
-        );
-        quote_spanned!(span=>
-            #( #attrs )*
-            #[allow(clippy::type_complexity)]
-            #[inline]
-            pub fn #message_ident(
-                & #mut_tok self
-                #( , #input_bindings : #input_types )*
-            ) -> #output_type {
-                ::ink::env::call::build_call::<Environment>()
-                    .call(::ink::ToAddr::to_addr(self))
-                    .exec_input(
-                        ::ink::env::call::ExecutionInput::new(
-                            ::ink::env::call::Selector::new([ #( #selector_bytes ),* ])
+
+        let mut call_builders = Vec::new();
+        if abi.is_ink() {
+            let arg_list = generator::generate_argument_list(
+                input_types.iter().cloned(),
+                quote!(::ink::reflect::ScaleEncoding),
+            );
+            let output_type = quote_spanned!(output_span=>
+                ::ink::env::call::CallBuilder<
+                    Environment,
+                    ::ink::env::call::utils::Set< ::ink::env::call::Call >,
+                    ::ink::env::call::utils::Set< ::ink::env::call::ExecutionInput<#arg_list, ::ink::reflect::ScaleEncoding> >,
+                    ::ink::env::call::utils::Set< ::ink::env::call::utils::ReturnType<#return_type> >,
+                >
+            );
+
+            let call_builder = quote_spanned!(span=>
+                #( #attrs )*
+                #[allow(clippy::type_complexity)]
+                #[inline]
+                pub fn #message_ident(
+                    & #mut_tok self
+                    #( , #input_bindings : #input_types )*
+                ) -> #output_type {
+                    ::ink::env::call::build_call::<Environment>()
+                        .call(::ink::ToAddr::to_addr(self))
+                        .exec_input(
+                            ::ink::env::call::ExecutionInput::new(
+                                ::ink::env::call::Selector::new([ #( #selector_bytes ),* ])
+                            )
+                            #(
+                                .push_arg(#input_bindings)
+                            )*
                         )
-                        #(
-                            .push_arg(#input_bindings)
-                        )*
-                    )
-                    .returns::<#return_type>()
-            }
+                        .returns::<#return_type>()
+                }
+            );
+            call_builders.push(call_builder);
+        }
+
+        if abi.is_solidity() {
+            let arg_list = generator::generate_argument_list(
+                input_types.iter().cloned(),
+                quote!(::ink::reflect::SolEncoding),
+            );
+            let output_type = quote_spanned!(output_span=>
+                ::ink::env::call::CallBuilder<
+                    Environment,
+                    ::ink::env::call::utils::Set< ::ink::env::call::Call >,
+                    ::ink::env::call::utils::Set< ::ink::env::call::ExecutionInput<#arg_list, ::ink::reflect::SolEncoding> >,
+                    ::ink::env::call::utils::Set< ::ink::env::call::utils::ReturnType<#return_type> >,
+                >
+            );
+
+            let call_builder = quote_spanned!(span=>
+                #( #attrs )*
+                #[allow(clippy::type_complexity)]
+                #[inline]
+                pub fn #message_ident(
+                    & #mut_tok self
+                    #( , #input_bindings : #input_types )*
+                ) -> #output_type {
+                    ::ink::env::call::build_call_solidity::<Environment>()
+                        .call(::ink::ToAddr::to_addr(self))
+                        .exec_input(
+                            ::ink::env::call::ExecutionInput::new(
+                                ::ink::env::call::Selector::new([ #( #selector_bytes ),* ])
+                            )
+                            #(
+                                .push_arg(#input_bindings)
+                            )*
+                        )
+                        .returns::<#return_type>()
+                }
+            );
+            call_builders.push(call_builder);
+        }
+
+        quote_spanned!(span=>
+            #( #call_builders )*
         )
     }
 }

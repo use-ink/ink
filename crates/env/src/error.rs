@@ -19,10 +19,12 @@ use crate::engine::off_chain::OffChainError;
 use pallet_revive_uapi::ReturnErrorCode;
 
 /// Errors that can be encountered upon environmental interaction.
-#[derive(Debug, From, PartialEq, Eq)]
+#[derive(Debug, From, PartialEq)]
 pub enum Error {
     /// Error upon decoding an encoded value.
     Decode(scale::Error),
+    /// Error upon decoding with the Solidity ABI encoding.
+    DecodeSol(alloy_sol_types::Error),
     /// The static buffer used during ABI encoding or ABI decoding is too small.
     BufferTooSmall,
     /// An error that can only occur in the off-chain environment.

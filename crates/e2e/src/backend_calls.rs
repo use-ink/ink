@@ -29,46 +29,50 @@ use crate::{
     H256,
 };
 use ink_env::Environment;
-use ink_primitives::DepositLimit;
-use scale::{
-    Decode,
-    Encode,
+use ink_primitives::{
+    reflect::{
+        AbiDecodeWith,
+        AbiEncodeWith,
+    },
+    DepositLimit,
 };
 use sp_weights::Weight;
 use std::marker::PhantomData;
 
 /// Allows to build an end-to-end call using a builder pattern.
-pub struct CallBuilder<'a, E, Args, RetType, B>
+pub struct CallBuilder<'a, E, Args, RetType, B, Abi>
 where
     E: Environment,
-    Args: Encode + Clone,
-    RetType: Send + Decode,
+    Args: AbiEncodeWith<Abi> + Clone,
+    RetType: Send + AbiDecodeWith<Abi>,
 
     B: BuilderClient<E>,
+    Abi: Clone,
 {
     client: &'a mut B,
     caller: &'a Keypair,
-    message: &'a CallBuilderFinal<E, Args, RetType>,
+    message: &'a CallBuilderFinal<E, Args, RetType, Abi>,
     value: E::Balance,
     extra_gas_portion: Option<u64>,
     gas_limit: Option<Weight>,
     storage_deposit_limit: E::Balance,
 }
 
-impl<'a, E, Args, RetType, B> CallBuilder<'a, E, Args, RetType, B>
+impl<'a, E, Args, RetType, B, Abi> CallBuilder<'a, E, Args, RetType, B, Abi>
 where
     E: Environment,
-    Args: Sync + Encode + Clone,
-    RetType: Send + Decode,
+    Args: Sync + AbiEncodeWith<Abi> + Clone,
+    RetType: Send + AbiDecodeWith<Abi>,
 
     B: BuilderClient<E>,
+    Abi: Sync + Clone,
 {
     /// Initialize a call builder with defaults values.
     pub fn new(
         client: &'a mut B,
         caller: &'a Keypair,
-        message: &'a CallBuilderFinal<E, Args, RetType>,
-    ) -> CallBuilder<'a, E, Args, RetType, B>
+        message: &'a CallBuilderFinal<E, Args, RetType, Abi>,
+    ) -> CallBuilder<'a, E, Args, RetType, B, Abi>
     where
         E::Balance: From<u32>,
     {
@@ -138,7 +142,7 @@ where
         &mut self,
     ) -> Result<CallResult<E, RetType, B::EventLog>, B::Error>
     where
-        CallBuilderFinal<E, Args, RetType>: Clone,
+        CallBuilderFinal<E, Args, RetType, Abi>: Clone,
     {
         let _map = B::map_account(self.client, self.caller).await; // todo will fail if instantiation happened before
 
@@ -181,7 +185,7 @@ where
     /// Dry run the call.
     pub async fn dry_run(&mut self) -> Result<CallDryRunResult<E, RetType>, B::Error>
     where
-        CallBuilderFinal<E, Args, RetType>: Clone,
+        CallBuilderFinal<E, Args, RetType, Abi>: Clone,
     {
         B::bare_call_dry_run(
             self.client,
@@ -195,10 +199,10 @@ where
 }
 
 /// Allows to build an end-to-end instantiation call using a builder pattern.
-pub struct InstantiateBuilder<'a, E, Contract, Args, R, B>
+pub struct InstantiateBuilder<'a, E, Contract, Args, R, B, Abi>
 where
     E: Environment,
-    Args: Encode + Clone,
+    Args: AbiEncodeWith<Abi> + Clone,
     Contract: Clone,
 
     B: ContractsBackend<E>,
@@ -206,28 +210,29 @@ where
     client: &'a mut B,
     caller: &'a Keypair,
     contract_name: &'a str,
-    constructor: &'a mut CreateBuilderPartial<E, Contract, Args, R>,
+    constructor: &'a mut CreateBuilderPartial<E, Contract, Args, R, Abi>,
     value: E::Balance,
     extra_gas_portion: Option<u64>,
     gas_limit: Option<Weight>,
     storage_deposit_limit: DepositLimit<E::Balance>,
 }
 
-impl<'a, E, Contract, Args, R, B> InstantiateBuilder<'a, E, Contract, Args, R, B>
+impl<'a, E, Contract, Args, R, B, Abi>
+    InstantiateBuilder<'a, E, Contract, Args, R, B, Abi>
 where
     E: Environment,
-    Args: Encode + Clone + Send + Sync,
+    Args: AbiEncodeWith<Abi> + Clone + Send + Sync,
     Contract: Clone,
-
     B: BuilderClient<E>,
+    Abi: Send + Sync + Clone,
 {
     /// Initialize a call builder with essential values.
     pub fn new(
         client: &'a mut B,
         caller: &'a Keypair,
         contract_name: &'a str,
-        constructor: &'a mut CreateBuilderPartial<E, Contract, Args, R>,
-    ) -> InstantiateBuilder<'a, E, Contract, Args, R, B>
+        constructor: &'a mut CreateBuilderPartial<E, Contract, Args, R, Abi>,
+    ) -> InstantiateBuilder<'a, E, Contract, Args, R, B, Abi>
     where
         E::Balance: From<u32>,
     {

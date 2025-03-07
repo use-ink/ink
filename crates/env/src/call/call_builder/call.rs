@@ -20,6 +20,7 @@ use crate::{
             Unset,
         },
         execution::EmptyArgumentList,
+        utils::DecodeMessageResult,
         CallBuilder,
         CallParams,
         ExecutionInput,
@@ -31,6 +32,10 @@ use crate::{
     Error,
 };
 use ink_primitives::{
+    reflect::{
+        AbiDecodeWith,
+        AbiEncodeWith,
+    },
     H160,
     U256,
 };
@@ -152,13 +157,13 @@ where
     }
 }
 
-impl<E, Args, RetType>
-    CallBuilder<E, Set<Call>, Set<ExecutionInput<Args>>, Set<ReturnType<RetType>>>
+impl<E, Args, RetType, Abi>
+    CallBuilder<E, Set<Call>, Set<ExecutionInput<Args, Abi>>, Set<ReturnType<RetType>>>
 where
     E: Environment,
 {
     /// Finalizes the call builder to call a function.
-    pub fn params(self) -> CallParams<E, Call, Args, RetType> {
+    pub fn params(self) -> CallParams<E, Call, Args, RetType, Abi> {
         CallParams {
             call_type: self.call_type.value(),
             _return_type: Default::default(),
@@ -168,13 +173,19 @@ where
     }
 }
 
-impl<E, RetType>
-    CallBuilder<E, Set<Call>, Unset<ExecutionInput<EmptyArgumentList>>, Unset<RetType>>
+impl<E, RetType, Abi>
+    CallBuilder<
+        E,
+        Set<Call>,
+        Unset<ExecutionInput<EmptyArgumentList<Abi>, Abi>>,
+        Unset<RetType>,
+    >
 where
     E: Environment,
+    Abi: Default,
 {
     /// Finalizes the call builder to call a function.
-    pub fn params(self) -> CallParams<E, Call, EmptyArgumentList, ()> {
+    pub fn params(self) -> CallParams<E, Call, EmptyArgumentList<Abi>, (), Abi> {
         CallParams {
             call_type: self.call_type.value(),
             _return_type: Default::default(),
@@ -184,15 +195,18 @@ where
     }
 }
 
-impl<E>
+impl<E, Abi>
     CallBuilder<
         E,
         Set<Call>,
-        Unset<ExecutionInput<EmptyArgumentList>>,
+        Unset<ExecutionInput<EmptyArgumentList<Abi>, Abi>>,
         Unset<ReturnType<()>>,
     >
 where
     E: Environment,
+    EmptyArgumentList<Abi>: AbiEncodeWith<Abi>,
+    (): AbiDecodeWith<Abi> + DecodeMessageResult<Abi>,
+    Abi: Default,
 {
     /// Invokes the cross-chain function call.
     ///
@@ -217,11 +231,13 @@ where
     }
 }
 
-impl<E, Args, R> CallBuilder<E, Set<Call>, Set<ExecutionInput<Args>>, Set<ReturnType<R>>>
+impl<E, Args, R, Abi>
+    CallBuilder<E, Set<Call>, Set<ExecutionInput<Args, Abi>>, Set<ReturnType<R>>>
 where
     E: Environment,
-    Args: scale::Encode,
-    R: scale::Decode,
+    Args: AbiEncodeWith<Abi>,
+    R: AbiDecodeWith<Abi> + DecodeMessageResult<Abi>,
+    Abi: Default,
 {
     /// Invokes the cross-chain function call and returns the result.
     ///
@@ -246,7 +262,7 @@ where
     }
 }
 
-impl<E, Args, R> CallParams<E, Call, Args, R>
+impl<E, Args, R, Abi> CallParams<E, Call, Args, R, Abi>
 where
     E: Environment,
 {
@@ -288,11 +304,11 @@ where
     }
 }
 
-impl<E, Args, R> CallParams<E, Call, Args, R>
+impl<E, Args, R, Abi> CallParams<E, Call, Args, R, Abi>
 where
     E: Environment,
-    Args: scale::Encode,
-    R: scale::Decode,
+    Args: AbiEncodeWith<Abi>,
+    R: AbiDecodeWith<Abi> + DecodeMessageResult<Abi>,
 {
     /// Invokes the contract with the given built-up call parameters.
     ///

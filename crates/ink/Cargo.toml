@@ -27,6 +27,8 @@ alloy-sol-types = { workspace = true }
 scale = { workspace = true }
 scale-info = { workspace = true, default-features = false, features = ["derive"], optional = true }
 derive_more = { workspace = true, features = ["from"] }
+const_format = { workspace = true }
+keccak-const = { workspace = true }
 
 polkavm-derive = { workspace = true }
 xcm = {workspace = true}

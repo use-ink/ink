@@ -20,6 +20,7 @@ use crate::{
         TypedEnvBackend,
     },
     call::{
+        utils::DecodeMessageResult,
         Call,
         CallParams,
         ConstructorReturnType,
@@ -46,6 +47,10 @@ use crate::{
     Result,
 };
 use ink_primitives::{
+    reflect::{
+        AbiDecodeWith,
+        AbiEncodeWith,
+    },
     H160,
     H256,
     U256,
@@ -273,16 +278,17 @@ where
 /// - If the called contract ran out of gas, proof size, or storage deposit upon
 ///   execution.
 /// - If the returned value failed to decode properly.
-pub fn invoke_contract<E, Args, R>(
-    params: &CallParams<E, Call, Args, R>,
+pub fn invoke_contract<E, Args, R, Abi>(
+    params: &CallParams<E, Call, Args, R, Abi>,
 ) -> Result<ink_primitives::MessageResult<R>>
 where
     E: Environment,
-    Args: scale::Encode,
-    R: scale::Decode,
+
+    Args: AbiEncodeWith<Abi>,
+    R: AbiDecodeWith<Abi> + DecodeMessageResult<Abi>,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        TypedEnvBackend::invoke_contract::<E, Args, R>(instance, params)
+        TypedEnvBackend::invoke_contract::<E, Args, R, Abi>(instance, params)
     })
 }
 
@@ -298,16 +304,17 @@ where
 /// - If the specified code hash does not exist.
 /// - If arguments passed to the called code message are invalid.
 /// - If the called code execution has trapped.
-pub fn invoke_contract_delegate<E, Args, R>(
-    params: &CallParams<E, DelegateCall, Args, R>,
+pub fn invoke_contract_delegate<E, Args, R, Abi>(
+    params: &CallParams<E, DelegateCall, Args, R, Abi>,
 ) -> Result<ink_primitives::MessageResult<R>>
 where
     E: Environment,
-    Args: scale::Encode,
-    R: scale::Decode,
+
+    Args: AbiEncodeWith<Abi>,
+    R: AbiDecodeWith<Abi> + DecodeMessageResult<Abi>,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        TypedEnvBackend::invoke_contract_delegate::<E, Args, R>(instance, params)
+        TypedEnvBackend::invoke_contract_delegate::<E, Args, R, Abi>(instance, params)
     })
 }
 
@@ -330,8 +337,8 @@ where
 /// - If the instantiation process runs out of gas.
 /// - If given insufficient endowment.
 /// - If the returned account ID failed to decode properly.
-pub fn instantiate_contract<E, ContractRef, Args, R>(
-    params: &CreateParams<E, ContractRef, LimitParamsV2, Args, R>,
+pub fn instantiate_contract<E, ContractRef, Args, R, Abi>(
+    params: &CreateParams<E, ContractRef, LimitParamsV2, Args, R, Abi>,
 ) -> Result<
     ink_primitives::ConstructorResult<<R as ConstructorReturnType<ContractRef>>::Output>,
 >
@@ -340,11 +347,14 @@ where
     ContractRef: FromAddr + crate::ContractReverseReference,
     <ContractRef as crate::ContractReverseReference>::Type:
         crate::reflect::ContractConstructorDecoder,
-    Args: scale::Encode,
+
+    Args: AbiEncodeWith<Abi>,
     R: ConstructorReturnType<ContractRef>,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        TypedEnvBackend::instantiate_contract::<E, ContractRef, Args, R>(instance, params)
+        TypedEnvBackend::instantiate_contract::<E, ContractRef, Args, R, Abi>(
+            instance, params,
+        )
     })
 }
 

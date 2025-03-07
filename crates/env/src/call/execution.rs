@@ -17,22 +17,36 @@ use super::{
     Selector,
 };
 use crate::Environment;
+use alloy_sol_types::{
+    private::SolTypeValue,
+    SolType,
+    SolValue,
+    Word,
+};
+use core::marker::PhantomData;
+use ink_prelude::vec::Vec;
+use ink_primitives::reflect::{
+    AbiDecodeWith,
+    AbiEncodeWith,
+    ScaleEncoding,
+    SolEncoding,
+};
 
 /// The input data and the expected return type of a contract execution.
-pub struct Execution<Args, Output> {
+pub struct Execution<Args, Output, Abi> {
     /// The input data for initiating a contract execution.
-    pub input: ExecutionInput<Args>,
+    pub input: ExecutionInput<Args, Abi>,
     /// The type of the expected return value of the contract execution.
     pub output: ReturnType<Output>,
 }
 
-impl<Args, Output> Execution<Args, Output>
+impl<Args, Output, Abi> Execution<Args, Output, Abi>
 where
-    Args: scale::Encode,
-    Output: scale::Decode,
+    Args: AbiEncodeWith<Abi>,
+    Output: AbiDecodeWith<Abi>,
 {
     /// Construct a new contract execution with the given input data.
-    pub fn new(input: ExecutionInput<Args>) -> Self {
+    pub fn new(input: ExecutionInput<Args, Abi>) -> Self {
         Self {
             input,
             output: ReturnType::default(),
@@ -57,31 +71,33 @@ pub trait Executor<E: Environment> {
     /// The type of the error that can be returned during execution.
     type Error;
     /// Perform the contract execution with the given input data, and return the result.
-    fn exec<Args, Output>(
+    fn exec<Args, Output, Abi>(
         &self,
-        input: &ExecutionInput<Args>,
+        input: &ExecutionInput<Args, Abi>,
     ) -> Result<ink_primitives::MessageResult<Output>, Self::Error>
     where
-        Args: scale::Encode,
-        Output: scale::Decode;
+        Args: AbiEncodeWith<Abi>,
+        Output: AbiDecodeWith<Abi>;
 }
 
 /// The input data for a smart contract execution.
 #[derive(Clone, Default, Debug)]
-pub struct ExecutionInput<Args> {
+pub struct ExecutionInput<Args, Abi> {
     /// The selector for the smart contract execution.
     selector: Selector,
     /// The arguments of the smart contract execution.
     args: Args,
+    _marker: PhantomData<Abi>,
 }
 
-impl ExecutionInput<EmptyArgumentList> {
+impl<Abi> ExecutionInput<EmptyArgumentList<Abi>, Abi> {
     /// Creates a new execution input with the given selector.
     #[inline]
     pub fn new(selector: Selector) -> Self {
         Self {
             selector,
             args: ArgumentList::empty(),
+            _marker: Default::default(),
         }
     }
 
@@ -90,38 +106,68 @@ impl ExecutionInput<EmptyArgumentList> {
     pub fn push_arg<T>(
         self,
         arg: T,
-    ) -> ExecutionInput<ArgumentList<Argument<T>, EmptyArgumentList>>
+    ) -> ExecutionInput<ArgumentList<Argument<T>, EmptyArgumentList<Abi>, Abi>, Abi>
     where
-        T: scale::Encode,
+        T: AbiEncodeWith<Abi>,
     {
         ExecutionInput {
             selector: self.selector,
             args: self.args.push_arg(arg),
+            _marker: Default::default(),
         }
     }
 }
 
-impl<Head, Rest> ExecutionInput<ArgumentList<Argument<Head>, Rest>> {
+impl<Head, Rest, Abi> ExecutionInput<ArgumentList<Argument<Head>, Rest, Abi>, Abi> {
     /// Pushes an argument to the execution input.
     #[inline]
-    pub fn push_arg<T>(self, arg: T) -> ExecutionInput<ArgsList<T, ArgsList<Head, Rest>>>
+    pub fn push_arg<T>(
+        self,
+        arg: T,
+    ) -> ExecutionInput<ArgsList<T, ArgsList<Head, Rest, Abi>, Abi>, Abi>
     where
-        T: scale::Encode,
+        T: AbiEncodeWith<Abi>,
     {
         ExecutionInput {
             selector: self.selector,
             args: self.args.push_arg(arg),
+            _marker: Default::default(),
         }
     }
 }
 
-impl<Args> ExecutionInput<Args> {
+impl<Args, Abi> ExecutionInput<Args, Abi> {
     /// Modify the selector.
     ///
     /// Useful when using the [`ExecutionInput`] generated as part of the
     /// `ContractRef`, but using a custom selector.
     pub fn update_selector(&mut self, selector: Selector) {
         self.selector = selector;
+    }
+}
+
+impl<Args, Abi> ExecutionInput<Args, Abi>
+where
+    Args: AbiEncodeWith<Abi>,
+{
+    /// Encodes the execution input into a dynamic vector by combining the selector and
+    /// encoded arguments.
+    pub fn encode(&self) -> Vec<u8> {
+        let mut encoded = Vec::new();
+        encoded.extend(self.selector.to_bytes());
+        self.args.encode_to_vec(&mut encoded);
+        encoded
+    }
+
+    /// Encodes the execution input into a static buffer by combining the selector and
+    /// encoded arguments.
+    pub fn encode_to_slice(&self, buffer: &mut [u8]) -> usize {
+        let selector_bytes = self.selector.to_bytes();
+        let selector_len = selector_bytes.len();
+
+        buffer[..selector_len].copy_from_slice(&selector_bytes);
+        let args_len = self.args.encode_to_slice(&mut buffer[selector_len..]);
+        selector_len + args_len
     }
 }
 
@@ -133,15 +179,16 @@ impl<Args> ExecutionInput<Args> {
 /// where we can leverage the static environmental buffer instead of allocating
 /// heap memory.
 #[derive(Clone, Default, Debug)]
-pub struct ArgumentList<Head, Rest> {
+pub struct ArgumentList<Head, Rest, Abi> {
     /// The first argument of the argument list.
     head: Head,
     /// All the rest arguments.
     rest: Rest,
+    _marker: PhantomData<Abi>,
 }
 
 /// Minor simplification of an argument list with a head and rest.
-pub type ArgsList<Head, Rest> = ArgumentList<Argument<Head>, Rest>;
+pub type ArgsList<Head, Rest, Abi> = ArgumentList<Argument<Head>, Rest, Abi>;
 
 /// A single argument and its reference to a known value.
 #[derive(Clone, Debug)]
@@ -165,41 +212,44 @@ impl<T> Argument<T> {
 pub struct ArgumentListEnd;
 
 /// An empty argument list.
-pub type EmptyArgumentList = ArgumentList<ArgumentListEnd, ArgumentListEnd>;
+pub type EmptyArgumentList<Abi> = ArgumentList<ArgumentListEnd, ArgumentListEnd, Abi>;
 
-impl EmptyArgumentList {
+impl<Abi> EmptyArgumentList<Abi> {
     /// Creates a new empty argument list.
     #[inline]
-    pub fn empty() -> EmptyArgumentList {
+    pub fn empty() -> EmptyArgumentList<Abi> {
         ArgumentList {
             head: ArgumentListEnd,
             rest: ArgumentListEnd,
+            _marker: Default::default(),
         }
     }
 
     /// Pushes the first argument to the empty argument list.
     #[inline]
-    pub fn push_arg<T>(self, arg: T) -> ArgumentList<Argument<T>, Self>
+    pub fn push_arg<T>(self, arg: T) -> ArgumentList<Argument<T>, Self, Abi>
     where
-        T: scale::Encode,
+        T: AbiEncodeWith<Abi>,
     {
         ArgumentList {
             head: Argument::new(arg),
             rest: self,
+            _marker: Default::default(),
         }
     }
 }
 
-impl<Head, Rest> ArgumentList<Argument<Head>, Rest> {
+impl<Head, Rest, Abi> ArgumentList<Argument<Head>, Rest, Abi> {
     /// Pushes another argument to the argument list.
     #[inline]
-    pub fn push_arg<T>(self, arg: T) -> ArgumentList<Argument<T>, Self>
+    pub fn push_arg<T>(self, arg: T) -> ArgumentList<Argument<T>, Self, Abi>
     where
-        T: scale::Encode,
+        T: AbiEncodeWith<Abi>,
     {
         ArgumentList {
             head: Argument::new(arg),
             rest: self,
+            _marker: Default::default(),
         }
     }
 }
@@ -219,7 +269,7 @@ where
     }
 }
 
-impl scale::Encode for EmptyArgumentList {
+impl scale::Encode for EmptyArgumentList<ScaleEncoding> {
     #[inline]
     fn size_hint(&self) -> usize {
         0
@@ -229,7 +279,7 @@ impl scale::Encode for EmptyArgumentList {
     fn encode_to<O: scale::Output + ?Sized>(&self, _output: &mut O) {}
 }
 
-impl<Head, Rest> scale::Encode for ArgumentList<Argument<Head>, Rest>
+impl<Head, Rest> scale::Encode for ArgumentList<Argument<Head>, Rest, ScaleEncoding>
 where
     Head: scale::Encode,
     Rest: scale::Encode,
@@ -252,7 +302,7 @@ where
     }
 }
 
-impl<Args> scale::Encode for ExecutionInput<Args>
+impl<Args> scale::Encode for ExecutionInput<Args, ScaleEncoding>
 where
     Args: scale::Encode,
 {
@@ -267,6 +317,78 @@ where
     fn encode_to<O: scale::Output + ?Sized>(&self, output: &mut O) {
         scale::Encode::encode_to(&self.selector, output);
         scale::Encode::encode_to(&self.args, output);
+    }
+}
+
+impl<T> SolValue for Argument<T>
+where
+    T: SolValue,
+    Argument<T>: SolTypeValue<<T as SolValue>::SolType>,
+{
+    type SolType = <T as SolValue>::SolType;
+
+    fn abi_encode(&self) -> Vec<u8> {
+        <T as SolValue>::abi_encode(&self.arg)
+    }
+}
+
+impl SolTypeValue<()> for EmptyArgumentList<SolEncoding> {
+    fn stv_to_tokens(&self) -> <() as SolType>::Token<'_> {
+        ()
+    }
+
+    fn stv_abi_encode_packed_to(&self, _out: &mut Vec<u8>) {}
+
+    fn stv_eip712_data_word(&self) -> Word {
+        Word::from_slice(&[])
+    }
+}
+
+impl SolValue for EmptyArgumentList<SolEncoding> {
+    type SolType = ();
+
+    fn abi_encode(&self) -> Vec<u8> {
+        Vec::new()
+    }
+}
+
+impl<Head, Rest> SolTypeValue<(Rest::SolType, Head::SolType)>
+    for ArgumentList<Argument<Head>, Rest, SolEncoding>
+where
+    Head: SolValue,
+    Rest: SolValue,
+{
+    fn stv_to_tokens(
+        &self,
+    ) -> (
+        <Rest::SolType as SolType>::Token<'_>,
+        <Head::SolType as SolType>::Token<'_>,
+    ) {
+        (self.rest.stv_to_tokens(), self.head.arg.stv_to_tokens())
+    }
+
+    fn stv_abi_encode_packed_to(&self, out: &mut Vec<u8>) {
+        self.rest.stv_abi_encode_packed_to(out);
+        self.head.arg.stv_abi_encode_packed_to(out);
+    }
+
+    fn stv_eip712_data_word(&self) -> Word {
+        todo!("Implement EIP-712 encoding for ArgumentList")
+    }
+}
+
+impl<Head, Rest> SolValue for ArgumentList<Argument<Head>, Rest, SolEncoding>
+where
+    Head: SolValue,
+    Rest: SolValue,
+{
+    type SolType = (Rest::SolType, Head::SolType);
+
+    fn abi_encode(&self) -> Vec<u8> {
+        let mut encoded = Vec::new();
+        encoded.extend(Rest::abi_encode(&self.rest));
+        encoded.extend(Head::abi_encode(&self.head.arg));
+        encoded
     }
 }
 

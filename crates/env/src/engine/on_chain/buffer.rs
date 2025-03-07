@@ -176,6 +176,16 @@ impl<'a> ScopedBuffer<'a> {
         self.take(encode_len)
     }
 
+    /// Encode the given value into the scoped buffer using the given encoder function
+    /// and return the sub slice containing all the encoded bytes.
+    pub fn take_encoded_with<F>(&mut self, encoder: F) -> &'a mut [u8]
+    where
+        F: FnOnce(&mut [u8]) -> usize,
+    {
+        let encode_len = encoder(self.buffer);
+        self.take(encode_len)
+    }
+
     /// Encode the given storable value into the scoped buffer and return the sub slice
     /// containing all the encoded bytes.
     #[inline(always)]

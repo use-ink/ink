@@ -68,13 +68,13 @@ impl TryFrom<ast::AttributeArgs> for Config {
                     .zip(arg.value().and_then(ast::MetaValue::as_string));
                 if let Some((name_value, path)) = encoding {
                     let encoding = match path.as_str() {
-                        "scale" => Abi::Scale,
+                        "ink" => Abi::Ink,
                         "solidity" | "sol" => Abi::Solidity,
                         "all" => Abi::All,
                         _ => {
                             return Err(format_err_spanned!(
                                 arg,
-                                "expected one of `scale`, `sol` or `all` for `abi` ink! configuration argument",
+                                "expected one of `ink`, `sol` or `all` for `abi` ink! configuration argument",
                             ));
                         }
                     };
@@ -82,7 +82,7 @@ impl TryFrom<ast::AttributeArgs> for Config {
                 } else {
                     return Err(format_err_spanned!(
                         arg,
-                        "expected a string value for `abi` ink! configuration argument",
+                        "expected a string literal value for `abi` ink! configuration argument",
                     ));
                 }
             } else if arg.name().is_ident("keep_attr") {
@@ -146,26 +146,25 @@ impl Default for Environment {
     }
 }
 
-/// Which format is used for ABI encoding.
+/// ABI spec for encoding/decoding contract calls.
 #[derive(Debug, Clone, PartialEq, Eq, Default)]
-
 pub enum Abi {
-    /// SCALE codec, the default.
+    /// ink! ABI spec (the default, uses the SCALE codec for input/output encode/decode).
     #[default]
-    Scale,
-    /// Solidity ABI Encoding.
+    Ink,
+    /// Solidity ABI spec.
     Solidity,
-    /// Support both SCALE and Solidity ABI encoding for each contract entry point.
+    /// Support both ink! and Solidity ABI specs for each contract entry point.
     All,
 }
 
 impl Abi {
-    pub fn is_solidity(&self) -> bool {
-        matches!(self, Self::Solidity | Self::All)
+    pub fn is_ink(&self) -> bool {
+        matches!(self, Self::Ink | Self::All)
     }
 
-    pub fn is_scale(&self) -> bool {
-        matches!(self, Self::Scale | Self::All)
+    pub fn is_solidity(&self) -> bool {
+        matches!(self, Self::Solidity | Self::All)
     }
 
     pub fn is_all(&self) -> bool {
@@ -276,6 +275,60 @@ mod tests {
         assert_try_from(
             syn::parse_quote! { keep_attr },
             Err("expected a string literal value for `keep_attr` ink! configuration argument"),
+        );
+    }
+
+    #[test]
+    fn abi_works() {
+        assert_try_from(
+            syn::parse_quote! {
+                abi = "ink"
+            },
+            Ok(Config {
+                env: None,
+                abi: Abi::Ink,
+                whitelisted_attributes: Default::default(),
+            }),
+        );
+        assert_try_from(
+            syn::parse_quote! {
+                abi = "sol"
+            },
+            Ok(Config {
+                env: None,
+                abi: Abi::Solidity,
+                whitelisted_attributes: Default::default(),
+            }),
+        );
+        assert_try_from(
+            syn::parse_quote! {
+                abi = "all"
+            },
+            Ok(Config {
+                env: None,
+                abi: Abi::All,
+                whitelisted_attributes: Default::default(),
+            }),
+        );
+    }
+
+    #[test]
+    fn abi_invalid_value_fails() {
+        assert_try_from(
+            syn::parse_quote! { abi = "move" },
+            Err("expected one of `ink`, `sol` or `all` for `abi` ink! configuration argument"),
+        );
+        assert_try_from(
+            syn::parse_quote! { abi = 1u8 },
+            Err("expected a string literal value for `abi` ink! configuration argument"),
+        );
+    }
+
+    #[test]
+    fn abi_missing_value_fails() {
+        assert_try_from(
+            syn::parse_quote! { abi },
+            Err("expected a string literal value for `abi` ink! configuration argument"),
         );
     }
 }
