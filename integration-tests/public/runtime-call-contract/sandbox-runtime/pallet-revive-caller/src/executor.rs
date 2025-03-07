@@ -20,13 +20,17 @@ use pallet_revive::{
     MomentOf,
 };
 use sp_runtime::traits::Bounded;
+use ink::env::call::utils::DecodeMessageResult;
+use ink::reflect::AbiDecodeWith;
 
 pub struct PalletReviveExecutor<E: Environment, Runtime: pallet_revive::Config> {
+    // todo
     //pub origin: AccountIdOf<Runtime>,
     pub origin: OriginFor<Runtime>,
     pub contract: H160,
     pub value: BalanceOf<Runtime>,
     pub gas_limit: Weight,
+    // todo
     //pub storage_deposit_limit: Option<BalanceOf<Runtime>>,
     //pub storage_deposit_limit: u128,
     pub marker: core::marker::PhantomData<E>,
@@ -43,16 +47,15 @@ where
 {
     type Error = sp_runtime::DispatchError;
 
-    fn exec<Args, Output>(
+    fn exec<Args, Output, Abi>(
         &self,
-        input: &ExecutionInput<Args>,
+        input: &ExecutionInput<Args, Abi>,
     ) -> Result<ink::MessageResult<Output>, Self::Error>
     where
-        Args: codec::Encode,
-        Output: codec::Decode,
+        Args: ink::reflect::AbiEncodeWith<Abi>,
+        Output: ink::reflect::AbiDecodeWith<Abi> + DecodeMessageResult<Abi>,
     {
-        let data = codec::Encode::encode(&input);
-
+        let data = input.encode();
         let result = pallet_revive::Pallet::<R>::bare_call(
             self.origin.clone(),
             // <R as pallet_revive::Config>::AddressMapper::to_account_id(&self.

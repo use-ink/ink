@@ -31,6 +31,7 @@ use ink_primitives::reflect::{
     ScaleEncoding,
     SolEncoding,
 };
+use crate::call::utils::DecodeMessageResult;
 
 /// The input data and the expected return type of a contract execution.
 pub struct Execution<Args, Output, Abi> {
@@ -43,7 +44,7 @@ pub struct Execution<Args, Output, Abi> {
 impl<Args, Output, Abi> Execution<Args, Output, Abi>
 where
     Args: AbiEncodeWith<Abi>,
-    Output: AbiDecodeWith<Abi>,
+    Output: AbiDecodeWith<Abi> + DecodeMessageResult<Abi>,
 {
     /// Construct a new contract execution with the given input data.
     pub fn new(input: ExecutionInput<Args, Abi>) -> Self {
