@@ -13,7 +13,6 @@ mod sol_cross_contract {
                 build_call_solidity,
                 ExecutionInput,
             },
-            debug_println,
             CallFlags,
         },
         H160,

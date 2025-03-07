@@ -50,7 +50,7 @@ fn call_solidity_encoded_message() {
         &mut sandbox,
         code,
         0,
-        ink::scale::Encode::encode(&exec_input),
+        exec_input.encode(),
         // salt
         None,
         origin.clone(),
