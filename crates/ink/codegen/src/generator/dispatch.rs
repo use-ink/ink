@@ -44,7 +44,6 @@ use quote::{
 use syn::{
     spanned::Spanned as _,
     LitInt,
-    Type,
 };
 
 /// A message to be dispatched.

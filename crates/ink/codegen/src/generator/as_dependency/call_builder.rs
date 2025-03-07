@@ -14,6 +14,7 @@
 
 use crate::{
     generator,
+    generator::solidity::solidity_selector,
     GenerateCode,
 };
 use derive_more::From;
@@ -375,8 +376,6 @@ impl CallBuilder<'_> {
             .config()
             .whitelisted_attributes()
             .filter_attr(message.attrs().to_vec());
-        let selector = message.composed_selector();
-        let selector_bytes = selector.hex_lits();
         let input_bindings = generator::input_bindings(callable.inputs());
         let input_types = generator::input_types(message.inputs());
         let mut_tok = callable.receiver().is_ref_mut().then(|| quote! { mut });
@@ -388,6 +387,8 @@ impl CallBuilder<'_> {
 
         let mut call_builders = Vec::new();
         if abi.is_ink() {
+            let selector = message.composed_selector();
+            let selector_bytes = selector.hex_lits();
             let arg_list = generator::generate_argument_list(
                 input_types.iter().cloned(),
                 quote!(::ink::reflect::ScaleEncoding),
@@ -426,6 +427,14 @@ impl CallBuilder<'_> {
         }
 
         if abi.is_solidity() {
+            // If ABI is all, we generate a second message signature with a "_sol"
+            // postfix. Otherwise, we use the same name.
+            let sol_message_ident = if abi.is_all() {
+                format_ident!("{}_sol", message_ident)
+            } else {
+                message_ident.clone()
+            };
+            let selector_bytes = solidity_selector(&message);
             let arg_list = generator::generate_argument_list(
                 input_types.iter().cloned(),
                 quote!(::ink::reflect::SolEncoding),
@@ -443,7 +452,7 @@ impl CallBuilder<'_> {
                 #( #attrs )*
                 #[allow(clippy::type_complexity)]
                 #[inline]
-                pub fn #message_ident(
+                pub fn #sol_message_ident (
                     & #mut_tok self
                     #( , #input_bindings : #input_types )*
                 ) -> #output_type {
@@ -451,7 +460,7 @@ impl CallBuilder<'_> {
                         .call(::ink::ToAddr::to_addr(self))
                         .exec_input(
                             ::ink::env::call::ExecutionInput::new(
-                                ::ink::env::call::Selector::new([ #( #selector_bytes ),* ])
+                                ::ink::env::call::Selector::new(#selector_bytes)
                             )
                             #(
                                 .push_arg(#input_bindings)
