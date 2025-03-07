@@ -6,3 +6,23 @@ error[E0119]: conflicting implementations of trait `DispatchableMessageInfo<3793
    |         |
    |         first implementation here
    |         conflicting implementation for `Contract`
+
+error[E0592]: duplicate definitions with name `message`
+ --> tests/ui/contract/fail/message-selector-overlap-sol.rs:3:1
+  |
+3 | #[ink::contract(abi = "all")]
+  | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  | |
+  | duplicate definitions for `message`
+  | other definition for `message`
+
+error[E0592]: duplicate definitions with name `constructor`
+  --> tests/ui/contract/fail/message-selector-overlap-sol.rs:10:9
+   |
+10 | /         pub fn constructor() -> Self {
+11 | |             Self {}
+12 | |         }
+   | |         ^
+   | |         |
+   | |_________duplicate definitions for `constructor`
+   |           other definition for `constructor`

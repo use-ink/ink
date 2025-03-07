@@ -46,13 +46,13 @@ use crate::{
 };
 use ink_engine::ext::Engine;
 use ink_primitives::{
-    types::{
-        AccountIdMapper,
-        Environment,
-    },
     reflect::{
         AbiDecodeWith,
         AbiEncodeWith,
+    },
+    types::{
+        AccountIdMapper,
+        Environment,
     },
     H160,
     H256,

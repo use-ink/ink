@@ -5,24 +5,17 @@ pub mod flipper {
     #[ink(storage)]
     pub struct Flipper {
         value: bool,
-    }
-
-    /// The initial state is `Adder`.
-    #[derive(Debug, Copy, Clone, PartialEq, Eq)]
-    #[cfg_attr(feature = "std", derive(ink::storage::traits::StorageLayout))]
-    //#[ink::scale_derive(Encode, Decode, TypeInfo)]
-    //#[ink::scale_derive(Encode)]
-    //#[repr(u32)] // todo
-    pub enum Which {
-        Adder,
-        Subber,
+        which: Which,
     }
 
     impl Flipper {
         /// Creates a new flipper smart contract initialized with the given value.
         #[ink(constructor)]
         pub fn new(init_value: bool) -> Self {
-            Self { value: init_value }
+            Self {
+                value: init_value,
+                which: Which::Adder,
+            }
         }
 
         /// Creates a new flipper smart contract initialized to `false`.

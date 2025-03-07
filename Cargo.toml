@@ -15,7 +15,7 @@ members = [
     "crates/prelude",
     "crates/primitives",
     "crates/storage",
-    "crates/storage/traits",
+    "crates/storage/traits"
 ]
 exclude = [
     "integration-tests",
@@ -55,7 +55,7 @@ proc-macro2 = { version = "1" }
 quickcheck = { version = "1" }
 quickcheck_macros = { version = "1" }
 quote = { version = "1" }
-scale = { package = "parity-scale-codec", version = "3.6.12", default-features = false, features = ["derive"] }
+scale = { package = "parity-scale-codec", version = "3.7.4", default-features = false, features = ["derive"] }
 scale-decode = { version = "0.14.0", default-features = false }
 scale-encode = { version = "0.8.0", default-features = false }
 scale-info = { version = "2.11", default-features = false }

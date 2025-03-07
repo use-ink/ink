@@ -135,9 +135,8 @@ where
     R: Decode,
     MessageResult<R>: Decode,
 {
-    fn decode_output(buffer: &[u8]) -> crate::Result<MessageResult<Self>> {
-        let mut input = &buffer[..];
-        let decoded = MessageResult::<R>::decode_all(&mut input)?;
+    fn decode_output(mut buffer: &[u8]) -> crate::Result<MessageResult<Self>> {
+        let decoded = MessageResult::<R>::decode_all(&mut buffer)?;
         Ok(decoded)
     }
 }

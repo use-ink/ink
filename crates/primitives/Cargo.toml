@@ -60,5 +60,3 @@ std = [
 	"derive_more/std",
 	"xxhash-rust/std"
 ]
-
-ink-as-dependency = []

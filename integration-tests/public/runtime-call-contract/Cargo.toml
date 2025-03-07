@@ -17,7 +17,7 @@ pallet-balances = { git = "https://github.com/use-ink/polkadot-sdk", branch = "c
 pallet-revive = { git = "https://github.com/use-ink/polkadot-sdk", branch = "cmichi-disable-asserts", default-features = false }
 sp-runtime = { git = "https://github.com/use-ink/polkadot-sdk", branch = "cmichi-disable-asserts", default-features = false }
 # todo
-codec = { package = "parity-scale-codec", version =  "3.6.12", default-features = false }
+codec = { package = "parity-scale-codec", version =  "3.7.4", default-features = false }
 scale-info = { version = "2.11.1", default-features = false }
 
 [package]

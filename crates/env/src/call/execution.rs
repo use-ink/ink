@@ -120,6 +120,7 @@ impl<Abi> ExecutionInput<EmptyArgumentList<Abi>, Abi> {
 
 impl<Head, Rest, Abi> ExecutionInput<ArgumentList<Argument<Head>, Rest, Abi>, Abi> {
     /// Pushes an argument to the execution input.
+    #[allow(clippy::type_complexity)]
     #[inline]
     pub fn push_arg<T>(
         self,
@@ -333,9 +334,7 @@ where
 }
 
 impl SolTypeValue<()> for EmptyArgumentList<SolEncoding> {
-    fn stv_to_tokens(&self) -> <() as SolType>::Token<'_> {
-        ()
-    }
+    fn stv_to_tokens(&self) -> <() as SolType>::Token<'_> {}
 
     fn stv_abi_encode_packed_to(&self, _out: &mut Vec<u8>) {}
 

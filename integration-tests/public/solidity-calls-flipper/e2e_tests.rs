@@ -42,14 +42,32 @@ async fn solidity_calls_ink_works<Client: E2EBackend>(
     let exec_input = params.exec_input();
 
     // fund alith
-    let acc = subxt_signer::eth::dev::alith();
-    let alith = ink::primitives::AccountIdMapper::to_address(acc.account_id());
+    let _acc = subxt_signer::eth::dev::alith();
+    //let alith = ink::primitives::AccountIdMapper::to_address(acc.account_id());
+
+    //use ink_e2e::subxt::utils::AccountId32;
+    //let mut account_id = AccountId32::from([0xEE; 32]);
+    //.copy_from_slice(&acc.public_key().to_account_id().as_ref());
+
+    //let bytes: &[u8] = acc.account_id();
+    //acc_bytes.copy_from_slice(&alith.as_bytes()[..20]);
+    //let acc_32 = AccountId32::new(acc.account_id().encode());
+    //let acc_32 = AccountId32Mapper::to_aaccount(&acc);
+    //let eth = eth_account(acc);
     client
         .api
-        .try_transfer_balance(&ink_e2e::alice(),
-                              //acc_32,
-                              eth_account(alith),
-                              1_000_000_000_000_000)
+        .try_transfer_balance(
+            &ink_e2e::alice(),
+            ink_e2e::subxt::utils::AccountId32::from([0u8; 32]),
+            //acc,
+            //<ink_e2e::subxt_signer::eth::Keypair as Signer<PolkadotConfig>>::account_id(&acc),
+            // todo just for getting it to compile
+            //ink_e2e::subxt::utils::AccountId32::from(eth.encode()),
+         //acc.account_id(),
+     //< crate::e2e_tests::subxt_signer::eth::Keypair as Signer<PolkadotConfig>>::account_id(&acc),
+            //account_id,
+            1_000_000_000_000_000,
+        )
         .await?;
 
     let signer = ink_e2e::alice();
@@ -143,8 +161,7 @@ where
             0,
             &signer,
         )
-        .await
-        .0;
+        .await;
 
     <Ret>::abi_decode(&mut &exec_result.result.unwrap().data[..], true)
         .expect("decode failed")
@@ -321,12 +338,14 @@ impl Drop for SolidityHandler {
 }
 
 // borrowed from: https://github.com/paritytech/polkadot-sdk/blob/master/substrate/bin/node/cli/src/chain_spec.rs#L427
+/*
 fn eth_account(from: subxt_signer::eth::Keypair) -> AccountId {
     let mut account_id = AccountId::from([0xEE; 32]);
     <AccountId as AsMut<[u8; 32]>>::as_mut(&mut account_id)[..20]
         .copy_from_slice(&from.public_key().to_account_id().as_ref());
     account_id
 }
+*/
 
 fn keccak_selector(input: &[u8]) -> Vec<u8> {
     let mut output = [0; 32];

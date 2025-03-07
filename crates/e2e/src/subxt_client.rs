@@ -66,11 +66,11 @@ use ink_env::{
     Environment,
 };
 use ink_primitives::{
-    types::AccountIdMapper,
     reflect::{
         AbiDecodeWith,
         AbiEncodeWith,
     },
+    types::AccountIdMapper,
     DepositLimit,
 };
 use jsonrpsee::core::async_trait;

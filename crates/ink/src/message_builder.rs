@@ -96,15 +96,15 @@
 ///     E: ink_env::Environment,
 /// {
 ///     type Error = ();
-///     fn exec<Args, Output>(
+///     fn exec<Args, Output, Abi>(
 ///         &self,
-///         input: &ExecutionInput<Args>,
+///         input: &ExecutionInput<Args, Abi>,
 ///     ) -> Result<MessageResult<Output>, Self::Error>
 ///     where
-///         Args: Encode,
-///         Output: Decode,
+///         Args: ink::reflect::AbiEncodeWith<Abi>,
+///         Output: ink::reflect::AbiDecodeWith<Abi>,
 ///     {
-///         println!("Executing contract with input: {:?}", Encode::encode(input));
+///         // println!("Executing contract with input: {:?}", AbiEncodeWith::encode_to_vec(input));
 ///         unimplemented!("Decode contract execution output")
 ///     }
 /// }

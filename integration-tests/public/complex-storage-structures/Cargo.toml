@@ -8,7 +8,7 @@ publish = false
 [dependencies]
 ink = { path = "../../../crates/ink", default-features = false }
 # todo remove scale, use ink::scale
-scale = { package = "parity-scale-codec", version = "3.6.12", default-features = false, features = ["derive"] }
+scale = { package = "parity-scale-codec", version = "3.7.4", default-features = false, features = ["derive"] }
 scale-info = { version = "2.11", default-features = false }
 
 [dev-dependencies]

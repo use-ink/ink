@@ -286,7 +286,7 @@ impl<T: scale::Encode> AbiEncodeWith<ScaleEncoding> for T {
 impl<T: scale::Decode> AbiDecodeWith<ScaleEncoding> for T {
     type Error = scale::Error;
     fn decode_with(buffer: &[u8]) -> Result<Self, Self::Error> {
-        scale::Decode::decode(&mut &buffer[..]).map_err(|e| e.into())
+        scale::Decode::decode(&mut &buffer[..])
     }
 }
 
@@ -316,7 +316,7 @@ where
     type Error = alloy_sol_types::Error;
     fn decode_with(buffer: &[u8]) -> Result<Self, Self::Error> {
         // Don't validate decoding. Validating results in encoding and decoding again.
-        T::abi_decode(buffer, false).map_err(|e| e.into())
+        T::abi_decode(buffer, false)
     }
 }
 

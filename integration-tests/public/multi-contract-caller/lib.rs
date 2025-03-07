@@ -15,7 +15,6 @@ mod multi_contract_caller {
     #[derive(Debug, Copy, Clone, PartialEq, Eq)]
     #[cfg_attr(feature = "std", derive(ink::storage::traits::StorageLayout))]
     #[ink::scale_derive(Encode, Decode, TypeInfo)]
-    //#[repr(u8)] // todo
     pub enum Which {
         Adder,
         Subber,

@@ -81,16 +81,14 @@ pub mod flipper {
             let selector = crate::keccak_selector(b"get_value()");
             let callee: H160 = callee.into();
 
-            let result = build_call_solidity::<<Self as ::ink::env::ContractEnv>::Env>()
+            build_call_solidity::<<Self as ::ink::env::ContractEnv>::Env>()
                 .call(callee)
                 .ref_time_limit(1000000000)
                 .transferred_value(ink::U256::zero())
                 .call_flags(CallFlags::empty())
                 .exec_input(ExecutionInput::new(selector.into()))
                 .returns::<u16>()
-                .invoke();
-
-            result
+                .invoke()
         }
     }
 }
