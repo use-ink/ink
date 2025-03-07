@@ -188,7 +188,11 @@ impl MessageBuilder<'_> {
         let selector_bytes = selector.hex_lits();
         let input_bindings = generator::input_bindings(message.inputs());
         let input_types = generator::input_types(message.inputs());
-        let arg_list = generator::generate_argument_list(input_types.iter().cloned());
+        let encoding_strategy = quote!(::ink::reflect::ScaleEncoding);
+        let arg_list = generator::generate_argument_list(
+            input_types.iter().cloned(),
+            encoding_strategy.clone(),
+        );
         let mut_tok = message.mutates().then(|| quote! { mut });
         let cfg_attrs = message.get_cfg_attrs(span);
         quote_spanned!(span =>
@@ -196,6 +200,7 @@ impl MessageBuilder<'_> {
             type #output_ident = ::ink::env::call::Execution<
                 #arg_list,
                 #output_type,
+                #encoding_strategy
             >;
 
             #( #attrs )*

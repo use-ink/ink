@@ -28,5 +28,10 @@ mod other_contract {
         pub fn get(&self) -> bool {
             self.value
         }
+
+        #[ink(message)]
+        pub fn set_value(&mut self, value: bool) {
+            self.value = value
+        }
     }
 }

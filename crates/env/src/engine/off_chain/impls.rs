@@ -15,6 +15,7 @@
 use super::EnvInstance;
 use crate::{
     call::{
+        utils::DecodeMessageResult,
         Call,
         CallParams,
         ConstructorReturnType,
@@ -45,6 +46,10 @@ use crate::{
 };
 use ink_engine::ext::Engine;
 use ink_primitives::{
+    reflect::{
+        AbiDecodeWith,
+        AbiEncodeWith,
+    },
     types::Environment,
     H160,
     H256,
@@ -93,7 +98,7 @@ where
     crate::test::get_return_value()
 }
 
-fn invoke_contract_impl<R>(
+fn invoke_contract_impl<R, Abi>(
     env: &mut EnvInstance,
     _gas_limit: Option<u64>,
     _call_flags: u32,
@@ -102,7 +107,7 @@ fn invoke_contract_impl<R>(
     input: Vec<u8>,
 ) -> Result<ink_primitives::MessageResult<R>>
 where
-    R: scale::Decode,
+    R: AbiDecodeWith<Abi> + DecodeMessageResult<Abi>,
 {
     let callee_code_hash = env.code_hash(&callee_account).unwrap_or_else(|err| {
         panic!(
@@ -122,14 +127,10 @@ where
 
     env.engine.set_callee(old_callee);
 
-    let result =
-        <ink_primitives::MessageResult<R> as scale::Decode>::decode(&mut &result[..])
-            .expect("failed to decode return value");
-
-    Ok(result)
+    R::decode_output(&result)
 }
 
-fn invoke_contract_impl_delegate<R>(
+fn invoke_contract_impl_delegate<R, Abi>(
     env: &mut EnvInstance,
     _gas_limit: Option<u64>,
     _call_flags: u32,
@@ -138,7 +139,7 @@ fn invoke_contract_impl_delegate<R>(
     input: Vec<u8>,
 ) -> Result<ink_primitives::MessageResult<R>>
 where
-    R: scale::Decode,
+    R: AbiDecodeWith<Abi> + DecodeMessageResult<Abi>,
 {
     let callee_code_hash = env.code_hash(&callee_account).unwrap_or_else(|err| {
         panic!(
@@ -153,11 +154,7 @@ where
         .get_contract_message_handler(&callee_code_hash);
     let result = handler(input);
 
-    let result =
-        <ink_primitives::MessageResult<R> as scale::Decode>::decode(&mut &result[..])
-            .expect("failed to decode return value");
-
-    Ok(result)
+    R::decode_output(&result)
 }
 
 impl CryptoHash for Blake2x128 {
@@ -572,22 +569,21 @@ impl TypedEnvBackend for EnvInstance {
         self.engine.deposit_event(&enc_topics[..], enc_data);
     }
 
-    fn invoke_contract<E, Args, R>(
+    fn invoke_contract<E, Args, R, Abi>(
         &mut self,
-        params: &CallParams<E, Call, Args, R>,
+        params: &CallParams<E, Call, Args, R, Abi>,
     ) -> Result<ink_primitives::MessageResult<R>>
     where
         E: Environment,
-        Args: scale::Encode,
-        R: scale::Decode,
+        Args: AbiEncodeWith<Abi>,
+        R: AbiDecodeWith<Abi> + DecodeMessageResult<Abi>,
     {
         let call_flags = params.call_flags().bits();
         let transferred_value = params.transferred_value();
-        let input = params.exec_input();
+        let input = params.exec_input().encode();
         let callee_account = params.callee();
-        let input = scale::Encode::encode(input);
 
-        invoke_contract_impl::<R>(
+        invoke_contract_impl::<R, Abi>(
             self,
             None,
             call_flags,
@@ -597,21 +593,20 @@ impl TypedEnvBackend for EnvInstance {
         )
     }
 
-    fn invoke_contract_delegate<E, Args, R>(
+    fn invoke_contract_delegate<E, Args, R, Abi>(
         &mut self,
-        params: &CallParams<E, DelegateCall, Args, R>,
+        params: &CallParams<E, DelegateCall, Args, R, Abi>,
     ) -> Result<ink_primitives::MessageResult<R>>
     where
         E: Environment,
-        Args: scale::Encode,
-        R: scale::Decode,
+        Args: AbiEncodeWith<Abi>,
+        R: AbiDecodeWith<Abi> + DecodeMessageResult<Abi>,
     {
         let _addr = params.address(); // todo remove
         let call_flags = params.call_flags().bits();
-        let input = params.exec_input();
-        let input = scale::Encode::encode(input);
+        let input = params.exec_input().encode();
 
-        invoke_contract_impl_delegate::<R>(
+        invoke_contract_impl_delegate::<R, Abi>(
             self,
             None,
             call_flags,
@@ -621,9 +616,9 @@ impl TypedEnvBackend for EnvInstance {
         )
     }
 
-    fn instantiate_contract<E, ContractRef, Args, R>(
+    fn instantiate_contract<E, ContractRef, Args, R, Abi>(
         &mut self,
-        params: &CreateParams<E, ContractRef, LimitParamsV2, Args, R>,
+        params: &CreateParams<E, ContractRef, LimitParamsV2, Args, R, Abi>,
     ) -> Result<
         ink_primitives::ConstructorResult<
             <R as ConstructorReturnType<ContractRef>>::Output,
@@ -634,15 +629,14 @@ impl TypedEnvBackend for EnvInstance {
         ContractRef: FromAddr + crate::ContractReverseReference,
         <ContractRef as crate::ContractReverseReference>::Type:
             crate::reflect::ContractConstructorDecoder,
-        Args: scale::Encode,
+        Args: AbiEncodeWith<Abi>,
         R: ConstructorReturnType<ContractRef>,
     {
         let endowment = params.endowment();
         let salt_bytes = params.salt_bytes();
         let code_hash = params.code_hash();
 
-        let input = params.exec_input();
-        let input = scale::Encode::encode(input);
+        let input = params.exec_input().encode();
 
         // Compute address for instantiated contract.
         let addr_id_vec = {

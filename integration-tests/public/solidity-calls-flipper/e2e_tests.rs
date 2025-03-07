@@ -4,7 +4,10 @@ use ink::{
         SolType,
         SolValue,
     },
-    env::DefaultEnvironment,
+    env::{
+        Balance,
+        DefaultEnvironment,
+    },
     primitives::AccountId,
     H160,
 };
@@ -53,7 +56,7 @@ async fn solidity_calls_ink_works<Client: E2EBackend>(
         .exec_instantiate(
             &signer,
             client.contracts.load_code("flipper"),
-            ink::scale::Encode::encode(&exec_input),
+            exec_input.encode(),
             0,
             DEFAULT_GAS.into(),
             DEFAULT_STORAGE_DEPOSIT_LIMIT,
@@ -91,8 +94,28 @@ async fn solidity_calls_ink_works<Client: E2EBackend>(
 
     let _ = sol_handler.call_with_value(sol_addr.clone(), "callSet", false)?;
 
-    let output = sol_handler.call(sol_addr, "callGet")?;
+    let output = sol_handler.call(sol_addr.clone(), "callGet")?;
     assert_eq!(output, Some("false".to_string()));
+
+    // test ink! can call solidity
+    let sol_addr_encodable: [u8; 20] =
+        hex::decode(sol_addr.clone().strip_prefix("0x").unwrap())
+            .expect("decode failed")
+            .try_into()
+            .expect("should be 20 bytes");
+
+    let encoded = encode_ink_call("call_solidity_set", sol_addr_encodable.to_vec());
+    let encoded_get = encode_ink_call("call_solidity_get", sol_addr_encodable.to_vec());
+    assert_eq!(
+        call_ink::<u16>(&mut client, ink_addr, encoded_get.clone()).await,
+        42
+    );
+    call_ink_no_return(&mut client, ink_addr, encoded).await;
+    // set_value uses hardcoded 77 for simnplicity.
+    assert_eq!(
+        call_ink::<u16>(&mut client, ink_addr, encoded_get.clone()).await,
+        77
+    );
 
     Ok(())
 }
@@ -114,11 +137,31 @@ where
             data_sol,
             0,
             0,
+            &signer,
         )
-        .await;
+        .await
+        .0;
 
     <Ret>::abi_decode(&mut &exec_result.result.unwrap().data[..], true)
         .expect("decode failed")
+}
+async fn call_ink_no_return(
+    client: &mut ink_e2e::Client<PolkadotConfig, DefaultEnvironment>,
+    ink_addr: H160,
+    data_sol: Vec<u8>,
+) {
+    let signer = ink_e2e::alice();
+    let _ = client
+        .api
+        .call(
+            ink_addr,
+            Balance::from(0u128),
+            Weight::from(DEFAULT_GAS).into(),
+            DEFAULT_STORAGE_DEPOSIT_LIMIT,
+            data_sol,
+            &signer,
+        )
+        .await;
 }
 
 struct SolidityHandler {
@@ -292,4 +335,11 @@ fn keccak_selector(input: &[u8]) -> Vec<u8> {
     hasher.finalize_into(<&mut GenericArray<u8, _>>::from(&mut output[..]));
 
     vec![output[0], output[1], output[2], output[3]]
+}
+
+fn encode_ink_call(selector: &str, args: Vec<u8>) -> Vec<u8> {
+    let mut encoded = Vec::new();
+    encoded.extend(keccak_selector(selector.as_bytes()));
+    encoded.extend(args);
+    encoded
 }

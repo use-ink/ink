@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use alloy_sol_types::SolValue;
+use ink_prelude::vec::Vec;
 use pallet_revive_uapi::ReturnFlags;
 
 /// Stores various information of the respective dispatchable ink! message.
@@ -234,6 +236,88 @@ pub trait DispatchableConstructorInfo<const ID: u32> {
 pub enum Encoding {
     Scale,
     Solidity,
+}
+
+/// Marker type for SCALE encoding. Used with [`AbiEncodeWith`], [`AbiDecodeWith`] and
+/// [`DecodeMessageResult`].
+#[derive(Default, Clone)]
+pub struct ScaleEncoding;
+/// Marker type for Solidity ABI encoding. Used with [`AbiEncodeWith`],
+/// [`AbiDecodeWith`] and [`DecodeMessageResult`].
+#[derive(Default, Clone)]
+pub struct SolEncoding;
+
+/// Trait for ABI-specific encoding with support for both slice and vector buffers.
+pub trait AbiEncodeWith<Abi> {
+    /// Encodes the data into a fixed-size buffer, returning the number of bytes written.
+    fn encode_to_slice(&self, buffer: &mut [u8]) -> usize;
+
+    /// Encodes the data into a dynamically resizing vector.
+    fn encode_to_vec(&self, buffer: &mut Vec<u8>);
+}
+
+/// Trait for ABI-specific decoding.
+pub trait AbiDecodeWith<Abi>: Sized {
+    /// The error type that can occur during decoding.
+    type Error: core::fmt::Debug;
+    /// Decodes the data from a buffer using the provided ABI.
+    fn decode_with(buffer: &[u8]) -> Result<Self, Self::Error>;
+}
+
+impl<T: scale::Encode> AbiEncodeWith<ScaleEncoding> for T {
+    fn encode_to_slice(&self, buffer: &mut [u8]) -> usize {
+        let encoded = scale::Encode::encode(self);
+        let len = encoded.len();
+        debug_assert!(
+            len <= buffer.len(),
+            "encode scope buffer overflowed, encoded len is {} but buffer len is {}",
+            len,
+            buffer.len()
+        );
+        buffer[..len].copy_from_slice(&encoded);
+        len
+    }
+
+    fn encode_to_vec(&self, buffer: &mut Vec<u8>) {
+        scale::Encode::encode_to(self, buffer);
+    }
+}
+
+impl<T: scale::Decode> AbiDecodeWith<ScaleEncoding> for T {
+    type Error = scale::Error;
+    fn decode_with(buffer: &[u8]) -> Result<Self, Self::Error> {
+        scale::Decode::decode(&mut &buffer[..]).map_err(|e| e.into())
+    }
+}
+
+impl<T: SolValue> AbiEncodeWith<SolEncoding> for T {
+    fn encode_to_slice(&self, buffer: &mut [u8]) -> usize {
+        let encoded = T::abi_encode(self);
+        let len = encoded.len();
+        debug_assert!(
+            len <= buffer.len(),
+            "encode scope buffer overflowed, encoded len is {} but buffer len is {}",
+            len,
+            buffer.len()
+        );
+        buffer[..len].copy_from_slice(&encoded);
+        len
+    }
+
+    fn encode_to_vec(&self, buffer: &mut Vec<u8>) {
+        buffer.extend_from_slice(&T::abi_encode(self));
+    }
+}
+
+impl<T: SolValue> AbiDecodeWith<SolEncoding> for T
+where
+    T: From<<<T as SolValue>::SolType as alloy_sol_types::SolType>::RustType>,
+{
+    type Error = alloy_sol_types::Error;
+    fn decode_with(buffer: &[u8]) -> Result<Self, Self::Error> {
+        // Don't validate decoding. Validating results in encoding and decoding again.
+        T::abi_decode(buffer, false).map_err(|e| e.into())
+    }
 }
 
 mod private {

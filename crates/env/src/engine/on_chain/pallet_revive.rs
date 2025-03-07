@@ -14,6 +14,7 @@
 
 use crate::{
     call::{
+        utils::DecodeMessageResult,
         Call,
         CallParams,
         ConstructorReturnType,
@@ -49,6 +50,10 @@ use crate::{
     TypedEnvBackend,
 };
 use ink_primitives::{
+    reflect::{
+        AbiDecodeWith,
+        AbiEncodeWith,
+    },
     H160,
     H256,
     U256,
@@ -438,14 +443,14 @@ impl TypedEnvBackend for EnvInstance {
         ext::deposit_event(&enc_topics[..], enc_data);
     }
 
-    fn invoke_contract<E, Args, R>(
+    fn invoke_contract<E, Args, R, Abi>(
         &mut self,
-        params: &CallParams<E, Call, Args, R>,
+        params: &CallParams<E, Call, Args, R, Abi>,
     ) -> Result<ink_primitives::MessageResult<R>>
     where
         E: Environment,
-        Args: scale::Encode,
-        R: scale::Decode,
+        Args: AbiEncodeWith<Abi>,
+        R: AbiDecodeWith<Abi> + DecodeMessageResult<Abi>,
     {
         let mut scope = self.scoped_buffer();
         let ref_time_limit = params.ref_time_limit();
@@ -471,7 +476,7 @@ impl TypedEnvBackend for EnvInstance {
         let enc_input = if !call_flags.contains(CallFlags::FORWARD_INPUT)
             && !call_flags.contains(CallFlags::CLONE_INPUT)
         {
-            scope.take_encoded(params.exec_input())
+            scope.take_encoded_with(|buffer| params.exec_input().encode_to_slice(buffer))
         } else {
             &mut []
         };
@@ -490,29 +495,26 @@ impl TypedEnvBackend for EnvInstance {
             Some(output),
         );
         match call_result {
-            Ok(()) | Err(ReturnErrorCode::CalleeReverted) => {
-                let decoded = scale::DecodeAll::decode_all(&mut &output[..])?;
-                Ok(decoded)
-            }
+            Ok(()) | Err(ReturnErrorCode::CalleeReverted) => R::decode_output(&output),
             Err(actual_error) => Err(actual_error.into()),
         }
     }
 
-    fn invoke_contract_delegate<E, Args, R>(
+    fn invoke_contract_delegate<E, Args, R, Abi>(
         &mut self,
-        params: &CallParams<E, DelegateCall, Args, R>,
+        params: &CallParams<E, DelegateCall, Args, R, Abi>,
     ) -> Result<ink_primitives::MessageResult<R>>
     where
         E: Environment,
-        Args: scale::Encode,
-        R: scale::Decode,
+        Args: AbiEncodeWith<Abi>,
+        R: AbiDecodeWith<Abi> + DecodeMessageResult<Abi>,
     {
         let mut scope = self.scoped_buffer();
         let call_flags = params.call_flags();
         let enc_input = if !call_flags.contains(CallFlags::FORWARD_INPUT)
             && !call_flags.contains(CallFlags::CLONE_INPUT)
         {
-            scope.take_encoded(params.exec_input())
+            scope.take_encoded_with(|buffer| params.exec_input().encode_to_slice(buffer))
         } else {
             &mut []
         };
@@ -534,17 +536,14 @@ impl TypedEnvBackend for EnvInstance {
             Some(output),
         );
         match call_result {
-            Ok(()) | Err(ReturnErrorCode::CalleeReverted) => {
-                let decoded = scale::DecodeAll::decode_all(&mut &output[..])?;
-                Ok(decoded)
-            }
+            Ok(()) | Err(ReturnErrorCode::CalleeReverted) => R::decode_output(&output),
             Err(actual_error) => Err(actual_error.into()),
         }
     }
 
-    fn instantiate_contract<E, ContractRef, Args, RetType>(
+    fn instantiate_contract<E, ContractRef, Args, RetType, Abi>(
         &mut self,
-        params: &CreateParams<E, ContractRef, LimitParamsV2, Args, RetType>,
+        params: &CreateParams<E, ContractRef, LimitParamsV2, Args, RetType, Abi>,
     ) -> Result<
         ink_primitives::ConstructorResult<
             <RetType as ConstructorReturnType<ContractRef>>::Output,
@@ -553,7 +552,8 @@ impl TypedEnvBackend for EnvInstance {
     where
         E: Environment,
         ContractRef: FromAddr,
-        Args: scale::Encode,
+
+        Args: AbiEncodeWith<Abi>,
         RetType: ConstructorReturnType<ContractRef>,
     {
         let mut scoped = self.scoped_buffer();
@@ -575,7 +575,8 @@ impl TypedEnvBackend for EnvInstance {
         scale::Encode::encode_to(&params.endowment(), &mut enc_endowment);
         let enc_endowment: &mut [u8; 32] =
             enc_endowment.into_buffer().try_into().unwrap();
-        let enc_input = scoped.take_encoded(params.exec_input());
+        let enc_input = scoped
+            .take_encoded_with(|buffer| params.exec_input().encode_to_slice(buffer));
         let mut out_address: [u8; 20] = scoped.take(20).try_into().unwrap();
         let salt = params.salt_bytes().as_ref();
 

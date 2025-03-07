@@ -32,11 +32,17 @@ use crate::{
     types::Environment,
 };
 use core::marker::PhantomData;
-use ink_primitives::H160;
+use ink_primitives::{
+    reflect::{
+        ScaleEncoding,
+        SolEncoding,
+    },
+    H160,
+};
 
 /// The final parameters to the cross-contract call.
 #[derive(Debug)]
-pub struct CallParams<E, CallType, Args, R>
+pub struct CallParams<E, CallType, Args, R, Abi>
 where
     E: Environment,
 {
@@ -45,23 +51,24 @@ where
     /// The expected return type.
     _return_type: ReturnType<R>,
     /// The inputs to the execution which is a selector and encoded arguments.
-    exec_input: ExecutionInput<Args>,
+    exec_input: ExecutionInput<Args, Abi>,
     /// `Environment` is used by `CallType` for correct types
     _phantom: PhantomData<fn() -> E>,
 }
 
-impl<E, CallType, Args, R> CallParams<E, CallType, Args, R>
+impl<E, CallType, Args, R, Abi> CallParams<E, CallType, Args, R, Abi>
 where
     E: Environment,
 {
     /// Returns the execution input.
     #[inline]
-    pub fn exec_input(&self) -> &ExecutionInput<Args> {
+    pub fn exec_input(&self) -> &ExecutionInput<Args, Abi> {
         &self.exec_input
     }
 }
 
-/// Returns a new [`CallBuilder`] to build up the parameters to a cross-contract call.
+/// Returns a new [`CallBuilder`] to build up the parameters to a cross-contract call
+/// that uses the ink! ABI (SCALE Encoding).
 ///
 /// # Example
 ///
@@ -207,7 +214,28 @@ where
 pub fn build_call<E>() -> CallBuilder<
     E,
     Unset<Call>,
-    Unset<ExecutionInput<EmptyArgumentList>>,
+    Unset<ExecutionInput<EmptyArgumentList<ScaleEncoding>, ScaleEncoding>>,
+    Unset<ReturnType<()>>,
+>
+where
+    E: Environment,
+{
+    CallBuilder {
+        call_type: Default::default(),
+        exec_input: Default::default(),
+        return_type: Default::default(),
+        _phantom: Default::default(),
+    }
+}
+
+/// Returns a new [`CallBuilder`] to build up the parameters to a cross-contract call
+/// that uses Solidity ABI Encoding.
+/// See [`build_call`] for more details on usage.
+#[allow(clippy::type_complexity)]
+pub fn build_call_solidity<E>() -> CallBuilder<
+    E,
+    Unset<Call>,
+    Unset<ExecutionInput<EmptyArgumentList<SolEncoding>, SolEncoding>>,
     Unset<ReturnType<()>>,
 >
 where
@@ -234,12 +262,17 @@ where
     _phantom: PhantomData<fn() -> E>, // todo possibly remove?
 }
 
-impl<E, Args, RetType> From<Execution<Args, RetType>>
-    for CallBuilder<E, Unset<Call>, Set<ExecutionInput<Args>>, Set<ReturnType<RetType>>>
+impl<E, Args, RetType, Abi> From<Execution<Args, RetType, Abi>>
+    for CallBuilder<
+        E,
+        Unset<Call>,
+        Set<ExecutionInput<Args, Abi>>,
+        Set<ReturnType<RetType>>,
+    >
 where
     E: Environment,
 {
-    fn from(invoke: Execution<Args, RetType>) -> Self {
+    fn from(invoke: Execution<Args, RetType, Abi>) -> Self {
         CallBuilder {
             call_type: Default::default(),
             exec_input: Set(invoke.input),
@@ -290,16 +323,16 @@ where
     }
 }
 
-impl<E, CallType, RetType>
-    CallBuilder<E, CallType, Unset<ExecutionInput<EmptyArgumentList>>, RetType>
+impl<E, CallType, RetType, Abi>
+    CallBuilder<E, CallType, Unset<ExecutionInput<EmptyArgumentList<Abi>, Abi>>, RetType>
 where
     E: Environment,
 {
     /// Sets the execution input to the given value.
     pub fn exec_input<Args>(
         self,
-        exec_input: ExecutionInput<Args>,
-    ) -> CallBuilder<E, CallType, Set<ExecutionInput<Args>>, RetType> {
+        exec_input: ExecutionInput<Args, Abi>,
+    ) -> CallBuilder<E, CallType, Set<ExecutionInput<Args, Abi>>, RetType> {
         CallBuilder {
             call_type: self.call_type,
             exec_input: Set(exec_input),

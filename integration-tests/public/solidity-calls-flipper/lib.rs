@@ -2,6 +2,17 @@
 
 #[ink::contract(abi = "sol")]
 pub mod flipper {
+    use crate::keccak_selector;
+    use ink::{
+        env::{
+            call::{
+                build_call_solidity,
+                ExecutionInput,
+            },
+            CallFlags,
+        },
+        H160,
+    };
     #[ink(storage)]
     pub struct Flipper {
         value: bool,
@@ -47,7 +58,53 @@ pub mod flipper {
         pub fn get_2(&self) -> bool {
             self.value
         }
+
+        #[ink(message)]
+        pub fn call_solidity_set(&mut self, callee: [u8; 20]) {
+            let selector = keccak_selector(b"set_value(uint16)");
+            let callee: H160 = callee.into();
+
+            let result = build_call_solidity::<<Self as ::ink::env::ContractEnv>::Env>()
+                .call(callee)
+                .ref_time_limit(1000000000)
+                .transferred_value(ink::U256::zero())
+                .call_flags(CallFlags::empty())
+                .exec_input(ExecutionInput::new(selector.into()).push_arg(77u16))
+                .returns::<()>()
+                .try_invoke();
+
+            assert!(result.is_ok(), "call failed");
+        }
+
+        #[ink(message)]
+        pub fn call_solidity_get(&mut self, callee: [u8; 20]) -> u16 {
+            let selector = crate::keccak_selector(b"get_value()");
+            let callee: H160 = callee.into();
+
+            let result = build_call_solidity::<<Self as ::ink::env::ContractEnv>::Env>()
+                .call(callee)
+                .ref_time_limit(1000000000)
+                .transferred_value(ink::U256::zero())
+                .call_flags(CallFlags::empty())
+                .exec_input(ExecutionInput::new(selector.into()))
+                .returns::<u16>()
+                .invoke();
+
+            result
+        }
     }
+}
+
+fn keccak_selector(input: &[u8]) -> [u8; 4] {
+    let mut output = [0; 32];
+    use sha3::{
+        digest::generic_array::GenericArray,
+        Digest as _,
+    };
+    let mut hasher = sha3::Keccak256::new();
+    hasher.update(input);
+    hasher.finalize_into(<&mut GenericArray<u8, _>>::from(&mut output[..]));
+    [output[0], output[1], output[2], output[3]]
 }
 
 #[cfg(all(test, feature = "e2e-tests"))]

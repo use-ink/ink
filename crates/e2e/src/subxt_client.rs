@@ -63,13 +63,16 @@ use ink_env::{
     },
     Environment,
 };
-use ink_primitives::DepositLimit;
+use ink_primitives::{
+    reflect::{
+        AbiDecodeWith,
+        AbiEncodeWith,
+    },
+    DepositLimit,
+};
 use jsonrpsee::core::async_trait;
 use pallet_revive::evm::CallTrace;
-use scale::{
-    Decode,
-    Encode,
-};
+use scale::Encode;
 use sp_weights::Weight;
 #[cfg(feature = "std")]
 use std::fmt::Debug;
@@ -93,10 +96,10 @@ use subxt::{
 pub type Error = crate::error::Error<DispatchError>;
 
 /// Represents an initialized contract message builder.
-pub type CallBuilderFinal<E, Args, RetType> = ink_env::call::CallBuilder<
+pub type CallBuilderFinal<E, Args, RetType, Abi> = ink_env::call::CallBuilder<
     E,
     Set<Call>,
-    Set<ExecutionInput<Args>>,
+    Set<ExecutionInput<Args, Abi>>,
     Set<ReturnType<RetType>>,
 >;
 
@@ -490,11 +493,16 @@ where
         Clone + Debug + Send + Sync + From<u128> + scale::HasCompact + serde::Serialize,
     H256: Debug + Send + Sync + scale::Encode,
 {
-    async fn bare_instantiate<Contract: Clone, Args: Send + Sync + Encode + Clone, R>(
+    async fn bare_instantiate<
+        Contract: Clone,
+        Args: Send + Sync + AbiEncodeWith<Abi> + Clone,
+        R,
+        Abi: Send + Sync + Clone,
+    >(
         &mut self,
         contract_name: &str,
         caller: &Keypair,
-        constructor: &mut CreateBuilderPartial<E, Contract, Args, R>,
+        constructor: &mut CreateBuilderPartial<E, Contract, Args, R, Abi>,
         value: E::Balance,
         gas_limit: Weight,
         storage_deposit_limit: DepositLimit<E::Balance>,
@@ -511,13 +519,14 @@ where
 
     async fn bare_instantiate_dry_run<
         Contract: Clone,
-        Args: Send + Sync + Encode + Clone,
+        Args: Send + Sync + AbiEncodeWith<Abi> + Clone,
         R,
+        Abi: Send + Sync + Clone,
     >(
         &mut self,
         contract_name: &str,
         caller: &Keypair,
-        constructor: &mut CreateBuilderPartial<E, Contract, Args, R>,
+        constructor: &mut CreateBuilderPartial<E, Contract, Args, R, Abi>,
         value: E::Balance,
         storage_deposit_limit: DepositLimit<E::Balance>,
     ) -> Result<InstantiateDryRunResult<E>, Self::Error> {
@@ -601,19 +610,23 @@ where
         Ok(tx_events)
     }
 
-    async fn bare_call<Args: Sync + Encode + Clone, RetType: Send + Decode>(
+    async fn bare_call<
+        Args: Sync + AbiEncodeWith<Abi> + Clone,
+        RetType: Send + AbiDecodeWith<Abi>,
+        Abi: Sync + Clone,
+    >(
         &mut self,
         caller: &Keypair,
-        message: &CallBuilderFinal<E, Args, RetType>,
+        message: &CallBuilderFinal<E, Args, RetType, Abi>,
         value: E::Balance,
         gas_limit: Weight,
         storage_deposit_limit: DepositLimit<E::Balance>,
     ) -> Result<(Self::EventLog, Option<CallTrace>), Self::Error>
     where
-        CallBuilderFinal<E, Args, RetType>: Clone,
+        CallBuilderFinal<E, Args, RetType, Abi>: Clone,
     {
         let addr = *message.clone().params().callee();
-        let exec_input = Encode::encode(message.clone().params().exec_input());
+        let exec_input = message.clone().params().exec_input().encode();
         log_info(&format!("call: {:02X?}", exec_input));
 
         let (tx_events, trace) = self
@@ -647,22 +660,26 @@ where
     }
 
     // todo is not really a `bare_call`
-    async fn bare_call_dry_run<Args: Sync + Encode + Clone, RetType: Send + Decode>(
+    async fn bare_call_dry_run<
+        Args: Sync + AbiEncodeWith<Abi> + Clone,
+        RetType: Send + AbiDecodeWith<Abi>,
+        Abi: Sync + Clone,
+    >(
         &mut self,
         caller: &Keypair,
-        message: &CallBuilderFinal<E, Args, RetType>,
+        message: &CallBuilderFinal<E, Args, RetType, Abi>,
         value: E::Balance,
         storage_deposit_limit: DepositLimit<E::Balance>,
     ) -> Result<CallDryRunResult<E, RetType>, Self::Error>
     where
-        CallBuilderFinal<E, Args, RetType>: Clone,
+        CallBuilderFinal<E, Args, RetType, Abi>: Clone,
     {
         // todo beware side effect! this is wrong, we have to batch up the `map_account`
         // into the RPC dry run instead
         let _ = self.map_account(caller).await;
 
         let dest = *message.clone().params().callee();
-        let exec_input = Encode::encode(message.clone().params().exec_input());
+        let exec_input = message.clone().params().exec_input().encode();
 
         let (exec_result, trace) = self
             .api

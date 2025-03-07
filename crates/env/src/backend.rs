@@ -14,6 +14,7 @@
 
 use crate::{
     call::{
+        utils::DecodeMessageResult,
         Call,
         CallParams,
         ConstructorReturnType,
@@ -32,6 +33,10 @@ use crate::{
     Result,
 };
 use ink_primitives::{
+    reflect::{
+        AbiDecodeWith,
+        AbiEncodeWith,
+    },
     types::Environment,
     H160,
     H256,
@@ -315,14 +320,15 @@ pub trait TypedEnvBackend: EnvBackend {
     /// **This will call into the latest `call_v2` host function.**
     ///
     /// For more details visit: [`invoke_contract`][`crate::invoke_contract`]
-    fn invoke_contract<E, Args, R>(
+    fn invoke_contract<E, Args, R, Abi>(
         &mut self,
-        call_data: &CallParams<E, Call, Args, R>,
+        call_data: &CallParams<E, Call, Args, R, Abi>,
     ) -> Result<ink_primitives::MessageResult<R>>
     where
         E: Environment,
-        Args: scale::Encode,
-        R: scale::Decode;
+
+        Args: AbiEncodeWith<Abi>,
+        R: AbiDecodeWith<Abi> + DecodeMessageResult<Abi>;
 
     /// Invokes a contract message via delegate call and returns its result.
     ///
@@ -330,23 +336,24 @@ pub trait TypedEnvBackend: EnvBackend {
     ///
     /// For more details visit:
     /// [`invoke_contract_delegate`][`crate::invoke_contract_delegate`]
-    fn invoke_contract_delegate<E, Args, R>(
+    fn invoke_contract_delegate<E, Args, R, Abi>(
         &mut self,
-        call_data: &CallParams<E, DelegateCall, Args, R>,
+        call_data: &CallParams<E, DelegateCall, Args, R, Abi>,
     ) -> Result<ink_primitives::MessageResult<R>>
     where
         E: Environment,
-        Args: scale::Encode,
-        R: scale::Decode;
+
+        Args: AbiEncodeWith<Abi>,
+        R: AbiDecodeWith<Abi> + DecodeMessageResult<Abi>;
 
     /// Instantiates another contract.
     ///
     /// # Note
     ///
     /// For more details visit: [`instantiate_contract`][`crate::instantiate_contract`]
-    fn instantiate_contract<E, ContractRef, Args, R>(
+    fn instantiate_contract<E, ContractRef, Args, R, Abi>(
         &mut self,
-        params: &CreateParams<E, ContractRef, LimitParamsV2, Args, R>,
+        params: &CreateParams<E, ContractRef, LimitParamsV2, Args, R, Abi>,
     ) -> Result<
         ink_primitives::ConstructorResult<
             <R as ConstructorReturnType<ContractRef>>::Output,
@@ -357,7 +364,7 @@ pub trait TypedEnvBackend: EnvBackend {
         ContractRef: FromAddr + crate::ContractReverseReference,
         <ContractRef as crate::ContractReverseReference>::Type:
             crate::reflect::ContractConstructorDecoder,
-        Args: scale::Encode,
+        Args: AbiEncodeWith<Abi>,
         R: ConstructorReturnType<ContractRef>;
 
     /// Terminates a smart contract.
