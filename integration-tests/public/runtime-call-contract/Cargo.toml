@@ -16,6 +16,7 @@ frame-system = { git = "https://github.com/use-ink/polkadot-sdk", branch = "cmic
 pallet-balances = { git = "https://github.com/use-ink/polkadot-sdk", branch = "cmichi-disable-asserts", default-features = false }
 pallet-revive = { git = "https://github.com/use-ink/polkadot-sdk", branch = "cmichi-disable-asserts", default-features = false }
 sp-runtime = { git = "https://github.com/use-ink/polkadot-sdk", branch = "cmichi-disable-asserts", default-features = false }
+# todo
 codec = { package = "parity-scale-codec", version =  "3.6.12", default-features = false }
 scale-info = { version = "2.11.1", default-features = false }
 

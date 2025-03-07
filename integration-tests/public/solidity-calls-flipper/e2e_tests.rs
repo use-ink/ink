@@ -40,10 +40,13 @@ async fn solidity_calls_ink_works<Client: E2EBackend>(
 
     // fund alith
     let acc = subxt_signer::eth::dev::alith();
-    let alith = ink_e2e::address(acc);
+    let alith = ink::primitives::AccountIdMapper::to_address(acc.account_id());
     client
         .api
-        .try_transfer_balance(&ink_e2e::alice(), alith.0.into(), 1_000_000_000_000_000)
+        .try_transfer_balance(&ink_e2e::alice(),
+                              //acc_32,
+                              eth_account(alith),
+                              1_000_000_000_000_000)
         .await?;
 
     let signer = ink_e2e::alice();
@@ -107,7 +110,7 @@ where
     Ret: SolValue + From<<<Ret as SolValue>::SolType as SolType>::RustType>,
 {
     let signer = ink_e2e::alice();
-    let exec_result = client
+    let (exec_result, _trace) = client
         .api
         .call_dry_run(
             <ink_e2e::Keypair as Signer<PolkadotConfig>>::account_id(&signer),
@@ -115,6 +118,7 @@ where
             data_sol,
             0,
             0,
+            &signer,
         )
         .await;
 
