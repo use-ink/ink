@@ -104,7 +104,7 @@
 ///         Args: ink::reflect::AbiEncodeWith<Abi>,
 ///         Output: ink::reflect::AbiDecodeWith<Abi>,
 ///     {
-///         // println!("Executing contract with input: {:?}", AbiEncodeWith::encode_to_vec(input));
+///         println!("Executing contract with input: {:?}", input.encode());
 ///         unimplemented!("Decode contract execution output")
 ///     }
 /// }

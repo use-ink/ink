@@ -515,7 +515,7 @@ impl TypedEnvBackend for EnvInstance {
             Some(output),
         );
         match call_result {
-            Ok(()) | Err(ReturnErrorCode::CalleeReverted) => R::decode_output(&output),
+            Ok(()) | Err(ReturnErrorCode::CalleeReverted) => R::decode_output(output),
             Err(actual_error) => Err(actual_error.into()),
         }
     }
@@ -556,7 +556,7 @@ impl TypedEnvBackend for EnvInstance {
             Some(output),
         );
         match call_result {
-            Ok(()) | Err(ReturnErrorCode::CalleeReverted) => R::decode_output(&output),
+            Ok(()) | Err(ReturnErrorCode::CalleeReverted) => R::decode_output(output),
             Err(actual_error) => Err(actual_error.into()),
         }
     }

@@ -5,17 +5,13 @@ pub mod flipper {
     #[ink(storage)]
     pub struct Flipper {
         value: bool,
-        which: Which,
     }
 
     impl Flipper {
         /// Creates a new flipper smart contract initialized with the given value.
         #[ink(constructor)]
         pub fn new(init_value: bool) -> Self {
-            Self {
-                value: init_value,
-                which: Which::Adder,
-            }
+            Self { value: init_value }
         }
 
         /// Creates a new flipper smart contract initialized to `false`.
