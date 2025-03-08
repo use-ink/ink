@@ -1,6 +1,3 @@
-fn main() {}
-/*
-// todo bring back once errors with "duplicate definitions for `…`" fixed.
 use contract::Contract;
 
 #[ink::contract(abi = "all")]
@@ -108,4 +105,3 @@ fn main() {
         [0xdc, 0x48, 0xaa, 0x5a],
     );
 }
-*/

@@ -7,12 +7,18 @@ use frame_system::pallet_prelude::OriginFor;
 use ink::{
     env::{
         call::{
+            utils::DecodeMessageResult,
             ExecutionInput,
             Executor,
         },
         Environment,
     },
     primitives::U256,
+    reflect::{
+        AbiDecodeWith,
+        AbiEncodeWith,
+    },
+    MessageResult,
     H160,
 };
 use pallet_revive::{
@@ -20,8 +26,6 @@ use pallet_revive::{
     MomentOf,
 };
 use sp_runtime::traits::Bounded;
-use ink::env::call::utils::DecodeMessageResult;
-use ink::reflect::AbiDecodeWith;
 
 pub struct PalletReviveExecutor<E: Environment, Runtime: pallet_revive::Config> {
     // todo
@@ -50,10 +54,10 @@ where
     fn exec<Args, Output, Abi>(
         &self,
         input: &ExecutionInput<Args, Abi>,
-    ) -> Result<ink::MessageResult<Output>, Self::Error>
+    ) -> Result<MessageResult<Output>, Self::Error>
     where
-        Args: ink::reflect::AbiEncodeWith<Abi>,
-        Output: ink::reflect::AbiDecodeWith<Abi> + DecodeMessageResult<Abi>,
+        Args: AbiEncodeWith<Abi>,
+        Output: AbiDecodeWith<Abi> + DecodeMessageResult<Abi>,
     {
         let data = input.encode();
         let result = pallet_revive::Pallet::<R>::bare_call(
@@ -69,7 +73,7 @@ where
         );
 
         let output = result.result?.data;
-        let result = codec::Decode::decode(&mut &output[..]).map_err(|_| {
+        let result = DecodeMessageResult::decode_output(&output[..]).map_err(|_| {
             sp_runtime::DispatchError::Other("Failed to decode contract output")
         })?;
 

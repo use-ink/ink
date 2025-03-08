@@ -16,7 +16,10 @@ use super::{
     utils::ReturnType,
     Selector,
 };
-use crate::Environment;
+use crate::{
+    call::utils::DecodeMessageResult,
+    Environment,
+};
 use alloy_sol_types::{
     private::SolTypeValue,
     SolType,
@@ -31,7 +34,6 @@ use ink_primitives::reflect::{
     ScaleEncoding,
     SolEncoding,
 };
-use crate::call::utils::DecodeMessageResult;
 
 /// The input data and the expected return type of a contract execution.
 pub struct Execution<Args, Output, Abi> {
@@ -78,7 +80,7 @@ pub trait Executor<E: Environment> {
     ) -> Result<ink_primitives::MessageResult<Output>, Self::Error>
     where
         Args: AbiEncodeWith<Abi>,
-        Output: AbiDecodeWith<Abi>;
+        Output: AbiDecodeWith<Abi> + DecodeMessageResult<Abi>;
 }
 
 /// The input data for a smart contract execution.
