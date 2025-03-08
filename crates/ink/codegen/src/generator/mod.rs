@@ -38,6 +38,7 @@ mod ink_test;
 mod item_impls;
 mod metadata;
 mod selector;
+mod solidity;
 mod storage;
 mod storage_item;
 mod trait_def;
