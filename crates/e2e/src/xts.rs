@@ -165,7 +165,7 @@ struct RpcInstantiateRequest<C: subxt::Config, E: Environment> {
     origin: C::AccountId,
     value: E::Balance,
     gas_limit: Option<Weight>,
-    storage_deposit_limit: DepositLimit<E::Balance>,
+    storage_deposit_limit: Option<E::Balance>,
     code: Code,
     data: Vec<u8>,
     salt: Option<[u8; 32]>,
@@ -193,7 +193,7 @@ struct RpcCallRequest<C: subxt::Config, E: Environment> {
     dest: H160,
     value: E::Balance,
     gas_limit: Option<Weight>,
-    storage_deposit_limit: DepositLimit<E::Balance>,
+    storage_deposit_limit: Option<E::Balance>,
     input_data: Vec<u8>,
 }
 
@@ -274,6 +274,10 @@ where
         signer: &Keypair,
     ) -> ContractInstantiateResultFor<E> {
         let code = Code::Upload(code);
+        let storage_deposit_limit = match storage_deposit_limit {
+            DepositLimit::Balance(v) => Some(v),
+            DepositLimit::Unchecked => None,
+        };
         let call_request = RpcInstantiateRequest::<C, E> {
             origin: Signer::<C>::account_id(signer),
             value,
@@ -613,8 +617,13 @@ where
             origin,
             dest,
             value,
-            gas_limit: None,
-            storage_deposit_limit: DepositLimit::Unchecked,
+            //gas_limit: None,
+            gas_limit: Some(Weight {
+                ref_time: u64::MAX,
+                proof_size: u64::MAX,
+            }),
+            storage_deposit_limit: None,
+            //storage_deposit_limit: DepositLimit::Unchecked,
             input_data: input_data.clone(),
         };
         let func = "ReviveApi_call";
@@ -629,8 +638,10 @@ where
         let res: ContractExecResultFor<E> = scale::Decode::decode(&mut bytes.as_ref())
             .unwrap_or_else(|err| panic!("decoding ContractExecResult failed: {err}"));
 
+        eprintln!("res {:?}", res.result);
+
         // todo for gas_limit and storage_deposit_limit we should use the values returned
-        // by a successful call above, otherwise the max
+        // by a successful call above, otherwise the max.
 
         // and now collect the trace and put it in there as well.
         let call = subxt::tx::DefaultPayload::new(

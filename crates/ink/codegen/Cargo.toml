@@ -40,13 +40,13 @@ polkavm-derive = { workspace = true }
 default = [ "std" ]
 std = [
     "either/std",
-	"either/use_std",
-	"ink_primitives/std",
+    "either/use_std",
+    "ink_primitives/std",
     "ir/std",
-	"itertools/use_std",
-	"scale/std",
-	"serde/std",
-	"derive_more/std"
+    "itertools/use_std",
+    "scale/std",
+    "serde/std",
+    "derive_more/std"
 ]
 
 # For the ui tests, which use this `Cargo.toml`

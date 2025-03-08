@@ -662,6 +662,7 @@ where
     where
         CallBuilderFinal<E, Args, RetType, Abi>: Clone,
     {
+        eprintln!("starting bare call dry run");
         // todo beware side effect! this is wrong, we have to batch up the `map_account`
         // into the RPC dry run instead
         let _ = self.map_account(caller).await;

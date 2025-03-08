@@ -502,6 +502,7 @@ impl TypedEnvBackend for EnvInstance {
         };
         let output = &mut scope.take_rest();
         let flags = params.call_flags();
+
         #[allow(deprecated)] // todo
         let call_result = ext::call(
             *flags,
@@ -577,6 +578,21 @@ impl TypedEnvBackend for EnvInstance {
         RetType: ConstructorReturnType<ContractRef>,
     {
         let mut scoped = self.scoped_buffer();
+        /*
+        // todo remove
+        let mut foo = [0u8; 15];
+        let bar = ink_prelude::format!("params {:?} {:?} {:?}",
+                             params.ref_time_limit(),
+                             params.proof_size_limit(),
+                             params.storage_deposit_limit(),
+        );
+        foo.copy_from_slice(&bar.as_bytes()[..]);
+        self.return_value(
+            ReturnFlags::REVERT,
+            &foo
+        );
+        */
+
         let ref_time_limit = params.ref_time_limit();
         let proof_size_limit = params.proof_size_limit();
         let storage_deposit_limit = params.storage_deposit_limit().map(|limit| {
