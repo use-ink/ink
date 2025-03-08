@@ -31,8 +31,9 @@ note: if you're trying to build a new `Contract`, consider using `contract::_::<
    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 help: there is an associated function `constructor_1` with a similar name
    |
-22 |         pub fn constructor_1() -> Self {
-   |                ~~~~~~~~~~~~~
+22 -         pub fn constructor_2() -> Self {
+22 +         pub fn constructor_1() -> Self {
+   |
 
 error[E0599]: no function or associated item named `message_2` found for struct `Contract` in the current scope
   --> tests/ui/contract/fail/impl-block-for-non-storage-01.rs:27:16

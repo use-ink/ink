@@ -626,7 +626,7 @@ where
             .unwrap_or_else(|err| {
                 panic!("error on ws request `contracts_call`: {err:?}");
             });
-        let res = scale::Decode::decode(&mut bytes.as_ref())
+        let res: ContractExecResultFor<E> = scale::Decode::decode(&mut bytes.as_ref())
             .unwrap_or_else(|err| panic!("decoding ContractExecResult failed: {err}"));
 
         // todo for gas_limit and storage_deposit_limit we should use the values returned

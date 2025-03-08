@@ -337,6 +337,11 @@ impl Dispatch<'_> {
             .hex_padded_suffixed();
         let selector_bytes = message.composed_selector().hex_lits();
 
+        #[cfg(feature = "std")]
+        let return_type = quote! { () };
+        #[cfg(not(feature = "std"))]
+        let return_type = quote! { ! };
+
         quote_spanned!(message_span=>
             #( #cfg_attrs )*
             impl ::ink::reflect::DispatchableMessageInfo<#selector_id> for #storage_ident {
@@ -353,18 +358,7 @@ impl Dispatch<'_> {
                         <Self::Input as ::ink::scale::Decode>::decode(input)
                             .map_err(|_| ::ink::env::DispatchError::InvalidParameters)
                     };
-                #[cfg(not(feature = "std"))]
-                const RETURN: fn(::ink::env::ReturnFlags, Self::Output) -> ! =
-                    |flags, output| {
-                        ::ink::env::return_value::<::ink::MessageResult::<Self::Output>>(
-                            flags,
-                            // Currently no `LangError`s are raised at this level of the
-                            // dispatch logic so `Ok` is always returned to the caller.
-                            &::ink::MessageResult::Ok(output),
-                        )
-                    };
-                #[cfg(feature = "std")]
-                const RETURN: fn(::ink::env::ReturnFlags, Self::Output) -> () =
+                const RETURN: fn(::ink::env::ReturnFlags, Self::Output) -> #return_type =
                     |flags, output| {
                         ::ink::env::return_value::<::ink::MessageResult::<Self::Output>>(
                             flags,
@@ -421,6 +415,11 @@ impl Dispatch<'_> {
         let label = format!("{trait_ident}::{message_ident}");
         let cfg_attrs = message.get_cfg_attrs(message_span);
 
+        #[cfg(feature = "std")]
+        let return_type = quote! { () };
+        #[cfg(not(feature = "std"))]
+        let return_type = quote! { ! };
+
         quote_spanned!(message_span=>
             #( #cfg_attrs )*
             impl ::ink::reflect::DispatchableMessageInfo<#selector_id> for #storage_ident {
@@ -437,18 +436,7 @@ impl Dispatch<'_> {
                         <Self::Input as ::ink::scale::Decode>::decode(input)
                             .map_err(|_| ::ink::env::DispatchError::InvalidParameters)
                     };
-                #[cfg(not(feature = "std"))]
-                const RETURN: fn(::ink::env::ReturnFlags, Self::Output) -> ! =
-                    |flags, output| {
-                        ::ink::env::return_value::<::ink::MessageResult::<Self::Output>>(
-                            flags,
-                            // Currently no `LangError`s are raised at this level of the
-                            // dispatch logic so `Ok` is always returned to the caller.
-                            &::ink::MessageResult::Ok(output),
-                        )
-                    };
-                #[cfg(feature = "std")]
-                const RETURN: fn(::ink::env::ReturnFlags, Self::Output) -> () =
+                const RETURN: fn(::ink::env::ReturnFlags, Self::Output) -> #return_type =
                     |flags, output| {
                         ::ink::env::return_value::<::ink::MessageResult::<Self::Output>>(
                             flags,
@@ -565,6 +553,11 @@ impl Dispatch<'_> {
             }
         };
 
+        #[cfg(feature = "std")]
+        let return_type = quote! { () };
+        #[cfg(not(feature = "std"))]
+        let return_type = quote! { ! };
+
         quote_spanned!(message_span=>
             #( #cfg_attrs )*
             impl ::ink::reflect::DispatchableMessageInfo<#selector_id> for #storage_ident {
@@ -583,16 +576,7 @@ impl Dispatch<'_> {
                             ::abi_decode(input, true)
                             .map(#sol_to_input_tuple_converter).map_err(|_| ::ink::env::DispatchError::InvalidParameters)
                     };
-                #[cfg(not(feature = "std"))]
-                const RETURN: fn(::ink::env::ReturnFlags, Self::Output) -> ! =
-                    |flags, output| {
-                        ::ink::env::return_value_solidity::<Self::Output>(
-                            flags,
-                            &output,
-                        )
-                    };
-                #[cfg(feature = "std")]
-                const RETURN: fn(::ink::env::ReturnFlags, Self::Output) -> () =
+                const RETURN: fn(::ink::env::ReturnFlags, Self::Output) -> #return_type =
                     |flags, output| {
                         ::ink::env::return_value_solidity::<Self::Output>(
                             flags,
@@ -1066,7 +1050,7 @@ impl Dispatch<'_> {
                         // See https://github.com/rust-lang/rust-clippy/issues/6249
                         let mut flag = ::ink::env::ReturnFlags::REVERT;
 
-                        // no need to push back results: transaction gets reverted anyways
+                        // no need to push back results: transaction gets reverted anyway
                         if !is_reverted {
                             flag = ::ink::env::ReturnFlags::empty();
                             push_contract(contract, #mutates_storage);

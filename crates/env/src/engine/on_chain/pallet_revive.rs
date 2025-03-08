@@ -319,7 +319,27 @@ impl EnvBackend for EnvInstance {
         message_hash: &[u8; 32],
         output: &mut [u8; 33],
     ) -> Result<()> {
-        ext::ecdsa_recover(signature, message_hash, output).map_err(Into::into)
+        // todo change fn args to just take the slice callee_input slice directly
+        let mut callee_input = [0u8; 65 + 32];
+        callee_input[..65].copy_from_slice(&signature[..65]);
+        callee_input[65..65 + 32].copy_from_slice(&message_hash[..32]);
+
+        const ECRECOVER: [u8; 20] =
+            hex_literal::hex!("0000000000000000000000000000000000000001");
+        // todo return value?
+        let _ = ext::call(
+            CallFlags::empty(),
+            &ECRECOVER,
+            u64::MAX, /* How much ref_time to devote for the execution. u64::MAX = use
+                       * all. */
+            u64::MAX, /* How much proof_size to devote for the execution. u64::MAX =
+                       * use all. */
+            &[u8::MAX; 32],                   // No deposit limit.
+            &U256::zero().to_little_endian(), // Value transferred to the contract.
+            &callee_input[..],
+            Some(&mut &mut output[..]),
+        );
+        Ok(())
     }
 
     fn ecdsa_to_eth_address(
@@ -392,16 +412,16 @@ impl TypedEnvBackend for EnvInstance {
     }
 
     fn account_id<E: Environment>(&mut self) -> E::AccountId {
+        // todo
+        /*
         let mut scope = self.scoped_buffer();
-
-        // todo this is wrong
-        let account_id: &mut [u8; 32] = scope.take(32).try_into().unwrap();
-        account_id[20..].fill(0xEE);
-        let h160: &mut [u8; 20] = account_id[..20].as_mut().try_into().unwrap();
-        ext::address(h160);
+        let addr = ext::address(h160);
+        let account_id = ext::to_account_id();
 
         scale::Decode::decode(&mut &account_id[..])
             .expect("A contract being executed must have a valid account id.")
+         */
+        unreachable!("todo");
     }
 
     fn address(&mut self) -> H160 {
@@ -495,7 +515,7 @@ impl TypedEnvBackend for EnvInstance {
             Some(output),
         );
         match call_result {
-            Ok(()) | Err(ReturnErrorCode::CalleeReverted) => R::decode_output(&output),
+            Ok(()) | Err(ReturnErrorCode::CalleeReverted) => R::decode_output(output),
             Err(actual_error) => Err(actual_error.into()),
         }
     }
@@ -536,7 +556,7 @@ impl TypedEnvBackend for EnvInstance {
             Some(output),
         );
         match call_result {
-            Ok(()) | Err(ReturnErrorCode::CalleeReverted) => R::decode_output(&output),
+            Ok(()) | Err(ReturnErrorCode::CalleeReverted) => R::decode_output(output),
             Err(actual_error) => Err(actual_error.into()),
         }
     }

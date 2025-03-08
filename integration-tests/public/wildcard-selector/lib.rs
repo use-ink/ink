@@ -7,6 +7,17 @@ pub mod wildcard_selector {
     #[ink(storage)]
     pub struct WildcardSelector {}
 
+    struct MessageInput([u8; 4], String);
+    impl ink::env::DecodeDispatch for MessageInput {
+        fn decode_dispatch(input: &mut &[u8]) -> Result<Self, ink::env::DispatchError> {
+            // todo improve code here
+            let mut selector: [u8; 4] = [0u8; 4];
+            selector.copy_from_slice(&input[..4]);
+            let arg: String = ink::scale::Decode::decode(&mut &input[4..]).unwrap();
+            Ok(MessageInput(selector, arg))
+        }
+    }
+
     impl WildcardSelector {
         /// Creates a new wildcard selector smart contract.
         #[ink(constructor)]
@@ -18,8 +29,8 @@ pub mod wildcard_selector {
         /// Wildcard selector handles messages with any selector.
         #[ink(message, selector = _)]
         pub fn wildcard(&mut self) {
-            let (_selector, _message) =
-                ink::env::decode_input::<([u8; 4], String)>().unwrap();
+            let MessageInput(_selector, _message) =
+                ink::env::decode_input::<MessageInput>().unwrap();
             /*
             // todo
             ink::env::debug_println!(
@@ -43,10 +54,13 @@ pub mod wildcard_selector {
         use super::*;
         use ink_e2e::ContractsBackend;
 
-        use ink::env::call::utils::{
-            Argument,
-            ArgumentList,
-            EmptyArgumentList,
+        use ink::{
+            env::call::utils::{
+                Argument,
+                ArgumentList,
+                EmptyArgumentList,
+            },
+            primitives::reflect::ScaleEncoding,
         };
 
         type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
@@ -58,8 +72,13 @@ pub mod wildcard_selector {
             message: String,
         ) -> ink_e2e::CallBuilderFinal<
             Environment,
-            ArgumentList<Argument<String>, EmptyArgumentList>,
+            ArgumentList<
+                Argument<String>,
+                EmptyArgumentList<ScaleEncoding>,
+                ScaleEncoding,
+            >,
             (),
+            ScaleEncoding,
         > {
             ink::env::call::build_call::<Environment>()
                 .call(addr)
@@ -94,7 +113,7 @@ pub mod wildcard_selector {
                 wildcard_message.clone(),
             );
 
-            let result = client
+            let _result = client
                 .call(&ink_e2e::bob(), &wildcard)
                 .submit()
                 .await
@@ -108,7 +127,7 @@ pub mod wildcard_selector {
                 wildcard_message2.clone(),
             );
 
-            let result2 = client
+            let _result2 = client
                 .call(&ink_e2e::bob(), &wildcard2)
                 .submit()
                 .await
@@ -152,7 +171,7 @@ pub mod wildcard_selector {
                 wildcard_complement_message.clone(),
             );
 
-            let result = client
+            let _result = client
                 .call(&ink_e2e::bob(), &wildcard)
                 .submit()
                 .await

@@ -259,7 +259,7 @@ mod call_builder {
             let call = call_builder.invoke(flipper.addr, invalid_selector);
             let call_result = client.call(&origin, &call).dry_run().await;
 
-            if let Err(ink_e2e::Error::CallDryRun(dry_run)) = call_result {
+            if let Err(ink_e2e::Error::CallDryRun(_dry_run)) = call_result {
                 /*
                 // todo
                 assert!(
@@ -389,7 +389,7 @@ mod call_builder {
 
             let call_result = client.call(&origin, &call).dry_run().await;
 
-            if let Err(ink_e2e::Error::CallDryRun(dry_run)) = call_result {
+            if let Err(ink_e2e::Error::CallDryRun(_dry_run)) = call_result {
                 /*
                 // todo
                 assert!(dry_run
@@ -530,7 +530,7 @@ mod call_builder {
                 call_builder.call_instantiate_fallible(code_hash, selector, init_value);
             let call_result = client.call(&origin, &call).dry_run().await;
 
-            if let Err(ink_e2e::Error::CallDryRun(dry_run)) = call_result {
+            if let Err(ink_e2e::Error::CallDryRun(_dry_run)) = call_result {
                 /*
                 // todo
                 assert!(dry_run

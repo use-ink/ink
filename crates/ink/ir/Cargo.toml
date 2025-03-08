@@ -31,6 +31,7 @@ sha3 = { workspace = true }
 [features]
 default = [ "std" ]
 std = [
+    "either/std",
 	"either/use_std",
 	"ink_prelude/std",
 	"itertools/use_std",

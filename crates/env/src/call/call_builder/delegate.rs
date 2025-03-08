@@ -55,8 +55,8 @@ impl DelegateCall {
         DelegateCall {
             address,
             flags: CallFlags::empty(),
-            ref_time_limit: 0,
-            proof_size_limit: 0,
+            ref_time_limit: u64::MAX,
+            proof_size_limit: u64::MAX,
             deposit_limit: None,
         }
     }
@@ -66,8 +66,8 @@ impl DelegateCall {
         DelegateCall {
             address,
             flags: CallFlags::empty(),
-            ref_time_limit: 0,
-            proof_size_limit: 0,
+            ref_time_limit: u64::MAX,
+            proof_size_limit: u64::MAX,
             deposit_limit: None,
         }
     }

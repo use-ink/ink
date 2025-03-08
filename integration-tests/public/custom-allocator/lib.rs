@@ -27,6 +27,8 @@
 //! Providing your own allocator lets you choose the right tradeoffs for your use case.
 
 #![cfg_attr(not(feature = "std"), no_std, no_main)]
+#![feature(sync_unsafe_cell)]
+#![feature(allocator_api)]
 
 // todo
 // Here we set `dlmalloc` to be the global memory allocator.
@@ -37,8 +39,6 @@
 //#[global_allocator]
 //static ALLOC: dlmalloc::GlobalDlmalloc = dlmalloc::GlobalDlmalloc;
 
-#![feature(sync_unsafe_cell)]
-#![feature(allocator_api)]
 use core::{
     alloc::{
         GlobalAlloc,
