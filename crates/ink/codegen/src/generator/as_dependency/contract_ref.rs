@@ -23,6 +23,7 @@ use ir::{
 };
 use proc_macro2::TokenStream as TokenStream2;
 use quote::{
+    format_ident,
     quote,
     quote_spanned,
 };
@@ -496,6 +497,13 @@ impl ContractRef<'_> {
         }
 
         if abi.is_solidity() {
+            // If ABI is all, we generate a second constructor with a "_sol" postfix.
+            // Otherwise, we use the same name.
+            let sol_constructor_ident = if abi.is_all() {
+                format_ident!("{}_sol", constructor_ident)
+            } else {
+                constructor_ident.clone()
+            };
             let arg_list = generator::generate_argument_list(
                 input_types.iter().cloned(),
                 quote!(::ink::reflect::SolEncoding),
@@ -505,7 +513,7 @@ impl ContractRef<'_> {
                 #( #attrs )*
                 #[inline]
                 #[allow(clippy::type_complexity)]
-                pub fn #constructor_ident(
+                pub fn #sol_constructor_ident(
                     #( #input_bindings : #input_types ),*
                 ) -> ::ink::env::call::CreateBuilder<
                     Environment,
