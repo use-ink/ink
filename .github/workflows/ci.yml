@@ -60,6 +60,14 @@ jobs:
     outputs:
       IMAGE: ${{ steps.set_image.outputs.IMAGE }}
     steps:
+      - name: Maximize build space
+        uses: AdityaGarg8/remove-unwanted-software@v4.1
+        with:
+          remove-android: 'true'
+          remove-dotnet: 'true'
+          remove-codeql: 'true'
+          remove-haskell: 'true'
+
       - id: set_image
         run: echo "IMAGE=${{ env.IMAGE }}" >> $GITHUB_OUTPUT
 
@@ -347,6 +355,7 @@ jobs:
         with:
           cache-directories: |
             ${{ env.CARGO_TARGET_DIR }}
+
       - name: Rust Info
         uses: ./.github/rust-info
 
@@ -364,18 +373,44 @@ jobs:
           cargo +nightly nextest run --all-features --no-fail-fast --workspace --locked
           cargo +nightly test --all-features --no-fail-fast --workspace --doc --locked
 
-      - name: Test Linting
-        if: ${{ matrix.workspace == 'linting' }}
-        env:
-          # Fix for linking of `linkme` for `cargo test`: https://github.com/dtolnay/linkme/issues/49
-          RUSTFLAGS:                   -Clink-arg=-z -Clink-arg=nostart-stop-gc -Clink-dead-code
-          # Since we run the tests with `--all-features` this implies the feature
-          # `ink-fuzz-tests` as well -- i.e. the fuzz tests are run.
-          # There's no way to disable a single feature while enabling all features
-          # at the same time, hence we use this workaround.
-          QUICKCHECK_TESTS:            0
-        run: |
-          pushd linting && cargo nextest run --all-features --no-fail-fast --workspace && popd
+  test-linting:
+      runs-on: ubuntu-latest
+      needs: [set-image, check]
+      defaults:
+          run:
+              shell: bash
+      container:
+          image: ${{ needs.set-image.outputs.IMAGE }}
+      strategy:
+          fail-fast: false
+          matrix:
+              workspace: [ink, linting]
+      steps:
+          - name: Checkout
+            uses: actions/checkout@v4
+            with:
+                fetch-depth: 1
+
+          - name: Cache
+            uses: Swatinem/rust-cache@f0deed1e0edfc6a9be95417288c0e1099b1eeec3 # v2.7.7
+            with:
+                cache-directories: |
+                    ${{ env.CARGO_TARGET_DIR }}
+          - name: Rust Info
+            uses: ./.github/rust-info
+
+          - name: Test Linting
+            if: ${{ matrix.workspace == 'linting' }}
+            env:
+              # Fix for linking of `linkme` for `cargo test`: https://github.com/dtolnay/linkme/issues/49
+              RUSTFLAGS:                   -Clink-arg=-z -Clink-arg=nostart-stop-gc -Clink-dead-code
+              # Since we run the tests with `--all-features` this implies the feature
+              # `ink-fuzz-tests` as well -- i.e. the fuzz tests are run.
+              # There's no way to disable a single feature while enabling all features
+              # at the same time, hence we use this workaround.
+              QUICKCHECK_TESTS:            0
+            run: |
+              pushd linting && cargo nextest run --all-features --no-fail-fast --workspace && popd
 
   docs:
     runs-on: ubuntu-latest
