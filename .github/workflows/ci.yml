@@ -495,7 +495,7 @@ jobs:
 
   docs:
     runs-on: ubuntu-latest
-    needs: [set-image, check, fmt, clippy, clippy-examples, dylint, spellcheck]
+    needs: [set-image, check, fmt, clippy, clippy-examples, dylint-checks, dylint-testing, spellcheck]
     defaults:
       run:
         shell: bash
@@ -535,7 +535,7 @@ jobs:
 
   codecov:
     runs-on: ubuntu-latest
-    needs: [set-image, check, fmt, clippy, clippy-examples, dylint, spellcheck]
+    needs: [set-image, check, fmt, clippy, clippy-examples, dylint-checks, dylint-testing, spellcheck]
     defaults:
       run:
         shell: bash
