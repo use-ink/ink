@@ -162,6 +162,7 @@ where
         storage_deposit_limit: E::Balance,
     ) -> Result<BareInstantiationResult<ExtrinsicEvents<C>>, Error> {
         let salt = salt();
+        // todo remove assert once salt() returns no more option
         assert!(salt.is_some());
         let (events, trace) = self
             .api
@@ -846,8 +847,6 @@ impl<E: Environment, V, C: subxt::Config> CallResult<E, V, ExtrinsicEvents<C>> {
                 let topics = decoded_event.topics.clone();
                 let event_with_topics = EventWithTopics {
                     event: decoded_event,
-                    //topics: event.topics().iter().cloned().map(Into::into).collect(),
-                    //topics: topics.iter().map(|v| H256::from_slice(&v[..])).collect(),
                     topics,
                 };
                 events_with_topics.push(event_with_topics);

@@ -685,6 +685,7 @@ where
     ///
     /// Returns when the transaction is included in a block. The return value
     /// contains all events that are associated with this transaction.
+    /// todo the API for `call_dry_run` should mirror that of `call`
     pub async fn call(
         &self,
         contract: H160,
