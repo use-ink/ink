@@ -280,6 +280,7 @@ where
 
 /// Returns the default accounts for testing purposes:
 /// Alice, Bob, Charlie, Django, Eve and Frank.
+/// todo should be `default_addresses`
 pub fn default_accounts() -> DefaultAccounts {
     DefaultAccounts {
         alice: AccountIdMapper::to_address(&[0x01; 32]),
