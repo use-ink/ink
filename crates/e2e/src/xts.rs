@@ -617,13 +617,11 @@ where
             origin,
             dest,
             value,
-            //gas_limit: None,
             gas_limit: Some(Weight {
                 ref_time: u64::MAX,
                 proof_size: u64::MAX,
             }),
             storage_deposit_limit: None,
-            //storage_deposit_limit: DepositLimit::Unchecked,
             input_data: input_data.clone(),
         };
         let func = "ReviveApi_call";
@@ -637,8 +635,6 @@ where
             });
         let res: ContractExecResultFor<E> = scale::Decode::decode(&mut bytes.as_ref())
             .unwrap_or_else(|err| panic!("decoding ContractExecResult failed: {err}"));
-
-        eprintln!("res {:?}", res.result);
 
         // todo for gas_limit and storage_deposit_limit we should use the values returned
         // by a successful call above, otherwise the max.

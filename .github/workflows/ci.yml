@@ -293,7 +293,7 @@ jobs:
               --manifest-path ./crates/${crate}/Cargo.toml;
           done
 
-  dylint:
+  dylint-checks:
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -328,7 +328,38 @@ jobs:
           cargo check --verbose
           cargo +nightly fmt --all -- --check
           cargo clippy -- -D warnings;
-          cargo test --all-features
+
+  dylint-testing:
+      runs-on: ubuntu-latest
+      defaults:
+          run:
+              shell: bash
+      needs: [set-image]
+      container:
+          image: ${{ needs.set-image.outputs.IMAGE }}
+      steps:
+          - name: Checkout
+            uses: actions/checkout@v4
+            with:
+                fetch-depth: 1
+
+          - name: Cache
+            uses: Swatinem/rust-cache@f0deed1e0edfc6a9be95417288c0e1099b1eeec3 # v2.7.7
+            with:
+                cache-directories: ${{ env.CARGO_TARGET_DIR }}
+
+          - name: Rust Info
+            uses: ./.github/rust-info
+
+          - name: Dylint
+            env:
+                # Setting incremental = 0 to reduce compilation artifact size.
+                # The CI otherwise fails with "no disk space"
+                # todo Remove again at one point. This is a speed trade-off.
+                CARGO_INCREMENTAL: 0
+            run: |
+                cd linting/
+                cargo test --all-features
 
 ### workspace
 

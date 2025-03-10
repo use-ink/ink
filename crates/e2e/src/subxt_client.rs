@@ -662,7 +662,6 @@ where
     where
         CallBuilderFinal<E, Args, RetType, Abi>: Clone,
     {
-        eprintln!("starting bare call dry run");
         // todo beware side effect! this is wrong, we have to batch up the `map_account`
         // into the RPC dry run instead
         let _ = self.map_account(caller).await;
@@ -685,24 +684,10 @@ where
             )
             .await;
         log_info(&format!("call dry run result: {:?}", &exec_result.result));
-        eprintln!("call dry run result: {:?}", &exec_result.result);
 
         let exec_result = self
             .contract_result_to_result(exec_result)
             .map_err(Error::CallDryRun)?;
-        eprintln!("---after");
-
-        /*
-        if let Ok(res) = exec_result.result.clone() {
-            if res.did_revert() {
-                eprintln!("---found revert");
-                return Err(Self::Error::CallDryRunReverted(DryRunRevert {
-                    error: res.data,
-                }));
-            }
-        }
-
-         */
 
         Ok(CallDryRunResult {
             exec_result,
