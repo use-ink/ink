@@ -287,6 +287,14 @@ jobs:
       matrix:
         type: [STD, RISCV]
     steps:
+      - name: Maximize build space
+        uses: AdityaGarg8/remove-unwanted-software@v4.1
+        with:
+          remove-android: 'true'
+          remove-dotnet: 'true'
+          remove-codeql: 'true'
+          remove-haskell: 'true'
+
       - name: Checkout
         uses: actions/checkout@v4
         with:
@@ -337,6 +345,14 @@ jobs:
       matrix:
         workspace: [ink, linting]
     steps:
+      - name: Maximize build space
+        uses: AdityaGarg8/remove-unwanted-software@v4.1
+        with:
+          remove-android: 'true'
+          remove-dotnet: 'true'
+          remove-codeql: 'true'
+          remove-haskell: 'true'
+
       - name: Checkout
         uses: actions/checkout@v4
         with:
@@ -487,6 +503,14 @@ jobs:
       matrix:
         partition: [1, 2, 3, 4, 5, 6]
     steps:
+     - name: Maximize build space
+       uses: AdityaGarg8/remove-unwanted-software@v4.1
+       with:
+         remove-android: 'true'
+         remove-dotnet: 'true'
+         remove-codeql: 'true'
+         remove-haskell: 'true'
+
       - name: Checkout
         uses: actions/checkout@v4
         with:
@@ -518,6 +542,14 @@ jobs:
       container:
           image: ${{ needs.set-image.outputs.IMAGE }}
       steps:
+          - name: Maximize build space
+            uses: AdityaGarg8/remove-unwanted-software@v4.1
+            with:
+                remove-android: 'true'
+                remove-dotnet: 'true'
+                remove-codeql: 'true'
+                remove-haskell: 'true'
+
           - name: Checkout
             uses: actions/checkout@v4
             with:
@@ -549,6 +581,14 @@ jobs:
     container:
       image: ${{ needs.set-image.outputs.IMAGE }}
     steps:
+      - name: Maximize build space
+        uses: AdityaGarg8/remove-unwanted-software@v4.1
+        with:
+          remove-android: 'true'
+          remove-dotnet: 'true'
+          remove-codeql: 'true'
+          remove-haskell: 'true'
+
       - name: Checkout
         uses: actions/checkout@v4
         with:
