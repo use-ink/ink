@@ -584,11 +584,6 @@ impl Borrow<[u8; 20]> for Address {
 
 impl SolValue for Address {
     type SolType = sol_data::Address;
-
-    #[inline]
-    fn abi_encode(&self) -> ink_prelude::vec::Vec<u8> {
-        self.0.as_slice().abi_encode()
-    }
 }
 
 impl From<SolAddress> for Address {
