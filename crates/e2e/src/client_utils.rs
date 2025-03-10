@@ -19,6 +19,7 @@ use std::{
 };
 
 /// Generate a unique salt based on the system time.
+/// todo return no `Option` here, just the salt.
 pub fn salt() -> Option<[u8; 32]> {
     use funty::Fundamental as _;
 

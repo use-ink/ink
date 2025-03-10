@@ -46,12 +46,14 @@ use crate::{
         ContractResult,
         UploadResult,
     },
-    error::DryRunError,
+    error::{
+        DryRunError,
+        DryRunRevert,
+    },
     events,
     ContractsBackend,
     E2EBackend,
 };
-use ink::H160;
 use ink_env::{
     call::{
         utils::{
@@ -68,6 +70,7 @@ use ink_primitives::{
         AbiDecodeWith,
         AbiEncodeWith,
     },
+    types::AccountIdMapper,
     DepositLimit,
 };
 use jsonrpsee::core::async_trait;
@@ -159,6 +162,7 @@ where
         storage_deposit_limit: E::Balance,
     ) -> Result<BareInstantiationResult<ExtrinsicEvents<C>>, Error> {
         let salt = salt();
+        assert!(salt.is_some());
         let (events, trace) = self
             .api
             .instantiate_with_code(
@@ -191,7 +195,8 @@ where
         // copied from `pallet-revive`
         let account_id =
             <subxt_signer::sr25519::Keypair as subxt::tx::Signer<C>>::account_id(signer);
-        let deployer = H160::from_slice(&account_id.encode()[..20]);
+        let account_bytes = account_id.encode();
+        let deployer = AccountIdMapper::to_address(account_bytes.as_ref());
         let addr = pallet_revive::create2(
             &deployer,
             &code[..],
@@ -296,16 +301,6 @@ where
                 error: subxt_dispatch_err,
             })
         } else {
-            /*
-            // todo
-            if contract_result.result.unwrap().did_revert() {
-                Err(DryRunError::<String> {
-                    error:  String::from_utf8(contract_result.result.unwrap().data).unwrap()
-                })
-            } else {
-                Ok(contract_result)
-            }
-            */
             Ok(contract_result)
         }
     }
@@ -556,16 +551,9 @@ where
 
         if let Ok(res) = result.result.clone() {
             if res.result.did_revert() {
-                let msg = String::from_utf8(res.result.data).unwrap();
-                panic!("Contract reverted with {:?}", msg);
-                /*
-                // todo
-                return Err(Self::Error::InstantiateDryRun(DryRunError::<DispatchError> {
-                    error: DispatchError::Module(
-                     //String::from_utf8(res.result.data).unwrap(),
-                    )
-                }))
-                */
+                return Err(Self::Error::InstantiateDryRunReverted(DryRunRevert {
+                    error: res.result.data,
+                }));
             }
         }
 
@@ -844,6 +832,7 @@ impl<E: Environment, V, C: subxt::Config> CallResult<E, V, ExtrinsicEvents<C>> {
     }
 
     /// Returns all the `ContractEmitted` events emitted by the contract.
+    #[allow(clippy::result_large_err)] // todo
     pub fn contract_emitted_events(
         &self,
     ) -> Result<Vec<EventWithTopics<events::ContractEmitted>>, subxt::Error>

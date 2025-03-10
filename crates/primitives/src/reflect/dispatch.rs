@@ -239,11 +239,11 @@ pub enum Encoding {
 }
 
 /// Marker type for SCALE encoding. Used with [`AbiEncodeWith`], [`AbiDecodeWith`] and
-/// [`DecodeMessageResult`].
+/// `DecodeMessageResult`.
 #[derive(Default, Clone)]
 pub struct ScaleEncoding;
 /// Marker type for Solidity ABI encoding. Used with [`AbiEncodeWith`],
-/// [`AbiDecodeWith`] and [`DecodeMessageResult`].
+/// [`AbiDecodeWith`] and `DecodeMessageResult`.
 #[derive(Default, Clone)]
 pub struct SolEncoding;
 
@@ -286,7 +286,7 @@ impl<T: scale::Encode> AbiEncodeWith<ScaleEncoding> for T {
 impl<T: scale::Decode> AbiDecodeWith<ScaleEncoding> for T {
     type Error = scale::Error;
     fn decode_with(buffer: &[u8]) -> Result<Self, Self::Error> {
-        scale::Decode::decode(&mut &buffer[..]).map_err(|e| e.into())
+        scale::Decode::decode(&mut &buffer[..])
     }
 }
 
@@ -316,7 +316,7 @@ where
     type Error = alloy_sol_types::Error;
     fn decode_with(buffer: &[u8]) -> Result<Self, Self::Error> {
         // Don't validate decoding. Validating results in encoding and decoding again.
-        T::abi_decode(buffer, false).map_err(|e| e.into())
+        T::abi_decode(buffer, false)
     }
 }
 
@@ -431,6 +431,7 @@ impl<C, E> ConstructorOutput<C> for ConstructorOutputValue<Result<C, E>> {
 /// }
 ///
 /// use contract::Contract;
+/// use ink::env::DecodeDispatch;
 ///
 /// fn main() {
 ///     // Call to `message1` without input parameters.
@@ -438,7 +439,7 @@ impl<C, E> ConstructorOutput<C> for ConstructorOutputValue<Result<C, E>> {
 ///         let mut input_bytes = Vec::new();
 ///         input_bytes.extend(selector_bytes!("message1"));
 ///         assert!(
-///             <<Contract as ContractMessageDecoder>::Type as Decode>::decode(
+///             <<Contract as ContractMessageDecoder>::Type as DecodeDispatch>::decode_dispatch(
 ///                 &mut &input_bytes[..]
 ///             )
 ///             .is_ok()
@@ -451,7 +452,7 @@ impl<C, E> ConstructorOutput<C> for ConstructorOutputValue<Result<C, E>> {
 ///         input_bytes.extend(true.encode());
 ///         input_bytes.extend(42i32.encode());
 ///         assert!(
-///             <<Contract as ContractMessageDecoder>::Type as Decode>::decode(
+///             <<Contract as ContractMessageDecoder>::Type as DecodeDispatch>::decode_dispatch(
 ///                 &mut &input_bytes[..]
 ///             )
 ///             .is_ok()
@@ -462,7 +463,7 @@ impl<C, E> ConstructorOutput<C> for ConstructorOutputValue<Result<C, E>> {
 ///         let mut input_bytes = Vec::new();
 ///         input_bytes.extend(selector_bytes!("non_existing_message"));
 ///         assert!(
-///             <<Contract as ContractMessageDecoder>::Type as Decode>::decode(
+///             <<Contract as ContractMessageDecoder>::Type as DecodeDispatch>::decode_dispatch(
 ///                 &mut &input_bytes[..]
 ///             )
 ///             .is_err()
@@ -473,7 +474,7 @@ impl<C, E> ConstructorOutput<C> for ConstructorOutputValue<Result<C, E>> {
 ///         let mut input_bytes = Vec::new();
 ///         input_bytes.extend(selector_bytes!("message2"));
 ///         assert!(
-///             <<Contract as ContractMessageDecoder>::Type as Decode>::decode(
+///             <<Contract as ContractMessageDecoder>::Type as DecodeDispatch>::decode_dispatch(
 ///                 &mut &input_bytes[..]
 ///             )
 ///             .is_err()
@@ -524,6 +525,7 @@ pub trait ContractMessageDecoder {
 /// }
 ///
 /// use contract::Contract;
+/// use ink::env::DecodeDispatch;
 ///
 /// fn main() {
 ///     // Call to `constructor1` without input parameters.
@@ -531,7 +533,7 @@ pub trait ContractMessageDecoder {
 ///         let mut input_bytes = Vec::new();
 ///         input_bytes.extend(selector_bytes!("constructor1"));
 ///         assert!(
-///             <<Contract as ContractConstructorDecoder>::Type as Decode>::decode(
+///             <<Contract as ContractConstructorDecoder>::Type as DecodeDispatch>::decode_dispatch(
 ///                 &mut &input_bytes[..]
 ///             )
 ///             .is_ok()
@@ -544,7 +546,7 @@ pub trait ContractMessageDecoder {
 ///         input_bytes.extend(true.encode());
 ///         input_bytes.extend(42i32.encode());
 ///         assert!(
-///             <<Contract as ContractConstructorDecoder>::Type as Decode>::decode(
+///             <<Contract as ContractConstructorDecoder>::Type as DecodeDispatch>::decode_dispatch(
 ///                 &mut &input_bytes[..]
 ///             )
 ///             .is_ok()
@@ -555,7 +557,7 @@ pub trait ContractMessageDecoder {
 ///         let mut input_bytes = Vec::new();
 ///         input_bytes.extend(selector_bytes!("non_existing_constructor"));
 ///         assert!(
-///             <<Contract as ContractConstructorDecoder>::Type as Decode>::decode(
+///             <<Contract as ContractConstructorDecoder>::Type as DecodeDispatch>::decode_dispatch(
 ///                 &mut &input_bytes[..]
 ///             )
 ///             .is_err()
@@ -566,7 +568,7 @@ pub trait ContractMessageDecoder {
 ///         let mut input_bytes = Vec::new();
 ///         input_bytes.extend(selector_bytes!("constructor2"));
 ///         assert!(
-///             <<Contract as ContractConstructorDecoder>::Type as Decode>::decode(
+///             <<Contract as ContractConstructorDecoder>::Type as DecodeDispatch>::decode_dispatch(
 ///                 &mut &input_bytes[..]
 ///             )
 ///             .is_err()

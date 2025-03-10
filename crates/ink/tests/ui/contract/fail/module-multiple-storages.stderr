@@ -5,7 +5,6 @@ error: encountered multiple ink! storage structs, expected exactly one
 5  | |     #[ink(storage)]
 6  | |     pub struct Contract {}
 ...  |
-29 | |     }
 30 | | }
    | |_^
 

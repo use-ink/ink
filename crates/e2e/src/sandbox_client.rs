@@ -46,10 +46,6 @@ use frame_support::{
         IsType,
     },
 };
-use ink::alloy_sol_types::{
-    SolType,
-    SolValue,
-};
 use ink_env::Environment;
 use ink_primitives::{
     reflect::{
@@ -80,10 +76,7 @@ use pallet_revive::{
     InstantiateReturnValue,
     MomentOf,
 };
-use scale::{
-    Decode,
-    Encode,
-};
+use scale::Decode;
 use sp_core::{
     sr25519::Pair,
     Pair as _,

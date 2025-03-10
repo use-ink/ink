@@ -450,8 +450,8 @@ where
     CreateBuilder {
         code_hash: Default::default(),
         limits: Set(LimitParamsV2 {
-            ref_time_limit: 0,
-            proof_size_limit: 0,
+            ref_time_limit: u64::MAX,
+            proof_size_limit: u64::MAX,
             storage_deposit_limit: None,
         }),
         endowment: Default::default(),
@@ -479,8 +479,8 @@ where
     CreateBuilder {
         code_hash: Default::default(),
         limits: Set(LimitParamsV2 {
-            ref_time_limit: 0,
-            proof_size_limit: 0,
+            ref_time_limit: u64::MAX,
+            proof_size_limit: u64::MAX,
             storage_deposit_limit: None,
         }),
         endowment: Default::default(),

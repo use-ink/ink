@@ -326,7 +326,7 @@ mod erc20 {
             assert_transfer_event(
                 &emitted_events[0],
                 None,
-                Some(H160::from([0x01; 20])),
+                Some(accounts.alice),
                 100.into(),
             );
             let accounts = ink::env::test::default_accounts();
@@ -356,14 +356,14 @@ mod erc20 {
             assert_transfer_event(
                 &emitted_events[0],
                 None,
-                Some(H160::from([0x01; 20])),
+                Some(accounts.alice),
                 100.into(),
             );
             // Check the second transfer event relating to the actual trasfer.
             assert_transfer_event(
                 &emitted_events[1],
-                Some(H160::from([0x01; 20])),
-                Some(H160::from([0x02; 20])),
+                Some(accounts.alice),
+                Some(accounts.bob),
                 10.into(),
             );
         }
@@ -400,7 +400,7 @@ mod erc20 {
             assert_transfer_event(
                 &emitted_events[0],
                 None,
-                Some(H160::from([0x01; 20])),
+                Some(accounts.alice),
                 100.into(),
             );
         }
@@ -443,15 +443,15 @@ mod erc20 {
             assert_transfer_event(
                 &emitted_events[0],
                 None,
-                Some(H160::from([0x01; 20])),
+                Some(accounts.alice),
                 100.into(),
             );
             // The second event `emitted_events[1]` is an Approve event that we skip
             // checking.
             assert_transfer_event(
                 &emitted_events[2],
-                Some(H160::from([0x01; 20])),
-                Some(H160::from([0x05; 20])),
+                Some(accounts.alice),
+                Some(accounts.eve),
                 10.into(),
             );
         }
@@ -550,7 +550,9 @@ mod erc20 {
                 .dry_run()
                 .await?;
 
-            let bob_account = ink_e2e::address(ink_e2e::Sr25519Keyring::Bob);
+            let bob_account = ink_e2e::address::<ink::env::DefaultEnvironment>(
+                ink_e2e::Sr25519Keyring::Bob,
+            );
             let transfer_to_bob = U256::from(500_000_000);
             let transfer = call_builder.transfer(bob_account, transfer_to_bob);
             let _transfer_res = client
@@ -590,8 +592,12 @@ mod erc20 {
 
             // when
 
-            let bob_account = ink_e2e::address(ink_e2e::Sr25519Keyring::Bob);
-            let charlie_account = ink_e2e::address(ink_e2e::Sr25519Keyring::Charlie);
+            let bob_account = ink_e2e::address::<ink::env::DefaultEnvironment>(
+                ink_e2e::Sr25519Keyring::Bob,
+            );
+            let charlie_account = ink_e2e::address::<ink::env::DefaultEnvironment>(
+                ink_e2e::Sr25519Keyring::Charlie,
+            );
 
             let amount = U256::from(500_000_000);
             // tx

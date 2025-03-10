@@ -16,7 +16,10 @@ use super::{
     utils::ReturnType,
     Selector,
 };
-use crate::Environment;
+use crate::{
+    call::utils::DecodeMessageResult,
+    Environment,
+};
 use alloy_sol_types::{
     private::SolTypeValue,
     SolType,
@@ -43,7 +46,7 @@ pub struct Execution<Args, Output, Abi> {
 impl<Args, Output, Abi> Execution<Args, Output, Abi>
 where
     Args: AbiEncodeWith<Abi>,
-    Output: AbiDecodeWith<Abi>,
+    Output: AbiDecodeWith<Abi> + DecodeMessageResult<Abi>,
 {
     /// Construct a new contract execution with the given input data.
     pub fn new(input: ExecutionInput<Args, Abi>) -> Self {
@@ -77,7 +80,7 @@ pub trait Executor<E: Environment> {
     ) -> Result<ink_primitives::MessageResult<Output>, Self::Error>
     where
         Args: AbiEncodeWith<Abi>,
-        Output: AbiDecodeWith<Abi>;
+        Output: AbiDecodeWith<Abi> + DecodeMessageResult<Abi>;
 }
 
 /// The input data for a smart contract execution.
@@ -120,6 +123,7 @@ impl<Abi> ExecutionInput<EmptyArgumentList<Abi>, Abi> {
 
 impl<Head, Rest, Abi> ExecutionInput<ArgumentList<Argument<Head>, Rest, Abi>, Abi> {
     /// Pushes an argument to the execution input.
+    #[allow(clippy::type_complexity)]
     #[inline]
     pub fn push_arg<T>(
         self,
@@ -333,9 +337,7 @@ where
 }
 
 impl SolTypeValue<()> for EmptyArgumentList<SolEncoding> {
-    fn stv_to_tokens(&self) -> <() as SolType>::Token<'_> {
-        ()
-    }
+    fn stv_to_tokens(&self) -> <() as SolType>::Token<'_> {}
 
     fn stv_abi_encode_packed_to(&self, _out: &mut Vec<u8>) {}
 

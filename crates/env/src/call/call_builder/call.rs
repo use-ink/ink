@@ -59,8 +59,8 @@ impl Call {
     pub fn new(callee: H160) -> Self {
         Self {
             callee,
-            ref_time_limit: Default::default(),
-            proof_size_limit: Default::default(),
+            ref_time_limit: u64::MAX,
+            proof_size_limit: u64::MAX,
             storage_deposit_limit: None,
             transferred_value: U256::zero(),
             call_flags: CallFlags::empty(),

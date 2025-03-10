@@ -50,7 +50,10 @@ use ink_primitives::{
         AbiDecodeWith,
         AbiEncodeWith,
     },
-    types::Environment,
+    types::{
+        AccountIdMapper,
+        Environment,
+    },
     H160,
     H256,
     U256,
@@ -639,7 +642,7 @@ impl TypedEnvBackend for EnvInstance {
         let input = params.exec_input().encode();
 
         // Compute address for instantiated contract.
-        let addr_id_vec = {
+        let account_id_vec = {
             let mut account_input = Vec::<u8>::new();
             account_input.extend(&b"contract_addr".to_vec());
             scale::Encode::encode_to(
@@ -655,7 +658,8 @@ impl TypedEnvBackend for EnvInstance {
             ink_engine::hashing::blake2b_256(&account_input[..], &mut account_id);
             account_id.to_vec()
         };
-        let contract_addr = H160::from_slice(&addr_id_vec[..20]);
+        // todo don't convert to vec and back, simplify type
+        let contract_addr = AccountIdMapper::to_address(&account_id_vec[..]);
 
         let old_callee = self.engine.get_callee();
         self.engine.set_callee(contract_addr);

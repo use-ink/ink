@@ -19,7 +19,8 @@ mod contract {
             _input_3: i32,
             _input_4: i64,
             _input_5: i128,
-            _input_6: u8,
+            // todo `SolValue` currently not implemented for `u8`
+            // _input_6: u8,
             _input_7: u16,
             _input_8: u32,
             _input_9: u64,

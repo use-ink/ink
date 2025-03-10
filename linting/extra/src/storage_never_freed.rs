@@ -186,7 +186,7 @@ fn find_collection_def_id(
 /// Returns vectors of fields that have collection types
 fn find_collection_fields(cx: &LateContext, storage_struct_id: ItemId) -> FieldsMap {
     let mut result = FieldsMap::new();
-    let item = cx.tcx.hir().item(storage_struct_id);
+    let item = cx.tcx.hir_item(storage_struct_id);
     if let ItemKind::Struct(var_data, _) = item.kind {
         var_data.fields().iter().for_each(|field_def| {
             if_chain! {
@@ -319,14 +319,14 @@ impl<'tcx> LateLintPass<'tcx> for StorageNeverFreed {
             // Find all the user-defined functions of the contract
             let all_item_ids = expand_unnamed_consts(cx, m.item_ids);
             if let Some(contract_impl_id) = find_contract_impl_id(cx, all_item_ids);
-            let contract_impl = cx.tcx.hir().item(contract_impl_id);
+            let contract_impl = cx.tcx.hir_item(contract_impl_id);
             if let ItemKind::Impl(contract_impl) = contract_impl.kind;
             then {
                 contract_impl.items.iter().for_each(|impl_item| {
-                    let impl_item = cx.tcx.hir().impl_item(impl_item.id);
+                    let impl_item = cx.tcx.hir_impl_item(impl_item.id);
                     if let ImplItemKind::Fn(_, fn_body_id) = impl_item.kind {
                         let mut visitor = InsertRemoveCollector::new(&mut fields);
-                        walk_body(&mut visitor, cx.tcx.hir().body(fn_body_id));
+                        walk_body(&mut visitor, cx.tcx.hir_body(fn_body_id));
                     }
                 });
                 fields.values().for_each(|field| {
