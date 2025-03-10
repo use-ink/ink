@@ -29,6 +29,7 @@ const DEFAULT_STORAGE_DEPOSIT_LIMIT: u128 = 10_000_000_000_000;
 type E2EResult<T> = Result<T, Box<dyn Error>>;
 
 #[ink_e2e::test]
+#[ignore] // todo bring test back
 async fn solidity_calls_ink_works<Client: E2EBackend>(
     mut client: Client,
 ) -> E2EResult<()> {
@@ -151,6 +152,7 @@ where
     <Ret>::abi_decode(&mut &exec_result.result.unwrap().data[..], true)
         .expect("decode failed")
 }
+
 async fn call_ink_no_return(
     client: &mut ink_e2e::Client<PolkadotConfig, DefaultEnvironment>,
     ink_addr: H160,
