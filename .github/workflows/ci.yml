@@ -60,8 +60,61 @@ jobs:
     outputs:
       IMAGE: ${{ steps.set_image.outputs.IMAGE }}
     steps:
+      - name: Maximize build space
+        uses: AdityaGarg8/remove-unwanted-software@v4.1
+        with:
+          remove-android: 'true'
+          remove-dotnet: 'true'
+          remove-codeql: 'true'
+          remove-haskell: 'true'
+
       - id: set_image
         run: echo "IMAGE=${{ env.IMAGE }}" >> $GITHUB_OUTPUT
+
+  return_type_metadata:
+      runs-on: ubuntu-latest
+      needs: [set-image]
+      defaults:
+          run:
+              shell: bash
+      container:
+          image: ${{ needs.set-image.outputs.IMAGE }}
+      strategy:
+          fail-fast: false
+          matrix:
+              workspace: [ink]
+      steps:
+          - name: Checkout
+            uses: actions/checkout@v4
+            with:
+                fetch-depth: 1
+
+          - name: Cache
+            uses: Swatinem/rust-cache@f0deed1e0edfc6a9be95417288c0e1099b1eeec3 # v2.7.7
+            with:
+                cache-directories: |
+                    ${{ env.CARGO_TARGET_DIR }}
+
+          - name: Rust Info
+            uses: ./.github/rust-info
+
+          - name: Test
+            if: ${{ matrix.workspace == 'ink' }}
+            env:
+                # Setting incremental = 0 to reduce compilation artifact size.
+                # The CI otherwise fails with "no disk space"
+                # todo Remove again at one point. This is a speed trade-off.
+                CARGO_INCREMENTAL: 0
+                # Fix for linking of `linkme` for `cargo test`: https://github.com/dtolnay/linkme/issues/49
+                RUSTFLAGS: -Clink-dead-code -Clink-arg=-z -Clink-arg=nostart-stop-gc
+                # Since we run the tests with `--all-features` this implies the feature
+                # `ink-fuzz-tests` as well -- i.e. the fuzz tests are run.
+                # There's no way to disable a single feature while enabling all features
+                # at the same time, hence we use this workaround.
+                QUICKCHECK_TESTS:            0
+            run: |
+                cd crates/ink/tests/;
+                cargo +nightly-2025-02-20 test --verbose --all-features return_type_metadata;
 
   spellcheck:
     runs-on: ubuntu-latest
@@ -142,6 +195,7 @@ jobs:
         run: |
           ALL_CRATES="${PURELY_STD_CRATES} ${ALSO_RISCV_CRATES}"
           for crate in ${ALL_CRATES}; do
+            echo $crate;
             cargo clippy --all-targets --all-features --manifest-path ./crates/${crate}/Cargo.toml \
               -- -D warnings -A ${CLIPPY_ALLOWED};
           done
@@ -149,6 +203,7 @@ jobs:
       - name: Run Clippy for RISC-V Crates
         run: |
           for crate in ${ALSO_RISCV_CRATES}; do
+            echo $crate;
             cargo clippy --no-default-features --manifest-path ./crates/${crate}/Cargo.toml \
               --target ${CLIPPY_TARGET} \
               -- -D warnings -A ${CLIPPY_ALLOWED};
@@ -238,7 +293,7 @@ jobs:
               --manifest-path ./crates/${crate}/Cargo.toml;
           done
 
-  dylint:
+  dylint-checks:
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -261,6 +316,11 @@ jobs:
         uses: ./.github/rust-info
 
       - name: Dylint
+        env:
+          # Setting incremental = 0 to reduce compilation artifact size.
+          # The CI otherwise fails with "no disk space"
+          # todo Remove again at one point. This is a speed trade-off.
+          CARGO_INCREMENTAL: 0
         run: |
           cd linting/
           # we are using a toolchain file in this directory
@@ -268,7 +328,38 @@ jobs:
           cargo check --verbose
           cargo +nightly fmt --all -- --check
           cargo clippy -- -D warnings;
-          cargo test --all-features
+
+  dylint-testing:
+      runs-on: ubuntu-latest
+      defaults:
+          run:
+              shell: bash
+      needs: [set-image]
+      container:
+          image: ${{ needs.set-image.outputs.IMAGE }}
+      steps:
+          - name: Checkout
+            uses: actions/checkout@v4
+            with:
+                fetch-depth: 1
+
+          - name: Cache
+            uses: Swatinem/rust-cache@f0deed1e0edfc6a9be95417288c0e1099b1eeec3 # v2.7.7
+            with:
+                cache-directories: ${{ env.CARGO_TARGET_DIR }}
+
+          - name: Rust Info
+            uses: ./.github/rust-info
+
+          - name: Dylint
+            env:
+                # Setting incremental = 0 to reduce compilation artifact size.
+                # The CI otherwise fails with "no disk space"
+                # todo Remove again at one point. This is a speed trade-off.
+                CARGO_INCREMENTAL: 0
+            run: |
+                cd linting/
+                cargo test --all-features
 
 ### workspace
 
@@ -308,10 +399,6 @@ jobs:
 
       - name: Build for RISC-V
         if: ${{ matrix.type == 'RISCV' }}
-        #env:
-            #RUSTC_BOOTSTRAP: 1
-            #CARGO_ENCODED_RUSTFLAGS: "--cfg\x1fsubstrate_runtime"
-            #RUSTFLAGS: "--cfg substrate_runtime"
         run: |
           for crate in ${ALSO_RISCV_CRATES}; do
             echo ${crate};
@@ -352,8 +439,12 @@ jobs:
       - name: Test
         if: ${{ matrix.workspace == 'ink' }}
         env:
+          # Setting incremental = 0 to reduce compilation artifact size.
+          # The CI otherwise fails with "no disk space"
+          # todo Remove again at one point. This is a speed trade-off.
+          CARGO_INCREMENTAL: 0
           # Fix for linking of `linkme` for `cargo test`: https://github.com/dtolnay/linkme/issues/49
-          RUSTFLAGS:                   -Clink-arg=-z -Clink-arg=nostart-stop-gc
+          RUSTFLAGS: -Clink-dead-code -Clink-arg=-z -Clink-arg=nostart-stop-gc
           # Since we run the tests with `--all-features` this implies the feature
           # `ink-fuzz-tests` as well -- i.e. the fuzz tests are run.
           # There's no way to disable a single feature while enabling all features
@@ -363,22 +454,48 @@ jobs:
           cargo +nightly nextest run --all-features --no-fail-fast --workspace --locked
           cargo +nightly test --all-features --no-fail-fast --workspace --doc --locked
 
-      - name: Test Linting
-        if: ${{ matrix.workspace == 'linting' }}
-        env:
-          # Fix for linking of `linkme` for `cargo test`: https://github.com/dtolnay/linkme/issues/49
-          RUSTFLAGS:                   -Clink-arg=-z -Clink-arg=nostart-stop-gc
-          # Since we run the tests with `--all-features` this implies the feature
-          # `ink-fuzz-tests` as well -- i.e. the fuzz tests are run.
-          # There's no way to disable a single feature while enabling all features
-          # at the same time, hence we use this workaround.
-          QUICKCHECK_TESTS:            0
-        run: |
-          pushd linting && cargo nextest run --all-features --no-fail-fast --workspace && popd
+  test-linting:
+      runs-on: ubuntu-latest
+      needs: [set-image, check]
+      defaults:
+          run:
+              shell: bash
+      container:
+          image: ${{ needs.set-image.outputs.IMAGE }}
+      strategy:
+          fail-fast: false
+          matrix:
+              workspace: [ink, linting]
+      steps:
+          - name: Checkout
+            uses: actions/checkout@v4
+            with:
+                fetch-depth: 1
+
+          - name: Cache
+            uses: Swatinem/rust-cache@f0deed1e0edfc6a9be95417288c0e1099b1eeec3 # v2.7.7
+            with:
+                cache-directories: |
+                    ${{ env.CARGO_TARGET_DIR }}
+          - name: Rust Info
+            uses: ./.github/rust-info
+
+          - name: Test Linting
+            if: ${{ matrix.workspace == 'linting' }}
+            env:
+              # Fix for linking of `linkme` for `cargo test`: https://github.com/dtolnay/linkme/issues/49
+              RUSTFLAGS: -Clink-arg=-z -Clink-arg=nostart-stop-gc -Clink-dead-code
+              # Since we run the tests with `--all-features` this implies the feature
+              # `ink-fuzz-tests` as well -- i.e. the fuzz tests are run.
+              # There's no way to disable a single feature while enabling all features
+              # at the same time, hence we use this workaround.
+              QUICKCHECK_TESTS:            0
+            run: |
+              pushd linting && cargo nextest run --all-features --no-fail-fast --workspace && popd
 
   docs:
     runs-on: ubuntu-latest
-    needs: [set-image, check, fmt, clippy, clippy-examples, dylint, spellcheck]
+    needs: [set-image, check, fmt, clippy, clippy-examples, dylint-checks, dylint-testing, spellcheck]
     defaults:
       run:
         shell: bash
@@ -418,7 +535,7 @@ jobs:
 
   codecov:
     runs-on: ubuntu-latest
-    needs: [set-image, check, fmt, clippy, clippy-examples, dylint, spellcheck]
+    needs: [set-image, check, fmt, clippy, clippy-examples, dylint-checks, dylint-testing, spellcheck]
     defaults:
       run:
         shell: bash
@@ -483,6 +600,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: [clippy]
     strategy:
+      fail-fast: false
       matrix:
         partition: [1, 2, 3, 4, 5, 6]
     steps:
@@ -499,9 +617,8 @@ jobs:
       - name: Test Examples
         uses: docker://useink/ci
         env:
-            #RUSTFLAGS: -Clinker-plugin-lto -Clink-arg=-zstack-size=4096
             # Fix for linking of `linkme` for `cargo test`: https://github.com/dtolnay/linkme/issues/49
-            RUSTFLAGS:                   -Clink-arg=-z -Clink-arg=nostart-stop-gc
+            RUSTFLAGS: -Clink-arg=-z -Clink-arg=nostart-stop-gc -Clink-dead-code
         with:
           # run all tests with --all-features, which will run the e2e-tests feature if present
           args:
@@ -533,13 +650,11 @@ jobs:
           - name: Test Mapping Example
             env:
                 # Fix for linking of `linkme` for `cargo test`: https://github.com/dtolnay/linkme/issues/49
-                RUSTFLAGS:                   -Clink-arg=-z -Clink-arg=nostart-stop-gc
+                RUSTFLAGS: -Clink-arg=-z -Clink-arg=nostart-stop-gc -Clink-dead-code
                 # needed for `mapping::e2e_tests::fallible_storage_methods_work`
                 INK_STATIC_BUFFER_SIZE: 256
             run:
-                rustup install nightly-2025-01-07;
-                rustup component add rust-src --toolchain nightly-2025-01-07;
-                cargo +nightly-2024-11-28 test --all-features --all --manifest-path integration-tests/internal/mapping/Cargo.toml
+                cargo +nightly test --all-features --all --manifest-path integration-tests/internal/mapping/Cargo.toml
 
   examples-custom-test:
     runs-on: ubuntu-latest
@@ -566,7 +681,7 @@ jobs:
       - name: Test static-buffer example
         env:
           # Fix linking of `linkme`: https://github.com/dtolnay/linkme/issues/49
-          RUSTFLAGS:                     -Clink-arg=-z -Clink-arg=nostart-stop-gc
+          RUSTFLAGS: -Clink-arg=-z -Clink-arg=nostart-stop-gc -Clink-dead-code
         run: |
           # run the static buffer test with a custom buffer size.
           # the readme + test comments explain why `32`, in short because the tests write
@@ -579,7 +694,7 @@ jobs:
         if: false
         env:
           # Fix linking of `linkme`: https://github.com/dtolnay/linkme/issues/49
-          RUSTFLAGS:                     -Clink-arg=-z -Clink-arg=nostart-stop-gc
+          RUSTFLAGS: -Clink-arg=-z -Clink-arg=nostart-stop-gc -Clink-dead-code
         run: |
           # run flipper E2E test with on-chain contract
           substrate-contracts-node -lruntime::revive=debug 2>&1 &

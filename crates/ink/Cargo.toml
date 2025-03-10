@@ -30,11 +30,10 @@ derive_more = { workspace = true, features = ["from"] }
 const_format = { workspace = true }
 keccak-const = { workspace = true }
 
-# TODO add explainer
-xcm = { package = "staging-xcm", git = "https://github.com/paritytech/polkadot-sdk", rev = "4a400dc1866f11707331fb6408df1055d0f42a70", default-features = false }
-sp-io = { git = "https://github.com/paritytech/polkadot-sdk", rev = "4a400dc1866f11707331fb6408df1055d0f42a70", default-features = false, features = ["disable_panic_handler", "disable_oom", "disable_allocator"] }
-
 polkavm-derive = { workspace = true }
+xcm = {workspace = true}
+
+sp-io = { git = "https://github.com/use-ink/polkadot-sdk", branch = "cmichi-disable-asserts", default-features = false, features = ["disable_panic_handler", "disable_oom", "disable_allocator"] }
 
 [dev-dependencies]
 ink_ir = { workspace = true, default-features = true }
@@ -60,7 +59,6 @@ std = [
 
 # Enable contract debug messages via `debug_print!` and `debug_println!`.
 ink-debug = ["ink_env/ink-debug"]
-ink-as-dependency = []
 
 show-codegen-docs = []
 

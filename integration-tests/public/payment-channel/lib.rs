@@ -276,13 +276,14 @@ mod payment_channel {
             let mut pub_key = [0; 33];
             ink::env::ecdsa_recover(&signature, &message, &mut pub_key)
                 .unwrap_or_else(|err| panic!("recover failed: {err:?}"));
-            let mut signature_account_id = [0; 32];
+            let mut signature_account_id = [0u8; 32];
             <ink::env::hash::Blake2x256 as ink::env::hash::CryptoHash>::hash(
                 &pub_key,
                 &mut signature_account_id,
             );
 
-            self.recipient == H160::from_slice(&signature_account_id[..20])
+            self.recipient
+                == ink::primitives::AccountIdMapper::to_address(&signature_account_id)
         }
     }
 
@@ -341,7 +342,7 @@ mod payment_channel {
                 &compressed_pub_key,
                 &mut account_id,
             );
-            H160::from_slice(&account_id[..20])
+            ink::primitives::AccountIdMapper::to_address(&account_id)
         }
 
         fn contract_id() -> H160 {

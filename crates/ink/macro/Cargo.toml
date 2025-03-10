@@ -45,7 +45,6 @@ std = [
 	"ink_primitives/std",
 	"scale/std",
 	"scale-info/std",
-    "ink_codegen/std",
 ]
 
 # For the ui tests, which use this `Cargo.toml`

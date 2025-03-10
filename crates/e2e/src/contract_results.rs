@@ -273,7 +273,7 @@ where
 impl<E: Environment, V: scale::Decode> CallDryRunResult<E, V> {
     /// Returns true if the dry-run execution resulted in an error.
     pub fn is_err(&self) -> bool {
-        self.exec_result.result.is_err()
+        self.exec_result.result.is_err() || self.did_revert_bool()
     }
 
     /// Returns the [`ExecReturnValue`] resulting from the dry-run message call.
@@ -295,7 +295,8 @@ impl<E: Environment, V: scale::Decode> CallDryRunResult<E, V> {
         let data = &self.exec_return_value().data;
         scale::Decode::decode(&mut data.as_ref()).unwrap_or_else(|env_err| {
             panic!(
-                "Decoding dry run result to ink! message return type failed: {env_err}"
+                "Decoding dry run result to ink! message return type failed: {env_err} {:?}",
+                self.exec_return_value()
             )
         })
     }
@@ -305,19 +306,17 @@ impl<E: Environment, V: scale::Decode> CallDryRunResult<E, V> {
     /// Panics if the value could not be decoded. The raw bytes can be accessed via
     /// [`CallResult::return_data`].
     pub fn return_value(self) -> V {
-        // todo
-        // on revert:
-        if self.exec_result.result.clone().unwrap().did_revert() {
-            let res = self.exec_result.result.unwrap();
-            let msg = String::from_utf8_lossy(&res.data);
-            panic!("msg {}", msg);
-        }
         self.message_result()
             .unwrap_or_else(|lang_err| {
                 panic!(
                     "Encountered a `LangError` while decoding dry run result to ink! message: {lang_err:?}"
                 )
             })
+    }
+
+    fn did_revert_bool(&self) -> bool {
+        let res = self.exec_result.result.clone().expect("no result found");
+        res.did_revert()
     }
 
     /// Returns the return value as raw bytes of the message from the dry-run.

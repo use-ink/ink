@@ -69,7 +69,7 @@ std = [
 	"ink_e2e_macro/std",
 	"ink_sandbox/std",
 	"frame-support/std",
-	"pallet-revive-mock-network?/std",
+    "pallet-revive-mock-network?/std"
 ]
 
 sandbox = [

@@ -85,7 +85,9 @@ pub mod just_terminates {
             // then
             assert!(call_res.contains_event("System", "KilledAccount"));
             assert!(call_res.contains_event("Balances", "Withdraw"));
-            assert!(call_res.contains_event("Revive", "Terminated"));
+            // todo this event below no longer exists, but we could try getting
+            // info for the contract and asserting that it fails.
+            // assert!(call_res.contains_event("Revive", "Terminated"));
 
             Ok(())
         }

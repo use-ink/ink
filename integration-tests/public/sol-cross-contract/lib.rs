@@ -9,7 +9,6 @@ mod sol_cross_contract {
     use ink::{
         env::{
             call::{
-                build_call,
                 build_call_solidity,
                 ExecutionInput,
             },

@@ -31,6 +31,7 @@ pub use ink_engine::{
     ChainExtension,
 };
 use ink_primitives::{
+    AccountIdMapper,
     H160,
     H256,
     U256,
@@ -279,14 +280,15 @@ where
 
 /// Returns the default accounts for testing purposes:
 /// Alice, Bob, Charlie, Django, Eve and Frank.
+/// todo should be `default_addresses`
 pub fn default_accounts() -> DefaultAccounts {
     DefaultAccounts {
-        alice: H160::from([0x01; 20]),
-        bob: H160::from([0x02; 20]),
-        charlie: H160::from([0x03; 20]),
-        django: H160::from([0x04; 20]),
-        eve: H160::from([0x05; 20]),
-        frank: H160::from([0x06; 20]),
+        alice: AccountIdMapper::to_address(&[0x01; 32]),
+        bob: AccountIdMapper::to_address(&[0x02; 32]),
+        charlie: AccountIdMapper::to_address(&[0x03; 32]),
+        django: AccountIdMapper::to_address(&[0x04; 32]),
+        eve: AccountIdMapper::to_address(&[0x05; 32]),
+        frank: AccountIdMapper::to_address(&[0x06; 32]),
     }
 }
 
