@@ -8,11 +8,11 @@
 //! [`CreateBuilder`](`ink::env::call::CreateBuilder`) structs.
 //!
 //! This differs from the codepath used by external tooling, such as `cargo-contract` or
-//! the `Contracts-UI` which instead depend on methods from the Contracts pallet which are
+//! the `Contracts-UI` which instead depend on methods from `pallet-revive` which are
 //! exposed via RPC.
 //!
 //! Note that during testing we make use of ink!'s end-to-end testing features, so ensure
-//! that you have a node which includes the Contracts pallet running alongside your tests.
+//! that you have a node which includes `pallet-revive` running alongside your tests.
 
 #![cfg_attr(not(feature = "std"), no_std, no_main)]
 
@@ -61,7 +61,7 @@ mod call_builder {
                 .exec_input(ExecutionInput::new(Selector::new(selector)))
                 .returns::<()>()
                 .try_invoke()
-                .expect("Error from the Contracts pallet.");
+                .expect("Error from `pallet-revive`.");
 
             match result {
                 Ok(_) => None,
@@ -157,7 +157,7 @@ mod call_builder {
 
             let lang_result = params
                 .try_instantiate()
-                .expect("Error from the Contracts pallet.");
+                .expect("Error from `pallet-revive`.");
 
             Some(lang_result.map(|contract_result| {
                 contract_result.map(|inner| ink::ToAddr::to_addr(&inner))
@@ -234,13 +234,9 @@ mod call_builder {
         async fn e2e_invalid_message_selector_panics_on_invoke<Client: E2EBackend>(
             mut client: Client,
         ) -> E2EResult<()> {
-            let origin = client
-                .create_and_fund_account(&ink_e2e::bob(), 10_000_000_000_000)
-                .await;
-
             let mut constructor = CallBuilderTestRef::new();
             let contract = client
-                .instantiate("call_builder", &origin, &mut constructor)
+                .instantiate("call_builder", &ink_e2e::bob(), &mut constructor)
                 .submit()
                 .await
                 .expect("instantiate failed");
@@ -248,7 +244,11 @@ mod call_builder {
 
             let mut flipper_constructor = FlipperRef::new_default();
             let flipper = client
-                .instantiate("integration_flipper", &origin, &mut flipper_constructor)
+                .instantiate(
+                    "integration_flipper",
+                    &ink_e2e::bob(),
+                    &mut flipper_constructor,
+                )
                 .submit()
                 .await
                 .expect("instantiate `flipper` failed");
@@ -257,9 +257,9 @@ mod call_builder {
             // we expect this to panic.
             let invalid_selector = [0x00, 0x00, 0x00, 0x00];
             let call = call_builder.invoke(flipper.addr, invalid_selector);
-            let call_result = client.call(&origin, &call).dry_run().await;
+            let call_result = client.call(&ink_e2e::bob(), &call).dry_run().await;
 
-            if let Err(ink_e2e::Error::CallDryRun(_dry_run)) = call_result {
+            if let Err(ink_e2e::Error::CallDryRunReverted(_dry_run)) = call_result {
                 /*
                 // todo
                 assert!(
@@ -389,7 +389,7 @@ mod call_builder {
 
             let call_result = client.call(&origin, &call).dry_run().await;
 
-            if let Err(ink_e2e::Error::CallDryRun(_dry_run)) = call_result {
+            if let Err(ink_e2e::Error::CallDryRunReverted(_dry_run)) = call_result {
                 /*
                 // todo
                 assert!(dry_run
@@ -530,7 +530,7 @@ mod call_builder {
                 call_builder.call_instantiate_fallible(code_hash, selector, init_value);
             let call_result = client.call(&origin, &call).dry_run().await;
 
-            if let Err(ink_e2e::Error::CallDryRun(_dry_run)) = call_result {
+            if let Err(ink_e2e::Error::CallDryRunReverted(_dry_run)) = call_result {
                 /*
                 // todo
                 assert!(dry_run

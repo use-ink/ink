@@ -255,7 +255,7 @@ where
         T: Storable + scale::EncodeLike<V>,
     {
         let slot = self.len();
-        self.set_len(slot.checked_add(1).unwrap());
+        self.set_len(slot.checked_add(1).expect("unable to checked_add"));
 
         assert!(self.elements.insert(slot, value).is_none());
     }
@@ -313,7 +313,7 @@ where
             return None;
         }
 
-        let slot = self.len().checked_sub(1).unwrap();
+        let slot = self.len().checked_sub(1).expect("unable to checked_sub");
         self.set_len(slot);
 
         self.elements.try_take(slot)
@@ -329,7 +329,7 @@ where
             return None;
         }
 
-        let slot = self.len().checked_sub(1).unwrap();
+        let slot = self.len().checked_sub(1).expect("unabled to checked_sub");
         self.elements.get(slot)
     }
 
@@ -345,7 +345,7 @@ where
             return None;
         }
 
-        let slot = self.len().checked_sub(1).unwrap();
+        let slot = self.len().checked_sub(1).expect("unabled to checked_sub");
         self.elements.try_get(slot)
     }
 

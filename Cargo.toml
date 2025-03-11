@@ -47,7 +47,7 @@ heck = { version = "0.5.0" }
 impl-serde = { version = "0.5.0", default-features = false }
 itertools = { version = "0.14.0", default-features = false }
 jsonrpsee = { version = "0.24" }
-linkme = { version = "0.3.30" }
+linkme = { version = "0.3.32" }
 num-traits = { version = "0.2", default-features = false }
 paste = { version = "1.0" }
 pretty_assertions = { version = "1" }

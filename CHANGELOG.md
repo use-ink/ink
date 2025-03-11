@@ -609,7 +609,7 @@ errors that may come from the smart contracting language itself.
 
 For example, take the case where a contract message is called using an invalid selector.
 This is not something a smart contract author should need to define as failure case, nor
-is it something that the Contracts pallet needs to be aware of.
+is it something that `pallet-revive` needs to be aware of.
 
 Previously, the contract execution would trap if an invalid selector was used, leaving
 callers with no way to handle the error gracefully. This can now be handled with the help

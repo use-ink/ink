@@ -604,22 +604,24 @@ impl TypedEnvBackend for EnvInstance {
         let enc_storage_limit = remove_option(&mut scoped, storage_deposit_limit);
 
         // todo encodings here are mostly unnecessary, as the type is already 32 bytes
-        let enc_code_hash: &mut [u8; 32] =
-            scoped.take_encoded(params.code_hash()).try_into().unwrap();
+        let enc_code_hash: &mut [u8; 32] = scoped
+            .take_encoded(params.code_hash())
+            .try_into()
+            .expect("unable to take 32 for code_hash");
         let mut enc_endowment = EncodeScope::from(scoped.take(32));
         scale::Encode::encode_to(&params.endowment(), &mut enc_endowment);
         let enc_endowment: &mut [u8; 32] =
             enc_endowment.into_buffer().try_into().unwrap();
         let enc_input = scoped
             .take_encoded_with(|buffer| params.exec_input().encode_to_slice(buffer));
-        let mut out_address: [u8; 20] = scoped.take(20).try_into().unwrap();
+        let mut out_address: [u8; 20] =
+            scoped.take(20).try_into().expect("unable to take 20");
         let salt = params.salt_bytes().as_ref();
 
         let input_and_code_hash = scoped.take(32 + enc_input.len());
         input_and_code_hash[..32].copy_from_slice(enc_code_hash);
         input_and_code_hash[32..].copy_from_slice(enc_input);
 
-        let out_return_value: [u8; 32] = scoped.take(32).try_into().unwrap();
         let mut output_data = &mut scoped.take_rest();
 
         let instantiate_result = ext::instantiate(
@@ -636,7 +638,7 @@ impl TypedEnvBackend for EnvInstance {
         crate::engine::decode_instantiate_result::<_, ContractRef, RetType>(
             instantiate_result.map_err(Into::into),
             &mut &out_address[..],
-            &mut &out_return_value[..],
+            &mut &output_data[..],
         )
     }
 

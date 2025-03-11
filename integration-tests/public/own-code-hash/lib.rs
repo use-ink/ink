@@ -57,7 +57,7 @@ mod own_code_hash {
                 let cr = ink::env::instantiate_contract(&create_params)
                     .unwrap_or_else(|error| {
                         panic!(
-                            "Received an error from the Contracts pallet while instantiating: {:?}",
+                            "Received an error from `pallet-revive` while instantiating: {:?}",
                             error
                         )
                     })

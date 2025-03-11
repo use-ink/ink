@@ -420,8 +420,12 @@ where
     /// #     pub use super::MyContractRef as OtherContractRef;
     /// # }
     /// use ink::env::{
+    ///     call::{
+    ///         build_create,
+    ///         ExecutionInput,
+    ///         Selector,
+    ///     },
     ///     DefaultEnvironment,
-    ///     call::{build_create, Selector, ExecutionInput}
     /// };
     /// use other_contract::OtherContractRef;
     /// #
@@ -457,11 +461,13 @@ where
     ///         .instantiate_contract(&create_params)
     ///         .unwrap_or_else(|error| {
     ///             panic!(
-    ///                 "Received an error from the Contracts pallet while instantiating: {:?}",
+    ///                 "Received an error from `pallet-revive` while instantiating: {:?}",
     ///                 error
     ///             )
     ///         })
-    ///         .unwrap_or_else(|error| panic!("Received a `LangError` while instatiating: {:?}", error))
+    ///         .unwrap_or_else(|error| {
+    ///             panic!("Received a `LangError` while instatiating: {:?}", error)
+    ///         })
     /// }
     /// #
     /// #     }

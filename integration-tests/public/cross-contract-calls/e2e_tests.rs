@@ -29,7 +29,7 @@ async fn instantiate_with_insufficient_storage_deposit_limit<Client: E2EBackend>
         .submit()
         .await;
 
-    let Err(ink_e2e::Error::InstantiateDryRun(_err)) = contract else {
+    let Err(ink_e2e::Error::InstantiateDryRunReverted(_err)) = contract else {
         panic!("instantiate should have failed at the dry run");
     };
 

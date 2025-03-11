@@ -43,7 +43,7 @@ mod instantiate_contract {
                 .instantiate_contract(&create_params)
                 .unwrap_or_else(|error| {
                     panic!(
-                        "Received an error from the Contracts pallet while instantiating: {:?}",
+                        "Received an error from `pallet-revive` while instantiating: {:?}",
                         error
                     )
                 })
@@ -70,7 +70,7 @@ mod instantiate_contract {
                 .instantiate_contract(&create_params)
                 .unwrap_or_else(|error| {
                     panic!(
-                        "Received an error from the Contracts pallet while instantiating: {:?}",
+                        "Received an error from `pallet-revive` while instantiating: {:?}",
                         error
                     )
                 })
@@ -278,7 +278,7 @@ mod instantiate_contract {
             let addr2 = ink::env::instantiate_contract(&create_params)
                 .unwrap_or_else(|error| {
                     panic!(
-                        "Received an error from the Contracts pallet while instantiating: {:?}",
+                        "Received an error from `pallet-revive` while instantiating: {:?}",
                         error
                     )
                 })
@@ -301,7 +301,7 @@ mod instantiate_contract {
             let addr3 = ink::env::instantiate_contract(&create_params)
                 .unwrap_or_else(|error| {
                     panic!(
-                        "Received an error from the Contracts pallet while instantiating: {:?}",
+                        "Received an error from `pallet-revive` while instantiating: {:?}",
                         error
                     )
                 })
@@ -331,7 +331,7 @@ mod instantiate_contract {
                 ink::env::instantiate_contract(&create_params)
                     .unwrap_or_else(|error| {
                         panic!(
-                            "Received an error from the Contracts pallet while instantiating: {:?}",
+                            "Received an error from `pallet-revive` while instantiating: {:?}",
                             error
                         )
                     })
