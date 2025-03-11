@@ -67,6 +67,12 @@ impl<
         height: frame_system::pallet_prelude::BlockNumberFor<T>,
     ) -> <T as frame_system::Config>::Hash {
         pallet_revive::Pallet::<T>::on_finalize(height);
+        use sp_core::Get;
+        let minimum_period = <T as pallet_timestamp::Config>::MinimumPeriod::get();
+        let now = pallet_timestamp::Pallet::<T>::get()
+            .checked_add(minimum_period)
+            .unwrap();
+        pallet_timestamp::Pallet::<T>::set_timestamp(now);
         pallet_timestamp::Pallet::<T>::on_finalize(height);
         pallet_balances::Pallet::<T>::on_finalize(height);
         frame_system::Pallet::<T>::finalize().hash()

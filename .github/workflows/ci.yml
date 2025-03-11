@@ -452,7 +452,50 @@ jobs:
           QUICKCHECK_TESTS:            0
         run: |
           cargo +nightly nextest run --all-features --no-fail-fast --workspace --locked
-          cargo +nightly test --all-features --no-fail-fast --workspace --doc --locked
+
+  test-docs:
+      runs-on: ubuntu-latest
+      needs: [set-image, check]
+      defaults:
+          run:
+              shell: bash
+      container:
+          image: ${{ needs.set-image.outputs.IMAGE }}
+      strategy:
+          fail-fast: false
+          matrix:
+              workspace: [ink, linting]
+      steps:
+          - name: Checkout
+            uses: actions/checkout@v4
+            with:
+                fetch-depth: 1
+
+          - name: Cache
+            uses: Swatinem/rust-cache@f0deed1e0edfc6a9be95417288c0e1099b1eeec3 # v2.7.7
+            with:
+                cache-directories: |
+                    ${{ env.CARGO_TARGET_DIR }}
+
+          - name: Rust Info
+            uses: ./.github/rust-info
+
+          - name: Test
+            if: ${{ matrix.workspace == 'ink' }}
+            env:
+                # Setting incremental = 0 to reduce compilation artifact size.
+                # The CI otherwise fails with "no disk space"
+                # todo Remove again at one point. This is a speed trade-off.
+                CARGO_INCREMENTAL: 0
+                # Fix for linking of `linkme` for `cargo test`: https://github.com/dtolnay/linkme/issues/49
+                RUSTFLAGS: -Clink-dead-code -Clink-arg=-z -Clink-arg=nostart-stop-gc
+                # Since we run the tests with `--all-features` this implies the feature
+                # `ink-fuzz-tests` as well -- i.e. the fuzz tests are run.
+                # There's no way to disable a single feature while enabling all features
+                # at the same time, hence we use this workaround.
+                QUICKCHECK_TESTS:            0
+            run: |
+                cargo +nightly test --all-features --no-fail-fast --workspace --doc --locked
 
   test-linting:
       runs-on: ubuntu-latest
@@ -602,7 +645,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        partition: [1, 2, 3, 4, 5, 6]
+        partition: [1, 2, 3, 4, 5, 6, 7, 8, 9]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -620,9 +663,9 @@ jobs:
             # Fix for linking of `linkme` for `cargo test`: https://github.com/dtolnay/linkme/issues/49
             RUSTFLAGS: -Clink-arg=-z -Clink-arg=nostart-stop-gc -Clink-dead-code
         with:
-          # run all tests with --all-features, which will run the e2e-tests feature if present
+          # Run all tests with --all-features, which will run the `e2e-tests` feature if present.
           args:
-            /bin/bash -c "scripts/for_all_contracts_exec.sh --path integration-tests --ignore internal/static-buffer --ignore internal/mapping --partition ${{ matrix.partition }}/6 -- \
+            /bin/bash -c "scripts/for_all_contracts_exec.sh --path integration-tests --ignore internal/static-buffer --ignore internal/mapping --partition ${{ matrix.partition }}/9 -- \
                 cargo +nightly test --all-features --all --manifest-path {}"
 
   examples-test-mapping:
