@@ -317,7 +317,6 @@ where
                 .unwrap_or_else(|err| {
                     panic!("error calling `get_account_nonce`: {err:?}");
                 });
-        eprintln!("---- nonce {:?}", account_nonce);
 
         let params = DefaultExtrinsicParamsBuilder::new()
             .nonce(account_nonce)

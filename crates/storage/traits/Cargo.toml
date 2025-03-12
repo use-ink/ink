@@ -15,7 +15,7 @@ categories.workspace = true
 include = ["Cargo.toml", "src/**/*.rs", "README.md", "LICENSE"]
 
 [dependencies]
-ink_metadata = { workspace = true, features = ["derive"], optional = true }
+ink_metadata = { workspace = true, features = ["derive", "event-collection"], optional = true }
 ink_primitives = { workspace = true }
 ink_prelude = { workspace = true }
 scale = { workspace = true }
