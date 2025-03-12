@@ -31,7 +31,7 @@ mod sol_cross_contract {
         // TODO (@peterwht): H160 does not implement RlpDecodable
         #[ink(message)]
         pub fn call_contract_sol_encoding(&mut self, callee: [u8; 20]) {
-            let selector = keccak_selector(b"set_value");
+            let selector = keccak_selector(b"set_value(bool)");
             let callee: H160 = callee.into();
 
             let result = build_call_solidity::<<Self as ::ink::env::ContractEnv>::Env>()

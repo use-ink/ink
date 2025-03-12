@@ -20,7 +20,6 @@ use pallet_revive::ExecReturnValue;
 const STORAGE_DEPOSIT_LIMIT: DepositLimit<u128> = DepositLimit::Unchecked;
 
 #[test]
-#[ignore] // todo bring test back
 fn call_sol_encoded_message() {
     let built_contracts = ::ink_e2e::build_root_and_contract_dependencies();
     let contracts = ContractsRegistry::new(built_contracts);
@@ -95,7 +94,7 @@ fn call_sol_encoded_message() {
     // get value
     let value: bool = contracts.call_with_return_value(
         other_contract_addr.clone(),
-        "get",
+        "get()",
         Vec::<u8>::new(),
         origin.clone(),
     );
@@ -107,7 +106,7 @@ fn call_sol_encoded_message() {
     // set value via cross contract call
     contracts.call(
         contract_addr,
-        "call_contract_sol_encoding",
+        "call_contract_sol_encoding(bytes20)",
         input,
         origin.clone(),
     );
@@ -115,7 +114,7 @@ fn call_sol_encoded_message() {
     // get value
     let value: bool = contracts.call_with_return_value(
         other_contract_addr,
-        "get",
+        "get()",
         Vec::<u8>::new(),
         origin,
     );

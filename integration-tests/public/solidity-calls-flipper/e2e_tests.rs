@@ -72,7 +72,7 @@ async fn solidity_calls_ink_works<Client: E2EBackend>(
         .await?
         .addr;
 
-    let get_selector = keccak_selector(b"get");
+    let get_selector = keccak_selector(b"get()");
     let value: bool = call_ink(&mut client, ink_addr, get_selector.clone()).await;
     assert_eq!(value, false);
 
@@ -112,14 +112,16 @@ async fn solidity_calls_ink_works<Client: E2EBackend>(
             .try_into()
             .expect("should be 20 bytes");
 
-    let encoded = encode_ink_call("call_solidity_set", sol_addr_encodable.to_vec());
-    let encoded_get = encode_ink_call("call_solidity_get", sol_addr_encodable.to_vec());
+    let encoded =
+        encode_ink_call("call_solidity_set(bytes20)", sol_addr_encodable.to_vec());
+    let encoded_get =
+        encode_ink_call("call_solidity_get(bytes20)", sol_addr_encodable.to_vec());
     assert_eq!(
         call_ink::<u16>(&mut client, ink_addr, encoded_get.clone()).await,
         42
     );
     call_ink_no_return(&mut client, ink_addr, encoded).await;
-    // set_value uses hardcoded 77 for simnplicity.
+    // set_value uses hardcoded 77 for simplicity.
     assert_eq!(
         call_ink::<u16>(&mut client, ink_addr, encoded_get.clone()).await,
         77

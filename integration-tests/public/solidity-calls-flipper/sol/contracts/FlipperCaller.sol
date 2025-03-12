@@ -30,20 +30,20 @@ contract FlipperCaller {
 
     // Manually generate the selector for a message `flip_2`
     function callFlip2() external {
-        bytes4 selector = bytes4(keccak256("flip_2"));
+        bytes4 selector = bytes4(keccak256("flip_2()"));
         (bool ok,) = flipperContract.call(abi.encodePacked(selector));
         require(ok, "call failed");
     }
 
     function callSet(bool _value) external {
-        bytes4 selector = bytes4(keccak256("set"));
+        bytes4 selector = bytes4(keccak256("set(bool)"));
         (bool ok,) = flipperContract.call(abi.encodeWithSelector(selector, _value));
         require(ok, "call failed");
     }
 
     function callGet() external {
         IFlipper(flipperContract).get();
-        bytes4 selector = bytes4(keccak256("get"));
+        bytes4 selector = bytes4(keccak256("get()"));
         (bool ok, bytes memory data) = flipperContract.call(abi.encodePacked(selector));
         require(ok, "call failed");
         bool _value = abi.decode(data, (bool));
