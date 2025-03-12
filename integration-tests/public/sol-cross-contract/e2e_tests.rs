@@ -94,7 +94,7 @@ fn call_sol_encoded_message() {
     // get value
     let value: bool = contracts.call_with_return_value(
         other_contract_addr.clone(),
-        "get",
+        "get()",
         Vec::<u8>::new(),
         origin.clone(),
     );
