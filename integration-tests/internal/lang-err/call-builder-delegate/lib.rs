@@ -169,14 +169,9 @@ mod call_builder {
             // we expect this to panic.
             let selector = ink::selector_bytes!("invalid_selector");
             let call = call_builder.invoke(address, selector);
-            let call_result = client.call(&origin, &call).dry_run().await;
-
-            if let Err(ink_e2e::Error::CallDryRunReverted(dry_run)) = call_result {
-                assert!(format!("{dry_run}")
-                    .contains("Cross-contract call failed with CouldNotReadInput"));
-            } else {
-                panic!("Expected call to fail");
-            }
+            let call_result = client.call(&origin, &call).dry_run().await?;
+            let err_msg = String::from_utf8_lossy(call_result.return_data());
+            assert!(err_msg.contains("Cross-contract call failed with CouldNotReadInput"));
 
             Ok(())
         }

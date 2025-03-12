@@ -690,14 +690,6 @@ where
             .contract_result_to_result(exec_result)
             .map_err(Error::CallDryRun)?;
 
-        if let Ok(res) = exec_result.result.clone() {
-            if res.did_revert() {
-                return Err(Self::Error::CallDryRunReverted(DryRunRevert {
-                    error: res.data,
-                }));
-            }
-        }
-
         Ok(CallDryRunResult {
             exec_result,
             trace,

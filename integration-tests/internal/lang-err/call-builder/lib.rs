@@ -257,21 +257,9 @@ mod call_builder {
             // we expect this to panic.
             let invalid_selector = [0x00, 0x00, 0x00, 0x00];
             let call = call_builder.invoke(flipper.addr, invalid_selector);
-            let call_result = client.call(&ink_e2e::bob(), &call).dry_run().await;
-
-            if let Err(ink_e2e::Error::CallDryRunReverted(_dry_run)) = call_result {
-                /*
-                // todo
-                assert!(
-                    dry_run
-                        .debug_message
-                        .contains("Cross-contract call failed with CouldNotReadInput"),
-                    "Call execution failed for an unexpected reason."
-                );
-                */
-            } else {
-                panic!("Call execution should've failed, but didn't.");
-            }
+            let call_result = client.call(&ink_e2e::bob(), &call).dry_run().await?;
+            let err_msg = String::from_utf8_lossy(call_result.return_data());
+            assert!(err_msg.contains("Cross-contract call failed with CouldNotReadInput"));
 
             Ok(())
         }
@@ -387,19 +375,11 @@ mod call_builder {
             let init_value = false;
             let call = call_builder.call_instantiate(code_hash, selector, init_value);
 
-            let call_result = client.call(&origin, &call).dry_run().await;
-
-            if let Err(ink_e2e::Error::CallDryRunReverted(_dry_run)) = call_result {
-                /*
-                // todo
-                assert!(dry_run
-                            .debug_message
-                            .contains("The callee reverted, but did not encode an error in the output buffer."),
-                        "Call execution failed for an unexpected reason.");
-                */
-            } else {
-                panic!("Call execution should've failed, but didn't.");
-            }
+            let call_result = client.call(&origin, &call).dry_run().await?;
+            let err_msg = String::from_utf8_lossy(call_result.return_data());
+            assert!(err_msg.contains(
+                "The callee reverted, but did not encode an error in the output buffer."
+            ));
 
             Ok(())
         }
@@ -528,19 +508,11 @@ mod call_builder {
             let init_value = true;
             let call =
                 call_builder.call_instantiate_fallible(code_hash, selector, init_value);
-            let call_result = client.call(&origin, &call).dry_run().await;
-
-            if let Err(ink_e2e::Error::CallDryRunReverted(_dry_run)) = call_result {
-                /*
-                // todo
-                assert!(dry_run
-                    .debug_message
-                    .contains("The callee reverted, but did not encode an error in the output buffer."),
-                        "Call execution failed for an unexpected reason.");
-                 */
-            } else {
-                panic!("Call execution should've failed, but didn't.");
-            }
+            let call_result = client.call(&origin, &call).dry_run().await?;
+            let err_msg = String::from_utf8_lossy(call_result.return_data());
+            assert!(err_msg.contains(
+                "The callee reverted, but did not encode an error in the output buffer."
+            ));
 
             Ok(())
         }
