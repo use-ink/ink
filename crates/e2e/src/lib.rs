@@ -175,6 +175,7 @@ fn deposit_limit_to_balance<E: Environment>(
 ) -> <E as Environment>::Balance {
     match l {
         DepositLimit::Balance(l) => l,
-        DepositLimit::Unchecked => panic!("oh no"),
+        // todo
+        DepositLimit::Unchecked => panic!("`Unchecked` is not supported"),
     }
 }

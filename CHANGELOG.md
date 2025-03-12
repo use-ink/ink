@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 [Unreleased]
 
-- Implement contract invokation in off-chain environment engine - [#1957](https://github.com/paritytech/ink/pull/1988)
+### Contract delegate can no longer be done by code
 
 ## Changed
 - Restrict which `cfg` attributes can be used ‒ [#2313](https://github.com/use-ink/ink/pull/2313)
@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add feature flag to compile contracts for `pallet-revive` ‒ [#2318](https://github.com/use-ink/ink/pull/2318)
 - Support for `caller_is_root` - [#2332] (https://github.com/use-ink/ink/pull/2332)
 - Improve support for Solidity ABI calling conventions - [#2411](https://github.com/use-ink/ink/pull/2411)
+- Implement contract invocation in off-chain environment engine - [#1957](https://github.com/paritytech/ink/pull/1988)
 
 ## Fixed
 - [E2E] Have port parsing handle comma-separated list ‒ [#2336](https://github.com/use-ink/ink/pull/2336)
@@ -608,7 +609,7 @@ errors that may come from the smart contracting language itself.
 
 For example, take the case where a contract message is called using an invalid selector.
 This is not something a smart contract author should need to define as failure case, nor
-is it something that the Contracts pallet needs to be aware of.
+is it something that `pallet-revive` needs to be aware of.
 
 Previously, the contract execution would trap if an invalid selector was used, leaving
 callers with no way to handle the error gracefully. This can now be handled with the help

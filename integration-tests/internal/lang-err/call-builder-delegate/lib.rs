@@ -8,11 +8,11 @@
 //! [`CreateBuilder`](`ink::env::call::CreateBuilder`) structs.
 //!
 //! This differs from the codepath used by external tooling, such as `cargo-contract` or
-//! the `Contracts-UI` which instead depend on methods from the Contracts pallet which are
+//! the `Contracts-UI` which instead depend on methods from `pallet-revive` which are
 //! exposed via RPC.
 //!
 //! Note that during testing we make use of ink!'s end-to-end testing features, so ensure
-//! that you have a node which includes the Contracts pallet running alongside your tests.
+//! that you have a node which includes `pallet-revive` running alongside your tests.
 
 #![cfg_attr(not(feature = "std"), no_std, no_main)]
 
@@ -60,7 +60,7 @@ mod call_builder {
                 .exec_input(ExecutionInput::new(Selector::new(selector)))
                 .returns::<bool>()
                 .try_invoke()
-                .expect("Error from the Contracts pallet.");
+                .expect("Error from `pallet-revive`.");
 
             match result {
                 Ok(_) => None,
@@ -169,14 +169,10 @@ mod call_builder {
             // we expect this to panic.
             let selector = ink::selector_bytes!("invalid_selector");
             let call = call_builder.invoke(address, selector);
-            let call_result = client.call(&origin, &call).dry_run().await;
-
-            if let Err(ink_e2e::Error::CallDryRunReverted(dry_run)) = call_result {
-                assert!(format!("{dry_run}")
-                    .contains("Cross-contract call failed with CouldNotReadInput"));
-            } else {
-                panic!("Expected call to fail");
-            }
+            let call_result = client.call(&origin, &call).dry_run().await?;
+            assert!(call_result.did_revert());
+            let err_msg = String::from_utf8_lossy(call_result.return_data());
+            assert!(err_msg.contains("Cross-contract call failed with CouldNotReadInput"));
 
             Ok(())
         }

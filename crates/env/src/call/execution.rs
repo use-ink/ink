@@ -292,7 +292,7 @@ where
     fn size_hint(&self) -> usize {
         scale::Encode::size_hint(&self.head)
             .checked_add(scale::Encode::size_hint(&self.rest))
-            .unwrap()
+            .expect("unable to checked_add")
     }
 
     #[inline]
@@ -314,7 +314,7 @@ where
     fn size_hint(&self) -> usize {
         scale::Encode::size_hint(&self.selector)
             .checked_add(scale::Encode::size_hint(&self.args))
-            .unwrap()
+            .expect("unable to checked_add")
     }
 
     #[inline]

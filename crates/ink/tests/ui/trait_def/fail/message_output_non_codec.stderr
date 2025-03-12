@@ -24,6 +24,24 @@ note: required by a bound in `DispatchOutput`
   |     T: scale::Encode + 'static;
   |        ^^^^^^^^^^^^^ required by this bound in `DispatchOutput`
 
+error[E0277]: the trait bound `Result<NonCodec, LangError>: ink::parity_scale_codec::Decode` is not satisfied
+ --> tests/ui/trait_def/fail/message_output_non_codec.rs:5:5
+  |
+5 | /     #[ink(message)]
+6 | |     fn message(&self) -> NonCodec;
+  | |__________________________________^ the trait `ink::parity_scale_codec::Decode` is not implemented for `Result<NonCodec, LangError>`
+  |
+  = help: the trait `ink::parity_scale_codec::Decode` is implemented for `Result<T, E>`
+  = note: required for `NonCodec` to implement `DecodeMessageResult<ScaleEncoding>`
+note: required by a bound in `Execution::<Args, Output, Abi>::new`
+ --> $WORKSPACE/crates/env/src/call/execution.rs
+  |
+  |     Output: AbiDecodeWith<Abi> + DecodeMessageResult<Abi>,
+  |                                  ^^^^^^^^^^^^^^^^^^^^^^^^ required by this bound in `Execution::<Args, Output, Abi>::new`
+...
+  |     pub fn new(input: ExecutionInput<Args, Abi>) -> Self {
+  |            --- required by a bound in this associated function
+
 error[E0277]: the trait bound `NonCodec: AbiDecodeWith<ScaleEncoding>` is not satisfied
  --> tests/ui/trait_def/fail/message_output_non_codec.rs:5:5
   |
@@ -41,7 +59,7 @@ error[E0277]: the trait bound `NonCodec: AbiDecodeWith<ScaleEncoding>` is not sa
 note: required by a bound in `Execution::<Args, Output, Abi>::new`
  --> $WORKSPACE/crates/env/src/call/execution.rs
   |
-  |     Output: AbiDecodeWith<Abi>,
+  |     Output: AbiDecodeWith<Abi> + DecodeMessageResult<Abi>,
   |             ^^^^^^^^^^^^^^^^^^ required by this bound in `Execution::<Args, Output, Abi>::new`
 ...
   |     pub fn new(input: ExecutionInput<Args, Abi>) -> Self {

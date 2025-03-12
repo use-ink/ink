@@ -988,7 +988,9 @@ impl Dispatch<'_> {
         });
         let possibly_wildcard_selector_message = match self.query_wildcard_message() {
             Some(wildcard_index) => {
-                let item = messages.get(wildcard_index).unwrap();
+                let item = messages
+                    .get(wildcard_index)
+                    .expect("unable to get wildcard index");
                 let message_span = item.message.span();
                 let message_ident = message_variant_ident(wildcard_index);
                 let message_input =

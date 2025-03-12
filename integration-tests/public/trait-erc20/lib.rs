@@ -382,7 +382,7 @@ mod erc20 {
             assert_transfer_event(
                 &emitted_events[0],
                 None,
-                Some(H160::from([0x01; 20])),
+                Some(accounts.alice),
                 100.into(),
             );
             // Alice owns all the tokens on contract instantiation
@@ -412,14 +412,14 @@ mod erc20 {
             assert_transfer_event(
                 &emitted_events[0],
                 None,
-                Some(H160::from([0x01; 20])),
+                Some(accounts.alice),
                 100.into(),
             );
             // Check the second transfer event relating to the actual trasfer.
             assert_transfer_event(
                 &emitted_events[1],
-                Some(H160::from([0x01; 20])),
-                Some(H160::from([0x02; 20])),
+                Some(accounts.alice),
+                Some(accounts.bob),
                 10.into(),
             );
         }
@@ -453,7 +453,7 @@ mod erc20 {
             assert_transfer_event(
                 &emitted_events[0],
                 None,
-                Some(H160::from([0x01; 20])),
+                Some(accounts.alice),
                 100.into(),
             );
         }
@@ -498,15 +498,15 @@ mod erc20 {
             assert_transfer_event(
                 &emitted_events[0],
                 None,
-                Some(H160::from([0x01; 20])),
+                Some(accounts.alice),
                 100.into(),
             );
             // The second event `emitted_events[1]` is an Approve event that we skip
             // checking.
             assert_transfer_event(
                 &emitted_events[2],
-                Some(H160::from([0x01; 20])),
-                Some(H160::from([0x05; 20])),
+                Some(accounts.alice),
+                Some(accounts.eve),
                 10.into(),
             );
         }
