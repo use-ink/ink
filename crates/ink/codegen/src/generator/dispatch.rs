@@ -573,7 +573,7 @@ impl Dispatch<'_> {
                     |input| {
                         #[allow(clippy::useless_conversion)]
                         <#input_sol_tuple as ::ink::alloy_sol_types::SolType>
-                            ::abi_decode(input, true)
+                            ::abi_decode(input, false)
                             .map(#sol_to_input_tuple_converter).map_err(|_| ::ink::env::DispatchError::InvalidParameters)
                     };
                 const RETURN: fn(::ink::env::ReturnFlags, Self::Output) -> #return_type =
