@@ -451,7 +451,7 @@ jobs:
           # at the same time, hence we use this workaround.
           QUICKCHECK_TESTS:            0
         run: |
-          cargo +nightly nextest run --all-features --no-fail-fast --workspace --locked
+          cargo +nightly nextest run --all-features --no-fail-fast --workspace --locked --jobs 3
 
   test-docs:
       runs-on: ubuntu-latest

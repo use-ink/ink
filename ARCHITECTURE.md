@@ -1,12 +1,10 @@
 # ink!ternals
 
-todo: rework this doc
-
 This document describes the architecture of ink!. The information
 here targets those who want to understand or modify the inner
 workings of this project.
 
-In general we treat documentation as a first-class citizen.
+In general, we treat documentation as a first-class citizen.
 All crates mentioned below should be documented really well.
 You can find the crate documentation on docs.rs or for our
 `master` branch under GitHub pages. So for `ink` e.g.:
@@ -30,7 +28,7 @@ ink! is composed of a number of crates that are all found in the
     This includes getting and setting a smart contracts storage, as well
     as the mentioned environmental functions.
 * [`metadata`](https://github.com/use-ink/ink/tree/master/crates/metadata):
-  Describes the contract in a platform agnostic way, i.e. its interface
+  Describes the contract in a platform-agnostic way, i.e. its interface
   and the types, its storage layout, etc.
 * [`prelude`](https://github.com/use-ink/ink/tree/master/crates/prelude):
   Provides an interface to typical standard library types and
@@ -57,12 +55,19 @@ a `no_std` environment.
 Exceptions are `metadata` and `engine`, which cover use-cases that
 are only relevant off-chain.
 
-ink! contracts are compiled for a WebAssembly (Wasm) target architecture,
-i.e. they are executed in a Wasm sandbox execution environment on the
-blockchain itself ‒ hence a `no_std` environment.
-More specifically they are executed by the [`pallet-revive`](https://github.com/paritytech/substrate/tree/master/frame/contracts),
-a module of the Substrate blockchain framework. This module takes ink!
-smart contracts and runs them in a sandbox environment.
+ink! contracts are compiled to RISC-V bytecode for
+[the PolkaVM interpreter](https://github.com/paritytech/polkavm).
+This is how ink! smart contracts are executed on a blockchain:
+they are uploaded to a blockchain that runs PolkaVM, PolkaVM then
+interprets them.
+As contracts are executed in a sandbox execution environment on the
+blockchain itself we compile them to a `no_std` environment.
+More specifically they are executed by the [`pallet-revive`](https://github.com/paritytech/substrate/tree/master/frame/revive),
+a module of the Polkadot SDK blockchain framework. This module takes ink!
+smart contracts and runs them in a PolkaVM sandbox environment.
+It also provides an API to smart contracts for anything a smart contract
+needs: storing + retrieving data, calling other contracts, sending value,
+fetching the block number, ….
 
 ## Overview
 
@@ -72,23 +77,48 @@ The above diagram shows the main components of the ink! language
 and how they interact. This pipeline is run once you execute
 `cargo build` on an ink! smart contract.
 
-The central delegating crate for the ink! eDSL is `ink`.
+The central umbrella crate for the ink! eDSL is `ink`.
 
 In the `crates/ink/` folder you'll find three separate
 crates on which `ink` relies heavily:
 
 * `ink_macro`: The procedural macros, they take code annotated with e.g.
-   `[ink::contract]` and forwards it to `ink_ir`.
-* `ink_ir`: Defines everything the procedural macro needs in order to
-   parse, analyze and generate code for ink! smart contracts.
+   `[ink::contract]` and forward it to `ink_ir`.
+* `ink_ir`: The ink! Intermediate Representation (IR). Defines everything
+   the procedural macro needs in order to parse, analyze and generate code
+   for ink! smart contracts.
 * `ink_codegen`: Generates Rust code from the ink! IR.
+
+The `cargo-expand` tool can be used to display the Rust source code that
+`ink_codegen` generates for an ink! contract:
+
+```ignore
+cd ink/integration-tests/public/flipper/
+cargo expand --no-default-features --target riscv64gc-unknown-none-elf
+```
+
+Ideally we'd use the target JSON file from PolkaVM for the `--target`,
+but [`cargo-expand`](https://crates.io/crates/cargo-expand) doesn't
+support JSON files for this parameter at the time of writing.
 
 ## Building ink! contracts
 
 While you can build an ink! smart contract with just `cargo build`, we
 recommend using our build tool [`cargo-contract`](https://github.com/use-ink/cargo-contract).
-It automatically compiles for the correct WebAssembly target
+It automatically compiles for the correct PolkaVM target
 architecture and uses an optimal set of compiler flags.
+
+Ann approximation of the build command it will execute is:
+
+```bash
+cd ink/integration-tests/public/flipper/
+cargo +nightly build
+  --no-default-features
+  --target ~/polkavm/crates/polkavm-linker/riscv64emac-unknown-none-polkavm.json
+  -Zbuild-std="core,alloc"
+```
+
+You can also `build` or `check` a contract with this command.
 
 ## Allocator
 
@@ -101,7 +131,9 @@ This was done with the intention of reducing its complexity, which
 would have resulted in higher costs for the user (due to increased
 gas costs) and a lower transaction throughput. Freeing memory is
 irrelevant for our use-case anyway, as the entire memory instance
-is set up fresh for each individual contract call anyway.
+is set up fresh for each individual contract call.
+
+_todo reviewed until here, below not yet_
 
 ## Unstable Rust features in ink!
 
@@ -135,7 +167,7 @@ This `pallet-revive` is the smart contracts module of
 
 The relationship is as depicted in this diagram:
 
-<img src="./.images/pallet-contracts.png" alt="pallet-revive Interaction" width="800" />
+<img src="./.images/pallet-revive.png" alt="pallet-revive Architecture" width="800" />
 
 ### Communication with the pallet
 ink! uses a static buffer for interacting with `pallet-revive`, i.e.
