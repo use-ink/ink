@@ -24,27 +24,16 @@ async fn instantiate_with_insufficient_storage_deposit_limit<Client: E2EBackend>
         PROOF_SIZE_LIMIT,
         storage_deposit_limit,
     );
-    let contract = client
+    let call_result = client
         .instantiate("cross-contract-calls", &ink_e2e::alice(), &mut constructor)
-        .submit()
-        .await;
+        .dry_run()
+        .await?;
 
-    let Err(ink_e2e::Error::InstantiateDryRunReverted(_err)) = contract else {
-        panic!("instantiate should have failed at the dry run");
-    };
-
-    // insufficient storage deposit limit
-    /*
-    assert!(
-        err.error
-            .to_string()
-         .contains("OutOfGas"),
-         "should have failed with OutOfGas"
-        // todo we should be getting `StorageDepositLimitExhausted`.
-            // .contains("StorageDepositLimitExhausted"),
-        // "should have failed with StorageDepositLimitExhausted"
-    );
-     */
+    assert!(call_result.did_revert());
+    let err_msg = String::from_utf8_lossy(call_result.return_data());
+    assert!(err_msg.contains(
+        "Cross-contract instantiation failed with ReturnError(OutOfResources)"
+    ));
 
     Ok(())
 }

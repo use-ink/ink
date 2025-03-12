@@ -258,6 +258,7 @@ mod call_builder {
             let invalid_selector = [0x00, 0x00, 0x00, 0x00];
             let call = call_builder.invoke(flipper.addr, invalid_selector);
             let call_result = client.call(&ink_e2e::bob(), &call).dry_run().await?;
+            assert!(call_result.did_revert());
             let err_msg = String::from_utf8_lossy(call_result.return_data());
             assert!(err_msg.contains("Cross-contract call failed with CouldNotReadInput"));
 
@@ -376,6 +377,7 @@ mod call_builder {
             let call = call_builder.call_instantiate(code_hash, selector, init_value);
 
             let call_result = client.call(&origin, &call).dry_run().await?;
+            assert!(call_result.did_revert());
             let err_msg = String::from_utf8_lossy(call_result.return_data());
             assert!(err_msg.contains(
                 "The callee reverted, but did not encode an error in the output buffer."
@@ -509,6 +511,7 @@ mod call_builder {
             let call =
                 call_builder.call_instantiate_fallible(code_hash, selector, init_value);
             let call_result = client.call(&origin, &call).dry_run().await?;
+            assert!(call_result.did_revert());
             let err_msg = String::from_utf8_lossy(call_result.return_data());
             assert!(err_msg.contains(
                 "The callee reverted, but did not encode an error in the output buffer."

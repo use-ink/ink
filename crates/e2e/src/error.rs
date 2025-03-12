@@ -27,10 +27,6 @@ pub enum Error<DispatchError: fmt::Debug + fmt::Display> {
     /// The `instantiate_with_code` dry run failed.
     #[error("Instantiate dry-run error: {0}")]
     InstantiateDryRun(DryRunError<DispatchError>),
-    /// The `instantiate_with_code` dry run reverted.
-    #[error("Instantiate dry-run reverted: {0}")]
-    InstantiateDryRunReverted(DryRunRevert),
-    /// The `instantiate_with_code` extrinsic failed.
     #[error("Instantiate extrinsic error: {0}")]
     InstantiateExtrinsic(DispatchError),
     /// The `upload` dry run failed.
@@ -55,18 +51,6 @@ pub enum Error<DispatchError: fmt::Debug + fmt::Display> {
     /// Decoding failed.
     #[error("Decoding failed: {0}")]
     Decoding(String),
-}
-
-/// Contract reverted during a dry run RPC invocation.
-#[derive(Debug)]
-pub struct DryRunRevert {
-    pub error: Vec<u8>,
-}
-
-impl fmt::Display for DryRunRevert {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", String::from_utf8_lossy(&self.error))
-    }
 }
 
 /// Error during a dry run RPC invocation.

@@ -46,10 +46,7 @@ use crate::{
         ContractResult,
         UploadResult,
     },
-    error::{
-        DryRunError,
-        DryRunRevert,
-    },
+    error::DryRunError,
     events,
     ContractsBackend,
     E2EBackend,
@@ -550,6 +547,7 @@ where
             .contract_result_to_result(result)
             .map_err(Error::InstantiateDryRun)?;
 
+        /*
         if let Ok(res) = result.result.clone() {
             if res.result.did_revert() {
                 return Err(Self::Error::InstantiateDryRunReverted(DryRunRevert {
@@ -557,6 +555,7 @@ where
                 }));
             }
         }
+         */
 
         Ok(result.into())
     }

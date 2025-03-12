@@ -170,6 +170,7 @@ mod call_builder {
             let selector = ink::selector_bytes!("invalid_selector");
             let call = call_builder.invoke(address, selector);
             let call_result = client.call(&origin, &call).dry_run().await?;
+            assert!(call_result.did_revert());
             let err_msg = String::from_utf8_lossy(call_result.return_data());
             assert!(err_msg.contains("Cross-contract call failed with CouldNotReadInput"));
 
