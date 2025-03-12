@@ -52,6 +52,7 @@ pub use self::{
     },
 };
 pub mod contract;
+pub mod sol;
 
 pub use primitive_types::{
     H160,

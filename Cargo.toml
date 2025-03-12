@@ -105,6 +105,7 @@ polkavm-derive = { git = "https://github.com/paritytech/polkavm", default-featur
 alloy-sol-types = { version = "0.8.21", default-features = false }
 const_format = { version = "0.2.34", features = ["fmt"] }
 keccak-const = "0.2.0"
+impl-trait-for-tuples = "0.2.3"
 
 # Local dependencies
 ink = { version = "=6.0.0-alpha", path = "crates/ink", default-features = false }
