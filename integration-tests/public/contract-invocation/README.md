@@ -18,7 +18,7 @@ where
 
 ## Related ink! functions
 
-- [instantiate_contract](https://paritytech.github.io/ink/ink_env/fn.instantiate_contract.html)
+- [instantiate_contract](https://docs.rs/ink_env/latest/ink_env/fn.instantiate_contract.html)
 
 ## Test case (original status)
 
