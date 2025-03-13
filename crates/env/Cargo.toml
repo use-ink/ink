@@ -33,14 +33,15 @@ const_env = { workspace = true }
 xcm = { workspace = true }
 hex-literal = "1.0.0"
 
-sp-io = { git = "https://github.com/use-ink/polkadot-sdk", branch = "cmichi-disable-asserts", default-features = false, features = ["disable_panic_handler", "disable_oom", "disable_allocator"] }
+sp-io = { git = "https://github.com/paritytech/polkadot-sdk", rev = "f8c90b2a01ec77579bccd21ae17bd6ff2eeffd6a", default-features = false, features = ["disable_panic_handler", "disable_oom", "disable_allocator"] }
+sp-runtime-interface = { git = "https://github.com/paritytech/polkadot-sdk", rev = "f8c90b2a01ec77579bccd21ae17bd6ff2eeffd6a", default-features = false, features = ["disable_target_static_assertions"] }
 
 [target.'cfg(target_arch = "riscv64")'.dependencies]
 polkavm-derive = { workspace = true, default-features = false }
 
 [target.'cfg(not(target_arch = "riscv64"))'.dependencies]
 ink_engine = { workspace = true, default-features = true, optional = true }
-pallet-revive = { git = "https://github.com/use-ink/polkadot-sdk", branch = "cmichi-disable-asserts" }
+pallet-revive = { git = "https://github.com/paritytech/polkadot-sdk", rev = "f8c90b2a01ec77579bccd21ae17bd6ff2eeffd6a" }
 
 # Hashes for the off-chain environment.
 sha2 = { workspace = true, optional = true }
@@ -83,6 +84,7 @@ std = [
     "secp256k1",
     "schnorrkel",
     "sp-io/std",
+    "sp-runtime-interface/std",
     "num-traits/std",
     # Enables hashing crates for off-chain environment.
     "sha2",

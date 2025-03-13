@@ -15,13 +15,14 @@ categories.workspace = true
 include = ["Cargo.toml", "src/**/*.rs", "README.md", "LICENSE"]
 
 [dependencies]
-ink_metadata = { workspace = true, features = ["derive", "event-collection"], optional = true }
+ink_metadata = { workspace = true, default-features = false, features = ["derive"], optional = true }
 ink_primitives = { workspace = true }
 ink_prelude = { workspace = true }
 scale = { workspace = true }
 scale-info = { workspace = true, features = ["derive"], optional = true }
 
-sp-io = { git = "https://github.com/use-ink/polkadot-sdk", branch = "cmichi-disable-asserts", default-features = false, features = ["disable_panic_handler", "disable_oom", "disable_allocator"] }
+sp-io = { git = "https://github.com/paritytech/polkadot-sdk", rev = "f8c90b2a01ec77579bccd21ae17bd6ff2eeffd6a", default-features = false, features = ["disable_panic_handler", "disable_oom", "disable_allocator"] }
+sp-runtime-interface = { git = "https://github.com/paritytech/polkadot-sdk", rev = "f8c90b2a01ec77579bccd21ae17bd6ff2eeffd6a", default-features = false, features = ["disable_target_static_assertions"] }
 
 [dev-dependencies]
 paste = { workspace = true }
@@ -33,6 +34,7 @@ std = [
 	"ink_prelude/std",
 	"ink_primitives/std",
     "sp-io/std",
+    "sp-runtime-interface/std",
 	"scale-info/std",
 	"scale/std",
 ]

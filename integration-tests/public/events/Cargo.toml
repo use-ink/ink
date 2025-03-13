@@ -12,6 +12,8 @@ event-def = { path = "event-def", default-features = false, features = ["ink-as-
 event-def2 = { path = "event-def2", default-features = false, features = ["ink-as-dependency"] }
 event-def-unused = { path = "event-def-unused", default-features = false, features = ["ink-as-dependency"] }
 
+#ink_metadata = { git = "https://github.com/use-ink/ink", version = "6.0.0-alpha", default-features = false }
+
 [dev-dependencies]
 ink_e2e = { path = "../../../crates/e2e" }
 

@@ -49,6 +49,9 @@ sp-weights = { workspace = true }
 regex = "1.11.1"
 itertools = "0.14.0"
 
+sp-io = { git = "https://github.com/paritytech/polkadot-sdk", rev = "f8c90b2a01ec77579bccd21ae17bd6ff2eeffd6a", default-features = false, features = ["disable_panic_handler", "disable_oom", "disable_allocator"] }
+sp-runtime-interface = { git = "https://github.com/paritytech/polkadot-sdk", rev = "f8c90b2a01ec77579bccd21ae17bd6ff2eeffd6a", default-features = false, features = ["disable_target_static_assertions"] }
+
 [dev-dependencies]
 # Required for the doctest of `MessageBuilder::call`
 scale-info = { workspace = true, features = ["derive"] }
@@ -65,6 +68,8 @@ std = [
 	"sp-core/std",
 	"sp-keyring/std",
 	"sp-runtime/std",
+    "sp-io/std",
+    "sp-runtime-interface/std",
 	"sp-weights/std",
 	"ink_e2e_macro/std",
 	"ink_sandbox/std",
