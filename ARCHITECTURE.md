@@ -44,11 +44,11 @@ ink! is composed of a number of crates that are all found in the
   An off-chain testing engine, it simulates a blockchain environment and allows
   mocking specified conditions.
 * [`e2e`](https://github.com/use-ink/ink/tree/master/crates/e2e):
-  An end-to-end testing framework for ink! contracts. It requires a Substrate node
+  An end-to-end testing framework for ink! contracts. It requires a Polkadot SDK node
   which includes `pallet-revive` running in the background. The crate provides a
   macro that can be used
   to write an idiomatic Rust test that will in the background create transactions,
-  submit them to the Substrate chain and return the state changes, gas costs, etc.
+  submit them to the Polkadot SDK chain and return the state changes, gas costs, etc.
 
 An important thing to note is that the crates are primarily run in
 a `no_std` environment.
@@ -199,19 +199,19 @@ framework and includes the [`pallet-revive`](https://github.com/paritytech/polka
 module.
 Polkadot SDK and `pallet-revive` only specifies some types as fixed,
 but many are generic.
-Chains built on Substrate can decide on their own which types they want
+Chains built with Polkadot SDK can decide on their own which types they want
 to use for e.g. the chain's block number or account id's.
 
 The `Environment` trait is how ink! knows the concretes types of the chain
 to which the contract will be deployed to.
 Specifically, our `ink_env` crate defines a trait [`Environment`](https://use-ink.github.io/ink/ink_env/trait.Environment.html)
 which specifies the types that are relevant for ink! to know.
-By default, ink! uses the default Substrate types, the `ink_env` crate
+By default, ink! uses the default Polkadot SDK types, the `ink_env` crate
 exports an implementation of the `Environment` trait for that:
 [`DefaultEnvironment`](https://use-ink.github.io/ink/ink_env/enum.DefaultEnvironment.html).
 
 If you are developing for a chain that uses different types than the
-Substrate default types you can configure a different environment in
+Polkadot SDK default types you can configure a different environment in
 the contract macro ([documentation here](https://use-ink.github.io/ink/ink/attr.contract.html#header-arguments)):
 
 ```rust
@@ -219,5 +219,5 @@ the contract macro ([documentation here](https://use-ink.github.io/ink/ink/attr.
 ```
 
 __Important:__ If a developer writes a contract for a chain that deviates
-from the default Substrate types, they have to make sure to use that
+from the default Polkadot SDK types, they have to make sure to use that
 chain's `Environment`.
