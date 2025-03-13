@@ -38,7 +38,7 @@ sp-runtime-interface = { git = "https://github.com/paritytech/polkadot-sdk", rev
 
 [dev-dependencies]
 ink_ir = { workspace = true, default-features = true }
-ink_metadata = { workspace = true, features = ["event-collection"] }
+ink_metadata = { workspace = true, default-features = false }
 trybuild = { workspace = true, features = ["diff"] }
 
 [features]
