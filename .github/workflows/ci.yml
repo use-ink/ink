@@ -451,7 +451,7 @@ jobs:
           # at the same time, hence we use this workaround.
           QUICKCHECK_TESTS:            0
         run: |
-          cargo +nightly nextest run --all-features --no-fail-fast --workspace --locked --jobs 3
+          cargo +nightly nextest run --all-features --no-fail-fast --workspace --locked --jobs 2 --profile=reuse-build
 
   test-docs:
       runs-on: ubuntu-latest
@@ -645,7 +645,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        partition: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]
+        partition: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -660,12 +660,16 @@ jobs:
       - name: Test Examples
         uses: docker://useink/ci
         env:
+            # Setting incremental = 0 to reduce compilation artifact size.
+            # The CI otherwise fails with "no disk space"
+            # todo Remove again at one point. This is a speed trade-off.
+            CARGO_INCREMENTAL: 0
             # Fix for linking of `linkme` for `cargo test`: https://github.com/dtolnay/linkme/issues/49
             RUSTFLAGS: -Clink-arg=-z -Clink-arg=nostart-stop-gc -Clink-dead-code
         with:
           # Run all tests with --all-features, which will run the `e2e-tests` feature if present.
           args:
-            /bin/bash -c "scripts/for_all_contracts_exec.sh --path integration-tests --ignore internal/static-buffer --ignore internal/mapping --partition ${{ matrix.partition }}/16 -- \
+            /bin/bash -c "scripts/for_all_contracts_exec.sh --path integration-tests --ignore internal/static-buffer --ignore internal/mapping --partition ${{ matrix.partition }}/20 -- \
                 cargo +nightly test --all-features --all --manifest-path {}"
 
   examples-test-mapping:
