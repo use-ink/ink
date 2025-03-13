@@ -19,7 +19,7 @@ include = ["Cargo.toml", "src/**/*.rs", "README.md", "LICENSE"]
 ink_env = { workspace = true }
 ink_storage = { workspace = true }
 ink_primitives = { workspace = true }
-ink_metadata = { workspace = true, optional = true, features = ["event-collection"] }
+ink_metadata = { workspace = true, optional = true, default-features = false, features = ["event-collection"] }
 ink_prelude = { workspace = true }
 ink_macro = { workspace = true }
 pallet-revive-uapi = { workspace = true }
@@ -37,7 +37,7 @@ sp-io = { git = "https://github.com/use-ink/polkadot-sdk", branch = "cmichi-disa
 
 [dev-dependencies]
 ink_ir = { workspace = true, default-features = true }
-ink_metadata = { workspace = true }
+ink_metadata = { workspace = true, features = ["event-collection"] }
 trybuild = { workspace = true, features = ["diff"] }
 
 [features]
