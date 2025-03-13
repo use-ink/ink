@@ -68,6 +68,8 @@ std = [
 	"sp-core/std",
 	"sp-keyring/std",
 	"sp-runtime/std",
+    "sp-io/std",
+    "sp-runtime-interface/std",
 	"sp-weights/std",
 	"ink_e2e_macro/std",
 	"ink_sandbox/std",

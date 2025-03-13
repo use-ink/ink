@@ -55,6 +55,7 @@ std = [
 	"scale-encode?/std",
     "sp-core/std",
     "sp-io/std",
+    "sp-runtime-interface/std",
     "pallet-revive/std",
     "primitive-types/std",
     "primitive-types/scale-info",

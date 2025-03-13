@@ -55,6 +55,7 @@ std = [
     "scale/std",
     "xcm/std",
     "derive_more/std",
+    "sp-runtime-interface/std",
     "sp-io/std"
 ]
 
