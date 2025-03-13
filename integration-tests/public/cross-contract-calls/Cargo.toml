@@ -12,7 +12,7 @@ ink = { path = "../../../crates/ink", default-features = false }
 #
 # If we don't we will end up with linking errors!
 other-contract = { path = "other-contract", default-features = false, features = ["ink-as-dependency"] }
-pallet-revive-uapi = { git = "https://github.com/use-ink/polkadot-sdk", branch = "cmichi-disable-asserts", default-features = false, features = ["unstable-hostfn"] }
+pallet-revive-uapi = { git = "https://github.com/paritytech/polkadot-sdk", rev = "f8c90b2a01ec77579bccd21ae17bd6ff2eeffd6a", default-features = false, features = ["unstable-hostfn"] }
 
 [dev-dependencies]
 ink_e2e = { path = "../../../crates/e2e" }

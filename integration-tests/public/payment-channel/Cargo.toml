@@ -7,7 +7,7 @@ publish = false
 
 [dependencies]
 ink = { path = "../../../crates/ink", default-features = false }
-sp-core = { git = "https://github.com/use-ink/polkadot-sdk", branch = "cmichi-disable-asserts", default-features = false }
+sp-core = { git = "https://github.com/paritytech/polkadot-sdk", rev = "f8c90b2a01ec77579bccd21ae17bd6ff2eeffd6a", default-features = false }
 
 [dev-dependencies]
 hex-literal = { version = "0.4.1" }
