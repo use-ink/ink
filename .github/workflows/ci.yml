@@ -401,8 +401,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # todo check if this workspace is still necessary
-        partition: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+        partition: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -428,7 +427,7 @@ jobs:
            #rustup toolchain remove nightly-2025-02-20 && rustup toolchain remove stable && rustup toolchain remove 1.85.0;
         with:
             args:
-              /bin/bash -c "cargo +nightly nextest run --all-features --no-fail-fast --workspace --locked --jobs 2 --partition count:${{ matrix.partition }}/10"
+              /bin/bash -c "cargo +nightly nextest run --all-features --no-fail-fast --workspace --locked --jobs 2 --partition count:${{ matrix.partition }}/20"
 
   test-docs:
       runs-on: ubuntu-latest
@@ -590,21 +589,21 @@ jobs:
           # running docker with `--security-opt seccomp=unconfined` which is why we use `grcov` instead.
           CODECOV_L_TOKEN:               ${{ secrets.CODECOV_L_TOKEN }}
         run: |
+          df -h
           rustup toolchain remove nightly-2025-02-20;
           rustup toolchain remove stable;
+          df -h
           # rustup toolchain remove 1.85.0;
           # RUSTFLAGS are the cause target cache can't be used here
           # FIXME: rust-covfix doesn't support the external target dir
           # https://github.com/Kogia-sima/rust-covfix/issues/7
           unset "CARGO_TARGET_DIR"
-          cargo +nightly clean
+          # cargo +nightly clean
           # make sure there are no stale coverage artifacts
           find . -name "*.profraw" -type f -delete
           find . -name "*.gcda" -type f -delete
           # FIXME: Access from 2 users, should be solved once ci-image works from a non-root user
           git config --global --add safe.directory '*'
-          # RUSTFLAGS are the cause target cache can't be used here
-          rustup component add llvm-tools-preview
           cargo +nightly build --all-features --workspace
           cargo +nightly test --all-features --no-fail-fast --workspace --locked -- --skip ui_tests
           # coverage with branches
@@ -750,7 +749,7 @@ jobs:
       fail-fast: false
       matrix:
         type: [RISCV]
-        partition: [1, 2, 3, 4]
+        partition: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -776,7 +775,8 @@ jobs:
           # Pulls in sp-std which needlessly requires atomic pointers (TODO: Fix sp-std and enable this example)
           #   - call-runtime
           scripts/for_all_contracts_exec.sh --path integration-tests --ignore public/custom-allocator --ignore public/call-runtime --ignore public/contract-xcm \
-            -- cargo +nightly build --manifest-path {} --no-default-features --target $RISCV_TARGET -Zbuild-std="core,alloc"
+            --partition ${{ matrix.partition }}/15 -- \
+            cargo +nightly build --manifest-path {} --no-default-features --target $RISCV_TARGET -Zbuild-std="core,alloc"
 
   examples-docs:
     runs-on: ubuntu-latest
