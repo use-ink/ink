@@ -15,7 +15,6 @@ categories.workspace = true
 include = ["Cargo.toml", "src/**/*.rs", "README.md", "LICENSE"]
 
 [lib]
-name = "ink_ir"
 
 [dependencies]
 quote = { workspace = true }

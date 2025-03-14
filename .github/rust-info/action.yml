@@ -8,7 +8,6 @@ runs:
         cargo --version
         rustup +nightly show
         cargo +nightly --version
-        cargo spellcheck --version
         bash --version
         substrate-contracts-node --version
         cargo contract --version

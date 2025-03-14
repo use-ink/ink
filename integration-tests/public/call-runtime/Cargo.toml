@@ -7,6 +7,7 @@ publish = false
 
 [dependencies]
 ink = { path = "../../../crates/ink", default-features = false }
+sp-runtime = { git = "https://github.com/paritytech/polkadot-sdk", rev = "f8c90b2a01ec77579bccd21ae17bd6ff2eeffd6a", default-features = false }
 
 # We need to explicitly turn off some of the `sp-io` features, to avoid conflicts
 # (especially for global allocator).
@@ -26,6 +27,7 @@ path = "lib.rs"
 default = ["std"]
 std = [
     "ink/std",
+    "sp-runtime/std",
     "sp-runtime-interface/std",
     "sp-io/std",
 ]

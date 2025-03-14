@@ -254,7 +254,6 @@ where
     }
 }
 
-#[cfg(feature = "event-collection")]
 impl<S> ContractSpecBuilder<MetaForm, S> {
     /// Collect metadata for all events linked into the contract.
     pub fn collect_events(self) -> Self {

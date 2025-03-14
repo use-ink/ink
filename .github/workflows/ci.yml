@@ -71,51 +71,6 @@ jobs:
       - id: set_image
         run: echo "IMAGE=${{ env.IMAGE }}" >> $GITHUB_OUTPUT
 
-  return_type_metadata:
-      runs-on: ubuntu-latest
-      needs: [set-image]
-      defaults:
-          run:
-              shell: bash
-      container:
-          image: ${{ needs.set-image.outputs.IMAGE }}
-      strategy:
-          fail-fast: false
-          matrix:
-              workspace: [ink]
-      steps:
-          - name: Checkout
-            uses: actions/checkout@v4
-            with:
-                fetch-depth: 1
-
-          - name: Cache
-            uses: Swatinem/rust-cache@f0deed1e0edfc6a9be95417288c0e1099b1eeec3 # v2.7.7
-            with:
-                cache-directories: |
-                    ${{ env.CARGO_TARGET_DIR }}
-
-          - name: Rust Info
-            uses: ./.github/rust-info
-
-          - name: Test
-            if: ${{ matrix.workspace == 'ink' }}
-            env:
-                # Setting incremental = 0 to reduce compilation artifact size.
-                # The CI otherwise fails with "no disk space"
-                # todo Remove again at one point. This is a speed trade-off.
-                CARGO_INCREMENTAL: 0
-                # Fix for linking of `linkme` for `cargo test`: https://github.com/dtolnay/linkme/issues/49
-                RUSTFLAGS: -Clink-dead-code -Clink-arg=-z -Clink-arg=nostart-stop-gc
-                # Since we run the tests with `--all-features` this implies the feature
-                # `ink-fuzz-tests` as well -- i.e. the fuzz tests are run.
-                # There's no way to disable a single feature while enabling all features
-                # at the same time, hence we use this workaround.
-                QUICKCHECK_TESTS:            0
-            run: |
-                cd crates/ink/tests/;
-                cargo +nightly-2025-02-20 test --verbose --all-features return_type_metadata;
-
   spellcheck:
     runs-on: ubuntu-latest
     defaults:
@@ -193,21 +148,49 @@ jobs:
 
       - name: Run Clippy
         run: |
+          df -h ;
+          rustup toolchain remove nightly-2025-02-20 && rustup toolchain remove stable && rustup toolchain remove 1.85.0;
+          df -h ;
           ALL_CRATES="${PURELY_STD_CRATES} ${ALSO_RISCV_CRATES}"
           for crate in ${ALL_CRATES}; do
             echo $crate;
-            cargo clippy --all-targets --all-features --manifest-path ./crates/${crate}/Cargo.toml \
+            cargo +nightly clippy --all-targets --all-features --manifest-path ./crates/${crate}/Cargo.toml \
               -- -D warnings -A ${CLIPPY_ALLOWED};
           done
 
-      - name: Run Clippy for RISC-V Crates
-        run: |
-          for crate in ${ALSO_RISCV_CRATES}; do
-            echo $crate;
-            cargo clippy --no-default-features --manifest-path ./crates/${crate}/Cargo.toml \
-              --target ${CLIPPY_TARGET} \
-              -- -D warnings -A ${CLIPPY_ALLOWED};
-          done
+  clippy-riscv:
+      runs-on: ubuntu-latest
+      defaults:
+          run:
+              shell: bash
+      needs: [set-image]
+      container:
+          image: ${{ needs.set-image.outputs.IMAGE }}
+      steps:
+          - name: Checkout
+            uses: actions/checkout@v4
+            with:
+                fetch-depth: 1
+
+          - name: Cache
+            uses: Swatinem/rust-cache@f0deed1e0edfc6a9be95417288c0e1099b1eeec3 # v2.7.7
+            with:
+                cache-directories: ${{ env.CARGO_TARGET_DIR }}
+
+          - name: Rust Info
+            uses: ./.github/rust-info
+
+          - name: Run Clippy for RISC-V Crates
+            run: |
+                df -h ;
+                rustup toolchain remove nightly-2025-02-20 && rustup toolchain remove stable && rustup toolchain remove 1.85.0;
+                df -h ;
+                for crate in ${ALSO_RISCV_CRATES}; do
+                  echo $crate;
+                  cargo +nightly clippy --no-default-features --manifest-path ./crates/${crate}/Cargo.toml \
+                    --target ${CLIPPY_TARGET} \
+                    -- -D warnings -A ${CLIPPY_ALLOWED};
+                done
 
   clippy-examples:
     runs-on: ubuntu-latest
@@ -411,16 +394,14 @@ jobs:
 
   test:
     runs-on: ubuntu-latest
-    needs: [set-image, check]
+    needs: [check]
     defaults:
       run:
         shell: bash
-    container:
-      image: ${{ needs.set-image.outputs.IMAGE }}
     strategy:
       fail-fast: false
       matrix:
-        workspace: [ink, linting]
+        partition: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -433,25 +414,20 @@ jobs:
           cache-directories: |
             ${{ env.CARGO_TARGET_DIR }}
 
-      - name: Rust Info
-        uses: ./.github/rust-info
-
       - name: Test
-        if: ${{ matrix.workspace == 'ink' }}
+        uses: docker://useink/ci
         env:
-          # Setting incremental = 0 to reduce compilation artifact size.
-          # The CI otherwise fails with "no disk space"
-          # todo Remove again at one point. This is a speed trade-off.
-          CARGO_INCREMENTAL: 0
           # Fix for linking of `linkme` for `cargo test`: https://github.com/dtolnay/linkme/issues/49
           RUSTFLAGS: -Clink-dead-code -Clink-arg=-z -Clink-arg=nostart-stop-gc
           # Since we run the tests with `--all-features` this implies the feature
           # `ink-fuzz-tests` as well -- i.e. the fuzz tests are run.
           # There's no way to disable a single feature while enabling all features
           # at the same time, hence we use this workaround.
-          QUICKCHECK_TESTS:            0
-        run: |
-          cargo +nightly nextest run --all-features --no-fail-fast --workspace --locked --jobs 2 --profile=reuse-build
+          QUICKCHECK_TESTS: 0
+           #rustup toolchain remove nightly-2025-02-20 && rustup toolchain remove stable && rustup toolchain remove 1.85.0;
+        with:
+            args:
+              /bin/bash -c "cargo +nightly nextest run --all-features --no-fail-fast --workspace --locked --jobs 2 --partition count:${{ matrix.partition }}/20"
 
   test-docs:
       runs-on: ubuntu-latest
@@ -481,6 +457,7 @@ jobs:
             uses: ./.github/rust-info
 
           - name: Test
+            #  todo check if this workspace condition is still necessary
             if: ${{ matrix.workspace == 'ink' }}
             env:
                 # Setting incremental = 0 to reduce compilation artifact size.
@@ -612,18 +589,21 @@ jobs:
           # running docker with `--security-opt seccomp=unconfined` which is why we use `grcov` instead.
           CODECOV_L_TOKEN:               ${{ secrets.CODECOV_L_TOKEN }}
         run: |
+          df -h
+          rustup toolchain remove nightly-2025-02-20;
+          rustup toolchain remove stable;
+          df -h
+          # rustup toolchain remove 1.85.0;
           # RUSTFLAGS are the cause target cache can't be used here
           # FIXME: rust-covfix doesn't support the external target dir
           # https://github.com/Kogia-sima/rust-covfix/issues/7
           unset "CARGO_TARGET_DIR"
-          cargo clean
+          # cargo +nightly clean
           # make sure there are no stale coverage artifacts
           find . -name "*.profraw" -type f -delete
           find . -name "*.gcda" -type f -delete
           # FIXME: Access from 2 users, should be solved once ci-image works from a non-root user
           git config --global --add safe.directory '*'
-          # RUSTFLAGS are the cause target cache can't be used here
-          rustup component add llvm-tools-preview
           cargo +nightly build --all-features --workspace
           cargo +nightly test --all-features --no-fail-fast --workspace --locked -- --skip ui_tests
           # coverage with branches
@@ -641,11 +621,11 @@ jobs:
 
   examples-test:
     runs-on: ubuntu-latest
-    needs: [clippy]
+    needs: [fmt]
     strategy:
       fail-fast: false
       matrix:
-        partition: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]
+        partition: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -660,16 +640,12 @@ jobs:
       - name: Test Examples
         uses: docker://useink/ci
         env:
-            # Setting incremental = 0 to reduce compilation artifact size.
-            # The CI otherwise fails with "no disk space"
-            # todo Remove again at one point. This is a speed trade-off.
-            CARGO_INCREMENTAL: 0
             # Fix for linking of `linkme` for `cargo test`: https://github.com/dtolnay/linkme/issues/49
             RUSTFLAGS: -Clink-arg=-z -Clink-arg=nostart-stop-gc -Clink-dead-code
         with:
           # Run all tests with --all-features, which will run the `e2e-tests` feature if present.
           args:
-            /bin/bash -c "scripts/for_all_contracts_exec.sh --path integration-tests --ignore internal/static-buffer --ignore internal/mapping --partition ${{ matrix.partition }}/20 -- \
+            /bin/bash -c "scripts/for_all_contracts_exec.sh --path integration-tests --ignore internal/static-buffer --ignore internal/mapping --partition ${{ matrix.partition }}/25 -- \
                 cargo +nightly test --all-features --all --manifest-path {}"
 
   examples-test-mapping:
@@ -701,6 +677,11 @@ jobs:
                 # needed for `mapping::e2e_tests::fallible_storage_methods_work`
                 INK_STATIC_BUFFER_SIZE: 256
             run:
+                df -h;
+                rustup toolchain remove nightly-2025-02-20;
+                rustup toolchain remove stable;
+                rustup toolchain remove 1.85.0;
+                df -h;
                 cargo +nightly test --all-features --all --manifest-path integration-tests/internal/mapping/Cargo.toml
 
   examples-custom-test:
@@ -768,7 +749,7 @@ jobs:
       fail-fast: false
       matrix:
         type: [RISCV]
-        partition: [1, 2, 3, 4]
+        partition: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -794,7 +775,8 @@ jobs:
           # Pulls in sp-std which needlessly requires atomic pointers (TODO: Fix sp-std and enable this example)
           #   - call-runtime
           scripts/for_all_contracts_exec.sh --path integration-tests --ignore public/custom-allocator --ignore public/call-runtime --ignore public/contract-xcm \
-            -- cargo +nightly build --manifest-path {} --no-default-features --target $RISCV_TARGET -Zbuild-std="core,alloc"
+            --partition ${{ matrix.partition }}/15 -- \
+            cargo +nightly build --manifest-path {} --no-default-features --target $RISCV_TARGET -Zbuild-std="core,alloc"
 
   examples-docs:
     runs-on: ubuntu-latest
@@ -870,13 +852,16 @@ jobs:
         env:
           QUICKCHECK_TESTS:              5000
         run: |
+          rustup toolchain remove nightly-2025-02-20;
+          rustup toolchain remove stable;
+          rustup toolchain remove 1.85.0;
           # We fuzz-test only crates which possess the `ink-fuzz-tests` feature
           all_tests_passed=0
           ALL_CRATES="${PURELY_STD_CRATES} ${ALSO_RISCV_CRATES}"
           for crate in ${ALL_CRATES}; do
             if grep "ink-fuzz-tests =" ./crates/${crate}/Cargo.toml;
             then
-              cargo test --features ink-fuzz-tests --manifest-path ./crates/${crate}/Cargo.toml --no-fail-fast -- fuzz_ || exit_code=$?;
+              cargo +nightly test --features ink-fuzz-tests --manifest-path ./crates/${crate}/Cargo.toml --no-fail-fast -- fuzz_ || exit_code=$?;
               all_tests_passed=$(( all_tests_passed | exit_code ));
             fi
           done

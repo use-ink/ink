@@ -4,7 +4,7 @@ on:
   workflow_call:
 
 env:
-  CARGO_TARGET_DIR:                /ci-cache/${{ github.repository }}/targets/${{ github.ref_name }}/${{ github.job }}
+  CARGO_TARGET_DIR: /ci-cache/${{ github.repository }}/targets/${{ github.ref_name }}/${{ github.job }}
 
 jobs:
   contract-sizes:
@@ -43,7 +43,7 @@ jobs:
 
       - name: Measure Contract Sizes
         env:
-          PR_NUMBER:               ${{ github.event.number }}
+          PR_NUMBER: ${{ github.event.number }}
         run: |
           # Variables
           MEASUREMENTS_DIR="${GITHUB_WORKSPACE}/measurements"
@@ -56,7 +56,7 @@ jobs:
           ${SCRIPTS_DIR}/for_all_contracts_exec.sh --path integration-tests --ignore public/complex-storage-structures --quiet -- ${SCRIPTS_DIR}/contract_size.sh {} > ${CONTRACT_SIZES}
           sed -ie 's/^integration-tests\/\(public\/\|internal\/\)\?//' ${CONTRACT_SIZES}
 
-          CARGO_CONTRACT_VERSION=$(cargo contract --version | egrep --only-matching "cargo-contract.* .*-x86" | sed -s 's/-x86//')
+          CARGO_CONTRACT_VERSION=$(cargo +nightly contract --version | egrep --only-matching "cargo-contract.* .*-x86" | sed -s 's/-x86//')
           echo "CARGO_CONTRACT_VERSION=\"${CARGO_CONTRACT_VERSION}\"" > ${MEASUREMENTS_DIR}/context.out
           echo "PR_NUMBER=\"${PR_NUMBER}\"" >> ${MEASUREMENTS_DIR}/context.out
 
