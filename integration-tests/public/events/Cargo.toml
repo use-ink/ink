@@ -8,12 +8,12 @@ publish = false
 [dependencies]
 ink = { path = "../../../crates/ink", default-features = false }
 
-event-def = { path = "event-def", default-features = false, features = ["ink-as-dependency"] }
-event-def2 = { path = "event-def2", default-features = false, features = ["ink-as-dependency"] }
-event-def-unused = { path = "event-def-unused", default-features = false, features = ["ink-as-dependency"] }
+event-def = { path = "event-def", default-features = false }
+event-def2 = { path = "event-def2", default-features = false }
+event-def-unused = { path = "event-def-unused", default-features = false }
 
 [dev-dependencies]
-#ink_e2e = { path = "../../../crates/e2e" }
+ink_e2e = { path = "../../../crates/e2e" }
 
 [lib]
 path = "lib.rs"

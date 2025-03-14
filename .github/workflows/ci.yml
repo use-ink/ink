@@ -451,6 +451,7 @@ jobs:
           # at the same time, hence we use this workaround.
           QUICKCHECK_TESTS:            0
         run: |
+          rustup toolchain remove nightly-2025-02-20 && rustup toolchain remove stable;
           cargo +nightly nextest run --all-features --no-fail-fast --workspace --locked --jobs 2
 
   test-docs:
@@ -612,11 +613,12 @@ jobs:
           # running docker with `--security-opt seccomp=unconfined` which is why we use `grcov` instead.
           CODECOV_L_TOKEN:               ${{ secrets.CODECOV_L_TOKEN }}
         run: |
+          rustup toolchain remove nightly-2025-02-20 && rustup toolchain remove stable &&
           # RUSTFLAGS are the cause target cache can't be used here
           # FIXME: rust-covfix doesn't support the external target dir
           # https://github.com/Kogia-sima/rust-covfix/issues/7
           unset "CARGO_TARGET_DIR"
-          cargo clean
+          cargo +nightly clean
           # make sure there are no stale coverage artifacts
           find . -name "*.profraw" -type f -delete
           find . -name "*.gcda" -type f -delete
@@ -660,17 +662,14 @@ jobs:
       - name: Test Examples
         uses: docker://useink/ci
         env:
-            # Setting incremental = 0 to reduce compilation artifact size.
-            # The CI otherwise fails with "no disk space"
-            # todo Remove again at one point. This is a speed trade-off.
-            CARGO_INCREMENTAL: 0
             # Fix for linking of `linkme` for `cargo test`: https://github.com/dtolnay/linkme/issues/49
             RUSTFLAGS: -Clink-arg=-z -Clink-arg=nostart-stop-gc -Clink-dead-code
         with:
           # Run all tests with --all-features, which will run the `e2e-tests` feature if present.
           args:
+
             /bin/bash -c "scripts/for_all_contracts_exec.sh --path integration-tests --ignore internal/static-buffer --ignore internal/mapping --partition ${{ matrix.partition }}/25 -- \
-                cargo +nightly test --all-features --all --manifest-path {}"
+                rustup toolchain remove nightly-2025-02-20 && rustup toolchain remove stable && cargo +nightly test --all-features --all --manifest-path {}"
 
   examples-test-mapping:
       runs-on: ubuntu-latest

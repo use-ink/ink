@@ -9,7 +9,6 @@ publish = false
 ink = { path = "../../../../crates/ink", default-features = false }
 
 [lib]
-name = "traits"
 path = "lib.rs"
 crate-type = ["rlib"]
 

@@ -34,7 +34,6 @@ ink_storage = { workspace = true, default-features = true }
 scale-info = { workspace = true, features = ["derive"] }
 
 [lib]
-name = "ink_macro"
 proc-macro = true
 
 [features]

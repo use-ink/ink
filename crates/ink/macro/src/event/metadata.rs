@@ -43,7 +43,6 @@ fn event_metadata_derive_struct(s: synstructure::Structure) -> syn::Result<Token
 
     let variant = &s.variants()[0];
     let ident = variant.ast().ident;
-    eprintln!("\n---event_metadata_derive {:?}", ident);
 
     let docs = variant
         .ast()
@@ -77,7 +76,6 @@ fn event_metadata_derive_struct(s: synstructure::Structure) -> syn::Result<Token
         }
     }).collect::<syn::Result<Vec<_>>>()?;
 
-    eprintln!("---event_metadata_derive generating {:?}", ident);
     Ok(s.bound_impl(
         quote_spanned!(span=> ::ink::metadata::EventMetadata),
         quote_spanned!(span=>

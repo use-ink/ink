@@ -110,8 +110,6 @@ pub mod events {
         #[test]
         fn collects_specs_for_all_linked_and_used_events() {
             let event_specs = ink::metadata::collect_events();
-            //eprintln!("===== {:?}", event_specs);
-            eprintln!("\n===== {:?}\n", event_specs.len());
 
             assert!(event_specs
                 .iter()
