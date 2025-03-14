@@ -193,6 +193,7 @@ impl Database {
         *self.fmap.get(hashed_key.as_slice()).unwrap()
     }
 
+    #[cfg(feature = "unstable-hostfn")]
     pub fn set_code_hash(&mut self, addr: &H160, code_hash: &H256) {
         let hashed_key = code_hash_for_addr(addr);
         self.hmap

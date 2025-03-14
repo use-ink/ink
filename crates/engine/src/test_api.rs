@@ -198,6 +198,7 @@ impl Engine {
     }
 
     /// Returns boolean value indicating whether the account is a contract
+    #[cfg(feature = "unstable-hostfn")]
     pub fn is_contract(&self, addr: &H160) -> bool {
         self.exec_context.contracts.contains(addr)
     }
