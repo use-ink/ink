@@ -44,10 +44,13 @@ pub trait SolPrimitive: SolTypeValue<Self::SolType> + private::Sealed {
     /// Solidity ABI decode into this type.
     fn decode(data: &[u8]) -> Result<Self, alloy_sol_types::Error>
     where
-        Self: From<<Self::SolType as SolType>::RustType>,
+        Self: Sized,
     {
-        Self::SolType::abi_decode(data, false).map(Self::from)
+        Self::SolType::abi_decode(data, false).map(Self::from_sol_type)
     }
+
+    /// Convert from [`SolType::RustType`] to `Self`.
+    fn from_sol_type(value: <Self::SolType as SolType>::RustType) -> Self;
 }
 
 /// Marker trait implemented by all Solidity type equivalents except `u8`.
@@ -59,8 +62,13 @@ trait NonU8: SolPrimitive {}
 macro_rules! impl_primitive_minimal {
     ($($ty: ty => $sol_ty: ty),+ $(,)*) => {
         $(
-            impl SolPrimitive for $ty {
+            impl SolPrimitive for $ty where
+            Self: From<<$sol_ty as SolType>::RustType>, {
                 type SolType = $sol_ty;
+
+                fn from_sol_type(value: <Self::SolType as SolType>::RustType) -> Self {
+                    Self::from(value)
+                }
             }
 
             impl private::Sealed for $ty {}
@@ -103,38 +111,46 @@ impl_primitive! {
     // bool
     bool => sol_data::Bool,
     // string
-    str => sol_data::String,
+    //str => sol_data::String,
     String => sol_data::String,
     // bytes
     // `u8` sequences/collections are mapped to `bytes` equivalents.
-    [u8] => sol_data::Bytes,
+    //[u8] => sol_data::Bytes,
     Vec<u8> => sol_data::Bytes,
 }
 
 macro_rules! impl_generics {
-    ($([$($gen:tt)+] $ty: ty => $sol_ty: ty [$($where:tt)*]), +$(,)*) => {
+    ($([$($gen:tt)+] $ty: ty => $sol_ty: ty [$($bounds:tt)*]), +$(,)*) => {
         $(
-        impl<$($gen)*> SolPrimitive for $ty $($where)* {
+        impl<$($gen)*> SolPrimitive for $ty where
+        Self: From<<$sol_ty as SolType>::RustType>, $($bounds)*
+        {
             type SolType = $sol_ty;
+
+            fn from_sol_type(value: <Self::SolType as SolType>::RustType) -> Self {
+                Self::from(value)
+            }
         }
 
-        impl<$($gen)*> NonU8 for $ty $($where)* {}
+        impl<$($gen)*> NonU8 for $ty where
+        Self: From<<$sol_ty as SolType>::RustType>, $($bounds)*
+        {}
 
-        impl<$($gen)*> private::Sealed for $ty $($where)* {}
+        impl<$($gen)*> private::Sealed for $ty {}
         )*
     };
 }
 
 impl_generics! {
     // byte array
-    [const N: usize] [u8; N] => sol_data::FixedBytes<N> [where sol_data::ByteCount<N>: sol_data::SupportedFixedBytes],
+    [const N: usize] [u8; N] => sol_data::FixedBytes<N> [sol_data::ByteCount<N>: sol_data::SupportedFixedBytes],
     // array
     [T: NonU8, const N: usize] [T; N] => sol_data::FixedArray<T::SolType, N> [],
     [T: NonU8] [T] => sol_data::Array<T::SolType> [],
     [T: NonU8] Vec<T> => sol_data::Array<T::SolType> [],
     // references
-    ['a, T: ?Sized + SolPrimitive] &'a T => T::SolType [where &'a T: SolTypeValue<T::SolType>],
-    ['a, T: ?Sized + SolPrimitive] &'a mut T => T::SolType [where &'a mut T: SolTypeValue<T::SolType>],
+    ['a, T: ?Sized + SolPrimitive] &'a T => T::SolType [&'a T: SolTypeValue<T::SolType>],
+    ['a, T: ?Sized + SolPrimitive] &'a mut T => T::SolType [&'a mut T: SolTypeValue<T::SolType>],
 }
 
 // We follow the Rust standard library's convention of implementing traits for tuples up
@@ -142,14 +158,22 @@ impl_generics! {
 // Ref: <https://doc.rust-lang.org/std/primitive.tuple.html#trait-implementations>
 #[impl_for_tuples(12)]
 impl SolPrimitive for Tuple {
+    for_tuples!( where #( Tuple: From<<Tuple::SolType as SolType>::RustType> )* );
+
     for_tuples!( type SolType = ( #( Tuple::SolType ),* ); );
+
+    fn from_sol_type(value: <Self::SolType as SolType>::RustType) -> Self {
+        for_tuples!( ( #( Tuple::from(value.Tuple) ),* ) );
+    }
 }
 
 #[impl_for_tuples(12)]
 impl private::Sealed for Tuple {}
 
 #[impl_for_tuples(12)]
-impl NonU8 for Tuple {}
+impl NonU8 for Tuple {
+    for_tuples!( where #( Tuple: From<<Tuple::SolType as SolType>::RustType> )* );
+}
 
 mod private {
     /// Seals the implementations of `SolPrimitive` and `NonU8`.
@@ -311,6 +335,29 @@ mod tests {
         test_case!(
             (bool, i8, u32, String),
             (true, 100i8, 1_000_000u32, String::from("Hello, world!"))
+        );
+        test_case!(([i8; 32],), ([100i8; 32],));
+        test_case!((Vec<i8>,), (Vec::from([100i8; 64]),));
+        test_case!(([i8; 32], Vec<i8>), ([100i8; 32], Vec::from([100i8; 64])));
+        use alloy_sol_types::private::FixedBytes;
+        test_case!(
+            ([u8; 32],),
+            ([100u8; 32],),
+            (FixedBytes<32>,),
+            SolValue,
+            (FixedBytes([100u8; 32]),),
+            [.unwrap().0],
+            [.unwrap().0.0]
+        );
+        use alloy_sol_types::private::Bytes;
+        test_case!(
+            (Vec<u8>,),
+            (Vec::from([100u8; 64]),),
+            (Bytes,),
+            SolValue,
+            (Bytes::from([100u8; 64]),),
+            [.unwrap().0],
+            [.unwrap().0.0]
         );
     }
 }
