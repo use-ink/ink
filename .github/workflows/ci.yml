@@ -158,14 +158,39 @@ jobs:
               -- -D warnings -A ${CLIPPY_ALLOWED};
           done
 
-      - name: Run Clippy for RISC-V Crates
-        run: |
-          for crate in ${ALSO_RISCV_CRATES}; do
-            echo $crate;
-            cargo +nightly clippy --no-default-features --manifest-path ./crates/${crate}/Cargo.toml \
-              --target ${CLIPPY_TARGET} \
-              -- -D warnings -A ${CLIPPY_ALLOWED};
-          done
+  clippy-riscv:
+      runs-on: ubuntu-latest
+      defaults:
+          run:
+              shell: bash
+      needs: [set-image]
+      container:
+          image: ${{ needs.set-image.outputs.IMAGE }}
+      steps:
+          - name: Checkout
+            uses: actions/checkout@v4
+            with:
+                fetch-depth: 1
+
+          - name: Cache
+            uses: Swatinem/rust-cache@f0deed1e0edfc6a9be95417288c0e1099b1eeec3 # v2.7.7
+            with:
+                cache-directories: ${{ env.CARGO_TARGET_DIR }}
+
+          - name: Rust Info
+            uses: ./.github/rust-info
+
+          - name: Run Clippy for RISC-V Crates
+            run: |
+                df -h ;
+                rustup toolchain remove nightly-2025-02-20 && rustup toolchain remove stable && rustup toolchain remove 1.85.0;
+                df -h ;
+                for crate in ${ALSO_RISCV_CRATES}; do
+                  echo $crate;
+                  cargo +nightly clippy --no-default-features --manifest-path ./crates/${crate}/Cargo.toml \
+                    --target ${CLIPPY_TARGET} \
+                    -- -D warnings -A ${CLIPPY_ALLOWED};
+                done
 
   clippy-examples:
     runs-on: ubuntu-latest
