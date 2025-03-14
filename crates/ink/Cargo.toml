@@ -31,7 +31,7 @@ const_format = { workspace = true }
 keccak-const = { workspace = true }
 
 polkavm-derive = { workspace = true }
-xcm = {workspace = true}
+xcm = { workspace = true }
 
 sp-io = { git = "https://github.com/paritytech/polkadot-sdk", rev = "f8c90b2a01ec77579bccd21ae17bd6ff2eeffd6a", default-features = false, features = ["disable_panic_handler", "disable_oom", "disable_allocator"] }
 sp-runtime-interface = { git = "https://github.com/paritytech/polkadot-sdk", rev = "f8c90b2a01ec77579bccd21ae17bd6ff2eeffd6a", default-features = false, features = ["disable_target_static_assertions"] }
@@ -69,6 +69,8 @@ no-allocator = ["ink_env/no-allocator"]
 
 # Disable the ink! provided panic handler.
 no-panic-handler = ["ink_env/no-panic-handler"]
+
+unstable-hostfn = ["ink_env/unstable-hostfn", "ink_storage/unstable-hostfn"]
 
 # For the ui tests, which use this `Cargo.toml`
 [lints.rust.unexpected_cfgs]
