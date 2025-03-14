@@ -2,6 +2,8 @@
 
 set -eu
 
+rustup toolchain remove nightly-2025-02-20; rustup toolchain remove stable; rustup toolchain remove 1.85.0; \
+
 script_name="${BASH_SOURCE[0]}"
 scripts_path=$( cd "$(dirname "$script_name")" || exit; pwd -P )
 
