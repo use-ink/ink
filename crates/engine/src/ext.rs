@@ -310,7 +310,6 @@ impl Engine {
 
     /// Returns the minimum balance that is required for creating an account
     /// (i.e. the chain's existential deposit).
-    #[cfg(feature = "unstable-hostfn")] // todo double check this is needed here
     pub fn minimum_balance(&self, output: &mut &mut [u8]) {
         let minimum_balance: Vec<u8> =
             scale::Encode::encode(&self.chain_spec.minimum_balance);
@@ -365,7 +364,6 @@ impl Engine {
     }
 
     /// Calls the chain extension method registered at `func_id` with `input`.
-    #[cfg(feature = "unstable-hostfn")]
     pub fn call_chain_extension(
         &mut self,
         id: u32,

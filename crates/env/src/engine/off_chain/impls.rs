@@ -160,7 +160,7 @@ where
     R::decode_output(&result)
 }
 
-#[cfg(feature = "unstable")]
+#[cfg(feature = "unstable-hostfn")]
 impl CryptoHash for Blake2x128 {
     fn hash(input: &[u8], output: &mut <Self as HashOutput>::Type) {
         type OutputType = [u8; 16];
@@ -173,7 +173,7 @@ impl CryptoHash for Blake2x128 {
     }
 }
 
-#[cfg(feature = "unstable")]
+#[cfg(feature = "unstable-hostfn")]
 impl CryptoHash for Blake2x256 {
     fn hash(input: &[u8], output: &mut <Self as HashOutput>::Type) {
         type OutputType = [u8; 32];
@@ -186,7 +186,7 @@ impl CryptoHash for Blake2x256 {
     }
 }
 
-#[cfg(feature = "unstable")]
+#[cfg(feature = "unstable-hostfn")]
 impl CryptoHash for Sha2x256 {
     fn hash(input: &[u8], output: &mut <Self as HashOutput>::Type) {
         type OutputType = [u8; 32];
@@ -222,6 +222,7 @@ where
 {
     type Output = Vec<u8>;
 
+    #[cfg(feature = "unstable-hostfn")]
     fn push_topic<T>(&mut self, topic_value: &T)
     where
         T: scale::Encode,

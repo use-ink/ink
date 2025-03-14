@@ -482,6 +482,7 @@ where
     /// # Note
     ///
     /// For more details visit: [`ink_env::instantiate_contract`]
+    #[cfg(feature = "unstable-hostfn")]
     pub fn instantiate_contract<ContractRef, Args, R, Abi>(
         self,
         params: &CreateParams<E, ContractRef, LimitParamsV2, Args, R, Abi>,
@@ -1143,6 +1144,7 @@ where
         ink_env::set_code_hash::<E>(code_hash)
     }
 
+    #[cfg(feature = "unstable-hostfn")]
     pub fn call_runtime<Call: scale::Encode>(self, call: &Call) -> Result<()> {
         ink_env::call_runtime::<E, _>(call)
     }

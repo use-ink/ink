@@ -342,6 +342,7 @@ where
 /// - If the instantiation process runs out of gas.
 /// - If given insufficient endowment.
 /// - If the returned account ID failed to decode properly.
+#[cfg(feature = "unstable-hostfn")]
 pub fn instantiate_contract<E, ContractRef, Args, R, Abi>(
     params: &CreateParams<E, ContractRef, LimitParamsV2, Args, R, Abi>,
 ) -> Result<

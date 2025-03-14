@@ -146,6 +146,7 @@ where
 {
     type Output = (ScopedBuffer<'a>, &'a mut [u8]);
 
+    #[cfg(feature = "unstable-hostfn")]
     fn push_topic<T>(&mut self, topic_value: &T)
     where
         T: scale::Encode,
@@ -573,6 +574,7 @@ impl TypedEnvBackend for EnvInstance {
         }
     }
 
+    #[cfg(feature = "unstable-hostfn")]
     fn instantiate_contract<E, ContractRef, Args, RetType, Abi>(
         &mut self,
         params: &CreateParams<E, ContractRef, LimitParamsV2, Args, RetType, Abi>,
