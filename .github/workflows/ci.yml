@@ -148,10 +148,13 @@ jobs:
 
       - name: Run Clippy
         run: |
+          df -h ;
+          rustup toolchain remove nightly-2025-02-20 && rustup toolchain remove stable;
+          df -h ;
           ALL_CRATES="${PURELY_STD_CRATES} ${ALSO_RISCV_CRATES}"
           for crate in ${ALL_CRATES}; do
             echo $crate;
-            cargo clippy --all-targets --all-features --manifest-path ./crates/${crate}/Cargo.toml \
+            cargo +nightly clippy --all-targets --all-features --manifest-path ./crates/${crate}/Cargo.toml \
               -- -D warnings -A ${CLIPPY_ALLOWED};
           done
 
@@ -159,7 +162,7 @@ jobs:
         run: |
           for crate in ${ALSO_RISCV_CRATES}; do
             echo $crate;
-            cargo clippy --no-default-features --manifest-path ./crates/${crate}/Cargo.toml \
+            cargo +nightly clippy --no-default-features --manifest-path ./crates/${crate}/Cargo.toml \
               --target ${CLIPPY_TARGET} \
               -- -D warnings -A ${CLIPPY_ALLOWED};
           done
@@ -598,7 +601,6 @@ jobs:
 
   examples-test:
     runs-on: ubuntu-latest
-    needs: [clippy]
     strategy:
       fail-fast: false
       matrix:
@@ -656,8 +658,10 @@ jobs:
                 # needed for `mapping::e2e_tests::fallible_storage_methods_work`
                 INK_STATIC_BUFFER_SIZE: 256
             run:
+                df -h;
                 rustup toolchain remove nightly-2025-02-20;
                 rustup toolchain remove stable;
+                df -h;
                 cargo +nightly test --all-features --all --manifest-path integration-tests/internal/mapping/Cargo.toml
 
   examples-custom-test:
