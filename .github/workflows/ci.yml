@@ -394,7 +394,7 @@ jobs:
 
   test:
     runs-on: ubuntu-latest
-    needs: [set-image, check]
+    needs: [check]
     defaults:
       run:
         shell: bash
@@ -403,7 +403,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        # todo check if this workspace is still necessary
         workspace: [ink, linting]
+        partition: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -421,21 +423,19 @@ jobs:
 
       - name: Test
         if: ${{ matrix.workspace == 'ink' }}
+        uses: docker://useink/ci
         env:
-          # Setting incremental = 0 to reduce compilation artifact size.
-          # The CI otherwise fails with "no disk space"
-          # todo Remove again at one point. This is a speed trade-off.
-          CARGO_INCREMENTAL: 0
           # Fix for linking of `linkme` for `cargo test`: https://github.com/dtolnay/linkme/issues/49
           RUSTFLAGS: -Clink-dead-code -Clink-arg=-z -Clink-arg=nostart-stop-gc
           # Since we run the tests with `--all-features` this implies the feature
           # `ink-fuzz-tests` as well -- i.e. the fuzz tests are run.
           # There's no way to disable a single feature while enabling all features
           # at the same time, hence we use this workaround.
-          QUICKCHECK_TESTS:            0
-        run: |
-          rustup toolchain remove nightly-2025-02-20 && rustup toolchain remove stable && rustup toolchain remove 1.85.0;
-          cargo +nightly nextest run --all-features --no-fail-fast --workspace --locked --jobs 2
+          QUICKCHECK_TESTS: 0
+           #rustup toolchain remove nightly-2025-02-20 && rustup toolchain remove stable && rustup toolchain remove 1.85.0;
+        with:
+            args:
+              /bin/bash -c "cargo +nightly nextest run --all-features --no-fail-fast --workspace --locked --jobs 2 --partition count:${{ matrix.partition }}/10"
 
   test-docs:
       runs-on: ubuntu-latest
@@ -465,6 +465,7 @@ jobs:
             uses: ./.github/rust-info
 
           - name: Test
+            #  todo check if this workspace condition is still necessary
             if: ${{ matrix.workspace == 'ink' }}
             env:
                 # Setting incremental = 0 to reduce compilation artifact size.
@@ -596,7 +597,9 @@ jobs:
           # running docker with `--security-opt seccomp=unconfined` which is why we use `grcov` instead.
           CODECOV_L_TOKEN:               ${{ secrets.CODECOV_L_TOKEN }}
         run: |
-          rustup toolchain remove nightly-2025-02-20 && rustup toolchain remove stable && rustup toolchain remove 1.85.0 &&
+          rustup toolchain remove nightly-2025-02-20;
+          rustup toolchain remove stable;
+          # rustup toolchain remove 1.85.0;
           # RUSTFLAGS are the cause target cache can't be used here
           # FIXME: rust-covfix doesn't support the external target dir
           # https://github.com/Kogia-sima/rust-covfix/issues/7
@@ -856,13 +859,16 @@ jobs:
         env:
           QUICKCHECK_TESTS:              5000
         run: |
+          rustup toolchain remove nightly-2025-02-20;
+          rustup toolchain remove stable;
+          rustup toolchain remove 1.85.0;
           # We fuzz-test only crates which possess the `ink-fuzz-tests` feature
           all_tests_passed=0
           ALL_CRATES="${PURELY_STD_CRATES} ${ALSO_RISCV_CRATES}"
           for crate in ${ALL_CRATES}; do
             if grep "ink-fuzz-tests =" ./crates/${crate}/Cargo.toml;
             then
-              cargo test --features ink-fuzz-tests --manifest-path ./crates/${crate}/Cargo.toml --no-fail-fast -- fuzz_ || exit_code=$?;
+              cargo +nightly test --features ink-fuzz-tests --manifest-path ./crates/${crate}/Cargo.toml --no-fail-fast -- fuzz_ || exit_code=$?;
               all_tests_passed=$(( all_tests_passed | exit_code ));
             fi
           done
