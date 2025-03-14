@@ -404,7 +404,6 @@ jobs:
       fail-fast: false
       matrix:
         # todo check if this workspace is still necessary
-        workspace: [ink, linting]
         partition: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
     steps:
       - name: Checkout
@@ -422,7 +421,6 @@ jobs:
         uses: ./.github/rust-info
 
       - name: Test
-        if: ${{ matrix.workspace == 'ink' }}
         uses: docker://useink/ci
         env:
           # Fix for linking of `linkme` for `cargo test`: https://github.com/dtolnay/linkme/issues/49
