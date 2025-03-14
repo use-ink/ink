@@ -626,7 +626,7 @@ jobs:
 
   examples-test:
     runs-on: ubuntu-latest
-    needs: [clippy]
+    needs: [fmt]
     strategy:
       fail-fast: false
       matrix:
@@ -650,11 +650,9 @@ jobs:
         with:
           # Run all tests with --all-features, which will run the `e2e-tests` feature if present.
           args:
-            rustup toolchain remove nightly-2025-02-20;
-            rustup toolchain remove stable;
-            rustup toolchain remove 1.85.0;
-            /bin/bash -c "scripts/for_all_contracts_exec.sh --path integration-tests --ignore internal/static-buffer --ignore internal/mapping --partition ${{ matrix.partition }}/25 -- \
-                  cargo +nightly test --all-features --all --manifest-path {}"
+            /bin/bash -c "rustup toolchain remove nightly-2025-02-20; rustup toolchain remove stable; rustup toolchain remove 1.85.0; \
+            scripts/for_all_contracts_exec.sh --path integration-tests --ignore internal/static-buffer --ignore internal/mapping --partition ${{ matrix.partition }}/25 -- \
+                cargo +nightly test --all-features --all --manifest-path {}"
 
   examples-test-mapping:
       runs-on: ubuntu-latest
