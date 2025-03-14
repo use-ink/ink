@@ -1512,7 +1512,6 @@ checksum = "cd7e35aee659887cbfb97aaf227ac12cad1a9d7c71e55ff3376839ed4e282d08"
 [[package]]
 name = "contract-build"
 version = "6.0.0-alpha"
-source = "git+https://github.com/use-ink/cargo-contract?branch=master#90f8e096ce164247233b7c8f52a033e209417e24"
 dependencies = [
  "alloy-json-abi",
  "anyhow",
@@ -1527,7 +1526,7 @@ dependencies = [
  "heck",
  "hex",
  "impl-serde",
- "ink_metadata 6.0.0-alpha (git+https://github.com/use-ink/ink?branch=master)",
+ "ink_metadata",
  "itertools 0.13.0",
  "parity-scale-codec",
  "polkavm-linker 0.21.0 (git+https://github.com/paritytech/polkavm)",
@@ -1554,7 +1553,6 @@ dependencies = [
 [[package]]
 name = "contract-metadata"
 version = "6.0.0-alpha"
-source = "git+https://github.com/use-ink/cargo-contract?branch=master#90f8e096ce164247233b7c8f52a033e209417e24"
 dependencies = [
  "anyhow",
  "impl-serde",
@@ -2918,12 +2916,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "6fe2267d4ed49bc07b63801559be28c718ea06c4738b7a03c94df7386d2cde46"
 
 [[package]]
-name = "hex-literal"
-version = "1.0.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bcaaec4551594c969335c98c903c1397853d4198408ea609190f420500f6be71"
-
-[[package]]
 name = "hmac"
 version = "0.8.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3351,9 +3343,9 @@ dependencies = [
  "ink_env",
  "ink_ir",
  "ink_macro",
- "ink_metadata 6.0.0-alpha",
- "ink_prelude 6.0.0-alpha",
- "ink_primitives 6.0.0-alpha",
+ "ink_metadata",
+ "ink_prelude",
+ "ink_primitives",
  "ink_storage",
  "keccak-const",
  "pallet-revive-uapi",
@@ -3385,7 +3377,7 @@ dependencies = [
  "heck",
  "impl-serde",
  "ink_ir",
- "ink_primitives 6.0.0-alpha",
+ "ink_primitives",
  "itertools 0.14.0",
  "parity-scale-codec",
  "polkavm-derive 0.21.0 (git+https://github.com/paritytech/polkavm)",
@@ -3408,7 +3400,7 @@ dependencies = [
  "ink",
  "ink_e2e_macro",
  "ink_env",
- "ink_primitives 6.0.0-alpha",
+ "ink_primitives",
  "ink_sandbox",
  "itertools 0.14.0",
  "jsonrpsee",
@@ -3458,8 +3450,8 @@ version = "6.0.0-alpha"
 dependencies = [
  "blake2",
  "derive_more 1.0.0",
- "hex-literal 1.0.0",
- "ink_primitives 6.0.0-alpha",
+ "hex-literal",
+ "ink_primitives",
  "pallet-revive",
  "pallet-revive-uapi",
  "parity-scale-codec",
@@ -3477,13 +3469,13 @@ dependencies = [
  "cfg-if",
  "const_env",
  "derive_more 1.0.0",
- "hex-literal 1.0.0",
+ "hex-literal",
  "ink",
  "ink_allocator",
  "ink_engine",
  "ink_macro",
- "ink_prelude 6.0.0-alpha",
- "ink_primitives 6.0.0-alpha",
+ "ink_prelude",
+ "ink_primitives",
  "ink_storage_traits",
  "num-traits",
  "pallet-revive",
@@ -3510,7 +3502,7 @@ dependencies = [
  "blake2",
  "either",
  "impl-serde",
- "ink_prelude 6.0.0-alpha",
+ "ink_prelude",
  "itertools 0.14.0",
  "proc-macro2",
  "quote",
@@ -3526,9 +3518,9 @@ dependencies = [
  "ink_codegen",
  "ink_env",
  "ink_ir",
- "ink_metadata 6.0.0-alpha",
- "ink_prelude 6.0.0-alpha",
- "ink_primitives 6.0.0-alpha",
+ "ink_metadata",
+ "ink_prelude",
+ "ink_primitives",
  "ink_storage",
  "parity-scale-codec",
  "proc-macro2",
@@ -3544,8 +3536,8 @@ version = "6.0.0-alpha"
 dependencies = [
  "derive_more 1.0.0",
  "impl-serde",
- "ink_prelude 6.0.0-alpha",
- "ink_primitives 6.0.0-alpha",
+ "ink_prelude",
+ "ink_primitives",
  "linkme",
  "parity-scale-codec",
  "pretty_assertions",
@@ -3556,32 +3548,8 @@ dependencies = [
 ]
 
 [[package]]
-name = "ink_metadata"
-version = "6.0.0-alpha"
-source = "git+https://github.com/use-ink/ink?branch=master#1dbcb575269cc77ebd37e374dcdf28d2ddddb1de"
-dependencies = [
- "derive_more 1.0.0",
- "impl-serde",
- "ink_prelude 6.0.0-alpha (git+https://github.com/use-ink/ink?branch=master)",
- "ink_primitives 6.0.0-alpha (git+https://github.com/use-ink/ink?branch=master)",
- "linkme",
- "parity-scale-codec",
- "scale-info",
- "schemars",
- "serde",
-]
-
-[[package]]
 name = "ink_prelude"
 version = "6.0.0-alpha"
-dependencies = [
- "cfg-if",
-]
-
-[[package]]
-name = "ink_prelude"
-version = "6.0.0-alpha"
-source = "git+https://github.com/use-ink/ink?branch=master#1dbcb575269cc77ebd37e374dcdf28d2ddddb1de"
 dependencies = [
  "cfg-if",
 ]
@@ -3595,31 +3563,7 @@ dependencies = [
  "derive_more 1.0.0",
  "ink",
  "ink_env",
- "ink_prelude 6.0.0-alpha",
- "num-traits",
- "pallet-revive",
- "pallet-revive-uapi",
- "parity-scale-codec",
- "primitive-types 0.13.1",
- "scale-decode",
- "scale-encode",
- "scale-info",
- "serde",
- "sp-core",
- "sp-io",
- "sp-runtime-interface 24.0.0 (git+https://github.com/paritytech/polkadot-sdk?rev=f8c90b2a01ec77579bccd21ae17bd6ff2eeffd6a)",
- "xxhash-rust",
-]
-
-[[package]]
-name = "ink_primitives"
-version = "6.0.0-alpha"
-source = "git+https://github.com/use-ink/ink?branch=master#1dbcb575269cc77ebd37e374dcdf28d2ddddb1de"
-dependencies = [
- "alloy-sol-types",
- "cfg-if",
- "derive_more 1.0.0",
- "ink_prelude 6.0.0-alpha (git+https://github.com/use-ink/ink?branch=master)",
+ "ink_prelude",
  "num-traits",
  "pallet-revive",
  "pallet-revive-uapi",
@@ -3642,7 +3586,7 @@ dependencies = [
  "frame-metadata 20.0.0",
  "frame-support",
  "frame-system",
- "ink_primitives 6.0.0-alpha",
+ "ink_primitives",
  "pallet-balances",
  "pallet-revive",
  "pallet-timestamp",
@@ -3664,9 +3608,9 @@ dependencies = [
  "derive_more 1.0.0",
  "ink",
  "ink_env",
- "ink_metadata 6.0.0-alpha",
- "ink_prelude 6.0.0-alpha",
- "ink_primitives 6.0.0-alpha",
+ "ink_metadata",
+ "ink_prelude",
+ "ink_primitives",
  "ink_storage_traits",
  "itertools 0.14.0",
  "pallet-revive-uapi",
@@ -3680,9 +3624,9 @@ dependencies = [
 name = "ink_storage_traits"
 version = "6.0.0-alpha"
 dependencies = [
- "ink_metadata 6.0.0-alpha",
- "ink_prelude 6.0.0-alpha",
- "ink_primitives 6.0.0-alpha",
+ "ink_metadata",
+ "ink_prelude",
+ "ink_primitives",
  "parity-scale-codec",
  "paste",
  "scale-info",
@@ -4008,18 +3952,18 @@ dependencies = [
 
 [[package]]
 name = "linkme"
-version = "0.3.32"
+version = "0.3.29"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "22d227772b5999ddc0690e733f734f95ca05387e329c4084fe65678c51198ffe"
+checksum = "70fe496a7af8c406f877635cbf3cd6a9fac9d6f443f58691cd8afe6ce0971af4"
 dependencies = [
  "linkme-impl",
 ]
 
 [[package]]
 name = "linkme-impl"
-version = "0.3.32"
+version = "0.3.29"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "71a98813fa0073a317ed6a8055dcd4722a49d9b862af828ee68449adb799b6be"
+checksum = "b01f197a15988fb5b2ec0a5a9800c97e70771499c456ad757d63b3c5e9b96e75"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -4561,7 +4505,7 @@ dependencies = [
  "frame-benchmarking",
  "frame-support",
  "frame-system",
- "hex-literal 0.4.1",
+ "hex-literal",
  "impl-trait-for-tuples",
  "log",
  "pallet-revive-fixtures",
@@ -4974,7 +4918,7 @@ version = "7.0.0"
 source = "git+https://github.com/paritytech/polkadot-sdk?rev=f8c90b2a01ec77579bccd21ae17bd6ff2eeffd6a#f8c90b2a01ec77579bccd21ae17bd6ff2eeffd6a"
 dependencies = [
  "bitvec",
- "hex-literal 0.4.1",
+ "hex-literal",
  "log",
  "parity-scale-codec",
  "polkadot-core-primitives",
@@ -6951,7 +6895,7 @@ dependencies = [
 [[package]]
 name = "sp-crypto-ec-utils"
 version = "0.10.0"
-source = "git+https://github.com/paritytech/polkadot-sdk#c4b8ec123afcef596fbc4ea3239ff9e392bcaf36"
+source = "git+https://github.com/paritytech/polkadot-sdk#363bd6bd5679594441499fce5916d3d47270865e"
 dependencies = [
  "ark-bls12-377",
  "ark-bls12-377-ext",
@@ -7018,7 +6962,7 @@ dependencies = [
 [[package]]
 name = "sp-debug-derive"
 version = "14.0.0"
-source = "git+https://github.com/paritytech/polkadot-sdk#c4b8ec123afcef596fbc4ea3239ff9e392bcaf36"
+source = "git+https://github.com/paritytech/polkadot-sdk#363bd6bd5679594441499fce5916d3d47270865e"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -7038,7 +6982,7 @@ dependencies = [
 [[package]]
 name = "sp-externalities"
 version = "0.25.0"
-source = "git+https://github.com/paritytech/polkadot-sdk#c4b8ec123afcef596fbc4ea3239ff9e392bcaf36"
+source = "git+https://github.com/paritytech/polkadot-sdk#363bd6bd5679594441499fce5916d3d47270865e"
 dependencies = [
  "environmental",
  "parity-scale-codec",
@@ -7227,7 +7171,7 @@ dependencies = [
 [[package]]
 name = "sp-runtime-interface"
 version = "24.0.0"
-source = "git+https://github.com/paritytech/polkadot-sdk#c4b8ec123afcef596fbc4ea3239ff9e392bcaf36"
+source = "git+https://github.com/paritytech/polkadot-sdk#363bd6bd5679594441499fce5916d3d47270865e"
 dependencies = [
  "bytes",
  "impl-trait-for-tuples",
@@ -7259,7 +7203,7 @@ dependencies = [
 [[package]]
 name = "sp-runtime-interface-proc-macro"
 version = "17.0.0"
-source = "git+https://github.com/paritytech/polkadot-sdk#c4b8ec123afcef596fbc4ea3239ff9e392bcaf36"
+source = "git+https://github.com/paritytech/polkadot-sdk#363bd6bd5679594441499fce5916d3d47270865e"
 dependencies = [
  "Inflector",
  "expander",
@@ -7324,7 +7268,7 @@ source = "git+https://github.com/paritytech/polkadot-sdk?rev=f8c90b2a01ec77579bc
 [[package]]
 name = "sp-std"
 version = "14.0.0"
-source = "git+https://github.com/paritytech/polkadot-sdk#c4b8ec123afcef596fbc4ea3239ff9e392bcaf36"
+source = "git+https://github.com/paritytech/polkadot-sdk#363bd6bd5679594441499fce5916d3d47270865e"
 
 [[package]]
 name = "sp-storage"
@@ -7341,7 +7285,7 @@ dependencies = [
 [[package]]
 name = "sp-storage"
 version = "19.0.0"
-source = "git+https://github.com/paritytech/polkadot-sdk#c4b8ec123afcef596fbc4ea3239ff9e392bcaf36"
+source = "git+https://github.com/paritytech/polkadot-sdk#363bd6bd5679594441499fce5916d3d47270865e"
 dependencies = [
  "impl-serde",
  "parity-scale-codec",
@@ -7376,7 +7320,7 @@ dependencies = [
 [[package]]
 name = "sp-tracing"
 version = "16.0.0"
-source = "git+https://github.com/paritytech/polkadot-sdk#c4b8ec123afcef596fbc4ea3239ff9e392bcaf36"
+source = "git+https://github.com/paritytech/polkadot-sdk#363bd6bd5679594441499fce5916d3d47270865e"
 dependencies = [
  "parity-scale-codec",
  "tracing",
@@ -7458,7 +7402,7 @@ dependencies = [
 [[package]]
 name = "sp-wasm-interface"
 version = "20.0.0"
-source = "git+https://github.com/paritytech/polkadot-sdk#c4b8ec123afcef596fbc4ea3239ff9e392bcaf36"
+source = "git+https://github.com/paritytech/polkadot-sdk#363bd6bd5679594441499fce5916d3d47270865e"
 dependencies = [
  "anyhow",
  "impl-trait-for-tuples",
@@ -7527,7 +7471,7 @@ dependencies = [
  "derive-where",
  "environmental",
  "frame-support",
- "hex-literal 0.4.1",
+ "hex-literal",
  "impl-trait-for-tuples",
  "log",
  "parity-scale-codec",
@@ -7882,11 +7826,10 @@ dependencies = [
 
 [[package]]
 name = "tempfile"
-version = "3.18.0"
+version = "3.19.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2c317e0a526ee6120d8dabad239c8dadca62b24b6f168914bbbc8e2fb1f0e567"
+checksum = "488960f40a3fd53d72c2a29a58722561dee8afdd175bd88e3db4677d7b2ba600"
 dependencies = [
- "cfg-if",
  "fastrand",
  "getrandom 0.3.1",
  "once_cell",

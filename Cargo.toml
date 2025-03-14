@@ -38,7 +38,8 @@ array-init = { version = "2.0", default-features = false }
 blake2 = { version = "0.10" }
 cargo_metadata = { version = "0.19.0" }
 cfg-if = { version = "1.0" }
-contract-build = { git = "https://github.com/use-ink/cargo-contract", branch = "master" }
+#contract-build = { git = "https://github.com/use-ink/cargo-contract", branch = "master" }
+contract-build = { path = "/Users/michi/projects/cargo-contract/crates/build" }
 darling = { version = "0.20.10" }
 derive_more = { version = "1.0.0", default-features = false }
 either = { version = "1.13", default-features = false }
@@ -47,7 +48,7 @@ heck = { version = "0.5.0" }
 impl-serde = { version = "0.5.0", default-features = false }
 itertools = { version = "0.14.0", default-features = false }
 jsonrpsee = { version = "0.24" }
-linkme = { version = "0.3.32" }
+linkme = { version = "=0.3.29" }
 num-traits = { version = "0.2", default-features = false }
 paste = { version = "1.0" }
 pretty_assertions = { version = "1" }
@@ -94,7 +95,7 @@ sp-io = { git = "https://github.com/paritytech/polkadot-sdk", rev = "f8c90b2a01e
 sp-runtime-interface = { git = "https://github.com/paritytech/polkadot-sdk", rev = "f8c90b2a01ec77579bccd21ae17bd6ff2eeffd6a", default-features = false, features = ["disable_target_static_assertions"] }
 sp-core = { git = "https://github.com/paritytech/polkadot-sdk", rev = "f8c90b2a01ec77579bccd21ae17bd6ff2eeffd6a", default-features = false }
 sp-keyring = { git = "https://github.com/paritytech/polkadot-sdk", rev = "f8c90b2a01ec77579bccd21ae17bd6ff2eeffd6a", default-features = false }
-sp-runtime = { git = "https://github.com/paritytech/polkadot-sdk", rev = "f8c90b2a01ec77579bccd21ae17bd6ff2eeffd6a", default-features = false }
+sp-runtime = { git = "https://github.com/paritytech/polkadot-sdk", rev = "f8c90b2a01ec77579bccd21ae17bd6ff2eeffd6a" }
 sp-weights = { git = "https://github.com/paritytech/polkadot-sdk", rev = "f8c90b2a01ec77579bccd21ae17bd6ff2eeffd6a", default-features = false }
 xcm = { package = "staging-xcm", git = "https://github.com/paritytech/polkadot-sdk", rev = "f8c90b2a01ec77579bccd21ae17bd6ff2eeffd6a", default-features = false }
 

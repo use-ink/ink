@@ -20,7 +20,7 @@ scale = { workspace = true }
 pallet-revive = { workspace = true }
 pallet-revive-uapi = { workspace = true }
 derive_more = { workspace = true, features = ["from", "display"] }
-hex-literal = "1.0.0"
+hex-literal = "=0.4.1"
 
 sha2 = { workspace = true }
 sha3 = { workspace = true }
