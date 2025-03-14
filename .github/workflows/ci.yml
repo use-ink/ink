@@ -398,8 +398,6 @@ jobs:
     defaults:
       run:
         shell: bash
-    container:
-      image: ${{ needs.set-image.outputs.IMAGE }}
     strategy:
       fail-fast: false
       matrix:
@@ -416,9 +414,6 @@ jobs:
         with:
           cache-directories: |
             ${{ env.CARGO_TARGET_DIR }}
-
-      - name: Rust Info
-        uses: ./.github/rust-info
 
       - name: Test
         uses: docker://useink/ci
