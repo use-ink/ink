@@ -149,7 +149,7 @@ jobs:
       - name: Run Clippy
         run: |
           df -h ;
-          rustup toolchain remove nightly-2025-02-20 && rustup toolchain remove stable;
+          rustup toolchain remove nightly-2025-02-20 && rustup toolchain remove stable && rustup toolchain remove 1.85.0;
           df -h ;
           ALL_CRATES="${PURELY_STD_CRATES} ${ALSO_RISCV_CRATES}"
           for crate in ${ALL_CRATES}; do
@@ -409,7 +409,7 @@ jobs:
           # at the same time, hence we use this workaround.
           QUICKCHECK_TESTS:            0
         run: |
-          rustup toolchain remove nightly-2025-02-20 && rustup toolchain remove stable;
+          rustup toolchain remove nightly-2025-02-20 && rustup toolchain remove stable && rustup toolchain remove 1.85.0;
           cargo +nightly nextest run --all-features --no-fail-fast --workspace --locked --jobs 2
 
   test-docs:
@@ -571,7 +571,7 @@ jobs:
           # running docker with `--security-opt seccomp=unconfined` which is why we use `grcov` instead.
           CODECOV_L_TOKEN:               ${{ secrets.CODECOV_L_TOKEN }}
         run: |
-          rustup toolchain remove nightly-2025-02-20 && rustup toolchain remove stable &&
+          rustup toolchain remove nightly-2025-02-20 && rustup toolchain remove stable && rustup toolchain remove 1.85.0 &&
           # RUSTFLAGS are the cause target cache can't be used here
           # FIXME: rust-covfix doesn't support the external target dir
           # https://github.com/Kogia-sima/rust-covfix/issues/7
@@ -601,6 +601,7 @@ jobs:
 
   examples-test:
     runs-on: ubuntu-latest
+    needs: [clippy]
     strategy:
       fail-fast: false
       matrix:
@@ -626,6 +627,7 @@ jobs:
           args:
             rustup toolchain remove nightly-2025-02-20;
             rustup toolchain remove stable;
+            rustup toolchain remove 1.85.0;
             /bin/bash -c "scripts/for_all_contracts_exec.sh --path integration-tests --ignore internal/static-buffer --ignore internal/mapping --partition ${{ matrix.partition }}/25 -- \
                   cargo +nightly test --all-features --all --manifest-path {}"
 
@@ -661,6 +663,7 @@ jobs:
                 df -h;
                 rustup toolchain remove nightly-2025-02-20;
                 rustup toolchain remove stable;
+                rustup toolchain remove 1.85.0;
                 df -h;
                 cargo +nightly test --all-features --all --manifest-path integration-tests/internal/mapping/Cargo.toml
 
