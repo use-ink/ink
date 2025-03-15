@@ -425,8 +425,8 @@ jobs:
           # There's no way to disable a single feature while enabling all features
           # at the same time, hence we use this workaround.
           QUICKCHECK_TESTS: 0
-           #rustup toolchain remove nightly-2025-02-20 && rustup toolchain remove stable && rustup toolchain remove 1.85.0;
         run: |
+            rustup toolchain remove nightly-2025-02-20; rustup toolchain remove stable; rustup toolchain remove 1.85.0;
             cargo +nightly nextest run --all-features --no-fail-fast --workspace --locked --jobs 2 --partition count:${{ matrix.partition }}/25
 
   test-docs:
