@@ -51,8 +51,19 @@ fn ui_tests_selector_bytes_fail() {
 #[test]
 fn ui_tests_contract_pass() {
     let t = trybuild::TestCases::new();
-
     t.pass("tests/ui/contract/pass/*.rs");
+}
+
+#[test]
+fn ui_tests_contract_constructor_pass() {
+    let t = trybuild::TestCases::new();
+    t.pass("tests/ui/contract/pass/constructor/*.rs");
+}
+
+#[test]
+fn ui_tests_contract_message_pass() {
+    let t = trybuild::TestCases::new();
+    t.pass("tests/ui/contract/pass/message/*.rs");
 }
 
 #[test]
