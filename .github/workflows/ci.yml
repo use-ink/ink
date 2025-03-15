@@ -142,6 +142,7 @@ jobs:
         uses: Swatinem/rust-cache@f0deed1e0edfc6a9be95417288c0e1099b1eeec3 # v2.7.7
         with:
           cache-directories: ${{ env.CARGO_TARGET_DIR }}
+          cache-all-crates: true
 
       - name: Rust Info
         uses: ./.github/rust-info
@@ -176,6 +177,7 @@ jobs:
             uses: Swatinem/rust-cache@f0deed1e0edfc6a9be95417288c0e1099b1eeec3 # v2.7.7
             with:
                 cache-directories: ${{ env.CARGO_TARGET_DIR }}
+                cache-all-crates: true
 
           - name: Rust Info
             uses: ./.github/rust-info
@@ -214,6 +216,7 @@ jobs:
         uses: Swatinem/rust-cache@f0deed1e0edfc6a9be95417288c0e1099b1eeec3 # v2.7.7
         with:
           cache-directories: ${{ env.CARGO_TARGET_DIR }}
+          cache-all-crates: true
 
       - name: Rust Info
         uses: ./.github/rust-info
@@ -253,6 +256,7 @@ jobs:
         uses: Swatinem/rust-cache@f0deed1e0edfc6a9be95417288c0e1099b1eeec3 # v2.7.7
         with:
           cache-directories: ${{ env.CARGO_TARGET_DIR }}
+          cache-all-crates: true
 
       - name: Rust Info
         uses: ./.github/rust-info
@@ -294,6 +298,7 @@ jobs:
         uses: Swatinem/rust-cache@f0deed1e0edfc6a9be95417288c0e1099b1eeec3 # v2.7.7
         with:
           cache-directories: ${{ env.CARGO_TARGET_DIR }}
+          cache-all-crates: true
 
       - name: Rust Info
         uses: ./.github/rust-info
@@ -330,6 +335,7 @@ jobs:
             uses: Swatinem/rust-cache@f0deed1e0edfc6a9be95417288c0e1099b1eeec3 # v2.7.7
             with:
                 cache-directories: ${{ env.CARGO_TARGET_DIR }}
+                cache-all-crates: true
 
           - name: Rust Info
             uses: ./.github/rust-info
@@ -368,6 +374,7 @@ jobs:
         uses: Swatinem/rust-cache@f0deed1e0edfc6a9be95417288c0e1099b1eeec3 # v2.7.7
         with:
           cache-directories: ${{ env.CARGO_TARGET_DIR }}
+          cache-all-crates: true
 
       - name: Rust Info
         uses: ./.github/rust-info
@@ -414,8 +421,8 @@ jobs:
       - name: Cache
         uses: Swatinem/rust-cache@f0deed1e0edfc6a9be95417288c0e1099b1eeec3 # v2.7.7
         with:
-          cache-directories: |
-            ${{ env.CARGO_TARGET_DIR }}
+          cache-directories: ${{ env.CARGO_TARGET_DIR }}
+          cache-all-crates: true
 
       - name: Test
         env:
@@ -451,8 +458,8 @@ jobs:
           - name: Cache
             uses: Swatinem/rust-cache@f0deed1e0edfc6a9be95417288c0e1099b1eeec3 # v2.7.7
             with:
-                cache-directories: |
-                    ${{ env.CARGO_TARGET_DIR }}
+                cache-directories: ${{ env.CARGO_TARGET_DIR }}
+                cache-all-crates: true
 
           - name: Rust Info
             uses: ./.github/rust-info
@@ -496,8 +503,8 @@ jobs:
           - name: Cache
             uses: Swatinem/rust-cache@f0deed1e0edfc6a9be95417288c0e1099b1eeec3 # v2.7.7
             with:
-                cache-directories: |
-                    ${{ env.CARGO_TARGET_DIR }}
+                cache-directories: ${{ env.CARGO_TARGET_DIR }}
+                cache-all-crates: true
 
           - name: Rust Info
             uses: ./.github/rust-info
@@ -533,6 +540,7 @@ jobs:
         uses: Swatinem/rust-cache@f0deed1e0edfc6a9be95417288c0e1099b1eeec3 # v2.7.7
         with:
           cache-directories: ${{ env.CARGO_TARGET_DIR }}
+          cache-all-crates: true
 
       - name: Rust Info
         uses: ./.github/rust-info
@@ -557,13 +565,16 @@ jobs:
 
   codecov:
     runs-on: ubuntu-latest
-    needs: [set-image]
+    #needs: [set-image]
+    container:
+        image: xd009642/tarpaulin:develop-nightly
+        options: --security-opt seccomp=unconfined
     # needs: [set-image, check, fmt, clippy, clippy-examples, dylint-checks, dylint-testing, spellcheck]
     defaults:
       run:
         shell: bash
-    container:
-      image: ${{ needs.set-image.outputs.IMAGE }}
+    #container:
+      #image: ${{ needs.set-image.outputs.IMAGE }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -576,21 +587,21 @@ jobs:
       - name: Cache
         uses: Swatinem/rust-cache@f0deed1e0edfc6a9be95417288c0e1099b1eeec3 # v2.7.7
         with:
-            cache-on-failure:  true
-            cache-directories: |
-              ${{ env.CARGO_TARGET_DIR }}
+            cache-on-failure: true
+            cache-directories: ${{ env.CARGO_TARGET_DIR }}
+            cache-all-crates: true
 
       - name: Generate code coverage
         env:
           # For codecov it's sufficient to run the fuzz tests only once.
           QUICKCHECK_TESTS:              1
           INK_COVERAGE_REPORTING:        true
-          CARGO_INCREMENTAL:             0
+          #CARGO_INCREMENTAL:             0
         run: |
-          rustup toolchain remove nightly-2025-02-20;
-          rustup toolchain remove stable;
-          rustup toolchain remove 1.85.0;
-          cargo +nightly install cargo-tarpaulin
+          #rustup toolchain remove nightly-2025-02-20;
+          #rustup toolchain remove stable;
+          #rustup toolchain remove 1.85.0;
+          #cargo +nightly install cargo-tarpaulin
           cargo +nightly tarpaulin --verbose --tests --all-features --all-targets --workspace --locked --out xml
 
       - name: Upload to codecov.io
@@ -618,6 +629,7 @@ jobs:
         uses: Swatinem/rust-cache@f0deed1e0edfc6a9be95417288c0e1099b1eeec3 # v2.7.7
         with:
           cache-directories: ${{ env.CARGO_TARGET_DIR }}
+          cache-all-crates: true
 
       - name: Test Examples
         uses: docker://useink/ci
@@ -648,6 +660,7 @@ jobs:
             uses: Swatinem/rust-cache@f0deed1e0edfc6a9be95417288c0e1099b1eeec3 # v2.7.7
             with:
                 cache-directories: ${{ env.CARGO_TARGET_DIR }}
+                cache-all-crates: true
 
           - name: Rust Info
             uses: ./.github/rust-info
@@ -684,6 +697,7 @@ jobs:
         uses: Swatinem/rust-cache@f0deed1e0edfc6a9be95417288c0e1099b1eeec3 # v2.7.7
         with:
           cache-directories: ${{ env.CARGO_TARGET_DIR }}
+          cache-all-crates: true
 
       - name: Rust Info
         uses: ./.github/rust-info
@@ -742,6 +756,7 @@ jobs:
         uses: Swatinem/rust-cache@f0deed1e0edfc6a9be95417288c0e1099b1eeec3 # v2.7.7
         with:
           cache-directories: ${{ env.CARGO_TARGET_DIR }}
+          cache-all-crates: true
 
       - name: Rust Info
         uses: ./.github/rust-info
@@ -778,6 +793,7 @@ jobs:
         uses: Swatinem/rust-cache@f0deed1e0edfc6a9be95417288c0e1099b1eeec3 # v2.7.7
         with:
           cache-directories: ${{ env.CARGO_TARGET_DIR }}
+          cache-all-crates: true
 
       - name: Rust Info
         uses: ./.github/rust-info
@@ -803,7 +819,8 @@ jobs:
 
   fuzz:
     runs-on: ubuntu-latest
-    needs: [set-image, examples-docs, examples-contract-build, examples-test, examples-custom-test]
+    #needs: [set-image, examples-docs, examples-contract-build, examples-test, examples-custom-test]
+    needs: [set-image]
     #if: >
       #github.event_name == 'push' &&
         #github.ref == 'refs/heads/master'
@@ -824,6 +841,7 @@ jobs:
         uses: Swatinem/rust-cache@f0deed1e0edfc6a9be95417288c0e1099b1eeec3 # v2.7.7
         with:
           cache-directories: ${{ env.CARGO_TARGET_DIR }}
+          cache-all-crates: true
 
       - name: Rust Info
         uses: ./.github/rust-info
