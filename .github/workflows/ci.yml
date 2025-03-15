@@ -599,6 +599,7 @@ jobs:
           df -h
           rustup toolchain remove nightly-2025-02-20;
           rustup toolchain remove stable;
+          rustup toolchain remove nightly;
           df -h
           # rustup toolchain remove 1.85.0;
           # RUSTFLAGS are the cause target cache can't be used here
@@ -611,8 +612,8 @@ jobs:
           find . -name "*.gcda" -type f -delete
           # FIXME: Access from 2 users, should be solved once ci-image works from a non-root user
           git config --global --add safe.directory '*'
-          cargo +nightly build --all-features --workspace
-          cargo +nightly test --all-features --no-fail-fast --workspace --locked -- --skip ui_tests
+          cargo +1.85.0 build --all-features --workspace
+          cargo +1.85.0 test --all-features --no-fail-fast --workspace --locked -- --skip ui_tests
           # coverage with branches
           grcov . --binary-path ./target/debug/ --source-dir . --output-type lcov --llvm --branch \
             --ignore-not-existing --ignore "/*" --ignore "tests/*" --output-path lcov-w-branch.info
