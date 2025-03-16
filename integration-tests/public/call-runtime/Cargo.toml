@@ -6,8 +6,7 @@ edition = "2021"
 publish = false
 
 [dependencies]
-ink = { path = "../../../crates/ink", default-features = false }
-sp-runtime = { git = "https://github.com/paritytech/polkadot-sdk", rev = "f8c90b2a01ec77579bccd21ae17bd6ff2eeffd6a", default-features = false }
+ink = { path = "../../../crates/ink", default-features = false, features = ["unstable-hostfn"] }
 
 # We need to explicitly turn off some of the `sp-io` features, to avoid conflicts
 # (especially for global allocator).
@@ -15,7 +14,7 @@ sp-runtime = { git = "https://github.com/paritytech/polkadot-sdk", rev = "f8c90b
 #
 # For `sp-runtime-interface` we need to turn off static asserts.
 sp-io = { git = "https://github.com/paritytech/polkadot-sdk", rev = "f8c90b2a01ec77579bccd21ae17bd6ff2eeffd6a", default-features = false, features = ["disable_panic_handler", "disable_oom", "disable_allocator"] }
-sp-runtime-interface = { git = "https://github.com/paritytech/polkadot-sdk", rev = "f8c90b2a01ec77579bccd21ae17bd6ff2eeffd6a", default-features = false, features = ["disable_target_static_assertions"] }
+sp-runtime = { git = "https://github.com/paritytech/polkadot-sdk", rev = "f8c90b2a01ec77579bccd21ae17bd6ff2eeffd6a", default-features = false }
 
 [dev-dependencies]
 ink_e2e = { path = "../../../crates/e2e" }
@@ -28,7 +27,6 @@ default = ["std"]
 std = [
     "ink/std",
     "sp-runtime/std",
-    "sp-runtime-interface/std",
     "sp-io/std",
 ]
 ink-as-dependency = []
