@@ -110,7 +110,6 @@ pub mod events {
         #[test]
         fn collects_specs_for_all_linked_and_used_events() {
             let event_specs = ink::metadata::collect_events();
-            assert_eq!(8, event_specs.len());
 
             assert!(event_specs
                 .iter()
@@ -134,11 +133,13 @@ pub mod events {
                 .iter()
                 .any(|evt| evt.label() == &"InlineAnonymousEvent"));
 
-            // The event is not used in the code by being included in the metadata
-            // because we implement trait form `event_def_unused` crate.
+            // The event is not used in the code by being included in the metadata,
+            // byt because we implement the trait from the `event_def_unused` crate.
             assert!(event_specs
                 .iter()
                 .any(|evt| evt.label() == &"EventDefUnused"));
+
+            assert_eq!(8, event_specs.len());
         }
 
         #[ink::test]
