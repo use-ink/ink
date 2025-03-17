@@ -6,14 +6,152 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 [Unreleased]
 
-### Contract delegate can no longer be done by code
+## Version 6.0.0-alpha
+
+This is our first alpha release for ink! v6. We release it together
+with `cargo-contract` `v6.0.0-alpha`.
+
+The biggest change is that we are in the process of migrating from `pallet-contracts` +
+WebAssembly (executed in `wasmi`) to [`pallet-revive`](https://github.com/paritytech/polkadot-sdk/tree/master/substrate/frame/revive) +
+RISC-V (executed in [PolkaVM](https://github.com/paritytech/polkavm/)).
+_This is a major breaking change, ink! v6 will only be compatible with `cargo-contract` >= v6
+and chains that include `pallet-revive`._
+
+We did a detailed write-up of the background to this development and the reasoning
+[here](https://use.ink/6.x/current-state). We also updated the [`ink/ARCHITECTURE.md`](https://github.com/use-ink/ink/blob/master/ARCHITECTURE.md)
+to reflect the new setup.
+
+Compatibility of this release:
+* [`cargo-contract` `v6.0.0-alpha`](https://github.com/use-ink/cargo-contract/releases/tag/v6.0.0-alpha)
+* [`substrate-contracts-node/cd94b5f`](https://github.com/use-ink/substrate-contracts-node/commit/cd94b5fa23ee04f2d541decf1ace3b9904d61cb2)
+* [`polkadot-sdk/f8c90b2a01ec77579bccd21ae17bd6ff2eeffd6a`](https://github.com/paritytech/polkadot-sdk/commit/f8c90b2a01ec77579bccd21ae17bd6ff2eeffd6a)
+
+In the following we'll describe some breaking changes on a high-level. The
+context to understand them is that the `pallet-revive` team has Ethereum/Solidity
+support as the number one priority. All their design decisions derive from that,
+they don't want to maintain code that is unnecessary for that objective.
+
+_🚧 This is an alpha release, changes will still happen and there are rough edges. 🚧_
+
+### Cross-contract calling Solidity contracts
+We are introducing a new attribute `abi` for the `#[ink::contract]` macro.
+These are the values it takes:
+
+```
+#[ink::contract(abi = "all")]
+#[ink::contract(abi = "sol")]
+#[ink::contract(abi = "ink")]
+```
+
+The default is `abi = "TODO"`.
+
+TODO add more here about the implications regarding ability to call ink! contracts,
+the ABI generation, and the file size.
+
+### Types
+
+#### Contract Balance: `U256`
+For the type of a contract's balance, `pallet-revive` uses depending on the context
+* either the configured `pallet_revive::Config::Currency` type (which corresponds
+  to the `ink::Environment::Balance` type.
+* or a hardcoded `U256` (which corresponds to what Ethereum uses).
+  In this alpha release we just adhere to requiring the types that `pallet-revive` uses.
+  In an upcoming beta release this could be simplified to reduce UX friction by just
+  using one type everywhere and converting to the `pallet-revive` one.
+
+#### Contract Address: `H160`
+For a contract's account, `pallet-revive` is using either the configured `AccountId` type
+of the `polkadot-sdk` runtime, or `H160`.
+
+Finding the `H160` for an `AccountId` is done via an address derivation scheme derived in
+[#7662](https://github.com/paritytech/polkadot-sdk/pull/7662).
+After instantiating a contract, the address is no longer returned by `pallet-revive`.
+Instead one has to derive it from given parameters (see the linked PR). `cargo-contract`
+does that automatically.
+
+For contract instantiations and contract calls the pallet requires that a 1-to-1 mapping
+of an `AccountId` to a `H160` has been created. This can be done via the `map_account`/
+`unmap_account` API.
+The PR [#6096](https://github.com/paritytech/polkadot-sdk/pull/6096) contains more
+information.
+
+Besides the publicly exposed crate functions, we've introduced a new subcommand
+`cargo contract account` that allows resolving the `H160` contract address to the
+Substrate `AccountId` which it is mapped to.
+
+#### Contract Hash: `H256`
+For a contract's hash value, `pallet-revive` uses a fixed `H256`, Previously,
+the `ink::Environment::Hash` type referenced the hash type being used for the
+contract's hash. Now it's just a fixed `H160`.
+
+### Contract delegates can no longer be done by code
+In `pallet-contracts` (and hence up until ink! v5), a pattern for upgradeable
+contracts was to delegate the contract execution to a different code, e.g. to
+a new version of the contract's code.
+
+This distinction of contract code that was uploaded to a chain vs. an instantiated
+contract from this code no longer exists in `pallet-revive`. If you want to
+delegate the execution, you will have to delegate to another contract address.
+
+TODO is the following sentence still correct?
+For the execution, the storage of the contract that delegates will continue
+to be used.
+
+So specifically the delegate API changed like this:
+
+```
+/// ink! v5
+#[derive(Clone)]
+pub struct DelegateCall<E: Environment> {
+    code_hash: E::Hash,
+    call_flags: CallFlags,
+}
+
+/// ink! v6
+#[derive(Clone)]
+pub struct DelegateCall {
+    address: H160,
+    flags: CallFlags,
+    ref_time_limit: u64,
+    proof_size_limit: u64,
+    deposit_limit: Option<[u8; 32]>,
+}
+```
+
+### New debugging workflow
+Previously `pallet-contracts` returned a `debug_message` field with contract
+instantiations and dry-runs.
+Whenever `ink::env::debug_println` was invoked in a contract, ink! wrote debugging
+info to this field. This functionality has been removed. Instead `pallet-revive` now
+supports other means of debugging.
+
+The most relevant new debugging workflow is the tracing API. There are a number
+of PRs that implemented it, so we won't link a specific one here. A good starting
+point to look deeper into it is the [`tracing.rs`](https://github.com/paritytech/polkadot-sdk/blob/master/substrate/frame/revive/src/tracing.rs).
+
+We have implemented barebones support for this tracing API in the 6.0.0-alpha
+versions of ink! + `cargo-contract`. But it's really barebones and should
+certainly be improved before a production release.
+
+### Restrictions which `cfg` attributes can be used
+
+This change was done as a recommendation from the ink! 5.x audit.
+In a nutshell it prevents developers from hiding functionality in a contract,
+that would not be visible in the metadata (so e.g. on a block explorer).
+The relevant PR is [#2313](https://github.com/use-ink/ink/pull/2313).
+
+From ink! 6.0 on only these attributes are allowed in `#[cfg(…)]`:
+- `test`
+- `feature` (without `std`)
+- `any`
+- `not`
+- `all`
 
 ## Changed
 - Restrict which `cfg` attributes can be used ‒ [#2313](https://github.com/use-ink/ink/pull/2313)
 - More idiomatic return types for metadata getters - [#2398](https://github.com/use-ink/ink/pull/2398)
 
 ## Added
-- Add feature flag to compile contracts for `pallet-revive` ‒ [#2318](https://github.com/use-ink/ink/pull/2318)
 - Support for `caller_is_root` - [#2332] (https://github.com/use-ink/ink/pull/2332)
 - Improve support for Solidity ABI calling conventions - [#2411](https://github.com/use-ink/ink/pull/2411)
 - Implement contract invocation in off-chain environment engine - [#1957](https://github.com/paritytech/ink/pull/1988)
