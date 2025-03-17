@@ -87,18 +87,14 @@ pub struct DelegateCall<E: Environment> {
     code_hash: E::Hash,
     call_flags: CallFlags,
 }
-```
 
-```
 /// ink! v6
 #[derive(Clone)]
 pub struct DelegateCall {
-    // todo comments please
     address: H160,
     flags: CallFlags,
     ref_time_limit: u64,
     proof_size_limit: u64,
-    // todo U256
     deposit_limit: Option<[u8; 32]>,
 }
 ```
@@ -118,13 +114,10 @@ We have implemented barebones support for this tracing API in the 6.0.0-alpha
 versions of ink! + `cargo-contract`. But it's really barebones and should
 certainly be improved before a production release.
 
-### New return types
-
 ### Solidity Cross-contract calling
 ink! v6 has the ability to speak Solidity, you'll be able to integrate with
 tools like Metamask and call ink! contracts from Solidity as if they were
 a pre-compile.
-
 
 ## Changed
 - Restrict which `cfg` attributes can be used ‒ [#2313](https://github.com/use-ink/ink/pull/2313)
