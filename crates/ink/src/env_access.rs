@@ -14,16 +14,19 @@
 
 use crate::ChainExtensionInstance;
 use core::marker::PhantomData;
+#[cfg(feature = "unstable-hostfn")]
+use ink_env::call::{
+    ConstructorReturnType,
+    CreateParams,
+    FromAddr,
+    LimitParamsV2,
+};
 use ink_env::{
     call::{
         utils::DecodeMessageResult,
         Call,
         CallParams,
-        ConstructorReturnType,
-        CreateParams,
         DelegateCall,
-        FromAddr,
-        LimitParamsV2,
     },
     hash::{
         CryptoHash,

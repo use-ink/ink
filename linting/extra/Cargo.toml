@@ -78,6 +78,7 @@ std = [
     "ink/std",
 ]
 ink-as-dependency = []
+unstable-hostfn = ["ink/unstable-hostfn", "ink_env/unstable-hostfn"]
 
 [lints.rust]
 unexpected_cfgs = { level = "warn", check-cfg = ['cfg(dylint_lib, values("ink_linting"))'] }

@@ -18,42 +18,48 @@ use crate::{
         utils::DecodeMessageResult,
         Call,
         CallParams,
-        ConstructorReturnType,
-        CreateParams,
         DelegateCall,
-        FromAddr,
-        LimitParamsV2,
     },
     event::{
         Event,
         TopicsBuilderBackend,
     },
     hash::{
-        Blake2x128,
-        Blake2x256,
         CryptoHash,
         HashOutput,
         Keccak256,
-        Sha2x256,
     },
-    test::callee,
-    Clear,
     DecodeDispatch,
     DispatchError,
     EnvBackend,
     Result,
     TypedEnvBackend,
 };
+#[cfg(feature = "unstable-hostfn")]
+use crate::{
+    call::{
+        ConstructorReturnType,
+        CreateParams,
+        FromAddr,
+        LimitParamsV2,
+    },
+    hash::{
+        Blake2x128,
+        Blake2x256,
+        Sha2x256,
+    },
+    test::callee,
+    Clear,
+};
 use ink_engine::ext::Engine;
+#[cfg(feature = "unstable-hostfn")]
+use ink_primitives::types::AccountIdMapper;
 use ink_primitives::{
     reflect::{
         AbiDecodeWith,
         AbiEncodeWith,
     },
-    types::{
-        AccountIdMapper,
-        Environment,
-    },
+    types::Environment,
     H160,
     H256,
     U256,
@@ -66,6 +72,7 @@ use pallet_revive_uapi::{
     ReturnErrorCode,
     ReturnFlags,
 };
+#[cfg(feature = "unstable-hostfn")]
 use schnorrkel::{
     PublicKey,
     Signature,

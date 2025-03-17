@@ -17,6 +17,7 @@
 //! Users should not use these types and definitions directly but rather use the provided
 //! `#[ink::chain_extension]` procedural macro defined in the `ink` crate.
 
+#[cfg(feature = "unstable-hostfn")]
 use crate::{
     backend::EnvBackend,
     engine::{

@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#[cfg(feature = "unstable-hostfn")]
+use crate::Error;
 use crate::{
     call::{
         utils::{
@@ -25,7 +27,6 @@ use crate::{
     },
     types::Environment,
     ContractEnv,
-    Error,
 };
 use core::marker::PhantomData;
 use ink_primitives::{

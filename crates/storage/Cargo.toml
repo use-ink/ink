@@ -48,4 +48,4 @@ std = [
     "derive_more/std"
 ]
 ink-fuzz-tests = ["std"]
-unstable-hostfn = []
+unstable-hostfn = ["ink_env/unstable-hostfn"]

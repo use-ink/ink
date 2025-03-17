@@ -14,6 +14,13 @@
 
 //! The public raw interface towards the host engine.
 
+#[cfg(feature = "unstable-hostfn")]
+use crate::call::{
+    ConstructorReturnType,
+    CreateParams,
+    FromAddr,
+    LimitParamsV2,
+};
 use crate::{
     backend::{
         EnvBackend,
@@ -23,11 +30,7 @@ use crate::{
         utils::DecodeMessageResult,
         Call,
         CallParams,
-        ConstructorReturnType,
-        CreateParams,
         DelegateCall,
-        FromAddr,
-        LimitParamsV2,
     },
     engine::{
         EnvInstance,

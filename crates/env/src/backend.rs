@@ -12,16 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#[cfg(feature = "unstable-hostfn")]
+use crate::call::{
+    ConstructorReturnType,
+    CreateParams,
+    FromAddr,
+    LimitParamsV2,
+};
 use crate::{
     call::{
         utils::DecodeMessageResult,
         Call,
         CallParams,
-        ConstructorReturnType,
-        CreateParams,
         DelegateCall,
-        FromAddr,
-        LimitParamsV2,
     },
     event::Event,
     hash::{
