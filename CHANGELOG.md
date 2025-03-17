@@ -23,7 +23,7 @@ to reflect the new setup.
 
 Compatibility of this release:
 * [`cargo-contract` `v6.0.0-alpha`](https://github.com/use-ink/cargo-contract/releases/tag/v6.0.0-alpha)
-* [`substrate-contracts-node/9c020a2`](https://github.com/use-ink/substrate-contracts-node/commit/9c020a23e39af48b3007bc865ced8503529c590c)
+* [`substrate-contracts-node/cd94b5f`](https://github.com/use-ink/substrate-contracts-node/commit/cd94b5fa23ee04f2d541decf1ace3b9904d61cb2)
 * [`polkadot-sdk/f8c90b2a01ec77579bccd21ae17bd6ff2eeffd6a`](https://github.com/paritytech/polkadot-sdk/commit/f8c90b2a01ec77579bccd21ae17bd6ff2eeffd6a)
 
 In the following we'll describe some breaking changes on a high-level. The
@@ -31,7 +31,7 @@ context to understand them is that the `pallet-revive` team has Ethereum/Solidit
 support as the number one priority. All their design decisions derive from that,
 they don't want to maintain code that is unnecessary for that objective.
 
-_🚧 This is an alpha release, changes will still happen and there are rough edges._
+_🚧 This is an alpha release, changes will still happen and there are rough edges. 🚧_
 
 ### Types
 
@@ -80,19 +80,39 @@ delegate the execution, you will have to delegate to another contract address.
 
 So specifically the delegate API changed like this:
 
-```diff
+```
+/// ink! v5
+#[derive(Clone)]
+pub struct DelegateCall<E: Environment> {
+    code_hash: E::Hash,
+    call_flags: CallFlags,
+}
 ```
 
-### New debugging
+```
+/// ink! v6
+#[derive(Clone)]
+pub struct DelegateCall {
+    // todo comments please
+    address: H160,
+    flags: CallFlags,
+    ref_time_limit: u64,
+    proof_size_limit: u64,
+    // todo U256
+    deposit_limit: Option<[u8; 32]>,
+}
+```
+
+### New debugging workflow
 Previously, `pallet-contracts` returned a `debug_message` field with contract
 instantiations and dry-runs.
 Whenever `ink::env::debug_println` was invoked in a contract, ink! wrote debugging
 info to this field. This functionality has been removed. Instead `pallet-revive` now
 supports other means of debugging.
 
-The most relevant for this release is the tracing API. There are a number of PRs
-that implemented it, so we won't link a specific one here. A good starting point
-to look deeper into it is the [`tracing.rs`](https://github.com/paritytech/polkadot-sdk/blob/master/substrate/frame/revive/src/tracing.rs).
+The most relevant new debugging workflow is the tracing API. There are a number
+of PRs that implemented it, so we won't link a specific one here. A good starting
+point to look deeper into it is the [`tracing.rs`](https://github.com/paritytech/polkadot-sdk/blob/master/substrate/frame/revive/src/tracing.rs).
 
 We have implemented barebones support for this tracing API in the 6.0.0-alpha
 versions of ink! + `cargo-contract`. But it's really barebones and should
@@ -101,8 +121,8 @@ certainly be improved before a production release.
 ### New return types
 
 ### Solidity Cross-contract calling
-ink! v6 will have the ability to speak Solidity, you'll be able to integrate
-with tools like Metamask and call ink! contracts from Solidity as if they were
+ink! v6 has the ability to speak Solidity, you'll be able to integrate with
+tools like Metamask and call ink! contracts from Solidity as if they were
 a pre-compile.
 
 
