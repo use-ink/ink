@@ -17,11 +17,7 @@ use crate::{
         utils::DecodeMessageResult,
         Call,
         CallParams,
-        ConstructorReturnType,
-        CreateParams,
         DelegateCall,
-        FromAddr,
-        LimitParamsV2,
     },
     engine::on_chain::{
         EncodeScope,
@@ -33,21 +29,32 @@ use crate::{
         TopicsBuilderBackend,
     },
     hash::{
-        Blake2x128,
-        Blake2x256,
         CryptoHash,
         HashOutput,
         Keccak256,
-        Sha2x256,
     },
     types::FromLittleEndian,
-    Clear,
     DecodeDispatch,
     DispatchError,
     EnvBackend,
     Environment,
     Result,
     TypedEnvBackend,
+};
+#[cfg(feature = "unstable-hostfn")]
+use crate::{
+    call::{
+        ConstructorReturnType,
+        CreateParams,
+        FromAddr,
+        LimitParamsV2,
+    },
+    hash::{
+        Blake2x128,
+        Blake2x256,
+        Sha2x256,
+    },
+    Clear,
 };
 use ink_primitives::{
     reflect::{
@@ -70,6 +77,7 @@ use pallet_revive_uapi::{
     ReturnFlags,
     StorageFlags,
 };
+#[cfg(feature = "unstable-hostfn")]
 use xcm::VersionedXcm;
 
 #[cfg(feature = "unstable-hostfn")]
