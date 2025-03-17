@@ -22,6 +22,8 @@ use alloy_sol_types::{
 use impl_trait_for_tuples::impl_for_tuples;
 use paste::paste;
 
+use crate::types::Address;
+
 /// A Rust equivalent of a Solidity type that implements logic for Solidity ABI
 /// encoding/decoding.
 ///
@@ -29,7 +31,12 @@ use paste::paste;
 ///
 /// # Note
 /// This trait is sealed and cannot be implemented for types outside `ink_primitives`.
-pub trait SolPrimitive: SolTypeValue<Self::SolType> + private::Sealed {
+#[allow(private_bounds)]
+pub trait SolPrimitive:
+    SolTypeValue<Self::SolType>
+    + SolFrom<<<Self as SolPrimitive>::SolType as SolType>::RustType>
+    + private::Sealed
+{
     /// Equivalent Solidity type from [`alloy_sol_types`].
     type SolType: SolType;
 
@@ -42,33 +49,26 @@ pub trait SolPrimitive: SolTypeValue<Self::SolType> + private::Sealed {
     }
 
     /// Solidity ABI decode into this type.
-    fn decode(data: &[u8]) -> Result<Self, alloy_sol_types::Error>
-    where
-        Self: Sized,
-    {
-        Self::SolType::abi_decode(data, false).map(Self::from_sol_type)
+    fn decode(data: &[u8]) -> Result<Self, alloy_sol_types::Error> {
+        Self::SolType::abi_decode(data, false).map(Self::sol_from)
     }
-
-    /// Convert from [`SolType::RustType`] to `Self`.
-    fn from_sol_type(value: <Self::SolType as SolType>::RustType) -> Self;
 }
 
 /// Marker trait implemented by all Solidity type equivalents except `u8`.
 ///
 /// # Note
 /// See <https://github.com/use-ink/ink/issues/2428> for motivation.
+///
+/// # Note
+/// This trait is implicitly sealed (because [`SolPrimitive`] - which is sealed - is a
+/// super trait) and cannot be implemented for types outside `ink_primitives`.
 trait NonU8: SolPrimitive {}
 
 macro_rules! impl_primitive_minimal {
     ($($ty: ty => $sol_ty: ty),+ $(,)*) => {
         $(
-            impl SolPrimitive for $ty where
-            Self: From<<$sol_ty as SolType>::RustType>, {
+            impl SolPrimitive for $ty {
                 type SolType = $sol_ty;
-
-                fn from_sol_type(value: <Self::SolType as SolType>::RustType) -> Self {
-                    Self::from(value)
-                }
             }
 
             impl private::Sealed for $ty {}
@@ -113,6 +113,8 @@ impl_primitive! {
     // string
     //str => sol_data::String,
     String => sol_data::String,
+    // address
+    Address => sol_data::Address,
     // bytes
     // `u8` sequences/collections are mapped to `bytes` equivalents.
     //[u8] => sol_data::Bytes,
@@ -123,17 +125,13 @@ macro_rules! impl_generics {
     ($([$($gen:tt)+] $ty: ty => $sol_ty: ty [$($bounds:tt)*]), +$(,)*) => {
         $(
         impl<$($gen)*> SolPrimitive for $ty where
-        Self: From<<$sol_ty as SolType>::RustType>, $($bounds)*
+        Self: SolFrom<<$sol_ty as SolType>::RustType>, $($bounds)*
         {
             type SolType = $sol_ty;
-
-            fn from_sol_type(value: <Self::SolType as SolType>::RustType) -> Self {
-                Self::from(value)
-            }
         }
 
         impl<$($gen)*> NonU8 for $ty where
-        Self: From<<$sol_ty as SolType>::RustType>, $($bounds)*
+        Self: SolFrom<<$sol_ty as SolType>::RustType>, $($bounds)*
         {}
 
         impl<$($gen)*> private::Sealed for $ty {}
@@ -158,13 +156,7 @@ impl_generics! {
 // Ref: <https://doc.rust-lang.org/std/primitive.tuple.html#trait-implementations>
 #[impl_for_tuples(12)]
 impl SolPrimitive for Tuple {
-    for_tuples!( where #( Tuple: From<<Tuple::SolType as SolType>::RustType> )* );
-
     for_tuples!( type SolType = ( #( Tuple::SolType ),* ); );
-
-    fn from_sol_type(value: <Self::SolType as SolType>::RustType) -> Self {
-        for_tuples!( ( #( Tuple::from(value.Tuple) ),* ) );
-    }
 }
 
 #[impl_for_tuples(12)]
@@ -172,7 +164,105 @@ impl private::Sealed for Tuple {}
 
 #[impl_for_tuples(12)]
 impl NonU8 for Tuple {
-    for_tuples!( where #( Tuple: From<<Tuple::SolType as SolType>::RustType> )* );
+    for_tuples!( where #( Tuple: SolFrom<<Tuple::SolType as SolType>::RustType> )* );
+}
+
+/// Analog of `From` that can be implemented for foreign types.
+///
+/// # Note
+/// A primary motivation for this local "From" trait is that, even for a local type `T`,
+/// sequences/collections of `T` (i.e. `[T; N]`, `Vec<T>`) are foreign types.
+/// However, we need to convert such sequences/collections for the (transitively)
+/// associated [`SolType::RustType`] type for [`SolPrimitive`] to compose complex
+/// representations of Solidity ABI types.
+///
+/// Ref: <https://doc.rust-lang.org/reference/items/implementations.html#trait-implementation-coherence>
+trait SolFrom<T>: Sized {
+    fn sol_from(value: T) -> Self;
+}
+
+macro_rules! impl_sol_from_reflexive {
+    ($($ty: ty),+ $(,)*) => {
+        $(
+            impl SolFrom<$ty> for $ty {
+                fn sol_from(value: $ty) -> Self {
+                    value
+                }
+            }
+        )*
+    };
+}
+
+impl_sol_from_reflexive! {
+    // signed ints
+    i8, i16, i32, i64, i128,
+    // unsigned ints
+    u8, u16, u32, u64, u128,
+    // bool
+    bool,
+    // string
+    String,
+    // unit
+    (),
+}
+
+impl SolFrom<alloy_sol_types::private::Address> for Address {
+    fn sol_from(value: alloy_sol_types::private::Address) -> Self {
+        Address(value.into_array())
+    }
+}
+
+impl SolFrom<alloy_sol_types::private::Bytes> for Vec<u8> {
+    fn sol_from(value: alloy_sol_types::private::Bytes) -> Self {
+        value.to_vec()
+    }
+}
+
+impl<const N: usize> SolFrom<alloy_sol_types::private::FixedBytes<N>> for [u8; N] {
+    fn sol_from(value: alloy_sol_types::private::FixedBytes<N>) -> Self {
+        value.0
+    }
+}
+
+impl<T, U: SolFrom<T>, const N: usize> SolFrom<[T; N]> for [U; N] {
+    fn sol_from(value: [T; N]) -> Self {
+        value.map(U::sol_from)
+    }
+}
+
+impl<T, U: SolFrom<T>> SolFrom<Vec<T>> for Vec<U> {
+    fn sol_from(value: Vec<T>) -> Self {
+        value.into_iter().map(U::sol_from).collect()
+    }
+}
+
+macro_rules! impl_sol_from_tuple {
+    ($(($($idx: literal),+)),* $(,)*) => {
+        $(
+            paste! {
+                impl<$([<T $idx>]),+, $([<U $idx>]: SolFrom<[<T $idx>]>),+> SolFrom<( $([<T $idx>],)+ )> for ( $([<U $idx>],)+ ) {
+                    fn sol_from(value: ( $([<T $idx>],)+ )) -> Self {
+                        ( $([<U $idx>]::sol_from(value.$idx),)+ )
+                    }
+                }
+            }
+        )*
+    };
+}
+
+impl_sol_from_tuple! {
+    (0),
+    (0, 1),
+    (0, 1, 2),
+    (0, 1, 2, 3),
+    (0, 1, 2, 3, 4),
+    (0, 1, 2, 3, 4, 5),
+    (0, 1, 2, 3, 4, 5, 6),
+    (0, 1, 2, 3, 4, 5, 6, 7),
+    (0, 1, 2, 3, 4, 5, 6, 7, 8),
+    (0, 1, 2, 3, 4, 5, 6, 7, 8, 9),
+    (0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10),
+    (0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11),
 }
 
 mod private {
@@ -185,6 +275,7 @@ mod private {
 mod tests {
     use super::*;
     use alloy_sol_types::{
+        private::Address as AlloyAddress,
         sol_data::Uint,
         SolValue,
     };
@@ -236,6 +327,15 @@ mod tests {
     fn string_works() {
         test_case!(String, String::from(""));
         test_case!(String, String::from("Hello, world!"));
+    }
+
+    #[test]
+    fn address_works() {
+        test_case!(
+            Address, Address([1; 20]),
+            AlloyAddress, SolValue, AlloyAddress::from([1; 20]),
+            [.unwrap().0], [.unwrap().0]
+        );
     }
 
     #[test]
@@ -302,6 +402,12 @@ mod tests {
             [String; 2],
             [String::from(""), String::from("Hello, world!")]
         );
+
+        test_case!(
+            [Address; 4], [Address([1; 20]); 4],
+            [AlloyAddress; 4], SolValue, [AlloyAddress::from([1; 20]); 4],
+            [.unwrap().map(|val| val.0)], [.unwrap().map(|val| val.0)]
+        );
     }
 
     #[test]
@@ -324,6 +430,12 @@ mod tests {
             Vec<String>,
             vec![String::from(""), String::from("Hello, world!")]
         );
+
+        test_case!(
+            Vec<Address>, Vec::from([Address([1; 20]); 4]),
+            Vec<AlloyAddress>, SolValue, Vec::from([AlloyAddress::from([1; 20]); 4]),
+            [.unwrap().into_iter().map(|val| val.0).collect::<Vec<_>>()], [.unwrap().into_iter().map(|val| val.0).collect::<Vec<_>>()]
+        );
     }
 
     #[test]
@@ -336,6 +448,7 @@ mod tests {
             (bool, i8, u32, String),
             (true, 100i8, 1_000_000u32, String::from("Hello, world!"))
         );
+
         test_case!(([i8; 32],), ([100i8; 32],));
         test_case!((Vec<i8>,), (Vec::from([100i8; 64]),));
         test_case!(([i8; 32], Vec<i8>), ([100i8; 32], Vec::from([100i8; 64])));
@@ -358,6 +471,16 @@ mod tests {
             (Bytes::from([100u8; 64]),),
             [.unwrap().0],
             [.unwrap().0.0]
+        );
+        test_case!(
+            ([Address; 4],), ([Address([1; 20]); 4],),
+            ([AlloyAddress; 4],), SolValue, ([AlloyAddress::from([1; 20]); 4],),
+            [.unwrap().0.map(|val| val.0)], [.unwrap().0.map(|val| val.0)]
+        );
+        test_case!(
+            (Vec<Address>,), (Vec::from([Address([1; 20]); 4]),),
+            (Vec<AlloyAddress>,), SolValue, (Vec::from([AlloyAddress::from([1; 20]); 4]),),
+            [.unwrap().0.into_iter().map(|val| val.0).collect::<Vec<_>>()], [.unwrap().0.into_iter().map(|val| val.0).collect::<Vec<_>>()]
         );
     }
 }
