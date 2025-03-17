@@ -36,11 +36,6 @@ xcm = {workspace = true}
 sp-io = { git = "https://github.com/paritytech/polkadot-sdk", rev = "f8c90b2a01ec77579bccd21ae17bd6ff2eeffd6a", default-features = false, features = ["disable_panic_handler", "disable_oom", "disable_allocator"] }
 sp-runtime-interface = { git = "https://github.com/paritytech/polkadot-sdk", rev = "f8c90b2a01ec77579bccd21ae17bd6ff2eeffd6a", default-features = false, features = ["disable_target_static_assertions"] }
 
-rustls-platform-verifier = "0.5.1"
-
-[patch.crates-io]
-rustls-platform-verifier = { git = "https://github.com/rustls/rustls-platform-verifier", version = "0.5.1" }
-
 [dev-dependencies]
 ink_ir = { workspace = true, default-features = true }
 ink_metadata = { workspace = true } # todo why here too?
