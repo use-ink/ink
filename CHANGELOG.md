@@ -100,7 +100,7 @@ pub struct DelegateCall {
 ```
 
 ### New debugging workflow
-Previously, `pallet-contracts` returned a `debug_message` field with contract
+Previously `pallet-contracts` returned a `debug_message` field with contract
 instantiations and dry-runs.
 Whenever `ink::env::debug_println` was invoked in a contract, ink! wrote debugging
 info to this field. This functionality has been removed. Instead `pallet-revive` now
