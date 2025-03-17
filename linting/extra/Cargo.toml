@@ -73,7 +73,7 @@ path = "ui/fail/non_fallible_api.rs"
 rustc_private = true
 
 [features]
-default = ["std"]
+default = ["std", "unstable-hostfn"]
 std = [
     "ink/std",
 ]
