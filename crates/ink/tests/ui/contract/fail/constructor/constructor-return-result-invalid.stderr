@@ -1,0 +1,44 @@
+error[E0277]: the trait bound `ConstructorOutputValue<Result<u8, contract::Error>>: ConstructorOutput<Contract>` is not satisfied
+  --> tests/ui/contract/fail/constructor/constructor-return-result-invalid.rs:16:9
+   |
+16 | /         pub fn constructor() -> Result<u8, Error> {
+17 | |             Ok(5_u8)
+18 | |         }
+   | |_________^ the trait `ConstructorOutput<Contract>` is not implemented for `ConstructorOutputValue<Result<u8, contract::Error>>`
+   |
+   = help: the following other types implement trait `ConstructorOutput<C>`:
+             ConstructorOutputValue<C>
+             ConstructorOutputValue<Result<C, E>>
+
+error[E0277]: the trait bound `Result<u8, contract::Error>: ConstructorReturnType<ContractRef>` is not satisfied
+  --> tests/ui/contract/fail/constructor/constructor-return-result-invalid.rs:16:33
+   |
+16 |           pub fn constructor() -> Result<u8, Error> {
+   |           -                       ^^^^^^^^^^^^^^^^^ the trait `ConstructorReturnType<ContractRef>` is not implemented for `Result<u8, contract::Error>`
+   |  _________|
+   | |
+17 | |             Ok(5_u8)
+18 | |         }
+   | |_________- required by a bound introduced by this call
+   |
+   = help: the following other types implement trait `ConstructorReturnType<C>`:
+             `Result<C, E>` implements `ConstructorReturnType<C>`
+             `Result<Contract, E>` implements `ConstructorReturnType<ContractRef>`
+note: required by a bound in `CreateBuilder::<E, ContractRef, Limits, Args, Unset<ReturnType<()>>>::returns`
+  --> $WORKSPACE/crates/env/src/call/create_builder.rs
+   |
+   |     pub fn returns<R>(
+   |            ------- required by a bound in this associated function
+...
+   |         R: ConstructorReturnType<ContractRef>,
+   |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ required by this bound in `CreateBuilder::<E, ContractRef, Limits, Args, Unset<ReturnType<()>>>::returns`
+
+error[E0277]: the trait bound `ConstructorOutputValue<Result<u8, contract::Error>>: ConstructorOutput<Contract>` is not satisfied
+ --> tests/ui/contract/fail/constructor/constructor-return-result-invalid.rs:6:16
+  |
+6 |     pub struct Contract {}
+  |                ^^^^^^^^ the trait `ConstructorOutput<Contract>` is not implemented for `ConstructorOutputValue<Result<u8, contract::Error>>`
+  |
+  = help: the following other types implement trait `ConstructorOutput<C>`:
+            ConstructorOutputValue<C>
+            ConstructorOutputValue<Result<C, E>>

@@ -1,0 +1,5 @@
+error: expected a string literal value for `keep_attr` ink! configuration argument
+ --> tests/ui/contract/fail/cfg/config-keep-attr-missing-arg.rs:3:17
+  |
+3 | #[ink::contract(keep_attr)]
+  |                 ^^^^^^^^^

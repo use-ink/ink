@@ -1,5 +1,0 @@
-error: ink! constructors must not be const
-  --> tests/ui/contract/fail/constructor-const.rs:10:13
-   |
-10 |         pub const fn constructor() -> Self {
-   |             ^^^^^

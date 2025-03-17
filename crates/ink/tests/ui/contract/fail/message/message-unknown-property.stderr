@@ -1,0 +1,5 @@
+error: encountered unknown ink! attribute argument: unknown_marker
+  --> tests/ui/contract/fail/message/message-unknown-property.rs:15:15
+   |
+15 |         #[ink(unknown_marker)]
+   |               ^^^^^^^^^^^^^^

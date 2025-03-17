@@ -1,0 +1,8 @@
+error[E0119]: conflicting implementations of trait `DispatchableMessageInfo<3793696718>` for type `Contract`
+  --> tests/ui/contract/fail/message/message-selector-overlap-sol.rs:16:9
+   |
+16 |         pub fn message(&self) {}
+   |         ^^^^^^^^^^^^^^^^^^^^^^^^
+   |         |
+   |         first implementation here
+   |         conflicting implementation for `Contract`
