@@ -1,5 +1,5 @@
 error[E0599]: no function or associated item named `env` found for struct `Contract` in the current scope
-  --> tests/ui/contract/fail/impl-block-using-static-env-no-marker.rs:22:27
+  --> tests/ui/contract/fail/impl/impl-block-using-static-env-no-marker.rs:22:27
    |
 6  |     pub struct Contract {}
    |     ------------------- function or associated item `env` not found for this struct
@@ -10,7 +10,7 @@ error[E0599]: no function or associated item named `env` found for struct `Contr
 note: if you're trying to build a new `Contract` consider using one of the following associated functions:
       contract::_::<impl Contract>::constructor
       Contract::constructor_impl
-  --> tests/ui/contract/fail/impl-block-using-static-env-no-marker.rs:10:9
+  --> tests/ui/contract/fail/impl/impl-block-using-static-env-no-marker.rs:10:9
    |
 10 |         pub fn constructor() -> Self {
    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^

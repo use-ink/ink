@@ -1,5 +1,5 @@
 error: expected string type for `namespace` argument, e.g. #[ink(namespace = "hello")]
- --> tests/ui/contract/fail/impl-block-namespace-invalid-type.rs:8:23
+ --> tests/ui/contract/fail/impl/impl-block-namespace-invalid-type.rs:8:23
   |
 8 |     #[ink(namespace = true)]
   |                       ^^^^

@@ -6,7 +6,7 @@ error: The feature `std` is not allowed in `cfg`.
        - `any`
        - `not`
        - `all`
-  --> tests/ui/contract/fail/cfg-forbidden-usage-03.rs:18:23
+  --> tests/ui/contract/fail/cfg/cfg-forbidden-usage-03.rs:18:23
    |
 18 |         #[cfg(any(not(feature = "std")))]
    |                       ^^^^^^^

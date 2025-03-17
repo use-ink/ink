@@ -1,5 +1,5 @@
 error[E0592]: duplicate definitions with name `try_message`
-  --> tests/ui/contract/fail/message-hygiene-try.rs:18:9
+  --> tests/ui/contract/fail/message/message-hygiene-try.rs:18:9
    |
 3  | #[ink::contract]
    | ---------------- other definition for `try_message`
