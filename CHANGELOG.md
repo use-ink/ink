@@ -8,13 +8,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Version 6.0.0-alpha
 
-This is our first alpha release for `cargo-contract` v6. We release it together
-with ink! `v6.0.0-alpha`.
+This is our first alpha release for ink! v6. We release it together
+with `cargo-contract` `v6.0.0-alpha`.
 
 The biggest change is that we are in the process of migrating from `pallet-contracts` +
 WebAssembly (executed in `wasmi`) to [`pallet-revive`](https://github.com/paritytech/polkadot-sdk/tree/master/substrate/frame/revive) +
 RISC-V (executed in [PolkaVM](https://github.com/paritytech/polkavm/)).
-_This is a major breaking change, `cargo-contract` will only be compatible with ink! >= v6
+_This is a major breaking change, ink! v6 will only be compatible with `cargo-contract` >= v6
 and chains that include `pallet-revive`._
 
 We did a detailed write-up of the background to this development and the reasoning
@@ -32,6 +32,21 @@ support as the number one priority. All their design decisions derive from that,
 they don't want to maintain code that is unnecessary for that objective.
 
 _🚧 This is an alpha release, changes will still happen and there are rough edges. 🚧_
+
+### Cross-contract calling Solidity contracts
+We are introducing a new attribute `abi` for the `#[ink::contract]` macro.
+These are the values it takes:
+
+```
+#[ink::contract(abi = "all")]
+#[ink::contract(abi = "sol")]
+#[ink::contract(abi = "ink")]
+```
+
+The default is `abi = "TODO"`.
+
+TODO add more here about the implications regarding ability to call ink! contracts,
+the ABI generation, and the file size.
 
 ### Types
 
@@ -78,6 +93,10 @@ This distinction of contract code that was uploaded to a chain vs. an instantiat
 contract from this code no longer exists in `pallet-revive`. If you want to
 delegate the execution, you will have to delegate to another contract address.
 
+TODO is the following sentence still correct?
+For the execution, the storage of the contract that delegates will continue
+to be used.
+
 So specifically the delegate API changed like this:
 
 ```
@@ -114,17 +133,25 @@ We have implemented barebones support for this tracing API in the 6.0.0-alpha
 versions of ink! + `cargo-contract`. But it's really barebones and should
 certainly be improved before a production release.
 
-### Solidity Cross-contract calling
-ink! v6 has the ability to speak Solidity, you'll be able to integrate with
-tools like Metamask and call ink! contracts from Solidity as if they were
-a pre-compile.
+### Restrictions which `cfg` attributes can be used
+
+This change was done as a recommendation from the ink! 5.x audit.
+In a nutshell it prevents developers from hiding functionality in a contract,
+that would not be visible in the metadata (so e.g. on a block explorer).
+The relevant PR is [#2313](https://github.com/use-ink/ink/pull/2313).
+
+From ink! 6.0 on only these attributes are allowed in `#[cfg(…)]`:
+- `test`
+- `feature` (without `std`)
+- `any`
+- `not`
+- `all`
 
 ## Changed
 - Restrict which `cfg` attributes can be used ‒ [#2313](https://github.com/use-ink/ink/pull/2313)
 - More idiomatic return types for metadata getters - [#2398](https://github.com/use-ink/ink/pull/2398)
 
 ## Added
-- Add feature flag to compile contracts for `pallet-revive` ‒ [#2318](https://github.com/use-ink/ink/pull/2318)
 - Support for `caller_is_root` - [#2332] (https://github.com/use-ink/ink/pull/2332)
 - Improve support for Solidity ABI calling conventions - [#2411](https://github.com/use-ink/ink/pull/2411)
 - Implement contract invocation in off-chain environment engine - [#1957](https://github.com/paritytech/ink/pull/1988)
