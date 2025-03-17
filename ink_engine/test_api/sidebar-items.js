@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":["DebugInfo","EmittedEvent","RecordedDebugMessages"]};
+window.SIDEBAR_ITEMS = {"struct":["DebugInfo","EmittedEvent"]};

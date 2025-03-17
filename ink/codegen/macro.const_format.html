@@ -1,0 +1,62 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Compile-time `format!`-like macro that returns `&#38;&#39;static str`."><title>const_format in ink::codegen - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-916cea96.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="ink" data-themes="" data-resource-suffix="" data-rustdoc-version="1.87.0-nightly (cbfdf0b01 2025-03-13)" data-channel="nightly" data-search-js="search-e7298875.js" data-settings-js="settings-d72f25bb.js" ><script src="../../static.files/storage-d8ac8691.js"></script><script defer src="sidebar-items.js"></script><script defer src="../../static.files/main-fb8c74a8.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-893ab5e7.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc macro"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle" title="show sidebar"></button><a class="logo-container" href="../../ink/index.html"><img src="https://use.ink/img/crate-docs/logo.png" alt=""></a></nav><nav class="sidebar"><div class="sidebar-crate"><a class="logo-container" href="../../ink/index.html"><img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></a><h2><a href="../../ink/index.html">ink</a><span class="version">6.0.0-alpha</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">const_<wbr>format</a></h2><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#stable-equivalent" title="Stable equivalent">Stable equivalent</a></li><li><a href="#syntax" title="Syntax">Syntax</a></li><li><a href="#limitations" title="Limitations">Limitations</a></li><li><a href="#example" title="Example">Example</a><ul><li><a href="#custom-formatting" title="Custom formatting.">Custom formatting.</a></li></ul></li></ul></section><div id="rustdoc-modnav"><h2><a href="index.html">In ink::<wbr>codegen</a></h2></div></div></nav><div class="sidebar-resizer"></div><main><div class="width-limiter"><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../index.html">ink</a>::<wbr><a href="index.html">codegen</a></div><h1>Macro <span class="macro">const_format</span><button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"></span></div><pre class="rust item-decl"><code>macro_rules! const_format {
+    ($format_string:expr $( $(, $expr:expr )+ )? $(,)? ) =&gt; { ... };
+}</code></pre><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Compile-time <code>format!</code>-like macro that returns <code>&amp;'static str</code>.</p>
+<p>The first argument is a format string which can be a <code>String</code> (i.e. doesn’t have
+to be a literal). Like <code>format!</code> the format string can contain <code>{}</code>s which are
+replace by the additional parameters which must all be constant expressions.</p>
+<p>See <a href="macro.const_format.html" title="macro ink::codegen::const_format"><code>const_format::formatc</code></a> for details.
+Formats constants of standard library and/or user-defined types into a <code>&amp;'static str</code>.</p>
+<p>User-defined types must implement the <a href="crate::marker_traits::FormatMarker"><code>FormatMarker</code></a> trait
+(as described in the docs for that trait) to be usable with this macro.</p>
+<h2 id="stable-equivalent"><a class="doc-anchor" href="#stable-equivalent">§</a>Stable equivalent</h2>
+<p>For an equivalent macro which can be used in stable Rust,
+but can only format primitive types,
+you can use the <a href="crate::formatcp"><code>formatcp</code></a> macro.</p>
+<h2 id="syntax"><a class="doc-anchor" href="#syntax">§</a>Syntax</h2>
+<p>This macro uses the syntax described in
+<a href="./fmt/index.html#fmtsyntax">the const_format::fmt module</a></p>
+<h2 id="limitations"><a class="doc-anchor" href="#limitations">§</a>Limitations</h2>
+<p>This macro has <a href="./index.html#macro-limitations">the limitations described in here</a>.</p>
+<h2 id="example"><a class="doc-anchor" href="#example">§</a>Example</h2>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code>
+<span class="kw">use </span>const_format::for_examples::Point3;
+<span class="kw">use </span>const_format::formatc;
+
+<span class="comment">// Formatting a non-std struct.
+</span><span class="kw">const </span>POINT: <span class="kw-2">&amp;</span>str = <span class="macro">formatc!</span>(<span class="string">"{:?}"</span>, Point3{x: <span class="number">8</span>, y: <span class="number">13</span>, z: <span class="number">21</span>});
+
+<span class="comment">// Formatting a number as decimal, hexadecimal, and binary
+</span><span class="kw">const </span>NUMBER: <span class="kw-2">&amp;</span>str = <span class="macro">formatc!</span>(<span class="string">"{0},{0:x},{0:b}"</span>, <span class="number">10u8</span>);
+
+<span class="comment">// Formatting the numbers in an array as decimal, hexadecimal, and binary.
+// You can use the name of cnstants from scope, as well as named arguments.
+</span><span class="kw">const </span>ARR: <span class="kw-2">&amp;</span>[u32] = <span class="kw-2">&amp;</span>[<span class="number">9</span>, <span class="number">25</span>];
+<span class="kw">const </span>ARRAY: <span class="kw-2">&amp;</span>str = <span class="macro">formatc!</span>(<span class="string">"{ARR:?},{ARR:X},{ARR:b}"</span>);
+
+
+<span class="macro">assert_eq!</span>(POINT, <span class="string">"Point3 { x: 8, y: 13, z: 21 }"</span>);
+<span class="macro">assert_eq!</span>(NUMBER, <span class="string">"10,a,1010"</span>);
+<span class="macro">assert_eq!</span>(ARRAY, <span class="string">"[9, 25],[9, 19],[1001, 11001]"</span>);
+</code></pre></div>
+<h4 id="custom-formatting"><a class="doc-anchor" href="#custom-formatting">§</a>Custom formatting.</h4>
+<p>This example demonstrates how you can access the <a href="crate::fmt::Formatter"><code>Formatter</code></a> in arguments
+to do custom formatting.</p>
+<p>For more details on this you can look
+<a href="./fmt/index.html#custom-formatting-section">in the fmt module</a>.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code>
+<span class="kw">use </span>const_format::for_examples::Point3;
+<span class="kw">use </span>const_format::{formatc, try_};
+
+<span class="kw">const </span>P: Point3 = Point3{x: <span class="number">5</span>, y: <span class="number">13</span>, z: <span class="number">21</span>};
+
+<span class="kw">const </span>STR: <span class="kw-2">&amp;</span>str = <span class="macro">formatc!</span>(<span class="string">"{0};{0:#X};{0:#b}"</span>, |fmt|{
+    <span class="macro">try_!</span>(fmt.write_u32_debug(P.x));
+    <span class="macro">try_!</span>(fmt.write_str(<span class="string">" "</span>));
+    <span class="macro">try_!</span>(fmt.write_u32_debug(P.y));
+    <span class="macro">try_!</span>(fmt.write_char(<span class="string">'.'</span>));
+});
+
+<span class="macro">assert_eq!</span>(STR, <span class="string">"5 13.;0x5 0xD.;0b101 0b1101."</span>);
+</code></pre></div>
+</div></details></section></div></main></body></html>
