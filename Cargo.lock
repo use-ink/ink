@@ -1506,7 +1506,7 @@ checksum = "cd7e35aee659887cbfb97aaf227ac12cad1a9d7c71e55ff3376839ed4e282d08"
 [[package]]
 name = "contract-build"
 version = "6.0.0-alpha"
-source = "git+https://github.com/use-ink/cargo-contract?branch=master#93de0631ad1703ca30a90f12c581baece0384570"
+source = "git+https://github.com/use-ink/cargo-contract?branch=master#5960c3ef38caecf60a8a4f5d40895ed05a86e3c1"
 dependencies = [
  "alloy-json-abi",
  "anyhow",
@@ -1548,7 +1548,7 @@ dependencies = [
 [[package]]
 name = "contract-metadata"
 version = "6.0.0-alpha"
-source = "git+https://github.com/use-ink/cargo-contract?branch=master#93de0631ad1703ca30a90f12c581baece0384570"
+source = "git+https://github.com/use-ink/cargo-contract?branch=master#5960c3ef38caecf60a8a4f5d40895ed05a86e3c1"
 dependencies = [
  "anyhow",
  "impl-serde",
@@ -2355,9 +2355,9 @@ checksum = "3f9eec918d3f24069decb9af1554cad7c880e2da24a9afd88aca000531ab82c1"
 
 [[package]]
 name = "foldhash"
-version = "0.1.4"
+version = "0.1.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a0d2fde1f7b3d48b8395d5f2de76c18a528bd6a9cdde438df747bfcba3e05d6f"
+checksum = "d9c4f5dac5e15c24eb999c26181a6ca40b39fe946cbe4c263c7209467bc83af2"
 
 [[package]]
 name = "form_urlencoded"
@@ -5824,15 +5824,15 @@ dependencies = [
 
 [[package]]
 name = "rustls"
-version = "0.23.23"
+version = "0.23.25"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "47796c98c480fce5406ef69d1c76378375492c3b0a0de587be0c1d9feb12f395"
+checksum = "822ee9188ac4ec04a2f0531e55d035fb2de73f18b41a63c70c2712503b6fb13c"
 dependencies = [
  "log",
  "once_cell",
  "ring 0.17.14",
  "rustls-pki-types",
- "rustls-webpki",
+ "rustls-webpki 0.103.0",
  "subtle",
  "zeroize",
 ]
@@ -5879,7 +5879,7 @@ dependencies = [
  "rustls",
  "rustls-native-certs",
  "rustls-platform-verifier-android",
- "rustls-webpki",
+ "rustls-webpki 0.102.8",
  "security-framework",
  "security-framework-sys",
  "webpki-roots",
@@ -5897,6 +5897,16 @@ name = "rustls-webpki"
 version = "0.102.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "64ca1bc8749bd4cf37b5ce386cc146580777b4e8572c7b97baf22c83f444bee9"
+dependencies = [
+ "rustls-pki-types",
+ "untrusted",
+]
+
+[[package]]
+name = "rustls-webpki"
+version = "0.103.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0aa4eeac2588ffff23e9d7a7e9b3f971c5fb5b7ebc9452745e0c232c64f83b2f"
 dependencies = [
  "ring 0.17.14",
  "rustls-pki-types",
@@ -6945,7 +6955,7 @@ dependencies = [
 [[package]]
 name = "sp-crypto-ec-utils"
 version = "0.10.0"
-source = "git+https://github.com/paritytech/polkadot-sdk#762f902397a585175a6dae26f021e52a20328138"
+source = "git+https://github.com/paritytech/polkadot-sdk#5f44a778d05ec7e1a8a63534a7de6b78fad3d01c"
 dependencies = [
  "ark-bls12-377",
  "ark-bls12-377-ext",
@@ -7012,7 +7022,7 @@ dependencies = [
 [[package]]
 name = "sp-debug-derive"
 version = "14.0.0"
-source = "git+https://github.com/paritytech/polkadot-sdk#762f902397a585175a6dae26f021e52a20328138"
+source = "git+https://github.com/paritytech/polkadot-sdk#5f44a778d05ec7e1a8a63534a7de6b78fad3d01c"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -7032,7 +7042,7 @@ dependencies = [
 [[package]]
 name = "sp-externalities"
 version = "0.25.0"
-source = "git+https://github.com/paritytech/polkadot-sdk#762f902397a585175a6dae26f021e52a20328138"
+source = "git+https://github.com/paritytech/polkadot-sdk#5f44a778d05ec7e1a8a63534a7de6b78fad3d01c"
 dependencies = [
  "environmental",
  "parity-scale-codec",
@@ -7221,7 +7231,7 @@ dependencies = [
 [[package]]
 name = "sp-runtime-interface"
 version = "24.0.0"
-source = "git+https://github.com/paritytech/polkadot-sdk#762f902397a585175a6dae26f021e52a20328138"
+source = "git+https://github.com/paritytech/polkadot-sdk#5f44a778d05ec7e1a8a63534a7de6b78fad3d01c"
 dependencies = [
  "bytes",
  "impl-trait-for-tuples",
@@ -7253,7 +7263,7 @@ dependencies = [
 [[package]]
 name = "sp-runtime-interface-proc-macro"
 version = "17.0.0"
-source = "git+https://github.com/paritytech/polkadot-sdk#762f902397a585175a6dae26f021e52a20328138"
+source = "git+https://github.com/paritytech/polkadot-sdk#5f44a778d05ec7e1a8a63534a7de6b78fad3d01c"
 dependencies = [
  "Inflector",
  "expander",
@@ -7318,7 +7328,7 @@ source = "git+https://github.com/paritytech/polkadot-sdk?rev=f8c90b2a01ec77579bc
 [[package]]
 name = "sp-std"
 version = "14.0.0"
-source = "git+https://github.com/paritytech/polkadot-sdk#762f902397a585175a6dae26f021e52a20328138"
+source = "git+https://github.com/paritytech/polkadot-sdk#5f44a778d05ec7e1a8a63534a7de6b78fad3d01c"
 
 [[package]]
 name = "sp-storage"
@@ -7335,7 +7345,7 @@ dependencies = [
 [[package]]
 name = "sp-storage"
 version = "19.0.0"
-source = "git+https://github.com/paritytech/polkadot-sdk#762f902397a585175a6dae26f021e52a20328138"
+source = "git+https://github.com/paritytech/polkadot-sdk#5f44a778d05ec7e1a8a63534a7de6b78fad3d01c"
 dependencies = [
  "impl-serde",
  "parity-scale-codec",
@@ -7370,7 +7380,7 @@ dependencies = [
 [[package]]
 name = "sp-tracing"
 version = "16.0.0"
-source = "git+https://github.com/paritytech/polkadot-sdk#762f902397a585175a6dae26f021e52a20328138"
+source = "git+https://github.com/paritytech/polkadot-sdk#5f44a778d05ec7e1a8a63534a7de6b78fad3d01c"
 dependencies = [
  "parity-scale-codec",
  "tracing",
@@ -7452,7 +7462,7 @@ dependencies = [
 [[package]]
 name = "sp-wasm-interface"
 version = "20.0.0"
-source = "git+https://github.com/paritytech/polkadot-sdk#762f902397a585175a6dae26f021e52a20328138"
+source = "git+https://github.com/paritytech/polkadot-sdk#5f44a778d05ec7e1a8a63534a7de6b78fad3d01c"
 dependencies = [
  "anyhow",
  "impl-trait-for-tuples",
@@ -9067,9 +9077,9 @@ dependencies = [
 
 [[package]]
 name = "zip"
-version = "2.2.3"
+version = "2.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b280484c454e74e5fff658bbf7df8fdbe7a07c6b2de4a53def232c15ef138f3a"
+checksum = "84e9a772a54b54236b9b744aaaf8d7be01b4d6e99725523cb82cb32d1c81b1d7"
 dependencies = [
  "arbitrary",
  "crc32fast",
