@@ -51,14 +51,67 @@ fn ui_tests_selector_bytes_fail() {
 #[test]
 fn ui_tests_contract_pass() {
     let t = trybuild::TestCases::new();
-
     t.pass("tests/ui/contract/pass/*.rs");
+}
+
+#[test]
+fn ui_tests_contract_constructor_pass() {
+    let t = trybuild::TestCases::new();
+    t.pass("tests/ui/contract/pass/constructor/*.rs");
+}
+
+#[test]
+fn ui_tests_contract_message_pass() {
+    let t = trybuild::TestCases::new();
+    t.pass("tests/ui/contract/pass/message/*.rs");
+}
+
+#[test]
+fn ui_tests_contract_example_pass() {
+    let t = trybuild::TestCases::new();
+    t.pass("tests/ui/contract/pass/example/*.rs");
+}
+
+#[test]
+fn ui_tests_contract_event_pass() {
+    let t = trybuild::TestCases::new();
+    t.pass("tests/ui/contract/pass/event/*.rs");
 }
 
 #[test]
 fn ui_tests_contract_fail() {
     let t = trybuild::TestCases::new();
     t.compile_fail("tests/ui/contract/fail/*.rs");
+}
+
+#[test]
+fn ui_tests_contract_cfg_fail() {
+    let t = trybuild::TestCases::new();
+    t.compile_fail("tests/ui/contract/fail/cfg/*.rs");
+}
+
+#[test]
+fn ui_tests_contract_constructor_fail() {
+    let t = trybuild::TestCases::new();
+    t.compile_fail("tests/ui/contract/fail/constructor/*.rs");
+}
+
+#[test]
+fn ui_tests_contract_impl_fail() {
+    let t = trybuild::TestCases::new();
+    t.compile_fail("tests/ui/contract/fail/impl/*.rs");
+}
+
+#[test]
+fn ui_tests_contract_message_fail() {
+    let t = trybuild::TestCases::new();
+    t.compile_fail("tests/ui/contract/fail/message/*.rs");
+}
+
+#[test]
+fn ui_tests_contract_trait_fail() {
+    let t = trybuild::TestCases::new();
+    t.compile_fail("tests/ui/contract/fail/trait/*.rs");
 }
 
 #[test]
