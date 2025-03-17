@@ -3552,7 +3552,7 @@ dependencies = [
 [[package]]
 name = "ink_metadata"
 version = "6.0.0-alpha"
-source = "git+https://github.com/use-ink/ink?branch=master#4df5b60e4143c50903b63f85b3a4337e9c5c544b"
+source = "git+https://github.com/use-ink/ink?branch=master#5c4fb2657d80f38b83a20b76bfa4ea630e6729e7"
 dependencies = [
  "derive_more 1.0.0",
  "impl-serde",
@@ -3575,7 +3575,7 @@ dependencies = [
 [[package]]
 name = "ink_prelude"
 version = "6.0.0-alpha"
-source = "git+https://github.com/use-ink/ink?branch=master#4df5b60e4143c50903b63f85b3a4337e9c5c544b"
+source = "git+https://github.com/use-ink/ink?branch=master#5c4fb2657d80f38b83a20b76bfa4ea630e6729e7"
 dependencies = [
  "cfg-if",
 ]
@@ -3608,7 +3608,7 @@ dependencies = [
 [[package]]
 name = "ink_primitives"
 version = "6.0.0-alpha"
-source = "git+https://github.com/use-ink/ink?branch=master#4df5b60e4143c50903b63f85b3a4337e9c5c544b"
+source = "git+https://github.com/use-ink/ink?branch=master#5c4fb2657d80f38b83a20b76bfa4ea630e6729e7"
 dependencies = [
  "alloy-sol-types",
  "cfg-if",
