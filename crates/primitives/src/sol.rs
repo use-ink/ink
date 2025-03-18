@@ -14,6 +14,8 @@
 
 //! Abstractions for implementing Solidity ABI encoding/decoding for arbitrary Rust types.
 
+mod from;
+
 use alloy_sol_types::{
     private::SolTypeValue,
     sol_data,
@@ -24,6 +26,7 @@ use impl_trait_for_tuples::impl_for_tuples;
 use paste::paste;
 
 use crate::types::Address;
+use from::SolFrom;
 
 /// Maps an arbitrary Rust type to a Solidity representation for Solidity ABI
 /// encoding/decoding.
@@ -173,8 +176,8 @@ impl_generics! {
     [T: NonU8] [T] => sol_data::Array<T::AlloyType> [],
     [T: NonU8] Vec<T> => sol_data::Array<T::AlloyType> [],
     // references
-    ['a, T: ?Sized + SolType] &'a T => T::AlloyType [&'a T: SolTypeValue<T::AlloyType>],
-    ['a, T: ?Sized + SolType] &'a mut T => T::AlloyType [&'a mut T: SolTypeValue<T::AlloyType>],
+    ['a, T: SolType] &'a T => T::AlloyType [&'a T: SolTypeValue<T::AlloyType>],
+    ['a, T: SolType] &'a mut T => T::AlloyType [&'a mut T: SolTypeValue<T::AlloyType>],
 }
 
 // We follow the Rust standard library's convention of implementing traits for tuples up
@@ -193,106 +196,8 @@ impl NonU8 for Tuple {
     for_tuples!( where #( Tuple: SolFrom<<Tuple::AlloyType as AlloySolType>::RustType> )* );
 }
 
-/// Analog of `From` that can be implemented for foreign types.
-///
-/// # Note
-/// A primary motivation for this local "From" trait is that, even for a local type `T`,
-/// sequences/collections of `T` (i.e. `[T; N]`, `Vec<T>`) are foreign types.
-/// However, we need to convert such sequences/collections for the (transitively)
-/// associated [`alloy_sol_types::SolType::RustType`] type for [`SolType`] to compose
-/// complex representations of Solidity ABI types.
-///
-/// Ref: <https://doc.rust-lang.org/reference/items/implementations.html#trait-implementation-coherence>
-trait SolFrom<T>: Sized {
-    fn sol_from(value: T) -> Self;
-}
-
-macro_rules! impl_sol_from_reflexive {
-    ($($ty: ty),+ $(,)*) => {
-        $(
-            impl SolFrom<$ty> for $ty {
-                fn sol_from(value: $ty) -> Self {
-                    value
-                }
-            }
-        )*
-    };
-}
-
-impl_sol_from_reflexive! {
-    // signed ints
-    i8, i16, i32, i64, i128,
-    // unsigned ints
-    u8, u16, u32, u64, u128,
-    // bool
-    bool,
-    // string
-    String,
-    // unit
-    (),
-}
-
-impl SolFrom<alloy_sol_types::private::Address> for Address {
-    fn sol_from(value: alloy_sol_types::private::Address) -> Self {
-        Address(value.into_array())
-    }
-}
-
-impl SolFrom<alloy_sol_types::private::Bytes> for Vec<u8> {
-    fn sol_from(value: alloy_sol_types::private::Bytes) -> Self {
-        value.to_vec()
-    }
-}
-
-impl<const N: usize> SolFrom<alloy_sol_types::private::FixedBytes<N>> for [u8; N] {
-    fn sol_from(value: alloy_sol_types::private::FixedBytes<N>) -> Self {
-        value.0
-    }
-}
-
-impl<T, U: SolFrom<T>, const N: usize> SolFrom<[T; N]> for [U; N] {
-    fn sol_from(value: [T; N]) -> Self {
-        value.map(U::sol_from)
-    }
-}
-
-impl<T, U: SolFrom<T>> SolFrom<Vec<T>> for Vec<U> {
-    fn sol_from(value: Vec<T>) -> Self {
-        value.into_iter().map(U::sol_from).collect()
-    }
-}
-
-macro_rules! impl_sol_from_tuple {
-    ($(($($idx: literal),+)),* $(,)*) => {
-        $(
-            paste! {
-                impl<$([<T $idx>]),+, $([<U $idx>]: SolFrom<[<T $idx>]>),+> SolFrom<( $([<T $idx>],)+ )> for ( $([<U $idx>],)+ ) {
-                    fn sol_from(value: ( $([<T $idx>],)+ )) -> Self {
-                        ( $([<U $idx>]::sol_from(value.$idx),)+ )
-                    }
-                }
-            }
-        )*
-    };
-}
-
-impl_sol_from_tuple! {
-    (0),
-    (0, 1),
-    (0, 1, 2),
-    (0, 1, 2, 3),
-    (0, 1, 2, 3, 4),
-    (0, 1, 2, 3, 4, 5),
-    (0, 1, 2, 3, 4, 5, 6),
-    (0, 1, 2, 3, 4, 5, 6, 7),
-    (0, 1, 2, 3, 4, 5, 6, 7, 8),
-    (0, 1, 2, 3, 4, 5, 6, 7, 8, 9),
-    (0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10),
-    (0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11),
-}
-
 mod private {
-    /// Seals the implementations of `SolType` and `NonU8`.
+    /// Seals implementations of `SolType` and `NonU8`.
     pub trait Sealed {}
 }
 
