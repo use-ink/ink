@@ -128,6 +128,7 @@ impl<'a> ScopedBuffer<'a> {
     /// Splits the scoped buffer into yet another piece to operate on it temporarily.
     ///
     /// The split buffer will have an offset of 0 but be offset by `self`'s offset.
+    #[cfg(feature = "unstable-hostfn")] // only usages are when unstable-hostfn is enabled
     pub fn split(&mut self) -> ScopedBuffer {
         ScopedBuffer {
             offset: 0,
@@ -208,6 +209,7 @@ impl<'a> ScopedBuffer<'a> {
     /// afterwards. The [`take_appended`] method shall be used to return the buffer
     /// that includes all appended encodings as a single buffer.
     #[inline(always)]
+    #[cfg(feature = "unstable-hostfn")] // only usages are when unstable-hostfn is enabled
     pub fn append_encoded<T>(&mut self, value: &T)
     where
         T: scale::Encode,

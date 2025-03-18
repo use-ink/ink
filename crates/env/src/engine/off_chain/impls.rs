@@ -18,42 +18,48 @@ use crate::{
         utils::DecodeMessageResult,
         Call,
         CallParams,
-        ConstructorReturnType,
-        CreateParams,
         DelegateCall,
-        FromAddr,
-        LimitParamsV2,
     },
     event::{
         Event,
         TopicsBuilderBackend,
     },
     hash::{
-        Blake2x128,
-        Blake2x256,
         CryptoHash,
         HashOutput,
         Keccak256,
-        Sha2x256,
     },
-    test::callee,
-    Clear,
     DecodeDispatch,
     DispatchError,
     EnvBackend,
     Result,
     TypedEnvBackend,
 };
+#[cfg(feature = "unstable-hostfn")]
+use crate::{
+    call::{
+        ConstructorReturnType,
+        CreateParams,
+        FromAddr,
+        LimitParamsV2,
+    },
+    hash::{
+        Blake2x128,
+        Blake2x256,
+        Sha2x256,
+    },
+    test::callee,
+    Clear,
+};
 use ink_engine::ext::Engine;
+#[cfg(feature = "unstable-hostfn")]
+use ink_primitives::types::AccountIdMapper;
 use ink_primitives::{
     reflect::{
         AbiDecodeWith,
         AbiEncodeWith,
     },
-    types::{
-        AccountIdMapper,
-        Environment,
-    },
+    types::Environment,
     H160,
     H256,
     U256,
@@ -66,6 +72,7 @@ use pallet_revive_uapi::{
     ReturnErrorCode,
     ReturnFlags,
 };
+#[cfg(feature = "unstable-hostfn")]
 use schnorrkel::{
     PublicKey,
     Signature,
@@ -160,6 +167,7 @@ where
     R::decode_output(&result)
 }
 
+#[cfg(feature = "unstable-hostfn")]
 impl CryptoHash for Blake2x128 {
     fn hash(input: &[u8], output: &mut <Self as HashOutput>::Type) {
         type OutputType = [u8; 16];
@@ -172,6 +180,7 @@ impl CryptoHash for Blake2x128 {
     }
 }
 
+#[cfg(feature = "unstable-hostfn")]
 impl CryptoHash for Blake2x256 {
     fn hash(input: &[u8], output: &mut <Self as HashOutput>::Type) {
         type OutputType = [u8; 32];
@@ -184,6 +193,7 @@ impl CryptoHash for Blake2x256 {
     }
 }
 
+#[cfg(feature = "unstable-hostfn")]
 impl CryptoHash for Sha2x256 {
     fn hash(input: &[u8], output: &mut <Self as HashOutput>::Type) {
         type OutputType = [u8; 32];
@@ -219,6 +229,7 @@ where
 {
     type Output = Vec<u8>;
 
+    #[cfg(feature = "unstable-hostfn")]
     fn push_topic<T>(&mut self, topic_value: &T)
     where
         T: scale::Encode,
@@ -312,6 +323,7 @@ impl EnvBackend for EnvInstance {
         }
     }
 
+    #[cfg(feature = "unstable-hostfn")]
     fn take_contract_storage<K, R>(&mut self, key: &K) -> Result<Option<R>>
     where
         K: scale::Encode,
@@ -327,6 +339,7 @@ impl EnvBackend for EnvInstance {
         }
     }
 
+    #[cfg(feature = "unstable-hostfn")]
     fn contains_contract_storage<K>(&mut self, key: &K) -> Option<u32>
     where
         K: scale::Encode,
@@ -334,6 +347,7 @@ impl EnvBackend for EnvInstance {
         self.engine.contains_storage(&key.encode())
     }
 
+    #[cfg(feature = "unstable-hostfn")]
     fn clear_contract_storage<K>(&mut self, key: &K) -> Option<u32>
     where
         K: scale::Encode,
@@ -432,6 +446,7 @@ impl EnvBackend for EnvInstance {
         }
     }
 
+    #[cfg(feature = "unstable-hostfn")]
     fn ecdsa_to_eth_address(
         &mut self,
         pubkey: &[u8; 33],
@@ -446,6 +461,7 @@ impl EnvBackend for EnvInstance {
         Ok(())
     }
 
+    #[cfg(feature = "unstable-hostfn")]
     fn sr25519_verify(
         &mut self,
         signature: &[u8; 64],
@@ -468,6 +484,7 @@ impl EnvBackend for EnvInstance {
             .map_err(|_| ReturnErrorCode::Sr25519VerifyFailed.into())
     }
 
+    #[cfg(feature = "unstable-hostfn")]
     fn call_chain_extension<I, T, E, ErrorCode, F, D>(
         &mut self,
         id: u32,
@@ -497,6 +514,7 @@ impl EnvBackend for EnvInstance {
         Ok(decoded)
     }
 
+    #[cfg(feature = "unstable-hostfn")]
     fn set_code_hash(&mut self, code_hash: &H256) -> Result<()> {
         self.engine
             .database
@@ -525,6 +543,7 @@ impl TypedEnvBackend for EnvInstance {
             })
     }
 
+    #[cfg(feature = "unstable-hostfn")]
     fn account_id<E: Environment>(&mut self) -> E::AccountId {
         // todo should not use `Engine::account_id`
         self.get_property::<E::AccountId>(Engine::address)
@@ -554,6 +573,7 @@ impl TypedEnvBackend for EnvInstance {
             })
     }
 
+    #[cfg(feature = "unstable-hostfn")]
     fn minimum_balance<E: Environment>(&mut self) -> E::Balance {
         self.get_property::<E::Balance>(Engine::minimum_balance)
             .unwrap_or_else(|error| {
@@ -619,6 +639,7 @@ impl TypedEnvBackend for EnvInstance {
         )
     }
 
+    #[cfg(feature = "unstable-hostfn")]
     fn instantiate_contract<E, ContractRef, Args, R, Abi>(
         &mut self,
         params: &CreateParams<E, ContractRef, LimitParamsV2, Args, R, Abi>,
@@ -693,6 +714,7 @@ impl TypedEnvBackend for EnvInstance {
         ))))
     }
 
+    #[cfg(feature = "unstable-hostfn")]
     fn terminate_contract(&mut self, beneficiary: H160) -> ! {
         self.engine.terminate(beneficiary)
     }
@@ -715,10 +737,12 @@ impl TypedEnvBackend for EnvInstance {
         })
     }
 
+    #[cfg(feature = "unstable-hostfn")]
     fn is_contract(&mut self, account: &H160) -> bool {
         self.engine.is_contract(account)
     }
 
+    #[cfg(feature = "unstable-hostfn")]
     fn caller_is_origin<E>(&mut self) -> bool
     where
         E: Environment,
@@ -726,6 +750,7 @@ impl TypedEnvBackend for EnvInstance {
         unimplemented!("off-chain environment does not support cross-contract calls")
     }
 
+    #[cfg(feature = "unstable-hostfn")]
     fn caller_is_root<E>(&mut self) -> bool
     where
         E: Environment,
@@ -744,6 +769,7 @@ impl TypedEnvBackend for EnvInstance {
         }
     }
 
+    #[cfg(feature = "unstable-hostfn")]
     fn own_code_hash(&mut self) -> Result<H256> {
         let callee = &self.engine.get_callee();
         let code_hash = self.engine.database.get_code_hash(callee);
@@ -754,6 +780,7 @@ impl TypedEnvBackend for EnvInstance {
         }
     }
 
+    #[cfg(feature = "unstable-hostfn")]
     fn call_runtime<E, Call>(&mut self, _call: &Call) -> Result<()>
     where
         E: Environment,
@@ -761,6 +788,7 @@ impl TypedEnvBackend for EnvInstance {
         unimplemented!("off-chain environment does not support `call_runtime`")
     }
 
+    #[cfg(feature = "unstable-hostfn")]
     fn xcm_execute<E, Call>(&mut self, _msg: &xcm::VersionedXcm<Call>) -> Result<()>
     where
         E: Environment,
@@ -768,6 +796,7 @@ impl TypedEnvBackend for EnvInstance {
         unimplemented!("off-chain environment does not support `xcm_execute`")
     }
 
+    #[cfg(feature = "unstable-hostfn")]
     fn xcm_send<E, Call>(
         &mut self,
         _dest: &xcm::VersionedLocation,

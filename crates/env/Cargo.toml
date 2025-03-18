@@ -104,6 +104,8 @@ no-allocator = ["ink_allocator/no-allocator"]
 # Disable the ink! provided panic handler.
 no-panic-handler = []
 
+unstable-hostfn = []
+
 # For the ui tests, which use this `Cargo.toml`
 [lints.rust.unexpected_cfgs]
 level = "warn"

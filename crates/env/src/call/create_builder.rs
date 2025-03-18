@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#[cfg(feature = "unstable-hostfn")]
+use crate::Error;
 use crate::{
     call::{
         utils::{
@@ -25,7 +27,6 @@ use crate::{
     },
     types::Environment,
     ContractEnv,
-    Error,
 };
 use core::marker::PhantomData;
 use ink_primitives::{
@@ -290,6 +291,7 @@ where
     /// those use the [`try_instantiate`][`CreateParams::try_instantiate`] method
     /// instead.
     #[inline]
+    #[cfg(feature = "unstable-hostfn")]
     pub fn instantiate(&self) -> <R as ConstructorReturnType<ContractRef>>::Output {
         crate::instantiate_contract(self)
             .unwrap_or_else(|env_error| {
@@ -308,6 +310,7 @@ where
     /// [`ink::primitives::LangError`][`ink_primitives::LangError`], both of which can be
     /// handled by the caller.
     #[inline]
+    #[cfg(feature = "unstable-hostfn")]
     pub fn try_instantiate(
         &self,
     ) -> Result<
@@ -721,6 +724,7 @@ where
     /// those use the [`try_instantiate`][`CreateBuilder::try_instantiate`] method
     /// instead.
     #[inline]
+    #[cfg(feature = "unstable-hostfn")]
     pub fn instantiate(self) -> <RetType as ConstructorReturnType<ContractRef>>::Output {
         self.params().instantiate()
     }
@@ -734,6 +738,7 @@ where
     /// [`ink::primitives::LangError`][`ink_primitives::LangError`], both of which can be
     /// handled by the caller.
     #[inline]
+    #[cfg(feature = "unstable-hostfn")]
     pub fn try_instantiate(
         self,
     ) -> Result<

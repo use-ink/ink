@@ -17,6 +17,7 @@
 //! Users should not use these types and definitions directly but rather use the provided
 //! `#[ink::chain_extension]` procedural macro defined in the `ink` crate.
 
+#[cfg(feature = "unstable-hostfn")]
 use crate::{
     backend::EnvBackend,
     engine::{
@@ -255,6 +256,7 @@ where
     /// # }
     /// ```
     #[inline]
+    #[cfg(feature = "unstable-hostfn")]
     pub fn call(
         self,
         input: &I,
@@ -324,6 +326,7 @@ where
     /// # }
     /// ```
     #[inline]
+    #[cfg(feature = "unstable-hostfn")]
     pub fn call(
         self,
         input: &I,
@@ -395,6 +398,7 @@ where
     /// # }
     /// ```
     #[inline]
+    #[cfg(feature = "unstable-hostfn")]
     pub fn call(self, input: &I) -> Result<O, ErrorCode> {
         <EnvInstance as OnInstance>::on_instance(|instance| {
             EnvBackend::call_chain_extension::<I, O, ErrorCode, ErrorCode, _, _>(
@@ -445,6 +449,7 @@ where
     ///     .call(&(true, 42));
     /// ```
     #[inline]
+    #[cfg(feature = "unstable-hostfn")]
     pub fn call(self, input: &I) -> O {
         <EnvInstance as OnInstance>::on_instance(|instance| {
             EnvBackend::call_chain_extension::<I, O, (), (), _, _>(

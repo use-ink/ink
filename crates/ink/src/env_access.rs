@@ -14,16 +14,19 @@
 
 use crate::ChainExtensionInstance;
 use core::marker::PhantomData;
+#[cfg(feature = "unstable-hostfn")]
+use ink_env::call::{
+    ConstructorReturnType,
+    CreateParams,
+    FromAddr,
+    LimitParamsV2,
+};
 use ink_env::{
     call::{
         utils::DecodeMessageResult,
         Call,
         CallParams,
-        ConstructorReturnType,
-        CreateParams,
         DelegateCall,
-        FromAddr,
-        LimitParamsV2,
     },
     hash::{
         CryptoHash,
@@ -277,6 +280,7 @@ where
     /// # Note
     ///
     /// For more details visit: [`ink_env::account_id`]
+    #[cfg(feature = "unstable-hostfn")]
     pub fn account_id(self) -> E::AccountId {
         ink_env::account_id::<E>()
     }
@@ -388,6 +392,7 @@ where
     /// # Note
     ///
     /// For more details visit: [`ink_env::minimum_balance`]
+    #[cfg(feature = "unstable-hostfn")]
     pub fn minimum_balance(self) -> E::Balance {
         ink_env::minimum_balance::<E>()
     }
@@ -480,6 +485,7 @@ where
     /// # Note
     ///
     /// For more details visit: [`ink_env::instantiate_contract`]
+    #[cfg(feature = "unstable-hostfn")]
     pub fn instantiate_contract<ContractRef, Args, R, Abi>(
         self,
         params: &CreateParams<E, ContractRef, LimitParamsV2, Args, R, Abi>,
@@ -666,6 +672,7 @@ where
     /// # Note
     ///
     /// For more details visit: [`ink_env::terminate_contract`]
+    #[cfg(feature = "unstable-hostfn")]
     pub fn terminate_contract(self, beneficiary: H160) -> ! {
         ink_env::terminate_contract(beneficiary)
     }
@@ -872,6 +879,7 @@ where
     /// # Note
     ///
     /// For more details visit: [`ink_env::ecdsa_to_eth_address`]
+    #[cfg(feature = "unstable-hostfn")]
     pub fn ecdsa_to_eth_address(self, pubkey: &[u8; 33]) -> Result<[u8; 20]> {
         let mut output = [0; 20];
         ink_env::ecdsa_to_eth_address(pubkey, &mut output)
@@ -930,6 +938,7 @@ where
     /// todo
     /// **WARNING**: this function is from the [unstable interface](https://github.com/paritytech/substrate/tree/master/frame/contracts#unstable-interfaces),
     /// which is unsafe and normally is not available on production chains.
+    #[cfg(feature = "unstable-hostfn")]
     pub fn sr25519_verify(
         self,
         signature: &[u8; 64],
@@ -968,6 +977,7 @@ where
     /// # Note
     ///
     /// For more details visit: [`ink_env::is_contract`]
+    #[cfg(feature = "unstable-hostfn")]
     pub fn is_contract(self, addr: &H160) -> bool {
         ink_env::is_contract(addr)
     }
@@ -1000,6 +1010,7 @@ where
     /// # Note
     ///
     /// For more details visit: [`ink_env::caller_is_origin`]
+    #[cfg(feature = "unstable-hostfn")]
     pub fn caller_is_origin(self) -> bool {
         ink_env::caller_is_origin::<E>()
     }
@@ -1031,6 +1042,7 @@ where
     /// # Note
     ///
     /// For more details visit: [`ink_env::caller_is_root`]
+    #[cfg(feature = "unstable-hostfn")]
     pub fn caller_is_root(self) -> bool {
         ink_env::caller_is_root::<E>()
     }
@@ -1096,6 +1108,7 @@ where
     /// # Note
     ///
     /// For more details visit: [`ink_env::own_code_hash`]
+    #[cfg(feature = "unstable-hostfn")]
     pub fn own_code_hash(self) -> Result<H256> {
         ink_env::own_code_hash()
     }
@@ -1129,14 +1142,17 @@ where
     /// # Note
     ///
     /// For more details visit: [`ink_env::set_code_hash`]
+    #[cfg(feature = "unstable-hostfn")]
     pub fn set_code_hash(self, code_hash: &H256) -> Result<()> {
         ink_env::set_code_hash::<E>(code_hash)
     }
 
+    #[cfg(feature = "unstable-hostfn")]
     pub fn call_runtime<Call: scale::Encode>(self, call: &Call) -> Result<()> {
         ink_env::call_runtime::<E, _>(call)
     }
 
+    #[cfg(feature = "unstable-hostfn")]
     pub fn xcm_execute<Call: scale::Encode>(
         self,
         msg: &xcm::VersionedXcm<Call>,
@@ -1144,6 +1160,7 @@ where
         ink_env::xcm_execute::<E, _>(msg)
     }
 
+    #[cfg(feature = "unstable-hostfn")]
     pub fn xcm_send<Call: scale::Encode>(
         self,
         dest: &xcm::VersionedLocation,

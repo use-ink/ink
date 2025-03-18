@@ -12,11 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use crate::backend::{
+    EnvBackend,
+    TypedEnvBackend,
+};
+#[cfg(feature = "unstable-hostfn")]
 use crate::{
-    backend::{
-        EnvBackend,
-        TypedEnvBackend,
-    },
     call::{
         ConstructorReturnType,
         FromAddr,
@@ -25,10 +26,12 @@ use crate::{
     Result as EnvResult,
 };
 use cfg_if::cfg_if;
+#[cfg(feature = "unstable-hostfn")]
 use ink_primitives::{
     ConstructorResult,
     LangError,
 };
+#[cfg(feature = "unstable-hostfn")]
 use pallet_revive_uapi::ReturnErrorCode;
 
 /// Convert a slice into an array reference.
@@ -70,6 +73,7 @@ cfg_if! {
 
 // We only use this function when 1) compiling for PolkaVM 2) compiling for tests.
 #[cfg_attr(all(feature = "std", not(test)), allow(dead_code))]
+#[cfg(feature = "unstable-hostfn")] // only usages are when unstable-hostfn is enabled
 pub(crate) fn decode_instantiate_result<I, ContractRef, R>(
     instantiate_result: EnvResult<()>,
     out_address: &mut I,
@@ -95,6 +99,7 @@ where
 }
 
 #[cfg_attr(all(feature = "std", not(test)), allow(dead_code))]
+#[cfg(feature = "unstable-hostfn")] // only usages are when unstable-hostfn is enabled
 fn decode_instantiate_err<I, ContractRef, R>(
     out_return_value: &mut I,
 ) -> EnvResult<ConstructorResult<<R as ConstructorReturnType<ContractRef>>::Output>>

@@ -37,15 +37,17 @@ scale-info = { workspace = true, features = ["derive"] }
 proc-macro = true
 
 [features]
-default = [ "std" ]
+default = ["std"]
 std = [
-	"ink_codegen/std",
+    "ink_codegen/std",
     "ink_metadata/std",
-	"ink_ir/std",
-	"ink_primitives/std",
-	"scale/std",
-	"scale-info/std",
+    "ink_ir/std",
+    "ink_primitives/std",
+    "scale/std",
+    "scale-info/std",
 ]
+
+unstable-hostfn = ["ink_env/unstable-hostfn", "ink_storage/unstable-hostfn"]
 
 # For the ui tests, which use this `Cargo.toml`
 [lints.rust.unexpected_cfgs]
