@@ -17,12 +17,41 @@
 use alloy_sol_types::{
     private::SolTypeValue,
     sol_data,
-    SolType,
+    SolType as AlloySolType,
 };
+use core::borrow::Borrow;
 use impl_trait_for_tuples::impl_for_tuples;
 use paste::paste;
 
 use crate::types::Address;
+
+/// Maps an arbitrary Rust type to a Solidity representation for Solidity ABI
+/// encoding/decoding.
+pub trait SolCodec: From<Self::SolType> + Borrow<Self::SolType> {
+    /// Equivalent Solidity type.
+    type SolType: SolType;
+
+    /// Name of equivalent Solidity type.
+    const SOL_NAME: &'static str =
+        <<Self::SolType as SolType>::AlloyType as AlloySolType>::SOL_NAME;
+
+    /// Solidity ABI encode the value.
+    fn encode(&self) -> Vec<u8> {
+        <Self::SolType as SolType>::encode(self.borrow())
+    }
+
+    /// Solidity ABI decode into this type.
+    fn decode(data: &[u8]) -> Result<Self, alloy_sol_types::Error> {
+        <Self::SolType as SolType>::decode(data).map(Self::from)
+    }
+}
+
+impl<T> SolCodec for T
+where
+    T: SolType,
+{
+    type SolType = T;
+}
 
 /// A Rust equivalent of a Solidity type that implements logic for Solidity ABI
 /// encoding/decoding.
@@ -32,25 +61,22 @@ use crate::types::Address;
 /// # Note
 /// This trait is sealed and cannot be implemented for types outside `ink_primitives`.
 #[allow(private_bounds)]
-pub trait SolPrimitive:
-    SolTypeValue<Self::SolType>
-    + SolFrom<<<Self as SolPrimitive>::SolType as SolType>::RustType>
+pub trait SolType:
+    SolTypeValue<Self::AlloyType>
+    + SolFrom<<<Self as SolType>::AlloyType as AlloySolType>::RustType>
     + private::Sealed
 {
     /// Equivalent Solidity type from [`alloy_sol_types`].
-    type SolType: SolType;
-
-    /// Name of equivalent Solidity type.
-    const SOL_NAME: &'static str = <Self::SolType as SolType>::SOL_NAME;
+    type AlloyType: AlloySolType;
 
     /// Solidity ABI encode the value.
     fn encode(&self) -> Vec<u8> {
-        Self::SolType::abi_encode(self)
+        <Self::AlloyType as AlloySolType>::abi_encode(self)
     }
 
     /// Solidity ABI decode into this type.
     fn decode(data: &[u8]) -> Result<Self, alloy_sol_types::Error> {
-        Self::SolType::abi_decode(data, false).map(Self::sol_from)
+        <Self::AlloyType as AlloySolType>::abi_decode(data, false).map(Self::sol_from)
     }
 }
 
@@ -60,15 +86,15 @@ pub trait SolPrimitive:
 /// See <https://github.com/use-ink/ink/issues/2428> for motivation.
 ///
 /// # Note
-/// This trait is implicitly sealed (because [`SolPrimitive`] - which is sealed - is a
+/// This trait is implicitly sealed (because [`SolType`] - which is sealed - is a
 /// super trait) and cannot be implemented for types outside `ink_primitives`.
-trait NonU8: SolPrimitive {}
+trait NonU8: SolType {}
 
 macro_rules! impl_primitive_minimal {
     ($($ty: ty => $sol_ty: ty),+ $(,)*) => {
         $(
-            impl SolPrimitive for $ty {
-                type SolType = $sol_ty;
+            impl SolType for $ty {
+                type AlloyType = $sol_ty;
             }
 
             impl private::Sealed for $ty {}
@@ -124,14 +150,14 @@ impl_primitive! {
 macro_rules! impl_generics {
     ($([$($gen:tt)+] $ty: ty => $sol_ty: ty [$($bounds:tt)*]), +$(,)*) => {
         $(
-        impl<$($gen)*> SolPrimitive for $ty where
-        Self: SolFrom<<$sol_ty as SolType>::RustType>, $($bounds)*
+        impl<$($gen)*> SolType for $ty where
+        Self: SolFrom<<$sol_ty as AlloySolType>::RustType>, $($bounds)*
         {
-            type SolType = $sol_ty;
+            type AlloyType = $sol_ty;
         }
 
         impl<$($gen)*> NonU8 for $ty where
-        Self: SolFrom<<$sol_ty as SolType>::RustType>, $($bounds)*
+        Self: SolFrom<<$sol_ty as AlloySolType>::RustType>, $($bounds)*
         {}
 
         impl<$($gen)*> private::Sealed for $ty {}
@@ -143,20 +169,20 @@ impl_generics! {
     // byte array
     [const N: usize] [u8; N] => sol_data::FixedBytes<N> [sol_data::ByteCount<N>: sol_data::SupportedFixedBytes],
     // array
-    [T: NonU8, const N: usize] [T; N] => sol_data::FixedArray<T::SolType, N> [],
-    [T: NonU8] [T] => sol_data::Array<T::SolType> [],
-    [T: NonU8] Vec<T> => sol_data::Array<T::SolType> [],
+    [T: NonU8, const N: usize] [T; N] => sol_data::FixedArray<T::AlloyType, N> [],
+    [T: NonU8] [T] => sol_data::Array<T::AlloyType> [],
+    [T: NonU8] Vec<T> => sol_data::Array<T::AlloyType> [],
     // references
-    ['a, T: ?Sized + SolPrimitive] &'a T => T::SolType [&'a T: SolTypeValue<T::SolType>],
-    ['a, T: ?Sized + SolPrimitive] &'a mut T => T::SolType [&'a mut T: SolTypeValue<T::SolType>],
+    ['a, T: ?Sized + SolType] &'a T => T::AlloyType [&'a T: SolTypeValue<T::AlloyType>],
+    ['a, T: ?Sized + SolType] &'a mut T => T::AlloyType [&'a mut T: SolTypeValue<T::AlloyType>],
 }
 
 // We follow the Rust standard library's convention of implementing traits for tuples up
 // to twelve items long.
 // Ref: <https://doc.rust-lang.org/std/primitive.tuple.html#trait-implementations>
 #[impl_for_tuples(12)]
-impl SolPrimitive for Tuple {
-    for_tuples!( type SolType = ( #( Tuple::SolType ),* ); );
+impl SolType for Tuple {
+    for_tuples!( type AlloyType = ( #( Tuple::AlloyType ),* ); );
 }
 
 #[impl_for_tuples(12)]
@@ -164,7 +190,7 @@ impl private::Sealed for Tuple {}
 
 #[impl_for_tuples(12)]
 impl NonU8 for Tuple {
-    for_tuples!( where #( Tuple: SolFrom<<Tuple::SolType as SolType>::RustType> )* );
+    for_tuples!( where #( Tuple: SolFrom<<Tuple::AlloyType as AlloySolType>::RustType> )* );
 }
 
 /// Analog of `From` that can be implemented for foreign types.
@@ -173,8 +199,8 @@ impl NonU8 for Tuple {
 /// A primary motivation for this local "From" trait is that, even for a local type `T`,
 /// sequences/collections of `T` (i.e. `[T; N]`, `Vec<T>`) are foreign types.
 /// However, we need to convert such sequences/collections for the (transitively)
-/// associated [`SolType::RustType`] type for [`SolPrimitive`] to compose complex
-/// representations of Solidity ABI types.
+/// associated [`alloy_sol_types::SolType::RustType`] type for [`SolType`] to compose
+/// complex representations of Solidity ABI types.
 ///
 /// Ref: <https://doc.rust-lang.org/reference/items/implementations.html#trait-implementation-coherence>
 trait SolFrom<T>: Sized {
@@ -266,11 +292,12 @@ impl_sol_from_tuple! {
 }
 
 mod private {
-    /// Seals the implementations of `SolPrimitive` and `NonU8`.
+    /// Seals the implementations of `SolType` and `NonU8`.
     pub trait Sealed {}
 }
 
-/// Sanity checks to ensure `SolPrimitive` implementations match `SolValue` equivalents.
+/// Sanity checks to ensure our `SolType` implementations match alloy's `SolValue`
+/// equivalents.
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -288,13 +315,17 @@ mod tests {
             test_case!($ty, $val, $sol_ty, $sol_trait, $val, [], [])
         };
         ($ty: ty, $val: expr, $sol_ty: ty, $sol_trait: ty, $sol_val: expr, [$($ty_cvt: tt)*], [$($sol_ty_cvt: tt)*]) => {
-            let encoded = <$ty as SolPrimitive>::encode(&$val);
+            let encoded = <$ty as SolType>::encode(&$val);
+            let encoded_codec = <$ty as SolCodec>::encode(&$val);
             let encoded_alloy = <$sol_ty as $sol_trait>::abi_encode(&$sol_val);
             assert_eq!(encoded, encoded_alloy);
+            assert_eq!(encoded_codec, encoded_alloy);
 
-            let decoded = <$ty as SolPrimitive>::decode(&encoded);
+            let decoded = <$ty as SolType>::decode(&encoded);
+            let decoded_codec = <$ty as SolCodec>::decode(&encoded);
             let decoded_alloy = <$sol_ty as $sol_trait>::abi_decode(&encoded, true);
-            assert_eq!(decoded$($ty_cvt)*, decoded_alloy$($sol_ty_cvt)*);
+            assert_eq!(decoded$($ty_cvt)*, decoded_alloy.clone()$($sol_ty_cvt)*);
+            assert_eq!(decoded_codec$($ty_cvt)*, decoded_alloy$($sol_ty_cvt)*);
         };
     }
 
@@ -316,7 +347,7 @@ mod tests {
     #[test]
     fn unsigned_int_works() {
         // `SolValue` isn't implemented for `u8`.
-        test_case!(u8, 100, Uint<8>, SolType);
+        test_case!(u8, 100, Uint<8>, AlloySolType);
         test_case!(u16, 10_000);
         test_case!(u32, 1_000_000);
         test_case!(i64, 1_000_000_000);
@@ -443,7 +474,7 @@ mod tests {
         test_case!((), ());
         test_case!((bool,), (true,));
         // `SolValue` isn't implemented for `u8`.
-        test_case!((u8,), (100u8,), (Uint<8>,), SolType);
+        test_case!((u8,), (100u8,), (Uint<8>,), AlloySolType);
         test_case!(
             (bool, i8, u32, String),
             (true, 100i8, 1_000_000u32, String::from("Hello, world!"))
