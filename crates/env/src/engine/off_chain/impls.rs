@@ -28,6 +28,7 @@ use crate::{
         CryptoHash,
         HashOutput,
         Keccak256,
+        Sha2x256,
     },
     DecodeDispatch,
     DispatchError,
@@ -46,7 +47,6 @@ use crate::{
     hash::{
         Blake2x128,
         Blake2x256,
-        Sha2x256,
     },
     test::callee,
     Clear,
@@ -193,7 +193,6 @@ impl CryptoHash for Blake2x256 {
     }
 }
 
-#[cfg(feature = "unstable-hostfn")]
 impl CryptoHash for Sha2x256 {
     fn hash(input: &[u8], output: &mut <Self as HashOutput>::Type) {
         type OutputType = [u8; 32];
