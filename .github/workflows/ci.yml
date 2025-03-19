@@ -823,13 +823,10 @@ jobs:
 # fuzz
   fuzz:
     runs-on: ubuntu-latest
-    # todo bring back more needs, so that we only run this `fuzz` stage
-    # if pre-conditions are filled.
-    #needs: [set-image, examples-docs, examples-contract-build, examples-test, examples-custom-test]
-    needs: [set-image]
-    #if: >
-      #github.event_name == 'push' &&
-        #github.ref == 'refs/heads/master'
+    needs: [set-image, examples-docs, examples-contract-build, examples-test, examples-custom-test]
+    if: >
+      github.event_name == 'push' &&
+        github.ref == 'refs/heads/master'
     permissions:
       issues: write
     defaults:
