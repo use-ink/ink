@@ -32,6 +32,7 @@ use crate::{
         CryptoHash,
         HashOutput,
         Keccak256,
+        Sha2x256,
     },
     types::FromLittleEndian,
     DecodeDispatch,
@@ -52,7 +53,6 @@ use crate::{
     hash::{
         Blake2x128,
         Blake2x256,
-        Sha2x256,
     },
     Clear,
 };
@@ -127,10 +127,9 @@ impl CryptoHash for Sha2x256 {
                        * use all. */
             &[u8::MAX; 32],                   // No deposit limit.
             &U256::zero().to_little_endian(), // Value transferred to the contract.
-            &input[..],
+            input,
             Some(&mut &mut output[..]),
         );
-        Ok(())
     }
 }
 
