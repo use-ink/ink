@@ -144,6 +144,7 @@ fi
 
 for (( i = start; i <= end; i++ )); do
   manifest_path="${filtered_manifests[$i]}"
+  export MANIFEST_PATH="$manifest_path"
   command[$arg_index]="$manifest_path"
   if [ "$quiet" = false ]; then
     >&2 echo Running: "${command[@]}"
