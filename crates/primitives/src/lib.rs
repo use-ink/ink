@@ -29,8 +29,10 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 
 mod arithmetic;
+pub mod contract;
 mod key;
 pub mod reflect;
+mod sol;
 pub mod types;
 
 pub use self::{
@@ -42,6 +44,11 @@ pub use self::{
         DecodeDispatch,
         DispatchError,
     },
+    sol::{
+        AsSolBytes,
+        SolCodec,
+        SolType,
+    },
     types::{
         AccountId,
         AccountIdMapper,
@@ -51,8 +58,6 @@ pub use self::{
         Hash,
     },
 };
-pub mod contract;
-pub mod sol;
 
 pub use primitive_types::{
     H160,
