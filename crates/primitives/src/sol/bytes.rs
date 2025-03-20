@@ -33,19 +33,19 @@ use crate::sol::{
 };
 
 /// Wrapper type that encodes `u8` sequences/collections as their equivalent Solidity
-/// bytes based representations.
+/// bytes representations.
 ///
 /// | Rust/ink! type | Solidity type | Notes |
 /// | -------------- | ------------- | ----- |
-/// | `AsBytes<[u8; N]>` for `1 <= N <= 32` |  `bytesN` | e.g. `AsBytes<[u8; 1]>` <=> `bytes1` |
-/// | `AsBytes<Vec<u8>>` |  `bytes` ||
+/// | `AsSolBytes<[u8; N]>` for `1 <= N <= 32` |  `bytesN` | e.g. `AsSolBytes<[u8; 1]>` <=> `bytes1` |
+/// | `AsSolBytes<Vec<u8>>` |  `bytes` ||
 ///
 /// Ref: <https://docs.soliditylang.org/en/latest/types.html#fixed-size-byte-arrays>
 ///
 /// Ref: <https://docs.soliditylang.org/en/latest/types.html#bytes-and-string-as-arrays>
 #[derive(Debug, Encode, Decode)]
 #[cfg_attr(feature = "std", derive(TypeInfo))]
-pub struct AsBytes<T: ByteType>(pub T);
+pub struct AsSolBytes<T: SolByteType>(pub T);
 
 /// A Rust equivalent of a Solidity bytes type that implements logic for Solidity ABI
 /// encoding/decoding.
@@ -56,9 +56,9 @@ pub struct AsBytes<T: ByteType>(pub T);
 ///
 /// # Note
 /// This trait is sealed and cannot be implemented for types outside `ink_primitives`.
-pub trait ByteType:
+pub trait SolByteType:
     SolTypeValue<Self::AlloyType>
-    + SolFrom<<<Self as ByteType>::AlloyType as AlloySolType>::RustType>
+    + SolFrom<<<Self as SolByteType>::AlloyType as AlloySolType>::RustType>
     + private::Sealed
 {
     /// Equivalent Solidity bytes type from [`alloy_sol_types`].
@@ -70,24 +70,24 @@ pub trait ByteType:
 }
 
 // Implement `SolType` for `AsBytes<T> where T: ByteType`.
-impl<T: ByteType> SolType for AsBytes<T>
+impl<T: SolByteType> SolType for AsSolBytes<T>
 where
-    AsBytes<T>: SolTypeValue<<T as ByteType>::AlloyType>,
+    AsSolBytes<T>: SolTypeValue<<T as SolByteType>::AlloyType>,
 {
     type AlloyType = T::AlloyType;
 }
-impl<T: ByteType> crate::sol::private::Sealed for AsBytes<T> {}
+impl<T: SolByteType> crate::sol::private::Sealed for AsSolBytes<T> {}
 
 // Implement `SolFrom` for `AsBytes<T>`.
-impl<T: ByteType> SolFrom<<T::AlloyType as AlloySolType>::RustType> for AsBytes<T> {
+impl<T: SolByteType> SolFrom<<T::AlloyType as AlloySolType>::RustType> for AsSolBytes<T> {
     fn sol_from(value: <T::AlloyType as AlloySolType>::RustType) -> Self {
-        Self(<T as ByteType>::from_sol_type(value))
+        Self(<T as SolByteType>::from_sol_type(value))
     }
 }
-impl<T: ByteType> crate::sol::from::private::Sealed for AsBytes<T> {}
+impl<T: SolByteType> crate::sol::from::private::Sealed for AsSolBytes<T> {}
 
 // Implement core/standard traits for cheap representations as the inner type.
-impl<T: ByteType> Deref for AsBytes<T> {
+impl<T: SolByteType> Deref for AsSolBytes<T> {
     type Target = T;
 
     fn deref(&self) -> &Self::Target {
@@ -95,25 +95,25 @@ impl<T: ByteType> Deref for AsBytes<T> {
     }
 }
 
-impl<T: ByteType> Borrow<T> for AsBytes<T> {
+impl<T: SolByteType> Borrow<T> for AsSolBytes<T> {
     fn borrow(&self) -> &T {
         &self.0
     }
 }
 
-impl<T: ByteType> AsRef<T> for AsBytes<T> {
+impl<T: SolByteType> AsRef<T> for AsSolBytes<T> {
     fn as_ref(&self) -> &T {
         &self.0
     }
 }
-impl AsRef<[u8]> for AsBytes<Vec<u8>> {
+impl AsRef<[u8]> for AsSolBytes<Vec<u8>> {
     fn as_ref(&self) -> &[u8] {
         &self.0
     }
 }
 
 // Implement ByteType for `[u8; N]` and `Vec<u8>`.
-impl<const N: usize> ByteType for [u8; N]
+impl<const N: usize> SolByteType for [u8; N]
 where
     sol_data::ByteCount<N>: sol_data::SupportedFixedBytes,
 {
@@ -125,7 +125,7 @@ where
 }
 impl<const N: usize> private::Sealed for [u8; N] {}
 
-impl ByteType for Vec<u8> {
+impl SolByteType for Vec<u8> {
     type AlloyType = sol_data::Bytes;
 
     fn from_sol_type(value: <Self::AlloyType as AlloySolType>::RustType) -> Self {
