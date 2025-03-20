@@ -125,7 +125,7 @@ impl_sol_from_tuple! {
     (0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11),
 }
 
-mod private {
+pub(super) mod private {
     /// Seals implementation of `SolFrom`.
     pub trait Sealed {}
 }
