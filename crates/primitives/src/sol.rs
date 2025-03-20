@@ -29,7 +29,7 @@ use paste::paste;
 use crate::types::Address;
 use from::SolFrom;
 
-pub use bytes::AsBytes;
+pub use bytes::AsSolBytes;
 
 /// Maps an arbitrary Rust type to a Solidity representation for Solidity ABI
 /// encoding/decoding.
@@ -68,8 +68,8 @@ impl<T: SolType> SolCodec for T {
 /// | `Address` | `address` ||
 /// | `[T; N]` for `const N: usize` | `T[N]` | e.g. `[i8; 64]` <=> `int8[64]` |
 /// | `Vec<T>` | `T[]` | e.g. `Vec<i8>` <=> `int8[]` |
-/// | `AsBytes<[u8; N]>` for `1 <= N <= 32` |  `bytesN` | e.g. `AsBytes<[u8; 1]>` <=> `bytes1` |
-/// | `AsBytes<Vec<u8>>` |  `bytes` ||
+/// | `AsSolBytes<[u8; N]>` for `1 <= N <= 32` |  `bytesN` | e.g. `AsSolBytes<[u8; 1]>` <=> `bytes1` |
+/// | `AsSolBytes<Vec<u8>>` |  `bytes` ||
 /// | `(T1, T2, T3, ... T12)` | `(U1, U2, U3, ... U12)` | where `T1` <=> `U1`, ... `T12` <=> `U12` e.g. `(bool, u8, Address)` <=> `(bool, uint8, address)` |
 ///
 /// Ref: <https://docs.soliditylang.org/en/latest/abi-spec.html#types>
@@ -324,7 +324,7 @@ mod tests {
             ($($size: literal),+ $(,)*) => {
                 $(
                     test_case!(
-                        AsBytes<[u8; $size]>, AsBytes([100u8; $size]),
+                        AsSolBytes<[u8; $size]>, AsSolBytes([100u8; $size]),
                         SolFixedBytes<$size>, SolValue, SolFixedBytes([100u8; $size]),
                         [.unwrap().0], [.unwrap().0]
                     );
@@ -343,11 +343,11 @@ mod tests {
         macro_rules! bytes_test_case {
             ($($fixture_size: literal),+ $(,)*) => {
                 $(
-                    let bytes = AsBytes(Vec::from([100u8; $fixture_size]));
+                    let bytes = AsSolBytes(Vec::from([100u8; $fixture_size]));
                     let sol_bytes = SolBytes::from(bytes.clone());
 
                     test_case!(
-                        AsBytes<Vec<u8>>, bytes,
+                        AsSolBytes<Vec<u8>>, bytes,
                         SolBytes, SolValue, sol_bytes,
                         [.unwrap().as_slice()], [.unwrap().as_ref()]
                     );
@@ -389,8 +389,8 @@ mod tests {
 
         // fixed-size byte arrays.
         test_case!(
-            (AsBytes<[u8; 32]>,),
-            (AsBytes([100u8; 32]),),
+            (AsSolBytes<[u8; 32]>,),
+            (AsSolBytes([100u8; 32]),),
             (SolFixedBytes<32>,),
             SolValue,
             (SolFixedBytes([100u8; 32]),),
@@ -400,8 +400,8 @@ mod tests {
 
         // dynamic size byte arrays.
         test_case!(
-            (AsBytes<Vec<u8>>,),
-            (AsBytes(Vec::from([100u8; 64])),),
+            (AsSolBytes<Vec<u8>>,),
+            (AsSolBytes(Vec::from([100u8; 64])),),
             (SolBytes,),
             SolValue,
             (SolBytes::from([100u8; 64]),),
