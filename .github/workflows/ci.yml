@@ -737,7 +737,7 @@ jobs:
             e2e_test_deployed_contract \
             -- --ignored --nocapture
 
-  examples-contract-build:
+  examples-contract-build-riscv:
     runs-on: ubuntu-latest
     needs: [set-image, build]
     defaults:
@@ -748,7 +748,6 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        type: [RISCV]
         partition: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
     steps:
       - name: Checkout
@@ -765,19 +764,28 @@ jobs:
       - name: Rust Info
         uses: ./.github/rust-info
 
-      - name: Build Contract RISCV Examples
+      - name: Build Contract Examples for RISC-V
         if: ${{ matrix.type == 'RISCV' }}
         env:
           RUSTC_BOOTSTRAP: 1
+          #SCRIPTS_DIR: ${{ GITHUB_WORKSPACE }}/scripts
+          PR_NUMBER: ${{ github.event.number }}
         run: |
-          # We skip some examples for those reasons:
-          # This uses dlmalloc which is only supported on select targets.
-          #   - custom_allocator
-          # Pulls in sp-std which needlessly requires atomic pointers (TODO: Fix sp-std and enable this example)
-          #   - call-runtime
-          scripts/for_all_contracts_exec.sh --path integration-tests --ignore public/custom-allocator --ignore public/call-runtime --ignore public/contract-xcm \
-            --partition ${{ matrix.partition }}/15 -- \
-            cargo +nightly build --manifest-path {} --no-default-features --target $RISCV_TARGET -Zbuild-std="core,alloc"
+          mkdir -p measurements-${{ PR_NUMBER }}/
+          scripts/for_all_contracts_exec.sh --path integration-tests --partition ${{ matrix.partition }}/15 -- \
+            export EXAMPLE={} && \
+            export CONTRACT_SIZE_FILE="measurements/${{ matrix.branch }}_contract_size_${{ EXAMPLE }}" && \
+            scripts/build_and_determine_contract_size.sh {} >> ${CONTRACT_SIZE_FILE} && \
+            sed -ie 's/^integration-tests\/\(public\/\|internal\/\)\?//' ${CONTRACT_SIZE_FILE}
+
+      - uses: actions/upload-artifact@v4
+        #env:
+            #CONTRACT_SIZE_FILE: ${{ matrix.branch }}_contract_size_${{ matrix.partition }}
+        with:
+            #name: ${{ github.job }}-${{ matrix.branch }}-data
+            #name: ./measurements-${{ PR_NUMBER }}
+            path: ./measurements-${{ github.event.number }}
+            retention-days: 1
 
   examples-docs:
     runs-on: ubuntu-latest

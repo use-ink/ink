@@ -33,9 +33,26 @@ jobs:
 
       - name: Download Pull-Request Contract Sizes
         uses: ./.github/download-artifact
+            #PR_NUMBER: ${{ github.event.number }}
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          ARTIFACT_NAME: contract-sizes-pull_request-data
+          #ARTIFACT_NAME: contract-sizes-pull_request-data
+          #ARTIFACT_NAME: contract-sizes-${{ github.event.number }}
+          ARTIFACT_NAME: measurements-${{ github.event.number }}
+
+      - name: Combine contract sizes from individual examples (for master)
+        env:
+            ARTIFACT_NAME: measurements-master
+        run: |
+            find measurements*
+            cat ${{ ARTIFACT_NAME }}/* > master_contract_sizes
+
+      - name: Combine contract sizes from individual examples (for Pull Request)
+        env:
+            ARTIFACT_NAME: measurements-${{ github.event.number }}
+        run: |
+            find measurements*
+            cat ${{ ARTIFACT_NAME }}/* > pull_request_contract_sizes
 
       - name: Collect Contract Sizes
         run: |
