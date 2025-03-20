@@ -14,6 +14,7 @@
 
 //! Abstractions for implementing Solidity ABI encoding/decoding for arbitrary Rust types.
 
+mod bytes;
 mod from;
 
 use alloy_sol_types::{
@@ -27,6 +28,8 @@ use paste::paste;
 
 use crate::types::Address;
 use from::SolFrom;
+
+pub use bytes::AsBytes;
 
 /// Maps an arbitrary Rust type to a Solidity representation for Solidity ABI
 /// encoding/decoding.
@@ -49,15 +52,25 @@ pub trait SolCodec: From<Self::SolType> + Borrow<Self::SolType> {
     }
 }
 
-impl<T> SolCodec for T
-where
-    T: SolType,
-{
+impl<T: SolType> SolCodec for T {
     type SolType = T;
 }
 
 /// A Rust equivalent of a Solidity type that implements logic for Solidity ABI
 /// encoding/decoding.
+///
+/// | Rust/ink! type | Solidity type | Notes |
+/// | -------------- | ------------- | ----- |
+/// | `bool` | `bool` ||
+/// | `iN` for `N ∈ {8,16,32,64,128}` | `intN` | e.g `i8` <=> `int8` |
+/// | `uN` for `N ∈ {8,16,32,64,128}` | `uintN` | e.g `u8` <=> `uint8` |
+/// | `String` | `string` ||
+/// | `Address` | `address` ||
+/// | `[T; N]` for `const N: usize` | `T[N]` | e.g. `[i8; 64]` <=> `int8[64]` |
+/// | `Vec<T>` | `T[]` | e.g. `Vec<i8>` <=> `int8[]` |
+/// | `AsBytes<[u8; N]>` for `1 <= N <= 32` |  `bytesN` | e.g. `AsBytes<[u8; 1]>` <=> `bytes1` |
+/// | `AsBytes<Vec<u8>>` |  `bytes` ||
+/// | `(T1, T2, T3, ... T12)` | `(U1, U2, U3, ... U12)` | where `T1` <=> `U1`, ... `T12` <=> `U12` e.g. `(bool, u8, Address)` <=> `(bool, uint8, address)` |
 ///
 /// Ref: <https://docs.soliditylang.org/en/latest/abi-spec.html#types>
 ///
@@ -83,17 +96,7 @@ pub trait SolType:
     }
 }
 
-/// Marker trait implemented by all Solidity type equivalents except `u8`.
-///
-/// # Note
-/// See <https://github.com/use-ink/ink/issues/2428> for motivation.
-///
-/// # Note
-/// This trait is implicitly sealed (because [`SolType`] - which is sealed - is a
-/// super trait) and cannot be implemented for types outside `ink_primitives`.
-trait NonU8: SolType {}
-
-macro_rules! impl_primitive_minimal {
+macro_rules! impl_primitive {
     ($($ty: ty => $sol_ty: ty),+ $(,)*) => {
         $(
             impl SolType for $ty {
@@ -101,16 +104,6 @@ macro_rules! impl_primitive_minimal {
             }
 
             impl private::Sealed for $ty {}
-        )*
-    };
-}
-
-macro_rules! impl_primitive {
-    ($($ty: ty => $sol_ty: ty),+ $(,)*) => {
-        $(
-            impl_primitive_minimal!($ty => $sol_ty);
-
-            impl NonU8 for $ty {}
         )*
     };
 }
@@ -128,13 +121,7 @@ macro_rules! impl_native_int {
     };
 }
 
-impl_primitive!(i8 => sol_data::Int<8>);
-impl_native_int!(16, 32, 64, 128);
-
-// `u8` requires special handling, so we special case by implementing `NonU8` for all
-// other types.
-// See <https://github.com/use-ink/ink/issues/2428> for motivation.
-impl_primitive_minimal!(u8 => sol_data::Uint<8>);
+impl_native_int!(8, 16, 32, 64, 128);
 
 impl_primitive! {
     // bool
@@ -144,10 +131,6 @@ impl_primitive! {
     String => sol_data::String,
     // address
     Address => sol_data::Address,
-    // bytes
-    // `u8` sequences/collections are mapped to `bytes` equivalents.
-    //[u8] => sol_data::Bytes,
-    Vec<u8> => sol_data::Bytes,
 }
 
 macro_rules! impl_generics {
@@ -159,22 +142,16 @@ macro_rules! impl_generics {
             type AlloyType = $sol_ty;
         }
 
-        impl<$($gen)*> NonU8 for $ty where
-        Self: SolFrom<<$sol_ty as AlloySolType>::RustType>, $($bounds)*
-        {}
-
         impl<$($gen)*> private::Sealed for $ty {}
         )*
     };
 }
 
 impl_generics! {
-    // byte array
-    [const N: usize] [u8; N] => sol_data::FixedBytes<N> [sol_data::ByteCount<N>: sol_data::SupportedFixedBytes],
     // array
-    [T: NonU8, const N: usize] [T; N] => sol_data::FixedArray<T::AlloyType, N> [],
-    [T: NonU8] [T] => sol_data::Array<T::AlloyType> [],
-    [T: NonU8] Vec<T> => sol_data::Array<T::AlloyType> [],
+    [T: SolType, const N: usize] [T; N] => sol_data::FixedArray<T::AlloyType, N> [],
+    [T: SolType] [T] => sol_data::Array<T::AlloyType> [],
+    [T: SolType] Vec<T> => sol_data::Array<T::AlloyType> [],
     // references
     ['a, T: SolType] &'a T => T::AlloyType [&'a T: SolTypeValue<T::AlloyType>],
     ['a, T: SolType] &'a mut T => T::AlloyType [&'a mut T: SolTypeValue<T::AlloyType>],
@@ -191,13 +168,8 @@ impl SolType for Tuple {
 #[impl_for_tuples(12)]
 impl private::Sealed for Tuple {}
 
-#[impl_for_tuples(12)]
-impl NonU8 for Tuple {
-    for_tuples!( where #( Tuple: SolFrom<<Tuple::AlloyType as AlloySolType>::RustType> )* );
-}
-
 mod private {
-    /// Seals implementations of `SolType` and `NonU8`.
+    /// Seals implementations of `SolType`.
     pub trait Sealed {}
 }
 
@@ -207,7 +179,11 @@ mod private {
 mod tests {
     use super::*;
     use alloy_sol_types::{
-        private::Address as AlloyAddress,
+        private::{
+            Address as AlloyAddress,
+            Bytes as SolBytes,
+            FixedBytes as SolFixedBytes,
+        },
         sol_data::Uint,
         SolValue,
     };
@@ -275,51 +251,6 @@ mod tests {
     }
 
     #[test]
-    fn fixed_bytes_works() {
-        use alloy_sol_types::private::FixedBytes;
-
-        macro_rules! fixed_bytes_test_case {
-            ($($size: literal),+ $(,)*) => {
-                $(
-                    test_case!(
-                        [u8; $size], [100u8; $size],
-                        FixedBytes<$size>, SolValue, FixedBytes([100u8; $size]),
-                        [.unwrap()], [.unwrap().0]
-                    );
-                )+
-            };
-        }
-
-        fixed_bytes_test_case!(
-            1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21,
-            22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32
-        );
-    }
-
-    #[test]
-    fn bytes_works() {
-        use alloy_sol_types::private::Bytes;
-
-        macro_rules! bytes_test_case {
-            ($($fixture_size: literal),+ $(,)*) => {
-                $(
-                    let bytes = Vec::from([100u8; $fixture_size]);
-                    let sol_bytes = Bytes::from(bytes.clone());
-
-                    test_case!(
-                        Vec<u8>, bytes,
-                        Bytes, SolValue, sol_bytes,
-                        [.unwrap().as_slice()], [.unwrap().as_ref()]
-                    );
-                )+
-            };
-        }
-
-        // Number/size is the dynamic size of the `Vec`.
-        bytes_test_case!(0, 1, 10, 20, 30, 40, 50, 60, 70);
-    }
-
-    #[test]
     fn fixed_array_works() {
         test_case!([bool; 2], [true, false]);
 
@@ -329,6 +260,13 @@ mod tests {
         test_case!([i64; 64], [-1_000_000_000i64; 64]);
         test_case!([i128; 128], [1_000_000_000_000i128; 128]);
 
+        // `SolValue` for `[u8; N]` maps to `bytesN` for `1 <= N <= 32`.
+        test_case!(
+            [u8; 8],
+            [100u8; 8],
+            sol_data::FixedArray<Uint<8>, 8>,
+            AlloySolType
+        );
         test_case!([u16; 16], [10_000u16; 16]);
         test_case!([u32; 32], [1_000_000u32; 32]);
         test_case!([u64; 64], [1_000_000_000u64; 64]);
@@ -356,7 +294,13 @@ mod tests {
         test_case!(Vec<i64>, Vec::from([-1_000_000_000i64; 64]));
         test_case!(Vec<i128>, Vec::from([1_000_000_000_000i128; 128]));
 
-        test_case!(Vec<u8>, Vec::from([100u8; 8]));
+        // `SolValue` for `Vec<u8>` maps to `bytes`.
+        test_case!(
+            Vec<u8>,
+            Vec::from([100u8; 8]),
+            sol_data::Array<Uint<8>>,
+            AlloySolType
+        );
         test_case!(Vec<u16>, Vec::from([10_000u16; 16]));
         test_case!(Vec<u32>, Vec::from([1_000_000u32; 32]));
         test_case!(Vec<u64>, Vec::from([1_000_000_000u64; 64]));
@@ -375,6 +319,47 @@ mod tests {
     }
 
     #[test]
+    fn fixed_bytes_works() {
+        macro_rules! fixed_bytes_test_case {
+            ($($size: literal),+ $(,)*) => {
+                $(
+                    test_case!(
+                        AsBytes<[u8; $size]>, AsBytes([100u8; $size]),
+                        SolFixedBytes<$size>, SolValue, SolFixedBytes([100u8; $size]),
+                        [.unwrap().0], [.unwrap().0]
+                    );
+                )+
+            };
+        }
+
+        fixed_bytes_test_case!(
+            1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21,
+            22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32
+        );
+    }
+
+    #[test]
+    fn bytes_works() {
+        macro_rules! bytes_test_case {
+            ($($fixture_size: literal),+ $(,)*) => {
+                $(
+                    let bytes = AsBytes(Vec::from([100u8; $fixture_size]));
+                    let sol_bytes = SolBytes::from(bytes.clone());
+
+                    test_case!(
+                        AsBytes<Vec<u8>>, bytes,
+                        SolBytes, SolValue, sol_bytes,
+                        [.unwrap().as_slice()], [.unwrap().as_ref()]
+                    );
+                )+
+            };
+        }
+
+        // Number/size is the dynamic size of the `Vec`.
+        bytes_test_case!(0, 1, 10, 20, 30, 40, 50, 60, 70);
+    }
+
+    #[test]
     fn tuple_works() {
         test_case!((), ());
         test_case!((bool,), (true,));
@@ -385,29 +370,12 @@ mod tests {
             (true, 100i8, 1_000_000u32, String::from("Hello, world!"))
         );
 
+        // simple sequences/collections.
         test_case!(([i8; 32],), ([100i8; 32],));
         test_case!((Vec<i8>,), (Vec::from([100i8; 64]),));
         test_case!(([i8; 32], Vec<i8>), ([100i8; 32], Vec::from([100i8; 64])));
-        use alloy_sol_types::private::FixedBytes;
-        test_case!(
-            ([u8; 32],),
-            ([100u8; 32],),
-            (FixedBytes<32>,),
-            SolValue,
-            (FixedBytes([100u8; 32]),),
-            [.unwrap().0],
-            [.unwrap().0.0]
-        );
-        use alloy_sol_types::private::Bytes;
-        test_case!(
-            (Vec<u8>,),
-            (Vec::from([100u8; 64]),),
-            (Bytes,),
-            SolValue,
-            (Bytes::from([100u8; 64]),),
-            [.unwrap().0],
-            [.unwrap().0.0]
-        );
+
+        // sequences of addresses.
         test_case!(
             ([Address; 4],), ([Address([1; 20]); 4],),
             ([AlloyAddress; 4],), SolValue, ([AlloyAddress::from([1; 20]); 4],),
@@ -417,6 +385,28 @@ mod tests {
             (Vec<Address>,), (Vec::from([Address([1; 20]); 4]),),
             (Vec<AlloyAddress>,), SolValue, (Vec::from([AlloyAddress::from([1; 20]); 4]),),
             [.unwrap().0.into_iter().map(|val| val.0).collect::<Vec<_>>()], [.unwrap().0.into_iter().map(|val| val.0).collect::<Vec<_>>()]
+        );
+
+        // fixed-size byte arrays.
+        test_case!(
+            (AsBytes<[u8; 32]>,),
+            (AsBytes([100u8; 32]),),
+            (SolFixedBytes<32>,),
+            SolValue,
+            (SolFixedBytes([100u8; 32]),),
+            [.unwrap().0.0],
+            [.unwrap().0.0]
+        );
+
+        // dynamic size byte arrays.
+        test_case!(
+            (AsBytes<Vec<u8>>,),
+            (AsBytes(Vec::from([100u8; 64])),),
+            (SolBytes,),
+            SolValue,
+            (SolBytes::from([100u8; 64]),),
+            [.unwrap().0.0],
+            [.unwrap().0.0]
         );
     }
 }
