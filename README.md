@@ -47,7 +47,7 @@ More relevant links:
 * [Contracts UI](https://contracts-ui.substrate.io/) ‒ Frontend for contract instantiation and interaction
 * [`ink-node](https://github.com/use-ink/ink-node) ‒ Simple Substrate blockchain which includes smart contract functionality
 * [Awesome ink!](https://github.com/use-ink/awesome-ink) - A curated list of awesome projects for Polkadot's ink!
-* We post announcements on [Telegram][k2] and [Twitter][l2].
+* We post announcements on [Telegram][k2] and [X][l2].
 
 
 ## Table of Contents
