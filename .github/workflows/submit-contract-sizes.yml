@@ -29,7 +29,7 @@ jobs:
         uses: ./.github/download-artifact
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          ARTIFACT_NAME: contract-sizes-master-data
+          ARTIFACT_NAME: measurements-master
 
       - name: Download Pull-Request Contract Sizes
         uses: ./.github/download-artifact
@@ -49,7 +49,7 @@ jobs:
 
       - name: Combine contract sizes from individual examples (for Pull Request)
         env:
-            ARTIFACT_NAME: measurements-${{ github.event.number }}
+            ARTIFACT_NAME: measurements-${{ matrix.branch }}
         run: |
             find measurements*
             cat ${{ ARTIFACT_NAME }}/* > pull_request_contract_sizes
