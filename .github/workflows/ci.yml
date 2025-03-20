@@ -768,10 +768,8 @@ jobs:
         if: ${{ matrix.type == 'RISCV' }}
         env:
           RUSTC_BOOTSTRAP: 1
-          #SCRIPTS_DIR: ${{ GITHUB_WORKSPACE }}/scripts
-          PR_NUMBER: ${{ github.event.number }}
         run: |
-          mkdir -p measurements-${{ PR_NUMBER }}/
+          mkdir -p measurements-${{ github.event.number }}/
           scripts/for_all_contracts_exec.sh --path integration-tests --partition ${{ matrix.partition }}/15 -- \
             export EXAMPLE={} && \
             export CONTRACT_SIZE_FILE="measurements/${{ matrix.branch }}_contract_size_${{ EXAMPLE }}" && \
