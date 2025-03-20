@@ -436,7 +436,8 @@ jobs:
           # at the same time, hence we use this workaround.
           QUICKCHECK_TESTS: 0
         run: |
-            rustup toolchain remove nightly-2025-02-20; rustup toolchain remove stable; rustup toolchain remove 1.85.0;
+            rustup toolchain remove nightly-2025-02-20
+            rustup toolchain remove stable
             cargo +nightly nextest run --all-features --no-fail-fast --workspace --locked --jobs 1 --partition count:${{ matrix.partition }}/30
 
   test-docs:
