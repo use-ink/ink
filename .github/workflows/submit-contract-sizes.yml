@@ -49,7 +49,8 @@ jobs:
 
       - name: Combine contract sizes from individual examples (for Pull Request)
         env:
-            ARTIFACT_NAME: measurements-${{ matrix.branch }}
+            BRANCH: ${GITHUB_REF#refs/heads/}
+            ARTIFACT_NAME: measurements-$BRANCH
         run: |
             find measurements*
             cat ${{ ARTIFACT_NAME }}/* > pull_request_contract_sizes
