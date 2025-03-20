@@ -45,7 +45,7 @@ More relevant links:
 * [Substrate Stack Exchange](https://substrate.stackexchange.com/questions/tagged/ink?tab=Votes) ‒ Forum for getting your ink! questions answered
 * [`cargo-contract`](https://github.com/use-ink/cargo-contract) ‒ CLI tool for ink! contracts
 * [Contracts UI](https://contracts-ui.substrate.io/) ‒ Frontend for contract instantiation and interaction
-* [Substrate Contracts Node](https://github.com/paritytech/substrate-contracts-node) ‒ Simple Substrate blockchain which includes smart contract functionality
+* [`ink-node](https://github.com/use-ink/ink-node) ‒ Simple Substrate blockchain which includes smart contract functionality
 * [Awesome ink!](https://github.com/use-ink/awesome-ink) - A curated list of awesome projects for Polkadot's ink!
 * We post announcements on [Telegram][k2] and [Twitter][l2].
 
@@ -75,7 +75,7 @@ More relevant links:
 The best way to start is to check out the [Getting Started](https://use.ink/getting-started/setup)
 page in our documentation.
 
-If you want to have a local setup you can use our [`substrate-contracts-node`](https://github.com/paritytech/substrate-contracts-node) for a quickstart.
+If you want to have a local setup you can use our [`ink-node`](https://github.com/use-ink/ink-node) for a quickstart.
 It's a simple Substrate blockchain which includes the Substrate module for smart contract functionality ‒ the `contracts` pallet (see [How it Works](#how-it-works) for more).
 
 We also have a live testnet named "Contracts" on Rococo. Rococo is a Substrate based

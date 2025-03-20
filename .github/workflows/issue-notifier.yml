@@ -25,7 +25,7 @@ jobs:
           - link
           - squink-splash-advanced
           - squink-splash-beginner
-          - substrate-contracts-node
+          - ink-node
     steps:
       - name: Generate token
         id: generate_token
