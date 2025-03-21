@@ -806,7 +806,32 @@ jobs:
         with:
             #name: ${{ github.job }}-${{ matrix.branch }}-data
             #name: ./measurements-${{ PR_NUMBER }}
-            path: ./measurements-${{ steps.extract_branch.outputs.branch }}/
+            path: ./measurements-${{ steps.extract_branch.outputs.branch }}/*
+            name: ${{ env.RUN_UNIQUE_ID }}_artifact_${{ matrix.partition }}
+            retention-days: 1
+
+  process-contract-sizes:
+    needs: [examples-contract-build-riscv]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download reports' artifacts
+        uses: actions/download-artifact@v4
+        with:
+            path: downloaded_artifacts
+
+      - name: Extract branch name
+        shell: bash
+        run: echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
+        id: extract_branch
+
+      - name: Combine contract sizes from individual examples
+        run: |
+            find .
+            cat downloaded_artifacts/* > measurements-${{ steps.extract_branch.outputs.branch }}
+
+      - uses: actions/upload-artifact@v4
+        with:
+            path: ./measurements-${{ steps.extract_branch.outputs.branch }}/*
             retention-days: 1
 
   examples-docs:
