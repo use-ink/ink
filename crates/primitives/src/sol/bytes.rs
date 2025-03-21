@@ -37,8 +37,8 @@ use crate::sol::{
 /// Wrapper type that encodes `u8` sequences/collections as their equivalent Solidity
 /// bytes representations.
 ///
-/// | Rust/ink! type | Solidity type | Notes |
-/// | -------------- | ------------- | ----- |
+/// | Rust/ink! type | Solidity ABI type | Notes |
+/// | -------------- | ----------------- | ----- |
 /// | `AsSolBytes<[u8; N]>` for `1 <= N <= 32` |  `bytesN` | e.g. `AsSolBytes<[u8; 1]>` <=> `bytes1` |
 /// | `AsSolBytes<Vec<u8>>` |  `bytes` ||
 ///
@@ -49,7 +49,7 @@ use crate::sol::{
 #[cfg_attr(feature = "std", derive(TypeInfo))]
 pub struct AsSolBytes<T: SolByteType>(pub T);
 
-/// A Rust equivalent of a Solidity bytes type that implements logic for Solidity ABI
+/// A Rust equivalent of a Solidity ABI bytes type that implements logic for Solidity ABI
 /// encoding/decoding.
 ///
 /// Ref: <https://docs.soliditylang.org/en/latest/types.html#fixed-size-byte-arrays>
@@ -63,7 +63,7 @@ pub trait SolByteType:
     + SolFrom<<<Self as SolByteType>::AlloyType as AlloySolType>::RustType>
     + private::Sealed
 {
-    /// Equivalent Solidity bytes type from [`alloy_sol_types`].
+    /// Equivalent Solidity ABI bytes type from [`alloy_sol_types`].
     type AlloyType: AlloySolType;
 
     /// Convert from [`alloy_sol_types::SolType::RustType`] (i.e. `alloy`'s bytes type) to

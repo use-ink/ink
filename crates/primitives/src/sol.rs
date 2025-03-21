@@ -29,15 +29,14 @@ use ink_prelude::borrow::Cow;
 pub use bytes::AsSolBytes;
 pub use types::SolType;
 
-/// Maps an arbitrary Rust/ink! type to a Solidity representation for Solidity ABI
-/// encoding/decoding.
+/// Maps an arbitrary Rust/ink! type to a Solidity ABI type representation for Solidity
+/// ABI encoding/decoding.
 ///
 /// # Note
 /// Implementing this trait entails:
-/// - Declaring the equivalent Solidity ABI type for this type via the `SolCodec::SolType`
-///   associated type. See the sealed/internal [`SolType`] trait for a table of Rust/ink!
-///   to Solidity ABI type representations that can be used as the `SolCodec::SolType`
-///   type.
+/// - Declaring the equivalent Solidity ABI type via the `SolCodec::SolType` associated
+///   type. See the [docs for sealed `SolType` trait][SolType] for a table of Rust/ink!
+///   primitive types mapped to their equivalent Solidity ABI type.
 /// - Implementing two required methods that define how to convert between this type and
 ///   its equivalent Solidity ABI representation
 ///   - `from_sol_type`: for converting from `Self::SolType` to `Self` (used in decoding).
@@ -74,10 +73,10 @@ pub use types::SolType;
 /// }
 /// ```
 pub trait SolCodec {
-    /// Equivalent Solidity type.
+    /// Equivalent Solidity ABI type representation.
     type SolType: SolType + Clone;
 
-    /// Name of equivalent Solidity type.
+    /// Name of equivalent Solidity ABI type.
     const SOL_NAME: &'static str =
         <<Self::SolType as SolType>::AlloyType as AlloySolType>::SOL_NAME;
 
