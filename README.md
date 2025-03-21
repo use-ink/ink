@@ -1,10 +1,11 @@
 <div align="center">
     <img src="https://raw.githubusercontent.com/use-ink/ink/master/.images/ink-logo-glow.svg" alt="ink!" height="136" />
 <h1 align="center">
-    Polkadot's ink! for writing smart contracts
+    Write smart contracts in Rust for <a href="https://github.com/paritytech/polkadot-sdk">Polkadot SDK</a>.
 </h1>
 
-[![linux][a1]][a2] [![codecov][c1]][c2] [![coveralls][d1]][d2] [![loc][e1]][e2] [![stack-exchange][s1]][s2]
+[![linux][a1]][a2] [![codecov][c1]][c2] [![coveralls][d1]][d2] [![loc][e1]][e2]<br/>
+[![stack-exchange][s1]][s2] [![telegram][o1]][o2] [![X][p1]][p2]
 
 [a1]: https://github.com/use-ink/ink/workflows/continuous-integration/badge.svg
 [a2]: https://github.com/use-ink/ink/actions?query=workflow%3Acontinuous-integration+branch%3Amaster
@@ -28,193 +29,26 @@
 [l2]: https://x.com/ink_lang
 [s1]: https://img.shields.io/badge/click-white.svg?logo=StackExchange&label=ink!%20Support%20on%20StackExchange&labelColor=white&color=blue
 [s2]: https://substrate.stackexchange.com/questions/tagged/ink?tab=Votes
+[t1]: https://img.shields.io/badge/click-blue.svg
+[t2]: https://use-ink.github.io/ink/ink_e2e
+[o1]: https://img.shields.io/badge/click-white.svg?logo=Telegram&label=ink!%20Support%20on%20Telegram&labelColor=white&color=blue
+[o2]: https://t.me/inkathon
+[p1]: https://twitter.com/ink_lang
+[p2]: https://img.shields.io/twitter/follow/ink_lang?label=Follow%20us%20on%20X
 
-> <img src="https://raw.githubusercontent.com/use-ink/ink/master/.images/ink-squid.svg" alt="squink, the ink! mascot" style="vertical-align: middle" align="left" height="60" />ink! is an [eDSL](https://wiki.haskell.org/Embedded_domain_specific_language) to write smart contracts in Rust for blockchains built on the [Substrate](https://github.com/paritytech/substrate) framework. ink! contracts are compiled to WebAssembly.
+[ink! Website](https://use.ink)&nbsp;&nbsp;•&nbsp;&nbsp;
+[Developer Documentation](https://use.ink/docs)
 
-<br/>
-
-[Guided Tutorial for Beginners](https://docs.substrate.io/tutorials/smart-contracts/)&nbsp;&nbsp;•&nbsp;&nbsp;
-[ink! Documentation Portal](https://use.ink)&nbsp;&nbsp;•&nbsp;&nbsp;
-[Developer Documentation](https://use-ink.github.io/ink/ink)
-
-
-<br/>
 </div>
 
-More relevant links:
-* [Substrate Stack Exchange](https://substrate.stackexchange.com/questions/tagged/ink?tab=Votes) ‒ Forum for getting your ink! questions answered
-* [`cargo-contract`](https://github.com/use-ink/cargo-contract) ‒ CLI tool for ink! contracts
-* [Contracts UI](https://contracts-ui.substrate.io/) ‒ Frontend for contract instantiation and interaction
-* [Substrate Contracts Node](https://github.com/paritytech/substrate-contracts-node) ‒ Simple Substrate blockchain which includes smart contract functionality
-* [Awesome ink!](https://github.com/use-ink/awesome-ink) - A curated list of awesome projects for Polkadot's ink!
-* We post announcements on [Telegram][k2] and [Twitter][l2].
-
-
-## Table of Contents
-
-- [Table of Contents](#table-of-contents)
-- [Play with It](#play-with-it)
-- [Usage](#usage)
-- [Hello, World! ‒ The Flipper](#hello-world--the-flipper)
-- [Examples](#examples)
-- [How it Works](#how-it-works)
-- [ink! Macros \& Attributes Overview](#ink-macros--attributes-overview)
-  - [Entry Point](#entry-point)
-  - [Trait Definitions](#trait-definitions)
-  - [Off-chain Testing](#off-chain-testing)
-- [Developer Documentation](#developer-documentation)
-- [Community Badges](#community-badges)
-  - [Normal Design](#normal-design)
-  - [Flat Design](#flat-design)
-- [Contributing](#contributing)
-- [License](#license)
-
-
-## Play with It
+## Getting started
 
 The best way to start is to check out the [Getting Started](https://use.ink/getting-started/setup)
 page in our documentation.
 
-If you want to have a local setup you can use our [`substrate-contracts-node`](https://github.com/paritytech/substrate-contracts-node) for a quickstart.
-It's a simple Substrate blockchain which includes the Substrate module for smart contract functionality ‒ the `contracts` pallet (see [How it Works](#how-it-works) for more).
+## Architecture & How It Works
 
-We also have a live testnet named "Contracts" on Rococo. Rococo is a Substrate based
-parachain which supports ink! smart contracts. For further instructions on using this
-testnet, follow the instructions in
-[our documentation](https://use.ink/testnet).
-
-The [Contracts UI](https://contracts-ui.substrate.io/) can be used to instantiate your
-contract to a chain and interact with it.
-
-## Usage
-
-A prerequisite for compiling smart contracts is to have Rust and Cargo installed. Here's [an installation guide](https://doc.rust-lang.org/cargo/getting-started/installation.html).
-
-We recommend installing [`cargo-contract`](https://github.com/use-ink/cargo-contract) as well.
-It's a CLI tool which helps set up and manage WebAssembly smart contracts written with ink!:
-
-```
-cargo install cargo-contract --force
-```
-
-Use the `--force` to ensure you are updated to the most recent `cargo-contract` version.
-
-In order to initialize a new ink! project you can use:
-
-```
-cargo contract new flipper
-```
-
-This will create a folder `flipper` in your work directory.
-The folder contains a scaffold `Cargo.toml` and a `lib.rs`, which both contain the necessary building blocks for using ink!.
-
-The `lib.rs` contains our hello world contract ‒ the `Flipper`, which we explain in the next section.
-
-In order to build the contract just execute this command in the `flipper` folder:
-```
-cargo contract build
-```
-
-As a result you'll get a `target/flipper.polkavm` file, a `flipper.json` file and a `<contract-name>.contract` file in the `target` folder of your contract.
-The `.contract` file combines the contract's binary and metadata into one file and needs to be used when instantiating the contract.
-
-
-## Hello, World! ‒ The Flipper
-
-The `Flipper` contract is a simple contract containing only a single `bool` value.
-
-It provides methods to:
-
-* flip its value from `true` to `false` (and vice versa) and
-* return the current state.
-
-Below you can see the code using ink!.
-
-```rust
-#[ink::contract]
-mod flipper {
-    /// The storage of the flipper contract.
-    #[ink(storage)]
-    pub struct Flipper {
-        /// The single `bool` value.
-        value: bool,
-    }
-
-    impl Flipper {
-        /// Instantiates a new Flipper contract and initializes
-        /// `value` to `init_value`.
-        #[ink(constructor)]
-        pub fn new(init_value: bool) -> Self {
-            Self {
-                value: init_value,
-            }
-        }
-
-        /// Flips `value` from `true` to `false` or vice versa.
-        #[ink(message)]
-        pub fn flip(&mut self) {
-            self.value = !self.value;
-        }
-
-        /// Returns the current state of `value`.
-        #[ink(message)]
-        pub fn get(&self) -> bool {
-            self.value
-        }
-    }
-
-    /// Simply execute `cargo test` in order to test your contract
-    /// using the below unit tests.
-    #[cfg(test)]
-    mod tests {
-        use super::*;
-
-        #[ink::test]
-        fn it_works() {
-            let mut flipper = Flipper::new(false);
-            assert_eq!(flipper.get(), false);
-            flipper.flip();
-            assert_eq!(flipper.get(), true);
-        }
-    }
-}
-```
-The [`flipper/lib.rs`](https://github.com/use-ink/ink-examples/blob/v5.x.x/flipper/lib.rs)
-file in our examples folder contains exactly this code. Run `cargo contract build` to build your
-first ink! smart contract.
-
-## Examples
-
-In the [`examples`](https://github.com/use-ink/ink-examples) repository you'll find a number of examples written in ink!.
-
-Some of the most interesting ones:
-
-* `basic_contract_ref` ‒ Implements cross-contract calling.
-* `trait-erc20` ‒ Defines a trait for `Erc20` contracts and implements it.
-* `erc721` ‒ An exemplary implementation of `Erc721` NFT tokens.
-* `dns` ‒  A simple `DomainNameService` smart contract.
-* …and more, just rummage through the folder 🙃.
-
-To build a single example navigate to the root of the example and run:
-```
-cargo contract build
-```
-
-You should now have an `<name>.contract` file in the `target` folder of the contract.
-
-For information on how to upload this file to a chain, please have a look at the [Play with It](#play-with-it) section or our [smart contracts workshop](https://docs.substrate.io/tutorials/v3/ink-workshop/pt1).
-
-
-## How it Works
-
-* Substrate's [Framework for Runtime Aggregation of Modularized Entities (FRAME)](https://docs.substrate.io/v3/runtime/frame)
-contains a module  which implements an API for typical functions smart contracts need (storage,querying information about accounts, …).
-This module is called the `contracts` pallet,
-* The `contracts` pallet requires smart contracts to be uploaded to the blockchain as a binary blob.
-* ink! is a smart contract language which targets the API exposed by [`pallet-revive`](https://github.com/paritytech/polkadot-sdk/tree/master/substrate/frame/revive/src).
-Hence ink! contracts are compiled to [PolkaVM](https://github.com/paritytech/polkavm) bytecode.
-* When executing `cargo contract build` an additional file `<contract-name>.json` is created.
-It contains information about e.g. what methods the contract provides for others to call.
+The architecture of ink! is documented in the code and in this file: [ARCHITECTURE.md](./ARCHITECTURE.md).
 
 ## ink! Macros & Attributes Overview
 
@@ -239,27 +73,19 @@ In a module annotated with `#[ink::contract]` these attributes are available:
 
 See [here](https://use-ink.github.io/ink/ink/attr.contract.html) for a more detailed description of those and also for details on the `#[ink::contract]` macro.
 
-### Trait Definitions
-
-Use `#[ink::trait_definition]` to define your very own trait definitions that are then implementable by ink! smart contracts.
-See e.g. the [`examples/trait-erc20`](https://github.com/use-ink/ink-examples/blob/v5.x.x/trait-erc20/lib.rs#L20-L22) contract on how to utilize it or [the documentation](https://use-ink.github.io/ink/ink/attr.trait_definition.html) for details.
-
-### Off-chain Testing
-
-The `#[ink::test]` procedural macro enables off-chain testing. See e.g. the [`examples/erc20`](https://github.com/use-ink/ink-examples/blob/v5.x.x/erc20/lib.rs#L276-L277) contract on how to utilize those or [the documentation](https://use-ink.github.io/ink/ink/attr.test.html) for details.
-
 ## Developer Documentation
 
 We have [a very comprehensive documentation portal](https://use.ink),
 but if you are looking for the crate level documentation itself, then these are
 the relevant links:
 
-| Crate | Docs | Description |
-|:--|:--|:--|
+| Crate | Docs | Description                                                                                                                                                                              |
+|:--|:--|:-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 `ink` | [![][j1]][j2] | Language features exposed by ink!. See [here](https://use-ink.github.io/ink/ink/attr.contract.html) for a detailed description of attributes which you can use in an `#[ink::contract]`. |
-`ink_storage` | [![][f1]][f2] | Data structures available in ink!. |
-`ink_env` | [![][g1]][g2] | Low-level interface for interacting with the smart contract executor. Contains [the off-chain testing API](https://use-ink.github.io/ink/ink_env/test/index.html) as well. |
-`ink_prelude` | [![][i1]][i2] | Common API for no_std and std to access alloc crate types. |
+`ink_e2e` | [![][t1]][t2] | End-to-End testing framework for contracts.                                                                                                                                              |
+`ink_env` | [![][g1]][g2] | Low-level interface for interacting with the smart contract executor. Contains [the off-chain testing API](https://use-ink.github.io/ink/ink_env/test/index.html) as well.               |
+`ink_storage` | [![][f1]][f2] | Data structures available in ink!.                                                                                                                                                       |
+`ink_prelude` | [![][i1]][i2] | Common API for no_std and std to access alloc crate types.                                                                                                                               |
 
 ## Community Badges
 
@@ -288,4 +114,3 @@ Use the scripts provided under `scripts/check-*` directory in order to run check
 ## License
 
 The entire code within this repository is licensed under the [Apache License 2.0](LICENSE).
-

@@ -20,22 +20,25 @@ jobs:
       github.event.workflow_run.event == 'pull_request' &&
         github.event.workflow_run.conclusion == 'success'
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 100
-
       - name: Download Master Contract Sizes
         uses: ./.github/download-artifact
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          ARTIFACT_NAME: contract-sizes-master-data
+          ARTIFACT_NAME: measurements-master
+
+      - name: Extract branch name
+        shell: bash
+        run: echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
+        id: extract_branch
 
       - name: Download Pull-Request Contract Sizes
         uses: ./.github/download-artifact
+            #PR_NUMBER: ${{ github.event.number }}
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          ARTIFACT_NAME: contract-sizes-pull_request-data
+          #ARTIFACT_NAME: contract-sizes-pull_request-data
+          #ARTIFACT_NAME: contract-sizes-${{ github.event.number }}
+          ARTIFACT_NAME: measurements-${{ steps.extract_branch.outputs.branch }}
 
       - name: Collect Contract Sizes
         run: |

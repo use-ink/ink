@@ -5,7 +5,7 @@ authors = ["Use Ink <ink@use.ink>"]
 edition = "2021"
 
 [dependencies]
-ink = { path = "../../../../crates/ink", default-features = false }
+ink = { path = "../../../../crates/ink", default-features = false, features = ["unstable-hostfn"] }
 
 integration_flipper = { path = "../integration-flipper", default-features = false, features = ["ink-as-dependency"] }
 

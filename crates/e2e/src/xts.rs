@@ -362,7 +362,7 @@ where
         // Below we use the low level API to replicate the `wait_for_in_block` behaviour
         // which was removed in subxt 0.33.0. See https://github.com/paritytech/subxt/pull/1237.
         //
-        // We require this because we use `substrate-contracts-node` as our development
+        // We require this because we use `ink-node` as our development
         // node, which does not currently support finality, so we just want to
         // wait until it is included in a block.
         while let Some(status) = tx.next().await {

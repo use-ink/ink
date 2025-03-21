@@ -30,7 +30,7 @@ use syn::Result;
 /// The system requirements are:
 ///
 /// - A Substrate node with `pallet-revive` installed on the local system. You can e.g.
-///   use [`substrate-contracts-node`](https://github.com/paritytech/substrate-contracts-node)
+///   use [`ink-node`](https://github.com/use-ink/ink-node)
 ///   and install it on your PATH, or provide a path to an executable using the
 ///   `CONTRACTS_NODE` environment variable.
 ///

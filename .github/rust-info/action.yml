@@ -9,7 +9,7 @@ runs:
         rustup +nightly show
         cargo +nightly --version
         bash --version
-        substrate-contracts-node --version
+        ink-node --version
         cargo contract --version
         git --version
       shell: bash

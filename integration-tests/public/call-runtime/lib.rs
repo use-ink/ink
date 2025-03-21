@@ -134,7 +134,7 @@ mod runtime_call {
         type E2EResult<T> = Result<T, Box<dyn std::error::Error>>;
 
         /// The base number of indivisible units for balances on the
-        /// `substrate-contracts-node`.
+        /// `ink-node`.
         const UNIT: Balance = 1_000_000_000_000;
 
         /// The contract will be given 1000 tokens during instantiation.

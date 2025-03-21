@@ -1,4 +1,4 @@
-# ink!ternals
+# ink! v6 Architecture
 
 This document describes the architecture of ink!. The information
 here targets those who want to understand or modify the inner
