@@ -73,7 +73,6 @@ jobs:
 
   spellcheck:
     runs-on: ubuntu-latest
-    if: false
     defaults:
       run:
         shell: bash
@@ -96,7 +95,6 @@ jobs:
 
   fmt:
     runs-on: ubuntu-latest
-    if: false
     defaults:
       run:
         shell: bash
@@ -128,7 +126,6 @@ jobs:
 
   clippy:
     runs-on: ubuntu-latest
-    if: false
     defaults:
       run:
         shell: bash
@@ -164,7 +161,6 @@ jobs:
 
   clippy-riscv:
       runs-on: ubuntu-latest
-      if: false
       defaults:
           run:
               shell: bash
@@ -200,7 +196,6 @@ jobs:
 
   clippy-examples:
     runs-on: ubuntu-latest
-    if: false
     defaults:
       run:
         shell: bash
@@ -241,7 +236,6 @@ jobs:
 
   check:
     runs-on: ubuntu-latest
-    if: false
     defaults:
       run:
         shell: bash
@@ -288,7 +282,6 @@ jobs:
 
   dylint-checks:
     runs-on: ubuntu-latest
-    if: false
     defaults:
       run:
         shell: bash
@@ -326,7 +319,6 @@ jobs:
 
   dylint-testing:
       runs-on: ubuntu-latest
-      if: false
       defaults:
           run:
               shell: bash
@@ -363,7 +355,6 @@ jobs:
   build:
     runs-on: ubuntu-latest
     needs: [set-image, check]
-    if: false
     defaults:
       run:
         shell: bash
@@ -410,7 +401,6 @@ jobs:
 
   test:
     runs-on: ubuntu-latest
-    if: false
     # todo bring back more needs, so that we only run this `tests` stage
     # if pre-conditions are filled.
     # needs: [set-image, check]
@@ -453,7 +443,6 @@ jobs:
   test-docs:
       runs-on: ubuntu-latest
       needs: [set-image, check]
-      if: false
       defaults:
           run:
               shell: bash
@@ -498,7 +487,6 @@ jobs:
 
   test-linting:
       runs-on: ubuntu-latest
-      if: false
       needs: [set-image, check]
       defaults:
           run:
@@ -539,7 +527,6 @@ jobs:
 
   docs:
     runs-on: ubuntu-latest
-    if: false
     needs: [set-image, check, fmt, clippy, clippy-examples, dylint-checks, dylint-testing, spellcheck]
     defaults:
       run:
@@ -632,7 +619,6 @@ jobs:
 
   examples-test:
     runs-on: ubuntu-latest
-    if: false
     needs: [fmt]
     strategy:
       fail-fast: false
@@ -663,7 +649,6 @@ jobs:
 
   examples-test-mapping:
       runs-on: ubuntu-latest
-      if: false
       needs: [set-image]
       defaults:
           run:
@@ -701,7 +686,6 @@ jobs:
 
   examples-custom-test:
     runs-on: ubuntu-latest
-    if: false
     needs: [set-image, clippy, clippy-examples]
     defaults:
       run:
@@ -756,8 +740,7 @@ jobs:
 
   examples-contract-build-riscv:
     runs-on: ubuntu-latest
-    #needs: [set-image, build]
-    needs: [set-image]
+    needs: [set-image, build]
     defaults:
       run:
         shell: bash
