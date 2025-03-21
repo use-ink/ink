@@ -794,7 +794,7 @@ jobs:
           CONTRACT_SIZE_FILE: "measurements-${{ steps.extract_branch.outputs.branch }}/contract_size_"
         run: |
           mkdir -p measurements-${{ steps.extract_branch.outputs.branch }}/
-          scripts/for_all_contracts_exec2.sh --path integration-tests --partition ${{ matrix.partition }}/20 --ignore public/multi-contract-caller -- \
+          scripts/for_all_contracts_exec2.sh --path integration-tests --partition ${{ matrix.partition }}/20 --ignore integration-tests/public/multi-contract-caller -- \
             scripts/build_and_determine_contract_size.sh {}
 
             #bash -c "scripts/build_and_determine_contract_size.sh {} >> ${CONTRACT_SIZE_FILE} && \
@@ -827,14 +827,16 @@ jobs:
       - name: Combine contract sizes from individual examples
         run: |
             find .
-            cat downloaded_artifacts/*/* > measurements-${{ steps.extract_branch.outputs.branch }}
+            cat downloaded_artifacts/*/*  | \
+            sed -ie 's/^integration-tests\/\(public\/\|internal\/\)\?//' measurements-${{ steps.extract_branch.outputs.branch }} | \
+            sort | uniq > measurements-${{ steps.extract_branch.outputs.branch }}
             echo "----"
             cat measurements-${{ steps.extract_branch.outputs.branch }}
 
       - uses: actions/upload-artifact@v4
         with:
-            path: ./measurements-${{ steps.extract_branch.outputs.branch }}/*
-            retention-days: 1
+            path: ./measurements-${{ steps.extract_branch.outputs.branch }}
+            retention-days: 31
 
   examples-docs:
     runs-on: ubuntu-latest
