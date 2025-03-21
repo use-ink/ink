@@ -29,11 +29,11 @@ use crate::{
     types::Address,
 };
 
-/// A Rust/ink! equivalent of a Solidity type that implements logic for Solidity ABI
+/// A Rust/ink! equivalent of a Solidity ABI type that implements logic for Solidity ABI
 /// encoding/decoding.
 ///
-/// | Rust/ink! type | Solidity type | Notes |
-/// | -------------- | ------------- | ----- |
+/// | Rust/ink! type | Solidity ABI type | Notes |
+/// | -------------- | ----------------- | ----- |
 /// | `bool` | `bool` ||
 /// | `iN` for `N ∈ {8,16,32,64,128}` | `intN` | e.g `i8` <=> `int8` |
 /// | `uN` for `N ∈ {8,16,32,64,128}` | `uintN` | e.g `u8` <=> `uint8` |
@@ -55,7 +55,7 @@ pub trait SolType:
     + SolFrom<<<Self as SolType>::AlloyType as AlloySolType>::RustType>
     + private::Sealed
 {
-    /// Equivalent Solidity type from [`alloy_sol_types`].
+    /// Equivalent Solidity ABI type from [`alloy_sol_types`].
     type AlloyType: AlloySolType;
 
     /// Solidity ABI encode the value.
