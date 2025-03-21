@@ -4,7 +4,7 @@
     Polkadot's ink! for writing smart contracts
 </h1>
 
-[![linux][a1]][a2] [![codecov][c1]][c2] [![coveralls][d1]][d2] [![loc][e1]][e2] [![stack-exchange][s1]][s2]
+[![linux][a1]][a2] [![codecov][c1]][c2] [![coveralls][d1]][d2] [![loc][e1]][e2] [![stack-exchange][s1]][s2] [![telegram][o1]][o2] [![X][p1]][p2]
 
 [a1]: https://github.com/use-ink/ink/workflows/continuous-integration/badge.svg
 [a2]: https://github.com/use-ink/ink/actions?query=workflow%3Acontinuous-integration+branch%3Amaster
@@ -30,43 +30,24 @@
 [s2]: https://substrate.stackexchange.com/questions/tagged/ink?tab=Votes
 [t1]: https://img.shields.io/badge/click-blue.svg
 [t2]: https://use-ink.github.io/ink/ink_e2e
+[o1]: https://img.shields.io/badge/click-white.svg?logo=Telegram&label=ink!%20Support%20on%20Telegram&labelColor=white&color=blue
+[o2]: https://t.me/inkathon
+[p1]: https://twitter.com/ink_lang
+[p2]: https://img.shields.io/twitter/follow/ink_lang?label=Follow%20us%20on%20X
 
-> <img src="https://raw.githubusercontent.com/use-ink/ink/master/.images/ink-squid.svg" alt="squink, the ink! mascot" style="vertical-align: middle" align="left" height="60" />ink! is an [eDSL](https://wiki.haskell.org/Embedded_domain_specific_language) to write smart contracts in Rust for blockchains built on the [Substrate](https://github.com/paritytech/substrate) framework. ink! contracts are compiled to WebAssembly.
+> <img src="https://raw.githubusercontent.com/use-ink/ink/master/.images/ink-squid.svg" alt="squink, the ink! mascot" style="vertical-align: middle" align="left" height="60" />ink! is an [eDSL](https://wiki.haskell.org/Embedded_domain_specific_language) to write smart contracts in Rust for the [Polkadot SDK](https://github.com/paritytech/polkadot-sdk).
 
 <br/>
 
 [ink! Website](https://use.ink)&nbsp;&nbsp;•&nbsp;&nbsp;
 [Developer Documentation](https://use.ink/docs)
 
-
 <br/>
-</div>
-
-More relevant links:
-* [Substrate Stack Exchange](https://substrate.stackexchange.com/questions/tagged/ink?tab=Votes) ‒ Forum for getting your ink! questions answered
-* [`cargo-contract`](https://github.com/use-ink/cargo-contract) ‒ CLI tool for ink! contracts
-* [Contracts UI](https://contracts-ui.substrate.io/) ‒ Frontend for contract instantiation and interaction
-* [ink! Examples](https://github.com/use-ink/ink-examples) ‒ Examples of contracts
-* [`ink-node](https://github.com/use-ink/ink-node) ‒ Simple Substrate blockchain which includes smart contract functionality
-* [Awesome ink!](https://github.com/use-ink/awesome-ink) - A curated list of awesome projects for Polkadot's ink!
-* We post announcements on [Telegram][k2] and [X][l2].
 
 ## Getting started
 
 The best way to start is to check out the [Getting Started](https://use.ink/getting-started/setup)
 page in our documentation.
-
-## Examples
-
-In the [`examples`](https://github.com/use-ink/ink-examples) repository you'll find a number of examples written in ink!.
-
-Some of the most interesting ones:
-
-* `basic_contract_ref` ‒ Implements cross-contract calling.
-* `trait-erc20` ‒ Defines a trait for `Erc20` contracts and implements it.
-* `erc721` ‒ An exemplary implementation of `Erc721` NFT tokens.
-* `dns` ‒  A simple `DomainNameService` smart contract.
-* …and more, just rummage through the folder 🙃.
 
 ## Architecture & How It Works
 
