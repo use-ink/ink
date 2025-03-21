@@ -47,12 +47,15 @@ jobs:
             find measurements*
             cat ${{ ARTIFACT_NAME }}/* > master_contract_sizes
 
+      - name: Extract branch name
+        shell: bash
+        run: echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
+        id: extract_branch
+
       - name: Combine contract sizes from individual examples (for Pull Request)
-        env:
-            ARTIFACT_NAME
         run: |
             find measurements*
-            cat : measurements-${{ github.ref_name }}/* > pull_request_contract_sizes
+            cat : measurements-${{ steps.extract_branch.outputs.branch }}/* > pull_request_contract_sizes
 
       - name: Collect Contract Sizes
         run: |
