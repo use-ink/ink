@@ -828,7 +828,7 @@ jobs:
         run: |
             find .
             cat downloaded_artifacts/*/*  | \
-            sed -ie 's/^integration-tests\/\(public\/\|internal\/\)\?//' measurements-${{ steps.extract_branch.outputs.branch }} | \
+            sed -ie 's/^integration-tests\/\(public\/\|internal\/\)\?//' | \
             sort | uniq > measurements-${{ steps.extract_branch.outputs.branch }}
             echo "----"
             cat measurements-${{ steps.extract_branch.outputs.branch }}
