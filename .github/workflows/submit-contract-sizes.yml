@@ -20,16 +20,16 @@ jobs:
       github.event.workflow_run.event == 'pull_request' &&
         github.event.workflow_run.conclusion == 'success'
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 100
-
       - name: Download Master Contract Sizes
         uses: ./.github/download-artifact
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           ARTIFACT_NAME: measurements-master
+
+      - name: Extract branch name
+        shell: bash
+        run: echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
+        id: extract_branch
 
       - name: Download Pull-Request Contract Sizes
         uses: ./.github/download-artifact
@@ -38,24 +38,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           #ARTIFACT_NAME: contract-sizes-pull_request-data
           #ARTIFACT_NAME: contract-sizes-${{ github.event.number }}
-          ARTIFACT_NAME: measurements-${{ github.event.number }}
-
-      - name: Combine contract sizes from individual examples (for master)
-        env:
-            ARTIFACT_NAME: measurements-master
-        run: |
-            find measurements*
-            cat ${{ ARTIFACT_NAME }}/* > master_contract_sizes
-
-      - name: Extract branch name
-        shell: bash
-        run: echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
-        id: extract_branch
-
-      - name: Combine contract sizes from individual examples (for Pull Request)
-        run: |
-            find measurements*
-            cat : measurements-${{ steps.extract_branch.outputs.branch }}/* > pull_request_contract_sizes
+          ARTIFACT_NAME: measurements-${{ steps.extract_branch.outputs.branch }}
 
       - name: Collect Contract Sizes
         run: |

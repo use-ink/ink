@@ -827,7 +827,9 @@ jobs:
       - name: Combine contract sizes from individual examples
         run: |
             find .
-            cat downloaded_artifacts/* > measurements-${{ steps.extract_branch.outputs.branch }}
+            cat downloaded_artifacts/*/* > measurements-${{ steps.extract_branch.outputs.branch }}
+            echo "----"
+            cat measurements-${{ steps.extract_branch.outputs.branch }}
 
       - uses: actions/upload-artifact@v4
         with:
