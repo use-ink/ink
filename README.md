@@ -1,10 +1,11 @@
 <div align="center">
     <img src="https://raw.githubusercontent.com/use-ink/ink/master/.images/ink-logo-glow.svg" alt="ink!" height="136" />
 <h1 align="center">
-    Write smart contracts in Rust for <a href="https://github.com/paritytech/polkadot-sdk">the Polkadot SDK</a>.
+    Write smart contracts in Rust for <a href="https://github.com/paritytech/polkadot-sdk">Polkadot SDK</a>.
 </h1>
 
-[![linux][a1]][a2] [![codecov][c1]][c2] [![coveralls][d1]][d2] [![loc][e1]][e2] [![stack-exchange][s1]][s2] [![telegram][o1]][o2] [![X][p1]][p2]
+[![linux][a1]][a2] [![codecov][c1]][c2] [![coveralls][d1]][d2] [![loc][e1]][e2]<br/>
+[![stack-exchange][s1]][s2] [![telegram][o1]][o2] [![X][p1]][p2]
 
 [a1]: https://github.com/use-ink/ink/workflows/continuous-integration/badge.svg
 [a2]: https://github.com/use-ink/ink/actions?query=workflow%3Acontinuous-integration+branch%3Amaster
@@ -35,12 +36,10 @@
 [p1]: https://twitter.com/ink_lang
 [p2]: https://img.shields.io/twitter/follow/ink_lang?label=Follow%20us%20on%20X
 
-<br/>
-
 [ink! Website](https://use.ink)&nbsp;&nbsp;•&nbsp;&nbsp;
 [Developer Documentation](https://use.ink/docs)
 
-</div><br/>
+</div>
 
 ## Getting started
 
