@@ -22,20 +22,63 @@ use alloy_sol_types::{
     sol_data,
     SolType as AlloySolType,
 };
-use core::borrow::Borrow;
 use impl_trait_for_tuples::impl_for_tuples;
+use ink_prelude::borrow::Cow;
 use paste::paste;
+use std::ops::Deref;
 
 use crate::types::Address;
 use from::SolFrom;
 
 pub use bytes::AsSolBytes;
 
-/// Maps an arbitrary Rust type to a Solidity representation for Solidity ABI
+/// Maps an arbitrary Rust/ink! type to a Solidity representation for Solidity ABI
 /// encoding/decoding.
-pub trait SolCodec: From<Self::SolType> + Borrow<Self::SolType> {
+///
+/// # Note
+/// Implementing this trait entails:
+/// - Declaring the equivalent Solidity ABI type for this type via the `SolCodec::SolType`
+///   associated type. See the sealed/internal [`SolType`] trait for a table of Rust/ink!
+///   to Solidity ABI type representations that can be used as the `SolCodec::SolType`
+///   type.
+/// - Implementing two required methods that define how to convert between this type and
+///   its equivalent Solidity ABI representation
+///   - `from_sol_type`: for converting from `Self::SolType` to `Self` (used in decoding).
+///   - `to_sol_type`: for converting (preferably via a borrow) from `&self` to
+///     `&Self::SolType` (used in encoding).
+///
+/// # Example
+///
+/// ```
+/// use core::convert::From;
+/// use ink_prelude::borrow::Cow;
+/// use ink_primitives::SolCodec;
+///
+/// // Example arbitrary type.
+/// struct MyType {
+///     size: u8,
+///     status: bool,
+/// }
+///
+/// // `SolCodec` implementation/mapping.
+/// impl SolCodec for MyType {
+///     type SolType = (u8, bool);
+///
+///     fn to_sol_type(&self) -> Cow<(u8, bool)> {
+///         Cow::Owned((self.size, self.status))
+///     }
+///
+///     fn from_sol_type(value: Self::SolType) -> Self {
+///         Self {
+///             size: value.0,
+///             status: value.1,
+///         }
+///     }
+/// }
+/// ```
+pub trait SolCodec {
     /// Equivalent Solidity type.
-    type SolType: SolType;
+    type SolType: SolType + Clone;
 
     /// Name of equivalent Solidity type.
     const SOL_NAME: &'static str =
@@ -43,20 +86,74 @@ pub trait SolCodec: From<Self::SolType> + Borrow<Self::SolType> {
 
     /// Solidity ABI encode the value.
     fn encode(&self) -> Vec<u8> {
-        <Self::SolType as SolType>::encode(self.borrow())
+        <Self::SolType as SolType>::encode(self.to_sol_type().deref())
     }
 
     /// Solidity ABI decode into this type.
-    fn decode(data: &[u8]) -> Result<Self, alloy_sol_types::Error> {
-        <Self::SolType as SolType>::decode(data).map(Self::from)
+    fn decode(data: &[u8]) -> Result<Self, alloy_sol_types::Error>
+    where
+        Self: Sized,
+    {
+        <Self::SolType as SolType>::decode(data).map(Self::from_sol_type)
+    }
+
+    /// Converts from `Self` to `Self::SolType` via either a borrow (if possible), or
+    /// a possibly expensive conversion otherwise.
+    fn to_sol_type(&self) -> Cow<Self::SolType>;
+
+    /// Converts to `Self` from `Self::SolType`.
+    fn from_sol_type(value: Self::SolType) -> Self;
+}
+
+impl<T: SolCodec + Clone, const N: usize> SolCodec for [T; N] {
+    type SolType = [T::SolType; N];
+
+    fn to_sol_type(&self) -> Cow<Self::SolType> {
+        Cow::Owned(self.each_ref().map(|item| item.to_sol_type().into_owned()))
+    }
+
+    fn from_sol_type(value: Self::SolType) -> Self {
+        value.map(<T as SolCodec>::from_sol_type)
     }
 }
 
-impl<T: SolType> SolCodec for T {
-    type SolType = T;
+impl<T: SolCodec> SolCodec for Vec<T> {
+    type SolType = Vec<T::SolType>;
+
+    fn to_sol_type(&self) -> Cow<Self::SolType> {
+        Cow::Owned(
+            self.iter()
+                .map(|item| item.to_sol_type().into_owned())
+                .collect(),
+        )
+    }
+
+    fn from_sol_type(value: Self::SolType) -> Self {
+        value
+            .into_iter()
+            .map(<T as SolCodec>::from_sol_type)
+            .collect()
+    }
 }
 
-/// A Rust equivalent of a Solidity type that implements logic for Solidity ABI
+// We follow the Rust standard library's convention of implementing traits for tuples up
+// to twelve items long.
+// Ref: <https://doc.rust-lang.org/std/primitive.tuple.html#trait-implementations>
+#[impl_for_tuples(12)]
+impl SolCodec for Tuple {
+    for_tuples!( type SolType = ( #( Tuple::SolType ),* ); );
+
+    fn to_sol_type(&self) -> Cow<Self::SolType> {
+        Cow::Owned(for_tuples! ( ( #( self.Tuple.to_sol_type().into_owned() ),* ) ))
+    }
+
+    #[allow(clippy::unused_unit)]
+    fn from_sol_type(value: Self::SolType) -> Self {
+        for_tuples!( ( #( Tuple::from_sol_type(value.Tuple) ),* ) );
+    }
+}
+
+/// A Rust/ink! equivalent of a Solidity type that implements logic for Solidity ABI
 /// encoding/decoding.
 ///
 /// | Rust/ink! type | Solidity type | Notes |
@@ -101,6 +198,18 @@ macro_rules! impl_primitive {
         $(
             impl SolType for $ty {
                 type AlloyType = $sol_ty;
+            }
+
+            impl SolCodec for $ty {
+                type SolType = $ty;
+
+                fn to_sol_type(&self) -> Cow<Self::SolType> {
+                    Cow::Borrowed(self)
+                }
+
+                fn from_sol_type(value: Self::SolType) -> Self {
+                    value
+                }
             }
 
             impl private::Sealed for $ty {}
@@ -343,8 +452,9 @@ mod tests {
         macro_rules! bytes_test_case {
             ($($fixture_size: literal),+ $(,)*) => {
                 $(
-                    let bytes = AsSolBytes(Vec::from([100u8; $fixture_size]));
-                    let sol_bytes = SolBytes::from(bytes.clone());
+                    let data = Vec::from([100u8; $fixture_size]);
+                    let bytes = AsSolBytes(data.clone());
+                    let sol_bytes = SolBytes::from(data);
 
                     test_case!(
                         AsSolBytes<Vec<u8>>, bytes,

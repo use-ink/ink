@@ -21,6 +21,7 @@ use core::{
     borrow::Borrow,
     ops::Deref,
 };
+use ink_prelude::borrow::Cow;
 use scale::{
     Decode,
     Encode,
@@ -29,6 +30,7 @@ use scale_info::TypeInfo;
 
 use crate::sol::{
     from::SolFrom,
+    SolCodec,
     SolType,
 };
 
@@ -43,7 +45,7 @@ use crate::sol::{
 /// Ref: <https://docs.soliditylang.org/en/latest/types.html#fixed-size-byte-arrays>
 ///
 /// Ref: <https://docs.soliditylang.org/en/latest/types.html#bytes-and-string-as-arrays>
-#[derive(Debug, Encode, Decode)]
+#[derive(Debug, Clone, Encode, Decode)]
 #[cfg_attr(feature = "std", derive(TypeInfo))]
 pub struct AsSolBytes<T: SolByteType>(pub T);
 
@@ -77,6 +79,22 @@ where
     type AlloyType = T::AlloyType;
 }
 impl<T: SolByteType> crate::sol::private::Sealed for AsSolBytes<T> {}
+
+// Implement `SolCodec` for `AsBytes<T> where T: ByteType`.
+impl<T: SolByteType + Clone> SolCodec for AsSolBytes<T>
+where
+    AsSolBytes<T>: SolTypeValue<<T as SolByteType>::AlloyType>,
+{
+    type SolType = AsSolBytes<T>;
+
+    fn to_sol_type(&self) -> Cow<Self::SolType> {
+        Cow::Borrowed(self)
+    }
+
+    fn from_sol_type(value: Self::SolType) -> Self {
+        value
+    }
+}
 
 // Implement `SolFrom` for `AsBytes<T>`.
 impl<T: SolByteType> SolFrom<<T::AlloyType as AlloySolType>::RustType> for AsSolBytes<T> {
