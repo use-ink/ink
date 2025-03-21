@@ -794,7 +794,7 @@ jobs:
         run: |
           mkdir -p measurements-${{ steps.extract_branch.outputs.branch }}/
           scripts/for_all_contracts_exec2.sh --path integration-tests --partition ${{ matrix.partition }}/15 -- \
-            bash -c "export CONTRACT_SIZE_FILE="measurements-${{ steps.extract_branch.outputs.branch }}/contract_size_$MANIFEST_PATH" && \
+            bash -c "export CONTRACT_SIZE_FILE="measurements-${{ steps.extract_branch.outputs.branch }}/contract_size_" && \
             scripts/build_and_determine_contract_size.sh {} >> ${CONTRACT_SIZE_FILE} && \
             sed -ie 's/^integration-tests\/\(public\/\|internal\/\)\?//' ${CONTRACT_SIZE_FILE}"
 

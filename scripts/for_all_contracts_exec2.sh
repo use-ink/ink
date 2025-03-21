@@ -144,7 +144,10 @@ fi
 
 for (( i = start; i <= end; i++ )); do
   manifest_path="${filtered_manifests[$i]}"
-  export MANIFEST_PATH="$manifest_path"
+  manifest_parent="$(dirname "$manifest_path" | cut -d'/' -f2-)"
+  echo "manifest_parent" $manifest_parent >&2
+  export CONTRACT_SIZE_FILE="$CONTRACT_SIZE_FILE$manifest_parent"
+  echo $CONTRACT_SIZE_FILE >&2
   command[$arg_index]="$manifest_path"
   if [ "$quiet" = false ]; then
     >&2 echo Running: "${command[@]}"
