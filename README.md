@@ -1,7 +1,7 @@
 <div align="center">
     <img src="https://raw.githubusercontent.com/use-ink/ink/master/.images/ink-logo-glow.svg" alt="ink!" height="136" />
 <h1 align="center">
-    Polkadot's ink! for writing smart contracts
+    Write smart contracts in Rust for <a href="https://github.com/paritytech/polkadot-sdk">the Polkadot SDK</a>.
 </h1>
 
 [![linux][a1]][a2] [![codecov][c1]][c2] [![coveralls][d1]][d2] [![loc][e1]][e2] [![stack-exchange][s1]][s2] [![telegram][o1]][o2] [![X][p1]][p2]
@@ -35,14 +35,12 @@
 [p1]: https://twitter.com/ink_lang
 [p2]: https://img.shields.io/twitter/follow/ink_lang?label=Follow%20us%20on%20X
 
-> <img src="https://raw.githubusercontent.com/use-ink/ink/master/.images/ink-squid.svg" alt="squink, the ink! mascot" style="vertical-align: middle" align="left" height="60" />ink! is an [eDSL](https://wiki.haskell.org/Embedded_domain_specific_language) to write smart contracts in Rust for the [Polkadot SDK](https://github.com/paritytech/polkadot-sdk).
-
 <br/>
 
 [ink! Website](https://use.ink)&nbsp;&nbsp;•&nbsp;&nbsp;
 [Developer Documentation](https://use.ink/docs)
 
-<br/>
+</div><br/>
 
 ## Getting started
 
@@ -117,4 +115,3 @@ Use the scripts provided under `scripts/check-*` directory in order to run check
 ## License
 
 The entire code within this repository is licensed under the [Apache License 2.0](LICENSE).
-

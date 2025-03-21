@@ -770,9 +770,9 @@ jobs:
           RUSTC_BOOTSTRAP: 1
           MANIFEST_PATH: ""
         run: |
-          mkdir -p measurements-${{ github.ref }}/
+          mkdir -p measurements-${{ github.ref_name }}/
           scripts/for_all_contracts_exec.sh --path integration-tests --partition ${{ matrix.partition }}/15 -- \
-            bash -c "export CONTRACT_SIZE_FILE="measurements-${{ github.ref }}/contract_size_$MANIFEST_PATH}" && \
+            bash -c "export CONTRACT_SIZE_FILE="measurements-${{ github.ref_name }}/contract_size_$MANIFEST_PATH}" && \
             scripts/build_and_determine_contract_size.sh {} >> ${CONTRACT_SIZE_FILE} && \
             sed -ie 's/^integration-tests\/\(public\/\|internal\/\)\?//' ${CONTRACT_SIZE_FILE}"
 
@@ -782,7 +782,7 @@ jobs:
         with:
             #name: ${{ github.job }}-${{ matrix.branch }}-data
             #name: ./measurements-${{ PR_NUMBER }}
-            path: ./measurements-${{ github.ref }}
+            path: ./measurements-${{ github.ref_name }}
             retention-days: 1
 
   examples-docs:
