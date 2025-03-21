@@ -766,7 +766,6 @@ jobs:
         uses: ./.github/rust-info
 
       - name: Build Contract Examples for RISC-V
-        shell: bash
         env:
           RUSTC_BOOTSTRAP: 1
           MANIFEST_PATH: ""
@@ -780,7 +779,6 @@ jobs:
       - uses: actions/upload-artifact@v4
         #env:
             #CONTRACT_SIZE_FILE: ${{ matrix.branch }}_contract_size_${{ matrix.partition }}
-        shell: bash
         with:
             #name: ${{ github.job }}-${{ matrix.branch }}-data
             #name: ./measurements-${{ PR_NUMBER }}

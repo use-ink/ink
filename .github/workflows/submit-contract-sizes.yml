@@ -48,7 +48,6 @@ jobs:
             cat ${{ ARTIFACT_NAME }}/* > master_contract_sizes
 
       - name: Combine contract sizes from individual examples (for Pull Request)
-        shell: bash
         env:
             ARTIFACT_NAME
         run: |
