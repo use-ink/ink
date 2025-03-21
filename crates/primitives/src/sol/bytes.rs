@@ -78,7 +78,7 @@ where
 {
     type AlloyType = T::AlloyType;
 }
-impl<T: SolByteType> crate::sol::private::Sealed for AsSolBytes<T> {}
+impl<T: SolByteType> crate::sol::types::private::Sealed for AsSolBytes<T> {}
 
 // Implement `SolCodec` for `AsBytes<T> where T: ByteType`.
 impl<T: SolByteType + Clone> SolCodec for AsSolBytes<T>
