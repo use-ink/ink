@@ -110,6 +110,9 @@ macro_rules! impl_sol_from_tuple {
     };
 }
 
+// We follow the Rust standard library's convention of implementing traits for tuples up
+// to twelve items long.
+// Ref: <https://doc.rust-lang.org/std/primitive.tuple.html#trait-implementations>
 impl_sol_from_tuple! {
     (0),
     (0, 1),
