@@ -7,4 +7,4 @@ RUSTC_BOOTSTRAP = "1"
 rustflags = ["--cfg", "substrate_runtime"]
 
 [registry]
-index = "sparse+https://index.crates.io/"
+protocol = "sparse"
