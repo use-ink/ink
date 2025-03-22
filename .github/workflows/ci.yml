@@ -755,7 +755,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        partition: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]
+        partition: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -785,7 +785,7 @@ jobs:
           CARGO_INCREMENTAL: 0
         run: |
           mkdir -p measurements-${{ steps.extract_branch.outputs.branch }}/
-          scripts/for_all_contracts_exec2.sh --path integration-tests --partition ${{ matrix.partition }}/20 --ignore integration-tests/public/multi-contract-caller -- \
+          scripts/for_all_contracts_exec2.sh --path integration-tests --partition ${{ matrix.partition }}/30 -- \
             scripts/build_and_determine_contract_size.sh {}
 
             #bash -c "scripts/build_and_determine_contract_size.sh {} >> ${CONTRACT_SIZE_FILE} && \
