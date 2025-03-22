@@ -14,7 +14,6 @@
 
 //! Utilities, types and abstractions common to call and instantiation routines.
 
-use alloy_sol_types::SolValue;
 use core::marker::PhantomData;
 use ink_primitives::{
     reflect::{
@@ -23,6 +22,7 @@ use ink_primitives::{
         SolEncoding,
     },
     MessageResult,
+    SolCodec,
 };
 use scale::{
     Decode,
@@ -143,7 +143,7 @@ where
 
 impl<R> DecodeMessageResult<SolEncoding> for R
 where
-    R: SolValue + From<<<R as SolValue>::SolType as alloy_sol_types::SolType>::RustType>,
+    R: SolCodec,
 {
     fn decode_output(buffer: &[u8]) -> crate::Result<MessageResult<Self>> {
         // Solidity ABI Encoded contracts return the data without

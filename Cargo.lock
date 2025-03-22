@@ -3354,7 +3354,6 @@ checksum = "8e04e2fd2b8188ea827b32ef11de88377086d690286ab35747ef7f9bf3ccb590"
 name = "ink"
 version = "6.0.0-alpha"
 dependencies = [
- "alloy-sol-types",
  "const_format",
  "deranged",
  "derive_more 2.0.1",

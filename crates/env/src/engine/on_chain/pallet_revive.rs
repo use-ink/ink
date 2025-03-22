@@ -61,6 +61,7 @@ use ink_primitives::{
         AbiDecodeWith,
         AbiEncodeWith,
     },
+    SolCodec,
     H160,
     H256,
     U256,
@@ -319,9 +320,9 @@ impl EnvBackend for EnvInstance {
 
     fn return_value_solidity<R>(&mut self, flags: ReturnFlags, return_value: &R) -> !
     where
-        R: alloy_sol_types::SolValue,
+        R: SolCodec,
     {
-        let encoded = return_value.abi_encode();
+        let encoded = return_value.encode();
         ext::return_value(flags, &encoded[..]);
     }
 

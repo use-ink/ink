@@ -12,15 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::arithmetic::AtLeast32BitUnsigned;
-use alloy_sol_types::{
-    private::{
-        Address as SolAddress,
-        FixedBytes,
-    },
-    sol_data,
-    SolValue,
-};
 use core::{
     array::TryFromSliceError,
     borrow::Borrow,
@@ -42,6 +33,8 @@ use {
     scale_encode::EncodeAsType,
     scale_info::TypeInfo,
 };
+
+use crate::arithmetic::AtLeast32BitUnsigned;
 
 /// The default environment `AccountId` type.
 ///
@@ -109,21 +102,6 @@ impl Borrow<[u8; 32]> for AccountId {
     }
 }
 
-impl SolValue for AccountId {
-    type SolType = sol_data::FixedBytes<32>;
-
-    #[inline]
-    fn abi_encode(&self) -> ink_prelude::vec::Vec<u8> {
-        self.0.as_slice().abi_encode()
-    }
-}
-
-impl From<FixedBytes<32>> for AccountId {
-    fn from(value: FixedBytes<32>) -> Self {
-        AccountId(value.0)
-    }
-}
-
 /// The default environment `Hash` type.
 ///
 /// # Note
@@ -178,21 +156,6 @@ impl From<Hash> for [u8; 32] {
 impl Borrow<[u8; 32]> for Hash {
     fn borrow(&self) -> &[u8; 32] {
         &self.0
-    }
-}
-
-impl SolValue for Hash {
-    type SolType = sol_data::FixedBytes<32>;
-
-    #[inline]
-    fn abi_encode(&self) -> ink_prelude::vec::Vec<u8> {
-        self.0.abi_encode()
-    }
-}
-
-impl From<FixedBytes<32>> for Hash {
-    fn from(value: FixedBytes<32>) -> Self {
-        Hash(value.0)
     }
 }
 
@@ -579,15 +542,5 @@ impl<'a> TryFrom<&'a [u8]> for Address {
 impl Borrow<[u8; 20]> for Address {
     fn borrow(&self) -> &[u8; 20] {
         &self.0
-    }
-}
-
-impl SolValue for Address {
-    type SolType = sol_data::Address;
-}
-
-impl From<SolAddress> for Address {
-    fn from(value: SolAddress) -> Self {
-        Address(value.into_array())
     }
 }

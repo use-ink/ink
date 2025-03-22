@@ -25,6 +25,10 @@ use alloy_sol_types::{
     SolType as AlloySolType,
     SolValue,
 };
+use ink_prelude::{
+    string::String,
+    vec::Vec,
+};
 
 use crate::{
     sol::{
@@ -32,30 +36,34 @@ use crate::{
         SolCodec,
         SolType,
     },
-    types::Address,
+    types::{
+        AccountId,
+        Address,
+        Hash,
+    },
 };
 
 macro_rules! test_case {
-        ($ty: ty, $val: expr) => {
-            test_case!($ty, $val, $ty, alloy_sol_types::SolValue, $val, [], [])
-        };
-        ($ty: ty, $val: expr, $sol_ty: ty, $sol_trait: ty) => {
-            test_case!($ty, $val, $sol_ty, $sol_trait, $val, [], [])
-        };
-        ($ty: ty, $val: expr, $sol_ty: ty, $sol_trait: ty, $sol_val: expr, [$($ty_cvt: tt)*], [$($sol_ty_cvt: tt)*]) => {
-            let encoded = <$ty as SolType>::encode(&$val);
-            let encoded_codec = <$ty as SolCodec>::encode(&$val);
-            let encoded_alloy = <$sol_ty as $sol_trait>::abi_encode(&$sol_val);
-            assert_eq!(encoded, encoded_alloy);
-            assert_eq!(encoded_codec, encoded_alloy);
+    ($ty: ty, $val: expr) => {
+        test_case!($ty, $val, $ty, alloy_sol_types::SolValue, $val, [], [])
+    };
+    ($ty: ty, $val: expr, $sol_ty: ty, $sol_trait: ty) => {
+        test_case!($ty, $val, $sol_ty, $sol_trait, $val, [], [])
+    };
+    ($ty: ty, $val: expr, $sol_ty: ty, $sol_trait: ty, $sol_val: expr, [$($ty_cvt: tt)*], [$($sol_ty_cvt: tt)*]) => {
+        let encoded = <$ty as SolType>::encode(&$val);
+        let encoded_codec = <$ty as SolCodec>::encode(&$val);
+        let encoded_alloy = <$sol_ty as $sol_trait>::abi_encode(&$sol_val);
+        assert_eq!(encoded, encoded_alloy);
+        assert_eq!(encoded_codec, encoded_alloy);
 
-            let decoded = <$ty as SolType>::decode(&encoded);
-            let decoded_codec = <$ty as SolCodec>::decode(&encoded);
-            let decoded_alloy = <$sol_ty as $sol_trait>::abi_decode(&encoded, true);
-            assert_eq!(decoded$($ty_cvt)*, decoded_alloy.clone()$($sol_ty_cvt)*);
-            assert_eq!(decoded_codec$($ty_cvt)*, decoded_alloy$($sol_ty_cvt)*);
-        };
-    }
+        let decoded = <$ty as SolType>::decode(&encoded);
+        let decoded_codec = <$ty as SolCodec>::decode(&encoded);
+        let decoded_alloy = <$sol_ty as $sol_trait>::abi_decode(&encoded, true);
+        assert_eq!(decoded$($ty_cvt)*, decoded_alloy.clone()$($sol_ty_cvt)*);
+        assert_eq!(decoded_codec$($ty_cvt)*, decoded_alloy$($sol_ty_cvt)*);
+    };
+}
 
 #[test]
 fn bool_works() {
@@ -255,5 +263,36 @@ fn tuple_works() {
         (SolBytes::from([100u8; 64]),),
         [.unwrap().0.0],
         [.unwrap().0.0]
+    );
+}
+
+#[test]
+fn account_id_works() {
+    let account_id = AccountId([1; 32]);
+    let bytes = SolFixedBytes([1; 32]);
+
+    let encoded = <AccountId as SolCodec>::encode(&account_id);
+    let encoded_alloy = <SolFixedBytes<32> as SolValue>::abi_encode(&bytes);
+    assert_eq!(encoded, encoded_alloy);
+
+    let decoded = <AccountId as SolCodec>::decode(&encoded);
+    let decoded_alloy = <SolFixedBytes<32> as SolValue>::abi_decode(&encoded, true);
+    assert_eq!(decoded.unwrap().0, decoded_alloy.unwrap().0);
+}
+
+#[test]
+fn hash_works() {
+    let hash = Hash::from([1; 32]);
+    let bytes = SolFixedBytes([1; 32]);
+
+    let encoded = <Hash as SolCodec>::encode(&hash);
+    let encoded_alloy = <SolFixedBytes<32> as SolValue>::abi_encode(&bytes);
+    assert_eq!(encoded, encoded_alloy);
+
+    let decoded = <Hash as SolCodec>::decode(&encoded);
+    let decoded_alloy = <SolFixedBytes<32> as SolValue>::abi_decode(&encoded, true);
+    assert_eq!(
+        decoded.unwrap().as_ref(),
+        decoded_alloy.unwrap().0.as_slice()
     );
 }

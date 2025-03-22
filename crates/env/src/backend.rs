@@ -41,6 +41,7 @@ use ink_primitives::{
         AbiEncodeWith,
     },
     types::Environment,
+    SolCodec,
     H160,
     H256,
     U256,
@@ -153,7 +154,7 @@ pub trait EnvBackend {
     /// todo: comment
     fn return_value_solidity<R>(&mut self, flags: ReturnFlags, return_value: &R) -> !
     where
-        R: alloy_sol_types::SolValue;
+        R: SolCodec;
 
     /// Conducts the crypto hash of the given input and stores the result in `output`.
     fn hash_bytes<H>(&mut self, input: &[u8], output: &mut <H as HashOutput>::Type)

@@ -21,13 +21,24 @@ mod types;
 #[cfg(test)]
 mod tests;
 
-use alloy_sol_types::SolType as AlloySolType;
+use alloy_sol_types::{
+    sol_data,
+    SolType as AlloySolType,
+};
 use core::ops::Deref;
 use impl_trait_for_tuples::impl_for_tuples;
-use ink_prelude::borrow::Cow;
+use ink_prelude::{
+    borrow::Cow,
+    vec::Vec,
+};
 
 pub use bytes::AsSolBytes;
 pub use types::SolType;
+
+use crate::types::{
+    AccountId,
+    Hash,
+};
 
 /// Maps an arbitrary Rust/ink! type to a Solidity ABI type representation for Solidity
 /// ABI encoding/decoding.
@@ -61,6 +72,9 @@ pub use types::SolType;
 ///     type SolType = (u8, bool);
 ///
 ///     fn to_sol_type(&self) -> Cow<(u8, bool)> {
+///         // NOTE: Types that implement `Borrow<Self::SolType>`
+///         // (e.g. newtype wrappers of `SolType::SolType`)
+///         // should return `Cow::Borrowed(self.borrow())` for better performance.
 ///         Cow::Owned((self.size, self.status))
 ///     }
 ///
@@ -146,5 +160,49 @@ impl SolCodec for Tuple {
     #[allow(clippy::unused_unit)]
     fn from_sol_type(value: Self::SolType) -> Self {
         for_tuples!( ( #( Tuple::from_sol_type(value.Tuple) ),* ) );
+    }
+}
+
+impl SolCodec for AccountId {
+    type SolType = AsSolBytes<[u8; 32]>;
+
+    fn encode(&self) -> Vec<u8> {
+        // Override for better performance.
+        sol_data::FixedBytes::abi_encode(self)
+    }
+
+    fn to_sol_type(&self) -> Cow<Self::SolType> {
+        // NOTE: Not actually used for encoding because of `encode` override above (for
+        // better performance).
+        // Arbitrary newtype wrappers can achieve similar performance (without overriding
+        // `encode`) by using  `AsSolBytes<[u8; 32]>` as the inner type and returning
+        // `Cow::Borrowed(&self.0)`.
+        Cow::Owned(AsSolBytes(self.0))
+    }
+
+    fn from_sol_type(value: Self::SolType) -> Self {
+        AccountId(value.0)
+    }
+}
+
+impl SolCodec for Hash {
+    type SolType = AsSolBytes<[u8; 32]>;
+
+    fn encode(&self) -> Vec<u8> {
+        // Override for better performance.
+        sol_data::FixedBytes::abi_encode(self)
+    }
+
+    fn to_sol_type(&self) -> Cow<Self::SolType> {
+        // NOTE: Not actually used for encoding because of `encode` override above (for
+        // better performance).
+        // Arbitrary newtype wrappers can achieve similar performance (without overriding
+        // `encode`) by using  `AsSolBytes<[u8; 32]>` as the inner type and returning
+        // `Cow::Borrowed(&self.0)`.
+        Cow::Owned(AsSolBytes::<[u8; 32]>((*self).into()))
+    }
+
+    fn from_sol_type(value: Self::SolType) -> Self {
+        Hash::from(value.0)
     }
 }
