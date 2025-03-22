@@ -781,6 +781,7 @@ jobs:
           RUSTC_BOOTSTRAP: 1
           MANIFEST_PATH: ""
           CONTRACT_SIZE_FILE: "measurements-${{ steps.extract_branch.outputs.branch }}/contract_size_"
+          CARGO_INCREMENTAL: 0
         run: |
           mkdir -p measurements-${{ steps.extract_branch.outputs.branch }}/
           scripts/for_all_contracts_exec2.sh --path integration-tests --partition ${{ matrix.partition }}/20 --ignore integration-tests/public/multi-contract-caller -- \
