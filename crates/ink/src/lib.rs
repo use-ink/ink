@@ -36,7 +36,6 @@ mod contract_ref;
 mod env_access;
 mod message_builder;
 
-pub use alloy_sol_types;
 pub use ink_env as env;
 #[cfg(feature = "std")]
 pub use ink_metadata as metadata;
@@ -96,9 +95,11 @@ pub use ink_macro::{
 };
 pub use ink_primitives::{
     Address,
+    AsSolBytes,
     ConstructorResult,
     LangError,
     MessageResult,
+    SolCodec,
     H160,
     H256,
     U256,

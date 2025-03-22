@@ -18,7 +18,11 @@ use alloy_sol_types::{
     SolType as AlloySolType,
 };
 use impl_trait_for_tuples::impl_for_tuples;
-use ink_prelude::borrow::Cow;
+use ink_prelude::{
+    borrow::Cow,
+    string::String,
+    vec::Vec,
+};
 use paste::paste;
 
 use crate::{
@@ -65,6 +69,7 @@ pub trait SolType:
 
     /// Solidity ABI decode into this type.
     fn decode(data: &[u8]) -> Result<Self, alloy_sol_types::Error> {
+        // Don't validate decoding. Validating results in encoding and decoding again.
         <Self::AlloyType as AlloySolType>::abi_decode(data, false).map(Self::sol_from)
     }
 }
@@ -135,7 +140,7 @@ macro_rules! impl_generics {
 impl_generics! {
     // array
     [T: SolType, const N: usize] [T; N] => sol_data::FixedArray<T::AlloyType, N> [],
-    [T: SolType] [T] => sol_data::Array<T::AlloyType> [],
+    //[T: SolType] [T] => sol_data::Array<T::AlloyType> [],
     [T: SolType] Vec<T> => sol_data::Array<T::AlloyType> [],
     // references
     ['a, T: SolType] &'a T => T::AlloyType [&'a T: SolTypeValue<T::AlloyType>],

@@ -60,6 +60,7 @@ use ink_primitives::{
         AbiEncodeWith,
     },
     types::Environment,
+    SolCodec,
     H160,
     H256,
     U256,
@@ -381,7 +382,7 @@ impl EnvBackend for EnvInstance {
 
     fn return_value_solidity<R>(&mut self, _flags: ReturnFlags, _return_value: &R) -> !
     where
-        R: alloy_sol_types::SolValue,
+        R: SolCodec,
     {
         unimplemented!("the off-chain env does not implement `return_value_solidity`")
     }

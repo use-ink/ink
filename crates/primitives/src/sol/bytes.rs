@@ -21,11 +21,15 @@ use core::{
     borrow::Borrow,
     ops::Deref,
 };
-use ink_prelude::borrow::Cow;
+use ink_prelude::{
+    borrow::Cow,
+    vec::Vec,
+};
 use scale::{
     Decode,
     Encode,
 };
+#[cfg(feature = "std")]
 use scale_info::TypeInfo;
 
 use crate::sol::{
@@ -34,7 +38,7 @@ use crate::sol::{
     SolType,
 };
 
-/// Wrapper type that encodes `u8` sequences/collections as their equivalent Solidity
+/// Wrapper type that encodes/decodes `u8` sequences/collections as their equivalent Solidity
 /// bytes representations.
 ///
 /// | Rust/ink! type | Solidity ABI type | Notes |

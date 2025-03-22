@@ -20,19 +20,19 @@ use crate::{
     call::utils::DecodeMessageResult,
     Environment,
 };
-use alloy_sol_types::{
-    private::SolTypeValue,
-    SolType,
-    SolValue,
-    Word,
-};
 use core::marker::PhantomData;
-use ink_prelude::vec::Vec;
-use ink_primitives::reflect::{
-    AbiDecodeWith,
-    AbiEncodeWith,
-    ScaleEncoding,
-    SolEncoding,
+use ink_prelude::{
+    borrow::Cow,
+    vec::Vec,
+};
+use ink_primitives::{
+    reflect::{
+        AbiDecodeWith,
+        AbiEncodeWith,
+        ScaleEncoding,
+        SolEncoding,
+    },
+    SolCodec,
 };
 
 /// The input data and the expected return type of a contract execution.
@@ -324,73 +324,75 @@ where
     }
 }
 
-impl<T> SolValue for Argument<T>
+impl<T> SolCodec for Argument<T>
 where
-    T: SolValue,
-    Argument<T>: SolTypeValue<<T as SolValue>::SolType>,
+    T: SolCodec,
 {
-    type SolType = <T as SolValue>::SolType;
+    type SolType = <T as SolCodec>::SolType;
 
-    fn abi_encode(&self) -> Vec<u8> {
-        <T as SolValue>::abi_encode(&self.arg)
+    fn to_sol_type(&self) -> Cow<Self::SolType> {
+        self.arg.to_sol_type()
+    }
+
+    fn from_sol_type(value: Self::SolType) -> Self {
+        Self {
+            arg: T::from_sol_type(value),
+        }
     }
 }
 
-impl SolTypeValue<()> for EmptyArgumentList<SolEncoding> {
-    fn stv_to_tokens(&self) -> <() as SolType>::Token<'_> {}
-
-    fn stv_abi_encode_packed_to(&self, _out: &mut Vec<u8>) {}
-
-    fn stv_eip712_data_word(&self) -> Word {
-        Word::from_slice(&[])
-    }
-}
-
-impl SolValue for EmptyArgumentList<SolEncoding> {
+impl SolCodec for EmptyArgumentList<SolEncoding> {
     type SolType = ();
 
-    fn abi_encode(&self) -> Vec<u8> {
+    fn encode(&self) -> Vec<u8> {
         Vec::new()
     }
-}
 
-impl<Head, Rest> SolTypeValue<(Rest::SolType, Head::SolType)>
-    for ArgumentList<Argument<Head>, Rest, SolEncoding>
-where
-    Head: SolValue,
-    Rest: SolValue,
-{
-    fn stv_to_tokens(
-        &self,
-    ) -> (
-        <Rest::SolType as SolType>::Token<'_>,
-        <Head::SolType as SolType>::Token<'_>,
-    ) {
-        (self.rest.stv_to_tokens(), self.head.arg.stv_to_tokens())
+    fn to_sol_type(&self) -> Cow<Self::SolType> {
+        // NOTE: Not actually used for encoding because of `encode` override above.
+        Cow::Owned(())
     }
 
-    fn stv_abi_encode_packed_to(&self, out: &mut Vec<u8>) {
-        self.rest.stv_abi_encode_packed_to(out);
-        self.head.arg.stv_abi_encode_packed_to(out);
-    }
-
-    fn stv_eip712_data_word(&self) -> Word {
-        todo!("Implement EIP-712 encoding for ArgumentList")
+    fn from_sol_type(_: Self::SolType) -> Self {
+        Self {
+            head: ArgumentListEnd,
+            rest: ArgumentListEnd,
+            _marker: Default::default(),
+        }
     }
 }
 
-impl<Head, Rest> SolValue for ArgumentList<Argument<Head>, Rest, SolEncoding>
+impl<Head, Rest> SolCodec for ArgumentList<Argument<Head>, Rest, SolEncoding>
 where
-    Head: SolValue,
-    Rest: SolValue,
+    Head: SolCodec,
+    Rest: SolCodec,
 {
     type SolType = (Rest::SolType, Head::SolType);
 
-    fn abi_encode(&self) -> Vec<u8> {
+    fn encode(&self) -> Vec<u8> {
         let mut encoded = Vec::new();
-        encoded.extend(Rest::abi_encode(&self.rest));
-        encoded.extend(Head::abi_encode(&self.head.arg));
+        encoded.extend(Rest::encode(&self.rest));
+        encoded.extend(Head::encode(&self.head.arg));
         encoded
+    }
+
+    fn to_sol_type(&self) -> Cow<Self::SolType> {
+        // NOTE: Not actually used for encoding because of `encode` override above (for
+        // better performance).
+        Cow::Owned((
+            self.rest.to_sol_type().into_owned(),
+            self.head.arg.to_sol_type().into_owned(),
+        ))
+    }
+
+    fn from_sol_type(value: Self::SolType) -> Self {
+        Self {
+            head: Argument {
+                arg: Head::from_sol_type(value.1),
+            },
+            rest: Rest::from_sol_type(value.0),
+            _marker: Default::default(),
+        }
     }
 }
 
