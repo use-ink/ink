@@ -436,8 +436,6 @@ jobs:
           # at the same time, hence we use this workaround.
           QUICKCHECK_TESTS: 0
         run: |
-            cargo install cargo-edit
-            cargo config set registry.index "sparse+https://index.crates.io/"
             rustup toolchain remove nightly-2025-02-20
             rustup toolchain remove 1.85.0
             rustup toolchain remove stable
@@ -779,8 +777,6 @@ jobs:
           MANIFEST_PATH: ""
           CONTRACT_SIZE_FILE: "measurements-${{ steps.extract_branch.outputs.branch }}/contract_size_"
         run: |
-          cargo install cargo-edit
-          cargo config set registry.index "sparse+https://index.crates.io/"
           mkdir -p measurements-${{ steps.extract_branch.outputs.branch }}/
           scripts/for_all_contracts_exec2.sh --path integration-tests --partition ${{ matrix.partition }}/20 --ignore integration-tests/public/multi-contract-caller -- \
             scripts/build_and_determine_contract_size.sh {}
