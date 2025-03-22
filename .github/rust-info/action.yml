@@ -12,4 +12,5 @@ runs:
         ink-node --version
         cargo contract --version
         git --version
+        echo -e '[registry]\nprotocol = "sparse"' > /usr/local/cargo/config.toml
       shell: bash
