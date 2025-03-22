@@ -425,6 +425,7 @@ jobs:
         with:
           cache-directories: ${{ env.CARGO_TARGET_DIR }}
           cache-all-crates: true
+          cache-on-failure: true
 
       - name: Test
         env:
@@ -636,6 +637,7 @@ jobs:
         with:
           cache-directories: ${{ env.CARGO_TARGET_DIR }}
           cache-all-crates: true
+          cache-on-failure: true
 
       - name: Test Examples
         uses: docker://useink/ci
@@ -667,6 +669,7 @@ jobs:
             with:
                 cache-directories: ${{ env.CARGO_TARGET_DIR }}
                 cache-all-crates: true
+                cache-on-failure: true
 
           - name: Rust Info
             uses: ./.github/rust-info
@@ -704,6 +707,7 @@ jobs:
         with:
           cache-directories: ${{ env.CARGO_TARGET_DIR }}
           cache-all-crates: true
+          cache-on-failure: true
 
       - name: Rust Info
         uses: ./.github/rust-info
@@ -762,6 +766,7 @@ jobs:
         with:
           cache-directories: ${{ env.CARGO_TARGET_DIR }}
           cache-all-crates: true
+          cache-on-failure: true
 
       - name: Rust Info
         uses: ./.github/rust-info
