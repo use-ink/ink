@@ -22,6 +22,7 @@ scale = { workspace = true, features = ["max-encoded-len"] }
 scale-decode = { workspace = true, features = ["derive"] }
 scale-encode = { workspace = true, features = ["derive"], optional = true }
 pallet-revive-uapi = { workspace = true }
+paste = { workspace = true }
 primitive-types = { version  = "0.13.1", default-features = false, features = ["codec"]}
 scale-info = { workspace = true, features = ["derive"], optional = true }
 xxhash-rust = { workspace = true, features = ["const_xxh32"] }
@@ -33,6 +34,7 @@ sp-core = { workspace = true }
 
 sp-io = { git = "https://github.com/paritytech/polkadot-sdk", rev = "28a7ae71cc0eac747bf346804279217a68f700da", default-features = false, features = ["disable_panic_handler", "disable_oom", "disable_allocator"] }
 sp-runtime-interface = { git = "https://github.com/paritytech/polkadot-sdk", rev = "28a7ae71cc0eac747bf346804279217a68f700da", default-features = false, features = ["disable_target_static_assertions"] }
+impl-trait-for-tuples = { workspace = true }
 
 [dev-dependencies]
 ink = { workspace = true, default-features = false }
