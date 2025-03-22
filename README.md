@@ -75,7 +75,7 @@ See [here](https://use-ink.github.io/ink/ink/attr.contract.html) for a more deta
 
 ## Developer Documentation
 
-We have [a very comprehensive documentation portal](https://use.ink),
+We have [a comprehensive documentation portal](https://use.ink),
 but if you are looking for the crate level documentation itself, then these are
 the relevant links:
 
