@@ -422,8 +422,6 @@ pub trait Environment: Clone {
 
     /// TODO comment
     type EventRecord: 'static + scale::Codec;
-
-    // type AddressMapper: 'static + AddressMapper<Self>;
 }
 
 /// Placeholder for chains that have no defined chain extension.
@@ -435,8 +433,6 @@ pub enum NoChainExtension {}
 #[cfg_attr(feature = "std", derive(TypeInfo))]
 pub enum DefaultEnvironment {}
 
-//use sp_core::crypto::AccountId32;
-//use sp_runtime::AccountId32;
 impl Environment for DefaultEnvironment {
     const MAX_EVENT_TOPICS: usize = 4;
 
