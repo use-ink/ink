@@ -767,6 +767,7 @@ jobs:
   examples-contract-build-riscv:
     runs-on: ubuntu-latest
     needs: [set-image]
+    # todo
     # needs: [set-image, build-std, build-riscv]
     defaults:
       run:
