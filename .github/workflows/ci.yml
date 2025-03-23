@@ -847,6 +847,7 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
+            name: measurements-${{ steps.extract_branch.outputs.branch }}
             path: ./measurements-${{ steps.extract_branch.outputs.branch }}
             retention-days: 31
 
