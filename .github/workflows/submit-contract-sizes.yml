@@ -25,11 +25,17 @@ jobs:
         with:
           fetch-depth: 1
 
-      - name: Download Master Contract Sizes
-        uses: ./.github/download-artifact
+      #- name: Download Master Contract Sizes
+        #uses: ./.github/download-artifact
+        #with:
+          #GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          #ARTIFACT_NAME: measurements-master
+
+      - name: Download artifact
+        uses: dawidd6/action-download-artifact@v9
         with:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          ARTIFACT_NAME: measurements-master
+          branch: master
+          name: measurements-master
 
       - name: Extract branch name
         shell: bash
