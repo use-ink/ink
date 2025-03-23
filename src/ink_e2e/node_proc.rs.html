@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/e2e/src/node_proc.rs`."><title>node_proc.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-916cea96.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="ink_e2e" data-themes="" data-resource-suffix="" data-rustdoc-version="1.87.0-nightly (cbfdf0b01 2025-03-13)" data-channel="nightly" data-search-js="search-e7298875.js" data-settings-js="settings-d72f25bb.js" ><script src="../../static.files/storage-d8ac8691.js"></script><script defer src="../../static.files/src-script-b8d3f215.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-fb8c74a8.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-893ab5e7.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">ink_e2e/</div>node_proc.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="comment">// Copyright (C) Use Ink (UK) Ltd.
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/e2e/src/node_proc.rs`."><title>node_proc.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-916cea96.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="ink_e2e" data-themes="" data-resource-suffix="" data-rustdoc-version="1.87.0-nightly (1aeb99d24 2025-03-19)" data-channel="nightly" data-search-js="search-e7298875.js" data-settings-js="settings-d72f25bb.js" ><script src="../../static.files/storage-d8ac8691.js"></script><script defer src="../../static.files/src-script-b8d3f215.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-fb8c74a8.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-893ab5e7.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">ink_e2e/</div>node_proc.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="comment">// Copyright (C) Use Ink (UK) Ltd.
 <a href=#2 id=2 data-nosnippet>2</a>//
 <a href=#3 id=3 data-nosnippet>3</a>// Licensed under the Apache License, Version 2.0 (the "License");
 <a href=#4 id=4 data-nosnippet>4</a>// you may not use this file except in compliance with the License.
@@ -63,7 +63,7 @@
 <a href=#63 id=63 data-nosnippet>63</a>    <span class="doccomment">/// Construct a builder for spawning a test node process, using the environment
 <a href=#64 id=64 data-nosnippet>64</a>    /// variable `CONTRACTS_NODE`, otherwise using the default contracts node.
 <a href=#65 id=65 data-nosnippet>65</a>    </span><span class="kw">pub fn </span>build_with_env_or_default() -&gt; TestNodeProcessBuilder&lt;R&gt; {
-<a href=#66 id=66 data-nosnippet>66</a>        <span class="kw">const </span>DEFAULT_CONTRACTS_NODE: <span class="kw-2">&amp;</span>str = <span class="string">"substrate-contracts-node"</span>;
+<a href=#66 id=66 data-nosnippet>66</a>        <span class="kw">const </span>DEFAULT_CONTRACTS_NODE: <span class="kw-2">&amp;</span>str = <span class="string">"ink-node"</span>;
 <a href=#67 id=67 data-nosnippet>67</a>
 <a href=#68 id=68 data-nosnippet>68</a>        <span class="comment">// Use the user supplied `CONTRACTS_NODE` or default to `DEFAULT_CONTRACTS_NODE`.
 <a href=#69 id=69 data-nosnippet>69</a>        </span><span class="kw">let </span>contracts_node =
@@ -251,53 +251,51 @@
 <a href=#251 id=251 data-nosnippet>251</a>        <span class="kw">let </span><span class="kw-2">mut </span>client2: <span class="prelude-ty">Option</span>&lt;LegacyRpcMethods&lt;SubxtConfig&gt;&gt; = <span class="prelude-val">None</span>;
 <a href=#252 id=252 data-nosnippet>252</a>
 <a href=#253 id=253 data-nosnippet>253</a>        {
-<a href=#254 id=254 data-nosnippet>254</a>            <span class="kw">let </span>node_proc1 =
-<a href=#255 id=255 data-nosnippet>255</a>                TestNodeProcess::&lt;SubxtConfig&gt;::build(<span class="string">"substrate-contracts-node"</span>)
-<a href=#256 id=256 data-nosnippet>256</a>                    .spawn()
-<a href=#257 id=257 data-nosnippet>257</a>                    .<span class="kw">await
-<a href=#258 id=258 data-nosnippet>258</a>                    </span>.unwrap();
-<a href=#259 id=259 data-nosnippet>259</a>            client1 = <span class="prelude-val">Some</span>(LegacyRpcMethods::new(node_proc1.rpc()));
-<a href=#260 id=260 data-nosnippet>260</a>
-<a href=#261 id=261 data-nosnippet>261</a>            <span class="kw">let </span>node_proc2 =
-<a href=#262 id=262 data-nosnippet>262</a>                TestNodeProcess::&lt;SubxtConfig&gt;::build(<span class="string">"substrate-contracts-node"</span>)
-<a href=#263 id=263 data-nosnippet>263</a>                    .spawn()
-<a href=#264 id=264 data-nosnippet>264</a>                    .<span class="kw">await
-<a href=#265 id=265 data-nosnippet>265</a>                    </span>.unwrap();
-<a href=#266 id=266 data-nosnippet>266</a>            client2 = <span class="prelude-val">Some</span>(LegacyRpcMethods::new(node_proc2.rpc()));
-<a href=#267 id=267 data-nosnippet>267</a>
-<a href=#268 id=268 data-nosnippet>268</a>            <span class="kw">let </span>res1 = client1.clone().unwrap().chain_get_block_hash(<span class="prelude-val">None</span>).<span class="kw">await</span>;
-<a href=#269 id=269 data-nosnippet>269</a>            <span class="kw">let </span>res2 = client2.clone().unwrap().chain_get_block_hash(<span class="prelude-val">None</span>).<span class="kw">await</span>;
-<a href=#270 id=270 data-nosnippet>270</a>
-<a href=#271 id=271 data-nosnippet>271</a>            <span class="macro">assert!</span>(res1.is_ok());
-<a href=#272 id=272 data-nosnippet>272</a>            <span class="macro">assert!</span>(res2.is_ok());
-<a href=#273 id=273 data-nosnippet>273</a>        }
-<a href=#274 id=274 data-nosnippet>274</a>
-<a href=#275 id=275 data-nosnippet>275</a>        <span class="comment">// node processes should have been killed by `Drop` in the above block.
-<a href=#276 id=276 data-nosnippet>276</a>        </span><span class="kw">let </span>res1 = client1.unwrap().chain_get_block_hash(<span class="prelude-val">None</span>).<span class="kw">await</span>;
-<a href=#277 id=277 data-nosnippet>277</a>        <span class="kw">let </span>res2 = client2.unwrap().chain_get_block_hash(<span class="prelude-val">None</span>).<span class="kw">await</span>;
-<a href=#278 id=278 data-nosnippet>278</a>
-<a href=#279 id=279 data-nosnippet>279</a>        <span class="macro">assert!</span>(res1.is_err());
-<a href=#280 id=280 data-nosnippet>280</a>        <span class="macro">assert!</span>(res2.is_err());
-<a href=#281 id=281 data-nosnippet>281</a>    }
-<a href=#282 id=282 data-nosnippet>282</a>
-<a href=#283 id=283 data-nosnippet>283</a>    <span class="attr">#[test]
-<a href=#284 id=284 data-nosnippet>284</a>    </span><span class="kw">fn </span>parse_port_from_node_output() {
-<a href=#285 id=285 data-nosnippet>285</a>        <span class="kw">let </span>log = <span class="string">"2024-12-04 10:57:03.893  INFO main sc_rpc_server: Running JSON-RPC server: addr=127.0.0.1:9944,[::1]:9944  "</span>;
-<a href=#286 id=286 data-nosnippet>286</a>        <span class="kw">let </span>port = find_substrate_port_from_output(log.as_bytes());
-<a href=#287 id=287 data-nosnippet>287</a>        <span class="macro">assert_eq!</span>(port, <span class="number">9944</span>);
-<a href=#288 id=288 data-nosnippet>288</a>
-<a href=#289 id=289 data-nosnippet>289</a>        <span class="kw">let </span>log = <span class="string">"2024-12-04 10:57:03.893  INFO main sc_rpc_server: Running JSON-RPC server: addr=127.0.0.1:9944  "</span>;
-<a href=#290 id=290 data-nosnippet>290</a>        <span class="kw">let </span>port = find_substrate_port_from_output(log.as_bytes());
-<a href=#291 id=291 data-nosnippet>291</a>        <span class="macro">assert_eq!</span>(port, <span class="number">9944</span>);
-<a href=#292 id=292 data-nosnippet>292</a>
-<a href=#293 id=293 data-nosnippet>293</a>        <span class="kw">let </span>log = <span class="string">r#"2024-12-04 11:02:24.637  INFO main sc_cli::runner: 👤 Role: AUTHORITY
-<a href=#294 id=294 data-nosnippet>294</a>2024-12-04 11:02:24.637  INFO main sc_cli::runner: 💾 Database: RocksDb at /var/folders/s5/5gcp8ck95k39z006fj059_0c0000gn/T/substrateHZoRbb/chains/dev/db/full
-<a href=#295 id=295 data-nosnippet>295</a>2024-12-04 11:02:25.324  WARN main sc_service::config: Using default protocol ID "sup" because none is configured in the chain specs
-<a href=#296 id=296 data-nosnippet>296</a>2024-12-04 11:02:25.327  INFO main sc_rpc_server: Running JSON-RPC server: addr=127.0.0.1:9944,[::1]:9944
-<a href=#297 id=297 data-nosnippet>297</a>2024-12-04 11:02:24.637  INFO main sc_cli::runner: 💾 Database: RocksDb at /var/folders/s5/5gcp8ck95k39z006fj059_0c0000gn/T/substrateHZoRbb/chains/dev/db/full
-<a href=#298 id=298 data-nosnippet>298</a>2024-12-04 11:02:24.637  INFO main sc_cli::runner: 💾 Database: RocksDb at /var/folders/s5/5gcp8ck95k39z006fj059_0c0000gn/T/substrateHZoRbb/chains/dev/db/full
-<a href=#299 id=299 data-nosnippet>299</a>"#</span>;
-<a href=#300 id=300 data-nosnippet>300</a>        <span class="kw">let </span>port = find_substrate_port_from_output(log.as_bytes());
-<a href=#301 id=301 data-nosnippet>301</a>        <span class="macro">assert_eq!</span>(port, <span class="number">9944</span>);
-<a href=#302 id=302 data-nosnippet>302</a>    }
-<a href=#303 id=303 data-nosnippet>303</a>}</code></pre></div></section></main></body></html>
+<a href=#254 id=254 data-nosnippet>254</a>            <span class="kw">let </span>node_proc1 = TestNodeProcess::&lt;SubxtConfig&gt;::build(<span class="string">"ink-node"</span>)
+<a href=#255 id=255 data-nosnippet>255</a>                .spawn()
+<a href=#256 id=256 data-nosnippet>256</a>                .<span class="kw">await
+<a href=#257 id=257 data-nosnippet>257</a>                </span>.unwrap();
+<a href=#258 id=258 data-nosnippet>258</a>            client1 = <span class="prelude-val">Some</span>(LegacyRpcMethods::new(node_proc1.rpc()));
+<a href=#259 id=259 data-nosnippet>259</a>
+<a href=#260 id=260 data-nosnippet>260</a>            <span class="kw">let </span>node_proc2 = TestNodeProcess::&lt;SubxtConfig&gt;::build(<span class="string">"ink-node"</span>)
+<a href=#261 id=261 data-nosnippet>261</a>                .spawn()
+<a href=#262 id=262 data-nosnippet>262</a>                .<span class="kw">await
+<a href=#263 id=263 data-nosnippet>263</a>                </span>.unwrap();
+<a href=#264 id=264 data-nosnippet>264</a>            client2 = <span class="prelude-val">Some</span>(LegacyRpcMethods::new(node_proc2.rpc()));
+<a href=#265 id=265 data-nosnippet>265</a>
+<a href=#266 id=266 data-nosnippet>266</a>            <span class="kw">let </span>res1 = client1.clone().unwrap().chain_get_block_hash(<span class="prelude-val">None</span>).<span class="kw">await</span>;
+<a href=#267 id=267 data-nosnippet>267</a>            <span class="kw">let </span>res2 = client2.clone().unwrap().chain_get_block_hash(<span class="prelude-val">None</span>).<span class="kw">await</span>;
+<a href=#268 id=268 data-nosnippet>268</a>
+<a href=#269 id=269 data-nosnippet>269</a>            <span class="macro">assert!</span>(res1.is_ok());
+<a href=#270 id=270 data-nosnippet>270</a>            <span class="macro">assert!</span>(res2.is_ok());
+<a href=#271 id=271 data-nosnippet>271</a>        }
+<a href=#272 id=272 data-nosnippet>272</a>
+<a href=#273 id=273 data-nosnippet>273</a>        <span class="comment">// node processes should have been killed by `Drop` in the above block.
+<a href=#274 id=274 data-nosnippet>274</a>        </span><span class="kw">let </span>res1 = client1.unwrap().chain_get_block_hash(<span class="prelude-val">None</span>).<span class="kw">await</span>;
+<a href=#275 id=275 data-nosnippet>275</a>        <span class="kw">let </span>res2 = client2.unwrap().chain_get_block_hash(<span class="prelude-val">None</span>).<span class="kw">await</span>;
+<a href=#276 id=276 data-nosnippet>276</a>
+<a href=#277 id=277 data-nosnippet>277</a>        <span class="macro">assert!</span>(res1.is_err());
+<a href=#278 id=278 data-nosnippet>278</a>        <span class="macro">assert!</span>(res2.is_err());
+<a href=#279 id=279 data-nosnippet>279</a>    }
+<a href=#280 id=280 data-nosnippet>280</a>
+<a href=#281 id=281 data-nosnippet>281</a>    <span class="attr">#[test]
+<a href=#282 id=282 data-nosnippet>282</a>    </span><span class="kw">fn </span>parse_port_from_node_output() {
+<a href=#283 id=283 data-nosnippet>283</a>        <span class="kw">let </span>log = <span class="string">"2024-12-04 10:57:03.893  INFO main sc_rpc_server: Running JSON-RPC server: addr=127.0.0.1:9944,[::1]:9944  "</span>;
+<a href=#284 id=284 data-nosnippet>284</a>        <span class="kw">let </span>port = find_substrate_port_from_output(log.as_bytes());
+<a href=#285 id=285 data-nosnippet>285</a>        <span class="macro">assert_eq!</span>(port, <span class="number">9944</span>);
+<a href=#286 id=286 data-nosnippet>286</a>
+<a href=#287 id=287 data-nosnippet>287</a>        <span class="kw">let </span>log = <span class="string">"2024-12-04 10:57:03.893  INFO main sc_rpc_server: Running JSON-RPC server: addr=127.0.0.1:9944  "</span>;
+<a href=#288 id=288 data-nosnippet>288</a>        <span class="kw">let </span>port = find_substrate_port_from_output(log.as_bytes());
+<a href=#289 id=289 data-nosnippet>289</a>        <span class="macro">assert_eq!</span>(port, <span class="number">9944</span>);
+<a href=#290 id=290 data-nosnippet>290</a>
+<a href=#291 id=291 data-nosnippet>291</a>        <span class="kw">let </span>log = <span class="string">r#"2024-12-04 11:02:24.637  INFO main sc_cli::runner: 👤 Role: AUTHORITY
+<a href=#292 id=292 data-nosnippet>292</a>2024-12-04 11:02:24.637  INFO main sc_cli::runner: 💾 Database: RocksDb at /var/folders/s5/5gcp8ck95k39z006fj059_0c0000gn/T/substrateHZoRbb/chains/dev/db/full
+<a href=#293 id=293 data-nosnippet>293</a>2024-12-04 11:02:25.324  WARN main sc_service::config: Using default protocol ID "sup" because none is configured in the chain specs
+<a href=#294 id=294 data-nosnippet>294</a>2024-12-04 11:02:25.327  INFO main sc_rpc_server: Running JSON-RPC server: addr=127.0.0.1:9944,[::1]:9944
+<a href=#295 id=295 data-nosnippet>295</a>2024-12-04 11:02:24.637  INFO main sc_cli::runner: 💾 Database: RocksDb at /var/folders/s5/5gcp8ck95k39z006fj059_0c0000gn/T/substrateHZoRbb/chains/dev/db/full
+<a href=#296 id=296 data-nosnippet>296</a>2024-12-04 11:02:24.637  INFO main sc_cli::runner: 💾 Database: RocksDb at /var/folders/s5/5gcp8ck95k39z006fj059_0c0000gn/T/substrateHZoRbb/chains/dev/db/full
+<a href=#297 id=297 data-nosnippet>297</a>"#</span>;
+<a href=#298 id=298 data-nosnippet>298</a>        <span class="kw">let </span>port = find_substrate_port_from_output(log.as_bytes());
+<a href=#299 id=299 data-nosnippet>299</a>        <span class="macro">assert_eq!</span>(port, <span class="number">9944</span>);
+<a href=#300 id=300 data-nosnippet>300</a>    }
+<a href=#301 id=301 data-nosnippet>301</a>}</code></pre></div></section></main></body></html>
