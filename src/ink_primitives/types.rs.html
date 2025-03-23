@@ -422,181 +422,177 @@
 <a href=#422 id=422 data-nosnippet>422</a>
 <a href=#423 id=423 data-nosnippet>423</a>    <span class="doccomment">/// TODO comment
 <a href=#424 id=424 data-nosnippet>424</a>    </span><span class="kw">type </span>EventRecord: <span class="lifetime">'static </span>+ scale::Codec;
-<a href=#425 id=425 data-nosnippet>425</a>
-<a href=#426 id=426 data-nosnippet>426</a>    <span class="comment">// type AddressMapper: 'static + AddressMapper&lt;Self&gt;;
-<a href=#427 id=427 data-nosnippet>427</a></span>}
-<a href=#428 id=428 data-nosnippet>428</a>
-<a href=#429 id=429 data-nosnippet>429</a><span class="doccomment">/// Placeholder for chains that have no defined chain extension.
-<a href=#430 id=430 data-nosnippet>430</a></span><span class="attr">#[cfg_attr(feature = <span class="string">"std"</span>, derive(TypeInfo))]
-<a href=#431 id=431 data-nosnippet>431</a></span><span class="kw">pub enum </span>NoChainExtension {}
-<a href=#432 id=432 data-nosnippet>432</a>
-<a href=#433 id=433 data-nosnippet>433</a><span class="doccomment">/// The fundamental types of the default configuration.
-<a href=#434 id=434 data-nosnippet>434</a></span><span class="attr">#[derive(Debug, Clone, PartialEq, Eq)]
-<a href=#435 id=435 data-nosnippet>435</a>#[cfg_attr(feature = <span class="string">"std"</span>, derive(TypeInfo))]
-<a href=#436 id=436 data-nosnippet>436</a></span><span class="kw">pub enum </span>DefaultEnvironment {}
-<a href=#437 id=437 data-nosnippet>437</a>
-<a href=#438 id=438 data-nosnippet>438</a><span class="comment">//use sp_core::crypto::AccountId32;
-<a href=#439 id=439 data-nosnippet>439</a>//use sp_runtime::AccountId32;
-<a href=#440 id=440 data-nosnippet>440</a></span><span class="kw">impl </span>Environment <span class="kw">for </span>DefaultEnvironment {
-<a href=#441 id=441 data-nosnippet>441</a>    <span class="kw">const </span>MAX_EVENT_TOPICS: usize = <span class="number">4</span>;
-<a href=#442 id=442 data-nosnippet>442</a>
-<a href=#443 id=443 data-nosnippet>443</a>    <span class="kw">type </span>AccountId = AccountId;
-<a href=#444 id=444 data-nosnippet>444</a>    <span class="kw">type </span>Balance = Balance;
-<a href=#445 id=445 data-nosnippet>445</a>    <span class="kw">type </span>Hash = Hash;
-<a href=#446 id=446 data-nosnippet>446</a>    <span class="kw">type </span>Timestamp = Timestamp;
-<a href=#447 id=447 data-nosnippet>447</a>    <span class="kw">type </span>BlockNumber = BlockNumber;
-<a href=#448 id=448 data-nosnippet>448</a>    <span class="kw">type </span>ChainExtension = NoChainExtension;
-<a href=#449 id=449 data-nosnippet>449</a>    <span class="kw">type </span>EventRecord = EventRecord;
-<a href=#450 id=450 data-nosnippet>450</a>}
-<a href=#451 id=451 data-nosnippet>451</a>
-<a href=#452 id=452 data-nosnippet>452</a><span class="doccomment">/// The default balance type.
-<a href=#453 id=453 data-nosnippet>453</a></span><span class="kw">pub type </span>Balance = u128;
-<a href=#454 id=454 data-nosnippet>454</a>
-<a href=#455 id=455 data-nosnippet>455</a><span class="doccomment">/// The default timestamp type.
-<a href=#456 id=456 data-nosnippet>456</a></span><span class="kw">pub type </span>Timestamp = u64;
-<a href=#457 id=457 data-nosnippet>457</a>
-<a href=#458 id=458 data-nosnippet>458</a><span class="doccomment">/// The default gas type.
-<a href=#459 id=459 data-nosnippet>459</a></span><span class="kw">pub type </span>Gas = u64;
-<a href=#460 id=460 data-nosnippet>460</a>
-<a href=#461 id=461 data-nosnippet>461</a><span class="doccomment">/// The default block number type.
-<a href=#462 id=462 data-nosnippet>462</a></span><span class="kw">pub type </span>BlockNumber = u32;
+<a href=#425 id=425 data-nosnippet>425</a>}
+<a href=#426 id=426 data-nosnippet>426</a>
+<a href=#427 id=427 data-nosnippet>427</a><span class="doccomment">/// Placeholder for chains that have no defined chain extension.
+<a href=#428 id=428 data-nosnippet>428</a></span><span class="attr">#[cfg_attr(feature = <span class="string">"std"</span>, derive(TypeInfo))]
+<a href=#429 id=429 data-nosnippet>429</a></span><span class="kw">pub enum </span>NoChainExtension {}
+<a href=#430 id=430 data-nosnippet>430</a>
+<a href=#431 id=431 data-nosnippet>431</a><span class="doccomment">/// The fundamental types of the default configuration.
+<a href=#432 id=432 data-nosnippet>432</a></span><span class="attr">#[derive(Debug, Clone, PartialEq, Eq)]
+<a href=#433 id=433 data-nosnippet>433</a>#[cfg_attr(feature = <span class="string">"std"</span>, derive(TypeInfo))]
+<a href=#434 id=434 data-nosnippet>434</a></span><span class="kw">pub enum </span>DefaultEnvironment {}
+<a href=#435 id=435 data-nosnippet>435</a>
+<a href=#436 id=436 data-nosnippet>436</a><span class="kw">impl </span>Environment <span class="kw">for </span>DefaultEnvironment {
+<a href=#437 id=437 data-nosnippet>437</a>    <span class="kw">const </span>MAX_EVENT_TOPICS: usize = <span class="number">4</span>;
+<a href=#438 id=438 data-nosnippet>438</a>
+<a href=#439 id=439 data-nosnippet>439</a>    <span class="kw">type </span>AccountId = AccountId;
+<a href=#440 id=440 data-nosnippet>440</a>    <span class="kw">type </span>Balance = Balance;
+<a href=#441 id=441 data-nosnippet>441</a>    <span class="kw">type </span>Hash = Hash;
+<a href=#442 id=442 data-nosnippet>442</a>    <span class="kw">type </span>Timestamp = Timestamp;
+<a href=#443 id=443 data-nosnippet>443</a>    <span class="kw">type </span>BlockNumber = BlockNumber;
+<a href=#444 id=444 data-nosnippet>444</a>    <span class="kw">type </span>ChainExtension = NoChainExtension;
+<a href=#445 id=445 data-nosnippet>445</a>    <span class="kw">type </span>EventRecord = EventRecord;
+<a href=#446 id=446 data-nosnippet>446</a>}
+<a href=#447 id=447 data-nosnippet>447</a>
+<a href=#448 id=448 data-nosnippet>448</a><span class="doccomment">/// The default balance type.
+<a href=#449 id=449 data-nosnippet>449</a></span><span class="kw">pub type </span>Balance = u128;
+<a href=#450 id=450 data-nosnippet>450</a>
+<a href=#451 id=451 data-nosnippet>451</a><span class="doccomment">/// The default timestamp type.
+<a href=#452 id=452 data-nosnippet>452</a></span><span class="kw">pub type </span>Timestamp = u64;
+<a href=#453 id=453 data-nosnippet>453</a>
+<a href=#454 id=454 data-nosnippet>454</a><span class="doccomment">/// The default gas type.
+<a href=#455 id=455 data-nosnippet>455</a></span><span class="kw">pub type </span>Gas = u64;
+<a href=#456 id=456 data-nosnippet>456</a>
+<a href=#457 id=457 data-nosnippet>457</a><span class="doccomment">/// The default block number type.
+<a href=#458 id=458 data-nosnippet>458</a></span><span class="kw">pub type </span>BlockNumber = u32;
+<a href=#459 id=459 data-nosnippet>459</a>
+<a href=#460 id=460 data-nosnippet>460</a><span class="comment">// todo replace with ()
+<a href=#461 id=461 data-nosnippet>461</a></span><span class="attr">#[derive(Encode, Decode, MaxEncodedLen, Debug)]
+<a href=#462 id=462 data-nosnippet>462</a></span><span class="kw">pub struct </span>RuntimeEvent();
 <a href=#463 id=463 data-nosnippet>463</a>
-<a href=#464 id=464 data-nosnippet>464</a><span class="comment">// todo replace with ()
-<a href=#465 id=465 data-nosnippet>465</a></span><span class="attr">#[derive(Encode, Decode, MaxEncodedLen, Debug)]
-<a href=#466 id=466 data-nosnippet>466</a></span><span class="kw">pub struct </span>RuntimeEvent();
-<a href=#467 id=467 data-nosnippet>467</a>
-<a href=#468 id=468 data-nosnippet>468</a><span class="doccomment">/// The default event record type.
-<a href=#469 id=469 data-nosnippet>469</a></span><span class="kw">pub type </span>EventRecord = EventRecordFoo&lt;RuntimeEvent, Hash&gt;;
-<a href=#470 id=470 data-nosnippet>470</a>
-<a href=#471 id=471 data-nosnippet>471</a><span class="attr">#[derive(Encode, Decode, Debug)]
-<a href=#472 id=472 data-nosnippet>472</a>#[cfg_attr(feature = <span class="string">"std"</span>, derive(TypeInfo))]
-<a href=#473 id=473 data-nosnippet>473</a></span><span class="kw">pub struct </span>EventRecordFoo&lt;E, H&gt; {
-<a href=#474 id=474 data-nosnippet>474</a>    <span class="doccomment">/// The phase of the block it happened in.
-<a href=#475 id=475 data-nosnippet>475</a>    </span><span class="kw">pub </span>phase: Phase,
-<a href=#476 id=476 data-nosnippet>476</a>    <span class="doccomment">/// The event itself.
-<a href=#477 id=477 data-nosnippet>477</a>    </span><span class="kw">pub </span>event: E,
-<a href=#478 id=478 data-nosnippet>478</a>    <span class="doccomment">/// The list of the topics this event has.
-<a href=#479 id=479 data-nosnippet>479</a>    </span><span class="kw">pub </span>topics: ink_prelude::vec::Vec&lt;H&gt;,
-<a href=#480 id=480 data-nosnippet>480</a>}
-<a href=#481 id=481 data-nosnippet>481</a>
-<a href=#482 id=482 data-nosnippet>482</a><span class="doccomment">/// A phase of a block's execution.
-<a href=#483 id=483 data-nosnippet>483</a></span><span class="attr">#[derive(Debug, Encode, Decode, MaxEncodedLen)]
-<a href=#484 id=484 data-nosnippet>484</a>#[cfg_attr(feature = <span class="string">"std"</span>, derive(PartialEq, Eq, Clone, TypeInfo))]
-<a href=#485 id=485 data-nosnippet>485</a></span><span class="kw">pub enum </span>Phase {
-<a href=#486 id=486 data-nosnippet>486</a>    <span class="doccomment">/// Applying an extrinsic.
-<a href=#487 id=487 data-nosnippet>487</a>    </span>ApplyExtrinsic(u32),
-<a href=#488 id=488 data-nosnippet>488</a>    <span class="doccomment">/// Finalizing the block.
-<a href=#489 id=489 data-nosnippet>489</a>    </span>Finalization,
-<a href=#490 id=490 data-nosnippet>490</a>    <span class="doccomment">/// Initializing the block.
-<a href=#491 id=491 data-nosnippet>491</a>    </span>Initialization,
-<a href=#492 id=492 data-nosnippet>492</a>}
-<a href=#493 id=493 data-nosnippet>493</a>
-<a href=#494 id=494 data-nosnippet>494</a><span class="doccomment">/// The type of origins supported by `pallet-revive`.
-<a href=#495 id=495 data-nosnippet>495</a></span><span class="attr">#[derive(Clone, ::scale::Encode, ::scale::Decode, PartialEq)]
-<a href=#496 id=496 data-nosnippet>496</a>#[cfg_attr(feature = <span class="string">"std"</span>, derive(::scale_info::TypeInfo))]
-<a href=#497 id=497 data-nosnippet>497</a></span><span class="kw">pub enum </span>Origin&lt;E: Environment&gt; {
-<a href=#498 id=498 data-nosnippet>498</a>    Root,
-<a href=#499 id=499 data-nosnippet>499</a>    Signed(E::AccountId),
-<a href=#500 id=500 data-nosnippet>500</a>}
-<a href=#501 id=501 data-nosnippet>501</a>
-<a href=#502 id=502 data-nosnippet>502</a><span class="kw">pub struct </span>AccountIdMapper {}
-<a href=#503 id=503 data-nosnippet>503</a><span class="kw">impl </span>AccountIdMapper {
-<a href=#504 id=504 data-nosnippet>504</a>    <span class="comment">//pub fn to_address(account_id: &amp;E::AccountId) -&gt; H160 {
-<a href=#505 id=505 data-nosnippet>505</a>    </span><span class="kw">pub fn </span>to_address(account_id: <span class="kw-2">&amp;</span>[u8]) -&gt; H160 {
-<a href=#506 id=506 data-nosnippet>506</a>        <span class="kw">let </span><span class="kw-2">mut </span>account_bytes: [u8; <span class="number">32</span>] = [<span class="number">0u8</span>; <span class="number">32</span>];
-<a href=#507 id=507 data-nosnippet>507</a>        account_bytes.copy_from_slice(<span class="kw-2">&amp;</span>account_id[..<span class="number">32</span>]);
-<a href=#508 id=508 data-nosnippet>508</a>        <span class="kw">if </span><span class="self">Self</span>::is_eth_derived(account_id) {
-<a href=#509 id=509 data-nosnippet>509</a>            <span class="comment">// this was originally an eth address
-<a href=#510 id=510 data-nosnippet>510</a>            // we just strip the 0xEE suffix to get the original address
-<a href=#511 id=511 data-nosnippet>511</a>            </span>H160::from_slice(<span class="kw-2">&amp;</span>account_bytes[..<span class="number">20</span>])
-<a href=#512 id=512 data-nosnippet>512</a>        } <span class="kw">else </span>{
-<a href=#513 id=513 data-nosnippet>513</a>            <span class="comment">// this is an (ed|sr)25510 derived address
-<a href=#514 id=514 data-nosnippet>514</a>            // avoid truncating the public key by hashing it first
-<a href=#515 id=515 data-nosnippet>515</a>            </span><span class="kw">let </span>account_hash = keccak_256(account_bytes.as_ref());
-<a href=#516 id=516 data-nosnippet>516</a>            H160::from_slice(<span class="kw-2">&amp;</span>account_hash[<span class="number">12</span>..])
-<a href=#517 id=517 data-nosnippet>517</a>        }
-<a href=#518 id=518 data-nosnippet>518</a>    }
-<a href=#519 id=519 data-nosnippet>519</a>
-<a href=#520 id=520 data-nosnippet>520</a>    <span class="doccomment">/// Returns true if the passed account id is controlled by an Ethereum key.
-<a href=#521 id=521 data-nosnippet>521</a>    ///
-<a href=#522 id=522 data-nosnippet>522</a>    /// This is a stateless check that just compares the last 12 bytes. Please note that
-<a href=#523 id=523 data-nosnippet>523</a>    /// it is theoretically possible to create an ed25519 keypair that passed this
-<a href=#524 id=524 data-nosnippet>524</a>    /// filter. However, this can't be used for an attack. It also won't happen by
-<a href=#525 id=525 data-nosnippet>525</a>    /// accident since everbody is using sr25519 where this is not a valid public key.
-<a href=#526 id=526 data-nosnippet>526</a>    </span><span class="comment">//fn is_eth_derived(account_id: &amp;[u8]) -&gt; bool {
-<a href=#527 id=527 data-nosnippet>527</a>    </span><span class="kw">fn </span>is_eth_derived(account_bytes: <span class="kw-2">&amp;</span>[u8]) -&gt; bool {
-<a href=#528 id=528 data-nosnippet>528</a>        account_bytes[<span class="number">20</span>..] == [<span class="number">0xEE</span>; <span class="number">12</span>]
-<a href=#529 id=529 data-nosnippet>529</a>    }
-<a href=#530 id=530 data-nosnippet>530</a>}
-<a href=#531 id=531 data-nosnippet>531</a>
-<a href=#532 id=532 data-nosnippet>532</a><span class="doccomment">/// A Solidity compatible `address` type.
-<a href=#533 id=533 data-nosnippet>533</a></span><span class="attr">#[derive(
-<a href=#534 id=534 data-nosnippet>534</a>    Debug,
-<a href=#535 id=535 data-nosnippet>535</a>    Copy,
-<a href=#536 id=536 data-nosnippet>536</a>    Clone,
-<a href=#537 id=537 data-nosnippet>537</a>    PartialEq,
-<a href=#538 id=538 data-nosnippet>538</a>    Eq,
-<a href=#539 id=539 data-nosnippet>539</a>    Ord,
-<a href=#540 id=540 data-nosnippet>540</a>    PartialOrd,
-<a href=#541 id=541 data-nosnippet>541</a>    Hash,
-<a href=#542 id=542 data-nosnippet>542</a>    Decode,
-<a href=#543 id=543 data-nosnippet>543</a>    Encode,
-<a href=#544 id=544 data-nosnippet>544</a>    MaxEncodedLen,
-<a href=#545 id=545 data-nosnippet>545</a>    From,
-<a href=#546 id=546 data-nosnippet>546</a>)]
-<a href=#547 id=547 data-nosnippet>547</a>#[cfg_attr(feature = <span class="string">"std"</span>, derive(TypeInfo, DecodeAsType, EncodeAsType))]
-<a href=#548 id=548 data-nosnippet>548</a></span><span class="kw">pub struct </span>Address(<span class="kw">pub </span>[u8; <span class="number">20</span>]);
-<a href=#549 id=549 data-nosnippet>549</a>
-<a href=#550 id=550 data-nosnippet>550</a><span class="kw">impl </span>AsRef&lt;[u8; <span class="number">20</span>]&gt; <span class="kw">for </span>Address {
-<a href=#551 id=551 data-nosnippet>551</a>    <span class="kw">fn </span>as_ref(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[u8; <span class="number">20</span>] {
-<a href=#552 id=552 data-nosnippet>552</a>        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0
-<a href=#553 id=553 data-nosnippet>553</a>    </span>}
-<a href=#554 id=554 data-nosnippet>554</a>}
-<a href=#555 id=555 data-nosnippet>555</a>
-<a href=#556 id=556 data-nosnippet>556</a><span class="kw">impl </span>AsMut&lt;[u8; <span class="number">20</span>]&gt; <span class="kw">for </span>Address {
-<a href=#557 id=557 data-nosnippet>557</a>    <span class="kw">fn </span>as_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>[u8; <span class="number">20</span>] {
-<a href=#558 id=558 data-nosnippet>558</a>        <span class="kw-2">&amp;mut </span><span class="self">self</span>.<span class="number">0
-<a href=#559 id=559 data-nosnippet>559</a>    </span>}
-<a href=#560 id=560 data-nosnippet>560</a>}
-<a href=#561 id=561 data-nosnippet>561</a>
-<a href=#562 id=562 data-nosnippet>562</a><span class="kw">impl </span>AsRef&lt;[u8]&gt; <span class="kw">for </span>Address {
-<a href=#563 id=563 data-nosnippet>563</a>    <span class="kw">fn </span>as_ref(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[u8] {
-<a href=#564 id=564 data-nosnippet>564</a>        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0</span>[..]
-<a href=#565 id=565 data-nosnippet>565</a>    }
-<a href=#566 id=566 data-nosnippet>566</a>}
-<a href=#567 id=567 data-nosnippet>567</a>
-<a href=#568 id=568 data-nosnippet>568</a><span class="kw">impl </span>AsMut&lt;[u8]&gt; <span class="kw">for </span>Address {
-<a href=#569 id=569 data-nosnippet>569</a>    <span class="kw">fn </span>as_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>[u8] {
-<a href=#570 id=570 data-nosnippet>570</a>        <span class="kw-2">&amp;mut </span><span class="self">self</span>.<span class="number">0</span>[..]
-<a href=#571 id=571 data-nosnippet>571</a>    }
-<a href=#572 id=572 data-nosnippet>572</a>}
-<a href=#573 id=573 data-nosnippet>573</a>
-<a href=#574 id=574 data-nosnippet>574</a><span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; TryFrom&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>[u8]&gt; <span class="kw">for </span>Address {
-<a href=#575 id=575 data-nosnippet>575</a>    <span class="kw">type </span>Error = TryFromSliceError;
-<a href=#576 id=576 data-nosnippet>576</a>
-<a href=#577 id=577 data-nosnippet>577</a>    <span class="kw">fn </span>try_from(bytes: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, TryFromSliceError&gt; {
-<a href=#578 id=578 data-nosnippet>578</a>        <span class="kw">let </span>address = &lt;[u8; <span class="number">20</span>]&gt;::try_from(bytes)<span class="question-mark">?</span>;
-<a href=#579 id=579 data-nosnippet>579</a>        <span class="prelude-val">Ok</span>(<span class="self">Self</span>(address))
-<a href=#580 id=580 data-nosnippet>580</a>    }
-<a href=#581 id=581 data-nosnippet>581</a>}
-<a href=#582 id=582 data-nosnippet>582</a>
-<a href=#583 id=583 data-nosnippet>583</a><span class="kw">impl </span>Borrow&lt;[u8; <span class="number">20</span>]&gt; <span class="kw">for </span>Address {
-<a href=#584 id=584 data-nosnippet>584</a>    <span class="kw">fn </span>borrow(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[u8; <span class="number">20</span>] {
-<a href=#585 id=585 data-nosnippet>585</a>        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0
-<a href=#586 id=586 data-nosnippet>586</a>    </span>}
-<a href=#587 id=587 data-nosnippet>587</a>}
-<a href=#588 id=588 data-nosnippet>588</a>
-<a href=#589 id=589 data-nosnippet>589</a><span class="kw">impl </span>SolValue <span class="kw">for </span>Address {
-<a href=#590 id=590 data-nosnippet>590</a>    <span class="kw">type </span>SolType = sol_data::Address;
-<a href=#591 id=591 data-nosnippet>591</a>
-<a href=#592 id=592 data-nosnippet>592</a>    <span class="attr">#[inline]
-<a href=#593 id=593 data-nosnippet>593</a>    </span><span class="kw">fn </span>abi_encode(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; ink_prelude::vec::Vec&lt;u8&gt; {
-<a href=#594 id=594 data-nosnippet>594</a>        <span class="self">self</span>.<span class="number">0</span>.as_slice().abi_encode()
-<a href=#595 id=595 data-nosnippet>595</a>    }
-<a href=#596 id=596 data-nosnippet>596</a>}
-<a href=#597 id=597 data-nosnippet>597</a>
-<a href=#598 id=598 data-nosnippet>598</a><span class="kw">impl </span>From&lt;SolAddress&gt; <span class="kw">for </span>Address {
-<a href=#599 id=599 data-nosnippet>599</a>    <span class="kw">fn </span>from(value: SolAddress) -&gt; <span class="self">Self </span>{
-<a href=#600 id=600 data-nosnippet>600</a>        Address(value.into_array())
-<a href=#601 id=601 data-nosnippet>601</a>    }
-<a href=#602 id=602 data-nosnippet>602</a>}</code></pre></div></section></main></body></html>
+<a href=#464 id=464 data-nosnippet>464</a><span class="doccomment">/// The default event record type.
+<a href=#465 id=465 data-nosnippet>465</a></span><span class="kw">pub type </span>EventRecord = EventRecordFoo&lt;RuntimeEvent, Hash&gt;;
+<a href=#466 id=466 data-nosnippet>466</a>
+<a href=#467 id=467 data-nosnippet>467</a><span class="attr">#[derive(Encode, Decode, Debug)]
+<a href=#468 id=468 data-nosnippet>468</a>#[cfg_attr(feature = <span class="string">"std"</span>, derive(TypeInfo))]
+<a href=#469 id=469 data-nosnippet>469</a></span><span class="kw">pub struct </span>EventRecordFoo&lt;E, H&gt; {
+<a href=#470 id=470 data-nosnippet>470</a>    <span class="doccomment">/// The phase of the block it happened in.
+<a href=#471 id=471 data-nosnippet>471</a>    </span><span class="kw">pub </span>phase: Phase,
+<a href=#472 id=472 data-nosnippet>472</a>    <span class="doccomment">/// The event itself.
+<a href=#473 id=473 data-nosnippet>473</a>    </span><span class="kw">pub </span>event: E,
+<a href=#474 id=474 data-nosnippet>474</a>    <span class="doccomment">/// The list of the topics this event has.
+<a href=#475 id=475 data-nosnippet>475</a>    </span><span class="kw">pub </span>topics: ink_prelude::vec::Vec&lt;H&gt;,
+<a href=#476 id=476 data-nosnippet>476</a>}
+<a href=#477 id=477 data-nosnippet>477</a>
+<a href=#478 id=478 data-nosnippet>478</a><span class="doccomment">/// A phase of a block's execution.
+<a href=#479 id=479 data-nosnippet>479</a></span><span class="attr">#[derive(Debug, Encode, Decode, MaxEncodedLen)]
+<a href=#480 id=480 data-nosnippet>480</a>#[cfg_attr(feature = <span class="string">"std"</span>, derive(PartialEq, Eq, Clone, TypeInfo))]
+<a href=#481 id=481 data-nosnippet>481</a></span><span class="kw">pub enum </span>Phase {
+<a href=#482 id=482 data-nosnippet>482</a>    <span class="doccomment">/// Applying an extrinsic.
+<a href=#483 id=483 data-nosnippet>483</a>    </span>ApplyExtrinsic(u32),
+<a href=#484 id=484 data-nosnippet>484</a>    <span class="doccomment">/// Finalizing the block.
+<a href=#485 id=485 data-nosnippet>485</a>    </span>Finalization,
+<a href=#486 id=486 data-nosnippet>486</a>    <span class="doccomment">/// Initializing the block.
+<a href=#487 id=487 data-nosnippet>487</a>    </span>Initialization,
+<a href=#488 id=488 data-nosnippet>488</a>}
+<a href=#489 id=489 data-nosnippet>489</a>
+<a href=#490 id=490 data-nosnippet>490</a><span class="doccomment">/// The type of origins supported by `pallet-revive`.
+<a href=#491 id=491 data-nosnippet>491</a></span><span class="attr">#[derive(Clone, ::scale::Encode, ::scale::Decode, PartialEq)]
+<a href=#492 id=492 data-nosnippet>492</a>#[cfg_attr(feature = <span class="string">"std"</span>, derive(::scale_info::TypeInfo))]
+<a href=#493 id=493 data-nosnippet>493</a></span><span class="kw">pub enum </span>Origin&lt;E: Environment&gt; {
+<a href=#494 id=494 data-nosnippet>494</a>    Root,
+<a href=#495 id=495 data-nosnippet>495</a>    Signed(E::AccountId),
+<a href=#496 id=496 data-nosnippet>496</a>}
+<a href=#497 id=497 data-nosnippet>497</a>
+<a href=#498 id=498 data-nosnippet>498</a><span class="kw">pub struct </span>AccountIdMapper {}
+<a href=#499 id=499 data-nosnippet>499</a><span class="kw">impl </span>AccountIdMapper {
+<a href=#500 id=500 data-nosnippet>500</a>    <span class="comment">//pub fn to_address(account_id: &amp;E::AccountId) -&gt; H160 {
+<a href=#501 id=501 data-nosnippet>501</a>    </span><span class="kw">pub fn </span>to_address(account_id: <span class="kw-2">&amp;</span>[u8]) -&gt; H160 {
+<a href=#502 id=502 data-nosnippet>502</a>        <span class="kw">let </span><span class="kw-2">mut </span>account_bytes: [u8; <span class="number">32</span>] = [<span class="number">0u8</span>; <span class="number">32</span>];
+<a href=#503 id=503 data-nosnippet>503</a>        account_bytes.copy_from_slice(<span class="kw-2">&amp;</span>account_id[..<span class="number">32</span>]);
+<a href=#504 id=504 data-nosnippet>504</a>        <span class="kw">if </span><span class="self">Self</span>::is_eth_derived(account_id) {
+<a href=#505 id=505 data-nosnippet>505</a>            <span class="comment">// this was originally an eth address
+<a href=#506 id=506 data-nosnippet>506</a>            // we just strip the 0xEE suffix to get the original address
+<a href=#507 id=507 data-nosnippet>507</a>            </span>H160::from_slice(<span class="kw-2">&amp;</span>account_bytes[..<span class="number">20</span>])
+<a href=#508 id=508 data-nosnippet>508</a>        } <span class="kw">else </span>{
+<a href=#509 id=509 data-nosnippet>509</a>            <span class="comment">// this is an (ed|sr)25510 derived address
+<a href=#510 id=510 data-nosnippet>510</a>            // avoid truncating the public key by hashing it first
+<a href=#511 id=511 data-nosnippet>511</a>            </span><span class="kw">let </span>account_hash = keccak_256(account_bytes.as_ref());
+<a href=#512 id=512 data-nosnippet>512</a>            H160::from_slice(<span class="kw-2">&amp;</span>account_hash[<span class="number">12</span>..])
+<a href=#513 id=513 data-nosnippet>513</a>        }
+<a href=#514 id=514 data-nosnippet>514</a>    }
+<a href=#515 id=515 data-nosnippet>515</a>
+<a href=#516 id=516 data-nosnippet>516</a>    <span class="doccomment">/// Returns true if the passed account id is controlled by an Ethereum key.
+<a href=#517 id=517 data-nosnippet>517</a>    ///
+<a href=#518 id=518 data-nosnippet>518</a>    /// This is a stateless check that just compares the last 12 bytes. Please note that
+<a href=#519 id=519 data-nosnippet>519</a>    /// it is theoretically possible to create an ed25519 keypair that passed this
+<a href=#520 id=520 data-nosnippet>520</a>    /// filter. However, this can't be used for an attack. It also won't happen by
+<a href=#521 id=521 data-nosnippet>521</a>    /// accident since everbody is using sr25519 where this is not a valid public key.
+<a href=#522 id=522 data-nosnippet>522</a>    </span><span class="comment">//fn is_eth_derived(account_id: &amp;[u8]) -&gt; bool {
+<a href=#523 id=523 data-nosnippet>523</a>    </span><span class="kw">fn </span>is_eth_derived(account_bytes: <span class="kw-2">&amp;</span>[u8]) -&gt; bool {
+<a href=#524 id=524 data-nosnippet>524</a>        account_bytes[<span class="number">20</span>..] == [<span class="number">0xEE</span>; <span class="number">12</span>]
+<a href=#525 id=525 data-nosnippet>525</a>    }
+<a href=#526 id=526 data-nosnippet>526</a>}
+<a href=#527 id=527 data-nosnippet>527</a>
+<a href=#528 id=528 data-nosnippet>528</a><span class="doccomment">/// A Solidity compatible `address` type.
+<a href=#529 id=529 data-nosnippet>529</a></span><span class="attr">#[derive(
+<a href=#530 id=530 data-nosnippet>530</a>    Debug,
+<a href=#531 id=531 data-nosnippet>531</a>    Copy,
+<a href=#532 id=532 data-nosnippet>532</a>    Clone,
+<a href=#533 id=533 data-nosnippet>533</a>    PartialEq,
+<a href=#534 id=534 data-nosnippet>534</a>    Eq,
+<a href=#535 id=535 data-nosnippet>535</a>    Ord,
+<a href=#536 id=536 data-nosnippet>536</a>    PartialOrd,
+<a href=#537 id=537 data-nosnippet>537</a>    Hash,
+<a href=#538 id=538 data-nosnippet>538</a>    Decode,
+<a href=#539 id=539 data-nosnippet>539</a>    Encode,
+<a href=#540 id=540 data-nosnippet>540</a>    MaxEncodedLen,
+<a href=#541 id=541 data-nosnippet>541</a>    From,
+<a href=#542 id=542 data-nosnippet>542</a>)]
+<a href=#543 id=543 data-nosnippet>543</a>#[cfg_attr(feature = <span class="string">"std"</span>, derive(TypeInfo, DecodeAsType, EncodeAsType))]
+<a href=#544 id=544 data-nosnippet>544</a></span><span class="kw">pub struct </span>Address(<span class="kw">pub </span>[u8; <span class="number">20</span>]);
+<a href=#545 id=545 data-nosnippet>545</a>
+<a href=#546 id=546 data-nosnippet>546</a><span class="kw">impl </span>AsRef&lt;[u8; <span class="number">20</span>]&gt; <span class="kw">for </span>Address {
+<a href=#547 id=547 data-nosnippet>547</a>    <span class="kw">fn </span>as_ref(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[u8; <span class="number">20</span>] {
+<a href=#548 id=548 data-nosnippet>548</a>        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0
+<a href=#549 id=549 data-nosnippet>549</a>    </span>}
+<a href=#550 id=550 data-nosnippet>550</a>}
+<a href=#551 id=551 data-nosnippet>551</a>
+<a href=#552 id=552 data-nosnippet>552</a><span class="kw">impl </span>AsMut&lt;[u8; <span class="number">20</span>]&gt; <span class="kw">for </span>Address {
+<a href=#553 id=553 data-nosnippet>553</a>    <span class="kw">fn </span>as_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>[u8; <span class="number">20</span>] {
+<a href=#554 id=554 data-nosnippet>554</a>        <span class="kw-2">&amp;mut </span><span class="self">self</span>.<span class="number">0
+<a href=#555 id=555 data-nosnippet>555</a>    </span>}
+<a href=#556 id=556 data-nosnippet>556</a>}
+<a href=#557 id=557 data-nosnippet>557</a>
+<a href=#558 id=558 data-nosnippet>558</a><span class="kw">impl </span>AsRef&lt;[u8]&gt; <span class="kw">for </span>Address {
+<a href=#559 id=559 data-nosnippet>559</a>    <span class="kw">fn </span>as_ref(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[u8] {
+<a href=#560 id=560 data-nosnippet>560</a>        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0</span>[..]
+<a href=#561 id=561 data-nosnippet>561</a>    }
+<a href=#562 id=562 data-nosnippet>562</a>}
+<a href=#563 id=563 data-nosnippet>563</a>
+<a href=#564 id=564 data-nosnippet>564</a><span class="kw">impl </span>AsMut&lt;[u8]&gt; <span class="kw">for </span>Address {
+<a href=#565 id=565 data-nosnippet>565</a>    <span class="kw">fn </span>as_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>[u8] {
+<a href=#566 id=566 data-nosnippet>566</a>        <span class="kw-2">&amp;mut </span><span class="self">self</span>.<span class="number">0</span>[..]
+<a href=#567 id=567 data-nosnippet>567</a>    }
+<a href=#568 id=568 data-nosnippet>568</a>}
+<a href=#569 id=569 data-nosnippet>569</a>
+<a href=#570 id=570 data-nosnippet>570</a><span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; TryFrom&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>[u8]&gt; <span class="kw">for </span>Address {
+<a href=#571 id=571 data-nosnippet>571</a>    <span class="kw">type </span>Error = TryFromSliceError;
+<a href=#572 id=572 data-nosnippet>572</a>
+<a href=#573 id=573 data-nosnippet>573</a>    <span class="kw">fn </span>try_from(bytes: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, TryFromSliceError&gt; {
+<a href=#574 id=574 data-nosnippet>574</a>        <span class="kw">let </span>address = &lt;[u8; <span class="number">20</span>]&gt;::try_from(bytes)<span class="question-mark">?</span>;
+<a href=#575 id=575 data-nosnippet>575</a>        <span class="prelude-val">Ok</span>(<span class="self">Self</span>(address))
+<a href=#576 id=576 data-nosnippet>576</a>    }
+<a href=#577 id=577 data-nosnippet>577</a>}
+<a href=#578 id=578 data-nosnippet>578</a>
+<a href=#579 id=579 data-nosnippet>579</a><span class="kw">impl </span>Borrow&lt;[u8; <span class="number">20</span>]&gt; <span class="kw">for </span>Address {
+<a href=#580 id=580 data-nosnippet>580</a>    <span class="kw">fn </span>borrow(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[u8; <span class="number">20</span>] {
+<a href=#581 id=581 data-nosnippet>581</a>        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0
+<a href=#582 id=582 data-nosnippet>582</a>    </span>}
+<a href=#583 id=583 data-nosnippet>583</a>}
+<a href=#584 id=584 data-nosnippet>584</a>
+<a href=#585 id=585 data-nosnippet>585</a><span class="kw">impl </span>SolValue <span class="kw">for </span>Address {
+<a href=#586 id=586 data-nosnippet>586</a>    <span class="kw">type </span>SolType = sol_data::Address;
+<a href=#587 id=587 data-nosnippet>587</a>
+<a href=#588 id=588 data-nosnippet>588</a>    <span class="attr">#[inline]
+<a href=#589 id=589 data-nosnippet>589</a>    </span><span class="kw">fn </span>abi_encode(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; ink_prelude::vec::Vec&lt;u8&gt; {
+<a href=#590 id=590 data-nosnippet>590</a>        <span class="self">self</span>.<span class="number">0</span>.as_slice().abi_encode()
+<a href=#591 id=591 data-nosnippet>591</a>    }
+<a href=#592 id=592 data-nosnippet>592</a>}
+<a href=#593 id=593 data-nosnippet>593</a>
+<a href=#594 id=594 data-nosnippet>594</a><span class="kw">impl </span>From&lt;SolAddress&gt; <span class="kw">for </span>Address {
+<a href=#595 id=595 data-nosnippet>595</a>    <span class="kw">fn </span>from(value: SolAddress) -&gt; <span class="self">Self </span>{
+<a href=#596 id=596 data-nosnippet>596</a>        Address(value.into_array())
+<a href=#597 id=597 data-nosnippet>597</a>    }
+<a href=#598 id=598 data-nosnippet>598</a>}</code></pre></div></section></main></body></html>
