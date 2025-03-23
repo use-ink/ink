@@ -23,7 +23,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          fetch-depth: 100
+          fetch-depth: 1
 
       - name: Download Master Contract Sizes
         uses: ./.github/download-artifact
