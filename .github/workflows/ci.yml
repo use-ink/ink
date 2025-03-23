@@ -702,11 +702,9 @@ jobs:
                 # needed for `mapping::e2e_tests::fallible_storage_methods_work`
                 INK_STATIC_BUFFER_SIZE: 256
             run:
-                df -h;
                 rustup toolchain remove nightly-2025-02-20;
                 rustup toolchain remove stable;
                 rustup toolchain remove 1.85.0;
-                df -h;
                 cargo +nightly test --all-features --all --manifest-path integration-tests/internal/mapping/Cargo.toml
 
   examples-custom-test:
