@@ -40,7 +40,7 @@ use crate::types::{
     Hash,
 };
 
-/// Maps an arbitrary Rust/ink! type to a Solidity ABI type representation for Solidity
+/// Maps an arbitrary Rust/ink! type to a Solidity ABI type equivalent for Solidity
 /// ABI encoding/decoding.
 ///
 /// # Note
@@ -73,7 +73,7 @@ use crate::types::{
 ///
 ///     fn to_sol_type(&self) -> Cow<(u8, bool)> {
 ///         // NOTE: Types that implement `Borrow<Self::SolType>`
-///         // (e.g. newtype wrappers of `SolType::SolType`)
+///         // (e.g. newtype wrappers of `SolCodec::SolType`)
 ///         // should return `Cow::Borrowed(self.borrow())` for better performance.
 ///         Cow::Owned((self.size, self.status))
 ///     }

@@ -38,8 +38,8 @@ use crate::sol::{
     SolType,
 };
 
-/// Wrapper type that encodes/decodes `u8` sequences/collections as their equivalent Solidity
-/// bytes representations.
+/// Newtype wrapper for encoding/decoding `u8` sequences/collections as their equivalent
+/// Solidity bytes representations.
 ///
 /// | Rust/ink! type | Solidity ABI type | Notes |
 /// | -------------- | ----------------- | ----- |

@@ -36,6 +36,8 @@ use crate::{
 /// A Rust/ink! equivalent of a Solidity ABI type that implements logic for Solidity ABI
 /// encoding/decoding.
 ///
+/// # Rust/ink! to Solidity ABI type mapping
+///
 /// | Rust/ink! type | Solidity ABI type | Notes |
 /// | -------------- | ----------------- | ----- |
 /// | `bool` | `bool` ||
