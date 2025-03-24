@@ -25,6 +25,7 @@ pub mod delegator {
     pub struct Delegator {
         addresses: Mapping<H160, i32, ManualKey<0x23>>,
         counter: i32,
+        // TODO check if we even need to save the `H256` hash in here.
         delegate_to: Lazy<(H256, H160)>,
     }
 

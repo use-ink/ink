@@ -25,7 +25,7 @@ Compatibility of this release:
 * Rust >= 1.85
 * [`cargo-contract` `v6.0.0-alpha`](https://github.com/use-ink/cargo-contract/releases/tag/v6.0.0-alpha)
 * [`substrate-contracts-node/cd94b5f`](https://github.com/use-ink/substrate-contracts-node/commit/cd94b5fa23ee04f2d541decf1ace3b9904d61cb2)
-* [`polkadot-sdk/f8c90b2a01ec77579bccd21ae17bd6ff2eeffd6a`](https://github.com/paritytech/polkadot-sdk/commit/f8c90b2a01ec77579bccd21ae17bd6ff2eeffd6a)
+* [`polkadot-sdk/28a7ae71cc0eac747bf346804279217a68f700da`](https://github.com/paritytech/polkadot-sdk/commit/28a7ae71cc0eac747bf346804279217a68f700da)
 
 In the following we'll describe some breaking changes on a high-level. The
 context to understand them is that the `pallet-revive` team has Ethereum/Solidity

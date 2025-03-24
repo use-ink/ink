@@ -135,7 +135,7 @@ fn build_full_client(
                     .spawn()
                     .await
                     .unwrap_or_else(|err|
-                        ::core::panic!("Error spawning substrate-contracts-node: {err:?}")
+                        ::core::panic!("Error spawning ink-node: {err:?}")
                     );
                 let mut client = ::ink_e2e::Client::<
                     ::ink_e2e::PolkadotConfig,

@@ -4,8 +4,8 @@ set -eu
 
 # todo remove once we have enough space in the runners again
 rustup toolchain remove nightly-2025-02-20
-rustup toolchain remove stable
-rustup toolchain remove 1.85.0
+#rustup toolchain remove stable
+#rustup toolchain remove 1.85.0
 
 script_name="${BASH_SOURCE[0]}"
 scripts_path=$( cd "$(dirname "$script_name")" || exit; pwd -P )
@@ -144,12 +144,16 @@ fi
 
 for (( i = start; i <= end; i++ )); do
   manifest_path="${filtered_manifests[$i]}"
-  export MANIFEST_PATH="$manifest_path"
+  example="$(dirname "$manifest_path" | cut -d'/' -f3)"
+  echo "example" $example >&2
+  #export CONTRACT_SIZE_FILE="$CONTRACT_SIZE_FILE$manifest_parent"
+  #echo $CONTRACT_SIZE_FILE >&2
   command[$arg_index]="$manifest_path"
   if [ "$quiet" = false ]; then
     >&2 echo Running: "${command[@]}"
   fi
-  eval "${command[@]}";
+  eval "${command[@]}" >> ${CONTRACT_SIZE_FILE}$example
+  sed -ie 's/^integration-tests\/\(public\/\|internal\/\)\?//' ${CONTRACT_SIZE_FILE}$example
 
   if [ $? -eq 0 ]; then
     successes+=("$manifest_path")
