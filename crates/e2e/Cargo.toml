@@ -53,7 +53,7 @@ sp-io = { git = "https://github.com/paritytech/polkadot-sdk", rev = "28a7ae71cc0
 sp-runtime-interface = { git = "https://github.com/paritytech/polkadot-sdk", rev = "28a7ae71cc0eac747bf346804279217a68f700da", default-features = false, features = ["disable_target_static_assertions"] }
 
 # todo Pin until https://github.com/jhpratt/deranged/issues/18 is resolved
-deranged = "=0.4.0"
+deranged = { version = "=0.4.0", default-features = false }
 
 [dev-dependencies]
 # Required for the doctest of `MessageBuilder::call`
@@ -62,6 +62,7 @@ scale-info = { workspace = true, features = ["derive"] }
 [features]
 default = [ "std" ]
 std = [
+    "deranged/std",
 	"impl-serde/std",
 	"ink_e2e_macro/std",
 	"pallet-revive/std",
