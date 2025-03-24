@@ -810,11 +810,7 @@ jobs:
             #sed -ie 's/^integration-tests\/\(public\/\|internal\/\)\?//' ${CONTRACT_SIZE_FILE}"
 
       - uses: actions/upload-artifact@v4
-        #env:
-            #CONTRACT_SIZE_FILE: ${{ matrix.branch }}_contract_size_${{ matrix.partition }}
         with:
-            #name: ${{ github.job }}-${{ matrix.branch }}-data
-            #name: ./measurements-${{ PR_NUMBER }}
             path: ./measurements-${{ steps.extract_branch.outputs.branch }}/*
             name: ${{ env.RUN_UNIQUE_ID }}_artifact_${{ matrix.partition }}
             retention-days: 1
