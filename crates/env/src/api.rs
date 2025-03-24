@@ -54,7 +54,7 @@ use ink_primitives::{
         AbiDecodeWith,
         AbiEncodeWith,
     },
-    SolCodec,
+    SolEncode,
     H160,
     H256,
     U256,
@@ -477,7 +477,7 @@ where
 /// This function  stops the execution of the contract immediately.
 pub fn return_value_solidity<R>(return_flags: ReturnFlags, return_value: &R) -> !
 where
-    R: SolCodec,
+    R: SolEncode,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         EnvBackend::return_value_solidity::<R>(instance, return_flags, return_value)

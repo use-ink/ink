@@ -15,7 +15,10 @@
 use ink_prelude::vec::Vec;
 use pallet_revive_uapi::ReturnFlags;
 
-use crate::SolCodec;
+use crate::sol::{
+    SolDecode,
+    SolEncode,
+};
 
 /// Stores various information of the respective dispatchable ink! message.
 ///
@@ -291,7 +294,7 @@ impl<T: scale::Decode> AbiDecodeWith<ScaleEncoding> for T {
     }
 }
 
-impl<T: SolCodec> AbiEncodeWith<SolEncoding> for T {
+impl<T: SolEncode> AbiEncodeWith<SolEncoding> for T {
     fn encode_to_slice(&self, buffer: &mut [u8]) -> usize {
         let encoded = T::encode(self);
         let len = encoded.len();
@@ -310,7 +313,7 @@ impl<T: SolCodec> AbiEncodeWith<SolEncoding> for T {
     }
 }
 
-impl<T: SolCodec> AbiDecodeWith<SolEncoding> for T {
+impl<T: SolDecode> AbiDecodeWith<SolEncoding> for T {
     type Error = alloy_sol_types::Error;
     fn decode_with(buffer: &[u8]) -> Result<Self, Self::Error> {
         T::decode(buffer)

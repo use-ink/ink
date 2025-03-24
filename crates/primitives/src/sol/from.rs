@@ -26,8 +26,9 @@ use crate::types::Address;
 /// A primary motivation for this local "From" trait is that, even for a local type `T`,
 /// sequences/collections of `T` (i.e. `[T; N]`, `Vec<T>`) are foreign types.
 /// However, we need to convert such sequences/collections for the (transitively)
-/// associated [`alloy_sol_types::SolType::RustType`] type for [`crate::sol::SolType`] to
-/// compose complex representations of Solidity ABI types.
+/// associated [`alloy_sol_types::SolType::RustType`] type for
+/// [`crate::sol::SolTypeDecode`] to compose complex representations of Solidity ABI
+/// types.
 ///
 /// Ref: <https://doc.rust-lang.org/reference/items/implementations.html#trait-implementation-coherence>
 ///

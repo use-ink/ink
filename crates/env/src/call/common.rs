@@ -22,7 +22,7 @@ use ink_primitives::{
         SolEncoding,
     },
     MessageResult,
-    SolCodec,
+    SolDecode,
 };
 use scale::{
     Decode,
@@ -143,7 +143,7 @@ where
 
 impl<R> DecodeMessageResult<SolEncoding> for R
 where
-    R: SolCodec,
+    R: SolDecode,
 {
     fn decode_output(buffer: &[u8]) -> crate::Result<MessageResult<Self>> {
         // Solidity ABI Encoded contracts return the data without

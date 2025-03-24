@@ -34,8 +34,10 @@ use scale_info::TypeInfo;
 
 use crate::sol::{
     from::SolFrom,
-    SolCodec,
-    SolType,
+    SolDecode,
+    SolEncode,
+    SolTypeDecode,
+    SolTypeEncode,
 };
 
 /// Newtype wrapper for encoding/decoding `u8` sequences/collections as their equivalent
@@ -76,7 +78,13 @@ pub trait SolByteType:
 }
 
 // Implement `SolType` for `AsBytes<T> where T: ByteType`.
-impl<T: SolByteType> SolType for AsSolBytes<T>
+impl<T: SolByteType> SolTypeDecode for AsSolBytes<T>
+where
+    AsSolBytes<T>: SolTypeValue<<T as SolByteType>::AlloyType>,
+{
+    type AlloyType = T::AlloyType;
+}
+impl<T: SolByteType> SolTypeEncode for AsSolBytes<T>
 where
     AsSolBytes<T>: SolTypeValue<<T as SolByteType>::AlloyType>,
 {
@@ -84,8 +92,18 @@ where
 }
 impl<T: SolByteType> crate::sol::types::private::Sealed for AsSolBytes<T> {}
 
-// Implement `SolCodec` for `AsBytes<T> where T: ByteType`.
-impl<T: SolByteType + Clone> SolCodec for AsSolBytes<T>
+// Implement `SolDecode` and `SolEncode` for `AsBytes<T> where T: ByteType`.
+impl<T: SolByteType + Clone> SolDecode for AsSolBytes<T>
+where
+    AsSolBytes<T>: SolTypeValue<<T as SolByteType>::AlloyType>,
+{
+    type SolType = AsSolBytes<T>;
+
+    fn from_sol_type(value: Self::SolType) -> Self {
+        value
+    }
+}
+impl<T: SolByteType + Clone> SolEncode for AsSolBytes<T>
 where
     AsSolBytes<T>: SolTypeValue<<T as SolByteType>::AlloyType>,
 {
@@ -93,10 +111,6 @@ where
 
     fn to_sol_type(&self) -> Cow<Self::SolType> {
         Cow::Borrowed(self)
-    }
-
-    fn from_sol_type(value: Self::SolType) -> Self {
-        value
     }
 }
 
