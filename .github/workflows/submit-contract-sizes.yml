@@ -28,6 +28,7 @@ jobs:
       - name: Download artifact
         uses: dawidd6/action-download-artifact@v9
         with:
+          workflow: ci.yml
           branch: master
           name: measurements-master
 

@@ -22,6 +22,7 @@ We did a detailed write-up of the background to this development and the reasoni
 to reflect the new setup.
 
 Compatibility of this release:
+* Rust >= 1.85
 * [`cargo-contract` `v6.0.0-alpha`](https://github.com/use-ink/cargo-contract/releases/tag/v6.0.0-alpha)
 * [`substrate-contracts-node/cd94b5f`](https://github.com/use-ink/substrate-contracts-node/commit/cd94b5fa23ee04f2d541decf1ace3b9904d61cb2)
 * [`polkadot-sdk/28a7ae71cc0eac747bf346804279217a68f700da`](https://github.com/paritytech/polkadot-sdk/commit/28a7ae71cc0eac747bf346804279217a68f700da)
@@ -43,10 +44,16 @@ These are the values it takes:
 #[ink::contract(abi = "ink")]
 ```
 
-The default is `abi = "TODO"`.
+The default currently is `abi = "ink"`, but we might change this before a production
+release.
 
-TODO add more here about the implications regarding ability to call ink! contracts,
-the ABI generation, and the file size.
+The implication of supporting Solidity ABI encoding is that there is a restriction on
+the types you can use as constructor/message arguments or return types.
+You won't be able to use Rust types for which no mapping to a Solidity type exists.
+An error about a missing trait implementation for this type will be thrown.
+
+Please note that your contract sizes will get larger if you support both the ink!
+and Solidity ABI.
 
 ### Types
 
@@ -91,13 +98,14 @@ a new version of the contract's code.
 
 This distinction of contract code that was uploaded to a chain vs. an instantiated
 contract from this code no longer exists in `pallet-revive`. If you want to
-delegate the execution, you will have to delegate to another contract address.
+delegate the execution, you will have to specify another contract's address
+to which code you want to delegate to. This other contract needs to be instantiated
+on-chain.
 
-TODO is the following sentence still correct?
-For the execution, the storage of the contract that delegates will continue
-to be used.
+For the execution, the context of the contract that delegates will continue
+to be used (storage, caller, value).
 
-So specifically the delegate API changed like this:
+Specifically the delegate API changed like this:
 
 ```
 /// ink! v5
@@ -117,6 +125,14 @@ pub struct DelegateCall {
     deposit_limit: Option<[u8; 32]>,
 }
 ```
+
+### Feature `ink/unstable-hostfn`
+In `pallet-revive` a number of functions can only be called by smart contracts
+if the chain that the pallet is running on has enabled the feature
+`pallet-revive/unstable-hostfn`.
+This feature is not enabled on Kusama or Westend!
+
+It is enabled for the `substrate-contracts-node` version that we linked above.
 
 ### New debugging workflow
 Previously `pallet-contracts` returned a `debug_message` field with contract
