@@ -879,7 +879,7 @@ jobs:
             --document-private-items --no-deps
 
 # measurements
-#  todo bring this stage back
+#  todo delete this stage and associated files
 #  measurements:
 #    needs: [examples-docs, examples-contract-build, examples-test, examples-custom-test, examples-test-mapping]
 #    uses: ./.github/workflows/measurements.yml
