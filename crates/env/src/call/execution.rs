@@ -32,7 +32,7 @@ use ink_primitives::{
         ScaleEncoding,
         SolEncoding,
     },
-    SolCodec,
+    SolEncode,
 };
 
 /// The input data and the expected return type of a contract execution.
@@ -324,24 +324,18 @@ where
     }
 }
 
-impl<T> SolCodec for Argument<T>
+impl<T> SolEncode for Argument<T>
 where
-    T: SolCodec,
+    T: SolEncode,
 {
-    type SolType = <T as SolCodec>::SolType;
+    type SolType = <T as SolEncode>::SolType;
 
     fn to_sol_type(&self) -> Cow<Self::SolType> {
         self.arg.to_sol_type()
     }
-
-    fn from_sol_type(value: Self::SolType) -> Self {
-        Self {
-            arg: T::from_sol_type(value),
-        }
-    }
 }
 
-impl SolCodec for EmptyArgumentList<SolEncoding> {
+impl SolEncode for EmptyArgumentList<SolEncoding> {
     type SolType = ();
 
     fn encode(&self) -> Vec<u8> {
@@ -352,20 +346,12 @@ impl SolCodec for EmptyArgumentList<SolEncoding> {
         // NOTE: Not actually used for encoding because of `encode` override above.
         Cow::Owned(())
     }
-
-    fn from_sol_type(_: Self::SolType) -> Self {
-        Self {
-            head: ArgumentListEnd,
-            rest: ArgumentListEnd,
-            _marker: Default::default(),
-        }
-    }
 }
 
-impl<Head, Rest> SolCodec for ArgumentList<Argument<Head>, Rest, SolEncoding>
+impl<Head, Rest> SolEncode for ArgumentList<Argument<Head>, Rest, SolEncoding>
 where
-    Head: SolCodec,
-    Rest: SolCodec,
+    Head: SolEncode,
+    Rest: SolEncode,
 {
     type SolType = (Rest::SolType, Head::SolType);
 
@@ -383,16 +369,6 @@ where
             self.rest.to_sol_type().into_owned(),
             self.head.arg.to_sol_type().into_owned(),
         ))
-    }
-
-    fn from_sol_type(value: Self::SolType) -> Self {
-        Self {
-            head: Argument {
-                arg: Head::from_sol_type(value.1),
-            },
-            rest: Rest::from_sol_type(value.0),
-            _marker: Default::default(),
-        }
     }
 }
 

@@ -46,8 +46,10 @@ pub use self::{
     },
     sol::{
         AsSolBytes,
-        SolCodec,
-        SolType,
+        SolDecode,
+        SolEncode,
+        SolTypeDecode,
+        SolTypeEncode,
     },
     types::{
         AccountId,

@@ -515,7 +515,7 @@ impl Dispatch<'_> {
                     };
                 const DECODE: fn(&mut &[::core::primitive::u8]) -> ::core::result::Result<Self::Input, ::ink::env::DispatchError> =
                     |input| {
-                        <Self::Input as ::ink::SolCodec>::decode(input)
+                        <Self::Input as ::ink::SolDecode>::decode(input)
                             .map_err(|_| ::ink::env::DispatchError::InvalidParameters)
                     };
                 const RETURN: fn(::ink::env::ReturnFlags, Self::Output) -> #return_type =
@@ -1172,7 +1172,7 @@ impl Dispatch<'_> {
                         let ty = &*input.ty;
                         let span = input.span();
                         quote_spanned!(span=>
-                            <#ty as ::ink::SolCodec>::SOL_NAME
+                            <#ty as ::ink::SolDecode>::SOL_NAME
                         )
                     });
                     let input_types_len = generator::input_types(message.inputs()).len();

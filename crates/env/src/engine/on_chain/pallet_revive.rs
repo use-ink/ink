@@ -61,7 +61,7 @@ use ink_primitives::{
         AbiDecodeWith,
         AbiEncodeWith,
     },
-    SolCodec,
+    SolEncode,
     H160,
     H256,
     U256,
@@ -320,7 +320,7 @@ impl EnvBackend for EnvInstance {
 
     fn return_value_solidity<R>(&mut self, flags: ReturnFlags, return_value: &R) -> !
     where
-        R: SolCodec,
+        R: SolEncode,
     {
         let encoded = return_value.encode();
         ext::return_value(flags, &encoded[..]);
