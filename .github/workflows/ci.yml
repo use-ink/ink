@@ -307,7 +307,6 @@ jobs:
         env:
           # Setting incremental = 0 to reduce compilation artifact size.
           # The CI otherwise fails with "no disk space"
-          # todo Remove again at one point. This is a speed trade-off.
           CARGO_INCREMENTAL: 0
         run: |
           cd linting/
