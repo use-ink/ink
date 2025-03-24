@@ -150,7 +150,7 @@ jobs:
       - name: Run Clippy
         run: |
           df -h ;
-          rustup toolchain remove nightly-2025-02-20 && rustup toolchain remove stable;
+          rustup toolchain remove nightly-2025-02-20 && rustup toolchain remove stable && rustup toolchain remove 1.85.0;
           df -h ;
           ALL_CRATES="${PURELY_STD_CRATES} ${ALSO_RISCV_CRATES}"
           for crate in ${ALL_CRATES}; do
@@ -185,7 +185,7 @@ jobs:
           - name: Run Clippy for RISC-V Crates
             run: |
                 df -h ;
-                rustup toolchain remove nightly-2025-02-20 && rustup toolchain remove stable;
+                rustup toolchain remove nightly-2025-02-20 && rustup toolchain remove stable && rustup toolchain remove 1.85.0;
                 df -h ;
                 for crate in ${ALSO_RISCV_CRATES}; do
                   echo $crate;
@@ -458,6 +458,7 @@ jobs:
           QUICKCHECK_TESTS: 0
         run: |
             rustup toolchain remove nightly-2025-02-20
+            rustup toolchain remove 1.85.0
             rustup toolchain remove stable
             cargo +nightly nextest run --all-features --no-fail-fast --workspace --locked --jobs 1 --partition count:${{ matrix.partition }}/35
 
@@ -702,6 +703,7 @@ jobs:
             run:
                 rustup toolchain remove nightly-2025-02-20;
                 rustup toolchain remove stable;
+                rustup toolchain remove 1.85.0;
                 cargo +nightly test --all-features --all --manifest-path integration-tests/internal/mapping/Cargo.toml
 
   examples-custom-test:
@@ -919,6 +921,7 @@ jobs:
         run: |
           rustup toolchain remove nightly-2025-02-20;
           rustup toolchain remove stable;
+          rustup toolchain remove 1.85.0;
           # We fuzz-test only crates which possess the `ink-fuzz-tests` feature
           all_tests_passed=0
           ALL_CRATES="${PURELY_STD_CRATES} ${ALSO_RISCV_CRATES}"
