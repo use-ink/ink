@@ -52,6 +52,9 @@ itertools = "0.14.0"
 sp-io = { git = "https://github.com/paritytech/polkadot-sdk", rev = "28a7ae71cc0eac747bf346804279217a68f700da", default-features = false, features = ["disable_panic_handler", "disable_oom", "disable_allocator"] }
 sp-runtime-interface = { git = "https://github.com/paritytech/polkadot-sdk", rev = "28a7ae71cc0eac747bf346804279217a68f700da", default-features = false, features = ["disable_target_static_assertions"] }
 
+# todo Pin until https://github.com/jhpratt/deranged/issues/18 is resolved
+deranged = "=0.4.0"
+
 [dev-dependencies]
 # Required for the doctest of `MessageBuilder::call`
 scale-info = { workspace = true, features = ["derive"] }
