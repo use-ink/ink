@@ -998,7 +998,9 @@ jobs:
             console.log(`Issue created: ${issue.data.html_url}`);
 
   submit-contract-sizes:
-      needs: [process-contract-sizes]
+      needs: [set-image, process-contract-sizes]
+      container:
+          image: ${{ needs.set-image.outputs.IMAGE }}
       permissions:
           pull-requests: write
       runs-on: ubuntu-latest
