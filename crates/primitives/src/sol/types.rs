@@ -13,6 +13,14 @@
 // limitations under the License.
 
 use alloy_sol_types::{
+    abi::{
+        self,
+        token::{
+            DynSeqToken,
+            FixedSeqToken,
+            WordToken,
+        },
+    },
     private::SolTypeValue,
     sol_data,
     SolType as AlloySolType,
@@ -20,10 +28,12 @@ use alloy_sol_types::{
 use impl_trait_for_tuples::impl_for_tuples;
 use ink_prelude::{
     borrow::Cow,
+    boxed::Box,
     string::String,
     vec::Vec,
 };
 use paste::paste;
+use primitive_types::U256;
 
 use crate::{
     sol::{
@@ -44,6 +54,7 @@ use crate::{
 /// | `bool` | `bool` ||
 /// | `iN` for `N ∈ {8,16,32,64,128}` | `intN` | e.g `i8` <=> `int8` |
 /// | `uN` for `N ∈ {8,16,32,64,128}` | `uintN` | e.g `u8` <=> `uint8` |
+/// | `U256` | `uint256` ||
 /// | `String` | `string` ||
 /// | `Address` | `address` ||
 /// | `[T; N]` for `const N: usize` | `T[N]` | e.g. `[i8; 64]` <=> `int8[64]` |
@@ -80,6 +91,7 @@ pub trait SolTypeDecode:
 /// | `bool` | `bool` ||
 /// | `iN` for `N ∈ {8,16,32,64,128}` | `intN` | e.g `i8` <=> `int8` |
 /// | `uN` for `N ∈ {8,16,32,64,128}` | `uintN` | e.g `u8` <=> `uint8` |
+/// | `U256` | `uint256` ||
 /// | `String` | `string` ||
 /// | `Address` | `address` ||
 /// | `[T; N]` for `const N: usize` | `T[N]` | e.g. `[i8; 64]` <=> `int8[64]` |
@@ -87,30 +99,32 @@ pub trait SolTypeDecode:
 /// | `AsSolBytes<[u8; N]>` for `1 <= N <= 32` |  `bytesN` | e.g. `AsSolBytes<[u8; 1]>` <=> `bytes1` |
 /// | `AsSolBytes<Vec<u8>>` |  `bytes` ||
 /// | `(T1, T2, T3, ... T12)` | `(U1, U2, U3, ... U12)` | where `T1` <=> `U1`, ... `T12` <=> `U12` e.g. `(bool, u8, Address)` <=> `(bool, uint8, address)` |
+/// | `&T` | U | where `T <=> U` |
+/// | `&mut T` | U | where `T <=> U` |
+/// | `Box<T>` | U | where `T <=> U` |
 ///
 /// Ref: <https://docs.soliditylang.org/en/latest/abi-spec.html#types>
 ///
 /// # Note
 /// This trait is sealed and cannot be implemented for types outside `ink_primitives`.
 #[allow(private_bounds)]
-pub trait SolTypeEncode: SolTypeValue<Self::AlloyType> + private::Sealed {
+pub trait SolTypeEncode: private::Sealed {
     /// Equivalent Solidity ABI type from [`alloy_sol_types`].
     type AlloyType: AlloySolType;
 
     /// Solidity ABI encode the value.
     fn encode(&self) -> Vec<u8> {
-        <Self::AlloyType as AlloySolType>::abi_encode(self)
+        abi::encode(&self.tokenize())
     }
+
+    /// Tokenizes the given value into a [`Self::AlloyType`] token.
+    fn tokenize(&self) -> <Self::AlloyType as AlloySolType>::Token<'_>;
 }
 
-macro_rules! impl_primitive {
+macro_rules! impl_primitive_decode {
     ($($ty: ty => $sol_ty: ty),+ $(,)*) => {
         $(
             impl SolTypeDecode for $ty {
-                type AlloyType = $sol_ty;
-            }
-
-            impl SolTypeEncode for $ty {
                 type AlloyType = $sol_ty;
             }
 
@@ -121,6 +135,20 @@ macro_rules! impl_primitive {
                     value
                 }
             }
+        )*
+    };
+}
+
+macro_rules! impl_primitive_encode {
+    ($($ty: ty => $sol_ty: ty),+ $(,)*) => {
+        $(
+            impl SolTypeEncode for $ty where Self: SolTypeValue<$sol_ty> {
+                type AlloyType = $sol_ty;
+
+                fn tokenize(&self) -> <Self::AlloyType as AlloySolType>::Token<'_> {
+                    <Self::AlloyType as AlloySolType>::tokenize(self)
+                }
+            }
 
             impl SolEncode for $ty {
                 type SolType = $ty;
@@ -129,6 +157,16 @@ macro_rules! impl_primitive {
                     Cow::Borrowed(self)
                 }
             }
+        )*
+    };
+}
+
+macro_rules! impl_primitive {
+    ($($ty: ty => $sol_ty: ty),+ $(,)*) => {
+        $(
+            impl_primitive_decode!($ty => $sol_ty);
+
+            impl_primitive_encode!($ty => $sol_ty);
 
             impl private::Sealed for $ty {}
         )*
@@ -150,6 +188,28 @@ macro_rules! impl_native_int {
 
 impl_native_int!(8, 16, 32, 64, 128);
 
+// U256 <-> uint256
+impl_primitive_decode!(U256 => sol_data::Uint<256>);
+impl SolTypeEncode for U256 {
+    type AlloyType = sol_data::Uint<256>;
+
+    fn tokenize(&self) -> <Self::AlloyType as AlloySolType>::Token<'_> {
+        // `<Self::AlloyType as AlloySolType>::tokenize(self)` won't work because
+        // `primitive_types::U256` does NOT implement
+        // `Borrow<alloy_sol_types::private::U256>`. And both the `U256` and
+        // `Borrow` are foreign, so we can't just implement it.
+        WordToken::from(self.to_big_endian())
+    }
+}
+impl SolEncode for U256 {
+    type SolType = U256;
+
+    fn to_sol_type(&self) -> Cow<Self::SolType> {
+        Cow::Borrowed(self)
+    }
+}
+impl private::Sealed for U256 {}
+
 impl_primitive! {
     // bool
     bool => sol_data::Bool,
@@ -160,34 +220,40 @@ impl_primitive! {
     Address => sol_data::Address,
 }
 
-macro_rules! impl_generics {
-    ($([$($gen:tt)*] $ty: ty => $sol_ty: ty [$($bounds:tt)*]), +$(,)*) => {
-        $(
-            impl<$($gen)* T: SolTypeDecode> SolTypeDecode for $ty where
-            Self: SolFrom<<$sol_ty as AlloySolType>::RustType>, $($bounds)*
-            {
-                type AlloyType = $sol_ty;
-            }
-
-            impl<$($gen)* T: SolTypeEncode> SolTypeEncode for $ty where $($bounds)*
-            {
-                type AlloyType = $sol_ty;
-            }
-
-            impl<$($gen)* T: private::Sealed> private::Sealed for $ty {}
-        )*
-    };
+// Rust array <-> Solidity fixed-sized array (i.e. `T[N]`).
+impl<T: SolTypeDecode, const N: usize> SolTypeDecode for [T; N]
+where
+    Self: SolFrom<<sol_data::FixedArray<T::AlloyType, N> as AlloySolType>::RustType>,
+{
+    type AlloyType = sol_data::FixedArray<T::AlloyType, N>;
 }
+impl<T: SolTypeEncode, const N: usize> SolTypeEncode for [T; N] {
+    type AlloyType = sol_data::FixedArray<T::AlloyType, N>;
 
-impl_generics! {
-    // array
-    [const N: usize,] [T; N] => sol_data::FixedArray<T::AlloyType, N> [],
-    //[] [T] => sol_data::Array<T::AlloyType> [],
-    [] Vec<T> => sol_data::Array<T::AlloyType> [],
-    // references
-    ['a,] &'a T => T::AlloyType [&'a T: SolTypeValue<T::AlloyType>],
-    ['a,] &'a mut T => T::AlloyType [&'a mut T: SolTypeValue<T::AlloyType>],
+    fn tokenize(&self) -> <Self::AlloyType as AlloySolType>::Token<'_> {
+        // Does NOT require `SolValueType<Self::AlloyType>` and instead relies on
+        // `SolTypeEncode::tokenize`.
+        FixedSeqToken(core::array::from_fn(|i| {
+            <T as SolTypeEncode>::tokenize(&self[i])
+        }))
+    }
 }
+impl<T: private::Sealed, const N: usize> private::Sealed for [T; N] {}
+
+// Rust `Vec` <-> Solidity dynamic size array (i.e. `T[]`).
+impl<T: SolTypeDecode> SolTypeDecode for Vec<T> {
+    type AlloyType = sol_data::Array<T::AlloyType>;
+}
+impl<T: SolTypeEncode> SolTypeEncode for Vec<T> {
+    type AlloyType = sol_data::Array<T::AlloyType>;
+
+    fn tokenize(&self) -> <Self::AlloyType as AlloySolType>::Token<'_> {
+        // Does NOT require `SolValueType<Self::AlloyType>` and instead relies on
+        // `SolTypeEncode::tokenize`.
+        DynSeqToken(self.iter().map(<T as SolTypeEncode>::tokenize).collect())
+    }
+}
+impl<T: private::Sealed> private::Sealed for Vec<T> {}
 
 // We follow the Rust standard library's convention of implementing traits for tuples up
 // to twelve items long.
@@ -200,10 +266,40 @@ impl SolTypeDecode for Tuple {
 #[impl_for_tuples(12)]
 impl SolTypeEncode for Tuple {
     for_tuples!( type AlloyType = ( #( Tuple::AlloyType ),* ); );
+
+    #[allow(clippy::unused_unit)]
+    fn tokenize(&self) -> <Self::AlloyType as AlloySolType>::Token<'_> {
+        // Does NOT require `SolValueType<Self::AlloyType>` and instead relies on
+        // `SolTypeEncode::tokenize`.
+        for_tuples!( ( #( <Tuple as SolTypeEncode>::tokenize(&self.Tuple) ),* ) );
+    }
 }
 
 #[impl_for_tuples(12)]
 impl private::Sealed for Tuple {}
+
+// Implements `SolTypeEncode` for reference types.
+macro_rules! impl_refs_encode {
+    ($([$($gen:tt)*] $ty: ty), +$(,)*) => {
+        $(
+
+            impl<$($gen)* T: SolTypeEncode> SolTypeEncode for $ty {
+                type AlloyType = T::AlloyType;
+
+                fn tokenize(&self) -> <Self::AlloyType as AlloySolType>::Token<'_> {
+                    <T as SolTypeEncode>::tokenize(self)
+                }
+            }
+
+            impl<$($gen)* T: private::Sealed> private::Sealed for $ty {}
+        )*
+    };
+}
+impl_refs_encode! {
+    ['a,] &'a T,
+    ['a,] &'a mut T,
+    [] Box<T>,
+}
 
 pub(super) mod private {
     /// Seals implementations of `SolTypeEncode` and `SolTypeDecode`.

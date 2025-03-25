@@ -29,6 +29,7 @@ use ink_prelude::{
     string::String,
     vec::Vec,
 };
+use primitive_types::U256;
 
 use crate::{
     sol::{
@@ -90,6 +91,16 @@ fn unsigned_int_works() {
     test_case!(u32, 1_000_000);
     test_case!(i64, 1_000_000_000);
     test_case!(i128, 1_000_000_000_000);
+
+    // U256
+    use alloy_sol_types::private::U256 as AlloyU256;
+    let value = 1_000_000_000_000_000u128;
+    let bytes = value.to_be_bytes();
+    test_case!(
+        U256, U256::from(value),
+        AlloyU256, SolValue, AlloyU256::try_from_be_slice(bytes.as_slice()).unwrap(),
+        [.unwrap().to_big_endian()], [.unwrap().to_be_bytes()]
+    );
 }
 
 #[test]

@@ -89,6 +89,10 @@ where
     AsSolBytes<T>: SolTypeValue<<T as SolByteType>::AlloyType>,
 {
     type AlloyType = T::AlloyType;
+
+    fn tokenize(&self) -> <Self::AlloyType as AlloySolType>::Token<'_> {
+        <Self::AlloyType as AlloySolType>::tokenize(self)
+    }
 }
 impl<T: SolByteType> crate::sol::types::private::Sealed for AsSolBytes<T> {}
 
