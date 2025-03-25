@@ -4,6 +4,11 @@
 name: continuous-integration/submit-contract-sizes
 
 on:
+  pull_request:
+    types:
+      - opened
+      - reopened
+      - synchronize
   workflow_run:
     workflows:
       - continuous-integration
