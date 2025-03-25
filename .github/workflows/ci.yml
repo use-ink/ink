@@ -906,7 +906,6 @@ jobs:
 
 # fuzz
   fuzz:
-    if: false
     runs-on: ubuntu-latest
     needs: [set-image, examples-docs, examples-contract-build-riscv, examples-test, examples-custom-test]
     if: >
