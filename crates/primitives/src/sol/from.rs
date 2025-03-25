@@ -17,6 +17,7 @@ use ink_prelude::{
     vec::Vec,
 };
 use paste::paste;
+use primitive_types::U256;
 
 use crate::types::Address;
 
@@ -73,6 +74,13 @@ impl SolFrom<alloy_sol_types::private::Address> for Address {
 }
 impl private::Sealed for Address {}
 
+impl SolFrom<alloy_sol_types::private::Uint<256, 4>> for U256 {
+    fn sol_from(value: alloy_sol_types::private::Uint<256, 4>) -> Self {
+        U256::from_big_endian(&value.to_be_bytes::<32>())
+    }
+}
+impl private::Sealed for U256 {}
+
 impl SolFrom<alloy_sol_types::private::Bytes> for Vec<u8> {
     fn sol_from(value: alloy_sol_types::private::Bytes) -> Self {
         value.to_vec()
@@ -103,13 +111,14 @@ macro_rules! impl_sol_from_tuple {
     ($(($($idx: literal),+)),* $(,)*) => {
         $(
             paste! {
-                impl<$([<T $idx>]),+, $([<U $idx>]: SolFrom<[<T $idx>]>),+> SolFrom<( $([<T $idx>],)+ )> for ( $([<U $idx>],)+ ) {
-                    fn sol_from(value: ( $([<T $idx>],)+ )) -> Self {
-                        ( $([<U $idx>]::sol_from(value.$idx),)+ )
+                impl<$([<T $idx>]),+, $([<U $idx>]),+> SolFrom<( $([<U $idx>],)+ )> for ( $([<T $idx>],)+ )
+                where $([<T $idx>]: SolFrom<[<U $idx>]>),+ {
+                    fn sol_from(value: ( $([<U $idx>],)+ )) -> Self {
+                        ( $([<T $idx>]::sol_from(value.$idx),)+ )
                     }
                 }
 
-                impl<$([<U $idx>]),+> private::Sealed for ( $([<U $idx>],)+ ) {}
+                impl<$([<T $idx>]: private::Sealed),+> private::Sealed for ( $([<T $idx>],)+ ) {}
             }
         )*
     };
