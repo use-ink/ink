@@ -1048,17 +1048,22 @@ jobs:
           - name: Collect Contract Sizes
             run: |
                 # Build the comparison table
-                ./scripts/contract_sizes_diff.sh master_contract_sizes pull_request_contract_sizes > contract_sizes_diff.md
+                ls
+                cat measurements-master
+                cat measurements-${{ steps.extract_branch.outputs.branch }}
+                ./scripts/contract_sizes_diff.sh measurements-master measurements-${{ steps.extract_branch.outputs.branch }} > contract_sizes_diff.md
                 cat contract_sizes_diff.md
 
           - name: Submit Comment
             env:
                 GITHUB_PR_TOKEN:         ${{ secrets.github_token }}
                 GITHUB_PR_WORKFLOW_ID:   ${{ github.event.workflow_run.id }}
+                PR_NUMBER: ${{ github.event.number }}
             run: |
                 # context.out is considered as an untrusted file
-                PR_NUMBER=$(grep -oE 'PR_NUMBER="[^"]+"' context.out | awk -F '"' '{print $2}')
-                CARGO_CONTRACT_VERSION=$(grep -oE 'CARGO_CONTRACT_VERSION="[^"]+"' context.out | awk -F '"' '{print $2}')
+                CARGO_CONTRACT_VERSION=$(cargo +nightly contract --version | egrep --only-matching "cargo-contract.* .*-x86" | sed -s 's/-x86//')
+                #PR_NUMBER=$(grep -oE 'PR_NUMBER="[^"]+"' context.out | awk -F '"' '{print $2}')
+                #CARGO_CONTRACT_VERSION=$(grep -oE 'CARGO_CONTRACT_VERSION="[^"]+"' context.out | awk -F '"' '{print $2}')
                 PR_COMMENTS_URL="${GITHUB_API_URL}/repos/${GITHUB_REPOSITORY}/issues/${PR_NUMBER}/comments"
                 WORKFLOW_URL="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_PR_WORKFLOW_ID}"
 
