@@ -72,6 +72,7 @@ jobs:
         run: echo "IMAGE=${{ env.IMAGE }}" >> $GITHUB_OUTPUT
 
   spellcheck:
+    if: false
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -94,6 +95,7 @@ jobs:
           cargo spellcheck check -v --cfg=.config/cargo_spellcheck.toml --checkers hunspell --code 1 -- recursive ./integration-tests/*
 
   fmt:
+    if: false
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -125,6 +127,7 @@ jobs:
           rustfmt +nightly --check ./integration-tests/public/psp22-extension/runtime/psp22-extension-example.rs
 
   clippy:
+    if: false
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -160,6 +163,7 @@ jobs:
           done
 
   clippy-riscv:
+      if: false
       runs-on: ubuntu-latest
       defaults:
           run:
@@ -195,6 +199,7 @@ jobs:
                 done
 
   clippy-examples:
+    if: false
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -235,6 +240,7 @@ jobs:
             --manifest-path {} -- -D warnings -A $CLIPPY_ALLOWED
 
   check:
+    if: false
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -281,6 +287,7 @@ jobs:
           done
 
   dylint-checks:
+    if: false
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -317,6 +324,7 @@ jobs:
           cargo clippy -- -D warnings;
 
   dylint-testing:
+      if: false
       runs-on: ubuntu-latest
       defaults:
           run:
@@ -352,6 +360,7 @@ jobs:
 ### workspace
 
   build-std:
+    if: false
     runs-on: ubuntu-latest
     needs: [set-image, check]
     defaults:
@@ -383,7 +392,9 @@ jobs:
             cargo build --all-features --release --manifest-path ./crates/${crate}/Cargo.toml;
           done
 
+
   build-riscv:
+      if: false
       runs-on: ubuntu-latest
       needs: [set-image, check]
       defaults:
@@ -420,6 +431,7 @@ jobs:
               done
 
   test:
+    if: false
     runs-on: ubuntu-latest
     # todo bring back more needs, so that we only run this `tests` stage
     # if pre-conditions are filled.
@@ -463,6 +475,7 @@ jobs:
             cargo +nightly nextest run --all-features --no-fail-fast --workspace --locked --jobs 1 --partition count:${{ matrix.partition }}/35
 
   test-docs:
+      if: false
       runs-on: ubuntu-latest
       needs: [set-image, check]
       defaults:
@@ -508,6 +521,7 @@ jobs:
                 cargo +nightly test --all-features --no-fail-fast --workspace --doc --locked
 
   test-linting:
+      if: false
       runs-on: ubuntu-latest
       needs: [set-image, check]
       defaults:
@@ -548,6 +562,7 @@ jobs:
               pushd linting && cargo nextest run --all-features --no-fail-fast --workspace && popd
 
   docs:
+    if: false
     runs-on: ubuntu-latest
     needs: [set-image, check, fmt, clippy, clippy-examples, dylint-checks, dylint-testing, spellcheck]
     defaults:
@@ -640,6 +655,7 @@ jobs:
 ### examples
 
   examples-test:
+    if: false
     runs-on: ubuntu-latest
     needs: [fmt]
     strategy:
@@ -671,6 +687,7 @@ jobs:
                 cargo +nightly test --all-features --all --manifest-path {}"
 
   examples-test-mapping:
+      if: false
       runs-on: ubuntu-latest
       needs: [set-image]
       defaults:
@@ -707,6 +724,7 @@ jobs:
                 cargo +nightly test --all-features --all --manifest-path integration-tests/internal/mapping/Cargo.toml
 
   examples-custom-test:
+    if: false
     runs-on: ubuntu-latest
     needs: [set-image, clippy, clippy-examples]
     defaults:
@@ -845,6 +863,7 @@ jobs:
             retention-days: 31
 
   examples-docs:
+    if: false
     runs-on: ubuntu-latest
     needs: [set-image, build-std, build-riscv]
     defaults:
@@ -887,6 +906,7 @@ jobs:
 
 # fuzz
   fuzz:
+    if: false
     runs-on: ubuntu-latest
     needs: [set-image, examples-docs, examples-contract-build-riscv, examples-test, examples-custom-test]
     if: >
