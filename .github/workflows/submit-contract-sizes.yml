@@ -37,6 +37,16 @@ jobs:
         run: echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
         id: extract_branch
 
+      - name: Output branch name
+        run: |
+            echo "${{ steps.extract_branch.outputs.branch }}"
+
+      - name: Download artifact
+        uses: dawidd6/action-download-artifact@v9
+        with:
+            workflow: ci.yml
+            name: measurements-${{ steps.extract_branch.outputs.branch }}
+
       - name: Download Pull-Request Contract Sizes
         uses: ./.github/download-artifact
             #PR_NUMBER: ${{ github.event.number }}
