@@ -52,14 +52,11 @@ jobs:
             workflow: ci.yml
             name: measurements-${{ steps.extract_branch.outputs.branch }}
 
-      - name: Download Pull-Request Contract Sizes
-        uses: ./.github/download-artifact
-            #PR_NUMBER: ${{ github.event.number }}
-        with:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          #ARTIFACT_NAME: contract-sizes-pull_request-data
-          #ARTIFACT_NAME: contract-sizes-${{ github.event.number }}
-          ARTIFACT_NAME: measurements-${{ steps.extract_branch.outputs.branch }}
+      #- name: Download Pull-Request Contract Sizes
+        #uses: ./.github/download-artifact
+        #with:
+          #GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          #ARTIFACT_NAME: measurements-${{ steps.extract_branch.outputs.branch }}
 
       - name: Collect Contract Sizes
         run: |
