@@ -54,34 +54,14 @@ use crate::sol::{
 #[cfg_attr(feature = "std", derive(TypeInfo))]
 pub struct AsSolBytes<T: SolByteType>(pub T);
 
-/// A Rust equivalent of a Solidity ABI bytes type that implements logic for Solidity ABI
-/// encoding/decoding.
-///
-/// Ref: <https://docs.soliditylang.org/en/latest/types.html#fixed-size-byte-arrays>
-///
-/// Ref: <https://docs.soliditylang.org/en/latest/types.html#bytes-and-string-as-arrays>
-///
-/// # Note
-/// This trait is sealed and cannot be implemented for types outside `ink_primitives`.
-pub trait SolByteType: SolTypeValue<Self::AlloyType> + private::Sealed {
-    /// Equivalent Solidity ABI bytes type from [`alloy_sol_types`].
-    type AlloyType: AlloySolType;
-
-    /// Convert from [`alloy_sol_types::SolType::RustType`] (i.e. `alloy`'s bytes type) to
-    /// `Self`.
-    fn from_sol_type(value: <Self::AlloyType as AlloySolType>::RustType) -> Self;
-}
-
-// Implement `SolType` for `AsBytes<T> where T: ByteType`.
-impl<T: SolByteType> SolTypeDecode for AsSolBytes<T>
-where
-    AsSolBytes<T>: SolTypeValue<<T as SolByteType>::AlloyType>,
-{
+// Implement `SolTypeDecode` and `SolTypeEncode` for `AsBytes<T> where T: ByteType`.
+impl<T: SolByteType> SolTypeDecode for AsSolBytes<T> {
     type AlloyType = T::AlloyType;
 
     fn detokenize(token: <Self::AlloyType as AlloySolType>::Token<'_>) -> Self {
-        let value = <Self::AlloyType as AlloySolType>::detokenize(token);
-        Self(<T as SolByteType>::from_sol_type(value))
+        // Takes advantage of optimized `SolByteType::detokenize` implementations and
+        // skips unnecessary conversions to `T::AlloyType::RustType`.
+        Self(<T as SolByteType>::detokenize(token))
     }
 }
 impl<T: SolByteType> SolTypeEncode for AsSolBytes<T>
@@ -97,10 +77,7 @@ where
 impl<T: SolByteType> crate::sol::types::private::Sealed for AsSolBytes<T> {}
 
 // Implement `SolDecode` and `SolEncode` for `AsBytes<T> where T: ByteType`.
-impl<T: SolByteType + Clone> SolDecode for AsSolBytes<T>
-where
-    AsSolBytes<T>: SolTypeValue<<T as SolByteType>::AlloyType>,
-{
+impl<T: SolByteType + Clone> SolDecode for AsSolBytes<T> {
     type SolType = AsSolBytes<T>;
 
     fn from_sol_type(value: Self::SolType) -> Self {
@@ -145,6 +122,23 @@ impl AsRef<[u8]> for AsSolBytes<Vec<u8>> {
     }
 }
 
+/// A Rust equivalent of a Solidity ABI bytes type that implements logic for Solidity ABI
+/// encoding/decoding.
+///
+/// Ref: <https://docs.soliditylang.org/en/latest/types.html#fixed-size-byte-arrays>
+///
+/// Ref: <https://docs.soliditylang.org/en/latest/types.html#bytes-and-string-as-arrays>
+///
+/// # Note
+/// This trait is sealed and cannot be implemented for types outside `ink_primitives`.
+pub trait SolByteType: private::Sealed {
+    /// Equivalent Solidity ABI bytes type from [`alloy_sol_types`].
+    type AlloyType: AlloySolType;
+
+    /// Detokenizes the byte type's value from the given token.
+    fn detokenize(token: <Self::AlloyType as AlloySolType>::Token<'_>) -> Self;
+}
+
 // Implement `SolByteType` for `[u8; N]` and `Vec<u8>`.
 impl<const N: usize> SolByteType for [u8; N]
 where
@@ -152,8 +146,14 @@ where
 {
     type AlloyType = sol_data::FixedBytes<N>;
 
-    fn from_sol_type(value: <Self::AlloyType as AlloySolType>::RustType) -> Self {
-        value.0
+    fn detokenize(token: <Self::AlloyType as AlloySolType>::Token<'_>) -> Self {
+        // Converts token directly into `[u8; N]`, skipping the conversion to
+        // `alloy_sol_types::private::FixedBytes`, which then has to be unpacked to
+        // `[u8; N]`.
+        // Ref: <https://github.com/alloy-rs/core/blob/5ae4fe0b246239602c97cc5a2f2e4bc780e2024a/crates/sol-types/src/types/data_type.rs#L204-L206>
+        token.0 .0[..N]
+            .try_into()
+            .expect("Expected a slice of N bytes")
     }
 }
 impl<const N: usize> private::Sealed for [u8; N] {}
@@ -161,13 +161,16 @@ impl<const N: usize> private::Sealed for [u8; N] {}
 impl SolByteType for Vec<u8> {
     type AlloyType = sol_data::Bytes;
 
-    fn from_sol_type(value: <Self::AlloyType as AlloySolType>::RustType) -> Self {
-        value.0.to_vec()
+    fn detokenize(token: <Self::AlloyType as AlloySolType>::Token<'_>) -> Self {
+        // Converts token directly into `Vec<u8>`, skipping the conversion to
+        // `alloy_sol_types::private::Bytes`, which then has to be converted back to
+        // `Vec<u8>`.
+        token.into_vec()
     }
 }
 impl private::Sealed for Vec<u8> {}
 
 mod private {
-    /// Seals the implementation of `ByteType`.
+    /// Seals the implementation of `SolByteType`.
     pub trait Sealed {}
 }
