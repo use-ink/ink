@@ -31,6 +31,8 @@ if [ ! -z "$possibly_comment_url" ]; then
    pr_comments_url="$possibly_comment_url"
 fi
 
+git status
+
 echo $verb
 echo $pr_comments_url
 
