@@ -1010,6 +1010,14 @@ jobs:
             with:
                 fetch-depth: 1
 
+          - name: Extract GitHub
+            shell: bash
+            run: |
+                ink_master_head=$(curl -s "https://api.github.com/repos/use-ink/ink/commits/master" | jq -r .sha)
+                head_in_branch=$(git log | grep -q $ink_master_head; echo $?)
+                echo $head_in_branch >> $GITHUB_OUTPUT
+            id: extract_github
+
           - name: Download master artifact
             uses: dawidd6/action-download-artifact@v9
             with:
@@ -1021,14 +1029,6 @@ jobs:
             shell: bash
             run: echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
             id: extract_branch
-
-          - name: Extract GitHub
-            shell: bash
-            run: |
-                ink_master_head=$(curl -s "https://api.github.com/repos/use-ink/ink/commits/master" | jq -r .sha)
-                head_in_branch=$(git log | grep -q $ink_master_head; echo $?)
-                echo $head_in_branch >> $GITHUB_OUTPUT
-            id: extract_github
 
           - name: Output branch name
             run: |
