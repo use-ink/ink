@@ -1022,9 +1022,18 @@ jobs:
             run: echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
             id: extract_branch
 
+          - name: Extract GitHub
+            shell: bash
+            run: |
+                ink_master_head=$(curl -s "https://api.github.com/repos/use-ink/ink/commits/master" | jq -r .sha)
+                head_in_branch=$(git log | grep -q $ink_master_head; echo $?)
+                echo $head_in_branch >> $GITHUB_OUTPUT
+            id: extract_github
+
           - name: Output branch name
             run: |
                 echo "${{ steps.extract_branch.outputs.branch }}"
+                echo "${{ steps.extract_github.outputs.head_in_branch }}"
 
           - name: Download artifact
             uses: dawidd6/action-download-artifact@v9
@@ -1048,20 +1057,10 @@ jobs:
                 GITHUB_PR_WORKFLOW_ID:   ${{ github.event.workflow_run.id }}
                 PR_NUMBER:               ${{ github.event.number }}
             run: |
-                pwd
-                ls
-                echo "1"
                 CARGO_CONTRACT_VERSION=$(cargo +nightly contract --version)
                 PR_COMMENTS_URL="${GITHUB_API_URL}/repos/${GITHUB_REPOSITORY}/issues/${PR_NUMBER}/comments"
                 WORKFLOW_URL="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_PR_WORKFLOW_ID}"
 
-                echo "2"
-                ink_master_head=$(curl -s "https://api.github.com/repos/use-ink/ink/commits/master" | jq -r .sha)
-                echo "3"
-                git status
-                echo "4"
-                head_in_branch=$(git log | grep -q $ink_master_head; echo $?)
-
                 # Submit the comparison table as a comment to the PR
                 echo "Submitting contract sizes diff to ${PR_COMMENTS_URL}"
-                GITHUB_PR_TOKEN=${GITHUB_PR_TOKEN} .github/scripts/contract_sizes_submit.sh ${PR_COMMENTS_URL} ${WORKFLOW_URL} ${CARGO_CONTRACT_VERSION} ${head_in_branch} < ./contract_sizes_diff.md
+                GITHUB_PR_TOKEN=${GITHUB_PR_TOKEN} .github/scripts/contract_sizes_submit.sh ${PR_COMMENTS_URL} ${WORKFLOW_URL} ${CARGO_CONTRACT_VERSION} ${{ steps.extract_github.outputs.head_in_branch }}${head_in_branch} < ./contract_sizes_diff.md
