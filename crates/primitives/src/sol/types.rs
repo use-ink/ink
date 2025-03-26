@@ -37,7 +37,6 @@ use primitive_types::U256;
 
 use crate::{
     sol::{
-        from::SolFrom,
         SolDecode,
         SolEncode,
     },
@@ -68,17 +67,19 @@ use crate::{
 /// # Note
 /// This trait is sealed and cannot be implemented for types outside `ink_primitives`.
 #[allow(private_bounds)]
-pub trait SolTypeDecode:
-    SolFrom<<<Self as SolTypeDecode>::AlloyType as AlloySolType>::RustType> + private::Sealed
-{
+pub trait SolTypeDecode: Sized + private::Sealed {
     /// Equivalent Solidity ABI type from [`alloy_sol_types`].
     type AlloyType: AlloySolType;
 
     /// Solidity ABI decode into this type.
     fn decode(data: &[u8]) -> Result<Self, alloy_sol_types::Error> {
         // Don't validate decoding. Validating results in encoding and decoding again.
-        <Self::AlloyType as AlloySolType>::abi_decode(data, false).map(Self::sol_from)
+        abi::decode::<<Self::AlloyType as AlloySolType>::Token<'_>>(data, false)
+            .map(Self::detokenize)
     }
+
+    /// Detokenizes this type's value from the given token.
+    fn detokenize(token: <Self::AlloyType as AlloySolType>::Token<'_>) -> Self;
 }
 
 /// A Rust/ink! equivalent of a Solidity ABI type that implements logic for Solidity ABI
@@ -126,6 +127,10 @@ macro_rules! impl_primitive_decode {
         $(
             impl SolTypeDecode for $ty {
                 type AlloyType = $sol_ty;
+
+                fn detokenize(token: <Self::AlloyType as AlloySolType>::Token<'_>) -> Self {
+                    <Self::AlloyType as AlloySolType>::detokenize(token)
+                }
             }
 
             impl SolDecode for $ty {
@@ -188,8 +193,62 @@ macro_rules! impl_native_int {
 
 impl_native_int!(8, 16, 32, 64, 128);
 
+impl_primitive! {
+    // bool
+    bool => sol_data::Bool,
+    // string
+    //str => sol_data::String,
+    String => sol_data::String,
+}
+
+// Address <-> address
+impl SolTypeDecode for Address {
+    type AlloyType = sol_data::Address;
+
+    fn detokenize(token: <Self::AlloyType as AlloySolType>::Token<'_>) -> Self {
+        // We skip the conversion to `alloy_sol_types::private::Address` which will end up
+        // just taking the last 20 bytes of `alloy_sol_types::abi::token::WordToken` as
+        // well anyway.
+        // Ref: <https://github.com/alloy-rs/core/blob/5ae4fe0b246239602c97cc5a2f2e4bc780e2024a/crates/primitives/src/bits/address.rs#L132-L134>
+        Address::try_from(&token.0 .0[12..]).expect("Expected a 20 byte slice")
+    }
+}
+impl SolTypeEncode for Address {
+    type AlloyType = sol_data::Address;
+
+    fn tokenize(&self) -> <Self::AlloyType as AlloySolType>::Token<'_> {
+        // We skip the conversion to `alloy_sol_types::private::Address` which will just
+        // end up doing the conversion below anyway.
+        // Ref: <https://github.com/alloy-rs/core/blob/5ae4fe0b246239602c97cc5a2f2e4bc780e2024a/crates/primitives/src/bits/address.rs#L149-L153>
+        let mut word = [0; 32];
+        word[12..].copy_from_slice(self.0.as_slice());
+        WordToken::from(word)
+    }
+}
+impl SolDecode for Address {
+    type SolType = Address;
+
+    fn from_sol_type(value: Self::SolType) -> Self {
+        value
+    }
+}
+impl SolEncode for Address {
+    type SolType = Address;
+
+    fn to_sol_type(&self) -> Cow<Self::SolType> {
+        Cow::Borrowed(self)
+    }
+}
+impl private::Sealed for Address {}
+
 // U256 <-> uint256
-impl_primitive_decode!(U256 => sol_data::Uint<256>);
+impl SolTypeDecode for U256 {
+    type AlloyType = sol_data::Uint<256>;
+
+    fn detokenize(token: <Self::AlloyType as AlloySolType>::Token<'_>) -> Self {
+        U256::from_big_endian(token.0 .0.as_slice())
+    }
+}
 impl SolTypeEncode for U256 {
     type AlloyType = sol_data::Uint<256>;
 
@@ -201,6 +260,13 @@ impl SolTypeEncode for U256 {
         WordToken::from(self.to_big_endian())
     }
 }
+impl SolDecode for U256 {
+    type SolType = U256;
+
+    fn from_sol_type(value: Self::SolType) -> Self {
+        value
+    }
+}
 impl SolEncode for U256 {
     type SolType = U256;
 
@@ -210,22 +276,15 @@ impl SolEncode for U256 {
 }
 impl private::Sealed for U256 {}
 
-impl_primitive! {
-    // bool
-    bool => sol_data::Bool,
-    // string
-    //str => sol_data::String,
-    String => sol_data::String,
-    // address
-    Address => sol_data::Address,
-}
-
 // Rust array <-> Solidity fixed-sized array (i.e. `T[N]`).
-impl<T: SolTypeDecode, const N: usize> SolTypeDecode for [T; N]
-where
-    Self: SolFrom<<sol_data::FixedArray<T::AlloyType, N> as AlloySolType>::RustType>,
-{
+impl<T: SolTypeDecode, const N: usize> SolTypeDecode for [T; N] {
     type AlloyType = sol_data::FixedArray<T::AlloyType, N>;
+
+    fn detokenize(token: <Self::AlloyType as AlloySolType>::Token<'_>) -> Self {
+        // Takes advantage of optimized `SolTypeDecode::detokenize` implementations and
+        // skips unnecessary conversions to `T::AlloyType::RustType`.
+        token.0.map(<T as SolTypeDecode>::detokenize)
+    }
 }
 impl<T: SolTypeEncode, const N: usize> SolTypeEncode for [T; N] {
     type AlloyType = sol_data::FixedArray<T::AlloyType, N>;
@@ -243,6 +302,16 @@ impl<T: private::Sealed, const N: usize> private::Sealed for [T; N] {}
 // Rust `Vec` <-> Solidity dynamic size array (i.e. `T[]`).
 impl<T: SolTypeDecode> SolTypeDecode for Vec<T> {
     type AlloyType = sol_data::Array<T::AlloyType>;
+
+    fn detokenize(token: <Self::AlloyType as AlloySolType>::Token<'_>) -> Self {
+        // Takes advantage of optimized `SolTypeDecode::detokenize` implementations and
+        // skips unnecessary conversions to `T::AlloyType::RustType`.
+        token
+            .0
+            .into_iter()
+            .map(<T as SolTypeDecode>::detokenize)
+            .collect()
+    }
 }
 impl<T: SolTypeEncode> SolTypeEncode for Vec<T> {
     type AlloyType = sol_data::Array<T::AlloyType>;
@@ -261,8 +330,14 @@ impl<T: private::Sealed> private::Sealed for Vec<T> {}
 #[impl_for_tuples(12)]
 impl SolTypeDecode for Tuple {
     for_tuples!( type AlloyType = ( #( Tuple::AlloyType ),* ); );
-}
 
+    #[allow(clippy::unused_unit)]
+    fn detokenize(token: <Self::AlloyType as AlloySolType>::Token<'_>) -> Self {
+        // Takes advantage of optimized `SolTypeDecode::detokenize` implementations and
+        // skips unnecessary conversions to `T::AlloyType::RustType`.
+        for_tuples!( ( #( <Tuple as SolTypeDecode>::detokenize(token.Tuple) ),* ) );
+    }
+}
 #[impl_for_tuples(12)]
 impl SolTypeEncode for Tuple {
     for_tuples!( type AlloyType = ( #( Tuple::AlloyType ),* ); );
@@ -274,7 +349,6 @@ impl SolTypeEncode for Tuple {
         for_tuples!( ( #( <Tuple as SolTypeEncode>::tokenize(&self.Tuple) ),* ) );
     }
 }
-
 #[impl_for_tuples(12)]
 impl private::Sealed for Tuple {}
 
