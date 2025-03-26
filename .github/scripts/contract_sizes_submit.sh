@@ -7,6 +7,7 @@
 #     <github_url_to_comments_of_pr>
 #     <github_url_to_workflow>
 #     <cargo_contract_version>
+#     <head_in_branch>
 #     < <diffs-csv-file>
 
 set -eu
@@ -15,6 +16,7 @@ set -o pipefail
 pr_comments_url=$1
 workflow_url=$2
 cc_version=$3
+head_in_branch=$3
 diffs_markdown_table=$(</dev/stdin)
 
 # If there is already a comment by the user `github-actions[bot]` in the ink! PR which triggered
@@ -31,13 +33,8 @@ if [ ! -z "$possibly_comment_url" ]; then
    pr_comments_url="$possibly_comment_url"
 fi
 
-git status
-
 echo $verb
 echo $pr_comments_url
-
-ink_master_head=$(curl -s "https://api.github.com/repos/use-ink/ink/commits/master" | jq -r .sha)
-head_in_branch=$(git log | grep -q $ink_master_head; echo $?)
 
 master_ahead=""
 if [ "$head_in_branch" == "1" ]; then
