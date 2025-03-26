@@ -33,7 +33,6 @@ use scale::{
 use scale_info::TypeInfo;
 
 use crate::sol::{
-    from::SolFrom,
     SolDecode,
     SolEncode,
     SolTypeDecode,
@@ -64,11 +63,7 @@ pub struct AsSolBytes<T: SolByteType>(pub T);
 ///
 /// # Note
 /// This trait is sealed and cannot be implemented for types outside `ink_primitives`.
-pub trait SolByteType:
-    SolTypeValue<Self::AlloyType>
-    + SolFrom<<<Self as SolByteType>::AlloyType as AlloySolType>::RustType>
-    + private::Sealed
-{
+pub trait SolByteType: SolTypeValue<Self::AlloyType> + private::Sealed {
     /// Equivalent Solidity ABI bytes type from [`alloy_sol_types`].
     type AlloyType: AlloySolType;
 
@@ -83,6 +78,11 @@ where
     AsSolBytes<T>: SolTypeValue<<T as SolByteType>::AlloyType>,
 {
     type AlloyType = T::AlloyType;
+
+    fn detokenize(token: <Self::AlloyType as AlloySolType>::Token<'_>) -> Self {
+        let value = <Self::AlloyType as AlloySolType>::detokenize(token);
+        Self(<T as SolByteType>::from_sol_type(value))
+    }
 }
 impl<T: SolByteType> SolTypeEncode for AsSolBytes<T>
 where
@@ -118,14 +118,6 @@ where
     }
 }
 
-// Implement `SolFrom` for `AsBytes<T>`.
-impl<T: SolByteType> SolFrom<<T::AlloyType as AlloySolType>::RustType> for AsSolBytes<T> {
-    fn sol_from(value: <T::AlloyType as AlloySolType>::RustType) -> Self {
-        Self(<T as SolByteType>::from_sol_type(value))
-    }
-}
-impl<T: SolByteType> crate::sol::from::private::Sealed for AsSolBytes<T> {}
-
 // Implement core/standard traits for cheap representations as the inner type.
 impl<T: SolByteType> Deref for AsSolBytes<T> {
     type Target = T;
@@ -146,13 +138,14 @@ impl<T: SolByteType> AsRef<T> for AsSolBytes<T> {
         &self.0
     }
 }
+
 impl AsRef<[u8]> for AsSolBytes<Vec<u8>> {
     fn as_ref(&self) -> &[u8] {
         &self.0
     }
 }
 
-// Implement ByteType for `[u8; N]` and `Vec<u8>`.
+// Implement `SolByteType` for `[u8; N]` and `Vec<u8>`.
 impl<const N: usize> SolByteType for [u8; N]
 where
     sol_data::ByteCount<N>: sol_data::SupportedFixedBytes,

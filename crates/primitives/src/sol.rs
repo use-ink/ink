@@ -15,7 +15,6 @@
 //! Abstractions for implementing Solidity ABI encoding/decoding for arbitrary Rust types.
 
 mod bytes;
-mod from;
 mod types;
 
 #[cfg(test)]
