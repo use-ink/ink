@@ -210,6 +210,29 @@ impl SolEncode for Tuple {
     }
 }
 
+// Implements `SolEncode` for reference types.
+macro_rules! impl_refs_encode {
+    ($([$($gen:tt)*] $ty: ty), +$(,)*) => {
+        $(
+
+            impl<$($gen)* T: SolEncode> SolEncode for $ty {
+                type SolType = T::SolType;
+
+                fn to_sol_type(&self) -> Cow<Self::SolType> {
+                    <T as SolEncode>::to_sol_type(self)
+                }
+            }
+
+
+        )*
+    };
+}
+impl_refs_encode! {
+    ['a,] &'a T,
+    ['a,] &'a mut T,
+    [] Box<T>,
+}
+
 // AccountId
 impl SolDecode for AccountId {
     type SolType = AsSolBytes<[u8; 32]>;
