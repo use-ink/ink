@@ -32,6 +32,10 @@ use ink_prelude::{
 };
 
 pub use bytes::AsSolBytes;
+use primitive_types::{
+    H160,
+    H256,
+};
 pub use types::{
     SolTypeDecode,
     SolTypeEncode,
@@ -233,7 +237,7 @@ impl_refs_encode! {
     [] Box<T>,
 }
 
-// AccountId
+// AccountId <-> bytes32
 impl SolDecode for AccountId {
     type SolType = AsSolBytes<[u8; 32]>;
 
@@ -241,7 +245,6 @@ impl SolDecode for AccountId {
         AccountId(value.0)
     }
 }
-
 impl SolEncode for AccountId {
     type SolType = AsSolBytes<[u8; 32]>;
 
@@ -260,7 +263,7 @@ impl SolEncode for AccountId {
     }
 }
 
-// Hash
+// Hash <-> bytes32
 impl SolDecode for Hash {
     type SolType = AsSolBytes<[u8; 32]>;
 
@@ -268,7 +271,6 @@ impl SolDecode for Hash {
         Hash::from(value.0)
     }
 }
-
 impl SolEncode for Hash {
     type SolType = AsSolBytes<[u8; 32]>;
 
@@ -284,5 +286,60 @@ impl SolEncode for Hash {
         // `encode`) by using  `AsSolBytes<[u8; 32]>` as the inner type and returning
         // `Cow::Borrowed(&self.0)`.
         Cow::Owned(AsSolBytes::<[u8; 32]>((*self).into()))
+    }
+}
+
+// H256 <-> bytes32
+impl SolDecode for H256 {
+    type SolType = AsSolBytes<[u8; 32]>;
+
+    fn from_sol_type(value: Self::SolType) -> Self {
+        H256(value.0)
+    }
+}
+impl SolEncode for H256 {
+    type SolType = AsSolBytes<[u8; 32]>;
+
+    fn encode(&self) -> Vec<u8> {
+        // Override for better performance.
+        sol_data::FixedBytes::abi_encode(&self.0)
+    }
+
+    fn to_sol_type(&self) -> Cow<Self::SolType> {
+        // NOTE: Not actually used for encoding because of `encode` override above (for
+        // better performance).
+        // Arbitrary newtype wrappers can achieve similar performance (without overriding
+        // `encode`) by using  `AsSolBytes<[u8; 32]>` as the inner type and returning
+        // `Cow::Borrowed(&self.0)`.
+        Cow::Owned(AsSolBytes(self.0))
+    }
+}
+
+// H160 <-> bytes20
+// TODO: (@davidsemakula) Evaluate if it's worth removing to mapping, changing it
+// `address` before v6 release. Rationale: while this mapping is technically correct, it
+// may be confusing for ink! devs, or just needless increase the cognitive load.
+impl SolDecode for H160 {
+    type SolType = AsSolBytes<[u8; 20]>;
+
+    fn from_sol_type(value: Self::SolType) -> Self {
+        H160(value.0)
+    }
+}
+impl SolEncode for H160 {
+    type SolType = AsSolBytes<[u8; 20]>;
+
+    fn encode(&self) -> Vec<u8> {
+        // Override for better performance.
+        sol_data::FixedBytes::abi_encode(&self.0)
+    }
+
+    fn to_sol_type(&self) -> Cow<Self::SolType> {
+        // NOTE: Not actually used for encoding because of `encode` override above (for
+        // better performance).
+        // Arbitrary newtype wrappers can achieve similar performance (without overriding
+        // `encode`) by using  `AsSolBytes<[u8; 32]>` as the inner type and returning
+        // `Cow::Borrowed(&self.0)`.
+        Cow::Owned(AsSolBytes(self.0))
     }
 }

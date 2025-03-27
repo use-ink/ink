@@ -29,7 +29,11 @@ use ink_prelude::{
     string::String,
     vec::Vec,
 };
-use primitive_types::U256;
+use primitive_types::{
+    H160,
+    H256,
+    U256,
+};
 
 use crate::{
     sol::{
@@ -308,4 +312,33 @@ fn hash_works() {
         decoded.unwrap().as_ref(),
         decoded_alloy.unwrap().0.as_slice()
     );
+}
+
+#[test]
+fn h256_works() {
+    let hash = H256([1; 32]);
+    let bytes = SolFixedBytes([1; 32]);
+
+    let encoded = <H256 as SolEncode>::encode(&hash);
+    let encoded_alloy = <SolFixedBytes<32> as SolValue>::abi_encode(&bytes);
+    assert_eq!(encoded, encoded_alloy);
+
+    let decoded = <H256 as SolDecode>::decode(&encoded);
+    let decoded_alloy = <SolFixedBytes<32> as SolValue>::abi_decode(&encoded, true);
+    assert_eq!(decoded.unwrap().0, decoded_alloy.unwrap().0);
+}
+
+#[test]
+fn h160_works() {
+    // NOTE: We're currently mapping `H160` to `bytes20`.
+    let hash = H160([1; 20]);
+    let bytes = SolFixedBytes([1; 20]);
+
+    let encoded = <H160 as SolEncode>::encode(&hash);
+    let encoded_alloy = <SolFixedBytes<20> as SolValue>::abi_encode(&bytes);
+    assert_eq!(encoded, encoded_alloy);
+
+    let decoded = <H160 as SolDecode>::decode(&encoded);
+    let decoded_alloy = <SolFixedBytes<20> as SolValue>::abi_decode(&encoded, true);
+    assert_eq!(decoded.unwrap().0, decoded_alloy.unwrap().0);
 }
