@@ -13,7 +13,10 @@
 // limitations under the License.
 
 use alloy_sol_types::{
-    private::SolTypeValue,
+    abi::token::{
+        PackedSeqToken,
+        WordToken,
+    },
     sol_data,
     SolType as AlloySolType,
 };
@@ -64,14 +67,11 @@ impl<T: SolByteType> SolTypeDecode for AsSolBytes<T> {
         Self(<T as SolByteType>::detokenize(token))
     }
 }
-impl<T: SolByteType> SolTypeEncode for AsSolBytes<T>
-where
-    AsSolBytes<T>: SolTypeValue<<T as SolByteType>::AlloyType>,
-{
+impl<T: SolByteType> SolTypeEncode for AsSolBytes<T> {
     type AlloyType = T::AlloyType;
 
     fn tokenize(&self) -> <Self::AlloyType as AlloySolType>::Token<'_> {
-        <Self::AlloyType as AlloySolType>::tokenize(self)
+        <T as SolByteType>::tokenize(self)
     }
 }
 impl<T: SolByteType> crate::sol::types::private::Sealed for AsSolBytes<T> {}
@@ -84,10 +84,7 @@ impl<T: SolByteType + Clone> SolDecode for AsSolBytes<T> {
         value
     }
 }
-impl<T: SolByteType + Clone> SolEncode for AsSolBytes<T>
-where
-    AsSolBytes<T>: SolTypeValue<<T as SolByteType>::AlloyType>,
-{
+impl<T: SolByteType + Clone> SolEncode for AsSolBytes<T> {
     type SolType = AsSolBytes<T>;
 
     fn to_sol_type(&self) -> Cow<Self::SolType> {
@@ -135,6 +132,9 @@ pub trait SolByteType: private::Sealed {
     /// Equivalent Solidity ABI bytes type from [`alloy_sol_types`].
     type AlloyType: AlloySolType;
 
+    /// Tokenizes the given value into a [`Self::AlloyType`] token.
+    fn tokenize(&self) -> <Self::AlloyType as AlloySolType>::Token<'_>;
+
     /// Detokenizes the byte type's value from the given token.
     fn detokenize(token: <Self::AlloyType as AlloySolType>::Token<'_>) -> Self;
 }
@@ -145,6 +145,14 @@ where
     sol_data::ByteCount<N>: sol_data::SupportedFixedBytes,
 {
     type AlloyType = sol_data::FixedBytes<N>;
+
+    fn tokenize(&self) -> <Self::AlloyType as AlloySolType>::Token<'_> {
+        // Direct implementation simplifies `SolTypeByRef` implementation by removing
+        // requirement for `SolValueType<Self::AlloyType>`.
+        let mut word = [0; 32];
+        word[..N].copy_from_slice(self.as_slice());
+        WordToken::from(word)
+    }
 
     fn detokenize(token: <Self::AlloyType as AlloySolType>::Token<'_>) -> Self {
         // Converts token directly into `[u8; N]`, skipping the conversion to
@@ -160,6 +168,12 @@ impl<const N: usize> private::Sealed for [u8; N] {}
 
 impl SolByteType for Vec<u8> {
     type AlloyType = sol_data::Bytes;
+
+    fn tokenize(&self) -> <Self::AlloyType as AlloySolType>::Token<'_> {
+        // Direct implementation simplifies `SolTypeByRef` implementation by removing
+        // requirement for `SolValueType<Self::AlloyType>`.
+        PackedSeqToken(self.as_slice())
+    }
 
     fn detokenize(token: <Self::AlloyType as AlloySolType>::Token<'_>) -> Self {
         // Converts token directly into `Vec<u8>`, skipping the conversion to
