@@ -226,8 +226,7 @@ mod debugging_strategies {
             Ok(())
         }
 
-        /// This test illustrates how to use the tracing feature of
-        /// `pallet-revive.
+        /// This test illustrates how to use the `pallet-revive` tracing functionality.
         #[ink_e2e::test]
         async fn e2e_tracing<Client: E2EBackend>(mut client: Client) -> E2EResult<()> {
             // given
