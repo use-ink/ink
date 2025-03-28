@@ -165,7 +165,7 @@ fn build_contract(path_to_cargo_toml: &Path) -> PathBuf {
     let args = ExecuteArgs {
         manifest_path,
         verbosity: Verbosity::Default,
-        build_mode: BuildMode::Release, // todo change back to Debug
+        build_mode: BuildMode::Debug,
         features: Features::default(),
         network: Network::Online,
         build_artifact: BuildArtifacts::All,

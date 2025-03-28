@@ -879,7 +879,7 @@ jobs:
             --document-private-items --no-deps
 
 # measurements
-#  todo bring this stage back
+#  todo delete this stage and associated files
 #  measurements:
 #    needs: [examples-docs, examples-contract-build, examples-test, examples-custom-test, examples-test-mapping]
 #    uses: ./.github/workflows/measurements.yml
@@ -977,3 +977,70 @@ jobs:
               labels: ['P-high']
             });
             console.log(`Issue created: ${issue.data.html_url}`);
+
+  submit-contract-sizes:
+      runs-on: ubuntu-latest
+      needs: [set-image, process-contract-sizes]
+      container:
+          image: ${{ needs.set-image.outputs.IMAGE }}
+      permissions:
+          pull-requests: write
+      steps:
+          - name: Checkout
+            uses: actions/checkout@v4
+            with:
+                fetch-depth: 1
+
+          - name: Extract GitHub
+            shell: bash
+            run: |
+                git config --global --add safe.directory /__w/ink/ink
+                ink_master_head=$(curl -s "https://api.github.com/repos/use-ink/ink/commits/master" | jq -r .sha)
+                head_in_branch=$(git log | grep -q $ink_master_head; echo $?)
+                echo "head_in_branch=$head_in_branch" >> $GITHUB_OUTPUT
+            id: extract_github
+
+          - name: Download master artifact
+            uses: dawidd6/action-download-artifact@v9
+            with:
+                workflow: ci.yml
+                branch: master
+                name: measurements-master
+
+          - name: Extract branch name
+            shell: bash
+            run: echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
+            id: extract_branch
+
+          - name: Output branch name
+            run: |
+                echo "${{ steps.extract_branch.outputs.branch }}"
+                echo "${{ steps.extract_github.outputs.head_in_branch }}"
+
+          - name: Download artifact
+            uses: dawidd6/action-download-artifact@v9
+            with:
+                workflow: ci.yml
+                name: measurements-${{ steps.extract_branch.outputs.branch }}
+
+          - name: Collect Contract Sizes
+            run: |
+                # Build the comparison table
+                cat measurements-master
+                cat measurements-${{ steps.extract_branch.outputs.branch }}
+                ./scripts/contract_sizes_diff.sh measurements-master measurements-${{ steps.extract_branch.outputs.branch }} > contract_sizes_diff.md
+                cat contract_sizes_diff.md
+
+          - name: Submit Comment
+            env:
+                GITHUB_PR_TOKEN:         ${{ secrets.github_token }}
+                GITHUB_PR_WORKFLOW_ID:   ${{ github.event.workflow_run.id }}
+                PR_NUMBER:               ${{ github.event.number }}
+            run: |
+                CARGO_CONTRACT_VERSION=$(cargo +nightly contract --version)
+                PR_COMMENTS_URL="${GITHUB_API_URL}/repos/${GITHUB_REPOSITORY}/issues/${PR_NUMBER}/comments"
+                WORKFLOW_URL="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_PR_WORKFLOW_ID}"
+
+                # Submit the comparison table as a comment to the PR
+                echo "Submitting contract sizes diff to ${PR_COMMENTS_URL}"
+                GITHUB_PR_TOKEN=${GITHUB_PR_TOKEN} .github/scripts/contract_sizes_submit.sh ${PR_COMMENTS_URL} ${WORKFLOW_URL} ${CARGO_CONTRACT_VERSION} ${{ steps.extract_github.outputs.head_in_branch }}${head_in_branch} < ./contract_sizes_diff.md
