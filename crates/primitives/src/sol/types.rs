@@ -25,6 +25,7 @@ use alloy_sol_types::{
     sol_data,
     SolType as AlloySolType,
 };
+use core::ops::Deref;
 use impl_trait_for_tuples::impl_for_tuples;
 use ink_prelude::{
     borrow::Cow,
@@ -374,6 +375,15 @@ impl_refs_encode! {
     ['a,] &'a mut T,
     [] Box<T>,
 }
+
+impl<'a, T: SolTypeEncode + Clone> SolTypeEncode for Cow<'a, T> {
+    type AlloyType = T::AlloyType;
+
+    fn tokenize(&self) -> <Self::AlloyType as AlloySolType>::Token<'_> {
+        <T as SolTypeEncode>::tokenize(self.deref())
+    }
+}
+impl<'a, T: private::Sealed + Clone> private::Sealed for Cow<'a, T> {}
 
 pub(super) mod private {
     /// Seals implementations of `SolTypeEncode` and `SolTypeDecode`.
