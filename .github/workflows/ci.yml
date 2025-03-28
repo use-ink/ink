@@ -1013,7 +1013,12 @@ jobs:
           - name: Extract GitHub
             shell: bash
             run: |
+                ls ../
+                ls ../../
+                echo "----"
                 ink_master_head=$(curl -s "https://api.github.com/repos/use-ink/ink/commits/master" | jq -r .sha)
+                echo "----1"
+                git config --global --add safe.directory /__w/ink/ink
                 head_in_branch=$(git log | grep -q $ink_master_head; echo $?)
                 echo $head_in_branch >> $GITHUB_OUTPUT
             id: extract_github
