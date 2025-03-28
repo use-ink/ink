@@ -12,7 +12,7 @@ mod debugging_strategies {
         ExecutionInput,
         Selector,
     };
-    #[cfg(feature = "debug-info")]
+    #[cfg(feature = "debug")]
     use ink::prelude::{
         borrow::ToOwned,
         format,
@@ -20,7 +20,7 @@ mod debugging_strategies {
     };
 
     #[ink::event]
-    #[cfg(feature = "debug-info")]
+    #[cfg(feature = "debug")]
     pub struct DebugEvent {
         message: String,
     }
@@ -40,12 +40,21 @@ mod debugging_strategies {
 
         #[ink(message)]
         pub fn get(&self) -> bool {
-            #[cfg(feature = "debug-info")]
+            #[cfg(feature = "debug")]
             self.env().emit_event(DebugEvent {
                 message: format!("received {:?}", self.env().transferred_value())
                     .to_owned(),
             });
             self.value
+        }
+
+        #[ink(message)]
+        pub fn intentional_revert(&self) {
+            #[cfg(feature = "debug")]
+            ink::env::return_value(
+                ink::env::ReturnFlags::REVERT,
+                &format!("reverting with info: {:?}", self.env().transferred_value()),
+            );
         }
 
         #[ink(message, payable)]
@@ -104,10 +113,10 @@ mod debugging_strategies {
 
         /// This test illustrates how to use debugging events.
         ///
-        /// The contract is built with the `debug-info` enabled, thus
+        /// The contract is build with the `debug` feature enabled, thus
         /// we can have code in the contract that is utilized purely
         /// for testing, but not for release builds.
-        #[ink_e2e::test(features = ["debug-info"])]
+        #[ink_e2e::test(features = ["debug"])]
         async fn e2e_debugging_event_emitted<Client: E2EBackend>(
             mut client: Client,
         ) -> E2EResult<()> {
@@ -137,6 +146,36 @@ mod debugging_strategies {
                 ink::scale::Decode::decode(&mut &contract_event.event.data[..])
                     .expect("encountered invalid contract event data buffer");
             assert_eq!(debug_event.message, "received 0");
+
+            Ok(())
+        }
+
+        /// This test illustrates how to decode a `Revive::ContractReverted`.
+        #[ink_e2e::test(features = ["debug"])]
+        async fn e2e_decode_intentional_revert<Client: E2EBackend>(
+            mut client: Client,
+        ) -> E2EResult<()> {
+            // given
+            let mut constructor = DebuggingStrategiesRef::new();
+            let contract = client
+                .instantiate("debugging_strategies", &ink_e2e::bob(), &mut constructor)
+                .submit()
+                .await
+                .expect("instantiate failed");
+            let call_builder = contract.call_builder::<DebuggingStrategies>();
+
+            // when
+            let call_res = client
+                .call(&ink_e2e::alice(), &call_builder.intentional_revert())
+                .dry_run()
+                .await
+                .expect("calling `get` message failed");
+
+            let return_data = call_res.return_data();
+            assert!(call_res.did_revert());
+            let revert_msg = String::from_utf8_lossy(&return_data[..]);
+            assert!(revert_msg
+                .contains("reverting with info: 0"));
 
             Ok(())
         }

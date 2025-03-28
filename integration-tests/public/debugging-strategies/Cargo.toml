@@ -22,4 +22,4 @@ std = [
 ]
 ink-as-dependency = []
 e2e-tests = []
-debug-info = []
+debug = []
