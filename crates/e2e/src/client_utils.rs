@@ -88,12 +88,12 @@ impl ContractsRegistry {
     }
 }
 
-/// Returns the H256 hash of the code slice.
+/// Returns the `H256` hash of the code slice.
 pub fn code_hash(code: &[u8]) -> [u8; 32] {
     h256_hash(code)
 }
 
-/// Returns the H256 hash of the given `code` slice.
+/// Returns the `H256` hash of the given `code` slice.
 fn h256_hash(code: &[u8]) -> [u8; 32] {
     use sha3::{
         Digest,
