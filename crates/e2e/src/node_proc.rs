@@ -202,6 +202,7 @@ fn find_substrate_port_from_output(r: impl Read + Send + 'static) -> u16 {
         .find_map(|line| {
             let line =
                 line.expect("failed to obtain next line from stdout for port discovery");
+            eprintln!("line: {}", line);
 
             // does the line contain our port (we expect this specific output from
             // substrate).
