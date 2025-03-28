@@ -156,11 +156,11 @@ macro_rules! impl_primitive_encode {
                 }
             }
 
-            impl SolEncode for $ty {
-                type SolType = $ty;
+            impl<'a> SolEncode<'a> for $ty {
+                type SolType = &'a $ty;
 
-                fn to_sol_type(&self) -> Cow<Self::SolType> {
-                    Cow::Borrowed(self)
+                fn to_sol_type(&'a self) -> Self::SolType {
+                    self
                 }
             }
         )*
@@ -233,11 +233,11 @@ impl SolDecode for Address {
         value
     }
 }
-impl SolEncode for Address {
-    type SolType = Address;
+impl<'a> SolEncode<'a> for Address {
+    type SolType = &'a Address;
 
-    fn to_sol_type(&self) -> Cow<Self::SolType> {
-        Cow::Borrowed(self)
+    fn to_sol_type(&'a self) -> Self::SolType {
+        self
     }
 }
 impl private::Sealed for Address {}
@@ -250,6 +250,7 @@ impl SolTypeDecode for U256 {
         U256::from_big_endian(token.0 .0.as_slice())
     }
 }
+
 impl SolTypeEncode for U256 {
     type AlloyType = sol_data::Uint<256>;
 
@@ -261,6 +262,7 @@ impl SolTypeEncode for U256 {
         WordToken::from(self.to_big_endian())
     }
 }
+
 impl SolDecode for U256 {
     type SolType = U256;
 
@@ -268,13 +270,15 @@ impl SolDecode for U256 {
         value
     }
 }
-impl SolEncode for U256 {
-    type SolType = U256;
 
-    fn to_sol_type(&self) -> Cow<Self::SolType> {
-        Cow::Borrowed(self)
+impl<'a> SolEncode<'a> for U256 {
+    type SolType = &'a U256;
+
+    fn to_sol_type(&'a self) -> Self::SolType {
+        self
     }
 }
+
 impl private::Sealed for U256 {}
 
 // Rust array <-> Solidity fixed-sized array (i.e. `T[N]`).
@@ -287,6 +291,7 @@ impl<T: SolTypeDecode, const N: usize> SolTypeDecode for [T; N] {
         token.0.map(<T as SolTypeDecode>::detokenize)
     }
 }
+
 impl<T: SolTypeEncode, const N: usize> SolTypeEncode for [T; N] {
     type AlloyType = sol_data::FixedArray<T::AlloyType, N>;
 
@@ -298,6 +303,7 @@ impl<T: SolTypeEncode, const N: usize> SolTypeEncode for [T; N] {
         }))
     }
 }
+
 impl<T: private::Sealed, const N: usize> private::Sealed for [T; N] {}
 
 // Rust `Vec` <-> Solidity dynamic size array (i.e. `T[]`).
@@ -314,6 +320,7 @@ impl<T: SolTypeDecode> SolTypeDecode for Vec<T> {
             .collect()
     }
 }
+
 impl<T: SolTypeEncode> SolTypeEncode for Vec<T> {
     type AlloyType = sol_data::Array<T::AlloyType>;
 
@@ -323,6 +330,7 @@ impl<T: SolTypeEncode> SolTypeEncode for Vec<T> {
         DynSeqToken(self.iter().map(<T as SolTypeEncode>::tokenize).collect())
     }
 }
+
 impl<T: private::Sealed> private::Sealed for Vec<T> {}
 
 // We follow the Rust standard library's convention of implementing traits for tuples up
@@ -339,6 +347,7 @@ impl SolTypeDecode for Tuple {
         for_tuples!( ( #( <Tuple as SolTypeDecode>::detokenize(token.Tuple) ),* ) );
     }
 }
+
 #[impl_for_tuples(12)]
 impl SolTypeEncode for Tuple {
     for_tuples!( type AlloyType = ( #( Tuple::AlloyType ),* ); );
@@ -350,6 +359,7 @@ impl SolTypeEncode for Tuple {
         for_tuples!( ( #( <Tuple as SolTypeEncode>::tokenize(&self.Tuple) ),* ) );
     }
 }
+
 #[impl_for_tuples(12)]
 impl private::Sealed for Tuple {}
 
@@ -370,20 +380,22 @@ macro_rules! impl_refs_encode {
         )*
     };
 }
+
 impl_refs_encode! {
     ['a,] &'a T,
     ['a,] &'a mut T,
     [] Box<T>,
 }
 
-impl<'a, T: SolTypeEncode + Clone> SolTypeEncode for Cow<'a, T> {
+impl<T: SolTypeEncode + Clone> SolTypeEncode for Cow<'_, T> {
     type AlloyType = T::AlloyType;
 
     fn tokenize(&self) -> <Self::AlloyType as AlloySolType>::Token<'_> {
         <T as SolTypeEncode>::tokenize(self.deref())
     }
 }
-impl<'a, T: private::Sealed + Clone> private::Sealed for Cow<'a, T> {}
+
+impl<T: private::Sealed + Clone> private::Sealed for Cow<'_, T> {}
 
 pub(super) mod private {
     /// Seals implementations of `SolTypeEncode` and `SolTypeDecode`.

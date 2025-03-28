@@ -32,7 +32,7 @@ mod arithmetic;
 pub mod contract;
 mod key;
 pub mod reflect;
-mod sol;
+pub mod sol;
 pub mod types;
 
 pub use self::{
@@ -48,8 +48,6 @@ pub use self::{
         AsSolBytes,
         SolDecode,
         SolEncode,
-        SolTypeDecode,
-        SolTypeEncode,
     },
     types::{
         AccountId,

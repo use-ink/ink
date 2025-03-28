@@ -382,7 +382,7 @@ impl EnvBackend for EnvInstance {
 
     fn return_value_solidity<R>(&mut self, _flags: ReturnFlags, _return_value: &R) -> !
     where
-        R: SolEncode,
+        R: for<'a> SolEncode<'a>,
     {
         unimplemented!("the off-chain env does not implement `return_value_solidity`")
     }

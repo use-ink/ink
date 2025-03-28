@@ -114,7 +114,6 @@ pub trait SolDecode {
 /// # Example
 ///
 /// ```
-/// use ink_prelude::borrow::Cow;
 /// use ink_primitives::SolEncode;
 ///
 /// // Example arbitrary type.
@@ -124,36 +123,34 @@ pub trait SolDecode {
 /// }
 ///
 /// // `SolEncode` implementation/mapping.
-/// impl SolEncode for MyType {
-///     type SolType = (u8, bool);
+/// impl<'a> SolEncode<'a> for MyType {
+///     // NOTE: Prefer reference based representation for better performance.
+///     type SolType = (&'a u8, &'a bool);
 ///
-///     fn to_sol_type(&self) -> Cow<(u8, bool)> {
-///         // NOTE: Types that implement `Borrow<Self::SolType>`
-///         // (e.g. newtype wrappers for `Self::SolType`)
-///         // should return `Cow::Borrowed(self.borrow())` for better performance.
-///         Cow::Owned((self.size, self.status))
+///     fn to_sol_type(&'a self) -> (&'a u8, &'a bool) {
+///         (&self.size, &self.status)
 ///     }
 /// }
 /// ```
-pub trait SolEncode {
+pub trait SolEncode<'a> {
     /// Equivalent Solidity ABI type representation.
-    type SolType: SolTypeEncode + Clone;
+    type SolType: SolTypeEncode + 'a;
 
     /// Name of equivalent Solidity ABI type.
     const SOL_NAME: &'static str =
         <<Self::SolType as SolTypeEncode>::AlloyType as AlloySolType>::SOL_NAME;
 
     /// Solidity ABI encode the value.
-    fn encode(&self) -> Vec<u8> {
-        <Self::SolType as SolTypeEncode>::encode(self.to_sol_type().deref())
+    fn encode(&'a self) -> Vec<u8> {
+        <Self::SolType as SolTypeEncode>::encode(&self.to_sol_type())
     }
 
     /// Converts from `Self` to `Self::SolType` via either a borrow (if possible), or
     /// a possibly expensive conversion otherwise.
-    fn to_sol_type(&self) -> Cow<Self::SolType>;
+    fn to_sol_type(&'a self) -> Self::SolType;
 }
 
-impl<T: SolDecode + Clone, const N: usize> SolDecode for [T; N] {
+impl<T: SolDecode, const N: usize> SolDecode for [T; N] {
     type SolType = [T::SolType; N];
 
     fn from_sol_type(value: Self::SolType) -> Self {
@@ -161,11 +158,11 @@ impl<T: SolDecode + Clone, const N: usize> SolDecode for [T; N] {
     }
 }
 
-impl<T: SolEncode + Clone, const N: usize> SolEncode for [T; N] {
+impl<'a, T: SolEncode<'a>, const N: usize> SolEncode<'a> for [T; N] {
     type SolType = [T::SolType; N];
 
-    fn to_sol_type(&self) -> Cow<Self::SolType> {
-        Cow::Owned(self.each_ref().map(|item| item.to_sol_type().into_owned()))
+    fn to_sol_type(&'a self) -> Self::SolType {
+        self.each_ref().map(|item| item.to_sol_type())
     }
 }
 
@@ -180,15 +177,11 @@ impl<T: SolDecode> SolDecode for Vec<T> {
     }
 }
 
-impl<T: SolEncode> SolEncode for Vec<T> {
+impl<'a, T: SolEncode<'a>> SolEncode<'a> for Vec<T> {
     type SolType = Vec<T::SolType>;
 
-    fn to_sol_type(&self) -> Cow<Self::SolType> {
-        Cow::Owned(
-            self.iter()
-                .map(|item| item.to_sol_type().into_owned())
-                .collect(),
-        )
+    fn to_sol_type(&'a self) -> Self::SolType {
+        self.iter().map(|item| item.to_sol_type()).collect()
     }
 }
 
@@ -206,11 +199,12 @@ impl SolDecode for Tuple {
 }
 
 #[impl_for_tuples(12)]
-impl SolEncode for Tuple {
+impl<'a> SolEncode<'a> for Tuple {
     for_tuples!( type SolType = ( #( Tuple::SolType ),* ); );
 
-    fn to_sol_type(&self) -> Cow<Self::SolType> {
-        Cow::Owned(for_tuples! ( ( #( self.Tuple.to_sol_type().into_owned() ),* ) ))
+    #[allow(clippy::unused_unit)]
+    fn to_sol_type(&'a self) -> Self::SolType {
+        for_tuples! ( ( #( self.Tuple.to_sol_type() ),* ) )
     }
 }
 
@@ -218,27 +212,27 @@ impl SolEncode for Tuple {
 macro_rules! impl_refs_encode {
     ($([$($gen:tt)*] $ty: ty), +$(,)*) => {
         $(
-
-            impl<$($gen)* T: SolEncode> SolEncode for $ty {
+            impl<$($gen)* T: SolEncode<'a>> SolEncode<'a> for $ty {
                 type SolType = T::SolType;
 
-                fn to_sol_type(&self) -> Cow<Self::SolType> {
+                fn to_sol_type(&'a self) -> Self::SolType {
                     <T as SolEncode>::to_sol_type(self)
                 }
             }
         )*
     };
 }
+
 impl_refs_encode! {
     ['a,] &'a T,
     ['a,] &'a mut T,
-    [] Box<T>,
+    ['a,] Box<T>,
 }
 
-impl<'a, T: SolEncode + Clone> SolEncode for Cow<'a, T> {
+impl<'a, T: SolEncode<'a> + Clone> SolEncode<'a> for Cow<'a, T> {
     type SolType = T::SolType;
 
-    fn to_sol_type(&self) -> Cow<Self::SolType> {
+    fn to_sol_type(&'a self) -> Self::SolType {
         <T as SolEncode>::to_sol_type(self.deref())
     }
 }
@@ -251,7 +245,8 @@ impl SolDecode for AccountId {
         AccountId(value.0)
     }
 }
-impl SolEncode for AccountId {
+
+impl SolEncode<'_> for AccountId {
     type SolType = AsSolBytes<[u8; 32]>;
 
     fn encode(&self) -> Vec<u8> {
@@ -259,13 +254,13 @@ impl SolEncode for AccountId {
         sol_data::FixedBytes::abi_encode(self)
     }
 
-    fn to_sol_type(&self) -> Cow<Self::SolType> {
+    fn to_sol_type(&self) -> Self::SolType {
         // NOTE: Not actually used for encoding because of `encode` override above (for
         // better performance).
         // Arbitrary newtype wrappers can achieve similar performance (without overriding
         // `encode`) by using  `AsSolBytes<[u8; 32]>` as the inner type and returning
         // `Cow::Borrowed(&self.0)`.
-        Cow::Owned(AsSolBytes(self.0))
+        AsSolBytes(self.0)
     }
 }
 
@@ -277,7 +272,8 @@ impl SolDecode for Hash {
         Hash::from(value.0)
     }
 }
-impl SolEncode for Hash {
+
+impl SolEncode<'_> for Hash {
     type SolType = AsSolBytes<[u8; 32]>;
 
     fn encode(&self) -> Vec<u8> {
@@ -285,13 +281,13 @@ impl SolEncode for Hash {
         sol_data::FixedBytes::abi_encode(self)
     }
 
-    fn to_sol_type(&self) -> Cow<Self::SolType> {
+    fn to_sol_type(&self) -> Self::SolType {
         // NOTE: Not actually used for encoding because of `encode` override above (for
         // better performance).
         // Arbitrary newtype wrappers can achieve similar performance (without overriding
         // `encode`) by using  `AsSolBytes<[u8; 32]>` as the inner type and returning
         // `Cow::Borrowed(&self.0)`.
-        Cow::Owned(AsSolBytes::<[u8; 32]>((*self).into()))
+        AsSolBytes::<[u8; 32]>((*self).into())
     }
 }
 
@@ -303,7 +299,8 @@ impl SolDecode for H256 {
         H256(value.0)
     }
 }
-impl SolEncode for H256 {
+
+impl SolEncode<'_> for H256 {
     type SolType = AsSolBytes<[u8; 32]>;
 
     fn encode(&self) -> Vec<u8> {
@@ -311,13 +308,13 @@ impl SolEncode for H256 {
         sol_data::FixedBytes::abi_encode(&self.0)
     }
 
-    fn to_sol_type(&self) -> Cow<Self::SolType> {
+    fn to_sol_type(&self) -> Self::SolType {
         // NOTE: Not actually used for encoding because of `encode` override above (for
         // better performance).
         // Arbitrary newtype wrappers can achieve similar performance (without overriding
         // `encode`) by using  `AsSolBytes<[u8; 32]>` as the inner type and returning
         // `Cow::Borrowed(&self.0)`.
-        Cow::Owned(AsSolBytes(self.0))
+        AsSolBytes(self.0)
     }
 }
 
@@ -332,7 +329,8 @@ impl SolDecode for H160 {
         H160(value.0)
     }
 }
-impl SolEncode for H160 {
+
+impl SolEncode<'_> for H160 {
     type SolType = AsSolBytes<[u8; 20]>;
 
     fn encode(&self) -> Vec<u8> {
@@ -340,12 +338,12 @@ impl SolEncode for H160 {
         sol_data::FixedBytes::abi_encode(&self.0)
     }
 
-    fn to_sol_type(&self) -> Cow<Self::SolType> {
+    fn to_sol_type(&self) -> Self::SolType {
         // NOTE: Not actually used for encoding because of `encode` override above (for
         // better performance).
         // Arbitrary newtype wrappers can achieve similar performance (without overriding
         // `encode`) by using  `AsSolBytes<[u8; 32]>` as the inner type and returning
         // `Cow::Borrowed(&self.0)`.
-        Cow::Owned(AsSolBytes(self.0))
+        AsSolBytes(self.0)
     }
 }
