@@ -226,8 +226,6 @@ macro_rules! impl_refs_encode {
                     <T as SolEncode>::to_sol_type(self)
                 }
             }
-
-
         )*
     };
 }
@@ -235,6 +233,14 @@ impl_refs_encode! {
     ['a,] &'a T,
     ['a,] &'a mut T,
     [] Box<T>,
+}
+
+impl<'a, T: SolEncode + Clone> SolEncode for Cow<'a, T> {
+    type SolType = T::SolType;
+
+    fn to_sol_type(&self) -> Cow<Self::SolType> {
+        <T as SolEncode>::to_sol_type(self.deref())
+    }
 }
 
 // AccountId <-> bytes32
