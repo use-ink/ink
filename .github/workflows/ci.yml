@@ -1025,8 +1025,6 @@ jobs:
 
           - name: Collect Contract Sizes
             run: |
-                pwd
-                ls
                 # Build the comparison table
                 cat measurements-master
                 cat measurements-${{ steps.extract_branch.outputs.branch }}
