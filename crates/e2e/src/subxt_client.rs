@@ -208,6 +208,7 @@ where
             addr,
             events,
             trace,
+            code_hash: H256(crate::client_utils::code_hash(&code[..])),
         })
     }
 
@@ -827,6 +828,11 @@ impl<E: Environment, V, C: subxt::Config> CallResult<E, V, ExtrinsicEvents<C>> {
     pub fn contains_event(&self, pallet_name: &str, variant_name: &str) -> bool {
         self.events.iter().any(|event| {
             let event = event.unwrap();
+            eprintln!(
+                "pallet: {:?}, variant: {:?}",
+                event.pallet_name(),
+                event.variant_name()
+            );
             event.pallet_name() == pallet_name && event.variant_name() == variant_name
         })
     }
