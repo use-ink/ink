@@ -21,10 +21,7 @@ use crate::{
     Environment,
 };
 use core::marker::PhantomData;
-use ink_prelude::{
-    borrow::Cow,
-    vec::Vec,
-};
+use ink_prelude::vec::Vec;
 use ink_primitives::{
     reflect::{
         AbiDecodeWith,
@@ -324,51 +321,45 @@ where
     }
 }
 
-impl<T> SolEncode for Argument<T>
+impl<'a, T> SolEncode<'a> for Argument<T>
 where
-    T: SolEncode,
+    T: SolEncode<'a>,
 {
-    type SolType = <T as SolEncode>::SolType;
+    type SolType = <T as SolEncode<'a>>::SolType;
 
-    fn to_sol_type(&self) -> Cow<Self::SolType> {
+    fn to_sol_type(&'a self) -> Self::SolType {
         self.arg.to_sol_type()
     }
 }
 
-impl SolEncode for EmptyArgumentList<SolEncoding> {
+impl SolEncode<'_> for EmptyArgumentList<SolEncoding> {
     type SolType = ();
 
     fn encode(&self) -> Vec<u8> {
         Vec::new()
     }
 
-    fn to_sol_type(&self) -> Cow<Self::SolType> {
-        // NOTE: Not actually used for encoding because of `encode` override above.
-        Cow::Owned(())
-    }
+    // NOTE: Not actually used for encoding because of `encode` override above.
+    fn to_sol_type(&self) {}
 }
 
-impl<Head, Rest> SolEncode for ArgumentList<Argument<Head>, Rest, SolEncoding>
+impl<'a, Head, Rest> SolEncode<'a> for ArgumentList<Argument<Head>, Rest, SolEncoding>
 where
-    Head: SolEncode,
-    Rest: SolEncode,
+    Head: SolEncode<'a>,
+    Rest: SolEncode<'a>,
 {
     type SolType = (Rest::SolType, Head::SolType);
 
-    fn encode(&self) -> Vec<u8> {
+    fn encode(&'a self) -> Vec<u8> {
         let mut encoded = Vec::new();
         encoded.extend(Rest::encode(&self.rest));
         encoded.extend(Head::encode(&self.head.arg));
         encoded
     }
 
-    fn to_sol_type(&self) -> Cow<Self::SolType> {
-        // NOTE: Not actually used for encoding because of `encode` override above (for
-        // better performance).
-        Cow::Owned((
-            self.rest.to_sol_type().into_owned(),
-            self.head.arg.to_sol_type().into_owned(),
-        ))
+    fn to_sol_type(&'a self) -> Self::SolType {
+        // NOTE: Not actually used for encoding because of `encode` override above.
+        (self.rest.to_sol_type(), self.head.arg.to_sol_type())
     }
 }
 

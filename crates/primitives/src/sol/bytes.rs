@@ -24,10 +24,7 @@ use core::{
     borrow::Borrow,
     ops::Deref,
 };
-use ink_prelude::{
-    borrow::Cow,
-    vec::Vec,
-};
+use ink_prelude::vec::Vec;
 use scale::{
     Decode,
     Encode,
@@ -67,6 +64,7 @@ impl<T: SolByteType> SolTypeDecode for AsSolBytes<T> {
         Self(<T as SolByteType>::detokenize(token))
     }
 }
+
 impl<T: SolByteType> SolTypeEncode for AsSolBytes<T> {
     type AlloyType = T::AlloyType;
 
@@ -74,21 +72,23 @@ impl<T: SolByteType> SolTypeEncode for AsSolBytes<T> {
         <T as SolByteType>::tokenize(self)
     }
 }
+
 impl<T: SolByteType> crate::sol::types::private::Sealed for AsSolBytes<T> {}
 
 // Implement `SolDecode` and `SolEncode` for `AsBytes<T> where T: ByteType`.
-impl<T: SolByteType + Clone> SolDecode for AsSolBytes<T> {
+impl<T: SolByteType> SolDecode for AsSolBytes<T> {
     type SolType = AsSolBytes<T>;
 
     fn from_sol_type(value: Self::SolType) -> Self {
         value
     }
 }
-impl<T: SolByteType + Clone> SolEncode for AsSolBytes<T> {
-    type SolType = AsSolBytes<T>;
 
-    fn to_sol_type(&self) -> Cow<Self::SolType> {
-        Cow::Borrowed(self)
+impl<'a, T: SolByteType + 'a> SolEncode<'a> for AsSolBytes<T> {
+    type SolType = &'a AsSolBytes<T>;
+
+    fn to_sol_type(&'a self) -> Self::SolType {
+        self
     }
 }
 
@@ -164,6 +164,7 @@ where
             .expect("Expected a slice of N bytes")
     }
 }
+
 impl<const N: usize> private::Sealed for [u8; N] {}
 
 impl SolByteType for Vec<u8> {
@@ -182,6 +183,7 @@ impl SolByteType for Vec<u8> {
         token.into_vec()
     }
 }
+
 impl private::Sealed for Vec<u8> {}
 
 mod private {

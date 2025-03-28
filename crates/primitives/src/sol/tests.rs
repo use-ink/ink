@@ -50,6 +50,26 @@ use crate::{
     },
 };
 
+macro_rules! test_case_codec {
+    ($ty: ty, $val: expr) => {
+        test_case_codec!($ty, $val, $ty, alloy_sol_types::SolValue, $val, [], [])
+    };
+    ($ty: ty, $val: expr, $sol_ty: ty, $sol_trait: ty) => {
+        test_case_codec!($ty, $val, $sol_ty, $sol_trait, $val, [], [])
+    };
+    ($ty: ty, $val: expr, $sol_ty: ty, $sol_trait: ty, $sol_val: expr, [$($ty_cvt: tt)*], [$($sol_ty_cvt: tt)*]) => {
+        // `SolEncode` test.
+        let encoded = <$ty as SolEncode>::encode(&$val);
+        let encoded_alloy = <$sol_ty as $sol_trait>::abi_encode(&$sol_val);
+        assert_eq!(encoded, encoded_alloy);
+
+        // `SolDecode` test.
+        let decoded = <$ty as SolDecode>::decode(&encoded);
+        let decoded_alloy = <$sol_ty as $sol_trait>::abi_decode(&encoded, true);
+        assert_eq!(decoded$($ty_cvt)*, decoded_alloy$($sol_ty_cvt)*);
+    };
+}
+
 macro_rules! test_case {
     ($ty: ty, $val: expr) => {
         test_case!($ty, $val, $ty, alloy_sol_types::SolValue, $val, [], [])
@@ -58,17 +78,18 @@ macro_rules! test_case {
         test_case!($ty, $val, $sol_ty, $sol_trait, $val, [], [])
     };
     ($ty: ty, $val: expr, $sol_ty: ty, $sol_trait: ty, $sol_val: expr, [$($ty_cvt: tt)*], [$($sol_ty_cvt: tt)*]) => {
+        // `SolTypeEncode` test.
         let encoded = <$ty as SolTypeEncode>::encode(&$val);
-        let encoded_codec = <$ty as SolEncode>::encode(&$val);
         let encoded_alloy = <$sol_ty as $sol_trait>::abi_encode(&$sol_val);
         assert_eq!(encoded, encoded_alloy);
-        assert_eq!(encoded_codec, encoded_alloy);
 
+        // `SolTypeDecode` test.
         let decoded = <$ty as SolTypeDecode>::decode(&encoded);
-        let decoded_codec = <$ty as SolDecode>::decode(&encoded);
         let decoded_alloy = <$sol_ty as $sol_trait>::abi_decode(&encoded, true);
-        assert_eq!(decoded$($ty_cvt)*, decoded_alloy.clone()$($sol_ty_cvt)*);
-        assert_eq!(decoded_codec$($ty_cvt)*, decoded_alloy$($sol_ty_cvt)*);
+        assert_eq!(decoded$($ty_cvt)*, decoded_alloy$($sol_ty_cvt)*);
+
+        // `SolEncode` and `SolDecode` test.
+        test_case_codec!($ty, $val, $sol_ty, $sol_trait, $sol_val, [$($ty_cvt)*], [$($sol_ty_cvt)*]);
     };
 }
 
@@ -285,60 +306,100 @@ fn tuple_works() {
 
 #[test]
 fn account_id_works() {
-    let account_id = AccountId([1; 32]);
-    let bytes = SolFixedBytes([1; 32]);
-
-    let encoded = <AccountId as SolEncode>::encode(&account_id);
-    let encoded_alloy = <SolFixedBytes<32> as SolValue>::abi_encode(&bytes);
-    assert_eq!(encoded, encoded_alloy);
-
-    let decoded = <AccountId as SolDecode>::decode(&encoded);
-    let decoded_alloy = <SolFixedBytes<32> as SolValue>::abi_decode(&encoded, true);
-    assert_eq!(decoded.unwrap().0, decoded_alloy.unwrap().0);
+    test_case_codec!(
+        AccountId,
+        AccountId([1; 32]),
+        SolFixedBytes<32>,
+        SolValue,
+        SolFixedBytes([1; 32]),
+        [.unwrap().0],
+        [.unwrap().0]
+    );
 }
 
 #[test]
 fn hash_works() {
-    let hash = Hash::from([1; 32]);
-    let bytes = SolFixedBytes([1; 32]);
-
-    let encoded = <Hash as SolEncode>::encode(&hash);
-    let encoded_alloy = <SolFixedBytes<32> as SolValue>::abi_encode(&bytes);
-    assert_eq!(encoded, encoded_alloy);
-
-    let decoded = <Hash as SolDecode>::decode(&encoded);
-    let decoded_alloy = <SolFixedBytes<32> as SolValue>::abi_decode(&encoded, true);
-    assert_eq!(
-        decoded.unwrap().as_ref(),
-        decoded_alloy.unwrap().0.as_slice()
+    test_case_codec!(
+        Hash,
+        Hash::from([1; 32]),
+        SolFixedBytes<32>,
+        SolValue,
+        SolFixedBytes([1; 32]),
+        [.unwrap().as_ref()],
+        [.unwrap().0.as_slice()]
     );
 }
 
 #[test]
 fn h256_works() {
-    let hash = H256([1; 32]);
-    let bytes = SolFixedBytes([1; 32]);
-
-    let encoded = <H256 as SolEncode>::encode(&hash);
-    let encoded_alloy = <SolFixedBytes<32> as SolValue>::abi_encode(&bytes);
-    assert_eq!(encoded, encoded_alloy);
-
-    let decoded = <H256 as SolDecode>::decode(&encoded);
-    let decoded_alloy = <SolFixedBytes<32> as SolValue>::abi_decode(&encoded, true);
-    assert_eq!(decoded.unwrap().0, decoded_alloy.unwrap().0);
+    test_case_codec!(
+        H256,
+        H256([1; 32]),
+        SolFixedBytes<32>,
+        SolValue,
+        SolFixedBytes([1; 32]),
+        [.unwrap().0],
+        [.unwrap().0]
+    );
 }
 
 #[test]
 fn h160_works() {
     // NOTE: We're currently mapping `H160` to `bytes20`.
-    let hash = H160([1; 20]);
-    let bytes = SolFixedBytes([1; 20]);
+    test_case_codec!(
+        H160,
+        H160([1; 20]),
+        SolFixedBytes<20>,
+        SolValue,
+        SolFixedBytes([1; 20]),
+        [.unwrap().0],
+        [.unwrap().0]
+    );
+}
 
-    let encoded = <H160 as SolEncode>::encode(&hash);
-    let encoded_alloy = <SolFixedBytes<20> as SolValue>::abi_encode(&bytes);
-    assert_eq!(encoded, encoded_alloy);
+#[test]
+fn custom_type() {
+    // Example arbitrary type.
+    struct MyType {
+        size: i8,
+        status: bool,
+    }
 
-    let decoded = <H160 as SolDecode>::decode(&encoded);
-    let decoded_alloy = <SolFixedBytes<20> as SolValue>::abi_decode(&encoded, true);
-    assert_eq!(decoded.unwrap().0, decoded_alloy.unwrap().0);
+    // `SolDecode` implementation/mapping.
+    impl SolDecode for MyType {
+        type SolType = (i8, bool);
+
+        fn from_sol_type(value: Self::SolType) -> Self {
+            Self {
+                size: value.0,
+                status: value.1,
+            }
+        }
+    }
+
+    // `SolEncode` implementation/mapping.
+    impl<'a> SolEncode<'a> for MyType {
+        // NOTE: Prefer reference based representation for better performance.
+        type SolType = (&'a i8, &'a bool);
+
+        fn to_sol_type(&'a self) -> (&'a i8, &'a bool) {
+            (&self.size, &self.status)
+        }
+    }
+
+    impl MyType {
+        fn into_tuple(self) -> (i8, bool) {
+            (self.size, self.status)
+        }
+    }
+
+    test_case_codec!(
+        MyType,
+        MyType { size: 100, status: true },
+        (i8, bool),
+        SolValue,
+        (100i8, true),
+        [.unwrap().into_tuple()],
+        [.unwrap()]
+    );
 }

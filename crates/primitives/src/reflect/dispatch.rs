@@ -294,7 +294,10 @@ impl<T: scale::Decode> AbiDecodeWith<ScaleEncoding> for T {
     }
 }
 
-impl<T: SolEncode> AbiEncodeWith<SolEncoding> for T {
+impl<T> AbiEncodeWith<SolEncoding> for T
+where
+    T: for<'a> SolEncode<'a>,
+{
     fn encode_to_slice(&self, buffer: &mut [u8]) -> usize {
         let encoded = T::encode(self);
         let len = encoded.len();
