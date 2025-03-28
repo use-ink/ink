@@ -259,7 +259,7 @@ impl SolEncode<'_> for AccountId {
         // better performance).
         // Arbitrary newtype wrappers can achieve similar performance (without overriding
         // `encode`) by using  `AsSolBytes<[u8; 32]>` as the inner type and returning
-        // `Cow::Borrowed(&self.0)`.
+        // `&self.0`.
         AsSolBytes(self.0)
     }
 }
@@ -286,7 +286,7 @@ impl SolEncode<'_> for Hash {
         // better performance).
         // Arbitrary newtype wrappers can achieve similar performance (without overriding
         // `encode`) by using  `AsSolBytes<[u8; 32]>` as the inner type and returning
-        // `Cow::Borrowed(&self.0)`.
+        // `&self.0`.
         AsSolBytes::<[u8; 32]>((*self).into())
     }
 }
@@ -313,7 +313,7 @@ impl SolEncode<'_> for H256 {
         // better performance).
         // Arbitrary newtype wrappers can achieve similar performance (without overriding
         // `encode`) by using  `AsSolBytes<[u8; 32]>` as the inner type and returning
-        // `Cow::Borrowed(&self.0)`.
+        // `&self.0`.
         AsSolBytes(self.0)
     }
 }
@@ -343,7 +343,7 @@ impl SolEncode<'_> for H160 {
         // better performance).
         // Arbitrary newtype wrappers can achieve similar performance (without overriding
         // `encode`) by using  `AsSolBytes<[u8; 32]>` as the inner type and returning
-        // `Cow::Borrowed(&self.0)`.
+        // `&self.0`.
         AsSolBytes(self.0)
     }
 }
