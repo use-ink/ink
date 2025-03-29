@@ -320,9 +320,10 @@ impl SolEncode<'_> for H256 {
 }
 
 // H160 <-> bytes20
-// TODO: (@davidsemakula) Evaluate if it's worth removing to mapping, changing it
-// `address` before v6 release. Rationale: while this mapping is technically correct, it
-// may be confusing for ink! devs, or just needless increase the cognitive load.
+// TODO: (@davidsemakula) Evaluate if it's worth removing this mapping, or changing it to
+// `address` before v6 release.
+// Rationale: while this mapping is technically correct, it may be confusing for ink!
+// devs, or just needless increase the cognitive load.
 impl SolDecode for H160 {
     type SolType = AsSolBytes<[u8; 20]>;
 
