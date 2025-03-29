@@ -18,6 +18,7 @@ use alloy_sol_types::{
         token::{
             DynSeqToken,
             FixedSeqToken,
+            PackedSeqToken,
             WordToken,
         },
     },
@@ -95,9 +96,9 @@ pub trait SolTypeDecode: Sized + private::Sealed {
 /// | `AsSolBytes<[u8; N]>` for `1 <= N <= 32` |  `bytesN` | e.g. `AsSolBytes<[u8; 1]>` <=> `bytes1` |
 /// | `AsSolBytes<Vec<u8>>` |  `bytes` ||
 /// | `(T1, T2, T3, ... T12)` | `(U1, U2, U3, ... U12)` | where `T1` <=> `U1`, ... `T12` <=> `U12` e.g. `(bool, u8, Address)` <=> `(bool, uint8, address)` |
-/// | `&T` | U | where `T <=> U` |
-/// | `&mut T` | U | where `T <=> U` |
-/// | `Box<T>` | U | where `T <=> U` |
+/// | `&str`, `&mut str`, `Box<str>` | string ||
+/// | `&T`, `&mut T`, `Box<T>` | T | e.g. `&i8 <=> int8` |
+/// | `&[T]`, `&mut [T]`, `Box<[T]>` | T[] | e.g. `&[i8]` <=> `int8[]` |
 ///
 /// Ref: <https://docs.soliditylang.org/en/latest/abi-spec.html#types>
 ///
@@ -345,6 +346,45 @@ impl<T: SolTypeEncode + Clone> SolTypeEncode for Cow<'_, T> {
 }
 
 impl<T: private::Sealed + Clone> private::Sealed for Cow<'_, T> {}
+
+// Implements `SolTypeEncode` for references to str and [T] DSTs.
+macro_rules! impl_str_ref_encode {
+    ($($ty: ty),+ $(,)*) => {
+        $(
+            impl SolTypeEncode for $ty {
+                type AlloyType = sol_data::String;
+
+                fn tokenize(&self) -> <Self::AlloyType as AlloySolType>::Token<'_> {
+                    PackedSeqToken(self.as_bytes())
+                }
+            }
+
+            impl private::Sealed for $ty {}
+        )*
+    };
+}
+
+impl_str_ref_encode!(&str, &mut str, Box<str>);
+
+macro_rules! impl_slice_ref_encode {
+    ($($ty: ty),+ $(,)*) => {
+        $(
+            impl<T: SolTypeEncode> SolTypeEncode for $ty {
+                type AlloyType = sol_data::Array<T::AlloyType>;
+
+                fn tokenize(&self) -> <Self::AlloyType as AlloySolType>::Token<'_> {
+                    // Does NOT require `SolValueType<Self::AlloyType>` and instead relies on
+                    // `SolTypeEncode::tokenize`.
+                    DynSeqToken(self.iter().map(<T as SolTypeEncode>::tokenize).collect())
+                }
+            }
+
+            impl<T: private::Sealed> private::Sealed for $ty {}
+        )*
+    };
+}
+
+impl_slice_ref_encode!(&[T], &mut [T], Box<[T]>);
 
 pub(super) mod private {
     /// Seals implementations of `SolTypeEncode` and `SolTypeDecode`.

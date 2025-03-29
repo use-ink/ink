@@ -382,7 +382,7 @@ fn custom_type() {
         // NOTE: Prefer reference based representation for better performance.
         type SolType = (&'a i8, &'a bool);
 
-        fn to_sol_type(&'a self) -> (&'a i8, &'a bool) {
+        fn to_sol_type(&'a self) -> Self::SolType {
             (&self.size, &self.status)
         }
     }

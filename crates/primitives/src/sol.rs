@@ -130,7 +130,7 @@ pub trait SolDecode {
 ///     // NOTE: Prefer reference based representation for better performance.
 ///     type SolType = (&'a u8, &'a bool);
 ///
-///     fn to_sol_type(&'a self) -> (&'a u8, &'a bool) {
+///     fn to_sol_type(&'a self) -> Self::SolType {
 ///         (&self.size, &self.status)
 ///     }
 /// }
@@ -217,7 +217,7 @@ impl<'a, T: SolEncode<'a>, const N: usize> SolEncode<'a> for [T; N] {
     type SolType = [T::SolType; N];
 
     fn to_sol_type(&'a self) -> Self::SolType {
-        self.each_ref().map(|item| item.to_sol_type())
+        self.each_ref().map(<T as SolEncode>::to_sol_type)
     }
 }
 
@@ -237,7 +237,7 @@ impl<'a, T: SolEncode<'a>> SolEncode<'a> for Vec<T> {
     type SolType = Vec<T::SolType>;
 
     fn to_sol_type(&'a self) -> Self::SolType {
-        self.iter().map(|item| item.to_sol_type()).collect()
+        self.iter().map(<T as SolEncode>::to_sol_type).collect()
     }
 }
 
@@ -292,6 +292,39 @@ impl<'a, T: SolEncode<'a> + Clone> SolEncode<'a> for Cow<'a, T> {
         <T as SolEncode>::to_sol_type(self.deref())
     }
 }
+
+// Implements `SolTypeEncode` for references to str and [T] DSTs.
+macro_rules! impl_str_ref_encode {
+    ($($ty: ty),+ $(,)*) => {
+        $(
+            impl<'a> SolEncode<'a> for $ty {
+                type SolType = &'a str;
+
+                fn to_sol_type(&'a self) -> Self::SolType {
+                    self
+                }
+            }
+        )*
+    };
+}
+
+impl_str_ref_encode!(&'a str, &'a mut str, Box<str>);
+
+macro_rules! impl_slice_ref_encode {
+    ($($ty: ty),+ $(,)*) => {
+        $(
+            impl<'a, T: SolEncode<'a>> SolEncode<'a> for $ty {
+                type SolType = Vec<T::SolType>;
+
+                fn to_sol_type(&'a self) -> Self::SolType {
+                    self.iter().map(<T as SolEncode>::to_sol_type).collect()
+                }
+            }
+        )*
+    };
+}
+
+impl_slice_ref_encode!(&'a [T], &'a mut [T], Box<[T]>);
 
 // AccountId <-> bytes32
 impl SolDecode for AccountId {
