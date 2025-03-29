@@ -57,6 +57,7 @@ pub use node_proc::{
     TestNodeProcess,
     TestNodeProcessBuilder,
 };
+pub use pallet_revive::evm::CallTrace;
 #[cfg(feature = "sandbox")]
 pub use sandbox_client::{
     preset,

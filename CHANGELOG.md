@@ -149,6 +149,11 @@ We have implemented barebones support for this tracing API in the 6.0.0-alpha
 versions of ink! + `cargo-contract`. But it's really barebones and should
 certainly be improved before a production release.
 
+Please see [our developer documentation](https://use.ink/docs/v6/contract-debugging)
+for more details.
+We've also added a contract example to illustrate these new debugging strategies:
+[`debugging-strategies`](https://github.com/use-ink/ink/tree/master/integration-tests/public/debugging-strategies).
+
 ### Restrictions which `cfg` attributes can be used
 
 This change was done as a recommendation from the ink! 5.x audit.
@@ -163,12 +168,52 @@ From ink! 6.0 on only these attributes are allowed in `#[cfg(…)]`:
 - `not`
 - `all`
 
+### Metadata Changes
+
+The field `source.wasm` was renamed to `source.contract_binary`.
+
+### `no_main`
+
+Previously ink! contracts started with this line:
+
+```rust
+#![cfg_attr(not(feature = "std"), no_std)]
+```
+
+This line instructs the Rust compiler to not link the Rust
+standard library with your contract.
+If you want to know about why:
+we have an entry
+["Why is Rust's standard library (stdlib) not available in ink!?"](./faq.md#why-no_std)
+Please see [our developer documentation](https://use.ink/docs/v6/faq/#why-no_std)
+in our FAQ.
+
+With ink! v6, an additional crate-level attribute needs to be set:
+
+```rust
+#![cfg_attr(not(feature = "std"), no_std, no_main)]
+```
+
+It instructs the compiler not to use the default `fn main() {}` function as the
+entry point for your smart contract. This is needed because PolkaVM uses a different
+entry point (the `deploy` function).
+
+### `substrate-contracts-node` can no longer be used
+The `substrate-contracts-node` is still maintained by Parity for ink! v5 and
+`pallet-contracts`, but it does not support `pallet-revive`.
+
+We've set up a new project in its place: [`ink-node`](https://github.com/use-ink/ink-node).
+As before, it functions as a simple local development node.
+It contains `pallet-revive` in a default configuration.
+You can find binary releases of the node [here](https://github.com/use-ink/ink-node/releases).
+
 ## Changed
 - Restrict which `cfg` attributes can be used ‒ [#2313](https://github.com/use-ink/ink/pull/2313)
 - More idiomatic return types for metadata getters - [#2398](https://github.com/use-ink/ink/pull/2398)
 
 ## Added
 - Support for `caller_is_root` - [#2332] (https://github.com/use-ink/ink/pull/2332)
+- Allow setting features for contract build in E2E tests - [#2460] (https://github.com/use-ink/ink/pull/2460)
 - Improve support for Solidity ABI calling conventions - [#2411](https://github.com/use-ink/ink/pull/2411)
 - Implement contract invocation in off-chain environment engine - [#1957](https://github.com/paritytech/ink/pull/1988)
 

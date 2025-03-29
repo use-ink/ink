@@ -99,10 +99,13 @@ pub struct BareInstantiationResult<EventLog> {
     pub events: EventLog,
     /// todo
     pub trace: Option<CallTrace>,
+    /// todo
+    pub code_hash: H256,
 }
 
 impl<EventLog> BareInstantiationResult<EventLog> {
-    /// Returns the account id at which the contract was instantiated.
+    /// Returns the address at which the contract was instantiated.
+    /// todo why this strange name? shouldn't it be `fn addr()`?
     pub fn call(&self) -> H160 {
         self.addr
     }
@@ -115,7 +118,8 @@ where
     EventLog: Debug,
 {
     fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
-        f.debug_struct("InstantiationResult")
+        // todo add missing fields
+        f.debug_struct("BareInstantiationResult")
             .field("addr", &self.addr)
             .field("events", &self.events)
             .field("trace", &self.trace)
@@ -134,10 +138,12 @@ pub struct InstantiationResult<E: Environment, EventLog> {
     pub events: EventLog,
     /// todo
     pub trace: Option<CallTrace>,
+    /// todo
+    pub code_hash: H256,
 }
 
 impl<E: Environment, EventLog> InstantiationResult<E, EventLog> {
-    /// Returns the account id at which the contract was instantiated.
+    /// Returns a call builder for the contract which was instantiated.
     pub fn call_builder<Contract>(&self) -> <Contract as ContractCallBuilder>::Type
     where
         Contract: ContractCallBuilder,
@@ -157,6 +163,7 @@ where
     EventLog: Debug,
 {
     fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
+        // todo add missing fields
         f.debug_struct("InstantiationResult")
             .field("addr", &self.addr)
             .field("dry_run", &self.dry_run)

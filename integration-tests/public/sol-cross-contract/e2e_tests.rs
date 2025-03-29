@@ -21,7 +21,7 @@ const STORAGE_DEPOSIT_LIMIT: DepositLimit<u128> = DepositLimit::Unchecked;
 
 #[test]
 fn call_sol_encoded_message() {
-    let built_contracts = ::ink_e2e::build_root_and_contract_dependencies();
+    let built_contracts = ::ink_e2e::build_root_and_contract_dependencies(vec![]);
     let contracts = ContractsRegistry::new(built_contracts);
 
     let mut sandbox = ink_e2e::DefaultSandbox::default();

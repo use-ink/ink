@@ -95,12 +95,21 @@ pub struct E2EConfig {
     /// The type of the architecture that should be used to run test.
     #[darling(default)]
     backend: Backend,
+    /// Features that are enabled in the contract during the build process.
+    /// todo add tests below in this file
+    #[darling(default)]
+    features: Vec<syn::LitStr>,
 }
 
 impl E2EConfig {
     /// Custom environment for the contracts, if specified.
     pub fn environment(&self) -> Option<syn::Path> {
         self.environment.clone()
+    }
+
+    /// Features for the contract build.
+    pub fn features(&self) -> Vec<String> {
+        self.features.iter().map(|ls| ls.value()).collect()
     }
 
     /// The type of the architecture that should be used to run test.

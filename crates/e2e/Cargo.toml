@@ -39,6 +39,7 @@ subxt-metadata = { workspace = true, optional = true }
 subxt-signer = { workspace = true, features = ["subxt", "sr25519", "unstable-eth"] }
 thiserror = { workspace = true }
 which = { workspace = true }
+sha3 = "0.10"
 
 # Substrate
 frame-support = { workspace = true }

@@ -87,3 +87,22 @@ impl ContractsRegistry {
         code
     }
 }
+
+/// Returns the `H256` hash of the code slice.
+pub fn code_hash(code: &[u8]) -> [u8; 32] {
+    h256_hash(code)
+}
+
+/// Returns the `H256` hash of the given `code` slice.
+fn h256_hash(code: &[u8]) -> [u8; 32] {
+    use sha3::{
+        Digest,
+        Keccak256,
+    };
+    let hash = Keccak256::digest(code);
+    let sl = hash.as_slice();
+    assert!(sl.len() == 32, "expected length of 32");
+    let mut arr = [0u8; 32];
+    arr.copy_from_slice(sl);
+    arr
+}

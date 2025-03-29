@@ -44,10 +44,12 @@ use std::{
 
 /// Builds the "root" contract (the contract in which the E2E tests are defined) together
 /// with any contracts which are a dependency of the root contract.
-pub fn build_root_and_contract_dependencies() -> Vec<PathBuf> {
+///
+/// todo explain features
+pub fn build_root_and_contract_dependencies(features: Vec<String>) -> Vec<PathBuf> {
     let contract_project = ContractProject::new();
     let contract_manifests = contract_project.root_with_contract_dependencies();
-    build_contracts(&contract_manifests)
+    build_contracts(&contract_manifests, features)
 }
 
 /// Access manifest paths of contracts which are part of the project in which the E2E
@@ -130,7 +132,10 @@ impl ContractProject {
 ///
 /// Only attempts to build a contract at the given path once only per test run, to avoid
 /// the attempt for different tests to build the same contract concurrently.
-fn build_contracts(contract_manifests: &[PathBuf]) -> Vec<PathBuf> {
+fn build_contracts(
+    contract_manifests: &[PathBuf],
+    features: Vec<String>,
+) -> Vec<PathBuf> {
     static CONTRACT_BUILD_JOBS: OnceLock<Mutex<HashMap<PathBuf, PathBuf>>> =
         OnceLock::new();
     let mut contract_build_jobs = CONTRACT_BUILD_JOBS
@@ -143,7 +148,7 @@ fn build_contracts(contract_manifests: &[PathBuf]) -> Vec<PathBuf> {
         let contract_binary_path = match contract_build_jobs.entry(manifest.clone()) {
             Entry::Occupied(entry) => entry.get().clone(),
             Entry::Vacant(entry) => {
-                let contract_binary_path = build_contract(manifest);
+                let contract_binary_path = build_contract(manifest, features.clone());
                 entry.insert(contract_binary_path.clone());
                 contract_binary_path
             }
@@ -155,18 +160,24 @@ fn build_contracts(contract_manifests: &[PathBuf]) -> Vec<PathBuf> {
 
 /// Builds the contract at `manifest_path`, returns the path to the contract
 /// PolkaVM build artifact.
-fn build_contract(path_to_cargo_toml: &Path) -> PathBuf {
+fn build_contract(
+    path_to_cargo_toml: &Path,
+    additional_features: Vec<String>,
+) -> PathBuf {
     let manifest_path = ManifestPath::new(path_to_cargo_toml).unwrap_or_else(|err| {
         panic!(
             "Invalid manifest path {}: {err}",
             path_to_cargo_toml.display()
         )
     });
+    // todo add method in Features to just construct with new(features)
+    let mut features = Features::default();
+    additional_features.iter().for_each(|f| features.push(f));
     let args = ExecuteArgs {
         manifest_path,
         verbosity: Verbosity::Default,
         build_mode: BuildMode::Debug,
-        features: Features::default(),
+        features,
         network: Network::Online,
         build_artifact: BuildArtifacts::All,
         unstable_flags: UnstableFlags::default(),
