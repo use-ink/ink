@@ -704,7 +704,7 @@ jobs:
                 rustup toolchain remove nightly-2025-02-20;
                 rustup toolchain remove stable;
                 rustup toolchain remove 1.85.0;
-                cargo +nightly test --test-threads 1 --all-features --all --manifest-path integration-tests/internal/mapping/Cargo.toml
+                cargo +nightly test --all-features --all --manifest-path integration-tests/internal/mapping/Cargo.toml -- --test-threads=1
 
   examples-custom-test:
     runs-on: ubuntu-latest
