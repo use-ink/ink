@@ -238,7 +238,7 @@ fn find_substrate_port_from_output(r: impl Read + Send + 'static) -> u16 {
         .unwrap_or_else(|| {
             panic!(
                 "Unable to extract port from spawned node, the reader ended.\n\
-            These are the lines we saw up until here: {}",
+            These are the lines we saw up until here:\n{}",
                 all_lines
             );
         })
