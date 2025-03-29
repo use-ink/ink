@@ -17,7 +17,6 @@ use core::iter;
 use crate::{
     generator,
     generator::solidity::{
-        sol_type,
         solidity_call_type_ident,
         solidity_selector,
         solidity_selector_id,
@@ -498,61 +497,6 @@ impl Dispatch<'_> {
             }
         };
 
-        // `alloy_sol_types::SolType` representation of input type(s).
-        let input_types_len = generator::input_types(message.inputs()).len();
-        let input_sol_tys = message.inputs().map(|input| {
-            let ty = &*input.ty;
-            let span = input.span();
-            let sol_ty = sol_type(ty);
-            quote_spanned!(span=>
-                #sol_ty
-            )
-        });
-        let input_sol_tuple = if input_types_len == 1 {
-            quote! {
-                #(#input_sol_tys)*
-            }
-        } else {
-            quote! {
-                (#(#input_sol_tys,)*)
-            }
-        };
-
-        // Convert from `alloy_sol_types::private::SolTypeValue` to input type(s).
-        let sol_to_input_arg_name = quote!(sol_input_value);
-        let sol_value_tuple_elems = message.inputs().enumerate().map(|(idx, input)| {
-            let ty = &*input.ty;
-            let span = input.span();
-            let value = if input_types_len == 1 {
-                sol_to_input_arg_name.clone()
-            } else {
-                let field_idx = syn::Index::from(idx);
-                quote! {
-                    #sol_to_input_arg_name.#field_idx
-                }
-            };
-            quote_spanned!(span=>
-                <#ty as ::core::convert::From<_>>::from(#value)
-            )
-        });
-        let sol_to_input_tuple_converter = match input_types_len {
-            0 => {
-                quote! {
-                    |_| ()
-                }
-            }
-            1 => {
-                quote! {
-                    |#sol_to_input_arg_name| #(#sol_value_tuple_elems)*
-                }
-            }
-            _ => {
-                quote! {
-                    |#sol_to_input_arg_name| (#(#sol_value_tuple_elems,)*)
-                }
-            }
-        };
-
         #[cfg(feature = "std")]
         let return_type = quote! { () };
         #[cfg(not(feature = "std"))]
@@ -571,10 +515,8 @@ impl Dispatch<'_> {
                     };
                 const DECODE: fn(&mut &[::core::primitive::u8]) -> ::core::result::Result<Self::Input, ::ink::env::DispatchError> =
                     |input| {
-                        #[allow(clippy::useless_conversion)]
-                        <#input_sol_tuple as ::ink::alloy_sol_types::SolType>
-                            ::abi_decode(input, false)
-                            .map(#sol_to_input_tuple_converter).map_err(|_| ::ink::env::DispatchError::InvalidParameters)
+                        <Self::Input as ::ink::SolDecode>::decode(input)
+                            .map_err(|_| ::ink::env::DispatchError::InvalidParameters)
                     };
                 const RETURN: fn(::ink::env::ReturnFlags, Self::Output) -> #return_type =
                     |flags, output| {
@@ -1211,8 +1153,6 @@ impl Dispatch<'_> {
     }
 
     /// Generates code for Solidity call info types for dispatchable ink! messages.
-    ///
-    /// See [`ink::alloy_sol_types::SolCall`]
     fn generate_solidity_call_info(&self) -> TokenStream2 {
         if self.contract.config().abi().is_solidity() {
             let span = self.contract.module().span();
@@ -1231,9 +1171,8 @@ impl Dispatch<'_> {
                     let sig_param_tys = message.inputs().map(|input| {
                         let ty = &*input.ty;
                         let span = input.span();
-                        let sol_ty = sol_type(ty);
                         quote_spanned!(span=>
-                            <#sol_ty as ::ink::alloy_sol_types::SolType>::SOL_NAME
+                            <#ty as ::ink::SolDecode>::SOL_NAME
                         )
                     });
                     let input_types_len = generator::input_types(message.inputs()).len();

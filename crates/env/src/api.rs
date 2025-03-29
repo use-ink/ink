@@ -54,6 +54,7 @@ use ink_primitives::{
         AbiDecodeWith,
         AbiEncodeWith,
     },
+    SolEncode,
     H160,
     H256,
     U256,
@@ -476,7 +477,7 @@ where
 /// This function  stops the execution of the contract immediately.
 pub fn return_value_solidity<R>(return_flags: ReturnFlags, return_value: &R) -> !
 where
-    R: alloy_sol_types::SolValue,
+    R: for<'a> SolEncode<'a>,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         EnvBackend::return_value_solidity::<R>(instance, return_flags, return_value)
