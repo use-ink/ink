@@ -282,8 +282,14 @@ mod tests {
         let res1 = client1.unwrap().chain_get_block_hash(None).await;
         let res2 = client2.unwrap().chain_get_block_hash(None).await;
 
-        assert!(res1.is_err(), "process 1: did not find err, but expected one");
-        assert!(res2.is_err(), "process 2: did not find err, but expected one");
+        assert!(
+            res1.is_err(),
+            "process 1: did not find err, but expected one"
+        );
+        assert!(
+            res2.is_err(),
+            "process 2: did not find err, but expected one"
+        );
     }
 
     #[test]
