@@ -704,7 +704,7 @@ jobs:
                 rustup toolchain remove nightly-2025-02-20;
                 rustup toolchain remove stable;
                 rustup toolchain remove 1.85.0;
-                cargo +nightly test --all-features --all --manifest-path integration-tests/internal/mapping/Cargo.toml
+                cargo +nightly test --test-threads 1 --all-features --all --manifest-path integration-tests/internal/mapping/Cargo.toml
 
   examples-custom-test:
     runs-on: ubuntu-latest
@@ -730,17 +730,6 @@ jobs:
       - name: Rust Info
         uses: ./.github/rust-info
 
-      - name: Test static-buffer example
-        env:
-          # Fix linking of `linkme`: https://github.com/dtolnay/linkme/issues/49
-          RUSTFLAGS: -Clink-arg=-z -Clink-arg=nostart-stop-gc -Clink-dead-code
-        run: |
-          # run the static buffer test with a custom buffer size.
-          # the readme + test comments explain why `32`, in short because the tests write
-          # content into the buffer and want to provoke an exhaustion of the buffer.
-          cargo clean --manifest-path integration-tests/internal/static-buffer/Cargo.toml
-          INK_STATIC_BUFFER_SIZE=32 cargo +nightly-2025-02-20 test --manifest-path integration-tests/internal/static-buffer/Cargo.toml --all-features
-
       - name: Run E2E test with on-chain contract
         # todo disabled until `cargo-contract` supports mapping the account
         if: false
@@ -760,6 +749,17 @@ jobs:
             --manifest-path integration-tests/public/flipper/Cargo.toml \
             e2e_test_deployed_contract \
             -- --ignored --nocapture
+
+      - name: Test static-buffer example
+        env:
+            # Fix linking of `linkme`: https://github.com/dtolnay/linkme/issues/49
+            RUSTFLAGS: -Clink-arg=-z -Clink-arg=nostart-stop-gc -Clink-dead-code
+        run: |
+            # run the static buffer test with a custom buffer size.
+            # the readme + test comments explain why `32`, in short because the tests write
+            # content into the buffer and want to provoke an exhaustion of the buffer.
+            cargo clean --manifest-path integration-tests/internal/static-buffer/Cargo.toml
+            INK_STATIC_BUFFER_SIZE=32 cargo +nightly-2025-02-20 test --manifest-path integration-tests/internal/static-buffer/Cargo.toml --all-features
 
   examples-contract-build-riscv:
     runs-on: ubuntu-latest
@@ -1001,7 +1001,10 @@ jobs:
           - name: Download artifact
             uses: dawidd6/action-download-artifact@v9
             with:
+                # workflow: ci.yml
                 name: measurements-${{ steps.extract_branch.outputs.branch }}
+                # branch: ${{ steps.extract_branch.outputs.branch }}
+                run_id: ${{ github.event.workflow_run.id }}
 
           - name: Download master artifact
             uses: dawidd6/action-download-artifact@v9
