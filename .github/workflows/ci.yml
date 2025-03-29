@@ -998,6 +998,16 @@ jobs:
                 echo "head_in_branch=$head_in_branch" >> $GITHUB_OUTPUT
             id: extract_github
 
+          - name: Extract branch name
+            shell: bash
+            run: echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
+            id: extract_branch
+
+          - name: Output branch name
+            run: |
+                echo "${{ steps.extract_branch.outputs.branch }}"
+                echo "${{ steps.extract_github.outputs.head_in_branch }}"
+
           - name: Download artifact
             uses: dawidd6/action-download-artifact@v9
             with:
@@ -1012,16 +1022,6 @@ jobs:
                 workflow: ci.yml
                 branch: master
                 name: measurements-master
-
-          - name: Extract branch name
-            shell: bash
-            run: echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
-            id: extract_branch
-
-          - name: Output branch name
-            run: |
-                echo "${{ steps.extract_branch.outputs.branch }}"
-                echo "${{ steps.extract_github.outputs.head_in_branch }}"
 
           - name: Collect Contract Sizes
             run: |
