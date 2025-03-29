@@ -174,8 +174,7 @@ mod debugging_strategies {
             let return_data = call_res.return_data();
             assert!(call_res.did_revert());
             let revert_msg = String::from_utf8_lossy(&return_data[..]);
-            assert!(revert_msg
-                .contains("reverting with info: 0"));
+            assert!(revert_msg.contains("reverting with info: 0"));
 
             Ok(())
         }

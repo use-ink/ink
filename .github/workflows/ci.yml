@@ -831,11 +831,8 @@ jobs:
 
       - name: Combine contract sizes from individual examples
         run: |
-            find .
-            cat downloaded_artifacts/*/*  | \
             sed -e 's/^integration-tests\/\(public\/\|internal\/\)\?//' | \
             sort | uniq > measurements-${{ steps.extract_branch.outputs.branch }}
-            echo "----"
             cat measurements-${{ steps.extract_branch.outputs.branch }}
 
       - uses: actions/upload-artifact@v4
@@ -1023,6 +1020,7 @@ jobs:
             with:
                 workflow: ci.yml
                 name: measurements-${{ steps.extract_branch.outputs.branch }}
+                branch: ${{ steps.extract_branch.outputs.branch }}
 
           - name: Collect Contract Sizes
             run: |

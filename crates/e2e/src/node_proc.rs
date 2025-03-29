@@ -197,12 +197,13 @@ where
 // Consume a stderr reader from a spawned substrate command and
 // locate the port number that is logged out to it.
 fn find_substrate_port_from_output(r: impl Read + Send + 'static) -> u16 {
+    let mut all_lines = String::new();
     BufReader::new(r)
         .lines()
         .find_map(|line| {
             let line =
                 line.expect("failed to obtain next line from stdout for port discovery");
-            eprintln!("line: {}", line);
+            all_lines.push_str(&format!("{}\n", line));
 
             // does the line contain our port (we expect this specific output from
             // substrate).
@@ -234,7 +235,13 @@ fn find_substrate_port_from_output(r: impl Read + Send + 'static) -> u16 {
 
             Some(port_num)
         })
-        .expect("We should find a port before the reader ends")
+        .unwrap_or_else(|| {
+            panic!(
+                "Unable to extract port from spawned node, the reader ended.\n\
+            These are the lines we saw up until here: {}",
+                all_lines
+            );
+        })
 }
 
 #[cfg(test)]
