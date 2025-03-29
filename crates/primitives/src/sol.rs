@@ -36,6 +36,7 @@ pub use bytes::AsSolBytes;
 use primitive_types::{
     H160,
     H256,
+    U256,
 };
 pub use types::{
     SolTypeDecode,
@@ -44,6 +45,7 @@ pub use types::{
 
 use crate::types::{
     AccountId,
+    Address,
     Hash,
 };
 
@@ -135,7 +137,7 @@ pub trait SolDecode {
 /// ```
 pub trait SolEncode<'a> {
     /// Equivalent Solidity ABI type representation.
-    type SolType: SolTypeEncode + 'a;
+    type SolType: SolTypeEncode;
 
     /// Name of equivalent Solidity ABI type.
     const SOL_NAME: &'static str =
@@ -151,6 +153,58 @@ pub trait SolEncode<'a> {
     fn to_sol_type(&'a self) -> Self::SolType;
 }
 
+macro_rules! impl_primitive_decode {
+    ($($ty: ty),+ $(,)*) => {
+        $(
+            impl SolDecode for $ty {
+                type SolType = $ty;
+
+                fn from_sol_type(value: Self::SolType) -> Self {
+                    value
+                }
+            }
+        )*
+    };
+}
+
+macro_rules! impl_primitive_encode {
+    ($($ty: ty),+ $(,)*) => {
+        $(
+            impl<'a> SolEncode<'a> for $ty {
+                type SolType = &'a $ty;
+
+                fn to_sol_type(&'a self) -> Self::SolType {
+                    self
+                }
+            }
+        )*
+    };
+}
+
+macro_rules! impl_primitive {
+    ($($ty: ty),+ $(,)*) => {
+        $(
+            impl_primitive_decode!($ty);
+
+            impl_primitive_encode!($ty);
+        )*
+    };
+}
+
+impl_primitive! {
+    // bool
+    bool,
+    // signed integers
+    i8, i16, i32, i64, i128,
+    // unsigned integers
+    u8, u16, u32, u64, u128, U256,
+    // string
+    String,
+    // address
+    Address,
+}
+
+// Rust array <-> Solidity fixed-sized array (i.e. `T[N]`).
 impl<T: SolDecode, const N: usize> SolDecode for [T; N] {
     type SolType = [T::SolType; N];
 
@@ -167,6 +221,7 @@ impl<'a, T: SolEncode<'a>, const N: usize> SolEncode<'a> for [T; N] {
     }
 }
 
+// Rust `Vec` <-> Solidity dynamic size array (i.e. `T[]`).
 impl<T: SolDecode> SolDecode for Vec<T> {
     type SolType = Vec<T::SolType>;
 
@@ -259,7 +314,7 @@ impl SolEncode<'_> for AccountId {
         // NOTE: Not actually used for encoding because of `encode` override above (for
         // better performance).
         // Arbitrary newtype wrappers can achieve similar performance (without overriding
-        // `encode`) by using  `AsSolBytes<[u8; 32]>` as the inner type and returning
+        // `encode`) by using `AsSolBytes<[u8; 32]>` as the inner type and returning
         // `&self.0`.
         AsSolBytes(self.0)
     }
@@ -286,7 +341,7 @@ impl SolEncode<'_> for Hash {
         // NOTE: Not actually used for encoding because of `encode` override above (for
         // better performance).
         // Arbitrary newtype wrappers can achieve similar performance (without overriding
-        // `encode`) by using  `AsSolBytes<[u8; 32]>` as the inner type and returning
+        // `encode`) by using `AsSolBytes<[u8; 32]>` as the inner type and returning
         // `&self.0`.
         AsSolBytes::<[u8; 32]>((*self).into())
     }
@@ -313,7 +368,7 @@ impl SolEncode<'_> for H256 {
         // NOTE: Not actually used for encoding because of `encode` override above (for
         // better performance).
         // Arbitrary newtype wrappers can achieve similar performance (without overriding
-        // `encode`) by using  `AsSolBytes<[u8; 32]>` as the inner type and returning
+        // `encode`) by using `AsSolBytes<[u8; 32]>` as the inner type and returning
         // `&self.0`.
         AsSolBytes(self.0)
     }
@@ -323,7 +378,7 @@ impl SolEncode<'_> for H256 {
 // TODO: (@davidsemakula) Evaluate if it's worth removing this mapping, or changing it to
 // `address` before v6 release.
 // Rationale: while this mapping is technically correct, it may be confusing for ink!
-// devs, or just needless increase the cognitive load.
+// devs, or just needlessly increase the cognitive load.
 impl SolDecode for H160 {
     type SolType = AsSolBytes<[u8; 20]>;
 
@@ -344,7 +399,7 @@ impl SolEncode<'_> for H160 {
         // NOTE: Not actually used for encoding because of `encode` override above (for
         // better performance).
         // Arbitrary newtype wrappers can achieve similar performance (without overriding
-        // `encode`) by using  `AsSolBytes<[u8; 32]>` as the inner type and returning
+        // `encode`) by using `AsSolBytes<[u8; 32]>` as the inner type and returning
         // `&self.0`.
         AsSolBytes(self.0)
     }

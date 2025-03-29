@@ -36,13 +36,7 @@ use ink_prelude::{
 use paste::paste;
 use primitive_types::U256;
 
-use crate::{
-    sol::{
-        SolDecode,
-        SolEncode,
-    },
-    types::Address,
-};
+use crate::types::Address;
 
 /// A Rust/ink! equivalent of a Solidity ABI type that implements logic for Solidity ABI
 /// decoding.
@@ -133,14 +127,6 @@ macro_rules! impl_primitive_decode {
                     <Self::AlloyType as AlloySolType>::detokenize(token)
                 }
             }
-
-            impl SolDecode for $ty {
-                type SolType = $ty;
-
-                fn from_sol_type(value: Self::SolType) -> Self {
-                    value
-                }
-            }
         )*
     };
 }
@@ -153,14 +139,6 @@ macro_rules! impl_primitive_encode {
 
                 fn tokenize(&self) -> <Self::AlloyType as AlloySolType>::Token<'_> {
                     <Self::AlloyType as AlloySolType>::tokenize(self)
-                }
-            }
-
-            impl<'a> SolEncode<'a> for $ty {
-                type SolType = &'a $ty;
-
-                fn to_sol_type(&'a self) -> Self::SolType {
-                    self
                 }
             }
         )*
@@ -198,7 +176,6 @@ impl_primitive! {
     // bool
     bool => sol_data::Bool,
     // string
-    //str => sol_data::String,
     String => sol_data::String,
 }
 
@@ -214,6 +191,7 @@ impl SolTypeDecode for Address {
         Address::try_from(&token.0 .0[12..]).expect("Expected a 20 byte slice")
     }
 }
+
 impl SolTypeEncode for Address {
     type AlloyType = sol_data::Address;
 
@@ -226,20 +204,7 @@ impl SolTypeEncode for Address {
         WordToken::from(word)
     }
 }
-impl SolDecode for Address {
-    type SolType = Address;
 
-    fn from_sol_type(value: Self::SolType) -> Self {
-        value
-    }
-}
-impl<'a> SolEncode<'a> for Address {
-    type SolType = &'a Address;
-
-    fn to_sol_type(&'a self) -> Self::SolType {
-        self
-    }
-}
 impl private::Sealed for Address {}
 
 // U256 <-> uint256
@@ -260,22 +225,6 @@ impl SolTypeEncode for U256 {
         // `Borrow<alloy_sol_types::private::U256>`. And both the `U256` and
         // `Borrow` are foreign, so we can't just implement it.
         WordToken::from(self.to_big_endian())
-    }
-}
-
-impl SolDecode for U256 {
-    type SolType = U256;
-
-    fn from_sol_type(value: Self::SolType) -> Self {
-        value
-    }
-}
-
-impl<'a> SolEncode<'a> for U256 {
-    type SolType = &'a U256;
-
-    fn to_sol_type(&'a self) -> Self::SolType {
-        self
     }
 }
 
