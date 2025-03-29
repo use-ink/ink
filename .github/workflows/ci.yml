@@ -1011,10 +1011,10 @@ jobs:
           - name: Download artifact
             uses: dawidd6/action-download-artifact@v9
             with:
-                # workflow: ci.yml
                 name: measurements-${{ steps.extract_branch.outputs.branch }}
+                run_id: ${{ github.run_id }}
+                # workflow: ci.yml
                 # branch: ${{ steps.extract_branch.outputs.branch }}
-                run_id: ${{ github.event.workflow_run.id }}
 
           - name: Download master artifact
             uses: dawidd6/action-download-artifact@v9
