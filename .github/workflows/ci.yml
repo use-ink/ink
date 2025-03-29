@@ -998,6 +998,11 @@ jobs:
                 echo "head_in_branch=$head_in_branch" >> $GITHUB_OUTPUT
             id: extract_github
 
+          - name: Download artifact
+            uses: dawidd6/action-download-artifact@v9
+            with:
+                name: measurements-${{ steps.extract_branch.outputs.branch }}
+
           - name: Download master artifact
             uses: dawidd6/action-download-artifact@v9
             with:
@@ -1014,13 +1019,6 @@ jobs:
             run: |
                 echo "${{ steps.extract_branch.outputs.branch }}"
                 echo "${{ steps.extract_github.outputs.head_in_branch }}"
-
-          - name: Download artifact
-            uses: dawidd6/action-download-artifact@v9
-            with:
-                workflow: ci.yml
-                name: measurements-${{ steps.extract_branch.outputs.branch }}
-                branch: ${{ steps.extract_branch.outputs.branch }}
 
           - name: Collect Contract Sizes
             run: |
