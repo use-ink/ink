@@ -95,10 +95,10 @@ pub use ink_macro::{
 };
 pub use ink_primitives::{
     Address,
-    AsSolBytes,
     ConstructorResult,
     LangError,
     MessageResult,
+    SolBytes,
     SolDecode,
     SolEncode,
     H160,

@@ -18,8 +18,8 @@
 use alloy_sol_types::{
     private::{
         Address as AlloyAddress,
-        Bytes as SolBytes,
-        FixedBytes as SolFixedBytes,
+        Bytes as AlloyBytes,
+        FixedBytes as AlloyFixedBytes,
     },
     sol_data,
     SolType as AlloySolType,
@@ -37,7 +37,7 @@ use primitive_types::{
 
 use crate::{
     sol::{
-        AsSolBytes,
+        SolBytes,
         SolDecode,
         SolEncode,
         SolTypeDecode,
@@ -217,8 +217,8 @@ fn fixed_bytes_works() {
             ($($size: literal),+ $(,)*) => {
                 $(
                     test_case!(
-                        AsSolBytes<[u8; $size]>, AsSolBytes([100u8; $size]),
-                        SolFixedBytes<$size>, SolValue, SolFixedBytes([100u8; $size]),
+                        SolBytes<[u8; $size]>, SolBytes([100u8; $size]),
+                        AlloyFixedBytes<$size>, SolValue, AlloyFixedBytes([100u8; $size]),
                         [.unwrap().0], [.unwrap().0]
                     );
                 )+
@@ -237,12 +237,12 @@ fn bytes_works() {
             ($($fixture_size: literal),+ $(,)*) => {
                 $(
                     let data = Vec::from([100u8; $fixture_size]);
-                    let bytes = AsSolBytes(data.clone());
-                    let sol_bytes = SolBytes::from(data);
+                    let bytes = SolBytes(data.clone());
+                    let sol_bytes = AlloyBytes::from(data);
 
                     test_case!(
-                        AsSolBytes<Vec<u8>>, bytes,
-                        SolBytes, SolValue, sol_bytes,
+                        SolBytes<Vec<u8>>, bytes,
+                        AlloyBytes, SolValue, sol_bytes,
                         [.unwrap().as_slice()], [.unwrap().as_ref()]
                     );
                 )+
@@ -283,22 +283,22 @@ fn tuple_works() {
 
     // fixed-size byte arrays.
     test_case!(
-        (AsSolBytes<[u8; 32]>,),
-        (AsSolBytes([100u8; 32]),),
-        (SolFixedBytes<32>,),
+        (SolBytes<[u8; 32]>,),
+        (SolBytes([100u8; 32]),),
+        (AlloyFixedBytes<32>,),
         SolValue,
-        (SolFixedBytes([100u8; 32]),),
+        (AlloyFixedBytes([100u8; 32]),),
         [.unwrap().0.0],
         [.unwrap().0.0]
     );
 
     // dynamic size byte arrays.
     test_case!(
-        (AsSolBytes<Vec<u8>>,),
-        (AsSolBytes(Vec::from([100u8; 64])),),
-        (SolBytes,),
+        (SolBytes<Vec<u8>>,),
+        (SolBytes(Vec::from([100u8; 64])),),
+        (AlloyBytes,),
         SolValue,
-        (SolBytes::from([100u8; 64]),),
+        (AlloyBytes::from([100u8; 64]),),
         [.unwrap().0.0],
         [.unwrap().0.0]
     );
@@ -309,9 +309,9 @@ fn account_id_works() {
     test_case_codec!(
         AccountId,
         AccountId([1; 32]),
-        SolFixedBytes<32>,
+        AlloyFixedBytes<32>,
         SolValue,
-        SolFixedBytes([1; 32]),
+        AlloyFixedBytes([1; 32]),
         [.unwrap().0],
         [.unwrap().0]
     );
@@ -322,9 +322,9 @@ fn hash_works() {
     test_case_codec!(
         Hash,
         Hash::from([1; 32]),
-        SolFixedBytes<32>,
+        AlloyFixedBytes<32>,
         SolValue,
-        SolFixedBytes([1; 32]),
+        AlloyFixedBytes([1; 32]),
         [.unwrap().as_ref()],
         [.unwrap().0.as_slice()]
     );
@@ -335,9 +335,9 @@ fn h256_works() {
     test_case_codec!(
         H256,
         H256([1; 32]),
-        SolFixedBytes<32>,
+        AlloyFixedBytes<32>,
         SolValue,
-        SolFixedBytes([1; 32]),
+        AlloyFixedBytes([1; 32]),
         [.unwrap().0],
         [.unwrap().0]
     );
@@ -349,9 +349,9 @@ fn h160_works() {
     test_case_codec!(
         H160,
         H160([1; 20]),
-        SolFixedBytes<20>,
+        AlloyFixedBytes<20>,
         SolValue,
-        SolFixedBytes([1; 20]),
+        AlloyFixedBytes([1; 20]),
         [.unwrap().0],
         [.unwrap().0]
     );
@@ -462,18 +462,18 @@ fn encode_refs_works() {
 
     // fixed bytes refs
     test_case_encode!(
-        &AsSolBytes<[u8; 32]>, &AsSolBytes([100u8; 32]),
-        SolFixedBytes<32>, SolValue, SolFixedBytes([100u8; 32]),
+        &SolBytes<[u8; 32]>, &SolBytes([100u8; 32]),
+        AlloyFixedBytes<32>, SolValue, AlloyFixedBytes([100u8; 32]),
         [.unwrap().0], [.unwrap().0]
     );
 
     // dynamic bytes refs
     let data = Vec::from([100u8; 64]);
-    let bytes = AsSolBytes(data.clone());
-    let sol_bytes = SolBytes::from(data);
+    let bytes = SolBytes(data.clone());
+    let sol_bytes = AlloyBytes::from(data);
     test_case_encode!(
-        &AsSolBytes<Vec<u8>>, &bytes,
-        SolBytes, SolValue, sol_bytes,
+        &SolBytes<Vec<u8>>, &bytes,
+        AlloyBytes, SolValue, sol_bytes,
         [.unwrap().as_slice()], [.unwrap().as_ref()]
     );
 

@@ -44,48 +44,48 @@ use crate::sol::{
 ///
 /// | Rust/ink! type | Solidity ABI type | Notes |
 /// | -------------- | ----------------- | ----- |
-/// | `AsSolBytes<[u8; N]>` for `1 <= N <= 32` |  `bytesN` | e.g. `AsSolBytes<[u8; 1]>` <=> `bytes1` |
-/// | `AsSolBytes<Vec<u8>>` |  `bytes` ||
+/// | `SolBytes<[u8; N]>` for `1 <= N <= 32` |  `bytesN` | e.g. `SolBytes<[u8; 1]>` <=> `bytes1` |
+/// | `SolBytes<Vec<u8>>` |  `bytes` ||
 ///
 /// Ref: <https://docs.soliditylang.org/en/latest/types.html#fixed-size-byte-arrays>
 ///
 /// Ref: <https://docs.soliditylang.org/en/latest/types.html#bytes-and-string-as-arrays>
 #[derive(Debug, Clone, Encode, Decode)]
 #[cfg_attr(feature = "std", derive(TypeInfo))]
-pub struct AsSolBytes<T: SolByteType>(pub T);
+pub struct SolBytes<T: SolBytesType>(pub T);
 
 // Implement `SolTypeDecode` and `SolTypeEncode` for `AsBytes<T> where T: ByteType`.
-impl<T: SolByteType> SolTypeDecode for AsSolBytes<T> {
+impl<T: SolBytesType> SolTypeDecode for SolBytes<T> {
     type AlloyType = T::AlloyType;
 
     fn detokenize(token: <Self::AlloyType as AlloySolType>::Token<'_>) -> Self {
-        // Takes advantage of optimized `SolByteType::detokenize` implementations and
+        // Takes advantage of optimized `SolBytesType::detokenize` implementations and
         // skips unnecessary conversions to `T::AlloyType::RustType`.
-        Self(<T as SolByteType>::detokenize(token))
+        Self(<T as SolBytesType>::detokenize(token))
     }
 }
 
-impl<T: SolByteType> SolTypeEncode for AsSolBytes<T> {
+impl<T: SolBytesType> SolTypeEncode for SolBytes<T> {
     type AlloyType = T::AlloyType;
 
     fn tokenize(&self) -> <Self::AlloyType as AlloySolType>::Token<'_> {
-        <T as SolByteType>::tokenize(self)
+        <T as SolBytesType>::tokenize(self)
     }
 }
 
-impl<T: SolByteType> crate::sol::types::private::Sealed for AsSolBytes<T> {}
+impl<T: SolBytesType> crate::sol::types::private::Sealed for SolBytes<T> {}
 
 // Implement `SolDecode` and `SolEncode` for `AsBytes<T> where T: ByteType`.
-impl<T: SolByteType> SolDecode for AsSolBytes<T> {
-    type SolType = AsSolBytes<T>;
+impl<T: SolBytesType> SolDecode for SolBytes<T> {
+    type SolType = SolBytes<T>;
 
     fn from_sol_type(value: Self::SolType) -> Self {
         value
     }
 }
 
-impl<'a, T: SolByteType + 'a> SolEncode<'a> for AsSolBytes<T> {
-    type SolType = &'a AsSolBytes<T>;
+impl<'a, T: SolBytesType + 'a> SolEncode<'a> for SolBytes<T> {
+    type SolType = &'a SolBytes<T>;
 
     fn to_sol_type(&'a self) -> Self::SolType {
         self
@@ -93,7 +93,7 @@ impl<'a, T: SolByteType + 'a> SolEncode<'a> for AsSolBytes<T> {
 }
 
 // Implement core/standard traits for cheap representations as the inner type.
-impl<T: SolByteType> Deref for AsSolBytes<T> {
+impl<T: SolBytesType> Deref for SolBytes<T> {
     type Target = T;
 
     fn deref(&self) -> &Self::Target {
@@ -101,19 +101,19 @@ impl<T: SolByteType> Deref for AsSolBytes<T> {
     }
 }
 
-impl<T: SolByteType> Borrow<T> for AsSolBytes<T> {
+impl<T: SolBytesType> Borrow<T> for SolBytes<T> {
     fn borrow(&self) -> &T {
         &self.0
     }
 }
 
-impl<T: SolByteType> AsRef<T> for AsSolBytes<T> {
+impl<T: SolBytesType> AsRef<T> for SolBytes<T> {
     fn as_ref(&self) -> &T {
         &self.0
     }
 }
 
-impl AsRef<[u8]> for AsSolBytes<Vec<u8>> {
+impl AsRef<[u8]> for SolBytes<Vec<u8>> {
     fn as_ref(&self) -> &[u8] {
         &self.0
     }
@@ -128,7 +128,7 @@ impl AsRef<[u8]> for AsSolBytes<Vec<u8>> {
 ///
 /// # Note
 /// This trait is sealed and cannot be implemented for types outside `ink_primitives`.
-pub trait SolByteType: private::Sealed {
+pub trait SolBytesType: private::Sealed {
     /// Equivalent Solidity ABI bytes type from [`alloy_sol_types`].
     type AlloyType: AlloySolType;
 
@@ -139,8 +139,8 @@ pub trait SolByteType: private::Sealed {
     fn detokenize(token: <Self::AlloyType as AlloySolType>::Token<'_>) -> Self;
 }
 
-// Implement `SolByteType` for `[u8; N]` and `Vec<u8>`.
-impl<const N: usize> SolByteType for [u8; N]
+// Implement `SolBytesType` for `[u8; N]` and `Vec<u8>`.
+impl<const N: usize> SolBytesType for [u8; N]
 where
     sol_data::ByteCount<N>: sol_data::SupportedFixedBytes,
 {
@@ -167,7 +167,7 @@ where
 
 impl<const N: usize> private::Sealed for [u8; N] {}
 
-impl SolByteType for Vec<u8> {
+impl SolBytesType for Vec<u8> {
     type AlloyType = sol_data::Bytes;
 
     fn tokenize(&self) -> <Self::AlloyType as AlloySolType>::Token<'_> {
@@ -187,6 +187,6 @@ impl SolByteType for Vec<u8> {
 impl private::Sealed for Vec<u8> {}
 
 mod private {
-    /// Seals the implementation of `SolByteType`.
+    /// Seals the implementation of `SolBytesType`.
     pub trait Sealed {}
 }

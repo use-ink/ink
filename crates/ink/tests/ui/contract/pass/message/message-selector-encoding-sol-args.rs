@@ -18,7 +18,7 @@ mod contract {
         pub fn message_1(&self, _input_1: i8) {}
 
         #[ink(message, selector = 0xC0DE_CAFE)]
-        pub fn message_2(&self, _input_1: AsSolBytes<[u8; 32]>) {}
+        pub fn message_2(&self, _input_1: SolBytes<[u8; 32]>) {}
 
         #[ink(message)]
         pub fn message_3(&self, _input_1: bool, _input_2: i8) {}
@@ -27,12 +27,12 @@ mod contract {
     #[ink::trait_definition]
     pub trait Messages {
         #[ink(message, selector = 0x12345678)]
-        fn message_4(&self, _input_1: AsSolBytes<Vec<u8>>);
+        fn message_4(&self, _input_1: SolBytes<Vec<u8>>);
     }
 
     impl Messages for Contract {
         #[ink(message, selector = 0x12345678)]
-        fn message_4(&self, _input_1: AsSolBytes<Vec<u8>>) {}
+        fn message_4(&self, _input_1: SolBytes<Vec<u8>>) {}
     }
 
     impl Contract {
@@ -44,8 +44,8 @@ mod contract {
             &self,
             _input_1: bool,
             _input_2: String,
-            _input_3: AsSolBytes<[u8; 32]>,
-            _input_4: AsSolBytes<Vec<u8>>,
+            _input_3: SolBytes<[u8; 32]>,
+            _input_4: SolBytes<Vec<u8>>,
             _input_5: [u16; 4],
             _input_6: Vec<u16>,
         ) {
