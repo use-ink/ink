@@ -358,7 +358,7 @@ fn h160_works() {
 }
 
 #[test]
-fn custom_type() {
+fn custom_type_works() {
     // Example arbitrary type.
     struct MyType {
         size: i8,
@@ -401,5 +401,101 @@ fn custom_type() {
         (100i8, true),
         [.unwrap().into_tuple()],
         [.unwrap()]
+    );
+}
+
+#[test]
+fn encode_refs_works() {
+    macro_rules! test_case_encode {
+        ($ty: ty, $val: expr) => {
+            test_case_encode!($ty, $val, $ty, alloy_sol_types::SolValue, $val, [], [])
+        };
+        ($ty: ty, $val: expr, $sol_ty: ty, $sol_trait: ty) => {
+            test_case_encode!($ty, $val, $sol_ty, $sol_trait, $val, [], [])
+        };
+        ($ty: ty, $val: expr, $sol_ty: ty, $sol_trait: ty, $sol_val: expr, [$($ty_cvt: tt)*], [$($sol_ty_cvt: tt)*]) => {
+            // `SolTypeEncode` test.
+            let encoded = <$ty as SolTypeEncode>::encode(&$val);
+            let encoded_alloy = <$sol_ty as $sol_trait>::abi_encode(&$sol_val);
+            assert_eq!(encoded, encoded_alloy);
+
+            // `SolEncode` test.
+            let encoded = <$ty as SolEncode>::encode(&$val);
+            let encoded_alloy = <$sol_ty as $sol_trait>::abi_encode(&$sol_val);
+            assert_eq!(encoded, encoded_alloy);
+        };
+    }
+
+    // bool
+    test_case_encode!(&bool, &true, bool, SolValue, true, [], []);
+
+    // integers
+    test_case_encode!(&i8, &-100i8);
+    test_case_encode!(&u128, &1_000_000_000_000u128);
+    // U256
+    use alloy_sol_types::private::U256 as AlloyU256;
+    let value = 1_000_000_000_000_000u128;
+    let bytes = value.to_be_bytes();
+    test_case_encode!(
+        &U256, &U256::from(value),
+        AlloyU256, SolValue, AlloyU256::try_from_be_slice(bytes.as_slice()).unwrap(),
+        [.unwrap().to_big_endian()], [.unwrap().to_be_bytes()]
+    );
+
+    // strings
+    test_case_encode!(&str, "");
+    test_case_encode!(&str, "Hello, world!");
+    test_case_encode!(&String, &String::from("Hello, world!"));
+
+    // address
+    test_case_encode!(
+        &Address, &Address([1; 20]),
+        AlloyAddress, SolValue, AlloyAddress::from([1; 20]),
+        [.unwrap().0], [.unwrap().0]
+    );
+
+    // array refs
+    test_case_encode!(&[i8; 8], &[100i8; 8]);
+
+    // slices
+    test_case_encode!(&[i8], &[100i8; 8].as_slice());
+
+    // fixed bytes refs
+    test_case_encode!(
+        &AsSolBytes<[u8; 32]>, &AsSolBytes([100u8; 32]),
+        SolFixedBytes<32>, SolValue, SolFixedBytes([100u8; 32]),
+        [.unwrap().0], [.unwrap().0]
+    );
+
+    // dynamic bytes refs
+    let data = Vec::from([100u8; 64]);
+    let bytes = AsSolBytes(data.clone());
+    let sol_bytes = SolBytes::from(data);
+    test_case_encode!(
+        &AsSolBytes<Vec<u8>>, &bytes,
+        SolBytes, SolValue, sol_bytes,
+        [.unwrap().as_slice()], [.unwrap().as_ref()]
+    );
+
+    // tuple refs
+    test_case_encode!(
+        &(bool, i8, u32, String),
+        &(true, 100i8, 1_000_000u32, String::from("Hello, world!")),
+        (bool, i8, u32, String),
+        SolValue,
+        (true, 100i8, 1_000_000u32, String::from("Hello, world!")),
+        [],
+        []
+    );
+
+    // tuple of refs
+    test_case_encode!(
+        (&bool, &i8, &u32, &str),
+        (&true, &100i8, &1_000_000u32, "Hello, world!"),
+        (bool, i8, u32, String),
+        SolValue,
+        (true, 100i8, 1_000_000u32, String::from("Hello, world!")),
+        [],
+        []
     );
 }

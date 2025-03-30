@@ -29,6 +29,7 @@ use impl_trait_for_tuples::impl_for_tuples;
 use ink_prelude::{
     borrow::Cow,
     boxed::Box,
+    string::String,
     vec::Vec,
 };
 
