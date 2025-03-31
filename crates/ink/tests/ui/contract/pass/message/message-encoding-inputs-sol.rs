@@ -43,6 +43,8 @@ mod contract {
             _input_0: AccountId,
             _input_1: Hash,
             _input_2: Address,
+            _input_3: SolBytes<[u8; 32]>,
+            _input_4: SolBytes<Vec<u8>>,
         ) {
         }
     }

@@ -1,3 +1,5 @@
+#![allow(unexpected_cfgs)]
+
 use contract::Contract;
 
 #[ink::contract(abi = "all")]

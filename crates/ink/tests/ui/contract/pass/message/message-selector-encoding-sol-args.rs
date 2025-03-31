@@ -1,3 +1,5 @@
+#![allow(unexpected_cfgs)]
+
 use contract::Contract;
 
 #[ink::contract(abi = "sol")]
@@ -15,7 +17,7 @@ mod contract {
         pub fn message_0(&self, _input_1: bool) {}
 
         #[ink(message, selector = 1)]
-        pub fn message_1(&self, _input_1: i8) {}
+        pub fn message_1(&self, _input_1: u8) {}
 
         #[ink(message, selector = 0xC0DE_CAFE)]
         pub fn message_2(&self, _input_1: SolBytes<[u8; 32]>) {}
@@ -46,8 +48,8 @@ mod contract {
             _input_2: String,
             _input_3: SolBytes<[u8; 32]>,
             _input_4: SolBytes<Vec<u8>>,
-            _input_5: [u16; 4],
-            _input_6: Vec<u16>,
+            _input_5: [u8; 4],
+            _input_6: Vec<u8>,
         ) {
         }
 
@@ -63,10 +65,10 @@ fn main() {
         [0xc5, 0x8b, 0x71, 0x75],
     );
 
-    // `keccak256("message_1(int8)")` == `0xb316130f`
+    // `keccak256("message_1(uint8)")` == `0xe4634c56`
     assert_eq!(
-        <Contract as ::ink::reflect::DispatchableMessageInfo<0xb316130f_u32>>::SELECTOR,
-        [0xb3, 0x16, 0x13, 0x0f],
+        <Contract as ::ink::reflect::DispatchableMessageInfo<0xe4634c56_u32>>::SELECTOR,
+        [0xe4, 0x63, 0x4c, 0x56],
     );
 
     // `keccak256("message_2(bytes32)")` == `0x468f916c`
@@ -93,11 +95,11 @@ fn main() {
         [0x59, 0x63, 0x79, 0xbc],
     );
 
-    // `keccak256("message_6(bool,string,bytes32,bytes,uint16[4],uint16[])")` ==
-    // `0x270af153`
+    // `keccak256("message_6(bool,string,bytes32,bytes,uint8[4],uint8[])")` ==
+    // `0xc02c314c`
     assert_eq!(
-        <Contract as ::ink::reflect::DispatchableMessageInfo<0x270af153_u32>>::SELECTOR,
-        [0x27, 0x0a, 0xf1, 0x53],
+        <Contract as ::ink::reflect::DispatchableMessageInfo<0xc02c314c_u32>>::SELECTOR,
+        [0xc0, 0x2c, 0x31, 0x4c],
     );
 
     // `keccak256("message_7(bytes32,bytes32,address)")` == `0xee34840f`
