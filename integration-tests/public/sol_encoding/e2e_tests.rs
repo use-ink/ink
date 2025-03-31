@@ -1,11 +1,9 @@
 use crate::sol_encoding::SolEncodingRef;
 use ink::{
-    alloy_sol_types::{
-        SolType,
-        SolValue,
-    },
     primitives::DepositLimit,
     H160,
+    SolDecode,
+    SolEncode,
 };
 use ink_e2e::ContractsRegistry;
 use ink_sandbox::{
@@ -89,11 +87,11 @@ impl ContractSandbox {
         origin: OriginFor<<DefaultSandbox as Sandbox>::Runtime>,
     ) -> Ret
     where
-        Args: SolValue,
-        Ret: SolValue + From<<<Ret as SolValue>::SolType as SolType>::RustType>,
+        Args: for<'a> SolEncode<'a>,
+        Ret: SolDecode,
     {
         let result = self.call(message, args, origin);
-        Ret::abi_decode(&mut &result[..], true).expect("decode failed")
+        Ret::decode(&result[..]).expect("decode failed")
     }
 
     fn call<Args>(
@@ -103,10 +101,10 @@ impl ContractSandbox {
         origin: OriginFor<<DefaultSandbox as Sandbox>::Runtime>,
     ) -> Vec<u8>
     where
-        Args: SolValue,
+        Args: for<'a> SolEncode<'a>,
     {
         let mut data = keccak_selector(message.as_bytes());
-        let mut encoded = args.abi_encode();
+        let mut encoded = args.encode();
         data.append(&mut encoded);
 
         let result = self.call_raw(data, origin);

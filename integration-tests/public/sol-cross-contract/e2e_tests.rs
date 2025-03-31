@@ -7,12 +7,10 @@ use ink_sandbox::{
 };
 
 use ink::{
-    alloy_sol_types::{
-        SolType,
-        SolValue,
-    },
     primitives::DepositLimit,
     H160,
+    SolDecode,
+    SolEncode,
 };
 use ink_sandbox::frame_system::pallet_prelude::OriginFor;
 use pallet_revive::ExecReturnValue;
@@ -101,7 +99,7 @@ fn call_sol_encoded_message() {
 
     assert!(!value, "flip value should have been set to false");
 
-    let input: [u8; 20] = other_contract_addr.clone().into();
+    let input = other_contract_addr.clone();
 
     // set value via cross contract call
     contracts.call(
@@ -135,11 +133,11 @@ impl ContractSandbox {
         origin: OriginFor<<DefaultSandbox as Sandbox>::Runtime>,
     ) -> Ret
     where
-        Args: SolValue,
-        Ret: SolValue + From<<<Ret as SolValue>::SolType as SolType>::RustType>,
+        Args: for<'a> SolEncode<'a>,
+        Ret: SolDecode,
     {
         let result = self.call(contract_addr, message, args, origin);
-        Ret::abi_decode(&mut &result[..], true).expect("decode failed")
+        Ret::decode(&result[..]).expect("decode failed")
     }
 
     fn call<Args>(
@@ -150,10 +148,10 @@ impl ContractSandbox {
         origin: OriginFor<<DefaultSandbox as Sandbox>::Runtime>,
     ) -> Vec<u8>
     where
-        Args: SolValue,
+        Args: for<'a> SolEncode<'a>,
     {
         let mut data = keccak_selector(message.as_bytes());
-        let mut encoded = args.abi_encode();
+        let mut encoded = args.encode();
         data.append(&mut encoded);
 
         let result = self.call_raw(contract_addr, data, origin);

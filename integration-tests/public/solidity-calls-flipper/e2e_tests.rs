@@ -1,14 +1,12 @@
 use crate::flipper::FlipperRef;
 use ink::{
-    alloy_sol_types::{
-        SolType,
-        SolValue,
-    },
     env::{
         Balance,
         DefaultEnvironment,
     },
     H160,
+    SolDecode,
+    SolEncode,
 };
 use ink_e2e::{
     subxt::tx::Signer,
@@ -136,7 +134,7 @@ async fn call_ink<Ret>(
     data_sol: Vec<u8>,
 ) -> Ret
 where
-    Ret: SolValue + From<<<Ret as SolValue>::SolType as SolType>::RustType>,
+    Ret: SolDecode,
 {
     let signer = ink_e2e::alice();
     let (exec_result, _trace) = client
@@ -151,7 +149,7 @@ where
         )
         .await;
 
-    <Ret>::abi_decode(&mut &exec_result.result.unwrap().data[..], true)
+    <Ret>::decode(&exec_result.result.unwrap().data[..])
         .expect("decode failed")
 }
 

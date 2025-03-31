@@ -60,9 +60,8 @@ pub mod flipper {
         }
 
         #[ink(message)]
-        pub fn call_solidity_set(&mut self, callee: [u8; 20]) {
+        pub fn call_solidity_set(&mut self, callee: H160) {
             let selector = keccak_selector(b"set_value(uint16)");
-            let callee: H160 = callee.into();
 
             let result = build_call_solidity::<<Self as ::ink::env::ContractEnv>::Env>()
                 .call(callee)
@@ -77,9 +76,8 @@ pub mod flipper {
         }
 
         #[ink(message)]
-        pub fn call_solidity_get(&mut self, callee: [u8; 20]) -> u16 {
+        pub fn call_solidity_get(&mut self, callee: H160) -> u16 {
             let selector = crate::keccak_selector(b"get_value()");
-            let callee: H160 = callee.into();
 
             build_call_solidity::<<Self as ::ink::env::ContractEnv>::Env>()
                 .call(callee)
