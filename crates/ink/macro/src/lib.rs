@@ -240,7 +240,7 @@ pub fn selector_bytes(input: TokenStream) -> TokenStream {
 /// - `keep_attr: String`
 ///
 ///   Tells the ink! code generator which attributes should be passed to call builders.
-///   Call builders are used to doing cross-contract calls and are automatically
+///   Call builders are used for making cross-contract calls and are automatically
 ///   generated for contracts.
 ///
 ///   **Usage Example:**
@@ -746,7 +746,7 @@ pub fn contract(attr: TokenStream, item: TokenStream) -> TokenStream {
 /// - `keep_attr: String`
 ///
 ///   Tells the ink! code generator which attributes should be passed to call builders.
-///   Call builders are used to doing cross-contract calls and are automatically
+///   Call builders are used for making cross-contract calls and are automatically
 ///   generated for contracts.
 ///
 ///   **Usage Example:**
