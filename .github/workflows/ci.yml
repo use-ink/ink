@@ -812,7 +812,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
             path: ./measurements-${{ steps.extract_branch.outputs.branch }}/*
-            name: ${{ env.RUN_UNIQUE_ID }}_artifact_${{ matrix.partition }}
+            name: ${{ github.run_id }}_artifact_${{ matrix.partition }}
             retention-days: 1
 
   process-contract-sizes:
@@ -831,6 +831,7 @@ jobs:
 
       - name: Combine contract sizes from individual examples
         run: |
+            cat downloaded_artifacts/${{github.run_id}}_artifact_* | \
             sed -e 's/^integration-tests\/\(public\/\|internal\/\)\?//' | \
             sort | uniq > measurements-${{ steps.extract_branch.outputs.branch }}
             cat measurements-${{ steps.extract_branch.outputs.branch }}
@@ -1026,7 +1027,11 @@ jobs:
           - name: Collect Contract Sizes
             run: |
                 # Build the comparison table
+                echo "master:"
+                ls -lh measurements-master
                 cat measurements-master
+                echo "branch:"
+                ls -lh measurements-${{ steps.extract_branch.outputs.branch }}
                 cat measurements-${{ steps.extract_branch.outputs.branch }}
                 ./scripts/contract_sizes_diff.sh measurements-master measurements-${{ steps.extract_branch.outputs.branch }} > contract_sizes_diff.md
                 cat contract_sizes_diff.md
