@@ -148,7 +148,7 @@ where
     type AlloyType = sol_data::FixedBytes<N>;
 
     fn tokenize(&self) -> <Self::AlloyType as AlloySolType>::Token<'_> {
-        // Direct implementation simplifies `SolTypeByRef` implementation by removing
+        // Direct implementation simplifies generic implementations by removing
         // requirement for `SolValueType<Self::AlloyType>`.
         let mut word = [0; 32];
         word[..N].copy_from_slice(self.as_slice());
@@ -172,7 +172,7 @@ impl SolBytesType for Vec<u8> {
     type AlloyType = sol_data::Bytes;
 
     fn tokenize(&self) -> <Self::AlloyType as AlloySolType>::Token<'_> {
-        // Direct implementation simplifies `SolTypeByRef` implementation by removing
+        // Direct implementation simplifies generic implementations by removing
         // requirement for `SolValueType<Self::AlloyType>`.
         PackedSeqToken(self.as_slice())
     }
