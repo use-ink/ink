@@ -6,7 +6,6 @@ use ink::{
     },
     H160,
     SolDecode,
-    SolEncode,
 };
 use ink_e2e::{
     subxt::tx::Signer,

@@ -127,6 +127,7 @@ impl AsRef<[u8]> for SolBytes<Vec<u8>> {
 /// Ref: <https://docs.soliditylang.org/en/latest/types.html#bytes-and-string-as-arrays>
 ///
 /// # Note
+///
 /// This trait is sealed and cannot be implemented for types outside `ink_primitives`.
 pub trait SolBytesType: private::Sealed {
     /// Equivalent Solidity ABI bytes type from [`alloy_sol_types`].

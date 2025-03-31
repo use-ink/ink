@@ -54,6 +54,7 @@ use crate::types::{
 /// ABI decoding.
 ///
 /// # Note
+///
 /// Implementing this trait entails:
 /// - Declaring the equivalent Solidity ABI type via the `SolType` associated type. See
 ///   the [docs for sealed `SolTypeDecode` trait][SolTypeDecode] for a table of Rust/ink!
@@ -108,6 +109,7 @@ pub trait SolDecode {
 /// ABI encoding.
 ///
 /// # Note
+///
 /// Implementing this trait entails:
 /// - Declaring the equivalent Solidity ABI type via the `SolType` associated type. See
 ///   the [docs for sealed `SolTypeEncode` trait][SolTypeEncode] for a table of Rust/ink!
@@ -294,7 +296,7 @@ impl<'a, T: SolEncode<'a> + Clone> SolEncode<'a> for Cow<'a, T> {
     }
 }
 
-// Implements `SolTypeEncode` for references to str and [T] DSTs.
+// Implements `SolEncode` for references to `str` and `[T]` DSTs.
 macro_rules! impl_str_ref_encode {
     ($($ty: ty),+ $(,)*) => {
         $(

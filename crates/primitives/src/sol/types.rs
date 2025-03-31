@@ -61,6 +61,7 @@ use crate::types::Address;
 /// Ref: <https://docs.soliditylang.org/en/latest/abi-spec.html#types>
 ///
 /// # Note
+///
 /// This trait is sealed and cannot be implemented for types outside `ink_primitives`.
 #[allow(private_bounds)]
 pub trait SolTypeDecode: Sized + private::Sealed {
@@ -103,6 +104,7 @@ pub trait SolTypeDecode: Sized + private::Sealed {
 /// Ref: <https://docs.soliditylang.org/en/latest/abi-spec.html#types>
 ///
 /// # Note
+///
 /// This trait is sealed and cannot be implemented for types outside `ink_primitives`.
 #[allow(private_bounds)]
 pub trait SolTypeEncode: private::Sealed {
@@ -347,7 +349,7 @@ impl<T: SolTypeEncode + Clone> SolTypeEncode for Cow<'_, T> {
 
 impl<T: private::Sealed + Clone> private::Sealed for Cow<'_, T> {}
 
-// Implements `SolTypeEncode` for references to str and [T] DSTs.
+// Implements `SolTypeEncode` for references to `str` and `[T]` DSTs.
 macro_rules! impl_str_ref_encode {
     ($($ty: ty),+ $(,)*) => {
         $(

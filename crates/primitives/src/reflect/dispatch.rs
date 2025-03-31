@@ -332,7 +332,7 @@ mod private {
 ///
 /// # Note
 ///
-/// Currently the only allowed types are `()` and `Result<(), E>`
+/// Currently, the only allowed types are `()` and `Result<(), E>`
 /// where `E` is some unspecified error type.
 /// If the contract initializer returns `Result::Err` the utility
 /// method that is used to initialize an ink! smart contract will
@@ -363,7 +363,7 @@ pub trait ConstructorOutput<C>: private::Sealed {
 ///
 /// # Note
 ///
-/// Currently the only allowed types are `()` and `Result<(), E>`
+/// Currently, the only allowed types are `()` and `Result<(), E>`
 /// where `E` is some unspecified error type.
 /// If the contract initializer returns `Result::Err` the utility
 /// method that is used to initialize an ink! smart contract will
