@@ -30,7 +30,6 @@ use ink_prelude::{
     vec::Vec,
 };
 use primitive_types::{
-    H160,
     H256,
     U256,
 };
@@ -137,7 +136,7 @@ fn string_works() {
 #[test]
 fn address_works() {
     test_case!(
-        Address, Address([1; 20]),
+        Address, Address::from([1; 20]),
         AlloyAddress, SolValue, AlloyAddress::from([1; 20]),
         [.unwrap().0], [.unwrap().0]
     );
@@ -171,7 +170,7 @@ fn fixed_array_works() {
     );
 
     test_case!(
-        [Address; 4], [Address([1; 20]); 4],
+        [Address; 4], [Address::from([1; 20]); 4],
         [AlloyAddress; 4], SolValue, [AlloyAddress::from([1; 20]); 4],
         [.unwrap().map(|val| val.0)], [.unwrap().map(|val| val.0)]
     );
@@ -205,7 +204,7 @@ fn dynamic_array_works() {
     );
 
     test_case!(
-        Vec<Address>, Vec::from([Address([1; 20]); 4]),
+        Vec<Address>, Vec::from([Address::from([1; 20]); 4]),
         Vec<AlloyAddress>, SolValue, Vec::from([AlloyAddress::from([1; 20]); 4]),
         [.unwrap().into_iter().map(|val| val.0).collect::<Vec<_>>()], [.unwrap().into_iter().map(|val| val.0).collect::<Vec<_>>()]
     );
@@ -271,12 +270,12 @@ fn tuple_works() {
 
     // sequences of addresses.
     test_case!(
-        ([Address; 4],), ([Address([1; 20]); 4],),
+        ([Address; 4],), ([Address::from([1; 20]); 4],),
         ([AlloyAddress; 4],), SolValue, ([AlloyAddress::from([1; 20]); 4],),
         [.unwrap().0.map(|val| val.0)], [.unwrap().0.map(|val| val.0)]
     );
     test_case!(
-        (Vec<Address>,), (Vec::from([Address([1; 20]); 4]),),
+        (Vec<Address>,), (Vec::from([Address::from([1; 20]); 4]),),
         (Vec<AlloyAddress>,), SolValue, (Vec::from([AlloyAddress::from([1; 20]); 4]),),
         [.unwrap().0.into_iter().map(|val| val.0).collect::<Vec<_>>()], [.unwrap().0.into_iter().map(|val| val.0).collect::<Vec<_>>()]
     );
@@ -338,20 +337,6 @@ fn h256_works() {
         AlloyFixedBytes<32>,
         SolValue,
         AlloyFixedBytes([1; 32]),
-        [.unwrap().0],
-        [.unwrap().0]
-    );
-}
-
-#[test]
-fn h160_works() {
-    // NOTE: We're currently mapping `H160` to `bytes20`.
-    test_case_codec!(
-        H160,
-        H160([1; 20]),
-        AlloyFixedBytes<20>,
-        SolValue,
-        AlloyFixedBytes([1; 20]),
         [.unwrap().0],
         [.unwrap().0]
     );
@@ -449,7 +434,7 @@ fn encode_refs_works() {
 
     // address
     test_case_encode!(
-        &Address, &Address([1; 20]),
+        &Address, &Address::from([1; 20]),
         AlloyAddress, SolValue, AlloyAddress::from([1; 20]),
         [.unwrap().0], [.unwrap().0]
     );

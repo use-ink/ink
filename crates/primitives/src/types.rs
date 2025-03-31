@@ -489,58 +489,6 @@ impl AccountIdMapper {
 }
 
 /// A Solidity compatible `address` type.
-#[derive(
-    Debug,
-    Copy,
-    Clone,
-    PartialEq,
-    Eq,
-    Ord,
-    PartialOrd,
-    Hash,
-    Decode,
-    Encode,
-    MaxEncodedLen,
-    From,
-)]
-#[cfg_attr(feature = "std", derive(TypeInfo, DecodeAsType, EncodeAsType))]
-pub struct Address(pub [u8; 20]);
-
-impl AsRef<[u8; 20]> for Address {
-    fn as_ref(&self) -> &[u8; 20] {
-        &self.0
-    }
-}
-
-impl AsMut<[u8; 20]> for Address {
-    fn as_mut(&mut self) -> &mut [u8; 20] {
-        &mut self.0
-    }
-}
-
-impl AsRef<[u8]> for Address {
-    fn as_ref(&self) -> &[u8] {
-        &self.0[..]
-    }
-}
-
-impl AsMut<[u8]> for Address {
-    fn as_mut(&mut self) -> &mut [u8] {
-        &mut self.0[..]
-    }
-}
-
-impl<'a> TryFrom<&'a [u8]> for Address {
-    type Error = TryFromSliceError;
-
-    fn try_from(bytes: &'a [u8]) -> Result<Self, TryFromSliceError> {
-        let address = <[u8; 20]>::try_from(bytes)?;
-        Ok(Self(address))
-    }
-}
-
-impl Borrow<[u8; 20]> for Address {
-    fn borrow(&self) -> &[u8; 20] {
-        &self.0
-    }
-}
+// For rationale for using `H160` as the `address` type,
+// see https://github.com/use-ink/ink/pull/2441#discussion_r2021230718.
+pub type Address = H160;

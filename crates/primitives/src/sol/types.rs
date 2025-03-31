@@ -191,7 +191,7 @@ impl SolTypeDecode for Address {
         // just taking the last 20 bytes of `alloy_sol_types::abi::token::WordToken` as
         // well anyway.
         // Ref: <https://github.com/alloy-rs/core/blob/5ae4fe0b246239602c97cc5a2f2e4bc780e2024a/crates/primitives/src/bits/address.rs#L132-L134>
-        Address::try_from(&token.0 .0[12..]).expect("Expected a 20 byte slice")
+        Address::from_slice(&token.0 .0[12..])
     }
 }
 

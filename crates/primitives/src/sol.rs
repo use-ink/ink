@@ -35,7 +35,6 @@ use ink_prelude::{
 
 pub use bytes::SolBytes;
 use primitive_types::{
-    H160,
     H256,
     U256,
 };
@@ -394,37 +393,6 @@ impl SolDecode for H256 {
 
 impl SolEncode<'_> for H256 {
     type SolType = SolBytes<[u8; 32]>;
-
-    fn encode(&self) -> Vec<u8> {
-        // Override for better performance.
-        sol_data::FixedBytes::abi_encode(&self.0)
-    }
-
-    fn to_sol_type(&self) -> Self::SolType {
-        // NOTE: Not actually used for encoding because of `encode` override above (for
-        // better performance).
-        // Arbitrary newtype wrappers can achieve similar performance (without overriding
-        // `encode`) by using `SolBytes<[u8; 32]>` as the inner type and returning
-        // `&self.0`.
-        SolBytes(self.0)
-    }
-}
-
-// H160 <-> bytes20
-// TODO: (@davidsemakula) Evaluate if it's worth removing this mapping, or changing it to
-// `address` before v6 release.
-// Rationale: while this mapping is technically correct, it may be confusing for ink!
-// devs, or just needlessly increase the cognitive load.
-impl SolDecode for H160 {
-    type SolType = SolBytes<[u8; 20]>;
-
-    fn from_sol_type(value: Self::SolType) -> Self {
-        H160(value.0)
-    }
-}
-
-impl SolEncode<'_> for H160 {
-    type SolType = SolBytes<[u8; 20]>;
 
     fn encode(&self) -> Vec<u8> {
         // Override for better performance.
