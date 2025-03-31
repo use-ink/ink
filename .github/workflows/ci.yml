@@ -1014,8 +1014,6 @@ jobs:
             with:
                 name: measurements-${{ steps.extract_branch.outputs.branch }}
                 run_id: ${{ github.run_id }}
-                # workflow: ci.yml
-                # branch: ${{ steps.extract_branch.outputs.branch }}
 
           - name: Download master artifact
             uses: dawidd6/action-download-artifact@v9
@@ -1028,11 +1026,10 @@ jobs:
             run: |
                 # Build the comparison table
                 echo "master:"
-                ls -lh measurements-master
                 cat measurements-master
                 echo "branch:"
-                ls -lh measurements-${{ steps.extract_branch.outputs.branch }}
                 cat measurements-${{ steps.extract_branch.outputs.branch }}
+                echo "---"
                 ./scripts/contract_sizes_diff.sh measurements-master measurements-${{ steps.extract_branch.outputs.branch }} > contract_sizes_diff.md
                 cat contract_sizes_diff.md
 
