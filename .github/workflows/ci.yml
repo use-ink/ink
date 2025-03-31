@@ -28,7 +28,7 @@ on:
 env:
   # Image can be edited at https://github.com/use-ink/docker-images
   IMAGE:                           useink/ci
-  CARGO_TARGET_DIR:                /ci-cache/${{ github.repository }}/targets/
+  CARGO_TARGET_DIR:                /ci-cache/${{ github.repository }}/targets/${{ github.ref_name }}/${{ github.job }}
   PURELY_STD_CRATES:               ink/codegen metadata engine e2e e2e/macro ink/ir
   ALSO_RISCV_CRATES:               env storage storage/traits allocator prelude primitives ink ink/macro
   # TODO `cargo clippy --all-targets --all-features` for this crate
@@ -704,7 +704,7 @@ jobs:
                 rustup toolchain remove nightly-2025-02-20;
                 rustup toolchain remove stable;
                 rustup toolchain remove 1.85.0;
-                cargo +nightly test --all-features --all --manifest-path integration-tests/internal/mapping/Cargo.toml
+                cargo +nightly test --all-features --all --manifest-path integration-tests/internal/mapping/Cargo.toml -- --test-threads=1
 
   examples-custom-test:
     runs-on: ubuntu-latest
@@ -730,17 +730,6 @@ jobs:
       - name: Rust Info
         uses: ./.github/rust-info
 
-      - name: Test static-buffer example
-        env:
-          # Fix linking of `linkme`: https://github.com/dtolnay/linkme/issues/49
-          RUSTFLAGS: -Clink-arg=-z -Clink-arg=nostart-stop-gc -Clink-dead-code
-        run: |
-          # run the static buffer test with a custom buffer size.
-          # the readme + test comments explain why `32`, in short because the tests write
-          # content into the buffer and want to provoke an exhaustion of the buffer.
-          cargo clean --manifest-path integration-tests/internal/static-buffer/Cargo.toml
-          INK_STATIC_BUFFER_SIZE=32 cargo +nightly-2025-02-20 test --manifest-path integration-tests/internal/static-buffer/Cargo.toml --all-features
-
       - name: Run E2E test with on-chain contract
         # todo disabled until `cargo-contract` supports mapping the account
         if: false
@@ -760,6 +749,17 @@ jobs:
             --manifest-path integration-tests/public/flipper/Cargo.toml \
             e2e_test_deployed_contract \
             -- --ignored --nocapture
+
+      - name: Test static-buffer example
+        env:
+            # Fix linking of `linkme`: https://github.com/dtolnay/linkme/issues/49
+            RUSTFLAGS: -Clink-arg=-z -Clink-arg=nostart-stop-gc -Clink-dead-code
+        run: |
+            # run the static buffer test with a custom buffer size.
+            # the readme + test comments explain why `32`, in short because the tests write
+            # content into the buffer and want to provoke an exhaustion of the buffer.
+            cargo clean --manifest-path integration-tests/internal/static-buffer/Cargo.toml
+            INK_STATIC_BUFFER_SIZE=32 cargo +nightly-2025-02-20 test --manifest-path integration-tests/internal/static-buffer/Cargo.toml --all-features
 
   examples-contract-build-riscv:
     runs-on: ubuntu-latest
@@ -812,7 +812,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
             path: ./measurements-${{ steps.extract_branch.outputs.branch }}/*
-            name: ${{ env.RUN_UNIQUE_ID }}_artifact_${{ matrix.partition }}
+            name: ${{ github.run_id }}_artifact_${{ matrix.partition }}
             retention-days: 1
 
   process-contract-sizes:
@@ -831,11 +831,9 @@ jobs:
 
       - name: Combine contract sizes from individual examples
         run: |
-            find .
-            cat downloaded_artifacts/*/*  | \
+            cat downloaded_artifacts/${{github.run_id}}_artifact_*/* | \
             sed -e 's/^integration-tests\/\(public\/\|internal\/\)\?//' | \
             sort | uniq > measurements-${{ steps.extract_branch.outputs.branch }}
-            echo "----"
             cat measurements-${{ steps.extract_branch.outputs.branch }}
 
       - uses: actions/upload-artifact@v4
@@ -985,6 +983,7 @@ jobs:
           image: ${{ needs.set-image.outputs.IMAGE }}
       permissions:
           pull-requests: write
+      if: github.ref != 'refs/heads/master'
       steps:
           - name: Checkout
             uses: actions/checkout@v4
@@ -1000,13 +999,6 @@ jobs:
                 echo "head_in_branch=$head_in_branch" >> $GITHUB_OUTPUT
             id: extract_github
 
-          - name: Download master artifact
-            uses: dawidd6/action-download-artifact@v9
-            with:
-                workflow: ci.yml
-                branch: master
-                name: measurements-master
-
           - name: Extract branch name
             shell: bash
             run: echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
@@ -1017,17 +1009,27 @@ jobs:
                 echo "${{ steps.extract_branch.outputs.branch }}"
                 echo "${{ steps.extract_github.outputs.head_in_branch }}"
 
-          - name: Download artifact
+          - name: Download artifact from this branch
+            uses: dawidd6/action-download-artifact@v9
+            with:
+                name: measurements-${{ steps.extract_branch.outputs.branch }}
+                run_id: ${{ github.run_id }}
+
+          - name: Download master artifact
             uses: dawidd6/action-download-artifact@v9
             with:
                 workflow: ci.yml
-                name: measurements-${{ steps.extract_branch.outputs.branch }}
+                branch: master
+                name: measurements-master
 
           - name: Collect Contract Sizes
             run: |
                 # Build the comparison table
+                echo "master:"
                 cat measurements-master
+                echo "branch:"
                 cat measurements-${{ steps.extract_branch.outputs.branch }}
+                echo "---"
                 ./scripts/contract_sizes_diff.sh measurements-master measurements-${{ steps.extract_branch.outputs.branch }} > contract_sizes_diff.md
                 cat contract_sizes_diff.md
 

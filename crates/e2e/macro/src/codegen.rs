@@ -55,8 +55,11 @@ impl InkE2ETest {
             .environment()
             .unwrap_or_else(|| syn::parse_quote! { ::ink::env::DefaultEnvironment });
 
+        let features = self.test.config.features();
         let exec_build_contracts = quote! {
-            ::ink_e2e::build_root_and_contract_dependencies()
+            ::ink_e2e::build_root_and_contract_dependencies(
+                vec![#( #features.to_string() ),*]
+            )
         };
 
         let client_building = match self.test.config.backend() {

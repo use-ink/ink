@@ -268,8 +268,10 @@ where
 
         let mut tracer =
             tracer_config.build(pallet_revive::Pallet::<S::Runtime>::evm_gas_from_weight);
+        let mut code_hash: Option<H256> = None;
         let result = pallet_revive::tracing::trace(&mut tracer, || {
             let code = self.contracts.load_code(contract_name);
+            code_hash = Some(H256(crate::client_utils::code_hash(&code[..])));
             let data = constructor_exec_input(constructor.clone());
             self.sandbox.deploy_contract(
                 code,
@@ -298,6 +300,7 @@ where
             addr: addr_raw,
             events: (), // todo: https://github.com/Cardinal-Cryptography/drink/issues/32
             trace,
+            code_hash: code_hash.expect("code_hash must have been calculated"),
         })
     }
 

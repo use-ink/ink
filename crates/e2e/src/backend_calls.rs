@@ -342,6 +342,7 @@ where
             dry_run,
             events: instantiate_result.events,
             trace: instantiate_result.trace,
+            code_hash: instantiate_result.code_hash,
         })
     }
 
