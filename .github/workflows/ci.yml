@@ -831,7 +831,7 @@ jobs:
 
       - name: Combine contract sizes from individual examples
         run: |
-            cat downloaded_artifacts/${{github.run_id}}_artifact_* | \
+            cat downloaded_artifacts/${{github.run_id}}_artifact_*/* | \
             sed -e 's/^integration-tests\/\(public\/\|internal\/\)\?//' | \
             sort | uniq > measurements-${{ steps.extract_branch.outputs.branch }}
             cat measurements-${{ steps.extract_branch.outputs.branch }}
@@ -1009,7 +1009,7 @@ jobs:
                 echo "${{ steps.extract_branch.outputs.branch }}"
                 echo "${{ steps.extract_github.outputs.head_in_branch }}"
 
-          - name: Download artifact
+          - name: Download artifact from this branch
             uses: dawidd6/action-download-artifact@v9
             with:
                 name: measurements-${{ steps.extract_branch.outputs.branch }}
