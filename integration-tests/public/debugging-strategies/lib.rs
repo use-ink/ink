@@ -297,8 +297,9 @@ mod debugging_strategies {
             // ```
 
             // then
+            // todo make `NativeToEthRatio` part of  the `Environment`
             #[allow(non_upper_case_globals)]
-            const NativeToEthRatio: u128 = 1_000_000; // todo add to environment
+            const NativeToEthRatio: u128 = 1_000_000;
             assert_eq!(
                 trace.value,
                 Some(ink::U256::from(1_337_000_000 * NativeToEthRatio))

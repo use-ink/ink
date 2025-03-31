@@ -160,8 +160,9 @@ pub mod flipper {
                 .expect("get_contract_balance failed")
                 .return_value();
 
+            // todo make `NativeToEthRatio` part of  the `Environment`
             #[allow(non_upper_case_globals)]
-            const NativeToEthRatio: u128 = 1_000_000; // todo add to environment?
+            const NativeToEthRatio: u128 = 1_000_000;
             assert_eq!(old_balance + (ENDOWMENT * NativeToEthRatio), new_balance);
             Ok(())
         }

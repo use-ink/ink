@@ -250,8 +250,10 @@ pub mod give_me {
                 .await
                 .expect("instantiate failed");
             let contract_addr = contract.addr;
+
+            // todo make `NativeToEthRatio` part of  the `Environment`
             #[allow(non_upper_case_globals)]
-            const NativeToEthRatio: u128 = 1_000_000; // todo add to environment?
+            const NativeToEthRatio: u128 = 1_000_000;
             assert_eq!(
                 contract.trace.clone().unwrap().value,
                 Some(U256::from(1_337_000_000 * NativeToEthRatio))
