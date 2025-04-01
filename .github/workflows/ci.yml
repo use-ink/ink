@@ -684,12 +684,12 @@ jobs:
             with:
                 fetch-depth: 1
 
-          #- name: Cache
-            #uses: Swatinem/rust-cache@v2
-            #with:
-                #cache-directories: ${{ env.CARGO_TARGET_DIR }}
-                #cache-all-crates: true
-                #cache-on-failure: true
+          - name: Cache
+            uses: Swatinem/rust-cache@v2
+            with:
+                cache-directories: ${{ env.CARGO_TARGET_DIR }}
+                cache-all-crates: true
+                cache-on-failure: true
 
           - name: Rust Info
             uses: ./.github/rust-info
@@ -697,14 +697,14 @@ jobs:
           - name: Test Mapping Example
             env:
                 # Fix for linking of `linkme` for `cargo test`: https://github.com/dtolnay/linkme/issues/49
-                #RUSTFLAGS: -Clink-arg=-z -Clink-arg=nostart-stop-gc -Clink-dead-code
+                RUSTFLAGS: -Clink-arg=-z -Clink-arg=nostart-stop-gc -Clink-dead-code
                 # needed for `mapping::e2e_tests::fallible_storage_methods_work`
                 INK_STATIC_BUFFER_SIZE: 256
             run:
-                #rustup toolchain remove nightly-2025-02-20;
-                #rustup toolchain remove stable;
-                #rustup toolchain remove 1.85.0;
-                cargo +nightly test --all-features --manifest-path integration-tests/internal/mapping/Cargo.toml insert_and_get_works
+                rustup toolchain remove nightly-2025-02-20;
+                rustup toolchain remove stable;
+                rustup toolchain remove 1.85.0;
+                cargo +nightly test --all --all-features --manifest-path integration-tests/internal/mapping/Cargo.toml
 
   examples-custom-test:
     runs-on: ubuntu-latest
@@ -738,7 +738,6 @@ jobs:
           RUSTFLAGS: -Clink-arg=-z -Clink-arg=nostart-stop-gc -Clink-dead-code
         run: |
           # run flipper E2E test with on-chain contract
-          ink-node -lruntime::revive=debug
           ink-node -lruntime::revive=debug 2>&1 &
           cargo +nightly contract build --release --manifest-path integration-tests/public/flipper/Cargo.toml
           export CONTRACT_ADDR_HEX=$(cargo +nightly-2025-02-20 contract instantiate \

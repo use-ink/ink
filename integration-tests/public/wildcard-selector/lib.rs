@@ -144,7 +144,6 @@ pub mod wildcard_selector {
             // then
             let contract_events = _result.contract_emitted_events()?;
             assert_eq!(1, contract_events.len());
-            //eprintln!("contract_events: {:?}", contract_events);
             let contract_event = contract_events.first().expect("first event must exist");
             let event: Event =
                 ink::scale::Decode::decode(&mut &contract_event.event.data[..])
