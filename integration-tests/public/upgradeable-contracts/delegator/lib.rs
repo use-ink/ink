@@ -18,15 +18,14 @@ pub mod delegator {
             Lazy,
             Mapping,
         },
-        H160,
     };
 
     #[ink(storage)]
     pub struct Delegator {
-        addresses: Mapping<H160, i32, ManualKey<0x23>>,
+        addresses: Mapping<Address, i32, ManualKey<0x23>>,
         counter: i32,
         // TODO check if we even need to save the `H256` hash in here.
-        delegate_to: Lazy<(H256, H160)>,
+        delegate_to: Lazy<(H256, Address)>,
     }
 
     impl Delegator {
@@ -36,7 +35,7 @@ pub mod delegator {
         /// Additionally, this code hash will be locked to prevent its deletion, since
         /// this contract depends on it.
         #[ink(constructor)]
-        pub fn new(init_value: i32, hash: H256, addr: H160) -> Self {
+        pub fn new(init_value: i32, hash: H256, addr: Address) -> Self {
             let v = Mapping::new();
 
             let mut delegate_to = Lazy::new();
@@ -55,7 +54,7 @@ pub mod delegator {
         /// - Adds a new delegate dependency lock, ensuring that the new delegated to code
         ///   cannot be removed.
         #[ink(message)]
-        pub fn update_delegate_to(&mut self, hash: H256, addr: H160) {
+        pub fn update_delegate_to(&mut self, hash: H256, addr: Address) {
             if let Some(delegate_to) = self.delegate_to.get() {
                 let _old_hash = delegate_to.0;
             }
@@ -103,11 +102,11 @@ pub mod delegator {
 
         /// Returns the current value of the address.
         #[ink(message)]
-        pub fn get_value(&self, address: H160) -> (H160, Option<i32>) {
+        pub fn get_value(&self, address: Address) -> (Address, Option<i32>) {
             (self.env().caller(), self.addresses.get(address))
         }
 
-        fn delegate_to(&self) -> (H256, H160) {
+        fn delegate_to(&self) -> (H256, Address) {
             self.delegate_to
                 .get()
                 .expect("delegate_to always has a value")

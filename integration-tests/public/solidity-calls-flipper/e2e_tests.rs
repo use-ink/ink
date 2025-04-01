@@ -4,7 +4,7 @@ use ink::{
         Balance,
         DefaultEnvironment,
     },
-    H160,
+    Address,
     SolDecode,
 };
 use ink_e2e::{
@@ -129,7 +129,7 @@ async fn solidity_calls_ink_works<Client: E2EBackend>(
 
 async fn call_ink<Ret>(
     client: &mut ink_e2e::Client<PolkadotConfig, DefaultEnvironment>,
-    ink_addr: H160,
+    ink_addr: Address,
     data_sol: Vec<u8>,
 ) -> Ret
 where
@@ -154,7 +154,7 @@ where
 
 async fn call_ink_no_return(
     client: &mut ink_e2e::Client<PolkadotConfig, DefaultEnvironment>,
-    ink_addr: H160,
+    ink_addr: Address,
     data_sol: Vec<u8>,
 ) {
     let signer = ink_e2e::alice();
@@ -265,7 +265,7 @@ impl SolidityHandler {
         Ok(output.stdout)
     }
 
-    fn deploy(&self, ink_addr: H160) -> Result<String, Box<dyn Error>> {
+    fn deploy(&self, ink_addr: Address) -> Result<String, Box<dyn Error>> {
         let output = self.run_hardhat_script(
             "01-deploy.js",
             &[("INK_ADDRESS", format!("{:?}", ink_addr))],

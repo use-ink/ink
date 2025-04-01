@@ -8,7 +8,7 @@ use ink_sandbox::{
 
 use ink::{
     primitives::DepositLimit,
-    H160,
+    Address,
     SolDecode,
     SolEncode,
 };
@@ -127,7 +127,7 @@ struct ContractSandbox {
 impl ContractSandbox {
     fn call_with_return_value<Args, Ret>(
         &mut self,
-        contract_addr: H160,
+        contract_addr: Address,
         message: &str,
         args: Args,
         origin: OriginFor<<DefaultSandbox as Sandbox>::Runtime>,
@@ -142,7 +142,7 @@ impl ContractSandbox {
 
     fn call<Args>(
         &mut self,
-        contract_addr: H160,
+        contract_addr: Address,
         message: &str,
         args: Args,
         origin: OriginFor<<DefaultSandbox as Sandbox>::Runtime>,
@@ -161,7 +161,7 @@ impl ContractSandbox {
 
     fn call_raw(
         &mut self,
-        contract_addr: H160,
+        contract_addr: Address,
         data: Vec<u8>,
         origin: OriginFor<<DefaultSandbox as Sandbox>::Runtime>,
     ) -> ExecReturnValue {

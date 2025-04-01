@@ -1,4 +1,4 @@
-// todo example needs to be fixed, but this requires the map AccountId -> H160 function
+// todo example needs to be fixed, but this requires the map `AccountId` -> `Address` function
 #![cfg_attr(not(feature = "std"), no_std, no_main)]
 
 #[ink::contract]

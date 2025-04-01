@@ -41,20 +41,17 @@
 
 #[ink::contract]
 mod payment_channel {
-    use ink::{
-        H160,
-        U256,
-    };
+    use ink::U256;
 
     /// Struct for storing the payment channel details.
     /// The creator of the contract, i.e. the `sender`, can deposit funds to the payment
     /// channel while deploying the contract.
     #[ink(storage)]
     pub struct PaymentChannel {
-        /// The `H160` of the sender of the payment channel.
-        sender: H160,
-        /// The `H160` of the recipient of the payment channel.
-        recipient: H160,
+        /// The `Address` of the sender of the payment channel.
+        sender: Address,
+        /// The `Address` of the recipient of the payment channel.
+        recipient: Address,
         /// The `Timestamp` at which the contract expires. The field is optional.
         /// The contract never expires if set to `None`.
         expiration: Option<Timestamp>,
@@ -108,7 +105,7 @@ mod payment_channel {
         /// this. `sender` will be able to claim the remaining balance by calling
         /// `claim_timeout` after `expiration` has passed.
         #[ink(constructor)]
-        pub fn new(recipient: H160, close_duration: Timestamp) -> Self {
+        pub fn new(recipient: Address, close_duration: Timestamp) -> Self {
             Self {
                 sender: Self::env().caller(),
                 recipient,
@@ -227,13 +224,13 @@ mod payment_channel {
 
         /// Returns the `sender` of the contract.
         #[ink(message)]
-        pub fn get_sender(&self) -> H160 {
+        pub fn get_sender(&self) -> Address {
             self.sender
         }
 
         /// Returns the `recipient` of the contract.
         #[ink(message)]
-        pub fn get_recipient(&self) -> H160 {
+        pub fn get_recipient(&self) -> Address {
             self.recipient
         }
 
@@ -301,15 +298,15 @@ mod payment_channel {
             ink::env::test::default_accounts()
         }
 
-        fn set_next_caller(caller: H160) {
+        fn set_next_caller(caller: Address) {
             ink::env::test::set_caller(caller);
         }
 
-        fn set_account_balance(account: H160, balance: U256) {
+        fn set_account_balance(account: Address, balance: U256) {
             ink::env::test::set_account_balance(account, balance);
         }
 
-        fn get_account_balance(account: H160) -> U256 {
+        fn get_account_balance(account: Address) -> U256 {
             ink::env::test::get_account_balance::<ink::env::DefaultEnvironment>(account)
                 .expect("Cannot get account balance")
         }
@@ -326,7 +323,7 @@ mod payment_channel {
                 + since_the_epoch.subsec_nanos() as u64 / 1_000_000_000
         }
 
-        fn get_dan() -> H160 {
+        fn get_dan() -> Address {
             // Use Dan's seed
             // `subkey inspect //Dan --scheme Ecdsa --output-type json | jq .secretSeed`
             let seed = hex_literal::hex!(
@@ -345,14 +342,14 @@ mod payment_channel {
             ink::primitives::AccountIdMapper::to_address(&account_id)
         }
 
-        fn contract_id() -> H160 {
+        fn contract_id() -> Address {
             let accounts = default_accounts();
             let contract_id = accounts.charlie;
             ink::env::test::set_callee(contract_id);
             contract_id
         }
 
-        fn sign(contract_id: H160, amount: U256) -> [u8; 65] {
+        fn sign(contract_id: Address, amount: U256) -> [u8; 65] {
             let encodable = (contract_id, amount);
             let mut hash =
                 <ink::env::hash::Sha2x256 as ink::env::hash::HashOutput>::Type::default(); // 256-bit buffer

@@ -7,11 +7,10 @@ pub mod delegatee {
             traits::ManualKey,
             Mapping,
         },
-        H160,
     };
     #[ink(storage)]
     pub struct Delegatee {
-        addresses: Mapping<H160, i32, ManualKey<0x23>>,
+        addresses: Mapping<Address, i32, ManualKey<0x23>>,
         counter: i32,
         // Uncommenting below line will break storage compatibility.
         // flag: bool,

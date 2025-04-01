@@ -1,7 +1,7 @@
 use crate::sol_encoding::SolEncodingRef;
 use ink::{
     primitives::DepositLimit,
-    H160,
+    Address,
     SolDecode,
     SolEncode,
 };
@@ -76,7 +76,7 @@ fn call_solidity_encoded_message() {
 
 struct ContractSandbox {
     sandbox: DefaultSandbox,
-    contract_addr: H160,
+    contract_addr: Address,
 }
 
 impl ContractSandbox {

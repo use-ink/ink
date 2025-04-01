@@ -2,7 +2,7 @@
 
 use ink::{
     prelude::vec::Vec,
-    H160,
+    Address,
     U256,
 };
 
@@ -78,8 +78,8 @@ pub trait Erc1155 {
     #[ink(message)]
     fn safe_transfer_from(
         &mut self,
-        from: H160,
-        to: H160,
+        from: Address,
+        to: Address,
         token_id: TokenId,
         value: U256,
         data: Vec<u8>,
@@ -96,8 +96,8 @@ pub trait Erc1155 {
     #[ink(message)]
     fn safe_batch_transfer_from(
         &mut self,
-        from: H160,
-        to: H160,
+        from: Address,
+        to: Address,
         token_ids: Vec<TokenId>,
         values: Vec<U256>,
         data: Vec<u8>,
@@ -105,7 +105,7 @@ pub trait Erc1155 {
 
     /// Query the balance of a specific token for the provided account.
     #[ink(message)]
-    fn balance_of(&self, owner: H160, token_id: TokenId) -> U256;
+    fn balance_of(&self, owner: Address, token_id: TokenId) -> U256;
 
     /// Query the balances for a set of tokens for a set of accounts.
     ///
@@ -118,16 +118,16 @@ pub trait Erc1155 {
     /// [Alice U256 of Token ID 1, Alice U256 of Token ID 2, Bob U256 of Token ID
     /// 1, Bob U256 of Token ID 2]
     #[ink(message)]
-    fn balance_of_batch(&self, owners: Vec<H160>, token_ids: Vec<TokenId>) -> Vec<U256>;
+    fn balance_of_batch(&self, owners: Vec<Address>, token_ids: Vec<TokenId>) -> Vec<U256>;
 
     /// Enable or disable a third party, known as an `operator`, to control all tokens on
     /// behalf of the caller.
     #[ink(message)]
-    fn set_approval_for_all(&mut self, operator: H160, approved: bool) -> Result<()>;
+    fn set_approval_for_all(&mut self, operator: Address, approved: bool) -> Result<()>;
 
     /// Query if the given `operator` is allowed to control all of `owner`'s tokens.
     #[ink(message)]
-    fn is_approved_for_all(&self, owner: H160, operator: H160) -> bool;
+    fn is_approved_for_all(&self, owner: Address, operator: Address) -> bool;
 }
 
 /// The interface for an ERC-1155 Token Receiver contract.
@@ -154,8 +154,8 @@ pub trait Erc1155TokenReceiver {
     #[ink(message, selector = 0xF23A6E61)]
     fn on_received(
         &mut self,
-        operator: H160,
-        from: H160,
+        operator: Address,
+        from: Address,
         token_id: TokenId,
         value: U256,
         data: Vec<u8>,
@@ -175,8 +175,8 @@ pub trait Erc1155TokenReceiver {
     #[ink(message, selector = 0xBC197C81)]
     fn on_batch_received(
         &mut self,
-        operator: H160,
-        from: H160,
+        operator: Address,
+        from: Address,
         token_ids: Vec<TokenId>,
         values: Vec<U256>,
         data: Vec<u8>,
@@ -189,12 +189,11 @@ mod erc1155 {
 
     use ink::{
         storage::Mapping,
-        H160,
         U256,
     };
 
-    type Owner = H160;
-    type Operator = H160;
+    type Owner = Address;
+    type Operator = Address;
 
     /// Indicate that a token transfer has occured.
     ///
@@ -202,11 +201,11 @@ mod erc1155 {
     #[ink(event)]
     pub struct TransferSingle {
         #[ink(topic)]
-        operator: Option<H160>,
+        operator: Option<Address>,
         #[ink(topic)]
-        from: Option<H160>,
+        from: Option<Address>,
         #[ink(topic)]
-        to: Option<H160>,
+        to: Option<Address>,
         token_id: TokenId,
         value: U256,
     }
@@ -215,9 +214,9 @@ mod erc1155 {
     #[ink(event)]
     pub struct ApprovalForAll {
         #[ink(topic)]
-        owner: H160,
+        owner: Address,
         #[ink(topic)]
-        operator: H160,
+        operator: Address,
         approved: bool,
     }
 
@@ -235,7 +234,7 @@ mod erc1155 {
     pub struct Contract {
         /// Tracks the balances of accounts across the different tokens that they might
         /// be holding.
-        balances: Mapping<(H160, TokenId), U256>,
+        balances: Mapping<(Address, TokenId), U256>,
         /// Which accounts (called operators) have been approved to spend funds on behalf
         /// of an owner.
         approvals: Mapping<(Owner, Operator), ()>,
@@ -325,8 +324,8 @@ mod erc1155 {
         // If `from` does not hold any `token_id` tokens.
         fn perform_transfer(
             &mut self,
-            from: H160,
-            to: H160,
+            from: Address,
+            to: Address,
             token_id: TokenId,
             value: U256,
         ) {
@@ -365,9 +364,9 @@ mod erc1155 {
         #[cfg_attr(test, allow(unused_variables))]
         fn transfer_acceptance_check(
             &mut self,
-            caller: H160,
-            from: H160,
-            to: H160,
+            caller: Address,
+            from: Address,
+            to: Address,
             token_id: TokenId,
             value: U256,
             data: Vec<u8>,
@@ -455,8 +454,8 @@ mod erc1155 {
         #[ink(message)]
         fn safe_transfer_from(
             &mut self,
-            from: H160,
-            to: H160,
+            from: Address,
+            to: Address,
             token_id: TokenId,
             value: U256,
             data: Vec<u8>,
@@ -480,8 +479,8 @@ mod erc1155 {
         #[ink(message)]
         fn safe_batch_transfer_from(
             &mut self,
-            from: H160,
-            to: H160,
+            from: Address,
+            to: Address,
             token_ids: Vec<TokenId>,
             values: Vec<U256>,
             data: Vec<u8>,
@@ -523,14 +522,14 @@ mod erc1155 {
         }
 
         #[ink(message)]
-        fn balance_of(&self, owner: H160, token_id: TokenId) -> U256 {
+        fn balance_of(&self, owner: Address, token_id: TokenId) -> U256 {
             self.balances.get((owner, token_id)).unwrap_or(0.into())
         }
 
         #[ink(message)]
         fn balance_of_batch(
             &self,
-            owners: Vec<H160>,
+            owners: Vec<Address>,
             token_ids: Vec<TokenId>,
         ) -> Vec<U256> {
             let mut output = Vec::new();
@@ -544,7 +543,7 @@ mod erc1155 {
         }
 
         #[ink(message)]
-        fn set_approval_for_all(&mut self, operator: H160, approved: bool) -> Result<()> {
+        fn set_approval_for_all(&mut self, operator: Address, approved: bool) -> Result<()> {
             let caller = self.env().caller();
             ensure!(operator != caller, Error::SelfApproval);
 
@@ -564,7 +563,7 @@ mod erc1155 {
         }
 
         #[ink(message)]
-        fn is_approved_for_all(&self, owner: H160, operator: H160) -> bool {
+        fn is_approved_for_all(&self, owner: Address, operator: Address) -> bool {
             self.approvals.contains((&owner, &operator))
         }
     }
@@ -573,8 +572,8 @@ mod erc1155 {
         #[ink(message, selector = 0xF23A6E61)]
         fn on_received(
             &mut self,
-            _operator: H160,
-            _from: H160,
+            _operator: Address,
+            _from: Address,
             _token_id: TokenId,
             _value: U256,
             _data: Vec<u8>,
@@ -596,8 +595,8 @@ mod erc1155 {
         #[ink(message, selector = 0xBC197C81)]
         fn on_batch_received(
             &mut self,
-            _operator: H160,
-            _from: H160,
+            _operator: Address,
+            _from: Address,
             _token_ids: Vec<TokenId>,
             _values: Vec<U256>,
             _data: Vec<u8>,
@@ -620,7 +619,7 @@ mod erc1155 {
     /// Helper for referencing the zero address (`0x00`). Note that in practice this
     /// address should not be treated in any special way (such as a default
     /// placeholder) since it has a known private key.
-    fn zero_address() -> H160 {
+    fn zero_address() -> Address {
         [0u8; 20].into()
     }
 
@@ -630,7 +629,7 @@ mod erc1155 {
         use super::*;
         use crate::Erc1155;
 
-        fn set_sender(sender: H160) {
+        fn set_sender(sender: Address) {
             ink::env::test::set_caller(sender);
         }
 
@@ -638,15 +637,15 @@ mod erc1155 {
             ink::env::test::default_accounts()
         }
 
-        fn alice() -> H160 {
+        fn alice() -> Address {
             default_accounts().alice
         }
 
-        fn bob() -> H160 {
+        fn bob() -> Address {
             default_accounts().bob
         }
 
-        fn charlie() -> H160 {
+        fn charlie() -> Address {
             default_accounts().charlie
         }
 
@@ -722,7 +721,7 @@ mod erc1155 {
 
         #[ink::test]
         fn sending_tokens_to_zero_address_fails() {
-            let burn: H160 = [0; 20].into();
+            let burn: Address = [0; 20].into();
 
             let mut erc = init_contract();
             let res = erc.safe_transfer_from(alice(), burn, 1, 10.into(), vec![]);

@@ -242,7 +242,7 @@ mod runtime_call {
                 .expect("instantiate failed");
             let mut call_builder = contract.call_builder::<RuntimeCaller>();
 
-            //let receiver: ink::H160 = default_accounts().bob;
+            //let receiver: ink::Address = default_accounts().bob;
             let receiver = AccountId::from([0x02; 32]);
 
             // when

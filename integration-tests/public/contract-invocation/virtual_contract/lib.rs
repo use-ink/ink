@@ -10,24 +10,23 @@ pub mod virtual_contract {
             ExecutionInput,
             Selector,
         },
-        H160,
     };
 
     #[ink(storage)]
     pub struct VirtualContract {
-        version: ink::H160,
+        version: Address,
         x: u32,
     }
 
     impl VirtualContract {
         /// Creates a new Template contract.
         #[ink(constructor)]
-        pub fn new(version: H160, x: u32) -> Self {
+        pub fn new(version: Address, x: u32) -> Self {
             Self { version, x }
         }
 
         #[ink(message)]
-        pub fn set_version(&mut self, version: H160) {
+        pub fn set_version(&mut self, version: Address) {
             self.version = version;
         }
 
@@ -85,7 +84,7 @@ pub mod virtual_contract {
 
     impl Default for VirtualContract {
         fn default() -> Self {
-            Self::new(H160::default(), 0)
+            Self::new(Address::default(), 0)
         }
     }
 }

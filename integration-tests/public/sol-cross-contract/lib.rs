@@ -14,7 +14,6 @@ mod sol_cross_contract {
             },
             CallFlags,
         },
-        H160,
         U256,
     };
 
@@ -29,7 +28,7 @@ mod sol_cross_contract {
         }
 
         #[ink(message)]
-        pub fn call_contract_sol_encoding(&mut self, callee: H160) {
+        pub fn call_contract_sol_encoding(&mut self, callee: Address) {
             let selector = keccak_selector(b"set_value(bool)");
 
             let result = build_call_solidity::<<Self as ::ink::env::ContractEnv>::Env>()

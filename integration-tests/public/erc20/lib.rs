@@ -4,7 +4,6 @@
 mod erc20 {
     use ink::{
         storage::Mapping,
-        H160,
         U256,
     };
 
@@ -15,19 +14,19 @@ mod erc20 {
         /// Total token supply.
         total_supply: U256,
         /// Mapping from owner to number of owned token.
-        balances: Mapping<H160, U256>,
+        balances: Mapping<Address, U256>,
         /// Mapping of the token amount which an account is allowed to withdraw
         /// from another account.
-        allowances: Mapping<(H160, H160), U256>,
+        allowances: Mapping<(Address, Address), U256>,
     }
 
     /// Event emitted when a token transfer occurs.
     #[ink(event)]
     pub struct Transfer {
         #[ink(topic)]
-        from: Option<H160>,
+        from: Option<Address>,
         #[ink(topic)]
-        to: Option<H160>,
+        to: Option<Address>,
         value: U256,
     }
 
@@ -36,9 +35,9 @@ mod erc20 {
     #[ink(event)]
     pub struct Approval {
         #[ink(topic)]
-        owner: H160,
+        owner: Address,
         #[ink(topic)]
-        spender: H160,
+        spender: Address,
         value: U256,
     }
 
@@ -84,7 +83,7 @@ mod erc20 {
         ///
         /// Returns `0` if the account is non-existent.
         #[ink(message)]
-        pub fn balance_of(&self, owner: H160) -> U256 {
+        pub fn balance_of(&self, owner: Address) -> U256 {
             self.balance_of_impl(&owner)
         }
 
@@ -97,7 +96,7 @@ mod erc20 {
         /// Prefer to call this method over `balance_of` since this
         /// works using references which are more efficient.
         #[inline]
-        fn balance_of_impl(&self, owner: &H160) -> U256 {
+        fn balance_of_impl(&self, owner: &Address) -> U256 {
             self.balances.get(owner).unwrap_or_default()
         }
 
@@ -105,7 +104,7 @@ mod erc20 {
         ///
         /// Returns `0` if no allowance has been set.
         #[ink(message)]
-        pub fn allowance(&self, owner: H160, spender: H160) -> U256 {
+        pub fn allowance(&self, owner: Address, spender: Address) -> U256 {
             self.allowance_impl(&owner, &spender)
         }
 
@@ -118,7 +117,7 @@ mod erc20 {
         /// Prefer to call this method over `allowance` since this
         /// works using references which are more efficient.
         #[inline]
-        fn allowance_impl(&self, owner: &H160, spender: &H160) -> U256 {
+        fn allowance_impl(&self, owner: &Address, spender: &Address) -> U256 {
             self.allowances.get((owner, spender)).unwrap_or_default()
         }
 
@@ -131,7 +130,7 @@ mod erc20 {
         /// Returns `InsufficientBalance` error if there are not enough tokens on
         /// the caller's account balance.
         #[ink(message)]
-        pub fn transfer(&mut self, to: H160, value: U256) -> Result<()> {
+        pub fn transfer(&mut self, to: Address, value: U256) -> Result<()> {
             let from = self.env().caller();
             self.transfer_from_to(&from, &to, value)
         }
@@ -144,7 +143,7 @@ mod erc20 {
         ///
         /// An `Approval` event is emitted.
         #[ink(message)]
-        pub fn approve(&mut self, spender: H160, value: U256) -> Result<()> {
+        pub fn approve(&mut self, spender: Address, value: U256) -> Result<()> {
             let owner = self.env().caller();
             self.allowances.insert((&owner, &spender), &value);
             self.env().emit_event(Approval {
@@ -170,7 +169,7 @@ mod erc20 {
         /// Returns `InsufficientBalance` error if there are not enough tokens on
         /// the account balance of `from`.
         #[ink(message)]
-        pub fn transfer_from(&mut self, from: H160, to: H160, value: U256) -> Result<()> {
+        pub fn transfer_from(&mut self, from: Address, to: Address, value: U256) -> Result<()> {
             let caller = self.env().caller();
             let allowance = self.allowance_impl(&from, &caller);
             if allowance < value {
@@ -194,8 +193,8 @@ mod erc20 {
         /// the caller's account balance.
         fn transfer_from_to(
             &mut self,
-            from: &H160,
-            to: &H160,
+            from: &Address,
+            to: &Address,
             value: U256,
         ) -> Result<()> {
             let from_balance = self.balance_of_impl(from);
@@ -218,7 +217,7 @@ mod erc20 {
     }
 
     #[cfg(test)]
-    fn set_caller(sender: H160) {
+    fn set_caller(sender: Address) {
         ink::env::test::set_caller(sender);
     }
 
@@ -233,8 +232,8 @@ mod erc20 {
 
         fn assert_transfer_event(
             event: &ink::env::test::EmittedEvent,
-            expected_from: Option<H160>,
-            expected_to: Option<H160>,
+            expected_from: Option<Address>,
+            expected_to: Option<Address>,
             expected_value: U256,
         ) {
             let decoded_event =
@@ -247,7 +246,7 @@ mod erc20 {
 
             let mut expected_topics = Vec::new();
             expected_topics.push(
-                ink::blake2x256!("Transfer(Option<H160>,Option<H160>,U256)").into(),
+                ink::blake2x256!("Transfer(Option<Address>,Option<Address>,U256)").into(),
             );
             if let Some(from) = expected_from {
                 expected_topics.push(encoded_into_hash(from));
@@ -280,7 +279,7 @@ mod erc20 {
         #[ink::test]
         fn new_works() {
             // Constructor works.
-            set_caller(H160::from([0x01; 20]));
+            set_caller(Address::from([0x01; 20]));
             let _erc20 = Erc20::new(100.into());
 
             // Transfer event triggered during initial construction.
@@ -290,7 +289,7 @@ mod erc20 {
             assert_transfer_event(
                 &emitted_events[0],
                 None,
-                Some(H160::from([0x01; 20])),
+                Some(Address::from([0x01; 20])),
                 100.into(),
             );
         }
@@ -299,14 +298,14 @@ mod erc20 {
         #[ink::test]
         fn total_supply_works() {
             // Constructor works.
-            set_caller(H160::from([0x01; 20]));
+            set_caller(Address::from([0x01; 20]));
             let erc20 = Erc20::new(100.into());
             // Transfer event triggered during initial construction.
             let emitted_events = ink::env::test::recorded_events().collect::<Vec<_>>();
             assert_transfer_event(
                 &emitted_events[0],
                 None,
-                Some(H160::from([0x01; 20])),
+                Some(Address::from([0x01; 20])),
                 100.into(),
             );
             // Get the token total supply.

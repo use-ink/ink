@@ -19,7 +19,7 @@ use ink::{
         AbiEncodeWith,
     },
     MessageResult,
-    H160,
+    Address,
 };
 use pallet_revive::{
     DepositLimit,
@@ -31,7 +31,7 @@ pub struct PalletReviveExecutor<E: Environment, Runtime: pallet_revive::Config> 
     // todo
     //pub origin: AccountIdOf<Runtime>,
     pub origin: OriginFor<Runtime>,
-    pub contract: H160,
+    pub contract: Address,
     pub value: BalanceOf<Runtime>,
     pub gas_limit: Weight,
     // todo
