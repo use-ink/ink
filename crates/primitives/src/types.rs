@@ -434,11 +434,11 @@ pub type BlockNumber = u32;
 pub struct RuntimeEvent();
 
 /// The default event record type.
-pub type EventRecord = EventRecordFoo<RuntimeEvent, Hash>;
+pub type EventRecord = EventRecordSpec<RuntimeEvent, Hash>;
 
 #[derive(Encode, Decode, Debug)]
 #[cfg_attr(feature = "std", derive(TypeInfo))]
-pub struct EventRecordFoo<E, H> {
+pub struct EventRecordSpec<E, H> {
     /// The phase of the block it happened in.
     pub phase: Phase,
     /// The event itself.
