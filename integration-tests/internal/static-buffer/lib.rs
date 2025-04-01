@@ -103,6 +103,14 @@ pub mod static_buffer {
             let mut constructor = StaticBufferRef::new_default();
 
             // when
+            let call_result = client
+                .instantiate("static_buffer", &ink_e2e::bob(), &mut constructor)
+                .dry_run()
+                .await?;
+
+            let err_msg = String::from_utf8_lossy(call_result.return_data());
+            eprintln!("contract {:?}", err_msg);
+
             let contract = client
                 .instantiate("static_buffer", &ink_e2e::bob(), &mut constructor)
                 .submit()
