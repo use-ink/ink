@@ -44,7 +44,8 @@ use crate::sol::{
 ///
 /// | Rust/ink! type | Solidity ABI type | Notes |
 /// | -------------- | ----------------- | ----- |
-/// | `SolBytes<[u8; N]>` for `1 <= N <= 32` |  `bytesN` | e.g. `SolBytes<[u8; 1]>` <=> `bytes1` |
+/// | `SolBytes<u8>` |  `bytes1` ||
+/// | `SolBytes<[u8; N]>` for `1 <= N <= 32` |  `bytesN` | e.g. `SolBytes<[u8; 32]>` <=> `bytes32` |
 /// | `SolBytes<Vec<u8>>` |  `bytes` ||
 ///
 /// Ref: <https://docs.soliditylang.org/en/latest/types.html#fixed-size-byte-arrays>
@@ -140,7 +141,29 @@ pub trait SolBytesType: private::Sealed {
     fn detokenize(token: <Self::AlloyType as AlloySolType>::Token<'_>) -> Self;
 }
 
-// Implement `SolBytesType` for `[u8; N]` and `Vec<u8>`.
+// Implement `SolBytesType` for `u8`, `[u8; N]` and `Vec<u8>`.
+impl SolBytesType for u8
+where
+    sol_data::ByteCount<1>: sol_data::SupportedFixedBytes,
+{
+    type AlloyType = sol_data::FixedBytes<1>;
+
+    fn tokenize(&self) -> <Self::AlloyType as AlloySolType>::Token<'_> {
+        // `u8` is encoded as `[u8; 1]` (i.e. `bytes1`).
+        let mut word = [0; 32];
+        word[0] = *self;
+        WordToken::from(word)
+    }
+
+    fn detokenize(token: <Self::AlloyType as AlloySolType>::Token<'_>) -> Self {
+        // `u8` is decoded as the first byte since `bytes1` is padded with trailing zeros.
+        // Ref: <https://docs.soliditylang.org/en/latest/abi-spec.html#formal-specification-of-the-encoding>
+        token.0 .0[0]
+    }
+}
+
+impl private::Sealed for u8 {}
+
 impl<const N: usize> SolBytesType for [u8; N]
 where
     sol_data::ByteCount<N>: sol_data::SupportedFixedBytes,

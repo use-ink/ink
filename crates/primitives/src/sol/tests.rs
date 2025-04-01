@@ -212,6 +212,12 @@ fn dynamic_array_works() {
 
 #[test]
 fn fixed_bytes_works() {
+    test_case!(
+        SolBytes<u8>, SolBytes(100u8),
+        AlloyFixedBytes<1>, SolValue, AlloyFixedBytes([100u8; 1]),
+        [.unwrap().0], [.unwrap().0[0]]
+    );
+
     macro_rules! fixed_bytes_test_case {
             ($($size: literal),+ $(,)*) => {
                 $(
