@@ -55,14 +55,14 @@ use scale::{
 ///         traits::ManualKey,
 ///         Mapping,
 ///     },
-///     H160,
+///     Address,
 ///     U256,
 /// };
 ///
 /// #[ink(storage)]
 /// #[derive(Default)]
 /// pub struct MyContract {
-///     balances: Mapping<H160, U256, ManualKey<123>>,
+///     balances: Mapping<Address, U256, ManualKey<123>>,
 /// }
 ///
 /// impl MyContract {
