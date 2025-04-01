@@ -4,12 +4,10 @@ pub use self::virtual_contract::VirtualContractRef;
 
 #[ink::contract()]
 pub mod virtual_contract {
-    use ink::{
-        env::call::{
-            build_call,
-            ExecutionInput,
-            Selector,
-        },
+    use ink::env::call::{
+        build_call,
+        ExecutionInput,
+        Selector,
     };
 
     #[ink(storage)]

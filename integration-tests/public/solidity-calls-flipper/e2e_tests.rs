@@ -148,8 +148,7 @@ where
         )
         .await;
 
-    <Ret>::decode(&exec_result.result.unwrap().data[..])
-        .expect("decode failed")
+    <Ret>::decode(&exec_result.result.unwrap().data[..]).expect("decode failed")
 }
 
 async fn call_ink_no_return(

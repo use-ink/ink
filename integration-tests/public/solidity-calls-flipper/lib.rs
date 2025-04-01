@@ -3,14 +3,12 @@
 #[ink::contract(abi = "sol")]
 pub mod flipper {
     use crate::keccak_selector;
-    use ink::{
-        env::{
-            call::{
-                build_call_solidity,
-                ExecutionInput,
-            },
-            CallFlags,
+    use ink::env::{
+        call::{
+            build_call_solidity,
+            ExecutionInput,
         },
+        CallFlags,
     };
     #[ink(storage)]
     pub struct Flipper {

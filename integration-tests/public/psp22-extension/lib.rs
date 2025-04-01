@@ -39,7 +39,12 @@ pub trait Psp22Extension {
 
     // PSP22 transfer_from
     #[ink(function = 0x54b3)]
-    fn transfer_from(asset_id: u32, from: Address, to: Address, value: U256) -> Result<()>;
+    fn transfer_from(
+        asset_id: u32,
+        from: Address,
+        to: Address,
+        value: U256,
+    ) -> Result<()>;
 
     // PSP22 approve
     #[ink(function = 0xb20f)]
@@ -169,7 +174,12 @@ mod psp22_ext {
         /// Transfers `value` amount of specified asset from the caller's account to the
         /// account `to`.
         #[ink(message, selector = 0xdb20f9f5)]
-        pub fn transfer(&mut self, asset_id: u32, to: Address, value: U256) -> Result<()> {
+        pub fn transfer(
+            &mut self,
+            asset_id: u32,
+            to: Address,
+            value: U256,
+        ) -> Result<()> {
             self.env().extension().transfer(asset_id, to, value)
         }
 

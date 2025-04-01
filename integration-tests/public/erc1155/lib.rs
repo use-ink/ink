@@ -118,7 +118,11 @@ pub trait Erc1155 {
     /// [Alice U256 of Token ID 1, Alice U256 of Token ID 2, Bob U256 of Token ID
     /// 1, Bob U256 of Token ID 2]
     #[ink(message)]
-    fn balance_of_batch(&self, owners: Vec<Address>, token_ids: Vec<TokenId>) -> Vec<U256>;
+    fn balance_of_batch(
+        &self,
+        owners: Vec<Address>,
+        token_ids: Vec<TokenId>,
+    ) -> Vec<U256>;
 
     /// Enable or disable a third party, known as an `operator`, to control all tokens on
     /// behalf of the caller.
@@ -543,7 +547,11 @@ mod erc1155 {
         }
 
         #[ink(message)]
-        fn set_approval_for_all(&mut self, operator: Address, approved: bool) -> Result<()> {
+        fn set_approval_for_all(
+            &mut self,
+            operator: Address,
+            approved: bool,
+        ) -> Result<()> {
             let caller = self.env().caller();
             ensure!(operator != caller, Error::SelfApproval);
 

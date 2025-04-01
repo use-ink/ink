@@ -170,7 +170,11 @@ mod erc721 {
 
         /// Transfers the token from the caller to the given destination.
         #[ink(message)]
-        pub fn transfer(&mut self, destination: Address, id: TokenId) -> Result<(), Error> {
+        pub fn transfer(
+            &mut self,
+            destination: Address,
+            id: TokenId,
+        ) -> Result<(), Error> {
             let caller = self.env().caller();
             self.transfer_token_from(&caller, &destination, id)?;
             Ok(())
@@ -260,7 +264,11 @@ mod erc721 {
         }
 
         /// Removes token `id` from the owner.
-        fn remove_token_from(&mut self, from: &Address, id: TokenId) -> Result<(), Error> {
+        fn remove_token_from(
+            &mut self,
+            from: &Address,
+            id: TokenId,
+        ) -> Result<(), Error> {
             let Self {
                 token_owner,
                 owned_tokens_count,

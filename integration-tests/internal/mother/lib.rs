@@ -18,15 +18,13 @@
 
 #[ink::contract]
 mod mother {
-    use ink::{
-        prelude::{
-            format,
-            string::{
-                String,
-                ToString,
-            },
-            vec::Vec,
+    use ink::prelude::{
+        format,
+        string::{
+            String,
+            ToString,
         },
+        vec::Vec,
     };
 
     use ink::storage::{
