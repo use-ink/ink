@@ -136,7 +136,7 @@ impl CallForwarder<'_> {
                 for #call_forwarder_ident<E>
             where
                 E: ::ink::env::Environment,
-                ::ink::H160: ::ink::storage::traits::StorageLayout,
+                ::ink::Address: ::ink::storage::traits::StorageLayout,
             {
                 fn layout(
                     __key: &::ink::primitives::Key,
@@ -164,7 +164,7 @@ impl CallForwarder<'_> {
             impl<E> ::core::clone::Clone for #call_forwarder_ident<E>
             where
                 E: ::ink::env::Environment,
-                ::ink::H160: ::core::clone::Clone,
+                ::ink::Address: ::core::clone::Clone,
             {
                 #[inline]
                 fn clone(&self) -> Self {
@@ -179,7 +179,7 @@ impl CallForwarder<'_> {
             impl<E> ::core::fmt::Debug for #call_forwarder_ident<E>
             where
                 E: ::ink::env::Environment,
-                ::ink::H160: ::core::fmt::Debug,
+                ::ink::Address: ::core::fmt::Debug,
             {
                 fn fmt(&self, f: &mut ::core::fmt::Formatter) -> ::core::fmt::Result {
                     f.debug_struct(::core::stringify!(#call_forwarder_ident))
@@ -193,7 +193,7 @@ impl CallForwarder<'_> {
             impl<E> ::ink::scale_info::TypeInfo for #call_forwarder_ident<E>
             where
                 E: ::ink::env::Environment,
-                ::ink::H160: ::ink::scale_info::TypeInfo + 'static,
+                ::ink::Address: ::ink::scale_info::TypeInfo + 'static,
             {
                 type Identity = <
                     <Self as ::ink::codegen::TraitCallBuilder>::Builder as ::ink::scale_info::TypeInfo
@@ -225,17 +225,17 @@ impl CallForwarder<'_> {
                 E: ::ink::env::Environment,
             {
                 #[inline]
-                fn from_addr(addr: ::ink::H160) -> Self {
+                fn from_addr(addr: ::ink::Address) -> Self {
                     Self { builder: <<Self as ::ink::codegen::TraitCallBuilder>::Builder
                         as ::ink::env::call::FromAddr>::from_addr(addr) }
                 }
             }
 
-            impl<E> ::core::convert::From<::ink::H160> for #call_forwarder_ident<E>
+            impl<E> ::core::convert::From<::ink::Address> for #call_forwarder_ident<E>
             where
                 E: ::ink::env::Environment,
             {
-                fn from(addr: ::ink::H160) -> Self {
+                fn from(addr: ::ink::Address) -> Self {
                     <Self as ::ink::env::call::FromAddr>::from_addr(addr)
                 }
             }
@@ -245,27 +245,27 @@ impl CallForwarder<'_> {
                 E: ::ink::env::Environment,
             {
                 #[inline]
-                fn to_addr(&self) -> ::ink::H160 {
+                fn to_addr(&self) -> ::ink::Address {
                     <<Self as ::ink::codegen::TraitCallBuilder>::Builder
                         as ::ink::ToAddr>::to_addr(&self.builder)
                 }
             }
 
-            impl<E> ::core::convert::AsRef<::ink::H160> for #call_forwarder_ident<E>
+            impl<E> ::core::convert::AsRef<::ink::Address> for #call_forwarder_ident<E>
             where
                 E: ::ink::env::Environment,
             {
-                fn as_ref(&self) -> &::ink::H160 {
-                    <_ as ::core::convert::AsRef<::ink::H160>>::as_ref(&self.builder)
+                fn as_ref(&self) -> &::ink::Address {
+                    <_ as ::core::convert::AsRef<::ink::Address>>::as_ref(&self.builder)
                 }
             }
 
-            impl<E> ::core::convert::AsMut<::ink::H160> for #call_forwarder_ident<E>
+            impl<E> ::core::convert::AsMut<::ink::Address> for #call_forwarder_ident<E>
             where
                 E: ::ink::env::Environment,
             {
-                fn as_mut(&mut self) -> &mut ::ink::H160 {
-                    <_ as ::core::convert::AsMut<::ink::H160>>::as_mut(&mut self.builder)
+                fn as_mut(&mut self) -> &mut ::ink::Address {
+                    <_ as ::core::convert::AsMut<::ink::Address>>::as_mut(&mut self.builder)
                 }
             }
         )

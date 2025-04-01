@@ -150,7 +150,7 @@ where
 mod decode_instantiate_result_tests {
     use super::*;
     use crate::DefaultEnvironment;
-    use ink_primitives::H160;
+    use ink_primitives::Address;
     use scale::Encode;
 
     // The `Result` type used to represent the programmer defined contract output.
@@ -161,14 +161,14 @@ mod decode_instantiate_result_tests {
 
     // The `allow(dead_code)` is for the `AccountId` in the struct.
     #[allow(dead_code)]
-    struct TestContractRef(H160);
+    struct TestContractRef(Address);
 
     impl crate::ContractEnv for TestContractRef {
         type Env = DefaultEnvironment;
     }
 
     impl FromAddr for TestContractRef {
-        fn from_addr(addr: H160) -> Self {
+        fn from_addr(addr: Address) -> Self {
             Self(addr)
         }
     }

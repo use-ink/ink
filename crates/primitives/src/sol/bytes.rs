@@ -54,7 +54,7 @@ use crate::sol::{
 #[cfg_attr(feature = "std", derive(TypeInfo))]
 pub struct SolBytes<T: SolBytesType>(pub T);
 
-// Implement `SolTypeDecode` and `SolTypeEncode` for `AsBytes<T> where T: ByteType`.
+// Implement `SolTypeDecode` and `SolTypeEncode` for `SolBytes<T>`.
 impl<T: SolBytesType> SolTypeDecode for SolBytes<T> {
     type AlloyType = T::AlloyType;
 
@@ -75,7 +75,7 @@ impl<T: SolBytesType> SolTypeEncode for SolBytes<T> {
 
 impl<T: SolBytesType> crate::sol::types::private::Sealed for SolBytes<T> {}
 
-// Implement `SolDecode` and `SolEncode` for `AsBytes<T> where T: ByteType`.
+// Implement `SolDecode` and `SolEncode` for `SolBytes<T>`.
 impl<T: SolBytesType> SolDecode for SolBytes<T> {
     type SolType = SolBytes<T>;
 
@@ -119,8 +119,8 @@ impl AsRef<[u8]> for SolBytes<Vec<u8>> {
     }
 }
 
-/// A Rust equivalent of a Solidity ABI bytes type that implements logic for Solidity ABI
-/// encoding/decoding.
+/// A Rust/ink! equivalent of a Solidity ABI bytes type that implements logic for Solidity
+/// ABI encoding/decoding.
 ///
 /// Ref: <https://docs.soliditylang.org/en/latest/types.html#fixed-size-byte-arrays>
 ///

@@ -60,8 +60,8 @@ use ink_primitives::{
         AbiEncodeWith,
     },
     types::Environment,
+    Address,
     SolEncode,
-    H160,
     H256,
     U256,
 };
@@ -114,7 +114,7 @@ fn invoke_contract_impl<R, Abi>(
     _gas_limit: Option<u64>,
     _call_flags: u32,
     _transferred_value: Option<&U256>,
-    callee_account: H160,
+    callee_account: Address,
     input: Vec<u8>,
 ) -> Result<ink_primitives::MessageResult<R>>
 where
@@ -146,7 +146,7 @@ fn invoke_contract_impl_delegate<R, Abi>(
     _gas_limit: Option<u64>,
     _call_flags: u32,
     _transferred_value: Option<&U256>,
-    callee_account: H160,
+    callee_account: Address,
     input: Vec<u8>,
 ) -> Result<ink_primitives::MessageResult<R>>
 where
@@ -524,8 +524,8 @@ impl EnvBackend for EnvInstance {
 }
 
 impl TypedEnvBackend for EnvInstance {
-    fn caller(&mut self) -> H160 {
-        self.get_property::<H160>(Engine::caller)
+    fn caller(&mut self) -> Address {
+        self.get_property::<Address>(Engine::caller)
             .unwrap_or_else(|error| panic!("could not read `caller` property: {error:?}"))
     }
 
@@ -552,8 +552,8 @@ impl TypedEnvBackend for EnvInstance {
             })
     }
 
-    fn address(&mut self) -> H160 {
-        self.get_property::<H160>(Engine::address)
+    fn address(&mut self) -> Address {
+        self.get_property::<Address>(Engine::address)
             .unwrap_or_else(|error| {
                 panic!("could not read `account_id` property: {error:?}")
             })
@@ -715,11 +715,11 @@ impl TypedEnvBackend for EnvInstance {
     }
 
     #[cfg(feature = "unstable-hostfn")]
-    fn terminate_contract(&mut self, beneficiary: H160) -> ! {
+    fn terminate_contract(&mut self, beneficiary: Address) -> ! {
         self.engine.terminate(beneficiary)
     }
 
-    fn transfer<E>(&mut self, destination: H160, value: U256) -> Result<()>
+    fn transfer<E>(&mut self, destination: Address, value: U256) -> Result<()>
     where
         E: Environment,
     {
@@ -738,7 +738,7 @@ impl TypedEnvBackend for EnvInstance {
     }
 
     #[cfg(feature = "unstable-hostfn")]
-    fn is_contract(&mut self, account: &H160) -> bool {
+    fn is_contract(&mut self, account: &Address) -> bool {
         self.engine.is_contract(account)
     }
 
@@ -758,7 +758,7 @@ impl TypedEnvBackend for EnvInstance {
         unimplemented!("off-chain environment does not support `caller_is_root`")
     }
 
-    fn code_hash(&mut self, addr: &H160) -> Result<H256> {
+    fn code_hash(&mut self, addr: &Address) -> Result<H256> {
         let code_hash = self.engine.database.get_code_hash(addr);
         if let Some(code_hash) = code_hash {
             // todo

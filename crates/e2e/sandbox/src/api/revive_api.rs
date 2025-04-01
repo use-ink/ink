@@ -15,15 +15,15 @@ use frame_support::{
     weights::Weight,
 };
 use frame_system::pallet_prelude::OriginFor;
-use ink_primitives::DepositLimit;
+use ink_primitives::{
+    Address,
+    DepositLimit,
+};
 use pallet_revive::{
     Code,
     CodeUploadResult,
 };
-use sp_core::{
-    H160,
-    U256,
-};
+use sp_core::U256;
 use std::ops::Not;
 
 type BalanceOf<R> =
@@ -126,7 +126,7 @@ pub trait ContractAPI {
     #[allow(clippy::type_complexity, clippy::too_many_arguments)]
     fn call_contract(
         &mut self,
-        address: H160,
+        address: Address,
         value: BalanceOf<Self::T>,
         data: Vec<u8>,
         origin: OriginFor<Self::T>,
@@ -221,7 +221,7 @@ where
 
     fn call_contract(
         &mut self,
-        address: H160,
+        address: Address,
         value: BalanceOf<Self::T>,
         data: Vec<u8>,
         origin: OriginFor<Self::T>,

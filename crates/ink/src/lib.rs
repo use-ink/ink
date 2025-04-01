@@ -101,7 +101,6 @@ pub use ink_primitives::{
     SolBytes,
     SolDecode,
     SolEncode,
-    H160,
     H256,
     U256,
 };

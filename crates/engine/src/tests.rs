@@ -12,14 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::{
-    ext::{
-        Engine,
-        Error,
-    },
-    types::H160,
+use crate::ext::{
+    Engine,
+    Error,
 };
-use ink_primitives::U256;
+use ink_primitives::{
+    Address,
+    U256,
+};
 use secp256k1::{
     ecdsa::RecoverableSignature,
     Message,
@@ -42,7 +42,7 @@ fn get_buffer() -> [u8; 1024] {
 #[test]
 fn store_load_clear() {
     let mut engine = Engine::new();
-    engine.set_callee(H160::from([1; 20]));
+    engine.set_callee(Address::from([1; 20]));
     let key: &[u8; 32] = &[0x42; 32];
     let res = engine.get_storage(key);
     assert_eq!(res, Err(Error::KeyNotFound));
@@ -61,7 +61,7 @@ fn store_load_clear() {
 fn setting_getting_balance() {
     // given
     let mut engine = Engine::new();
-    let addr = H160::from([1; 20]);
+    let addr = Address::from([1; 20]);
     let balance = 1337.into();
     engine.set_callee(addr);
     engine.set_balance(addr, balance);
@@ -80,7 +80,7 @@ fn setting_getting_balance() {
 fn setting_getting_caller() {
     // given
     let mut engine = Engine::new();
-    let caller = H160::from([1u8; 20]);
+    let caller = Address::from([1u8; 20]);
 
     // when
     engine.set_caller(caller);
@@ -96,7 +96,7 @@ fn setting_getting_caller() {
 fn address() {
     // given
     let mut engine = Engine::new();
-    let addr = H160::from([1; 20]);
+    let addr = Address::from([1; 20]);
     engine.set_callee(addr);
 
     // when
@@ -111,8 +111,8 @@ fn address() {
 fn transfer() {
     // given
     let mut engine = Engine::new();
-    let alice = H160::from([1; 20]);
-    let bob = H160::from([2; 20]);
+    let alice = Address::from([1; 20]);
+    let bob = Address::from([2; 20]);
     engine.set_callee(alice);
     engine.set_balance(alice, 1337.into());
 

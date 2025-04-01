@@ -22,15 +22,13 @@ use ink_env::{
     Environment,
 };
 use ink_primitives::{
+    Address,
     ConstructorResult,
     MessageResult,
     H256,
 };
 use pallet_revive::{
-    evm::{
-        CallTrace,
-        H160,
-    },
+    evm::CallTrace,
     CodeUploadResult,
     ExecReturnValue,
     InstantiateReturnValue,
@@ -94,7 +92,7 @@ pub type ContractExecResultFor<E> =
 /// Result of a contract instantiation using bare call.
 pub struct BareInstantiationResult<EventLog> {
     /// The address at which the contract was instantiated.
-    pub addr: H160,
+    pub addr: Address,
     /// Events that happened with the contract instantiation.
     pub events: EventLog,
     /// todo
@@ -106,7 +104,7 @@ pub struct BareInstantiationResult<EventLog> {
 impl<EventLog> BareInstantiationResult<EventLog> {
     /// Returns the address at which the contract was instantiated.
     /// todo why this strange name? shouldn't it be `fn addr()`?
-    pub fn call(&self) -> H160 {
+    pub fn call(&self) -> Address {
         self.addr
     }
 }
@@ -130,7 +128,7 @@ where
 /// Result of a contract instantiation.
 pub struct InstantiationResult<E: Environment, EventLog> {
     /// The account id at which the contract was instantiated.
-    pub addr: H160,
+    pub addr: Address,
     /// The result of the dry run, contains debug messages
     /// if there were any.
     pub dry_run: InstantiateDryRunResult<E>,

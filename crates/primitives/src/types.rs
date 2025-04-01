@@ -102,6 +102,15 @@ impl Borrow<[u8; 32]> for AccountId {
     }
 }
 
+/// A Solidity compatible `address` type.
+///
+/// # Note
+///
+/// This is a type alias to the `H160` type used for addresses in `pallet-revive`.
+// For rationale for using `H160` as the `address` type,
+// see https://github.com/use-ink/ink/pull/2441#discussion_r2021230718.
+pub type Address = H160;
+
 /// The default environment `Hash` type.
 ///
 /// # Note
@@ -295,7 +304,7 @@ pub trait AccountIdGuard {}
 /// used in the [`DefaultEnvironment`].
 impl AccountIdGuard for AccountId {}
 
-impl AccountIdGuard for H160 {}
+impl AccountIdGuard for Address {}
 
 cfg_if::cfg_if! {
     if #[cfg(feature = "std")] {
@@ -460,19 +469,19 @@ pub enum Origin<E: Environment> {
 
 pub struct AccountIdMapper {}
 impl AccountIdMapper {
-    //pub fn to_address(account_id: &E::AccountId) -> H160 {
-    pub fn to_address(account_id: &[u8]) -> H160 {
+    //pub fn to_address(account_id: &E::AccountId) -> Address {
+    pub fn to_address(account_id: &[u8]) -> Address {
         let mut account_bytes: [u8; 32] = [0u8; 32];
         account_bytes.copy_from_slice(&account_id[..32]);
         if Self::is_eth_derived(account_id) {
             // this was originally an eth address
             // we just strip the 0xEE suffix to get the original address
-            H160::from_slice(&account_bytes[..20])
+            Address::from_slice(&account_bytes[..20])
         } else {
             // this is an (ed|sr)25510 derived address
             // avoid truncating the public key by hashing it first
             let account_hash = keccak_256(account_bytes.as_ref());
-            H160::from_slice(&account_hash[12..])
+            Address::from_slice(&account_hash[12..])
         }
     }
 
@@ -487,8 +496,3 @@ impl AccountIdMapper {
         account_bytes[20..] == [0xEE; 12]
     }
 }
-
-/// A Solidity compatible `address` type.
-// For rationale for using `H160` as the `address` type,
-// see https://github.com/use-ink/ink/pull/2441#discussion_r2021230718.
-pub type Address = H160;

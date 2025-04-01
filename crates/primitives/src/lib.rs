@@ -60,7 +60,6 @@ pub use self::{
 };
 
 pub use primitive_types::{
-    H160,
     H256,
     U256,
 };
