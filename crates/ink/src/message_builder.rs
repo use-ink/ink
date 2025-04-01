@@ -45,8 +45,8 @@
 /// };
 /// use ink_primitives::{
 ///     AccountId,
+///     Address,
 ///     MessageResult,
-///     H160,
 /// };
 /// use scale::{
 ///     Decode,
@@ -61,7 +61,7 @@
 ///
 ///     /// Transfers balance from the caller to the given address.
 ///     #[ink(message)]
-///     fn transfer(&mut self, amount: u128, to: H160) -> bool;
+///     fn transfer(&mut self, amount: u128, to: Address) -> bool;
 /// }
 ///
 /// #[derive(Clone)]
@@ -109,21 +109,21 @@
 ///     }
 /// }
 ///
-/// fn default(to: H160) {
+/// fn default(to: Address) {
 ///     let executor = ExampleExecutor::<DefaultEnvironment>::new();
 ///     let mut contract = message_builder!(Erc20);
 ///     let total_supply = contract.total_supply().exec(&executor).unwrap().unwrap();
 ///     contract.transfer(total_supply, to).exec(&executor).unwrap();
 /// }
 ///
-/// fn custom(to: H160) {
+/// fn custom(to: Address) {
 ///     let executor = ExampleExecutor::<CustomEnv>::new();
 ///     let mut contract = message_builder!(Erc20, CustomEnv);
 ///     let total_supply = contract.total_supply().exec(&executor).unwrap().unwrap();
 ///     contract.transfer(total_supply, to).exec(&executor).unwrap();
 /// }
 ///
-/// fn generic<E>(to: H160)
+/// fn generic<E>(to: Address)
 /// where
 ///     E: ink_env::Environment,
 /// {

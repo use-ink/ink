@@ -29,7 +29,7 @@ mod contract2 {
 
         /// Returns the address of the contract through the function 'own_address'.
         #[ink(message)]
-        pub fn own_address(&self) -> ink::H160 {
+        pub fn own_address(&self) -> Address {
             self.env().address()
         }
         /*

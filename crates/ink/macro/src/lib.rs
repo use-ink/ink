@@ -443,16 +443,13 @@ pub fn selector_bytes(input: TokenStream) -> TokenStream {
 /// ```
 /// #[ink::contract]
 /// mod erc20 {
-///     use ink::{
-///         H160,
-///         U256,
-///     };
+///     use ink::U256;
 ///
 ///     /// Defines an event that is emitted every time value is transferred.
 ///     #[ink(event)]
 ///     pub struct Transferred {
-///         from: Option<H160>,
-///         to: Option<H160>,
+///         from: Option<Address>,
+///         to: Option<Address>,
 ///         value: U256,
 ///     }
 ///
@@ -549,7 +546,7 @@ pub fn contract(attr: TokenStream, item: TokenStream) -> TokenStream {
 ///
 ///     /// Transfers balance from the caller to the given address.
 ///     #[ink(message)]
-///     fn transfer(&mut self, amount: ink::U256, to: ink::H160) -> bool;
+///     fn transfer(&mut self, amount: ink::U256, to: ink::Address) -> bool;
 ///
 ///     // etc.
 /// }
@@ -562,7 +559,7 @@ pub fn contract(attr: TokenStream, item: TokenStream) -> TokenStream {
 /// ```
 /// #[ink::contract]
 /// mod base_erc20 {
-///     use ink::{H160, U256};
+///     use ink::U256;
 /// #    // We somehow cannot put the trait in the doc-test crate root due to bugs.
 /// #    #[ink::trait_definition]
 /// #    pub trait Erc20 {
@@ -572,7 +569,7 @@ pub fn contract(attr: TokenStream, item: TokenStream) -> TokenStream {
 /// #
 /// #       /// Transfers balance from the caller to the given address.
 /// #       #[ink(message)]
-/// #       fn transfer(&mut self, amount: U256, to: H160) -> bool;
+/// #       fn transfer(&mut self, amount: U256, to: Address) -> bool;
 /// #    }
 /// #
 ///     #[ink(storage)]
@@ -595,7 +592,7 @@ pub fn contract(attr: TokenStream, item: TokenStream) -> TokenStream {
 ///         }
 ///
 ///         #[ink(message)]
-///         fn transfer(&mut self, amount: U256, to: H160) -> bool {
+///         fn transfer(&mut self, amount: U256, to: Address) -> bool {
 ///             unimplemented!()
 ///         }
 ///     }

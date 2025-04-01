@@ -11,7 +11,6 @@ mod instantiate_contract {
             ExecutionInput,
             Selector,
         },
-        H160,
         H256,
     };
 
@@ -80,7 +79,7 @@ mod instantiate_contract {
         }
 
         #[ink(message)]
-        pub fn contract1_get_x(&self, contract1_address: H160) -> u32 {
+        pub fn contract1_get_x(&self, contract1_address: Address) -> u32 {
             let call = build_call()
                 .call(contract1_address)
                 .transferred_value(0.into())
@@ -101,7 +100,7 @@ mod instantiate_contract {
         }
 
         #[ink(message)]
-        pub fn contract2_get_x(&self, contract2_address: H160) -> u32 {
+        pub fn contract2_get_x(&self, contract2_address: Address) -> u32 {
             let call = build_call()
                 .call(contract2_address)
                 .transferred_value(0.into())
@@ -122,7 +121,7 @@ mod instantiate_contract {
         }
 
         #[ink(message)]
-        pub fn contract1_set_x(&self, contract1_address: H160, new_x: u32) {
+        pub fn contract1_set_x(&self, contract1_address: Address, new_x: u32) {
             let call = ink::env::call::build_call()
                 .call(contract1_address)
                 .transferred_value(0.into())
@@ -144,7 +143,7 @@ mod instantiate_contract {
         }
 
         #[ink(message)]
-        pub fn contract2_set_x(&self, contract2_address: H160, new_x: u64) {
+        pub fn contract2_set_x(&self, contract2_address: Address, new_x: u64) {
             let call = ink::env::call::build_call()
                 .call(contract2_address)
                 .transferred_value(0.into())
@@ -183,7 +182,7 @@ mod instantiate_contract {
             contract: &ContractTester,
             code_hash: H256,
             salt: u32,
-        ) -> H160 {
+        ) -> Address {
             let cr = contract.instantiate_contract1(code_hash, salt);
             ink::ToAddr::to_addr(&cr)
         }
@@ -192,7 +191,7 @@ mod instantiate_contract {
             contract: &ContractTester,
             code_hash: H256,
             salt: u32,
-        ) -> H160 {
+        ) -> Address {
             let cr = contract.instantiate_contract2(code_hash, salt);
             ink::ToAddr::to_addr(&cr)
         }
@@ -287,7 +286,7 @@ mod instantiate_contract {
                 });
 
             use ink::ToAddr;
-            let addr2: H160 = addr2.to_addr();
+            let addr2: Address = addr2.to_addr();
 
             let create_params = build_create::<VirtualContractVer2Ref>()
                 .code_hash(code_hash3)
@@ -308,11 +307,11 @@ mod instantiate_contract {
                 .unwrap_or_else(|error| {
                     panic!("Received a `LangError` while instatiating: {:?}", error)
                 });
-            let addr3: H160 = addr3.to_addr();
+            let addr3: Address = addr3.to_addr();
 
             // creates `code_hash1` contract and puts `hash` + `x` as the constructor
             // arguments
-            let instantiate = |delegate_addr: H160, salt: u32, x| {
+            let instantiate = |delegate_addr: Address, salt: u32, x| {
                 let mut salt_bytes = [0u8; 32];
                 salt_bytes[..4].copy_from_slice(&salt.to_le_bytes());
                 let create_params = build_create::<VirtualContractRef>()

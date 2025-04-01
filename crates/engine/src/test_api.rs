@@ -18,13 +18,13 @@ use crate::{
         Balance,
         BlockNumber,
         BlockTimestamp,
-        H160,
     },
     AccountError,
     Error,
 };
 use ink_primitives::{
     AccountId,
+    Address,
     U256,
 };
 use std::collections::HashMap;
@@ -43,11 +43,11 @@ pub struct DebugInfo {
     /// Emitted events recorder.
     emitted_events: Vec<EmittedEvent>,
     /// The total number of reads to the storage.
-    count_reads: HashMap<H160, usize>,
+    count_reads: HashMap<Address, usize>,
     /// The total number of writes to the storage.
-    count_writes: HashMap<H160, usize>,
+    count_writes: HashMap<Address, usize>,
     /// The number of storage cells used by each contract.
-    cells_per_contract: HashMap<H160, HashMap<Vec<u8>, bool>>,
+    cells_per_contract: HashMap<Address, HashMap<Vec<u8>, bool>>,
 }
 
 impl Default for DebugInfo {
@@ -77,7 +77,7 @@ impl DebugInfo {
 
     /// Increases the number of storage writes for the supplied account by one.
     #[allow(clippy::arithmetic_side_effects)] // todo
-    pub fn inc_writes(&mut self, addr: H160) {
+    pub fn inc_writes(&mut self, addr: Address) {
         self.count_writes
             .entry(addr)
             .and_modify(|v| *v += 1)
@@ -86,7 +86,7 @@ impl DebugInfo {
 
     /// Increases the number of storage reads for the supplied account by one.
     #[allow(clippy::arithmetic_side_effects)] // todo
-    pub fn inc_reads(&mut self, addr: H160) {
+    pub fn inc_reads(&mut self, addr: Address) {
         self.count_reads
             .entry(addr)
             .and_modify(|v| *v += 1)
@@ -97,7 +97,7 @@ impl DebugInfo {
     ///
     /// Calling this function multiple times won't change the fact that only
     /// one cell is recorded.
-    pub fn record_cell_for_account(&mut self, addr: H160, key: Vec<u8>) {
+    pub fn record_cell_for_account(&mut self, addr: Address, key: Vec<u8>) {
         self.cells_per_contract
             .entry(addr)
             .and_modify(|hm| {
@@ -113,7 +113,11 @@ impl DebugInfo {
     /// Removes the cell under `key` for the supplied account.
     ///
     /// Returns the removed cell, if there was one.
-    pub fn remove_cell_for_account(&mut self, addr: H160, key: Vec<u8>) -> Option<bool> {
+    pub fn remove_cell_for_account(
+        &mut self,
+        addr: Address,
+        key: Vec<u8>,
+    ) -> Option<bool> {
         self.cells_per_contract
             .get_mut(&addr)
             .map(|hm| hm.remove(&key))
@@ -135,7 +139,7 @@ impl Engine {
     }
 
     /// Returns the total number of reads and writes of the contract's storage.
-    pub fn get_contract_storage_rw(&self, addr: H160) -> (usize, usize) {
+    pub fn get_contract_storage_rw(&self, addr: Address) -> (usize, usize) {
         let reads = self.debug_info.count_reads.get(&addr).unwrap_or(&0);
         let writes = self.debug_info.count_writes.get(&addr).unwrap_or(&0);
         (*reads, *writes)
@@ -152,24 +156,24 @@ impl Engine {
     }
 
     /// Sets a caller for the next call.
-    pub fn set_caller(&mut self, caller: H160) {
+    pub fn set_caller(&mut self, caller: Address) {
         self.exec_context.caller = caller;
     }
 
     /// Sets a known contract by adding it to a vector of known contracts accounts
-    pub fn set_contract(&mut self, caller: H160) {
+    pub fn set_contract(&mut self, caller: Address) {
         self.exec_context.contracts.push(caller);
     }
 
     /// Sets the callee for the next call.
-    pub fn set_callee(&mut self, callee: H160) {
+    pub fn set_callee(&mut self, callee: Address) {
         self.exec_context.callee = Some(callee);
     }
 
     /// Returns the amount of storage cells used by the contract `addr`.
     ///
     /// Returns `None` if the contract `addr` is non-existent.
-    pub fn count_used_storage_cells(&self, addr: &H160) -> Result<usize, Error> {
+    pub fn count_used_storage_cells(&self, addr: &Address) -> Result<usize, Error> {
         let cells = self
             .debug_info
             .cells_per_contract
@@ -193,12 +197,12 @@ impl Engine {
     }
 
     /// Returns the callee, i.e. the currently executing contract.
-    pub fn get_callee(&self) -> H160 {
+    pub fn get_callee(&self) -> Address {
         self.exec_context.callee()
     }
 
     /// Returns boolean value indicating whether the account is a contract
-    pub fn is_contract(&self, addr: &H160) -> bool {
+    pub fn is_contract(&self, addr: &Address) -> bool {
         self.exec_context.contracts.contains(addr)
     }
 
@@ -220,14 +224,14 @@ impl Engine {
     }
 
     /// Returns the current balance of `addr`.
-    pub fn get_balance(&self, addr: H160) -> Result<U256, Error> {
+    pub fn get_balance(&self, addr: Address) -> Result<U256, Error> {
         self.database
             .get_balance(&addr)
             .ok_or(Error::Account(AccountError::NoContractForId(addr)))
     }
 
     /// Sets the balance of `addr` to `new_balance`.
-    pub fn set_balance(&mut self, addr: H160, new_balance: U256) {
+    pub fn set_balance(&mut self, addr: Address, new_balance: U256) {
         self.database.set_balance(&addr, new_balance);
     }
 
@@ -254,7 +258,7 @@ mod tests {
     #[test]
     fn setting_getting_callee() {
         let mut engine = Engine::new();
-        let addr = H160::from([1; 20]);
+        let addr = Address::from([1; 20]);
         engine.set_callee(addr);
         assert_eq!(engine.get_callee(), addr);
     }
@@ -263,7 +267,7 @@ mod tests {
     fn count_cells_per_account_must_stay_the_same() {
         // given
         let mut engine = Engine::new();
-        let addr = H160::from([1; 20]);
+        let addr = Address::from([1; 20]);
         engine.set_callee(addr);
         let key: &[u8; 32] = &[0x42; 32];
         engine.set_storage(key, &[0x05_u8; 5]);
@@ -282,7 +286,7 @@ mod tests {
     fn count_cells_per_account_must_be_reset() {
         // given
         let mut engine = Engine::new();
-        let addr = H160::from([1; 20]);
+        let addr = Address::from([1; 20]);
         engine.set_callee(addr);
         let key: &[u8; 32] = &[0x42; 32];
         engine.set_storage(key, &[0x05_u8; 5]);
@@ -302,12 +306,12 @@ mod tests {
         let key: &[u8; 32] = &[0x42; 32];
 
         // when
-        engine.set_callee(H160::from([1; 20]));
+        engine.set_callee(Address::from([1; 20]));
         engine.set_storage(key, &[0x05_u8; 5]);
         engine.set_storage(key, &[0x05_u8; 6]);
         engine.get_storage(key).unwrap();
 
-        engine.set_callee(H160::from([2; 20]));
+        engine.set_callee(Address::from([2; 20]));
         engine.set_storage(key, &[0x07_u8; 7]);
         engine.get_storage(key).unwrap();
 

@@ -4,7 +4,6 @@
 mod dns {
     use ink::{
         storage::Mapping,
-        H160,
         H256,
     };
 
@@ -14,7 +13,7 @@ mod dns {
         #[ink(topic)]
         name: H256,
         #[ink(topic)]
-        from: H160,
+        from: Address,
     }
 
     /// Emitted whenever an address changes.
@@ -22,11 +21,11 @@ mod dns {
     pub struct SetAddress {
         #[ink(topic)]
         name: H256,
-        from: H160,
+        from: Address,
         #[ink(topic)]
-        old_address: Option<H160>,
+        old_address: Option<Address>,
         #[ink(topic)]
-        new_address: H160,
+        new_address: Address,
     }
 
     /// Emitted whenever a name is being transferred.
@@ -34,11 +33,11 @@ mod dns {
     pub struct Transfer {
         #[ink(topic)]
         name: H256,
-        from: H160,
+        from: Address,
         #[ink(topic)]
-        old_owner: Option<H160>,
+        old_owner: Option<Address>,
         #[ink(topic)]
-        new_owner: H160,
+        new_owner: Address,
     }
 
     /// Domain name service contract inspired by
@@ -59,11 +58,11 @@ mod dns {
     #[ink(storage)]
     pub struct DomainNameService {
         /// A hashmap to store all name to addresses mapping.
-        name_to_address: Mapping<H256, H160>,
+        name_to_address: Mapping<H256, Address>,
         /// A hashmap to store all name to owners mapping.
-        name_to_owner: Mapping<H256, H160>,
+        name_to_owner: Mapping<H256, Address>,
         /// The default address.
-        default_address: H160,
+        default_address: Address,
     }
 
     impl Default for DomainNameService {
@@ -117,7 +116,7 @@ mod dns {
 
         /// Set address for specific name.
         #[ink(message)]
-        pub fn set_address(&mut self, name: H256, new_address: H160) -> Result<()> {
+        pub fn set_address(&mut self, name: H256, new_address: Address) -> Result<()> {
             let caller = self.env().caller();
             let owner = self.get_owner_or_default(name);
             if caller != owner {
@@ -138,7 +137,7 @@ mod dns {
 
         /// Transfer owner to another address.
         #[ink(message)]
-        pub fn transfer(&mut self, name: H256, to: H160) -> Result<()> {
+        pub fn transfer(&mut self, name: H256, to: Address) -> Result<()> {
             let caller = self.env().caller();
             let owner = self.get_owner_or_default(name);
             if caller != owner {
@@ -160,23 +159,23 @@ mod dns {
 
         /// Get address for specific name.
         #[ink(message)]
-        pub fn get_address(&self, name: H256) -> H160 {
+        pub fn get_address(&self, name: H256) -> Address {
             self.get_address_or_default(name)
         }
 
         /// Get owner of specific name.
         #[ink(message)]
-        pub fn get_owner(&self, name: H256) -> H160 {
+        pub fn get_owner(&self, name: H256) -> Address {
             self.get_owner_or_default(name)
         }
 
         /// Returns the owner given the hash or the default address.
-        fn get_owner_or_default(&self, name: H256) -> H160 {
+        fn get_owner_or_default(&self, name: H256) -> Address {
             self.name_to_owner.get(name).unwrap_or(self.default_address)
         }
 
         /// Returns the address given the hash or the default address.
-        fn get_address_or_default(&self, name: H256) -> H160 {
+        fn get_address_or_default(&self, name: H256) -> Address {
             self.name_to_address
                 .get(name)
                 .unwrap_or(self.default_address)
@@ -186,7 +185,7 @@ mod dns {
     /// Helper for referencing the zero address (`0x00`). Note that in practice this
     /// address should not be treated in any special way (such as a default
     /// placeholder) since it has a known private key.
-    fn zero_address() -> H160 {
+    fn zero_address() -> Address {
         [0u8; 20].into()
     }
 
@@ -198,7 +197,7 @@ mod dns {
             ink::env::test::default_accounts()
         }
 
-        fn set_next_caller(caller: H160) {
+        fn set_next_caller(caller: Address) {
             ink::env::test::set_caller(caller);
         }
 

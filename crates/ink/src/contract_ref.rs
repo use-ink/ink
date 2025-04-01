@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use ink_primitives::H160;
+use ink_primitives::Address;
 
 /// Generates a wrapper which can be used for interacting with the contract.
 ///
@@ -32,7 +32,6 @@ use ink_primitives::H160;
 /// mod trait_caller {
 ///     use ink::{
 ///         contract_ref,
-///         H160,
 ///         U256,
 ///     };
 ///
@@ -44,7 +43,7 @@ use ink_primitives::H160;
 ///
 ///         /// Transfers balance from the caller to the given address.
 ///         #[ink(message)]
-///         fn transfer(&mut self, amount: U256, to: H160) -> bool;
+///         fn transfer(&mut self, amount: U256, to: Address) -> bool;
 ///     }
 ///
 ///     #[ink(storage)]
@@ -62,20 +61,20 @@ use ink_primitives::H160;
 ///
 ///         /// Example of converting `AccountId` into `contract_ref!` implicitly.
 ///         #[ink(message)]
-///         pub fn change_account_id_1(&mut self, new_erc20: H160) {
+///         pub fn change_account_id_1(&mut self, new_erc20: Address) {
 ///             self.erc20 = new_erc20.into();
 ///         }
 ///
 ///         /// Example of converting `AccountId` into `contract_ref!` explicitly.
 ///         #[ink(message)]
-///         pub fn change_account_id_2(&mut self, new_erc20: H160) {
+///         pub fn change_account_id_2(&mut self, new_erc20: Address) {
 ///             let erc20: contract_ref!(Erc20) = new_erc20.into();
 ///             self.erc20 = erc20;
 ///         }
 ///
 ///         /// Example of converting `AccountId` into an alias from `contract_ref!`.
 ///         #[ink(message)]
-///         pub fn change_account_id_3(&mut self, new_erc20: H160) {
+///         pub fn change_account_id_3(&mut self, new_erc20: Address) {
 ///             type Erc20Wrapper = contract_ref!(Erc20);
 ///             let erc20: Erc20Wrapper = new_erc20.into();
 ///             self.erc20 = erc20;
@@ -127,7 +126,7 @@ use ink_primitives::H160;
 /// ```rust
 /// use ink::contract_ref;
 /// use ink_env::DefaultEnvironment;
-/// use ink_primitives::H160;
+/// use ink_primitives::Address;
 ///
 /// #[ink::trait_definition]
 /// pub trait Erc20 {
@@ -137,7 +136,7 @@ use ink_primitives::H160;
 ///
 ///     /// Transfers balance from the caller to the given address.
 ///     #[ink(message)]
-///     fn transfer(&mut self, amount: u128, to: H160) -> bool;
+///     fn transfer(&mut self, amount: u128, to: Address) -> bool;
 /// }
 ///
 /// #[derive(Clone)]
@@ -160,7 +159,7 @@ use ink_primitives::H160;
 ///
 /// fn default(mut contract: contract_ref!(Erc20, DefaultEnvironment)) {
 ///     let total_supply = contract.total_supply();
-///     let to: H160 = contract.as_ref().clone();
+///     let to: Address = contract.as_ref().clone();
 ///     contract.transfer(total_supply, to);
 /// }
 ///
@@ -180,7 +179,7 @@ use ink_primitives::H160;
 /// fn generic<E, A>(mut contract: contract_ref!(Erc20, E))
 /// where
 ///     E: ink_env::Environment<AccountId = A>,
-///     A: Into<H160> + Clone,
+///     A: Into<Address> + Clone,
 /// {
 ///     let total_supply = contract.total_supply();
 ///     let to = contract.as_ref().clone();
@@ -190,7 +189,7 @@ use ink_primitives::H160;
 /// fn generic_alias<E, A>(mut contract: AliasWithGenericEnv<E>)
 /// where
 ///     E: ink_env::Environment<AccountId = A>,
-///     A: Into<H160> + Clone,
+///     A: Into<Address> + Clone,
 /// {
 ///     generic(contract)
 /// }
@@ -199,7 +198,7 @@ use ink_primitives::H160;
 ///
 /// fn contract_ref_default_behaviour(mut contract: contract_ref!(Erc20)) {
 ///     let total_supply = contract.total_supply();
-///     let to: H160 = contract.as_ref().clone();
+///     let to: Address = contract.as_ref().clone();
 ///     contract.transfer(total_supply, to);
 /// }
 /// ```
@@ -222,5 +221,5 @@ macro_rules! contract_ref {
 /// Allows them to return their underlying account identifier.
 pub trait ToAddr {
     /// Returns the underlying account identifier of the instantiated contract.
-    fn to_addr(&self) -> H160;
+    fn to_addr(&self) -> Address;
 }

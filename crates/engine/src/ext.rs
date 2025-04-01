@@ -25,13 +25,13 @@ use crate::{
         DebugInfo,
         EmittedEvent,
     },
-    types::{
-        BlockTimestamp,
-        H160,
-    },
+    types::BlockTimestamp,
 };
 use hex_literal::hex;
-use ink_primitives::U256;
+use ink_primitives::{
+    Address,
+    U256,
+};
 pub use pallet_revive_uapi::ReturnErrorCode as Error;
 use scale::Encode;
 use std::panic::panic_any;
@@ -102,7 +102,7 @@ impl Default for Engine {
 impl Engine {
     /// Transfers value from the contract to the destination account.
     #[allow(clippy::arithmetic_side_effects)] // todo
-    pub fn transfer(&mut self, dest: H160, mut value: &[u8]) -> Result<(), Error> {
+    pub fn transfer(&mut self, dest: Address, mut value: &[u8]) -> Result<(), Error> {
         // Note that a transfer of `0` is allowed here
         let increment = <u128 as scale::Decode>::decode(&mut value)
             .map_err(|_| Error::TransferFailed)?;
@@ -216,7 +216,7 @@ impl Engine {
     /// This function never returns. Either the termination was successful and the
     /// execution of the destroyed contract is halted. Or it failed during the
     /// termination which is considered fatal.
-    pub fn terminate(&mut self, beneficiary: H160) -> ! {
+    pub fn terminate(&mut self, beneficiary: Address) -> ! {
         // Send the remaining balance to the beneficiary
         let contract = self.get_callee();
         let all = self

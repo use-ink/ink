@@ -35,7 +35,7 @@ use ink_primitives::{
         ScaleEncoding,
         SolEncoding,
     },
-    H160,
+    Address,
     H256,
     U256,
 };
@@ -57,7 +57,7 @@ pub mod state {
 pub trait FromAddr {
     /// Creates the contract instance from the account ID of the already instantiated
     /// contract.
-    fn from_addr(addr: H160) -> Self;
+    fn from_addr(addr: Address) -> Self;
 }
 
 /// Represents any type that can be returned from an `ink!` constructor. The following

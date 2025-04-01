@@ -212,10 +212,11 @@ You can find binary releases of the node [here](https://github.com/use-ink/ink-n
 - More idiomatic return types for metadata getters - [#2398](https://github.com/use-ink/ink/pull/2398)
 
 ## Added
-- Support for `caller_is_root` - [#2332] (https://github.com/use-ink/ink/pull/2332)
-- Allow setting features for contract build in E2E tests - [#2460] (https://github.com/use-ink/ink/pull/2460)
+- Support for `caller_is_root` - [#2332](https://github.com/use-ink/ink/pull/2332)
+- Allow setting features for contract build in E2E tests - [#2460](https://github.com/use-ink/ink/pull/2460)
 - Improve support for Solidity ABI calling conventions - [#2411](https://github.com/use-ink/ink/pull/2411)
 - Implement contract invocation in off-chain environment engine - [#1957](https://github.com/paritytech/ink/pull/1988)
+- Abstractions for mapping arbitrary Rust types to Solidity ABI compatible types - [#2441](https://github.com/use-ink/ink/pull/2441)
 
 ## Fixed
 - [E2E] Have port parsing handle comma-separated list ‒ [#2336](https://github.com/use-ink/ink/pull/2336)

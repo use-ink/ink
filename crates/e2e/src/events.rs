@@ -13,7 +13,7 @@
 // limitations under the License.
 
 use crate::H256;
-use pallet_revive::evm::H160;
+use ink_primitives::Address;
 #[cfg(feature = "std")]
 use std::fmt::Debug;
 use subxt::{
@@ -36,9 +36,9 @@ use subxt::{
 #[encode_as_type(crate_path = "subxt::ext::scale_encode")]
 pub struct ContractInstantiatedEvent {
     /// Address of the deployer.
-    pub deployer: H160,
+    pub deployer: Address,
     /// Address where the contract was instantiated to.
-    pub contract: H160,
+    pub contract: Address,
 }
 
 impl StaticEvent for ContractInstantiatedEvent {
@@ -77,7 +77,7 @@ impl StaticEvent for CodeStoredEvent {
 #[encode_as_type(crate_path = "subxt::ext::scale_encode")]
 /// A custom event emitted by the contract.
 pub struct ContractEmitted {
-    pub contract: H160,
+    pub contract: Address,
     pub data: Vec<u8>,
     pub topics: Vec<H256>,
 }

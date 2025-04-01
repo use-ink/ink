@@ -28,7 +28,6 @@ mod call_builder {
             },
             DefaultEnvironment,
         },
-        H160,
         H256,
     };
 
@@ -53,7 +52,7 @@ mod call_builder {
         #[ink(message)]
         pub fn call(
             &mut self,
-            address: H160,
+            address: Address,
             selector: [u8; 4],
         ) -> Option<ink::LangError> {
             let result = build_call::<DefaultEnvironment>()
@@ -81,7 +80,7 @@ mod call_builder {
         /// This message does not allow the caller to handle any `LangErrors`, for that
         /// use the `call` message instead.
         #[ink(message)]
-        pub fn invoke(&mut self, address: H160, selector: [u8; 4]) {
+        pub fn invoke(&mut self, address: Address, selector: [u8; 4]) {
             use ink::env::call::build_call;
 
             build_call::<DefaultEnvironment>()
@@ -143,7 +142,7 @@ mod call_builder {
             init_value: bool,
         ) -> Option<
             Result<
-                Result<H160, constructors_return_value::ConstructorError>,
+                Result<Address, constructors_return_value::ConstructorError>,
                 ink::LangError,
             >,
         > {

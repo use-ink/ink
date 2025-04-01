@@ -10,7 +10,6 @@ mod mapping {
             vec::Vec,
         },
         storage::Mapping,
-        H160,
         U256,
     };
 
@@ -25,9 +24,9 @@ mod mapping {
     #[derive(Default)]
     pub struct Mappings {
         /// Mapping from owner to number of owned token.
-        balances: Mapping<H160, U256>,
+        balances: Mapping<Address, U256>,
         /// Mapping from owner to aliases.
-        names: Mapping<H160, Vec<String>>,
+        names: Mapping<Address, Vec<String>>,
     }
 
     impl Mappings {

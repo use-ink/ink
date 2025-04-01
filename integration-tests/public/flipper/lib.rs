@@ -144,12 +144,12 @@ pub mod flipper {
             mut client: Client,
         ) -> E2EResult<()> {
             // given
-            use ink::H160;
+            use ink::Address;
             let addr = std::env::var("CONTRACT_ADDR_HEX")
                 .unwrap()
                 .replace("0x", "");
             let addr_bytes: Vec<u8> = hex::decode(addr).unwrap();
-            let addr = H160::from_slice(&addr_bytes[..]);
+            let addr = Address::from_slice(&addr_bytes[..]);
 
             use std::str::FromStr;
             let suri = ink_e2e::subxt_signer::SecretUri::from_str("//Alice").unwrap();

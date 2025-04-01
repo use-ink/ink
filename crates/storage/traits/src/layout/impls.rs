@@ -41,7 +41,6 @@ use ink_primitives::{
     Address,
     Hash,
     Key,
-    H160,
     H256,
     U256,
 };
@@ -61,7 +60,7 @@ macro_rules! impl_storage_layout_for_primitives {
 #[rustfmt::skip]
 impl_storage_layout_for_primitives!(
     AccountId, Address, Hash, String,
-    H160, H256, U256,
+    H256, U256,
     bool, char, (),
     u8, u16, u32, u64, u128,
     i8, i16, i32, i64, i128,

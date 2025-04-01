@@ -158,7 +158,7 @@ impl ContractRef<'_> {
         quote_spanned!(span=>
             impl ::ink::env::call::FromAddr for #ref_ident {
                 #[inline]
-                fn from_addr(addr: ::ink::H160) -> Self {
+                fn from_addr(addr: ::ink::Address) -> Self {
                     Self { inner: <<#storage_ident
                         as ::ink::codegen::ContractCallBuilder>::Type
                         as ::ink::env::call::FromAddr>::from_addr(addr)
@@ -168,21 +168,21 @@ impl ContractRef<'_> {
 
             impl ::ink::ToAddr for #ref_ident {
                 #[inline]
-                fn to_addr(&self) -> ::ink::H160 {
+                fn to_addr(&self) -> ::ink::Address {
                     <<#storage_ident as ::ink::codegen::ContractCallBuilder>::Type
                         as ::ink::ToAddr>::to_addr(&self.inner)
                 }
             }
 
-            impl ::core::convert::AsRef<::ink::H160> for #ref_ident {
-                fn as_ref(&self) -> &::ink::H160 {
-                    <_ as ::core::convert::AsRef<::ink::H160>>::as_ref(&self.inner)
+            impl ::core::convert::AsRef<::ink::Address> for #ref_ident {
+                fn as_ref(&self) -> &::ink::Address {
+                    <_ as ::core::convert::AsRef<::ink::Address>>::as_ref(&self.inner)
                 }
             }
 
-            impl ::core::convert::AsMut<::ink::H160> for #ref_ident {
-                fn as_mut(&mut self) -> &mut ::ink::H160 {
-                    <_ as ::core::convert::AsMut<::ink::H160>>::as_mut(&mut self.inner)
+            impl ::core::convert::AsMut<::ink::Address> for #ref_ident {
+                fn as_mut(&mut self) -> &mut ::ink::Address {
+                    <_ as ::core::convert::AsMut<::ink::Address>>::as_mut(&mut self.inner)
                 }
             }
         )

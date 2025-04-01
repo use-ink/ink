@@ -2,7 +2,6 @@
 
 #[ink::contract]
 mod erc721 {
-    use ink::H160;
     use ink_storage::Mapping;
 
     /// A token ID.
@@ -12,13 +11,13 @@ mod erc721 {
     #[derive(Default)]
     pub struct Erc721 {
         /// Mapping from token to owner.
-        token_owner: Mapping<TokenId, H160>,
+        token_owner: Mapping<TokenId, Address>,
         /// Mapping from token to approvals users.
-        token_approvals: Mapping<TokenId, H160>,
+        token_approvals: Mapping<TokenId, Address>,
         /// Mapping from owner to number of owned token.
-        owned_tokens_count: Mapping<H160, u32>,
+        owned_tokens_count: Mapping<Address, u32>,
         /// Mapping from owner to operator approvals.
-        operator_approvals: Mapping<(H160, H160), ()>,
+        operator_approvals: Mapping<(Address, Address), ()>,
     }
 
     #[derive(Debug, Copy, Clone, PartialEq, Eq)]
@@ -37,9 +36,9 @@ mod erc721 {
     #[ink(event)]
     pub struct Transfer {
         #[ink(topic)]
-        from: Option<H160>,
+        from: Option<Address>,
         #[ink(topic)]
-        to: Option<H160>,
+        to: Option<Address>,
         #[ink(topic)]
         id: TokenId,
     }
@@ -48,9 +47,9 @@ mod erc721 {
     #[ink(event)]
     pub struct Approval {
         #[ink(topic)]
-        from: H160,
+        from: Address,
         #[ink(topic)]
-        to: H160,
+        to: Address,
         #[ink(topic)]
         id: TokenId,
     }
@@ -60,9 +59,9 @@ mod erc721 {
     #[ink(event)]
     pub struct ApprovalForAll {
         #[ink(topic)]
-        owner: H160,
+        owner: Address,
         #[ink(topic)]
-        operator: H160,
+        operator: Address,
         approved: bool,
     }
 
@@ -77,25 +76,25 @@ mod erc721 {
         ///
         /// This represents the amount of unique tokens the owner has.
         #[ink(message)]
-        pub fn balance_of(&self, owner: H160) -> u32 {
+        pub fn balance_of(&self, owner: Address) -> u32 {
             self.balance_of_or_zero(&owner)
         }
 
         /// Returns the owner of the token.
         #[ink(message)]
-        pub fn owner_of(&self, id: TokenId) -> Option<H160> {
+        pub fn owner_of(&self, id: TokenId) -> Option<Address> {
             self.token_owner.get(&id)
         }
 
         /// Returns the approved account ID for this token if any.
         #[ink(message)]
-        pub fn get_approved(&self, id: TokenId) -> Option<H160> {
+        pub fn get_approved(&self, id: TokenId) -> Option<Address> {
             self.token_approvals.get(&id)
         }
 
         /// Returns `true` if the operator is approved by the owner.
         #[ink(message)]
-        pub fn is_approved_for_all(&self, owner: H160, operator: H160) -> bool {
+        pub fn is_approved_for_all(&self, owner: Address, operator: Address) -> bool {
             self.approved_for_all(owner, operator)
         }
 
@@ -103,7 +102,7 @@ mod erc721 {
         #[ink(message)]
         pub fn set_approval_for_all(
             &mut self,
-            to: H160,
+            to: Address,
             approved: bool,
         ) -> Result<(), Error> {
             self.approve_for_all(to, approved)?;
@@ -112,14 +111,14 @@ mod erc721 {
 
         /// Approves the account to transfer the specified token on behalf of the caller.
         #[ink(message)]
-        pub fn approve(&mut self, to: H160, id: TokenId) -> Result<(), Error> {
+        pub fn approve(&mut self, to: Address, id: TokenId) -> Result<(), Error> {
             self.approve_for(&to, id)?;
             Ok(())
         }
 
         /// Transfers the token from the caller to the given destination.
         #[ink(message)]
-        pub fn transfer(&mut self, destination: H160, id: TokenId) -> Result<(), Error> {
+        pub fn transfer(&mut self, destination: Address, id: TokenId) -> Result<(), Error> {
             let caller = self.env().caller();
             self.transfer_token_from(&caller, &destination, id)?;
             Ok(())
@@ -129,8 +128,8 @@ mod erc721 {
         #[ink(message)]
         pub fn transfer_from(
             &mut self,
-            from: H160,
-            to: H160,
+            from: Address,
+            to: Address,
             id: TokenId,
         ) -> Result<(), Error> {
             self.transfer_token_from(&from, &to, id)?;
@@ -143,7 +142,7 @@ mod erc721 {
             let caller = self.env().caller();
             self.add_token_to(&caller, id)?;
             self.env().emit_event(Transfer {
-                from: Some(H160::from([0x0; 20])),
+                from: Some(Address::from([0x0; 20])),
                 to: Some(caller),
                 id,
             });
@@ -174,18 +173,18 @@ mod erc721 {
 
             self.env().emit_event(Transfer {
                 from: Some(caller),
-                to: Some(H160::from([0x0; 20])),
+                to: Some(Address::from([0x0; 20])),
                 id,
             });
 
             Ok(())
         }
 
-        /// Transfers token `id` `from` the sender to the `to` `H160`.
+        /// Transfers token `id` `from` the sender to the `to` `Address`.
         fn transfer_token_from(
             &mut self,
-            from: &H160,
-            to: &H160,
+            from: &Address,
+            to: &Address,
             id: TokenId,
         ) -> Result<(), Error> {
             let caller = self.env().caller();
@@ -207,7 +206,7 @@ mod erc721 {
         }
 
         /// Removes token `id` from the owner.
-        fn remove_token_from(&mut self, from: &H160, id: TokenId) -> Result<(), Error> {
+        fn remove_token_from(&mut self, from: &Address, id: TokenId) -> Result<(), Error> {
             let Self {
                 token_owner,
                 owned_tokens_count,
@@ -229,7 +228,7 @@ mod erc721 {
         }
 
         /// Adds the token `id` to the `to` AccountID.
-        fn add_token_to(&mut self, to: &H160, id: TokenId) -> Result<(), Error> {
+        fn add_token_to(&mut self, to: &Address, id: TokenId) -> Result<(), Error> {
             let Self {
                 token_owner,
                 owned_tokens_count,
@@ -240,7 +239,7 @@ mod erc721 {
                 return Err(Error::TokenExists)
             }
 
-            if *to == H160::from([0x0; 20]) {
+            if *to == Address::from([0x0; 20]) {
                 return Err(Error::NotAllowed)
             };
 
@@ -253,7 +252,7 @@ mod erc721 {
         }
 
         /// Approves or disapproves the operator to transfer all tokens of the caller.
-        fn approve_for_all(&mut self, to: H160, approved: bool) -> Result<(), Error> {
+        fn approve_for_all(&mut self, to: Address, approved: bool) -> Result<(), Error> {
             let caller = self.env().caller();
             if to == caller {
                 return Err(Error::NotAllowed)
@@ -273,18 +272,18 @@ mod erc721 {
             Ok(())
         }
 
-        /// Approve the passed `H160` to transfer the specified token on behalf of
+        /// Approve the passed `Address` to transfer the specified token on behalf of
         /// the message's sender.
-        fn approve_for(&mut self, to: &H160, id: TokenId) -> Result<(), Error> {
+        fn approve_for(&mut self, to: &Address, id: TokenId) -> Result<(), Error> {
             let caller = self.env().caller();
             let owner = self.owner_of(id);
             if !(owner == Some(caller)
-                || self.approved_for_all(owner.expect("Error with H160"), caller))
+                || self.approved_for_all(owner.expect("Error with Address"), caller))
             {
                 return Err(Error::NotAllowed)
             };
 
-            if *to == H160::from([0x0; 20]) {
+            if *to == Address::from([0x0; 20]) {
                 return Err(Error::NotAllowed)
             };
 
@@ -309,25 +308,25 @@ mod erc721 {
         }
 
         // Returns the total number of tokens from an account.
-        fn balance_of_or_zero(&self, of: &H160) -> u32 {
+        fn balance_of_or_zero(&self, of: &Address) -> u32 {
             self.owned_tokens_count.get(of).unwrap_or(0)
         }
 
         /// Gets an operator on other Account's behalf.
-        fn approved_for_all(&self, owner: H160, operator: H160) -> bool {
+        fn approved_for_all(&self, owner: Address, operator: Address) -> bool {
             self.operator_approvals.get((&owner, &operator)).is_some()
         }
 
-        /// Returns true if the `H160` `from` is the owner of token `id`
+        /// Returns true if the `Address` `from` is the owner of token `id`
         /// or it has been approved on behalf of the token `id` owner.
-        fn approved_or_owner(&self, from: Option<H160>, id: TokenId) -> bool {
+        fn approved_or_owner(&self, from: Option<Address>, id: TokenId) -> bool {
             let owner = self.owner_of(id);
-            from != Some(H160::from([0x0; 20]))
+            from != Some(Address::from([0x0; 20]))
                 && (from == owner
                     || from == self.token_approvals.get(&id)
                     || self.approved_for_all(
-                        owner.expect("Error with H160"),
-                        from.expect("Error with H160"),
+                        owner.expect("Error with Address"),
+                        from.expect("Error with Address"),
                     ))
         }
 

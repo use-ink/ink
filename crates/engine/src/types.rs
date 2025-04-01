@@ -16,8 +16,10 @@
 //! This is a known limitation that we want to address in the future.
 
 use derive_more::From;
-use ink_primitives::AccountId;
-pub use ink_primitives::H160;
+use ink_primitives::{
+    AccountId,
+    Address,
+};
 
 /// Same type as the `DefaultEnvironment::BlockNumber` type.
 pub type BlockNumber = u32;
@@ -52,7 +54,7 @@ pub enum AccountError {
     UnexpectedUserAccount,
     #[from(ignore)]
     NoAccountForId(AccountId),
-    NoContractForId(H160),
+    NoContractForId(Address),
 }
 
 /// The type of origins supported by `pallet-revive`.

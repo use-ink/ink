@@ -7,6 +7,7 @@
 #[ink::contract]
 pub mod give_me {
     use ink::primitives::U256;
+
     /// No storage is needed for this simple contract.
     #[ink(storage)]
     pub struct GiveMe {}
@@ -72,7 +73,6 @@ pub mod give_me {
     #[cfg(test)]
     mod tests {
         use super::*;
-        use ink::H160;
 
         #[ink::test]
         fn transfer_works() {
@@ -163,11 +163,11 @@ pub mod give_me {
             GiveMe::new()
         }
 
-        fn contract_id() -> H160 {
+        fn contract_id() -> Address {
             ink::env::test::callee()
         }
 
-        fn set_sender(sender: H160) {
+        fn set_sender(sender: Address) {
             ink::env::test::set_caller(sender);
         }
 
@@ -176,11 +176,11 @@ pub mod give_me {
         }
 
         // todo change all to addr
-        fn set_balance(account_id: H160, balance: U256) {
+        fn set_balance(account_id: Address, balance: U256) {
             ink::env::test::set_account_balance(account_id, balance)
         }
 
-        fn get_balance(account_id: H160) -> U256 {
+        fn get_balance(account_id: Address) -> U256 {
             ink::env::test::get_account_balance::<ink::env::DefaultEnvironment>(
                 account_id,
             )
