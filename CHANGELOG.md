@@ -220,6 +220,7 @@ You can find binary releases of the node [here](https://github.com/use-ink/ink-n
 - Improve support for Solidity ABI calling conventions - [#2411](https://github.com/use-ink/ink/pull/2411)
 - Implement contract invocation in off-chain environment engine - [#1957](https://github.com/paritytech/ink/pull/1988)
 - Abstractions for mapping arbitrary Rust types to Solidity ABI compatible types - [#2441](https://github.com/use-ink/ink/pull/2441)
+- Documentation for contract abi arg and provided Rust/ink! to Solidity type mappings - [2463](https://github.com/use-ink/ink/pull/2463)
 
 ## Fixed
 - [E2E] Have port parsing handle comma-separated list ‒ [#2336](https://github.com/use-ink/ink/pull/2336)
