@@ -55,7 +55,6 @@ use scale::{
 ///         traits::ManualKey,
 ///         Mapping,
 ///     },
-///     Address,
 ///     U256,
 /// };
 ///
