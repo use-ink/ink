@@ -106,7 +106,7 @@ impl Borrow<[u8; 32]> for AccountId {
 ///
 /// # Note
 ///
-/// This is a type alias to the `H160` type used for addresses in `pallet-revive`.
+/// This is a type alias for the `H160` type used for addresses in `pallet-revive`.
 // For rationale for using `H160` as the `address` type,
 // see https://github.com/use-ink/ink/pull/2441#discussion_r2021230718.
 pub type Address = H160;

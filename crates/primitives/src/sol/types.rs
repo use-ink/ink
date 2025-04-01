@@ -51,7 +51,7 @@ use crate::types::Address;
 /// | `uN` for `N ∈ {8,16,32,64,128}` | `uintN` | e.g `u8` <=> `uint8` |
 /// | `U256` | `uint256` ||
 /// | `String` | `string` ||
-/// | `Address` | `address` ||
+/// | `Address` / `H160` | `address` | `Address` is a type alias for the `H160` type used for addresses in `pallet-revive` |
 /// | `[T; N]` for `const N: usize` | `T[N]` | e.g. `[i8; 64]` <=> `int8[64]` |
 /// | `Vec<T>` | `T[]` | e.g. `Vec<i8>` <=> `int8[]` |
 /// | `SolBytes<[u8; N]>` for `1 <= N <= 32` |  `bytesN` | e.g. `SolBytes<[u8; 1]>` <=> `bytes1` |
@@ -91,7 +91,7 @@ pub trait SolTypeDecode: Sized + private::Sealed {
 /// | `uN` for `N ∈ {8,16,32,64,128}` | `uintN` | e.g `u8` <=> `uint8` |
 /// | `U256` | `uint256` ||
 /// | `String` | `string` ||
-/// | `Address` | `address` ||
+/// | `Address` / `H160` | `address` | `Address` is a type alias for the `H160` type used for addresses in `pallet-revive` |
 /// | `[T; N]` for `const N: usize` | `T[N]` | e.g. `[i8; 64]` <=> `int8[64]` |
 /// | `Vec<T>` | `T[]` | e.g. `Vec<i8>` <=> `int8[]` |
 /// | `SolBytes<[u8; N]>` for `1 <= N <= 32` |  `bytesN` | e.g. `SolBytes<[u8; 1]>` <=> `bytes1` |
