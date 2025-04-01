@@ -12,9 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use alloy_sol_types::SolValue;
 use ink_prelude::vec::Vec;
 use pallet_revive_uapi::ReturnFlags;
+
+use crate::sol::{
+    SolDecode,
+    SolEncode,
+};
 
 /// Stores various information of the respective dispatchable ink! message.
 ///
@@ -290,9 +294,12 @@ impl<T: scale::Decode> AbiDecodeWith<ScaleEncoding> for T {
     }
 }
 
-impl<T: SolValue> AbiEncodeWith<SolEncoding> for T {
+impl<T> AbiEncodeWith<SolEncoding> for T
+where
+    T: for<'a> SolEncode<'a>,
+{
     fn encode_to_slice(&self, buffer: &mut [u8]) -> usize {
-        let encoded = T::abi_encode(self);
+        let encoded = T::encode(self);
         let len = encoded.len();
         debug_assert!(
             len <= buffer.len(),
@@ -305,18 +312,14 @@ impl<T: SolValue> AbiEncodeWith<SolEncoding> for T {
     }
 
     fn encode_to_vec(&self, buffer: &mut Vec<u8>) {
-        buffer.extend_from_slice(&T::abi_encode(self));
+        buffer.extend_from_slice(&T::encode(self));
     }
 }
 
-impl<T: SolValue> AbiDecodeWith<SolEncoding> for T
-where
-    T: From<<<T as SolValue>::SolType as alloy_sol_types::SolType>::RustType>,
-{
+impl<T: SolDecode> AbiDecodeWith<SolEncoding> for T {
     type Error = alloy_sol_types::Error;
     fn decode_with(buffer: &[u8]) -> Result<Self, Self::Error> {
-        // Don't validate decoding. Validating results in encoding and decoding again.
-        T::abi_decode(buffer, false)
+        T::decode(buffer)
     }
 }
 
@@ -329,7 +332,7 @@ mod private {
 ///
 /// # Note
 ///
-/// Currently the only allowed types are `()` and `Result<(), E>`
+/// Currently, the only allowed types are `()` and `Result<(), E>`
 /// where `E` is some unspecified error type.
 /// If the contract initializer returns `Result::Err` the utility
 /// method that is used to initialize an ink! smart contract will
@@ -360,7 +363,7 @@ pub trait ConstructorOutput<C>: private::Sealed {
 ///
 /// # Note
 ///
-/// Currently the only allowed types are `()` and `Result<(), E>`
+/// Currently, the only allowed types are `()` and `Result<(), E>`
 /// where `E` is some unspecified error type.
 /// If the contract initializer returns `Result::Err` the utility
 /// method that is used to initialize an ink! smart contract will

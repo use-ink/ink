@@ -40,7 +40,7 @@ use ink_primitives::{
         AbiDecodeWith,
         AbiEncodeWith,
     },
-    H160,
+    Address,
     H256,
     U256,
 };
@@ -116,7 +116,7 @@ where
     /// # Note
     ///
     /// For more details visit: [`ink_env::caller`]
-    pub fn caller(self) -> H160 {
+    pub fn caller(self) -> Address {
         ink_env::caller()
     }
 
@@ -249,7 +249,7 @@ where
     /// pub mod only_owner {
     ///     #[ink(storage)]
     ///     pub struct OnlyOwner {
-    ///         owner: ink::H160,
+    ///         owner: ink::Address,
     ///         value: u32,
     ///     }
     ///
@@ -288,7 +288,7 @@ where
     /// Returns the address of the executed contract.
     ///
     /// For more details visit: [`ink_env::address`]
-    pub fn address(self) -> H160 {
+    pub fn address(self) -> Address {
         ink_env::address()
     }
 
@@ -535,7 +535,7 @@ where
     /// #[ink(message)]
     /// pub fn invoke_contract(&self) -> i32 {
     ///     let call_params = build_call::<DefaultEnvironment>()
-    ///         .call(ink::H160::from([0x42; 20]))
+    ///         .call(ink::Address::from([0x42; 20]))
     ///         .ref_time_limit(500_000_000)
     ///         .proof_size_limit(100_000)
     ///         .storage_deposit_limit(1_000_000_000.into())
@@ -607,7 +607,7 @@ where
     /// #[ink(message)]
     /// pub fn invoke_contract_delegate(&self) -> i32 {
     ///     let call_params = build_call::<DefaultEnvironment>()
-    ///         .call_type(DelegateCall::new(ink::H160::zero()))
+    ///         .call_type(DelegateCall::new(ink::Address::zero()))
     ///         .exec_input(
     ///             ExecutionInput::new(Selector::new([0xCA, 0xFE, 0xBA, 0xBE]))
     ///                 .push_arg(42u8)
@@ -673,7 +673,7 @@ where
     ///
     /// For more details visit: [`ink_env::terminate_contract`]
     #[cfg(feature = "unstable-hostfn")]
-    pub fn terminate_contract(self, beneficiary: H160) -> ! {
+    pub fn terminate_contract(self, beneficiary: Address) -> ! {
         ink_env::terminate_contract(beneficiary)
     }
 
@@ -709,7 +709,7 @@ where
     // # Note
     //
     // For more details visit: [`ink_env::transfer`]
-    pub fn transfer(self, destination: H160, value: U256) -> Result<()> {
+    pub fn transfer(self, destination: Address, value: U256) -> Result<()> {
         // todo remove E
         ink_env::transfer::<E>(destination, value)
     }
@@ -967,7 +967,7 @@ where
     /// #         }
     /// #
     /// #[ink(message)]
-    /// pub fn is_contract(&mut self, addr: ink::H160) -> bool {
+    /// pub fn is_contract(&mut self, addr: ink::Address) -> bool {
     ///     self.env().is_contract(&addr)
     /// }
     /// #    }
@@ -978,7 +978,7 @@ where
     ///
     /// For more details visit: [`ink_env::is_contract`]
     #[cfg(feature = "unstable-hostfn")]
-    pub fn is_contract(self, addr: &H160) -> bool {
+    pub fn is_contract(self, addr: &Address) -> bool {
         ink_env::is_contract(addr)
     }
 
@@ -1065,7 +1065,7 @@ where
     /// #
     /// #[ink(message)]
     /// // todo
-    /// pub fn code_hash(&mut self, addr: ink::H160) -> Option<ink::H256> {
+    /// pub fn code_hash(&mut self, addr: ink::Address) -> Option<ink::H256> {
     ///     self.env().code_hash(&addr).ok()
     /// }
     /// #    }
@@ -1075,7 +1075,7 @@ where
     /// # Note
     ///
     /// For more details visit: [`ink_env::code_hash`]
-    pub fn code_hash(self, addr: &H160) -> Result<H256> {
+    pub fn code_hash(self, addr: &Address) -> Result<H256> {
         ink_env::code_hash(addr)
     }
 

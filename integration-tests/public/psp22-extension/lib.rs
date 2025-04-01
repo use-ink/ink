@@ -3,7 +3,7 @@
 use ink::{
     env::Environment,
     prelude::vec::Vec,
-    H160,
+    Address,
     U256,
 };
 
@@ -28,30 +28,35 @@ pub trait Psp22Extension {
     fn total_supply(asset_id: u32) -> Result<U256>;
 
     #[ink(function = 0x6568)]
-    fn balance_of(asset_id: u32, owner: H160) -> Result<U256>;
+    fn balance_of(asset_id: u32, owner: Address) -> Result<U256>;
 
     #[ink(function = 0x4d47)]
-    fn allowance(asset_id: u32, owner: H160, spender: H160) -> Result<U256>;
+    fn allowance(asset_id: u32, owner: Address, spender: Address) -> Result<U256>;
 
     // PSP22 transfer
     #[ink(function = 0xdb20)]
-    fn transfer(asset_id: u32, to: H160, value: U256) -> Result<()>;
+    fn transfer(asset_id: u32, to: Address, value: U256) -> Result<()>;
 
     // PSP22 transfer_from
     #[ink(function = 0x54b3)]
-    fn transfer_from(asset_id: u32, from: H160, to: H160, value: U256) -> Result<()>;
+    fn transfer_from(
+        asset_id: u32,
+        from: Address,
+        to: Address,
+        value: U256,
+    ) -> Result<()>;
 
     // PSP22 approve
     #[ink(function = 0xb20f)]
-    fn approve(asset_id: u32, spender: H160, value: U256) -> Result<()>;
+    fn approve(asset_id: u32, spender: Address, value: U256) -> Result<()>;
 
     // PSP22 increase_allowance
     #[ink(function = 0x96d6)]
-    fn increase_allowance(asset_id: u32, spender: H160, value: U256) -> Result<()>;
+    fn increase_allowance(asset_id: u32, spender: Address, value: U256) -> Result<()>;
 
     // PSP22 decrease_allowance
     #[ink(function = 0xfecb)]
-    fn decrease_allowance(asset_id: u32, spender: H160, value: U256) -> Result<()>;
+    fn decrease_allowance(asset_id: u32, spender: Address, value: U256) -> Result<()>;
 }
 
 #[derive(Debug, PartialEq, Eq)]
@@ -103,10 +108,7 @@ mod psp22_ext {
         Result,
         Vec,
     };
-    use ink::{
-        H160,
-        U256,
-    };
+    use ink::U256;
 
     /// A chain extension which implements the PSP-22 fungible token standard.
     /// For more details see <https://github.com/w3f/PSPs/blob/master/PSPs/psp-22.md>
@@ -151,7 +153,7 @@ mod psp22_ext {
 
         /// Returns the account balance for the specified asset & owner.
         #[ink(message, selector = 0x6568382f)]
-        pub fn balance_of(&self, asset_id: u32, owner: H160) -> Result<U256> {
+        pub fn balance_of(&self, asset_id: u32, owner: Address) -> Result<U256> {
             self.env().extension().balance_of(asset_id, owner)
         }
 
@@ -161,8 +163,8 @@ mod psp22_ext {
         pub fn allowance(
             &self,
             asset_id: u32,
-            owner: H160,
-            spender: H160,
+            owner: Address,
+            spender: Address,
         ) -> Result<U256> {
             self.env().extension().allowance(asset_id, owner, spender)
         }
@@ -172,7 +174,12 @@ mod psp22_ext {
         /// Transfers `value` amount of specified asset from the caller's account to the
         /// account `to`.
         #[ink(message, selector = 0xdb20f9f5)]
-        pub fn transfer(&mut self, asset_id: u32, to: H160, value: U256) -> Result<()> {
+        pub fn transfer(
+            &mut self,
+            asset_id: u32,
+            to: Address,
+            value: U256,
+        ) -> Result<()> {
             self.env().extension().transfer(asset_id, to, value)
         }
 
@@ -184,8 +191,8 @@ mod psp22_ext {
         pub fn transfer_from(
             &mut self,
             asset_id: u32,
-            from: H160,
-            to: H160,
+            from: Address,
+            to: Address,
             value: U256,
         ) -> Result<()> {
             self.env()
@@ -201,7 +208,7 @@ mod psp22_ext {
         pub fn approve(
             &mut self,
             asset_id: u32,
-            spender: H160,
+            spender: Address,
             value: U256,
         ) -> Result<()> {
             self.env().extension().approve(asset_id, spender, value)
@@ -215,7 +222,7 @@ mod psp22_ext {
         pub fn increase_allowance(
             &mut self,
             asset_id: u32,
-            spender: H160,
+            spender: Address,
             value: U256,
         ) -> Result<()> {
             self.env()
@@ -231,7 +238,7 @@ mod psp22_ext {
         pub fn decrease_allowance(
             &mut self,
             asset_id: u32,
-            spender: H160,
+            spender: Address,
             value: U256,
         ) -> Result<()> {
             self.env()

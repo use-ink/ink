@@ -3,15 +3,12 @@
 #[ink::contract(abi = "sol")]
 pub mod flipper {
     use crate::keccak_selector;
-    use ink::{
-        env::{
-            call::{
-                build_call_solidity,
-                ExecutionInput,
-            },
-            CallFlags,
+    use ink::env::{
+        call::{
+            build_call_solidity,
+            ExecutionInput,
         },
-        H160,
+        CallFlags,
     };
     #[ink(storage)]
     pub struct Flipper {
@@ -60,9 +57,8 @@ pub mod flipper {
         }
 
         #[ink(message)]
-        pub fn call_solidity_set(&mut self, callee: [u8; 20]) {
+        pub fn call_solidity_set(&mut self, callee: Address) {
             let selector = keccak_selector(b"set_value(uint16)");
-            let callee: H160 = callee.into();
 
             let result = build_call_solidity::<<Self as ::ink::env::ContractEnv>::Env>()
                 .call(callee)
@@ -77,9 +73,8 @@ pub mod flipper {
         }
 
         #[ink(message)]
-        pub fn call_solidity_get(&mut self, callee: [u8; 20]) -> u16 {
+        pub fn call_solidity_get(&mut self, callee: Address) -> u16 {
             let selector = crate::keccak_selector(b"get_value()");
-            let callee: H160 = callee.into();
 
             build_call_solidity::<<Self as ::ink::env::ContractEnv>::Env>()
                 .call(callee)

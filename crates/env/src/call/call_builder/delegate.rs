@@ -33,7 +33,7 @@ use ink_primitives::{
         AbiDecodeWith,
         AbiEncodeWith,
     },
-    H160,
+    Address,
 };
 use pallet_revive_uapi::CallFlags;
 
@@ -41,7 +41,7 @@ use pallet_revive_uapi::CallFlags;
 #[derive(Clone)]
 pub struct DelegateCall {
     // todo comments please
-    address: H160,
+    address: Address,
     flags: CallFlags,
     ref_time_limit: u64,
     proof_size_limit: u64,
@@ -51,7 +51,7 @@ pub struct DelegateCall {
 
 impl DelegateCall {
     /// Returns a clean builder for [`DelegateCall`]
-    pub const fn new(address: H160) -> Self {
+    pub const fn new(address: Address) -> Self {
         DelegateCall {
             address,
             flags: CallFlags::empty(),
@@ -62,7 +62,7 @@ impl DelegateCall {
     }
 
     /// Sets the `address` to perform a delegate call with.
-    pub fn address(self, address: H160) -> Self {
+    pub fn address(self, address: Address) -> Self {
         DelegateCall {
             address,
             flags: CallFlags::empty(),
@@ -78,7 +78,7 @@ where
     E: Environment,
 {
     /// Sets the `address` to perform a delegate call with.
-    pub fn address(self, address: H160) -> Self {
+    pub fn address(self, address: Address) -> Self {
         let call_type = self.call_type.value();
         CallBuilder {
             call_type: Set(DelegateCall {
@@ -227,7 +227,7 @@ where
 
     /// Returns the contract address which we use to perform a delegate call.
     #[inline]
-    pub fn address(&self) -> &H160 {
+    pub fn address(&self) -> &Address {
         &self.call_type.address
     }
 

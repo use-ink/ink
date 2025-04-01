@@ -54,7 +54,8 @@ use ink_primitives::{
         AbiDecodeWith,
         AbiEncodeWith,
     },
-    H160,
+    Address,
+    SolEncode,
     H256,
     U256,
 };
@@ -66,7 +67,7 @@ use pallet_revive_uapi::ReturnFlags;
 /// # Errors
 ///
 /// If the returned caller cannot be properly decoded.
-pub fn caller() -> H160 {
+pub fn caller() -> Address {
     <EnvInstance as OnInstance>::on_instance(TypedEnvBackend::caller)
 }
 
@@ -133,7 +134,7 @@ where
 /// # Errors
 ///
 /// If the returned value cannot be properly decoded.
-pub fn address() -> H160 {
+pub fn address() -> Address {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         TypedEnvBackend::address(instance)
     })
@@ -378,7 +379,7 @@ where
 /// execution of the destroyed contract is halted. Or it failed during the termination
 /// which is considered fatal and results in a trap and rollback.
 #[cfg(feature = "unstable-hostfn")]
-pub fn terminate_contract(beneficiary: H160) -> ! {
+pub fn terminate_contract(beneficiary: Address) -> ! {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         TypedEnvBackend::terminate_contract(instance, beneficiary)
     })
@@ -397,7 +398,7 @@ pub fn terminate_contract(beneficiary: H160) -> ! {
 /// - If the contract does not have sufficient free funds.
 /// - If the transfer had brought the sender's total balance below the minimum balance.
 ///   You need to use `terminate_contract` in case this is your intention.
-pub fn transfer<E>(destination: H160, value: U256) -> Result<()>
+pub fn transfer<E>(destination: Address, value: U256) -> Result<()>
 where
     E: Environment,
 {
@@ -476,7 +477,7 @@ where
 /// This function  stops the execution of the contract immediately.
 pub fn return_value_solidity<R>(return_flags: ReturnFlags, return_value: &R) -> !
 where
-    R: alloy_sol_types::SolValue,
+    R: for<'a> SolEncode<'a>,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         EnvBackend::return_value_solidity::<R>(instance, return_flags, return_value)
@@ -636,7 +637,7 @@ pub fn sr25519_verify(
 ///
 /// If the returned value cannot be properly decoded.
 #[cfg(feature = "unstable-hostfn")]
-pub fn is_contract(account: &H160) -> bool {
+pub fn is_contract(account: &Address) -> bool {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         TypedEnvBackend::is_contract(instance, account)
     })
@@ -648,7 +649,7 @@ pub fn is_contract(account: &H160) -> bool {
 ///
 /// - If no code hash was found for the specified account id.
 /// - If the returned value cannot be properly decoded.
-pub fn code_hash(addr: &H160) -> Result<H256> {
+pub fn code_hash(addr: &Address) -> Result<H256> {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         TypedEnvBackend::code_hash(instance, addr)
     })

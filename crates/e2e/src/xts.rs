@@ -25,12 +25,14 @@ use crate::contract_results::{
 };
 use core::marker::PhantomData;
 use funty::Fundamental;
-use ink_primitives::DepositLimit;
+use ink_primitives::{
+    Address,
+    DepositLimit,
+};
 use pallet_revive::{
     evm::{
         CallTrace,
         TracerConfig,
-        H160,
     },
     CodeUploadResult,
 };
@@ -118,7 +120,7 @@ pub struct InstantiateWithCode<E: Environment> {
 #[derive(Debug, scale::Decode, scale::Encode, scale_encode::EncodeAsType)]
 #[encode_as_type(trait_bounds = "", crate_path = "subxt::ext::scale_encode")]
 pub struct Call<E: Environment> {
-    dest: H160,
+    dest: Address,
     #[codec(compact)]
     value: E::Balance,
     gas_limit: Weight,
@@ -190,7 +192,7 @@ where
 // todo: #[serde(rename_all = "camelCase")]
 struct RpcCallRequest<C: subxt::Config, E: Environment> {
     origin: C::AccountId,
-    dest: H160,
+    dest: Address,
     value: E::Balance,
     gas_limit: Option<Weight>,
     storage_deposit_limit: Option<E::Balance>,
@@ -607,7 +609,7 @@ where
     pub async fn call_dry_run(
         &self,
         origin: C::AccountId,
-        dest: H160,
+        dest: Address,
         input_data: Vec<u8>,
         value: E::Balance,
         _storage_deposit_limit: E::Balance, // todo
@@ -688,7 +690,7 @@ where
     /// todo the API for `call_dry_run` should mirror that of `call`
     pub async fn call(
         &self,
-        contract: H160,
+        contract: Address,
         value: E::Balance,
         gas_limit: Weight,
         storage_deposit_limit: E::Balance,

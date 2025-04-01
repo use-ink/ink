@@ -36,8 +36,8 @@ use ink_primitives::{
     AccountId,
     Clear,
     Hash,
-    H160,
     U256,
+    Address
 };
 use scale::{
     Decode,

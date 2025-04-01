@@ -36,7 +36,7 @@ use ink_primitives::{
         AbiDecodeWith,
         AbiEncodeWith,
     },
-    H160,
+    Address,
     U256,
 };
 use pallet_revive_uapi::CallFlags;
@@ -46,7 +46,7 @@ use pallet_revive_uapi::CallFlags;
 /// well as `storage_deposit_limit`.
 #[derive(Clone)]
 pub struct Call {
-    callee: H160,
+    callee: Address,
     ref_time_limit: u64,
     proof_size_limit: u64,
     storage_deposit_limit: Option<U256>,
@@ -56,7 +56,7 @@ pub struct Call {
 
 impl Call {
     /// Returns a clean builder for [`Call`].
-    pub fn new(callee: H160) -> Self {
+    pub fn new(callee: Address) -> Self {
         Self {
             callee,
             ref_time_limit: u64::MAX,
@@ -268,7 +268,7 @@ where
 {
     /// Returns the contract address of the called contract instance.
     #[inline]
-    pub fn callee(&self) -> &H160 {
+    pub fn callee(&self) -> &Address {
         &self.call_type.callee
     }
 

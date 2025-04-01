@@ -67,18 +67,15 @@ use scale::{
 ///
 /// # #[ink::contract]
 /// # mod my_module {
-/// use ink::{
-///     storage::{
-///         traits::ManualKey,
-///         Lazy,
-///     },
-///     H160,
+/// use ink::storage::{
+///     traits::ManualKey,
+///     Lazy,
 /// };
 ///
 /// #[ink(storage)]
 /// #[derive(Default)]
 /// pub struct MyContract {
-///     owner: Lazy<H160>,
+///     owner: Lazy<Address>,
 ///     // todo maybe use something else than `Balance`?
 ///     balance: Lazy<Balance, ManualKey<123>>,
 /// }

@@ -37,7 +37,7 @@ use ink_primitives::{
         ScaleEncoding,
         SolEncoding,
     },
-    H160,
+    Address,
 };
 
 /// The final parameters to the cross-contract call.
@@ -94,12 +94,12 @@ where
 /// #     call::{build_call, Selector, ExecutionInput}
 /// # };
 /// # use ink_env::call::Call;
-/// # use ink_primitives::H160;
+/// # use ink_primitives::Address;
 ///
 /// type AccountId = <DefaultEnvironment as Environment>::AccountId;
 /// # type Balance = <DefaultEnvironment as Environment>::Balance;
 /// build_call::<DefaultEnvironment>()
-///     .call(H160::from([0x42; 20]))
+///     .call(Address::from([0x42; 20]))
 ///     .ref_time_limit(5000)
 ///     .transferred_value(ink::U256::from(10))
 ///     .exec_input(
@@ -131,7 +131,7 @@ where
 /// # };
 /// # type AccountId = <DefaultEnvironment as Environment>::AccountId;
 /// let my_return_value: i32 = build_call::<DefaultEnvironment>()
-///     .call_type(Call::new(ink::H160::from([0x42; 20])))
+///     .call_type(Call::new(ink::Address::from([0x42; 20])))
 ///     .ref_time_limit(5000)
 ///     .transferred_value(ink::U256::from(10))
 ///     .exec_input(
@@ -156,11 +156,11 @@ where
 /// #     DefaultEnvironment,
 /// #     call::{build_call, Selector, ExecutionInput, utils::ReturnType, DelegateCall},
 /// # };
-/// use ink::H160;
+/// use ink::Address;
 /// # use ink_primitives::Clear;
 /// # type AccountId = <DefaultEnvironment as Environment>::AccountId;
 /// let my_return_value: i32 = build_call::<DefaultEnvironment>()
-///     .delegate(H160::zero())
+///     .delegate(Address::zero())
 ///     .exec_input(
 ///         ExecutionInput::new(Selector::new([0xDE, 0xAD, 0xBE, 0xEF]))
 ///             .push_arg(42u8)
@@ -193,12 +193,12 @@ where
 /// #     call::{build_call, Selector, ExecutionInput}
 /// # };
 /// # use ink_env::call::Call;
-/// # use ink_primitives::H160;
+/// # use ink_primitives::Address;
 ///
 /// type AccountId = <DefaultEnvironment as Environment>::AccountId;
 /// # type Balance = <DefaultEnvironment as Environment>::Balance;
 /// let call_result = build_call::<DefaultEnvironment>()
-///     .call(H160::from([0x42; 20]))
+///     .call(Address::from([0x42; 20]))
 ///     .ref_time_limit(5000)
 ///     .transferred_value(ink::U256::from(10))
 ///     .try_invoke()
@@ -348,7 +348,7 @@ where
 {
     /// Prepares the `CallBuilder` for a cross-contract [`Call`] to the latest `call_v2`
     /// host function.
-    pub fn call(self, callee: H160) -> CallBuilder<E, Set<Call>, Args, RetType> {
+    pub fn call(self, callee: Address) -> CallBuilder<E, Set<Call>, Args, RetType> {
         CallBuilder {
             call_type: Set(Call::new(callee)),
             exec_input: self.exec_input,
@@ -360,7 +360,7 @@ where
     /// Prepares the `CallBuilder` for a cross-contract [`DelegateCall`].
     pub fn delegate(
         self,
-        address: H160,
+        address: Address,
     ) -> CallBuilder<E, Set<DelegateCall>, Args, RetType> {
         CallBuilder {
             // todo Generic `Set` can be removed

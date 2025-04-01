@@ -61,7 +61,8 @@ use ink_primitives::{
         AbiDecodeWith,
         AbiEncodeWith,
     },
-    H160,
+    Address,
+    SolEncode,
     H256,
     U256,
 };
@@ -319,9 +320,9 @@ impl EnvBackend for EnvInstance {
 
     fn return_value_solidity<R>(&mut self, flags: ReturnFlags, return_value: &R) -> !
     where
-        R: alloy_sol_types::SolValue,
+        R: for<'a> SolEncode<'a>,
     {
-        let encoded = return_value.abi_encode();
+        let encoded = return_value.encode();
         ext::return_value(flags, &encoded[..]);
     }
 
@@ -422,7 +423,7 @@ impl EnvBackend for EnvInstance {
 
 // TODO remove anything with hash
 impl TypedEnvBackend for EnvInstance {
-    fn caller(&mut self) -> H160 {
+    fn caller(&mut self) -> Address {
         let mut scope = self.scoped_buffer();
 
         let h160: &mut [u8; 20] = scope.take(20).try_into().unwrap();
@@ -457,7 +458,7 @@ impl TypedEnvBackend for EnvInstance {
             .expect("A contract being executed must have a valid account id.")
     }
 
-    fn address(&mut self) -> H160 {
+    fn address(&mut self) -> Address {
         let mut scope = self.scoped_buffer();
 
         let h160: &mut [u8; 20] = scope.take(20).try_into().unwrap();
@@ -679,7 +680,7 @@ impl TypedEnvBackend for EnvInstance {
     }
 
     #[cfg(feature = "unstable-hostfn")]
-    fn terminate_contract(&mut self, beneficiary: H160) -> ! {
+    fn terminate_contract(&mut self, beneficiary: Address) -> ! {
         let buffer: &mut [u8; 20] = self.scoped_buffer().take_encoded(&beneficiary)
             [0..20]
             .as_mut()
@@ -688,7 +689,7 @@ impl TypedEnvBackend for EnvInstance {
         ext::terminate(buffer);
     }
 
-    fn transfer<E>(&mut self, destination: H160, value: U256) -> Result<()>
+    fn transfer<E>(&mut self, destination: Address, value: U256) -> Result<()>
     where
         E: Environment,
     {
@@ -736,7 +737,7 @@ impl TypedEnvBackend for EnvInstance {
     }
 
     #[cfg(feature = "unstable-hostfn")]
-    fn is_contract(&mut self, addr: &H160) -> bool {
+    fn is_contract(&mut self, addr: &Address) -> bool {
         let mut scope = self.scoped_buffer();
         let enc_addr: &mut [u8; 20] =
             scope.take_encoded(addr)[..20].as_mut().try_into().unwrap();
@@ -759,7 +760,7 @@ impl TypedEnvBackend for EnvInstance {
         ext::caller_is_root()
     }
 
-    fn code_hash(&mut self, addr: &H160) -> Result<H256> {
+    fn code_hash(&mut self, addr: &Address) -> Result<H256> {
         let mut scope = self.scoped_buffer();
         // todo can be simplified
         let enc_addr: &mut [u8; 20] =

@@ -12,12 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::types::{
-    Balance,
-    H160,
-};
+use crate::types::Balance;
 use ink_primitives::{
     AccountId,
+    Address,
     H256,
     U256,
 };
@@ -31,7 +29,7 @@ const MSG_HANDLER_OF: &[u8] = b"message-handler:";
 const CODE_HASH_OF: &[u8] = b"code-hash:";
 
 /// Returns the database key under which to find the balance for contract `who`.
-pub fn balance_of_key(who: &H160) -> [u8; 32] {
+pub fn balance_of_key(who: &Address) -> [u8; 32] {
     let keyed = who.0.to_vec().to_keyed_vec(BALANCE_OF);
     let mut hashed_key: [u8; 32] = [0; 32];
     super::hashing::blake2b_256(&keyed[..], &mut hashed_key);
@@ -39,7 +37,7 @@ pub fn balance_of_key(who: &H160) -> [u8; 32] {
 }
 
 /// Returns the database key under which to find the storage for contract `who`.
-pub fn storage_of_contract_key(who: &H160, key: &[u8]) -> [u8; 32] {
+pub fn storage_of_contract_key(who: &Address, key: &[u8]) -> [u8; 32] {
     let keyed = who
         .as_bytes()
         .to_vec()
@@ -68,7 +66,7 @@ pub fn message_handler_of_contract_key(key: &[u8]) -> [u8; 32] {
     hashed_key
 }
 
-pub fn code_hash_for_addr(addr: &H160) -> [u8; 32] {
+pub fn code_hash_for_addr(addr: &Address) -> [u8; 32] {
     let key = addr.0;
     let keyed = key.to_keyed_vec(CODE_HASH_OF);
     let mut hashed_key: [u8; 32] = [0; 32];
@@ -107,7 +105,11 @@ impl Database {
     }
 
     /// Returns a reference to the value corresponding to the key.
-    pub fn get_from_contract_storage(&self, addr: &H160, key: &[u8]) -> Option<&Vec<u8>> {
+    pub fn get_from_contract_storage(
+        &self,
+        addr: &Address,
+        key: &[u8],
+    ) -> Option<&Vec<u8>> {
         let hashed_key = storage_of_contract_key(addr, key);
         self.hmap.get(hashed_key.as_slice())
     }
@@ -115,7 +117,7 @@ impl Database {
     /// Inserts `value` into the contract storage of `addr` at storage key `key`.
     pub fn insert_into_contract_storage(
         &mut self,
-        addr: &H160,
+        addr: &Address,
         key: &[u8],
         value: Vec<u8>,
     ) -> Option<Vec<u8>> {
@@ -126,7 +128,7 @@ impl Database {
     /// Removes the value at the contract storage of `addr` at storage key `key`.
     pub fn remove_contract_storage(
         &mut self,
-        addr: &H160,
+        addr: &Address,
         key: &[u8],
     ) -> Option<Vec<u8>> {
         let hashed_key = storage_of_contract_key(addr, key);
@@ -159,7 +161,7 @@ impl Database {
         todo!()
     }
 
-    pub fn get_balance(&self, addr: &H160) -> Option<U256> {
+    pub fn get_balance(&self, addr: &Address) -> Option<U256> {
         let hashed_key = balance_of_key(addr);
         self.get(&hashed_key).map(|encoded_balance| {
             scale::Decode::decode(&mut &encoded_balance[..])
@@ -168,7 +170,7 @@ impl Database {
     }
 
     /// Sets the balance of `addr` to `new_balance`.
-    pub fn set_balance(&mut self, addr: &H160, new_balance: U256) {
+    pub fn set_balance(&mut self, addr: &Address, new_balance: U256) {
         let hashed_key = balance_of_key(addr);
         let encoded_balance = scale::Encode::encode(&new_balance);
         self.hmap
@@ -193,7 +195,7 @@ impl Database {
         *self.fmap.get(hashed_key.as_slice()).unwrap()
     }
 
-    pub fn set_code_hash(&mut self, addr: &H160, code_hash: &H256) {
+    pub fn set_code_hash(&mut self, addr: &Address, code_hash: &H256) {
         let hashed_key = code_hash_for_addr(addr);
         self.hmap
             .entry(hashed_key.to_vec())
@@ -201,7 +203,7 @@ impl Database {
             .or_insert(code_hash.as_bytes().to_vec());
     }
 
-    pub fn get_code_hash(&self, addr: &H160) -> Option<H256> {
+    pub fn get_code_hash(&self, addr: &Address) -> Option<H256> {
         let hashed_key = code_hash_for_addr(addr);
         self.get(&hashed_key)
             .cloned()
@@ -211,8 +213,10 @@ impl Database {
 
 #[cfg(test)]
 mod tests {
-    use super::Database;
-    use crate::types::H160;
+    use super::{
+        Address,
+        Database,
+    };
 
     #[test]
     fn basic_operations() {
@@ -239,7 +243,7 @@ mod tests {
 
     #[test]
     fn contract_storage() {
-        let addr = H160::from([1; 20]);
+        let addr = Address::from([1; 20]);
         let mut storage = Database::new();
         let key1 = vec![42];
         let key2 = vec![43];

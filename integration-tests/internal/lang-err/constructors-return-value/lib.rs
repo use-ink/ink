@@ -8,8 +8,6 @@ pub use self::constructors_return_value::{
 
 #[ink::contract]
 pub mod constructors_return_value {
-    use ink::H160;
-
     #[ink(storage)]
     pub struct ConstructorsReturnValue {
         value: bool,
@@ -40,9 +38,9 @@ pub mod constructors_return_value {
         /// encoded return value.
         #[ink(constructor)]
         pub fn revert_new(_init_value: bool) -> Self {
-            ink::env::return_value::<ink::ConstructorResult<H160>>(
+            ink::env::return_value::<ink::ConstructorResult<Address>>(
                 ink::env::ReturnFlags::REVERT,
-                &Ok(H160::from([0u8; 20])),
+                &Ok(Address::from([0u8; 20])),
             );
             #[allow(unreachable_code)]
             {
@@ -55,13 +53,13 @@ pub mod constructors_return_value {
         #[ink(constructor)]
         pub fn try_revert_new(init_value: bool) -> Result<Self, ConstructorError> {
             let value = if init_value {
-                Ok(Ok(H160::from([0u8; 20])))
+                Ok(Ok(Address::from([0u8; 20])))
             } else {
                 Err(ink::LangError::CouldNotReadInput)
             };
 
             ink::env::return_value::<
-                ink::ConstructorResult<Result<H160, ConstructorError>>,
+                ink::ConstructorResult<Result<Address, ConstructorError>>,
             >(ink::env::ReturnFlags::REVERT, &value);
             #[allow(unreachable_code)]
             {

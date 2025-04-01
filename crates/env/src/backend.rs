@@ -41,7 +41,8 @@ use ink_primitives::{
         AbiEncodeWith,
     },
     types::Environment,
-    H160,
+    Address,
+    SolEncode,
     H256,
     U256,
 };
@@ -153,7 +154,7 @@ pub trait EnvBackend {
     /// todo: comment
     fn return_value_solidity<R>(&mut self, flags: ReturnFlags, return_value: &R) -> !
     where
-        R: alloy_sol_types::SolValue;
+        R: for<'a> SolEncode<'a>;
 
     /// Conducts the crypto hash of the given input and stores the result in `output`.
     fn hash_bytes<H>(&mut self, input: &[u8], output: &mut <H as HashOutput>::Type)
@@ -254,7 +255,7 @@ pub trait TypedEnvBackend: EnvBackend {
     /// # Note
     ///
     /// For more details visit: [`caller`][`crate::caller`]
-    fn caller(&mut self) -> H160;
+    fn caller(&mut self) -> Address;
 
     /// Returns the transferred value for the contract execution.
     ///
@@ -290,7 +291,7 @@ pub trait TypedEnvBackend: EnvBackend {
     /// # Note
     ///
     /// For more details visit: [`address`][`crate::address`]
-    fn address(&mut self) -> H160;
+    fn address(&mut self) -> Address;
 
     /// Returns the balance of the executed contract.
     ///
@@ -386,14 +387,14 @@ pub trait TypedEnvBackend: EnvBackend {
     ///
     /// For more details visit: [`terminate_contract`][`crate::terminate_contract`]
     #[cfg(feature = "unstable-hostfn")]
-    fn terminate_contract(&mut self, beneficiary: H160) -> !;
+    fn terminate_contract(&mut self, beneficiary: Address) -> !;
 
     /// Transfers value from the contract to the destination account ID.
     ///
     /// # Note
     ///
     /// For more details visit: [`transfer`][`crate::transfer`]
-    fn transfer<E>(&mut self, destination: H160, value: U256) -> Result<()>
+    fn transfer<E>(&mut self, destination: Address, value: U256) -> Result<()>
     where
         E: Environment;
 
@@ -404,7 +405,7 @@ pub trait TypedEnvBackend: EnvBackend {
     /// For more details visit: [`is_contract`][`crate::is_contract`]
     #[allow(clippy::wrong_self_convention)]
     #[cfg(feature = "unstable-hostfn")]
-    fn is_contract(&mut self, account: &H160) -> bool;
+    fn is_contract(&mut self, account: &Address) -> bool;
 
     /// Checks whether the caller of the current contract is the origin of the whole call
     /// stack.
@@ -432,7 +433,7 @@ pub trait TypedEnvBackend: EnvBackend {
     /// # Note
     ///
     /// For more details visit: [`code_hash`][`crate::code_hash`]
-    fn code_hash(&mut self, account: &H160) -> Result<H256>;
+    fn code_hash(&mut self, account: &Address) -> Result<H256>;
 
     /// Retrieves the code hash of the currently executing contract.
     ///

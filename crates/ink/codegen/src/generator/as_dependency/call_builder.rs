@@ -95,7 +95,7 @@ impl CallBuilder<'_> {
             )]
             #[::ink::scale_derive(Encode, Decode, TypeInfo)]
             pub struct #cb_ident {
-                addr: ::ink::H160,
+                addr: ::ink::Address,
             }
 
             const _: () = {
@@ -120,26 +120,26 @@ impl CallBuilder<'_> {
         quote_spanned!(span=>
             impl ::ink::env::call::FromAddr for #cb_ident {
                 #[inline]
-                fn from_addr(addr: ::ink::H160) -> Self {
+                fn from_addr(addr: ::ink::Address) -> Self {
                     Self { addr }
                 }
             }
 
             impl ::ink::ToAddr for #cb_ident {
                 #[inline]
-                fn to_addr(&self) -> ::ink::H160 {
-                    <::ink::H160 as ::core::clone::Clone>::clone(&self.addr)
+                fn to_addr(&self) -> ::ink::Address {
+                    <::ink::Address as ::core::clone::Clone>::clone(&self.addr)
                 }
             }
 
-            impl ::core::convert::AsRef<::ink::H160> for #cb_ident {
-                fn as_ref(&self) -> &::ink::H160 {
+            impl ::core::convert::AsRef<::ink::Address> for #cb_ident {
+                fn as_ref(&self) -> &::ink::Address {
                     &self.addr
                 }
             }
 
-            impl ::core::convert::AsMut<::ink::H160> for #cb_ident {
-                fn as_mut(&mut self) -> &mut ::ink::H160 {
+            impl ::core::convert::AsMut<::ink::Address> for #cb_ident {
+                fn as_mut(&mut self) -> &mut ::ink::Address {
                     &mut self.addr
                 }
             }
@@ -207,7 +207,7 @@ impl CallBuilder<'_> {
                     // Furthermore both types use `repr(transparent)`.
                     // todo
                     unsafe {
-                        &*(&self.addr as *const ::ink::H160 as *const Self::Forwarder)
+                        &*(&self.addr as *const ::ink::Address as *const Self::Forwarder)
                     }
                 }
 
@@ -220,7 +220,7 @@ impl CallBuilder<'_> {
                     // we know that it also thinly wraps an `AccountId`.
                     // Furthermore both types use `repr(transparent)`.
                     unsafe {
-                        &mut *(&mut self.addr as *mut ::ink::H160 as *mut Self::Forwarder)
+                        &mut *(&mut self.addr as *mut ::ink::Address as *mut Self::Forwarder)
                     }
                 }
 

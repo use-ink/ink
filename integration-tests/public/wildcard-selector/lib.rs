@@ -75,7 +75,7 @@ pub mod wildcard_selector {
         type Environment = <WildcardSelectorRef as ink::env::ContractEnv>::Env;
 
         fn build_message(
-            addr: ink::H160,
+            addr: Address,
             selector: [u8; 4],
             message: String,
         ) -> ink_e2e::CallBuilderFinal<

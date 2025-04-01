@@ -113,7 +113,7 @@ impl CallBuilder<'_> {
             where
                 E: ::ink::env::Environment,
             {
-                addr: ::ink::H160,
+                addr: ::ink::Address,
                 marker: ::core::marker::PhantomData<fn() -> E>,
             }
         )
@@ -135,7 +135,7 @@ impl CallBuilder<'_> {
                 for #call_builder_ident<E>
             where
                 E: ::ink::env::Environment,
-                ::ink::H160: ::ink::storage::traits::StorageLayout,
+                ::ink::Address: ::ink::storage::traits::StorageLayout,
             {
                 fn layout(
                     __key: &::ink::primitives::Key,
@@ -146,7 +146,7 @@ impl CallBuilder<'_> {
                             [
                                 ::ink::metadata::layout::FieldLayout::new(
                                     "addr",
-                                    <::ink::H160
+                                    <::ink::Address
                                         as ::ink::storage::traits::StorageLayout>::layout(__key)
                                 )
                             ]
@@ -173,7 +173,7 @@ impl CallBuilder<'_> {
             impl<E> ::core::clone::Clone for #call_builder_ident<E>
             where
                 E: ::ink::env::Environment,
-                ::ink::H160: ::core::clone::Clone,
+                ::ink::Address: ::core::clone::Clone,
             {
                 #[inline]
                 fn clone(&self) -> Self {
@@ -188,7 +188,7 @@ impl CallBuilder<'_> {
             impl<E> ::core::fmt::Debug for #call_builder_ident<E>
             where
                 E: ::ink::env::Environment,
-                ::ink::H160: ::core::fmt::Debug,
+                ::ink::Address: ::core::fmt::Debug,
             {
                 fn fmt(&self, f: &mut ::core::fmt::Formatter) -> ::core::fmt::Result {
                     f.debug_struct(::core::stringify!(#call_builder_ident))
@@ -203,12 +203,12 @@ impl CallBuilder<'_> {
             impl<E> ::ink::scale_info::TypeInfo for #call_builder_ident<E>
             where
                 E: ::ink::env::Environment,
-                ::ink::H160: ::ink::scale_info::TypeInfo + 'static,
+                ::ink::Address: ::ink::scale_info::TypeInfo + 'static,
             {
-                type Identity = ::ink::H160;
+                type Identity = ::ink::Address;
 
                 fn type_info() -> ::ink::scale_info::Type {
-                    <::ink::H160 as ::ink::scale_info::TypeInfo>::type_info()
+                    <::ink::Address as ::ink::scale_info::TypeInfo>::type_info()
                 }
             }
         )
@@ -231,7 +231,7 @@ impl CallBuilder<'_> {
                 E: ::ink::env::Environment,
             {
                 #[inline]
-                fn from_addr(addr: ::ink::H160) -> Self {
+                fn from_addr(addr: ::ink::Address) -> Self {
                     Self {
                         addr,
                         marker: ::core::default::Default::default(),
@@ -239,12 +239,12 @@ impl CallBuilder<'_> {
                 }
             }
 
-            impl<E> ::core::convert::From<::ink::H160> for #call_builder_ident<E>
+            impl<E> ::core::convert::From<::ink::Address> for #call_builder_ident<E>
             where
                 E: ::ink::env::Environment,
-                ::ink::H160: ::ink::env::AccountIdGuard,
+                ::ink::Address: ::ink::env::AccountIdGuard,
             {
-                fn from(value: ::ink::H160) -> Self {
+                fn from(value: ::ink::Address) -> Self {
                     <Self as ::ink::env::call::FromAddr>::from_addr(value)
                 }
             }
@@ -254,25 +254,25 @@ impl CallBuilder<'_> {
                 E: ::ink::env::Environment,
             {
                 #[inline]
-                fn to_addr(&self) -> ::ink::H160 {
-                    <::ink::H160 as ::core::clone::Clone>::clone(&self.addr)
+                fn to_addr(&self) -> ::ink::Address {
+                    <::ink::Address as ::core::clone::Clone>::clone(&self.addr)
                 }
             }
 
-            impl<E> ::core::convert::AsRef<::ink::H160> for #call_builder_ident<E>
+            impl<E> ::core::convert::AsRef<::ink::Address> for #call_builder_ident<E>
             where
                 E: ::ink::env::Environment,
             {
-                fn as_ref(&self) -> &::ink::H160 {
+                fn as_ref(&self) -> &::ink::Address {
                     &self.addr
                 }
             }
 
-            impl<E> ::core::convert::AsMut<::ink::H160> for #call_builder_ident<E>
+            impl<E> ::core::convert::AsMut<::ink::Address> for #call_builder_ident<E>
             where
                 E: ::ink::env::Environment,
             {
-                fn as_mut(&mut self) -> &mut ::ink::H160 {
+                fn as_mut(&mut self) -> &mut ::ink::Address {
                     &mut self.addr
                 }
             }

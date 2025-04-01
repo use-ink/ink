@@ -240,8 +240,8 @@ error[E0277]: the trait bound `NonPacked: WrapperTypeEncode` is not satisfied
              Box<T>
              Cow<'_, T>
              Rc<T>
+             String
              Vec<T>
-             bytes::bytes::Bytes
            and $N others
    = note: required for `NonPacked` to implement `Encode`
    = note: required for `NonPacked` to implement `Packed`

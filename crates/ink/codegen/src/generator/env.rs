@@ -44,6 +44,7 @@ impl GenerateCode for Env<'_> {
             type EventRecord = <<#storage_ident as ::ink::env::ContractEnv>::Env as ::ink::env::Environment>::EventRecord;
 
             type Address = ::ink::primitives::Address;
+            type SolBytes<T> = ::ink::primitives::SolBytes<T>;
         }
     }
 }
