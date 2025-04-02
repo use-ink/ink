@@ -2,10 +2,9 @@
 
 #[ink::contract]
 pub mod wildcard_selector {
-    use ink::prelude::{
-        format,
-        string::String,
-    };
+    #[cfg(feature = "emit-event")]
+    use ink::prelude::format;
+    use ink::prelude::string::String;
 
     #[cfg(feature = "emit-event")]
     #[ink::event]
