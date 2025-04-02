@@ -1,6 +1,11 @@
-//! # Debugging Events
+//! # Debugging Strategies
 //!
-//! todo
+//! This contract illustrates a number of strategies for debugging
+//! contracts:
+//!
+//! * Emitting debugging events.
+//! * The `pallet-revive` tracing API.
+//! * Causing intentional reverts with a return value, in your contract.
 
 #![cfg_attr(not(feature = "std"), no_std, no_main)]
 
