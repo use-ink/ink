@@ -76,8 +76,9 @@ pub mod static_buffer {
             let contract = client
                 .instantiate("static_buffer", &ink_e2e::alice(), &mut constructor)
                 .dry_run()
-                .await
-                .expect("dry run failed");
+                .await?;
+            //.unwrap_err();
+            //.expect("dry run failed");
             let err_msg = String::from_utf8_lossy(contract.return_data());
             eprintln!("contract {:?}", err_msg);
             /*
@@ -112,8 +113,9 @@ pub mod static_buffer {
             let call_result = client
                 .instantiate("static_buffer", &ink_e2e::bob(), &mut constructor)
                 .dry_run()
-                .await
-                .expect("dry run failed");
+                .await?;
+            //.unwrap_err();
+            //.expect("dry run failed");
             let err_msg = String::from_utf8_lossy(call_result.return_data());
             eprintln!("contract {:?}", err_msg);
 
