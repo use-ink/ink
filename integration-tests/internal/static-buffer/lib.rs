@@ -75,17 +75,8 @@ pub mod static_buffer {
             let mut constructor = StaticBufferRef::new(true);
             let contract = client
                 .instantiate("static_buffer", &ink_e2e::alice(), &mut constructor)
-                .dry_run()
-                .await;
-
-            eprintln!("contract dry run {:?}", contract);
-
-            //.unwrap_err();
-            //.expect("dry run failed");
-            let c = contract.expect("err on contract");
-            let err_msg = String::from_utf8_lossy(c.return_data());
-            eprintln!("contract {:?}", err_msg);
-            /*
+                .submit()
+                .await
                 .expect("instantiate failed");
             let call_builder = contract.call_builder::<StaticBuffer>();
 
@@ -102,8 +93,6 @@ pub mod static_buffer {
                 std::env::var("INK_STATIC_BUFFER_SIZE")
             );
 
-             */
-
             Ok(())
         }
 
@@ -114,16 +103,6 @@ pub mod static_buffer {
             let mut constructor = StaticBufferRef::new_default();
 
             // when
-            let call_result = client
-                .instantiate("static_buffer", &ink_e2e::bob(), &mut constructor)
-                .dry_run()
-                .await?;
-            //.unwrap_err();
-            //.expect("dry run failed");
-            let err_msg = String::from_utf8_lossy(call_result.return_data());
-            eprintln!("contract {:?}", err_msg);
-
-            /*
             let contract = client
                 .instantiate("static_buffer", &ink_e2e::bob(), &mut constructor)
                 .submit()
@@ -142,7 +121,6 @@ pub mod static_buffer {
             let align = value.1;
             assert_eq!(align, 8, "align incorrect, should be 8");
             assert_eq!(padding, 8, "padding incorrect, should be 8");
-             */
             Ok(())
         }
     }
