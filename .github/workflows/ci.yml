@@ -675,7 +675,7 @@ jobs:
         with:
           # Run all tests with --all-features, which will run the `e2e-tests` feature if present.
           args:
-            /bin/bash -c "scripts/for_all_contracts_exec.sh --path integration-tests --ignore internal/static-buffer --ignore internal/mapping --partition ${{ matrix.partition }}/30 \
+            /bin/bash -c "scripts/for_all_contracts_exec.sh --path integration-tests --ignore internal/static-buffer --ignore internal/mapping --partition ${{ matrix.partition }}/30 -- \
                 cargo +nightly test --all-features --all --manifest-path {}"
 
   examples-test-mapping:
@@ -748,11 +748,11 @@ jobs:
           # run flipper E2E test with on-chain contract
           ink-node -lruntime::revive=debug 2>&1 &
           cargo +nightly contract build --release --manifest-path integration-tests/public/flipper/Cargo.toml
-          export CONTRACT_ADDR_HEX=$(cargo +nightly-2025-02-20 contract instantiate \
+          export CONTRACT_ADDR_HEX=$(cargo +nightly contract instantiate \
             --manifest-path integration-tests/public/flipper/Cargo.toml \
             --suri //Alice --args true -x -y --output-json | \
             jq -r .contract | xargs subkey inspect | grep -o "0x.*" | head -n1)
-          CONTRACTS_NODE_URL=ws://127.0.0.1:9944 cargo +nightly-2025-02-20 test \
+          CONTRACTS_NODE_URL=ws://127.0.0.1:9944 cargo +nightly test \
             --features e2e-tests \
             --manifest-path integration-tests/public/flipper/Cargo.toml \
             e2e_test_deployed_contract \
@@ -762,12 +762,13 @@ jobs:
         env:
             # Fix linking of `linkme`: https://github.com/dtolnay/linkme/issues/49
             RUSTFLAGS: -Clink-arg=-z -Clink-arg=nostart-stop-gc -Clink-dead-code
+            RUST_LOG: trace
         run: |
             # run the static buffer test with a custom buffer size.
             # the readme + test comments explain why `32`, in short because the tests write
             # content into the buffer and want to provoke an exhaustion of the buffer.
             cargo clean --manifest-path integration-tests/internal/static-buffer/Cargo.toml
-            INK_STATIC_BUFFER_SIZE=32 cargo +nightly-2025-02-20 test --manifest-path integration-tests/internal/static-buffer/Cargo.toml --all-features
+            INK_STATIC_BUFFER_SIZE=32 cargo +nightly test --manifest-path integration-tests/internal/static-buffer/Cargo.toml --all-features
 
   examples-contract-build-riscv:
     runs-on: ubuntu-latest
