@@ -6,6 +6,7 @@ use ink::{
     },
     Address,
     SolDecode,
+    SolEncode,
 };
 use ink_e2e::{
     subxt::tx::Signer,
@@ -26,7 +27,6 @@ const DEFAULT_STORAGE_DEPOSIT_LIMIT: u128 = 10_000_000_000_000;
 type E2EResult<T> = Result<T, Box<dyn Error>>;
 
 #[ink_e2e::test]
-#[ignore] // todo bring test back
 async fn solidity_calls_ink_works<Client: E2EBackend>(
     mut client: Client,
 ) -> E2EResult<()> {
@@ -63,7 +63,7 @@ async fn solidity_calls_ink_works<Client: E2EBackend>(
             client.contracts.load_code("flipper"),
             exec_input.encode(),
             0,
-            DEFAULT_GAS.into(),
+            DEFAULT_GAS,
             DEFAULT_STORAGE_DEPOSIT_LIMIT,
         )
         .await?
@@ -71,48 +71,44 @@ async fn solidity_calls_ink_works<Client: E2EBackend>(
 
     let get_selector = keccak_selector(b"get()");
     let value: bool = call_ink(&mut client, ink_addr, get_selector.clone()).await;
-    assert_eq!(value, false);
+    assert!(!value);
 
     let mut sol_handler = SolidityHandler::new("./sol".into(), client.url().to_string());
     sol_handler.start_eth_rpc()?;
     sol_handler.setup()?;
     let sol_addr = sol_handler.deploy(ink_addr)?;
 
-    let _ = sol_handler.call(sol_addr.clone(), "callFlip")?;
+    let _ = sol_handler.call(&sol_addr, "callFlip")?;
     let value: bool = call_ink(&mut client, ink_addr, get_selector.clone()).await;
-    assert_eq!(value, true);
+    assert!(value);
 
-    let output = sol_handler.call(sol_addr.clone(), "callGet")?;
+    let output = sol_handler.call(&sol_addr, "callGet")?;
     assert_eq!(output, Some("true".to_string()));
 
-    let _ = sol_handler.call(sol_addr.clone(), "callFlip2")?;
+    let _ = sol_handler.call(&sol_addr, "callFlip2")?;
     let value: bool = call_ink(&mut client, ink_addr, get_selector.clone()).await;
-    assert_eq!(value, false);
+    assert!(!value);
 
-    let _ = sol_handler.call_with_value(sol_addr.clone(), "callSet", true)?;
+    let _ = sol_handler.call_with_value(&sol_addr, "callSet", true)?;
 
-    let output = sol_handler.call(sol_addr.clone(), "callGet")?;
+    let output = sol_handler.call(&sol_addr, "callGet")?;
     assert_eq!(output, Some("true".to_string()));
 
-    let output = sol_handler.call(sol_addr.clone(), "callGet2")?;
+    let output = sol_handler.call(&sol_addr, "callGet2")?;
     assert_eq!(output, Some("true".to_string()));
 
-    let _ = sol_handler.call_with_value(sol_addr.clone(), "callSet", false)?;
+    let _ = sol_handler.call_with_value(&sol_addr, "callSet", false)?;
 
-    let output = sol_handler.call(sol_addr.clone(), "callGet")?;
+    let output = sol_handler.call(&sol_addr, "callGet")?;
     assert_eq!(output, Some("false".to_string()));
 
     // test ink! can call solidity
-    let sol_addr_encodable: [u8; 20] =
-        hex::decode(sol_addr.clone().strip_prefix("0x").unwrap())
-            .expect("decode failed")
-            .try_into()
-            .expect("should be 20 bytes");
+    let sol_addr_h160 = <Address as std::str::FromStr>::from_str(&sol_addr)
+        .expect("Expected 20 bytes hex string");
+    let sol_addr_encoded = SolEncode::encode(&sol_addr_h160);
 
-    let encoded =
-        encode_ink_call("call_solidity_set(address)", sol_addr_encodable.to_vec());
-    let encoded_get =
-        encode_ink_call("call_solidity_get(address)", sol_addr_encodable.to_vec());
+    let encoded = encode_ink_call("call_solidity_set(address)", sol_addr_encoded.clone());
+    let encoded_get = encode_ink_call("call_solidity_get(address)", sol_addr_encoded);
     assert_eq!(
         call_ink::<u16>(&mut client, ink_addr, encoded_get.clone()).await,
         42
@@ -162,7 +158,7 @@ async fn call_ink_no_return(
         .call(
             ink_addr,
             Balance::from(0u128),
-            Weight::from(DEFAULT_GAS).into(),
+            DEFAULT_GAS.into(),
             DEFAULT_STORAGE_DEPOSIT_LIMIT,
             data_sol,
             &signer,
@@ -201,7 +197,7 @@ impl SolidityHandler {
         }
         Command::new("kill")
             .arg("-9")
-            .arg(&self.eth_rpc_process_id.unwrap().to_string())
+            .arg(self.eth_rpc_process_id.unwrap().to_string())
             .spawn()?;
         Ok(())
     }
@@ -231,7 +227,7 @@ impl SolidityHandler {
     fn run_hardhat_script(
         &self,
         script: &str,
-        env_vars: &[(&str, String)],
+        env_vars: &[(&str, &str)],
         is_piped: Stdio,
     ) -> Result<Vec<u8>, Box<dyn Error>> {
         let mut command = Command::new("npx");
@@ -267,7 +263,7 @@ impl SolidityHandler {
     fn deploy(&self, ink_addr: Address) -> Result<String, Box<dyn Error>> {
         let output = self.run_hardhat_script(
             "01-deploy.js",
-            &[("INK_ADDRESS", format!("{:?}", ink_addr))],
+            &[("INK_ADDRESS", &format!("{:?}", ink_addr))],
             Stdio::piped(),
         )?;
         Ok(String::from_utf8(output)?
@@ -280,12 +276,12 @@ impl SolidityHandler {
 
     fn call(
         &self,
-        sol_addr: String,
+        sol_addr: &str,
         message: &str,
     ) -> Result<Option<String>, Box<dyn Error>> {
         let output = self.run_hardhat_script(
             "02-call-flip.js",
-            &[("SOL_ADDRESS", sol_addr), ("MESSAGE", message.to_string())],
+            &[("SOL_ADDRESS", sol_addr), ("MESSAGE", message)],
             Stdio::piped(),
         )?;
         Ok(String::from_utf8(output)
@@ -296,7 +292,7 @@ impl SolidityHandler {
 
     fn call_with_value(
         &self,
-        sol_addr: String,
+        sol_addr: &str,
         message: &str,
         value: bool,
     ) -> Result<Option<String>, Box<dyn Error>> {
@@ -304,8 +300,8 @@ impl SolidityHandler {
             "02-call-flip.js",
             &[
                 ("SOL_ADDRESS", sol_addr),
-                ("MESSAGE", message.to_string()),
-                ("VALUE", value.to_string()),
+                ("MESSAGE", message),
+                ("VALUE", &value.to_string()),
             ],
             Stdio::piped(),
         )?;
