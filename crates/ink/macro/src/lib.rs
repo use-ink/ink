@@ -201,14 +201,14 @@ pub fn selector_bytes(input: TokenStream) -> TokenStream {
 ///   | `bool` | `bool` ||
 ///   | `iN` for `N ∈ {8,16,32,64,128}` | `intN` | e.g `i8` <=> `int8` |
 ///   | `uN` for `N ∈ {8,16,32,64,128}` | `uintN` | e.g `u8` <=> `uint8` |
-///   | `U256` | `uint256` ||
+///   | [`ink::U256`][ink-u256] | `uint256` ||
 ///   | `String` | `string` ||
-///   | `Address` / `H160` | `address` | `Address` is a type alias for the `H160` type used for addresses in `pallet-revive` |
+///   | [`ink::Address`][ink-address] / [`H160`][ink-h160] | `address` | `ink::Address` is a type alias for the `ink::H160` type used for addresses in `pallet-revive` |
 ///   | `[T; N]` for `const N: usize` | `T[N]` | e.g. `[i8; 64]` <=> `int8[64]` |
 ///   | `Vec<T>` | `T[]` | e.g. `Vec<i8>` <=> `int8[]` |
-///   | `SolBytes<u8>` |  `bytes1` ||
-///   | `SolBytes<[u8; N]>` for `1 <= N <= 32` |  `bytesN` | e.g. `SolBytes<[u8; 1]>` <=> `bytes1` |
-///   | `SolBytes<Vec<u8>>` |  `bytes` ||
+///   | [`ink::SolBytes<u8>`][ink-sol-bytes] |  `bytes1` ||
+///   | [`ink::SolBytes<[u8; N]>`][ink-sol-bytes] for `1 <= N <= 32` |  `bytesN` | e.g. `ink::SolBytes<[u8; 1]>` <=> `bytes1` |
+///   | [`ink::SolBytes<Vec<u8>>`][ink-sol-bytes] |  `bytes` ||
 ///   | `(T1, T2, T3, ... T12)` | `(U1, U2, U3, ... U12)` | where `T1` <=> `U1`, ... `T12` <=> `U12` e.g. `(bool, u8, Address)` <=> `(bool, uint8, address)` |
 ///
 ///   [`SolEncode`][sol-trait-encode] is additionally implemented for reference and smart
@@ -233,6 +233,10 @@ pub fn selector_bytes(input: TokenStream) -> TokenStream {
 /// [sol-abi]: https://docs.soliditylang.org/en/latest/abi-spec.html
 /// [sol-abi-selector]: https://docs.soliditylang.org/en/latest/abi-spec.html#function-selector
 /// [sol-abi-codec]: https://docs.soliditylang.org/en/latest/abi-spec.html#formal-specification-of-the-encoding
+/// [ink-u256]: https://docs.rs/ink/latest/ink/struct.U256.html
+/// [ink-address]: https://docs.rs/ink/latest/ink/type.Address.html
+/// [ink-h160]: https://docs.rs/ink/latest/ink/struct.H160.html
+/// [ink-sol-bytes]: https://docs.rs/ink/latest/ink/struct.SolBytes.html
 /// [sol-trait-encode]: https://docs.rs/ink/latest/ink/trait.SolEncode.html
 /// [sol-trait-decode]: https://docs.rs/ink/latest/ink/trait.SolEncode.html
 /// [rust-coherence]: https://doc.rust-lang.org/reference/items/implementations.html#trait-implementation-coherence
