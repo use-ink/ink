@@ -104,7 +104,7 @@ fn call_sol_encoded_message() {
     // set value via cross contract call
     contracts.call(
         contract_addr,
-        "call_contract_sol_encoding(bytes20)",
+        "call_contract_sol_encoding(address)",
         input,
         origin.clone(),
     );

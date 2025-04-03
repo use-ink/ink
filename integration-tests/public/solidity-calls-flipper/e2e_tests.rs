@@ -110,9 +110,9 @@ async fn solidity_calls_ink_works<Client: E2EBackend>(
             .expect("should be 20 bytes");
 
     let encoded =
-        encode_ink_call("call_solidity_set(bytes20)", sol_addr_encodable.to_vec());
+        encode_ink_call("call_solidity_set(address)", sol_addr_encodable.to_vec());
     let encoded_get =
-        encode_ink_call("call_solidity_get(bytes20)", sol_addr_encodable.to_vec());
+        encode_ink_call("call_solidity_get(address)", sol_addr_encodable.to_vec());
     assert_eq!(
         call_ink::<u16>(&mut client, ink_addr, encoded_get.clone()).await,
         42
