@@ -66,19 +66,22 @@ For the type of a contract's balance, `pallet-revive` uses depending on the cont
   In an upcoming beta release this could be simplified to reduce UX friction by just
   using one type everywhere and converting to the `pallet-revive` one.
 
-#### Contract Address: `H160`
+#### Contract Address: `Address` / `H160`
 For a contract's account, `pallet-revive` is using either the configured `AccountId` type
 of the `polkadot-sdk` runtime, or `H160`.
 
-Finding the `H160` for an `AccountId` is done via an address derivation scheme derived in
-[#7662](https://github.com/paritytech/polkadot-sdk/pull/7662).
+`Address` is a more semantically named type alias for `H160` defined in `ink_primitives`,
+and re-exported in the `ink` crate.
+
+Finding the `Address`/`H160` for an `AccountId` is done via an address derivation scheme
+derived in [#7662](https://github.com/paritytech/polkadot-sdk/pull/7662).
 After instantiating a contract, the address is no longer returned by `pallet-revive`.
 Instead one has to derive it from given parameters (see the linked PR). `cargo-contract`
 does that automatically.
 
 For contract instantiations and contract calls the pallet requires that a 1-to-1 mapping
-of an `AccountId` to a `H160` has been created. This can be done via the `map_account`/
-`unmap_account` API.
+of an `AccountId` to an `Address`/`H160` has been created. This can be done via the
+`map_account`/`unmap_account` API.
 The PR [#6096](https://github.com/paritytech/polkadot-sdk/pull/6096) contains more
 information.
 
@@ -89,7 +92,7 @@ Substrate `AccountId` which it is mapped to.
 #### Contract Hash: `H256`
 For a contract's hash value, `pallet-revive` uses a fixed `H256`, Previously,
 the `ink::Environment::Hash` type referenced the hash type being used for the
-contract's hash. Now it's just a fixed `H160`.
+contract's hash. Now it's just a fixed `H256`.
 
 ### Contract delegates can no longer be done by code
 In `pallet-contracts` (and hence up until ink! v5), a pattern for upgradeable
@@ -217,6 +220,7 @@ You can find binary releases of the node [here](https://github.com/use-ink/ink-n
 - Improve support for Solidity ABI calling conventions - [#2411](https://github.com/use-ink/ink/pull/2411)
 - Implement contract invocation in off-chain environment engine - [#1957](https://github.com/paritytech/ink/pull/1988)
 - Abstractions for mapping arbitrary Rust types to Solidity ABI compatible types - [#2441](https://github.com/use-ink/ink/pull/2441)
+- Documentation for contract abi arg and provided Rust/ink! to Solidity type mappings - [2463](https://github.com/use-ink/ink/pull/2463)
 
 ## Fixed
 - [E2E] Have port parsing handle comma-separated list ‒ [#2336](https://github.com/use-ink/ink/pull/2336)
