@@ -2,7 +2,15 @@
 
 #[ink::contract]
 pub mod wildcard_selector {
+    #[cfg(feature = "emit-event")]
+    use ink::prelude::format;
     use ink::prelude::string::String;
+
+    #[cfg(feature = "emit-event")]
+    #[ink::event]
+    pub struct Event {
+        msg: String,
+    }
 
     #[ink(storage)]
     pub struct WildcardSelector {}
@@ -31,21 +39,20 @@ pub mod wildcard_selector {
         pub fn wildcard(&mut self) {
             let MessageInput(_selector, _message) =
                 ink::env::decode_input::<MessageInput>().unwrap();
-            /*
-            // todo
-            ink::env::debug_println!(
-                "Wildcard selector: {:?}, message: {}",
-                _selector,
-                _message
-            );
-            */
+
+            #[cfg(feature = "emit-event")]
+            self.env().emit_event(Event {
+                msg: format!("Wildcard selector: {:?}, message: {}", _selector, _message),
+            })
         }
 
         /// Wildcard complement handles messages with a well-known reserved selector.
         #[ink(message, selector = @)]
         pub fn wildcard_complement(&mut self, _message: String) {
-            // todo
-            // ink::env::debug_println!("Wildcard complement message: {}", _message);
+            #[cfg(feature = "emit-event")]
+            self.env().emit_event(Event {
+                msg: format!("Wildcard complement message: {}", _message),
+            });
         }
     }
 
@@ -91,7 +98,7 @@ pub mod wildcard_selector {
                 .returns::<()>()
         }
 
-        #[ink_e2e::test]
+        #[ink_e2e::test(features = ["emit-event"])]
         async fn arbitrary_selectors_handled_by_wildcard<Client: E2EBackend>(
             mut client: Client,
         ) -> E2EResult<()> {
@@ -134,6 +141,20 @@ pub mod wildcard_selector {
                 .expect("wildcard failed");
 
             // then
+            let contract_events = _result.contract_emitted_events()?;
+            assert_eq!(1, contract_events.len());
+            let contract_event = contract_events.first().expect("first event must exist");
+            let event: Event =
+                ink::scale::Decode::decode(&mut &contract_event.event.data[..])
+                    .expect("encountered invalid contract event data buffer");
+            assert_eq!(
+                event.msg,
+                format!(
+                    "Wildcard selector: {:?}, message: {}",
+                    ARBITRARY_SELECTOR, wildcard_message
+                )
+            );
+
             /*
             // todo
             assert!(result.debug_message().contains(&format!(

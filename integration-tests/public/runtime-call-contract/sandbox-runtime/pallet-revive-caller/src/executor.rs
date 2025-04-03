@@ -18,8 +18,8 @@ use ink::{
         AbiDecodeWith,
         AbiEncodeWith,
     },
-    MessageResult,
     Address,
+    MessageResult,
 };
 use pallet_revive::{
     DepositLimit,

@@ -1073,9 +1073,9 @@ dependencies = [
 
 [[package]]
 name = "blake3"
-version = "1.7.0"
+version = "1.8.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b17679a8d69b6d7fd9cd9801a536cec9fa5e5970b69f9d4747f70b39b031f5e7"
+checksum = "34a796731680be7931955498a16a10b2270c7762963d5d570fdbfe02dcbf314f"
 dependencies = [
  "arrayref",
  "arrayvec 0.7.6",
@@ -1327,9 +1327,9 @@ dependencies = [
 
 [[package]]
 name = "clap"
-version = "4.5.34"
+version = "4.5.35"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e958897981290da2a852763fe9cdb89cd36977a5d729023127095fa94d95e2ff"
+checksum = "d8aa86934b44c19c50f87cc2790e19f54f7a67aedb64101c2e1a2e5ecfb73944"
 dependencies = [
  "clap_builder",
  "clap_derive",
@@ -1337,9 +1337,9 @@ dependencies = [
 
 [[package]]
 name = "clap_builder"
-version = "4.5.34"
+version = "4.5.35"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "83b0f35019843db2160b5bb19ae09b4e6411ac33fc6a712003c33e03090e2489"
+checksum = "2414dbb2dd0695280da6ea9261e327479e9d37b0630f6b53ba2a11c60c679fd9"
 dependencies = [
  "anstream",
  "anstyle",
@@ -1520,7 +1520,7 @@ checksum = "cd7e35aee659887cbfb97aaf227ac12cad1a9d7c71e55ff3376839ed4e282d08"
 [[package]]
 name = "contract-build"
 version = "6.0.0-alpha"
-source = "git+https://github.com/use-ink/cargo-contract?branch=master#bbea13b28c27e69277cb1ca6059e4e5f25072196"
+source = "git+https://github.com/use-ink/cargo-contract?branch=master#942755647cf959f2f1c4c45a099622e8aa99e2eb"
 dependencies = [
  "alloy-json-abi",
  "anyhow",
@@ -1562,7 +1562,7 @@ dependencies = [
 [[package]]
 name = "contract-metadata"
 version = "6.0.0-alpha"
-source = "git+https://github.com/use-ink/cargo-contract?branch=master#bbea13b28c27e69277cb1ca6059e4e5f25072196"
+source = "git+https://github.com/use-ink/cargo-contract?branch=master#942755647cf959f2f1c4c45a099622e8aa99e2eb"
 dependencies = [
  "anyhow",
  "impl-serde",
@@ -3044,9 +3044,9 @@ dependencies = [
 
 [[package]]
 name = "hyper-util"
-version = "0.1.10"
+version = "0.1.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "df2dcfbe0677734ab2f3ffa7fa7bfd4706bfdc1ef393f2ee30184aed67e631b4"
+checksum = "497bbc33a26fdd4af9ed9c70d63f61cf56a938375fbb32df34db9b1cd6d643f2"
 dependencies = [
  "bytes",
  "futures-channel",
@@ -3054,6 +3054,7 @@ dependencies = [
  "http",
  "http-body",
  "hyper",
+ "libc",
  "pin-project-lite",
  "socket2",
  "tokio",
@@ -3078,9 +3079,9 @@ dependencies = [
 
 [[package]]
 name = "iana-time-zone"
-version = "0.1.62"
+version = "0.1.63"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b2fd658b06e56721792c5df4475705b6cda790e9298d19d2f8af083457bcd127"
+checksum = "b0c919e5debc312ad217002b8048a17b7d83f80703865bbfcfebb0458b0b27d8"
 dependencies = [
  "android_system_properties",
  "core-foundation-sys",
@@ -3569,7 +3570,7 @@ dependencies = [
 [[package]]
 name = "ink_metadata"
 version = "6.0.0-alpha"
-source = "git+https://github.com/use-ink/ink?branch=master#38594e3adfa6a4918d07b31f063526454540e4f3"
+source = "git+https://github.com/use-ink/ink?branch=master#d371978f76f02ab7045e76dc5e02197caeda53f8"
 dependencies = [
  "derive_more 2.0.1",
  "impl-serde",
@@ -3592,7 +3593,7 @@ dependencies = [
 [[package]]
 name = "ink_prelude"
 version = "6.0.0-alpha"
-source = "git+https://github.com/use-ink/ink?branch=master#38594e3adfa6a4918d07b31f063526454540e4f3"
+source = "git+https://github.com/use-ink/ink?branch=master#d371978f76f02ab7045e76dc5e02197caeda53f8"
 dependencies = [
  "cfg-if",
 ]
@@ -3627,16 +3628,18 @@ dependencies = [
 [[package]]
 name = "ink_primitives"
 version = "6.0.0-alpha"
-source = "git+https://github.com/use-ink/ink?branch=master#38594e3adfa6a4918d07b31f063526454540e4f3"
+source = "git+https://github.com/use-ink/ink?branch=master#d371978f76f02ab7045e76dc5e02197caeda53f8"
 dependencies = [
  "alloy-sol-types",
  "cfg-if",
  "derive_more 2.0.1",
+ "impl-trait-for-tuples",
  "ink_prelude 6.0.0-alpha (git+https://github.com/use-ink/ink?branch=master)",
  "num-traits",
  "pallet-revive",
  "pallet-revive-uapi",
  "parity-scale-codec",
+ "paste",
  "primitive-types 0.13.1",
  "scale-decode",
  "scale-encode",
@@ -5879,9 +5882,9 @@ dependencies = [
 
 [[package]]
 name = "rustix"
-version = "1.0.3"
+version = "1.0.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e56a18552996ac8d29ecc3b190b4fdbb2d91ca4ec396de7bbffaf43f3d637e96"
+checksum = "d97817398dd4bb2e6da002002db259209759911da105da92bec29ccb12cf58bf"
 dependencies = [
  "bitflags 2.9.0",
  "errno",
@@ -6765,9 +6768,9 @@ dependencies = [
 
 [[package]]
 name = "socket2"
-version = "0.5.8"
+version = "0.5.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c970269d99b64e60ec3bd6ad27270092a5394c4e309314b18ae3fe575695fbe8"
+checksum = "4f5fd57c80058a56cf5c777ab8a126398ece8e442983605d280a44ce79d0edef"
 dependencies = [
  "libc",
  "windows-sys 0.52.0",
@@ -7002,7 +7005,7 @@ dependencies = [
 [[package]]
 name = "sp-crypto-ec-utils"
 version = "0.10.0"
-source = "git+https://github.com/paritytech/polkadot-sdk#9be43c0abf0a02a28d8fd4bbe9cfaed17dfcf18c"
+source = "git+https://github.com/paritytech/polkadot-sdk#3766467f5adc670ff4f71e2ec9f27185fdcf97ca"
 dependencies = [
  "ark-bls12-377",
  "ark-bls12-377-ext",
@@ -7069,7 +7072,7 @@ dependencies = [
 [[package]]
 name = "sp-debug-derive"
 version = "14.0.0"
-source = "git+https://github.com/paritytech/polkadot-sdk#9be43c0abf0a02a28d8fd4bbe9cfaed17dfcf18c"
+source = "git+https://github.com/paritytech/polkadot-sdk#3766467f5adc670ff4f71e2ec9f27185fdcf97ca"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -7089,7 +7092,7 @@ dependencies = [
 [[package]]
 name = "sp-externalities"
 version = "0.25.0"
-source = "git+https://github.com/paritytech/polkadot-sdk#9be43c0abf0a02a28d8fd4bbe9cfaed17dfcf18c"
+source = "git+https://github.com/paritytech/polkadot-sdk#3766467f5adc670ff4f71e2ec9f27185fdcf97ca"
 dependencies = [
  "environmental",
  "parity-scale-codec",
@@ -7278,7 +7281,7 @@ dependencies = [
 [[package]]
 name = "sp-runtime-interface"
 version = "24.0.0"
-source = "git+https://github.com/paritytech/polkadot-sdk#9be43c0abf0a02a28d8fd4bbe9cfaed17dfcf18c"
+source = "git+https://github.com/paritytech/polkadot-sdk#3766467f5adc670ff4f71e2ec9f27185fdcf97ca"
 dependencies = [
  "bytes",
  "impl-trait-for-tuples",
@@ -7310,7 +7313,7 @@ dependencies = [
 [[package]]
 name = "sp-runtime-interface-proc-macro"
 version = "17.0.0"
-source = "git+https://github.com/paritytech/polkadot-sdk#9be43c0abf0a02a28d8fd4bbe9cfaed17dfcf18c"
+source = "git+https://github.com/paritytech/polkadot-sdk#3766467f5adc670ff4f71e2ec9f27185fdcf97ca"
 dependencies = [
  "Inflector",
  "expander",
@@ -7375,7 +7378,7 @@ source = "git+https://github.com/paritytech/polkadot-sdk?rev=28a7ae71cc0eac747bf
 [[package]]
 name = "sp-std"
 version = "14.0.0"
-source = "git+https://github.com/paritytech/polkadot-sdk#9be43c0abf0a02a28d8fd4bbe9cfaed17dfcf18c"
+source = "git+https://github.com/paritytech/polkadot-sdk#3766467f5adc670ff4f71e2ec9f27185fdcf97ca"
 
 [[package]]
 name = "sp-storage"
@@ -7392,7 +7395,7 @@ dependencies = [
 [[package]]
 name = "sp-storage"
 version = "19.0.0"
-source = "git+https://github.com/paritytech/polkadot-sdk#9be43c0abf0a02a28d8fd4bbe9cfaed17dfcf18c"
+source = "git+https://github.com/paritytech/polkadot-sdk#3766467f5adc670ff4f71e2ec9f27185fdcf97ca"
 dependencies = [
  "impl-serde",
  "parity-scale-codec",
@@ -7427,7 +7430,7 @@ dependencies = [
 [[package]]
 name = "sp-tracing"
 version = "16.0.0"
-source = "git+https://github.com/paritytech/polkadot-sdk#9be43c0abf0a02a28d8fd4bbe9cfaed17dfcf18c"
+source = "git+https://github.com/paritytech/polkadot-sdk#3766467f5adc670ff4f71e2ec9f27185fdcf97ca"
 dependencies = [
  "parity-scale-codec",
  "tracing",
@@ -7509,7 +7512,7 @@ dependencies = [
 [[package]]
 name = "sp-wasm-interface"
 version = "20.0.0"
-source = "git+https://github.com/paritytech/polkadot-sdk#9be43c0abf0a02a28d8fd4bbe9cfaed17dfcf18c"
+source = "git+https://github.com/paritytech/polkadot-sdk#3766467f5adc670ff4f71e2ec9f27185fdcf97ca"
 dependencies = [
  "anyhow",
  "impl-trait-for-tuples",
@@ -7953,7 +7956,7 @@ dependencies = [
  "fastrand",
  "getrandom 0.3.2",
  "once_cell",
- "rustix 1.0.3",
+ "rustix 1.0.5",
  "windows-sys 0.59.0",
 ]
 
@@ -8725,11 +8728,37 @@ checksum = "712e227841d057c1ee1cd2fb22fa7e5a5461ae8e48fa2ca79ec42cfc1931183f"
 
 [[package]]
 name = "windows-core"
-version = "0.52.0"
+version = "0.61.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "33ab640c8d7e35bf8ba19b884ba838ceb4fba93a4e8c65a9059d08afcfc683d9"
+checksum = "4763c1de310c86d75a878046489e2e5ba02c649d185f21c67d4cf8a56d098980"
 dependencies = [
- "windows-targets 0.52.6",
+ "windows-implement",
+ "windows-interface",
+ "windows-link",
+ "windows-result",
+ "windows-strings",
+]
+
+[[package]]
+name = "windows-implement"
+version = "0.60.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a47fddd13af08290e67f4acabf4b459f647552718f683a7b415d290ac744a836"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn 2.0.100",
+]
+
+[[package]]
+name = "windows-interface"
+version = "0.59.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "bd9211b69f8dcdfa817bfd14bf1c97c9188afa36f4750130fcdf3f400eca9fa8"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn 2.0.100",
 ]
 
 [[package]]
@@ -8737,6 +8766,24 @@ name = "windows-link"
 version = "0.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "76840935b766e1b0a05c0066835fb9ec80071d4c09a16f6bd5f7e655e3c14c38"
+
+[[package]]
+name = "windows-result"
+version = "0.3.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c64fd11a4fd95df68efcfee5f44a294fe71b8bc6a91993e2791938abcc712252"
+dependencies = [
+ "windows-link",
+]
+
+[[package]]
+name = "windows-strings"
+version = "0.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7a2ba9642430ee452d5a7aa78d72907ebe8cfda358e8cb7918a2050581322f97"
+dependencies = [
+ "windows-link",
+]
 
 [[package]]
 name = "windows-sys"

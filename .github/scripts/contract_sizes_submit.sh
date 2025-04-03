@@ -49,7 +49,9 @@ ${master_ahead}
 These are the results when building the \`integration-tests/*\` contracts from this branch with \`${cc_version}\` and comparing them to ink! \`master\`:
 
 <details><summary>Show Results</summary>
+
 ${diffs_markdown_table}
+
 </details>
 
 [Link to the run](${workflow_url}) | Last update: ${updated}
