@@ -76,10 +76,14 @@ pub mod static_buffer {
             let contract = client
                 .instantiate("static_buffer", &ink_e2e::alice(), &mut constructor)
                 .dry_run()
-                .await?;
+                .await;
+
+            eprintln!("contract dry run {:?}", contract);
+
             //.unwrap_err();
             //.expect("dry run failed");
-            let err_msg = String::from_utf8_lossy(contract.return_data());
+            let c = contract.expect("err on contract");
+            let err_msg = String::from_utf8_lossy(c.return_data());
             eprintln!("contract {:?}", err_msg);
             /*
                 .expect("instantiate failed");
