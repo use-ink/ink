@@ -20,11 +20,12 @@ mod types;
 #[cfg(test)]
 mod tests;
 
+use core::ops::Deref;
+
 use alloy_sol_types::{
     sol_data,
     SolType as AlloySolType,
 };
-use core::ops::Deref;
 use impl_trait_for_tuples::impl_for_tuples;
 use ink_prelude::{
     borrow::Cow,
@@ -32,16 +33,19 @@ use ink_prelude::{
     string::String,
     vec::Vec,
 };
-
-pub use bytes::SolBytes;
 use primitive_types::{
     H256,
     U256,
 };
-pub use types::{
-    SolTypeDecode,
-    SolTypeEncode,
+
+pub use self::{
+    bytes::SolBytes,
+    types::{
+        SolTypeDecode,
+        SolTypeEncode,
+    },
 };
+pub use alloy_sol_types::Error;
 
 use crate::types::{
     AccountId,

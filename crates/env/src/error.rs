@@ -24,7 +24,7 @@ pub enum Error {
     /// Error upon decoding an encoded value.
     Decode(scale::Error),
     /// Error upon decoding with the Solidity ABI encoding.
-    DecodeSol(alloy_sol_types::Error),
+    DecodeSol(ink_primitives::sol::Error),
     /// The static buffer used during ABI encoding or ABI decoding is too small.
     BufferTooSmall,
     /// An error that can only occur in the off-chain environment.

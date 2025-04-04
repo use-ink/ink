@@ -16,6 +16,7 @@ use ink_prelude::vec::Vec;
 use pallet_revive_uapi::ReturnFlags;
 
 use crate::sol::{
+    self,
     SolDecode,
     SolEncode,
 };
@@ -317,7 +318,7 @@ where
 }
 
 impl<T: SolDecode> AbiDecodeWith<SolEncoding> for T {
-    type Error = alloy_sol_types::Error;
+    type Error = sol::Error;
     fn decode_with(buffer: &[u8]) -> Result<Self, Self::Error> {
         T::decode(buffer)
     }

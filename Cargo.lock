@@ -3484,7 +3484,6 @@ dependencies = [
 name = "ink_env"
 version = "6.0.0-alpha"
 dependencies = [
- "alloy-sol-types",
  "blake2",
  "cfg-if",
  "const_env",
