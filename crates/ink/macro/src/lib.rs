@@ -135,10 +135,8 @@ pub fn selector_bytes(input: TokenStream) -> TokenStream {
 ///       # pub struct MyStorage;
 ///       # impl MyStorage {
 ///       #     #[ink(constructor)]
-///       //    #[bar]
 ///       #     pub fn construct() -> Self { MyStorage {} }
 ///       #     #[ink(message)]
-///       //    #[foo]
 ///       #     pub fn message(&self) {}
 ///       # }
 ///       // ...
@@ -189,7 +187,7 @@ pub fn selector_bytes(input: TokenStream) -> TokenStream {
 ///   (i.e. `abi = "sol"` or `abi = "all"`), all types used as constructor/message
 ///   arguments and return types must define a mapping to an equivalent Solidity type.
 ///   This mapping is defined using the [`SolEncode`][sol-trait-encode] and
-///   [`SolDecode`][sol-trait-decode] traits that are analogs to `scale::Encode` and
+///   [`SolDecode`][sol-trait-decode] traits, which are analogs to `scale::Encode` and
 ///   `scale::Decode` (but for Solidity ABI encoding/decoding).
 ///
 ///   [`SolEncode`][sol-trait-encode] and [`SolDecode`][sol-trait-decode] are implemented
@@ -199,17 +197,17 @@ pub fn selector_bytes(input: TokenStream) -> TokenStream {
 ///   | Rust/ink! type | Solidity ABI type | Notes |
 ///   | -------------- | ----------------- | ----- |
 ///   | `bool` | `bool` ||
-///   | `iN` for `N ∈ {8,16,32,64,128}` | `intN` | e.g `i8` <=> `int8` |
-///   | `uN` for `N ∈ {8,16,32,64,128}` | `uintN` | e.g `u8` <=> `uint8` |
+///   | `iN` for `N ∈ {8,16,32,64,128}` | `intN` | e.g `i8` ↔ `int8` |
+///   | `uN` for `N ∈ {8,16,32,64,128}` | `uintN` | e.g `u8` ↔ `uint8` |
 ///   | [`ink::U256`][ink-u256] | `uint256` ||
 ///   | `String` | `string` ||
 ///   | [`ink::Address`][ink-address] / [`H160`][ink-h160] | `address` | `ink::Address` is a type alias for the `ink::H160` type used for addresses in `pallet-revive` |
-///   | `[T; N]` for `const N: usize` | `T[N]` | e.g. `[i8; 64]` <=> `int8[64]` |
-///   | `Vec<T>` | `T[]` | e.g. `Vec<i8>` <=> `int8[]` |
+///   | `[T; N]` for `const N: usize` | `T[N]` | e.g. `[i8; 64]` ↔ `int8[64]` |
+///   | `Vec<T>` | `T[]` | e.g. `Vec<i8>` ↔ `int8[]` |
 ///   | [`ink::SolBytes<u8>`][ink-sol-bytes] |  `bytes1` ||
-///   | [`ink::SolBytes<[u8; N]>`][ink-sol-bytes] for `1 <= N <= 32` |  `bytesN` | e.g. `ink::SolBytes<[u8; 1]>` <=> `bytes1` |
+///   | [`ink::SolBytes<[u8; N]>`][ink-sol-bytes] for `1 <= N <= 32` |  `bytesN` | e.g. `ink::SolBytes<[u8; 1]>` ↔ `bytes1` |
 ///   | [`ink::SolBytes<Vec<u8>>`][ink-sol-bytes] |  `bytes` ||
-///   | `(T1, T2, T3, ... T12)` | `(U1, U2, U3, ... U12)` | where `T1` <=> `U1`, ... `T12` <=> `U12` e.g. `(bool, u8, Address)` <=> `(bool, uint8, address)` |
+///   | `(T1, T2, T3, ... T12)` | `(U1, U2, U3, ... U12)` | where `T1` ↔ `U1`, ... `T12` ↔ `U12` e.g. `(bool, u8, Address)` ↔ `(bool, uint8, address)` |
 ///
 ///   [`SolEncode`][sol-trait-encode] is additionally implemented for reference and smart
 ///   pointer types below:
@@ -217,8 +215,8 @@ pub fn selector_bytes(input: TokenStream) -> TokenStream {
 ///   | Rust/ink! type | Solidity ABI type | Notes |
 ///   | -------------- | ----------------- | ----- |
 ///   | `&str`, `&mut str`, `Box<str>` | string ||
-///   | `&T`, `&mut T`, `Box<T>` | T | e.g. `&i8 <=> int8` |
-///   | `&[T]`, `&mut [T]`, `Box<[T]>` | T[] | e.g. `&[i8]` <=> `int8[]` |
+///   | `&T`, `&mut T`, `Box<T>` | T | e.g. `&i8 ↔ int8` |
+///   | `&[T]`, `&mut [T]`, `Box<[T]>` | T[] | e.g. `&[i8]` ↔ `int8[]` |
 ///
 ///   See the rustdoc for [`SolEncode`][sol-trait-encode] and
 ///   [`SolDecode`][sol-trait-decode] for instructions for implementing the traits for
