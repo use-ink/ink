@@ -89,7 +89,7 @@ pub type ContractResultInstantiate<Runtime> =
 pub type ContractExecResultFor<Runtime> =
     ContractResult<ExecReturnValue, BalanceOf<Runtime>>;
 
-/// Alias for the `map_acocunt` result.
+/// Alias for the `map_account` result.
 pub type MapAccountResultFor = Result<(), DispatchError>;
 
 /// Alias for the runtime of a sandbox.
