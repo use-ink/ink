@@ -35,6 +35,8 @@ use crate::{
     DispatchError,
     Result,
 };
+#[cfg(feature = "unstable-hostfn")]
+use ink_primitives::reflect::ScaleEncoding;
 use ink_primitives::{
     reflect::{
         AbiDecodeWith,
@@ -365,9 +367,9 @@ pub trait TypedEnvBackend: EnvBackend {
     ///
     /// For more details visit: [`instantiate_contract`][`crate::instantiate_contract`]
     #[cfg(feature = "unstable-hostfn")]
-    fn instantiate_contract<E, ContractRef, Args, R, Abi>(
+    fn instantiate_contract<E, ContractRef, Args, R>(
         &mut self,
-        params: &CreateParams<E, ContractRef, LimitParamsV2, Args, R, Abi>,
+        params: &CreateParams<E, ContractRef, LimitParamsV2, Args, R>,
     ) -> Result<
         ink_primitives::ConstructorResult<
             <R as ConstructorReturnType<ContractRef>>::Output,
@@ -378,7 +380,7 @@ pub trait TypedEnvBackend: EnvBackend {
         ContractRef: FromAddr + crate::ContractReverseReference,
         <ContractRef as crate::ContractReverseReference>::Type:
             crate::reflect::ContractConstructorDecoder,
-        Args: AbiEncodeWith<Abi>,
+        Args: AbiEncodeWith<ScaleEncoding>,
         R: ConstructorReturnType<ContractRef>;
 
     /// Terminates a smart contract.

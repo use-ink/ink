@@ -23,7 +23,6 @@ use ir::{
 };
 use proc_macro2::TokenStream as TokenStream2;
 use quote::{
-    format_ident,
     quote,
     quote_spanned,
 };
@@ -325,7 +324,6 @@ impl ContractRef<'_> {
     /// The generated implementations must live outside of an artificial `const` block
     /// in order to properly show their documentation using `rustdoc`.
     fn generate_contract_inherent_impls(&self) -> TokenStream2 {
-        let abi = self.contract.config().abi();
         self.contract
             .module()
             .impls()
@@ -333,7 +331,7 @@ impl ContractRef<'_> {
                 // We are only interested in ink! trait implementation block.
                 impl_block.trait_path().is_none()
             })
-            .map(|impl_block| self.generate_contract_inherent_impl(impl_block, abi))
+            .map(|impl_block| self.generate_contract_inherent_impl(impl_block))
             .collect()
     }
 
@@ -345,11 +343,7 @@ impl ContractRef<'_> {
     /// This produces the short-hand calling notation for the inherent contract
     /// implementation. The generated code simply forwards its calling logic to the
     /// associated call builder.
-    fn generate_contract_inherent_impl(
-        &self,
-        impl_block: &ir::ItemImpl,
-        abi: &ir::Abi,
-    ) -> TokenStream2 {
+    fn generate_contract_inherent_impl(&self, impl_block: &ir::ItemImpl) -> TokenStream2 {
         let span = impl_block.span();
         let attrs = impl_block.attrs();
         let forwarder_ident = self.generate_contract_ref_ident();
@@ -357,7 +351,7 @@ impl ContractRef<'_> {
             .iter_messages()
             .map(|message| self.generate_contract_inherent_impl_for_message(message));
         let constructors = impl_block.iter_constructors().map(|constructor| {
-            self.generate_contract_inherent_impl_for_constructor(constructor, abi)
+            self.generate_contract_inherent_impl_for_constructor(constructor)
         });
         quote_spanned!(span=>
             #( #attrs )*
@@ -443,7 +437,6 @@ impl ContractRef<'_> {
     fn generate_contract_inherent_impl_for_constructor(
         &self,
         constructor: ir::CallableWithSelector<ir::Constructor>,
-        abi: &ir::Abi,
     ) -> TokenStream2 {
         let span = constructor.span();
         let attrs = self
@@ -461,84 +454,35 @@ impl ContractRef<'_> {
             .map(quote::ToTokens::to_token_stream)
             .unwrap_or_else(|| quote::quote! { Self });
 
-        let mut create_builders = Vec::new();
-        if abi.is_ink() {
-            let arg_list = generator::generate_argument_list(
-                input_types.iter().cloned(),
-                quote!(::ink::reflect::ScaleEncoding),
-            );
+        let arg_list = generator::generate_argument_list(
+            input_types.iter().cloned(),
+            quote!(::ink::reflect::ScaleEncoding),
+        );
 
-            let create_builder = quote_spanned!(span =>
-                #( #attrs )*
-                #[inline]
-                #[allow(clippy::type_complexity)]
-                pub fn #constructor_ident(
-                    #( #input_bindings : #input_types ),*
-                ) -> ::ink::env::call::CreateBuilder<
-                    Environment,
-                    Self,
-                    ::ink::env::call::utils::Set<::ink::env::call::LimitParamsV2 >,
-                    ::ink::env::call::utils::Set<::ink::env::call::ExecutionInput<#arg_list, ::ink::reflect::ScaleEncoding>>,
-                    ::ink::env::call::utils::Set<::ink::env::call::utils::ReturnType<#ret_type>>,
-                > {
-                    ::ink::env::call::build_create::<Self>()
-                        .exec_input(
-                            ::ink::env::call::ExecutionInput::new(
-                                ::ink::env::call::Selector::new([ #( #selector_bytes ),* ])
-                            )
-                            #(
-                                .push_arg(#input_bindings)
-                            )*
+        quote_spanned!(span =>
+            #( #attrs )*
+            #[inline]
+            #[allow(clippy::type_complexity)]
+            pub fn #constructor_ident(
+                #( #input_bindings : #input_types ),*
+            ) -> ::ink::env::call::CreateBuilder<
+                Environment,
+                Self,
+                ::ink::env::call::utils::Set<::ink::env::call::LimitParamsV2 >,
+                ::ink::env::call::utils::Set<::ink::env::call::ExecutionInput<#arg_list, ::ink::reflect::ScaleEncoding>>,
+                ::ink::env::call::utils::Set<::ink::env::call::utils::ReturnType<#ret_type>>,
+            > {
+                ::ink::env::call::build_create::<Self>()
+                    .exec_input(
+                        ::ink::env::call::ExecutionInput::new(
+                            ::ink::env::call::Selector::new([ #( #selector_bytes ),* ])
                         )
-                        .returns::<#ret_type>()
-                }
-            );
-            create_builders.push(create_builder);
-        }
-
-        if abi.is_solidity() {
-            // If ABI is all, we generate a second constructor with a "_sol" postfix.
-            // Otherwise, we use the same name.
-            let sol_constructor_ident = if abi.is_all() {
-                format_ident!("{}_sol", constructor_ident)
-            } else {
-                constructor_ident.clone()
-            };
-            let arg_list = generator::generate_argument_list(
-                input_types.iter().cloned(),
-                quote!(::ink::reflect::SolEncoding),
-            );
-
-            let create_builder = quote_spanned!(span =>
-                #( #attrs )*
-                #[inline]
-                #[allow(clippy::type_complexity)]
-                pub fn #sol_constructor_ident(
-                    #( #input_bindings : #input_types ),*
-                ) -> ::ink::env::call::CreateBuilder<
-                    Environment,
-                    Self,
-                    ::ink::env::call::utils::Set<::ink::env::call::LimitParamsV2 >,
-                    ::ink::env::call::utils::Set<::ink::env::call::ExecutionInput<#arg_list, ::ink::reflect::SolEncoding>>,
-                    ::ink::env::call::utils::Set<::ink::env::call::utils::ReturnType<#ret_type>>,
-                > {
-                    ::ink::env::call::build_create_solidity::<Self>()
-                        .exec_input(
-                            ::ink::env::call::ExecutionInput::new(
-                                ::ink::env::call::Selector::new([ #( #selector_bytes ),* ])
-                            )
-                            #(
-                                .push_arg(#input_bindings)
-                            )*
-                        )
-                        .returns::<#ret_type>()
-                }
-            );
-            create_builders.push(create_builder);
-        }
-
-        quote_spanned!(span=>
-            #( #create_builders )*
+                        #(
+                            .push_arg(#input_bindings)
+                        )*
+                    )
+                    .returns::<#ret_type>()
+            }
         )
     }
 }

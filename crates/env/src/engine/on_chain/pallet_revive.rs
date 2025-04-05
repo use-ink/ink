@@ -56,6 +56,8 @@ use crate::{
     },
     Clear,
 };
+#[cfg(feature = "unstable-hostfn")]
+use ink_primitives::reflect::ScaleEncoding;
 use ink_primitives::{
     reflect::{
         AbiDecodeWith,
@@ -598,9 +600,9 @@ impl TypedEnvBackend for EnvInstance {
     }
 
     #[cfg(feature = "unstable-hostfn")]
-    fn instantiate_contract<E, ContractRef, Args, RetType, Abi>(
+    fn instantiate_contract<E, ContractRef, Args, RetType>(
         &mut self,
-        params: &CreateParams<E, ContractRef, LimitParamsV2, Args, RetType, Abi>,
+        params: &CreateParams<E, ContractRef, LimitParamsV2, Args, RetType>,
     ) -> Result<
         ink_primitives::ConstructorResult<
             <RetType as ConstructorReturnType<ContractRef>>::Output,
@@ -609,8 +611,7 @@ impl TypedEnvBackend for EnvInstance {
     where
         E: Environment,
         ContractRef: FromAddr,
-
-        Args: AbiEncodeWith<Abi>,
+        Args: AbiEncodeWith<ScaleEncoding>,
         RetType: ConstructorReturnType<ContractRef>,
     {
         let mut scoped = self.scoped_buffer();

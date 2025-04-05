@@ -49,6 +49,8 @@ use crate::{
     DispatchError,
     Result,
 };
+#[cfg(feature = "unstable-hostfn")]
+use ink_primitives::reflect::ScaleEncoding;
 use ink_primitives::{
     reflect::{
         AbiDecodeWith,
@@ -347,8 +349,8 @@ where
 /// - If given insufficient endowment.
 /// - If the returned account ID failed to decode properly.
 #[cfg(feature = "unstable-hostfn")]
-pub fn instantiate_contract<E, ContractRef, Args, R, Abi>(
-    params: &CreateParams<E, ContractRef, LimitParamsV2, Args, R, Abi>,
+pub fn instantiate_contract<E, ContractRef, Args, R>(
+    params: &CreateParams<E, ContractRef, LimitParamsV2, Args, R>,
 ) -> Result<
     ink_primitives::ConstructorResult<<R as ConstructorReturnType<ContractRef>>::Output>,
 >
@@ -358,13 +360,11 @@ where
     <ContractRef as crate::ContractReverseReference>::Type:
         crate::reflect::ContractConstructorDecoder,
 
-    Args: AbiEncodeWith<Abi>,
+    Args: AbiEncodeWith<ScaleEncoding>,
     R: ConstructorReturnType<ContractRef>,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        TypedEnvBackend::instantiate_contract::<E, ContractRef, Args, R, Abi>(
-            instance, params,
-        )
+        TypedEnvBackend::instantiate_contract::<E, ContractRef, Args, R>(instance, params)
     })
 }
 
