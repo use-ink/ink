@@ -27,6 +27,11 @@ const DEFAULT_STORAGE_DEPOSIT_LIMIT: u128 = 10_000_000_000_000;
 type E2EResult<T> = Result<T, Box<dyn Error>>;
 
 #[ink_e2e::test]
+// TODO: (@davidsemakula) Re-enable when "no space left" CI issue is fixed
+// See https://github.com/use-ink/ink/issues/2458 for details.
+// This test consistently triggers the issue in CI when running `npm install` for hardhat
+// scripts.
+#[ignore]
 async fn solidity_calls_ink_works<Client: E2EBackend>(
     mut client: Client,
 ) -> E2EResult<()> {
