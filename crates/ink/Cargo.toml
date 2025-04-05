@@ -36,7 +36,7 @@ sp-io = { git = "https://github.com/paritytech/polkadot-sdk", rev = "28a7ae71cc0
 sp-runtime-interface = { git = "https://github.com/paritytech/polkadot-sdk", rev = "28a7ae71cc0eac747bf346804279217a68f700da", default-features = false, features = ["disable_target_static_assertions"] }
 
 # todo pin until https://github.com/jhpratt/deranged/issues/18 is resolved
-deranged = { version = "=0.4.0", default-features = false }
+deranged = { version = "=0.4.1", default-features = false }
 
 [dev-dependencies]
 ink_ir = { workspace = true, default-features = true }
