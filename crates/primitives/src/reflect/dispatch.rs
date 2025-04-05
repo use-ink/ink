@@ -245,11 +245,12 @@ pub enum Encoding {
 
 /// Marker type for SCALE encoding. Used with [`AbiEncodeWith`], [`AbiDecodeWith`] and
 /// `DecodeMessageResult`.
-#[derive(Default, Clone)]
+#[derive(Debug, Default, Clone)]
 pub struct ScaleEncoding;
+
 /// Marker type for Solidity ABI encoding. Used with [`AbiEncodeWith`],
 /// [`AbiDecodeWith`] and `DecodeMessageResult`.
-#[derive(Default, Clone)]
+#[derive(Debug, Default, Clone)]
 pub struct SolEncoding;
 
 /// Trait for ABI-specific encoding with support for both slice and vector buffers.

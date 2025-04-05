@@ -12,6 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use core::marker::PhantomData;
+
+use ink_primitives::{
+    reflect::{
+        AbiEncodeWith,
+        ScaleEncoding,
+    },
+    Address,
+    H256,
+    U256,
+};
+
 #[cfg(feature = "unstable-hostfn")]
 use crate::Error;
 use crate::{
@@ -27,17 +39,6 @@ use crate::{
     },
     types::Environment,
     ContractEnv,
-};
-use core::marker::PhantomData;
-use ink_primitives::{
-    reflect::{
-        AbiEncodeWith,
-        ScaleEncoding,
-        SolEncoding,
-    },
-    Address,
-    H256,
-    U256,
 };
 
 pub mod state {
@@ -181,7 +182,7 @@ pub struct LimitParamsV2 {
 
 /// Builds up contract instantiations.
 #[derive(Debug)]
-pub struct CreateParams<E, ContractRef, Limits, Args, R, Abi> {
+pub struct CreateParams<E, ContractRef, Limits, Args, R> {
     /// The code hash of the created contract.
     code_hash: H256,
     /// Parameters for weight and storage limits, differs for versions of the instantiate
@@ -191,7 +192,7 @@ pub struct CreateParams<E, ContractRef, Limits, Args, R, Abi> {
     /// todo: is this correct? or is the value here `U256`?
     endowment: U256,
     /// The input data for the instantiation.
-    exec_input: ExecutionInput<Args, Abi>,
+    exec_input: ExecutionInput<Args, ScaleEncoding>,
     /// The salt for determining the hash for the contract account ID.
     salt_bytes: Option<[u8; 32]>,
     /// The return type of the target contract's constructor method.
@@ -200,8 +201,7 @@ pub struct CreateParams<E, ContractRef, Limits, Args, R, Abi> {
     _phantom: PhantomData<fn() -> (E, ContractRef)>,
 }
 
-impl<E, ContractRef, Limits, Args, R, Abi>
-    CreateParams<E, ContractRef, Limits, Args, R, Abi>
+impl<E, ContractRef, Limits, Args, R> CreateParams<E, ContractRef, Limits, Args, R>
 where
     E: Environment,
 {
@@ -219,7 +219,7 @@ where
 
     /// The raw encoded input data.
     #[inline]
-    pub fn exec_input(&self) -> &ExecutionInput<Args, Abi> {
+    pub fn exec_input(&self) -> &ExecutionInput<Args, ScaleEncoding> {
         &self.exec_input
     }
 
@@ -232,8 +232,7 @@ where
     }
 }
 
-impl<E, ContractRef, Args, R, Abi>
-    CreateParams<E, ContractRef, LimitParamsV2, Args, R, Abi>
+impl<E, ContractRef, Args, R> CreateParams<E, ContractRef, LimitParamsV2, Args, R>
 where
     E: Environment,
 {
@@ -257,8 +256,7 @@ where
     }
 }
 
-impl<E, ContractRef, Limits, Args, R, Abi>
-    CreateParams<E, ContractRef, Limits, Args, R, Abi>
+impl<E, ContractRef, Limits, Args, R> CreateParams<E, ContractRef, Limits, Args, R>
 where
     E: Environment,
 {
@@ -269,8 +267,7 @@ where
     }
 }
 
-impl<E, ContractRef, Args, R, Abi>
-    CreateParams<E, ContractRef, LimitParamsV2, Args, R, Abi>
+impl<E, ContractRef, Args, R> CreateParams<E, ContractRef, LimitParamsV2, Args, R>
 where
     E: Environment,
     ContractRef: FromAddr + crate::ContractReverseReference,
@@ -278,7 +275,7 @@ where
         crate::reflect::ContractConstructorDecoder,
     <ContractRef as crate::ContractReverseReference>::Type:
         crate::reflect::ContractMessageDecoder,
-    Args: AbiEncodeWith<Abi>,
+    Args: AbiEncodeWith<ScaleEncoding>,
     R: ConstructorReturnType<ContractRef>,
 {
     /// todo
@@ -339,7 +336,7 @@ where
 }
 
 /// Returns a new [`CreateBuilder`] to build up the parameters to a cross-contract
-/// instantiation for a contract that uses the ink! ABI (SCALE Encoding).
+/// instantiation.
 ///
 /// # Example
 ///
@@ -445,35 +442,6 @@ pub fn build_create<ContractRef>() -> CreateBuilder<
     ContractRef,
     Set<LimitParamsV2>,
     Unset<ExecutionInput<EmptyArgumentList<ScaleEncoding>, ScaleEncoding>>,
-    Unset<ReturnType<()>>,
->
-where
-    ContractRef: ContractEnv,
-{
-    CreateBuilder {
-        code_hash: Default::default(),
-        limits: Set(LimitParamsV2 {
-            ref_time_limit: u64::MAX,
-            proof_size_limit: u64::MAX,
-            storage_deposit_limit: None,
-        }),
-        endowment: Default::default(),
-        exec_input: Default::default(),
-        salt: Default::default(),
-        return_type: Default::default(),
-        _phantom: Default::default(),
-    }
-}
-
-/// Returns a new [`CreateBuilder`] to build up the parameters to a cross-contract
-/// instantiation for an ink! contract that uses Solidity ABI Encoding.
-/// See [`build_create`] for more details on usage.
-#[allow(clippy::type_complexity)]
-pub fn build_create_solidity<ContractRef>() -> CreateBuilder<
-    <ContractRef as ContractEnv>::Env,
-    ContractRef,
-    Set<LimitParamsV2>,
-    Unset<ExecutionInput<EmptyArgumentList<SolEncoding>, SolEncoding>>,
     Unset<ReturnType<()>>,
 >
 where
@@ -670,12 +638,12 @@ where
     }
 }
 
-impl<E, ContractRef, Limits, Args, RetType, Abi>
+impl<E, ContractRef, Limits, Args, RetType>
     CreateBuilder<
         E,
         ContractRef,
         Set<Limits>,
-        Set<ExecutionInput<Args, Abi>>,
+        Set<ExecutionInput<Args, ScaleEncoding>>,
         Set<ReturnType<RetType>>,
     >
 where
@@ -683,7 +651,7 @@ where
 {
     /// Finalizes the `CreateBuilder`, allowing it to instantiate a contract.
     #[inline]
-    pub fn params(self) -> CreateParams<E, ContractRef, Limits, Args, RetType, Abi> {
+    pub fn params(self) -> CreateParams<E, ContractRef, Limits, Args, RetType> {
         CreateParams {
             code_hash: self.code_hash,
             limits: self.limits.value(),
@@ -696,12 +664,12 @@ where
     }
 }
 
-impl<E, ContractRef, Args, RetType, Abi>
+impl<E, ContractRef, Args, RetType>
     CreateBuilder<
         E,
         ContractRef,
         Set<LimitParamsV2>,
-        Set<ExecutionInput<Args, Abi>>,
+        Set<ExecutionInput<Args, ScaleEncoding>>,
         Set<ReturnType<RetType>>,
     >
 where
@@ -711,7 +679,7 @@ where
         crate::reflect::ContractConstructorDecoder,
     <ContractRef as crate::ContractReverseReference>::Type:
         crate::reflect::ContractMessageDecoder,
-    Args: AbiEncodeWith<Abi>,
+    Args: AbiEncodeWith<ScaleEncoding>,
     RetType: ConstructorReturnType<ContractRef>,
 {
     /// todo check comment

@@ -66,6 +66,7 @@ use ink_primitives::{
     reflect::{
         AbiDecodeWith,
         AbiEncodeWith,
+        ScaleEncoding,
     },
     types::AccountIdMapper,
     DepositLimit,
@@ -489,14 +490,13 @@ where
 {
     async fn bare_instantiate<
         Contract: Clone,
-        Args: Send + Sync + AbiEncodeWith<Abi> + Clone,
+        Args: Send + Sync + AbiEncodeWith<ScaleEncoding> + Clone,
         R,
-        Abi: Send + Sync + Clone,
     >(
         &mut self,
         contract_name: &str,
         caller: &Keypair,
-        constructor: &mut CreateBuilderPartial<E, Contract, Args, R, Abi>,
+        constructor: &mut CreateBuilderPartial<E, Contract, Args, R>,
         value: E::Balance,
         gas_limit: Weight,
         storage_deposit_limit: DepositLimit<E::Balance>,
@@ -513,14 +513,13 @@ where
 
     async fn bare_instantiate_dry_run<
         Contract: Clone,
-        Args: Send + Sync + AbiEncodeWith<Abi> + Clone,
+        Args: Send + Sync + AbiEncodeWith<ScaleEncoding> + Clone,
         R,
-        Abi: Send + Sync + Clone,
     >(
         &mut self,
         contract_name: &str,
         caller: &Keypair,
-        constructor: &mut CreateBuilderPartial<E, Contract, Args, R, Abi>,
+        constructor: &mut CreateBuilderPartial<E, Contract, Args, R>,
         value: E::Balance,
         storage_deposit_limit: DepositLimit<E::Balance>,
     ) -> Result<InstantiateDryRunResult<E>, Self::Error> {

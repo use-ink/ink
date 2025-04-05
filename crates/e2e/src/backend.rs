@@ -38,6 +38,7 @@ use ink_primitives::{
     reflect::{
         AbiDecodeWith,
         AbiEncodeWith,
+        ScaleEncoding,
     },
     DepositLimit,
 };
@@ -133,15 +134,14 @@ pub trait ContractsBackend<E: Environment> {
     fn instantiate<
         'a,
         Contract: Clone,
-        Args: Send + Clone + AbiEncodeWith<Abi> + Sync,
+        Args: Send + Clone + AbiEncodeWith<ScaleEncoding> + Sync,
         R,
-        Abi: Send + Sync + Clone,
     >(
         &'a mut self,
         contract_name: &'a str,
         caller: &'a Keypair,
-        constructor: &'a mut CreateBuilderPartial<E, Contract, Args, R, Abi>,
-    ) -> InstantiateBuilder<'a, E, Contract, Args, R, Self, Abi>
+        constructor: &'a mut CreateBuilderPartial<E, Contract, Args, R>,
+    ) -> InstantiateBuilder<'a, E, Contract, Args, R, Self>
     where
         Self: Sized + BuilderClient<E>,
     {
@@ -311,14 +311,13 @@ pub trait BuilderClient<E: Environment>: ContractsBackend<E> {
     /// instance is reused!
     async fn bare_instantiate<
         Contract: Clone,
-        Args: Send + Sync + AbiEncodeWith<Abi> + Clone,
+        Args: Send + Sync + AbiEncodeWith<ScaleEncoding> + Clone,
         R,
-        Abi: Send + Sync + Clone,
     >(
         &mut self,
         contract_name: &str,
         caller: &Keypair,
-        constructor: &mut CreateBuilderPartial<E, Contract, Args, R, Abi>,
+        constructor: &mut CreateBuilderPartial<E, Contract, Args, R>,
         value: E::Balance,
         gas_limit: Weight,
         storage_deposit_limit: DepositLimit<E::Balance>,
@@ -327,14 +326,13 @@ pub trait BuilderClient<E: Environment>: ContractsBackend<E> {
     /// Dry run contract instantiation.
     async fn bare_instantiate_dry_run<
         Contract: Clone,
-        Args: Send + Sync + AbiEncodeWith<Abi> + Clone,
+        Args: Send + Sync + AbiEncodeWith<ScaleEncoding> + Clone,
         R,
-        Abi: Send + Sync + Clone,
     >(
         &mut self,
         contract_name: &str,
         caller: &Keypair,
-        constructor: &mut CreateBuilderPartial<E, Contract, Args, R, Abi>,
+        constructor: &mut CreateBuilderPartial<E, Contract, Args, R>,
         value: E::Balance,
         storage_deposit_limit: DepositLimit<E::Balance>,
     ) -> Result<InstantiateDryRunResult<E>, Self::Error>;

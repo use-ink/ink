@@ -53,7 +53,10 @@ use crate::{
 };
 use ink_engine::ext::Engine;
 #[cfg(feature = "unstable-hostfn")]
-use ink_primitives::types::AccountIdMapper;
+use ink_primitives::{
+    reflect::ScaleEncoding,
+    types::AccountIdMapper,
+};
 use ink_primitives::{
     reflect::{
         AbiDecodeWith,
@@ -640,9 +643,9 @@ impl TypedEnvBackend for EnvInstance {
     }
 
     #[cfg(feature = "unstable-hostfn")]
-    fn instantiate_contract<E, ContractRef, Args, R, Abi>(
+    fn instantiate_contract<E, ContractRef, Args, R>(
         &mut self,
-        params: &CreateParams<E, ContractRef, LimitParamsV2, Args, R, Abi>,
+        params: &CreateParams<E, ContractRef, LimitParamsV2, Args, R>,
     ) -> Result<
         ink_primitives::ConstructorResult<
             <R as ConstructorReturnType<ContractRef>>::Output,
@@ -653,7 +656,7 @@ impl TypedEnvBackend for EnvInstance {
         ContractRef: FromAddr + crate::ContractReverseReference,
         <ContractRef as crate::ContractReverseReference>::Type:
             crate::reflect::ContractConstructorDecoder,
-        Args: AbiEncodeWith<Abi>,
+        Args: AbiEncodeWith<ScaleEncoding>,
         R: ConstructorReturnType<ContractRef>,
     {
         let endowment = params.endowment();
