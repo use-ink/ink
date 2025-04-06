@@ -47,17 +47,17 @@ use crate::types::Address;
 /// | Rust/ink! type | Solidity ABI type | Notes |
 /// | -------------- | ----------------- | ----- |
 /// | `bool` | `bool` ||
-/// | `iN` for `N ∈ {8,16,32,64,128}` | `intN` | e.g `i8` <=> `int8` |
-/// | `uN` for `N ∈ {8,16,32,64,128}` | `uintN` | e.g `u8` <=> `uint8` |
+/// | `iN` for `N ∈ {8,16,32,64,128}` | `intN` | e.g `i8` ↔ `int8` |
+/// | `uN` for `N ∈ {8,16,32,64,128}` | `uintN` | e.g `u8` ↔ `uint8` |
 /// | `U256` | `uint256` ||
 /// | `String` | `string` ||
 /// | `Address` / `H160` | `address` | `Address` is a type alias for the `H160` type used for addresses in `pallet-revive` |
-/// | `[T; N]` for `const N: usize` | `T[N]` | e.g. `[i8; 64]` <=> `int8[64]` |
-/// | `Vec<T>` | `T[]` | e.g. `Vec<i8>` <=> `int8[]` |
+/// | `[T; N]` for `const N: usize` | `T[N]` | e.g. `[i8; 64]` ↔ `int8[64]` |
+/// | `Vec<T>` | `T[]` | e.g. `Vec<i8>` ↔ `int8[]` |
 /// | `SolBytes<u8>` |  `bytes1` ||
-/// | `SolBytes<[u8; N]>` for `1 <= N <= 32` |  `bytesN` | e.g. `SolBytes<[u8; 32]>` <=> `bytes32` |
+/// | `SolBytes<[u8; N]>` for `1 <= N <= 32` |  `bytesN` | e.g. `SolBytes<[u8; 32]>` ↔ `bytes32` |
 /// | `SolBytes<Vec<u8>>` |  `bytes` ||
-/// | `(T1, T2, T3, ... T12)` | `(U1, U2, U3, ... U12)` | where `T1` <=> `U1`, ... `T12` <=> `U12` e.g. `(bool, u8, Address)` <=> `(bool, uint8, address)` |
+/// | `(T1, T2, T3, ... T12)` | `(U1, U2, U3, ... U12)` | where `T1` ↔ `U1`, ... `T12` ↔ `U12` e.g. `(bool, u8, Address)` ↔ `(bool, uint8, address)` |
 ///
 /// Ref: <https://docs.soliditylang.org/en/latest/abi-spec.html#types>
 ///
@@ -88,20 +88,20 @@ pub trait SolTypeDecode: Sized + private::Sealed {
 /// | Rust/ink! type | Solidity ABI type | Notes |
 /// | -------------- | ----------------- | ----- |
 /// | `bool` | `bool` ||
-/// | `iN` for `N ∈ {8,16,32,64,128}` | `intN` | e.g `i8` <=> `int8` |
-/// | `uN` for `N ∈ {8,16,32,64,128}` | `uintN` | e.g `u8` <=> `uint8` |
+/// | `iN` for `N ∈ {8,16,32,64,128}` | `intN` | e.g `i8` ↔ `int8` |
+/// | `uN` for `N ∈ {8,16,32,64,128}` | `uintN` | e.g `u8` ↔ `uint8` |
 /// | `U256` | `uint256` ||
 /// | `String` | `string` ||
 /// | `Address` / `H160` | `address` | `Address` is a type alias for the `H160` type used for addresses in `pallet-revive` |
-/// | `[T; N]` for `const N: usize` | `T[N]` | e.g. `[i8; 64]` <=> `int8[64]` |
-/// | `Vec<T>` | `T[]` | e.g. `Vec<i8>` <=> `int8[]` |
+/// | `[T; N]` for `const N: usize` | `T[N]` | e.g. `[i8; 64]` ↔ `int8[64]` |
+/// | `Vec<T>` | `T[]` | e.g. `Vec<i8>` ↔ `int8[]` |
 /// | `SolBytes<u8>` |  `bytes1` ||
-/// | `SolBytes<[u8; N]>` for `1 <= N <= 32` |  `bytesN` | e.g. `SolBytes<[u8; 32]>` <=> `bytes32` |
+/// | `SolBytes<[u8; N]>` for `1 <= N <= 32` |  `bytesN` | e.g. `SolBytes<[u8; 32]>` ↔ `bytes32` |
 /// | `SolBytes<Vec<u8>>` |  `bytes` ||
-/// | `(T1, T2, T3, ... T12)` | `(U1, U2, U3, ... U12)` | where `T1` <=> `U1`, ... `T12` <=> `U12` e.g. `(bool, u8, Address)` <=> `(bool, uint8, address)` |
-/// | `&str`, `&mut str`, `Box<str>` | string ||
-/// | `&T`, `&mut T`, `Box<T>` | T | e.g. `&i8 <=> int8` |
-/// | `&[T]`, `&mut [T]`, `Box<[T]>` | T[] | e.g. `&[i8]` <=> `int8[]` |
+/// | `(T1, T2, T3, ... T12)` | `(U1, U2, U3, ... U12)` | where `T1` ↔ `U1`, ... `T12` ↔ `U12` e.g. `(bool, u8, Address)` ↔ `(bool, uint8, address)` |
+/// | `&str`, `&mut str`, `Box<str>` | `string` ||
+/// | `&T`, `&mut T`, `Box<T>` | `T` | e.g. `&i8 ↔ int8` |
+/// | `&[T]`, `&mut [T]`, `Box<[T]>` | `T[]` | e.g. `&[i8]` ↔ `int8[]` |
 ///
 /// Ref: <https://docs.soliditylang.org/en/latest/abi-spec.html#types>
 ///
