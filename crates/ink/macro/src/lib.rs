@@ -214,9 +214,9 @@ pub fn selector_bytes(input: TokenStream) -> TokenStream {
 ///
 ///   | Rust/ink! type | Solidity ABI type | Notes |
 ///   | -------------- | ----------------- | ----- |
-///   | `&str`, `&mut str`, `Box<str>` | string ||
-///   | `&T`, `&mut T`, `Box<T>` | T | e.g. `&i8 ↔ int8` |
-///   | `&[T]`, `&mut [T]`, `Box<[T]>` | T[] | e.g. `&[i8]` ↔ `int8[]` |
+///   | `&str`, `&mut str`, `Box<str>` | `string` ||
+///   | `&T`, `&mut T`, `Box<T>` | `T` | e.g. `&i8 ↔ int8` |
+///   | `&[T]`, `&mut [T]`, `Box<[T]>` | `T[]` | e.g. `&[i8]` ↔ `int8[]` |
 ///
 ///   See the rustdoc for [`SolEncode`][sol-trait-encode] and
 ///   [`SolDecode`][sol-trait-decode] for instructions for implementing the traits for
