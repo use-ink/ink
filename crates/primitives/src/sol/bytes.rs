@@ -59,10 +59,12 @@ pub struct SolBytes<T: SolBytesType>(pub T);
 impl<T: SolBytesType> SolTypeDecode for SolBytes<T> {
     type AlloyType = T::AlloyType;
 
-    fn detokenize(token: <Self::AlloyType as AlloySolType>::Token<'_>) -> Self {
+    fn detokenize(
+        token: <Self::AlloyType as AlloySolType>::Token<'_>,
+    ) -> Result<Self, alloy_sol_types::Error> {
         // Takes advantage of optimized `SolBytesType::detokenize` implementations and
         // skips unnecessary conversions to `T::AlloyType::RustType`.
-        Self(<T as SolBytesType>::detokenize(token))
+        Ok(Self(<T as SolBytesType>::detokenize(token)))
     }
 }
 
