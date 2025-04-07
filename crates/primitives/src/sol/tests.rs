@@ -201,11 +201,31 @@ fn fixed_array_works() {
 fn dynamic_array_works() {
     test_case!(Vec<bool>, vec![true, false, false, true]);
 
+    test_case!(
+        Box<[bool]>,
+        Box::from([true, false, false, true]),
+        Vec<bool>,
+        SolValue,
+        vec![true, false, false, true],
+        [.unwrap().as_ref()],
+        [.unwrap().as_slice()]
+    );
+
     test_case!(Vec<i8>, Vec::from([100i8; 8]));
     test_case!(Vec<i16>, Vec::from([-10_000i16; 16]));
     test_case!(Vec<i32>, Vec::from([1_000_000i32; 32]));
     test_case!(Vec<i64>, Vec::from([-1_000_000_000i64; 64]));
     test_case!(Vec<i128>, Vec::from([1_000_000_000_000i128; 128]));
+
+    test_case!(
+        Box<[i8]>,
+        Box::from([100i8; 8]),
+        Vec<i8>,
+        SolValue,
+        Vec::from([100i8; 8]),
+        [.unwrap().as_ref()],
+        [.unwrap().as_slice()]
+    );
 
     // `SolValue` for `Vec<u8>` maps to `bytes`.
     test_case!(
@@ -222,6 +242,16 @@ fn dynamic_array_works() {
     test_case!(
         Vec<String>,
         vec![String::from(""), String::from("Hello, world!")]
+    );
+
+    test_case!(
+        Box<[String]>,
+        Box::from([String::from(""), String::from("Hello, world!")]),
+        Vec<String>,
+        SolValue,
+        vec![String::from(""), String::from("Hello, world!")],
+        [.unwrap().as_ref()],
+        [.unwrap().as_slice()]
     );
 
     test_case!(
