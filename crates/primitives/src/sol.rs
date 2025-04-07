@@ -264,7 +264,7 @@ impl<T: SolDecode> SolDecode for Box<[T]> {
 }
 
 impl<'a, T: SolEncode<'a>> SolEncode<'a> for Box<[T]> {
-    type SolType = Vec<T::SolType>;
+    type SolType = Box<[T::SolType]>;
 
     fn to_sol_type(&'a self) -> Self::SolType {
         self.iter().map(<T as SolEncode>::to_sol_type).collect()
