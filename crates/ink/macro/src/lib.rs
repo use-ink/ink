@@ -206,9 +206,10 @@ pub fn selector_bytes(input: TokenStream) -> TokenStream {
 ///   | `[T; N]` for `const N: usize` | `T[N]` | e.g. `[i8; 64]` ↔ `int8[64]` |
 ///   | `Vec<T>` | `T[]` | e.g. `Vec<i8>` ↔ `int8[]` |
 ///   | `Box<[T]>` | `T[]` | e.g. `Box<[i8]>` ↔ `int8[]` |
-///   | [`ink::SolBytes<u8>`][ink-sol-bytes] |  `bytes1` ||
-///   | [`ink::SolBytes<[u8; N]>`][ink-sol-bytes] for `1 <= N <= 32` |  `bytesN` | e.g. `ink::SolBytes<[u8; 1]>` ↔ `bytes1` |
-///   | [`ink::SolBytes<Vec<u8>>`][ink-sol-bytes] |  `bytes` ||
+///   | [`ink::SolBytes<u8>`][ink-sol-bytes] | `bytes1` ||
+///   | [`ink::SolBytes<[u8; N]>`][ink-sol-bytes] for `1 <= N <= 32` | `bytesN` | e.g. `ink::SolBytes<[u8; 1]>` ↔ `bytes1` |
+///   | [`ink::SolBytes<Vec<u8>>`][ink-sol-bytes] | `bytes` ||
+///   | [`ink::SolBytes<Box<[u8]>>`][ink-sol-bytes] | `bytes` ||
 ///   | `(T1, T2, T3, ... T12)` | `(U1, U2, U3, ... U12)` | where `T1` ↔ `U1`, ... `T12` ↔ `U12` e.g. `(bool, u8, Address)` ↔ `(bool, uint8, address)` |
 ///
 ///   [`SolEncode`][sol-trait-encode] is additionally implemented for reference and smart

@@ -46,8 +46,8 @@ use crate::sol::{
 /// | -------------- | ----------------- | ----- |
 /// | `SolBytes<u8>` |  `bytes1` ||
 /// | `SolBytes<[u8; N]>` for `1 <= N <= 32` |  `bytesN` | e.g. `SolBytes<[u8; 32]>` <=> `bytes32` |
-/// | `SolBytes<Vec<u8>>` |  `bytes` ||
-/// | `SolBytes<Box<[u8]>>` |  `bytes` ||
+/// | `SolBytes<Vec<u8>>` | `bytes` ||
+/// | `SolBytes<Box<[u8]>>` | `bytes` ||
 ///
 /// Ref: <https://docs.soliditylang.org/en/latest/types.html#fixed-size-byte-arrays>
 ///
