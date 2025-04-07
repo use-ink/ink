@@ -289,7 +289,7 @@ impl<T: SolTypeDecode, const N: usize> SolTypeDecode for [T; N] {
             .map(<T as SolTypeDecode>::detokenize)
             .process_results(|iter| iter.collect_array())?
             .ok_or_else(|| {
-                alloy_sol_types::Error::custom(format!(
+                alloy_sol_types::Error::custom(ink_prelude::format!(
                     "ABI decoding failed: {}",
                     Self::AlloyType::SOL_NAME
                 ))

@@ -24,7 +24,10 @@ use core::{
     borrow::Borrow,
     ops::Deref,
 };
-use ink_prelude::vec::Vec;
+use ink_prelude::{
+    boxed::Box,
+    vec::Vec,
+};
 use scale::{
     Decode,
     Encode,
