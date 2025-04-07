@@ -206,6 +206,7 @@ impl_primitive! {
     u8, u16, u32, u64, u128, U256,
     // string
     String,
+    Box<str>,
     // address
     Address,
 }
@@ -240,6 +241,29 @@ impl<T: SolDecode> SolDecode for Vec<T> {
 }
 
 impl<'a, T: SolEncode<'a>> SolEncode<'a> for Vec<T> {
+    type SolType = Vec<T::SolType>;
+
+    fn to_sol_type(&'a self) -> Self::SolType {
+        self.iter().map(<T as SolEncode>::to_sol_type).collect()
+    }
+}
+
+// Rust `Box<[T]>` (i.e. boxed slice) <-> Solidity dynamic size array (i.e. `T[]`).
+impl<T: SolDecode> SolDecode for Box<[T]> {
+    type SolType = Box<[T::SolType]>;
+
+    fn from_sol_type(value: Self::SolType) -> Self {
+        // TODO: (@davidsemakula) Switch to method call syntax when edition is 2024
+        // (i.e. `value.into_iter()`).
+        // See <https://doc.rust-lang.org/edition-guide/rust-2024/intoiterator-box-slice.html> for details.
+        Box::from_iter(
+            core::iter::IntoIterator::into_iter(value)
+                .map(<T as SolDecode>::from_sol_type),
+        )
+    }
+}
+
+impl<'a, T: SolEncode<'a>> SolEncode<'a> for Box<[T]> {
     type SolType = Vec<T::SolType>;
 
     fn to_sol_type(&'a self) -> Self::SolType {
@@ -314,7 +338,7 @@ macro_rules! impl_str_ref_encode {
     };
 }
 
-impl_str_ref_encode!(&'a str, &'a mut str, Box<str>);
+impl_str_ref_encode!(&'a str, &'a mut str);
 
 macro_rules! impl_slice_ref_encode {
     ($($ty: ty),+ $(,)*) => {
@@ -330,7 +354,7 @@ macro_rules! impl_slice_ref_encode {
     };
 }
 
-impl_slice_ref_encode!(&'a [T], &'a mut [T], Box<[T]>);
+impl_slice_ref_encode!(&'a [T], &'a mut [T]);
 
 // AccountId <-> bytes32
 impl SolDecode for AccountId {

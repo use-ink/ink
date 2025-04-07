@@ -129,8 +129,29 @@ fn unsigned_int_works() {
 
 #[test]
 fn string_works() {
+    // String
     test_case!(String, String::from(""));
     test_case!(String, String::from("Hello, world!"));
+
+    // `Box<str>`
+    test_case!(
+        Box<str>,
+        Box::from(""),
+        String,
+        SolValue,
+        String::from(""),
+        [.unwrap().as_ref()],
+        [.unwrap().as_str()]
+    );
+    test_case!(
+        Box<str>,
+        Box::from("Hello, world!"),
+        String,
+        SolValue,
+        String::from("Hello, world!"),
+        [.unwrap().as_ref()],
+        [.unwrap().as_str()]
+    );
 }
 
 #[test]

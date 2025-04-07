@@ -51,9 +51,11 @@ use crate::types::Address;
 /// | `uN` for `N ∈ {8,16,32,64,128}` | `uintN` | e.g `u8` ↔ `uint8` |
 /// | `U256` | `uint256` ||
 /// | `String` | `string` ||
+/// | `Box<str>` | `string` ||
 /// | `Address` / `H160` | `address` | `Address` is a type alias for the `H160` type used for addresses in `pallet-revive` |
 /// | `[T; N]` for `const N: usize` | `T[N]` | e.g. `[i8; 64]` ↔ `int8[64]` |
 /// | `Vec<T>` | `T[]` | e.g. `Vec<i8>` ↔ `int8[]` |
+/// | `Box<[T]>` | `T[]` | e.g. `Box<[i8]>` ↔ `int8[]` |
 /// | `SolBytes<u8>` |  `bytes1` ||
 /// | `SolBytes<[u8; N]>` for `1 <= N <= 32` |  `bytesN` | e.g. `SolBytes<[u8; 32]>` ↔ `bytes32` |
 /// | `SolBytes<Vec<u8>>` |  `bytes` ||
@@ -92,16 +94,18 @@ pub trait SolTypeDecode: Sized + private::Sealed {
 /// | `uN` for `N ∈ {8,16,32,64,128}` | `uintN` | e.g `u8` ↔ `uint8` |
 /// | `U256` | `uint256` ||
 /// | `String` | `string` ||
+/// | `Box<str>` | `string` ||
 /// | `Address` / `H160` | `address` | `Address` is a type alias for the `H160` type used for addresses in `pallet-revive` |
 /// | `[T; N]` for `const N: usize` | `T[N]` | e.g. `[i8; 64]` ↔ `int8[64]` |
 /// | `Vec<T>` | `T[]` | e.g. `Vec<i8>` ↔ `int8[]` |
+/// | `Box<[T]>` | `T[]` | e.g. `Box<[i8]>` ↔ `int8[]` |
 /// | `SolBytes<u8>` |  `bytes1` ||
 /// | `SolBytes<[u8; N]>` for `1 <= N <= 32` |  `bytesN` | e.g. `SolBytes<[u8; 32]>` ↔ `bytes32` |
 /// | `SolBytes<Vec<u8>>` |  `bytes` ||
 /// | `(T1, T2, T3, ... T12)` | `(U1, U2, U3, ... U12)` | where `T1` ↔ `U1`, ... `T12` ↔ `U12` e.g. `(bool, u8, Address)` ↔ `(bool, uint8, address)` |
-/// | `&str`, `&mut str`, `Box<str>` | `string` ||
+/// | `&str`, `&mut str` | `string` ||
 /// | `&T`, `&mut T`, `Box<T>` | `T` | e.g. `&i8 ↔ int8` |
-/// | `&[T]`, `&mut [T]`, `Box<[T]>` | `T[]` | e.g. `&[i8]` ↔ `int8[]` |
+/// | `&[T]`, `&mut [T]` | `T[]` | e.g. `&[i8]` ↔ `int8[]` |
 ///
 /// Ref: <https://docs.soliditylang.org/en/latest/abi-spec.html#types>
 ///
@@ -183,6 +187,26 @@ impl_primitive! {
     // string
     String => sol_data::String,
 }
+
+// Rust `Box<str>` (i.e. boxed string slice) <-> Solidity `string`.
+impl SolTypeDecode for Box<str> {
+    type AlloyType = sol_data::String;
+
+    fn detokenize(token: <Self::AlloyType as AlloySolType>::Token<'_>) -> Self {
+        // TODO: (@davidsemakula) make it possible to return an error.
+        Box::from(core::str::from_utf8(token.0).expect("Expected a UTF8 bytes"))
+    }
+}
+
+impl SolTypeEncode for Box<str> {
+    type AlloyType = sol_data::String;
+
+    fn tokenize(&self) -> <Self::AlloyType as AlloySolType>::Token<'_> {
+        PackedSeqToken(self.as_bytes())
+    }
+}
+
+impl private::Sealed for Box<str> {}
 
 // Address <-> address
 impl SolTypeDecode for Address {
@@ -287,6 +311,33 @@ impl<T: SolTypeEncode> SolTypeEncode for Vec<T> {
 
 impl<T: private::Sealed> private::Sealed for Vec<T> {}
 
+// Rust `Box<[T]>` (i.e. boxed slice) <-> Solidity dynamic size array (i.e. `T[]`).
+impl<T: SolTypeDecode> SolTypeDecode for Box<[T]> {
+    type AlloyType = sol_data::Array<T::AlloyType>;
+
+    fn detokenize(token: <Self::AlloyType as AlloySolType>::Token<'_>) -> Self {
+        // Takes advantage of optimized `SolTypeDecode::detokenize` implementations and
+        // skips unnecessary conversions to `T::AlloyType::RustType`.
+        token
+            .0
+            .into_iter()
+            .map(<T as SolTypeDecode>::detokenize)
+            .collect()
+    }
+}
+
+impl<T: SolTypeEncode> SolTypeEncode for Box<[T]> {
+    type AlloyType = sol_data::Array<T::AlloyType>;
+
+    fn tokenize(&self) -> <Self::AlloyType as AlloySolType>::Token<'_> {
+        // Does NOT require `SolValueType<Self::AlloyType>` and instead relies on
+        // `SolTypeEncode::tokenize`.
+        DynSeqToken(self.iter().map(<T as SolTypeEncode>::tokenize).collect())
+    }
+}
+
+impl<T: private::Sealed> private::Sealed for Box<[T]> {}
+
 // We follow the Rust standard library's convention of implementing traits for tuples up
 // to twelve items long.
 // Ref: <https://doc.rust-lang.org/std/primitive.tuple.html#trait-implementations>
@@ -368,7 +419,7 @@ macro_rules! impl_str_ref_encode {
     };
 }
 
-impl_str_ref_encode!(&str, &mut str, Box<str>);
+impl_str_ref_encode!(&str, &mut str);
 
 macro_rules! impl_slice_ref_encode {
     ($($ty: ty),+ $(,)*) => {
@@ -388,7 +439,7 @@ macro_rules! impl_slice_ref_encode {
     };
 }
 
-impl_slice_ref_encode!(&[T], &mut [T], Box<[T]>);
+impl_slice_ref_encode!(&[T], &mut [T]);
 
 pub(super) mod private {
     /// Seals implementations of `SolTypeEncode` and `SolTypeDecode`.
