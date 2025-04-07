@@ -129,8 +129,29 @@ fn unsigned_int_works() {
 
 #[test]
 fn string_works() {
+    // String
     test_case!(String, String::from(""));
     test_case!(String, String::from("Hello, world!"));
+
+    // `Box<str>`
+    test_case!(
+        Box<str>,
+        Box::from(""),
+        String,
+        SolValue,
+        String::from(""),
+        [.unwrap().as_ref()],
+        [.unwrap().as_str()]
+    );
+    test_case!(
+        Box<str>,
+        Box::from("Hello, world!"),
+        String,
+        SolValue,
+        String::from("Hello, world!"),
+        [.unwrap().as_ref()],
+        [.unwrap().as_str()]
+    );
 }
 
 #[test]
@@ -180,11 +201,31 @@ fn fixed_array_works() {
 fn dynamic_array_works() {
     test_case!(Vec<bool>, vec![true, false, false, true]);
 
+    test_case!(
+        Box<[bool]>,
+        Box::from([true, false, false, true]),
+        Vec<bool>,
+        SolValue,
+        vec![true, false, false, true],
+        [.unwrap().as_ref()],
+        [.unwrap().as_slice()]
+    );
+
     test_case!(Vec<i8>, Vec::from([100i8; 8]));
     test_case!(Vec<i16>, Vec::from([-10_000i16; 16]));
     test_case!(Vec<i32>, Vec::from([1_000_000i32; 32]));
     test_case!(Vec<i64>, Vec::from([-1_000_000_000i64; 64]));
     test_case!(Vec<i128>, Vec::from([1_000_000_000_000i128; 128]));
+
+    test_case!(
+        Box<[i8]>,
+        Box::from([100i8; 8]),
+        Vec<i8>,
+        SolValue,
+        Vec::from([100i8; 8]),
+        [.unwrap().as_ref()],
+        [.unwrap().as_slice()]
+    );
 
     // `SolValue` for `Vec<u8>` maps to `bytes`.
     test_case!(
@@ -204,6 +245,16 @@ fn dynamic_array_works() {
     );
 
     test_case!(
+        Box<[String]>,
+        Box::from([String::from(""), String::from("Hello, world!")]),
+        Vec<String>,
+        SolValue,
+        vec![String::from(""), String::from("Hello, world!")],
+        [.unwrap().as_ref()],
+        [.unwrap().as_slice()]
+    );
+
+    test_case!(
         Vec<Address>, Vec::from([Address::from([1; 20]); 4]),
         Vec<AlloyAddress>, SolValue, Vec::from([AlloyAddress::from([1; 20]); 4]),
         [.unwrap().into_iter().map(|val| val.0).collect::<Vec<_>>()], [.unwrap().into_iter().map(|val| val.0).collect::<Vec<_>>()]
@@ -219,16 +270,16 @@ fn fixed_bytes_works() {
     );
 
     macro_rules! fixed_bytes_test_case {
-            ($($size: literal),+ $(,)*) => {
-                $(
-                    test_case!(
-                        SolBytes<[u8; $size]>, SolBytes([100u8; $size]),
-                        AlloyFixedBytes<$size>, SolValue, AlloyFixedBytes([100u8; $size]),
-                        [.unwrap().0], [.unwrap().0]
-                    );
-                )+
-            };
-        }
+        ($($size: literal),+ $(,)*) => {
+            $(
+                test_case!(
+                    SolBytes<[u8; $size]>, SolBytes([100u8; $size]),
+                    AlloyFixedBytes<$size>, SolValue, AlloyFixedBytes([100u8; $size]),
+                    [.unwrap().0], [.unwrap().0]
+                );
+            )+
+        };
+    }
 
     fixed_bytes_test_case!(
         1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22,
@@ -239,23 +290,30 @@ fn fixed_bytes_works() {
 #[test]
 fn bytes_works() {
     macro_rules! bytes_test_case {
-            ($($fixture_size: literal),+ $(,)*) => {
-                $(
-                    let data = Vec::from([100u8; $fixture_size]);
-                    let bytes = SolBytes(data.clone());
-                    let sol_bytes = AlloyBytes::from(data);
+        ($($fixture_size: literal),+ $(,)*) => {
+            $(
+                let data = Vec::from([100u8; $fixture_size]);
+                let vec_bytes = SolBytes(data.clone());
+                let sol_bytes = AlloyBytes::from(data);
 
-                    test_case!(
-                        SolBytes<Vec<u8>>, bytes,
-                        AlloyBytes, SolValue, sol_bytes,
-                        [.unwrap().as_slice()], [.unwrap().as_ref()]
-                    );
-                )+
-            };
-        }
+                test_case!(
+                    SolBytes<Vec<u8>>, vec_bytes,
+                    AlloyBytes, SolValue, sol_bytes,
+                    [.unwrap().as_slice()], [.unwrap().as_ref()]
+                );
+
+                let box_bytes = SolBytes(Box::from([100u8; $fixture_size]));
+                test_case!(
+                    SolBytes<Box<[u8]>>, box_bytes,
+                    AlloyBytes, SolValue, sol_bytes,
+                    [.unwrap().0.as_ref()], [.unwrap().as_ref()]
+                );
+            )+
+        };
+    }
 
     // Number/size is the dynamic size of the `Vec`.
-    bytes_test_case!(0, 1, 10, 20, 30, 40, 50, 60, 70);
+    bytes_test_case!(0, 1, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100);
 }
 
 #[test]

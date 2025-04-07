@@ -3608,6 +3608,7 @@ dependencies = [
  "ink",
  "ink_env",
  "ink_prelude 6.0.0-alpha",
+ "itertools 0.14.0",
  "num-traits",
  "pallet-revive",
  "pallet-revive-uapi",
