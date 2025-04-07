@@ -201,9 +201,11 @@ pub fn selector_bytes(input: TokenStream) -> TokenStream {
 ///   | `uN` for `N ∈ {8,16,32,64,128}` | `uintN` | e.g `u8` ↔ `uint8` |
 ///   | [`ink::U256`][ink-u256] | `uint256` ||
 ///   | `String` | `string` ||
+///   | `Box<str>` | `string` ||
 ///   | [`ink::Address`][ink-address] / [`H160`][ink-h160] | `address` | `ink::Address` is a type alias for the `ink::H160` type used for addresses in `pallet-revive` |
 ///   | `[T; N]` for `const N: usize` | `T[N]` | e.g. `[i8; 64]` ↔ `int8[64]` |
 ///   | `Vec<T>` | `T[]` | e.g. `Vec<i8>` ↔ `int8[]` |
+///   | `Box<[T]>` | `T[]` | e.g. `Box<[i8]>` ↔ `int8[]` |
 ///   | [`ink::SolBytes<u8>`][ink-sol-bytes] |  `bytes1` ||
 ///   | [`ink::SolBytes<[u8; N]>`][ink-sol-bytes] for `1 <= N <= 32` |  `bytesN` | e.g. `ink::SolBytes<[u8; 1]>` ↔ `bytes1` |
 ///   | [`ink::SolBytes<Vec<u8>>`][ink-sol-bytes] |  `bytes` ||
@@ -214,9 +216,9 @@ pub fn selector_bytes(input: TokenStream) -> TokenStream {
 ///
 ///   | Rust/ink! type | Solidity ABI type | Notes |
 ///   | -------------- | ----------------- | ----- |
-///   | `&str`, `&mut str`, `Box<str>` | `string` ||
+///   | `&str`, `&mut str` | `string` ||
 ///   | `&T`, `&mut T`, `Box<T>` | `T` | e.g. `&i8 ↔ int8` |
-///   | `&[T]`, `&mut [T]`, `Box<[T]>` | `T[]` | e.g. `&[i8]` ↔ `int8[]` |
+///   | `&[T]`, `&mut [T]` | `T[]` | e.g. `&[i8]` ↔ `int8[]` |
 ///
 ///   See the rustdoc for [`SolEncode`][sol-trait-encode] and
 ///   [`SolDecode`][sol-trait-decode] for instructions for implementing the traits for
