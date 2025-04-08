@@ -12,7 +12,7 @@ sha3 = { version = "0.10", default-features = false }
 [dev-dependencies]
 ink_e2e = { path = "../../../crates/e2e", features = ["sandbox"] }
 ink_sandbox = { path = "../../../crates/e2e/sandbox" }
-pallet-revive = { git = "https://github.com/paritytech/polkadot-sdk", rev = "28a7ae71cc0eac747bf346804279217a68f700da", default-features = false }
+pallet-revive = { version = "0.5.0", default-features = false }
 sha3 = { version = "0.10" }
 other-contract-sol = { path = "./other-contract-sol" }
 
