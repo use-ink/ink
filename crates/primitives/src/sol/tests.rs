@@ -64,7 +64,7 @@ macro_rules! test_case_codec {
 
         // `SolDecode` test.
         let decoded = <$ty as SolDecode>::decode(&encoded);
-        let decoded_alloy = <$sol_ty as $sol_trait>::abi_decode(&encoded, true);
+        let decoded_alloy = <$sol_ty as $sol_trait>::abi_decode(&encoded);
         assert_eq!(decoded$($ty_cvt)*, decoded_alloy$($sol_ty_cvt)*);
     };
 }
@@ -84,7 +84,7 @@ macro_rules! test_case {
 
         // `SolTypeDecode` test.
         let decoded = <$ty as SolTypeDecode>::decode(&encoded);
-        let decoded_alloy = <$sol_ty as $sol_trait>::abi_decode(&encoded, true);
+        let decoded_alloy = <$sol_ty as $sol_trait>::abi_decode(&encoded);
         assert_eq!(decoded$($ty_cvt)*, decoded_alloy$($sol_ty_cvt)*);
 
         // `SolEncode` and `SolDecode` test.
