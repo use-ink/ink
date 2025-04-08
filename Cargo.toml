@@ -38,7 +38,7 @@ array-init = { version = "2.0", default-features = false }
 blake2 = { version = "0.10" }
 cargo_metadata = { version = "0.19.0" }
 cfg-if = { version = "1.0" }
-contract-build = { git = "https://github.com/use-ink/cargo-contract", branch = "master" }
+contract-build = { git = "https://github.com/use-ink/cargo-contract", branch = "alex/update-dependencies" }
 darling = { version = "0.20.11" }
 derive_more = { version = "2.0.1", default-features = false }
 either = { version = "1.13", default-features = false }
@@ -72,7 +72,7 @@ subxt-signer = { version = "0.38" }
 syn = { version = "2" }
 synstructure = { version = "0.13.1" }
 thiserror = { version = "2.0.11" }
-tokio = { version = "1.43.0" }
+tokio = { version = "1.44.2" }
 tracing = { version = "0.1.41" }
 tracing-subscriber = { version = "0.3.19" }
 trybuild = { version = "1.0.102" }
