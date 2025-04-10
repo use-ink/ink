@@ -75,8 +75,7 @@ pub trait SolTypeDecode: Sized + private::Sealed {
 
     /// Solidity ABI decode into this type.
     fn decode(data: &[u8]) -> Result<Self, alloy_sol_types::Error> {
-        // Don't validate decoding. Validating results in encoding and decoding again.
-        abi::decode::<<Self::AlloyType as AlloySolType>::Token<'_>>(data, false)
+        abi::decode::<<Self::AlloyType as AlloySolType>::Token<'_>>(data)
             .and_then(Self::detokenize)
     }
 
