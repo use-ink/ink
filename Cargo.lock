@@ -1595,7 +1595,7 @@ checksum = "cd7e35aee659887cbfb97aaf227ac12cad1a9d7c71e55ff3376839ed4e282d08"
 [[package]]
 name = "contract-build"
 version = "6.0.0-alpha"
-source = "git+https://github.com/use-ink/cargo-contract?branch=alex/update-dependencies#eafce8d60ebc00ccf65d5c39658eecfbd62afcb7"
+source = "git+https://github.com/use-ink/cargo-contract?branch=master#892697ae8af3d93b36b61b47fad80f67fb7c7823"
 dependencies = [
  "alloy-json-abi 0.8.25",
  "anyhow",
@@ -1610,7 +1610,7 @@ dependencies = [
  "heck",
  "hex",
  "impl-serde",
- "ink_metadata 6.0.0-alpha (git+https://github.com/use-ink/ink?branch=alex/update-dependencies)",
+ "ink_metadata 6.0.0-alpha (git+https://github.com/use-ink/ink?branch=master)",
  "itertools 0.13.0",
  "parity-scale-codec",
  "polkavm-linker 0.22.0",
@@ -1637,7 +1637,7 @@ dependencies = [
 [[package]]
 name = "contract-metadata"
 version = "6.0.0-alpha"
-source = "git+https://github.com/use-ink/cargo-contract?branch=alex/update-dependencies#eafce8d60ebc00ccf65d5c39658eecfbd62afcb7"
+source = "git+https://github.com/use-ink/cargo-contract?branch=master#892697ae8af3d93b36b61b47fad80f67fb7c7823"
 dependencies = [
  "anyhow",
  "impl-serde",
@@ -3637,12 +3637,12 @@ dependencies = [
 [[package]]
 name = "ink_metadata"
 version = "6.0.0-alpha"
-source = "git+https://github.com/use-ink/ink?branch=alex/update-dependencies#726bd25b4499aba8c97cd623855bbe38d4940e72"
+source = "git+https://github.com/use-ink/ink?branch=master#b7e4089869ae055ebd17958e56eefe679b52daea"
 dependencies = [
  "derive_more 2.0.1",
  "impl-serde",
- "ink_prelude 6.0.0-alpha (git+https://github.com/use-ink/ink?branch=alex/update-dependencies)",
- "ink_primitives 6.0.0-alpha (git+https://github.com/use-ink/ink?branch=alex/update-dependencies)",
+ "ink_prelude 6.0.0-alpha (git+https://github.com/use-ink/ink?branch=master)",
+ "ink_primitives 6.0.0-alpha (git+https://github.com/use-ink/ink?branch=master)",
  "linkme",
  "parity-scale-codec",
  "scale-info",
@@ -3660,7 +3660,7 @@ dependencies = [
 [[package]]
 name = "ink_prelude"
 version = "6.0.0-alpha"
-source = "git+https://github.com/use-ink/ink?branch=alex/update-dependencies#726bd25b4499aba8c97cd623855bbe38d4940e72"
+source = "git+https://github.com/use-ink/ink?branch=master#b7e4089869ae055ebd17958e56eefe679b52daea"
 dependencies = [
  "cfg-if",
 ]
@@ -3696,13 +3696,13 @@ dependencies = [
 [[package]]
 name = "ink_primitives"
 version = "6.0.0-alpha"
-source = "git+https://github.com/use-ink/ink?branch=alex/update-dependencies#726bd25b4499aba8c97cd623855bbe38d4940e72"
+source = "git+https://github.com/use-ink/ink?branch=master#b7e4089869ae055ebd17958e56eefe679b52daea"
 dependencies = [
  "alloy-sol-types 1.0.0",
  "cfg-if",
  "derive_more 2.0.1",
  "impl-trait-for-tuples",
- "ink_prelude 6.0.0-alpha (git+https://github.com/use-ink/ink?branch=alex/update-dependencies)",
+ "ink_prelude 6.0.0-alpha (git+https://github.com/use-ink/ink?branch=master)",
  "itertools 0.14.0",
  "num-traits",
  "pallet-revive",
@@ -5262,6 +5262,11 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "538810ffdaa629113b9f436f43ba487a6cceacc04a769ac3cdcd32fcf87351cd"
 
 [[package]]
+name = "polkavm-common"
+version = "0.22.0"
+source = "git+https://github.com/paritytech/polkavm#0b7876319890bdfe16408809cb7d3b2af0b1ec47"
+
+[[package]]
 name = "polkavm-derive"
 version = "0.18.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -5318,7 +5323,7 @@ version = "0.22.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "414507a0a7c9451cc81336ef1f5ccbab8fa4aeda402668735aa28331867bd3ef"
 dependencies = [
- "polkavm-common 0.22.0",
+ "polkavm-common 0.22.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "proc-macro2",
  "quote",
  "syn 2.0.100",
@@ -5373,15 +5378,14 @@ dependencies = [
 [[package]]
 name = "polkavm-linker"
 version = "0.22.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "df9d349fb26ebfbf4b1794f08c045a543f8a6daf0878ce5b5c8b5ed06980a818"
+source = "git+https://github.com/paritytech/polkavm#0b7876319890bdfe16408809cb7d3b2af0b1ec47"
 dependencies = [
  "dirs",
  "gimli",
  "hashbrown 0.14.5",
  "log",
  "object",
- "polkavm-common 0.22.0",
+ "polkavm-common 0.22.0 (git+https://github.com/paritytech/polkavm)",
  "regalloc2",
  "rustc-demangle",
 ]
