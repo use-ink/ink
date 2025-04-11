@@ -2,7 +2,7 @@
 name = "erc20"
 version = "6.0.0-alpha"
 authors = ["Use Ink <ink@use.ink>"]
-edition = "2021"
+edition = "2024"
 publish = false
 
 [dependencies]

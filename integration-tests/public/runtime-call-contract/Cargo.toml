@@ -3,7 +3,7 @@ members = ["sandbox-runtime", "traits"]
 
 [workspace.package]
 authors = ["Use Ink <ink@use.ink>"]
-edition = "2021"
+edition = "2024"
 homepage = "https://use.ink"
 license = "Apache-2.0"
 repository = "https://github.com/use-ink/ink"

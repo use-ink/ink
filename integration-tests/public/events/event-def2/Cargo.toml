@@ -2,7 +2,7 @@
 name = "event-def2"
 authors = ["Use Ink <ink@use.ink>"]
 version = "0.1.0"
-edition = "2021"
+edition = "2024"
 
 [dependencies]
 ink = { path = "../../../../crates/ink", default-features = false }
