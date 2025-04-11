@@ -317,6 +317,8 @@ pub fn recorded_events() -> impl Iterator<Item = EmittedEvent> {
             .engine
             .get_emitted_events()
             .map(|evt: ink_engine::test_api::EmittedEvent| evt.into())
+            .collect::<Vec<_>>()
+            .into_iter()
     })
 }
 
