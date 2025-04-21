@@ -330,7 +330,7 @@ where
     }
 
     /// Returns the original mapped `AccountId32` for a `H160`.
-    async fn fetch_orginal_account(
+    async fn fetch_original_account(
         &self,
         addr: &H160,
     ) -> Result<Option<C::AccountId>, Error> {
@@ -743,7 +743,7 @@ where
 
     async fn map_account(&mut self, caller: &Keypair) -> Result<(), Self::Error> {
         let addr = self.derive_keypair_address(caller);
-        if self.fetch_orginal_account(&addr).await.unwrap().is_some() {
+        if self.fetch_original_account(&addr).await.unwrap().is_some() {
             return Ok(());
         }
         let tx_events = self.api.map_account(caller).await;
