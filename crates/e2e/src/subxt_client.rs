@@ -195,7 +195,7 @@ where
             }
         }
 
-        let deployer = self.derive_keypair_address(&signer);
+        let deployer = self.derive_keypair_address(signer);
         let addr = pallet_revive::create2(
             &deployer,
             &code[..],
