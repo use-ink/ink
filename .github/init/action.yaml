@@ -1,0 +1,39 @@
+name: init
+description: |
+  This action sets up a worker for use in other actions.
+
+inputs:
+  cache:
+    description: Whether to cache Rust/cargo projects
+    required: false
+  cache-directories:
+    description: Additional non workspace directories to be cached, separated by newlines.
+    required: false
+  cache-on-failure:
+    description: Cache even if the build fails. Defaults to false.
+    required: false
+    default: 'false'
+
+runs:
+  using: composite
+
+  steps:
+    - name: Maximize build space
+      uses: AdityaGarg8/remove-unwanted-software@v5
+      with:
+        remove-android: 'true'
+        remove-codeql: 'true'
+        remove-docker-images: 'true'
+        remove-dotnet: 'true'
+        remove-haskell: 'true'
+
+    - name: Rust Info
+      uses: ./.github/rust-info
+
+    - name: Rust Cache
+      uses: Swatinem/rust-cache@v2
+      if: ${{ inputs.cache == 'true' }}
+      with:
+        cache-directories: ${{ inputs.cache-directories }}
+        cache-all-crates: true
+        cache-on-failure: ${{ inputs.cache-on-failure }}
