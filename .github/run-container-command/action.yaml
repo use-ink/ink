@@ -5,19 +5,38 @@ description: |
 inputs:
   image:
     description: The Docker image to use.
+    # Image can be edited at https://github.com/use-ink/docker-images
     default: evilrobot/useink:pr-4
   command:
     description: The command to run
     required: true
+  output-info:
+    description: Whether to output environment information
+    default: 'true'
 
 runs:
   using: composite
 
   steps:
+    - name: Rust Info
+      uses: "docker://${{ inputs.image }}"
+      if: ${{ inputs.output-info == 'true' }}
+      with:
+        entrypoint: /bin/bash
+        args: > 
+          -c 
+          "rustup show
+          cargo --version
+          rustup +nightly show
+          cargo +nightly --version
+          bash --version
+          ink-node --version
+          cargo contract --version
+          git --version
+          echo -e '[registry]\nprotocol = \"sparse\"' > /usr/local/cargo/config.toml"
+
     - name: Run command in container
-      # Image can be edited at https://github.com/use-ink/docker-images
-      uses: docker://evilrobot/useink:pr-4
-#      uses: docker://${{ inputs.image }} todo
+      uses: "docker://${{ inputs.image }}"
       with:
         entrypoint: /bin/bash
         args: -c "${{ inputs.command }}"
