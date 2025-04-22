@@ -117,6 +117,7 @@ jobs:
         with:
           cache: true
           cache-directories: ${{ env.CARGO_TARGET_DIR }}
+          cache-key: ${{ matrix.type }}
 
       - name: Run Clippy for all crates
         uses: ./.github/run-container-command
@@ -160,6 +161,7 @@ jobs:
         with:
           cache: true
           cache-directories: ${{ env.CARGO_TARGET_DIR }}
+          cache-key: ${{ matrix.type }}
 
       - name: Run Clippy for Examples
         uses: ./.github/run-container-command
@@ -195,6 +197,7 @@ jobs:
         with:
           cache: true
           cache-directories: ${{ env.CARGO_TARGET_DIR }}
+          cache-key: ${{ matrix.type }}
 
       - name: Check
         uses: ./.github/run-container-command
@@ -286,6 +289,7 @@ jobs:
         with:
           cache: true
           cache-directories: ${{ env.CARGO_TARGET_DIR }}
+          cache-key: ${{ matrix.type }}
 
       - name: Build for STD
         uses: ./.github/run-container-command
@@ -360,6 +364,7 @@ jobs:
           with:
             cache: true
             cache-directories: ${{ env.CARGO_TARGET_DIR }}
+            cache-key: ${{ matrix.type }}
 
         - name: Test
           uses: ./.github/run-container-command
@@ -395,6 +400,7 @@ jobs:
           with:
             cache: true
             cache-directories: ${{ env.CARGO_TARGET_DIR }}
+            cache-key: ${{ matrix.type }}
 
         - name: Test Linting
           uses: ./.github/run-container-command
@@ -627,7 +633,7 @@ jobs:
         with:
           command: |
             mkdir -p measurements-${{ steps.extract_branch.outputs.branch }}/
-            scripts/for_all_contracts_exec2.sh --path integration-tests --partition ${{ matrix.partition }}/30 -- \
+            scripts/for_all_contracts_exec2.sh --path integration-tests -- \
               scripts/build_and_determine_contract_size.sh {}
   
               #bash -c "scripts/build_and_determine_contract_size.sh {} >> ${CONTRACT_SIZE_FILE} && \
@@ -636,7 +642,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
             path: ./measurements-${{ steps.extract_branch.outputs.branch }}/*
-            name: ${{ github.run_id }}_artifact_${{ matrix.partition }}
+            name: ${{ github.run_id }}_artifact
             retention-days: 1
 
   process-contract-sizes:

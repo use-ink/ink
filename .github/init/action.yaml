@@ -20,6 +20,8 @@ inputs:
     description: Cache even if the build fails. Defaults to false.
     required: false
     default: 'false'
+  cache-key:
+    description: An additional optional key to be added. Useful for jobs utilizing a matrix.
 
 runs:
   using: composite
@@ -41,3 +43,4 @@ runs:
         cache-all-crates: ${{ inputs.cache-all-crates }}
         cache-directories: ${{ inputs.cache-directories }}
         cache-on-failure: ${{ inputs.cache-on-failure }}
+        key: ${{ inputs.cache-key }}
