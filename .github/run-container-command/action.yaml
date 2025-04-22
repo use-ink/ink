@@ -3,10 +3,6 @@ description: |
   This action runs a specified command within a container using an optionally specified image.
 
 inputs:
-  image:
-    description: The Docker image to use.
-    # Image can be edited at https://github.com/use-ink/docker-images
-    default: evilrobot/useink:pr-4
   command:
     description: The command to run
     required: true
@@ -17,31 +13,22 @@ inputs:
 runs:
   using: composite
 
+  # NOTE: due to a limitation in reading an environment variable/input dynamically to set the image tag, be sure to
+  # update BOTH instances below if ever making any changes. See https://github.com/actions/runner/issues/1035 for more details.
   steps:
-    - name: Set Image
-      id: set_image
-      outputs:
-        IMAGE: ${{ inputs.image }}
-
     - name: Rust Info
-      uses: "docker://${{ steps.set_image.outputs.IMAGE }}"
+      # Image can be edited at https://github.com/use-ink/docker-images
+      uses: docker://evilrobot/useink:pr-4
       if: ${{ inputs.output-info == 'true' }}
       with:
         entrypoint: /bin/bash
-        args: > 
-          -c 
-          "rustup show
-          cargo --version
-          rustup +nightly show
-          cargo +nightly --version
-          bash --version
-          ink-node --version
-          cargo contract --version
-          git --version
-          echo -e '[registry]\nprotocol = \"sparse\"' > /usr/local/cargo/config.toml"
+        args: -c "rustup show; cargo --version; rustup +nightly show; cargo +nightly --version; bash --version; " \
+          ink-node --version; cargo contract --version; git --version; " \
+          "echo -e '[registry]\nprotocol = \"sparse\"' > /usr/local/cargo/config.toml"
 
     - name: Run command in container
-      uses: "docker://${{ steps.set_image.outputs.IMAGE }}"
+      # Image can be edited at https://github.com/use-ink/docker-images
+      uses: docker://evilrobot/useink:pr-4
       with:
         entrypoint: /bin/bash
         args: -c "${{ inputs.command }}"
