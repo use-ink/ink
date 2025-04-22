@@ -569,7 +569,7 @@ jobs:
         with:
           # Run all tests with --all-features, which will run the `e2e-tests` feature if present.
           command: |
-            scripts/for_all_contracts_exec.sh --path integration-tests --ignore internal/static-buffer --ignore internal/mapping --partition ${{ matrix.partition }}/30 -- \
+            scripts/for_all_contracts_exec.sh --path integration-tests --ignore internal/static-buffer --ignore internal/mapping -- \
             cargo +nightly test --all-features --all --manifest-path {}
 
   examples-test-mapping:
