@@ -211,12 +211,7 @@ jobs:
 
   check:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        shell: bash
     needs: [set-image]
-    container:
-      image: ${{ needs.set-image.outputs.IMAGE }}
     strategy:
       fail-fast: false
       matrix:
@@ -234,23 +229,27 @@ jobs:
           cache-directories: ${{ env.CARGO_TARGET_DIR }}
 
       - name: Check
+        uses: ./.github/run-container-command
         if: ${{ matrix.type == 'STD' }}
-        run: |
-          ALL_CRATES="${PURELY_STD_CRATES} ${ALSO_RISCV_CRATES}"
-          for crate in ${ALL_CRATES}; do
-            cargo check --all-features --manifest-path ./crates/${crate}/Cargo.toml;
-          done
+        with:
+          command: |
+            ALL_CRATES="${PURELY_STD_CRATES} ${ALSO_RISCV_CRATES}"
+            for crate in ${ALL_CRATES}; do
+              cargo check --all-features --manifest-path ./crates/${crate}/Cargo.toml;
+            done
 
       - name: Check RISCV
+        uses: ./.github/run-container-command
         if: ${{ matrix.type == 'RISCV' }}
         env:
           RUSTC_BOOTSTRAP: 1
-        run: |
-          for crate in ${ALSO_RISCV_CRATES}; do
-            # remove `nightly` once new stable is released, currently there is an ICE in stable
-            cargo +nightly check --no-default-features --target $RISCV_TARGET -Zbuild-std="core,alloc" \
-              --manifest-path ./crates/${crate}/Cargo.toml;
-          done
+        with:
+          command: |
+            for crate in ${ALSO_RISCV_CRATES}; do
+              # remove `nightly` once new stable is released, currently there is an ICE in stable
+              cargo +nightly check --no-default-features --target $RISCV_TARGET -Zbuild-std="core,alloc" \
+                --manifest-path ./crates/${crate}/Cargo.toml;
+            done
 
   dylint-checks:
     runs-on: ubuntu-latest
