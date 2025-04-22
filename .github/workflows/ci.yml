@@ -250,10 +250,6 @@ jobs:
 
       - name: Dylint
         uses: ./.github/run-container-command
-        env:
-          # Setting incremental = 0 to reduce compilation artifact size.
-          # The CI otherwise fails with "no disk space"
-          CARGO_INCREMENTAL: 0
         with:
           command: |
             cd linting/
@@ -279,11 +275,6 @@ jobs:
 
         - name: Dylint
           uses: ./.github/run-container-command
-          env:
-              # Setting incremental = 0 to reduce compilation artifact size.
-              # The CI otherwise fails with "no disk space"
-              # todo Remove again at one point. This is a speed trade-off.
-              CARGO_INCREMENTAL: 0
           with:
             command: |
                 cd linting/
@@ -354,10 +345,6 @@ jobs:
       - name: Test
         uses: ./.github/run-container-command
         env:
-          # Setting incremental = 0 to reduce compilation artifact size.
-          # The CI otherwise fails with "no disk space"
-          # todo Remove again at one point. This is a speed trade-off.
-          CARGO_INCREMENTAL: 0
           # Fix for linking of `linkme` for `cargo test`: https://github.com/dtolnay/linkme/issues/49
           RUSTFLAGS: -Clink-dead-code -Clink-arg=-z -Clink-arg=nostart-stop-gc
           # Since we run the tests with `--all-features` this implies the feature
@@ -393,10 +380,6 @@ jobs:
           #  todo check if this workspace condition is still necessary
           if: ${{ matrix.workspace == 'ink' }}
           env:
-              # Setting incremental = 0 to reduce compilation artifact size.
-              # The CI otherwise fails with "no disk space"
-              # todo Remove again at one point. This is a speed trade-off.
-              CARGO_INCREMENTAL: 0
               # Fix for linking of `linkme` for `cargo test`: https://github.com/dtolnay/linkme/issues/49
               RUSTFLAGS: -Clink-dead-code -Clink-arg=-z -Clink-arg=nostart-stop-gc
               # Since we run the tests with `--all-features` this implies the feature
@@ -541,10 +524,6 @@ jobs:
       - name: Test Examples
         uses: ./.github/run-container-command
         env:
-            # Setting incremental = 0 to reduce compilation artifact size.
-            # The CI otherwise fails with "no disk space"
-            # todo Remove again at one point. This is a speed trade-off.
-            CARGO_INCREMENTAL: 0
             # Fix for linking of `linkme` for `cargo test`: https://github.com/dtolnay/linkme/issues/49
             RUSTFLAGS: -Clink-arg=-z -Clink-arg=nostart-stop-gc -Clink-dead-code
         with:
