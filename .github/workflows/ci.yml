@@ -391,11 +391,6 @@ jobs:
   test-docs:
       runs-on: ubuntu-latest
       needs: [set-image, check]
-      defaults:
-          run:
-              shell: bash
-      container:
-          image: ${{ needs.set-image.outputs.IMAGE }}
       strategy:
           fail-fast: false
           matrix:
@@ -413,6 +408,7 @@ jobs:
               cache-directories: ${{ env.CARGO_TARGET_DIR }}
 
           - name: Test
+            uses: ./.github/run-container-command
             #  todo check if this workspace condition is still necessary
             if: ${{ matrix.workspace == 'ink' }}
             env:
@@ -427,8 +423,9 @@ jobs:
                 # There's no way to disable a single feature while enabling all features
                 # at the same time, hence we use this workaround.
                 QUICKCHECK_TESTS:            0
-            run: |
-                cargo +nightly test --all-features --no-fail-fast --workspace --doc --locked
+            with:
+              command: |
+                  cargo +nightly test --all-features --no-fail-fast --workspace --doc --locked
 
   test-linting:
       runs-on: ubuntu-latest
