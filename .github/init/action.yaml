@@ -1,14 +1,18 @@
 name: init
 description: |
-  This action sets up a worker for use in other actions by maximizing build space and optionally initializing caching.
+  This action initializes a worker for use in other actions by maximizing build space and initializing caching for 
+  Rust/Cargo projects.
 
 inputs:
   maximize-space:
-    description: Maximises build space
+    description: Whether to maximise build space
     default: 'true'
   cache:
     description: Whether to cache Rust/cargo projects
     required: false
+  cache-all-crates:
+    description: Whether all crates should be cached, or only dependent crates.
+    default: 'true'
   cache-directories:
     description: Additional non workspace directories to be cached, separated by newlines.
     required: false
@@ -30,13 +34,10 @@ runs:
         remove-dotnet: 'true'
         remove-haskell: 'true'
 
-#    - name: Rust Info
-#      uses: ./.github/rust-info
-
     - name: Rust Cache
       uses: Swatinem/rust-cache@v2
       if: ${{ inputs.cache == 'true' }}
       with:
+        cache-all-crates: ${{ inputs.cache-all-crates }}
         cache-directories: ${{ inputs.cache-directories }}
-        cache-all-crates: true
         cache-on-failure: ${{ inputs.cache-on-failure }}
