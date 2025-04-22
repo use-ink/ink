@@ -758,7 +758,7 @@ jobs:
 
   examples-docs:
     runs-on: ubuntu-latest
-    needs: [set-image, build-std, build-riscv]
+    needs: [set-image, build]
     defaults:
       run:
         shell: bash
