@@ -347,11 +347,11 @@ jobs:
           command: |
             for crate in ${ALSO_RISCV_CRATES}; do
               echo ${crate};
-              RUSTFLAGS="--cfg substrate_runtime" cargo +nightly build \
+              RUSTFLAGS=\"--cfg substrate_runtime\" cargo +nightly build \
                 --no-default-features --release \
-                --target $CLIPPY_TARGET \
+                --target ${CLIPPY_TARGET} \
                 --manifest-path ./crates/${crate}/Cargo.toml \
-                -Zbuild-std="core,alloc";
+                -Zbuild-std=\"core,alloc\";
             done
 
   test:
