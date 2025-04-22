@@ -253,12 +253,7 @@ jobs:
 
   dylint-checks:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        shell: bash
     needs: [set-image]
-    container:
-      image: ${{ needs.set-image.outputs.IMAGE }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -272,26 +267,23 @@ jobs:
           cache-directories: ${{ env.CARGO_TARGET_DIR }}
 
       - name: Dylint
+        uses: ./.github/run-container-command
         env:
           # Setting incremental = 0 to reduce compilation artifact size.
           # The CI otherwise fails with "no disk space"
           CARGO_INCREMENTAL: 0
-        run: |
-          cd linting/
-          # we are using a toolchain file in this directory
-          # add required components for CI
-          cargo check --verbose
-          cargo +nightly fmt --all -- --check
-          cargo clippy -- -D warnings;
+        with:
+          command: |
+            cd linting/
+            # we are using a toolchain file in this directory
+            # add required components for CI
+            cargo check --verbose
+            cargo +nightly fmt --all -- --check
+            cargo clippy -- -D warnings;
 
   dylint-testing:
       runs-on: ubuntu-latest
-      defaults:
-          run:
-              shell: bash
       needs: [set-image]
-      container:
-          image: ${{ needs.set-image.outputs.IMAGE }}
       steps:
           - name: Checkout
             uses: actions/checkout@v4
@@ -305,14 +297,16 @@ jobs:
               cache-directories: ${{ env.CARGO_TARGET_DIR }}
 
           - name: Dylint
+            uses: ./.github/run-container-command
             env:
                 # Setting incremental = 0 to reduce compilation artifact size.
                 # The CI otherwise fails with "no disk space"
                 # todo Remove again at one point. This is a speed trade-off.
                 CARGO_INCREMENTAL: 0
-            run: |
-                cd linting/
-                cargo test --all-features
+            with:
+              command: |
+                  cd linting/
+                  cargo test --all-features
 
 ### workspace
 
