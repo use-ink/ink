@@ -175,12 +175,7 @@ jobs:
 
   clippy-examples:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        shell: bash
     needs: [set-image]
-    container:
-      image: ${{ needs.set-image.outputs.IMAGE }}
     strategy:
       fail-fast: false
       matrix:
@@ -198,17 +193,21 @@ jobs:
           cache-directories: ${{ env.CARGO_TARGET_DIR }}
 
       - name: Run Clippy for Examples
+        uses: ./.github/run-container-command
         if: ${{ matrix.type == 'STD' }}
-        run: |
-          scripts/for_all_contracts_exec.sh --path integration-tests -- cargo clippy --all-targets \
-            --manifest-path {} -- -D warnings -A $CLIPPY_ALLOWED
+        with:
+          command: |
+            scripts/for_all_contracts_exec.sh --path integration-tests -- cargo clippy --all-targets \
+              --manifest-path {} -- -D warnings -A $CLIPPY_ALLOWED
 
       - name: Run Clippy for RISC-V Examples
+        uses: ./.github/run-container-command
         if: ${{ matrix.type == 'RISCV' }}
-        run: |
-          scripts/for_all_contracts_exec.sh --path integration-tests -- cargo clippy --no-default-features \
-            --target ${CLIPPY_TARGET} \
-            --manifest-path {} -- -D warnings -A $CLIPPY_ALLOWED
+        with:
+          command: |
+            scripts/for_all_contracts_exec.sh --path integration-tests -- cargo clippy --no-default-features \
+              --target ${CLIPPY_TARGET} \
+              --manifest-path {} -- -D warnings -A $CLIPPY_ALLOWED
 
   check:
     runs-on: ubuntu-latest
