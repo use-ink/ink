@@ -148,11 +148,11 @@ jobs:
         uses: ./.github/run-container-command
         with:
           command: |
-            ALL_CRATES="${PURELY_STD_CRATES} ${ALSO_RISCV_CRATES}"
+            ALL_CRATES="${{ env.PURELY_STD_CRATES }} ${{ env.ALSO_RISCV_CRATES }}"
              for crate in ${ALL_CRATES}; do
                echo $crate;
                cargo +nightly clippy --all-targets --all-features --manifest-path ./crates/${crate}/Cargo.toml \
-                 -- -D warnings -A ${CLIPPY_ALLOWED};
+                 -- -D warnings -A ${{ env.CLIPPY_ALLOWED }};
              done
 
   clippy-riscv:
