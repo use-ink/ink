@@ -65,12 +65,6 @@ jobs:
 
   spellcheck:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        shell: bash
-    needs: [set-image]
-    container:
-      image: ${{ needs.set-image.outputs.IMAGE }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -81,9 +75,14 @@ jobs:
         uses: ./.github/init
 
       - name: Check Spelling
-        run: |
-          cargo spellcheck check -v --cfg=.config/cargo_spellcheck.toml --checkers hunspell --code 1 -- recursive .
-          cargo spellcheck check -v --cfg=.config/cargo_spellcheck.toml --checkers hunspell --code 1 -- recursive ./integration-tests/*
+        uses: docker://${{ env.IMAGE }}
+        with:
+          entrypoint: "bash"
+          args:
+            "pwd
+            ls *
+            cargo spellcheck check -v --cfg=.config/cargo_spellcheck.toml --checkers hunspell --code 1 -- recursive .
+            cargo spellcheck check -v --cfg=.config/cargo_spellcheck.toml --checkers hunspell --code 1 -- recursive ./integration-tests/*"
 
   fmt:
     runs-on: ubuntu-latest
