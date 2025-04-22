@@ -74,6 +74,8 @@ jobs:
 
       - name: Initialize
         uses: ./.github/init
+        with:
+          maximize-space: 'false'
 
       - name: Rust Info
         uses: ./.github/run-container-command

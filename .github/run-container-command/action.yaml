@@ -15,7 +15,8 @@ runs:
 
   steps:
     - name: Run command in container
-      uses: docker://${{ inputs.image }}
+      uses: docker://evilrobot/useink:pr-4
+#      uses: docker://${{ inputs.image }} todo
       with:
         entrypoint: /bin/bash
         args: -c "${{ inputs.command }}"
