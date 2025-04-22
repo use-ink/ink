@@ -100,12 +100,7 @@ jobs:
 
   fmt:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        shell: bash
     needs: [set-image]
-    container:
-      image: ${{ needs.set-image.outputs.IMAGE }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -116,18 +111,22 @@ jobs:
         uses: ./.github/init
 
       - name: Check Formatting
-        run: |
-          zepter run check
-          cargo +nightly fmt --all -- --check
-          # For the UI tests we need to disable the license check
-          cargo +nightly fmt --all -- --check ./crates/ink/tests/ui/contract/{pass,fail}/*.rs
-          cargo +nightly fmt --all -- --check ./crates/ink/tests/ui/trait_def/{pass,fail}/*.rs
+        uses: ./.github/run-container-command
+        with:
+          command: |
+            zepter run check
+            cargo +nightly fmt --all -- --check
+            # For the UI tests we need to disable the license check
+            cargo +nightly fmt --all -- --check ./crates/ink/tests/ui/contract/{pass,fail}/*.rs
+            cargo +nightly fmt --all -- --check ./crates/ink/tests/ui/trait_def/{pass,fail}/*.rs
 
       - name: Check Examples Formatting
-        run: |
-          scripts/for_all_contracts_exec.sh --path integration-tests -- cargo +nightly fmt --manifest-path {} -- --check
-          # This file is not a part of the cargo project, so it wouldn't be formatted the usual way
-          rustfmt +nightly --check ./integration-tests/public/psp22-extension/runtime/psp22-extension-example.rs
+        uses: ./.github/run-container-command
+        with:
+          command: |
+            scripts/for_all_contracts_exec.sh --path integration-tests -- cargo +nightly fmt --manifest-path {} -- --check
+            # This file is not a part of the cargo project, so it wouldn't be formatted the usual way
+            rustfmt +nightly --check ./integration-tests/public/psp22-extension/runtime/psp22-extension-example.rs
 
   clippy:
     runs-on: ubuntu-latest
