@@ -17,6 +17,8 @@ runs:
     - name: Run command in container
       # Image can be edited at https://github.com/use-ink/docker-images
       uses: docker://evilrobot/useink:pr-4
+      env:
+        CARGO_TARGET_DIR: "/github/workspace/${{ env.CARGO_TARGET_DIR }}"
       with:
         entrypoint: /bin/bash
         args: -c "${{ inputs.command }}"
