@@ -1,0 +1,21 @@
+name: run container command
+description: |
+  This action runs a specified command within a container using an optionally specified image.
+
+inputs:
+  image:
+    description: The Docker image to use.
+    default: evilrobot/useink:pr-4
+  command:
+    description: The command to run
+    required: true
+
+runs:
+  using: composite
+
+  steps:
+    - name: Run command in container
+      uses: docker://${{ inputs.image }}
+      with:
+        entrypoint: /bin/bash
+        args: -c "${{ inputs.command }}"
