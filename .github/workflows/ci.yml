@@ -26,8 +26,6 @@ on:
       - 'FILE_HEADER'
 
 env:
-  # Image can be edited at https://github.com/use-ink/docker-images
-  IMAGE:                           evilrobot/useink:pr-4
   CARGO_TARGET_DIR:                /ci-cache/${{ github.repository }}/targets/${{ github.ref_name }}/${{ github.job }}
   PURELY_STD_CRATES:               ink/codegen metadata engine e2e e2e/macro ink/ir
   ALSO_RISCV_CRATES:               env storage storage/traits allocator prelude primitives ink ink/macro
@@ -53,19 +51,8 @@ concurrency:
 ### lint
 
 jobs:
-  set-image:
-    # GitHub Actions does not allow using 'env' in a container context.
-    # This workaround sets the container image for each job using the 'set-image' job output.
-    runs-on: ubuntu-latest
-    outputs:
-      IMAGE: ${{ steps.set_image.outputs.IMAGE }}
-    steps:
-      - id: set_image
-        run: echo "IMAGE=${{ env.IMAGE }}" >> $GITHUB_OUTPUT
-
   spellcheck:
     runs-on: ubuntu-latest
-    needs: [set-image]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -100,7 +87,6 @@ jobs:
 
   fmt:
     runs-on: ubuntu-latest
-    needs: [set-image]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -130,7 +116,6 @@ jobs:
 
   clippy:
     runs-on: ubuntu-latest
-    needs: [set-image]
     strategy:
       fail-fast: false
       matrix:
@@ -174,7 +159,6 @@ jobs:
 
   clippy-examples:
     runs-on: ubuntu-latest
-    needs: [set-image]
     strategy:
       fail-fast: false
       matrix:
@@ -210,7 +194,6 @@ jobs:
 
   check:
     runs-on: ubuntu-latest
-    needs: [set-image]
     strategy:
       fail-fast: false
       matrix:
@@ -253,7 +236,6 @@ jobs:
 
   dylint-checks:
     runs-on: ubuntu-latest
-    needs: [set-image]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -283,7 +265,6 @@ jobs:
 
   dylint-testing:
     runs-on: ubuntu-latest
-    needs: [set-image]
     steps:
         - name: Checkout
           uses: actions/checkout@v4
@@ -312,7 +293,7 @@ jobs:
 
   build:
     runs-on: ubuntu-latest
-    needs: [set-image, check]
+    needs: [check]
     strategy:
       fail-fast: false
       matrix:
@@ -356,7 +337,7 @@ jobs:
 
   test:
     runs-on: ubuntu-latest
-    needs: [set-image, check]
+    needs: [check]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -390,7 +371,7 @@ jobs:
 
   test-docs:
     runs-on: ubuntu-latest
-    needs: [set-image, check]
+    needs: [check]
     strategy:
         fail-fast: false
         matrix:
@@ -429,7 +410,7 @@ jobs:
 
   test-linting:
     runs-on: ubuntu-latest
-    needs: [set-image, check]
+    needs: [check]
     strategy:
         fail-fast: false
         matrix:
@@ -463,7 +444,7 @@ jobs:
 
   docs:
     runs-on: ubuntu-latest
-    needs: [set-image, check, fmt, clippy, clippy-examples, dylint-checks, dylint-testing, spellcheck]
+    needs: [check, fmt, clippy, clippy-examples, dylint-checks, dylint-testing, spellcheck]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -574,7 +555,6 @@ jobs:
 
   examples-test-mapping:
     runs-on: ubuntu-latest
-    needs: [set-image]
     steps:
         - name: Checkout
           uses: actions/checkout@v4
@@ -601,7 +581,7 @@ jobs:
 
   examples-custom-test:
     runs-on: ubuntu-latest
-    needs: [set-image, clippy, clippy-examples]
+    needs: [clippy, clippy-examples]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -653,7 +633,7 @@ jobs:
 
   examples-contract-build-riscv:
     runs-on: ubuntu-latest
-    needs: [set-image, build]
+    needs: [build]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -723,7 +703,7 @@ jobs:
 
   examples-docs:
     runs-on: ubuntu-latest
-    needs: [set-image, build]
+    needs: [build]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -759,7 +739,7 @@ jobs:
 # fuzz
   fuzz:
     runs-on: ubuntu-latest
-    needs: [set-image, examples-docs, examples-contract-build-riscv, examples-test, examples-custom-test]
+    needs: [examples-docs, examples-contract-build-riscv, examples-test, examples-custom-test]
     if: >
       github.event_name == 'push' &&
         github.ref == 'refs/heads/master'
@@ -842,7 +822,7 @@ jobs:
 
   submit-contract-sizes:
     runs-on: ubuntu-latest
-    needs: [set-image, process-contract-sizes]
+    needs: [process-contract-sizes]
     permissions:
         pull-requests: write
     if: github.ref != 'refs/heads/master'
