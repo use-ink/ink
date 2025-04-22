@@ -26,7 +26,7 @@ on:
       - 'FILE_HEADER'
 
 env:
-  CARGO_TARGET_DIR:                /ci-cache/${{ github.repository }}/targets/${{ github.ref_name }}/${{ github.job }}
+  CARGO_TARGET_DIR:                ./ci-cache/${{ github.repository }}/targets/${{ github.ref_name }}/${{ github.job }}
   PURELY_STD_CRATES:               ink/codegen metadata engine e2e e2e/macro ink/ir
   ALSO_RISCV_CRATES:               env storage storage/traits allocator prelude primitives ink ink/macro
   # TODO `cargo clippy --all-targets --all-features` for this crate
@@ -80,11 +80,6 @@ jobs:
         with:
           fetch-depth: 1
 
-      - name: Initialize runner
-        uses: ./.github/init
-        with:
-          maximize-space: 'false'
-
       - name: Check Spelling
         uses: ./.github/run-container-command
         with:
@@ -100,9 +95,6 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 1
-
-      - name: Initialize runner
-        uses: ./.github/init
 
       - name: Check Formatting
         uses: ./.github/run-container-command
@@ -689,7 +681,7 @@ jobs:
 
       - name: Combine contract sizes from individual examples
         run: |
-            cat downloaded_artifacts/${{github.run_id}}_artifact_*/* | \
+            cat downloaded_artifacts/${{github.run_id}}_artifact*/* | \
             sed -e 's/^integration-tests\/\(public\/\|internal\/\)\?//' | \
             sort | uniq > measurements-${{ steps.extract_branch.outputs.branch }}
             cat measurements-${{ steps.extract_branch.outputs.branch }}
