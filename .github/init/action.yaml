@@ -27,8 +27,8 @@ runs:
         remove-dotnet: 'true'
         remove-haskell: 'true'
 
-    - name: Rust Info
-      uses: ./.github/rust-info
+#    - name: Rust Info
+#      uses: ./.github/rust-info
 
     - name: Rust Cache
       uses: Swatinem/rust-cache@v2
