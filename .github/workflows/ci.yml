@@ -78,7 +78,7 @@ jobs:
       - name: Rust Info
         uses: docker://evilrobot/useink:pr-4
         with:
-          entrypoint: bash
+          entrypoint: /bin/bash
           args:
             "rustup show
              cargo --version
@@ -93,7 +93,7 @@ jobs:
       - name: Check Spelling
         uses: docker://evilrobot/useink:pr-4
         with:
-          entrypoint: bash
+          entrypoint: /bin/bash
           args:
             "pwd
             ls *
