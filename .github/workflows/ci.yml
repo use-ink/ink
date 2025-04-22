@@ -132,6 +132,10 @@ jobs:
   clippy:
     runs-on: ubuntu-latest
     needs: [set-image]
+    strategy:
+      fail-fast: false
+      matrix:
+        type: [ ALL, RISCV ]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -144,8 +148,9 @@ jobs:
           cache: true
           cache-directories: ${{ env.CARGO_TARGET_DIR }}
 
-      - name: Run Clippy
+      - name: Run Clippy for all crates
         uses: ./.github/run-container-command
+        if: ${{ matrix.type == 'ALL' }}
         env:
           ALL_CRATES: "${{ env.PURELY_STD_CRATES }} ${{ env.ALSO_RISCV_CRATES }}"
         with:
@@ -156,34 +161,17 @@ jobs:
                -- -D warnings -A ${CLIPPY_ALLOWED};
             done
 
-  clippy-riscv:
-      runs-on: ubuntu-latest
-      defaults:
-          run:
-              shell: bash
-      needs: [set-image]
-      container:
-          image: ${{ needs.set-image.outputs.IMAGE }}
-      steps:
-          - name: Checkout
-            uses: actions/checkout@v4
-            with:
-                fetch-depth: 1
-
-          - name: Initialize runner
-            uses: ./.github/init
-            with:
-              cache: true
-              cache-directories: ${{ env.CARGO_TARGET_DIR }}
-
-          - name: Run Clippy for RISC-V Crates
-            run: |
-                for crate in ${ALSO_RISCV_CRATES}; do
-                  echo $crate;
-                  cargo +nightly clippy --no-default-features --manifest-path ./crates/${crate}/Cargo.toml \
-                    --target ${CLIPPY_TARGET} \
-                    -- -D warnings -A ${CLIPPY_ALLOWED};
-                done
+      - name: Run Clippy for RISC-V Crates
+        uses: ./.github/run-container-command
+        if: ${{ matrix.type == 'RISCV' }}
+        with:
+          command: |
+            for crate in ${ALSO_RISCV_CRATES}; do
+              echo $crate;
+              cargo +nightly clippy --no-default-features --manifest-path ./crates/${crate}/Cargo.toml \
+                --target ${CLIPPY_TARGET} \
+                -- -D warnings -A ${CLIPPY_ALLOWED};
+            done
 
   clippy-examples:
     runs-on: ubuntu-latest
