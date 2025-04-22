@@ -67,6 +67,11 @@ jobs:
     runs-on: ubuntu-latest
     needs: [set-image]
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
       - name: Initialize
         uses: ./.github/init
 
@@ -126,6 +131,11 @@ jobs:
     runs-on: ubuntu-latest
     needs: [set-image]
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
       - name: Initialize
         uses: ./.github/init
         with:

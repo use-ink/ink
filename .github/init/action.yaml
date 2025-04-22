@@ -1,12 +1,8 @@
 name: init
 description: |
-  This action sets up a worker for use in other actions by checking out the repository, maximizing build space and
-  initializing caching.
+  This action sets up a worker for use in other actions by maximizing build space and optionally initializing caching.
 
 inputs:
-  checkout:
-    description: Checkout the repository
-    default: 'true'
   maximize-space:
     description: Maximises build space
     default: 'true'
@@ -25,12 +21,6 @@ runs:
   using: composite
 
   steps:
-    - name: Checkout
-      uses: actions/checkout@v4
-      if: ${{ inputs.checkout == 'true' }}
-      with:
-        fetch-depth: 1
-
     - name: Maximize build space
       uses: AdityaGarg8/remove-unwanted-software@v5
       if: ${{ inputs.maximize-space == 'true' }}
