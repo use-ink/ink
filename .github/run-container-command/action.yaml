@@ -18,8 +18,13 @@ runs:
   using: composite
 
   steps:
+    - name: Set Image
+      id: set_image
+      outputs:
+        IMAGE: ${{ inputs.image }}
+
     - name: Rust Info
-      uses: "docker://${{ inputs.image }}"
+      uses: "docker://${{ steps.set_image.outputs.IMAGE }}"
       if: ${{ inputs.output-info == 'true' }}
       with:
         entrypoint: /bin/bash
@@ -36,7 +41,7 @@ runs:
           echo -e '[registry]\nprotocol = \"sparse\"' > /usr/local/cargo/config.toml"
 
     - name: Run command in container
-      uses: "docker://${{ inputs.image }}"
+      uses: "docker://${{ steps.set_image.outputs.IMAGE }}"
       with:
         entrypoint: /bin/bash
         args: -c "${{ inputs.command }}"
