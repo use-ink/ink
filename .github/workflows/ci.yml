@@ -230,9 +230,10 @@ jobs:
       - name: Check
         uses: ./.github/run-container-command
         if: ${{ matrix.type == 'STD' }}
+        env:
+          ALL_CRATES: "${{ env.PURELY_STD_CRATES }} ${{ env.ALSO_RISCV_CRATES }}"
         with:
           command: |
-            ALL_CRATES="${PURELY_STD_CRATES} ${ALSO_RISCV_CRATES}"
             for crate in ${ALL_CRATES}; do
               cargo check --all-features --manifest-path ./crates/${crate}/Cargo.toml;
             done
