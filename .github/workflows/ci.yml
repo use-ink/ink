@@ -79,26 +79,28 @@ jobs:
         uses: docker://evilrobot/useink:pr-4
         with:
           entrypoint: /bin/bash
-          args:
-            "rustup show
-             cargo --version
-             rustup +nightly show
-             cargo +nightly --version
-             bash --version
-             ink-node --version
-             cargo contract --version
-             git --version
-             echo -e '[registry]\nprotocol = \"sparse\"' > /usr/local/cargo/config.toml"
+          args: >
+            -c
+            "rustup show;
+             cargo --version;
+             rustup +nightly show;
+             cargo +nightly --version;
+             bash --version;
+             ink-node --version;
+             cargo contract --version;
+             git --version;
+             echo -e '[registry]\nprotocol = \"sparse\"' > /usr/local/cargo/config.toml;"
 
       - name: Check Spelling
         uses: docker://evilrobot/useink:pr-4
         with:
           entrypoint: /bin/bash
-          args:
-            "pwd
-            ls *
-            cargo spellcheck check -v --cfg=.config/cargo_spellcheck.toml --checkers hunspell --code 1 -- recursive .
-            cargo spellcheck check -v --cfg=.config/cargo_spellcheck.toml --checkers hunspell --code 1 -- recursive ./integration-tests/*"
+          args: >
+            -c
+            "pwd;
+            ls *;
+            cargo spellcheck check -v --cfg=.config/cargo_spellcheck.toml --checkers hunspell --code 1 -- recursive .;
+            cargo spellcheck check -v --cfg=.config/cargo_spellcheck.toml --checkers hunspell --code 1 -- recursive ./integration-tests/*;"
 
   fmt:
     runs-on: ubuntu-latest

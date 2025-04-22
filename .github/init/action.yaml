@@ -23,7 +23,6 @@ runs:
       with:
         remove-android: 'true'
         remove-codeql: 'true'
-        remove-docker-images: 'true'
         remove-dotnet: 'true'
         remove-haskell: 'true'
 
