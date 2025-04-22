@@ -310,16 +310,13 @@ jobs:
 
 ### workspace
 
-  build-std:
+  build:
     runs-on: ubuntu-latest
     needs: [set-image, check]
-    defaults:
-      run:
-        shell: bash
-    container:
-      image: ${{ needs.set-image.outputs.IMAGE }}
     strategy:
       fail-fast: false
+      matrix:
+        type: [STD, RISCV]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -333,44 +330,29 @@ jobs:
           cache-directories: ${{ env.CARGO_TARGET_DIR }}
 
       - name: Build for STD
-        run: |
-          ALL_CRATES="${PURELY_STD_CRATES} ${ALSO_RISCV_CRATES}"
-          for crate in ${ALL_CRATES}; do
-            cargo build --all-features --release --manifest-path ./crates/${crate}/Cargo.toml;
-          done
+        uses: ./.github/run-container-command
+        if: ${{ matrix.type == 'STD' }}
+        env:
+          ALL_CRATES: "${{ env.PURELY_STD_CRATES }} ${{ env.ALSO_RISCV_CRATES }}"
+        with:
+          command: |
+            for crate in ${ALL_CRATES}; do
+              cargo build --all-features --release --manifest-path ./crates/${crate}/Cargo.toml;
+            done
 
-  build-riscv:
-      runs-on: ubuntu-latest
-      needs: [set-image, check]
-      defaults:
-          run:
-              shell: bash
-      container:
-          image: ${{ needs.set-image.outputs.IMAGE }}
-      strategy:
-          fail-fast: false
-      steps:
-          - name: Checkout
-            uses: actions/checkout@v4
-            with:
-                fetch-depth: 1
-
-          - name: Initialize runner
-            uses: ./.github/init
-            with:
-              cache: true
-              cache-directories: ${{ env.CARGO_TARGET_DIR }}
-
-          - name: Build for RISC-V
-            run: |
-              for crate in ${ALSO_RISCV_CRATES}; do
-                echo ${crate};
-                RUSTFLAGS="--cfg substrate_runtime" cargo +nightly build \
-                  --no-default-features --release \
-                  --target $CLIPPY_TARGET \
-                  --manifest-path ./crates/${crate}/Cargo.toml \
-                  -Zbuild-std="core,alloc";
-              done
+      - name: Build for RISC-V
+        uses: ./.github/run-container-command
+        if: ${{ matrix.type == 'RISCV' }}
+        with:
+          command: |
+            for crate in ${ALSO_RISCV_CRATES}; do
+              echo ${crate};
+              RUSTFLAGS="--cfg substrate_runtime" cargo +nightly build \
+                --no-default-features --release \
+                --target $CLIPPY_TARGET \
+                --manifest-path ./crates/${crate}/Cargo.toml \
+                -Zbuild-std="core,alloc";
+            done
 
   test:
     runs-on: ubuntu-latest
