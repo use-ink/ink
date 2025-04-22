@@ -64,20 +64,6 @@ jobs:
         with:
           maximize-space: 'false'
 
-      - name: Rust Info
-        uses: ./.github/run-container-command
-        with:
-          command: |
-            rustup show
-            cargo --version
-            rustup +nightly show
-            cargo +nightly --version
-            bash --version
-            ink-node --version
-            cargo contract --version
-            git --version
-            echo -e '[registry]\nprotocol = \"sparse\"' > /usr/local/cargo/config.toml
-
       - name: Check Spelling
         uses: ./.github/run-container-command
         with:
