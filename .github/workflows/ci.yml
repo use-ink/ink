@@ -72,7 +72,7 @@ jobs:
         with:
           fetch-depth: 1
 
-      - name: Initialize
+      - name: Initialize runner
         uses: ./.github/init
         with:
           maximize-space: 'false'
@@ -112,7 +112,7 @@ jobs:
         with:
           fetch-depth: 1
 
-      - name: Initialize
+      - name: Initialize runner
         uses: ./.github/init
 
       - name: Check Formatting
@@ -138,7 +138,7 @@ jobs:
         with:
           fetch-depth: 1
 
-      - name: Initialize
+      - name: Initialize runner
         uses: ./.github/init
         with:
           cache: true
@@ -169,7 +169,7 @@ jobs:
             with:
                 fetch-depth: 1
 
-          - name: Initialize
+          - name: Initialize runner
             uses: ./.github/init
             with:
               cache: true
@@ -202,7 +202,7 @@ jobs:
         with:
           fetch-depth: 1
 
-      - name: Initialize
+      - name: Initialize runner
         uses: ./.github/init
         with:
           cache: true
@@ -239,7 +239,7 @@ jobs:
         with:
           fetch-depth: 1
 
-      - name: Initialize
+      - name: Initialize runner
         uses: ./.github/init
         with:
           cache: true
@@ -278,7 +278,7 @@ jobs:
         with:
           fetch-depth: 1
 
-      - name: Initialize
+      - name: Initialize runner
         uses: ./.github/init
         with:
           cache: true
@@ -311,7 +311,7 @@ jobs:
             with:
                 fetch-depth: 1
 
-          - name: Initialize
+          - name: Initialize runner
             uses: ./.github/init
             with:
               cache: true
@@ -345,7 +345,7 @@ jobs:
         with:
           fetch-depth: 1
 
-      - name: Initialize
+      - name: Initialize runner
         uses: ./.github/init
         with:
           cache: true
@@ -374,7 +374,7 @@ jobs:
             with:
                 fetch-depth: 1
 
-          - name: Initialize
+          - name: Initialize runner
             uses: ./.github/init
             with:
               cache: true
@@ -412,7 +412,7 @@ jobs:
         with:
           fetch-depth: 1
 
-      - name: Initialize
+      - name: Initialize runner
         uses: ./.github/init
         with:
           cache: true
@@ -453,7 +453,7 @@ jobs:
             with:
                 fetch-depth: 1
 
-          - name: Initialize
+          - name: Initialize runner
             uses: ./.github/init
             with:
               cache: true
@@ -495,7 +495,7 @@ jobs:
             with:
                 fetch-depth: 1
 
-          - name: Initialize
+          - name: Initialize runner
             uses: ./.github/init
             with:
               cache: true
@@ -528,7 +528,7 @@ jobs:
         with:
           fetch-depth: 1
 
-      - name: Initialize
+      - name: Initialize runner
         uses: ./.github/init
         with:
           cache: true
@@ -571,7 +571,7 @@ jobs:
 #        with:
 #          fetch-depth: 0
 #
-#      - name: Initialize
+#      - name: Initialize runner
 #        uses: ./.github/init
 #        with:
 #          cache: true
@@ -610,7 +610,7 @@ jobs:
         with:
           fetch-depth: 1
 
-      - name: Initialize
+      - name: Initialize runner
         uses: ./.github/init
         with:
           cache: true
@@ -646,7 +646,7 @@ jobs:
             with:
                 fetch-depth: 1
 
-          - name: Initialize
+          - name: Initialize runner
             uses: ./.github/init
             with:
               cache: true
@@ -676,7 +676,7 @@ jobs:
         with:
           fetch-depth: 1
 
-      - name: Initialize
+      - name: Initialize runner
         uses: ./.github/init
         with:
           cache: true
@@ -734,7 +734,7 @@ jobs:
         with:
           fetch-depth: 1
 
-      - name: Initialize
+      - name: Initialize runner
         uses: ./.github/init
         with:
           cache: true
@@ -807,7 +807,7 @@ jobs:
         with:
           fetch-depth: 1
 
-      - name: Initialize
+      - name: Initialize runner
         uses: ./.github/init
         with:
           cache: true
@@ -851,7 +851,7 @@ jobs:
         with:
           fetch-depth: 1
 
-      - name: Initialize
+      - name: Initialize runner
         uses: ./.github/init
         with:
           cache: true
