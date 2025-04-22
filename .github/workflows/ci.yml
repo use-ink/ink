@@ -76,7 +76,7 @@ jobs:
         uses: ./.github/init
 
       - name: Rust Info
-        uses: docker://${{ env.IMAGE }}
+        uses: docker://evilrobot/useink:pr-4
         with:
           entrypoint: bash
           args:
@@ -91,7 +91,7 @@ jobs:
              echo -e '[registry]\nprotocol = \"sparse\"' > /usr/local/cargo/config.toml"
 
       - name: Check Spelling
-        uses: docker://${{ env.IMAGE }}
+        uses: docker://evilrobot/useink:pr-4
         with:
           entrypoint: bash
           args:
