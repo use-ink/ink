@@ -51,8 +51,29 @@ concurrency:
 ### lint
 
 jobs:
+  ci-image:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Output environment information
+        uses: ./.github/run-container-command
+        with:
+          command: |
+            rustup show
+            cargo --version
+            rustup +nightly show
+            cargo +nightly --version
+            bash --version
+            ink-node --version; cargo contract --version; git --version
+            echo -e '[registry]\nprotocol = \"sparse\"' > /usr/local/cargo/config.toml
+
   spellcheck:
     runs-on: ubuntu-latest
+    needs: ci-image
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -73,6 +94,7 @@ jobs:
 
   fmt:
     runs-on: ubuntu-latest
+    needs: ci-image
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -102,6 +124,7 @@ jobs:
 
   clippy:
     runs-on: ubuntu-latest
+    needs: ci-image
     strategy:
       fail-fast: false
       matrix:
@@ -146,6 +169,7 @@ jobs:
 
   clippy-examples:
     runs-on: ubuntu-latest
+    needs: ci-image
     strategy:
       fail-fast: false
       matrix:
@@ -182,6 +206,7 @@ jobs:
 
   check:
     runs-on: ubuntu-latest
+    needs: ci-image
     strategy:
       fail-fast: false
       matrix:
@@ -225,6 +250,7 @@ jobs:
 
   dylint-checks:
     runs-on: ubuntu-latest
+    needs: ci-image
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -250,6 +276,7 @@ jobs:
 
   dylint-testing:
     runs-on: ubuntu-latest
+    needs: ci-image
     steps:
         - name: Checkout
           uses: actions/checkout@v4
@@ -526,6 +553,7 @@ jobs:
 
   examples-test-mapping:
     runs-on: ubuntu-latest
+    needs: ci-image
     steps:
         - name: Checkout
           uses: actions/checkout@v4
