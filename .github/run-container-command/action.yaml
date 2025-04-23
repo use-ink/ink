@@ -16,7 +16,7 @@ runs:
   steps:
     - name: Run command in container
       # Image can be edited at https://github.com/use-ink/docker-images
-      uses: docker://evilrobot/useink:pr-4
+      uses: docker://evilrobot/useink:pr-4-stable
       env:
         CARGO_TARGET_DIR: "/github/workspace/${{ env.CARGO_TARGET_DIR }}"
       with:
