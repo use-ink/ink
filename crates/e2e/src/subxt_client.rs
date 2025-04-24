@@ -334,7 +334,7 @@ where
         &self,
         addr: &H160,
     ) -> Result<Option<C::AccountId>, Error> {
-        let orignal_account_entry = subxt::dynamic::storage(
+        let original_account_entry = subxt::dynamic::storage(
             "Revive",
             "OriginalAccount",
             vec![Value::from_bytes(addr)],
@@ -345,7 +345,7 @@ where
             .client
             .storage()
             .at(best_block)
-            .fetch(&orignal_account_entry)
+            .fetch(&original_account_entry)
             .await
             .map_err(|err| panic!("Unable to fetch original account: {err:?}"))?;
         Ok(match raw_value {
@@ -743,7 +743,7 @@ where
 
     async fn map_account(&mut self, caller: &Keypair) -> Result<(), Self::Error> {
         let addr = self.derive_keypair_address(caller);
-        if self.fetch_original_account(&addr).await.unwrap().is_some() {
+        if self.fetch_original_account(&addr).await?.is_some() {
             return Ok(());
         }
         let tx_events = self.api.map_account(caller).await;
