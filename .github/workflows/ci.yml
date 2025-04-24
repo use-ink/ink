@@ -681,7 +681,7 @@ jobs:
 
       - name: Combine contract sizes from individual examples
         run: |
-            cat downloaded_artifacts/${{github.run_id}}_artifact | \
+            cat downloaded_artifacts/${{github.run_id}}_artifact/* | \
             sed -e 's/^integration-tests\/\(public\/\|internal\/\)\?//' | \
             sort | uniq > measurements-${{ steps.extract_branch.outputs.branch }}
             cat measurements-${{ steps.extract_branch.outputs.branch }}
