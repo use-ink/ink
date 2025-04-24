@@ -13,7 +13,7 @@ runs:
   steps:
     - name: Run command in container
       # Image can be edited at https://github.com/use-ink/docker-images
-      uses: docker://evilrobot/useink:pr-4-stable
+      uses: docker://useink/ci
       env:
         # Update the target directory used within the container to one which is within the path mounted to the host
         # runner workspace path. Required for effective caching.
