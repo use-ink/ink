@@ -351,14 +351,11 @@ where
         Ok(match raw_value {
             Some(value) => {
                 let raw_account_id = value.as_type::<[u8; 32]>().map_err(|err| {
-                    Error::Decoding(format!("Deserialization error: {}", err))
+                    Error::Decoding(format!("unable to deserialize AccountId: {}", err))
                 })?;
                 let account: C::AccountId = Decode::decode(&mut &raw_account_id[..])
                     .map_err(|err| {
-                        Error::Decoding(format!(
-                            "AccountId deserialization error: {}",
-                            err
-                        ))
+                        Error::Decoding(format!("unable to decode AccountId: {}", err))
                     })?;
                 Some(account)
             }

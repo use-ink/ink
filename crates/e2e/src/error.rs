@@ -39,7 +39,6 @@ pub enum Error<DispatchError: fmt::Debug + fmt::Display> {
     #[error("Call dry-run error: {0}")]
     CallDryRun(DryRunError<DispatchError>),
     /// The `call` extrinsic failed.
-    /// The `call` extrinsic failed.
     #[error("Call extrinsic error: {0}")]
     CallExtrinsic(DispatchError),
     /// The `remove_code` extrinsic failed.
