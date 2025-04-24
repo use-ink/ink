@@ -648,11 +648,12 @@ jobs:
         env:
           RUSTC_BOOTSTRAP: 1
           MANIFEST_PATH: ""
-          CONTRACT_SIZE_FILE: "measurements-${{ steps.extract_branch.outputs.branch }}/contract_size_"
+          # `github.run_id` used as the branch name may contain '/'
+          CONTRACT_SIZE_FILE: "measurements-${{ github.run_id }}/contract_size_"
           CARGO_INCREMENTAL: 0
         with:
           command: |
-            mkdir -p measurements-${{ steps.extract_branch.outputs.branch }}/
+            mkdir -p measurements-${{ github.run_id }}/
             scripts/for_all_contracts_exec2.sh --path integration-tests -- \
               scripts/build_and_determine_contract_size.sh {}
   
@@ -661,7 +662,7 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
-            path: ./measurements-${{ steps.extract_branch.outputs.branch }}/*
+            path: ./measurements-${{ github.run_id }}/*
             name: ${{ github.run_id }}_artifact
             retention-days: 1
 
@@ -683,13 +684,13 @@ jobs:
         run: |
             cat downloaded_artifacts/${{github.run_id}}_artifact/* | \
             sed -e 's/^integration-tests\/\(public\/\|internal\/\)\?//' | \
-            sort | uniq > measurements-${{ steps.extract_branch.outputs.branch }}
-            cat measurements-${{ steps.extract_branch.outputs.branch }}
+            sort | uniq > measurements-${{ github.run_id }}
+            cat measurements-${{ github.run_id }}
 
       - uses: actions/upload-artifact@v4
         with:
-            name: measurements-${{ steps.extract_branch.outputs.branch }}
-            path: ./measurements-${{ steps.extract_branch.outputs.branch }}
+            name: measurements-${{ github.run_id }}
+            path: ./measurements-${{ github.run_id }}
             retention-days: 31
 
   examples-docs:
@@ -845,7 +846,7 @@ jobs:
         - name: Download artifact from this branch
           uses: dawidd6/action-download-artifact@v9
           with:
-              name: measurements-${{ steps.extract_branch.outputs.branch }}
+              name: measurements-${{ github.run_id }}
               run_id: ${{ github.run_id }}
 
         - name: Download master artifact
@@ -861,9 +862,9 @@ jobs:
               echo "master:"
               cat measurements-master
               echo "branch:"
-              cat measurements-${{ steps.extract_branch.outputs.branch }}
+              cat measurements-${{ github.run_id }}
               echo "---"
-              ./scripts/contract_sizes_diff.sh measurements-master measurements-${{ steps.extract_branch.outputs.branch }} > contract_sizes_diff.md
+              ./scripts/contract_sizes_diff.sh measurements-master measurements-${{ github.run_id }} > contract_sizes_diff.md
               cat contract_sizes_diff.md
 
         - name: Submit Comment
