@@ -878,7 +878,6 @@ jobs:
               GITHUB_PR_WORKFLOW_ID:   ${{ github.event.workflow_run.id }}
               PR_NUMBER:               ${{ github.event.number }}
           run: |
-              CARGO_CONTRACT_VERSION=$(cargo +nightly contract --version)
               PR_COMMENTS_URL="${GITHUB_API_URL}/repos/${GITHUB_REPOSITORY}/issues/${PR_NUMBER}/comments"
               WORKFLOW_URL="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_PR_WORKFLOW_ID}"
 
