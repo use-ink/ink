@@ -73,7 +73,7 @@ jobs:
             bash --version
             ink-node --version; cargo contract --version; git --version
             echo -e '[registry]\nprotocol = \"sparse\"' > /usr/local/cargo/config.toml
-            echo "cargo-contract-version=$(cargo +nightly contract --version)" >> $GITHUB_OUTPUT
+            echo \"cargo-contract-version=$(cargo +nightly contract --version)\" >> $GITHUB_OUTPUT
 
   spellcheck:
     runs-on: ubuntu-latest
