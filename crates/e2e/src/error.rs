@@ -39,7 +39,6 @@ pub enum Error<DispatchError: fmt::Debug + fmt::Display> {
     #[error("Call dry-run error: {0}")]
     CallDryRun(DryRunError<DispatchError>),
     /// The `call` extrinsic failed.
-    /// The `call` extrinsic failed.
     #[error("Call extrinsic error: {0}")]
     CallExtrinsic(DispatchError),
     /// The `remove_code` extrinsic failed.
@@ -51,6 +50,9 @@ pub enum Error<DispatchError: fmt::Debug + fmt::Display> {
     /// Decoding failed.
     #[error("Decoding failed: {0}")]
     Decoding(String),
+    /// Other error.
+    #[error("Other error: {0}")]
+    Other(String),
 }
 
 /// Error during a dry run RPC invocation.

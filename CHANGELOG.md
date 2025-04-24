@@ -226,6 +226,7 @@ You can find binary releases of the node [here](https://github.com/use-ink/ink-n
 ## Fixed
 - [E2E] Have port parsing handle comma-separated list ‒ [#2336](https://github.com/use-ink/ink/pull/2336)
 - Always use ink! ABI/ SCALE codec for constructor and instantiation related builders and utilities - [#2474](https://github.com/use-ink/ink/pull/2474)
+- Get rid of "extrinsic for call failed: Pallet error: Revive::AccountAlreadyMapped" - [2483](https://github.com/use-ink/ink/pull/2483)
 - CI disk usage via standardised toolchains: `stable` 1.86, `nightly` 2025-02-20 - [#2484](https://github.com/use-ink/ink/pull/2484)
 
 ## Version 5.1.0

@@ -51,6 +51,7 @@ use crate::{
     ContractsBackend,
     E2EBackend,
 };
+use ink::H160;
 use ink_env::{
     call::{
         utils::{
@@ -73,7 +74,10 @@ use ink_primitives::{
 };
 use jsonrpsee::core::async_trait;
 use pallet_revive::evm::CallTrace;
-use scale::Encode;
+use scale::{
+    Decode,
+    Encode,
+};
 use sp_weights::Weight;
 #[cfg(feature = "std")]
 use std::fmt::Debug;
@@ -191,11 +195,7 @@ where
             }
         }
 
-        // copied from `pallet-revive`
-        let account_id =
-            <subxt_signer::sr25519::Keypair as subxt::tx::Signer<C>>::account_id(signer);
-        let account_bytes = account_id.encode();
-        let deployer = AccountIdMapper::to_address(account_bytes.as_ref());
+        let deployer = self.derive_keypair_address(signer);
         let addr = pallet_revive::create2(
             &deployer,
             &code[..],
@@ -319,6 +319,50 @@ where
     /// Returns the URL of the running node.
     pub fn url(&self) -> &str {
         &self.url
+    }
+
+    /// Derives the Ethereum address from a keypair.
+    // copied from `pallet-revive`
+    fn derive_keypair_address(&self, signer: &Keypair) -> H160 {
+        let account_id = <Keypair as subxt::tx::Signer<C>>::account_id(signer);
+        let account_bytes = account_id.encode();
+        AccountIdMapper::to_address(account_bytes.as_ref())
+    }
+
+    /// Returns the original mapped `AccountId32` for a `H160`.
+    async fn fetch_original_account(
+        &self,
+        addr: &H160,
+    ) -> Result<Option<C::AccountId>, Error> {
+        let original_account_entry = subxt::dynamic::storage(
+            "Revive",
+            "OriginalAccount",
+            vec![Value::from_bytes(addr)],
+        );
+        let best_block = self.api.best_block().await;
+        let raw_value = self
+            .api
+            .client
+            .storage()
+            .at(best_block)
+            .fetch(&original_account_entry)
+            .await
+            .map_err(|err| {
+                Error::Other(format!("Unable to fetch original account: {err:?}"))
+            })?;
+        Ok(match raw_value {
+            Some(value) => {
+                let raw_account_id = value.as_type::<[u8; 32]>().map_err(|err| {
+                    Error::Decoding(format!("unable to deserialize AccountId: {}", err))
+                })?;
+                let account: C::AccountId = Decode::decode(&mut &raw_account_id[..])
+                    .map_err(|err| {
+                        Error::Decoding(format!("unable to decode AccountId: {}", err))
+                    })?;
+                Some(account)
+            }
+            None => None,
+        })
     }
 }
 
@@ -697,6 +741,10 @@ where
     }
 
     async fn map_account(&mut self, caller: &Keypair) -> Result<(), Self::Error> {
+        let addr = self.derive_keypair_address(caller);
+        if self.fetch_original_account(&addr).await?.is_some() {
+            return Ok(());
+        }
         let tx_events = self.api.map_account(caller).await;
 
         for evt in tx_events.iter() {
