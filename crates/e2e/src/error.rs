@@ -50,6 +50,9 @@ pub enum Error<DispatchError: fmt::Debug + fmt::Display> {
     /// Decoding failed.
     #[error("Decoding failed: {0}")]
     Decoding(String),
+    /// Other error.
+    #[error("Other error: {0}")]
+    Other(String),
 }
 
 /// Error during a dry run RPC invocation.

@@ -347,7 +347,9 @@ where
             .at(best_block)
             .fetch(&original_account_entry)
             .await
-            .map_err(|err| panic!("Unable to fetch original account: {err:?}"))?;
+            .map_err(|err| {
+                Error::Other(format!("Unable to fetch original account: {err:?}"))
+            })?;
         Ok(match raw_value {
             Some(value) => {
                 let raw_account_id = value.as_type::<[u8; 32]>().map_err(|err| {
