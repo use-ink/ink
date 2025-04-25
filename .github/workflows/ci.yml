@@ -328,6 +328,8 @@ jobs:
       - name: Build for RISC-V
         uses: ./.github/run-container-command
         if: ${{ matrix.type == 'RISCV' }}
+        env:
+          RUSTC_BOOTSTRAP: 1
         with:
           command: |
             for crate in ${ALSO_RISCV_CRATES}; do
