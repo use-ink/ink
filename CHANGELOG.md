@@ -22,10 +22,10 @@ We did a detailed write-up of the background to this development and the reasoni
 to reflect the new setup.
 
 Compatibility of this release:
-* Rust >= 1.85
+* Rust >= 1.86
 * [`cargo-contract` `v6.0.0-alpha`](https://github.com/use-ink/cargo-contract/releases/tag/v6.0.0-alpha)
-* [`substrate-contracts-node/cd94b5f`](https://github.com/use-ink/substrate-contracts-node/commit/cd94b5fa23ee04f2d541decf1ace3b9904d61cb2)
-* [`polkadot-sdk/28a7ae71cc0eac747bf346804279217a68f700da`](https://github.com/paritytech/polkadot-sdk/commit/28a7ae71cc0eac747bf346804279217a68f700da)
+* [`ink-node/5f93093`](https://github.com/use-ink/ink-node/commit/5f93093dcffbbd2c2e44bfd2e457dc418c844623)
+* [`polkadot-sdk/stable2503`](https://github.com/paritytech/polkadot-sdk/tree/stable2503)
 
 In the following we'll describe some breaking changes on a high-level. The
 context to understand them is that the `pallet-revive` team has Ethereum/Solidity
@@ -227,6 +227,7 @@ You can find binary releases of the node [here](https://github.com/use-ink/ink-n
 - [E2E] Have port parsing handle comma-separated list ‒ [#2336](https://github.com/use-ink/ink/pull/2336)
 - Always use ink! ABI/ SCALE codec for constructor and instantiation related builders and utilities - [#2474](https://github.com/use-ink/ink/pull/2474)
 - Get rid of "extrinsic for call failed: Pallet error: Revive::AccountAlreadyMapped" - [2483](https://github.com/use-ink/ink/pull/2483)
+- CI disk usage via standardised toolchains: `stable` 1.86, `nightly` 2025-02-20 - [#2484](https://github.com/use-ink/ink/pull/2484)
 
 ## Version 5.1.0
 
