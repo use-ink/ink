@@ -388,7 +388,7 @@ jobs:
           uses: ./.github/init
           with:
             cache: true
-            cache-directories: ${{ github.workspace}}/${{ env.CARGO_TARGET_DIR }}
+            cache-directories: ${{ github.workspace }}/${{ env.CARGO_TARGET_DIR }}
             cache-key: ${{ matrix.type }}
 
         - name: Test
@@ -424,7 +424,7 @@ jobs:
           uses: ./.github/init
           with:
             cache: true
-            cache-directories: ${{ github.workspace}}/${{ env.CARGO_TARGET_DIR }}
+            cache-directories: ${{ github.workspace }}/${{ env.CARGO_TARGET_DIR }}
             cache-key: ${{ matrix.type }}
 
         - name: Test Linting
@@ -455,7 +455,7 @@ jobs:
         uses: ./.github/init
         with:
           cache: true
-          cache-directories: ${{ github.workspace}}/${{ env.CARGO_TARGET_DIR }}
+          cache-directories: ${{ github.workspace }}/${{ env.CARGO_TARGET_DIR }}
 
       - name: Create docs
         uses: ./.github/run-container-command
@@ -535,7 +535,7 @@ jobs:
         uses: ./.github/init
         with:
           cache: true
-          cache-directories: ${{ github.workspace}}/${{ env.CARGO_TARGET_DIR }}
+          cache-directories: ${{ github.workspace }}/${{ env.CARGO_TARGET_DIR }}
           cache-on-failure: true
 
       - name: Test Examples
@@ -562,7 +562,7 @@ jobs:
           uses: ./.github/init
           with:
             cache: true
-            cache-directories: ${{ github.workspace}}/${{ env.CARGO_TARGET_DIR }}
+            cache-directories: ${{ github.workspace }}/${{ env.CARGO_TARGET_DIR }}
             cache-on-failure: true
 
         - name: Test Mapping Example
@@ -589,7 +589,7 @@ jobs:
         uses: ./.github/init
         with:
           cache: true
-          cache-directories: ${{ github.workspace}}/${{ env.CARGO_TARGET_DIR }}
+          cache-directories: ${{ github.workspace }}/${{ env.CARGO_TARGET_DIR }}
           cache-on-failure: true
 
       - name: Run E2E test with on-chain contract
@@ -641,7 +641,7 @@ jobs:
         uses: ./.github/init
         with:
           cache: true
-          cache-directories: ${{ github.workspace}}/${{ env.CARGO_TARGET_DIR }}
+          cache-directories: ${{ github.workspace }}/${{ env.CARGO_TARGET_DIR }}
           cache-on-failure: true
 
       - name: Extract branch name
@@ -712,7 +712,7 @@ jobs:
         uses: ./.github/init
         with:
           cache: true
-          cache-directories: ${{ github.workspace}}/${{ env.CARGO_TARGET_DIR }}
+          cache-directories: ${{ github.workspace }}/${{ env.CARGO_TARGET_DIR }}
 
       - name: Create Examples Docs
         uses: ./.github/run-container-command
@@ -753,7 +753,7 @@ jobs:
         uses: ./.github/init
         with:
           cache: true
-          cache-directories: ${{ github.workspace}}/${{ env.CARGO_TARGET_DIR }}
+          cache-directories: ${{ github.workspace }}/${{ env.CARGO_TARGET_DIR }}
 
       - name: Fuzz
         uses: ./.github/run-container-command
