@@ -84,8 +84,8 @@ fn event_metadata_derive_struct(s: synstructure::Structure) -> syn::Result<Token
             fn event_spec() -> ::ink::metadata::EventSpec {
                // register this event metadata function in the distributed slice for combining all
                // events referenced in the contract binary.
-               #[::ink::metadata::linkme::distributed_slice(::ink::metadata::EVENTS)]
-               #[linkme(crate = ::ink::metadata::linkme)]
+               #[::ink::linkme::distributed_slice(::ink::EVENTS)]
+               #[linkme(crate = ::ink::linkme)]
                static EVENT_METADATA: fn() -> ::ink::metadata::EventSpec =
                    <#ident as ::ink::metadata::EventMetadata>::event_spec;
 

@@ -108,7 +108,9 @@ impl Metadata<'_> {
                 .messages([
                     #( #messages ),*
                 ])
-                .collect_events()
+                .events(
+                    ::ink::collect_events()
+                )
                 .docs([
                     #( #docs ),*
                 ])

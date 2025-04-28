@@ -28,6 +28,7 @@ scale-info = { workspace = true, default-features = false, features = ["derive"]
 derive_more = { workspace = true, features = ["from"] }
 const_format = { workspace = true }
 keccak-const = { workspace = true }
+linkme = { workspace = true }
 
 polkavm-derive = { workspace = true }
 xcm = { workspace = true }
