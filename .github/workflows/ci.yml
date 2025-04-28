@@ -547,7 +547,7 @@ jobs:
           # Run all tests with --all-features, which will run the `e2e-tests` feature if present.
           command: |
             scripts/for_all_contracts_exec.sh --path integration-tests --ignore internal/static-buffer --ignore internal/mapping -- \
-            cargo test --all-features --all --manifest-path {}
+            cargo test --all-features --manifest-path {}
 
   examples-test-mapping:
     runs-on: ubuntu-latest
@@ -574,7 +574,7 @@ jobs:
               INK_STATIC_BUFFER_SIZE: 256
           with:
             command: |
-                cargo test --all --all-features --manifest-path integration-tests/internal/mapping/Cargo.toml
+                cargo test --all-features --manifest-path integration-tests/internal/mapping/Cargo.toml
 
   examples-custom-test:
     runs-on: ubuntu-latest
