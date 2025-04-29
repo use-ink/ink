@@ -32,6 +32,7 @@ use std::{
         hash_map::Entry,
         HashMap,
     },
+    env,
     path::{
         Path,
         PathBuf,
@@ -61,7 +62,12 @@ struct ContractProject {
 
 impl ContractProject {
     fn new() -> Self {
-        let cmd = cargo_metadata::MetadataCommand::new();
+        let mut cmd = cargo_metadata::MetadataCommand::new();
+        if let Some(target_dir) = env::var_os("CARGO_TARGET_DIR")
+            .filter(|target_dir| Path::new(&target_dir).is_absolute())
+        {
+            cmd.env("CARGO_TARGET_DIR", &target_dir);
+        }
         let metadata = cmd
             .exec()
             .unwrap_or_else(|err| panic!("Error invoking `cargo metadata`: {}", err));
