@@ -54,8 +54,6 @@ pub use self::specs::{
 
 use impl_serde::serialize as serde_hex;
 
-#[doc(hidden)]
-pub use linkme;
 pub use scale_info::TypeInfo;
 
 #[cfg(feature = "derive")]
@@ -141,17 +139,6 @@ impl InkProject {
     pub fn spec(&self) -> &ContractSpec<PortableForm> {
         &self.spec
     }
-}
-
-/// Any event which derives `#[derive(ink::EventMetadata)]` and is used in the contract
-/// binary will have its implementation added to this distributed slice at linking time.
-#[linkme::distributed_slice]
-pub static EVENTS: [fn() -> EventSpec] = [..];
-
-/// Collect the [`EventSpec`] metadata of all event definitions linked and used in the
-/// binary.
-pub fn collect_events() -> Vec<EventSpec> {
-    EVENTS.iter().map(|event| event()).collect()
 }
 
 /// Provides metadata about an ink! event.

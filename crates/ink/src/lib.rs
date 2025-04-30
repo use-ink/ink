@@ -105,3 +105,24 @@ pub use ink_primitives::{
     H256,
     U256,
 };
+
+#[cfg(feature = "std")]
+#[doc(hidden)]
+pub use linkme;
+
+#[cfg(feature = "std")]
+use ink_metadata::EventSpec;
+
+/// Any event which derives `#[derive(ink::EventMetadata)]` and is used in the contract
+/// binary will have its implementation added to this distributed slice at linking time.
+#[cfg(feature = "std")]
+#[linkme::distributed_slice]
+#[linkme(crate = linkme)]
+pub static CONTRACT_EVENTS: [fn() -> EventSpec] = [..];
+
+/// Collect the [`EventSpec`] metadata of all event definitions linked and used in the
+/// binary.
+#[cfg(feature = "std")]
+pub fn collect_events() -> Vec<EventSpec> {
+    CONTRACT_EVENTS.iter().map(|event| event()).collect()
+}

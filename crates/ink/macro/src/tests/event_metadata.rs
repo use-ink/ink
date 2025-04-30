@@ -27,8 +27,8 @@ fn unit_struct_works() {
                     const MODULE_PATH: &'static str = ::core::module_path!();
 
                     fn event_spec() -> ::ink::metadata::EventSpec {
-                        #[::ink::metadata::linkme::distributed_slice(::ink::metadata::EVENTS)]
-                        #[linkme(crate = ::ink::metadata::linkme)]
+                        #[::ink::linkme::distributed_slice(::ink::CONTRACT_EVENTS)]
+                        #[linkme(crate = ::ink::linkme)]
                         static EVENT_METADATA: fn() -> ::ink::metadata::EventSpec =
                             <UnitStruct as ::ink::metadata::EventMetadata>::event_spec;
 
@@ -62,8 +62,8 @@ fn struct_with_fields_no_topics() {
                     const MODULE_PATH: &'static str = ::core::module_path!();
 
                     fn event_spec() -> ::ink::metadata::EventSpec {
-                        #[::ink::metadata::linkme::distributed_slice(::ink::metadata::EVENTS)]
-                        #[linkme(crate = ::ink::metadata::linkme)]
+                        #[::ink::linkme::distributed_slice(::ink::CONTRACT_EVENTS)]
+                        #[linkme(crate = ::ink::linkme)]
                         static EVENT_METADATA: fn() -> ::ink::metadata::EventSpec =
                             <Event as ::ink::metadata::EventMetadata>::event_spec;
 
@@ -130,8 +130,8 @@ fn struct_with_fields_and_some_topics() {
                     const MODULE_PATH: &'static str = ::core::module_path!();
 
                     fn event_spec() -> ::ink::metadata::EventSpec {
-                        #[::ink::metadata::linkme::distributed_slice(::ink::metadata::EVENTS)]
-                        #[linkme(crate = ::ink::metadata::linkme)]
+                        #[::ink::linkme::distributed_slice(::ink::CONTRACT_EVENTS)]
+                        #[linkme(crate = ::ink::linkme)]
                         static EVENT_METADATA: fn() -> ::ink::metadata::EventSpec =
                             <Event as ::ink::metadata::EventMetadata>::event_spec;
 
