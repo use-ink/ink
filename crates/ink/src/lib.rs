@@ -118,11 +118,11 @@ use ink_metadata::EventSpec;
 #[cfg(feature = "std")]
 #[linkme::distributed_slice]
 #[linkme(crate = linkme)]
-pub static EVENTS: [fn() -> EventSpec] = [..];
+pub static CONTRACT_EVENTS: [fn() -> EventSpec] = [..];
 
 /// Collect the [`EventSpec`] metadata of all event definitions linked and used in the
 /// binary.
 #[cfg(feature = "std")]
 pub fn collect_events() -> Vec<EventSpec> {
-    EVENTS.iter().map(|event| event()).collect()
+    CONTRACT_EVENTS.iter().map(|event| event()).collect()
 }
