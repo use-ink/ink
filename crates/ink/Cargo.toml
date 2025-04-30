@@ -28,7 +28,7 @@ scale-info = { workspace = true, default-features = false, features = ["derive"]
 derive_more = { workspace = true, features = ["from"] }
 const_format = { workspace = true }
 keccak-const = { workspace = true }
-linkme = { workspace = true }
+linkme = { workspace = true, optional = true }
 
 polkavm-derive = { workspace = true }
 xcm = { workspace = true }
@@ -59,7 +59,8 @@ std = [
     "xcm/std",
     "derive_more/std",
     "sp-runtime-interface/std",
-    "sp-io/std"
+    "sp-io/std",
+    "dep:linkme"
 ]
 
 # Enable contract debug messages via `debug_print!` and `debug_println!`.
