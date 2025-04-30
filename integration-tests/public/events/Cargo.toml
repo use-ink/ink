@@ -28,3 +28,10 @@ std = [
 ]
 ink-as-dependency = []
 e2e-tests = []
+
+[profile.test]
+# Need this for linkme crate to work for the event metadata collection unit test.
+# See https://github.com/dtolnay/linkme/issues/61#issuecomment-1503653702
+# NOTE: `cargo-contract` also sets this flag when generating metadata for the same reason.
+# See https://github.com/use-ink/cargo-contract/pull/1200
+lto = "thin"
