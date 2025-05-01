@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/e2e/src/lib.rs`."><title>lib.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-916cea96.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="ink_e2e" data-themes="" data-resource-suffix="" data-rustdoc-version="1.87.0-nightly (1aeb99d24 2025-03-19)" data-channel="nightly" data-search-js="search-e7298875.js" data-settings-js="settings-d72f25bb.js" ><script src="../../static.files/storage-d8ac8691.js"></script><script defer src="../../static.files/src-script-b8d3f215.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-fb8c74a8.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-893ab5e7.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">ink_e2e/</div>lib.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="comment">// Copyright (C) Use Ink (UK) Ltd.
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/e2e/src/lib.rs`."><title>lib.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-6c3ea77c.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="ink_e2e" data-themes="" data-resource-suffix="" data-rustdoc-version="1.86.0 (05f9846f8 2025-03-31)" data-channel="1.86.0" data-search-js="search-581efc7a.js" data-settings-js="settings-6dad6058.js" ><script src="../../static.files/storage-3a5871a4.js"></script><script defer src="../../static.files/src-script-b8d3f215.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-4d63596a.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-893ab5e7.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">ink_e2e/</div>lib.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="comment">// Copyright (C) Use Ink (UK) Ltd.
 <a href=#2 id=2 data-nosnippet>2</a>//
 <a href=#3 id=3 data-nosnippet>3</a>// Licensed under the Apache License, Version 2.0 (the "License");
 <a href=#4 id=4 data-nosnippet>4</a>// you may not use this file except in compliance with the License.
@@ -57,125 +57,126 @@
 <a href=#57 id=57 data-nosnippet>57</a>    TestNodeProcess,
 <a href=#58 id=58 data-nosnippet>58</a>    TestNodeProcessBuilder,
 <a href=#59 id=59 data-nosnippet>59</a>};
-<a href=#60 id=60 data-nosnippet>60</a><span class="attr">#[cfg(feature = <span class="string">"sandbox"</span>)]
-<a href=#61 id=61 data-nosnippet>61</a></span><span class="kw">pub use </span>sandbox_client::{
-<a href=#62 id=62 data-nosnippet>62</a>    preset,
-<a href=#63 id=63 data-nosnippet>63</a>    Client <span class="kw">as </span>SandboxClient,
-<a href=#64 id=64 data-nosnippet>64</a>};
-<a href=#65 id=65 data-nosnippet>65</a><span class="kw">pub use </span>sp_keyring::Sr25519Keyring;
-<a href=#66 id=66 data-nosnippet>66</a><span class="kw">pub use </span>subxt::{
-<a href=#67 id=67 data-nosnippet>67</a>    <span class="self">self</span>,
-<a href=#68 id=68 data-nosnippet>68</a>    backend::rpc::RpcClient,
-<a href=#69 id=69 data-nosnippet>69</a>};
-<a href=#70 id=70 data-nosnippet>70</a><span class="kw">pub use </span>subxt_client::{
-<a href=#71 id=71 data-nosnippet>71</a>    CallBuilderFinal,
-<a href=#72 id=72 data-nosnippet>72</a>    Client,
-<a href=#73 id=73 data-nosnippet>73</a>    Error,
-<a href=#74 id=74 data-nosnippet>74</a>};
-<a href=#75 id=75 data-nosnippet>75</a><span class="kw">pub use </span>subxt_signer::{
-<a href=#76 id=76 data-nosnippet>76</a>    <span class="self">self</span>,
-<a href=#77 id=77 data-nosnippet>77</a>    sr25519::{
-<a href=#78 id=78 data-nosnippet>78</a>        <span class="self">self</span>,
-<a href=#79 id=79 data-nosnippet>79</a>        dev::<span class="kw-2">*</span>,
-<a href=#80 id=80 data-nosnippet>80</a>        Keypair,
-<a href=#81 id=81 data-nosnippet>81</a>    },
-<a href=#82 id=82 data-nosnippet>82</a>};
-<a href=#83 id=83 data-nosnippet>83</a><span class="kw">pub use </span>tokio;
-<a href=#84 id=84 data-nosnippet>84</a><span class="kw">pub use </span>tracing_subscriber;
-<a href=#85 id=85 data-nosnippet>85</a>
-<a href=#86 id=86 data-nosnippet>86</a><span class="attr">#[cfg(feature = <span class="string">"sandbox"</span>)]
-<a href=#87 id=87 data-nosnippet>87</a></span><span class="kw">pub use </span>ink_sandbox::DefaultSandbox;
-<a href=#88 id=88 data-nosnippet>88</a>
-<a href=#89 id=89 data-nosnippet>89</a><span class="kw">use </span>ink::codegen::ContractCallBuilder;
-<a href=#90 id=90 data-nosnippet>90</a><span class="kw">use </span>ink_env::{
-<a href=#91 id=91 data-nosnippet>91</a>    call::FromAddr,
-<a href=#92 id=92 data-nosnippet>92</a>    ContractEnv,
-<a href=#93 id=93 data-nosnippet>93</a>    Environment,
-<a href=#94 id=94 data-nosnippet>94</a>};
-<a href=#95 id=95 data-nosnippet>95</a><span class="kw">use </span>ink_primitives::{
-<a href=#96 id=96 data-nosnippet>96</a>    DepositLimit,
-<a href=#97 id=97 data-nosnippet>97</a>    H160,
-<a href=#98 id=98 data-nosnippet>98</a>    H256,
-<a href=#99 id=99 data-nosnippet>99</a>};
-<a href=#100 id=100 data-nosnippet>100</a><span class="kw">pub use </span>sp_weights::Weight;
-<a href=#101 id=101 data-nosnippet>101</a><span class="kw">use </span>std::{
-<a href=#102 id=102 data-nosnippet>102</a>    cell::RefCell,
-<a href=#103 id=103 data-nosnippet>103</a>    sync::Once,
-<a href=#104 id=104 data-nosnippet>104</a>};
-<a href=#105 id=105 data-nosnippet>105</a><span class="kw">use </span>xts::ReviveApi;
-<a href=#106 id=106 data-nosnippet>106</a>
-<a href=#107 id=107 data-nosnippet>107</a><span class="kw">use </span>ink_primitives::types::AccountIdMapper;
-<a href=#108 id=108 data-nosnippet>108</a><span class="kw">pub use </span>subxt::PolkadotConfig;
-<a href=#109 id=109 data-nosnippet>109</a>
-<a href=#110 id=110 data-nosnippet>110</a><span class="doccomment">/// We use this to only initialize `env_logger` once.
-<a href=#111 id=111 data-nosnippet>111</a></span><span class="kw">pub static </span>INIT: Once = Once::new();
-<a href=#112 id=112 data-nosnippet>112</a>
-<a href=#113 id=113 data-nosnippet>113</a><span class="comment">// We save the name of the currently executing test here as a mean
-<a href=#114 id=114 data-nosnippet>114</a>// of prefixing log entries to make it easier pinning them to tests.
-<a href=#115 id=115 data-nosnippet>115</a></span><span class="macro">thread_local!</span> {
-<a href=#116 id=116 data-nosnippet>116</a>    <span class="doccomment">/// This prefix will be used for log output. It is set by each
-<a href=#117 id=117 data-nosnippet>117</a>    /// `#[ink_e2e::test]` with the function name as String.
-<a href=#118 id=118 data-nosnippet>118</a>    /// This way it is possible to distinguish the lines in stdout
-<a href=#119 id=119 data-nosnippet>119</a>    /// and stderr, to still know which line belongs to which test.
-<a href=#120 id=120 data-nosnippet>120</a>    </span><span class="kw">pub static </span>LOG_PREFIX: RefCell&lt;String&gt; = RefCell::new(String::from(<span class="string">"no prefix set"</span>));
-<a href=#121 id=121 data-nosnippet>121</a>}
-<a href=#122 id=122 data-nosnippet>122</a>
-<a href=#123 id=123 data-nosnippet>123</a><span class="doccomment">/// Returns the name of the test which is currently executed.
-<a href=#124 id=124 data-nosnippet>124</a></span><span class="kw">pub fn </span>log_prefix() -&gt; String {
-<a href=#125 id=125 data-nosnippet>125</a>    LOG_PREFIX.with(|log_prefix| log_prefix.borrow().clone())
-<a href=#126 id=126 data-nosnippet>126</a>}
-<a href=#127 id=127 data-nosnippet>127</a>
-<a href=#128 id=128 data-nosnippet>128</a><span class="doccomment">/// Writes `msg` to stdout.
-<a href=#129 id=129 data-nosnippet>129</a></span><span class="kw">pub fn </span>log_info(msg: <span class="kw-2">&amp;</span>str) {
-<a href=#130 id=130 data-nosnippet>130</a>    <span class="macro">tracing::info!</span>(<span class="string">"[{}] {}"</span>, log_prefix(), msg);
-<a href=#131 id=131 data-nosnippet>131</a>}
-<a href=#132 id=132 data-nosnippet>132</a>
-<a href=#133 id=133 data-nosnippet>133</a><span class="doccomment">/// Writes `msg` to stderr.
-<a href=#134 id=134 data-nosnippet>134</a></span><span class="kw">pub fn </span>log_error(msg: <span class="kw-2">&amp;</span>str) {
-<a href=#135 id=135 data-nosnippet>135</a>    <span class="macro">tracing::error!</span>(<span class="string">"[{}] {}"</span>, log_prefix(), msg);
-<a href=#136 id=136 data-nosnippet>136</a>}
-<a href=#137 id=137 data-nosnippet>137</a>
-<a href=#138 id=138 data-nosnippet>138</a><span class="doccomment">/// Get an ink! [`ink_primitives::AccountId`] for a given keyring account.
-<a href=#139 id=139 data-nosnippet>139</a></span><span class="kw">pub fn </span>account_id(account: Sr25519Keyring) -&gt; ink_primitives::AccountId {
-<a href=#140 id=140 data-nosnippet>140</a>    ink_primitives::AccountId::try_from(account.to_account_id().as_ref())
-<a href=#141 id=141 data-nosnippet>141</a>        .expect(<span class="string">"account keyring has a valid account id"</span>)
-<a href=#142 id=142 data-nosnippet>142</a>}
-<a href=#143 id=143 data-nosnippet>143</a>
-<a href=#144 id=144 data-nosnippet>144</a><span class="doccomment">/// Returns the [`ink::H160`] for a given keyring account.
-<a href=#145 id=145 data-nosnippet>145</a>///
-<a href=#146 id=146 data-nosnippet>146</a>/// # Developer Note
-<a href=#147 id=147 data-nosnippet>147</a>///
-<a href=#148 id=148 data-nosnippet>148</a>/// We take the `AccountId` and return only the first twenty bytes, this
-<a href=#149 id=149 data-nosnippet>149</a>/// is what `pallet-revive` does as well.
-<a href=#150 id=150 data-nosnippet>150</a></span><span class="kw">pub fn </span>address&lt;E: Environment&gt;(account: Sr25519Keyring) -&gt; H160 {
-<a href=#151 id=151 data-nosnippet>151</a>    AccountIdMapper::to_address(account.to_account_id().as_ref())
-<a href=#152 id=152 data-nosnippet>152</a>}
-<a href=#153 id=153 data-nosnippet>153</a>
-<a href=#154 id=154 data-nosnippet>154</a><span class="doccomment">/// Creates a call builder for `Contract`, based on an account id.
-<a href=#155 id=155 data-nosnippet>155</a></span><span class="kw">pub fn </span>create_call_builder&lt;Contract&gt;(
-<a href=#156 id=156 data-nosnippet>156</a>    acc_id: H160,
-<a href=#157 id=157 data-nosnippet>157</a>) -&gt; &lt;Contract <span class="kw">as </span>ContractCallBuilder&gt;::Type
-<a href=#158 id=158 data-nosnippet>158</a><span class="kw">where
-<a href=#159 id=159 data-nosnippet>159</a>    </span>&lt;Contract <span class="kw">as </span>ContractEnv&gt;::Env: Environment,
-<a href=#160 id=160 data-nosnippet>160</a>    Contract: ContractCallBuilder,
-<a href=#161 id=161 data-nosnippet>161</a>    Contract: ContractEnv,
-<a href=#162 id=162 data-nosnippet>162</a>    Contract::Type: FromAddr,
-<a href=#163 id=163 data-nosnippet>163</a>{
-<a href=#164 id=164 data-nosnippet>164</a>    &lt;&lt;Contract <span class="kw">as </span>ContractCallBuilder&gt;::Type <span class="kw">as </span>FromAddr&gt;::from_addr(acc_id)
-<a href=#165 id=165 data-nosnippet>165</a>}
-<a href=#166 id=166 data-nosnippet>166</a>
-<a href=#167 id=167 data-nosnippet>167</a><span class="kw">fn </span>balance_to_deposit_limit&lt;E: Environment&gt;(
-<a href=#168 id=168 data-nosnippet>168</a>    b: &lt;E <span class="kw">as </span>Environment&gt;::Balance,
-<a href=#169 id=169 data-nosnippet>169</a>) -&gt; DepositLimit&lt;&lt;E <span class="kw">as </span>Environment&gt;::Balance&gt; {
-<a href=#170 id=170 data-nosnippet>170</a>    DepositLimit::Balance(b)
-<a href=#171 id=171 data-nosnippet>171</a>}
-<a href=#172 id=172 data-nosnippet>172</a>
-<a href=#173 id=173 data-nosnippet>173</a><span class="kw">fn </span>deposit_limit_to_balance&lt;E: Environment&gt;(
-<a href=#174 id=174 data-nosnippet>174</a>    l: DepositLimit&lt;&lt;E <span class="kw">as </span>Environment&gt;::Balance&gt;,
-<a href=#175 id=175 data-nosnippet>175</a>) -&gt; &lt;E <span class="kw">as </span>Environment&gt;::Balance {
-<a href=#176 id=176 data-nosnippet>176</a>    <span class="kw">match </span>l {
-<a href=#177 id=177 data-nosnippet>177</a>        DepositLimit::Balance(l) =&gt; l,
-<a href=#178 id=178 data-nosnippet>178</a>        <span class="comment">// todo
-<a href=#179 id=179 data-nosnippet>179</a>        </span>DepositLimit::Unchecked =&gt; <span class="macro">panic!</span>(<span class="string">"`Unchecked` is not supported"</span>),
-<a href=#180 id=180 data-nosnippet>180</a>    }
-<a href=#181 id=181 data-nosnippet>181</a>}</code></pre></div></section></main></body></html>
+<a href=#60 id=60 data-nosnippet>60</a><span class="kw">pub use </span>pallet_revive::evm::CallTrace;
+<a href=#61 id=61 data-nosnippet>61</a><span class="attr">#[cfg(feature = <span class="string">"sandbox"</span>)]
+<a href=#62 id=62 data-nosnippet>62</a></span><span class="kw">pub use </span>sandbox_client::{
+<a href=#63 id=63 data-nosnippet>63</a>    preset,
+<a href=#64 id=64 data-nosnippet>64</a>    Client <span class="kw">as </span>SandboxClient,
+<a href=#65 id=65 data-nosnippet>65</a>};
+<a href=#66 id=66 data-nosnippet>66</a><span class="kw">pub use </span>sp_keyring::Sr25519Keyring;
+<a href=#67 id=67 data-nosnippet>67</a><span class="kw">pub use </span>subxt::{
+<a href=#68 id=68 data-nosnippet>68</a>    <span class="self">self</span>,
+<a href=#69 id=69 data-nosnippet>69</a>    backend::rpc::RpcClient,
+<a href=#70 id=70 data-nosnippet>70</a>};
+<a href=#71 id=71 data-nosnippet>71</a><span class="kw">pub use </span>subxt_client::{
+<a href=#72 id=72 data-nosnippet>72</a>    CallBuilderFinal,
+<a href=#73 id=73 data-nosnippet>73</a>    Client,
+<a href=#74 id=74 data-nosnippet>74</a>    Error,
+<a href=#75 id=75 data-nosnippet>75</a>};
+<a href=#76 id=76 data-nosnippet>76</a><span class="kw">pub use </span>subxt_signer::{
+<a href=#77 id=77 data-nosnippet>77</a>    <span class="self">self</span>,
+<a href=#78 id=78 data-nosnippet>78</a>    sr25519::{
+<a href=#79 id=79 data-nosnippet>79</a>        <span class="self">self</span>,
+<a href=#80 id=80 data-nosnippet>80</a>        dev::<span class="kw-2">*</span>,
+<a href=#81 id=81 data-nosnippet>81</a>        Keypair,
+<a href=#82 id=82 data-nosnippet>82</a>    },
+<a href=#83 id=83 data-nosnippet>83</a>};
+<a href=#84 id=84 data-nosnippet>84</a><span class="kw">pub use </span>tokio;
+<a href=#85 id=85 data-nosnippet>85</a><span class="kw">pub use </span>tracing_subscriber;
+<a href=#86 id=86 data-nosnippet>86</a>
+<a href=#87 id=87 data-nosnippet>87</a><span class="attr">#[cfg(feature = <span class="string">"sandbox"</span>)]
+<a href=#88 id=88 data-nosnippet>88</a></span><span class="kw">pub use </span>ink_sandbox::DefaultSandbox;
+<a href=#89 id=89 data-nosnippet>89</a>
+<a href=#90 id=90 data-nosnippet>90</a><span class="kw">use </span>ink::codegen::ContractCallBuilder;
+<a href=#91 id=91 data-nosnippet>91</a><span class="kw">use </span>ink_env::{
+<a href=#92 id=92 data-nosnippet>92</a>    call::FromAddr,
+<a href=#93 id=93 data-nosnippet>93</a>    ContractEnv,
+<a href=#94 id=94 data-nosnippet>94</a>    Environment,
+<a href=#95 id=95 data-nosnippet>95</a>};
+<a href=#96 id=96 data-nosnippet>96</a><span class="kw">use </span>ink_primitives::{
+<a href=#97 id=97 data-nosnippet>97</a>    Address,
+<a href=#98 id=98 data-nosnippet>98</a>    DepositLimit,
+<a href=#99 id=99 data-nosnippet>99</a>    H256,
+<a href=#100 id=100 data-nosnippet>100</a>};
+<a href=#101 id=101 data-nosnippet>101</a><span class="kw">pub use </span>sp_weights::Weight;
+<a href=#102 id=102 data-nosnippet>102</a><span class="kw">use </span>std::{
+<a href=#103 id=103 data-nosnippet>103</a>    cell::RefCell,
+<a href=#104 id=104 data-nosnippet>104</a>    sync::Once,
+<a href=#105 id=105 data-nosnippet>105</a>};
+<a href=#106 id=106 data-nosnippet>106</a><span class="kw">use </span>xts::ReviveApi;
+<a href=#107 id=107 data-nosnippet>107</a>
+<a href=#108 id=108 data-nosnippet>108</a><span class="kw">use </span>ink_primitives::types::AccountIdMapper;
+<a href=#109 id=109 data-nosnippet>109</a><span class="kw">pub use </span>subxt::PolkadotConfig;
+<a href=#110 id=110 data-nosnippet>110</a>
+<a href=#111 id=111 data-nosnippet>111</a><span class="doccomment">/// We use this to only initialize `env_logger` once.
+<a href=#112 id=112 data-nosnippet>112</a></span><span class="kw">pub static </span>INIT: Once = Once::new();
+<a href=#113 id=113 data-nosnippet>113</a>
+<a href=#114 id=114 data-nosnippet>114</a><span class="comment">// We save the name of the currently executing test here as a mean
+<a href=#115 id=115 data-nosnippet>115</a>// of prefixing log entries to make it easier pinning them to tests.
+<a href=#116 id=116 data-nosnippet>116</a></span><span class="macro">thread_local!</span> {
+<a href=#117 id=117 data-nosnippet>117</a>    <span class="doccomment">/// This prefix will be used for log output. It is set by each
+<a href=#118 id=118 data-nosnippet>118</a>    /// `#[ink_e2e::test]` with the function name as String.
+<a href=#119 id=119 data-nosnippet>119</a>    /// This way it is possible to distinguish the lines in stdout
+<a href=#120 id=120 data-nosnippet>120</a>    /// and stderr, to still know which line belongs to which test.
+<a href=#121 id=121 data-nosnippet>121</a>    </span><span class="kw">pub static </span>LOG_PREFIX: RefCell&lt;String&gt; = RefCell::new(String::from(<span class="string">"no prefix set"</span>));
+<a href=#122 id=122 data-nosnippet>122</a>}
+<a href=#123 id=123 data-nosnippet>123</a>
+<a href=#124 id=124 data-nosnippet>124</a><span class="doccomment">/// Returns the name of the test which is currently executed.
+<a href=#125 id=125 data-nosnippet>125</a></span><span class="kw">pub fn </span>log_prefix() -&gt; String {
+<a href=#126 id=126 data-nosnippet>126</a>    LOG_PREFIX.with(|log_prefix| log_prefix.borrow().clone())
+<a href=#127 id=127 data-nosnippet>127</a>}
+<a href=#128 id=128 data-nosnippet>128</a>
+<a href=#129 id=129 data-nosnippet>129</a><span class="doccomment">/// Writes `msg` to stdout.
+<a href=#130 id=130 data-nosnippet>130</a></span><span class="kw">pub fn </span>log_info(msg: <span class="kw-2">&amp;</span>str) {
+<a href=#131 id=131 data-nosnippet>131</a>    <span class="macro">tracing::info!</span>(<span class="string">"[{}] {}"</span>, log_prefix(), msg);
+<a href=#132 id=132 data-nosnippet>132</a>}
+<a href=#133 id=133 data-nosnippet>133</a>
+<a href=#134 id=134 data-nosnippet>134</a><span class="doccomment">/// Writes `msg` to stderr.
+<a href=#135 id=135 data-nosnippet>135</a></span><span class="kw">pub fn </span>log_error(msg: <span class="kw-2">&amp;</span>str) {
+<a href=#136 id=136 data-nosnippet>136</a>    <span class="macro">tracing::error!</span>(<span class="string">"[{}] {}"</span>, log_prefix(), msg);
+<a href=#137 id=137 data-nosnippet>137</a>}
+<a href=#138 id=138 data-nosnippet>138</a>
+<a href=#139 id=139 data-nosnippet>139</a><span class="doccomment">/// Get an ink! [`ink_primitives::AccountId`] for a given keyring account.
+<a href=#140 id=140 data-nosnippet>140</a></span><span class="kw">pub fn </span>account_id(account: Sr25519Keyring) -&gt; ink_primitives::AccountId {
+<a href=#141 id=141 data-nosnippet>141</a>    ink_primitives::AccountId::try_from(account.to_account_id().as_ref())
+<a href=#142 id=142 data-nosnippet>142</a>        .expect(<span class="string">"account keyring has a valid account id"</span>)
+<a href=#143 id=143 data-nosnippet>143</a>}
+<a href=#144 id=144 data-nosnippet>144</a>
+<a href=#145 id=145 data-nosnippet>145</a><span class="doccomment">/// Returns the [`ink::Address`] for a given keyring account.
+<a href=#146 id=146 data-nosnippet>146</a>///
+<a href=#147 id=147 data-nosnippet>147</a>/// # Developer Note
+<a href=#148 id=148 data-nosnippet>148</a>///
+<a href=#149 id=149 data-nosnippet>149</a>/// We take the `AccountId` and return only the first twenty bytes, this
+<a href=#150 id=150 data-nosnippet>150</a>/// is what `pallet-revive` does as well.
+<a href=#151 id=151 data-nosnippet>151</a></span><span class="kw">pub fn </span>address&lt;E: Environment&gt;(account: Sr25519Keyring) -&gt; Address {
+<a href=#152 id=152 data-nosnippet>152</a>    AccountIdMapper::to_address(account.to_account_id().as_ref())
+<a href=#153 id=153 data-nosnippet>153</a>}
+<a href=#154 id=154 data-nosnippet>154</a>
+<a href=#155 id=155 data-nosnippet>155</a><span class="doccomment">/// Creates a call builder for `Contract`, based on an account id.
+<a href=#156 id=156 data-nosnippet>156</a></span><span class="kw">pub fn </span>create_call_builder&lt;Contract&gt;(
+<a href=#157 id=157 data-nosnippet>157</a>    acc_id: Address,
+<a href=#158 id=158 data-nosnippet>158</a>) -&gt; &lt;Contract <span class="kw">as </span>ContractCallBuilder&gt;::Type
+<a href=#159 id=159 data-nosnippet>159</a><span class="kw">where
+<a href=#160 id=160 data-nosnippet>160</a>    </span>&lt;Contract <span class="kw">as </span>ContractEnv&gt;::Env: Environment,
+<a href=#161 id=161 data-nosnippet>161</a>    Contract: ContractCallBuilder,
+<a href=#162 id=162 data-nosnippet>162</a>    Contract: ContractEnv,
+<a href=#163 id=163 data-nosnippet>163</a>    Contract::Type: FromAddr,
+<a href=#164 id=164 data-nosnippet>164</a>{
+<a href=#165 id=165 data-nosnippet>165</a>    &lt;&lt;Contract <span class="kw">as </span>ContractCallBuilder&gt;::Type <span class="kw">as </span>FromAddr&gt;::from_addr(acc_id)
+<a href=#166 id=166 data-nosnippet>166</a>}
+<a href=#167 id=167 data-nosnippet>167</a>
+<a href=#168 id=168 data-nosnippet>168</a><span class="kw">fn </span>balance_to_deposit_limit&lt;E: Environment&gt;(
+<a href=#169 id=169 data-nosnippet>169</a>    b: &lt;E <span class="kw">as </span>Environment&gt;::Balance,
+<a href=#170 id=170 data-nosnippet>170</a>) -&gt; DepositLimit&lt;&lt;E <span class="kw">as </span>Environment&gt;::Balance&gt; {
+<a href=#171 id=171 data-nosnippet>171</a>    DepositLimit::Balance(b)
+<a href=#172 id=172 data-nosnippet>172</a>}
+<a href=#173 id=173 data-nosnippet>173</a>
+<a href=#174 id=174 data-nosnippet>174</a><span class="kw">fn </span>deposit_limit_to_balance&lt;E: Environment&gt;(
+<a href=#175 id=175 data-nosnippet>175</a>    l: DepositLimit&lt;&lt;E <span class="kw">as </span>Environment&gt;::Balance&gt;,
+<a href=#176 id=176 data-nosnippet>176</a>) -&gt; &lt;E <span class="kw">as </span>Environment&gt;::Balance {
+<a href=#177 id=177 data-nosnippet>177</a>    <span class="kw">match </span>l {
+<a href=#178 id=178 data-nosnippet>178</a>        DepositLimit::Balance(l) =&gt; l,
+<a href=#179 id=179 data-nosnippet>179</a>        <span class="comment">// todo
+<a href=#180 id=180 data-nosnippet>180</a>        </span>DepositLimit::Unchecked =&gt; <span class="macro">panic!</span>(<span class="string">"`Unchecked` is not supported"</span>),
+<a href=#181 id=181 data-nosnippet>181</a>    }
+<a href=#182 id=182 data-nosnippet>182</a>}</code></pre></div></section></main></body></html>

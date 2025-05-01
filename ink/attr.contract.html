@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Entry point for writing ink! smart contracts."><title>contract in ink - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../static.files/rustdoc-916cea96.css"><meta name="rustdoc-vars" data-root-path="../" data-static-root-path="../static.files/" data-current-crate="ink" data-themes="" data-resource-suffix="" data-rustdoc-version="1.87.0-nightly (1aeb99d24 2025-03-19)" data-channel="nightly" data-search-js="search-e7298875.js" data-settings-js="settings-d72f25bb.js" ><script src="../static.files/storage-d8ac8691.js"></script><script defer src="sidebar-items.js"></script><script defer src="../static.files/main-fb8c74a8.js"></script><noscript><link rel="stylesheet" href="../static.files/noscript-893ab5e7.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc attr"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle" title="show sidebar"></button><a class="logo-container" href="../ink/index.html"><img src="https://use.ink/img/crate-docs/logo.png" alt=""></a></nav><nav class="sidebar"><div class="sidebar-crate"><a class="logo-container" href="../ink/index.html"><img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></a><h2><a href="../ink/index.html">ink</a><span class="version">6.0.0-alpha</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">contract</a></h2><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#description" title="Description">Description</a></li><li><a href="#usage" title="Usage">Usage</a><ul><li><a href="#header-arguments" title="Header Arguments">Header Arguments</a></li><li><a href="#analysis" title="Analysis">Analysis</a></li><li><a href="#interacting-with-the-contract-executor" title="Interacting with the Contract Executor">Interacting with the Contract Executor</a></li><li><a href="#events" title="Events">Events</a></li><li><a href="#example-flipper" title="Example: Flipper">Example: Flipper</a></li></ul></li></ul></section><div id="rustdoc-modnav"><h2 class="in-crate"><a href="index.html">In crate ink</a></h2></div></div></nav><div class="sidebar-resizer"></div><main><div class="width-limiter"><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="index.html">ink</a></div><h1>Attribute Macro <span class="attr">contract</span><button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"></span></div><pre class="rust item-decl"><code>#[contract]</code></pre><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Entry point for writing ink! smart contracts.</p>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Entry point for writing ink! smart contracts."><title>contract in ink - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../static.files/rustdoc-6c3ea77c.css"><meta name="rustdoc-vars" data-root-path="../" data-static-root-path="../static.files/" data-current-crate="ink" data-themes="" data-resource-suffix="" data-rustdoc-version="1.86.0 (05f9846f8 2025-03-31)" data-channel="1.86.0" data-search-js="search-581efc7a.js" data-settings-js="settings-6dad6058.js" ><script src="../static.files/storage-3a5871a4.js"></script><script defer src="sidebar-items.js"></script><script defer src="../static.files/main-4d63596a.js"></script><noscript><link rel="stylesheet" href="../static.files/noscript-893ab5e7.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc attr"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle" title="show sidebar"></button><a class="logo-container" href="../ink/index.html"><img src="https://use.ink/img/crate-docs/logo.png" alt=""></a></nav><nav class="sidebar"><div class="sidebar-crate"><a class="logo-container" href="../ink/index.html"><img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></a><h2><a href="../ink/index.html">ink</a><span class="version">6.0.0-alpha</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">contract</a></h2><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#description" title="Description">Description</a></li><li><a href="#usage" title="Usage">Usage</a><ul><li><a href="#header-arguments" title="Header Arguments">Header Arguments</a></li><li><a href="#analysis" title="Analysis">Analysis</a></li><li><a href="#interacting-with-the-contract-executor" title="Interacting with the Contract Executor">Interacting with the Contract Executor</a></li><li><a href="#events" title="Events">Events</a></li><li><a href="#example-flipper" title="Example: Flipper">Example: Flipper</a></li></ul></li></ul></section><div id="rustdoc-modnav"><h2 class="in-crate"><a href="index.html">In crate ink</a></h2></div></div></nav><div class="sidebar-resizer"></div><main><div class="width-limiter"><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="index.html">ink</a></div><h1>Attribute Macro <span class="attr">contract</span><button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"></span></div><pre class="rust item-decl"><code>#[contract]</code></pre><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Entry point for writing ink! smart contracts.</p>
 <p>If you are a beginner trying to learn ink! we recommend you to check out
 our extensive <a href="https://docs.substrate.io/tutorials/v3/ink-workshop/pt1">ink! workshop</a>.</p>
 <h2 id="description"><a class="doc-anchor" href="#description">§</a>Description</h2>
@@ -18,9 +18,113 @@ off-chain environment provided by the <code>ink_env</code> crate.</p>
 header arguments:</p>
 <ul>
 <li>
+<p><code>abi: String</code></p>
+<p>Tells the ink! code generator which ABI (Application Binary Interface)
+specification(s) to support for contract interactions
+(i.e. which calling conventions to use for message calls).</p>
+<p><strong>Default value:</strong> <code>"ink"</code></p>
+<p><strong>Allowed values:</strong> <code>"ink"</code>, <code>"sol"</code>, <code>"all"</code></p>
+<p><strong>Usage Example:</strong></p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="attr">#[ink::contract(abi = <span class="string">"sol"</span>)]
+</span><span class="kw">mod </span>my_contract {
+    <span class="comment">// ...
+</span>}</code></pre></div>
+<ul>
+<li>
+<p><code>abi = "ink"</code></p>
+<p>The code generator follows the ink! ABI specification. This means:</p>
+<ul>
+<li>By default, message selectors are generated according to the <a href="https://use.ink/basics/selectors/">ink! ABI
+specification for selectors</a>.</li>
+<li>Message selectors can be manually overridden using the <code>selector</code> attribute.</li>
+<li>Parity’s <a href="https://docs.rs/parity-scale-codec/latest/parity_scale_codec">SCALE Codec</a> is used for input/output encoding/decoding.</li>
+<li>Call builders (used for making cross-contract calls) are generated for ink! ABI
+calling conventions.</li>
+</ul>
+</li>
+<li>
+<p><code>abi = "sol"</code></p>
+<p>The code generator follows the <a href="https://docs.soliditylang.org/en/latest/abi-spec.html">Solidity ABI specification</a>. This means:</p>
+<ul>
+<li>Message selectors are <strong>always</strong> generated according to the <a href="https://docs.soliditylang.org/en/latest/abi-spec.html#function-selector">Solidity ABI
+specification for function selectors</a>.</li>
+<li>Message selector manual overrides using the <code>selector</code> attribute are ignored.</li>
+<li><a href="https://docs.soliditylang.org/en/latest/abi-spec.html#formal-specification-of-the-encoding">Solidity ABI encoding</a> is used for input/output
+encoding/decoding.</li>
+<li>Call builders are generated for Solidity ABI calling conventions.</li>
+</ul>
+</li>
+<li>
+<p><code>abi = "all"</code></p>
+<p>The code generator follows both the ink! and Solidity ABI specifications, and
+generates entry points for both calling conventions. This means:</p>
+<ul>
+<li>For each message, two selectors are generated, one for ink! and another for
+Solidity ABI.</li>
+<li>Each selector is ABI specific and its entry point uses the corresponding
+input/output encoding/decoding scheme (i.e. entry points for ink! selectors use
+Parity’s <a href="https://docs.rs/parity-scale-codec/latest/parity_scale_codec">SCALE Codec</a>, while entry points for Solidity selectors
+use Solidity ABI encoding/decoding for input/output encoding/decoding).</li>
+<li>Message selector manual overrides (using the <code>selector</code> attribute) are respected
+for ink! ABI entry points but ignored for Solidity ABI entry points (i.e.
+Solidity selectors are <strong>always</strong> generated according to the <a href="https://docs.soliditylang.org/en/latest/abi-spec.html#function-selector">Solidity ABI
+specification for function selectors</a>).</li>
+<li>Call builders are generated for both ink! and Solidity ABI calling conventions,
+and a <code>_sol</code> suffix is used to disambiguate Solidity calls.</li>
+</ul>
+<p>Please note that your contract sizes will get larger if you support both the ink!
+and Solidity ABI.</p>
+</li>
+</ul>
+<p>For contracts that support Solidity ABI encoding
+(i.e. <code>abi = "sol"</code> or <code>abi = "all"</code>), all types used as constructor/message
+arguments and return types must define a mapping to an equivalent Solidity type.
+This mapping is defined using the <a href="https://docs.rs/ink/latest/ink/trait.SolEncode.html"><code>SolEncode</code></a> and
+<a href="https://docs.rs/ink/latest/ink/trait.SolEncode.html"><code>SolDecode</code></a> traits, which are analogs to <code>scale::Encode</code> and
+<code>scale::Decode</code> (but for Solidity ABI encoding/decoding).</p>
+<p><a href="https://docs.rs/ink/latest/ink/trait.SolEncode.html"><code>SolEncode</code></a> and <a href="https://docs.rs/ink/latest/ink/trait.SolEncode.html"><code>SolDecode</code></a> are implemented
+for the following Rust/ink! primitive types creating a mapping
+to the corresponding Solidity ABI types as shown in the table below:</p>
+<div><table><thead><tr><th>Rust/ink! type</th><th>Solidity ABI type</th><th>Notes</th></tr></thead><tbody>
+<tr><td><code>bool</code></td><td><code>bool</code></td><td></td></tr>
+<tr><td><code>iN</code> for <code>N ∈ {8,16,32,64,128}</code></td><td><code>intN</code></td><td>e.g <code>i8</code> ↔ <code>int8</code></td></tr>
+<tr><td><code>uN</code> for <code>N ∈ {8,16,32,64,128}</code></td><td><code>uintN</code></td><td>e.g <code>u8</code> ↔ <code>uint8</code></td></tr>
+<tr><td><a href="https://docs.rs/ink/latest/ink/struct.U256.html"><code>ink::U256</code></a></td><td><code>uint256</code></td><td></td></tr>
+<tr><td><code>String</code></td><td><code>string</code></td><td></td></tr>
+<tr><td><code>Box&lt;str&gt;</code></td><td><code>string</code></td><td></td></tr>
+<tr><td><a href="https://docs.rs/ink/latest/ink/type.Address.html"><code>ink::Address</code></a> / <a href="https://docs.rs/ink/latest/ink/struct.H160.html"><code>ink::H160</code></a></td><td><code>address</code></td><td><code>ink::Address</code> is a type alias for the <code>ink::H160</code> type used for addresses in <code>pallet-revive</code></td></tr>
+<tr><td><code>[T; N]</code> for <code>const N: usize</code></td><td><code>T[N]</code></td><td>e.g. <code>[i8; 64]</code> ↔ <code>int8[64]</code></td></tr>
+<tr><td><code>Vec&lt;T&gt;</code></td><td><code>T[]</code></td><td>e.g. <code>Vec&lt;i8&gt;</code> ↔ <code>int8[]</code></td></tr>
+<tr><td><code>Box&lt;[T]&gt;</code></td><td><code>T[]</code></td><td>e.g. <code>Box&lt;[i8]&gt;</code> ↔ <code>int8[]</code></td></tr>
+<tr><td><a href="https://docs.rs/ink/latest/ink/struct.SolBytes.html"><code>ink::SolBytes&lt;u8&gt;</code></a></td><td><code>bytes1</code></td><td></td></tr>
+<tr><td><a href="https://docs.rs/ink/latest/ink/struct.SolBytes.html"><code>ink::SolBytes&lt;[u8; N]&gt;</code></a> for <code>1 &lt;= N &lt;= 32</code></td><td><code>bytesN</code></td><td>e.g. <code>ink::SolBytes&lt;[u8; 1]&gt;</code> ↔ <code>bytes1</code></td></tr>
+<tr><td><a href="https://docs.rs/ink/latest/ink/struct.SolBytes.html"><code>ink::SolBytes&lt;Vec&lt;u8&gt;&gt;</code></a></td><td><code>bytes</code></td><td></td></tr>
+<tr><td><a href="https://docs.rs/ink/latest/ink/struct.SolBytes.html"><code>ink::SolBytes&lt;Box&lt;[u8]&gt;&gt;</code></a></td><td><code>bytes</code></td><td></td></tr>
+<tr><td><code>(T1, T2, T3, ... T12)</code></td><td><code>(U1, U2, U3, ... U12)</code></td><td>where <code>T1</code> ↔ <code>U1</code>, … <code>T12</code> ↔ <code>U12</code> e.g. <code>(bool, u8, Address)</code> ↔ <code>(bool, uint8, address)</code></td></tr>
+</tbody></table>
+</div>
+<p><a href="https://docs.rs/ink/latest/ink/trait.SolEncode.html"><code>SolEncode</code></a> is additionally implemented for reference and smart
+pointer types below:</p>
+<div><table><thead><tr><th>Rust/ink! type</th><th>Solidity ABI type</th><th>Notes</th></tr></thead><tbody>
+<tr><td><code>&amp;str</code>, <code>&amp;mut str</code></td><td><code>string</code></td><td></td></tr>
+<tr><td><code>&amp;T</code>, <code>&amp;mut T</code>, <code>Box&lt;T&gt;</code></td><td><code>T</code></td><td>e.g. <code>&amp;i8 ↔ int8</code></td></tr>
+<tr><td><code>&amp;[T]</code>, <code>&amp;mut [T]</code></td><td><code>T[]</code></td><td>e.g. <code>&amp;[i8]</code> ↔ <code>int8[]</code></td></tr>
+</tbody></table>
+</div>
+<p>See the rustdoc for <a href="https://docs.rs/ink/latest/ink/trait.SolEncode.html"><code>SolEncode</code></a> and
+<a href="https://docs.rs/ink/latest/ink/trait.SolEncode.html"><code>SolDecode</code></a> for instructions for implementing the traits for
+custom arbitrary types.</p>
+<p>Please note that Rust’s <a href="https://doc.rust-lang.org/reference/items/implementations.html#trait-implementation-coherence">coherence/orphan rules</a> mean that you can
+only implement the <a href="https://docs.rs/ink/latest/ink/trait.SolEncode.html"><code>SolEncode</code></a> and
+<a href="https://docs.rs/ink/latest/ink/trait.SolEncode.html"><code>SolDecode</code></a>   traits for local types.</p>
+</li>
+</ul>
+<ul>
+<li>
 <p><code>keep_attr: String</code></p>
 <p>Tells the ink! code generator which attributes should be passed to call builders.
-Call builders are used to doing cross-contract calls and are automatically
+Call builders are used for making cross-contract calls and are automatically
 generated for contracts.</p>
 <p><strong>Usage Example:</strong></p>
 
@@ -222,16 +326,13 @@ emitted in the <code>#[ink(constructor)]</code>.</p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="attr">#[ink::contract]
 </span><span class="kw">mod </span>erc20 {
-    <span class="kw">use </span>ink::{
-        H160,
-        U256,
-    };
+    <span class="kw">use </span>ink::U256;
 
     <span class="doccomment">/// Defines an event that is emitted every time value is transferred.
     </span><span class="attr">#[ink(event)]
     </span><span class="kw">pub struct </span>Transferred {
-        from: <span class="prelude-ty">Option</span>&lt;H160&gt;,
-        to: <span class="prelude-ty">Option</span>&lt;H160&gt;,
+        from: <span class="prelude-ty">Option</span>&lt;Address&gt;,
+        to: <span class="prelude-ty">Option</span>&lt;Address&gt;,
         value: U256,
     }
 

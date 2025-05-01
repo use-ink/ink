@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["CryptoHasher","Layout","MetadataError"],"struct":["ArrayLayout","Discriminant","EnumLayout","FieldLayout","HashLayout","HashingStrategy","LayoutKey","LeafLayout","RootLayout","StructLayout","ValidateLayout"]};

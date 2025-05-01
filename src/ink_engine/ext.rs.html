@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/engine/src/ext.rs`."><title>ext.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-916cea96.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="ink_engine" data-themes="" data-resource-suffix="" data-rustdoc-version="1.87.0-nightly (1aeb99d24 2025-03-19)" data-channel="nightly" data-search-js="search-e7298875.js" data-settings-js="settings-d72f25bb.js" ><script src="../../static.files/storage-d8ac8691.js"></script><script defer src="../../static.files/src-script-b8d3f215.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-fb8c74a8.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-893ab5e7.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">ink_engine/</div>ext.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="comment">// Copyright (C) Use Ink (UK) Ltd.
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/engine/src/ext.rs`."><title>ext.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-6c3ea77c.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="ink_engine" data-themes="" data-resource-suffix="" data-rustdoc-version="1.86.0 (05f9846f8 2025-03-31)" data-channel="1.86.0" data-search-js="search-581efc7a.js" data-settings-js="settings-6dad6058.js" ><script src="../../static.files/storage-3a5871a4.js"></script><script defer src="../../static.files/src-script-b8d3f215.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-4d63596a.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-893ab5e7.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">ink_engine/</div>ext.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="comment">// Copyright (C) Use Ink (UK) Ltd.
 <a href=#2 id=2 data-nosnippet>2</a>//
 <a href=#3 id=3 data-nosnippet>3</a>// Licensed under the Apache License, Version 2.0 (the "License");
 <a href=#4 id=4 data-nosnippet>4</a>// you may not use this file except in compliance with the License.
@@ -25,13 +25,13 @@
 <a href=#25 id=25 data-nosnippet>25</a>        DebugInfo,
 <a href=#26 id=26 data-nosnippet>26</a>        EmittedEvent,
 <a href=#27 id=27 data-nosnippet>27</a>    },
-<a href=#28 id=28 data-nosnippet>28</a>    types::{
-<a href=#29 id=29 data-nosnippet>29</a>        BlockTimestamp,
-<a href=#30 id=30 data-nosnippet>30</a>        H160,
-<a href=#31 id=31 data-nosnippet>31</a>    },
-<a href=#32 id=32 data-nosnippet>32</a>};
-<a href=#33 id=33 data-nosnippet>33</a><span class="kw">use </span>hex_literal::hex;
-<a href=#34 id=34 data-nosnippet>34</a><span class="kw">use </span>ink_primitives::U256;
+<a href=#28 id=28 data-nosnippet>28</a>    types::BlockTimestamp,
+<a href=#29 id=29 data-nosnippet>29</a>};
+<a href=#30 id=30 data-nosnippet>30</a><span class="kw">use </span>hex_literal::hex;
+<a href=#31 id=31 data-nosnippet>31</a><span class="kw">use </span>ink_primitives::{
+<a href=#32 id=32 data-nosnippet>32</a>    Address,
+<a href=#33 id=33 data-nosnippet>33</a>    U256,
+<a href=#34 id=34 data-nosnippet>34</a>};
 <a href=#35 id=35 data-nosnippet>35</a><span class="kw">pub use </span>pallet_revive_uapi::ReturnErrorCode <span class="kw">as </span>Error;
 <a href=#36 id=36 data-nosnippet>36</a><span class="kw">use </span>scale::Encode;
 <a href=#37 id=37 data-nosnippet>37</a><span class="kw">use </span>std::panic::panic_any;
@@ -102,7 +102,7 @@
 <a href=#102 id=102 data-nosnippet>102</a><span class="kw">impl </span>Engine {
 <a href=#103 id=103 data-nosnippet>103</a>    <span class="doccomment">/// Transfers value from the contract to the destination account.
 <a href=#104 id=104 data-nosnippet>104</a>    </span><span class="attr">#[allow(clippy::arithmetic_side_effects)] </span><span class="comment">// todo
-<a href=#105 id=105 data-nosnippet>105</a>    </span><span class="kw">pub fn </span>transfer(<span class="kw-2">&amp;mut </span><span class="self">self</span>, dest: H160, <span class="kw-2">mut </span>value: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
+<a href=#105 id=105 data-nosnippet>105</a>    </span><span class="kw">pub fn </span>transfer(<span class="kw-2">&amp;mut </span><span class="self">self</span>, dest: Address, <span class="kw-2">mut </span>value: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
 <a href=#106 id=106 data-nosnippet>106</a>        <span class="comment">// Note that a transfer of `0` is allowed here
 <a href=#107 id=107 data-nosnippet>107</a>        </span><span class="kw">let </span>increment = &lt;u128 <span class="kw">as </span>scale::Decode&gt;::decode(<span class="kw-2">&amp;mut </span>value)
 <a href=#108 id=108 data-nosnippet>108</a>            .map_err(|<span class="kw">_</span>| Error::TransferFailed)<span class="question-mark">?</span>;
@@ -216,7 +216,7 @@
 <a href=#216 id=216 data-nosnippet>216</a>    /// This function never returns. Either the termination was successful and the
 <a href=#217 id=217 data-nosnippet>217</a>    /// execution of the destroyed contract is halted. Or it failed during the
 <a href=#218 id=218 data-nosnippet>218</a>    /// termination which is considered fatal.
-<a href=#219 id=219 data-nosnippet>219</a>    </span><span class="kw">pub fn </span>terminate(<span class="kw-2">&amp;mut </span><span class="self">self</span>, beneficiary: H160) -&gt; ! {
+<a href=#219 id=219 data-nosnippet>219</a>    </span><span class="kw">pub fn </span>terminate(<span class="kw-2">&amp;mut </span><span class="self">self</span>, beneficiary: Address) -&gt; ! {
 <a href=#220 id=220 data-nosnippet>220</a>        <span class="comment">// Send the remaining balance to the beneficiary
 <a href=#221 id=221 data-nosnippet>221</a>        </span><span class="kw">let </span>contract = <span class="self">self</span>.get_callee();
 <a href=#222 id=222 data-nosnippet>222</a>        <span class="kw">let </span>all = <span class="self">self

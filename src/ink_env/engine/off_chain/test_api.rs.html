@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/env/src/engine/off_chain/test_api.rs`."><title>test_api.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-916cea96.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="ink_env" data-themes="" data-resource-suffix="" data-rustdoc-version="1.87.0-nightly (1aeb99d24 2025-03-19)" data-channel="nightly" data-search-js="search-e7298875.js" data-settings-js="settings-d72f25bb.js" ><script src="../../../../static.files/storage-d8ac8691.js"></script><script defer src="../../../../static.files/src-script-b8d3f215.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-fb8c74a8.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-893ab5e7.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">ink_env/engine/off_chain/</div>test_api.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="comment">// Copyright (C) Use Ink (UK) Ltd.
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/env/src/engine/off_chain/test_api.rs`."><title>test_api.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-6c3ea77c.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="ink_env" data-themes="" data-resource-suffix="" data-rustdoc-version="1.86.0 (05f9846f8 2025-03-31)" data-channel="1.86.0" data-search-js="search-581efc7a.js" data-settings-js="settings-6dad6058.js" ><script src="../../../../static.files/storage-3a5871a4.js"></script><script defer src="../../../../static.files/src-script-b8d3f215.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-4d63596a.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-893ab5e7.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">ink_env/engine/off_chain/</div>test_api.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="comment">// Copyright (C) Use Ink (UK) Ltd.
 <a href=#2 id=2 data-nosnippet>2</a>//
 <a href=#3 id=3 data-nosnippet>3</a>// Licensed under the Apache License, Version 2.0 (the "License");
 <a href=#4 id=4 data-nosnippet>4</a>// you may not use this file except in compliance with the License.
@@ -32,7 +32,7 @@
 <a href=#32 id=32 data-nosnippet>32</a>};
 <a href=#33 id=33 data-nosnippet>33</a><span class="kw">use </span>ink_primitives::{
 <a href=#34 id=34 data-nosnippet>34</a>    AccountIdMapper,
-<a href=#35 id=35 data-nosnippet>35</a>    H160,
+<a href=#35 id=35 data-nosnippet>35</a>    Address,
 <a href=#36 id=36 data-nosnippet>36</a>    H256,
 <a href=#37 id=37 data-nosnippet>37</a>    U256,
 <a href=#38 id=38 data-nosnippet>38</a>};
@@ -63,7 +63,7 @@
 <a href=#63 id=63 data-nosnippet>63</a>/// - If the underlying `new_balance` type does not match.
 <a href=#64 id=64 data-nosnippet>64</a>/// - If the `new_balance` is less than the existential minimum.
 <a href=#65 id=65 data-nosnippet>65</a></span><span class="attr">#[cfg(feature = <span class="string">"unstable-hostfn"</span>)] </span><span class="comment">// todo check this is needed here
-<a href=#66 id=66 data-nosnippet>66</a></span><span class="kw">pub fn </span>set_account_balance(addr: H160, new_balance: U256) {
+<a href=#66 id=66 data-nosnippet>66</a></span><span class="kw">pub fn </span>set_account_balance(addr: Address, new_balance: U256) {
 <a href=#67 id=67 data-nosnippet>67</a>    <span class="kw">let </span>min = ChainSpec::default().minimum_balance;
 <a href=#68 id=68 data-nosnippet>68</a>    <span class="kw">if </span>new_balance &lt; min &amp;&amp; new_balance != U256::zero() {
 <a href=#69 id=69 data-nosnippet>69</a>        <span class="macro">panic!</span>(
@@ -89,7 +89,7 @@
 <a href=#89 id=89 data-nosnippet>89</a>///
 <a href=#90 id=90 data-nosnippet>90</a>/// - If `account` does not exist.
 <a href=#91 id=91 data-nosnippet>91</a>/// - If the underlying `account` type does not match.
-<a href=#92 id=92 data-nosnippet>92</a></span><span class="kw">pub fn </span>get_account_balance&lt;T&gt;(addr: H160) -&gt; <span class="prelude-ty">Result</span>&lt;U256&gt; {
+<a href=#92 id=92 data-nosnippet>92</a></span><span class="kw">pub fn </span>get_account_balance&lt;T&gt;(addr: Address) -&gt; <span class="prelude-ty">Result</span>&lt;U256&gt; {
 <a href=#93 id=93 data-nosnippet>93</a>    &lt;EnvInstance <span class="kw">as </span>OnInstance&gt;::on_instance(|instance| {
 <a href=#94 id=94 data-nosnippet>94</a>        instance.engine.get_balance(addr).map_err(Into::into)
 <a href=#95 id=95 data-nosnippet>95</a>    })
@@ -132,21 +132,21 @@
 <a href=#132 id=132 data-nosnippet>132</a>}
 <a href=#133 id=133 data-nosnippet>133</a>
 <a href=#134 id=134 data-nosnippet>134</a><span class="doccomment">/// Sets a caller for the next call.
-<a href=#135 id=135 data-nosnippet>135</a></span><span class="kw">pub fn </span>set_caller(caller: H160) {
+<a href=#135 id=135 data-nosnippet>135</a></span><span class="kw">pub fn </span>set_caller(caller: Address) {
 <a href=#136 id=136 data-nosnippet>136</a>    &lt;EnvInstance <span class="kw">as </span>OnInstance&gt;::on_instance(|instance| {
 <a href=#137 id=137 data-nosnippet>137</a>        instance.engine.set_caller(caller);
 <a href=#138 id=138 data-nosnippet>138</a>    })
 <a href=#139 id=139 data-nosnippet>139</a>}
 <a href=#140 id=140 data-nosnippet>140</a>
 <a href=#141 id=141 data-nosnippet>141</a><span class="doccomment">/// Sets the callee for the next call.
-<a href=#142 id=142 data-nosnippet>142</a></span><span class="kw">pub fn </span>set_callee(callee: H160) {
+<a href=#142 id=142 data-nosnippet>142</a></span><span class="kw">pub fn </span>set_callee(callee: Address) {
 <a href=#143 id=143 data-nosnippet>143</a>    &lt;EnvInstance <span class="kw">as </span>OnInstance&gt;::on_instance(|instance| {
 <a href=#144 id=144 data-nosnippet>144</a>        instance.engine.set_callee(callee);
 <a href=#145 id=145 data-nosnippet>145</a>    })
 <a href=#146 id=146 data-nosnippet>146</a>}
 <a href=#147 id=147 data-nosnippet>147</a>
 <a href=#148 id=148 data-nosnippet>148</a><span class="doccomment">/// Sets an account as a contract
-<a href=#149 id=149 data-nosnippet>149</a></span><span class="kw">pub fn </span>set_contract(contract: H160) {
+<a href=#149 id=149 data-nosnippet>149</a></span><span class="kw">pub fn </span>set_contract(contract: Address) {
 <a href=#150 id=150 data-nosnippet>150</a>    &lt;EnvInstance <span class="kw">as </span>OnInstance&gt;::on_instance(|instance| {
 <a href=#151 id=151 data-nosnippet>151</a>        instance.engine.set_contract(contract);
 <a href=#152 id=152 data-nosnippet>152</a>    })
@@ -154,7 +154,7 @@
 <a href=#154 id=154 data-nosnippet>154</a>
 <a href=#155 id=155 data-nosnippet>155</a><span class="doccomment">/// Returns a boolean to indicate whether an account is a contract
 <a href=#156 id=156 data-nosnippet>156</a></span><span class="attr">#[cfg(feature = <span class="string">"unstable-hostfn"</span>)]
-<a href=#157 id=157 data-nosnippet>157</a></span><span class="kw">pub fn </span>is_contract(contract: H160) -&gt; bool {
+<a href=#157 id=157 data-nosnippet>157</a></span><span class="kw">pub fn </span>is_contract(contract: Address) -&gt; bool {
 <a href=#158 id=158 data-nosnippet>158</a>    &lt;EnvInstance <span class="kw">as </span>OnInstance&gt;::on_instance(|instance| {
 <a href=#159 id=159 data-nosnippet>159</a>        instance.engine.is_contract(<span class="kw-2">&amp;</span>contract)
 <a href=#160 id=160 data-nosnippet>160</a>    })
@@ -163,7 +163,7 @@
 <a href=#163 id=163 data-nosnippet>163</a><span class="doccomment">/// Gets the currently set callee.
 <a href=#164 id=164 data-nosnippet>164</a>///
 <a href=#165 id=165 data-nosnippet>165</a>/// This is the address of the currently executing contract.
-<a href=#166 id=166 data-nosnippet>166</a></span><span class="kw">pub fn </span>callee() -&gt; H160 {
+<a href=#166 id=166 data-nosnippet>166</a></span><span class="kw">pub fn </span>callee() -&gt; Address {
 <a href=#167 id=167 data-nosnippet>167</a>    &lt;EnvInstance <span class="kw">as </span>OnInstance&gt;::on_instance(|instance| {
 <a href=#168 id=168 data-nosnippet>168</a>        <span class="kw">let </span>callee = instance.engine.get_callee();
 <a href=#169 id=169 data-nosnippet>169</a>        scale::Decode::decode(<span class="kw-2">&amp;mut &amp;</span>callee[..])
@@ -172,7 +172,7 @@
 <a href=#172 id=172 data-nosnippet>172</a>}
 <a href=#173 id=173 data-nosnippet>173</a>
 <a href=#174 id=174 data-nosnippet>174</a><span class="doccomment">/// Returns the total number of reads and writes of the contract's storage.
-<a href=#175 id=175 data-nosnippet>175</a></span><span class="kw">pub fn </span>get_contract_storage_rw(addr: H160) -&gt; (usize, usize) {
+<a href=#175 id=175 data-nosnippet>175</a></span><span class="kw">pub fn </span>get_contract_storage_rw(addr: Address) -&gt; (usize, usize) {
 <a href=#176 id=176 data-nosnippet>176</a>    &lt;EnvInstance <span class="kw">as </span>OnInstance&gt;::on_instance(|instance| {
 <a href=#177 id=177 data-nosnippet>177</a>        instance.engine.get_contract_storage_rw(addr)
 <a href=#178 id=178 data-nosnippet>178</a>    })
@@ -216,7 +216,7 @@
 <a href=#216 id=216 data-nosnippet>216</a><span class="doccomment">/// Returns the amount of storage cells used by the contract `addr`.
 <a href=#217 id=217 data-nosnippet>217</a>///
 <a href=#218 id=218 data-nosnippet>218</a>/// Returns `None` if the contract at `addr` is non-existent.
-<a href=#219 id=219 data-nosnippet>219</a></span><span class="kw">pub fn </span>count_used_storage_cells&lt;T&gt;(addr: H160) -&gt; <span class="prelude-ty">Result</span>&lt;usize&gt;
+<a href=#219 id=219 data-nosnippet>219</a></span><span class="kw">pub fn </span>count_used_storage_cells&lt;T&gt;(addr: Address) -&gt; <span class="prelude-ty">Result</span>&lt;usize&gt;
 <a href=#220 id=220 data-nosnippet>220</a><span class="kw">where
 <a href=#221 id=221 data-nosnippet>221</a>    </span>T: Environment,
 <a href=#222 id=222 data-nosnippet>222</a>{
@@ -297,17 +297,17 @@
 <a href=#297 id=297 data-nosnippet>297</a><span class="doccomment">/// The default accounts.
 <a href=#298 id=298 data-nosnippet>298</a></span><span class="kw">pub struct </span>DefaultAccounts {
 <a href=#299 id=299 data-nosnippet>299</a>    <span class="doccomment">/// The predefined `ALICE` account holding substantial amounts of value.
-<a href=#300 id=300 data-nosnippet>300</a>    </span><span class="kw">pub </span>alice: H160,
+<a href=#300 id=300 data-nosnippet>300</a>    </span><span class="kw">pub </span>alice: Address,
 <a href=#301 id=301 data-nosnippet>301</a>    <span class="doccomment">/// The predefined `BOB` account holding some amounts of value.
-<a href=#302 id=302 data-nosnippet>302</a>    </span><span class="kw">pub </span>bob: H160,
+<a href=#302 id=302 data-nosnippet>302</a>    </span><span class="kw">pub </span>bob: Address,
 <a href=#303 id=303 data-nosnippet>303</a>    <span class="doccomment">/// The predefined `CHARLIE` account holding some amounts of value.
-<a href=#304 id=304 data-nosnippet>304</a>    </span><span class="kw">pub </span>charlie: H160,
+<a href=#304 id=304 data-nosnippet>304</a>    </span><span class="kw">pub </span>charlie: Address,
 <a href=#305 id=305 data-nosnippet>305</a>    <span class="doccomment">/// The predefined `DJANGO` account holding no value.
-<a href=#306 id=306 data-nosnippet>306</a>    </span><span class="kw">pub </span>django: H160,
+<a href=#306 id=306 data-nosnippet>306</a>    </span><span class="kw">pub </span>django: Address,
 <a href=#307 id=307 data-nosnippet>307</a>    <span class="doccomment">/// The predefined `EVE` account holding no value.
-<a href=#308 id=308 data-nosnippet>308</a>    </span><span class="kw">pub </span>eve: H160,
+<a href=#308 id=308 data-nosnippet>308</a>    </span><span class="kw">pub </span>eve: Address,
 <a href=#309 id=309 data-nosnippet>309</a>    <span class="doccomment">/// The predefined `FRANK` account holding no value.
-<a href=#310 id=310 data-nosnippet>310</a>    </span><span class="kw">pub </span>frank: H160,
+<a href=#310 id=310 data-nosnippet>310</a>    </span><span class="kw">pub </span>frank: Address,
 <a href=#311 id=311 data-nosnippet>311</a>}
 <a href=#312 id=312 data-nosnippet>312</a>
 <a href=#313 id=313 data-nosnippet>313</a><span class="doccomment">/// Returns the recorded emitted events in order.
@@ -346,7 +346,7 @@
 <a href=#346 id=346 data-nosnippet>346</a>/// example for a complete usage exemplification.
 <a href=#347 id=347 data-nosnippet>347</a></span><span class="kw">pub fn </span>assert_contract_termination&lt;T, F&gt;(
 <a href=#348 id=348 data-nosnippet>348</a>    should_terminate: F,
-<a href=#349 id=349 data-nosnippet>349</a>    expected_beneficiary: H160,
+<a href=#349 id=349 data-nosnippet>349</a>    expected_beneficiary: Address,
 <a href=#350 id=350 data-nosnippet>350</a>    expected_value_transferred_to_beneficiary: U256,
 <a href=#351 id=351 data-nosnippet>351</a>) <span class="kw">where
 <a href=#352 id=352 data-nosnippet>352</a>    </span>T: Environment,
@@ -359,7 +359,7 @@
 <a href=#359 id=359 data-nosnippet>359</a>    <span class="kw">let </span>encoded_input = value_any
 <a href=#360 id=360 data-nosnippet>360</a>        .downcast_ref::&lt;Vec&lt;u8&gt;&gt;()
 <a href=#361 id=361 data-nosnippet>361</a>        .expect(<span class="string">"panic object can not be cast"</span>);
-<a href=#362 id=362 data-nosnippet>362</a>    <span class="kw">let </span>(value_transferred, beneficiary): (U256, H160) =
+<a href=#362 id=362 data-nosnippet>362</a>    <span class="kw">let </span>(value_transferred, beneficiary): (U256, Address) =
 <a href=#363 id=363 data-nosnippet>363</a>        scale::Decode::decode(<span class="kw-2">&amp;mut &amp;</span>encoded_input[..])
 <a href=#364 id=364 data-nosnippet>364</a>            .unwrap_or_else(|err| <span class="macro">panic!</span>(<span class="string">"input can not be decoded: {err}"</span>));
 <a href=#365 id=365 data-nosnippet>365</a>    <span class="macro">assert_eq!</span>(value_transferred, expected_value_transferred_to_beneficiary);

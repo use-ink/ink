@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/e2e/sandbox/src/api/revive_api.rs`."><title>revive_api.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-916cea96.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="ink_sandbox" data-themes="" data-resource-suffix="" data-rustdoc-version="1.87.0-nightly (1aeb99d24 2025-03-19)" data-channel="nightly" data-search-js="search-e7298875.js" data-settings-js="settings-d72f25bb.js" ><script src="../../../static.files/storage-d8ac8691.js"></script><script defer src="../../../static.files/src-script-b8d3f215.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-fb8c74a8.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">ink_sandbox/api/</div>revive_api.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="kw">use crate</span>::{
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/e2e/sandbox/src/api/revive_api.rs`."><title>revive_api.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-6c3ea77c.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="ink_sandbox" data-themes="" data-resource-suffix="" data-rustdoc-version="1.86.0 (05f9846f8 2025-03-31)" data-channel="1.86.0" data-search-js="search-581efc7a.js" data-settings-js="settings-6dad6058.js" ><script src="../../../static.files/storage-3a5871a4.js"></script><script defer src="../../../static.files/src-script-b8d3f215.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-4d63596a.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">ink_sandbox/api/</div>revive_api.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="kw">use crate</span>::{
 <a href=#2 id=2 data-nosnippet>2</a>    AccountIdFor,
 <a href=#3 id=3 data-nosnippet>3</a>    ContractExecResultFor,
 <a href=#4 id=4 data-nosnippet>4</a>    ContractResultInstantiate,
@@ -15,15 +15,15 @@
 <a href=#15 id=15 data-nosnippet>15</a>    weights::Weight,
 <a href=#16 id=16 data-nosnippet>16</a>};
 <a href=#17 id=17 data-nosnippet>17</a><span class="kw">use </span>frame_system::pallet_prelude::OriginFor;
-<a href=#18 id=18 data-nosnippet>18</a><span class="kw">use </span>ink_primitives::DepositLimit;
-<a href=#19 id=19 data-nosnippet>19</a><span class="kw">use </span>pallet_revive::{
-<a href=#20 id=20 data-nosnippet>20</a>    Code,
-<a href=#21 id=21 data-nosnippet>21</a>    CodeUploadResult,
-<a href=#22 id=22 data-nosnippet>22</a>};
-<a href=#23 id=23 data-nosnippet>23</a><span class="kw">use </span>sp_core::{
-<a href=#24 id=24 data-nosnippet>24</a>    H160,
-<a href=#25 id=25 data-nosnippet>25</a>    U256,
-<a href=#26 id=26 data-nosnippet>26</a>};
+<a href=#18 id=18 data-nosnippet>18</a><span class="kw">use </span>ink_primitives::{
+<a href=#19 id=19 data-nosnippet>19</a>    Address,
+<a href=#20 id=20 data-nosnippet>20</a>    DepositLimit,
+<a href=#21 id=21 data-nosnippet>21</a>};
+<a href=#22 id=22 data-nosnippet>22</a><span class="kw">use </span>pallet_revive::{
+<a href=#23 id=23 data-nosnippet>23</a>    Code,
+<a href=#24 id=24 data-nosnippet>24</a>    CodeUploadResult,
+<a href=#25 id=25 data-nosnippet>25</a>};
+<a href=#26 id=26 data-nosnippet>26</a><span class="kw">use </span>sp_core::U256;
 <a href=#27 id=27 data-nosnippet>27</a><span class="kw">use </span>std::ops::Not;
 <a href=#28 id=28 data-nosnippet>28</a>
 <a href=#29 id=29 data-nosnippet>29</a><span class="kw">type </span>BalanceOf&lt;R&gt; =
@@ -126,7 +126,7 @@
 <a href=#126 id=126 data-nosnippet>126</a>    </span><span class="attr">#[allow(clippy::type_complexity, clippy::too_many_arguments)]
 <a href=#127 id=127 data-nosnippet>127</a>    </span><span class="kw">fn </span>call_contract(
 <a href=#128 id=128 data-nosnippet>128</a>        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
-<a href=#129 id=129 data-nosnippet>129</a>        address: H160,
+<a href=#129 id=129 data-nosnippet>129</a>        address: Address,
 <a href=#130 id=130 data-nosnippet>130</a>        value: BalanceOf&lt;<span class="self">Self</span>::T&gt;,
 <a href=#131 id=131 data-nosnippet>131</a>        data: Vec&lt;u8&gt;,
 <a href=#132 id=132 data-nosnippet>132</a>        origin: OriginFor&lt;<span class="self">Self</span>::T&gt;,
@@ -221,7 +221,7 @@
 <a href=#221 id=221 data-nosnippet>221</a>
 <a href=#222 id=222 data-nosnippet>222</a>    <span class="kw">fn </span>call_contract(
 <a href=#223 id=223 data-nosnippet>223</a>        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
-<a href=#224 id=224 data-nosnippet>224</a>        address: H160,
+<a href=#224 id=224 data-nosnippet>224</a>        address: Address,
 <a href=#225 id=225 data-nosnippet>225</a>        value: BalanceOf&lt;<span class="self">Self</span>::T&gt;,
 <a href=#226 id=226 data-nosnippet>226</a>        data: Vec&lt;u8&gt;,
 <a href=#227 id=227 data-nosnippet>227</a>        origin: OriginFor&lt;<span class="self">Self</span>::T&gt;,
