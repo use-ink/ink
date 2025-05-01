@@ -918,6 +918,9 @@ jobs:
               workflow: ci.yml
               branch: master
               name: measurements-master
+              # Use any workflow that contains the artifact, regardless of the workflow conclusion
+              workflow_conclusion: ""
+              search_artifacts: true
 
         - name: Collect Contract Sizes
           run: |

@@ -230,6 +230,7 @@ You can find binary releases of the node [here](https://github.com/use-ink/ink-n
 - Get rid of "extrinsic for call failed: Pallet error: Revive::AccountAlreadyMapped" - [2483](https://github.com/use-ink/ink/pull/2483)
 - CI disk usage via standardised toolchains: `stable` 1.86, `nightly` 2025-02-20 - [#2484](https://github.com/use-ink/ink/pull/2484)
 - CI contract size submission - [#2490](https://github.com/use-ink/ink/pull/2490)
+- CI relax criteria for `measurements-master` artifact lookup - [#2491](https://github.com/use-ink/ink/pull/2491)
 
 ## Version 5.1.0
 
