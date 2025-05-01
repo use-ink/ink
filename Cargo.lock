@@ -1595,7 +1595,7 @@ checksum = "cd7e35aee659887cbfb97aaf227ac12cad1a9d7c71e55ff3376839ed4e282d08"
 [[package]]
 name = "contract-build"
 version = "6.0.0-alpha"
-source = "git+https://github.com/use-ink/cargo-contract?branch=master#7abd30690cb598395ad12679e79f7aca12beb7f9"
+source = "git+https://github.com/use-ink/cargo-contract?branch=master#24de48b0382efdf37ceafbfe37c20dffd2735f24"
 dependencies = [
  "alloy-json-abi 0.8.25",
  "anyhow",
@@ -1637,7 +1637,7 @@ dependencies = [
 [[package]]
 name = "contract-metadata"
 version = "6.0.0-alpha"
-source = "git+https://github.com/use-ink/cargo-contract?branch=master#7abd30690cb598395ad12679e79f7aca12beb7f9"
+source = "git+https://github.com/use-ink/cargo-contract?branch=master#24de48b0382efdf37ceafbfe37c20dffd2735f24"
 dependencies = [
  "anyhow",
  "impl-serde",
@@ -3637,13 +3637,12 @@ dependencies = [
 [[package]]
 name = "ink_metadata"
 version = "6.0.0-alpha"
-source = "git+https://github.com/use-ink/ink?branch=master#a84db624fdd1fde338cf6bb6b505757274d399ec"
+source = "git+https://github.com/use-ink/ink?branch=master#5620a09de79a9d4786059e3e4a513ded1b8fc4a8"
 dependencies = [
  "derive_more 2.0.1",
  "impl-serde",
  "ink_prelude 6.0.0-alpha (git+https://github.com/use-ink/ink?branch=master)",
  "ink_primitives 6.0.0-alpha (git+https://github.com/use-ink/ink?branch=master)",
- "linkme",
  "parity-scale-codec",
  "scale-info",
  "schemars",
@@ -3660,7 +3659,7 @@ dependencies = [
 [[package]]
 name = "ink_prelude"
 version = "6.0.0-alpha"
-source = "git+https://github.com/use-ink/ink?branch=master#a84db624fdd1fde338cf6bb6b505757274d399ec"
+source = "git+https://github.com/use-ink/ink?branch=master#5620a09de79a9d4786059e3e4a513ded1b8fc4a8"
 dependencies = [
  "cfg-if",
 ]
@@ -3696,7 +3695,7 @@ dependencies = [
 [[package]]
 name = "ink_primitives"
 version = "6.0.0-alpha"
-source = "git+https://github.com/use-ink/ink?branch=master#a84db624fdd1fde338cf6bb6b505757274d399ec"
+source = "git+https://github.com/use-ink/ink?branch=master#5620a09de79a9d4786059e3e4a513ded1b8fc4a8"
 dependencies = [
  "alloy-sol-types 1.0.0",
  "cfg-if",
