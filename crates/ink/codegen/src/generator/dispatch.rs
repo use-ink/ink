@@ -14,15 +14,6 @@
 
 use core::iter;
 
-use crate::{
-    generator,
-    generator::solidity::{
-        solidity_call_type_ident,
-        solidity_selector,
-        solidity_selector_id,
-    },
-    GenerateCode,
-};
 use derive_more::From;
 use ir::{
     Callable,
@@ -43,6 +34,18 @@ use quote::{
 use syn::{
     spanned::Spanned as _,
     LitInt,
+};
+
+#[cfg(any(ink_abi = "sol", ink_abi = "all"))]
+use crate::generator::solidity::{
+    solidity_call_signature,
+    solidity_call_type_ident,
+    solidity_selector,
+    solidity_selector_id,
+};
+use crate::{
+    generator,
+    GenerateCode,
 };
 
 /// A message to be dispatched.
@@ -92,6 +95,10 @@ impl GenerateCode for Dispatch<'_> {
         let message_decoder_type = self.generate_message_decoder_type(&messages);
         let entry_points = self.generate_entry_points(&constructors, &messages);
 
+        #[cfg(not(any(ink_abi = "sol", ink_abi = "all")))]
+        let solidity_call_info = quote!();
+
+        #[cfg(any(ink_abi = "sol", ink_abi = "all"))]
         let solidity_call_info = self.generate_solidity_call_info();
 
         quote! {
@@ -135,6 +142,7 @@ impl Dispatch<'_> {
     ///
     /// See [`MessageDispatchable`]
     fn compose_messages_with_ids(&self) -> Vec<MessageDispatchable> {
+        #[cfg(not(ink_abi = "sol"))]
         let storage_ident = self.contract.module().storage().ident();
         self.contract
             .module()
@@ -145,7 +153,8 @@ impl Dispatch<'_> {
             .flat_map(|(trait_path, message)| {
                 let mut message_dispatchables = Vec::new();
 
-                if self.contract.config().abi().is_ink() {
+                #[cfg(not(ink_abi = "sol"))]
+                {
                     let span = message.span();
                     let id = if let Some(trait_path) = trait_path {
                         let local_id = message.local_id().hex_padded_suffixed();
@@ -170,9 +179,11 @@ impl Dispatch<'_> {
                     message_dispatchables.push(MessageDispatchable { message, id });
                 }
 
-                if self.contract.config().abi().is_solidity() {
+                #[cfg(any(ink_abi = "sol", ink_abi = "all"))]
+                {
                     let id = solidity_selector_id(&message);
                     message_dispatchables.push(MessageDispatchable { message, id });
+                    let _ = trait_path; // removes unused warning.
                 }
 
                 message_dispatchables
@@ -253,9 +264,9 @@ impl Dispatch<'_> {
     ///
     /// These trait implementations store relevant dispatch information for every
     /// dispatchable ink! message of the ink! smart contract.
+    #[allow(clippy::vec_init_then_push)]
     fn generate_dispatchable_message_infos(&self) -> TokenStream2 {
         let span = self.contract.module().storage().span();
-        let abi = self.contract.config().abi();
 
         let inherent_message_infos = self
             .contract
@@ -265,13 +276,13 @@ impl Dispatch<'_> {
             .flat_map(|item_impl| item_impl.iter_messages())
             .flat_map(|message| {
                 let mut message_infos = Vec::new();
-                if abi.is_ink() {
-                    message_infos
-                        .push(self.dispatchable_inherent_message_infos(&message));
-                }
-                if abi.is_solidity() {
-                    message_infos.push(self.solidity_message_info(&message, None));
-                }
+
+                #[cfg(not(ink_abi = "sol"))]
+                message_infos.push(self.dispatchable_inherent_message_infos(&message));
+
+                #[cfg(any(ink_abi = "sol", ink_abi = "all"))]
+                message_infos.push(self.solidity_message_info(&message, None));
+
                 message_infos
             });
         let trait_message_infos = self
@@ -291,13 +302,14 @@ impl Dispatch<'_> {
             .flatten()
             .flat_map(|((trait_ident, trait_path), message)| {
                 let mut message_infos = Vec::new();
-                if abi.is_ink() {
-                   message_infos.push(self.dispatchable_trait_message_infos(&message, trait_ident, trait_path));
-                }
-                if abi.is_solidity() {
-                    // NOTE: Solidity selectors are always computed from the call signature and input types.
-                    message_infos.push(self.solidity_message_info(&message, Some((trait_ident, trait_path))));
-                }
+
+                #[cfg(not(ink_abi = "sol"))]
+                message_infos.push(self.dispatchable_trait_message_infos(&message, trait_ident, trait_path));
+
+                // NOTE: Solidity selectors are always computed from the call signature and input types.
+                #[cfg(any(ink_abi = "sol", ink_abi = "all"))]
+                message_infos.push(self.solidity_message_info(&message, Some((trait_ident, trait_path))));
+
                 message_infos
             });
         quote_spanned!(span=>
@@ -310,6 +322,7 @@ impl Dispatch<'_> {
     ///
     /// These trait implementations store relevant dispatch information for every
     /// inherent dispatchable ink! message of the ink! smart contract.
+    #[cfg(not(ink_abi = "sol"))]
     fn dispatchable_inherent_message_infos(
         &self,
         message: &CallableWithSelector<Message>,
@@ -379,6 +392,7 @@ impl Dispatch<'_> {
     ///
     /// These trait implementations store relevant dispatch information for every
     /// trait implementation dispatchable ink! message of the ink! smart contract.
+    #[cfg(not(ink_abi = "sol"))]
     fn dispatchable_trait_message_infos(
         &self,
         message: &CallableWithSelector<Message>,
@@ -455,6 +469,7 @@ impl Dispatch<'_> {
 
     /// Generate code for [`ink::DispatchableMessageInfo`] trait implementations for
     /// Solidity ABI compatible calls.
+    #[cfg(any(ink_abi = "sol", ink_abi = "all"))]
     fn solidity_message_info(
         &self,
         message: &CallableWithSelector<Message>,
@@ -1153,55 +1168,41 @@ impl Dispatch<'_> {
     }
 
     /// Generates code for Solidity call info types for dispatchable ink! messages.
+    #[cfg(any(ink_abi = "sol", ink_abi = "all"))]
     fn generate_solidity_call_info(&self) -> TokenStream2 {
-        if self.contract.config().abi().is_solidity() {
-            let span = self.contract.module().span();
-            let call_tys = self
-                .contract
-                .module()
-                .impls()
-                .flat_map(|item_impl| item_impl.iter_messages())
-                .map(|message| {
-                    let span = message.span();
-                    let ident = message.ident();
-                    let ident_str = ident.to_string();
-                    let call_type_ident = solidity_call_type_ident(&message);
+        let span = self.contract.module().span();
+        let call_tys = self
+            .contract
+            .module()
+            .impls()
+            .flat_map(|item_impl| item_impl.iter_messages())
+            .map(|message| {
+                let span = message.span();
+                let ident = message.ident();
+                let ident_str = ident.to_string();
+                let call_type_ident = solidity_call_type_ident(&message);
+                let signature = solidity_call_signature(ident_str, message.inputs());
 
-                    // Solidity call signature parts.
-                    let sig_param_tys = message.inputs().map(|input| {
-                        let ty = &*input.ty;
-                        let span = input.span();
-                        quote_spanned!(span=>
-                            <#ty as ::ink::SolDecode>::SOL_NAME
-                        )
-                    });
-                    let input_types_len = generator::input_types(message.inputs()).len();
-                    let sig_arg_fmt_params = (0..input_types_len).map(|_| "{}").collect::<Vec<_>>().join(",");
-                    let sig_fmt_lit = format!("{{}}({})", sig_arg_fmt_params);
+                quote_spanned!(span=>
+                    pub struct #call_type_ident;
 
-                    quote_spanned!(span=>
-                        pub struct #call_type_ident;
+                    const _: () = {
+                        impl #call_type_ident {
+                            pub const SIGNATURE: &'static ::core::primitive::str = #signature;
+                            pub const SELECTOR: [::core::primitive::u8; 4usize] = ::ink::codegen::sol_selector_bytes(Self::SIGNATURE);
+                            pub const SELECTOR_ID: ::core::primitive::u32 = ::core::primitive::u32::from_be_bytes(Self::SELECTOR);
+                        }
+                    };
+                )
+            });
+        quote_spanned!(span=>
+            #[allow(non_camel_case_types)]
+            mod __ink_sol_interop__ {
+                #[allow(unused)]
+                use super::*;
 
-                        const _: () = {
-                            impl #call_type_ident {
-                                pub const SIGNATURE: &'static ::core::primitive::str = ::ink::codegen::const_format!(#sig_fmt_lit, #ident_str #(,#sig_param_tys)*);
-                                pub const SELECTOR: [::core::primitive::u8; 4usize] = ::ink::codegen::sol_selector_bytes(Self::SIGNATURE);
-                                pub const SELECTOR_ID: ::core::primitive::u32 = ::core::primitive::u32::from_be_bytes(Self::SELECTOR);
-                            }
-                        };
-                    )
-                });
-            quote_spanned!(span=>
-                #[allow(non_camel_case_types)]
-                mod __ink_sol_interop__ {
-                    #[allow(unused)]
-                    use super::*;
-
-                    #(#call_tys)*
-                }
-            )
-        } else {
-            quote!()
-        }
+                #(#call_tys)*
+            }
+        )
     }
 }
