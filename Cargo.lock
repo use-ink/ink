@@ -1595,7 +1595,8 @@ checksum = "cd7e35aee659887cbfb97aaf227ac12cad1a9d7c71e55ff3376839ed4e282d08"
 [[package]]
 name = "contract-build"
 version = "6.0.0-alpha"
-source = "git+https://github.com/use-ink/cargo-contract?branch=master#7abd30690cb598395ad12679e79f7aca12beb7f9"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "edadc38f3acb8b83376ba481462d1bf7b887f8ce73cc7df240899920b52e6389"
 dependencies = [
  "alloy-json-abi 0.8.25",
  "anyhow",
@@ -1610,7 +1611,7 @@ dependencies = [
  "heck",
  "hex",
  "impl-serde",
- "ink_metadata 6.0.0-alpha (git+https://github.com/use-ink/ink?branch=master)",
+ "ink_metadata 6.0.0-alpha (registry+https://github.com/rust-lang/crates.io-index)",
  "itertools 0.13.0",
  "parity-scale-codec",
  "polkavm-linker 0.22.0",
@@ -1637,7 +1638,8 @@ dependencies = [
 [[package]]
 name = "contract-metadata"
 version = "6.0.0-alpha"
-source = "git+https://github.com/use-ink/cargo-contract?branch=master#7abd30690cb598395ad12679e79f7aca12beb7f9"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "45b64cc8e8418f796b14ed26c6f460304c937259e26f39f28ffc26df58a6312a"
 dependencies = [
  "anyhow",
  "impl-serde",
@@ -3636,13 +3638,13 @@ dependencies = [
 [[package]]
 name = "ink_metadata"
 version = "6.0.0-alpha"
-source = "git+https://github.com/use-ink/ink?branch=master#a84db624fdd1fde338cf6bb6b505757274d399ec"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "aa6834afae7c46316787699f8647357c6dd77c7e85d32088f61d326e42d8a3a6"
 dependencies = [
  "derive_more 2.0.1",
  "impl-serde",
- "ink_prelude 6.0.0-alpha (git+https://github.com/use-ink/ink?branch=master)",
- "ink_primitives 6.0.0-alpha (git+https://github.com/use-ink/ink?branch=master)",
- "linkme",
+ "ink_prelude 6.0.0-alpha (registry+https://github.com/rust-lang/crates.io-index)",
+ "ink_primitives 6.0.0-alpha (registry+https://github.com/rust-lang/crates.io-index)",
  "parity-scale-codec",
  "scale-info",
  "schemars",
@@ -3659,7 +3661,8 @@ dependencies = [
 [[package]]
 name = "ink_prelude"
 version = "6.0.0-alpha"
-source = "git+https://github.com/use-ink/ink?branch=master#a84db624fdd1fde338cf6bb6b505757274d399ec"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c3f17dd75acf3e30e36b2ffe87f7b11e30e808b09ebfe39408d2fed78c53de3c"
 dependencies = [
  "cfg-if",
 ]
@@ -3695,13 +3698,14 @@ dependencies = [
 [[package]]
 name = "ink_primitives"
 version = "6.0.0-alpha"
-source = "git+https://github.com/use-ink/ink?branch=master#a84db624fdd1fde338cf6bb6b505757274d399ec"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "17a3ec41989815c27b52e7f653e7f9d6560e34d3708dd2f410b5fd7fd952ce34"
 dependencies = [
  "alloy-sol-types 1.0.0",
  "cfg-if",
  "derive_more 2.0.1",
  "impl-trait-for-tuples",
- "ink_prelude 6.0.0-alpha (git+https://github.com/use-ink/ink?branch=master)",
+ "ink_prelude 6.0.0-alpha (registry+https://github.com/rust-lang/crates.io-index)",
  "itertools 0.14.0",
  "num-traits",
  "pallet-revive",
