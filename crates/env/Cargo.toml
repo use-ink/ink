@@ -20,7 +20,6 @@ ink_allocator = { workspace = true }
 ink_storage_traits = { workspace = true }
 ink_prelude = { workspace = true }
 ink_primitives = { workspace = true }
-ink_macro = { workspace = true }
 pallet-revive-uapi = { workspace = true }
 
 scale = { workspace = true, features = ["max-encoded-len"] }
@@ -74,7 +73,6 @@ std = [
     "ink_primitives/std",
     "ink_storage_traits/std",
     "ink_engine/std",
-    "ink_macro/std",
     "scale/std",
     "scale-decode",
     "scale-encode",
