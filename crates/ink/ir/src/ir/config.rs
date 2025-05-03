@@ -29,8 +29,6 @@ pub struct Config {
     /// be used to change the underlying environmental types of an ink! smart
     /// contract.
     env: Option<Environment>,
-    /// todo: docs
-    abi: Abi,
     /// The set of attributes that can be passed to call builder in the codegen.
     whitelisted_attributes: WhitelistedAttributes,
 }
@@ -41,7 +39,6 @@ impl TryFrom<ast::AttributeArgs> for Config {
     fn try_from(args: ast::AttributeArgs) -> Result<Self, Self::Error> {
         let mut env: Option<(Environment, ast::MetaNameValue)> = None;
         let mut whitelisted_attributes = WhitelistedAttributes::default();
-        let mut abi: Option<(Abi, ast::MetaNameValue)> = None;
 
         for arg in args.into_iter() {
             if arg.name().is_ident("env") {
@@ -57,32 +54,6 @@ impl TryFrom<ast::AttributeArgs> for Config {
                     return Err(format_err_spanned!(
                         arg,
                         "expected a path value for `env` ink! configuration argument",
-                    ));
-                }
-            } else if arg.name().is_ident("abi") {
-                if let Some((_, ast)) = abi {
-                    return Err(duplicate_config_err(ast, arg, "abi", "contract"));
-                }
-                let encoding = arg
-                    .name_value()
-                    .zip(arg.value().and_then(ast::MetaValue::as_string));
-                if let Some((name_value, path)) = encoding {
-                    let encoding = match path.as_str() {
-                        "ink" => Abi::Ink,
-                        "solidity" | "sol" => Abi::Solidity,
-                        "all" => Abi::All,
-                        _ => {
-                            return Err(format_err_spanned!(
-                                arg,
-                                "expected one of `ink`, `sol` or `all` for `abi` ink! configuration argument",
-                            ));
-                        }
-                    };
-                    abi = Some((encoding, name_value.clone()))
-                } else {
-                    return Err(format_err_spanned!(
-                        arg,
-                        "expected a string literal value for `abi` ink! configuration argument",
                     ));
                 }
             } else if arg.name().is_ident("keep_attr") {
@@ -103,7 +74,6 @@ impl TryFrom<ast::AttributeArgs> for Config {
         }
         Ok(Config {
             env: env.map(|(value, _)| value),
-            abi: abi.map_or(Abi::default(), |(encoding, _)| encoding),
             whitelisted_attributes,
         })
     }
@@ -119,10 +89,6 @@ impl Config {
             .map(|env| &env.path)
             .cloned()
             .unwrap_or(Environment::default().path)
-    }
-
-    pub fn abi(&self) -> &Abi {
-        &self.abi
     }
 
     /// Return set of attributes that can be passed to call builder in the codegen.
@@ -205,7 +171,6 @@ mod tests {
                     path: syn::parse_quote! { ::my::env::Types },
                 }),
                 whitelisted_attributes: Default::default(),
-                abi: Default::default(),
             }),
         )
     }
@@ -256,7 +221,6 @@ mod tests {
             },
             Ok(Config {
                 env: None,
-                abi: Default::default(),
                 whitelisted_attributes: attrs,
             }),
         )
@@ -275,60 +239,6 @@ mod tests {
         assert_try_from(
             syn::parse_quote! { keep_attr },
             Err("expected a string literal value for `keep_attr` ink! configuration argument"),
-        );
-    }
-
-    #[test]
-    fn abi_works() {
-        assert_try_from(
-            syn::parse_quote! {
-                abi = "ink"
-            },
-            Ok(Config {
-                env: None,
-                abi: Abi::Ink,
-                whitelisted_attributes: Default::default(),
-            }),
-        );
-        assert_try_from(
-            syn::parse_quote! {
-                abi = "sol"
-            },
-            Ok(Config {
-                env: None,
-                abi: Abi::Solidity,
-                whitelisted_attributes: Default::default(),
-            }),
-        );
-        assert_try_from(
-            syn::parse_quote! {
-                abi = "all"
-            },
-            Ok(Config {
-                env: None,
-                abi: Abi::All,
-                whitelisted_attributes: Default::default(),
-            }),
-        );
-    }
-
-    #[test]
-    fn abi_invalid_value_fails() {
-        assert_try_from(
-            syn::parse_quote! { abi = "move" },
-            Err("expected one of `ink`, `sol` or `all` for `abi` ink! configuration argument"),
-        );
-        assert_try_from(
-            syn::parse_quote! { abi = 1u8 },
-            Err("expected a string literal value for `abi` ink! configuration argument"),
-        );
-    }
-
-    #[test]
-    fn abi_missing_value_fails() {
-        assert_try_from(
-            syn::parse_quote! { abi },
-            Err("expected a string literal value for `abi` ink! configuration argument"),
         );
     }
 }
