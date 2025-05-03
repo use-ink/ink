@@ -1,6 +1,6 @@
 #![allow(unexpected_cfgs)]
 
-#[ink::contract(abi = "sol")]
+#[ink::contract]
 mod contract {
     #[ink(storage)]
     pub struct Contract {}
