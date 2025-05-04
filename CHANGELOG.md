@@ -214,12 +214,12 @@ As before, it functions as a simple local development node.
 It contains `pallet-revive` in a default configuration.
 You can find binary releases of the node [here](https://github.com/use-ink/ink-node/releases).
 
-## Changed
+### Changed
 - Restrict which `cfg` attributes can be used ‒ [#2313](https://github.com/use-ink/ink/pull/2313)
 - More idiomatic return types for metadata getters - [#2398](https://github.com/use-ink/ink/pull/2398)
 - Define static distributed events slice in `ink` crate - [#2487](https://github.com/use-ink/ink/pull/2487)
 
-## Added
+### Added
 - Support for `caller_is_root` - [#2332](https://github.com/use-ink/ink/pull/2332)
 - Allow setting features for contract build in E2E tests - [#2460](https://github.com/use-ink/ink/pull/2460)
 - Improve support for Solidity ABI calling conventions - [#2411](https://github.com/use-ink/ink/pull/2411)
@@ -228,7 +228,7 @@ You can find binary releases of the node [here](https://github.com/use-ink/ink-n
 - Documentation for contract abi arg and provided Rust/ink! to Solidity type mappings - [2463](https://github.com/use-ink/ink/pull/2463)
 - Implement `SolDecode`, `SolTypeDecode` and support `SolBytes` for boxed slices - [2476](https://github.com/use-ink/ink/pull/2476)
 
-## Fixed
+### Fixed
 - [E2E] Have port parsing handle comma-separated list ‒ [#2336](https://github.com/use-ink/ink/pull/2336)
 - Always use ink! ABI/ SCALE codec for constructor and instantiation related builders and utilities - [#2474](https://github.com/use-ink/ink/pull/2474)
 - Get rid of "extrinsic for call failed: Pallet error: Revive::AccountAlreadyMapped" - [2483](https://github.com/use-ink/ink/pull/2483)
