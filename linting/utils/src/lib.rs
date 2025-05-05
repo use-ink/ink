@@ -35,6 +35,11 @@ pub use parity_clippy_utils as clippy;
 use clippy::match_def_path;
 use if_chain::if_chain;
 use rustc_hir::{
+    def::DefKind,
+    def_id::{
+        DefId,
+        LOCAL_CRATE,
+    },
     ExprKind,
     HirId,
     ItemId,
@@ -45,10 +50,38 @@ use rustc_hir::{
     TyKind,
 };
 use rustc_lint::LateContext;
+use rustc_middle::ty::{
+    fast_reject::SimplifiedType,
+    TyCtxt,
+};
+
+/// Returns `DefId` of the `__ink_StorageMarker` marker trait (if any).
+///
+/// # Developer Note
+///
+/// In ink! 6.0.0, our code generation implements the marker trait `__ink_StorageMarker`
+/// for the `#[ink(storage)]` annotated `struct`.
+///
+/// This marker trait can be used to find the ink! storage struct.
+///
+/// This approach is similar to Rust's use of [marker][rust-markers] traits
+/// to express that a type satisfies some property.
+///
+/// [rust-markers]: https://doc.rust-lang.org/std/marker/index.html
+fn storage_marker_trait(tcx: TyCtxt) -> Option<&DefId> {
+    tcx.traits(LOCAL_CRATE).iter().find(|trait_def_id| {
+        tcx.item_name(**trait_def_id).as_str() == "__ink_StorageMarker"
+    })
+}
 
 /// Returns `true` iff the ink storage attribute is defined for the given HIR
 ///
 /// # Developer Note
+///
+/// **IMPORTANT**: The description below doesn't apply to ink! 6.0.0,
+/// because this mechanism is now replaced with the more idiomatic approach
+/// of using a "marker" trait to identify the ink! storage `struct`
+/// (see [`storage_marker_trait`] for details).
 ///
 /// In ink! 5.0.0 our code generation added the annotation
 /// `#[cfg(not(feature = "__ink_dylint_Storage"))] to contracts. This
@@ -74,20 +107,55 @@ fn has_storage_attr(cx: &LateContext, hir: HirId) -> bool {
     attrs.contains(INK_STORAGE_1) || attrs.contains(INK_STORAGE_2)
 }
 
+/// Returns `DefId` of the `struct` annotated with `#[ink(storage)]` (if any).
+///
+/// See [`storage_marker_trait`].
+pub fn find_storage_struct_def(tcx: TyCtxt) -> Option<&DefId> {
+    let storage_marker_trait_id = storage_marker_trait(tcx)?;
+    let storage_marker_impls = tcx
+        .trait_impls_of(storage_marker_trait_id)
+        .non_blanket_impls();
+    debug_assert_eq!(
+        storage_marker_impls.len(),
+        1,
+        "Expected exactly one implementation of the `__ink_StorageMarker` marker trait"
+    );
+    let (storage_ty, _) = storage_marker_impls.first()?;
+    let SimplifiedType::Adt(adt_def_id) = storage_ty else {
+        return None;
+    };
+    matches!(tcx.def_kind(adt_def_id), DefKind::Struct).then_some(adt_def_id)
+}
+
 /// Returns `ItemId` of the structure annotated with `#[ink(storage)]`
 pub fn find_storage_struct(cx: &LateContext, item_ids: &[ItemId]) -> Option<ItemId> {
-    item_ids
-        .iter()
-        .find(|&item_id| {
-            let item = cx.tcx.hir_item(*item_id);
-            if_chain! {
-                if has_storage_attr(cx, item.hir_id());
-                if let ItemKind::Struct(..) = item.kind;
-                then { true } else { false }
-
+    let tcx = cx.tcx;
+    // Finds storage item using `__ink_StorageMarker` marker trait for ink! 6.0.0
+    // (see [`storage_marker_trait`] for details).
+    let storage_item_id = find_storage_struct_def(tcx)
+        .and_then(|def_id| def_id.as_local())
+        .map(|local_def_id| tcx.local_def_id_to_hir_id(local_def_id))
+        .map(|hir_id| {
+            // See `Item::hir_id` for reverse operation.
+            ItemId {
+                owner_id: hir_id.owner,
             }
-        })
-        .copied()
+        });
+    storage_item_id.or_else(|| {
+        // Fallback for ink! 5.0.0 (see [`has_storage_attr`] for details).
+        item_ids
+            .iter()
+            .find(|&item_id| {
+                let item = cx.tcx.hir_item(*item_id);
+                if_chain! {
+                    if has_storage_attr(cx, item.hir_id());
+                    if let ItemKind::Struct(..) = item.kind;
+                    then { true } else { false }
+
+                }
+            })
+            .copied()
+    })
 }
 
 /// Returns `ItemId`s defined inside the code block of `const _: () = {}`.

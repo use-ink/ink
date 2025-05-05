@@ -81,13 +81,16 @@ impl Storage<'_> {
     ///
     /// # Developer Note
     ///
-    /// The `fortanix` config attribute is used here to convey the
-    /// information that the generated struct is an ink! storage struct to `dylint`.
+    /// The `__ink_StorageMarker` trait marks the generated `struct` as an ink! storage
+    /// `struct`.
     ///
-    /// We decided on this attribute to mark the function, as it has to be a
-    /// key-value pair that is well known to `cargo`. `fortanix` seems like an obscure
-    /// vendor, for  which it is highly unlikely that someone will ever compile
-    /// a contract for.
+    /// This marker trait can be used to find the ink! storage struct during code analysis
+    /// stages of the compilation pipeline (e.g. in the `ink_linting` infrastructure).
+    ///
+    /// This approach is similar to Rust's use of [marker][rust-markers] traits
+    /// to express that a type satisfies some property.
+    ///
+    /// [rust-markers]: https://doc.rust-lang.org/std/marker/index.html
     fn generate_storage_struct(&self) -> TokenStream2 {
         let storage = self.contract.module().storage();
         let span = storage.span();
@@ -99,7 +102,6 @@ impl Storage<'_> {
             #(#attrs)*
             #[::ink::storage_item]
             #[cfg_attr(test, derive(::core::fmt::Debug))]
-            #[cfg(not(target_vendor = "fortanix"))]
             pub struct #ident #generics {
                 #( #fields ),*
             }
@@ -108,6 +110,10 @@ impl Storage<'_> {
                 impl ::ink::reflect::ContractName for #ident {
                     const NAME: &'static str = ::core::stringify!(#ident);
                 }
+
+                #[allow(non_camel_case_types)]
+                trait __ink_StorageMarker {}
+                impl __ink_StorageMarker for #ident {}
             };
         )
     }
