@@ -556,6 +556,7 @@ jobs:
         with:
           # Run all tests with --all-features, which will run the `e2e-tests` feature if present.
           command: |
+            ls -la /usr/local/bin/
             scripts/for_all_contracts_exec.sh --path integration-tests --ignore internal/static-buffer --ignore internal/mapping \
             --ignore public/debugging-strategies --ignore public/wildcard-selector --partition ${{ matrix.partition }}/4 -- \
             cargo test --all-features --manifest-path {}
