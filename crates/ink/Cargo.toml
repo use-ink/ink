@@ -3,7 +3,7 @@ name = "ink"
 version.workspace = true
 authors = ["Use Ink <ink@use.ink>"]
 edition.workspace = true
-rust-version = "1.63"
+rust-version = "1.85"
 
 license.workspace = true
 readme = "README.md"
