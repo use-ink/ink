@@ -113,7 +113,7 @@ impl Default for Environment {
 }
 
 /// ABI spec for encoding/decoding contract calls.
-#[derive(Debug, Clone, PartialEq, Eq, Default)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub enum Abi {
     /// ink! ABI spec (the default, uses the SCALE codec for input/output encode/decode).
     #[default]
