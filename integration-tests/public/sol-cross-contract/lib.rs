@@ -3,7 +3,7 @@
 
 #![cfg_attr(not(feature = "std"), no_std, no_main)]
 
-#[ink::contract(abi = "sol")]
+#[ink::contract]
 mod sol_cross_contract {
     use crate::keccak_selector;
     use ink::{

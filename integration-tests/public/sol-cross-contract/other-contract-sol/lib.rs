@@ -5,7 +5,7 @@ pub use self::other_contract::{
     OtherContractRef,
 };
 
-#[ink::contract(abi = "sol")]
+#[ink::contract]
 mod other_contract {
 
     #[ink(storage)]
