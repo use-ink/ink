@@ -371,49 +371,77 @@ impl CallBuilder<'_> {
             output.map_or_else(|| quote! { () }, |output| quote! { #output });
         let input_bindings = generator::input_bindings(message.inputs());
         let input_types = generator::input_types(message.inputs());
-        // TODO (@peterwht): handle traits with Solidity encoding (see message_builder as
-        // well)
-        let encoding_strategy = quote!(::ink::reflect::ScaleEncoding);
-        let arg_list = generator::generate_argument_list(
-            input_types.iter().cloned(),
-            encoding_strategy.clone(),
-        );
         let mut_tok = message.mutates().then(|| quote! { mut });
         let cfg_attrs = message.get_cfg_attrs(span);
-        quote_spanned!(span =>
-            #[allow(clippy::type_complexity)]
-            #( #cfg_attrs )*
-            type #output_ident = ::ink::env::call::CallBuilder<
-                Self::Env,
-                ::ink::env::call::utils::Set< ::ink::env::call::Call >,
-                ::ink::env::call::utils::Set< ::ink::env::call::ExecutionInput<#arg_list, #encoding_strategy> >,
-                ::ink::env::call::utils::Set< ::ink::env::call::utils::ReturnType<#output_type> >,
-            >;
 
-            #( #attrs )*
-            #[inline]
-            fn #message_ident(
-                & #mut_tok self
-                #( , #input_bindings : #input_types )*
-            ) -> Self::#output_ident {
-                <::ink::env::call::CallBuilder<
-                    Self::Env,
-                    ::ink::env::call::utils::Unset< ::ink::env::call::Call >,
-                    ::ink::env::call::utils::Set< ::ink::env::call::ExecutionInput<#arg_list, #encoding_strategy> >,
-                    ::ink::env::call::utils::Set< ::ink::env::call::utils::ReturnType<#output_type> >,
-                > as ::core::convert::From::<_>>::from(
-                    <<Self as ::ink::codegen::TraitMessageBuilder>::MessageBuilder as #trait_ident>
-                        ::#message_ident(
-                            & #mut_tok <<Self
-                                as ::ink::codegen::TraitMessageBuilder>::MessageBuilder
-                                as ::core::default::Default>::default()
-                            #(
-                                , #input_bindings
-                            )*
+        let mut call_builders = Vec::new();
+
+        let generate_builder =
+            |message_ident: &syn::Ident, encoding_strategy: TokenStream2| {
+                let arg_list = generator::generate_argument_list(
+                    input_types.iter().cloned(),
+                    encoding_strategy.clone(),
+                );
+                quote_spanned!(span =>
+                    #[allow(clippy::type_complexity)]
+                    #( #cfg_attrs )*
+                    type #output_ident = ::ink::env::call::CallBuilder<
+                        Self::Env,
+                        ::ink::env::call::utils::Set< ::ink::env::call::Call >,
+                        ::ink::env::call::utils::Set< ::ink::env::call::ExecutionInput<#arg_list, #encoding_strategy> >,
+                        ::ink::env::call::utils::Set< ::ink::env::call::utils::ReturnType<#output_type> >,
+                    >;
+
+                    #( #attrs )*
+                    #[inline]
+                    fn #message_ident(
+                        & #mut_tok self
+                        #( , #input_bindings : #input_types )*
+                    ) -> Self::#output_ident {
+                        <::ink::env::call::CallBuilder<
+                            Self::Env,
+                            ::ink::env::call::utils::Unset< ::ink::env::call::Call >,
+                            ::ink::env::call::utils::Set< ::ink::env::call::ExecutionInput<#arg_list, #encoding_strategy> >,
+                            ::ink::env::call::utils::Set< ::ink::env::call::utils::ReturnType<#output_type> >,
+                        > as ::core::convert::From::<_>>::from(
+                            <<Self as ::ink::codegen::TraitMessageBuilder>::MessageBuilder as #trait_ident>
+                                ::#message_ident(
+                                    & #mut_tok <<Self
+                                        as ::ink::codegen::TraitMessageBuilder>::MessageBuilder
+                                        as ::core::default::Default>::default()
+                                    #(
+                                        , #input_bindings
+                                    )*
+                                )
                         )
+                            .call(::ink::ToAddr::to_addr(self))
+                    }
                 )
-                    .call(::ink::ToAddr::to_addr(self))
-            }
+            };
+
+        #[cfg(not(ink_abi = "sol"))]
+        {
+            let call_builder =
+                generate_builder(message_ident, quote!(::ink::reflect::ScaleEncoding));
+            call_builders.push(call_builder);
+        }
+
+        #[cfg(any(ink_abi = "sol", ink_abi = "all"))]
+        {
+            // If ABI is "all", we generate a second message signature with a "_sol"
+            // postfix. Otherwise, we use the same name.
+            let sol_message_ident = if cfg!(ink_abi = "all") {
+                quote::format_ident!("{}_sol", message_ident)
+            } else {
+                message_ident.clone()
+            };
+            let call_builder =
+                generate_builder(&sol_message_ident, quote!(::ink::reflect::SolEncoding));
+            call_builders.push(call_builder);
+        }
+
+        quote_spanned!(span=>
+            #( #call_builders )*
         )
     }
 }

@@ -40,6 +40,9 @@ use syn::{
     spanned::Spanned,
 };
 
+#[cfg(any(ink_abi = "sol", ink_abi = "all"))]
+use crate::generator::sol;
+
 impl TraitDefinition<'_> {
     /// Generates the code for the global trait registry implementation.
     ///
@@ -328,23 +331,56 @@ impl TraitRegistry<'_> {
     fn generate_info_for_trait_for_message(
         &self,
         message: &ir::InkTraitMessage,
-        selector: ir::Selector,
+        #[allow(unused)] selector: ir::Selector,
     ) -> TokenStream2 {
         let span = message.span();
         let trait_info_ident = self.trait_def.trait_info_ident();
-        let local_id = message.local_id();
-        let selector_bytes = selector.hex_lits();
         let is_payable = message.ink_attrs().is_payable();
-        // TODO: (@davidsemakula) generate Solidity selectors when spec for determining
-        // trait definition ABI is finalized.
-        // NOTE: This doesn't affect call decoding because the selector is computed
-        // directly from the implementation signature.
-        quote_spanned!(span=>
-            impl<E> ::ink::reflect::TraitMessageInfo<#local_id> for #trait_info_ident<E> {
-                const PAYABLE: ::core::primitive::bool = #is_payable;
 
-                const SELECTOR: [::core::primitive::u8; 4usize] = [ #( #selector_bytes ),* ];
-            }
+        let mut trait_message_infos = Vec::new();
+
+        #[cfg(not(ink_abi = "sol"))]
+        {
+            let local_id = message.local_id();
+            let selector_bytes = selector.hex_lits();
+
+            trait_message_infos.push(
+                quote_spanned!(span=>
+                    impl<E> ::ink::reflect::TraitMessageInfo<#local_id> for #trait_info_ident<E> {
+                        const PAYABLE: ::core::primitive::bool = #is_payable;
+
+                        const SELECTOR: [::core::primitive::u8; 4usize] = [ #( #selector_bytes ),* ];
+                    }
+                )
+            );
+        }
+
+        #[cfg(any(ink_abi = "sol", ink_abi = "all"))]
+        {
+            let ident_str = message.ident().to_string();
+            let signature = sol::utils::call_signature(ident_str, message.inputs());
+            let selector_bytes = quote! {
+                ::ink::codegen::sol_selector_bytes(#signature)
+            };
+            let selector_id = quote!(
+                {
+                    ::core::primitive::u32::from_be_bytes(#selector_bytes)
+                }
+            );
+
+            trait_message_infos.push(
+                quote_spanned!(span=>
+                    impl<E> ::ink::reflect::TraitMessageInfo<#selector_id> for #trait_info_ident<E> {
+                        const PAYABLE: ::core::primitive::bool = #is_payable;
+
+                        const SELECTOR: [::core::primitive::u8; 4usize] = #selector_bytes;
+                    }
+                )
+            );
+        }
+
+        quote_spanned!(span=>
+            #( #trait_message_infos )*
         )
     }
 }
