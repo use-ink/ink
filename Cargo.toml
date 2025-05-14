@@ -56,8 +56,8 @@ quickcheck = { version = "1" }
 quickcheck_macros = { version = "1" }
 quote = { version = "1" }
 scale = { package = "parity-scale-codec", version = "3.7.4", default-features = false, features = ["derive"] }
-scale-decode = { version = "0.14.0", default-features = false }
-scale-encode = { version = "0.8.0", default-features = false }
+scale-decode = { version = "0.16.0", default-features = false }
+scale-encode = { version = "0.10.0", default-features = false }
 scale-info = { version = "2.11", default-features = false }
 schemars = { version = "0.8" }
 secp256k1 = { version = "0.30.0" }
@@ -66,9 +66,9 @@ serde_json = { version = "1.0.137" }
 sha2 = { version = "0.10" }
 sha3 = { version = "0.10" }
 static_assertions = { version = "1.1" }
-subxt = { version = "0.38" }
-subxt-metadata = { version = "0.38" }
-subxt-signer = { version = "0.38" }
+subxt = { version = "0.42.1" }
+subxt-metadata = { version = "0.42.1" }
+subxt-signer = { version = "0.42.1" }
 syn = { version = "2" }
 synstructure = { version = "0.13.1" }
 thiserror = { version = "2.0.11" }

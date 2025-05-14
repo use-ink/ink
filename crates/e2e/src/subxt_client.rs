@@ -87,6 +87,7 @@ use subxt::{
     config::{
         DefaultExtrinsicParams,
         ExtrinsicParams,
+        HashFor,
     },
     error::DispatchError,
     events::EventDetails,
@@ -890,7 +891,7 @@ impl<E: Environment, V, C: subxt::Config> CallResult<E, V, ExtrinsicEvents<C>> {
         &self,
     ) -> Result<Vec<EventWithTopics<events::ContractEmitted>>, subxt::Error>
     where
-        C::Hash: Into<sp_core::H256>,
+        HashFor<C>: Into<sp_core::H256>,
     {
         let mut events_with_topics = Vec::new();
         for event in self.events.iter() {

@@ -48,6 +48,7 @@ use subxt::{
         DefaultExtrinsicParams,
         DefaultExtrinsicParamsBuilder,
         ExtrinsicParams,
+        HashFor,
         Header,
     },
     ext::{
@@ -56,7 +57,7 @@ use subxt::{
     },
     tx::{
         Signer,
-        SubmittableExtrinsic,
+        SubmittableTransaction,
         TxStatus,
     },
     OnlineClient,
@@ -308,7 +309,7 @@ where
         &self,
         call: &Call,
         signer: &Keypair,
-    ) -> SubmittableExtrinsic<C, OnlineClient<C>>
+    ) -> SubmittableTransaction<C, OnlineClient<C>>
     where
         Call: subxt::tx::Payload,
     {
@@ -325,10 +326,11 @@ where
             .build();
         self.client
             .tx()
-            .create_signed_offline(call, signer, params.into())
+            .create_partial_offline(call, params.into())
             .unwrap_or_else(|err| {
                 panic!("error on call `create_signed_with_nonce`: {err:?}");
             })
+            .sign(signer)
     }
 
     /// Sign and submit an extrinsic with the given call payload.
@@ -404,9 +406,9 @@ where
     /// todo
     pub async fn trace(
         &self,
-        block_hash: C::Hash,
-        extrinsic_hash: Option<C::Hash>,
-        parent_hash: C::Hash,
+        block_hash: HashFor<C>,
+        extrinsic_hash: Option<HashFor<C>>,
+        parent_hash: HashFor<C>,
         extrinsic: Option<Vec<u8>>,
     ) -> Option<CallTrace> {
         // todo move below to its own function
@@ -435,7 +437,8 @@ where
                     .cloned()
                     .enumerate()
                     .find_map(|(index, ext)| {
-                        let hash_ext = Transaction::<C>::from_bytes(ext.0).hash();
+                        let hash_ext = Transaction::<C>::from_bytes(ext.0)
+                            .hash_with(self.client.hasher());
                         if hash_ext == hash {
                             return Some(index);
                         }
@@ -475,7 +478,7 @@ where
     }
 
     /// Return the hash of the *best* block
-    pub async fn best_block(&self) -> C::Hash {
+    pub async fn best_block(&self) -> HashFor<C> {
         self.rpc
             .chain_get_block_hash(None)
             .await
