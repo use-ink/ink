@@ -218,6 +218,7 @@ You can find binary releases of the node [here](https://github.com/use-ink/ink-n
 - Restrict which `cfg` attributes can be used ‒ [#2313](https://github.com/use-ink/ink/pull/2313)
 - More idiomatic return types for metadata getters - [#2398](https://github.com/use-ink/ink/pull/2398)
 - Define static distributed events slice in `ink` crate - [#2487](https://github.com/use-ink/ink/pull/2487)
+- [E2E] Update `subxt` dependencies ‒ [#2504](https://github.com/use-ink/ink/pull/2504)
 
 ### Added
 - Support for `caller_is_root` - [#2332](https://github.com/use-ink/ink/pull/2332)
