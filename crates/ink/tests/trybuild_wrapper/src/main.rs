@@ -20,12 +20,16 @@
 //!
 //! `trybuild` sets compiler flags using CLI config overrides (i.e. `--config=build.rustflags=[...]`
 //! and similar) which take precedence over `RUSTFLAGS` (and similar) env vars.
-//! It also doesn't provide an interface for passing extra `rustc` flags to ui tests.
+//!
+//! `trybuild` also doesn't provide an interface for passing extra `rustc` flags to ui tests,
+//! and there's some reason to believe that its maintainer considers such an interface to be
+//! out of scope (see https://github.com/dtolnay/trybuild/issues/183 and
+//! https://github.com/dtolnay/trybuild/issues/108).
 //!
 //! # Usage
 //!
 //! - Extra `rustc` flags are specified via the `TRYBUILD_WRAPPER_ENCODED_FLAGS` env var.
-//! - `CARGO` env var should be set to this binary.
+//! - `CARGO` env var should be set to this binary (allows us to pass extra `rustc` flags to cargo).
 //! - Original `CARGO` env var (if any), should be specified via the `TRYBUILD_WRAPPER_CARGO`
 //!
 //! ```shell
