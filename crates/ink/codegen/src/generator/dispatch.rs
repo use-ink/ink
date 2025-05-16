@@ -264,7 +264,7 @@ impl Dispatch<'_> {
     ///
     /// These trait implementations store relevant dispatch information for every
     /// dispatchable ink! message of the ink! smart contract.
-    #[allow(clippy::vec_init_then_push)]
+    #[allow(clippy::vec_init_then_push)] // due to ABI conditional push to `message_infos` vec.
     fn generate_dispatchable_message_infos(&self) -> TokenStream2 {
         let span = self.contract.module().storage().span();
 
