@@ -73,7 +73,7 @@ use serde::{
 ///
 /// The serialized metadata format (which this represents) is different from the
 /// version of this crate or the contract for Rust semantic versioning purposes.
-const METADATA_VERSION: u64 = 5;
+const METADATA_VERSION: u64 = 6;
 
 /// An entire ink! project for metadata file generation purposes.
 #[derive(Debug, Serialize, Deserialize, JsonSchema)]
