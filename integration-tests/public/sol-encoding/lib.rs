@@ -2,7 +2,7 @@
 
 #![cfg_attr(not(feature = "std"), no_std, no_main)]
 
-#[ink::contract(abi = "sol")]
+#[ink::contract]
 mod sol_encoding {
     #[ink(storage)]
     #[derive(Default)]

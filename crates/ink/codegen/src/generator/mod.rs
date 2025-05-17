@@ -38,6 +38,7 @@ mod ink_test;
 mod item_impls;
 mod metadata;
 mod selector;
+#[cfg(any(ink_abi = "sol", ink_abi = "all"))]
 mod solidity;
 mod storage;
 mod storage_item;

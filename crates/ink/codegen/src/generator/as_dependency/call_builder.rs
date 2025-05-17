@@ -12,11 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::{
-    generator,
-    generator::solidity::solidity_selector,
-    GenerateCode,
-};
 use derive_more::From;
 use ir::Callable;
 use proc_macro2::TokenStream as TokenStream2;
@@ -26,6 +21,13 @@ use quote::{
     quote_spanned,
 };
 use syn::spanned::Spanned as _;
+
+#[cfg(any(ink_abi = "sol", ink_abi = "all"))]
+use crate::generator::solidity::solidity_selector;
+use crate::{
+    generator,
+    GenerateCode,
+};
 
 /// Generates code for the call builder of the ink! smart contract.
 ///
@@ -324,12 +326,11 @@ impl CallBuilder<'_> {
     /// This does not provide implementations for ink! constructors as they
     /// do not have a short-hand notations as their messages counterparts.
     fn generate_call_builder_inherent_impls(&self) -> TokenStream2 {
-        let abi = self.contract.config().abi();
         self.contract
             .module()
             .impls()
             .filter(|impl_block| impl_block.trait_path().is_none())
-            .map(|impl_block| self.generate_call_builder_inherent_impl(impl_block, abi))
+            .map(|impl_block| self.generate_call_builder_inherent_impl(impl_block))
             .collect()
     }
 
@@ -343,13 +344,12 @@ impl CallBuilder<'_> {
     fn generate_call_builder_inherent_impl(
         &self,
         impl_block: &ir::ItemImpl,
-        abi: &ir::Abi,
     ) -> TokenStream2 {
         let span = impl_block.span();
         let cb_ident = Self::call_builder_ident();
-        let messages = impl_block.iter_messages().map(|message| {
-            self.generate_call_builder_inherent_impl_for_message(message, abi)
-        });
+        let messages = impl_block
+            .iter_messages()
+            .map(|message| self.generate_call_builder_inherent_impl_for_message(message));
         quote_spanned!(span=>
             impl #cb_ident {
                 #( #messages )*
@@ -366,7 +366,6 @@ impl CallBuilder<'_> {
     fn generate_call_builder_inherent_impl_for_message(
         &self,
         message: ir::CallableWithSelector<ir::Message>,
-        abi: &ir::Abi,
     ) -> TokenStream2 {
         let span = message.span();
         let callable = message.callable();
@@ -386,7 +385,9 @@ impl CallBuilder<'_> {
         let output_span = return_type.span();
 
         let mut call_builders = Vec::new();
-        if abi.is_ink() {
+
+        #[cfg(not(ink_abi = "sol"))]
+        {
             let selector = message.composed_selector();
             let selector_bytes = selector.hex_lits();
             let arg_list = generator::generate_argument_list(
@@ -426,10 +427,11 @@ impl CallBuilder<'_> {
             call_builders.push(call_builder);
         }
 
-        if abi.is_solidity() {
+        #[cfg(any(ink_abi = "sol", ink_abi = "all"))]
+        {
             // If ABI is all, we generate a second message signature with a "_sol"
             // postfix. Otherwise, we use the same name.
-            let sol_message_ident = if abi.is_all() {
+            let sol_message_ident = if cfg!(ink_abi = "all") {
                 format_ident!("{}_sol", message_ident)
             } else {
                 message_ident.clone()

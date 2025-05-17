@@ -6,7 +6,7 @@ pub trait TraitDefinition {
     fn message(&self);
 }
 
-#[ink::contract(abi = "sol")]
+#[ink::contract]
 pub mod contract {
     use super::TraitDefinition;
 
