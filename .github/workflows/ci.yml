@@ -558,8 +558,8 @@ jobs:
           command: |
             scripts/for_all_contracts_exec.sh --path integration-tests --ignore internal/static-buffer \
             --ignore internal/mapping --ignore public/debugging-strategies --ignore public/wildcard-selector \
-            --ignore public/sol-cross-contract --ignore public/sol-encoding --ignore public/solidity-calls-flipper \
-            --partition ${{ matrix.partition }}/4 -- \
+            --ignore solidity-abi/sol-cross-contract --ignore solidity-abi/sol-encoding \
+            --ignore solidity-abi/solidity-calls-flipper --partition ${{ matrix.partition }}/4 -- \
             cargo contract test --all-features --manifest-path {}
 
   examples-test-mapping:
@@ -688,9 +688,9 @@ jobs:
             cargo clean --manifest-path integration-tests/internal/static-buffer/Cargo.toml
             INK_STATIC_BUFFER_SIZE=32 cargo contract test --manifest-path integration-tests/internal/static-buffer/Cargo.toml --all-features
 
-  # NOTE: Sharing build artifacts (i.e. via a shared cargo target-dir) with other tests
+  # NOTE: Sharing build artifacts (i.e. via a shared cargo target directory) with other tests
   # that don't have the `ink_abi="sol"` `cfg` option set makes the Solidity ABI tests fail.
-  examples-solidity-abi:
+  examples-test-solidity-abi:
     runs-on: ubuntu-latest
     needs: ci-image
     steps:
@@ -706,23 +706,12 @@ jobs:
           cache-directories: ${{ github.workspace }}/${{ env.CARGO_TARGET_DIR }}
           cache-on-failure: true
 
-      - name: Test sol-cross-contract Example
+      - name: Test Solidity ABI Examples
         uses: ./.github/run-container-command
         with:
           command: |
-            cargo contract test --all-features --manifest-path integration-tests/public/sol-cross-contract/Cargo.toml
-
-      - name: Test sol-encoding Example
-        uses: ./.github/run-container-command
-        with:
-          command: |
-            cargo contract test --all-features --manifest-path integration-tests/public/sol-encoding/Cargo.toml
-
-      - name: Test solidity-calls-flipper Example
-        uses: ./.github/run-container-command
-        with:
-          command: |
-            cargo contract test --all-features --manifest-path integration-tests/public/solidity-calls-flipper/Cargo.toml
+            scripts/for_all_contracts_exec.sh --path integration-tests/solidity-abi -- \
+            cargo contract test --all-features --manifest-path {}
 
   examples-contract-build-riscv:
     runs-on: ubuntu-latest
