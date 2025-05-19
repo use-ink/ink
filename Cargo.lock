@@ -1595,7 +1595,7 @@ checksum = "cd7e35aee659887cbfb97aaf227ac12cad1a9d7c71e55ff3376839ed4e282d08"
 [[package]]
 name = "contract-build"
 version = "6.0.0-alpha.1"
-source = "git+https://github.com/use-ink/cargo-contract?branch=master#80b163a5c3f78056360a367e2e80f2f411e60f48"
+source = "git+https://github.com/use-ink/cargo-contract?branch=master#6edcbd6da4d9ca04ca13b730d7f38548d55f4ff1"
 dependencies = [
  "alloy-json-abi 0.8.25",
  "anyhow",
@@ -1637,7 +1637,7 @@ dependencies = [
 [[package]]
 name = "contract-metadata"
 version = "6.0.0-alpha"
-source = "git+https://github.com/use-ink/cargo-contract?branch=master#80b163a5c3f78056360a367e2e80f2f411e60f48"
+source = "git+https://github.com/use-ink/cargo-contract?branch=master#6edcbd6da4d9ca04ca13b730d7f38548d55f4ff1"
 dependencies = [
  "anyhow",
  "impl-serde",
@@ -9467,13 +9467,12 @@ dependencies = [
 
 [[package]]
 name = "zip"
-version = "2.5.0"
+version = "3.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "27c03817464f64e23f6f37574b4fdc8cf65925b5bfd2b0f2aedf959791941f88"
+checksum = "12598812502ed0105f607f941c386f43d441e00148fce9dec3ca5ffb0bde9308"
 dependencies = [
  "arbitrary",
  "crc32fast",
- "crossbeam-utils",
  "indexmap 2.8.0",
  "memchr",
 ]

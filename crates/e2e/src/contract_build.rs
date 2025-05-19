@@ -12,21 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::log_info;
-use contract_build::{
-    BuildArtifacts,
-    BuildMode,
-    ExecuteArgs,
-    Features,
-    ImageVariant,
-    ManifestPath,
-    MetadataSpec,
-    Network,
-    OutputType,
-    UnstableFlags,
-    Verbosity,
-};
-use itertools::Itertools;
 use std::{
     collections::{
         hash_map::Entry,
@@ -43,6 +28,26 @@ use std::{
     },
 };
 
+use contract_build::{
+    package_abi,
+    util::rustc_wrapper,
+    Abi,
+    BuildArtifacts,
+    BuildMode,
+    ExecuteArgs,
+    Features,
+    ImageVariant,
+    ManifestPath,
+    MetadataSpec,
+    Network,
+    OutputType,
+    UnstableFlags,
+    Verbosity,
+};
+use itertools::Itertools;
+
+use crate::log_info;
+
 /// Builds the "root" contract (the contract in which the E2E tests are defined) together
 /// with any contracts which are a dependency of the root contract.
 ///
@@ -50,6 +55,16 @@ use std::{
 pub fn build_root_and_contract_dependencies(features: Vec<String>) -> Vec<PathBuf> {
     let contract_project = ContractProject::new();
     let contract_manifests = contract_project.root_with_contract_dependencies();
+    if contract_project.package_abi.is_some() {
+        // Generates a custom `rustc` wrapper which passes compiler flags to `rustc`,
+        // because `cargo` doesn't pass compiler flags to proc macros and build
+        // scripts when the `--target` flag is set.
+        // See `contract_build::util::rustc_wrapper::generate` docs for details.
+        if let Ok(rustc_wrapper) = rustc_wrapper::generate(&contract_project.target_dir) {
+            // SAFETY: The `rustc` wrapper is safe to reuse across all threads.
+            env::set_var("INK_RUSTC_WRAPPER", rustc_wrapper);
+        }
+    }
     build_contracts(&contract_manifests, features)
 }
 
@@ -58,15 +73,18 @@ pub fn build_root_and_contract_dependencies(features: Vec<String>) -> Vec<PathBu
 struct ContractProject {
     root_package: Option<PathBuf>,
     contract_dependencies: Vec<PathBuf>,
+    package_abi: Option<Abi>,
+    target_dir: PathBuf,
 }
 
 impl ContractProject {
     fn new() -> Self {
         let mut cmd = cargo_metadata::MetadataCommand::new();
-        if let Some(target_dir) = env::var_os("CARGO_TARGET_DIR")
-            .filter(|target_dir| Path::new(&target_dir).is_absolute())
-        {
-            cmd.env("CARGO_TARGET_DIR", &target_dir);
+        let env_target_dir = env::var_os("CARGO_TARGET_DIR")
+            .map(|target_dir| PathBuf::from(target_dir))
+            .filter(|target_dir| target_dir.is_absolute());
+        if let Some(target_dir) = env_target_dir.as_ref() {
+            cmd.env("CARGO_TARGET_DIR", target_dir);
         }
         let metadata = cmd
             .exec()
@@ -102,14 +120,26 @@ impl ContractProject {
             .iter()
             .filter_map(maybe_contract_package)
             .collect();
-
         log_info(&format!(
             "found those contract dependencies: {:?}",
             contract_dependencies
         ));
+
+        let package_abi = metadata
+            .root_package()
+            .and_then(|package| package_abi(package))
+            .and_then(Result::ok);
+        log_info(&format!("found root package abi: {:?}", package_abi));
+
+        let target_dir = env_target_dir
+            .unwrap_or_else(|| metadata.target_directory.into_std_path_buf());
+        log_info(&format!("found target dir: {:?}", target_dir));
+
         Self {
             root_package,
             contract_dependencies,
+            package_abi,
+            target_dir,
         }
     }
 
