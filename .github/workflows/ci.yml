@@ -556,9 +556,11 @@ jobs:
         with:
           # Run all tests with --all-features, which will run the `e2e-tests` feature if present.
           command: |
-            scripts/for_all_contracts_exec.sh --path integration-tests --ignore internal/static-buffer --ignore internal/mapping \
-            --ignore public/debugging-strategies --ignore public/wildcard-selector --partition ${{ matrix.partition }}/4 -- \
-            cargo test --all-features --manifest-path {}
+            scripts/for_all_contracts_exec.sh --path integration-tests --ignore internal/static-buffer \
+            --ignore internal/mapping --ignore public/debugging-strategies --ignore public/wildcard-selector \
+            --ignore solidity-abi/sol-cross-contract --ignore solidity-abi/sol-encoding \
+            --ignore solidity-abi/solidity-calls-flipper --partition ${{ matrix.partition }}/4 -- \
+            cargo contract test --all-features --manifest-path {}
 
   examples-test-mapping:
     runs-on: ubuntu-latest
@@ -585,7 +587,7 @@ jobs:
               INK_STATIC_BUFFER_SIZE: 256
           with:
             command: |
-                cargo test --all-features --manifest-path integration-tests/internal/mapping/Cargo.toml
+                cargo contract test --all-features --manifest-path integration-tests/internal/mapping/Cargo.toml
 
   # TODO: (@davidsemakula) Add back to `examples-test` job when flakiness is fixed.
   examples-test-debugging-strategies:
@@ -608,7 +610,7 @@ jobs:
         uses: ./.github/run-container-command
         with:
           command: |
-            cargo test --all-features --manifest-path integration-tests/public/debugging-strategies/Cargo.toml
+            cargo contract test --all-features --manifest-path integration-tests/public/debugging-strategies/Cargo.toml
 
 
   # TODO: (@davidsemakula) Add back to `examples-test` job when flakiness is fixed.
@@ -632,7 +634,7 @@ jobs:
         uses: ./.github/run-container-command
         with:
           command: |
-            cargo test --all-features --manifest-path integration-tests/public/wildcard-selector/Cargo.toml
+            cargo contract test --all-features --manifest-path integration-tests/public/wildcard-selector/Cargo.toml
 
   examples-custom-test:
     runs-on: ubuntu-latest
@@ -666,7 +668,7 @@ jobs:
               --manifest-path integration-tests/public/flipper/Cargo.toml \
               --suri //Alice --args true -x -y --output-json | \
               jq -r .contract | xargs subkey inspect | grep -o "0x.*" | head -n1)
-            CONTRACTS_NODE_URL=ws://127.0.0.1:9944 cargo test \
+            CONTRACTS_NODE_URL=ws://127.0.0.1:9944 cargo contract test \
               --features e2e-tests \
               --manifest-path integration-tests/public/flipper/Cargo.toml \
               e2e_test_deployed_contract \
@@ -684,7 +686,32 @@ jobs:
             # the readme + test comments explain why `32`, in short because the tests write
             # content into the buffer and want to provoke an exhaustion of the buffer.
             cargo clean --manifest-path integration-tests/internal/static-buffer/Cargo.toml
-            INK_STATIC_BUFFER_SIZE=32 cargo test --manifest-path integration-tests/internal/static-buffer/Cargo.toml --all-features
+            INK_STATIC_BUFFER_SIZE=32 cargo contract test --manifest-path integration-tests/internal/static-buffer/Cargo.toml --all-features
+
+  # NOTE: Sharing build artifacts (i.e. via a shared cargo target directory) with other tests
+  # that don't have the `ink_abi="sol"` `cfg` option set makes the Solidity ABI tests fail.
+  examples-test-solidity-abi:
+    runs-on: ubuntu-latest
+    needs: ci-image
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Initialize runner
+        uses: ./.github/init
+        with:
+          cache: true
+          cache-directories: ${{ github.workspace }}/${{ env.CARGO_TARGET_DIR }}
+          cache-on-failure: true
+
+      - name: Test Solidity ABI Examples
+        uses: ./.github/run-container-command
+        with:
+          command: |
+            scripts/for_all_contracts_exec.sh --path integration-tests/solidity-abi -- \
+            cargo contract test --all-features --manifest-path {}
 
   examples-contract-build-riscv:
     runs-on: ubuntu-latest

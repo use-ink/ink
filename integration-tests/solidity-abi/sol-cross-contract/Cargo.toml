@@ -1,5 +1,5 @@
 [package]
-name = "flipper"
+name = "sol-cross-contract"
 version = "6.0.0-alpha"
 authors = ["Use Ink <ink@use.ink>"]
 edition = "2021"
@@ -10,9 +10,11 @@ ink = { path = "../../../crates/ink", default-features = false }
 sha3 = { version = "0.10", default-features = false }
 
 [dev-dependencies]
-ink_e2e = { path = "../../../crates/e2e" }
-hex = { version = "0.4.3" }
+ink_e2e = { path = "../../../crates/e2e", features = ["sandbox"] }
+ink_sandbox = { path = "../../../crates/e2e/sandbox" }
+pallet-revive = { version = "0.5.0", default-features = false }
 sha3 = { version = "0.10" }
+other-contract-sol = { path = "other-contract-sol" }
 
 [lib]
 path = "lib.rs"
@@ -21,6 +23,10 @@ path = "lib.rs"
 default = ["std"]
 std = [
     "ink/std",
+    "sha3/std"
 ]
 ink-as-dependency = []
 e2e-tests = []
+
+[package.metadata.ink-lang]
+abi = "sol"
