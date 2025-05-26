@@ -26,6 +26,7 @@ extern crate core;
 mod tests;
 
 pub mod layout;
+pub mod sol;
 mod specs;
 mod utils;
 
