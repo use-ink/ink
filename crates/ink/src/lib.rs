@@ -126,3 +126,21 @@ pub static CONTRACT_EVENTS: [fn() -> EventSpec] = [..];
 pub fn collect_events() -> Vec<EventSpec> {
     CONTRACT_EVENTS.iter().map(|event| event()).collect()
 }
+
+/// Any event whose parameters type implement `ink::SolDecode` and `ink::SolEncode`
+/// and is used in the contract binary will have its implementation added to this
+/// distributed slice at linking time.
+#[cfg(all(feature = "std", any(ink_abi = "sol", ink_abi = "all")))]
+#[linkme::distributed_slice]
+#[linkme(crate = linkme)]
+pub static CONTRACT_EVENTS_SOL: [fn() -> ink_metadata::sol::EventMetadata] = [..];
+
+/// Collect the Solidity ABI compatible metadata of all event definitions linked and used
+/// in the binary.
+#[cfg(all(feature = "std", any(ink_abi = "sol", ink_abi = "all")))]
+pub fn collect_events_sol() -> Vec<ink_metadata::sol::EventMetadata> {
+    crate::CONTRACT_EVENTS_SOL
+        .iter()
+        .map(|event| event())
+        .collect()
+}
