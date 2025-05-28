@@ -8,9 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - Support ABI `cfg` flag in codegen - [#2501](https://github.com/use-ink/ink/pull/2501)
+- Generate Solidity ABI compatibility metadata - [#2510](https://github.com/use-ink/ink/pull/2510)
 
 ### Changed
-
 - Use marker trait for finding ink! storage `struct` during code analysis - [2499](https://github.com/use-ink/ink/pull/2499)
 
 ### Fixed
