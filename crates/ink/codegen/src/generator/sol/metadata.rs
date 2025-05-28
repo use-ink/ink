@@ -28,7 +28,7 @@ use super::utils::{
 };
 use crate::GenerateCode;
 
-/// Generates code to generate the metadata of the contract.
+/// Generates code for generating Solidity ABI compatibility metadata for the contract.
 #[derive(From)]
 pub struct SolidityMetadata<'a> {
     /// The contract to generate code for.
