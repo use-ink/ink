@@ -559,7 +559,8 @@ jobs:
             scripts/for_all_contracts_exec.sh --path integration-tests --ignore internal/static-buffer \
             --ignore internal/mapping --ignore public/debugging-strategies --ignore public/wildcard-selector \
             --ignore solidity-abi/sol-cross-contract --ignore solidity-abi/sol-encoding \
-            --ignore solidity-abi/solidity-calls-flipper --partition ${{ matrix.partition }}/4 -- \
+            --ignore solidity-abi/solidity-calls-flipper --ignore solidity-abi/events \
+            --partition ${{ matrix.partition }}/4 -- \
             cargo contract test --all-features --manifest-path {}
 
   examples-test-mapping:
