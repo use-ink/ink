@@ -1,0 +1,20 @@
+[package]
+name = "event-def2"
+authors = ["Use Ink <ink@use.ink>"]
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+ink = { path = "../../../../crates/ink", default-features = false }
+
+[lib]
+path = "src/lib.rs"
+
+[features]
+default = ["std"]
+std = [
+    "ink/std",
+]
+
+[package.metadata.ink-lang]
+abi = "sol"

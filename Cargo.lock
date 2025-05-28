@@ -1595,7 +1595,7 @@ checksum = "cd7e35aee659887cbfb97aaf227ac12cad1a9d7c71e55ff3376839ed4e282d08"
 [[package]]
 name = "contract-build"
 version = "6.0.0-alpha.1"
-source = "git+https://github.com/use-ink/cargo-contract?branch=master#6edcbd6da4d9ca04ca13b730d7f38548d55f4ff1"
+source = "git+https://github.com/use-ink/cargo-contract?branch=master#f742baba08ee746ae137bc4f2fbf37befac7e560"
 dependencies = [
  "alloy-json-abi 0.8.25",
  "anyhow",
@@ -1637,7 +1637,7 @@ dependencies = [
 [[package]]
 name = "contract-metadata"
 version = "6.0.0-alpha"
-source = "git+https://github.com/use-ink/cargo-contract?branch=master#6edcbd6da4d9ca04ca13b730d7f38548d55f4ff1"
+source = "git+https://github.com/use-ink/cargo-contract?branch=master#f742baba08ee746ae137bc4f2fbf37befac7e560"
 dependencies = [
  "anyhow",
  "impl-serde",

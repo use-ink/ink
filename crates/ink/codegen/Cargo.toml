@@ -48,11 +48,10 @@ std = [
     "derive_more/std"
 ]
 
+# For the ui tests, which use this `Cargo.toml`
 [lints.rust.unexpected_cfgs]
 level = "warn"
 check-cfg = [
-    # For the ui tests, which use this `Cargo.toml`
     'cfg(feature, values(any()))',
-    # For ABI declaration.
     'cfg(ink_abi, values("ink", "sol", "all"))'
 ]

@@ -23,7 +23,7 @@ use quote::{
 use syn::spanned::Spanned as _;
 
 #[cfg(any(ink_abi = "sol", ink_abi = "all"))]
-use crate::generator::solidity::solidity_selector;
+use crate::generator::sol;
 use crate::{
     generator,
     GenerateCode,
@@ -436,7 +436,7 @@ impl CallBuilder<'_> {
             } else {
                 message_ident.clone()
             };
-            let selector_bytes = solidity_selector(&message);
+            let selector_bytes = sol::utils::selector(&message);
             let arg_list = generator::generate_argument_list(
                 input_types.iter().cloned(),
                 quote!(::ink::reflect::SolEncoding),

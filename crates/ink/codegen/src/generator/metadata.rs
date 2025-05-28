@@ -49,6 +49,9 @@ impl GenerateCode for Metadata<'_> {
         quote! {
             #[cfg(feature = "std")]
             #[cfg(not(feature = "ink-as-dependency"))]
+            // TODO: (@davidsemakula) Re-enable `cfg` gate when cargo contract is updated to use
+            // not use `scale_info::TypeInfo` for Solidity compatible metadata generation
+            //#[cfg(not(ink_abi = "sol"))]
             const _: () = {
                 #[no_mangle]
                 pub fn __ink_generate_metadata() -> ::ink::metadata::InkProject  {
