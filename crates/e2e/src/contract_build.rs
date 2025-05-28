@@ -38,7 +38,6 @@ use contract_build::{
     Features,
     ImageVariant,
     ManifestPath,
-    MetadataSpec,
     Network,
     OutputType,
     UnstableFlags,
@@ -221,7 +220,7 @@ fn build_contract(
         extra_lints: false,
         output_type: OutputType::HumanReadable,
         image: ImageVariant::Default,
-        metadata_spec: MetadataSpec::Ink,
+        metadata_spec: None,
     };
 
     match contract_build::execute(args) {
