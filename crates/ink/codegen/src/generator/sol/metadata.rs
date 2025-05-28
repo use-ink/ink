@@ -16,20 +16,17 @@ use derive_more::From;
 use ir::{
     Callable as _,
     InputsIter,
-    IsDocAttribute,
 };
 use itertools::Itertools;
 use proc_macro2::TokenStream as TokenStream2;
 use quote::quote;
-use syn::{
-    Attribute,
-    Pat,
-};
+use syn::Pat;
 
-use crate::{
-    generator::solidity::solidity_type,
-    GenerateCode,
+use super::utils::{
+    extract_docs,
+    sol_type,
 };
+use crate::GenerateCode;
 
 /// Generates code to generate the metadata of the contract.
 #[derive(From)]
@@ -109,7 +106,7 @@ impl SolidityMetadata<'_> {
                 let output = msg
                     .output()
                     .map(|ty| {
-                        let sol_ty = solidity_type(ty);
+                        let sol_ty = sol_type(ty);
                         quote! { ::core::option::Option::Some(#sol_ty) }
                     })
                     .unwrap_or_else(|| {
@@ -141,7 +138,7 @@ fn params_info(inputs: InputsIter) -> Vec<TokenStream2> {
     inputs
         .map(|input| {
             let ty = &*input.ty;
-            let sol_ty = solidity_type(ty);
+            let sol_ty = sol_type(ty);
             let ident = match &*input.pat {
                 Pat::Ident(ident) => &ident.ident,
                 _ => unreachable!("Expected an input identifier"),
@@ -155,13 +152,4 @@ fn params_info(inputs: InputsIter) -> Vec<TokenStream2> {
             }
         })
         .collect()
-}
-
-/// Returns the rustdoc string from the given item attributes.
-fn extract_docs(attrs: &[Attribute]) -> String {
-    attrs
-        .iter()
-        .filter_map(|attr| attr.extract_docs())
-        .collect::<Vec<_>>()
-        .join("\n")
 }

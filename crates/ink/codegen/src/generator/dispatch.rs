@@ -37,12 +37,7 @@ use syn::{
 };
 
 #[cfg(any(ink_abi = "sol", ink_abi = "all"))]
-use crate::generator::solidity::{
-    solidity_call_signature,
-    solidity_call_type_ident,
-    solidity_selector,
-    solidity_selector_id,
-};
+use crate::generator::sol;
 use crate::{
     generator,
     GenerateCode,
@@ -181,7 +176,7 @@ impl Dispatch<'_> {
 
                 #[cfg(any(ink_abi = "sol", ink_abi = "all"))]
                 {
-                    let id = solidity_selector_id(&message);
+                    let id = sol::utils::selector_id(&message);
                     message_dispatchables.push(MessageDispatchable { message, id });
                     let _ = trait_path; // removes unused warning.
                 }
@@ -490,8 +485,8 @@ impl Dispatch<'_> {
         let input_tuple_type = generator::input_types_tuple(message.inputs());
         let input_tuple_bindings = generator::input_bindings_tuple(message.inputs());
 
-        let selector_id = solidity_selector_id(message);
-        let selector_bytes = solidity_selector(message);
+        let selector_id = sol::utils::selector_id(message);
+        let selector_bytes = sol::utils::selector(message);
 
         let (call_prefix, label) = match trait_info {
             None => {
@@ -1180,8 +1175,8 @@ impl Dispatch<'_> {
                 let span = message.span();
                 let ident = message.ident();
                 let ident_str = ident.to_string();
-                let call_type_ident = solidity_call_type_ident(&message);
-                let signature = solidity_call_signature(ident_str, message.inputs());
+                let call_type_ident = sol::utils::call_info_type_ident(&message);
+                let signature = sol::utils::call_signature(ident_str, message.inputs());
 
                 quote_spanned!(span=>
                     pub struct #call_type_ident;

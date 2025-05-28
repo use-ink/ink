@@ -12,12 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-//! Utilities for Solidity ABI compatible codegen.
-
 use ir::{
     Callable,
     CallableWithSelector,
     InputsIter,
+    IsDocAttribute,
     Message,
 };
 use proc_macro2::{
@@ -31,39 +30,45 @@ use quote::{
 };
 use syn::{
     spanned::Spanned,
+    Attribute,
     Type,
 };
 
+/// Returns the equivalent Solidity ABI type for the given Rust/ink! type.
+pub fn sol_type(ty: &Type) -> TokenStream2 {
+    quote! {
+        <#ty as ::ink::SolDecode>::SOL_NAME
+    }
+}
+
 /// Returns Solidity ABI compatible selector of an ink! message.
-pub(crate) fn solidity_selector(message: &CallableWithSelector<Message>) -> TokenStream2 {
-    let call_type_ident = solidity_call_type_ident(message);
+pub fn selector(message: &CallableWithSelector<Message>) -> TokenStream2 {
+    let ident = call_info_type_ident(message);
     quote!(
         {
-            <__ink_sol_interop__::#call_type_ident>::SELECTOR
+            <__ink_sol_interop__::#ident>::SELECTOR
         }
     )
 }
 
 /// Returns a `u32` representation of the Solidity ABI compatible selector of an ink!
 /// message.
-pub(crate) fn solidity_selector_id(
-    message: &CallableWithSelector<Message>,
-) -> TokenStream2 {
-    let call_type_ident = solidity_call_type_ident(message);
+pub fn selector_id(message: &CallableWithSelector<Message>) -> TokenStream2 {
+    let ident = call_info_type_ident(message);
     quote!(
         {
-            <__ink_sol_interop__::#call_type_ident>::SELECTOR_ID
+            <__ink_sol_interop__::#ident>::SELECTOR_ID
         }
     )
 }
 
-/// Returns the Solidity call signature for the given message name and inputs.
-pub(crate) fn solidity_call_signature(name: String, inputs: InputsIter) -> TokenStream2 {
+/// Returns the Solidity ABI call signature for the given message name and inputs.
+pub fn call_signature(name: String, inputs: InputsIter) -> TokenStream2 {
     let mut input_types_len = 0;
     let sig_param_tys: Vec<_> = inputs
         .map(|input| {
             let ty = &*input.ty;
-            let sol_ty = solidity_type(ty);
+            let sol_ty = sol_type(ty);
             let span = input.span();
             input_types_len += 1;
 
@@ -82,16 +87,18 @@ pub(crate) fn solidity_call_signature(name: String, inputs: InputsIter) -> Token
     }
 }
 
-/// Returns the equivalent Solidity ABI type for the given Rust/ink! type.
-pub(crate) fn solidity_type(ty: &Type) -> TokenStream2 {
-    quote! {
-        <#ty as ::ink::SolDecode>::SOL_NAME
-    }
-}
-
 /// Returns the Solidity call info type identifier for an ink! message.
-pub(crate) fn solidity_call_type_ident(message: &CallableWithSelector<Message>) -> Ident {
+pub fn call_info_type_ident(message: &CallableWithSelector<Message>) -> Ident {
     let ident = message.ident();
     let id = message.composed_selector().into_be_u32();
     format_ident!("{ident}{id}Call")
+}
+
+/// Returns the rustdoc string from the given item attributes.
+pub fn extract_docs(attrs: &[Attribute]) -> String {
+    attrs
+        .iter()
+        .filter_map(|attr| attr.extract_docs())
+        .collect::<Vec<_>>()
+        .join("\n")
 }

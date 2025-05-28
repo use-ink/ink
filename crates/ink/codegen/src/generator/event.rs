@@ -22,8 +22,7 @@ use syn::spanned::Spanned;
 use syn::Fields;
 
 #[cfg(all(feature = "std", any(ink_abi = "sol", ink_abi = "all")))]
-use crate::generator::solidity::solidity_type;
-
+use crate::generator::sol;
 use crate::GenerateCode;
 
 /// Generates code for the event item.
@@ -82,11 +81,21 @@ impl Event<'_> {
         };
         let params = fields.named.iter().map(|field| {
             let ty = &field.ty;
-            let sol_ty = solidity_type(ty);
+            let sol_ty = sol::utils::sol_type(ty);
             let ident = field.ident.as_ref().expect("Expected a named field");
             let name = ident.to_string();
             let is_topic = field.attrs.iter().any(|attr| {
-                attr.path().is_ident("ink") && attr.meta.path().is_ident("topic")
+                let is_topic_arg = || {
+                    attr.parse_nested_meta(|meta| {
+                        if meta.path.is_ident("topic") {
+                            Ok(())
+                        } else {
+                            Err(meta.error("Not a topic arg"))
+                        }
+                    })
+                    .is_ok()
+                };
+                attr.path().is_ident("ink") && is_topic_arg()
             });
             let docs = field
                 .attrs
@@ -113,17 +122,19 @@ impl Event<'_> {
             .join("\n");
 
         quote! {
-            // Register Solidity ABI compatible metadata function for event in distributed slice
-            // for collecting all events referenced in the contract binary.
-            #[::ink::linkme::distributed_slice(::ink::CONTRACT_EVENTS_SOL)]
-            #[linkme(crate = ::ink::linkme)]
-            static SOLIDITY_EVENT_METADATA: fn() -> ::ink::metadata::sol::EventMetadata = || {
-                ::ink::metadata::sol::EventMetadata {
-                    name: #name,
-                    is_anonymous: #is_anonymous,
-                    params: vec![ #( #params ),* ],
-                    docs: #docs,
-                }
+            const _: () = {
+                // Register Solidity ABI compatible metadata function for event in distributed slice
+                // for collecting all events referenced in the contract binary.
+                #[::ink::linkme::distributed_slice(::ink::CONTRACT_EVENTS_SOL)]
+                #[linkme(crate = ::ink::linkme)]
+                static EVENT_METADATA_SOL: fn() -> ::ink::metadata::sol::EventMetadata = || {
+                    ::ink::metadata::sol::EventMetadata {
+                        name: #name,
+                        is_anonymous: #is_anonymous,
+                        params: vec![ #( #params ),* ],
+                        docs: #docs,
+                    }
+                };
             };
         }
     }
