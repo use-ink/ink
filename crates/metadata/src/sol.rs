@@ -26,8 +26,8 @@ use serde::{
 pub struct ContractMetadata {
     /// Name of ink! contract.
     pub name: Cow<'static, str>,
-    /// Metadata for default or first constructor of ink! contract.
-    pub constructor: ConstructorMetadata,
+    /// Metadata for all constructors of ink! contract.
+    pub constructors: Vec<ConstructorMetadata>,
     /// Metadata for all messages of ink! contract.
     pub functions: Vec<FunctionMetadata>,
     /// Metadata for all events of ink! contract.
