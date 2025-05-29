@@ -52,11 +52,11 @@ impl GenerateCode for SolidityMetadata<'_> {
                 #[no_mangle]
                 pub fn __ink_generate_solidity_metadata() -> ::ink::metadata::sol::ContractMetadata  {
                     ::ink::metadata::sol::ContractMetadata {
-                        name: #name,
+                        name: #name.into(),
                         constructor: #ctor,
                         functions: vec![ #( #msgs ),* ],
                         events: ::ink::collect_events_sol(),
-                        docs: #docs,
+                        docs: #docs.into(),
                     }
                 }
             };
@@ -84,11 +84,11 @@ impl SolidityMetadata<'_> {
 
         quote! {
             ::ink::metadata::sol::ConstructorMetadata {
-                name: #name,
+                name: #name.into(),
                 inputs: vec![ #( #inputs ),* ],
                 is_payable: #is_payable,
                 is_default: #is_default,
-                docs: #docs,
+                docs: #docs.into(),
             }
         }
     }
@@ -107,7 +107,7 @@ impl SolidityMetadata<'_> {
                     .output()
                     .map(|ty| {
                         let sol_ty = sol_type(ty);
-                        quote! { ::core::option::Option::Some(#sol_ty) }
+                        quote! { ::core::option::Option::Some(#sol_ty.into()) }
                     })
                     .unwrap_or_else(|| {
                         quote! { ::core::option::Option::None }
@@ -119,13 +119,13 @@ impl SolidityMetadata<'_> {
 
                 quote! {
                     ::ink::metadata::sol::FunctionMetadata {
-                        name: #name,
+                        name: #name.into(),
                         inputs: vec![ #( #inputs ),* ],
                         output: #output,
                         mutates: #mutates,
                         is_payable: #is_payable,
                         is_default: #is_default,
-                        docs: #docs,
+                        docs: #docs.into(),
                     }
                 }
             })
@@ -146,8 +146,8 @@ fn params_info(inputs: InputsIter) -> Vec<TokenStream2> {
             let name = ident.to_string();
             quote! {
                 ::ink::metadata::sol::ParamMetadata {
-                    name: #name,
-                    ty: #sol_ty,
+                    name: #name.into(),
+                    ty: #sol_ty.into(),
                 }
             }
         })

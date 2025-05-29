@@ -12,7 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-//! Types for representing Solidity ABI compatible metadata for ink! projects.
+//! Types for representing Solidity ABI compatibility metadata for ink! projects.
+
+use std::borrow::Cow;
 
 use serde::{
     Deserialize,
@@ -23,7 +25,7 @@ use serde::{
 #[derive(Debug, Serialize, Deserialize)]
 pub struct ContractMetadata {
     /// Name of ink! contract.
-    pub name: &'static str,
+    pub name: Cow<'static, str>,
     /// Metadata for default or first constructor of ink! contract.
     pub constructor: ConstructorMetadata,
     /// Metadata for all messages of ink! contract.
@@ -31,14 +33,14 @@ pub struct ContractMetadata {
     /// Metadata for all events of ink! contract.
     pub events: Vec<EventMetadata>,
     /// Documentation for ink! contract.
-    pub docs: &'static str,
+    pub docs: Cow<'static, str>,
 }
 
 /// ink! constructor info for Solidity ABI compatible metadata generation.
 #[derive(Debug, Serialize, Deserialize)]
 pub struct ConstructorMetadata {
     /// Name of ink! constructor.
-    pub name: &'static str,
+    pub name: Cow<'static, str>,
     /// Parameter info for ink! constructor.
     pub inputs: Vec<ParamMetadata>,
     /// Whether the ink! constructor is marked as payable.
@@ -46,18 +48,18 @@ pub struct ConstructorMetadata {
     /// Whether the ink! constructor is marked as default.
     pub is_default: bool,
     /// Documentation for ink! constructor.
-    pub docs: &'static str,
+    pub docs: Cow<'static, str>,
 }
 
 /// ink! message info for Solidity ABI compatible metadata generation.
 #[derive(Debug, Serialize, Deserialize)]
 pub struct FunctionMetadata {
     /// Name of ink! message.
-    pub name: &'static str,
+    pub name: Cow<'static, str>,
     /// Parameter info for ink! message.
     pub inputs: Vec<ParamMetadata>,
     /// Return type of ink! message.
-    pub output: Option<&'static str>,
+    pub output: Option<Cow<'static, str>>,
     /// Whether the ink! message has a mutable self receiver.
     pub mutates: bool,
     /// Whether the ink! message is marked as payable.
@@ -65,40 +67,40 @@ pub struct FunctionMetadata {
     /// Whether the ink! message is marked as default.
     pub is_default: bool,
     /// Documentation for ink! message.
-    pub docs: &'static str,
+    pub docs: Cow<'static, str>,
 }
 
 /// ink! event info for Solidity ABI compatible metadata generation.
 #[derive(Debug, Serialize, Deserialize)]
 pub struct EventMetadata {
     /// Name of ink! event.
-    pub name: &'static str,
+    pub name: Cow<'static, str>,
     /// Whether the ink! event is marked as anonymous.
     pub is_anonymous: bool,
     /// Parameter info for ink! event.
     pub params: Vec<EventParamMetadata>,
     /// Documentation for ink! event.
-    pub docs: &'static str,
+    pub docs: Cow<'static, str>,
 }
 
 /// ink! constructor and message parameter info.
 #[derive(Debug, Serialize, Deserialize)]
 pub struct ParamMetadata {
     /// Name of parameter.
-    pub name: &'static str,
+    pub name: Cow<'static, str>,
     /// Solidity ABI type of parameter.
-    pub ty: &'static str,
+    pub ty: Cow<'static, str>,
 }
 
 /// ink! event parameter info.
 #[derive(Debug, Serialize, Deserialize)]
 pub struct EventParamMetadata {
     /// Name of parameter.
-    pub name: &'static str,
+    pub name: Cow<'static, str>,
     /// Solidity ABI type of parameter.
-    pub ty: &'static str,
+    pub ty: Cow<'static, str>,
     /// Whether the parameter is marked as a topic (i.e. is indexed).
     pub is_topic: bool,
     /// Documentation for parameter.
-    pub docs: &'static str,
+    pub docs: Cow<'static, str>,
 }
