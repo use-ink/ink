@@ -17,7 +17,6 @@ use ir::{
     Callable as _,
     InputsIter,
 };
-use itertools::Itertools;
 use proc_macro2::TokenStream as TokenStream2;
 use quote::quote;
 use syn::Pat;
@@ -40,7 +39,7 @@ impl GenerateCode for SolidityMetadata<'_> {
     fn generate_code(&self) -> TokenStream2 {
         let ident = self.contract.module().storage().ident();
         let name = ident.to_string();
-        let ctor = self.constructor();
+        let ctors = self.constructors();
         let msgs = self.messages();
         let docs = extract_docs(self.contract.module().attrs());
 
@@ -52,11 +51,11 @@ impl GenerateCode for SolidityMetadata<'_> {
                 #[no_mangle]
                 pub fn __ink_generate_solidity_metadata() -> ::ink::metadata::sol::ContractMetadata  {
                     ::ink::metadata::sol::ContractMetadata {
-                        name: #name,
-                        constructor: #ctor,
+                        name: #name.into(),
+                        constructors: vec![ #( #ctors ),* ],
                         functions: vec![ #( #msgs ),* ],
                         events: ::ink::collect_events_sol(),
-                        docs: #docs,
+                        docs: #docs.into(),
                     }
                 }
             };
@@ -65,36 +64,34 @@ impl GenerateCode for SolidityMetadata<'_> {
 }
 
 impl SolidityMetadata<'_> {
-    /// Generates Solidity ABI compatible metadata for default or first ink! constructor.
-    fn constructor(&self) -> TokenStream2 {
-        let ctor = self
-            .contract
+    /// Generates Solidity ABI compatible metadata for all ink! constructors.
+    fn constructors(&self) -> impl Iterator<Item = TokenStream2> + '_ {
+        self.contract
             .module()
             .impls()
             .flat_map(|item_impl| item_impl.iter_constructors())
-            .find_or_first(|ctor| ctor.is_default())
-            .expect("Expected at least one constructor");
+            .map(|ctor| {
+                let ident = ctor.ident();
+                let name = ident.to_string();
+                let inputs = params_info(ctor.inputs());
+                let is_payable = ctor.is_payable();
+                let is_default = ctor.is_default();
+                let docs = extract_docs(ctor.attrs());
 
-        let ident = ctor.ident();
-        let name = ident.to_string();
-        let inputs = params_info(ctor.inputs());
-        let is_payable = ctor.is_payable();
-        let is_default = ctor.is_default();
-        let docs = extract_docs(ctor.attrs());
-
-        quote! {
-            ::ink::metadata::sol::ConstructorMetadata {
-                name: #name,
-                inputs: vec![ #( #inputs ),* ],
-                is_payable: #is_payable,
-                is_default: #is_default,
-                docs: #docs,
-            }
-        }
+                quote! {
+                    ::ink::metadata::sol::ConstructorMetadata {
+                        name: #name.into(),
+                        inputs: vec![ #( #inputs ),* ],
+                        is_payable: #is_payable,
+                        is_default: #is_default,
+                        docs: #docs.into(),
+                    }
+                }
+            })
     }
 
     /// Generates Solidity ABI compatible metadata for all ink! messages.
-    fn messages(&self) -> Vec<TokenStream2> {
+    fn messages(&self) -> impl Iterator<Item = TokenStream2> + '_ {
         self.contract
             .module()
             .impls()
@@ -107,7 +104,7 @@ impl SolidityMetadata<'_> {
                     .output()
                     .map(|ty| {
                         let sol_ty = sol_type(ty);
-                        quote! { ::core::option::Option::Some(#sol_ty) }
+                        quote! { ::core::option::Option::Some(#sol_ty.into()) }
                     })
                     .unwrap_or_else(|| {
                         quote! { ::core::option::Option::None }
@@ -119,37 +116,34 @@ impl SolidityMetadata<'_> {
 
                 quote! {
                     ::ink::metadata::sol::FunctionMetadata {
-                        name: #name,
+                        name: #name.into(),
                         inputs: vec![ #( #inputs ),* ],
                         output: #output,
                         mutates: #mutates,
                         is_payable: #is_payable,
                         is_default: #is_default,
-                        docs: #docs,
+                        docs: #docs.into(),
                     }
                 }
             })
-            .collect()
     }
 }
 
 /// Returns the Solidity ABI compatible parameter type and name for the given inputs.
-fn params_info(inputs: InputsIter) -> Vec<TokenStream2> {
-    inputs
-        .map(|input| {
-            let ty = &*input.ty;
-            let sol_ty = sol_type(ty);
-            let ident = match &*input.pat {
-                Pat::Ident(ident) => &ident.ident,
-                _ => unreachable!("Expected an input identifier"),
-            };
-            let name = ident.to_string();
-            quote! {
-                ::ink::metadata::sol::ParamMetadata {
-                    name: #name,
-                    ty: #sol_ty,
-                }
+fn params_info(inputs: InputsIter) -> impl Iterator<Item = TokenStream2> + '_ {
+    inputs.map(|input| {
+        let ty = &*input.ty;
+        let sol_ty = sol_type(ty);
+        let ident = match &*input.pat {
+            Pat::Ident(ident) => &ident.ident,
+            _ => unreachable!("Expected an input identifier"),
+        };
+        let name = ident.to_string();
+        quote! {
+            ::ink::metadata::sol::ParamMetadata {
+                name: #name.into(),
+                ty: #sol_ty.into(),
             }
-        })
-        .collect()
+        }
+    })
 }

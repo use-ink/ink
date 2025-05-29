@@ -106,10 +106,10 @@ impl Event<'_> {
 
             quote! {
                 ::ink::metadata::sol::EventParamMetadata {
-                    name: #name,
-                    ty: #sol_ty,
+                    name: #name.into(),
+                    ty: #sol_ty.into(),
                     is_topic: #is_topic,
-                    docs: #docs,
+                    docs: #docs.into(),
                 }
             }
         });
@@ -129,10 +129,10 @@ impl Event<'_> {
                 #[linkme(crate = ::ink::linkme)]
                 static EVENT_METADATA_SOL: fn() -> ::ink::metadata::sol::EventMetadata = || {
                     ::ink::metadata::sol::EventMetadata {
-                        name: #name,
+                        name: #name.into(),
                         is_anonymous: #is_anonymous,
                         params: vec![ #( #params ),* ],
-                        docs: #docs,
+                        docs: #docs.into(),
                     }
                 };
             };
