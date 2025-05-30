@@ -125,4 +125,22 @@
 <a href=#125 id=125 data-nosnippet>125</a></span><span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
 <a href=#126 id=126 data-nosnippet>126</a></span><span class="kw">pub fn </span>collect_events() -&gt; Vec&lt;EventSpec&gt; {
 <a href=#127 id=127 data-nosnippet>127</a>    CONTRACT_EVENTS.iter().map(|event| event()).collect()
-<a href=#128 id=128 data-nosnippet>128</a>}</code></pre></div></section></main></body></html>
+<a href=#128 id=128 data-nosnippet>128</a>}
+<a href=#129 id=129 data-nosnippet>129</a>
+<a href=#130 id=130 data-nosnippet>130</a><span class="doccomment">/// Any event whose parameters type implement `ink::SolDecode` and `ink::SolEncode`
+<a href=#131 id=131 data-nosnippet>131</a>/// and is used in the contract binary will have its implementation added to this
+<a href=#132 id=132 data-nosnippet>132</a>/// distributed slice at linking time.
+<a href=#133 id=133 data-nosnippet>133</a></span><span class="attr">#[cfg(all(feature = <span class="string">"std"</span>, any(ink_abi = <span class="string">"sol"</span>, ink_abi = <span class="string">"all"</span>)))]
+<a href=#134 id=134 data-nosnippet>134</a>#[linkme::distributed_slice]
+<a href=#135 id=135 data-nosnippet>135</a>#[linkme(<span class="kw">crate </span>= linkme)]
+<a href=#136 id=136 data-nosnippet>136</a></span><span class="kw">pub static </span>CONTRACT_EVENTS_SOL: [<span class="kw">fn</span>() -&gt; ink_metadata::sol::EventMetadata] = [..];
+<a href=#137 id=137 data-nosnippet>137</a>
+<a href=#138 id=138 data-nosnippet>138</a><span class="doccomment">/// Collect the Solidity ABI compatible metadata of all event definitions linked and used
+<a href=#139 id=139 data-nosnippet>139</a>/// in the binary.
+<a href=#140 id=140 data-nosnippet>140</a></span><span class="attr">#[cfg(all(feature = <span class="string">"std"</span>, any(ink_abi = <span class="string">"sol"</span>, ink_abi = <span class="string">"all"</span>)))]
+<a href=#141 id=141 data-nosnippet>141</a></span><span class="kw">pub fn </span>collect_events_sol() -&gt; Vec&lt;ink_metadata::sol::EventMetadata&gt; {
+<a href=#142 id=142 data-nosnippet>142</a>    <span class="kw">crate</span>::CONTRACT_EVENTS_SOL
+<a href=#143 id=143 data-nosnippet>143</a>        .iter()
+<a href=#144 id=144 data-nosnippet>144</a>        .map(|event| event())
+<a href=#145 id=145 data-nosnippet>145</a>        .collect()
+<a href=#146 id=146 data-nosnippet>146</a>}</code></pre></div></section></main></body></html>
