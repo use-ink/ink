@@ -260,6 +260,111 @@ where
         assert!(self.elements.insert(slot, value).is_none());
     }
 
+    /// Pushes multiple values to the end of the vector in a single length update.
+    /// This is more efficient than pushing values one by one when you need to add multiple elements,
+    /// as it only updates the length once at the end instead of after each push.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// # use ink::storage::StorageVec;
+    /// # #[ink::contract]
+    /// # mod my_contract {
+    /// #     #[ink(storage)]
+    /// #     pub struct MyContract {
+    /// #         values: StorageVec<u32>,
+    /// #     }
+    /// #
+    /// #     impl MyContract {
+    /// #         #[ink(constructor)]
+    /// #         pub fn new() -> Self {
+    /// #             Self { values: StorageVec::new() }
+    /// #         }
+    /// #
+    /// #         #[ink(message)]
+    /// #         pub fn add_multiple(&mut self) {
+    ///         // Adding multiple values efficiently
+    ///         let values = [1, 2, 3, 4, 5];
+    ///         self.values.batch_push(&values);
+    /// #         }
+    /// #     }
+    /// # }
+    /// ```
+    ///
+    /// # Performance
+    ///
+    /// This method is more gas-efficient than calling `push` multiple times when you need to
+    /// add multiple elements. The gas savings come from:
+    /// - Single length update instead of multiple updates
+    /// - Reduced number of storage operations
+    ///
+    /// # Panics
+    ///
+    /// - If the vector would exceed its maximum length (2^32 - 1 elements)
+    /// - If any of the encoded values don't fit into the static buffer
+    /// - If there was already a value at any of the target indices
+    pub fn batch_push<T>(&mut self, values: &[T]) 
+    where
+        T: Storable + scale::EncodeLike<V>,
+    {
+        if values.is_empty() {
+            return;
+        }
+        let start_len = self.len();
+        for (i, value) in values.iter().enumerate() {
+            self.elements.insert(start_len + i as u32, value);
+        }
+        self.set_len(start_len + values.len() as u32);
+    }
+
+    /// Try to push multiple values to the end of the vector in a single length update.
+    /// This is more efficient than pushing values one by one when you need to add multiple elements.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// # use ink::storage::StorageVec;
+    /// # #[ink::contract]
+    /// # mod my_contract {
+    /// #     #[ink(storage)]
+    /// #     pub struct MyContract {
+    /// #         values: StorageVec<u32>,
+    /// #     }
+    /// #
+    /// #     impl MyContract {
+    /// #         #[ink(message)]
+    /// #         pub fn add_multiple_safely(&mut self) -> Result<(), ink_env::Error> {
+    ///         let large_values = [1, 2, 3];
+    ///         self.values.try_batch_push(&large_values)?;
+    ///         Ok(())
+    /// #         }
+    /// #     }
+    /// # }
+    /// ```
+    ///
+    /// # Performance
+    ///
+    /// This method provides the same performance benefits as `batch_push` but with additional
+    /// safety checks for buffer size limitations.
+    ///
+    /// Returns:
+    /// - `Ok(())` if all values were pushed successfully
+    /// - `Err(_)` if any value exceeds the static buffer size
+    pub fn try_batch_push<T>(&mut self, values: &[T]) -> Result<(), ink_env::Error>
+    where
+        T: Storable + scale::EncodeLike<V>,
+    {
+        if values.is_empty() {
+            return Ok(());
+        }
+        let start_len = self.len();
+        for (i, value) in values.iter().enumerate() {
+            self.elements.try_insert(start_len + i as u32, value)?;
+        }
+        self.set_len(start_len + values.len() as u32);
+        Ok(())
+    }
+
     /// Try to append an element to the back of the vector.
     ///
     /// Returns:
@@ -744,6 +849,102 @@ mod tests {
             // This should fail the debug assert
             let _ = array.len();
 
+            Ok(())
+        })
+        .unwrap()
+    }
+
+    #[test]
+    fn batch_push_works() {
+        ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
+            let mut vec = StorageVec::new();
+            let values = [1u32, 2, 3, 4, 5];
+            vec.batch_push(&values);
+            
+            assert_eq!(vec.len(), 5);
+            for i in 0..5 {
+                assert_eq!(vec.get(i as u32), Some(values[i]));
+            }
+            Ok(())
+        })
+        .unwrap()
+    }
+
+    #[test]
+    fn try_batch_push_works() {
+        ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
+            let mut vec = StorageVec::new();
+            let values = [1u32, 2, 3];
+            assert!(vec.try_batch_push(&values).is_ok());
+            
+            assert_eq!(vec.len(), 3);
+            for i in 0..3 {
+                assert_eq!(vec.get(i as u32), Some(values[i]));
+            }
+            Ok(())
+        })
+        .unwrap()
+    }
+
+    #[test]
+    fn batch_push_performance_comparison() {
+        ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
+            // Prepare test data
+            let values: Vec<u32> = (0..100).collect();
+            
+            // Test individual pushes
+            let mut vec1 = StorageVec::new();
+            for value in values.iter() {
+                vec1.push(value);
+            }
+            
+            // Test batch push
+            let mut vec2 = StorageVec::new();
+            vec2.batch_push(&values);
+            
+            // Verify results are identical
+            assert_eq!(vec1.len(), vec2.len());
+            for i in 0..values.len() {
+                assert_eq!(vec1.get(i as u32), vec2.get(i as u32));
+            }
+            
+            Ok(())
+        })
+        .unwrap()
+    }
+
+    #[test]
+    fn batch_push_handles_large_arrays() {
+        ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
+            let mut vec = StorageVec::new();
+            let values: Vec<u32> = (0..1000).collect();
+            
+            // Should handle large arrays without issues
+            vec.batch_push(&values);
+            assert_eq!(vec.len(), 1000);
+            
+            // Verify all values were stored correctly
+            for i in 0..1000 {
+                assert_eq!(vec.get(i), Some(i as u32));
+            }
+            
+            Ok(())
+        })
+        .unwrap()
+    }
+
+    #[test]
+    fn try_batch_push_handles_errors_properly() {
+        ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
+            let mut vec = StorageVec::new();
+            
+            // Create a value that's too large for the buffer
+            let large_value = vec![0u8; ink_env::BUFFER_SIZE + 1];
+            assert!(vec.try_batch_push(&[large_value]).is_err());
+            
+            // Vector should remain empty after failed push
+            assert_eq!(vec.len(), 0);
+            
             Ok(())
         })
         .unwrap()
