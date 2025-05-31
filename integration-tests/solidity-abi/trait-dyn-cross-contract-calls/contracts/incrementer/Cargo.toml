@@ -1,0 +1,25 @@
+[package]
+name = "trait-incrementer"
+version = "6.0.0-alpha"
+authors = ["Use Ink <ink@use.ink>"]
+edition = "2021"
+publish = false
+
+[dependencies]
+ink = { path = "../../../../../crates/ink", default-features = false }
+
+dyn-traits = { path = "../../traits", default-features = false }
+
+[lib]
+path = "lib.rs"
+
+[features]
+default = ["std"]
+std = [
+    "ink/std",
+    "dyn-traits/std",
+]
+ink-as-dependency = []
+
+[package.metadata.ink-lang]
+abi = "sol"
