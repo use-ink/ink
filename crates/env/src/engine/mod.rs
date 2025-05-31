@@ -210,7 +210,7 @@ mod decode_instantiate_result_tests {
     }
 
     #[test]
-    fn succesful_dispatch_with_error_from_contract_constructor() {
+    fn successful_dispatch_with_error_from_contract_constructor() {
         let return_value = ConstructorResult::Ok(ContractResult::Err(ContractError(
             "Contract's constructor failed.".to_owned(),
         )));
