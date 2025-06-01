@@ -14,13 +14,11 @@
 
 use core::iter;
 
-use crate::GenerateCode;
 use derive_more::From;
 use heck::ToLowerCamelCase as _;
-use ir::{
-    Callable as _,
-    HexLiteral,
-};
+use ir::Callable as _;
+#[cfg(not(ink_abi = "sol"))]
+use ir::HexLiteral;
 use proc_macro2::TokenStream as TokenStream2;
 use quote::{
     format_ident,
@@ -29,6 +27,8 @@ use quote::{
     ToTokens,
 };
 use syn::spanned::Spanned as _;
+
+use crate::GenerateCode;
 
 /// Generates code for all ink! implementation blocks.
 #[derive(From)]
@@ -81,7 +81,28 @@ impl ItemImpls<'_> {
             .flatten()
             .map(|(trait_path, message)| {
                 let message_span = message.span();
-                let message_local_id = message.local_id().hex_padded_suffixed();
+
+                #[cfg(not(ink_abi = "sol"))]
+                let message_local_id = {
+                    let id = message.local_id().hex_padded_suffixed();
+                    quote!(#id)
+                };
+
+                #[cfg(ink_abi = "sol")]
+                let message_local_id = {
+                    use crate::generator::sol;
+                    let ident_str = message.ident().to_string();
+                    let signature = sol::utils::call_signature(ident_str, message.inputs());
+                    let selector_bytes = quote! {
+                        ::ink::codegen::sol_selector_bytes(#signature)
+                    };
+                    quote!(
+                        {
+                            ::core::primitive::u32::from_be_bytes(#selector_bytes)
+                        }
+                    )
+                };
+
                 let message_guard_payable = message.is_payable().then(|| {
                     quote_spanned!(message_span=>
                         const _: ::ink::codegen::TraitMessagePayable<{
@@ -91,6 +112,9 @@ impl ItemImpls<'_> {
                         }> = ::ink::codegen::TraitMessagePayable::<true>;
                     )
                 });
+
+                // Solidity ABI compatible codegen ignores user provided selector overrides.
+                #[cfg(not(ink_abi = "sol"))]
                 let message_guard_selector = message.user_provided_selector().map(|selector| {
                     let given_selector = selector.into_be_u32().hex_padded_suffixed();
                     quote_spanned!(message_span=>
@@ -103,6 +127,10 @@ impl ItemImpls<'_> {
                         }> = ::ink::codegen::TraitMessageSelector::<#given_selector>;
                     )
                 });
+
+                #[cfg(ink_abi = "sol")]
+                let message_guard_selector = quote!();
+
                 quote_spanned!(message_span=>
                     #message_guard_payable
                     #message_guard_selector
