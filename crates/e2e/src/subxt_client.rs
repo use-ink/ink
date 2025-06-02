@@ -703,7 +703,7 @@ where
         message: &CallBuilderFinal<E, Args, RetType, Abi>,
         value: E::Balance,
         storage_deposit_limit: DepositLimit<E::Balance>,
-    ) -> Result<CallDryRunResult<E, RetType>, Self::Error>
+    ) -> Result<CallDryRunResult<E, RetType, Abi>, Self::Error>
     where
         CallBuilderFinal<E, Args, RetType, Abi>: Clone,
     {

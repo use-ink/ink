@@ -450,7 +450,7 @@ where
         message: &CallBuilderFinal<E, Args, RetType, Abi>,
         value: E::Balance,
         storage_deposit_limit: DepositLimit<E::Balance>,
-    ) -> Result<CallDryRunResult<E, RetType>, Self::Error>
+    ) -> Result<CallDryRunResult<E, RetType, Abi>, Self::Error>
     where
         CallBuilderFinal<E, Args, RetType, Abi>: Clone,
     {
@@ -491,8 +491,8 @@ where
                 storage_deposit: result.storage_deposit,
                 result: result.result,
             },
-            _marker: Default::default(),
             trace: None, // todo
+            _marker: Default::default(),
         })
     }
 
