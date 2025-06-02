@@ -237,20 +237,25 @@ pub trait DispatchableConstructorInfo<const ID: u32> {
     const LABEL: &'static str;
 }
 
-/// todo: comment
+/// The ABI encoding/decoding scheme.
+#[derive(Debug, Clone, Copy)]
 pub enum Encoding {
+    /// Parity's SCALE codec.
     Scale,
+    /// Solidity ABI encoding.
     Solidity,
 }
 
-/// Marker type for SCALE encoding. Used with [`AbiEncodeWith`], [`AbiDecodeWith`] and
-/// `DecodeMessageResult`.
-#[derive(Debug, Default, Clone)]
+/// Marker type for SCALE encoding.
+///
+/// Used with [`AbiEncodeWith`], [`AbiDecodeWith`] and `DecodeMessageResult`.
+#[derive(Debug, Default, Clone, Copy)]
 pub struct ScaleEncoding;
 
-/// Marker type for Solidity ABI encoding. Used with [`AbiEncodeWith`],
-/// [`AbiDecodeWith`] and `DecodeMessageResult`.
-#[derive(Debug, Default, Clone)]
+/// Marker type for Solidity ABI encoding.
+///
+/// Used with [`AbiEncodeWith`], [`AbiDecodeWith`] and `DecodeMessageResult`.
+#[derive(Debug, Default, Clone, Copy)]
 pub struct SolEncoding;
 
 /// Trait for ABI-specific encoding with support for both slice and vector buffers.
