@@ -172,6 +172,9 @@ jobs:
       fail-fast: false
       matrix:
         type: [STD, RISCV]
+    env:
+      # TODO: (@davidsemakula) Update all manifests for integration-tests and remove this
+      RUSTFLAGS: --check-cfg cfg(ink_abi,values("ink","sol","all"))
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -806,7 +809,8 @@ jobs:
       - name: Create Examples Docs
         uses: ./.github/run-container-command
         env:
-          RUSTDOCFLAGS:                  -Dwarnings
+          # TODO: (@davidsemakula) Update all manifests for integration-tests and remove `--check-cfg` flag
+          RUSTDOCFLAGS: -Dwarnings --check-cfg cfg(ink_abi,values("ink","sol","all"))
         with:
           command: |
             # `--document-private-items` needs to be in here because currently our contract macro
