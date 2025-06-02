@@ -360,7 +360,7 @@ impl TraitRegistry<'_> {
             let ident_str = message.ident().to_string();
             let signature = sol::utils::call_signature(ident_str, message.inputs());
             let selector_bytes = quote! {
-                ::ink::codegen::sol_selector_bytes(#signature)
+                ::ink::codegen::sol::selector_bytes(#signature)
             };
             let selector_id = quote!(
                 {

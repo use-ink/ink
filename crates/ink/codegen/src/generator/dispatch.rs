@@ -90,19 +90,11 @@ impl GenerateCode for Dispatch<'_> {
         let message_decoder_type = self.generate_message_decoder_type(&messages);
         let entry_points = self.generate_entry_points(&constructors, &messages);
 
-        #[cfg(not(any(ink_abi = "sol", ink_abi = "all")))]
-        let solidity_call_info = quote!();
-
-        #[cfg(any(ink_abi = "sol", ink_abi = "all"))]
-        let solidity_call_info = self.generate_solidity_call_info();
-
         quote! {
             #contract_dispatchable_constructor_infos
             #contract_dispatchable_messages_infos
             #constructor_decoder_type
             #message_decoder_type
-
-            #solidity_call_info
 
             #[cfg(not(any(test, feature = "std", feature = "ink-as-dependency")))]
             mod __do_not_access__ {
@@ -1139,45 +1131,6 @@ impl Dispatch<'_> {
         quote_spanned!(span=>
             {
                 false #( || #constructor_is_payable )*
-            }
-        )
-    }
-
-    /// Generates code for Solidity call info types for dispatchable ink! messages.
-    #[cfg(any(ink_abi = "sol", ink_abi = "all"))]
-    fn generate_solidity_call_info(&self) -> TokenStream2 {
-        let span = self.contract.module().span();
-        let call_tys = self
-            .contract
-            .module()
-            .impls()
-            .flat_map(|item_impl| item_impl.iter_messages())
-            .map(|message| {
-                let span = message.span();
-                let ident = message.ident();
-                let ident_str = ident.to_string();
-                let call_type_ident = sol::utils::call_info_type_ident(&message);
-                let signature = sol::utils::call_signature(ident_str, message.inputs());
-
-                quote_spanned!(span=>
-                    pub struct #call_type_ident;
-
-                    const _: () = {
-                        impl #call_type_ident {
-                            pub const SIGNATURE: &'static ::core::primitive::str = #signature;
-                            pub const SELECTOR: [::core::primitive::u8; 4usize] = ::ink::codegen::sol_selector_bytes(Self::SIGNATURE);
-                            pub const SELECTOR_ID: ::core::primitive::u32 = ::core::primitive::u32::from_be_bytes(Self::SELECTOR);
-                        }
-                    };
-                )
-            });
-        quote_spanned!(span=>
-            #[allow(non_camel_case_types)]
-            mod __ink_sol_interop__ {
-                #[allow(unused)]
-                use super::*;
-
-                #(#call_tys)*
             }
         )
     }
