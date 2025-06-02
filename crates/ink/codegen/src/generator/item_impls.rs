@@ -91,16 +91,7 @@ impl ItemImpls<'_> {
                 #[cfg(ink_abi = "sol")]
                 let message_local_id = {
                     use crate::generator::sol;
-                    let ident_str = message.ident().to_string();
-                    let signature = sol::utils::call_signature(ident_str, message.inputs());
-                    let selector_bytes = quote! {
-                        ::ink::codegen::sol_selector_bytes(#signature)
-                    };
-                    quote!(
-                        {
-                            ::core::primitive::u32::from_be_bytes(#selector_bytes)
-                        }
-                    )
+                    sol::utils::selector_id(&message)
                 };
 
                 let message_guard_payable = message.is_payable().then(|| {
