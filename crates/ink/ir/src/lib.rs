@@ -44,7 +44,6 @@ pub use self::{
         blake2b_256,
         marker,
         utils,
-        Abi,
         Blake2x256Macro,
         Callable,
         CallableKind,

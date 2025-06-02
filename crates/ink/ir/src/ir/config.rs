@@ -112,32 +112,6 @@ impl Default for Environment {
     }
 }
 
-/// ABI spec for encoding/decoding contract calls.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
-pub enum Abi {
-    /// ink! ABI spec (the default, uses the SCALE codec for input/output encode/decode).
-    #[default]
-    Ink,
-    /// Solidity ABI spec.
-    Solidity,
-    /// Support both ink! and Solidity ABI specs for each contract entry point.
-    All,
-}
-
-impl Abi {
-    pub fn is_ink(&self) -> bool {
-        matches!(self, Self::Ink | Self::All)
-    }
-
-    pub fn is_solidity(&self) -> bool {
-        matches!(self, Self::Solidity | Self::All)
-    }
-
-    pub fn is_all(&self) -> bool {
-        matches!(self, Self::All)
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
