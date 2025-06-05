@@ -148,12 +148,30 @@ pub struct InstantiationResult<E: Environment, EventLog> {
 
 impl<E: Environment, EventLog> InstantiationResult<E, EventLog> {
     /// Returns a call builder for the contract which was instantiated.
-    pub fn call_builder<Contract>(&self) -> <Contract as ContractCallBuilder>::Type
+    ///
+    /// # Note
+    ///
+    /// This uses the "default" ABI for the instantiated contract.
+    pub fn call_builder<Contract>(
+        &self,
+    ) -> <Contract as ContractCallBuilder>::Type<ink::env::DefaultAbi>
     where
         Contract: ContractCallBuilder,
-        Contract::Type: FromAddr,
+        <Contract as ContractCallBuilder>::Type<ink::env::DefaultAbi>: FromAddr,
     {
-        <<Contract as ContractCallBuilder>::Type as FromAddr>::from_addr(self.addr)
+        <<Contract as ContractCallBuilder>::Type<ink::env::DefaultAbi> as FromAddr>::from_addr(self.addr)
+    }
+
+    /// Returns a call builder for the specified ABI for the contract which was
+    /// instantiated.
+    pub fn call_builder_abi<Contract, Abi>(
+        &self,
+    ) -> <Contract as ContractCallBuilder>::Type<Abi>
+    where
+        Contract: ContractCallBuilder,
+        <Contract as ContractCallBuilder>::Type<Abi>: FromAddr,
+    {
+        <<Contract as ContractCallBuilder>::Type<Abi> as FromAddr>::from_addr(self.addr)
     }
 }
 
