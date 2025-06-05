@@ -43,6 +43,7 @@ pub mod utils {
 pub use self::{
     call_builder::{
         build_call,
+        build_call_abi,
         build_call_solidity,
         Call,
         CallBuilder,

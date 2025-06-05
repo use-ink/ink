@@ -228,6 +228,26 @@ where
     }
 }
 
+/// Returns a new [`CallBuilder`] for the specified ABI to build up the parameters to a
+/// cross-contract call. See [`build_call`] for more details on usage.
+#[allow(clippy::type_complexity)]
+pub fn build_call_abi<E, Abi>() -> CallBuilder<
+    E,
+    Unset<Call>,
+    Unset<ExecutionInput<EmptyArgumentList<Abi>, Abi>>,
+    Unset<ReturnType<()>>,
+>
+where
+    E: Environment,
+{
+    CallBuilder {
+        call_type: Default::default(),
+        exec_input: Default::default(),
+        return_type: Default::default(),
+        _phantom: Default::default(),
+    }
+}
+
 /// Returns a new [`CallBuilder`] to build up the parameters to a cross-contract call
 /// that uses Solidity ABI Encoding.
 /// See [`build_call`] for more details on usage.
