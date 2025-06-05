@@ -12,6 +12,23 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use ink_env::{
+    DefaultEnvironment,
+    Environment,
+};
+use ink_primitives::{
+    reflect::{
+        AbiDecodeWith,
+        AbiEncodeWith,
+        ScaleEncoding,
+    },
+    DepositLimit,
+};
+use jsonrpsee::core::async_trait;
+use pallet_revive::evm::CallTrace;
+use sp_weights::Weight;
+use subxt::dynamic::Value;
+
 use super::{
     InstantiateDryRunResult,
     Keypair,
@@ -30,22 +47,6 @@ use crate::{
     CallDryRunResult,
     UploadResult,
 };
-use ink_env::{
-    DefaultEnvironment,
-    Environment,
-};
-use ink_primitives::{
-    reflect::{
-        AbiDecodeWith,
-        AbiEncodeWith,
-        ScaleEncoding,
-    },
-    DepositLimit,
-};
-use jsonrpsee::core::async_trait;
-use pallet_revive::evm::CallTrace;
-use sp_weights::Weight;
-use subxt::dynamic::Value;
 
 /// Full E2E testing backend: combines general chain API and contract-specific operations.
 #[async_trait]
@@ -271,7 +272,7 @@ pub trait BuilderClient<E: Environment>: ContractsBackend<E> {
         message: &CallBuilderFinal<E, Args, RetType, Abi>,
         value: E::Balance,
         storage_deposit_limit: DepositLimit<E::Balance>,
-    ) -> Result<CallDryRunResult<E, RetType>, Self::Error>
+    ) -> Result<CallDryRunResult<E, RetType, Abi>, Self::Error>
     where
         CallBuilderFinal<E, Args, RetType, Abi>: Clone;
 

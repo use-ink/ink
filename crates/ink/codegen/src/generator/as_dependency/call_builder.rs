@@ -386,24 +386,24 @@ impl CallBuilder<'_> {
 
         let mut call_builders = Vec::new();
 
-        #[cfg(not(ink_abi = "sol"))]
-        {
-            let selector = message.composed_selector();
-            let selector_bytes = selector.hex_lits();
+        let generate_builder = |message_ident: &syn::Ident,
+                                selector_bytes: TokenStream2,
+                                encoding_strategy: TokenStream2,
+                                builder: TokenStream2| {
             let arg_list = generator::generate_argument_list(
                 input_types.iter().cloned(),
-                quote!(::ink::reflect::ScaleEncoding),
+                encoding_strategy.clone(),
             );
             let output_type = quote_spanned!(output_span=>
                 ::ink::env::call::CallBuilder<
                     Environment,
                     ::ink::env::call::utils::Set< ::ink::env::call::Call >,
-                    ::ink::env::call::utils::Set< ::ink::env::call::ExecutionInput<#arg_list, ::ink::reflect::ScaleEncoding> >,
+                    ::ink::env::call::utils::Set< ::ink::env::call::ExecutionInput<#arg_list, #encoding_strategy> >,
                     ::ink::env::call::utils::Set< ::ink::env::call::utils::ReturnType<#return_type> >,
                 >
             );
 
-            let call_builder = quote_spanned!(span=>
+            quote_spanned!(span=>
                 #( #attrs )*
                 #[allow(clippy::type_complexity)]
                 #[inline]
@@ -411,54 +411,7 @@ impl CallBuilder<'_> {
                     & #mut_tok self
                     #( , #input_bindings : #input_types )*
                 ) -> #output_type {
-                    ::ink::env::call::build_call::<Environment>()
-                        .call(::ink::ToAddr::to_addr(self))
-                        .exec_input(
-                            ::ink::env::call::ExecutionInput::new(
-                                ::ink::env::call::Selector::new([ #( #selector_bytes ),* ])
-                            )
-                            #(
-                                .push_arg(#input_bindings)
-                            )*
-                        )
-                        .returns::<#return_type>()
-                }
-            );
-            call_builders.push(call_builder);
-        }
-
-        #[cfg(any(ink_abi = "sol", ink_abi = "all"))]
-        {
-            // If ABI is all, we generate a second message signature with a "_sol"
-            // postfix. Otherwise, we use the same name.
-            let sol_message_ident = if cfg!(ink_abi = "all") {
-                format_ident!("{}_sol", message_ident)
-            } else {
-                message_ident.clone()
-            };
-            let selector_bytes = sol::utils::selector(&message);
-            let arg_list = generator::generate_argument_list(
-                input_types.iter().cloned(),
-                quote!(::ink::reflect::SolEncoding),
-            );
-            let output_type = quote_spanned!(output_span=>
-                ::ink::env::call::CallBuilder<
-                    Environment,
-                    ::ink::env::call::utils::Set< ::ink::env::call::Call >,
-                    ::ink::env::call::utils::Set< ::ink::env::call::ExecutionInput<#arg_list, ::ink::reflect::SolEncoding> >,
-                    ::ink::env::call::utils::Set< ::ink::env::call::utils::ReturnType<#return_type> >,
-                >
-            );
-
-            let call_builder = quote_spanned!(span=>
-                #( #attrs )*
-                #[allow(clippy::type_complexity)]
-                #[inline]
-                pub fn #sol_message_ident (
-                    & #mut_tok self
-                    #( , #input_bindings : #input_types )*
-                ) -> #output_type {
-                    ::ink::env::call::build_call_solidity::<Environment>()
+                    ::ink::env::call::#builder::<Environment>()
                         .call(::ink::ToAddr::to_addr(self))
                         .exec_input(
                             ::ink::env::call::ExecutionInput::new(
@@ -470,8 +423,36 @@ impl CallBuilder<'_> {
                         )
                         .returns::<#return_type>()
                 }
-            );
-            call_builders.push(call_builder);
+            )
+        };
+
+        #[cfg(not(ink_abi = "sol"))]
+        {
+            let selector = message.composed_selector();
+            let selector_bytes = selector.hex_lits();
+            call_builders.push(generate_builder(
+                message_ident,
+                quote!([ #( #selector_bytes ),* ]),
+                quote!(::ink::reflect::ScaleEncoding),
+                quote!(build_call),
+            ));
+        }
+
+        #[cfg(any(ink_abi = "sol", ink_abi = "all"))]
+        {
+            // If ABI is "all", we generate a second message signature with a "_sol"
+            // postfix. Otherwise, we use the same name.
+            let sol_message_ident = if cfg!(ink_abi = "all") {
+                format_ident!("{}_sol", message_ident)
+            } else {
+                message_ident.clone()
+            };
+            call_builders.push(generate_builder(
+                &sol_message_ident,
+                sol::utils::selector(&message),
+                quote!(::ink::reflect::SolEncoding),
+                quote!(build_call_solidity),
+            ));
         }
 
         quote_spanned!(span=>
