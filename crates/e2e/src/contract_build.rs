@@ -80,7 +80,7 @@ impl ContractProject {
     fn new() -> Self {
         let mut cmd = cargo_metadata::MetadataCommand::new();
         let env_target_dir = env::var_os("CARGO_TARGET_DIR")
-            .map(|target_dir| PathBuf::from(target_dir))
+            .map(PathBuf::from)
             .filter(|target_dir| target_dir.is_absolute());
         if let Some(target_dir) = env_target_dir.as_ref() {
             cmd.env("CARGO_TARGET_DIR", target_dir);
@@ -126,7 +126,7 @@ impl ContractProject {
 
         let package_abi = metadata
             .root_package()
-            .and_then(|package| package_abi(package))
+            .and_then(package_abi)
             .and_then(Result::ok);
         log_info(&format!("found root package abi: {:?}", package_abi));
 
