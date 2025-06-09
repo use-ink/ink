@@ -135,15 +135,19 @@
 /// ```
 #[macro_export]
 macro_rules! message_builder {
-    // The case of the default `Environment`
+    // The case of the default `Environment` and ABI
     ( $trait_path:path ) => {
         $crate::message_builder!($trait_path, $crate::env::DefaultEnvironment)
     };
-    // The case of the custom `Environment`
+    // The case of the custom `Environment` and default ABI
     ( $trait_path:path, $env:ty ) => {
+        $crate::message_builder!($trait_path, $env, $crate::env::DefaultAbi)
+    };
+    // The case of the custom `Environment` and ABI
+    ( $trait_path:path, $env:ty, $abi:ty ) => {
         <<<$crate::reflect::TraitDefinitionRegistry<$env>
                             as $trait_path>::__ink_TraitInfo
-                            as $crate::codegen::TraitMessageBuilder>::MessageBuilder
+                            as $crate::codegen::TraitMessageBuilder>::MessageBuilder<$abi>
                             as ::core::default::Default>::default()
     };
 }

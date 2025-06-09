@@ -12,10 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::{
-    generator,
-    GenerateCode,
-};
 use derive_more::From;
 use ir::{
     Callable,
@@ -27,6 +23,11 @@ use quote::{
     quote_spanned,
 };
 use syn::spanned::Spanned as _;
+
+use crate::{
+    generator,
+    GenerateCode,
+};
 
 /// Generates code for the contract reference of the ink! smart contract.
 ///
@@ -85,10 +86,8 @@ impl ContractRef<'_> {
             .cloned();
         let storage_ident = self.contract.module().storage().ident();
         let ref_ident = self.generate_contract_ref_ident();
+        let abi = default_abi!();
         quote_spanned!(span=>
-            #[cfg_attr(feature = "std", derive(
-                ::ink::storage::traits::StorageLayout,
-            ))]
             #[derive(
                 ::core::fmt::Debug,
                 ::core::hash::Hash,
@@ -96,10 +95,11 @@ impl ContractRef<'_> {
                 ::core::cmp::Eq,
                 ::core::clone::Clone,
             )]
-            #[::ink::scale_derive(Encode, Decode, TypeInfo)]
+            #[::ink::scale_derive(Encode, Decode)]
             #( #doc_attrs )*
-            pub struct #ref_ident {
-                inner: <#storage_ident as ::ink::codegen::ContractCallBuilder>::Type,
+            pub struct #ref_ident<Abi = #abi> {
+                inner: <#storage_ident as ::ink::codegen::ContractCallBuilder>::Type<Abi>,
+                _marker: core::marker::PhantomData<Abi>,
             }
 
             const _: () = {
@@ -107,7 +107,7 @@ impl ContractRef<'_> {
                     type Type = #ref_ident;
                 }
 
-                impl ::ink::env::ContractReverseReference for #ref_ident {
+                impl<Abi> ::ink::env::ContractReverseReference for #ref_ident<Abi> {
                     type Type = #storage_ident;
                 }
 
@@ -139,8 +139,46 @@ impl ContractRef<'_> {
                     }
                 }
 
-                impl ::ink::env::ContractEnv for #ref_ident {
+                impl<Abi> ::ink::env::ContractEnv for #ref_ident<Abi> {
                     type Env = <#storage_ident as ::ink::env::ContractEnv>::Env;
+                }
+
+                #[cfg(feature = "std")]
+                // We require this manual implementation since the derive produces incorrect trait bounds.
+                impl<Abi> ::ink::storage::traits::StorageLayout for #ref_ident<Abi> {
+                    fn layout(
+                        __key: &::ink::primitives::Key,
+                    ) -> ::ink::metadata::layout::Layout {
+                        ::ink::metadata::layout::Layout::Struct(
+                            ::ink::metadata::layout::StructLayout::new(
+                                ::core::stringify!(#ref_ident),
+                                [
+                                    ::ink::metadata::layout::FieldLayout::new(
+                                        "inner",
+                                        <<#storage_ident as ::ink::codegen::ContractCallBuilder>::Type<Abi>
+                                            as ::ink::storage::traits::StorageLayout>::layout(__key)
+                                    )
+                                ]
+                            )
+                        )
+                    }
+                }
+
+                #[cfg(feature = "std")]
+                // We require this manual implementation since the derive produces incorrect trait bounds.
+                impl<Abi> ::ink::scale_info::TypeInfo for #ref_ident<Abi>
+                where
+                    ::ink::Address: ::ink::scale_info::TypeInfo + 'static,
+                {
+                    type Identity = <
+                        <#storage_ident as ::ink::codegen::ContractCallBuilder>::Type<Abi> as ::ink::scale_info::TypeInfo
+                    >::Identity;
+
+                    fn type_info() -> ::ink::scale_info::Type {
+                        <
+                            <#storage_ident as ::ink::codegen::ContractCallBuilder>::Type<Abi> as ::ink::scale_info::TypeInfo
+                        >::type_info()
+                    }
                 }
             };
         )
@@ -155,31 +193,33 @@ impl ContractRef<'_> {
         let storage_ident = self.contract.module().storage().ident();
         let ref_ident = self.generate_contract_ref_ident();
         quote_spanned!(span=>
-            impl ::ink::env::call::FromAddr for #ref_ident {
+            impl<Abi> ::ink::env::call::FromAddr for #ref_ident<Abi> {
                 #[inline]
                 fn from_addr(addr: ::ink::Address) -> Self {
-                    Self { inner: <<#storage_ident
-                        as ::ink::codegen::ContractCallBuilder>::Type
-                        as ::ink::env::call::FromAddr>::from_addr(addr)
+                    Self {
+                        inner: <<#storage_ident
+                            as ::ink::codegen::ContractCallBuilder>::Type<Abi>
+                            as ::ink::env::call::FromAddr>::from_addr(addr),
+                        _marker: ::core::default::Default::default(),
                     }
                 }
             }
 
-            impl ::ink::ToAddr for #ref_ident {
+            impl<Abi> ::ink::ToAddr for #ref_ident<Abi> {
                 #[inline]
                 fn to_addr(&self) -> ::ink::Address {
-                    <<#storage_ident as ::ink::codegen::ContractCallBuilder>::Type
+                    <<#storage_ident as ::ink::codegen::ContractCallBuilder>::Type<Abi>
                         as ::ink::ToAddr>::to_addr(&self.inner)
                 }
             }
 
-            impl ::core::convert::AsRef<::ink::Address> for #ref_ident {
+            impl<Abi> ::core::convert::AsRef<::ink::Address> for #ref_ident<Abi> {
                 fn as_ref(&self) -> &::ink::Address {
                     <_ as ::core::convert::AsRef<::ink::Address>>::as_ref(&self.inner)
                 }
             }
 
-            impl ::core::convert::AsMut<::ink::Address> for #ref_ident {
+            impl<Abi> ::core::convert::AsMut<::ink::Address> for #ref_ident<Abi> {
                 fn as_mut(&mut self) -> &mut ::ink::Address {
                     <_ as ::core::convert::AsMut<::ink::Address>>::as_mut(&mut self.inner)
                 }
@@ -197,8 +237,8 @@ impl ContractRef<'_> {
         let storage_ident = self.contract.module().storage().ident();
         quote_spanned!(span=>
             const _: () = {
-                impl ::ink::codegen::TraitCallBuilder for #ref_ident {
-                    type Builder = <#storage_ident as ::ink::codegen::ContractCallBuilder>::Type;
+                impl<Abi> ::ink::codegen::TraitCallBuilder for #ref_ident<Abi> {
+                    type Builder = <#storage_ident as ::ink::codegen::ContractCallBuilder>::Type<Abi>;
 
                     #[inline]
                     fn call(&self) -> &Self::Builder {
@@ -245,16 +285,18 @@ impl ContractRef<'_> {
         let span = impl_block.span();
         let attrs = impl_block.attrs();
         let forwarder_ident = self.generate_contract_ref_ident();
-        let messages = self.generate_contract_trait_impl_messages(trait_path, impl_block);
-        quote_spanned!(span=>
-            #( #attrs )*
-            impl #trait_path for #forwarder_ident {
-                type __ink_TraitInfo = <::ink::reflect::TraitDefinitionRegistry<Environment>
-                    as #trait_path>::__ink_TraitInfo;
+        generate_abi_impls!(@tokens |abi: TokenStream2| {
+            let messages = self.generate_contract_trait_impl_messages(trait_path, impl_block, abi.clone());
+            quote_spanned!(span=>
+                #( #attrs )*
+                impl #trait_path for #forwarder_ident<#abi> {
+                    type __ink_TraitInfo = <::ink::reflect::TraitDefinitionRegistry<Environment>
+                        as #trait_path>::__ink_TraitInfo;
 
-                #messages
-            }
-        )
+                    #messages
+                }
+            )
+        })
     }
 
     /// Generates the code for all messages of a single ink! trait implementation of
@@ -263,11 +305,16 @@ impl ContractRef<'_> {
         &self,
         trait_path: &syn::Path,
         impl_block: &ir::ItemImpl,
+        abi: TokenStream2,
     ) -> TokenStream2 {
         impl_block
             .iter_messages()
             .map(|message| {
-                self.generate_contract_trait_impl_for_message(trait_path, message)
+                self.generate_contract_trait_impl_for_message(
+                    trait_path,
+                    message,
+                    abi.clone(),
+                )
             })
             .collect()
     }
@@ -278,6 +325,7 @@ impl ContractRef<'_> {
         &self,
         trait_path: &syn::Path,
         message: ir::CallableWithSelector<ir::Message>,
+        abi: TokenStream2,
     ) -> TokenStream2 {
         use ir::Callable as _;
         let span = message.span();
@@ -299,7 +347,7 @@ impl ContractRef<'_> {
         quote_spanned!(span=>
             #( #cfg_attrs )*
             type #output_ident =
-                <<Self::__ink_TraitInfo as ::ink::codegen::TraitCallForwarder>::Forwarder as #trait_path>::#output_ident;
+                <<Self::__ink_TraitInfo as ::ink::codegen::TraitCallForwarder>::Forwarder<#abi> as #trait_path>::#output_ident;
 
             #[inline]
             #( #cfg_attrs )*
@@ -350,16 +398,25 @@ impl ContractRef<'_> {
         let messages = impl_block
             .iter_messages()
             .map(|message| self.generate_contract_inherent_impl_for_message(message));
+        let messages = quote! {
+            #( #messages )*
+        };
+        // TODO: (@davidsemakula) Handle Solidity ABI constructor.
         let constructors = impl_block.iter_constructors().map(|constructor| {
             self.generate_contract_inherent_impl_for_constructor(constructor)
         });
-        quote_spanned!(span=>
-            #( #attrs )*
-            impl #forwarder_ident {
-                #( #constructors )*
-                #( #messages )*
-            }
-        )
+        let constructors = quote! {
+            #( #constructors )*
+        };
+        generate_abi_impls!(@tokens |abi| {
+            quote_spanned!(span=>
+                #( #attrs )*
+                impl #forwarder_ident<#abi> {
+                    #constructors
+                    #messages
+                }
+            )
+        })
     }
 
     /// Generates the code for a single ink! inherent message of the contract itself.

@@ -18,6 +18,7 @@ use crate::{
     traits::GenerateCode,
 };
 use derive_more::From;
+use ink_primitives::reflect::Encoding;
 use proc_macro2::{
     Span,
     TokenStream as TokenStream2,
@@ -27,7 +28,6 @@ use quote::{
     quote_spanned,
 };
 
-#[cfg(any(ink_abi = "sol", ink_abi = "all"))]
 use crate::generator::sol;
 
 impl TraitDefinition<'_> {
@@ -93,8 +93,8 @@ impl MessageBuilder<'_> {
             #[doc(hidden)]
             #[allow(non_camel_case_types)]
             #[::ink::scale_derive(Encode, Decode, TypeInfo)]
-            pub struct #message_builder_ident<E> {
-                marker: ::core::marker::PhantomData<fn() -> E>,
+            pub struct #message_builder_ident<E, Abi> {
+                _marker: ::core::marker::PhantomData<fn() -> (E, Abi)>,
             }
         )
     }
@@ -110,13 +110,22 @@ impl MessageBuilder<'_> {
         let span = self.span();
         let message_builder_ident = self.trait_def.message_builder_ident();
         quote_spanned!(span=>
-            impl<E> ::core::default::Default for #message_builder_ident<E>
+            impl<E, Abi> ::core::default::Default for #message_builder_ident<E, Abi>
             where
                 E: ::ink::env::Environment,
             {
                 fn default() -> Self {
-                    Self { marker: ::core::default::Default::default() }
+                    Self {
+                        _marker: ::core::default::Default::default()
+                    }
                 }
+            }
+
+            impl<E, Abi> ::ink::env::ContractEnv for #message_builder_ident<E, Abi>
+            where
+                E: ::ink::env::Environment,
+            {
+                type Env = E;
             }
         )
     }
@@ -133,34 +142,57 @@ impl MessageBuilder<'_> {
         let trait_ident = self.trait_def.trait_def.item().ident();
         let trait_info_ident = self.trait_def.trait_info_ident();
         let message_builder_ident = self.trait_def.message_builder_ident();
-        let message_impls = self.generate_ink_trait_impl_messages();
-        quote_spanned!(span=>
-            impl<E> ::ink::env::ContractEnv for #message_builder_ident<E>
-            where
-                E: ::ink::env::Environment,
-            {
-                type Env = E;
-            }
+        generate_abi_impls!(@type |abi| {
+            let abi_ty = match abi {
+                Encoding::Scale => quote!(::ink::reflect::ScaleEncoding),
+                Encoding::Solidity => quote!(::ink::reflect::SolEncoding),
+            };
+            let message_impls = self.generate_ink_trait_impl_messages(abi);
+            quote_spanned!(span=>
+                impl<E> #trait_ident for #message_builder_ident<E, #abi_ty>
+                where
+                    E: ::ink::env::Environment,
+                {
+                    #[allow(non_camel_case_types)]
+                    type __ink_TraitInfo = #trait_info_ident<E>;
 
-            impl<E> #trait_ident for #message_builder_ident<E>
-            where
-                E: ::ink::env::Environment,
-            {
-                #[allow(non_camel_case_types)]
-                type __ink_TraitInfo = #trait_info_ident<E>;
-
-                #message_impls
-            }
-        )
+                    #message_impls
+                }
+            )
+        })
     }
 
     /// Generate the code for all ink! trait messages implemented by the trait call
     /// builder.
-    fn generate_ink_trait_impl_messages(&self) -> TokenStream2 {
+    fn generate_ink_trait_impl_messages(&self, abi: Encoding) -> TokenStream2 {
         let messages = self.trait_def.trait_def.item().iter_items().filter_map(
             |(item, selector)| {
                 item.filter_map_message().map(|message| {
-                    self.generate_ink_trait_impl_for_message(&message, selector)
+                    let (selector_bytes, abi_ty) = match abi {
+                        Encoding::Scale => {
+                            let selector_bytes = selector.hex_lits();
+                            (
+                                quote!([ #( #selector_bytes ),* ]),
+                                quote!(::ink::reflect::ScaleEncoding),
+                            )
+                        }
+                        Encoding::Solidity => {
+                            let message_ident = message.ident();
+                            let signature = sol::utils::call_signature(
+                                message_ident.to_string(),
+                                message.inputs(),
+                            );
+                            (
+                                quote!(::ink::codegen::sol::selector_bytes(#signature)),
+                                quote!(::ink::reflect::SolEncoding),
+                            )
+                        }
+                    };
+                    self.generate_ink_trait_impl_for_message(
+                        &message,
+                        selector_bytes,
+                        abi_ty,
+                    )
                 })
             },
         );
@@ -174,7 +206,8 @@ impl MessageBuilder<'_> {
     fn generate_ink_trait_impl_for_message(
         &self,
         message: &ir::InkTraitMessage,
-        #[allow(unused)] selector: ir::Selector,
+        selector_bytes: TokenStream2,
+        abi: TokenStream2,
     ) -> TokenStream2 {
         let span = message.span();
         let message_ident = message.ident();
@@ -191,77 +224,32 @@ impl MessageBuilder<'_> {
         let input_bindings = generator::input_bindings(message.inputs());
         let input_types = generator::input_types(message.inputs());
         let mut_tok = message.mutates().then(|| quote! { mut });
+        let arg_list =
+            generator::generate_argument_list(input_types.iter().cloned(), abi.clone());
         let cfg_attrs = message.get_cfg_attrs(span);
+        quote_spanned!(span =>
+            #( #cfg_attrs )*
+            type #output_ident = ::ink::env::call::Execution<
+                #arg_list,
+                #output_type,
+                #abi
+            >;
 
-        let mut call_builders = Vec::new();
-
-        let generate_builder =
-            |message_ident: &syn::Ident,
-             selector_bytes: TokenStream2,
-             encoding_strategy: TokenStream2| {
-                let arg_list = generator::generate_argument_list(
-                    input_types.iter().cloned(),
-                    encoding_strategy.clone(),
-                );
-                quote_spanned!(span =>
-                    #( #cfg_attrs )*
-                    type #output_ident = ::ink::env::call::Execution<
-                        #arg_list,
-                        #output_type,
-                        #encoding_strategy
-                    >;
-
-                    #( #attrs )*
-                    #[inline]
-                    fn #message_ident(
-                        & #mut_tok self
-                        #( , #input_bindings : #input_types )*
-                    ) -> Self::#output_ident {
-                        ::ink::env::call::Execution::new(
-                            ::ink::env::call::ExecutionInput::new(
-                                ::ink::env::call::Selector::new(#selector_bytes)
-                            )
-                            #(
-                                .push_arg(#input_bindings)
-                            )*
-                        )
-                    }
+            #( #attrs )*
+            #[inline]
+            fn #message_ident(
+                & #mut_tok self
+                #( , #input_bindings : #input_types )*
+            ) -> Self::#output_ident {
+                ::ink::env::call::Execution::new(
+                    ::ink::env::call::ExecutionInput::new(
+                        ::ink::env::call::Selector::new(#selector_bytes)
+                    )
+                    #(
+                        .push_arg(#input_bindings)
+                    )*
                 )
-            };
-
-        #[cfg(not(ink_abi = "sol"))]
-        {
-            let selector_bytes = selector.hex_lits();
-            call_builders.push(generate_builder(
-                message_ident,
-                quote!([ #( #selector_bytes ),* ]),
-                quote!(::ink::reflect::ScaleEncoding),
-            ));
-        }
-
-        #[cfg(any(ink_abi = "sol", ink_abi = "all"))]
-        {
-            // If ABI is "all", we generate a second message signature with a "_sol"
-            // postfix. Otherwise, we use the same name.
-            let sol_message_ident = if cfg!(ink_abi = "all") {
-                quote::format_ident!("{}_sol", message_ident)
-            } else {
-                message_ident.clone()
-            };
-            let signature =
-                sol::utils::call_signature(message_ident.to_string(), message.inputs());
-            let selector_bytes = quote! {
-                ::ink::codegen::sol::selector_bytes(#signature)
-            };
-            call_builders.push(generate_builder(
-                &sol_message_ident,
-                selector_bytes,
-                quote!(::ink::reflect::SolEncoding),
-            ));
-        }
-
-        quote_spanned!(span=>
-            #( #call_builders )*
+            }
         )
     }
 }
