@@ -513,7 +513,7 @@ impl ContractRef<'_> {
 
         let arg_list = generator::generate_argument_list(
             input_types.iter().cloned(),
-            quote!(::ink::reflect::ScaleEncoding),
+            quote!(::ink::abi::Ink),
         );
 
         quote_spanned!(span =>
@@ -526,7 +526,7 @@ impl ContractRef<'_> {
                 Environment,
                 Self,
                 ::ink::env::call::utils::Set<::ink::env::call::LimitParamsV2 >,
-                ::ink::env::call::utils::Set<::ink::env::call::ExecutionInput<#arg_list, ::ink::reflect::ScaleEncoding>>,
+                ::ink::env::call::utils::Set<::ink::env::call::ExecutionInput<#arg_list, ::ink::abi::Ink>>,
                 ::ink::env::call::utils::Set<::ink::env::call::utils::ReturnType<#ret_type>>,
             > {
                 ::ink::env::call::build_create::<Self>()

@@ -14,7 +14,7 @@ use ink::{
         Environment,
     },
     primitives::U256,
-    reflect::{
+    abi::{
         AbiDecodeWith,
         AbiEncodeWith,
     },

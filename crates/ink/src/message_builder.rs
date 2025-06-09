@@ -101,8 +101,8 @@
 ///         input: &ExecutionInput<Args, Abi>,
 ///     ) -> Result<MessageResult<Output>, Self::Error>
 ///     where
-///         Args: ink::reflect::AbiEncodeWith<Abi>,
-///         Output: ink::reflect::AbiDecodeWith<Abi>,
+///         Args: ink::abi::AbiEncodeWith<Abi>,
+///         Output: ink::abi::AbiDecodeWith<Abi>,
 ///     {
 ///         println!("Executing contract with input: {:?}", input.encode());
 ///         unimplemented!("Decode contract execution output")

@@ -13,6 +13,22 @@
 // limitations under the License.
 
 #[cfg(feature = "unstable-hostfn")]
+use ink_primitives::abi::Ink;
+use ink_primitives::{
+    abi::{
+        AbiDecodeWith,
+        AbiEncodeWith,
+    },
+    types::Environment,
+    Address,
+    SolEncode,
+    H256,
+    U256,
+};
+use ink_storage_traits::Storable;
+pub use pallet_revive_uapi::ReturnFlags;
+
+#[cfg(feature = "unstable-hostfn")]
 use crate::call::{
     ConstructorReturnType,
     CreateParams,
@@ -35,21 +51,6 @@ use crate::{
     DispatchError,
     Result,
 };
-#[cfg(feature = "unstable-hostfn")]
-use ink_primitives::reflect::ScaleEncoding;
-use ink_primitives::{
-    reflect::{
-        AbiDecodeWith,
-        AbiEncodeWith,
-    },
-    types::Environment,
-    Address,
-    SolEncode,
-    H256,
-    U256,
-};
-use ink_storage_traits::Storable;
-pub use pallet_revive_uapi::ReturnFlags;
 
 /// Environmental contract functionality that does not require `Environment`.
 pub trait EnvBackend {
@@ -380,7 +381,7 @@ pub trait TypedEnvBackend: EnvBackend {
         ContractRef: FromAddr + crate::ContractReverseReference,
         <ContractRef as crate::ContractReverseReference>::Type:
             crate::reflect::ContractConstructorDecoder,
-        Args: AbiEncodeWith<ScaleEncoding>,
+        Args: AbiEncodeWith<Ink>,
         R: ConstructorReturnType<ContractRef>;
 
     /// Terminates a smart contract.

@@ -13,7 +13,7 @@
 // limitations under the License.
 
 use derive_more::From;
-use ink_primitives::reflect::Encoding;
+use ink_primitives::abi::Abi;
 use ir::Callable;
 use proc_macro2::TokenStream as TokenStream2;
 use quote::{
@@ -383,8 +383,8 @@ impl CallBuilder<'_> {
         let cb_ident = Self::call_builder_ident();
         generate_abi_impls!(@type |abi| {
             let abi_ty = match abi {
-                Encoding::Scale => quote!(::ink::reflect::ScaleEncoding),
-                Encoding::Solidity => quote!(::ink::reflect::SolEncoding),
+                Abi::Ink => quote!(::ink::abi::Ink),
+                Abi::Sol => quote!(::ink::abi::Sol),
             };
             let messages = impl_block.iter_messages().map(|message| {
                 self.generate_call_builder_inherent_impl_for_message(message, abi)
@@ -406,7 +406,7 @@ impl CallBuilder<'_> {
     fn generate_call_builder_inherent_impl_for_message(
         &self,
         message: ir::CallableWithSelector<ir::Message>,
-        abi: Encoding,
+        abi: Abi,
     ) -> TokenStream2 {
         let span = message.span();
         let callable = message.callable();
@@ -425,20 +425,12 @@ impl CallBuilder<'_> {
             .unwrap_or_else(|| quote::quote! { () });
         let output_span = return_type.span();
         let (selector_bytes, abi_ty) = match abi {
-            Encoding::Scale => {
+            Abi::Ink => {
                 let selector = message.composed_selector();
                 let selector_bytes = selector.hex_lits();
-                (
-                    quote!([ #( #selector_bytes ),* ]),
-                    quote!(::ink::reflect::ScaleEncoding),
-                )
+                (quote!([ #( #selector_bytes ),* ]), quote!(::ink::abi::Ink))
             }
-            Encoding::Solidity => {
-                (
-                    sol::utils::selector(&message),
-                    quote!(::ink::reflect::SolEncoding),
-                )
-            }
+            Abi::Sol => (sol::utils::selector(&message), quote!(::ink::abi::Sol)),
         };
         let arg_list = generator::generate_argument_list(
             input_types.iter().cloned(),

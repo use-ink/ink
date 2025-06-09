@@ -67,7 +67,7 @@ pub mod wildcard_selector {
                 ArgumentList,
                 EmptyArgumentList,
             },
-            primitives::reflect::ScaleEncoding,
+            primitives::abi::Ink,
         };
 
         type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
@@ -81,11 +81,11 @@ pub mod wildcard_selector {
             Environment,
             ArgumentList<
                 Argument<String>,
-                EmptyArgumentList<ScaleEncoding>,
-                ScaleEncoding,
+                EmptyArgumentList<Ink>,
+                Ink,
             >,
             (),
-            ScaleEncoding,
+            Ink,
         > {
             ink::env::call::build_call::<Environment>()
                 .call(addr)

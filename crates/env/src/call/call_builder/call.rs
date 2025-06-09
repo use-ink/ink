@@ -12,6 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use ink_primitives::{
+    abi::{
+        AbiDecodeWith,
+        AbiEncodeWith,
+    },
+    Address,
+    U256,
+};
+use pallet_revive_uapi::CallFlags;
+
 use crate::{
     call::{
         common::{
@@ -31,15 +41,6 @@ use crate::{
     },
     Error,
 };
-use ink_primitives::{
-    reflect::{
-        AbiDecodeWith,
-        AbiEncodeWith,
-    },
-    Address,
-    U256,
-};
-use pallet_revive_uapi::CallFlags;
 
 /// The default call type for cross-contract calls, for calling into the latest `call`
 /// host function. This adds the additional weight limit parameter `proof_size_limit` as

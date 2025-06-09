@@ -20,7 +20,7 @@
 //! types for the trait's respective call builder and call forwarder.
 
 use derive_more::From;
-use ink_primitives::reflect::Encoding;
+use ink_primitives::abi::Abi;
 use proc_macro2::{
     Span,
     TokenStream as TokenStream2,
@@ -338,7 +338,7 @@ impl TraitRegistry<'_> {
         let is_payable = message.ink_attrs().is_payable();
         generate_abi_impls!(@type |abi| {
             let (local_id, selector_bytes) = match abi {
-                Encoding::Scale => {
+                Abi::Ink => {
                     let local_id = message.local_id();
                     let selector_bytes = selector.hex_lits();
                     (
@@ -346,7 +346,7 @@ impl TraitRegistry<'_> {
                         quote!([ #( #selector_bytes ),* ])
                     )
                 }
-                Encoding::Solidity => {
+                Abi::Sol => {
                     let ident_str = message.ident().to_string();
                     let signature = sol::utils::call_signature(ident_str, message.inputs());
                     let selector_bytes = quote! {

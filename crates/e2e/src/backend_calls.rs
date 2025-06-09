@@ -16,10 +16,10 @@ use std::marker::PhantomData;
 
 use ink_env::Environment;
 use ink_primitives::{
-    reflect::{
+    abi::{
         AbiDecodeWith,
         AbiEncodeWith,
-        ScaleEncoding,
+        Ink,
     },
     DepositLimit,
 };
@@ -204,7 +204,7 @@ where
 pub struct InstantiateBuilder<'a, E, Contract, Args, R, B>
 where
     E: Environment,
-    Args: AbiEncodeWith<ScaleEncoding> + Clone,
+    Args: AbiEncodeWith<Ink> + Clone,
     Contract: Clone,
 
     B: ContractsBackend<E>,
@@ -222,7 +222,7 @@ where
 impl<'a, E, Contract, Args, R, B> InstantiateBuilder<'a, E, Contract, Args, R, B>
 where
     E: Environment,
-    Args: AbiEncodeWith<ScaleEncoding> + Clone + Send + Sync,
+    Args: AbiEncodeWith<Ink> + Clone + Send + Sync,
     Contract: Clone,
     B: BuilderClient<E>,
 {

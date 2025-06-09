@@ -18,6 +18,16 @@ mod delegate;
 pub use call::Call;
 pub use delegate::DelegateCall;
 
+use core::marker::PhantomData;
+
+use ink_primitives::{
+    abi::{
+        Ink,
+        Sol,
+    },
+    Address,
+};
+
 use crate::{
     call::{
         utils::{
@@ -30,14 +40,6 @@ use crate::{
         ExecutionInput,
     },
     types::Environment,
-};
-use core::marker::PhantomData;
-use ink_primitives::{
-    reflect::{
-        ScaleEncoding,
-        SolEncoding,
-    },
-    Address,
 };
 
 /// The final parameters to the cross-contract call.
@@ -214,7 +216,7 @@ where
 pub fn build_call<E>() -> CallBuilder<
     E,
     Unset<Call>,
-    Unset<ExecutionInput<EmptyArgumentList<ScaleEncoding>, ScaleEncoding>>,
+    Unset<ExecutionInput<EmptyArgumentList<Ink>, Ink>>,
     Unset<ReturnType<()>>,
 >
 where
@@ -255,7 +257,7 @@ where
 pub fn build_call_solidity<E>() -> CallBuilder<
     E,
     Unset<Call>,
-    Unset<ExecutionInput<EmptyArgumentList<SolEncoding>, SolEncoding>>,
+    Unset<ExecutionInput<EmptyArgumentList<Sol>, Sol>>,
     Unset<ReturnType<()>>,
 >
 where
