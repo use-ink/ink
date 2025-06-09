@@ -12,6 +12,36 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use ink_engine::ext::Engine;
+#[cfg(feature = "unstable-hostfn")]
+use ink_primitives::abi::Ink;
+#[cfg(feature = "unstable-hostfn")]
+use ink_primitives::types::AccountIdMapper;
+use ink_primitives::{
+    abi::{
+        AbiDecodeWith,
+        AbiEncodeWith,
+    },
+    types::Environment,
+    Address,
+    SolEncode,
+    H256,
+    U256,
+};
+use ink_storage_traits::{
+    decode_all,
+    Storable,
+};
+use pallet_revive_uapi::{
+    ReturnErrorCode,
+    ReturnFlags,
+};
+#[cfg(feature = "unstable-hostfn")]
+use schnorrkel::{
+    PublicKey,
+    Signature,
+};
+
 use super::EnvInstance;
 use crate::{
     call::{
@@ -50,36 +80,6 @@ use crate::{
     },
     test::callee,
     Clear,
-};
-use ink_engine::ext::Engine;
-#[cfg(feature = "unstable-hostfn")]
-use ink_primitives::{
-    reflect::ScaleEncoding,
-    types::AccountIdMapper,
-};
-use ink_primitives::{
-    reflect::{
-        AbiDecodeWith,
-        AbiEncodeWith,
-    },
-    types::Environment,
-    Address,
-    SolEncode,
-    H256,
-    U256,
-};
-use ink_storage_traits::{
-    decode_all,
-    Storable,
-};
-use pallet_revive_uapi::{
-    ReturnErrorCode,
-    ReturnFlags,
-};
-#[cfg(feature = "unstable-hostfn")]
-use schnorrkel::{
-    PublicKey,
-    Signature,
 };
 
 /// The capacity of the static buffer.
@@ -656,7 +656,7 @@ impl TypedEnvBackend for EnvInstance {
         ContractRef: FromAddr + crate::ContractReverseReference,
         <ContractRef as crate::ContractReverseReference>::Type:
             crate::reflect::ContractConstructorDecoder,
-        Args: AbiEncodeWith<ScaleEncoding>,
+        Args: AbiEncodeWith<Ink>,
         R: ConstructorReturnType<ContractRef>,
     {
         let endowment = params.endowment();

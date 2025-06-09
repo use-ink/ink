@@ -28,9 +28,9 @@ use ink_env::{
     Environment,
 };
 use ink_primitives::{
-    reflect::{
-        ScaleEncoding,
-        SolEncoding,
+    abi::{
+        Ink,
+        Sol,
     },
     Address,
     ConstructorResult,
@@ -222,7 +222,7 @@ where
 }
 
 /// Result of a contract call.
-pub struct CallResult<E: Environment, V, EventLog, Abi = ScaleEncoding> {
+pub struct CallResult<E: Environment, V, EventLog, Abi = Ink> {
     /// The result of the dry run, contains debug messages if there were any.
     pub dry_run: CallDryRunResult<E, V, Abi>,
     /// Events that happened with the contract instantiation.
@@ -330,7 +330,7 @@ impl<E: Environment, V, Abi> CallDryRunResult<E, V, Abi> {
     }
 }
 
-impl<E: Environment, V: scale::Decode> CallDryRunResult<E, V, ScaleEncoding> {
+impl<E: Environment, V: scale::Decode> CallDryRunResult<E, V, Ink> {
     /// Returns the [`MessageResult`] from the execution of the dry-run message call.
     ///
     /// # Panics
@@ -360,7 +360,7 @@ impl<E: Environment, V: scale::Decode> CallDryRunResult<E, V, ScaleEncoding> {
     }
 }
 
-impl<E: Environment, V: SolDecode> CallDryRunResult<E, V, SolEncoding> {
+impl<E: Environment, V: SolDecode> CallDryRunResult<E, V, Sol> {
     /// Returns the [`MessageResult`] from the execution of the dry-run message call.
     ///
     /// # Panics

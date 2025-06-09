@@ -12,6 +12,55 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#[cfg(feature = "std")]
+use std::fmt::Debug;
+use std::path::PathBuf;
+
+use ink::H160;
+use ink_env::{
+    call::{
+        utils::{
+            ReturnType,
+            Set,
+        },
+        Call,
+        ExecutionInput,
+    },
+    Environment,
+};
+use ink_primitives::{
+    abi::{
+        AbiDecodeWith,
+        AbiEncodeWith,
+        Ink,
+    },
+    types::AccountIdMapper,
+    DepositLimit,
+};
+use jsonrpsee::core::async_trait;
+use pallet_revive::evm::CallTrace;
+use scale::{
+    Decode,
+    Encode,
+};
+use sp_weights::Weight;
+use subxt::{
+    blocks::ExtrinsicEvents,
+    config::{
+        DefaultExtrinsicParams,
+        ExtrinsicParams,
+        HashFor,
+    },
+    error::DispatchError,
+    events::EventDetails,
+    ext::scale_value::{
+        Composite,
+        Value,
+        ValueDef,
+    },
+    tx::Signer,
+};
+
 use super::{
     builders::{
         constructor_exec_input,
@@ -50,53 +99,6 @@ use crate::{
     events,
     ContractsBackend,
     E2EBackend,
-};
-use ink::H160;
-use ink_env::{
-    call::{
-        utils::{
-            ReturnType,
-            Set,
-        },
-        Call,
-        ExecutionInput,
-    },
-    Environment,
-};
-use ink_primitives::{
-    reflect::{
-        AbiDecodeWith,
-        AbiEncodeWith,
-        ScaleEncoding,
-    },
-    types::AccountIdMapper,
-    DepositLimit,
-};
-use jsonrpsee::core::async_trait;
-use pallet_revive::evm::CallTrace;
-use scale::{
-    Decode,
-    Encode,
-};
-use sp_weights::Weight;
-#[cfg(feature = "std")]
-use std::fmt::Debug;
-use std::path::PathBuf;
-use subxt::{
-    blocks::ExtrinsicEvents,
-    config::{
-        DefaultExtrinsicParams,
-        ExtrinsicParams,
-        HashFor,
-    },
-    error::DispatchError,
-    events::EventDetails,
-    ext::scale_value::{
-        Composite,
-        Value,
-        ValueDef,
-    },
-    tx::Signer,
 };
 
 pub type Error = crate::error::Error<DispatchError>;
@@ -534,7 +536,7 @@ where
 {
     async fn bare_instantiate<
         Contract: Clone,
-        Args: Send + Sync + AbiEncodeWith<ScaleEncoding> + Clone,
+        Args: Send + Sync + AbiEncodeWith<Ink> + Clone,
         R,
     >(
         &mut self,
@@ -557,7 +559,7 @@ where
 
     async fn bare_instantiate_dry_run<
         Contract: Clone,
-        Args: Send + Sync + AbiEncodeWith<ScaleEncoding> + Clone,
+        Args: Send + Sync + AbiEncodeWith<Ink> + Clone,
         R,
     >(
         &mut self,

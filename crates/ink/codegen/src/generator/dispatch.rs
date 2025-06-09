@@ -15,7 +15,7 @@
 use core::iter;
 
 use derive_more::From;
-use ink_primitives::reflect::Encoding;
+use ink_primitives::abi::Abi;
 use ir::{
     Callable,
     CallableWithSelector,
@@ -140,7 +140,7 @@ impl Dispatch<'_> {
                 let mut message_dispatchables = Vec::new();
                 for_each_abi!(@type |abi| {
                     match abi {
-                        Encoding::Scale => {
+                        Abi::Ink => {
                             let span = message.span();
                             let id = if let Some(trait_path) = trait_path {
                                 let local_id = message.local_id().hex_padded_suffixed();
@@ -164,7 +164,7 @@ impl Dispatch<'_> {
                             };
                             message_dispatchables.push(MessageDispatchable { message, id });
                         }
-                        Encoding::Solidity => {
+                        Abi::Sol => {
                             let id = sol::utils::selector_id(&message);
                             message_dispatchables.push(MessageDispatchable { message, id });
                         }
@@ -314,8 +314,8 @@ impl Dispatch<'_> {
         let return_type = quote! { ! };
 
         generate_abi_impls!(@type |abi| {
-            let (selector_id, selector_bytes, encoding, decode_trait, return_expr) = match abi {
-                Encoding::Scale => {
+            let (selector_id, selector_bytes, abi_ty, decode_trait, return_expr) = match abi {
+                Abi::Ink => {
                     let selector_id = message
                         .composed_selector()
                         .into_be_u32()
@@ -324,7 +324,7 @@ impl Dispatch<'_> {
                     (
                         quote!(#selector_id),
                         quote!([ #( #selector_bytes ),* ]),
-                        quote!(::ink::reflect::Encoding::Scale),
+                        quote!(::ink::abi::Abi::Ink),
                         quote!(::ink::scale::Decode),
                         quote! {
                             ::ink::env::return_value::<::ink::MessageResult::<Self::Output>>(
@@ -336,11 +336,11 @@ impl Dispatch<'_> {
                         },
                     )
                 }
-                Encoding::Solidity => {
+                Abi::Sol => {
                     (
                         sol::utils::selector_id(message),
                         sol::utils::selector(message),
-                        quote!(::ink::reflect::Encoding::Solidity),
+                        quote!(::ink::abi::Abi::Sol),
                         quote!(::ink::SolDecode),
                         quote! {
                             ::ink::env::return_value_solidity::<Self::Output>(
@@ -375,7 +375,7 @@ impl Dispatch<'_> {
                     const PAYABLE: ::core::primitive::bool = #payable;
                     const MUTATES: ::core::primitive::bool = #mutates;
                     const LABEL: &'static ::core::primitive::str = ::core::stringify!(#message_ident);
-                    const ENCODING: ::ink::reflect::Encoding = #encoding;
+                    const ABI: ::ink::abi::Abi = #abi_ty;
                 }
             )
         })
@@ -412,12 +412,12 @@ impl Dispatch<'_> {
         let return_type = quote! { ! };
 
         generate_abi_impls!(@type |abi| {
-            let (local_id, encoding, decode_trait, return_expr) = match abi {
-                Encoding::Scale => {
+            let (local_id, abi_ty, decode_trait, return_expr) = match abi {
+                Abi::Ink => {
                     let local_id = message.local_id().hex_padded_suffixed();
                     (
                         quote!(#local_id),
-                        quote!(::ink::reflect::Encoding::Scale),
+                        quote!(::ink::abi::Abi::Ink),
                         quote!(::ink::scale::Decode),
                         quote! {
                             ::ink::env::return_value::<::ink::MessageResult::<Self::Output>>(
@@ -429,10 +429,10 @@ impl Dispatch<'_> {
                         },
                     )
                 }
-                Encoding::Solidity => {
+                Abi::Sol => {
                     (
                         sol::utils::selector_id(message),
-                        quote!(::ink::reflect::Encoding::Solidity),
+                        quote!(::ink::abi::Abi::Sol),
                         quote!(::ink::SolDecode),
                         quote! {
                             ::ink::env::return_value_solidity::<Self::Output>(
@@ -480,7 +480,7 @@ impl Dispatch<'_> {
                     const PAYABLE: ::core::primitive::bool = #payable;
                     const MUTATES: ::core::primitive::bool = #mutates;
                     const LABEL: &'static ::core::primitive::str = #label;
-                    const ENCODING: ::ink::reflect::Encoding = #encoding;
+                    const ABI: ::ink::abi::Abi = #abi_ty;
                 }
             )
         })

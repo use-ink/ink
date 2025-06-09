@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::ChainExtensionInstance;
 use core::marker::PhantomData;
+
 #[cfg(feature = "unstable-hostfn")]
 use ink_env::call::{
     ConstructorReturnType,
@@ -36,9 +36,9 @@ use ink_env::{
     Result,
 };
 #[cfg(feature = "unstable-hostfn")]
-use ink_primitives::reflect::ScaleEncoding;
+use ink_primitives::abi::Ink;
 use ink_primitives::{
-    reflect::{
+    abi::{
         AbiDecodeWith,
         AbiEncodeWith,
     },
@@ -47,6 +47,8 @@ use ink_primitives::{
     U256,
 };
 use pallet_revive_uapi::ReturnErrorCode;
+
+use crate::ChainExtensionInstance;
 
 /// The API behind the `self.env()` and `Self::env()` syntax in ink!.
 ///
@@ -501,7 +503,7 @@ where
         <ContractRef as ink_env::ContractReverseReference>::Type:
             ink_env::reflect::ContractConstructorDecoder,
 
-        Args: AbiEncodeWith<ScaleEncoding>,
+        Args: AbiEncodeWith<Ink>,
         R: ConstructorReturnType<ContractRef>,
     {
         ink_env::instantiate_contract::<E, ContractRef, Args, R>(params)

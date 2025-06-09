@@ -12,13 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use super::TraitDefinition;
-use crate::{
-    generator,
-    traits::GenerateCode,
-};
 use derive_more::From;
-use ink_primitives::reflect::Encoding;
+use ink_primitives::abi::Abi;
 use proc_macro2::{
     Span,
     TokenStream as TokenStream2,
@@ -28,7 +23,12 @@ use quote::{
     quote_spanned,
 };
 
-use crate::generator::sol;
+use super::TraitDefinition;
+use crate::{
+    generator,
+    generator::sol,
+    traits::GenerateCode,
+};
 
 impl TraitDefinition<'_> {
     /// Generates code for the global trait call builder for an ink! trait.
@@ -144,8 +144,8 @@ impl MessageBuilder<'_> {
         let message_builder_ident = self.trait_def.message_builder_ident();
         generate_abi_impls!(@type |abi| {
             let abi_ty = match abi {
-                Encoding::Scale => quote!(::ink::reflect::ScaleEncoding),
-                Encoding::Solidity => quote!(::ink::reflect::SolEncoding),
+                Abi::Ink => quote!(::ink::abi::Ink),
+                Abi::Sol => quote!(::ink::abi::Sol),
             };
             let message_impls = self.generate_ink_trait_impl_messages(abi);
             quote_spanned!(span=>
@@ -164,19 +164,16 @@ impl MessageBuilder<'_> {
 
     /// Generate the code for all ink! trait messages implemented by the trait call
     /// builder.
-    fn generate_ink_trait_impl_messages(&self, abi: Encoding) -> TokenStream2 {
+    fn generate_ink_trait_impl_messages(&self, abi: Abi) -> TokenStream2 {
         let messages = self.trait_def.trait_def.item().iter_items().filter_map(
             |(item, selector)| {
                 item.filter_map_message().map(|message| {
                     let (selector_bytes, abi_ty) = match abi {
-                        Encoding::Scale => {
+                        Abi::Ink => {
                             let selector_bytes = selector.hex_lits();
-                            (
-                                quote!([ #( #selector_bytes ),* ]),
-                                quote!(::ink::reflect::ScaleEncoding),
-                            )
+                            (quote!([ #( #selector_bytes ),* ]), quote!(::ink::abi::Ink))
                         }
-                        Encoding::Solidity => {
+                        Abi::Sol => {
                             let message_ident = message.ident();
                             let signature = sol::utils::call_signature(
                                 message_ident.to_string(),
@@ -184,7 +181,7 @@ impl MessageBuilder<'_> {
                             );
                             (
                                 quote!(::ink::codegen::sol::selector_bytes(#signature)),
-                                quote!(::ink::reflect::SolEncoding),
+                                quote!(::ink::abi::Sol),
                             )
                         }
                     };

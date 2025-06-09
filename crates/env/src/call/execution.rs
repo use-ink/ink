@@ -12,6 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use core::marker::PhantomData;
+
+use ink_prelude::vec::Vec;
+use ink_primitives::{
+    abi::{
+        AbiDecodeWith,
+        AbiEncodeWith,
+        Ink,
+        Sol,
+    },
+    SolEncode,
+};
+
 use super::{
     utils::ReturnType,
     Selector,
@@ -19,17 +32,6 @@ use super::{
 use crate::{
     call::utils::DecodeMessageResult,
     Environment,
-};
-use core::marker::PhantomData;
-use ink_prelude::vec::Vec;
-use ink_primitives::{
-    reflect::{
-        AbiDecodeWith,
-        AbiEncodeWith,
-        ScaleEncoding,
-        SolEncoding,
-    },
-    SolEncode,
 };
 
 /// The input data and the expected return type of a contract execution.
@@ -270,7 +272,7 @@ where
     }
 }
 
-impl scale::Encode for EmptyArgumentList<ScaleEncoding> {
+impl scale::Encode for EmptyArgumentList<Ink> {
     #[inline]
     fn size_hint(&self) -> usize {
         0
@@ -280,7 +282,7 @@ impl scale::Encode for EmptyArgumentList<ScaleEncoding> {
     fn encode_to<O: scale::Output + ?Sized>(&self, _output: &mut O) {}
 }
 
-impl<Head, Rest> scale::Encode for ArgumentList<Argument<Head>, Rest, ScaleEncoding>
+impl<Head, Rest> scale::Encode for ArgumentList<Argument<Head>, Rest, Ink>
 where
     Head: scale::Encode,
     Rest: scale::Encode,
@@ -303,7 +305,7 @@ where
     }
 }
 
-impl<Args> scale::Encode for ExecutionInput<Args, ScaleEncoding>
+impl<Args> scale::Encode for ExecutionInput<Args, Ink>
 where
     Args: scale::Encode,
 {
@@ -332,7 +334,7 @@ where
     }
 }
 
-impl SolEncode<'_> for EmptyArgumentList<SolEncoding> {
+impl SolEncode<'_> for EmptyArgumentList<Sol> {
     type SolType = ();
 
     fn encode(&self) -> Vec<u8> {
@@ -343,7 +345,7 @@ impl SolEncode<'_> for EmptyArgumentList<SolEncoding> {
     fn to_sol_type(&self) {}
 }
 
-impl<'a, Head, Rest> SolEncode<'a> for ArgumentList<Argument<Head>, Rest, SolEncoding>
+impl<'a, Head, Rest> SolEncode<'a> for ArgumentList<Argument<Head>, Rest, Sol>
 where
     Head: SolEncode<'a>,
     Rest: SolEncode<'a>,

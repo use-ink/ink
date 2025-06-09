@@ -12,6 +12,33 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#[cfg(feature = "unstable-hostfn")]
+use ink_primitives::abi::Ink;
+use ink_primitives::{
+    abi::{
+        AbiDecodeWith,
+        AbiEncodeWith,
+    },
+    Address,
+    SolEncode,
+    H256,
+    U256,
+};
+use ink_storage_traits::{
+    decode_all,
+    Storable,
+};
+use pallet_revive_uapi::{
+    CallFlags,
+    HostFn,
+    HostFnImpl as ext,
+    ReturnErrorCode,
+    ReturnFlags,
+    StorageFlags,
+};
+#[cfg(feature = "unstable-hostfn")]
+use xcm::VersionedXcm;
+
 use crate::{
     call::{
         utils::DecodeMessageResult,
@@ -56,32 +83,6 @@ use crate::{
     },
     Clear,
 };
-#[cfg(feature = "unstable-hostfn")]
-use ink_primitives::reflect::ScaleEncoding;
-use ink_primitives::{
-    reflect::{
-        AbiDecodeWith,
-        AbiEncodeWith,
-    },
-    Address,
-    SolEncode,
-    H256,
-    U256,
-};
-use ink_storage_traits::{
-    decode_all,
-    Storable,
-};
-use pallet_revive_uapi::{
-    CallFlags,
-    HostFn,
-    HostFnImpl as ext,
-    ReturnErrorCode,
-    ReturnFlags,
-    StorageFlags,
-};
-#[cfg(feature = "unstable-hostfn")]
-use xcm::VersionedXcm;
 
 #[cfg(feature = "unstable-hostfn")]
 impl CryptoHash for Blake2x128 {
@@ -611,7 +612,7 @@ impl TypedEnvBackend for EnvInstance {
     where
         E: Environment,
         ContractRef: FromAddr,
-        Args: AbiEncodeWith<ScaleEncoding>,
+        Args: AbiEncodeWith<Ink>,
         RetType: ConstructorReturnType<ContractRef>,
     {
         let mut scoped = self.scoped_buffer();

@@ -17,10 +17,10 @@ use ink_env::{
     Environment,
 };
 use ink_primitives::{
-    reflect::{
+    abi::{
         AbiDecodeWith,
         AbiEncodeWith,
-        ScaleEncoding,
+        Ink,
     },
     DepositLimit,
 };
@@ -135,7 +135,7 @@ pub trait ContractsBackend<E: Environment> {
     fn instantiate<
         'a,
         Contract: Clone,
-        Args: Send + Clone + AbiEncodeWith<ScaleEncoding> + Sync,
+        Args: Send + Clone + AbiEncodeWith<Ink> + Sync,
         R,
     >(
         &'a mut self,
@@ -312,7 +312,7 @@ pub trait BuilderClient<E: Environment>: ContractsBackend<E> {
     /// instance is reused!
     async fn bare_instantiate<
         Contract: Clone,
-        Args: Send + Sync + AbiEncodeWith<ScaleEncoding> + Clone,
+        Args: Send + Sync + AbiEncodeWith<Ink> + Clone,
         R,
     >(
         &mut self,
@@ -327,7 +327,7 @@ pub trait BuilderClient<E: Environment>: ContractsBackend<E> {
     /// Dry run contract instantiation.
     async fn bare_instantiate_dry_run<
         Contract: Clone,
-        Args: Send + Sync + AbiEncodeWith<ScaleEncoding> + Clone,
+        Args: Send + Sync + AbiEncodeWith<Ink> + Clone,
         R,
     >(
         &mut self,

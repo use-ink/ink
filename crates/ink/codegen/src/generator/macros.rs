@@ -20,9 +20,9 @@
 macro_rules! default_abi {
     () => {{
         if cfg!(ink_abi = "sol") {
-            quote!(::ink::reflect::SolEncoding)
+            quote!(::ink::abi::Sol)
         } else {
-            quote!(::ink::reflect::ScaleEncoding)
+            quote!(::ink::abi::Ink)
         }
     }};
 }
@@ -32,8 +32,8 @@ macro_rules! default_abi {
 /// # Note
 ///
 /// The ABI is passed to the callback function as an argument.
-/// The argument value can be either as an `ink_primitives::reflect::Encoding` variant,
-/// or tokens for `::ink::reflect::ScaleEncoding` or `::ink::reflect::SolEncoding`.
+/// The argument value can be either as an `ink_primitives::abi::Abi` variant,
+/// or tokens for `::ink::abi::Ink` or `::ink::abi::Sol`.
 macro_rules! for_each_abi {
     ($callback: expr, $ink_abi: expr, $sol_abi: expr) => {{
         #[cfg(not(ink_abi = "sol"))]
@@ -43,17 +43,13 @@ macro_rules! for_each_abi {
         $callback($sol_abi);
     }};
     (@tokens $callback: expr) => {
-        for_each_abi!(
-            $callback,
-            quote!(::ink::reflect::ScaleEncoding),
-            quote!(::ink::reflect::SolEncoding)
-        )
+        for_each_abi!($callback, quote!(::ink::abi::Ink), quote!(::ink::abi::Sol))
     };
     (@type $callback: expr) => {
         for_each_abi!(
             $callback,
-            ink_primitives::reflect::Encoding::Scale,
-            ink_primitives::reflect::Encoding::Solidity
+            ink_primitives::abi::Abi::Ink,
+            ink_primitives::abi::Abi::Sol
         )
     };
 }
@@ -65,17 +61,17 @@ macro_rules! for_each_abi {
 /// # Note
 ///
 /// The ABI is passed to the generator function as an argument.
-/// The argument value can be either as an `ink_primitives::reflect::Encoding` variant,
-/// or tokens for `::ink::reflect::ScaleEncoding` or `::ink::reflect::SolEncoding`.
+/// The argument value can be either as an `ink_primitives::abi::Abi` variant,
+/// or tokens for `::ink::abi::Ink` or `::ink::abi::Sol`.
 macro_rules! generate_abi_impls {
     ($generator: expr, $ink_abi: expr, $sol_abi: expr) => {{
         let mut abi_impls = Vec::new();
         for_each_abi!(@type |abi| {
             match abi {
-                ink_primitives::reflect::Encoding::Scale => {
+                ink_primitives::abi::Abi::Ink => {
                     abi_impls.push($generator($ink_abi));
                 },
-                ink_primitives::reflect::Encoding::Solidity => {
+                ink_primitives::abi::Abi::Sol => {
                     abi_impls.push($generator($sol_abi));
                 },
             }
@@ -87,15 +83,15 @@ macro_rules! generate_abi_impls {
     (@tokens $callback: expr) => {
         generate_abi_impls!(
             $callback,
-            quote!(::ink::reflect::ScaleEncoding),
-            quote!(::ink::reflect::SolEncoding)
+            quote!(::ink::abi::Ink),
+            quote!(::ink::abi::Sol)
         )
     };
     (@type $callback: expr) => {
         generate_abi_impls!(
             $callback,
-            ink_primitives::reflect::Encoding::Scale,
-            ink_primitives::reflect::Encoding::Solidity
+            ink_primitives::abi::Abi::Ink,
+            ink_primitives::abi::Abi::Sol
         )
     };
 }

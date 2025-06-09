@@ -147,8 +147,8 @@ pub use pallet_revive_uapi::{
 
 #[cfg(not(ink_abi = "sol"))]
 #[doc(hidden)]
-pub type DefaultAbi = ink_primitives::reflect::ScaleEncoding;
+pub type DefaultAbi = ink_primitives::abi::Ink;
 
 #[cfg(ink_abi = "sol")]
 #[doc(hidden)]
-pub type DefaultAbi = ink_primitives::reflect::SolEncoding;
+pub type DefaultAbi = ink_primitives::abi::Sol;
