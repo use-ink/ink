@@ -15,6 +15,7 @@
 use core::iter;
 
 use derive_more::From;
+use ink_primitives::reflect::Encoding;
 use ir::{
     Callable,
     CallableWithSelector,
@@ -36,10 +37,9 @@ use syn::{
     LitInt,
 };
 
-#[cfg(any(ink_abi = "sol", ink_abi = "all"))]
-use crate::generator::sol;
 use crate::{
     generator,
+    generator::sol,
     GenerateCode,
 };
 
@@ -129,7 +129,6 @@ impl Dispatch<'_> {
     ///
     /// See [`MessageDispatchable`]
     fn compose_messages_with_ids(&self) -> Vec<MessageDispatchable> {
-        #[cfg(not(ink_abi = "sol"))]
         let storage_ident = self.contract.module().storage().ident();
         self.contract
             .module()
@@ -139,39 +138,38 @@ impl Dispatch<'_> {
             })
             .flat_map(|(trait_path, message)| {
                 let mut message_dispatchables = Vec::new();
-
-                #[cfg(not(ink_abi = "sol"))]
-                {
-                    let span = message.span();
-                    let id = if let Some(trait_path) = trait_path {
-                        let local_id = message.local_id().hex_padded_suffixed();
-                        quote_spanned!(span=>
-                            {
-                                ::core::primitive::u32::from_be_bytes(
-                                    <<::ink::reflect::TraitDefinitionRegistry<<#storage_ident as ::ink::env::ContractEnv>::Env>
-                                        as #trait_path>::__ink_TraitInfo
-                                        as ::ink::reflect::TraitMessageInfo<#local_id>>::SELECTOR
+                for_each_abi!(@type |abi| {
+                    match abi {
+                        Encoding::Scale => {
+                            let span = message.span();
+                            let id = if let Some(trait_path) = trait_path {
+                                let local_id = message.local_id().hex_padded_suffixed();
+                                quote_spanned!(span=>
+                                    {
+                                        ::core::primitive::u32::from_be_bytes(
+                                            <<::ink::reflect::TraitDefinitionRegistry<<#storage_ident as ::ink::env::ContractEnv>::Env>
+                                                as #trait_path>::__ink_TraitInfo
+                                                as ::ink::reflect::TraitMessageInfo<#local_id>>::SELECTOR
+                                        )
+                                    }
                                 )
-                            }
-                        )
-                    } else {
-                        let id = message
-                            .composed_selector()
-                            .into_be_u32()
-                            .hex_padded_suffixed();
-                        quote_spanned!(span=>
-                            #id
-                        )
-                    };
-                    message_dispatchables.push(MessageDispatchable { message, id });
-                }
-
-                #[cfg(any(ink_abi = "sol", ink_abi = "all"))]
-                {
-                    let id = sol::utils::selector_id(&message);
-                    message_dispatchables.push(MessageDispatchable { message, id });
-                    let _ = trait_path; // removes unused warning.
-                }
+                            } else {
+                                let id = message
+                                    .composed_selector()
+                                    .into_be_u32()
+                                    .hex_padded_suffixed();
+                                quote_spanned!(span=>
+                                    #id
+                                )
+                            };
+                            message_dispatchables.push(MessageDispatchable { message, id });
+                        }
+                        Encoding::Solidity => {
+                            let id = sol::utils::selector_id(&message);
+                            message_dispatchables.push(MessageDispatchable { message, id });
+                        }
+                    }
+                });
 
                 message_dispatchables
             })
@@ -315,13 +313,44 @@ impl Dispatch<'_> {
         #[cfg(not(feature = "std"))]
         let return_type = quote! { ! };
 
-        let mut message_infos = Vec::new();
-
-        let generate_info = |selector_id: TokenStream2,
-                             selector_bytes: TokenStream2,
-                             encoding_strategy: TokenStream2,
-                             decode_trait: TokenStream2,
-                             return_expr: TokenStream2| {
+        generate_abi_impls!(@type |abi| {
+            let (selector_id, selector_bytes, encoding, decode_trait, return_expr) = match abi {
+                Encoding::Scale => {
+                    let selector_id = message
+                        .composed_selector()
+                        .into_be_u32()
+                        .hex_padded_suffixed();
+                    let selector_bytes = message.composed_selector().hex_lits();
+                    (
+                        quote!(#selector_id),
+                        quote!([ #( #selector_bytes ),* ]),
+                        quote!(::ink::reflect::Encoding::Scale),
+                        quote!(::ink::scale::Decode),
+                        quote! {
+                            ::ink::env::return_value::<::ink::MessageResult::<Self::Output>>(
+                                flags,
+                                // Currently no `LangError`s are raised at this level of the
+                                // dispatch logic so `Ok` is always returned to the caller.
+                                &::ink::MessageResult::Ok(output),
+                            )
+                        },
+                    )
+                }
+                Encoding::Solidity => {
+                    (
+                        sol::utils::selector_id(message),
+                        sol::utils::selector(message),
+                        quote!(::ink::reflect::Encoding::Solidity),
+                        quote!(::ink::SolDecode),
+                        quote! {
+                            ::ink::env::return_value_solidity::<Self::Output>(
+                                flags,
+                                &output,
+                            )
+                        },
+                    )
+                }
+            };
             quote_spanned!(message_span=>
                 #( #cfg_attrs )*
                 impl ::ink::reflect::DispatchableMessageInfo<#selector_id> for #storage_ident {
@@ -346,55 +375,10 @@ impl Dispatch<'_> {
                     const PAYABLE: ::core::primitive::bool = #payable;
                     const MUTATES: ::core::primitive::bool = #mutates;
                     const LABEL: &'static ::core::primitive::str = ::core::stringify!(#message_ident);
-                    const ENCODING: ::ink::reflect::Encoding = #encoding_strategy;
+                    const ENCODING: ::ink::reflect::Encoding = #encoding;
                 }
             )
-        };
-
-        #[cfg(not(ink_abi = "sol"))]
-        {
-            let selector_id = message
-                .composed_selector()
-                .into_be_u32()
-                .hex_padded_suffixed();
-            let selector_bytes = message.composed_selector().hex_lits();
-            message_infos.push(generate_info(
-                quote!(#selector_id),
-                quote!([ #( #selector_bytes ),* ]),
-                quote!(::ink::reflect::Encoding::Scale),
-                quote!(::ink::scale::Decode),
-                quote! {
-                    ::ink::env::return_value::<::ink::MessageResult::<Self::Output>>(
-                        flags,
-                        // Currently no `LangError`s are raised at this level of the
-                        // dispatch logic so `Ok` is always returned to the caller.
-                        &::ink::MessageResult::Ok(output),
-                    )
-                },
-            ));
-        }
-
-        #[cfg(any(ink_abi = "sol", ink_abi = "all"))]
-        {
-            let selector_id = sol::utils::selector_id(message);
-            let selector_bytes = sol::utils::selector(message);
-            message_infos.push(generate_info(
-                selector_id,
-                selector_bytes,
-                quote!(::ink::reflect::Encoding::Solidity),
-                quote!(::ink::SolDecode),
-                quote! {
-                    ::ink::env::return_value_solidity::<Self::Output>(
-                        flags,
-                        &output,
-                    )
-                },
-            ));
-        }
-
-        quote_spanned!(message_span=>
-            #( #message_infos )*
-        )
+        })
     }
 
     /// Generate code for the [`ink::DispatchableMessageInfo`] trait implementations.
@@ -427,12 +411,38 @@ impl Dispatch<'_> {
         #[cfg(not(feature = "std"))]
         let return_type = quote! { ! };
 
-        let mut message_infos = Vec::new();
-
-        let generate_info = |local_id: TokenStream2,
-                             encoding_strategy: TokenStream2,
-                             decode_trait: TokenStream2,
-                             return_expr: TokenStream2| {
+        generate_abi_impls!(@type |abi| {
+            let (local_id, encoding, decode_trait, return_expr) = match abi {
+                Encoding::Scale => {
+                    let local_id = message.local_id().hex_padded_suffixed();
+                    (
+                        quote!(#local_id),
+                        quote!(::ink::reflect::Encoding::Scale),
+                        quote!(::ink::scale::Decode),
+                        quote! {
+                            ::ink::env::return_value::<::ink::MessageResult::<Self::Output>>(
+                                flags,
+                                // Currently no `LangError`s are raised at this level of the
+                                // dispatch logic so `Ok` is always returned to the caller.
+                                &::ink::MessageResult::Ok(output),
+                            )
+                        },
+                    )
+                }
+                Encoding::Solidity => {
+                    (
+                        sol::utils::selector_id(message),
+                        quote!(::ink::reflect::Encoding::Solidity),
+                        quote!(::ink::SolDecode),
+                        quote! {
+                            ::ink::env::return_value_solidity::<Self::Output>(
+                                flags,
+                                &output,
+                            )
+                        },
+                    )
+                }
+            };
             let payable = quote! {{
                 <<::ink::reflect::TraitDefinitionRegistry<<#storage_ident as ::ink::env::ContractEnv>::Env>
                     as #trait_path>::__ink_TraitInfo
@@ -446,7 +456,6 @@ impl Dispatch<'_> {
             let selector_id = quote! {{
                 ::core::primitive::u32::from_be_bytes(#selector)
             }};
-
             quote_spanned!(message_span=>
                 #( #cfg_attrs )*
                 impl ::ink::reflect::DispatchableMessageInfo<#selector_id> for #storage_ident {
@@ -471,50 +480,10 @@ impl Dispatch<'_> {
                     const PAYABLE: ::core::primitive::bool = #payable;
                     const MUTATES: ::core::primitive::bool = #mutates;
                     const LABEL: &'static ::core::primitive::str = #label;
-                    const ENCODING: ::ink::reflect::Encoding = #encoding_strategy;
+                    const ENCODING: ::ink::reflect::Encoding = #encoding;
                 }
             )
-        };
-
-        #[cfg(not(ink_abi = "sol"))]
-        {
-            let local_id = message.local_id().hex_padded_suffixed();
-            message_infos.push(generate_info(
-                quote!(#local_id),
-                quote!(::ink::reflect::Encoding::Scale),
-                quote!(::ink::scale::Decode),
-                quote! {
-                    ::ink::env::return_value::<::ink::MessageResult::<Self::Output>>(
-                        flags,
-                        // Currently no `LangError`s are raised at this level of the
-                        // dispatch logic so `Ok` is always returned to the caller.
-                        &::ink::MessageResult::Ok(output),
-                    )
-                },
-            ));
-        }
-
-        #[cfg(any(ink_abi = "sol", ink_abi = "all"))]
-        {
-            // NOTE: Solidity selectors are always computed from the call signature and
-            // input types.
-            let local_id = sol::utils::selector_id(message);
-            message_infos.push(generate_info(
-                local_id,
-                quote!(::ink::reflect::Encoding::Solidity),
-                quote!(::ink::SolDecode),
-                quote! {
-                    ::ink::env::return_value_solidity::<Self::Output>(
-                        flags,
-                        &output,
-                    )
-                },
-            ));
-        }
-
-        quote_spanned!(message_span=>
-            #( #message_infos )*
-        )
+        })
     }
 
     /// Generates code for the entry points of the root ink! smart contract.

@@ -18,5 +18,5 @@
 /// for all inherent or trait ink! messages.
 pub trait ContractCallBuilder {
     /// The generated contract call builder type.
-    type Type;
+    type Type<Abi>;
 }
