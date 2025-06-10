@@ -26,7 +26,9 @@ pub use self::{
         deny_payment,
         ContractCallBuilder,
         DispatchInput,
+        DispatchInputSol,
         DispatchOutput,
+        DispatchOutputSol,
     },
     env::{
         Env,
