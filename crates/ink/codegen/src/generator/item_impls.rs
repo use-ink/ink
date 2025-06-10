@@ -16,6 +16,7 @@ use core::iter;
 
 use derive_more::From;
 use heck::ToLowerCamelCase as _;
+use ink_primitives::abi::Abi;
 use ir::Callable as _;
 #[cfg(not(ink_abi = "sol"))]
 use ir::HexLiteral;
@@ -44,7 +45,9 @@ impl GenerateCode for ItemImpls<'_> {
             .module()
             .impls()
             .map(|item_impl| self.generate_item_impl(item_impl));
-        let inout_guards = self.generate_input_output_guards();
+        let inout_guards = generate_abi_impls!(@type |abi| {
+            self.generate_input_output_guards(abi)
+        });
         let trait_message_property_guards = self.generate_trait_message_property_guards();
         quote! {
             const _: () = {
@@ -133,7 +136,11 @@ impl ItemImpls<'_> {
     }
 
     /// Generates code to assert that ink! input and output types meet certain properties.
-    fn generate_input_output_guards(&self) -> TokenStream2 {
+    fn generate_input_output_guards(&self, abi: Abi) -> TokenStream2 {
+        let (input_trait, output_trait) = match abi {
+            Abi::Ink => (quote!(DispatchInput), quote!(DispatchOutput)),
+            Abi::Sol => (quote!(DispatchInputSol), quote!(DispatchOutputSol)),
+        };
         let storage_span = self.contract.module().storage().span();
         let constructor_input_guards = self
             .contract
@@ -147,7 +154,7 @@ impl ItemImpls<'_> {
                     let input_type = &*input.ty;
                     quote_spanned!(span=>
                         ::ink::codegen::utils::consume_type::<
-                            ::ink::codegen::DispatchInput<#input_type>
+                            ::ink::codegen::#input_trait<#input_type>
                         >();
                     )
                 });
@@ -167,7 +174,7 @@ impl ItemImpls<'_> {
                     let input_type = &*input.ty;
                     quote_spanned!(span=>
                         ::ink::codegen::utils::consume_type::<
-                            ::ink::codegen::DispatchInput<#input_type>
+                            ::ink::codegen::#input_trait<#input_type>
                         >();
                     )
                 });
@@ -175,7 +182,7 @@ impl ItemImpls<'_> {
                     let span = output_type.span();
                     quote_spanned!(span=>
                         ::ink::codegen::utils::consume_type::<
-                            ::ink::codegen::DispatchOutput<#output_type>
+                            ::ink::codegen::#output_trait<#output_type>
                         >();
                     )
                 });

@@ -136,14 +136,21 @@ impl TraitRegistry<'_> {
     }
 
     /// Generates code to assert that ink! input and output types meet certain properties.
-    fn generate_inout_guards_for_message(message: &ir::InkTraitMessage) -> TokenStream2 {
+    fn generate_inout_guards_for_message(
+        message: &ir::InkTraitMessage,
+        abi: Abi,
+    ) -> TokenStream2 {
         let message_span = message.span();
+        let (input_trait, output_trait) = match abi {
+            Abi::Ink => (quote!(DispatchInput), quote!(DispatchOutput)),
+            Abi::Sol => (quote!(DispatchInputSol), quote!(DispatchOutputSol)),
+        };
         let message_inputs = message.inputs().map(|input| {
             let input_span = input.span();
             let input_type = &*input.ty;
             quote_spanned!(input_span=>
                 ::ink::codegen::utils::consume_type::<
-                    ::ink::codegen::DispatchInput<#input_type>
+                    ::ink::codegen::#input_trait<#input_type>
                 >();
             )
         });
@@ -151,7 +158,7 @@ impl TraitRegistry<'_> {
             let output_span = output_type.span();
             quote_spanned!(output_span=>
                 ::ink::codegen::utils::consume_type::<
-                    ::ink::codegen::DispatchOutput<#output_type>
+                    ::ink::codegen::#output_trait<#output_type>
                 >();
             )
         });
@@ -188,7 +195,9 @@ impl TraitRegistry<'_> {
             selector,
             message.mutates(),
         );
-        let inout_guards = Self::generate_inout_guards_for_message(message);
+        let inout_guards = generate_abi_impls!(@type |abi| {
+            Self::generate_inout_guards_for_message(message, abi)
+        });
         let impl_body = match option_env!("INK_COVERAGE_REPORTING") {
             Some("true") => {
                 quote! {
