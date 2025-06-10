@@ -27,12 +27,17 @@
 ///
 /// # Usage
 ///
-/// The macro expects two arguments:
+/// The macro expects up to three arguments:
 /// - The first argument is the path to the trait, e.g. `Erc20` or `erc20::Erc20`.
 /// - The second argument is the type of the [`ink_env::Environment`].
+/// - The third argument is the marker type for the ABI (i.e. [`ink::abi::Ink`] or
+///   [`ink::abi::Sol`]).
 ///
 /// If the second argument is not specified, the macro uses the
 /// [`ink_env::DefaultEnvironment`].
+/// If the third argument is not specified, the macro uses the "default" ABI,
+/// which depending on the ABI specified in the project's manifest
+/// (see https://use.ink/docs/v6/basics/abi/ for details).
 ///
 /// ```rust
 /// use ink::message_builder;
@@ -119,6 +124,13 @@
 /// fn custom(to: Address) {
 ///     let executor = ExampleExecutor::<CustomEnv>::new();
 ///     let mut contract = message_builder!(Erc20, CustomEnv);
+///     let total_supply = contract.total_supply().exec(&executor).unwrap().unwrap();
+///     contract.transfer(total_supply, to).exec(&executor).unwrap();
+/// }
+///
+/// fn custom_abi(to: Address) {
+///     let executor = ExampleExecutor::<DefaultEnvironment>::new();
+///     let mut contract = message_builder!(Erc20, DefaultEnvironment, ink::abi::Ink);
 ///     let total_supply = contract.total_supply().exec(&executor).unwrap().unwrap();
 ///     contract.transfer(total_supply, to).exec(&executor).unwrap();
 /// }

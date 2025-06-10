@@ -117,11 +117,16 @@ use ink_primitives::Address;
 ///
 /// # Usage outside the `#[ink::contract]` context
 ///
-/// The macro expects two arguments:
+/// The macro expects up to three arguments:
 /// - The first argument is the path to the trait, e.g. `Erc20` or `erc20::Erc20`.
 /// - The second argument is the type of the [`ink_env::Environment`].
+/// - The third argument is the marker type for the ABI (i.e. [`ink::abi::Ink`] or
+///   [`ink::abi::Sol`]).
 ///
 /// If the second argument is not specified, the macro uses the `Environment` type alias.
+/// If the third argument is not specified, the macro uses the "default" ABI,
+/// which depending on the ABI specified in the project's manifest
+/// (see https://use.ink/docs/v6/basics/abi/ for details).
 ///
 /// ```rust
 /// use ink::contract_ref;
@@ -156,6 +161,7 @@ use ink_primitives::Address;
 /// type AliasWithDefaultEnv = contract_ref!(Erc20, DefaultEnvironment);
 /// type AliasWithCustomEnv = contract_ref!(Erc20, CustomEnv);
 /// type AliasWithGenericEnv<E> = contract_ref!(Erc20, E);
+/// type AliasWithCustomAbi = contract_ref!(Erc20, DefaultEnvironment, ink::abi::Ink);
 ///
 /// fn default(mut contract: contract_ref!(Erc20, DefaultEnvironment)) {
 ///     let total_supply = contract.total_supply();
@@ -192,6 +198,15 @@ use ink_primitives::Address;
 ///     A: Into<Address> + Clone,
 /// {
 ///     generic(contract)
+/// }
+///
+/// fn custom_abi(mut contract: contract_ref!(Erc20, DefaultEnvironment, ink::abi::Ink)) {
+///     let total_supply = contract.total_supply();
+///     contract.transfer(total_supply, contract.as_ref().clone());
+/// }
+///
+/// fn custom_alias_abi(mut contract: AliasWithCustomAbi) {
+///     custom_abi(contract)
 /// }
 ///
 /// type Environment = DefaultEnvironment;
