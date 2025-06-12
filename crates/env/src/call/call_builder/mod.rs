@@ -21,10 +21,7 @@ pub use delegate::DelegateCall;
 use core::marker::PhantomData;
 
 use ink_primitives::{
-    abi::{
-        Ink,
-        Sol,
-    },
+    abi::Sol,
     Address,
 };
 
@@ -70,7 +67,7 @@ where
 }
 
 /// Returns a new [`CallBuilder`] to build up the parameters to a cross-contract call
-/// that uses the ink! ABI (SCALE Encoding).
+/// that uses the "default" ABI.
 ///
 /// # Example
 ///
@@ -216,7 +213,7 @@ where
 pub fn build_call<E>() -> CallBuilder<
     E,
     Unset<Call>,
-    Unset<ExecutionInput<EmptyArgumentList<Ink>, Ink>>,
+    Unset<ExecutionInput<EmptyArgumentList<crate::DefaultAbi>, crate::DefaultAbi>>,
     Unset<ReturnType<()>>,
 >
 where
