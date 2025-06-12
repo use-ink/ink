@@ -67,7 +67,12 @@ where
 }
 
 /// Returns a new [`CallBuilder`] to build up the parameters to a cross-contract call
-/// that uses the "default" ABI.
+/// that uses the "default" ABI for calls for the ink! project.
+///
+/// # Note
+///
+/// The "default" ABI for calls is "ink", unless the ABI is set to "sol"
+/// in the ink! project's manifest file (i.e. `Cargo.toml`).
 ///
 /// # Example
 ///

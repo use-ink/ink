@@ -12,11 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-/// Returns the "default" ABI.
+/// Returns the "default" ABI for calls.
 ///
 /// # Note
 ///
-/// The "default" ABI is "ink" unless the ABI is specifically set to "sol".
+/// The "default" ABI for calls is "ink", unless the ABI is set to "sol"
+/// in the ink! project's manifest file (i.e. `Cargo.toml`).
 macro_rules! default_abi {
     () => {{
         if cfg!(ink_abi = "sol") {
