@@ -35,9 +35,13 @@
 ///
 /// If the second argument is not specified, the macro uses the
 /// [`ink_env::DefaultEnvironment`].
-/// If the third argument is not specified, the macro uses the "default" ABI,
-/// which depending on the ABI specified in the project's manifest
-/// (see https://use.ink/docs/v6/basics/abi/ for details).
+/// If the third argument is not specified, the macro uses the "default" ABI for calls
+/// for the ink! project.
+///
+/// # Note
+///
+/// The "default" ABI for calls is "ink", unless the ABI is set to "sol"
+/// in the ink! project's manifest file (i.e. `Cargo.toml`).
 ///
 /// ```rust
 /// use ink::message_builder;

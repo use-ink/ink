@@ -151,7 +151,10 @@ impl<E: Environment, EventLog> InstantiationResult<E, EventLog> {
     ///
     /// # Note
     ///
-    /// This uses the "default" ABI for the instantiated contract.
+    /// This uses the "default" ABI for calls for the instantiated contract.
+    ///
+    /// The "default" ABI for calls is "ink", unless the ABI is set to "sol"
+    /// in the ink! project's manifest file (i.e. `Cargo.toml`).
     pub fn call_builder<Contract>(
         &self,
     ) -> <Contract as ContractCallBuilder>::Type<ink::env::DefaultAbi>
