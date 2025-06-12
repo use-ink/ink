@@ -214,7 +214,7 @@ fn build_contract(
         build_mode: BuildMode::Debug,
         features,
         network: Network::Online,
-        build_artifact: BuildArtifacts::All,
+        build_artifact: BuildArtifacts::CodeOnly,
         unstable_flags: UnstableFlags::default(),
         keep_debug_symbols: false,
         extra_lints: false,
