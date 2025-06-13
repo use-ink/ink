@@ -1044,7 +1044,10 @@ jobs:
           run: |
               # Build the comparison table
               echo "branch:"
+              cat measurements-${{ env.MEASUREMENTS_ID }}
+              echo "branch with solidity abi:"
               cat measurements-abi-${{ env.MEASUREMENTS_ID }}
+              echo "---"
               echo "---"
               ./scripts/contract_sizes_diff.sh measurements-${{ env.MEASUREMENTS_ID }} measurements-abi-${{ env.MEASUREMENTS_ID } > abi_contract_sizes_diff.md
               cat abi_contract_sizes_diff.md
