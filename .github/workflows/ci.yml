@@ -808,8 +808,8 @@ jobs:
             uses: ./.github/run-container-command
             with:
                 command: |
-                  find integration-tests/public integration-tests/internal -type f -name "*.rs" -exec sed -i '' 's/#\[ink::contract(/#[ink::contract(abi = sol, /g' {} +
-                  find integration-tests/public integration-tests/internal -type f -name "*.rs" -exec sed -i '' 's|#\[ink::contract\]|#[ink::contract(abi = sol)]|g' {} +
+                  find integration-tests/public integration-tests/internal -type f -name "*.rs" -exec sed -i 's/#\[ink::contract(/#[ink::contract(abi = sol, /g' {} +
+                  find integration-tests/public integration-tests/internal -type f -name "*.rs" -exec sed -i 's|#\[ink::contract\]|#[ink::contract(abi = sol)]|g' {} +
 
           - name: Build Contract Examples for RISC-V
             uses: ./.github/run-container-command
