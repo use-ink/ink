@@ -35,3 +35,6 @@ e2e-tests = []
 # NOTE: `cargo-contract` also sets this flag when generating metadata for the same reason.
 # See https://github.com/use-ink/cargo-contract/pull/1200
 lto = "thin"
+
+[package.metadata.ink-lang]
+abi = "ink"
