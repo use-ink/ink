@@ -805,6 +805,7 @@ jobs:
             id: extract_branch
 
           - name: Force Solidity ABI (internal and public)
+            uses: ./.github/run-container-command
             with:
                 command: |
                   find public internal -type f -name "*.rs" -exec sed -i '' 's/#\[ink::contract(/#[ink::contract(abi = sol, /g' {} +
