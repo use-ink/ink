@@ -40,7 +40,9 @@ pub fn sol_type(ty: &Type) -> TokenStream2 {
 pub fn selector(message: &Message) -> TokenStream2 {
     let signature = call_signature(message.ident().to_string(), message.inputs());
     quote! {
-        ::ink::codegen::sol::selector_bytes(#signature)
+        const {
+            ::ink::codegen::sol::selector_bytes(#signature)
+        }
     }
 }
 
@@ -50,7 +52,9 @@ pub fn selector_id(message: &Message) -> TokenStream2 {
     let selector_bytes = selector(message);
     quote!(
         {
-            ::core::primitive::u32::from_be_bytes(#selector_bytes)
+            const {
+                ::core::primitive::u32::from_be_bytes(#selector_bytes)
+            }
         }
     )
 }
