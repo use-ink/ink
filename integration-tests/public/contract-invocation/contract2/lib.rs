@@ -2,7 +2,7 @@
 
 pub use self::contract2::Contract2Ref;
 
-#[ink::contract()]
+#[ink::contract]
 mod contract2 {
 
     #[ink(storage)]
