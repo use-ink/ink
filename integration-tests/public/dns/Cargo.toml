@@ -17,3 +17,6 @@ std = [
     "ink/std",
 ]
 ink-as-dependency = []
+
+[package.metadata.ink-lang]
+abi = "ink"

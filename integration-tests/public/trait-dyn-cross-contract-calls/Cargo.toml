@@ -31,3 +31,6 @@ ink-as-dependency = []
 members = [
     "contracts/incrementer",
 ]
+
+[package.metadata.ink-lang]
+abi = "ink"
