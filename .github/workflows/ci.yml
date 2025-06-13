@@ -807,7 +807,8 @@ jobs:
           - name: Force Solidity ABI (internal and public)
             with:
                 command: |
-                  #sed -ie 's/^integration-tests\/\(public\/\|internal\/\)\?//' ${CONTRACT_SIZE_FILE}"
+                  find public internal -type f -name "*.rs" -exec sed -i '' 's/#\[ink::contract(/#[ink::contract(abi = sol, /g' {} +
+                  find public internal -type f -name "*.rs" -exec sed -i '' 's|#\[ink::contract\]|#[ink::contract(abi = sol)]|g' {} +
 
           - name: Build Contract Examples for RISC-V
             uses: ./.github/run-container-command
