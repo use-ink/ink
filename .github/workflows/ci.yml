@@ -1049,7 +1049,7 @@ jobs:
               cat measurements-abi-${{ env.MEASUREMENTS_ID }}
               echo "---"
               echo "---"
-              ./scripts/contract_sizes_diff.sh measurements-${{ env.MEASUREMENTS_ID }} measurements-abi-${{ env.MEASUREMENTS_ID } > abi_contract_sizes_diff.md
+              ./scripts/contract_sizes_diff.sh measurements-${{ env.MEASUREMENTS_ID }} measurements-abi-${{ env.MEASUREMENTS_ID }} > abi_contract_sizes_diff.md
               cat abi_contract_sizes_diff.md
 
         - name: Submit Comment
