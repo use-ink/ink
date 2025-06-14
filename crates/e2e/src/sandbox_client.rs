@@ -12,32 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::{
-    backend::BuilderClient,
-    builders::{
-        constructor_exec_input,
-        CreateBuilderPartial,
-    },
-    client_utils::{
-        salt,
-        ContractsRegistry,
-    },
-    contract_results::{
-        BareInstantiationResult,
-        ContractExecResultFor,
-        ContractResult,
-    },
-    error::SandboxErr,
-    log_error,
-    CallBuilderFinal,
-    CallDryRunResult,
-    ChainBackend,
-    ContractsBackend,
-    E2EBackend,
-    InstantiateDryRunResult,
-    UploadResult,
-    H256,
+use std::{
+    marker::PhantomData,
+    path::PathBuf,
 };
+
 use frame_support::{
     dispatch::RawOrigin,
     pallet_prelude::DispatchError,
@@ -48,10 +27,10 @@ use frame_support::{
 };
 use ink_env::Environment;
 use ink_primitives::{
-    reflect::{
+    abi::{
         AbiDecodeWith,
         AbiEncodeWith,
-        ScaleEncoding,
+        Ink,
     },
     DepositLimit,
 };
@@ -83,15 +62,38 @@ use sp_core::{
     Pair as _,
 };
 use sp_runtime::traits::Bounded;
-use std::{
-    marker::PhantomData,
-    path::PathBuf,
-};
 use subxt::{
     dynamic::Value,
     tx::Payload,
 };
 use subxt_signer::sr25519::Keypair;
+
+use crate::{
+    backend::BuilderClient,
+    builders::{
+        constructor_exec_input,
+        CreateBuilderPartial,
+    },
+    client_utils::{
+        salt,
+        ContractsRegistry,
+    },
+    contract_results::{
+        BareInstantiationResult,
+        ContractExecResultFor,
+        ContractResult,
+    },
+    error::SandboxErr,
+    log_error,
+    CallBuilderFinal,
+    CallDryRunResult,
+    ChainBackend,
+    ContractsBackend,
+    E2EBackend,
+    InstantiateDryRunResult,
+    UploadResult,
+    H256,
+};
 
 type BalanceOf<R> = <R as pallet_balances::Config>::Balance;
 type ContractsBalanceOf<R> =
@@ -247,7 +249,7 @@ where
 {
     async fn bare_instantiate<
         Contract: Clone,
-        Args: Send + Sync + AbiEncodeWith<ScaleEncoding> + Clone,
+        Args: Send + Sync + AbiEncodeWith<Ink> + Clone,
         R,
     >(
         &mut self,
@@ -306,7 +308,7 @@ where
 
     async fn bare_instantiate_dry_run<
         Contract: Clone,
-        Args: Send + Sync + AbiEncodeWith<ScaleEncoding> + Clone,
+        Args: Send + Sync + AbiEncodeWith<Ink> + Clone,
         R,
     >(
         &mut self,
@@ -450,7 +452,7 @@ where
         message: &CallBuilderFinal<E, Args, RetType, Abi>,
         value: E::Balance,
         storage_deposit_limit: DepositLimit<E::Balance>,
-    ) -> Result<CallDryRunResult<E, RetType>, Self::Error>
+    ) -> Result<CallDryRunResult<E, RetType, Abi>, Self::Error>
     where
         CallBuilderFinal<E, Args, RetType, Abi>: Clone,
     {
@@ -491,8 +493,8 @@ where
                 storage_deposit: result.storage_deposit,
                 result: result.result,
             },
-            _marker: Default::default(),
             trace: None, // todo
+            _marker: Default::default(),
         })
     }
 

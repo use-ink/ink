@@ -14,17 +14,12 @@
 
 use ir::{
     Callable,
-    CallableWithSelector,
     InputsIter,
     IsDocAttribute,
     Message,
 };
-use proc_macro2::{
-    Ident,
-    TokenStream as TokenStream2,
-};
+use proc_macro2::TokenStream as TokenStream2;
 use quote::{
-    format_ident,
     quote,
     quote_spanned,
 };
@@ -42,22 +37,24 @@ pub fn sol_type(ty: &Type) -> TokenStream2 {
 }
 
 /// Returns Solidity ABI compatible selector of an ink! message.
-pub fn selector(message: &CallableWithSelector<Message>) -> TokenStream2 {
-    let ident = call_info_type_ident(message);
-    quote!(
-        {
-            <__ink_sol_interop__::#ident>::SELECTOR
+pub fn selector(message: &Message) -> TokenStream2 {
+    let signature = call_signature(message.ident().to_string(), message.inputs());
+    quote! {
+        const {
+            ::ink::codegen::sol::selector_bytes(#signature)
         }
-    )
+    }
 }
 
 /// Returns a `u32` representation of the Solidity ABI compatible selector of an ink!
 /// message.
-pub fn selector_id(message: &CallableWithSelector<Message>) -> TokenStream2 {
-    let ident = call_info_type_ident(message);
+pub fn selector_id(message: &Message) -> TokenStream2 {
+    let selector_bytes = selector(message);
     quote!(
         {
-            <__ink_sol_interop__::#ident>::SELECTOR_ID
+            const {
+                ::core::primitive::u32::from_be_bytes(#selector_bytes)
+            }
         }
     )
 }
@@ -83,15 +80,8 @@ pub fn call_signature(name: String, inputs: InputsIter) -> TokenStream2 {
         .join(",");
     let sig_fmt_lit = format!("{{}}({})", sig_arg_fmt_params);
     quote! {
-        ::ink::codegen::const_format!(#sig_fmt_lit, #name #(,#sig_param_tys)*)
+        ::ink::codegen::utils::const_format!(#sig_fmt_lit, #name #(,#sig_param_tys)*)
     }
-}
-
-/// Returns the Solidity call info type identifier for an ink! message.
-pub fn call_info_type_ident(message: &CallableWithSelector<Message>) -> Ident {
-    let ident = message.ident();
-    let id = message.composed_selector().into_be_u32();
-    format_ident!("{ident}{id}Call")
 }
 
 /// Returns the rustdoc string from the given item attributes.

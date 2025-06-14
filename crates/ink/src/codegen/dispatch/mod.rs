@@ -21,6 +21,8 @@ pub use self::{
     info::ContractCallBuilder,
     type_check::{
         DispatchInput,
+        DispatchInputSol,
         DispatchOutput,
+        DispatchOutputSol,
     },
 };

@@ -50,7 +50,7 @@ note: required by a bound in `ExecutionInput::<ArgumentList<ArgumentListEnd, Arg
    |         T: AbiEncodeWith<Abi>,
    |            ^^^^^^^^^^^^^^^^^^ required by this bound in `ExecutionInput::<ArgumentList<ArgumentListEnd, ArgumentListEnd, Abi>, Abi>::push_arg`
 
-error[E0599]: the method `try_invoke` exists for struct `CallBuilder<DefaultEnvironment, Set<Call>, Set<ExecutionInput<ArgumentList<Argument<NonCodecType>, ArgumentList<ArgumentListEnd, ArgumentListEnd, ScaleEncoding>, ScaleEncoding>, ScaleEncoding>>, Set<ReturnType<()>>>`, but its trait bounds were not satisfied
+error[E0599]: the method `try_invoke` exists for struct `CallBuilder<DefaultEnvironment, Set<Call>, Set<ExecutionInput<ArgumentList<Argument<NonCodecType>, ArgumentList<ArgumentListEnd, ArgumentListEnd, Ink>, Ink>, Ink>>, Set<ReturnType<()>>>`, but its trait bounds were not satisfied
   --> tests/ui/contract/fail/message/message-input-non-codec.rs:18:9
    |
 18 |         pub fn message(&self, _input: NonCodecType) {}
@@ -59,8 +59,8 @@ error[E0599]: the method `try_invoke` exists for struct `CallBuilder<DefaultEnvi
   ::: $WORKSPACE/crates/env/src/call/execution.rs
    |
    | pub struct ArgumentList<Head, Rest, Abi> {
-   | ---------------------------------------- doesn't satisfy `_: AbiEncodeWith<ScaleEncoding>` or `_: Encode`
+   | ---------------------------------------- doesn't satisfy `_: AbiEncodeWith<Ink>` or `_: Encode`
    |
    = note: the following trait bounds were not satisfied:
-           `ArgumentList<Argument<NonCodecType>, ArgumentList<ArgumentListEnd, ArgumentListEnd, ScaleEncoding>, ScaleEncoding>: Encode`
-           which is required by `ArgumentList<Argument<NonCodecType>, ArgumentList<ArgumentListEnd, ArgumentListEnd, ScaleEncoding>, ScaleEncoding>: AbiEncodeWith<ScaleEncoding>`
+           `ArgumentList<Argument<NonCodecType>, ArgumentList<ArgumentListEnd, ArgumentListEnd, ink::abi::Ink>, ink::abi::Ink>: Encode`
+           which is required by `ArgumentList<Argument<NonCodecType>, ArgumentList<ArgumentListEnd, ArgumentListEnd, ink::abi::Ink>, ink::abi::Ink>: AbiEncodeWith<ink::abi::Ink>`
