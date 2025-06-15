@@ -15,11 +15,12 @@
 //! Utilities, types and abstractions common to call and instantiation routines.
 
 use core::marker::PhantomData;
+
 use ink_primitives::{
-    reflect::{
+    abi::{
         AbiDecodeWith,
-        ScaleEncoding,
-        SolEncoding,
+        Ink,
+        Sol,
     },
     MessageResult,
     SolDecode,
@@ -130,7 +131,7 @@ pub trait DecodeMessageResult<Abi>: Sized {
     fn decode_output(buffer: &[u8]) -> crate::Result<MessageResult<Self>>;
 }
 
-impl<R> DecodeMessageResult<ScaleEncoding> for R
+impl<R> DecodeMessageResult<Ink> for R
 where
     R: Decode,
     MessageResult<R>: Decode,
@@ -141,7 +142,7 @@ where
     }
 }
 
-impl<R> DecodeMessageResult<SolEncoding> for R
+impl<R> DecodeMessageResult<Sol> for R
 where
     R: SolDecode,
 {

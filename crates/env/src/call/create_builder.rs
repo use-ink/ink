@@ -15,9 +15,9 @@
 use core::marker::PhantomData;
 
 use ink_primitives::{
-    reflect::{
+    abi::{
         AbiEncodeWith,
-        ScaleEncoding,
+        Ink,
     },
     Address,
     H256,
@@ -192,7 +192,7 @@ pub struct CreateParams<E, ContractRef, Limits, Args, R> {
     /// todo: is this correct? or is the value here `U256`?
     endowment: U256,
     /// The input data for the instantiation.
-    exec_input: ExecutionInput<Args, ScaleEncoding>,
+    exec_input: ExecutionInput<Args, Ink>,
     /// The salt for determining the hash for the contract account ID.
     salt_bytes: Option<[u8; 32]>,
     /// The return type of the target contract's constructor method.
@@ -219,7 +219,7 @@ where
 
     /// The raw encoded input data.
     #[inline]
-    pub fn exec_input(&self) -> &ExecutionInput<Args, ScaleEncoding> {
+    pub fn exec_input(&self) -> &ExecutionInput<Args, Ink> {
         &self.exec_input
     }
 
@@ -275,7 +275,7 @@ where
         crate::reflect::ContractConstructorDecoder,
     <ContractRef as crate::ContractReverseReference>::Type:
         crate::reflect::ContractMessageDecoder,
-    Args: AbiEncodeWith<ScaleEncoding>,
+    Args: AbiEncodeWith<Ink>,
     R: ConstructorReturnType<ContractRef>,
 {
     /// todo
@@ -441,7 +441,7 @@ pub fn build_create<ContractRef>() -> CreateBuilder<
     <ContractRef as ContractEnv>::Env,
     ContractRef,
     Set<LimitParamsV2>,
-    Unset<ExecutionInput<EmptyArgumentList<ScaleEncoding>, ScaleEncoding>>,
+    Unset<ExecutionInput<EmptyArgumentList<Ink>, Ink>>,
     Unset<ReturnType<()>>,
 >
 where
@@ -643,7 +643,7 @@ impl<E, ContractRef, Limits, Args, RetType>
         E,
         ContractRef,
         Set<Limits>,
-        Set<ExecutionInput<Args, ScaleEncoding>>,
+        Set<ExecutionInput<Args, Ink>>,
         Set<ReturnType<RetType>>,
     >
 where
@@ -669,7 +669,7 @@ impl<E, ContractRef, Args, RetType>
         E,
         ContractRef,
         Set<LimitParamsV2>,
-        Set<ExecutionInput<Args, ScaleEncoding>>,
+        Set<ExecutionInput<Args, Ink>>,
         Set<ReturnType<RetType>>,
     >
 where
@@ -679,7 +679,7 @@ where
         crate::reflect::ContractConstructorDecoder,
     <ContractRef as crate::ContractReverseReference>::Type:
         crate::reflect::ContractMessageDecoder,
-    Args: AbiEncodeWith<ScaleEncoding>,
+    Args: AbiEncodeWith<Ink>,
     RetType: ConstructorReturnType<ContractRef>,
 {
     /// todo check comment

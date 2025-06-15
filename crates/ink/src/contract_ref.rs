@@ -117,11 +117,20 @@ use ink_primitives::Address;
 ///
 /// # Usage outside the `#[ink::contract]` context
 ///
-/// The macro expects two arguments:
+/// The macro expects up to three arguments:
 /// - The first argument is the path to the trait, e.g. `Erc20` or `erc20::Erc20`.
 /// - The second argument is the type of the [`ink_env::Environment`].
+/// - The third argument is the marker type for the ABI (i.e. [`ink::abi::Ink`] or
+///   [`ink::abi::Sol`]).
 ///
 /// If the second argument is not specified, the macro uses the `Environment` type alias.
+/// If the third argument is not specified, the macro uses the "default" ABI for calls
+/// for the ink! project.
+///
+/// # Note
+///
+/// The "default" ABI for calls is "ink", unless the ABI is set to "sol"
+/// in the ink! project's manifest file (i.e. `Cargo.toml`).
 ///
 /// ```rust
 /// use ink::contract_ref;
@@ -156,6 +165,7 @@ use ink_primitives::Address;
 /// type AliasWithDefaultEnv = contract_ref!(Erc20, DefaultEnvironment);
 /// type AliasWithCustomEnv = contract_ref!(Erc20, CustomEnv);
 /// type AliasWithGenericEnv<E> = contract_ref!(Erc20, E);
+/// type AliasWithCustomAbi = contract_ref!(Erc20, DefaultEnvironment, ink::abi::Ink);
 ///
 /// fn default(mut contract: contract_ref!(Erc20, DefaultEnvironment)) {
 ///     let total_supply = contract.total_supply();
@@ -194,6 +204,15 @@ use ink_primitives::Address;
 ///     generic(contract)
 /// }
 ///
+/// fn custom_abi(mut contract: contract_ref!(Erc20, DefaultEnvironment, ink::abi::Ink)) {
+///     let total_supply = contract.total_supply();
+///     contract.transfer(total_supply, contract.as_ref().clone());
+/// }
+///
+/// fn custom_alias_abi(mut contract: AliasWithCustomAbi) {
+///     custom_abi(contract)
+/// }
+///
 /// type Environment = DefaultEnvironment;
 ///
 /// fn contract_ref_default_behaviour(mut contract: contract_ref!(Erc20)) {
@@ -204,14 +223,18 @@ use ink_primitives::Address;
 /// ```
 #[macro_export]
 macro_rules! contract_ref {
-    // The case of the default `Environment`
+    // The case of the default `Environment` and ABI
     ( $trait_path:path ) => {
         $crate::contract_ref!($trait_path, Environment)
     };
-    // The case of the custom `Environment`
+    // The case of the custom `Environment` and default ABI
     ( $trait_path:path, $env:ty ) => {
+        $crate::contract_ref!($trait_path, $env, $crate::env::DefaultAbi)
+    };
+    // The case of the custom `Environment` and ABI
+    ( $trait_path:path, $env:ty, $abi:ty ) => {
         <<$crate::reflect::TraitDefinitionRegistry<$env> as $trait_path>
-                    ::__ink_TraitInfo as $crate::codegen::TraitCallForwarder>::Forwarder
+                    ::__ink_TraitInfo as $crate::codegen::TraitCallForwarder>::Forwarder<$abi>
     };
 }
 

@@ -144,3 +144,23 @@ pub use pallet_revive_uapi::{
     ReturnErrorCode,
     ReturnFlags,
 };
+
+/// A convenience type alias to the marker type representing the "default" ABI for calls.
+///
+/// # Note
+///
+/// The "default" ABI for calls is "ink", unless the ABI is set to "sol"
+/// in the ink! project's manifest file (i.e. `Cargo.toml`).
+#[cfg(not(ink_abi = "sol"))]
+#[doc(hidden)]
+pub type DefaultAbi = ink_primitives::abi::Ink;
+
+/// A convenience type alias to the marker type representing the "default" ABI for calls.
+///
+/// # Note
+///
+/// The "default" ABI for calls is "ink", unless the ABI is set to "sol"
+/// in the ink! project's manifest file (i.e. `Cargo.toml`).
+#[cfg(ink_abi = "sol")]
+#[doc(hidden)]
+pub type DefaultAbi = ink_primitives::abi::Sol;

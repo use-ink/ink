@@ -12,6 +12,55 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#[cfg(feature = "std")]
+use std::fmt::Debug;
+use std::path::PathBuf;
+
+use ink::H160;
+use ink_env::{
+    call::{
+        utils::{
+            ReturnType,
+            Set,
+        },
+        Call,
+        ExecutionInput,
+    },
+    Environment,
+};
+use ink_primitives::{
+    abi::{
+        AbiDecodeWith,
+        AbiEncodeWith,
+        Ink,
+    },
+    types::AccountIdMapper,
+    DepositLimit,
+};
+use jsonrpsee::core::async_trait;
+use pallet_revive::evm::CallTrace;
+use scale::{
+    Decode,
+    Encode,
+};
+use sp_weights::Weight;
+use subxt::{
+    blocks::ExtrinsicEvents,
+    config::{
+        DefaultExtrinsicParams,
+        ExtrinsicParams,
+        HashFor,
+    },
+    error::DispatchError,
+    events::EventDetails,
+    ext::scale_value::{
+        Composite,
+        Value,
+        ValueDef,
+    },
+    tx::Signer,
+};
+
 use super::{
     builders::{
         constructor_exec_input,
@@ -51,53 +100,6 @@ use crate::{
     ContractsBackend,
     E2EBackend,
 };
-use ink::H160;
-use ink_env::{
-    call::{
-        utils::{
-            ReturnType,
-            Set,
-        },
-        Call,
-        ExecutionInput,
-    },
-    Environment,
-};
-use ink_primitives::{
-    reflect::{
-        AbiDecodeWith,
-        AbiEncodeWith,
-        ScaleEncoding,
-    },
-    types::AccountIdMapper,
-    DepositLimit,
-};
-use jsonrpsee::core::async_trait;
-use pallet_revive::evm::CallTrace;
-use scale::{
-    Decode,
-    Encode,
-};
-use sp_weights::Weight;
-#[cfg(feature = "std")]
-use std::fmt::Debug;
-use std::path::PathBuf;
-use subxt::{
-    blocks::ExtrinsicEvents,
-    config::{
-        DefaultExtrinsicParams,
-        ExtrinsicParams,
-        HashFor,
-    },
-    error::DispatchError,
-    events::EventDetails,
-    ext::scale_value::{
-        Composite,
-        Value,
-        ValueDef,
-    },
-    tx::Signer,
-};
 
 pub type Error = crate::error::Error<DispatchError>;
 
@@ -133,7 +135,6 @@ where
     C::Signature: From<sr25519::Signature>,
     <C::ExtrinsicParams as ExtrinsicParams<C>>::Params:
         From<<DefaultExtrinsicParams<C> as ExtrinsicParams<C>>::Params>,
-
     E: Environment,
     E::AccountId: Debug,
     E::EventRecord: Debug,
@@ -535,7 +536,7 @@ where
 {
     async fn bare_instantiate<
         Contract: Clone,
-        Args: Send + Sync + AbiEncodeWith<ScaleEncoding> + Clone,
+        Args: Send + Sync + AbiEncodeWith<Ink> + Clone,
         R,
     >(
         &mut self,
@@ -558,7 +559,7 @@ where
 
     async fn bare_instantiate_dry_run<
         Contract: Clone,
-        Args: Send + Sync + AbiEncodeWith<ScaleEncoding> + Clone,
+        Args: Send + Sync + AbiEncodeWith<Ink> + Clone,
         R,
     >(
         &mut self,
@@ -703,7 +704,7 @@ where
         message: &CallBuilderFinal<E, Args, RetType, Abi>,
         value: E::Balance,
         storage_deposit_limit: DepositLimit<E::Balance>,
-    ) -> Result<CallDryRunResult<E, RetType>, Self::Error>
+    ) -> Result<CallDryRunResult<E, RetType, Abi>, Self::Error>
     where
         CallBuilderFinal<E, Args, RetType, Abi>: Clone,
     {

@@ -14,13 +14,12 @@
 
 use core::iter;
 
-use crate::GenerateCode;
 use derive_more::From;
 use heck::ToLowerCamelCase as _;
-use ir::{
-    Callable as _,
-    HexLiteral,
-};
+use ink_primitives::abi::Abi;
+use ir::Callable as _;
+#[cfg(not(ink_abi = "sol"))]
+use ir::HexLiteral;
 use proc_macro2::TokenStream as TokenStream2;
 use quote::{
     format_ident,
@@ -29,6 +28,8 @@ use quote::{
     ToTokens,
 };
 use syn::spanned::Spanned as _;
+
+use crate::GenerateCode;
 
 /// Generates code for all ink! implementation blocks.
 #[derive(From)]
@@ -44,7 +45,9 @@ impl GenerateCode for ItemImpls<'_> {
             .module()
             .impls()
             .map(|item_impl| self.generate_item_impl(item_impl));
-        let inout_guards = self.generate_input_output_guards();
+        let inout_guards = generate_abi_impls!(@type |abi| {
+            self.generate_input_output_guards(abi)
+        });
         let trait_message_property_guards = self.generate_trait_message_property_guards();
         quote! {
             const _: () = {
@@ -81,7 +84,19 @@ impl ItemImpls<'_> {
             .flatten()
             .map(|(trait_path, message)| {
                 let message_span = message.span();
-                let message_local_id = message.local_id().hex_padded_suffixed();
+
+                #[cfg(not(ink_abi = "sol"))]
+                let message_local_id = {
+                    let id = message.local_id().hex_padded_suffixed();
+                    quote!(#id)
+                };
+
+                #[cfg(ink_abi = "sol")]
+                let message_local_id = {
+                    use crate::generator::sol;
+                    sol::utils::selector_id(&message)
+                };
+
                 let message_guard_payable = message.is_payable().then(|| {
                     quote_spanned!(message_span=>
                         const _: ::ink::codegen::TraitMessagePayable<{
@@ -91,6 +106,9 @@ impl ItemImpls<'_> {
                         }> = ::ink::codegen::TraitMessagePayable::<true>;
                     )
                 });
+
+                // Solidity ABI compatible codegen ignores user provided selector overrides.
+                #[cfg(not(ink_abi = "sol"))]
                 let message_guard_selector = message.user_provided_selector().map(|selector| {
                     let given_selector = selector.into_be_u32().hex_padded_suffixed();
                     quote_spanned!(message_span=>
@@ -103,6 +121,10 @@ impl ItemImpls<'_> {
                         }> = ::ink::codegen::TraitMessageSelector::<#given_selector>;
                     )
                 });
+
+                #[cfg(ink_abi = "sol")]
+                let message_guard_selector = quote!();
+
                 quote_spanned!(message_span=>
                     #message_guard_payable
                     #message_guard_selector
@@ -114,7 +136,11 @@ impl ItemImpls<'_> {
     }
 
     /// Generates code to assert that ink! input and output types meet certain properties.
-    fn generate_input_output_guards(&self) -> TokenStream2 {
+    fn generate_input_output_guards(&self, abi: Abi) -> TokenStream2 {
+        let (input_trait, output_trait) = match abi {
+            Abi::Ink => (quote!(DispatchInput), quote!(DispatchOutput)),
+            Abi::Sol => (quote!(DispatchInputSol), quote!(DispatchOutputSol)),
+        };
         let storage_span = self.contract.module().storage().span();
         let constructor_input_guards = self
             .contract
@@ -128,7 +154,7 @@ impl ItemImpls<'_> {
                     let input_type = &*input.ty;
                     quote_spanned!(span=>
                         ::ink::codegen::utils::consume_type::<
-                            ::ink::codegen::DispatchInput<#input_type>
+                            ::ink::codegen::#input_trait<#input_type>
                         >();
                     )
                 });
@@ -148,7 +174,7 @@ impl ItemImpls<'_> {
                     let input_type = &*input.ty;
                     quote_spanned!(span=>
                         ::ink::codegen::utils::consume_type::<
-                            ::ink::codegen::DispatchInput<#input_type>
+                            ::ink::codegen::#input_trait<#input_type>
                         >();
                     )
                 });
@@ -156,7 +182,7 @@ impl ItemImpls<'_> {
                     let span = output_type.span();
                     quote_spanned!(span=>
                         ::ink::codegen::utils::consume_type::<
-                            ::ink::codegen::DispatchOutput<#output_type>
+                            ::ink::codegen::#output_trait<#output_type>
                         >();
                     )
                 });

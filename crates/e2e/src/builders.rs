@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::H256;
 use ink_env::{
     call::{
         utils::{
@@ -25,10 +24,12 @@ use ink_env::{
     },
     Environment,
 };
-use ink_primitives::reflect::{
+use ink_primitives::abi::{
     AbiEncodeWith,
-    ScaleEncoding,
+    Ink,
 };
+
+use crate::H256;
 
 /// The type returned from `ContractRef` constructors, partially initialized with the
 /// execution input arguments.
@@ -36,12 +37,12 @@ pub type CreateBuilderPartial<E, ContractRef, Args, R> = CreateBuilder<
     E,
     ContractRef,
     Set<LimitParamsV2>,
-    Set<ExecutionInput<Args, ScaleEncoding>>,
+    Set<ExecutionInput<Args, Ink>>,
     Set<ReturnType<R>>,
 >;
 
 /// Get the encoded constructor arguments from the partially initialized `CreateBuilder`
-pub fn constructor_exec_input<E, ContractRef, Args: AbiEncodeWith<ScaleEncoding>, R>(
+pub fn constructor_exec_input<E, ContractRef, Args: AbiEncodeWith<Ink>, R>(
     builder: CreateBuilderPartial<E, ContractRef, Args, R>,
 ) -> Vec<u8>
 where
