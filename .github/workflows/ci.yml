@@ -731,9 +731,12 @@ jobs:
       - name: Initialize runner
         uses: ./.github/init
         with:
-          cache: true
-          cache-directories: ${{ github.workspace }}/${{ env.CARGO_TARGET_DIR }}
-          cache-on-failure: true
+          # FIXME: (@davidsemakula) This job runs into "No space left" issue while saving cache,
+          # So cache is disable for now.
+          # See https://github.com/use-ink/ink/actions/runs/15664777866/job/44127506818?pr=2517#step:13:54
+          cache: false
+          #cache-directories: ${{ github.workspace }}/${{ env.CARGO_TARGET_DIR }}
+          #cache-on-failure: true
 
       - name: Extract branch name
         shell: bash
