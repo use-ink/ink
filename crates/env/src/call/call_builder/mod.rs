@@ -233,7 +233,8 @@ where
 }
 
 /// Returns a new [`CallBuilder`] for the specified ABI to build up the parameters to a
-/// cross-contract call. See [`build_call`] for more details on usage.
+/// cross-contract call.
+/// See [`build_call`] for more details on usage.
 #[allow(clippy::type_complexity)]
 pub fn build_call_abi<E, Abi>() -> CallBuilder<
     E,
