@@ -14,8 +14,6 @@
 
 //! The public raw interface towards the host engine.
 
-#[cfg(feature = "unstable-hostfn")]
-use ink_primitives::abi::Ink;
 use ink_primitives::{
     abi::{
         AbiDecodeWith,
@@ -350,8 +348,8 @@ where
 /// - If given insufficient endowment.
 /// - If the returned account ID failed to decode properly.
 #[cfg(feature = "unstable-hostfn")]
-pub fn instantiate_contract<E, ContractRef, Args, R>(
-    params: &CreateParams<E, ContractRef, LimitParamsV2, Args, R>,
+pub fn instantiate_contract<E, ContractRef, Args, R, Abi>(
+    params: &CreateParams<E, ContractRef, LimitParamsV2, Args, R, Abi>,
 ) -> Result<
     ink_primitives::ConstructorResult<<R as ConstructorReturnType<ContractRef>>::Output>,
 >
@@ -361,11 +359,13 @@ where
     <ContractRef as crate::ContractReverseReference>::Type:
         crate::reflect::ContractConstructorDecoder,
 
-    Args: AbiEncodeWith<Ink>,
+    Args: AbiEncodeWith<Abi>,
     R: ConstructorReturnType<ContractRef>,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        TypedEnvBackend::instantiate_contract::<E, ContractRef, Args, R>(instance, params)
+        TypedEnvBackend::instantiate_contract::<E, ContractRef, Args, R, Abi>(
+            instance, params,
+        )
     })
 }
 

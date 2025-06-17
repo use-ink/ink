@@ -52,6 +52,8 @@ pub use self::{
     },
     create_builder::{
         build_create,
+        build_create_abi,
+        build_create_solidity,
         state,
         ConstructorReturnType,
         CreateBuilder,

@@ -24,26 +24,23 @@ use ink_env::{
     },
     Environment,
 };
-use ink_primitives::abi::{
-    AbiEncodeWith,
-    Ink,
-};
+use ink_primitives::abi::AbiEncodeWith;
 
 use crate::H256;
 
 /// The type returned from `ContractRef` constructors, partially initialized with the
 /// execution input arguments.
-pub type CreateBuilderPartial<E, ContractRef, Args, R> = CreateBuilder<
+pub type CreateBuilderPartial<E, ContractRef, Args, R, Abi> = CreateBuilder<
     E,
     ContractRef,
     Set<LimitParamsV2>,
-    Set<ExecutionInput<Args, Ink>>,
+    Set<ExecutionInput<Args, Abi>>,
     Set<ReturnType<R>>,
 >;
 
 /// Get the encoded constructor arguments from the partially initialized `CreateBuilder`
-pub fn constructor_exec_input<E, ContractRef, Args: AbiEncodeWith<Ink>, R>(
-    builder: CreateBuilderPartial<E, ContractRef, Args, R>,
+pub fn constructor_exec_input<E, ContractRef, Args: AbiEncodeWith<Abi>, R, Abi>(
+    builder: CreateBuilderPartial<E, ContractRef, Args, R, Abi>,
 ) -> Vec<u8>
 where
     E: Environment,

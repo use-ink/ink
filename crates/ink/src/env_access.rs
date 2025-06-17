@@ -35,8 +35,6 @@ use ink_env::{
     Environment,
     Result,
 };
-#[cfg(feature = "unstable-hostfn")]
-use ink_primitives::abi::Ink;
 use ink_primitives::{
     abi::{
         AbiDecodeWith,
@@ -490,9 +488,9 @@ where
     ///
     /// For more details visit: [`ink_env::instantiate_contract`]
     #[cfg(feature = "unstable-hostfn")]
-    pub fn instantiate_contract<ContractRef, Args, R>(
+    pub fn instantiate_contract<ContractRef, Args, R, Abi>(
         self,
-        params: &CreateParams<E, ContractRef, LimitParamsV2, Args, R>,
+        params: &CreateParams<E, ContractRef, LimitParamsV2, Args, R, Abi>,
     ) -> Result<
         ink_primitives::ConstructorResult<
             <R as ConstructorReturnType<ContractRef>>::Output,
@@ -503,10 +501,10 @@ where
         <ContractRef as ink_env::ContractReverseReference>::Type:
             ink_env::reflect::ContractConstructorDecoder,
 
-        Args: AbiEncodeWith<Ink>,
+        Args: AbiEncodeWith<Abi>,
         R: ConstructorReturnType<ContractRef>,
     {
-        ink_env::instantiate_contract::<E, ContractRef, Args, R>(params)
+        ink_env::instantiate_contract::<E, ContractRef, Args, R, Abi>(params)
     }
 
     /// Invokes a contract message and returns its result.

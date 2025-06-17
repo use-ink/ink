@@ -14,8 +14,6 @@
 
 use ink_engine::ext::Engine;
 #[cfg(feature = "unstable-hostfn")]
-use ink_primitives::abi::Ink;
-#[cfg(feature = "unstable-hostfn")]
 use ink_primitives::types::AccountIdMapper;
 use ink_primitives::{
     abi::{
@@ -643,9 +641,9 @@ impl TypedEnvBackend for EnvInstance {
     }
 
     #[cfg(feature = "unstable-hostfn")]
-    fn instantiate_contract<E, ContractRef, Args, R>(
+    fn instantiate_contract<E, ContractRef, Args, R, Abi>(
         &mut self,
-        params: &CreateParams<E, ContractRef, LimitParamsV2, Args, R>,
+        params: &CreateParams<E, ContractRef, LimitParamsV2, Args, R, Abi>,
     ) -> Result<
         ink_primitives::ConstructorResult<
             <R as ConstructorReturnType<ContractRef>>::Output,
@@ -656,7 +654,7 @@ impl TypedEnvBackend for EnvInstance {
         ContractRef: FromAddr + crate::ContractReverseReference,
         <ContractRef as crate::ContractReverseReference>::Type:
             crate::reflect::ContractConstructorDecoder,
-        Args: AbiEncodeWith<Ink>,
+        Args: AbiEncodeWith<Abi>,
         R: ConstructorReturnType<ContractRef>,
     {
         let endowment = params.endowment();

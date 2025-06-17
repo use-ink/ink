@@ -113,7 +113,7 @@ pub trait DispatchableMessageInfo<const ID: u32> {
     /// `&mut self` to `&self` with our current dispatch codegen architecture.
     const CALLABLE: fn(&mut Self::Storage, Self::Input) -> Self::Output;
 
-    /// closure for decoding
+    /// The closure for decoding message input.
     const DECODE: fn(
         &mut &[::core::primitive::u8],
     ) -> Result<Self::Input, DispatchError>;
@@ -186,7 +186,7 @@ pub trait DispatchableMessageInfo<const ID: u32> {
 /// {
 ///     assert_eq!(
 ///         <Contract as DispatchableConstructorInfo<{ ID }>>::SELECTOR,
-///         selector,
+///         Some(selector),
 ///     );
 ///     assert_eq!(
 ///         <Contract as DispatchableConstructorInfo<{ ID }>>::LABEL,
@@ -222,14 +222,22 @@ pub trait DispatchableConstructorInfo<const ID: u32> {
     /// The closure that can be used to dispatch into the dispatchable ink! constructor.
     const CALLABLE: fn(Self::Input) -> Self::Output;
 
+    /// The closure for decoding constructor input.
+    const DECODE: fn(
+        &mut &[::core::primitive::u8],
+    ) -> Result<Self::Input, DispatchError>;
+
     /// Yields `true` if the dispatchable ink! constructor is payable.
     const PAYABLE: bool;
 
-    /// The selectors of the dispatchable ink! constructor.
-    const SELECTOR: [u8; 4];
+    /// The selector (if any) of the dispatchable ink! constructor.
+    const SELECTOR: Option<[u8; 4]>;
 
     /// The label of the dispatchable ink! constructor.
     const LABEL: &'static str;
+
+    /// The ABI spec for the decoding the constructor call.
+    const ABI: Abi;
 }
 
 mod private {
