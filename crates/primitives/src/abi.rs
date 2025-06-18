@@ -22,7 +22,7 @@ use crate::sol::{
 };
 
 /// ABI spec for encoding/decoding contract calls.
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum Abi {
     /// ink! ABI spec (uses Parity's SCALE codec for input/output encode/decode).
     Ink,
