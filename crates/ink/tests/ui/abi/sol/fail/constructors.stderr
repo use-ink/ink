@@ -1,0 +1,9 @@
+error: multiple constructors are not supported in Solidity ABI compatibility mode
+  --> tests/ui/abi/sol/fail/constructors.rs:4:1
+   |
+4  | / mod contract {
+5  | |     #[ink(storage)]
+6  | |     pub struct Contract {}
+...  |
+22 | | }
+   | |_^
