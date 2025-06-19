@@ -144,24 +144,59 @@ impl ItemMod {
     }
 
     /// Ensures that the given slice of items contains at least one ink! constructor.
+    ///
+    /// # Note
+    ///
+    /// Also ensure that there's only one constructor in "sol" ABI mode,
+    /// or that at least one constructor is annotated as the default constructor in "all"
+    /// ABI mode.
+    ///
+    /// See <https://use.ink/docs/v6/basics/abi> for details about ABI modes.
     fn ensure_contains_constructor(
         module_span: Span,
         items: &[ir::Item],
     ) -> Result<(), syn::Error> {
-        let found_constructor = items
-            .iter()
-            .filter_map(|item| {
-                match item {
-                    ir::Item::Ink(ir::InkItem::ImplBlock(item_impl)) => {
-                        Some(item_impl.iter_constructors())
+        let all_constructors = || {
+            items
+                .iter()
+                .filter_map(|item| {
+                    match item {
+                        ir::Item::Ink(ir::InkItem::ImplBlock(item_impl)) => {
+                            Some(item_impl.iter_constructors())
+                        }
+                        _ => None,
                     }
-                    _ => None,
-                }
-            })
-            .any(|mut constructors| constructors.next().is_some());
-        if !found_constructor {
-            return Err(format_err!(module_span, "missing ink! constructor"))
+                })
+                .flatten()
+        };
+
+        let n_constructors = all_constructors().count();
+        if n_constructors == 0 {
+            return Err(format_err!(module_span, "missing ink! constructor"));
         }
+
+        #[cfg(ink_abi = "sol")]
+        if n_constructors > 1 {
+            return Err(format_err!(
+                module_span,
+                "multiple constructors are not supported in Solidity ABI compatibility mode"
+            ));
+        }
+
+        #[cfg(ink_abi = "all")]
+        {
+            let has_default_constructor =
+                || all_constructors().any(|constructor| constructor.is_default());
+            if n_constructors > 1 && !has_default_constructor() {
+                return Err(format_err!(
+                    module_span,
+                    "One constructor used for Solidity ABI encoded instantiation \
+                    must be annotated with the `default` attribute argument \
+                    in \"all\" ABI mode"
+                ));
+            }
+        }
+
         Ok(())
     }
 
