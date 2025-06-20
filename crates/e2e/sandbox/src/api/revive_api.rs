@@ -20,6 +20,10 @@ use ink_primitives::{
     DepositLimit,
 };
 use pallet_revive::{
+    evm::{
+        Tracer,
+        TracerType,
+    },
     Code,
     CodeUploadResult,
 };
@@ -133,6 +137,8 @@ pub trait ContractAPI {
         gas_limit: Weight,
         storage_deposit_limit: DepositLimit<BalanceOf<Self::T>>,
     ) -> ContractExecResultFor<Self::T>;
+
+    fn evm_tracer(&mut self, tracer_type: TracerType) -> Tracer;
 }
 
 impl<T> ContractAPI for T
@@ -239,6 +245,10 @@ where
                 data,
             )
         })
+    }
+
+    fn evm_tracer(&mut self, tracer_type: TracerType) -> Tracer {
+        self.execute_with(|| pallet_revive::Pallet::<Self::T>::evm_tracer(tracer_type))
     }
 }
 
