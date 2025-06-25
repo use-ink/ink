@@ -64,7 +64,7 @@ pub fn build_root_and_contract_dependencies(features: Vec<String>) -> Vec<PathBu
             env::set_var("INK_RUSTC_WRAPPER", rustc_wrapper);
         }
     }
-    build_contracts(&contract_manifests, features)
+    build_contracts(&contract_manifests, features, contract_project.target_dir)
 }
 
 /// Access manifest paths of contracts which are part of the project in which the E2E
@@ -80,7 +80,7 @@ impl ContractProject {
     fn new() -> Self {
         let mut cmd = cargo_metadata::MetadataCommand::new();
         let env_target_dir = env::var_os("CARGO_TARGET_DIR")
-            .map(|target_dir| PathBuf::from(target_dir))
+            .map(PathBuf::from)
             .filter(|target_dir| target_dir.is_absolute());
         if let Some(target_dir) = env_target_dir.as_ref() {
             cmd.env("CARGO_TARGET_DIR", target_dir);
@@ -126,7 +126,7 @@ impl ContractProject {
 
         let package_abi = metadata
             .root_package()
-            .and_then(|package| package_abi(package))
+            .and_then(package_abi)
             .and_then(Result::ok);
         log_info(&format!("found root package abi: {:?}", package_abi));
 
@@ -170,6 +170,7 @@ impl ContractProject {
 fn build_contracts(
     contract_manifests: &[PathBuf],
     features: Vec<String>,
+    target_dir: PathBuf,
 ) -> Vec<PathBuf> {
     static CONTRACT_BUILD_JOBS: OnceLock<Mutex<HashMap<PathBuf, PathBuf>>> =
         OnceLock::new();
@@ -183,7 +184,8 @@ fn build_contracts(
         let contract_binary_path = match contract_build_jobs.entry(manifest.clone()) {
             Entry::Occupied(entry) => entry.get().clone(),
             Entry::Vacant(entry) => {
-                let contract_binary_path = build_contract(manifest, features.clone());
+                let contract_binary_path =
+                    build_contract(manifest, features.clone(), target_dir.clone());
                 entry.insert(contract_binary_path.clone());
                 contract_binary_path
             }
@@ -196,31 +198,27 @@ fn build_contracts(
 /// Builds the contract at `manifest_path`, returns the path to the contract
 /// PolkaVM build artifact.
 fn build_contract(
-    path_to_cargo_toml: &Path,
-    additional_features: Vec<String>,
+    cargo_toml: &Path,
+    features: Vec<String>,
+    target_dir: PathBuf,
 ) -> PathBuf {
-    let manifest_path = ManifestPath::new(path_to_cargo_toml).unwrap_or_else(|err| {
-        panic!(
-            "Invalid manifest path {}: {err}",
-            path_to_cargo_toml.display()
-        )
+    let manifest_path = ManifestPath::new(cargo_toml).unwrap_or_else(|err| {
+        panic!("Invalid manifest path {}: {err}", cargo_toml.display())
     });
-    // todo add method in Features to just construct with new(features)
-    let mut features = Features::default();
-    additional_features.iter().for_each(|f| features.push(f));
     let args = ExecuteArgs {
         manifest_path,
         verbosity: Verbosity::Default,
         build_mode: BuildMode::Debug,
-        features,
+        features: Features::from(features),
         network: Network::Online,
-        build_artifact: BuildArtifacts::All,
+        build_artifact: BuildArtifacts::CodeOnly,
         unstable_flags: UnstableFlags::default(),
         keep_debug_symbols: false,
         extra_lints: false,
         output_type: OutputType::HumanReadable,
         image: ImageVariant::Default,
         metadata_spec: None,
+        target_dir: Some(target_dir),
     };
 
     match contract_build::execute(args) {
@@ -232,10 +230,7 @@ fn build_contract(
                 .expect("Invalid dest bundle path")
         }
         Err(err) => {
-            panic!(
-                "contract build for {} failed: {err}",
-                path_to_cargo_toml.display()
-            )
+            panic!("contract build for {} failed: {err}", cargo_toml.display())
         }
     }
 }

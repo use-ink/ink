@@ -1595,7 +1595,7 @@ checksum = "cd7e35aee659887cbfb97aaf227ac12cad1a9d7c71e55ff3376839ed4e282d08"
 [[package]]
 name = "contract-build"
 version = "6.0.0-alpha.1"
-source = "git+https://github.com/use-ink/cargo-contract?branch=master#f742baba08ee746ae137bc4f2fbf37befac7e560"
+source = "git+https://github.com/use-ink/cargo-contract?branch=master#c98ce288660ac1ca1a0058b2be83a7bec4612a6a"
 dependencies = [
  "alloy-json-abi 0.8.25",
  "anyhow",
@@ -1616,7 +1616,6 @@ dependencies = [
  "polkavm-linker 0.22.0",
  "regex",
  "rustc_version 0.4.1",
- "scale-info",
  "semver 1.0.26",
  "serde",
  "serde_json",
@@ -1637,7 +1636,7 @@ dependencies = [
 [[package]]
 name = "contract-metadata"
 version = "6.0.0-alpha"
-source = "git+https://github.com/use-ink/cargo-contract?branch=master#f742baba08ee746ae137bc4f2fbf37befac7e560"
+source = "git+https://github.com/use-ink/cargo-contract?branch=master#c98ce288660ac1ca1a0058b2be83a7bec4612a6a"
 dependencies = [
  "anyhow",
  "impl-serde",
@@ -3664,7 +3663,7 @@ dependencies = [
 [[package]]
 name = "ink_metadata"
 version = "6.0.0-alpha"
-source = "git+https://github.com/use-ink/ink?branch=master#52652093f4f3d9f6369c455e496123ce46970c07"
+source = "git+https://github.com/use-ink/ink?branch=master#641f05706e4f7ff1fb7c60e261ed0f4bc833f2f0"
 dependencies = [
  "derive_more 2.0.1",
  "impl-serde",
@@ -3686,7 +3685,7 @@ dependencies = [
 [[package]]
 name = "ink_prelude"
 version = "6.0.0-alpha"
-source = "git+https://github.com/use-ink/ink?branch=master#52652093f4f3d9f6369c455e496123ce46970c07"
+source = "git+https://github.com/use-ink/ink?branch=master#641f05706e4f7ff1fb7c60e261ed0f4bc833f2f0"
 dependencies = [
  "cfg-if",
 ]
@@ -3722,7 +3721,7 @@ dependencies = [
 [[package]]
 name = "ink_primitives"
 version = "6.0.0-alpha"
-source = "git+https://github.com/use-ink/ink?branch=master#52652093f4f3d9f6369c455e496123ce46970c07"
+source = "git+https://github.com/use-ink/ink?branch=master#641f05706e4f7ff1fb7c60e261ed0f4bc833f2f0"
 dependencies = [
  "alloy-sol-types 1.0.0",
  "cfg-if",
