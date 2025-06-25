@@ -336,11 +336,16 @@ impl Dispatch<'_> {
                     )
                 }
                 Abi::Sol => {
+                    let decode_trait = if input_bindings.len() == 1 {
+                        quote!(::ink::SolDecode)
+                    } else {
+                        quote!(::ink::primitives::sol::SolParamsDecode)
+                    };
                     (
                         sol::utils::selector_id(message),
                         sol::utils::selector(message),
                         quote!(::ink::abi::Abi::Sol),
-                        quote!(::ink::SolDecode),
+                        decode_trait,
                         quote! {
                             ::ink::env::return_value_solidity::<Self::Output>(
                                 flags,
@@ -429,10 +434,15 @@ impl Dispatch<'_> {
                     )
                 }
                 Abi::Sol => {
+                    let decode_trait = if input_bindings.len() == 1 {
+                        quote!(::ink::SolDecode)
+                    } else {
+                        quote!(::ink::primitives::sol::SolParamsDecode)
+                    };
                     (
                         sol::utils::selector_id(message),
                         quote!(::ink::abi::Abi::Sol),
-                        quote!(::ink::SolDecode),
+                        decode_trait,
                         quote! {
                             ::ink::env::return_value_solidity::<Self::Output>(
                                 flags,
