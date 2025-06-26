@@ -38,7 +38,7 @@ array-init = { version = "2.0", default-features = false }
 blake2 = { version = "0.10" }
 cargo_metadata = { version = "0.19.0" }
 cfg-if = { version = "1.0" }
-contract-build = { version = "6.0.0-alpha.1", git = "https://github.com/use-ink/cargo-contract", branch = "master" }
+contract-build = { git = "https://github.com/use-ink/cargo-contract", branch = "2506" }
 darling = { version = "0.20.11" }
 derive_more = { version = "2.0.1", default-features = false }
 either = { version = "1.13", default-features = false }
@@ -99,7 +99,7 @@ sp-weights = { git = "https://github.com/paritytech/polkadot-sdk", rev = "a251f7
 xcm = { package = "staging-xcm", git = "https://github.com/paritytech/polkadot-sdk", rev = "a251f77", default-features = false }
 
 # PolkaVM dependencies
-polkavm-derive = { version = "0.22.0", default-features = false }
+polkavm-derive = { version = "0.25.0", default-features = false }
 
 # Solidity dependencies
 alloy-sol-types = { version = "1.0.0", default-features = false }
