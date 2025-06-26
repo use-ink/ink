@@ -12,6 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use ink_primitives::{
+    abi::{
+        AbiDecodeWith,
+        AbiEncodeWith,
+    },
+    Address,
+};
+use pallet_revive_uapi::CallFlags;
+
 use crate::{
     call::{
         common::{
@@ -28,14 +37,6 @@ use crate::{
     types::Environment,
     Error,
 };
-use ink_primitives::{
-    reflect::{
-        AbiDecodeWith,
-        AbiEncodeWith,
-    },
-    Address,
-};
-use pallet_revive_uapi::CallFlags;
 
 /// The `delegatecall` call type. Performs a call with the given code hash.
 #[derive(Clone)]

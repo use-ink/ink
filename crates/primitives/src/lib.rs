@@ -28,6 +28,7 @@
 )]
 #![cfg_attr(not(feature = "std"), no_std)]
 
+pub mod abi;
 mod arithmetic;
 pub mod contract;
 mod key;

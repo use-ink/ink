@@ -69,10 +69,7 @@ pub use self::{
         ChainExtensionMethod,
         ExtensionId,
     },
-    config::{
-        Abi,
-        Config,
-    },
+    config::Config,
     contract::Contract,
     event::{
         Event,

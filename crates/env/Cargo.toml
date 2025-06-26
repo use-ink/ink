@@ -105,4 +105,5 @@ unstable-hostfn = []
 level = "warn"
 check-cfg = [
     'cfg(feature, values(any()))',
+    'cfg(ink_abi, values("ink", "sol", "all"))'
 ]

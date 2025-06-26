@@ -12,6 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use std::marker::PhantomData;
+
+use ink_env::Environment;
+use ink_primitives::{
+    abi::{
+        AbiDecodeWith,
+        AbiEncodeWith,
+        Ink,
+    },
+    DepositLimit,
+};
+use sp_weights::Weight;
+
 use super::{
     balance_to_deposit_limit,
     InstantiateDryRunResult,
@@ -28,17 +41,6 @@ use crate::{
     UploadResult,
     H256,
 };
-use ink_env::Environment;
-use ink_primitives::{
-    reflect::{
-        AbiDecodeWith,
-        AbiEncodeWith,
-        ScaleEncoding,
-    },
-    DepositLimit,
-};
-use sp_weights::Weight;
-use std::marker::PhantomData;
 
 /// Allows to build an end-to-end call using a builder pattern.
 pub struct CallBuilder<'a, E, Args, RetType, B, Abi>
@@ -46,7 +48,6 @@ where
     E: Environment,
     Args: AbiEncodeWith<Abi> + Clone,
     RetType: Send + AbiDecodeWith<Abi>,
-
     B: BuilderClient<E>,
     Abi: Clone,
 {
@@ -141,7 +142,7 @@ where
     /// to add a margin to the gas limit.
     pub async fn submit(
         &mut self,
-    ) -> Result<CallResult<E, RetType, B::EventLog>, B::Error>
+    ) -> Result<CallResult<E, RetType, B::EventLog, Abi>, B::Error>
     where
         CallBuilderFinal<E, Args, RetType, Abi>: Clone,
     {
@@ -184,7 +185,7 @@ where
     }
 
     /// Dry run the call.
-    pub async fn dry_run(&mut self) -> Result<CallDryRunResult<E, RetType>, B::Error>
+    pub async fn dry_run(&mut self) -> Result<CallDryRunResult<E, RetType, Abi>, B::Error>
     where
         CallBuilderFinal<E, Args, RetType, Abi>: Clone,
     {
@@ -203,7 +204,7 @@ where
 pub struct InstantiateBuilder<'a, E, Contract, Args, R, B>
 where
     E: Environment,
-    Args: AbiEncodeWith<ScaleEncoding> + Clone,
+    Args: AbiEncodeWith<Ink> + Clone,
     Contract: Clone,
 
     B: ContractsBackend<E>,
@@ -221,7 +222,7 @@ where
 impl<'a, E, Contract, Args, R, B> InstantiateBuilder<'a, E, Contract, Args, R, B>
 where
     E: Environment,
-    Args: AbiEncodeWith<ScaleEncoding> + Clone + Send + Sync,
+    Args: AbiEncodeWith<Ink> + Clone + Send + Sync,
     Contract: Clone,
     B: BuilderClient<E>,
 {

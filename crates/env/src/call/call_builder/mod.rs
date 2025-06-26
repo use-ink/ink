@@ -18,6 +18,13 @@ mod delegate;
 pub use call::Call;
 pub use delegate::DelegateCall;
 
+use core::marker::PhantomData;
+
+use ink_primitives::{
+    abi::Sol,
+    Address,
+};
+
 use crate::{
     call::{
         utils::{
@@ -30,14 +37,6 @@ use crate::{
         ExecutionInput,
     },
     types::Environment,
-};
-use core::marker::PhantomData;
-use ink_primitives::{
-    reflect::{
-        ScaleEncoding,
-        SolEncoding,
-    },
-    Address,
 };
 
 /// The final parameters to the cross-contract call.
@@ -68,7 +67,12 @@ where
 }
 
 /// Returns a new [`CallBuilder`] to build up the parameters to a cross-contract call
-/// that uses the ink! ABI (SCALE Encoding).
+/// that uses the "default" ABI for calls for the ink! project.
+///
+/// # Note
+///
+/// The "default" ABI for calls is "ink", unless the ABI is set to "sol"
+/// in the ink! project's manifest file (i.e. `Cargo.toml`).
 ///
 /// # Example
 ///
@@ -214,7 +218,28 @@ where
 pub fn build_call<E>() -> CallBuilder<
     E,
     Unset<Call>,
-    Unset<ExecutionInput<EmptyArgumentList<ScaleEncoding>, ScaleEncoding>>,
+    Unset<ExecutionInput<EmptyArgumentList<crate::DefaultAbi>, crate::DefaultAbi>>,
+    Unset<ReturnType<()>>,
+>
+where
+    E: Environment,
+{
+    CallBuilder {
+        call_type: Default::default(),
+        exec_input: Default::default(),
+        return_type: Default::default(),
+        _phantom: Default::default(),
+    }
+}
+
+/// Returns a new [`CallBuilder`] for the specified ABI to build up the parameters to a
+/// cross-contract call.
+/// See [`build_call`] for more details on usage.
+#[allow(clippy::type_complexity)]
+pub fn build_call_abi<E, Abi>() -> CallBuilder<
+    E,
+    Unset<Call>,
+    Unset<ExecutionInput<EmptyArgumentList<Abi>, Abi>>,
     Unset<ReturnType<()>>,
 >
 where
@@ -235,7 +260,7 @@ where
 pub fn build_call_solidity<E>() -> CallBuilder<
     E,
     Unset<Call>,
-    Unset<ExecutionInput<EmptyArgumentList<SolEncoding>, SolEncoding>>,
+    Unset<ExecutionInput<EmptyArgumentList<Sol>, Sol>>,
     Unset<ReturnType<()>>,
 >
 where

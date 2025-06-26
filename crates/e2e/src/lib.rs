@@ -155,14 +155,27 @@ pub fn address<E: Environment>(account: Sr25519Keyring) -> Address {
 /// Creates a call builder for `Contract`, based on an account id.
 pub fn create_call_builder<Contract>(
     acc_id: Address,
-) -> <Contract as ContractCallBuilder>::Type
+) -> <Contract as ContractCallBuilder>::Type<ink::env::DefaultAbi>
 where
     <Contract as ContractEnv>::Env: Environment,
-    Contract: ContractCallBuilder,
-    Contract: ContractEnv,
-    Contract::Type: FromAddr,
+    Contract: ContractCallBuilder + ContractEnv,
+    <Contract as ContractCallBuilder>::Type<ink::env::DefaultAbi>: FromAddr,
 {
-    <<Contract as ContractCallBuilder>::Type as FromAddr>::from_addr(acc_id)
+    <<Contract as ContractCallBuilder>::Type<ink::env::DefaultAbi> as FromAddr>::from_addr(
+        acc_id,
+    )
+}
+
+/// Creates a call builder for `Contract` for the specified ABI, based on an account id.
+pub fn create_call_builder_abi<Contract, Abi>(
+    acc_id: Address,
+) -> <Contract as ContractCallBuilder>::Type<Abi>
+where
+    <Contract as ContractEnv>::Env: Environment,
+    Contract: ContractCallBuilder + ContractEnv,
+    <Contract as ContractCallBuilder>::Type<Abi>: FromAddr,
+{
+    <<Contract as ContractCallBuilder>::Type<Abi> as FromAddr>::from_addr(acc_id)
 }
 
 fn balance_to_deposit_limit<E: Environment>(

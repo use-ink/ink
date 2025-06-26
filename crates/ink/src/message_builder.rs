@@ -27,12 +27,21 @@
 ///
 /// # Usage
 ///
-/// The macro expects two arguments:
+/// The macro expects up to three arguments:
 /// - The first argument is the path to the trait, e.g. `Erc20` or `erc20::Erc20`.
 /// - The second argument is the type of the [`ink_env::Environment`].
+/// - The third argument is the marker type for the ABI (i.e. [`ink::abi::Ink`] or
+///   [`ink::abi::Sol`]).
 ///
 /// If the second argument is not specified, the macro uses the
 /// [`ink_env::DefaultEnvironment`].
+/// If the third argument is not specified, the macro uses the "default" ABI for calls
+/// for the ink! project.
+///
+/// # Note
+///
+/// The "default" ABI for calls is "ink", unless the ABI is set to "sol"
+/// in the ink! project's manifest file (i.e. `Cargo.toml`).
 ///
 /// ```rust
 /// use ink::message_builder;
@@ -101,8 +110,8 @@
 ///         input: &ExecutionInput<Args, Abi>,
 ///     ) -> Result<MessageResult<Output>, Self::Error>
 ///     where
-///         Args: ink::reflect::AbiEncodeWith<Abi>,
-///         Output: ink::reflect::AbiDecodeWith<Abi>,
+///         Args: ink::abi::AbiEncodeWith<Abi>,
+///         Output: ink::abi::AbiDecodeWith<Abi>,
 ///     {
 ///         println!("Executing contract with input: {:?}", input.encode());
 ///         unimplemented!("Decode contract execution output")
@@ -123,6 +132,13 @@
 ///     contract.transfer(total_supply, to).exec(&executor).unwrap();
 /// }
 ///
+/// fn custom_abi(to: Address) {
+///     let executor = ExampleExecutor::<DefaultEnvironment>::new();
+///     let mut contract = message_builder!(Erc20, DefaultEnvironment, ink::abi::Ink);
+///     let total_supply = contract.total_supply().exec(&executor).unwrap().unwrap();
+///     contract.transfer(total_supply, to).exec(&executor).unwrap();
+/// }
+///
 /// fn generic<E>(to: Address)
 /// where
 ///     E: ink_env::Environment,
@@ -135,15 +151,19 @@
 /// ```
 #[macro_export]
 macro_rules! message_builder {
-    // The case of the default `Environment`
+    // The case of the default `Environment` and ABI
     ( $trait_path:path ) => {
         $crate::message_builder!($trait_path, $crate::env::DefaultEnvironment)
     };
-    // The case of the custom `Environment`
+    // The case of the custom `Environment` and default ABI
     ( $trait_path:path, $env:ty ) => {
+        $crate::message_builder!($trait_path, $env, $crate::env::DefaultAbi)
+    };
+    // The case of the custom `Environment` and ABI
+    ( $trait_path:path, $env:ty, $abi:ty ) => {
         <<<$crate::reflect::TraitDefinitionRegistry<$env>
                             as $trait_path>::__ink_TraitInfo
-                            as $crate::codegen::TraitMessageBuilder>::MessageBuilder
+                            as $crate::codegen::TraitMessageBuilder>::MessageBuilder<$abi>
                             as ::core::default::Default>::default()
     };
 }

@@ -21,3 +21,12 @@ pub use self::{
     identity_type::consume_type,
     same_type::IsSameType,
 };
+
+/// Compile-time `format!`-like macro that returns `&'static str`.
+///
+/// The first argument is a format string which can be a `String` (i.e. doesn't have
+/// to be a literal). Like `format!` the format string can contain `{}`s which are
+/// replace by the additional parameters which must all be constant expressions.
+///
+/// See [`const_format::formatc`] for details.
+pub use const_format::formatc as const_format;

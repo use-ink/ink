@@ -26,6 +26,9 @@ macro_rules! impl_as_ref_for_generator {
     };
 }
 
+#[macro_use]
+mod macros;
+
 mod arg_list;
 mod as_dependency;
 mod blake2b;
@@ -38,7 +41,6 @@ mod ink_test;
 mod item_impls;
 mod metadata;
 mod selector;
-#[cfg(any(ink_abi = "sol", ink_abi = "all"))]
 mod sol;
 mod storage;
 mod storage_item;

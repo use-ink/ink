@@ -15,6 +15,21 @@
 //! The public raw interface towards the host engine.
 
 #[cfg(feature = "unstable-hostfn")]
+use ink_primitives::abi::Ink;
+use ink_primitives::{
+    abi::{
+        AbiDecodeWith,
+        AbiEncodeWith,
+    },
+    Address,
+    SolEncode,
+    H256,
+    U256,
+};
+use ink_storage_traits::Storable;
+use pallet_revive_uapi::ReturnFlags;
+
+#[cfg(feature = "unstable-hostfn")]
 use crate::call::{
     ConstructorReturnType,
     CreateParams,
@@ -49,20 +64,6 @@ use crate::{
     DispatchError,
     Result,
 };
-#[cfg(feature = "unstable-hostfn")]
-use ink_primitives::reflect::ScaleEncoding;
-use ink_primitives::{
-    reflect::{
-        AbiDecodeWith,
-        AbiEncodeWith,
-    },
-    Address,
-    SolEncode,
-    H256,
-    U256,
-};
-use ink_storage_traits::Storable;
-use pallet_revive_uapi::ReturnFlags;
 
 /// Returns the address of the caller of the executed contract.
 ///
@@ -360,7 +361,7 @@ where
     <ContractRef as crate::ContractReverseReference>::Type:
         crate::reflect::ContractConstructorDecoder,
 
-    Args: AbiEncodeWith<ScaleEncoding>,
+    Args: AbiEncodeWith<Ink>,
     R: ConstructorReturnType<ContractRef>,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {

@@ -39,6 +39,8 @@ use crate::{
         SolBytes,
         SolDecode,
         SolEncode,
+        SolParamsDecode,
+        SolParamsEncode,
         SolTypeDecode,
         SolTypeEncode,
     },
@@ -546,5 +548,76 @@ fn encode_refs_works() {
         (true, 100i8, 1_000_000u32, String::from("Hello, world!")),
         [],
         []
+    );
+}
+
+macro_rules! test_case_params {
+    ($ty: ty, $val: expr) => {
+        test_case_params!($ty, $val, $ty, alloy_sol_types::SolValue, $val, [], [])
+    };
+    ($ty: ty, $val: expr, $sol_ty: ty, $sol_trait: ty) => {
+        test_case_params!($ty, $val, $sol_ty, $sol_trait, $val, [], [])
+    };
+    ($ty: ty, $val: expr, $sol_ty: ty, $sol_trait: ty, $sol_val: expr, [$($ty_cvt: tt)*], [$($sol_ty_cvt: tt)*]) => {
+        // `SolParamsEncode` test.
+        let encoded = <$ty as SolParamsEncode>::encode(&$val);
+        let encoded_alloy = <$sol_ty as $sol_trait>::abi_encode_params(&$sol_val);
+        assert_eq!(encoded, encoded_alloy);
+
+        // `SolParamsDecode` test.
+        let decoded = <$ty as SolParamsDecode>::decode(&encoded);
+        let decoded_alloy = <$sol_ty as $sol_trait>::abi_decode_params(&encoded);
+        assert_eq!(decoded$($ty_cvt)*, decoded_alloy$($sol_ty_cvt)*);
+    };
+}
+
+#[test]
+fn params_works() {
+    test_case_params!((), ());
+    test_case_params!((bool,), (true,));
+    // `SolValue` isn't implemented for `u8`.
+    test_case_params!((u8,), (100u8,), (sol_data::Uint<8>,), AlloySolType);
+    test_case_params!(
+        (bool, i8, u32, String),
+        (true, 100i8, 1_000_000u32, String::from("Hello, world!"))
+    );
+
+    // simple sequences/collections.
+    test_case_params!(([i8; 32],), ([100i8; 32],));
+    test_case_params!((Vec<i8>,), (Vec::from([100i8; 64]),));
+    test_case_params!(([i8; 32], Vec<i8>), ([100i8; 32], Vec::from([100i8; 64])));
+
+    // sequences of addresses.
+    test_case_params!(
+        ([Address; 4],), ([Address::from([1; 20]); 4],),
+        ([AlloyAddress; 4],), SolValue, ([AlloyAddress::from([1; 20]); 4],),
+        [.unwrap().0.map(|val| val.0)], [.unwrap().0.map(|val| val.0)]
+    );
+    test_case_params!(
+        (Vec<Address>,), (Vec::from([Address::from([1; 20]); 4]),),
+        (Vec<AlloyAddress>,), SolValue, (Vec::from([AlloyAddress::from([1; 20]); 4]),),
+        [.unwrap().0.into_iter().map(|val| val.0).collect::<Vec<_>>()], [.unwrap().0.into_iter().map(|val| val.0).collect::<Vec<_>>()]
+    );
+
+    // fixed-size byte arrays.
+    test_case_params!(
+        (SolBytes<[u8; 32]>,),
+        (SolBytes([100u8; 32]),),
+        (AlloyFixedBytes<32>,),
+        SolValue,
+        (AlloyFixedBytes([100u8; 32]),),
+        [.unwrap().0.0],
+        [.unwrap().0.0]
+    );
+
+    // dynamic size byte arrays.
+    test_case_params!(
+        (SolBytes<Vec<u8>>,),
+        (SolBytes(Vec::from([100u8; 64])),),
+        (AlloyBytes,),
+        SolValue,
+        (AlloyBytes::from([100u8; 64]),),
+        [.unwrap().0.0],
+        [.unwrap().0.0]
     );
 }

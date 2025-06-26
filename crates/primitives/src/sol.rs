@@ -15,6 +15,7 @@
 //! Abstractions for implementing Solidity ABI encoding/decoding for arbitrary Rust types.
 
 mod bytes;
+mod params;
 mod types;
 
 #[cfg(test)]
@@ -40,6 +41,10 @@ use primitive_types::{
 
 pub use self::{
     bytes::SolBytes,
+    params::{
+        SolParamsDecode,
+        SolParamsEncode,
+    },
     types::{
         SolTypeDecode,
         SolTypeEncode,
@@ -148,6 +153,11 @@ pub trait SolEncode<'a> {
     /// Name of equivalent Solidity ABI type.
     const SOL_NAME: &'static str =
         <<Self::SolType as SolTypeEncode>::AlloyType as AlloySolType>::SOL_NAME;
+
+    /// Whether the ABI encoded size is dynamic.
+    #[doc(hidden)]
+    const DYNAMIC: bool =
+        <<Self::SolType as SolTypeEncode>::AlloyType as AlloySolType>::DYNAMIC;
 
     /// Solidity ABI encode the value.
     fn encode(&'a self) -> Vec<u8> {
