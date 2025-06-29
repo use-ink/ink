@@ -283,6 +283,18 @@ impl Dispatch<'_> {
         let span = constructor.span();
         let constructor_ident = constructor.ident();
         let payable = constructor.is_payable();
+        let cfg_attrs = constructor.get_cfg_attrs(span);
+        let output_type = constructor
+            .output()
+            .map(quote::ToTokens::to_token_stream)
+            .unwrap_or_else(|| quote! { () });
+        let input_bindings = generator::input_bindings(constructor.inputs());
+        let input_tuple_type = generator::input_types_tuple(constructor.inputs());
+        let input_tuple_bindings = generator::input_bindings_tuple(constructor.inputs());
+        let constructor_return_type = quote_spanned!(span=>
+            <::ink::reflect::ConstructorOutputValue<#output_type>
+                as ::ink::reflect::ConstructorOutput<#storage_ident>>
+        );
         let (constructor_id, selector_bytes, abi_ty, decode_trait) = match abi {
             Abi::Ink => {
                 let id = constructor
@@ -304,27 +316,19 @@ impl Dispatch<'_> {
                 // We always use the same selector id for Solidity constructors.
                 // Attempting to generate constructor info for multiple constructors
                 // will thus lead to a compilation error.
+                let decode_trait = if input_bindings.len() == 1 {
+                    quote!(::ink::SolDecode)
+                } else {
+                    quote!(::ink::primitives::sol::SolParamsDecode)
+                };
                 (
                     quote!( #SOL_CTOR_ID ),
                     quote!(::core::option::Option::None),
                     quote!(::ink::abi::Abi::Sol),
-                    quote!(::ink::SolDecode),
+                    decode_trait,
                 )
             }
         };
-
-        let cfg_attrs = constructor.get_cfg_attrs(span);
-        let output_type = constructor
-            .output()
-            .map(quote::ToTokens::to_token_stream)
-            .unwrap_or_else(|| quote! { () });
-        let input_bindings = generator::input_bindings(constructor.inputs());
-        let input_tuple_type = generator::input_types_tuple(constructor.inputs());
-        let input_tuple_bindings = generator::input_bindings_tuple(constructor.inputs());
-        let constructor_return_type = quote_spanned!(span=>
-            <::ink::reflect::ConstructorOutputValue<#output_type>
-                as ::ink::reflect::ConstructorOutput<#storage_ident>>
-        );
         quote_spanned!(span =>
             #( #cfg_attrs )*
             impl ::ink::reflect::DispatchableConstructorInfo<#constructor_id> for #storage_ident {
