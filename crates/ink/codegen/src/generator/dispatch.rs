@@ -768,9 +768,7 @@ impl Dispatch<'_> {
                     let constructor_ident = constructor_variant_ident(index);
                     quote_spanned!(constructor_span=>
                         <#storage_ident as ::ink::reflect::DispatchableConstructorInfo< #SOL_CTOR_ID >>::DECODE(input)
-                            .map(|decoder| {
-                                Self::#constructor_ident(decoder)
-                            })
+                            .map(Self::#constructor_ident)
                     )
                 }
                 None => {
@@ -783,18 +781,6 @@ impl Dispatch<'_> {
 
         #[cfg(not(ink_abi = "sol"))]
         let decode_dispatch = {
-            let try_solidity_constructor = if cfg!(ink_abi = "all") {
-                let solidity_constructor = solidity_constructor_dispatch_decode();
-                quote_spanned!(span=>
-                    let result = #solidity_constructor;
-                    if result.is_ok() {
-                        return result;
-                    }
-                )
-            } else {
-                quote!()
-            };
-
             let constructor_selector =
                 constructors.iter().enumerate().filter_map(|(index, item)| {
                     if matches!(item.abi, Abi::Sol) {
@@ -835,10 +821,8 @@ impl Dispatch<'_> {
                     ))
                 });
 
-            let possibly_wildcard_selector_constructor = match self
-                .query_wildcard_constructor()
-            {
-                Some(wildcard_index) => {
+            let wildcard_selector_constructor =
+                self.query_wildcard_constructor().map(|wildcard_index| {
                     let item = &constructors[wildcard_index];
                     let constructor_span = item.constructor.span();
                     let constructor_ident = constructor_variant_ident(wildcard_index);
@@ -848,22 +832,51 @@ impl Dispatch<'_> {
                         item.id.clone(),
                     );
                     quote_spanned!(constructor_span=>
-                        ::core::result::Result::Ok(Self::#constructor_ident(
-                            <#constructor_input as ::ink::scale::Decode>::decode(input)
-                                .map_err(|_| ::ink::env::DispatchError::InvalidParameters)?
-                        ))
+                        <#constructor_input as ::ink::scale::Decode>::decode(input)
+                            .map(Self::#constructor_ident)
+                            .map_err(|_| ::ink::env::DispatchError::InvalidParameters)
                     )
-                }
-                None => {
-                    quote! {
+                });
+
+            let (possible_full_input_ref, fallback_match) = if cfg!(ink_abi = "all") {
+                let solidity_constructor = solidity_constructor_dispatch_decode();
+                let try_wildcard_selector_constructor = wildcard_selector_constructor
+                    .map(|wildcard_selector_constructor| {
+                        quote_spanned!(span=>
+                            let wildcard_result = #wildcard_selector_constructor;
+                            if wildcard_result.is_ok() {
+                                return wildcard_result;
+                            }
+                        )
+                    });
+                (
+                    // Keeps a reference to the entire input slice for Solidity ABI
+                    // decoding fallback.
+                    quote_spanned!(span=>
+                        let mut full_input = *input;
+                    ),
+                    quote_spanned!(span=>
+                        {
+                            // Try wildcard constructor (if any).
+                            #try_wildcard_selector_constructor
+
+                            // Fallback to Solidity constructor.
+                            let input = &mut full_input;
+                            #solidity_constructor
+                        }
+                    ),
+                )
+            } else {
+                let fallback_match = wildcard_selector_constructor.unwrap_or_else(|| {
+                    quote_spanned!(span =>
                         ::core::result::Result::Err(::ink::env::DispatchError::UnknownSelector)
-                    }
-                }
+                    )
+                });
+                (quote!(), fallback_match)
             };
 
             quote_spanned!(span =>
-                #try_solidity_constructor
-
+                #possible_full_input_ref
                 #(
                     #constructor_selector
                 )*
@@ -871,7 +884,7 @@ impl Dispatch<'_> {
                     .map_err(|_| ::ink::env::DispatchError::InvalidSelector)?
                 {
                     #( #constructor_match , )*
-                    _invalid => #possibly_wildcard_selector_constructor
+                    _invalid => #fallback_match
                 }
             )
         };
