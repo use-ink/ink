@@ -838,9 +838,6 @@ jobs:
                     find integration-tests/public -type f -name "Cargo.toml" | xargs -n1 sed -i 's/abi = \"ink\"/abi = \"sol\"/g'
                     find integration-tests/internal -type f -name "Cargo.toml" | xargs -n1 sed -i 's/abi = \"ink\"/abi = \"sol\"/g'
 
-                    cat integration-tests/public/flipper/Cargo.toml
-                    cat integration-tests/internal/mapping/Cargo.toml
-
                     mkdir -p measurements-abi-${{ env.MEASUREMENTS_ID }}/
                     scripts/for_all_contracts_exec2.sh --path integration-tests \
                       --ignore internal/call-builder-return-value \
@@ -857,6 +854,7 @@ jobs:
                       --ignore public/psp22-extension \
                       --ignore public/combined-extension \
                       --ignore public/contract-invocation \
+                      --ignore public/contract-storage \
                       --ignore solidity-abi/sol-cross-contract --ignore solidity-abi/sol-encoding \
                       --ignore solidity-abi/solidity-calls-flipper --ignore solidity-abi/events \
                       --ignore solidity-abi/trait-flipper --ignore solidity-abi/trait-dyn-cross-contract-calls -- \
