@@ -68,7 +68,7 @@ where
             self.value,
             self.gas_limit,
             // self.storage_deposit_limit,
-            DepositLimit::Unchecked, // todo
+            DepositLimit::UnsafeOnlyForDryRun, // todo
             data,
         );
 

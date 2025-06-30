@@ -21,6 +21,10 @@ pub use macros::{
     DefaultSandbox,
 };
 use pallet_revive::{
+    evm::{
+        Tracer,
+        TracerType,
+    },
     ContractResult,
     ExecReturnValue,
     InstantiateReturnValue,

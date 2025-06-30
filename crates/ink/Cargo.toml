@@ -33,8 +33,8 @@ linkme = { workspace = true, optional = true }
 polkavm-derive = { workspace = true }
 xcm = { workspace = true }
 
-sp-io = {  version = "40.0.0", default-features = false, features = ["disable_panic_handler", "disable_oom", "disable_allocator"] }
-sp-runtime-interface = { version = "29.0.1", default-features = false, features = ["disable_target_static_assertions"] }
+sp-io = { git = "https://github.com/paritytech/polkadot-sdk.git", default-features = false, features = ["disable_panic_handler", "disable_oom", "disable_allocator"] }
+sp-runtime-interface = { git = "https://github.com/paritytech/polkadot-sdk.git", default-features = false, features = ["disable_target_static_assertions"] }
 
 # todo pin until https://github.com/jhpratt/deranged/issues/18 is resolved
 deranged = { version = "=0.4.0", default-features = false }

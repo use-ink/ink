@@ -7,8 +7,8 @@ publish = false
 
 [dependencies]
 ink = { path = "../../../crates/ink", default-features = false, features = ["unstable-hostfn"] }
-frame-support = { version = "40.1.0", default-features = false }
-pallet-balances = { version = "41.1.0", default-features = false }
+frame-support = { git = "https://github.com/paritytech/polkadot-sdk.git", default-features = false }
+pallet-balances = { git = "https://github.com/paritytech/polkadot-sdk.git", default-features = false }
 
 [dev-dependencies]
 ink_e2e = { path = "../../../crates/e2e", features = ["sandbox"] }
