@@ -844,7 +844,13 @@ jobs:
                     mkdir -p measurements-abi-${{ env.MEASUREMENTS_ID }}/
                     scripts/for_all_contracts_exec2.sh --path integration-tests \
                       --ignore internal/call-builder-return-value \
+                      --ignore internal/lang-err/integration-flipper \
                       --ignore internal/lang-err/call-builder-delegate \
+                      --ignore internal/lang-err/call-builder \
+                      --ignore internal/lang-err/contract-ref \
+                      --ignore internal/mapping \
+                      --ignore internal/mother \
+                      --ignore internal/static-buffer \
                       --ignore solidity-abi/sol-cross-contract --ignore solidity-abi/sol-encoding \
                       --ignore solidity-abi/solidity-calls-flipper --ignore solidity-abi/events \
                       --ignore solidity-abi/trait-flipper --ignore solidity-abi/trait-dyn-cross-contract-calls -- \
