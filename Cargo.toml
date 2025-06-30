@@ -38,7 +38,7 @@ array-init = { version = "2.0", default-features = false }
 blake2 = { version = "0.10" }
 cargo_metadata = { version = "0.19.0" }
 cfg-if = { version = "1.0" }
-contract-build = { version = "6.0.0-alpha.1", git = "https://github.com/use-ink/cargo-contract", branch = "master" }
+contract-build = { git = "https://github.com/use-ink/cargo-contract", branch = "nightly" }
 darling = { version = "0.20.11" }
 derive_more = { version = "2.0.1", default-features = false }
 either = { version = "1.13", default-features = false }
@@ -81,28 +81,30 @@ xxhash-rust = { version = "0.8" }
 const_env = { version = "0.1" }
 
 # Substrate dependencies
-frame-metadata = { version = "20.0.0", default-features = false }
-frame-system = { version = "40.1.0", default-features = false }
-frame-support = { version = "40.1.0", default-features = false }
-pallet-balances = { version = "41.1.0", default-features = false }
-pallet-timestamp = { version = "39.0.0", default-features = false }
-pallet-revive = { version = "0.5.0", default-features = false }
-pallet-revive-mock-network = { version = "0.4.0", default-features = false }
-pallet-revive-uapi = { version = "0.4.0", default-features = false, features = ["unstable-hostfn"] }
-sp-externalities = { version = "0.30.0", default-features = false }
-sp-io = { version = "40.0.0", default-features = false, features = ["disable_panic_handler", "disable_oom", "disable_allocator"] }
-sp-runtime-interface = { version = "29.0.1", default-features = false, features = ["disable_target_static_assertions"] }
-sp-core = { version = "36.1.0", default-features = false }
-sp-keyring = { version = "41.0.0", default-features = false }
-sp-runtime = "41.1.0"
-sp-weights = { version = "31.1.0", default-features = false }
-xcm = { package = "staging-xcm", version = "16.1.0", default-features = false }
+frame-metadata = { version = "23.0.0", default-features = false }
+frame-system = { git = "https://github.com/paritytech/polkadot-sdk.git", default-features = false }
+frame-support = { git = "https://github.com/paritytech/polkadot-sdk.git", default-features = false }
+pallet-balances = { git = "https://github.com/paritytech/polkadot-sdk.git", default-features = false }
+pallet-timestamp = { git = "https://github.com/paritytech/polkadot-sdk.git", default-features = false }
+
+pallet-revive = { git = "https://github.com/paritytech/polkadot-sdk.git", default-features = false }
+pallet-revive-mock-network = { version = "0.5.0", default-features = false }
+pallet-revive-uapi = { git = "https://github.com/paritytech/polkadot-sdk.git", default-features = false, features = ["unstable-hostfn"] }
+
+sp-externalities = { git = "https://github.com/paritytech/polkadot-sdk.git", default-features = false }
+sp-io = { git = "https://github.com/paritytech/polkadot-sdk.git", default-features = false, features = ["disable_panic_handler", "disable_oom", "disable_allocator"] }
+sp-runtime-interface = { git = "https://github.com/paritytech/polkadot-sdk.git", default-features = false, features = ["disable_target_static_assertions"] }
+sp-core = { git = "https://github.com/paritytech/polkadot-sdk.git", default-features = false }
+sp-keyring = { git = "https://github.com/paritytech/polkadot-sdk.git", default-features = false }
+sp-runtime = { git = "https://github.com/paritytech/polkadot-sdk.git" }
+sp-weights = { git = "https://github.com/paritytech/polkadot-sdk.git", default-features = false }
+xcm = { package = "staging-xcm", git = "https://github.com/paritytech/polkadot-sdk.git", default-features = false }
 
 # PolkaVM dependencies
-polkavm-derive = { version = "0.22.0", default-features = false }
+polkavm-derive = { git = "https://github.com/paritytech/polkavm.git", default-features = false }
 
 # Solidity dependencies
-alloy-sol-types = { version = "1.0.0", default-features = false }
+alloy-sol-types = { version = "1.2.1", default-features = false }
 const_format = { version = "0.2.34", features = ["fmt"] }
 keccak-const = "0.2.0"
 impl-trait-for-tuples = "0.2.3"
