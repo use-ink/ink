@@ -215,7 +215,7 @@ impl Clear for Hash {
 )]
 pub enum DepositLimit<Balance> {
     /// Allows bypassing all balance transfer checks.
-    Unchecked,
+    UnsafeOnlyForDryRun,
 
     /// Specifies a maximum allowable balance for a deposit.
     Balance(Balance),

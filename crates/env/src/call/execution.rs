@@ -157,8 +157,9 @@ where
     /// encoded arguments.
     pub fn encode(&self) -> Vec<u8> {
         let mut encoded = Vec::new();
-        encoded.extend(self.selector.to_bytes());
+        //encoded.extend(self.selector.to_bytes());
         self.args.encode_to_vec(&mut encoded);
+        //eprintln!("----->> {:?}", encoded);
         encoded
     }
 

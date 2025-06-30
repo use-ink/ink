@@ -15,7 +15,7 @@ use ink::{
 use ink_sandbox::frame_system::pallet_prelude::OriginFor;
 use pallet_revive::ExecReturnValue;
 
-const STORAGE_DEPOSIT_LIMIT: DepositLimit<u128> = DepositLimit::Unchecked;
+const STORAGE_DEPOSIT_LIMIT: DepositLimit<u128> = DepositLimit::UnsafeOnlyForDryRun;
 
 #[test]
 fn call_sol_encoded_message() {
@@ -102,6 +102,7 @@ fn call_sol_encoded_message() {
     let input = other_contract_addr.clone();
 
     // set value via cross contract call
+    let contract_addr = ink::H160::from([0u8; 20]);
     contracts.call(
         contract_addr,
         "call_contract_sol_encoding(address)",
@@ -136,7 +137,12 @@ impl ContractSandbox {
         Args: for<'a> SolEncode<'a>,
         Ret: SolDecode,
     {
+        eprintln!("message {}", message);
+        eprintln!("contract_addr {}", contract_addr);
+        //let contract_addr = [0u8; 20];
+        //eprintln!("contract_addr {}", contract_addr);
         let result = self.call(contract_addr, message, args, origin);
+        eprintln!("res: {:?}", result);
         Ret::decode(&result[..]).expect("decode failed")
     }
 
@@ -154,6 +160,7 @@ impl ContractSandbox {
         let mut encoded = args.encode();
         data.append(&mut encoded);
 
+        eprintln!("data {:?}", data);
         let result = self.call_raw(contract_addr, data, origin);
         assert!(!result.did_revert(), "'{message}' failed {:?}", result);
         result.data

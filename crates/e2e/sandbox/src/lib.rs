@@ -25,6 +25,7 @@ use pallet_revive::{
     ExecReturnValue,
     InstantiateReturnValue,
 };
+use pallet_revive::evm::{Tracer, TracerType};
 /// Export pallets that are used in [`crate::create_sandbox`]
 pub use {
     frame_support::sp_runtime::testing::H256,

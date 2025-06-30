@@ -30,17 +30,33 @@ mod sol_cross_contract {
         #[ink(message)]
         pub fn call_contract_sol_encoding(&mut self, callee: Address) {
             let selector = keccak_selector(b"set_value(bool)");
+            static TEST_INPUT: &[u8] = b"DEAD_BEEF";
 
+            let callee = Address::from([0u8; 20]);
             let result = build_call_solidity::<<Self as ::ink::env::ContractEnv>::Env>()
                 .call(callee)
                 .ref_time_limit(1000000000)
                 .transferred_value(U256::zero())
                 .call_flags(CallFlags::empty())
-                .exec_input(ExecutionInput::new(selector.into()).push_arg(true))
-                .returns::<()>()
+                //.exec_input(ExecutionInput::new(selector.into()).push_arg(true))
+                //.returns::<()>()
+                //.exec_input(ExecutionInput::new([0x00; 4]).push_arg(TEST_INPUT))
+                .exec_input(ExecutionInput::new(selector.into()).push_arg(TEST_INPUT.to_vec()))
+                //.raw_input(TEST_INPUT)
+                .returns::<[u8; 32]>()
                 .try_invoke();
 
             assert!(result.is_ok(), "call failed");
+            //let mut output = ;
+            //sha2_256(TEST_INPUT, &mut output);
+            assert_eq!(
+                result.unwrap(),
+                Ok([
+                    136, 15, 25, 218, 88, 54, 49, 152, 115, 168, 147, 189, 207, 171, 243,
+                    129, 161, 76, 15, 141, 197, 106, 111, 213, 19, 197, 133, 219, 181, 233,
+                    195, 120
+                ])
+            );
         }
     }
 }

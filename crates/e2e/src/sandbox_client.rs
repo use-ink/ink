@@ -49,7 +49,9 @@ use jsonrpsee::core::async_trait;
 use pallet_revive::{
     evm::{
         CallTrace,
-        TracerConfig,
+        CallTracerConfig,
+        Trace,
+        TracerType,
         U256,
     },
     CodeUploadReturnValue,
@@ -243,9 +245,13 @@ where
     ContractsBalanceOf<S::Runtime>: Into<U256> + TryFrom<U256> + Bounded,
     MomentOf<S::Runtime>: Into<U256>,
 
+    <<S as Sandbox>::Runtime as frame_system::Config>::Nonce: Into<u32>,
+
     // todo
     <<S as Sandbox>::Runtime as frame_system::Config>::Hash:
         frame_support::traits::IsType<sp_core::H256>,
+
+    //S: ink_sandbox::api::revive_api::ContractAPI,
 {
     async fn bare_instantiate<
         Contract: Clone,
@@ -266,12 +272,11 @@ where
         // get the trace
         let _ = self.sandbox.build_block();
 
-        let tracer_config = TracerConfig::CallTracer { with_logs: true };
+        let tracer_type = TracerType::CallTracer(Some(CallTracerConfig::default()));
+        let mut tracer = self.sandbox.evm_tracer(tracer_type);
 
-        let mut tracer =
-            tracer_config.build(pallet_revive::Pallet::<S::Runtime>::evm_gas_from_weight);
         let mut code_hash: Option<H256> = None;
-        let result = pallet_revive::tracing::trace(&mut tracer, || {
+        let result = pallet_revive::tracing::trace(tracer.as_tracing(), || {
             let code = self.contracts.load_code(contract_name);
             code_hash = Some(H256(crate::client_utils::code_hash(&code[..])));
             let data = constructor_exec_input(constructor.clone());
@@ -294,9 +299,10 @@ where
             Ok(res) => res.addr,
         };
 
-        let mut traces = tracer.collect_traces();
-        assert_eq!(traces.len(), 1);
-        let trace = traces.pop();
+        let trace = match tracer.collect_trace() {
+            Some(Trace::Call(call_trace)) => Some(call_trace),
+            _ => None,
+        };
 
         Ok(BareInstantiationResult {
             addr: addr_raw,
@@ -419,10 +425,9 @@ where
         let exec_input = message.clone().params().exec_input().encode();
 
         // todo
-        let tracer_config = TracerConfig::CallTracer { with_logs: true };
-        let mut tracer =
-            tracer_config.build(pallet_revive::Pallet::<S::Runtime>::evm_gas_from_weight);
-        let _result = pallet_revive::tracing::trace(&mut tracer, || {
+        let tracer_type = TracerType::CallTracer(Some(CallTracerConfig::default()));
+        let mut tracer = self.sandbox.evm_tracer(tracer_type);
+        let _result = pallet_revive::tracing::trace(tracer.as_tracing(), || {
             self.sandbox
                 .call_contract(
                     addr,
@@ -435,9 +440,10 @@ where
                 .result
                 .map_err(|err| SandboxErr::new(format!("bare_call: {err:?}")))
         })?;
-        let mut traces = tracer.collect_traces();
-        assert_eq!(traces.len(), 1);
-        let trace = traces.pop();
+        let trace = match tracer.collect_trace() {
+            Some(Trace::Call(call_trace)) => Some(call_trace),
+            _ => None,
+        };
 
         Ok(((), trace))
     }
@@ -536,6 +542,8 @@ where
     ContractsBalanceOf<Config::Runtime>: Into<U256> + TryFrom<U256> + Bounded,
     MomentOf<Config::Runtime>: Into<U256>,
 
+    <Config::Runtime as frame_system::Config>::Nonce: Into<u32>,
+
     // todo
     <Config::Runtime as frame_system::Config>::Hash: IsType<sp_core::H256>,
 {
@@ -573,6 +581,7 @@ where
 
 /// Exposes preset sandbox configurations to be used in tests.
 pub mod preset {
+    /*
     pub mod mock_network {
         use ink_sandbox::{
             frame_system,
@@ -689,4 +698,5 @@ pub mod preset {
             }
         }
     }
+     */
 }

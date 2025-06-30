@@ -25,6 +25,7 @@ use ink_primitives::{
     DepositLimit,
 };
 use jsonrpsee::core::async_trait;
+use pallet_revive::BumpNonce;
 use pallet_revive::evm::CallTrace;
 use sp_weights::Weight;
 use subxt::dynamic::Value;

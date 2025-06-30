@@ -197,22 +197,26 @@ mod construct_runtime {
         type Currency = Balances;
         type RuntimeEvent = RuntimeEvent;
         type RuntimeCall = RuntimeCall;
-        type CallFilter = ();
         type DepositPerItem = ConstU128<1>;
         type DepositPerByte = ConstU128<1>;
         type WeightPrice = Self;
         type WeightInfo = ();
-        type ChainExtension = $chain_extension;
+        // todo remove this + the $chain_extension variable
+        // type ChainExtension = $chain_extension;
         type RuntimeMemory = ConstU32<{ 128 * 1024 * 1024 }>;
         type PVFMemory = ConstU32<{ 512 * 1024 * 1024 }>;
         type UnsafeUnstableInterface = ConstBool<true>;
         type CodeHashLockupDepositPercent = CodeHashLockupDepositPercent;
         type RuntimeHoldReason = RuntimeHoldReason;
-        type Xcm = ();
         type UploadOrigin = $crate::frame_system::EnsureSigned<Self::AccountId>;
         type InstantiateOrigin = $crate::frame_system::EnsureSigned<Self::AccountId>;
         type EthGasEncoder = ();
         type FindAuthor = ();
+        type Precompiles = (
+            //ERC20<Self, InlineIdConfig<0x120>, TrustBackedAssetsInstance>,
+            //ERC20<Self, InlineIdConfig<0x320>, PoolAssetsInstance>,
+            //XcmPrecompile<Self>,
+        );
     }
 
     // Implement `crate::Sandbox` trait
