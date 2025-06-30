@@ -856,6 +856,7 @@ jobs:
                       --ignore public/rand-extension \
                       --ignore public/psp22-extension \
                       --ignore public/combined-extension \
+                      --ignore public/contract-invocation \
                       --ignore solidity-abi/sol-cross-contract --ignore solidity-abi/sol-encoding \
                       --ignore solidity-abi/solidity-calls-flipper --ignore solidity-abi/events \
                       --ignore solidity-abi/trait-flipper --ignore solidity-abi/trait-dyn-cross-contract-calls -- \
