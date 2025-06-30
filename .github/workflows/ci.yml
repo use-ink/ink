@@ -842,7 +842,7 @@ jobs:
                     cat integration-tests/internal/mapping/Cargo.toml
 
                     mkdir -p measurements-abi-${{ env.MEASUREMENTS_ID }}/
-                    scripts/for_all_contracts_exec2.sh --path integration-tests \
+                    scripts/for_all_contracts_exec3.sh --path integration-tests \
                       --ignore internal/call-builder-return-value \
                       --ignore internal/lang-err/integration-flipper \
                       --ignore internal/lang-err/call-builder-delegate \
@@ -850,6 +850,7 @@ jobs:
                       --ignore internal/lang-err/contract-ref \
                       --ignore internal/mapping \
                       --ignore internal/mother \
+                      --ignore internal/storage-types \
                       --ignore internal/static-buffer \
                       --ignore solidity-abi/sol-cross-contract --ignore solidity-abi/sol-encoding \
                       --ignore solidity-abi/solidity-calls-flipper --ignore solidity-abi/events \
