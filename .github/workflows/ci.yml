@@ -856,6 +856,7 @@ jobs:
                       --ignore public/contract-invocation \
                       --ignore public/contract-storage \
                       --ignore public/contract-transfer \
+                      --ignore public/contract-xcm \
                       --ignore solidity-abi/sol-cross-contract --ignore solidity-abi/sol-encoding \
                       --ignore solidity-abi/solidity-calls-flipper --ignore solidity-abi/events \
                       --ignore solidity-abi/trait-flipper --ignore solidity-abi/trait-dyn-cross-contract-calls -- \
