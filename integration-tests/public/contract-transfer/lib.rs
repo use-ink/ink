@@ -49,7 +49,7 @@ pub mod give_me {
         /// The method needs to be annotated with `payable`; only then it is
         /// allowed to receive value as part of the call.
         #[ink(message, payable, selector = 0xCAFEBABE)]
-        pub fn was_it_ten(&self) {
+        pub fn was_it_ten(&mut self) {
             /*
             ink::env::debug_println!(
                 "received payment: {}",
@@ -111,7 +111,7 @@ pub mod give_me {
             use ink::codegen::Env;
             // given
             let accounts = default_accounts();
-            let give_me = create_contract(100.into());
+            let mut give_me = create_contract(100.into());
             let contract_account = give_me.env().address();
 
             // when
@@ -140,7 +140,7 @@ pub mod give_me {
         fn test_transferred_value_must_fail() {
             // given
             let accounts = default_accounts();
-            let give_me = create_contract(100.into());
+            let mut give_me = create_contract(100.into());
 
             // when
             // Push the new execution context which sets Eve as caller and
