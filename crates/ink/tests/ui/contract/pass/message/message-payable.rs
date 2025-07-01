@@ -12,7 +12,7 @@ mod contract {
         }
 
         #[ink(message, selector = 1, payable)]
-        pub fn message_1(&self) {}
+        pub fn message_1(&mut self) {}
 
         #[ink(message, selector = 2)]
         pub fn message_2(&self) {}
