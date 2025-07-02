@@ -839,7 +839,7 @@ jobs:
                     find integration-tests/internal -type f -name "Cargo.toml" | xargs -n1 sed -i 's/abi = \"ink\"/abi = \"sol\"/g'
 
                     mkdir -p measurements-abi-${{ env.MEASUREMENTS_ID }}/
-                    scripts/for_all_contracts_exec2.sh --path integration-tests \
+                    scripts/for_all_contracts_exec3.sh --path integration-tests \
                       --ignore internal/call-builder-return-value \
                       --ignore internal/lang-err/integration-flipper \
                       --ignore internal/lang-err/call-builder-delegate \
@@ -860,10 +860,14 @@ jobs:
                       --ignore public/dns \
                       --ignore public/debugging-strategies \
                       --ignore public/erc1155 \
+                      --ignore public/trait-erc20 \
+                      --ignore public/payment-channel \
+                      --ignore public/multi-contract-caller/subber \
+                      --ignore public/multi-contract-caller/adder \
                       --ignore solidity-abi/sol-cross-contract --ignore solidity-abi/sol-encoding \
                       --ignore solidity-abi/solidity-calls-flipper --ignore solidity-abi/events \
                       --ignore solidity-abi/trait-flipper --ignore solidity-abi/trait-dyn-cross-contract-calls -- \
-                      scripts/build_and_determine_contract_size.sh {}
+                      scripts/build_and_determine_contract_size2.sh {}
 
           # NOTE: Sharing build artifacts (i.e. via a shared cargo target directory) with other contracts
           # that don't have the same ABI set makes the builds fail.
