@@ -344,9 +344,15 @@ pub fn selector_bytes(input: TokenStream) -> TokenStream {
 ///           self.value = !self.value;
 ///       }
 ///
-///      /// Returns the current value.
-///      #[ink(message, payable)] // ...or specify payable inline.
-///      pub fn get(&self) -> bool {
+///       /// Flips the current value.
+///       #[ink(message, payable)] // ...or specify payable inline.
+///       pub fn flip_2(&mut self) {
+///           self.value = !self.value;
+///       }
+///
+///       /// Returns the current value.
+///       #[ink(message)]
+///       pub fn get(&self) -> bool {
 ///           self.value
 ///       }
 ///   }
@@ -423,7 +429,7 @@ pub fn selector_bytes(input: TokenStream) -> TokenStream {
 ///         }
 ///
 ///         #[ink(message, payable)]
-///         pub fn fund(&self) {
+///         pub fn fund(&mut self) {
 ///             let caller = self.env().caller();
 ///             let value = self.env().transferred_value();
 ///         }

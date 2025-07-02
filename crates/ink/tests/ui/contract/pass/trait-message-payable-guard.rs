@@ -3,7 +3,7 @@
 #[ink::trait_definition]
 pub trait TraitDefinition {
     #[ink(message, payable)]
-    fn message(&self);
+    fn message(&mut self);
 }
 
 #[ink::contract]
@@ -22,7 +22,7 @@ mod contract {
 
     impl TraitDefinition for Contract {
         #[ink(message, payable)]
-        fn message(&self) {}
+        fn message(&mut self) {}
     }
 }
 

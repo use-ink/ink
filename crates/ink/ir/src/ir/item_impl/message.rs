@@ -123,8 +123,7 @@ impl quote::ToTokens for Message {
 }
 
 impl Message {
-    /// Ensures that the given method inputs start with `&self` or `&mut self`
-    /// receivers.
+    /// Returns the self reference receiver (if any), given method inputs.
     ///
     /// If not an appropriate error is returned.
     ///
@@ -132,9 +131,9 @@ impl Message {
     ///
     /// - If the method inputs yields no elements.
     /// - If the first method input is not `&self` or `&mut self`.
-    fn ensure_receiver_is_self_ref(
+    fn self_ref_receiver(
         method_item: &syn::ImplItemFn,
-    ) -> Result<(), syn::Error> {
+    ) -> Result<&syn::Receiver, syn::Error> {
         let mut fn_args = method_item.sig.inputs.iter();
         fn bail(span: Span) -> syn::Error {
             format_err!(
@@ -143,15 +142,15 @@ impl Message {
             )
         }
         match fn_args.next() {
-            None => return Err(bail(method_item.span())),
-            Some(syn::FnArg::Typed(pat_typed)) => return Err(bail(pat_typed.span())),
+            None => Err(bail(method_item.span())),
+            Some(syn::FnArg::Typed(pat_typed)) => Err(bail(pat_typed.span())),
             Some(syn::FnArg::Receiver(receiver)) => {
-                if receiver.reference.is_none() {
-                    return Err(bail(receiver.span()))
+                match receiver.reference {
+                    None => Err(bail(receiver.span())),
+                    Some(_) => Ok(receiver),
                 }
             }
         }
-        Ok(())
     }
 
     /// Ensures that the ink! message does not return `Self`.
@@ -204,12 +203,21 @@ impl TryFrom<syn::ImplItemFn> for Message {
 
     fn try_from(method_item: syn::ImplItemFn) -> Result<Self, Self::Error> {
         ensure_callable_invariants(&method_item, CallableKind::Message)?;
-        Self::ensure_receiver_is_self_ref(&method_item)?;
+        // Ensures that the given method inputs start with `&self` or `&mut self`
+        // receivers.
+        let self_ref_receiver = Self::self_ref_receiver(&method_item)?;
         Self::ensure_not_return_self(&method_item)?;
         let (ink_attrs, other_attrs) = Self::sanitize_attributes(&method_item)?;
         let is_payable = ink_attrs.is_payable();
         let is_default = ink_attrs.is_default();
         let selector = ink_attrs.selector();
+        // Ensures that immutable messages are NOT payable.
+        if is_payable && self_ref_receiver.mutability.is_none() {
+            return Err(format_err!(
+                method_item.span(),
+                "ink! messages with a `payable` attribute argument must have a `&mut self` receiver",
+            ));
+        }
         Ok(Self {
             is_payable,
             is_default,
@@ -472,7 +480,7 @@ mod tests {
                 true,
                 syn::parse_quote! {
                     #[ink(message, payable)]
-                    pub fn my_message(&self) {}
+                    pub fn my_message(&mut self) {}
                 },
             ),
             // Different ink! attributes.
@@ -481,7 +489,7 @@ mod tests {
                 syn::parse_quote! {
                     #[ink(message)]
                     #[ink(payable)]
-                    pub fn my_message(&self) {}
+                    pub fn my_message(&mut self) {}
                 },
             ),
             // Another ink! attribute, separate and normalized attribute.
@@ -490,7 +498,7 @@ mod tests {
                 syn::parse_quote! {
                     #[ink(message)]
                     #[ink(selector = 0xDEADBEEF, payable)]
-                    pub fn my_message(&self) {}
+                    pub fn my_message(&mut self) {}
                 },
             ),
         ];
@@ -518,7 +526,7 @@ mod tests {
                 true,
                 syn::parse_quote! {
                     #[ink(message, payable, default)]
-                    pub fn my_message(&self) {}
+                    pub fn my_message(&mut self) {}
                 },
             ),
         ];
@@ -627,7 +635,7 @@ mod tests {
             // &self + payable
             syn::parse_quote! {
                 #[ink(message, payable)]
-                fn my_message(&self) {}
+                fn my_message(&mut self) {}
             },
             // &mut self + payable
             syn::parse_quote! {

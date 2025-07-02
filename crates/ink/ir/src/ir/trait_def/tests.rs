@@ -374,8 +374,6 @@ fn trait_def_with_payable_ok() {
         <InkItemTrait as TryFrom<syn::ItemTrait>>::try_from(syn::parse_quote! {
             pub trait MyTrait {
                 #[ink(message, payable)]
-                fn my_message(&self);
-                #[ink(message, payable)]
                 fn my_message_mut(&mut self);
             }
         })
@@ -391,10 +389,8 @@ fn trait_def_with_everything_combined_ok() {
             pub trait MyTrait {
                 #[ink(message)]
                 fn my_message_1(&self);
-                #[ink(message, payable)]
+                #[ink(message, selector = 0xDEADBEEF)]
                 fn my_message_2(&self);
-                #[ink(message, payable, selector = 0xDEADBEEF)]
-                fn my_message_3(&self);
                 #[ink(message)]
                 fn my_message_mut_1(&mut self);
                 #[ink(message, payable)]

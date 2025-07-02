@@ -63,7 +63,7 @@ mod debugging_strategies {
         }
 
         #[ink(message, payable)]
-        pub fn instantiate_and_call(&self, code_hash: ink::H256) -> bool {
+        pub fn instantiate_and_call(&mut self, code_hash: ink::H256) -> bool {
             let create_params = build_create::<DebuggingStrategiesRef>()
                 .code_hash(code_hash)
                 .endowment(0.into())
@@ -240,7 +240,7 @@ mod debugging_strategies {
                 .submit()
                 .await
                 .expect("instantiate failed");
-            let call_builder = contract.call_builder::<DebuggingStrategies>();
+            let mut call_builder = contract.call_builder::<DebuggingStrategies>();
 
             let call = call_builder.instantiate_and_call(contract.code_hash);
             let call_res = client

@@ -301,7 +301,8 @@ impl InkItemTrait {
     ///
     /// - If the message has no `&self` or `&mut self` receiver.
     fn analyse_trait_message(message: &syn::TraitItemFn) -> Result<()> {
-        InkTraitMessage::extract_attributes(message.span(), &message.attrs)?;
+        let (ink_attrs, _) =
+            InkTraitMessage::extract_attributes(message.span(), &message.attrs)?;
         match message.sig.receiver() {
             None => {
                 return Err(format_err_spanned!(
@@ -314,6 +315,13 @@ impl InkItemTrait {
                     return Err(format_err_spanned!(
                         receiver,
                         "self receiver of ink! message must be `&self` or `&mut self`"
+                    ))
+                }
+
+                if ink_attrs.is_payable() && receiver.mutability.is_none() {
+                    return Err(format_err_spanned!(
+                        receiver,
+                        "ink! messages with a `payable` attribute argument must have a `&mut self` receiver"
                     ))
                 }
             }

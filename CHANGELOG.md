@@ -18,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - Update metadata version to version 6 ‒ [#2507](https://github.com/use-ink/ink/pull/2507)
+- Ensure immutable messages are not payable - [#2535](https://github.com/use-ink/ink/pull/2535)
 
 ## Version 6.0.0-alpha
 

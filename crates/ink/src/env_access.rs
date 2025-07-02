@@ -142,7 +142,7 @@ where
     /// #
     /// /// Allows funding the contract. Prints a debug message with the transferred value.
     /// #[ink(message, payable)]
-    /// pub fn fund(&self) {
+    /// pub fn fund(&mut self) {
     ///     let caller = self.env().caller();
     ///     let value = self.env().transferred_value();
     /// }
