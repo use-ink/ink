@@ -859,6 +859,7 @@ jobs:
                       --ignore public/contract-xcm \
                       --ignore public/dns \
                       --ignore public/debugging-strategies \
+                      --ignore public/erc1155 \
                       --ignore solidity-abi/sol-cross-contract --ignore solidity-abi/sol-encoding \
                       --ignore solidity-abi/solidity-calls-flipper --ignore solidity-abi/events \
                       --ignore solidity-abi/trait-flipper --ignore solidity-abi/trait-dyn-cross-contract-calls -- \
