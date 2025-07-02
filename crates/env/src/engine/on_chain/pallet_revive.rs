@@ -12,8 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#[cfg(feature = "unstable-hostfn")]
-use ink_primitives::abi::Ink;
 use ink_primitives::{
     abi::{
         AbiDecodeWith,
@@ -601,9 +599,9 @@ impl TypedEnvBackend for EnvInstance {
     }
 
     #[cfg(feature = "unstable-hostfn")]
-    fn instantiate_contract<E, ContractRef, Args, RetType>(
+    fn instantiate_contract<E, ContractRef, Args, RetType, Abi>(
         &mut self,
-        params: &CreateParams<E, ContractRef, LimitParamsV2, Args, RetType>,
+        params: &CreateParams<E, ContractRef, LimitParamsV2, Args, RetType, Abi>,
     ) -> Result<
         ink_primitives::ConstructorResult<
             <RetType as ConstructorReturnType<ContractRef>>::Output,
@@ -612,7 +610,7 @@ impl TypedEnvBackend for EnvInstance {
     where
         E: Environment,
         ContractRef: FromAddr,
-        Args: AbiEncodeWith<Ink>,
+        Args: AbiEncodeWith<Abi>,
         RetType: ConstructorReturnType<ContractRef>,
     {
         let mut scoped = self.scoped_buffer();

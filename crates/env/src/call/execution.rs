@@ -13,7 +13,6 @@
 // limitations under the License.
 
 use core::marker::PhantomData;
-
 use ink_prelude::vec::Vec;
 use ink_primitives::{
     abi::{
@@ -26,13 +25,13 @@ use ink_primitives::{
 };
 
 use super::{
-    utils::ReturnType,
-    Selector,
+    selector::Selector,
+    utils::{
+        DecodeMessageResult,
+        ReturnType,
+    },
 };
-use crate::{
-    call::utils::DecodeMessageResult,
-    Environment,
-};
+use crate::Environment;
 
 /// The input data and the expected return type of a contract execution.
 pub struct Execution<Args, Output, Abi> {
@@ -85,8 +84,8 @@ pub trait Executor<E: Environment> {
 /// The input data for a smart contract execution.
 #[derive(Clone, Default, Debug)]
 pub struct ExecutionInput<Args, Abi> {
-    /// The selector for the smart contract execution.
-    selector: Selector,
+    /// The selector (if any) for the smart contract execution.
+    selector: Option<Selector>,
     /// The arguments of the smart contract execution.
     args: Args,
     _marker: PhantomData<Abi>,
@@ -97,12 +96,30 @@ impl<Abi> ExecutionInput<EmptyArgumentList<Abi>, Abi> {
     #[inline]
     pub fn new(selector: Selector) -> Self {
         Self {
-            selector,
+            selector: Some(selector),
             args: ArgumentList::empty(),
             _marker: Default::default(),
         }
     }
+}
 
+impl ExecutionInput<EmptyArgumentList<Sol>, Sol> {
+    /// Creates a new execution input with no selector.
+    ///
+    /// # Note
+    ///
+    /// Should only be used for Solidity ABI encoded constructors/instantiation.
+    #[inline]
+    pub fn no_selector() -> Self {
+        Self {
+            selector: None,
+            args: ArgumentList::empty(),
+            _marker: Default::default(),
+        }
+    }
+}
+
+impl<Abi> ExecutionInput<EmptyArgumentList<Abi>, Abi> {
     /// Pushes an argument to the execution input.
     #[inline]
     pub fn push_arg<T>(
@@ -145,7 +162,7 @@ impl<Args, Abi> ExecutionInput<Args, Abi> {
     /// Useful when using the [`ExecutionInput`] generated as part of the
     /// `ContractRef`, but using a custom selector.
     pub fn update_selector(&mut self, selector: Selector) {
-        self.selector = selector;
+        self.selector = Some(selector);
     }
 }
 
@@ -157,7 +174,9 @@ where
     /// encoded arguments.
     pub fn encode(&self) -> Vec<u8> {
         let mut encoded = Vec::new();
-        encoded.extend(self.selector.to_bytes());
+        if let Some(selector) = &self.selector {
+            encoded.extend(selector.to_bytes());
+        }
         self.args.encode_to_vec(&mut encoded);
         encoded
     }
@@ -165,10 +184,14 @@ where
     /// Encodes the execution input into a static buffer by combining the selector and
     /// encoded arguments.
     pub fn encode_to_slice(&self, buffer: &mut [u8]) -> usize {
-        let selector_bytes = self.selector.to_bytes();
-        let selector_len = selector_bytes.len();
-
-        buffer[..selector_len].copy_from_slice(&selector_bytes);
+        let selector_len = if let Some(selector) = &self.selector {
+            let selector_bytes = selector.to_bytes();
+            let selector_len = selector_bytes.len();
+            buffer[..selector_len].copy_from_slice(&selector_bytes);
+            selector_len
+        } else {
+            0
+        };
         let args_len = self.args.encode_to_slice(&mut buffer[selector_len..]);
         selector_len + args_len
     }
@@ -311,14 +334,20 @@ where
 {
     #[inline]
     fn size_hint(&self) -> usize {
-        scale::Encode::size_hint(&self.selector)
+        let selector_size = match &self.selector {
+            None => 0,
+            Some(_) => scale::Encode::size_hint(&self.selector),
+        };
+        selector_size
             .checked_add(scale::Encode::size_hint(&self.args))
             .expect("unable to checked_add")
     }
 
     #[inline]
     fn encode_to<O: scale::Output + ?Sized>(&self, output: &mut O) {
-        scale::Encode::encode_to(&self.selector, output);
+        if let Some(selector) = &self.selector {
+            scale::Encode::encode_to(selector, output);
+        }
         scale::Encode::encode_to(&self.args, output);
     }
 }

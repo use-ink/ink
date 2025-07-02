@@ -17,7 +17,7 @@ use core::marker::PhantomData;
 use ink_primitives::{
     abi::{
         AbiEncodeWith,
-        Ink,
+        Sol,
     },
     Address,
     H256,
@@ -182,7 +182,7 @@ pub struct LimitParamsV2 {
 
 /// Builds up contract instantiations.
 #[derive(Debug)]
-pub struct CreateParams<E, ContractRef, Limits, Args, R> {
+pub struct CreateParams<E, ContractRef, Limits, Args, R, Abi> {
     /// The code hash of the created contract.
     code_hash: H256,
     /// Parameters for weight and storage limits, differs for versions of the instantiate
@@ -192,7 +192,7 @@ pub struct CreateParams<E, ContractRef, Limits, Args, R> {
     /// todo: is this correct? or is the value here `U256`?
     endowment: U256,
     /// The input data for the instantiation.
-    exec_input: ExecutionInput<Args, Ink>,
+    exec_input: ExecutionInput<Args, Abi>,
     /// The salt for determining the hash for the contract account ID.
     salt_bytes: Option<[u8; 32]>,
     /// The return type of the target contract's constructor method.
@@ -201,7 +201,8 @@ pub struct CreateParams<E, ContractRef, Limits, Args, R> {
     _phantom: PhantomData<fn() -> (E, ContractRef)>,
 }
 
-impl<E, ContractRef, Limits, Args, R> CreateParams<E, ContractRef, Limits, Args, R>
+impl<E, ContractRef, Limits, Args, R, Abi>
+    CreateParams<E, ContractRef, Limits, Args, R, Abi>
 where
     E: Environment,
 {
@@ -219,7 +220,7 @@ where
 
     /// The raw encoded input data.
     #[inline]
-    pub fn exec_input(&self) -> &ExecutionInput<Args, Ink> {
+    pub fn exec_input(&self) -> &ExecutionInput<Args, Abi> {
         &self.exec_input
     }
 
@@ -232,7 +233,8 @@ where
     }
 }
 
-impl<E, ContractRef, Args, R> CreateParams<E, ContractRef, LimitParamsV2, Args, R>
+impl<E, ContractRef, Args, R, Abi>
+    CreateParams<E, ContractRef, LimitParamsV2, Args, R, Abi>
 where
     E: Environment,
 {
@@ -256,7 +258,8 @@ where
     }
 }
 
-impl<E, ContractRef, Limits, Args, R> CreateParams<E, ContractRef, Limits, Args, R>
+impl<E, ContractRef, Limits, Args, R, Abi>
+    CreateParams<E, ContractRef, Limits, Args, R, Abi>
 where
     E: Environment,
 {
@@ -267,7 +270,8 @@ where
     }
 }
 
-impl<E, ContractRef, Args, R> CreateParams<E, ContractRef, LimitParamsV2, Args, R>
+impl<E, ContractRef, Args, R, Abi>
+    CreateParams<E, ContractRef, LimitParamsV2, Args, R, Abi>
 where
     E: Environment,
     ContractRef: FromAddr + crate::ContractReverseReference,
@@ -275,7 +279,7 @@ where
         crate::reflect::ContractConstructorDecoder,
     <ContractRef as crate::ContractReverseReference>::Type:
         crate::reflect::ContractMessageDecoder,
-    Args: AbiEncodeWith<Ink>,
+    Args: AbiEncodeWith<Abi>,
     R: ConstructorReturnType<ContractRef>,
 {
     /// todo
@@ -336,7 +340,12 @@ where
 }
 
 /// Returns a new [`CreateBuilder`] to build up the parameters to a cross-contract
-/// instantiation.
+/// instantiation that uses the "default" ABI for calls for the ink! project.
+///
+/// # Note
+///
+/// The "default" ABI for calls is "ink", unless the ABI is set to "sol"
+/// in the ink! project's manifest file (i.e. `Cargo.toml`).
 ///
 /// # Example
 ///
@@ -441,7 +450,65 @@ pub fn build_create<ContractRef>() -> CreateBuilder<
     <ContractRef as ContractEnv>::Env,
     ContractRef,
     Set<LimitParamsV2>,
-    Unset<ExecutionInput<EmptyArgumentList<Ink>, Ink>>,
+    Unset<ExecutionInput<EmptyArgumentList<crate::DefaultAbi>, crate::DefaultAbi>>,
+    Unset<ReturnType<()>>,
+>
+where
+    ContractRef: ContractEnv,
+{
+    CreateBuilder {
+        code_hash: Default::default(),
+        limits: Set(LimitParamsV2 {
+            ref_time_limit: u64::MAX,
+            proof_size_limit: u64::MAX,
+            storage_deposit_limit: None,
+        }),
+        endowment: Default::default(),
+        exec_input: Default::default(),
+        salt: Default::default(),
+        return_type: Default::default(),
+        _phantom: Default::default(),
+    }
+}
+
+/// Returns a new [`CreateBuilder`] for the specified ABI to build up the parameters to a
+/// cross-contract instantiation.
+/// See [`build_create`] for more details on usage.
+#[allow(clippy::type_complexity)]
+pub fn build_create_abi<ContractRef, Abi>() -> CreateBuilder<
+    <ContractRef as ContractEnv>::Env,
+    ContractRef,
+    Set<LimitParamsV2>,
+    Unset<ExecutionInput<EmptyArgumentList<Abi>, Abi>>,
+    Unset<ReturnType<()>>,
+>
+where
+    ContractRef: ContractEnv,
+{
+    CreateBuilder {
+        code_hash: Default::default(),
+        limits: Set(LimitParamsV2 {
+            ref_time_limit: u64::MAX,
+            proof_size_limit: u64::MAX,
+            storage_deposit_limit: None,
+        }),
+        endowment: Default::default(),
+        exec_input: Default::default(),
+        salt: Default::default(),
+        return_type: Default::default(),
+        _phantom: Default::default(),
+    }
+}
+
+/// Returns a new [`CreateBuilder`] to build up the parameters to a cross-contract
+/// instantiation that uses Solidity ABI Encoding.
+/// See [`build_create`] for more details on usage.
+#[allow(clippy::type_complexity)]
+pub fn build_create_solidity<ContractRef>() -> CreateBuilder<
+    <ContractRef as ContractEnv>::Env,
+    ContractRef,
+    Set<LimitParamsV2>,
+    Unset<ExecutionInput<EmptyArgumentList<Sol>, Sol>>,
     Unset<ReturnType<()>>,
 >
 where
@@ -638,12 +705,12 @@ where
     }
 }
 
-impl<E, ContractRef, Limits, Args, RetType>
+impl<E, ContractRef, Limits, Args, RetType, Abi>
     CreateBuilder<
         E,
         ContractRef,
         Set<Limits>,
-        Set<ExecutionInput<Args, Ink>>,
+        Set<ExecutionInput<Args, Abi>>,
         Set<ReturnType<RetType>>,
     >
 where
@@ -651,7 +718,7 @@ where
 {
     /// Finalizes the `CreateBuilder`, allowing it to instantiate a contract.
     #[inline]
-    pub fn params(self) -> CreateParams<E, ContractRef, Limits, Args, RetType> {
+    pub fn params(self) -> CreateParams<E, ContractRef, Limits, Args, RetType, Abi> {
         CreateParams {
             code_hash: self.code_hash,
             limits: self.limits.value(),
@@ -664,12 +731,12 @@ where
     }
 }
 
-impl<E, ContractRef, Args, RetType>
+impl<E, ContractRef, Args, RetType, Abi>
     CreateBuilder<
         E,
         ContractRef,
         Set<LimitParamsV2>,
-        Set<ExecutionInput<Args, Ink>>,
+        Set<ExecutionInput<Args, Abi>>,
         Set<ReturnType<RetType>>,
     >
 where
@@ -679,7 +746,7 @@ where
         crate::reflect::ContractConstructorDecoder,
     <ContractRef as crate::ContractReverseReference>::Type:
         crate::reflect::ContractMessageDecoder,
-    Args: AbiEncodeWith<Ink>,
+    Args: AbiEncodeWith<Abi>,
     RetType: ConstructorReturnType<ContractRef>,
 {
     /// todo check comment

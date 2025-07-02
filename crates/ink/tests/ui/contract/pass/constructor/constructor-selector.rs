@@ -32,15 +32,15 @@ mod contract {
 fn main() {
     const ID: u32 = ::ink::selector_id!("constructor_0");
     assert_eq!(
-        <Contract as ::ink::reflect::DispatchableConstructorInfo<ID>>::SELECTOR,
+        <Contract as ::ink::reflect::DispatchableConstructorInfo<ID>>::SELECTOR.unwrap(),
         selector_bytes!("constructor_0")
     );
     assert_eq!(
-        <Contract as ::ink::reflect::DispatchableConstructorInfo<1_u32>>::SELECTOR,
+        <Contract as ::ink::reflect::DispatchableConstructorInfo<1_u32>>::SELECTOR.unwrap(),
         1_u32.to_be_bytes(),
     );
     assert_eq!(
-        <Contract as ::ink::reflect::DispatchableConstructorInfo<0xC0DE_CAFE_u32>>::SELECTOR,
+        <Contract as ::ink::reflect::DispatchableConstructorInfo<0xC0DE_CAFE_u32>>::SELECTOR.unwrap(),
         0xC0DE_CAFE_u32.to_be_bytes(),
     );
 }

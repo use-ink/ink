@@ -13,10 +13,12 @@
 // limitations under the License.
 
 use derive_more::From;
+use ink_primitives::abi::Abi;
 use ir::{
     Callable,
     IsDocAttribute as _,
 };
+use itertools::Itertools;
 use proc_macro2::TokenStream as TokenStream2;
 use quote::{
     quote,
@@ -372,15 +374,39 @@ impl ContractRef<'_> {
     /// The generated implementations must live outside of an artificial `const` block
     /// in order to properly show their documentation using `rustdoc`.
     fn generate_contract_inherent_impls(&self) -> TokenStream2 {
-        self.contract
-            .module()
-            .impls()
-            .filter(|impl_block| {
-                // We are only interested in ink! trait implementation block.
-                impl_block.trait_path().is_none()
-            })
-            .map(|impl_block| self.generate_contract_inherent_impl(impl_block))
-            .collect()
+        generate_abi_impls!(@type |abi| {
+            let impls = self.contract.module().impls()
+                .filter(|impl_block| {
+                    // We are only interested in ink! trait implementation block.
+                    impl_block.trait_path().is_none()
+                })
+                .map(|impl_block| self.generate_contract_inherent_impl(impl_block, abi));
+            let impl_sol_constructor = match abi {
+                Abi::Ink => quote!(),
+                Abi::Sol => {
+                    // Only one constructor is used for Solidity ABI encoding.
+                    let constructor = self.contract.module().impls()
+                        .flat_map(|item_impl| item_impl.iter_constructors())
+                        .find_or_first(|constructor| {
+                            constructor.is_default()
+                        })
+                        .expect("Expected at least one constructor");
+                    let ctor = self.generate_contract_inherent_impl_for_constructor(constructor, abi);
+                    let span = ctor.span();
+                    let forwarder_ident = self.generate_contract_ref_ident();
+                    quote_spanned!(span=>
+                        impl #forwarder_ident<::ink::abi::Sol> {
+                            #ctor
+                        }
+                    )
+                }
+            };
+            let span = self.contract.module().span();
+            quote_spanned!(span=>
+                #impl_sol_constructor
+                #( #impls )*
+            )
+        })
     }
 
     /// Generates the code for a single ink! inherent implementation of the contract
@@ -391,7 +417,11 @@ impl ContractRef<'_> {
     /// This produces the short-hand calling notation for the inherent contract
     /// implementation. The generated code simply forwards its calling logic to the
     /// associated call builder.
-    fn generate_contract_inherent_impl(&self, impl_block: &ir::ItemImpl) -> TokenStream2 {
+    fn generate_contract_inherent_impl(
+        &self,
+        impl_block: &ir::ItemImpl,
+        abi: Abi,
+    ) -> TokenStream2 {
         let span = impl_block.span();
         let attrs = impl_block.attrs();
         let forwarder_ident = self.generate_contract_ref_ident();
@@ -401,22 +431,34 @@ impl ContractRef<'_> {
         let messages = quote! {
             #( #messages )*
         };
-        // TODO: (@davidsemakula) Handle Solidity ABI constructor.
-        let constructors = impl_block.iter_constructors().map(|constructor| {
-            self.generate_contract_inherent_impl_for_constructor(constructor)
-        });
-        let constructors = quote! {
-            #( #constructors )*
+        let (abi_ty, constructors) = match abi {
+            Abi::Ink => {
+                let constructors = impl_block.iter_constructors().map(|constructor| {
+                    self.generate_contract_inherent_impl_for_constructor(constructor, abi)
+                });
+                (
+                    quote!(::ink::abi::Ink),
+                    quote! {
+                        #( #constructors )*
+                    },
+                )
+            }
+            Abi::Sol => {
+                (
+                    quote!(::ink::abi::Sol),
+                    // The constructor implementation for Solidity ABI encoding is
+                    // handled in `generate_contract_inherent_impls`.
+                    quote!(),
+                )
+            }
         };
-        generate_abi_impls!(@tokens |abi| {
-            quote_spanned!(span=>
-                #( #attrs )*
-                impl #forwarder_ident<#abi> {
-                    #constructors
-                    #messages
-                }
-            )
-        })
+        quote_spanned!(span=>
+            #( #attrs )*
+            impl #forwarder_ident<#abi_ty> {
+                #constructors
+                #messages
+            }
+        )
     }
 
     /// Generates the code for a single ink! inherent message of the contract itself.
@@ -494,6 +536,7 @@ impl ContractRef<'_> {
     fn generate_contract_inherent_impl_for_constructor(
         &self,
         constructor: ir::CallableWithSelector<ir::Constructor>,
+        abi: Abi,
     ) -> TokenStream2 {
         let span = constructor.span();
         let attrs = self
@@ -502,18 +545,37 @@ impl ContractRef<'_> {
             .whitelisted_attributes()
             .filter_attr(constructor.attrs().to_vec());
         let constructor_ident = constructor.ident();
-        let selector_bytes = constructor.composed_selector().hex_lits();
         let input_bindings = generator::input_bindings(constructor.inputs());
         let input_types = generator::input_types(constructor.inputs());
-        let _storage_ident = self.contract.module().storage().ident();
         let ret_type = constructor
             .output()
             .map(quote::ToTokens::to_token_stream)
             .unwrap_or_else(|| quote::quote! { Self });
 
+        let (abi_ty, exec_input_init) = match abi {
+            Abi::Ink => {
+                let selector_bytes = constructor.composed_selector().hex_lits();
+                (
+                    quote!(::ink::abi::Ink),
+                    quote! {
+                        ::ink::env::call::ExecutionInput::new(
+                            ::ink::env::call::Selector::new([ #( #selector_bytes ),* ])
+                        )
+                    },
+                )
+            }
+            Abi::Sol => {
+                (
+                    quote!(::ink::abi::Sol),
+                    quote! {
+                        ::ink::env::call::ExecutionInput::no_selector()
+                    },
+                )
+            }
+        };
         let arg_list = generator::generate_argument_list(
             input_types.iter().cloned(),
-            quote!(::ink::abi::Ink),
+            abi_ty.clone(),
         );
 
         quote_spanned!(span =>
@@ -526,14 +588,12 @@ impl ContractRef<'_> {
                 Environment,
                 Self,
                 ::ink::env::call::utils::Set<::ink::env::call::LimitParamsV2 >,
-                ::ink::env::call::utils::Set<::ink::env::call::ExecutionInput<#arg_list, ::ink::abi::Ink>>,
+                ::ink::env::call::utils::Set<::ink::env::call::ExecutionInput<#arg_list, #abi_ty>>,
                 ::ink::env::call::utils::Set<::ink::env::call::utils::ReturnType<#ret_type>>,
             > {
-                ::ink::env::call::build_create::<Self>()
+                ::ink::env::call::build_create_abi::<Self, #abi_ty>()
                     .exec_input(
-                        ::ink::env::call::ExecutionInput::new(
-                            ::ink::env::call::Selector::new([ #( #selector_bytes ),* ])
-                        )
+                        #exec_input_init
                         #(
                             .push_arg(#input_bindings)
                         )*

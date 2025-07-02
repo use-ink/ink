@@ -36,3 +36,9 @@ std = [
 	"itertools/use_std",
 	"impl-serde/std"
 ]
+
+[lints.rust.unexpected_cfgs]
+level = "warn"
+check-cfg = [
+	'cfg(ink_abi, values("ink", "sol", "all"))'
+]

@@ -30,7 +30,6 @@ use ink_primitives::{
     abi::{
         AbiDecodeWith,
         AbiEncodeWith,
-        Ink,
     },
     DepositLimit,
 };
@@ -249,13 +248,14 @@ where
 {
     async fn bare_instantiate<
         Contract: Clone,
-        Args: Send + Sync + AbiEncodeWith<Ink> + Clone,
+        Args: Send + Sync + AbiEncodeWith<Abi> + Clone,
         R,
+        Abi: Send + Sync + Clone,
     >(
         &mut self,
         contract_name: &str,
         caller: &Keypair,
-        constructor: &mut CreateBuilderPartial<E, Contract, Args, R>,
+        constructor: &mut CreateBuilderPartial<E, Contract, Args, R, Abi>,
         value: E::Balance,
         gas_limit: Weight,
         storage_deposit_limit: DepositLimit<E::Balance>,
@@ -308,13 +308,14 @@ where
 
     async fn bare_instantiate_dry_run<
         Contract: Clone,
-        Args: Send + Sync + AbiEncodeWith<Ink> + Clone,
+        Args: Send + Sync + AbiEncodeWith<Abi> + Clone,
         R,
+        Abi: Send + Sync + Clone,
     >(
         &mut self,
         contract_name: &str,
         caller: &Keypair,
-        constructor: &mut CreateBuilderPartial<E, Contract, Args, R>,
+        constructor: &mut CreateBuilderPartial<E, Contract, Args, R, Abi>,
         value: E::Balance,
         storage_deposit_limit: DepositLimit<E::Balance>,
     ) -> Result<InstantiateDryRunResult<E>, Self::Error> {

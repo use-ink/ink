@@ -22,12 +22,6 @@ pub mod flipper {
             Self { value: init_value }
         }
 
-        /// Creates a new flipper smart contract initialized to `false`.
-        #[ink(constructor)]
-        pub fn new_default() -> Self {
-            Self::new(Default::default())
-        }
-
         // solidity compatible selector (`keccack256("flip()")`)
         #[ink(message, selector = 0xcde4efa9)]
         pub fn flip(&mut self) {
