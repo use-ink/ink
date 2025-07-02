@@ -29,7 +29,6 @@ xxhash-rust = { workspace = true, features = ["const_xxh32"] }
 serde = { version = "1.0.215", features = ["derive"], default-features = false, optional = true }
 cfg-if = { workspace = true }
 num-traits = { workspace = true, features = ["i128"] }
-#pallet-revive = { version = "0.5.0", default-features = false }
 pallet-revive = { git = "https://github.com/paritytech/polkadot-sdk.git", default-features = false }
 sp-core = { workspace = true }
 

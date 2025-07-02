@@ -39,7 +39,6 @@ polkavm-derive = { workspace = true, default-features = false }
 
 [target.'cfg(not(target_arch = "riscv64"))'.dependencies]
 ink_engine = { workspace = true, default-features = true, optional = true }
-#pallet-revive = "0.5.0"
 pallet-revive = { git = "https://github.com/paritytech/polkadot-sdk.git", default-features = false }
 
 # Hashes for the off-chain environment.

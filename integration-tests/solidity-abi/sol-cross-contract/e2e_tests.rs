@@ -137,12 +137,7 @@ impl ContractSandbox {
         Args: for<'a> SolEncode<'a>,
         Ret: SolDecode,
     {
-        eprintln!("message {}", message);
-        eprintln!("contract_addr {}", contract_addr);
-        //let contract_addr = [0u8; 20];
-        //eprintln!("contract_addr {}", contract_addr);
         let result = self.call(contract_addr, message, args, origin);
-        eprintln!("res: {:?}", result);
         Ret::decode(&result[..]).expect("decode failed")
     }
 
@@ -160,7 +155,6 @@ impl ContractSandbox {
         let mut encoded = args.encode();
         data.append(&mut encoded);
 
-        eprintln!("data {:?}", data);
         let result = self.call_raw(contract_addr, data, origin);
         assert!(!result.did_revert(), "'{message}' failed {:?}", result);
         result.data

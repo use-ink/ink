@@ -236,12 +236,6 @@ where
         storage_deposit_limit: DepositLimit<BalanceOf<Self::T>>,
     ) -> ContractExecResultFor<Self::T> {
         let storage_deposit_limit = storage_deposit_limit_fn(storage_deposit_limit);
-        eprintln!("-----bare call");
-        let mut foo = [0u8; 20];
-        foo[19] = 2;
-        let address = Address::from(foo);
-        static TEST_INPUT: &[u8] = b"DEAD_BEEF";
-        let data = TEST_INPUT.to_vec();
         self.execute_with(|| {
             pallet_revive::Pallet::<Self::T>::bare_call(
                 origin,
