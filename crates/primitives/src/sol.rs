@@ -38,6 +38,7 @@ use primitive_types::{
     H256,
     U256,
 };
+use sp_weights::Weight;
 
 pub use self::{
     bytes::SolBytes,
@@ -300,7 +301,7 @@ impl<'a> SolEncode<'a> for Tuple {
 
     #[allow(clippy::unused_unit)]
     fn to_sol_type(&'a self) -> Self::SolType {
-        for_tuples! ( ( #( self.Tuple.to_sol_type() ),* ) )
+        for_tuples!( ( #( self.Tuple.to_sol_type() ),* ) )
     }
 }
 
@@ -444,5 +445,22 @@ impl SolEncode<'_> for H256 {
         // `encode`) by using `SolBytes<[u8; 32]>` as the inner type and returning
         // `&self.0`.
         SolBytes(self.0)
+    }
+}
+
+// Weight
+impl SolDecode for Weight {
+    type SolType = (u64, u64);
+
+    fn from_sol_type(value: Self::SolType) -> Self {
+        Weight::from_parts(value.0, value.1)
+    }
+}
+
+impl<'a> SolEncode<'a> for Weight {
+    type SolType = (u64, u64);
+
+    fn to_sol_type(&'a self) -> Self::SolType {
+        (self.ref_time(), self.proof_size())
     }
 }
