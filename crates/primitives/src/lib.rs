@@ -66,6 +66,8 @@ pub use primitive_types::{
     U256,
 };
 
+pub use sp_weights::Weight;
+
 /// An error emitted by the smart contracting language.
 ///
 /// This is different than errors from:
