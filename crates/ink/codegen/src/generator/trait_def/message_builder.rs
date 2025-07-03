@@ -127,6 +127,31 @@ impl MessageBuilder<'_> {
             {
                 type Env = E;
             }
+
+            // TODO: (@davidsemakula) Replace with derived implementations when available.
+            #[cfg(any(ink_abi = "sol", ink_abi = "all"))]
+            impl<E, Abi> ::ink::SolDecode for #message_builder_ident<E, Abi>
+            where
+                E: ::ink::env::Environment,
+            {
+                type SolType = ();
+
+                fn from_sol_type(_: Self::SolType) -> Self {
+                    Self {
+                        _marker: ::core::default::Default::default(),
+                    }
+                }
+            }
+
+            #[cfg(any(ink_abi = "sol", ink_abi = "all"))]
+            impl<'a, E, Abi> ::ink::SolEncode<'a> for #message_builder_ident<E, Abi>
+            where
+                E: ::ink::env::Environment,
+            {
+                type SolType = ();
+
+                fn to_sol_type(&'a self) {}
+            }
         )
     }
 

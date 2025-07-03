@@ -211,6 +211,34 @@ impl CallBuilder<'_> {
                     <::ink::Address as ::ink::scale_info::TypeInfo>::type_info()
                 }
             }
+
+            // TODO: (@davidsemakula) Replace with derived implementations when available.
+            #[cfg(any(ink_abi = "sol", ink_abi = "all"))]
+            impl<E, Abi> ::ink::SolDecode for #call_builder_ident<E, Abi>
+            where
+                E: ::ink::env::Environment,
+            {
+                type SolType = ::ink::Address;
+
+                fn from_sol_type(value: Self::SolType) -> Self {
+                    Self {
+                        addr: value,
+                        _marker: ::core::default::Default::default(),
+                    }
+                }
+            }
+
+            #[cfg(any(ink_abi = "sol", ink_abi = "all"))]
+            impl<'a, E, Abi> ::ink::SolEncode<'a> for #call_builder_ident<E, Abi>
+            where
+                E: ::ink::env::Environment,
+            {
+                type SolType = &'a ::ink::Address;
+
+                fn to_sol_type(&'a self) -> Self::SolType {
+                    &self.addr
+                }
+            }
         )
     }
 
