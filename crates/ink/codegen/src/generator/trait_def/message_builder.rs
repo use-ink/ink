@@ -109,6 +109,34 @@ impl MessageBuilder<'_> {
     fn generate_auxiliary_trait_impls(&self) -> TokenStream2 {
         let span = self.span();
         let message_builder_ident = self.trait_def.message_builder_ident();
+        let sol_codec = if cfg!(any(ink_abi = "sol", ink_abi = "all")) {
+            // TODO: (@davidsemakula) Replace with derived implementations when available.
+            quote_spanned!(span=>
+                impl<E, Abi> ::ink::SolDecode for #message_builder_ident<E, Abi>
+                where
+                    E: ::ink::env::Environment,
+                {
+                    type SolType = ();
+
+                    fn from_sol_type(_: Self::SolType) -> Self {
+                        Self {
+                            _marker: ::core::default::Default::default(),
+                        }
+                    }
+                }
+
+                impl<'a, E, Abi> ::ink::SolEncode<'a> for #message_builder_ident<E, Abi>
+                where
+                    E: ::ink::env::Environment,
+                {
+                    type SolType = ();
+
+                    fn to_sol_type(&'a self) {}
+                }
+            )
+        } else {
+            quote!()
+        };
         quote_spanned!(span=>
             impl<E, Abi> ::core::default::Default for #message_builder_ident<E, Abi>
             where
@@ -128,30 +156,7 @@ impl MessageBuilder<'_> {
                 type Env = E;
             }
 
-            // TODO: (@davidsemakula) Replace with derived implementations when available.
-            #[cfg(any(ink_abi = "sol", ink_abi = "all"))]
-            impl<E, Abi> ::ink::SolDecode for #message_builder_ident<E, Abi>
-            where
-                E: ::ink::env::Environment,
-            {
-                type SolType = ();
-
-                fn from_sol_type(_: Self::SolType) -> Self {
-                    Self {
-                        _marker: ::core::default::Default::default(),
-                    }
-                }
-            }
-
-            #[cfg(any(ink_abi = "sol", ink_abi = "all"))]
-            impl<'a, E, Abi> ::ink::SolEncode<'a> for #message_builder_ident<E, Abi>
-            where
-                E: ::ink::env::Environment,
-            {
-                type SolType = ();
-
-                fn to_sol_type(&'a self) {}
-            }
+            #sol_codec
         )
     }
 

@@ -168,6 +168,37 @@ impl CallBuilder<'_> {
     fn generate_auxiliary_trait_impls(&self) -> TokenStream2 {
         let span = self.span();
         let call_builder_ident = self.ident();
+        let sol_codec = if cfg!(any(ink_abi = "sol", ink_abi = "all")) {
+            // TODO: (@davidsemakula) Replace with derived implementations when available.
+            quote_spanned!(span=>
+                impl<E, Abi> ::ink::SolDecode for #call_builder_ident<E, Abi>
+                where
+                    E: ::ink::env::Environment,
+                {
+                    type SolType = ::ink::Address;
+
+                    fn from_sol_type(value: Self::SolType) -> Self {
+                        Self {
+                            addr: value,
+                            _marker: ::core::default::Default::default(),
+                        }
+                    }
+                }
+
+                impl<'a, E, Abi> ::ink::SolEncode<'a> for #call_builder_ident<E, Abi>
+                where
+                    E: ::ink::env::Environment,
+                {
+                    type SolType = &'a ::ink::Address;
+
+                    fn to_sol_type(&'a self) -> Self::SolType {
+                        &self.addr
+                    }
+                }
+            )
+        } else {
+            quote!()
+        };
         quote_spanned!(span=>
             /// We require this manual implementation since the derive produces incorrect trait bounds.
             impl<E, Abi> ::core::clone::Clone for #call_builder_ident<E, Abi>
@@ -212,33 +243,7 @@ impl CallBuilder<'_> {
                 }
             }
 
-            // TODO: (@davidsemakula) Replace with derived implementations when available.
-            #[cfg(any(ink_abi = "sol", ink_abi = "all"))]
-            impl<E, Abi> ::ink::SolDecode for #call_builder_ident<E, Abi>
-            where
-                E: ::ink::env::Environment,
-            {
-                type SolType = ::ink::Address;
-
-                fn from_sol_type(value: Self::SolType) -> Self {
-                    Self {
-                        addr: value,
-                        _marker: ::core::default::Default::default(),
-                    }
-                }
-            }
-
-            #[cfg(any(ink_abi = "sol", ink_abi = "all"))]
-            impl<'a, E, Abi> ::ink::SolEncode<'a> for #call_builder_ident<E, Abi>
-            where
-                E: ::ink::env::Environment,
-            {
-                type SolType = &'a ::ink::Address;
-
-                fn to_sol_type(&'a self) -> Self::SolType {
-                    &self.addr
-                }
-            }
+            #sol_codec
         )
     }
 

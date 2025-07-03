@@ -79,6 +79,31 @@ impl CallBuilder<'_> {
         let span = self.contract.module().storage().span();
         let storage_ident = self.contract.module().storage().ident();
         let cb_ident = Self::call_builder_ident();
+        let sol_codec = if cfg!(any(ink_abi = "sol", ink_abi = "all")) {
+            // TODO: (@davidsemakula) Replace with derived implementations when available.
+            quote_spanned!(span=>
+                impl<Abi> ::ink::SolDecode for #cb_ident<Abi> {
+                    type SolType = ::ink::Address;
+
+                    fn from_sol_type(value: Self::SolType) -> Self {
+                        Self {
+                            addr: value,
+                            _marker: ::core::default::Default::default(),
+                        }
+                    }
+                }
+
+                impl<'a, Abi> ::ink::SolEncode<'a> for #cb_ident<Abi> {
+                    type SolType = &'a ::ink::Address;
+
+                    fn to_sol_type(&'a self) -> Self::SolType {
+                        &self.addr
+                    }
+                }
+            )
+        } else {
+            quote!()
+        };
         quote_spanned!(span=>
             /// The ink! smart contract's call builder.
             ///
@@ -140,27 +165,7 @@ impl CallBuilder<'_> {
                     }
                 }
 
-                // TODO: (@davidsemakula) Replace with derived implementations when available.
-                #[cfg(any(ink_abi = "sol", ink_abi = "all"))]
-                impl<Abi> ::ink::SolDecode for #cb_ident<Abi> {
-                    type SolType = ::ink::Address;
-
-                    fn from_sol_type(value: Self::SolType) -> Self {
-                        Self {
-                            addr: value,
-                            _marker: ::core::default::Default::default(),
-                        }
-                    }
-                }
-
-                #[cfg(any(ink_abi = "sol", ink_abi = "all"))]
-                impl<'a, Abi> ::ink::SolEncode<'a> for #cb_ident<Abi> {
-                    type SolType = &'a ::ink::Address;
-
-                    fn to_sol_type(&'a self) -> Self::SolType {
-                        &self.addr
-                    }
-                }
+                #sol_codec
             };
         )
     }
