@@ -49,6 +49,7 @@ use crate::{
         Address,
         Hash,
     },
+    Weight,
 };
 
 macro_rules! test_case_codec {
@@ -620,4 +621,17 @@ fn params_works() {
         [.unwrap().0.0],
         [.unwrap().0.0]
     );
+}
+
+#[test]
+fn weight_works() {
+    let ref_time = 1;
+    let proof_size = 2;
+    let weight = Weight::from_parts(ref_time, proof_size);
+
+    let encoded = SolEncode::encode(&(ref_time, proof_size));
+    assert_eq!(SolEncode::encode(&weight), encoded);
+
+    let decoded = <Weight as SolDecode>::decode(&encoded).unwrap();
+    assert_eq!(decoded, weight);
 }
