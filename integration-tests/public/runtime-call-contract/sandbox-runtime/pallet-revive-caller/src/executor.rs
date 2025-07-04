@@ -5,6 +5,10 @@ use frame_support::{
 };
 use frame_system::pallet_prelude::OriginFor;
 use ink::{
+    abi::{
+        AbiDecodeWith,
+        AbiEncodeWith,
+    },
     env::{
         call::{
             utils::DecodeMessageResult,
@@ -14,10 +18,6 @@ use ink::{
         Environment,
     },
     primitives::U256,
-    abi::{
-        AbiDecodeWith,
-        AbiEncodeWith,
-    },
     Address,
     MessageResult,
 };
