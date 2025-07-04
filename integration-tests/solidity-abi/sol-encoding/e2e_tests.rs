@@ -14,7 +14,7 @@ use ink_sandbox::{
 };
 use pallet_revive::ExecReturnValue;
 
-const STORAGE_DEPOSIT_LIMIT: DepositLimit<u128> = DepositLimit::Unchecked;
+const STORAGE_DEPOSIT_LIMIT: DepositLimit<u128> = DepositLimit::UnsafeOnlyForDryRun;
 
 #[test]
 fn call_solidity_encoded_message() {
