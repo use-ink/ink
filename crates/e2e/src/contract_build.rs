@@ -29,9 +29,6 @@ use std::{
 };
 
 use contract_build::{
-    package_abi,
-    util::rustc_wrapper,
-    Abi,
     BuildArtifacts,
     BuildMode,
     ExecuteArgs,
@@ -54,16 +51,6 @@ use crate::log_info;
 pub fn build_root_and_contract_dependencies(features: Vec<String>) -> Vec<PathBuf> {
     let contract_project = ContractProject::new();
     let contract_manifests = contract_project.root_with_contract_dependencies();
-    if contract_project.package_abi.is_some() {
-        // Generates a custom `rustc` wrapper which passes compiler flags to `rustc`,
-        // because `cargo` doesn't pass compiler flags to proc macros and build
-        // scripts when the `--target` flag is set.
-        // See `contract_build::util::rustc_wrapper::generate` docs for details.
-        if let Ok(rustc_wrapper) = rustc_wrapper::generate(&contract_project.target_dir) {
-            // SAFETY: The `rustc` wrapper is safe to reuse across all threads.
-            env::set_var("INK_RUSTC_WRAPPER", rustc_wrapper);
-        }
-    }
     build_contracts(&contract_manifests, features, contract_project.target_dir)
 }
 
@@ -72,7 +59,6 @@ pub fn build_root_and_contract_dependencies(features: Vec<String>) -> Vec<PathBu
 struct ContractProject {
     root_package: Option<PathBuf>,
     contract_dependencies: Vec<PathBuf>,
-    package_abi: Option<Abi>,
     target_dir: PathBuf,
 }
 
@@ -124,12 +110,6 @@ impl ContractProject {
             contract_dependencies
         ));
 
-        let package_abi = metadata
-            .root_package()
-            .and_then(package_abi)
-            .and_then(Result::ok);
-        log_info(&format!("found root package abi: {:?}", package_abi));
-
         let target_dir = env_target_dir
             .unwrap_or_else(|| metadata.target_directory.into_std_path_buf());
         log_info(&format!("found target dir: {:?}", target_dir));
@@ -137,7 +117,6 @@ impl ContractProject {
         Self {
             root_package,
             contract_dependencies,
-            package_abi,
             target_dir,
         }
     }
