@@ -13,10 +13,7 @@
 // limitations under the License.
 
 use ink_primitives::{
-    abi::{
-        AbiDecodeWith,
-        AbiEncodeWith,
-    },
+    abi::AbiEncodeWith,
     Address,
 };
 use pallet_revive_uapi::CallFlags;
@@ -135,7 +132,7 @@ impl<E, RetType, Abi>
 where
     E: Environment,
     EmptyArgumentList<Abi>: AbiEncodeWith<Abi>,
-    (): AbiDecodeWith<Abi> + DecodeMessageResult<Abi>,
+    (): DecodeMessageResult<Abi>,
     Abi: Default,
 {
     /// Finalizes the call builder to call a function.
@@ -159,7 +156,7 @@ impl<E, Abi>
 where
     E: Environment,
     EmptyArgumentList<Abi>: AbiEncodeWith<Abi>,
-    (): AbiDecodeWith<Abi> + DecodeMessageResult<Abi>,
+    (): DecodeMessageResult<Abi>,
     Abi: Default,
 {
     /// Invokes the cross-chain function call using Delegate Call semantics.
@@ -189,7 +186,7 @@ impl<E, Args, R, Abi>
 where
     E: Environment,
     Args: AbiEncodeWith<Abi>,
-    R: AbiDecodeWith<Abi> + DecodeMessageResult<Abi>,
+    R: DecodeMessageResult<Abi>,
 {
     /// Invokes the cross-chain function call using Delegate Call semantics and returns
     /// the result.
@@ -255,7 +252,7 @@ impl<E, Args, R, Abi> CallParams<E, DelegateCall, Args, R, Abi>
 where
     E: Environment,
     Args: AbiEncodeWith<Abi>,
-    R: AbiDecodeWith<Abi> + DecodeMessageResult<Abi>,
+    R: DecodeMessageResult<Abi>,
 {
     /// Invoke the contract using Delegate Call semantics with the given built-up call
     /// parameters.

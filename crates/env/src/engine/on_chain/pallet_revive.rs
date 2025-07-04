@@ -13,10 +13,7 @@
 // limitations under the License.
 
 use ink_primitives::{
-    abi::{
-        AbiDecodeWith,
-        AbiEncodeWith,
-    },
+    abi::AbiEncodeWith,
     Address,
     SolEncode,
     H256,
@@ -506,7 +503,7 @@ impl TypedEnvBackend for EnvInstance {
     where
         E: Environment,
         Args: AbiEncodeWith<Abi>,
-        R: AbiDecodeWith<Abi> + DecodeMessageResult<Abi>,
+        R: DecodeMessageResult<Abi>,
     {
         let mut scope = self.scoped_buffer();
         let ref_time_limit = params.ref_time_limit();
@@ -564,7 +561,7 @@ impl TypedEnvBackend for EnvInstance {
     where
         E: Environment,
         Args: AbiEncodeWith<Abi>,
-        R: AbiDecodeWith<Abi> + DecodeMessageResult<Abi>,
+        R: DecodeMessageResult<Abi>,
     {
         let mut scope = self.scoped_buffer();
         let call_flags = params.call_flags();

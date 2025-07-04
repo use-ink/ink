@@ -16,10 +16,7 @@ use ink_engine::ext::Engine;
 #[cfg(feature = "unstable-hostfn")]
 use ink_primitives::types::AccountIdMapper;
 use ink_primitives::{
-    abi::{
-        AbiDecodeWith,
-        AbiEncodeWith,
-    },
+    abi::AbiEncodeWith,
     types::Environment,
     Address,
     SolEncode,
@@ -119,7 +116,7 @@ fn invoke_contract_impl<R, Abi>(
     input: Vec<u8>,
 ) -> Result<ink_primitives::MessageResult<R>>
 where
-    R: AbiDecodeWith<Abi> + DecodeMessageResult<Abi>,
+    R: DecodeMessageResult<Abi>,
 {
     let callee_code_hash = env.code_hash(&callee_account).unwrap_or_else(|err| {
         panic!(
@@ -151,7 +148,7 @@ fn invoke_contract_impl_delegate<R, Abi>(
     input: Vec<u8>,
 ) -> Result<ink_primitives::MessageResult<R>>
 where
-    R: AbiDecodeWith<Abi> + DecodeMessageResult<Abi>,
+    R: DecodeMessageResult<Abi>,
 {
     let callee_code_hash = env.code_hash(&callee_account).unwrap_or_else(|err| {
         panic!(
@@ -600,7 +597,7 @@ impl TypedEnvBackend for EnvInstance {
     where
         E: Environment,
         Args: AbiEncodeWith<Abi>,
-        R: AbiDecodeWith<Abi> + DecodeMessageResult<Abi>,
+        R: DecodeMessageResult<Abi>,
     {
         let call_flags = params.call_flags().bits();
         let transferred_value = params.transferred_value();
@@ -624,7 +621,7 @@ impl TypedEnvBackend for EnvInstance {
     where
         E: Environment,
         Args: AbiEncodeWith<Abi>,
-        R: AbiDecodeWith<Abi> + DecodeMessageResult<Abi>,
+        R: DecodeMessageResult<Abi>,
     {
         let _addr = params.address(); // todo remove
         let call_flags = params.call_flags().bits();

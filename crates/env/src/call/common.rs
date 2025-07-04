@@ -18,7 +18,6 @@ use core::marker::PhantomData;
 
 use ink_primitives::{
     abi::{
-        AbiDecodeWith,
         Ink,
         Sol,
     },
@@ -149,7 +148,7 @@ where
     fn decode_output(buffer: &[u8]) -> crate::Result<MessageResult<Self>> {
         // Solidity ABI Encoded contracts return the data without
         // `MessageResult`.
-        let decoded = R::decode_with(buffer)?;
+        let decoded = R::decode(buffer)?;
         Ok(Ok(decoded))
     }
 }

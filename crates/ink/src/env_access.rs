@@ -36,10 +36,7 @@ use ink_env::{
     Result,
 };
 use ink_primitives::{
-    abi::{
-        AbiDecodeWith,
-        AbiEncodeWith,
-    },
+    abi::AbiEncodeWith,
     Address,
     H256,
     U256,
@@ -571,7 +568,7 @@ where
     ) -> Result<ink_primitives::MessageResult<R>>
     where
         Args: AbiEncodeWith<Abi>,
-        R: AbiDecodeWith<Abi> + DecodeMessageResult<Abi>,
+        R: DecodeMessageResult<Abi>,
     {
         ink_env::invoke_contract::<E, Args, R, Abi>(params)
     }
@@ -639,7 +636,7 @@ where
     ) -> Result<ink_primitives::MessageResult<R>>
     where
         Args: AbiEncodeWith<Abi>,
-        R: AbiDecodeWith<Abi> + DecodeMessageResult<Abi>,
+        R: DecodeMessageResult<Abi>,
     {
         ink_env::invoke_contract_delegate::<E, Args, R, Abi>(params)
     }
