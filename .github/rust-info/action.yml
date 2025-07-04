@@ -10,7 +10,7 @@ runs:
         cargo +nightly --version
         bash --version
         ink-node --version
-        cargo contract --version
+        cargo-contract-nightly --version
         git --version
         echo -e '[registry]\nprotocol = "sparse"' > /usr/local/cargo/config.toml
       shell: bash

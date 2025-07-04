@@ -31,9 +31,9 @@ OPTIONS
 
 EXAMPLES
    ${script_name} --path integration-tests -- cargo check --manifest-path
-   ${script_name} --path integration-tests -- cargo contract build --manifest-path {} --release
-   ${script_name} --path integration-tests --ignore erc20 -- cargo contract build --manifest-path {} --release
-   ${script_name} --path integration-tests --partition 1/2 --ignore erc20 -- cargo contract build --manifest-path {} --release
+   ${script_name} --path integration-tests -- cargo-contract-nightly build --manifest-path {} --release
+   ${script_name} --path integration-tests --ignore erc20 -- cargo-contract-nightly build --manifest-path {} --release
+   ${script_name} --path integration-tests --partition 1/2 --ignore erc20 -- cargo-contract-nightly build --manifest-path {} --release
 
 EOF
 }
